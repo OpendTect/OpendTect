@@ -1,4 +1,4 @@
-#include "SoIndexedPolyLine3D.h"
+#include "SoIndexedLineSet3D.h"
 
 #include <Inventor/SbLinear.h>
 #include <Inventor/SoPrimitiveVertex.h>
@@ -6,6 +6,9 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/bundles/SoTextureCoordinateBundle.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
+
+#include <Inventor/details/SoLineDetail.h>
+#include <Inventor/details/SoPointDetail.h>
 
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/elements/SoMaterialBindingElement.h>
@@ -20,28 +23,31 @@
 
 
 
-SO_NODE_SOURCE(SoIndexedPolyLine3D);
+SO_NODE_SOURCE(SoIndexedLineSet3D);
 
-void SoIndexedPolyLine3D::initClass()
+void SoIndexedLineSet3D::initClass()
 {
-    SO_NODE_INIT_CLASS(SoIndexedPolyLine3D, SoIndexedShape, "IndexedShape");
+    SO_NODE_INIT_CLASS(SoIndexedLineSet3D, SoIndexedShape, "IndexedShape");
 }
 
 
-SoIndexedPolyLine3D::SoIndexedPolyLine3D()
+SoIndexedLineSet3D::SoIndexedLineSet3D()
 {
-    SO_NODE_CONSTRUCTOR(SoIndexedPolyLine3D);
+    SO_NODE_CONSTRUCTOR(SoIndexedLineSet3D);
     SO_NODE_ADD_FIELD( radius, (5.0) );
 }
 
 
-void SoIndexedPolyLine3D::GLRender(SoGLRenderAction* action)
+void SoIndexedLineSet3D::GLRender(SoGLRenderAction* action)
 {
+    if ( !shouldGLRender(action) )
+	return;
+
     generateTriangles(action, true );
 }
 
 
-void SoIndexedPolyLine3D::generatePrimitives(SoAction* action)
+void SoIndexedLineSet3D::generatePrimitives(SoAction* action)
 {
     generateTriangles(action, false );
 
@@ -277,7 +283,7 @@ void SoIndexedPolyLine3D::generatePrimitives(SoAction* action)
     reverse[jointidx] = dorev; \
     endnormals[jointidx] = jnormal
 
-void SoIndexedPolyLine3D::generateCoordinates( SoAction* action,
+void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
 	int startindex,
 	SbVec3f* corner1, SbVec3f* corner2, SbVec3f* corner3, SbVec3f* corner4,
 	SbBool* reverse, SbVec3f* endnormals, int& nrjoints, SbBool world)
@@ -349,7 +355,7 @@ void SoIndexedPolyLine3D::generateCoordinates( SoAction* action,
     }
 }
 
-bool SoIndexedPolyLine3D::getEdgeStartCoords( const SbVec3f& edgecoord,
+bool SoIndexedLineSet3D::getEdgeStartCoords( const SbVec3f& edgecoord,
 		const SbVec3f& coord2, SbVec3f* res )
 {
     if ( edgecoord==coord2 ) return false;
@@ -386,7 +392,7 @@ bool SoIndexedPolyLine3D::getEdgeStartCoords( const SbVec3f& edgecoord,
 }
 
 
-void SoIndexedPolyLine3D::computeBBox( SoAction* action, SbBox3f& box,
+void SoIndexedLineSet3D::computeBBox( SoAction* action, SbBox3f& box,
 				       SbVec3f& center )
 {
     const int nrcoordindex = coordIndex.getNum();
@@ -430,47 +436,53 @@ void SoIndexedPolyLine3D::computeBBox( SoAction* action, SbBox3f& box,
 }
 
 
-#define mSendQuad(  c1, c2, m12, c3, c4, m34, norm )\
+#define mSendQuad(  c1, ci1, c2, ci2, m12, c3, ci3, c4, ci4, m34, norm )\
     if ( render )\
     {\
 	mb.send(m12,true);\
 	glNormal3fv((norm).getValue()); \
 	if ( isreversed ) \
 	{ \
-	    glVertex3fv((c2).getValue());\
-	    glVertex3fv((c1).getValue());\
+	    glVertex3fv((c2[ci2]).getValue());\
+	    glVertex3fv((c1[ci1]).getValue());\
 	    mb.send(m34,true);\
 	    glNormal3fv((norm).getValue()); \
-	    glVertex3fv((c4).getValue());\
-	    glVertex3fv((c3).getValue());\
+	    glVertex3fv((c4[ci4]).getValue());\
+	    glVertex3fv((c3[ci3]).getValue());\
 	} \
 	else \
 	{ \
-	    glVertex3fv((c1).getValue());\
-	    glVertex3fv((c2).getValue());\
+	    glVertex3fv((c1[ci1]).getValue());\
+	    glVertex3fv((c2[ci2]).getValue());\
 	    mb.send(m34,true);\
 	    glNormal3fv((norm).getValue()); \
-	    glVertex3fv((c3).getValue());\
-	    glVertex3fv((c4).getValue());\
+	    glVertex3fv((c3[ci3]).getValue());\
+	    glVertex3fv((c4[ci4]).getValue());\
 	} \
     }\
     else\
     {\
 	pv.setNormal(norm); \
 	pv.setMaterialIndex(m12);\
-	pv.setPoint(c1);\
+	pointDetail.setMaterialIndex(m12); \
+	pv.setPoint(c1[ci1]);\
+	pointDetail.setCoordinateIndex(cis[ci1]); \
 	shapeVertex(&pv);\
-	pv.setPoint(c2);\
+	pv.setPoint(c2[ci2]);\
+	pointDetail.setCoordinateIndex(cis[ci2]); \
 	shapeVertex(&pv);\
 	pv.setMaterialIndex(m34);\
-	pv.setPoint(c4);\
+	pointDetail.setMaterialIndex(m34); \
+	pv.setPoint(c4[ci4]);\
+	pointDetail.setCoordinateIndex(cis[ci4]); \
 	shapeVertex(&pv);\
-	pv.setPoint(c3);\
+	pv.setPoint(c3[ci3]);\
+	pointDetail.setCoordinateIndex(cis[ci3]); \
 	shapeVertex(&pv);\
     }
 
 
-void SoIndexedPolyLine3D::generateTriangles( SoAction* action, bool render )
+void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 {
     const int nrcoordindex = coordIndex.getNum();
     int curindex = 0;
@@ -479,7 +491,6 @@ void SoIndexedPolyLine3D::generateTriangles( SoAction* action, bool render )
     SoTextureCoordinateBundle tb(action, render, render);
     SoMaterialBundle mb(action);
 
-    SoPrimitiveVertex pv;
 
     SbVec3f corner1[nrcoordindex],  corner2[nrcoordindex],
             corner3[nrcoordindex], corner4[nrcoordindex],
@@ -489,6 +500,11 @@ void SoIndexedPolyLine3D::generateTriangles( SoAction* action, bool render )
     int matnr = 0;
     SoMaterialBindingElement::Binding mbind =
 				SoMaterialBindingElement::get(state);
+
+    SoPrimitiveVertex pv;
+    SoPointDetail pointDetail;
+    SoLineDetail lineDetail;
+    pv.setDetail(&pointDetail);
 
     while ( curindex<nrcoordindex )
     {
@@ -508,13 +524,14 @@ void SoIndexedPolyLine3D::generateTriangles( SoAction* action, bool render )
 	}
 	else
 	{
-	    beginShape(action,TRIANGLE_STRIP );
+	    beginShape(action,TRIANGLE_STRIP, &lineDetail );
 	}
 
+	const int32_t* cis = coordIndex.getValues(curindex);
 	const int32_t* materialindexes = materialIndex.getValues(curindex);
 	if ( !materialindexes &&
 		mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
-	    materialindexes = coordIndex.getValues(curindex);
+	    materialindexes = cis;
 
 	int material1 = 0;
 	if ( mbind==SoMaterialBindingElement::PER_PART ||
@@ -527,8 +544,9 @@ void SoIndexedPolyLine3D::generateTriangles( SoAction* action, bool render )
 	    material1 = materialindexes[0];
 
 	bool isreversed = false;
-	mSendQuad(  corner1[0], corner2[0], material1,
-		    corner3[0], corner4[0], material1, endnormals[0] );
+	mSendQuad(  corner1, 0, corner2, 0, material1,
+		    corner3, 0, corner4, 0, material1,
+		    endnormals[0] );
 
 	for ( int idx=0; idx<nrjoints-1; idx++ )
 	{
@@ -545,36 +563,37 @@ void SoIndexedPolyLine3D::generateTriangles( SoAction* action, bool render )
 	    SbVec3f normal = (isreversed ? 1 : -1 ) *
 				 (corner2[idx]-corner1[idx]).cross(
 				 corner1[idx+1]-corner1[idx] );
-	    mSendQuad(  corner2[idx], corner1[idx], material1,
-			corner1[idx+1], corner2[idx+1], material2, normal );
+	    mSendQuad(  corner2, idx, corner1, idx, material1,
+			corner1, idx+1, corner2, idx+1, material2, normal );
 
 	    normal = (isreversed ? 1 : -1 ) *
 				 (corner3[idx]-corner2[idx]).cross(
 				 corner2[idx+1]-corner2[idx] );
-	    mSendQuad(  corner3[idx], corner2[idx], material1,
-			corner2[idx+1], corner3[idx+1], material2, normal );
+	    mSendQuad(  corner3, idx, corner2, idx, material1,
+			corner2, idx+1, corner3, idx+1, material2, normal );
 
 	    normal = (isreversed ? 1 : -1 ) *
 				 (corner4[idx]-corner3[idx]).cross(
 				 corner3[idx+1]-corner3[idx] );
-	    mSendQuad(  corner4[idx], corner3[idx], material1,
-			corner3[idx+1], corner4[idx+1], material2, normal );
+	    mSendQuad(  corner4, idx, corner3, idx, material1,
+			corner3, idx+1, corner4, idx+1, material2, normal );
 
 	    normal = (isreversed ? 1 : -1 ) *
 				 (corner1[idx]-corner4[idx]).cross(
 				 corner4[idx+1]-corner4[idx] );
-	    mSendQuad(  corner1[idx], corner4[idx], material1,
-			corner4[idx+1], corner1[idx+1], material2, normal );
+	    mSendQuad(  corner1, idx, corner4, idx, material1,
+			corner4, idx+1, corner1, idx+1, material2, normal );
 
 	    if ( reverse[idx+1] || idx==nrjoints-2)
 	    {
 		isreversed = !isreversed;
-		mSendQuad(  corner1[idx+1], corner2[idx+1], material2,
-			    corner3[idx+1], corner4[idx+1], material2,
+		mSendQuad(  corner1, idx+1, corner2, idx+1, material2,
+			    corner3, idx+1, corner4, idx+1, material2,
 			    endnormals[idx+1] );
 	    }
 
 	    material1 = material2;
+	    lineDetail.incPartIndex();
 	}
 
 	if ( render )
@@ -585,6 +604,7 @@ void SoIndexedPolyLine3D::generateTriangles( SoAction* action, bool render )
 	}
 	else
 	{
+	    lineDetail.incLineIndex();
 	    endShape();
 	}
 

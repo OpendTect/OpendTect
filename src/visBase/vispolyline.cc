@@ -4,13 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vispolyline.cc,v 1.8 2004-07-23 12:57:22 kristofer Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.9 2004-07-26 06:43:55 kristofer Exp $";
 
 #include "vispolyline.h"
 
 #include "viscoord.h"
 
-#include "SoIndexedPolyLine3D.h"
+#include "SoIndexedLineSet3D.h"
 
 #include "Inventor/nodes/SoLineSet.h"
 #include "Inventor/nodes/SoIndexedLineSet.h"
@@ -64,17 +64,17 @@ visBase::IndexedPolyLine::IndexedPolyLine()
 
 
 visBase::IndexedPolyLine3D::IndexedPolyLine3D()
-    : IndexedShape( new SoIndexedPolyLine3D )
+    : IndexedShape( new SoIndexedLineSet3D )
 { }
 
 
 float visBase::IndexedPolyLine3D::getRadius() const
 {
-    return reinterpret_cast<SoIndexedPolyLine3D*>(shape)->radius.getValue();
+    return reinterpret_cast<SoIndexedLineSet3D*>(shape)->radius.getValue();
 }
 
 
 void visBase::IndexedPolyLine3D::setRadius(float nv)
 {
-    reinterpret_cast<SoIndexedPolyLine3D*>(shape)->radius.setValue(nv);
+    reinterpret_cast<SoIndexedLineSet3D*>(shape)->radius.setValue(nv);
 }

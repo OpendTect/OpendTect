@@ -1,5 +1,5 @@
-#ifndef SoIndexedPolyLine3D_h
-#define SoIndexedPolyLine3D_h
+#ifndef SoIndexedLineSet3D_h
+#define SoIndexedLineSet3D_h
 
 #include <Inventor/nodes/SoIndexedShape.h>
 
@@ -8,13 +8,13 @@
 class SbBox3f;
 class SbVec3f;
 
-class SoIndexedPolyLine3D : public SoIndexedShape
+class SoIndexedLineSet3D : public SoIndexedShape
 {
-    SO_NODE_HEADER(SoIndexedPolyLine3D);
+    SO_NODE_HEADER(SoIndexedLineSet3D);
 public:
 
     static void		initClass();
-    			SoIndexedPolyLine3D();
+    			SoIndexedLineSet3D();
 
     SoSFFloat		radius;
 
