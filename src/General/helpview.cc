@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.18 2003-11-11 13:07:57 dgb Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.19 2004-01-14 13:38:29 arend Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -62,6 +62,15 @@ void HelpViewer::use( const char* url, const char* wintitl )
 	s += strmprov.command(); s += "'";
 	ErrMsg( s );
     }
+}
+
+
+void HelpViewer::doHelp( const char* relurl, const char* wt )
+{
+    BufferString docpath( GetDataFileName(relurl) );
+    BufferString wintitle( wt );
+    replaceCharacter( wintitle.buf(), ' ', '_' );
+    use( docpath, wintitle );
 }
 
 
