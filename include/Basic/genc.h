@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.18 2004-05-28 11:04:56 macman Exp $
+ RCS:		$Id: genc.h,v 1.19 2004-07-22 16:13:19 bert Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ const char*	GetProjectVersionName(void);
  If that fails, it will try to extract the location out of argv[0] 
 
 
- Beware that all functions will likely return a pointer to _the_ _same_ static
+ Beware that all functions may return a pointer to _the_ _same_ static
  buffer of length PATH_LENGTH!
 
 */
@@ -63,7 +63,7 @@ const char*	GetSoftwareDir(void);
 
     GetSoftwareDir()/bin		on *nix
     GetSoftwareDir()\bin		on win32
-    GetSoftwareDir()/Contents/MacOS	on Mac OS X
+    GetSoftwareDir()/Contents/MacOS	on Mac OS/X
 
 */
 const char*	GetBinDir(void);
@@ -168,7 +168,7 @@ const char*	GetDataFileName(const char*);
 
  in that order.
 
- It it is not found, it will try to find it in the settings.
+ If it is not found, it will try to find it in the settings.
 
 */
 const char*	GetDataDir(void);
@@ -181,7 +181,6 @@ double		IntPowerOf(double,int);
 double		PowerOf(double,double);
 		/*!< PowerOf(-2,2) returns -4. This may be mathematically
 		  incorrect, it delivers continuity with negative numbers */
-
 
 /* Misc stuff */
 
@@ -200,10 +199,10 @@ int		getPID();
 int		setEnvVar(const char* env,const char* val);
 		/*!< sets environment variable to a value. */
 
-
-void		exitProgram( int ret );
+int		exitProgram( int ret );
 		/*!< Win32: kills progam itself and ignores ret.
-                     Unix: uses exit(ret).
+		     Unix: uses exit(ret). return value is there to keep
+		     compiler satisfied, like: return exitProgram( retval );
                 */
 
 
