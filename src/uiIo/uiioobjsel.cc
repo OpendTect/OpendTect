@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.55 2003-05-22 11:10:27 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.56 2003-05-23 12:24:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,13 +40,14 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
 		    	"","8.1.1")
-		.nrstatusflds(multisel&&ctio.ctxt.forread?0:1))
+		.nrstatusflds(multisel?0:1))
 	, ctio(c)
 	, nmfld(0)
 	, ioobj(0)
 	, ismultisel(multisel && ctio.ctxt.forread)
 {
-    statusBar()->setTxtAlign( 0, uiStatusBar::Right );
+    if ( !ismultisel )
+	statusBar()->setTxtAlign( 0, uiStatusBar::Right );
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
     nm += ctio.ctxt.trgroup->name();
@@ -142,7 +143,7 @@ void uiIOObjSelDlg::selChg( CallBacker* cb )
 	ioobj = entrylist->selected();
 	if ( cb && nmfld )
 	    nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
-	toStatusBar( ioobj->fullUserExpr(ctio.ctxt.forread) );
+	toStatusBar( ioobj ? ioobj->fullUserExpr(ctio.ctxt.forread) : "" );
     }
 
     manipgrp->selChg( cb );
