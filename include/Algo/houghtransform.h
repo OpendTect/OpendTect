@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.2 2003-01-29 11:40:24 niclas Exp $
+ RCS:		$Id: houghtransform.h,v 1.3 2003-04-14 15:07:28 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -19,6 +19,7 @@ class Array3DInfo;
 template <class T> class Array3D;
 class BasicTask;
 template <class T> class ObjectSet;
+template <class T, class B> class TopList;
 class PlaneFrom3DSpaceHoughTransformTask;
 class Plane3;
 class Vector3;
@@ -47,15 +48,15 @@ public:
     				PlaneFrom3DSpaceHoughTransform();
     virtual			~PlaneFrom3DSpaceHoughTransform();
 
-    void			setParamSpaceSize( int dipsize, int azisize,
-	    					   int distsize );
-    				/*!< Here the user can set the resolution for
-				     the hough space. It also calculates the 
-				     normals from every combination of dip and
-				     azimuth and stores it in the variable 
-				     normals.
+    void			setResolution( double dangle,
+					       int distsize );
+    				/*!< \param dangle is the angle between the
+					    planes that are tested.
+				     \param distsize is the number of bins in
+				     	    the distance domain.
 				*/
-    const Array3DInfo*		paramSpaceSize() const { return datainfo; }
+    int				getParamSpaceSize() const;
+    int				getNrDistVals() const;
 
     void			setClipRate( float );
     				/*!< Between 0-1. For instance, cliprate 0.6 
@@ -67,19 +68,19 @@ public:
 
     void			setData( const Array3D<float>* );
     ObjectSet<BasicTask>*	createCalculators();
-    				/*!< Creates a number of BasicTasks dep
-				     on the no of processors on the machine.
-    				     Result is managed by caller.
-				*/
-    void			sortParamSpace(int nrplanes );
-    				/*!< Sorts the nrplanes best scores from
-				     paramspace. Writes the result in variable
-				     houghscores. It also saves the positions 
-				     in the variable houghpositions.  
-				*/
 
-    Plane3			getPlane( int nrplane ) const;
-    				/*!< Returns the nrplane plane from 
+    TopList<unsigned int, unsigned int>*
+				sortParamSpace(int) const;
+    				/*!< Sorts the paramspace and returns
+				     an array with the indexes of the planes,
+				     from less likely planes to likely planes.
+				     The best plane is thus the
+				     res[getParamSpaceSize()-1] value.
+				     Result is managed by caller and
+				     should be deleted with [];
+				*/
+    Plane3			getPlane( int plane ) const;
+    				/*!< Returns the plane plane from 
 				     houghpositions converted to the 
 				     ( x,y,z ) space.
 				*/ 
@@ -92,19 +93,17 @@ public:
 			     
 
 protected:
-    void			incParamPos( int, int, int );
+    void			incParamPos( int normal, double dist );
     float			cliprate;
     TypeSet<unsigned int>	calcpositions;
     Array3DInfo*		datainfo;
 
-    Array3D<unsigned int>*	paramspace;
-    float			deltadist;
-    Vector3*			normals;
+    Array2D<unsigned int>*	paramspace;
+    double			deltadist;
+    TypeSet<Vector3>*		normals;
     friend			class ::PlaneFrom3DSpaceHoughTransformTask;
 
     Threads::Mutex&		paramspacemutex;
-    TypeSet<unsigned int>	houghscores;
-    TypeSet<unsigned int>	houghpositions;
 };
 
 #endif

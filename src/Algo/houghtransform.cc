@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.3 2003-02-24 08:23:54 niclas Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.4 2003-04-14 15:07:10 kristofer Exp $";
 
 
 #include "houghtransform.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: houghtransform.cc,v 1.3 2003-02-24 08:23:54 nic
 #include "basictask.h"
 #include "position.h"
 #include "sorting.h"
+#include "toplist.h"
 #include "thread.h"
 #include "trigonometry.h"
 
@@ -31,19 +32,10 @@ public:
 	    : calcpositions( ht_.calcpositions )
 	    , datainfo( *ht_.datainfo )
 	    , ht( ht_ )
-	    , nrdipvals( ht_.paramspace->info().getSize( 0 ) )
-	    , nrazimuthvals ( ht_.paramspace->info().getSize( 1 ) )
-	    , nrdistvals ( ht_.paramspace->info().getSize( 2 ) )
-	    , normals( ht_.normals )
+	    , normals( *ht_.normals )
 	    , idx( 0 )
-	    , deltadist( ht_.deltadist )
-
 	{ }
 		    
-	~PlaneFrom3DSpaceHoughTransformTask()
-	{ }
-			
-
 protected:			
     int					nextStep();
 
@@ -52,11 +44,7 @@ protected:
     PlaneFrom3DSpaceHoughTransform&	ht;
 
     int					idx;
-    const float				deltadist;
-    const int				nrdipvals;
-    const int				nrazimuthvals;    
-    const int				nrdistvals;
-    Vector3*				normals;
+    TypeSet<Vector3>&			normals;
 };
 				
 
@@ -68,20 +56,12 @@ int PlaneFrom3DSpaceHoughTransformTask::nextStep()
     datainfo.getArrayPos( calcpositions[idx], temppos );
     const Coord3 pos( temppos[0], temppos[1], temppos[2] );
     static const Coord3 origo( 0,0,0 );
-   
-    for ( int dip=0; dip<nrdipvals; dip++ )
-    {	
-	for ( int azimuth=0; azimuth<nrazimuthvals; azimuth++ )
-	{
-	    if ( !dip && azimuth )
-		break;
 
-	    Plane3 plane( normals[dip*nrazimuthvals+azimuth], pos );
-    	    float distance = plane.distanceToPoint( origo );
-	    int distid = (int) ( distance/deltadist );
-	    
-	    ht.incParamPos( dip, azimuth, distid );
-	}
+    for ( int normal=0; normal<normals.size(); normal++ )
+    {
+	Plane3 plane( normals[normal], pos );
+	float distance = plane.distanceToPoint( origo );
+	ht.incParamPos( normal, plane.distanceToPoint( origo ));
     }
    
     idx++;
@@ -101,49 +81,28 @@ PlaneFrom3DSpaceHoughTransform::PlaneFrom3DSpaceHoughTransform()
 PlaneFrom3DSpaceHoughTransform::~PlaneFrom3DSpaceHoughTransform()
 {
     delete datainfo;
-    delete [] normals;
+    if ( normals ) delete normals;
+    delete paramspace;
 }
 
 
-void PlaneFrom3DSpaceHoughTransform::setParamSpaceSize( int dipsize,
-					int azisize, int distsize )
+void PlaneFrom3DSpaceHoughTransform::setResolution( double dangle,
+						    int distsize )
 {
+    if ( normals ) delete normals;
+    normals = makeSphereVectorSet(dangle);
+
     if ( paramspace ) delete paramspace;
-    paramspace = new Array3DImpl<unsigned int>( dipsize, azisize, distsize );
-
-    const float dipstep = M_PI/2/dipsize;
-    const float azimuthstep = 2*M_PI/azisize;
-
-    float cosazimuth[azisize];
-    float sinazimuth[azisize];
-
-    for ( int idx=0; idx<azisize; idx++ )
-    {
-	const float azimuth = idx*azimuthstep;
-	cosazimuth[idx] = cos( azimuth );
-	sinazimuth[idx] = sin( azimuth );
-    }
-
-    delete [] normals;
-    normals = new Vector3[dipsize*azisize];
-
-    for ( int idx=0; idx<dipsize; idx++ )
-    {
-	const float dip = idx*dipstep;
-	const float sindip = sin( dip );
-	const float cosdip = cos( dip );
-
-	for ( int azimuth=0; azimuth<azisize; azimuth++ )
-	{
-	    const int normalidx = idx*azisize+azimuth;
-	    Vector3 ab( cosdip*cosazimuth[azimuth], 
-			sindip,
-			cosdip*sinazimuth[azimuth] );
-	    Vector3 ad( sinazimuth[azimuth], 0, -cosazimuth[azimuth] );
-	    normals[normalidx] = ad.cross( ab );
-	}
-    }
+    paramspace = new Array2DImpl<unsigned int>( normals->size(), distsize );
 }
+
+
+int PlaneFrom3DSpaceHoughTransform::getParamSpaceSize() const
+{ return paramspace->info().getTotalSz(); }
+
+
+int PlaneFrom3DSpaceHoughTransform::getNrDistVals() const
+{ return paramspace->info().getSize(1); }
 
 
 void PlaneFrom3DSpaceHoughTransform::setClipRate( float cliprt )
@@ -164,107 +123,83 @@ void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
     const int datasize = data->info().getTotalSz();
     
     ArrPtrMan<float> datacopy = new float[datasize];
-    memcpy( datacopy, dataptr, datasize*sizeof(float) );
-    
     ArrPtrMan<unsigned int> indexes = new unsigned int[datasize];
-    
-    for ( int idx=0; idx<datasize; idx++ )
-	indexes[idx]= idx;
 
+    int nrsamples = 0;
+    for ( int idx=0; idx<datasize; idx++ )
+    {
+	if ( mIsUndefined( dataptr[idx] ) )
+	    continue;
+
+	indexes[nrsamples]= idx;
+	datacopy[nrsamples++] = dataptr[idx];
+    }
+    
+    
     float* datacopyptr = datacopy.ptr();
     unsigned int* indexesptr = indexes.ptr();
-    sort_idxabl_coupled( datacopyptr, indexesptr, datasize );
-    const int savesize = mNINT( datasize*cliprate );
+    quickSort( datacopyptr, indexesptr, nrsamples );
+    const int savesize = mNINT( nrsamples*cliprate );
    
-    for ( int idx=datasize-1; idx>=datasize-savesize; idx-- )
-    {
-	if (  mIS_ZERO( datacopy[idx] ) ) continue;//Remove when debug is done
+    for ( int idx=nrsamples-1; idx>=nrsamples-savesize; idx-- )
 	calcpositions += indexes[idx];
-    }
 
     delete datainfo;
     datainfo = dynamic_cast<Array3DInfo*>( data->info().clone() );
 
     unsigned int* paramptr = paramspace->getData();
-    memset( paramptr, sizeof(unsigned int)*paramspace->info().getTotalSz(), 0 );
-}
+    memset( paramptr, 0, sizeof(unsigned int)*getParamSpaceSize());
 
-
-ObjectSet<BasicTask>* PlaneFrom3DSpaceHoughTransform::createCalculators()
-{
     const float maxx = datainfo->getSize( 0 );
     const float maxy = datainfo->getSize( 1 );
     const float maxz = datainfo->getSize( 2 );
 
     const float maxdist = sqrt( maxx*maxx + maxy*maxy + maxz*maxz ); 
+    deltadist = maxdist / (getNrDistVals()-1);
+}
 
-    deltadist = maxdist / paramspace->info().getSize(2);
+
+ObjectSet<BasicTask>* PlaneFrom3DSpaceHoughTransform::createCalculators()
+{
     ObjectSet<BasicTask>* res = new ObjectSet<BasicTask>;
     (*res) += new PlaneFrom3DSpaceHoughTransformTask( *this );
     return res;
 }
 
 
-void PlaneFrom3DSpaceHoughTransform::sortParamSpace( int nrplanes )
+TopList<unsigned int, unsigned int>*
+PlaneFrom3DSpaceHoughTransform::sortParamSpace(int size) const
 {
-    if ( !paramspace ) return;
+    if ( !paramspace ) return 0;
     
-    unsigned int paramsize = paramspace->info().getTotalSz();
-    
-    for ( int idx=0; idx<nrplanes; idx++ )
-    {
-	houghscores += 0;
-	houghpositions += 0;
-    }
-    
-    const unsigned int* paramdata = paramspace->getData();
-    
+    const unsigned int paramsize = getParamSpaceSize();
+    TopList<unsigned int, unsigned int>* res =
+		    new TopList<unsigned int, unsigned int>( size, 0, true );
+
+    unsigned int* paramptr = paramspace->getData();
+
+    unsigned int lowest = res->getBottomValue();
     for ( int idx=0; idx<paramsize; idx++ )
     {
-	unsigned int paramval =  paramdata[idx];
-
-	if ( paramval>houghscores[nrplanes-1] )
+	if ( paramptr[idx]>lowest )
 	{
-	    for ( int idy=0; idy<nrplanes; idy++ )
-	    {
-		if ( paramval>houghscores[idy] )
-		{
-		    houghscores.remove( nrplanes-1 );
-		    houghscores.insert( idy, paramval );
-		    houghpositions.remove( nrplanes-1 );
-		    houghpositions.insert( idy, idx );
-		    break;
-		}
-	    }
+	    res->addValue( paramptr[idx], idx );
+	    lowest = res->getBottomValue();
 	}
     }
+
+    return res;
 }
 
 
-Plane3 PlaneFrom3DSpaceHoughTransform::getPlane( int nrplane ) const
+Plane3 PlaneFrom3DSpaceHoughTransform::getPlane( int planenr ) const
 {
-    int pos[3];
-    paramspace->info().getArrayPos( houghpositions[nrplane], pos );
-
-    int nrdipvals = paramspace->info().getSize( 0 );
-    int nrazimuthvals = paramspace->info().getSize( 1 );
-    int nrdistvals = paramspace->info().getSize( 2 );
-
-    const int normalidx = pos[0]*nrazimuthvals + pos[1];
-    Vector3 normal = normals[normalidx];
-    normal.normalize();
-
-    const float dist = (pos[2]+0.5) * deltadist;
+    int pos[2];
+    paramspace->info().getArrayPos( planenr, pos );
+    Vector3 normal = (*normals)[pos[0]];
+    const float dist = pos[1] * deltadist;
 
     return Plane3( normal, Coord3(normal.x*dist,normal.y*dist,normal.z*dist) );
-    
-}
-
-
-unsigned int PlaneFrom3DSpaceHoughTransform::getHoughScore( int nrplane ) const
-{
-    if ( houghscores.size()==0 ) return 0;
-    return  houghscores[nrplane];
 }
 
 
@@ -274,10 +209,11 @@ int PlaneFrom3DSpaceHoughTransform::getNrPointsAfterClip() const
 }
 
 
-void PlaneFrom3DSpaceHoughTransform::incParamPos( int p0, int p1, int p2 )
+void PlaneFrom3DSpaceHoughTransform::incParamPos( int normalidx, double dist)
 {
-    unsigned int memoffset = reinterpret_cast<const Array3DInfo&>
-				(paramspace->info()).getMemPos(p0,p1,p2);
+    const int distid = mNINT( dist/deltadist );
+    unsigned int memoffset = reinterpret_cast<const Array2DInfo&>
+			    (paramspace->info()).getMemPos(normalidx,distid);
     unsigned int* dataptr = paramspace->getData();
 
     paramspacemutex.lock();
