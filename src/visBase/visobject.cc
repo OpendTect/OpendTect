@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.32 2004-11-03 09:53:42 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.33 2005-01-12 08:31:08 kristofer Exp $";
 
 #include "visobject.h"
 
@@ -18,10 +18,13 @@ static const char* rcsID = "$Id: visobject.cc,v 1.32 2004-11-03 09:53:42 kristof
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 
-const char* visBase::VisualObjectImpl::materialidstr = "Material ID";
-const char* visBase::VisualObjectImpl::isonstr = "Is on";
+namespace visBase
+{
 
-visBase::VisualObject::VisualObject( bool selectable_ )
+const char* VisualObjectImpl::materialidstr = "Material ID";
+const char* VisualObjectImpl::isonstr = "Is on";
+
+VisualObject::VisualObject( bool selectable_ )
     : isselectable(selectable_)
     , deselnotifier(this)
     , selnotifier(this)
@@ -30,31 +33,31 @@ visBase::VisualObject::VisualObject( bool selectable_ )
 {}
 
 
-visBase::VisualObject::~VisualObject()
+VisualObject::~VisualObject()
 {}
 
 
-visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
+VisualObjectImpl::VisualObjectImpl( bool selectable_ )
     : VisualObject(selectable_)
     , root(new SoSeparator)
     , onoff(new SoSwitch)
     , material(0)
 {
-    setMaterial( visBase::Material::create() );
+    setMaterial( Material::create() );
     onoff->ref();
     onoff->addChild( root );
     onoff->whichChild = 0;
 }
 
 
-visBase::VisualObjectImpl::~VisualObjectImpl()
+VisualObjectImpl::~VisualObjectImpl()
 {
     getInventorNode()->unref();
     if ( material ) material->unRef();
 }
 
 
-void visBase::VisualObjectImpl::turnOn( bool yn )
+void VisualObjectImpl::turnOn( bool yn )
 {
     if ( onoff ) onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
     else if ( !yn )
@@ -65,13 +68,13 @@ void visBase::VisualObjectImpl::turnOn( bool yn )
 }
 
 
-bool visBase::VisualObjectImpl::isOn() const
+bool VisualObjectImpl::isOn() const
 {
     return !onoff || !onoff->whichChild.getValue();
 }
 
 
-void visBase::VisualObjectImpl::setMaterial( Material* nm )
+void VisualObjectImpl::setMaterial( Material* nm )
 {
     if ( material )
     {
@@ -89,7 +92,7 @@ void visBase::VisualObjectImpl::setMaterial( Material* nm )
 }
 
 
-void visBase::VisualObjectImpl::removeSwitch()
+void VisualObjectImpl::removeSwitch()
 {
     root->ref();
     onoff->unref();
@@ -97,27 +100,31 @@ void visBase::VisualObjectImpl::removeSwitch()
 }
 
 
-SoNode* visBase::VisualObjectImpl::getInventorNode() 
+SoNode* VisualObjectImpl::getInventorNode() 
 { return onoff ? (SoNode*) onoff : (SoNode*) root; }
 
 
-void visBase::VisualObjectImpl::addChild( SoNode* nn )
+void VisualObjectImpl::addChild( SoNode* nn )
 { root->addChild( nn ); }
 
 
-void visBase::VisualObjectImpl::insertChild( int pos, SoNode* nn )
+void VisualObjectImpl::insertChild( int pos, SoNode* nn )
 { root->insertChild( nn, pos ); }
 
 
-void visBase::VisualObjectImpl::removeChild( SoNode* nn )
+void VisualObjectImpl::removeChild( SoNode* nn )
 { root->removeChild( nn ); }
 
 
-int visBase::VisualObjectImpl::childIndex( const SoNode* nn ) const
+int VisualObjectImpl::childIndex( const SoNode* nn ) const
 { return root->findChild(nn); }
 
 
-int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
+SoNode* VisualObjectImpl::getChild(int idx)
+{ return root->getChild(idx); }
+
+
+int VisualObjectImpl::usePar( const IOPar& iopar )
 {
     int res = VisualObject::usePar( iopar );
     if ( res != 1 ) return res;
@@ -128,7 +135,7 @@ int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
 	if ( matid==-1 ) setMaterial( 0 );
 	else
 	{
-	    DataObject* mat = visBase::DM().getObj( matid );
+	    DataObject* mat = DM().getObj( matid );
 	    if ( !mat ) return 0;
 	    if ( typeid(*mat) != typeid(Material) ) return -1;
 
@@ -146,7 +153,7 @@ int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
 }
 
 
-void visBase::VisualObjectImpl::fillPar( IOPar& iopar,
+void VisualObjectImpl::fillPar( IOPar& iopar,
 					 TypeSet<int>& saveids ) const
 {
     VisualObject::fillPar( iopar, saveids );
@@ -159,14 +166,16 @@ void visBase::VisualObjectImpl::fillPar( IOPar& iopar,
 }
 
 
-void visBase::VisualObject::triggerRightClick( const EventInfo* eventinfo_ )
+void VisualObject::triggerRightClick( const EventInfo* eventinfo_ )
 {
     eventinfo = eventinfo_;
     rightClick.trigger();
 }
 
 
-const TypeSet<int>* visBase::VisualObject::rightClickedPath() const
+const TypeSet<int>* VisualObject::rightClickedPath() const
 {
     return eventinfo ? &eventinfo->pickedobjids : 0;
 }
+
+}; //namespace
