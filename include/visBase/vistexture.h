@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.1 2003-01-08 14:15:48 kristofer Exp $
+ RCS:		$Id: vistexture.h,v 1.2 2003-01-15 08:55:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class DataClipper;
 class BasicTask;
+class visBaseTextureColorIndexMaker;
 
 namespace visBase
 {
@@ -46,6 +47,8 @@ public:
 
     void		setClipRate( float );
     float		clipRate() const;
+
+    const TypeSet<float>& getHistogram() const;
 
     void		setUseTransperancy(bool yn);
     bool		usesTransperancy() const;
@@ -79,12 +82,14 @@ private:
     unsigned char*	blue;
     unsigned char*	trans;
 
+    TypeSet<float>	histogram;
+
     bool		autoscale;
     bool		usetrans;
 
     VisColorTab*	colortab;
     DataClipper&	dataclipper;
-    ObjectSet<BasicTask> colorindexers;
+    ObjectSet<visBaseTextureColorIndexMaker> colorindexers;
     ObjectSet<BasicTask> texturemakers;
     ThreadWorker*	threadworker;
 };

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.3 2003-01-10 10:18:23 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.4 2003-01-15 08:55:17 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -38,6 +38,7 @@ visBase::Texture::Texture()
     , trans( new unsigned char[NRCOLORS] )
     , autoscale( true )
     , usetrans( true )
+    , histogram( NRCOLORS, 0 )
 {
     setColorTab( *visBase::VisColorTab::create());
 }
@@ -105,6 +106,12 @@ void visBase::Texture::setClipRate( float nv )
 
 float visBase::Texture::clipRate() const
 { return dataclipper.clipRate(); }
+
+
+const TypeSet<float>& visBase::Texture::getHistogram() const
+{
+    return histogram;
+}
 
 
 void visBase::Texture::setUseTransperancy( bool yn )
@@ -197,11 +204,20 @@ public:
     visBase::VisColorTab*	colortab;
     int				start;
     int				stop;
+
+    TypeSet<int>		histogram;
 protected:
     int		nextStep()
 		{
+		    histogram = TypeSet<int>( NRCOLORS, 0 );
 		    for ( int idx=start; idx<stop; idx++ )
-			indexcache[idx] = colortab->colIndex(datacache[idx]);
+		    {
+			const int colorindex =
+			    colortab->colIndex(datacache[idx]);
+			indexcache[idx] = colorindex;
+			histogram[colorindex]++;
+		    }
+
 		    return 0;
 		}
 };
@@ -227,8 +243,7 @@ void visBase::Texture::makeColorIndexes()
     int border=0;
     for ( int idx=0; idx<colorindexers.size(); idx++ )
     {
-	visBaseTextureColorIndexMaker* maker =
-	   reinterpret_cast<visBaseTextureColorIndexMaker*>(colorindexers[idx]);
+	visBaseTextureColorIndexMaker* maker = colorindexers[idx];
 	maker->start = border;
 	border += cachesize/colorindexers.size();
 	if ( idx<colorindexers.size()-1 )
@@ -243,7 +258,8 @@ void visBase::Texture::makeColorIndexes()
 
     if ( threadworker )
     {
-	threadworker->addWork( colorindexers );
+	threadworker->addWork(
+		reinterpret_cast<ObjectSet<BasicTask>&>(colorindexers ));
     }
     else
     {
@@ -252,6 +268,25 @@ void visBase::Texture::makeColorIndexes()
 	    while ( colorindexers[idx]->doStep() )
 		;
 	}
+    }
+
+    int max;
+    for ( int idx=0; idx<NRCOLORS; idx++ )
+    {
+	int sum = 0;
+	for ( int idy=0; idy<colorindexers.size(); idy++ )
+	    sum += colorindexers[idy]->histogram[idx];
+
+	if ( !idx || sum>max )
+	    max = sum;
+
+	histogram[idx] = sum;
+    }
+
+    if ( max )
+    {
+	for ( int idx=0; idx<NRCOLORS; idx++ )
+	    histogram[idx] /= max;
     }
 }
 
