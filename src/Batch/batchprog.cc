@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.10 2002-04-08 20:58:13 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.11 2002-04-12 21:37:21 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -26,6 +26,7 @@ int Execute_batch( int* pargc, char** argv )
     if ( !BP().stillok_ )
 	return 1;
 
+
     if ( BP().inbg_ )
     {
 #ifndef __msvc__
@@ -44,7 +45,9 @@ int Execute_batch( int* pargc, char** argv )
 
     bool allok = BatchProgram::inst_->initOutput();
     if ( allok )
+    {
 	allok = BatchProgram::inst_->go( *BatchProgram::inst_->sdout_.ostrm );
+    }
     delete BatchProgram::inst_;
     return allok ? 0 : 1;
 }
@@ -99,6 +102,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
 BatchProgram::~BatchProgram()
 {
+    writePid( -1 );
     sdout_.close();
     delete &sdout_;
 }
@@ -112,7 +116,7 @@ const char* BatchProgram::progName() const
 }
 
 
-bool BatchProgram::initOutput()
+bool BatchProgram::writePid( int pid )
 {
     const char* res = pars()[ "Process info file" ];
     if ( *res )
@@ -122,13 +126,21 @@ bool BatchProgram::initOutput()
 	{
 	    cerr << name() << ": Cannot write process ID file:\n"
 		 << res << endl;
-	    exit( 0 );
+	    return false;
 	}
-	*sd.ostrm << getPID() << endl;
+	*sd.ostrm << pid << endl;
 	sd.close();
     }
+    return true;
+}
 
-    res = pars()["Log file"];
+
+bool BatchProgram::initOutput()
+{
+    if ( !writePid(getPID()) )
+	exit( 0 );
+
+    const char* res = pars()["Log file"];
     if ( !*res || !strcmp(res,"stdout") ) res = 0;
  
 #ifndef __win__
