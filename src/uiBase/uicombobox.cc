@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.2 2001-04-24 10:53:27 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.3 2001-04-30 14:57:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,12 @@ void uiComboBox::setCurrentItem( const char* txt )
 void uiComboBox::setCurrentItem( int index )
 {
     mQtThing()->setCurrentItem( index );
+}
+
+
+void uiComboBox::setItemText( int idx, const char* txt )
+{
+    mQtThing()->changeItem( QString(txt), idx );
 }
 
 
