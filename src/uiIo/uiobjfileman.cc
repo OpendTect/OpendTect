@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.3 2004-12-24 10:35:57 bert Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.4 2005-01-13 08:07:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ void uiObjFileMan::createDefaultUI( const char* ext )
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, ext );
     manipgrp->preRelocation.notify( mCB(this,uiObjFileMan,relocMsg) );
     manipgrp->postRelocation.notify( mCB(this,uiObjFileMan,postReloc) );
+    listfld->attach( heightSameAs, manipgrp );
 
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( centeredBelow, topgrp );
