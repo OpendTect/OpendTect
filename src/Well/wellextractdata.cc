@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.4 2004-05-06 16:15:22 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.5 2004-05-06 21:03:52 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -158,51 +158,25 @@ void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
 	dahincr = 1000 * dahincr; // As dx = v * dt , Using v = 1000 m/s
 
     BinIDValue biv; float dah = dahrg.start;
-    int trackidx = 0;
-    if ( !getSnapPos(wd,dah,biv,trackidx) )
+    int trackidx = 0; Coord3 precisepos;
+    if ( !getSnapPos(wd,dah,biv,trackidx,precisepos) )
 	return;
 
-    bivset += biv;
+    addBivs( bivset, biv, precisepos );
     BinIDValue prevbiv = biv;
 
     while ( true )
     {
 	dah += dahincr;
-	if ( dah > dahrg.stop || !getSnapPos(wd,dah,biv,trackidx) )
+	if ( dah > dahrg.stop || !getSnapPos(wd,dah,biv,trackidx,precisepos) )
 	    return;
 
 	if ( biv.binid != prevbiv.binid || !mIS_ZERO(biv.value-prevbiv.value) )
 	{
-	    bivset += biv; prevbiv = biv;
-	    if ( selpol == Corners )
-	    {
-		//TODO add other corners when hor policy requires that
-	    }
+	    addBivs( bivset, biv, precisepos );
+	    prevbiv = biv;
 	}
     }
-}
-
-
-bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
-				     BinIDValue& biv, int& trackidx ) const
-{
-    const int tracksz = wd.track().size();
-    while ( trackidx < tracksz && dah > wd.track().dah(trackidx) )
-	trackidx++;
-    if ( trackidx < 1 || trackidx >= tracksz )
-	return false;
-
-    // Position is between trackidx and trackidx-1
-    Coord3 pos = wd.track().coordAfterIdx( dah, trackidx-1 );
-    biv.binid = SI().transform( pos );
-    if ( SI().zIsTime() && wd.d2TModel() )
-    {
-	pos.z = wd.d2TModel()->getTime( dah );
-	if ( mIsUndefined(pos.z) )
-	    return false;
-    }
-    biv.value = SI().zRange().snap( pos.z );
-    return true;
 }
 
 
@@ -233,6 +207,61 @@ void Well::TrackSampler::getLimitPos( const ObjectSet<Marker>& markers,
 
     if ( !mIsUndefined(shft) )
 	val += shft;
+}
+
+
+bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
+				     BinIDValue& biv, int& trackidx,
+				     Coord3& pos ) const
+{
+    const int tracksz = wd.track().size();
+    while ( trackidx < tracksz && dah > wd.track().dah(trackidx) )
+	trackidx++;
+    if ( trackidx < 1 || trackidx >= tracksz )
+	return false;
+
+    // Position is between trackidx and trackidx-1
+    pos = wd.track().coordAfterIdx( dah, trackidx-1 );
+    biv.binid = SI().transform( pos );
+    if ( SI().zIsTime() && wd.d2TModel() )
+    {
+	pos.z = wd.d2TModel()->getTime( dah );
+	if ( mIsUndefined(pos.z) )
+	    return false;
+    }
+    biv.value = SI().zRange().snap( pos.z );
+    return true;
+}
+
+
+void Well::TrackSampler::addBivs( BinIDValueSet& bivset, const BinIDValue& biv,
+				  const Coord3& precisepos ) const
+{
+    bivset += biv;
+    if ( selpol == Corners )
+    {
+	BinID stp( SI().inlStep(), SI().crlStep() );
+	BinID bid( biv.binid.inl+stp.inl, biv.binid.crl+stp.crl );
+	Coord crd = SI().transform( bid );
+	double dist = crd.distance( precisepos );
+	BinID nearest = bid; double lodist = dist;
+
+#define mTestNext(op1,op2) \
+	bid = BinID( biv.binid.inl op1 stp.inl, biv.binid.crl op2 stp.crl ); \
+	crd = SI().transform( bid ); \
+	dist = crd.distance( precisepos ); \
+	if ( dist < lodist ) \
+	    { lodist = dist; nearest = bid; }
+
+	mTestNext(+,-)
+	mTestNext(-,+)
+	mTestNext(-,-)
+
+	BinIDValue newbiv( biv );
+	newbiv.binid.inl = nearest.inl; bivset += newbiv;
+	newbiv.binid.crl = nearest.crl; bivset += newbiv;
+	newbiv.binid.inl = biv.binid.inl; bivset += newbiv;
+    }
 }
 
 

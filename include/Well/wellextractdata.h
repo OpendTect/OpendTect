@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.4 2004-05-06 16:15:22 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.5 2004-05-06 21:03:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,10 @@ protected:
 
     void		getData(const Data&,BinIDValueSet&);
     void		getLimitPos(const ObjectSet<Marker>&,bool,float&) const;
-    bool		getSnapPos(const Data&,float,BinIDValue&,int&) const;
+    bool		getSnapPos(const Data&,float,BinIDValue&,int&,
+	    			   Coord3&) const;
+    void		addBivs(BinIDValueSet&,const BinIDValue&,
+				const Coord3&) const;
 
 };
 
