@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.48 2004-01-19 15:58:22 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.49 2004-02-06 16:03:13 dgb Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -31,7 +31,11 @@ const SurveyInfo& SI()
     if ( !SurveyInfo::theinst_ || !SurveyInfo::theinst_->valid_ )
     {
 	if ( SurveyInfo::theinst_ )
-	    delete SurveyInfo::theinst_;
+	{
+	    SurveyInfo * myinst = SurveyInfo::theinst_;
+	    SurveyInfo::theinst_ = 0;
+	    delete myinst;
+	}
 	SurveyInfo::theinst_ = SurveyInfo::read( GetDataDir() );
     }
     return *SurveyInfo::theinst_;
