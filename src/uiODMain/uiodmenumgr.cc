@@ -4,18 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.20 2004-11-09 10:03:37 nanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.21 2004-12-23 17:16:38 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.20 2004-11-09 10:03:37 nanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.21 2004-12-23 17:16:38 bert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
 #include "uicrdevenv.h"
+#include "uisettings.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
 #include "helpview.h"
@@ -242,6 +243,7 @@ void uiODMenuMgr::fillUtilMenu()
     utilmnu->insertItem( settmnu );
     mInsertItem( settmnu, "&Fonts ...", mSettFontsMnuItm );
     mInsertItem( settmnu, "&Mouse controls ...", mSettMouseMnuItm );
+    mInsertItem( settmnu, "&General ...", mSettGeneral );
 
     mInsertItem( utilmnu, "&Batch programs ...", mBatchProgMnuItm );
     mInsertItem( utilmnu, "&Plugins ...", mPluginsMnuItm );
@@ -394,6 +396,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
     case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
+    case mSettGeneral: {
+	uiSettings dlg( &appl, "Set a specific User Setting" );
+	dlg.go();
+    } break;
 
     case mStereoOffsetMnuItm: 	applMgr().setStereoOffset(); break;
     case mStereoOffMnuItm: 
