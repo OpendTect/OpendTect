@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.17 2002-03-15 16:19:46 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.18 2002-03-15 16:53:37 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -86,16 +86,20 @@ int File_isAbsPath( const char* fname )
 const char* File_getFullPath( const char* path, const char* filename )
 {
     static FileNameString pathbuf;
+    char* chptr;
 #ifndef __win__
     int lastpos;
     FileNameString newpath;
-    char* ptr;
 #endif
 
     if ( path != pathbuf )
 	strcpy( pathbuf, path && *path ? path : "." );
 
     if ( !filename || !*filename ) return pathbuf;
+
+    /* Remove trailing dirseps from pathbuf */
+    chptr = pathbuf; while ( *chptr ) chptr++; chptr--;
+    while ( chptr != pathbuf-1 && *chptr == *dirsep ) *chptr-- = '\0';
 
 #ifdef __win__
 
@@ -106,9 +110,9 @@ const char* File_getFullPath( const char* path, const char* filename )
     while ( matchString("..",(const char*)pathbuf) )
     {
 	strcpy( pathbuf, File_getPathOnly(pathbuf) );
-	ptr = pathbuf;
-	while ( *ptr == *dirsep ) ptr++;
-	strcpy( newpath, ptr );
+	chptr = pathbuf;
+	while ( *chptr == *dirsep ) chptr++;
+	strcpy( newpath, chptr );
 	strcpy( pathbuf, newpath );
     }
 
@@ -146,11 +150,9 @@ const char* File_getPathOnly( const char* fullpath )
 
 #else
 
-    chptr = pathbuf;
-    while ( *chptr ) chptr++;
-    chptr--;
+    chptr = pathbuf; while ( *chptr ) chptr++; chptr--;
     /* Remove trailing dir separators */
-    while ( *chptr && *chptr == *dirsep ) *chptr-- = '\0';
+    while ( chptr != pathbuf-1 && *chptr == *dirsep ) *chptr-- = '\0';
     if ( !strcmp(pathbuf,"..") )
 	strcpy( pathbuf, "../.." );
     else if ( !strcmp(pathbuf,".") )
@@ -160,10 +162,10 @@ const char* File_getPathOnly( const char* fullpath )
     else
     {
 	/* Remove trailing file or dir name */
-	while ( *chptr && *chptr != *dirsep ) *chptr-- = '\0';
+	while ( chptr != pathbuf-1 && *chptr != *dirsep ) *chptr-- = '\0';
 	/* Remove all dir separators */
-	while ( *chptr && *chptr == *dirsep ) *chptr-- = '\0';
-	if ( !*chptr ) strcpy( pathbuf, "." );
+	while ( chptr != pathbuf-1 && *chptr == *dirsep ) *chptr-- = '\0';
+	if ( !pathbuf[0] ) strcpy( pathbuf, "." );
     }
 
 #endif
@@ -176,31 +178,30 @@ const char* File_getPathOnly( const char* fullpath )
 const char* File_getFileName( const char* fullpath )
 {
     static FileNameString pathbuf;
+    char* chptr = pathbuf;
+    *chptr = '\0';
+    if ( !fullpath || !*fullpath ) return chptr;
+    if ( !(*fullpath+1) && (*fullpath == '/' || *fullpath == '.') )
+	return chptr;
 
-#ifndef __win__
-    const char* chptr;
-#endif
-
-    pathbuf[0] = '\0';
-    if ( !fullpath || !*fullpath ) return pathbuf;
+    strcpy( chptr, fullpath );
 
 #ifdef __win__
 
-    strcpy( (char*)pathbuf, fullpath );
-    PathStripPath( (char*)pathbuf );
+    PathStripPath( chptr );
 
 #else
 
-    /* search for last occurrence of directory separator in path */
-    chptr = strrchr( fullpath, *dirsep );
-    if ( chptr ) chptr++;
-    else	 chptr = fullpath;
+    /* Remove trailing dir separators */
+    while ( *chptr ) chptr++; chptr--;
+    while ( chptr != pathbuf-1 && *chptr == *dirsep ) *chptr-- = '\0';
 
-    strcpy( pathbuf, chptr );
+    while ( chptr != pathbuf-1 && *chptr != *dirsep ) chptr--;
+    if ( chptr == pathbuf-1 || *chptr == *dirsep ) chptr++;
 
 #endif
 
-    return pathbuf;
+    return chptr;
 }
 
 
