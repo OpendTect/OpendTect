@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.16 2002-01-22 13:06:47 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.17 2002-02-27 15:43:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     uiStatusBar* 	statusBar();
     uiMenuBar* 		menuBar();
     uiToolBar* 		toolBar();
+    uiToolBar* 		newToolBar(const char* nm="ToolBar");
 
     static uiMainWin*	activeWindow();
 
