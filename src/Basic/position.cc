@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.33 2004-01-09 12:16:01 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.34 2004-03-09 12:09:59 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: position.cc,v 1.33 2004-01-09 12:16:01 kristofe
 #include <ptrman.h>
 #include <errh.h>
 
+const char* BinIDExcluder::sKeyIncAll   = "Include All";
 const char* BinIDSelector::sKeyseltyp   = "BinID selection";
 const char* BinIDSelector::sKeyseltyps[]=
         { "No", "Range", "Regular sampling", 0 };
@@ -198,7 +199,7 @@ bool BinIDProvider::isEqual( const BinIDProvider& bp ) const
 
 BinIDSelector* BinIDSelector::create( const IOPar& iopar )
 {
-    const char* res = iopar[sKeyseltyp];
+    const char* res = iopar.find( sKeyseltyp );
     if ( !res || !*res ) return 0;
 
     if ( !strcmp(res,sKeyseltyps[0]) ) return 0;
@@ -228,6 +229,10 @@ BinIDSelector* BinIDSelector::create( const IOPar& iopar )
 	res = iopar[sKeystepcrl];
 	if ( res && *res ) bs->step.crl = atoi(res);
     }
+
+    bool incall = false;
+    iopar.getYN( sKeyIncAll, incall );
+    if ( incall ) rg->setIncludeAll( incall );
     return rg;
 }
 
@@ -280,6 +285,8 @@ void BinIDSelector::fillPar( IOPar& iopar ) const
 	iopar.set( sKeysoinl, so.inl );
 	iopar.set( sKeysocrl, so.crl );
     }
+    if ( includesAll() )
+	iopar.setYN( sKeyIncAll, true );
 }
 
 BinIDSelector* BinIDRange::getBidSel( const IOPar& iopar )
@@ -356,7 +363,7 @@ BinIDRange* BinIDRange::getOuter() const
 }
 
 
-int BinIDRange::excludes( const BinID& bid ) const
+int BinIDRange::excludes_( const BinID& bid ) const
 {
     int inlval = (!start.inl || bid.inl+stepout.inl >= start.inl)
 		 && (!stop.inl || bid.inl-stepout.inl <= stop.inl) ? 0 : 2;
@@ -433,9 +440,9 @@ BinIDSampler::BinIDSampler()
 }
 
 
-int BinIDSampler::excludes( const BinID& bid ) const
+int BinIDSampler::excludes_( const BinID& bid ) const
 {
-    int res = BinIDRange::excludes(bid);
+    int res = BinIDRange::excludes_(bid);
     if ( res ) return res;
 
     BinID rel( bid );
@@ -711,7 +718,7 @@ void BinIDTable::fillPar( IOPar& iopar ) const
 }
 
 
-int BinIDTable::excludes( const BinID& bid ) const
+int BinIDTable::excludes_( const BinID& bid ) const
 {
     bool found;
     const int inlidx = binids.findInl( bid.inl, found );
@@ -757,12 +764,6 @@ bool BinIDTable::isEqBidSel( const BinIDSelector& b ) const
 		return false; 
     }
     return true;
-}
-
-
-bool BinIDTable::includes( const BinID& bid ) const
-{
-    return !excludes( bid );
 }
 
 
