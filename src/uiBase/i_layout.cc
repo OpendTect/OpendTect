@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.62 2003-03-05 14:02:41 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.63 2003-03-05 14:04:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -767,6 +767,8 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
 
 void i_LayoutMngr::popTimTick(CallBacker*)
 {
+    timer_running = false;
+
     if ( popped_up ) { pErrMsg( "huh?" ); }
         popped_up = true;
 }
