@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.12 2001-07-18 21:49:47 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.13 2001-07-19 09:46:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,10 +92,10 @@ protected:
 
     void		doObjSel(CallBacker*);
 
-    virtual void	newSelection(uiIOObjSelDlg*);
     virtual const char*	userNameFromKey(const char*) const;
     virtual void	objSel();
 
+    virtual void	newSelection(uiIOObjSelDlg*)		{}
     virtual uiIOObjSelDlg* mkDlg();
     virtual IOObj*	createEntry(const char*);
 
