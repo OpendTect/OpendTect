@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.120 2004-05-03 18:50:02 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.121 2004-05-04 09:50:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,8 +115,13 @@ public:
 			     structure as the positions given in
 			     getRandomPosDataPos */
 
-    bool		showMenu( int id );
-    uiVisMenu*		getMenu(int id, bool create=true);
+    bool		showMenu( int id, int menutype=0 );
+    			/*!<\param menutype Please refer to \ref
+					uiVisMenu::executeMenu for a detailed
+					description.
+			*/
+
+    uiVisMenu*		getMenu(int id, bool create_if_does_not_exist=true);
 
     const MultiID*	getMultiID(int) const;
 	
@@ -261,14 +266,13 @@ protected:
   This module provides the plain user interface classes necessary to do the
   3D visualisation in the way that the user wants.
 
-  The uiVisPartServer is a rather big class, that could use a bit of redesign.
   Main task of this server is adding and removing scene objects and 
-  transfer of data to be displayed. All supported scene objects are defined
-  in the visSurvey module.
+  transfer of data to be displayed. All supported scene objects are inheriting
+  visSurvey::SurveyObject.
 
-  A lot of user interaction is done via popupmenus. Each object has its own
-  visualisation options. These options and corresponding actions are managed 
-  by the uiVisMenu class.
+  A lot of user interaction is done via popupmenus, and each object has an
+  own menu which can be accessed via getMenu. To add items or manipulate the
+  menus, please refer to the uiVisMenu documentation.
 
   */
 
