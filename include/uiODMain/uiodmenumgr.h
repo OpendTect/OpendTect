@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.4 2003-12-28 16:10:23 bert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.5 2004-01-05 15:00:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class uiODMenuMgr : public CallBacker
 public:
 
 			uiODMenuMgr(uiODMain*);
+    void		initSceneMgrDepObjs();
 
     uiPopupMenu*	fileMnu()		{ return filemnu; }
     uiPopupMenu*	procMnu()		{ return procmnu; }

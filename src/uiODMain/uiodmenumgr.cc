@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.4 2004-01-05 14:43:25 arend Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.5 2004-01-05 14:59:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.4 2004-01-05 14:43:25 arend Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.5 2004-01-05 14:59:54 nanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -34,6 +34,14 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     utilmnu = new uiPopupMenu( &appl, "&Utilities" );
     helpmnu = new uiPopupMenu( &appl, "&Help" );
 
+    dtecttb = appl.toolBar();
+    dtecttb->setLabel( "OpendTect tools" );
+    cointb = appl.newToolBar( "Graphical tools" );
+}
+
+
+void uiODMenuMgr::initSceneMgrDepObjs()
+{
     uiMenuBar* menu = appl.menuBar();
     fillFileMenu();	menu->insertItem( filemnu );
     fillProcMenu();	menu->insertItem( procmnu );
@@ -42,10 +50,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     fillUtilMenu();	menu->insertItem( utilmnu );
     fillHelpMenu();	menu->insertItem( helpmnu );
 
-    dtecttb = appl.toolBar();
-    dtecttb->setLabel( "OpendTect tools" );
     fillDtectTB();
-    cointb = appl.newToolBar( "Graphical tools" );
     fillCoinTB();
 
     timer.tick.notify( mCB(this,uiODMenuMgr,timerCB) );

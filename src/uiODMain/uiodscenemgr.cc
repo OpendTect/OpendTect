@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.5 2003-12-30 16:37:33 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.6 2004-01-05 14:59:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,12 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 uiODSceneMgr::~uiODSceneMgr()
 {
     cleanUp( false );
+}
+
+
+void uiODSceneMgr::initMenuMgrDepObjs()
+{
+    addScene();
 }
 
 

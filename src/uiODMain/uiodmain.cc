@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.6 2004-01-03 08:51:00 kristofer Exp $
+ RCS:           $Id: uiodmain.cc,v 1.7 2004-01-05 14:59:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,7 +229,8 @@ bool uiODMain::buildUI()
 {
     scenemgr = new uiODSceneMgr( this );
     menumgr = new uiODMenuMgr( this );
-    scenemgr->addScene();
+    menumgr->initSceneMgrDepObjs();
+    scenemgr->initMenuMgrDepObjs();
 
     ctabwin = new uiDockWin( this, "Color Table" );
     moveDockWindow( *ctabwin, uiMainWin::Left, 0 );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.5 2003-12-30 16:37:39 nanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.6 2004-01-05 15:00:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
 
 			uiODSceneMgr(uiODMain*);
 			~uiODSceneMgr();
+
+    void		initMenuMgrDepObjs();
 
     void		cleanUp(bool startnew=true);
     void		addScene();
