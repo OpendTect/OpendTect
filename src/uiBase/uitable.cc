@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.18 2004-05-25 09:49:54 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.19 2004-07-09 13:11:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "basictypes.h"
 #include "bufstringset.h"
+#include "i_layoutitem.h"
 
 // leftMargin() / topMargin() are protected. 
 // TODO : hack. Should be fixed by the Trolls.....
@@ -246,16 +247,6 @@ void uiTable::update( bool row, int rc )
     int c = row ? 0 : rc;
 
     setCurrentCell( RowCol(r,c) );
-
-    if ( !setup_.manualresize_ )
-    {
-	for ( int idx=0; idx < nrCols(); idx++ )
-	    body_->setColumnStretchable ( idx, true );
-
-	for ( int idx=0; idx < nrRows(); idx++ )
-	    body_->setRowStretchable ( idx, true );
-
-    }
 
 }
 
@@ -679,6 +670,15 @@ void uiTable::updateCellSizes( uiSize* size )
 {
     if ( size ) lastsz = *size;
     else	size = &lastsz;
+
+    if ( !setup_.manualresize_ && body_->layoutItem()->inited() )
+    {
+	for ( int idx=0; idx < nrCols(); idx++ )
+	    body_->setColumnStretchable ( idx, true );
+
+	for ( int idx=0; idx < nrRows(); idx++ )
+	    body_->setRowStretchable ( idx, true );
+    }
 
     int nc = nrCols();
     if ( nc && setup_.fillrow_ )
