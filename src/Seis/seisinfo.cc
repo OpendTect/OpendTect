@@ -5,11 +5,12 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.11 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.12 2002-11-21 17:10:09 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
 #include "susegy.h"
+#include "posauxinfo.h"
 #include "binidselimpl.h"
 #include "survinfo.h"
 #include "strmprov.h"
@@ -249,4 +250,28 @@ void SeisTrcInfo::puttr( const SUsegy& trc )
 	if ( mIS_ZERO(sampling.start) )
 	    sampling.start = trc.delrt * .001;
     }
+}
+
+
+void SeisTrcInfo::putTo( PosAuxInfo& auxinf ) const
+{
+    auxinf.binid = binid;
+    auxinf.startpos = sampling.start;
+    auxinf.coord = coord;
+    auxinf.offset = offset;
+    auxinf.azimuth = azimuth;
+    auxinf.pick = pick;
+    auxinf.refpos = refpos;
+}
+
+
+void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
+{
+    binid = auxinf.binid;
+    sampling.start = auxinf.startpos;
+    coord = auxinf.coord;
+    offset = auxinf.offset;
+    azimuth = auxinf.azimuth;
+    pick = auxinf.pick;
+    refpos = auxinf.refpos;
 }

@@ -5,12 +5,13 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.30 2002-09-03 08:35:00 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.31 2002-11-21 17:10:09 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
+#include "seisbuf.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "sorting.h"
@@ -81,6 +82,8 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const ClassDef* cd )
 	, storediopar(*new IOPar)
 	, useinpsd(false)
 	, trcsel(0)
+    	, prevnr_(-999)
+    	, trcblock_(*new SeisTrcBuf)
 {
 }
 
@@ -88,8 +91,10 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const ClassDef* cd )
 SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
+    close();
     delete &pinfo;
     delete &storediopar;
+    delete &trcblock_;
 }
 
 
@@ -105,6 +110,13 @@ void SeisTrcTranslator::cleanUp()
     errmsg = 0;
     useinpsd = false;
     pinfo = SeisPacketInfo();
+}
+
+
+void SeisTrcTranslator::close()
+{
+    writeBlock( true ); // when we are reading, the block will be empty
+    conn = 0;
 }
 
 
@@ -237,6 +249,52 @@ void SeisTrcTranslator::fillOffsAzim( SeisTrcInfo& ti, const Coord& gp,
 	    ErrMsg( msg );
 	}
     }
+}
+
+
+bool SeisTrcTranslator::write( const SeisTrc& trc )
+{
+    if ( !inpfor_ ) commitSelections( &trc );
+
+    StorageLayout lyo( storageLayout() );
+    if ( lyo.type() == StorageLayout::Random
+	|| lyo.type() == StorageLayout::Any )
+    {
+	// Can't buffer
+	trcblock_.add( const_cast<SeisTrc*>( &trc ) );
+	return writeBlock( false );
+    }
+
+    const int& nr = lyo.type() ==StorageLayout::Inline
+		  ? trc.info().binid.inl : trc.info().binid.crl;
+    bool wrblk = prevnr_ != nr && prevnr_ != -999;
+    prevnr_ = nr;
+    if ( wrblk && !writeBlock(true) )
+	return false;
+
+    SeisTrc* newtrc = new SeisTrc(trc);
+    if ( !newtrc )
+	{ errmsg = "Out of memory"; return false; }
+    trcblock_.add( newtrc );
+
+    return true;
+}
+
+
+bool SeisTrcTranslator::writeBlock( bool destroytrcs )
+{
+    for ( int idx=0; idx<trcblock_.size(); idx++ )
+    {
+	if ( !writeTrc_(*trcblock_.get(idx)) )
+	    return false;
+    }
+
+    if ( destroytrcs )
+	trcblock_.deepErase();
+    else
+	trcblock_.erase();
+
+    return true;
 }
 
 

@@ -2,16 +2,15 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 24-1-2001
- * FUNCTION : Segy-like trace translator
+ * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.28 2002-11-15 10:56:13 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.29 2002-11-21 17:10:09 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
-#include "seisbuf.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
 #include "iostrm.h"
@@ -46,8 +45,6 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	, nrdone(0)
     	, minimalhdrs(false)
     	, brickspec(*new VBrickSpec)
-    	, previnl(-999)
-    	, inltrcs(*new SeisTrcBuf)
 {
 }
 
@@ -56,14 +53,6 @@ CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
 {
     cleanUp();
     delete &brickspec;
-    delete &inltrcs;
-}
-
-
-void CBVSSeisTrcTranslator::close()
-{
-    writeInl();
-    SeisTrcTranslator::close();
 }
 
 
@@ -378,15 +367,11 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !rdmgr->getAuxInfo(auxinf) )
 	return false;
 
-    ti.nr = ++nrdone;
-    ti.binid = auxinf.binid;
-    ti.sampling.start = useinpsd ? auxinf.startpos : outcds[0]->sd.start;
+    ti.getFrom( auxinf );
+    if ( !useinpsd )
+	ti.sampling.start = outcds[0]->sd.start;
     ti.sampling.step = outcds[0]->sd.step;
-    ti.coord = auxinf.coord;
-    ti.offset = auxinf.offset;
-    ti.azimuth = auxinf.azimuth;
-    ti.pick = auxinf.pick;
-    ti.refpos = auxinf.refpos;
+    ti.nr = ++nrdone;
 
     if ( !rdmgr->info().auxinfosel.coord )
 	ti.coord = SI().transform( ti.binid );
@@ -486,49 +471,7 @@ bool CBVSSeisTrcTranslator::startWrite()
 }
 
 
-bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
-{
-    if ( !storinterps ) commitSelections( &trc );
-
-    bool writeinl = previnl != trc.info().binid.inl && previnl != -999;
-    previnl = trc.info().binid.inl;
-    if ( writeinl && !writeInl() )
-	return false;
-
-    PosAuxInfo* auxinf = new PosAuxInfo;
-    auxinf->binid = trc.info().binid;
-    auxinf->startpos = trc.info().sampling.start;
-    auxinf->coord = trc.info().coord;
-    auxinf->offset = trc.info().offset;
-    auxinf->azimuth = trc.info().azimuth;
-    auxinf->pick = trc.info().pick;
-    auxinf->refpos = trc.info().refpos;
-
-    inlauxinfos += auxinf;
-    SeisTrc* newtrc = new SeisTrc(trc);
-    if ( !newtrc )
-	{ errmsg = "Out of memory"; return false; }
-    inltrcs.add( newtrc );
-    return true;
-}
-
-
-bool CBVSSeisTrcTranslator::writeInl()
-{
-    for ( int idx=0; idx<inltrcs.size(); idx++ )
-    {
-	auxinf = *inlauxinfos[idx];
-	if ( !writeTrc(*inltrcs.get(idx)) )
-	    return false;
-    }
-
-    deepErase( inlauxinfos );
-    inltrcs.deepErase();
-    return true;
-}
-
-
-bool CBVSSeisTrcTranslator::writeTrc( const SeisTrc& trc )
+bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
@@ -561,6 +504,7 @@ bool CBVSSeisTrcTranslator::writeTrc( const SeisTrc& trc )
 	}
     }
 
+    trc.info().putTo( auxinf );
     if ( !wrmgr->put( (void**)stptrs ) )
 	{ errmsg = wrmgr->errMsg(); return false; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.13 2002-11-15 10:56:13 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.14 2002-11-21 17:10:37 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -33,8 +33,6 @@ public:
     bool		readInfo(SeisTrcInfo&);
     bool		read(SeisTrc&);
     bool		skip(int nrtrcs=1);
-    bool		write(const SeisTrc&);
-    void		close();
 
     bool		supportsGoTo() const		{ return true; }
     bool		goTo(const BinID&);
@@ -55,7 +53,6 @@ protected:
 
     bool		forread;
     bool		headerdone;
-    int			previnl;
     bool		donext;
     int			nrdone;
 
@@ -76,14 +73,13 @@ protected:
     CBVSReadMgr*	rdmgr;
     CBVSWriteMgr*	wrmgr;
     PosAuxInfo		auxinf;
-    ObjectSet<PosAuxInfo> inlauxinfos;
-    SeisTrcBuf&		inltrcs;
     bool		minimalhdrs;
 
     virtual void	cleanUp();
     virtual bool	initRead_();
     virtual bool	initWrite_(const SeisTrc&);
     virtual bool	commitSelections_();
+    virtual bool	writeTrc_(const SeisTrc&);
     bool		startWrite();
     bool		toNext();
     bool		getFileName(BufferString&);
@@ -93,8 +89,6 @@ private:
     static UserIDSet	datatypeparspec;
 
     void		calcSamps();
-    bool		writeInl();
-    bool		writeTrc(const SeisTrc&);
     void		destroyVars();
 
 };

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.10 2002-04-21 15:06:56 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.11 2002-11-21 17:10:09 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: seisbuf.cc,v 1.10 2002-04-21 15:06:56 bert Exp 
 #include "xfuncimpl.h"
 #include "binidselimpl.h"
 #include "ptrman.h"
+#include "sorting.h"
 
 
 void SeisTrcBuf::insert( SeisTrc* t, int insidx )
@@ -46,6 +47,47 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 	    { spi.binidsampling.step.inl = bid.inl - pbid.inl; doneinl = true; }
 	if ( !donecrl && bid.crl != pbid.crl )
 	    { spi.binidsampling.step.crl = bid.crl - pbid.crl; donecrl = true; }
+    }
+}
+
+
+void SeisTrcBuf::sort( int seisinf_attrnr, bool ascending )
+{
+    const int sz = size();
+    if ( sz < 2 ) return;
+
+    ArrPtrMan<int> idxs = new int [sz];
+    ArrPtrMan<float> vals = new float [sz];
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	idxs[idx] = idx;
+	vals[idx] = get(idx)->info().getAttr(seisinf_attrnr);
+    }
+    sort_coupled( (float*)vals, (int*)idxs, sz );
+    ObjectSet<SeisTrc> tmp;
+    for ( int idx=0; idx<sz; idx++ )
+	tmp += get( idxs[idx] );
+
+    erase();
+    for ( int idx=0; idx<sz; idx++ )
+	add( tmp[ascending ? idx : sz - idx - 1] );
+}
+
+
+void SeisTrcBuf::removeDuplicates( int seisinf_attrnr, bool destroy )
+{
+    const int sz = size();
+    if ( sz < 2 ) return;
+
+    float prevval = get(0)->info().getAttr(seisinf_attrnr);
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	SeisTrc* trc = get(idx);
+	float val = trc->info().getAttr(seisinf_attrnr);
+	if ( mIS_ZERO(prevval-val) )
+	    { remove(trc); idx--; if ( destroy ) delete trc; }
+	else
+	    prevval = val;
     }
 }
 

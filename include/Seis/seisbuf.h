@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.4 2001-05-31 14:08:59 windev Exp $
+ RCS:		$Id: seisbuf.h,v 1.5 2002-11-21 17:10:37 bert Exp $
 ________________________________________________________________________
 
 This object buffers seismic traces. The traces are not managed, but can be
@@ -41,8 +41,14 @@ public:
     void		erase()			{ trcs.erase(); }
 
     int			size() const		{ return trcs.size(); }
-    void		add( SeisTrc* t )	{ trcs += t; }
     void		insert(SeisTrc*,int);
+    void		add( SeisTrc* t )	{ trcs += t; }
+    void		add( SeisTrcBuf& tb )
+			{
+			    for ( int idx=0; idx<tb.size(); idx++ )
+				add( tb.get(idx) );
+			}
+
     int			find(const BinID&) const;
     int			find(SeisTrc*) const;
     SeisTrc*		get( int idx )		{ return trcs[idx]; }
@@ -50,11 +56,17 @@ public:
     void		remove( SeisTrc* t )	{ if ( t ) trcs -= t;  }
     SeisTrc*		remove( int idx )
 			{ SeisTrc* t = trcs[idx]; if ( t ) trcs -= t; return t;}
-    void		revert();
 
     void		fill(SeisPacketInfo&) const;
     void		transferData(FloatList&,int takeeach=1,
 				     int icomp=0) const;
+
+    void		revert();
+    void		sort(int seisinfo_attrnr=6,bool ascending=true);
+    			//!< See seisinfo.h ,
+    			//!< Default will sort on xline. Inline is 5.
+    void		removeDuplicates(int seisinfo_attrnr=6,
+	    				 bool destroy=true);
 
 protected:
 

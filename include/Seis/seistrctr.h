@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.21 2002-09-03 08:35:00 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.22 2002-11-21 17:10:37 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -20,14 +20,15 @@ Translators for seismic traces.
 #include <basiccompinfo.h>
 #include <streamconn.h>
 
-class SeisTrc;
-class SeisTrcInfo;
 class BinID;
-class BinIDSelector;
-class BinIDSampler;
-class SeisTrcSel;
-class SeisPacketInfo;
+class SeisTrc;
 class LinScaler;
+class SeisTrcSel;
+class SeisTrcBuf;
+class SeisTrcInfo;
+class BinIDSampler;
+class BinIDSelector;
+class SeisPacketInfo;
 
 
 
@@ -59,7 +60,7 @@ WRITE:
 5) write() writes selected traces/trace sections
 
 
-6/7) Finally, close() finishes work (does not close connection).
+lastly) close() finishes work (does not close connection).
 
 Note the existence of minimalHdrs(). If this is true, we have only
 inline/crossline. If you use setMinimalHdrs(), only inline/crossline and trace
@@ -154,9 +155,9 @@ public:
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&)			{ return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
-    virtual bool	write(const SeisTrc&)		{ return false; }
+    bool		write(const SeisTrc&);
 
-    virtual void	close()				{ conn = 0; }
+    virtual void	close();
     const char*		errMsg() const			{ return errmsg; }
 
     virtual StorageLayout storageLayout() const	
@@ -218,12 +219,18 @@ protected:
     ComponentData**	inpcds;
     TargetComponentData** outcds;
 
+    			// Buffer to write when writeBlock() is called
+    SeisTrcBuf&		trcblock_;
+    virtual bool	writeTrc_(const SeisTrc&)	{ return false; }
+
 private:
 
     int*		inpfor_;
     int			nrout_;
+    int			prevnr_;
 
     void		enforceBounds(const SeisTrc*);
+    bool		writeBlock(bool);
 
 };
 
