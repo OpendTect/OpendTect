@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.12 2001-09-18 14:49:19 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.13 2001-10-05 09:05:31 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -222,20 +222,25 @@ int SurveyInfo::write( const char* basedir ) const
 
     astream.newParagraph();
     const char* ptr = (const char*)comment_;
-    while ( 1 )
+    if ( *ptr )
     {
-	char* nlptr = const_cast<char*>( strchr( ptr, '\n' ) );
-	if ( !nlptr )
+	while ( 1 )
 	{
-	    if ( *ptr )
-		strm << ptr;
-	    break;
+	    char* nlptr = const_cast<char*>( strchr( ptr, '\n' ) );
+	    if ( !nlptr )
+	    {
+		if ( *ptr )
+		    strm << ptr;
+		break;
+	    }
+	    *nlptr = '\0';
+	    strm << ptr << '\n';
+	    *nlptr = '\n';
+	    ptr = nlptr + 1;
 	}
-	*nlptr = '\0';
-	strm << ptr << '\n';
-	*nlptr = '\n';
-	ptr = nlptr + 1;
+	strm << '\n';
     }
+
     return !strm.fail();
 }
 
