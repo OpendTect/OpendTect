@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.91 2002-10-03 14:19:20 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.92 2002-10-09 12:53:03 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -831,7 +831,7 @@ bool uiVisPartServer::picksetIsPresent( const char* psname )
         {
 	    BufferString msg( "Pickset: "); msg += psname;
 	    msg += "\nis already present.";
-	    uiMSG().about( msg );
+	    uiMSG().error( msg );
 	    return true;
         }
     }
