@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.6 2001-03-19 10:18:26 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.7 2001-04-05 16:20:36 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -17,9 +17,7 @@ Translators for seismic traces.
 #include <transl.h>
 #include <ctxtioobj.h>
 #include <storlayout.h>
-#include <datachar.h>
-#include <samplingdata.h>
-#include <seistype.h>
+#include <basiccompinfo.h>
 
 class Conn;
 class SeisTrc;
@@ -74,37 +72,19 @@ public:
 
     */
 
-    class ComponentData : public UserIDObject
+    class ComponentData : public BasicComponentInfo
     {
 	friend class	SeisTrcTranslator;
-
-    public:
-
-
-	Seis::DataType		datatype;
-	DataCharacteristics	datachar;
-	SamplingData<float>	sd;
-	int			nrsamples;
-
     protected:
-
 			ComponentData( const char* nm="Seismic Data" )
-			: UserIDObject(nm)
-			, datatype(Seis::UnknowData)
-			, sd(mUndefValue,mUndefValue)
-			, nrsamples(0)			{}
+			: BasicComponentInfo(nm)
+			{ sd = SamplingData<float>(mUndefValue,mUndefValue); }
 			ComponentData( const ComponentData& cd )
-			: UserIDObject(cd.name())
-			, datatype(cd.datatype)
-			, datachar(cd.datachar)
-			, sd(cd.sd)
-			, nrsamples(cd.nrsamples)	{}
+			: BasicComponentInfo(cd)	{}
 			ComponentData(const SeisTrc&,int icomp=0,
 					  const char* nm="Seismic Data");
-
 	void		operator=(const ComponentData&);
 			    //!< Protection against assignment.
-
     };
 
 
@@ -202,7 +182,7 @@ protected:
 				const char* nm=0);
 
     bool		initConn(Conn&,bool forread);
-    void		setDataType( int icomp, Seis::DataType d )
+    void		setDataType( int icomp, int d )
 			{ cds[icomp]->datatype = tarcds[icomp]->datatype = d; }
 
     virtual void	cleanUp();

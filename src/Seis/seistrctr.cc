@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.3 2001-02-28 14:59:18 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.4 2001-04-05 16:20:27 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -45,12 +45,11 @@ IOObjContext SeisTrcTranslator::ioContext()
 
 SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 						 const char* nm )
-	: UserIDObject(nm)
-	, datatype(Seis::UnknowData)
-	, sd(trc.samplingData(icomp))
-	, datachar(trc.data().getInterpreter(icomp)->dataChar())
-	, nrsamples(trc.size(icomp))
+	: BasicComponentInfo(nm)
 {
+    sd = trc.samplingData( icomp );
+    datachar = trc.data().getInterpreter(icomp)->dataChar();
+    nrsamples = trc.size( icomp );
 }
 
 
