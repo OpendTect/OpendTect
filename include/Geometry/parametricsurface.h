@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.6 2005-03-10 11:45:18 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.7 2005-03-18 11:23:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ template <class T> class Array2D;
 
 namespace Geometry
 {
+
+class ParametricCurve;
 
 class ParametricSurface : public Element
 {
@@ -43,6 +45,13 @@ public:
     int			nrKnots() const;
     RowCol		getKnotRowCol( int idx ) const;
     int			getKnotIndex(const RCol& rc) const;
+
+    virtual ParametricCurve*
+			createRowCurve( float row,
+	    				const Interval<int>* colrange=0 ) const;
+    virtual ParametricCurve*
+			createColCurve( float col,
+	    				const Interval<int>* rowrange=0 ) const;
 
     virtual bool	circularRows() const { return false; }
     virtual bool	circularCols() const { return false; }

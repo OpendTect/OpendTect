@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.9 2005-03-10 11:45:04 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.10 2005-03-18 11:23:06 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -534,7 +534,54 @@ CubicBezierSurface::getPatch(const RCol& rc) const
 	    				getBezierVertex(rc10,  RowCol(0,1)),
 	    				getBezierVertex(rc11,  RowCol(0,-1)),
 	    				getBezierVertex(rc11,  RowCol(0,-1)) );
+}
+
+
+ParametricCurve* CubicBezierSurface::createRowCurve( float row,
+				 const Interval<int>* cl ) const
+{
+    const StepInterval<int> colrange = colRange();
+    StepInterval<int> outputrange = colrange;
+    if ( cl )
+    {
+	if ( outputrange.includes( cl->start ) )
+	    outputrange.start = outputrange.snap(cl->start);
+	if ( outputrange.includes( cl->stop ) )
+	    outputrange.stop = outputrange.snap(cl->stop);
     }
+
+    if ( outputrange.start>=outputrange.stop )
+	return 0;
+
+    const Coord3 p0 = computePosition( Coord(row,outputrange.start) );
+    const Coord3 p1 = computePosition( Coord(row,outputrange.atIndex(1)) );
+
+    if ( !p0.isDefined() || !p1.isDefined() )
+	return 0;
+
+    CubicBezierCurve* res =
+	new CubicBezierCurve( p0, p1, outputrange.start, outputrange.step );
+
+    Coord param( row, 0 );
+    for ( int idx=outputrange.atIndex(2); idx<=outputrange.stop;
+	  idx+=outputrange.step )
+    {
+	param.y = idx;
+	if ( !res->setPosition(idx, computePosition(param)) )
+	{ delete res; return 0; }
+    }
+
+    return res;
+}
+
+
+ParametricCurve* CubicBezierSurface::createColCurve( float col,
+				 const Interval<int>* rw ) const
+{
+    pErrMsg("Not impl");
+    return 0;
+}
+
 
 
 bool CubicBezierSurface::checkSelfIntersection( const RCol& ownrc ) const

@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.6 2005-03-10 11:45:18 cvskris Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.7 2005-03-18 11:23:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ class Line3;
 
 namespace Geometry
 {
-
 
 class CubicBezierSurfacePatch
 {
@@ -81,6 +80,11 @@ public:
     void	setDirectionInfluence(float);
 
     const CubicBezierSurfacePatch*	getPatch(const RCol&) const;
+    ParametricCurve*	createRowCurve( float row,
+					const Interval<int>* colrange=0 ) const;
+    ParametricCurve*	createColCurve( float col,
+					const Interval<int>* rowrange=0 ) const;
+
 protected:
 
     bool	checkSelfIntersection( const RCol& ) const;
