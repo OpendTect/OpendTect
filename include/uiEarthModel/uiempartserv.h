@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.22 2003-11-24 08:54:06 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.23 2003-12-18 12:45:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,14 +41,17 @@ public:
 
     BufferString	getName(const MultiID&) const;
 
-    bool		selectHorizon(MultiID&);
+    bool		selectHorizon(MultiID& id)
+    			{ return selectSurface(id,true); }
+    bool		selectFault(MultiID& id)
+    			{ return selectSurface(id,false); }
+    bool		selectSurface(MultiID&,bool);
     bool		loadAuxData(const MultiID&,int);
     bool		loadAuxData(const MultiID&,const char*);
     int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&,
 	    				     bool);
 
     bool		importLMKFault();
-    bool		selectFault(MultiID&);
 
     bool		selectStickSet(MultiID&);
     bool		createStickSet(MultiID&);

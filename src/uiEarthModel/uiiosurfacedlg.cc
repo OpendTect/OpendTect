@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.10 2003-11-24 08:54:54 kristofer Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.11 2003-12-18 12:45:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,16 +15,18 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "uimsg.h"
 #include "ioobj.h"
+#include "emsurface.h"
 #include "emhorizon.h"
 #include "emmanager.h"
 
 
-uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Horizon& hor_ )
+uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf_ )
     : uiDialog(p,uiDialog::Setup("Output selection","","104.3.1"))
-    , hor(hor_)
+    , surf(surf_)
     , auxdataidx(-1)
 {
-    iogrp = new uiSurfaceWrite( this, hor );
+    mDynamicCastGet(const EM::Horizon*,hor,&surf)
+    iogrp = new uiSurfaceWrite( this, surf, (bool)hor );
 }
 
 
@@ -44,8 +46,8 @@ bool uiWriteSurfaceDlg::acceptOK( CallBacker* )
     if ( rv && !uiMSG().askGoOn(msg) )
 	return false;
 
-    if ( attrnm != hor.auxDataName(0) )
-	const_cast<EM::Horizon&>(hor).setAuxDataName( 0, attrnm.buf() );
+    if ( attrnm != surf.auxDataName(0) )
+	const_cast<EM::Surface&>(surf).setAuxDataName( 0, attrnm.buf() );
 
     return true;
 }
@@ -89,7 +91,7 @@ IOObj* uiWriteSurfaceDlg::ioObj() const
 bool uiWriteSurfaceDlg::checkIfAlreadyPresent( const char* attrnm )
 {
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( hor.multiID(), sd );
+    EM::EMM().getSurfaceData( surf.multiID(), sd );
 
     bool present = false;
     auxdataidx = -1;
@@ -107,10 +109,10 @@ bool uiWriteSurfaceDlg::checkIfAlreadyPresent( const char* attrnm )
 
 
 
-uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p )
+uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, bool ishor )
     : uiDialog(p,uiDialog::Setup("Input selection","","104.3.0"))
 {
-    iogrp = new uiSurfaceRead( this, false );
+    iogrp = new uiSurfaceRead( this, ishor, false );
 }
 
 

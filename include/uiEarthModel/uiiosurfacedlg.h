@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.8 2003-12-18 12:45:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiSurfaceRead;
 class uiSurfaceWrite;
 class MultiID;
 
-namespace EM { class Horizon; class SurfaceIODataSelection; };
+namespace EM { class Surface; class SurfaceIODataSelection; };
 
 
 /*! \brief Dialog for horizon export */
@@ -27,7 +27,7 @@ namespace EM { class Horizon; class SurfaceIODataSelection; };
 class uiWriteSurfaceDlg : public uiDialog
 {
 public:
-			uiWriteSurfaceDlg(uiParent*,const EM::Horizon&);
+			uiWriteSurfaceDlg(uiParent*,const EM::Surface&);
 
     bool		auxDataOnly() const;
     bool		surfaceOnly() const;
@@ -40,7 +40,7 @@ protected:
     int			auxdataidx;
 
     uiSurfaceWrite*	iogrp;
-    const EM::Horizon&	hor;
+    const EM::Surface&	surf;
 
     bool		checkIfAlreadyPresent(const char*);
     bool		acceptOK(CallBacker*);
@@ -50,16 +50,16 @@ protected:
 class uiReadSurfaceDlg : public uiDialog
 {
 public:
-                        uiReadSurfaceDlg(uiParent*);
+			uiReadSurfaceDlg(uiParent*,bool ishor);
 
     IOObj*		ioObj() const;
     void		getSelection(EM::SurfaceIODataSelection&);
 
 protected:
 
-    uiSurfaceRead*        iogrp;
+    uiSurfaceRead*	iogrp;
 
-    bool                acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*);
 };
 
 

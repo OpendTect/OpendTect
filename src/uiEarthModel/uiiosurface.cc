@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.16 2003-12-16 09:49:12 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.17 2003-12-18 12:45:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,9 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iodirentry.h"
 #include "emmanager.h"
-#include "emhorizon.h"
+#include "emsurface.h"
 #include "emhorizontransl.h"
+#include "emfaulttransl.h"
 #include "emsurfaceiodata.h"
 #include "uimsg.h"
 
@@ -29,9 +30,9 @@ ________________________________________________________________________
 const int cListHeight = 5;
 
 
-uiIOSurface::uiIOSurface( uiParent* p )
+uiIOSurface::uiIOSurface( uiParent* p, bool ishor )
     : uiGroup(p,"Surface selection")
-    , ctio(*mMkCtxtIOObj(EMHorizon))
+    , ctio( ishor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault))
     , patchfld(0)
     , attribfld(0)
     , rgfld(0)
@@ -161,22 +162,23 @@ void uiIOSurface::objSel( CallBacker* )
 
 
 
-uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Horizon& hor_ )
-    : uiIOSurface(p)
+uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
+				bool ishor )
+    : uiIOSurface(p,ishor)
     , savefld(0)
 {
-    if ( hor_.nrAuxData() )
+    if ( surf_.nrAuxData() )
     {
 	attrnmfld = new uiGenInput( this, "Attribute" );
-	attrnmfld->setText( hor_.auxDataName(0) );
+	attrnmfld->setText( surf_.auxDataName(0) );
 
 	savefld = new uiGenInput( this, "Save", 
-	    		BoolInpSpec("Attribute only","Horizon and attribute") );
+	    		BoolInpSpec("Attribute only","Surface and attribute") );
 	savefld->attach( alignedBelow, attrnmfld );
 	savefld->valuechanged.notify( mCB(this,uiSurfaceWrite,savePush) );
     }
 
-    if ( hor_.nrPatches() > 1 )
+    if ( surf_.nrPatches() > 1 )
     {
 	mkPatchFld( false );
 	if ( savefld ) patchfld->attach( alignedBelow, savefld );
@@ -188,10 +190,10 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Horizon& hor_ )
     else if ( savefld )
 	rgfld->attach( alignedBelow, savefld );
 
-    mkObjFld( "Output Horizon", false );
+    mkObjFld( "Output Surface", false );
     objfld->attach( alignedBelow, rgfld );
 
-    fillFields( hor_.multiID() );
+    fillFields( surf_.multiID() );
     setHAlignObj( rgfld );
 
     savePush(0);
@@ -248,10 +250,10 @@ bool uiSurfaceWrite::surfaceAndData() const
 
 
 
-uiSurfaceRead::uiSurfaceRead( uiParent* p, bool showattribfld )
-    : uiIOSurface( p )
+uiSurfaceRead::uiSurfaceRead( uiParent* p, bool ishor, bool showattribfld )
+    : uiIOSurface(p,ishor)
 {
-    mkObjFld( "Input Horizon", true );
+    mkObjFld( "Input Surface", true );
     objfld->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
 
     mkPatchFld( showattribfld );

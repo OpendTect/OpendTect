@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.10 2003-12-16 09:49:17 nanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.11 2003-12-18 12:45:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class MultiID;
 class uiObject;
 class BufferStringSet;
 
-namespace EM { class Horizon; class SurfaceIODataSelection; };
+namespace EM { class Surface; class SurfaceIODataSelection; };
 
 
 /*! \brief Base group for Surface input and output */
@@ -42,7 +42,7 @@ public:
     virtual bool	processInput()		{ return true; };
 
 protected:
-			uiIOSurface(uiParent*);
+			uiIOSurface(uiParent*,bool ishor);
 
     void		fillFields(const MultiID&);
     void		fillPatchFld(const BufferStringSet&);
@@ -68,7 +68,7 @@ protected:
 class uiSurfaceWrite : public uiIOSurface
 {
 public:
-			uiSurfaceWrite(uiParent*,const EM::Horizon&);
+			uiSurfaceWrite(uiParent*,const EM::Surface&,bool);
 
     const char*		auxDataName() const;
     bool		saveAuxDataOnly() const;
@@ -88,7 +88,7 @@ protected:
 class uiSurfaceRead : public uiIOSurface
 {
 public:
-    			uiSurfaceRead(uiParent*,bool showattribfld=true);
+    			uiSurfaceRead(uiParent*,bool,bool showattribfld=true);
 			~uiSurfaceRead();
 
     virtual bool	processInput();

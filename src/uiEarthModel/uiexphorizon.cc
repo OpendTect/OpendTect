@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.25 2003-12-16 12:13:00 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.26 2003-12-18 12:45:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format","104.0.1"))
 {
-    infld = new uiSurfaceRead( this );
+    infld = new uiSurfaceRead( this, true );
 
     typfld = new uiGenInput( this, "Output type", StringListInpSpec(exptyps) );
     typfld->attach( alignedBelow, infld );
