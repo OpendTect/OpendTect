@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.15 2004-04-05 12:20:27 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.16 2004-04-14 11:12:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "strmprov.h"
 #include "ctxtioobj.h"
 #include "uilistbox.h"
 #include "uiioobjmanip.h"
@@ -103,6 +104,8 @@ void uiSurfaceMan::remPush( CallBacker* )
    
     mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
     if ( !iostrm ) return;
+    StreamProvider sp( iostrm->fileName() );
+    sp.addPathIfNecessary( iostrm->dirName() );
 
     const char* attrnm = attribfld->getText();
     int gap = 0;
@@ -111,7 +114,7 @@ void uiSurfaceMan::remPush( CallBacker* )
 	if ( gap > 100 ) return;
 
 	BufferString fnm(
-		EM::dgbSurfDataWriter::createHovName(iostrm->fileName(),idx) );
+		EM::dgbSurfDataWriter::createHovName(sp.fileName(),idx) );
 	if ( File_isEmpty(fnm) )
 	{ gap++; continue; }
 
