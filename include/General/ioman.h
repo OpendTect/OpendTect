@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.7 2001-10-04 15:26:46 nanne Exp $
+ RCS:		$Id: ioman.h,v 1.8 2001-11-07 17:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ private:
     FileNameString	rootdir;
 
     static IOMan*	theinst_;
-			IOMan();
+			IOMan(const char* rd=0);
     			~IOMan();
     void		init();
     static void		stop();
