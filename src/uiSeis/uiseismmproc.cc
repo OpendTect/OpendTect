@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.36 2003-01-07 11:59:09 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.37 2003-01-10 12:35:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,7 @@ static int askRemaining( const SeisMMJobMan& jm )
     else
     {
 	msg = "The following inlines were not calculated.\n"
-		"This may be due to gaps or unexpected errors.\n";
+		" (this may be due to gaps or unexpected errors):\n";
 	jm.getToDoList( msg );
 	msg += "\nDo you want to try to calculate these lines?";
     }
