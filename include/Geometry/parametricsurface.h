@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.1 2005-01-06 09:44:18 kristofer Exp $
+RCS:           $Id: parametricsurface.h,v 1.2 2005-01-13 09:40:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,11 @@ public:
     bool		isDefined( int64_t pid ) const;
 
     bool		isAtEdge( const RCol& ) const;
+
+    bool		checkSupport(bool yn);
+    			/*!<Specifies wether support should be checked */
+    bool		checksSupport() const;
+    			/*!<\returns wether support should be checked */
 protected:
     virtual void	_setKnot( int idx, const Coord3& ) 		= 0;
 
@@ -66,8 +71,10 @@ protected:
     virtual int	nrCols() const 						= 0;
     bool	isAtSameEdge(const RCol&,const RCol&,TypeSet<RowCol>* =0) const;
 
-    RowCol		origo;
-    RowCol		step;
+    bool	checksupport;
+
+    RowCol	origo;
+    RowCol	step;
 };
 
 };

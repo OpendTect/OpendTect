@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.1 2005-01-06 09:45:32 kristofer Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.2 2005-01-13 09:37:26 kristofer Exp $";
 
 #include "parametricsurface.h"
 
@@ -20,6 +20,7 @@ namespace Geometry
 ParametricSurface::ParametricSurface( const RCol& origo_, const RCol& step_ )
     : origo( origo_ )
     , step( step_ )
+    , checksupport( true )
 { }
 
 
@@ -182,6 +183,16 @@ bool ParametricSurface::isDefined( int64_t pid ) const
 { return isKnotDefined( RowCol(pid) ); }
 
 
+bool ParametricSurface::checkSupport(bool yn)
+{
+    const bool oldstatus = checksupport;
+    checksupport = yn;
+    return oldstatus;
+}
+
+
+bool ParametricSurface::checksSupport() const { return checksupport; }
+
 
 int ParametricSurface::getIndex( const RCol& rc ) const
 {
@@ -203,6 +214,8 @@ int ParametricSurface::getIndex( const RCol& rc ) const
 
 bool ParametricSurface::hasSupport( const RCol& rc ) const
 {
+    if ( !checksupport ) return true;
+
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
     const int nrdirs = dirs.size();
 
