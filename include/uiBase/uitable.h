@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uitable.h,v 1.13 2004-03-19 14:25:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,34 +54,41 @@ public:
     {
     public:
 
-			Setup()
-			    : size_( -1, -1 )
-			    , rowgrow_(false)
-			    , colgrow_(false)
-			    , rowdesc_("Row")
-			    , coldesc_("Column")
-			    , fillrow_(true)
-			    , fillcol_(false)
-			    , minrowhgt_( 1 )
-			    , maxrowhgt_( 3 )
-			    , mincolwdt_( uiObject::baseFldSize() )
-			    , maxcolwdt_( 2.3 * uiObject::baseFldSize() )
-			    , selmode_( NoSelection )
-			    , snglclkedit_( true ) {}
+		    Setup()
+			: size_( -1, -1 )
+			, rowgrow_(false)
+			, colgrow_(false)
+			, rowdesc_("Row")
+			, coldesc_("Column")
+			, fillrow_(true)
+			, fillcol_(false)
+			, minrowhgt_( 1 )
+			, maxrowhgt_( 3 )
+			, mincolwdt_( uiObject::baseFldSize() )
+			, maxcolwdt_( 2.3 * uiObject::baseFldSize() )
+			, selmode_( NoSelection )
+			, snglclkedit_( true )
+			, defcollbl_(false)
+			, defrowlbl_(false)		{}
 
-	Setup& size( const Size& s )		{ size_ = s; return *this; }
-	Setup& rowdesc( const char* s )		{ rowdesc_ = s; return *this; }
-	Setup& coldesc( const char* s )		{ coldesc_ = s; return *this; }
-	Setup& rowcangrow( bool s=true )	{ rowgrow_ = s; return *this; }
-	Setup& colcangrow( bool s=true )	{ colgrow_ = s; return *this; }
-	Setup& fillrow( bool s=true )		{ fillrow_ = s; return *this; }
-	Setup& fillcol( bool s=true )		{ fillcol_ = s; return *this; }
-	Setup& maxrowhgt( float s )		{ maxrowhgt_= s; return *this; }
-	Setup& minrowhgt( float s )		{ minrowhgt_= s; return *this; }
-	Setup& maxcolwdt( float s )		{ maxcolwdt_= s; return *this; }
-	Setup& mincolwdt( float s )		{ mincolwdt_= s; return *this; }
-	Setup& selmode( SelectionMode s )	{ selmode_= s; return *this; }
-	Setup& singleclickedit( bool s=true )   { snglclkedit_=s; return *this;}
+#define mSetVar(var) { var=s; return *this; }
+	Setup& size(const Size& s)		mSetVar(size_)
+	Setup& rowdesc(const char* s)		mSetVar(rowdesc_)
+	Setup& coldesc(const char* s)		mSetVar(coldesc_)
+	Setup& rowcangrow(bool s=true)		mSetVar(rowgrow_)
+	Setup& colcangrow(bool s=true)		mSetVar(colgrow_)
+	Setup& fillrow(bool s=true)		mSetVar(fillrow_)
+	Setup& fillcol(bool s=true)		mSetVar(fillcol_)
+	Setup& maxrowhgt(float s)		mSetVar(maxrowhgt_)
+	Setup& minrowhgt(float s)		mSetVar(minrowhgt_)
+	Setup& maxcolwdt(float s)		mSetVar(maxcolwdt_)
+	Setup& mincolwdt(float s)		mSetVar(mincolwdt_)
+	Setup& selmode(SelectionMode s)		mSetVar(selmode_)
+	Setup& singleclickedit(bool s=true)	mSetVar(snglclkedit_)
+	Setup& defrowlbl(bool s=true)		mSetVar(defrowlbl_)
+	Setup& defcollbl(bool s=true)		mSetVar(defcollbl_)
+#undef mSetVar
+
 
 	Size		size_;
 	BufferString	rowdesc_;
@@ -96,6 +103,8 @@ public:
 	float		maxcolwdt_; //!< times average font width
 	SelectionMode	selmode_;
 	bool		snglclkedit_;
+	bool		defrowlbl_;
+	bool		defcollbl_;
     };
 
                         uiTable(uiParent*, const Setup&,const char* nm="Table");
@@ -165,6 +174,8 @@ public:
     void		setColumnLabels( const BufferStringSet& labels);
     void		setColumnLabel( const RowCol& rc, const char* label )
 			    { setColumnLabel( rc.col, label ); }
+    void		setDefaultRowLabels();
+    void		setDefaultColLabels();
 
     Setup&		setup() 		{ return setup_; }
     const Setup&	setup() const		{ return setup_; }
@@ -177,7 +188,9 @@ public:
 
     RowCol		newCell() const		{ return newcell_; }
     Notifier<uiTable>	rowInserted;
+    Notifier<uiTable>	rowDeleted;
     Notifier<uiTable>	colInserted;
+    Notifier<uiTable>	colDeleted;
 
     UserInputObj*	mkUsrInputObj(const RowCol&);
     void		delUsrInputObj(const RowCol&);
