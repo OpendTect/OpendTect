@@ -25,7 +25,7 @@ static void putComps( const ObjectSet<BasicComponentInfo>& cinfo )
     for ( int idx=0; idx<cinfo.size(); idx++ )
     {
 	const BasicComponentInfo& bci = *cinfo[idx];
-	cerr << "\nComponent '" << (const char*)bci.name() << ':' << endl;
+	cerr << "\nComponent '" << (const char*)bci.name() << "':" << endl;
 	cerr << "Data Characteristics: "
 	     << (bci.datachar.isInteger() ? "Integer" : "Floating point") <<' ';
 	if ( bci.datachar.isInteger() )
