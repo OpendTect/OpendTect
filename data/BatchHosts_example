@@ -5,9 +5,19 @@ Thu Nov 28 13:26:51 2002
 Remote shell: rsh
 Default nice level: 19
 !
-dgb8:	IRIX machine (LOW GHz)
+--
+-- The list of hosts that are available for batch processing. Format is:
+--
+-- hostname_for_program: name_in_user_displays
+--
+-- The user display hostnames must be unique. The user hostname can be omitted,
+-- in which case the real hostname will be displayed to the user.
+--
+--
+dgb8:	IRIX machine (<<1 GHz)
+dgb26:	Solaris machine (<1 GHz)
 dgb20:	Demo machine (1.0 GHz)
-dgb27:	Dual processor machine (2 x 1.0 GHz)
+dgb27:	Matthijs' machine (2 x 1.0 GHz)
 dgb32:	Nanne's machine (1.8 GHz)
 dgb33:	Bert's machine (1.8 GHz)
 dgb35:	Herald's machine (2.2 GHz)

@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.6 2001-10-01 20:36:08 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.7 2002-12-27 16:15:17 bert Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -313,7 +313,6 @@ bool IODir::doWrite() const
 
     ascostream astream( *streamptr );
     if ( !astream.putHeader( "Object Management file" ) ) mCloseRetNo(streamptr)
-    astream.paddingOff();
     FileMultiString fms( key_ == "" ? "0" : (const char*)key_ );
     fms += curid_;
     astream.put( "ID", fms );

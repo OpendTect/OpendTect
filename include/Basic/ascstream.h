@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.5 2001-05-31 12:55:02 windev Exp $
+ RCS:		$Id: ascstream.h,v 1.6 2002-12-27 16:15:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class MeasureUnit;
 
 #define mParagraphMarker	"!"
-#define mKeyValSepar		':'
+#define mDefKeyValSep		':'
 #define mMaxWordLength		1023
 #define	mMaxFileHeadLength	80
 #define	mMaxLineLength		(USHRT_MAX-1)
@@ -40,13 +40,12 @@ class ascostream
 {
 
 public:
-		ascostream(ostream& strm)
-			: mystrm(NO)	{ init(&strm); }
-		ascostream(ostream* strm)
-			: mystrm(YES)	{ init(strm); }
+		ascostream(ostream& strm,char kvsep=mDefKeyValSep)
+			: mystrm(NO), keyvalsep(kvsep)	{ init(&strm); }
+		ascostream(ostream* strm,char kvsep=mDefKeyValSep)
+			: mystrm(YES), keyvalsep(kvsep)	{ init(strm); }
 		~ascostream();
 
-    void	setColonPos( int pos )	{ colonpos = pos; }
     bool	put(const char*,const char* val=0);
     bool	put(const char*,int);
     bool	put(const char*,float,const MeasureUnit* mu=0);
@@ -56,8 +55,6 @@ public:
 
     void	tabsOn()		{ tabs = YES; }
     void	tabsOff()		{ tabs = NO; }
-    void	paddingOn()		{ pad = YES; }
-    void	paddingOff()		{ pad = NO; }
 
     void	newParagraph();
     void	putKeyword(const char*);
@@ -67,18 +64,14 @@ public:
 protected:
 
     ostream*	streamptr;
-    int		colonpos;
     bool	mystrm;
     bool	tabs;
-    bool	pad;
+    char	keyvalsep;
 
 private:
 
     void	init( ostream* strmptr )
-		{
-		    streamptr = strmptr; tabs = NO; pad = YES;
-		    colonpos = 25;
-		}
+		{ streamptr = strmptr; tabs = NO; }
 
 };
 
@@ -97,15 +90,19 @@ USHRT_MAX-1, i.e. 65534. If word parsing is used, the limit is 1023 per word.
 class ascistream
 {
 public:
-			ascistream(istream& strm,int rdhead=YES)
+			ascistream(istream& strm,int rdhead=YES,
+				   char kvsep=mDefKeyValSep)
 				: mystrm(NO)
 				, keybuf("",mMaxWordLength)
 				, valbuf("",mMaxWordLength)
+				, keyvalsep(kvsep)
 				{ init(&strm,rdhead); }
-			ascistream(istream* strm,int rdhead=YES)
+			ascistream(istream* strm,int rdhead=YES,
+				   char kvsep=mDefKeyValSep)
 				: mystrm(YES)
 				, keybuf("",mMaxWordLength)
 				, valbuf("",mMaxWordLength)
+				, keyvalsep(kvsep)
 				{ init(strm,rdhead); }
 			~ascistream();
 
@@ -138,7 +135,7 @@ public:
     const char*		keyWord() const		{ return keybuf; }
     const char*		value() const		{ return valbuf; }
 
-			// Who knows, maybe you'll ever need these
+			// This is for overriding what's in the file
     void		setKeyWord( const char* s ) { keybuf = s; }
     void		setValue( const char* s ) { valbuf = s; }
     void		setTabbed( bool yn ) 	{ tabbed = yn; }
@@ -150,6 +147,7 @@ protected:
     bool		tabbed;
     BufferString	keybuf;
     BufferString	valbuf;
+    char		keyvalsep;
 
     void		resetPtrs(bool);
 

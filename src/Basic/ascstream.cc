@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.5 2001-05-31 12:55:10 windev Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.6 2002-12-27 16:15:17 bert Exp $";
 
 #include "ascstream.h"
 #include "unitscale.h"
@@ -32,35 +32,17 @@ void ascostream::putKeyword( const char* keyword )
 {
     if ( !keyword ) return;
 
-    if ( pad )
-    {
-	int keywlength = colonpos;
-	if ( tabs ) { stream() << '\t'; keywlength -= 8; }
-	if ( (int)strlen(keyword) > keywlength )
-	    stream() << keyword << mKeyValSepar << ' ';
-	else
-	{
-	    char buf[132];
-	    if ( strlen((char*)keyword) > 131 )
-		stream() << keyword << mKeyValSepar << '\t';
-	    else
-	    {
-		getPaddedString( (char*)keyword, buf, keywlength );
-		stream() << buf << mKeyValSepar << '\t';
-	    }
-	}
-    }
-    else
-    {
-	if ( tabs ) stream() << '\t';
-	stream() << keyword << mKeyValSepar << ' ';
-    }
+    if ( tabs ) stream() << '\t';
+    stream() << keyword << keyvalsep;
+    if ( keyvalsep != '=' )
+	stream() << ' ';
 }
 
 
 bool ascostream::put( const char* keyword, const char* value )
 {
-    if ( !value ) stream() << keyword;
+    if ( !value )
+	stream() << keyword;
     else
     {
 	putKeyword( keyword );
@@ -177,7 +159,7 @@ ascistream& ascistream::next()
     }
     tabbed = linebuf[0] == '\t';
 
-    char* separptr = strchr( linebuf, mKeyValSepar );
+    char* separptr = strchr( linebuf, keyvalsep );
     char* startptr = separptr + 1;
     if ( separptr )
     {
