@@ -1,5 +1,4 @@
 #ifndef uigeninput_h
-    void		clear( int nr=-1 );
 #define uigeninput_h
 
 /*+
@@ -8,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.25 2003-12-22 15:26:13 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.26 2004-02-19 14:21:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uigroup.h>
-#include <datainpspec.h>
-#include <position.h>
+#include "uigroup.h"
+#include "datainpspec.h"
+#include "position.h"
 
 class uiLineEdit;
 class uiLabel;
@@ -110,25 +109,31 @@ Returns true, if changes are accepted.
     float		getfValue( int nr=0, float undefVal=mUndefValue ) const;
     bool		getBoolValue( int nr=0, bool undefVal=false ) const;
 
-    inline Interval<int> getIInterval() const
-			{ return Interval<int>(getIntValue(0),getIntValue(1)); }
-    inline Interval<float> getFInterval() const
-			{ return Interval<float>(getfValue(0),getfValue(1)); }
-    inline Interval<double> getDInterval() const
-			{ return Interval<double>(getValue(0),getValue(1)); }
-    inline StepInterval<int> getIStepInterval() const
-			{ return StepInterval<int>(getIntValue(0),
-					getIntValue(1),getIntValue(2)); }
-    inline StepInterval<float> getFStepInterval() const
-			{ return StepInterval<float>(getfValue(0),getfValue(1),
-						     getfValue(2)); }
-    inline StepInterval<double> getDStepInterval() const
-			{ return StepInterval<double>(getValue(0),getValue(1),
-						      getValue(2)); }
-    inline Coord	getCoord() const
-			{ return Coord(getValue(0),getValue(1)); }
-    inline BinID	getBinID() const
-			{ return BinID(getIntValue(0),getIntValue(1)); }
+    inline Interval<int> getIInterval(int nr=0) const
+			{ return Interval<int>( getIntValue(nr*2),
+						getIntValue(nr*2+1) ); }
+    inline Interval<float> getFInterval(int nr=0) const
+			{ return Interval<float>( getfValue(nr*2),
+						  getfValue(nr*2+1) ); }
+    inline Interval<double> getDInterval(int nr=0) const
+			{ return Interval<double>( getValue(nr*2),
+						   getValue(nr*2+1) ); }
+    inline StepInterval<int> getIStepInterval(int nr=0) const
+			{ return StepInterval<int>( getIntValue(nr*3),
+						    getIntValue(nr*3+1),
+						    getIntValue(nr*3+2) ); }
+    inline StepInterval<float> getFStepInterval(int nr=0) const
+			{ return StepInterval<float>( getfValue(nr*3),
+						      getfValue(nr*3+1),
+						      getfValue(nr*3+2) ); }
+    inline StepInterval<double> getDStepInterval(int nr=0) const
+			{ return StepInterval<double>( getValue(nr*3),
+						       getValue(nr*3+1),
+						       getValue(nr*3+2) ); }
+    inline Coord	getCoord(int nr=0) const
+			{ return Coord(getValue(nr*2),getValue(nr*2+1)); }
+    inline BinID	getBinID(int nr=0) const
+			{ return BinID(getIntValue(nr*2),getIntValue(nr*2+1)); }
 
     void		setText(const char*,int nr=0);
     void		setValue(int,int nr=0);
@@ -166,12 +171,13 @@ Returns true, if changes are accepted.
 			{ setValue(i.start,0); setValue(i.stop,1);
 			  setValue(i.step,2); }
 
-    void		setReadOnly( bool yn=true, int nr=-1 );
-    void		setSensitive(bool yn=true, int elemnr=-1, int fldnr=-1);
-    void		clear( int nr=-1 );
+    void		displayField(bool yn=true,int elemnr=-1,int fldnr=-1);
+    void		setReadOnly( bool yn=true,int nr=-1);
+    void		setSensitive(bool yn=true,int elemnr=-1,int fldnr=-1);
+    void		clear(int nr=-1);
 
 			//! returns 0 if not finalised.
-    UserInputObj*	element( int idx ); 
+    UserInputObj*	element(int idx); 
     int			nElements() const; 
     void		setElemSzPol( uiObject::SzPolicy p )	{ elemszpol=p; }
     uiObject::SzPolicy	elemSzPol() const		{ return elemszpol; }
@@ -182,13 +188,14 @@ Returns true, if changes are accepted.
 
     void 		setChecked( bool yn );
     bool		isChecked();
-    bool		isCheckable() { return cbox ? true : false; }
+    bool		isCheckable()
+    			{ return cbox ? true : false; }
 
     virtual bool 	isSingleLine() const		{ return true; }
 
     void		setWithCheck( bool yn=true )	{ withchk = yn; }
     void		setWithSelect( bool yn=true ) 
-			    { selText = yn ? "Select ..." : "" ; }
+			{ selText = yn ? "Select ..." : "" ; }
 
     Notifier<uiGenInput> checked;
     Notifier<uiGenInput> valuechanging;
@@ -237,7 +244,6 @@ private:
     ObjectSet<DataInpSpec> inputs;
 
     uiObject::SzPolicy	elemszpol;
-
 };
 
 
