@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uimainwin.h,v 1.2 2001-02-16 17:01:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ protected:
     virtual i_LayoutMngr* prntLayoutMngr() 	{ return 0; }
     
     virtual void	forceRedraw_( bool deep );
+    virtual void	finalise_();
 
     // don't change order of these 3 attributes!
     i_LayoutMngr*	mLoMngr;
@@ -54,7 +55,7 @@ protected:
 
     virtual const uiObject& clientWidget_() 	const;
 
-    virtual void	postShow(CallBacker*);
+    virtual void	polish();
     void		msghToStatusbar(CallBacker*);
 
 };

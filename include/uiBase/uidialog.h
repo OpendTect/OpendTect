@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.2 2001-01-26 09:54:01 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.3 2001-02-16 17:01:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ mTemplTypeDefT( i_QObjWrapper, QDialog, i_QDialog )
 mTemplTypeDefT( i_QObjWrapper, QWidget, i_QWidget )
 
 class i_LayoutMngr;
-class uiButton;
+class uiPushButton;
 class uiCheckBox;
 class uiSeparator;
 
@@ -76,7 +76,7 @@ protected:
     virtual bool	doneOK(CallBacker*){ return true; }   //!< confirm exit 
     void		done_(int);
 
-    virtual void        preShow();
+    virtual void	finalise_();
 
     // don't change the order of these 5 attributes!
     bool		initing;
@@ -93,8 +93,8 @@ protected:
     BufferString	saveText;
     bool		separ;
 
-    uiButton*		okBut;
-    uiButton*		cnclBut;
+    uiPushButton*	okBut;
+    uiPushButton*	cnclBut;
     uiCheckBox*		saveBut;
     uiSeparator*	horSepar;
     uiLabel*		title;

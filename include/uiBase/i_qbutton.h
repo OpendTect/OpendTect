@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.1 2000-11-27 10:19:26 bert Exp $
+ RCS:           $Id: i_qbutton.h,v 1.2 2001-02-16 17:01:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ public:
                                        	  	uiButton* receiver )
                                 : _receiver( receiver )
 				{
+				    connect( sender, SIGNAL( clicked() ), 
+					     this,   SLOT( clicked() ) );
 				    connect( sender, SIGNAL( pressed() ), 
 					     this,   SLOT( pressed() ) );
 				    connect( sender, SIGNAL( released() ), 
@@ -47,6 +49,8 @@ private:
 
 private slots:
 
+    void clicked() 		
+		{ return _receiver->notifyHandler( uiButton::clicked ); }
     void pressed() 		
 		{ return _receiver->notifyHandler( uiButton::pressed ); }
     void released()		

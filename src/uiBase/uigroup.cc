@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.2 2001-01-24 12:58:47 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.3 2001-02-16 17:02:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,11 @@ void uiGroup::forceRedraw_( bool deep )
     loMngr.forceChildrenRedraw( this, deep ); 
 }
 
+void uiGroup::finalise_()
+{  
+    uiObject::finalise_();
+    loMngr.finalise(); 
+}
 
 int uiGroup::horCentre() const
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uiobj.cc,v 1.2 2001-02-16 17:02:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,22 +34,21 @@ uiObject::uiObject( uiObject* parnt, const char* nm )
     , cached_pref_width( 0 )
     , cached_pref_height( 0 )
     , font_( 0 )
-    , showTimer( *new Timer )
-{
-    showTimer.tick.notify(mCB(this,uiObject,postShow));
-}
+    , finalised( false )
+{ }
 
 uiObject::~uiObject() 
-{ delete &showTimer; }
+{ }
 
 
-void uiObject::show( CallBacker* )
+void uiObject::show()
 {
     isHidden = false;
+    finalise();
     qWidget().show();
 }
 
-void uiObject::hide( CallBacker* )
+void uiObject::hide()
 {
     if( !isHidden )
     {
@@ -59,6 +58,11 @@ void uiObject::hide( CallBacker* )
     }
 
     qWidget().hide();
+}
+
+void uiObject::setFocus()
+{ 
+    qWidget().setFocus();
 }
 
 void uiObject::setSensitive( bool yn )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.2 2001-01-26 09:54:00 arend Exp $
+ RCS:           $Id: uibutton.h,v 1.3 2001-02-16 17:01:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 protected:
 
     //! Button signals emitted by Qt.
-    enum notifyTp	{ pressed, released, toggled, stateChanged };
+    enum notifyTp	{ clicked, pressed, released, toggled, stateChanged };
 
     //! Handler called from Qt.
     virtual void        notifyHandler( notifyTp ) = 0; 
@@ -74,12 +74,12 @@ public:
     virtual		~uiPushButton();
 
     virtual QButton&    qButton();
-
+    void		setDefault( bool yn = true);
 protected:
 
     const QWidget*	qWidget_() const;
     virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == released ) Notifier(); }
+			{ if ( tp == clicked ) Notifier(); }
 };
 
 
@@ -98,7 +98,7 @@ protected:
 
     const QWidget*	qWidget_() const;
     virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == released ) Notifier(); }
+			{ if ( tp == clicked ) Notifier(); }
 };
 
 
@@ -138,7 +138,7 @@ protected:
 
     const QWidget*	qWidget_() const;
     virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == released ) Notifier(); }
+			{ if ( tp == clicked ) Notifier(); }
 };
 
 

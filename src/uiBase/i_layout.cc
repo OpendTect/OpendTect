@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.2 2001-01-24 12:58:43 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.3 2001-02-16 17:02:00 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -497,11 +497,11 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 	    break;
 	case stretchedLeftTo:
 	    other-> constrList.append( 
-			    new uiConstraint( ensureRightOf, this, margn ) );
+			    new uiConstraint( stretchedRightTo, this, margn ) );
 	    break;
 	case stretchedRightTo:
 	    other-> constrList.append( 
-			    new uiConstraint( ensureLeftOf, this, margn ) );
+			    new uiConstraint( stretchedLeftTo, this, margn ) );
 	    break;
 
 	case leftBorder:
@@ -569,6 +569,7 @@ i_LayoutMngr::i_LayoutMngr( uiObject *parnt, int border, int space,
 			    : QLayout( &parnt->qWidget(), border, space, name )
 			    , UserIDObject( parnt->name() )
 			    , parnt_( parnt )
+			    , finalised( false )
 			    , curmode( preferred )
 			    , mintextwidgetheight_( 0 )
 
@@ -579,6 +580,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* prntWidg, uiObject *parnt,
 			    : QLayout( prntWidg, border, space, name )
 			    , UserIDObject( parnt->name() )
 			    , parnt_( parnt )
+			    , finalised( false )
 			    , curmode( preferred )
 			    , mintextwidgetheight_( 0 )
 
@@ -612,6 +614,7 @@ void i_LayoutMngr::addItem( QLayoutItem *qItem )
 
 QSize i_LayoutMngr::minimumSize() const
 {
+    //finalise();
     setMode( minimum ); 
     doLayout( QRect() );
     uiRect mPos = pos();
@@ -620,6 +623,7 @@ QSize i_LayoutMngr::minimumSize() const
 
 QSize i_LayoutMngr::sizeHint() const
 {
+    //finalise();
     setMode( preferred ); 
     doLayout( QRect() );
     uiRect mPos = pos();
@@ -636,8 +640,8 @@ QLayoutIterator i_LayoutMngr::iterator()
     return QLayoutIterator( new i_LayoutIterator( &childrenList ) ) ;
 }
 
+//! \internal class used when resizing a window
 class resizeItem
-//!< \internal class used when resizing a window
 {
 public:
 			resizeItem( i_LayoutItem* it, int hStr, int vStr ) 
@@ -665,11 +669,13 @@ void i_LayoutMngr::forceChildrenRedraw( uiObject* cb, bool deep )
 	uiObject* cl = curChld->uiClient();
 	if( cl && cl != cb ) cl->forceRedraw_( deep );
     }
+
 }
 
 
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
+    //finalise();
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
@@ -787,15 +793,34 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
 int& i_LayoutMngr::mintextwidgetheight()
 {
+    //finalise();
     if( !parnt_->prntLayoutMngr() || parnt_->prntLayoutMngr() == this ) 
 	return mintextwidgetheight_;
 
     return parnt_->prntLayoutMngr()->mintextwidgetheight();
 }
 
+void i_LayoutMngr::finalise_()
+{
+    finalised=true;
+    //parnt_->finalise();
+
+    i_LayoutItem*       	curChld=0;
+    QListIterator<i_LayoutItem> childIter( childrenList );
+
+    childIter.toFirst();
+    while ( (curChld = childIter.current()) )
+    {
+        ++childIter;
+	uiObject* cl = curChld->uiClient();
+	if( cl ) cl->finalise();
+    }
+}
+
 
 void i_LayoutMngr::doLayout( const QRect &externalRect )
 {
+    //finalise();
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
@@ -830,6 +855,7 @@ void i_LayoutMngr::doLayout( const QRect &externalRect )
 
 void i_LayoutMngr::layoutChildren( int* itr )
 {
+    //finalise();
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
@@ -856,6 +882,7 @@ void i_LayoutMngr::layoutChildren( int* itr )
 uiRect i_LayoutMngr::childrenRect()
 //!< returns rectangle wrapping around all children.
 {
+    //finalise();
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
@@ -907,6 +934,9 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
 			    QWidget* other, int margin) 
 //!< \return true if successful
 {
+    //finalised = false;
+    //parnt_->finalised = false;
+
     QListIterator<i_LayoutItem> childIter( childrenList );
    
     childIter.toFirst();

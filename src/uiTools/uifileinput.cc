@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.2 2001-01-24 12:58:58 arend Exp $
+ RCS:           $Id: uifileinput.cc,v 1.3 2001-02-16 17:02:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,28 +13,31 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "uilabel.h"
 #include "uibutton.h"
-#include "uigenselect.h"
+#include "uigeninput.h"
+#include <datainpspec.h>
 
 
 uiFileInput::uiFileInput( uiObject* p, const char* txt, const char* fnm,
-			  bool fr, bool withclear, const char* filt )
-	: uiGenSelect( p, txt, fnm, 0, withclear )
+			  bool fr, const char* filt )
+	: uiGenInput( p, txt, FileNameInp(fnm) )
 	, forread(fr)
 	, fname( fnm )
 	, filter(filt)
-{}
-
-
-void uiFileInput::doSelect_( CallBacker* )
 {
-    fname = inpflds->text();
+    setWithSelect( true );
+}
+
+
+void uiFileInput::doSelect( CallBacker* )
+{
+    fname = text();
     uiFileDialog dlg( this, forread, fname, filter );
     if ( dlg.go() )
-	inpflds->setText( dlg.fileName() );
+	setText( dlg.fileName() );
 }
 
 
 const char* uiFileInput::fileName()
 {
-    return inpflds->text();
+    return text();
 }

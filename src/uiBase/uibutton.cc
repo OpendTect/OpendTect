@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.2 2001-01-24 12:58:44 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.3 2001-02-16 17:02:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,8 @@ mButtonCommon( uiRadioButton,	i_RadioButton )
 mButtonCommon( uiCheckBox,	i_CheckBox )
 mButtonCommon( uiToolButton,	i_ToolButton )
 
+void uiPushButton::setDefault( bool yn)
+    { return mQtThing()->setDefault( yn ); }
 
 bool uiRadioButton::isChecked() const 
     { return mQtThing()->isChecked (); }

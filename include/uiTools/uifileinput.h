@@ -7,19 +7,26 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.2 2001-01-26 09:53:41 arend Exp $
+ RCS:           $Id: uifileinput.h,v 1.3 2001-02-16 17:01:54 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigenselect.h"
+#include "uigeninput.h"
 
-class uiFileInput : public uiGenSelect
+/*! \brief A file-name input. 
+
+Displays a uiLineEdit field showing the current selected file. The user can
+edit the filename by hand, or pop up a file selector trough the included
+"Select..." push button.
+
+*/
+
+class uiFileInput : public uiGenInput
 { 	
 public:
-			uiFileInput(uiObject*,const char* txt,const char* fnm=0,
-				    bool forread=true,bool withclear=false,
-				    const char* filtr=0);
+			uiFileInput(uiObject*,const char* txt,const char* fnm=0
+			    , bool forread=true, const char* filtr=0 );
 
     const char*		fileName();
 
@@ -29,7 +36,7 @@ protected:
     BufferString	fname;
     BufferString	filter;
 
-    virtual void	doSelect_(CallBacker*);
+    virtual void	doSelect(CallBacker*);
 
 };
 

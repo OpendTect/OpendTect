@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiprogressbar.h,v 1.1 2001-01-26 09:54:09 arend Exp $
+ RCS:           $Id: uiprogressbar.h,v 1.2 2001-02-16 17:01:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,8 @@ public:
 
                         uiProgressBar(uiObject*,const char* nm="ProgressBar", 
 				    int totalSteps=100, int progress=0);
+
+    virtual bool        isSingleLine() const { return true; }
 
     void		setProgress( int );
     int			Progress();

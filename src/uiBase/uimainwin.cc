@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.2 2001-02-16 17:02:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,14 @@ void uiMainWin::forceRedraw_( bool deep )
     mCentralWidget.forceRedraw_( deep );
 }
 
+
+void uiMainWin::finalise_()
+{
+    uiObject::finalise_();
+    mCentralWidget.finalise();
+}
+
+
 const QWidget* uiMainWin::qWidget_() const
 { return mQtThing; }
 
@@ -97,7 +105,8 @@ uiMenuBar* uiMainWin::menuBar()
 }
 
 
-void uiMainWin::postShow( CallBacker* )
+void uiMainWin::polish()
 {
     MsgClass::theCB = mCB(&uiMSG(),uiMsg,handleMsg);
+    uiObject::polish();
 }

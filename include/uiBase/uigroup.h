@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.2 2001-01-26 09:54:03 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.3 2001-02-16 17:01:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiGroup : public uiWrapObj<i_QWidget>
 { 	
     friend class 	uiMainWin;
     friend class 	uiDialog;
+    friend class 	i_LayoutMngr;
 public:
 			uiGroup( uiObject* , const char* nm="uiGroup", 
 				 int border=0, int spacing=10);
@@ -50,7 +51,7 @@ protected:
     i_LayoutMngr& 	loMngr;
 
     virtual void        forceRedraw_( bool deep );
-
+    virtual void	finalise_();
 
     uiObject*		hCentreObj;
     uiObject*		hAlignObj;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.2 2001-01-26 09:54:08 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.3 2001-02-16 17:01:41 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,9 +58,11 @@ public:
 
 
     inline void		display( bool yn = true )
-			{ if ( yn ) show(0); else hide(0); }
-    void		show(CallBacker* =0);
-    void		hide(CallBacker* =0);
+			{ if ( yn ) show(); else hide(); }
+    void		show();
+    void		hide();
+    void		setFocus();
+
     Color               backgroundColor() const;
     void                setBackgroundColor(const Color&);
     void		setSensitive(bool yn=true);
@@ -142,16 +144,15 @@ protected:
     virtual const QWidget*	qWidget_() const 	= 0;
     virtual const uiObject& clientWidget_()const	{ return *this; }
 
+
     virtual bool	closeOK() { return true; } 
                         //!< hook. Accepts/denies closing of window.
-    virtual void	preShow() {}
-                        //!< hook. Called just before widget is shown. 
     virtual void	setGeometry(uiRect) {}
                         //!< hook. Called when geometry on widget is set. 
 
-    virtual void	postShow(CallBacker*) {}
-                        //!< Called by timer, 1 ms after widget is shown. 
-
+                        /*! called after a widget has been fully created 
+			    and before it is shown the very first time. */ 
+    virtual void	polish() {}
 
     virtual uiSize	minimumSize() const;
 
@@ -172,6 +173,11 @@ protected:
 
     virtual void	forceRedraw_( bool deep );
 
+    inline void		finalise() { if(!finalised) finalise_(); }
+                        //!< hook. Called for uiGroup and uiDialog by mngr. 
+    virtual void	finalise_()
+			    { finalised= true; }
+
     uiObject*       	parent_;
     i_uiLayoutItem*	mLayoutItm; //!< initialised in c'tor of i_LayoutItem
 
@@ -186,7 +192,7 @@ protected:
     int			cached_pref_width;
     int			cached_pref_height;
 
-    Timer&		showTimer;
+    bool		finalised;
 
 
 private:
