@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.24 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: iopar.h,v 1.25 2004-02-27 11:36:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,7 +183,8 @@ public:
     bool		read(const char* filename);
     			//!< uses set(). no clear() done
     bool		dump(const char* filename,const char* filetyp=0) const;
-    			//!< Like IOParList with 1 IOPar.
+    			//!< If filetype is set to "_pretty", calls dumpPretty.
+    void		dumpPretty(ostream&) const;
 
 protected:
 

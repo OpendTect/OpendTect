@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.1 2004-02-26 23:23:14 bert Exp $
+ RCS:		$Id: uisegysip.cc,v 1.2 2004-02-27 11:36:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uimsg.h"
 #include "seisscanner.h"
+#include "filegen.h"
+#include "ptrman.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "errh.h"
-#include "ptrman.h"
 
 
 uiSEGYSurvInfoProvider::uiSEGYSurvInfoProvider( MultiID& mid )
@@ -49,10 +50,11 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, BinIDSampler& bs,
     if ( !ex.go() )
 	return false;
 
-#ifdef __debug__
     IOPar iopar; scanner.report( iopar );
-    iopar.dump( "/tmp/scan.txt" );
-#endif
+    BufferString dumpfnm = GetDataDir();
+    dumpfnm = File_getFullPath( dumpfnm, "Proc" );
+    dumpfnm = File_getFullPath( dumpfnm, "SEGYscan.txt" );
+    iopar.dump( dumpfnm, "_pretty" );
 
     if ( !scanner.getSurvInfo(bs,zrg,crd) )
     {

@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.1 2004-02-26 22:41:01 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.2 2004-02-27 11:36:31 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -51,6 +51,7 @@ void SeisScanner::init()
     inlgapsfound = crlgapsfound = varcrlstart = varcrlend = false;
     nonstdnrtrcsbid.inl = -999;
     invalidsamplebid.inl = -999;
+    valrg.start = mUndefValue;
 }
 
 
@@ -88,14 +89,13 @@ bool SeisScanner::getSurvInfo( BinIDSampler& bs, StepInterval<double>& zrg,
 		      > maxinlbinid.inl - longestinlstart.inl;
     Coord c[3];
     BinID b[2];
-    c[0] = usemin ? mininlbinidcoord : maxinlbinidcoord;
-    b[0] = usemin ? mininlbinid : maxinlbinid;
-    c[1] = longestinlstartcoord;
-    b[1] = longestinlstart;
+    c[0] = longestinlstartcoord;
+    b[0] = longestinlstart;
+    c[1] = usemin ? mininlbinidcoord : maxinlbinidcoord;
+    b[1] = usemin ? mininlbinid : maxinlbinid;
     c[2] = longestinlstopcoord;
-    int crl = longestinlstop.crl;
     BinID2Coord b2c;
-    const char* msg = b2c.set3Pts( c, b, crl );
+    const char* msg = b2c.set3Pts( c, b, longestinlstop.crl );
     if ( msg )
     {
 	curmsg = msg;
@@ -146,64 +146,68 @@ void SeisScanner::report( IOPar& iopar ) const
     iopar.set( "First inline", inlrg.start );
     iopar.set( "Last inline", inlrg.stop );
     iopar.set( "Step inline", inlrg.step );
-    iopar.set( "Gaps in inline numbers", inlgapsfound );
+    iopar.setYN( "Gaps in inline numbers", inlgapsfound );
     iopar.set( "First crossline", crlrg.start );
     iopar.set( "Last crossline", crlrg.stop );
     iopar.set( "Step crossline", crlrg.step );
-    iopar.set( "Gaps in crossline numbers", inlgapsfound );
-    iopar.set( "Lines start at variable crossline numbers", varcrlstart );
-    iopar.set( "Lines end at variable crossline numbers", varcrlend );
+    iopar.setYN( "Gaps in crossline numbers", inlgapsfound );
+    iopar.setYN( "Lines start at variable crossline numbers", varcrlstart );
+    iopar.setYN( "Lines end at variable crossline numbers", varcrlend );
 
 
-    iopar.add( "->", "Data values" );
-    iopar.set( "Minimum value", valrg.start );
-    iopar.set( "Maximum value", valrg.stop );
-    if ( invalidsamplebid.inl > 0 )
+    if ( !mIsUndefined(valrg.start) )
     {
-	iopar.set( "First invalid value found at", invalidsamplebid );
-	iopar.set( "First invalid value was sample number", invalidsamplenr );
+	iopar.add( "->", "Data values" );
+	iopar.set( "Minimum value", valrg.start );
+	iopar.set( "Maximum value", valrg.stop );
+	if ( invalidsamplebid.inl > 0 )
+	{
+	    iopar.set( "First invalid value at", invalidsamplebid );
+	    iopar.set( "First invalid value sample number", invalidsamplenr );
+	}
+	iopar.add( "0.1% clip range", getClipRgStr(0.1) );
+	iopar.add( "0.2% clip range", getClipRgStr(0.2) );
+	iopar.add( "0.3% clip range", getClipRgStr(0.3) );
+	iopar.add( "0.5% clip range", getClipRgStr(0.5) );
+	iopar.add( "1% clip range", getClipRgStr(1) );
+	iopar.add( "1.5% clip range", getClipRgStr(1.5) );
+	iopar.add( "2% clip range", getClipRgStr(2) );
+	iopar.add( "3% clip range", getClipRgStr(3) );
+	iopar.add( "5% clip range", getClipRgStr(5) );
+	iopar.add( "10% clip range", getClipRgStr(10) );
+	iopar.add( "20% clip range", getClipRgStr(20) );
+	iopar.add( "30% clip range", getClipRgStr(30) );
+	iopar.add( "50% clip range", getClipRgStr(50) );
+	iopar.add( "90% clip range", getClipRgStr(90) );
     }
-    iopar.add( "0.1% clip range", getClipRgStr(0.1) );
-    iopar.add( "0.2% clip range", getClipRgStr(0.2) );
-    iopar.add( "0.3% clip range", getClipRgStr(0.3) );
-    iopar.add( "0.5% clip range", getClipRgStr(0.5) );
-    iopar.add( "1% clip range", getClipRgStr(1) );
-    iopar.add( "1.5% clip range", getClipRgStr(1.5) );
-    iopar.add( "2% clip range", getClipRgStr(2) );
-    iopar.add( "3% clip range", getClipRgStr(3) );
-    iopar.add( "5% clip range", getClipRgStr(5) );
-    iopar.add( "10% clip range", getClipRgStr(10) );
-    iopar.add( "20% clip range", getClipRgStr(20) );
-    iopar.add( "30% clip range", getClipRgStr(30) );
-    iopar.add( "50% clip range", getClipRgStr(50) );
-    iopar.add( "90% clip range", getClipRgStr(90) );
 }
 
 
 const char* SeisScanner::getClipRgStr( float pct ) const
 {
-    const float ratio = nrdistribvals / (1 - 100.*pct);
+    const float ratio = nrdistribvals * .005 * pct;
     int idx0 = mNINT(ratio);
     int idx1 = nrdistribvals - idx0 - 1;
-
-    float v1 = distribvals[idx0];
-    float v2 = idx0 >= idx1 ? v1 : distribvals[idx1];
+    if ( idx0 > idx1 ) Swap( idx0, idx1 );
 
     static BufferString ret;
-    ret = v1; ret += " - "; ret += v2;
+    ret = distribvals[idx0]; ret += " - "; ret += distribvals[idx1];
     return ret.buf();
 }
 
 
 int SeisScanner::nextStep()
 {
+    if ( *reader.errMsg() )
+	return Executor::ErrorOccurred;
+
     for ( int itrc=0; itrc<chnksz; itrc++ )
     {
 	int res = reader.get( trc.info() );
 	if ( res < 1 )
 	{
 	    curmsg = "Done";
-	    if ( res == 0 )
+	    if ( res != 0 )
 	    {
 		curmsg = "Error during read of trace header after ";
 		if ( !prevbid.inl )
@@ -261,10 +265,11 @@ void SeisScanner::handleFirstTrc()
 	= trc.info().coord;
     inlrg.start = inlrg.stop = mininlbinid.inl;
     crlrg.start = crlrg.stop = mininlbinid.crl;
+    inlrg.step = crlrg.step = 0;
     xrg.start = xrg.stop = mininlbinidcoord.x;
     yrg.start = yrg.stop = mininlbinidcoord.y;
     prevbid = mininlbinid;
-    nonnullsamplerg.start = trc.size(0);
+    nrlines++;
 }
 
 
@@ -310,12 +315,13 @@ void SeisScanner::handleBinIDChange()
     if ( curbid.inl != prevbid.inl )
     {
 	nrlines++;
+	int step = curbid.inl - prevbid.inl;
+	if ( step < 0 ) step = -step;
 	if ( nrlines == 2 )
-	    inlrg.step = prevbid.inl - curbid.inl;
-	else if ( prevbid.inl - curbid.inl != inlrg.step )
+	    inlrg.step = step;
+	else if ( step != inlrg.step )
 	{
-	    if ( prevbid.inl - curbid.inl < inlrg.step )
-		inlrg.step = prevbid.inl - curbid.inl;
+	    if ( step < inlrg.step ) inlrg.step = step;
 	    inlgapsfound = true;
 	}
 
@@ -352,12 +358,13 @@ void SeisScanner::handleBinIDChange()
 	if ( curlinestop.crl < curbid.crl )
 	    { curlinestop.crl = curbid.crl; curlinestopcoord = curcoord; }
 
+	int step = curbid.crl - prevbid.crl;
+	if ( step < 0 ) step = -step;
 	if ( !crlrg.step )
-	    crlrg.step = prevbid.crl - curbid.crl;
-	else if ( prevbid.crl - curbid.crl != crlrg.step )
+	    crlrg.step = step;
+	else if ( step != crlrg.step )
 	{
-	    if ( prevbid.crl - curbid.crl < crlrg.step )
-		crlrg.step = prevbid.crl - curbid.crl;
+	    if ( step < crlrg.step ) crlrg.step = step;
 	    crlgapsfound = true;
 	}
     }
@@ -385,6 +392,7 @@ bool SeisScanner::doValueWork()
    if ( nullstart-1 > nonnullsamplerg.stop )
        nonnullsamplerg.stop = nullstart - 1;
 
+    bool needinitvalrg = mIsUndefined(valrg.start);
     for ( int idx=0; idx<nullstart; idx++ )
     {
 	float val = trc.get(idx,0);
@@ -407,7 +415,13 @@ bool SeisScanner::doValueWork()
 	    continue;
 	}
 
-	valrg.include( val );
+	if ( !needinitvalrg )
+	    valrg.include( val );
+	else
+	{
+	    valrg.start = valrg.stop = val;
+	    needinitvalrg = false;
+	}
 
 	if ( nrdistribvals < mMaxNrDistribVals )
 	    distribvals[nrdistribvals++] = val;

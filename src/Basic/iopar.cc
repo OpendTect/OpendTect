@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.35 2004-02-04 13:32:42 arend Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.36 2004-02-27 11:36:31 bert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -835,18 +835,52 @@ bool IOPar::read( const char* fnm )
 
 bool IOPar::dump( const char* fnm, const char* typ ) const
 {
-    if ( !typ ) typ = sKey::Pars;
     StreamData sd = StreamProvider(fnm).makeOStream();
     if ( !sd.usable() ) return false;
 
+
+    if ( !typ ) typ = name().buf();
+    if ( !typ ) typ = sKey::Pars;
+    if ( !strcmp(typ,"_pretty") )
+	{ dumpPretty( *sd.ostrm ); return true; }
+
     ascostream astream( *sd.ostrm );
-    BufferString ky( name() );
-    if ( ky == "" ) ky = sKey::Pars;
-    if ( !astream.putHeader( ky ) ) return false;
+    if ( !astream.putHeader( typ ) ) return false;
 
     putDataTo( astream );
     sd.close();
     return true;
+}
+
+
+void IOPar::dumpPretty( ostream& strm ) const
+{
+    if ( name() != "" )
+	strm << "> " << name() << " <\n\n";
+
+    int maxlen = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( keys_[idx]->size() > maxlen )
+	    maxlen = keys_[idx]->size();
+    }
+    if ( maxlen == 0 ) return;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const BufferString& ky = *keys_[idx];
+	if ( ky == "->" )
+	    { strm << "\n\n* " << vals_.get(idx) << " *\n\n"; continue; }
+
+	int extra = maxlen - ky.size();
+	BufferString toprint;
+	for ( int ispc=0; ispc<extra; ispc++ )
+	    toprint += " ";
+	toprint += ky;
+	toprint += " : ";
+	toprint += vals_.get(idx);
+	strm << toprint << '\n';
+    }
 }
 
 

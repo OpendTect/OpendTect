@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.50 2004-02-26 16:25:49 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.51 2004-02-27 11:36:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,10 +140,10 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 	ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
 				 BinIDCoordInpSpec(false) ); 
 	ic0fld->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
-	ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line",
+	ic1fld = new uiGenInput( crdgrp, "Another position on above in-line",
 				 BinIDCoordInpSpec(false)  );
 	ic2fld = new uiGenInput( crdgrp,
-			"In-line/Cross-line not on above in-line",
+			"Position not on above in-line",
 			 BinIDCoordInpSpec(false) );
 	xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
 	xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
