@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.15 2003-03-07 13:11:57 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.16 2003-05-22 14:39:43 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -323,14 +323,17 @@ void visBase::Texture::makeColorIndexes()
 	}
     }
 
-    int max;
+    int max = 0;
     for ( int idx=0; idx<NRCOLORS; idx++ )
     {
 	int sum = 0;
 	for ( int idy=0; idy<colorindexers.size(); idy++ )
 	    sum += colorindexers[idy]->histogram[idx];
 
-	if ( !idx || sum>max )
+	if ( !idx || idx>NRCOLORS-3 )
+	    sum = 0;
+
+	if ( sum > max )
 	    max = sum;
 
 	histogram[idx] = sum;
