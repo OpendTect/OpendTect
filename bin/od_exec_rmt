@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.32 2004-12-08 08:57:37 dgb Exp $
+# $Id: od_exec_rmt,v 1.33 2004-12-08 15:56:21 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -202,11 +202,14 @@ if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 
 	set remotehost="\\${remotehost}"
 
-	if ( ! $?DTECT_DEBUG ) then
-	    ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} \
-		 $transf >& /dev/null
+	if ( $?DTECT_DEBUG ) then
+	    echo ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf
+	    ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf
 	    exit $status 
 	endif
+
+	${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf >& /dev/null
+	exit $status 
 
     else
 	set do_exec=`echo "${dtectappl}/bin/od_dormt.bat" | sed -e "s% %\\ %g"`
