@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.27 2004-11-18 16:15:23 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.28 2005-02-10 13:54:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,6 +191,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry, bool mln )
     	, multiln(mln)
 	, lineSel(this)
 	, singLineSel(this)
+    	, curlnms(*new BufferStringSet)
 {
     if ( for_new_entry )
 	lnmfld = new uiGenInput( this, "Store in Set as" );
@@ -232,6 +233,12 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry, bool mln )
     setHCentreObj( selfld );
 
     mainObject()->finaliseStart.notify( mCB(this,uiSeis2DSubSel,doFinalise) );
+}
+
+
+uiSeis2DSubSel::~uiSeis2DSubSel()
+{
+    delete &curlnms;
 }
 
 
@@ -327,10 +334,11 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
     if ( !lnmsfld ) return;
 
     const BufferString prevlnm( selectedLine() );
+    curlnms.erase();
 
-    BufferStringSet lnms; oinf.getLineNames( lnms );
-    lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
-    const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
+    oinf.getLineNames( curlnms );
+    lnmsfld->newSpec( StringListInpSpec(curlnms), 0 );
+    const bool prevok = prevlnm != "" && curlnms.indexOf(prevlnm) >= 0;
     if ( multiln )
 	lnmsfld->setChecked( prevok );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.13 2004-11-18 16:15:23 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.14 2005-02-10 13:54:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,11 @@ public:
     const char*		selectedLine() const;
     void		setSelectedLine(const char*);
 
+    uiSeis2DSubSel*	sel2D()			{ return sel2d; }
+    			//!< Can be null
+    uiBinIDSubSel*	sel3D()			{ return sel3d; }
+    			//!< Can be null
+
 protected:
 
     bool		is2d_;
@@ -70,6 +75,7 @@ class uiSeis2DSubSel : public uiGroup
 public:
 
 			uiSeis2DSubSel(uiParent*,bool for_new_entry,bool mln);
+			~uiSeis2DSubSel();
 
     void		clear();
     void		setInput(const StepInterval<int>&);
@@ -100,6 +106,8 @@ public:
     const char*		selectedLine() const;
     void		setSelectedLine(const char*);
 
+    const BufferStringSet& curLineNames() const		{ return curlnms; }
+
 protected:
 
     uiGenInput*		selfld;
@@ -108,6 +116,7 @@ protected:
     uiGenInput*		lnmfld;
     uiGenInput*		lnmsfld;
     bool		multiln;
+    BufferStringSet&	curlnms;
 
     virtual void	selChg(CallBacker*);
     void		lineChg(CallBacker*);

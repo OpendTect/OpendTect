@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.17 2004-11-18 16:15:23 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.18 2005-02-10 13:54:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,8 @@ public:
     Executor*		getTrcProc(const IOObj& from,const IOObj& to,
 	    			   const char* executor_txt,
 				   const char* work_txt,
-				   const char* attr2dnm) const;
+				   const char* attr2dnm,
+				   const char* linenm2d_overrule=0) const;
 
     uiSeisSubSel*	selfld;
     uiSeisFmtScale*	scfmtfld;
