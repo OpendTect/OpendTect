@@ -4,10 +4,14 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.1 2004-04-01 13:45:07 bert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.2 2004-04-02 10:18:44 arend Exp $";
 
 #include "filepath.h"
 #include <iostream>
+
+#ifdef __win__
+# include "getspec.h"
+#endif
 
 const char* FilePath::sPrefSep = ":";
 #ifdef __win__
