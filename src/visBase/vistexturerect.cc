@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.35 2003-05-27 15:26:49 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.36 2003-05-28 10:51:24 nanne Exp $";
 
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -227,10 +227,7 @@ void visBase::TextureRect::setData( const Array2D<float>& data, int idx,
 	setTexture( *text, idx );
     }
 
-    if ( colorsel < 0 )
-	text->setData( &data );
-    else
-	text->setColorData( &data, colorsel );
+    text->setData( &data, (Texture::DataType)(colorsel+1) );
 }
 
 
