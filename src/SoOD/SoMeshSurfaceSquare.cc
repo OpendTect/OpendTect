@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.3 2003-10-02 14:26:41 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.4 2003-10-03 09:54:33 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -21,13 +21,23 @@ static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.3 2003-10-02 14:26:4
 #include "SoCameraInfoElement.h"
 #include "SoCameraInfo.h"
 
+#include <Inventor/SoPickedPoint.h>
+
 #include <Inventor/actions/SoGetBoundingBoxAction.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+
+#include <Inventor/details/SoFaceDetail.h>
+#include <Inventor/details/SoPointDetail.h>
 
 #include <Inventor/elements/SoComplexityElement.h>
 #include <Inventor/elements/SoCullElement.h>
 
+#include <Inventor/events/SoMouseButtonEvent.h>
+
+#include <Inventor/lists/SoCallbackList.h>
+
 #include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoEventCallback.h>
 #include <Inventor/nodes/SoTextureCoordinate2.h>
 #include <Inventor/nodes/SoIndexedFaceSet.h>
 #include <Inventor/nodes/SoNormal.h>
@@ -53,12 +63,15 @@ SoMeshSurfaceSquare::SoMeshSurfaceSquare()
     , bboxcache( 0 )
     , showwire( true )
     , showtri( true )
+    , pickcallbacks( 0 )
 {
     SO_KIT_CONSTRUCTOR(SoMeshSurfaceSquare);
     isBuiltIn = true;
 
     SO_KIT_ADD_CATALOG_ENTRY(topSeparator,SoSeparator,false,this, ,false);
 
+    SO_KIT_ADD_CATALOG_ENTRY(eventCatcher,SoEventCallback,false,topSeparator,
+	    		     coords,false);
     SO_KIT_ADD_CATALOG_ENTRY(coords,SoCoordinate3,false,topSeparator,
 	    		     texturecoords,false);
     SO_KIT_ADD_CATALOG_ENTRY(texturecoords,SoTextureCoordinate2,
@@ -110,6 +123,7 @@ SoMeshSurfaceSquare::~SoMeshSurfaceSquare()
     sizePowerSensor->detach();
     delete sizePowerSensor;
     delete bboxcache;
+    delete pickcallbacks;
 }
 
 
@@ -605,6 +619,91 @@ SoMeshSurfaceBrickWire* SoMeshSurfaceSquare::getWire(int resolution)
 const SoMeshSurfaceBrickWire* SoMeshSurfaceSquare::getWire(int resolution)const
 {
     return const_cast<SoMeshSurfaceSquare*>(this)->getWire(resolution);
+}
+
+
+void SoMeshSurfaceSquare::addPickCB( SoMeshSurfaceSquareCB* cb, void* data )
+{
+    if ( !pickcallbacks )
+    {
+	pickcallbacks = new SoCallbackList;
+	SoEventCallback* eventc =
+	    (SoEventCallback*) getAnyPart("eventCatcher",true);
+	eventc->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
+				  pickCB, this );
+    }
+
+    pickcallbacks->addCallback( (SoCallbackListCB *)cb, data );
+}
+
+
+void SoMeshSurfaceSquare::removePickCB( SoMeshSurfaceSquareCB* cb, void* data )
+{
+    if ( !pickcallbacks ) return;
+
+    pickcallbacks->removeCallback( (SoCallbackListCB *)cb, data );
+}
+
+
+void SoMeshSurfaceSquare::getPickedRowCol( int& row, int& col ) const
+{
+    row = pickedrow; col=pickedcol;
+}
+
+
+void SoMeshSurfaceSquare::pickCB( void* ptr, SoEventCallback* ecb )
+{
+    if ( ecb->isHandled() ) return;
+
+    SoMeshSurfaceSquare* thisp = (SoMeshSurfaceSquare*) ptr;
+    if ( !thisp->pickcallbacks ) return;
+
+    const SoPickedPoint* pickedpoint = ecb->getPickedPoint();
+    if ( !pickedpoint || !pickedpoint->isOnGeometry() ) return;
+
+    const SoMouseButtonEvent* event =
+			(const SoMouseButtonEvent*) ecb->getEvent();
+
+    if ( event->getButton()!=SoMouseButtonEvent::BUTTON1 ) return;
+    if ( !SoMouseButtonEvent::isButtonPressEvent( event, event->getButton() ))
+	return;
+
+    const SoPath* path = pickedpoint->getPath();
+    if ( !path || !path->containsNode( thisp ) )
+	return;
+
+    const SoFaceDetail* detail =
+	dynamic_cast<const SoFaceDetail*>(pickedpoint->getDetail() );
+    if ( !detail ) return;
+
+    SbVec3f pickedvector;
+    pickedpoint->getWorldToObject().multVecMatrix(pickedpoint->getPoint(),
+	    					 pickedvector );
+
+    const int nrpoints = detail->getNumPoints();
+    if ( !nrpoints ) return;
+
+    const SoPointDetail* pointdetail = detail->getPoint(0);
+    float maxdist;
+    int closestidx;
+
+    for ( int idx=0; idx<nrpoints; idx++ )
+    {
+	const int coordidx = pointdetail[idx].getCoordinateIndex();
+	const SbVec3f facevec = thisp->coordptr->point[coordidx];
+	const float dist = (facevec-pickedvector).length();
+	if ( dist<maxdist || !idx )
+	{
+	    maxdist = dist;
+	    closestidx = coordidx;
+	}
+    }
+
+    thisp->pickedrow = closestidx/(thisp->sidesize+1)+thisp->origo[0];
+    thisp->pickedcol = closestidx%(thisp->sidesize+1)+thisp->origo[1];
+
+    ecb->setHandled();
+    thisp->pickcallbacks->invokeCallbacks(thisp);
 }
 
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.1 2003-09-30 12:59:18 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.2 2003-10-03 09:54:33 kristofer Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.1 2003-09-30 12:59:18 kris
 
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
+
+#include <Inventor/lists/SoCallbackList.h>
 
 #include <Inventor/sensors/SoFieldSensor.h>
 
@@ -45,6 +47,7 @@ SoMeshSurface::SoMeshSurface()
 	    new SoFieldSensor( SoMeshSurface::partSizePowerCB, this ))
     , squaresize( -1 ) 
     , weAreStopping( false )
+    , pickcallbacks( 0 )
 {
     SO_NODE_CONSTRUCTOR(SoMeshSurface);
 
@@ -66,6 +69,7 @@ SoMeshSurface::~SoMeshSurface()
 
     partSizePowerSensor->detach();
     delete partSizePowerSensor;
+    delete pickcallbacks;
 }
 
 
@@ -180,6 +184,39 @@ bool SoMeshSurface::isWireFrameOn() const
     const int nrsquares = getNumChildren();
     return nrsquares && getSquare(0)->isWireFrameOn();
 }
+
+
+void SoMeshSurface::addPickCB( SoMeshSurfaceCB* cb, void* data )
+{
+    if ( !pickcallbacks )
+	pickcallbacks = new SoCallbackList;
+
+    pickcallbacks->addCallback( (SoCallbackListCB *)cb, data );
+}
+
+
+void SoMeshSurface::removePickCB( SoMeshSurfaceCB* cb, void* data )
+{
+    if ( !pickcallbacks ) return;
+
+    pickcallbacks->removeCallback( (SoCallbackListCB *)cb, data );
+}
+
+
+void SoMeshSurface::pickCB( void* ptr, SoMeshSurfaceSquare* square )
+{
+    SoMeshSurface* thisp = (SoMeshSurface*) ptr;
+    if ( !thisp->pickcallbacks ) return;
+    square->getPickedRowCol(thisp->pickedrow, thisp->pickedcol);
+    thisp->pickcallbacks->invokeCallbacks( thisp );
+}
+
+
+void SoMeshSurface::getPickedRowCol( int& row, int& col ) const
+{
+    row = pickedrow; col=pickedcol;
+}
+
 
 
 void SoMeshSurface::GLRender( SoGLRenderAction* action )
@@ -323,6 +360,7 @@ void SoMeshSurface::makeFirstSquare( int row, int col )
     square->origo.set1Value(0, firstrow);
     square->origo.set1Value(1, firstcol);
     square->sizepower = partSizePower.getValue();
+    square->addPickCB( pickCB, this );
 
     addChild(square);
 }
@@ -341,6 +379,7 @@ void SoMeshSurface::addSquareRow( bool start )
 	square->origo.set1Value(0, row);
 	square->origo.set1Value(1, col);
 	square->sizepower = partSizePower.getValue();
+	square->addPickCB( pickCB, this );
 
 	insertChild( square, insertpoint+idx );
     }
@@ -385,6 +424,7 @@ void SoMeshSurface::addSquareCol( bool start )
 	square->origo.set1Value(0, row);
 	square->origo.set1Value(1, col);
 	square->sizepower = partSizePower.getValue();
+	square->addPickCB( pickCB, this );
 
 	insertChild( square, insertpoint+idx*(nrcolsquares+1) );
     }
