@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.9 2002-03-20 08:28:03 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.10 2002-03-21 10:27:39 bert Exp $";
 
 #include "vissurvpickset.h"
 #include "vissceneobjgroup.h"
@@ -92,7 +92,7 @@ void visSurvey::PickSet::removePick( const Geometry::Pos& pos )
 //	TODO: remove cube nearest to pos.
 	if ( cube->centerPos() == pos )
 	{
-	    cube->remove();
+	    group->removeObject( idx );
 	    return;
 	}
     }
