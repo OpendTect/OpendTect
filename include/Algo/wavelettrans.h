@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.2 2001-06-02 12:40:53 windev Exp $
+ RCS:           $Id: wavelettrans.h,v 1.3 2001-07-16 16:13:10 kristofer Exp $
 ________________________________________________________________________
 
 @$*/
@@ -74,6 +74,7 @@ protected:
 			    , cc( 0 )
 			    , cr( 0 )
 			    , forward( true )
+			    , wt ( WaveletTransform::Haar )
 			{}	
 
 			~FilterWT1D() { delete cr; delete cc; }
