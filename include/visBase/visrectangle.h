@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.10 2002-02-28 11:57:37 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.11 2002-02-28 13:42:29 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,8 @@ class SoTranslate1Dragger;
 class SoFaceSet;
 class SoDragger;
 
+namespace Geometry { class Pos; };
+
 
 namespace visBase
 {
@@ -36,8 +38,8 @@ public:
     			RectangleDragger();
 			~RectangleDragger();
 
-    void		setCenter( float, float, float );
-    float		center( int dim ) const;
+    void		setCenter( const Geometry::Pos& );
+    Geometry::Pos	center() const;
     
     void		setScale( float, float );
     float		scale( int dim ) const;
@@ -89,8 +91,8 @@ public:
 
 			Rectangle( Scene&, bool manip );
 			~Rectangle();
-    void		setOrigo( float, float, float );
-    float		origo( int ) const;
+    void		setOrigo( const Geometry::Pos& );
+    Geometry::Pos	origo() const;
     float		manipOrigo(int) const;
 
     void		setWidth( float, float );
@@ -117,12 +119,12 @@ public:
 
     i_Notifier*		draggerStartedNotifier()
     			{ return dragger ? &dragger->started : 0; }
-
     i_Notifier*		draggerChangedNotifier()
     			{ return dragger ? &dragger->changed : 0; }
-
     i_Notifier*		draggerFinishedNotifier()
     			{ return dragger ? &dragger->finished : 0; }
+
+    Geometry::Pos	getDraggerPos() const;
 
 protected:
     void		moveManipRectangletoDragger(CallBacker* =0);

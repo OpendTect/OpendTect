@@ -4,11 +4,12 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.8 2002-02-28 08:04:51 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.9 2002-02-28 13:42:40 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "visscene.h"
 #include "visselman.h"
+#include "geompos.h"
 
 #include "Inventor/nodes/SoScale.h"
 #include "Inventor/nodes/SoTranslation.h"
@@ -146,38 +147,42 @@ visBase::RectangleDragger::~RectangleDragger()
 }
 
 
-void visBase::RectangleDragger::setCenter( float x, float y, float z )
+void visBase::RectangleDragger::setCenter( const Geometry::Pos& pos_ )
 {
-    manipxydragger->translation.setValue( x, y, z );
+    Geometry::Pos pos( pos_ );
+
+    manipxydragger->translation.setValue( pos.x, pos.y, pos.z );
 
     float xd = manipzdraggertop->translation.getValue()[2] /
 	       zdraggerscale->scaleFactor.getValue()[0];
     float yd = manipzdraggertop->translation.getValue()[1] /
 	       zdraggerscale->scaleFactor.getValue()[0];
 
-    z /= zdraggerscale->scaleFactor.getValue()[2];
+    pos.z /= zdraggerscale->scaleFactor.getValue()[2];
 
-    manipzdraggertop->translation.setValue( z, yd, xd );
+    manipzdraggertop->translation.setValue( pos.z, yd, xd );
 
     xd = manipzdraggerright->translation.getValue()[2];
     yd = manipzdraggerright->translation.getValue()[1];
-    manipzdraggerright->translation.setValue( z, yd, xd );
+    manipzdraggerright->translation.setValue( pos.z, yd, xd );
 
     xd = manipzdraggerbottom->translation.getValue()[2];
     yd = manipzdraggerbottom->translation.getValue()[1];
-    manipzdraggerbottom->translation.setValue( z, yd, xd );
+    manipzdraggerbottom->translation.setValue( pos.z, yd, xd );
 
     xd = manipzdraggerleft->translation.getValue()[2];
     yd = manipzdraggerleft->translation.getValue()[1];
-    manipzdraggerleft->translation.setValue( z, yd, xd );
+    manipzdraggerleft->translation.setValue( pos.z, yd, xd );
 
     syncronizeDraggers();
 }
 
 
-float visBase::RectangleDragger::center( int dim ) const
+Geometry::Pos visBase::RectangleDragger::center() const
 {
-    return manipxydragger->translation.getValue()[dim];
+    SbVec3f pos = manipxydragger->translation.getValue();
+    Geometry::Pos res( pos[0], pos[1], pos[2] );
+    return res;
 }
 
 
@@ -422,15 +427,15 @@ visBase::Rectangle::~Rectangle()
 }
 
 
-void visBase::Rectangle::setOrigo( float x, float y, float z )
-{
-    origotrans->translation.setValue( x, y, z );
-}
+void visBase::Rectangle::setOrigo( const Geometry::Pos& np )
+{ origotrans->translation.setValue( np.x, np.y, np.z ); }
 
 
-float visBase::Rectangle::origo( int n ) const
+Geometry::Pos visBase::Rectangle::origo() const
 {
-    return origotrans->translation.getValue()[n];
+    SbVec3f pos = origotrans->translation.getValue();
+    Geometry::Pos res( pos[0], pos[1], pos[2] );
+    return res;
 }
 
 
@@ -526,6 +531,13 @@ bool visBase::Rectangle::regForSelection(const VisualObject* assoc )
 }
 
 
+Geometry::Pos visBase::Rectangle::getDraggerPos() const
+{
+    if ( dragger ) return dragger->center();
+    return origo();
+}
+
+    
 void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
 {
     if ( !dragger ) return;
@@ -537,9 +549,8 @@ void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
     float xscale = maniprectscale->scaleFactor.getValue()[0];
     float yscale = maniprectscale->scaleFactor.getValue()[1];
 
-    float newx = dragger->center(0);
-    float newy = dragger->center(1);
-    float newz = dragger->center(2);
+    Geometry::Pos newpos = dragger->center();
+    float newx = newpos.x; float newy = newpos.y; float newz = newpos.z;
 
     float newxscale = dragger->scale(0);
     float newyscale = dragger->scale(1);
@@ -582,11 +593,13 @@ void visBase::Rectangle::moveDraggertoManipRect()
 {
     if ( !dragger ) return;
 
-    float x = maniprecttrans->translation.getValue()[0];
-    float y = maniprecttrans->translation.getValue()[1];
-    float z = maniprecttrans->translation.getValue()[2];
+    Geometry::Pos newpos;
 
-    dragger->setCenter( x, y, z );
+    newpos.x = maniprecttrans->translation.getValue()[0];
+    newpos.y = maniprecttrans->translation.getValue()[1];
+    newpos.z = maniprecttrans->translation.getValue()[2];
+
+    dragger->setCenter( newpos );
 
     float xscale = maniprectscale->scaleFactor.getValue()[0];
     float yscale = maniprectscale->scaleFactor.getValue()[1];
