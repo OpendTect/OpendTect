@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uimsg.cc,v 1.5 2001-08-29 15:42:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,13 +20,22 @@ ________________________________________________________________________
 
 #undef Ok
 #include <qmessagebox.h>
+#include <iostream>
 
 uiMsg* uiMsg::theinst_ = 0;
 
 
 uiMsg::uiMsg()
 	: mainwin_(uiMain::theMain().topLevel())
+	, parent_(0)
 {
+}
+
+
+void uiMsg::setParent( QWidget* p )
+{
+    parent_ = p;
+    mainwin_ = 0;
 }
 
 
@@ -60,7 +69,11 @@ void uiMsg::handleMsg( CallBacker* cb )
 
 void uiMsg::toStatusbar( MsgClass* mc )
 {
-    if ( !mc ) { mainwin_->statusBar()->message( "" ); return; }
+    if ( !mc )
+    {
+	if ( mainwin_ ) mainwin_->statusBar()->message( "" );
+	return;
+    }
 
     BufferString msg;
     if ( mc->type() > MsgClass::Message )
@@ -69,40 +82,45 @@ void uiMsg::toStatusbar( MsgClass* mc )
 	msg += ": ";
     }
     msg += mc->msg;
-    mainwin_->statusBar()->message( msg );
+
+    if ( !mainwin_ )
+	cerr << msg << endl;
+    else
+	mainwin_->statusBar()->message( msg );
 }
 
 
 void uiMsg::message( const char* text, const char* caption )
 {
-    QMessageBox::information( mainwin_->body()->qwidget(),
+    QMessageBox::information( parent_ ? parent_ : mainwin_->body()->qwidget(),
 			      QString(caption), QString(text), QString("Ok") );
 }
 
 
 void uiMsg::warning( const char* text, const char* caption )
 {
-    QMessageBox::warning( mainwin_->body()->qwidget(), QString(caption),
-			  QString(text), QString("Ok") );
+    QMessageBox::warning( parent_ ? parent_ : mainwin_->body()->qwidget(),
+			  QString(caption), QString(text), QString("Ok") );
 }
 
 
 void uiMsg::error( const char* text, const char* caption )
 {
-    QMessageBox::critical( mainwin_->body()->qwidget(), QString(caption),
-			   QString(text), QString("Ok") );
+    QMessageBox::critical( parent_ ? parent_ : mainwin_->body()->qwidget(),
+			   QString(caption), QString(text), QString("Ok") );
 }
 
 
 void uiMsg::about( const char* text, const char* caption )
 {
-    QMessageBox::about( mainwin_->body()->qwidget(), QString(caption),
-			QString(text) );
+    QMessageBox::about( parent_ ? parent_ : mainwin_->body()->qwidget(),
+			QString(caption), QString(text) );
 }
 
 
 bool uiMsg::askGoOn( const char* text, const char* caption )
 {
-    return !QMessageBox::warning( mainwin_->body()->qwidget(), QString(caption),
-                                  QString(text), QString("Yes"), QString("No"));
+    return !QMessageBox::warning( parent_?parent_ : mainwin_->body()->qwidget(),
+				  QString(caption), QString(text),
+				  QString("Yes"), QString("No"));
 }
