@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.9 2001-05-05 16:32:51 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.10 2001-05-08 08:20:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,57 +38,45 @@ public:
 
 QSize i_QListBox::sizeHint() const
 {  
-    int fieldWdt = 0;
-    int nLines = 0;
-    
     const uiListBox* ptClient = dynamic_cast<const uiListBox*> ( uiClient() );
-    if( ptClient )
-    {
-	fieldWdt = ptClient->fieldWdt;
-	nLines = ptClient->nLines;
-    }
-
-    const uiFont* mFont = uiClient()->font();
+    if ( !ptClient ) { pErrMsg("uiClient is not a listbox!"); return QSize(); }
+    const uiFont* mFont = ptClient->font();
     if( !mFont ) { pErrMsg("uiClient has no font!"); return QSize(); }
 
+    // initialize to requested size or reasonable default size
+    // reasonable sizes are 3 <= nrlines <= 7 , 20 <= nrchars <= 40.
+    const int sz = ptClient->size();
+    int nrchars = ptClient->fieldWdt ? ptClient->fieldWdt : 20;
+    int nrlines = ptClient->nLines ? ptClient->nLines
+		: sz > 7 ? 7 : (sz < 3 ? 3 : sz);
 
-    int totHeight= mFont->height() * nLines + 2*frameWidth();
-    int totWidth = mFont->maxWidth() * fieldWdt + 2*frameWidth();
-
-    if ( !(fieldWdt && nLines) )
+    // if biggest string is over 20 chars, grow box to max 40 chars.
+    const int fontmaxpixwidth = mFont->maxWidth();
+    const int maxwdth = 40 * fontmaxpixwidth;
+    int pixwidth = nrchars * fontmaxpixwidth;
+    if ( !ptClient->fieldWdt )
     {
-	int i = 0;
-	QListBoxItem* itm = item (i);
-	while (itm)
-	{   
-	    if ( !fieldWdt )
-	    {
-		const char* str = itm->text();
-		if ( str )
-		{
-		    int w = mFont->width( str )
-			+ 2 * mFont->maxWidth();
-		    totWidth = QMAX ( totWidth, w);
-		}
-	    }
-	    if ( !nLines ) 
-	    {
-		totHeight += mFont->height();
-	    } 
-	    i++;
-	    itm = item (i);
+	QListBoxItem* itm = item( 0 );
+	for ( int idx=0; itm; itm = item(++idx) )
+	{
+	    const int pixw = mFont->width( itm->text() ) + 2 * fontmaxpixwidth;
+	    if ( pixw > pixwidth )
+		pixwidth = pixw > maxwdth ? maxwdth : pixw;
 	}
     }
-    return QSize ( totWidth , totHeight );
+
+    const int extrasz = 2 * frameWidth();
+    const int pixheight = mFont->height() * nrlines;
+    return QSize ( pixwidth+extrasz, pixheight+extrasz );
 }
 
 
 uiListBox::uiListBox(  uiObject* parnt, const char* nm, bool isMultiSelect,
 		       int preferredNrLines, int preferredFieldWidth )
-	: uiWrapObj<i_QListBox>( new i_QListBox( *this, parnt, nm ), parnt, nm )
-	, _messenger ( *new i_listMessenger( mQtThing(), this ))
-	, fieldWdt( preferredFieldWidth )
-	, nLines( preferredNrLines )
+	: uiWrapObj<i_QListBox>(new i_QListBox(*this,parnt,nm),parnt,nm)
+	, _messenger (*new i_listMessenger(mQtThing(),this))
+	, fieldWdt(preferredFieldWidth)
+	, nLines(preferredNrLines)
 {
     if( isMultiSelect ) mQtThing()->setSelectionMode( QListBox::Extended );
     setStretch( 1, isSingleLine() ? 0 : 1 );
@@ -146,8 +134,11 @@ void uiListBox::addItems( const char** textList )
 
 void uiListBox::addItems( const PtrUserIDObjectSet& uids )
 {
+    int curidx = currentItem();
+    if ( uids.currentIndex() >= 0 ) curidx = size() + uids.currentIndex() - 1;
     for ( int idx=0; idx<uids.size(); idx++ )
 	mQtThing()->insertItem( QString( uids[idx]->name() ), -1 );
+    setCurrentItem( curidx );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.5 2001-05-07 16:36:58 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.6 2001-05-08 08:20:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,17 +58,18 @@ uiIOObjSelDlg::~uiIOObjSelDlg()
 }
 
 
-void uiIOObjSelDlg::selChg( CallBacker* )
+void uiIOObjSelDlg::selChg( CallBacker* c )
 {
     entrylist->setCurrent( listfld->currentItem() );
     ioobj = entrylist->selected();
-    if ( nmfld )
+    if ( nmfld && c )
 	nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
 }
 
 
 bool uiIOObjSelDlg::acceptOK( CallBacker* )
 {
+    selChg( 0 );
     if ( !ioobj ) { uiMSG().error( "Please select an object" ); return false; }
     if ( !nmfld ) return true;
 
@@ -103,6 +104,7 @@ uiIOObjSel::uiIOObjSel( uiObject* p, CtxtIOObj& c, const char* txt,
 	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
 		     txt ? txt : (const char*)c.ctxt.trgroup->name(), wclr )
 	, ctio(c)
+	, forread(c.ctxt.forread)
 {
     updateInput();
 }
@@ -127,6 +129,7 @@ const char* uiIOObjSel::userNameFromKey( const char* ky ) const
 
 void uiIOObjSel::doObjSel( CallBacker* )
 {
+    ctio.ctxt.forread = forread;
     uiIOObjSelDlg dlg( this, ctio );
     if ( dlg.go() && dlg.ioObj() )
     {
