@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.36 2004-09-07 16:24:01 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.37 2004-10-28 15:12:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,12 @@ uiIOSelect::~uiIOSelect()
 {
     delete &specialitems;
     deepErase( entries_ );
+}
+
+
+void uiIOSelect::stretchHor( bool yn )
+{
+    inp_->box()->setHSzPol( uiObject::medmax );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.27 2004-09-07 16:24:01 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.28 2004-10-28 15:12:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,8 @@ public:
 
     const char*		labelText() const;
     void		setLabelText(const char*);
+
+    void		stretchHor(bool);
 
 protected:
 
