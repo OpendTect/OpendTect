@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.17 2003-07-25 07:10:31 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.18 2003-08-06 12:56:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,11 +23,13 @@ class uiSlider;
 class IOParList;
 class uiTextEdit;
 class uiCheckBox;
+class uiGenInput;
 class SeisMMJobMan;
 class uiProgressBar;
 class uiFileBrowser;
 class uiIOFileSelect;
 class uiLabeledListBox;
+class uiLabeledComboBox;
 
 
 class uiSeisMMProc : public uiDialog
@@ -52,14 +54,18 @@ protected:
 
     uiLabeledListBox*	avmachfld;
     uiLabeledListBox*	usedmachfld;
+    uiLabeledComboBox*	jrppolselfld;
     uiButton*		addbut;
     uiButton*		stopbut;
     uiButton*		vwlogbut;
     uiCheckBox*		autorembut;
+    uiCheckBox*		detectbut;
     uiIOFileSelect*	tmpstordirfld;
     uiTextEdit*		progrfld;
     uiFileBrowser*	logvwer;
     uiGroup*		machgrp;
+    uiGenInput*		jrpstartfld;
+    uiGenInput*		jrpstopfld;
     uiSlider*		nicefld;
     uiProgressBar*	progbar;
 
@@ -85,8 +91,10 @@ protected:
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);
     void		vwLogPush(CallBacker*);
+    void		jrpSel(CallBacker*);
 
     bool		autoRemaining() const;
+    bool		jobsActive() const;
 };
 
 #endif
