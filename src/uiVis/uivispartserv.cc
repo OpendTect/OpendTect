@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.187 2004-01-15 15:39:07 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.188 2004-01-29 10:23:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -752,26 +752,29 @@ bool uiVisPartServer::setCubeData( int id, AttribSliceSet* sliceset,
 }
 
 
-void uiVisPartServer::setSliceIdx( int id, int idx )
+void uiVisPartServer::showTexture( int id, int textureidx )
 {
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) pdd->setSliceIdx( idx );
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
+    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
+    if ( pdd ) pdd->showTexture( textureidx );
+    if ( sd ) sd->showTexture( textureidx );
 }
 
 
 void uiVisPartServer::getRandomPosDataPos( int id,
-			   ObjectSet< TypeSet<BinIDZValue> >& bidzvset) const
+			   ObjectSet< TypeSet<BinIDZValues> >& bidzvset,
+			   bool inclvals ) const
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
     if ( sd )
-	sd->getAttribPositions( bidzvset, true, 0 );
+	sd->getAttribPositions( bidzvset, inclvals, 0 );
 }
 
 
 void uiVisPartServer::setRandomPosData( int id,
-		    const ObjectSet<const TypeSet<const BinIDZValue> >* nd,
+		    const ObjectSet<const TypeSet<const BinIDZValues> >* nd,
        		    bool colordata )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );

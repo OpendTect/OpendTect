@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.108 2004-01-09 16:27:52 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.109 2004-01-29 10:23:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,14 +137,15 @@ public:
     bool			setCubeData(int,AttribSliceSet*,
 	    				    bool colordata=false);
     				/*!< data becomes mine */
-    void			setSliceIdx(int,int);
+    void			showTexture(int,int);
 
     void			getRandomPosDataPos(int,
-				    ObjectSet<TypeSet<BinIDZValue> >&) const;
+				    ObjectSet<TypeSet<BinIDZValues> >&,
+				    bool inclvals=false) const;
     				/*!< Content of objectset becomes callers */
-    void			setRandomPosData(int,const ObjectSet
-				   <const TypeSet<const BinIDZValue> >*,
-				   bool colordata=false);
+    void			setRandomPosData(int, const ObjectSet<
+	    				const TypeSet<const BinIDZValues> >*,
+					bool colordata=false);
     				/*!< The data should have exactly the same
 				     structure as the positions given in
 				     getRandomPosDataPos */
@@ -154,7 +155,7 @@ public:
     const Interval<float>	getRandomTraceZRange(int id) const;
     void			setRandomTrackData(int,ObjectSet<SeisTrc>*,
 	    					   bool colordata=false);
-    				/*!< Traces become mine */
+    				//!< Traces become mine
 
     static const int		evMouseMove;
     Coord3			getMousePos(bool xyt) const;

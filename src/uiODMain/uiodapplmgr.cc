@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.10 2004-01-26 13:01:36 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.11 2004-01-29 10:24:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,8 +265,8 @@ bool uiODApplMgr::selectColorAttrib( int id )
 
 void uiODApplMgr::storeSurface( int visid )
 {
-    ObjectSet< TypeSet<BinIDZValue> > bidzvset;
-    visserv->getRandomPosDataPos( visid, bidzvset );
+    ObjectSet< TypeSet<BinIDZValues> > bidzvset;
+    visserv->getRandomPosDataPos( visid, bidzvset, true );
     const AttribSelSpec* as = visserv->getSelSpec( visid );
     BufferString dispname( as ? as->userRef() : 0 );
     if ( as && as->isNLA() )
@@ -403,15 +403,28 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
 bool uiODApplMgr::evaluateAttribute( int visid )
 {
-    const CubeSampling* cs = visserv->getCubeSampling( visid );
-    if ( !cs || !visserv->isInlCrlTsl(visid,-1) )
+    if ( visserv->isInlCrlTsl(visid,-1) )
     {
-	uiMSG().error( "Please select an Inline, Crossline or\n"
-		       "Timeslice to evaluate this attribute" );
+	const CubeSampling* cs = visserv->getCubeSampling( visid );
+	visserv->setCubeData( visid, attrserv->createSliceSet(*cs) );
+    }
+    else if ( visserv->isHorizon(visid) )
+    {
+	ObjectSet< TypeSet<BinIDZValues> > data;
+	visserv->getRandomPosDataPos( visid, data );
+	attrserv->createOutput( attrserv->curDescSet(), data );
+
+	const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
+	    reinterpret_cast< const ObjectSet< 
+			    const TypeSet< const BinIDZValues > >& >( data );
+	visserv->setRandomPosData( visid, &to_pass );
+    }
+    else
+    {
+	uiMSG().error( "Cannot evaluate this attribute on this object" );
 	return false;
     }
 
-    visserv->setCubeData( visid, attrserv->createSliceSet(*cs) );
     return true;
 }
 
@@ -700,7 +713,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evShowAttrSlice )
     {
 	int visid = visserv->getEventObjId();
-	visserv->setSliceIdx( visid, attrserv->getSliceIdx() );
+	visserv->showTexture( visid, attrserv->getSliceIdx() );
 	modifyColorTable( visid );
     }
     else
@@ -761,16 +774,17 @@ bool uiODApplMgr::getNewSurfData( int visid, bool colordata )
 	return selok;
     }
 
-    ObjectSet< TypeSet<BinIDZValue> > bidzvset;
-    visserv->getRandomPosDataPos( visid, bidzvset );
-    if ( !attrserv->createOutput(bidzvset,as) )
+    ObjectSet< TypeSet<BinIDZValues> > data;
+    visserv->getRandomPosDataPos( visid, data );
+    if ( !attrserv->createOutput(data,as) )
 	return false;
 
-    const ObjectSet< const TypeSet< const BinIDZValue > >& to_pass =
+    const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
 	reinterpret_cast< const ObjectSet< 
-			const TypeSet< const BinIDZValue > >& >( bidzvset );
+			const TypeSet< const BinIDZValues > >& >( data );
     visserv->setRandomPosData( visid, &to_pass, colordata );
-    deepErase( bidzvset );
+
+    deepErase( data );
 
     return true;
 }
@@ -798,14 +812,15 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
 {
     BufferString attrnm;
     float shift = 0;
-    ObjectSet< TypeSet<BinIDZValue> > data;
+    ObjectSet< TypeSet<BinIDZValues> > data;
     if ( !emserv->getDataVal(visserv->getMultiID(visid),data,attrnm,shift) )
 	return;
 
-    const ObjectSet< const TypeSet< const BinIDZValue > >& to_pass =
+    const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
 	reinterpret_cast< const ObjectSet< 
-			const TypeSet< const BinIDZValue > >& >( data );
+			const TypeSet< const BinIDZValues > >& >( data );
     visserv->setRandomPosData( visid, &to_pass );
+
     deepErase( data );
     visserv->shiftHorizon( visid, shift );
 
