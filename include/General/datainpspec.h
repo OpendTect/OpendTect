@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.28 2002-01-10 11:14:52 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.29 2002-01-10 11:41:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,9 @@ public:
     virtual int 	nElems() const			{ return 1; }
 
     virtual bool	isUndef( int idx=0 ) const	=0;
+
+    DataInpSpec&	setHSzP( SzPolicy p )		{ hor_=p; return *this;}
+    DataInpSpec&	setVSzP( SzPolicy p )		{ ver_=p; return *this;}
 
 			//! Preferred field width in characters
     DataInpSpec&	forcePrefFldWidth( int w )	{ pfw_=w; return *this;}
