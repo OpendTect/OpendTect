@@ -6,25 +6,28 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.12 2002-06-26 16:34:41 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.13 2002-08-28 13:42:10 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiexecutor.h"
+#include "uidialog.h"
 
-class SeisMMJobMan;
 class IOPar;
-class uiLabeledListBox;
+class Timer;
 class uiGroup;
+class Executor;
 class uiButton;
 class uiSlider;
-class uiIOFileSelect;
 class uiTextEdit;
+class SeisMMJobMan;
+class uiProgressBar;
 class uiFileBrowser;
+class uiIOFileSelect;
+class uiLabeledListBox;
 
 
-class uiSeisMMProc : public uiExecutor
+class uiSeisMMProc : public uiDialog
 {
 public:
                         uiSeisMMProc(uiParent*,const char* prognm,const IOPar&);
@@ -33,7 +36,11 @@ public:
 protected:
 
     SeisMMJobMan*	jm;
+    Executor*		task;
     BufferString	rshcomm;
+    Timer&		tim;
+    int			delay;
+
     uiLabeledListBox*	avmachfld;
     uiLabeledListBox*	usedmachfld;
     uiButton*		addbut;
@@ -44,6 +51,7 @@ protected:
     uiFileBrowser*	logvwer;
     uiGroup*		machgrp;
     uiSlider*		nicefld;
+    uiProgressBar*	progbar;
 
     bool		running;
     bool		finished;
@@ -51,18 +59,19 @@ protected:
 
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
-    void		doFinalise();
-    void		execFinished();
 
     Executor&		getFirstJM(const char*,const IOPar&);
     void		newJM();
     void		updateCurMachs();
+    void		prepareNextCycle(int);
     void		setDataTransferrer(SeisMMJobMan*);
     bool		getCurMach(BufferString&) const;
     void		stopRunningJobs();
+    void		execFinished();
+    void		setNiceNess();
 
+    void		doCycle(CallBacker*);
     void		postStep(CallBacker*);
-    void		niceValChg(CallBacker*);
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);
     void		vwLogPush(CallBacker*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.26 2002-08-02 10:27:23 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.27 2002-08-28 13:42:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,21 +25,30 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "hostdata.h"
 #include "iopar.h"
+#include "timer.h"
 #include "timefun.h"
 #include "filegen.h"
+#include "executor.h"
 #include <stdlib.h>
 
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
-	: uiExecutor(p,getFirstJM(prognm,iop),true)
+	: uiDialog(p, uiDialog::Setup(getFirstJM(prognm,iop).name(),"",0)
+		.nrstatusflds(-1)
+		.oktext("Finish Now")
+		.canceltext("Abort")
+		.fixedsize())
+	, tim(*new Timer(name()))
+    	, delay(500)
     	, running(false)
     	, finished(false)
     	, jmfinished(false)
 	, logvwer(0)
 {
-    setCancelText( "Abort" );
-    setOkText( "Finish Now" );
-    delay = 500;
+    statusBar()->addMsgFld( "Message", uiStatusBar::Left, 2 );
+    statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 2 );
+    statusBar()->addMsgFld( "NrDone", uiStatusBar::Left, 1 );
+    tim.tick.notify( mCB(this,uiSeisMMProc,doCycle) );
 
     const char* res = iop.find( "Target value" );
     BufferString txt( "Manage processing" );
@@ -99,12 +108,15 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     nicefld->attach( rightBorder );
     nicefld->setMinValue( -0.5 ); nicefld->setMaxValue( 19.5 );
     nicefld->setValue( hdl.defNiceLevel() );
-    nicefld->valueChanged.notify( mCB(this,uiSeisMMProc,niceValChg) );
     uiLabel* nicelbl = new uiLabel( this, "'Nice' level (0-19)", nicefld );
     progrfld = new uiTextEdit( this, "Processing progress", true );
     progrfld->attach( alignedBelow, lbl );
     progrfld->attach( widthSameAs, sep );
     progrfld->setPrefHeightInChar( 7 );
+
+    progbar = new uiProgressBar( this, "", jm->totalNr(), 0 );
+    progbar->attach( widthSameAs, machgrp );
+    progbar->attach( alignedBelow, progrfld );
 }
 
 
@@ -114,7 +126,7 @@ Executor& uiSeisMMProc::getFirstJM( const char* prognm, const IOPar& iopar )
     BufferString seisoutkey( res ? res : "Output.1.Seismic ID" );
     res = iopar.find( "Inline Range Key" );
     BufferString ilrgkey( res ? res : "Output.1.In-line range" );
-    jm = new SeisMMJobMan( prognm, iopar, seisoutkey, ilrgkey );
+    task = jm = new SeisMMJobMan( prognm, iopar, seisoutkey, ilrgkey );
     newJM();
     return *jm;
 }
@@ -124,6 +136,8 @@ uiSeisMMProc::~uiSeisMMProc()
 {
     delete logvwer;
     delete jm;
+    if ( task != jm ) delete task;
+    delete &tim;
 }
 
 
@@ -131,15 +145,6 @@ void uiSeisMMProc::newJM()
 {
     if ( !jm ) return;
     jm->poststep.notify( mCB(this,uiSeisMMProc,postStep) );
-}
-
-
-void uiSeisMMProc::doFinalise()
-{
-    progbar->attach( widthSameAs, machgrp );
-    progbar->attach( alignedBelow, progrfld );
-
-    // But we start processing when at least one machine is added.
 }
 
 
@@ -151,7 +156,7 @@ void uiSeisMMProc::postStep( CallBacker* )
 }
 
 
-void uiSeisMMProc::niceValChg( CallBacker* )
+void uiSeisMMProc::setNiceNess()
 {
     if ( !jm ) return;
     int v = nicefld->getIntValue();
@@ -165,7 +170,7 @@ void uiSeisMMProc::setDataTransferrer( SeisMMJobMan* newjm )
 {
     delete newjm; newjm = 0;
     jmfinished = true;
-    task_ = jm->dataTransferrer();
+    task = jm->dataTransferrer();
     delay = 0;
     progrfld->append( "Starting data transfer" );
 }
@@ -211,14 +216,52 @@ void uiSeisMMProc::execFinished()
 		uiMSG().message( "Please select the hosts to perform"
 				 " the remaining calculations" );
 		delete jm; jm = newjm;
-		task_ = newjm;
+		task = newjm;
 		newJM();
 	    }
 	}
-	first_time = true;
-	timerTick(0);
+	doCycle(0);
     }
 }
+
+
+void uiSeisMMProc::doCycle( CallBacker* )
+{
+    setNiceNess();
+
+    const int status = task->doStep();
+    switch ( status )
+    {
+    case 0:	execFinished();						return;
+    case -1:	uiMSG().error( task->message() );	done( -1 );	return;
+    case 2:	uiMSG().warning( task->message() );			break;
+    }
+
+    prepareNextCycle( delay );
+}
+
+
+void uiSeisMMProc::prepareNextCycle( int msecs )
+{
+    uiStatusBar& sb = *statusBar();
+    sb.message( task->message(), 0 );
+    sb.message( task->nrDoneText(), 1 );
+    const int nrdone = task->nrDone();
+    BufferString str; str += nrdone;
+    sb.message( str, 2 );
+
+    const int totsteps = task->totalNr();
+    const bool hastot = totsteps > 0;
+    progbar->display( hastot );
+    if ( hastot )
+    {
+	progbar->setTotalSteps( totsteps );
+	progbar->setProgress( nrdone );
+    }
+
+    tim.start( delay, true );
+}
+
 
 
 void uiSeisMMProc::updateCurMachs()
@@ -403,11 +446,11 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	{
 	    *strm << "No Job Manager. Therefore, data transfer is busy, or "
 		      "should have already finished" << endl;
-	    if ( !task_ )
-		{ *strm << "No task_ either. Huh?" << endl; return false; }
-	    mDynamicCastGet(SeisSingleTraceProc*,stp,task_)
+	    if ( !task )
+		{ *strm << "No task either. Huh?" << endl; return false; }
+	    mDynamicCastGet(SeisSingleTraceProc*,stp,task)
 	    if ( !stp )
-		*strm << "Huh? task_ should really be a SeisSingleTraceProc!\n"; 
+		*strm << "Huh? task should really be a SeisSingleTraceProc!\n"; 
 	    else
 		*strm << "SeisSingleTraceProc:\n"
 		       << stp->nrDone() << "/" << stp->totalNr() << endl
@@ -415,8 +458,8 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	    return false;
 	}
 
-	if ( task_ != jm )
-	    *strm << "task_ != jm . Why?" << endl;
+	if ( task != jm )
+	    *strm << "task != jm . Why?" << endl;
 
 	jm->dump( *strm );
     }
