@@ -5,8 +5,8 @@ ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
- Date:          26/07/2000
- RCS:           $Id: changetracker.h,v 1.2 2001-09-26 14:08:08 bert Exp $
+ Date:          26/09/2000
+ RCS:           $Id: changetracker.h,v 1.3 2001-09-27 10:32:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ template <class T,class U>
 inline bool ChangeTracker::update( T& val, const U& newval )
 {
     if ( !chgd ) return false;
-    bool ret = newval == val;
+    bool ret = !(newval == val);
     val = newval;
     if ( !*chgd ) *chgd = ret;
     return ret;
