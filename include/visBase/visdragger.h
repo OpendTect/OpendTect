@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.7 2004-05-17 06:15:56 kristofer Exp $
+ RCS:           $Id: visdragger.h,v 1.8 2004-08-05 07:03:57 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,11 +73,7 @@ public:
 
 protected:
     				~Dragger();
-    void			triggerRightClick(const TypeSet<int>* path)
-    				{
-				    rightclickpath = path;
-				    rightclicknotifier.trigger();
-				}
+    void			triggerRightClick(const EventInfo* eventinfo);
 
     static void			startCB(void*,SoDragger*);
     static void			motionCB(void*,SoDragger*);

@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.6 2004-05-17 06:15:52 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.7 2004-08-05 07:04:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "visdragger.h"
+
+#include "visevent.h"
 #include "vistransform.h"
 
 #include <Inventor/draggers/SoDragPointDragger.h>
@@ -120,6 +122,12 @@ void Dragger::setOwnShape(visBase::DataObject* newshape, const char* partname )
     }
 }
 
+
+void Dragger::triggerRightClick(const EventInfo* eventinfo)
+{
+    rightclickpath = eventinfo ? &eventinfo->pickedobjids : 0;
+    rightclicknotifier.trigger();
+}
 
 
 void Dragger::startCB( void* obj, SoDragger* )

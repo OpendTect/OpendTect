@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.22 2004-06-02 12:27:09 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.23 2004-08-05 07:03:57 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -109,7 +109,7 @@ protected:
 
     static void			motionCB(void*,SoRandomTrackLineDragger*);
     static void			startCB(void*,SoRandomTrackLineDragger*);
-    void			triggerRightClick(const TypeSet<int>* path);
+    void			triggerRightClick(const EventInfo*);
 
     Interval<float>		depthrg;
     TypeSet<Coord>		knots;

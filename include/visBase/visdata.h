@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.31 2004-05-15 13:15:49 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.32 2004-08-05 07:03:57 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ class SoNode;
 class IOPar;
 class BufferString;
 
-namespace visBase { class DataObject; }
+namespace visBase { class DataObject; class EventInfo; }
 typedef visBase::DataObject* (*FactPtr)(void);
 
 namespace visBase
@@ -104,7 +104,7 @@ protected:
     friend class		Scene;
     virtual void		triggerSel()		{}
     virtual void		triggerDeSel()		{}
-    virtual void		triggerRightClick(const TypeSet<int>* path=0) {}
+    virtual void		triggerRightClick(const EventInfo* =0) {}
     
 				DataObject();
     virtual			~DataObject();

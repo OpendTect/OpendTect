@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.29 2004-05-17 06:14:36 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.30 2004-08-05 07:03:57 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -55,12 +55,7 @@ protected:
     				{ if (isselectable) selnotifier.trigger(); }
     void			triggerDeSel()
     				{ if (isselectable) deselnotifier.trigger(); }
-    void			triggerRightClick(const TypeSet<int>* path)
-				{
-				    rightclickpath = path;
-				    rightClick.trigger();
-				}
-
+    void			triggerRightClick(const EventInfo*);
 				VisualObject(bool selectable=false);
 				~VisualObject();
 
