@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.1 2002-01-03 17:17:46 nanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.2 2002-01-07 14:17:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,11 +23,10 @@ ________________________________________________________________________
 
 
 uiGenBatchLaunch::uiGenBatchLaunch( uiParent* p, UserIDSet nms )
-        : uiDialog(p,"Run batch program")
+        : uiDialog(p,uiDialog::Setup("Run batch program",
+		   "Specify batch parameters","0.1.5"))
         , prognms(nms)
 {
-    setTitleText( "Specify batch parameters" );
-
     progfld = new uiLabeledComboBox( this, prognms );
 
     BufferString dir = File_getFullPath( GetDataDir(), "Proc" );
@@ -72,7 +71,8 @@ const char* uiGenBatchLaunch::getProg()
 
 uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 			      BufferString& hn, const char* pn, bool wp )
-        : uiDialog(p,"Batch launch")
+        : uiDialog(p,uiDialog::Setup("Batch launch","Specify output mode",
+		   "0.1.4"))
 	, iopl(pl)
 	, hostname(hn)
 	, progname(pn)

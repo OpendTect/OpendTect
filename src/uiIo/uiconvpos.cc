@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.5 2001-11-15 08:13:01 nanne Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.6 2002-01-07 14:17:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,11 @@ ________________________________________________________________________
 #include "uigeninput.h"
 
 uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
-	: uiDialog(p, "Position conversion")
+	: uiDialog(p, uiDialog::Setup("Position conversion",
+		   "Coordinates vs Inline/X-line","0.3.7"))
 	, survinfo(si)
 
 {
-    setTitleText( "Coordinates vs Inline/X-line" );
-
     inlfld = new uiGenInput( this, "In-line", IntInpSpec() );
     crlfld = new uiGenInput( this, "Cross-line", IntInpSpec() );
     xfld = new uiGenInput( this, "X-coordinate", DoubleInpSpec() );
@@ -40,6 +39,8 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     docoordbut->attach( rightOf, dobinidbut, 0 );
     xfld->attach( rightTo, inlfld );
     yfld->attach( alignedBelow, xfld );
+    yfld->attach( rightTo, crlfld );
+
     setOkText("Quit");
     setCancelText("");
 }
