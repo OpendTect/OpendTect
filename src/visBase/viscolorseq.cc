@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolorseq.cc,v 1.2 2002-03-11 14:37:30 kristofer Exp $";
+static const char* rcsID = "$Id: viscolorseq.cc,v 1.3 2002-03-11 14:48:05 kristofer Exp $";
 
 #include "viscolorseq.h"
 #include "colortab.h"
@@ -30,7 +30,7 @@ void visBase::ColorSequence::loadFromStorage( const char* newnm )
     ColorTable::get( newnm, coltab );
     setName( newnm );
 
-    change.trigger();
+    colorsChanged();
 }
 
 
