@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.27 2001-11-08 16:39:52 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.28 2001-11-23 12:58:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -279,7 +279,7 @@ void uiIOObjSel::processInput()
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( !strcmp(inp,itemusrnm) ) return;
+	if ( !strcmp(inp,itemusrnm) && ctio.ioobj ) return;
     }
 
     IOM().to( ctio.ctxt.stdSelKey() );
