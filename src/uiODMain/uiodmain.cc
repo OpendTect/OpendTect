@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.23 2004-09-15 09:03:56 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.24 2004-09-27 13:30:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -293,6 +293,10 @@ bool uiODMain::closeOK()
     else if ( res == 2 )
 	return false;
 
+    removeDockWindow( ctabwin );
+    delete scenemgr;
+    delete menumgr;
+
     return true;
 }
 
@@ -300,9 +304,6 @@ bool uiODMain::closeOK()
 void uiODMain::exit()
 {
     if ( !closeOK() ) return;
-    removeDockWindow( ctabwin );
-    delete scenemgr;
-    delete menumgr;
 
     uiapp.exit(0);
 }
