@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.7 2004-01-09 11:02:09 bert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.8 2004-02-17 14:47:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,11 @@ class uiVisPartServer;
 class uiTreeFactorySet;
 
 
-/*!\brief Position control elements at application top level */
+/*!\brief Manages the scenes and the corresponding trees.
+
+  Most of the interface is really not useful for plugin builders.
+
+ */
 
 class uiODSceneMgr : public CallBacker
 {

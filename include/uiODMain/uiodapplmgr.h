@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.6 2004-01-16 08:35:03 arend Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.7 2004-02-17 14:47:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,18 @@ class uidTectMan;
 class uiPopupMenu;
 class uiSoViewer;
 
-/*!\brief Application level manager - ties part servers together */
+/*!\brief Application level manager - ties part servers together
+
+  The uiODApplMgr instance can be accessed like:
+  ODMainWin()->applMgr()
+  For plugins it may be interesting to pop up one of the OpendTect standard
+  dialogs at any point in time. The best way to do that is by calling one
+  of the uiODApplMgr methods.
+
+  A big part of this class is dedicated to handling the events from the various
+  part servers.
+ 
+ */
 
 class uiODApplMgr : public CallBacker
 {

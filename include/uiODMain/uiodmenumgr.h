@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.6 2004-01-09 11:02:09 bert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.7 2004-02-17 14:47:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,16 @@ class uiMenuItem;
 class uiPopupMenu;
 
 
-/*!\brief 3D application top level object - call from main(). */
+/*!\brief The OpendTect menu manager
+
+  The uiODMenuMgr instance can be accessed like:
+  ODMainWin()->menuMgr()
+
+  All standard menus should be reachable directly without searching for
+  the text. It is easy to add your own menu items. And tool buttons, for that
+  matter.
+
+*/
 
 class uiODMenuMgr : public CallBacker
 {
