@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.61 2004-12-06 09:23:28 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.62 2004-12-15 16:02:38 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -464,6 +464,9 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 }
 
 
+#define mDelRet { delete uivissurf; uivissurf = 0; return false; }
+
+
 bool uiODEarthModelSurfaceTreeItem::init()
 {
     delete uivissurf;
@@ -472,11 +475,7 @@ bool uiODEarthModelSurfaceTreeItem::init()
 	uivissurf = new uiVisSurface( getUiParent(), displayid,
 				      applMgr()->visServer() );
 	if ( !uivissurf->isOK() )
-	{
-	    delete uivissurf;
-	    uivissurf = 0;
-	    return false;
-	}
+	    mDelRet;
 
 	mid = *applMgr()->visServer()->getMultiID(displayid);
     }
@@ -485,13 +484,17 @@ bool uiODEarthModelSurfaceTreeItem::init()
 	uivissurf = new uiVisSurface( getUiParent(), mid, sceneID(),
 				      applMgr()->visServer() );
 	displayid = uivissurf->id();
+	if ( !uivissurf->isOK() )
+	    mDelRet;
     }
 
     if ( !uiODDisplayTreeItem::init() )
 	return false; 
 
-    uivissurf->finishEditingNotifier()->notify(
+    if ( uivissurf->finishEditingNotifier() )
+	uivissurf->finishEditingNotifier()->notify(
 	    mCB(this,uiODEarthModelSurfaceTreeItem,finishedEditingCB));
+
     return true;
 }
 
