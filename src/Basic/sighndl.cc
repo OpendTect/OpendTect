@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.20 2004-09-27 08:09:53 dgb Exp $
+ RCS:           $Id: sighndl.cc,v 1.21 2004-10-14 09:31:24 dgb Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.20 2004-09-27 08:09:53 dgb Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.21 2004-10-14 09:31:24 dgb Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -66,36 +66,37 @@ SignalHandling::SignalHandling() {}
 
 SignalHandling::SignalHandling()
 {
-    if ( !getenv("DTECT_NO_OS_EVENT_HANDLING") )
-    {
-
 #define mCatchSignal(nr) (void)signal( nr, &SignalHandling::handle )
 
-    // Fatal stuff
-    mCatchSignal( SIGINT );	/* Interrupt */
-    mCatchSignal( SIGILL );	/* Illegal instruction */
-    mCatchSignal( SIGABRT );	/* Used by ABORT (IOT) */
-    mCatchSignal( SIGFPE );	/* Floating point */
-    mCatchSignal( SIGSEGV );	/* Segmentation fault */
-    mCatchSignal( SIGTERM );	/* Software termination */
+    if ( !getenv("DTECT_NO_OS_EVENT_HANDLING") )
+    {
+	if ( getenv( "DTECT_HANDLE_FATAL") )
+	{
+	// Fatal stuff
+	mCatchSignal( SIGINT );	/* Interrupt */
+	mCatchSignal( SIGILL );	/* Illegal instruction */
+	mCatchSignal( SIGFPE );	/* Floating point */
+	mCatchSignal( SIGSEGV );/* Segmentation fault */
+	mCatchSignal( SIGTERM );/* Software termination */
+	mCatchSignal( SIGABRT );/* Used by ABORT (IOT) */
 
 #ifdef __win__
-
-    mCatchSignal( SIGBREAK );	/* Control-break */
-
+	mCatchSignal( SIGBREAK );/* Control-break */
 #else
-
-    mCatchSignal( SIGQUIT );	/* Quit */
-    mCatchSignal( SIGTRAP );	/* Trace trap */
-    mCatchSignal( SIGIOT );	/* IOT instruction */
-    mCatchSignal( SIGBUS );	/* Bus error */
-    mCatchSignal( SIGXCPU );	/* Cpu time limit exceeded */
-    mCatchSignal( SIGXFSZ );	/* File size limit exceeded */
+	mCatchSignal( SIGQUIT );/* Quit */
+	mCatchSignal( SIGTRAP );/* Trace trap */
+	mCatchSignal( SIGIOT );	/* IOT instruction */
+	mCatchSignal( SIGBUS );	/* Bus error */
+	mCatchSignal( SIGXCPU );/* Cpu time limit exceeded */
+	mCatchSignal( SIGXFSZ );/* File size limit exceeded */
 # ifdef sun5
-    mCatchSignal( SIGEMT );	/* Emulator trap */
-    mCatchSignal( SIGSYS );	/* Bad arg system call */
+	mCatchSignal( SIGEMT );	/* Emulator trap */
+	mCatchSignal( SIGSYS );	/* Bad arg system call */
 # endif
+#endif
+	}
 
+#ifndef __win__
     // Stuff to ignore
     mCatchSignal( SIGURG );	/* Urgent condition */
     mCatchSignal( SIGTTIN );	/* Background read */
@@ -122,7 +123,6 @@ SignalHandling::SignalHandling()
     /* SGI seens to use SIGCLD when starting child processes, f.e. system() */
     mCatchSignal( SIGCLD );	/* Child status changed */
 # endif
-
 #endif
 
     }
