@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.3 2003-01-07 19:04:44 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.4 2003-01-08 09:08:46 niclas Exp $";
 
 #include "trigonometry.h"
 
@@ -20,6 +20,9 @@ Vector3::Vector3( float x_, float y_, float z_ )
     , y( y_ )
     , z( z_ )
 {}
+
+
+Vector3::Vector3() {}
 
 
 Vector3 Vector3::operator+(const Vector3& b) const
@@ -202,6 +205,9 @@ float Line3::distanceToPoint( Coord3& point ) const
 
    return v.cross( p0p1 ).abs() / v.abs();
 }
+
+
+Plane3::Plane3() {}
 
 							     
 Plane3::Plane3( float _A, float _B, float _C, float _D )
