@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.12 2004-02-25 14:52:31 nanne Exp $
+ RCS:           $Id: uisellinest.cc,v 1.13 2004-04-13 08:10:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,11 @@ ________________________________________________________________________
 static const int sMinWidth = 1;
 static const int sMaxWidth = 10;
 
-uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& l,
+uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 				const char* txt, bool wdraw, bool wcol, 
 				bool wwidth )
     : uiGroup(p,"Line style selector")
-    , ls(l)
+    , linestyle(*new LineStyle(ls))
     , stylesel(0)
     , colinp(0)
     , widthbox(0)
@@ -35,14 +35,14 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& l,
     {
 	BufferStringSet itms( LineStyle::TypeNames );
 	stylesel = new uiComboBox( this, itms, "Line Style" );
-	stylesel->setCurrentItem( (int)ls.type );
+	stylesel->setCurrentItem( (int)linestyle.type );
 	stylesel->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	new uiLabel( this, txt, stylesel );
     }
 
     if ( wcol )
     {
-	colinp = new uiColorInput( this, ls.color );
+	colinp = new uiColorInput( this, linestyle.color );
 	colinp->colorchanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel ) colinp->attach( rightTo, stylesel );
     }
@@ -52,7 +52,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& l,
 	widthbox = new uiLabeledSpinBox( this, "Width" );
 	widthbox->box()->valueChanged.notify( 
 					mCB(this,uiSelLineStyle,changeCB) );
-	widthbox->box()->setValue( ls.width );
+	widthbox->box()->setValue( linestyle.width );
 	widthbox->box()->setMinValue( sMinWidth );
   	widthbox->box()->setMaxValue( sMaxWidth );
 	if ( colinp )
@@ -70,21 +70,26 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& l,
 }
 
 
-LineStyle uiSelLineStyle::getStyle() const
+uiSelLineStyle::~uiSelLineStyle()
 {
-    LineStyle ret = ls;
-    if ( stylesel )
-	ret.type = (LineStyle::Type)stylesel->currentItem();
-    if ( colinp ) 
-	ret.color = colinp->color();
-    if ( widthbox ) 
-	ret.width = widthbox->box()->getValue();
-    return ret;
+    delete &linestyle;
+}
+
+
+const LineStyle& uiSelLineStyle::getStyle() const
+{
+    return linestyle;
 }
 
 
 void uiSelLineStyle::changeCB( CallBacker* cb )
 {
+    if ( stylesel )
+	linestyle.type = (LineStyle::Type)stylesel->currentItem();
+    if ( colinp ) 
+	linestyle.color = colinp->color();
+    if ( widthbox ) 
+	linestyle.width = widthbox->box()->getValue();
     changed.trigger(cb);
 }
 
@@ -100,7 +105,7 @@ LineStyleDlg::LineStyleDlg( uiParent* p, const LineStyle& ls, const char* lbl,
 }
 
 
-LineStyle LineStyleDlg::getLineStyle() const
+const LineStyle& LineStyleDlg::getLineStyle() const
 {   
     return lsfld->getStyle();
 }
