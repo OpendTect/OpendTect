@@ -1,0 +1,11 @@
+#!/bin/csh -f
+
+maindir
+
+foreach dir ( * )
+	set cpfnm=$maindir/plugins/$dir/.deps
+	if ( ! -d $dir || ! -e $maindir/src/$dir/.deps ) continue
+
+	echo "copying $cpfnm ..."
+	cp $cpfnm $dir/.deps
+end
