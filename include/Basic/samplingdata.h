@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.1.1.2 1999-09-16 09:19:11 arend Exp $
+ RCS:		$Id: samplingdata.h,v 1.2 2000-03-23 12:54:20 bert Exp $
 ________________________________________________________________________
 
 @$*/
 
 #include <gendefs.h>
+#include <ranges.h>
 
 
 class SamplingData {
