@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.15 2005-03-31 15:25:53 cvsarend Exp $
+ RCS:		$Id: jobrunner.h,v 1.16 2005-04-04 15:25:10 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,8 +127,9 @@ protected:
     int				maxhostfailures_; //!< host failrs B4 host bad
     int				maxjobfailures_;  //!< job related job failrs
     int				maxjobhstfails_;  //!< host related job failrs
-    int				jobtimeout_; 
-    int				hosttimeout_;
+    int				starttimeout_;
+    int				failtimeout_;
+    int				hosttimeout_; 
 
     int				doCycle();
     HostNFailInfo*		hostNFailInfoFor(const HostData*) const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.64 2005-04-04 10:30:04 cvsnanne Exp $
+ RCS:           $Id: survinfo.cc,v 1.65 2005-04-04 15:25:10 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -564,6 +564,11 @@ void SurveyInfo::snapStep( BinID& s, BinID rounding, bool work ) const
     mSnapStep(inl)
     mSnapStep(crl)
 }
+
+#ifdef __sun__
+#define floorf floor
+#define ceilf ceil
+#endif
 
 
 void SurveyInfo::snapZ( float& z, int dir, bool work ) const

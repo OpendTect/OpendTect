@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.20 2005-03-31 15:25:53 cvsarend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.21 2005-04-04 15:25:10 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "mmdefs.h"
 #include "timefun.h"
 #include "debugmasks.h"
+#include "msgh.h"
 #include <iostream>
 
 #define mDebugOn        (DBG::isOn(DBG_MM))
@@ -31,7 +32,8 @@ ________________________________________________________________________
     msg += " times due to job related problems."; \
     msg += "\n and "; msg += ji.hstfailures_; \
     msg += " times due to host related problems."; \
-    msg += "\n Last executed on host: "; msg += ji.hostdata_->name(); \
+    if ( ji.hostdata_ ) \
+	{ msg += "\n Execut[ed/ing] on host: "; msg += ji.hostdata_->name(); } \
     msg += "\n Status: "; msg += ji.statusmsg_; \
     msg += "\n Info: "; msg += ji.infomsg_;
 
@@ -57,8 +59,10 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, niceval_(19)
 	, firstport_(19636)
     	, prog_(cmd)
-	, jobtimeout_(		atoi( getenv("DTECT_JOB_TIMEOUT")
-				    ? getenv("DTECT_JOB_TIMEOUT"): "120000") )
+	, starttimeout_(	atoi( getenv("DTECT_START_TIMEOUT")
+				    ? getenv("DTECT_START_TIMEOUT"): "45000") )
+	, failtimeout_(		atoi( getenv("DTECT_FAIL_TIMEOUT")
+				    ? getenv("DTECT_FAIL_TIMEOUT"): "300000") )
 	, hosttimeout_(		atoi( getenv("DTECT_HOST_TIMEOUT")
 				    ? getenv("DTECT_HOST_TIMEOUT"): "600000") )
     	, maxhostfailures_(	atoi( getenv("DTECT_MAX_HOSTFAIL")
@@ -86,6 +90,12 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     if ( !File_exists(procdir_) )
 	File_createDir(procdir_,0);
 
+    if ( Values::isUdf(descprov_->nrJobs()) || !descprov_->nrJobs() )
+    {
+	UsrMsg( "No jobs to process!", MsgClass::Error );
+	return;
+    }
+	
     for ( int idx=0; idx<descprov_->nrJobs(); idx++ )
 	jobinfos_ += new JobInfo( idx );
 }
@@ -127,6 +137,17 @@ bool JobRunner::addHost( const HostData& hd )
     {
 	hfi->nrfailures_ = 0;
 	hfi->starttime_ = Time_getMilliSeconds();
+
+	// Clear failed jobs' hostdata for this host.
+	for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
+	{
+	    JobInfo& ji = *jobinfos_[ijob];
+	    bool isfailed = ( ji.state_ == JobInfo::JobFailed
+		           || ji.state_ == JobInfo::HostFailed);
+
+	    if ( isfailed && ji.hostdata_ == &hfi->hostdata_ )
+		ji.hostdata_=0;
+	}
     }
     else
 	return true; // host already in use
@@ -156,7 +177,10 @@ bool JobRunner::assignJob( HostNFailInfo& hfi )
 	    bool isfailed = ( ji.state_ == JobInfo::JobFailed
 		           || ji.state_ == JobInfo::HostFailed);
 	    if ( isfailed )
-		{ if ( !tryfailed ) continue; }
+	    {
+		if ( !tryfailed ) continue;
+		if ( ji.hostdata_ && ji.hostdata_ == &hfi.hostdata_ ) continue;
+	    }
 	    else if ( !isnew )
 		continue;
 
@@ -288,7 +312,8 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
     curjobinfo_ = &ji;
     ji.hostdata_ = &hd;
     ji.state_ = JobInfo::Scheduled;
-    ji.timestamp_ = 0;
+    ji.starttime_ = Time_getMilliSeconds();
+    ji.recvtime_ = 0;
     ji.statusmsg_ = " scheduled";
     ji.infomsg_ = "";
     ji.osprocid_ = -1;
@@ -382,22 +407,53 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 {
     if ( !hfi ) return HostFailed;
 
+    if ( hfi->starttime_ <= 0 )
+    {
+	pErrMsg( "starttime_ <= 0!!. Setting to current time..." );
+	if ( mDebugOn )
+	{
+	    BufferString msg( "Start time (" );
+	    msg += hfi->starttime_; msg += ") <= 0 for ";
+
+	    msg += hfi->hostdata_.name();
+	    msg += "\n nrfail: "; msg += hfi->nrfailures_;
+	    msg += "\n nrsucc: "; msg += hfi->nrsucces_;
+	    msg += "\n last succes time: "; msg += hfi->lastsuccess_;
+
+	    DBG::message(msg);
+	}
+	const_cast<HostNFailInfo*>(hfi)->starttime_ = Time_getMilliSeconds();
+    }
+
     if ( !hfi->nrfailures_ ) return OK;
 
     if ( hfi->nrfailures_ <= maxhostfailures_ ) return SomeFailed;
 
-    int totltim = hfi->starttime_ ? Time_getMilliSeconds() - hfi->starttime_
-				  : -1;
-
-    if ( totltim < 0 ) { pErrMsg( "huh?" ); return SomeFailed; }
-
-    if ( totltim <= hosttimeout_ ) // default: 10 mins.
+    int totltim = hfi->starttime_ ? Time_getMilliSeconds()-hfi->starttime_ : -1;
+    if ( totltim < 0 && hfi->starttime_ ) totltim += 86486400;
+	    
+    if ( totltim > 0 && totltim <= hosttimeout_ ) // default: 10 mins.
 	return SomeFailed;
+
+    if ( totltim <= 0 && !hfi->nrsucces_ )
+    {
+	BufferString msg( "Time since start (" );
+	msg += totltim; msg += ") < 0 for ";
+
+	msg += hfi->hostdata_.name();
+	msg += "\n nrfail: "; msg += hfi->nrfailures_;
+	msg += "\n nrsucc: "; msg += hfi->nrsucces_;
+	msg += "\n startime: "; msg += hfi->starttime_;
+	msg += "\n last succes time: "; msg += hfi->lastsuccess_;
+
+	DBG::message(msg);
+	return HostFailed; 
+    }
 
     int lastsuctim = hfi->lastsuccess_ ?
 			    Time_getMilliSeconds() - hfi->lastsuccess_ : -1; 
+    if ( lastsuctim < 0 && hfi->lastsuccess_ ) lastsuctim += 86486400;
 
-    if ( lastsuctim < -1 ) { pErrMsg( "huh?" ); return HostFailed; }
     if ( lastsuctim < 0 )  return HostFailed;
     
     if ( hfi->nrsucces_ > 0 && lastsuctim < hosttimeout_ ) return SomeFailed;
@@ -506,17 +562,22 @@ void JobRunner::updateJobInfo()
 
 	if ( isAssigned(ji)  )
 	{
-	    if ( !ji.timestamp_ ) ji.timestamp_ = Time_getMilliSeconds();
+	    int now = Time_getMilliSeconds();
+	    if ( !ji.starttime_ ) { pErrMsg("huh?"); ji.starttime_ = now; }
 
-	    int elapsed = Time_getMilliSeconds() - ji.timestamp_; 
-
-	    if ( elapsed > jobtimeout_ )
+	    int since_lst_chk = now - ji.starttime_; 
+	    if ( since_lst_chk > starttimeout_ )
 	    {
-		ji.statusmsg_ = "Timed out.";
-		failedJob( ji, JobInfo::HostFailed );
+		int since_lst_recv = ji.recvtime_ ? now - ji.recvtime_ : -1;
+
+		if ( since_lst_recv < 0 || since_lst_recv > failtimeout_ )
+		{
+		    ji.statusmsg_ = "Timed out.";
+		    failedJob( ji, JobInfo::HostFailed );
 		
-		if ( ji.hostdata_ )
-		    iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
+		    if ( ji.hostdata_ )
+			iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
+		}
 	    }
 	}
     }
@@ -552,7 +613,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     curjobinfo_ = ji;
 
     ji->infomsg_ = "";
-    ji->timestamp_ = si.timestamp;
+    ji->recvtime_ = si.timestamp;
     if ( si.msg.size() ) ji->infomsg_ = si.msg;
 
     switch( si.tag )

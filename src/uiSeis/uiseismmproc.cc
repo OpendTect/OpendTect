@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.90 2005-03-30 11:19:23 cvsarend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.91 2005-04-04 15:25:10 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     	, outioobjinfo(0), isrestart(false)
 	, lsfileemitted(false)
 	, timer(0)
+	, nrcyclesdone(0)
 {
     const IOPar& iopar = *iopl[0];
     MultiID outid = iopar.find( SeisJobExecProv::outputKey(iopar) );
@@ -160,8 +161,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     usedmachfld = new uiLabeledListBox( usedmachgrp,
 				    multihost ? "Used hosts" : "", false,
 				    uiLabeledListBox::AboveMid );
-    usedmachfld->setPrefWidthInChar( hostnmwdth );
-    usedmachfld->setPrefHeightInChar( maxhostdisp );
+    usedmachfld->box()->setPrefWidthInChar( hostnmwdth );
+    usedmachfld->box()->setPrefHeightInChar( maxhostdisp );
 
     uiButton* stopbut = new uiPushButton( usedmachgrp, "Stop" );
     stopbut->activated.notify( mCB(this,uiSeisMMProc,stopPush) );
