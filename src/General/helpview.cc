@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.15 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.16 2003-11-10 10:41:14 arend Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: helpview.cc,v 1.15 2003-11-07 12:21:57 bert Exp
 #include "errh.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "string2.h"
 #include <stdlib.h>
 
 
@@ -32,12 +33,15 @@ const char* HelpViewer::subdirNm( const char* scnm )
 
 void HelpViewer::use( const char* url, const char* wintitl )
 {
+    static BufferString _url;
+    _url = url;
     if ( !url || !*url )
     {
-	static BufferString tmp;
-	tmp = getURLForLinkName( sMainIndex, applnm );
-	url = (const char*)tmp;
+	_url = getURLForLinkName( sMainIndex, applnm );
     }
+
+    replaceCharacter(_url.buf(),' ','%');
+    url = (const char*)_url;
 
     BufferString cmd( "@" );
     cmd += mGetExecScript();

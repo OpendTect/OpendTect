@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.28 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.29 2003-11-10 10:41:14 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -117,9 +117,14 @@ const char* GetExecScript( int remote )
     strcpy( progname, File_getFullPath(progname, "od_exec") );
 
 #ifdef __win__
+    FileNameString execnm;
+    strcpy( execnm, GetSoftwareDir() );
+    strcpy( execnm, File_getFullPath(execnm, "\\bin\\win\\sys\\csh.exe") );
+
     static FileNameString execname;
-    strcpy( execname, GetSoftwareDir() );
-    strcpy( execname, File_getFullPath(execname, "\\bin\\win\\sys\\csh.exe ") );
+    strcpy( execname, "\"" );
+    strcat( execname, execnm );
+    strcat( execname, "\" "  );
 #endif
 
     if( remote )
@@ -128,7 +133,9 @@ const char* GetExecScript( int remote )
 #ifdef __win__
     strcat( progname, ".csh" );
 
+    strcat( execname, "\"" );
     strcat( execname, progname );
+    strcat( execname, "\"" );
     return execname;
 #endif
     return progname;
@@ -211,8 +218,19 @@ const char* GetSettingsDir(void)
     const char* ptr = _GetHomeDir();
 
 #ifdef __win__
-    if ( !ptr ) 
+    if ( !ptr )
+	ptr = getenv( "DTECT_APPLICATION_DATA" );
+
+    if ( !ptr ) // Last resort. Is known to cause problems when used 
+                // during initialisation of statics. (0xc0000005)
 	ptr = GetSpecialFolderLocation( CSIDL_APPDATA ); // "Application Data"
+
+    if ( !ptr )
+	return 0;
+
+    char* chptr = ptr;
+    while ( chptr && *chptr++ ) { if ( *chptr == '\r' ) *chptr='\0'; }
+
 #endif
 
     ptr = File_getFullPath( ptr, ".od" );
@@ -240,7 +258,15 @@ const char* GetPersonalDir(void)
 
 #ifdef __win__
     if ( !ptr ) 
+	ptr = getenv( "DTECT_MYDOCUMENTS_DIR" );
+
+    if ( !ptr ) // Last resort. Is known to cause problems when used 
+                // during initialisation of statics. (0xc0000005)
 	ptr = GetSpecialFolderLocation( CSIDL_PERSONAL ); // "My Documents"
+
+    char* chptr = ptr;
+    while ( chptr && *chptr++ ) { if ( *chptr == '\r' ) *chptr='\0'; }
+
 #endif
 
     if( dgb_debug_isOn(DBG_SETTINGS) )

@@ -35,7 +35,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.42 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.43 2003-11-10 10:41:14 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -211,7 +211,8 @@ void StreamProvider::set( const char* devname )
     {
 #ifdef __win__ // non-msvc compiler, like MinGw
 	// if only one char before the ':', it must be a drive letter.
-	if( ptr == fname.buf() + 1 )
+	if( ptr == fname.buf() + 1 ||
+			( *fname.buf()=='\"' && (ptr == fname.buf()+2) ) )
 	    ptr = fname.buf();
 	else
 #endif
