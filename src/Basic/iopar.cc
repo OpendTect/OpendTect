@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.36 2004-02-27 11:36:31 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.37 2004-02-27 12:50:14 bert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -841,13 +841,17 @@ bool IOPar::dump( const char* fnm, const char* typ ) const
 
     if ( !typ ) typ = name().buf();
     if ( !typ ) typ = sKey::Pars;
+
     if ( !strcmp(typ,"_pretty") )
-	{ dumpPretty( *sd.ostrm ); return true; }
+	dumpPretty( *sd.ostrm );
+    else
+    {
+	ascostream astream( *sd.ostrm );
+	if ( !astream.putHeader( typ ) )
+	    return false;
+	putDataTo( astream );
+    }
 
-    ascostream astream( *sd.ostrm );
-    if ( !astream.putHeader( typ ) ) return false;
-
-    putDataTo( astream );
     sd.close();
     return true;
 }
@@ -856,7 +860,7 @@ bool IOPar::dump( const char* fnm, const char* typ ) const
 void IOPar::dumpPretty( ostream& strm ) const
 {
     if ( name() != "" )
-	strm << "> " << name() << " <\n\n";
+	strm << "> " << name() << " <\n";
 
     int maxlen = 0;
     for ( int idx=0; idx<size(); idx++ )
