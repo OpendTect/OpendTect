@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.12 2005-03-10 12:47:02 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.13 2005-03-14 16:46:14 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -145,19 +145,23 @@ int Engine::addTracker( EM::EMObject* obj )
     if ( !obj )
 	mRetErr( "No valid object", -1 );
 
-    if ( getTrackerByObject(obj->id())!=-1 )
-	mRetErr( "Object is allready tracked", -1 );
+    if ( getTrackerByObject(obj->id()) != -1 )
+	mRetErr( "Object is already tracked", -1 );
 
+    bool added = false;
     for ( int idx=0; idx<trackerfactories.size(); idx++ )
     {
-	if ( !strcmp( obj->getTypeStr(),
-		      trackerfactories[idx]->emObjectType()) )
+	if ( !strcmp(obj->getTypeStr(),trackerfactories[idx]->emObjectType()) )
 	{
 	    EMTracker* tracker = trackerfactories[idx]->create(obj);
 	    trackers += tracker;
+	    added = true;
 	    break;
 	}
     }
+
+    if ( !added )
+	mRetErr( "Cannot find this trackertype", -1 );
 
     return trackers.size()-1;
 }
@@ -171,12 +175,13 @@ int Engine::addTracker( const char* objname, const char* trackername )
     if ( getTrackerByObject(objname)!=-1 )
 	mRetErr( "Object with this name does already exist", -1 );
 
+    bool added = false;
     for ( int idx=0; idx<trackerfactories.size(); idx++ )
     {
-	if ( !strcmp( trackername, trackerfactories[idx]->emObjectType()) )
+	if ( !strcmp(trackername,trackerfactories[idx]->emObjectType()) )
 	{
 	    EMTracker* tracker = trackerfactories[idx]->create();
-	    if ( !tracker->setSeeds( interactionseeds, objname ) )
+	    if ( !tracker->setSeeds(interactionseeds,objname) )
 	    {
 		errmsg = tracker->errMsg();
 		delete tracker;
@@ -184,15 +189,19 @@ int Engine::addTracker( const char* objname, const char* trackername )
 	    }
 
 	    trackers += tracker;
+	    added = true;
 	    break;
 	}
     }
+
+    if ( !added )
+	mRetErr( "Cannot find this trackertype", -1 );
 
     return trackers.size()-1;
 }
 
 
-void Engine::removeTracker(int idx)
+void Engine::removeTracker( int idx )
 {
     if ( idx>=trackers.size() )
 	return;
@@ -245,36 +254,36 @@ int Engine::getTrackerByObject( const char* objname ) const
 }
 
 
-void Engine::getNeededAttribs(ObjectSet<const AttribSelSpec>& res) const
+void Engine::getNeededAttribs( ObjectSet<const AttribSelSpec>& res ) const
 {
     //TODO
 }
 
 
-CubeSampling Engine::getAttribCube(const AttribSelSpec&) const
+CubeSampling Engine::getAttribCube( const AttribSelSpec& as ) const
 {
     //TODO: Implement margins
     return activeVolume();
 }
     
 
-const AttribSliceSet* Engine::getAttribCache( const AttribSelSpec& spec ) const
+const AttribSliceSet* Engine::getAttribCache( const AttribSelSpec& as ) const
 {
     for ( int idx=0; idx<attribcachespecs.size(); idx++ )
     {
-	if ( *attribcachespecs[idx]==spec ) return attribcache[idx];
+	if ( *attribcachespecs[idx]==as ) return attribcache[idx];
     }
 
     return 0;
 }
 
 
-bool Engine::setAttribData(const AttribSelSpec& spec, AttribSliceSet* newdata )
+bool Engine::setAttribData( const AttribSelSpec& as, AttribSliceSet* newdata )
 {
     bool found = false;
     for ( int idx=0; idx<attribcachespecs.size(); idx++ )
     {
-	if ( *attribcachespecs[idx]==spec )
+	if ( *attribcachespecs[idx]==as )
 	{
 	    delete attribcache[idx];
 	    attribcache.replace(newdata,idx);
@@ -285,7 +294,7 @@ bool Engine::setAttribData(const AttribSelSpec& spec, AttribSliceSet* newdata )
 
     if ( !found )
     {
-	attribcachespecs += new AttribSelSpec(spec);
+	attribcachespecs += new AttribSelSpec(as);
 	attribcache += newdata;
     }
 
@@ -378,7 +387,7 @@ CubeSampling Engine::getDefaultActiveVolume()
 #include "emhortubetracker.h"
 #include "emfaulteditor.h"
 #include "emfaulttracker.h"
-//#include "emhorizontracker.h"
+#include "emhorizontracker.h"
 
 
 void MPE::initStandardClasses()
@@ -387,4 +396,5 @@ void MPE::initStandardClasses()
     MPE::HorizontalTubeTracker::initClass();
     MPE::FaultEditor::initClass();
     MPE::FaultTracker::initClass();
+    MPE::HorizonTracker::initClass();
 }
