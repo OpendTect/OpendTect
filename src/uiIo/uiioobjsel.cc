@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.57 2003-05-25 17:12:25 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.58 2003-06-27 08:40:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	, nmfld(0)
 	, ioobj(0)
 	, ismultisel(multisel && ctio.ctxt.forread)
+	, manipgrp(0)
 {
     if ( !ismultisel )
 	statusBar()->setTxtAlign( 0, uiStatusBar::Right );
@@ -154,13 +155,15 @@ void uiIOObjSelDlg::selChg( CallBacker* cb )
 	toStatusBar( nm );
     }
 
-    manipgrp->selChg( cb );
+    if ( manipgrp )
+	manipgrp->selChg( cb );
 }
 
 
 void uiIOObjSelDlg::preReloc( CallBacker* cb )
 {
-    toStatusBar( manipgrp->curRelocationMsg() );
+    if ( manipgrp )
+	toStatusBar( manipgrp->curRelocationMsg() );
 }
 
 
