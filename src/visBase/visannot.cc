@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.19 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.20 2004-07-16 09:10:17 nanne Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -30,15 +30,15 @@ const char* visBase::Annotation::showscalestr = "Show Scale";
 mCreateFactoryEntry( visBase::Annotation );
 
 visBase::Annotation::Annotation()
-    : coords( new SoCoordinate3 )
-    , textswitch( new SoSwitch )
-    , scaleswitch( new SoSwitch )
-    , pickstyle( visBase::PickStyle::create() )
-    , texts( 0 )
+    : coords(new SoCoordinate3)
+    , textswitch(new SoSwitch)
+    , scaleswitch(new SoSwitch)
+    , pickstyle(visBase::PickStyle::create())
+    , texts(0)
 {
     pickstyle->ref();
     addChild( pickstyle->getInventorNode() );
-    pickstyle->setStyle(PickStyle::Unpickable);
+    pickstyle->setStyle( PickStyle::Unpickable );
 
     addChild( coords );
 
@@ -51,14 +51,14 @@ visBase::Annotation::Annotation()
     coords->point.setValues( 0, 8, pos );
 
     SoIndexedLineSet* line = new SoIndexedLineSet;
-    int indexes[] = { 0, 1, 2, 3 , 0};
+    int indexes[] = { 0, 1, 2, 3, 0 };
     line->coordIndex.setValues( 0, 5, indexes );
     addChild( line );
 
     line = new SoIndexedLineSet;
     indexes[0] = 4; indexes[1] = 5; indexes[2] = 6; indexes[3] = 7;
     indexes[4] = 4;
-    line->coordIndex.setValues( 0, 5,  indexes);
+    line->coordIndex.setValues( 0, 5, indexes );
     addChild( line );
 
     line = new SoIndexedLineSet;
@@ -83,7 +83,7 @@ visBase::Annotation::Annotation()
 
     addChild( textswitch );
     texts = visBase::DataObjectGroup::create();
-    texts->setSeparate(false);
+    texts->setSeparate( false );
     texts->ref();
     textswitch->addChild( texts->getInventorNode() );
     textswitch->whichChild = 0;
@@ -94,23 +94,23 @@ visBase::Annotation::Annotation()
 
     addChild( scaleswitch );
     SoGroup* scalegroup = new SoGroup;
-    scaleswitch->addChild(scalegroup);
+    scaleswitch->addChild( scalegroup );
     scaleswitch->whichChild = 0;
 
     visBase::DataObjectGroup* scale = visBase::DataObjectGroup::create();
-    scale->setSeparate(false);
+    scale->setSeparate( false );
     scale->ref();
     scalegroup->addChild( scale->getInventorNode() );
     scales += scale;
     
     scale = visBase::DataObjectGroup::create();
-    scale->setSeparate(false);
+    scale->setSeparate( false );
     scale->ref();
     scalegroup->addChild( scale->getInventorNode() );
     scales += scale;
     
     scale = visBase::DataObjectGroup::create();
-    scale->setSeparate(false);
+    scale->setSeparate( false );
     scale->ref();
     scalegroup->addChild( scale->getInventorNode() );
     scales += scale;
@@ -137,7 +137,7 @@ void visBase::Annotation::showText( bool yn )
 
 bool visBase::Annotation::isTextShown() const
 {
-    return textswitch->whichChild.getValue()==0;
+    return textswitch->whichChild.getValue() == 0;
 }
 
 
@@ -149,7 +149,7 @@ void visBase::Annotation::showScale( bool yn )
 
 bool visBase::Annotation::isScaleShown() const
 {
-    return scaleswitch->whichChild.getValue()==0;
+    return scaleswitch->whichChild.getValue() == 0;
 }
 
 
@@ -165,7 +165,6 @@ Coord3  visBase::Annotation::getCorner( int idx ) const
 {
     SbVec3f pos = coords->point[idx];
     Coord3 res( pos[0], pos[1], pos[2] );
-
     return res;
 }
 
@@ -173,9 +172,8 @@ Coord3  visBase::Annotation::getCorner( int idx ) const
 void visBase::Annotation::setText( int dim, const char* string )
 {
     visBase::Text* text = (visBase::Text*) texts->getObject( dim );
-    if ( !text ) return;
-
-    text->setText( string );
+    if ( text )
+	text->setText( string );
 }
 
 
@@ -187,7 +185,7 @@ void  visBase::Annotation::updateTextPos()
 }
 
 
-void visBase::Annotation::updateTextPos(int textid)
+void visBase::Annotation::updateTextPos( int textid )
 {
     int pidx0;
     int pidx1;
@@ -219,7 +217,7 @@ void visBase::Annotation::updateTextPos(int textid)
     tp[2] = (p0[2]+p1[2]) / 2;
 
     ((visBase::Text*)texts->getObject(textid))
-			->setPosition( Coord3( tp[0], tp[1], tp[2] ));
+			->setPosition( Coord3(tp[0],tp[1],tp[2]) );
 
     int dim = -1;
     if ( mIsEqual(p0[1],p1[1],mDefEps) && mIsEqual(p0[2],p1[2],mDefEps))
@@ -228,6 +226,8 @@ void visBase::Annotation::updateTextPos(int textid)
 	dim = 1;
     else if ( mIsEqual(p0[1],p1[1],mDefEps) && mIsEqual(p0[0],p1[0],mDefEps) )
 	dim = 2;
+    else
+	return;
 
     Interval<double> range( p0[dim], p1[dim] );
     SamplingData<double> sd = AxisInfo::prettySampling(range);
@@ -236,7 +236,7 @@ void visBase::Annotation::updateTextPos(int textid)
     {
 	double val = sd.atIndex(idx);
 	if ( val <= range.start )	continue;
-	else if ( val>range.stop )	break;
+	else if ( val > range.stop )	break;
 
 	Text* text = Text::create();
 	scales[textid]->addObject( text );
@@ -253,7 +253,6 @@ visBase::Text* visBase::Annotation::getText( int dim, int textnr )
 {
     DataObjectGroup* group = 0;
     group = scales[dim];
-
     mDynamicCastGet(visBase::Text*,text,group->getObject(textnr));
     return text;
 }
@@ -268,9 +267,7 @@ void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     {
 	key = cornerprefixstr;
 	key += idx;
-
 	Coord3 pos = getCorner( idx );
-
 	par.set( key, pos.x, pos.y, pos.z );
     }
 
@@ -278,11 +275,10 @@ void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     {
 	key = textprefixstr;
 	key += idx;
-
-	visBase::Text* text = (visBase::Text*) texts->getObject( idx );
+	visBase::Text* text = (visBase::Text*)texts->getObject( idx );
 	if ( !text ) continue;
 
-	par.set( key, (const char*) text->getText() );
+	par.set( key, (const char*)text->getText() );
     }
 
     par.setYN( showtextstr, isTextShown() );
@@ -293,7 +289,7 @@ void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 int visBase::Annotation::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
-    if ( res!= 1 ) return res;
+    if ( res != 1 ) return res;
 
     BufferString key;
     for ( int idx=0; idx<8; idx++ )
@@ -319,16 +315,14 @@ int visBase::Annotation::usePar( const IOPar& par )
 	setText( idx, text );
     }
 
-    bool yn;
-    if ( !par.getYN( showtextstr, yn ) )
-	return -1;
-
+    bool yn = true;
+    par.getYN( showtextstr, yn );
     showText( yn );
 
-    if ( !par.getYN( showscalestr, yn ) )
-	return -1;
-
+    yn = true;
+    par.getYN( showscalestr, yn );
     showScale( yn );
+
     return 1;
 }
 
