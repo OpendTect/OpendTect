@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.29 2004-10-25 11:40:11 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.30 2005-03-18 12:21:45 cvsbert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -180,7 +180,7 @@ std::ostream* CBVSWriteMgr::mkStrm()
     curnr_++;
     StreamData sd = StreamProvider((const char*)*fname).makeOStream();
 
-    if ( sd.usable() )
+    if ( sd.usable() && sd.ostrm->good() )
 	fnames_ += fname;
     else
     {
