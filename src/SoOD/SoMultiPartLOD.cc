@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoMultiPartLOD.cc,v 1.2 2002-07-08 08:04:47 kristofer Exp $";
+static const char* rcsID = "$Id: SoMultiPartLOD.cc,v 1.3 2002-07-09 12:33:01 kristofer Exp $";
 
 #include "SoMultiPartLOD.h"
 #include <Inventor/misc/SoState.h>
@@ -27,13 +27,7 @@ SoMultiPartLOD::SoMultiPartLOD(void)
 
 void SoMultiPartLOD::commonConstructor(void)
 {
-    static SbBool first = TRUE;
-    if ( first )
-    {
-	SoMultiPartLOD::initClass();
-	first = FALSE;
-    }
-
+    SoMultiPartLOD::initClass();
     SoMultiPartLOD::classinstances++;
 
     assert(SoMultiPartLOD::classTypeId != SoType::badType() &&
@@ -69,6 +63,12 @@ SoMultiPartLOD::~SoMultiPartLOD()
 
 void SoMultiPartLOD::initClass(void)
 {
+    static SbBool first = TRUE;
+    if ( !first )
+	return;
+
+    first = FALSE;
+
     const char * classname = "SoMultiPartLOD";
     assert(SoMultiPartLOD::classTypeId == SoType::badType() &&
 	   "don't init() twice!");
