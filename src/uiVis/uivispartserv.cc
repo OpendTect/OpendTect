@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.121 2003-01-30 12:53:16 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.122 2003-01-30 14:51:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1336,16 +1336,13 @@ bool uiVisPartServer::hasMaterial( int id ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObj( id );
 
-    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj);
-    if ( vd ) return true;
+    mDynamicCastGet(const visSurvey::PickSetDisplay*,ps,dobj);
+    if ( ps ) return false;
 
-    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj);
-    if ( pdd ) return true;
+    mDynamicCastGet(const visSurvey::WellDisplay*,wd,dobj);
+    if ( wd ) return false;
 
-    mDynamicCastGet(const visSurvey::SurfaceDisplay*,surface,dobj);
-    if ( surface ) return true;
-
-    return false;
+    return true;
 }
 
 
@@ -1453,10 +1450,10 @@ bool uiVisPartServer::resetManipulation( int id )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
-    if ( !pdd ) return false;
-
-    pdd->resetManip();
-    return true;
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( pdd ) pdd->resetManip();
+    if ( vd ) vd->resetManip();
+    return vd || pdd;
 }
 
 
