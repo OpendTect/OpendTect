@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.23 2002-04-18 12:08:51 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.24 2002-04-19 14:29:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,6 +226,7 @@ void uiVisPartServer::removeDataDisplay( int id )
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( sd );
     scene->removeObject( objidx );
+    seisdisps -= sd;
 }
 
 
@@ -322,6 +323,7 @@ void uiVisPartServer::removePickSetDisplay(int id)
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( ps );
     scene->removeObject( objidx );
+    picks -= ps;
 }
 
 
