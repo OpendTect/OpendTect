@@ -2,7 +2,7 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id: PMinit.csh,v 1.4 2003-10-08 15:18:12 bert Exp $
+# $Id: PMinit.csh,v 1.5 2003-10-29 09:53:42 arend Exp $
 #---------------------------------------------------------
 
 if ( ! $?PMAKE ) then
@@ -14,7 +14,12 @@ if ( ! $?PMAKE ) then
 endif
 
 if ( ! $?GNUMAKE ) then
-    setenv GNUMAKE	"gmake"
+    if ( $HDIR == win ) then
+#	setenv GNUMAKE	"$PMAKE/bin/win/gmake-wrap"
+	setenv GNUMAKE	"/usr/bin/make"
+    else
+	setenv GNUMAKE	"gmake"
+    endif
 endif
 
 setenv PMAKECOMMAND	'$GNUMAKE -I$WORK/Pmake -I$PMAKE'
