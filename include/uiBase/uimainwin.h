@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.38 2004-09-13 09:40:01 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.39 2004-12-23 15:14:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,8 @@ public:
     void                show();
     void                close();
     bool		isHidden() const;
+
+    void		setSensitive(bool yn=true);
 
     void		toStatusBar(const char*, int fldidx=0, int msecs=-1 );
 

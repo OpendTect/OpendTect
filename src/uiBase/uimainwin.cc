@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.90 2004-12-20 12:16:45 dgb Exp $
+ RCS:           $Id: uimainwin.cc,v 1.91 2004-12-23 15:14:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -493,12 +493,26 @@ uiMainWin* uiMainWin::activeWindow()
 
 }
 
+
+void uiMainWin::setSensitive( bool yn )
+{
+    QPtrList<QDockWindow> dws = body_->dockWindows();
+    for ( int idx=0; idx<dws.count(); idx++ )
+    {
+	QDockWindow* qdwin = dws.at( idx );
+	if ( qdwin ) qdwin->setEnabled( yn );
+    }
+    menuBar()->setSensitive( yn );
+    body_->setEnabled( yn );
+}
+
+
 uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
 {
-    if( !mwimpl )	return 0;
+    if ( !mwimpl ) return 0;
 
     uiMainWinBody* _mwb = dynamic_cast<uiMainWinBody*>( mwimpl );
-    if( !_mwb )		return 0;
+    if ( !_mwb ) return 0;
 
     return &_mwb->handle();
 }
