@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.7 2003-01-20 09:36:05 kristofer Exp $
+ RCS:		$Id: vismarker.h,v 1.8 2003-08-20 07:56:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,11 +18,11 @@ ________________________________________________________________________
 
 class SoTranslation;
 class SoGroup;
-class SoScale;
+class SoShape;
+class SoMarkerScale;
 
 namespace visBase
 {
-class ShapeScale;
 class Transformation;
 
 /*!\brief
@@ -60,10 +60,8 @@ protected:
 			~Marker();
     Transformation*	transformation;
 
-    ShapeScale*		shapescale;
-    SoTranslation*	position;
-    SoScale*		scale;
-    SoGroup*		group;
+    SoMarkerScale*	markerscale;
+    SoShape*		shape;
 
     Type		markertype;
 
