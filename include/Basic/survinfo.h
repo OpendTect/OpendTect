@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.37 2004-01-08 14:30:03 kristofer Exp $
+ RCS:		$Id: survinfo.h,v 1.38 2004-02-23 12:13:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,8 @@ public:
     			/*!< un=true: meter; un=false: feet; only used
    			     when istime = false; */
     const char*		getZUnit(bool withbrackets=true) const;
+    float		zFactor() const		{ return zistime_ ? 1000 : 1; }
+    			//!< Factor between real and displayed unit
 
     const char*		comment() const			{ return comment_; }
 
