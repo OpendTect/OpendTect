@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.51 2003-06-03 15:27:03 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.52 2003-07-25 07:10:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     	, stopbut(0)
     	, estmbs(0)
     	, targetioobj(0)
+    	, autorembut(0)
 {
     const IOPar& iopar = *iopl[0];
     const char* res = iopar.find( "Target value" );
@@ -186,6 +187,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     nicefld->setMinValue( -0.5 ); nicefld->setMaxValue( 19.5 );
     nicefld->setValue( hdl.defNiceLevel() );
     uiLabel* nicelbl = new uiLabel( this, "'Nice' level (0-19)", nicefld );
+    autorembut = new uiCheckBox( this, "Auto-fill      " );
+    autorembut->attach( leftOf, nicelbl );
     progrfld = new uiTextEdit( this, "Processing progress", true );
     progrfld->attach( alignedBelow, lbl );
     progrfld->attach( widthSameAs, sep );
@@ -261,6 +264,7 @@ static int askRemaining( const SeisMMJobMan& jm )
 {
     const int nrlines = jm.totalNr();
     if ( nrlines < 1 ) return 1;
+
     int linenr = jm.lineToDo(0);
     BufferString msg;
     if ( nrlines == 1 )
@@ -310,6 +314,7 @@ void uiSeisMMProc::execFinished( bool userestart )
 	else
 	{
 	    bool start_again = true;
+	    bool add_localhost = false;
 	    if ( isrestart )
 	    {
 		BufferString msg( "Re-starting processing for inlines:\n" );
@@ -319,7 +324,8 @@ void uiSeisMMProc::execFinished( bool userestart )
 	    }
 	    else
 	    {
-		int res = askRemaining( *newjm );
+		const bool autorem = autoRemaining();
+		int res = autorem ? 0 : askRemaining( *newjm );
 		if ( res == 2 )
 		    { reject(this); return; }
 		else if ( res == 1 )
@@ -328,18 +334,35 @@ void uiSeisMMProc::execFinished( bool userestart )
 		    setDataTransferrer( newjm );
 		}
 		else
-		    uiMSG().message( "Please select the hosts to perform"
-				     " the remaining calculations" );
+		{
+		    if ( !autorem )
+			uiMSG().message( "Please select the hosts to perform"
+					 " the remaining calculations" );
+		    else
+			add_localhost = true;
+		}
 	    }
 	    if ( start_again )
 	    {
 		delete jm; jm = newjm;
+		if ( add_localhost )
+		{
+		    avmachfld->box()->selAll( false );
+		    avmachfld->box()->setSelected( 0, true );
+		    addPush(0);
+		}
 		task = newjm;
 		newJM();
 	    }
 	}
 	doCycle(0);
     }
+}
+
+
+bool uiSeisMMProc::autoRemaining() const
+{
+    return autorembut && autorembut->isChecked();
 }
 
 
