@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.1 2000-08-08 14:15:01 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.2 2000-08-08 18:25:39 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -36,9 +36,19 @@ FontData::Weight	FontData::defaultweight = FontData::Bold;
 bool			FontData::defaultitalic = false;
 const char* FontData::defaultkeys[] =
 { "Control", "Graphics small", "Graphics medium", "Graphics large", 0 };
+static const int numwghts[] = { 25, 50, 63, 75, 87, 0 };
+int FontData::numWeight( FontData::Weight w )
+{ return numwghts[(int)w]; }
+FontData::Weight FontData::enumWeight( int w )
+{
+    int idx = 0;
+    while ( numwghts[idx] && numwghts[idx] < w ) idx++;
+    if ( !numwghts[idx] ) idx--;
+    return (FontData::Weight)idx;
+}
 
 
-//! Then the Color stuff ...
+// Then the Color stuff ...
 
 const char* ColorVal::sKey = "Value-Color";
 const char* ColorTable::sKeyName = "Color table name";
@@ -80,6 +90,8 @@ static Color drawcols[] = {
 };
 
 
+// Then real FontData methods ...
+
 void FontData::getFrom( const char* s )
 {
     FileMultiString fms( s );
@@ -103,6 +115,8 @@ void FontData::putTo( BufferString& s )
     s = fms;
 }
 
+
+// Then real Color methods ...
 
 const Color& Color::drawDef( int idx )
 {
@@ -138,6 +152,8 @@ bool Color::use( const char* str )
     return true;
 }
 
+
+// Finally ColorTable methods ...
 
 void ColorTable::calcList( int nritems )
 {
