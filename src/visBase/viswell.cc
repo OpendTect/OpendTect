@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.5 2003-10-28 11:11:44 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.6 2003-11-05 14:58:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,6 +239,8 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	Coord3 pos( cv.coord );
 	if ( transformation )
 	    pos = transformation->transform( pos );
+	if ( mIsUndefined(pos.z) ) continue;
+
 	float val = mIsUndefined(cv.value) ? 0 : cv.value;
 	val -= range.start;
 	if ( val < 0 ) val = 0;
