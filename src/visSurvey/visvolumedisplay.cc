@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.37 2003-06-02 08:09:51 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.38 2003-07-01 14:26:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
     , cache(0)
+    , colcache(0)
     , moved(this)
     , slicemoving(this)
 {
@@ -95,6 +96,9 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
 
     delete &as;
     delete &colas;
+
+    delete cache;
+    delete colcache;
 }
 
 
@@ -160,6 +164,7 @@ void visSurvey::VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
     as = as_;
     delete cache;
     cache = 0;
+    colas.datatype = 0;
     cube->useTexture( false );
 }
 
@@ -220,10 +225,18 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset,
 	return false;
     }
 
+    if ( colordata )
+    {
+	Interval<float> cliprate( colas.cliprate0, colas.cliprate1 );
+	cube->setColorPars( colas.reverse, colas.useclip,
+			    colas.useclip ? cliprate : colas.range );
+    }
+
     setData( sliceset, colordata ? colas.datatype : 0 );
     if ( colordata )
     {
-	delete sliceset;
+	delete colcache;
+	colcache = sliceset;
 	return true;
     }
 

@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.22 2003-06-02 08:09:51 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.23 2003-07-01 14:26:19 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -108,6 +108,9 @@ visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
 
     delete &as;
     delete &colas;
+
+    deepErase( cache );
+    deepErase( colcache );
 }
 
 
@@ -122,6 +125,7 @@ const AttribSelSpec& visSurvey::RandomTrackDisplay::getAttribSelSpec() const
 void visSurvey::RandomTrackDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 {
     as = as_;
+    colas.datatype = 0;
     track->useTexture( false );
     setName( as.userRef() );
 }
@@ -271,11 +275,19 @@ bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>& trcset,
 {
     const int nrtrcs = trcset.size();
     if ( !nrtrcs ) return false;
+
+    if ( colordata )
+    {
+	Interval<float> cliprate( colas.cliprate0, colas.cliprate1 );
+	track->setColorPars( colas.reverse, colas.useclip,
+			     colas.useclip ? cliprate : colas.range );
+    }
     
     setData( trcset, colordata ? colas.datatype : 0 );
     if ( colordata )
     {
-	deepErase( trcset );
+	deepErase( colcache );
+	colcache = trcset;
 	return true;
     }
 
@@ -431,6 +443,7 @@ void visSurvey::RandomTrackDisplay::setResolution( int res )
 {
     track->setResolution( res );
     if ( cache.size() ) setData( cache );
+    if ( colcache.size() ) setData( colcache, colas.datatype );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.52 2003-06-06 14:09:35 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.53 2003-07-01 14:26:18 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -33,6 +33,7 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     : VisualObject(true)
     , trect(visBase::TextureRect::create())
     , cache(0)
+    , colcache(0)
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
     , cs(*new CubeSampling)
@@ -56,6 +57,19 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     showDraggers(false);
 
     SPM().zscalechange.notify( mCB(this,PlaneDataDisplay,appVelChCB) );
+}
+
+
+visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
+{
+    SPM().zscalechange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
+    trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged) );
+    trect->unRef();
+    delete &as;
+    delete &colas;
+
+    delete cache;
+    delete colcache;
 }
 
 
@@ -274,16 +288,6 @@ void visSurvey::PlaneDataDisplay::resetManip()
 }
 
 
-visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
-{
-    SPM().zscalechange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
-    trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged) );
-    trect->unRef();
-    delete &as;
-    delete &colas;
-}
-
-
 AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec()
 { return as; }
 
@@ -295,6 +299,7 @@ void visSurvey::PlaneDataDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
     as = as_;
     delete cache;
     cache = 0;
+    colas.datatype = 0;
     trect->useTexture( false );
     setName( as.userRef() );
 }
@@ -385,7 +390,8 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset,
     setData( sliceset, colordata ? colas.datatype : 0 );
     if ( colordata )
     {
-	delete sliceset;
+	delete colcache;
+	colcache = sliceset;
 	return true;
     }
 
@@ -544,6 +550,7 @@ void visSurvey::PlaneDataDisplay::setResolution( int res )
 {
     trect->setResolution( res );
     if ( cache ) setData( cache );
+    if ( colcache ) setData( colcache, colas.datatype );
 }
 
 
