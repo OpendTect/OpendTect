@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.9 2004-08-20 13:40:24 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.10 2004-08-23 09:50:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,34 +18,25 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "iopar.h"
 #include "survinfo.h"
-#include "binidselimpl.h"
+#include "cubesampling.h"
 #include "separstr.h"
 #include "seistrctr.h"
 
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
-			    const SeisSelSetup& s )
-	: uiIOObjSelDlg(p,getCtio(c,s),"Seismic data selection")
-	, setup(s)
+			    const SeisSelSetup& setup )
+	: uiIOObjSelDlg(p,getCtio(c,setup),"Seismic data selection")
 	, subsel(0)
-	, subsel2d(0)
-    	, is2d(false)
 {
     setTitleText( setup.seltxt_ );
 
     if ( setup.subsel_ )
     {
 	topgrp->setHAlignObj( listfld );
-	subsel = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
-					  .withtable(false).withz(true) );
+	subsel = new uiSeisSubSel( this );
 	subsel->attach( alignedBelow, topgrp );
-	subsel2d = new uiSeis2DSubSel( this );
-	subsel2d->attach( alignedBelow, topgrp );
 	if ( ctio.iopar )
-	{
 	    subsel->usePar( *ctio.iopar );
-	    subsel2d->usePar( *ctio.iopar );
-	}
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
@@ -90,27 +81,17 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !ioobj )
 	return;
 
-    is2d = SeisTrcTranslator::is2D( *ioobj );
-
-    if ( setup.subsel_ )
+    if ( subsel )
     {
+	subsel->set2D( SeisTrcTranslator::is2D(*ioobj) );
 	StepInterval<int> inlrg, crlrg; StepInterval<float> zrg;
 	if ( !uiSeisIOObjInfo(*ioobj,ctio.ctxt.forread)
 				.getRanges(inlrg,crlrg,zrg) )
 	    return;
 
-	if ( is2d )
-	{
-	    subsel2d->setInput( crlrg );
-	    subsel2d->setInput( zrg );
-	}
-	else
-	{
-	    subsel->setInput( inlrg, crlrg );
-	    subsel->setInput( zrg );
-	}
-	subsel2d->display( is2d );
-	subsel->display( !is2d );
+	subsel->setInput( zrg );
+	HorSampling hs; hs.set( inlrg, crlrg );
+	subsel->setInput( hs );
     }
 }
 
@@ -118,20 +99,14 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 {
     uiIOObjSelDlg::fillPar( iopar );
-    if ( is2d && subsel2d )
-	subsel2d->fillPar( iopar );
-    if ( !is2d && subsel )
-	subsel->fillPar( iopar );
+    if ( subsel ) subsel->fillPar( iopar );
 }
 
 
 void uiSeisSelDlg::usePar( const IOPar& iopar )
 {
     uiIOObjSelDlg::usePar( iopar );
-    if ( is2d && subsel2d )
-	subsel2d->usePar( iopar );
-    if ( !is2d && subsel )
-	subsel->usePar( iopar );
+    if ( subsel ) subsel->usePar( iopar );
 }
 
 
