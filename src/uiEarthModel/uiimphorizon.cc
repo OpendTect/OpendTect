@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.45 2005-02-16 14:53:01 cvskris Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.46 2005-02-18 18:21:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,8 +206,8 @@ bool uiImportHorizon::doWork()
 }
 
 
-bool uiImportHorizon::readFiles( ObjectSet<BinIDValueSet>& sections, bool doscale,
-				 const HorSampling* hs )
+bool uiImportHorizon::readFiles( ObjectSet<BinIDValueSet>& sections,
+				 bool doscale, const HorSampling* hs )
 {
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
@@ -215,7 +215,7 @@ bool uiImportHorizon::readFiles( ObjectSet<BinIDValueSet>& sections, bool doscal
     {
 	const char* fname = filenames.get( idx );
 	BinIDValueSet* bvs = getBidValSet( fname, doscale, hs );
-	if ( bvs && bvs->totalSize() )
+	if ( bvs && !bvs->isEmpty() )
 	    sections += bvs;
 	else
 	{
