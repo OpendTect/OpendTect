@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.37 2004-07-28 08:54:45 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.38 2004-09-14 16:29:39 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -84,6 +84,8 @@ public:
 
     void			setTransformation(visBase::Transformation*);
     visBase::Transformation*	getTransformation();
+
+    void			setSceneEventCatcher(visBase::EventCatcher*);
 
 protected:
     virtual			~PickSetDisplay();

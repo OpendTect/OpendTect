@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.59 2004-07-28 08:54:38 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.60 2004-09-14 16:29:42 kristofer Exp $";
 
 #include "vissurvpickset.h"
 
@@ -34,7 +34,7 @@ const char* PickSetDisplay::sizestr = "Size";
 
 PickSetDisplay::PickSetDisplay()
     : group( visBase::DataObjectGroup::create() )
-    , eventcatcher( visBase::EventCatcher::create() )
+    , eventcatcher( 0 )
     , initsz(3)
     , picktype(3)
     , changed(this)
@@ -42,12 +42,6 @@ PickSetDisplay::PickSetDisplay()
     , showall(true)
     , transformation( 0 )
 {
-    eventcatcher->ref();
-    eventcatcher->setEventType(visBase::MouseClick);
-    addChild( eventcatcher->getInventorNode() );
-
-    eventcatcher->eventhappened.notify( mCB(this,PickSetDisplay,pickCB) );
-
     group->ref();
     addChild( group->getInventorNode() );
     setScreenSize(initsz);
@@ -88,9 +82,7 @@ void PickSetDisplay::copyToPickSet( PickSet& pickset ) const
 
 PickSetDisplay::~PickSetDisplay()
 {
-    eventcatcher->eventhappened.remove( mCB(this,PickSetDisplay,pickCB) );
-    removeChild( eventcatcher->getInventorNode() );
-    eventcatcher->unRef();
+    setSceneEventCatcher( 0 );
     removeChild( group->getInventorNode() );
     group->unRef();
 
@@ -454,6 +446,26 @@ void PickSetDisplay::setTransformation( visBase::Transformation* newtr )
 visBase::Transformation* PickSetDisplay::getTransformation()
 {
     return transformation;
+}
+
+
+
+void PickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
+{
+    if ( eventcatcher )
+    {
+	eventcatcher->eventhappened.remove(mCB(this,PickSetDisplay,pickCB));
+	eventcatcher->unRef();
+    }
+
+    eventcatcher = nevc;
+
+    if ( eventcatcher )
+    {
+	eventcatcher->eventhappened.notify(mCB(this,PickSetDisplay,pickCB));
+	eventcatcher->ref();
+    }
+
 }
 
 }; // namespace visSurvey
