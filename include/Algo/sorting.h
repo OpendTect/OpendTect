@@ -8,12 +8,16 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.4 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: sorting.h,v 1.5 2001-11-08 10:42:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <gendefs.h>
+#include "gendefs.h"
+
+#ifndef Vector_H
+#include <Vector.h>
+#endif
 
 
 #define mDoSort(extra_var,extra_action) \
@@ -322,6 +326,148 @@ void quickSort( T* arr, IT* iarr, int sz )
 #undef FA
 #undef FC 
 #undef NSTACK
+
+template <class T>
+class SortedList
+{
+public:
+    			SortedList(bool allowmultiples_)
+			    : allowmultiples( allowmultiples_ ) {}
+
+    int 		size() const { return typs.size(); }
+    const T&		operator[]( int idx ) const { return (T&)typs[idx]; }
+    int			indexOf( const T& ) const;
+    SortedList<T>&	operator +=( const T& );
+    SortedList<T>&	operator -=( const T& );
+
+
+    template <class U>
+    SortedList<T>&	copy( const U& array )
+    			{
+			    erase();
+			    int sz = array.size();
+			    for ( int idx=0; idx<sz; idx++ )
+				(*this) += array[idx];
+			    return *this;
+			}
+
+    template <class U>
+    SortedList<T>&	operator =( const U& array ) { return copy(ts); }
+
+    template <class U>
+    SortedList<T>&	operator +=( const U& array )
+    			{
+			    int sz = array.size();
+			    for ( int idx=0; idx<sz; idx++ )
+				(*this) += array[idx];
+			    return *this;
+			}
+
+
+    template <class U>
+    SortedList<T>&	operator -=( const U& array )
+    			{
+			    erase();
+			    int sz = array.size();
+			    for ( int idx=0; idx<sz; idx++ )
+				(*this) -= array[idx];
+			    return *this;
+			}
+
+    void		erase() { typs.erase(); }
+    void		remove( int idx );
+
+private:
+    bool		allowmultiples;
+    Vector<T>		typs;
+};
+
+
+template <class T> inline
+int SortedList<T>::indexOf( const T& typ ) const
+{
+    int sz = size();
+    if ( !sz ) return 0;
+
+    int start = 0;
+    int stop = sz-1;
+
+    T startval = (*this)[start];
+    T stopval = (*this)[stop];
+
+    if ( typ > stopval ) return sz;
+
+    while ( stopval > startval )
+    {
+	int middle = (startval+stopval)>>2;
+	T middleval = (*this)[middle];
+
+	if ( middleval > typ )
+	{
+	    stopval = middleval;
+	    stop = middle;
+	}
+	else
+	{
+	    startval = middleval;
+	    start = middle;
+	}
+    }
+
+    return start;
+}
+
+
+template <class T> inline
+SortedList<T>&	SortedList<T>::operator +=( const T& nv )
+{
+    int newpos = indexOf( nv );
+
+    if ( newpos == size() )
+    {
+	typs.push_back( nv );
+	return *this;
+    }
+
+    if ( !allowmultiples && (*this)[newpos] == nv )
+	return *this;
+
+    typs.push_back( nv );
+    for ( int idx=size()-1; idx>newpos; idx-- )
+	typs[idx] = typs[idx-1];
+
+    typs[newpos] = nv;
+
+    return *this;
+}
+
+
+template <class T> inline
+SortedList<T>&	SortedList<T>::operator -=( const T& nv )
+{
+    int sz = size();
+    if ( !sz ) return *this;
+
+    int pos = indexOf( nv );
+
+    if ( !pos && nv < typs[0] ) return *this;
+    remove( pos );
+
+    if ( pos==sz ) return *this;
+
+    typs.remove( pos );
+    return *this;
+}
+
+
+template <class T> inline
+void  SortedList<T>::remove( int pos )
+{
+    typs.remove( pos );
+}
+
+
+
 
 
 #endif
