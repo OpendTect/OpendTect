@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.8 2004-07-21 14:05:07 nanne Exp $
+ RCS:		$Id: uiseissel.cc,v 1.9 2004-08-20 13:40:24 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissel.h"
 #include "uibinidsubsel.h"
-#include "uiseis2dsubsel.h"
+#include "uiseissubsel.h"
 #include "uiseisioobjinfo.h"
 #include "uilistbox.h"
 #include "uigeninput.h"

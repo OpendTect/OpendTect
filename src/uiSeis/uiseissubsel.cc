@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.4 2004-07-29 21:41:26 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.5 2004-08-20 13:40:24 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiseis2dsubsel.h"
+#include "uiseissubsel.h"
 #include "uigeninput.h"
 #include "survinfo.h"
 #include "iopar.h"

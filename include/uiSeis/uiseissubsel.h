@@ -1,5 +1,5 @@
-#ifndef uiseis2dsubsel_h
-#define uiseis2dsubsel_h
+#ifndef uiseissubsel_h
+#define uiseissubsel_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.4 2004-07-29 21:41:25 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.5 2004-08-20 13:40:24 bert Exp $
 ________________________________________________________________________
 
 -*/
