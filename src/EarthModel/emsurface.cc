@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.51 2004-05-31 09:28:58 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.52 2004-06-03 10:41:23 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -559,10 +559,10 @@ float EM::Surface::normalDistance( const Coord3& timepos,
     if ( meshvariation )
     {
 	*meshvariation = Interval<float>(0,0);
-	if ( c00def ) { meshvariation->include(plane.distanceToPoint(c00)); }
-	if ( c10def ) { meshvariation->include(plane.distanceToPoint(c10)); }
-	if ( c01def ) { meshvariation->include(plane.distanceToPoint(c01)); }
-	if ( c11def ) { meshvariation->include(plane.distanceToPoint(c11)); }
+	if ( c00def ) {meshvariation->include(plane.distanceToPoint(c00,true));}
+	if ( c10def ) {meshvariation->include(plane.distanceToPoint(c10,true));}
+	if ( c01def ) {meshvariation->include(plane.distanceToPoint(c01,true));}
+	if ( c11def ) {meshvariation->include(plane.distanceToPoint(c11,true));}
     }
 
     const Coord3 pos = time2depthfunc
