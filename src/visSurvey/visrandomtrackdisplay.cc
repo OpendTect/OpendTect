@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.34 2004-05-05 14:21:09 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.35 2004-05-07 10:28:00 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@
 
 #include <math.h>
 
+mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
+
 namespace visSurvey
 {
 
@@ -38,7 +40,6 @@ const char* RandomTrackDisplay::knotprefix = "Knot ";
 const char* RandomTrackDisplay::depthintvstr = "Depth Interval";
 
 
-mCreateFactoryEntry( RandomTrackDisplay );
 
 RandomTrackDisplay::RandomTrackDisplay()
     : VisualObject(true)
