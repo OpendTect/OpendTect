@@ -4,11 +4,12 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.4 2001-07-23 14:51:34 kristofer Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.5 2003-08-29 08:26:22 nanne Exp $";
 
 
 #include "wavelettrans.h"
 #include "arrayndimpl.h"
+#include "simpnumer.h"
 
 
 DefineEnumNames(WaveletTransform,WaveletType,0,"Wavelet Type")

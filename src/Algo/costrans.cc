@@ -4,11 +4,11 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: costrans.cc,v 1.3 2003-08-29 08:24:01 dgb Exp $";
+static const char* rcsID = "$Id: costrans.cc,v 1.4 2003-08-29 08:26:22 nanne Exp $";
 
 
-#include <costrans.h>
-#include <simpnumer.h>
+#include "costrans.h"
+#include "simpnumer.h"
 
 DefineClassID(CosineTransform);
 
