@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.14 2004-02-02 15:21:46 nanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.15 2004-02-25 14:49:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "i_qspinbox.h"
 #include "uiobjbody.h"
 
-#include <qsize.h> 
+#include <qvalidator.h>
 
 
 class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QSpinBox>
@@ -24,9 +24,10 @@ public:
 
                         uiSpinBoxBody(uiSpinBox&,uiParent*, const char* );
 
-    virtual		~uiSpinBoxBody()	{ delete &messenger_; }
+    virtual		~uiSpinBoxBody();
 
     virtual int 	nrTxtLines() const	{ return 1; }
+    void		setNrDecimals(int);
 
 protected:
 
@@ -37,43 +38,59 @@ private:
 
     i_SpinBoxMessenger& messenger_;
 
+    QDoubleValidator*	dval;
+
 };
 
 
 uiSpinBoxBody::uiSpinBoxBody(uiSpinBox& handle, uiParent* p, const char* nm)
     : uiObjBodyImpl<uiSpinBox,QSpinBox>( handle, p, nm )
-    , messenger_( *new i_SpinBoxMessenger( this, &handle) )	
+    , messenger_( *new i_SpinBoxMessenger( this, &handle) )
+    , dval(new QDoubleValidator(this,"Validator"))
 {
     setHSzPol( uiObject::small );
+    setValidator( dval );
+}
+
+
+uiSpinBoxBody::~uiSpinBoxBody()
+{
+    delete &messenger_;
+    delete dval;
 }
 
 
 int uiSpinBoxBody::mapTextToValue( bool* ok )
 {
-    if( handle_.useMappers() )
-    {
-        return handle_.mapTextToValue( ok );
-    }
-    return QSpinBox::mapTextToValue( ok );
+    return (int)(cleanText().toFloat(ok) * handle_.factor);
 }
 
 
-QString uiSpinBoxBody::mapValueToText( int v )
+QString uiSpinBoxBody::mapValueToText( int val )
 {
-    if( handle_.useMappers() )
-    {
-        return QString( handle_.mapValueToText( v ) );
-    }
-    return QSpinBox::mapValueToText(v);
+    QString s;
+    s.setNum( (float)val / handle_.factor );
+    return s;
+}
+
+
+void uiSpinBoxBody::setNrDecimals( int dec )
+{
+    dval->setDecimals( dec );
 }
 
 //------------------------------------------------------------------------------
 
-uiSpinBox::uiSpinBox(  uiParent* parnt, const char* nm )
-    : uiObject( parnt,nm,mkbody(parnt,nm) )
+uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
+    : uiObject(p,nm,mkbody(p,nm))
     , valueChanged(this)
     , dosnap(false)
+    , factor(1)
 {
+    if ( dec < 0 ) dec = 0;
+    factor = (int)pow(10,(float)dec);
+    body_->setNrDecimals( dec );
+
     valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
 }
 
@@ -87,14 +104,13 @@ uiSpinBox::~uiSpinBox()
 void uiSpinBox::snapToStep( CallBacker* )
 {
     if ( !dosnap ) return;
-    const int curvalue = getIntValue();
-    const int diff = curvalue - minValue();
-    const int step_ = step();
+    const int diff = body_->value() - body_->minValue();
+    const int step_ = body_->lineStep() ? body_->lineStep() : 1;
     if ( diff%step_ )
     {
-	float ratio = diff / (float)step_;
-	const float newval = minValue() + mNINT(ratio)*step_;
-	setValue( newval );
+	const float ratio = (float)diff / step_;
+	const int newval = body_->minValue() + mNINT(ratio)*step_;
+	body_->setValue( newval );
     }
 }
 
@@ -106,14 +122,15 @@ uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
 }
 
 
-const char* uiSpinBox::text() const
+void uiSpinBox::setInterval( const StepInterval<int>& intv )
 {
-    result = body_->value();
-    return (const char*)result;
+    setMinValue(intv.start);
+    setMaxValue(intv.stop);
+    setStep( intv.step ? intv.step : 1 );
 }
 
 
-void uiSpinBox::setInterval( StepInterval<int> intv )
+void uiSpinBox::setInterval( const StepInterval<float>& intv )
 {
     setMinValue(intv.start);
     setMaxValue(intv.stop);
@@ -127,36 +144,76 @@ StepInterval<int> uiSpinBox::getInterval() const
 }
 
 
-int uiSpinBox::getIntValue() const		{ return body_->value(); }
-double uiSpinBox::getValue() const	
-    { return static_cast<double>( body_->value() ); }
-
-void uiSpinBox::setText( const char* t )	{ setValue( atoi(t) ); }
-
-void uiSpinBox::setValue( int i )		{ body_->setValue( i ); }
-void uiSpinBox::setValue( double d )		{ body_->setValue( mNINT(d) ); }
-
-int uiSpinBox::minValue() const			{ return body_->minValue(); }
-int uiSpinBox::maxValue() const			{ return body_->maxValue(); }
-void uiSpinBox::setMinValue( int m )		{ body_->setMinValue(m); }
-void uiSpinBox::setMaxValue( int m )		{ body_->setMaxValue(m); }
-
-int uiSpinBox::step() const			{ return body_->lineStep(); }
-
-void uiSpinBox::setStep( int s, bool dosnap_ )		
-{ 
-    body_->setLineStep(s);
-    if ( dosnap_ ) snapToStep(0);
+StepInterval<float> uiSpinBox::getFInterval() const
+{
+    return StepInterval<float>( minFValue(), maxFValue(), fstep() );
 }
 
 
+int uiSpinBox::getValue() const
+{ return body_->value() / factor; }
+
+float uiSpinBox::getFValue() const	
+{ return (float)body_->value() / factor; }
+
+void uiSpinBox::setValue( int val )
+{ body_->setValue( val*factor ); }
+
+void uiSpinBox::setValue( float val )
+{ body_->setValue( mNINT(val*factor) ); }
+
+
+void uiSpinBox::setMinValue( int val )
+{ body_->setMinValue( val*factor ); }
+
+void uiSpinBox::setMinValue( float val )
+{ body_->setMinValue( mNINT(val*factor) ); }
+
+int uiSpinBox::minValue() const
+{ return body_->minValue() / factor; }
+
+float uiSpinBox::minFValue() const
+{ return (float)body_->minValue() / factor; }
+
+
+void uiSpinBox::setMaxValue( int val )
+{ body_->setMaxValue( val*factor ); }
+
+void uiSpinBox::setMaxValue( float val )
+{ body_->setMaxValue( mNINT(val*factor) ); }
+
+int uiSpinBox::maxValue() const
+{ return body_->maxValue() / factor; }
+
+float uiSpinBox::maxFValue() const
+{ return (float)body_->maxValue() / factor; }
+
+
+int uiSpinBox::step() const
+{ return body_->lineStep() / factor; }
+
+float uiSpinBox::fstep() const
+{ return (float)body_->lineStep() / factor; }
+
+void uiSpinBox::setStep( int step_, bool dosnap_ )		
+{ setStep( (float)step_, dosnap_ ); }
+
+
+void uiSpinBox::setStep( float step_, bool dosnap_ )
+{
+    if ( !step_ ) step_ = 1;
+    body_->setLineStep( mNINT(step_*factor) );
+    dosnap = dosnap_;
+    snapToStep(0);
+}
+
 //------------------------------------------------------------------------------
 
-uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt,
+uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt, int dec,
 				    const char* nm )
 	: uiGroup(p,"Labeled spinBox")
 {
-    sb = new uiSpinBox( this, nm );
+    sb = new uiSpinBox( this, dec, nm );
     lbl = new uiLabel( this, txt, sb );
     setHAlignObj( sb );
 }

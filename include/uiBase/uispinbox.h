@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.7 2004-02-02 15:21:37 nanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.8 2004-02-25 14:49:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,49 +19,55 @@ ________________________________________________________________________
 class uiSpinBoxBody;
 class uiLabel;
 
+
 class uiSpinBox : public uiObject
 {
 friend class		uiSpinBoxBody;
 
 public:
-                        uiSpinBox(uiParent*, const char* nm="SpinBox");
+                        uiSpinBox(uiParent*, int nrdecimals=0,
+				  const char* nm="SpinBox");
 			~uiSpinBox();
 
-    const char*		text() const;
-    int 		getIntValue() const;
-    double 		getValue() const;
-
-    void		setText(const char*);
     void		setValue(int);
-    void		setValue(double);
+    void		setValue(float);
+    int			getValue() const;
+    float		getFValue() const;
 
     void		setInterval(int start,int stop,int step=1)
 			{ setInterval(StepInterval<int>(start,stop,step)); }
-    void		setInterval(StepInterval<int>);
+    void		setInterval(const StepInterval<int>&);
     StepInterval<int>	getInterval() const;
 
-    int			minValue() const;
-    int			maxValue() const;
+    void		setInterval(float start,float stop,float step=1)
+			{ setInterval(StepInterval<float>(start,stop,step)); }
+    void		setInterval(const StepInterval<float>&);
+    StepInterval<float> getFInterval() const;
+
     void		setMinValue(int);
+    void		setMinValue(float);
+    int			minValue() const;
+    float		minFValue() const;
+
     void		setMaxValue(int);
-    int			step() const;
+    void		setMaxValue(float);
+    int			maxValue() const;
+    float		maxFValue() const;
+
+    void		setStep(float,bool dosnap_=false);
     void		setStep(int,bool dosnap_=false);
     			/*!< if dosnap_ is true, value in spinbox will be 
     				snapped to a value equal to N*step */
+    float		fstep() const;
+    int			step() const;
 
     void		doSnap(bool yn)			{ dosnap = yn; }
 
     Notifier<uiSpinBox>	valueChanged;
 
-protected:
-
-    virtual bool	useMappers()			{ return false; }
-    virtual int		mapTextToValue(bool* ok)	{ return 0; }
-    virtual const char*	mapValueToText(int)		{ return 0; }
-
 private:
 
-    mutable BufferString result;
+    int			factor;
 
     uiSpinBoxBody*	body_;
     uiSpinBoxBody&	mkbody(uiParent*, const char*);
@@ -76,6 +82,7 @@ class uiLabeledSpinBox : public uiGroup
 {
 public:
                 	uiLabeledSpinBox(uiParent*,const char* txt,
+					 int nrdecimals=0,
 					 const char* nm="Labeled Spinbox");
 
     uiSpinBox*  	box()			{ return sb; }
