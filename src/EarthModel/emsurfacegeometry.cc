@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.5 2004-09-16 09:39:31 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.6 2004-09-20 10:59:47 nanne Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -842,7 +842,7 @@ int SurfaceGeometry::findPos( const SectionID& sectionid,
     TypeSet<PosID> posids;
     TypeSet<Geometry::PosID> nodes;
     meshsurfaces[idx]->findPos( x.center(), y.center(), z.center(),
-			    x.width(), y.width(), z.width(), nodes );
+			    x.width()/2, y.width()/2, z.width()/2, nodes );
 
     const int nrnodes = nodes.size();
     for ( int idy=0; idy<nrnodes; idy++ )
