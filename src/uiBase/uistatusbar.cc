@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.cc,v 1.9 2004-04-29 10:32:27 arend Exp $
+ RCS:           $Id: uistatusbar.cc,v 1.10 2004-04-29 12:33:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,16 +31,25 @@ public:
 				( handle, parnt, sb )
 			{}
 
-    void		message( const char* msg, int idx )
+    void		message( const char* msg, int idx, int msecs )
 			{ 
-			    if( msgs.size() > 0 && msgs[0] )
+			    if ( msgs.size() > 0 && msgs[0] )
 			    {
-				if( idx > 0 && idx < msgs.size() && msgs[idx] )
+#ifdef __debug__
+				if ( msecs >= 0 )
+				    pErrMsg("No auto-erase for SB with fields");
+#endif
+				if ( idx > 0 && idx < msgs.size() && msgs[idx] )
 				    msgs[idx]->setText(msg); 
 				else msgs[0]->setText(msg);
 			    }
 			    else if ( msg && *msg )
-				qthing()->message(msg);
+			    {
+				if ( msecs < 0 )
+				    qthing()->message(msg);
+				else
+				    qthing()->message(msg,msecs);
+			    }
 			    else
 				qthing()->clear();
 			}
@@ -52,7 +61,7 @@ public:
 			    int idx = msgs.size();
 			    msgs += msg_;
 
-			    if( lbltxt )
+			    if ( lbltxt )
 			    {
 				QLabel* txtlbl = new QLabel( qthing(), lbltxt );
 				msg_->setBuddy( txtlbl );
@@ -70,7 +79,7 @@ public:
 			    { 
 				qthing()->repaint();
 				for( int idx=0; idx<msgs.size(); idx++)
-				    if(msgs[idx]) msgs[idx]->repaint();
+				    if (msgs[idx]) msgs[idx]->repaint();
 			     }
 
 protected:
@@ -97,9 +106,9 @@ uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm,
     return *body_; 
 }
 
-void uiStatusBar::message( const char* msg, int fldidx ) 
+void uiStatusBar::message( const char* msg, int fldidx, int msecs ) 
 {
-    body_->message( msg, fldidx );
+    body_->message( msg, fldidx, msecs );
     body_->repaint();
     uiMain::theMain().flushX();
 }
@@ -131,16 +140,16 @@ int uiStatusBar::addMsgFld( const char* tooltip,
 
 void uiStatusBar::setToolTip(int idx ,const char* tooltip)
 {
-    if( idx<0 || idx >= body_->msgs.size() ) return;
+    if ( idx<0 || idx >= body_->msgs.size() ) return;
 
-    if( tooltip && *tooltip) 
+    if ( tooltip && *tooltip) 
 	QToolTip::add( body_->msgs[idx], tooltip );
 }
 
 
 void uiStatusBar::setTxtAlign(int idx ,TxtAlign algn )
 {
-    if( idx<0 || idx >= body_->msgs.size() ) return;
+    if ( idx<0 || idx >= body_->msgs.size() ) return;
 
     int qalgn = 0;
     switch( algn )
@@ -152,12 +161,12 @@ void uiStatusBar::setTxtAlign(int idx ,TxtAlign algn )
 	case uiStatusBar::Left:
 	    qalgn = Qt::AlignLeft; break;
     }
-    if( qalgn ) body_->msgs[idx]->setAlignment( qalgn );
+    if ( qalgn ) body_->msgs[idx]->setAlignment( qalgn );
 }
 
 void uiStatusBar::setLabelTxt( int idx,const char* lbltxt )
 {
-    if( idx<0 || idx >= body_->msgs.size() ) return;
+    if ( idx<0 || idx >= body_->msgs.size() ) return;
 
     QLabel* lbl = dynamic_cast<QLabel*>(body_->msgs[idx]->buddy());
 

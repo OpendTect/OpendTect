@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.34 2004-01-07 14:30:17 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.35 2004-04-29 12:33:29 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
     void		setIcon(const char* img[],const char* icntxt); //!< XPM
     void                show();
     void                close();
-    void		toStatusBar(const char*, int fldidx=0 );
+    void		toStatusBar(const char*, int fldidx=0, int msecs=-1 );
 
     virtual void	reDraw(bool deep);
     uiGroup* 		topGroup();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.82 2004-03-04 17:27:42 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.83 2004-04-29 12:33:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -483,12 +483,12 @@ bool uiMainWin::shrinkAllowed()
 uiObject* uiMainWin::mainobject()
     { return body_->uiCentralWidg()->mainObject(); }
 
-void uiMainWin::toStatusBar( const char* txt, int fldidx )
+void uiMainWin::toStatusBar( const char* txt, int fldidx, int msecs )
 {
     if ( !txt ) txt = "";
     uiStatusBar* sb = statusBar();
     if ( sb )
-	sb->message( txt, fldidx );
+	sb->message( txt, fldidx, msecs );
     else if ( *txt )
     	UsrMsg(txt);
 }

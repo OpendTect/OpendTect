@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uistatusbar.h,v 1.8 2004-04-29 12:33:29 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     void		setTxtAlign(int,TxtAlign);
     void		setLabelTxt(int,const char*);
 
-    void 		message(const char*,int fldidx=0);
+    void 		message(const char*,int fldidx=0, int msecs=-1);
 
 protected:
 
