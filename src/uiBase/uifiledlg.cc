@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.6 2001-10-25 13:26:39 windev Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.7 2002-03-15 15:29:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,16 +13,42 @@ ________________________________________________________________________
 #include "filegen.h"
 #include <qfiledialog.h> 
 
+
+QFileDialog::Mode qmodeForUiMode( uiFileDialog::Mode mode )
+{
+    switch( mode )
+    {
+    case uiFileDialog::AnyFile		: return QFileDialog::AnyFile;
+    case uiFileDialog::ExistingFile	: return QFileDialog::ExistingFile;
+    case uiFileDialog::Directory	: return QFileDialog::Directory;
+    case uiFileDialog::DirectoryOnly	: return QFileDialog::DirectoryOnly;
+    case uiFileDialog::ExistingFiles	: return QFileDialog::ExistingFiles;
+    }
+    return QFileDialog::AnyFile;
+}
+
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* filter,
 			    const char* caption )
 	: UserIDObject( "uiFileDialog" )
-	, forread_( forread )
+	, mode_( forread ? ExistingFile : AnyFile )
 	, fname_( fname )
 	, filter_( filter )
 	, caption_( caption )
 {
+    if( !caption || !*caption )
+	caption_ = forread ? "Open" : "Save As";
 }
+
+uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
+			    const char* fname, const char* filter,
+			    const char* caption )
+	: UserIDObject( "uiFileDialog" )
+	, mode_( mode )
+	, fname_( fname )
+	, filter_( filter )
+	, caption_( caption )
+{}
 
 
 int uiFileDialog::go()
@@ -36,14 +62,18 @@ int uiFileDialog::go()
 	    fname_ = GetHomeDir();
     }
 
-    if ( forread_ )
-    {
-	filnm =  QFileDialog::getOpenFileName( QString(fname_), 
-			 QString(filter_), 0, name(), QString(caption_) );
-    }
-    else
-	filnm =  QFileDialog::getSaveFileName( QString(fname_), 
-			 QString(filter_), 0, name(), QString(caption_) );
+
+    QFileDialog* fd = new QFileDialog( 0, name(), TRUE );
+
+    fd->setMode( qmodeForUiMode(mode_) );// QFileDialog::ExistingFile );
+    fd->setFilter( QString(filter_) );
+    fd->setCaption( QString(caption_) );
+
+
+    if ( fd->exec() == QDialog::Accepted )
+        filnm = fd->selectedFile();
+
+
     if ( filnm.isNull() ) return 0;
 
     fn = filnm;
