@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.165 2003-10-10 10:08:08 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.166 2003-10-10 15:20:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1593,15 +1593,13 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 void uiVisPartServer::interactionCB( CallBacker* cb )
 {
     Threads::MutexLocker lock( eventmutex );
-    mDynamicCastGet( visBase::DataObject*, dataobj, cb );
-    if ( dataobj )
-    {
+    mDynamicCastGet(visBase::DataObject*,dataobj,cb)
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dataobj)
+    if ( dataobj && !vd )
 	eventobjid = dataobj->id();
-    }
     else
-    {
 	eventobjid = getSelObjectId();
-    }
+
     sendEvent( evInteraction );
 }
 
