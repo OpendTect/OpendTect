@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.6 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.7 2004-05-04 15:51:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "nlamodel.h"
 #include "bufstringset.h"
+#include "position.h"
 class IOPar;
 class UserIDSet;
 class FeatureSet;
@@ -77,6 +78,9 @@ public:
 
     virtual bool	fillPar(IOPar&) const			= 0;
     virtual void	usePar(const IOPar&)			= 0;
+
+    void		getBinIDValues(const NLACreationDesc&,
+	    			       ObjectSet< TypeSet<BinIDValue> >&) const;
 
 protected:
 

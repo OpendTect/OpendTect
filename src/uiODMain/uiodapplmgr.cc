@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.21 2004-05-03 16:16:00 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.22 2004-05-04 15:51:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -764,8 +764,15 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 
 	if ( !attrserv->curDescSet() ) { pErrMsg("Huh"); return true; }
 	const NLACreationDesc& crdesc = nlaserv->creationDesc();
+	ObjectSet< TypeSet<BinIDValue> > bivsets;
+	if ( crdesc.doextraction )
+	{
+	    nlaserv->getBinIDValues( crdesc, bivsets );
+	    if ( !bivsets.size() )
+		{ uiMSG().error("No valid data locations found"); return true; }
+	}
 	ObjectSet<FeatureSet> fss;
-	if ( !attrserv->extractFeatures(crdesc,fss) )
+	if ( !attrserv->extractFeatures(crdesc,bivsets,fss) )
 	    return true;
 
 	FeatureSet& fstr = nlaserv->fsTrain();

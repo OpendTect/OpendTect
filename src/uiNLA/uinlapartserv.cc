@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.3 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.4 2004-05-04 15:51:30 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uinlapartserv.h"
+#include "nlacrdesc.h"
+#include "picksettr.h"
 #include "featset.h"
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
@@ -37,4 +39,17 @@ uiNLAPartServer::~uiNLAPartServer()
     delete &fstrain;
     delete &fstest;
     delete &fsmc;
+}
+
+
+void uiNLAPartServer::getBinIDValues( const NLACreationDesc& crdesc,
+			  ObjectSet< TypeSet<BinIDValue> >& bivsets ) const
+{
+    if ( !crdesc.isdirect )
+    {
+	PickSetGroupTranslator::createBinIDValues( crdesc.outids, bivsets );
+	return;
+    }
+
+    //TODO create binidvalues along well track
 }

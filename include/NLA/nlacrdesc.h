@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.3 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.4 2004-05-04 15:51:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "nladesign.h"
 #include "multiid.h"
 #include "bufstringset.h"
+#include "iopar.h"
 class FeatureSet;
 
 /*\brief Description of how an NLA analysis Feature set is to be created */
@@ -35,6 +36,10 @@ public:
     float		ratiotst;
     BufferStringSet	outids;
     			//!< different from design outputs if unsupervised
+    			//!< Well IDs if direct supervised prediction
+    bool		isdirect;
+    IOPar		pars;
+    			//!< Extra details
 
     inline bool		isSupervised() const	{ return design.isSupervised();}
 

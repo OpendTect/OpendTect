@@ -7,12 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.3 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: picksettr.h,v 1.4 2004-05-04 15:51:29 bert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "transl.h"
+#include "bufstringset.h"
+#include "position.h"
 class Conn;
 class PickSetGroup;
 
@@ -43,6 +45,9 @@ public:
     			//!< if domrg == true, if set already exists new set
 			//!< will be merged
 
+    static void		createBinIDValues(const BufferStringSet& ioobjids,
+	    				  ObjectSet< TypeSet<BinIDValue> >&);
+    			//!< Utility function.
 };
 
 

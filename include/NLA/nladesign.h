@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nladesign.h,v 1.3 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: nladesign.h,v 1.4 2004-05-04 15:51:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,8 @@ public:
 
     BufferStringSet	inputs;
     BufferStringSet	outputs;
-    int				hiddensz;
-    bool			doclass;
+    int			hiddensz;
+    bool		doclass;
 
 };
 
