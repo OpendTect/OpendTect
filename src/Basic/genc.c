@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.47 2004-10-25 10:38:18 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.48 2004-10-25 11:07:49 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -126,8 +126,13 @@ static const char* getTmpFile()
         strcpy( buffer, getenv( "TMP" ) );
     else if ( getenv("TEMP") )
         strcpy( buffer, getenv( "TEMP" ) );
+    else if ( getenv("USERPROFILE") ) // should be set by OS
+	strcpy( buffer, getenv( "USERPROFILE" ) );
     else // make sure we have at least write access...
-	strcpy( buffer, GetPersonalDir() );
+    {
+	const char* specf = GetSpecialFolderLocation( CSIDL_PERSONAL );
+	if( specf && *specf ) strcpy( buffer, specf );
+    }
 
     strcat( buffer, "\\od" );
 
