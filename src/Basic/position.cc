@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.32 2004-01-09 12:03:31 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.33 2004-01-09 12:16:01 kristofer Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -85,14 +85,14 @@ bool getDirectionStr( const Coord& coord, BufferString& res )
     const double y = coord.y/len;
 
     res = "";
-    if ( x>0.5 )
+    if ( y>0.5 )
 	res += "north";
-    else if ( x<-0.5 )
+    else if ( y<-0.5 )
 	res += "south";
 
-    if ( y>0.5 )
+    if ( x>0.5 )
 	res += "east";
-    else if ( y<-0.5 )
+    else if ( x<-0.5 )
 	res += "west";
 
     return true;
