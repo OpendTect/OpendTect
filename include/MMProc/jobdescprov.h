@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.2 2004-11-10 17:23:35 bert Exp $
+ RCS:		$Id: jobdescprov.h,v 1.3 2004-11-11 11:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 
     virtual int		nrJobs() const			= 0;
     virtual void	getJob(int,IOPar&) const	= 0;
+    virtual const char*	objType() const			= 0;
     virtual const char*	objName(int) const		= 0;
     virtual void	dump(std::ostream&) const	= 0;
 
@@ -60,8 +61,11 @@ public:
 
     virtual int		nrJobs() const		{ return names_.size(); }
     virtual void	getJob(int,IOPar&) const;
+    virtual const char*	objType() const		{ return objtyp_.buf(); }
     virtual const char*	objName(int) const;
     virtual void	dump(std::ostream&) const;
+
+    BufferString	objtyp_;
 
 protected:
 
@@ -92,6 +96,7 @@ public:
     virtual int		nrJobs() const
 			{ return inls_ ? inls_->size() : inlrg_.nrSteps() + 1; }
     virtual void	getJob(int,IOPar&) const;
+    virtual const char*	objType() const		{ return "inline"; }
     virtual const char*	objName(int) const;
     virtual void	dump(std::ostream&) const;
 

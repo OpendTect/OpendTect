@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.75 2004-11-10 14:19:13 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.76 2004-11-11 11:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "uiseisioobjinfo.h"
 #include "seisjobexecprov.h"
 #include "jobrunner.h"
+#include "jobdescprov.h"
+#include "jobinfo.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uicombobox.h"
@@ -304,6 +306,9 @@ void uiSeisMMProc::startWork( CallBacker* )
     setOkText( "Finish Now" );
     setCancelText( "Abort" );
 
+    jobrunner->jobStarted.notify( mCB(this,uiSeisMMProc,jobStarted) );
+    jobrunner->jobFailed.notify( mCB(this,uiSeisMMProc,jobFailed) );
+
     timer = new Timer("uiSeisMMProc timer");
     timer->tick.notify( mCB(this,uiSeisMMProc,doCycle) );
     timer->start( 100, true );
@@ -341,9 +346,9 @@ void uiSeisMMProc::doCycle( CallBacker* )
     nrcyclesdone++;
 
     jobrunner->nextStep();
-    if ( jobrunner->jobsInProgress() == 0 )
+    if ( jobrunner->jobsLeft() == 0 )
     {
-	if ( wrapUp() )
+	if ( wrapUp(false) )
 	    return;
 	delete jobrunner;
 	jobrunner = jobprov->getRunner();
@@ -499,6 +504,37 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
 }
 
 
+static void addObjNm( BufferString& msg, const JobRunner* jr, int nr )
+{
+    msg += jr->descProv()->objType(); msg += " ";
+    msg += jr->descProv()->objName( nr );
+}
+
+
+void uiSeisMMProc::jobStarted( CallBacker* cb )
+{
+    const JobInfo& ji = jobrunner->notifyJob();
+    BufferString msg( "Started processing " );
+    addObjNm( msg, jobrunner, ji.descnr_ );
+    if ( ji.hostdata_ )
+	{ msg += " on "; msg += ji.hostdata_->name(); }
+    progrfld->append( msg );
+}
+
+
+void uiSeisMMProc::jobFailed( CallBacker* cb )
+{
+    const JobInfo& ji = jobrunner->notifyJob();
+    BufferString msg( "Failure for " );
+    addObjNm( msg, jobrunner, ji.descnr_ );
+    if ( ji.hostdata_ )
+	{ msg += " on "; msg += ji.hostdata_->name(); }
+    if ( ji.curmsg_ != "" )
+	{ msg += ": "; msg += ji.curmsg_; }
+    progrfld->append( msg );
+}
+
+
 void uiSeisMMProc::jrpSel( CallBacker* )
 {
     const bool isgo = *jrppolselfld->text() == 'G';
@@ -516,8 +552,31 @@ static void rmTmpSeis( SeisJobExecProv* jp )
 }
 
 
-bool uiSeisMMProc::wrapUp()
+bool uiSeisMMProc::readyForPostProcess()
 {
+    if ( jobrunner->jobsLeft() > 0 ) return false;
+    const int nrfailed = jobrunner->nrJobs(true);
+    if ( nrfailed < 1 ) return true;
+
+    BufferString msg( "Failed " );
+    msg += jobrunner->descProv()->objType();
+    msg += nrfailed > 1 ? "s:\n" : ": ";
+    for ( int idx=0; idx<nrfailed; idx++ )
+    {
+	const JobInfo& ji = jobrunner->jobInfo( idx, true );
+	if ( idx ) msg += " ";
+	msg += jobrunner->descProv()->objName( ji.descnr_ );
+    }
+    msg += "\n\nDo you want to re-try?";
+    return !uiMSG().askGoOn(msg);
+}
+
+
+bool uiSeisMMProc::wrapUp( bool force )
+{
+    if ( !force && !readyForPostProcess() )
+	return false;
+
     Executor* exec = jobprov ? jobprov->getPostProcessor() : 0;
     if ( !exec ) return true;
 
@@ -563,5 +622,5 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	return false;
     
     jobrunner->stopAll();
-    return wrapUp();
+    return wrapUp( true );
 }

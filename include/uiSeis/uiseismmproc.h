@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.27 2004-11-10 14:19:13 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.28 2004-11-11 11:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,13 +75,16 @@ protected:
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);
     void		vwLogPush(CallBacker*);
+    void		jobStarted(CallBacker*);
+    void		jobFailed(CallBacker*);
     void		jrpSel(CallBacker*);
 
     void		startWork(CallBacker*);
     void		setNiceNess();
     void		updateAliveDisp();
     void		updateCurMachs();
-    bool		wrapUp();
+    bool		wrapUp(bool);
+    bool		readyForPostProcess();
     int			runnerHostIdx(const char*) const;
 
     const char* 	curUsedMachName();

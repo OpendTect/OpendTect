@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.11 2004-11-10 17:23:35 bert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.12 2004-11-11 11:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,16 +188,17 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
     FilePath basefp( getBaseFilePath(ji,hd) );
 
     notifyji = &ji;
-    if ( !iomgr().startProg( prog_, hd, iop, basefp, ji, rshcomm_ ) )
+    ji.hostdata_ = &hd;
+    if ( !iomgr().startProg( prog_, iop, basefp, ji, rshcomm_ ) )
     {
 	ji.state_ = JobInfo::Failed;
 	iomgr().fetchMsg(ji.curmsg_);
 	jobFailed.trigger();
+	ji.hostdata_ = 0;
 	return false;
     }
 
     ji.state_ = JobInfo::Working;
-    ji.hostdata_ = &hd;
     jobStarted.trigger();
     return true;
 }

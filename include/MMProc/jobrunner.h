@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.9 2004-11-10 17:23:35 bert Exp $
+ RCS:		$Id: jobrunner.h,v 1.10 2004-11-11 11:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,14 +56,19 @@ public:
     bool			isPaused(int) const;
     bool			isAssigned( const JobInfo& ji ) const;
 
+    int				nrJobs( bool failed=false ) const
+    				{ return (failed ? jobinfos_ : failedjobs_)
+				    	 .size(); }
+    const JobInfo&		jobInfo( int idx, bool failed=false ) const
+    				{ return *(failed ? jobinfos_ : failedjobs_)
+				    	 [idx]; }
+
     int				jobsDone() const;
     int				jobsInProgress() const;
     int				jobsLeft() const
 				{ return jobinfos_.size() - jobsDone(); }
     int				totalJobs() const
 				{ return jobinfos_.size()+failedjobs_.size(); }
-    int				jobsFailed() const
-    				{ return failedjobs_.size(); }
     JobInfo*			currentJob(const JobHostInfo*) const;
 
     int				nextStep()	{ return doCycle(); }
@@ -84,7 +89,7 @@ public:
 
     Notifier<JobRunner>		jobStarted;
     Notifier<JobRunner>		jobFailed;
-    const JobInfo&		curJob() const		{ return *notifyji; }
+    const JobInfo&		notifyJob() const	{ return *notifyji; }
 
 protected:
 

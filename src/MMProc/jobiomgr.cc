@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.8 2004-11-11 09:46:49 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.9 2004-11-11 11:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -323,11 +323,14 @@ ObjQueue<StatusInfo>& JobIOMgr::statusQueue()
     { return iohdlr_.statusQueue(); }
 
 
-bool JobIOMgr::startProg( const char* progname, const HostData& machine,
+bool JobIOMgr::startProg( const char* progname,
 	IOPar& iop, const FilePath& basefp, const JobInfo& ji,
 	const char* rshcomm )
 {
     DBG::message(DBG_MM,"JobIOMgr::startProg");
+    if ( !ji.hostdata_ )
+	mErrRet("Internal: No hostdata provided")
+    const HostData& machine = *ji.hostdata_;
 
     FilePath ioparfp;
     if ( !mkIOParFile( ioparfp, basefp, machine, iop ) )
@@ -352,7 +355,7 @@ bool JobIOMgr::startProg( const char* progname, const HostData& machine,
 	s += strmprov.command(); s += "'";
 
 	iohdlr_.removeJobDesc( machine.name(), ji.descnr_ );
-	mErrRet(s);
+	mErrRet(s)
     }
     
     return true;
@@ -394,7 +397,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     {
 	BufferString s( "Cannot open '" );
 	s += iopfp.fullPath(); s += "' for write ...";
-	mErrRet(s);
+	mErrRet(s)
     }
     bool res = iopl.write( *ioplsd.ostrm );
     ioplsd.close();
@@ -402,7 +405,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     {
 	BufferString s( "Cannot write parameters into '" );
 	s += iopfp.fullPath(); s += "'";
-	mErrRet(s);
+	mErrRet(s)
     }
 
     return true;

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.6 2004-11-10 17:23:35 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.7 2004-11-11 11:35:57 bert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -80,7 +80,10 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	    nms.addIfNew( ls.lineName(idx) );
     }
     BufferString parkey( mOutKey("Line key") );
-    return new KeyReplaceJobDescProv( iopar_, parkey, nms );
+    KeyReplaceJobDescProv* ret
+	= new KeyReplaceJobDescProv( iopar_, parkey, nms );
+    ret->objtyp_ = "Line";
+    return ret;
 }
 
 

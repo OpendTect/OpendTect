@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.2 2004-10-25 11:58:59 bert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.3 2004-11-11 11:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,7 @@ void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 
 const char* InlineSplitJobDescProv::objName( int jid ) const
 {
-    objnm_ = "inline "; objnm_ += inlNr( jid );
+    objnm_ = ""; objnm_ += inlNr( jid );
     return objnm_.buf();
 }
 

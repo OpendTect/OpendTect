@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.5 2004-11-05 13:21:33 arend Exp $
+ RCS:		$Id: jobiomgr.h,v 1.6 2004-11-11 11:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,13 +68,12 @@ public:
     void		fetchMsg( BufferString& bs )	{ bs = msg_; msg_ = "";}
 
 
-    bool		startProg( const char* progname, const HostData&,
-			       IOPar&, const FilePath& basefp, const JobInfo&,
-			       const char* rshcomm );
+    bool		startProg(const char*,IOPar&,const FilePath&,
+	    			  const JobInfo&,const char*);
 
     void		setNiceNess( int n )		{ niceval_ = n; }
-    void		reqModeForJob( const JobInfo&, Mode );
-    void		removeJob( const char* hostnm, int descnr );
+    void		reqModeForJob(const JobInfo&,Mode);
+    void		removeJob(const char*,int);
 
     ObjQueue<StatusInfo>& statusQueue(); 
 
