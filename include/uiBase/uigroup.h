@@ -7,12 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.7 2001-06-07 21:22:50 windev Exp $
+ RCS:           $Id: uigroup.h,v 1.8 2001-07-18 14:58:37 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
+#include <callback.h>
+class IOPar;
 
 class QWidget;
 template <class T> class i_QObjWrapper;
@@ -44,6 +46,8 @@ public:
     uiObject*		hCentreObj()			{ return hcentreobj; }
     void		setHCentreObj( uiObject* o ) 	{ hcentreobj = o;}
 
+    virtual bool	fillPar( IOPar& ) const		{ return true; }
+    virtual void	usePar( const IOPar& )		{}
 
 
 protected:
@@ -69,6 +73,16 @@ private:
 
     virtual int         horAlign() const;
     virtual int         horCentre() const;
+
+};
+
+class NotifierAccess;
+
+class uiGroupCreater
+{
+public:
+
+    virtual uiGroup*		create(uiParent*,NamedNotifierList* =0)	= 0;
 
 };
 
