@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.18 2002-05-02 14:19:39 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.19 2002-05-07 12:12:25 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,10 @@ public:
     void			addXYTObject( SceneObject* );
     void			addInlCrlTObject( SceneObject* );
 
+    virtual void		insertObject( int idx, SceneObject* );
+    virtual void		addObject( SceneObject* );
+    virtual void		removeObject( int idx );
+
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);
@@ -62,6 +66,7 @@ public:
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
 
+    void			filterPicks( CallBacker* = 0 );
 protected:
     				~Scene();
     void			mouseMoveCB( CallBacker* = 0 );

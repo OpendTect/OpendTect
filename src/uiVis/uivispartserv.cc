@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.42 2002-05-07 07:29:46 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.43 2002-05-07 12:12:42 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,9 @@ void uiVisPartServer::usePar( const IOPar& par )
 	   (visSurvey::PlaneDataDisplay*)visBase::DM().getObj(seisdispids[idx]);
 	seisdisps += sd;
 
-	sd->setNewDataCallBack( mCB(this,uiVisPartServer,getDataCB) );
+	sd->getMovementNotification()->notify(
+				    mCB(this,uiVisPartServer,getDataCB) );
+
 	visBase::VisColorTab* coltab = visBase::VisColorTab::create();
 	sd->textureRect().manipChanges()->notify(
 			    mCB(this,uiVisPartServer,manipMoveCB));
@@ -339,7 +341,9 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 
     visSurvey::PlaneDataDisplay* sd = visSurvey::PlaneDataDisplay::create();
     sd->setType( type );
-    sd->setNewDataCallBack( mCB(this,uiVisPartServer,getDataCB) );
+    sd->getMovementNotification()->notify(
+			    mCB(this,uiVisPartServer,getDataCB) );
+
     seisdisps += sd; 
     visBase::VisColorTab* coltab = visBase::VisColorTab::create();
     BufferString ctname = "Red-White-Black";
@@ -623,6 +627,12 @@ void uiVisPartServer::showAllPicks( int id, bool showall )
     mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)
     if ( ps )
         ps->showAll( showall );
+
+    if ( !showall )
+    {
+	for ( int idx=0; idx<scenes.size(); idx++ )
+	    scenes[idx]->filterPicks();
+    }
 }
 
 
