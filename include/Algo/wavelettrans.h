@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.4 2001-07-23 14:30:00 kristofer Exp $
+ RCS:           $Id: wavelettrans.h,v 1.5 2001-07-23 14:51:32 kristofer Exp $
 ________________________________________________________________________
 
 @$*/
@@ -166,10 +166,12 @@ public:
     bool		transform(const ArrayND<float>&,
 				   ArrayND<float>& ) const;
     bool		transform(const ArrayND<float_complex>&,
-				   ArrayND<float_complex>& ) const;
+				   ArrayND<float_complex>& ) const
+			{ return false; }
 
 protected:
-    bool		isPossible( int ) const;
+    bool		isPossible( int ) const
+			{ return true; } // TO BE FIXED!!
     bool		isFast( int ) const { return true; }
 
     void		transform1D( const ArrayND<float>::LinearStorage&,
@@ -186,11 +188,11 @@ protected:
     {
     public:
 		Wavelet( WaveletTransform::WaveletType, float scale );
-		~Wavelet();
+		~Wavelet() {};
 	float	correllate( const ArrayND<float>::LinearStorage&,
 			    int size, int off, int space ) const;
-	float	correllate( const ArrayND<float_complex>::LinearStorage*,
-			    int off, int space ) const;
+	float	correllate( const ArrayND<float_complex>::LinearStorage&,
+			    int size, int off, int space ) const;
 
     protected:
 	float*	data;
@@ -205,6 +207,24 @@ protected:
 
     WaveletTransform::WaveletType 	wt;
 };
+
+template <class T>
+ContiniousWaveletTransform::Wavelet<T>::
+Wavelet(WaveletTransform::WaveletType, float scale ) {}
+
+
+template <class T>
+float ContiniousWaveletTransform::Wavelet<T>::
+correllate( const ArrayND<float_complex>::LinearStorage&,
+            int size, int off, int space ) const
+{ return 0; }
+
+
+template <class T>
+float ContiniousWaveletTransform::Wavelet<T>::
+correllate( const ArrayND<float>::LinearStorage&,
+            int size, int off, int space ) const
+{ return 0; }
 
 
 #endif

@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.3 2001-07-23 14:28:48 kristofer Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.4 2001-07-23 14:51:34 kristofer Exp $";
 
 
 #include "wavelettrans.h"
@@ -396,6 +396,9 @@ bool DiscreteWaveletTransform::isPossible( int sz ) const
     if ( sz < 4 ) return false;
     return isPower( sz, 2 );
 }
+
+
+DefineClassID(ContiniousWaveletTransform);
 
 
 ContiniousWaveletTransform::ContiniousWaveletTransform(
