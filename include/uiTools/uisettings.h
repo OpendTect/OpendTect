@@ -5,19 +5,17 @@
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	Nanne Hemstra
- Date:		November 2001
- RCS:		$Id: uisettings.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ Author:	Bert Bril
+ Date:		Dec 2004
+ RCS:		$Id: uisettings.h,v 1.6 2004-12-23 16:47:57 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
-#include "bufstringset.h"
 class Settings;
 class uiGenInput;
-class uiLabeledComboBox;
 
 
 class uiSettings : public uiDialog
@@ -30,16 +28,11 @@ public:
 protected:
 
     Settings&		setts;
-    BufferStringSet	items;
-    int			curidx;
 
-    uiLabeledComboBox*	itemfld;
+    uiGenInput*		keyfld;
     uiGenInput*		valfld;
-    uiGenInput*		ynfld;
 
-    void		itemSel(CallBacker*);
-    void		setNew();
-    void		commitPrev();
+    void		selPush(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
