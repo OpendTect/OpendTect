@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.21 2001-06-07 21:24:18 windev Exp $
+ RCS:           $Id: uigeninput.cc,v 1.22 2001-07-12 15:24:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "datainpspec.h"
 #include "survinfo.h"
+
 
 //! maps a uiGenInput's idx to a field- and sub-idx
 class FieldIdx
@@ -77,6 +78,9 @@ public:
 
     virtual void        setReadOnly( bool = true )	{}
     virtual bool        isReadOnly() const		{ return false; }
+
+    virtual void	setSensitive(bool yn)		
+			    { uiObj().setSensitive(yn); }
 
                         // can be a uiGroup, i.e. for radio button group
     virtual uiObject&	uiObj() =0;
@@ -213,6 +217,10 @@ public:
     virtual const char*	text(int idx) const		{ return li.text(); }
     virtual void        setText( const char* t,int idx)	{ li.setText(t);}
     virtual uiObject&	uiObj()				{ return li; }
+
+    virtual void        setReadOnly( bool yn )	{ li.setReadOnly(yn); }
+    virtual bool        isReadOnly() const	{ return li.isReadOnly(); }
+
 
 protected:
     uiLineEdit&	li;
@@ -724,6 +732,19 @@ void uiGenInput::setReadOnly( bool yn, int nr )
 
     for( int idx=0; idx < flds.size(); idx++ )
 	flds[idx]->setReadOnly( yn );
+}
+
+void uiGenInput::setFldsSensible( bool yn, int nr )
+{
+    if( !finalised ) { ro = yn; return; }
+
+    if ( nr >= 0  )
+        { if ( nr<flds.size() && flds[nr] ) flds[nr]->setSensitive(yn); return;}
+
+    ro = yn;
+
+    for( int idx=0; idx < flds.size(); idx++ )
+        flds[idx]->setSensitive( yn );
 }
 
 
