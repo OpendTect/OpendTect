@@ -4,26 +4,26 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.1 2002-02-26 13:31:45 kristofer Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.2 2002-02-26 19:58:19 kristofer Exp $";
 
 #include "vistransform.h"
 #include "Inventor/nodes/SoMatrixTransform.h"
 
 
-visBase::Tranformation::Tranformation()
+visBase::Transformation::Transformation()
     : transform( new SoMatrixTransform )
 {
     transform->ref();
 }
 
 
-visBase::Tranformation::~Tranformation()
+visBase::Transformation::~Transformation()
 {
     transform->unref();
 }
 
 
-void visBase::Tranformation::setA( float a11, float a12, float a13, float a14,
+void visBase::Transformation::setA( float a11, float a12, float a13, float a14,
 				   float a21, float a22, float a23, float a24,
 				   float a31, float a32, float a33, float a34,
 				   float a41, float a42, float a43, float a44 )
@@ -35,7 +35,7 @@ void visBase::Tranformation::setA( float a11, float a12, float a13, float a14,
 }
 
 
-SoNode* visBase::Tranformation::getData()
+SoNode* visBase::Transformation::getData()
 {
     return transform;
 }

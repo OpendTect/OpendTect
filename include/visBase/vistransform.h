@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.1 2002-02-26 13:31:31 kristofer Exp $
+ RCS:		$Id: vistransform.h,v 1.2 2002-02-26 19:58:50 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,12 +35,12 @@ x' = x''/m; y' = y''/m; z'=z''/m;
 */
 
 
-class Tranformation : public SceneObject
+class Transformation : public SceneObject
 {
 public:
 
-			Tranformation();
-    virtual		~Tranformation();
+			Transformation();
+    virtual		~Transformation();
 
     void		setA( float a11, float a12, float a13, float a14,
 	    		      float a21, float a22, float a23, float a24,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vissceneobj.h,v 1.3 2002-02-26 17:54:40 kristofer Exp $
+ RCS:		$Id: vissceneobj.h,v 1.4 2002-02-26 19:58:50 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,13 +57,12 @@ public:
 				SceneObjectGroup(bool separate=true);
     virtual			~SceneObjectGroup();
 
-    int				addObject( SceneObject* );
+    virtual int			addObject( SceneObject* );
 				//!< I'll take over you!!
-    void			removeObject( int id )		{}
-    void			removeAll();
+    virtual void		removeObject( int id )		{}
+    virtual void		removeAll();
 
     virtual SoNode*		getData();
-
 protected:
 
     ObjectSet<SceneObject>	objects;
