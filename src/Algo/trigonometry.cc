@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.9 2003-04-14 14:02:39 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.10 2003-04-24 15:02:51 marc Exp $";
 
 #include "trigonometry.h"
 
@@ -13,6 +13,12 @@ static const char* rcsID = "$Id: trigonometry.cc,v 1.9 2003-04-14 14:02:39 krist
 #include "sets.h"
 
 #include <math.h>
+
+Vector3::Vector3( Coord3 origin, Coord3 direction )
+    : x( origin.x - direction.x )
+    , y( origin.y - direction.y )
+    , z( origin.z - direction.z )
+{}
 
 
 Vector3::Vector3( float x_, float y_, float z_ )

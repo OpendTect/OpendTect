@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.3 2003-04-14 09:00:30 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.4 2003-04-24 15:02:19 marc Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ class Vector3
 public:
     			Vector3();
     			Vector3( float x, float y, float z );
+    			Vector3( Coord3 origin, Coord3 direction );
 
     Vector3		operator+(const Vector3&) const;
     Vector3&		operator+=(const Vector3&);
