@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.82 2004-11-22 13:01:01 nanne Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.83 2004-11-29 13:14:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -638,9 +638,14 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
     int res = 0;
     if ( jobrunner->jobsInProgress() > 0 )
     {
-	BufferString msg = "This will stop all processing!\n\n";
-	msg += "Do you want to remove already processed data?";
-	res = uiMSG().askGoOnAfter( msg );
+	BufferString msg = "This will stop all processing!";
+	if ( is2d )
+	    res = uiMSG().askGoOn( msg ) ? 1 : 2;
+	else
+	{
+	    msg += "\n\nDo you want to remove already processed data?";
+	    res = uiMSG().askGoOnAfter( msg );
+	}
     }
     if ( res == 2 ) return false;
 
