@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.107 2002-12-12 16:48:14 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.108 2002-12-17 11:14:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ ________________________________________________________________________
 #include "colortab.h"
 #include "settings.h"
 #include "errh.h"
+#include "separstr.h"
 
 #include "uizscaledlg.h"
 #include "uiworkareadlg.h"
@@ -65,6 +66,7 @@ const int uiVisPartServer::evSelectableStatusCh = 5;
 const int uiVisPartServer::evMouseMove		= 6;
 
 const char* uiVisPartServer::appvelstr = "AppVel";
+const char* uiVisPartServer::workareastr = "Work Area";
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -120,6 +122,18 @@ bool uiVisPartServer::deleteAllObjects()
 
 bool uiVisPartServer::usePar( const IOPar& par )
 {
+    BufferString res;
+    if ( par.get( workareastr, res ) )
+    {
+	FileMultiString fms(res);
+	BinIDRange hrg; Interval<double> zrg;
+	hrg.start.inl = atoi(fms[0]); hrg.stop.inl = atoi(fms[1]);
+	hrg.start.crl = atoi(fms[2]); hrg.stop.crl = atoi(fms[3]);
+	zrg.start = (double)atof(fms[4]); zrg.stop = (double)atof(fms[5]);
+	const_cast<SurveyInfo&>(SI()).setWorkRange( hrg );
+	const_cast<SurveyInfo&>(SI()).setWorkZRange( zrg );
+    }
+
     if ( !visBase::DM().usePar( par ) )
     {	
 	pErrMsg( "Could not parse session");
@@ -237,6 +251,13 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 	storids += scenes[idx]->id();
 
     par.set( appvelstr, visSurvey::SPM().getAppVel() );
+
+    BinIDRange hrg = SI().range();
+    StepInterval<double> zrg = SI().zRange();
+    FileMultiString fms;
+    fms += hrg.start.inl; fms += hrg.stop.inl; fms += hrg.start.crl;
+    fms += hrg.stop.crl; fms += zrg.start; fms += zrg.stop;
+    par.set( workareastr, fms );
 
     visBase::DM().fillPar(par, storids);
 }

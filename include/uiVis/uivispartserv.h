@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.69 2002-12-02 09:52:51 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.70 2002-12-17 11:14:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,7 +274,7 @@ protected:
     visSurvey::SurfaceInterpreterDisplay*	surftracker;
     
     
-
+    static const char*	workareastr;
     static const char*	appvelstr;
 };
 
