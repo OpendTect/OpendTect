@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.27 2004-11-15 11:30:12 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.28 2004-11-26 14:50:59 nanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -283,6 +283,9 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	break;
 	}
     }
+
+    if ( !convs.size() )
+	return "Could not read log units";
 
     if ( convs[0] )
     {
