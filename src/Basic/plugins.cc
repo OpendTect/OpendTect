@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.24 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.25 2003-11-11 17:38:48 arend Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: plugins.cc,v 1.24 2003-11-07 12:21:57 bert Exp 
 #include <dlfcn.h>
 #endif
 #include <iostream>
+
+#include "debugmasks.h"
 
 PluginManager* PluginManager::theinst_ = 0;
 static const char* plugindir = "plugins";
@@ -141,19 +143,20 @@ static void loadPlugins( const char* dirnm, int argc, char** argv,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString libnm = dl.get(idx);
-#ifdef __win__ 
-        char* chptr1 = libnm.buf();
-        char* chptr2 = chptr1;
-        while ( (chptr2 = strstr( chptr1 + 4 , ".lnk" )) )
-            chptr1 = chptr2;
 
-        if ( chptr1 ) 
-	    *chptr1 = '\0';
-#endif
 	if ( PIM().isLoaded(libnm) )
 	    continue;
 
 	BufferString fulllibnm = File_getFullPath( dirnm, libnm );
+
+	if( dgb_debug_isOn(DBG_SETTINGS) )
+	{
+	    char buf[255];
+	    sprintf(buf, "Attempting to load plugin %s, with full name: %s\n",
+					    libnm.buf(), fulllibnm.buf() );
+	    dgb_debug_message( buf );
+	}
+
 	loadPlugin( fulllibnm, argc, argv, inittype );
     }
 }
@@ -161,6 +164,14 @@ static void loadPlugins( const char* dirnm, int argc, char** argv,
 
 static void loadPIs( const char* dirnm, int argc, char** argv, int inittype )
 {
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+        char buf[255];
+        sprintf(buf, "Attempting to load plugins from: %s\n", dirnm );
+        dgb_debug_message( buf );
+    }
+
     if ( !File_exists(dirnm) )
 	return;
 
@@ -173,6 +184,14 @@ static void loadPIs( const char* dirnm, int argc, char** argv, int inittype )
 #endif
 
     BufferString specdirnm = File_getFullPath( dirnm, prognm );
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+        char buf[255];
+        sprintf(buf, "Attempting to load plugins from: %s\n", specdirnm.buf() );
+        dgb_debug_message( buf );
+    }
+
     loadPlugins( specdirnm, argc, argv, inittype );
 }
 
@@ -192,6 +211,14 @@ static const char* getDefDir( bool instdir )
     }
 
     dnm = File_getFullPath( dnm, getHDir() );
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+        char buf[255];
+        sprintf(buf, "getDefDir: %s\n", dnm.buf() );
+        dgb_debug_message( buf );
+    }
+
     return dnm.buf();
 }
 
