@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.10 2001-05-08 11:25:04 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.11 2001-05-08 14:33:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uilabel.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include <datainpspec.h>
 
 #define mCheckFinalised() \
@@ -41,7 +42,6 @@ public:
 /*! \brief Generalised data input field.
 
 Provides a generalized interface towards data inputs from the user interface.
-The default implementation converts everything to and from a string.
 
 Of course it doesn't make much sense to use f.e. setBoolValue on an element
 that is supposed to input double precision float's, but that's up to the
@@ -57,7 +57,39 @@ public:
     virtual const char* text( int idx ) const =0;
 
     virtual int		nElems()			{ return 1; }
-    virtual bool	isValid(int elemidx) const	{ return true; }
+    virtual bool	isValid(int elemidx)	const	{ return true; }
+
+    virtual int         getIntValue( int idx )	const	=0;
+    virtual double      getValue( int idx )	const	=0;
+    virtual float       getfValue( int idx )	const	=0;
+    virtual bool        getBoolValue( int idx )	const	=0;
+
+    virtual void        setText( const char*, int idx ) =0;
+    virtual void        setValue( int i, int idx )	=0;
+    virtual void        setValue( double d, int idx )	=0;
+    virtual void        setValue( float f, int idx )	=0;
+    virtual void        setValue( bool b, int idx )	=0;
+
+    virtual void        clear()				=0;
+
+    virtual void        setReadOnly( bool = true )	{}
+    virtual bool        isReadOnly() const		{ return false; }
+
+                        // can be a uiGroup, i.e. for radio button group
+    virtual uiObject&	uiObj() =0;
+};
+
+/*! \brief Text oriented data input field.
+
+Provides a text-oriented implementation for uiDataInpFld. 
+Converts everything to and from a string.
+
+*/
+
+class uiTextInpFld : public uiDataInpFld
+{
+public:
+                        uiTextInpFld() {}
 
     virtual int         getIntValue( int idx ) const
 			    { return text(idx) ? atoi( text(idx) ) : 0; }
@@ -68,7 +100,6 @@ public:
     virtual bool        getBoolValue( int idx ) const
 			    { return yesNoFromString( text(idx) ); }
 
-    virtual void        setText( const char*, int idx ) =0;
     virtual void        setValue( int i, int idx )
 			    { setText( getStringFromInt(0, i ),idx); }
     virtual void        setValue( double d, int idx )
@@ -83,16 +114,55 @@ public:
 				for( int idx=0; idx<nElems(); idx++ ) 
 				    setText("",idx); 
 			    }
-
-    virtual void        setReadOnly( bool = true )	{}
-    virtual bool        isReadOnly() const		{ return false; }
-
-                        // can be a uiGroup, i.e. for radio button group
-    virtual uiObject&	uiObj() =0;
 };
 
+/*! \brief Int oriented general data input field.
 
-class uiLineInpFld : public uiDataInpFld
+converts everything formats to and from int
+
+*/
+class uiIntInpField : public uiDataInpFld
+{
+public:
+                        uiIntInpField( int clearValue=0 )
+			    : clear_(clearValue) {}
+
+    virtual const char* text( int idx ) const
+			    { return getStringFromInt(0, getIntValue(idx)); }
+    virtual double      getValue( int idx ) const
+			    { return (double) getIntValue( idx ); }
+    virtual float       getfValue( int idx ) const
+			    { return (float) getIntValue( idx ); }
+    virtual bool        getBoolValue( int idx ) const
+			    { return getIntValue( idx ) ? true : false ; }
+
+    virtual void	setIntValue( int i, int idx )	=0;
+    virtual void        setValue( int i, int idx )
+			    { setIntValue( i , idx); }
+    virtual void        setText( const char* s, int idx )
+			    { setIntValue( atoi(s), idx); }
+    virtual void        setValue( double d, int idx )
+			    { setIntValue( mNINT(d), idx); }
+    virtual void        setValue( float f, int idx )
+			    { setIntValue( mNINT(f), idx); }
+    virtual void        setValue( bool b, int idx )
+			    { setIntValue( b ? 1 : 0, idx); }
+
+    virtual void        clear()				
+			    { 
+				for( int idx=0; idx<nElems(); idx++ ) 
+				    setIntValue( clear_, idx);
+			    }
+
+protected:
+			//! value used to clear field.
+    int			clear_;
+
+			//! stores current value as clear state.
+    void		initClear() { clear_ = getIntValue(0); }
+};
+
+class uiLineInpFld : public uiTextInpFld
 {
 public:
 			uiLineInpFld( uiObject* p, 
@@ -123,7 +193,7 @@ protected:
 };
 
 
-class uiBoolInpFld : public uiDataInpFld
+class uiBoolInpFld : public uiIntInpField
 {
 public:
 
@@ -141,10 +211,14 @@ public:
 				setValue(yn);
 			    }
 
-    virtual bool        getBoolValue() const	{ return yn; }
-    virtual void        setValue( bool b );
+    virtual bool        getBoolValue() const		{ return yn; }
+    virtual void        setValue( bool b, int idx=0 );
 
-    virtual uiObject&	uiObj()			{ return *butOrGrp; }
+    virtual int         getIntValue( int idx ) const	{ return yn ? 1 : 0; }
+    virtual void        setIntValue( int i, int idx )
+			    { setValue( i ? true : false, idx ); }
+
+    virtual uiObject&	uiObj()				{ return *butOrGrp; }
 
 protected:
 
@@ -165,7 +239,8 @@ uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec* spec, const char* nm)
     const BoolInpSpec* spc = dynamic_cast< const BoolInpSpec* >(spec);
     if( !spc ) { butOrGrp = new uiGroup(p,nm); return; }
 
-    yn=spc->checked();
+    yn=spc->checked(); initClear();
+
     truetxt = spc->trueFalseTxt(true);
     falsetxt = spc->trueFalseTxt(false);
 
@@ -210,7 +285,7 @@ void uiBoolInpFld::radioButSel(CallBacker* cb)
     setValue( yn );
 }
 
-void uiBoolInpFld::setValue( bool b )
+void uiBoolInpFld::setValue( bool b, int idx )
 { 
     yn = b; 
 
@@ -223,7 +298,7 @@ void uiBoolInpFld::setValue( bool b )
 }
 
 
-class uiBinIDInpFld : public uiDataInpFld
+class uiBinIDInpFld : public uiTextInpFld
 {
 public:
 
@@ -279,7 +354,7 @@ void uiBinIDInpFld::otherFormSel(CallBacker* cb)
 }
 
 template<class T>
-class uiIntervalInpFld : public uiDataInpFld
+class uiIntervalInpFld : public uiTextInpFld
 {
 public:
 
@@ -342,6 +417,44 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec* spec,
     if( step ) step->attach( rightTo, &stop );
 }
 
+
+class uiStrLstInpFld : public uiIntInpField
+{
+public:
+			uiStrLstInpFld( uiObject* p, 
+					 const DataInpSpec* spec=0,
+					 const char* nm="Line Edit Field" ) 
+			: cbb( *new uiComboBox(p,0,nm) ) 
+			{
+			    if( spec )
+			    {
+				const StringListInpSpec* dsc = 
+				   dynamic_cast<const StringListInpSpec*>(spec);
+
+				if(!dsc) { pErrMsg("huh?") ; return; }
+
+				cbb.addItems( dsc->strings() );
+
+				int pw = dsc ? dsc->prefWidth() : -1;
+				if( pw >= 0 ) cbb.setPrefWidthInChar( pw );
+			    }
+			}
+
+    virtual const char*	text(int idx) const		{ return cbb.getText();}
+    virtual void        setText( const char* t,int idx)	
+			    { cbb.setCurrentItem(t); }
+
+    virtual void	setIntValue( int i, int idx )	
+			    { cbb.setCurrentItem(i); }
+    virtual int		getIntValue( int idx )	const
+			    { return cbb.currentItem(); }
+
+    virtual uiObject&	uiObj()				{ return cbb; }
+
+protected:
+    uiComboBox&	cbb;
+};
+
 /*!
 
 creates a new InpFld and attaches it rightTo the last one
@@ -400,13 +513,11 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec* desc )
 		    fld = new uiBinIDInpFld( this, desc ); 
 		}
 		break;
-#ifdef TODO
 	    case DataInpSpec::stringListTp:
 		{
 		    fld = new uiStrLstInpFld( this, desc ); 
 		}
 		break;
-#endif
 	    default:
 		{
 		    fld = new uiLineInpFld( this, desc ); 
