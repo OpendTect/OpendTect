@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.16 2004-09-20 11:49:39 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.17 2004-09-21 12:53:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry )
     selfld = new uiGenInput( this, "Select", BoolInpSpec("All","Part",true) );
     selfld->valuechanged.notify( mCB(this,uiSeis2DSubSel,selChg) );
 
-    trcrgfld = new uiGenInput( this, "Trace range (start, stop, step)",
+    trcrgfld = new uiGenInput( this, "Trace number range (start, stop, step)",
 	    			IntInpIntervalSpec(true) );
     trcrgfld->setValue( 1, 0 ); trcrgfld->setValue( 1, 2 );
     trcrgfld->attach( alignedBelow, selfld );
@@ -377,15 +377,8 @@ bool uiSeis2DSubSel::getRange( StepInterval<int>& trg ) const
 	trg.stop = mUndefIntVal;
 	return false;
     }
-    else
-    {
-	trg = trcrgfld->getIStepInterval();
-	if ( trg.start > 0 )
-	{
-	    trg.start -= 1;
-	    if ( !mIsUndefInt(trg.stop) ) trg.stop -= 1;
-	}
-    }
+
+    trg = trcrgfld->getIStepInterval();
     return true;
 }
 
