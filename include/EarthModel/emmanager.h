@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.3 2002-05-22 07:00:08 kristofer Exp $
+ RCS:		$Id: emmanager.h,v 1.4 2002-05-22 11:20:13 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -56,14 +56,7 @@ protected:
 };
 
 
-static inline EMManager& EMM()
-{
-    static PtrMan<EMManager> emm = 0;
-
-    if ( !emm ) emm = new EarthModel::EMManager;
-    return *emm;
-}
-
+EMManager& EMM();
 
 }; // Namespace
 

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.4 2002-05-22 07:15:47 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.5 2002-05-22 11:20:33 kristofer Exp $";
 
 #include "emmanager.h"
 #include "emobject.h"
@@ -16,6 +16,15 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.4 2002-05-22 07:15:47 kristofe
 #include "emhorizontransl.h"
 #include "emwelltransl.h"
 #include "executor.h"
+
+
+EarthModel::EMManager& EarthModel::EMM()
+{
+    static PtrMan<EMManager> emm = 0;
+
+    if ( !emm ) emm = new EarthModel::EMManager;
+    return *emm;
+}
 
 EarthModel::EMManager::EMManager()
 {
@@ -29,20 +38,7 @@ EarthModel::EMManager::~EMManager()
 }
 
 void EarthModel::EMManager::init()
-{
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Mdl)->id) );
-    const UserIDObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
-
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
-    {
-	EMObject* emo = EMObject::create( *ioobjs[idx], false, *this, errmsg );
-	if ( emo )
-	    objects += emo;
-	else
-	    cerr << (const char*) errmsg;
-    }
-}
-
+{ } 
 
 MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 				const char* name )
