@@ -4,14 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.45 2004-03-03 15:34:32 arend Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.46 2004-04-13 12:11:40 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
 
 #include "arrayndimpl.h"
 #include "cubesampling.h"
-#include "emfault.h"
+#include "emhingeline.h"
 #include "emhorizon.h"
 #include "emhistoryimpl.h"
 #include "emmanager.h"
@@ -131,7 +131,7 @@ void EM::Surface::cleanUp()
     patchids.erase();
     origos.erase();
 
-    deepErase( relations );
+    deepErase( hingelines );
 
     delete rowinterval;
     delete colinterval;
@@ -1331,36 +1331,23 @@ void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
     rg.step = rowdir ? loadedStep().row : loadedStep().col;
 }
 
+/*
+
 
 const char* EM::SurfaceRelation::cuttedsurfacestr = "Cutted surface";
 const char* EM::SurfaceRelation::cuttedpatchstr = "Cutted patch";
 const char* EM::SurfaceRelation::cuttingsurfacestr = "Cutting surface";
 const char* EM::SurfaceRelation::positivesidestr = "Positive side";
 
-void EM::SurfaceRelation::fillPar(IOPar& par) const
+
+EM::SurfaceRelation::SurfaceRelation()
+    :  cuttedsurface( -1 )
+    , cuttedpatch( -1 )
+    , cuttingsurface( -1 )
+    , positiveside( true )
+    , hingeline( new EM::HingeLine )
 {
-    par.set( cuttedsurfacestr, cuttedsurface );
-    par.set( cuttedpatchstr, cuttedpatch );
-    par.set( cuttingsurfacestr, cuttingsurface );
-    par.setYN( positivesidestr, positiveside );
 }
-
-
-bool EM::SurfaceRelation::usePar(const IOPar& par)
-{
-    int patchidproxy;
-    if (  par.get( cuttedsurfacestr, cuttedsurface ) &&
-	    par.get( cuttedpatchstr, patchidproxy ) &&
-	    par.get( cuttingsurfacestr, cuttingsurface ) &&
-	    par.getYN( positivesidestr, positiveside ) )
-    {
-	cuttedpatch = patchidproxy;
-	return true;
-    }
-
-    return false;
-}
-
 
 
 BufferString EM::SurfaceRelation::getPositiveText() const
@@ -1415,7 +1402,7 @@ BufferString EM::SurfaceRelation::getNegativeText() const
 }
 
 
-BufferString EM::SurfaceRelation::getUserString() const
+BufferString EM::Surfaceelation::getUserString() const
 {
     mDynamicCastGet(EM::Surface*,ownsurf,EM::EMM().getObject(cuttedsurface));
 
@@ -1427,4 +1414,4 @@ BufferString EM::SurfaceRelation::getUserString() const
 }
 
 
-
+*/

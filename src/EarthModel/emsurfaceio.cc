@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.26 2003-12-18 15:55:46 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.27 2004-04-13 12:11:40 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.26 2003-12-18 15:55:46 krist
 #include "datachar.h"
 #include "datainterp.h"
 #include "emsurface.h"
+#include "emhingeline.h"
 #include "emsurfauxdataio.h"
 #include "filegen.h"
 #include "geommeshsurface.h"
@@ -26,8 +27,8 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.26 2003-12-18 15:55:46 krist
 
 
 const char* EM::dgbSurfaceReader::floatdatacharstr = "Data char";
-const char* EM::dgbSurfaceReader::nrrelationstr = "Nr relations";
-const char* EM::dgbSurfaceReader::relationprefixstr = "Relation ";
+const char* EM::dgbSurfaceReader::nrhingelinestr = "Nr hingelines";
+const char* EM::dgbSurfaceReader::hingelineprefixstr = "HingeLine ";
 const char* EM::dgbSurfaceReader::intdatacharstr = "Int Data char";
 const char* EM::dgbSurfaceReader::nrpatchstr = "Nr Patches";
 const char* EM::dgbSurfaceReader::patchidstr = "Patch ";
@@ -365,28 +366,27 @@ int EM::dgbSurfaceReader::nextStep()
 
     if ( patchindex>=patchids.size() )
     {
-	deepErase( surface->relations );
-	int nrrelations = 0;
-	par->get( nrrelationstr, nrrelations );
-	for ( int idx=0; idx<nrrelations; idx++ )
+	deepErase( surface->hingelines );
+	int nrhingelines = 0;
+	par->get( nrhingelinestr, nrhingelines );
+	for ( int idx=0; idx<nrhingelines; idx++ )
 	{
-	    BufferString key = relationprefixstr; key += idx;
+	    BufferString key = hingelineprefixstr; key += idx;
 	    PtrMan<IOPar> relpar = par->subselect(key);
 	    if ( !relpar )
 		return -1;
 
-	    EM::SurfaceRelation* relation = new EM::SurfaceRelation;
-	    if ( !relation->usePar( *relpar ) )
+	    EM::HingeLine* hingeline = new EM::HingeLine(*surface);
+	    if ( !hingeline->usePar( *relpar ) )
 	    {
-		delete relation;
+		delete hingeline;
 		return -1;
 	    }
 
-	    if ( relation->cuttedsurface==surface->id() &&
-		    surface->hasPatch(relation->cuttedpatch) )
-		surface->relations += relation;
+	    if ( surface->hasPatch(hingeline->getSection()) )
+		surface->hingelines += hingeline;
 	    else
-		delete relation;
+		delete hingeline;
 	}
 
 	return ExecutorGroup::nextStep();
@@ -573,12 +573,12 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	    auxdatasel += idx;
     }
 
-    par.set( EM::dgbSurfaceReader::nrrelationstr, surface.relations.size() );
-    for ( int idx=0; idx<surface.relations.size(); idx++ )
+    par.set( EM::dgbSurfaceReader::nrhingelinestr, surface.hingelines.size() );
+    for ( int idx=0; idx<surface.hingelines.size(); idx++ )
     {
-	BufferString key = EM::dgbSurfaceReader::relationprefixstr; key += idx;
+	BufferString key = EM::dgbSurfaceReader::hingelineprefixstr; key += idx;
 	IOPar relpar;
-	surface.relations[idx]->fillPar(relpar);
+	surface.hingelines[idx]->fillPar(relpar);
 	par.mergeComp( relpar, key );
     }
 
