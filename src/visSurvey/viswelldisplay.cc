@@ -4,16 +4,13 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.17 2003-09-11 15:07:24 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.18 2003-10-17 14:59:43 nanne Exp $";
 
 #include "vissurvwell.h"
-#include "vispolyline.h"
-#include "visdrawstyle.h"
-#include "vistext.h"
-#include "vissceneobjgroup.h"
-#include "vismarker.h"
-#include "vismaterial.h"
+#include "viswell.h"
 #include "wellman.h"
+#include "welllog.h"
+#include "welllogset.h"
 #include "welldata.h"
 #include "welltransl.h"
 #include "welltrack.h"
@@ -25,6 +22,7 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.17 2003-09-11 15:07:24 na
 #include "executor.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "draw.h"
 
 
 mCreateFactoryEntry( visSurvey::WellDisplay );
@@ -34,39 +32,22 @@ namespace visSurvey
 
 const char* WellDisplay::earthmodelidstr 	= "EarthModel ID";
 const char* WellDisplay::ioobjidstr		= "IOObj ID";
-const char* WellDisplay::linestylestr 		= "Line style";
-const char* WellDisplay::showwellnmstr 		= "Show name";
 
 
 WellDisplay::WellDisplay()
-    : line( visBase::PolyLine::create() )
-    , drawstyle( visBase::DrawStyle::create() )
-    , welltxt( visBase::Text::create() )
-    , markergroup( visBase::SceneObjectGroup::create() )
+    : well( visBase::Well::create() )
     , wellid( -1 )
+    , zistime(SI().zIsTime())
 {
-    drawstyle->ref();
-    addChild( drawstyle->getData() );
-    line->ref();
-    addChild( line->getData() );
-    line->setMaterial( 0 );
-    welltxt->ref();
-    addChild( welltxt->getData() );
-    markergroup->ref();
-    addChild( markergroup->getData() );
+    well->ref();
+    addChild( well->getData() );
 }
 
 
 WellDisplay::~WellDisplay()
 {
-    removeChild( welltxt->getData() );
-    welltxt->unRef();
-    removeChild( line->getData() );
-    line->unRef();
-    removeChild( drawstyle->getData() );
-    drawstyle->unRef();
-    removeChild( markergroup->getData() );
-    markergroup->unRef();
+    removeChild( well->getData() );
+    well->unRef();
 }
 
 
@@ -78,14 +59,13 @@ bool WellDisplay::setWellId( const MultiID& multiid )
     if ( !wd ) return false;
     
     const Well::D2TModel* d2t = wd->d2TModel();
-    const bool zistime = SI().zIsTime();
     if ( zistime && !d2t ) mErrRet( "No depth to time model defined" );
 
-    while ( line->size() ) line->removePoint( 0 );
     wellid = multiid;
     setName( wd->name() );
 
     if ( wd->track().size() < 1 ) return true;
+    TypeSet<Coord3> track;
     Coord3 pt;
     for ( int idx=0; idx<wd->track().size(); idx++ )
     {
@@ -93,13 +73,11 @@ bool WellDisplay::setWellId( const MultiID& multiid )
 	if ( zistime )
 	    pt.z = d2t->getTime( wd->track().dah(idx) );
 	if ( !mIsUndefined(pt.z) )
-	    line->addPoint( pt );
+	    track += pt;
     }
 
-    welltxt->setText( wd->name() );
-    welltxt->setPosition( line->getPoint(0) ); //TODO
-    welltxt->setJustification( visBase::Text::Center );
-
+    well->setTrack( track );
+    well->setWellText( wd->name(), track.size() ? track[0] : Coord3(0,0,0) );
     addMarkers();
 
     return true;
@@ -108,70 +86,113 @@ bool WellDisplay::setWellId( const MultiID& multiid )
 
 const LineStyle& WellDisplay::lineStyle() const
 {
-    return drawstyle->lineStyle();
+    return well->lineStyle();
 }
 
 
 void WellDisplay::setLineStyle( const LineStyle& lst )
 {
-    drawstyle->setLineStyle( lst );
+    well->setLineStyle( lst );
 }
 
 
 void WellDisplay::showWellText( bool yn )
 {
-    welltxt->turnOn( yn );
+    well->showWellText( yn );
 }
 
 
 bool WellDisplay::isWellTextShown() const
 {
-    return welltxt->isOn();
+    return well->isWellTextShown();
 }
 
 
 void WellDisplay::addMarkers()
 {
-// TODO: This is a quick solution for markerdisplay. Better to make a separate
-//       marker object.
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd ) return;
 
-    const bool zistime = SI().zIsTime();
-    markergroup->removeAll();
+    well->removeAllMarkers();
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
-	visBase::Marker* marker = visBase::Marker::create();
-	markergroup->addObject( marker );
-
 	Well::Marker* wellmarker = wd->markers()[idx];
 	Coord3 pos = wd->track().getPos( wellmarker->dah );
+	if ( !pos.x && !pos.y && !pos.z ) continue;
+
 	if ( zistime )
 	    pos.z = wd->d2TModel()->getTime( pos.z );
 
-	marker->setCenterPos( pos );
-	marker->setScale( Coord3(4,4,1/SPM().getZScale()) );
-	marker->setSize( 3 );
-	marker->setType( visBase::Marker::Cube );
-	marker->getMaterial()->setColor( wellmarker->color );
+	well->addMarker( pos, wellmarker->color );
     }
+
+    well->setMarkerScale( Coord3(4,4,1/SPM().getZScale()) );
+    well->setMarkerSize( 3 );
 }
 
 
 void WellDisplay::showMarkers( bool yn )
 {
-    for ( int idx=0; idx<markergroup->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
-	marker->turnOn( yn );
-    }
+    well->showMarkers( yn );
 }
 
 
 bool WellDisplay::markersShown() const
 {
-    mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(0))
-    return marker && marker->isOn();
+    return well->markersShown();
+}
+
+
+void WellDisplay::displayLog( int logidx, int lognr, 
+			      const Interval<float>& range )
+{
+    Well::Data* wd = Well::MGR().get( wellid );
+    if ( !wd || !wd->logs().size() ) return;
+
+    Well::Log& log = wd->logs().getLog(logidx);
+    const int logsz = log.size();
+    if ( !logsz ) return;
+
+    Well::Track& track = wd->track();
+    const float enddepth = track.pos( track.size()-1 ).z;
+    TypeSet<Coord3> coords;
+    TypeSet<float> values;
+    for ( int idx=0; idx<logsz; idx++ )
+    {
+	float dah = log.dah(idx);
+	Coord3 pos = track.getPos( dah );
+	if ( !pos.x && !pos.y && !pos.z ) break;
+
+	pos.z = wd->d2TModel()->getTime( pos.z );
+	coords += pos;
+	values += log.value(idx);
+    }
+
+    well->setLog( coords, values, lognr );
+}
+
+
+const Color& WellDisplay::logColor( int logidx ) const
+{
+    return well->logColor( logidx );
+}
+
+
+void WellDisplay::setLogColor( const Color& col, int logidx )
+{
+    well->setLogColor( col, logidx );
+}
+
+
+void WellDisplay::showLogs( bool yn )
+{
+    well->showLogs( yn );
+}
+
+
+bool WellDisplay::logsShown() const
+{
+    return well->logsShown();
 }
 
 
@@ -180,13 +201,6 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
     par.set( earthmodelidstr, wellid );
-    
-    BufferString linestyle;
-    drawstyle->lineStyle().toString( linestyle );
-    par.set( linestylestr, linestyle );
-
-    bool welltxtshown = welltxt->isOn();
-    par.setYN( showwellnmstr, welltxtshown );
 }
 
 
@@ -203,15 +217,15 @@ int WellDisplay::usePar( const IOPar& par )
 	return -1;
 
     BufferString linestyle;
-    if ( par.get( linestylestr, linestyle ) )
+    if ( par.get(visBase::Well::linestylestr,linestyle) )
     {
 	LineStyle lst;
 	lst.fromString( linestyle );
-	drawstyle->setLineStyle( lst );
+	setLineStyle( lst );
     }
 
     bool welltxtshown = true;
-    par.getYN( showwellnmstr, welltxtshown );
+    par.getYN( visBase::Well::showwellnmstr, welltxtshown );
     showWellText( welltxtshown );
 
     return 1;
@@ -220,18 +234,11 @@ int WellDisplay::usePar( const IOPar& par )
 
 void WellDisplay::setTransformation( visBase::Transformation* nt )
 {
-    line->setTransformation( nt );
-    welltxt->setTransformation( nt );
-    for ( int idx=0; idx<markergroup->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
-	marker->setTransformation( nt );
-    }
+    well->setTransformation( nt );
 }
 
 
-
 visBase::Transformation* WellDisplay::getTransformation()
-{ return line->getTransformation(); }
+{ return well->getTransformation(); }
 
 }; // namespace visSurvey
