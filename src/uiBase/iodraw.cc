@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.11 2004-09-29 16:06:38 nanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.12 2005-01-26 13:27:03 duntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -403,6 +403,15 @@ bool ioDrawTool::setActivePainter( QPainter* p )
     return true;
 }
 
+void ioDrawTool::setRasterXor()
+{
+    mQPainter->setRasterOp(Qt::XorROP);
+}
+
+void ioDrawTool::setRasterNorm()
+{
+    mQPainter->setRasterOp(Qt::CopyROP);
+}
 
 ioDrawAreaImpl::~ioDrawAreaImpl()
 { 
