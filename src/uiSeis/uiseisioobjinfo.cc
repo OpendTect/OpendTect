@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.7 2004-09-07 16:24:01 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.8 2004-09-23 11:30:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "seistrcsel.h"
 #include "seiscbvs.h"
+#include "seis2dline.h"
 #include "cbvsreadmgr.h"
 #include "ptrman.h"
 #include "ioobj.h"
@@ -67,17 +68,25 @@ uiSeisIOObjInfo::~uiSeisIOObjInfo()
 	return ret; \
     }
 
+bool uiSeisIOObjInfo::isOK() const
+{
+    mChkIOObj(false)
+    return ctio.ioobj;
+}
+
 
 bool uiSeisIOObjInfo::is2D() const
 {
-    mChkIOObj(false);
+    mChkIOObj(false)
     return SeisTrcTranslator::is2D( *ctio.ioobj );
 }
 
 
 bool uiSeisIOObjInfo::provideUserInfo() const
 {
-    mChkIOObj(false);
+    mChkIOObj(false)
+    if ( is2D() )
+	return true;
 
     PtrMan<Translator> t = ctio.ioobj->getTranslator();
     if ( !t )
@@ -105,7 +114,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
 
 int uiSeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 {
-    mChkIOObj(-1);
+    mChkIOObj(-1)
 
     Translator* tr = ctio.ioobj->getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
@@ -131,7 +140,7 @@ int uiSeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 
 bool uiSeisIOObjInfo::checkSpaceLeft( const SpaceInfo& si ) const
 {
-    mChkIOObj(false);
+    mChkIOObj(false)
 
     const int szmb = expectedMBs( si );
     const int avszmb = GetFreeMBOnDisk( ctio.ioobj );
@@ -165,7 +174,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SpaceInfo& si ) const
 
 bool uiSeisIOObjInfo::getRanges( CubeSampling& cs ) const
 {
-    mChkIOObj(false);
+    mChkIOObj(false)
     if ( SeisTrcTranslator::getRanges( *ctio.ioobj, cs ) )
 	return true;
 
@@ -181,7 +190,7 @@ bool uiSeisIOObjInfo::getRanges( CubeSampling& cs ) const
 
 bool uiSeisIOObjInfo::getBPS( int& bps, int icomp ) const
 {
-    mChkIOObj(false);
+    mChkIOObj(false)
 
     Translator* tr = ctio.ioobj->getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
@@ -210,4 +219,29 @@ bool uiSeisIOObjInfo::getBPS( int& bps, int icomp ) const
 
     if ( bps == 0 ) bps = 4;
     return isgood;
+}
+
+
+void uiSeisIOObjInfo::getAttribKeys( BufferStringSet& bss, bool add ) const
+{
+    if ( !add ) bss.erase();
+    if ( !isOK() ) return;
+
+    BufferString key( ctio.ioobj->key().buf() );
+    if ( !is2D() )
+	{ bss.add( key.buf() ); return; }
+
+    PtrMan<Seis2DLineSet> lset
+	= new Seis2DLineSet( ctio.ioobj->fullUserExpr(true) );
+    if ( lset->nrLines() == 0 )
+	return;
+
+    BufferStringSet attrnms;
+    lset->getAvailableAttributes( attrnms );
+    for ( int idx=0; idx<attrnms.size(); idx++ )
+    {
+	BufferString* newbs = new BufferString( key );
+	*newbs += " | "; *newbs += attrnms[idx]->buf();
+	bss += newbs;
+    }
 }

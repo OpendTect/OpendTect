@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.53 2004-09-22 10:18:53 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.54 2004-09-23 11:30:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -753,16 +753,9 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Should be:
 	// * All attributes (stored ones filtered out)
 	// * All cubes - between []
-
-	AttribSelInfo attrinf( attrserv->curDescSet() );
-	if ( attrinf.attrnms.size() + attrinf.ioobjnms.size() < 1 )
-        { uiMSG().error( "No usable input" ); return true; }
-
-	BufferStringSet& inpnms = nlaserv->inputNames();
-	for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
-	    inpnms += new BufferString( attrinf.attrnms.get(idx) );
-	for ( int idx=0; idx<attrinf.ioobjids.size(); idx++ )
-	    inpnms += new BufferString( attrinf.ioobjids.get(idx) );
+	attrserv->getPossibleOutputs( nlaserv->inputNames() );
+	if ( nlaserv->inputNames().size() == 0 )
+	    { uiMSG().error( "No usable input" ); return true; }
     }
     else if ( evid == uiNLAPartServer::evGetStoredInput )
     {
