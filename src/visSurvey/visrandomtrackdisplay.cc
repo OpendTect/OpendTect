@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.46 2005-03-09 12:22:17 cvsbert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.47 2005-04-05 10:22:50 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , knotmoving(this)
     , moving(this)
     , selknotidx(-1)
-    , ismanip( true )
+    , ismanip(false)
     , cache(*new SeisTrcBuf(true))
     , colcache(*new SeisTrcBuf(true))
 {
