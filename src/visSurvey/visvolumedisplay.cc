@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.11 2002-11-15 16:09:53 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.12 2002-11-22 16:54:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -320,6 +320,12 @@ visBase::Material* visSurvey::VolumeDisplay::getMaterial()
 
 SoNode* visSurvey::VolumeDisplay::getData() 
 { return cube->getData(); }
+
+
+int visSurvey::VolumeDisplay::addVolRen()
+{
+    return cube->addVolRen();
+}
 
 
 void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const

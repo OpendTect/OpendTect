@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.67 2002-11-20 13:54:24 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.68 2002-11-22 16:54:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,6 +150,7 @@ public:
     void		getVolumePlaneIds(int,int&,int&,int&);
     float		getVolumePlanePos(int,int dim) const;
     bool		isVolumeManipulated(int) const;
+    int			addVolRen(int);
 
     			//PickSets stuff
     int                 addPickSetDisplay();

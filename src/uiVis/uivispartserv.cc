@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.103 2002-11-20 13:41:21 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.104 2002-11-22 16:54:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -769,6 +769,15 @@ float uiVisPartServer::getVolumePlanePos( int volid, int sliceid ) const
 bool uiVisPartServer::isVolumeManipulated( int id ) const
 {
     return false;
+}
+
+
+int uiVisPartServer::addVolRen( int id )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd ) return vd->addVolRen();
+    else return 0;
 }
 
 

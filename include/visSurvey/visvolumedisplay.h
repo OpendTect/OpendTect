@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.9 2002-11-15 16:09:59 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.10 2002-11-22 16:54:27 nanne Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ namespace visSurvey
 class Scene;
 
 /*!\brief
-    VolumeDisplay is a 3DTexture with 3 rectangles that display seismics or attributes.
+    VolumeDisplay is a 3DTexture with 3 planes that display seismics or attributes.
 */
 
 class VolumeDisplay :  public visBase::VisualObject,
@@ -78,6 +78,8 @@ public:
     void                        setMaterial( visBase::Material* );
     const visBase::Material*    getMaterial() const;
     visBase::Material*          getMaterial();
+
+    int				addVolRen();
 
     SoNode*			getData();
 
