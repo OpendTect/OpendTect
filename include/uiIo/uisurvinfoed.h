@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.5 2001-11-12 13:51:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ class uiCheckBox;
 class uiGenInput;
 class uiPushButton;
 class SurveyInfo;
-class uiSurveyMap;
 class uiLabel;
 
 
@@ -25,9 +24,12 @@ class uiSurveyInfoEditor : public uiDialog
 {
 
 public:
-			uiSurveyInfoEditor(uiParent*,SurveyInfo*,uiSurveyMap*);
+			uiSurveyInfoEditor(uiParent*,SurveyInfo*,
+					   const CallBack&);
     bool		dirnmChanged() const		{ return dirnmch_; }
     const char*		dirName();
+    Notifier<uiSurveyInfoEditor> survparchanged;
+    SurveyInfo*		getSurvInfo()			{ return survinfo; }
 
 protected:
 
@@ -36,7 +38,6 @@ protected:
     FileNameString	rootdir;
     BufferString	survnm;
     BufferString	dirnm;
-    uiSurveyMap*	survmap;
 
     uiGenInput*		survnmfld;
     uiGenInput*		dirnmfld;

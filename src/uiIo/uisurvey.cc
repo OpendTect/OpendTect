@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.19 2001-11-09 15:18:01 windev Exp $
+ RCS:           $Id: uisurvey.cc,v 1.20 2001-11-12 13:50:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ uiSurvey::uiSurvey( uiParent* p )
     const int lbwidth = 250;
     const int mapwdth = 300;
     const int maphght = 300;
-    const int noteshght = 130;
+    const int noteshght = 5;
     const int totwdth = lbwidth + mapwdth + 10;
 
     const char* ptr = GetBaseDataDir();
@@ -67,11 +67,11 @@ uiSurvey::uiSurvey( uiParent* p )
     mapcanvas->preDraw.notify( mCB(this,uiSurvey,doCanvas) );
     listbox = new uiListBox( selgrp, dirlist );
     listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
-    listbox->doubleClicked.notify( mCB(this,uiSurvey,acceptOK) );
+    listbox->doubleClicked.notify( mCB(this,uiSurvey,accept) );
     listbox->attach( leftOf, mapcanvas );
-//    listbox->attach( heightSameAs, mapcanvas );
     listbox->setPrefWidth( lbwidth );
-    listbox->setStretch( 1, 2 );
+    listbox->attach( heightSameAs, mapcanvas );
+    listbox->setStretch( 1, 0 );
 
     newbut = new uiPushButton( selgrp, "New ..." );
     newbut->activated.notify( mCB(this,uiSurvey,newButPushed) );
@@ -120,7 +120,7 @@ uiSurvey::uiSurvey( uiParent* p )
     notelbl->attach( alignedBelow, horsep2 );
     notes = new uiTextEdit( this, "Notes" );
     notes->attach( alignedBelow, notelbl);
-    notes->setPrefHeight( noteshght );
+    notes->setPrefHeightInChar( noteshght );
     notes->setPrefWidth( totwdth );
    
     getSurvInfo(); 
@@ -152,14 +152,14 @@ void uiSurvey::newButPushed( CallBacker* )
     survinfo->dirname = "";
     mkInfo();
     if ( !survInfoDialog() )
-	updateInfo();
+	updateInfo(0);
 }
 
 
 void uiSurvey::editButPushed( CallBacker* )
 {
     if ( !survInfoDialog() )
-	updateInfo();
+	updateInfo(0);
 }
 
 
@@ -168,7 +168,7 @@ bool uiSurvey::survInfoDialog()
     BufferString selnm( listbox->getText() );
     BufferString dgbdata( GetBaseDataDir() );
 
-    uiSurveyInfoEditor dlg( this, survinfo, survmap );
+    uiSurveyInfoEditor dlg( this, survinfo, mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() ) return false;
 
     bool doupd = true;
@@ -189,7 +189,7 @@ bool uiSurvey::survInfoDialog()
             {
                 BufferString fname(File_getFullPath( dgbdata, selnm ));
                 File_rename( fname, newfname );
-                update(); doupd = false;
+                updateSvyList(); doupd = false;
                 updateSvyFile();
                 selnm = newnm;
             }
@@ -198,7 +198,7 @@ bool uiSurvey::survInfoDialog()
     else
 	selnm = dlg.dirName();
 
-    if ( doupd ) update();
+    if ( doupd ) updateSvyList();
     listbox->setCurrentItem( selnm );
 
     return true;
@@ -221,7 +221,7 @@ void uiSurvey::rmButPushed( CallBacker* )
         return;
     }
 
-    update();
+    updateSvyList();
     const char* ptr = GetSurveyName();
     if ( ptr && selnm == ptr )
     {
@@ -239,7 +239,7 @@ void uiSurvey::convButPushed( CallBacker* )
 }
 
 
-void uiSurvey::update()
+void uiSurvey::updateSvyList()
 {
     dirlist->update();
     dirlist->sort();
@@ -349,13 +349,18 @@ void uiSurvey::mkInfo()
 void uiSurvey::selChange()
 {
     writeComments();
-    updateInfo();
+    updateInfo(0);
 }
 
 
-void uiSurvey::updateInfo()
+void uiSurvey::updateInfo( CallBacker* cb )
 {
-    getSurvInfo();
+    mDynamicCastGet(uiSurveyInfoEditor*,dlg,cb);
+    if ( cb )
+	survinfo = dlg->getSurvInfo();
+    else
+	getSurvInfo();
+
     mkInfo();
     survmap->drawMap( survinfo );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.9 2001-10-17 11:52:54 arend Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.10 2001-11-12 13:50:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,19 +17,19 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uiseparator.h"
-#include "uisurvmap.h"
+#include "uisurvey.h"
 #include "survinfo.h"
 
 extern "C" const char* GetBaseDataDir();
 
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si, 
-					uiSurveyMap* map )
+					const CallBack& appcb )
 	: uiDialog(p,"Survey setup")
 	, rootdir( GetBaseDataDir() )
 	, dirnmch_(0)
 	, survinfo(si)
-	, survmap(map)
+	, survparchanged(this)
 
 {
     setTitleText( "Specify survey parameters" );
@@ -121,6 +121,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     if ( survinfo->rangeUsable() ) setValues();
 
     finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
+    survparchanged.notify( appcb );
 }
 
 
@@ -177,14 +178,14 @@ bool uiSurveyInfoEditor::appButPushed()
     else
 	if ( !setRelation() ) return false;
 
-    survmap->drawMap( survinfo );
+    survparchanged.trigger();
     return true;
 }
 
 
 void uiSurveyInfoEditor::doFinalise()
 {
-    ic1fld->setFldsSensible( true, 0 );
+    ic1fld->setFldsSensible( false, 0 );
 }
 
 
