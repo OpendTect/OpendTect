@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.9 2001-05-02 13:50:16 windev Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.10 2001-05-25 23:31:01 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -234,6 +234,34 @@ const char* File_getTempFileName( const char* id, const char* ext, int full )
 	sprintf( pathbuf, "%sdgb%s%d", full ? "/tmp/" : "", id, getPID() );
     else
 	sprintf( pathbuf, "%sdgb%d", full ? "/tmp/" : "", getPID() );
+
+#endif
+
+    if ( ext )
+    {
+	strcat( pathbuf, "." );
+	strcat( pathbuf, ext );
+    }
+
+    return pathbuf;
+}
+
+
+const char* File_getSimpleTempFileName( const char* ext )
+{
+    static FileNameString pathbuf;
+    FileNameString uniquestr;
+    static size_t counter = 0;
+    size_t time_stamp = time((time_t*) 0 ) + counter++;
+    sprintf(uniquestr, "%X%X", getPID(), (int) time_stamp);
+
+#ifdef __win__
+
+    sprintf( pathbuf, "dgb%s", uniquestr );
+
+#else
+
+    sprintf( pathbuf, "/tmp/dgb%s", uniquestr );
 
 #endif
 
