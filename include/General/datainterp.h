@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.3 2001-03-19 10:17:57 bert Exp $
+ RCS:		$Id: datainterp.h,v 1.4 2001-05-21 12:45:07 bert Exp $
 ________________________________________________________________________
 
 */
@@ -42,11 +42,10 @@ public:
     inline DataInterpreter<T>& operator=( const DataCharacteristics& dc )
 			{ set( dc, false ); return *this; }
 
-    bool		needSwap() const
-			{ return needswap; }
+    bool		needSwap() const;
     void		swap( void* buf, int bufsz_in_elements ) const
 			{ (this->*swpfn)( buf, bufsz_in_elements );
-			  const_cast<bool&>(needswap) = !needswap; }
+			  const_cast<DataInterpreter<T>*>(this)->swpSwap(); }
 
     inline T		get( const void* buf, int nr ) const
 			{ return (this->*getfn)( buf, nr ); }
@@ -130,11 +129,11 @@ protected:
     GetFn		getfn;
     PutFn		putfn;
     SwapFn		swpfn;
-    bool		needswap;
 
     void		swap0(void*,int) const		{}
     T			get0(const void*,int) const	{ return 0; }
     void		put0(void*,int,T) const		{}
+    void		swpSwap();
 
 };
 
