@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.8 2002-04-10 08:58:48 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.9 2002-04-11 15:05:05 kristofer Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -40,17 +40,19 @@ void visBase::SelectionManager::setAllowMultiple( bool yn )
 void visBase::SelectionManager::select( int newid, bool keepoldsel, bool lock )
 {
     if ( lock ) mutex.lock();
-
-    if ( !allowmultiple || !keepoldsel )
-	deSelectAll(false);
-
-    DataObject* dataobj = visBase::DM().getObj( newid );
-
-    if ( dataobj )
+    if ( selectedids.indexOf( newid ) == -1 )
     {
-	selectedids += newid;
-	dataobj->triggerSel();
-	selnotifer.trigger();
+	if ( !allowmultiple || !keepoldsel )
+	    deSelectAll(false);
+
+	DataObject* dataobj = visBase::DM().getObj( newid );
+
+	if ( dataobj )
+	{
+	    selectedids += newid;
+	    dataobj->triggerSel();
+	    selnotifer.trigger();
+	}
     }
 
     if ( lock ) mutex.unlock();
@@ -64,13 +66,15 @@ void visBase::SelectionManager::deSelect( int id, bool lock )
     int idx = selectedids.indexOf( id );
     if ( idx!=-1 )
     {
+	selectedids.remove( idx );
+
 	DataObject* dataobj = visBase::DM().getObj( id );
 	if ( dataobj )
 	{
-	    selectedids.remove( idx );
 	    dataobj->triggerDeSel();
 	    deselnotifer.trigger();
 	}
+
     }
 
     if ( lock ) mutex.unlock();
