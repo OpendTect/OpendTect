@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.14 2002-04-15 09:42:08 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.15 2002-04-16 13:13:35 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -82,7 +82,7 @@ visSurvey::Scene::Scene()
 	0,		0,		0,	1 );
 
     // Set time trans
-    setApparentVel( appvel );
+    setApparentVel( 2*appvel );
 
     BinIDRange hrg = SI().range();
     StepInterval<double> vrg = SI().zRange();
