@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.55 2002-11-05 15:13:46 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.56 2002-12-04 09:20:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -353,15 +353,16 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 
 	    break;
 	}
+
 	case centeredBelow:
 	{
 	    if ( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated(); 
 
-	    if ( horCentre(lom) > 0 && constr->other->horCentre(lom) > 0 &&
+	    if ( centre(lom) > 0 && constr->other->centre(lom) > 0 &&
 		mPos.leftToAtLeast( mCP(mPos.left() 
-				    + constr->other->horCentre(lom) 
-				    - horCentre(lom)) 
+				    + constr->other->centre(lom) 
+				    - centre(lom)) 
 				  )
 	      ) 
 		mUpdated();
@@ -369,10 +370,42 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	}
 	case centeredAbove: 
 	{
-	    if ( horCentre(lom) > 0 && constr->other->horCentre(lom) > 0 &&
+	    if ( centre(lom) > 0 && constr->other->centre(lom) > 0 &&
 		mPos.leftToAtLeast( mCP(mPos.left() 
-				    + constr->other->horCentre(lom) 
-				    - horCentre(lom)) 
+				    + constr->other->centre(lom) 
+				    - centre(lom)) 
+				  )
+	      ) 
+		mUpdated();
+	    break;
+	} 
+
+	case centeredLeftOf:
+	{
+	    if ( mPos.rightToAtLeast(mCP(otherPos.left() - mHorSpacing)))
+		mUpdated(); 
+
+	    if ( centre(lom,false) > 0 &&
+		 constr->other->centre(lom,false) > 0 &&
+		 mPos.topToAtLeast( mCP(mPos.top() 
+				    + constr->other->centre(lom,false) 
+				    - centre(lom,false)) 
+				  )
+	      ) 
+		mUpdated();
+	    break;
+	}
+
+	case centeredRightOf: 
+	{
+	    if ( mPos.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
+		mUpdated(); 
+
+	    if ( centre(lom,false) > 0 &&
+		 constr->other->centre(lom,false) > 0 &&
+		 mPos.topToAtLeast( mCP(mPos.top() 
+				    + constr->other->centre(lom,false) 
+				    - centre(lom,false)) 
 				  )
 	      ) 
 		mUpdated();
@@ -387,7 +420,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		int mngrcentre = ( mngr().curpos(lom).left()
 				     + mngr().curpos(lom).right() ) / 2;
 
-		int shift = mngrcentre >= 0 ?  mngrcentre - horCentre(lom) : 0;
+		int shift = mngrcentre >= 0 ?  mngrcentre - centre(lom) : 0;
 
 		if ( shift > 0 )
 		{

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.21 2002-10-08 09:46:40 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.22 2002-12-04 09:20:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,9 +36,12 @@ public:
 
     virtual int			horAlign(layoutMode m ) const
 				    { return curpos(m).left(); }
-    virtual int			horCentre(layoutMode m) const 
-				    { return ( curpos(m).left() 
+    virtual int			centre(layoutMode m, bool hor=true) const 
+				    { 
+					if( hor ) return ( curpos(m).left() 
 					     + curpos(m).right() ) / 2; 
+					return ( curpos(m).top()
+                                             + curpos(m).bottom() ) / 2;
 				    }
 
     virtual QSize 		minimumSize() const 

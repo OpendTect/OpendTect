@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.41 2002-11-15 10:56:13 bert Exp $
+ RCS:           $Id: uigroup.cc,v 1.42 2002-12-04 09:20:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 					     uiGroupParentBody& par );
 
     virtual int		horAlign(layoutMode) const;
-    virtual int		horCentre(layoutMode) const;
+    virtual int		centre(layoutMode, bool hor) const;
 
     virtual void	invalidate();
     virtual void	updatedAlignment(layoutMode);
@@ -423,8 +423,10 @@ int i_uiGroupLayoutItem::horAlign( layoutMode m ) const
 }
 
 
-int i_uiGroupLayoutItem::horCentre(layoutMode m) const 
-{ 
+int i_uiGroupLayoutItem::centre(layoutMode m, bool hor) const 
+{
+    if( !hor ) return ( curpos(m).top() + curpos(m).bottom() ) / 2; 
+
     if( grpprntbody.hcentreobj )
     {
 	const i_LayoutItem* hcentreitm = 0;
@@ -437,6 +439,7 @@ int i_uiGroupLayoutItem::horCentre(layoutMode m) const
 
     return ( curpos(m).left() + curpos(m).right() ) / 2;
 }
+
 
 uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     : uiParent( nm, 0 )
