@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.1 2000-03-02 15:29:00 bert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.2 2000-03-16 14:36:43 bert Exp $";
 
 #include "strmoper.h"
 #include "strmprov.h"
@@ -53,6 +53,7 @@ bool writeWithRetry( ostream& strm, const void* ptr, unsigned int nrbytes,
     strm.write( ptr, nrbytes );
     if ( strm.fail() )
     {
+	strm.flush();
 	for ( int idx=0; idx<nrretries; idx++ )
 	{
 	    Time_sleep( 0.001 * delay );
@@ -61,6 +62,7 @@ bool writeWithRetry( ostream& strm, const void* ptr, unsigned int nrbytes,
 	    if ( !strm.fail() )
 		break;
 	}
+	strm.flush();
     }
 
     return strm.good();

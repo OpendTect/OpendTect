@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.1 2000-03-02 15:28:54 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.2 2000-03-16 14:36:42 bert Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
@@ -139,7 +139,7 @@ StreamConn::StreamConn( const char* nm, State s )
 
 void StreamConn::clearErr()
 {
-    if ( forWrite() ) oStream().clear();
+    if ( forWrite() ) { oStream().flush(); oStream().clear(); }
     if ( forRead() ) iStream().clear();
 }
 
