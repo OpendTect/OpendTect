@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.33 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.34 2003-11-11 13:10:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 #ifdef __win__ 
 
     comm += " --inbg "; comm += progname;
-    comm += " "; comm += parfname;
+    comm += " \""; comm += parfname; comm += "\"";
 
 #else
 
@@ -339,7 +339,7 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 
 #ifdef __win__ 
     comm += " --inbg "; comm += procprognm;
-    comm += " "; comm += parfname;
+    comm += " \""; comm += parfname; comm += "\"";
 #else
     comm += " "; comm += procprognm;
     comm += " -bg "; comm += parfname;
