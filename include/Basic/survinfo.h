@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.9 2001-07-06 11:41:21 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.10 2001-07-27 10:30:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ class SurveyInfo : public UserIDObject
 
     friend class		EdSurvey;
     friend class		EdSurveyInfo;
+    friend class		uiSurvey;
+    friend class		uiSurveyInfoEditor;
     friend const SurveyInfo&	SI();
 
 public:
