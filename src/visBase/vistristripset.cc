@@ -1,10 +1,10 @@
 /*+
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
+ * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.5 2002-05-24 11:45:24 kristofer Exp $";
+static const char* rcsID = "$Id: vistristripset.cc,v 1.6 2002-05-27 06:36:15 kristofer Exp $";
 
 #include "vistristripset.h"
 #include "geomposlist.h"
@@ -28,10 +28,12 @@ visBase::TriangleStripSet::TriangleStripSet()
     , data( 0 )
     , colortable( 0 )
     , stripset( 0 )
+    , autoscale( true )
+    , cliprate( 0.025 )
 {
     textureswitch = new SoSwitch;
     addChild( textureswitch );
-    SoGroup* texturegroup = new SoSeparator;
+    SoGroup* texturegroup = new SoGroup;
     textureswitch->addChild( texturegroup );
     ctmaterial = new SoMaterial;
     texturegroup->addChild( ctmaterial );
@@ -99,7 +101,25 @@ void visBase::TriangleStripSet::setValues( const float* newdata )
 
     memcpy( data, newdata, sz*sizeof(float));
 
+    if ( autoscale ) return clipData();
+
     updateTexture();
+}
+
+
+void visBase::TriangleStripSet::getPositions(
+					TypeSet<Geometry::Pos>& table ) const
+{
+    table.erase();
+    const int sz = coords->point.getNum();
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	SbVec3f pos = coords->point[idx];
+
+	Geometry::Pos res( pos[0], pos[1], pos[2] );
+	table += res;
+    }
 }
 
 
@@ -144,6 +164,15 @@ bool visBase::TriangleStripSet::usesTexture() const
 void visBase::TriangleStripSet::clipData()
 {
     if ( !data ) return;
+
+    if ( !colortable )
+    {
+	colortable = visBase::VisColorTab::create();
+	colortable->ref();
+	colortable->change.notify(mCB( this,visBase::TriangleStripSet,
+		    updateTexture));
+    }
+
     int nrvalues = coords->point.getNum();
     DataClipper clipper( cliprate );
     clipper.setApproxNrValues( nrvalues, 10000 );
@@ -179,26 +208,29 @@ void visBase::TriangleStripSet::updateTexture()
 		    updateTexture));
     }
 
-    const int nrsteps = 1024;
+    const int nrsteps = 256;
 
     colortable->setNrSteps( nrsteps );
 
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	Color col = colortable->tableColor( idx );
-	ctmaterial->diffuseColor.set1Value( idx, col.r(), col.g(), col.b() );
-	ctmaterial->transparency.set1Value( idx, col.t() );
+	ctmaterial->diffuseColor.set1Value( idx,
+				col.r()/255, col.g()/255, col.b()/255 );
+	ctmaterial->transparency.set1Value( idx, col.t()/255 );
     }
 
     Color col = colortable->color( mUndefValue );
-    ctmaterial->diffuseColor.set1Value( nrsteps, col.r(), col.g(), col.b() );
-    ctmaterial->transparency.set1Value( nrsteps, col.t() );
+    ctmaterial->diffuseColor.set1Value( nrsteps,
+	    			col.r()/255, col.g()/255, col.b()/255 );
+    ctmaterial->transparency.set1Value( nrsteps, col.t()/255 );
 
-    const int nrvalues = coords->point.getNum();
 
-    for ( int idx=0; idx<nrvalues; idx++ )
+    const int nrindexes = strips->coordIndex.getNum();
+    for ( int idx=0; idx<nrindexes; idx++ )
     {
-	int ctidx = colortable->colIndex( data[idx] );
+	int coordidx = strips->coordIndex[idx];
+	int ctidx = coordidx==-1 ? -1 : colortable->colIndex( data[coordidx] );
 	strips->materialIndex.set1Value( idx, ctidx );
     }
 }

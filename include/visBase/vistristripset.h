@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistristripset.h,v 1.4 2002-05-24 11:45:44 kristofer Exp $
+ RCS:		$Id: vistristripset.h,v 1.5 2002-05-27 06:36:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,11 @@ class SoMaterial;
 class SoIndexedTriangleStripSet;
 class CallBacker;
 
-namespace Geometry { class TriangleStripSet; };
+namespace Geometry
+{
+    class TriangleStripSet;
+    class Pos;
+};
 
 
 namespace visBase
@@ -52,6 +56,8 @@ public:
 			     the coords, i.e. data[n] should correspond to
 			     coord[n]
 			*/
+
+    void		getPositions( TypeSet<Geometry::Pos>& ) const;
 
     void		setColorTab( VisColorTab* );
     const VisColorTab*	getColorTab() const { return colortable; }
