@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.2 2003-02-21 09:03:01 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.3 2003-03-04 16:21:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,7 +118,7 @@ public:
     : uiObjBodyImpl<uiTable,QTable>( handle, parnt, nm )
     , messenger_ (*new i_tableMessenger(this, &handle))
     {
-	setNumRows(nrows);
+	setLines( nrows + 1 );
 	setNumCols(ncols);
 
 	setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
@@ -130,6 +130,12 @@ public:
     void 		setLines( int prefNrLines )
 			{ 
 			    setNumRows( prefNrLines - 1 );
+			    if ( prefNrLines > 1 )
+			    {
+				const int rowh = rowHeight( 0 );
+				const int prefh = rowh * (prefNrLines-1) + 30;
+				setPrefHeight( mMIN(prefh,200) );
+			    }
 
 			    if( stretch(true) == 2  && stretch(false) != 1 )
 				setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
@@ -236,7 +242,7 @@ void uiTable::setRowLabels( const char** labels )
     while ( pt_cur )
         labls += pt_cur++;
 
-    setNumRows( labls.size() );
+    body_->setLines( labls.size() + 1 );
     body_->setRowLabels( labls );
 }
 
@@ -254,7 +260,7 @@ void uiTable::setColumnLabels( const char** labels )
 
 void uiTable::setRowLabels( const ObjectSet<BufferString>& labels )
 {
-    setNumRows( labels.size() );
+    body_->setLines( labels.size() + 1 );
 
     QStringList labls;
     for ( int idx=0; idx < labels.size(); idx++ )
