@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.33 2005-02-07 16:17:05 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.34 2005-02-23 12:22:11 cvsarend Exp $";
 
 #include "plugins.h"
 #include "filepath.h"
@@ -171,7 +171,7 @@ static void loadALOPlugins( const char* dnm, const char* fnm,
 			    int argc, char** argv, int inittype )
 {
     FilePath fp( dnm ); fp.add( fnm );
-    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
+    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream(false);
     if ( !sd.usable() ) return;
 
     char buf[128];
