@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.14 2004-11-15 14:04:05 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.15 2004-11-17 16:20:14 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,6 @@ JobRunner::StartRes JobRunner::startJob( JobInfo& ji, JobHostInfo& jhi )
 	return jhi.nrfailures_ > maxhostfailures_ ? HostBad : NotStarted;
     }
 
-    jhi.nrfailures_ = 0;
     return Started;
 }
 
@@ -179,7 +178,17 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 
     return basefp;
 }
-    
+   
+
+#define mJobFailed() \
+{ \
+    if ( notifyji && notifyji->hostdata_ ) \
+    { \
+	JobHostInfo* jhi = jobHostInfoFor( *notifyji->hostdata_ ); \
+	if ( jhi ) jhi->nrfailures_++; \
+    } \
+    jobFailed.trigger(); \
+} 
 
 bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 {
@@ -197,7 +206,7 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
     {
 	ji.state_ = JobInfo::Failed;
 	if ( iomgr().peekMsg() ) iomgr().fetchMsg(ji.curmsg_);
-	jobFailed.trigger();
+	mJobFailed();
 	return false;
     }
 
@@ -232,7 +241,7 @@ void JobRunner::removeHost( int hnr )
 	notifyji = ji;
 	ji->hostdata_ = &jhi->hostdata_;
 	ji->state_ = JobInfo::Failed;
-	jobFailed.trigger();
+	mJobFailed();
 
 	iomgr().reqModeForJob( *ji, JobIOMgr::Stop );
 
@@ -459,7 +468,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	case mSTAT_ERROR:
 	    notifyji = ji;
 	    ji->state_ = JobInfo::Failed;
-	    jobFailed.trigger();
+	    mJobFailed();
 	break;
 	case mSTAT_PAUSED:
 	    ji->state_ = JobInfo::Paused;
