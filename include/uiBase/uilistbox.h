@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.28 2004-09-01 12:34:02 nanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.29 2004-10-07 16:16:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,9 @@ public:
     			//!< check for [...] around text
     void                setCurrentItem(int);
     void                setCurrentItem(const char*); //!< First match
+
+    void		getSelectedItems(BufferStringSet&);
+    void		getSelectedItems(TypeSet<int>&);
 
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;

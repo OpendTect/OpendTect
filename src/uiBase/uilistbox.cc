@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.57 2004-09-01 12:33:54 nanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.58 2004-10-07 16:16:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,6 +346,20 @@ void uiListBox::setCurrentItem( int idx )
 void uiListBox::setItemText( int idx, const char* txt )
 {
     body_->changeItem( QString(txt), idx );
+}
+
+
+void uiListBox::getSelectedItems( BufferStringSet& items )
+{
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isSelected(idx) ) items.add( textOfItem(idx) );
+}
+
+
+void uiListBox::getSelectedItems( TypeSet<int>& items )
+{
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isSelected(idx) ) items += idx;
 }
 
 
