@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.38 2004-06-17 07:54:59 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.39 2004-07-14 15:33:59 nanne Exp $
 ________________________________________________________________________
 
 
@@ -66,20 +66,17 @@ class SurfaceIODataSelection;
 class HingeLine;
 class EdgeLineSet;
 
-/*!\brief
-The horizon is made up of one or more meshes (so they can overlap at faults).
-The meshes are defined by knot-points in a matrix and the fillstyle inbetween
-the knots.
+/*!\brief Base class for surfaces
+  This is the base class for surfaces like horizons and faults. A surface is made up by one or more segments or patches, so they can overlap. 
 */
 
 class Surface : public EMObject
 {
 public:
     virtual Executor*	loader(const EM::SurfaceIODataSelection* s=0,
-			       int attridx=-1)			{return 0;}
+			       int attridx=-1);
     virtual Executor*	saver(const EM::SurfaceIODataSelection* s=0,
-			      bool auxdataonly=false,const MultiID* key=0)
-    								{return 0;}
+			      bool auxdataonly=false,const MultiID* key=0);
 
     int			nrPatches() const;
     PatchID		patchID(int idx) const;
@@ -289,9 +286,13 @@ public:
     EdgeLineSet*		getEdgeLineSet( const EM::PatchID&,
 	    				        bool create );
     ObjectSet<EdgeLineSet>	edgelines;
+    bool			isAtEdge(const EM::PosID&) const;
 
     bool			isChanged(int) const { return changed; }
     void			resetChangedFlag() { changed=false; }
+
+    virtual bool		createFromStick(const TypeSet<Coord3>&,float)
+    				{ return false; }
 
 protected:
     friend class		EMManager;
@@ -314,8 +315,7 @@ protected:
 				    bool& c01def, bool& c11def,
 				   const MathFunction<float>* depthconv=0)const;
 
-    virtual Geometry::MeshSurface*	createPatchSurface(const PatchID&) 
-								      const = 0;
+    virtual Geometry::MeshSurface* createPatchSurface(const PatchID&) const =0;
     ObjectSet<Geometry::MeshSurface>	surfaces;
     TypeSet<PatchID>		patchids;
     BufferStringSet		patchnames;

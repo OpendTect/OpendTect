@@ -4,13 +4,12 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.27 2004-06-07 11:59:22 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.28 2004-07-14 15:33:53 nanne Exp $";
 
 #include "emobject.h"
 
 #include "color.h"
-#include "emhorizontransl.h"
-#include "emfaulttransl.h"
+#include "emsurfacetr.h"
 #include "emsticksettransl.h"
 #include "emmanager.h"
 #include "ioobj.h"

@@ -4,16 +4,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.37 2004-05-24 15:23:01 kristofer Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.38 2004-07-14 15:36:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiimphorizon.h"
 
+#include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emhorizon.h"
-#include "emhorizontransl.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "uiioobjsel.h"

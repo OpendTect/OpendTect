@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.19 2004-05-26 12:39:02 kristofer Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.20 2004-07-14 15:36:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,7 @@ ________________________________________________________________________
 #include "iodirentry.h"
 #include "emmanager.h"
 #include "emsurface.h"
-#include "emhorizontransl.h"
-#include "emfaulttransl.h"
+#include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
 #include "uimsg.h"
 

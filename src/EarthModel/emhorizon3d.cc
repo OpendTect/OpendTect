@@ -4,35 +4,28 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.43 2004-05-24 15:23:30 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.44 2004-07-14 15:33:53 nanne Exp $";
 
 #include "emhorizon.h"
 
-#include "arrayndimpl.h"
-#include "emhistoryimpl.h"
-#include "emhorizontransl.h"
+#include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
 #include "emmanager.h"
-#include "executor.h"
 #include "geomgridsurface.h"
+#include "executor.h"
 #include "grid.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linsolv.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "settings.h"
 #include "trigonometry.h"
+#include "filegen.h"
 
-EM::Horizon::Horizon(EMManager& man, const EM::ObjectID& id_)
-    : Surface( man, id_ )
-    , a11( 1 ) , a12( 0 ) , a13( 0 ) , a21( 0 ) , a22( 1 ) , a23( 0 )
-    , b11( 1 ) , b12( 0 ) , b13( 0 ) , b21( 0 ) , b22( 1 ) , b23( 0 )
+
+EM::Horizon::Horizon( EMManager& man, const EM::ObjectID& id_ )
+    : Surface(man,id_)
 {}
-
-
-EM::Horizon::~Horizon()
-{ }
 
 
 BinID EM::Horizon::getBinID( const EM::SubID& subid )
@@ -79,115 +72,6 @@ Geometry::MeshSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
 			    pos10.x, pos10.y, rc10.row, rc10.col,
 			    pos11.x, pos11.y, rc11.row, rc11.col );
     return newsurf;
-}
-
-
-Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
-       			       int attridx )
-{
-    PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    if ( !ioobj )
-	{ errmsg = "Cannot find the horizon object"; return 0; }
-
-    PtrMan<EMHorizonTranslator> tr = mTranslCreate(EMHorizon,mDGBKey);
-    if ( !tr || !tr->startRead(*ioobj) )
-	{ errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
-
-    EM::SurfaceIODataSelection& sel = tr->selections();
-    if ( newsel )
-    {
-	sel.rg = newsel->rg;
-	sel.selvalues = newsel->selvalues;
-	sel.selpatches = newsel->selpatches;
-    }
-    else
-	sel.selvalues.erase();
-
-    if ( attridx < 0 )
-    {
-	Executor* exec = tr->reader( *this );
-	errmsg = tr->errMsg();
-	return exec;
-    }
-
-    StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
-    if ( !conn ) return 0;
-    
-    const char* attrnm = sel.sd.valnames[attridx]->buf();
-    int gap = 0;
-    for ( int idx=0; ; idx++ )
-    {
-	if ( gap > 50 ) return 0;
-	BufferString fnm = 
-	    EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
-	if ( File_isEmpty(fnm) ) { gap++; continue; }
-	else gap = 0;
-
-	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader(fnm);
-	if ( strcmp(attrnm,rdr->dataName()) )
-	{ delete rdr; continue; }
-
-	rdr->setSurface( *this );
-	return rdr;
-    }
-
-    return 0;
-}
-
-
-Executor* EM::Horizon::saver( const EM::SurfaceIODataSelection* newsel,
-       			      bool auxdata, const MultiID* key )
-{
-    const MultiID& mid = key && !(*key=="") ? *key : multiID();
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-	{ errmsg = "Cannot find the horizon object"; return 0; }
-
-    PtrMan<EMHorizonTranslator> tr = mTranslCreate(EMHorizon,mDGBKey);
-    if ( !tr || !tr->startWrite(*this) )
-	{ errmsg = tr ? tr->errMsg() : "No Translator"; return 0; }
-
-    EM::SurfaceIODataSelection& sel = tr->selections();
-    if ( newsel )
-    {
-	sel.rg = newsel->rg;
-	sel.selvalues = newsel->selvalues;
-	sel.selpatches = newsel->selpatches;
-    }
-
-    if ( auxdata )
-    {
-	StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
-	if ( !conn ) return 0;
-
-	BufferString fnm;
-	int dataidx = sel.selvalues.size() ? sel.selvalues[0] : 0;
-	if ( dataidx >=0 )
-	{
-	    fnm = EM::dgbSurfDataWriter::createHovName( conn->fileName(),
-		    					dataidx );
-	}
-	else
-	{
-	    for ( int idx=0; ; idx++ )
-	    {
-		fnm =EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
-		if ( !File_exists(fnm) )
-		    break;
-	    }
-	}
-
-	bool binary = true;
-	mSettUse(getYN,"dTect.Surface","Binary format",binary);
-	Executor* exec = new EM::dgbSurfDataWriter(*this,0,0,binary,fnm);
-	return exec;
-    }
-    else
-    {
-	Executor* exec = tr->writer(*ioobj);
-	errmsg = tr->errMsg();
-	return exec;
-    }
 }
 
 
@@ -353,3 +237,93 @@ Executor* EM::Horizon::import( const Grid& grid, int idx, bool fixholes )
 
 const IOObjContext& EM::Horizon::getIOObjContext() const
 { return EMHorizonTranslatorGroup::ioContext(); }
+
+
+bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick, 
+				   float velocity )
+{
+    if ( !nrPatches() ) addPatch( "", true );
+
+    const EM::PatchID patchid = patchID(0);
+    
+    const float idealdistance = 25; // TODO set this in some intelligent way
+
+    for ( int idx=0; idx<stick.size()-1; idx++ )
+    {
+	const Coord3 startpos( stick[idx], stick[idx].z*velocity/2 );
+	const Coord3 stoppos( stick[idx+1], stick[idx+1].z*velocity/2 );
+	if ( !startpos.isDefined() || !stoppos.isDefined() )
+	    break;
+
+	const BinID startbid = SI().transform( startpos );
+	const BinID stopbid = SI().transform( stoppos );
+
+	const RowCol startrc = getRowCol(startbid);
+	const RowCol stoprc = getRowCol(stopbid);
+	const Line3 line( Coord3(startrc.row,startrc.col,0),
+	     Coord3(stoprc.row-startrc.row,stoprc.col-startrc.col,0) );
+
+	if ( startrc.row==stoprc.row ) step_.row = 0;
+	else if ( startrc.row>stoprc.row ) step_.row = -step_.row;
+
+	if ( startrc.col==stoprc.col ) step_.col = 0;
+	else if ( startrc.col>stoprc.col ) step_.col = -step_.col;
+
+	RowCol rowcol = startrc;
+	while ( rowcol != stoprc )
+	{
+	    const float rowdistbefore = rowcol.row-startrc.row;
+	    const float coldistbefore = rowcol.col-startrc.col;
+	    const float distbefore = sqrt(rowdistbefore*rowdistbefore+
+					  coldistbefore*coldistbefore );
+	    const float rowdistafter = rowcol.row-stoprc.row;
+	    const float coldistafter = rowcol.col-stoprc.col;
+	    const float distafter = sqrt(rowdistafter*rowdistafter+
+					  coldistafter*coldistafter );
+
+	    const Coord3 newpos(SI().transform(getBinID(rowcol)),
+		    (startpos.z*distafter+stoppos.z*distbefore)/
+		    (distbefore+distafter)/(velocity/2));
+
+	    const EM::PosID posid( id(), patchid,
+				   rowCol2SubID(rowcol) );
+	    setPos( posid, newpos, true );
+	    if ( rowcol == startrc )
+		setPosAttrib( posid, EM::EMObject::sPermanentControlNode, true);
+
+	    float distance = mUndefValue;
+	    RowCol nextstep;
+	    if ( step_.row )
+	    {
+		distance = line.distanceToPoint(
+			Coord3(rowcol.row+step_.row, rowcol.col,0) );
+		nextstep = rowcol;
+		nextstep.row += step_.row;
+	    }
+
+	    if ( step_.col )
+	    {
+		float nd = line.distanceToPoint(
+			    Coord3(rowcol.row, rowcol.col+step_.col,0) );
+		if ( nd<distance )
+		{
+		    nextstep = rowcol;
+		    nextstep.col += step_.col;	
+		}
+	    }
+
+	    rowcol = nextstep;
+	}
+
+	if ( idx==stick.size()-2 )
+	{
+	    const EM::PosID posid( id(), patchid,
+				    rowCol2SubID(rowcol));
+	    setPos( posid, Coord3( stoppos, stoppos.z/(velocity/2)), true);
+
+	    setPosAttrib( posid, EM::EMObject::sPermanentControlNode, true );
+	}
+    }
+
+    return true;
+}

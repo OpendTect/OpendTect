@@ -4,60 +4,23 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.15 2003-11-24 08:39:52 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.16 2004-07-14 15:33:53 nanne Exp $";
 
 #include "emfault.h"
-
-#include "emfaulttransl.h"
-#include "emhistoryimpl.h"
+#include "emsurfacetr.h"
 #include "geommeshsurfaceimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
-
-EM::Fault::Fault(EM::EMManager & emm_, const EM::ObjectID& mid_)
-    : Surface( emm_, mid_ )
-{ }
+#include "survinfo.h"
 
 
-EM::Fault::~Fault()
-{ }
+EM::Fault::Fault( EM::EMManager& em_, const EM::ObjectID& mid_ )
+    : Surface(em_,mid_)
+{}
 
 
-Executor* EM::Fault::loader( const EM::SurfaceIODataSelection* newsel,
-			     int attridx )
-{
-    if ( isLoaded() ) cleanUp();
-
-    PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    Executor* exec = EMFaultTranslator::reader( *this, ioobj, errmsg);
-    if ( errmsg[0] )
-    {
-	delete exec;
-	exec = 0;
-    }
-
-    return exec;
-}
-
-    
-Executor* EM::Fault::saver( const EM::SurfaceIODataSelection* newsel,
-			    bool auxdata, const MultiID* key )
-{
-    const MultiID& mid = key ? *key : multiID();
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    Executor* exec = EMFaultTranslator::writer( *this, ioobj, errmsg);
-    if ( errmsg[0] )
-    {
-	delete exec;
-	exec = 0;
-    }
-
-    return exec;
-}
-
-
-Geometry::MeshSurface* EM::Fault::createPatchSurface( const PatchID& id ) const
+Geometry::MeshSurface* EM::Fault::createPatchSurface( const PatchID& pid ) const
 {
     return new Geometry::MeshSurfaceImpl;
 }
@@ -65,3 +28,53 @@ Geometry::MeshSurface* EM::Fault::createPatchSurface( const PatchID& id ) const
 
 const IOObjContext& EM::Fault::getIOObjContext() const
 { return EMFaultTranslatorGroup::ioContext(); }
+
+
+bool EM::Fault::createFromStick( const TypeSet<Coord3>& stick, float velocity )
+{
+    if ( stick.size() < 2 ) return false;
+
+    if ( !nrPatches() ) addPatch( "", true );
+    const EM::PatchID patchid = patchID(0);
+    const float idealdistance = 25; // TODO set this in some intelligent way
+    RowCol rowcol(0,0);
+
+    bool istimestick = mIsEqual(stick[0].z,stick[stick.size()-1].z,1e-6); 
+
+    for ( int idx=0; idx<stick.size()-1; idx++ )
+    {
+	const Coord3 startpos( stick[idx], stick[idx].z*velocity/2 );
+	const Coord3 stoppos( stick[idx+1], stick[idx+1].z*velocity/2 );
+
+	if ( !startpos.isDefined() || !stoppos.isDefined() )
+	    break;
+
+	const BinID startbid = SI().transform( startpos );
+	const BinID stopbid = SI().transform( stoppos );
+
+	const float distance = startpos.distance(stoppos);
+	const Coord3 vector = (stoppos-startpos).normalize();
+	const int nrofsegments = mNINT(distance/idealdistance);
+	const float segmentlength = distance/nrofsegments;
+
+	for ( int idy=1; idy<nrofsegments; idy++ )
+	{
+	    const Coord3 newrelpos( vector.x*segmentlength*idy,
+				    vector.y*segmentlength*idy,
+				    vector.z*segmentlength*idy );
+
+	    const Coord3 newprojectedpos = startpos+newrelpos;
+	    const BinID newprojectedbid = SI().transform( newprojectedpos );
+	    const Coord3 newpos( SI().transform(newprojectedbid),
+				 newprojectedpos.z/(velocity/2) );
+	    setPos( patchid, rowcol, newpos, false, true );
+	    istimestick ? rowcol.row++ : rowcol.col++;
+	}
+
+	Coord3 crd( SI().transform(stopbid), stoppos.z/(velocity/2) );
+	setPos( patchid, rowcol, crd, false, true );
+	istimestick ? rowcol.row++ : rowcol.col++;
+    }
+
+    return true;
+}

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.35 2004-06-07 11:59:49 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.36 2004-07-14 15:33:53 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.35 2004-06-07 11:59:49 krist
 #include "iopar.h"
 #include "ptrman.h"
 #include "streamconn.h"
+#include "survinfo.h"
 
 
 const char* EM::dgbSurfaceReader::floatdatacharstr = "Data char";
@@ -490,11 +491,14 @@ int EM::dgbSurfaceReader::nextStep()
 	const RowCol rowcol = rcconv
 	    ? rcconv->get(RowCol(filerow,filecol)) : RowCol(filerow,filecol);
 
+	RowCol surfrc = rowcol;
 	Coord3 pos;
 	if ( !surfposcalc )
 	{
 	    pos.x = readFloat(strm);
 	    pos.y = readFloat(strm);
+	    BinID bid = SI().transform( pos );
+	    surfrc = RowCol(bid.inl,bid.crl);
 	}
 	else
 	{
@@ -511,12 +515,12 @@ int EM::dgbSurfaceReader::nextStep()
 	if ( patchsel.indexOf(patchid)==-1 )
 	    continue;
 
-	if ( readrowrange && (!readrowrange->includes(rowcol.row) ||
-		    ((rowcol.row-readrowrange->start)%readrowrange->step)))
+	if ( readrowrange && (!readrowrange->includes(surfrc.row) ||
+		    ((surfrc.row-readrowrange->start)%readrowrange->step)))
 	    continue;
 
-	if ( readcolrange && (!readcolrange->includes(rowcol.col) ||
-		    ((rowcol.col-readcolrange->start)%readcolrange->step)))
+	if ( readcolrange && (!readcolrange->includes(surfrc.col) ||
+		    ((surfrc.col-readcolrange->start)%readcolrange->step)))
 	    continue;
 
 	if ( !surface->getSurface(patchid) )
@@ -857,8 +861,7 @@ int EM::dgbSurfaceWriter::nextStep()
     if ( patchindex!=oldpatchindex )
     {
 	const Geometry::MeshSurface* gsurf =
-	    			surface.getSurface(patchsel[patchindex]);
-
+	    			surface.getSurface( patchsel[patchindex] );
 	StepInterval<int> patchrange;
        	surface.getRange( patchsel[patchindex], patchrange, true );
 	firstrow = patchrange.start;
@@ -881,7 +884,6 @@ int EM::dgbSurfaceWriter::nextStep()
 
 		nrrows = (lastrow-firstrow)/writerowrange->step+1;
 	    }
-
 	}
 	else
 	{

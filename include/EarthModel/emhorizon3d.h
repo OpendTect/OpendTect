@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.30 2004-05-24 15:24:00 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.31 2004-07-14 15:33:59 nanne Exp $
 ________________________________________________________________________
 
 
@@ -41,18 +41,12 @@ the patches, the nodes are defined on both patches, with the same coordinate.
 In addition, they are also linked together. 
 */
 
-class BinID;
-class RowCol;
-
-
-class dgbEMHorizonReader;
-class dgbEMHorizonWriter;
 class Grid;
+
+namespace Geometry { class MeshSurface; };
 
 namespace EM
 {
-class EMManager;
-class SurfaceIODataSelection;
 
 /*!\brief
 The horizon is made up of one or more grids (so they can overlap at faults).
@@ -63,36 +57,26 @@ the knots.
 class Horizon : public EM::Surface
 {
 public:
-    Executor*		loader(const EM::SurfaceIODataSelection* s=0,
-	    		       int attridx=-1);
-    Executor*		saver(const EM::SurfaceIODataSelection* s=0,
-	    		      bool auxdataonly=false,const MultiID* key=0);
+    Executor*			import(const Grid&,int idx,bool fixholes);
+    				/*!< Removes all data when idx=0 and creates 
+				  patches for every Grid imported.
+				*/
 
-    Executor*		import(const Grid&,int idx,bool fixholes);
-    			/*!< Removes all data when idx=0 and creates patches
-			     for every Grid imported.
-			*/
+    BinID			getBinID(const EM::SubID&);
+    BinID			getBinID(const RowCol&);
+    EM::SubID			getSubID(const BinID&);
+    RowCol			getRowCol(const BinID&);
 
-    static BinID	getBinID( const EM::SubID& );
-    static BinID	getBinID( const RowCol& );
-    static EM::SubID	getSubID( const BinID& );
-    static RowCol	getRowCol( const BinID& );
+    bool			createFromStick(const TypeSet<Coord3>&,float);
 
 protected:
-    friend class	EMManager;
-    friend class	EMObject;
-    friend class	::dgbEMHorizonReader;
-    friend class	::dgbEMHorizonWriter;
+	    			Horizon(EMManager&,const ObjectID&);
 
-    Geometry::MeshSurface* createPatchSurface(const PatchID&) const;
+    Geometry::MeshSurface*	createPatchSurface(const PatchID&) const;
+    const IOObjContext&		getIOObjContext() const;
 
-	    		Horizon(EMManager&, const EM::ObjectID&);
-    			~Horizon();
-
-    virtual const IOObjContext&	getIOObjContext() const;
-
-    float		a11,a12,a13,a21,a22,a23; //Transformation coords
-    float		b11,b12,b13,b21,b22,b23; //Reverse transformation coords
+    friend class		EMManager;
+    friend class		EMObject;
 };
 
 

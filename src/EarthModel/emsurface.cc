@@ -4,18 +4,19 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.55 2004-06-17 07:50:22 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.56 2004-07-14 15:33:53 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
+#include "emsurfauxdataio.h"
 
 #include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "emhingeline.h"
-#include "emhorizon.h"
 #include "emhistoryimpl.h"
 #include "emmanager.h"
-#include "executor.h"
+#include "geomgridsurface.h"
 #include "geommeshsurface.h"
 #include "grid.h"
 #include "ioman.h"
@@ -26,6 +27,8 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.55 2004-06-17 07:50:22 kristof
 #include "toplist.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "settings.h"
+
 
 static const char* sDbInfo = "DB Info";
 static const char* sRange = "Range";
@@ -514,10 +517,8 @@ bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
     {
 	const EM::PosID& node = nodes[idx];
 	Coord3 normal;
-	if ( computeNormal( normal, nodes[idx], time2depthfunc ) )
-	{
+	if ( computeNormal(normal,nodes[idx],time2depthfunc) )
 	    normals += normal;
-	}
     }
 
     res = estimateAverageVector( normals, false, false );
@@ -531,11 +532,11 @@ float EM::Surface::normalDistance( const Coord3& timepos,
 {
     EM::PosID closestmesh(0,0,0);
     if ( !findClosestMesh(closestmesh,timepos,time2depthfunc) )
-	return -2;
+	return mUndefValue;
 
     Coord3 meshnormal;
     if ( !computeMeshNormal(meshnormal,closestmesh,time2depthfunc) )
-	return -2;
+	return mUndefValue;
 
     Coord3 c00, c10, c01, c11;
     bool c00def, c10def, c01def, c11def;
@@ -747,8 +748,8 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
 
 EM::PatchID EM::Surface::clonePatch( EM::PatchID patchid )
 {
-    int idx = patchids.indexOf(patchid);
-    if ( idx==-1 ) return -1;
+    int patchidx = patchids.indexOf(patchid);
+    if ( patchidx==-1 ) return -1;
 
     PatchID res = addPatch(0, true);
     StepInterval<int> rowrange;
@@ -785,8 +786,6 @@ EM::PatchID EM::Surface::clonePatch( EM::PatchID patchid )
 	els->setSection( res );
 	edgelines.replace(els, patchids.indexOf(res) );
     }
-
-
 
     return res;
 }
@@ -938,6 +937,7 @@ int EM::Surface::findPos( const RowCol& rowcol,
 
     return res.size();
 }
+
 
 int EM::Surface::findPos( const EM::PatchID& patchid,
 			  const Interval<float>& x, const Interval<float>& y,
@@ -1125,7 +1125,6 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 	}
     }
 
-
     if ( res )
     {
 	// Leave out the fist one, since it's the origin
@@ -1152,6 +1151,7 @@ void EM::Surface::getLinkedPos( const EM::PosID& posid,
     const EM::SubID subid = posid.subID();
     const RowCol rowcol = subID2RowCol(subid);
     const Geometry::MeshSurface* ownmeshsurf = getSurface( posid.patchID() );
+    if ( !ownmeshsurf ) return;
 
     const int nrsubsurf = nrPatches();
     for ( int surface=0; surface<nrsubsurf; surface++ )
@@ -1469,6 +1469,136 @@ EM::EdgeLineSet* EM::Surface::getEdgeLineSet( const EM::PatchID& segment,
     }
 
     return edgelines[patchsurfidx];
+}
+
+
+bool EM::Surface::isAtEdge( const EM::PosID& pid ) const
+{
+    if ( !isDefined(pid) ) return false;
+
+    int nrneighbors = getNeighbors(pid,0,1,false);
+    if ( nrneighbors == 6 )
+    {
+	const int patch = pid.patchID();
+	RowCol center = subID2RowCol( pid.subID() );
+	return !( isDefined( patch, center+step_*RowCol(0,1) ) &&
+		  isDefined( patch, center+step_*RowCol(1,0) ) &&
+		  isDefined( patch, center+step_*RowCol(0,-1) ) &&
+		  isDefined( patch, center+step_*RowCol(-1,0) ) );
+    }
+
+   return nrneighbors != 8;
+}
+
+
+Executor* EM::Surface::loader( const EM::SurfaceIODataSelection* newsel,
+       			       int attridx )
+{
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    if ( !ioobj )
+	{ errmsg = "Cannot find the horizon object"; return 0; }
+
+    PtrMan<EMSurfaceTranslator> tr = 
+			(EMSurfaceTranslator*)ioobj->getTranslator();
+    if ( !tr || !tr->startRead(*ioobj) )
+	{ errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
+
+    EM::SurfaceIODataSelection& sel = tr->selections();
+    if ( newsel )
+    {
+	sel.rg = newsel->rg;
+	sel.selvalues = newsel->selvalues;
+	sel.selpatches = newsel->selpatches;
+    }
+    else
+	sel.selvalues.erase();
+
+    if ( attridx < 0 )
+    {
+	Executor* exec = tr->reader( *this );
+	errmsg = tr->errMsg();
+	return exec;
+    }
+
+    StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
+    if ( !conn ) return 0;
+    
+    const char* attrnm = sel.sd.valnames[attridx]->buf();
+    int gap = 0;
+    for ( int idx=0; ; idx++ )
+    {
+	if ( gap > 50 ) return 0;
+	BufferString fnm = 
+	    EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
+	if ( File_isEmpty(fnm) ) { gap++; continue; }
+	else gap = 0;
+
+	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader(fnm);
+	if ( strcmp(attrnm,rdr->dataName()) )
+	{ delete rdr; continue; }
+
+	rdr->setSurface( *this );
+	return rdr;
+    }
+
+    return 0;
+}
+
+
+Executor* EM::Surface::saver( const EM::SurfaceIODataSelection* newsel,
+       			      bool auxdata, const MultiID* key )
+{
+    const MultiID& mid = key && !(*key=="") ? *key : multiID();
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+	{ errmsg = "Cannot find the horizon object"; return 0; }
+
+    PtrMan<EMSurfaceTranslator> tr = 
+			(EMSurfaceTranslator*)ioobj->getTranslator();
+    if ( !tr || !tr->startWrite(*this) )
+	{ errmsg = tr ? tr->errMsg() : "No Translator"; return 0; }
+
+    EM::SurfaceIODataSelection& sel = tr->selections();
+    if ( newsel )
+    {
+	sel.rg = newsel->rg;
+	sel.selvalues = newsel->selvalues;
+	sel.selpatches = newsel->selpatches;
+    }
+
+    if ( auxdata )
+    {
+	StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
+	if ( !conn ) return 0;
+
+	BufferString fnm;
+	int dataidx = sel.selvalues.size() ? sel.selvalues[0] : 0;
+	if ( dataidx >=0 )
+	{
+	    fnm = EM::dgbSurfDataWriter::createHovName( conn->fileName(),
+		    					dataidx );
+	}
+	else
+	{
+	    for ( int idx=0; ; idx++ )
+	    {
+		fnm =EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
+		if ( !File_exists(fnm) )
+		    break;
+	    }
+	}
+
+	bool binary = true;
+	mSettUse(getYN,"dTect.Surface","Binary format",binary);
+	Executor* exec = new EM::dgbSurfDataWriter(*this,0,0,binary,fnm);
+	return exec;
+    }
+    else
+    {
+	Executor* exec = tr->writer(*ioobj);
+	errmsg = tr->errMsg();
+	return exec;
+    }
 }
 
 

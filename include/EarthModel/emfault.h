@@ -7,19 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.16 2003-11-24 08:39:49 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.17 2004-07-14 15:33:59 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
 #include "emsurface.h"
 
-
-class dgbEMFaultReader;
+namespace Geometry { class MeshSurface; };
 
 namespace EM
 {
-class SurfaceIODataSelection;
 
 /*!\brief
 
@@ -27,20 +25,18 @@ class SurfaceIODataSelection;
 class Fault : public EM::Surface
 {
 public:
-			Fault( EM::EMManager&, const EM::ObjectID&);
-			~Fault();
-
-    bool		isLoaded() const { return surfaces.size(); }
-    Executor*		loader(const EM::SurfaceIODataSelection* s=0,
-	    		       int attridx=-1);
-    Executor*		saver(const EM::SurfaceIODataSelection* s=0,
-	    		      bool auxdataonly=false,const MultiID* key=0);
+    bool			createFromStick(const TypeSet<Coord3>&,float);
 
 protected:
-    friend			class ::dgbEMFaultReader;
-    Geometry::MeshSurface*	createPatchSurface(const PatchID&) const;
+				Fault(EMManager&,const ObjectID&);
 
-    virtual const IOObjContext&	getIOObjContext() const;
+    Geometry::MeshSurface*	createPatchSurface(const PatchID&) const;
+    const IOObjContext&		getIOObjContext() const;
+
+
+    friend class		EMManager;
+    friend class		EMObject;
+
 };
 
 }; // Namespace

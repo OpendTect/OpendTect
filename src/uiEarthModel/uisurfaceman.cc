@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.17 2004-05-27 11:56:11 bert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.18 2004-07-14 15:36:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "binidselimpl.h"
 #include "emmanager.h"
-#include "emhorizontransl.h"
-#include "emfaulttransl.h"
+#include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
 #include "emsurfauxdataio.h"
 #include "uimsg.h"

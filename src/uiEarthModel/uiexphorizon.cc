@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.28 2004-07-14 15:26:14 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.29 2004-07-14 15:36:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,8 +22,8 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "emmanager.h"
-#include "emhorizontransl.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "executor.h"
 #include "uiexecutor.h"
 #include "ptrman.h"
@@ -128,8 +128,12 @@ bool uiExportHorizon::writeAscii()
     mDynamicCastGet(EM::Horizon*,hor,obj.ptr())
     if ( !hor ) return false;
 
-    PtrMan<dgbEMHorizonTranslator> tr = dgbEMHorizonTranslator::getInstance();
-    tr->startRead( *infld->selIOObj() );
+    IOObj* ioobj = infld->selIOObj();
+    PtrMan<EMSurfaceTranslator> tr =
+			(EMSurfaceTranslator*)ioobj->getTranslator();
+    if ( !tr || tr->startRead(*ioobj) )
+	mErrRet( tr ? tr->errMsg() : "Cannot find translator" );
+
     EM::SurfaceIODataSelection& sels = tr->selections();
     infld->getSelection( sels );
     if ( dogf && sels.selvalues.size() > 1 &&
