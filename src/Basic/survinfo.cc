@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.36 2002-12-19 10:49:55 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.37 2003-03-04 16:59:34 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: survinfo.cc,v 1.36 2002-12-19 10:49:55 bert Exp
 #include "separstr.h"
 #include "errh.h"
 #include "strmprov.h"
+#include "iopar.h"
 #include "keystrs.h"
 
 static const char* sKeySI = "Survey Info";
@@ -96,7 +97,14 @@ BinID BinID2Coord::transform( const Coord& coord ) const
 SurveyInfo::SurveyInfo()
 	: valid_(false)
     	, zistime_(true)
+    	, pars_(*new IOPar("Survey defaults"))
 {
+}
+
+
+SurveyInfo::~SurveyInfo()
+{
+    delete &pars_;
 }
 
 
@@ -227,6 +235,9 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     si->wrange_ = si->range_;
     si->wzrange_ = si->zrange_;
 
+    fname = File_getFullPath( survdir, ".defs" );
+    si->pars().read( fname );
+    si->pars().setName( "Survey defaults" );
     return si;
 }
 
@@ -320,7 +331,22 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( retval )
 	retval = wrapUpWrite( strm, basedir );
     sd.close();
+
+    savePars( basedir );
     return retval;
+}
+
+
+void SurveyInfo::savePars( const char* basedir ) const
+{
+    if ( !pars_.size() ) return;
+
+    if ( !basedir || !*basedir )
+	basedir = GetDataDir();
+
+    BufferString fname = File_getFullPath( basedir, dirname );
+    fname = File_getFullPath( fname, ".defs" );
+    pars_.dump( fname );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.23 2003-02-19 16:47:49 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.24 2003-03-04 16:59:34 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -14,6 +14,9 @@ static const char* rcsID = "$Id: iopar.cc,v 1.23 2003-02-19 16:47:49 bert Exp $"
 #include "multiid.h"
 #include "globexpr.h"
 #include "bufstring.h"
+#include "strmdata.h"
+#include "strmprov.h"
+#include "keystrs.h"
 #include <ctype.h>
 
 IOPar::IOPar( const char* nm )
@@ -726,4 +729,36 @@ void IOPar::getFrom( const char* str )
 
 	ptrstart = ptr;
     }
+}
+
+
+bool IOPar::read( const char* fnm )
+{
+    StreamData sd = StreamProvider(fnm).makeIStream();
+    if ( !sd.usable() ) return false;
+
+    ascistream astream( *sd.istrm, YES );
+    astream.next();
+    setName( astream.keyWord() );
+
+    pars_.getFrom( astream );
+    sd.close();
+
+    return true;
+}
+
+
+bool IOPar::dump( const char* fnm, const char* typ ) const
+{
+    if ( !typ ) typ = sKey::Pars;
+    StreamData sd = StreamProvider(fnm).makeOStream();
+    if ( !sd.usable() ) return false;
+
+    ascostream astream( *sd.ostrm );
+    BufferString ky( name() );
+    if ( ky == "" ) ky = sKey::Pars;
+    if ( !astream.putHeader( ky ) ) return false;
+
+    pars_.putTo( astream );
+    return true;
 }

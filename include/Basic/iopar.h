@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.17 2002-12-13 12:49:44 bert Exp $
+ RCS:		$Id: iopar.h,v 1.18 2003-03-04 16:59:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,6 +162,11 @@ public:
 			     caller to avoid duplicate keys! */
 
     const char*		mkKey(int) const;
+
+    bool		read(const char* filename);
+    			//!< uses set(). no clear() done
+    bool		dump(const char* filename,const char* filetyp=0) const;
+    			//!< Like IOParList with 1 IOPar.
 
 protected:
 

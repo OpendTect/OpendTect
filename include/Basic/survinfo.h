@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.28 2002-12-18 10:16:42 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.29 2003-03-04 16:59:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include <binidselimpl.h>
 #include <iosfwd>
 class ascostream;
+class IOPar;
 
 
 /*!\brief Holds survey general information.
@@ -39,7 +40,7 @@ class SurveyInfo : public UserIDObject
 
 public:
 
-    virtual		~SurveyInfo()			{}
+    virtual		~SurveyInfo();
 
     virtual SurveyInfo*	clone() const			= 0;
     virtual void	copyFrom(const SurveyInfo&);
@@ -124,6 +125,10 @@ public:
     virtual void	setStep(const BinID&,bool)	{}
     static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
 
+    IOPar&		pars()				{ return pars_; }
+    const IOPar&	pars() const			{ return pars_; }
+    void		savePars(const char* basedir=0) const;
+
 protected:
 
 			SurveyInfo();
@@ -141,6 +146,7 @@ protected:
     BufferString	wspwd_;
     BinIDRange		range_, wrange_;
     StepInterval<double> zrange_, wzrange_;
+    IOPar&		pars_;
 
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;
