@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.26 2004-04-30 11:46:02 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.27 2004-05-04 15:35:54 nanne Exp $
 ________________________________________________________________________
 
 
@@ -97,6 +97,7 @@ public:
     void			insertKnot(int,const BinID&);
     void			setKnotPos(int,const BinID&);
     BinID			getKnotPos(int) const;
+    void			setManipKnotPos(int,const BinID&);
     BinID			getManipKnotPos(int) const;
     void			getAllKnotPos(TypeSet<BinID>&) const;
     void			removeKnot(int);
