@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.4 2003-08-26 09:39:53 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.5 2003-08-26 15:37:35 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -150,15 +150,13 @@ const char* Well::AscImporter::getLogInfo( istream& strm,
 		    char* closeparptr = strchr( unstr, ')' );
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
-		if ( qnr )
+		if ( qnr == 0 )
+		    hasdepthlog = matchStringCI("dept",wordbuf);
+		else
 		{
-		    if ( qnr == 1 && (
-			    !strcmp(wordbuf,"in:")
-			    || isdigit(wordbuf[0])
-			    || wordbuf[0] == '+'
-			    || wordbuf[1] == '-'
-			    || wordbuf[2] == '.'
-				) )
+		    if ( qnr == 1 && ( !strcmp(wordbuf,"in:")
+				    || isdigit(wordbuf[0]) || wordbuf[0] == '+'
+				    || wordbuf[1] == '-' || wordbuf[2] == '.' ))
 			return "Invalid LAS-like file";
 
 		    lfi.lognms += new BufferString( wordbuf );

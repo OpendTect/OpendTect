@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.3 2003-08-25 15:10:12 bert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.4 2003-08-26 15:37:35 bert Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ public:
     {
     public:
 				LasFileInfo()
-				    : zrg(mUndefValue,-mUndefValue)
+				    : zrg(mUndefValue,mUndefValue)
 				    , undefval(-999.25)	{}
 				~LasFileInfo()		{ deepErase(lognms); }
 
