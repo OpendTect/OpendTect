@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.51 2002-04-12 19:04:55 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.52 2002-04-25 14:47:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,7 +207,8 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 	, UserIDObject( nm )
 	, QMainWindow( parnt && parnt->body() ?  parnt->body()->qwidget() : 0, 
 		       nm, 
-		       modal ?  WType_TopLevel | WShowModal| WGroupLeader :
+		       parnt && modal ? 
+				WType_TopLevel | WShowModal| WGroupLeader :
 				WType_TopLevel )
 	, handle_( handle__ )
 	, initing( true )
