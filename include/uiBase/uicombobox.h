@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.13 2003-04-01 10:08:08 arend Exp $
+ RCS:           $Id: uicombobox.h,v 1.14 2003-04-01 12:02:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ protected:
 
     virtual void        setvalue_( int i )	{ setCurrentItem(i); }
     virtual int		getvalue_() const	{ return currentItem(); }
-    virtual void	clear_()		{ setCurrentItem(0); }
+    virtual void	clear_()		{ empty(); }
 
     virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
     virtual bool	notifyValueChanged_( const CallBack& cb )   
