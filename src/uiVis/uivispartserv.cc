@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.208 2004-05-07 12:27:50 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.209 2004-05-07 16:38:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -934,7 +934,15 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     visBase::DataObject* dobj = visBase::DM().getObj( oldsel );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj)
     if ( so )
-    {
+    {    
+	if ( so->getAttributeFormat() == 3 )
+	{
+	    eventmutex.lock();
+	    eventobjid = oldsel;
+	    sendEvent( evGetNewData );
+	    return;
+	}
+
 	if ( so->isManipulated() )
 	{
 	    calculateAttrib( oldsel, false );
