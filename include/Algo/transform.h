@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.4 2001-07-19 06:24:58 kristofer Exp $
+ RCS:           $Id: transform.h,v 1.5 2001-07-19 14:59:23 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,11 @@ class TransformND
 public:
     virtual bool		setInputInfo( const ArrayNDInfo& )	= 0;
     virtual const ArrayNDInfo&	getInputInfo() const			= 0;
+    				/*!< Don't run before setInputInfo() has been
+				     run. */
     virtual const ArrayNDInfo&	getOutputInfo() const { return getInputInfo(); }
+    				/*!< Don't run before setInputInfo() has been
+				     run. */
 
 			//! Says whether float* can be used
     virtual bool	isReal() const					= 0;
