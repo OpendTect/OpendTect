@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.8 2002-03-06 13:24:55 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.9 2002-04-19 16:08:53 bert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -17,7 +17,8 @@ const int Executor::MoreToDo		= 1;
 const int Executor::WarningAvailable	= 2;
 
 
-bool Executor::execute( ostream* strm, bool isfirst, bool islast )
+bool Executor::execute( ostream* strm, bool isfirst, bool islast,
+		        int delaybetwnsteps )
 {
     if ( !strm )
     {
@@ -31,6 +32,8 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 		if ( msg && *msg ) ErrMsg( msg );
 		return false;
 	    }
+	    if ( delaybetwnsteps )
+		Time_sleep( delaybetwnsteps*0.001 );
 	}
 	return true;
     }
@@ -98,6 +101,8 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 	}
 	nrdone = newnrdone;
 	prevmsg = curmsg;
+	if ( delaybetwnsteps )
+	    Time_sleep( delaybetwnsteps*0.001 );
     }
 
     if ( islast )
