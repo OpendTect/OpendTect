@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.29 2003-04-22 09:49:42 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.30 2003-07-29 11:45:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,8 @@ public:
     inline		operator uiGroupObj*() 		    { return grpobj_; }
     inline		operator const uiObject&() const    { return *grpobj_; }
     inline		operator uiObject&() 		    { return *grpobj_; }
-
+    inline uiObject*	attachObj()			    { return grpobj_; }
+    inline const uiObject* attachObj() const		    { return grpobj_; }
 
     void		setHSpacing( int ); 
     void		setVSpacing( int ); 
