@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.6 2001-09-26 21:38:30 bert Exp $
+ RCS:           $Id: uimsg.cc,v 1.7 2001-12-16 15:12:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,10 +118,11 @@ void uiMsg::about( const char* text, const char* caption )
 }
 
 
-bool uiMsg::askGoOn( const char* text, const char* caption )
+bool uiMsg::askGoOn( const char* text, const char* caption, bool yn )
 {
     return !QMessageBox::warning( mainwin_ ? mainwin_->body()->qwidget()
 						: parent_,
 				  QString(caption), QString(text),
-				  QString("Yes"), QString("No"));
+				  QString(yn?"Yes":"OK"),
+				  QString(yn?"No":"Cancel"));
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.3 2001-08-29 15:43:44 bert Exp $
+ RCS:           $Id: uimsg.h,v 1.4 2001-12-16 15:12:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ public:
     void 	warning(const char*,const char* cn="Warning");
     void 	error(const char*,const char* cn="Error");
     void 	about(const char*,const char* cn="About");
-    bool	askGoOn(const char*,const char* cn="Please specify");
+    bool	askGoOn(const char*,const char* cn="Please specify",
+	    		bool withyesno=true);
     int		askGoOnAfter(const char*,const char* cn="Please specify");
 
     void	setParent(QWidget*);
