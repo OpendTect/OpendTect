@@ -5,11 +5,12 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.3 2001-05-24 15:40:17 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.4 2001-05-24 21:36:23 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
 #include "ascstream.h"
+#include "ioobj.h"
 
 
 bool PickLocation::fromString( const char* s )
@@ -53,13 +54,12 @@ void PickSet::add( PickGroup*& grp )
     const int nrgrps = groups.size();
     int mrgnr = -1;
     for ( int idx=0; idx<nrgrps; idx++ )
-	if ( grp->userref == groups[idx]->userref )
+	if ( grp->name() == groups[idx]->name() )
 	    { mrgnr = idx; break; }
     if ( mrgnr < 0 ) { groups += grp; return; }
 
     PickGroup& mrggrp = *grp;
     grp = groups[mrgnr];
-    grp->val = mrggrp.val;
 
     for ( int idx=0; idx<grpsz; idx++ )
     {
@@ -105,15 +105,11 @@ const char* dgbPickSetTranslator::read( PickSet& ps, Conn& conn )
     if ( atEndOfSection(astrm) )
 	return "Input file contains no pick groups";
 
-    ps.setName( astrm.value() );
-    astrm.next(); if ( atEndOfSection(astrm) ) astrm.next();
-    if ( atEndOfSection(astrm) )
-	return "Input file contains no picks";
+    ps.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
 
     do
     {
-	PickGroup* newpg = new PickGroup( astrm.getValue() );
-	astrm.next(); newpg->userref = astrm.value();
+	PickGroup* newpg = new PickGroup( astrm.value() );
 	PickLocation loc;
 	while ( !atEndOfSection(astrm.next()) )
 	{
@@ -143,14 +139,10 @@ const char* dgbPickSetTranslator::write( const PickSet& ps, Conn& conn )
     if ( !strm.good() )
 	return "Cannot write to output Pick Set file";
 
-    astrm.put( "Name", ps.name() );
-    astrm.newParagraph();
-
     for ( int igrp=0; igrp<ps.nrGroups(); igrp++ )
     {
 	const PickGroup& pg = *ps.get( igrp );
-	astrm.put( "Value", pg.val );
-	astrm.put( "Ref", pg.userref );
+	astrm.put( "Ref", pg.name() );
 	char buf[80];
 	for ( int iloc=0; iloc<pg.size(); iloc++ )
 	{
