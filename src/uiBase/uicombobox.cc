@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.27 2002-11-21 13:29:59 nanne Exp $
+ RCS:           $Id: uicombobox.cc,v 1.28 2003-01-14 09:24:17 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,7 +192,7 @@ void uiComboBox::setReadOnly( bool yn )
 
 bool uiComboBox::isReadOnly() const
 {
-    return body_->editable();
+    return !body_->editable();
 }
 
 void uiComboBox::addItem( const char* text ) 
