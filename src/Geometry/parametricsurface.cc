@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.9 2005-03-18 11:23:06 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.10 2005-03-25 15:41:33 cvsnanne Exp $";
 
 #include "parametricsurface.h"
 
@@ -133,9 +133,6 @@ ParametricCurve* ParametricSurface::createColCurve( float col,
 
 bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 {
-    if ( !np.isDefined() ) 
-	return unsetKnot( rc );
-
     const Coord3 oldpos = getKnot(rc);
     bool wasundef = oldpos.isDefined();
 
@@ -166,8 +163,7 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 	    wasundef = true;
 	}
 
-
-    	index = getKnotIndex(rc);
+    	index = getKnotIndex( rc );
     }
     else
     {
@@ -175,7 +171,10 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 	index = 0;
     }
 
-    _setKnot(index, np);
+    if ( !np.isDefined() || index<0 )
+	return unsetKnot( rc );
+
+    _setKnot( index, np );
 
     if ( checkSelfIntersection(rc) )
     {
