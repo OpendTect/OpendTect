@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.15 2003-04-03 13:11:36 arend Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.16 2003-04-03 15:12:19 bert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -14,6 +14,8 @@ static const char* rcsID = "$Id: seistrc.cc,v 1.15 2003-04-03 13:11:36 arend Exp
 #include "iopar.h"
 #include <math.h>
 #include <float.h>
+
+const float SeisTrc::snapdist = 1e-4;
 
 
 SeisTrc::~SeisTrc()
@@ -158,7 +160,6 @@ void SeisTrc::setScaler( const Scaler* sc, int icomp )
 
 float SeisTrc::getValue( float t, int icomp ) const
 {
-    static const float snapdist = 1e-4;
     static PolyInterpolator1D polyintpol( snapdist, 0 );
 
     const int sz = size( icomp );
