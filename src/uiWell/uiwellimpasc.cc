@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.13 2003-11-28 10:51:23 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.14 2003-12-01 13:01:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
-#include "uibutton.h"
 #include "uiseparator.h"
 #include "uimsg.h"
 #include "filegen.h"
@@ -47,7 +46,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 		IOObjContext::getDataDirName(IOObjContext::WllInf) );
 	d2tfld->attach( alignedBelow, infld );
 
-	tvdfld = new uiCheckBox( this, "Model is TVDSS" );
+	tvdfld = new uiGenInput( this, "Model is", BoolInpSpec("TVDSS","MD") );
 	tvdfld->attach( alignedBelow, d2tfld );
     }
 
@@ -125,7 +124,7 @@ bool uiWellImportAsc::doWork()
     if ( SI().zIsTime() )
     {
 	fname = d2tfld->fileName();
-	errmsg = ascimp.getD2T( fname, tvdfld->isChecked(), zinfeet );
+	errmsg = ascimp.getD2T( fname, tvdfld->getBoolValue(), zinfeet );
 	if ( errmsg ) mErrRet( errmsg );
     }
 

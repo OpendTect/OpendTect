@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiwellimpasc.h,v 1.6 2003-12-01 13:01:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
-class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
@@ -34,7 +33,7 @@ protected:
     uiFileInput*	infld;
     uiFileInput*	d2tfld;
     uiGenInput*		unitfld;
-    uiCheckBox*		tvdfld;
+    uiGenInput*		tvdfld;
     uiGenInput*		idfld;
     uiGenInput*		coordfld;
     uiGenInput*		elevfld;
