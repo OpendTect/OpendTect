@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.32 2003-09-30 12:54:56 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.33 2003-10-03 06:32:03 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -70,7 +70,7 @@ Geometry::MeshSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
 
 
 Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
-       			       bool auxdata )
+       			       int attridx )
 {
     PtrMan<IOObj> ioobj = IOM().get( id() );
     if ( !ioobj )
@@ -88,29 +88,35 @@ Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
 	sel.selpatches = newsel->selpatches;
     }
 
-    if ( auxdata )
-    {
-	StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
-	if ( !conn ) return 0;
-	
-	if ( !sel.selvalues.size() )
-	    return 0;
-
-	int auxdataidx = sel.selvalues[0];
-	BufferString fnm =
-	    EM::dgbSurfDataWriter::createHovName(conn->fileName(),auxdataidx);
-	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader(fnm);
-	if ( !rdr ) return 0;
-	
-	rdr->setSurface( *this );
-	return rdr;
-    }
-    else
+    if ( attridx < 0 )
     {
 	Executor* exec = tr.reader( *this );
 	errmsg = tr.errMsg();
 	return exec;
     }
+
+    StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
+    if ( !conn ) return 0;
+    
+    const char* attrnm = sel.sd.valnames[attridx]->buf();
+    int gap = 0;
+    for ( int idx=0; ; idx++ )
+    {
+	if ( gap > 50 ) return 0;
+	BufferString fnm = 
+	    EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
+	if ( File_isEmpty(fnm) ) { gap++; continue; }
+	else gap = 0;
+
+	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader(fnm);
+	if ( strcmp(attrnm,rdr->dataName()) )
+	{ delete rdr; continue; }
+
+	rdr->setSurface( *this );
+	return rdr;
+    }
+
+    return 0;
 }
 
 

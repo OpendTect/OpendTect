@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.13 2003-09-30 12:56:34 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.14 2003-10-03 06:32:09 nanne Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ public:
 
     bool		isLoaded() const { return surfaces.size(); }
     Executor*		loader(const EM::SurfaceIODataSelection* s=0,
-	    		       bool auxdataonly=false);
+	    		       int attridx=-1);
     Executor*		saver(const EM::SurfaceIODataSelection* s=0,
 	    		      bool auxdataonly=false,const MultiID* key=0);
 

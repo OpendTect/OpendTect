@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.24 2003-09-30 12:56:34 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.25 2003-10-03 06:32:09 nanne Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ class Horizon : public EM::Surface
 {
 public:
     Executor*		loader(const EM::SurfaceIODataSelection* s=0,
-	    		       bool auxdataonly=false);
+	    		       int attridx=-1);
     Executor*		saver(const EM::SurfaceIODataSelection* s=0,
 	    		      bool auxdataonly=false,const MultiID* key=0);
 

@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.12 2003-09-30 12:54:56 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.13 2003-10-03 06:32:03 nanne Exp $";
 
 #include "emfault.h"
 
@@ -25,7 +25,7 @@ EM::Fault::~Fault()
 
 
 Executor* EM::Fault::loader( const EM::SurfaceIODataSelection* newsel,
-			     bool auxdata )
+			     int attridx )
 {
     if ( isLoaded() ) cleanUp();
 

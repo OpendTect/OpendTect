@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.19 2003-09-30 12:56:34 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.20 2003-10-03 06:32:09 nanne Exp $
 ________________________________________________________________________
 
 
@@ -71,7 +71,7 @@ class Surface : public EMObject
 {
 public:
     virtual Executor*	loader(const EM::SurfaceIODataSelection* s=0,
-			       bool auxdataonly=false)		{return 0;}
+			       int attridx=-1)			{return 0;}
     virtual Executor*	saver(const EM::SurfaceIODataSelection* s=0,
 			      bool auxdataonly=false,const MultiID* key=0)
     								{return 0;}

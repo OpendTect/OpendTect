@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.29 2003-09-30 13:45:59 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.30 2003-10-03 06:31:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,14 +183,7 @@ bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
     if ( !hor ) return false;
 
     hor->removeAllAuxdata();
-    EM::SurfaceIOData sd;
-    em.getSurfaceData( id, sd );
-    EM::SurfaceIODataSelection sel( sd );
-    sel.setDefault();
-    sel.selvalues.erase();
-    sel.selvalues += selidx;
-
-    PtrMan<Executor> exec = hor->loader( &sel, true );
+    PtrMan<Executor> exec = hor->loader( 0, selidx );
     uiExecutor exdlg( appserv().parent(), *exec );
     return exdlg.go();
 }
