@@ -116,6 +116,8 @@ MathExpression* MathExpression::parse( const char* input )
 	len = strlen( str );
     }
 
+
+    // Look for absolute values
     if ( len>3 &&
 	 str[0] == '|' && str[1] != '|' &&
 	 str[len-1] == '|' && str[len-2] != '|' )
@@ -125,7 +127,7 @@ MathExpression* MathExpression::parse( const char* input )
 	tmp[len-2] = 0;
 
 	MathExpression* inp = parse( tmp );
-	if ( !tmp )
+	if ( !inp )
 	{
 	    return 0;
 	}
@@ -408,6 +410,8 @@ MathExpression* MathExpression::parse( const char* input )
 	}
     }
 
+
+    // * /
     for ( int idx=0; idx<len; idx++ )
     {
 	if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) )
@@ -458,6 +462,8 @@ MathExpression* MathExpression::parse( const char* input )
 	    return res;
 	}
     }
+
+    // Power of (^)
 
     for ( int idx=0; idx<len; idx++ )
     {
