@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.5 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uisettings.cc,v 1.6 2002-11-06 12:57:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,12 @@ uiSettings::uiSettings( uiParent* p, const char* nm )
     lbl->attach( alignedBelow, valfld );
 
     setNew();
+}
+
+uiSettings::~uiSettings()
+{
+    items.deepErase();
+    delete &setts;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.10 2002-07-01 13:16:40 nanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.11 2002-11-06 12:58:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,9 @@ public:
 
                         uiSpinBoxBody(uiSpinBox&,uiParent*, const char* );
 
-    virtual int 	nrTxtLines() const				{ return 1; }
+    virtual		~uiSpinBoxBody()	{ delete &messenger_; }
+
+    virtual int 	nrTxtLines() const	{ return 1; }
 
 protected:
 

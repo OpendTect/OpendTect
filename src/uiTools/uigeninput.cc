@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.43 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.44 2002-11-06 12:57:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
                         uiInputFld( uiGenInput* p, const DataInpSpec& spec ) 
 			: spec_( *spec.clone() ), p_( p ) {}
 
+    virtual		~uiInputFld()			{ delete &spec_; }
 
     virtual int		nElems() const			{ return 1; }
 
@@ -244,6 +245,8 @@ public:
 				usrinpobj.notifyValueChanged( 
 				   mCB(this,uiInputFld,valChangedNotify) );
 			    }
+
+    virtual		~uiSimpleInputFld()	{ delete &usrinpobj; }
 
     virtual UserInputObj* element( int idx=0 )
 			    { return idx==0 ? &usrinpobj : 0; }
@@ -646,6 +649,13 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     inputs += inp2.clone();
     inputs += inp3.clone();
     uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
+}
+
+uiGenInput::~uiGenInput()
+{
+    deepErase( flds );
+    deepErase( inputs ); // doesn't hurt
+    delete &idxes;
 }
 
 

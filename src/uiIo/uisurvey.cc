@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.28 2002-09-30 15:39:49 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.29 2002-11-06 12:58:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,6 +146,7 @@ uiSurvey::~uiSurvey()
     delete dirlist;
     delete mapcanvas;
     delete survinfo;
+    delete survmap;
 }
 
 

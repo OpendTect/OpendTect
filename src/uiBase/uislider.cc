@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.14 2002-07-25 15:27:55 nanne Exp $
+ RCS:           $Id: uislider.cc,v 1.15 2002-11-06 12:58:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,11 +32,13 @@ public:
                         uiSliderBody( uiSlider& handle,
 				      uiParent* parnt, const char* nm);
 
-    virtual int 	nrTxtLines() const				{ return 1; }
+    virtual		~uiSliderBody()		{ delete &messenger_; }
+
+    virtual int 	nrTxtLines() const	{ return 1; }
 
 private:
 
-    i_SliderMessenger& messenger_;
+    i_SliderMessenger&	messenger_;
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.11 2002-04-24 15:32:46 bert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.12 2002-11-06 12:58:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,8 @@ public:
                         uiTextBrowserBody( uiTextBrowser& handle, 
 					uiParent* parnt, 
 					const char* nm );
+
+    virtual		~uiTextBrowserBody()	{ delete &messenger_; }
 protected:
     i_BrowserMessenger& messenger_;
 };

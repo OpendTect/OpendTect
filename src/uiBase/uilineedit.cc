@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.13 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.14 2002-11-06 12:58:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,8 @@ public:
 
                         uiLineEditBody( uiLineEdit& handle,
 				   uiParent*, const char* nm="Line Edit body");
+
+    virtual		~uiLineEditBody()		{ delete &messenger_; }
 
     virtual int 	nrTxtLines() const		{ return 1; }
 

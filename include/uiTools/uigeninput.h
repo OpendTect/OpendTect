@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.20 2002-05-29 15:00:44 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.21 2002-11-06 12:57:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
 			uiGenInput( uiParent* p, const char* disptxt,
 			    const DataInpSpec&, const DataInpSpec&,
 			    const DataInpSpec& );
+
+    virtual		~uiGenInput();
 
     void		addInput( const DataInpSpec& );
 
