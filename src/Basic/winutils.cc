@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.9 2005-01-14 16:22:24 dgb Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.10 2005-01-31 10:44:22 arend Exp $";
 
 
 #include "winutils.h"
@@ -65,6 +65,7 @@ const char* getCleanUnxPath( const char* path )
 }
 
 #define mRet(ret) \
+    replaceCharacter( ret.buf(), '/', '\\' ); \
     if ( __do_debug_cleanpath ) \
     { \
         BufferString msg("getCleanWinPath for:"); \
@@ -106,20 +107,24 @@ const char* getCleanWinPath( const char* path )
     char* drivesep = strstr( ret.buf(), ":" );
     if ( isabs && !drivesep ) 
     {
+	const char* cygdir =
 #ifdef __win__
-	if ( getCygDir() )
-	    ret = getCygDir();
-	else
+				getCygDir();
+#else 
+				0;
 #endif
-	if ( getenv("CYGWIN_DIR") ) // anyone got a better idea?
-	    ret = getenv("CYGWIN_DIR");
-	else
-	    ret = "c:\\cygwin";
+	if ( !cygdir || !*cygdir )
+	{
+	    if ( getenv("CYGWIN_DIR") ) // anyone got a better idea?
+		cygdir = getenv("CYGWIN_DIR");
+	    else
+		cygdir = "c:\\cygwin";
+	}
+
+	ret = cygdir;
 
 	ret += ptr;
     }
-
-    replaceCharacter( ret.buf(), '/', '\\' );
 
     mRet( ret );
 }

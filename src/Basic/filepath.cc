@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.9 2004-11-16 15:01:00 dgb Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.10 2005-01-31 10:44:22 arend Exp $";
 
 #include "filepath.h"
 #include <iostream>
@@ -19,10 +19,20 @@ const char* FilePath::sDirSep = "/";
 #endif
 
 
-FilePath& FilePath::set( const char* fnm )
+FilePath& FilePath::set( const char* _fnm )
 {
     lvls_.deepErase(); prefix_ = ""; isabs_ = false;
-    if ( !fnm ) return *this;
+    if ( !_fnm ) return *this;
+
+    BufferString __fnm
+#ifdef __win__
+		       ( getCleanWinPath(_fnm) );
+#else
+		       ( _fnm );
+#endif
+
+    const char* fnm = __fnm.buf();
+
     skipLeadingBlanks( fnm );
     if ( !*fnm ) return *this;
 
@@ -38,7 +48,7 @@ FilePath& FilePath::set( const char* fnm )
 	}
     }
 
-    isabs_ = *fnm == *sDirSep;
+    isabs_ = *fnm == '\\' || *fnm == '/';
 
     if ( isabs_ ) fnm++;
     addPart( fnm );
