@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.20 2004-10-11 14:49:56 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.21 2004-10-20 16:12:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "uidobj.h"
 #include "linekey.h"
+#include "position.h"
 #include "seistrctr.h"
 class IOPar;
 class Executor;
@@ -37,6 +38,37 @@ public:
     virtual const char* errMsg() const		= 0;
     //!< Only when put returns false
     virtual int	nrWritten() const		= 0;
+};
+
+
+/*!\brief Coordinate and number for a seismic trace */
+
+class Line2DPos
+{
+public:
+
+    		Line2DPos( int n=0 ) : nr(n)		{}
+    bool	operator ==( const Line2DPos& p ) const	{ return nr == p.nr; }
+    bool	operator !=( const Line2DPos& p ) const	{ return nr != p.nr; }
+    bool	operator >( const Line2DPos& p ) const	{ return nr > p.nr; }
+
+    int		nr;
+    Coord	coord;
+
+};
+
+
+/*!\brief Full geometry of a 2D line */
+
+class Line2DGeometry
+{
+public:
+
+    			Line2DGeometry();
+
+    StepInterval<float>	zrg;
+    TypeSet<Line2DPos>	posns;
+
 };
 
 
@@ -63,6 +95,7 @@ public:
     int			indexOf(const char* linekey) const;
     void		getAvailableAttributes(BufferStringSet&) const;
 
+    bool		getGeometry(int,Line2DGeometry&) const;
     Executor*		lineFetcher(int,SeisTrcBuf&,
 	    			    const SeisSelData* sd=0) const;
     				//!< May return null
@@ -114,6 +147,8 @@ public:
     virtual bool	isUsable(const IOPar&) const		{ return true; }
 
     virtual bool	isEmpty(const IOPar&) const		= 0;
+    virtual bool	getGeometry(const IOPar&,
+	    			    Line2DGeometry&) const	= 0;
     virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,
 	    			   const SeisSelData* sd=0)	= 0;
     virtual Seis2DLinePutter* getReplacer(const IOPar&)	= 0;

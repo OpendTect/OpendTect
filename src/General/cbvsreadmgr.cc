@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.42 2004-10-20 14:45:42 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.43 2004-10-20 16:12:33 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -500,6 +500,71 @@ void CBVSReadMgr::getIsRev( bool& inl, bool& crl ) const
 const TypeSet<Coord>& CBVSReadMgr::trailerCoords() const
 {
     return readers_[curnr_]->trailerCoords();
+}
+
+
+void CBVSReadMgr::getPositions( TypeSet<BinID>& posns ) const
+{
+    posns.erase();
+    BinID bid;
+    if ( info_.geom.fullyrectandreg )
+    {
+	for ( bid.inl=info_.geom.start.inl;
+	      bid.inl!=info_.geom.stop.inl+info_.geom.step.inl;
+	      bid.inl += info_.geom.step.inl )
+	{
+	    for ( bid.crl=info_.geom.start.crl;
+		  bid.crl!=info_.geom.stop.crl+info_.geom.step.crl;
+		  bid.crl += info_.geom.step.crl )
+		posns += bid;
+	}
+    }
+    else
+    {
+	for ( int iinl=0; iinl<info_.geom.inldata.size(); iinl++ )
+	{
+	    const CBVSInfo::SurvGeom::InlineInfo inlinf
+				= *info_.geom.inldata[iinl];
+	    bid.inl = inlinf.inl;
+	    for ( int iseg=0; iseg<inlinf.segments.size(); iseg++ )
+	    {
+		const StepInterval<int>& seg = inlinf.segments[iseg];
+		for ( bid.crl=seg.start; bid.crl<=seg.stop; bid.crl+=seg.step )
+		    posns += bid;
+	    }
+	}
+    }
+}
+
+
+void CBVSReadMgr::getPositions( TypeSet<Coord>& posns ) const
+{
+    posns.erase();
+    CBVSIO::CoordPol cp = readers_[0]->coordPol();
+    if ( cp == CBVSIO::InTrailer )
+    {
+	posns.append( readers_[0]->trailerCoords() );
+	if ( !vertical_ && readers_.size() > 1 )
+	{
+	    for ( int idx=1; idx<readers_.size(); idx++ )
+		posns.append( readers_[idx]->trailerCoords() );
+	}
+    }
+    else if ( cp == CBVSIO::NotStored )
+    {
+	TypeSet<BinID> bids; getPositions( bids );
+	for ( int idx=0; idx<bids.size(); idx++ )
+	    posns += SI().transform( bids[idx] );
+    }
+    else
+    {
+	CBVSReadMgr* ncthis = const_cast<CBVSReadMgr*>( this );
+	ncthis->toStart(); PosAuxInfo pai;
+	ncthis->getAuxInfo( pai ); posns += pai.coord;
+	while ( ncthis->toNext() )
+	    { ncthis->getAuxInfo( pai ); posns += pai.coord; }
+	ncthis->toStart();
+    }
 }
 
 

@@ -4,10 +4,11 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.20 2004-10-20 14:45:42 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.21 2004-10-20 16:12:33 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
+#include "cbvsreadmgr.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
 #include "seisbuf.h"
@@ -236,6 +237,41 @@ int			totalNr() const		{ return totnr; }
 
 #undef mErrRet
 #define mErrRet(s) { errmsg = s; return 0; }
+
+
+bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
+					    Line2DGeometry& geom ) const
+{
+    geom.posns.erase();
+    BufferString fnm = getFileName(iop);
+    if ( !isUsable(iop) )
+    {
+	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
+	errmsg += "' does not exist";
+	ErrMsg(errmsg);
+	return false;
+    }
+    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm );
+    if ( !tr ) return false;
+
+    const CBVSInfo& cbvsinf = tr->readMgr()->info();
+    TypeSet<Coord> coords; TypeSet<BinID> binids;
+    tr->readMgr()->getPositions( coords );
+    tr->readMgr()->getPositions( binids );
+
+    geom.zrg.start = cbvsinf.sd.start;
+    geom.zrg.step = cbvsinf.sd.step;
+    geom.zrg.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
+    for ( int idx=0; idx<coords.size(); idx++ )
+    {
+	Line2DPos p( binids[idx].crl );
+	p.coord = coords[idx];
+	geom.posns += p;
+    }
+
+    return true;
+}
+
 
 Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 						SeisTrcBuf& tbuf,

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.22 2004-10-20 14:45:42 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.23 2004-10-20 16:12:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,7 @@ private:
     friend class	CBVSReadMgr;
     void		setCurBinID( const BinID& b )
 			{ curbinid_ = b; }
+    CoordPol		coordPol() const	{ return coordpol_; }
 
 };
 

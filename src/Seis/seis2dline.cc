@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.29 2004-10-11 14:49:57 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.30 2004-10-20 16:12:33 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -90,6 +90,11 @@ bool TwoDSeisTrcTranslator::initRead_()
 
 
 //------
+
+Line2DGeometry::Line2DGeometry()
+{
+    zrg = SI().sampling().zrg;
+}
 
 
 Seis2DLineSet::~Seis2DLineSet()
@@ -275,6 +280,24 @@ void Seis2DLineSet::removeLock() const
 {
     mMkLockNm(lockfnm);
     File_remove( lockfnm.buf(), 0 );
+}
+
+
+bool Seis2DLineSet::getGeometry( int ipar, Line2DGeometry& geom ) const
+{
+    if ( !liop_ )
+    {
+	ErrMsg("No suitable 2D line information object found");
+	return 0;
+    }
+
+    if ( ipar < 0 || ipar >= pars_.size() )
+    {
+	ErrMsg("Line number requested not found in Line Set");
+	return 0;
+    }
+
+    return liop_->getGeometry( *pars_[ipar], geom );
 }
 
 

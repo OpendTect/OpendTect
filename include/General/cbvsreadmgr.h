@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.17 2004-10-20 14:45:42 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.18 2004-10-20 16:12:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,9 @@ public:
 
     void		dumpInfo(std::ostream&,bool include_compinfo) const;
     const TypeSet<Coord>& trailerCoords() const;
+    void		getPositions(TypeSet<BinID>&) const;
+    void		getPositions(TypeSet<Coord>&) const;
+    			//!< This may actually reset the position to the first
 
 protected:
 
