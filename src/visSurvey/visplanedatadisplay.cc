@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.15 2002-05-08 11:35:26 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.16 2002-05-08 15:29:04 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -222,12 +222,12 @@ float visSurvey::PlaneDataDisplay::calcDist( const Geometry::Pos& pos ) const
     }
     else if ( type==Crossline )
     {
-	inlcrldist.crl = abs(binid.crl-mNINT(planeorigo.x));
+	inlcrldist.crl = abs(binid.crl-mNINT(planeorigo.y));
 	
-	if ( binid.inl<planeorigo.y )
-	    inlcrldist.inl = mNINT(planeorigo.y-binid.inl);
-	else if ( binid.inl>planeorigo.y+width0 )
-	    inlcrldist.inl = mNINT( binid.inl-planeorigo.y-width0);
+	if ( binid.inl<planeorigo.x )
+	    inlcrldist.inl = mNINT(planeorigo.x-binid.inl);
+	else if ( binid.inl>planeorigo.x+width0 )
+	    inlcrldist.inl = mNINT( binid.inl-planeorigo.x-width0);
 
 	if ( xytpos.z<planeorigo.z)
 	    zdiff = planeorigo.z-xytpos.z;
