@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.29 2001-11-30 16:32:35 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.30 2001-12-06 14:13:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,15 +93,19 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
     bool chgd = false;
     if ( ioobj )
     {
+	PtrMan<Translator> tr = ioobj->getTranslator();
+	bool rmabl = tr ? tr->implRemovable(ioobj) : ioobj->implRemovable();
 	uiPopupMenu* mnu = new uiPopupMenu( this, "Action" );
-	uiMenuItem* rmit = new uiMenuItem( "Remove ..." );
+	BufferString mnutxt( "Remove" );
+	if ( rmabl ) mnutxt += " ...";
+	uiMenuItem* rmit = new uiMenuItem( mnutxt );
 	mnu->insertItem( rmit );
 
 	int ret = mnu->exec();
 	if ( ret != -1 )
 	{
 	    if ( ret == rmit->id() )
-		chgd = rmEntry();
+		chgd = rmEntry( tr, rmabl );
 	}
     }
     if ( !chgd ) return;
@@ -114,14 +118,11 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
 }
 
 
-bool uiIOObjSelDlg::rmEntry()
+bool uiIOObjSelDlg::rmEntry( Translator* tr, bool rmabl )
 {
-    PtrMan<Translator> tr = ioobj->getTranslator();
-    bool rmabl = tr ? tr->implRemovable(ioobj) : ioobj->implRemovable();
-
     if ( rmabl )
     {
-	FileNameString mess( "Remove '" );
+	BufferString mess( "Remove '" );
 	if ( !ioobj->isLink() )
 	    { mess += ioobj->fullUserExpr(YES); mess += "'?"; }
 	else
@@ -130,15 +131,15 @@ bool uiIOObjSelDlg::rmEntry()
 	    mess += File_getFileName(fullexpr);
 	    mess += "'\n- and everything in it! - ?";
 	}
-	if ( uiMSG().askGoOn(mess) )
+	if ( !uiMSG().askGoOn(mess) )
+	    return false;
+
+	bool rmd = tr ? tr->implRemove(ioobj) : ioobj->implRemove();
+	if ( !rmd )
 	{
-	    bool rmd = tr ? tr->implRemove(ioobj) : ioobj->implRemove();
-	    if ( !rmd )
-	    {
-		mess = "Could not remove '";
-		mess += ioobj->fullUserExpr(YES); mess += "'";
-		uiMSG().warning( mess );
-	    }
+	    mess = "Could not remove '";
+	    mess += ioobj->fullUserExpr(YES); mess += "'";
+	    uiMSG().warning( mess );
 	}
     }
 

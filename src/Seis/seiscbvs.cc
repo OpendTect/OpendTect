@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.13 2001-10-18 23:29:45 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.14 2001-12-06 14:13:45 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -13,12 +13,13 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.13 2001-10-18 23:29:45 bert Exp
 #include "seistrcsel.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "iopar.h"
 #include "binidselimpl.h"
 #include "uidset.h"
 #include "survinfo.h"
 #include "strmprov.h"
+#include "filegen.h"
 
 
 UserIDSet CBVSSeisTrcTranslator::datatypeparspec(
@@ -494,4 +495,25 @@ void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
     const char* res = (*iopar)[ (const char*)datatypeparspec.name() ];
     if ( *res )
 	preseldatatype = (DataCharacteristics::UserType)(*res-'0');
+}
+
+
+int CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+{
+    if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return NO;
+    mDynamicCastGet(const IOStream*,iostrm,ioobj)
+    if ( !iostrm ) return NO;
+
+    BufferString pathnm = iostrm->dirName();
+    BufferString basenm = iostrm->fileName();
+
+    for ( int nr=0; ; nr++ )
+    {
+	StreamProvider sp( CBVSIOMgr::getFileName( basenm, nr ) );
+	sp.addPathIfNecessary( pathnm );
+	if ( !sp.exists(YES) )
+	    return YES;
+	if ( !sp.remove() )
+	    return nr ? YES : NO;
+    }
 }
