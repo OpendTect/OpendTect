@@ -7,20 +7,22 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.29 2004-09-03 09:11:31 bert Exp $
+ RCS:		$Id: iopar.h,v 1.30 2004-10-01 12:37:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "uidobj.h"
 #include "sets.h"
-class Coord;
+
 class BinID;
+class BufferString;
+class BufferStringSet;
+class Coord;
+class Coord3;
 class MultiID;
 class ascistream;
 class ascostream;
-class BufferString;
-class BufferStringSet;
 
 /*\brief generalised set of parameters of the keyword-value type.
 
@@ -141,6 +143,7 @@ public:
 			{ bool b = false; return getYN(key,b,c) && b; }
     bool		get(const char*,BinID&) const;
     bool		get(const char*,Coord&) const;
+    bool		get(const char*,Coord3&) const;
     bool		get(const char*,MultiID&) const;
     bool		get(const char*,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&) const;
@@ -166,6 +169,7 @@ public:
 
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);
+    void		set(const char*,const Coord3&);
     void		set(const char*,const MultiID&);
     void		set(const char*,const BufferString&);
     void		set(const char*,const BufferString&,

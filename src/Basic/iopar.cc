@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.42 2004-09-16 16:13:37 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.43 2004-10-01 12:37:55 nanne Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -712,10 +712,16 @@ void IOPar::setYN( const char* keyw, bool i )
 }
 
 
-bool IOPar::get( const char* s, Coord& coord ) const
-{ return get( s, coord.x, coord.y ); }
-void IOPar::set( const char* s, const Coord& coord )
-{ set( s, coord.x, coord.y ); }
+bool IOPar::get( const char* s, Coord& crd ) const
+{ return get( s, crd.x, crd.y ); }
+void IOPar::set( const char* s, const Coord& crd )
+{ set( s, crd.x, crd.y ); }
+
+bool IOPar::get( const char* s, Coord3& crd ) const
+{ return get( s, crd.x, crd.y, crd.z ); }
+void IOPar::set( const char* s, const Coord3& crd )
+{ set( s, crd.x, crd.y, crd.z ); }
+
 bool IOPar::get( const char* s, BinID& binid ) const
 { return get( s, binid.inl, binid.crl ); }
 void IOPar::set( const char* s, const BinID& binid )
