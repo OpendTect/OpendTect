@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.5 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.6 2004-11-15 15:48:46 bert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -62,7 +62,7 @@ UnitOfMeasureRepository::UnitOfMeasureRepository()
     mAdd( "Feet/second ", "ft/s", 0.3048, Vel );
     mAdd( "Km/second ", "km/s", 1000, Vel );
     mAdd( "Seconds/meter", "s/m", 1, Son );
-    mAdd( "Microseconds/feet", "us/ft", 3.28084e-6, Son );
+    mAdd( "Microseconds/foot", "us/ft", 3.28084e-6, Son );
     mAdd( "Microseconds/meter", "us/m", 1e-6, Son );
     mAdd( "Kg/m2s", "kg/m2s", 1, AI );
     mAdd( "Kg/m2us", "kg/m2us", 1000000, AI );
@@ -132,7 +132,7 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
     else if ( caseInsensitiveEqual(nm,"F/S",0)
 	   || caseInsensitiveEqual(nm,"FEET/S",0) )
 	return "ft/s";
-    else if ( matchStringCI("USEC/F",nm) )
+    else if ( matchStringCI("USEC/F",nm) || matchStringCI("us/f",nm) )
 	return "us/ft";
     else if ( matchStringCI("USEC/M",nm) )
 	return "us/m";

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.31 2004-07-19 11:30:10 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.32 2004-11-15 15:48:46 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -64,7 +64,7 @@ SEGYSeisTrcTranslator::~SEGYSeisTrcTranslator()
 
 int SEGYSeisTrcTranslator::dataBytes() const
 {
-    return SegyBinHeader::formatBytes( numbfmt );
+    return SegyBinHeader::formatBytes( numbfmt > 0 ? numbfmt : 1 );
 }
 
 
@@ -86,10 +86,12 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	errmsg = "SEG-Y format 4 (fixed point with gain code) not supported";
 	return false;
     }
-    else if ( binhead.format > 0 && binhead.format < 7 )
+    else if ( !numbfmt && binhead.format > 0 && binhead.format < 7 )
+    {
 	numbfmt = binhead.format;
-    if ( numbfmt < 1 || numbfmt > 6 )
-	numbfmt = 1;
+	if ( numbfmt < 1 || numbfmt > 6 )
+	    numbfmt = 0;
+    }
 
     txthead.getText( pinfo->usrinfo );
     pinfo->nr = binhead.lino;
@@ -147,7 +149,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     addComp( getDataChar(numbfmt)  );
     DataCharacteristics& dc = tarcds[0]->datachar;
     dc.fmt = DataCharacteristics::Ieee;
-    const float scfac = trhead.postScale( numbfmt );
+    const float scfac = trhead.postScale( numbfmt ? numbfmt : 1 );
     if ( !mIsEqual(scfac,1,mDefEps)
       || (dc.isInteger() && dc.nrBytes() == BinDataDesc::N4) )
 	dc = DataCharacteristics();
@@ -188,7 +190,7 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	fillOffsAzim( ti, trhead.getCoord(true,ext_coord_scaling),
 			  trhead.getCoord(false,ext_coord_scaling) );
     if ( use_lino ) ti.binid.inl = pinfo->nr;
-    float scfac = trhead.postScale( numbfmt );
+    float scfac = trhead.postScale( numbfmt ? numbfmt : 1 );
     if ( mIsEqual(scfac,1,mDefEps) )
 	curtrcscale = 0;
     else
@@ -207,7 +209,8 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 
 bool SEGYSeisTrcTranslator::writeTapeHeader()
 {
-    numbfmt = nrFormatFor( storinterp->dataChar() );
+    if ( !numbfmt )
+	numbfmt = nrFormatFor( storinterp->dataChar() );
 
     SegyTxtHeader txthead;
     txthead.setUserInfo( pinfo->usrinfo );
@@ -261,7 +264,8 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
 
 void SEGYSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
 {
-    dc = getDataChar( nrFormatFor(dc) );
+    if ( !dc.isIeee() )
+	dc = getDataChar( nrFormatFor(dc) );
 }
 
 
