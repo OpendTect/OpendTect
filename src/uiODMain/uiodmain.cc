@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.19 2004-05-17 13:56:37 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.20 2004-08-04 07:34:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uinlapartserv.h"
 #include "uiattribpartserv.h"
+#include "uitrackingpartserv.h"
 #include "uidockwin.h"
 #include "uisurvey.h"
 #include "uicursor.h"
@@ -226,6 +227,7 @@ bool uiODMain::updateSession()
     if ( applMgr().nlaServer()
       && !applMgr().nlaServer()->fillPar( cursession->nlapars() ) ) 
 	return false;
+    applMgr().trackServer()->fillPar( cursession->trackpars() );
 
     sessionSave.trigger();
     return true;
@@ -241,6 +243,7 @@ void uiODMain::doRestoreSession()
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession->nlapars() );
     applMgr().attrServer()->usePar( cursession->attrpars() );
+    applMgr().trackServer()->usePar( cursession->trackpars() );
     bool visok = applMgr().visServer()->usePar( cursession->vispars() );
 
     if ( visok )
