@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.22 2001-07-12 15:24:06 nanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.23 2001-07-17 09:42:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -456,7 +456,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
     , step( 0 )
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&spec)
-    if (!spc) { pErrMsg("huh"); return; }
+    if (!spc) { pErrMsg("Huh"); return; }
 
     if ( spc->hasLimits() ) 
     { 
@@ -468,9 +468,9 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
 
     start.setText( spec.text(0) );
     stop.setText( spec.text(1) );
-    if ( spc-> hasStep() )
+    if ( spc->hasStep() )
     {
-	step = new uiLineEdit(&intvalGrp,0,nm);
+	step = new uiLineEdit(&intvalGrp,"Step",nm);
 	step->textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
 	step->setText( spec.text(2) );
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.14 2001-07-12 15:24:31 nanne Exp $
+ RCS:           $Id: uigeninput.h,v 1.15 2001-07-17 09:42:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,15 @@ Returns true, if changes are accepted.
 			{ return Interval<float>(getfValue(0),getfValue(1)); }
     inline Interval<double> getDInterval() const
 			{ return Interval<double>(getValue(0),getValue(1)); }
+    inline Interval<int> getIStepInterval() const
+			{ return StepInterval<int>(getIntValue(0),
+					getIntValue(1),getIntValue(2)); }
+    inline Interval<float> getFStepInterval() const
+			{ return StepInterval<float>(getfValue(0),getfValue(1),
+						     getfValue(2)); }
+    inline Interval<double> getDStepInterval() const
+			{ return StepInterval<double>(getValue(0),getValue(1),
+						      getValue(2)); }
     inline Coord	getCoord() const
 			{ return Coord(getValue(0),getValue(1)); }
     inline BinID	getBinID() const
@@ -140,6 +149,15 @@ Returns true, if changes are accepted.
 			{ setValue(i.start,0); setValue(i.stop,1); }
     inline void		setValue( const Interval<double>& i )
 			{ setValue(i.start,0); setValue(i.stop,1); }
+    inline void		setValue( const StepInterval<int>& i )
+			{ setValue(i.start,0); setValue(i.stop,1);
+			  setValue(i.step,2); }
+    inline void		setValue( const StepInterval<float>& i )
+			{ setValue(i.start,0); setValue(i.stop,1);
+			  setValue(i.step,2); }
+    inline void		setValue( const StepInterval<double>& i )
+			{ setValue(i.start,0); setValue(i.stop,1);
+			  setValue(i.step,2); }
 
     void		setReadOnly( bool yn=true, int nr=-1 );
     void		setFldsSensible( bool yn=true, int nr=-1 );
