@@ -6,14 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.2 2003-12-24 15:15:42 bert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.3 2003-12-25 19:42:23 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "gendefs.h"
+#include "uiodmain.h"
 class uiGroup;
-class uiODMain;
+class PickSet;
 class uiDockWin;
 class uiSoViewer;
 class uiListView;
@@ -36,7 +36,7 @@ public:
     void		removeScene(CallBacker*);
 
     void		getScenePars(IOPar&);
-    void		mkScenesFrom(ODSession*);
+    void		useScenePars(const IOPar&);
 
     void		viewModeChg();
     void		setToViewMode();
@@ -67,7 +67,6 @@ public:
 
     void		getSoViewers(ObjectSet<uiSoViewer>&);
 
-    void		initTree(uiSceneGroup*,int);
     void		updateTrees();
     void		rebuildTrees();
     void		setItemInfo(int);
@@ -105,6 +104,9 @@ protected:
 
     inline uiODApplMgr& applMgr()	{ return appl.applMgr(); }
     inline uiODMenuMgr&	menuMgr()	{ return appl.menuMgr(); }
+
+    Scene&		mkNewScene();
+    void		initTree(const Scene&,int);
 
 };
 

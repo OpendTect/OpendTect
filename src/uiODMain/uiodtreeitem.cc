@@ -8,19 +8,20 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.1 2003-12-20 13:24:05 bert Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.2 2003-12-25 19:42:23 bert Exp $";
 
 
 #include "uiodtreeitemimpl.h"
-#include "uimenu.h"
 #include "errh.h"
 #include "ptrman.h"
+#include "uimenu.h"
+#include "pickset.h"
 #include "uilistview.h"
 #include "uisoviewer.h"
 #include "uiodapplmgr.h"
-#include "uivispartserv.h"
-#include "pickset.h"
+#include "uiodscenemgr.h"
 #include "uiempartserv.h"
+#include "uivispartserv.h"
 #include "uiwellpartserv.h"
 
 
@@ -29,15 +30,15 @@ const char* uiODTreeTop::viewerptr = "Viewer";
 const char* uiODTreeTop::applmgrstr = "Applmgr";
 const char* uiODTreeTop::scenestr = "Scene";
 
-uiODTreeTop::uiODTreeTop( uiViewerGroup* viewgroup_, uiODApplMgr* uip,
+uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiODApplMgr* uip,
 			    uiTreeFactorySet* tfs_ )
-    : uiTreeTopItem( viewgroup_->lv )
+    : uiTreeTopItem( sc->lv )
     , tfs( tfs_ )
 {
-    setProperty<int>( sceneidkey, viewgroup_->sovwr->sceneId() );
-    setPropertyPtr<uiSoViewer*>( viewerptr, viewgroup_->sovwr );
+    setProperty<int>( sceneidkey, sovwr->sceneId() );
+    setPropertyPtr<uiSoViewer*>( viewerptr, sovwr );
     setPropertyPtr<uiODApplMgr*>( applmgrstr, uip );
-    setPropertyPtr<uiViewerGroup*>( scenestr, viewgroup_ );
+    // setPropertyPtr<uiODSceneMgr::Scene*>( scenestr, sc );
 
     tfs->addnotifier.notify( mCB(this,uiODTreeTop, addFactoryCB) );
     tfs->removenotifier.notify( mCB(this,uiODTreeTop, removeFactoryCB) );
@@ -141,11 +142,11 @@ void uiODTreeTop::removeFactoryCB(CallBacker* cb)
 
 
 #define mMultiIDDisplayConstructor( type ) \
-uiOD##type##TreeItem::type##TreeItem( const MultiID& mid_ ) \
+uiOD##type##TreeItem::uiOD##type##TreeItem( const MultiID& mid_ ) \
     : uiODMultiIDTreeItem( mid_ ) \
 {} \
 \
-uiOD##type##TreeItem::type##TreeItem( int id ) \
+uiOD##type##TreeItem::uiOD##type##TreeItem( int id ) \
     : uiODMultiIDTreeItem( 0 )\
 { displayid=id; }
 
@@ -232,7 +233,8 @@ bool uiODDisplayTreeItem::factory( uiTreeItem* treeitem, uiODApplMgr* applmgr,
 uiODDisplayTreeItem::uiODDisplayTreeItem( )
     : uiODTreeItem( 0 )
     , displayid( -1 )
-{}
+{
+}
 
 
 int uiODDisplayTreeItem::selectionKey() const { return displayid; }

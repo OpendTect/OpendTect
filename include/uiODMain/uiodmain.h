@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.2 2003-12-24 15:15:42 bert Exp $
+ RCS:           $Id: uiodmain.h,v 1.3 2003-12-25 19:42:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 class IOPar;
 class uicMain;
 class uiODMain;
+class ODSession;
 class uiODApplMgr;
 class uiODMenuMgr;
 class uiODSceneMgr;

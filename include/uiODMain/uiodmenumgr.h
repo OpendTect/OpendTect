@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.2 2003-12-24 15:15:42 bert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.3 2003-12-25 19:42:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiodmain.h"
 class Timer;
 class uiToolBar;
+class uiMenuItem;
 class uiPopupMenu;
 
 
@@ -52,7 +53,7 @@ public:
 protected:
 
     uiODMain&		appl;
-    uiODApplMan&	applmgr;
+    uiODApplMgr&	applmgr;
     Timer&		timer;
 
     uiPopupMenu*	filemnu;
@@ -90,7 +91,7 @@ protected:
     int			axisid, actid, viewid;
 
     inline uiODApplMgr&	applMgr()	{ return appl.applMgr(); }
-    inline uiODApplMgr&	sceneMgr()	{ return appl.sceneMgr(); }
+    inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }
 };
 
 

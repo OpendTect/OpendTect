@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.2 2003-12-24 15:15:50 bert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.3 2003-12-25 19:42:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,35 +94,40 @@ void uiODSceneMgr::cleanUp( bool startnew )
 }
 
 
+Scene& uiODSceneMgr::mkNewScene()
+{
+    Scene& scn = *new Scene( wsp );
+    scn.group()->mainObject()->closed.notify( mWSMCB(removeScene) );
+    scenes += &scn;
+    vwridx++;
+}
+
+
 void uiODSceneMgr::addScene()
 {
-    uiSceneGroup* scene = new uiSceneGroup( wsp );
-    scene->group()->mainObject()->closed.notify( mWSMCB(removeScene) );
-    scenes += scene;
-    vwridx++;
-
+    Scene& scn = mkNewScene();
     int sceneid = visserv->addScene();
-    scene->sovwr->setSceneGraph( sceneid );
+    scn.sovwr->setSceneGraph( sceneid );
     BufferString title( scenestr );
     title += vwridx;
-    scene->sovwr->setTitle( title );
+    scn.sovwr->setTitle( title );
     visserv->setObjectName( sceneid, title );
-    scene->sovwr->display();
-    scene->sovwr->viewAll();
-    scene->sovwr->saveHomePos();
-    scene->sovwr->viewmodechanged.notify( mWSMCB(viewModeChg) );
-    scene->group()->display( true, false, true );
+    scn.sovwr->display();
+    scn.sovwr->viewAll();
+    scn.sovwr->saveHomePos();
+    scn.sovwr->viewmodechanged.notify( mWSMCB(viewModeChg) );
+    scn.group()->display( true, false, true );
     actMode(0);
-    appl.posCtrlMgr()->setZoomValue( scene->sovwr->getCameraZoom() );
+    appl.posCtrlMgr()->setZoomValue( scn.sovwr->getCameraZoom() );
     initTree( scene, vwridx );
 
     if ( scenes.size() > 1 && scenes[0] )
     {
-	scene->sovwr->setStereoViewing(
+	scn.sovwr->setStereoViewing(
 		scenes[0]->sovwr->isStereoViewing() );
-	scene->sovwr->setStereoOffset(
+	scn.sovwr->setStereoOffset(
 		scenes[0]->sovwr->getStereoOffset() );
-	scene->sovwr->setQuadBufferStereo( 
+	scn.sovwr->setQuadBufferStereo( 
 		scenes[0]->sovwr->isQuadBufferStereo() );
 	
     }
@@ -167,36 +172,30 @@ void uiODSceneMgr::getScenePars( IOPar& iopar )
 }
 
 
-void uiODSceneMgr::mkScenesFrom( ODSession* session )
+void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 {
-    if ( !session ) return;
-
     for ( int idx=0; ; idx++ )
     {
 	BufferString key = idx;
-	PtrMan<IOPar> scenepar = session->scenepars().subselect( key );
+	PtrMan<IOPar> scenepar = sessionpar.subselect( key );
 	if ( !scenepar || !scenepar->size() )
 	{
 	    if ( !idx ) continue;
 	    break;
 	}
 
-	uiSceneGroup* scene = new uiSceneGroup( wsp );
-	scene->group()->mainObject()->closed.notify( mWSMCB(removeScene) );
-	scenes += scene;
-	vwridx++;
-
-  	if ( !scene->sovwr->usePar( *scenepar ) )
+	Scene& scn = mkNewScene();
+  	if ( !scn.sovwr->usePar( *scenepar ) )
 	    return false;
     
-	int sceneid = scene->sovwr->sceneId();
+	int sceneid = scn.sovwr->sceneId();
 	BufferString title( scenestr );
 	title += vwridx;
-  	scene->sovwr->setTitle( title );
-	scene->sovwr->display();
-	scene->group()->display( true, false );
-	setZoomValue( scene->sovwr->getCameraZoom() );
-	initTree( scene, vwridx );
+  	scn.sovwr->setTitle( title );
+	scn.sovwr->display();
+	scn.group()->display( true, false );
+	setZoomValue( scn.sovwr->getCameraZoom() );
+	initTree( scn, vwridx );
     }
 
     rebuildTrees();
@@ -382,44 +381,44 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 }
 
 
-void uiODSceneMgr::initTree( uiSceneGroup* sg, int vwridx )
+void uiODSceneMgr::initTree( const Scene& scn, int vwridx )
 {
     BufferString capt( "Tree scene " ); capt += vwridx;
-    sg->treewin = new uiDockWin( &appl, capt );
-    moveDockWindow( *sg->treewin, uiMainWin::Left );
-    sg->treewin->setResizeEnabled( true );
+    scn.treewin = new uiDockWin( &appl, capt );
+    moveDockWindow( *scn.treewin, uiMainWin::Left );
+    scn.treewin->setResizeEnabled( true );
 
-    sg->lv = new uiListView( sg->treewin, "d-Tect Tree" );
-    sg->lv->addColumn( "Elements" );
-    sg->lv->addColumn( "Position" );
-    sg->lv->setColumnWidthMode( 0, uiListView::Manual );
-    sg->lv->setColumnWidth( 0, 90 );
-    sg->lv->setColumnWidthMode( 1, uiListView::Manual );
-    sg->lv->setColumnWidthMode( 1, uiListView::Manual);
-    sg->lv->setPrefWidth( 150 );
-    sg->lv->setStretch( 2, 2 );
+    scn.lv = new uiListView( scn.treewin, "d-Tect Tree" );
+    scn.lv->addColumn( "Elements" );
+    scn.lv->addColumn( "Position" );
+    scn.lv->setColumnWidthMode( 0, uiListView::Manual );
+    scn.lv->setColumnWidth( 0, 90 );
+    scn.lv->setColumnWidthMode( 1, uiListView::Manual );
+    scn.lv->setColumnWidthMode( 1, uiListView::Manual);
+    scn.lv->setPrefWidth( 150 );
+    scn.lv->setStretch( 2, 2 );
 
-    sg->itemmanager = new uiODTreeTop( sg, this, tifs );
+    scn.itemmanager = new uiODTreeTop( &scn, this, tifs );
 
     for ( int idx=0; idx<tifs->nrFactories(); idx++ )
-	sg->itemmanager->addChild( tifs->getFactory(idx)->create() );
+	scn.itemmanager->addChild( tifs->getFactory(idx)->create() );
 
 #ifdef __debug__
-    sg->itemmanager->addChild( new FaultStickFactoryTreeItem );
-    sg->itemmanager->addChild( new FaultFactoryTreeItem );
+    scn.itemmanager->addChild( new FaultStickFactoryTreeItem );
+    scn.itemmanager->addChild( new FaultFactoryTreeItem );
 #endif
-    sg->itemmanager->addChild( new WellFactoryTreeItem );
-    sg->itemmanager->addChild( new HorizonFactoryTreeItem );
-    sg->itemmanager->addChild( new PickSetFactoryTreeItem );
-    sg->itemmanager->addChild( new RandomLineFactoryTreeItem );
-    sg->itemmanager->addChild( new VolumeFactoryTreeItem );
-    sg->itemmanager->addChild( new TimesliceFactoryTreeItem );
-    sg->itemmanager->addChild( new CrosslineFactoryTreeItem );
-    sg->itemmanager->addChild( new InlineFactoryTreeItem );
-    sg->itemmanager->addChild( new SceneTreeItem(sg->sovwr->getTitle(),
-						 sg->sovwr->sceneId() ) );
-    sg->lv->display();
-    sg->treewin->display();
+    scn.itemmanager->addChild( new WellFactoryTreeItem );
+    scn.itemmanager->addChild( new HorizonFactoryTreeItem );
+    scn.itemmanager->addChild( new PickSetFactoryTreeItem );
+    scn.itemmanager->addChild( new RandomLineFactoryTreeItem );
+    scn.itemmanager->addChild( new VolumeFactoryTreeItem );
+    scn.itemmanager->addChild( new TimesliceFactoryTreeItem );
+    scn.itemmanager->addChild( new CrosslineFactoryTreeItem );
+    scn.itemmanager->addChild( new InlineFactoryTreeItem );
+    scn.itemmanager->addChild( new SceneTreeItem(scn.sovwr->getTitle(),
+						 scn.sovwr->sceneId() ) );
+    scn.lv->display();
+    scn.treewin->display();
 }
 
 
