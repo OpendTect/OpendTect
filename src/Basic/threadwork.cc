@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.1 2002-04-15 12:08:30 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.2 2002-04-17 10:12:34 kristofer Exp $";
 
 #include "threadwork.h"
 #include "thread.h"
@@ -102,7 +102,7 @@ void Threads::WorkThread::threadFunc()
 	    status = Running;
 	    exitcond.unlock();
 
-	    retval = task->run( *this );
+	    retval = task->run( this );
 
 	    exitcond.lock();
 	    status = Finished;
@@ -118,6 +118,8 @@ void Threads::WorkThread::threadFunc()
 Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
     : workloadcond( *new ConditionVar )
 {
+    if ( !Threads::isThreadsImplemented() ) return;
+
     for ( int idx=0; idx<nrthreads; idx++ )
 	threads += new WorkThread( *this );
 }
@@ -133,9 +135,17 @@ Threads::ThreadWorkManager::~ThreadWorkManager()
 
 void Threads::ThreadWorkManager::addWork( ThreadTask* newtask )
 {
+    const int nrthreads = threads.size();
+    if ( !nrthreads )
+    {
+	newtask->run( 0 );
+	delete newtask;
+	return;
+    }
+
     Threads::MutexLocker lock(workloadcond);
 
-    for ( int idx=0; idx<threads.size(); idx++ )
+    for ( int idx=0; idx<nrthreads; idx++ )
     {
 	if ( threads[idx]->getStatus()== WorkThread::Idle )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.1 2002-04-15 12:08:50 kristofer Exp $
+ RCS:		$Id: threadwork.h,v 1.2 2002-04-17 10:12:26 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ class ThreadTask
 {
 public:
     virtual		~ThreadTask();
-    virtual int		run( WorkThread& ) = 0;
+    virtual int		run( WorkThread* ) = 0;
 };
 
 
