@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.12 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.13 2001-08-29 15:08:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -574,7 +574,9 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, int border, int space,
 			    : QLayout( parnt, border, space, name)
 			    , UserIDObject( name )
 			    , curmode( preferred )
-
+			    , prevGeometry()
+			    , minimumDone( false )
+			    , preferredDone( false )
 {}
 
 #endif
@@ -605,7 +607,11 @@ void i_LayoutMngr::addItem( QLayoutItem *qItem )
 QSize i_LayoutMngr::minimumSize() const
 {
     setMode( minimum ); 
-    doLayout( QRect() );
+    if ( !minimumDone ) 
+    { 
+	doLayout( QRect() ); 
+	const_cast<i_LayoutMngr*>(this)->minimumDone=true; 
+    }
     uiRect mPos = pos();
     return QSize( mPos.width(), mPos.height() );
 }
@@ -613,7 +619,11 @@ QSize i_LayoutMngr::minimumSize() const
 QSize i_LayoutMngr::sizeHint() const
 {
     setMode( preferred ); 
-    doLayout( QRect() );
+    if ( !preferredDone )
+    { 
+	doLayout( QRect() ); 
+	const_cast<i_LayoutMngr*>(this)->preferredDone=true; 
+    }
     uiRect mPos = pos();
     return QSize( mPos.width(), mPos.height() );
 }
@@ -677,6 +687,9 @@ void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
+    if( extRect == prevGeometry ) return;
+    prevGeometry = extRect;
+
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.10 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: i_layout.h,v 1.11 2001-08-29 15:08:10 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 #include <qlayout.h>
 #include <qlist.h>
+#include <qrect.h>
 
 //!  internal enum used to determine in which direction a widget can be stretched and to check which outer limit must be checked
 enum stretchLimitTp { left=1, right=2, above=4, below=8, 
@@ -150,6 +151,10 @@ private:
     layoutMode		curmode;
     static int		mintxtwidgethgt;
 
+    QRect		prevGeometry;
+    bool		minimumDone;
+    bool		preferredDone;
+
 };
 
-#endif
+#endif 
