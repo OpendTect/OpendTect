@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.7 2002-11-08 14:38:04 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.8 2002-11-08 16:37:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,10 +45,8 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     selection()->notify( mCB(this,VolumeDisplay,select));
     deSelection()->notify( mCB(this,VolumeDisplay,deSelect));
 
-    /*
-    cube->slice->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
-    cube->slice->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
-    */
+    cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
+    cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
 
     prevcs.hrg.start.inl = (5*SI().range().start.inl+3*SI().range().stop.inl)/8;
     prevcs.hrg.start.crl = (5*SI().range().start.crl+3*SI().range().stop.crl)/8;
@@ -214,7 +212,14 @@ void visSurvey::VolumeDisplay::deSelect()
     selected_ = false;
 
     
-    if ( manipulated ) updateAtNewPos();
+    if ( manipulated )
+    {
+	Coord3 boxw = cube->draggerWidth();
+	Coord3 boxc = cube->draggerCenter();
+	cube->setWidth( boxw );
+	cube->setCenter( boxc );
+	updateAtNewPos();
+    }
 }
 
 
