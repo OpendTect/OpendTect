@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.11 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: seisread.h,v 1.12 2004-08-25 12:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seisstor.h"
+class Executor;
 class BinIDRange;
+class SeisTrcBuf;
 
 
 /*!\brief reads from a seismic data store.
@@ -57,6 +59,8 @@ public:
     void		fillPar(IOPar&) const;
 
     bool		isPrepared() const		{ return prepared; }
+    int			curLineNumber() const		{ return curlinenr; }
+    							//!< 2D only
 
 protected:
 
@@ -64,8 +68,13 @@ protected:
     bool		new_packet, needskip;
     bool		forcefloats;
     bool		prepared;
+    bool		inforead;
     int			prev_inl;
+    int			curlinenr;
     BinIDRange*		outer;
+    SeisTrcBuf*		tbuf;
+    Executor*		fetcher;
+    BufferString	linename;
 
     void		init();
     Conn*		openFirst();
@@ -77,6 +86,11 @@ protected:
     bool		binidInConn(int) const;
     bool		isMultiConn() const;
     void		startWork();
+
+    bool		get2D(SeisTrcInfo&);
+    bool		get2D(SeisTrc&);
+    bool		mkNextFetcher();
+    bool		readNext2D();
 
 };
 

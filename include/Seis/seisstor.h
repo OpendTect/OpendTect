@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.9 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: seisstor.h,v 1.10 2004-08-25 12:27:06 bert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -18,7 +18,9 @@ Trace storage objects handle seismic data storage.
 #include "seisinfo.h"
 class Conn;
 class IOObj;
+class SeisTrcBuf;
 class SeisSelData;
+class Seis2DLineGroup;
 class SeisTrcTranslator;
 
 
@@ -31,15 +33,9 @@ public:
     virtual		~SeisStoreAccess();
     void		close();
 
-    Conn*		curConn();
-    const Conn*		curConn() const;
-
+    bool		is2D() const		{ return is2d; }
     const char*		errMsg() const
 			{ return errmsg; }
-    SeisTrcTranslator*	translator()
-			{ return trl; }
-    const SeisTrcTranslator* translator() const
-			{ return trl; }
     int			tracesHandled() const
 			{ return nrtrcs; }
 
@@ -62,6 +58,20 @@ public:
 
     static const char*	sNrTrcs;
 
+
+    // 3D only
+    Conn*		curConn();
+    const Conn*		curConn() const;
+    SeisTrcTranslator*	translator()
+			{ return trl; }
+    const SeisTrcTranslator* translator() const
+			{ return trl; }
+    // 2D only
+    Seis2DLineGroup*	lineGroup()
+			{ return lgrp; }
+    const Seis2DLineGroup* lineGroup() const
+			{ return lgrp; }
+
 protected:
 
 			SeisStoreAccess(const IOObj*);
@@ -69,9 +79,11 @@ protected:
     void		cleanUp(bool alsoioobj=true);
 
     IOObj*		ioobj;
+    bool		is2d;
     int			nrtrcs;
     int			selcomp;
     SeisTrcTranslator*	trl;
+    Seis2DLineGroup*	lgrp;
     SeisSelData*	seldata;
     BufferString	errmsg;
 

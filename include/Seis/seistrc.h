@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.21 2004-07-02 15:30:54 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.22 2004-08-25 12:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,9 @@ public:
 			  return data_.allOk(); }
     SampleGate		sampleGate(const Interval<float>&,bool check,
 				   int icomp) const;
+    void		copyDataFrom(const SeisTrc&,int icomp=-1,
+	    			     bool forcefloats=false);
+			//!< icomp -1 (default) is all components
 
     //! If !err, errors are handled trough the socket. withinfo : send info too.
     bool		putTo(Socket&,bool withinfo, BufferString* err=0) const;

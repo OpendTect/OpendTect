@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.5 2004-08-23 16:12:39 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.6 2004-08-25 12:27:06 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -138,6 +138,15 @@ const char* Seis2DLineGroup::attribute( int idx ) const
     if ( idx < pars_.size() )
 	res = pars_[idx]->find( sKeyAttrib );
     return res ? res : sKeyDefAttrib;
+}
+
+
+BufferString Seis2DLineGroup::lineKey( int idx ) const
+{
+    BufferString ret( lineName(idx) );
+    ret += "|";
+    ret += attribute( idx );
+    return ret;
 }
 
 

@@ -5,10 +5,12 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.29 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.30 2004-08-25 12:27:06 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
+#include "seis2dline.h"
+#include "seisbuf.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
 #include "executor.h"
@@ -16,6 +18,7 @@ static const char* rcsID = "$Id: seisread.cc,v 1.29 2004-07-29 16:52:30 bert Exp
 #include "streamconn.h"
 #include "survinfo.h"
 #include "binidselimpl.h"
+#include "errh.h"
 
 
 #define mUndefPtr(clss) ((clss*)0xdeadbeef) // Like on AIX. Nothing special.
@@ -24,6 +27,8 @@ static const char* rcsID = "$Id: seisread.cc,v 1.29 2004-07-29 16:52:30 bert Exp
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
     	, outer(mUndefPtr(BinIDRange))
+    	, fetcher(0)
+    	, tbuf(0)
 {
     init();
 }
@@ -33,15 +38,20 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 SeisTrcReader::~SeisTrcReader()
 {
     mDelOuter;
+    delete tbuf;
+    delete fetcher;
 }
 
 
 void SeisTrcReader::init()
 {
     foundvalidinl = foundvalidcrl =
-    new_packet = needskip = prepared = forcefloats = false;
+    new_packet = inforead = needskip = prepared = forcefloats = false;
     prev_inl = mUndefIntVal;
+    if ( tbuf ) tbuf->deepErase();
     mDelOuter; outer = mUndefPtr(BinIDRange);
+    delete fetcher; fetcher = 0;
+    curlinenr = -1;
 }
 
 
@@ -52,21 +62,26 @@ bool SeisTrcReader::prepareWork()
 	errmsg = "Info for input seismic data not found in Object Manager";
 	return false;
     }
-    if ( !trl )
+    if ( (is2d && !lgrp) || (!is2d && !trl) )
     {
 	errmsg = "No data interpreter available for '";
 	errmsg += ioobj->name(); errmsg += "'";
 	return false;
     }
 
-    Conn* conn = openFirst();
-    if ( !conn )
+    Conn* conn = 0;
+    if ( !is2d )
     {
-	errmsg = "Cannot open data files for '";
-	errmsg += ioobj->name(); errmsg += "'";
-	return false;
+	conn = openFirst();
+	if ( !conn )
+	{
+	    errmsg = "Cannot open data files for '";
+	    errmsg += ioobj->name(); errmsg += "'";
+	    return false;
+	}
     }
-    else if ( !initRead(conn) )
+
+    if ( !initRead(conn) )
     {
 	delete conn;
 	return false;
@@ -79,6 +94,13 @@ bool SeisTrcReader::prepareWork()
 
 void SeisTrcReader::startWork()
 {
+    outer = 0;
+    if ( is2d )
+    {
+	tbuf = new SeisTrcBuf( true );
+	return;
+    }
+
     if ( forcefloats )
     {
 	for ( int idx=0; idx<trl->componentInfo().size(); idx++ )
@@ -86,7 +108,6 @@ void SeisTrcReader::startWork()
     }
 
     trl->setSelData( seldata );
-    outer = 0;
     if ( trl->inlCrlSorted() && seldata )
     {
 	outer = new BinIDRange;
@@ -98,7 +119,7 @@ void SeisTrcReader::startWork()
 
 bool SeisTrcReader::isMultiConn() const
 {
-    return ioobj && ioobj->hasConnType(StreamConn::sType)
+    return !is2d && ioobj && ioobj->hasConnType(StreamConn::sType)
 	&& ((IOStream*)ioobj)->multiConn();
 }
 
@@ -132,6 +153,8 @@ Conn* SeisTrcReader::openFirst()
 
 bool SeisTrcReader::initRead( Conn* conn )
 {
+    if ( is2d ) return true;
+
     if ( !trl->initRead(conn) )
     {
 	errmsg = trl->errMsg();
@@ -174,6 +197,9 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	return -1;
     else if ( outer == mUndefPtr(BinIDRange) )
 	startWork();
+
+    if ( is2d )
+	return get2D(ti);
 
     bool needsk = needskip; needskip = false;
     if ( needsk && !trl->skip() )
@@ -249,6 +275,8 @@ bool SeisTrcReader::get( SeisTrc& trc )
 	return false;
     else if ( outer == mUndefPtr(BinIDRange) )
 	startWork();
+    if ( is2d )
+	return get2D(trc);
 
     if ( !trl->read(trc) )
     {
@@ -256,6 +284,89 @@ bool SeisTrcReader::get( SeisTrc& trc )
 	trl->skip();
 	return false;
     }
+    return true;
+}
+
+
+bool SeisTrcReader::mkNextFetcher()
+{
+    bool issingline = seldata && seldata->linekey_ != "";
+    if ( curlinenr != -1 && issingline )
+	return false;
+
+    curlinenr++; tbuf->deepErase();
+    if ( issingline )
+    {
+	bool found = false;
+	const int nrlines = lgrp->nrLines();
+	for ( ; curlinenr<nrlines; curlinenr++ )
+	{
+	    if ( lgrp->lineKey(curlinenr) == seldata->linekey_ )
+		{ found = true; break; }
+	}
+	if ( !found )
+	{
+	    errmsg = "Selected line not found in line set";
+	    return false;
+	}
+    }
+    fetcher = lgrp->lineFetcher( curlinenr, *tbuf, seldata );
+    return fetcher;
+}
+
+
+bool SeisTrcReader::readNext2D()
+{
+    if ( tbuf->size() ) return true;
+
+    int res = fetcher->doStep();
+    if ( res == Executor::ErrorOccurred )
+    {
+	errmsg = fetcher->message();
+	return false;
+    }
+    else if ( res == 0 )
+	{ delete fetcher; fetcher = 0; }
+
+    return tbuf->size();
+}
+
+
+#define mNeedNextFetcher() (tbuf->size() == 0 && !fetcher)
+
+
+bool SeisTrcReader::get2D( SeisTrcInfo& ti )
+{
+    if ( tbuf->size() )
+	delete tbuf->remove(0);
+
+    if ( mNeedNextFetcher() && !mkNextFetcher() )
+	return false;
+    if ( !readNext2D() )
+	return false;
+
+    inforead = true;
+    SeisTrcInfo& trcti = tbuf->get( 0 )->info();
+    trcti.new_packet = prev_inl != trcti.nr;
+    ti = trcti;
+    prev_inl = ti.nr;
+    return true;
+}
+
+
+bool SeisTrcReader::get2D( SeisTrc& trc )
+{
+    if ( mNeedNextFetcher() && !get2D(trc.info()) )
+	return false;
+    else if ( !inforead && !readNext2D() )
+	return false;
+
+    inforead = false;
+    const SeisTrc* buftrc = tbuf->get( 0 );
+    if ( !buftrc )
+	{ pErrMsg("Huh"); return false; }
+    trc.info() = buftrc->info();
+    trc.copyDataFrom( *buftrc, -1, forcefloats );
     return true;
 }
 

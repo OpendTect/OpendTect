@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.25 2004-07-02 15:30:55 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.26 2004-08-25 12:27:06 bert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -39,7 +39,7 @@ SeisTrc& SeisTrc::operator =( const SeisTrc& t )
 
     cleanUp();
     info_ = t.info_;
-    data_ = t.data_;
+    copyDataFrom( t, -1, false );
 
     if ( t.soffs_ )
 	soffs_ = new TypeSet<int>( *t.soffs_ );
@@ -178,6 +178,34 @@ void SeisTrc::setStartPos( float pos, int icomp )
 	setSampleOffset( icomp, mNINT(offs) );
     }
 }
+
+
+void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
+{
+    int startcomp = tarcomp < 0 ? 0 : tarcomp;
+    int stopcomp = tarcomp < 0 ? trc.data().nrComponents()-1 : tarcomp;
+    for ( int icomp=startcomp; icomp<=stopcomp; icomp++ )
+    {
+	DataCharacteristics dc = forcefloats
+	    			? DataCharacteristics()
+				: data().getInterpreter(icomp)->dataChar();
+	const int sz = trc.size(icomp);
+
+	if ( data().nrComponents() <= icomp )
+	    data().addComponent( sz, dc );
+	else
+	{
+	    if ( data().getInterpreter(icomp)->dataChar() != dc )
+		data().setComponent(dc,icomp);
+	    if ( size(icomp) != sz )
+		data().getComponent(icomp)->reSize( sz );
+	}
+	memcpy( data().getComponent(icomp)->data(),
+		trc.data().getComponent(icomp)->data(),
+		sz * (int)dc.nrBytes() );
+    }
+}
+
 
 #define mErrRet(msg) \
     { \

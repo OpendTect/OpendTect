@@ -5,11 +5,13 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.10 2004-07-16 15:35:26 bert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.11 2004-08-25 12:27:06 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
+#include "seis2dline.h"
+#include "seisbuf.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ioman.h"
@@ -18,10 +20,12 @@ const char* SeisStoreAccess::sNrTrcs = "Nr of traces";
 
 
 SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
-	: trl(0)
-	, ioobj(0)
+	: ioobj(0)
+	, trl(0)
+	, lgrp(0)
 	, seldata(0)
 	, selcomp(-1)
+	, is2d(false)
 {
     setIOObj( ioob );
 }
@@ -38,11 +42,18 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
     close();
     if ( !ioob ) return;
     ioobj = ioob->clone();
-    trl = (SeisTrcTranslator*)ioobj->getTranslator();
-    if ( !trl )
-	{ delete ioobj; ioobj = 0; }
+    is2d = SeisTrcTranslator::is2D( *ioobj );
+
+    if ( is2d )
+	lgrp = new Seis2DLineGroup( ioobj->fullUserExpr(true) );
     else
-	trl->setSelData( seldata );
+    {
+	trl = (SeisTrcTranslator*)ioobj->getTranslator();
+	if ( !trl )
+	    { delete ioobj; ioobj = 0; }
+	else
+	    trl->setSelData( seldata );
+    }
 }
 
 
@@ -62,6 +73,7 @@ void SeisStoreAccess::setSelData( SeisSelData* tsel )
 void SeisStoreAccess::cleanUp( bool alsoioobj )
 {
     delete trl; trl = 0;
+    delete lgrp; lgrp = 0;
     nrtrcs = 0;
     if ( alsoioobj )
     {

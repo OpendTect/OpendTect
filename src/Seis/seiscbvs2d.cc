@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.5 2004-08-23 16:12:39 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.6 2004-08-25 12:27:06 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -123,7 +123,8 @@ class SeisCBVS2DLineGetter : public Executor
 {
 public:
 
-SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
+SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd,
+		      int lnr )
     	: Executor("Load 2D line")
 	, tbuf(b)
 	, curnr(0)
@@ -132,6 +133,7 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
 	, msg("Reading traces")
 	, seldata(0)
 	, trcstep(1)
+	, linenr(lnr)
 {
     tr = gtTransl( fname, &msg );
     if ( !tr ) return;
@@ -162,6 +164,7 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
 void addTrc( SeisTrc* trc )
 {
     trc->info().binid = SI().transform( trc->info().coord );
+    trc->info().nr = linenr;
     tbuf.add( trc );
 }
 
@@ -217,6 +220,7 @@ int			totalNr() const		{ return totnr; }
     CBVSSeisTrcTranslator* tr;
     SeisSelData*	seldata;
     int			trcstep;
+    const int		linenr;
 
 };
 
@@ -239,7 +243,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
     }
 
     const_cast<IOPar&>(iop).set( sKeyLineNr, lnr ); // just to be sure
-    return new SeisCBVS2DLineGetter( fnm, tbuf, sd ? *sd : SeisSelData() );
+    return new SeisCBVS2DLineGetter( fnm, tbuf, sd ? *sd : SeisSelData(), lnr );
 }
 
 
