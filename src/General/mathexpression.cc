@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.28 2004-01-13 16:07:14 kristofer Exp $
+ RCS:           $Id: mathexpression.cc,v 1.29 2004-01-16 10:11:48 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ const char* MathExpression::getVariableStr( int var ) const
 
 void MathExpression::setVariable( int var, float val )
 {
-    if ( var>=getNrVariables() ) return;
+    if ( var>=getNrVariables() || var<0 ) return;
 
     for ( int idx=0; idx<variableobj[var]->size(); idx++ )
     {
@@ -48,7 +48,7 @@ void MathExpression::setVariable( int var, float val )
 
 bool MathExpression::setInput( int inp, MathExpression* obj )
 {
-    if ( inp < getNrInputs() )
+    if ( inp>=0 && inp<getNrInputs() )
     {
 	if ( inputs[inp] ) return false;
 	delete inputs.replace( obj, inp );
