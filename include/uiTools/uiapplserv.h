@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.5 2002-03-25 16:00:24 bert Exp $
+ RCS:		$Id: uiapplserv.h,v 1.6 2002-03-27 17:28:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,9 +28,9 @@ public:
 			//!< The name is the application name
 
     virtual uiParent*	parent() const					= 0;
-    virtual void	eventOccurred(uiApplPartServer*,int evid)	= 0;
+    virtual void	eventOccurred(const uiApplPartServer*,int evid)	= 0;
     			//!< The evid will be specific for each partserver
-    virtual void*	getObject(uiApplPartServer*,int)		= 0;
+    virtual void*	getObject(const uiApplPartServer*,int)		= 0;
     			//!< The actual type is a protocol with the partserver
 };
 
@@ -45,7 +45,7 @@ which of its part servers is calling - proceeds with the right action.
  
 */
 
-class uiApplPartServer
+class uiApplPartServer : public CallBacker
 {
 public:
 
@@ -58,10 +58,12 @@ public:
 
 protected:
 
-    void		sendEvent( int evid )
-    			{ appserv().eventOccurred(this,evid); }
-    void*		getObject( int objid )
-			{ return appserv().getObject(this,objid); }
+    void		sendEvent( int evid ) const
+    			{ const_cast<uiApplService&>(appserv())
+				    .eventOccurred(this,evid); }
+    void*		getObject( int objid ) const
+			{ return const_cast<uiApplService&>(appserv())
+				    .getObject(this,objid); }
 
 private:
 
