@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.4 2004-01-05 09:43:23 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.5 2004-05-13 09:12:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <Inventor/draggers/SoDragPointDragger.h>
 #include <Inventor/draggers/SoTranslate1Dragger.h>
 #include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoSeparator.h>
 
 
 mCreateFactoryEntry( visBase::Dragger );
@@ -29,16 +30,17 @@ Dragger::Dragger()
     , motion(this)
     , finished(this)
     , onoff( new SoSwitch )
-    , group( new SoGroup )
+    , separator( new SoSeparator )
     , positiontransform( visBase::Transformation::create() )
     , displaytrans( 0 )
+    , rightclicknotifier(this)
+    , ownshape( 0 )
 {
     onoff->ref();
-    group = new SoGroup;
-    onoff->addChild( group );
+    onoff->addChild( separator );
 
     positiontransform->ref();
-    group->addChild( positiontransform->getInventorNode() );
+    separator->addChild( positiontransform->getInventorNode() );
     setDraggerType( Translate );
     setRotation( Coord3(0,1,0), -M_PI/2 );
 }
@@ -51,14 +53,18 @@ Dragger::~Dragger()
 	dragger->removeStartCallback( visBase::Dragger::startCB, this );
 	dragger->removeMotionCallback( visBase::Dragger::motionCB, this );
 	dragger->removeFinishCallback( visBase::Dragger::finishCB, this );
-	group->removeChild( dragger );
+	separator->removeChild( dragger );
     }
 
-    group->removeChild( positiontransform->getInventorNode() );
+    separator->removeChild( positiontransform->getInventorNode() );
     positiontransform->unRef();
     onoff->unref();
     if ( displaytrans ) displaytrans->unRef();
+    if ( ownshape ) ownshape->unRef();
 }
+
+
+bool Dragger::selectable() const { return true; }
 
 
 void Dragger::setDraggerType( Type tp )
@@ -68,7 +74,7 @@ void Dragger::setDraggerType( Type tp )
 	dragger->removeStartCallback( visBase::Dragger::startCB, this );
 	dragger->removeMotionCallback( visBase::Dragger::motionCB, this );
 	dragger->removeFinishCallback( visBase::Dragger::finishCB, this );
-	group->removeChild( dragger );
+	separator->removeChild( dragger );
     }
     
     if ( tp == DragPoint )
@@ -76,7 +82,7 @@ void Dragger::setDraggerType( Type tp )
     else
 	dragger = new SoTranslate1Dragger;
 
-    group->addChild( dragger );
+    separator->addChild( dragger );
     dragger->addStartCallback( visBase::Dragger::startCB, this );
     dragger->addMotionCallback( visBase::Dragger::motionCB, this );
     dragger->addFinishCallback( visBase::Dragger::finishCB, this );
@@ -106,6 +112,23 @@ Transformation* Dragger::getTransformation()
 {
     return displaytrans;
 }
+
+
+void Dragger::setOwnShape(visBase::DataObject* newshape)
+{
+    if ( ownshape ) ownshape->unRef();
+    ownshape = newshape;
+
+    if ( ownshape && ownshape->getInventorNode() )
+    {
+	dragger->setPart("translator",ownshape->getInventorNode());
+	dragger->setPart("translatorActive",ownshape->getInventorNode());
+	ownshape->ref();
+    }
+    else
+	ownshape=0;
+}
+
 
 
 void Dragger::startCB( void* obj, SoDragger* )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.5 2004-02-19 12:42:08 nanne Exp $
+ RCS:           $Id: visdragger.h,v 1.6 2004-05-13 09:12:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class Color;
 
 class SoDragger;
-class SoGroup;
+class SoSeparator;
 
 
 namespace visBase
@@ -54,24 +54,34 @@ public:
     void			setTransformation( Transformation* );
     Transformation*		getTransformation();
 
+    void			setOwnShape(visBase::DataObject*);
+    bool			selectable() const;
+
     Notifier<Dragger>		started;
     Notifier<Dragger>		motion;
     Notifier<Dragger>		finished;
+    NotifierAccess*		rightClicked() { return &rightclicknotifier; }
 
     SoNode*			getInventorNode();
 
 protected:
     				~Dragger();
+    void			triggerRightClick()
+    				{ rightclicknotifier.trigger(); }
 
     static void			startCB(void*,SoDragger*);
     static void			motionCB(void*,SoDragger*);
     static void			finishCB(void*,SoDragger*);
+    
+    Notifier<Dragger>		rightclicknotifier;
 
     SoSwitch*			onoff;
-    SoGroup*			group;
+    SoSeparator*		separator;
     Transformation*		positiontransform;
     SoDragger*			dragger;
     Transformation*		displaytrans;
+
+    visBase::DataObject*	ownshape;
 };
 
 } // namespace visBase
