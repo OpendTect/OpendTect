@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: valwitherror.h,v 1.1 2002-01-04 10:08:23 kristofer Exp $
+ RCS:           $Id: valwitherror.h,v 1.2 2002-03-14 15:38:14 bert Exp $
 ________________________________________________________________________
 
 ValWithError is a value with a known error (variance), and that knows
@@ -135,13 +135,13 @@ operator == (const ValWithError<A>& x, const ValWithError<A>& y)
 template <class A> inline bool
 operator == (A x, const ValWithError<A>& y)
 {
-  return mIS_ZERO(x == y.val());
+  return mIS_ZERO(x - y.val());
 }
 
 template <class A> inline bool
 operator == (const ValWithError<A>& x, A y)
 {
-  return mIS_ZERO(x.val() == y);
+  return mIS_ZERO(x.val() - y);
 }
 
 template <class A> inline bool
