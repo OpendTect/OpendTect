@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.9 2003-01-02 14:21:56 kristofer Exp $
+ RCS:		$Id: viscolortab.h,v 1.10 2003-01-27 13:11:27 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -29,45 +29,56 @@ namespace visBase
 class VisColorTab : public DataObject
 {
 public:
-    static VisColorTab*	create()
-			mCreateDataObj(VisColorTab);
+    static VisColorTab*		create()
+				mCreateDataObj(VisColorTab);
 
-    Color		color( float val ) const;
+    bool			autoScale() const;
+    void			setAutoScale( bool yn );
+    float			clipRate() const;
+    void			setClipRate( float );
+    void			scaleTo( const Interval<float>& rg );
+    void			scaleTo( float* values, int nrvalues );
+    				/*!< Does only work if autoscale is true */
+    Interval<float>		getInterval() const;
 
-    void		setNrSteps( int );
-    int			nrSteps() const;
-    int			colIndex( float val ) const;
-    			/*!< return 0-nrSteps()-1 
-			     nrSteps() = undef;
-			*/
-    Color		tableColor( int idx ) const;
+    void			setNrSteps( int );
+    int				nrSteps() const;
+    int				colIndex( float val ) const;
+    				/*!< return 0-nrSteps()-1 
+				     nrSteps() = undef; */
+    Color			tableColor( int idx ) const;
+    Color			color(float) const;
 
-    void		scaleTo( const Interval<float>& rg );
-    Interval<float>	getInterval() const;
-
-    void		setColorSeq( ColorSequence* );
-
-    const ColorSequence&	colorSeq() const { return *colseq; }
-    ColorSequence&		colorSeq() { return *colseq; }
+    void			setColorSeq( ColorSequence* );
+    const ColorSequence&	colorSeq() const;
+    ColorSequence&		colorSeq();
 
     Notifier<VisColorTab>	rangechange;
     Notifier<VisColorTab>	sequencechange;
-    void			triggerRangeChange() { rangechange.trigger(); }
+    Notifier<VisColorTab>	autoscalechange;
+
+    void			triggerRangeChange();
+    void			triggerSeqChange();
+    void			triggerAutoScaleChange();
 
     int				usePar( const IOPar& );
     void			fillPar( IOPar&, TypeSet<int>& ) const;
 
 protected:
-    virtual		~VisColorTab();
+    virtual			~VisColorTab();
 
-    void		colorseqchanged();
+    void			colorseqchanged();
 
-    ColorSequence*	colseq;
-    LinScaler&		scale;
+    ColorSequence*		colseq;
+    LinScaler&			scale;
 
+    bool			autoscale;
+    float			cliprate;
 
-    static const char*	colorseqidstr;
-    static const char*	scalefactorstr;
+    static const char*		colorseqidstr;
+    static const char*		scalefactorstr;
+    static const char*		clipratestr;
+    static const char*		autoscalestr;
 };
 
 }; // Namespace

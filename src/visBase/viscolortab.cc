@@ -4,9 +4,11 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.12 2003-01-02 14:22:18 kristofer Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.13 2003-01-27 13:11:39 kristofer Exp $";
 
 #include "viscolortab.h"
+
+#include "dataclipper.h"
 #include "visdataman.h"
 #include "scaler.h"
 #include "colortab.h"
@@ -16,12 +18,18 @@ mCreateFactoryEntry( visBase::VisColorTab );
 
 const char* visBase::VisColorTab::colorseqidstr = "ColorSeq ID";
 const char* visBase::VisColorTab::scalefactorstr = "Scale Factor";
+const char* visBase::VisColorTab::clipratestr = "Cliprate";
+const char* visBase::VisColorTab::autoscalestr = "Auto scale";
+
 
 visBase::VisColorTab::VisColorTab()
     : sequencechange( this )
     , rangechange( this )
+    , autoscalechange( this )
     , colseq( 0 )
     , scale( *new LinScaler )
+    , autoscale( true )
+    , cliprate( 0.025 )
 {
     setColorSeq( ColorSequence::create() );
 }
@@ -30,6 +38,43 @@ visBase::VisColorTab::VisColorTab()
 visBase::VisColorTab::~VisColorTab()
 {
     colseq->unRef();
+}
+
+
+bool visBase::VisColorTab::autoScale() const
+{ return autoscale; }
+
+
+void visBase::VisColorTab::setAutoScale( bool yn )
+{
+    if ( yn==autoscale ) return;
+
+    autoscale = yn;
+    if ( autoscale ) autoscalechange.trigger();
+}
+
+
+float visBase::VisColorTab::clipRate() const
+{
+    return cliprate;
+}
+
+
+void visBase::VisColorTab::setClipRate( float ncr )
+{
+    if ( mIS_ZERO(ncr-cliprate) ) return;
+
+    cliprate = ncr;
+    if ( autoscale ) autoscalechange.trigger();
+}
+
+
+void visBase::VisColorTab::scaleTo( float* values, int nrvalues )
+{
+    DataClipper clipper( cliprate );
+    clipper.putData( values, nrvalues );
+    clipper.calculateRange();
+    scaleTo( clipper.getRange() );
 }
 
 
@@ -102,10 +147,30 @@ void visBase::VisColorTab::setColorSeq( ColorSequence* ns )
 }
 
 
+const visBase::ColorSequence& visBase::VisColorTab::colorSeq() const
+{ return *colseq; }
+
+
+visBase::ColorSequence& visBase::VisColorTab::colorSeq()
+{ return *colseq; }
+
+
 void visBase::VisColorTab::colorseqchanged()
 {
     sequencechange.trigger();
 }
+
+
+void visBase::VisColorTab::triggerRangeChange()
+{ rangechange.trigger(); }
+
+
+void visBase::VisColorTab::triggerSeqChange()
+{ sequencechange.trigger(); }
+
+
+void visBase::VisColorTab::triggerAutoScaleChange()
+{ autoscalechange.trigger(); }
 
 
 int visBase::VisColorTab::usePar( const IOPar& par )
@@ -125,6 +190,14 @@ int visBase::VisColorTab::usePar( const IOPar& par )
 
     setColorSeq( cs );
 
+    float cliprate_ = 0.025;
+    par.get( clipratestr, cliprate_ );
+    setClipRate( cliprate_ );
+
+    bool autoscale_ = true;
+    par.getYN( autoscalestr, autoscale_ );
+    setAutoScale( autoscale_ );
+
     const char* scalestr = par.find( scalefactorstr );
     if ( !scalestr ) return -1;
 
@@ -139,5 +212,6 @@ void visBase::VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( colorseqidstr, colseq->id() );
     if ( saveids.indexOf(colseq->id())==-1 ) saveids += colseq->id();
     par.set( scalefactorstr, scale.toString() );
+    par.set( clipratestr, cliprate );
+    par.setYN( autoscalestr, autoscale );
 }
-
