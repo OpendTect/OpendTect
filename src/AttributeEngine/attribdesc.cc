@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.2 2005-02-01 14:05:24 kristofer Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.3 2005-02-01 16:00:43 kristofer Exp $";
 
 #include "attribdesc.h"
 
@@ -38,10 +38,11 @@ bool InputSpec::operator==(const InputSpec& b) const
 }
 
 
-Desc::Desc( const char* attribname_, DescStatusUpdater updater )
+Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
     : ds( 0 )
     , attribname( attribname_ )
     , statusupdater( updater )
+    , descchecker( dc )
     , issteering( false )
 {
     mRefCountConstructor;
@@ -54,6 +55,7 @@ Desc::Desc( const Desc& a )
     : ds( a.ds )
     , attribname( a.attribname )
     , statusupdater( a.statusupdater )
+    , descchecker( a.descchecker )
     , issteering( false )
 {
     mRefCountConstructor;

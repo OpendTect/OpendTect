@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.3 2005-02-01 14:05:24 kristofer Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.4 2005-02-01 16:00:43 kristofer Exp $";
 
 #include "attribprovider.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.3 2005-02-01 14:05:24 kri
 #include "basictask.h"
 #include "cubesampling.h"
 #include "errh.h"
+#include "seisreq.h"
 #include "survinfo.h"
 #include "threadwork.h"
 
@@ -212,8 +213,12 @@ mGetMargin( type, var, req##var, req##funcPost )
 
 bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
 {
+    if ( inputs.size()==0 )
+    {
+	res.init(true);
+	return true;
+    }
 
-    //TODO Check for nrInputs==0 and return survey?
     if ( !desiredvolume ) return false;
 
     TypeSet<int> outputs;
@@ -274,6 +279,93 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
     }
 
     return isset;
+}
+
+
+int Provider::moveToNextTrace()
+{
+
+    ObjectSet<Provider> movinginputs;
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	const int res = inputs[idx]->moveToNextTrace();
+	if ( res!=1 ) return res;
+
+	if ( !inputs[idx]->getSeisRequester() ) continue;
+	movinginputs += inputs[idx];
+    }
+
+    if ( !movinginputs.size() )
+    {
+	currentbid = BinID(-1,-1);
+	return true;
+    }
+
+    for ( int idx=0; idx<movinginputs.size()-1; idx++ )
+    {
+	for ( int idy=idx+1; idy<movinginputs.size(); idy++ )
+	{
+	    bool idxmoved = false;
+
+	    while ( true )
+	    {
+		int compres = movinginputs[idx]->getSeisRequester()->comparePos(
+				    *movinginputs[idy]->getSeisRequester() );
+		if ( compres==-1 )
+		{
+		    idxmoved = true;
+		    const int res = movinginputs[idx]->moveToNextTrace();
+		    if ( res!=1 ) return res;
+		}
+		else if ( compres==1 )
+		{
+		    const int res = movinginputs[idy]->moveToNextTrace();
+		    if ( res!=1 ) return res;
+		}
+		else 
+		    break;
+	    }
+
+	    if ( idxmoved )
+	    {
+		idx=-1;
+		break;
+	    }
+	}
+    }
+
+    currentbid = movinginputs[0]->getCurrentPosition();
+
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( !inputs[idx]->setCurrentPosition(currentbid) )
+	    return -1;
+    }
+
+    return 1;
+}
+
+
+BinID Provider::getCurrentPosition() const { return currentbid; }
+
+
+bool Provider::setCurrentPosition( const BinID& bid )
+{
+    if ( currentbid==BinID(-1,-1) )
+    {
+	currentbid = bid;
+    }
+    else if ( bid!=currentbid )
+    {
+	pErrMsg("This should never happen");
+	return false;
+    }
+
+    //TODO Remove old buffers
+    localcomputezinterval.start = INT_MAX;
+    localcomputezinterval.stop = INT_MIN;
+
+    return true;
 }
 
 
@@ -381,6 +473,18 @@ const DataHolder* Provider::getData( const BinID& relpos )
 const DataHolder* Provider::getDataDontCompute( const BinID& relpos ) const
 {
     return linebuffer ? linebuffer->getDataHolder(currentbid+relpos) : 0;
+}
+
+
+SeisRequester* Provider::getSeisRequester()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	SeisRequester* res = inputs[idx]->getSeisRequester();
+	if ( res ) return res;
+    }
+
+    return 0;
 }
 
 
