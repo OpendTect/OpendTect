@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.6 2002-04-30 14:13:00 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.7 2002-11-07 07:42:59 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdataman.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: visevent.cc,v 1.6 2002-04-30 14:13:00 kristofer
 #include "Inventor/events/SoKeyboardEvent.h"
 #include "Inventor/events/SoLocation2Event.h"
 #include "Inventor/SoPickedPoint.h"
+#include "Inventor/SbLinear.h"
 
 const char* visBase::EventCatcher::eventtypestr = "EventType";
 
@@ -143,6 +144,11 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* node )
 		eventinfo.pickedpos.x = pos3d[0];
 		eventinfo.pickedpos.y = pos3d[1];
 		eventinfo.pickedpos.z = pos3d[2];
+		SbVec3f localpos;
+		pickedpoint->getWorldToObject().multVecMatrix(pos3d, localpos );
+		eventinfo.localpickedpos.x = localpos[0];
+		eventinfo.localpickedpos.y = localpos[1];
+		eventinfo.localpickedpos.z = localpos[2];
 	    }
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.6 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: visevent.h,v 1.7 2002-11-07 07:40:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,7 @@ public:
 
     TypeSet<int>		pickedobjids;    
     Coord3			pickedpos;
+    Coord3			localpickedpos;
     					
     int				key;
     				/*!< Only set if type==Keyboard */
