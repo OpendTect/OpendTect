@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.22 2002-02-08 11:51:28 bert Exp $
+ RCS:		$Id: callback.h,v 1.23 2002-02-19 06:40:20 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -334,7 +334,7 @@ protected:
 };
 
 
-/* \brief temporarily disables a notifier
+/*!\brief temporarily disables a notifier
 
 CallBacks can be disabled. To do that temporarily, use NotifyStopper.
 If the Stopper goes out of scope, the callback is re-enabled. like:
