@@ -4,13 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.27 2003-07-04 13:32:33 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.28 2003-07-29 13:13:16 nanne Exp $";
 
 #include "emhorizon.h"
 
 #include "arrayndimpl.h"
 #include "emhistoryimpl.h"
 #include "emhorizontransl.h"
+#include "emsurfauxdataio.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "geom2dsnappedsurface.h"
@@ -67,40 +68,101 @@ Geometry::GridSurface* EM::Horizon::createPatchSurface() const
 }
 
 
-Executor* EM::Horizon::loader()
+Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
+       			       bool auxdata )
 {
     PtrMan<IOObj> ioobj = IOM().get( id() );
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 
-    PtrMan<Translator> tr_ = ioobj->getTranslator();
-    EMHorizonTranslator* tr =
-			dynamic_cast<EMHorizonTranslator*>((Translator*)tr_);
+    dgbEMHorizonTranslator tr;
+    if ( !tr.startRead(*ioobj,*this) )
+	{ errmsg = tr.errMsg(); return 0; }
 
-    if ( !tr->startRead(*ioobj,*this) )
-	{ errmsg = tr->errMsg(); return 0; }
+    EM::SurfaceIODataSelection& sel = tr.selections();
+    if ( newsel )
+    {
+	sel.rg = newsel->rg;
+	sel.selvalues = newsel->selvalues;
+	sel.selpatches = newsel->selpatches;
+    }
 
-    Executor* exec = tr->reader();
-    errmsg = tr->errMsg();
-    return exec;
+    if ( auxdata )
+    {
+	StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
+	if ( !conn ) return 0;
+	
+	if ( !sel.selvalues.size() )
+	    return 0;
+
+	int auxdataidx = sel.selvalues[0];
+	BufferString fnm =
+	    EM::dgbSurfDataWriter::createHovName(conn->fileName(),auxdataidx);
+	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader(fnm);
+	if ( !rdr ) return 0;
+	
+	rdr->setSurface( *this );
+	return rdr;
+    }
+    else
+    {
+	Executor* exec = tr.reader();
+	errmsg = tr.errMsg();
+	return exec;
+    }
 }
 
 
-Executor* EM::Horizon::saver()
+Executor* EM::Horizon::saver( const EM::SurfaceIODataSelection* newsel,
+       			      bool auxdata )
 {
     PtrMan<IOObj> ioobj = IOM().get( id() );
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 
-    PtrMan<Translator> tr_ = ioobj->getTranslator();
-    EMHorizonTranslator* tr =
-			dynamic_cast<EMHorizonTranslator*>((Translator*)tr_);
-    if ( !tr->startWrite(*this) )
-	{ errmsg = tr->errMsg(); return 0; }
+    dgbEMHorizonTranslator tr;
+    if ( !tr.startWrite(*this) )
+	{ errmsg = tr.errMsg(); return 0; }
 
-    Executor* exec = tr->writer(*ioobj);
-    errmsg = tr->errMsg();
-    return exec;
+    EM::SurfaceIODataSelection& sel = tr.selections();
+    if ( newsel )
+    {
+	sel.rg = newsel->rg;
+	sel.selvalues = newsel->selvalues;
+	sel.selpatches = newsel->selpatches;
+    }
+
+    if ( auxdata )
+    {
+	StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
+	if ( !conn ) return 0;
+
+	BufferString fnm;
+	int dataidx = sel.selvalues.size() ? sel.selvalues[0] : 0;
+	if ( dataidx >=0 )
+	{
+	    fnm = EM::dgbSurfDataWriter::createHovName( conn->fileName(),
+		    					dataidx );
+	}
+	else
+	{
+	    for ( int idx=0; ; idx++ )
+	    {
+		fnm =EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
+		if ( !File_exists(fnm) )
+		    break;
+	    }
+	}
+
+	Executor* exec = new EM::dgbSurfDataWriter(*this,0,0,false,fnm);
+	return exec;
+    }
+    else
+    {
+	Executor* exec = tr.writer(*ioobj);
+	errmsg = tr.errMsg();
+	return exec;
+    }
 }
 
 
@@ -113,7 +175,7 @@ public:
 	: Executor("Horizon Import")
 	, horizon( hor )
 	, grid( g )
-	, patch( hor.addPatch(0, true) )
+	, patch( hor.addPatch(g.name(),true) )
     {
 	const int nrrows = grid.nrRows();
 	const int nrcols = grid.nrCols();

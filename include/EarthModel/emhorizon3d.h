@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.20 2003-07-04 13:32:46 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.21 2003-07-29 13:14:19 nanne Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ class Grid;
 namespace EM
 {
 class EMManager;
+class SurfaceIODataSelection;
 
 /*!\brief
 The horizon is made up of one or more grids (so they can overlap at faults).
@@ -62,8 +63,10 @@ the knots.
 class Horizon : public EM::Surface
 {
 public:
-    Executor*		loader();
-    Executor*		saver();
+    Executor*		loader(const EM::SurfaceIODataSelection* s=0,
+	    		       bool auxdataonly=false);
+    Executor*		saver(const EM::SurfaceIODataSelection* s=0,
+	    		      bool auxdataonly=false);
 
     Executor*		import( const Grid& );
     			/*!< Removes all data and sets it to a single-
