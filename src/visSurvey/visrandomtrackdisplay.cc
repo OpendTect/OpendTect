@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.4 2003-01-23 16:15:37 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.5 2003-01-27 13:15:51 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -15,12 +15,10 @@
 #include "arrayndimpl.h"
 #include "attribsel.h"
 #include "binidselimpl.h"
-#include "colortab.h"
 #include "iopar.h"
 #include "seistrc.h"
 #include "simpnumer.h"
 #include "survinfo.h"
-#include "viscolortab.h"
 #include "visdataman.h"
 #include "vismaterial.h"
 #include "visrandomtrack.h"
@@ -89,7 +87,7 @@ const AttribSelSpec& visSurvey::RandomTrackDisplay::getAttribSelSpec() const
 { return as; }
 
 
-void visSurvey::RandomTrackDisplay::setAttribSelSpec( AttribSelSpec& as_ )
+void visSurvey::RandomTrackDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 { as = as_; }
 
 
@@ -251,39 +249,12 @@ bool visSurvey::RandomTrackDisplay::isOn() const
 { return track->isOn(); }
 
 
-void visSurvey::RandomTrackDisplay::setColorTable( const ColorTable& ctab )
-{
-    track->getColorTab().colorSeq().colors() = ctab;
-    track->getColorTab().colorSeq().colorsChanged();
-}
+void visSurvey::RandomTrackDisplay::setColorTab(visBase::VisColorTab& ctab)
+{ track->setColorTab(ctab); }
 
 
-const ColorTable& visSurvey::RandomTrackDisplay::getColorTable() const
-{ return track->getColorTab().colorSeq().colors(); }
-
-
-void visSurvey::RandomTrackDisplay::setClipRate( float rate )
-{ track->setClipRate( rate ); }
-
-
-float visSurvey::RandomTrackDisplay::clipRate() const
-{ return track->clipRate(); }
-
-
-void visSurvey::RandomTrackDisplay::setAutoscale( bool yn )
-{ track->setAutoScale( yn ); }
-
-
-bool visSurvey::RandomTrackDisplay::autoScale() const
-{ return track->autoScale(); }
-
-
-void visSurvey::RandomTrackDisplay::setDataRange( const Interval<float>& intv )
-{ track->getColorTab().scaleTo( intv ); }
-
-
-Interval<float> visSurvey::RandomTrackDisplay::getDataRange() const
-{ return track->getColorTab().getInterval(); }
+visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab()
+{ return track->getColorTab(); }
 
 
 void visSurvey::RandomTrackDisplay::setMaterial( visBase::Material* nm)

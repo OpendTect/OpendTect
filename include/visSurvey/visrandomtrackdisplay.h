@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.3 2003-01-23 16:15:20 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.4 2003-01-27 13:15:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,11 +20,10 @@ ________________________________________________________________________
 
 class AttribSelSpec;
 class CubeSampling;
-class ColorTable;
 class Coord;
 class SeisTrc;
 
-namespace visBase { class RandomTrack; };
+namespace visBase { class RandomTrack; class VisColorTab; };
 
 namespace visSurvey
 {
@@ -43,7 +42,7 @@ public:
     static RandomTrackDisplay*	create()
 				mCreateDataObj(RandomTrackDisplay);
 
-    void			setAttribSelSpec(AttribSelSpec&);
+    void			setAttribSelSpec(const AttribSelSpec&);
     AttribSelSpec&		getAttribSelSpec();
     const AttribSelSpec&	getAttribSelSpec() const;
 
@@ -72,14 +71,8 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setColorTable(const ColorTable&);
-    const ColorTable&		getColorTable() const;
-    void			setClipRate(float);
-    float			clipRate() const;
-    void			setAutoscale(bool);
-    bool			autoScale() const;
-    void			setDataRange(const Interval<float>&);
-    Interval<float>		getDataRange() const;
+    void			setColorTab(visBase::VisColorTab&);
+    visBase::VisColorTab&	getColorTab();
 
     void                        setMaterial( visBase::Material* );
     const visBase::Material*    getMaterial() const;

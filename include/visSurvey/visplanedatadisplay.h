@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.24 2003-01-24 11:31:13 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.25 2003-01-27 13:16:43 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class AttribSelSpec;
 class AttribSliceSet;
-class ColorTable;
 class CubeSampling;
 
 namespace visBase { class TextureRect; class VisColorTab; };
@@ -64,7 +63,7 @@ public:
     void			setCubeSampling(const CubeSampling&);
     AttribSelSpec&		getAttribSelSpec();
     const AttribSelSpec&	getAttribSelSpec() const;
-    void			setAttribSelSpec(AttribSelSpec&);
+    void			setAttribSelSpec(const AttribSelSpec&);
     bool			putNewData( AttribSliceSet* );
     				/*!< Becomes mine */
     const AttribSliceSet*	getPrevData() const;
@@ -72,9 +71,8 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setColorTable(const ColorTable&);
-    void			setColorTable(visBase::VisColorTab*);
-    const ColorTable&		getColorTable() const;
+    void			setColorTab(visBase::VisColorTab*);
+    visBase::VisColorTab&	getColorTab();
     void			setClipRate(float);
     float			clipRate() const;
     void			setAutoscale(bool);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.21 2003-01-23 16:15:37 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.22 2003-01-27 13:16:37 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,6 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "sorting.h"
 #include "iopar.h"
-#include "colortab.h"
-#include "viscolortab.h"
 #include "vismaterial.h"
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
@@ -72,6 +70,12 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     visBase::DM().getObj( inlid )->setName("inline");
     visBase::DM().getObj( crlid )->setName("crossline");
     visBase::DM().getObj( tslid )->setName("timeslice");
+
+    const int volrenid = cube->getVolRenId();
+    visBase::DM().getObj( volrenid )->setName("Volren");
+
+
+    setColorTab( getColorTab() );
 }
 
 
@@ -152,7 +156,7 @@ const AttribSelSpec& visSurvey::VolumeDisplay::getAttribSelSpec() const
 { return as; }
 
 
-void visSurvey::VolumeDisplay::setAttribSelSpec( AttribSelSpec& as_ )
+void visSurvey::VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 { as = as_; }
 
 
@@ -351,14 +355,14 @@ void visSurvey::VolumeDisplay::sliceMoving( CallBacker* )
 }
 
 
-void visSurvey::VolumeDisplay::setColorTable( visBase::VisColorTab& ctab )
+void visSurvey::VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
 {
     cube->setVolRenColorTab( ctab );
     cube->setViewerColorTab( ctab );
 }
 
 
-visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTable()
+visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTab()
 { return cube->getViewerColorTab(); }
 
 
@@ -396,14 +400,12 @@ const visBase::Material* visSurvey::VolumeDisplay::getMaterial() const
 { return cube->getMaterial(); }
 
 
+int visSurvey::VolumeDisplay::getVolRenId() const
+{ return cube->getVolRenId(); }
+
+
 SoNode* visSurvey::VolumeDisplay::getData() 
 { return cube->getData(); }
-
-
-void visSurvey::VolumeDisplay::showVolRen( bool yn )
-{
-    cube->showVolRen( yn );
-}
 
 
 bool visSurvey::VolumeDisplay::isVolRenShown() const
@@ -451,6 +453,9 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     visBase::DM().getObj( crlid )->setName("crossline");
     tslid = cube->addSlice( 2 );
     visBase::DM().getObj( tslid )->setName("timeslice");
+
+    const int volrenid = cube->getVolRenId();
+    visBase::DM().getObj( volrenid )->setName("Volren");
 
     if ( !as.usePar( par )) return -1;
 

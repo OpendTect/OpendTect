@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.34 2003-01-24 11:31:08 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.35 2003-01-27 13:16:36 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.34 2003-01-24 11:31:
 #include "visrectangle.h"
 #include "vismaterial.h"
 #include "viscolortab.h"
-#include "colortab.h"
 #include "sorting.h"
 #include "vistransform.h"
 #include "iopar.h"
@@ -360,7 +359,7 @@ AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec()
 const AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec() const
 { return as; }
 
-void visSurvey::PlaneDataDisplay::setAttribSelSpec( AttribSelSpec& as_ )
+void visSurvey::PlaneDataDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 { as = as_; }
 
 
@@ -437,19 +436,12 @@ void visSurvey::PlaneDataDisplay::turnOn(bool n) { trect->turnOn(n); }
 bool visSurvey::PlaneDataDisplay::isOn() const { return trect->isOn(); }
 
 
-void visSurvey::PlaneDataDisplay::setColorTable( const ColorTable& ctab )
-{
-    trect->getColorTab().colorSeq().colors() = ctab;
-    trect->getColorTab().colorSeq().colorsChanged();
-}
-
-
-void visSurvey::PlaneDataDisplay::setColorTable( visBase::VisColorTab* ct )
+void visSurvey::PlaneDataDisplay::setColorTab( visBase::VisColorTab* ct )
 { trect->setColorTab( ct ); }
 
 
-const ColorTable& visSurvey::PlaneDataDisplay::getColorTable() const
-{ return trect->getColorTab().colorSeq().colors(); }
+visBase::VisColorTab& visSurvey::PlaneDataDisplay::getColorTab()
+{ return trect->getColorTab(); }
 
 
 void visSurvey::PlaneDataDisplay::setClipRate( float rate )

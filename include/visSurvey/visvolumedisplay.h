@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.13 2003-01-23 16:15:20 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.14 2003-01-27 13:16:27 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,7 @@ public:
     bool			updateAtNewPos();
     AttribSelSpec&		getAttribSelSpec();
     const AttribSelSpec&	getAttribSelSpec() const;
-    void			setAttribSelSpec(AttribSelSpec&);
+    void			setAttribSelSpec(const AttribSelSpec&);
     CubeSampling&		getCubeSampling(bool manippos=true);
     const CubeSampling&		getCubeSampling(bool manippos=true) const
 				{ return const_cast<VolumeDisplay*>(this)->
@@ -74,8 +74,8 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setColorTable(visBase::VisColorTab&);
-    visBase::VisColorTab&	getColorTable();
+    void			setColorTab(visBase::VisColorTab&);
+    visBase::VisColorTab&	getColorTab();
     void			setClipRate(float);
     float			clipRate() const;
     void			setAutoscale(bool);
@@ -88,9 +88,8 @@ public:
     const visBase::Material*	getMaterial() const;
     				/*!< Does not affect the volren */
 
-    void			showVolRen( bool );
+    int				getVolRenId() const;
     bool			isVolRenShown() const;
-
     SoNode*			getData();
 
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
