@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.1.1.2 1999-09-16 09:32:35 arend Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.2 2000-03-10 13:09:02 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -228,11 +228,11 @@ int BinIDRange::extreme( bool inl, bool mini ) const
 
 int BinIDRange::excludes( const BinID& bid ) const
 {
-    int inlok = (!start.inl || bid.inl >= start.inl-stepout.inl)
-		&& (!stop.inl || bid.inl <= stop.inl+stepout.inl);
-    int crlok = (!start.crl || bid.crl >= start.crl-stepout.crl)
-		&& (!stop.crl || bid.crl <= stop.crl+stepout.crl);
-    return inlok && crlok ? 0 : (inlok ? 2 : (crlok ? 1 : 3));
+    int inlval = (!start.inl || bid.inl >= start.inl-stepout.inl)
+		 && (!stop.inl || bid.inl <= stop.inl+stepout.inl) ? 0 : 2;
+    int crlval = (!start.crl || bid.crl >= start.crl-stepout.crl)
+		 && (!stop.crl || bid.crl <= stop.crl+stepout.crl) ? 0 : 2;
+    return inlval + crlval * 256;
 }
 
 
@@ -295,16 +295,17 @@ int BinIDSampler::excludes( const BinID& bid ) const
 {
     int res = BinIDRange::excludes(bid);
     if ( res ) return res;
+
     BinID rel( bid );
     rel.inl -= start.inl; rel.crl -= start.crl;
     int restinl = step.inl ? rel.inl % step.inl : 0;
     if ( restinl > stepout.inl ) restinl = step.inl - restinl;
     int restcrl = step.crl ? rel.crl % step.crl : 0;
     if ( restcrl > stepout.crl ) restcrl = step.crl - restcrl;
-    bool inlok = restinl <= stepout.inl;
-    bool crlok = restcrl <= stepout.crl;
 
-    return inlok && crlok ? 0 : (inlok ? 2 : (crlok ? 1 : 3));
+    int inlval = restinl <= stepout.inl ? 0 : 2;
+    int crlval = restcrl <= stepout.crl ? 0 : 2;
+    return inlval + crlval * 256;
 }
 
 
@@ -442,17 +443,18 @@ BinIDTable* BinIDTable::clone() const
 int BinIDTable::excludes( const BinID& bid ) const
 {
     bool foundinl = NO; bool foundcrl = NO;
-    bool seenmatch = NO;
     for ( int idx=0; idx<binids.size(); idx++ )
     {
 	const BinID& binid = binids[idx];
 	if ( binid == bid ) return 0;
+
 	if ( binid.inl == bid.inl ) foundinl = YES;
 	if ( binid.crl == bid.crl ) foundcrl = YES;
-	if ( foundinl && foundcrl ) seenmatch = YES;
     }
-    if ( !foundinl && !foundcrl ) return 3;
-    return foundinl ? (foundcrl ? (seenmatch?7:6) : 2 ) : 1;
+
+    int inlval = foundinl ? 1 : 2;   
+    int crlval = foundcrl ? 1 : 2;   
+    return inlval + crlval * 256;
 }
 
 
