@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.88 2003-08-11 11:25:29 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.89 2003-08-22 11:30:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,7 @@ public:
     				/*!< Should only be called as a direct 
 				     reply to evGetNewCubeData */
     const AttribSliceSet*	getCachedData(int) const;
+    bool			calculateAttrib(int id,bool newsel);
     bool			setCubeData(int,AttribSliceSet*,
 	    				    bool colordata=false);
     				/*!< data becomes mine */
@@ -190,7 +191,6 @@ protected:
     const visSurvey::Scene*	getScene(int) const;
 
     bool			selectAttrib(int id);
-    bool			calculateAttrib(int id,bool newsel);
 
     bool			hasColorAttrib(int) const;
     bool			selectColorAttrib(int);
