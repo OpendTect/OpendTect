@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.37 2004-12-06 10:35:10 dgb Exp $
+# $Id: od_exec,v 1.38 2004-12-06 13:57:02 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -25,7 +25,6 @@ endif
 set bindir="$DTECT_APPL/bin/$binsubdir"
 set nicecmd=""
 set extrascript=""
-set extraargs=""
 set xtermcmd=""
 set indosbox=no
 set askclosebox=no
@@ -188,13 +187,12 @@ if ( $indosbox == yes ) then
 	setenv executable `cygpath -w "$execfile" | sed -e's%\\%\\\\%g'`
     endif
 
-    setenv args "$nicecmd @$executable@ "
+    setenv args "$nicecmd -@-$executable-@- "
     foreach arg( $* )
-        setenv args "$args @$arg@"
+        setenv args "$args -@-$arg-@-"
     end
-    setenv args "$args $extraargs"
 
-    echo "$args" | sed -e's/@/"/g' -e's/%/ /g' > "$tempbatfile"
+    echo "$args" | sed -e's/-@-/"/g' -e's/%/ /g' > "$tempbatfile"
     if ( $askclosebox == yes ) then
         echo "pause" >> "$tempbatfile"
     endif
@@ -213,20 +211,34 @@ if ( $indosbox == yes ) then
 
 endif
 
+set allargs=""
+more_args:
+
+if ( "$1" != "" ) then
+
+    set arg=`echo "$1" | sed 's/ /%/g'`
+
+    set allargs="$args $arg"
+
+    shift
+    goto more_args
+
+endif
+
 
 if ( $issys == yes ) then
-    if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $* $extraargs"
+    if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $allargs"
     if ( $background == yes ) then
-	$xtermcmd $nicecmd $* $extraargs &
+	$xtermcmd $nicecmd $allargs &
     else
-	$xtermcmd $nicecmd $* $extraargs
+	$xtermcmd $nicecmd $allargs 
     endif
 else
-    if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$* $extraargs"
+    if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$allargs"
     if ( $background == yes ) then
-	$xtermcmd $nicecmd "$bindir"/$* $extraargs &
+	$xtermcmd $nicecmd "$bindir"/$allargs &
     else
-	$xtermcmd $nicecmd "$bindir"/$* $extraargs
+	$xtermcmd $nicecmd "$bindir"/$allargs
     endif
 endif
 
