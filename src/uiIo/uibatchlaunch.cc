@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.17 2003-01-21 08:17:46 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.18 2003-01-21 15:31:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 	, hostname(hn)
 	, progname(pn)
 	, opts("Output to")
+	, licfeat((int)Licenser::UdfFeat)
 {
     finaliseDone.notify( mCB(this,uiBatchLaunch,remSel) );
 
@@ -203,7 +204,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     if ( iop )
     {
 	iop->set( "Log file", fname );
-    	LM().setCert( *iop );
+	if ( licfeat != (int)Licenser::UdfFeat
+	  && LM().check((Licenser::Feat)licfeat) )
+	    LM().setCert( *iop );
     }
 
     if ( selected() == 3 )
@@ -226,10 +229,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	return true;
     }
 
-    BufferString tfname;
     if ( parfname == "" )
-	getProcFilename( sSingBaseNm, tfname );
-    if ( !writeProcFile(iopl,tfname) )
+	getProcFilename( sSingBaseNm, parfname );
+    if ( !writeProcFile(iopl,parfname) )
 	return false;
 
     BufferString comm( "@" );
@@ -242,7 +244,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	comm += hostname;
     }
     comm += " "; comm += progname;
-    comm += " -bg "; comm += tfname;
+    comm += " -bg "; comm += parfname;
 
     if ( !StreamProvider( comm ).executeCommand(dormt) )
     {
@@ -253,13 +255,14 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 }
 
 
-uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* ppn,
-					const char* t, const char* mpn )
+uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* t,
+					const char* ppn, const char* mpn )
 	: uiDialog(p,Setup(t,"X",0).oktext("Proceed"))
     	, uppgrp(new uiGroup(this,"Upper group"))
-	, procprognm(ppn)
-	, multiprognm(mpn)
+	, procprognm(ppn?ppn:"process_attrib")
+	, multiprognm(mpn?mpn:"SeisMMBatch")
     	, redo_(false)
+	, licfeat((int)Licenser::UdfFeat)
 {
     getProcFilename( sSingBaseNm, singparfname );
     getProcFilename( sMultiBaseNm, multiparfname );
@@ -279,24 +282,21 @@ void uiFullBatchDialog::addStdFields()
     singmachfld = new uiGenInput( dogrp, "Submit to",
 	    		BoolInpSpec("Single machine","Multiple machines") );
     singmachfld->valuechanged.notify( mCB(this,uiFullBatchDialog,singTogg) );
-    const char* txt = redo_ ? "Name of stored processing specification file"
+    const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
     parfnamefld = new uiFileInput( dogrp, txt, singparfname, false, "*.par;;*");
     parfnamefld->attach( alignedBelow, singmachfld );
-
 }
 
 
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
-    if ( redo_ ) return;
-
     const BufferString inpfnm = parfnamefld->fileName();
     const bool issing = singmachfld->getBoolValue();
     if ( issing && inpfnm == multiparfname )
-	parfnamefld->setText( singparfname );
+	parfnamefld->setFileName( singparfname );
     else if ( !issing && inpfnm == singparfname )
-	parfnamefld->setText( multiparfname );
+	parfnamefld->setFileName( multiparfname );
 }
 
 
@@ -310,7 +310,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	getProcFilename( inpfnm, inpfnm );
 
     const bool issing = singmachfld->getBoolValue();
-    IOParList* iopl; iopl->deepErase();
+    IOParList* iopl;
     if ( redo_ )
     {
 	if ( issing )
@@ -342,6 +342,7 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 {
     uiBatchLaunch dlg( this, iopl, 0, procprognm, false );
     dlg.setParFileName( fnm );
+    dlg.setLicFeat( licfeat );
     return dlg.go();
 }
 
@@ -358,4 +359,16 @@ bool uiFullBatchDialog::multiLaunch( const char* fnm )
 
     sd.close();
     return true;
+}
+
+
+uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
+       					    const char* mpn )
+    	: uiFullBatchDialog(p,"(Re-)Start processing",ppn,mpn)
+{
+    redo_ = true;
+    setHelpID( "101.2.2" );
+    setTitleText( "Run a saved processing job" );
+    setOkText( "Ok" );
+    addStdFields();
 }

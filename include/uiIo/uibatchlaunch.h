@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.h,v 1.3 2003-01-21 08:17:46 bert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.4 2003-01-21 15:31:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,9 @@ public:
 			~uiBatchLaunch();
 
     void		setParFileName( const char* fnm ) { parfname = fnm; }
+    void		setLicFeat( int lf )		  { licfeat = lf; }
+    			//!< Fill with a Licenser::Feat if necessary
+    			//!< to get a certificate into IOPar
 
 protected:
 
@@ -60,6 +63,7 @@ protected:
     BufferString	hostname;
     BufferString	progname;
     BufferString	parfname;
+    int			licfeat;
 
     uiFileInput*	filefld;
     uiLabeledComboBox*	optfld;
@@ -77,10 +81,16 @@ protected:
 
 class uiFullBatchDialog : public uiDialog
 {
+public:
+
+    void		setLicFeat( int lf )		  { licfeat = lf; }
+    			//!< See uiBatchLaunch::setLicFeat comment
+
 protected:
 
-    			uiFullBatchDialog(uiParent*,const char* procprogname,
-					  const char* wintxt,const char* mpn);
+    			uiFullBatchDialog(uiParent*,const char* wintxt,
+					  const char* procprognm=0,
+					  const char* multiprocprognm=0);
 
     const BufferString	procprognm;
     const BufferString	multiprognm;
@@ -105,6 +115,22 @@ protected:
     uiFileInput*	parfnamefld;
 
     bool		redo_; //!< set to true only for re-start
+    int			licfeat;
+
+};
+
+
+class uiRestartBatchDialog : public uiFullBatchDialog
+{
+public:
+
+    			uiRestartBatchDialog(uiParent*,const char* ppn=0,
+					     const char* mpn=0);
+
+protected:
+
+    virtual bool	prepareProcessing()	{ return true; }
+    virtual bool	fillPar(IOPar&)		{ return true; }
 
 };
 

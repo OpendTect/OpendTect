@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.38 2003-01-16 11:26:25 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.39 2003-01-21 15:31:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "executor.h"
 #include "ptrman.h"
+#include "lic.h"
 #include <stdlib.h>
 
 const char* sTmpStorKey = "Temporary storage directory";
@@ -57,19 +58,27 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     	, iopl(*new IOParList(iopl))
     	, nrcyclesdone(0)
     	, tmpstordirfld(0)
+    	, stopbut(0)
 {
-    statusBar()->addMsgFld( "Message", uiStatusBar::Left, 20 );
-    statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 20 );
-    statusBar()->addMsgFld( "NrDone", uiStatusBar::Left, 10 );
-    statusBar()->addMsgFld( "Activity", uiStatusBar::Left, 1 );
-    tim.tick.notify( mCB(this,uiSeisMMProc,doCycle) );
-
     const IOPar& iopar = *iopl[0];
     const char* res = iopar.find( "Target value" );
     BufferString txt( "Multi-Machine Processing " );
     if ( res && *res )
 	{ txt += "'"; txt += res; txt += "' "; }
     setTitleText( txt );
+
+    if ( LM().check(Licenser::VolOut) != getPID() )
+    {
+	new uiLabel( this, LM().errMsg() );
+	setOkText( "Dismiss" ); setCancelText( "" );
+	return;
+    }
+
+    statusBar()->addMsgFld( "Message", uiStatusBar::Left, 20 );
+    statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 20 );
+    statusBar()->addMsgFld( "NrDone", uiStatusBar::Left, 10 );
+    statusBar()->addMsgFld( "Activity", uiStatusBar::Left, 1 );
+    tim.tick.notify( mCB(this,uiSeisMMProc,doCycle) );
 
     bool isrestart = false;
     res = iopar.find( sTmpSeisID );
@@ -191,6 +200,8 @@ Executor& uiSeisMMProc::getFirstJM( const char* prognm, const IOPar& iopar )
 
 uiSeisMMProc::~uiSeisMMProc()
 {
+    if ( !stopbut ) return;
+
     delete logvwer;
     delete jm;
     if ( task != jm ) delete task;
@@ -405,10 +416,9 @@ void uiSeisMMProc::updateCurMachs()
 
 bool uiSeisMMProc::rejectOK( CallBacker* )
 {
+    if ( !stopbut || !running ) return true;
+
     BufferString msg;
-
-    if ( !running ) return true;
-
     int res = 0;
     if ( !finished )
     {
@@ -519,7 +529,7 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
 
 bool uiSeisMMProc::acceptOK(CallBacker*)
 {
-    if ( finished )
+    if ( !stopbut || finished )
 	return true;
     if ( jmfinished ) // Transferring data!
 	return false;
