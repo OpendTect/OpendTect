@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.28 2004-07-21 10:33:38 nanne Exp $
+ RCS:		$Id: iopar.h,v 1.29 2004-09-03 09:11:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,6 +144,7 @@ public:
     bool		get(const char*,MultiID&) const;
     bool		get(const char*,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&) const;
+    bool		get(const char*,BufferStringSet&) const;
 
     void		set(const char*,const char*);
     void		set(const char*,int);
@@ -169,6 +170,7 @@ public:
     void		set(const char*,const BufferString&);
     void		set(const char*,const BufferString&,
 	    				const BufferString&);
+    void		set(const char*,const BufferStringSet&);
 
     void		set(const char*, const TypeSet<int>& );
     void		set(const char*, const TypeSet<long long>& );

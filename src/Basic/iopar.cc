@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.40 2004-07-16 15:35:25 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.41 2004-09-03 09:11:39 bert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -733,6 +733,22 @@ bool IOPar::get( const char* s, BufferString& bs1, BufferString& bs2 ) const
 }
 
 
+bool IOPar::get( const char* s, BufferStringSet& bss ) const
+{
+    const char* res = find( s );
+    if ( !res ) return false;
+
+    bss.erase();
+    FileMultiString fms( res );
+    const int sz = fms.size();
+    if ( sz )
+	bss.setIsOwner( true );
+    for ( int idx=0; idx<sz; idx++ )
+	bss.add( fms[idx] );
+    return true;
+}
+
+
 void IOPar::set( const char* s, const BufferString& bs )
 {
     set( s, (const char*)bs );
@@ -743,6 +759,15 @@ void IOPar::set( const char* s, const BufferString& bs1,
 				const BufferString& bs2 )
 {
     set( s, (const char*)bs1, (const char*)bs2 );
+}
+
+
+void IOPar::set( const char* s, const BufferStringSet& bss )
+{
+    FileMultiString fms;
+    for ( int idx=0; idx<bss.size(); idx++ )
+	fms += bss.get( idx );
+    set( s, fms.buf() );
 }
 
 
