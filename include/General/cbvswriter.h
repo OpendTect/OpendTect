@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.3 2001-03-30 16:32:53 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.4 2001-04-04 11:13:27 bert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include <cbvsio.h>
 #include <cbvsinfo.h>
 #include <iostream.h>
 template <class T> class DataInterpreter;
@@ -24,7 +25,7 @@ Works on an ostream that will be deleted on destruction, or when finished.
 
 */
 
-class CBVSWriter
+class CBVSWriter : public CBVSIO
 {
 public:
 

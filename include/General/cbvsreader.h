@@ -8,33 +8,41 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.1 2001-03-19 10:17:57 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.2 2001-04-04 11:13:27 bert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include <cbvsio.h>
 #include <cbvsinfo.h>
+#include <datainterp.h>
 #include <iostream.h>
-template <class T> class DataInterpreter;
 
 
-/*!\brief Reader for CBVS format */
+/*!\brief Reader for CBVS format
 
-class CBVSReader
+The stream it works on will be deleted on destruction or closed
+if close() is explicitly called.
+
+*/
+
+class CBVSReader : public CBVSIO
 {
 public:
 
 			CBVSReader(istream*);
-    bool		failed() const	{ return errmsg_ ? true : false; }
-    const char*		errMsg() const	{ return errmsg_; }
+			~CBVSReader()	{ close(); }
+
     const CBVSInfo&	info() const	{ return info_; }
+    void		close();
 
-    bool		goTo(const BinID&,int icomp=0,int isamp=0);
-    bool		moveTo(int icomp,int isamp);
-    bool		toNext(int icomp=0,int isamp=0);
-    bool		toNextCrl(int,int icomp=0,int isamp=0);
+    bool		goTo(const BinID&);
+    bool		toNext(bool skip_trcs_at_same_position=false);
+    BinID		binID() const	{ return curbinid; }
 
-    void		fetch(void*,int nrbytes);
+    bool		getHInfo(CBVSInfo::ExplicitData&);
+    bool		fetch(void**);
+
     static const char*	check(istream&);
 			//!< Determines whether a file is a CBVS file
 			//!< returns an error message or null if OK.
@@ -43,24 +51,32 @@ protected:
 
     istream&		strm_;
     CBVSInfo		info_;
-    const char*		errmsg_;
 
     void		getExplicits(const unsigned char*);
-    bool		readComps(int,const DataInterpreter<int>&,
-				  const DataInterpreter<float>&);
-    bool		readGeom(const DataInterpreter<int>&,
-				  const DataInterpreter<double>&);
-    bool		readTrailer(const DataInterpreter<int>&);
-    bool		readBinIDBounds(const DataInterpreter<int>&);
+    bool		readComps();
+    bool		readGeom();
+    bool		readTrailer();
 
 private:
 
-    const streampos	datastartfo;
-    streampos		lastposfo;
+    int			nrxlines;
+    int			bytespertrace;
     BinID		curbinid;
-    int			curinldataidx;
+    bool		hinfofetched;
+    int			lastinlinfnr;
+    int			lastsegnr;
+    int			posidx;
+    int			explicitnrbytes;
+    DataInterpreter<int> iinterp;
+    DataInterpreter<float> finterp;
+    DataInterpreter<double> dinterp;
+    bool		isclosed;
 
     streampos		readInfo();
+
+    streampos		lastposfo;
+			// Do not move datastartfo declaration upward!
+    const streampos	datastartfo;
 
 };
 

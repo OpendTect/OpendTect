@@ -8,14 +8,47 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.3 2001-03-30 08:53:51 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.4 2001-04-04 11:13:26 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <binid2coord.h>
 #include <basiccompinfo.h>
+#include <scaler.h>
 #include <sets.h>
+
+
+/*!\brief CBVS component info is Basic + linear scaler. */
+
+class CBVSComponentInfo : public BasicComponentInfo
+{
+public:
+			CBVSComponentInfo( const char* nm=0 )
+			: BasicComponentInfo(nm)
+			, scaler(0)			{}
+			CBVSComponentInfo(const CBVSComponentInfo& cci )
+			: BasicComponentInfo(cci)
+			, scaler(cci.scaler?cci.scaler->duplicate():0)	{}
+    virtual		~CBVSComponentInfo()		{ delete scaler; }
+    CBVSComponentInfo&	operator =( const CBVSComponentInfo& cci )
+			{
+			    if ( this == &cci ) return *this;
+			    BasicComponentInfo::operator =( cci );
+			    delete scaler;
+			    scaler = cci.scaler ? cci.scaler->duplicate() : 0;
+			    return *this;
+			}
+    bool		operator ==( const CBVSComponentInfo& cci ) const
+			{ return BasicComponentInfo::operator ==(cci)
+			      && ( (!scaler && !cci.scaler)
+				|| (scaler && cci.scaler
+				  && *scaler == *cci.scaler) );
+			}
+
+    LinScaler*		scaler;
+
+};
 
 
 /*!\brief Data available in CBVS format header and trailer.
@@ -52,6 +85,7 @@ public:
 
 	bool			fullyrectandreg;
 	BinID			start, stop, step;
+				//!< If step < 0, the order is reversed in the file
 	BinID2Coord		b2c;
 	ObjectSet<InlineInfo>	inldata;
 				//!< For write, inldata is ignored in favor
@@ -90,7 +124,7 @@ public:
     };
 
     ExplicitInfo		explinfo;
-    ObjectSet<BasicComponentInfo> compinfo;
+    ObjectSet<CBVSComponentInfo> compinfo;
 
     int				nrtrcsperposn;
     SurvGeom			geom;
