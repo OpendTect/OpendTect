@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.14 2004-01-08 17:52:41 kristofer Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.15 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -13,24 +13,27 @@ static const char* rcsID = "$Id: vistransform.cc,v 1.14 2004-01-08 17:52:41 kris
 #include "Inventor/nodes/SoMatrixTransform.h"
 #include "Inventor/SbLinear.h" 
 
-const char* visBase::Transformation::matrixstr = "Matrix Row ";
+namespace visBase
+{
 
-mCreateFactoryEntry( visBase::Transformation );
+const char* Transformation::matrixstr = "Matrix Row ";
 
-visBase::Transformation::Transformation()
+mCreateFactoryEntry( Transformation );
+
+Transformation::Transformation()
     : transform_( new SoMatrixTransform )
 {
     transform_->ref();
 }
 
 
-visBase::Transformation::~Transformation()
+Transformation::~Transformation()
 {
     transform_->unref();
 }
 
 
-void visBase::Transformation::setRotation( const Coord3& vec, float angle )
+void Transformation::setRotation( const Coord3& vec, float angle )
 {
     SbVec3f translation;
     SbRotation rotation;
@@ -46,7 +49,7 @@ void visBase::Transformation::setRotation( const Coord3& vec, float angle )
 }
 
 
-void visBase::Transformation::setTranslation( const Coord3& vec )
+void Transformation::setTranslation( const Coord3& vec )
 {
     SbVec3f translation;
     SbRotation rotation;
@@ -62,7 +65,7 @@ void visBase::Transformation::setTranslation( const Coord3& vec )
 }
 
 
-Coord3 visBase::Transformation::getTranslation() const
+Coord3 Transformation::getTranslation() const
 {
     SbVec3f translation;
     SbRotation rotation;
@@ -75,7 +78,7 @@ Coord3 visBase::Transformation::getTranslation() const
 }
 
 
-void visBase::Transformation::setScale( const Coord3& vec )
+void Transformation::setScale( const Coord3& vec )
 {
     SbVec3f translation;
     SbRotation rotation;
@@ -91,7 +94,7 @@ void visBase::Transformation::setScale( const Coord3& vec )
 }
 
 
-Coord3 visBase::Transformation::getScale() const
+Coord3 Transformation::getScale() const
 {
     SbVec3f translation;
     SbRotation rotation;
@@ -104,7 +107,7 @@ Coord3 visBase::Transformation::getScale() const
 }
 
 
-void visBase::Transformation::reset()
+void Transformation::reset()
 {
     setA( 1, 0, 0, 0,
 	  0, 1, 0, 0,
@@ -113,7 +116,7 @@ void visBase::Transformation::reset()
 }
 
 
-void visBase::Transformation::setA( float a11, float a12, float a13, float a14,
+void Transformation::setA( float a11, float a12, float a13, float a14,
 				   float a21, float a22, float a23, float a24,
 				   float a31, float a32, float a33, float a34,
 				   float a41, float a42, float a43, float a44 )
@@ -125,13 +128,13 @@ void visBase::Transformation::setA( float a11, float a12, float a13, float a14,
 }
 
 
-void visBase::Transformation::setA( const SbMatrix& matrix )
+void Transformation::setA( const SbMatrix& matrix )
 {
     transform_->matrix.setValue(matrix);
 }
 
 
-Coord3 visBase::Transformation::transform( const Coord3& pos ) const
+Coord3 Transformation::transform( const Coord3& pos ) const
 {
     const SbVec3f src( pos.x, pos.y, pos.z );
     SbVec3f dst;
@@ -144,7 +147,7 @@ Coord3 visBase::Transformation::transform( const Coord3& pos ) const
 }
 
 
-Coord3 visBase::Transformation::transformBack( const Coord3& pos ) const
+Coord3 Transformation::transformBack( const Coord3& pos ) const
 {
     const SbVec3f src( pos.x, pos.y, pos.z );
     SbVec3f dst;
@@ -158,7 +161,7 @@ Coord3 visBase::Transformation::transformBack( const Coord3& pos ) const
 }
 
 
-void visBase::Transformation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void Transformation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
     const SbMat& matrix = transform_->matrix.getValue().getValue();
@@ -177,7 +180,7 @@ void visBase::Transformation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int visBase::Transformation::usePar( const IOPar& par )
+int Transformation::usePar( const IOPar& par )
 {
     int res = DataObject::usePar( par );
     if ( res!= 1 ) return res;
@@ -213,8 +216,10 @@ int visBase::Transformation::usePar( const IOPar& par )
 
 
 
-SoNode* visBase::Transformation::getInventorNode()
+SoNode* Transformation::getInventorNode()
 {
     return transform_;
 }
 
+
+}; // namespace visBase

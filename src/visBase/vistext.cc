@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.10 2004-11-16 09:28:33 kristofer Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.11 2005-02-04 14:31:34 kristofer Exp $";
 
 
 #include "vistext.h"
@@ -12,18 +12,21 @@ static const char* rcsID = "$Id: vistext.cc,v 1.10 2004-11-16 09:28:33 kristofer
 #include "iopar.h"
 #include "vistransform.h"
 
-const char* visBase::Text::stringstr = "Text";
-const char* visBase::Text::fontsizestr = "Font size";
-const char* visBase::Text::justificationstr = "Justification";
-const char* visBase::Text::positionstr = "Position";
-
 #include "Inventor/nodes/SoText2.h"
 #include "Inventor/nodes/SoFont.h"
 #include "Inventor/nodes/SoTranslation.h"
 
-mCreateFactoryEntry( visBase::Text );
+namespace visBase
+{
 
-visBase::Text::Text()
+const char* Text::stringstr = "Text";
+const char* Text::fontsizestr = "Font size";
+const char* Text::justificationstr = "Justification";
+const char* Text::positionstr = "Position";
+
+mCreateFactoryEntry( Text );
+
+Text::Text()
     : VisualObjectImpl(false)
     , text( new SoText2 )
     , font( new SoFont )
@@ -36,13 +39,13 @@ visBase::Text::Text()
 }
 
 
-visBase::Text::~Text()
+Text::~Text()
 {
     if ( transformation ) transformation->unRef();
 }
 
 
-Coord3 visBase::Text::position() const
+Coord3 Text::position() const
 {
     SbVec3f pos = textpos->translation.getValue();
     Coord3 res( pos[0], pos[1], pos[2] );
@@ -50,7 +53,7 @@ Coord3 visBase::Text::position() const
 }
 
 
-void visBase::Text::setPosition(const Coord3& pos_ )
+void Text::setPosition(const Coord3& pos_ )
 {
     const Coord3 pos = transformation
 	? transformation->transform( pos_ ) : pos_;
@@ -58,7 +61,7 @@ void visBase::Text::setPosition(const Coord3& pos_ )
 }
 
 
-BufferString visBase::Text::getText() const
+BufferString Text::getText() const
 {
     SbString val;
     text->string.get( val );
@@ -67,25 +70,25 @@ BufferString visBase::Text::getText() const
 }
 
 
-void visBase::Text::setText(const char* newtext)
+void Text::setText(const char* newtext)
 {
     text->string.setValue(newtext);
 }
 
 
-float visBase::Text::size() const
+float Text::size() const
 {
     return font->size.getValue();
 }
 
 
-void visBase::Text::setSize( float ns )
+void Text::setSize( float ns )
 {
     font->size.setValue( ns );
 }
 
 
-visBase::Text::Justification visBase::Text::justification() const
+Text::Justification Text::justification() const
 {
     if ( text->justification.getValue() == SoText2::CENTER )
 	return Center;
@@ -96,7 +99,7 @@ visBase::Text::Justification visBase::Text::justification() const
 }
 
 
-void visBase::Text::setJustification( Justification just )
+void Text::setJustification( Justification just )
 {
     if ( just==Center )
 	text->justification.setValue( SoText2::CENTER );
@@ -107,7 +110,7 @@ void visBase::Text::setJustification( Justification just )
 }
 
 
-void visBase::Text::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void Text::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
@@ -120,7 +123,7 @@ void visBase::Text::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int visBase::Text::usePar( const IOPar& par )
+int Text::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
@@ -149,7 +152,7 @@ int visBase::Text::usePar( const IOPar& par )
 }
 
 
-void visBase::Text::setDisplayTransformation( Transformation* nt )
+void Text::setDisplayTransformation( Transformation* nt )
 {
     const Coord3 pos = position();
 
@@ -160,7 +163,9 @@ void visBase::Text::setDisplayTransformation( Transformation* nt )
 }	
 
 
-visBase::Transformation* visBase::Text::getDisplayTransformation()
+Transformation* Text::getDisplayTransformation()
 {
     return transformation;
 }
+
+}; // namespace visBase

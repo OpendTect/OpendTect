@@ -4,45 +4,47 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.16 2004-11-02 10:46:58 kristofer Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.17 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
 
-mCreateFactoryEntry( visBase::Camera );
-
-const char* visBase::Camera::posstr = "Position";
-const char* visBase::Camera::orientationstr = "Orientation";
-const char* visBase::Camera::aspectratiostr = "Aspect ratio";
-const char* visBase::Camera::heightanglestr = "Height Angle";
-const char* visBase::Camera::neardistancestr = "Near Distance";
-const char* visBase::Camera::fardistancestr = "Far Distance";
-const char* visBase::Camera::focaldistancestr = "Focal Distance";
-
-
 #include "UTMCamera.h"
 
+namespace visBase
+{
 
-visBase::Camera::Camera()
+mCreateFactoryEntry( Camera );
+
+const char* Camera::posstr = "Position";
+const char* Camera::orientationstr = "Orientation";
+const char* Camera::aspectratiostr = "Aspect ratio";
+const char* Camera::heightanglestr = "Height Angle";
+const char* Camera::neardistancestr = "Near Distance";
+const char* Camera::fardistancestr = "Far Distance";
+const char* Camera::focaldistancestr = "Focal Distance";
+
+
+Camera::Camera()
     : camera( new UTMCamera )
 {}
 
 
-visBase::Camera::~Camera()
+Camera::~Camera()
 {}
 
 
-SoNode* visBase::Camera::getInventorNode()
+SoNode* Camera::getInventorNode()
 { return camera; }
 
 
-void visBase::Camera::setPosition(const Coord3& pos)
+void Camera::setPosition(const Coord3& pos)
 {
     camera->position.setValue( pos.x, pos.y, pos.z );
 }
 
 
-Coord3 visBase::Camera::position() const
+Coord3 Camera::position() const
 {
     SbVec3f pos = camera->position.getValue();
     Coord3 res;
@@ -53,13 +55,13 @@ Coord3 visBase::Camera::position() const
 }
 
 
-void visBase::Camera::setOrientation( const Coord3& dir, float angle )
+void Camera::setOrientation( const Coord3& dir, float angle )
 {
     camera->orientation.setValue( dir.x, dir.y, dir.z, angle );
 }
 
 
-void visBase::Camera::getOrientation( Coord3& dir, float& angle )
+void Camera::getOrientation( Coord3& dir, float& angle )
 {
     SbVec3f axis;
     camera->orientation.getValue( axis, angle);
@@ -69,13 +71,13 @@ void visBase::Camera::getOrientation( Coord3& dir, float& angle )
 }
 
 
-void visBase::Camera::pointAt(const Coord3& pos)
+void Camera::pointAt(const Coord3& pos)
 {
     camera->pointAt( SbVec3f( pos.x, pos.y, pos.z ));
 }
 
 
-void visBase::Camera::pointAt(const Coord3& pos,
+void Camera::pointAt(const Coord3& pos,
 			      const Coord3& upvector)
 {
     camera->pointAt( SbVec3f( pos.x, pos.y, pos.z ),
@@ -83,87 +85,87 @@ void visBase::Camera::pointAt(const Coord3& pos,
 }
 
 
-void visBase::Camera::setAspectRatio(float n)
+void Camera::setAspectRatio(float n)
 {
     camera->aspectRatio.setValue(n);
 }
 
 
-float visBase::Camera::aspectRatio() const
+float Camera::aspectRatio() const
 {
     return camera->aspectRatio.getValue();
 }
 
 
-void visBase::Camera::setHeightAngle(float n)
+void Camera::setHeightAngle(float n)
 {
     camera->heightAngle.setValue(n);
 }
 
 
-float visBase::Camera::heightAngle() const
+float Camera::heightAngle() const
 {
     return camera->heightAngle.getValue();
 }
 
 
-void visBase::Camera::setNearDistance(float n)
+void Camera::setNearDistance(float n)
 {
     camera->nearDistance.setValue(n);
 }
 
 
-float visBase::Camera::nearDistance() const
+float Camera::nearDistance() const
 {
     return camera->nearDistance.getValue();
 }
 
 
-void visBase::Camera::setFarDistance(float n)
+void Camera::setFarDistance(float n)
 {
     camera->farDistance.setValue(n);
 }
 
 
-float visBase::Camera::farDistance() const
+float Camera::farDistance() const
 {
     return camera->farDistance.getValue();
 }
 
 
-void visBase::Camera::setFocalDistance(float n)
+void Camera::setFocalDistance(float n)
 {
     camera->focalDistance.setValue(n);
 }
 
 
-float visBase::Camera::focalDistance() const
+float Camera::focalDistance() const
 {
     return camera->focalDistance.getValue();
 }
 
 
-void visBase::Camera::setStereoAdjustment(float n)
+void Camera::setStereoAdjustment(float n)
 {
     camera->setStereoAdjustment( n );
 }
 
-float visBase::Camera::getStereoAdjustment() const
+float Camera::getStereoAdjustment() const
 {
     return camera->getStereoAdjustment();
 }
 
-void visBase::Camera::setBalanceAdjustment(float n)
+void Camera::setBalanceAdjustment(float n)
 {
     camera->setBalanceAdjustment( n );
 }
 
-float visBase::Camera::getBalanceAdjustment() const
+float Camera::getBalanceAdjustment() const
 {
     return camera->getBalanceAdjustment();
 }
 
-int visBase::Camera::usePar( const IOPar& iopar )
+int Camera::usePar( const IOPar& iopar )
 {
     int res = DataObject::usePar( iopar );
     if ( res != 1 ) return res;
@@ -195,7 +197,7 @@ int visBase::Camera::usePar( const IOPar& iopar )
     return 1;
 }
 
-Coord3 visBase::Camera::centerFrustrum()
+Coord3 Camera::centerFrustrum()
 {
    
     float distancetopoint = ((( farDistance() - nearDistance() ) / 2) +
@@ -218,7 +220,7 @@ Coord3 visBase::Camera::centerFrustrum()
 
 }
 
-float visBase::Camera::frustrumRadius()
+float Camera::frustrumRadius()
 {
 
     float distancetopoint = ((( farDistance() - nearDistance() ) / 2) +
@@ -235,7 +237,7 @@ float visBase::Camera::frustrumRadius()
     return radius;		
 }
 
-void visBase::Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( iopar, saveids );
     Coord3 pos = position();
@@ -253,3 +255,4 @@ void visBase::Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( focaldistancestr, focalDistance() );
 }
 
+}; // namespace visBase

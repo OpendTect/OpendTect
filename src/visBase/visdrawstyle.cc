@@ -4,37 +4,40 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visdrawstyle.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoDrawStyle.h"
 
-DefineEnumNames( visBase::DrawStyle, Style, 1, "Style" )
+namespace visBase
+{
+
+DefineEnumNames( DrawStyle, Style, 1, "Style" )
 { "Filled", "Lines", "Points", "Invisible", 0 };
 
-mCreateFactoryEntry( visBase::DrawStyle );
+mCreateFactoryEntry( DrawStyle );
 
 
-const char* visBase::DrawStyle::linestylestr = "Line Style";
-const char* visBase::DrawStyle::drawstylestr = "Draw Style";
-const char* visBase::DrawStyle::pointsizestr = "Point Size";
+const char* DrawStyle::linestylestr = "Line Style";
+const char* DrawStyle::drawstylestr = "Draw Style";
+const char* DrawStyle::pointsizestr = "Point Size";
 
-visBase::DrawStyle::DrawStyle()
+DrawStyle::DrawStyle()
     : drawstyle( new SoDrawStyle )
 {
     drawstyle->ref();
 }
 
 
-visBase::DrawStyle::~DrawStyle()
+DrawStyle::~DrawStyle()
 {
     drawstyle->unref();
 }
 
 
-void visBase::DrawStyle::setDrawStyle( Style s )
+void DrawStyle::setDrawStyle( Style s )
 {
     if ( s==Filled ) drawstyle->style = SoDrawStyle::FILLED;
     else if ( s==Lines ) drawstyle->style = SoDrawStyle::LINES;
@@ -43,7 +46,7 @@ void visBase::DrawStyle::setDrawStyle( Style s )
 }
 
 
-visBase::DrawStyle::Style visBase::DrawStyle::getDrawStyle() const
+DrawStyle::Style DrawStyle::getDrawStyle() const
 {
     SoDrawStyle::Style style = (SoDrawStyle::Style) drawstyle->style.getValue();
     if ( style==SoDrawStyle::FILLED ) return Filled;
@@ -53,19 +56,19 @@ visBase::DrawStyle::Style visBase::DrawStyle::getDrawStyle() const
 }
 
 
-void visBase::DrawStyle::setPointSize( float nsz )
+void DrawStyle::setPointSize( float nsz )
 {
     drawstyle->pointSize.setValue( nsz );
 }
 
 
-float visBase::DrawStyle::getPointSize() const
+float DrawStyle::getPointSize() const
 {
     return drawstyle->pointSize.getValue();
 }
 
 
-void visBase::DrawStyle::setLineStyle( const LineStyle& nls )
+void DrawStyle::setLineStyle( const LineStyle& nls )
 {
     linestyle = nls;
     updateLineStyle();
@@ -73,13 +76,13 @@ void visBase::DrawStyle::setLineStyle( const LineStyle& nls )
 
 
 
-SoNode* visBase::DrawStyle::getInventorNode()
+SoNode* DrawStyle::getInventorNode()
 {
     return drawstyle;
 }
 
 
-void visBase::DrawStyle::updateLineStyle()
+void DrawStyle::updateLineStyle()
 {
     drawstyle->lineWidth.setValue( linestyle.width );
 
@@ -95,7 +98,7 @@ void visBase::DrawStyle::updateLineStyle()
     drawstyle->linePattern.setValue( pattern );
 }
 
-int visBase::DrawStyle::usePar( const IOPar& par )
+int DrawStyle::usePar( const IOPar& par )
 {
     const char* linestylepar = par.find( linestylestr );
     if ( !linestylepar ) return -1;
@@ -120,7 +123,7 @@ int visBase::DrawStyle::usePar( const IOPar& par )
 }
 
 
-void visBase::DrawStyle::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void DrawStyle::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
 
@@ -131,3 +134,5 @@ void visBase::DrawStyle::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( drawstylestr, StyleNames[(int) getDrawStyle()] );
     par.set( pointsizestr, getPointSize() );
 }
+
+}; // namespace visBase

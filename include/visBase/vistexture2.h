@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.10 2004-02-02 15:36:04 nanne Exp $
+ RCS:		$Id: vistexture2.h,v 1.11 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -72,7 +72,7 @@ protected:
 
 
 /*!\brief Set of 2D Textures
-Class for managing a set of 2D textures (visBase::Texture2). All textures are
+Class for managing a set of 2D textures (Texture2). All textures are
 added to a SoSwitch node, which means that only one child (a Texture2 node) 
 will be visited during rendering.
 To let the children share the same properties by default, use the 

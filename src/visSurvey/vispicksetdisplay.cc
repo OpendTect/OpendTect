@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.63 2005-01-28 16:04:07 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.64 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vissurvpickset.h"
 
@@ -277,7 +277,7 @@ void PickSetDisplay::pickCB( CallBacker* cb )
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
-	    		visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+	    		visBase::DM().getObject(eventinfo.pickedobjids[idx]);
 
 	if ( dataobj->selectable() )
 	{
@@ -320,7 +320,7 @@ void PickSetDisplay::pickCB( CallBacker* cb )
 		for ( int idx=0; idx<sz; idx++ )
 		{
 		    const DataObject* pickedobj =
-			visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+			visBase::DM().getObject(eventinfo.pickedobjids[idx]);
 		    mDynamicCastGet(const SurveyObject*,so,pickedobj)
 		    if ( so && so->allowPicks() )
 		    {
@@ -336,7 +336,7 @@ void PickSetDisplay::pickCB( CallBacker* cb )
 		    if ( transformation )
 			newpos = transformation->transformBack(newpos);
 		    mDynamicCastGet(SurveyObject*,so,
-			    	    visBase::DM().getObj(eventid))
+			    	    visBase::DM().getObject(eventid))
 		    if ( so ) so->snapToTracePos( newpos );
 		    addPick( newpos );
 		}

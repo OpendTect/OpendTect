@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.30 2004-12-20 14:59:17 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.31 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -21,7 +21,10 @@ static const char* rcsID = "$Id: vistexture2.cc,v 1.30 2004-12-20 14:59:17 nanne
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoTexture2.h"
 
-mCreateFactoryEntry( visBase::Texture2 );
+namespace visBase
+{
+
+mCreateFactoryEntry( Texture2 );
 
 //TODO make these class members and get them from COIN
 static const int minpix2d = 128;
@@ -46,7 +49,7 @@ inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
 }
 
 
-visBase::Texture2::Texture2()
+Texture2::Texture2()
     : x0sz( -1 )
     , x1sz( -1 )
     , texture( new SoTexture2 )
@@ -59,13 +62,13 @@ visBase::Texture2::Texture2()
 }
 
 
-visBase::Texture2::~Texture2()
+Texture2::~Texture2()
 {
     texturegrp->removeChild( texture );
 }
 
 
-void visBase::Texture2::setTextureSize( int x0, int x1 )
+void Texture2::setTextureSize( int x0, int x1 )
 { 
     x0sz = x0; x1sz = x1;
     texture->image.setValue( SbVec2s( x1sz, x0sz ), 
@@ -76,7 +79,7 @@ void visBase::Texture2::setTextureSize( int x0, int x1 )
 #define mSodOff { x0sz = x1sz = -1; setResizedData( 0, 0, sel ); return; }
 
 
-void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
+void Texture2::setData( const Array2D<float>* newdata, DataType sel )
 {
     if ( !newdata )
     {
@@ -119,7 +122,7 @@ void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
 
 static const int sMaxNrClasses = 100;
 
-bool visBase::Texture2::isDataClassified( const Array2D<float>* newdata ) const
+bool Texture2::isDataClassified( const Array2D<float>* newdata ) const
 {
     const int datax0size = newdata->info().getSize(0);
     const int datax1size = newdata->info().getSize(1);
@@ -142,7 +145,7 @@ bool visBase::Texture2::isDataClassified( const Array2D<float>* newdata ) const
 }
 
 
-void visBase::Texture2::polyInterp( const Array2DInfoImpl& newsize,
+void Texture2::polyInterp( const Array2DInfoImpl& newsize,
 				    const Array2D<float>* newdata, float* res )
 {
     const int datax0size = newdata->info().getSize(0);
@@ -221,7 +224,7 @@ void visBase::Texture2::polyInterp( const Array2DInfoImpl& newsize,
 }
 
 
-void visBase::Texture2::nearestValInterp( const Array2DInfoImpl& newsize,
+void Texture2::nearestValInterp( const Array2DInfoImpl& newsize,
 				    const Array2D<float>* newdata, float* res )
 {
     const int datax0size = newdata->info().getSize(0);
@@ -250,7 +253,7 @@ void visBase::Texture2::nearestValInterp( const Array2DInfoImpl& newsize,
 }
 
 
-unsigned char* visBase::Texture2::getTexturePtr()
+unsigned char* Texture2::getTexturePtr()
 {
     SbVec2s dimensions;
     int components;
@@ -258,16 +261,16 @@ unsigned char* visBase::Texture2::getTexturePtr()
 }
 
 
-void visBase::Texture2::finishEditing()
+void Texture2::finishEditing()
 { 
     texture->image.finishEditing();
     texture->touch();
 }
 
 
-mCreateFactoryEntry( visBase::Texture2Set );
+mCreateFactoryEntry( Texture2Set );
 
-visBase::Texture2Set::Texture2Set()
+Texture2Set::Texture2Set()
     : textureswitch(new SoSwitch)
     , shareres(true)
     , sharecolseq(true)
@@ -276,7 +279,7 @@ visBase::Texture2Set::Texture2Set()
 }
 
 
-visBase::Texture2Set::~Texture2Set()
+Texture2Set::~Texture2Set()
 {
     removeAll(false);
     textureswitch->unref();
@@ -284,9 +287,9 @@ visBase::Texture2Set::~Texture2Set()
 
 
 #define mColTabCB \
-    mCB(this,visBase::Texture2Set,colTabChanged)
+    mCB(this,Texture2Set,colTabChanged)
 
-void visBase::Texture2Set::addTexture( Texture2* text )
+void Texture2Set::addTexture( Texture2* text )
 {
     if ( !text ) return;
     if ( textureset.size() )
@@ -304,7 +307,7 @@ void visBase::Texture2Set::addTexture( Texture2* text )
 }
 
 
-void visBase::Texture2Set::removeTexture( Texture2* text )
+void Texture2Set::removeTexture( Texture2* text )
 {
     if ( !text ) return;
     textureswitch->removeChild( text->getInventorNode() );
@@ -313,21 +316,21 @@ void visBase::Texture2Set::removeTexture( Texture2* text )
 }
 
 
-void visBase::Texture2Set::removeTexture( int idx )
+void Texture2Set::removeTexture( int idx )
 {
-    visBase::Texture2* text = idx>=0 || idx<textureset.size() ? textureset[idx]
+    Texture2* text = idx>=0 || idx<textureset.size() ? textureset[idx]
 							      : 0;
     removeTexture( text );
 }
 
 
-void visBase::Texture2Set::removeAll( bool keepfirst )
+void Texture2Set::removeAll( bool keepfirst )
 {
     int minsz = keepfirst ? 1 : 0;
     while ( textureset.size() > minsz )
     {
         const int idx = textureset.size()-1;
-        visBase::Texture2* text = textureset[idx];
+        Texture2* text = textureset[idx];
 	text->getColorTab().rangechange.remove( mColTabCB );
 	text->getColorTab().autoscalechange.remove( mColTabCB );
         textureswitch->removeChild( text->getInventorNode() );
@@ -340,19 +343,19 @@ void visBase::Texture2Set::removeAll( bool keepfirst )
 }
 
 
-int visBase::Texture2Set::nrTextures() const
+int Texture2Set::nrTextures() const
 {
     return textureset.size();
 }
 
 
-visBase::Texture2* visBase::Texture2Set::getTexture( int idx ) const
+Texture2* Texture2Set::getTexture( int idx ) const
 {
     return idx>=0 && idx<textureset.size() ? textureset[idx] : 0;
 }
 
 
-void visBase::Texture2Set::setActiveTexture( int idx )
+void Texture2Set::setActiveTexture( int idx )
 {
     int nrchildren = textureswitch->getNumChildren();
     textureswitch->whichChild = 
@@ -360,26 +363,26 @@ void visBase::Texture2Set::setActiveTexture( int idx )
 }
 
 
-visBase::Texture2* visBase::Texture2Set::activeTexture() const
+Texture2* Texture2Set::activeTexture() const
 {
     int idx = textureswitch->whichChild.getValue();
     return getTexture(idx);
 }
 
 
-SoNode* visBase::Texture2Set::getInventorNode()
+SoNode* Texture2Set::getInventorNode()
 {
     return textureswitch;
 }
 
 
-void visBase::Texture2Set::finishTextures()
+void Texture2Set::finishTextures()
 {
     if ( sharecolseq )
     {
 	for ( int idx=0; idx<textureset.size(); idx++ )
 	{
-	    visBase::VisColorTab& ct = textureset[idx]->getColorTab();
+	    VisColorTab& ct = textureset[idx]->getColorTab();
 	    ct.rangechange.notify( mColTabCB );
 	    ct.autoscalechange.notify( mColTabCB );
 	}
@@ -387,9 +390,9 @@ void visBase::Texture2Set::finishTextures()
 }
 
 
-void visBase::Texture2Set::colTabChanged( CallBacker* cb )
+void Texture2Set::colTabChanged( CallBacker* cb )
 {
-    mDynamicCastGet(visBase::VisColorTab*,ct,cb)
+    mDynamicCastGet(VisColorTab*,ct,cb)
     if ( !ct ) return;
     ct->autoscalechange.remove( mColTabCB );
     ct->rangechange.remove( mColTabCB );
@@ -399,12 +402,12 @@ void visBase::Texture2Set::colTabChanged( CallBacker* cb )
     for ( int idx=0; idx<textureset.size(); idx++ )
     {
 	if ( idx==curidx ) continue;
-	visBase::VisColorTab& coltab = textureset[idx]->getColorTab();
+	VisColorTab& coltab = textureset[idx]->getColorTab();
 	coltab.autoscalechange.remove( mColTabCB );
 	coltab.rangechange.remove( mColTabCB );
 	if ( autoscale )
 	{
-	    visBase::VisColorTab* newct = visBase::VisColorTab::create();
+	    VisColorTab* newct = VisColorTab::create();
 	    textureset[idx]->setColorTab( *newct );
 	    newct->setClipRate( cliprate );
 	    newct->triggerAutoScaleChange();
@@ -421,3 +424,5 @@ void visBase::Texture2Set::colTabChanged( CallBacker* cb )
     ct->autoscalechange.notify( mColTabCB );
     ct->rangechange.notify( mColTabCB );
 }
+
+}; // namespace visBase

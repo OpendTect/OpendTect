@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.11 2005-01-06 10:47:37 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.12 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,10 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoSeparator.h>
 
 
-mCreateFactoryEntry( visBase::Dragger );
-
 namespace visBase
 {
+
+mCreateFactoryEntry( Dragger );
 
 Dragger::Dragger()
     : dragger(0)
@@ -34,7 +34,7 @@ Dragger::Dragger()
     , finished(this)
     , onoff( new SoSwitch )
     , separator( new SoSeparator )
-    , positiontransform( visBase::Transformation::create() )
+    , positiontransform( Transformation::create() )
     , displaytrans( 0 )
     , rightclicknotifier(this)
 {
@@ -57,9 +57,9 @@ Dragger::~Dragger()
 {
     if ( dragger )
     {
-	dragger->removeStartCallback( visBase::Dragger::startCB, this );
-	dragger->removeMotionCallback( visBase::Dragger::motionCB, this );
-	dragger->removeFinishCallback( visBase::Dragger::finishCB, this );
+	dragger->removeStartCallback( Dragger::startCB, this );
+	dragger->removeMotionCallback( Dragger::motionCB, this );
+	dragger->removeFinishCallback( Dragger::finishCB, this );
 	separator->removeChild( dragger );
     }
 
@@ -77,9 +77,9 @@ void Dragger::setDraggerType( Type tp )
 {
     if ( dragger )
     {
-	dragger->removeStartCallback( visBase::Dragger::startCB, this );
-	dragger->removeMotionCallback( visBase::Dragger::motionCB, this );
-	dragger->removeFinishCallback( visBase::Dragger::finishCB, this );
+	dragger->removeStartCallback( Dragger::startCB, this );
+	dragger->removeMotionCallback( Dragger::motionCB, this );
+	dragger->removeFinishCallback( Dragger::finishCB, this );
 	separator->removeChild( dragger );
     }
     
@@ -91,9 +91,9 @@ void Dragger::setDraggerType( Type tp )
 	dragger = new SoTranslate1Dragger;
 
     separator->addChild( dragger );
-    dragger->addStartCallback( visBase::Dragger::startCB, this );
-    dragger->addMotionCallback( visBase::Dragger::motionCB, this );
-    dragger->addFinishCallback( visBase::Dragger::finishCB, this );
+    dragger->addStartCallback( Dragger::startCB, this );
+    dragger->addMotionCallback( Dragger::motionCB, this );
+    dragger->addFinishCallback( Dragger::finishCB, this );
 }
 
 
@@ -122,7 +122,7 @@ Transformation* Dragger::getDisplayTransformation()
 }
 
 
-void Dragger::setOwnShape(visBase::DataObject* newshape, const char* partname )
+void Dragger::setOwnShape(DataObject* newshape, const char* partname )
 {
     if ( newshape && newshape->getInventorNode() )
     {
@@ -146,19 +146,19 @@ void Dragger::triggerRightClick(const EventInfo* eventinfo)
 
 void Dragger::startCB( void* obj, SoDragger* )
 {
-    ( (visBase::Dragger*)obj )->started.trigger();
+    ( (Dragger*)obj )->started.trigger();
 }
 
 
 void Dragger::motionCB( void* obj, SoDragger* )
 {
-    ( (visBase::Dragger*)obj )->motion.trigger();
+    ( (Dragger*)obj )->motion.trigger();
 }
 
 
 void Dragger::finishCB( void* obj, SoDragger* )
 {
-    ( (visBase::Dragger*)obj )->finished.trigger();
+    ( (Dragger*)obj )->finished.trigger();
 }
 
 

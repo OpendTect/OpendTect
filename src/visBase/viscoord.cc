@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.18 2004-11-23 13:39:13 nanne Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.19 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "viscoord.h"
 
@@ -19,10 +19,10 @@ static const char* rcsID = "$Id: viscoord.cc,v 1.18 2004-11-23 13:39:13 nanne Ex
 #include "Inventor/nodes/SoGroup.h"
 #include "UTMPosition.h"
 
-mCreateFactoryEntry( visBase::Coordinates );
-
 namespace visBase
 {
+
+mCreateFactoryEntry( Coordinates );
 
 Coordinates::Coordinates()
     : coords( new SoCoordinate3 )

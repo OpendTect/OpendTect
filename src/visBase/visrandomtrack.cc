@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.30 2004-11-16 09:28:33 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.31 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -30,13 +30,16 @@ static const char* rcsID = "$Id: visrandomtrack.cc,v 1.30 2004-11-16 09:28:33 kr
 #include <Inventor/nodes/SoMaterial.h>
 
 
-const char* visBase::RandomTrack::textureidstr = "Texture ID";
-const char* visBase::RandomTrack::draggersizestr = "DraggerSize";
+namespace visBase
+{
+
+const char* RandomTrack::textureidstr = "Texture ID";
+const char* RandomTrack::draggersizestr = "DraggerSize";
 
 
-mCreateFactoryEntry( visBase::RandomTrack );
+mCreateFactoryEntry( RandomTrack );
 
-visBase::RandomTrack::RandomTrack()
+RandomTrack::RandomTrack()
     : VisualObjectImpl(false)
     , dragger(0)
     , draggerswitch(0)
@@ -57,7 +60,7 @@ visBase::RandomTrack::RandomTrack()
 }
 
 
-visBase::RandomTrack::~RandomTrack()
+RandomTrack::~RandomTrack()
 {
     for ( int idx=0; idx<sections.size(); idx++ )
     {
@@ -69,7 +72,7 @@ visBase::RandomTrack::~RandomTrack()
 }
 
 
-void visBase::RandomTrack::setDisplayTransformation( visBase::Transformation* tf )
+void RandomTrack::setDisplayTransformation( Transformation* tf )
 {
     if ( transformation ) transformation->unRef();
     transformation = tf;
@@ -78,13 +81,13 @@ void visBase::RandomTrack::setDisplayTransformation( visBase::Transformation* tf
 }
 
 
-visBase::Transformation* visBase::RandomTrack::getDisplayTransformation()
+Transformation* RandomTrack::getDisplayTransformation()
 {
     return transformation;
 }
 
 
-void visBase::RandomTrack::showDragger( bool yn )
+void RandomTrack::showDragger( bool yn )
 {
     if ( yn )
     {
@@ -105,13 +108,13 @@ void visBase::RandomTrack::showDragger( bool yn )
 }
 
 
-bool visBase::RandomTrack::isDraggerShown() const
+bool RandomTrack::isDraggerShown() const
 {
     return draggerswitch &&draggerswitch->whichChild.getValue()!=SO_SWITCH_NONE;
 }
 
 
-void visBase::RandomTrack::moveObjectToDraggerPos()
+void RandomTrack::moveObjectToDraggerPos()
 {
     if ( !dragger ) return;
     
@@ -129,7 +132,7 @@ void visBase::RandomTrack::moveObjectToDraggerPos()
 }
 
 
-void visBase::RandomTrack::moveDraggerToObjectPos()
+void RandomTrack::moveDraggerToObjectPos()
 {
     if ( !dragger ) return;
 
@@ -146,18 +149,18 @@ void visBase::RandomTrack::moveDraggerToObjectPos()
 }
 
 
-int visBase::RandomTrack::nrKnots() const
+int RandomTrack::nrKnots() const
 { return knots.size(); }
 
 
-void visBase::RandomTrack::setTrack( const TypeSet<Coord>& posset )
+void RandomTrack::setTrack( const TypeSet<Coord>& posset )
 {
     copy( knots, posset );
     rebuild();
 }
 
 
-void visBase::RandomTrack::addKnot( const Coord& pos )
+void RandomTrack::addKnot( const Coord& pos )
 {
     knots += pos;
     rebuild();
@@ -167,7 +170,7 @@ void visBase::RandomTrack::addKnot( const Coord& pos )
 }
 
 
-void visBase::RandomTrack::insertKnot( int idx, const Coord& pos )
+void RandomTrack::insertKnot( int idx, const Coord& pos )
 {
     knots.insert( idx, pos );
     rebuild();
@@ -178,11 +181,11 @@ void visBase::RandomTrack::insertKnot( int idx, const Coord& pos )
 }
 
 
-Coord visBase::RandomTrack::getKnotPos( int idx ) const
+Coord RandomTrack::getKnotPos( int idx ) const
 { return knots[idx]; }
 
 
-Coord visBase::RandomTrack::getDraggerKnotPos( int idx ) const
+Coord RandomTrack::getDraggerKnotPos( int idx ) const
 {
     if ( !dragger ) return getKnotPos( idx );
     SbVec2f draggerpos = dragger->knots[idx];
@@ -190,7 +193,7 @@ Coord visBase::RandomTrack::getDraggerKnotPos( int idx ) const
 }
 
 
-void visBase::RandomTrack::setKnotPos( int idx, const Coord& pos )
+void RandomTrack::setKnotPos( int idx, const Coord& pos )
 {
     if ( idx < nrKnots() )
     {
@@ -202,14 +205,14 @@ void visBase::RandomTrack::setKnotPos( int idx, const Coord& pos )
 }
 
 
-void visBase::RandomTrack::setDraggerKnotPos( int idx, const Coord& pos )
+void RandomTrack::setDraggerKnotPos( int idx, const Coord& pos )
 {
     if ( !dragger ) { setKnotPos( idx, pos ); return; }
     dragger->knots.set1Value( idx, pos.x, pos.y );
 }
 
 
-void visBase::RandomTrack::removeKnot( int idx )
+void RandomTrack::removeKnot( int idx )
 {
     if ( knots.size()< 3 )
     {
@@ -227,19 +230,19 @@ void visBase::RandomTrack::removeKnot( int idx )
 }
 
 
-void visBase::RandomTrack::setDepthInterval( const Interval<float>& drg )
+void RandomTrack::setDepthInterval( const Interval<float>& drg )
 {
     depthrg = drg;
     rebuild();
 }
 
 
-const Interval<float> visBase::RandomTrack::getDepthInterval() const
+const Interval<float> RandomTrack::getDepthInterval() const
 { return depthrg; }
 
 
 const Interval<float>
-visBase::RandomTrack::getDraggerDepthInterval() const
+RandomTrack::getDraggerDepthInterval() const
 {
     if ( !dragger ) return getDepthInterval();
     return Interval<float>( dragger->z0.getValue(), dragger->z1.getValue() );
@@ -260,23 +263,23 @@ visBase::RandomTrack::getDraggerDepthInterval() const
     dragger->xyzStop.setValue( xyzstop ); \
     dragger->xyzStep.setValue( xyzstep )
 
-void visBase::RandomTrack::setXrange( const StepInterval<float>& rg )
+void RandomTrack::setXrange( const StepInterval<float>& rg )
 {
     mSetRange( 0 );
 }
 
-void visBase::RandomTrack::setYrange( const StepInterval<float>& rg )
+void RandomTrack::setYrange( const StepInterval<float>& rg )
 {
     mSetRange( 1 );
 }
 
-void visBase::RandomTrack::setZrange( const StepInterval<float>& rg )
+void RandomTrack::setZrange( const StepInterval<float>& rg )
 {
     mSetRange( 2 );
 }
 
 
-void visBase::RandomTrack::setDraggerSize( const Coord3& nz )
+void RandomTrack::setDraggerSize( const Coord3& nz )
 {
     createDragger();
     SoScale* size =
@@ -285,7 +288,7 @@ void visBase::RandomTrack::setDraggerSize( const Coord3& nz )
 }
 
 
-Coord3 visBase::RandomTrack::getDraggerSize() const
+Coord3 RandomTrack::getDraggerSize() const
 {
     if ( !dragger ) return Coord3(0,0,0);
     SoScale* size =
@@ -296,7 +299,7 @@ Coord3 visBase::RandomTrack::getDraggerSize() const
 }
 
 
-void visBase::RandomTrack::setClipRate( float nc )
+void RandomTrack::setClipRate( float nc )
 {
     const int nrsections = sections.size();
     for ( int idx=0; idx<nrsections; idx++ )
@@ -307,11 +310,11 @@ void visBase::RandomTrack::setClipRate( float nc )
 }
 
 
-float visBase::RandomTrack::clipRate() const
+float RandomTrack::clipRate() const
 { return sections[0]->getTexture2()->clipRate(); }
 
 
-void visBase::RandomTrack::setAutoScale( bool nc )
+void RandomTrack::setAutoScale( bool nc )
 {
     const int nrsections = sections.size();
     for ( int idx=0; idx<nrsections; idx++ )
@@ -322,11 +325,11 @@ void visBase::RandomTrack::setAutoScale( bool nc )
 }
 
 
-bool visBase::RandomTrack::autoScale() const
+bool RandomTrack::autoScale() const
 { return sections[0]->getTexture2()->autoScale(); }
 
 
-void visBase::RandomTrack::setColorTab( VisColorTab& nc )
+void RandomTrack::setColorTab( VisColorTab& nc )
 {
     const int nrsections = sections.size();
     for ( int idx=0; idx<nrsections; idx++ )
@@ -337,15 +340,15 @@ void visBase::RandomTrack::setColorTab( VisColorTab& nc )
 }
 
 
-visBase::VisColorTab& visBase::RandomTrack::getColorTab()
+VisColorTab& RandomTrack::getColorTab()
 { return sections[0]->getTexture2()->getColorTab(); }
 
 
-const TypeSet<float>& visBase::RandomTrack::getHistogram() const
+const TypeSet<float>& RandomTrack::getHistogram() const
 { return sections[0]->getTexture2()->getHistogram(); }
 
 
-void visBase::RandomTrack::setMaterial( Material* mat )
+void RandomTrack::setMaterial( Material* mat )
 {
     const int nrsections = sections.size();
     for ( int idx=0; idx<nrsections; idx++ )
@@ -353,24 +356,24 @@ void visBase::RandomTrack::setMaterial( Material* mat )
 }
 
 
-visBase::Material* visBase::RandomTrack::getMaterial()
+Material* RandomTrack::getMaterial()
 { return sections[0]->getMaterial(); }
 
 
-void visBase::RandomTrack::useTexture( bool yn )
+void RandomTrack::useTexture( bool yn )
 {
     for ( int idx=0; idx<sections.size(); idx++ )
 	sections[idx]->getTexture2()->turnOn(yn);
 }
 
 
-bool visBase::RandomTrack::usesTexture() const
+bool RandomTrack::usesTexture() const
 {
     return sections.size() ? sections[0]->getTexture2()->isOn() : false;
 }
 
 
-void visBase::RandomTrack::setData( int section, const Array2D<float>* data,
+void RandomTrack::setData( int section, const Array2D<float>* data,
        				    int type )
 {
     Texture2* texture = sections[section]->getTexture2();
@@ -378,7 +381,7 @@ void visBase::RandomTrack::setData( int section, const Array2D<float>* data,
 }
 
 
-void visBase::RandomTrack::setColorPars( bool rev, bool useclip,
+void RandomTrack::setColorPars( bool rev, bool useclip,
                                          const Interval<float>& intv )
 {
     const int nrsections = sections.size();
@@ -393,13 +396,13 @@ void visBase::RandomTrack::setColorPars( bool rev, bool useclip,
 }
 
 
-const Interval<float>& visBase::RandomTrack::getColorDataRange() const
+const Interval<float>& RandomTrack::getColorDataRange() const
 {
     return sections[0]->getTexture2()->getColTabMod().getRange();
 }
 
 
-void visBase::RandomTrack::rebuild()
+void RandomTrack::rebuild()
 {
     while ( sections.size()<knots.size()-1 )
     {
@@ -466,13 +469,13 @@ void visBase::RandomTrack::rebuild()
 }
 
 
-void visBase::RandomTrack::createDragger()
+void RandomTrack::createDragger()
 {
     if ( draggerswitch ) return;
 
     dragger = new SoRandomTrackLineDragger;
-    dragger->addMotionCallback( visBase::RandomTrack::motionCB, this );
-    dragger->addStartCallback( visBase::RandomTrack::startCB, this );
+    dragger->addMotionCallback( RandomTrack::motionCB, this );
+    dragger->addStartCallback( RandomTrack::startCB, this );
     draggerswitch = new SoSwitch;
     insertChild( 0, draggerswitch );
     draggerswitch->addChild( dragger );
@@ -484,35 +487,35 @@ void visBase::RandomTrack::createDragger()
 }
 
 
-void visBase::RandomTrack::motionCB( void* data,
+void RandomTrack::motionCB( void* data,
 				     SoRandomTrackLineDragger* dragger)
 {
-    visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
+    RandomTrack* myself = (RandomTrack*) data;
     myself->knotmovement.trigger( dragger->getMovingKnot() );
 }
 
 
-void visBase::RandomTrack::startCB( void* data,
+void RandomTrack::startCB( void* data,
 				    SoRandomTrackLineDragger* dragger)
 {
-    visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
+    RandomTrack* myself = (RandomTrack*) data;
 }
 
 
-void visBase::RandomTrack::setResolution( int res )
+void RandomTrack::setResolution( int res )
 {
     for ( int idx=0; idx<sections.size(); idx++ )
 	sections[idx]->getTexture2()->setResolution( res );
 }
 
 
-int visBase::RandomTrack::getResolution() const
+int RandomTrack::getResolution() const
 {
     return sections[0]->getTexture2()->getResolution();
 }
 
 
-void visBase::RandomTrack::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void RandomTrack::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
@@ -527,7 +530,7 @@ void visBase::RandomTrack::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int visBase::RandomTrack::usePar( const IOPar& par )
+int RandomTrack::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
@@ -538,7 +541,7 @@ int visBase::RandomTrack::usePar( const IOPar& par )
 
     int textureid;
     if ( !par.get( textureidstr, textureid ) ) return -1;
-    DataObject* dataobj = DM().getObj( textureid );
+    DataObject* dataobj = DM().getObject( textureid );
     if ( !dataobj ) return 0;
     mDynamicCastGet(Texture2*,texture_,dataobj);
     if ( !texture_ ) return -1;
@@ -550,7 +553,7 @@ int visBase::RandomTrack::usePar( const IOPar& par )
 }
 
 
-void visBase::RandomTrack::triggerRightClick(const EventInfo* ei)
+void RandomTrack::triggerRightClick(const EventInfo* ei)
 {
     const TypeSet<int>* path = &ei->pickedobjids;
      sectionidx = -1;
@@ -574,3 +577,5 @@ void visBase::RandomTrack::triggerRightClick(const EventInfo* ei)
 
      VisualObject::triggerRightClick(ei);
 }
+
+}; // namespace visBase

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.21 2005-01-28 13:31:17 bert Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.22 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -20,20 +20,23 @@ static const char* rcsID = "$Id: visannot.cc,v 1.21 2005-01-28 13:31:17 bert Exp
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoSwitch.h"
 
-
-const char* visBase::Annotation::textprefixstr = "Text ";
-const char* visBase::Annotation::cornerprefixstr = "Corner ";
-const char* visBase::Annotation::showtextstr = "Show Text";
-const char* visBase::Annotation::showscalestr = "Show Scale";
+namespace visBase
+{
 
 
-mCreateFactoryEntry( visBase::Annotation );
+const char* Annotation::textprefixstr = "Text ";
+const char* Annotation::cornerprefixstr = "Corner ";
+const char* Annotation::showtextstr = "Show Text";
+const char* Annotation::showscalestr = "Show Scale";
 
-visBase::Annotation::Annotation()
+
+mCreateFactoryEntry( Annotation );
+
+Annotation::Annotation()
     : coords(new SoCoordinate3)
     , textswitch(new SoSwitch)
     , scaleswitch(new SoSwitch)
-    , pickstyle(visBase::PickStyle::create())
+    , pickstyle(PickStyle::create())
     , texts(0)
 {
     pickstyle->ref();
@@ -82,7 +85,7 @@ visBase::Annotation::Annotation()
     addChild( line );
 
     addChild( textswitch );
-    texts = visBase::DataObjectGroup::create();
+    texts = DataObjectGroup::create();
     texts->setSeparate( false );
     texts->ref();
     textswitch->addChild( texts->getInventorNode() );
@@ -97,19 +100,19 @@ visBase::Annotation::Annotation()
     scaleswitch->addChild( scalegroup );
     scaleswitch->whichChild = 0;
 
-    visBase::DataObjectGroup* scale = visBase::DataObjectGroup::create();
+    DataObjectGroup* scale = DataObjectGroup::create();
     scale->setSeparate( false );
     scale->ref();
     scalegroup->addChild( scale->getInventorNode() );
     scales += scale;
     
-    scale = visBase::DataObjectGroup::create();
+    scale = DataObjectGroup::create();
     scale->setSeparate( false );
     scale->ref();
     scalegroup->addChild( scale->getInventorNode() );
     scales += scale;
     
-    scale = visBase::DataObjectGroup::create();
+    scale = DataObjectGroup::create();
     scale->setSeparate( false );
     scale->ref();
     scalegroup->addChild( scale->getInventorNode() );
@@ -119,7 +122,7 @@ visBase::Annotation::Annotation()
 }
 
 
-visBase::Annotation::~Annotation()
+Annotation::~Annotation()
 {
     scales[0]->unRef();
     scales[1]->unRef();
@@ -129,31 +132,31 @@ visBase::Annotation::~Annotation()
 }
 
 
-void visBase::Annotation::showText( bool yn )
+void Annotation::showText( bool yn )
 {
     textswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
-bool visBase::Annotation::isTextShown() const
+bool Annotation::isTextShown() const
 {
     return textswitch->whichChild.getValue() == 0;
 }
 
 
-void visBase::Annotation::showScale( bool yn )
+void Annotation::showScale( bool yn )
 {
     scaleswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
-bool visBase::Annotation::isScaleShown() const
+bool Annotation::isScaleShown() const
 {
     return scaleswitch->whichChild.getValue() == 0;
 }
 
 
-void visBase::Annotation::setCorner( int idx, float x, float y, float z )
+void Annotation::setCorner( int idx, float x, float y, float z )
 {
     float c[3] = { x, y, z };
     coords->point.setValues( idx, 1, &c );
@@ -161,7 +164,7 @@ void visBase::Annotation::setCorner( int idx, float x, float y, float z )
 }
 
 
-Coord3  visBase::Annotation::getCorner( int idx ) const
+Coord3  Annotation::getCorner( int idx ) const
 {
     SbVec3f pos = coords->point[idx];
     Coord3 res( pos[0], pos[1], pos[2] );
@@ -169,15 +172,15 @@ Coord3  visBase::Annotation::getCorner( int idx ) const
 }
 
 
-void visBase::Annotation::setText( int dim, const char* string )
+void Annotation::setText( int dim, const char* string )
 {
-    visBase::Text* text = (visBase::Text*) texts->getObject( dim );
+    Text* text = (Text*) texts->getObject( dim );
     if ( text )
 	text->setText( string );
 }
 
 
-void  visBase::Annotation::updateTextPos()
+void  Annotation::updateTextPos()
 {
     updateTextPos( 0 );
     updateTextPos( 1 );
@@ -185,7 +188,7 @@ void  visBase::Annotation::updateTextPos()
 }
 
 
-void visBase::Annotation::updateTextPos( int textid )
+void Annotation::updateTextPos( int textid )
 {
     int pidx0;
     int pidx1;
@@ -216,7 +219,7 @@ void visBase::Annotation::updateTextPos( int textid )
     tp[1] = (p0[1]+p1[1]) / 2;
     tp[2] = (p0[2]+p1[2]) / 2;
 
-    ((visBase::Text*)texts->getObject(textid))
+    ((Text*)texts->getObject(textid))
 			->setPosition( Coord3(tp[0],tp[1],tp[2]) );
 
     int dim = -1;
@@ -249,16 +252,16 @@ void visBase::Annotation::updateTextPos( int textid )
 }
 
 
-visBase::Text* visBase::Annotation::getText( int dim, int textnr )
+Text* Annotation::getText( int dim, int textnr )
 {
     DataObjectGroup* group = 0;
     group = scales[dim];
-    mDynamicCastGet(visBase::Text*,text,group->getObject(textnr));
+    mDynamicCastGet(Text*,text,group->getObject(textnr));
     return text;
 }
 
 
-void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
@@ -275,7 +278,7 @@ void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     {
 	key = textprefixstr;
 	key += idx;
-	visBase::Text* text = (visBase::Text*)texts->getObject( idx );
+	Text* text = (Text*)texts->getObject( idx );
 	if ( !text ) continue;
 
 	par.set( key, (const char*)text->getText() );
@@ -286,7 +289,7 @@ void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int visBase::Annotation::usePar( const IOPar& par )
+int Annotation::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
@@ -326,4 +329,4 @@ int visBase::Annotation::usePar( const IOPar& par )
     return 1;
 }
 
-
+}; //namespace

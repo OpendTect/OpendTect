@@ -5,20 +5,23 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.3 2004-11-16 09:28:33 kristofer Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.4 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
 #include "iopar.h"
 
-const char* visBase::DataObjectGroup::nokidsstr = "Number of Children";
-const char* visBase::DataObjectGroup::kidprefix = "Child ";
-
 #include "Inventor/nodes/SoSeparator.h"
 
-mCreateFactoryEntry( visBase::DataObjectGroup );
+namespace visBase
+{
 
-visBase::DataObjectGroup::DataObjectGroup()
+const char* DataObjectGroup::nokidsstr = "Number of Children";
+const char* DataObjectGroup::kidprefix = "Child ";
+
+mCreateFactoryEntry( DataObjectGroup );
+
+DataObjectGroup::DataObjectGroup()
     : group ( new SoGroup )
     , separator( new SoSeparator )
     , separate( true )
@@ -28,7 +31,7 @@ visBase::DataObjectGroup::DataObjectGroup()
 }
 
 
-visBase::DataObjectGroup::~DataObjectGroup()
+DataObjectGroup::~DataObjectGroup()
 {
     const int sz = size();
 
@@ -39,11 +42,11 @@ visBase::DataObjectGroup::~DataObjectGroup()
 }
 
 
-int visBase::DataObjectGroup::size() const
+int DataObjectGroup::size() const
 { return objects.size(); }
 
 
-void visBase::DataObjectGroup::addObject( DataObject* no )
+void DataObjectGroup::addObject( DataObject* no )
 {
     objects += no;
     group->addChild( no->getInventorNode() );
@@ -53,14 +56,14 @@ void visBase::DataObjectGroup::addObject( DataObject* no )
 }
 
 
-void visBase::DataObjectGroup::setDisplayTransformation( Transformation* nt )
+void DataObjectGroup::setDisplayTransformation( Transformation* nt )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
 	objects[idx]->setDisplayTransformation(nt);
 }
 
 
-visBase::Transformation* visBase::DataObjectGroup::getDisplayTransformation()
+Transformation* DataObjectGroup::getDisplayTransformation()
 {
     for ( int idx=0; idx<objects.size(); idx++ )
 	if ( objects[idx]->getDisplayTransformation() )
@@ -70,17 +73,17 @@ visBase::Transformation* visBase::DataObjectGroup::getDisplayTransformation()
 }
 
 
-void visBase::DataObjectGroup::addObject(int nid)
+void DataObjectGroup::addObject(int nid)
 {
     DataObject* no =
-	dynamic_cast<DataObject*>( visBase::DM().getObj(nid) );
+	dynamic_cast<DataObject*>( DM().getObject(nid) );
 
     if ( !no ) return;
     addObject( no );
 }
 
 
-void visBase::DataObjectGroup::insertObject( int insertpos, DataObject* no )
+void DataObjectGroup::insertObject( int insertpos, DataObject* no )
 {
     if ( insertpos>=size() ) return addObject( no );
 
@@ -91,10 +94,10 @@ void visBase::DataObjectGroup::insertObject( int insertpos, DataObject* no )
 }
 
 
-int visBase::DataObjectGroup::getFirstIdx( int nid ) const
+int DataObjectGroup::getFirstIdx( int nid ) const
 {
     const DataObject* sceneobj =
-	(const DataObject*) visBase::DM().getObj(nid);
+	(const DataObject*) DM().getObject(nid);
 
     if ( !sceneobj ) return -1;
 
@@ -102,11 +105,11 @@ int visBase::DataObjectGroup::getFirstIdx( int nid ) const
 }
 
 
-int visBase::DataObjectGroup::getFirstIdx( const DataObject* sceneobj ) const
+int DataObjectGroup::getFirstIdx( const DataObject* sceneobj ) const
 { return objects.indexOf(sceneobj); }
 
 
-void visBase::DataObjectGroup::removeObject( int idx )
+void DataObjectGroup::removeObject( int idx )
 {
     DataObject* sceneobject = objects[idx];
     SoNode* node = nodes[idx];
@@ -119,17 +122,17 @@ void visBase::DataObjectGroup::removeObject( int idx )
 }
 
 
-void visBase::DataObjectGroup::removeAll()
+void DataObjectGroup::removeAll()
 {
     while ( size() ) removeObject( 0 );
 }
 
 
-SoNode*  visBase::DataObjectGroup::getInventorNode()
+SoNode*  DataObjectGroup::getInventorNode()
 { return separate ? (SoNode*) separator : (SoNode*) group; }
 
 
-void visBase::DataObjectGroup::fillPar( IOPar& par, TypeSet<int>& saveids)const
+void DataObjectGroup::fillPar( IOPar& par, TypeSet<int>& saveids)const
 {
     DataObject::fillPar( par, saveids );
     
@@ -149,7 +152,7 @@ void visBase::DataObjectGroup::fillPar( IOPar& par, TypeSet<int>& saveids)const
 }
 
 
-int visBase::DataObjectGroup::usePar( const IOPar& par )
+int DataObjectGroup::usePar( const IOPar& par )
 {
     int res = DataObject::usePar( par );
     if ( res!= 1 ) return res;
@@ -169,7 +172,7 @@ int visBase::DataObjectGroup::usePar( const IOPar& par )
 	if ( !par.get( key, newid ) )
 	    return -1;
 
-	if ( !DM().getObj( newid ) )
+	if ( !DM().getObject( newid ) )
 	    return 0;
 
 	ids += newid;
@@ -180,3 +183,5 @@ int visBase::DataObjectGroup::usePar( const IOPar& par )
 
     return 1;
 }
+
+}; // namespace visBase

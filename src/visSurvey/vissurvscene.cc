@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.62 2004-11-16 09:26:44 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.63 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -272,7 +272,7 @@ int Scene::useOldPar( const IOPar& par )
 	BufferString key = displobjprefixstr;
 	key += idx;
 	if ( !par.get( key, displobjids[idx] )) return -1;
-	if ( !visBase::DM().getObj( displobjids[idx] ) ) return 0;
+	if ( !visBase::DM().getObject( displobjids[idx] ) ) return 0;
     }
 
     int nrxyzobj;
@@ -286,7 +286,7 @@ int Scene::useOldPar( const IOPar& par )
 	BufferString key = xyzobjprefixstr;
 	key += idx;
 	if ( !par.get( key, xyzobjids[idx] )) return -1;
-	if ( !visBase::DM().getObj( xyzobjids[idx] ) ) return 0;
+	if ( !visBase::DM().getObject( xyzobjids[idx] ) ) return 0;
     }
 
     int nrxytobj;
@@ -300,7 +300,7 @@ int Scene::useOldPar( const IOPar& par )
 	BufferString key = xytobjprefixstr;
 	key += idx;
 	if ( !par.get( key, xytobjids[idx] )) return -1;
-	if ( !visBase::DM().getObj( xytobjids[idx] ) ) return 0;
+	if ( !visBase::DM().getObject( xytobjids[idx] ) ) return 0;
     }
 
     int noinlcrltobj;
@@ -315,33 +315,33 @@ int Scene::useOldPar( const IOPar& par )
 	key += idx;
 
 	if ( !par.get( key, inlcrlobjids[idx] )) return -1;
-	if ( !visBase::DM().getObj( inlcrlobjids[idx] ) ) return 0;
+	if ( !visBase::DM().getObject( inlcrlobjids[idx] ) ) return 0;
     }
 
     for ( int idx=0; idx<displobjids.size(); idx++ )
     {
 	mDynamicCastGet( visBase::DataObject*, so,
-	    visBase::DM().getObj( displobjids[idx] ));
+	    visBase::DM().getObject( displobjids[idx] ));
 	if ( so ) addObject( so );
     }
 
     for ( int idx=0; idx<xyzobjids.size(); idx++ )
     {
 	mDynamicCastGet( visBase::DataObject*, so,
-	    visBase::DM().getObj( xyzobjids[idx] ));
+	    visBase::DM().getObject( xyzobjids[idx] ));
 	if ( so ) addObject( so );
     }
 
     for ( int idx=0; idx<xytobjids.size(); idx++ )
     {
 	mDynamicCastGet( visBase::DataObject*, so,
-	    visBase::DM().getObj( xytobjids[idx] ));
+	    visBase::DM().getObject( xytobjids[idx] ));
 	if ( so ) addObject( so );
     }
     for ( int idx=0; idx<inlcrlobjids.size(); idx++ )
     {
 	mDynamicCastGet( visBase::DataObject*, so,
-	    visBase::DM().getObj( inlcrlobjids[idx] ));
+	    visBase::DM().getObject( inlcrlobjids[idx] ));
 	if ( so ) addObject( so );
     }
 
@@ -412,7 +412,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
-			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+			    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
 	mDynamicCastGet(const SurveyObject*,so,pickedobj)
 	if ( so )
 	{

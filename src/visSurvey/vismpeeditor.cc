@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.4 2005-01-17 08:02:42 kristofer Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.5 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vismpeeditor.h"
 
@@ -64,7 +64,7 @@ void MPEEditor::setEditor( Geometry::ElementEditor* ge )
     {
 	geeditor->getElement().movementnotifier.remove( movementcb );
 	geeditor->editpositionchange.remove( numnodescb );
-	}
+    }
 
     geeditor = ge;
 

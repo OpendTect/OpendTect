@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.42 2004-08-11 13:15:54 nanne Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.43 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -30,9 +30,12 @@ static const char* rcsID = "$Id: visrectangle.cc,v 1.42 2004-08-11 13:15:54 nann
 
 #include <math.h>
 
-mCreateFactoryEntry( visBase::RectangleDragger );
+namespace visBase
+{
 
-visBase::RectangleDragger::RectangleDragger()
+mCreateFactoryEntry( RectangleDragger );
+
+RectangleDragger::RectangleDragger()
     : started( this )
     , motion( this )
     , changed( this )
@@ -59,69 +62,69 @@ visBase::RectangleDragger::RectangleDragger()
 
     zmanipsep->addChild( manipzdraggertop );
     manipzdraggertop->addStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipzdraggertop->addMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipzdraggertop->addValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipzdraggertop->addFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     zmanipsep->addChild( manipzdraggerright );
     manipzdraggerright->addStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipzdraggerright->addMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipzdraggerright->addValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipzdraggerright->addFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     zmanipsep->addChild( manipzdraggerbottom );
     manipzdraggerbottom->addStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipzdraggerbottom->addMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipzdraggerbottom->addValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipzdraggerbottom->addFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     zmanipsep->addChild( manipzdraggerleft );
     manipzdraggerleft->addStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipzdraggerleft->addMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipzdraggerleft->addValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipzdraggerleft->addFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     root->addChild( tabswitch );
     SoGroup* tabgrp = new SoGroup;
     tabswitch->addChild( tabgrp );
     tabgrp->addChild( manipxydragger0 );
     manipxydragger0->addStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipxydragger0->addMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipxydragger0->addValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipxydragger0->addFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     SoRotation* manipxydragger1rot = new SoRotation;
     tabgrp->addChild( manipxydragger1rot );
     manipxydragger1rot->rotation.setValue( SbVec3f( 1, 0, 0 ), M_PI );
     tabgrp->addChild( manipxydragger1 );
     manipxydragger1->addStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipxydragger1->addMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipxydragger1->addValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipxydragger1->addFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     tabswitch->whichChild = 0;
     syncronizeDraggers();
@@ -130,65 +133,65 @@ visBase::RectangleDragger::RectangleDragger()
 }
 
 
-visBase::RectangleDragger::~RectangleDragger()
+RectangleDragger::~RectangleDragger()
 {
     manipzdraggertop->removeStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipzdraggertop->removeMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipzdraggertop->removeValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipzdraggertop->removeFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     manipzdraggerright->removeStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipzdraggerright->removeMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipzdraggerright->removeValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipzdraggerright->removeFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     manipzdraggerbottom->removeStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipzdraggerbottom->removeMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipzdraggerbottom->removeValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipzdraggerbottom->removeFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     manipzdraggerleft->removeStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipzdraggerleft->removeMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipzdraggerleft->removeValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipzdraggerleft->removeFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     manipxydragger0->removeStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipxydragger0->removeMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipxydragger0->removeValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipxydragger0->removeFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 
     manipxydragger1->removeStartCallback(
-	    visBase::RectangleDragger::startCB, this );
+	    RectangleDragger::startCB, this );
     manipxydragger1->removeMotionCallback(
-	    visBase::RectangleDragger::motionCB, this );
+	    RectangleDragger::motionCB, this );
     manipxydragger1->removeValueChangedCallback(
-	    visBase::RectangleDragger::valueChangedCB, this );
+	    RectangleDragger::valueChangedCB, this );
     manipxydragger1->removeFinishCallback(
-	    visBase::RectangleDragger::finishCB, this );
+	    RectangleDragger::finishCB, this );
 }
 
 
-void visBase::RectangleDragger::setOwnShapeHints()
+void RectangleDragger::setOwnShapeHints()
 {
     SoShapeHints* myHints = new SoShapeHints;
     myHints->shapeType = SoShapeHints::SOLID;
@@ -201,7 +204,7 @@ void visBase::RectangleDragger::setOwnShapeHints()
 }
 
 
-void visBase::RectangleDragger::setCenter( const Coord3& pos_ )
+void RectangleDragger::setCenter( const Coord3& pos_ )
 {
     bool allowcb_bak = allowcb;
     allowcb = false;
@@ -236,7 +239,7 @@ void visBase::RectangleDragger::setCenter( const Coord3& pos_ )
 }
 
 
-Coord3 visBase::RectangleDragger::center() const
+Coord3 RectangleDragger::center() const
 {
     SbVec3f pos = manipxydragger0->translation.getValue();
     Coord3 res( pos[0], pos[1], pos[2] );
@@ -246,7 +249,7 @@ Coord3 visBase::RectangleDragger::center() const
 }
 
 
-void visBase::RectangleDragger::setScale( float x, float y )
+void RectangleDragger::setScale( float x, float y )
 {
     bool allowcb_bak = allowcb;
     allowcb = false;
@@ -259,13 +262,13 @@ void visBase::RectangleDragger::setScale( float x, float y )
 
 
 
-float visBase::RectangleDragger::scale( int dim ) const
+float RectangleDragger::scale( int dim ) const
 {
     return manipxydragger0->scaleFactor.getValue()[dim];
 }
 
 
-void visBase::RectangleDragger::setDraggerSize( float w, float h, float d )
+void RectangleDragger::setDraggerSize( float w, float h, float d )
 {
     bool allowcb_bak = allowcb;
     allowcb = false;
@@ -277,7 +280,7 @@ void visBase::RectangleDragger::setDraggerSize( float w, float h, float d )
 }
 
 
-Coord3 visBase::RectangleDragger::getDraggerSize() const
+Coord3 RectangleDragger::getDraggerSize() const
 {
     SbVec3f pos = zdraggerscale->scaleFactor.getValue();
     Coord3 res( pos[0], pos[1], pos[2] );
@@ -285,12 +288,12 @@ Coord3 visBase::RectangleDragger::getDraggerSize() const
 }
 
 
-SoNode* visBase::RectangleDragger::getInventorNode()
+SoNode* RectangleDragger::getInventorNode()
 { return root; }
 
 
 
-void visBase::RectangleDragger::syncronizeDraggers()
+void RectangleDragger::syncronizeDraggers()
 {
     SbVec3f xyscale(1,1,1);
 
@@ -345,7 +348,7 @@ void visBase::RectangleDragger::syncronizeDraggers()
 }
 
 
-void visBase::RectangleDragger::draggerHasMoved( SoDragger* d )
+void RectangleDragger::draggerHasMoved( SoDragger* d )
 {
     if ( !allowcb ) return;
 
@@ -411,61 +414,61 @@ void visBase::RectangleDragger::draggerHasMoved( SoDragger* d )
 }
 
 
-void visBase::RectangleDragger::startCB(void* obj, SoDragger* )
+void RectangleDragger::startCB(void* obj, SoDragger* )
 {
-    ((visBase::RectangleDragger*) obj)->started.trigger();
+    ((RectangleDragger*) obj)->started.trigger();
 }
 
 
-void visBase::RectangleDragger::motionCB(void* obj, SoDragger* )
+void RectangleDragger::motionCB(void* obj, SoDragger* )
 {
-    ((visBase::RectangleDragger*) obj)->motion.trigger();
+    ((RectangleDragger*) obj)->motion.trigger();
 }
 
 
-void visBase::RectangleDragger::valueChangedCB(void* obj, SoDragger* d )
+void RectangleDragger::valueChangedCB(void* obj, SoDragger* d )
 {
-    if ( !((visBase::RectangleDragger*) obj)->allowcb ) return;
-    ((visBase::RectangleDragger*) obj)->draggerHasMoved( d );
-    ((visBase::RectangleDragger*) obj)->changed.trigger();
+    if ( !((RectangleDragger*) obj)->allowcb ) return;
+    ((RectangleDragger*) obj)->draggerHasMoved( d );
+    ((RectangleDragger*) obj)->changed.trigger();
 }
 
 
-void visBase::RectangleDragger::finishCB(void* obj, SoDragger* )
+void RectangleDragger::finishCB(void* obj, SoDragger* )
 {
-    ((visBase::RectangleDragger*) obj)->finished.trigger();
+    ((RectangleDragger*) obj)->finished.trigger();
 }
 
 
-void visBase::RectangleDragger::showTabs( bool yn )
+void RectangleDragger::showTabs( bool yn )
 {
     tabswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
-bool visBase::RectangleDragger::tabsShown() const
+bool RectangleDragger::tabsShown() const
 {
     return tabswitch->whichChild.getValue()==0;
 }
 
 
-mCreateFactoryEntry( visBase::Rectangle );
+mCreateFactoryEntry( Rectangle );
 
-const char* visBase::Rectangle::orientationstr = "Orientation";
-const char* visBase::Rectangle::origostr = "Origo";
-const char* visBase::Rectangle::widthstr = "Width";
-const char* visBase::Rectangle::xrangestr = "XRange";
-const char* visBase::Rectangle::yrangestr = "YRange";
-const char* visBase::Rectangle::zrangestr = "ZRange";
-const char* visBase::Rectangle::xwidhtrange = "XWidth";
-const char* visBase::Rectangle::ywidhtrange = "YWidth";
-const char* visBase::Rectangle::draggersizestr = "DraggerSize";
-const char* visBase::Rectangle::snappingstr = "Snapping";
+const char* Rectangle::orientationstr = "Orientation";
+const char* Rectangle::origostr = "Origo";
+const char* Rectangle::widthstr = "Width";
+const char* Rectangle::xrangestr = "XRange";
+const char* Rectangle::yrangestr = "YRange";
+const char* Rectangle::zrangestr = "ZRange";
+const char* Rectangle::xwidhtrange = "XWidth";
+const char* Rectangle::ywidhtrange = "YWidth";
+const char* Rectangle::draggersizestr = "DraggerSize";
+const char* Rectangle::snappingstr = "Snapping";
 
-visBase::Rectangle::Rectangle()
+Rectangle::Rectangle()
     : origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
-    , orientation_( visBase::Rectangle::XY )
+    , orientation_( Rectangle::XY )
     , localorigotrans( new SoTranslation )
     , localscale( new SoScale )
     , widthscale( new SoScale )
@@ -555,7 +558,7 @@ visBase::Rectangle::Rectangle()
 }
 
 
-visBase::Rectangle::~Rectangle()
+Rectangle::~Rectangle()
 {
     if ( dragger )
     {
@@ -567,7 +570,7 @@ visBase::Rectangle::~Rectangle()
 }
 
 
-int visBase::Rectangle::usePar( const IOPar& iopar )
+int Rectangle::usePar( const IOPar& iopar )
 {
     int res = VisualObjectImpl::usePar( iopar );
     if ( res != 1 ) return res;
@@ -613,7 +616,7 @@ int visBase::Rectangle::usePar( const IOPar& iopar )
 }
 
 
-void visBase::Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( iopar, saveids );
 
@@ -637,13 +640,13 @@ void visBase::Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 }
 
 
-void visBase::Rectangle::setOrigo( const Coord3& np )
+void Rectangle::setOrigo( const Coord3& np )
 {
     origotrans->translation.setValue( np.x, np.y, np.z );
 }
 
 
-Coord3 visBase::Rectangle::origo() const
+Coord3 Rectangle::origo() const
 {
     SbVec3f pos = origotrans->translation.getValue();
     Coord3 res( pos[0], pos[1], pos[2] );
@@ -651,7 +654,7 @@ Coord3 visBase::Rectangle::origo() const
 }
 
 
-Coord3 visBase::Rectangle::manipOrigo() const
+Coord3 Rectangle::manipOrigo() const
 {
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
@@ -682,19 +685,19 @@ Coord3 visBase::Rectangle::manipOrigo() const
 }
 
 
-void visBase::Rectangle::setWidth( float x, float y )
+void Rectangle::setWidth( float x, float y )
 {
     widthscale->scaleFactor.setValue( x, y, 1 );
 }
 
 
-float visBase::Rectangle::width( int n, bool manip ) const
+float Rectangle::width( int n, bool manip ) const
 {
     return getWidth( n, manip ? maniprectscale->scaleFactor.getValue()[n] : 1 );
 }
 
 
-void visBase::Rectangle::setOrientation( visBase::Rectangle::Orientation o )
+void Rectangle::setOrientation( Rectangle::Orientation o )
 {
     switch ( o )
     {
@@ -713,7 +716,7 @@ void visBase::Rectangle::setOrientation( visBase::Rectangle::Orientation o )
 }
 
 
-void visBase::Rectangle::setRanges( const StepInterval<float>& range0,
+void Rectangle::setRanges( const StepInterval<float>& range0,
 				    const StepInterval<float>& range1,
 				    const StepInterval<float>& range2,
        				    bool manip )
@@ -731,7 +734,7 @@ void visBase::Rectangle::setRanges( const StepInterval<float>& range0,
 }
 
 
-void visBase::Rectangle::setRange( int dim, const StepInterval<float>& range )
+void Rectangle::setRange( int dim, const StepInterval<float>& range )
 {
     if ( dim==0 ) xrange = range;
     else if ( dim==1 ) yrange = range;
@@ -739,30 +742,30 @@ void visBase::Rectangle::setRange( int dim, const StepInterval<float>& range )
 }
 
 
-void visBase::Rectangle::setWidthRange( int dim, const Interval<float>& range )
+void Rectangle::setWidthRange( int dim, const Interval<float>& range )
 {
     if ( dim==0 ) wxrange = range;
     else if ( dim==1 ) wyrange = range;
 }
 
 
-void visBase::Rectangle::showDraggers( bool yn )
+void Rectangle::showDraggers( bool yn )
 {
     if ( manipswitch ) manipswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
-bool visBase::Rectangle::draggersShown() const
+bool Rectangle::draggersShown() const
 { return manipswitch->whichChild.getValue()==0; }
 
 
-void visBase::Rectangle::showTabs( bool yn )
+void Rectangle::showTabs( bool yn )
 {
     if ( dragger ) dragger->showTabs( yn );
 }
 
 
-void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
+void Rectangle::moveManipRectangletoDragger(CallBacker*)
 {
     if ( !dragger ) return;
 
@@ -813,7 +816,7 @@ void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
 }
 
 
-void visBase::Rectangle::moveDraggertoManipRect()
+void Rectangle::moveDraggertoManipRect()
 {
     if ( !dragger ) return;
 
@@ -832,7 +835,7 @@ void visBase::Rectangle::moveDraggertoManipRect()
 }
 
 
-void visBase::Rectangle::setDraggerSize( float w, float h, float d )
+void Rectangle::setDraggerSize( float w, float h, float d )
 {
     if ( !dragger ) return;
 
@@ -843,7 +846,7 @@ void visBase::Rectangle::setDraggerSize( float w, float h, float d )
 }
 
 
-Coord3 visBase::Rectangle::getDraggerSize() const
+Coord3 Rectangle::getDraggerSize() const
 {
     Coord3 res = dragger->getDraggerSize();
 
@@ -853,7 +856,7 @@ Coord3 visBase::Rectangle::getDraggerSize() const
 }
 
 
-void visBase::Rectangle::moveObjectToManipRect()
+void Rectangle::moveObjectToManipRect()
 {
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
@@ -879,7 +882,7 @@ void visBase::Rectangle::moveObjectToManipRect()
 }
 
 
-bool visBase::Rectangle::isManipRectOnObject() const
+bool Rectangle::isManipRectOnObject() const
 {
     bool res = true;
     float eps = 1e-5;
@@ -904,19 +907,19 @@ bool visBase::Rectangle::isManipRectOnObject() const
 }
 
 
-NotifierAccess*  visBase::Rectangle::manipStarts()
+NotifierAccess*  Rectangle::manipStarts()
 { return dragger ? &dragger->started : 0; }
 
 
-NotifierAccess*  visBase::Rectangle::manipChanges()
+NotifierAccess*  Rectangle::manipChanges()
 { return dragger ? &dragger->changed : 0; }
 
 
-NotifierAccess*  visBase::Rectangle::manipEnds()
+NotifierAccess*  Rectangle::manipEnds()
 { return dragger ? &dragger->finished : 0; }
 
 
-void visBase::Rectangle::resetManip()
+void Rectangle::resetManip()
 {
     maniprecttrans->translation.setValue( 0, 0, 0 );
     maniprectscale->scaleFactor.setValue( 1, 1, 1 );
@@ -924,7 +927,7 @@ void visBase::Rectangle::resetManip()
 }
 
 
-float visBase::Rectangle::snapPos( int dim, float pos) const
+float Rectangle::snapPos( int dim, float pos) const
 {
     const StepInterval<float>& range =
 			    !dim ? xrange : (dim==1 ? yrange : zrange );
@@ -942,19 +945,19 @@ float visBase::Rectangle::snapPos( int dim, float pos) const
 }
 
 
-float visBase::Rectangle::getWidth( int dim, float scale ) const
+float Rectangle::getWidth( int dim, float scale ) const
 {
     return dim!=2 ? widthscale->scaleFactor.getValue()[dim] * scale: 0;
 }
 
 
-float visBase::Rectangle::getScale( int dim, float newwidth ) const
+float Rectangle::getScale( int dim, float newwidth ) const
 {
     return dim!=2 ? newwidth / widthscale->scaleFactor.getValue()[dim] : 0;
 }
 
 
-float visBase::Rectangle::getStartPos( int dim, float centerpos,
+float Rectangle::getStartPos( int dim, float centerpos,
 				       float scale ) const
 {
     centerpos *= widthscale->scaleFactor.getValue()[dim] *
@@ -985,7 +988,7 @@ float visBase::Rectangle::getStartPos( int dim, float centerpos,
 }
 
 
-float visBase::Rectangle::getStopPos( int dim, float centerpos,
+float Rectangle::getStopPos( int dim, float centerpos,
 				      float scale ) const 
 {
     centerpos *= widthscale->scaleFactor.getValue()[dim] *
@@ -1016,7 +1019,7 @@ float visBase::Rectangle::getStopPos( int dim, float centerpos,
 }
 
 
-float visBase::Rectangle::getCenterCoord( int dim, float startpos,
+float Rectangle::getCenterCoord( int dim, float startpos,
 					  float width_ ) const 
 {
     switch ( orientation_ )
@@ -1045,3 +1048,5 @@ float visBase::Rectangle::getCenterCoord( int dim, float startpos,
 
     return startpos;
 }
+
+}; // namespace visBase

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.33 2004-12-20 14:59:16 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.34 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -61,15 +61,17 @@ int visBaseTextureColorIndexMaker::nextStep()
 }
 
 
+namespace visBase
+{
 
-const char* visBase::Texture::colortabstr = "ColorTable ID";
-const char* visBase::Texture::usestexturestr = "Uses texture";
-const char* visBase::Texture::texturequalitystr = "Texture quality";
-const char* visBase::Texture::resolutionstr = "Resolution";
-const char* visBase::Texture::coltabmodstr = "ColorTableModifier ID";
+const char* Texture::colortabstr = "ColorTable ID";
+const char* Texture::usestexturestr = "Uses texture";
+const char* Texture::texturequalitystr = "Texture quality";
+const char* Texture::resolutionstr = "Resolution";
+const char* Texture::coltabmodstr = "ColorTableModifier ID";
 
 
-visBase::Texture::Texture()
+Texture::Texture()
     : indexcache( 0 )
     , cachesize( 0 )
     , indexcachesize( 0 )
@@ -84,7 +86,7 @@ visBase::Texture::Texture()
     , quality( new SoComplexity )
     , datacache(0)
     , colordatacache(0)
-    , curtype(visBase::Texture::Color)
+    , curtype(Texture::Color)
 {
     onoff->ref();
     onoff->addChild( texturegrp );
@@ -102,14 +104,14 @@ visBase::Texture::Texture()
 	scalepolicy->quality.setValue( newquality );
     }
 
-    setColorTab( *visBase::VisColorTab::create() );
+    setColorTab( *VisColorTab::create() );
 
-    coltabmod = visBase::VisColTabMod::create();
+    coltabmod = VisColTabMod::create();
     coltabmod->ref();
 }
 
 
-visBase::Texture::~Texture()
+Texture::~Texture()
 {
     delete [] datacache;
     delete [] colordatacache;
@@ -119,11 +121,11 @@ visBase::Texture::~Texture()
     if ( colortab )
     {
 	colortab->rangechange.remove(
-		mCB( this, visBase::Texture, colorTabChCB ));
+		mCB( this, Texture, colorTabChCB ));
 	colortab->sequencechange.remove(
-		mCB( this, visBase::Texture, colorSeqChCB ));
+		mCB( this, Texture, colorSeqChCB ));
 	colortab->autoscalechange.remove(
-		mCB( this, visBase::Texture, autoscaleChCB ));
+		mCB( this, Texture, autoscaleChCB ));
 	colortab->unRef();
     }
 
@@ -135,7 +137,7 @@ visBase::Texture::~Texture()
 }
 
 
-bool visBase::Texture::turnOn( bool yn )
+bool Texture::turnOn( bool yn )
 {
     bool res = isOn();
     onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
@@ -143,33 +145,33 @@ bool visBase::Texture::turnOn( bool yn )
 }
 
 
-bool visBase::Texture::isOn() const
+bool Texture::isOn() const
 { return !onoff->whichChild.getValue(); }
 
 
-void visBase::Texture::setTextureQuality( float q )
+void Texture::setTextureQuality( float q )
 {
     quality->textureQuality.setValue( q );
 }
 
 
-float visBase::Texture::getTextureQuality() const
+float Texture::getTextureQuality() const
 {
     return quality->textureQuality.getValue();
 }
 
 
-void visBase::Texture::setAutoScale( bool yn )
+void Texture::setAutoScale( bool yn )
 {
     colortab->setAutoScale( yn );
 }
 
 
-bool visBase::Texture::autoScale() const
+bool Texture::autoScale() const
 { return colortab->autoScale(); }
 
 
-void visBase::Texture::setColorTab( VisColorTab& newct )
+void Texture::setColorTab( VisColorTab& newct )
 {
     if ( colortab==&newct )
 	return;
@@ -177,18 +179,18 @@ void visBase::Texture::setColorTab( VisColorTab& newct )
     if ( colortab )
     {
 	colortab->rangechange.remove(
-		mCB( this, visBase::Texture, colorTabChCB ));
+		mCB( this, Texture, colorTabChCB ));
 	colortab->sequencechange.remove(
-		mCB( this, visBase::Texture, colorSeqChCB ));
+		mCB( this, Texture, colorSeqChCB ));
 	colortab->autoscalechange.remove(
-		mCB( this, visBase::Texture, autoscaleChCB ));
+		mCB( this, Texture, autoscaleChCB ));
 	colortab->unRef();
     }
 
     colortab = &newct;
-    colortab->rangechange.notify( mCB( this, visBase::Texture, colorTabChCB ));
-    colortab->sequencechange.notify( mCB( this, visBase::Texture,colorSeqChCB));
-    colortab->autoscalechange.notify(mCB( this,visBase::Texture,autoscaleChCB));
+    colortab->rangechange.notify( mCB( this, Texture, colorTabChCB ));
+    colortab->sequencechange.notify( mCB( this, Texture,colorSeqChCB));
+    colortab->autoscalechange.notify(mCB( this,Texture,autoscaleChCB));
     colortab->ref();
     colortab->setNrSteps(NRCOLORS-1);
 
@@ -197,27 +199,27 @@ void visBase::Texture::setColorTab( VisColorTab& newct )
 }
 
 
-visBase::VisColorTab& visBase::Texture::getColorTab()
+VisColorTab& Texture::getColorTab()
 { return *colortab; }
 
 
-void visBase::Texture::setClipRate( float nv )
+void Texture::setClipRate( float nv )
 {
     colortab->setClipRate( nv );
 }
 
 
-float visBase::Texture::clipRate() const
+float Texture::clipRate() const
 { return colortab->clipRate(); }
 
 
-const TypeSet<float>& visBase::Texture::getHistogram() const
+const TypeSet<float>& Texture::getHistogram() const
 {
     return histogram;
 }
 
 
-void visBase::Texture::setUseTransperancy( bool yn )
+void Texture::setUseTransperancy( bool yn )
 {
     if ( yn==usetrans ) return;
 
@@ -226,11 +228,11 @@ void visBase::Texture::setUseTransperancy( bool yn )
 }
 
 
-bool visBase::Texture::usesTransperancy() const
+bool Texture::usesTransperancy() const
 { return usetrans; }
 
 
-void visBase::Texture::setThreadWorker( ThreadWorker* nw )
+void Texture::setThreadWorker( ThreadWorker* nw )
 {
     if ( threadworker )
 	threadworker->unRef();
@@ -242,15 +244,15 @@ void visBase::Texture::setThreadWorker( ThreadWorker* nw )
 }
 
 
-visBase::ThreadWorker* visBase::Texture::getThreadWorker()
+ThreadWorker* Texture::getThreadWorker()
 { return threadworker; }
 
 
-SoNode* visBase::Texture::getInventorNode()
+SoNode* Texture::getInventorNode()
 { return onoff; }
 
 
-void visBase::Texture::clearDataCache( bool all )
+void Texture::clearDataCache( bool all )
 {
     delete [] colordatacache;
     colordatacache = 0;
@@ -263,7 +265,7 @@ void visBase::Texture::clearDataCache( bool all )
 }
 
 
-void visBase::Texture::setResizedData( float* newdata, int sz, DataType dt_ )
+void Texture::setResizedData( float* newdata, int sz, DataType dt_ )
 {
     const int dt = (int)dt_;
     clearDataCache( newdata && !dt );
@@ -294,7 +296,7 @@ void visBase::Texture::setResizedData( float* newdata, int sz, DataType dt_ )
 }
     
 
-void visBase::Texture::colorTabChCB(CallBacker*)
+void Texture::colorTabChCB(CallBacker*)
 {
     makeColorTables();
     makeColorIndexes();
@@ -302,20 +304,20 @@ void visBase::Texture::colorTabChCB(CallBacker*)
 }
 
 
-void visBase::Texture::colorSeqChCB(CallBacker*)
+void Texture::colorSeqChCB(CallBacker*)
 {
     makeColorTables();
     makeTexture();
 }
 
 
-void visBase::Texture::autoscaleChCB(CallBacker*)
+void Texture::autoscaleChCB(CallBacker*)
 {
     clipData();
 }
 
 
-void visBase::Texture::clipData()
+void Texture::clipData()
 {
     if ( colordatacache )
 	coltabmod->setScale( colordatacache, cachesize );
@@ -325,7 +327,7 @@ void visBase::Texture::clipData()
 }
 
 
-void visBase::Texture::makeColorIndexes()
+void Texture::makeColorIndexes()
 {
     if ( !datacache ) return;
 
@@ -405,9 +407,9 @@ public:
     unsigned char*		indexcache;
     unsigned char*		texture;
     ::Color*			colortabcolors;
-    visBase::VisColTabMod*	ctm;
+    VisColTabMod*	ctm;
     const float*		colordata;
-    visBase::Texture::DataType	datatype;
+    Texture::DataType	datatype;
 
     int				start;
     int				stop;
@@ -415,7 +417,7 @@ public:
 protected:
 
 #define mScaleData(val,type,top,chgrgb) \
-    if ( datatype==visBase::Texture::type ) \
+    if ( datatype==Texture::type ) \
     { \
 	float fac = ctm->getScale().scale(colordata[idx]); \
 	if ( ctm->isReverse() ) fac = 1 - fac; \
@@ -483,7 +485,7 @@ protected:
 };
 
 
-void visBase::Texture::makeTexture()
+void Texture::makeTexture()
 {
     if ( !indexcache )
 	return;
@@ -547,7 +549,7 @@ void visBase::Texture::makeTexture()
 }
 
 
-void visBase::Texture::makeColorTables()
+void Texture::makeColorTables()
 {
     for ( int idx=0; idx<NRCOLORS; idx++ )
     {
@@ -556,7 +558,7 @@ void visBase::Texture::makeColorTables()
 }
 
 
-int visBase::Texture::nextPower2( int nr, int minnr, int maxnr ) const
+int Texture::nextPower2( int nr, int minnr, int maxnr ) const
 {
     if ( nr > maxnr )
 	return maxnr;
@@ -569,11 +571,11 @@ int visBase::Texture::nextPower2( int nr, int minnr, int maxnr ) const
 }
 
 
-visBase::VisColTabMod& visBase::Texture::getColTabMod()
+VisColTabMod& Texture::getColTabMod()
 { return *coltabmod; }
 
 
-void visBase::Texture::setColorPars( bool rev, bool useclip,
+void Texture::setColorPars( bool rev, bool useclip,
 				     const Interval<float>& intv )
 {
     coltabmod->doReverse( rev );
@@ -583,13 +585,13 @@ void visBase::Texture::setColorPars( bool rev, bool useclip,
 }
 
 
-const Interval<float>& visBase::Texture::getColorDataRange() const
+const Interval<float>& Texture::getColorDataRange() const
 {
     return coltabmod->getRange();
 }
 
 
-void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
 
@@ -608,14 +610,14 @@ void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int visBase::Texture::usePar( const IOPar& par )
+int Texture::usePar( const IOPar& par )
 {
     int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
 
     int coltabid;
     if ( !par.get( colortabstr, coltabid ) ) return -1;
-    DataObject* dataobj = DM().getObj( coltabid );
+    DataObject* dataobj = DM().getObject( coltabid );
     if ( !dataobj ) return 0;
     mDynamicCastGet(VisColorTab*,coltab,dataobj)
     if ( !coltab ) return -1;
@@ -624,7 +626,7 @@ int visBase::Texture::usePar( const IOPar& par )
     int ctmid = -1;
     if ( par.get( coltabmodstr, ctmid ) )
     {
-	dataobj = DM().getObj( ctmid );
+	dataobj = DM().getObject( ctmid );
 	if ( !dataobj ) return 0;
 	mDynamicCastGet(VisColTabMod*,ctm,dataobj)
 	if ( !ctm ) return -1;
@@ -647,3 +649,5 @@ int visBase::Texture::usePar( const IOPar& par )
 
     return 1;
 }
+
+}; // namespace visBase

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.11 2005-01-14 09:31:56 nanne Exp $
+ RCS:           $Id: viswell.h,v 1.12 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ public:
 
 
     void			setDisplayTransformation(Transformation*);
-    visBase::Transformation*	getDisplayTransformation();
+    Transformation*	getDisplayTransformation();
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar& par);

@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.21 2004-09-28 10:04:45 nanne Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.22 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -16,9 +16,12 @@ static const char* rcsID = "$Id: visscene.cc,v 1.21 2004-09-28 10:04:45 nanne Ex
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoEnvironment.h"
 
-mCreateFactoryEntry( visBase::Scene );
+namespace visBase
+{
 
-visBase::Scene::Scene()
+mCreateFactoryEntry( Scene );
+
+Scene::Scene()
     : selroot( new SoGroup )
     , environment( new SoEnvironment )
     , events( *EventCatcher::create() )
@@ -29,21 +32,21 @@ visBase::Scene::Scene()
     events.ref();
     selroot->addChild( events.getInventorNode() );
     selroot->addChild( DataObjectGroup::getInventorNode() );
-    events.nothandled.notify( mCB(this,visBase::Scene,mousePickCB) );
+    events.nothandled.notify( mCB(this,Scene,mousePickCB) );
 }
 
 
-visBase::Scene::~Scene()
+Scene::~Scene()
 {
     removeAll();
-    events.nothandled.remove( mCB(this,visBase::Scene,mousePickCB) );
+    events.nothandled.remove( mCB(this,Scene,mousePickCB) );
     events.unRef();
 
     selroot->unref();
 }
 
 
-void visBase::Scene::addObject( DataObject* dataobj )
+void Scene::addObject( DataObject* dataobj )
 {
     mDynamicCastGet( VisualObject*, vo, dataobj );
     if ( vo ) vo->setSceneEventCatcher( &events );
@@ -51,7 +54,7 @@ void visBase::Scene::addObject( DataObject* dataobj )
 }
 
 
-void visBase::Scene::insertObject( int idx, DataObject* dataobj )
+void Scene::insertObject( int idx, DataObject* dataobj )
 {
     mDynamicCastGet( VisualObject*, vo, dataobj );
     if ( vo ) vo->setSceneEventCatcher( &events );
@@ -59,30 +62,30 @@ void visBase::Scene::insertObject( int idx, DataObject* dataobj )
 }
 
 
-void visBase::Scene::setAmbientLight( float n )
+void Scene::setAmbientLight( float n )
 {
     environment->ambientIntensity.setValue( n );
 }
 
 
-float visBase::Scene::ambientLight() const
+float Scene::ambientLight() const
 {
     return environment->ambientIntensity.getValue();
 }
 
 
-SoNode* visBase::Scene::getInventorNode()
+SoNode* Scene::getInventorNode()
 {
     return selroot;
 }
 
 
-void visBase::Scene::mousePickCB( CallBacker* cb )
+void Scene::mousePickCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    mCBCapsuleUnpack(const EventInfo&,eventinfo,cb);
     if ( events.isEventHandled() ) return;
 
-    if ( eventinfo.type != visBase::MouseClick ) return;
+    if ( eventinfo.type != MouseClick ) return;
     if ( eventinfo.mousebutton > 1 ) return;
 
     if ( eventinfo.pressed )
@@ -93,7 +96,7 @@ void visBase::Scene::mousePickCB( CallBacker* cb )
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const DataObject* dataobj =
-			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+			    DM().getObject(eventinfo.pickedobjids[idx]);
 	    if ( dataobj->selectable() )
 	    {
 		mousedownid = eventinfo.pickedobjids[idx];
@@ -107,22 +110,22 @@ void visBase::Scene::mousePickCB( CallBacker* cb )
 	if ( !sz && mousedownid==-1 )
 	{
 	    if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
-		visBase::DM().selMan().deSelectAll();
+		DM().selMan().deSelectAll();
 	}
 
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    DataObject* dataobj =
-			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+			    DM().getObject(eventinfo.pickedobjids[idx]);
 
 	    if ( dataobj->selectable() && mousedownid==dataobj->id() )
 	    {
 		if ( eventinfo.mousebutton == 1 && dataobj->rightClicked() )
 		    dataobj->triggerRightClick(&eventinfo);
 		if ( eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
-		    visBase::DM().selMan().select( mousedownid, true );
+		    DM().selMan().select( mousedownid, true );
 		else if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl)
-		    visBase::DM().selMan().select( mousedownid, false );
+		    DM().selMan().select( mousedownid, false );
 
 		break;
 	    }
@@ -133,3 +136,5 @@ void visBase::Scene::mousePickCB( CallBacker* cb )
     //Don't call setHandled, since that will block all other event-catchers
 }
 
+
+}; // namespace visBase

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.5 2004-06-16 14:54:19 bert Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,15 +18,18 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "iopar.h"
 
-mCreateFactoryEntry( visBase::VisColTabMod );
+namespace visBase
+{
 
-const char* visBase::VisColTabMod::clipratestr	= "Cliprate";
-const char* visBase::VisColTabMod::rangestr 	= "Range";
-const char* visBase::VisColTabMod::reversestr 	= "Reverse display";
-const char* visBase::VisColTabMod::useclipstr 	= "Use clipping";
+mCreateFactoryEntry( VisColTabMod );
+
+const char* VisColTabMod::clipratestr	= "Cliprate";
+const char* VisColTabMod::rangestr 	= "Range";
+const char* VisColTabMod::reversestr 	= "Reverse display";
+const char* VisColTabMod::useclipstr 	= "Use clipping";
 
 
-visBase::VisColTabMod::VisColTabMod()
+VisColTabMod::VisColTabMod()
     : range(Interval<float>(0,0))
     , cliprate0(0.025)
     , cliprate1(0.025)
@@ -37,19 +40,19 @@ visBase::VisColTabMod::VisColTabMod()
 }
 
 
-visBase::VisColTabMod::~VisColTabMod()
+VisColTabMod::~VisColTabMod()
 {
     delete &datascale;
 }
 
 
-float visBase::VisColTabMod::clipRate( bool cr0 ) const
+float VisColTabMod::clipRate( bool cr0 ) const
 {
     return cr0 ? cliprate0 : cliprate1;
 }
 
 
-void visBase::VisColTabMod::setClipRate( float cr0, float cr1 )
+void VisColTabMod::setClipRate( float cr0, float cr1 )
 {
     if ( mIsEqual(cr0,cliprate0,mDefEps)
       && mIsEqual(cr1,cliprate1,mDefEps) ) return;
@@ -59,14 +62,14 @@ void visBase::VisColTabMod::setClipRate( float cr0, float cr1 )
 }
 
 
-void visBase::VisColTabMod::setRange( const Interval<float>& rg )
+void VisColTabMod::setRange( const Interval<float>& rg )
 {
     range.start = rg.start;
     range.stop = rg.stop;
 }
 
 
-void visBase::VisColTabMod::setScale( const float* values, int nrvalues )
+void VisColTabMod::setScale( const float* values, int nrvalues )
 {
     if ( !values ) return;
 
@@ -84,13 +87,13 @@ void visBase::VisColTabMod::setScale( const float* values, int nrvalues )
 }
 
 
-const LinScaler& visBase::VisColTabMod::getScale() const
+const LinScaler& VisColTabMod::getScale() const
 {
     return datascale;
 }
 
 
-int visBase::VisColTabMod::usePar( const IOPar& par )
+int VisColTabMod::usePar( const IOPar& par )
 {
     int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
@@ -104,7 +107,7 @@ int visBase::VisColTabMod::usePar( const IOPar& par )
 }
 
 
-void visBase::VisColTabMod::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void VisColTabMod::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
     par.set( clipratestr, cliprate0, cliprate1 );
@@ -112,3 +115,5 @@ void visBase::VisColTabMod::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( reversestr, reverse );
     par.setYN( useclipstr, useclip );
 }
+
+}; // namespace visBase

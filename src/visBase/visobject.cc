@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.33 2005-01-12 08:31:08 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.34 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visobject.h"
 
@@ -135,7 +135,7 @@ int VisualObjectImpl::usePar( const IOPar& iopar )
 	if ( matid==-1 ) setMaterial( 0 );
 	else
 	{
-	    DataObject* mat = DM().getObj( matid );
+	    DataObject* mat = DM().getObject( matid );
 	    if ( !mat ) return 0;
 	    if ( typeid(*mat) != typeid(Material) ) return -1;
 

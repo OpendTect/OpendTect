@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.7 2004-11-16 14:24:20 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.8 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vistexturecoords.h"
 
@@ -17,10 +17,13 @@ static const char* rcsID = "$Id: vistexturecoords.cc,v 1.7 2004-11-16 14:24:20 k
 
 #include "Inventor/nodes/SoTextureCoordinate3.h"
 
-mCreateFactoryEntry( visBase::TextureCoords );
+namespace visBase
+{
+
+mCreateFactoryEntry( TextureCoords );
 
 
-visBase::TextureCoords::TextureCoords()
+TextureCoords::TextureCoords()
     : coords( new SoTextureCoordinate3 )
     , mutex( *new Threads::Mutex )
 {
@@ -30,18 +33,18 @@ visBase::TextureCoords::TextureCoords()
 }
 
 
-visBase::TextureCoords::~TextureCoords()
+TextureCoords::~TextureCoords()
 {
     coords->unref();
     delete &mutex;
 }
 
 
-int visBase::TextureCoords::size(bool includedeleted) const
+int TextureCoords::size(bool includedeleted) const
 { return coords->point.getNum()-(includedeleted ? 0 : unusedcoords.size()); }
 
 
-void visBase::TextureCoords::setCoord( int idx, const Coord3& pos )
+void TextureCoords::setCoord( int idx, const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex );
 
@@ -52,7 +55,7 @@ void visBase::TextureCoords::setCoord( int idx, const Coord3& pos )
 }
 
 
-void visBase::TextureCoords::setCoord( int idx, const Coord& pos )
+void TextureCoords::setCoord( int idx, const Coord& pos )
 {
     Threads::MutexLocker lock( mutex );
 
@@ -63,7 +66,7 @@ void visBase::TextureCoords::setCoord( int idx, const Coord& pos )
 }
 
 
-int visBase::TextureCoords::addCoord( const Coord3& pos )
+int TextureCoords::addCoord( const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex );
     const int res = getFreeIdx();
@@ -73,7 +76,7 @@ int visBase::TextureCoords::addCoord( const Coord3& pos )
 }
 
 
-int visBase::TextureCoords::addCoord( const Coord& pos )
+int TextureCoords::addCoord( const Coord& pos )
 {
     Threads::MutexLocker lock( mutex );
     const int res = getFreeIdx();
@@ -83,7 +86,7 @@ int visBase::TextureCoords::addCoord( const Coord& pos )
 }
 
 
-void visBase::TextureCoords::removeCoord(int idx)
+void TextureCoords::removeCoord(int idx)
 {
     Threads::MutexLocker lock( mutex );
     if ( idx==coords->point.getNum()-1 )
@@ -93,11 +96,11 @@ void visBase::TextureCoords::removeCoord(int idx)
 }
 
 
-SoNode* visBase::TextureCoords::getInventorNode()
+SoNode* TextureCoords::getInventorNode()
 { return coords; }
 
 
-int  visBase::TextureCoords::getFreeIdx()
+int  TextureCoords::getFreeIdx()
 {
     if ( unusedcoords.size() )
     {
@@ -108,3 +111,5 @@ int  visBase::TextureCoords::getFreeIdx()
 
     return coords->point.getNum();
 }
+
+}; // namespace visBase

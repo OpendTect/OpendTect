@@ -8,27 +8,29 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscamerainfo.cc,v 1.3 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: viscamerainfo.cc,v 1.4 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "viscamerainfo.h"
 #include "SoCameraInfo.h"
 
-mCreateFactoryEntry( visBase::CameraInfo );
+namespace visBase
+{
+mCreateFactoryEntry( CameraInfo );
 
-visBase::CameraInfo::CameraInfo()
+CameraInfo::CameraInfo()
     : camerainfo( new SoCameraInfo )
 {
     camerainfo->ref();
 }
 
 
-visBase::CameraInfo::~CameraInfo()
+CameraInfo::~CameraInfo()
 {
     camerainfo->unref();
 }
 
 
-void visBase::CameraInfo::setInteractive(bool yn)
+void CameraInfo::setInteractive(bool yn)
 {
     if ( isInteractive()==yn ) return;
     camerainfo->cameraInfo = camerainfo->cameraInfo.getValue() +
@@ -37,13 +39,13 @@ void visBase::CameraInfo::setInteractive(bool yn)
 }
 
 
-bool visBase::CameraInfo::isInteractive() const
+bool CameraInfo::isInteractive() const
 {
     return (camerainfo->cameraInfo.getValue() & SoCameraInfo::INTERACTIVE);
 }
 
 
-void visBase::CameraInfo::setMoving(bool yn)
+void CameraInfo::setMoving(bool yn)
 {
     if ( isMoving()==yn ) return;
     camerainfo->cameraInfo = camerainfo->cameraInfo.getValue() +
@@ -51,13 +53,15 @@ void visBase::CameraInfo::setMoving(bool yn)
 }
 
 
-bool visBase::CameraInfo::isMoving() const
+bool CameraInfo::isMoving() const
 {
     return (camerainfo->cameraInfo.getValue() & SoCameraInfo::MOVING);
 }
 
 
-SoNode* visBase::CameraInfo::getInventorNode()
+SoNode* CameraInfo::getInventorNode()
 {
     return camerainfo;
 }
+
+}; // namespace visBase

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.25 2004-11-16 09:29:17 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.26 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -100,7 +100,7 @@ public:
     static const char*		textureidstr;
     static const char*		draggersizestr;
 
-    void			setDisplayTransformation(visBase::Transformation*);
+    void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
     
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;

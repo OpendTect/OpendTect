@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vispolyline.cc,v 1.9 2004-07-26 06:43:55 kristofer Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.10 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vispolyline.h"
 
@@ -15,26 +15,29 @@ static const char* rcsID = "$Id: vispolyline.cc,v 1.9 2004-07-26 06:43:55 kristo
 #include "Inventor/nodes/SoLineSet.h"
 #include "Inventor/nodes/SoIndexedLineSet.h"
 
-mCreateFactoryEntry( visBase::PolyLine );
-mCreateFactoryEntry( visBase::IndexedPolyLine );
-mCreateFactoryEntry( visBase::IndexedPolyLine3D );
+namespace visBase
+{
 
-visBase::PolyLine::PolyLine()
+mCreateFactoryEntry( PolyLine );
+mCreateFactoryEntry( IndexedPolyLine );
+mCreateFactoryEntry( IndexedPolyLine3D );
+
+PolyLine::PolyLine()
     : VertexShape( new SoLineSet )
     , lineset( dynamic_cast<SoLineSet*>( shape ) )
 { }
 
 
-int visBase::PolyLine::size() const { return coords->size(); }
+int PolyLine::size() const { return coords->size(); }
 
 
-void visBase::PolyLine::addPoint( const Coord3& pos )
+void PolyLine::addPoint( const Coord3& pos )
 {
     setPoint( size(), pos );
 }
 
 
-void visBase::PolyLine::setPoint(int idx, const Coord3& pos )
+void PolyLine::setPoint(int idx, const Coord3& pos )
 {
     if ( idx>size() ) return;
     coords->setPos( idx, pos );
@@ -42,11 +45,11 @@ void visBase::PolyLine::setPoint(int idx, const Coord3& pos )
 }
 
 
-Coord3 visBase::PolyLine::getPoint( int idx ) const 
+Coord3 PolyLine::getPoint( int idx ) const 
 { return coords->getPos( idx ); }
 
 
-void visBase::PolyLine::removePoint( int idx )
+void PolyLine::removePoint( int idx )
 {
     lineset->numVertices.setValue( size()-1 );
     for ( int idy=idx; idy<size()-1; idy++ )
@@ -58,23 +61,25 @@ void visBase::PolyLine::removePoint( int idx )
 }
 
 
-visBase::IndexedPolyLine::IndexedPolyLine()
+IndexedPolyLine::IndexedPolyLine()
     : IndexedShape( new SoIndexedLineSet )
 { }
 
 
-visBase::IndexedPolyLine3D::IndexedPolyLine3D()
+IndexedPolyLine3D::IndexedPolyLine3D()
     : IndexedShape( new SoIndexedLineSet3D )
 { }
 
 
-float visBase::IndexedPolyLine3D::getRadius() const
+float IndexedPolyLine3D::getRadius() const
 {
     return reinterpret_cast<SoIndexedLineSet3D*>(shape)->radius.getValue();
 }
 
 
-void visBase::IndexedPolyLine3D::setRadius(float nv)
+void IndexedPolyLine3D::setRadius(float nv)
 {
     reinterpret_cast<SoIndexedLineSet3D*>(shape)->radius.setValue(nv);
 }
+
+}; // namespace visBase

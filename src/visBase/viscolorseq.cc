@@ -4,15 +4,17 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolorseq.cc,v 1.10 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: viscolorseq.cc,v 1.11 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "viscolorseq.h"
 #include "colortab.h"
 
-mCreateFactoryEntry( visBase::ColorSequence );
+namespace visBase
+{
+mCreateFactoryEntry( ColorSequence );
 
 
-visBase::ColorSequence::ColorSequence()
+ColorSequence::ColorSequence()
     : coltab( *new ColorTable )
     , change( this )
 {
@@ -22,13 +24,13 @@ visBase::ColorSequence::ColorSequence()
 }
 
 
-visBase::ColorSequence::~ColorSequence()
+ColorSequence::~ColorSequence()
 {
     delete &coltab;
 }
 
 
-void visBase::ColorSequence::loadFromStorage( const char* newnm )
+void ColorSequence::loadFromStorage( const char* newnm )
 {
     ColorTable::get( newnm, coltab );
     setName( newnm );
@@ -37,13 +39,13 @@ void visBase::ColorSequence::loadFromStorage( const char* newnm )
 }
 
 
-ColorTable& visBase::ColorSequence::colors() { return coltab; }
+ColorTable& ColorSequence::colors() { return coltab; }
 
 
-const ColorTable& visBase::ColorSequence::colors() const { return coltab; }
+const ColorTable& ColorSequence::colors() const { return coltab; }
 
 
-void visBase::ColorSequence::colorsChanged()
+void ColorSequence::colorsChanged()
 {
     setName( coltab.name() );
     coltab.scaleTo( Interval<float>( 0, 1 ) );
@@ -52,7 +54,7 @@ void visBase::ColorSequence::colorsChanged()
 }
 
 
-int visBase::ColorSequence::usePar( const IOPar& par )
+int ColorSequence::usePar( const IOPar& par )
 {
     int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
@@ -62,8 +64,10 @@ int visBase::ColorSequence::usePar( const IOPar& par )
 }
 
 
-void visBase::ColorSequence::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void ColorSequence::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
     coltab.fillPar( par );
 }
+
+}; // namespace visBase

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visshapescale.cc,v 1.10 2004-09-22 10:07:32 kristofer Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.11 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"
@@ -14,12 +14,15 @@ static const char* rcsID = "$Id: visshapescale.cc,v 1.10 2004-09-22 10:07:32 kri
 #include "Inventor/nodes/SoSeparator.h"
 
 
-mCreateFactoryEntry( visBase::ShapeScale );
+namespace visBase
+{
 
-const char* visBase::ShapeScale::shapeidstr = "Shape ID";
+mCreateFactoryEntry( ShapeScale );
+
+const char* ShapeScale::shapeidstr = "Shape ID";
 
 
-visBase::ShapeScale::ShapeScale()
+ShapeScale::ShapeScale()
     : root( new SoSeparator )
     , shapescalekit( new SoShapeScale )
     , shape( 0 )
@@ -32,14 +35,14 @@ visBase::ShapeScale::ShapeScale()
 }
 
 
-visBase::ShapeScale::~ShapeScale()
+ShapeScale::~ShapeScale()
 {
     if ( shape ) shape->unRef();
     root->unref();
 }
 
 
-void visBase::ShapeScale::setShape( DataObject* no )
+void ShapeScale::setShape( DataObject* no )
 {
     if ( shape )
     {
@@ -63,7 +66,7 @@ void visBase::ShapeScale::setShape( DataObject* no )
 }
 
 
-void visBase::ShapeScale::setShape( SoNode* newnode )
+void ShapeScale::setShape( SoNode* newnode )
 {
     if ( shape )
     {
@@ -79,37 +82,37 @@ void visBase::ShapeScale::setShape( SoNode* newnode )
 }
 
 
-void visBase::ShapeScale::setScreenSize( float nz )
+void ShapeScale::setScreenSize( float nz )
 {
     shapescalekit->screenSize.setValue( nz );
 }
 
 
-float visBase::ShapeScale::getScreenSize() const
+float ShapeScale::getScreenSize() const
 {
     return shapescalekit->screenSize.getValue();
 }
 
 
-void visBase::ShapeScale::setMinScale( float nz )
+void ShapeScale::setMinScale( float nz )
 {
     shapescalekit->minScale.setValue( nz );
 }
 
 
-float visBase::ShapeScale::getMinScale() const
+float ShapeScale::getMinScale() const
 {
     return shapescalekit->minScale.getValue();
 }
 
 
-void visBase::ShapeScale::setMaxScale( float nz )
+void ShapeScale::setMaxScale( float nz )
 {
     shapescalekit->maxScale.setValue( nz );
 }
 
 
-float visBase::ShapeScale::getMaxScale() const
+float ShapeScale::getMaxScale() const
 {
     return shapescalekit->maxScale.getValue();
 }
@@ -117,25 +120,25 @@ float visBase::ShapeScale::getMaxScale() const
 
 
 
-void visBase::ShapeScale::restoreProportions(bool yn)
+void ShapeScale::restoreProportions(bool yn)
 {
     shapescalekit->restoreProportions = yn;
 }
 
 
-bool visBase::ShapeScale::restoresProportions() const
+bool ShapeScale::restoresProportions() const
 {
     return shapescalekit->restoreProportions.getValue();
 }
 
 
-SoNode*  visBase::ShapeScale::getInventorNode() 
+SoNode*  ShapeScale::getInventorNode() 
 {
     return root;
 }
 
 
-int visBase::ShapeScale::usePar( const IOPar& iopar )
+int ShapeScale::usePar( const IOPar& iopar )
 {
     int res = DataObject::usePar( iopar );
     if ( res!= 1 ) return res;
@@ -144,7 +147,7 @@ int visBase::ShapeScale::usePar( const IOPar& iopar )
     if ( !iopar.get( shapeidstr, shapeid )) return -1;
     if ( shapeid==-1 ) return 1;
 
-    DataObject* dataobj = DM().getObj( shapeid );
+    DataObject* dataobj = DM().getObject( shapeid );
     if ( !dataobj ) { setShape( (SoNode*) 0 ); return 0; }
     mDynamicCastGet( DataObject*, sceneobj, dataobj );
     if ( !sceneobj ) return -1;
@@ -154,7 +157,7 @@ int visBase::ShapeScale::usePar( const IOPar& iopar )
 }
 
 
-void visBase::ShapeScale::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void ShapeScale::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( iopar, saveids );
 
@@ -162,3 +165,5 @@ void visBase::ShapeScale::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( shapeidstr, shapeid );
     if ( saveids.indexOf( shapeid )==-1 ) saveids += shapeid;
 }
+
+}; // namespace visBase

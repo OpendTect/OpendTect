@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.26 2004-10-18 14:11:55 nanne Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.27 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -15,45 +15,39 @@ static const char* rcsID = "$Id: visdataman.cc,v 1.26 2004-10-18 14:11:55 nanne 
 
 #include "Inventor/SoPath.h"
 
-
-const char* visBase::DataManager::freeidstr = "Free ID";
-const char* visBase::DataManager::selmanprefix = "SelMan";
-
-visBase::DataManager& visBase::DM()
+namespace visBase
 {
-    static visBase::DataManager* manager = 0;
 
-    if ( !manager ) manager = new visBase::DataManager;
+const char* DataManager::freeidstr = "Free ID";
+const char* DataManager::selmanprefix = "SelMan";
+
+DataManager& DM()
+{
+    static DataManager* manager = 0;
+
+    if ( !manager ) manager = new DataManager;
 
     return *manager;
 }
 
 
-visBase::DataManager::DataManager()
+DataManager::DataManager()
     : freeid( 0 )
     , selman( *new SelectionManager )
     , fact( *new Factory )
     , removeallnotify( this )
-{
-    reInit();
-}
+{ }
 
 
-visBase::DataManager::~DataManager()
+DataManager::~DataManager()
 {
-    bool res = removeAll();
+    removeAll();
     delete &selman;
     delete &fact;
 }
 
 
-bool visBase::DataManager::reInit()
-{
-    return removeAll();
-}
-
-
-void visBase::DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
+void DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
 {
     IOPar selmanpar;
     selman.fillPar( selmanpar, storids );
@@ -64,7 +58,7 @@ void visBase::DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
     for ( int idx=0; idx<storids.size(); idx++ )
     {
 	IOPar dataobjpar;
-	const DataObject* dataobj = getObj( storids[idx] );
+	const DataObject* dataobj = getObject( storids[idx] );
 	if ( !dataobj ) continue;
 	dataobj->fillPar( dataobjpar, storids );
 
@@ -74,19 +68,14 @@ void visBase::DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
 }
 
 
-bool visBase::DataManager::usePar( const IOPar& par )
+bool DataManager::usePar( const IOPar& par )
 {
-    reInit();
+    removeAll();
 
     if ( !par.get( freeidstr, freeid ))
 	return false;
 
     TypeSet<int> lefttodo;
-    /*
-    for ( int idx=0; idx<freeid; idx++ )
-	lefttodo += idx;
-    */
-
     for ( int idx=0; idx<par.size(); idx++ )
     {
 	BufferString key = par.getKey( idx );
@@ -121,9 +110,7 @@ bool visBase::DataManager::usePar( const IOPar& par )
 	    if ( !obj ) { lefttodo.remove(idx); idx--; continue; }
 
 	    int no = objects.indexOf( obj );
-	    ids[no] = lefttodo[idx];
-	    obj->id_ = lefttodo[idx];  
-
+	    obj->setID(lefttodo[idx]);  
 
 	    int res = obj->usePar( *iopar );
 	    if ( res==-1 )
@@ -146,9 +133,9 @@ bool visBase::DataManager::usePar( const IOPar& par )
     }
 
     int maxid = -1;
-    for ( int idx=0; idx<ids.size(); idx++ )
+    for ( int idx=0; idx<objects.size(); idx++ )
     {
-	if ( ids[idx]>maxid ) maxid=ids[idx];
+	if ( objects[idx]->id()>maxid ) maxid=objects[idx]->id();
     }
 
     freeid = maxid+1;
@@ -160,16 +147,17 @@ bool visBase::DataManager::usePar( const IOPar& par )
 }
 
 
-bool visBase::DataManager::removeAll(int nriterations)
+bool DataManager::removeAll(int nriterations)
 {
     removeallnotify.trigger();
 
     bool objectsleft = false;
     for ( int idx=0; idx<objects.size(); idx++ )
     {
-	if ( !refcounts[idx] )
+	if ( !objects[idx]->nrRefs() )
 	{
-	    remove( idx );
+	    objects[idx]->ref();
+	    objects[idx]->unRef();
 	    idx--;
 	}
 	else objectsleft = true;
@@ -182,10 +170,11 @@ bool visBase::DataManager::removeAll(int nriterations)
 	while ( objects.size() )
 	{
 	    BufferString msg = "Forcing removal of ID: ";
-	    msg += ids[0];
+	    msg += objects[0]->id();
 	    msg += objects[0]->getClassName();
 	    pErrMsg( msg );
-	    remove( 0 );
+
+	    while ( objects[0]->nrRefs() ) objects[0]->unRef();
 	}
 
 	return false;
@@ -195,142 +184,32 @@ bool visBase::DataManager::removeAll(int nriterations)
 }
 
 
-void visBase::DataManager::ref( int id )
+DataObject* DataManager::getObject( int id ) 
 {
-    int idx = getIdx( id );
-    if ( idx<0 )
-	return;
-
-    refcounts[idx]++;
-}
-
-
-void visBase::DataManager::ref( const DataObject* d )
-{
-    int idx = objects.indexOf( d );
-    if ( idx<0 ) return;
-
-    refcounts[idx]++;
-}
-
-
-void visBase::DataManager::unRef( int id, bool rem )
-{
-    int idx = getIdx( id );
-    if ( idx<0 )
+    for ( int idx=0; idx<objects.size(); idx++ )
     {
-	BufferString msg = "Trying to remove non-existing ID: ";
-	msg += id;
-	pErrMsg(msg);
-	return;
+	if ( objects[idx]->id()==id ) return objects[idx];
     }
 
-    if ( !refcounts[idx] )
-    {
-	BufferString msg =  "Decreasing a zero reference on ID: ";
-	msg += id;
-	pErrMsg(msg) ;
-	return;
-    }
-
-    refcounts[idx]--;
-    if ( !refcounts[idx] && rem )
-	remove( idx );
+    return 0;
 }
 
 
-void visBase::DataManager::unRef( const DataObject* d, bool rem )
+const DataObject* DataManager::getObject( int id ) const
+{ return const_cast<DataManager*>(this)->getObject(id); }
+
+
+void DataManager::addObject( DataObject* obj )
 {
-    int idx = objects.indexOf( d );
-    if ( idx<0 )
-    {
-	BufferString msg = "Trying to remove non-existing id of type: ";
-	msg += d->getClassName();
-	pErrMsg(msg);
-	return;
-    }
-
-    if ( !refcounts[idx] )
-    {
-	BufferString msg =  "Decreasing a zero reference on ID: ";
-	msg += ids[idx];
-	pErrMsg(msg) ;
-	return;
-    }
-
-    refcounts[idx]--;
-    if ( !refcounts[idx] && rem )
-	 remove( idx );
-}
-
-
-visBase::DataObject* visBase::DataManager::getObj( int id ) 
-{
-    const int idx = getIdx( id );
-
-    if ( idx<0 ) return 0;
-
-    return objects[idx];
-}
-	
-
-const visBase::DataObject* visBase::DataManager::getObj( int id ) const
-{
-    const int idx = getIdx( id );
-
-    if ( idx<0 ) return 0;
-
-    return objects[idx];
-}
-
-
-int visBase::DataManager::addObj( DataObject* obj )
-{
-    int idx = objects.indexOf( obj );
-    if ( idx<0 )
+    if ( objects.indexOf(obj)==-1 )
     {
 	objects += obj;
-	ids += freeid++;
-	refcounts += 0;
-	idx = ids.size()-1;
+	obj->setID(freeid++);
     }
-
-    return ids[idx];
 }
 
 
-int visBase::DataManager::getId( const DataObject* obj ) const
-{
-    int idx = objects.indexOf( obj );
-    if ( idx<0 ) return -1;
-
-    return ids[idx];
-}
-
-
-int visBase::DataManager::getId( const SoPath* path ) const
-{
-    const int nrobjs = objects.size();
-
-    for ( int pathidx=path->getLength()-1; pathidx>=0; pathidx-- )
-    {
-	SoNode* node = path->getNode( pathidx );
-
-	for ( int idx=0; idx<nrobjs; idx++ )
-	{
-	    const SoNode* objnode = objects[idx]->getInventorNode();
-	    if ( !objnode ) continue;
-
-	    if ( objnode==node )
-		return ids[idx];
-	}
-    }
-
-    return -1;
-}
-
-
-void visBase::DataManager::getIds( const SoPath* path, TypeSet<int>& res ) const
+void DataManager::getIds( const SoPath* path, TypeSet<int>& res ) const
 {
     res.erase();
 
@@ -345,14 +224,13 @@ void visBase::DataManager::getIds( const SoPath* path, TypeSet<int>& res ) const
 	    const SoNode* objnode = objects[idx]->getInventorNode();
 	    if ( !objnode ) continue;
 
-	    if ( objnode==node )
-		res += ids[idx];
+	    if ( objnode==node ) res += objects[idx]->id();
 	}
     }
 }
 
 
-void visBase::DataManager::getIds( const std::type_info& ti,
+void DataManager::getIds( const std::type_info& ti,
 				   TypeSet<int>& res) const
 {
     res.erase();
@@ -360,21 +238,12 @@ void visBase::DataManager::getIds( const std::type_info& ti,
     for ( int idx=0; idx<objects.size(); idx++ )
     {
 	if ( typeid(*objects[idx]) == ti )
-	    res += ids[idx];
+	    res += objects[idx]->id();
     }
 }
 
-void visBase::DataManager::remove( int idx )
-{
-    DataObject* obj = objects[idx];
-
-    objects.remove( idx );
-    ids.remove( idx );
-    refcounts.remove( idx );
-
-    obj->remove();
-}
+void DataManager::removeObject( DataObject* dobj )
+{ objects -= dobj; }
 
 
-int visBase::DataManager::getIdx( int id ) const
-{ return ids.indexOf( id ); }
+}; //namespace

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vislight.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -13,44 +13,47 @@ static const char* rcsID = "$Id: vislight.cc,v 1.5 2004-01-05 09:43:23 kristofer
 #include "Inventor/nodes/SoDirectionalLight.h"
 #include "Inventor/nodes/SoSpotLight.h"
 
-const char* visBase::Light::isonstr = "Is On";
-const char* visBase::Light::intensitystr = "Intensity";
+namespace visBase
+{
+
+const char* Light::isonstr = "Is On";
+const char* Light::intensitystr = "Intensity";
 
 
-visBase::Light::Light( SoLight* light_ )
+Light::Light( SoLight* light_ )
     : light( light_ )
 { light->ref(); }
 
 
-visBase::Light::~Light()
+Light::~Light()
 { light->unref(); }
 
 
-void visBase::Light::turnOn(bool n)
+void Light::turnOn(bool n)
 {
     light->on.setValue( n );
 }
 
 
-bool visBase::Light::isOn() const
+bool Light::isOn() const
 { return light->on.getValue(); }
 
 
-void visBase::Light::setIntensity(float n)
+void Light::setIntensity(float n)
 {
     light->intensity.setValue( n );
 }
 
 
-float visBase::Light::intensity() const
+float Light::intensity() const
 { return light->intensity.getValue(); }
 
 
-SoNode* visBase::Light::getInventorNode()
+SoNode* Light::getInventorNode()
 { return light; }
 
 
-void visBase::Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+void Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
     DataObject::fillPar( par, storeids );
 
@@ -59,7 +62,7 @@ void visBase::Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 }
 
 
-int visBase::Light::usePar( const IOPar& par )
+int Light::usePar( const IOPar& par )
 {
     int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
@@ -79,28 +82,28 @@ int visBase::Light::usePar( const IOPar& par )
 }
 
 
-mCreateFactoryEntry( visBase::PointLight );
+mCreateFactoryEntry( PointLight );
 
-const char* visBase::PointLight::positionstr = "Position";
+const char* PointLight::positionstr = "Position";
 
-visBase::PointLight::PointLight()
+PointLight::PointLight()
     : Light( new SoPointLight )
 {}
 
 
-void visBase::PointLight::setPosition(float x, float y, float z )
+void PointLight::setPosition(float x, float y, float z )
 {
     ((SoPointLight*) light)->location.setValue( x, y, z );
 }
 
 
-float visBase::PointLight::position( int dim ) const
+float PointLight::position( int dim ) const
 {
     return ((SoPointLight*) light)->location.getValue()[dim];
 }
 
 
-void visBase::PointLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+void PointLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
     Light::fillPar( par, storeids );
 
@@ -108,7 +111,7 @@ void visBase::PointLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 }
 
 
-int visBase::PointLight::usePar( const IOPar& par )
+int PointLight::usePar( const IOPar& par )
 {
     int res = Light::usePar( par );
     if ( res != 1 ) return res;
@@ -122,28 +125,28 @@ int visBase::PointLight::usePar( const IOPar& par )
 }
 
 
-mCreateFactoryEntry( visBase::DirectionalLight );
-const char* visBase::DirectionalLight::directionstr = "Direction";
+mCreateFactoryEntry( DirectionalLight );
+const char* DirectionalLight::directionstr = "Direction";
 
 
-visBase::DirectionalLight::DirectionalLight()
+DirectionalLight::DirectionalLight()
     : Light( new SoDirectionalLight )
 { }
 
 
-void visBase::DirectionalLight::setDirection(float x, float y, float z )
+void DirectionalLight::setDirection(float x, float y, float z )
 {
     ((SoDirectionalLight*) light)->direction.setValue( x, y, z );
 }
 
 
-float visBase::DirectionalLight::direction( int dim ) const
+float DirectionalLight::direction( int dim ) const
 {
     return ((SoDirectionalLight*) light)->direction.getValue()[dim];
 }
 
 
-void visBase::DirectionalLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+void DirectionalLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
     Light::fillPar( par, storeids );
 
@@ -151,7 +154,7 @@ void visBase::DirectionalLight::fillPar( IOPar& par, TypeSet<int>& storeids ) co
 }
 
 
-int visBase::DirectionalLight::usePar( const IOPar& par )
+int DirectionalLight::usePar( const IOPar& par )
 {
     int res = Light::usePar( par );
     if ( res != 1 ) return res;
@@ -165,67 +168,67 @@ int visBase::DirectionalLight::usePar( const IOPar& par )
 }
 
 
-mCreateFactoryEntry( visBase::SpotLight );
+mCreateFactoryEntry( SpotLight );
 
-const char* visBase::SpotLight::directionstr = "Direction";
-const char* visBase::SpotLight::positionstr = "Position";
-const char* visBase::SpotLight::coneanglestr = "Cone Angle";
-const char* visBase::SpotLight::dropoffratestr = "Drop Off Rate";
+const char* SpotLight::directionstr = "Direction";
+const char* SpotLight::positionstr = "Position";
+const char* SpotLight::coneanglestr = "Cone Angle";
+const char* SpotLight::dropoffratestr = "Drop Off Rate";
 
-visBase::SpotLight::SpotLight()
+SpotLight::SpotLight()
     : Light( new SoSpotLight )
 {}
 
 
-void visBase::SpotLight::setDirection(float x, float y, float z )
+void SpotLight::setDirection(float x, float y, float z )
 {
     ((SoSpotLight*) light)->direction.setValue( x, y, z );
 }
 
 
-float visBase::SpotLight::direction( int dim ) const
+float SpotLight::direction( int dim ) const
 {
     return ((SoSpotLight*) light)->direction.getValue()[dim];
 }
 
 
-void visBase::SpotLight::setPosition(float x, float y, float z )
+void SpotLight::setPosition(float x, float y, float z )
 {
     ((SoSpotLight*) light)->location.setValue( x, y, z );
 }
 
 
-float visBase::SpotLight::position( int dim ) const
+float SpotLight::position( int dim ) const
 {
     return ((SoSpotLight*) light)->location.getValue()[dim];
 }
 
 
-void visBase::SpotLight::setConeAngle(float n)
+void SpotLight::setConeAngle(float n)
 {
     ((SoSpotLight*) light)->cutOffAngle.setValue(n);
 }
 
 
-float visBase::SpotLight::coneAngle() const
+float SpotLight::coneAngle() const
 {
     return ((SoSpotLight*) light)->cutOffAngle.getValue();
 }
 
 
-void visBase::SpotLight::setDropOffRate(float n)
+void SpotLight::setDropOffRate(float n)
 {
     ((SoSpotLight*) light)->dropOffRate.setValue(n);
 }
 
 
-float visBase::SpotLight::dropOffRate() const
+float SpotLight::dropOffRate() const
 {
     return ((SoSpotLight*) light)->dropOffRate.getValue();
 }
 
 
-void visBase::SpotLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+void SpotLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
     Light::fillPar( par, storeids );
 
@@ -236,7 +239,7 @@ void visBase::SpotLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 }
 
 
-int visBase::SpotLight::usePar( const IOPar& par )
+int SpotLight::usePar( const IOPar& par )
 {
     int res = Light::usePar( par );
     if ( res != 1 ) return res;
@@ -264,3 +267,5 @@ int visBase::SpotLight::usePar( const IOPar& par )
 
     return 1;
 }
+
+}; // namespace visBase

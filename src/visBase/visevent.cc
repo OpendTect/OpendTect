@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.17 2004-09-14 12:16:01 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.18 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -23,24 +23,27 @@ static const char* rcsID = "$Id: visevent.cc,v 1.17 2004-09-14 12:16:01 kristofe
 #include "Inventor/SbViewportRegion.h"
 #include "Inventor/SbLinear.h"
 
-const char* visBase::EventCatcher::eventtypestr = "EventType";
+namespace visBase
+{
 
-visBase::EventInfo::EventInfo()
-    : objecttoworldtrans( visBase::Transformation::create() )
+const char* EventCatcher::eventtypestr = "EventType";
+
+EventInfo::EventInfo()
+    : objecttoworldtrans( Transformation::create() )
     , detail(0)
 { objecttoworldtrans->ref(); }
 
 
-visBase::EventInfo::~EventInfo()
+EventInfo::~EventInfo()
 {
     objecttoworldtrans->unRef();
     delete detail;
 }
 
 
-mCreateFactoryEntry( visBase::EventCatcher );
+mCreateFactoryEntry( EventCatcher );
 
-visBase::EventCatcher::EventCatcher()
+EventCatcher::EventCatcher()
     : node( new SoEventCallback )
     , eventhappened( this )
     , nothandled( this )
@@ -52,15 +55,15 @@ visBase::EventCatcher::EventCatcher()
 }
 
 
-void visBase::EventCatcher::_init()
+void EventCatcher::_init()
 {
-    visBase::DataObject::_init();
+    DataObject::_init();
     SO_ENABLE( SoHandleEventAction, SoModelMatrixElement );
     SO_ENABLE( SoHandleEventAction, SoViewVolumeElement );
 }
 
 
-void visBase::EventCatcher::setEventType( int type_ )
+void EventCatcher::setEventType( int type_ )
 {
     removeCBs();
     type = type_;
@@ -68,14 +71,14 @@ void visBase::EventCatcher::setEventType( int type_ )
 }
 
 
-void visBase::EventCatcher::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void EventCatcher::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
     par.set( eventtypestr, (int) type );
 }
 
 
-int visBase::EventCatcher::usePar( const IOPar& par )
+int EventCatcher::usePar( const IOPar& par )
 {
     int res = DataObject::usePar( par );
     if ( res!= 1 ) return res;
@@ -90,7 +93,7 @@ int visBase::EventCatcher::usePar( const IOPar& par )
 }
 	
     
-void visBase::EventCatcher::setCBs()
+void EventCatcher::setCBs()
 {
     if ( type==MouseClick || type==Any )
 	node->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
@@ -104,7 +107,7 @@ void visBase::EventCatcher::setCBs()
 }
 
 
-void visBase::EventCatcher::removeCBs()
+void EventCatcher::removeCBs()
 {
     if ( type==MouseClick || type==Any )
 	node->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
@@ -118,14 +121,14 @@ void visBase::EventCatcher::removeCBs()
 }
 
 
-visBase::EventCatcher::~EventCatcher()
+EventCatcher::~EventCatcher()
 {
     removeCBs();
     node->unref();
 }
 
 
-bool visBase::EventCatcher::isEventHandled() const
+bool EventCatcher::isEventHandled() const
 {
 /*
     For some reason, the action associated with some events
@@ -137,7 +140,7 @@ bool visBase::EventCatcher::isEventHandled() const
 }
 
 
-void visBase::EventCatcher::eventIsHandled()
+void EventCatcher::eventIsHandled()
 {
 /*
     For some reason, the action associated with some events
@@ -147,17 +150,17 @@ void visBase::EventCatcher::eventIsHandled()
 }
 
 
-SoNode* visBase::EventCatcher::getInventorNode()
+SoNode* EventCatcher::getInventorNode()
 { return node; }
 
 
-void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
+void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 {
-    visBase::EventCatcher* eventcatcher = (visBase::EventCatcher*) userdata;
+    EventCatcher* eventcatcher = (EventCatcher*) userdata;
     if ( eventcatcher->isEventHandled() ) return;
     const SoEvent* event = evcb->getEvent();
 
-    visBase::EventInfo eventinfo;
+    EventInfo eventinfo;
     eventinfo.shift = event->wasShiftDown();
     eventinfo.ctrl = event->wasCtrlDown();
     eventinfo.alt = event->wasAltDown();
@@ -188,7 +191,7 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 	const SoPath* path = pickedpoint->getPath();
 	if ( path )
 	{
-	    visBase::DM().getIds( path, eventinfo.pickedobjids );
+	    DM().getIds( path, eventinfo.pickedobjids );
 	    if ( eventinfo.pickedobjids.size() )
 	    {
 		SbVec3f pos3d = pickedpoint->getPoint();
@@ -206,7 +209,7 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 		if ( facedetail )
 		{
 		    SoFaceDetail* fd = const_cast< SoFaceDetail* >(facedetail);
-		    eventinfo.detail = new visBase::FaceDetail( fd );
+		    eventinfo.detail = new FaceDetail( fd );
 		}
 	    }
 	}
@@ -219,12 +222,12 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     {
 	const SoKeyboardEvent* kbevent = (const SoKeyboardEvent*) event;
 	eventinfo.key = (int)kbevent->getKey();
-	eventinfo.type = visBase::Keyboard;
+	eventinfo.type = Keyboard;
 	eventinfo.pressed = kbevent->getState()==SoButtonEvent::DOWN;
     }
     else if ( eventtype==SoLocation2Event::getClassTypeId() )
     {
-	eventinfo.type = visBase::MouseMovement;
+	eventinfo.type = MouseMovement;
     }
     else if ( eventtype==SoMouseButtonEvent::getClassTypeId() )
     {
@@ -239,10 +242,12 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 	else
 	    eventinfo.pressed = false;
 
-	eventinfo.type = visBase::MouseClick;
+	eventinfo.type = MouseClick;
     }
 
     eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
     if ( !eventcatcher->isEventHandled() )
 	eventcatcher->nothandled.trigger( eventinfo, eventcatcher );
 }
+
+}; // namespace visBase

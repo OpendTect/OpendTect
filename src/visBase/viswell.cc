@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.21 2005-01-14 09:32:03 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.22 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,10 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoSwitch.h>
 
 
-mCreateFactoryEntry( visBase::Well );
+namespace visBase
+{
+
+mCreateFactoryEntry( Well );
 
 static const int sMaxNrLogSamples = 2000;
 static const int sDefaultMarkerSize = 10;
@@ -49,9 +52,9 @@ const char* Well::logwidthstr 	= "Screen width";
 
 
 Well::Well()
-    : track( visBase::PolyLine::create() )
-    , drawstyle( visBase::DrawStyle::create() )
-    , welltxt( visBase::Text::create() )
+    : track( PolyLine::create() )
+    , drawstyle( DrawStyle::create() )
+    , welltxt( Text::create() )
     , markernmsw( new SoSwitch )
     , showmarkers(true)
     , markersize(sDefaultMarkerSize)
@@ -63,16 +66,16 @@ Well::Well()
     drawstyle->ref();
     sep->addChild( drawstyle->getInventorNode() );
     track->ref();
-    track->setMaterial( visBase::Material::create() );
+    track->setMaterial( Material::create() );
     sep->addChild( track->getInventorNode() );
     welltxt->ref();
     sep->addChild( welltxt->getInventorNode() );
 
-    markergroup = visBase::DataObjectGroup::create();
+    markergroup = DataObjectGroup::create();
     markergroup->ref();
     addChild( markergroup->getInventorNode() );
     addChild( markernmsw );
-    markernames = visBase::DataObjectGroup::create();
+    markernames = DataObjectGroup::create();
     markernames->setSeparate(false);
     markernames->ref();
     markernmsw->addChild( markernames->getInventorNode() );
@@ -142,7 +145,7 @@ void Well::setWellName( const char* nm, const Coord3& pos )
     if ( !SI().zRange().includes(pos.z) )
 	wp.z = SI().zRange().limitValue( pos.z );
     welltxt->setPosition( wp ); //TODO
-    welltxt->setJustification( visBase::Text::Center );
+    welltxt->setJustification( Text::Center );
 }
 
 void Well::showWellName( bool yn )
@@ -154,7 +157,7 @@ bool Well::wellNameShown() const
 
 void Well::addMarker( const Coord3& pos, const Color& color, const char* nm ) 
 {
-    visBase::Marker* marker = visBase::Marker::create();
+    Marker* marker = Marker::create();
 
     SoSeparator* markershapesep = new SoSeparator;
     markershapesep->ref();
@@ -184,7 +187,7 @@ void Well::addMarker( const Coord3& pos, const Color& color, const char* nm )
     markernm->setDisplayTransformation( transformation );
     markernm->setText( nm );
     markernm->setPosition( pos );
-    markernm->setJustification( visBase::Text::Left );
+    markernm->setJustification( Text::Left );
     markernames->addObject( markernm );
 }
 
@@ -201,7 +204,7 @@ void Well::setMarkerScreenSize( int size )
     markersize = size;
     for ( int idx=0; idx<markergroup->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
+	mDynamicCastGet(Marker*,marker,markergroup->getObject(idx))
 	marker->setScreenSize( size );
     }
 }
@@ -209,7 +212,7 @@ void Well::setMarkerScreenSize( int size )
 
 int Well::markerScreenSize() const
 {
-    mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(0))
+    mDynamicCastGet(Marker*,marker,markergroup->getObject(0))
     return marker ? mNINT(marker->getScreenSize()) : sDefaultMarkerSize;
 }
 
@@ -223,7 +226,7 @@ void Well::showMarkers( bool yn )
     showmarkers = yn;
     for ( int idx=0; idx<markergroup->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(idx))
+	mDynamicCastGet(Marker*,marker,markergroup->getObject(idx))
 	marker->turnOn( yn );
     }
 }
@@ -231,7 +234,7 @@ void Well::showMarkers( bool yn )
 
 bool Well::markersShown() const
 {
-    mDynamicCastGet(visBase::Marker*,marker,markergroup->getObject(0))
+    mDynamicCastGet(Marker*,marker,markergroup->getObject(0))
     return marker && marker->isOn();
 }
 
@@ -356,7 +359,7 @@ bool Well::logNameShown() const
 { return false; }
 
 
-void Well::setDisplayTransformation( visBase::Transformation* nt )
+void Well::setDisplayTransformation( Transformation* nt )
 {
     if ( transformation )
 	transformation->unRef();
@@ -366,13 +369,13 @@ void Well::setDisplayTransformation( visBase::Transformation* nt )
 }
 
 
-visBase::Transformation* Well::getDisplayTransformation()
+Transformation* Well::getDisplayTransformation()
 { return transformation; }
 
 
 void Well::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
+    VisualObjectImpl::fillPar( par, saveids );
 
     BufferString linestyle;
     lineStyle().toString( linestyle );
@@ -422,5 +425,7 @@ int Well::usePar( const IOPar& par )
 
     return 1;
 }
+
+}; // namespace visBase
 
 }; // namespace visBase

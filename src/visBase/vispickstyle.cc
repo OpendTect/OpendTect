@@ -4,31 +4,34 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vispickstyle.cc,v 1.1 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: vispickstyle.cc,v 1.2 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vispickstyle.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoPickStyle.h"
 
-mCreateFactoryEntry( visBase::PickStyle );
+namespace visBase
+{
 
-const char* visBase::PickStyle::stylestr = "Style";
+mCreateFactoryEntry( PickStyle );
 
-visBase::PickStyle::PickStyle()
+const char* PickStyle::stylestr = "Style";
+
+PickStyle::PickStyle()
     : pickstyle( new SoPickStyle )
 {
     pickstyle->ref();
 }
 
 
-visBase::PickStyle::~PickStyle()
+PickStyle::~PickStyle()
 {
     pickstyle->unref();
 }
 
 
-void visBase::PickStyle::setStyle( visBase::PickStyle::Style style )
+void PickStyle::setStyle( PickStyle::Style style )
 {
     if ( style==Shape )
 	pickstyle->style = SoPickStyle::SHAPE;
@@ -39,7 +42,7 @@ void visBase::PickStyle::setStyle( visBase::PickStyle::Style style )
 }
 
 
-visBase::PickStyle::Style visBase::PickStyle::getStyle() const
+PickStyle::Style PickStyle::getStyle() const
 {
     if ( pickstyle->style.getValue()==SoPickStyle::SHAPE ) 
 	return Shape;
@@ -52,10 +55,10 @@ visBase::PickStyle::Style visBase::PickStyle::getStyle() const
 }
 
 
-SoNode* visBase::PickStyle::getInventorNode() { return pickstyle; }
+SoNode* PickStyle::getInventorNode() { return pickstyle; }
 
 
-int visBase::PickStyle::usePar( const IOPar& iopar )
+int PickStyle::usePar( const IOPar& iopar )
 {
     int res = DataObject::usePar( iopar );
     if ( res!=1 ) return res;
@@ -69,8 +72,10 @@ int visBase::PickStyle::usePar( const IOPar& iopar )
 }
 
 
-void visBase::PickStyle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void PickStyle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( iopar, saveids );
     iopar.set( stylestr, (int) getStyle() );
 }
+
+}; // namespace visBase

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.8 2004-11-16 09:28:33 kristofer Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.9 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -19,10 +19,11 @@ static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.8 2004-11-16 09:
 #include "ranges.h"
 #include "iopar.h"
 
-mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
-
 namespace visBase
 {
+
+mCreateFactoryEntry( DepthTabPlaneDragger );
+
 
 const char* DepthTabPlaneDragger::dimstr    = "Dimension";
 const char* DepthTabPlaneDragger::sizestr   = "Size.";
@@ -48,11 +49,11 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
 
     setDim(dim);
 
-    dragger->addStartCallback( visBase::DepthTabPlaneDragger::startCB, this );
-    dragger->addMotionCallback( visBase::DepthTabPlaneDragger::motionCB, this );
-    dragger->addFinishCallback( visBase::DepthTabPlaneDragger::finishCB, this );
+    dragger->addStartCallback( DepthTabPlaneDragger::startCB, this );
+    dragger->addMotionCallback( DepthTabPlaneDragger::motionCB, this );
+    dragger->addFinishCallback( DepthTabPlaneDragger::finishCB, this );
     dragger->addValueChangedCallback(
-	    		visBase::DepthTabPlaneDragger::valueChangedCB, this );
+	    		DepthTabPlaneDragger::valueChangedCB, this );
 
 }
 
@@ -62,11 +63,11 @@ DepthTabPlaneDragger::~DepthTabPlaneDragger()
     if ( rotation ) rotation->unRef();
     if ( transform ) transform->unRef();
 
-    dragger->removeStartCallback(visBase::DepthTabPlaneDragger::startCB, this );
-    dragger->removeMotionCallback(visBase::DepthTabPlaneDragger::motionCB,this);
-    dragger->removeFinishCallback(visBase::DepthTabPlaneDragger::finishCB,this);
+    dragger->removeStartCallback(DepthTabPlaneDragger::startCB, this );
+    dragger->removeMotionCallback(DepthTabPlaneDragger::motionCB,this);
+    dragger->removeFinishCallback(DepthTabPlaneDragger::finishCB,this);
     dragger->removeValueChangedCallback(
-	    		visBase::DepthTabPlaneDragger::valueChangedCB, this );
+	    		DepthTabPlaneDragger::valueChangedCB, this );
 }
 
 

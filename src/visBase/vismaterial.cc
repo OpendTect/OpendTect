@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.9 2004-07-28 06:55:53 kristofer Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.10 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vismaterial.h"
 #include "color.h"
@@ -12,17 +12,20 @@ static const char* rcsID = "$Id: vismaterial.cc,v 1.9 2004-07-28 06:55:53 kristo
 
 #include "Inventor/nodes/SoMaterial.h"
 
-mCreateFactoryEntry( visBase::Material );
+namespace visBase
+{
 
-const char* visBase::Material::colorstr = "Color";
-const char* visBase::Material::ambiencestr = "Ambient Intensity";
-const char* visBase::Material::diffintensstr = "Diffuse Intensity";
-const char* visBase::Material::specintensstr = "Specular Intensity";
-const char* visBase::Material::emmintensstr = "Emmissive Intensity";
-const char* visBase::Material::shininessstr = "Shininess";
-const char* visBase::Material::transpstr = "Transparency";
+mCreateFactoryEntry( Material );
 
-visBase::Material::Material()
+const char* Material::colorstr = "Color";
+const char* Material::ambiencestr = "Ambient Intensity";
+const char* Material::diffintensstr = "Diffuse Intensity";
+const char* Material::specintensstr = "Specular Intensity";
+const char* Material::emmintensstr = "Emmissive Intensity";
+const char* Material::shininessstr = "Shininess";
+const char* Material::transpstr = "Transparency";
+
+Material::Material()
     : material( new SoMaterial )
 {
     material->ref();
@@ -31,18 +34,18 @@ visBase::Material::Material()
 }
 
 
-visBase::Material::~Material()
+Material::~Material()
 { material->unref(); }
 
 
 #define mSetGetProperty( Type, func, var ) \
-void visBase::Material::set##func( Type n, int idx ) \
+void Material::set##func( Type n, int idx ) \
 { \
     setMinNrOfMaterials(idx); \
     var[idx] = n; \
     updateMaterial( idx ); \
 } \
-Type visBase::Material::get##func( int idx ) const \
+Type Material::get##func( int idx ) const \
 { \
     if ( idx>=0 && idx<var.size() ) \
 	return var[idx]; \
@@ -59,7 +62,7 @@ mSetGetProperty( float, Shininess, shininess );
 mSetGetProperty( float, Transparency, transparency );
 
 
-void visBase::Material::updateMaterial(int idx)
+void Material::updateMaterial(int idx)
 {
     material->ambientColor.set1Value( idx, color[idx].r() * ambience[idx]/255,
 				    color[idx].g() * ambience[idx]/255,
@@ -85,7 +88,7 @@ void visBase::Material::updateMaterial(int idx)
 }
 
 
-void visBase::Material::setMinNrOfMaterials(int minnr)
+void Material::setMinNrOfMaterials(int minnr)
 {
     while ( color.size()<=minnr )
     {
@@ -100,10 +103,10 @@ void visBase::Material::setMinNrOfMaterials(int minnr)
 }
 
 
-SoNode* visBase::Material::getInventorNode() { return material; }
+SoNode* Material::getInventorNode() { return material; }
 
 
-int visBase::Material::usePar( const IOPar& iopar )
+int Material::usePar( const IOPar& iopar )
 {
     int res = DataObject::usePar( iopar );
     if ( res!=1 ) return res;
@@ -136,7 +139,7 @@ int visBase::Material::usePar( const IOPar& iopar )
 }
 
 
-void visBase::Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( iopar, saveids );
 
@@ -149,3 +152,5 @@ void visBase::Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( shininessstr, getShininess() );
     iopar.set( transpstr, getTransparency() );
 }
+
+}; // namespace visBase

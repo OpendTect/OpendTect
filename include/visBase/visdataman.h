@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.13 2004-04-28 21:30:58 bert Exp $
+ RCS:		$Id: visdataman.h,v 1.14 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -38,29 +38,20 @@ public:
     			DataManager();
     virtual		~DataManager();
 
-    bool		reInit();
-    			/*!< Should be when everything should be removed
-			     and reinitialized.
-			*/
-
+    bool		removeAll(int nriterations=1000);
+    			/*!< Will remove everything.  */
 
     void		fillPar( IOPar&, TypeSet<int> & ) const;
     bool		usePar( const IOPar& );
 
-    void		ref( int id );
-    void		ref( const DataObject* );
-    void		unRef( int id, bool remove=true );
-    void		unRef( const DataObject*, bool remove=true );
-
-    int			getId( const DataObject* ) const;
-    int			getId( const SoPath* ) const;
     void		getIds( const SoPath*, TypeSet<int>& ) const;
     			/*!< Gets the ids from lowest level to highest
 			     (i.e. scene ) */
+
     void		getIds( const std::type_info&, TypeSet<int>& ) const;
 
-    DataObject*		getObj( int id );
-    const DataObject*	getObj( int id ) const;
+    DataObject*		getObject( int id );
+    const DataObject*	getObject( int id ) const;
 
     SelectionManager&	selMan() { return selman; }
     Factory&		factory() { return fact; }
@@ -68,22 +59,12 @@ public:
     Notifier<DataManager>	removeallnotify;
 
 protected:
-    bool		removeAll(int nriterations=1000);
-    			/*!< Will remove everything.  */
 
     friend class	DataObject;
-
-    int			addObj( DataObject* );
-			/*!< Returns id. If it already exist in the db, the
-			     id of the old one is returned.
-			*/
-
-    void		remove( int idx );
-    int			getIdx( int id ) const;
+    void		addObject( DataObject* );
+    void		removeObject( DataObject* );
 
     ObjectSet<DataObject>	objects;
-    TypeSet<int>		ids;
-    TypeSet<int>		refcounts;
 
     int				freeid;
     SelectionManager&		selman;

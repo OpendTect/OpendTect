@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.18 2004-11-16 09:28:33 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.19 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -32,11 +32,14 @@ static const char* rcsID = "$Id: visshape.cc,v 1.18 2004-11-16 09:28:33 kristofe
 #include "Inventor/nodes/SoSwitch.h"
 
 
-const char* visBase::Shape::onoffstr = "Is on";
-const char* visBase::Shape::texturestr = "Texture";
-const char* visBase::Shape::materialstr = "Material";
+namespace visBase
+{
 
-visBase::Shape::Shape( SoNode* shape_ )
+const char* Shape::onoffstr = "Is on";
+const char* Shape::texturestr = "Texture";
+const char* Shape::materialstr = "Material";
+
+Shape::Shape( SoNode* shape_ )
     : shape( shape_ )
     , onoff( new SoSwitch )
     , texture2( 0 )
@@ -52,7 +55,7 @@ visBase::Shape::Shape( SoNode* shape_ )
 }
 
 
-visBase::Shape::~Shape()
+Shape::~Shape()
 {
     if ( texture2 ) texture2->unRef();
     if ( texture3 ) texture3->unRef();
@@ -62,7 +65,7 @@ visBase::Shape::~Shape()
 }
 
 
-void visBase::Shape::turnOn(bool n)
+void Shape::turnOn(bool n)
 {
     if ( onoff ) onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
     else if ( !n )
@@ -72,13 +75,13 @@ void visBase::Shape::turnOn(bool n)
 }
 
 
-bool visBase::Shape::isOn() const
+bool Shape::isOn() const
 {
     return !onoff || !onoff->whichChild.getValue();
 }
 
 
-void visBase::Shape::removeSwitch()
+void Shape::removeSwitch()
 {
     root->ref();
     onoff->unref();
@@ -86,7 +89,7 @@ void visBase::Shape::removeSwitch()
 }
 
 
-void visBase::Shape::setRenderCache(int mode)
+void Shape::setRenderCache(int mode)
 {
     if ( !mode )
 	root->renderCaching = SoSeparator::OFF;
@@ -97,7 +100,7 @@ void visBase::Shape::setRenderCache(int mode)
 }
 
 
-int visBase::Shape::getRenderCache() const
+int Shape::getRenderCache() const
 {
     if ( root->renderCaching.getValue()==SoSeparator::OFF )
 	return 0;
@@ -110,7 +113,7 @@ int visBase::Shape::getRenderCache() const
 
 
 #define setGetItem(ownclass, clssname, variable) \
-void visBase::ownclass::set##clssname( visBase::clssname* newitem ) \
+void ownclass::set##clssname( clssname* newitem ) \
 { \
     if ( variable ) \
     { \
@@ -128,7 +131,7 @@ void visBase::ownclass::set##clssname( visBase::clssname* newitem ) \
 } \
  \
  \
-visBase::clssname* visBase::ownclass::get##clssname() \
+clssname* ownclass::get##clssname() \
 { \
     return variable; \
 }
@@ -139,7 +142,7 @@ setGetItem( Shape, Texture3, texture3 );
 setGetItem( Shape, Material, material );
 
 
-void visBase::Shape::setMaterialBinding( int nv )
+void Shape::setMaterialBinding( int nv )
 {
     bool isindexed = dynamic_cast<IndexedShape*>( this );
 
@@ -166,7 +169,7 @@ void visBase::Shape::setMaterialBinding( int nv )
 }
 
 
-int visBase::Shape::getMaterialBinding() const
+int Shape::getMaterialBinding() const
 {
     if ( !materialbinding ) return 0;
     return materialbinding->value.getValue()==SoMaterialBinding::PER_FACE ||
@@ -178,7 +181,7 @@ int visBase::Shape::getMaterialBinding() const
 
 
 
-void visBase::Shape::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void Shape::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     VisualObject::fillPar( iopar, saveids );
 
@@ -202,7 +205,7 @@ void visBase::Shape::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 }
 
 
-int visBase::Shape::usePar( const IOPar& par )
+int Shape::usePar( const IOPar& par )
 {
     int res = VisualObject::usePar( par );
     if ( res!=1 ) return res;
@@ -214,11 +217,11 @@ int visBase::Shape::usePar( const IOPar& par )
     int textureindex;
     if ( par.get(texturestr,textureindex) && textureindex!=-1 )
     {
-	if ( !DM().getObj(textureindex) )
+	if ( !DM().getObject(textureindex) )
 	    return 0;
 
-	Texture2* t2 = dynamic_cast<Texture2*>(DM().getObj(textureindex));
-	Texture3* t3 = dynamic_cast<Texture3*>(DM().getObj(textureindex));
+	Texture2* t2 = dynamic_cast<Texture2*>(DM().getObject(textureindex));
+	Texture3* t3 = dynamic_cast<Texture3*>(DM().getObject(textureindex));
 
 	if ( t2 ) setTexture2( t2 );
 	else if ( t3 ) setTexture3( t3 );
@@ -229,24 +232,24 @@ int visBase::Shape::usePar( const IOPar& par )
 }
 
 	
-SoNode* visBase::Shape::getInventorNode()
+SoNode* Shape::getInventorNode()
 { return onoff ? (SoNode*) onoff : (SoNode*) root; }
 
 
-void visBase::Shape::insertNode( SoNode*  node )
+void Shape::insertNode( SoNode*  node )
 {
     root->insertChild( node, 0 );
 }
 
 
-void visBase::Shape::removeNode( SoNode* node )
+void Shape::removeNode( SoNode* node )
 {
     while ( root->findChild( node ) != -1 )
 	root->removeChild( node );
 }
 
 
-visBase::VertexShape::VertexShape( SoVertexShape* shape_ )
+VertexShape::VertexShape( SoVertexShape* shape_ )
     : Shape( shape_ )
     , normals( 0 )
     , coords( 0 )
@@ -254,11 +257,11 @@ visBase::VertexShape::VertexShape( SoVertexShape* shape_ )
     , normalbinding( 0 )
     , shapehints( 0 )
 {
-    setCoordinates( visBase::Coordinates::create() );
+    setCoordinates( Coordinates::create() );
 }
 
 
-visBase::VertexShape::~VertexShape()
+VertexShape::~VertexShape()
 {
     setCoordinates( 0 );
     setTextureCoords( 0 );
@@ -266,11 +269,11 @@ visBase::VertexShape::~VertexShape()
 }
 
 
-void visBase::VertexShape::setDisplayTransformation( Transformation* tr )
+void VertexShape::setDisplayTransformation( Transformation* tr )
 { coords->setDisplayTransformation( tr ); }
 
 
-visBase::Transformation* visBase::VertexShape::getDisplayTransformation()
+Transformation* VertexShape::getDisplayTransformation()
 { return  coords->getDisplayTransformation(); }
 
 
@@ -279,13 +282,13 @@ setGetItem( VertexShape, Normals, normals );
 setGetItem( VertexShape, TextureCoords, texturecoords );
 
 
-const visBase::Coordinates* visBase::VertexShape::getCoordinates() const
+const Coordinates* VertexShape::getCoordinates() const
 {
     return const_cast<VertexShape*>(this)->getCoordinates();
 }
 
 
-void visBase::VertexShape::setNormalPerFaceBinding( bool nv )
+void VertexShape::setNormalPerFaceBinding( bool nv )
 {
     bool isindexed = dynamic_cast<IndexedShape*>( this );
 
@@ -308,7 +311,7 @@ void visBase::VertexShape::setNormalPerFaceBinding( bool nv )
 }
 
 
-bool visBase::VertexShape::getNormalPerFaceBinding() const
+bool VertexShape::getNormalPerFaceBinding() const
 {
     if ( !normalbinding ) return true;
     return normalbinding->value.getValue()==SoNormalBinding::PER_FACE ||
@@ -323,7 +326,7 @@ bool visBase::VertexShape::getNormalPerFaceBinding() const
 	insertNode( shapehints ); \
     }
 
-void visBase::VertexShape::setVertexOrdering( int nv )
+void VertexShape::setVertexOrdering( int nv )
 {
     mCheckCreateShapeHints()
     if ( !nv )
@@ -335,7 +338,7 @@ void visBase::VertexShape::setVertexOrdering( int nv )
 }
 
 
-int visBase::VertexShape::getVertexOrdering() const
+int VertexShape::getVertexOrdering() const
 {
     if ( !shapehints ) return 2;
 
@@ -348,7 +351,7 @@ int visBase::VertexShape::getVertexOrdering() const
 }
 
 
-void visBase::VertexShape::setFaceType( int ft )
+void VertexShape::setFaceType( int ft )
 {
     mCheckCreateShapeHints()
     shapehints->faceType = !ft ? SoShapeHints::UNKNOWN_FACE_TYPE
@@ -356,14 +359,14 @@ void visBase::VertexShape::setFaceType( int ft )
 }
 
 
-int visBase::VertexShape::getFaceType() const
+int VertexShape::getFaceType() const
 {
     return shapehints && 
 	shapehints->faceType.getValue() == SoShapeHints::CONVEX ? 1 : 0;
 }
 
 
-void visBase::VertexShape::setShapeType( int st )
+void VertexShape::setShapeType( int st )
 {
     mCheckCreateShapeHints()
     shapehints->shapeType = !st ? SoShapeHints::UNKNOWN_SHAPE_TYPE
@@ -371,36 +374,36 @@ void visBase::VertexShape::setShapeType( int st )
 }
 
 
-int visBase::VertexShape::getShapeType() const
+int VertexShape::getShapeType() const
 {
     return shapehints && 
 	shapehints->shapeType.getValue() == SoShapeHints::SOLID ? 1 : 0;
 }
 
 
-visBase::IndexedShape::IndexedShape( SoIndexedShape* shape_ )
+IndexedShape::IndexedShape( SoIndexedShape* shape_ )
     : VertexShape( shape_ )
     , indexedshape( shape_ )
 {}
 
 
 #define setGetIndex( resourcename, fieldname )  \
-int visBase::IndexedShape::nr##resourcename() const \
+int IndexedShape::nr##resourcename() const \
 { return indexedshape->fieldname.getNum(); } \
  \
  \
-void visBase::IndexedShape::set##resourcename( int pos, int idx ) \
+void IndexedShape::set##resourcename( int pos, int idx ) \
 { indexedshape->fieldname.set1Value( pos, idx ); } \
  \
  \
-void visBase::IndexedShape::remove##resourcename##After(int pos) \
+void IndexedShape::remove##resourcename##After(int pos) \
 {  \
     if ( indexedshape->fieldname.getNum()>pos+1 ) \
 	indexedshape->fieldname.deleteValues(pos+1); \
 } \
  \
  \
-int visBase::IndexedShape::get##resourcename( int pos ) const \
+int IndexedShape::get##resourcename( int pos ) const \
 { return indexedshape->fieldname[pos]; } \
 
 
@@ -410,10 +413,12 @@ setGetIndex( NormalIndex, normalIndex );
 setGetIndex( MaterialIndex, materialIndex );
 
 
-int visBase::IndexedShape::getClosestCoordIndex(const EventInfo& ei) const
+int IndexedShape::getClosestCoordIndex(const EventInfo& ei) const
 {
     mDynamicCastGet(  FaceDetail * const, facedetail, ei.detail );
     if ( !facedetail ) return -1;
 
     return facedetail->getClosestIdx( getCoordinates(), ei.localpickedpos );
 }
+
+}; // namespace visBase

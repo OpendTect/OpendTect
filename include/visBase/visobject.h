@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.35 2005-01-12 08:31:33 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.36 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -124,22 +124,22 @@ private:
   the 'DIF' principle (Don't implement the future), the layer only contains
   those tools that are really used in OpendTect.
 
-  The function visBase::initODInventorClasses() initialises our own 
+  The function initODInventorClasses() initialises our own 
   Inventor classes, which are in fact extensions of the COIN library. 
   These classes can be found is SoOD. The 'vis' classes in this module are 
   used in the rest of OpendTect. 
 
   In the 3D visualisation world you'll see that it is almost unavoidable that
   all objects will be managed by a centralised manager. That is
-  visBase::DataManager. 
+  DataManager. 
 
   The main classes for displaying scene objects are:
-  - visBase::TextureRect, for inlines, crosslines and timeslices.
-  - visBase::RandomTrack, for random lines.
-  - visBase::CubeView, for the volume viewer.
-  - visBase::Marker, for picks.
-  - visBase::MeshSurfaceDisplay, for surfaces.
-  - visBase::Well, for wells.
+  - TextureRect, for inlines, crosslines and timeslices.
+  - RandomTrack, for random lines.
+  - CubeView, for the volume viewer.
+  - Marker, for picks.
+  - MeshSurfaceDisplay, for surfaces.
+  - Well, for wells.
 
 */
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.11 2005-01-18 07:25:15 kristofer Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.12 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,11 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoShapeHints.h>
 
-mCreateFactoryEntry( visBase::BoxDragger );
 
 namespace visBase
 {
 
+mCreateFactoryEntry( BoxDragger );
 BoxDragger::BoxDragger()
     : started( this )
     , motion( this )
@@ -37,13 +37,13 @@ BoxDragger::BoxDragger()
     onoff->addChild( boxdragger );
     onoff->ref();
     boxdragger->addStartCallback(
-	    visBase::BoxDragger::startCB, this );
+	    BoxDragger::startCB, this );
     boxdragger->addMotionCallback(
-	    visBase::BoxDragger::motionCB, this );
+	    BoxDragger::motionCB, this );
     boxdragger->addValueChangedCallback(
-	    visBase::BoxDragger::valueChangedCB, this );
+	    BoxDragger::valueChangedCB, this );
     boxdragger->addFinishCallback(
-	    visBase::BoxDragger::finishCB, this );
+	    BoxDragger::finishCB, this );
 
     setOwnShapeHints();
 
@@ -53,13 +53,13 @@ BoxDragger::BoxDragger()
 BoxDragger::~BoxDragger()
 {
     boxdragger->removeStartCallback(
-	    visBase::BoxDragger::startCB, this );
+	    BoxDragger::startCB, this );
     boxdragger->removeMotionCallback(
-	    visBase::BoxDragger::motionCB, this );
+	    BoxDragger::motionCB, this );
     boxdragger->removeValueChangedCallback(
-	    visBase::BoxDragger::valueChangedCB, this );
+	    BoxDragger::valueChangedCB, this );
     boxdragger->removeFinishCallback(
-	    visBase::BoxDragger::finishCB, this );
+	    BoxDragger::finishCB, this );
 
     onoff->unref();
     delete xinterval;

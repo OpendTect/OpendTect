@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.44 2004-11-30 08:06:56 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.45 2005-02-04 14:31:34 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -619,7 +619,7 @@ SurveyObject* RandomTrackDisplay::duplicate() const
 	rtd->setKnotPos( idx, getKnotPos(idx) );
 
     const int id = rtd->getColTabID();
-    visBase::DataObject* obj = id>=0 ? visBase::DM().getObj( id ) : 0;
+    visBase::DataObject* obj = id>=0 ? visBase::DM().getObject( id ) : 0;
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
     if ( nct )
     {
@@ -672,7 +672,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 
     int trackid;
     if ( !par.get( trackstr, trackid ) ) return -1;
-    visBase::DataObject* dataobj = visBase::DM().getObj( trackid );
+    visBase::DataObject* dataobj = visBase::DM().getObject( trackid );
     if ( !dataobj ) return 0;
     mDynamicCastGet(visBase::RandomTrack*,rt,dataobj);
     if ( !rt ) return -1;

@@ -4,14 +4,17 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.14 2004-05-13 09:19:47 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.15 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
 #include "visdataman.h"
 #include "thread.h"
 
-visBase::SelectionManager::SelectionManager()
+namespace visBase
+{
+
+SelectionManager::SelectionManager()
     : selnotifer( this )
     , deselnotifer( this )
     , allowmultiple( false )
@@ -19,13 +22,13 @@ visBase::SelectionManager::SelectionManager()
 {}
 
 
-visBase::SelectionManager::~SelectionManager()
+SelectionManager::~SelectionManager()
 { 
     delete &mutex;
 }
 
 
-void visBase::SelectionManager::setAllowMultiple( bool yn )
+void SelectionManager::setAllowMultiple( bool yn )
 {
     Threads::MutexLocker lock( mutex );
     while ( !yn && selectedids.size()>1 ) deSelect( selectedids[0], false );
@@ -33,7 +36,7 @@ void visBase::SelectionManager::setAllowMultiple( bool yn )
 }
 
 
-void visBase::SelectionManager::select( int newid, bool keepoldsel, bool lock )
+void SelectionManager::select( int newid, bool keepoldsel, bool lock )
 {
     if ( lock ) mutex.lock();
     if ( selectedids.indexOf( newid ) == -1 )
@@ -41,7 +44,7 @@ void visBase::SelectionManager::select( int newid, bool keepoldsel, bool lock )
 	if ( !allowmultiple || !keepoldsel )
 	    deSelectAll(false);
 
-	DataObject* dataobj = visBase::DM().getObj( newid );
+	DataObject* dataobj = DM().getObject( newid );
 
 	if ( dataobj )
 	{
@@ -55,7 +58,7 @@ void visBase::SelectionManager::select( int newid, bool keepoldsel, bool lock )
 }
 
 
-void visBase::SelectionManager::deSelect( int id, bool lock )
+void SelectionManager::deSelect( int id, bool lock )
 {
     if ( lock ) mutex.lock();
 
@@ -64,7 +67,7 @@ void visBase::SelectionManager::deSelect( int id, bool lock )
     {
 	selectedids.remove( idx );
 
-	DataObject* dataobj = visBase::DM().getObj( id );
+	DataObject* dataobj = DM().getObject( id );
 	if ( dataobj )
 	{
 	    dataobj->triggerDeSel();
@@ -77,9 +80,11 @@ void visBase::SelectionManager::deSelect( int id, bool lock )
 }
 
 
-void visBase::SelectionManager::deSelectAll(bool lock)
+void SelectionManager::deSelectAll(bool lock)
 {
     if ( lock ) mutex.lock();
     while ( selectedids.size() ) deSelect( selectedids[0], false );
     if ( lock ) mutex.unlock();
 }
+
+}; // namespace visBase

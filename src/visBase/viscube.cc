@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.16 2004-11-16 09:28:33 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.17 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "viscube.h"
 
@@ -14,13 +14,16 @@ static const char* rcsID = "$Id: viscube.cc,v 1.16 2004-11-16 09:28:33 kristofer
 #include "Inventor/nodes/SoCube.h"
 #include "Inventor/nodes/SoTranslation.h"
 
-mCreateFactoryEntry( visBase::Cube );
+namespace visBase
+{
 
-const char* visBase::Cube::centerposstr = "Center Pos";
-const char* visBase::Cube::widthstr = "Width";
+mCreateFactoryEntry( Cube );
+
+const char* Cube::centerposstr = "Center Pos";
+const char* Cube::widthstr = "Width";
 
 
-visBase::Cube::Cube()
+Cube::Cube()
     : Shape( new SoCube )
     , position( new SoTranslation )
     , transformation( 0 )
@@ -29,11 +32,11 @@ visBase::Cube::Cube()
 }
 
 
-visBase::Cube::~Cube()
+Cube::~Cube()
 { setDisplayTransformation(0); }
 
 
-void visBase::Cube::setDisplayTransformation( Transformation* nt )
+void Cube::setDisplayTransformation( Transformation* nt )
 {
     if ( transformation==nt ) return;
 
@@ -53,14 +56,14 @@ void visBase::Cube::setDisplayTransformation( Transformation* nt )
 }
 
 
-void visBase::Cube::setCenterPos( const Coord3& pos_ )
+void Cube::setCenterPos( const Coord3& pos_ )
 {
     const Coord3 pos = transformation ? transformation->transform(pos_) : pos_;
     position->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
-Coord3 visBase::Cube::centerPos() const
+Coord3 Cube::centerPos() const
 {
     Coord3 res;
     SbVec3f pos = position->translation.getValue();
@@ -73,7 +76,7 @@ Coord3 visBase::Cube::centerPos() const
 }
 
 
-void visBase::Cube::setWidth( const Coord3& n )
+void Cube::setWidth( const Coord3& n )
 {
     const Coord3 transscale = transformation ? transformation->getScale() :
 			      Coord3(1,1,1);
@@ -85,7 +88,7 @@ void visBase::Cube::setWidth( const Coord3& n )
 }
 
 
-Coord3 visBase::Cube::width() const
+Coord3 Cube::width() const
 {
     Coord3 res;
     
@@ -106,7 +109,7 @@ Coord3 visBase::Cube::width() const
 }
 
 
-int visBase::Cube::usePar( const IOPar& iopar )
+int Cube::usePar( const IOPar& iopar )
 {
     int res = Shape::usePar( iopar );
     if ( res != 1 ) return res;
@@ -126,7 +129,7 @@ int visBase::Cube::usePar( const IOPar& iopar )
 }
 
 
-void visBase::Cube::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void Cube::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     Shape::fillPar( iopar, saveids );
 
@@ -137,3 +140,5 @@ void visBase::Cube::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( widthstr, pos.x, pos.y, pos.z );
 }
 
+
+}; //namespace

@@ -4,25 +4,28 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissceneobj.cc,v 1.9 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vissceneobj.cc,v 1.10 2005-02-04 14:31:34 kristofer Exp $";
 
 
 #include "vistransform.h"
 #include "vissceneobj.h"
 
+namespace visBase
+{
 
-visBase::SceneObject::SceneObject()
+
+SceneObject::SceneObject()
     : transformation( 0 )
 {}
 
 
-visBase::SceneObject::~SceneObject()
+SceneObject::~SceneObject()
 {
     if ( transformation ) transformation->unRef();
 }
 
 
-void visBase::SceneObject::setDisplayTransformation( const Transformation* t )
+void SceneObject::setDisplayTransformation( const Transformation* t )
 {
     if ( transformation ) transformation->unRef();
     transformation = t;
@@ -32,3 +35,5 @@ void visBase::SceneObject::setDisplayTransformation( const Transformation* t )
 
 
 
+
+}; // namespace visBase

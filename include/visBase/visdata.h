@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.34 2005-01-07 11:23:15 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.35 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "callback.h"
+#include "refcount.h"
 
 class SoNode;
 class IOPar;
@@ -41,21 +42,18 @@ on the inherited classes should thus be protected.
 */
 
 class DataObject : public CallBackClass
-{
+{ mRefCountImpl(DataObject);
 public:
 
     virtual const char*		getClassName() const { return "Not impl"; }
 
     int				id() const { return id_; }
+    void			setID(int nid) { id_= nid; }
     const char*			name() const;
     void			setName( const char* );
 
     virtual SoNode*		getInventorNode() { return 0; }
     virtual const SoNode*	getInventorNode() const;
-
-    void			ref() const;
-    void			unRef() const;
-    void			unRefNoDelete() const;
 
     virtual bool		selectable() const { return false; }
     void			select() const;
@@ -111,12 +109,8 @@ protected:
     virtual void		triggerRightClick(const EventInfo* =0) {}
     
 				DataObject();
-    virtual			~DataObject();
     virtual void		_init();
 
-    friend class		DataManager;
-    void			remove() { delete this; }
-    				/* Should only be called by DataManager */
 private:
     int				id_;
     BufferString*		name_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.6 2004-11-16 09:29:17 kristofer Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.7 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -97,11 +97,11 @@ protected:
     SoSeparator*		ownshape;
 
     int				dim;
-    visBase::Transformation*	rotation;
+    Transformation*	rotation;
     TypeSet<Coord3>		centers;
     TypeSet<Coord3>		sizes;
 
-    visBase::Transformation*	transform;
+    Transformation*	transform;
 
 private:
     static void			startCB( void*, SoDragger* );

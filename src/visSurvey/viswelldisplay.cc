@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.42 2004-12-24 10:35:58 bert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.43 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -328,7 +328,7 @@ int WellDisplay::usePar( const IOPar& par )
     int viswellid;
     if ( par.get(wellidstr,viswellid) )
     {
-	DataObject* dataobj = visBase::DM().getObj( viswellid );
+	DataObject* dataobj = visBase::DM().getObject( viswellid );
 	if ( !dataobj ) return 0;
 	mDynamicCastGet(visBase::Well*,well_,dataobj)
 	if ( !well_ ) return -1;

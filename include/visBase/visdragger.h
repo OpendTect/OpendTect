@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.11 2005-01-06 10:47:56 kristofer Exp $
+ RCS:           $Id: visdragger.h,v 1.12 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
     void			setDisplayTransformation( Transformation* );
     Transformation*		getDisplayTransformation();
 
-    void			setOwnShape(visBase::DataObject*,
+    void			setOwnShape(DataObject*,
 	    				    const char* partname );
     				/*!< Sets a shape on the dragger.
 				    \note The object will not be reffed,

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.21 2005-01-14 15:43:11 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.22 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -18,9 +18,12 @@ static const char* rcsID = "$Id: vistexture3.cc,v 1.21 2005-01-14 15:43:11 nanne
 #include "Inventor/nodes/SoTexture3.h"
 
 
-mCreateFactoryEntry( visBase::Texture3 );
+namespace visBase
+{
 
-visBase::Texture3::Texture3()
+mCreateFactoryEntry( Texture3 );
+
+Texture3::Texture3()
     : x0sz( -1 )
     , x1sz( -1 )
     , x2sz( -1 )
@@ -36,12 +39,12 @@ visBase::Texture3::Texture3()
 }
 
 
-visBase::Texture3::~Texture3()
+Texture3::~Texture3()
 {
 }
 
 
-void visBase::Texture3::setTextureSize( int x0, int x1, int x2 )
+void Texture3::setTextureSize( int x0, int x1, int x2 )
 { 
     x0sz = x0; x1sz = x1; x2sz=x2;
     if ( texture )
@@ -50,7 +53,7 @@ void visBase::Texture3::setTextureSize( int x0, int x1, int x2 )
 }
 
 
-int visBase::Texture3::getTextureSize( int dim ) const
+int Texture3::getTextureSize( int dim ) const
 {
     if ( !dim ) return x0sz;
     
@@ -58,7 +61,7 @@ int visBase::Texture3::getTextureSize( int dim ) const
 }
 
 
-void visBase::Texture3::setData( const Array3D<float>* newdata, DataType sel )
+void Texture3::setData( const Array3D<float>* newdata, DataType sel )
 {
     if ( !newdata )
     {
@@ -205,7 +208,7 @@ void visBase::Texture3::setData( const Array3D<float>* newdata, DataType sel )
 }
 
 
-unsigned char* visBase::Texture3::getTexturePtr()
+unsigned char* Texture3::getTexturePtr()
 {
     SbVec3s dimensions;
     int components;
@@ -213,8 +216,10 @@ unsigned char* visBase::Texture3::getTexturePtr()
 }
 
 
-void visBase::Texture3::finishEditing()
+void Texture3::finishEditing()
 {
     texture->images.finishEditing(); 
     texture->touch();
 }
+
+}; // namespace visBase

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.42 2004-02-02 15:34:20 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.43 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -16,30 +16,33 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.42 2004-02-02 15:34:20 na
 #include "viscoltabmod.h"
 
 
-mCreateFactoryEntry( visBase::TextureRect );
+namespace visBase
+{
+
+mCreateFactoryEntry( TextureRect );
 
 
-const char* visBase::TextureRect::rectangleidstr = "Rectangle ID";
-const char* visBase::TextureRect::textureidstr = "Texture ID";
+const char* TextureRect::rectangleidstr = "Rectangle ID";
+const char* TextureRect::textureidstr = "Texture ID";
 
-visBase::TextureRect::TextureRect()
+TextureRect::TextureRect()
     : rectangle( 0 )
     , manipstartnotifier( this )
     , manipchnotifier( this )
     , manipendsnotifier( this )
 {
-    textureset = visBase::Texture2Set::create();
+    textureset = Texture2Set::create();
     textureset->ref();
     addChild( textureset->getInventorNode() );
-    textureset->addTexture( visBase::Texture2::create() );
+    textureset->addTexture( Texture2::create() );
     textureset->setActiveTexture( 0 );
     useTexture( true );
 
-    setRectangle( visBase::Rectangle::create() );
+    setRectangle( Rectangle::create() );
 }
 
 
-visBase::TextureRect::~TextureRect()
+TextureRect::~TextureRect()
 {
     if ( rectangle )
     {
@@ -62,25 +65,25 @@ visBase::TextureRect::~TextureRect()
 }
 
 
-void visBase::TextureRect::addTexture()
+void TextureRect::addTexture()
 {
-    textureset->addTexture( visBase::Texture2::create() );
+    textureset->addTexture( Texture2::create() );
 }
 
 
-void visBase::TextureRect::showTexture( int idx )
+void TextureRect::showTexture( int idx )
 {
     textureset->setActiveTexture( idx );
 }
 
 
-void visBase::TextureRect::removeAllTextures( bool keepfirst )
+void TextureRect::removeAllTextures( bool keepfirst )
 {
     textureset->removeAll( keepfirst );
 }
 
 
-void visBase::TextureRect::setRectangle( Rectangle* nr )
+void TextureRect::setRectangle( Rectangle* nr )
 {
     if ( rectangle )
     {
@@ -111,11 +114,11 @@ void visBase::TextureRect::setRectangle( Rectangle* nr )
 }
 
 
-const visBase::Rectangle& visBase::TextureRect::getRectangle() const
+const Rectangle& TextureRect::getRectangle() const
 { return *rectangle; }
  
  
-visBase::Rectangle& visBase::TextureRect::getRectangle()
+Rectangle& TextureRect::getRectangle()
 { return *rectangle; }
 
 
@@ -127,66 +130,66 @@ visBase::Rectangle& visBase::TextureRect::getRectangle()
     return textureset->activeTexture()->fn();
  
 
-void visBase::TextureRect::setColorTab( VisColorTab& ct )
+void TextureRect::setColorTab( VisColorTab& ct )
 { mTextureSet(setColorTab,ct) }
 
-const visBase::VisColorTab& visBase::TextureRect::getColorTab() const
+const VisColorTab& TextureRect::getColorTab() const
 { mTextureGet(getColorTab) }
  
-visBase::VisColorTab& visBase::TextureRect::getColorTab()
+VisColorTab& TextureRect::getColorTab()
 { mTextureGet(getColorTab) }
 
-void visBase::TextureRect::setClipRate( float cr )
+void TextureRect::setClipRate( float cr )
 { mTextureSet(setClipRate,cr) }
 
-float visBase::TextureRect::clipRate() const 
+float TextureRect::clipRate() const 
 { mTextureGet(clipRate) } 
 
-void  visBase::TextureRect::setAutoScale( bool yn )
+void  TextureRect::setAutoScale( bool yn )
 { mTextureSet(setAutoScale,yn) }
 
-bool visBase::TextureRect::autoScale() const
+bool TextureRect::autoScale() const
 { mTextureGet(autoScale) }
 
-void visBase::TextureRect::useTexture( bool yn )
+void TextureRect::useTexture( bool yn )
 { mTextureSet(turnOn,yn) }
 
-bool visBase::TextureRect::usesTexture() const
+bool TextureRect::usesTexture() const
 { mTextureGet(isOn) }
 
-void visBase::TextureRect::setTextureQuality( float q )
+void TextureRect::setTextureQuality( float q )
 { mTextureSet(setTextureQuality,q) }
 
-float visBase::TextureRect::getTextureQuality() const
+float TextureRect::getTextureQuality() const
 { mTextureGet(getTextureQuality) }
 
-void visBase::TextureRect::setResolution( int res )
+void TextureRect::setResolution( int res )
 { mTextureSet(setResolution,res) }
 
-int visBase::TextureRect::getResolution() const
+int TextureRect::getResolution() const
 { mTextureGet(getResolution) }
 
-int visBase::TextureRect::getNrResolutions() const
+int TextureRect::getNrResolutions() const
 { return 3; }
 
 
-void visBase::TextureRect::setData( const Array2D<float>* data, int textureidx, 
+void TextureRect::setData( const Array2D<float>* data, int textureidx, 
 				    int datatype )
 {
-    visBase::Texture2* text = textureset->getTexture( textureidx );
+    Texture2* text = textureset->getTexture( textureidx );
     if ( !text ) return;
 
     text->setData( data, (Texture::DataType)datatype );
 }
 
 
-const TypeSet<float>& visBase::TextureRect::getHistogram() const
+const TypeSet<float>& TextureRect::getHistogram() const
 {
     return textureset->activeTexture()->getHistogram();
 }
 
 
-void visBase::TextureRect::setColorPars( bool rev, bool useclip, 
+void TextureRect::setColorPars( bool rev, bool useclip, 
 					 const Interval<float>& intv )
 {
     VisColTabMod& ctm = textureset->activeTexture()->getColTabMod();
@@ -196,19 +199,19 @@ void visBase::TextureRect::setColorPars( bool rev, bool useclip,
 }
 
 
-const Interval<float>& visBase::TextureRect::getColorDataRange() const
+const Interval<float>& TextureRect::getColorDataRange() const
 {
     return textureset->activeTexture()->getColTabMod().getRange();
 }
 
 
-void visBase::TextureRect::finishTextures()
+void TextureRect::finishTextures()
 {
     textureset->finishTextures();
 }
 
 
-void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
@@ -223,14 +226,14 @@ void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int visBase::TextureRect::usePar( const IOPar& par )
+int TextureRect::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
     int textureid;
     if ( !par.get( textureidstr, textureid ) ) return -1;
-    DataObject* dataobj = DM().getObj( textureid );
+    DataObject* dataobj = DM().getObject( textureid );
     if ( !dataobj ) return 0;
     mDynamicCastGet(Texture2*,texture_,dataobj);
     if ( !texture_ ) return -1;
@@ -239,7 +242,7 @@ int visBase::TextureRect::usePar( const IOPar& par )
 
     int rectid;
     if ( !par.get( rectangleidstr, rectid ) ) return -1;
-    dataobj = DM().getObj( rectid );
+    dataobj = DM().getObject( rectid );
     if ( !dataobj ) return 0;
     mDynamicCastGet( Rectangle*, rect, dataobj );
     if ( !rect ) return -1;
@@ -248,3 +251,5 @@ int visBase::TextureRect::usePar( const IOPar& par )
 
     return 1;
 }
+
+}; // namespace visBase

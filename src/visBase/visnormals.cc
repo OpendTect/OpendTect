@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visnormals.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visnormals.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visnormals.h"
 
@@ -17,10 +17,13 @@ static const char* rcsID = "$Id: visnormals.cc,v 1.5 2004-01-05 09:43:23 kristof
 
 #include "Inventor/nodes/SoNormal.h"
 
-mCreateFactoryEntry( visBase::Normals );
+namespace visBase
+{
+
+mCreateFactoryEntry( Normals );
 
 
-visBase::Normals::Normals()
+Normals::Normals()
     : normals( new SoNormal )
     , mutex( *new Threads::Mutex )
 {
@@ -30,14 +33,14 @@ visBase::Normals::Normals()
 }
 
 
-visBase::Normals::~Normals()
+Normals::~Normals()
 {
     normals->unref();
     delete &mutex;
 }
 
 
-void visBase::Normals::setNormal( int idx, const Vector3& normal )
+void Normals::setNormal( int idx, const Vector3& normal )
 {
     Threads::MutexLocker lock( mutex );
 
@@ -48,7 +51,7 @@ void visBase::Normals::setNormal( int idx, const Vector3& normal )
 }
 
 
-int visBase::Normals::addNormal( const Vector3& normal )
+int Normals::addNormal( const Vector3& normal )
 {
     Threads::MutexLocker lock( mutex );
     const int res = getFreeIdx();
@@ -57,7 +60,7 @@ int visBase::Normals::addNormal( const Vector3& normal )
 }
 
 
-void visBase::Normals::removeNormal(int idx)
+void Normals::removeNormal(int idx)
 {
     Threads::MutexLocker lock( mutex );
     if ( idx==normals->vector.getNum()-1 )
@@ -71,11 +74,11 @@ void visBase::Normals::removeNormal(int idx)
 }
 
 
-SoNode* visBase::Normals::getInventorNode()
+SoNode* Normals::getInventorNode()
 { return normals; }
 
 
-int  visBase::Normals::getFreeIdx()
+int  Normals::getFreeIdx()
 {
     if ( unusednormals.size() )
     {
@@ -86,3 +89,5 @@ int  visBase::Normals::getFreeIdx()
 
     return normals->vector.getNum();
 }
+
+}; // namespace visBase

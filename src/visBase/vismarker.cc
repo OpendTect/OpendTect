@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.18 2004-11-16 09:28:33 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.19 2005-02-04 14:31:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,12 +26,15 @@ ________________________________________________________________________
 
 #include <math.h>
 
-mCreateFactoryEntry( visBase::Marker );
+namespace visBase
+{
 
-const char* visBase::Marker::centerposstr = "Center Pos";
+mCreateFactoryEntry( Marker );
+
+const char* Marker::centerposstr = "Center Pos";
 
 
-visBase::Marker::Marker()
+Marker::Marker()
     : VisualObjectImpl(true)
     , transformation(0)
     , xytranslation( 0 )
@@ -50,13 +53,13 @@ visBase::Marker::Marker()
 }
 
 
-visBase::Marker::~Marker()
+Marker::~Marker()
 {
     if ( transformation ) transformation->unRef();
 }
 
 
-void visBase::Marker::setCenterPos( const Coord3& pos_ )
+void Marker::setCenterPos( const Coord3& pos_ )
 {
     Coord3 pos( pos_ );
 
@@ -78,7 +81,7 @@ void visBase::Marker::setCenterPos( const Coord3& pos_ )
 }
 
 
-Coord3 visBase::Marker::centerPos(bool displayspace) const
+Coord3 Marker::centerPos(bool displayspace) const
 {
     Coord3 res;
     SbVec3d pos = translation->translation.getValue();
@@ -104,20 +107,20 @@ Coord3 visBase::Marker::centerPos(bool displayspace) const
 }
 
 
-void visBase::Marker::setMarkerStyle( const MarkerStyle3D& ms )
+void Marker::setMarkerStyle( const MarkerStyle3D& ms )
 {
     setType( ms.type );
     setScreenSize( (float)ms.size );
 }
 
 
-MarkerStyle3D::Type visBase::Marker::getType() const
+MarkerStyle3D::Type Marker::getType() const
 {
     return markerstyle.type;
 }
 
 
-void visBase::Marker::setType( MarkerStyle3D::Type type )
+void Marker::setType( MarkerStyle3D::Type type )
 {
     switch ( type )
     {
@@ -147,7 +150,7 @@ void visBase::Marker::setType( MarkerStyle3D::Type type )
 }
 
 
-void visBase::Marker::setMarkerShape(SoNode* newshape)
+void Marker::setMarkerShape(SoNode* newshape)
 {
     if ( shape ) removeChild(shape);
     shape = newshape;
@@ -155,36 +158,36 @@ void visBase::Marker::setMarkerShape(SoNode* newshape)
 }
 
 
-void visBase::Marker::setScreenSize( const float sz )
+void Marker::setScreenSize( const float sz )
 {
     markerscale->screenSize.setValue( sz );
     markerstyle.size = (int)sz;
 }
 
 
-float visBase::Marker::getScreenSize() const
+float Marker::getScreenSize() const
 {
     return markerscale->screenSize.getValue();
 }
 
 
-void visBase::Marker::doFaceCamera(bool yn)
+void Marker::doFaceCamera(bool yn)
 { markerscale->dorotate = yn; }
 
 
-bool visBase::Marker::facesCamera() const
+bool Marker::facesCamera() const
 { return markerscale->dorotate.getValue(); }
 
 
-void visBase::Marker::doRestoreProportions(bool yn)
+void Marker::doRestoreProportions(bool yn)
 { markerscale->restoreProportions = yn; }
 
 
-bool visBase::Marker::restoresProportions() const
+bool Marker::restoresProportions() const
 { return markerscale->restoreProportions.getValue(); }
 
 
-void visBase::Marker::setRotation( const Coord3& vec, float angle )
+void Marker::setRotation( const Coord3& vec, float angle )
 {
     if ( !rotation )
     {
@@ -196,7 +199,7 @@ void visBase::Marker::setRotation( const Coord3& vec, float angle )
 }
 
 
-void visBase::Marker::setArrowDir( const ::Sphere& dir )
+void Marker::setArrowDir( const ::Sphere& dir )
 {
     mDynamicCastGet(SoArrow*,arrow,shape)
     if ( !arrow ) return;
@@ -223,7 +226,7 @@ void visBase::Marker::setArrowDir( const ::Sphere& dir )
 }
 
 
-void visBase::Marker::setDisplayTransformation( visBase::Transformation* nt )
+void Marker::setDisplayTransformation( Transformation* nt )
 {
     const Coord3 pos = centerPos();
     if ( transformation ) transformation->unRef();
@@ -233,11 +236,11 @@ void visBase::Marker::setDisplayTransformation( visBase::Transformation* nt )
 }
 
 
-visBase::Transformation* visBase::Marker::getDisplayTransformation()
+Transformation* Marker::getDisplayTransformation()
 { return transformation; }
 
 
-int visBase::Marker::usePar( const IOPar& iopar )
+int Marker::usePar( const IOPar& iopar )
 {
     int res = VisualObjectImpl::usePar( iopar );
     if ( res != 1 ) return res;
@@ -251,7 +254,7 @@ int visBase::Marker::usePar( const IOPar& iopar )
 }
 
 
-void visBase::Marker::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+void Marker::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( iopar, saveids );
 
@@ -259,3 +262,5 @@ void visBase::Marker::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( centerposstr, pos.x, pos.y, pos.z );
 }
 
+
+}; // namespace visBase

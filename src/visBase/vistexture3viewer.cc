@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.17 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.18 2005-02-04 14:31:34 kristofer Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -23,21 +23,24 @@ static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.17 2004-01-05 09:43:23
 #include "SoTranslateRectangleDragger.h"
 
 
-const char* visBase::Texture3Viewer::textureidstr = "Texture ID";
+namespace visBase
+{
 
-mCreateFactoryEntry( visBase::Texture3Viewer );
-mCreateFactoryEntry( visBase::MovableTextureSlice );
-mCreateFactoryEntry( visBase::Texture3Slice );
+const char* Texture3Viewer::textureidstr = "Texture ID";
 
-visBase::Texture3Viewer::Texture3Viewer()
+mCreateFactoryEntry( Texture3Viewer );
+mCreateFactoryEntry( MovableTextureSlice );
+mCreateFactoryEntry( Texture3Slice );
+
+Texture3Viewer::Texture3Viewer()
     : texture( 0 )
 {
-    setTexture( *visBase::Texture3::create() );
+    setTexture( *Texture3::create() );
     textureobjects.allowNull();
 }
 
 
-visBase::Texture3Viewer::~Texture3Viewer()
+Texture3Viewer::~Texture3Viewer()
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
     {
@@ -49,7 +52,7 @@ visBase::Texture3Viewer::~Texture3Viewer()
 }
 
 
-int visBase::Texture3Viewer::addSlice( int dim, float origpos )
+int Texture3Viewer::addSlice( int dim, float origpos )
 {
     MovableTextureSlice* slice = MovableTextureSlice::create();
     slice->setDim( dim );
@@ -62,7 +65,7 @@ int visBase::Texture3Viewer::addSlice( int dim, float origpos )
 } 
 
 
-float visBase::Texture3Viewer::slicePosition( int idnumber )
+float Texture3Viewer::slicePosition( int idnumber )
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
     {
@@ -76,11 +79,11 @@ float visBase::Texture3Viewer::slicePosition( int idnumber )
 }
 
 
-int visBase::Texture3Viewer::getNrObjects() const
+int Texture3Viewer::getNrObjects() const
 { return textureobjects.size(); }
 
 
-void visBase::Texture3Viewer::removeObject( int idnumber )
+void Texture3Viewer::removeObject( int idnumber )
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
     {
@@ -96,7 +99,7 @@ void visBase::Texture3Viewer::removeObject( int idnumber )
 }
 
 
-void visBase::Texture3Viewer::showObject( int idnumber, bool yn )
+void Texture3Viewer::showObject( int idnumber, bool yn )
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
     {
@@ -109,7 +112,7 @@ void visBase::Texture3Viewer::showObject( int idnumber, bool yn )
 }
 
 
-bool visBase::Texture3Viewer::isObjectShown( int idnumber ) const
+bool Texture3Viewer::isObjectShown( int idnumber ) const
 {
     for ( int idx=0; idx<textureobjects.size(); idx++ )
     {
@@ -123,7 +126,7 @@ bool visBase::Texture3Viewer::isObjectShown( int idnumber ) const
 }
 
 
-void visBase::Texture3Viewer::setTexture( Texture3& nt )
+void Texture3Viewer::setTexture( Texture3& nt )
 {
     if ( texture ) texture->unRef();
     texture = &nt;
@@ -138,11 +141,11 @@ void visBase::Texture3Viewer::setTexture( Texture3& nt )
 }
 
 
-visBase::Texture3& visBase::Texture3Viewer::getTexture()
+Texture3& Texture3Viewer::getTexture()
 { return *texture; }
 
 
-void visBase::Texture3Viewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void Texture3Viewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     VisualObjectImpl::fillPar( par, saveids );
 
@@ -153,14 +156,14 @@ void visBase::Texture3Viewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int visBase::Texture3Viewer::usePar( const IOPar& par )
+int Texture3Viewer::usePar( const IOPar& par )
 {
     int res = VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
     int textureid;
     if ( !par.get( textureidstr, textureid ) ) return 1; // old session file
-    DataObject* dobj = DM().getObj( textureid );
+    DataObject* dobj = DM().getObject( textureid );
     if ( !dobj ) return 0;
     mDynamicCastGet(Texture3*,texture_,dobj)
     if ( !texture_ ) return -1;
@@ -172,7 +175,7 @@ int visBase::Texture3Viewer::usePar( const IOPar& par )
 
 
 
-visBase::Texture3Slice::Texture3Slice()
+Texture3Slice::Texture3Slice()
     : coords( new SoCoordinate3 )
     , Texture3ViewerObject( true )
     , texturecoords( new SoTextureCoordinate3 )
@@ -193,32 +196,32 @@ visBase::Texture3Slice::Texture3Slice()
 }
 
 
-visBase::Texture3Slice::~Texture3Slice()
+Texture3Slice::~Texture3Slice()
 {
     if ( texture ) texture->unRef();
 }
 
 
-int visBase::Texture3Slice::dim() const { return dim_; }
+int Texture3Slice::dim() const { return dim_; }
 
 
-void visBase::Texture3Slice::setDim( int nd )
+void Texture3Slice::setDim( int nd )
 {
     dim_ = nd;
     setUpCoords();
 }
 
-float visBase::Texture3Slice::position() const { return pos; }
+float Texture3Slice::position() const { return pos; }
 
 
-void visBase::Texture3Slice::setPosition( float np )
+void Texture3Slice::setPosition( float np )
 {
     pos = np;
     setUpCoords();
 }
 
 
-void visBase::Texture3Slice::setTexture( Texture3& nt )
+void Texture3Slice::setTexture( Texture3& nt )
 {
     if ( texture )
     {
@@ -231,7 +234,7 @@ void visBase::Texture3Slice::setTexture( Texture3& nt )
     insertChild( 0, texture->getInventorNode() );
 }
 
-void visBase::Texture3Slice::setUpCoords()
+void Texture3Slice::setUpCoords()
 {
     if ( !dim_ )
     {
@@ -282,7 +285,7 @@ void visBase::Texture3Slice::setUpCoords()
 
 
 
-visBase::MovableTextureSlice::MovableTextureSlice()
+MovableTextureSlice::MovableTextureSlice()
     : rotation( new SoRotation )
     , Texture3ViewerObject( true )
     , dragger( new SoTranslateRectangleDragger )
@@ -297,30 +300,30 @@ visBase::MovableTextureSlice::MovableTextureSlice()
     group->ref();
     group->addChild( texturecoords );
     fieldsensor =
-	new SoFieldSensor( &visBase::MovableTextureSlice::fieldsensorCB, this );
+	new SoFieldSensor( &MovableTextureSlice::fieldsensorCB, this );
     fieldsensor->attach( &dragger->translation );
 
-    dragger->addStartCallback( visBase::MovableTextureSlice::startCB, this );
-    dragger->addMotionCallback( visBase::MovableTextureSlice::motionCB, this );
+    dragger->addStartCallback( MovableTextureSlice::startCB, this );
+    dragger->addMotionCallback( MovableTextureSlice::motionCB, this );
 }
 
 
-visBase::MovableTextureSlice::~MovableTextureSlice()
+MovableTextureSlice::~MovableTextureSlice()
 {
     dragger->removeStartCallback(
-	    visBase::MovableTextureSlice::startCB, this );
+	    MovableTextureSlice::startCB, this );
     dragger->removeMotionCallback( 
-	    visBase::MovableTextureSlice::motionCB, this );
+	    MovableTextureSlice::motionCB, this );
     group->unref();
 
     if ( texture ) texture->unRef();
 }
 
 
-int visBase::MovableTextureSlice::dim() const { return dim_; }
+int MovableTextureSlice::dim() const { return dim_; }
 
 
-void visBase::MovableTextureSlice::setDim( int nd )
+void MovableTextureSlice::setDim( int nd )
 {
     dim_ = nd;
     if ( !nd ) rotation->rotation.setValue( SbVec3f( 1, 0, 0 ), 0 );
@@ -331,13 +334,13 @@ void visBase::MovableTextureSlice::setDim( int nd )
 }
 
 
-float visBase::MovableTextureSlice::position() const
+float MovableTextureSlice::position() const
 {
     return dragger->translation.getValue()[0];
 }
 
 
-void visBase::MovableTextureSlice::setPosition(float nv)
+void MovableTextureSlice::setPosition(float nv)
 {
     SbVec3f pos = dragger->translation.getValue();
     pos[0] = nv;
@@ -345,7 +348,7 @@ void visBase::MovableTextureSlice::setPosition(float nv)
 }
 
 
-void visBase::MovableTextureSlice::setTexture( Texture3& text )
+void MovableTextureSlice::setTexture( Texture3& text )
 {
     if ( texture )
     {
@@ -367,9 +370,9 @@ void visBase::MovableTextureSlice::setTexture( Texture3& text )
 }
 
 
-void visBase::MovableTextureSlice::fieldsensorCB( void* inst, SoSensor* )
+void MovableTextureSlice::fieldsensorCB( void* inst, SoSensor* )
 {
-    visBase::MovableTextureSlice* myself = (visBase::MovableTextureSlice*) inst;
+    MovableTextureSlice* myself = (MovableTextureSlice*) inst;
 
     float pos = myself->position();
     if ( !myself->dim_ )
@@ -403,15 +406,17 @@ void visBase::MovableTextureSlice::fieldsensorCB( void* inst, SoSensor* )
 }
 
 
-void visBase::MovableTextureSlice::startCB( void* obj, SoDragger* )
+void MovableTextureSlice::startCB( void* obj, SoDragger* )
 {
     MovableTextureSlice* myself = (MovableTextureSlice*)obj;
-    visBase::DM().selMan().select( myself->id() );
+    DM().selMan().select( myself->id() );
 }
 
 
-void visBase::MovableTextureSlice::motionCB( void* obj, SoDragger* )
+void MovableTextureSlice::motionCB( void* obj, SoDragger* )
 {
-    ( (visBase::MovableTextureSlice*)obj )->motion.trigger();
+    ( (MovableTextureSlice*)obj )->motion.trigger();
 }
 
+
+}; // namespace visBase

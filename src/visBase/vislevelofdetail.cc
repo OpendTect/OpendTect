@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $";
 
 
 #include "vislevelofdetail.h"
@@ -12,17 +12,20 @@ static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.5 2004-01-05 09:43:23 k
 
 #include "Inventor/nodes/SoLevelOfDetail.h"
 
-mCreateFactoryEntry( visBase::LevelOfDetail );
+namespace visBase
+{
+
+mCreateFactoryEntry( LevelOfDetail );
 
 
-visBase::LevelOfDetail::LevelOfDetail()
+LevelOfDetail::LevelOfDetail()
     : lod( new SoLevelOfDetail )
 {
     lod->ref();
 }
 
 
-visBase::LevelOfDetail::~LevelOfDetail()
+LevelOfDetail::~LevelOfDetail()
 {
     lod->removeAllChildren();
     for ( int idx=0; idx<children.size(); idx++ )
@@ -32,7 +35,7 @@ visBase::LevelOfDetail::~LevelOfDetail()
 }
 
 
-void visBase::LevelOfDetail::addChild( DataObject* obj, float m )
+void LevelOfDetail::addChild( DataObject* obj, float m )
 {
     int nrkids = lod->getNumChildren();
     if ( nrkids )
@@ -43,5 +46,7 @@ void visBase::LevelOfDetail::addChild( DataObject* obj, float m )
 }
 
 
-SoNode* visBase::LevelOfDetail::getInventorNode()
+SoNode* LevelOfDetail::getInventorNode()
 { return lod; }
+
+}; // namespace visBase

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.20 2004-11-16 09:28:33 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.21 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visdata.h"
 
@@ -17,23 +17,26 @@ static const char* rcsID = "$Id: visdata.cc,v 1.20 2004-11-16 09:28:33 kristofer
 #include <Inventor/actions/SoWriteAction.h>
 #include <Inventor/SoOutput.h>
 
-
-const char* visBase::DataObject::typestr = "Type";
-const char* visBase::DataObject::namestr = "Name";
-
-
-const SoNode* visBase::DataObject::getInventorNode() const
-{ return const_cast<const SoNode*>(((visBase::DataObject*)this)->getInventorNode() ); }
+namespace visBase
+{
 
 
-const char* visBase::DataObject::name() const
+const char* DataObject::typestr = "Type";
+const char* DataObject::namestr = "Name";
+
+
+const SoNode* DataObject::getInventorNode() const
+{ return const_cast<const SoNode*>(((DataObject*)this)->getInventorNode() ); }
+
+
+const char* DataObject::name() const
 {
     if ( !name_ || !(*name_)[0]) return 0;
     return (const char*)*name_;
 }
 
 
-void visBase::DataObject::setName( const char* nn )
+void DataObject::setName( const char* nn )
 {
     SoNode* node = getInventorNode();
     if ( node )
@@ -45,59 +48,42 @@ void visBase::DataObject::setName( const char* nn )
 }
 
 
-visBase::DataObject::DataObject()
+DataObject::DataObject()
     : id_( -1 )
     , name_( 0 )
-{ }
+{ mRefCountConstructor; }
 
 
-visBase::DataObject::~DataObject()
+DataObject::~DataObject()
 {
+    DM().removeObject( this );
     delete name_;
 }
 
 
-void visBase::DataObject::ref() const
-{
-    DM().ref( this );
-}
-
-
-void visBase::DataObject::unRef() const
-{
-    DM().unRef( this, true );
-}
-
-
-void visBase::DataObject::unRefNoDelete() const
-{
-    DM().unRef( this, false );
-}
-
-
-void visBase::DataObject::select() const
+void DataObject::select() const
 {
     DM().selMan().select( id() );
 }
 
 
-void visBase::DataObject::deSelect() const
+void DataObject::deSelect() const
 {
     DM().selMan().deSelect( id() );
 }
 
 
-bool visBase::DataObject::isSelected() const
+bool DataObject::isSelected() const
 { return selectable() && DM().selMan().selected().indexOf( id()) != -1; }
 
 
-void visBase::DataObject::setDisplayTransformation( visBase::Transformation* )
+void DataObject::setDisplayTransformation( Transformation* )
 {   
     pErrMsg("Not implemented");
 }   
     
 
-void visBase::DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
+void DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 {
     par.set( typestr, getClassName() );
 
@@ -108,7 +94,7 @@ void visBase::DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 }
 
 
-bool visBase::DataObject::dumpOIgraph( const char* filename, bool binary )
+bool DataObject::dumpOIgraph( const char* filename, bool binary )
 {
     SoNode* node = getInventorNode();
     if ( !node ) return false;
@@ -122,7 +108,7 @@ bool visBase::DataObject::dumpOIgraph( const char* filename, bool binary )
 }
 
 
-int visBase::DataObject::usePar( const IOPar& par )
+int DataObject::usePar( const IOPar& par )
 {
     const char* nm = par.find( namestr );
 
@@ -133,49 +119,47 @@ int visBase::DataObject::usePar( const IOPar& par )
 }
 
 
-void visBase::DataObject::_init()
-{
-    id_ = DM().addObj( this );
-}
+void DataObject::_init()
+{ DM().addObject( this ); }
 
 
-visBase::FactoryEntry::FactoryEntry( FactPtr funcptr_,
+FactoryEntry::FactoryEntry( FactPtr funcptr_,
 				     const char* name_ ) 
     : funcptr( funcptr_ )
     , name( name_ )
     , factory( &DM().factory() )
 {
     factory->entries += this;
-    factory->closing.notify( mCB(this, visBase::FactoryEntry, visIsClosingCB ));
+    factory->closing.notify( mCB(this, FactoryEntry, visIsClosingCB ));
 }
 
 
-visBase::FactoryEntry::~FactoryEntry()
+FactoryEntry::~FactoryEntry()
 {
     if ( !factory )
 	return;
 
     factory->entries -= this;
-    factory->closing.remove( mCB(this, visBase::FactoryEntry, visIsClosingCB ));
+    factory->closing.remove( mCB(this, FactoryEntry, visIsClosingCB ));
 }
 
 
-void visBase::FactoryEntry::visIsClosingCB(CallBacker*)
+void FactoryEntry::visIsClosingCB(CallBacker*)
 {
     factory = 0;
 }
 
 
-visBase::Factory::Factory()
+Factory::Factory()
      : closing( this )
 {}
 
 
-visBase::Factory::~Factory()
+Factory::~Factory()
 { closing.trigger(); }
 
 
-visBase::DataObject* visBase::Factory::create( const char* nm )
+DataObject* Factory::create( const char* nm )
 {
     if ( !nm ) return 0;
 
@@ -186,3 +170,5 @@ visBase::DataObject* visBase::Factory::create( const char* nm )
 
     return 0;
 }
+
+}; // namespace visBase
