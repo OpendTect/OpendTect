@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.17 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uigeninput.h,v 1.18 2002-01-16 15:26:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,6 +162,9 @@ Returns true, if changes are accepted.
     void		setReadOnly( bool yn=true, int nr=-1 );
     void		setFldsSensible( bool yn=true, int nr=-1 );
     void		clear( int nr=-1 );
+
+			//! returns 0 if not finalised.
+    uiObject*		element( int idx ); 
 
     virtual const char*	titleText();
     virtual void	setTitleText(const char*);

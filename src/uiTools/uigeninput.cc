@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.36 2002-01-14 14:24:21 nanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.37 2002-01-16 15:26:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -793,6 +793,13 @@ void uiGenInput::clear( int nr )
 
     for( int idx=0; idx < flds.size(); idx++ )
 	flds[idx]->clear();
+}
+
+uiObject* uiGenInput::element( int nr )
+{ 
+    if ( !finalised ) return 0; 
+    return nr<idxes.size() && flds[idxes[nr].fldidx]
+	    ? &flds[idxes[nr].fldidx]->element(idxes[nr].subidx) : 0; 
 }
 
 #define mFromLE_o(fn,var,undefval) \
