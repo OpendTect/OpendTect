@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.3 2001-04-30 14:58:14 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.4 2001-05-02 20:16:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ uiIOSelect::uiIOSelect( uiObject* p, const CallBack& butcb, const char* txt,
 	: uiGroup(p)
 	, withclear_(withclear)
 	, doselcb_(butcb)
+	, selectiondone(this)
 {
     if ( withclear ) entries_ += new BufferString;
     inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", seled );
@@ -176,7 +177,7 @@ void uiIOSelect::doSel( CallBacker* )
 
 void uiIOSelect::selDone( CallBacker* )
 {
-    seldonecb_.doCall( this );
+    selectiondone.trigger();
 }
 
 
