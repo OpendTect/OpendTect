@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.7 2001-09-03 22:34:49 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.8 2001-09-17 16:46:01 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -202,6 +202,20 @@ IOObj* IOObj::clone() const
 void IOObj::acquireNewKey()
 {
     key_ = IOM().dirPtr()->newKey();
+}
+
+
+bool IOObj::isKey( const char* ky )
+{
+    if ( !ky || !*ky || !isdigit(*ky) ) return false;
+
+    while ( *ky )
+    {
+	if ( !isdigit(*ky) && *ky != '.' ) return false;
+	ky++;
+    }
+
+    return true;
 }
 
 
