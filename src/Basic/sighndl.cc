@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.7 2002-09-09 13:26:50 arend Exp $
+ RCS:           $Id: sighndl.cc,v 1.8 2002-12-10 16:23:30 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.7 2002-09-09 13:26:50 arend Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.8 2002-12-10 16:23:30 bert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -40,6 +40,7 @@ CallBackList& SignalHandling::getCBL( SignalHandling::EvType et )
     case ReInit:	return reinitcbs;
     case Stop:		return stopcbs;
     case Cont:		return contcbs;
+    case Alarm:		return alarmcbs;
     default:		return killcbs;
     }
 }
@@ -80,7 +81,6 @@ SignalHandling::SignalHandling()
 #endif
 
     // Stuff to ignore
-    mCatchSignal( SIGALRM );	/* Alarm clock */
     mCatchSignal( SIGURG );	/* Urgent condition */
     mCatchSignal( SIGTTIN );	/* Background read */
     mCatchSignal( SIGTTOU );	/* Background write */
@@ -94,6 +94,7 @@ SignalHandling::SignalHandling()
 #endif
 
     // Have to handle
+    mCatchSignal( SIGALRM );	/* Alarm clock */
     mCatchSignal( SIGSTOP );	/* Stop process */
     mCatchSignal( SIGTSTP );	/* Software stop process (e.g. ) */
     mCatchSignal( SIGCONT );	/* Continue after stop */
@@ -119,6 +120,7 @@ void SignalHandling::handle( int signalnr )
     case SIGSTOP: case SIGTSTP:		theinst_.doStop( signalnr );	return; 
     case SIGCONT:			theinst_.doCont();		return;
 
+    case SIGALRM:			theinst_.handleAlarm();		break;
     case SIGPIPE:			theinst_.handleConn();		break;
     case SIGCLD:			theinst_.handleChld();		break;
     case SIGHUP:			theinst_.handleReInit();	break;
@@ -247,6 +249,12 @@ void SignalHandling::handleChld()
 void SignalHandling::handleReInit()
 {
     reinitcbs.doCall( this );
+}
+
+
+void SignalHandling::handleAlarm()
+{
+    alarmcbs.doCall( this );
 }
 
 #endif

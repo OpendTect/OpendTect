@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.3 2002-04-15 15:29:55 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.4 2002-12-10 16:23:30 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -16,8 +16,9 @@ ________________________________________________________________________
 */
 
 #include <uidobj.h>
-class StreamData;
 class IOPar;
+class StreamData;
+class SocketProvider;
 
 
 class BatchProgram : public UserIDObject
@@ -29,8 +30,10 @@ public:
     const char*		arg( int idx ) const	{ return argv_[idx+argshift_]; }
     const char*		fullPath() const	{ return fullpath_; }
     const char*		progName() const;
+    SocketProvider*	sockProv() const	{ return sockprov_; }
+    			//!< Made when "OpenSocket" requested in IOPar
 
-			// This method must be defined by user
+			//! This method must be defined by user
     bool		go(ostream& log_stream);
 
 			// For situations where you need the old-style stuff
@@ -56,6 +59,7 @@ protected:
     bool		inbg_;
     StreamData&		sdout_;
     IOPar*		iopar_;
+    SocketProvider*	sockprov_;
 
     bool		initOutput();
     bool		writePid(int);

@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.18 2002-11-27 16:21:04 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.19 2002-12-10 16:23:30 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -14,8 +14,10 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.18 2002-11-27 16:21:04 bert Ex
 #include "filegen.h"
 #include "timefun.h"
 #include "sighndl.h"
+#include "socket.h"
 #ifndef __msvc__
 #include <unistd.h>
+#include <stdlib.h>
 #endif
 #include <fstream>
 
@@ -28,7 +30,6 @@ int Execute_batch( int* pargc, char** argv )
     if ( !BP().stillok_ )
 	return 1;
 
-
     if ( BP().inbg_ )
     {
 #ifndef __msvc__
@@ -39,7 +40,7 @@ int Execute_batch( int* pargc, char** argv )
 	case 0: break;
 	default:
 	    Time_sleep( 0.1 );
-	    return 0;
+	    exit( 0 );
 	break;
 	}
 #endif
@@ -62,6 +63,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, fullpath_(av[0])
 	, inbg_(NO)
 	, sdout_(*new StreamData)
+    	, sockprov_(0)
 {
     const char* fn = argv_[1];
     if ( fn && !strcmp(fn,"-bg") )
@@ -95,6 +97,15 @@ BatchProgram::BatchProgram( int* pac, char** av )
     }
 
     iopar_ = new IOPar( *parlist[0] );
+
+    if ( iopar_->isTrue("OpenSocket") )
+    {
+	sockprov_ = new SocketProvider;
+	if ( sockprov_->port() < 0 )
+	    { delete sockprov_; sockprov_ = 0; }
+	cout << "P" << (sockprov_ ? sockprov_->port() : -1) << endl;
+    }
+
     stillok_ = true;
 }
 

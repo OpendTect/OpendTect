@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: sighndl.h,v 1.3 2002-04-15 15:29:55 bert Exp $
+ RCS:           $Id: sighndl.h,v 1.4 2002-12-10 16:23:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ public:
 				    ReInit,
 				    Stop,
 				    Cont,
+				    Alarm,
 				    Kill	// This process
 				};
 
@@ -45,6 +46,7 @@ protected:
     CallBackList		reinitcbs;
     CallBackList		stopcbs;
     CallBackList		contcbs;
+    CallBackList		alarmcbs;
     CallBackList		killcbs;
 
     CallBackList&		getCBL(EvType);
@@ -58,6 +60,7 @@ protected:
     void			doCont();
     void			handleConn();
     void			handleChld();
+    void			handleAlarm();
     void			handleReInit();
 #endif
 
