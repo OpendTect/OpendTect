@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.10 2004-02-04 08:42:51 kristofer Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.11 2004-02-04 10:08:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,9 +168,19 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     if ( !filename || !filename[0] )
     { return false; }
 
+    if ( !File_isWritable(filename) )
+    {
+	BufferString msg = "The file ";
+	msg += filename; msg += " is not writable";
+	uiMSG().error(msg);
+	return false;
+    }
+
     if ( File_exists(filename) )
     {
-	if ( !uiMSG().askGoOn("File exists. Overwrite?", true) )
+	BufferString msg = "The file ";
+	msg += filename; msg += " exists. Overwrite?";
+	if ( !uiMSG().askGoOn(msg, true) )
 	    return false;
     }
 
