@@ -4,13 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.11 2004-01-12 08:17:42 nanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.12 2004-04-20 15:02:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vismarker.h"
-#include "viscube.h"
 #include "iopar.h"
 #include "vistransform.h"
 
@@ -29,20 +28,9 @@ mCreateFactoryEntry( visBase::Marker );
 
 const char* visBase::Marker::centerposstr = "Center Pos";
 
-DefineEnumNames(visBase::Marker,Type,0,"Marker type")
-{
-    "Cube",
-    "Cone",
-    "Cylinder",
-    "Sphere",
-    "Arrow",
-    0
-};
-
 
 visBase::Marker::Marker()
     : VisualObjectImpl(true)
-    , markertype(Cube)
     , transformation(0)
     , rotation(new SoRotation)
     , markerscale(new SoMarkerScale)
@@ -51,10 +39,7 @@ visBase::Marker::Marker()
 {
     addChild( markerscale );
     addChild( rotation );
-    setType( markertype );
-
-//  Creation only used for being able to read old session files with Cubes
-    visBase::Cube* cube = visBase::Cube::create();
+    setType( MarkerStyle3D::Cube );
 }
 
 
@@ -89,28 +74,42 @@ Coord3 visBase::Marker::centerPos(bool displayspace) const
 }
 
 
-void visBase::Marker::setType( Type type )
+void visBase::Marker::setMarkerStyle( const MarkerStyle3D& ms )
+{
+    setType( ms.type );
+    setSize( (float)ms.size );
+}
+
+
+MarkerStyle3D::Type visBase::Marker::getType() const
+{
+    return markerstyle.type;
+}
+
+
+void visBase::Marker::setType( MarkerStyle3D::Type type )
 {
     if ( shape ) removeChild(shape);
+
     switch ( type )
     {
-    case Cube: {
+    case MarkerStyle3D::Cube: {
 	shape = new SoCube;
 	setRotation( Coord3(0,0,1), 0 );
 	} break;
-    case Cone:
+    case MarkerStyle3D::Cone:
 	shape = new SoCone;
 	setRotation( Coord3(1,0,0), M_PI/2 );
 	break;
-    case Cylinder:
+    case MarkerStyle3D::Cylinder:
 	shape = new SoCylinder;
 	setRotation( Coord3(1,0,0), M_PI/2 );
 	break;
-    case Sphere:
+    case MarkerStyle3D::Sphere:
 	shape = new SoSphere;
 	setRotation( Coord3(0,0,1), 0 );
 	break;
-    case Arrow:
+    case MarkerStyle3D::Arrow:
 	shape = new SoArrow;
 	setArrowDir( direction );
 	break;
@@ -118,13 +117,14 @@ void visBase::Marker::setType( Type type )
 
     addChild( shape );
 
-    markertype = type;
+    markerstyle.type = type;
 }
 
 
-void visBase::Marker::setSize( const float r )
+void visBase::Marker::setSize( const float sz )
 {
-    markerscale->screenSize.setValue(r);
+    markerscale->screenSize.setValue( sz );
+    markerstyle.size = (int)sz;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.11 2004-03-31 06:43:51 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.12 2004-04-20 15:02:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,9 @@ ________________________________________________________________________
 #include "visdrawstyle.h"
 #include "vistext.h"
 #include "visdatagroup.h"
-#include "vismarker.h"
 #include "vismaterial.h"
 #include "vistransform.h"
+#include "vismarker.h"
 #include "survinfo.h"
 #include "iopar.h"
 #include "ranges.h"
@@ -149,7 +149,7 @@ void Well::addMarker( const Coord3& pos, const Color& color, const char* nm )
     markergroup->addObject( marker );
     marker->setTransformation( transformation );
     marker->setCenterPos( pos );
-    marker->setType( visBase::Marker::Cube );
+    marker->setType( MarkerStyle3D::Cube );
     marker->getMaterial()->setColor( color );
     marker->setSize( markersize );
     marker->turnOn( showmarkers );

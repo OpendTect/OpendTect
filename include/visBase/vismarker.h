@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.12 2004-01-12 08:17:47 nanne Exp $
+ RCS:		$Id: vismarker.h,v 1.13 2004-04-20 15:01:56 nanne Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "trigonometry.h"
-#include "enums.h"
+#include "draw.h"
 
 class SoGroup;
 class SoMarkerScale;
@@ -40,11 +40,11 @@ public:
     static Marker*	create()
 			mCreateDataObj(Marker);
 
-    enum Type		{ Cube, Cone, Cylinder, Sphere, Arrow };
-    			DeclareEnumUtils(Type);
+    void		setMarkerStyle(const MarkerStyle3D&);
+    const MarkerStyle3D& getMarkerStyle() const	{ return markerstyle; }
 
-    void		setType(Type);
-    Type		getType() const		{ return markertype; }
+    void		setType(MarkerStyle3D::Type);
+    MarkerStyle3D::Type	getType() const;
  
     void		setCenterPos(const Coord3&);
     Coord3		centerPos(bool displayspace=false) const;
@@ -72,7 +72,7 @@ protected:
     SoShape*		shape;
     SoRotation*		rotation;
 
-    Type		markertype;
+    MarkerStyle3D	markerstyle;
 
     ::Sphere		direction;
     void		setArrowDir(const ::Sphere&);

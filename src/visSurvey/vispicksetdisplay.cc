@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.49 2004-01-16 11:36:12 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.50 2004-04-20 15:02:19 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -86,7 +86,7 @@ void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
     marker->setDirection( dir );
     marker->setScale( Coord3(1, 1, 2/SPM().getZScale()) );
     marker->setSize( picksz );
-    marker->setType( (visBase::Marker::Type)picktype );
+    marker->setType( (MarkerStyle3D::Type)picktype );
     marker->setMaterial( 0 );
 
     changed.trigger();
@@ -208,10 +208,11 @@ void visSurvey::PickSetDisplay::setType( int tp )
     if ( tp < 0 ) tp = 0;
     for ( int idx=0; idx<group->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
 	if ( !marker ) continue;
-	marker->setType( (visBase::Marker::Type)tp );
+	marker->setType( (MarkerStyle3D::Type)tp );
     }
+
     picktype = tp;
 }
 
@@ -220,7 +221,7 @@ int visSurvey::PickSetDisplay::getType() const
 {
     for ( int idx=0; idx<group->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
 	if ( !marker ) continue;
 	return (int)marker->getType();
     }
@@ -232,7 +233,7 @@ int visSurvey::PickSetDisplay::getType() const
 void visSurvey::PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
 {
     int idx = 0;
-    const char** names = visBase::Marker::TypeNames;
+    const char** names = MarkerStyle3D::TypeNames;
     while ( true )
     {
 	const char* tp = names[idx];
