@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoKrisSurface.h,v 1.3 2005-03-10 11:38:36 cvskris Exp $
+ RCS:		$Id: SoKrisSurface.h,v 1.4 2005-03-22 07:20:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "Inventor/fields/SoMFVec3f.h"
 #include "Inventor/fields/SoSFInt32.h"
 #include "Inventor/fields/SoSFBool.h"
+#include "Inventor/fields/SoSFFloat.h"
 #include "Inventor/fields/SoMFShort.h"
 #include "Inventor/lists/SbList.h"
 #include "Inventor/nodes/SoSubNode.h"
@@ -27,7 +28,7 @@ class SbVec3f;
 class MeshSurfacePart;
 
 /*!
-A class for displaying inexed mesh-surfaces
+A class for displaying mesh-surfaces
 
 
 meshStyle
@@ -102,17 +103,18 @@ public:
     SoMFShort		meshStyle;
     			
     SoSFShort		nrColumns;
-    SoSFShort		brickSize;
     SoSFShort		resolution;
     SoSFBool		wireframe;
+    SoSFFloat		wireframeLift;
 
-    void		insertColumns(bool before);
-    			/*!<Inserts 2^bricksize before or after the current
+    void		insertColumns( bool beforeexisting, int nr );
+    			/*!<Inserts nr columns before or after the current
 			    mesh. The function will fill the new space with
 			    -1s and will not trigger a invalidation of caches.
+			    if not neccessary.
 			*/
-    void		insertRowsBefore();
-    			/*!<Inserts 2^bricksize before the current mesh. The
+    void		insertRowsBefore(int nr);
+    			/*!<Inserts nr rows before the current mesh. The
 			    function will fill the new space with -1s and
 			    will not trigger a invalidation of caches.
 			*/
@@ -132,8 +134,6 @@ public:
     static void		initClass();
 
     int			nrRows() const;
-
-    int			getSideLength() const;
 
 protected:
     void		notify( SoNotList* );

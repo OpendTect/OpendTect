@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoKrisSurfaceImpl.h,v 1.3 2005-03-10 11:50:37 cvskris Exp $
+ RCS:		$Id: SoKrisSurfaceImpl.h,v 1.4 2005-03-22 07:20:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,25 @@ ________________________________________________________________________
 
 class SbRWMutex;
 class MeshSurfacePartResolution;
+
+
+class MeshSurfaceIndexChanger
+{
+public:
+    			MeshSurfaceIndexChanger( int prevnrcols, int newnrcols,
+						 bool changebeforeexisting,
+						 int nraddedrows );
+    int			convertIndex( int oldindex ) const;
+
+protected:
+    int			prevnrcols;
+    int			newnrcols;
+    bool		changebeforeexisting;
+
+    int			nraddedrows;
+};
+
+
 
 class MeshSurfacePartPart
 {
@@ -49,25 +68,31 @@ protected:
 class MeshSurfaceTesselationCache
 {
 public:
+    enum 			Primitive { TriangleStrip, TriangleFan };
+
     				MeshSurfaceTesselationCache(
-					const SoKrisSurface&, bool isstrip );
+					const SoKrisSurface&, Primitive );
     				~MeshSurfaceTesselationCache();
 
     void			reset(bool all);
+    void			changeCacheIdx(const MeshSurfaceIndexChanger&);
 
-    void			GLRender(SoGLRenderAction*);
+    void			GLRenderSurface(SoGLRenderAction*);
+    void			GLRenderLines(SoGLRenderAction*);
     bool			isValid() const { return isvalid; }
     void			setValid(bool yn=true) { isvalid=yn; }
 
-    SbList<int>			ci;
-    SbList<int>			ni;
+    SbList<int>			triangleci;
+    SbList<int>			triangleni;
+    SbList<int>			lineci;
+    SbList<int>			lineni;
 
     SbList<SbVec3f>		normals;
     SbRWMutex*			buildmutex;
 
 protected:
     const SoKrisSurface&	meshsurface;
-    bool			isstrip;
+    Primitive			primitive;
 
     bool			isvalid;
 };
@@ -80,6 +105,7 @@ public:
 				 int sidesize );
     		~MeshSurfacePart();
     void	setStart( int row, int col );
+    void	changeCacheIdx(const MeshSurfaceIndexChanger&);
     int		getRowStart() const { return start0; }
     int		getColStart() const { return start1; }
     void	touch( int, int, bool undef );
@@ -136,6 +162,7 @@ public:
 			    int s0, int s1, int ssz0, int ssz1, int spacing);
     		~MeshSurfacePartResolution();
     void	setStart( int row, int col );
+    void	changeCacheIdx(const MeshSurfaceIndexChanger&);
     void	GLRender(SoGLRenderAction*,bool overridetessel);
     void	touch( int, int, bool undef );
     bool	canDisplay(bool ownvalidation) const;
