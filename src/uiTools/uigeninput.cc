@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.18 2001-05-14 12:20:13 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.19 2001-05-25 14:03:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,15 +16,6 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "datainpspec.h"
 #include "survinfo.h"
-
-
-#define mCheckFinalised() \
-    if ( ! finalised ) \
-    { pErrMsg( "Do not use before popped up" ); return; }
-
-#define mCheckFinalisedv( retval ) \
-    if ( ! finalised ) \
-    { pErrMsg( "Do not use before popped up" ); return retval; }
 
 //! maps a uiGenInput's idx to a field- and sub-idx
 class FieldIdx
@@ -213,9 +204,7 @@ public:
 			    : uiTextInpFld( p, spec )
 			    , li( *new uiLineEdit(p,0,nm) ) 
 			{
-			    BufferString tmp;
-			    spec.getText( tmp );
-			    li.setText( tmp );
+			    li.setText( spec.text() );
 			    init();
 			    li.textChanged.notify( 
 				mCB(this,uiDataInpFld,changeNotify) );
@@ -379,9 +368,8 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     const BinIDCoordInpSpec*spc = dynamic_cast<const BinIDCoordInpSpec*>(&spec);
     if ( !spc ){ pErrMsg("huh"); return; }
 
-    BufferString tmp;
-    spec.getText( tmp, 0 ); inl_x.setText( tmp );
-    spec.getText( tmp, 1 ); crl_y.setText( tmp );
+    inl_x.setText( spec.text(0) );
+    crl_y.setText( spec.text(1) );
 
     binidGrp.setHAlignObj( &inl_x );
     crl_y.attach( rightTo, &inl_x );
@@ -471,14 +459,13 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
     start.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
     stop.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
 
-    BufferString tmp;
-    spec.getText( tmp, 0 ); start.setText( tmp );
-    spec.getText( tmp, 1 ); stop.setText( tmp );
+    start.setText( spec.text(0) );
+    stop.setText( spec.text(1) );
     if ( spc-> hasStep() )
     {
 	step = new uiLineEdit(&intvalGrp,0,nm);
 	step->textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
-	spec.getText( tmp, 2 ); step->setText( tmp );
+	step->setText( spec.text(2) );
     }
 
     intvalGrp.setHAlignObj( &start );
@@ -730,7 +717,8 @@ void uiGenInput::finalise_()
 
 void uiGenInput::setReadOnly( bool yn, int nr )
 {
-    mCheckFinalised();
+    if( !finalised ) { ro = yn; return; }
+
     if ( nr >= 0  ) 
 	{ if ( nr<flds.size() && flds[nr] ) flds[nr]->setReadOnly(yn); return; }
 
@@ -743,7 +731,8 @@ void uiGenInput::setReadOnly( bool yn, int nr )
 
 void uiGenInput::clear( int nr )
 {
-    mCheckFinalised();
+    if ( !finalised ){ pErrMsg("Nothing to clear. Not finalised yet.");return; }
+
     if ( nr >= 0 )
 	{ if ( nr<flds.size() && flds[nr] ) flds[nr]->clear(); return; }
 
@@ -754,7 +743,7 @@ void uiGenInput::clear( int nr )
 #define mFromLE_o(fn,var,undefval) \
     var uiGenInput::fn( int nr ) const \
     { \
-	mCheckFinalisedv( undefval );\
+	if ( !finalised ) return undefval; \
 	return nr<idxes.size() && flds[idxes[nr].fldidx] \
 		? flds[idxes[nr].fldidx]->fn(idxes[nr].subidx) : undefval; \
     }
@@ -762,7 +751,19 @@ void uiGenInput::clear( int nr )
 #define mFromLE_g(fn,var ) \
     var uiGenInput::fn( int nr, var undefVal ) const \
     { \
-	mCheckFinalisedv( undefVal );\
+	if ( !finalised )\
+	{\
+	    int inpidx=0; int elemidx=nr;\
+	    while(  elemidx>=0 && inpidx<inputs.size() && inputs[inpidx]\
+		    && elemidx>=inputs[inpidx]->nElems() )\
+	    {\
+		elemidx -= inputs[inpidx]->nElems();\
+		inpidx++;\
+	    }\
+	    return inpidx<inputs.size() && inputs[inpidx] \
+		    ? inputs[inpidx]->fn(elemidx) : undefVal; \
+	}\
+	\
 	return nr<idxes.size() && flds[idxes[nr].fldidx] \
 		? flds[idxes[nr].fldidx]->fn(idxes[nr].subidx) : undefVal; \
     }
@@ -770,7 +771,20 @@ void uiGenInput::clear( int nr )
 #define mFromLE_s(fn,typ,var) \
     void uiGenInput::fn( typ var, int nr ) \
     { \
-	mCheckFinalised();\
+	if ( !finalised )\
+	{\
+	    int inpidx=0; int elemidx=nr;\
+	    while(  elemidx>=0 && inpidx<inputs.size() && inputs[inpidx]\
+		    && elemidx>=inputs[inpidx]->nElems() )\
+	    {\
+		elemidx -= inputs[inpidx]->nElems();\
+		inpidx++;\
+	    }\
+	    if ( inpidx<inputs.size() && inputs[inpidx] )\
+		inputs[inpidx]->setValue( var, elemidx );\
+	    return;\
+	}\
+	\
 	if ( nr<idxes.size() && flds[idxes[nr].fldidx] )\
 	    flds[idxes[nr].fldidx]->fn( var, idxes[nr].subidx ); \
     }
