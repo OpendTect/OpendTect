@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.5 2003-08-22 11:21:47 nanne Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.6 2003-08-22 16:40:34 bert Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
 
     void		add( float d_ah, float tm )
 						{ dah_ += d_ah; t_ += tm; }
+    void		erase()			{ dah_.erase(); t_.erase(); }
 
 protected:
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.14 2003-08-22 11:31:39 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.15 2003-08-22 16:40:34 bert Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -86,7 +86,8 @@ bool visSurvey::WellDisplay::setWellId( const MultiID& multiid )
 	pt = wd.track().pos( idx );
 	if ( zistime )
 	    pt.z = d2t->getTime( wd.track().dah(idx) );
-	line->addPoint( pt );
+	if ( !mIsUndefined(pt.z) )
+	    line->addPoint( pt );
     }
 
     welltxt->setText( wd.name() );

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.1 2003-08-22 11:20:53 nanne Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.2 2003-08-22 16:40:34 bert Exp $";
 
 
 #include "welltransl.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: welltransl.cc,v 1.1 2003-08-22 11:20:53 nanne E
 #include "wellwriter.h"
 #include "welldata.h"
 #include "iostrm.h"
+#include "strmprov.h"
 
 const IOObjContext& WellTranslator::ioContext()
 {
@@ -38,10 +39,20 @@ int WellTranslator::selector( const char* key )
 }
 
 
+static const char* getFileName( const IOObj& ioobj )
+{
+    static BufferString ret;
+    mDynamicCastGet(const IOStream&,iostrm,ioobj)
+    StreamProvider sp( iostrm.fileName() );
+    sp.addPathIfNecessary( iostrm.dirName() );
+    ret = sp.fileName();
+    return ret.buf();
+}
+
+
 bool dgbWellTranslator::read( Well::Data& wd, const IOObj& ioobj )
 {
-    mDynamicCastGet(const IOStream&,iostrm,ioobj)
-    Well::Reader rdr( iostrm.fileName(), wd );
+    Well::Reader rdr( getFileName(ioobj), wd );
     bool ret = rdr.get();
     if ( ret )
 	wd.info().setName( ioobj.name() );
@@ -51,7 +62,6 @@ bool dgbWellTranslator::read( Well::Data& wd, const IOObj& ioobj )
 
 bool dgbWellTranslator::write( const Well::Data& wd, const IOObj& ioobj )
 {
-    mDynamicCastGet(const IOStream&,iostrm,ioobj)
-    Well::Writer wrr( iostrm.fileName(), wd );
+    Well::Writer wrr( getFileName(ioobj), wd );
     return wrr.put();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.3 2003-08-22 11:21:47 nanne Exp $
+ RCS:		$Id: welltrack.h,v 1.4 2003-08-22 16:40:34 bert Exp $
 ________________________________________________________________________
 
 
@@ -34,6 +34,8 @@ public:
     			//!< d must be > all previous. No checks.
 
     Coord3		getPos(float d_ah) const;
+    float		getDahForTVD(float,float prevdah=mUndefValue) const;
+    			//!< Non-unique. previous DAH may be helpful
 
 protected:
 

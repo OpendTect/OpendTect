@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.5 2003-08-21 15:47:15 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.6 2003-08-22 16:40:34 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -104,6 +104,32 @@ Coord3 Well::Track::getPos( float dh ) const
 }
 
 
+float Well::Track::getDahForTVD( float z, float prevdah ) const
+{
+    bool haveprevdah = !mIsUndefined(prevdah);
+    int foundidx = -1;
+    for ( int idx=0; idx<pos_.size(); idx++ )
+    {
+	const Coord3& c = pos_[idx];
+	float cz = pos_[idx].z;
+	if ( haveprevdah && prevdah-1e-4 > dah_[idx] )
+	    continue;
+	if ( pos_[idx].z + 1e-4 > z )
+	    { foundidx = idx; break; }
+    }
+    if ( foundidx < 1 )
+	return foundidx ? mUndefValue : dah_[0];
+
+    const int idx1 = foundidx - 1;
+    const int idx2 = foundidx;
+    float z1 = pos_[idx1].z;
+    float z2 = pos_[idx2].z;
+    float dah1 = dah_[idx1];
+    float dah2 = dah_[idx2];
+    return ((z-z1) * dah2 + (z2-z) * dah1) / (dah2 + dah1);
+}
+
+
 float Well::D2TModel::getTime( float dh ) const
 {
     int idx1;
@@ -116,5 +142,5 @@ float Well::D2TModel::getTime( float dh ) const
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
     //TODO not time-correct
-    return d1 * t_[idx2] + d2 * t_[idx1] / (d1 + d2);
+    return (d1 * t_[idx2] + d2 * t_[idx1]) / (d1 + d2);
 }

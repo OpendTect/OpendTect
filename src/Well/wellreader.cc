@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.4 2003-08-21 15:47:15 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.5 2003-08-22 16:40:34 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -158,9 +158,9 @@ bool Well::Reader::getOldTimeWell( istream& strm ) const
 	strm >> c3.x >> c3.y >> c3.z;
 	if ( !strm || c3.distance(c0) < 1 ) break;
 
-	wd.track().addPoint( c3, c3.z, dah );
-	if ( wd.track().size() > 1 )
+	if ( wd.track().size() > 0 )
 	    dah += c3.distance( prevc );
+	wd.track().addPoint( c3, c3.z, dah );
 	prevc = c3;
     }
     if ( wd.track().size() < 1 )
