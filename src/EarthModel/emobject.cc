@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.14 2003-11-24 08:39:52 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.15 2004-05-04 10:02:06 nanne Exp $";
 
 #include "emobject.h"
 
@@ -126,4 +126,22 @@ bool EM::EMObject::isPosAttrib( EM::PosID& pid, int attr ) const
 	return false;
 
     return true;
+}
+
+
+const char* EM::EMObject::posAttribName( int idx ) const
+{
+    return 0;
+}
+
+
+int EM::EMObject::nrPosAttribs() const
+{
+    return -1;
+}
+
+
+int EM::EMObject::addPosAttribName( const char* name )
+{
+    return -1;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.18 2004-02-19 12:42:07 nanne Exp $
+ RCS:		$Id: emobject.h,v 1.19 2004-05-04 10:02:01 nanne Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,9 @@ public:
     				
     virtual void		setPosAttrib( EM::PosID&, int attr, bool yn );
     virtual bool		isPosAttrib(EM::PosID&, int attr) const;
+    virtual const char*		posAttribName(int) const;
+    virtual int			nrPosAttribs() const;
+    virtual int			addPosAttribName(const char*);
 
     CNotifier<EMObject, PosID>	poschnotifier;
 
