@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.4 2002-05-22 06:17:42 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.5 2002-05-24 11:42:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,10 +18,14 @@ ________________________________________________________________________
 #include "sets.h"
 #include "geompos.h"
 
+class BinID;
+class RowCol;
+
 namespace Geometry
 {
     class CompositeGridSurface;
     class TriangleStripSet;
+    class Snapped2DSurface;
 };
 
 
@@ -66,6 +70,10 @@ public:
     			/*!< Removes all data and sets it to a single-
 			     sub-horizon.
 			*/
+
+    static BinID	getBid( const RowCol& );
+    static RowCol	getNode( const BinID& );
+    static void		setTransformation( Geometry::Snapped2DSurface& );
 
     void		getTriStrips( Geometry::TriangleStripSet* ) const;
     const Geometry::CompositeGridSurface&	getSurfaces() const

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.5 2002-05-22 07:22:18 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.6 2002-05-24 11:42:37 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.5 2002-05-22 07:22:18 kristo
 #include "executor.h"
 #include "grid.h"
 #include "geom2dsnappedsurface.h"
+#include "survinfo.h"
 
 #include "ptrman.h"
 #include "ioman.h"
@@ -135,28 +136,46 @@ bool EarthModel::Horizon::import( const Grid& grid )
     const int nrrows = grid.nrRows();
     const int nrcols = grid.nrCols();
 
-    const GridNode n00( 0, 0 );
-    const GridNode n01( 0, 1 );
-    const GridNode n11( 1, 1 );
-
-    const Coord c00 = grid.getCoord( n00 );
-    const Coord c01 = grid.getCoord( n01 );
-    const Coord c11 = grid.getCoord( n11 );
-
-
-    surfaces.getSurfaces()[0]->setTransform( c00.x, c00.y, n00.row, n00.col,
-	    				     c01.x, c01.y, n01.row, n01.col,
-					     c11.x, c11.y, n11.row, n11.col );
+    setTransformation( *surfaces.getSurfaces()[0] );
 
     for ( int row=0; row<nrrows; row++ )
     {
 	for ( int col=0; col<nrcols; col++ )
 	{
-	    GridNode node( row, col );
-	    Coord coord = grid.getCoord( node );
-	    Geometry::Pos pos(coord.x, coord.y, grid.getValue( node ));
+	    GridNode gridnode( row, col );
+	    Coord coord = grid.getCoord( gridnode );
+	    float val = grid.getValue( gridnode );
+	    if ( !mIsUndefined( val ) ) val /= 1000;
 
-	    surfaces.getSurfaces()[0]->setPos( node, pos );
+	    Geometry::Pos pos(coord.x, coord.y, val );
+
+	    BinID binid = SI().transform( coord );
+	    Geometry::GridNode surfnode = getNode( binid );
+
+	    surfaces.getSurfaces()[0]->setPos( surfnode, pos );
+	}
+    }
+
+    for ( int row=0; row<nrrows-1; row++ )
+    {
+	for ( int col=0; col<nrcols-1; col++ )
+	{
+	    GridNode gn00( row, col );
+	    GridNode gn01( row, col+1 );
+	    GridNode gn10( row+1, col );
+	    GridNode gn11( row+1, col+1 );
+
+	    if ( !mIsUndefined( grid.getValue( gn00 ) ) &&
+		    !mIsUndefined( grid.getValue( gn00 ) ) &&
+		    !mIsUndefined( grid.getValue( gn00 ) ) &&
+		    !mIsUndefined( grid.getValue( gn00 ) ) )
+	    {
+		Coord coord = grid.getCoord( gn00 );
+		BinID binid = SI().transform( coord );
+		Geometry::GridNode surfnode = getNode( binid );
+		surfaces.getSurfaces()[0]->setFillType( surfnode,
+					Geometry::GridSurface::Filled );
+	    }
 	}
     }
 
@@ -164,8 +183,54 @@ bool EarthModel::Horizon::import( const Grid& grid )
 }
 
 
+BinID EarthModel::Horizon::getBid( const Geometry::GridNode& node )
+{
+    BinID start = SI().range().start;
+    BinID step = SI().step();
+
+    return BinID( start.inl+node.row*step.inl,start.crl+node.col*step.crl );
+}
+
+
+Geometry::GridNode EarthModel::Horizon::getNode( const BinID& bid )
+{
+    BinID start = SI().range().start;
+    BinID step = SI().step();
+
+    return Geometry::GridNode(  (bid.inl-start.inl)/step.inl,
+	    			(bid.crl-start.crl)/step.crl );
+}
+
+
+void EarthModel::Horizon::setTransformation( Geometry::Snapped2DSurface& surf )
+{
+    const BinID start = SI().range().start;
+    const BinID step = SI().step();
+
+    const BinID bid00 = start;
+    const BinID bid01( start.inl+step.crl, start.crl + step.crl );
+    const BinID bid11( start.inl+4*step.inl, start.crl + 14*step.crl );
+
+    const Coord c00( SI().transform( bid00 ) );
+    const Coord c01( SI().transform( bid01 ) );
+    const Coord c11( SI().transform( bid11 ) );
+
+    const RowCol rc00 = getNode( bid00 );
+    const RowCol rc01 = getNode( bid01 );
+    const RowCol rc11 = getNode( bid11 );
+
+    surf.setTransform(	c00.x, c00.y, rc00.row, rc00.col,
+			c01.x, c01.y, rc01.row, rc01.col,
+			c11.x, c11.y, rc11.row, rc11.col);
+}
+
 
 void EarthModel::Horizon::getTriStrips(
 				Geometry::TriangleStripSet* tristrips ) const
 {
+    tristrips->removeAll();
+    for ( int idx=0; idx<surfaces.getSurfaces().size(); idx++ )
+    {
+	surfaces.getSurfaces()[idx]->fillTriStipSet( tristrips );
+    }
 }

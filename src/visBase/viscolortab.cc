@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.10 2002-05-06 12:31:59 kristofer Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.11 2002-05-24 11:45:24 kristofer Exp $";
 
 #include "viscolortab.h"
 #include "visdataman.h"
@@ -35,6 +35,30 @@ visBase::VisColorTab::~VisColorTab()
 Color  visBase::VisColorTab::color( float val ) const
 {
     return colseq->colors().color( scale.scale( val ), false );
+}
+
+
+void visBase::VisColorTab::setNrSteps( int idx )
+{
+    return colseq->colors().calcList( idx );
+}
+
+
+int visBase::VisColorTab::nrSteps() const
+{
+    return colseq->colors().nrColors();
+}
+
+
+int visBase::VisColorTab::colIndex( float val ) const
+{
+    return colseq->colors().colorIdx( scale.scale( val ), nrSteps() );
+}
+
+
+Color visBase::VisColorTab::tableColor( int idx ) const
+{
+    return colseq->colors().tableColor(idx);
 }
 
 

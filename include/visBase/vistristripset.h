@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistristripset.h,v 1.3 2002-03-20 20:41:37 bert Exp $
+ RCS:		$Id: vistristripset.h,v 1.4 2002-05-24 11:45:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "callback.h"
 
 class SoCoordinate3;
+class SoSwitch;
+class SoMaterial;
 class SoIndexedTriangleStripSet;
 class CallBacker;
 
@@ -25,6 +27,8 @@ namespace Geometry { class TriangleStripSet; };
 
 namespace visBase
 {
+class VisColorTab;
+
 
 /*!\brief
 
@@ -43,18 +47,49 @@ public:
 			     stripset must then stay alive.
 			*/
 
+    void		setValues( const float* data );
+    			/*!< The data must be arranged in the same order as
+			     the coords, i.e. data[n] should correspond to
+			     coord[n]
+			*/
+
+    void		setColorTab( VisColorTab* );
+    const VisColorTab*	getColorTab() const { return colortable; }
+    VisColorTab*	getColorTab() { return colortable; }
+
+    void		setAutoscale(bool yn) { autoscale = yn; }
+    bool		autoScale() const { return autoscale; }
+
+    void		setClipRate( float n );
+    			/*!< Should be between 0 and 0.5 */
+    float		clipRate() const { return cliprate; }
+
+    void		useTexture(bool);
+    bool		usesTexture() const;
+			     
 protected:
 			~TriangleStripSet();
+    void		clipData();
+
     void		updateCoords(CallBacker* =0);
     void		updateIndexes(CallBacker* =0);
+    void		updateTexture();
+
+    bool 		autoscale;
+    float		cliprate;
+
+    VisColorTab*	colortable;
+
+    float*		data;
 
     SoCoordinate3*		coords;
+    SoMaterial*			ctmaterial;
+    SoSwitch*			textureswitch;
     SoIndexedTriangleStripSet*	strips;
 
     Geometry::TriangleStripSet*	stripset;
+
 };
-
-
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.6 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: viscolortab.h,v 1.7 2002-05-24 11:45:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,15 @@ public:
 			mCreateDataObj0arg(VisColorTab);
 
     Color		color( float val ) const;
+
+    void		setNrSteps( int );
+    int			nrSteps() const;
+    int			colIndex( float val ) const;
+    			/*!< return 0-nrSteps()-1 
+			     nrSteps() = undef;
+			*/
+    Color		tableColor( int idx ) const;
+
     void		scaleTo( const Interval<float>& rg );
     Interval<float>	getInterval() const;
 
