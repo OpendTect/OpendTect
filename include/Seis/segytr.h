@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.5 2001-07-18 16:13:53 bert Exp $
+ RCS:		$Id: segytr.h,v 1.6 2002-04-08 20:58:41 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -36,6 +36,8 @@ public:
     void		dumpToString( bool yn=true )	{ do_string_dump = yn; }
     bool		dumpingDone() const		{ return itrc >= 5; }
     const char*		dumpStr() const			{ return dumpstr; }
+
+    virtual const char*	defExtension() const		{ return "sgy"; }
 
     static const char*	sExternalNrSamples;
     static const char*	sExternalCoordScaling;
