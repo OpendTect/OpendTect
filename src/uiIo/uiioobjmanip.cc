@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.15 2005-01-14 11:02:55 nanne Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.16 2005-04-01 10:09:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,7 +352,7 @@ bool uiIOObjManipGroup::relocEntry( Translator* tr )
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     BufferString caption( "New file/location for '" );
     caption += ioobj->name(); caption += "'";
-    BufferString oldfnm( iostrm->fullUserExpr(true) );
+    BufferString oldfnm( iostrm->getExpandedName(true) );
     BufferString filefilt( "*" );
     if ( defext != "" )
     {
@@ -407,7 +407,7 @@ bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
 {
     const bool oldimplexist = tr ? tr->implExists(&iostrm,true)
 				 : iostrm.implExists(true);
-    BufferString newfname( chiostrm.fullUserExpr(true) );
+    BufferString newfname( chiostrm.getExpandedName(true) );
 
     if ( oldimplexist )
     {
