@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.12 2003-05-28 09:46:38 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.13 2003-06-23 12:38:56 kristofer Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -61,9 +61,50 @@ void visBase::Texture3::setData( const Array3D<float>* newdata, DataType sel )
     const int datax1sz = newdata->info().getSize( 1 );
     const int datax2sz = newdata->info().getSize( 2 );
 
-    int newx0 = nextPower2( datax0sz, 64, 256 );
-    int newx1 = nextPower2( datax1sz, 64, 256 );
-    int newx2 = nextPower2( datax2sz, 64, 256 );
+#define mMaxTextSz 256
+#define mMinTextSz 64
+
+    int maxsize0 = mMaxTextSz;
+    int maxsize1 = mMaxTextSz;
+    int maxsize2 = mMaxTextSz;
+
+    const char* envlimit = getenv("dTECT_3DTEXTURE_LIMIT");
+    if ( envlimit )
+    {
+	int dummy;
+	const char* firstend = strchr(envlimit,'x');
+	if ( firstend )
+	{
+	    BufferString first = envlimit;
+	    first[firstend-envlimit] = 0;
+	    BufferString second = firstend+1;
+	    if ( getFromString( dummy, first ))
+		maxsize0 = mMAX(mMinTextSz,dummy);
+
+	    const char* secondend = strchr(second,'x');
+
+	    if ( secondend )
+	    {
+		second[secondend-second.buf()] = 0;
+		BufferString third = secondend+1;
+		if ( getFromString( dummy, second ))
+		    maxsize1 = mMAX(mMinTextSz,dummy );
+		if ( getFromString( dummy, third ))
+		    maxsize2 = mMAX(mMinTextSz, dummy );
+		}
+	}
+	else if ( getFromString( dummy,envlimit ) )
+	{
+	    maxsize0 = mMAX(mMinTextSz, dummy );
+	    maxsize1 = maxsize0;
+	    maxsize2 = maxsize0;
+	}
+
+    }
+
+    int newx0 = nextPower2( datax0sz, mMinTextSz, maxsize0 );
+    int newx1 = nextPower2( datax1sz, mMinTextSz, maxsize1 );
+    int newx2 = nextPower2( datax2sz, mMinTextSz, maxsize2 );
     setTextureSize( newx0, newx1, newx2 );
 
     const int cachesz = newx0*newx1*newx2;
