@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.21 2002-04-23 10:04:35 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.22 2002-04-25 14:48:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,9 @@ public:
 			    nrStatusFlds == 0	: no statysbar
 			    nrStatusFlds < 0	: creates empty statusbar.
 				Add status fields yourself in that case.
+
+			    if no parent, then modal is ignored
+			     (always non-modal).
 			*/
 			uiMainWin( uiParent* parnt=0, 
 				   const char* nm="uiMainWin",
