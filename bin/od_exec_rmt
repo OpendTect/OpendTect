@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.31 2004-12-05 00:09:30 bert Exp $
+# $Id: od_exec_rmt,v 1.32 2004-12-08 08:57:37 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -186,18 +186,19 @@ if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
     set transf="$transf $datahost $datadrive $datashare $usernm $remotepass"
 
     if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
-	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt.bat+=+' \
-		     | sed -e "s% %\\ %g" -e 's%+=+%""%g'`
+	set do_exec=`echo '%DTECT_WINAPPL%\\bin\\od_dormt.bat' \
+		     | sed -e "s% %\\ %g" -e 's%^%""%g' -e 's%$%""%g'`
 
-	set prescript=`"${DTECT_APPL}/bin/${HDIR}/SearchODFile" od_prepare.bat \
-	     | sed -e "s% %\\ %g" -e "s%\\%\\\\%g" `
+	setenv PRESCRIPT `"${DTECT_APPL}/bin/${HDIR}/SearchODFile" \
+	    od_prepare.bat | sed -e "s%\\%\\\\%g" -e 's%^%"%g' -e 's%$%"%g'`
+
 
 	if ( $?DTECT_DEBUG) then
 	    echo cmd /c \
-		"${prescript} $remotehost _none_ _none_ $usernm $remotepass"
+		"%PRESCRIPT% $remotehost _none_ _none_ $usernm $remotepass"
 	endif
 
-        cmd /c "${prescript} $remotehost _none_ _none_ $usernm $remotepass"
+        cmd /c "%PRESCRIPT% $remotehost _none_ _none_ $usernm $remotepass"
 
 	set remotehost="\\${remotehost}"
 
