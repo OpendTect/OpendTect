@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.15 2003-01-28 08:18:42 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.16 2003-02-07 09:29:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -118,6 +118,13 @@ protected:
     int				tslid;
 
     static const char*		volumestr;
+    static const char*		inlinestr;
+    static const char*		crosslinestr;
+    static const char*		timestr;
+    static const char*		volrenstr;
+    static const char*		inlineposstr;
+    static const char*		crosslineposstr;
+    static const char*		timeposstr;
 };
 
 };
