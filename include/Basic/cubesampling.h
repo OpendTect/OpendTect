@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.12 2004-07-22 16:14:07 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.13 2004-07-28 16:43:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,11 @@ struct HorSampling
 			HorSampling(const BinIDSampler&);
     HorSampling&	set(const BinIDRange&);
     HorSampling&	set(const BinIDSampler&);
+    HorSampling&	set(const Interval<int>& inlrg,
+	    		    const Interval<int>& crlrg);
+    			//!< steps copied if available
+    void		get(Interval<int>& inlrg,Interval<int>& crlrg) const;
+    			//!< steps filled if available
 
     inline bool		includes( const BinID& bid ) const
 			{ return inlOK(bid.inl) && crlOK(bid.crl); }
@@ -116,6 +121,7 @@ public:
     bool		getInterSection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
+    void		include(const CubeSampling&);
 
     void		snapToSurvey(bool work=true);
     			/*!< Checks if it is on valid bids and sample positions.
