@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.20 2001-09-27 16:17:04 arend Exp $
+ RCS:           $Id: uiiosel.cc,v 1.21 2001-11-06 07:16:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,6 +258,17 @@ void uiIOSelect::selDone( CallBacker* )
 {
     objSel();
     selectiondone.trigger();
+}
+
+
+void uiIOSelect::empty( bool withclear )
+{
+    inp_->box()->empty();
+
+    if ( entries_.size() ) 
+	entries_.erase();
+
+    if ( withclear ) addSpecialItem( "" );
 }
 
 
