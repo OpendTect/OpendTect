@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.9 2004-12-15 16:45:45 bert Exp $
+ RCS:           $Id: debug.cc,v 1.10 2004-12-16 09:39:33 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.9 2004-12-15 16:45:45 bert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.10 2004-12-16 09:39:33 bert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -95,11 +95,15 @@ void message( int flag, const char* msg )
 
 void putProgInfo( int argc, char** argv )
 {
-    if ( !isOn() ) return;
+    const bool ison = isOn();
+    if ( ison ) message( "\n---------" );
 
-    BufferString msg( "\n" );
+    BufferString msg;
     msg += argv[0]; msg += " started at "; msg += Time_getLocalString();
+    if ( !ison ) msg += "\n";
     message( msg );
+    if ( !ison ) return;
+
     msg = "Platform: ";
 #ifdef lux
     msg += "Linux";
@@ -137,6 +141,7 @@ void putProgInfo( int argc, char** argv )
 	    { msg += " '"; msg += argv[idx]; msg += "'"; }
 	message( msg );
     }
+    message( "---------\n" );
 }
 
 };
