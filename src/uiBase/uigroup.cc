@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.26 2002-01-11 13:34:01 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.27 2002-01-11 14:13:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,6 +165,8 @@ private:
 
 void uiGroupParentBody::setHCentreObj( uiObject* obj )
 { 
+    if( !obj ||( loMngr && loMngr->isChild(obj)) ) { hcentreobj = obj; return; }
+
 #ifdef __debug__
     if( objbody_.layoutItem() && objbody_.layoutItem()->isAligned() ) 
     {
@@ -178,8 +180,6 @@ void uiGroupParentBody::setHCentreObj( uiObject* obj )
 	pErrMsg(msg);
     }
 #endif
-
-    if( !obj ||( loMngr && loMngr->isChild(obj)) ) { hcentreobj = obj; return; }
 
 /*
     Ok. So, someone is trying to set an object as HCentreObj, which is not
@@ -213,6 +213,8 @@ void uiGroupParentBody::setHCentreObj( uiObject* obj )
 
 void uiGroupParentBody::setHAlignObj( uiObject* obj )
 { 
+    if( !obj || (loMngr && loMngr->isChild(obj)) ) { halignobj = obj; return; }
+
 #ifdef __debug__
     if( objbody_.layoutItem() && objbody_.layoutItem()->isAligned() ) 
     {
@@ -226,9 +228,6 @@ void uiGroupParentBody::setHAlignObj( uiObject* obj )
 	pErrMsg(msg);
     }
 #endif
-
-    if( !obj || (loMngr && loMngr->isChild(obj)) ) { halignobj = obj; return; }
-
 
     uiGroup* objpar = dynamic_cast<uiGroup*>(obj->parent());
     if( objpar && loMngr && loMngr->isChild(objpar->uiObj()) )
