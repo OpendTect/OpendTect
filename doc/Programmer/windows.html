@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.9 2004-01-16 09:51:52 dgb Exp $
+  - RCS:        $Id: windows.html,v 1.10 2004-01-21 22:04:42 dgb Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.1]</title>
@@ -28,7 +28,7 @@ If you choose to install some of the external installations elsewhere, it is str
 
 <h4>Preparing the cygwin installation</h4>
 <p>
-If you did not install cygwin prior to installing OpendTect, it is likely that
+If you did not install cygwin prior to installing OpendTect, it is possible that
 an incomplete mount table is stored in the windows registry due to the fact
 that some command-line cygwin tools are used internally by OpendTect.
 
@@ -55,27 +55,38 @@ which will make the changes for you.
 <p>When you are sure the registry is ok, you can download the Cygwin installer from <a href="http://cygwin.com">http://cygwin.com</a> and run it.</p>
 <p>After a few questions, you can select packages to install. Choose at least the following packages:</p>
 <ul>
-<li>make (development)</li>
-<li>gcc (development)</li>
-<li>gcc-g++ (development)</li>
-<li>gcc-mingw-core (development)</li>
-<li>gcc-mingw-g++ (development)</li>
-<li>tcsh (shells)</li>
-<li>perl (interpreters)</li>
-<li>gawk (interpreters)</li>
+<ul><b>Development</b>
+<li>make
+<li>gcc
+<li>gcc-g++
+<li>gcc-mingw-core
+<li>gcc-mingw-g++
+</ul>
+<ul><b>Shells</b>
+<li>tcsh
+</ul>
+<ul><b>Interpreters</b>
+<li>perl
+<li>gawk
+</ul>
 </ul>
 <p>Also recommended:</p>
 <ul>
-<li>cvs (development)</li>
-<li>binutils (development)</li>
-<li>bizon (development) (*)</li>
-<li>flex (development) (*)</li>
-<li>doxygen (development)</li>
-<li>vim (editors) (**)</li>
-<li>mc (editors) (**) = Norton Commander clone</li>
-<li>openssh (net)</li>
-<li>zip (archive)</li>
-<li>unzip (archive)</li>
+<ul><b>Development</b>
+<li>cvs</li>
+<li>binutils</li>
+<li>bison (*)</li>
+<li>flex (*)</li>
+<li>doxygen</li>
+</ul>
+<ul><b>Editors</b>
+<li>vim (**)
+<li>mc (**) [= Norton Commander clone]
+</ul>
+<ul><b>Archive</b>
+<li>zip
+<li>unzip
+</ul>
 </ul>
 
 Note: You can always re-start the cygwin installation program to add additional packages later or to update existing packages.
@@ -89,7 +100,7 @@ Note: You can always re-start the cygwin installation program to add additional 
 <p><a href="pmake.html">Pmake</a> is used to build both the system and to build plugins.
 It requires a few environment variables to be setup and it expects a certain directory structure in your ODWork directory.</p>
 <h3>Setup ODWork dir</h3>
-<p>Before you can build anything, you have to setup the ODWork directory in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Development Environment'.
+<p>Before you can build anything, you have to setup the ODWork directory in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Devel Env'.
 Note that the OpendTect application window will freeze while the development environment is created.
 'Create Development Environment' will also create an init script 'init.bash' in your ODWork directory that can easily be sourced from your .bashrc to setup your environment.
 </p>
@@ -101,15 +112,15 @@ The location of this directory can be easily found from a cygwin bash shell:
 </pre>
 </p>
 <h3>Setup environment variables</h3>
-<p>Once you have successfully created your ODWork directory, you have to setup a few environment variables: HDIR, WORK and GNUMAKE.</p>
-
-<li>HDIR defines the platform you're working on. On windows, this should be set to win.</li>
-<li>GNUMAKE gives the name of gnu make, usually just make or gmake.</li>
-<li>WORK defines where your ODWork directory is.</li>
-
+<p>Once you have successfully created your ODWork directory, you will have to setup a few environment variables: HDIR, WORK and GNUMAKE. If you have used the 'Create Devel Env' menu this can be done with one command (see below).</p>
+<ul>
+<li>HDIR defines the platform you're working on. On windows, this should be set to win.
+<li>GNUMAKE gives the name of gnu make, usually just make or gmake.
+<li>WORK defines where your ODWork directory is.
+</ul>
 <p>Beside setting up these environment variables, you should source either the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base directory.</p>
 
-<p>If you have followed our instructions well, you can set the entire environment with a single setup script that is generated in the new ODWork directory. You can source the 'init.bash' script from your .bashrc (or 'init.csh',if you work with the non-default csh shell). 
+<p>If you have used the OpendTect menu to setup the $WORK directory, you can set the entire environment with a single setup script that is generated in the new ODWork directory. You can source the 'init.bash' script from your .bashrc (or 'init.csh',if you work with the non-default csh shell). 
 If you have created your ODWork directory in your cygwin home, you can add the following line to the end of your .bashrc script:
 <pre>
     source ~/ODWork/init.bash
@@ -118,11 +129,9 @@ If you have created your ODWork directory in your cygwin home, you can add the f
 
 <h3>Building your own plugins</h3>
 <h4>Testing the installation</h4>
-<p>After you setup your environment, open a new cygwin bash shell and go to your ODWork directory. If all is well, the alias 'cwd' should bring you directly to your ODWork directory. Then go to the plugins directory and type 'make'. You should see something like this:</p>
+<p>After you setup your environment, open a new cygwin bash shell and go to your ODWork directory (You can start a bash shell from the Windows start menu). If all is well, the alias 'cdw' should bring you directly to your ODWork directory. Then go to the plugins directory and type 'make'. You should see something like this:</p>
 <pre>
 $ cd plugins/
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
 $ make
 make[1]: Entering directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/Hello'
   Making Hello / Microsoft Windows (Nov 27 13:18:33) DEBUG=no.
@@ -144,26 +153,18 @@ Creating /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win/O/uiSeisIOSimple.d
  ...
   Done !
 make[1]: Leaving directory `/cygdrive/c/cygwin/home/Administrator/ODWork/plugins/uiSeisIOSimple'
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
 $</pre>
 <p>The libraries should now be made in $WORK/lib/win. We can check that, like this:</p>
 <pre>
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/plugins
 $ cdw
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork
 $ cd lib/win/
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win
 $ ls
 Coh.dll*    O@                 libuiSeisIOSimple.dll.a*  uiSeisIOSimple.dll*
 Coh.lib*    libCoh.dll.a*      uiCoh.dll*                uiSeisIOSimple.lib*
 G@          libHello.dll.a*    uiCoh.lib*
 Hello.dll*  libuiCoh.dll.a*    uiHello.dll*
 Hello.lib*  libuiHello.dll.a*  uiHello.lib*
-
-Administrator@tazzie-win2k /cygdrive/c/cygwin/home/Administrator/ODWork/lib/win $
+$
 </pre>
 
 <h4>Testing the newly compiled plugins</h4>
@@ -182,14 +183,9 @@ Otherwise, the location of the special windows folder "Application Data" is used
 
 You can find the location of special windows folders using the GetSpecFolder.exe program that you can find in the OpendTect installation directory:
 <pre>
-Administrator@dgb18-winxp ~
 $ cd /cygdrive/c/Program\ Files/OpendTect/bin/win/
-
-Administrator@dgb18-winxp /cygdrive/c/Program Files/OpendTect/bin/win
 $ ./GetSpecFolder.exe AppData
 C:\Documents and Settings\Administrator\Application Data
-
-Administrator@dgb18-winxp /cygdrive/c/Program Files/OpendTect/bin/win
 $
 </pre>
 </p>
