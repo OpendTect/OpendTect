@@ -4,10 +4,11 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.2 2005-01-20 17:17:15 bert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.3 2005-02-08 16:55:49 bert Exp $";
 
 #include "posvecdataset.h"
 #include "datacoldef.h"
+#include "survinfo.h"
 
 
 const DataColDef& DataColDef::unknown()
@@ -35,18 +36,36 @@ DataColDef::MatchLevel DataColDef::compare( const DataColDef& cd,
 }
 
 
-PosVecDataSet::PosVecDataSet()
-    	: data_(1,true)
+PosVecDataSet::~PosVecDataSet()
+{
+    deepErase( coldefs_ );
+}
+
+
+PosVecDataSet& PosVecDataSet::operator =( const PosVecDataSet& vds )
+{
+    if ( &vds != this )
+    {
+	name_ = vds.name();
+	copyStructureFrom( vds );
+	merge( vds );
+    }
+    return *this;
+}
+
+
+void PosVecDataSet::copyStructureFrom( const PosVecDataSet& vds )
 {
     empty();
+    deepCopy( coldefs_, vds.coldefs_ );
 }
 
 
 void PosVecDataSet::empty()
 {
     deepErase(coldefs_);
-    coldefs_ += new DataColDef( "Z" );
     data_.setNrVals( 1 );
+    coldefs_ += new DataColDef( "Z" );
 }
 
 
