@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.7 2004-04-14 14:43:37 nanne Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.8 2004-07-28 08:53:15 nanne Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -58,7 +58,7 @@ void DataInpSpec::fillPar(IOPar& par) const
 
 bool DataInpSpec::usePar(const IOPar& par)
 {
-    ObjectSet<BufferString>	values;
+    BufferStringSet values;
     for ( int idx=0; idx<nElems(); idx++ )
     {
 	const BufferString key(idx);
@@ -69,13 +69,11 @@ bool DataInpSpec::usePar(const IOPar& par)
 	if ( !valptr || !*valptr )
 	    return false;
 
-	values += new BufferString(valptr);
+	values.add( valptr );
     }
 
     for ( int idx=0; idx<nElems(); idx++ )
-	setText( *values[idx], idx );
-
-    deepErase( values );
+	setText( values.get(idx), idx );
 
     return true;
 }
@@ -246,18 +244,11 @@ StringListInpSpec::StringListInpSpec( const char** sl )
 {
     if ( !sl ) return;
     while( *sl )
-	strings_ += new BufferString( *sl++ );
+	strings_.add( *sl++ );
 }
 
-StringListInpSpec::StringListInpSpec( TypeSet<char*> sl )
-    : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
-    , cur_(0)
-{
-    for ( int idx=0; idx<sl.size(); idx++ )
-	strings_ += new BufferString( sl[idx] );
-}
 
-StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth)
+StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth )
     : DataInpSpec( oth )
     , cur_(oth.cur_)
 { deepCopy( strings_, oth.strings_ ); }
@@ -280,7 +271,7 @@ const BufferStringSet& StringListInpSpec::strings() const
 
 
 void StringListInpSpec::addString( const char* txt )
-{ strings_ += new BufferString( txt ); }
+{ strings_.add( txt ); }
 
 
 const char* StringListInpSpec::text( int idx ) const
