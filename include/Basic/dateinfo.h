@@ -6,14 +6,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		12-3-96
- RCS:		$Id: dateinfo.h,v 1.1 2001-02-13 17:15:57 bert Exp $
+ RCS:		$Id: dateinfo.h,v 1.2 2002-04-11 14:33:38 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <enums.h>
 
-/*!\brief Clumsy date info class. On schedule for removal.  
+/*!\brief Clumsy date info class. Has nice 'relative' printouts.
 
 Class does not work before 1996 or after 2099. Other constructors
 are for dates other than today. Constructors accept numbers as in normal usage.
@@ -30,11 +30,13 @@ public:
 			  Oct, Nov, Dec };
 			DeclareEnumUtils(Month)
 
-			DateInfo();
-			DateInfo(int,Month,int);
-			DateInfo(int,int,int);
-			DateInfo(int,const char*,int);
+			DateInfo();		//!< Today.
+			DateInfo(int key_);
+			DateInfo(int yr,Month,int dy);
+			DateInfo(int yr,int mnth,int dy);
+			DateInfo(int yr,const char* mnth,int dy);
 
+    int			key() const		{ return days96; }
     int			day() const		{ return day_  + 1; }
     Month		month() const		{ return month_; }
     int			year() const		{ return year_ + 1996; }
