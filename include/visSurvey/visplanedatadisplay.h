@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.45 2004-04-29 16:59:33 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.46 2004-04-30 11:47:10 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -103,8 +103,10 @@ public:
     bool			setDataVolume(bool color,AttribSliceSet*);
     				/*!< Becomes mine */
     const AttribSliceSet*	getCacheVolume(bool color) const;
-    
-    void			showTexture(int);
+   
+    bool			canHaveMultipleTextures() const {return true;}
+    int				nrTextures() const;
+    void			selectTexture(int);
 
     void			turnOn(bool);
     bool			isOn() const;

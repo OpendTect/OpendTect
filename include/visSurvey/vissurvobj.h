@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.23 2004-04-29 13:04:02 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.24 2004-04-30 11:47:10 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class ColorAttribSel;
 class AttribSliceSet;
 class CubeSampling;
 class SeisTrc;
+class MultiID;
 
 namespace visBase { class Transformation; };
 
@@ -48,6 +49,8 @@ public:
 
     virtual bool		canDuplicate() const;
     virtual SurveyObject*	duplicate() const;
+
+    virtual const MultiID*	getMultiID() const;
 
     virtual void		showManipulator(bool yn);
     virtual bool		isManipulatorShown() const;
@@ -80,6 +83,10 @@ public:
 
     virtual void		setSelSpec( const AttribSelSpec& );
     virtual void		setColorSelSpec(const ColorAttribSel&);
+
+    virtual bool		canHaveMultipleTextures() const;
+    virtual int			nrTextures() const;
+    virtual void		selectTexture(int);
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling() const;

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.16 2004-04-29 13:04:07 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.17 2004-04-30 11:47:03 kristofer Exp $";
 
 #include "vissurvobj.h"
 
@@ -31,6 +31,10 @@ bool visSurvey::SurveyObject::canDuplicate() const
 
 
 visSurvey::SurveyObject* visSurvey::SurveyObject::duplicate() const
+{ return 0; }
+
+
+const MultiID* visSurvey::SurveyObject::getMultiID() const
 { return 0; }
 
 
@@ -113,6 +117,18 @@ void visSurvey::SurveyObject::setSelSpec( const AttribSelSpec& )
 
 
 void visSurvey::SurveyObject::setColorSelSpec( const ColorAttribSel& )
+{}
+
+
+bool visSurvey::SurveyObject::canHaveMultipleTextures() const
+{ return false; }
+
+
+int visSurvey::SurveyObject::nrTextures() const
+{ return 0; }
+
+
+void visSurvey::SurveyObject::selectTexture(int)
 {}
 
 
