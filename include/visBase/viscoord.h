@@ -7,14 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.1 2002-12-20 16:30:21 kristofer Exp $
+ RCS:		$Id: viscoord.h,v 1.2 2003-01-03 08:15:15 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
 #include "callback.h"
+#include "position.h"
+#include "vissceneobj.h"
 
 class SoCoordinate3;
 class Executor;
