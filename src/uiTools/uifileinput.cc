@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.14 2003-01-21 12:50:08 arend Exp $
+ RCS:           $Id: uifileinput.cc,v 1.15 2003-04-01 12:16:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
-#include <datainpspec.h>
+#include "filegen.h"
 
 
 uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm,
@@ -45,7 +45,9 @@ void uiFileInput::doSelect( CallBacker* )
 
     uiFileDialog dlg( this, forread, fname, filter );
 
-    if ( selmodset )	dlg.setMode( selmode );
+    if ( selmodset )
+	dlg.setMode( selmode );
+
     if ( dlg.go() )
     {
 	BufferString oldfname( fname );
@@ -59,5 +61,8 @@ void uiFileInput::doSelect( CallBacker* )
 
 const char* uiFileInput::fileName()
 {
-    return text();
+    fname = text();
+    if ( !File_isAbsPath(fname) && fname != "" && defseldir != "" )
+	fname = File_getFullPath( defseldir, fname );
+    return fname;
 }
