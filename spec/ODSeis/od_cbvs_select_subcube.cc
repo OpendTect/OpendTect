@@ -65,7 +65,7 @@ int main( int argc, char** argv )
     bidsmpl->start = BinID( atoi(fms[0]), atoi(fms[3]) );
     bidsmpl->stop = BinID( atoi(fms[1]), atoi(fms[4]) );
     bidsmpl->step = BinID( atoi(fms[2]), atoi(fms[5]) );
-    tri.setTrcSel( &tsel );
+    // tri.setTrcSel( &tsel );
     ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
 	    = tri.componentInfo();
     const int nrincomp = ci.size();
@@ -97,6 +97,9 @@ int main( int argc, char** argv )
     int nrwr = 0;
     while ( tri.read(trc) )
     {
+	if ( bidsmpl->excludes(trc.info().binid) )
+	    continue;
+
 	if ( !nrwr )
 	{
 	    tro.packetInfo() = tri.packetInfo();
