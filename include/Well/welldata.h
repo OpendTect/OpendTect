@@ -1,5 +1,5 @@
-#ifndef well_h
-#define well_h
+#ifndef welldata_h
+#define welldata_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.1 2003-08-15 11:12:15 bert Exp $
+ RCS:		$Id: welldata.h,v 1.2 2003-08-15 15:29:22 bert Exp $
 ________________________________________________________________________
 
 

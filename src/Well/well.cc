@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.1 2003-08-15 11:12:15 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.2 2003-08-15 15:29:22 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: well.cc,v 1.1 2003-08-15 11:12:15 bert Exp $";
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "finding.h"
+
+const char* Well::D2TModel::sKeyTimeWell = "=Time";
 
 
 Well::Data::Data( const char* nm )
