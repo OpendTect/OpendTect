@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.1 2001-05-30 16:36:14 arend Exp $
+ RCS:           $Id: uitoolbar.h,v 1.2 2001-05-31 21:23:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,9 @@ public:
 
     void 		addButton( const ioPixmap&, const CallBack& cb, 
 				   const char* nm="ToolBarButton" );
+
+    void		display(bool yn=true);
+			//!< you must call this after all buttons are added
 
 protected:
 

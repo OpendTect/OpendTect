@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.1 2001-05-30 16:36:26 arend Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.2 2001-05-31 21:23:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,14 @@ void uiToolBar::addButton(const ioPixmap& pm, const CallBack& cb,const char* nm)
     receivers += br;
 
     br->pressed.notify( cb );
+}
+
+
+void uiToolBar::display( bool yn )
+{
+    if ( !qbar ) return;
+    if ( yn )	qbar->show();
+    else	qbar->hide();
 }
 
 
