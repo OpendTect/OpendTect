@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.1 2004-06-17 14:56:51 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.2 2004-06-18 13:58:07 bert Exp $";
 
 #include "seis2dline.h"
 #include "seisbuf.h"
@@ -17,9 +17,10 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.1 2004-06-17 14:56:51 bert Ex
 
 const char* Seis2DLineGroup::sKeyZRange = SurveyInfo::sKeyZRange;
 const char* Seis2DLineIOProvider::sKeyType = sKey::Type;
+const char* Seis2DLineIOProvider::sKeyLineNr = "Line number";
 
 
-ObjectSet<Seis2DLineIOProvider>& S2DLIOP()
+ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 {
     static ObjectSet<Seis2DLineIOProvider>* theinst = 0;
     if ( !theinst ) theinst = new ObjectSet<Seis2DLineIOProvider>;
@@ -62,6 +63,12 @@ void Seis2DLineGroup::readFile()
     if ( !astrm.isOfFileType( sKeyFileType ) )
 	{ sd.close(); return; }
 
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	if ( astrm.hasKeyword(sKey::Name) )
+	    setName( astrm.value() );
+    }
+
     while ( !astrm.type() == ascistream::EndOfFile )
     {
 	IOPar* newpar = new IOPar;
@@ -86,6 +93,10 @@ void Seis2DLineGroup::writeFile() const
     if ( !astrm.putHeader( sKeyFileType ) )
 	{ sd.close(); return; }
 
+    astrm.put( sKey::Name, name() );
+    astrm.put( "Number of lines", pars_.size() );
+    astrm.newParagraph();
+
     for ( int ipar=0; ipar<pars_.size(); ipar++ )
     {
 	const IOPar& iopar = *pars_[ipar];
@@ -98,51 +109,79 @@ void Seis2DLineGroup::writeFile() const
 }
 
 
-SeisTrcBuf* Seis2DLineGroup::getData( int paridx ) const
+Seis2DLineIOProvider* Seis2DLineGroup::getLiop( int ipar ) const
 {
-    if ( paridx > pars_.size() ) return 0;
+    return ipar >= pars_.size() ? 0 : getLiop( *pars_[ipar] );
+}
 
-    const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOP();
-    const IOPar& iopar = *pars_[paridx];
 
+Seis2DLineIOProvider* Seis2DLineGroup::getLiop( const IOPar& iop ) const
+{
+    const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
     for ( int idx=0; idx<liops.size(); idx++ )
     {
-	Seis2DLineIOProvider& liop = *liops[idx];
-	if ( liop.isUsable(iopar) )
-	{
-	    SeisTrcBuf* ret = liop.getData( iopar );
-	    if ( liop.errmsg != "" )
-		ErrMsg( liop.errmsg );
-	    return ret;
-	}
+	Seis2DLineIOProvider* liop = liops[idx];
+	if ( liop->isUsable(iop) )
+	    return liop;
     }
-
     return 0;
 }
 
 
-void Seis2DLineGroup::add( IOPar* newiop, const SeisTrcBuf& tbuf )
+Executor* Seis2DLineGroup::lineFetcher( int ipar, SeisTrcBuf& tbuf ) const
 {
-    if ( !newiop || !newiop->size() || !tbuf.size() ) return;
-
-    const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
-
-    const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOP();
-    for ( int idx=0; idx<liops.size(); idx++ )
+    Seis2DLineIOProvider* liop = getLiop( ipar );
+    if ( !liop )
     {
-	Seis2DLineIOProvider& liop = *liops[idx];
-	if ( liop.isUsable(*newiop) )
-	{
-	    if ( !liop.putData(*newiop,tbuf,previop) )
-		ErrMsg( liop.errmsg );
-	    else
-		break;
-	}
-	if ( idx == liops.size()-1 )
-	    return;
+	ErrMsg("No suitable 2D line extraction object found");
+	return 0;
     }
 
+    return liop->getFetcher( *pars_[ipar], tbuf );
+}
+
+
+Executor* Seis2DLineGroup::lineAdder( IOPar* newiop,
+				      const SeisTrcBuf& tbuf ) const
+{
+    if ( !newiop || !newiop->size() || !tbuf.size() )
+    {
+	ErrMsg("No data for line add provided");
+	return 0;
+    }
+    Seis2DLineIOProvider* liop = getLiop( *newiop );
+    if ( !liop )
+    {
+	ErrMsg("No suitable 2D line creation object found");
+	return 0;
+    }
+
+    const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
+    return liop->getPutter( *newiop, tbuf, previop );
+}
+
+
+void Seis2DLineGroup::commitAdd( IOPar* newiop )
+{
     pars_ += newiop;
+    writeFile();
+}
+
+
+bool Seis2DLineGroup::isEmpty( int ipar ) const
+{
+    Seis2DLineIOProvider* liop = getLiop( ipar );
+    return liop ? liop->isEmpty( *pars_[ipar] ) : true;
+}
+
+
+void Seis2DLineGroup::remove( int idx )
+{
+    if ( idx > pars_.size() ) return;
+
+    IOPar* iop = pars_[idx];
+    pars_ -= iop;
+    delete iop;
     writeFile();
 }
 

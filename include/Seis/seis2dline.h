@@ -7,15 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.1 2004-06-17 14:56:51 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.2 2004-06-18 13:58:07 bert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "ranges.h"
 #include "uidobj.h"
-class SeisTrcBuf;
 class IOPar;
+class Executor;
+class SeisTrcBuf;
+class Seis2DLineIOProvider;
+
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
@@ -31,10 +34,14 @@ public:
 
     int			nrLines() const			{ return pars_.size(); }
     const IOPar&	getInfo( int idx ) const	{ return *pars_[idx]; }
+    bool		isEmpty(int) const;
 
-    SeisTrcBuf*		getData(int) const;
-    void		add(IOPar*,const SeisTrcBuf&);
-
+    Executor*		lineFetcher(int,SeisTrcBuf&) const;
+    				//!< May return null
+    Executor*		lineAdder(IOPar*,const SeisTrcBuf&) const;
+    				//!< May return null. If OK, call commitAdd
+    void		commitAdd(IOPar*);
+    				//!< Must be called after successful add
     void		remove(int);
 
     static const char*	sKeyZRange;
@@ -48,6 +55,9 @@ protected:
     void		readFile();
     void		writeFile() const;
 
+    Seis2DLineIOProvider* getLiop(int) const;
+    Seis2DLineIOProvider* getLiop(const IOPar&) const;
+
 };
 
 
@@ -58,20 +68,26 @@ class Seis2DLineIOProvider
 {
 public:
 
-    virtual SeisTrcBuf*	getData(const IOPar&)			= 0;
-    virtual bool	putData(IOPar&,const SeisTrcBuf&,
-	    			const IOPar* prev=0)		= 0;
+    virtual		~Seis2DLineIOProvider()			{}
 
-    BufferString	type;
-    BufferString	errmsg;
+    virtual bool	isEmpty(const IOPar&) const		= 0;
+    virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&)	= 0;
+    virtual Executor*	getPutter(IOPar&,const SeisTrcBuf&,
+				  const IOPar* prev=0)		= 0;
 
+    const BufferString	type;
     virtual bool	isUsable(const IOPar&) const;
-
     static const char*	sKeyType;
+    static const char*	sKeyLineNr;
+
+protected:
+
+			Seis2DLineIOProvider( const char* t )
+    			: type(t)				{}
 };
 
 
-ObjectSet<Seis2DLineIOProvider>& S2DLIOP();
+ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //!< Sort of factory. Add a new type via this function.
 
 
