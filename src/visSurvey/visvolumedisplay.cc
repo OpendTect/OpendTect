@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.6 2002-10-30 15:30:11 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.7 2002-11-08 14:38:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,10 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     selection()->notify( mCB(this,VolumeDisplay,select));
     deSelection()->notify( mCB(this,VolumeDisplay,deSelect));
 
-    cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
-    cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
+    /*
+    cube->slice->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
+    cube->slice->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
+    */
 
     prevcs.hrg.start.inl = (5*SI().range().start.inl+3*SI().range().stop.inl)/8;
     prevcs.hrg.start.crl = (5*SI().range().start.crl+3*SI().range().stop.crl)/8;
@@ -59,12 +61,9 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     setCubeSampling( prevcs );
 
     cube->showBox( true );
-    cube->inlPlane()->manipChanges()->notify( 
-	    			mCB(this,VolumeDisplay,rectInMotion) );
-    cube->crlPlane()->manipChanges()->notify( 
-	    			mCB(this,VolumeDisplay,rectInMotion) );
-    cube->tslPlane()->manipChanges()->notify( 
-	    			mCB(this,VolumeDisplay,rectInMotion) );
+    int inlid = cube->addSlice( 0, prevcs.hrg.start.inl );
+    int crlid = cube->addSlice( 1, prevcs.hrg.start.crl );
+    int tslid = cube->addSlice( 2, prevcs.zrg.start );
 }
 
 
@@ -105,34 +104,17 @@ void visSurvey::VolumeDisplay::resetManip()
 }
 
 
-void visSurvey::VolumeDisplay::getPlaneIds( int& inlid, int& crlid, int& tslid )
+void visSurvey::VolumeDisplay::getPlaneIds( int& id0, int& id1, int& id2 )
 {
-    inlid = cube->inlPlane()->id();
-    crlid = cube->crlPlane()->id();
-    tslid = cube->tslPlane()->id();
+    id0 = 0;
+    id1 = 1;
+    id2 = 2;
 }
 
 
 float visSurvey::VolumeDisplay::getPlanePos( int dim )
 {
-    Coord3 pos;
-    switch( dim )
-    {
-	case 0: {
-	    pos = cube->inlPlane()->manipOrigo();
-	    return pos.x;
-	    } break;
-	case 1: {
-	    pos = cube->crlPlane()->manipOrigo();
-	    return pos.y;
-	    } break;
-	case 2: {
-	    pos = cube->tslPlane()->manipOrigo();
-	    return pos.z;
-	    } break;
-	default:
-	    return 0;
-    }
+    return 0; //cube->slicePos( dim );
 }
 
 
@@ -184,7 +166,11 @@ void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 			  (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
 			  (cs.zrg.stop + cs.zrg.start) / 2 );
     setCenter( center );
-    cube->initPlanes( cs );
+    /*
+    cube->setSlicePos( 0, cs.hrg.start.inl );
+    cube->setSlicePos( 1, cs.hrg.start.inl );
+    cube->setSlicePos( 2, cs.zrg.start );
+    */
 }
 
 
@@ -207,12 +193,12 @@ AttribSliceSet* visSurvey::VolumeDisplay::getPrevData()
 }
 
 
-void visSurvey::VolumeDisplay::turnOn(bool n) 
-{ cube->turnOn(n); }
+void visSurvey::VolumeDisplay::turnOn( bool yn ) 
+{ cube->showBox( yn ); }
 
 
 bool visSurvey::VolumeDisplay::isOn() const 
-{ return cube->isOn(); }
+{ return cube->isBoxShown(); }
 
 
 void visSurvey::VolumeDisplay::select()
@@ -252,14 +238,13 @@ void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
     cs.zrg.stop = (float)intv.stop;
     
     setCubeSampling( cs );
-    cube->initPlanes( cs );
 }
 
 
 void visSurvey::VolumeDisplay::manipInMotion( CallBacker* )
 {
     CubeSampling cs = getCubeSampling();
-    cube->initPlanes( cs );    
+//  cube->initPlanes( cs );    
 }
 
 
