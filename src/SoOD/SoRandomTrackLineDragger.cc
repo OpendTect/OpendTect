@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.3 2003-01-07 10:27:58 kristofer Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.4 2003-02-12 12:52:26 kristofer Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
@@ -33,6 +33,7 @@ void SoRandomTrackLineDragger::initClass()
 
 
 SoRandomTrackLineDragger::SoRandomTrackLineDragger()
+    : motionCBList( *new SoCallbackList )
 {
     SO_KIT_CONSTRUCTOR(SoRandomTrackLineDragger);
     SO_KIT_ADD_CATALOG_ENTRY(subDraggerSep,SoSeparator, false,
@@ -96,6 +97,7 @@ SoRandomTrackLineDragger::~SoRandomTrackLineDragger()
     delete knotsfieldsensor;
     delete z0fieldsensor;
     delete z1fieldsensor;
+    delete &motionCBList;
 }
 
 
@@ -104,6 +106,21 @@ void SoRandomTrackLineDragger::showFeedback(bool yn)
     SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
     sw->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
+
+
+void SoRandomTrackLineDragger::addMotionCallback(
+				SoRandomTrackLineDraggerCB* func, void* data)
+{
+    motionCBList.addCallback((SoCallbackListCB*) func, data );
+}
+
+
+void SoRandomTrackLineDragger::removeMotionCallback(
+			    SoRandomTrackLineDraggerCB* func, void* data)
+{
+    motionCBList.removeCallback((SoCallbackListCB*) func, data );
+}
+
 
 
 
@@ -185,7 +202,7 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
     }
 
     const bool istop = !(draggerid%2);
-    const int knotid = draggerid/2;
+    movingknot = draggerid/2;
 
     SoScale* scale = SO_GET_ANY_PART( this, "subDraggerScale", SoScale );
     SbVec3f scalefactor = scale->scaleFactor.getValue();
@@ -227,7 +244,7 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
     bool changexy = true;
     for ( int idx=0; idx<knots.getNum(); idx++ )
     {
-	if ( idx==knotid ) continue;
+	if ( idx==movingknot ) continue;
 
 	const SbVec2f oldpos = knots[idx];
 	if ( mIS_ZERO(oldpos[0]-newpos[0]) && mIS_ZERO(oldpos[1]-newpos[1]) )
@@ -237,19 +254,22 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
 	}
     }
 
-    const SbVec2f oldpos = knots[knotid];
+    const SbVec2f oldpos = knots[movingknot];
 
     if ( changexy &&
 	   (!mIS_ZERO( oldpos[0]-newpos[0])||!mIS_ZERO( oldpos[1]-newpos[1])))
     {
 	SbBool enabled = knots.enableNotify(false);
-	knots.set1Value( knotid, SbVec2f( newpos[0], newpos[1] ));
+	knots.set1Value( movingknot, SbVec2f( newpos[0], newpos[1] ));
 	knots.enableNotify( enabled );
 	ischanged = true;
     }
 
     if ( ischanged )
+    {
 	knots.touch();
+	motionCBList.invokeCallbacks( this );
+    }
 }
 
 

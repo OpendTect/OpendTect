@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoRandomTrackLineDragger.h,v 1.3 2003-01-07 10:28:13 kristofer Exp $
+ RCS:		$Id: SoRandomTrackLineDragger.h,v 1.4 2003-02-12 12:52:24 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,11 @@ ________________________________________________________________________
 class SoDragger;
 class SoFieldSensor;
 class SoSensor;
+class SoCallbackList;
+class SoRandomTrackLineDragger;
+
+typedef void SoRandomTrackLineDraggerCB(void * data,
+					SoRandomTrackLineDragger* dragger);
 
 /*!\brief
 
@@ -41,22 +46,28 @@ class SoRandomTrackLineDragger : public SoBaseKit
     SO_KIT_CATALOG_ENTRY_HEADER(feedbackStrip);
 
 public:
-    				SoRandomTrackLineDragger();
-    static void			initClass();
+    		SoRandomTrackLineDragger();
+    static void	initClass();
 
-    SoMFVec2f			knots;
-    SoSFFloat			z0;
-    SoSFFloat			z1;
+    SoMFVec2f	knots;
+    SoSFFloat	z0;
+    SoSFFloat	z1;
 
-    SoSFVec3f			xyzStart;
-    SoSFVec3f			xyzStop;
-    SoSFVec3f			xyzStep;
+    SoSFVec3f	xyzStart;
+    SoSFVec3f	xyzStop;
+    SoSFVec3f	xyzStep;
 
-    void			showFeedback(bool yn);
-    				/*!< Feedback is turned on when
-				     dragging starts. Use this function
-				     to turn it off.
-				 */
+    void	showFeedback(bool yn);
+    		/*!< Feedback is turned on when
+		     dragging starts. Use this function
+		     to turn it off.
+		 */
+
+
+    void	addMotionCallback(SoRandomTrackLineDraggerCB*, void* = 0 );
+    void	removeMotionCallback(SoRandomTrackLineDraggerCB*, void* = 0 );
+    int		getMovingKnot() const { return movingknot; }
+    		/*!< Only valid after cb has been issued */
 
 protected:
     float			xyzSnap( int dim, float ) const;
@@ -76,6 +87,9 @@ protected:
     SoFieldSensor*		knotsfieldsensor;
     SoFieldSensor*		z0fieldsensor;
     SoFieldSensor*		z1fieldsensor;
+
+    SoCallbackList&		motionCBList;
+    int				movingknot;
 
 private:
     				~SoRandomTrackLineDragger();
