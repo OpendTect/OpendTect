@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.59 2004-01-29 10:14:22 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.60 2004-02-02 15:36:25 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -450,6 +450,7 @@ void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype )
 	}
     }
 
+    trect->finishTextures();
     trect->showTexture( 0 );
     trect->useTexture( true );
 }
