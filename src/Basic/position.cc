@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.10 2001-06-29 15:49:28 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.11 2001-07-10 12:45:29 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -678,7 +678,7 @@ bool BinIDTable::include( const BinIDTable& bidt )
     for ( int idx=0; idx<bidt.binids.size(); idx++ )
     {
 	BinIDTableImplInlData& inldat = *bidt.binids[idx];
-	for ( int icrl=0; icrl<inldat.data.size(); idx++ )
+	for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
 	    include( BinID(inldat.inl,inldat.data[icrl]->crl),
 		     inldat.data[icrl]->annot );
     }
