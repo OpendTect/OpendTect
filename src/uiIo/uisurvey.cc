@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.54 2004-01-19 15:56:32 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.55 2004-02-28 11:10:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,8 +117,7 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     const char* ptr = GetBaseDataDir();
     if ( !ptr ) return;
 
-    dirlist = new DirList( ptr, DirList::DirsOnly );
-    dirlist->sort();
+    mkDirList();
 
     uiGroup* rightgrp = new uiGroup( this, "Survey selection right" );
     mapcanvas = new uiCanvas( rightgrp, "Survey map" );
@@ -128,7 +127,7 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     mapcanvas->preDraw.notify( mCB(this,uiSurvey,doCanvas) );
 
     uiGroup* leftgrp = new uiGroup( this, "Survey selection left" );
-    listbox = new uiListBox( leftgrp, *dirlist, "Surveys" );
+    listbox = new uiListBox( leftgrp, dirlist, "Surveys" );
     listbox->setCurrentItem( GetSurveyName() );
     listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
     listbox->doubleClicked.notify( mCB(this,uiSurvey,accept) );
@@ -159,7 +158,7 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     if ( isgdi )
     {
 	static const char* tutdirnm = "Tutorial";
-	const bool direxists = dirlist->indexOf(tutdirnm) >= 0;
+	const bool direxists = dirlist.indexOf(tutdirnm) >= 0;
 	BufferString dirnm( GetDataFileName(tutdirnm) );
 	const bool tutinst = File_exists( dirnm );
 	if ( tutinst && !direxists )
@@ -223,7 +222,6 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 
 uiSurvey::~uiSurvey()
 {
-    delete dirlist;
     delete survinfo;
     delete survmap;
 }
@@ -266,57 +264,44 @@ void uiSurvey::dataRootPushed( CallBacker* )
     uiSetDataDir dlg( this );
     if ( dlg.go() )
     {
-	delete dirlist;
-	dirlist = new DirList( GetBaseDataDir(), DirList::DirsOnly );
+	mkDirList();
 	updateSvyList();
     }
 }
 
 
+void uiSurvey::mkDirList()
+{
+    dirlist.deepErase();
+
+    BufferString basedir = GetBaseDataDir();
+    DirList dl( basedir, DirList::DirsOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const char* dirnm = dl.get( idx );
+	if ( matchString("_Temp_Survey_",dirnm) )
+	    continue;
+
+	BufferString survfnm = File_getFullPath( basedir, dirnm );
+	survfnm = File_getFullPath( survfnm, ".survey" );
+	if ( File_exists(survfnm) )
+	    dirlist.add( dirnm );
+    }
+
+    dirlist.sort();
+}
+
+
 bool uiSurvey::survInfoDialog()
 {
-    BufferString selnm( listbox->getText() );
-    BufferString dgbdata( GetBaseDataDir() );
-
     uiSurveyInfoEditor dlg( this, survinfo );
     dlg.survparchanged.notify( mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() )
-    {
-	dlg.survparchanged.remove( mCB(this,uiSurvey,updateInfo) );
 	return false;
-    }
 
-    bool doupd = true;
-    if ( dlg.dirnmChanged() )
-    {
-        const char* newnm = dlg.dirName();
-        if ( *newnm )
-        {
-            BufferString newfname( File_getFullPath(dgbdata,newnm) );
-            if ( File_exists(newfname) )
-            {
-                BufferString errmsg( "Cannot rename directory:\n" );
-                errmsg += newfname;
-                errmsg += "\nexists";
-                ErrMsg( errmsg );
-            }
-            else
-            {
-                BufferString fname(File_getFullPath( dgbdata, selnm ));
-                File_rename( fname, newfname );
-		survinfo->dirname = newnm;
-                updateSvyList(); doupd = false;
-                updateSvyFile();
-                selnm = newnm;
-            }
-        }
-    }
-    else
-	selnm = dlg.dirName();
-
-    if ( doupd ) updateSvyList();
-    listbox->setCurrentItem( selnm );
-
+    updateSvyList();
+    listbox->setCurrentItem( dlg.dirName() );
+    updateSvyFile();
     return true;
 }
 
@@ -369,22 +354,19 @@ void uiSurvey::tutButPushed( CallBacker* )
 
 void uiSurvey::updateSvyList()
 {
-    dirlist->update();
-    dirlist->sort();
-    if ( !dirlist->size() ) updateInfo(0);
+    mkDirList();
+    if ( !dirlist.size() ) updateInfo(0);
     listbox->empty();
-    listbox->addItems( *dirlist );
+    listbox->addItems( dirlist );
 }
 
 
 bool uiSurvey::updateSvyFile()
 {
-    const char* ptr = GetSurveyName();
-    if ( ptr ) ptr = File_getFileName( ptr );
     BufferString seltxt( listbox->getText() );
     if ( seltxt == "" ) return true;
 
-    if ( (!ptr || seltxt != ptr ) && !writeSurveyName( seltxt ) )
+    if ( !writeSurveyName( seltxt ) )
     {
         ErrMsg( "Cannot update the 'survey' file in $HOME/.od/" );
         return false;
@@ -482,7 +464,7 @@ void uiSurvey::mkInfo()
     zlbl->setText( zinfo );
     notes->setText( survinfo->comment() );
 
-    bool anysvy = dirlist->size();
+    bool anysvy = dirlist.size();
     rmbut->setSensitive( anysvy );
     editbut->setSensitive( anysvy );
     convbut->setSensitive( anysvy );

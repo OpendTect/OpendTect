@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.51 2004-02-27 11:36:31 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.52 2004-02-28 11:10:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,12 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uifiledlg.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
+#include "ioman.h"
 #include "ptrman.h"
 
 extern "C" const char* GetBaseDataDir();
+
+
 
 static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
 {
@@ -35,28 +38,40 @@ static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
 }
 
 
-int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
-{
-    if ( p ) survInfoProvs() += p;
-    return survInfoProvs().size();
-}
-
-
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     : uiDialog(p,uiDialog::Setup("Survey setup",
 				 "Specify survey parameters","0.3.2")
 				 .nrstatusflds(1))
-    , rootdir( GetBaseDataDir() )
-    , dirnmch_(0)
+    , rootdir(GetBaseDataDir())
+    , orgdirname(si_?si_->dirname.buf():"")
     , survinfo(si_)
     , survparchanged(this)
     , x0fld(0)
-    , orgdirname(si_ ? (const char*)si_->dirname : "")
+    , dirnamechanged(false)
+    , globcurdirname(SI().dirname)
 {
-    if ( !si_ ) return;
+    if ( !survinfo ) return;
+
+    orgstorepath = survinfo ? survinfo->datadir : rootdir;
+    isnew = !survinfo || orgdirname == "";
+
+    if ( isnew )
+    {
+	orgstorepath = rootdir;
+	orgdirname = newSurvTempDirName();
+	BufferString dirnm( orgstorepath );
+	dirnm = File_getFullPath( dirnm, orgdirname );
+	if ( File_exists(dirnm) )
+	    File_remove( dirnm, YES );
+	if ( !copySurv(GetDataFileName(0),"BasicSurvey",
+		       orgstorepath,orgdirname) )
+	    return;
+	File_makeWritable( dirnm, YES, YES );
+	newSurvey( orgdirname );
+    }
 
     dirnmfld = new uiGenInput( this, "Survey short name (directory name)", 
-			       StringInpSpec( orgdirname ) );
+			       StringInpSpec( isnew ? "" : orgdirname.buf()) );
     survnmfld = new uiGenInput( this, "Full Survey name",
 	    			StringInpSpec(survinfo->name()) );
     survnmfld->attach( alignedBelow, dirnmfld );
@@ -68,12 +83,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 #ifdef __win__
     pathfld->setSensitive( false );
 #else
-    if ( !orgdirname.size() )
-    {
-	uiButton* pathbut = new uiPushButton( this, "Select" );
-	pathbut->attach( rightOf, pathfld );
-	pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
-    }
+    uiButton* pathbut = new uiPushButton( this, "Select" );
+    pathbut->attach( rightOf, pathfld );
+    pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
 #endif
 
     uiSeparator* horsep1 = new uiSeparator( this );
@@ -248,6 +260,73 @@ void uiSurveyInfoEditor::setValues()
 }
 
 
+void uiSurveyInfoEditor::newSurvey( const char* nm )
+{
+    delete SurveyInfo::theinst_;
+    SurveyInfo::theinst_ = 0;
+    IOMan::setSurvey( nm );
+}
+
+
+int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
+{
+    if ( p ) survInfoProvs() += p;
+    return survInfoProvs().size();
+}
+
+
+const char* uiSurveyInfoEditor::newSurvTempDirName()
+{
+    static BufferString nm;
+    nm = "_Temp_Survey_";
+    const char* usr = GetSoftwareUser();
+    if ( usr ) nm += usr;
+    return nm.buf();
+}
+
+
+bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
+				   const char* outpath, const char* outdirnm )
+{
+    BufferString fnmin( inpath ); fnmin = File_getFullPath(fnmin,indirnm);
+    BufferString fnmout( outpath ); fnmout = File_getFullPath(fnmout,outdirnm);
+    if ( File_exists(fnmout) )
+    {
+	uiMSG().error( "Cannot copy to new directory because it exists" );
+	return false;
+    }
+    File_copy( fnmin, fnmout, YES );
+    if ( !File_exists(fnmout) )
+    {
+	uiMSG().error( "Copy to new directory failed" );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
+				     const char* outdirnm )
+{
+    BufferString fnmin( path ); fnmin = File_getFullPath(fnmin,indirnm);
+    BufferString fnmout( path ); fnmout = File_getFullPath(fnmout,outdirnm);
+    if ( File_exists(fnmout) )
+    {
+	uiMSG().error( "Cannot rename to new directory name because it exists");
+	return false;
+    }
+    File_rename( fnmin, fnmout );
+    if ( !File_exists(fnmout) )
+    {
+	uiMSG().error( "Rename to new directory name failed" );
+	return false;
+    }
+
+    return true;
+}
+
+
 bool uiSurveyInfoEditor::appButPushed()
 {
     if ( !x0fld || !setRanges() ) return false;
@@ -275,24 +354,27 @@ bool uiSurveyInfoEditor::appButPushed()
 
 void uiSurveyInfoEditor::doFinalise( CallBacker* )
 {
-    if ( orgdirname.size() )
-    {
-	BufferString from = File_getFullPath( rootdir, orgdirname );
-	BufferString path = File_getPathOnly( File_linkTarget( from ) );
-	pathfld->setText( path );
-	pathfld->setReadOnly( true );
-	updStatusBar( path );
-    }
+    pathfld->setText( orgstorepath );
+    pathfld->setReadOnly( true );
+    updStatusBar( orgstorepath );
 
     if ( survinfo->rangeUsable() ) setValues();
     if ( !x0fld ) return;
 
     chgSetMode(0);
-//  if( ic1fld->uiObj() ) ic1fld->uiObj()->setSensitive( false );
     ic1fld->setReadOnly( true, 0 );
-
 }
 
+
+bool uiSurveyInfoEditor::rejectOK( CallBacker* )
+{
+    BufferString dirnm = File_getFullPath( orgstorepath, orgdirname );
+    if ( File_exists(dirnm) )
+	File_remove( dirnm, YES );
+    if ( isnew )
+	newSurvey( globcurdirname );
+    return true;
+}
 
 bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 {
@@ -302,55 +384,94 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	uiMSG().error( "Please specify the short survey (directory) name." );
 	return false;
     }
-
     BufferString newdirnm = newdirnminp;
     cleanupString( newdirnm.buf(), NO, YES, YES );
     if ( newdirnm != newdirnminp )
 	dirnmfld->setText( newdirnm );
 
+    dirnamechanged = orgdirname != newdirnm;
+    survinfo->dirname = newdirnm;
+
     if ( !appButPushed() )
 	return false;
 
-    if ( orgdirname == "" )
+    BufferString newstorepath = pathfld->text();
+
+    BufferString olddir = File_getFullPath( orgstorepath, orgdirname );
+    BufferString newdir = File_getFullPath( newstorepath, newdirnm );
+    const bool storepathchanged = orgstorepath != newstorepath;
+
+    if ( !isnew )
     {
-	BufferString from( GetSoftwareDir() );
-	from = File_getFullPath( GetSoftwareDir(), "data" );
-	from = File_getFullPath( from, "BasicSurvey" );
-
-	BufferString to( pathfld->text() );
-	to = File_getFullPath( to, newdirnm );
-	if ( File_exists(to) )
+	if ( (dirnamechanged || storepathchanged)
+	  && File_exists(newdir) )
 	{
-	    BufferString errmsg( "Please rename survey.\n\n '");
-	    errmsg += newdirnm; errmsg += "' already exists!";
-	    uiMSG().error( errmsg ); 
+	    uiMSG().error( "The new target directory exists.\n"
+		    	   "Please enter another directory name or location." );
 	    return false;
 	}
 
-	if ( !File_copy( from, to, YES ) )
+	if ( storepathchanged )
 	{
-	    uiMSG().error( "Cannot create proper new survey directory" );
-	    return false;
-	}
-
-	File_makeWritable( to, YES, YES );
-	survinfo->dirname = newdirnm;
-	BufferString link = File_getFullPath( rootdir, newdirnm ); 
-	if ( link != to )
-	    if ( !File_createLink( to, link ) )
-	    {
-		BufferString msg( "Cannot create link from \n" );
-		msg += to; msg += " to \n"; msg += link;
-		uiMSG().error( msg ); 
+	    if ( !uiMSG().askGoOn("Copy your survey to another location?") )
 		return false;
-	    }
+	    else if ( !copySurv(orgstorepath,orgdirname,newstorepath,newdirnm) )
+		return false;
+	    else if ( !uiMSG().askGoOn("Keep the survey at the old location?") )
+		File_remove( olddir, YES );
+	}
+	else if ( dirnamechanged )
+	{
+	    if ( !renameSurv(orgstorepath,orgdirname,newdirnm) )
+		return false;
+	}
     }
     else
-        if ( orgdirname != newdirnm ) dirnmch_ = true;
+    {
+	if ( File_exists(newdir) )
+	{
+	    uiMSG().error( "The chosen target directory exists.\n"
+		    	   "Please enter another name or location." );
+	    return false;
+	}
+
+	if ( newstorepath != orgstorepath )
+	{
+	    if ( !copySurv(orgstorepath,orgdirname,newstorepath,newdirnm) )
+		return false;
+	    File_remove( olddir, YES );
+	}
+	else if ( !renameSurv(newstorepath,orgdirname,newdirnm) )
+	    return false;
+    }
+
+    survinfo->dirname = newdirnm;
+    BufferString linkpos = File_getFullPath( rootdir, newdirnm ); 
+    if ( File_exists(linkpos) )
+    {
+       if ( File_isLink(linkpos) )
+	   File_remove( linkpos, NO );
+    }
+
+    if ( !File_exists(linkpos) )
+    {
+	if ( !File_createLink(newdir,linkpos) )
+	{
+	    BufferString msg( "Cannot create link from \n" );
+	    msg += newdir; msg += " to \n"; msg += linkpos;
+	    uiMSG().error( msg ); 
+	    return false;
+	}
+    }
 
     if ( !survinfo->write(rootdir) )
+    {
         uiMSG().error( "Failed to write survey info.\nNo changes committed." );
+	return false;
+    }
     
+    if ( isnew )
+	newSurvey( globcurdirname );
     return true;
 }
 

@@ -7,20 +7,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.16 2004-01-19 15:56:37 nanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.17 2004-02-28 11:10:06 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-class DirList;
-class SurveyInfo;
+#include "bufstringset.h"
+class uiLabel;
 class uiCanvas;
 class uiListBox;
-class uiPushButton;
-class uiSurveyMap;
 class uiTextEdit;
-class uiLabel;
+class SurveyInfo;
+class uiSurveyMap;
+class uiPushButton;
+
+
+/*!\brief The main survey selection dialog */
 
 class uiSurvey : public uiDialog
 {
@@ -35,7 +38,7 @@ public:
 protected:
 
     SurveyInfo*		survinfo;
-    DirList*		dirlist;
+    BufferStringSet	dirlist;
     BufferString	initialdatadir;
     uiSurveyMap*	survmap;
 
@@ -71,6 +74,7 @@ protected:
     void		selChange();
     void		doCanvas(CallBacker*);
     void		newSurvey();
+    void		mkDirList();
 };
 
 #endif

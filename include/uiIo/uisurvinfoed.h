@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.15 2004-02-26 16:25:48 bert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.16 2004-02-28 11:10:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,18 +55,26 @@ class uiSurveyInfoEditor : public uiDialog
 public:
 			uiSurveyInfoEditor(uiParent*,SurveyInfo*);
 
-    bool		dirnmChanged() const		{ return dirnmch_; }
+    bool		dirnmChanged() const	{ return dirnamechanged; }
     const char*		dirName();
     Notifier<uiSurveyInfoEditor> survparchanged;
 
     static int		addInfoProvider(uiSurvInfoProvider*);
     			//!< See uiSurvInfoProvider class comments
+    static bool		copySurv(const char* frompath,const char* fromdirnm,
+	    			 const char* topath,const char* todirnm);
+    static bool		renameSurv(const char* path,const char* fromdirnm,
+				   const char* todirnm);
+    static const char*	newSurvTempDirName();
     			
 protected:
 
     SurveyInfo*		survinfo;
-    UserIDString	orgdirname;
+    BufferString	orgdirname;
+    BufferString	orgstorepath;
+    BufferString	globcurdirname;
     const FileNameString rootdir;
+    bool		isnew;
 
     uiGenInput*		survnmfld;
     uiGenInput*		dirnmfld;
@@ -96,13 +104,14 @@ protected:
     uiPushButton*	applybut;
     ObjectSet<CallBacker> sipbuts;
 
-    bool		dirnmch_;
+    bool		dirnamechanged;
     void		setValues();
     bool		setRanges();
     bool		setCoords();
     bool		setRelation();
     bool		appButPushed();
     bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*);
     void		sipbutPush(CallBacker*);
     void		doFinalise(CallBacker*);
     void		setInl1Fld(CallBacker*);
@@ -110,6 +119,7 @@ protected:
     void		pathbutPush(CallBacker*);
     void		unitPush(CallBacker*);
     void		updStatusBar(const char*);
+    void		newSurvey(const char*);
 
 };
 
