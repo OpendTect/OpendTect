@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.11 2003-01-09 13:03:10 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.12 2003-01-23 07:17:03 nanne Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -340,27 +340,27 @@ void visBase::MovableTextureSlice::fieldsensorCB( void* inst, SoSensor* )
     float pos = myself->position();
     if ( !myself->dim_ )
     {
-	myself->texturecoords->point.set1Value( 0, SbVec3f( 0, (pos+1)/2, 0 ));
-	myself->texturecoords->point.set1Value( 1, SbVec3f( 0, (pos+1)/2, 1 ));
-	myself->texturecoords->point.set1Value( 2, SbVec3f( 1, (pos+1)/2, 1 ));
-	myself->texturecoords->point.set1Value( 3, SbVec3f( 1, (pos+1)/2, 0 ));
-	myself->texturecoords->point.set1Value( 4, SbVec3f( 0, (pos+1)/2, 0 ));
+	myself->texturecoords->point.set1Value( 0, SbVec3f( 0, 0, (pos+1)/2 ));
+	myself->texturecoords->point.set1Value( 1, SbVec3f( 1, 0, (pos+1)/2 ));
+	myself->texturecoords->point.set1Value( 2, SbVec3f( 1, 1, (pos+1)/2 ));
+	myself->texturecoords->point.set1Value( 3, SbVec3f( 0, 1, (pos+1)/2 ));
+	myself->texturecoords->point.set1Value( 4, SbVec3f( 0, 0, (pos+1)/2 ));
     }
     else if ( myself->dim_==1 )
     {
-	myself->texturecoords->point.set1Value( 0, SbVec3f( (pos+1)/2, 1, 0 ));
-	myself->texturecoords->point.set1Value( 1, SbVec3f( (pos+1)/2, 1, 1 ));
-	myself->texturecoords->point.set1Value( 2, SbVec3f( (pos+1)/2, 0, 1 ));
-	myself->texturecoords->point.set1Value( 3, SbVec3f( (pos+1)/2, 0, 0 ));
-	myself->texturecoords->point.set1Value( 4, SbVec3f( (pos+1)/2, 1, 0 ));
+	myself->texturecoords->point.set1Value( 0, SbVec3f( 0, (pos+1)/2, 1 ));
+	myself->texturecoords->point.set1Value( 1, SbVec3f( 1, (pos+1)/2, 1 ));
+	myself->texturecoords->point.set1Value( 2, SbVec3f( 1, (pos+1)/2, 0 ));
+	myself->texturecoords->point.set1Value( 3, SbVec3f( 0, (pos+1)/2, 0 ));
+	myself->texturecoords->point.set1Value( 4, SbVec3f( 0, (pos+1)/2, 1 ));
     }
     else
     {
-	myself->texturecoords->point.set1Value( 0, SbVec3f( 0, 1, (pos+1)/2 ));
-	myself->texturecoords->point.set1Value( 1, SbVec3f( 0, 0, (pos+1)/2 ));
-	myself->texturecoords->point.set1Value( 2, SbVec3f( 1, 0, (pos+1)/2 ));
-	myself->texturecoords->point.set1Value( 3, SbVec3f( 1, 1, (pos+1)/2 ));
-	myself->texturecoords->point.set1Value( 4, SbVec3f( 0, 1, (pos+1)/2 ));
+	myself->texturecoords->point.set1Value( 0, SbVec3f( (pos+1)/2, 0, 1 ));
+	myself->texturecoords->point.set1Value( 1, SbVec3f( (pos+1)/2, 0, 0 ));
+	myself->texturecoords->point.set1Value( 2, SbVec3f( (pos+1)/2, 1, 0 ));
+	myself->texturecoords->point.set1Value( 3, SbVec3f( (pos+1)/2, 1, 1 ));
+	myself->texturecoords->point.set1Value( 4, SbVec3f( (pos+1)/2, 0, 1 ));
     }
 
 }
