@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.70 2002-12-17 11:14:52 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.71 2003-01-15 09:31:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,9 +135,9 @@ public:
     void		setAttribSelSpec(int,AttribSelSpec&);
     CubeSampling&	getPrevCubeSampling(int);
     CubeSampling&	getCubeSampling(int,bool manippos);
-    AttribSelSpec&	getAttribSelSpec(int);
-    void		putNewData(int,AttribSlice*);
-    AttribSlice*	getPrevData(int);
+    const AttribSelSpec&	getAttribSelSpec(int) const;
+    void		putNewData(int,AttribSliceSet*);
+    const AttribSliceSet*	getPrevData(int) const;
     void		getDataDisplayIds(int,uiVisPartServer::ElementType,
 					  TypeSet<int>&);
 
@@ -188,7 +188,7 @@ public:
     			//!< The data in the objset will be managed by caller
     void		getSurfAttribValues(int,TypeSet<float>&) const;
     void		putNewSurfData(int,
-	    			      const ObjectSet< TypeSet<BinIDZValue> >&);
+			  const ObjectSet<const TypeSet<const BinIDZValue> >&);
     void		getSurfaceIds(int,ObjectType,TypeSet<int>&) const;
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&,ObjectType) 
 									const;

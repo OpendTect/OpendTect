@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.109 2002-12-20 16:43:12 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.110 2003-01-15 09:31:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -661,13 +661,13 @@ CubeSampling& uiVisPartServer::getPrevCubeSampling( int id )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-    if ( pdd ) return pdd->getPrevCubeSampling();
+    if ( pdd ) return pdd->getCubeSampling();
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    return vd->getPrevCubeSampling();
+    return vd->getCubeSampling();
 }
 
 
-AttribSelSpec& uiVisPartServer::getAttribSelSpec(int id)
+const AttribSelSpec& uiVisPartServer::getAttribSelSpec( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
@@ -681,19 +681,23 @@ AttribSelSpec& uiVisPartServer::getAttribSelSpec(int id)
 }
 
 
-void uiVisPartServer::putNewData( int id, AttribSlice* slice )
+void uiVisPartServer::putNewData( int id, AttribSliceSet* sliceset )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) pdd->operationSucceeded( pdd->putNewData(slice) );
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+    if ( pdd ) pdd->operationSucceeded( pdd->putNewData(sliceset) );
+    else if ( vd ) vd->putNewData(sliceset);
 }
 
 
-AttribSlice* uiVisPartServer::getPrevData( int id )
+const AttribSliceSet* uiVisPartServer::getPrevData( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     if ( pdd ) return pdd->getPrevData();
+    else if ( vd ) return vd->getPrevData();
     else return 0;
 }
 
@@ -753,23 +757,6 @@ void uiVisPartServer::removeVolumeDisplay( int id )
 }
 
 
-void uiVisPartServer::putNewVolData( int id, AttribSliceSet* sliceset )
-{
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
-    if ( vd ) vd->putNewData( sliceset );
-}
-
-
-AttribSliceSet* uiVisPartServer::getPrevVolData( int id )
-{
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
-    if ( vd ) return vd->getPrevData();
-    else return 0;
-}
-
-
 void uiVisPartServer::getVolumeDisplayIds( int sceneid, TypeSet<int>& ids )
 {
     visBase::DataObject* obj = visBase::DM().getObj( sceneid );
@@ -812,10 +799,13 @@ bool uiVisPartServer::isVolumeManipulated( int id ) const
 
 int uiVisPartServer::addVolRen( int id )
 {
+    /*
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
     if ( vd ) return vd->addVolRen();
     else return 0;
+    */
+    return 0;
 }
 
 
@@ -1177,7 +1167,7 @@ void uiVisPartServer::getSurfAttribData( int id,
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
     if ( sd )
-	sd->getAttribData( bidzvset, !posonly, br );
+	sd->getAttribPositions( bidzvset, !posonly, br );
 }
 
 
@@ -1191,7 +1181,7 @@ void uiVisPartServer::getSurfAttribValues( int id, TypeSet<float>& vals ) const
 
 
 void uiVisPartServer::putNewSurfData( int id,
-			     const ObjectSet< TypeSet<BinIDZValue> >& nd )
+		     const ObjectSet<const TypeSet<const BinIDZValue> >& nd )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
@@ -1447,8 +1437,9 @@ void uiVisPartServer::modifyColorSeq(int id, const ColorTable& ctab )
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
     if ( sd ) sd->setColorTable( ctab );
 
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+/*  mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     if ( vd ) vd->setColorTable( ctab );
+*/
 }
 
 
@@ -1461,8 +1452,10 @@ const ColorTable& uiVisPartServer::getColorSeq(int id) const
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
     if ( sd ) return sd->getColorTable();
 
+    /*
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     if ( vd ) return vd->getColorTable();
+    */
 
     
     return *new ColorTable("Red-White-Blue");
@@ -1561,9 +1554,10 @@ void uiVisPartServer::setDataRange( int id, const Interval<float>& intv )
 
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
     if ( sd ) sd->setDataRange( intv );
-
+/*
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     if ( vd ) vd->setDataRange( intv );
+    */
 }
 
 
@@ -1575,9 +1569,10 @@ Interval<float> uiVisPartServer::getDataRange(int id) const
 
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
     if ( sd ) return sd->getDataRange();
-
+/*
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     if ( vd ) return vd->getDataRange();
+    */
 
     return Interval<float>(0,1);
 }
