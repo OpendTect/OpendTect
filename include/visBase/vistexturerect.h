@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.7 2002-04-22 14:41:53 kristofer Exp $
+ RCS:		$Id: vistexturerect.h,v 1.8 2002-04-26 12:42:03 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,8 +41,8 @@ class Rectangle;
 class TextureRect : public VisualObjectImpl
 {
 public:
-    static TextureRect*	create( bool usermanip )
-			mCreateDataObj1arg( TextureRect, bool, usermanip );
+    static TextureRect*	create()
+			mCreateDataObj0arg( TextureRect );
 
     float		getValue( const Geometry::Pos& ) const;
 
