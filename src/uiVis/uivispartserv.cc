@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.181 2003-12-17 11:05:04 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.182 2003-12-18 14:58:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1047,8 +1047,15 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	for ( int idy=0; idy<children.size(); idy++ )
 	{
 	    int childid = children[idy];
-	    if ( isHorizon(childid) || isFault(childid) ) 
-		loadcreateSurface(childid);
+	    if ( isHorizon(childid) || isFault(childid) )
+	    {
+		if ( !loadcreateSurface(childid) )
+		{
+		    int objidx = newscene->getFirstIdx( childid );
+		    newscene->removeObject( objidx );
+		    continue;
+		}
+	    }
 
 	    calculateAttrib( childid, false );
 	    calculateColorAttrib( childid, false );
