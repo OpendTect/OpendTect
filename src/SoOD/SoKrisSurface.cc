@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.1 2004-10-02 12:30:25 kristofer Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.2 2004-11-16 10:07:23 kristofer Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -17,10 +17,12 @@ static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.1 2004-10-02 12:30:25 kris
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/actions/SoGetBoundingBoxAction.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/caches/SoBoundingBoxCache.h>
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/elements/SoComplexityElement.h>
+#include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/threads/SbRWMutex.h>
 
@@ -30,18 +32,27 @@ static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.1 2004-10-02 12:30:25 kris
 # include "GL/gl.h"
 #endif
 
+#define mIsCoordDefined( coord ) (coord[0]<1e29)
+
 MeshSurfacePartPart::MeshSurfacePartPart(SoKrisSurface& m, int s0, int s1 )
     : meshsurface( m )
-    , start0( s0 )
-    , start1( s1 )
+    , rowstart( s0 )
+    , colstart( s1 )
     , cache( 0 )
-{}
+{ }
 
 
 MeshSurfacePartPart::~MeshSurfacePartPart()
 {
-    delete cache;
+    if ( cache ) cache->unref();
 }
+
+
+void MeshSurfacePartPart::setStart( int row, int col )
+{
+    rowstart = row; colstart=col; 
+}
+
 
 void MeshSurfacePartPart::touch( int i0, int i1, bool undef )
 {
@@ -51,6 +62,10 @@ void MeshSurfacePartPart::touch( int i0, int i1, bool undef )
     //cache->invalidize();
     ownvalidation = false;
 }
+
+
+void MeshSurfacePartPart::invalidateCaches()
+{ if ( cache ) cache->invalidate(); }
 
 
 void MeshSurfacePartPart::computeBBox( SoState* state, SbBox3f& box,
@@ -64,73 +79,79 @@ void MeshSurfacePartPart::computeBBox( SoState* state, SbBox3f& box,
 	return;
     }
 
+    if ( cache ) cache->unref();
+    const bool storedinvalid = SoCacheElement::setInvalid(false);
+    state->push();
+    cache = new SoBoundingBoxCache(state);
+    cache->ref();
+    SoCacheElement::set(state, cache);
+
     box.makeEmpty();
     center = SbVec3f(0,0,0);
     int ncoords = 0;
 
-    const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
     const int sidesize = sideSize();
-    for ( int idx=0; idx<sidesize; idx++ )
+    const int nrrows = meshsurface.nrRows();
+    const int nrcols = meshsurface.nrColumns.getValue();
+    for ( int rowidx=0; rowidx<sidesize; rowidx++ )
     {
-	const int i = idx+start0;
-	const int32_t* ptr = getCoordIndexPtr(i,start1);
-	if ( !ptr ) break;
+	const int row = rowidx+rowstart;
+	if ( row>=nrrows )
+	    break;
 
-	int nci = sidesize;
-	if ( start1+sidesize>=meshsurface.nrColumns.getValue() )
-	    nci = meshsurface.nrColumns.getValue()-start1;
+	int nrcolsonpart = sidesize;
+	if ( colstart+sidesize>=meshsurface.nrColumns.getValue() )
+	    nrcolsonpart = meshsurface.nrColumns.getValue()-colstart;
 
-	for ( int jdx=0; jdx<nci; jdx++ )
+	const SbVec3f* coordptr =
+	    meshsurface.coordinates.getValues(row*nrcols+colstart);
+	for ( int colidx=0; colidx<nrcolsonpart; colidx++ )
 	{
-	    const int ci = *ptr++;
-	    if ( ci==-1 ) continue;
-
-	    box.extendBy(celem->get3(ci));
-	    ncoords++;
+	    const SbVec3f& coord = coordptr[colidx];
+	    if ( mIsCoordDefined( coord ) )
+	    {
+		box.extendBy(coordptr[colidx]);
+		ncoords++;
+	    }
 	}
     }
 
-    if ( !cache ) cache = new SoBoundingBoxCache(state);
     if ( ncoords ) center /= ncoords;
     cache->set( box, ncoords, center );
+    state->pop();
+    SoCacheElement::setInvalid(storedinvalid);
 }
 
 #define mFindClosestNode( idx0, idx1, idx2 ) \
-int closestcoordidx = ci##idx0; \
 int closestmatidx = mi##idx0; \
-int closesti = i##idx0; \
-int closestj = j##idx0; \
+int closestrow = row##idx0; \
+int closestcol = col##idx0; \
 float shortestdist = (intersection-c##idx0).sqrLength(); \
 float dist; \
 if ( (dist = (intersection-c##idx1).sqrLength())<shortestdist ) \
 { \
     shortestdist=dist; \
-    closestcoordidx = ci##idx1; \
     closestmatidx = mi##idx1; \
-    closesti = i##idx1; \
-    closestj = j##idx1; \
+    closestrow = row##idx1; \
+    closestcol = col##idx1; \
 } \
 if ( (dist = (intersection-c##idx2).sqrLength())<shortestdist ) \
 { \
-    closestcoordidx = ci##idx2; \
     closestmatidx = mi##idx2; \
-    closesti = i##idx2; \
-    closestj = j##idx2; \
+    closestrow = row##idx2; \
+    closestcol = col##idx2; \
 } \
 \
 SoPickedPoint* pickedpoint = action->addIntersection(intersection); \
 SoFaceDetail* facedetail = new SoFaceDetail; \
-facedetail->setFaceIndex(closesti); \
-facedetail->setPartIndex(closestj); \
+facedetail->setFaceIndex(closestrow); \
+facedetail->setPartIndex(closestcol); \
 facedetail->setNumPoints(3); \
 SoPointDetail pointdetail; \
-pointdetail.setCoordinateIndex(ci##idx0); \
 pointdetail.setMaterialIndex(mi##idx0); \
 facedetail->setPoint(0,&pointdetail); \
-pointdetail.setCoordinateIndex(ci##idx1); \
 pointdetail.setMaterialIndex(mi##idx1); \
 facedetail->setPoint(1,&pointdetail); \
-pointdetail.setCoordinateIndex(ci##idx2); \
 pointdetail.setMaterialIndex(mi##idx2); \
 facedetail->setPoint(2,&pointdetail); \
 pickedpoint->setDetail(facedetail, const_cast<SoKrisSurface*>(&meshsurface));
@@ -147,59 +168,65 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
     if ( !action->intersect(box,dummy) )
 	return;
 
-    const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
-    const int sidesize = sideSize();
-    for ( int idx=0; idx<sidesize-1; idx++ )
-    {
-	const int i = idx+start0;
-	const int32_t* currowcoordptr = getCoordIndexPtr(i,start1);
-	if ( !currowcoordptr ) break;
-	const int32_t* nxtrowcoordptr = getCoordIndexPtr(i+1,start1);
-	if ( !nxtrowcoordptr ) break;
+    const int nrrows = meshsurface.nrRows();
+    const int nrcols = meshsurface.nrColumns.getValue();
 
-	const int32_t* currowmatptr = getMatIndexPtr(i,start1);
-	const int32_t* nxtrowmatptr = getMatIndexPtr(i+1,start1);
+    const int sidesize = sideSize();
+    for ( int rowidx=0; rowidx<sidesize; rowidx++ )
+    {
+	const int row = rowidx+rowstart;
+	if ( row>= nrrows )
+	    return;
+
+	const int currowstart = row*nrcols+colstart;
+	const int nxtrowstart = (row+1)*nrcols+colstart;
+
+	const SbVec3f* currowcoordptr =
+	    		meshsurface.coordinates.getValues(currowstart);
+	const SbVec3f* nxtrowcoordptr =
+			meshsurface.coordinates.getValues(nxtrowstart);
 
 	int nci = sidesize;
-	if ( start1+sidesize>=meshsurface.nrColumns.getValue() )
-	    nci = meshsurface.nrColumns.getValue()-start1;
+	if ( colstart+sidesize>=meshsurface.nrColumns.getValue() )
+	    nci = meshsurface.nrColumns.getValue()-colstart;
 
-	int ci00 = *currowcoordptr++;
-	int ci10 = *nxtrowcoordptr++;
-	bool useci00 = ci00!=-1;
-	bool useci10 = ci10!=-1;
-	SbVec3f c00 = celem->get3(ci00);
-	SbVec3f c10 = celem->get3(ci10);
+	bool hasmaterial = meshsurface.materialIndex.getNum()>=nxtrowstart+nci;
+
+	const int32_t* currowmatptr = hasmaterial ?
+	    		meshsurface.materialIndex.getValues(currowstart) : 0;
+	const int32_t* nxtrowmatptr = hasmaterial ?
+			meshsurface.materialIndex.getValues(nxtrowstart) : 0;
+	SbVec3f c00 = *currowcoordptr++;
+	SbVec3f c10 = *nxtrowcoordptr++;
+	bool use00 = mIsCoordDefined(c00);
+	bool use10 = mIsCoordDefined(c10);
 	int mi00 = currowmatptr ? *currowmatptr++ : 1;
 	int mi10 = nxtrowmatptr ? *nxtrowmatptr++ : 1;
 
-	const int i00 = i;
-	const int i10 = i+1;
-	const int i01 = i;
-	const int i11 = i+1;
-	int j00 = start1;
-	int j10 = start1;
+	const int row00 = row;
+	const int row10 = row+1;
+	const int row01 = row;
+	const int row11 = row+1;
+	int col00 = colstart;
+	int col10 = colstart;
 
-	for ( int jdx=0; jdx<nci-1; jdx++ )
+	for ( int colidx=0; colidx<nci; colidx++ )
 	{
-	    const int ci01 = *currowcoordptr++;
-	    const int ci11 = *nxtrowcoordptr++;
+	    const SbVec3f c01 = *currowcoordptr++;
+	    const SbVec3f c11 = *nxtrowcoordptr++;
 
-	    const SbVec3f c01 = celem->get3(ci01);
-	    const SbVec3f c11 = celem->get3(ci11);
-
-	    const bool useci01 = ci01!=-1;
-	    const bool useci11 = ci11!=-1;
+	    const bool use01 = mIsCoordDefined(c01);
+	    const bool use11 = mIsCoordDefined(c11);
 
 	    int mi01 = currowmatptr ? *currowmatptr++ : 1;
 	    int mi11 = nxtrowmatptr ? *nxtrowmatptr++ : 1;
 
-	    const int j01 = j00+1;
-	    const int j11 = j10+1;
+	    const int col01 = col00+1;
+	    const int col11 = col10+1;
 
-	    if ( useci00+useci10+useci01+useci11>2 )
+	    if ( use00+use10+use01+use11>2 )
 	    {
-		if ( useci00 && useci10 && useci01 && useci11 )
+		if ( use00 && use10 && use01 && use11 )
 		{
 
 		    //TODO own implementation?
@@ -215,7 +242,7 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 			mFindClosestNode( 01, 11, 10 );
 		    }
 		}
-		else if ( !useci00 )
+		else if ( !use00 )
 		{
 		    SbVec3f intersection, barycentric; SbBool front;
 		    if ( action->intersect( c01,c11,c10,intersection,
@@ -224,7 +251,7 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 			mFindClosestNode( 01, 11, 10 );
 		    }
 		}
-		else if ( !useci01 )
+		else if ( !use01 )
 		{
 		    SbVec3f intersection, barycentric; SbBool front;
 		    if ( action->intersect( c11, c10, c00, intersection,
@@ -233,7 +260,7 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 			mFindClosestNode( 11, 10, 00 );
 		    }
 		}
-		else if ( !useci11 )
+		else if ( !use11 )
 		{
 		    SbVec3f intersection, barycentric; SbBool front;
 		    if ( action->intersect( c10, c00, c01, intersection,
@@ -242,7 +269,7 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 			mFindClosestNode( 10, 00, 01 );
 		    }
 		}
-		else if ( !useci10 )
+		else if ( !use10 )
 		{
 		    SbVec3f intersection, barycentric; SbBool front;
 		    if ( action->intersect( c00, c01, c11, intersection,
@@ -253,8 +280,8 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 		}
 	    }
 
-	    ci00=ci01; useci00=useci01; c00=c01; mi00=mi01; j00=j01;
-	    ci10=ci11; useci10 = useci11; c10=c11; mi10=mi11; j10=j11;
+	    use00=use01; c00=c01; mi00=mi01; col00=col01;
+	    use10=use11; c10=c11; mi10=mi11; col10=col11;
 	}
     }
 }
@@ -263,34 +290,25 @@ void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 bool MeshSurfacePartPart::isInside( int i, int j ) const
 {
     const int sidesize = sideSize();
-    return i>=start0&&j>=start1&&(i-start0)>sidesize&&(j-start1)<sidesize;
-}
-
-
-const int32_t* MeshSurfacePartPart::getCoordIndexPtr(int i0,int i1) const
-{
-    const int idx = meshsurface.getCoordIndexIndex(i0,i1);
-    if ( idx==-1 ) return 0;
-    return meshsurface.coordIndex.getValues(idx);
+    return i>=rowstart&&j>=colstart&&(i-rowstart)>sidesize&&(j-colstart)<sidesize;
 }
 
 
 const int32_t* MeshSurfacePartPart::getMatIndexPtr(int i0,int i1) const
 {
-    const int idx = meshsurface.getCoordIndexIndex(i0,i1);
+    const int idx = meshsurface.getIndex(i0,i1);
     if ( idx==-1 ) return 0;
     return meshsurface.materialIndex.getValues(idx);
 }
 
 
-MeshSurfaceTesselationCache::MeshSurfaceTesselationCache( SoState* state,
-						      const SoKrisSurface& m)
+MeshSurfaceTesselationCache::MeshSurfaceTesselationCache( 
+				  const SoKrisSurface& m, bool isstrip_ )
     : meshsurface(m)
+    , isstrip( isstrip_ )
     , buildmutex( new SbRWMutex( SbRWMutex::READ_PRECEDENCE) )
-    , SoCache( state )
-{
-    addElement(SoCoordinateElement::getInstance(state));
-}
+    , isvalid( true )
+{}
 
 
 MeshSurfaceTesselationCache::~MeshSurfaceTesselationCache()
@@ -299,22 +317,35 @@ MeshSurfaceTesselationCache::~MeshSurfaceTesselationCache()
 }
 
 
-void MeshSurfaceTesselationCache::call(SoGLRenderAction* action)
+void MeshSurfaceTesselationCache::reset(bool all)
+{
+    buildmutex->writeLock();
+    setValid(false);
+    ni.truncate(0,false);
+    ci.truncate(0,false);
+
+    if ( all )
+	normals.truncate(0,false);
+
+    buildmutex->writeUnlock();
+}
+
+
+
+void MeshSurfaceTesselationCache::GLRender(SoGLRenderAction* action)
 {
     SoMaterialBundle mb(action);
-    SoState* state = action->getState();
-    const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
-    const int32_t* ciptr = meshsurface.coordIndex.getValues(0);
+    const SbVec3f* cptr = meshsurface.coordinates.getValues(0);
     const int32_t* miptr = meshsurface.materialIndex.getValues(0);
 
     mb.sendFirst();
 
     buildmutex->readLock();
-    const int nrcii = cii.getLength();
+    const int nrci = ci.getLength();
     bool isopen = false;
-    for ( int idx=0; idx<nrcii; idx++ )
+    for ( int idx=0; idx<nrci; idx++ )
     {
-	const int index = cii[idx];
+	const int index = ci[idx];
 	if ( index<0 )
 	{
 	    if ( isopen )
@@ -328,13 +359,13 @@ void MeshSurfaceTesselationCache::call(SoGLRenderAction* action)
 	if ( !isopen )
 	{
 	    mb.sendFirst();
-	    glBegin( GL_TRIANGLE_STRIP );
+	    glBegin( isstrip ? GL_TRIANGLE_STRIP : GL_TRIANGLE_FAN );
 	    isopen = true;
 	}
 
 	mb.send(miptr?miptr[index]:0,true);
 	glNormal3fv(normals[ni[idx]].getValue());
-	glVertex3fv(celem->get3(ciptr[index]).getValue());
+	glVertex3fv(cptr[index].getValue());
 	//Add textureCoordIndex
     }
     
@@ -354,6 +385,7 @@ MeshSurfacePart::MeshSurfacePart( SoKrisSurface& m, int s0, int s1, int ssz )
     , reshaschanged( true )
     , bboxcache( 0 )
     , bboxvalidation( false )
+    , gluecache( 0 )
 {
     int spacing = sidesize/2;
     int nrcells = 2;
@@ -378,6 +410,9 @@ MeshSurfacePart::MeshSurfacePart( SoKrisSurface& m, int s0, int s1, int ssz )
 			 s1+MeshSurfacePartPart::sideSize()*idy));
 	}
     }
+
+    for ( int idx=0; idx<9; idx++ )
+	neighbors.append(0);
 }
 
 
@@ -389,6 +424,19 @@ MeshSurfacePart::~MeshSurfacePart()
 
     for ( int idx=0; idx<bboxes.getLength(); idx++ )
 	delete bboxes[idx];
+
+    if ( bboxcache ) bboxcache->unref();
+}
+
+
+void MeshSurfacePart::setStart( int row, int col )
+{
+    for ( int idx=0; idx<resolutions.getLength(); idx++ )
+	resolutions[idx]->setStart( row, col );
+
+    for ( int idx=0; idx<bboxes.getLength(); idx++ )
+	bboxes[idx]->setStart( row, col );
+
 }
 
 
@@ -425,6 +473,15 @@ void MeshSurfacePart::computeBBox(SoState* state, SbBox3f& bbox,
 	return;
     }
 
+    if ( bboxcache )
+	bboxcache->unref();
+
+    const bool storedinvalid = SoCacheElement::setInvalid(false);
+    state->push();
+    bboxcache = new SoBoundingBoxCache(state);
+    bboxcache->ref();
+    SoCacheElement::set(state, bboxcache);
+
     center = SbVec3f(0,0,0);
     SbBox3f localbox;
     SbVec3f localcenter;
@@ -441,9 +498,10 @@ void MeshSurfacePart::computeBBox(SoState* state, SbBox3f& bbox,
 	}
     }
 
-    if ( !bboxcache ) bboxcache = new SoBoundingBoxCache(state);
     if ( nrboxes ) center /= nrboxes;
     bboxcache->set( bbox, nrboxes, center );
+    state->pop();
+    SoCacheElement::setInvalid(storedinvalid);
 }
 
 
@@ -505,12 +563,12 @@ int MeshSurfacePart::computeResolution( SoState* state, bool ownv)
 }
 
 
-bool MeshSurfacePart::setResolution( SoState* state, int desiredres,
+bool MeshSurfacePart::setResolution( int desiredres,
 				     bool useownvalidation )
 {
     for ( int idx=desiredres; idx>0; idx-- )
     {
-	bool candisplay = resolutions[idx]->canDisplay(state,useownvalidation);
+	bool candisplay = resolutions[idx]->canDisplay(useownvalidation);
 	if ( candisplay )
 	{
 	    if ( idx!=resolution )
@@ -520,7 +578,7 @@ bool MeshSurfacePart::setResolution( SoState* state, int desiredres,
 	    }
 
 	    return  idx==desiredres &&
-		    !resolutions[idx]->needsUpdate(state,useownvalidation);
+		    !resolutions[idx]->needsUpdate(useownvalidation);
 	}
     }
 
@@ -543,6 +601,510 @@ void MeshSurfacePart::setNeighbor( int neighbor, MeshSurfacePart* n, bool cb )
     neighbors[neighbor] = n;
     if ( n && cb ) n->setNeighbor(8-neighbor, this, false );
 }
+
+
+int MeshSurfacePart::getSpacing( int res ) const
+{ return resolutions[res]->getSpacing(); }
+
+
+#define mAddCoordToIndexes(row_,col_,res_, indexes, normals) \
+{ \
+    const int index_ = meshsurface.getIndex( row_, col_ ); \
+    if ( index_ != -1 ) \
+    { \
+	indexes.push(index_); \
+	normals.push(getNormal(row_,col_,res_,useownvalidation)); \
+    } \
+}
+
+
+void MeshSurfacePart::GLRenderGlue( SoGLRenderAction* action,
+				    bool useownvalidation )
+{
+    if ( resolution==-1 )
+	return;
+
+    const bool tesselate =
+	(!useownvalidation && gluecache
+	     ? gluecache->isValid() : gluevalidation ) || reshaschanged ||
+	(neighbors[5] && neighbors[5]->hasResChangedSinceLastRender()) ||
+	(neighbors[7] && neighbors[7]->hasResChangedSinceLastRender());
+
+    if ( !tesselate )
+    {
+	gluecache->GLRender(action);
+	return;
+    }
+
+    if ( !gluecache ) 
+	gluecache = new MeshSurfaceTesselationCache(meshsurface,true);
+
+    gluecache->buildmutex->writeLock();
+
+    const int ownspacing = getSpacing(resolution);
+    const int res5 = neighbors[5] ? neighbors[5]->getResolution() : resolution;
+    const int spacing5 = getSpacing(res5);
+    const int res7 = neighbors[7] ? neighbors[7]->getResolution() : resolution;
+    const int spacing7 = getSpacing(res7);
+    const int res8 = neighbors[8] ? neighbors[8]->getResolution() : res7;
+
+    SbList<SbVec2s> rowgluecells;
+    const int rowgluespacing =
+	ownspacing>spacing7 ? ownspacing : spacing7;
+
+    int row = start0+sidesize-ownspacing;
+    int col = start1;
+    for ( int idx=0; idx<sidesize-ownspacing; idx+=rowgluespacing )
+    {
+	rowgluecells.append( SbVec2s(row,col+idx) );
+    }
+
+    SbList<SbVec2s> colgluecells;
+    const int colgluespacing =
+	ownspacing>spacing5 ? ownspacing : spacing5;
+
+    row = start0;
+    col = start1+sidesize-ownspacing;
+    for ( int idx=0; idx<sidesize-ownspacing; idx+=colgluespacing )
+    {
+	colgluecells.append( SbVec2s(row+idx,col) );
+    }
+
+    //Make corner.
+    if ( res5>=resolution || res7>=resolution )
+    {
+	if ( res5<resolution )
+	{
+	    /*
+	       2--3
+	       |  |
+	      -1  |
+	       |  |
+	      -5--4
+	      Nothing needs to be done, since the cell (2) is present
+	      in colgluecells and will be made.
+	     */
+	}
+	if ( res7==resolution && res5>resolution )
+	{
+	    /*
+	       |    |
+	      -1----2
+	       |    |
+	       |    3
+	       |    |
+	      -5----4
+	    Add the square (1) to the colcells
+	    */
+	    row = start0+sidesize-ownspacing;
+	    col = start1+sidesize-ownspacing;
+	    colgluecells.append( SbVec2s(row,col) );
+	}
+	else if ( res7<resolution )
+	{
+	    /*
+		  |  |
+	       5--1--2
+	       |     |
+	       4-----3
+	       Nothing needs to be done, since the cell (5) is present
+	       row rowgluecells and will be made.
+	    */
+	}
+	else if ( res5==resolution && res7>=resolution )
+	{
+	    /*
+		   |   |
+		  -1---2
+		   |   |
+		   |   |
+		   |   |
+		  -5-4-3
+	    */
+	    rowgluecells.append(SbVec2s(start0+sidesize-ownspacing,
+					start1+sidesize-ownspacing));
+	}
+	else
+	{
+	    SbList<int> brickindexes;
+	    SbList<SbVec3f> bricknormals;
+	    row = start0+sidesize-ownspacing;
+	    const int startcol = start1+sidesize-ownspacing;
+	    mAddCoordToIndexes( row, col, resolution, brickindexes,
+				bricknormals );
+	    SbList<int> neighborindexes;
+	    SbList<SbVec3f> neighbornormals;
+
+	    col += ownspacing;
+	    mAddCoordToIndexes( row, col, res5,
+				neighborindexes, neighbornormals );
+	    while ( row<=start0+sidesize )
+	    {
+		const int res = row==start0+sidesize?res8:res5;
+		mAddCoordToIndexes( row, col, res,
+				    neighborindexes, neighbornormals );
+		row+=spacing5;
+	    }
+
+	    row = start0+sidesize;
+
+	    while ( col>=startcol )
+	    {
+		mAddCoordToIndexes( row, col, res7,
+				    neighborindexes, neighbornormals );
+		col-=spacing7;
+	    }
+
+	    addGlueFan( brickindexes, bricknormals,
+			neighborindexes, neighbornormals, false );
+	}
+    }
+    else
+    {
+	/*  The resolution on both neighbors are lower than our, so
+	    our corner will look like this:
+		     2--3
+		     |  |
+		  6--1  |
+		  |     |
+		  5-----4
+	*/
+	SbList<int> brickindexes;
+	SbList<SbVec3f> bricknormals;
+	row = start0+sidesize-ownspacing;
+	col = start1+sidesize-ownspacing;
+	mAddCoordToIndexes( row, col, resolution, brickindexes, bricknormals );
+
+	SbList<int> neighborindexes;
+	SbList<SbVec3f> neighbornormals;
+
+	const int minrow = start0+sidesize-spacing5;
+	while ( row>minrow )
+	{
+	    row-=ownspacing;
+	    mAddCoordToIndexes( row, col, resolution,
+				neighborindexes, neighbornormals );
+	    const int cellindex = colgluecells.find(SbVec2s(row,col));
+	    if ( cellindex!=-1 ) colgluecells.removeFast(cellindex);
+	}
+
+	col+=ownspacing;
+	mAddCoordToIndexes( row, col, res5,
+			    neighborindexes, neighbornormals );
+											row+=spacing5;
+	mAddCoordToIndexes( row, col, res8,
+			    neighborindexes, neighbornormals );
+
+	col-=spacing7;
+	mAddCoordToIndexes( row, col, res7,
+											neighborindexes, neighbornormals );
+	row-=ownspacing;
+	mAddCoordToIndexes( row, col, resolution,
+			    neighborindexes, neighbornormals );
+
+	int cellindex = rowgluecells.find(SbVec2s(row,col));
+	if ( cellindex!=-1 ) rowgluecells.removeFast(cellindex);
+
+	const int maxcol = start1+sidesize-ownspacing*2;
+	while ( col<maxcol )
+	{
+	    col += ownspacing;
+	    mAddCoordToIndexes( row, col, resolution,
+				neighborindexes, neighbornormals );
+	    cellindex = rowgluecells.find(SbVec2s(row,col));
+	    if ( cellindex!=-1 ) rowgluecells.removeFast(cellindex);
+	}
+
+	addGlueFan( brickindexes, bricknormals,
+		    neighborindexes, neighbornormals, false );
+    }
+
+    while ( rowgluecells.getLength() )
+    {
+	const SbVec2s rc = rowgluecells.pop();
+	row = rc[0];
+	const int startcol = col = rc[1];
+
+	SbList<int> brickindexes;
+	SbList<SbVec3f> bricknormals;
+	const int maxcol = col+rowgluespacing;
+	const int bordercol = start1+sidesize;
+	while ( col<=maxcol )
+	{
+	    const int res = col==bordercol ? res5 : resolution;
+	    mAddCoordToIndexes( row, col, res, brickindexes, bricknormals );
+	    col += ownspacing;
+	}
+
+	row +=ownspacing;
+	col = startcol;
+	SbList<int> neighborindexes;
+        SbList<SbVec3f> neighbornormals;
+        while ( col<=maxcol )
+        {
+            const int res = col==bordercol ? res8 : res7;
+            mAddCoordToIndexes( row, col, res, neighborindexes,
+				neighbornormals );
+	    col += spacing7;
+	}
+
+        if ( ownspacing>=spacing7 )
+        {
+            addGlueFan( brickindexes, bricknormals,
+			neighborindexes, neighbornormals, true );
+	}
+	else
+	{
+	    addGlueFan( neighborindexes,
+			neighbornormals, brickindexes, bricknormals, false );
+	}
+    }
+
+    while ( colgluecells.getLength() )
+    {
+	const SbVec2s rc = colgluecells.pop();
+	const int startrow = row = rc[0];
+	col = rc[1];
+
+	SbList<int> brickindexes;
+	SbList<SbVec3f> bricknormals;
+	const int maxrow = row+colgluespacing;
+	const int borderrow = start0+sidesize;
+	while ( row<=maxrow )
+	{
+	    const int res = row==borderrow ? res7 : resolution;
+	    mAddCoordToIndexes( row, col, res, brickindexes, bricknormals );
+	    row += ownspacing;
+	}
+
+	row = startrow;
+	col += ownspacing;
+	SbList<int> neighborindexes;
+	SbList<SbVec3f> neighbornormals;
+	while ( row<=maxrow )
+	{
+	    const int res = row==borderrow ? res8 : res5;
+	    mAddCoordToIndexes( row, col, res, neighborindexes,
+				neighbornormals );
+	    row += spacing5;
+	}
+
+	if ( ownspacing>=spacing5 )
+	{
+	    addGlueFan( brickindexes, bricknormals,
+			neighborindexes, neighbornormals, false );
+	}
+	else
+	{
+	    addGlueFan( neighborindexes,
+			neighbornormals, brickindexes, bricknormals, true );
+	}
+    }
+
+    gluecache->buildmutex->writeUnlock();
+}
+
+
+void MeshSurfacePart::invalidateCaches()
+{
+    if ( bboxcache ) bboxcache->invalidate();
+    if ( gluecache ) gluecache->setValid(false);
+
+    for ( int idx=0; idx<bboxes.getLength(); idx++ )
+	bboxes[idx]->invalidateCaches();
+
+    for ( int idx=0; idx<resolutions.getLength(); idx++ )
+	resolutions[idx]->invalidateCaches();
+}
+
+
+SbVec3f MeshSurfacePart::getNormal( int row, int col, int res,
+				    bool useownvalidation )
+{
+    const int relrow=row-start0;
+    const int relcol=col-start1;
+
+    const int spacing = getSpacing( res );
+    SbVec3f norm( 0, 0, 1 );
+
+#define mReturnNormal(rowoff,coloff)\
+{\
+    MeshSurfacePart* part = 0;\
+    if ( relcol+rowoff<0 )\
+	part = neighbors[1];\
+    else if ( relcol+coloff<0 )\
+	part = neighbors[3];\
+    else if ( relrow+rowoff>=sidesize )\
+	part = relcol+coloff>=sidesize ? neighbors[8] : neighbors[7];\
+    else if ( relcol+coloff>=sidesize )\
+	part = neighbors[5];\
+    else \
+	part = this; \
+\
+    if ( part && part->getNormal(row+rowoff,col+coloff,res, \
+	 useownvalidation,norm) )\
+	return norm;\
+}
+
+    mReturnNormal(0,0)
+    mReturnNormal(-spacing,0)
+    mReturnNormal(spacing,0)
+    mReturnNormal(0,-spacing)
+    mReturnNormal(0,spacing)
+
+    return norm;
+}
+
+
+SbBool MeshSurfacePart::getNormal( int row, int col, int res,
+       				   bool useownvalidation, SbVec3f& normal)
+{
+    const int relrow=row-start0;
+    const int relcol=col-start1;
+
+    if ( relrow>=0 && relrow<sidesize && relcol>=0 && relcol<sidesize )
+    {
+	MeshSurfacePartResolution* partres = resolutions[res];
+	int spacing = partres->getSpacing();
+	if ( partres->getNormal( relcol%spacing, relcol%spacing,
+		    		 useownvalidation, normal) )
+	    return true;
+    }
+
+    return false;
+}
+
+
+#define mAddFanNode( ci_, n_ ) \
+    gluecache->ni.push( gluecache->normals.getLength() ); \
+    gluecache->normals.push(n_); \
+    gluecache->ci.push(ci_)
+
+#define mStopFanStrip \
+    gluecache->ni.push(-1); \
+    gluecache->ci.push(-1)
+
+void MeshSurfacePart::addGlueFan( const SbList<int>& lowresci,
+    const SbList<SbVec3f>& lowresnorm, const SbList<int>& highresci,
+    const SbList<SbVec3f>& highresnorm, SbBool forward )
+{
+    const int nrlowres = lowresci.getLength();
+    const int nrhighres = highresci.getLength();
+
+
+    if ( nrlowres+nrhighres<3 || !nrlowres || !nrhighres )
+	return;
+
+    const SbVec3f* cptr = meshsurface.coordinates.getValues(0);
+
+    if ( nrlowres==2 && nrhighres==2 )
+    {
+	const float d0 = (cptr[lowresci[1]]-
+		          cptr[highresci[0]]).length();
+	const float d1 = (cptr[highresci[1]]-
+			  cptr[lowresci[0]]).length();
+
+	const bool splitlowres = (!forward && d1<d0) || (forward&&d1>d0);
+	if ( splitlowres )
+	{
+	    const int idx = forward?1:0;
+	    mAddFanNode( lowresci[idx], lowresnorm[idx] );
+	}
+	else
+	{
+	    int idx = forward?0:1;
+	    mAddFanNode( lowresci[idx], lowresnorm[idx] );
+	    idx = forward?1:0;
+	    mAddFanNode( lowresci[idx], lowresnorm[idx] );
+	}
+
+	int idx = forward?1:0;
+	mAddFanNode( highresci[idx], highresnorm[idx] );
+	idx = forward?0:1;
+	mAddFanNode( highresci[idx], highresnorm[idx] );
+
+	if ( splitlowres )
+	{
+	    idx = forward?0:1;
+	    mAddFanNode( lowresci[idx], lowresnorm[idx] );
+	}
+    }
+    else if ( nrlowres==1 )
+    {
+	mAddFanNode( lowresci[0], lowresnorm[0] );
+	if ( forward )
+	{
+	    for ( int idx=nrhighres-1; idx>=0; idx-- )
+	    {
+		mAddFanNode( highresci[idx], highresnorm[idx] );
+	    }
+	}
+	else
+	{
+	    for ( int idx=0; idx<nrhighres; idx++ )
+	    {
+		mAddFanNode( highresci[idx], highresnorm[idx] );
+	    }
+	}
+    }
+    else if ( nrhighres==1 )
+    {
+	if ( forward )
+	{
+	    mAddFanNode( lowresci[0], lowresnorm[0] );
+	    mAddFanNode( lowresci[1], lowresnorm[1] );
+	    mAddFanNode( highresci[0], highresnorm[0] );
+	}
+	else
+	{
+	    mAddFanNode( lowresci[0], lowresnorm[0] );
+	    mAddFanNode( highresci[0], highresnorm[0] );
+	    mAddFanNode( lowresci[1], lowresnorm[1] );
+	}
+    }
+    else
+    {
+	mAddFanNode( lowresci[0], lowresnorm[0] );
+	if ( forward )
+	{
+	    mAddFanNode( lowresci[1], lowresnorm[1] );
+	    for ( int idx=nrhighres/2; idx>=0; idx-- )
+	    {
+		mAddFanNode( highresci[idx], highresnorm[idx] );
+	    }
+	}
+	else
+	{
+	    for ( int idx=0; idx<=nrhighres/2; idx++ )
+	    {
+		mAddFanNode( highresci[idx], highresnorm[idx] );
+	    }
+
+	    mAddFanNode( lowresci[1], lowresnorm[1] );
+	}
+
+	mStopFanStrip;
+				    
+	mAddFanNode( lowresci[1], lowresnorm[1] );
+	if ( forward )
+	{
+	    for ( int idx=nrhighres-1; idx>=nrhighres/2; idx-- )
+	    {
+		mAddFanNode( highresci[idx], highresnorm[idx] );
+	    }
+	}
+	else
+	{
+	    for ( int idx=nrhighres/2; idx<nrhighres; idx++ )
+	    {
+		mAddFanNode( highresci[idx], highresnorm[idx] );
+	    }
+	}
+    }
+
+    mStopFanStrip;
+}
+
 
 
 int MeshSurfacePart::nrRows() const
@@ -576,7 +1138,9 @@ MeshSurfacePartResolution::MeshSurfacePartResolution(SoKrisSurface& m,
 
 
 MeshSurfacePartResolution::~MeshSurfacePartResolution()
-{ delete cache; }
+{
+    delete cache;
+}
 
 
 void MeshSurfacePartResolution::touch( int i0, int i1, bool undef )
@@ -595,44 +1159,74 @@ void MeshSurfacePartResolution::touch( int i0, int i1, bool undef )
 }
 
 
-bool MeshSurfacePartResolution::canDisplay( SoState* state,
-					    bool ownvalidation) const
+bool MeshSurfacePartResolution::canDisplay( bool ownvalidation) const
 {
     if ( ownvalidation ) return cachestatus!=2;
-    else return cache && cache->isValid(state);
+    else return cache && cache->isValid();
 }
 
 
-bool MeshSurfacePartResolution::needsUpdate( SoState* state,
-					     bool ownvalidation) const
+bool MeshSurfacePartResolution::needsUpdate( bool ownvalidation) const
 {
     if ( ownvalidation ) return cachestatus;
-    else return cache && !cache->isValid(state);
+    else return cache && !cache->isValid();
+}
+
+
+#define mGetNormalIndex( i, j ) ( (i)*normalsperrow+(j) )
+
+
+bool MeshSurfacePartResolution::getNormal( int relrow,
+			int relcol, bool useownvalidation, SbVec3f& res )
+{
+    if ( cache && useownvalidation && cachestatus!=2 )
+    {
+	const int normalsperrow = nrCols();
+	const int normalindex = mGetNormalIndex(relrow,relcol);
+	res = cache->normals[normalindex];
+	return true;
+    }
+
+    if ( computeNormal( relrow, relcol, &res ) )
+    {
+	if ( cache && useownvalidation )
+		;
+	    //Update normal in cache if it there is a cahce
+
+	return true;
+    }
+
+    return false;
+}
+
+
+void MeshSurfacePartResolution::setStart( int row, int col )
+{
+    start0 = row; start1=col;
 }
 
 
 void MeshSurfacePartResolution::GLRender( SoGLRenderAction* action,
-					  bool overridetessel )
+					  bool useownvalidation )
 {
-    SoState* state = action->getState();
-    if ( cache && overridetessel )
+    if ( cache && useownvalidation )
     {
 	if ( cachestatus==2 )
-	    tesselate(state);
-	cache->call(action);
+	    tesselate();
+	cache->GLRender(action);
     }
     else
     {
-	if ( !cache || !cache->isValid(state) )
-	    tesselate(state);
+	if ( !cache || !cache->isValid() )
+	    tesselate();
 
-	cache->call(action);
+	cache->GLRender(action);
     }
 }
 
-#define mAppend(cii_,ni_, extra) \
+#define mAppend(ci_,ni_, extra) \
 { \
-    cache->cii.append(cii_); \
+    cache->ci.append(ci_); \
     cache->ni.append(ni_); \
     extra; \
 }
@@ -658,13 +1252,18 @@ mAppend( idx2, nidx2, lastci = idx2 );
 	mAppend(-1,-1,lastci=-1); \
 }
 
-void MeshSurfacePartResolution::tesselate(SoState* state)
-{
-    if ( !cache ) cache = new MeshSurfaceTesselationCache(state,meshsurface);
-    cache->buildmutex->writeLock();
+void MeshSurfacePartResolution::invalidateCaches()
+{ if ( cache ) cache->setValid(false); }
 
-    cache->cii.truncate(0, false);
-    cache->ni.truncate(0, false);
+
+void MeshSurfacePartResolution::tesselate()
+{
+    if ( !cache )
+	cache = new MeshSurfaceTesselationCache( meshsurface, true );
+    else
+	cache->reset(true);
+
+    cache->buildmutex->writeLock();
 
     cachestatus = 0;
 
@@ -679,56 +1278,50 @@ void MeshSurfacePartResolution::tesselate(SoState* state)
     {
 	for ( int idx1=0; idx1<nrcols-1; idx1++ )
 	{
-	    computeNormal( state, idx0, idx1 );
+	    computeNormal( idx0, idx1 );
 
 	    if ( lastci==-1 )
 	    {
-		startNewStrip( state, idx0, idx1,
+		startNewStrip( idx0, idx1,
 			       idx00, nidx00, idx10, nidx10, lastci, atnextrow);
 		continue;
 	    }
 
-	    expandStrip( state,
-		    	 idx0,idx1,idx00,nidx00,idx10,nidx10,lastci,atnextrow );
+	    expandStrip( idx0,idx1,idx00,nidx00,idx10,nidx10,lastci,atnextrow );
 	}
 
 	mEndStrip;
-	computeNormal( state, idx0, nrcols-1 );
+	computeNormal( idx0, nrcols-1 );
     }
 
     for ( int idx1=0; idx1<nrcols; idx1++ )
-	computeNormal( state, nrrows-1, idx1 );
+	computeNormal( nrrows-1, idx1 );
 
-    cache->cii.fit();
-    cache->ni.fit();
-
+    cache->setValid(true);
     cache->buildmutex->writeUnlock();
 }
 
 
-int MeshSurfacePartResolution::getCoordIndexIndex( int i0, int i1 ) const
+int MeshSurfacePartResolution::getCoordIndex( int i0, int i1 ) const
 {
-    const int cii = meshsurface.getCoordIndexIndex( start0+i0*spacing,
-	    					    start1+i1*spacing );
-    if ( cii==-1 )
+    const int ci = meshsurface.getIndex( start0+i0*spacing,
+					 start1+i1*spacing );
+    if ( ci==-1 )
 	return -1;
 
-    return meshsurface.coordIndex[cii]==-1 ? -1 : cii;
+    return mIsCoordDefined(meshsurface.coordinates[ci]) ? ci : -1;
 }
 
 
 int MeshSurfacePartResolution::getFillType( int i0, int i1 ) const
 {
-    const int cii = meshsurface.getCoordIndexIndex( start0+i0*spacing,
-	    					    start1+i1*spacing );
-    return cii>= meshsurface.meshStyle.getNum()
-	? 0 : meshsurface.meshStyle[cii];
+    const int ci = meshsurface.getIndex( start0+i0*spacing,
+					 start1+i1*spacing );
+    return ci>= meshsurface.meshStyle.getNum() ? 0 : meshsurface.meshStyle[ci];
 }
 
 
-#define mGetNormalIndex( i, j ) ( (i)*normalsperrow+(j) )
-
-void MeshSurfacePartResolution::startNewStrip( SoState* state,
+void MeshSurfacePartResolution::startNewStrip(
 					int idx, int jdx, 
 					int& idx00, int& nidx00,
 					int& idx10, int& nidx10,
@@ -742,16 +1335,16 @@ void MeshSurfacePartResolution::startNewStrip( SoState* state,
     }
 
     const int normalsperrow = nrCols();
-    idx00 = getCoordIndexIndex(idx,jdx);
+    idx00 = getCoordIndex(idx,jdx);
     nidx00 = mGetNormalIndex( idx, jdx );
 
-    idx10 = getCoordIndexIndex(idx+1,jdx);
+    idx10 = getCoordIndex(idx+1,jdx);
     nidx10 = mGetNormalIndex( idx+1, jdx );
 
-    const int idx01 = getCoordIndexIndex(idx,jdx+1);
+    const int idx01 = getCoordIndex(idx,jdx+1);
     const int nidx01 = mGetNormalIndex( idx, jdx+1 );
 
-    const int idx11 = getCoordIndexIndex(idx+1,jdx+1);
+    const int idx11 = getCoordIndex(idx+1,jdx+1);
     const int nidx11 = (idx+1)*normalsperrow+jdx+1;
 
     if ( (idx00<0)+(idx10<0)+(idx01<0)+(idx11<0) > 1 )
@@ -763,7 +1356,7 @@ void MeshSurfacePartResolution::startNewStrip( SoState* state,
     if ( idx00>=0 && idx10>=0 && idx01>=0 && idx11>=0 && filltype<3 )
     {
 	bool diagonal00to11 = filltype==0
-	    ? getBestDiagonal(state,idx00,idx10,idx01,idx11,atnextrow)
+	    ? getBestDiagonal(idx00,idx10,idx01,idx11,atnextrow)
 	    : filltype%2;
 
 	if ( diagonal00to11 )
@@ -817,7 +1410,7 @@ void MeshSurfacePartResolution::startNewStrip( SoState* state,
 }
 
 
-void MeshSurfacePartResolution::expandStrip( SoState* state, int idx, int jdx, 
+void MeshSurfacePartResolution::expandStrip( int idx, int jdx, 
 		      int& idx00, int& nidx00,
 		      int& idx10, int& nidx10, int& lastci, bool& atnextrow)
 {
@@ -829,10 +1422,10 @@ void MeshSurfacePartResolution::expandStrip( SoState* state, int idx, int jdx,
     }
 
     const int normalsperrow = nrCols();
-    const int idx01 = getCoordIndexIndex(idx,jdx+1);
+    const int idx01 = getCoordIndex(idx,jdx+1);
     const int nidx01 = mGetNormalIndex(idx,jdx+1);
 
-    const int idx11 = getCoordIndexIndex(idx+1,jdx+1);
+    const int idx11 = getCoordIndex(idx+1,jdx+1);
     const int nidx11 = mGetNormalIndex(idx+1,jdx+1);
 
     if ( idx01<0 && idx11<0 )
@@ -844,7 +1437,7 @@ void MeshSurfacePartResolution::expandStrip( SoState* state, int idx, int jdx,
     if ( idx00>=0 && idx10>=0 && idx01>=0 && idx11>=0  && filltype<3)
     {
 	bool diagonal00to11 = filltype==0
-	    ? getBestDiagonal(state,idx00,idx10,idx01,idx11,atnextrow)
+	    ? getBestDiagonal(idx00,idx10,idx01,idx11,atnextrow)
 	    : filltype%2;
 
 	if ( atnextrow && !diagonal00to11 )
@@ -931,17 +1524,15 @@ void MeshSurfacePartResolution::expandStrip( SoState* state, int idx, int jdx,
 }
 
 
-bool MeshSurfacePartResolution::getBestDiagonal( SoState* state,
+bool MeshSurfacePartResolution::getBestDiagonal( 
     int idx00, int idx10, int idx01, int idx11, bool atnextrow ) const
 {
 #define mEPS 1e-10
-    const int32_t* cis = meshsurface.coordIndex.getValues(0);
-    const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
-
-    const SbVec3f p00 = celem->get3(cis[idx00]);
-    const SbVec3f p10 = celem->get3(cis[idx10]);
-    const SbVec3f p01 = celem->get3(cis[idx01]);
-    const SbVec3f p11 = celem->get3(cis[idx11]);
+    const SbVec3f* coords = meshsurface.coordinates.getValues(0);
+    const SbVec3f p00 = coords[idx00];
+    const SbVec3f p10 = coords[idx10];
+    const SbVec3f p01 = coords[idx01];
+    const SbVec3f p11 = coords[idx11];
 
     SbVec3f vec0 = p00 - p11;
     SbVec3f vec1 = p10 - p01;
@@ -1022,15 +1613,17 @@ void SoMeshSurfaceBrick::GLRender(SoGLRenderAction* action)
 */
 
 
-bool MeshSurfacePartResolution::computeNormal( SoState* state,
-	int rel0, int rel1 )
+bool MeshSurfacePartResolution::computeNormal(
+	int rel0, int rel1, SbVec3f* res )
 {
-    const int prevrowindex = getCoordIndexIndex( rel0-1, rel1 );
-    const int nextrowindex = getCoordIndexIndex( rel0+1, rel1 );
-    const int prevcolindex = getCoordIndexIndex( rel0, rel1-1 );
-    const int nextcolindex = getCoordIndexIndex( rel0, rel1+1 );
-    const int coordindex = getCoordIndexIndex( rel0, rel1 );
-    const SoCoordinateElement* celem = SoCoordinateElement::getInstance(state);
+    if ( !cache && !res ) return false;
+    const int prevrowindex = getCoordIndex( rel0-1, rel1 );
+    const int nextrowindex = getCoordIndex( rel0+1, rel1 );
+    const int prevcolindex = getCoordIndex( rel0, rel1-1 );
+    const int nextcolindex = getCoordIndex( rel0, rel1+1 );
+    const int coordindex = getCoordIndex( rel0, rel1 );
+
+    const SbVec3f* celem = meshsurface.coordinates.getValues(0);
 
     SbVec3f v0;
     if ( prevcolindex==-1 || nextcolindex==-1 )
@@ -1042,12 +1635,12 @@ bool MeshSurfacePartResolution::computeNormal( SoState* state,
 	    return false;
 
 	if ( prevcolindex==-1 )
-	    v0 = celem->get3(nextcolindex)-celem->get3(coordindex);
+	    v0 = celem[nextcolindex]-celem[coordindex];
 	else 
-	    v0 = celem->get3(coordindex)-celem->get3(prevcolindex);
+	    v0 = celem[coordindex]-celem[prevcolindex];
     }
     else
-	v0 = celem->get3(nextcolindex)-celem->get3(prevcolindex);
+	v0 = celem[nextcolindex]-celem[prevcolindex];
 
     if ( !v0.length() )
 	return false;
@@ -1062,23 +1655,28 @@ bool MeshSurfacePartResolution::computeNormal( SoState* state,
 	    return false;
 
 	if ( prevrowindex==-1 )
-	    v1 = celem->get3(nextrowindex)-celem->get3(coordindex);
+	    v1 = celem[nextrowindex]-celem[coordindex];
 	else 
-	    v1 = celem->get3(coordindex)-celem->get3(prevrowindex);
+	    v1 = celem[coordindex]-celem[prevrowindex];
     }
     else
-	v1 = celem->get3(nextrowindex)-celem->get3(prevrowindex);
+	v1 = celem[nextrowindex]-celem[prevrowindex];
 
     if ( !v1.length() )
 	return false;
 
-    const int normalsperrow = nrCols();
-    const int normalindex = mGetNormalIndex(rel0,rel1);
-    if ( !cache ) cache = new MeshSurfaceTesselationCache(state,meshsurface);
-    while ( cache->normals.getLength()<=normalindex )
-	cache->normals.push( SbVec3f(0,0,1) );
+    const SbVec3f normal = v1.cross(v0);
+    if ( cache )
+    {
+	const int normalsperrow = nrCols();
+	const int normalindex = mGetNormalIndex(rel0,rel1);
+	while ( cache->normals.getLength()<=normalindex )
+	    cache->normals.push( SbVec3f(0,0,1) );
 
-    cache->normals[normalindex] = v1.cross(v0);
+	cache->normals[normalindex] = normal;
+    }
+
+    if ( res ) *res = normal;
 
     return true;
 }
@@ -1102,6 +1700,50 @@ SoKrisSurface::SoKrisSurface()
     SO_NODE_ADD_FIELD( resolution, (-1) );
     SO_NODE_ADD_FIELD( wireframe, (false) );
     SO_NODE_ADD_FIELD( nrColumns, (1) );
+}
+
+
+void SoKrisSurface::insertColumns(bool before)
+{
+    const bool oldvalidationflag = useownvalidation;
+    useownvalidation = true;
+    const int nrrows = nrRows();
+    const int nrcols = nrColumns.getValue();
+
+    if ( coordinates.getNum()<nrcols*nrrows )
+	coordinates.insertSpace( coordinates.getNum(),
+				nrcols*nrrows-coordinates.getNum() );
+
+    if ( materialIndex.getNum()<nrcols*nrrows )
+	materialIndex.insertSpace( materialIndex.getNum(),
+				   nrcols*nrrows-materialIndex.getNum() );
+
+    if ( meshStyle.getNum()<nrcols*nrrows )
+	meshStyle.insertSpace( meshStyle.getNum(),
+				nrcols*nrrows-meshStyle.getNum() );
+
+
+    for ( int idx=nrrows-1; idx>=0; idx-- )
+    {
+	const int insertpos = (idx+(before?0:1))*nrcols;
+	coordinates.insertSpace( insertpos, sidesize );
+	materialIndex.insertSpace( insertpos, sidesize );
+	meshStyle.insertSpace( insertpos, sidesize );
+    }
+}
+
+
+void SoKrisSurface::insertRowsBefore()
+{
+    coordinates.insertSpace( 0, nrColumns.getValue()*sidesize );
+    materialIndex.insertSpace( 0, nrColumns.getValue()*sidesize );
+    meshStyle.insertSpace( 0, nrColumns.getValue()*sidesize );
+
+    for ( int idx=0; idx<parts.getLength(); idx++ )
+    {
+	parts[idx]->setStart( parts[idx]->getRowStart()+sidesize,
+			      parts[idx]->getColStart() );
+    }
 }
 
 
@@ -1157,16 +1799,16 @@ void SoKrisSurface::GLRender(SoGLRenderAction* action)
 	    {
 		const int desres =
 		     	part->computeResolution(state,useownvalidation);
-		if ( !part->setResolution(state,desres,useownvalidation) )
+		if ( !part->setResolution(desres,useownvalidation) )
 		     missingresolution = desres;
 	    }
-	    else if ( !part->setResolution(state,whichres,useownvalidation) )
+	    else if ( !part->setResolution(whichres,useownvalidation) )
 		missingresolution = whichres;
 
 	    if ( missingresolution!=-1 )
 	    {
-		part->getResolution(missingresolution)->tesselate(state);
-		part->setResolution(state,missingresolution,useownvalidation);
+		part->getResolution(missingresolution)->tesselate();
+		part->setResolution(missingresolution,useownvalidation);
 		 //SbThreadAutoLock quelock( creatorqueMutex );
 		 //SoMeshSurfaceBrick* brick =part->getBrick(missingresolution);
 #ifdef __win__
@@ -1191,27 +1833,52 @@ void SoKrisSurface::GLRender(SoGLRenderAction* action)
     //}
 
     for ( int idx=0; idx<nrparts; idx++ )
-	parts[idx]->updateGlue();
+	parts[idx]->GLRenderGlue(action, useownvalidation);
 
     for ( int idx=0; idx<nrparts; idx++ )
 	parts[idx]->GLRender(action, useownvalidation);
 }
 
 
-int SoKrisSurface::getCoordIndexIndex( int i0, int i1 ) const
+void SoKrisSurface::getBoundingBox(SoGetBoundingBoxAction* action)
+{
+    SbBox3f box;
+    SbVec3f center;
+    computeBBox( action, box, center);
+    if ( !box.isEmpty() )
+    {
+	action->extendBy(box);
+	action->setCenter(center, true);
+    }
+}
+
+
+
+int SoKrisSurface::getIndex( int i0, int i1 ) const
 {
     if ( i1<0 || i1>=nrColumns.getValue() ) return -1;
     const int res = i0*nrColumns.getValue()+i1;
-    return res>=0&&res<coordIndex.getNum() ? res : -1;
+    return res>=0&&res<coordinates.getNum() ? res : -1;
 }
 
 
 int SoKrisSurface::nrRows() const
 {
-    int totalnrrows = coordIndex.getNum()/nrColumns.getValue();
-    if ( coordIndex.getNum()%nrColumns.getValue() )
+    int totalnrrows = coordinates.getNum()/nrColumns.getValue();
+    if ( coordinates.getNum()%nrColumns.getValue() )
 	totalnrrows++;
     return totalnrrows;
+}
+
+
+void SoKrisSurface::notify( SoNotList* nl )
+{
+    SoShape::notify(nl);
+    if ( useownvalidation ) 
+	return;
+
+    for ( int idx=0; idx<parts.getLength(); idx++ )
+	parts[idx]->invalidateCaches();
 }
 
 
