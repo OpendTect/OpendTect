@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.17 2004-05-06 19:41:45 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.18 2004-05-07 12:30:17 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -904,7 +904,7 @@ uiTreeItem* uiODWellFactory::create( int visid ) const
 {
     mDynamicCastGet( visSurvey::WellDisplay*, wd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
-    return wd ? new uiODHorizonTreeItem(visid) : 0;
+    return wd ? new uiODWellTreeItem(visid) : 0;
 }
 
 
