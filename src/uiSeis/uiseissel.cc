@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.24 2004-10-15 09:50:38 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.25 2004-10-15 15:31:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "separstr.h"
 #include "seistrctr.h"
+#include "seistrcsel.h"
 #include "linekey.h"
 #include "keystrs.h"
 

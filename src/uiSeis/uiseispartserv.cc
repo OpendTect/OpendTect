@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.23 2004-10-15 09:50:38 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.24 2004-10-15 15:31:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uisegysip.h"
 #include "uiseissel.h"
 #include "ctxtioobj.h"
+#include "seistrcsel.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "uiexecutor.h"

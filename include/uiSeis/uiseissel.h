@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.14 2004-10-15 09:50:37 bert Exp $
+ RCS:           $Id: uiseissel.h,v 1.15 2004-10-15 15:31:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    static const char*	standardTranslSel(int pol2d);
+    static const char*	standardTranslSel(Pol2D);
     			//!< returns "CBVS`2D" for pol2d == Both2DAnd3D
 
 protected:

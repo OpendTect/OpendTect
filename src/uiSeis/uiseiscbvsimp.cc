@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.27 2004-10-12 07:33:27 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.28 2004-10-15 15:31:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "seistrctr.h"
+#include "seistrcsel.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.26 2004-10-15 09:50:38 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.27 2004-10-15 15:31:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "seissingtrcproc.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "seistrcsel.h"
 #include "uiexecutor.h"
 #include "uimsg.h"
 #include "uibutton.h"
