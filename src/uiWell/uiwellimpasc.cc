@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.5 2003-10-16 09:41:18 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.6 2003-10-16 15:00:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	    		     uiFileInput::Setup().withexamine() );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
+    feetfld = new uiCheckBox( this, "Depth in feet" );
 
     bool zistime = SI().zIsTime();
     if ( zistime )
@@ -48,13 +49,15 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	d2tfld->attach( alignedBelow, infld );
 
 	tvdfld = new uiCheckBox( this, "Model is TVD" );
-	tvdfld->attach( alignedBelow, d2tfld );
+	feetfld->attach( alignedBelow, d2tfld );
+	tvdfld->attach( rightTo, feetfld );
     }
-    
+    else
+	feetfld->attach( alignedBelow, infld );
+
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Well" );
-    outfld->attach( alignedBelow, zistime ? (uiObject*)tvdfld 
-	    				  : (uiObject*)infld );
+    outfld->attach( alignedBelow, feetfld );
 
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, outfld );
@@ -108,13 +111,15 @@ bool uiWellImportAsc::doWork()
     Well::AscImporter ascimp( *well );
 
     const char* fname = infld->fileName();
-    const char* errmsg = ascimp.getTrack( fname, false ); // TODO: check args
+    const char* errmsg = ascimp.getTrack( fname, false, feetfld->isChecked() );
+    // TODO: check args
     if ( errmsg ) mErrRet( errmsg );
 
     if ( SI().zIsTime() )
     {
 	fname = d2tfld->fileName();
-	errmsg = ascimp.getD2T( fname, tvdfld->isChecked() );
+	errmsg = ascimp.getD2T( fname, tvdfld->isChecked(), 
+				feetfld->isChecked() );
 	if ( errmsg ) mErrRet( errmsg );
     }
 
