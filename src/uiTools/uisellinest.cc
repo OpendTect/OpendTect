@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.11 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uisellinest.cc,v 1.12 2004-02-25 14:52:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ LineStyle uiSelLineStyle::getStyle() const
     if ( colinp ) 
 	ret.color = colinp->color();
     if ( widthbox ) 
-	ret.width = widthbox->box()->getIntValue();
+	ret.width = widthbox->box()->getValue();
     return ret;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.15 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.16 2004-02-25 14:52:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 			       mNINT(SI().zRange().step*zfact) );
     setBoxValues( z0fld->box(), totzrg, zrg.start );
     z0fld->attach( alignedBelow, crl0fld );
-    z1fld = new uiSpinBox( this, zstr );
+    z1fld = new uiSpinBox( this );
     z1fld->attach( rightTo, z0fld );
     setBoxValues( z1fld, totzrg, zrg.stop );
     z1fld->display( !istsl );
@@ -134,7 +134,7 @@ void uiSliceSel::csChanged( CallBacker* )
 
 void uiSliceSel::stepSel( CallBacker* )
 {
-    int newstep = stepfld->box()->getIntValue();
+    int newstep = stepfld->box()->getValue();
     if ( isinl )
 	inl0fld->box()->setStep( newstep );
     else if ( iscrl )
@@ -147,8 +147,8 @@ void uiSliceSel::stepSel( CallBacker* )
 void uiSliceSel::readInput()
 {
     StepInterval<int> intv;
-    intv.start = inl0fld->box()->getIntValue();
-    intv.stop = isinl ? intv.start : inl1fld->getIntValue();
+    intv.start = inl0fld->box()->getValue();
+    intv.stop = isinl ? intv.start : inl1fld->getValue();
     SI().checkInlRange( intv );
     if ( intv.start > intv.stop )
 	Swap( intv.start, intv.stop );
@@ -158,8 +158,8 @@ void uiSliceSel::readInput()
     cs.hrg.stop.inl = intv.stop;
 
     
-    intv.start = crl0fld->box()->getIntValue();
-    intv.stop = iscrl ? intv.start : crl1fld->getIntValue();
+    intv.start = crl0fld->box()->getValue();
+    intv.stop = iscrl ? intv.start : crl1fld->getValue();
     SI().checkCrlRange( intv );
     if ( intv.start > intv.stop )
 	Swap( intv.start, intv.stop );
@@ -170,8 +170,8 @@ void uiSliceSel::readInput()
 
 
     Interval<double> zintv;
-    zintv.start = z0fld->box()->getIntValue() * .001;
-    zintv.stop = istsl ? zintv.start : z1fld->getIntValue() * .001;
+    zintv.start = z0fld->box()->getValue() / SI().zFactor();
+    zintv.stop = istsl ? zintv.start : z1fld->getValue() / SI().zFactor();
     SI().checkZRange( zintv );
     if ( zintv.start > zintv.stop )
 	Swap( zintv.start, zintv.stop );
