@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.33 2002-01-08 13:36:30 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.34 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,10 +178,11 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar, 
 				bool wantToolBar )
 {
-    centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget", 7 );
+    centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget" );
     setCentralWidget( centralWidget_->body()->qwidget() ); 
 
     centralWidget_->setIsMain(true);
+    centralWidget_->setBorder(10);
 
     if( wantStatusBar )
     {
@@ -265,7 +266,15 @@ uiToolBar* uiMainWin::toolBar()			{ return body_->uitoolbar(); }
 void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
-uiGroup* uiMainWin::topGroup()		{ return body_->uiCentralWidg(); }
+
+uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
+
+void uiMainWin::setShrinkAllowed(bool yn)  
+    { if( topGroup() ) topGroup()->setShrinkAllowed(yn); }
+
+bool uiMainWin::shrinkAllowed()	 	   
+    { return topGroup() ? topGroup()->shrinkAllowed() : false; }
+
 
 uiObject* uiMainWin::uiObj()
     { return body_->uiCentralWidg()->uiObj(); }
@@ -352,7 +361,8 @@ public:
 
     void		setDlgGrp( uiGroup* cw )	{ dlgGroup=cw; }
 
-    void		setSpacing( int spc )	{ dlgGroup->setSpacing(spc); }
+    void		setHSpacing( int spc )	{ dlgGroup->setHSpacing(spc); }
+    void		setVSpacing( int spc )	{ dlgGroup->setVSpacing(spc); }
     void		setBorder( int b )	{ dlgGroup->setBorder( b ); }
 
     virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
@@ -510,18 +520,13 @@ void uiDialogBody::finalise()
     {
 	uiObject* alignObj = dlgGroup->uiObj();
 
-	int prefbutwdt = 10;
-
-
 	if ( okText != "" )
 	{
 	    okBut = new uiPushButton( centralWidget_, okText );
-	    prefbutwdt = mMAX( prefbutwdt, okText.size());
 	}
 	if ( cnclText != "" )
 	{
 	    cnclBut = new uiPushButton( centralWidget_, cnclText );
-	    prefbutwdt = mMAX( prefbutwdt, cnclText.size());
 	}
 	if ( withsavebut && saveText != "" )
 	    saveBut = new uiCheckBox( centralWidget_, saveText );
@@ -563,7 +568,6 @@ void uiDialogBody::finalise()
 	    okBut->activated.notify( mCB( this, uiDialogBody, accept ));
 	    okBut->setDefault();
 
-	    okBut->setPrefWidthInChar( prefbutwdt );
 	}
 
 	if ( cnclBut )
@@ -583,7 +587,6 @@ void uiDialogBody::finalise()
 
 	    cnclBut->activated.notify( mCB( this, uiDialogBody, reject ));
 
-	    cnclBut->setPrefWidthInChar( prefbutwdt );
 	}
 
 	if( saveBut )
@@ -674,7 +677,8 @@ int uiDialog::go()				{ return mBody->exec(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
 void uiDialog::accept( CallBacker*cb)		{ mBody->accept( cb ); }
 void uiDialog::done( int i )			{ mBody->done( i ); }
-void uiDialog::setSpacing( int s )		{ mBody->setSpacing(s); }
+void uiDialog::setHSpacing( int s )		{ mBody->setHSpacing(s); }
+void uiDialog::setVSpacing( int s )		{ mBody->setVSpacing(s); }
 void uiDialog::setBorder( int b )		{ mBody->setBorder(b); }
 void uiDialog::setCaption( const char* txt )	{ mBody->setCaption(txt); }
 void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }

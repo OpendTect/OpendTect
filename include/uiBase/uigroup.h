@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.14 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.15 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,9 +38,10 @@ private:
 class uiGroup : public uiParent
 { 	
 friend class		uiGroupObjBody;
+friend class		uiMainWin;
 public:
 			uiGroup( uiParent* , const char* nm="uiGroup", 
-			    int border=0, int spacing=10, bool manage=true );
+				 bool manage=true );
 
     inline uiGroupObj*	uiObj()				    { return grpobj_; }
     inline const uiGroupObj* uiObj() const		    { return grpobj_; }
@@ -50,7 +51,8 @@ public:
     inline		operator uiObject&() 		    { return *grpobj_; }
 
 
-    void		setSpacing( int ); 
+    void		setHSpacing( int ); 
+    void		setVSpacing( int ); 
     void		setBorder( int ); 
 
     uiObject*		hAlignObj();
@@ -106,6 +108,9 @@ protected:
     uiGroupParentBody*	body_;
 
     virtual void	reDraw_( bool deep )			{}
+
+    void		setShrinkAllowed(bool);
+    bool		shrinkAllowed();
 };
 
 class NotifierAccess;

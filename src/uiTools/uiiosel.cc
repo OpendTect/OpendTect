@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.22 2001-11-30 16:32:35 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.23 2002-01-09 15:42:29 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
 
     inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", true );
     inp_->box()->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
-    inp_->box()->setPrefWidthInChar( 20 );
+//    inp_->box()->setPrefWidthInChar( 20 );
 
     selbut_ = new uiPushButton( this, "Select ..." );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );

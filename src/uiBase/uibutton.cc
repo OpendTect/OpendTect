@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.11 2002-01-07 13:17:01 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.12 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
 			    , idInGroup( 0 )		
 			    { 
 				setText(txt); 
+				setTxtPol( uiObject::smallvar );
 			    }
 
 			uiButtonTemplBody(uiButton& handle, 
@@ -55,6 +56,7 @@ public:
 			    , idInGroup( 0 )		
 			    { 
 				setText(txt); 
+				setTxtPol( uiObject::smallvar );
 			    }
 
 #define mHANDLE_OBJ	uiButton
@@ -68,7 +70,7 @@ public:
     inline const QButton& qButton() const
                         { return ((uiButtonTemplBody*)this)->qButton(); }
 
-    virtual bool        isSingleLine() const		{ return true; }
+    virtual int 	nrTxtLines() const		{ return 1; }
 
     const char*		text();
 

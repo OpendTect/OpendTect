@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.10 2002-01-07 13:17:01 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.11 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ public:
 				    return s != mUndefIntVal ? s : 0;
 				}
 
-    virtual bool		isSingleLine() const { return false; }
+    virtual int			nrTxtLines() const	{ return -1; }
 
     void			attach ( constraintType, uiObject *other=0, 
 				 int margin=-1 );
@@ -116,7 +116,7 @@ public:
 				{ 
 				    if( layoutItem_ ) 
 				    { 
-					pErrMsg("ALreadt have a layout item"); 
+					pErrMsg("Already have a layout item"); 
 					return layoutItem_ ;
 				    }
 				    layoutItem_ = mkLayoutItem_( mngr );
@@ -134,6 +134,21 @@ public:
 
     virtual void		fontchanged();
 
+    int				fontHgt() const 
+				    { gtFntWdtHgt(); return fnt_hgt; }
+    int				fontWdt(bool max=false) const
+				    { 
+					gtFntWdtHgt(); 
+					return max ? fnt_maxwdt : fnt_wdt; 
+				    }
+
+    void			setTxtPol( uiObject::txtPolicy p )
+							{ txt_pol = p; }
+    uiObject::txtPolicy		txtPol() const		{ return txt_pol; }
+
+    void			setShrinkAllowed( bool yn ) { allowshrnk = yn; }
+    bool			shrinkAllowed()		{ return allowshrnk; }
+
 protected:
 
     virtual const QWidget*	managewidg_() const	{ return qwidget_(); }
@@ -144,13 +159,6 @@ protected:
 
     void 			doDisplay(CallBacker*);
 
-    int				fontHgt() const 
-				    { gtFntWdtHgt(); return fnt_hgt; }
-    int				fontWdt(bool max=false) const
-				    { 
-					gtFntWdtHgt(); 
-					return max ? fnt_maxwdt : fnt_wdt; 
-				    }
     int				fontWdtFor( const char* ) const;
 
 
@@ -163,6 +171,8 @@ private:
 
     int				hStretch;
     int				vStretch;
+
+    bool			allowshrnk;
 
     bool			is_hidden;
     bool			finalised;
@@ -183,6 +193,8 @@ private:
     int				fnt_wdt;
     int				fnt_maxwdt;
     QFontMetrics*		fm;
+
+    uiObject::txtPolicy		txt_pol;
 
     void                	gtFntWdtHgt() const;
     void			getSzHint();

@@ -21,9 +21,19 @@ public:
                         uiLabelBody(uiLabel& handle, uiParent* parnt,
 				    const char* txt )
 			    : uiObjBodyImpl<uiLabel,QLabel>( handle, parnt,txt )
-			    {}
+			    {
+				setTxtPol( uiObject::variable );
+			    }
 
-    virtual bool        isSingleLine() const { return true; }
+    virtual int 	nrTxtLines() const		
+			{ 
+			    int nrl = 1;
+			    const char* txt = text();
+			    while( txt++ && *txt )
+				{ if( *txt == '\n' ) nrl++; }
+
+			    return nrl; 
+			}
 
 };
 

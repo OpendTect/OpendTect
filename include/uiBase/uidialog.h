@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.22 2002-01-07 15:57:37 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.23 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,8 @@ public:
     void		done(int ret=0);
     			//!< 0=Cancel, 1=OK, other=user defined
 
-    void		setSpacing( int ); 
+    void		setHSpacing( int ); 
+    void		setVSpacing( int ); 
     void		setBorder( int ); 
 
     void		setCaption( const char* txt );

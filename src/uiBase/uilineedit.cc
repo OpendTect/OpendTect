@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.7 2001-09-23 22:22:31 bert Exp $
+ RCS:           $Id: uilineedit.cc,v 1.8 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ public:
 				   uiParent*,const char* starttxt=0,
 				   const char* nm="Line Edit");
 
-    virtual bool        isSingleLine() const { return true; }
+    virtual int 	nrTxtLines() const		{ return 1; }
 
 private:
 
@@ -40,7 +40,10 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
 				const char* deftxt, const char* nm )
     : uiObjBodyImpl<uiLineEdit,QLineEdit>(handle, parnt, nm)
     , messenger_ ( *new i_lineEditMessenger( this, &handle ))
-{ setStretch( 1, 0 ); }
+{ 
+    setStretch( 1, 0 ); 
+    setTxtPol( uiObject::medium );
+}
 
 //------------------------------------------------------------------------------
 

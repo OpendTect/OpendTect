@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.26 2001-10-09 14:48:18 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.27 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class BinID2Coord;
 
-#define mPrefNumWdt	10
+#define mPrefNumWdt	-1
 #define mUndefWdt	-1	
 
 /*! \brief handles undefined-ness of variables

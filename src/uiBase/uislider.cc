@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.5 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: uislider.cc,v 1.6 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
                         uiSliderBody( uiSlider& handle,
 				      uiParent* parnt, const char* nm);
 
-    virtual bool        isSingleLine() const { return true; }
+    virtual int 	nrTxtLines() const				{ return 1; }
 
 private:
 
@@ -38,7 +38,10 @@ private:
 uiSliderBody::uiSliderBody( uiSlider& handle,uiParent* parnt, const char* nm )
     : uiObjBodyImpl<uiSlider,QSlider>(handle, parnt, nm)
     , messenger_ ( *new i_SliderMessenger( this, &handle ))
-{}
+{
+    setStretch( 1, 0 );
+    setTxtPol( uiObject::medium ); 
+}
 
 
 //------------------------------------------------------------------------------

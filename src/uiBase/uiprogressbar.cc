@@ -21,9 +21,13 @@ public:
                         uiProgressBarBody( uiProgressBar& handle, 
 					   uiParent* parnt, const char* nm )
 			    : uiObjBodyImpl<uiProgressBar,QProgressBar>
-				( handle, parnt,nm)		{}
+				( handle, parnt,nm)
+			    { 
+				setStretch( 1, 0 );
+				setTxtPol( uiObject::medvar ); 
+			    }
 
-    virtual bool        isSingleLine() const			{ return true; }
+    virtual int 	nrTxtLines() const				{ return 1; }
 
 };
 
@@ -33,7 +37,6 @@ uiProgressBar::uiProgressBar( uiParent* p, const char* txt,
 {
     setProgress( progress );
     setTotalSteps( totalSteps );
-    setPrefWidthInChar( 20 );
 }
 
 uiProgressBarBody& uiProgressBar::mkbody(uiParent* p, const char* txt)

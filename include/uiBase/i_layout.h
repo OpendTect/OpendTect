@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.21 2002-01-08 10:36:08 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.22 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,6 @@ class i_LayoutMngr : public QLayout, public UserIDObject
 public:
 
 			i_LayoutMngr( QWidget* prnt,
-				      int border, int space,
 				      const char* name, uiObjectBody& mngbdy );
 
     virtual		~i_LayoutMngr();
@@ -121,10 +120,9 @@ public:
 	
     bool 		attach ( constraintType, QWidget&, QWidget*, int);
 
-    const uiRect&	relpos(layoutMode m) const;
-    uiRect&		relpos(layoutMode m);
-
-    uiRect		abspos(layoutMode m);
+    const uiRect&	curpos(layoutMode m) const;
+    uiRect&		curpos(layoutMode m);
+    uiRect		winpos(layoutMode m) const;
 
     void		forceChildrenRedraw( uiObjectBody*, bool deep );
     void		childrenClear( uiObject* );
@@ -132,10 +130,13 @@ public:
 
     int                 childStretch( bool hor ) const;
 
-    int			borderSpace() const	    { return margin(); }
-    int			horSpacing() const 	    { return spacing(); }
-    int			verSpacing() const 
-			{ int s = spacing(); return s > 3 ? s-2 : 2; }
+    int			borderSpace() const	{ return borderspc; }
+    int			horSpacing() const;
+    int			verSpacing() const	{ return vspacing; }
+
+    void		setHSpacing( int s)	{ hspacing = s; }
+    void		setVSpacing( int s)	{ vspacing = s; }
+    void		setBorderSpace( int s)	{ borderspc = s; }
 
     void		setIsMain( bool yn )	    { ismain = yn; }
     void 		layoutChildren( layoutMode m, bool finalLoop=false );
@@ -150,10 +151,10 @@ private:
 
     void 		moveChildrenTo( int , int, layoutMode );
     void 		fillResizeList( ObjectSet<resizeItem>&, 
-					int&, int&, int&, int& );
+					int&, int&, int&, int&, bool );
     bool		tryToGrowItem( resizeItem&, const int, const int, 
 				       int, int, const QRect&, int);
-    void		resizeTo( const QRect& );
+    void		resizeTo( const QRect&, bool );
     void		childrenCommitGeometrySet();
 
     uiRect 		childrenRect( layoutMode m );
@@ -166,6 +167,10 @@ private:
     bool		minimumDone;
     bool		preferredDone;
     bool		ismain;
+
+    int 		hspacing;
+    int 		vspacing;
+    int 		borderspc;
 
     uiObjectBody& 	managedBody;
 

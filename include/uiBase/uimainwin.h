@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.12 2002-01-07 15:57:37 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.13 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,8 @@ public:
     void		reDraw(bool deep);
     uiGroup* 		topGroup();
 
+    void		setShrinkAllowed( bool yn=true );
+    bool		shrinkAllowed();
 
 protected:
 

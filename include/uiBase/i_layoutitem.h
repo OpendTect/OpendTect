@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.10 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.11 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,10 +32,10 @@ public:
 
 
     virtual int			horAlign(layoutMode m ) const
-				    { return relpos(m).left(); }
+				    { return curpos(m).left(); }
     virtual int			horCentre(layoutMode m) const 
-				    { return ( relpos(m).left() 
-					     + relpos(m).right() ) / 2; 
+				    { return ( curpos(m).left() 
+					     + curpos(m).right() ) / 2; 
 				    }
 
     virtual QSize 		minimumSize() const 
@@ -65,26 +65,9 @@ public:
 
     inline const i_LayoutMngr& 	mngr() const 		{ return mngr_; } 
 
-    inline const uiRect& 	relpos(layoutMode m) const
+    inline const uiRect& 	curpos(layoutMode m) const
 				    { return layoutpos[m];}
-    inline uiRect&		relpos(layoutMode m)	{ return layoutpos[m];}
-
-#define ABS_POS_ONLY	
-
-    uiRect			abspos(layoutMode m)
-				{ 
-#ifdef ABS_POS_ONLY	
-				    return layoutpos[m];
-#else
-				    const uiRect& mr = mngr().abspos(m);
-				    const uiRect& r = relpos(m); 
-
-				    return uiRect( mr.left()+r.left(), 
-						   mr.top()+r.top(),
-						   mr.right()+r.right(), 
-						   mr.bottom()+r.bottom() );
-#endif
-				}
+    inline uiRect&		curpos(layoutMode m)	{ return layoutpos[m];}
 
     constraintIterator		iterator();
 

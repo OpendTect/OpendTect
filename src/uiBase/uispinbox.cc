@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.6 2001-10-03 09:03:12 nanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.7 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ public:
 
                         uiSpinBoxBody(uiSpinBox&,uiParent*, const char* );
 
-    virtual bool        isSingleLine() const		{ return true; }
+    virtual int 	nrTxtLines() const				{ return 1; }
 
 protected:
 
@@ -40,7 +40,10 @@ private:
 
 uiSpinBoxBody::uiSpinBoxBody(uiSpinBox& handle, uiParent* p, const char* nm)
     : uiObjBodyImpl<uiSpinBox,QSpinBox>( handle, p, nm )
-    , messenger_( *new i_SpinBoxMessenger( this, &handle) )	{}
+    , messenger_( *new i_SpinBoxMessenger( this, &handle) )	
+{
+    setTxtPol( uiObject::small ); 
+}
 
 
 int uiSpinBoxBody::mapTextToValue( bool* ok )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.30 2002-01-05 14:05:15 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.31 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,20 +37,18 @@ public:
 
     void 		setLines( int prefNrLines )
 			{ 
-			    if(prefNrLines >= 0) nLines=prefNrLines;
-//			    setStretch( 1, isSingleLine() ? 0 : 2 );
-			    setStretch( 1, isSingleLine() ? 0 : 1 );
+			    if(prefNrLines >= 0) prefnrlines=prefNrLines;
+			    setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
 			}
 
     virtual uiSize	minimumSize() const; //!< \reimp
-    virtual bool	isSingleLine() const		 { return nLines==1; }
-
-    QSize 		sizeHint() const;
+    virtual int 	nrTxtLines() const
+			    { return prefnrlines ? prefnrlines : 7; }
 
 protected:
 
     int 		fieldWdt;
-    int 		nLines;
+    int 		prefnrlines;
 
 private:
 
@@ -66,49 +64,11 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 	: uiObjBodyImpl<uiListBox,QListBox>( handle, parnt, nm )
 	, messenger_ (*new i_listMessenger(this, &handle))
 	, fieldWdt(preferredFieldWidth)
-	, nLines(preferredNrLines)
+	, prefnrlines(preferredNrLines)
 {
     if( isMultiSelect ) setSelectionMode( QListBox::Extended );
-    setStretch( 1, isSingleLine() ? 0 : 2 );
-}
-
-/* TODO: over-ride uiObjectBody::prefHNrPics() 
-and uiObjectBody::prefVNrPics() instead of sizeHint.
-
-Do something like:
-
-- determine preferred char-xxx, depending on items in list
-- set pref_char_xxx (uiObjectBody)
-- set pref_xxx to 0
-- return uiObjectBody::preferredXxxx()
-
-*/
-//! over-rides QWidget::sizeHint()
-QSize uiListBoxBody::sizeHint() const
-{
-    // initialize to requested size or reasonable default size
-    // reasonable sizes are 3 <= nrlines <= 7 , 25 <= nrchars <= 40.
-    int nrchars = fieldWdt ? fieldWdt : 25;
-    int nrlines = nLines ? nLines : 7;
-
-    // if biggest string is over 25 chars, grow box to max 40 chars.
-    const int fontavgpixwidth = fontWdt();
-    const int maxwdth = 40 * fontavgpixwidth;
-    int pixwidth = nrchars * fontavgpixwidth;
-    if ( !fieldWdt )
-    {
-	QListBoxItem* itm = item( 0 );
-	for ( int idx=0; itm; itm = item(++idx) )
-	{
-	    const int pixw = fontWdtFor( itm->text() ) + 2 * fontavgpixwidth;
-	    if ( pixw > pixwidth )
-		pixwidth = pixw > maxwdth ? maxwdth : pixw;
-	}
-    }
-
-    const int extrasz = 2 * frameWidth();
-    const int pixheight = fontHgt() * nrlines;
-    return QSize ( pixwidth+extrasz, pixheight+extrasz );
+    setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
+    setTxtPol( uiObject::medium );
 }
 
 
@@ -295,16 +255,9 @@ void uiListBox::setItemText( int idx, const char* txt )
 
 uiSize uiListBoxBody::minimumSize() const
 { 
-#if 0 
-    const uiFont* mFont = const_cast<uiListBoxBody*>(this)->uiObjHandle().font();
-    if( !mFont ) { pErrMsg("uiObjHandle has no font!"); return uiSize(); }
-
-    int totHeight = mFont->height() * nLines;
-    int totWidth  = mFont->maxWidth() * fieldWdt;
-#else
-    int totHeight = fontHgt() * nLines;
+    int totHeight = fontHgt() * prefnrlines;
     int totWidth  = fontWdt( true ) * fieldWdt;
-#endif
+
     return uiSize ( totWidth , totHeight );
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.23 2002-01-08 10:36:08 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.24 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,12 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     if ( p ) p->manageChld( *this, b );  
 }
 
+
+void uiObject::setTxtPol( txtPolicy p )
+    { mBody()->setTxtPol(p); }
+
+uiObject::txtPolicy uiObject::txtPol() const
+    { return mConstBody()->txtPol(); }
 
 void uiObject::setToolTip(const char* t)
     { mBody()->setToolTip(t); }
@@ -247,6 +253,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , font_( 0 )
     , hStretch( mUndefIntVal  )
     , vStretch(  mUndefIntVal )
+    , allowshrnk( false )
     , is_hidden( false )
     , finalised( false )
     , display_( true )
@@ -263,6 +270,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , fnt_wdt( 0 )
     , fnt_maxwdt( 0 )
     , fm( 0 )
+    , txt_pol( uiObject::none )
 #ifdef USE_DISPLAY_TIMER
     , displTim( *new Timer("Display timer"))
 { 
@@ -398,17 +406,13 @@ void uiObjectBody::getSzHint()
 
 int uiObjectBody::prefHNrPics() const
 {
-/*
-    if( !popped_up_ ) 
-	{ pErrMsg("Huh? asked for prefHNrPics but not popped."); }
-*/
     const_cast<uiObjectBody*>(this)->popped_up_ = true;
 
     if( pref_width_ <= 0 )
     {
-	if( is_hidden ) 
-	    { pErrMsg("Cannot calculate preferred size when hidden"); return 0;}
+	if( is_hidden )		{ return 0; }
 	mChkLayoutItm();
+
 	if( pref_width_set >= 0 ) 
 	    { const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_set; }
 	else if( pref_char_width >= 0 ) 
@@ -422,8 +426,27 @@ int uiObjectBody::prefHNrPics() const
 	else
 	{ 
 	    const_cast<uiObjectBody*>(this)->getSzHint();
-	    const_cast<uiObjectBody*>(this)->pref_width_ =
-		    pref_width_hint;
+
+	    int pwc=0;
+	    bool var=false; 
+	    switch( txtPol() )
+	    {
+		case uiObject::small:		pwc=10; break;
+		case uiObject::medium:		pwc=21; break;
+		case uiObject::smallvar:	pwc=10; var=true; break;
+		case uiObject::medvar:		pwc=21; var=true; break;
+	    }
+
+	    if( !pwc )
+		const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_hint;
+	    else
+	    {
+		int fw = fontWdt();
+		if( !fw ){ pErrMsg("Font has 0 width."); }
+
+		int pw = var ? mMAX(pref_width_hint, fw*pwc ) : fw*pwc ;
+		const_cast<uiObjectBody*>(this)->pref_width_ = pw;
+            }
 	}
     }
     return pref_width_;
@@ -432,18 +455,13 @@ int uiObjectBody::prefHNrPics() const
 
 int uiObjectBody::prefVNrPics() const
 {
-/* 
-    if( !popped_up_ ) 
-	{ pErrMsg("Huh? asked for prefVNrPics but not popped."); }
-*/
     const_cast<uiObjectBody*>(this)->popped_up_ = true;
 
     if( pref_height_ <= 0 )
     {
-	if( is_hidden ) 
-	    { pErrMsg("Cannot calculate preferred size when hidden"); return 0;}
-
+	if( is_hidden )		{ return 0; }
 	mChkLayoutItm();
+
 	if( pref_height_set >= 0 ) 
 	    { const_cast<uiObjectBody*>(this)->pref_height_= pref_height_set;}
 	else if( pref_char_height >= 0 ) 
@@ -457,14 +475,20 @@ int uiObjectBody::prefVNrPics() const
 	else
 	{ 
 	    const_cast<uiObjectBody*>(this)->getSzHint();
-	    const_cast<uiObjectBody*>(this)->pref_height_ = pref_height_hint;
 
-	    if( isSingleLine() )
+	    if( nrTxtLines() < 0 )
+		const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint;
+	    else 
 	    {
+		float lines = 1.45;
+		if( nrTxtLines() == 0 )		lines = 7;
+		else if( nrTxtLines() > 1 )	lines = nrTxtLines();
+
 		int fh = fontHgt();
 		if( !fh ){ pErrMsg("Font has 0 height."); return 0; }
 
-		const_cast<uiObjectBody*>(this)->pref_height_= mNINT(1.45 * fh);
+		const_cast<uiObjectBody*>(this)->pref_height_= 
+							mNINT( lines * fh);
 	    }
 	}
     }

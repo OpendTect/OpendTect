@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.24 2002-01-08 10:36:08 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.25 2002-01-09 15:42:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,23 +97,24 @@ public:
 			uiGroupParentBody( uiGroup& handle, 
 					 uiGroupObjBody& objbdy,
 					 uiParent* parnt=0,
-					 const char* nm="uiGroupObjBody", 
-					 int border=0, int spacing=10)
+					 const char* nm="uiGroupObjBody" )
                             : uiParentBody()
                             , handle_( handle )
 			    , loMngr( 0 ) , halignobj( 0 ), hcentreobj( 0 )
 			    , objbody_( objbdy )
 			{ 
 			    loMngr = new i_LayoutMngr( objbdy.qwidget(), 
-			       border, spacing, nm, objbdy );
+			       nm, objbdy );
 			}
 public:
 
 
     virtual		~uiGroupParentBody()		{ delete loMngr; }
 
-    void		setSpacing( int space )
-			    { loMngr->setSpacing( space ); }
+    void		setHSpacing( int space )
+			    { loMngr->setHSpacing( space ); }
+    void		setVSpacing( int space )
+			    { loMngr->setVSpacing( space ); }
     void		setBorder( int b )
 			    { loMngr->setMargin( b ); }
 
@@ -282,7 +283,7 @@ void i_uiGroupLayoutItem::updatedAlignment( layoutMode m )
 
 int i_uiGroupLayoutItem::horAlign( layoutMode m ) const 
 {
-    int myleft = relpos(m).left();
+    int myleft = curpos(m).left();
 
     if( grpprntbody.halignobj )
     {
@@ -323,11 +324,10 @@ int i_uiGroupLayoutItem::horCentre(layoutMode m) const
 	if( hcentreitm ) return hcentreitm->horCentre(m);
     }
 
-    return ( relpos(m).left() + relpos(m).right() ) / 2;
+    return ( curpos(m).left() + curpos(m).right() ) / 2;
 }
 
-uiGroup::uiGroup( uiParent* p, const char* nm, int border, int spacing, 
-		  bool manage)
+uiGroup::uiGroup( uiParent* p, const char* nm, bool manage)
     : uiParent( nm, 0 )
     , grpobj_( 0 )
     , body_( 0 )
@@ -339,7 +339,7 @@ uiGroup::uiGroup( uiParent* p, const char* nm, int border, int spacing,
     if( !grpbdy ) { pErrMsg("Huh") ; return; }
 #endif
 
-    body_ =  new uiGroupParentBody(*this,*grpbdy, p, nm, border, spacing);
+    body_ =  new uiGroupParentBody(*this,*grpbdy, p, nm );
     setBody( body_ );
 
     grpobj_->body_->setPrntBody( body_ );
@@ -364,6 +364,19 @@ void uiGroup::setPrefHeight( int h )	{ uiObj()->setPrefHeight(h); }
 void uiGroup::setFont( const uiFont& f)	{ uiObj()->setFont(f); }
 void uiGroup::setCaption(const char* c)	{ uiObj()->setCaption(c); }
 void uiGroup::reDraw( bool deep )		{ uiObj()->reDraw( deep ); }
+
+void uiGroup::setShrinkAllowed(bool yn)
+{ 
+    uiObjectBody* bdy = dynamic_cast<uiObjectBody*>(uiObj()->body());
+    if( bdy ) bdy->setShrinkAllowed(yn); 
+}
+
+bool uiGroup::shrinkAllowed()
+{ 
+    uiObjectBody* bdy = dynamic_cast<uiObjectBody*>(uiObj()->body());
+    return bdy ? bdy->shrinkAllowed() : false; 
+}
+
 
 const uiFont* uiGroup::font() const		{ return uiObj()->font(); }
 
@@ -406,9 +419,11 @@ uiSize uiGroup::actualSize( bool include_border) const
 void uiGroup::setIsMain( bool yn )
     { body_->setIsMain( yn ); }
 
-void uiGroup::setSpacing( int s )
-    { body_->setSpacing( s ); }
+void uiGroup::setHSpacing( int s )
+    { body_->setHSpacing( s ); }
 
+void uiGroup::setVSpacing( int s )
+    { body_->setVSpacing( s ); }
 
 void uiGroup::setBorder( int b )
     { body_->setBorder( b ); }
