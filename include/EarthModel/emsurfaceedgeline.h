@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.9 2004-09-16 08:04:16 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.10 2004-09-20 11:57:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -131,7 +131,7 @@ protected:
     			/*!<\returns true if the segments are of the same
 			     	     type and have the same settigs */
 
-    virtual bool	isNodeOK( const RowCol& );
+    virtual bool	isNodeOK( const RowCol& ) const;
     virtual bool	trackWithCache( int idx, bool forward,
 	    		       const EdgeLineSegment* prev=0,
 	   		       const EdgeLineSegment* next=0 );
@@ -141,6 +141,9 @@ protected:
     bool		isAtEdge( const RowCol& ) const;
     bool		isConnToNext(int idx) const;
     bool		isConnToPrev(int idx) const;
+    bool		areAllNodesOutsideBad(int idx,
+			     const EdgeLineSegment* prev,
+			     const EdgeLineSegment* next ) const;
 
     bool		getNeighborNode(int idx, bool forward, RowCol&,
 	    				const EdgeLineSegment* prev,

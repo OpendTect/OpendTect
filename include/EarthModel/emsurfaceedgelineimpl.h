@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.4 2004-09-16 08:04:16 kristofer Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.5 2004-09-20 11:57:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ public:
 					    const EM::SectionID& sect )
 			    : EdgeLineSegment( surf, sect ) {}
     virtual bool	shouldSurfaceTrack(int,const RowCol&) const { return false; }
-    bool		isNodeOK(const RowCol&);
+    bool		isNodeOK(const RowCol&) const;
 
     void		setConnectingSection(const EM::SectionID& ns )
 			{ connectingsection = ns; }
@@ -78,7 +78,7 @@ public:
     void		setCuttingSurface( const EM::Surface* cs, bool pos )
 			{ cuttingsurface = cs; cutonpositiveside = pos; }
 
-    bool		isNodeOK(const RowCol&);
+    bool		isNodeOK(const RowCol&) const;
 
     static
     SurfaceCutLine*	createCutFromEdges( EM::Surface& surface,

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.4 2004-09-16 08:03:35 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.5 2004-09-20 11:57:06 kristofer Exp $";
 
 
 
@@ -50,7 +50,7 @@ bool SurfaceConnectLine::internalIdenticalSettings(
 }
 
 
-bool SurfaceConnectLine::isNodeOK(const RowCol& rc)
+bool SurfaceConnectLine::isNodeOK(const RowCol& rc) const
 {
     return EdgeLineSegment::isNodeOK(rc) &&
 	   surface.geometry.isDefined(connectingsection,rc);
@@ -110,7 +110,7 @@ float SurfaceCutLine::getMeshDist()
 }
 
 
-bool SurfaceCutLine::isNodeOK(const RowCol& testrc)
+bool SurfaceCutLine::isNodeOK(const RowCol& testrc) const
 {
     const int cacheidx = cacherc.indexOf(testrc,false);
 
@@ -123,10 +123,12 @@ bool SurfaceCutLine::isNodeOK(const RowCol& testrc)
 	    disttosurface = cuttingsurface->geometry.normalDistance(ntpos,t2d);
 	    if ( cutonpositiveside ) disttosurface = -disttosurface;
 	}
-	distcache += disttosurface;
-	cacherc+=testrc;
-	poscache += ntpos;
-	ischanged += false;
+
+	SurfaceCutLine* thisp = const_cast<SurfaceCutLine*>(this);
+	thisp->distcache += disttosurface;
+	thisp->cacherc+=testrc;
+	thisp->poscache += ntpos;
+	thisp->ischanged += false;
     }
     else
 	disttosurface = distcache[cacheidx];

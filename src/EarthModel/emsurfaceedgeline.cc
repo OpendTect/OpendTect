@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.11 2004-09-20 07:37:11 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.12 2004-09-20 11:57:06 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -179,6 +179,7 @@ bool EdgeLineSegment::isClosed() const
 
 bool EdgeLineSegment::isContinuedBy(  const EdgeLineSegment* seg ) const
 {
+    if ( !seg ) return false;
     const int sz = size();
     return sz && seg->size() &&
 	   nodes[sz-1].isNeighborTo((*seg)[0], surface.geometry.step());
@@ -230,7 +231,43 @@ bool EdgeLineSegment::isConnToPrev(int idx) const
     if ( !idx )
 	return true;
 
-    return nodes[idx].isNeighborTo(nodes[idx-1], surface.geometry.step(), true );
+    return nodes[idx].isNeighborTo(nodes[idx-1],surface.geometry.step(),true );
+}
+
+
+bool EdgeLineSegment::areAllNodesOutsideBad(int idx,
+	const EdgeLineSegment* prev, const EdgeLineSegment* next) const
+{
+    if ( !idx && !prev )
+	return true;
+
+    if ( idx==size()-1 && !next )
+	return true;
+
+    RowCol nextrc;
+    if ( !getNeighborNode( idx, true, nextrc, prev, next ) )
+	return false;
+
+    RowCol prevrc;
+    if ( !getNeighborNode( idx, false, prevrc, prev, next ) )
+	return false;
+
+    const TypeSet<RowCol>& dirs=RowCol::clockWiseSequence();
+    const RowCol& cur = nodes[idx];
+    int prevdir = dirs.indexOf((prevrc-cur).getDirection());
+    int nextdir = dirs.indexOf((nextrc-cur).getDirection());
+
+    int curdir = (prevdir+1)%dirs.size();
+    while ( curdir!=nextdir )
+    {
+	const RowCol nrc = cur+dirs[curdir]*surface.geometry.step();
+	if ( isNodeOK(nrc) )
+	    return false;
+
+	if ( ++curdir>=dirs.size() ) curdir = 0;
+    }
+
+    return true;
 }
 
 
@@ -385,10 +422,12 @@ RowCol EdgeLineSegment::last() const
 }
 
 
-bool EdgeLineSegment::isNodeOK( const RowCol& rc ) { return isAtEdge(rc); }
+bool EdgeLineSegment::isNodeOK( const RowCol& rc ) const
+{ return isAtEdge(rc) && isDefined(rc); }
+
 
 bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
-				   const EdgeLineSegment* next )
+			       const EdgeLineSegment* next )
 {
     removeCache();
     PtrMan<NotifyStopper> stopper = notifier ? new NotifyStopper(*notifier) : 0;
@@ -400,7 +439,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	for ( int idy=0; idy<size(); idy++ )
 	{
 	    const RowCol& rc = (*this)[idy];
-	    if ( isDefined(rc) && isNodeOK(rc) && !isByPassed(idy,prev,next) )
+	    if ( isNodeOK(rc) && !isByPassed(idy,prev,next) )
 		break;
 
 	    nodes.remove(idy--);
@@ -427,19 +466,18 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	for ( int idy=0; idy<size(); idy++ )
 	{
 	    const RowCol& rc = (*this)[idy];
-	    if ( isDefined(rc) && isNodeOK(rc) )
+	    if ( isNodeOK(rc) )
 		break;
 
 	    nodes.remove(idy--);
 	    change = true;
-	    backward = true;
 	}
 
 	if ( !size() )
 	    mReTrackReturn(false);
     }
 
-    if ( size()==1 )
+    if ( !prev || size()==1 )
 	backward = true;
 
     int idx = 0;
@@ -454,40 +492,12 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	    const RowCol& rc = (*this)[nextidx];
 	    if ( !isConnToNext(idx) )
 		dotrack = true;
-	    else if ( !isDefined(rc) )
-		dotrack = true;
 	    else if ( !isNodeOK(rc) )
 		dotrack = true;
-	    else if ( isByPassed(idx, prev, next ) )
+	    else if ( isByPassed(idx,prev,next) )
 		dotrack = true;
-	    else
-	    {
-		RowCol nextrc;
-		if ( !getNeighborNode( idx, true, nextrc, prev, next ) )
-		    dotrack = true;
-		else
-		{
-		    RowCol prevrc;
-		    if ( !getNeighborNode( idx, false, prevrc, prev, next ) )
-			dotrack = true;
-		    else
-		    {
-			const TypeSet<RowCol>& dirs=RowCol::clockWiseSequence();
-			const RowCol& cur = nodes[idx];
-			int prevdir = dirs.indexOf((prevrc-cur).getDirection());
-			int nextdir = dirs.indexOf((nextrc-cur).getDirection());
-
-			int curdir = (prevdir+1)%dirs.size();
-			while ( curdir!=nextdir )
-			{
-			    const RowCol nrc = cur+dirs[curdir]*surface.geometry.step();
-			    if ( isDefined(nrc) )
-			    { dotrack=true; break; }
-			    if ( ++curdir>=dirs.size() ) curdir = 0;
-			}
-		    }
-		}
-	    }
+	    else if ( !areAllNodesOutsideBad(idx,prev,next) )
+		dotrack = true;
 	}
 
 	if ( dotrack )
@@ -522,7 +532,7 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	    {
 		if ( !next && !prev && isClosed() )
 		    mReTrackReturn(true);
-		if ( prev->isContinuedBy(this) )
+		if ( prev && prev->isContinuedBy(this) )
 		    mReTrackReturn(true);
 
 		break;
