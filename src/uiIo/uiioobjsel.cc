@@ -4,29 +4,24 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.52 2003-05-14 15:13:20 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.53 2003-05-16 15:33:43 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiioobjsel.h"
+#include "uiioobjmanip.h"
 #include "iodirentry.h"
 #include "uigeninput.h"
-#include "uigeninputdlg.h"
 #include "uilistbox.h"
-#include "uifiledlg.h"
 #include "uimsg.h"
-#include "uibutton.h"
-#include "uibuttongroup.h"
-#include "pixmap.h"
+#include "ctxtioobj.h"
+#include "transl.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "iolink.h"
 #include "iodir.h"
 #include "iopar.h"
-#include "transl.h"
-#include "ptrman.h"
-#include "filegen.h"
 #include "errh.h"
 
 
@@ -58,45 +53,28 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( ctio.ioobj )
         entrylist->setSelected( ctio.ioobj->key() );
 
+    uiGroup* topgrp = new uiGroup( this, "Top group" );
     entrylist->setName( seltxt );
-    listfld = new uiLabeledListBox( this, entrylist->Ptr() );
+    listfld = new uiLabeledListBox( topgrp, entrylist->Ptr() );
     if ( ismultisel )
 	listfld->box()->setMultiSelect( true );
     listfld->box()->setPrefWidthInChar( 
-		listfld->box()->optimumFieldWidth(20,60) );
+		listfld->box()->optimumFieldWidth(25,60) );
+    listfld->box()->setPrefHeightInChar( 8 );
 
     if ( !ctio.ctxt.forread )
     {
 	nmfld = new uiGenInput( this, "Name" );
-	nmfld->attach( alignedBelow, listfld );
+	nmfld->attach( stretchedBelow, topgrp );
+	nmfld->setElemSzPol( uiObject::smallmax );
 	nmfld->setStretch( 2, 0 );
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
     listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
     if ( !ismultisel && ctio.ctxt.maydooper )
-    {
-	uiButtonGroup* bg = new uiButtonGroup( this, "" );
-	const ioPixmap locpm( GetDataFileName("filelocation.png") );
-	const ioPixmap renpm( GetDataFileName("renameobj.png") );
-	const ioPixmap rempm( GetDataFileName("trashcan.png") );
-	const ioPixmap ropm( GetDataFileName("readonly.png") );
-	locbut = new uiToolButton( bg, "File loc TB", locpm );
-	renbut = new uiToolButton( bg, "Obj rename TB", renpm );
-	robut = new uiToolButton( bg, "Readonly togg", ropm );
-	rembut = new uiToolButton( bg, "Remove", rempm );
-	robut->setToggleButton( true );
-	locbut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
-	renbut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
-	robut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
-	rembut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
-	bg->attach( rightOf, listfld );
-	locbut->setToolTip( "Change location on disk" );
-	renbut->setToolTip( "Rename this object" );
-	robut->setToolTip( "Toggle read-only" );
-	rembut->setToolTip( "Remove this object" );
-    }
-
+	manipgrp = new uiIOObjManipGroup( listfld->box(), *entrylist,
+					  ctio.ctxt.trgroup->defExtension() );
     setOkText( "Select" );
     selChg( this );
     finaliseDone.notify( mCB(this,uiIOObjSelDlg,selChg) );
@@ -144,7 +122,7 @@ const IOObj* uiIOObjSelDlg::selected( int objnr ) const
 }
 
 
-void uiIOObjSelDlg::selChg( CallBacker* c )
+void uiIOObjSelDlg::selChg( CallBacker* cb )
 {
     if ( ismultisel ) return;
     const int curitm = listfld->box()->currentItem();
@@ -153,229 +131,11 @@ void uiIOObjSelDlg::selChg( CallBacker* c )
     {
 	entrylist->setCurrent( listfld->box()->currentItem() );
 	ioobj = entrylist->selected();
-	if ( c && nmfld )
+	if ( cb && nmfld )
 	    nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
     }
 
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    const bool ischangable = ioobj && !ioobj->implReadOnly();
-    locbut->setSensitive( iostrm && ischangable );
-    robut->setOn( !ischangable );
-    renbut->setSensitive( ioobj );
-    rembut->setSensitive( ischangable );
-}
-
-
-void uiIOObjSelDlg::tbPush( CallBacker* c )
-{
-    if ( !ioobj ) return;
-    mDynamicCastGet(uiToolButton*,tb,c)
-    if ( !tb ) { pErrMsg("CallBacker is not uiToolButton!"); return; }
-
-    const int curitm = listfld->box()->currentItem();
-    MultiID prevkey( ioobj->key() );
-    PtrMan<Translator> tr = ioobj->getTranslator();
-
-    bool chgd = false;
-    if ( tb == locbut )
-	chgd = chgEntry( tr );
-    else if ( tb == robut )
-	chgd = roEntry( tr );
-    else if ( tb == renbut )
-	chgd = renEntry( tr );
-    else if ( tb == rembut )
-    {
-	bool exists = tr ? tr->implExists(ioobj,true) : ioobj->implExists(true);
-	bool readonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
-	if ( exists && readonly )
-	{
-	    uiMSG().error( "Entry is not writable.\nPlease change this first.");
-	    return; 
-	}
-	chgd = rmEntry( exists );
-	if ( chgd ) prevkey = "";
-    }
-    if ( !chgd ) return;
-
-    entrylist->fill( IOM().dirPtr() );
-    if ( prevkey != "" )
-	entrylist->setSelected( prevkey );
-    else
-    {
-	const int newcur = curitm >= entrylist->size() ? curitm - 1 : curitm;
-	if ( newcur >= 0 )
-	    entrylist->setCurrent( newcur );
-    }
-
-    listfld->box()->empty();
-    listfld->box()->addItems( entrylist->Ptr() );
-
-    selChg(c);
-}
-
-
-bool uiIOObjSelDlg::renImpl( Translator* tr, IOStream& iostrm,
-			     IOStream& chiostrm )
-{
-    const bool oldimplexist = tr ? tr->implExists(&iostrm,true)
-				 : iostrm.implExists(true);
-    BufferString newfname( chiostrm.fullUserExpr(true) );
-
-    if ( oldimplexist )
-    {
-	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
-				     : chiostrm.implExists(true);
-	if ( newimplexist && !uiRmIOObjImpl( chiostrm, true ) )
-	    return false;
-
-	if ( tr )
-	    tr->implRename( &iostrm, newfname );
-	else
-	    iostrm.implRename( newfname );
-    }
-
-    iostrm.setFileName( newfname );
-    return true;
-}
-
-
-bool uiIOObjSelDlg::renEntry( Translator* tr )
-{
-    BufferString titl( "Rename '" );
-    titl += ioobj->name(); titl += "'";
-    uiGenInputDlg dlg( this, titl, "New name",
-	    		new StringInpSpec(ioobj->name()) );
-    if ( !dlg.go() ) return false;
-
-    BufferString newnm = dlg.text();
-    if ( listfld->box()->isPresent(newnm) )
-    {
-	if ( newnm != ioobj->name() )
-	    uiMSG().error( "Name already in use" );
-	return false;
-    }
-    else
-    {
-	IOObj* ioobj = IOM().getLocal( newnm );
-	if ( ioobj )
-	{
-	    BufferString msg( "This name is already used by a " );
-	    msg += ioobj->translator();
-	    msg += " object";
-	    delete ioobj;
-	    uiMSG().error( msg );
-	    return false;
-	}
-    }
-
-    ioobj->setName( newnm );
-
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    if ( iostrm && iostrm->implExists(true) )
-    {
-	IOStream chiostrm;
-	chiostrm.copyFrom( iostrm );
-	if ( tr )
-	    chiostrm.setExt( tr->defExtension() );
-	chiostrm.genDefaultImpl();
-	if ( !renImpl(tr,*iostrm,chiostrm) )
-	    return false;
-
-	iostrm->copyFrom( &chiostrm );
-    }
-
-    IOM().commitChanges( *ioobj );
-    return true;
-}
-
-
-bool uiRmIOObjImpl( IOObj& ioob, bool askexist )
-{
-    BufferString mess = "Remove ";
-    if ( askexist ) mess += " existing ";
-    mess += "'";
-    if ( !ioob.isLink() )
-	{ mess += ioob.fullUserExpr(true); mess += "'?"; }
-    else
-    {
-	FileNameString fullexpr( ioob.fullUserExpr(true) );
-	mess += File_getFileName(fullexpr);
-	mess += "'\n- and everything in it! - ?";
-    }
-    if ( !uiMSG().askGoOn(mess) )
-	return false;
-
-    if ( !fullImplRemove(ioob) )
-    {
-	BufferString mess = "Could not remove '";
-	mess += ioob.fullUserExpr(true);
-	mess += "'\nRemove entry from list anyway?";
-	if ( !uiMSG().askGoOn(mess) )
-	    return false;
-    }
-    return true;
-}
-
-
-bool uiIOObjSelDlg::rmEntry( bool rmabl )
-{
-    if ( rmabl && !uiRmIOObjImpl( *ioobj, false ) )
-	return false;
-
-    entrylist->curRemoved();
-    IOM().permRemove( ioobj->key() );
-    return true;
-}
-
-
-bool uiIOObjSelDlg::chgEntry( Translator* tr )
-{
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    BufferString caption( "New file/location for '" );
-    caption += ioobj->name(); caption += "'";
-    BufferString oldfnm( iostrm->fullUserExpr(true) );
-    BufferString defext( ctio.ctxt.trgroup->defExtension() );
-    BufferString filefilt( "*" );
-    if ( defext != "" )
-    {
-	filefilt += "."; filefilt += defext;
-	filefilt += ";;*";
-    }
-    uiFileDialog dlg( this, uiFileDialog::AnyFile, oldfnm, filefilt, caption );
-    if ( !dlg.go() ) return false;
-
-    IOStream chiostrm;
-    chiostrm.copyFrom( iostrm );
-    BufferString newfnm( dlg.fileName() );
-    chiostrm.setFileName( newfnm );
-    if ( !renImpl(tr,*iostrm,chiostrm) )
-	return false;
-
-    IOM().commitChanges( *iostrm );
-    return true;
-}
-
-
-bool uiIOObjSelDlg::roEntry( Translator* tr )
-{
-    if ( !ioobj ) { pErrMsg("Huh"); return false; }
-
-    bool exists = tr ? tr->implExists(ioobj,true) : ioobj->implExists(true);
-    if ( !exists ) return false;
-
-    bool oldreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
-    bool newreadonly = robut->isOn();
-    if ( oldreadonly == newreadonly ) return false;
-
-    bool res = tr ? tr->implSetReadOnly(ioobj,newreadonly)
-		: ioobj->implSetReadOnly(newreadonly);
-
-    newreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
-    if ( oldreadonly == newreadonly )
-	uiMSG().warning( "Could not change the read-only status" );
-
-    selChg(0);
-    return false;
+    manipgrp->selChg( cb );
 }
 
 

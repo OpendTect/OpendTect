@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.28 2003-05-12 16:15:23 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.29 2003-05-16 15:33:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,9 @@ class IOObj;
 class IOStream;
 class CtxtIOObj;
 class uiGenInput;
-class Translator;
 class IODirEntryList;
 class uiLabeledListBox;
-class uiToolButton;
+class uiIOObjManipGroup;
 
 
 /*! \brief dialog returning an IOObj* after successful go(). */
@@ -67,32 +66,18 @@ protected:
     IOObj*		ioobj;
     bool		ismultisel;
 
+    uiIOObjManipGroup*	manipgrp;
     uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
     uiGroup*		grp;
-    uiToolButton*	locbut;
-    uiToolButton*	robut;
-    uiToolButton*	renbut;
-    uiToolButton*	rembut;
 
     bool		acceptOK(CallBacker*);
     void		selChg(CallBacker*);
-    void		tbPush(CallBacker*);
 
     virtual bool	createEntry(const char*);
 
-    bool		rmEntry(bool);
-    bool		renEntry(Translator*);
-    bool		chgEntry(Translator*);
-    bool		roEntry(Translator*);
-    bool		renImpl(Translator*,IOStream&,IOStream&);
-
 };
 
-
-//! Removes the underlying file(s) that an IOObj describes, with warnings
-//!< if exist_lbl set to true, " existing " is added to message.
-bool uiRmIOObjImpl(IOObj&,bool exist_lbl=false);
 
 /*! \brief UI element for selection of IOObjs
 
