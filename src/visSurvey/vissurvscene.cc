@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.17 2002-04-18 09:24:33 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.18 2002-04-18 09:51:15 bert Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -99,7 +99,7 @@ visSurvey::Scene::Scene()
 
     annot->setText( 0, "In-line" );
     annot->setText( 1, "Cross-line" );
-    annot->setText( 2, "TWT");
+    annot->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
     addInlCrlTObject( annot );
 
     visBase::DirectionalLight* light = visBase::DirectionalLight::create();

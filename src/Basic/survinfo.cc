@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.20 2002-03-22 15:06:18 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.21 2002-04-18 09:51:15 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -173,6 +173,8 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	    zrange_.step = atof(fms[2]);
 	    if ( mIsUndefined(zrange_.step) || mIS_ZERO(zrange_.step) )
 		zrange_.step = 0.004;
+	    if ( fms.size() > 3 )
+		zistime_ = *fms[3] != 'D';
 	    zrange_.sort();
 	}
 	else if ( matchString("Set Point",astream.keyWord()) )
@@ -247,7 +249,7 @@ int SurveyInfo::write( const char* basedir ) const
     if ( !mIS_ZERO(zrange_.width()) )
     {
 	fms = ""; fms += zrange_.start; fms += zrange_.stop;
-	fms += zrange_.step;
+	fms += zrange_.step; fms += zistime_ ? "T" : "D";
 	astream.put( sKeyZRange, fms );
     }
     if ( wsprojnm_ != "" )
