@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.1 2003-10-21 08:27:30 kristofer Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.2 2003-10-31 15:37:53 nanne Exp $
 ________________________________________________________________________
 
 
@@ -146,6 +146,8 @@ public:
     			/*!< Does only update the display */
     virtual void	updateColumnText(int col);
 
+    void		disabRightClick(bool yn) 	{ disabrightclick=yn; }
+
 
 			~uiTreeTopItem();
 protected:
@@ -155,6 +157,8 @@ protected:
     void		anyButtonClickCB(CallBacker*);
     virtual const char*	parentType() const { return 0; } 
     virtual uiParent*	getUiParent();
+
+    bool		disabrightclick;
 };
 
 
