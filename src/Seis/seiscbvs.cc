@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.20 2002-07-21 23:17:42 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.21 2002-07-22 15:52:43 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.20 2002-07-21 23:17:42 bert Exp
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
 #include "iostrm.h"
+#include "cubesampling.h"
 #include "iopar.h"
 #include "binidselimpl.h"
 #include "uidset.h"
@@ -226,6 +227,31 @@ void CBVSSeisTrcTranslator::calcSamps()
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
     const int nrcomps = nrSelComps();
+    if ( forread )
+    {
+	CubeSampling cs;
+	if ( trcsel && trcsel->bidsel && trcsel->bidsel->type() < 2 )
+	{
+	    const BinIDRange& br = *(BinIDRange*)trcsel->bidsel;
+	    BinID start = br.start; BinID stop = br.stop;
+	    start.inl -= br.stepOut().inl; stop.inl += br.stepOut().inl;
+	    start.crl -= br.stepOut().crl; stop.crl += br.stepOut().crl;
+	    cs.hrg.start = start; cs.hrg.stop = stop;
+	}
+	cs.zrg.start = outcds[0]->sd.start;
+	cs.zrg.stop = cs.zrg.start
+	    	    + outcds[0]->sd.step * (outcds[0]->nrsamples - 1);
+
+	if ( !rdmgr->pruneReaders( cs ) )
+	    { errmsg = "Input contains no relevant data"; return false; }
+
+	const BasicComponentInfo& ci = *rdmgr->info().compinfo[0];
+	for ( int idx=0; idx<nrcomps; idx++ )
+	{
+	    inpcds[idx]->sd.start = ci.sd.start;
+	    inpcds[idx]->nrsamples = ci.nrsamples;
+	}
+    }
 
     calcSamps();
     samedatachar = new bool [nrcomps];
@@ -342,10 +368,8 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
     static CBVSInfo::ExplicitData expldat;
     if ( !rdmgr->getHInfo(expldat) )
-    {
-	errmsg = "Cannot get header info";
 	return false;
-    }
+
     ti.nr = ++nrdone;
     ti.binid = expldat.binid;
     ti.sampling.start = useinpsd ? expldat.startpos : outcds[0]->sd.start;

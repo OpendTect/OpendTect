@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.9 2002-07-19 14:47:31 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.10 2002-07-22 15:52:43 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -21,6 +21,7 @@ CBVSInfo::SurvGeom& CBVSInfo::SurvGeom::operator =(
     step = sg.step;
     b2c = sg.b2c;
 
+    deepErase( inldata );
     for ( int idx=0; idx<sg.inldata.size(); idx++ )
 	inldata += new CBVSInfo::SurvGeom::InlineInfo( *sg.inldata[idx] );
 
@@ -37,6 +38,7 @@ CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
     stdtext = ci.stdtext;
     usertext = ci.usertext;
 
+    deepErase( compinfo );
     for ( int idx=0; idx<ci.compinfo.size(); idx++ )
 	compinfo += new BasicComponentInfo( *ci.compinfo[idx] );
 

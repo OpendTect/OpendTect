@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.7 2002-07-19 14:47:31 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.8 2002-07-22 15:52:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,11 +57,12 @@ public:
     const char*		baseFileName() const
 			{ return (const char*)basefname_; }
 
-    // some info
     int			nrReaders() const
 			{ return readers_.size(); }
     const CBVSReader&	reader( int idx ) const
 			{ return *readers_[idx]; }
+    int			pruneReaders(const CubeSampling&);
+    			//!< returns number of readers left.
 
 protected:
 
