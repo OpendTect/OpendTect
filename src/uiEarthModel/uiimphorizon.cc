@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.34 2003-11-24 08:54:54 kristofer Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.35 2004-01-19 16:38:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
 				 "Specify horizon parameters","104.0.0"))
     , ctio(*mMkCtxtIOObj(EMHorizon))
+    , emobjid(-1)
 {
     infld = new uiFileInput( this, "Input Ascii file", 
 	    		     uiFileInput::Setup().withexamine() );
@@ -85,8 +86,8 @@ bool uiImportHorizon::handleAscii()
 
     const char* horizonnm = outfld->getInput();
     EM::EMManager& em = EM::EMM();
-    const EM::ObjectID key = em.add( EM::EMManager::Hor, horizonnm );
-    mDynamicCastGet( EM::Horizon*, horizon, em.getObject( key ) );
+    emobjid = em.add( EM::EMManager::Hor, horizonnm );
+    mDynamicCastGet( EM::Horizon*, horizon, em.getObject(emobjid) );
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
     horizon->ref();
@@ -196,5 +197,9 @@ bool uiImportHorizon::doDisplay() const
 
 MultiID uiImportHorizon::getSelID() const
 {
-    return ctio.ioobj ? ctio.ioobj->key() : -1;
+    if ( emobjid<0 ) return -1;
+
+    MultiID mid = IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id;
+    mid.add(emobjid);
+    return mid;
 }

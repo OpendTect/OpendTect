@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.7 2004-01-19 16:37:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "multiid.h"
+#include "emposid.h"
 
 class CtxtIOObj;
 class uiBinIDSubSel;
@@ -50,6 +51,7 @@ protected:
     bool		handleAscii();
 
     CtxtIOObj&		ctio;
+    EM::ObjectID	emobjid;
 };
 
 
