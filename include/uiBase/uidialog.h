@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.3 2001-02-16 17:01:38 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.4 2001-04-13 11:52:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,19 +15,24 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "bufstring.h"
 
-template <class T> class i_QObjWrapper;
+class IOPar;
 class QDialog;
 class QWidget;
-
-mTemplTypeDefT( i_QObjWrapper, QDialog, i_QDialog )
-mTemplTypeDefT( i_QObjWrapper, QWidget, i_QWidget )
-
 class i_LayoutMngr;
 class uiPushButton;
 class uiCheckBox;
 class uiSeparator;
-
 class uiLabel;
+template <class T> class i_QObjWrapper;
+mTemplTypeDefT( i_QObjWrapper, QDialog, i_QDialog )
+mTemplTypeDefT( i_QObjWrapper, QWidget, i_QWidget )
+
+
+/*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
+'Save defaults' button.
+
+*/
+
 
 class uiDialog : public uiWrapObj<i_QDialog>
 { 	
@@ -52,6 +57,10 @@ public:
     void		setSpacing( int ); 
     void		setBorder( int ); 
 
+    void		setOkText( const char* txt )	{ okText = txt; }
+			//!< OK button disabled when set to empty
+    void		setCancelText( const char* txt ) { cnclText = txt; }
+			//!< cancel button disabled when set to empty
     void		enableSaveButton( const char* txt="Save defaults" )
 			    { saveText = txt; }
     bool		saveButtonChecked();
@@ -62,6 +71,7 @@ public:
     bool		separator()			{ return separ; }
 
 protected:
+
     const QWidget*	qWidget_() const;
 
     virtual i_LayoutMngr* mLayoutMngr() 	
@@ -101,6 +111,14 @@ protected:
 
 };
 
+
+class uiDialogCreater
+{
+public:
+
+    virtual uiDialog*	create(uiObject*,IOPar&)		= 0;
+
+};
 
 
 #endif

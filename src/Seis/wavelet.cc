@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.4 2001-02-13 17:21:08 bert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.5 2001-04-13 11:51:12 bert Exp $";
 
 #include "wavelet.h"
 #include "ascstream.h"
@@ -149,7 +149,7 @@ IOObjContext WaveletTranslator::ioContext()
     ctxt.newonlevel = 1;
     ctxt.needparent = NO;
     ctxt.maychdir = NO;
-    ctxt.selkey = "100030";
+    ctxt.stdseltype = IOObjContext::Wvlt;
 
     return ctxt;
 }
