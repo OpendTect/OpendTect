@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.7 2005-03-23 16:00:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.8 2005-03-24 16:25:17 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -214,18 +214,20 @@ const AttribSelSpec* MPEDisplay::getSelSpec() const
 
 void MPEDisplay::updateTexture()
 {
+    const AttribSliceSet* sliceset = engine_.getAttribCache( as_ );
+    if ( !sliceset )
+    {
+	setTexture( 0 );
+	return;
+    }
+
     if ( !texture_ )
 	setTexture( visBase::Texture3::create() );
 
     const Array3D<float>* td = 0;
-    const AttribSliceSet* sliceset = engine_.getAttribCache( as_ );
-    if ( sliceset )
-    {
-	if ( getCubeSampling() != sliceset->sampling )
-	    setCubeSampling( sliceset->sampling );
-	td = sliceset->createArray( 0, 1, 2 );
-    }
-
+    if ( getCubeSampling() != sliceset->sampling )
+	setCubeSampling( sliceset->sampling );
+    td = sliceset->createArray( 0, 1, 2 );
     texture_->setData( td );
     delete td;
 }
