@@ -1,4 +1,4 @@
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 #include "progressmeter.h"
 
@@ -9,7 +9,7 @@ int main( int argc, char** argv )
     const int totnr = argc > 1 ? atoi(argv[1]) : 0;
     ProgressMeter progressmeter( cerr );
 
-    unsigned char buf[chunksz];
+    char buf[chunksz];
     while ( 1 )
     {
 	cin.read( buf, chunksz );

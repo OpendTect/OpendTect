@@ -5,14 +5,14 @@
  * FUNCTION : Create extra picks from locations file
 -*/
 
-static const char* rcsID = "$Id: extend_locs.cc,v 1.2 2002-10-23 11:48:28 dgb Exp $";
+static const char* rcsID = "$Id: extend_locs.cc,v 1.3 2003-02-06 11:20:55 bert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "stats.h"
 #include <stdlib.h>
-#include <iostream.h>
+#include <iostream>
 
 
 int main( int argc, char** argv )
