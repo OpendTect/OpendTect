@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.14 2004-01-16 13:41:18 dgb Exp $
+# $Id: od_cr_dev_env,v 1.15 2004-01-22 15:16:57 dgb Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -10,19 +10,24 @@
 
 
 if [ "$#" -lt 2 ]; then
-	echo "Usage : $0 OpendtTect_directory existing_target_directory"
-	exit 1
+    echo "Usage : $0 OpendtTect_directory existing_target_directory [--installcygwin]"
+    exit 1
 fi
 
+instcyg=0
 if [ "$HDIR" = "win" ]; then
     inpdir=`cygpath -u "$1"` 
     outdir=`cygpath -u "$2"`
     soext=dll
+    if [ "$3" = "--installcygwin" ]; then
+	instcyg=1
+    fi
 else
     inpdir=$1
     outdir=$2
     soext=so
 fi
+
 
 if [ ! -d "$inpdir" ] || [ ! -e "$inpdir/.rel.od.doc" ]; then
 	echo "$0 : $inpdir does not have the doc package installed"
@@ -94,3 +99,8 @@ do
 done
 
 cp "$inpdir/.rel.od.doc" .
+
+if [ $instcyg = 1 ]; then
+    batfile=`cygpath -w "${inpdir}/bin/win/instcyg.bat"`
+    cmd /E:off /c start "$batfile"
+fi
