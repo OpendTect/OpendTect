@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.61 2004-10-19 10:59:00 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.62 2004-10-27 14:36:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -390,18 +390,24 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	bool res = trackserv->setWorkCube( cs );
 	return res;
     }
-    
-    AttribSelSpec as(*(colordata ? &visserv->getColorSelSpec(visid)->as
-					: visserv->getSelSpec(visid)));
-    
-    if ( as.id()!=-1 ) attrserv->updateSelSpec( as );
-    if ( as.id()<-1 && !colordata )
+
+    const AttribSelSpec* as = colordata ? &visserv->getColorSelSpec(visid)->as
+					: visserv->getSelSpec(visid);
+    if ( !as )
+    {
+	uiMSG().error( "Cannot calculate attribute on this object" );
+	return false;
+    }
+
+    AttribSelSpec myas( *as );
+    if ( myas.id()!=-1 ) attrserv->updateSelSpec( myas );
+    if ( myas.id()<-1 && !colordata )
     {
 	uiMSG().error( "Cannot find selected attribute" );
 	return false;
     } 
     
-    if ( as.isNLA() && !colordata )
+    if ( myas.isNLA() && !colordata )
     {
 	if ( nlaserv && nlaserv->isClassification() )
 	    visserv->setClipRate( visid, 0 );
@@ -412,14 +418,14 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
     {
 	case 0:
 	{
-	    if ( as.id()<-1 && colordata )
+	    if ( myas.id()<-1 && colordata )
 	    { visserv->setCubeData(visid, true, 0 ); return true; }
 
 	    const AttribSliceSet* prevset =
 				visserv->getCachedData( visid, colordata );
 
 	    CubeSampling cs = visserv->getCubeSampling( visid );
-	    AttribSliceSet* slices = attrserv->createOutput(cs,as,prevset);
+	    AttribSliceSet* slices = attrserv->createOutput(cs,myas,prevset);
 
 	    if ( !slices ) return false;
 	    visserv->setCubeData( visid, colordata, slices );
@@ -428,27 +434,27 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	}
 	case 1:
 	{
-	    if ( as.id()<-1 && colordata )
+	    if ( myas.id()<-1 && colordata )
 	    { SeisTrcBuf b; visserv->setTraceData(visid,true,b); return true; }
 
 	    const Interval<float> zrg = visserv->getDataTraceRange( visid );
 	    TypeSet<BinID> bids;
 	    visserv->getDataTraceBids( visid, bids );
 	    SeisTrcBuf data( true );
-	    if ( !attrserv->createOutput( bids, zrg, data, as ) )
+	    if ( !attrserv->createOutput( bids, zrg, data, myas ) )
 		return false;
 	    visserv->setTraceData( visid, colordata, data );
 	    return true;
 	}
 	case 2:
 	{
-	    if ( as.id()<-1 && colordata )
+	    if ( myas.id()<-1 && colordata )
 	    { visserv->stuffSurfaceData(visid,true,0); return true; }
 
-	    if ( as.id() == AttribSelSpec::otherAttrib )
+	    if ( myas.id() == AttribSelSpec::otherAttrib )
 	    {
 		bool selok = emserv->loadAuxData( 
-		    *visserv->getMultiID(visid), as.userRef() );
+		    *visserv->getMultiID(visid), myas.userRef() );
 		if ( selok ) handleStoredSurfaceData( visid );
 		else uiMSG().error( "Cannot find stored data" );
 		return selok;
@@ -456,7 +462,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
 	    ObjectSet<BinIDValueSet> data;
 	    visserv->fetchSurfaceData( visid, data );
-	    if ( !attrserv->createOutput(data,as) )
+	    if ( !attrserv->createOutput(data,myas) )
 		return false;
 
 	    visserv->stuffSurfaceData( visid, colordata, &data );
