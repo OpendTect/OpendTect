@@ -4,12 +4,12 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.20 2002-04-19 14:28:59 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.21 2002-04-22 12:34:29 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
 #include "visdataman.h"
-#include "visseisdisplay.h"
+#include "visplanedatadisplay.h"
 #include "vissceneobjgroup.h"
 #include "vissurvscene.h"
 #include "position.h"
@@ -177,7 +177,8 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 		    const DataObject* pickedobj =
 			visBase::DM().getObj(eventinfo.pickedobjids[idx]);
 
-		    if ( typeid(*pickedobj)==typeid(visSurvey::SeisDisplay) )
+		    if ( typeid(*pickedobj)==
+			    typeid(visSurvey::PlaneDataDisplay) )
 		    {
 			validpicksurface = true;
 			break;

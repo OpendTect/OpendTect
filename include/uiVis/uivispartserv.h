@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.18 2002-04-22 11:31:14 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.19 2002-04-22 12:38:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ namespace visSurvey
 {
 class Scene;
 class PickSetDisplay;
-class SeisDisplay;
+class PlaneDataDisplay;
 };
 
 namespace visBase
@@ -159,7 +159,7 @@ protected:
     bool		mouseposinxyt;
 
     ObjectSet<visSurvey::PickSetDisplay>	picks;
-    ObjectSet<visSurvey::SeisDisplay>		seisdisps;
+    ObjectSet<visSurvey::PlaneDataDisplay>	seisdisps;
     ObjectSet<visSurvey::Scene>         	scenes;
 };
 
