@@ -81,7 +81,7 @@ make
 
 if ( $dodoc == yes ) then
     cdw
-    make doc MODS=$mods
+    make doc MODS=.mods.od
     cd data/dTectDoc/Programmer/Generated
     ./mk_paths_relative
 endif
