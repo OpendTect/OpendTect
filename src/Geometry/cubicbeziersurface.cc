@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.2 2005-01-13 09:38:51 kristofer Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.3 2005-01-20 07:08:11 kristofer Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -156,33 +156,32 @@ Coord3 CubicBezierSurface::getColDirection( const RCol& rc,
 
 
 #define mComputeDirImpl(_rowcol_) \
+    const Coord3* ptr = positions->getData(); \
     int diff = 2*step._rowcol_; \
     int previndex = getIndex(prev); \
-    Coord3 prevcoord = positions->getData()[previndex]; \
-    if ( !prevcoord.isDefined() ) previndex==-1; \
+    if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex==-1; \
  \
     int nextindex = getIndex(next); \
-    Coord3 nextcoord = positions->getData()[nextindex]; \
-    if ( !nextcoord.isDefined() ) nextindex==-1; \
+    if ( nextindex!=-1 && !ptr[nextindex].isDefined() ) nextindex==-1; \
  \
     if ( previndex==-1 ) \
     { \
 	previndex=getIndex(rc); \
-	prevcoord = positions->getData()[previndex]; \
-	if ( !prevcoord.isDefined() ) previndex==-1; \
+	if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex==-1; \
 	diff = step._rowcol_; \
     } \
     else if ( nextindex==-1) \
     { \
 	nextindex=getIndex(rc); \
-	nextcoord = positions->getData()[nextindex]; \
-	if ( !nextcoord.isDefined() ) nextindex==-1; \
+	if ( nextindex!=-1 && !ptr[nextindex].isDefined() ) nextindex==-1; \
 	diff = step._rowcol_; \
     } \
  \
     if ( previndex==-1 || nextindex==-1 ) \
 	return Coord3::udf(); \
  \
+    const Coord3 prevcoord = ptr[previndex]; \
+    const Coord3 nextcoord = ptr[nextindex]; \
     if ( prevcoord.sqDistance(nextcoord)<mEPS ) \
 	return Coord3::udf(); \
  \
@@ -194,7 +193,7 @@ Coord3 CubicBezierSurface::computeColDirection( const RCol& rc ) const
     const int lastcol = origo.col + (nrCols()-1)*step.col;
     const RowCol prev( rc.r(), rc.c()==origo.col && circularCols() 
 	    ? lastcol : rc.c()-step.col );
-    const RowCol next( rc.r(), rc.c()==lastcol && circularCols() && nrCols()>2
+    const RowCol next( rc.r(), rc.c()==lastcol && circularCols() 
 	    ? origo.col : rc.c()+step.col);
 
     mComputeDirImpl(col);
