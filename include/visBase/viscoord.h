@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.10 2004-11-02 10:42:48 kristofer Exp $
+ RCS:		$Id: viscoord.h,v 1.11 2004-11-16 09:28:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,13 +46,16 @@ public:
 			mCreateDataObj(Coordinates);
     friend		class CoordinatesBuilder;
 
-    void		setTransformation( Transformation* );
+    void		setDisplayTransformation( Transformation* );
     			/*!<\note All existing
 			     coords will be recalculated back from the old
 			     transformation and transformed by the new one.
-			 */
+			*/
 
-    Transformation*	getTransformation();
+    Transformation*	getDisplayTransformation();
+
+    void		setLocalTranslation( const Coord& );
+    Coord		getLocalTranslation() const;
 
     int			size(bool includedelete=false) const;
     int			addPos( const Coord3& );
@@ -65,6 +68,11 @@ public:
 
     SoNode*		getInventorNode();
 protected:
+    void		getPositions(TypeSet<Coord3>&) const;
+    void		setPositions(const TypeSet<Coord3>&);
+
+    void		setPosWithoutLock( int,  const Coord3& );
+    			/*!< Object should be locked when calling */
 
     int			getFreeIdx();
     			/*!< Object should be locked when calling */
