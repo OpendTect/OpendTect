@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.9 2004-09-14 14:02:51 nanne Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.10 2004-09-17 15:51:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class BufferString;
 class BufferStringSet;
+class CubeSampling;
 class MultiID;
 class SeisTrcBuf;
 
@@ -39,7 +40,7 @@ public:
     void		get2DStoredAttribs(const MultiID&,const char*,
 	    				   BufferStringSet&);
     bool		create2DOutput(const MultiID&,const char*,const char*,
-				       SeisTrcBuf&);
+				       CubeSampling&,SeisTrcBuf&);
 
     bool		mergeSeis();
     void		manageSeismics();
