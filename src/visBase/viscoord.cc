@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.14 2004-11-03 11:05:49 kristofer Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.15 2004-11-12 09:13:50 nanne Exp $";
 
 #include "viscoord.h"
 
@@ -51,13 +51,12 @@ void visBase::Coordinates::setTransformation( visBase::Transformation* nt )
 
     bool oldstatus = coords->point.enableNotify( false );
     TypeSet<Coord3> worldpos;
+    const int nrcoords = coords->point.getNum();
+    for ( int idx=0; idx<nrcoords; idx++ )
+	worldpos += getPos(idx,false);
 
     if ( transformation )
     {
-	const int nrcoords = coords->point.getNum();
-	for ( int idx=0; idx<nrcoords; idx++ )
-	    worldpos += getPos(idx);
-
 	transformation->unRef();
 	transformation = 0;
     }
@@ -67,7 +66,6 @@ void visBase::Coordinates::setTransformation( visBase::Transformation* nt )
     if ( transformation )
 	transformation->ref();
 
-    const int nrcoords = coords->point.getNum();
     for ( int idx=0; idx<nrcoords; idx++ )
     {
 	if ( unusedcoords.indexOf(idx)!=-1 )
