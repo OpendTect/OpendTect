@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.8 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.9 2004-05-06 14:21:45 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,8 +108,13 @@ void uiPluginMan::loadPush( CallBacker* )
     static const char* filt = "*.DLL;;*.*";
     static const char* captn = "Select plugin DLL";
 #else
+# ifdef __mac
+    static const char* filt = "*.dylib*;;*";
+    static const char* captn = "Select plugin shared library";
+# else
     static const char* filt = "*.so*;;*";
     static const char* captn = "Select plugin shared library";
+# endif
 #endif
 
     static BufferString defdir;
