@@ -4,21 +4,23 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.3 2002-05-13 14:34:40 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.4 2002-06-13 21:00:58 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "hostdata.h"
+#include "strmdata.h"
+#include "strmprov.h"
+#include "ascstream.h"
+#include "errh.h"
 #include <netdb.h>
-//WIN
 #include <unistd.h>
 
 
 const char* HostData::localHostName()
 {
     static char ret[256];   
-//WIN
     gethostname( ret, 256 );
     return ret;
 }
@@ -26,6 +28,8 @@ const char* HostData::localHostName()
 
 const char* HostData::shortestName() const
 {
+    if ( !realaliases_ ) return name_;
+
     int len = name_.size();
     int ishortest = -1;
     for ( int idx=0; idx<aliases_.size(); idx++ )
@@ -38,6 +42,8 @@ const char* HostData::shortestName() const
 
 const char* HostData::name() const
 {
+    if ( !realaliases_ ) return name_;
+
     const char* shortnm = shortestName();
     if ( *shortnm != 'l' ) return shortnm;
 
@@ -68,21 +74,67 @@ void HostData::addAlias( const char* nm )
 
 
 HostDataList::HostDataList()
+    	: realaliases_(false)
+    	, rshcomm_("rsh")
+    	, defnicelvl_(19)
 {
-//WIN
-    sethostent(0);
-    struct hostent* he;
-    while ( (he = gethostent()) )
+    BufferString fname( GetDataFileName("BatchHosts") );
+    if ( !readHostFile(fname) )
     {
-	HostData* newhd = new HostData( he->h_name );
-	char** al = he->h_aliases;
-	while ( *al )
-	    { newhd->aliases_ += new BufferString(*al); al++; }
-	*this += newhd;
+	sethostent(0);
+	struct hostent* he;
+	while ( (he = gethostent()) )
+	{
+	    HostData* newhd = new HostData( he->h_name );
+	    char** al = he->h_aliases;
+	    while ( *al )
+	    {
+		if ( !newhd->isKnownAs(*al) )
+		    newhd->aliases_ += new BufferString(*al);
+		al++;
+	    }
+	    *this += newhd;
+	}
+	endhostent();
+	realaliases_ = true;
     }
-    endhostent();
 
     handleLocal();
+}
+
+
+bool HostDataList::readHostFile( const char* fname )
+{
+    StreamData sd = StreamProvider( fname ).makeIStream();
+    if ( !sd.usable() || !sd.istrm->good() )
+	return false;
+
+    ascistream astrm( *sd.istrm );
+    if ( !astrm.isOfFileType("Batch Processing Hosts") )
+    {
+	BufferString msg( fname );
+	msg += ": invalid hosts file (invalid file header)";
+	ErrMsg( msg ); return false;
+    }
+
+    if ( atEndOfSection(astrm) ) astrm.next();
+    while ( !atEndOfSection(astrm) )
+    {
+	if ( astrm.hasKeyword("Remote shell") )
+	    rshcomm_ = astrm.value();
+	if ( astrm.hasKeyword("Default nice level") )
+	    defnicelvl_ = astrm.getVal();
+	astrm.next();
+    }
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	HostData* newhd = new HostData( astrm.keyWord() );
+	if ( *astrm.value() )
+	    newhd->aliases_ += new BufferString( astrm.value() );
+	*this += newhd;
+    }
+
+    return true;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.20 2002-06-07 15:00:37 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.21 2002-06-13 21:00:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,27 +46,35 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 	{ txt += ": "; txt += res; }
     setTitleText( txt );
 
-    uiGroup* jobgrp = new uiGroup( this, "Job pars" );
-    tmpstordirfld = new uiIOFileSelect( jobgrp, "Temporary storage directory",
+    tmpstordirfld = new uiIOFileSelect( this, "Temporary storage directory",
 	    				false, jm->tempStorageDir() );
     tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
     tmpstordirfld->selectDirectory( true );
 
-    rshfld = new uiGenInput( jobgrp, "Remote shell program to use",
-	    				StringInpSpec("rsh") );
-    rshfld->attach( alignedBelow, tmpstordirfld );
-    jobgrp->setHAlignObj( rshfld->uiObj() );
-
     uiSeparator* sep = new uiSeparator( this, "Hor sep 1", true );
-    sep->attach( stretchedBelow, jobgrp );
+    sep->attach( stretchedBelow, tmpstordirfld );
 
     machgrp = new uiGroup( this, "Machine handling" );
 
+    HostDataList hdl;
+    rshcomm = hdl.rshComm();
     avmachfld = new uiLabeledListBox( machgrp, "Available hosts", true,
 				      uiLabeledListBox::AboveMid );
-    HostDataList hdl;
     for ( int idx=0; idx<hdl.size(); idx++ )
-	avmachfld->box()->addItem( hdl[idx]->name() );
+    {
+	const HostData& hd = *hdl[idx];
+	BufferString nm( hd.name() );
+	const int nraliases = hd.nrAliases();
+	for ( int idx=0; idx<=nraliases; idx++ )
+	{
+	    const char* alnm = idx < nraliases ? hd.alias(idx)
+					       : hd.officialName();
+	    if ( !strcmp(alnm,hd.name()) ) continue;
+	    nm += " / ";
+	    nm += alnm;
+	}
+	avmachfld->box()->addItem( nm );
+    }
 
     addbut = new uiPushButton( machgrp, ">> Add >>" );
     addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
@@ -84,7 +92,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 
     usedmachgrp->attach( rightOf, addbut );
     machgrp->setHAlignObj( addbut );
-    machgrp->attach( alignedBelow, jobgrp );
+    machgrp->attach( alignedBelow, tmpstordirfld );
     machgrp->attach( ensureBelow, sep );
 
     sep = new uiSeparator( this, "Hor sep 2", true );
@@ -94,8 +102,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     nicefld = new uiSlider( this, "Nice level" );
     nicefld->attach( ensureBelow, sep );
     nicefld->attach( rightBorder );
-    nicefld->valueChanged.notify( mCB(this,uiSeisMMProc,niceValChg) );
     nicefld->setMinValue( -0.5 ); nicefld->setMaxValue( 19.5 );
+    nicefld->setValue( hdl.defNiceLevel() );
+    nicefld->valueChanged.notify( mCB(this,uiSeisMMProc,niceValChg) );
     uiLabel* nicelbl = new uiLabel( this, "'Nice' level (0-19)", nicefld );
     progrfld = new uiTextEdit( this, "Processing progress", true );
     progrfld->attach( alignedBelow, lbl );
@@ -253,6 +262,18 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
     if ( res == 2 )
 	return false;
 
+    const int nrleft = usedmachfld->box()->size();
+    if ( nrleft )
+    {
+	statusBar()->message( "Stopping running jobs" );
+	for ( int idx=0; idx<nrleft; idx++ )
+	{
+	    usedmachfld->box()->setCurrentItem(0);
+	    stopPush( 0 );
+	}
+	statusBar()->message( "" );
+    }
+
     if ( res == 0 )
     {
 	if ( !jm->removeTempSeis() )
@@ -275,15 +296,19 @@ void uiSeisMMProc::addPush( CallBacker* )
     for( int idx=0; idx<avmachfld->box()->size(); idx++ )
     {
 	if ( avmachfld->box()->isSelected(idx) )
-	    jm->addHost( avmachfld->box()->textOfItem(idx) );
+	{
+	    BufferString hnm( avmachfld->box()->textOfItem(idx) );
+	    char* ptr = strchr( hnm.buf(), '/' );
+	    if ( ptr ) *(--ptr) = '\0';
+	    jm->addHost( hnm );
+	}
     }
 
     if ( !running && jm->nrHostsInQueue() )
     {
 	tmpstordirfld->setSensitive(false);
-	rshfld->setSensitive(false);
 	jm->setTempStorageDir( tmpstordirfld->getInput() );
-	jm->setRemExec( rshfld->text() );
+	jm->setRemExec( rshcomm );
 	running = true;
 	prepareNextCycle(0);
     }
