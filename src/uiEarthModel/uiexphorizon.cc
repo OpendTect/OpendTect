@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.14 2003-08-01 15:48:04 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.15 2003-08-14 09:46:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,14 +125,16 @@ bool uiExportHorizon::writeAscii()
 
     dgbEMHorizonTranslator tr;
     tr.startRead( *infld->selIOObj() );
-    infld->getSelection( tr.selections() );
+    EM::SurfaceIODataSelection& sels = tr.selections();
+    infld->getSelection( sels );
     PtrMan<Executor> exec = tr.reader( *hor );
     if ( !exec ) mErrRet( "Cannot read selected horizon" );
 
     uiExecutor dlg( this, *exec );
     if ( !dlg.go() ) return false;
 
-    TypeSet<int>& patches = tr.selections().selpatches;
+    bool saveauxdata = sels.selvalues.size();
+    TypeSet<int>& patches = sels.selpatches;
     for ( int idx=0; idx<patches.size(); idx++ )
     {
 	int patchidx = patches[idx];
@@ -161,7 +163,7 @@ bool uiExportHorizon::writeAscii()
 	    const Coord3 crd = gridsurf->getPos( geomposid );
 	    const BinID bid = SI().transform(crd);
 	    float auxvalue = mUndefValue;
-	    if ( hor->nrAuxData() )
+	    if ( saveauxdata && hor->nrAuxData() )
 	    {
 		const RowCol emrc( bid.inl, bid.crl );
 		const EM::SubID subid = hor->rowCol2SubID( emrc );
@@ -188,7 +190,7 @@ bool uiExportHorizon::writeAscii()
 		    *sdo.ostrm << '\t' << z;
 		}
 
-		if ( !mIsUndefined(auxvalue) )
+		if ( saveauxdata )
 		    *sdo.ostrm << '\t' << auxvalue;
 
 		*sdo.ostrm << '\n';
