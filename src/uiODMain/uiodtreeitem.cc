@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.27 2004-06-02 10:12:30 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.28 2004-06-04 13:14:29 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -243,10 +243,9 @@ bool uiODDisplayTreeItem::init()
 void uiODDisplayTreeItem::updateColumnText( int col )
 {
     if ( !col )
-    {
 	name_ = createDisplayName();
-	uiTreeItem::updateColumnText(col);
-    }
+
+    uiTreeItem::updateColumnText(col);
 }
 
 
