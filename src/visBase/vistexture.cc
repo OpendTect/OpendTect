@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.28 2004-01-09 16:26:08 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.29 2004-01-13 07:57:24 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -30,6 +30,37 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.28 2004-01-09 16:26:08 nanne 
 #include <Inventor/nodes/SoTextureScalePolicy.h>
 
 #define NRCOLORS 256
+
+
+class visBaseTextureColorIndexMaker : public BasicTask
+{
+public:
+    unsigned char*		indexcache;
+    const float*		datacache;
+    visBase::VisColorTab*	colortab;
+    int				start;
+    int				stop;
+
+    TypeSet<int>		histogram;
+protected:
+    int				nextStep();
+};
+
+
+int visBaseTextureColorIndexMaker::nextStep()
+{
+    histogram = TypeSet<int>( NRCOLORS, 0 );
+    for ( int idx=start; idx<stop; idx++ )
+    {
+	const int colorindex =
+	    colortab->colIndex(datacache[idx]);
+	indexcache[idx] = colorindex;
+	histogram[colorindex]++;
+    }
+
+    return 0;
+}
+
 
 
 const char* visBase::Texture::colortabstr = "ColorTable ID";
@@ -291,33 +322,6 @@ void visBase::Texture::clipData()
     if ( datacache )
 	colortab->scaleTo( datacache, cachesize );
 }
-
-
-class visBaseTextureColorIndexMaker : public BasicTask
-{
-public:
-    unsigned char*		indexcache;
-    const float*		datacache;
-    visBase::VisColorTab*	colortab;
-    int				start;
-    int				stop;
-
-    TypeSet<int>		histogram;
-protected:
-    int		nextStep()
-		{
-		    histogram = TypeSet<int>( NRCOLORS, 0 );
-		    for ( int idx=start; idx<stop; idx++ )
-		    {
-			const int colorindex =
-			    colortab->colIndex(datacache[idx]);
-			indexcache[idx] = colorindex;
-			histogram[colorindex]++;
-		    }
-
-		    return 0;
-		}
-};
 
 
 void visBase::Texture::makeColorIndexes()
