@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.32 2005-02-23 14:45:23 cvsarend Exp $
+ RCS:           $Id: mathexpression.cc,v 1.33 2005-03-09 16:19:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -487,6 +487,7 @@ MathExpression* MathExpression::parse( const char* input )
 
     // random number
     mParseFunction( "rand", Random )
+    mParseFunction( "randg", GaussRandom )
 
 
     if ( (!strncasecmp( str, "min(", 4 ) || 
