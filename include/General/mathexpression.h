@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.3 2001-01-19 11:25:26 bert Exp $
+ RCS:           $Id: mathexpression.h,v 1.4 2001-01-19 11:34:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,11 @@ ________________________________________________________________________
 /*!\brief parses a string with a mathematical expression.
 
 The expression can consist of constants, variables and operators.
-A constant can be any number like 3, -5, 3e-5, or pi. Everything that does not
-start with a digit is treated as a variable. An operator can be either
-+, -, *, / or ^.
+A constant can be any number like 3, -5, 3e-5, or pi. Everything that does
+not start with a digit is treated as a variable. An operator can be either:
+
++, -, *, /, ^, >, <, <=, >=, ==, !=, &&, ||, cond ? true stat : false stat,
+or |abs|
 
 If the parser returns null, it couldn't parse the expression.
 
