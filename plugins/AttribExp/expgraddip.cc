@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expgraddip.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
+static const char* rcsID = "$Id: expgraddip.cc,v 1.3 2002-09-09 07:19:55 nanne Exp $";
 
 
 #define mEPSILON 1E-9
@@ -49,7 +49,7 @@ bool GradientDipAttrib::init()
 
 
 AttribCalc::Task* GradientDipAttrib::Task::clone() const
-{ return new GradientDipAttrib::Task(*this); }
+{ return new GradientDipAttrib::Task( calculator ); }
 
 
 void GradientDipAttrib::Task::set( float t1_, int nrtimes_, float step_,
