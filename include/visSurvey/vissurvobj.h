@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.6 2002-05-07 08:04:34 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.7 2002-07-30 06:39:25 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
 				{ return displaytransform ? appvel : defappvel;}
 
     Geometry::Pos		coordDispl2XYT( const Geometry::Pos& ) const;
+    Geometry::Pos		coordDispl2XYZ( const Geometry::Pos& ) const;
     Geometry::Pos		coordXYT2Display( const Geometry::Pos& ) const;
 
     const visBase::Transformation*	getDisplayTransform() const;
