@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.2 2002-01-29 11:12:28 bert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.3 2002-01-29 15:04:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "sighndl.h"
 #include <iostream.h>
 #include <ctype.h>
+
+#define mBufLen 81
 
 
 class uiProgressViewer : public uiMainWin
@@ -40,11 +42,13 @@ protected:
     uiMenuItem*	quitmi;
     Timer*	tim;
     int		ppid;
-    int		sz;
-    char	fullline[81];
+    int		delay;
+    bool	newlineseen;
+    char	fullline[mBufLen];
 
     void	doWork(CallBacker*);
-    void	update(char*,int&);
+    bool	getChunk(char*, int);
+    void	appendToText();
 };
 
 
@@ -53,7 +57,8 @@ uiProgressViewer::uiProgressViewer( uiParent* p, istream& s, int i )
 	, tim(0)
 	, strm(s)
 	, ppid(i)
-	, sz(0)
+	, delay(0)
+	, newlineseen(false)
 {
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
@@ -82,38 +87,84 @@ uiProgressViewer::~uiProgressViewer()
 }
 
 
+void uiProgressViewer::appendToText()
+{
+    txtfld->append( fullline );
+    uiMain::theMain().flushX();
+    fullline[0] = '\0';
+}
+
+
 void uiProgressViewer::doWork( CallBacker* )
 {
+    bool ateof = strm.eof();
     if ( strm.eof() || strm.fail() )
     {
-	if ( sz )
-	    txtfld->append( fullline );
-	fullline[0] = '\0';
+	appendToText();
 	statusBar()->message( fullline );
-	uiMain::theMain().flushX();
 	quitmi->setText( "&Quit" );
 	ppid = 0;
 	return;
     }
 
-    char c = strm.peek();
-    strm.ignore( 1 );
-    if (  c == '\n' || isprint(c) )
+    int orglen = strlen( fullline );
+    static char buf[mBufLen];
+    if ( getChunk( buf, mBufLen - orglen ) )
     {
-	if ( c == '\n' || sz == 80 )
+	int len = buf[1] ? strlen( buf ) : 1;
+
+	bool needappend = buf[len-1] == '\n';
+	if ( !needappend )
+	    needappend = len + orglen >= mBufLen - 1;
+	else
 	{
-	    txtfld->append( fullline );
-	    sz = 0;
+	    newlineseen = true;
+	    buf[len--] = '\0';
 	}
 
-	if ( c != '\n' && isprint(c) )
-	    fullline[sz++] = c;
-	fullline[sz] = '\0';
+	// cat buf to fullline
+	for ( int idx=0; idx<len; idx++ )
+	    fullline[orglen+idx] = buf[idx];
+	fullline[orglen+len] = '\0';
+
+	if ( needappend )
+	    appendToText();
+
 	statusBar()->message( fullline );
-	uiMain::theMain().flushX();
+
     }
 
-    tim->start( 1, true );
+    tim->start( delay, true );
+}
+
+
+bool uiProgressViewer::getChunk( char* buf, int maxnr )
+{
+    int sz = 0;
+    while ( 1 )
+    {
+	int c = strm.peek();
+	if ( c == EOF )
+	{
+	    if ( !sz ) return false;
+	    break;
+	}
+
+	strm.ignore( 1 );
+	buf[sz] = (char)c;
+	sz++;
+
+	if ( !delay || (delay && isspace(buf[sz-1]))
+	  || sz == maxnr || buf[sz-1] == '\n' )
+	    break;
+
+    }
+
+    buf[sz] = '\0';
+    if ( !newlineseen && fullline[0] == 'd' && fullline[1] == 'G' )
+	delay = 1;
+
+    return true;
 }
 
 
