@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.19 2004-10-07 12:03:52 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.20 2004-10-11 14:49:56 bert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "ranges.h"
 #include "uidobj.h"
+#include "linekey.h"
 #include "seistrctr.h"
 class IOPar;
 class Executor;
@@ -22,18 +23,6 @@ class SeisSelData;
 class CubeSampling;
 class BufferStringSet;
 class Seis2DLineIOProvider;
-
-
-/*!\brief interface for object that provides a current 2D line key */
-
-class Seis2DLineKeyProvider
-{
-public:
-
-    virtual		~Seis2DLineKeyProvider()	{}
-    virtual BufferString lineKey() const		= 0;
-
-};
 
 
 /*!\brief interface for object that writes 2D seismic data */
@@ -69,8 +58,8 @@ public:
     bool		isEmpty(int) const;
     const char*		lineName(int) const;	//!< returns pars_[idx]->name()
     const char*		attribute(int) const;
-    BufferString	lineKey( int idx ) const
-    			{ return lineKey( lineName(idx), attribute(idx) ); }
+    LineKey		lineKey( int idx ) const
+    			{ return LineKey( lineName(idx), attribute(idx) ); }
     int			indexOf(const char* linekey) const;
     void		getAvailableAttributes(BufferStringSet&) const;
 
@@ -96,18 +85,6 @@ public:
 	    			  StepInterval<float>& zrg) const;
     const char*		getCubeSampling(CubeSampling&,int linenr=-1) const;
     			//!< returns err msg, or null when OK
-
-    static const char*	sKeyAttrib;
-    static const char*	sKeyDefAttrib;
-
-    static const char*	lineName(const IOPar&);
-    static const char*	attribute(const IOPar&);
-    static BufferString	lineKey(const IOPar&);
-    static BufferString	lineKey(const char* lnm,const char* attrnm);
-			//!< "line_name|attribute"
-    static BufferString	lineNameFromKey(const char*);
-    static BufferString	attrNameFromKey(const char*);
-    static void		setLineKey(IOPar&,const char*);
 
 protected:
 

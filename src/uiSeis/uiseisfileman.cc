@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.43 2004-10-07 18:27:57 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.44 2004-10-11 14:49:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ void uiSeisFileMan::selChg( CallBacker* cb )
     const bool is2d = selioobj && SeisTrcTranslator::is2D( *selioobj );
     ctio.setObj( selioobj ? selioobj->clone() : 0 );
     copybut->setSensitive( !is2d && selioobj && ctio.ioobj->implExists(true) );
-    mergebut->setSensitive( is2d );
+    mergebut->setSensitive( !is2d );
     mkFileInfo();
     manipgrp->selChg( cb );
 
@@ -353,8 +353,7 @@ void removeAttrib( CallBacker* )
 	const char* linename = sellines.get(idx);
 	for ( int ida=0; ida<attribs.size(); ida++ )
 	{
-	    BufferString linekey = 
-		Seis2DLineSet::lineKey(linename,attribs.get(ida) );
+	    LineKey linekey( linename, attribs.get(ida) );
 	    if ( !lineset->remove(linekey) )
 		uiMSG().error( "Could not remove attribute" );
 	}
@@ -415,11 +414,11 @@ void renameAttrib( CallBacker* )
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linenm = sellines.get(idx);
-	if ( !lineset->rename( Seis2DLineSet::lineKey(linenm,attribnm),
-			       Seis2DLineSet::lineKey(linenm,newnm) ) )
+	LineKey oldlk( linenm, attribnm );
+	if ( !lineset->rename(oldlk,LineKey(linenm,newnm)) )
 	{
 	    BufferString err( "Could not rename attribute: " );
-	    err += Seis2DLineSet::lineKey(linenm,attribnm);
+	    err += oldlk;
 	    uiMSG().error( err );
 	    continue;
 	}

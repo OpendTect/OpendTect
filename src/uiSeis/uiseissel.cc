@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.22 2004-10-06 14:00:23 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.23 2004-10-11 14:49:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "separstr.h"
 #include "seistrctr.h"
-#include "seis2dline.h"
+#include "linekey.h"
+#include "keystrs.h"
 
 
 static void mkKvals( const IOObjContext& ctxt, BufferString& keyvals )
@@ -179,7 +180,7 @@ void uiSeisSelDlg::fillPar( IOPar& iopar ) const
 {
     uiIOObjSelDlg::fillPar( iopar );
     if ( subsel ) subsel->fillPar( iopar );
-    if ( attrfld ) iopar.set( Seis2DLineSet::sKeyAttrib, attrfld->text() );
+    if ( attrfld ) iopar.set( sKey::Attribute, attrfld->text() );
 }
 
 
@@ -190,7 +191,7 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
     if ( attrfld )
     {
 	entrySel(0);
-	const char* selattrnm = iopar.find( Seis2DLineSet::sKeyAttrib );
+	const char* selattrnm = iopar.find( sKey::Attribute );
 	if ( selattrnm ) attrfld->setText( selattrnm );
     }
 }
@@ -242,7 +243,7 @@ uiSeisSel::~uiSeisSel()
 void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
     ((uiSeisSelDlg*)dlg)->fillPar( iopar );
-    setAttrNm( iopar.find( Seis2DLineSet::sKeyAttrib ) );
+    setAttrNm( iopar.find( sKey::Attribute ) );
 }
 
 
@@ -256,10 +257,10 @@ void uiSeisSel::setAttrNm( const char* nm )
 const char* uiSeisSel::userNameFromKey( const char* txt ) const
 {
     if ( !txt || !*txt ) return "";
-    curusrnm = uiIOObjSel::userNameFromKey(
-	    	Seis2DLineSet::lineNameFromKey(txt) );
-    BufferString attnm = Seis2DLineSet::attrNameFromKey(txt);
-    curusrnm = Seis2DLineSet::lineKey( curusrnm, attnm );
+
+    LineKey lk( txt );
+    curusrnm = uiIOObjSel::userNameFromKey( lk.lineName() );
+    curusrnm = LineKey( curusrnm, lk.attrName() );
     return curusrnm.buf();
 }
 
@@ -267,7 +268,7 @@ const char* uiSeisSel::userNameFromKey( const char* txt ) const
 bool uiSeisSel::existingTyped() const
 {
     return !is2D() ? uiIOObjSel::existingTyped()
-	 : existingUsrName( Seis2DLineSet::lineNameFromKey(getInput()) );
+	 : existingUsrName( LineKey(getInput()).lineName() );
 }
 
 
@@ -294,15 +295,14 @@ void uiSeisSel::usePar( const IOPar& iop )
 void uiSeisSel::updateInput()
 {
     if ( !ctio.ioobj ) return;
-    BufferString inp( Seis2DLineSet::lineKey(ctio.ioobj->key(),attrnm) );
-    setInput( inp );
+    setInput( LineKey(ctio.ioobj->key(),attrnm) );
 }
 
 
 void uiSeisSel::processInput()
 {
     obtainIOObj();
-    attrnm = Seis2DLineSet::attrNameFromKey( getInput() );
+    attrnm = LineKey( getInput() ).attrName();
     if ( ctio.ioobj || ctio.ctxt.forread )
 	updateInput();
 }

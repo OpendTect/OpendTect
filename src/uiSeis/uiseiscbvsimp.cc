@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.25 2004-10-07 21:09:09 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.26 2004-10-11 14:49:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,8 +214,8 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	if ( !seltyp )
 	    outctio_.ioobj->pars().removeWithKey( "Type" );
 	else
-	    outctio_.ioobj->pars().set( "Type",
-				     seltyp == 1 ? "Attribute" : "Steering" );
+	    outctio_.ioobj->pars().set( sKey::Type, seltyp == 1
+		    			? sKey::Attribute : sKey::Steering );
 
 	outctio_.ioobj->setTranslator( "CBVS" );
 	if ( !dolink )

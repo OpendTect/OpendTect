@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.13 2004-10-01 15:29:47 bert Exp $
+ RCS:		$Id: seiswrite.h,v 1.14 2004-10-11 14:49:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,9 @@ using the SeisTrcTranslator, you must first run the starter yourself.
 */
 
 #include "seisstor.h"
+#include "linekey.h"
 class BinIDRange;
 class Seis2DLinePutter;
-class Seis2DLineKeyProvider;
 
 
 class SeisTrcWriter : public SeisStoreAccess
@@ -32,7 +32,7 @@ class SeisTrcWriter : public SeisStoreAccess
 public:
 
 			SeisTrcWriter(const IOObj*,
-				      const Seis2DLineKeyProvider* r=0);
+				      const LineKeyProvider* r=0);
 			~SeisTrcWriter();
     void		close();
 
@@ -44,8 +44,8 @@ public:
     bool		isMultiConn() const;
 
     			// 2D
-    const Seis2DLineKeyProvider* lineKeyProvider() const { return lkp; }
-    void		setLineKeyProvider( const Seis2DLineKeyProvider* l )
+    const LineKeyProvider* lineKeyProvider() const { return lkp; }
+    void		setLineKeyProvider( const LineKeyProvider* l )
 							 { lkp = l; }
     void		setAttrib( const char* a )	 { attrib = a; }
     			//!< if set, overrules attrib in linekey
@@ -69,8 +69,8 @@ protected:
     BufferString	attrib;
     Seis2DLinePutter*	putter;
     IOPar&		lineauxiopar;
-    BufferString	prevlk;
-    const Seis2DLineKeyProvider* lkp;
+    LineKey		prevlk;
+    const LineKeyProvider* lkp;
     bool		next2DLine();
     bool		put2D(const SeisTrc&);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.21 2004-10-04 15:04:04 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.22 2004-10-11 14:49:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -312,10 +312,10 @@ void uiSeis2DSubSel::selChg( CallBacker* )
 
 void uiSeis2DSubSel::usePar( const IOPar& iopar )
 {
-    BufferString lnm;
-    iopar.get( SeisSelData::sKeyLineKey, lnm );
+    LineKey lk; lk.usePar( iopar, false );
     if ( lnmsfld )
     {
+	BufferString lnm( lk.lineName() );
 	lnmsfld->setText( lnm );
 	lnmsfld->setChecked( lnm != "" );
     }
@@ -361,12 +361,12 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     if ( lnmsfld && lnmsfld->isChecked() )
 	lnm = lnmsfld->text();
     if ( lnm == "" )
-	iopar.removeWithKey( SeisSelData::sKeyLineKey );
+	iopar.removeWithKey( sKey::LineKey );
     else
-	iopar.set( SeisSelData::sKeyLineKey, lnm );
+	iopar.set( sKey::LineKey, lnm );
 
     iopar.set( sKey::FirstInl, 0 );
-    iopar.set( sKey::LastInl, 100000 );
+    iopar.set( sKey::LastInl, mUndefIntValue );
     iopar.set( sKey::StepCrl, 1 );
 
     if ( !isall )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.21 2004-10-07 18:27:57 nanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.22 2004-10-11 14:49:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,8 +124,7 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linenm,
 {
     mGet2DLineSet(false)
 
-    BufferString linekey = Seis2DLineSet::lineKey(linenm,attribnm);
-    int lidx = lineset.indexOf( linekey );
+    int lidx = lineset.indexOf( LineKey(linenm,attribnm) );
     if ( lidx < 0 ) return false;
 
     lineset.getCubeSampling( cs, lidx );

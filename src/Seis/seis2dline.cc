@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.28 2004-10-07 16:18:35 nanne Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.29 2004-10-11 14:49:57 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -23,9 +23,6 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.28 2004-10-07 16:18:35 nanne 
 #include "hostdata.h"
 #include "timefun.h"
 #include "errh.h"
-
-const char* Seis2DLineSet::sKeyAttrib = "Attribute";
-const char* Seis2DLineSet::sKeyDefAttrib = "Seis";
 
 
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
@@ -133,70 +130,17 @@ const char* Seis2DLineSet::type() const
 }
 
 
-const char* Seis2DLineSet::lineName( const IOPar& iop )
-{
-    return iop.name().buf();
-}
-
-
 const char* Seis2DLineSet::lineName( int idx ) const
 {
-    return idx >= 0 && idx < pars_.size()
-	 ? lineName( *pars_[idx] ) : "";
-}
-
-
-const char* Seis2DLineSet::attribute( const IOPar& iop )
-{
-    const char* res = iop.find( sKeyAttrib );
-    return res ? res : sKeyDefAttrib;
+    return idx >= 0 && idx < pars_.size() ? pars_[idx]->name().buf() : "";
 }
 
 
 const char* Seis2DLineSet::attribute( int idx ) const
 {
-    return idx >= 0 && idx < pars_.size()
-	 ? attribute( *pars_[idx] ) : sKeyDefAttrib;
-}
-
-
-BufferString Seis2DLineSet::lineKey( const IOPar& iop )
-{
-    return lineKey( lineName(iop), attribute(iop) );
-}
-
-
-void Seis2DLineSet::setLineKey( IOPar& iop, const char* lk )
-{
-    iop.setName( lineNameFromKey(lk) );
-    iop.set( sKeyAttrib, attrNameFromKey(lk) );
-}
-
-
-BufferString Seis2DLineSet::lineKey( const char* lnm, const char* attrnm )
-{
-    BufferString ret( lnm );
-    if ( attrnm && *attrnm && strcmp(attrnm,sKeyDefAttrib) )
-	{ ret += "|"; ret += attrnm; }
-    return ret;
-}
-
-
-BufferString Seis2DLineSet::lineNameFromKey( const char* key )
-{
-    BufferString ret( key );
-    char* ptr = strchr( ret.buf(), '|' );
-    if ( ptr ) *ptr = '\0';
-    return ret;
-}
-
-
-BufferString Seis2DLineSet::attrNameFromKey( const char* key )
-{
-    BufferString ret;
-    char* ptr = key ? strchr( key, '|' ) : 0;
-    if ( ptr ) ret = ptr + 1;
-    return ret;
+    const char* res = idx >= 0 && idx < pars_.size()
+		    ? pars_[idx]->find(sKey::Attribute) : 0;
+    return res ? res : LineKey::sKeyDefAttrib;
 }
 
 
@@ -204,7 +148,7 @@ int Seis2DLineSet::indexOf( const char* key ) const
 {
     for ( int idx=0; idx<pars_.size(); idx++ )
     {
-	if ( lineKey(*pars_[idx]) == key )
+	if ( LineKey(*pars_[idx],true) == key )
 	    return idx;
     }
     return -1;
@@ -355,7 +299,7 @@ Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf,
 
 Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
 {
-    if ( !newiop || !newiop->size() )
+    if ( !newiop || newiop->name() == "" )
     {
 	ErrMsg("No data for line add provided");
 	return 0;
@@ -366,7 +310,7 @@ Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
 	return 0;
     }
 
-    const BufferString newlinekey = lineKey( *newiop );
+    const BufferString newlinekey = LineKey( *newiop, true );
 
     // Critical concurrency section using file lock
     readFile( true );
@@ -436,9 +380,12 @@ bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
     // Critical concurrency section using file lock
     readFile( true );
 
+    bool foundone = false;
     for ( int idx=0; idx<pars_.size(); idx++ )
     {
-	BufferString lnm = lineName( *pars_[idx] );
+	BufferString lnm = lineName( idx );
+	if ( lnm == oldlnm )
+	    foundone = true;
 	if ( lnm == newlnm )
 	{
 	    ErrMsg("Cannot rename line to existing line name");
@@ -446,13 +393,19 @@ bool Seis2DLineSet::renameLine( const char* oldlnm, const char* newlnm )
 	    return false;
 	}
     }
+    if ( !foundone )
+	{ removeLock(); return true; }
 
     for ( int idx=0; idx<pars_.size(); idx++ )
     {
 	IOPar& iop = *pars_[idx];
-	BufferString lnm = lineName( iop );
+	LineKey lk( *pars_[idx], true );
+	BufferString lnm = lk.lineName();
 	if ( lnm == oldlnm )
-	    setLineKey( iop, lineKey(newlnm,attribute(iop)) );
+	{
+	    lk.setLineName( newlnm );
+	    lk.fillPar( iop, true );
+	}
     }
 
     writeFile();
@@ -486,9 +439,7 @@ bool Seis2DLineSet::rename( const char* lk, const char* newlk )
 	return false;
     }
 
-    IOPar* iop = pars_[ipar];
-    setLineKey( *iop, newlk );
-
+    LineKey(newlk).fillPar( *pars_[ipar], true );
     writeFile();
     return true;
 }

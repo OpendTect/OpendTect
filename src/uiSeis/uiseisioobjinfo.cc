@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.14 2004-10-08 14:47:28 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.15 2004-10-11 14:49:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,7 +241,7 @@ void uiSeisIOObjInfo::getAttribKeys( BufferStringSet& bss, bool add ) const
     BufferStringSet attrnms;
     lset->getAvailableAttributes( attrnms );
     for ( int idx=0; idx<attrnms.size(); idx++ )
-	bss.add( Seis2DLineSet::lineKey(key.buf(),attrnms[idx]->buf()) );
+	bss.add( LineKey(key.buf(),attrnms[idx]->buf()) );
 }
 
 

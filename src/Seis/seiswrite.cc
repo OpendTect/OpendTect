@@ -16,7 +16,7 @@
 #include "binidselimpl.h"
 #include "iopar.h"
 
-SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const Seis2DLineKeyProvider* l)
+SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
 	, binids(*new BinIDRange)
     	, nrtrcs(0)
@@ -148,23 +148,21 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 
 bool SeisTrcWriter::next2DLine()
 {
-    prevlk = lkp->lineKey();
-    BufferString lk = prevlk;
+    LineKey lk = lkp->lineKey();
     if ( attrib != "" )
+	lk.setAttrName( attrib );
+    BufferString lnm = lk.lineName();
+    if ( lnm == "" )
     {
-	BufferString lnm = Seis2DLineSet::lineNameFromKey( lk );
-	if ( lnm == "" )
-	{
-	    errmsg = "Cannot write to empty line name";
-	    return false;
-	}
-	lk = Seis2DLineSet::lineKey( lnm, attrib );
+	errmsg = "Cannot write to empty line name";
+	return false;
     }
 
+    prevlk = lk;
     delete putter;
 
     IOPar* lineiopar = new IOPar;
-    Seis2DLineSet::setLineKey( *lineiopar, lk );
+    lk.fillPar( *lineiopar, true );
     lineiopar->merge( lineauxiopar );
     putter = lset->linePutter( lineiopar );
     if ( !putter )
@@ -181,12 +179,10 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 {
     if ( !putter ) return false;
 
-    BufferString lk = lkp->lineKey();
-    if ( lk != prevlk )
+    if ( lkp->lineKey() != prevlk )
     {
 	if ( !next2DLine() )
 	    return false;
-	prevlk = lk;
     }
 
     bool res = putter->put( trc );

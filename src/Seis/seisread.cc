@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.44 2004-10-05 15:26:20 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.45 2004-10-11 14:49:57 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -18,7 +18,9 @@ static const char* rcsID = "$Id: seisread.cc,v 1.44 2004-10-05 15:26:20 bert Exp
 #include "streamconn.h"
 #include "survinfo.h"
 #include "binidselimpl.h"
+#include "keystrs.h"
 #include "errh.h"
+#include "iopar.h"
 
 
 #define mUndefPtr(clss) ((clss*)0xdeadbeef) // Like on AIX. Nothing special.
@@ -288,7 +290,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
 }
 
 
-BufferString SeisTrcReader::lineKey() const
+LineKey SeisTrcReader::lineKey() const
 {
     if ( lset )
     {
@@ -296,13 +298,13 @@ BufferString SeisTrcReader::lineKey() const
 	    return lset->lineKey( curlinenr );
     }
     else if ( ioobj )
-	return ioobj->name();
+	return LineKey(ioobj->name(),ioobj->pars().find(sKey::Attribute));
 
-    return BufferString("");
+    return LineKey(0,0);
 }
 
 
-class SeisTrcReaderLKProv : public Seis2DLineKeyProvider
+class SeisTrcReaderLKProv : public LineKeyProvider
 {
 public:
 
@@ -311,12 +313,10 @@ SeisTrcReaderLKProv( const SeisTrcReader& r, const char* a )
 {
 }
 
-BufferString lineKey() const
+LineKey lineKey() const
 {
-    BufferString lk = rdr.lineKey();
-    if ( attr != "" )
-	lk = Seis2DLineSet::lineKey( Seis2DLineSet::lineNameFromKey(lk.buf()),
-				     attr );
+    LineKey lk = rdr.lineKey();
+    lk.setAttrName( attr );
     return lk;
 }
 
@@ -325,7 +325,7 @@ BufferString lineKey() const
 };
 
 
-Seis2DLineKeyProvider* SeisTrcReader::lineKeyProvider( const char* attr ) const
+LineKeyProvider* SeisTrcReader::lineKeyProvider( const char* attr ) const
 {
     return new SeisTrcReaderLKProv( *this, attr );
 }
