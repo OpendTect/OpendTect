@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.15 2001-07-17 09:42:24 bert Exp $
+ RCS:           $Id: uigeninput.h,v 1.16 2001-07-17 10:40:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,13 +109,13 @@ Returns true, if changes are accepted.
 			{ return Interval<float>(getfValue(0),getfValue(1)); }
     inline Interval<double> getDInterval() const
 			{ return Interval<double>(getValue(0),getValue(1)); }
-    inline Interval<int> getIStepInterval() const
+    inline StepInterval<int> getIStepInterval() const
 			{ return StepInterval<int>(getIntValue(0),
 					getIntValue(1),getIntValue(2)); }
-    inline Interval<float> getFStepInterval() const
+    inline StepInterval<float> getFStepInterval() const
 			{ return StepInterval<float>(getfValue(0),getfValue(1),
 						     getfValue(2)); }
-    inline Interval<double> getDStepInterval() const
+    inline StepInterval<double> getDStepInterval() const
 			{ return StepInterval<double>(getValue(0),getValue(1),
 						      getValue(2)); }
     inline Coord	getCoord() const
