@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.15 2002-04-17 10:24:41 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.16 2002-04-22 09:58:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,7 @@ public:
     void		getAllPickSets(UserIDSet&);
     void		getPickSetData(const char*,PickSet&);
     int 		nrPicks(int);
+    bool		picksetIsPresent(const char*);
 
 			//ColorSeqs
     bool		canSetColorSeq(int) const;

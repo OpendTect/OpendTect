@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.25 2002-04-19 14:55:07 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.26 2002-04-22 09:58:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -380,6 +380,7 @@ void uiVisPartServer::getPickSetData( const char* nm, PickSet& pickset )
     }
 
     pickset.color = visps->getMaterial()->getColor();
+    pickset.color.setTransparency( 0 );
     for ( int idx=0; idx<visps->nrPicks(); idx++ )
     {
 	Geometry::Pos pos = visps->getPick( idx );
@@ -393,6 +394,23 @@ int uiVisPartServer::nrPicks( int id )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)
     return ps ? ps->nrPicks() : 0;
+}
+
+
+bool uiVisPartServer::picksetIsPresent( const char* psname )
+{
+    for ( int idx=0; idx<picks.size(); idx++ )
+    {
+        if ( !strcmp(psname,picks[idx]->name()) )
+        {
+	    BufferString msg( "Pickset: "); msg += psname;
+	    msg += "\nis already present.";
+	    uiMSG().about( msg );
+	    return true;
+        }
+    }
+
+    return false;
 }
 
 
