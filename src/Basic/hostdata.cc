@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.5 2002-06-20 08:49:55 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.6 2002-07-05 13:53:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,10 @@ HostDataList::HostDataList()
     	, rshcomm_("rsh")
     	, defnicelvl_(19)
 {
-    BufferString fname( GetDataFileName("BatchHosts") );
+    const char* bhfnm = "BatchHosts";
+    if ( getenv("dGB_BATCH_HOSTS_FILENAME") )
+	bhfnm = getenv("dGB_BATCH_HOSTS_FILENAME");
+    BufferString fname( GetDataFileName(bhfnm) );
     if ( !readHostFile(fname) )
     {
 	sethostent(0);
