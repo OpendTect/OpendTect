@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.12 2001-08-22 22:34:29 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.13 2001-10-10 13:24:51 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -23,10 +23,20 @@ void	IOMan::stop()	{ delete theinst_; theinst_ = 0; }
 extern "C" void SetSurveyName(const char*);
 
 
+static void clearSelHists()
+{
+    const UserIDObjectSet<Translator>& grps = Translator::groups();
+    const int sz = grps.size();
+    for ( int idx=0; idx<sz; idx++ )
+	grps[idx]->clearSelHist();
+}
+
+
 bool IOMan::newSurvey()
 {
     delete IOMan::theinst_;
     IOMan::theinst_ = 0;
+    clearSelHists();
     return !IOM().bad();
 }
 
@@ -35,6 +45,7 @@ void IOMan::setSurvey( const char* survname )
 {
     delete IOMan::theinst_;
     IOMan::theinst_ = 0;
+    clearSelHists();
     SetSurveyName( survname );
 }
 
