@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.1 2002-04-22 14:40:23 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.2 2002-05-08 12:17:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,12 @@ ________________________________________________________________________
 #include <unistd.h>
 #endif
 
+extern "C" { extern void SetDgbApplicationCode(int); }
+
 int main( int argc, char ** argv )
 {
+    SetDgbApplicationCode( mDgbApplCodeDTECT );
+
     int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
 	
     if ( argc+bgadd < 3 )
