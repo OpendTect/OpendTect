@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.5 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: uimenu.h,v 1.6 2001-08-30 12:36:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,6 +133,15 @@ public:
 
     bool			isCheckable();
     void			setCheckable( bool yn );
+
+				/*! \brief pops-up at mouse position
+
+				    The return code is the id of the selected 
+				    item in either the popup menu or one of 
+				    its submenus, or -1 if no item is selected
+				    (normally because the user presses Escape). 
+				*/
+    int				exec(); 
 
     uiPopupItem&		item()			{ return item_; }
 

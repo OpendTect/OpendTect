@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.5 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: uimenu.cc,v 1.6 2001-08-30 12:36:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include <qmenudata.h> 
 #include <qmenubar.h>
 #include <qpopupmenu.h> 
+#include <qcursor.h> 
 
 #include <uimainwin.h>
 
@@ -246,3 +247,10 @@ uiPopupMenu::~uiPopupMenu() { delete &item_; }
 
 bool uiPopupMenu::isCheckable()		{ return item().isCheckable(); }
 void uiPopupMenu::setCheckable(bool yn) { item().setCheckable(yn); }
+
+int uiPopupMenu::exec()
+{
+    if ( !body_->popup() ) return -1;
+
+    return body_->popup()->exec(QCursor::pos());
+}
