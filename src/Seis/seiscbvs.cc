@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.12 2001-10-18 16:21:33 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.13 2001-10-18 23:29:45 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -185,24 +185,40 @@ void CBVSSeisTrcTranslator::calcSamps()
 
 	// snap outcds[iselc]->sd.start
 	float diff = outcds[iselc]->sd.start - inpcds[iselc]->sd.start;
-	diff /= outcds[iselc]->sd.step;
+	diff /= inpcds[iselc]->sd.step;
 	int idiff = mNINT(diff);
 	if ( idiff ) useinpsd = false;
 	float outstart = inpcds[iselc]->sd.start
 		       + idiff * inpcds[iselc]->sd.step;
 
-	float orgoutstop = outcds[iselc]->sd.start
+	float outstop = outcds[iselc]->sd.start
 			 + outcds[iselc]->sd.step * outcds[iselc]->nrsamples;
-	float fnrsamps = (orgoutstop - outstart) / outstep;
+	const float instop = inpcds[iselc]->sd.start
+			   + inpcds[iselc]->sd.step * inpcds[iselc]->nrsamples;
+	if ( outstop > instop ) outstop = instop;
+	float fnrsamps = (outstop - outstart) / outstep;
 
 	outcds[iselc]->sd.start = outstart;
 	outcds[iselc]->sd.step = outstep;
 	outcds[iselc]->nrsamples = mNINT(fnrsamps);
 
-	float fstart = (outstart - inpcds[iselc]->sd.start) / outstep;
-	samps[iselc].start = mNINT(fstart);
-	samps[iselc].stop = samps[iselc].start + outcds[iselc]->nrsamples - 1;
+	float fsampnr = (outstart - inpcds[iselc]->sd.start)
+	    		/ inpcds[iselc]->sd.step;
+	samps[iselc].start = mNINT(fsampnr);
+	samps[iselc].stop = samps[iselc].start
+	    		  + (outcds[iselc]->nrsamples-1) * samps[iselc].step;
+	if ( samps[iselc].start < 0 ) samps[iselc].start = 0;
+	if ( samps[iselc].stop < 0 ) samps[iselc].stop = 0;
+	if ( samps[iselc].start >= inpcds[iselc]->nrsamples )
+	    samps[iselc].start = inpcds[iselc]->nrsamples - 1;
+	if ( samps[iselc].stop >= inpcds[iselc]->nrsamples )
+	    samps[iselc].stop = inpcds[iselc]->nrsamples - 1;
 	assign( cbvssamps[ic], samps[iselc] );
+
+	outcds[iselc]->nrsamples = (samps[iselc].stop - samps[iselc].start)
+	    			 / samps[iselc].step + 1;
+	outcds[iselc]->sd.start = inpcds[iselc]->sd.start
+	    			+ samps[iselc].start * inpcds[iselc]->sd.step;
     }
 }
 
@@ -221,7 +237,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     {
 	samedatachar[idx] = inpcds[idx]->datachar == outcds[idx]->datachar;
 	userawdata[idx] = samedatachar[idx] && userawdata[idx];
-	actualsz[idx] = samps[idx].width() + 1;
+	actualsz[idx] = outcds[idx]->nrsamples;
 	storinterps[idx] = new TraceDataInterpreter(
                   forread ? inpcds[idx]->datachar : outcds[idx]->datachar );
     }
@@ -408,7 +424,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.stdtext = pinfo.stdinfo;
     info.usertext = pinfo.usrinfo;
     for ( int idx=0; idx<nrSelComps(); idx++ )
-	info.compinfo += new BasicComponentInfo(*tarcds[idx]);
+	info.compinfo += new BasicComponentInfo(*outcds[idx]);
 
     wrmgr = new CBVSWriteMgr( fnm, info, &expldat );
     if ( wrmgr->failed() )

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.22 2001-10-18 19:20:42 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.23 2001-10-18 23:29:45 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.22 2001-10-18 19:20:42 bert Ex
 #include "scaler.h"
 #include "ptrman.h"
 #include "survinfo.h"
+
+extern "C" { extern int dgb_application_code; }
 
 
 int SeisTrcTranslator::selector( const char* key )
@@ -40,10 +42,16 @@ const IOObjContext& SeisTrcTranslator::ioContext()
     {
 	ctxt = new IOObjContext( Translator::groups()[listid] );
 	ctxt->crlink = false;
-	ctxt->newonlevel = 2;
 	ctxt->needparent = false;
 	ctxt->stdseltype = IOObjContext::Seis;
 	ctxt->multi = true;
+	if ( dgb_application_code == 1 )
+	    ctxt->newonlevel = 2;
+	else
+	{
+	    ctxt->newonlevel = 1;
+	    ctxt->maychdir = false;
+	}
     }
 
     return *ctxt;
@@ -181,7 +189,7 @@ void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 	const float reqstop = outcds[idx]->sd.start
 			    + outcds[idx]->sd.step * outcds[idx]->nrsamples;
 	const float avstop = sd.start + sd.step * (sz-1);
-	bool neednewnrsamples = avstop+eps > reqstop;
+	bool neednewnrsamples = avstop+eps < reqstop;
 
 	if ( outcds[idx]->sd.start+eps < sd.start )
 	{
@@ -201,7 +209,8 @@ void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 
 	if ( neednewnrsamples )
 	{
-	    float fnrsamps = (avstop - outcds[idx]->sd.start)
+	    const float stop = avstop+eps < reqstop ? avstop : reqstop;
+	    float fnrsamps = (stop - outcds[idx]->sd.start)
 			     / outcds[idx]->sd.step + 1 + eps;
 	    outcds[idx]->nrsamples = (int)fnrsamps;
 	}
