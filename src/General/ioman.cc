@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.46 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.47 2004-06-03 14:54:51 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -404,6 +404,24 @@ IOObj* IOMan::getByName( const char* objname,
     to( startky );
     deepErase( kys );
     return (IOObj*)ioobj;
+}
+
+
+IOObj* IOMan::getFirst( const IOObjContext& ctxt ) const
+{
+    if ( !ctxt.trgroup ) return 0;
+
+    IOM().to( ctxt.stdSelKey() );
+
+    const ObjectSet<IOObj>& ioobjs = dirptr->getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj* ioobj = ioobjs[idx];
+	if ( ctxt.validIOObj(*ioobj) )
+	    return ioobj->clone();
+    }
+
+    return 0;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.21 2004-03-26 16:50:45 bert Exp $
+ RCS:		$Id: ioman.h,v 1.22 2004-06-03 14:51:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class IOLink;
 class IOParList;
 class IOPar;
 class CtxtIOObj;
+class IOObjContext;
 class Translator;
 
 
@@ -61,6 +62,7 @@ public:
 			{ return getOfGroup(trgroupname,true,true); }
     IOObj*		getByName(const char* objname,
 			      const char* partrgname=0,const char* parname=0);
+    IOObj*		getFirst(const IOObjContext&) const;
 
     IODir*		dirPtr() const		{ return (IODir*)dirptr; }
     MultiID		key() const;		//!< of current IODir
