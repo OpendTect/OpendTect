@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.11 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: viscube.h,v 1.12 2004-05-13 07:41:13 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,10 +43,15 @@ public:
     void		setWidth( const Coord3& );
     Coord3		width() const;
 
+    void		setTransformation( Transformation* );
+    Transformation*	getTransformation() { return transformation; }
+
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
 
 protected:
+    			~Cube();
+    Transformation*	transformation;
     SoTranslation*	position;
     static const char*	centerposstr;
     static const char*	widthstr;
