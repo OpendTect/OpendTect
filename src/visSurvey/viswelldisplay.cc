@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.28 2004-02-03 15:05:49 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.29 2004-02-12 13:16:18 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -294,11 +294,14 @@ int WellDisplay::usePar( const IOPar& par )
     setTransformation( SPM().getUTM2DisplayTransform() );
 
     MultiID newmid;
-    if ( !par.get( earthmodelidstr, newmid ))
+    if ( !par.get(earthmodelidstr,newmid) )
 	return -1;
 
-    if ( !setWellId( newmid ) )
-	return -1;
+    if ( !setWellId(newmid) )
+    {
+	visBase::DM().unRef( viswellid );
+	return 1;
+    }
 
     BufferString log1nm_;
     par.get( log1nmstr, log1nm_ );
