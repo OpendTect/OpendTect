@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.11 2004-04-05 12:19:03 nanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.12 2004-06-23 11:18:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,28 +24,43 @@ ________________________________________________________________________
 #include "picksettr.h"
 
 
-uiImportPickSet::uiImportPickSet( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Import Pickset",
-				     "Specify pickset parameters","105.0.1"))
-	, ctio(*mMkCtxtIOObj(PickSetGroup))
+uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
+    : uiDialog(p,uiDialog::Setup(imp ? "Import Pickset" : "Export PickSet",
+				 "Specify pickset parameters","105.0.1"))
+    , ctio(*mMkCtxtIOObj(PickSetGroup))
+    , import(imp)
 {
-    infld = new uiFileInput( this, "Input Ascii file",
-			     uiFileInput::Setup().withexamine() );
-    infld->setDefaultSelectionDir( 
-	    IOObjContext::getDataDirName(IOObjContext::Loc) );
+    BufferString label( import ? "Input " : "Output " );
+    label += "Ascii file";
+    filefld = new uiFileInput( this, label, uiFileInput::Setup()
+					    .withexamine(import)
+					    .forread(!import) );
+    filefld->setDefaultSelectionDir( 
+			    IOObjContext::getDataDirName(IOObjContext::Loc) );
 
     xyfld = new uiGenInput( this, "Positions in:",
 			    BoolInpSpec("X/Y","Inl/Crl") );
-    xyfld->attach( alignedBelow, infld );
 
-    ctio.ctxt.forread = false;
+    ctio.ctxt.forread = !import;
     ctio.ctxt.maychdir = false;
-    outfld = new uiIOObjSel( this, ctio, "Output PickSet" );
-    outfld->attach( alignedBelow, xyfld );
+    label = import ? "Output " : "Input "; label += "PickSet";
+    objfld = new uiIOObjSel( this, ctio, label );
+
+
+    if ( import )
+    {
+	xyfld->attach( alignedBelow, filefld );
+	objfld->attach( alignedBelow, xyfld );
+    }
+    else
+    {
+	xyfld->attach( alignedBelow, objfld );
+	filefld->attach( alignedBelow, xyfld );
+    }
 }
 
 
-uiImportPickSet::~uiImportPickSet()
+uiImpExpPickSet::~uiImpExpPickSet()
 {
     delete ctio.ioobj; delete &ctio;
 }
@@ -54,9 +69,9 @@ uiImportPickSet::~uiImportPickSet()
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 
-bool uiImportPickSet::handleAscii()
+bool uiImpExpPickSet::doImport()
 {
-    const char* fname = infld->fileName();
+    const char* fname = filefld->fileName();
     StreamData sdi = StreamProvider( fname ).makeIStream();
     if ( !sdi.usable() ) 
     { 
@@ -64,7 +79,7 @@ bool uiImportPickSet::handleAscii()
 	mErrRet( "Could not open input file" )
     }
 
-    const char* psnm = outfld->getInput();
+    const char* psnm = objfld->getInput();
     PickSet* ps = new PickSet( psnm );
     ps->color = Color::DgbColor;
 
@@ -111,20 +126,27 @@ bool uiImportPickSet::handleAscii()
 }
 
 
-bool uiImportPickSet::acceptOK( CallBacker* )
+bool uiImpExpPickSet::doExport()
 {
-    bool ret = checkInpFlds() && handleAscii();
+    return true;
+}
+
+
+bool uiImpExpPickSet::acceptOK( CallBacker* )
+{
+    if ( !checkInpFlds() ) return false;
+    bool ret = import ? doImport() : doExport();
     return ret;
 }
 
 
-bool uiImportPickSet::checkInpFlds()
+bool uiImpExpPickSet::checkInpFlds()
 {
-    if ( !File_exists(infld->fileName()) )
-	mWarnRet( "Please select input,\nor file does not exist" );
+    if ( !File_exists(filefld->fileName()) )
+	mWarnRet( "Please select ascii file,\nor file does not exist" );
 
-    if ( !outfld->commitInput( true ) )
-	mWarnRet( "Please select output" );
+    if ( !objfld->commitInput( true ) )
+	mWarnRet( "Please select PickSet" );
 
     return true;
 }

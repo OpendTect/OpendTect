@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.25 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.26 2004-06-23 11:18:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,14 @@ uiPickPartServer::~uiPickPartServer()
 
 void uiPickPartServer::importPickSet()
 {
-    uiImportPickSet dlg( appserv().parent() );
+    uiImpExpPickSet dlg( appserv().parent(), true );
+    dlg.go();
+}
+
+
+void uiPickPartServer::exportPickSet()
+{
+    uiImpExpPickSet dlg( appserv().parent(), false );
     dlg.go();
 }
 
