@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.11 2004-01-23 11:43:53 dgb Exp $
+  - RCS:        $Id: windows.html,v 1.12 2004-01-23 12:43:18 dgb Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.1]</title>
@@ -28,31 +28,15 @@ If you choose to install some of the external installations elsewhere, it is str
 
 <h4>Preparing the cygwin installation</h4>
 <p>
-If you did not install cygwin prior to installing OpendTect, it is possible that
-an incomplete mount table is stored in the windows registry due to the fact
-that some command-line cygwin tools are used internally by OpendTect.
-
-It is necessary to check this before installing cygwin; otherwise cygwin will complain about not being able to find '/tmp'.
-
+Make sure OpendTect is <b>NOT</b> running when you install Cygwin!
 </p><p>
-
-This can be avoided by deleting the following registry keys before installing cygwin with the registry editor (start - run - regedit):
-<pre>
-    HKEY_LOCAL_MACHINE\SOFTWARE\Cygnus Solutions
-    HKEY_CURRENT_USER\Software\Cygnus Solutions
-</pre>
-
-If you don't like doing this by hand, you can make use of the cleanCygReg.reg
-file that you can find in the windows binary directory
-(default: C:\Program Files\OpendTect\bin\win\cleanCygReg.reg).
-A simple double-click on this file will invoke the registry editor
-which will make the changes for you.
-
+Use the 'Install Cygwin' utility from the windows start menu to install Cygwin. <b>Use this utility!</b> Installing Cygwin in a 'normal' way (via the cygwin web-site for example) may fail when you have previously run OpendTect on your system - this is because OpendTect has changed the Windows registry in case Cygwin was not pre-installed on the system.
+</p><p>
+When you are sure the registry is ok, you can also download the Cygwin installer from <a href="http://cygwin.com">http://cygwin.com</a> and run it. Beware that there may be more problems coming your way but it may just work.
 </p>
 
 <h4>Running the cygwin installer</h4>
 
-<p>When you are sure the registry is ok, you can download the Cygwin installer from <a href="http://cygwin.com">http://cygwin.com</a> and run it.</p>
 <p>After a few questions, you can select packages to install. Choose at least the following packages:</p>
 <ul>
 <ul><b>Development</b>
@@ -90,20 +74,22 @@ which will make the changes for you.
 </ul>
 </ul>
 
-Note: You can always re-start the cygwin installation program to add additional packages later or to update existing packages.
-
-
-<p>(*) Bison and Flex are required to build OpendTect itself.</p>
-<p>(**) You will need an editor that understands unix file format every now and then. If you're familiar with the good old Norton Commander, you might opt for mc, but one of the other editors in (editors) should also do. </p>
+Note: You can always re-start the cygwin installation program to add additional packages later or to update existing packages.<br>
+(*) Bison and Flex are required to build OpendTect itself.<br>
+(**) You will need an editor that understands unix file format every now and then. If you're familiar with the good old Norton Commander, you might opt for mc, but one of the other editors in (editors) should also do.
+</p><p>
+After the installation, make sure you run the Cygwin (bash) shell at least once so as to make sure that you have a Cygwin home directory to put your development environment on.
+</p>
 
 
 <a name=setup><h2>Setting up the environment</h2></a>
 <p><a href="pmake.html">Pmake</a> is used to build both the system and to build plugins.
 It requires a few environment variables to be setup and it expects a certain directory structure in your ODWork directory.</p>
+
 <h3>Setup ODWork dir</h3>
-<p>Before you can build anything, you have to setup the ODWork directory in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Devel Env'.
+<p>Before you can build anything, you have to setup a work directory (usually called 'ODWork') in such a way that Pmake can use it. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Devel Env'.
 Note that the OpendTect application window will freeze while the development environment is created.
-'Create Development Environment' will also create an init script 'init.bash' in your ODWork directory that can easily be sourced from your .bashrc to setup your environment.
+'Create Devel. Env.' will also create an init script 'init.bash' in your ODWork directory that can easily be sourced from your .bashrc to setup your environment.
 </p>
 <p>It is strongly recommended to make sure that there are no spaces in the path to your ODWork directory. A good place for your ODWork directory is your cygwin home directory, which is by default at C:\cygwin\home\[user name]. 
 The location of this directory can be easily found from a cygwin bash shell:
@@ -113,7 +99,7 @@ The location of this directory can be easily found from a cygwin bash shell:
 </pre>
 </p>
 <h3>Setup environment variables</h3>
-<p>Once you have successfully created your ODWork directory, you will have to setup a few environment variables: HDIR, WORK and GNUMAKE. If you have used the 'Create Devel Env' menu this can be done with one command (see below).</p>
+<p>Now you will have to setup a few environment variables: HDIR, WORK and GNUMAKE. Fortunately, if you have used the 'Create Devel. Env.' menu this can be done with one command (see below).</p>
 <ul>
 <li>HDIR defines the platform you're working on. On windows, this should be set to win.
 <li>GNUMAKE gives the name of gnu make, usually just make or gmake.
@@ -121,8 +107,8 @@ The location of this directory can be easily found from a cygwin bash shell:
 </ul>
 <p>Beside setting up these environment variables, you should source either the PMinit.csh or the PMinit.sh script present in the $WORK/Pmake/base directory.</p>
 
-<p>If you have used the OpendTect menu to setup the $WORK directory, you can set the entire environment with a single setup script that is generated in the new ODWork directory. You can source the 'init.bash' script from your .bashrc (or 'init.csh',if you work with the non-default csh shell). 
-If you have created your ODWork directory in your cygwin home, you can add the following line to the end of your .bashrc script:
+<p>All this can be done by sourcing one script (if you have used the OpendTect menu to setup the $WORK directory): 'init.bash' (or 'init.csh',if you work with the non-default csh shell). It seems logical to add the relevant script to your .bashrc (or.login for C-shell users).
+And, if you have created your ODWork directory in your cygwin home, the line to add to the end of your .bashrc script could look like:
 <pre>
     source ~/ODWork/init.bash
 </pre>
