@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.17 2002-05-08 07:01:50 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.18 2002-05-08 07:32:42 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -138,7 +138,7 @@ bool visBase::DataManager::usePar( const IOPar& par )
     freeid = maxid+1;
 
     for ( int idx=0;idx<createdobj.size(); idx++ )
-	createdobj[idx]->unRef();
+	createdobj[idx]->unRefNoDelete();
 
     return true;
 }
@@ -198,7 +198,7 @@ void visBase::DataManager::ref( const DataObject* d )
 }
 
 
-void visBase::DataManager::unRef( int id )
+void visBase::DataManager::unRef( int id, bool rem )
 {
     int idx = getIdx( id );
     if ( idx<0 )
@@ -218,12 +218,12 @@ void visBase::DataManager::unRef( int id )
     }
 
     refcounts[idx]--;
-    if ( !refcounts[idx] )
+    if ( !refcounts[idx] && rem )
 	remove( idx );
 }
 
 
-void visBase::DataManager::unRef( const DataObject* d )
+void visBase::DataManager::unRef( const DataObject* d, bool rem )
 {
     int idx = objects.indexOf( d );
     if ( idx<0 )
@@ -243,7 +243,7 @@ void visBase::DataManager::unRef( const DataObject* d )
     }
 
     refcounts[idx]--;
-    if ( !refcounts[idx] )
+    if ( !refcounts[idx] && rem )
 	 remove( idx );
 }
 
