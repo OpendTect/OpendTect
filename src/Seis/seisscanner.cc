@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.3 2004-02-29 00:25:11 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.4 2004-03-01 15:37:33 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -143,9 +143,9 @@ void SeisScanner::report( IOPar& iopar ) const
     iopar.set( "Z stop in file", zRange().stop );
     iopar.set( "Number of samples in file", (int)nrsamples );
     if ( nonnullsamplerg.start != 0 )
-	iopar.set( "First non-zero sample", nonnullsamplerg.start );
+	iopar.set( "First non-zero sample", nonnullsamplerg.start + 1 );
     if ( nonnullsamplerg.stop != nrsamples-1 )
-	iopar.set( "Last non-zero sample", nonnullsamplerg.stop );
+	iopar.set( "Last non-zero sample", nonnullsamplerg.stop + 1 );
 
     iopar.add( "->", "Global stats" );
     iopar.set( "Number of non-null traces", (int)nrvalidtraces );
@@ -192,6 +192,9 @@ void SeisScanner::report( IOPar& iopar ) const
     }
     iopar.set( "Bounding coordinate.Minimum", Coord(xrg.start,yrg.start) );
     iopar.set( "Bounding box coordinates.Maximum", Coord(xrg.stop,yrg.stop) );
+    iopar.set( "Z.start", zrg.start );
+    iopar.set( "Z.stop", zrg.stop );
+    iopar.set( "Z.step", zrg.step );
 
     if ( !mIsUndefined(valrg.start) )
     {
