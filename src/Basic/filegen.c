@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.26 2002-09-06 15:17:06 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.27 2002-09-06 15:29:29 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -33,7 +33,7 @@ int File_exists( const char* fname )
 #ifdef __win__
     return fname && *fname && PathFileExists( fname );
 #else
-    return fname && *fname && stat(fname,&statbuf) > 0 ? YES : NO;
+    return fname && *fname && stat(fname,&statbuf) >= 0 ? YES : NO;
 #endif
 }
 
@@ -67,6 +67,40 @@ int File_isAbsPath( const char* fname )
     return !PathIsRelative( fname );
 #else
     return *fname == *dirsep;
+#endif
+}
+
+
+#ifdef lux
+#include <sys/statfs.h>
+/* These header files don't compile!
+#include <linux/nfs_fs.h>
+#include <linux/smb.h>
+*/
+#else
+#include <sys/statvfs.h>
+#endif
+
+int File_isRemote( const char* fname )
+{
+#ifdef lux
+    static struct statfs fsstatbuf;
+    if ( !File_exists(fname)
+      || statfs(fname,&fsstatbuf) )
+#else
+    static struct statvfs fsstatbuf;
+    if ( !File_exists(fname)
+      || statvfs(fname,&fsstatbuf) )
+#endif
+	return NO;
+
+
+#ifdef lux
+    /* return fsstatbuf.f_type == NFS_SUPER_MAGIC
+	|| fsstatbuf.f_type == SMB_SUPER_MAGIC; */
+    return fsstatbuf.f_type == 0x6969 || fsstatbuf.f_type == 0x517B;
+#else
+    return fsstatbuf.f_basetype[0] == 'n' && fsstatbuf.f_basetype[1] == 'f';
 #endif
 }
 
@@ -536,38 +570,4 @@ const char* File_getCurrentDir()
     static FileNameString pathbuf;
     getcwd( pathbuf, PATH_LENGTH );
     return pathbuf;
-}
-
-
-#ifdef lux
-#include <sys/statfs.h>
-/* These header files don't compile!
-#include <linux/nfs_fs.h>
-#include <linux/smb.h>
-*/
-#else
-#include <sys/statvfs.h>
-#endif
-
-int File_isRemote( const char* fname )
-{
-#ifdef lux
-    static struct statfs fsstatbuf;
-    if ( !File_exists(fname)
-      || statfs(fname,&fsstatbuf) )
-#else
-    static struct statvfs fsstatbuf;
-    if ( !File_exists(fname)
-      || statvfs(fname,&fsstatbuf) )
-#endif
-	return NO;
-
-
-#ifdef lux
-    /* return fsstatbuf.f_type == NFS_SUPER_MAGIC
-	|| fsstatbuf.f_type == SMB_SUPER_MAGIC; */
-    return fsstatbuf.f_type == 0x6969 || fsstatbuf.f_type == 0x517B;
-#else
-    return fsstatbuf.f_basetype[0] == 'n' && fsstatbuf.f_basetype[1] == 'f';
-#endif
 }
