@@ -4,27 +4,27 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.21 2002-04-22 12:34:29 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.22 2002-04-29 09:27:44 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
 #include "visdataman.h"
 #include "visplanedatadisplay.h"
 #include "vissceneobjgroup.h"
-#include "vissurvscene.h"
 #include "position.h"
 #include "viscube.h"
 #include "geompos.h"
 #include "color.h"
 
-visSurvey::PickSetDisplay::PickSetDisplay( visSurvey::Scene& scene_ )
+mCreateFactoryEntry( visSurvey::PickSetDisplay );
+
+visSurvey::PickSetDisplay::PickSetDisplay( )
     : group( visBase::SceneObjectGroup::create(true) )
     , eventcatcher( visBase::EventCatcher::create(visBase::MouseClick) )
     , xsz( 50 )
     , ysz( 50 )
     , zsz( 50 )
     , changed( this )
-    , scene( scene_ )
     , VisualObjectImpl( true )
 {
     eventcatcher->ref();
@@ -33,20 +33,17 @@ visSurvey::PickSetDisplay::PickSetDisplay( visSurvey::Scene& scene_ )
     eventcatcher->eventhappened.notify(
 	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
 
+    SPM().appvelchange.notify(	mCB( this, visSurvey::PickSetDisplay,
+				updateCubeSz ));
+
     group->ref();
     addChild( group->getData() );
    
-    scene.ref(); 
-    scene.appvelchange.notify( mCB( this, visSurvey::PickSetDisplay,
-			        updateCubeSz));
 }
 
 
 visSurvey::PickSetDisplay::~PickSetDisplay()
 {
-    scene.appvelchange.remove( mCB( this, visSurvey::PickSetDisplay,
-			        updateCubeSz));
-    scene.unRef();
 
     eventcatcher->eventhappened.remove(
 	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
@@ -54,6 +51,9 @@ visSurvey::PickSetDisplay::~PickSetDisplay()
     eventcatcher->unRef();
     removeChild( group->getData() );
     group->unRef();
+
+    SPM().appvelchange.remove(	mCB( this, visSurvey::PickSetDisplay,
+				updateCubeSz ));
 }
 
 
@@ -69,7 +69,7 @@ Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
     mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
     if ( cube )
     {
-	return scene.getRealCoord(cube->centerPos());
+	return cube->centerPos();
     }
 
     Geometry::Pos res(mUndefValue,mUndefValue,mUndefValue);
@@ -81,9 +81,8 @@ Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
 void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
 {
     visBase::Cube* cube = visBase::Cube::create();
-    Geometry::Pos displaypos = scene.getDisplayCoord( pos );
-    cube->setCenterPos( displaypos );
-    cube->setWidth( Geometry::Pos( xsz, ysz, zsz/scene.apparentVel()*2) );
+    cube->setCenterPos( pos );
+    cube->setWidth( Geometry::Pos( xsz, ysz, zsz/SPM().getAppVel()*2) );
     cube->setMaterial( 0 );
 
     group->addObject( cube );
@@ -100,14 +99,12 @@ void visSurvey::PickSetDisplay::setSize( float x, float y, float z )
 
 void visSurvey::PickSetDisplay::removePick( const Geometry::Pos& pos )
 {
-    Geometry::Pos displaypos = scene.getDisplayCoord( pos );
-
     for ( int idx=0; idx<group->size(); idx++ )
     {
 	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
 	if ( !cube ) continue;
 
-	if ( cube->centerPos() == displaypos )
+	if ( cube->centerPos() == pos )
 	{
 	    group->removeObject( idx );
 	    changed.trigger();
@@ -193,9 +190,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 			 mIS_ZERO( newpos.y-mousepressposition.y ) &&
 			 mIS_ZERO( newpos.z-mousepressposition.z ) )
 		    {
-			Geometry::Pos realpos = scene.getRealCoord( newpos );
-			realpos.z /= -scene.apparentVel();
-			realpos.z *= 2;
+			Geometry::Pos realpos = SPM().coordDispl2XYT( newpos );
 			addPick( realpos );
 		    }
 		}
@@ -209,7 +204,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 
 void visSurvey::PickSetDisplay::updateCubeSz( CallBacker* cb )
 {
-    Geometry::Pos nsz( xsz, ysz, zsz/scene.apparentVel()*2);
+    Geometry::Pos nsz( xsz, ysz, zsz/SPM().getAppVel()*2);
 
     for ( int idx=0; idx<group->size(); idx++ )
     {

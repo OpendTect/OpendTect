@@ -4,10 +4,9 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.9 2002-04-26 13:07:30 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.10 2002-04-29 09:27:44 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
-#include "vissurvscene.h"
 #include "geompos.h"
 #include "cubesampling.h"
 #include "attribsel.h"
@@ -20,25 +19,38 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.9 2002-04-26 13:07:3
 #include "visselman.h"
 #include "visdataman.h"
 #include "visrectangle.h"
-
 #include "sorting.h"
 
-visSurvey::PlaneDataDisplay::PlaneDataDisplay(
-			visSurvey::PlaneDataDisplay::Type type_,
-			visSurvey::Scene& scene_,
-			const CallBack appcb )
+mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
+
+visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     : VisualObject( true )
     , trect( visBase::TextureRect::create() )
-    , type( type_ )
     , selected_( false )
     , cs(*new CubeSampling)
     , as(*new AttribSelSpec)
-    , newdatacb(appcb)
-    , scene( scene_ )
 {
     trect->ref();
     selection()->notify( mCB(this,PlaneDataDisplay,select));
     deSelection()->notify( mCB(this,PlaneDataDisplay,deSelect));
+
+    setType( Inline );
+
+
+    trect->getRectangle().setSnapping( true );
+    trect->useTexture( false );
+}
+
+
+void visSurvey::PlaneDataDisplay::setNewDataCallBack(const CallBack ncb)
+{
+    newdatacb = ncb;
+}
+
+
+void visSurvey::PlaneDataDisplay::setType(Type nt)
+{
+    type = nt;
 
     BinID startbid = SI().range().start;
     BinID stopbid = SI().range().stop;
@@ -101,13 +113,6 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay(
 	trect->getRectangle().setRange( 1, crlrange );
 	trect->getRectangle().setRange( 2, vrg );
     }
-
-    trect->getRectangle().setSnapping( true );
-    trect->useTexture( false );
-    resetDraggerSizes( scene.apparentVel() );
-
-    scene.appvelchange.notify(
-	    mCB( this, visSurvey::PlaneDataDisplay, updateDraggerCB ));
 }
 
 
@@ -204,8 +209,6 @@ visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
     trect->deSelection()->remove( mCB(this,PlaneDataDisplay,deSelect));
 
     trect->unRef();
-    scene.appvelchange.remove(
-	    mCB( this, visSurvey::PlaneDataDisplay, updateDraggerCB ));
 }
 
 
@@ -321,10 +324,4 @@ void visSurvey::PlaneDataDisplay::deSelect()
 	trect->getRectangle().moveObjectToManipRect();
     else
 	trect->getRectangle().resetManip();
-}
-
-
-void visSurvey::PlaneDataDisplay::updateDraggerCB( CallBacker* cb )
-{
-    resetDraggerSizes( scene.apparentVel() );
 }

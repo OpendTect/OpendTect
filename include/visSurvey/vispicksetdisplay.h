@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.12 2002-04-15 10:05:39 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.13 2002-04-29 09:28:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "geompos.h"
+#include "vissurvobj.h"
 
 class Color;
 
@@ -31,12 +32,12 @@ class Scene;
 
 */
 
-class PickSetDisplay : public visBase::VisualObjectImpl
+class PickSetDisplay :	public visBase::VisualObjectImpl,
+			public visSurvey::SurveyObject
 {
 public:
-    static PickSetDisplay*	create(visSurvey::Scene& scene)
-				mCreateDataObj1arg(PickSetDisplay,
-					visSurvey::Scene&, scene );
+    static PickSetDisplay*	create()
+				mCreateDataObj0arg(PickSetDisplay);
 
     int				nrPicks() const;
     Geometry::Pos		getPick( int idx ) const;
@@ -49,14 +50,13 @@ public:
     float			getZSz() const { return zsz; }
 
     void			setSize( float inl, float crl, float t );
-
     Notifier<PickSetDisplay>	changed;
 
 protected:
     virtual		~PickSetDisplay();
 
     void		pickCB( CallBacker* =0 );
-    void		updateCubeSz( CallBacker* =0 );
+    void		updateCubeSz( CallBacker* = 0);
 
     float		xsz;
     float		ysz;
@@ -67,7 +67,6 @@ protected:
 
     visBase::SceneObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
-    visSurvey::Scene&		scene;
 };
 
 };

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.27 2002-04-25 10:36:05 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.28 2002-04-29 09:27:44 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -19,80 +19,22 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.27 2002-04-25 10:36:05 kris
 
 #include <limits.h>
 
+mCreateFactoryEntry( visSurvey::Scene );
+
 
 visSurvey::Scene::Scene()
-    : inlcrltransformation( visBase::Transformation::create() )
-    , timetransformation( visBase::Transformation::create() )
-    , appvel( 0 )
-    , appvelchange( this )
+    : inlcrltransformation( SPM().getInlCrlTransform() )
+    , timetransformation( SPM().getAppvelTransform() )
     , annot( 0 )
     , eventcatcher( visBase::EventCatcher::create(visBase::MouseMovement))
     , mouseposchange( this )
 {
-    visBase::Transformation* reversedz = visBase::Transformation::create();
-    addObject( reversedz );
-    reversedz->setA(
-	1,	0,	0,	0,
-	0,	1,	0,	0,
-	0,	0,	-1,	0,
-	0,	0,	0,	1 );
-
+    addObject( const_cast<visBase::Transformation*>(
+						SPM().getDisplayTransform()));
     addObject( eventcatcher );
     eventcatcher->eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
-    addObject( timetransformation );
-    addObject( inlcrltransformation );
-
-    BinID startbid = SI().range().start;
-    BinID stopbid = SI().range().stop;
-
-    Coord startpos = SI().transform( startbid );
-    Coord stoppos = SI().transform( stopbid );
-
-    // Set inlcrl transformation
-    BinID firstinlinestopbid( startbid.inl, stopbid.crl );
-    Coord firstinlinestoppos = SI().transform( firstinlinestopbid );
-
-    Array2DImpl<double> A(3,3);
-    A.set( 0, 0, startbid.inl );
-    A.set( 0, 1, startbid.crl );
-    A.set( 0, 2, 1);
-
-    A.set( 1, 0, stopbid.inl );
-    A.set( 1, 1, stopbid.crl );
-    A.set( 1, 2, 1);
-
-    A.set( 2, 0, firstinlinestopbid.inl );
-    A.set( 2, 1, firstinlinestopbid.crl );
-    A.set( 2, 2, 1);
-
-    double b[] = { startpos.x, stoppos.x, firstinlinestoppos.x };
-    double x[3];
-
-    LinSolver<double> linsolver( A );
-    linsolver.apply( b, x );
-
-    double transmatrix11 = x[0];
-    double transmatrix12 = x[1];
-    double transmatrix14 = x[2];
-
-    b[0] = startpos.y; b[1] = stoppos.y; b[2] = firstinlinestoppos.y;
-    linsolver.apply( b, x );
-
-    double transmatrix21 = x[0];
-    double transmatrix22 = x[1];
-    double transmatrix24 = x[2];
-
-    inlcrltransformation->setA(
-	transmatrix11,	transmatrix12,	0,	transmatrix14, 
-	transmatrix21,	transmatrix22,	0,	transmatrix24,
-	0,		0,		1,	0,
-	0,		0,		0,	1 );
-
-    xoffset = 0;
-    yoffset = 0;
-
-    // Set time trans
-    setApparentVel( 2000 );
+    addObject( const_cast<visBase::Transformation*>(timetransformation) );
+    addObject( const_cast<visBase::Transformation*>(inlcrltransformation) );
 
     BinIDRange hrg = SI().range();
     StepInterval<double> vrg = SI().zRange();
@@ -169,24 +111,6 @@ void visSurvey::Scene::addInlCrlTObject( SceneObject* obj )
 }
 
 
-float visSurvey::Scene::apparentVel() const { return appvel; }
-
-
-void visSurvey::Scene::setApparentVel( float a )
-{
-    if ( mIS_ZERO(appvel-a) ) return;
-    appvel = a;
-
-    timetransformation->setA(
-	1,	0,	0,		0,
-	0,	1,	0,		0,
-	0,	0,	appvel/2,	0,
-	0,	0,	0,		1 );
-
-    appvelchange.trigger();
-}
-
-
 void visSurvey::Scene::showAnnotText( bool yn )
 {
     annot->showText( yn );
@@ -196,28 +120,6 @@ void visSurvey::Scene::showAnnotText( bool yn )
 bool  visSurvey::Scene::isAnnotTextShown() const
 {
     return annot->isTextShown();
-}
-
-
-Geometry::Pos visSurvey::Scene::getRealCoord(Geometry::Pos display) const
-{
-    Geometry::Pos res;
-    res.x = display.x + xoffset;
-    res.y = display.y + yoffset;
-    res.z = display.z;
-
-    return res;
-}
-
-
-Geometry::Pos visSurvey::Scene::getDisplayCoord(Geometry::Pos real) const
-{
-    Geometry::Pos res;
-    res.x = real.x - xoffset;
-    res.y = real.y - yoffset;
-    res.z = real.z;
-
-    return res;
 }
 
 
@@ -259,9 +161,7 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 
     if ( !validpicksurface ) return;
 
-    xytmousepos = getRealCoord(eventinfo.pickedpos);
-    xytmousepos.z /= -apparentVel();
-    xytmousepos.z *= 2;
+    xytmousepos = SPM().coordDispl2XYT(eventinfo.pickedpos);
 
     Geometry::Pos inlcrl = xytmousepos;
     BinID binid = SI().transform( Coord( xytmousepos.x, xytmousepos.y ));
