@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.192 2004-04-27 11:59:53 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.193 2004-04-28 12:14:29 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -1556,7 +1556,7 @@ void uiVisPartServer::setUpConnections( int id )
     mDynamicCastAll();
     CallBack cb = mCB(this,uiVisPartServer,interactionCB);
     if ( vd )
-	vd->slicemoving.notify( cb );
+	vd->getMovementNotification()->notify( cb );
     else if ( pdd )
 	pdd->getMovementNotification()->notify( cb );
     else if ( sd )
@@ -1576,7 +1576,7 @@ void uiVisPartServer::removeConnections( int id )
     mDynamicCastAll();
     CallBack cb = mCB(this,uiVisPartServer,interactionCB);
     if ( vd )
-	vd->slicemoving.remove( cb );
+	vd->getMovementNotification()->remove( cb );
     else if ( pdd )
 	pdd->getMovementNotification()->remove( cb );
     else if ( sd )
