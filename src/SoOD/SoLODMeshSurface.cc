@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.4 2005-03-31 15:29:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.5 2005-04-05 13:02:34 cvskris Exp $";
 
 #include "SoLODMeshSurface.h"
 
@@ -23,11 +23,7 @@ static const char* rcsID = "$Id: SoLODMeshSurface.cc,v 1.4 2005-03-31 15:29:37 c
 #include <Inventor/caches/SoBoundingBoxCache.h>
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/elements/SoComplexityElement.h>
-#include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/elements/SoCacheElement.h>
-#include <Inventor/elements/SoCoordinateElement.h>
-#include <Inventor/elements/SoModelMatrixElement.h>
-#include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/lists/SbList.h>
 #include <Inventor/threads/SbRWMutex.h>
 #include <Inventor/system/gl.h>
@@ -665,10 +661,7 @@ void MeshSurfaceTesselationCache::GLRenderLines(SoGLRenderAction* action)
 	    isopen = true;
 	}
 
-	SbColor realcolor = SoLazyElement::getDiffuse(state,
-				miptr?(index<nmi?miptr[index]:miptr[nmi-1]):0 );
-	glColor3f(1-realcolor[0],1-realcolor[1],1-realcolor[2]);
-
+	mb.send(miptr?(index<nmi?miptr[index]:miptr[nmi-1]):0,true);
 	if ( lineni[idx] < normals.getLength() )
 	    glNormal3fv( normals[lineni[idx]].getValue() );
 #if __debug__
@@ -2333,32 +2326,11 @@ void SoLODMeshSurface::GLRender(SoGLRenderAction* action)
 
     for ( int idx=0; idx<nrparts; idx++ )
 	parts[idx]->GLRenderSurface(action, useownvalidation);
-    if ( !wireframe.getValue() )
+
+    if ( wireframe.getValue() )
     {
-//	for ( int idx=0; idx<nrparts; idx++ )
-//	    parts[idx]->GLRenderGlue(action, useownvalidation);
-//
-//	for ( int idx=0; idx<nrparts; idx++ )
-//	    parts[idx]->GLRenderSurface(action, useownvalidation);
-    }
-    else
-    {
-	state->push();
-	const SbViewVolume& vv = SoViewVolumeElement::get(state);
-	const SbMatrix& mat = SoModelMatrixElement::get(state);
-
-	SbVec3f projectiondir = vv.getProjectionDirection();
-	projectiondir.normalize();
-	projectiondir *= -wireframeLift.getValue();
-
-	SbVec3f localprojdir;
-	mat.inverse().multDirMatrix( projectiondir, localprojdir );
-	SoModelMatrixElement::translateBy(state, this,localprojdir);
-
 	for ( int idx=0; idx<nrparts; idx++ )
 	    parts[idx]->GLRenderWireframe(action, useownvalidation);
-
-	state->pop();
     }
 }
 
