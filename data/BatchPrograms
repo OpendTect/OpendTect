@@ -27,6 +27,12 @@ process_attrib: d-Tect
 	Comment: Use the d-Tect Attribute Engine
 	Comment: Is used by d-Tect for batch output
 !
+mk_2d_vol: d-Tect
+	Arg: M`File`Parameter file
+	Comment: This program duplicates a single in-line into a cube.
+	Comment: That cube can then be used to calculate a steering cube.
+	ExampleInput: mk_2d_vol_example.par
+!
 segy2su: GDI
 	Arg: O`Words`Program arguments
 	Comment: Run this program without optional arguments to see the options
