@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.14 2002-11-06 12:58:05 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.15 2003-01-14 13:44:48 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,12 +126,6 @@ bool uiLineEdit::isEdited() const
 void uiLineEdit::setReadOnly( bool yn )
 {
     body_->setReadOnly( yn );
-
-    if( yn )
-	body_->setBackgroundColor( QColor() );
-    else
-	body_->setBackgroundMode( QWidget::PaletteBase );
-
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.28 2003-01-14 09:24:17 arend Exp $
+ RCS:           $Id: uicombobox.cc,v 1.29 2003-01-14 13:44:48 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,7 +222,7 @@ void uiComboBox::addItems( const PtrUserIDObjectSet& uids )
 void uiComboBox::addItems( const ObjectSet<BufferString>& strs )
 {
     for ( int idx=0; idx<strs.size(); idx++ )
-	body_->insertItem( QString( *strs[idx] ), -1 );
+	addItem( *strs[idx] );
 }
 
 
