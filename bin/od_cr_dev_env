@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.6 2003-12-09 15:45:25 arend Exp $
+# $Id: od_cr_dev_env,v 1.7 2003-12-09 15:47:32 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -23,7 +23,7 @@ if [ "$HDIR" = "win" ]; then
     outdir=`cygpath -u "$2"`
     soext=dll
 
-    if [ ! "$#" -eq 3 ]; then
+    if [ "$#" -eq 3 ]; then
 	export MINGWHOME=`cygpath -u "$3"`
     fi
 
