@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.18 2002-05-08 07:32:42 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.19 2002-05-08 07:50:13 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -140,7 +140,7 @@ bool visBase::DataManager::usePar( const IOPar& par )
     for ( int idx=0;idx<createdobj.size(); idx++ )
 	createdobj[idx]->unRefNoDelete();
 
-    return true;
+    return change;
 }
 
 
