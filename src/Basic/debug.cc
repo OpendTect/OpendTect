@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.1 2003-06-10 13:50:19 arend Exp $
+ RCS:           $Id: debug.cc,v 1.2 2003-06-10 15:08:54 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.1 2003-06-10 13:50:19 arend Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.2 2003-06-10 15:08:54 arend Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -46,11 +46,17 @@ bool isOn( int flag )
 }
 
 
+
 void message( const char* msg )
 {
     cout << msg << endl;
 }
 
+
+void message( int flag, const char* msg )
+{
+    if ( isOn(flag) ) message(msg);
+}
 
 };
 
