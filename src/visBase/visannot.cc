@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.22 2005-02-04 14:31:34 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.23 2005-02-11 11:13:37 nanne Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -20,17 +20,15 @@ static const char* rcsID = "$Id: visannot.cc,v 1.22 2005-02-04 14:31:34 kristofe
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoSwitch.h"
 
+mCreateFactoryEntry( visBase::Annotation );
+
 namespace visBase
 {
-
 
 const char* Annotation::textprefixstr = "Text ";
 const char* Annotation::cornerprefixstr = "Corner ";
 const char* Annotation::showtextstr = "Show Text";
 const char* Annotation::showscalestr = "Show Scale";
-
-
-mCreateFactoryEntry( Annotation );
 
 Annotation::Annotation()
     : coords(new SoCoordinate3)
@@ -90,9 +88,9 @@ Annotation::Annotation()
     texts->ref();
     textswitch->addChild( texts->getInventorNode() );
     textswitch->whichChild = 0;
-    Text* text = Text::create(); texts->addObject( text );
-    text = Text::create(); texts->addObject( text );
-    text = Text::create(); texts->addObject( text );
+    Text2* text = Text2::create(); texts->addObject( text );
+    text = Text2::create(); texts->addObject( text );
+    text = Text2::create(); texts->addObject( text );
 
 
     addChild( scaleswitch );
@@ -164,7 +162,7 @@ void Annotation::setCorner( int idx, float x, float y, float z )
 }
 
 
-Coord3  Annotation::getCorner( int idx ) const
+Coord3 Annotation::getCorner( int idx ) const
 {
     SbVec3f pos = coords->point[idx];
     Coord3 res( pos[0], pos[1], pos[2] );
@@ -174,13 +172,13 @@ Coord3  Annotation::getCorner( int idx ) const
 
 void Annotation::setText( int dim, const char* string )
 {
-    Text* text = (Text*) texts->getObject( dim );
+    Text2* text = (Text2*)texts->getObject( dim );
     if ( text )
 	text->setText( string );
 }
 
 
-void  Annotation::updateTextPos()
+void Annotation::updateTextPos()
 {
     updateTextPos( 0 );
     updateTextPos( 1 );
@@ -219,7 +217,7 @@ void Annotation::updateTextPos( int textid )
     tp[1] = (p0[1]+p1[1]) / 2;
     tp[2] = (p0[2]+p1[2]) / 2;
 
-    ((Text*)texts->getObject(textid))
+    ((Text2*)texts->getObject(textid))
 			->setPosition( Coord3(tp[0],tp[1],tp[2]) );
 
     int dim = -1;
@@ -241,7 +239,7 @@ void Annotation::updateTextPos( int textid )
 	if ( val <= range.start )	continue;
 	else if ( val > range.stop )	break;
 
-	Text* text = Text::create();
+	Text2* text = Text2::create();
 	scales[textid]->addObject( text );
 	Coord3 pos( p0[0], p0[1], p0[2] );
 	pos[dim] = val;
@@ -252,11 +250,11 @@ void Annotation::updateTextPos( int textid )
 }
 
 
-Text* Annotation::getText( int dim, int textnr )
+Text2* visBase::Annotation::getText( int dim, int textnr )
 {
     DataObjectGroup* group = 0;
     group = scales[dim];
-    mDynamicCastGet(Text*,text,group->getObject(textnr));
+    mDynamicCastGet(Text2*,text,group->getObject(textnr));
     return text;
 }
 
@@ -278,7 +276,7 @@ void Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     {
 	key = textprefixstr;
 	key += idx;
-	Text* text = (Text*)texts->getObject( idx );
+	Text2* text = (Text2*)texts->getObject( idx );
 	if ( !text ) continue;
 
 	par.set( key, (const char*)text->getText() );

@@ -1,20 +1,25 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Apr 2002
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Apr 2002
+ RCS:           $Id: vistext.cc,v 1.12 2005-02-11 11:13:37 nanne Exp $
+________________________________________________________________________
+
 -*/
-
-static const char* rcsID = "$Id: vistext.cc,v 1.11 2005-02-04 14:31:34 kristofer Exp $";
-
 
 #include "vistext.h"
 
 #include "iopar.h"
 #include "vistransform.h"
+#include "vismaterial.h"
 
-#include "Inventor/nodes/SoText2.h"
-#include "Inventor/nodes/SoFont.h"
-#include "Inventor/nodes/SoTranslation.h"
+#include <Inventor/nodes/SoFont.h>
+#include <Inventor/nodes/SoText2.h>
+#include <Inventor/nodes/SoTranslation.h>
+
+mCreateFactoryEntry( visBase::Text2 );
 
 namespace visBase
 {
@@ -24,24 +29,29 @@ const char* Text::fontsizestr = "Font size";
 const char* Text::justificationstr = "Justification";
 const char* Text::positionstr = "Position";
 
-mCreateFactoryEntry( Text );
 
 Text::Text()
     : VisualObjectImpl(false)
-    , text( new SoText2 )
-    , font( new SoFont )
-    , textpos( new SoTranslation )
-    , transformation( 0 )
+    , textpos(new SoTranslation)
+    , font(new SoFont)
+    , transformation(0)
 {
     addChild( textpos );
     addChild( font );
-    addChild( text );
 }
 
 
 Text::~Text()
 {
     if ( transformation ) transformation->unRef();
+}
+
+
+void Text::setPosition( const Coord3& pos_ )
+{
+    const Coord3 pos = transformation ? transformation->transform( pos_ ) 
+				      : pos_;
+    textpos->translation.setValue( pos.x, pos.y, pos.z );
 }
 
 
@@ -53,102 +63,15 @@ Coord3 Text::position() const
 }
 
 
-void Text::setPosition(const Coord3& pos_ )
-{
-    const Coord3 pos = transformation
-	? transformation->transform( pos_ ) : pos_;
-    textpos->translation.setValue( pos.x, pos.y, pos.z );
-}
-
-
-BufferString Text::getText() const
-{
-    SbString val;
-    text->string.get( val );
-    BufferString res = val.getString();
-    return res;
-}
-
-
-void Text::setText(const char* newtext)
-{
-    text->string.setValue(newtext);
-}
-
-
-float Text::size() const
-{
-    return font->size.getValue();
-}
-
-
 void Text::setSize( float ns )
 {
     font->size.setValue( ns );
 }
 
 
-Text::Justification Text::justification() const
+float Text::size() const
 {
-    if ( text->justification.getValue() == SoText2::CENTER )
-	return Center;
-    if ( text->justification.getValue() == SoText2::LEFT )
-	return Left;
-
-    return Right;
-}
-
-
-void Text::setJustification( Justification just )
-{
-    if ( just==Center )
-	text->justification.setValue( SoText2::CENTER );
-    else if ( just==Left )
-	text->justification.setValue( SoText2::LEFT );
-    else
-	text->justification.setValue( SoText2::RIGHT );
-}
-
-
-void Text::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    VisualObjectImpl::fillPar( par, saveids );
-
-    Coord3 pos = position();
-    par.set( positionstr, pos.x, pos.y, pos.z );
-
-    par.set( justificationstr, (int) justification() );
-    par.set( fontsizestr, size() );
-    par.set( stringstr, (const char* ) getText() );
-}
-
-
-int Text::usePar( const IOPar& par )
-{
-    int res = VisualObjectImpl::usePar( par );
-    if ( res!=1 ) return res;
-
-    Coord3 pos;
-    if ( !par.get( positionstr, pos.x, pos.y, pos.z ) )
-	return -1;
-
-    int just;
-    if ( !par.get( justificationstr, just ))
-	return -1;
-
-    float fontsz;
-    if ( !par.get( fontsizestr, fontsz ))
-	return -1;
-
-    const char* str = par.find( stringstr );
-    if ( !str ) return -1;
-
-    setText( str );
-    setPosition( pos );
-    setSize( fontsz );
-    setJustification( (Justification) just );
-
-    return 1;
+    return font->size.getValue();
 }
 
 
@@ -160,12 +83,99 @@ void Text::setDisplayTransformation( Transformation* nt )
     transformation = nt;
     if ( transformation ) transformation->ref();
     setPosition( pos );
-}	
+}
 
 
 Transformation* Text::getDisplayTransformation()
 {
     return transformation;
 }
+
+
+void Text::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    par.set( positionstr, position() );
+    par.set( justificationstr, (int)justification() );
+    par.set( fontsizestr, size() );
+    par.set( stringstr, getText() );
+}
+
+
+int Text::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    Coord3 pos;
+    if ( !par.get(positionstr,pos) )
+	return -1;
+
+    int just = 1;
+    par.get( justificationstr, just );
+
+    float fontsz = size();
+    par.get( fontsizestr, fontsz );
+
+    BufferString str( "" );
+    par.get( stringstr, str );
+
+    setText( str );
+    setPosition( pos );
+    setSize( fontsz );
+    setJustification( (Justification)just );
+
+    return 1;
+}
+
+
+// Text2 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Text2::Text2()
+    : Text()
+    , text(new SoText2)
+{
+    addChild( text );
+}
+
+
+void Text2::setText( const char* newtext )
+{
+    text->string.setValue( newtext );
+}
+
+
+const char* Text2::getText() const
+{
+    SbString val;
+    text->string.get( val );
+    static BufferString res;
+    res = val.getString();
+    return res;
+}
+
+
+void Text2::setJustification( Justification just )
+{
+    if ( just==Center )
+	text->justification.setValue( SoText2::CENTER );
+    else if ( just==Left )
+	text->justification.setValue( SoText2::LEFT );
+    else
+	text->justification.setValue( SoText2::RIGHT );
+}
+
+
+Text::Justification Text2::justification() const
+{
+    if ( text->justification.getValue() == SoText2::CENTER )
+	return Center;
+    if ( text->justification.getValue() == SoText2::LEFT )
+	return Left;
+
+    return Right;
+}
+
 
 }; // namespace visBase

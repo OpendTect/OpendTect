@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.22 2005-02-04 14:31:34 kristofer Exp $
+ RCS:           $Id: viswell.cc,v 1.23 2005-02-11 11:13:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,17 +29,13 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoFaceSet.h>
 #include <Inventor/nodes/SoSwitch.h>
 
+mCreateFactoryEntry( visBase::Well );
 
 namespace visBase
 {
 
-mCreateFactoryEntry( Well );
-
 static const int sMaxNrLogSamples = 2000;
 static const int sDefaultMarkerSize = 10;
-
-namespace visBase 
-{
 
 const char* Well::linestylestr	= "Line style";
 const char* Well::showwellnmstr	= "Show name";
@@ -54,7 +50,7 @@ const char* Well::logwidthstr 	= "Screen width";
 Well::Well()
     : track( PolyLine::create() )
     , drawstyle( DrawStyle::create() )
-    , welltxt( Text::create() )
+    , welltxt( Text2::create() )
     , markernmsw( new SoSwitch )
     , showmarkers(true)
     , markersize(sDefaultMarkerSize)
@@ -88,15 +84,20 @@ Well::Well()
 Well::~Well()
 {
     if ( transformation ) transformation->unRef();
+
     removeChild( welltxt->getInventorNode() );
     welltxt->unRef();
+
     removeChild( track->getInventorNode() );
     track->unRef();
+
     removeChild( drawstyle->getInventorNode() );
     drawstyle->unRef();
+
     markergroup->removeAll();
     removeChild( markergroup->getInventorNode() );
     markergroup->unRef();
+
     markernames->removeAll();
     removeChild( markernames->getInventorNode() );
     markernames->unRef();
@@ -148,8 +149,10 @@ void Well::setWellName( const char* nm, const Coord3& pos )
     welltxt->setJustification( Text::Center );
 }
 
+
 void Well::showWellName( bool yn )
 { welltxt->turnOn( yn ); }
+
 
 bool Well::wellNameShown() const
 { return welltxt->isOn(); }
@@ -183,7 +186,7 @@ void Well::addMarker( const Coord3& pos, const Color& color, const char* nm )
     marker->setScreenSize( markersize );
     marker->turnOn( showmarkers );
 
-    Text* markernm = Text::create();
+    Text2* markernm = Text2::create();
     markernm->setDisplayTransformation( transformation );
     markernm->setText( nm );
     markernm->setPosition( pos );
@@ -425,7 +428,5 @@ int Well::usePar( const IOPar& par )
 
     return 1;
 }
-
-}; // namespace visBase
 
 }; // namespace visBase

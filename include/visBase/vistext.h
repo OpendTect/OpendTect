@@ -7,18 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.10 2004-11-16 09:29:17 kristofer Exp $
+ RCS:		$Id: vistext.h,v 1.11 2005-02-11 11:13:25 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
-#include "bufstring.h"
 #include "position.h"
 
-class SoText2;
 class SoFont;
+class SoText2;
 class SoTranslation;
 
 namespace visBase
@@ -33,39 +32,56 @@ since their sizes will corrupt the bounding box calculation.
 class Text : public VisualObjectImpl
 {
 public:
-    enum		Justification { Left, Right, Center };
-    static Text*	create()
-			mCreateDataObj(Text);
+    enum			Justification { Left, Right, Center };
 
-    Coord3		position() const;
-    void		setPosition( const Coord3& );
+    virtual Coord3		position() const;
+    virtual void		setPosition(const Coord3&);
 
-    BufferString	getText() const;
-    void		setText(const char*);
+    virtual float		size() const;
+    virtual void		setSize(float);
 
-    float		size() const;
-    void		setSize(float);
+    virtual const char*		getText() const			=0;
+    virtual void		setText(const char*)		=0;
 
-    Justification	justification() const;
-    void		setJustification( Justification );
+    virtual Justification	justification() const		=0;
+    virtual void		setJustification(Justification)	=0;
 
-    void		fillPar( IOPar&, TypeSet<int>& ) const;
-    int			usePar( const IOPar& );
+    virtual void		setDisplayTransformation(Transformation*);
+    Transformation*		getDisplayTransformation();
 
-    void		setDisplayTransformation( Transformation* );
-    Transformation*	getDisplayTransformation();
+    void			fillPar(IOPar&,TypeSet<int>&) const;
+    int				usePar(const IOPar&);
 
 protected:
-			~Text();
-    SoTranslation*	textpos;
-    SoFont*		font;
-    SoText2*		text;
-    Transformation*	transformation;
+    				Text();
+				~Text();
 
-    static const char*	stringstr;
-    static const char*	fontsizestr;
-    static const char*	justificationstr;
-    static const char*	positionstr;
+    SoTranslation*		textpos;
+    SoFont*			font;
+    Transformation*		transformation;
+
+    static const char*		stringstr;
+    static const char*		fontsizestr;
+    static const char*		justificationstr;
+    static const char*		positionstr;
+};
+
+
+class Text2 : public Text
+{
+public:
+    static Text2*		create()
+    				mCreateDataObj(Text2);
+
+    void			setText(const char*);
+    const char*			getText() const;
+
+    void			setJustification(Justification);
+    Justification		justification() const;
+
+protected:
+    SoText2*			text;
+
 };
 
 }; // Namespace

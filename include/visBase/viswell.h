@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.12 2005-02-04 14:31:34 kristofer Exp $
+ RCS:           $Id: viswell.h,v 1.13 2005-02-11 11:13:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace visBase
 class DrawStyle;
 class PolyLine;
 class DataObjectGroup;
-class Text;
+class Text2;
 class Transformation;
 
 /*! \brief 
@@ -98,7 +98,7 @@ protected:
 
     PolyLine*			track;
     DrawStyle*			drawstyle;
-    Text*			welltxt;
+    Text2*			welltxt;
     DataObjectGroup*		markergroup;
     SoSwitch*			markernmsw;
     DataObjectGroup*		markernames;

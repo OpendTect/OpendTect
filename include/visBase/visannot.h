@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.16 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.17 2005-02-11 11:13:24 nanne Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ class AxisInfo;
 
 namespace visBase
 {
-class Text;
+class Text2;
 class DataObjectGroup;
 class PickStyle;
 
@@ -56,7 +56,7 @@ protected:
     				~Annotation();
     void			updateTextPos(int dim);
     void			updateTextPos();
-    Text*			getText( int dim, int textnr );
+    Text2*			getText( int dim, int textnr );
 
     SoCoordinate3*		coords;
 
