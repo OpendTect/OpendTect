@@ -9,7 +9,7 @@ static const char* rcsID = "$Id";
 #include "seistrc.h"
 #include "seiscbvs.h"
 #include "seistrcsel.h"
-#include "binidselimpl.h"
+#include "cubesampling.h"
 #include "conn.h"
 #include "iostrm.h"
 #include "separstr.h"
@@ -72,10 +72,10 @@ bool BatchProgram::go( std::ostream& logstrm )
     ioobj.setFileName( fname );
     ioobj.setGroup( mTranslGroupName(SeisTrc) );
     ioobj.setTranslator( mTranslKey(CBVSSeisTrc) );
-    SeisSelData seldata; BinIDValue biv;
-    SeisTrcTranslator::getRanges( ioobj, seldata, &biv );
-    const float zstep = biv.value;
-    const BinID icstep( biv.binid );
+    CubeSampling cs;
+    SeisTrcTranslator::getRanges( ioobj, cs );
+    const float zstep = cs.zrg.step;
+    const BinID icstep( cs.hrg.step );
 
     fname = StreamProvider::sStdIO;
     pars().get( "Output", fname );
@@ -93,22 +93,21 @@ bool BatchProgram::go( std::ostream& logstrm )
     const char* res = pars().find( "Output.Mode" );
     if ( res && *res == 'I' )
     {
-	outstrm << "Range.Inline: " << seldata.inlrg_.start << ' '
-		<< seldata.inlrg_.stop << ' ' << icstep.inl << '\n';
-	outstrm << "Range.Xline: " << seldata.crlrg_.start << ' '
-		<< seldata.crlrg_.stop << ' ' << icstep.crl << '\n';
-	outstrm << "Range.Z: " << seldata.zrg_.start << ' '
-	    	<< seldata.zrg_.stop << ' ' << zstep << std::endl;
+	outstrm << "Range.Inline: " << cs.hrg.start.inl << ' '
+		<< cs.hrg.stop.inl << ' ' << cs.hrg.step.inl << '\n';
+	outstrm << "Range.Xline: " << cs.hrg.start.crl << ' '
+		<< cs.hrg.stop.crl << ' ' << cs.hrg.step.crl << '\n';
+	outstrm << "Range.Z: " << cs.zrg.start << ' '
+	    	<< cs.zrg.stop << ' ' << cs.zrg.step << std::endl;
 	if ( ci.size() > 1 )
 	    outstrm << "Components.Nr: " << ci.size() << std::endl;
 
 	BinID2Coord b2c( tri->getTransform() );
-	BinID bid;
-	bid.inl = seldata.inlrg_.start; bid.crl = seldata.crlrg_.start;
+	BinID bid( cs.hrg.start );
 	prBidCoord( outstrm, b2c, bid );
-	bid.inl = seldata.inlrg_.stop;
+	bid.inl = cs.hrg.stop.inl;
 	prBidCoord( outstrm, b2c, bid );
-	bid.inl = seldata.inlrg_.start; bid.crl = seldata.crlrg_.stop;
+	bid.inl = cs.hrg.start.inl; bid.crl = cs.hrg.stop.crl;
 	prBidCoord( outstrm, b2c, bid );
 
 	char buf[80]; ci[0]->datachar.toString(buf);
@@ -136,7 +135,7 @@ bool BatchProgram::go( std::ostream& logstrm )
 	    ci[idx]->destidx = -1;
     }
 
-    StepInterval<float> zrg( seldata.zrg_.start, seldata.zrg_.stop, zstep );
+    SeisSelData seldata; seldata.copyFrom( cs );
     if ( havesel )
     {
 	FileMultiString fms;
@@ -162,11 +161,11 @@ bool BatchProgram::go( std::ostream& logstrm )
 	    fms = zselstr;
 	    const int sz = fms.size();
 	    if ( SI().zIsTime() )
-		{ zrg.start *= 1000; zrg.stop *= 1000; }
-	    if ( sz > 0 ) zrg.start = atof( fms[0] );
-	    if ( sz > 1 ) zrg.stop = atof( fms[1] );
+		{ seldata.zrg_.start *= 1000; seldata.zrg_.stop *= 1000; }
+	    if ( sz > 0 ) seldata.zrg_.start = atof( fms[0] );
+	    if ( sz > 1 ) seldata.zrg_.stop = atof( fms[1] );
 	    if ( SI().zIsTime() )
-		{ zrg.start *= 0.001; zrg.stop *= 0.001; }
+		{ seldata.zrg_.start *= 0.001; seldata.zrg_.stop *= 0.001; }
 	}
 
 	tri->setSelData( &seldata );
@@ -174,13 +173,15 @@ bool BatchProgram::go( std::ostream& logstrm )
 
     res = pars().find( "Output.Type" );
     const bool doasc = !res || (*res != 'b' && *res != 'B');
-    const int nrsamples = (int)((zrg.stop-zrg.start)/zstep + 1.5);
+    const int nrsamples = (int)((seldata.zrg_.stop-seldata.zrg_.start)
+	    			/ cs.zrg.step + 1.5);
     if ( doasc )
-	outstrm << zrg.start << ' ' << zstep << ' ' << nrsamples<<std::endl;
+	outstrm << seldata.zrg_.start << ' ' << cs.zrg.step
+	        << ' ' << nrsamples<<std::endl;
     else
     {
-	outstrm.write( (char*)&zrg.start, sizeof(float) );
-	outstrm.write( (char*)&zstep, sizeof(float) );
+	outstrm.write( (char*)&seldata.zrg_.start, sizeof(float) );
+	outstrm.write( (char*)&cs.zrg.step, sizeof(float) );
 	outstrm.write( (char*)&nrsamples, sizeof(int) );
     }
 

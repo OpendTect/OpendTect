@@ -10,6 +10,7 @@ static const char* rcsID = "$Id";
 #include "seiscbvs.h"
 #include "seistrcsel.h"
 #include "seisresampler.h"
+#include "cubesampling.h"
 #include "conn.h"
 #include "iostrm.h"
 #include "separstr.h"
