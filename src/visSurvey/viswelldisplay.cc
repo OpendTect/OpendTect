@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.4 2002-05-23 08:45:02 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.5 2002-05-23 15:39:38 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.4 2002-05-23 08:45:02 kri
 #include "emmanager.h"
 #include "emwell.h"
 #include "iopar.h"
+#include "executor.h"
+#include "ptrman.h"
 
 
 mCreateFactoryEntry( visSurvey::WellDisplay );
@@ -127,6 +129,13 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
     if ( !par.get( earthmodelidstr, wellid ))
 	return -1;
 
+    EarthModel::EMManager& em = EarthModel::EMM();
+    if ( !em.isLoaded( wellid ) )
+    {
+	PtrMan<Executor> exec = em.load( wellid );
+	exec->execute();
+    }
+	
     if ( !setWellId( wellid ) )
 	return -1;
 
