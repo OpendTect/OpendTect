@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.48 2003-11-11 18:02:01 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.49 2003-11-11 19:19:24 arend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -167,7 +167,7 @@ int File_getKbSize( const char* fnm )
     if ( !File_exists(fnm) )
 	return 0;
 #ifdef __win__
-    stat(fnm,&statbuf);
+    stat((char*)fnm,&statbuf);
 #endif
     res *= statbuf.st_size;
     return (int)(res + .5);
@@ -706,73 +706,16 @@ int File_createLink( const char* from, const char* to )
 
 
 #ifdef __win__
-
-static CString getWinLinkTarget( const CString LinkFileName )
-{
-    HRESULT hres;
-
-    CString Link, Temp = LinkFileName;
-    Temp.MakeLower();
-    if ( Temp.Find(".lnk") == -1 )           //Check if the name ends with .lnk
-	Link = LinkFileName + ".lnk";   //if not, append it
-    else
-	Link = LinkFileName;
-
-    CString Info;
-    Info.Empty();
-
-    IShellLink* psl;
-
-    //Create the ShellLink object
-    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-    IID_IShellLink, (LPVOID*) &psl);
-
-    if (SUCCEEDED(hres))
-    {
-	IPersistFile* ppf;
-	//Bind the ShellLink object to the Persistent File
-	hres = psl->QueryInterface( IID_IPersistFile, (LPVOID *) &ppf);
-	if (SUCCEEDED(hres))
-	{
-	    WORD wsz[MAX_PATH];
-	    //Get a UNICODE wide string wsz from the Link path
-	    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, Link, -1, wsz,MAX_PATH);
-	    //Read the link into the persistent file
-	    hres = ppf->Load(wsz, 0);
-
-	    if (SUCCEEDED(hres))
-	    {
-		//Read the target information from the link object
-		//UNC paths are supported (SLGP_UNCPRIORITY)
-		psl->GetPath(Temp.GetBuffer(1024), 1024, NULL,SLGP_UNCPRIORITY);
-		Temp.ReleaseBuffer();
-		Info = Temp;
-
-		//Read the arguments from the link object
-		psl->GetArguments(Temp.GetBuffer(1024), 1024);
-		Temp.ReleaseBuffer();
-		Info += " " + Temp;
-	    }
-	}
-    }
-    psl->Release();
-    //Return the Target and the Argument as a CString
-    return Info;
-}
-
+extern const char* getWinLinkTarget( const char * fname );
 #endif
-
 
 const char* File_linkTarget( const char* fname )
 {
 #ifdef __win__
-    static CString ret;
-
     if ( !File_isLink(fname) )
 	return fname;
 
-    ret = getWinLinkTarget(fname);
-    return ret;
+    return getWinLinkTarget(fname);
 
 #else
     static FileNameString pathbuf;
