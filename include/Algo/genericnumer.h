@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.8 2001-02-13 17:15:46 bert Exp $
+ RCS:           $Id: genericnumer.h,v 1.9 2003-06-18 11:31:33 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -52,19 +52,53 @@ inline void GenericConvolve (int lx, int ifx, const A& x,
 the sum of the lengths */
 
 template <class A, class B>
-inline float similarity( const A& a, const B& b, int sz,
+inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 			 int firstposa=0, int firstposb=0)
 {
     float val1, val2;
     double sqdist = 0, sq1 = 0, sq2 = 0;
+
+    double meana,stddeva,meanb,stddevb;
+    if ( normalize )
+    {
+	if ( sz==1 ) normalize = false;
+	else
+	{
+	    double asum=0,bsum=0;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		asum += a[firstposa+idx];
+		bsum += b[firstposb+idx];
+	    }
+
+	    meana = asum/sz;
+	    meanb = bsum/sz;
+
+	    asum = 0;
+	    bsum = 0;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const double adiff = a[firstposa+idx]-meana;
+		const double bdiff = b[firstposb+idx]-meanb;
+		asum += adiff*adiff;
+		bsum += bdiff*bdiff;
+	    }
+
+	    stddeva = sqrt(asum/(sz-1));
+	    stddevb = sqrt(bsum/(sz-1));
+
+	    if ( mIS_ZERO(stddeva) || mIS_ZERO(stddevb) )
+		normalize=false;
+	}
+    }
 
     int curposa = firstposa;
     int curposb = firstposb;
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	val1 = a[curposa];
-	val2 = b[curposb];
+	val1 = normalize ? (a[curposa]-meana)/stddeva : a[curposa];
+	val2 = normalize ? (b[curposb]-meanb)/stddevb : b[curposb];
 	sq1 += val1 * val1;
 	sq2 += val2 * val2;
 	sqdist += (val1-val2) * (val1-val2);
@@ -78,7 +112,7 @@ inline float similarity( const A& a, const B& b, int sz,
 }
 
 float similarity(const MathFunction<float>&,const MathFunction<float>&, 
-		 float x1, float x2, float dist, int sz);
+		 float x1, float x2, float dist, int sz, bool normalize );
 
 /*!> uses parabolic search for the position where a function gets
 a specific value. The target value must be in the interval f(x1) and f(x2).
