@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.19 2004-01-08 10:11:24 bert Exp $
+ RCS:		$Id: thread.h,v 1.20 2004-11-29 11:05:41 bert Exp $
 ________________________________________________________________________
 
 */
@@ -190,10 +190,16 @@ private:
 
 };
 
+/*! Fetches number of processors from operating system, unless:
+  * On windows we may not be able to handle more than one processor
+  * DTECT_USE_MULTIPROC is set to 'n' or 'N'
+  * The user settings contain a 'Nr Processors' entry.
+  */
+
 int getNrProcessors();
 
 
-#define mThreadDeclaredMutexedVar(T,var) \
+#define mThreadDeclareMutexedVar(T,var) \
     T			var; \
     Threads::Mutex	var##mutex
 

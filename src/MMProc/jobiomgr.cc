@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.10 2004-11-11 16:04:07 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.11 2004-11-29 11:05:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,7 +184,7 @@ protected:
 
     void 			doDispatch( CallBacker* ); //!< work thread
 
-    mThreadDeclaredMutexedVar(Threads::Thread*,thread);
+    mThreadDeclareMutexedVar(Threads::Thread*,thread);
 };
 
 
