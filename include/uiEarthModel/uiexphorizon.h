@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.11 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.12 2004-07-14 15:26:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 class uiFileInput;
 class uiGenInput;
-class BinIDZValue;
 class uiSurfaceRead;
 
 
