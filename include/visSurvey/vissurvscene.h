@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.31 2004-10-01 12:29:06 nanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.32 2005-03-14 08:44:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -62,17 +62,16 @@ public:
     static Scene*		create()
 				mCreateDataObj(Scene);
 
-    virtual void		addObject( visBase::DataObject* );
+    virtual void		addObject(visBase::DataObject*);
     				/*!< If the object is a visSurvey::SurveyObject
 				     it will ask if it's an inlcrl-object or
 				     not. If it's not an
 				     visSurvey::SurveyObject, it will be put in
 				     displaydomain
 				*/
-    void			addUTMObject( visBase::VisualObject* );
-    void			addInlCrlTObject( visBase::DataObject* );
-
-    virtual void		removeObject( int idx );
+    void			addUTMObject(visBase::VisualObject*);
+    void			addInlCrlTObject(visBase::DataObject*);
+    virtual void		removeObject(int idx);
 
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
@@ -82,30 +81,28 @@ public:
     bool			isAnnotShown() const;
 
     Notifier<Scene>		mouseposchange;
-    Coord3			getMousePos( bool xyt ) const;
+    Coord3			getMousePos(bool xyt) const;
     				/*! If not xyt it is inlcrlt */
-    float			getMousePosValue() const { return mouseposval;}
+    float			getMousePosValue() const  { return mouseposval;}
     BufferString		getMousePosString() const { return mouseposstr;}
 
-    virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
-    virtual int			usePar( const IOPar& );
-
-    void			filterPicks( CallBacker* = 0 );
+    void			filterPicks(CallBacker* =0);
     void			updateRange();
+
+    virtual void		fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int			usePar(const IOPar&);
 
 protected:
     				~Scene();
     void			setCube();
     void			setup();
 
-    virtual int			useOldPar( const IOPar& );
-
-    void			mouseMoveCB( CallBacker* = 0 );
+    void			mouseMoveCB(CallBacker*);
     
-    const visBase::Transformation*	zscaletransform;
-    const visBase::Transformation*	inlcrl2displtransform;
+    const visBase::Transformation* zscaletransform;
+    const visBase::Transformation* inlcrl2displtransform;
 
-    visBase::Annotation*		annot;
+    visBase::Annotation*	annot;
 
     Coord3			xytmousepos;
     float			mouseposval;
@@ -114,20 +111,9 @@ protected:
     static const char*		annottxtstr;
     static const char*		annotscalestr;
     static const char*		annotcubestr;
-
-				/* Only to be compatible with old par format */
-    static const char*		displobjprefixstr;
-    static const char*		nodisplobjstr;
-    static const char*		xyzobjprefixstr;
-    static const char*		noxyzobjstr;
-    static const char*		xytobjprefixstr;
-    static const char*		noxytobjstr;
-    static const char*		inlcrltobjprefixstr;
-    static const char*		noinlcrltobjstr;
-
 };
 
-};
+}; // namespace visSurvey
 
 
 #endif

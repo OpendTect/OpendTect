@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.63 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: vissurvscene.cc,v 1.64 2005-03-14 08:44:22 cvsnanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "vissurvscene.h"
 
@@ -29,15 +32,6 @@ namespace visSurvey {
 const char* Scene::annottxtstr = "Show text";
 const char* Scene::annotscalestr = "Show scale";
 const char* Scene::annotcubestr = "Show cube";
-
-const char* Scene::displobjprefixstr = "Displ Object ";
-const char* Scene::nodisplobjstr = "No Displ Objects";
-const char* Scene::xyzobjprefixstr = "XYZ Object ";
-const char* Scene::noxyzobjstr = "No XYZ Objects";
-const char* Scene::xytobjprefixstr = "XYT Object ";
-const char* Scene::noxytobjstr = "No XYT Objects";
-const char* Scene::inlcrltobjprefixstr = "InlCrl Object ";
-const char* Scene::noinlcrltobjstr = "No InlCrl Objects";
 
 Scene::Scene()
     : inlcrl2displtransform( SPM().getInlCrl2DisplayTransform() )
@@ -105,10 +99,7 @@ void Scene::addObject( visBase::DataObject* obj )
 {
     mDynamicCastGet(SurveyObject*,so,obj)
     if ( so && so->getMovementNotification() )
-    {
-	so->getMovementNotification()->notify(
-		mCB(this,Scene,filterPicks) );
-    }
+	so->getMovementNotification()->notify( mCB(this,Scene,filterPicks) );
 
     if ( so && so->isInlCrl() )
     {
@@ -130,10 +121,7 @@ void Scene::removeObject( int idx )
     DataObject* obj = getObject( idx );
     mDynamicCastGet(SurveyObject*,so,obj)
     if ( so && so->getMovementNotification() )
-    {
-	so->getMovementNotification()->remove(
-		mCB(this,Scene,filterPicks) );
-    }
+	so->getMovementNotification()->remove( mCB(this,Scene,filterPicks) );
 
     DataObjectGroup::removeObject( idx );
 }
@@ -180,172 +168,10 @@ Coord3 Scene::getMousePos( bool xyt ) const
    if ( xyt ) return xytmousepos;
    
    Coord3 res = xytmousepos;
-   BinID binid = SI().transform( Coord( res.x, res.y ));
-
+   BinID binid = SI().transform( Coord(res.x,res.y) );
    res.x = binid.inl;
    res.y = binid.crl;
    return res;
-}
-
-
-void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    visBase::DataObject::fillPar( par, saveids );
-
-    int kid = 0;
-    while ( getObject(kid++)!= zscaletransform )
-	;
-
-    int nrkids = 0;    
-    for ( ; kid<size(); kid++ )
-    {
-	if ( getObject(kid)==annot ) continue;
-	if ( getObject(kid)==inlcrl2displtransform )
-	{
-	    par.set(xytobjprefixstr,nrkids);
-	    continue;
-	}
-
-	const int objid = getObject(kid)->id();
-
-	if ( saveids.indexOf(objid)==-1 )
-	    saveids += objid;
-
-	BufferString key = kidprefix; key += nrkids;
-	par.set( key, objid );
-
-	nrkids++;
-    }
-
-    par.set( nokidsstr, nrkids );
-    
-    bool txtshown = isAnnotTextShown();
-    par.setYN( annottxtstr, txtshown );
-    bool scaleshown = isAnnotScaleShown();
-    par.setYN( annotscalestr, scaleshown );
-    bool cubeshown = isAnnotShown();
-    par.setYN( annotcubestr, cubeshown );
-}
-
-
-int Scene::usePar( const IOPar& par )
-{
-    removeAll();
-    setup();
-
-/* This is only to comply to old session format that dissappeared in
-   dTect version 1.5
-*/
-    int res = useOldPar( par );
-    if ( res!=1 ) return res;
-// End of old session format
-
-    res = visBase::DataObjectGroup::usePar( par );
-    if ( res!=1 ) return res;
-
-    bool txtshown = true;
-    par.getYN( annottxtstr, txtshown );
-    showAnnotText( txtshown );
-
-    bool scaleshown = true;
-    par.getYN( annotscalestr, scaleshown );
-    showAnnotScale( scaleshown );
-
-    bool cubeshown = true;
-    par.getYN( annotcubestr, cubeshown );
-    showAnnot( cubeshown );
-
-    return 1;
-}
-
-
-int Scene::useOldPar( const IOPar& par )
-{
-    int nrdisplobj = 0;
-    if ( !par.get( nodisplobjstr, nrdisplobj ))
-	// OK, this seems to be a new par-file
-	return 1;
-
-    TypeSet<int> displobjids( nrdisplobj, -1 );
-    for ( int idx=0; idx<displobjids.size(); idx++ )
-    {
-	BufferString key = displobjprefixstr;
-	key += idx;
-	if ( !par.get( key, displobjids[idx] )) return -1;
-	if ( !visBase::DM().getObject( displobjids[idx] ) ) return 0;
-    }
-
-    int nrxyzobj;
-    if ( !par.get( noxyzobjstr, nrxyzobj ))
-	// old par is erronious
-	return -1;
-
-    TypeSet<int> xyzobjids( nrxyzobj, -1 );
-    for ( int idx=0; idx<xyzobjids.size(); idx++ )
-    {
-	BufferString key = xyzobjprefixstr;
-	key += idx;
-	if ( !par.get( key, xyzobjids[idx] )) return -1;
-	if ( !visBase::DM().getObject( xyzobjids[idx] ) ) return 0;
-    }
-
-    int nrxytobj;
-    if ( !par.get( noxytobjstr, nrxytobj ))
-	// old par is erronious
-        return -1;
-
-    TypeSet<int> xytobjids( nrxytobj, -1 );
-    for ( int idx=0; idx<xytobjids.size(); idx++ )
-    {
-	BufferString key = xytobjprefixstr;
-	key += idx;
-	if ( !par.get( key, xytobjids[idx] )) return -1;
-	if ( !visBase::DM().getObject( xytobjids[idx] ) ) return 0;
-    }
-
-    int noinlcrltobj;
-    if ( !par.get( noinlcrltobjstr, noinlcrltobj ))
-	// old par is erronious
-        return -1;
-
-    TypeSet<int> inlcrlobjids( noinlcrltobj, -1 );
-    for ( int idx=0; idx<inlcrlobjids.size(); idx++ )
-    {
-	BufferString key = inlcrltobjprefixstr;
-	key += idx;
-
-	if ( !par.get( key, inlcrlobjids[idx] )) return -1;
-	if ( !visBase::DM().getObject( inlcrlobjids[idx] ) ) return 0;
-    }
-
-    for ( int idx=0; idx<displobjids.size(); idx++ )
-    {
-	mDynamicCastGet( visBase::DataObject*, so,
-	    visBase::DM().getObject( displobjids[idx] ));
-	if ( so ) addObject( so );
-    }
-
-    for ( int idx=0; idx<xyzobjids.size(); idx++ )
-    {
-	mDynamicCastGet( visBase::DataObject*, so,
-	    visBase::DM().getObject( xyzobjids[idx] ));
-	if ( so ) addObject( so );
-    }
-
-    for ( int idx=0; idx<xytobjids.size(); idx++ )
-    {
-	mDynamicCastGet( visBase::DataObject*, so,
-	    visBase::DM().getObject( xytobjids[idx] ));
-	if ( so ) addObject( so );
-    }
-    for ( int idx=0; idx<inlcrlobjids.size(); idx++ )
-    {
-	mDynamicCastGet( visBase::DataObject*, so,
-	    visBase::DM().getObject( inlcrlobjids[idx] ));
-	if ( so ) addObject( so );
-    }
-
-    return 1;
 }
 
 
@@ -353,7 +179,7 @@ void Scene::setup()
 {
     setAmbientLight( 1 );
 
-    events.eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
+    events.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
 
     visBase::DataObjectGroup::addObject(
 	    	const_cast<visBase::Transformation*>(zscaletransform));
@@ -369,7 +195,7 @@ void Scene::setup()
 }
 
 
-void Scene::filterPicks( CallBacker* cb )
+void Scene::filterPicks( CallBacker* )
 {
     ObjectSet<SurveyObject> activeobjects;
     for ( int idx=0; idx<size(); idx++ )
@@ -395,7 +221,7 @@ void Scene::filterPicks( CallBacker* cb )
 
 void Scene::mouseMoveCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
     if ( eventinfo.type != visBase::MouseMovement ) return;
 
@@ -412,7 +238,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
-			    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+			visBase::DM().getObject(eventinfo.pickedobjids[idx]);
 	mDynamicCastGet(const SurveyObject*,so,pickedobj)
 	if ( so )
 	{
@@ -436,6 +262,64 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
     if ( validpicksurface )
 	mouseposchange.trigger();
+}
+
+
+void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    visBase::DataObject::fillPar( par, saveids );
+
+    int kid = 0;
+    while ( getObject(kid++) != zscaletransform )
+	;
+
+    int nrkids = 0;    
+    for ( ; kid<size(); kid++ )
+    {
+	if ( getObject(kid)==annot || 
+	     getObject(kid)==inlcrl2displtransform ) continue;
+
+	const int objid = getObject(kid)->id();
+	if ( saveids.indexOf(objid) == -1 )
+	    saveids += objid;
+
+	BufferString key = kidprefix; key += nrkids;
+	par.set( key, objid );
+	nrkids++;
+    }
+
+    par.set( nokidsstr, nrkids );
+    
+    bool txtshown = isAnnotTextShown();
+    par.setYN( annottxtstr, txtshown );
+    bool scaleshown = isAnnotScaleShown();
+    par.setYN( annotscalestr, scaleshown );
+    bool cubeshown = isAnnotShown();
+    par.setYN( annotcubestr, cubeshown );
+}
+
+
+int Scene::usePar( const IOPar& par )
+{
+    removeAll();
+    setup();
+
+    int res = visBase::DataObjectGroup::usePar( par );
+    if ( res!=1 ) return res;
+
+    bool txtshown = true;
+    par.getYN( annottxtstr, txtshown );
+    showAnnotText( txtshown );
+
+    bool scaleshown = true;
+    par.getYN( annotscalestr, scaleshown );
+    showAnnotScale( scaleshown );
+
+    bool cubeshown = true;
+    par.getYN( annotcubestr, cubeshown );
+    showAnnot( cubeshown );
+
+    return 1;
 }
 
 }; // namespace visSurvey
