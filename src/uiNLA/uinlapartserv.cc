@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.12 2005-01-31 16:03:19 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.13 2005-02-01 14:38:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
+#include "survinfo.h"
+#include "uiposdataedit.h"
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
 const int uiNLAPartServer::evPrepareRead	= 1;
@@ -85,10 +87,46 @@ void uiNLAPartServer::getBinIDValueSets(
 }
 
 
+static void addFSToSets( ObjectSet<BinIDValueSet>& bivsets,
+			 const FeatureSet& fs )
+{
+    const int nrdescs = fs.descs().size();
+    BinIDValueSet* bvs = new BinIDValueSet( nrdescs + 1, true );
+    bivsets += bvs;
+    float vals[nrdescs + 1];
+    for ( int idx=0; idx<fs.size(); idx++ )
+    {
+	const FeatureVec& vec = *fs[idx];
+	vals[0] = vec.fvPos().ver;
+	for ( int iv=0; iv<vec.size(); iv++ )
+	    vals[iv+1] = vec[iv];
+	bvs->add( vec.fvPos(), vals );
+    }
+}
+
+
+static void putBivSetToFS( BinIDValueSet& bvs, FeatureSet& fs )
+{
+    BinIDValueSet::Pos pos;
+    const int nrdescs = fs.descs().size();
+    float vals[nrdescs+1];
+    FVPos fvp(0,0);
+    while ( bvs.next(pos) )
+    {
+	bvs.get( pos, fvp, vals );
+	fvp.ver = vals[0];
+	FeatureVec* vec = new FeatureVec( fvp );
+	for ( int idx=1; idx<=nrdescs; idx++ )
+	    (*vec)[idx-1] = vals[idx];
+	fs += vec;
+    }
+}
+
 const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 					   FeatureSet& fswrite )
 {
     const NLACreationDesc& crdesc = creationDesc();
+    ObjectSet<BinIDValueSet> bivsets;
 
     if ( crdesc.doextraction && crdesc.isdirect )
     {
@@ -102,7 +140,6 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 	}
 
 	// Put the positions in BinIDValueSets
-	ObjectSet<BinIDValueSet> bivsets;
 	for ( int idx=0; idx<fss.size(); idx++ )
 	{
 	    FeatureSet& fs = *fss[idx];
@@ -143,7 +180,32 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
     const char* res = crdesc.transferData( fss, fsTrain(), fsTest() );
     if ( res ) return res;
 
+    FeatureSet& fstrain = fsTrain();
+    FeatureSet& fstest = fsTest();
+
+    addFSToSets( bivsets, fstrain );
+    addFSToSets( bivsets, fstest );
+
+    BufferStringSet colnames;
+    colnames.add( SI().getZUnit(false) );
+    for ( int idx=0; idx<fstrain.descs().size(); idx++ )
+	colnames.add( fstrain.descs()[idx]->desc );
+
+    BufferStringSet setnms;
+    setnms.add( "Training data" );
+    setnms.add( "Test data" );
+
     //TODO allow user to view and edit data here
+    uiPosDataEdit dlg( appserv().parent(), bivsets, setnms, colnames );
+    if ( !dlg.go() )
+    {
+	deepErase( bivsets );
+	return "User cancel";
+    }
+
+    fstrain.erase(); fstest.erase();
+    putBivSetToFS( *bivsets[0], fstrain );
+    putBivSetToFS( *bivsets[1], fstest );
 
     if ( crdesc.doextraction && crdesc.fsid != "" )
 	writeToFS( fswrite, crdesc.fsid );
