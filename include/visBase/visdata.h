@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.29 2004-04-14 09:42:11 nanne Exp $
+ RCS:		$Id: visdata.h,v 1.30 2004-05-13 07:38:51 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ namespace visBase
 class Transformation;
 class SelectionManager;
 class DataManager;
+class Scene;
 
 /*!\brief
 DataObject is the base class off all objects that are used in Visualisation and
@@ -62,7 +63,6 @@ public:
     bool			isSelected() const;
     virtual NotifierAccess*	selection() 		{ return 0; }
     virtual NotifierAccess*	deSelection() 		{ return 0; }
-
     virtual NotifierAccess*	rightClicked()		{ return 0; }
 
 
@@ -101,6 +101,7 @@ public:
 
 protected:
     friend class		SelectionManager;
+    friend class		Scene;
     virtual void		triggerSel()		{}
     virtual void		triggerDeSel()		{}
     virtual void		triggerRightClick()	{}
