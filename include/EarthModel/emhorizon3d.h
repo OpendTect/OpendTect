@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.10 2002-07-29 11:24:53 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.11 2002-09-27 12:28:40 dgb Exp $
 ________________________________________________________________________
 
 
@@ -79,10 +79,10 @@ public:
     Geometry::CompositeGridSurface&		getSurfaces(){return surfaces;}
 
 protected:
-    		friend EMManager;
-		friend EMObject;
-		friend dgbEarthModelHorizonReader;
-		friend dgbEarthModelHorizonWriter;
+    friend class	EMManager;
+    friend class	EMObject;
+    friend class	dgbEarthModelHorizonReader;
+    friend class	dgbEarthModelHorizonWriter;
 
     		Horizon(EMManager&, const MultiID&);
     		~Horizon();

@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.11 2002-09-11 06:26:47 kristofer Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.12 2002-09-27 12:28:40 dgb Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -151,7 +151,14 @@ int Threads::getNrProcessors()
 	return res;
 
     int maxnrproc = sysconf(_SC_CHILD_MAX);
+
+// also see: www.ks.uiuc.edu/Research/vmd/doxygen/VMDThreads_8C-source.html
+#ifdef sgi
+    int nrprocessors = sysconf(_SC_NPROC_ONLN);
+#else
     int nrprocessors = sysconf(_SC_NPROCESSORS_ONLN);
+#endif
+
 
     if ( maxnrproc==-1 && nrprocessors==-1 ) return 2;
     else if ( maxnrproc==-1 ) return nrprocessors;
