@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.27 2004-02-02 15:34:20 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.28 2004-02-03 08:58:17 nanne Exp $";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -344,13 +344,15 @@ int visBase::Texture2Set::nrTextures() const
 
 visBase::Texture2* visBase::Texture2Set::getTexture( int idx ) const
 {
-    return idx>=0 || idx<textureset.size() ? textureset[idx] : 0;
+    return idx>=0 && idx<textureset.size() ? textureset[idx] : 0;
 }
 
 
 void visBase::Texture2Set::setActiveTexture( int idx )
 {
-    textureswitch->whichChild = idx < 0 ? SO_SWITCH_NONE : idx;
+    int nrchildren = textureswitch->getNumChildren();
+    textureswitch->whichChild = 
+	idx < 0 ? SO_SWITCH_NONE : ( idx >= nrchildren ? nrchildren-1 : idx ); 
 }
 
 
