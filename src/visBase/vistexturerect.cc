@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.19 2002-05-09 05:20:51 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.20 2002-05-23 15:38:43 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -31,6 +31,8 @@ const char* visBase::TextureRect::texturequalitystr = "Texture quality";
 const char* visBase::TextureRect::rectangleidstr = "Rectangle ID";
 const char* visBase::TextureRect::colortabidstr = "ColorTable ID";
 const char* visBase::TextureRect::usestexturestr = "Uses texture";
+const char* visBase::TextureRect::clipratestr = "Cliprate";
+const char* visBase::TextureRect::autoscalestr = "Auto scale";
 
 visBase::TextureRect::TextureRect()
     : texture( new SoTexture2 )
@@ -244,6 +246,8 @@ void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( rectangleidstr, rectid );
     par.set( colortabidstr, ctid );
     par.setYN( usestexturestr, usesTexture() );
+    par.set( clipratestr, clipRate() );
+    par.setYN( autoscalestr, autoScale() );
 
     if ( saveids.indexOf( rectid )==-1 ) saveids += rectid;
     if ( saveids.indexOf( ctid )==-1 ) saveids += ctid;
@@ -279,8 +283,15 @@ int visBase::TextureRect::usePar( const IOPar& par )
 
     bool usetext;
     if ( !par.getYN( usestexturestr, usetext )) return -1;
-
     useTexture(usetext);
+
+    float cliprt;
+    if ( par.get( clipratestr, cliprt ) )
+	setClipRate( cliprt );
+
+    bool autosc;
+    if ( par.getYN( autoscalestr, autosc ) )
+	setAutoscale( autosc );
 
     return 1;
 }
