@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.8 2001-02-19 17:17:36 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.9 2001-03-23 11:27:01 bert Exp $
 ________________________________________________________________________
 
 */
@@ -39,8 +39,7 @@ public:
     virtual T		get( int pos ) const {return *(((T*)dbuf.data())+pos);}
 			
 
-    T*			getData() const { return (T*)dbuf.data(); } 
-    const Array1DInfo&  info() const { return in; }
+    const Array1DInfo&  info() const		{ return in; }
 
     void		setSize( int s )
 			{ in.setSize(0,s); dbuf.reSize(in.getTotalSz()); }
@@ -50,6 +49,8 @@ protected:
     // Don't change the order of these attributes!
     Array1DInfoImpl	in;
     DataBuffer 		dbuf;
+
+    const T*		getData_() const	{ return (T*)dbuf.data(); } 
 };
 
 
@@ -89,7 +90,6 @@ public:
     virtual T		get( int p0, int p1 ) const
 			{ return *(((T*) dbuf.data())+in.getMemPos(p0,p1)); }
 
-    T*			getData() const { return (T*)dbuf.data(); }
     const Array2DInfo&  info() const { return in; }
 
     void		setSize( int d0, int d1 )
@@ -104,6 +104,8 @@ protected:
     // Don't change the order of these attributes!
     Array2DInfoImpl	in;	
     DataBuffer		dbuf;
+
+    const T*		getData_() const { return (T*)dbuf.data(); }
 
 };
 
@@ -150,7 +152,6 @@ public:
 			{ return *(((T*) dbuf.data())+in.getMemPos(p0,p1,p2)); }
 
 
-    T*			getData() const { return (T*)dbuf.data(); }
     const Array3DInfo&	info() const { return in; }
 
     void		setSize( int d0, int d1, int d2 )
@@ -166,6 +167,7 @@ protected:
     Array3DInfoImpl     in;
     DataBuffer          dbuf;
 
+    const T*		getData_() const { return (T*)dbuf.data(); }
 };
 
 
@@ -206,7 +208,6 @@ public:
 			{ return *(((T*) dbuf.data())+in->getMemPos(pos)); }
 
 
-    T*			getData() const { return (T*) dbuf.data(); }
     const ArrayNDInfo&	info() const { return *in; }
 
     void		setSize( const int* d )
@@ -222,6 +223,8 @@ protected:
     // Don't change the order of these attributes!
     ArrayNDInfo*	in;
     DataBuffer          dbuf;
+
+    const T*		getData_() const { return (T*)dbuf.data(); }
 
 }; 
 

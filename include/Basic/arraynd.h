@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.9 2001-02-19 17:17:36 bert Exp $
+ RCS:		$Id: arraynd.h,v 1.10 2001-03-23 11:27:01 bert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -29,7 +29,7 @@ public:
 				// Read specs
     virtual T	                get( const int* ) const			= 0;
 
-    virtual const T*		getData() const { return 0; }		
+    inline const T*		getData() const		{ return getData_(); }
     virtual const T*		get1D(const int*) const;
     virtual int			get1DDim() const;
 
@@ -37,10 +37,16 @@ public:
     virtual bool		isSettable() const { return true; }
     virtual void		set( const int*, T ) 			= 0;
 
-    virtual T*			getData();
+    inline T*			getData();
     virtual T*			get1D( const int* i );
 
     virtual const ArrayNDInfo&	info() const				= 0;
+
+
+protected:
+
+ 
+    virtual const T*		getData_() const		{ return 0; }
 
 };
 
@@ -88,7 +94,7 @@ public:
 };
 
 template <class T> inline
-const T* ArrayND<T>::get1D(const int* i) const
+const T* ArrayND<T>::get1D( const int* i ) const
 {
     const T* ptr = getData();
     if ( !ptr ) return 0;
@@ -112,7 +118,7 @@ int ArrayND<T>::get1DDim() const
 template <class T> inline
 T* ArrayND<T>::getData()
 {
-    return isSettable() ? const_cast<T*>(((const ArrayND*)this)->getData()) : 0;
+    return isSettable() ? const_cast<T*>(((const ArrayND*)this)->getData_()): 0;
 }
 
 

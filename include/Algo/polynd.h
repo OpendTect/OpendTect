@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: polynd.h,v 1.2 2000-12-11 10:19:32 dgb Exp $
+ RCS:           $Id: polynd.h,v 1.3 2001-03-23 11:27:01 bert Exp $
 ________________________________________________________________________
 
 PolynomialND is a N-dimensional polynomial with arbitary orders in each
@@ -98,7 +98,7 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
     float p1_2 = p1 * p1; float p1_3 = p1_2 * p1;
     float p2_2 = p2 * p2; float p2_3 = p2_2 * p2;
 
-    T* ptr = coeffs.getData();
+    const T* ptr = coeffs.getData();
 
     T res = 	ptr[0] +
 		ptr[1] * p2 +
