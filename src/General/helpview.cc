@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.6 2003-01-13 17:06:50 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.7 2003-01-15 15:34:35 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -24,7 +24,7 @@ static const char* subdirNm()
 }
 
 
-void HelpViewer::use( const char* url )
+void HelpViewer::use( const char* url, const char* wintitl )
 {
     if ( !url || !*url )
     {
@@ -39,8 +39,10 @@ void HelpViewer::use( const char* url )
     cmd = File_getFullPath( cmd, "dgb_exec" );
     cmd += " HtmlViewer \"";
     cmd += url; cmd += "\" ";
-    cmd += GetDgbApplicationCode() == mDgbApplCodeDTECT
-	? "dTect_Help" : "GDI_Help";
+    if ( !wintitl )
+	wintitl = GetDgbApplicationCode() == mDgbApplCodeDTECT
+	    	? "dTect_Documentation" : "GDI_Documentation";
+    cmd += wintitl;
     StreamProvider strmprov( cmd );
     if ( !strmprov.executeCommand(false) )
     {

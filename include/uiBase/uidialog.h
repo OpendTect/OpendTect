@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.30 2002-12-16 15:59:11 nanne Exp $
+ RCS:           $Id: uidialog.h,v 1.31 2003-01-15 15:34:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,8 @@ public:
     void		setSeparator( bool yn );
 			//!< Separator between central dialog and Ok/Cancel bar?
     bool		separator() const;
+    void		setHelpID(const char*);
+    const char*		helpID() const;
 
 protected:
 

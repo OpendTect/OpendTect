@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.26 2002-12-16 15:59:11 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.27 2003-01-15 15:34:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,9 +67,6 @@ public:
 
     static uiMainWin*	activeWindow();
 
-			//! get uiMainWin for mwimpl if it is a uiMainWinBody
-    static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
-
     void		setCaption( const char* txt );
     void		setIcon(const char* img[],const char* icntxt); //!< XPM
     void                show();
@@ -102,6 +99,11 @@ public:
     			//!< triggered when finalising finished
     Notifier<uiMainWin>	windowClosed;
     			//!< triggered when window exits
+
+    static void		provideHelp(const char* winid=0);
+
+			//! get uiMainWin for mwimpl if it is a uiMainWinBody
+    static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
 
 protected:
 

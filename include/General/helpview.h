@@ -19,10 +19,10 @@ public:
     static BufferString	getURLForWinID(const char*);
     			//!< Combines Link -> WinID -> URL
 
-    static void		use(const char* url=0);
+    static void		use(const char* url,const char* wintitl=0);
     			//!< Pops up help viewer for URL.
     			//!< Jan 2003: no real internet-URLs yet, just filenames
-    			//!< Pass null for main help index for app.
+    			//!< Pass url==null for main help index for app.
 
 };
 

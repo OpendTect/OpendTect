@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.65 2003-01-13 12:34:18 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.66 2003-01-15 15:34:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -445,6 +445,11 @@ uiMainWin::uiMainWin( const char* nm )
 uiMainWin::~uiMainWin()
 { delete body_; }
 
+void uiMainWin::provideHelp( const char* winid )
+{
+    HelpViewer::use( HelpViewer::getURLForWinID(winid) );
+}
+
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 uiToolBar* uiMainWin::toolBar()			{ return body_->uitoolbar(); }
@@ -614,8 +619,10 @@ public:
 			    }
 
 			//! Separator between central dialog and Ok/Cancel bar?
-    void		setSeparator( bool yn )	  { setup.separator_ = yn; }
-    bool		separator() const	  { return setup.separator_; }
+    void		setSeparator( bool yn )	{ setup.separator_ = yn; }
+    bool		separator() const	{ return setup.separator_; }
+    void		setHelpID( const char* id ) { setup.helpid_ = id; }
+    const char*		helpID() const		{ return setup.helpid_; }
 
     void		setDlgGrp( uiGroup* cw )	{ dlgGroup=cw; }
 
@@ -787,7 +794,7 @@ void uiDialogBody::finalise(bool)
 		saveBut_cb->setChecked( setup.savechecked_ );
 	    }
 	}
-	if ( setup.helpid_ != "" && GetDgbApplicationCode() == mDgbApplCodeGDI )
+	if ( setup.helpid_ != "" )
 	{
 	    helpBut = new uiPushButton( centralWidget_, "?" );
 	    helpBut->setPrefWidthInChar( 3 );
@@ -820,85 +827,85 @@ void uiDialogBody::finalise(bool)
 	}
 
 	if ( okBut )
-	{
-	    if ( !cnclBut )
-		okBut->attach( centeredBelow, alignObj );
-	    else
-	    {
-		okBut->attach( leftBorder );
-		okBut->attach( ensureBelow, alignObj );
-	    }
-	    okBut->attach( bottomBorder, 0 );
 	    okBut->activated.notify( mCB( this, uiDialogBody, accept ));
-	    okBut->setDefault();
-
-	}
-
 	if ( cnclBut )
-	{
-	    if ( !okBut )
-	    {
-		cnclBut->attach( centeredBelow, alignObj );
-		cnclBut->setDefault();
-	    }
-	    else
-	    {
-		cnclBut->attach( rightBorder );
-		cnclBut->attach( ensureBelow, alignObj );
-		cnclBut->attach( ensureRightOf, okBut );
-	    }
-	    cnclBut->attach( bottomBorder, 0 );
-
 	    cnclBut->activated.notify( mCB( this, uiDialogBody, reject ));
-
-	}
-
-	if( (saveBut_cb || saveBut_pb) && !helpBut )
-	{
-	    if( okBut )
-	    {
-		if ( saveBut_cb ) saveBut_cb->attach(rightTo, okBut);
-		if ( saveBut_pb ) saveBut_pb->attach(rightTo, okBut);
-	    }
-	    if( cnclBut )
-		cnclBut->attach(ensureRightOf, 
-		    saveBut_cb ? (uiButton*)saveBut_cb : (uiButton*)saveBut_pb);
-
-	    if( saveBut_cb )
-		saveBut_cb->attach( bottomBorder, 0 );
-	    else
-		saveBut_pb->attach( bottomBorder, 0 );
-	}
-
-	if ( helpBut && !saveBut_cb && !saveBut_pb )
-	{
-	    if ( (!cnclBut && !okBut) || (cnclBut && okBut) )
-	    {
-		helpBut->attach( centeredBelow, horSepar
-			? (uiObject*) horSepar
-			: (uiObject*) centralWidget_->uiObj());
-		if ( cnclBut ) helpBut->attach( ensureLeftOf, cnclBut );
-		if ( okBut ) helpBut->attach( ensureRightOf, okBut );
-	    }
-	    else if ( cnclBut )
-		helpBut->attach( leftOf, cnclBut );
-	    else if ( okBut )
-		helpBut->attach( rightOf, okBut );
-
-
-	    helpBut->attach( bottomBorder, 0 );
+	if ( helpBut )
 	    helpBut->activated.notify( mCB( this, uiDialogBody, provideHelp ));
+
+	uiObject* leftbut = okBut;
+	uiObject* rightbut = cnclBut;
+	uiObject* centerbut = 0;
+	uiObject* extrabut1 = 0; uiObject* extrabut2 = 0;
+	uiObject* savebut = saveBut_cb	? (uiObject*)saveBut_cb
+	    				: (uiObject*)saveBut_pb;
+	uiObject* nearokbut = saveBut_cb;
+
+	if ( okBut && !cnclBut )	{ centerbut = okBut; leftbut = 0; }
+	if ( cnclBut && !okBut )	{ centerbut = cnclBut; rightbut = 0; }
+
+	if ( !centerbut )		centerbut = helpBut;
+	else				extrabut1 = helpBut;
+
+	if ( !centerbut )		centerbut = savebut;
+	else if ( !extrabut1 )		extrabut1 = savebut;
+	else 				extrabut2 = savebut;
+
+	// Exception: save checkbox needs to be near OK button.
+	if ( okBut && nearokbut )
+	{
+	    if ( centerbut == nearokbut ) centerbut = 0;
+	    if ( extrabut1 == nearokbut ) extrabut1 = 0;
+	    if ( extrabut2 == nearokbut ) extrabut2 = 0;
 	}
 
-	if ( helpBut && saveBut_cb )
-	{
-	    saveBut_cb->attach( centeredBelow, horSepar
-		     ? (uiObject*) horSepar
-                     : (uiObject*) centralWidget_->uiObj() );
-	    helpBut->attach(rightTo, saveBut_cb);
+#	define mCommonLayout(but) \
+	    but->attach( ensureBelow, alignObj ); \
+	    but->attach( bottomBorder, 0 )
 
-	    if ( cnclBut ) helpBut->attach( ensureLeftOf, cnclBut );
-	    if ( okBut ) saveBut_cb->attach( rightTo, okBut );
+	if ( leftbut )
+	{
+	    mCommonLayout(leftbut);
+	    leftbut->attach( leftBorder );
+	}
+	if ( rightbut )
+	{
+	    mCommonLayout(rightbut);
+	    rightbut->attach( rightBorder );
+	    if ( leftbut )
+		rightbut->attach( ensureRightOf, leftbut );
+	}
+	if ( centerbut )
+	{
+	    mCommonLayout(centerbut);
+	    centerbut->attach( centeredBelow, horSepar
+			    ? (uiObject*)horSepar
+			    : (uiObject*)centralWidget_->uiObj() );
+	    if ( leftbut )
+		centerbut->attach( ensureRightOf, leftbut );
+	    if ( rightbut )
+		centerbut->attach( ensureLeftOf, rightbut );
+	}
+	if ( extrabut1 )
+	{
+	    mCommonLayout(extrabut1);
+	    extrabut1->attach( rightOf, centerbut );
+	    if ( rightbut )
+		extrabut1->attach( ensureLeftOf, rightbut );
+	}
+	if ( extrabut2 )
+	{
+	    mCommonLayout(extrabut2);
+	    extrabut1->attach( leftOf, centerbut );
+	    if ( leftbut )
+		extrabut2->attach( ensureRightOf, leftbut );
+	}
+	if ( okBut && nearokbut )
+	{
+	    mCommonLayout(nearokbut);
+	    nearokbut->attach( okBut == leftbut ? rightOf : leftOf, okBut );
+	    if ( centerbut != okBut )
+		centerbut->attach( ensureRightOf, nearokbut );
 	}
 
 	childrenInited = true;
@@ -912,8 +919,9 @@ void uiDialogBody::finalise(bool)
 
 void uiDialogBody::provideHelp( CallBacker* )
 {
-    HelpViewer::use( HelpViewer::getURLForWinID(setup.helpid_) );
+    uiMainWin::provideHelp( setup.helpid_ );
 }
+
 
 #define mBody static_cast<uiDialogBody*>(body_)
 
@@ -943,11 +951,13 @@ void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
 void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
 void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
 void uiDialog::enableSaveButton(const char* t)  { mBody->enableSaveButton(t); }
-void uiDialog::setButtonSensitive(uiDialog::Button b, bool s) 
+void uiDialog::setButtonSensitive(uiDialog::Button b, bool s ) 
 					    { mBody->setButtonSensitive(b,s); }
 void uiDialog::setSaveButtonChecked(bool b) { mBody->setSaveButtonChecked(b); }
 bool uiDialog::saveButtonChecked() const{ return mBody->saveButtonChecked(); }
 uiButton* uiDialog::button(Button b)	{ return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
+void uiDialog::setHelpID( const char* id )	{ mBody->setHelpID(id); }
+const char* uiDialog::helpID() const		{ return mBody->helpID(); }
 int uiDialog::uiResult() const			{ return mBody->uiResult(); }
