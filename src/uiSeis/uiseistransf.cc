@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.11 2003-05-22 11:10:27 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.12 2003-05-27 13:17:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiseistransf.h"
 #include "uiseisfmtscale.h"
 #include "uibinidsubsel.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 #include "seissingtrcproc.h"
 #include "seiscbvs.h"
@@ -22,8 +23,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ioobj.h"
 #include "conn.h"
-
-#include "uigeninput.h"
+#include "errh.h"
 
 
 uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool wstp )
@@ -58,6 +58,26 @@ void uiSeisTransfer::updateFrom( const IOObj& ioobj )
 void uiSeisTransfer::setSteering( bool yn )
 {
     scfmtfld->setSteering(yn);
+}
+
+
+int uiSeisTransfer::expectedNrTraces() const
+{
+    return subselfld->expectedNrTraces();
+}
+
+
+int uiSeisTransfer::expectedNrSamples() const
+{
+    return subselfld->expectedNrSamples();
+}
+
+
+int uiSeisTransfer::maxBytesPerSample() const
+{
+    DataCharacteristics dc(
+	    (DataCharacteristics::UserType)scfmtfld->getFormat() );
+    return (int)dc.nrBytes();
 }
 
 
@@ -106,5 +126,65 @@ bool uiSeisTransfer::provideUserInfo( const IOObj& ioobj ) const
     tr->readMgr()->dumpInfo( strm, false );
     uiMSG().message( strm.str().c_str() );
 
+    return true;
+}
+
+
+int uiSeisTransfer::expectedMBs( const IOObj& ioobj ) const
+{
+    return expectedMBs( ioobj, expectedNrSamples(), maxBytesPerSample(),
+		        expectedNrTraces() );
+}
+
+
+bool uiSeisTransfer::checkSpaceLeft( const IOObj& ioobj ) const
+{
+    return checkSpaceLeft( ioobj, expectedNrSamples(), maxBytesPerSample(),
+	    		   expectedNrTraces() );
+}
+
+
+int uiSeisTransfer::expectedMBs( const IOObj& ioobj, int expnrsamps,
+				 int maxbps, int expnrtrcs )
+{
+    Translator* tr = ioobj.getTranslator();
+    mDynamicCastGet(SeisTrcTranslator*,sttr,tr)
+    if ( !sttr )
+    {
+	pFreeFnErrMsg("No Translator!","uiSeisTransfer::expectedMBs");
+	return -1;
+    }
+
+    int overhead = sttr->bytesOverheadPerTrace();
+    double sz = expnrsamps;
+    sz *= maxbps;
+    sz = (sz + overhead) * expnrtrcs;
+
+    static const double bytes2mb = 9.53674e-7;
+    return (int)((sz * bytes2mb) + .5);
+}
+
+
+bool uiSeisTransfer::checkSpaceLeft( const IOObj& ioobj, int expnrsamps,
+				    int maxbps, int expnrtrcs )
+{
+    const int szmb = expectedMBs( ioobj, expnrsamps, maxbps, expnrtrcs );
+    const int avszmb = GetFreeMBOnDisk( &ioobj );
+    if ( szmb > avszmb )
+    {
+	BufferString msg( "The new cube size may exceed the space "
+			   "available on disk:\n" );
+	if ( avszmb == 0 )
+	    msg = "The disk seems to be full!";
+	else
+	{
+	    msg += "\nEstimated size: "; msg += szmb;
+	    msg += " MB\nAvailable on disk: "; msg += avszmb;
+	    msg += " MB";
+	}
+	msg += "\nDo you wish to continue?";
+	if ( !uiMSG().askGoOn( msg ) )
+	    return false;
+    }
     return true;
 }

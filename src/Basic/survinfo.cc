@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.39 2003-03-18 16:04:08 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.40 2003-05-27 13:17:43 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -388,6 +388,18 @@ void SurveyInfo::setRange( const BinIDRange& br, bool work )
 	rg.start.crl = br.stop.crl;
 	rg.stop.crl = br.start.crl;
     }
+}
+
+
+int SurveyInfo::maxNrTraces( bool work ) const
+{
+    const BinIDRange& rg = work ? wrange_ : range_;
+    BinID stp( inlStep(), crlStep() );
+    if ( stp.inl < 1 ) stp.inl = 1;
+    if ( stp.crl < 1 ) stp.crl = 1;
+
+    return ((rg.stop.inl - rg.start.inl) / stp.inl + 1)
+	 * ((rg.stop.crl - rg.start.crl) / stp.crl + 1);
 }
 
 

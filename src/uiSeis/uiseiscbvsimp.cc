@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.15 2003-05-22 11:10:27 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.16 2003-05-27 13:17:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,7 +230,8 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 				: "Importing CBVS seismic cube";
     PtrMan<Executor> stp = transffld->getTrcProc( inctio_.ioobj, outctio_.ioobj,
 	   			titl, "Loading data" );
-    if ( !stp ) return false;
+    if ( !stp || !transffld->checkSpaceLeft( *outctio_.ioobj ) )
+	return false;
 
     uiExecutor dlg( this, *stp );
     return dlg.go() == 1

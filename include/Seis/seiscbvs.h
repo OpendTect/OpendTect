@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.18 2003-05-20 12:42:12 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.19 2003-05-27 13:17:43 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -36,6 +36,7 @@ public:
 
     bool		supportsGoTo() const		{ return true; }
     bool		goTo(const BinID&);
+    virtual int		bytesOverheadPerTrace() const	{ return 52; }
 
     const UserIDSet*	parSpec(Conn::State) const
 			{ return &datatypeparspec; }

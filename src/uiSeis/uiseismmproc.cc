@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.49 2003-05-07 09:40:55 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.50 2003-05-27 13:17:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     	, nrcyclesdone(0)
     	, tmpstordirfld(0)
     	, stopbut(0)
+    	, estmbs(0)
+    	, targetioobj(0)
 {
     const IOPar& iopar = *iopl[0];
     const char* res = iopar.find( "Target value" );
@@ -67,6 +69,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     if ( res && *res )
 	{ txt += "'"; txt += res; txt += "' "; }
     setTitleText( txt );
+    res = iopar.find( "Estimated MBs" );
+    if ( res ) estmbs = atoi( res );
 
     if ( LM().check(Licenser::VolOut) != getPID() )
     {
@@ -81,18 +85,22 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     statusBar()->addMsgFld( "Activity", uiStatusBar::Left, 1 );
     tim.tick.notify( mCB(this,uiSeisMMProc,doCycle) );
 
+    tmpstordir = iopar.find( sTmpStorKey );
+    BufferString restartid( iopar.find( sTmpSeisID ) );
+    res = iopar.find( "Output.1.Seismic ID" );
+    if ( !res ) res = iopar.find( "Output.0.Seismic ID" );
+    targetioobj = IOM().get( res );
     bool isrestart = false;
-    res = iopar.find( sTmpSeisID );
-    if ( res )
+    if ( restartid != "" )
     {
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(res) );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(restartid) );
 	mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
 	if ( !iostrm )
 	    isrestart = ioobj ? ioobj->implExists(true) : false;
 	else
 	{
-	    BufferString dir = File_getPathOnly(iostrm->fileName());
-	    isrestart = File_exists( dir );
+	    tmpstordir = File_getPathOnly(iostrm->fileName());
+	    isrestart = File_exists( tmpstordir );
 	}
     }
 
@@ -101,23 +109,20 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     bool attaligned = true;
     if ( isrestart )
     {
-	jm->setRestartID( res );
+	jm->setRestartID( restartid );
 	finaliseDone.notify( mCB(this,uiSeisMMProc,doCycle) );
-	res = iopar.find( sTmpStorKey );
-	if ( res )
-	{
-	    BufferString msg( sTmpStorKey ); msg += ": "; msg += res;
-	    sepattach = new uiLabel( this, msg );
-	    attaligned = false;
-	}
+	BufferString msg( sTmpStorKey ); msg += ": "; msg += tmpstordir;
+	sepattach = new uiLabel( this, msg );
+	attaligned = false;
     }
     else
     {
+	tmpstordir = jm->tempStorageDir();
 	tmpstordirfld = new uiIOFileSelect( this, sTmpStorKey, false,
-					    jm->tempStorageDir() );
+					    tmpstordir );
 	tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
-	res = iopar.find( sTmpStorKey );
-	if ( res && File_isDirectory(res) ) tmpstordirfld->setInput( res );
+	if ( tmpstordir != "" && File_isDirectory(tmpstordir) )
+	    tmpstordirfld->setInput( tmpstordir );
 	tmpstordirfld->selectDirectory( true );
 	sepattach = tmpstordirfld->mainObject();
     }
@@ -472,6 +477,46 @@ void uiSeisMMProc::stopRunningJobs()
 
 void uiSeisMMProc::addPush( CallBacker* )
 {
+    if ( !running )
+    {
+	if ( tmpstordirfld )
+	{
+	    tmpstordir = tmpstordirfld->getInput();
+	    if ( !File_exists(tmpstordir) )
+		mErrRet("Please enter a valid temporary storage directory")
+	    else if ( !File_isDirectory(tmpstordir) )
+	    {
+		tmpstordir = File_getPathOnly(tmpstordir);
+		tmpstordirfld->setInputText( tmpstordir );
+	    }
+	}
+
+	if ( !File_isWritable(tmpstordir) )
+	    mErrRet("The temporary storage directory is not writable")
+
+	if ( estmbs > 0 )
+	{
+	    const int tempstoravail = File_getFreeMBytes( tmpstordir );
+	    const int targetavail = targetioobj ? GetFreeMBOnDisk(targetioobj)
+						: tempstoravail;
+	    const bool samedisk = tempstoravail == targetavail;
+	    int needed = estmbs;
+	    if ( samedisk )
+		needed += estmbs;
+	    if ( needed > tempstoravail )
+	    {
+		BufferString msg( samedisk ? "The target" : "The temporary" );
+		msg += " disk may not have enough free disk space.";
+		msg += "\nNeeded (estimate): "; msg += needed; msg += " MB";
+		msg += "\nAvailable: "; msg += tempstoravail; msg += " MB";
+		msg += "\nDo you wish to continue?";
+		if ( !uiMSG().askGoOn( msg ) )
+		    return;
+	    }
+	}
+    }
+
+
     for( int idx=0; idx<avmachfld->box()->size(); idx++ )
     {
 	if ( avmachfld->box()->isSelected(idx) )
@@ -486,10 +531,8 @@ void uiSeisMMProc::addPush( CallBacker* )
     if ( !running && jm->nrHostsInQueue() )
     {
 	if ( tmpstordirfld )
-	{
 	    tmpstordirfld->setSensitive(false);
-	    jm->setTempStorageDir( tmpstordirfld->getInput() );
-	}
+	jm->setTempStorageDir( tmpstordir );
 	jm->setRemExec( rshcomm );
 	running = true;
 	prepareNextCycle(0);

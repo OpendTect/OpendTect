@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.31 2003-03-18 16:04:14 nanne Exp $
+ RCS:		$Id: survinfo.h,v 1.32 2003-05-27 13:17:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ public:
     inline int		crlStep() const		{ return getStep(false,false); }
     inline int		inlWorkStep() const	{ return getStep(true,true); }
     inline int		crlWorkStep() const	{ return getStep(false,true); }
+    virtual int		maxNrTraces(bool work=false) const;
 
     void		setWorkRange( const BinIDRange& b )
 			{ setRange( b, true ); }

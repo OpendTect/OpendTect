@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.24 2003-03-19 16:21:59 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.25 2003-05-27 13:17:43 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -163,6 +163,7 @@ public:
     const char*		errMsg() const			{ return errmsg; }
 
     virtual bool	inlCrlSorted() const		{ return true; }
+    virtual int		bytesOverheadPerTrace() const	{ return 240; }
     virtual void	toSupported( DataCharacteristics& ) const {}
 			//!< change the input to a supported characteristic
     virtual void	usePar(const IOPar*);

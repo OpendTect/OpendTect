@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.15 2003-02-27 10:57:40 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.16 2003-05-27 13:17:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class IOPar;
+class IOObj;
 class Timer;
 class uiGroup;
 class Executor;
@@ -39,11 +40,14 @@ protected:
 
     SeisMMJobMan*	jm;
     Executor*		task;
+    IOObj*		targetioobj;
     BufferString	rshcomm;
+    BufferString	tmpstordir;
     Timer&		tim;
     IOParList&		iopl;
     int			delay;
     int			nrcyclesdone;
+    int			estmbs;
 
     uiLabeledListBox*	avmachfld;
     uiLabeledListBox*	usedmachfld;
