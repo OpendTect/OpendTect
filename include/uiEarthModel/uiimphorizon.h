@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.1 2002-05-22 09:25:04 nanne Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.2 2002-05-23 09:33:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class uiFileInput;
+class uiGenInput;
 class uiIOObjSel;
 
 
@@ -29,8 +30,9 @@ public:
 
 protected:
 
-    uiIOObjSel*		outfld;
     uiFileInput*	infld;
+    uiGenInput*		xyfld;
+    uiIOObjSel*		outfld;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();

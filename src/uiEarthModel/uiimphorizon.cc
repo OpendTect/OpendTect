@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.1 2002-05-22 09:24:58 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.2 2002-05-23 09:32:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "uiexecutor.h"
 #include "uifileinput.h"
+#include "uigeninput.h"
 #include "filegen.h"
 #include "uimsg.h"
 
@@ -35,9 +36,13 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     dirnm = File_getFullPath( dirnm, "Surfaces" );
     infld->setDefaultSelectionDir( dirnm );
 
+    xyfld = new uiGenInput( this, "Positions in:",
+                             BoolInpSpec("X/Y","Inl/Crl") );
+    xyfld->attach( alignedBelow, infld );
+
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
-    outfld->attach( alignedBelow, infld );
+    outfld->attach( alignedBelow, xyfld );
 }
 
 
@@ -53,6 +58,8 @@ uiImportHorizon::~uiImportHorizon()
 
 bool uiImportHorizon::handleAscii()
 {
+    bool doxy = xyfld->getBoolValue();
+
     const char* fname = infld->fileName();
     StreamData sdi = StreamProvider( fname ).makeIStream();
     if ( !sdi.usable() ) 
