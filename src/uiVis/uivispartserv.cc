@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.190 2004-03-11 15:31:20 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.191 2004-04-14 09:42:48 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,8 @@ uiVisPartServer::~uiVisPartServer()
     visBase::DM().selMan().deselnotifer.remove(
 	    mCB(this,uiVisPartServer,deselectObjCB) );
     delete &eventmutex;
+
+    deepErase(menufactories);
 }
 
 
@@ -148,6 +150,20 @@ void uiVisPartServer::removeScene( int sceneid )
 	scenes -= scene;
 	return;
     }
+}
+
+
+uiVisMenuFactory* uiVisPartServer::getMenuFactory(const char* typespec)
+{
+    for ( int idx=0; idx<menufactories.size(); idx++ )
+    {
+	if ( menufactories[idx]->canHandle( typespec ) )
+	    return menufactories[idx];
+    }
+
+    uiVisMenuFactory* res = new uiVisMenuFactory(appserv().parent(),typespec);
+    menufactories += res;
+    return res;
 }
 
 
