@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.58 2002-05-27 06:34:17 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.59 2002-05-27 08:28:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -885,10 +885,15 @@ void uiVisPartServer::modifyColorSeq(int id, const ColorTable& ctab )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
-    if ( !sd ) return;
-
-    sd->textureRect().getColorTab().colorSeq().colors() = ctab;
-    sd->textureRect().getColorTab().colorSeq().colorsChanged();
+    if ( sd )
+    {
+	sd->textureRect().getColorTab().colorSeq().colors() = ctab;
+	sd->textureRect().getColorTab().colorSeq().colorsChanged();
+    }
+  
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( hor )
+	hor->setColorTable( ctab );
 }
 
 
@@ -896,7 +901,15 @@ const ColorTable& uiVisPartServer::getColorSeq(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
-    return sd->textureRect().getColorTab().colorSeq().colors();
+    if ( sd )
+	return sd->textureRect().getColorTab().colorSeq().colors();
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( hor )
+	return hor->getColorTable();
+
+    
+    return *new ColorTable("Red-White-Blue");
 }
 
 
@@ -929,6 +942,9 @@ void uiVisPartServer::setClipRate( int id, float cr )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( sd ) sd->textureRect().setClipRate( cr );
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( hor ) hor->setClipRate( cr );
 }
 
 
@@ -936,7 +952,12 @@ float uiVisPartServer::getClipRate(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    return sd ? sd->textureRect().clipRate() : 0;
+    if ( sd ) return sd->textureRect().clipRate();
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( hor ) return hor->getClipRate();
+
+    return 0;
 }
 
 
@@ -945,6 +966,9 @@ void uiVisPartServer::setAutoscale( int id, bool yn )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( sd ) sd->textureRect().setAutoscale( yn );
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( hor ) hor->setAutoscale( yn );
 }
 
 
@@ -952,7 +976,12 @@ bool uiVisPartServer::getAutoscale(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    return sd ? sd->textureRect().autoScale() : false;
+    if ( sd ) return sd->textureRect().autoScale();
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( hor ) return hor->getAutoscale();
+
+    return false;
 }
 
 
@@ -961,6 +990,9 @@ void uiVisPartServer::setDataRange( int id, const Interval<float>& intv )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( sd ) sd->textureRect().getColorTab().scaleTo( intv );
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( hor ) hor->setDataRange( intv );
 }
 
 
@@ -968,7 +1000,12 @@ Interval<float> uiVisPartServer::getDataRange(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
-    return sd->textureRect().getColorTab().getInterval();
+    if ( sd ) return sd->textureRect().getColorTab().getInterval();
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( hor ) return hor->getDataRange();
+
+    return Interval<float>(0,1);
 }
 
 
