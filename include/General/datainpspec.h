@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.47 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.48 2003-11-15 23:42:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,7 +188,7 @@ protected:
 
 typedef NumInpSpec<int>		IntInpSpec;
 typedef NumInpSpec<float>	FloatInpSpec;
-typedef NumInpSpec<int>		DoubleInpSpec;
+typedef NumInpSpec<double>	DoubleInpSpec;
 
 
 /*! \brief Specifications for numerical intervals
@@ -369,7 +369,7 @@ protected:
 
 typedef NumInpIntervalSpec<int>		IntInpIntervalSpec;
 typedef NumInpIntervalSpec<float>	FloatInpIntervalSpec;
-typedef NumInpIntervalSpec<double>		DoubleInpIntervalSpec;
+typedef NumInpIntervalSpec<double>	DoubleInpIntervalSpec;
 
 
 /*! \brief Specifications for character string inputs. */
