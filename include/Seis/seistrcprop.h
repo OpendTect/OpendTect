@@ -1,23 +1,23 @@
 #ifndef seistrcprop_h
 #define seistrcprop_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.3 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: seistrcprop.h,v 1.4 2004-08-27 12:12:04 bert Exp $
 ________________________________________________________________________
 
-A trace is composed of trace info and trace data.
-@$*/
+-*/
 
-#include <seistype.h>
-#include <ranges.h>
+#include "seistype.h"
+#include "ranges.h"
 class SUsegy;
 class SeisTrc;
 
+/*!\brief calculates properties of a trace component */
 
 class SeisTrcPropCalc
 {
@@ -45,15 +45,19 @@ protected:
 					  float,float) const;
 };
 
+/*!\brief changes properties of one or all trace components.
+  Component -1 (the default) changes all components.
+ */
 
 class SeisTrcPropChg : public SeisTrcPropCalc
 {
 public:
-		SeisTrcPropChg( SeisTrc& t, int ic=0 )
+		SeisTrcPropChg( SeisTrc& t, int ic=-1 )
 		: SeisTrcPropCalc(t,ic)		{}
 
     void	puttr(const SUsegy&);
     void	stack(const SeisTrc&,bool alongref=NO);
+    void	scale(float fac,float shft=0);
     void	normalize();
     void	corrNormalize();
     void	removeDC();
@@ -61,7 +65,7 @@ public:
     void	topMute(float,float);
     void	tailMute(float,float);
 
-    SeisTrc&	trace()			{ return mtrc(); }
+    SeisTrc&	trace()					{ return mtrc(); }
 
 protected:
 
