@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.46 2004-10-25 10:23:16 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.47 2004-10-25 10:38:18 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -449,6 +449,8 @@ static const char* checkFile( const char* path, const char* subdir,
 			      const char* fname )
 {
     static FileNameString filenamebuf;
+    if ( !path || !subdir || !fname ) return 0;
+
     strcpy( filenamebuf, mkFullPath( path, subdir ) );
     if ( fname && *fname )
 	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
@@ -459,12 +461,13 @@ static const char* checkFile( const char* path, const char* subdir,
     return 0;
 }
 
-const char* SearchConfigFile( const char* fname )
+const char* SearchODFile( const char* fname )
 {
-
-    const char* nm = checkFile( GetPersonalDir(), ".od", fname );
-    if( !nm ) nm = checkFile( GetSettingsDir(), ".od", fname );
-    if( !nm ) nm = checkFile( GetSoftwareDir(), "data", fname );
+    const char* nm = checkFile( getenv("OD_FILES"), "", fname );
+    if ( !nm ) nm = checkFile( GetPersonalDir(), ".od", fname );
+    if ( !nm ) nm = checkFile( GetSettingsDir(), ".od", fname );
+    if ( !nm ) nm = checkFile( GetSoftwareDir(), "data", fname );
+    if ( !nm ) nm = checkFile( GetSoftwareDir(), "bin", fname );
 
     if ( dgb_debug_isOn(DBG_SETTINGS) )
     {

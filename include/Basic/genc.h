@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.23 2004-10-25 10:20:20 arend Exp $
+ RCS:		$Id: genc.h,v 1.24 2004-10-25 10:38:09 arend Exp $
 ________________________________________________________________________
 
 
@@ -174,11 +174,13 @@ const char*	GetPersonalDir(void);
 const char*	GetDataFileName(const char*);
 		/*!< Application data file in $dGB|DTECT_APPL/data */
 
-const char*	SearchConfigFile(const char*);
+const char*	SearchODFile(const char*);
 		/*!< Search for a <configuration> file in:
+		    $OD_FILES
                     GetPersonalDir() + ".od"
                     GetSettingsDir() + ".od"
 		    $dGB|DTECT_APPL/data
+		    $dGB|DTECT_APPL/bin
 		*/
 
 
