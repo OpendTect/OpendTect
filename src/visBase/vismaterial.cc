@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.8 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.9 2004-07-28 06:55:53 kristofer Exp $";
 
 #include "vismaterial.h"
 #include "color.h"
@@ -24,94 +24,79 @@ const char* visBase::Material::transpstr = "Transparency";
 
 visBase::Material::Material()
     : material( new SoMaterial )
-    , color( *new Color )
-    , ambience( 0.8 )
-    , diffuseintencity( 0.8 )
-    , specularintensity( 0 )
-    , emmissiveintensity( 0 )
-    , shininess( 0 )
-    , transparency( 0 )
 {
     material->ref();
+    setMinNrOfMaterials(0);
+    updateMaterial(0);
 }
 
 
 visBase::Material::~Material()
-{
-    delete &color;
-    material->unref();
+{ material->unref(); }
+
+
+#define mSetGetProperty( Type, func, var ) \
+void visBase::Material::set##func( Type n, int idx ) \
+{ \
+    setMinNrOfMaterials(idx); \
+    var[idx] = n; \
+    updateMaterial( idx ); \
+} \
+Type visBase::Material::get##func( int idx ) const \
+{ \
+    if ( idx>=0 && idx<var.size() ) \
+	return var[idx]; \
+    return var[0]; \
 }
 
 
-void visBase::Material::setColor( const Color& n )
+mSetGetProperty( const Color&, Color, color );
+mSetGetProperty( float, Ambience, ambience );
+mSetGetProperty( float, DiffIntensity, diffuseintencity );
+mSetGetProperty( float, SpecIntensity, specularintensity );
+mSetGetProperty( float, EmmIntensity, emmissiveintensity );
+mSetGetProperty( float, Shininess, shininess );
+mSetGetProperty( float, Transparency, transparency );
+
+
+void visBase::Material::updateMaterial(int idx)
 {
-    color = n;
-    updateMaterial();
+    material->ambientColor.set1Value( idx, color[idx].r() * ambience[idx]/255,
+				    color[idx].g() * ambience[idx]/255,
+				    color[idx].b() * ambience[idx]/255 );
+
+    material->diffuseColor.set1Value( idx,
+		color[idx].r() * diffuseintencity[idx]/255,
+		color[idx].g() * diffuseintencity[idx]/255,
+		color[idx].b() * diffuseintencity[idx]/255 );
+
+    material->specularColor.set1Value( idx,
+		color[idx].r() * specularintensity[idx]/255,
+		color[idx].g() * specularintensity[idx]/255,
+		color[idx].b() * specularintensity[idx]/255 );
+
+    material->emissiveColor.set1Value( idx,
+		color[idx].r() * emmissiveintensity[idx]/255,
+		color[idx].g() * emmissiveintensity[idx]/255,
+		color[idx].b() * emmissiveintensity[idx]/255);
+
+    material->shininess.set1Value(idx, shininess[idx] );
+    material->transparency.set1Value(idx, transparency[idx] );
 }
 
 
-void visBase::Material::setAmbience( float n )
+void visBase::Material::setMinNrOfMaterials(int minnr)
 {
-    ambience = n;
-    updateMaterial();
-}
-
-
-void visBase::Material::setDiffIntensity( float n )
-{
-    diffuseintencity = n;
-    updateMaterial();
-}
-
-
-void visBase::Material::setSpecIntensity( float n )
-{
-    specularintensity = n;
-    updateMaterial();
-}
-
-
-void visBase::Material::setEmmIntensity( float n )
-{
-    emmissiveintensity = n;
-    updateMaterial();
-}
-
-
-void visBase::Material::setShininess( float n )
-{
-    shininess = n;
-    updateMaterial();
-}
-
-
-void visBase::Material::setTransparency( float n )
-{
-    transparency = n;
-    updateMaterial();
-}
-
-
-void visBase::Material::updateMaterial()
-{
-    material->ambientColor.setValue( color.r() * ambience/255,
-				    color.g() * ambience/255,
-				    color.b() * ambience/255 );
-
-    material->diffuseColor.setValue( color.r() * diffuseintencity/255,
-				    color.g() * diffuseintencity/255,
-				    color.b() * diffuseintencity/255 );
-
-    material->specularColor.setValue( color.r() * specularintensity/255,
-					color.g() * specularintensity/255,
-					color.b() * specularintensity/255 );
-
-    material->emissiveColor.setValue( color.r() * emmissiveintensity/255,
-					color.g() * emmissiveintensity/255,
-					color.b() * emmissiveintensity/255);
-
-    material->shininess = shininess;
-    material->transparency = transparency;
+    while ( color.size()<=minnr )
+    {
+	color += Color(179,179,179);
+	ambience += 0.8;
+	diffuseintencity += 0.8;
+	specularintensity += 0;
+	emmissiveintensity += 0;
+	shininess += 0;
+	transparency += 0;
+    }
 }
 
 

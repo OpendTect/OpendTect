@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.8 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: vismaterial.h,v 1.9 2004-07-28 06:55:51 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -32,32 +32,32 @@ public:
     static Material*	create()
 			mCreateDataObj(Material);
 
-    void		setColor( const Color& nc );
-    const Color&	getColor() const { return color; }
+    void		setColor( const Color& nc, int matnr=0 );
+    const Color&	getColor(int matnr=0) const;
 
-    void		setAmbience( float );
+    void		setAmbience( float, int matnr=0 );
 			/*!< Should be between 0 and 1 */
-    float		getAmbience() const { return ambience; }
+    float		getAmbience(int matnr=0) const;
 
-    void		setDiffIntensity( float );
+    void		setDiffIntensity( float, int matnr=0 );
 			/*!< Should be between 0 and 1 */
-    float		getDiffIntensity() const { return diffuseintencity; }
+    float		getDiffIntensity(int matnr=0) const;
 
-    void		setSpecIntensity( float );
+    void		setSpecIntensity( float, int matnr=0 );
 			/*!< Should be between 0 and 1 */
-    float		getSpecIntensity() const { return specularintensity; }
+    float		getSpecIntensity(int matnr=0) const;
 
-    void		setEmmIntensity( float );
+    void		setEmmIntensity( float, int matnr=0 );
 			/*!< Should be between 0 and 1 */
-    float		getEmmIntensity() const { return emmissiveintensity; }
+    float		getEmmIntensity(int matnr=0) const;
 
-    void		setShininess( float );
+    void		setShininess( float, int matnr=0 );
 			/*!< Should be between 0 and 1 */
-    float		getShininess() const { return shininess; }
+    float		getShininess(int matnr=0) const;
 
-    void		setTransparency( float );
+    void		setTransparency( float, int matnr=0 );
 			/*!< Should be between 0 and 1 */
-    float		getTransparency() const { return transparency; }
+    float		getTransparency(int matnr=0) const;
 
     SoNode*		getInventorNode();
     int			usePar( const IOPar& );
@@ -65,16 +65,16 @@ public:
 
 protected:
 			~Material();
+    void		setMinNrOfMaterials(int minnr);
+    void		updateMaterial(int idx);
 
-    void		updateMaterial();
-
-    Color&		color;
-    float               ambience;
-    float               diffuseintencity;
-    float               specularintensity;
-    float               emmissiveintensity;
-    float               shininess;
-    float               transparency;
+    TypeSet<Color>	color;
+    TypeSet<float>	ambience;
+    TypeSet<float>	diffuseintencity;
+    TypeSet<float>	specularintensity;
+    TypeSet<float>	emmissiveintensity;
+    TypeSet<float>	shininess;
+    TypeSet<float>	transparency;
 
     SoMaterial*		material;
 
