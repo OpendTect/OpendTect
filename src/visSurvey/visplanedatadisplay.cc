@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.53 2003-07-01 14:26:18 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.54 2003-10-03 13:52:39 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -31,7 +31,7 @@ const char* visSurvey::PlaneDataDisplay::trectstr = "Texture rectangle";
 
 visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     : VisualObject(true)
-    , trect(visBase::TextureRect::create())
+    , trect(0)
     , cache(0)
     , colcache(0)
     , as(*new AttribSelSpec)
@@ -40,11 +40,10 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     , manipcs(*new CubeSampling)
     , moving(this)
 {
-    trect->ref();
+    setTextureRect( visBase::TextureRect::create() );
 
     trect->getMaterial()->setAmbience( 0.8 );
     trect->getMaterial()->setDiffIntensity( 0.8 );
-    trect->manipChanges()->notify( mCB(this,PlaneDataDisplay,manipChanged) );
 
     setType( Inline );
 
@@ -70,6 +69,20 @@ visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
 
     delete cache;
     delete colcache;
+}
+
+
+void visSurvey::PlaneDataDisplay::setTextureRect( visBase::TextureRect* tr )
+{
+    if ( trect )
+    {
+	trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged));
+	trect->unRef();
+    }
+
+    trect = tr;
+    trect->ref();
+    trect->manipChanges()->notify( mCB(this,PlaneDataDisplay,manipChanged) );
 }
 
 
@@ -580,7 +593,8 @@ void visSurvey::PlaneDataDisplay::fillPar( IOPar& par,
 
     if ( saveids.indexOf( trectid )==-1 ) saveids += trectid;
 
-    as.fillPar(par);
+    as.fillPar( par );
+    colas.fillPar( par );
 }
 
 
@@ -597,12 +611,9 @@ int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
     visBase::DataObject* dataobj = visBase::DM().getObj( trectid );
     if ( !dataobj ) return 0;
 
-    mDynamicCastGet( visBase::TextureRect*, tr, dataobj );
+    mDynamicCastGet(visBase::TextureRect*,tr,dataobj)
     if ( !tr ) return -1;
-
-    trect->unRef();
-    trect = tr;
-    trect->ref();
+    setTextureRect( tr );
 
     trect->getRectangle().setSnapping( true );
     trect->useTexture( false );
@@ -614,7 +625,8 @@ int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
     else
 	type = Timeslice;
 
-    if ( !as.usePar( par )) return -1;
+    if ( !as.usePar(par) ) return -1;
+    colas.usePar( par );
 
     return 1;
 }
