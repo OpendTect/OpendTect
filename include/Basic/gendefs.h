@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.17 2001-08-31 15:44:40 windev Exp $
+ RCS:		$Id: gendefs.h,v 1.18 2002-03-26 17:02:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,16 +35,13 @@ ________________________________________________________________________
 #define sUndefValue		"1e30"
 #define mUndefIntVal		2109876543
 
-#define sMinimumKey		"Minimum"
-#define sMaximumKey		"Maximum"
-
 #undef	YES
 #define	YES	1
 #undef	NO
 #define	NO	0
 
-#define Fail	0
-#define Ok	1
+#define Fail	NO
+#define Ok	YES
 
 #define mMALLOC(sz,tp)		(tp*)malloc((sz)*sizeof(tp))
 #define mREALLOC(var,sz,tp)	(tp*)realloc(var,(sz)*sizeof(tp))
