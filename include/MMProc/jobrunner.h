@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.5 2004-11-05 13:21:33 arend Exp $
+ RCS:		$Id: jobrunner.h,v 1.6 2004-11-05 19:24:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class JobHostInfo;
 class JobDescProv;
 class JobIOMgr;
 class StatusInfo;
+class BufferStringSet;
 
 class JobHostInfo
 {
@@ -51,7 +52,7 @@ public:
     void			pauseHost(int,bool);
     bool			isFailed(int) const;
     bool			isPaused(int) const;
-    bool			isAssigned(int) const;
+    bool			isAssigned( const JobInfo& ji ) const;
 
     int				jobsDone() const;
     int				jobsInProgress() const;
@@ -75,6 +76,8 @@ public:
     void			setProg( const char* s )    { prog_ = s; }
     				// Set this anytime
     void			setNiceNess( int n );
+
+    void			showMachStatus( BufferStringSet& ) const;
 
 protected:
 

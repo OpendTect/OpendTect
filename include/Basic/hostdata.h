@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.16 2004-11-04 16:47:23 arend Exp $
+ RCS:           $Id: hostdata.h,v 1.17 2004-11-05 19:24:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ public:
 				  const HostData* from = 0 ) const;
     FilePath		convPath( PathType pt, const char* fn,
 				  const HostData* from = 0 ) const
-			    { return convPath(pt, fn, from ); }
+			    { return convPath(pt, FilePath(fn), from ); }
 
     static const char*	localHostName();
     void		setLocalHost( const HostData& hd )

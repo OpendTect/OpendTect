@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.5 2004-11-05 13:21:15 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.6 2004-11-05 19:24:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,7 +215,6 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 char JobIOHandler::getRespFor( int descnr , const char* hostnm )
 {
     char resp = mRSP_STOP;
-
     jhrespmutex_.lock();
 
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
@@ -416,7 +415,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 			  const FilePath& iopfp, const JobInfo& ji,
 			  const char* rshcomm )
 {
-    const bool remote = machine.isKnownAs( HostData::localHostName() );
+    const bool remote = !machine.isKnownAs( HostData::localHostName() );
 
     cmd = "@";
     cmd.addWoSpc( GetExecScript(remote) );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.25 2004-11-01 17:17:11 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.26 2004-11-05 19:24:53 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ protected:
     uiLabel*		jrpworklbl;
     uiSlider*		nicefld;
     uiProgressBar*	progbar;
+    BufferString	caption;
 
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
@@ -79,7 +80,10 @@ protected:
     void		startWork(CallBacker*);
     void		setNiceNess();
     void		updateAliveDisp();
+    void		updateCurMachs();
     int			runnerHostIdx(const char*) const;
+
+    const char* 	curUsedMachName();
 };
 
 #endif

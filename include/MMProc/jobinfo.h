@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobinfo.h,v 1.3 2004-11-02 16:05:38 arend Exp $
+ RCS:		$Id: jobinfo.h,v 1.4 2004-11-05 19:24:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,8 @@ public:
 			    , curmsg_("Scheduled")
 			    , attempts_(0)
 			    , hostdata_(0)
-			    , osprocid_(-1)		{}
+			    , osprocid_(-1)
+			    , timestamp_(0){}
 
     int			descnr_;	//!< JobdescProv's job number
     State		state_;

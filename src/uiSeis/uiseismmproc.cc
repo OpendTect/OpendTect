@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.72 2004-11-01 17:17:11 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.73 2004-11-05 19:24:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 		    : (is2d ? "Multi-line processing"
 			    : "Line-split processing") );
     const char* res = iopar.find( "Target value" );
-    BufferString caption = "Processing";
+    caption = "Processing";
     if ( res && *res )
 	{ caption += " '"; caption += res; caption += "'"; }
     setCaption( caption );
@@ -339,7 +339,10 @@ void uiSeisMMProc::doCycle( CallBacker* )
 {
     nrcyclesdone++;
 
+    jobrunner->nextStep();
+
     setNiceNess();
+    updateCurMachs();
     updateAliveDisp();
 
     timer->start( 250, true );
@@ -351,7 +354,50 @@ void uiSeisMMProc::updateAliveDisp()
     static const int nrdispstrs = 4;
     static const char* dispstrs[] = { "o..", ".o.", "..o", ".o." };
     statusBar()->message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
+
+    const int totsteps = jobrunner->totalNr();
+    const int nrdone = jobrunner->nrDone();
+    const bool hastot = totsteps > 0;
+    progbar->display( hastot );
+    if ( hastot )
+    {
+	progbar->setTotalSteps( totsteps );
+	progbar->setProgress( nrdone );
+
+	const float fpct = 100. * ((float)nrdone) / totsteps;
+	int pct = (int)fpct; if ( pct > 100 ) pct = 100;
+	BufferString newcap( "[" ); newcap += pct; newcap += "%] ";
+	newcap += caption;
+	setCaption( newcap );
+    }
 }
+
+
+#define mReturn()    { deepErase( machs ); return; }
+void uiSeisMMProc::updateCurMachs()
+{
+    BufferStringSet machs;
+    jobrunner->showMachStatus( machs );
+    sort( machs );
+
+    const int oldsz = usedmachfld->box()->size(); 
+    const int newsz = machs.size();
+
+    int curit = oldsz ? usedmachfld->box()->currentItem() : -1;
+    usedmachfld->box()->empty();
+    if ( newsz )
+    {
+	usedmachfld->box()->addItems( machs );
+	if ( curit >= usedmachfld->box()->size() )
+	    curit = usedmachfld->box()->size() - 1;
+	usedmachfld->box()->setCurrentItem(curit);
+    }
+    else
+	usedmachfld->box()->clear();
+
+    mReturn();
+}
+
 
 
 //TODO replace by HostDataList method
@@ -373,7 +419,7 @@ int uiSeisMMProc::runnerHostIdx( const char* mach ) const
     const ObjectSet<JobHostInfo>& hi = jobrunner->hostInfo();
     for ( int idx=0; idx<hi.size(); idx++ )
     {
-	if ( !strcmp(mach,hi[idx]->hostdata_.name()) )
+	if ( hi[idx]->hostdata_.isKnownAs(mach) )
 	    return idx;
     }
     return -1;
@@ -414,10 +460,20 @@ void uiSeisMMProc::addPush( CallBacker* )
     }
 }
 
+const char* uiSeisMMProc::curUsedMachName()
+{
+   static BufferString mach;
+   mach = usedmachfld->box()->getText();
+
+   char* ptr = strstr( mach.buf(), " -:- ");
+   if ( ptr ) *ptr='\0';
+
+   return mach;
+}
 
 void uiSeisMMProc::stopPush( CallBacker* )
 {
-    int rhidx = runnerHostIdx( usedmachfld->box()->getText() );
+    int rhidx = runnerHostIdx( curUsedMachName() );
     if ( rhidx >= 0 )
 	jobrunner->removeHost( rhidx );
 }
@@ -425,9 +481,9 @@ void uiSeisMMProc::stopPush( CallBacker* )
 
 void uiSeisMMProc::vwLogPush( CallBacker* )
 {
-    int rhidx = runnerHostIdx( usedmachfld->box()->getText() );
+    int rhidx = runnerHostIdx( curUsedMachName() );
     if ( rhidx < 0 ) return;
-    BufferString msg( "Need impl view log - host idx " );
+    BufferString msg( "Nerd impl view log - host idx " );
     msg += rhidx; pErrMsg( msg );
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.7 2004-11-05 13:21:15 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.8 2004-11-05 19:24:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 {
     FilePath fp( GetDataDir() );
     fp.add( "Proc" ).add( tmpfnm_base );
-    BufferString procdir_ = fp.fullPath();
+    procdir_ = fp.fullPath();
     procdir_ += "_"; procdir_ += tmpfile_nr;
     tmpfile_nr++;
 
@@ -190,7 +190,7 @@ JobInfo* JobRunner::currentJob( const JobHostInfo* jhi ) const
     for ( int idx=0; idx<jobinfos_.size(); idx++ )
     {
 	const JobInfo* ji = jobinfos_[idx];
-	if ( ji->hostdata_ == &jhi->hostdata_ && isAssigned(idx) )
+	if ( ji->hostdata_ == &jhi->hostdata_ && isAssigned(*ji) )
 	    return const_cast<JobInfo*>( ji );
     }
     return 0;
@@ -208,6 +208,8 @@ void JobRunner::removeHost( int hnr )
 
     if ( ji )
     {
+	ji->state_ = JobInfo::Failed;
+
 	iomgr().reqModeForJob( *ji, JobIOMgr::Stop );
 
 	if ( ji->hostdata_ )
@@ -240,14 +242,21 @@ bool JobRunner::isPaused( int hnr ) const
     return ji ? ji->state_ == JobInfo::Paused : false;
 }
 
-
+/*
 bool JobRunner::isAssigned( int hnr ) const
 {
     if ( hnr < 0 || hnr >= hostinfo_.size() )
 	return false;
     const JobInfo* ji = currentJob( hostinfo_[hnr] );
-    return !ji ? false
-	 : ji->state_ == JobInfo::Paused || ji->state_ == JobInfo::Working;
+
+    return !ji ? false : isAssigned( *ji );
+}
+*/
+
+
+bool JobRunner::isAssigned( const JobInfo& ji ) const
+{
+    return ji.state_ == JobInfo::Paused || ji.state_ == JobInfo::Working;
 }
 
 
@@ -353,6 +362,8 @@ void JobRunner::updateJobInfo()
     {
 	JobInfo& ji = *jobinfos_[ijob];
 
+	if ( !ji.timestamp_ ) ji.timestamp_ = Time_getMilliSeconds();
+
 	int elapsed = Time_getMilliSeconds() - ji.timestamp_; 
 
 	if ( elapsed > timeout_ )
@@ -364,6 +375,27 @@ void JobRunner::updateJobInfo()
     }
 }
 
+
+void JobRunner::showMachStatus( BufferStringSet& res ) const
+{
+    for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
+    {
+	JobInfo& ji = *jobinfos_[ijob];
+
+	bool active = ji.state_ == JobInfo::Working ||
+			ji.state_ == JobInfo::Paused;
+	    
+	if ( active && ji.hostdata_ )
+	{
+	    BufferString* mch = new BufferString( ji.hostdata_->name() );
+
+	    *mch += " -:- ";
+	    *mch += ji.curmsg_;
+
+	    res += mch;
+	}
+    }
+}
 
 
 void JobRunner::handleStatusInfo( StatusInfo& si )
@@ -381,22 +413,32 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     break;
     case mPROC_STATUS :
 	ji->nrdone_ = si.status;
+
+	ji->curmsg_ = " active; ";
+	ji->curmsg_ += ji->nrdone_;
+	ji->curmsg_ += " traces done.";
     break;
     case mCTRL_STATUS :
         switch( si.status )
 	{
 	case mSTAT_INITING:
+	    ji->state_ = JobInfo::Working;
+	    ji->curmsg_ = " inititalising";
+	break;
 	case mSTAT_WORKING:
 	    ji->state_ = JobInfo::Working;
+	    ji->curmsg_ = " active";
 	break;
 	case mSTAT_ERROR:
 	    ji->state_ = JobInfo::Failed;
 	break;
 	case mSTAT_PAUSED:
 	    ji->state_ = JobInfo::Paused;
+	    ji->curmsg_ = " paused";
 	break;
 	case mSTAT_FINISHED:
 	    ji->state_ = JobInfo::Completed;
+	    ji->curmsg_ = " finished";
 	break;
 	}
     break;
@@ -405,6 +447,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	{
 	case mSTAT_DONE:
 	    ji->state_ = JobInfo::Completed;
+	    ji->curmsg_ = " finished";
 	break;
 
 	case mSTAT_ERROR:
