@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.18 2001-07-18 14:58:15 bert Exp $
+ RCS:		$Id: callback.h,v 1.19 2001-07-20 10:40:46 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,11 +182,21 @@ would result in the availability of:
 
 class NotifierAccess
 {
+
+friend class		NotifyStopper;
+
 public:
 
-    virtual		~NotifierAccess()		{}
+			NotifierAccess() : enabled( true )	{}
+    virtual		~NotifierAccess()			{}
 
-    virtual void	notify(const CallBack&)		=0;
+    virtual void	notify(const CallBack&)			=0;
+
+protected:
+
+    bool		enabled;
+    inline void		enable()				{enabled=true; }
+    inline void		disable()				{enabled=false;}
 
 };
 
@@ -284,7 +294,6 @@ template <class T>
 class Notifier : public i_Notifier
 {
     friend		T;
-    mTFriend		(TT,NotifyStopper);
 
 public:
 
@@ -292,16 +301,12 @@ public:
     void		enable( T& t )				{ enable(); }
     void		disable( T& t )				{ disable(); }
 
-mProtected:
+protected:
 
-			Notifier( T* c ) : enabled( true )	{ cber = c; }
+			Notifier( T* c ) 			{ cber = c; }
 
     inline void		trigger( CallBacker* c=0 )
 			{ if ( enabled ) cbs.doCall(c ? c : cber); }
-
-    bool		enabled;
-    inline void		enable()				{enabled=true; }
-    inline void		disable()				{enabled=false;}
 
 };
 
@@ -314,11 +319,10 @@ NotifyStopper goes out of scope.
 
 */
 
-template <class T>
 class NotifyStopper 
 {
 public:
-			NotifyStopper( Notifier<T>& n ) 
+			NotifyStopper( NotifierAccess& n ) 
 			: thenotif(n)		{ enable(); }
 
     inline		~NotifyStopper()	{ thenotif.enable();}
@@ -328,9 +332,10 @@ public:
 
 protected:
 
-    Notifier<T>& 	thenotif;
+    NotifierAccess& 	thenotif;
 
 };
+
 
 
 
