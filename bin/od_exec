@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.38 2004-12-06 13:57:02 dgb Exp $
+# $Id: od_exec,v 1.39 2004-12-06 14:26:18 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -218,7 +218,7 @@ if ( "$1" != "" ) then
 
     set arg=`echo "$1" | sed 's/ /%/g'`
 
-    set allargs="$args $arg"
+    set allargs="$allargs $arg"
 
     shift
     goto more_args
