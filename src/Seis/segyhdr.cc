@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.4 2001-03-30 08:53:02 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.5 2001-05-02 20:16:04 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.4 2001-03-30 08:53:02 bert Exp $
 #include <ctype.h>
 #include <iostream.h>
 #include <stdio.h>
+#include <math.h>
 
 const char* SegyTraceheaderDef::sXCoordByte = "X-coord byte";
 const char* SegyTraceheaderDef::sYCoordByte = "Y-coord byte";
