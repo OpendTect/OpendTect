@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.16 2002-03-22 15:06:07 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.17 2002-04-18 09:50:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ public:
 			      && range_.start.crl && range_.stop.crl; }
     inline bool		zRangeUsable() const
 			{ return !mIS_ZERO(zrange_.width()); }
+    inline bool		zIsTime() const			{ return zistime_; }
 
     void		setComment( const char* s )	{ comment_ = s; }
     const char*		comment() const			{ return comment_; }
@@ -112,6 +113,7 @@ private:
     BinIDRange		range_;
     BinID		step_;
     StepInterval<double> zrange_;
+    bool		zistime_;
     BufferString	comment_;
     BufferString	wsprojnm_;
     BufferString	wspwd_;
