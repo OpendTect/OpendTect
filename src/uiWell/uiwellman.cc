@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.13 2004-02-02 15:23:18 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.14 2004-03-01 14:37:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "ptrman.h"
 #include "uimsg.h"
+#include "survinfo.h"
 
 
 static const int infoheight = 8;
@@ -50,6 +51,9 @@ uiWellMan::uiWellMan( uiParent* p )
 				 "107.1.0").nrstatusflds(1))
     , ctio(*mMkCtxtIOObj(Well))
     , markerschanged(this)
+    , welldata(0)
+    , wellrdr(0)
+    , fname("")
 {
     IOM().to( ctio.ctxt.stdSelKey() );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
@@ -64,20 +68,27 @@ uiWellMan::uiWellMan( uiParent* p )
 
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "well" );
 
-    logsfld = new uiListBox( topgrp, "Available logs" );
+    logsfld = new uiListBox( topgrp, "Available logs", true );
     logsfld->attach( rightTo, manipgrp );
     logsfld->setToolTip( "Available logs" );
 
     butgrp = new uiButtonGroup( topgrp, "" );
     butgrp->attach( rightTo, logsfld );
-    const ioPixmap renpm( GetDataFileName("renameobj.png") );
-    uiToolButton* renbut = new uiToolButton( butgrp, "Rename", renpm );
-    renbut->activated.notify( mCB(this,uiWellMan,renameLogPush) );
+    uiToolButton* renbut = new uiToolButton( butgrp, "Rename",
+				ioPixmap(GetDataFileName("renameobj.png")),
+				mCB(this,uiWellMan,renameLogPush) );
     renbut->setToolTip( "Rename selected log" );
+    
     const ioPixmap rempm( GetDataFileName("trashcan.png") );
-    rembut = new uiToolButton( butgrp, "Remove", rempm );
-    rembut->activated.notify( mCB(this,uiWellMan,removeLogPush) );
+    rembut = new uiToolButton( butgrp, "Remove", 
+	    			ioPixmap(GetDataFileName("trashcan.png")),
+				mCB(this,uiWellMan,removeLogPush) );
     rembut->setToolTip( "Remove selected log" );
+
+    uiToolButton* expbut = new uiToolButton( butgrp, "Export", 
+				ioPixmap(GetDataFileName("export.png")),
+				mCB(this,uiWellMan,exportLogs) );
+    expbut->setToolTip( "Export log" );
 
     uiPushButton* markerbut = new uiPushButton( this, "Edit markers ..." );
     markerbut->activated.notify( mCB(this,uiWellMan,addMarkers) );
@@ -101,6 +112,7 @@ uiWellMan::uiWellMan( uiParent* p )
 uiWellMan::~uiWellMan()
 {
     delete ctio.ioobj; delete &ctio;
+    delete welldata, wellrdr;
 }
 
 
@@ -110,6 +122,7 @@ void uiWellMan::selChg( CallBacker* cb )
     const IOObj* selioobj = entrylist->selected();
     ctio.setObj( selioobj ? selioobj->clone() : 0 );
 
+    getCurrentWell();
     mkFileInfo();
     manipgrp->selChg( cb );
     fillLogsFld();
@@ -120,28 +133,31 @@ void uiWellMan::selChg( CallBacker* cb )
 }
 
 
-#define mInit() \
-    if ( !ctio.ioobj ) return; \
-    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj) \
-    if ( !iostrm ) return; \
-    BufferString fname( iostrm->fileName() ); \
-    if ( !File_isAbsPath(fname) ) \
-    { \
-	fname = IOObjContext::getDataDirName(IOObjContext::WllInf); \
-	fname = File_getFullPath( fname, iostrm->fileName() ); \
-    } \
- \
-    PtrMan<Well::Data> well = new Well::Data; \
-    Well::Reader rdr( fname, *well );
+void uiWellMan::getCurrentWell()
+{
+    fname = ""; 
+    delete wellrdr; wellrdr = 0;
+    delete welldata; welldata = 0;
+    if ( !ctio.ioobj ) return;
+    
+    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
+    if ( !iostrm ) return;
+    StreamProvider sp( iostrm->fileName() );
+    sp.addPathIfNecessary( iostrm->dirName() );
+    fname = sp.fileName();
+    welldata = new Well::Data;
+    wellrdr = new Well::Reader( fname, *welldata );
+    wellrdr->getInfo();
+}
 
 
 void uiWellMan::fillLogsFld()
 {
-    mInit()
-    BufferStringSet lognms;
-    rdr.getLogInfo( lognms );
-
     logsfld->empty();
+    if ( !wellrdr ) return;
+
+    BufferStringSet lognms;
+    wellrdr->getLogInfo( lognms );
     for ( int idx=0; idx<lognms.size(); idx++)
 	logsfld->addItem( lognms.get(idx) );
     logsfld->selAll( false );
@@ -154,17 +170,18 @@ void uiWellMan::fillLogsFld()
 
 void uiWellMan::addMarkers( CallBacker* )
 {
-    mInit()
-    if ( !rdr.getD2T() )
+    if ( !welldata || !wellrdr ) return;
+    if ( SI().zIsTime() && !wellrdr->getD2T() )
 	mErrRet( "Cannot add markers without depth to time model" );
 
-    rdr.getMarkers();
+    if ( !welldata->markers().size() )
+	wellrdr->getMarkers();
     uiMarkerDlg dlg( this );
-    dlg.setMarkerSet( well->markers() );
+    dlg.setMarkerSet( welldata->markers() );
     if ( !dlg.go() ) return;
 
-    dlg.getMarkerSet( well->markers() );
-    Well::Writer wtr( fname, *well );
+    dlg.getMarkerSet( welldata->markers() );
+    Well::Writer wtr( fname, *welldata );
     wtr.putMarkers();
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
@@ -172,21 +189,46 @@ void uiWellMan::addMarkers( CallBacker* )
 }
 
 
+#define mDeleteLogs() \
+    while ( welldata->logs().size() ) \
+        delete welldata->logs().remove(0);
+
 void uiWellMan::addLogs( CallBacker* )
 {
-    mInit()
-    if ( !rdr.getD2T() )
+    if ( !welldata || !wellrdr ) return;
+    if ( SI().zIsTime() && !wellrdr->getD2T() )
 	mErrRet( "Cannot add logs without depth to time model" );
 
-    rdr.getLogs();
-    uiLoadLogsDlg dlg( this, *well );
-    if ( !dlg.go() ) return;
+    wellrdr->getLogs();
+    uiLoadLogsDlg dlg( this, *welldata );
+    if ( !dlg.go() ) { mDeleteLogs(); return; }
 
-    Well::Writer wtr( fname, *well );
+    Well::Writer wtr( fname, *welldata );
     wtr.putLogs();
     fillLogsFld();
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
+
+    mDeleteLogs();
+}
+
+
+void uiWellMan::exportLogs( CallBacker* )
+{
+    if ( !logsfld->size() || !logsfld->nrSelected() ) return;
+
+    BoolTypeSet issel;
+    for ( int idx=0; idx<logsfld->size(); idx++ )
+	issel += logsfld->isSelected(idx);
+
+    if ( !welldata->d2TModel() )
+	wellrdr->getD2T();
+
+    wellrdr->getLogs();
+    uiExportLogs dlg( this, *welldata, issel );
+    dlg.go();
+
+    mDeleteLogs();
 }
 
 
@@ -194,26 +236,31 @@ void uiWellMan::removeLogPush( CallBacker* )
 {
     if ( !logsfld->size() || !logsfld->nrSelected() ) return;
 
-    if ( !uiMSG().askGoOn("This log will be removed from disk."
-			  "\nDo you wish to continue?") )
+    BufferString msg;
+    msg = logsfld->nrSelected() == 1 ? "This log " : "These logs ";
+    msg += "will be removed from disk.\nDo you wish to continue?";
+    if ( !uiMSG().askGoOn(msg) )
 	return;
 
-    mInit()
-    rdr.getLogs();
-    Well::Log* log = well->logs().remove( logsfld->currentItem() );
-    if ( strcmp(log->name(),logsfld->getText()) )
-	return;
-
-    delete log;
-    if ( rdr.removeAll(Well::IO::sExtLog) )
+    wellrdr->getLogs();
+    for ( int idx=0; idx<logsfld->size(); idx++ )
     {
-	Well::Writer wtr( fname, *well );
+	if ( !logsfld->isSelected(idx) ) continue;
+	Well::Log* log = welldata->logs().remove( idx );
+	delete log;
+    }
+    
+    if ( wellrdr->removeAll(Well::IO::sExtLog) )
+    {
+	Well::Writer wtr( fname, *welldata );
 	wtr.putLogs();
 	fillLogsFld();
     }
 
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
+
+    mDeleteLogs();
 }
 
 
@@ -221,62 +268,63 @@ void uiWellMan::renameLogPush( CallBacker* )
 {
     if ( !logsfld->size() || !logsfld->nrSelected() ) mErrRet("No log selected")
 
-    mInit()
     const int lognr = logsfld->currentItem() + 1;
     BufferString basenm = File_removeExtension( fname );
     BufferString logfnm = Well::IO::mkFileName( basenm, Well::IO::sExtLog, 
 	    					lognr );
     StreamProvider sp( logfnm );
     StreamData sdi = sp.makeIStream();
-    bool res = rdr.addLog( *sdi.istrm );
+    bool res = wellrdr->addLog( *sdi.istrm );
     sdi.close();
     if ( !res ) 
 	mErrRet("Cannot read selected log")
 
-    Well::Log& log = well->logs().getLog( 0 );
+    Well::Log* log = welldata->logs().remove( 0 );
 
     BufferString titl( "Rename '" );
-    titl += log.name(); titl += "'";
+    titl += log->name(); titl += "'";
     uiGenInputDlg dlg( this, titl, "New name",
-    			new StringInpSpec(log.name()) );
+    			new StringInpSpec(log->name()) );
     if ( !dlg.go() ) return;
 
     BufferString newnm = dlg.text();
     if ( logsfld->isPresent(newnm) )
 	mErrRet("Name already in use")
 
-    log.setName( newnm );
-    Well::Writer wtr( fname, *well );
+    log->setName( newnm );
+    Well::Writer wtr( fname, *welldata );
     StreamData sdo = sp.makeOStream();
-    wtr.putLog( *sdo.ostrm, log );
+    wtr.putLog( *sdo.ostrm, *log );
     sdo.close();
     fillLogsFld();
     const MultiID& key = ctio.ioobj->key();
     Well::MGR().reload( key );
+    delete log;
 }
 
 
 void uiWellMan::mkFileInfo()
 {
-    if ( !ctio.ioobj )
+    if ( !welldata || !wellrdr || !ctio.ioobj )
     {
 	infofld->setText( "" );
 	return;
     }
 
     BufferString txt;
-    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
-    if ( !iostrm ) return;
-    BufferString fname( iostrm->fileName() );
-    if ( !File_isAbsPath(fname) )
-    {
-	fname = IOObjContext::getDataDirName(IOObjContext::WllInf);
-	fname = File_getFullPath( fname, iostrm->fileName() );
-    }
-
     txt += "File location: "; txt += File_getPathOnly( fname );
     txt += "\nFile name: "; txt += File_getFileName( fname );
     txt += "\nFile size: "; txt += getFileSize( fname );
+
+#define mAddWellInfo(key,str) \
+    if ( str.size() ) \
+    {	txt += "\n"; txt += key; txt += ": "; txt += str; }
+
+    Well::Info& info = welldata->info();
+    mAddWellInfo(Well::Info::sKeyuwid,info.uwid)
+    mAddWellInfo(Well::Info::sKeyoper,info.oper)
+    mAddWellInfo(Well::Info::sKeystate,info.state)
+    mAddWellInfo(Well::Info::sKeycounty,info.county)
 
     infofld->setText( txt );
 }

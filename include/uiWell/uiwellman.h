@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiwellman.h,v 1.6 2004-03-01 14:37:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ class uiIOObjManipGroup;
 class uiListBox;
 class uiTextEdit;
 class uiToolButton;
+
+namespace Well { class Data; class Reader; };
 
 
 /*! \brief
@@ -47,8 +49,12 @@ protected:
     uiButtonGroup*		butgrp;
 
     CtxtIOObj&			ctio;
+    Well::Data*			welldata;
+    Well::Reader*		wellrdr;
+    BufferString		fname;
 
     void			selChg(CallBacker*);
+    void			getCurrentWell();
     void			mkFileInfo();
     BufferString		getFileSize(const char*);
     void			fillLogsFld();
@@ -57,6 +63,7 @@ protected:
 
     void			addMarkers(CallBacker*);
     void			addLogs(CallBacker*);
+    void			exportLogs(CallBacker*);
 };
 
 

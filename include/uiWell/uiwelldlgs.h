@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.7 2004-02-19 14:02:53 bert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.8 2004-03-01 14:37:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,14 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "ranges.h"
 
-class uiTable;
+class uiButtonGroup;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
+class uiLabel;
 class uiLabeledListBox;
+class StreamData;
+class uiTable;
 
 namespace Well { class Data; class LogSet; class Marker; };
 
@@ -36,7 +39,7 @@ public:
 protected:
 
     uiTable*			table;
-    uiCheckBox*			feetfld;
+    uiGenInput*			unitfld;
 
     void			markerAdded(CallBacker*);
     void			mouseClick(CallBacker*);
@@ -59,7 +62,7 @@ protected:
     uiFileInput*		lasfld;
     uiGenInput*			intvfld;
     uiGenInput*			udffld;
-    uiGenInput*			ftfld;
+    uiLabel*			unitlbl;
     uiLabeledListBox*		logsfld;
 
     Well::Data&			wd;
@@ -96,5 +99,28 @@ protected:
 
 };
 
+
+class uiExportLogs : public uiDialog
+{
+public:
+    				uiExportLogs(uiParent*,const Well::Data&,
+					    const BoolTypeSet&);
+
+protected:
+    const Well::Data&		wd;
+    const BoolTypeSet&		logsel;
+
+    uiGenInput*			typefld;
+    uiButtonGroup*		zunitgrp;
+    uiGenInput*			zrangefld;
+    uiCheckBox*			headerbox;
+    uiFileInput*		outfld;
+
+    void			setDefaultRange(bool);
+    void			typeSel(CallBacker*);
+    virtual bool		acceptOK(CallBacker*);
+    void			writeHeader(StreamData&);
+    void			writeLogs(StreamData&);
+};
 
 #endif
