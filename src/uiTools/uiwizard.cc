@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.3 2004-04-28 12:41:10 nanne Exp $
+ RCS:           $Id: uiwizard.cc,v 1.4 2004-05-25 10:36:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,8 +123,8 @@ void uiWizard::handleButtonText()
 {
     bool firstpage = pageidx == firstPage();
     bool lastpage = pageidx == lastPage();
-    const char* oktxt = firstpage ? "Cancel" : "Back";
-    const char* canceltxt = lastpage && !rotatemode ? "Finish" : "Next";
+    const char* oktxt = firstpage ? "Cancel" : "<< Back";
+    const char* canceltxt = lastpage && !rotatemode ? "Finish" : "Next >>";
 
     setButtonText( uiDialog::OK, oktxt );
     setButtonText( uiDialog::CANCEL, canceltxt );
