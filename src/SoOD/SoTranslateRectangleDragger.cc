@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.1 2002-11-08 12:21:30 kristofer Exp $";
+static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.2 2003-02-07 08:36:46 kristofer Exp $";
 
 
 
@@ -70,7 +70,7 @@ SoTranslateRectangleDragger::~SoTranslateRectangleDragger()
 SbBool SoTranslateRectangleDragger::setUpConnections( SbBool onoff,
 						      SbBool doitalways )
 {
-    if ( doitalways && connectionsSetUp==onoff )
+    if ( !doitalways && connectionsSetUp==onoff )
 	return onoff;
 
     if ( onoff )
