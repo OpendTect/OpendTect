@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.23 2001-10-08 16:12:28 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.24 2001-10-15 11:01:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	, nmfld(0)
 	, ioobj(0)
 {
-    finalising.notify( mCB(this,uiIOObjSelDlg,selChg) );
+    finaliseStart.notify( mCB(this,uiIOObjSelDlg,selChg) );
 
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
