@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.24 2004-05-04 12:32:26 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.25 2004-06-02 12:25:44 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -39,21 +39,12 @@ visBase::RandomTrack::RandomTrack()
     : VisualObjectImpl(false)
     , dragger(0)
     , draggerswitch(0)
-    , eventcatcher(visBase::EventCatcher::create())
     , depthrg(0,1)
     , knotmovement(this)
     , knotnrchange(this)
-    , rightclick(this)
     , sectionidx(-1)
     , selknotpos(0,0)
 {
-    eventcatcher->ref();
-    eventcatcher->setEventType(visBase::MouseClick);
-    eventcatcher->eventhappened.notify(
-		            mCB(this,visBase::RandomTrack,eventCB) );
-
-    addChild( eventcatcher->getInventorNode() );
-
     SoShapeHints* hints = new SoShapeHints;
     hints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
     hints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
@@ -72,8 +63,6 @@ visBase::RandomTrack::~RandomTrack()
 	removeChild( sections[idx]->getInventorNode() );
 	sections[idx]->unRef();
     }
-
-    eventcatcher->unRef();
 }
 
 
@@ -527,23 +516,14 @@ int visBase::RandomTrack::usePar( const IOPar& par )
 }
 
 
-void visBase::RandomTrack::eventCB(CallBacker* cb)
+void visBase::RandomTrack::triggerRightClick(const TypeSet<int>* path)
 {
-    if ( eventcatcher->isEventHandled() ) return;
-    if ( !isDraggerShown() ) return;
-
-     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
-
-     if ( eventinfo.type != visBase::MouseClick ) return;
-     if ( eventinfo.mousebutton != 1 ) return; // only accept right-click
-     if ( eventinfo.pressed ) return; // only do stuff on mouse release
-
      sectionidx = -1;
-     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+     for ( int idx=0; idx<path->size(); idx++ )
      {
 	 for ( int idy=0; idy<sections.size(); idy++ )
 	 {
-	     if ( eventinfo.pickedobjids[idx]==sections[idy]->id() )
+	     if ( (*path)[idx]==sections[idy]->id() )
 	     {
 		 sectionidx = idy;
 		 break;
@@ -557,9 +537,5 @@ void visBase::RandomTrack::eventCB(CallBacker* cb)
      if ( sectionidx == -1 )
 	 return;
 
-     selknotpos = Coord( dragger->xyzSnap( 0, eventinfo.localpickedpos.x ),
-			 dragger->xyzSnap( 1, eventinfo.localpickedpos.y ) );
-
-     rightclick.trigger();
-     eventcatcher->eventIsHandled();
+     VisualObject::triggerRightClick(path);
 }
