@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.28 2005-03-16 07:35:03 cvsduntao Exp $
+ RCS:           $Id: uitable.cc,v 1.29 2005-03-24 08:13:25 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -804,7 +804,7 @@ int   uiTable::currentRow()
 
 int   uiTable::currentCol()
 {
-    return body_->currentRow();
+    return body_->currentColumn();
 }
 
 
