@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.26 2004-07-08 09:58:10 dgb Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.27 2004-11-15 11:30:12 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -249,7 +249,7 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	switch ( section )
 	{
 	case 'C':
-	    if ( mIsKey("depth") && !hasdepthlog )
+	    if ( (mIsKey("dept") || mIsKey("depth")) && !hasdepthlog )
 		hasdepthlog = true;
 	    else
 	    {
