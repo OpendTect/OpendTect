@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.15 2002-03-18 14:17:21 kristofer Exp $
+ RCS:		$Id: iopar.h,v 1.16 2002-12-10 11:32:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,8 @@ public:
 	    			double sc, bool set_undef_if_not_found) const;
     bool		get(const char*,int&,int&,int&) const;
     bool		getYN(const char*,bool&,char c=0) const;
+    inline bool		isTrue( const char* key, char c=0 ) const
+			{ bool b = false; return getYN(key,b,c) && b; }
 
     void		set(const char*,const char*);
     void		set(const char*,int);
