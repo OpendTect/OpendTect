@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.6 2002-03-18 14:59:48 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.7 2002-04-26 08:13:28 kristofer Exp $";
 
 #include "viscube.h"
 #include "geompos.h"
@@ -71,11 +71,14 @@ int visBase::Cube::usePar( const IOPar& iopar )
     if ( res != 1 ) return res;
 
     Geometry::Pos pos;
-    if ( iopar.get( centerposstr, pos.x, pos.y, pos.z ) )
-	setCenterPos( pos );
+    if ( !iopar.get( centerposstr, pos.x, pos.y, pos.z ) )
+	return -1;
 
-    if ( iopar.get( widthstr, pos.x, pos.y, pos.z ) )
-	setWidth( pos );
+    if ( !iopar.get( widthstr, pos.x, pos.y, pos.z ) )
+	return -1;
+
+    setCenterPos( pos );
+    setWidth( pos );
 
     return 1;
 }
