@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994; 20-10-1995
  Contents:	Enum <--> string conversion and generalized reference
- RCS:		$Id: enums.h,v 1.3 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: enums.h,v 1.4 2002-03-05 07:37:14 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,11 +113,14 @@ const char* MyClass::TypeNames[] =
 
 #ifndef __cpp__
     int getEnum(const char*,char** namearr,int startnr,int nr_chars_to_match);
+    int getEnumDef(const char*,char** namearr,int startnr,int nr_chars_to_match,
+	    	   int notfoundval );
 #else
 
 #include <uidobj.h>
 
 extern "C" { int getEnum(const char*,const char**,int,int); }
+extern "C" { int getEnumDef(const char*,const char**,int,int,int); }
 
 
 /*\brief holds data pertinent for a certain enum */
