@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.2 2004-04-13 08:12:43 nanne Exp $
+ RCS:           $Id: uiwizard.cc,v 1.3 2004-04-28 12:41:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ uiWizard::uiWizard( uiParent* p, uiDialog::Setup& s_ )
 
 void uiWizard::doFinalise( CallBacker* )
 {
+    setCurrentPage( firstPage() );
     handleButtonText();
 }
 
@@ -39,7 +40,6 @@ int uiWizard::addPage( uiGroup* page, bool display )
 {
     if ( !page ) return -1;
 
-    page->display( !pages.size() );
     pages += page;
     dodisplay += display;
     return pages.size()-1;
