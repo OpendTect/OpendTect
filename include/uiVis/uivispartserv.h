@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.65 2002-11-15 16:08:58 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.66 2002-11-20 13:41:18 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ class WellDisplay;
 class SurfaceDisplay;
 class PlaneDataDisplay;
 class VolumeDisplay;
+class SurfaceInterpreterDisplay;
 };
 
 namespace visBase
@@ -50,6 +51,7 @@ namespace visBase
 };
 
 namespace Threads { class Mutex; };
+namespace Geometry { class GridSurface; };
 
 
 /*! \brief Service provider for application level - Visutes */
@@ -201,6 +203,15 @@ public:
     int			getNrResolutions(int) const;
     BufferString	getResolutionText(int,int) const;
 
+			//Interpretation stuff
+    void		showSurfTrackerCube(bool yn, int sceneid=-1);
+    bool		isSurfTrackerCubeShown(int sceneid=-1) const;
+    int			getSurfTrackerCube(bool create=false);
+    CubeSampling	surfTrackerCubeSampling();
+
+    int			addSurfTracker( Geometry::GridSurface& );
+    int			removeSurfTracker( int surf ) {}
+
 			//ColorSeqs
     bool		canSetColorSeq(int) const;
     void		modifyColorSeq(int, const ColorTable&);
@@ -259,6 +270,9 @@ protected:
     ObjectSet<visSurvey::SurfaceDisplay>       	surfaces;
     ObjectSet<visSurvey::Scene>         	scenes;
     ObjectSet<visSurvey::VolumeDisplay>		volumes;
+    visSurvey::SurfaceInterpreterDisplay*	surftracker;
+    
+    
 
     static const char*	appvelstr;
 };

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.102 2002-11-15 16:08:42 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.103 2002-11-20 13:41:21 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 #include "vissurvwell.h"
 #include "vissurvsurf.h"
+#include "vissurvinterpret.h"
 #include "vissurvhorizon.h"
 #include "visplanedatadisplay.h"
 #include "visvolumedisplay.h"
@@ -71,6 +72,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , cbobjid(-1)
     , eventmutex(*new Threads::Mutex)
     , mouseposval( mUndefValue )
+    , surftracker( 0 )
 {
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -91,6 +93,12 @@ uiVisPartServer::~uiVisPartServer()
 
 bool uiVisPartServer::deleteAllObjects()
 {
+    if ( surftracker )
+    {
+	surftracker->unRef();
+	surftracker = 0;
+    }
+
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	scenes[idx]->mouseposchange.remove(
@@ -1259,6 +1267,81 @@ BufferString uiVisPartServer::getResolutionText( int id, int res ) const
     if ( sd ) return sd->getResName( res );
 
     return "";
+}
+
+
+void  uiVisPartServer::showSurfTrackerCube(bool yn, int sceneid)
+{
+    if ( sceneid==-1 ) sceneid=selsceneid;
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj);
+
+    if ( getSurfTrackerCube(yn) < 0 ) return;
+
+    if ( yn )
+    {
+	if ( scene->getFirstIdx(surftracker) == -1 )
+	    scene->addInlCrlTObject( surftracker );
+	return;
+    }
+    else
+    {
+	const int idx = scene->getFirstIdx(surftracker);
+	if ( idx != -1 )
+	{
+	    scene->removeObject(idx);
+	}
+    }
+}
+
+
+bool uiVisPartServer::isSurfTrackerCubeShown( int sceneid ) const
+{
+    if ( sceneid==-1 ) sceneid=selsceneid;
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj);
+
+    return surftracker && scene->getFirstIdx(surftracker)>-1;
+}
+
+
+int uiVisPartServer::getSurfTrackerCube( bool create )
+{
+    if ( surftracker ) return surftracker->id();
+    if ( !create ) return -1;
+
+    surftracker = visSurvey::SurfaceInterpreterDisplay::create();
+    surftracker->ref();
+    return surftracker->id();
+}
+
+
+CubeSampling uiVisPartServer::surfTrackerCubeSampling()
+{
+    getSurfTrackerCube(true);
+
+    Interval<int> inlrg = surftracker->inlRg();
+    Interval<int> crlrg = surftracker->crlRg();
+    Interval<float> zrg = surftracker->zRg();
+
+    CubeSampling res;
+    res.hrg.start = BinID( inlrg.start, crlrg.start );
+    res.hrg.stop = BinID( inlrg.stop, crlrg.stop );
+    res.zrg.start = zrg.start;
+    res.zrg.stop = zrg.stop;
+
+    return res;
+}
+
+
+int uiVisPartServer::addSurfTracker( Geometry::GridSurface& surf )
+{
+    visBase::DataObject* dobj =
+			visBase::DM().getObj( getSurfTrackerCube( false ) );
+    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,interpreter,dobj)
+    if ( !interpreter ) return -1;
+
+    return interpreter->addSurface( surf );
 }
 
 
