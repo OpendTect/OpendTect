@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.6 2004-03-01 14:37:47 nanne Exp $
+ RCS:           $Id: uiwellman.h,v 1.7 2004-04-29 16:41:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,6 @@ class uiWellMan : public uiDialog
 public:
     				uiWellMan(uiParent*);
 				~uiWellMan();
-
-    Notifier<uiWellMan>		markerschanged;
 
 protected:
 

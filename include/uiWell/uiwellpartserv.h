@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.9 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.10 2004-04-29 16:41:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,11 +35,9 @@ public:
     void			selectLogs(const MultiID&,int&,int&);
 
     static const char*		unitstr;
-    static const int		evRefreshMarkers;
 
 protected:
 
-    void			refreshMarkers(CallBacker*);
 };
 
 /*!\mainpage Well User Interface

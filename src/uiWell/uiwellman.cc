@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.16 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.17 2004-04-29 16:41:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,6 @@ uiWellMan::uiWellMan( uiParent* p )
 				 "Manage wells",
 				 "107.1.0").nrstatusflds(1))
     , ctio(*mMkCtxtIOObj(Well))
-    , markerschanged(this)
     , welldata(0)
     , wellrdr(0)
     , fname("")
@@ -175,18 +174,25 @@ void uiWellMan::addMarkers( CallBacker* )
     if ( SI().zIsTime() && !wellrdr->getD2T() )
 	mErrRet( "Cannot add markers without depth to time model" );
 
-    if ( !welldata->markers().size() )
-	wellrdr->getMarkers();
+    Well::Data* wd;
+    if ( Well::MGR().isLoaded( ctio.ioobj->key() ) )
+	wd = Well::MGR().get( ctio.ioobj->key() );
+    else
+    {
+	if ( !welldata->markers().size() )
+	    wellrdr->getMarkers();
+	wd = welldata;
+    }
+
+
     uiMarkerDlg dlg( this );
-    dlg.setMarkerSet( welldata->markers() );
+    dlg.setMarkerSet( wd->markers() );
     if ( !dlg.go() ) return;
 
-    dlg.getMarkerSet( welldata->markers() );
-    Well::Writer wtr( fname, *welldata );
+    dlg.getMarkerSet( wd->markers() );
+    Well::Writer wtr( fname, *wd );
     wtr.putMarkers();
-    const MultiID& key = ctio.ioobj->key();
-    Well::MGR().reload( key );
-    markerschanged.trigger();
+    wd->markerschanged.trigger();
 }
 
 

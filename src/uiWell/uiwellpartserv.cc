@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.11 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.12 2004-04-29 16:41:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,6 @@ ________________________________________________________________________
 
 
 const char* uiWellPartServer::unitstr = "Show depth in feet";
-
-const int uiWellPartServer::evRefreshMarkers = 	0;
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )
@@ -78,12 +76,5 @@ void uiWellPartServer::selectLogs( const MultiID& wellid, int& selidx,
 void uiWellPartServer::manageWells()
 {
     uiWellMan dlg( appserv().parent() );
-    dlg.markerschanged.notify( mCB(this,uiWellPartServer,refreshMarkers) );
     dlg.go();
-}
-
-
-void uiWellPartServer::refreshMarkers( CallBacker* )
-{
-    sendEvent( evRefreshMarkers );
 }
