@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.27 2004-10-15 15:31:59 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.28 2004-11-09 10:22:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,22 +31,20 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseisioobjinfo.h"
 #include "keystrs.h"
-#include "survinfo.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
+#include "ptrman.h"
 
 #include <math.h>
 
 
 uiMergeSeis::uiMergeSeis( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Seismic file merging",
-				     "Specify input/output seismics",
-				     "103.1.2"))
-	, ctio(*mMkCtxtIOObj(SeisTrc))
-	, req(0)
-	, inpsz(0)
-	, rev(false)
-	, proc(0)
+    : uiDialog(p,uiDialog::Setup("Seismic file merging",
+				 "Specify input/output seismics",
+				 "103.1.2"))
+    , ctio(*mMkCtxtIOObj(SeisTrc))
+    , inpsz(0)
+    , rev(false)
 {
     IOM().to( ctio.ctxt.stdSelKey() );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
@@ -82,8 +80,10 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 
 uiMergeSeis::~uiMergeSeis()
 {
-    delete proc;
     delete ctio.ioobj; delete &ctio;
+    deepErase( ioobjids );
+    deepErase( selobjs );
+    deepErase( seliops );
 }
 
 
@@ -111,7 +111,8 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 	return false;
 
     const char* txt = "File merger";
-    proc = new SeisSingleTraceProc( selobjs, ctio.ioobj, txt, &seliops );
+    PtrMan<SeisSingleTraceProc> proc = 
+		new SeisSingleTraceProc( selobjs, ctio.ioobj, txt, &seliops );
     proc->setTotalNrIfUnknown( spi.expectednrtrcs );
     uiExecutor dlg( this, *proc );
     dlg.go();

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uimergeseis.h,v 1.6 2004-07-01 15:14:43 bert Exp $
+ RCS:           $Id: uimergeseis.h,v 1.7 2004-11-09 10:23:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,6 @@ protected:
     ObjectSet<MultiID>	ioobjids;
     ObjectSet<IOObj>	selobjs;
     ObjectSet<IOPar>	seliops;
-    SeisRequester*	req;
-    SeisSingleTraceProc* proc;
     CtxtIOObj&		ctio;
     int			inpsz;
     bool		rev;
