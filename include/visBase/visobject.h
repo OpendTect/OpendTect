@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.32 2004-08-19 15:35:41 nanne Exp $
+ RCS:		$Id: visobject.h,v 1.33 2004-09-14 12:17:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,8 @@ public:
 
     virtual void		setMaterial( Material* )		= 0;
     virtual Material*		getMaterial()				= 0;
+
+    virtual void		setSceneEventCatcher( EventCatcher* )	{}
 
     void			setSelectable(bool yn)	{ isselectable=yn; }
     bool			selectable() const 	{ return isselectable; }
@@ -101,11 +103,11 @@ protected:
     SoSwitch*		onoff;
     Material*		material;
 
-private:
-    SoSeparator*	root;
-
     static const char*	materialidstr;
     static const char*	isonstr;
+
+private:
+    SoSeparator*	root;
 
 };
 
