@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.56 2004-07-14 15:33:53 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.57 2004-07-19 11:25:27 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -1572,7 +1572,7 @@ Executor* EM::Surface::saver( const EM::SurfaceIODataSelection* newsel,
 	if ( !conn ) return 0;
 
 	BufferString fnm;
-	int dataidx = sel.selvalues.size() ? sel.selvalues[0] : 0;
+	int dataidx = sel.selvalues.size() ? sel.selvalues[0] : -1;
 	if ( dataidx >=0 )
 	{
 	    fnm = EM::dgbSurfDataWriter::createHovName( conn->fileName(),
