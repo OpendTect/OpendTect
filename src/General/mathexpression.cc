@@ -679,8 +679,8 @@ MathExpression* MathExpression::parse( const char* input )
 	}
 
 	MathExpression* res = max
-	    ? new MathExpressionMax( inputs.size() ) 
-	    : new MathExpressionMin( inputs.size() );
+	    ? (MathExpression*) new MathExpressionMax( inputs.size() ) 
+	    : (MathExpression*) new MathExpressionMin( inputs.size() );
 
 	for ( int idx=0; idx<inputs.size(); idx++ )
 	    res->setInput( idx, inputs[idx] );
