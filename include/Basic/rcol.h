@@ -1,5 +1,5 @@
-#ifndef rcol_H
-#define rcol_H
+#ifndef rcol_h
+#define rcol_h
 
 /*+
 ________________________________________________________________________
@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.2 2004-09-21 13:00:24 kristofer Exp $
+ RCS:		$Id: rcol.h,v 1.3 2004-09-22 10:41:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 /*!\brief Object with row and col, which are accesable through r() and c(). */
+
+#include "gendefs.h"
 
 template <class T> class TypeSet;
 
