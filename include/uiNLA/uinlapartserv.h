@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.9 2004-07-16 15:35:25 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.10 2004-10-19 10:59:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ public:
     			//!< use misclass analysis FS; user wants it.
     static const int	evCreateAttrSet;
     			//!< create attributeset from GDI NN
+    static const int	evIs2D;
+    			//!< find out if we are working 2D
 
     			// Following should be filled on events
     BufferStringSet&	inputNames()			{ return inpnms; }
