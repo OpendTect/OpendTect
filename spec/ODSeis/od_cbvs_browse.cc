@@ -7,7 +7,7 @@
 #include "filegen.h"
 #include "datachar.h"
 #include "strmprov.h"
-#include <iostream.h>
+#include <iostream>
 #include <math.h>
 #include <ctype.h>
 
