@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.5 2001-08-30 12:58:54 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.6 2001-09-13 12:55:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ uiMain::uiMain( int argc, char **argv )
 }
 
 uiMain::uiMain( QApplication* app_  )
+: mainobj( 0 )
 {
     app = app_;
 }
