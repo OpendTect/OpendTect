@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.8 2005-01-14 15:57:08 dgb Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.9 2005-01-14 16:22:24 dgb Exp $";
 
 
 #include "winutils.h"
@@ -107,14 +107,15 @@ const char* getCleanWinPath( const char* path )
     if ( isabs && !drivesep ) 
     {
 #ifdef __win__
-	ret = getCygDir();
-#else
+	if ( getCygDir() )
+	    ret = getCygDir();
+	else
+#endif
 	if ( getenv("CYGWIN_DIR") ) // anyone got a better idea?
 	    ret = getenv("CYGWIN_DIR");
 	else
 	    ret = "c:\\cygwin";
-#endif
-// TODO: strip trailing '/' or '\'
+
 	ret += ptr;
     }
 
