@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.10 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: iodir.h,v 1.11 2004-01-08 15:30:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ private:
     static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
     static IOObj*	doRead(const char*,IODir*,int id=-1);
     bool		build();
+    bool		wrOmf(const char*) const;
 
     MultiID		newKey() const;
 
