@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.17 2001-11-30 16:32:48 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.18 2002-04-23 13:13:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ public:
 			// Some standard types of files
     static IOPar&	ixtablehistory;
     static IOPar&	devicehistory;
+    static IOPar&	tmpstoragehistory;
 
 protected:
 

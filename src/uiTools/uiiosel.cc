@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.25 2002-03-26 17:01:23 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.26 2002-04-23 13:13:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,12 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "keystrs.h"
 
-IOPar& uiIOFileSelect::ixtablehistory = *new IOPar("IXTable selection history");
-IOPar& uiIOFileSelect::devicehistory = *new IOPar("Device selection history");
+IOPar& uiIOFileSelect::ixtablehistory =
+			*new IOPar("IXTable selection history");
+IOPar& uiIOFileSelect::devicehistory =
+			*new IOPar("Device selection history");
+IOPar& uiIOFileSelect::tmpstoragehistory =
+			*new IOPar("Temporay storage selection history");
 
 
 uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
@@ -34,7 +38,6 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
 
     inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", true );
     inp_->box()->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
-//    inp_->box()->setPrefWidthInChar( 20 );
 
     selbut_ = new uiPushButton( this, "Select ..." );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );

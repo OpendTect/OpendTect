@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.2 2002-04-22 14:40:36 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.3 2002-04-23 13:13:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,9 @@ ________________________________________________________________________
 class SeisMMJobMan;
 class IOPar;
 class uiLabeledListBox;
+class uiGroup;
 class uiButton;
+class uiIOFileSelect;
 class uiTextEdit;
 
 
@@ -33,14 +35,23 @@ protected:
     uiLabeledListBox*	usedmachfld;
     uiButton*		addbut;
     uiButton*		stopbut;
-    uiButton*		vwlogfld;
+    uiButton*		vwlogbut;
+    uiIOFileSelect*	tmpstordirfld;
     uiTextEdit*		progrfld;
+    uiGroup*		machgrp;
+    bool		running;
+    bool		finished;
 
     bool		rejectOK(CallBacker*);
+    void		doFinalise();
+    void		execFinished();
 
     Executor&		getFirstJM(const char*,const IOPar&);
     void		newJM();
-    void		dispProgress(CallBacker*);
+    void		updateCurMachs();
+    int			getCurMach(BufferString&) const;
+
+    void		postStep(CallBacker*);
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);
     void		vwLogPush(CallBacker*);
