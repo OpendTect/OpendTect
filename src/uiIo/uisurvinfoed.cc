@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.65 2004-11-12 15:13:28 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.66 2004-12-23 10:33:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -410,11 +410,13 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 }
 
 
+#define mUseAdvanced() (overrule->isChecked() && !coordset->getBoolValue())
+
 bool uiSurveyInfoEditor::appButPushed()
 {
     if ( !setRanges() ) return false;
 
-    if ( !overrule->isChecked() || coordset->getBoolValue() )
+    if ( !mUseAdvanced() )
     {
 	if ( !setCoords() ) return false;
 
@@ -479,6 +481,9 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     if ( !appButPushed() )
 	return false;
+    else if ( mUseAdvanced() )
+	survinfo->get3Pts( survinfo->set3coords, survinfo->set3binids,
+			   survinfo->set3binids[2].crl );
 
     BufferString newstorepath = pathfld->text();
 
