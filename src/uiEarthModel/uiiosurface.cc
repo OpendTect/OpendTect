@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.3 2003-08-01 15:48:04 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.4 2003-08-04 13:24:08 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ void uiIOSurface::fillPatchFld( ObjectSet<BufferString> patches )
     for ( int idx=0; idx<patches.size(); idx++ )
 	patchfld->box()->addItem( patches[idx]->buf() );
     patchfld->box()->selAll( true );
+    patchfld->display( patches.size() > 1 );
 }
 
 
