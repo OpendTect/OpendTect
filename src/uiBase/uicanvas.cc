@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.4 2001-05-16 14:57:17 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.5 2001-08-22 10:47:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,7 +168,7 @@ void uiScrollView::setContentsPos ( uiPoint topLeft )
 
 uiRect uiScrollView::visibleArea() const
 {
-    QSize vpSize = mQtThing()->viewport()->size();
+    QSize vpSize = mQtThing()->clipper()->size();
     uiPoint tl( mQtThing()->contentsX(), mQtThing()->contentsY() );
 
     return uiRect( tl.x(), tl.y(), 
