@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.25 2004-10-22 15:46:54 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.26 2004-11-11 13:04:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,13 +25,14 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiSeisSubSel::uiSeisSubSel( uiParent* p, bool for_new_entry )
+uiSeisSubSel::uiSeisSubSel( uiParent* p, bool for_new_entry, bool wstep )
     	: uiGroup(p,"Gen seis subsel")
 	, is2d_(false)
 {
     sel2d = new uiSeis2DSubSel( this, for_new_entry );
     sel3d = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
-				     .withtable(false).withz(true) );
+				     .withtable(false).withz(true)
+				     .withstep(wstep) );
     sel3d->attach( alignedWith, sel2d );
 
     setHAlignObj( sel2d );
