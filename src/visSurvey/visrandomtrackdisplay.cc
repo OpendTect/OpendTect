@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.9 2003-02-19 16:10:39 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.10 2003-02-25 16:15:28 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@
 
 #include <math.h>
 
+
+const char* visSurvey::RandomTrackDisplay::trackstr = "Random track";
 
 mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
 
@@ -87,6 +89,7 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
 
 visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
 {
+    track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
     track->unRef();
     texturematerial->unRef();
 }
@@ -101,7 +104,10 @@ const AttribSelSpec& visSurvey::RandomTrackDisplay::getAttribSelSpec() const
 
 
 void visSurvey::RandomTrackDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
-{ as = as_; }
+{
+    as = as_;
+    setName( as.userRef() );
+}
 
 
 void visSurvey::RandomTrackDisplay::setDepthInterval( 
@@ -232,6 +238,15 @@ bool visSurvey::RandomTrackDisplay::putNewData(const ObjectSet<SeisTrc>& trcset)
     const int nrtrcs = trcset.size();
     if ( !nrtrcs ) return false;
     
+    setData( trcset );
+    deepErase( cache );
+    cache = trcset;
+    return true;
+}
+
+
+void visSurvey::RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset )
+{
     const Interval<float> zrg = getManipDepthInterval();
     const float step = trcset[0]->info().sampling.step;
     const int nrsamp = mNINT( zrg.width() / step ) + 1;
@@ -259,7 +274,6 @@ bool visSurvey::RandomTrackDisplay::putNewData(const ObjectSet<SeisTrc>& trcset)
 	track->setData( snr, arr );
     }
 
-    return true;
 }
 
 
@@ -329,6 +343,19 @@ void visSurvey::RandomTrackDisplay::checkPosition( BinID& binid )
 }
 
 
+void visSurvey::RandomTrackDisplay::setResolution( int res )
+{
+    track->setResolution( res );
+    if ( cache.size() ) setData( cache );
+}
+
+
+int visSurvey::RandomTrackDisplay::getResolution() const
+{
+    return track->getResolution();
+}
+
+
 void visSurvey::RandomTrackDisplay::setMaterial( visBase::Material* nm)
 { track->setMaterial(nm); }
 
@@ -349,13 +376,36 @@ void visSurvey::RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids )
 									   const
 {
     visBase::VisualObject::fillPar( par, saveids );
+
+    int trackid = track->id();
+    par.set( trackstr, trackid );
+
+    if ( saveids.indexOf(trackid) == -1 ) saveids += trackid;
+
+    as.fillPar(par);
 }
 
 
 int visSurvey::RandomTrackDisplay::usePar( const IOPar& par )
 {
     int res =  visBase::VisualObject::usePar( par );
-    if ( res!=1 ) return res;
+    if ( res != 1 ) return res;
 
+    int trackid;
+    if ( !par.get( trackstr, trackid ) ) return -1;
+
+    visBase::DataObject* dataobj = visBase::DM().getObj( trackid );
+    if ( !dataobj ) return 0;
+
+    mDynamicCastGet(visBase::RandomTrack*,rt,dataobj);
+    if ( !rt ) return -1;
+
+    track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
+    track->unRef();
+    track = rt;
+    track->ref();
+    track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
+
+    if ( !as.usePar( par ) ) return -1;
     return 1;
 }

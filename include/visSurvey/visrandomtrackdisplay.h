@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.6 2003-02-19 16:10:46 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.7 2003-02-25 16:15:34 nanne Exp $
 ________________________________________________________________________
 
 
@@ -79,6 +79,9 @@ public:
     const visBase::Material*    getMaterial() const;
     visBase::Material*          getMaterial();
 
+    void			setResolution(int);
+    int				getResolution() const;
+
     Notifier<RandomTrackDisplay> knotmoving;
     void			knotMoved(CallBacker*);
     int				getSelKnotIdx() const	{ return selknotidx; }
@@ -96,10 +99,14 @@ protected:
     AttribSelSpec&		as;
     int				selknotidx;
 
+    void			setData(const ObjectSet<SeisTrc>&);
     const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&);
     void			checkPosition(BinID&);
 
     ObjectSet< TypeSet<BinID> > bidsset;
+    ObjectSet<SeisTrc>		cache;
+
+    static const char*		trackstr;
 };
 
 };
