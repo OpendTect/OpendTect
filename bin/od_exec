@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.32 2004-09-22 13:19:46 arend Exp $
+# $Id: od_exec,v 1.33 2004-10-21 11:42:04 arend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -85,9 +85,16 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 	endif
 
 	set xtermpath=`which xterm` >&! /dev/null
-	if ( $status != 0 ) then
+	set result=$status
+
+	if ( ! -x $xtermpath ) set result=1
+	
+	if ( $result != 0 ) then
 	    set xtermpath=/usr/bin/X11/xterm
-	    if ( $HDIR == sun5 ) set xtermpath=/usr/openwin/bin/xterm
+	    if ( $HDIR == sun5 ) then
+	        set xtermpath=/usr/openwin/bin/xterm
+		if ( ! -x $xtermpath ) set xtermpath=/usr/bin/xterm
+	    endif
 	    if ( $HDIR == mac ) set xtermpath="$DTECT_APPL/bin/mac_term"
 	endif
 
