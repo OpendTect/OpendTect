@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.2 2005-01-10 15:36:02 kristofer Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.3 2005-01-17 08:02:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,8 @@ public:
     void		setEditor( MPE::ObjectEditor* );
     void		setSceneEventCatcher( visBase::EventCatcher* );
 
-    void		setDisplayTransformation( visBase::Transformation* );
-    visBase::Transformation* getDisplayTransformation() {return transformation;}
+    void		setDisplayTransformation( mVisTrans* );
+    mVisTrans*		getDisplayTransformation() {return transformation;}
 
     const ObjectSet<visBase::Marker>&	markerNodes() const { return markers; }
     EM::PosID				markerId(const visBase::Marker*) const;
@@ -61,12 +61,14 @@ public:
 
 protected:
     				~MPEEditor();
-    void			changeNodes( CallBacker* );
+    void			changeNumNodes( CallBacker* );
+    void			nodeMovement( CallBacker* );
     void			clickCB( CallBacker* );
     void			dragStart( CallBacker* );
     void			dragMotion( CallBacker* );
     void			dragStop( CallBacker* );
     void			updateDraggers();
+    void			updateNodePos(int, const Coord3& );
 
     int				issettingpos;
     Geometry::ElementEditor*	geeditor;

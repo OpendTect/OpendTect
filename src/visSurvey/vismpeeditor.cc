@@ -4,13 +4,14 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.3 2005-01-11 08:51:40 kristofer Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.4 2005-01-17 08:02:42 kristofer Exp $";
 
 #include "vismpeeditor.h"
 
 #include "errh.h"
 #include "geeditor.h"
 #include "emeditor.h"
+#include "emobject.h"
 #include "vismarker.h"
 #include "visdragger.h"
 #include "visevent.h"
@@ -32,18 +33,15 @@ MPEEditor::MPEEditor()
     , transformation( 0 )
     , activenode( -1, -1, -1 )
     , issettingpos( 0 )
-{}
+{ }
 
 
 MPEEditor::~MPEEditor()
 {
-    if ( geeditor )
-    {
-	CallBack cb( mCB(this,MPEEditor,changeNodes) );
-	geeditor->getElement().movementnotifier.remove( cb );
-	geeditor->editpositionchange.remove( cb );
-	geeditor = 0;
-    }
+    setEditor( (Geometry::ElementEditor*) 0 );
+    setEditor( (MPE::ObjectEditor*) 0 );
+    setSceneEventCatcher( 0 );
+    setDisplayTransformation( 0 );
 
     if ( translationdragger )
     {
@@ -54,43 +52,53 @@ MPEEditor::~MPEEditor()
 	translationdragger = 0;
     }
 
-    for ( int idx=0; idx<markers.size(); idx++ )
-    {
-	removeChild(markers[idx]->getInventorNode() );
-	markers[idx]->unRef();
-    }
-
-    markers.erase();
-
-    setSceneEventCatcher( 0 );
-    setDisplayTransformation( 0 );
 }
-
 
 
 void MPEEditor::setEditor( Geometry::ElementEditor* ge )
 {
-    CallBack cb( mCB(this,MPEEditor,changeNodes) );
+    if ( ge ) setEditor( (MPE::ObjectEditor*) 0 );
+    CallBack movementcb( mCB(this,MPEEditor,nodeMovement) );
+    CallBack numnodescb( mCB(this,MPEEditor,changeNumNodes) );
     if ( geeditor )
     {
-	geeditor->getElement().movementnotifier.remove( cb );
-	geeditor->editpositionchange.remove( cb );
-    }
+	geeditor->getElement().movementnotifier.remove( movementcb );
+	geeditor->editpositionchange.remove( numnodescb );
+	}
 
     geeditor = ge;
 
     if ( geeditor )
     {
-	geeditor->getElement().movementnotifier.notify( cb );
-	geeditor->editpositionchange.notify( cb );
-	changeNodes(0);
+	geeditor->getElement().movementnotifier.notify( movementcb );
+	geeditor->editpositionchange.notify( numnodescb );
+	changeNumNodes(0);
     }
 }
 
 
 void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 {
-    pErrMsg("Not implemented");
+    if ( eme ) setEditor( (Geometry::ElementEditor*) 0 );
+    CallBack movementcb( mCB(this,MPEEditor,nodeMovement) );
+    CallBack numnodescb( mCB(this,MPEEditor,changeNumNodes) );
+
+    if ( emeditor )
+    {
+	const_cast<EM::EMObject&>(emeditor->emObject()).
+	    notifier.remove( movementcb );
+	emeditor->editpositionchange.remove( numnodescb );
+    }
+
+    emeditor = eme;
+
+    if ( emeditor )
+    {
+	const_cast<EM::EMObject&>(emeditor->emObject()).
+	    notifier.notify( movementcb );
+	emeditor->editpositionchange.notify( numnodescb );
+	changeNumNodes(0);
+    }
 }
 
 
@@ -129,7 +137,9 @@ void MPEEditor::setDisplayTransformation( visBase::Transformation* nt )
 	transformation->ref();
 
     for ( int idx=0; idx<markers.size(); idx++ )
+    {
 	markers[idx]->setDisplayTransformation( transformation );
+    }
 
     if ( translationdragger )
 	translationdragger->setDisplayTransformation( transformation );
@@ -154,7 +164,7 @@ EM::PosID MPEEditor::getNodePosID(int visid) const
 }
 
 
-void MPEEditor::changeNodes(CallBacker*)
+void MPEEditor::changeNumNodes(CallBacker*)
 {
     if ( emeditor )
 	emeditor->getEditIDs( posids );
@@ -169,58 +179,98 @@ void MPEEditor::changeNodes(CallBacker*)
     else
     {
 	posids.erase();
-	return;
     }
 
-    for ( int idx=0; idx<posids.size(); idx++ )
+    while ( posids.size()>markers.size() )
     {
-	const Coord3 pos = emeditor
-	    ? emeditor->getPosition( posids[idx] )
-	    : geeditor->getPosition( posids[idx].subID() );
-
-	visBase::Marker* node = 0;
-	if ( idx>=markers.size() )
-	{
-	    markers += node = visBase::Marker::create();
-	    node->setSelectable(false);
-	    node->ref();
-	    addChild( node->getInventorNode() );
-	    node->setDisplayTransformation( transformation );
-	    node->setMaterial( 0 );
-	}
-
-	node = markers[idx];
-	node->setCenterPos( pos );
-
-	if ( posids[idx] == activenode )
-	{
-	    if ( !issettingpos )
-	    {
-		translationdragger->setPos( pos );
-		node->turnOn(false);
-	    }
-	}
-	else
-	{
-	    node->turnOn(true);
-	}
+	visBase::Marker* node = visBase::Marker::create();
+	node->setSelectable(false);
+	node->ref();
+	addChild( node->getInventorNode() );
+	node->setDisplayTransformation( transformation );
+	node->setMaterial( 0 );
+	markers += node;
     }
-
+	
     while ( posids.size()<markers.size() )
     {
 	removeChild(markers[posids.size()]->getInventorNode() );
 	markers[posids.size()]->unRef();
 	markers.remove(posids.size());
     }
+
+    if ( !emeditor && !geeditor )
+	return;
+
+    for ( int idx=0; idx<posids.size(); idx++ )
+    {
+        updateNodePos( idx, emeditor
+	    ? emeditor->getPosition( posids[idx] )
+	    : geeditor->getPosition( posids[idx].subID()) );
+    }
+
 }
 
 
+void MPEEditor::nodeMovement(CallBacker* cb)
+{
+    if ( emeditor )
+    {
+	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+	if ( cbdata.event!=EM::EMObjectCallbackData::PositionChange )
+	    return;
+
+	const int idx = posids.indexOf( cbdata.pid0 );
+	if ( idx==-1 ) return;
+
+	const Coord3 pos = emeditor->getPosition( cbdata.pid0 );
+	updateNodePos( idx,  emeditor->getPosition(cbdata.pid0) );
+    }
+    else if ( geeditor )
+    {
+	TypeSet<GeomPosID> pids;
+	mCBCapsuleUnpack(const TypeSet<GeomPosID>*,gpids,cb);
+	if ( gpids ) pids = *gpids;
+	else geeditor->getEditIDs( pids );
+
+	for ( int idx=0; idx<pids.size(); idx++ )
+	{
+	    for ( int idy=0; idy<posids.size(); idy++ )
+	    {
+		if ( posids[idy].subID()==pids[idx] )
+		    updateNodePos( idy, geeditor->getPosition(pids[idx]));
+	    }
+	}
+    }
+}
+
+
+void MPEEditor::updateNodePos( int idx, const Coord3& pos )
+{
+    visBase::Marker* node = markers[idx];
+    node->setCenterPos( pos );
+
+    if ( posids[idx] == activenode )
+    {
+	if ( !issettingpos )
+	{
+	    translationdragger->setPos( pos );
+	    node->turnOn(false);
+	}
+    }
+    else
+    {
+	node->turnOn(true);
+    }
+}
+
+	
+
 void MPEEditor::clickCB( CallBacker* cb )
 {
-    if ( eventcatcher->isEventHandled() )
+    if ( eventcatcher->isEventHandled() || !isOn() )
 	return;
 
-    if ( !isOn() ) return;
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
     if ( eventinfo.type!=visBase::MouseClick || eventinfo.mousebutton ||
@@ -284,7 +334,10 @@ void MPEEditor::dragStop( CallBacker* cb )
 void MPEEditor::updateDraggers()
 {
     for ( int idx=0; idx<markers.size(); idx++ )
+    {
+	if ( !markers[idx] ) continue;
 	markers[idx]->turnOn(true);
+    }
 
     if ( activenode==-1 )
     {
