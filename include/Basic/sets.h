@@ -1,23 +1,17 @@
 #ifndef sets_H
 #define sets_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.4 2000-07-28 14:55:33 arend Exp $
+ RCS:		$Id: sets.h,v 1.5 2000-08-04 12:18:28 bert Exp $
 ________________________________________________________________________
 
-The TypeSet is meant for simple types or small objects that have a copy
-constructor. The `-=' function will only remove the first occurrence that
-matches with the `==' operator.
-The ObjectSet does not manage the objects, it is just a collection of
-pointers to the the objects.
-
-@$*/
+-*/
 
 #ifndef gendefs_H
 #include <gendefs.h>

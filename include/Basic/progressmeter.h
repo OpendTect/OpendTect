@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.1 2000-03-22 13:40:51 bert Exp $
+ RCS:           $Id: progressmeter.h,v 1.2 2000-08-04 12:18:27 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -21,15 +21,18 @@ class ProgressMeter
 {
 public:
 			ProgressMeter(ostream&,unsigned long dist=1,
-				      unsigned short rowlen=50);
+				      unsigned short rowlen=50,
+				      bool finishondestruct=true);
+    virtual		~ProgressMeter();
 
     unsigned long	update(unsigned long auxdisp=ULONG_MAX);
     unsigned long	operator++();
     void		reset();
+    void		finish();
 
 protected:
 
-    ostream*		strm;
+    ostream&		strm;
     unsigned short	rowlen;
     short		idist;
     unsigned long	dist;
@@ -37,7 +40,11 @@ protected:
     unsigned long	zeropoint;
     unsigned long	auxnr;
     int 		oldtime; 
+    bool		destrfin;
     bool		inited;
+    bool		finished;
+
+    void		annotate();
 
 }; 
 
