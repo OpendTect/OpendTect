@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.24 2004-04-27 11:59:36 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.25 2004-04-27 12:29:57 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class BinID;
 class SeisTrc;
 class BinID;
 
-namespace visBase { class RandomTrack; class VisColorTab; class Material; 
+namespace visBase { class RandomTrack; class Material; 
 		    class EventCatcher; };
 
 namespace visSurvey
@@ -93,9 +93,7 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setColorTab(visBase::VisColorTab&);
-    visBase::VisColorTab&	getColorTab();
-    const visBase::VisColorTab&	getColorTab() const;
+    int				getColTabID() const;
     const TypeSet<float>*	getHistogram() const;
 
     void                        setMaterial( visBase::Material* );

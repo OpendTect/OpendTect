@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.30 2004-04-27 11:59:32 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.31 2004-04-27 12:29:41 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@
 #include "visrandomtrack.h"
 #include "vistristripset.h"
 #include "vistransform.h"
+#include "viscolortab.h"
 #include "ptrman.h"
 
 #include <math.h>
@@ -401,16 +402,8 @@ bool visSurvey::RandomTrackDisplay::isOn() const
 { return track->isOn(); }
 
 
-void visSurvey::RandomTrackDisplay::setColorTab(visBase::VisColorTab& ctab)
-{ track->setColorTab(ctab); }
-
-
-visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab()
-{ return track->getColorTab(); }
-
-
-const visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab() const
-{ return track->getColorTab(); }
+int visSurvey::RandomTrackDisplay::getColTabID() const
+{ return track->getColorTab().id(); }
 
 
 const TypeSet<float>* visSurvey::RandomTrackDisplay::getHistogram() const
