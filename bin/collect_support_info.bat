@@ -4,11 +4,11 @@
 :: This script collects information on the OpendTect installation setup,
 :: the data area and the system on which it is run.
 ::
-:: CVS: $Id: collect_support_info.bat,v 1.4 2004-12-09 10:20:28 dgb Exp $
+:: CVS: $Id: collect_support_info.bat,v 1.5 2005-01-04 14:48:50 arend Exp $
 ::______________________________________________________________________________
 ::
 
-if %DTECT_WINAPPL%No == No goto nodtectappl
+if "%DTECT_WINAPPL%No" == "No" goto nodtectappl
 
 :: Should be set by installer
 cd %DTECT_WINAPPL%
@@ -91,7 +91,7 @@ echo                       --------- >> "%outfil%"
 
 %CSHCMD% "%DTECT_WINAPPL%\bin\win\collect_support_info.csh" "%outfil%"
 
-unix2dos -q "%outfil%"
+unix2dos "%outfil%"
 
 echo ===========================================================================
 echo Done. Support Info written to:
