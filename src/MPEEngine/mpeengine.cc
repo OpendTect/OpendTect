@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.7 2005-01-18 12:55:54 kristofer Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.8 2005-01-20 08:44:56 kristofer Exp $";
 
 #include "mpeengine.h"
 
@@ -33,16 +33,11 @@ namespace MPE
 
 Engine::Engine()
     : seedpropertychange( this )
-    , activevolume( getDefaultActiveVolume() )
+    , trackplanechange( this )
+    , activevolumechange( this )
 {
+    setActiveVolume( getDefaultActiveVolume() );
     trackers.allowNull(true);
-    const int startinl = SI().inlRange(true).snap(
-	(activevolume.hrg.start.inl+activevolume.hrg.start.crl)/2);
-    const BinID startbid(startinl, activevolume.hrg.start.crl );
-    const BinID stopbid(startinl, activevolume.hrg.stop.crl );
-	    	   
-    trackplane = TrackPlane( startbid, stopbid, activevolume.zrg.start,
-	    		     activevolume.zrg.stop );
 }
 
 
@@ -61,7 +56,33 @@ Engine::~Engine()
 const CubeSampling& Engine::activeVolume() const { return activevolume; }
 
 
-void  Engine::setActiveVolume(const CubeSampling& nav) { activevolume = nav; }
+void  Engine::setActiveVolume(const CubeSampling& nav)
+{
+    activevolume = nav;
+    activevolumechange.trigger();
+
+    int dim = 0;
+    if ( trackplane.boundingBox().hrg.start.crl==
+	 trackplane.boundingBox().hrg.stop.crl )
+	dim = 1;
+    else if ( !trackplane.boundingBox().zrg.width() )
+	dim = 1;
+
+    TrackPlane ntp;
+    CubeSampling& ncs = ntp.boundingBox();
+    ncs = nav;
+
+    if ( !dim )
+	ncs.hrg.start.inl = ncs.hrg.stop.inl =
+	    SI().inlRange(true).snap((ncs.hrg.start.inl+ncs.hrg.stop.inl)/2);
+    else if ( dim==1 )
+	ncs.hrg.start.crl = ncs.hrg.stop.crl =
+	    SI().crlRange(true).snap((ncs.hrg.start.crl+ncs.hrg.stop.crl)/2);
+    else
+	ncs.zrg.start = ncs.zrg.stop = SI().zRange(true).snap(ncs.zrg.center());
+
+    setTrackPlane( ntp, false );
+}
 
 
 const TrackPlane& Engine::trackPlane() const { return trackplane; }
@@ -70,6 +91,7 @@ const TrackPlane& Engine::trackPlane() const { return trackplane; }
 bool  Engine::setTrackPlane(const TrackPlane& ntp, bool dotrack)
 {
     trackplane = ntp;
+    trackplanechange.trigger();
     return dotrack ? trackAtCurrentPlane() : true;
 }
 
