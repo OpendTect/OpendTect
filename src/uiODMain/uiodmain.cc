@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.9 2004-01-09 11:40:52 arend Exp $
+ RCS:           $Id: uiodmain.cc,v 1.10 2004-01-09 11:41:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,6 +135,7 @@ bool uiODMain::ensureGoodDataDir()
 		uiMSG().error( "Please select a directory" );
 		continue;
 	    }
+#ifdef __win__
 	    else if ( !strncasecmp("C:\\Program Files", dirnm, 16) )
 	    {
 		uiMSG().error( 
@@ -147,7 +148,7 @@ bool uiODMain::ensureGoodDataDir()
 		);
 		continue;
 	    }
-
+#endif
 	    BufferString omfnm = File_getFullPath( dirnm, ".omf" );
 	    if ( File_exists(omfnm) ) break;
 
