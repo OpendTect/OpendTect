@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.4 2001-04-05 16:21:35 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.5 2001-04-06 16:38:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ private:
     Interval<int>*	samprgs;
 
     bool		readInfo();
+    void		nextPosIdx();
 
     streampos		lastposfo;
     streampos		datastartfo;
