@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: geeditor.h,v 1.1 2005-01-06 09:44:18 kristofer Exp $
+ RCS:           $Id: geeditor.h,v 1.2 2005-01-14 13:15:22 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,6 @@ public:
 				    editpositions has been removed */
 
 protected:
-    virtual void		elementChangeCB(CallBacker*);
 
     Geometry::Element&	element;
 };

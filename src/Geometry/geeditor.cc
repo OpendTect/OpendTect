@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: geeditor.cc,v 1.1 2005-01-06 09:45:32 kristofer Exp $";
+static const char* rcsID = "$Id: geeditor.cc,v 1.2 2005-01-14 13:15:56 kristofer Exp $";
 
 #include "geeditor.h"
 
@@ -19,17 +19,11 @@ namespace Geometry
 ElementEditor::ElementEditor( Geometry::Element& el )
     : element( el )
     , editpositionchange(this)
-{
-    element.nrpositionnotifier.notify(
-	    mCB(this, ElementEditor, elementChangeCB ) );
-}
+{ }
 
 
 ElementEditor::~ElementEditor()
-{
-    element.nrpositionnotifier.remove(
-	    mCB(this, ElementEditor, elementChangeCB ) );
-}
+{ }
 
 
 void ElementEditor::getEditIDs( TypeSet<GeomPosID>& ids ) const
@@ -84,12 +78,6 @@ Coord3 ElementEditor::getDirection( GeomPosID ) const
 
 bool ElementEditor::setDirection( GeomPosID, const Coord3& )
 { return true; }
-
-
-void ElementEditor::elementChangeCB(CallBacker*)
-{
-    editpositionchange.trigger();
-}
 
 
 
