@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.36 2004-12-10 16:57:41 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.37 2004-12-12 22:36:44 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -596,6 +596,8 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
 	, incnr(inr)
 	, curidx(-1)
 	, totalnr(-1)
+	, lnshandled(0)
+	, ptswritten(0)
 	, zval(z)
 	, incz(!mIsUndefined(z))
 {
@@ -609,22 +611,32 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
     curidx = 0;
     if ( lk && *lk )
     {
-	curidx = ls.indexOf( lk );
-	if ( curidx < 0 )
+	LineKey lnky( lk );
+	attrnm = lnky.attrName();
+	if ( lnky.lineName() != "" )
 	{
-	    curmsg = "Line key not found in line set";
-	    return;
+	    curidx = ls.indexOf( lk );
+	    if ( curidx < 0 )
+	    {
+		curmsg = "Could not find '";
+		if ( attrnm != "" )
+		    { curmsg += attrnm; curmsg += "' for '"; }
+		curmsg += lnky.lineName(); curmsg += "' in line set";
+		return;
+	    }
+	    lastidx = curidx;
 	}
-	lastidx = curidx;
     }
 
+    if ( attrnm == "" )
+	attrnm = LineKey::sKeyDefAttrib;
     totalnr = lastidx - curidx + 1;
     curmsg = "Extracting geometry";
 }
 
 const char* message() const	{ return curmsg.buf(); }
 const char* nrDoneText() const	{ return "Lines handled"; }
-int nrDone() const		{ return curidx; }
+int nrDone() const		{ return lnshandled; }
 int totalNr() const		{ return totalnr; }
 
 int nextStep()
@@ -635,6 +647,19 @@ int nextStep()
     {
 	curmsg = "Cannot write to file";
 	return ErrorOccurred;
+    }
+
+    for ( ; curidx<=lastidx && attrnm!=ls.attribute(curidx); )
+	{ curidx++; totalnr--; }
+
+    if ( curidx > lastidx )
+    {
+	if ( ptswritten == 0 )
+	{
+	    curmsg = "No output created";
+	    return ErrorOccurred;
+	}
+	return Finished;
     }
 
     Line2DGeometry geom;
@@ -648,6 +673,7 @@ int nextStep()
     }
 
     BufferString outstr;
+    const float zfac = SI().zFactor();
     for ( int idx=0; idx<geom.posns.size(); idx++ )
     {
 	const Line2DPos& pos = geom.posns[idx];
@@ -657,8 +683,9 @@ int nextStep()
 	outstr += pos.coord.x; outstr += "\t";
 	outstr += pos.coord.y;
 	if ( incz )
-	    { outstr += "\t"; outstr += zval; }
+	    { outstr += "\t"; outstr += zval * zfac; }
 	strm << outstr << '\n';
+	ptswritten++;
     }
     strm.flush();
 
@@ -668,18 +695,22 @@ int nextStep()
 	return ErrorOccurred;
     }
 
+    lnshandled++;
     curidx++;
     return curidx > lastidx ? Finished : MoreToDo;
 }
 
     const Seis2DLineSet&	ls;
     std::ostream&		strm;
+    BufferString		attrnm;
     const bool			incz;
     const float			zval;
     bool			incnr;
     int				curidx;
     int				lastidx;
     int				totalnr;
+    int				lnshandled;
+    int				ptswritten;
     BufferString		curmsg;
 
 };

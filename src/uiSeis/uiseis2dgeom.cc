@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.2 2004-12-10 16:57:41 bert Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.3 2004-12-12 22:36:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,9 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     incnrfld = new uiGenInput( this, "Start with trace number", BoolInpSpec() );
     incnrfld->attach( alignedBelow, lnmsfld );
 
-    zfld = new uiGenInput( this, "Add Z value",
-	    		   FloatInpSpec(SI().zRange().start) );
+    BufferString txt( "Add Z value" ); txt += SI().getZUnit(true);
+    const float zval = SI().zRange().start * SI().zFactor();
+    zfld = new uiGenInput( this, txt, FloatInpSpec(zval) );
     zfld->setWithCheck( true );
     zfld->attach( alignedBelow, incnrfld );
 
@@ -104,9 +105,13 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         return false;
     }
 
-    const float zval = zfld->isChecked() ? zfld->getfValue() : mUndefValue;
+    float zval = zfld->isChecked() ? zfld->getfValue() : mUndefValue;
+    if ( !mIsUndefined(zval) ) zval /= SI().zFactor();
     const bool incnr = incnrfld->getBoolValue();
-    const char* lk = lnmsfld->isChecked() ? lnmsfld->text() : 0;
+    LineKey lk;
+    if ( lnmsfld->isChecked() )
+	lk.setLineName( lnmsfld->text() );
+    lk.setAttrName( seisfld->attrNm() );
     Seis2DLineSet ls( ctio.ioobj->fullUserExpr(true) );
 
     Executor* dmper = ls.geometryDumper( *sd.ostrm, incnr, zval, lk );
