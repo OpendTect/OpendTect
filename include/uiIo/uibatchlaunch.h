@@ -6,14 +6,19 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.8 2003-10-17 14:19:01 bert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.9 2003-11-06 11:51:40 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-
 #include "uidialog.h"
 #include "bufstringset.h"
+
+#ifndef __win__
+# define MULTI_MACHINE
+# define HAVE_OUTPUT_OPTIONS
+#endif
+
 class IOPar;
 class IOParList;
 class uiGenInput;
@@ -21,7 +26,7 @@ class uiFileInput;
 class uiPushButton;
 class uiLabeledComboBox;
 
-
+#ifdef HAVE_OUTPUT_OPTIONS
 class uiBatchLaunch : public uiDialog
 {
 public:
@@ -53,7 +58,7 @@ protected:
     int			selected();
 
 };
-
+#endif
 
 class uiFullBatchDialog : public uiDialog
 {
@@ -75,14 +80,19 @@ protected:
     			//!< Needs to be called at end of constructor
 
     void		doButPush(CallBacker*);
+
+#ifdef MULTI_MACHINE
     void		singTogg(CallBacker*);
+#endif
 
     bool		singLaunch(const IOParList&,const char*);
     bool		multiLaunch(const char*);
     bool		distrLaunch(CallBacker*,const char*);
     bool		acceptOK(CallBacker*);
 
+#ifdef MULTI_MACHINE
     uiGenInput*		singmachfld;
+#endif
     uiFileInput*	parfnamefld;
 
     bool		redo_; //!< set to true only for re-start

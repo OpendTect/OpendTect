@@ -35,7 +35,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.40 2003-10-28 12:15:22 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.41 2003-11-06 11:51:40 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -82,6 +82,17 @@ bool ExecOSCmd( const char* comm, bool inbg )
 	// Close process and thread handles. 
 	CloseHandle( pi.hProcess );
 	CloseHandle( pi.hThread );
+    }
+    else
+    {
+	char *ptr = NULL;
+	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+	    FORMAT_MESSAGE_FROM_SYSTEM,
+	    0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
+
+	fprintf(stderr, "\nError: %s\n", ptr);
+	LocalFree(ptr);
+
     }
 
     return res;

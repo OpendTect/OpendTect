@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.30 2003-11-05 16:19:50 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.31 2003-11-06 11:51:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ static bool writeProcFile( const IOParList& iopl, const char* tfname )
     return true;
 }
 
+#ifdef HAVE_OUTPUT_OPTIONS
 
 uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 			      const char* hn, const char* pn, bool wp )
@@ -189,22 +190,28 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     }
 
 #ifdef __win__ 
+    const bool inbg=true;
+
     comm += " "; comm += progname;
     comm += " "; comm += parfname;
 #else
+    const bool inbg=dormt;
+
     if ( nicelvl != 0 )
 	{ comm += " --nice "; comm += nicelvl; }
     comm += " "; comm += progname;
     comm += " -bg "; comm += parfname;
 #endif
 
-    if ( !StreamProvider( comm ).executeCommand(dormt) )
+    if ( !StreamProvider( comm ).executeCommand(inbg) )
     {
 	uiMSG().error( "Cannot start batch program" );
 	return false;
     }
     return true;
 }
+
+#endif // HAVE_OUTPUT_OPTIONS
 
 
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* t,
@@ -231,20 +238,26 @@ void uiFullBatchDialog::addStdFields()
 	dogrp->attach( ensureBelow, sep );
     }
 
+#ifdef MULTI_MACHINE
     singmachfld = new uiGenInput( dogrp, "Submit to",
 	    		BoolInpSpec("Single machine","Multiple machines") );
     singmachfld->valuechanged.notify( mCB(this,uiFullBatchDialog,singTogg) );
+#endif
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
     parfnamefld = new uiFileInput( dogrp, txt, uiFileInput::Setup(singparfname)
 					       .forread(false)
 					       .filter("*.par;;*") );
+#ifdef MULTI_MACHINE
     parfnamefld->attach( alignedBelow, singmachfld );
 
     dogrp->setHAlignObj( singmachfld );
+#else
+    dogrp->setHAlignObj( parfnamefld );
+#endif
 }
 
-
+#ifdef MULTI_MACHINE
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
     const BufferString inpfnm = parfnamefld->fileName();
@@ -254,7 +267,7 @@ void uiFullBatchDialog::singTogg( CallBacker* cb )
     else if ( !issing && inpfnm == singparfname )
 	parfnamefld->setFileName( multiparfname );
 }
-
+#endif
 
 bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 {
@@ -265,7 +278,12 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
     else if ( !File_isAbsPath(inpfnm) )
 	getProcFilename( inpfnm, inpfnm );
 
-    const bool issing = singmachfld->getBoolValue();
+    const bool issing = 
+#ifdef MULTI_MACHINE
+			singmachfld->getBoolValue();
+#else
+			true;
+#endif
     IOParList* iopl;
     if ( redo_ )
     {
@@ -296,9 +314,51 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 
 bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 {
+#ifdef HAVE_OUTPUT_OPTIONS
     uiBatchLaunch dlg( this, iopl, 0, procprognm, false );
     dlg.setParFileName( fnm );
     return dlg.go();
+#else
+
+    BufferString fname = "stdout";
+
+    IOPar* iop = const_cast<IOPar*>(iopl.size() ? iopl[0] : 0);
+    if ( iop )
+	iop->set( "Log file", fname );
+
+    BufferString parfname = singparfname;
+    if ( parfname == "" )
+	getProcFilename( sSingBaseNm, parfname );
+    if ( !writeProcFile(iopl,parfname) )
+	return false;
+
+    const bool dormt = false;
+    BufferString comm( "@" );
+    comm += GetExecScript( dormt );
+
+#ifdef __win__ 
+    const bool inbg=true;
+
+    comm += " "; comm += procprognm;
+    comm += " "; comm += parfname;
+#else
+    const bool inbg=dormt;
+
+    if ( nicelvl != 0 )
+	{ comm += " --nice "; comm += nicelvl; }
+    comm += " "; comm += procprognm;
+    comm += " -bg "; comm += parfname;
+#endif
+
+    if ( !StreamProvider( comm ).executeCommand(inbg) )
+    {
+	uiMSG().error( "Cannot start batch program" );
+	return false;
+    }
+    return true;
+
+#endif
+
 }
 
 
