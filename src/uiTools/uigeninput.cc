@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.63 2004-11-26 09:54:11 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.64 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,21 +77,15 @@ public:
 			    return 0;
 			}
 
-    virtual bool	isValid(int idx)
-			{ 
-			    if ( isUndef(idx) ) return false;
-			    if ( !spec_.hasLimits() ) return true;
-			    pErrMsg("Sorry, not implemented..");
-			    return true;
-			} // TODO implement
-
     virtual bool	isUndef(int idx) const
-			{ return !*text(idx); } 
+			{ return isUndefined(text(idx)); } 
 
     const char*		text( int idx ) const
 			{ 
-			    return element(idx) ? element(idx)->text() 
-						: undefVal<const char*>();
+			    const char* ret = element(idx)
+					    ? element(idx)->text() : 0;
+
+			    return ret ? ret : undefVal<const char*>();
 			}
     int			getIntValue( int idx )	const
 			{ 
@@ -355,8 +349,8 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
 			      const char* nm ) 
     : uiInputFld( p, spec )
     , binidGrp( *new uiGroup(p,nm) )
-    , inl_x( *new uiLineEdit(&binidGrp,0,nm,false) )
-    , crl_y( *new uiLineEdit(&binidGrp,0,nm,false) )
+    , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
+    , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
     , ofrmBut( 0 )
     , b2c(0)
     , valueChanged(this)
@@ -433,15 +427,14 @@ protected:
 
     virtual T		getvalue_(int idx) const		
 			    { 
-				return le(idx) ? 
-					  convertTo<T>(le(idx)->text()) 
-					: undefVal<T>(); 
+				return le(idx) ?  conv2<T>( le(idx)->text() ) 
+					       : undefVal<T>(); 
 			    }
 
     virtual void        setvalue_( T t, int idx)	
 			    { 
 				if ( le(idx) ) 
-				    le(idx)->setText(convertTo<const char*>(t));
+				    le(idx)->setText( conv2<const char*>(t) );
 			    }
 
 
@@ -465,17 +458,12 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& spec,
 				    const char* nm) 
     : uiInputFld( p, spec )
     , intvalGrp( *new uiGroup(p,nm) ) 
-    , start( *new uiLineEdit(&intvalGrp,0,nm,false) )
-    , stop( *new uiLineEdit(&intvalGrp,0,nm,false) )
+    , start( *new uiLineEdit(&intvalGrp,0,nm) )
+    , stop( *new uiLineEdit(&intvalGrp,0,nm) )
     , step( 0 )
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&spec)
     if (!spc) { pErrMsg("Huh"); return; }
-
-    if ( spc->hasLimits() ) 
-    { 
-	// TODO: implement check for limits
-    }
 
     start.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
     stop.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
@@ -488,7 +476,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& spec,
 
     if ( spc->hasStep() )
     {
-	step = new uiLineEdit(&intvalGrp,"",nm,false);
+	step = new uiLineEdit(&intvalGrp,"",nm);
 
 	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
 	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
@@ -903,16 +891,45 @@ UserInputObj* uiGenInput::element( int nr )
 	    ? flds[idxes[nr].fldidx]->element(idxes[nr].subidx) : 0; 
 }
 
-#define mFromLE_o(fn,var,undefval) \
-    var uiGenInput::fn( int nr ) const \
-    { \
-	if ( !finalised ) return undefval; \
-	return nr<idxes.size() && flds[idxes[nr].fldidx] \
-		? flds[idxes[nr].fldidx]->fn(idxes[nr].subidx) : undefval; \
+
+DataInpSpec* uiGenInput::getInputSpecAndIndex( const int nr, int& idx ) const
+{
+    int inpidx=0; int elemidx=nr;
+    while(  elemidx>=0 && inpidx<inputs.size() && inputs[inpidx]
+	    && elemidx>=inputs[inpidx]->nElems() )
+    {
+	elemidx -= inputs[inpidx]->nElems();
+	inpidx++;
+    }
+    return inpidx<inputs.size() && inputs[inpidx] ? inputs[inpidx] : 0;
+}
+
+
+uiInputFld* uiGenInput::getInputFldAndIndex( const int nr, int& idx ) const
+{
+    if ( nr < 0 || nr >= idxes.size() ) return 0;
+
+    idx = idxes[nr].subidx;
+    return flds[idxes[nr].fldidx];
+}
+
+
+bool uiGenInput::isUndef( int nr ) const 
+{ 
+    int elemidx=0;
+    if ( !finalised ) 
+    {
+	DataInpSpec* spec = getInputSpecAndIndex(nr, elemidx);
+
+	return spec ? spec->isUndef(elemidx) : true;
     }
 
-mFromLE_o(isValid,bool,false )
-mFromLE_o(isUndef,bool,true )
+    uiInputFld* fld = getInputFldAndIndex( nr, elemidx );
+
+    return fld ? fld->isUndef(elemidx) : true;
+}
+
+
 
 #define g_func	text
 #define s_func	setText

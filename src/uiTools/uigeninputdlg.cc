@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.cc,v 1.5 2004-01-28 14:55:28 kristofer Exp $
+ RCS:           $Id: uigeninputdlg.cc,v 1.6 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,13 +75,6 @@ bool uiGenInputGrp::acceptOK( CallBacker* )
 	if ( !entry.allowundef && flds[idx]->isUndef() )
 	{
 	    BufferString msg = "Please enter a value for '";
-	    msg += entry.txt; msg += "'";
-	    uiMSG().error( msg );
-	    return false;
-	}
-	if ( !entry.allowinvalid && !flds[idx]->isValid() )
-	{
-	    BufferString msg = "Please enter a valid input for '";
 	    msg += entry.txt; msg += "'";
 	    uiMSG().error( msg );
 	    return false;

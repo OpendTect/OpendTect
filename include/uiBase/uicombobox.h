@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.18 2004-10-28 14:15:00 nanne Exp $
+ RCS:           $Id: uicombobox.h,v 1.19 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ protected:
 
     virtual void        setvalue_( int i )	{ setCurrentItem(i); }
     virtual int		getvalue_() const	{ return currentItem(); }
-    virtual void	clear_()		{ empty(); }
+    virtual bool	clear_()		{ empty(); return true; }
 
     virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
     virtual bool	notifyValueChanged_( const CallBack& cb )   

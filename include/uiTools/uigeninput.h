@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.27 2004-07-22 16:14:07 bert Exp $
+ RCS:           $Id: uigeninput.h,v 1.28 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,42 +98,73 @@ Returns true, if changes are accepted.
     //! update spec() from current values on screen.
     void		updateSpecs();
 
-//! checks if inputs are valid, f.e. within specified range
-    bool		isValid( int nr=0 ) const;
     bool		isUndef( int nr=0 ) const;
 
-    const char*		text(int nr=0, const char* undefVal="") const;
+//#define mGetArgs(type)	int nr=0, type undefVal=UndefValues<type>::undefVal()
+#define mGetArgs(type)	int nr, type undefVal
+    
+    const char*		text( mGetArgs(const char*) ) const;
+    const char*		text( const char* undefVal)  const
+			    { return text(0,undefVal); }
 
-    int			getIntValue( int nr=0, int undefVal=mUndefIntVal) const;
-    double		getValue( int nr=0, double undefVal=mUndefValue ) const;
-    float		getfValue( int nr=0, float undefVal=mUndefValue ) const;
-    bool		getBoolValue( int nr=0, bool undefVal=false ) const;
+    int			getIntValue( mGetArgs(int) ) const;
+    bool		getBoolValue( mGetArgs(bool) ) const;
 
-    inline Interval<int> getIInterval(int nr=0) const
-			{ return Interval<int>( getIntValue(nr*2),
-						getIntValue(nr*2+1) ); }
-    inline Interval<float> getFInterval(int nr=0) const
-			{ return Interval<float>( getfValue(nr*2),
-						  getfValue(nr*2+1) ); }
-    inline Interval<double> getDInterval(int nr=0) const
-			{ return Interval<double>( getValue(nr*2),
-						   getValue(nr*2+1) ); }
-    inline StepInterval<int> getIStepInterval(int nr=0) const
-			{ return StepInterval<int>( getIntValue(nr*3),
-						    getIntValue(nr*3+1),
-						    getIntValue(nr*3+2) ); }
-    inline StepInterval<float> getFStepInterval(int nr=0) const
-			{ return StepInterval<float>( getfValue(nr*3),
-						      getfValue(nr*3+1),
-						      getfValue(nr*3+2) ); }
-    inline StepInterval<double> getDStepInterval(int nr=0) const
-			{ return StepInterval<double>( getValue(nr*3),
-						       getValue(nr*3+1),
-						       getValue(nr*3+2) ); }
-    inline Coord	getCoord(int nr=0) const
-			{ return Coord(getValue(nr*2),getValue(nr*2+1)); }
-    inline BinID	getBinID(int nr=0) const
-			{ return BinID(getIntValue(nr*2),getIntValue(nr*2+1)); }
+    double		getValue( mGetArgs(double) ) const;
+    double		getValue( double undefVal ) const
+			    { return getValue(0,undefVal) ; }
+
+    float		getfValue( mGetArgs(float) ) const;
+    float		getfValue( float undefVal ) const
+			    { return getfValue(0,undefVal); }
+
+    inline Interval<int> getIInterval( mGetArgs(int) ) const
+			{ return Interval<int>( getIntValue(nr*2,undefVal),
+						getIntValue(nr*2+1,undefVal) );}
+
+    inline Interval<float> getFInterval( mGetArgs(float) ) const
+			{ return Interval<float>( getfValue(nr*2,undefVal),
+						  getfValue(nr*2+1,undefVal) );}
+    inline Interval<float> getFInterval( float undefVal ) const
+			{ return getFInterval(0,undefVal); }
+
+    inline Interval<double> getDInterval( mGetArgs(double) ) const
+			{ return Interval<double>( getValue(nr*2,undefVal),
+						   getValue(nr*2+1,undefVal) );}
+    inline Interval<double> getDInterval( double undefVal ) const
+			{ return getDInterval(0,undefVal); }
+
+    inline StepInterval<int> getIStepInterval( mGetArgs(int) ) const
+			{ return StepInterval<int>(getIntValue(nr*3,undefVal),
+						   getIntValue(nr*3+1,undefVal),
+						   getIntValue(nr*3+2,undefVal)
+						   ); }
+    inline StepInterval<float> getFStepInterval( mGetArgs(float) ) const
+			{ return StepInterval<float>(getfValue(nr*3,undefVal),
+						     getfValue(nr*3+1,undefVal),
+						     getfValue(nr*3+2,undefVal)
+						    ); }
+    inline StepInterval<float> getFStepInterval( float undefVal ) const
+			{ return getFStepInterval(0,undefVal); }
+
+    inline StepInterval<double> getDStepInterval( mGetArgs(double) ) const
+			{ return StepInterval<double>(getValue(nr*3,undefVal),
+						      getValue(nr*3+1,undefVal),
+						      getValue(nr*3+2,undefVal)
+						     ); }
+    inline StepInterval<double> getDStepInterval( double undefVal ) const
+			{ return getDStepInterval(0,undefVal); }
+
+    inline Coord	getCoord( mGetArgs(double) ) const
+			{ return Coord( getValue(nr*2,undefVal),
+					getValue(nr*2+1,undefVal)); }
+    inline Coord	getCoord( double undefVal ) const
+			{ return getCoord(0,undefVal); }
+
+    inline BinID	getBinID( mGetArgs(int) ) const
+			{ return BinID( getIntValue(nr*2,undefVal),
+					getIntValue(nr*2+1,undefVal)); }
+#undef mGetArgs    
 
     void		setText(const char*,int nr=0);
     void		setValue(int,int nr=0);
@@ -234,6 +265,9 @@ private:
     ObjectSet<DataInpSpec> inputs;
 
     uiObject::SzPolicy	elemszpol;
+
+    DataInpSpec* 	getInputSpecAndIndex( const int nr, int& idx ) const;
+    uiInputFld* 	getInputFldAndIndex( const int nr, int& idx ) const;
 };
 
 

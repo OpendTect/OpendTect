@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.8 2004-07-21 12:15:48 nanne Exp $
+ RCS:           $Id: userinputobj.h,v 1.9 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ public:
 
 			//! return false if not updated for whatever reason.
     bool		update( const DataInpSpec& s )		
-			    { update_pref(s); return update_(s); }
+			    { return update_(s); }
 
 protected:
 			//! return false if not available
@@ -77,7 +77,6 @@ protected:
 			//! return false if not available
     virtual bool	notifyValueChanged_( const CallBack& )	=0;
     virtual bool	update_( const DataInpSpec&)		=0;
-    virtual void	update_pref( const DataInpSpec&)	=0;
 };
 
 
@@ -85,59 +84,54 @@ template<class T>
 class UserInputObjImpl : public UserInputObj
 {
 public:
-                        UserInputObjImpl( bool prefempty = true )
-			    : clearvalset_(false)
-			    , prefempty_(prefempty)	{}
+                        UserInputObjImpl()
+			    : clearvalset_(false)	{}
 
     virtual const char*	text() const
-			{ return convertTo<const char*>(getvalue_(),
-							      prefempty_); }
+			{ return conv2<const char*>( getvalue_() ); }
     virtual int		getIntValue() const
-			    { return convertTo<int>(getvalue_(),prefempty_); }
+			    { return conv2<int>( getvalue_() ); }
     virtual double	getValue() const
-			    { return convertTo<double>(getvalue_(),prefempty_);}
+			    { return conv2<double>( getvalue_() );}
     virtual float	getfValue() const
-			    { return convertTo<float>(getvalue_(),prefempty_); }
+			    { return conv2<float>( getvalue_() ); }
     virtual bool	getBoolValue() const
-			    { return convertTo<bool>(getvalue_(),prefempty_); }
+			    { return conv2<bool>( getvalue_() ); }
 
     virtual void	setValue( int i )
-			    { setvalue_( convertTo<T>(i,prefempty_) ); }
+			    { setvalue_( conv2<T>(i) ); }
     virtual void	setText( const char* s )
-			    { setvalue_( convertTo<T>(s,prefempty_) ); }
+			    { setvalue_( conv2<T>(s) ); }
     virtual void	setValue( double d )
-			    { setvalue_( convertTo<T>(d,prefempty_) ); }
+			    { setvalue_( conv2<T>(d) ); }
     virtual void	setValue( float f )
-			    { setvalue_( convertTo<T>(f,prefempty_) ); }
+			    { setvalue_( conv2<T>(f) ); }
     virtual void	setValue( bool b )
-			    { setvalue_( convertTo<T>(b,prefempty_) ); }
+			    { setvalue_( conv2<T>(b) ); }
 
     void		initClearValue()
 			    { setClearValue( getvalue_() ); }
     void		clear()
 			    {
-				if ( clearvalset_ ) setvalue_(clearval_);
-				else setvalue_( UndefValues<T>::emptyVal() );
+				if ( clearvalset_ )
+				    setvalue_(clearval_);
+				else if ( !clear_() )
+				    setvalue_( UndefValues<T>::initVal() );
 			    }
     void		setClearValue( const T& v )
 			    { clearvalset_ = true; clearval_ = v; }
-
-    bool		preferEmpty() const		{ return prefempty_; }
-    void		setPrefEmpty( bool yn=true )	{ prefempty_ = yn; }
 
 protected:
 
     T			clearval_;
     bool		clearvalset_;
-    bool		prefempty_;
 
-    virtual void	clear_()			{}
-    
+			// return true if implemented.
+    virtual bool	clear_()			{ return false; }
+
     virtual void	setvalue_( T v )		= 0;
     virtual T		getvalue_() const		= 0;
 
-    virtual void	update_pref(const DataInpSpec& s)
-			    { prefempty_ = s.preferEmpty(); }
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.h,v 1.4 2004-11-09 10:27:30 nanne Exp $
+ RCS:           $Id: uigeninputdlg.h,v 1.5 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,13 +26,12 @@ public:
 					    DataInpSpec* s )
 			    //!< DataInpSpec becomes mine
 			: txt(t), spec(s?s:new StringInpSpec)
-			, allowundef(false), allowinvalid(false) {}
+			, allowundef(false)			{}
 			~uiGenInputDlgEntry()			{ delete spec; }
 
     BufferString	txt;
     DataInpSpec*	spec;
     bool		allowundef;
-    bool		allowinvalid;
 
 };
 

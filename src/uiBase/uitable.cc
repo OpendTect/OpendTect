@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.22 2004-12-22 13:51:52 kristofer Exp $
+ RCS:           $Id: uitable.cc,v 1.23 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -511,7 +511,7 @@ int uiTable::getIntValue( const RowCol& rc ) const
     if ( usrInputObj(rc) )
 	return usrInputObj(rc)->getIntValue();
 
-    return convertTo<int>( text(rc) );
+    return conv2<int>( text(rc) );
 }
 
 
@@ -520,7 +520,7 @@ double uiTable::getValue( const RowCol& rc ) const
     if ( usrInputObj(rc) )
 	return usrInputObj(rc)->getValue();
 
-    return convertTo<double>( text(rc) );
+    return conv2<double>( text(rc) );
 }
 
 
@@ -529,7 +529,7 @@ float uiTable::getfValue( const RowCol& rc ) const
     if ( usrInputObj(rc) )
 	return usrInputObj(rc)->getfValue();
 
-    return convertTo<float>( text(rc) );
+    return conv2<float>( text(rc) );
 }
 
 
@@ -538,7 +538,7 @@ void uiTable::setValue( const RowCol& rc, int i )
     if ( usrInputObj(rc) )
 	usrInputObj(rc)->setValue(i);
 
-    setText( rc, convertTo<const char*>(i) );
+    setText( rc, conv2<const char*>(i) );
 }
 
 
@@ -547,7 +547,7 @@ void uiTable::setValue( const RowCol& rc, float f )
     if ( usrInputObj(rc) )
 	usrInputObj(rc)->setValue(f);
 
-    setText( rc, convertTo<const char*>(f) );
+    setText( rc, conv2<const char*>(f) );
 }
 
 
@@ -556,7 +556,7 @@ void uiTable::setValue( const RowCol& rc, double d )
     if ( usrInputObj(rc) )
 	usrInputObj(rc)->setValue(d);
 
-    setText( rc, convertTo<const char*>(d) );
+    setText( rc, conv2<const char*>(d) );
 }
 
 

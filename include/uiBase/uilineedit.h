@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.13 2004-11-26 09:52:57 arend Exp $
+ RCS:           $Id: uilineedit.h,v 1.14 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,12 +23,10 @@ public:
 			//! pref_empty : return empty string/ null value
 			//  insted of undefined value, when line edit is empty.
                         uiLineEdit(uiParent*,const char* starttxt=0,
-				   const char* nm="Line Edit",
-				   bool prefempty = true);
+				   const char* nm="Line Edit" );
 
                         uiLineEdit(uiParent*,const DataInpSpec&,
-				   const char* nm="Line Edit",
-				   bool prefempty = true);
+				   const char* nm="Line Edit" );
 
     void		setEdited( bool = true );
     bool		isEdited() const;
@@ -52,7 +50,6 @@ public:
 
 protected:
 
-    virtual void	clear_()			{ setvalue_(""); }
     virtual const char*	getvalue_() const;
     virtual void	setvalue_( const char* );
 

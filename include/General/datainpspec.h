@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.51 2004-11-09 10:27:06 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.52 2005-01-12 16:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,13 +86,11 @@ public:
     DataType		type() const;
 
     virtual DataInpSpec* clone() const			=0;
-    virtual int 	nElems() const;
+    virtual int 	nElems() const			{ return 1; }
 
     virtual bool	isUndef( int idx=0 ) const	=0;
-    bool		preferEmpty() const;
-    void		setPrefEmpty( bool yn=true );
 
-    virtual bool	hasLimits() const;
+    virtual bool	hasLimits() const		{ return false; }
 
     virtual const char*	text( int idx=0 ) const		=0;
     virtual void	setText( const char*, int idx=0)=0;
