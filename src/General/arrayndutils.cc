@@ -104,7 +104,7 @@ bool ArrayNDWindow::buildWindow( )
 
 	dist = sqrt( dist );
 
-	*((float*)(window->data() + bytespersample*off ))
+	*((float*)(window->data()+bytespersample*off ))
 						=windowfunc->getValue( dist );
 	position.next();
     }	

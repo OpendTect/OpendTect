@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.7 2001-02-13 17:15:57 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.8 2001-02-19 17:17:36 bert Exp $
 ________________________________________________________________________
 
 

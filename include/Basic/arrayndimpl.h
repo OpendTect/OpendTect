@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.7 2001-02-13 17:15:57 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.8 2001-02-19 17:17:36 bert Exp $
 ________________________________________________________________________
 
 */
@@ -85,9 +85,9 @@ public:
 			}
 
     virtual void	set( int p0, int p1, T v )
-			{ *(((T*) dbuf.data())+in.getArrayPos(p0,p1)) = v; }
+			{ *(((T*) dbuf.data())+in.getMemPos(p0,p1)) = v; }
     virtual T		get( int p0, int p1 ) const
-			{ return *(((T*) dbuf.data())+in.getArrayPos(p0,p1)); }
+			{ return *(((T*) dbuf.data())+in.getMemPos(p0,p1)); }
 
     T*			getData() const { return (T*)dbuf.data(); }
     const Array2DInfo&  info() const { return in; }
@@ -145,10 +145,9 @@ public:
 			}
 
     virtual void	set( int p0, int p1, int p2, T v )
-			{ *(((T*) dbuf.data())+in.getArrayPos(p0,p1,p2)) = v; }
+			{ *(((T*) dbuf.data())+in.getMemPos(p0,p1,p2)) = v; }
     virtual T		get( int p0, int p1, int p2 ) const
-			{ return *(((T*) dbuf.data())
-				   + in.getArrayPos(p0,p1,p2)); }
+			{ return *(((T*) dbuf.data())+in.getMemPos(p0,p1,p2)); }
 
 
     T*			getData() const { return (T*)dbuf.data(); }
@@ -202,9 +201,9 @@ public:
 			{ delete in; }
 
     virtual void	set( const int* pos, T v )
-			{ *(((T*) dbuf.data())+in->getArrayPos(pos)) = v; }
+			{ *(((T*) dbuf.data())+in->getMemPos(pos)) = v; }
     virtual T		get( const int* pos ) const
-			{ return *(((T*) dbuf.data())+in->getArrayPos(pos)); }
+			{ return *(((T*) dbuf.data())+in->getMemPos(pos)); }
 
 
     T*			getData() const { return (T*) dbuf.data(); }

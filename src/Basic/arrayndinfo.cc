@@ -3,9 +3,25 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.1 2000-12-11 10:18:56 dgb Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.2 2001-02-19 17:17:02 bert Exp $";
 
 #include <arrayndinfo.h>
+
+void ArrayNDInfo::getArrayPos( unsigned long mempos, int* pos ) const
+{
+    int ndim = getNDim();
+    for ( int idx=0; idx<ndim; idx++ )
+    {
+	int tsz = 1;
+	for ( int idy=idx+1; idy<ndim; idy++ )
+	    tsz *= getSize(idy);
+
+	pos[idx] = mempos/tsz;
+	mempos = mempos%tsz;
+    }
+}
+	
+
 
 Array1DInfoImpl::Array1DInfoImpl( int nsz ) 
 	: sz( nsz ) 
@@ -36,13 +52,13 @@ bool Array1DInfoImpl::setSize( int dim, int nsz )
 }
 
 
-unsigned long Array1DInfoImpl::getArrayPos( const int* pos ) const
+unsigned long Array1DInfoImpl::getMemPos( const int* pos ) const
 {
     return pos[0];
 }
 
 
-unsigned long Array1DInfoImpl::getArrayPos( int p ) const
+unsigned long Array1DInfoImpl::getMemPos( int p ) const
 {
     return p;
 }
@@ -86,13 +102,13 @@ bool Array2DInfoImpl::setSize( int dim, int nsz )
 }
 
 
-unsigned long Array2DInfoImpl::getArrayPos( const int* pos ) const
+unsigned long Array2DInfoImpl::getMemPos( const int* pos ) const
 {
     return pos[0] * sz[1] + pos[1];
 }
 
 
-unsigned long Array2DInfoImpl::getArrayPos( int p0, int p1 ) const
+unsigned long Array2DInfoImpl::getMemPos( int p0, int p1 ) const
 {
     return p0 * sz[1] + p1;
 }
@@ -100,7 +116,7 @@ unsigned long Array2DInfoImpl::getArrayPos( int p0, int p1 ) const
 
 bool Array2DInfoImpl::validPos( const int* pos ) const
 {
-    for( int idx = 0; idx < 2; idx++ )
+    for ( int idx = 0; idx < 2; idx++ )
     {
         int p = pos[idx];
         if( p < 0 || p >= sz[idx] ) return false;
@@ -153,13 +169,13 @@ bool Array3DInfoImpl::setSize(int dim, int nsz)
 }
 
 
-unsigned long Array3DInfoImpl::getArrayPos(const int* pos) const
+unsigned long Array3DInfoImpl::getMemPos(const int* pos) const
 {
     return pos[0] * sz[2] * sz[1] + pos[1] * sz[2] + pos[2]; 
 }
 
 
-unsigned long Array3DInfoImpl::getArrayPos(int p0, int p1, int p2) const
+unsigned long Array3DInfoImpl::getMemPos(int p0, int p1, int p2) const
 {
     return p0 * sz[2] * sz[1] + p1 * sz[2] + p2;
 }
@@ -168,7 +184,7 @@ unsigned long Array3DInfoImpl::getArrayPos(int p0, int p1, int p2) const
 
 bool Array3DInfoImpl::validPos(const int* pos) const
 {
-    for( int idx = 0; idx < 3; idx++ )
+    for ( int idx = 0; idx < 3; idx++ )
     {	
 	int p = pos[idx];
 	if( p < 0 || p >= sz[idx] ) return false;
@@ -218,8 +234,17 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( int ndim_ )
 	, ndim( ndim_ )
 {
     totalSz = 0;
-    for( int idx = 0; idx < ndim; idx++ )
+    for ( int idx = 0; idx < ndim; idx++ )
 	sizes[idx] = 0;
+}
+
+
+ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfoImpl& nsz )
+	: sizes(new int[nsz.getNDim()]) 
+	, ndim( nsz.getNDim() )
+{
+    for (int idx = 0; idx < ndim; idx++)
+	setSize( idx, nsz.getSize(idx) ); 
 }
 
 
@@ -227,10 +252,9 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 	: sizes(new int[nsz.getNDim()]) 
 	, ndim( nsz.getNDim() )
 {
-    for(int idx = 0; idx < ndim; idx++)
+    for (int idx = 0; idx < ndim; idx++)
 	setSize( idx, nsz.getSize(idx) ); 
 }
-
 
 ArrayNDInfoImpl::~ArrayNDInfoImpl()
 {
@@ -260,12 +284,12 @@ int ArrayNDInfoImpl::getSize( int dim ) const
 }
 
 
-unsigned long ArrayNDInfoImpl::getArrayPos( const int* pos ) const
+unsigned long ArrayNDInfoImpl::getMemPos( const int* pos ) const
 {
     unsigned long valueNr = 0;
     unsigned long multiplicator = 1;
 
-    for( int idx = ndim-1; idx > -1; idx-- )
+    for ( int idx = ndim-1; idx > -1; idx-- )
     {
 	valueNr += pos[idx] * multiplicator;
         multiplicator *= sizes[idx];
@@ -279,7 +303,7 @@ bool ArrayNDInfoImpl::validPos( const int* pos ) const
 {
     int NDim = getNDim();
     
-    for( int idx=0; idx < NDim; idx++ )
+    for ( int idx=0; idx < NDim; idx++ )
     	if ( pos[idx] < 0 || pos[idx] >= sizes[idx] )
 	    return false;
     return true;
@@ -291,7 +315,7 @@ unsigned long ArrayNDInfoImpl::calcTotalSz() const
     int NDim = getNDim();
     unsigned long size = 1;
  
-    for( int idx = 0; idx < NDim; idx++ )
+    for ( int idx = 0; idx < NDim; idx++ )
         size *= sizes[idx]; 
     
     return size;

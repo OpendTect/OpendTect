@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.8 2000-12-11 10:19:31 dgb Exp $
+ RCS:		$Id: arraynd.h,v 1.9 2001-02-19 17:17:36 bert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -100,7 +100,7 @@ const T* ArrayND<T>::get1D(const int* i) const
 
     pos[ndim-1] = 0;
     
-    return &ptr[info().getArrayPos( pos )];
+    return &ptr[info().getMemPos( pos )];
 }
 
 

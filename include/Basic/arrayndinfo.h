@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.1 2000-12-11 10:19:31 dgb Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.2 2001-02-19 17:17:36 bert Exp $
 ________________________________________________________________________
 
 An ArrayNDInfo contains the information about the size of ArrayND, and
@@ -28,8 +28,9 @@ public:
     virtual bool	setSize(int dim,int sz) = 0;
  
     inline unsigned long  getTotalSz() const	{ return totalSz; }
-    virtual unsigned long getArrayPos(const int*) const		= 0;
+    virtual unsigned long getMemPos(const int*) const		= 0;
     virtual bool	  validPos(const int*) const		= 0;
+    virtual void	getArrayPos(unsigned long, int*) const;
 
 protected:
 
@@ -58,7 +59,7 @@ public:
 
     int				getNDim() const			{ return 1; }
 
-    virtual unsigned long	getArrayPos(int) const		= 0;
+    virtual unsigned long	getMemPos(int) const		= 0;
     virtual bool		validPos(int) const		= 0;
 
 };
@@ -70,7 +71,7 @@ public:
 
     int				getNDim() const			{ return 2; }
 
-    virtual unsigned long	getArrayPos(int,int) const	= 0;
+    virtual unsigned long	getMemPos(int,int) const	= 0;
     virtual bool		validPos(int,int) const		= 0;
 
 };
@@ -82,7 +83,7 @@ public:
 
     int				getNDim() const			{ return 3; }
 
-    virtual unsigned long	getArrayPos(int, int, int) const= 0;
+    virtual unsigned long	getMemPos(int, int, int) const= 0;
     virtual bool		validPos(int,int,int) const	= 0;
 
 };
@@ -100,10 +101,10 @@ public:
     int         	getSize(int dim) const; 
     bool        	setSize(int dim,int nsz);
 
-    unsigned long 	getArrayPos(const int*) const;
+    unsigned long 	getMemPos(const int*) const;
     bool          	validPos(const int*) const;
     
-    unsigned long	getArrayPos(int) const;
+    unsigned long	getMemPos(int) const;
     bool		validPos( int p ) const
 			{ return p < 0 || p >= sz ? false : true; }
 
@@ -126,8 +127,8 @@ public:
     int                 getSize(int dim) const;
     bool                setSize(int dim,int nsz);
 
-    unsigned long       getArrayPos(const int*) const;
-    unsigned long	getArrayPos(int,int) const; 
+    unsigned long       getMemPos(const int*) const;
+    unsigned long	getMemPos(int,int) const; 
 
     bool                validPos(const int*) const;
     bool                validPos(int,int) const;
@@ -154,8 +155,8 @@ public:
     int                 getSize(int dim) const; 
     bool                setSize(int dim,int nsz);
 
-    unsigned long       getArrayPos(const int*) const;
-    unsigned long       getArrayPos(int,int,int) const; 
+    unsigned long       getMemPos(const int*) const;
+    unsigned long       getMemPos(int,int,int) const; 
 
     bool                validPos(const int*) const;
     bool                validPos(int,int,int) const;
@@ -178,6 +179,7 @@ public:
 
 			ArrayNDInfoImpl(int ndim);
 			ArrayNDInfoImpl(const ArrayNDInfo&);
+			ArrayNDInfoImpl(const ArrayNDInfoImpl&);
 
 			~ArrayNDInfoImpl();
 
@@ -185,7 +187,7 @@ public:
     int                 getSize(int dim) const;
     bool                setSize(int dim,int nsz);
 
-    unsigned long       getArrayPos(const int*) const;
+    unsigned long       getMemPos(const int*) const;
     bool                validPos(const int*) const;
 
 protected:
@@ -198,8 +200,10 @@ protected:
 };
 
 
-/* ArrayNDIter is an object that is able to iterate through all samples in a 
-   ArrayND. It will stand on the first position when initiated, and move to
+/*!\brief ArrayNDIter is an object that is able to iterate through all samples
+   in a ArrayND.
+   \par
+   ArrayNDIter will stand on the first position when initiated, and move to
    the second at the fist call to next(). next() will return false when
    no more positions are avaliable
 */
