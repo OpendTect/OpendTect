@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.24 2001-07-17 11:14:24 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.25 2001-07-17 12:33:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -470,7 +470,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
     stop.setText( spec.text(1) );
     if ( spc->hasStep() )
     {
-	step = new uiLineEdit(&intvalGrp,"","Step");
+	step = new uiLineEdit(&intvalGrp,"",nm);
 	step->textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
 	step->setText( spec.text(2) );
     }
@@ -588,7 +588,19 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     }
 
     uiObject* other= flds.size() ? &flds[ flds.size()-1 ]->uiObj() : 0;
-    if ( other ) fld->uiObj().attach( rightTo, other );
+    if ( other )
+    {
+	//TODO Hack: if nr flds ==2, we're adding nr 3, which is currently
+	// always a step. We want the text "Step" there.
+	// How on earth can we specify this in general?
+	if ( flds.size() != 2 )
+	    fld->uiObj().attach( rightTo, other );
+	else
+	{
+	    uiLabel* lbl = new uiLabel( this, "Step", &fld->uiObj() );
+	    lbl->attach( rightTo, other );
+	}
+    }
 
     flds += fld;
 
@@ -682,7 +694,7 @@ void uiGenInput::finalise_()
     uiGroup::finalise_();
     if ( !inputs.size() )	{ pErrMsg("No inputs specified :("); return; }
 
-    uiObject * lastElem = &createInpFld( *inputs[0] ).uiObj();
+    uiObject* lastElem = &createInpFld( *inputs[0] ).uiObj();
     setHAlignObj( lastElem );
 
     if ( withchk )
