@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.1 2004-04-01 13:44:46 bert Exp $
+ RCS:		$Id: filepath.h,v 1.2 2004-11-02 16:07:31 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,9 @@ ________________________________________________________________________
 class FilePath
 {
 public:
+    enum Style		{ Local, Unix, Windows };
 
-    			FilePath( const char* fnm )
+    			FilePath( const char* fnm=0 )
 				{ set( fnm ); }
 			FilePath( const FilePath& fp )
 				{ *this = fp; }
@@ -52,6 +53,8 @@ public:
     inline bool		isAbsolute() const	{ return isabs_; }
 
     inline BufferString	fullPath() const	{ return dirUpTo(-1); }
+    inline BufferString	fullPathStyled( Style f ) const
+			    { return mkCleanPath(fullPath(),f); }
     inline const char*	prefix() const		{ return prefix_.buf(); }
     inline int		nrLevels() const	{ return lvls_.size(); }
 
@@ -66,6 +69,7 @@ public:
     			//!< nr < 0 returns last dir, including prefix
 
     static BufferString	getTempName(const char* ext=0);
+    static BufferString	mkCleanPath(const char* path, Style fmt);
     static const char*	sPrefSep;
     static const char*	sDirSep;
 
