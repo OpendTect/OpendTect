@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.1 2001-11-16 14:27:33 nanne Exp $
+ RCS:           $Id: uisettings.cc,v 1.2 2002-01-04 15:50:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 
 uiSettings::uiSettings( uiParent* p, const char* nm )
-	: uiDialog(p,nm)
+	: uiDialog(p,nm,true,true,false,false,false,"0.2.1")
 	, setts(*new Settings)
 	, items("Item")
 	, curidx(0)
