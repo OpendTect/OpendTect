@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.5 2001-08-31 15:21:27 arend Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.6 2001-10-25 13:26:39 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ int uiFileDialog::go()
     {
 	BufferString tmp( File_getPathOnly(fname_) ); 
 	if ( !File_isDirectory( tmp ) )
-	    fname_ = getenv( "HOME" );
+	    fname_ = GetHomeDir();
     }
 
     if ( forread_ )

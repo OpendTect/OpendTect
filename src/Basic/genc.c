@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.9 2001-10-16 08:58:02 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.10 2001-10-25 13:26:39 windev Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -15,6 +15,9 @@ static const char* rcsID = "$Id: genc.c,v 1.9 2001-10-16 08:58:02 bert Exp $";
 #include <math.h>
 #ifndef __win__
 #include <unistd.h>
+#else
+#include <process.h>
+#include <float.h>
 #endif
 
 int dgb_application_code = 1; // 1 = GDI, 2 = dTect
@@ -49,16 +52,31 @@ const char* GetSoftwareUser()
     return ptr;
 }
 
+const char* GetHomeDir()
+{
+#ifdef __msvc__
+    static FileNameString home = "";
+    if( !*home )
+    {
+	strcpy( home, getenv("HOMEDRIVE") );
+	strcat( home, getenv("HOMEPATH") );
+    }
+    return home;
+#else
+    const char* ptr = getenv( "HOME" );
+    return ptr;
+#endif
+}
+
 
 const char* GetSurveyFileName()
 {
     static FileNameString sfname;
     static int inited = NO;
-    const char* ptr;
 
     if ( !inited )
     {
-	ptr = getenv( "HOME" );
+	const char* ptr = GetHomeDir();
 	if ( !ptr ) return 0;
 	strcpy( sfname, File_getFullPath(ptr,".dgbSurvey") );
 	ptr = GetSoftwareUser();

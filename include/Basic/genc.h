@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.7 2001-10-16 08:34:46 bert Exp $
+ RCS:		$Id: genc.h,v 1.8 2001-10-25 13:26:39 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,8 @@ const char*	GetSoftwareDir(void);
 		/*!< Directory of the installed software = $dGB|dTECT_APPL */
 const char*	GetSoftwareUser(void);
 		/*!< $dGB|dTECT_USER */
+const char*	GetHomeDir(void);
+		/*!< $HOME / $HOMEDRIVE/$HOMEPATH */
 const char*	GetDataFileName(const char*);
 		/*!< Application data file in $dGB|dTECT_APPL/data */
 

@@ -16,6 +16,7 @@
 # define popen _popen
 # define pclose _pclose
 # define fileno(s) _fileno(s)
+#include "errh.h"
 #endif
 
 #include "strmprov.h"
@@ -25,7 +26,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.12 2001-08-31 15:44:40 windev Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.13 2001-10-25 13:26:39 windev Exp $";
 
 static FixedString<1024> oscommand;
 #ifdef __msvc__
@@ -225,6 +226,25 @@ StreamData StreamProvider::makeIStream() const
 	return sd;
     }
 
+#ifdef __msvc__
+
+    pErrMsg("Pipes are not supported on windows platform");
+
+/*
+    MSVC chokes on the following lines:
+	sd.istrm = new ifstream( fileno(sd.fp) );
+	sd.ostrm = new ofstream( fileno(sd.fp) );
+
+    This means you can not open a fstream with just a file pointer. You would
+    need a 'filedesc' for that. You can't make that from a file pointer, 
+    however.
+    Fortunately, this behavior is only required for more advanced useage, so
+    we leave it out for now.
+
+*/
+
+#else
+
     if ( !hostname[0] )
 	oscommand = (const char*)fname;
     else
@@ -253,7 +273,6 @@ StreamData StreamProvider::makeIStream() const
 
     sd.fp = popen( oscommand, "r" );
     sd.ispipe = true;
-#ifndef __msvc__
     if ( sd.fp )
 	sd.istrm = new ifstream( fileno(sd.fp) );
 #endif
@@ -277,6 +296,12 @@ StreamData StreamProvider::makeOStream() const
 	sd.ostrm = new ofstream( fname );
 	return sd;
     }
+
+#ifdef __msvc__
+
+    pErrMsg("Pipes are not supported on windows platform");
+
+#else
 
     if ( !hostname[0] )
 	oscommand = (const char*)fname;
@@ -306,10 +331,9 @@ StreamData StreamProvider::makeOStream() const
 
     sd.fp = popen( oscommand, "w" );
     sd.ispipe = true;
-//#ifndef __msvc__
     if ( sd.fp )
 	sd.ostrm = new ofstream( fileno(sd.fp) );
-//#endif
+#endif
 
     return sd;
 }
