@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.7 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.8 2004-01-29 10:42:26 nanne Exp $";
 
 
 #include "wavelettrans.h"
@@ -13,11 +13,11 @@ static const char* rcsID = "$Id: wavelettrans.cc,v 1.7 2003-11-07 12:21:57 bert 
 
 
 DefineEnumNames(WaveletTransform,WaveletType,0,"Wavelet Type")
-{ "Haar", "Daubechies 4", "Daubechies 6", "Daubechies 8", "Daubechies 10",
-  "Daubechies 12", "Daubechies 14", "Daubechies 16", "Daubechies 18",
-  "Daubechies 20", "Beylkin", "Coiflet 1", "Coiflet 2", "Coiflet 3",
-  "Coiflet 4", "Coiflet 5", "Symmlet 4", "Symmlet 5", "Symmlet 6",
-  "Symmlet 7", "Symmlet 8", "Symmlet 9", "Symmlet 10", "Vaidyanathan", 0 };
+{ "Haar", "Daubechies4", "Daubechies6", "Daubechies8", "Daubechies10",
+  "Daubechies12", "Daubechies14", "Daubechies16", "Daubechies18",
+  "Daubechies20", "Beylkin", "Coiflet1", "Coiflet2", "Coiflet3",
+  "Coiflet4", "Coiflet5", "Symmlet4", "Symmlet5", "Symmlet6",
+  "Symmlet7", "Symmlet8", "Symmlet9", "Symmlet10", "Vaidyanathan", 0 };
 
 
 
@@ -256,6 +256,62 @@ const float WaveletTransform::vaidyanathan[25] =
 					 0.250184129505,  0.045799334111};
 
 
+void WaveletTransform::getInfo( WaveletType wt, int& len, const float* wc )
+{
+    switch ( wt )
+    {
+	case WaveletTransform::Haar:
+		len = 2;	wc = WaveletTransform::haar;		break;
+	case WaveletTransform::Daubechies4:
+		len = 4;	wc = WaveletTransform::daub4;		break;
+	case WaveletTransform::Daubechies6:
+		len = 6;	wc = WaveletTransform::daub6;		break;
+	case WaveletTransform::Daubechies8:
+		len = 8;	wc = WaveletTransform::daub8;		break;
+	case WaveletTransform::Daubechies10:
+		len = 10;	wc = WaveletTransform::daub10;		break;
+	case WaveletTransform::Daubechies12:
+		len = 12;	wc = WaveletTransform::daub12;		break;
+	case WaveletTransform::Daubechies14:
+		len = 14;	wc = WaveletTransform::daub14;		break;
+	case WaveletTransform::Daubechies16:
+		len = 16;	wc = WaveletTransform::daub16;		break;
+	case WaveletTransform::Daubechies18:
+		len = 18;	wc = WaveletTransform::daub18;		break;
+	case WaveletTransform::Daubechies20:
+		len = 20;	wc = WaveletTransform::daub20;		break;
+	case WaveletTransform::Beylkin:	
+		len = 18;  	wc = WaveletTransform::beylkin;		break;
+	case WaveletTransform::Coiflet1:	
+		len = 6;	wc = WaveletTransform::coiflet1;	break;
+	case WaveletTransform::Coiflet2:	
+		len = 12;	wc = WaveletTransform::coiflet2; 	break;
+	case WaveletTransform::Coiflet3:	
+		len = 18;	wc = WaveletTransform::coiflet3; 	break;
+	case WaveletTransform::Coiflet4:	
+		len = 24;	wc = WaveletTransform::coiflet4; 	break;
+	case WaveletTransform::Coiflet5:	
+		len = 30;	wc = WaveletTransform::coiflet5; 	break;
+	case WaveletTransform::Symmlet4:	
+		len = 8;	wc = WaveletTransform::symmlet4; 	break;
+	case WaveletTransform::Symmlet5:	
+		len = 10;	wc = WaveletTransform::symmlet5; 	break;
+	case WaveletTransform::Symmlet6:	
+		len = 12;	wc = WaveletTransform::symmlet6; 	break;
+	case WaveletTransform::Symmlet7:	
+		len = 14;	wc = WaveletTransform::symmlet7; 	break;
+	case WaveletTransform::Symmlet8:	
+		len = 16;	wc = WaveletTransform::symmlet8; 	break;
+	case WaveletTransform::Symmlet9:	
+		len = 18;	wc = WaveletTransform::symmlet9; 	break;
+	case WaveletTransform::Symmlet10:
+		len = 20;	wc = WaveletTransform::symmlet10;	break;
+	case WaveletTransform::Vaidyanathan:
+		len = 24;	wc = WaveletTransform::vaidyanathan; 	break;
+    }
+}
+
+
 DiscreteWaveletTransform::DiscreteWaveletTransform(
 					    WaveletTransform::WaveletType t )
     : wt( t )
@@ -288,59 +344,7 @@ bool DiscreteWaveletTransform::FilterWT1D::init()
     if ( size < 0 ) return false;
 
     const float* tcc;
-
-    switch ( wt )
-    {
-	case WaveletTransform::Haar:
-		filtersz = 2;	tcc = WaveletTransform::haar;		break;
-	case WaveletTransform::Daubechies4:
-		filtersz = 4;	tcc = WaveletTransform::daub4;		break;
-	case WaveletTransform::Daubechies6:
-		filtersz = 6;	tcc = WaveletTransform::daub6;		break;
-	case WaveletTransform::Daubechies8:
-		filtersz = 8;	tcc = WaveletTransform::daub8;		break;
-	case WaveletTransform::Daubechies10:
-		filtersz = 10;	tcc = WaveletTransform::daub10;		break;
-	case WaveletTransform::Daubechies12:
-		filtersz = 12;	tcc = WaveletTransform::daub12;		break;
-	case WaveletTransform::Daubechies14:
-		filtersz = 14;	tcc = WaveletTransform::daub14;		break;
-	case WaveletTransform::Daubechies16:
-		filtersz = 16;	tcc = WaveletTransform::daub16;		break;
-	case WaveletTransform::Daubechies18:
-		filtersz = 18;	tcc = WaveletTransform::daub18;		break;
-	case WaveletTransform::Daubechies20:
-		filtersz = 20;	tcc = WaveletTransform::daub20;		break;
-	case WaveletTransform::Beylkin:	
-		filtersz = 18;  tcc = WaveletTransform::beylkin;	break;
-	case WaveletTransform::Coiflet1:	
-		filtersz = 6;	tcc = WaveletTransform::coiflet1;	break;
-	case WaveletTransform::Coiflet2:	
-		filtersz = 12;	tcc = WaveletTransform::coiflet2; 	break;
-	case WaveletTransform::Coiflet3:	
-		filtersz = 18;	tcc = WaveletTransform::coiflet3; 	break;
-	case WaveletTransform::Coiflet4:	
-		filtersz = 24;	tcc = WaveletTransform::coiflet4; 	break;
-	case WaveletTransform::Coiflet5:	
-		filtersz = 30;	tcc = WaveletTransform::coiflet5; 	break;
-	case WaveletTransform::Symmlet4:	
-		filtersz = 8;	tcc = WaveletTransform::symmlet4; 	break;
-	case WaveletTransform::Symmlet5:	
-		filtersz = 10;	tcc = WaveletTransform::symmlet5; 	break;
-	case WaveletTransform::Symmlet6:	
-		filtersz = 12;	tcc = WaveletTransform::symmlet6; 	break;
-	case WaveletTransform::Symmlet7:	
-		filtersz = 14;	tcc = WaveletTransform::symmlet7; 	break;
-	case WaveletTransform::Symmlet8:	
-		filtersz = 16;	tcc = WaveletTransform::symmlet8; 	break;
-	case WaveletTransform::Symmlet9:	
-		filtersz = 18;	tcc = WaveletTransform::symmlet9; 	break;
-	case WaveletTransform::Symmlet10:
-		filtersz = 20;	tcc = WaveletTransform::symmlet10;	break;
-	case WaveletTransform::Vaidyanathan:
-		filtersz = 24;	tcc = WaveletTransform::vaidyanathan; 	break;
-    }
-
+    WaveletTransform::getInfo( wt, filtersz, tcc );
 
     if ( cc ) delete cc;
     cc = new float[filtersz+1];
@@ -398,7 +402,7 @@ bool DiscreteWaveletTransform::isPossible( int sz ) const
 
 
 
-ContiniousWaveletTransform::ContiniousWaveletTransform(
+ContinuousWaveletTransform::ContinuousWaveletTransform(
 			    WaveletTransform::WaveletType nwt )
     : wt( nwt )
     , inputinfo( 0 )
@@ -408,7 +412,7 @@ ContiniousWaveletTransform::ContiniousWaveletTransform(
 }
 
 
-ContiniousWaveletTransform::~ContiniousWaveletTransform()
+ContinuousWaveletTransform::~ContinuousWaveletTransform()
 {
     deepErase(realwavelets);
 
@@ -417,7 +421,7 @@ ContiniousWaveletTransform::~ContiniousWaveletTransform()
 }
 
 
-bool ContiniousWaveletTransform::setInputInfo( const ArrayNDInfo& ni )
+bool ContinuousWaveletTransform::setInputInfo( const ArrayNDInfo& ni )
 {
     const int ndim = ni.getNDim();
 
@@ -439,11 +443,11 @@ bool ContiniousWaveletTransform::setInputInfo( const ArrayNDInfo& ni )
 }
 
 
-bool ContiniousWaveletTransform::isReal() const
+bool ContinuousWaveletTransform::isReal() const
 { return !WaveletTransform::isCplx( wt ); }
 
 
-bool ContiniousWaveletTransform::init()
+bool ContinuousWaveletTransform::init()
 {
     const int ndim = inputinfo->getNDim();
     int maxsz = 0;
@@ -456,13 +460,13 @@ bool ContiniousWaveletTransform::init()
     }
 
     for ( int sz=3; sz<=maxsz; sz+= 2 )
-	realwavelets += new  Wavelet<float>( wt, sz );
+	realwavelets += new Wavelet<float>( wt, sz );
 
     return true;
 }
 
 
-void ContiniousWaveletTransform::transform1D(
+void ContinuousWaveletTransform::transform1D(
 	const ArrayND<float>::LinearStorage& inp,
 	ArrayND<float>::LinearStorage& outp,
 	int inpsz, int inpoff, int inpspace,
@@ -474,13 +478,13 @@ void ContiniousWaveletTransform::transform1D(
     for ( int scaleid=0; scaleid<outpsz; scaleid++)
     {
 	outp.set( outidx,
-	    realwavelets[scaleid]->correllate(inp, inpsz, inpoff, inpspace));
+	    realwavelets[scaleid]->correlate(inp,inpsz,inpoff,inpspace) );
 	outidx -= outpspace;
     }
 }
 
 
-void ContiniousWaveletTransform::transformOneDim( const ArrayND<float>& inp,
+void ContinuousWaveletTransform::transformOneDim( const ArrayND<float>& inp,
 	ArrayND<float>& outp, int dim ) const
 {
     const int ndim = inputinfo->getNDim();
@@ -492,7 +496,6 @@ void ContiniousWaveletTransform::transformOneDim( const ArrayND<float>& inp,
     outp.setInfo( *outsize );
     const ArrayND<float>::LinearStorage& inpstor = *inp.getStorage();
     ArrayND<float>::LinearStorage& outpstor = *outp.getStorage();
-
 
     if ( dim==ndim-1 )
     {
@@ -535,7 +538,7 @@ void ContiniousWaveletTransform::transformOneDim( const ArrayND<float>& inp,
 }
 
 
-bool ContiniousWaveletTransform::transform( const ArrayND<float>& inp,
+bool ContinuousWaveletTransform::transform( const ArrayND<float>& inp,
 					    ArrayND<float>& outp ) const
 {
     const int ndim = inputinfo->getNDim();

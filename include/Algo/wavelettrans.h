@@ -7,21 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.9 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: wavelettrans.h,v 1.10 2004-01-29 10:43:28 nanne Exp $
 ________________________________________________________________________
 
 @$*/
 
-#include <transform.h>
-#include <enums.h>
-#include <arraynd.h>
+#include "transform.h"
+#include "enums.h"
+#include "arraynd.h"
 
 /*!\brief
 WaveletTransform is a ND wavelet transform.
 \par
 Specify wavelet at creation, and use in the same way as any TransformND.
-The algorithm is taken from NumericalRecipies, and additional kernel support
-comes from the Matlab library "WaveLab" (Stanford University).
+The algorithm is based on the one from NumericalRecipies, and additional 
+kernel support comes from the Matlab library "WaveLab" (Stanford University).
 */
 
 class WaveletTransform
@@ -38,6 +38,8 @@ public:
 					Symmlet9, Symmlet10, Vaidyanathan };
 
 			DeclareEnumUtils(WaveletType);
+
+    static void		getInfo(WaveletType tp,int& len,const float* coeff);
 
     static const float 	haar[3];
 
@@ -139,11 +141,11 @@ protected:
 };
 
 
-class ContiniousWaveletTransform : public TransformND
+class ContinuousWaveletTransform : public TransformND
 {
 public:
-		    ContiniousWaveletTransform( WaveletTransform::WaveletType );
-		    ~ContiniousWaveletTransform();
+		    ContinuousWaveletTransform( WaveletTransform::WaveletType );
+		    ~ContinuousWaveletTransform();
 
 
     bool		setInputInfo( const ArrayNDInfo& );
@@ -184,9 +186,9 @@ protected:
     public:
 			Wavelet( WaveletTransform::WaveletType, float scale );
 			~Wavelet() {};
-	T		correllate( const ArrayND<float>::LinearStorage&,
+	T		correlate( const ArrayND<float>::LinearStorage&,
 				    int size, int off, int space ) const;
-	float_complex	correllate(const ArrayND<float_complex>::LinearStorage&,
+	float_complex	correlate(const ArrayND<float_complex>::LinearStorage&,
 				   int size, int off, int space ) const;
 
     protected:
@@ -204,34 +206,37 @@ protected:
 };
 
 template <class T>
-ContiniousWaveletTransform::Wavelet<T>::
-Wavelet(WaveletTransform::WaveletType, float scale ) {}
+ContinuousWaveletTransform::Wavelet<T>::Wavelet( 
+				WaveletTransform::WaveletType wt, float scale ) 
+{
+    WaveletTransform::getInfo( wt, len, data );
+}
 
 
-#define mWvltCorrellate(type)	\
+#define mWvltCorrelate(type)	\
     type sum = 0;						\
 								\
     int storpos = off + ((signalsize-len) >> 1) * space;		\
     for ( int idx=0; idx<len; idx++ )				\
     {								\
-	sum =+ stor.get( storpos ) * data[idx];			\
+	sum += stor.get( storpos ) * data[idx];			\
 	storpos += space;					\
     }								\
 								\
     return sum
 
 template <class T>
-float_complex ContiniousWaveletTransform::Wavelet<T>::
-correllate( const ArrayND<float_complex>::LinearStorage& stor,
+float_complex ContinuousWaveletTransform::Wavelet<T>::
+correlate( const ArrayND<float_complex>::LinearStorage& stor,
             int signalsize, int off, int space ) const
-{ mWvltCorrellate(float_complex); }
+{ mWvltCorrelate(float_complex); }
 
 
 template <class T>
-T ContiniousWaveletTransform::Wavelet<T>::
-correllate( const ArrayND<float>::LinearStorage& stor,
+T ContinuousWaveletTransform::Wavelet<T>::
+correlate( const ArrayND<float>::LinearStorage& stor,
             int signalsize, int off, int space ) const
-{ mWvltCorrellate(T); }
+{ mWvltCorrelate(T); }
 
 
 #endif
