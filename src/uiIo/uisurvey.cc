@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.50 2004-01-12 16:49:35 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.51 2004-01-14 15:45:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,6 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 
     newbut = new uiPushButton( leftgrp, "New ...",
 	    			mCB(this,uiSurvey,newButPushed) );
-    newbut->activated.notify( mCB(this,uiSurvey,newButPushed) );
     newbut->attach( rightOf, listbox );
     newbut->setPrefWidthInChar( 12 );
     rmbut = new uiPushButton( leftgrp, "Remove ...",
