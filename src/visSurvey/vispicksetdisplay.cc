@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.24 2002-05-03 11:47:00 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.25 2002-05-03 13:38:45 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -89,6 +89,44 @@ void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
 
     group->addObject( cube );
     changed.trigger();
+}
+
+
+void visSurvey::PickSetDisplay::showAll(bool yn)
+{
+    showall = yn;
+    if ( !showall ) return;
+
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
+	if ( !cube ) continue;
+
+	cube->turnOn( true );
+    }
+}
+
+
+void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
+					     float dist )
+{
+    if ( showall ) return;
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
+	if ( !cube ) continue;
+
+	Geometry::Pos pos = SPM().coordXYT2Display(cube->centerPos());
+	cube->turnOn( false );
+	for ( int idy=0; idy<objs.size(); idy++ )
+	{
+	    if ( objs[idy]->calcDist( pos )< dist )
+	    {
+		cube->turnOn(true);
+		break;
+	    }
+	}
+    }
 }
 
 
