@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.7 2004-08-27 10:07:33 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.8 2004-08-27 10:14:12 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -37,12 +37,6 @@ static BufferString getFileName( const char* fnm )
 static BufferString getFileName( const IOPar& iop )
 {
     return getFileName( iop.find( sKey::FileName ) );
-}
-
-
-static BufferString getCBVSFileName( const char* fnm, int lnr )
-{
-    return getFileName( CBVSIOMgr::getFileName(fnm,lnr) );
 }
 
 
@@ -360,7 +354,7 @@ Executor* SeisCBVS2DLineIOProvider::getPutter( IOPar& iop,
 	}
 	const char* prevfnm = previop ? previop->find(sKey::FileName) : 0;
 	const int prevlnr = CBVSIOMgr::getFileNr( prevfnm );
-	fnm = getCBVSFileName( fnm, previop ? prevlnr+1 : 0 );
+	fnm = CBVSIOMgr::getFileName( fnm, previop ? prevlnr+1 : 0 );
 	iop.set( sKey::FileName, fnm );
     }
 
