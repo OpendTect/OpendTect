@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.1 2001-02-13 17:21:02 bert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.2 2002-03-26 17:01:23 bert Exp $";
 
 #include "dateinfo.h"
 #include <time.h>
@@ -233,8 +233,9 @@ void DateInfo::getRel( const DateInfo& reld ) const
 	buf = "exactly ";
 	int diff = year_ - reld.year_;
 	buf += abs(diff);
-	buf += " years ";
-	buf += diff > 0 ? "later" : "earlier";
+	buf += " year";
+	if ( abs(diff) != 1 ) buf += "s";
+	buf += diff > 0 ? " later" : " earlier";
 	return;
     }
 

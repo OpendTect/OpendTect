@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.24 2002-03-18 15:48:51 arend Exp $
+ RCS:           $Id: uiiosel.cc,v 1.25 2002-03-26 17:01:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidset.h"
 #include "iopar.h"
 #include "filegen.h"
+#include "keystrs.h"
 
 IOPar& uiIOFileSelect::ixtablehistory = *new IOPar("IXTable selection history");
 IOPar& uiIOFileSelect::devicehistory = *new IOPar("Device selection history");
@@ -106,7 +107,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
     int lastidx = 0;
     for ( ; ; lastidx++ )
     {
-	if ( !iopar.find( IOPar::compKey("I/O Selection",lastidx+1)) )
+	if ( !iopar.find( IOPar::compKey(sKey::IOSelection,lastidx+1)) )
 	    break;
     }
 
@@ -118,7 +119,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
 	if ( iopar.findKeyFor(key) ) continue;
 
 	lastidx++;
-	iopar.set( IOPar::compKey("I/O Selection",lastidx), key );
+	iopar.set( IOPar::compKey(sKey::IOSelection,lastidx), key );
     }
 }
 
@@ -130,7 +131,7 @@ void uiIOSelect::getHistory( const IOPar& iopar )
     bool havenew = false; BufferString bs;
     for ( int idx=1; ; idx++ )
     {
-	if ( !iopar.get( IOPar::compKey("I/O Selection",idx), bs ) )
+	if ( !iopar.get( IOPar::compKey(sKey::IOSelection,idx), bs ) )
 	    break;
 
 	const char* key = bs;
