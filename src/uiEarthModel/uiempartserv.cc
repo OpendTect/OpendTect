@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.18 2003-08-01 15:48:04 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.19 2003-08-04 13:38:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uimenu.h"
 #include "idealconn.h"
 #include "ptrman.h"
 
@@ -98,23 +99,45 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
 }
 
 
-bool uiEMPartServer::selectAuxData( const MultiID& id )
+bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
 {
     EM::EMManager& em = EM::EMM();
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
     if ( !hor ) return false;
 
-    uiReadSurfaceDlg dlg( appserv().parent(), &id );
-    if ( !dlg.go() ) return false;
-
     hor->removeAllAuxdata();
     EM::SurfaceIOData sd;
+    em.getSurfaceData( id, sd );
     EM::SurfaceIODataSelection sel( sd );
-    dlg.getSelection( sel );
+    sel.setDefault();
+    sel.selvalues.erase();
+    sel.selvalues += selidx;
 
     PtrMan<Executor> exec = hor->loader( &sel, true );
     uiExecutor exdlg( appserv().parent(), *exec );
     return exdlg.go();
+}
+
+
+int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx, 
+					   const MultiID& id )
+{
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    if ( !hor ) return 0;
+
+    const char* curval = hor->auxDataName( 0 );
+    EM::SurfaceIOData sd;
+    em.getSurfaceData( id, sd );
+    for ( int idx=0; idx<sd.valnames.size(); idx++ )
+    {
+	BufferString nm = *sd.valnames[idx];
+	uiMenuItem* itm = new uiMenuItem( nm );
+	mnu.insertItem( itm, startidx+idx );
+	itm->setChecked( nm == curval );
+    }
+
+    return sd.valnames.size();
 }
 
 

@@ -7,18 +7,19 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.9 2003-07-29 13:03:19 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.10 2003-08-04 13:39:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
-class SurfaceInfo;
-class BinIDValue;
 class BinIDRange;
+class BinIDValue;
 class BinIDZValue;
-class MultiID;
 class BufferString;
+class MultiID;
+class uiPopupMenu;
+class SurfaceInfo;
 
 namespace EM { class SurfaceIODataSelection; };
 
@@ -39,7 +40,8 @@ public:
     bool		exportHorizon(ExternalType);
 
     bool		selectHorizon(MultiID&);
-    bool		selectAuxData(const MultiID&);
+    bool		loadAuxData(const MultiID&,int);
+    int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&);
     bool		importWellTrack();
     bool		selectWellTracks(ObjectSet<MultiID>&);
     bool		importLMKFault();
