@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.21 2003-10-28 11:12:33 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.22 2003-11-06 16:15:12 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -43,7 +43,7 @@ const char* WellDisplay::log2colorstr	 = "Logcolor 2";
 
 WellDisplay::WellDisplay()
     : well(0)
-    , emwellid(-1)
+    , wellid(-1)
     , zistime(SI().zIsTime())
 {
     setMaterial(0);
@@ -88,7 +88,7 @@ bool WellDisplay::setWellId( const MultiID& multiid )
     const Well::D2TModel* d2t = wd->d2TModel();
     if ( zistime && !d2t ) mErrRet( "No depth to time model defined" );
 
-    emwellid = multiid;
+    wellid = multiid;
     setName( wd->name() );
 
     if ( wd->track().size() < 1 ) return true;
@@ -125,7 +125,7 @@ void WellDisplay::setLineStyle( const LineStyle& lst )
 
 void WellDisplay::addMarkers()
 {
-    Well::Data* wd = Well::MGR().get( emwellid );
+    Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd ) return;
 
     well->removeAllMarkers();
@@ -177,7 +177,7 @@ mShowFunction( showLogName, logNameShown )
 void WellDisplay::displayLog( int logidx, int lognr, 
 			      const Interval<float>* range )
 {
-    Well::Data* wd = Well::MGR().get( emwellid );
+    Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd || !wd->logs().size() ) return;
 
     Well::Log& log = wd->logs().getLog(logidx);
@@ -211,7 +211,7 @@ void WellDisplay::displayLog( int logidx, int lognr,
 void WellDisplay::displayLog( const char* lognm,  
 			      const Interval<float>& range, int lognr )
 {
-    Well::Data* wd = Well::MGR().get( emwellid );
+    Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd || !wd->logs().size() ) return;
 
     int logidx = -1;
@@ -247,11 +247,11 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    par.set( earthmodelidstr, emwellid );
+    par.set( earthmodelidstr, wellid );
 
-    int wellid = well->id();
-    par.set( wellidstr, wellid );
-    if ( saveids.indexOf(wellid) == -1 ) saveids += wellid;
+    int viswellid = well->id();
+    par.set( wellidstr, viswellid );
+    if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
 
     par.set( log1nmstr, log1nm );
     par.set( log1rgstr, log1rg.start, log1rg.stop );
@@ -271,10 +271,10 @@ int WellDisplay::usePar( const IOPar& par )
     int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
-    int wellid;
-    if ( par.get(wellidstr,wellid) )
+    int viswellid;
+    if ( par.get(wellidstr,viswellid) )
     {
-	DataObject* dataobj = visBase::DM().getObj( wellid );
+	DataObject* dataobj = visBase::DM().getObj( viswellid );
 	if ( !dataobj ) return 0;
 	mDynamicCastGet(visBase::Well*,well_,dataobj)
 	if ( !well_ ) return -1;
