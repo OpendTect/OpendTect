@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.6 2004-01-12 15:02:44 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.7 2004-01-13 14:16:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "iopar.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "featset.h"
 #include "helpview.h"
 #include "nlacrdesc.h"
@@ -316,6 +317,15 @@ void uiODApplMgr::storeSurface( int visid )
     visserv->getRandomPosDataPos( visid, bidzvset );
     const AttribSelSpec* as = visserv->getSelSpec( visid );
     BufferString dispname( as ? as->userRef() : 0 );
+    if ( as && as->isNLA() )
+    {
+	dispname = as->objectRef();
+	const char* nodenm = as->userRef();
+	if ( IOObj::isKey(as->userRef()) )
+	    nodenm = IOM().nameOf( as->userRef(), false );
+	dispname += " ("; dispname += nodenm; dispname += ")";
+    }
+
     if ( as && as->id() >= 0 )
 	emserv->setDataVal( visserv->getMultiID(visid), bidzvset, dispname );
     emserv->storeObject( visserv->getMultiID(visid) );
