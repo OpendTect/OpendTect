@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.13 2005-02-01 14:38:56 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.14 2005-02-02 16:02:48 duntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,14 +110,14 @@ static void putBivSetToFS( BinIDValueSet& bvs, FeatureSet& fs )
     BinIDValueSet::Pos pos;
     const int nrdescs = fs.descs().size();
     float vals[nrdescs+1];
-    FVPos fvp(0,0);
+    BinID binid;
     while ( bvs.next(pos) )
     {
-	bvs.get( pos, fvp, vals );
-	fvp.ver = vals[0];
+	bvs.get( pos, binid, vals );
+        FVPos fvp(binid.inl, binid.crl, vals[0]);
 	FeatureVec* vec = new FeatureVec( fvp );
 	for ( int idx=1; idx<=nrdescs; idx++ )
-	    (*vec)[idx-1] = vals[idx];
+	    (*vec) += vals[idx];
 	fs += vec;
     }
 }
