@@ -4,13 +4,15 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.1 2002-06-24 13:20:00 kristofer Exp $";
+static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.2 2003-09-15 09:19:00 kristofer Exp $";
 
 
 #include "vislevelofdetail.h"
 
 
 #include "Inventor/nodes/SoLevelOfDetail.h"
+
+mCreateFactoryEntry( visBase::LevelOfDetail )
 
 
 visBase::LevelOfDetail::LevelOfDetail()
