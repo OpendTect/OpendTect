@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.4 2003-12-30 16:37:33 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.5 2004-01-09 16:28:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -771,8 +771,7 @@ bool uiODApplMgr::getNewCubeData( int visid, bool colordata )
 
     mGetCheckSelSpec( setCubeData(visid,0,true) );
 
-    const AttribSliceSet* prevset = !colordata ? visserv->getCachedData( visid )
-					       : 0;
+    const AttribSliceSet* prevset = visserv->getCachedData( visid, colordata );
 
     const CubeSampling& cs = *visserv->getCubeSampling( visid );
     AttribSliceSet* slices = attrserv->createOutput( cs, as, prevset );

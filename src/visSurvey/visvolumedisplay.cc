@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.44 2004-01-05 09:45:07 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.45 2004-01-09 16:27:08 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,20 +27,22 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
-const char* visSurvey::VolumeDisplay::volumestr = "Cube ID";
-const char* visSurvey::VolumeDisplay::volrenstr = "Volren";
-const char* visSurvey::VolumeDisplay::inlinestr = "Inline";
-const char* visSurvey::VolumeDisplay::crosslinestr = "Crossline";
-const char* visSurvey::VolumeDisplay::timestr = "Time";
-const char* visSurvey::VolumeDisplay::inlineposstr = "Inline position";
-const char* visSurvey::VolumeDisplay::crosslineposstr = "Crossline position";
-const char* visSurvey::VolumeDisplay::timeposstr = "Time position";
-const char* visSurvey::VolumeDisplay::inlineshowstr = "Inline shown";
-const char* visSurvey::VolumeDisplay::crosslineshowstr = "Crossline shown";
-const char* visSurvey::VolumeDisplay::timeshowstr = "Time shown";
+namespace visSurvey {
+
+const char* VolumeDisplay::volumestr = "Cube ID";
+const char* VolumeDisplay::volrenstr = "Volren";
+const char* VolumeDisplay::inlinestr = "Inline";
+const char* VolumeDisplay::crosslinestr = "Crossline";
+const char* VolumeDisplay::timestr = "Time";
+const char* VolumeDisplay::inlineposstr = "Inline position";
+const char* VolumeDisplay::crosslineposstr = "Crossline position";
+const char* VolumeDisplay::timeposstr = "Time position";
+const char* VolumeDisplay::inlineshowstr = "Inline shown";
+const char* VolumeDisplay::crosslineshowstr = "Crossline shown";
+const char* VolumeDisplay::timeshowstr = "Time shown";
 
 
-visSurvey::VolumeDisplay::VolumeDisplay()
+VolumeDisplay::VolumeDisplay()
     : VisualObject(true)
     , cube(0)
     , as(*new AttribSelSpec)
@@ -86,7 +88,7 @@ visSurvey::VolumeDisplay::VolumeDisplay()
 }
 
 
-visSurvey::VolumeDisplay::~VolumeDisplay()
+VolumeDisplay::~VolumeDisplay()
 {
     cube->getBoxManipEnd()->remove(mCB(this,VolumeDisplay,manipMotionFinishCB));
     cube->unRef();
@@ -99,7 +101,7 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
 }
 
 
-void visSurvey::VolumeDisplay::setCube( visBase::CubeView* cv )
+void VolumeDisplay::setCube( visBase::CubeView* cv )
 {
     if ( cube )
     {
@@ -114,41 +116,41 @@ void visSurvey::VolumeDisplay::setCube( visBase::CubeView* cv )
 }
 
 
-void visSurvey::VolumeDisplay::setCenter( const Coord3& pos )
+void VolumeDisplay::setCenter( const Coord3& pos )
 { cube->setCenter( pos ); }
 
 
-Coord3 visSurvey::VolumeDisplay::center() const
+Coord3 VolumeDisplay::center() const
 { return cube->center(); }
 
 
-Coord3 visSurvey::VolumeDisplay::manipCenter() const
+Coord3 VolumeDisplay::manipCenter() const
 { return cube->draggerCenter(); }
 
 
-void visSurvey::VolumeDisplay::setWidth( const Coord3& pos )
+void VolumeDisplay::setWidth( const Coord3& pos )
 { cube->setWidth( pos ); }
 
 
-Coord3 visSurvey::VolumeDisplay::width() const
+Coord3 VolumeDisplay::width() const
 { return cube->width(); }
 
 
-Coord3 visSurvey::VolumeDisplay::manipWidth() const
+Coord3 VolumeDisplay::manipWidth() const
 { return cube->draggerWidth(); }
 
 
-void visSurvey::VolumeDisplay::showBox( bool yn )
+void VolumeDisplay::showBox( bool yn )
 { cube->showBox( yn ); }
 
 
-void visSurvey::VolumeDisplay::resetManip()
+void VolumeDisplay::resetManip()
 {
     cube->resetDragger();
 }
 
 
-void visSurvey::VolumeDisplay::getPlaneIds( int& id0, int& id1, int& id2 )
+void VolumeDisplay::getPlaneIds( int& id0, int& id1, int& id2 )
 {
     id0 = inlid;
     id1 = crlid;
@@ -156,21 +158,21 @@ void visSurvey::VolumeDisplay::getPlaneIds( int& id0, int& id1, int& id2 )
 }
 
 
-float visSurvey::VolumeDisplay::getPlanePos( int id__ )
+float VolumeDisplay::getPlanePos( int id__ )
 {
     return cube->slicePosition( id__ );
 }
 
 
-AttribSelSpec& visSurvey::VolumeDisplay::getAttribSelSpec()
+AttribSelSpec& VolumeDisplay::getAttribSelSpec()
 { return as; }
 
 
-const AttribSelSpec& visSurvey::VolumeDisplay::getAttribSelSpec() const
+const AttribSelSpec& VolumeDisplay::getAttribSelSpec() const
 { return as; }
 
 
-void visSurvey::VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
+void VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 {
     if ( as==as_ ) return;
     as = as_;
@@ -180,19 +182,19 @@ void visSurvey::VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 }
 
 
-ColorAttribSel& visSurvey::VolumeDisplay::getColorSelSpec()
+ColorAttribSel& VolumeDisplay::getColorSelSpec()
 { return colas; }
 
 
-const ColorAttribSel& visSurvey::VolumeDisplay::getColorSelSpec() const
+const ColorAttribSel& VolumeDisplay::getColorSelSpec() const
 { return colas; }
 
 
-void visSurvey::VolumeDisplay::setColorSelSpec( const ColorAttribSel& as_ )
+void VolumeDisplay::setColorSelSpec( const ColorAttribSel& as_ )
 { colas = as_; }
 
 
-CubeSampling& visSurvey::VolumeDisplay::getCubeSampling(bool manippos)
+CubeSampling& VolumeDisplay::getCubeSampling(bool manippos)
 {
     Coord3 center_ = manippos ? cube->draggerCenter() : cube->center();
     Coord3 width_ = manippos ? cube->draggerWidth() : cube->width();
@@ -213,7 +215,7 @@ CubeSampling& visSurvey::VolumeDisplay::getCubeSampling(bool manippos)
 }
 
 
-void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
+void VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
 {
     Coord3 newwidth( cs_.hrg.stop.inl - cs_.hrg.start.inl,
 			 cs_.hrg.stop.crl - cs_.hrg.start.crl, 
@@ -227,7 +229,7 @@ void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
 }
 
 
-bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset, 
+bool VolumeDisplay::putNewData( AttribSliceSet* sliceset, 
 					   bool colordata )
 {
     if ( !sliceset )
@@ -257,7 +259,7 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset,
 }
 
 
-void visSurvey::VolumeDisplay::setData( const AttribSliceSet* sliceset,
+void VolumeDisplay::setData( const AttribSliceSet* sliceset,
 					int datatype )
 {
     PtrMan<Array3D<float> > datacube = sliceset->createArray( 0, 1, 2 );
@@ -266,13 +268,13 @@ void visSurvey::VolumeDisplay::setData( const AttribSliceSet* sliceset,
 }
 
 
-const AttribSliceSet* visSurvey::VolumeDisplay::getPrevData() const
+const AttribSliceSet* VolumeDisplay::getCachedData( bool colordata ) const
 {
-    return cache;
+    return colordata ? colcache : cache;
 }
 
 
-float visSurvey::VolumeDisplay::getValue( const Coord3& pos ) const
+float VolumeDisplay::getValue( const Coord3& pos ) const
 {
     if ( !cache ) return mUndefValue;
 
@@ -330,15 +332,15 @@ float visSurvey::VolumeDisplay::getValue( const Coord3& pos ) const
 }
 
 
-void visSurvey::VolumeDisplay::turnOn( bool yn ) 
+void VolumeDisplay::turnOn( bool yn ) 
 { cube->turnOn( yn ); }
 
 
-bool visSurvey::VolumeDisplay::isOn() const 
+bool VolumeDisplay::isOn() const 
 { return cube->isOn(); }
 
 
-void visSurvey::VolumeDisplay::manipMotionFinishCB( CallBacker* )
+void VolumeDisplay::manipMotionFinishCB( CallBacker* )
 {
     CubeSampling cs = getCubeSampling(true);
     SI().snap( cs.hrg.start, BinID(0,0) );
@@ -382,7 +384,7 @@ void visSurvey::VolumeDisplay::manipMotionFinishCB( CallBacker* )
 }
 
 
-void visSurvey::VolumeDisplay::initSlice( int sliceid )
+void VolumeDisplay::initSlice( int sliceid )
 {
     DataObject* dobj = visBase::DM().getObj( sliceid );
     mDynamicCastGet(visBase::MovableTextureSlice*,ts,dobj);
@@ -394,58 +396,58 @@ void visSurvey::VolumeDisplay::initSlice( int sliceid )
 }
 
 
-void visSurvey::VolumeDisplay::sliceMoving( CallBacker* )
+void VolumeDisplay::sliceMoving( CallBacker* )
 {
     slicemoving.trigger();
 }
 
 
-void visSurvey::VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
+void VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
 {
     cube->setVolRenColorTab( ctab );
     cube->setViewerColorTab( ctab );
 }
 
 
-const visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTab() const
+const visBase::VisColorTab& VolumeDisplay::getColorTab() const
 { return cube->getViewerColorTab(); }
 
 
-visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTab()
+visBase::VisColorTab& VolumeDisplay::getColorTab()
 { return cube->getViewerColorTab(); }
 
 
-const TypeSet<float>& visSurvey::VolumeDisplay::getHistogram() const
+const TypeSet<float>& VolumeDisplay::getHistogram() const
 { return cube->getHistogram(); }
 
 
-void visSurvey::VolumeDisplay::setMaterial( visBase::Material* nm)
+void VolumeDisplay::setMaterial( visBase::Material* nm)
 { cube->setMaterial(nm); }
 
 
-visBase::Material* visSurvey::VolumeDisplay::getMaterial()
+visBase::Material* VolumeDisplay::getMaterial()
 { return cube->getMaterial(); }
 
 
-const visBase::Material* visSurvey::VolumeDisplay::getMaterial() const
+const visBase::Material* VolumeDisplay::getMaterial() const
 { return cube->getMaterial(); }
 
 
-int visSurvey::VolumeDisplay::getVolRenId() const
+int VolumeDisplay::getVolRenId() const
 { return cube->getVolRenId(); }
 
 
-SoNode* visSurvey::VolumeDisplay::getInventorNode() 
+SoNode* VolumeDisplay::getInventorNode() 
 { return cube->getInventorNode(); }
 
 
-bool visSurvey::VolumeDisplay::isVolRenShown() const
+bool VolumeDisplay::isVolRenShown() const
 {
     return cube->isVolRenShown();
 }
 
 
-void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
+void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 {
     visBase::VisualObject::fillPar( par, saveids );
 
@@ -465,7 +467,7 @@ void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 }
 
 
-int visSurvey::VolumeDisplay::usePar( const IOPar& par )
+int VolumeDisplay::usePar( const IOPar& par )
 {
     int res =  visBase::VisualObject::usePar( par );
     if ( res!=1 ) return res;
@@ -520,3 +522,5 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
 
     return 1;
 }
+
+}; // namespace visSurvey

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.185 2004-01-05 09:46:30 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.186 2004-01-09 16:28:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -720,11 +720,12 @@ const CubeSampling* uiVisPartServer::getCubeSampling( int id ) const
 }
 
 
-const AttribSliceSet* uiVisPartServer::getCachedData( int id ) const
+const AttribSliceSet* uiVisPartServer::getCachedData( int id, 
+						      bool colordata ) const
 {
     mDynamicCastAllConst()
-    if ( pdd ) return pdd->getPrevData();
-    if ( vd ) return vd->getPrevData();
+    if ( pdd ) return pdd->getCachedData( colordata );
+    if ( vd ) return vd->getCachedData( colordata );
     return 0;
 }
 
@@ -1328,12 +1329,13 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 	return false;
 
     const ColorAttribSel* colas = getColorSelSpec( id );
+    const int attribid = colas->as.id();
     if ( !colas ) return false;
-    if ( !newselect && colas->as.id()<0 )
+    if ( !newselect && attribid < 0 )
 	return false;
 
     bool res = true;
-    if ( newselect || ( colas->as.id() < 0 ) )
+    if ( newselect || ( attribid < 0 ) )
 	res = selectColorAttrib( id );
 	
     if ( !res ) return res;
@@ -1342,6 +1344,13 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
     eventobjid = id;
     res = sendEvent( evGetColorData );
     return res;
+}
+
+
+void uiVisPartServer::removeColorData( int id )
+{
+    mDynamicCastAll();
+    if ( pdd ) pdd->putNewData( 0, true );
 }
 
 

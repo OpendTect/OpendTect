@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.57 2004-01-05 09:45:06 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.58 2004-01-09 16:27:08 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -27,9 +27,12 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.57 2004-01-05 09:45:
 
 mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
 
-const char* visSurvey::PlaneDataDisplay::trectstr = "Texture rectangle";
 
-visSurvey::PlaneDataDisplay::PlaneDataDisplay()
+namespace visSurvey {
+
+const char* PlaneDataDisplay::trectstr = "Texture rectangle";
+
+PlaneDataDisplay::PlaneDataDisplay()
     : VisualObject(true)
     , trect(0)
     , cache(0)
@@ -59,7 +62,7 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
 }
 
 
-visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
+PlaneDataDisplay::~PlaneDataDisplay()
 {
     SPM().zscalechange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
     trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged) );
@@ -72,7 +75,7 @@ visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
 }
 
 
-void visSurvey::PlaneDataDisplay::setTextureRect( visBase::TextureRect* tr )
+void PlaneDataDisplay::setTextureRect( visBase::TextureRect* tr )
 {
     if ( trect )
     {
@@ -86,14 +89,14 @@ void visSurvey::PlaneDataDisplay::setTextureRect( visBase::TextureRect* tr )
 }
 
 
-void visSurvey::PlaneDataDisplay::setType( Type nt )
+void PlaneDataDisplay::setType( Type nt )
 {
     type = nt;
     setGeometry( false, true );
 }
 
 
-void visSurvey::PlaneDataDisplay::setGeometry( bool manip, bool init_ )
+void PlaneDataDisplay::setGeometry( bool manip, bool init_ )
 {
     BinID startbid = SI().range().start;
     BinID stopbid = SI().range().stop;
@@ -111,7 +114,7 @@ void visSurvey::PlaneDataDisplay::setGeometry( bool manip, bool init_ )
 }
 
 
-void visSurvey::PlaneDataDisplay::setRanges( const StepInterval<float>& irg,
+void PlaneDataDisplay::setRanges( const StepInterval<float>& irg,
 					     const StepInterval<float>& crg,
 					     const StepInterval<float>& zrg,
        					     bool manip )
@@ -133,7 +136,7 @@ void visSurvey::PlaneDataDisplay::setRanges( const StepInterval<float>& irg,
     }
 }
 
-void visSurvey::PlaneDataDisplay::setOrigo( const Coord3& pos )
+void PlaneDataDisplay::setOrigo( const Coord3& pos )
 {
     trect->getRectangle().setSnapping( false );
     trect->getRectangle().setOrigo( pos );
@@ -141,7 +144,7 @@ void visSurvey::PlaneDataDisplay::setOrigo( const Coord3& pos )
 }
 
 
-void visSurvey::PlaneDataDisplay::setWidth( const Coord3& pos )
+void PlaneDataDisplay::setWidth( const Coord3& pos )
 {
     if ( type==Inline )
 	trect->getRectangle().setWidth( pos.z, pos.y );
@@ -152,7 +155,7 @@ void visSurvey::PlaneDataDisplay::setWidth( const Coord3& pos )
 }
 
 
-void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
+void PlaneDataDisplay::resetDraggerSizes( float appvel )
 {
     const float happvel = appvel/2;
     BinID startbid = SI().range().start;
@@ -208,7 +211,7 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
 }
 
 
-float visSurvey::PlaneDataDisplay::calcDist( const Coord3& pos ) const
+float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 {
     const visBase::Transformation* utm2display= SPM().getUTM2DisplayTransform();
     Coord3 xytpos = utm2display->transformBack( pos );
@@ -277,37 +280,37 @@ float visSurvey::PlaneDataDisplay::calcDist( const Coord3& pos ) const
 }
 
 
-void visSurvey::PlaneDataDisplay::appVelChCB( CallBacker* )
+void PlaneDataDisplay::appVelChCB( CallBacker* )
 {
     resetDraggerSizes( SPM().getZScale() );
 }
 
 
-void visSurvey::PlaneDataDisplay::manipChanged( CallBacker* )
+void PlaneDataDisplay::manipChanged( CallBacker* )
 {
     moving.trigger();
 }
 
 
-void visSurvey::PlaneDataDisplay::showDraggers(bool yn)
+void PlaneDataDisplay::showDraggers(bool yn)
 {
     trect->getRectangle().displayDraggers(yn);
 }
 
 
-void visSurvey::PlaneDataDisplay::resetManip()
+void PlaneDataDisplay::resetManip()
 {
     trect->getRectangle().resetManip();
 }
 
 
-AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec()
+AttribSelSpec& PlaneDataDisplay::getAttribSelSpec()
 { return as; }
 
-const AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec() const
+const AttribSelSpec& PlaneDataDisplay::getAttribSelSpec() const
 { return as; }
 
-void visSurvey::PlaneDataDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
+void PlaneDataDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 {
     as = as_;
     delete cache;
@@ -317,17 +320,17 @@ void visSurvey::PlaneDataDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 }
 
 
-ColorAttribSel& visSurvey::PlaneDataDisplay::getColorSelSpec()
+ColorAttribSel& PlaneDataDisplay::getColorSelSpec()
 { return colas; }
 
-const ColorAttribSel& visSurvey::PlaneDataDisplay::getColorSelSpec() const
+const ColorAttribSel& PlaneDataDisplay::getColorSelSpec() const
 { return colas; }
 
-void visSurvey::PlaneDataDisplay::setColorSelSpec( const ColorAttribSel& as_ )
+void PlaneDataDisplay::setColorSelSpec( const ColorAttribSel& as_ )
 { colas = as_; }
 
 
-CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
+CubeSampling& PlaneDataDisplay::getCubeSampling( bool manippos )
 {
     CubeSampling& cubesampl = manippos ? manipcs : cs;
     cubesampl.hrg.start = BinID( mNINT(manippos
@@ -369,7 +372,7 @@ CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
 }
 
 
-void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
+void PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 {
     Coord3 width( cs_.hrg.stop.inl - cs_.hrg.start.inl,
 		  cs_.hrg.stop.crl - cs_.hrg.start.crl, 
@@ -382,15 +385,14 @@ void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 }
 
 
-void visSurvey::PlaneDataDisplay::setSliceIdx( int idx )
+void PlaneDataDisplay::setSliceIdx( int idx )
 {
     if ( !cache || idx >= cache->size() ) return;
     trect->showTexture( idx );
 }
 
 
-bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset, 
-					      bool colordata )
+bool PlaneDataDisplay::putNewData( AttribSliceSet* sliceset, bool colordata )
 {
     if ( colordata )
     {
@@ -412,9 +414,8 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset,
     return true;
 }
 
-    
-void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset,
-       					   int datatype	) 
+
+void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype ) 
 {
     trect->clear();
 
@@ -460,31 +461,31 @@ void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset,
 }
 
 
-const AttribSliceSet* visSurvey::PlaneDataDisplay::getPrevData() const
+const AttribSliceSet* PlaneDataDisplay::getCachedData( bool colordata ) const
 {
-    return cache;
+    return colordata ? colcache : cache;
 }
 
 
-void visSurvey::PlaneDataDisplay::turnOn(bool n) { trect->turnOn(n); }
+void PlaneDataDisplay::turnOn(bool n) { trect->turnOn(n); }
 
 
-bool visSurvey::PlaneDataDisplay::isOn() const { return trect->isOn(); }
+bool PlaneDataDisplay::isOn() const { return trect->isOn(); }
 
 
-void visSurvey::PlaneDataDisplay::setColorTab( visBase::VisColorTab& ct )
+void PlaneDataDisplay::setColorTab( visBase::VisColorTab& ct )
 { trect->setColorTab( ct ); }
 
 
-visBase::VisColorTab& visSurvey::PlaneDataDisplay::getColorTab()
+visBase::VisColorTab& PlaneDataDisplay::getColorTab()
 { return trect->getColorTab(); }
 
 
-const visBase::VisColorTab& visSurvey::PlaneDataDisplay::getColorTab() const
+const visBase::VisColorTab& PlaneDataDisplay::getColorTab() const
 { return trect->getColorTab(); }
 
 
-float visSurvey::PlaneDataDisplay::getValue( const Coord3& pos ) const
+float PlaneDataDisplay::getValue( const Coord3& pos ) const
 {
     if ( !cache ) return mUndefValue;
 
@@ -535,22 +536,22 @@ float visSurvey::PlaneDataDisplay::getValue( const Coord3& pos ) const
 }
 
 
-void visSurvey::PlaneDataDisplay::setMaterial( visBase::Material* nm)
+void PlaneDataDisplay::setMaterial( visBase::Material* nm)
 { trect->setMaterial(nm); }
 
 
-const visBase::Material* visSurvey::PlaneDataDisplay::getMaterial() const
+const visBase::Material* PlaneDataDisplay::getMaterial() const
 { return trect->getMaterial(); }
 
 
-visBase::Material* visSurvey::PlaneDataDisplay::getMaterial()
+visBase::Material* PlaneDataDisplay::getMaterial()
 { return trect->getMaterial(); }
 
 
-SoNode* visSurvey::PlaneDataDisplay::getInventorNode() { return trect->getInventorNode(); }
+SoNode* PlaneDataDisplay::getInventorNode() { return trect->getInventorNode(); }
 
 
-const char* visSurvey::PlaneDataDisplay::getResName( int res ) const
+const char* PlaneDataDisplay::getResName( int res ) const
 {
     if ( res == 1 ) return "Moderate";
     if ( res == 2 ) return "High";
@@ -558,7 +559,7 @@ const char* visSurvey::PlaneDataDisplay::getResName( int res ) const
 }
 
 
-void visSurvey::PlaneDataDisplay::setResolution( int res )
+void PlaneDataDisplay::setResolution( int res )
 {
     trect->setResolution( res );
     if ( cache ) setData( cache );
@@ -566,24 +567,24 @@ void visSurvey::PlaneDataDisplay::setResolution( int res )
 }
 
 
-int visSurvey::PlaneDataDisplay::getResolution() const
+int PlaneDataDisplay::getResolution() const
 {
     return trect->getResolution();
 }
 
-int visSurvey::PlaneDataDisplay::getNrResolutions() const
+int PlaneDataDisplay::getNrResolutions() const
 {
     return trect->getNrResolutions();
 }
 
 
-const TypeSet<float>& visSurvey::PlaneDataDisplay::getHistogram() const
+const TypeSet<float>& PlaneDataDisplay::getHistogram() const
 {
     return trect->getHistogram();
 }
 
 
-void visSurvey::PlaneDataDisplay::fillPar( IOPar& par,
+void PlaneDataDisplay::fillPar( IOPar& par,
 	TypeSet<int>& saveids ) const
 {
     visBase::VisualObject::fillPar( par, saveids );
@@ -597,7 +598,7 @@ void visSurvey::PlaneDataDisplay::fillPar( IOPar& par,
 }
 
 
-int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
+int PlaneDataDisplay::usePar( const IOPar& par )
 {
     int res =  visBase::VisualObject::usePar( par );
     if ( res!=1 ) return res;
@@ -630,3 +631,4 @@ int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
     return 1;
 }
 
+}; // namespace visSurvey

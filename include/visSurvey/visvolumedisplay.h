@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.29 2004-01-05 09:45:08 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.30 2004-01-09 16:27:17 nanne Exp $
 ________________________________________________________________________
 
 
@@ -74,7 +74,7 @@ public:
 				    	getCubeSampling(manippos); }
     void			setCubeSampling(const CubeSampling&);
     bool			putNewData(AttribSliceSet*,bool);
-    const AttribSliceSet*	getPrevData() const;
+    const AttribSliceSet*	getCachedData(bool) const;
     float			getValue(const Coord3&) const;
 
     ColorAttribSel&		getColorSelSpec();

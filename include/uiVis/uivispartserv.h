@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.107 2004-01-05 09:46:12 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.108 2004-01-09 16:27:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,7 @@ public:
     const CubeSampling*		getCubeSampling(int) const;
     				/*!< Should only be called as a direct 
 				     reply to evGetNewCubeData */
-    const AttribSliceSet*	getCachedData(int) const;
+    const AttribSliceSet*	getCachedData(int,bool) const;
     bool			calculateAttrib(int id,bool newsel);
     bool			setCubeData(int,AttribSliceSet*,
 	    				    bool colordata=false);
@@ -214,6 +214,7 @@ protected:
     bool			hasColorAttrib(int) const;
     bool			selectColorAttrib(int);
     bool			calculateColorAttrib(int,bool);
+    void			removeColorData(int);
 
     bool			isMovable(int id) const;
     bool			setPosition(int id);
