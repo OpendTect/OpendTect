@@ -4,11 +4,12 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.16 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.17 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
-#include "vissceneobjgroup.h"
+#include "visdatagroup.h"
+#include "vispickstyle.h"
 #include "ranges.h"
 #include "samplingdata.h"
 #include "axisinfo.h"
@@ -18,7 +19,6 @@ static const char* rcsID = "$Id: visannot.cc,v 1.16 2003-11-07 12:22:02 bert Exp
 #include "Inventor/nodes/SoIndexedLineSet.h"
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoSwitch.h"
-#include "Inventor/nodes/SoPickStyle.h"
 
 
 const char* visBase::Annotation::textprefixstr = "Text ";
@@ -33,11 +33,12 @@ visBase::Annotation::Annotation()
     : coords( new SoCoordinate3 )
     , textswitch( new SoSwitch )
     , scaleswitch( new SoSwitch )
+    , pickstyle( visBase::PickStyle::create() )
     , texts( 0 )
 {
-    SoPickStyle* pickstyle = new SoPickStyle;
-    addChild( pickstyle );
-    pickstyle->style = SoPickStyle::UNPICKABLE;
+    pickstyle->ref();
+    addChild( pickstyle->getInventorNode() );
+    pickstyle->setStyle(PickStyle::Unpickable);
 
     addChild( coords );
 
@@ -81,10 +82,10 @@ visBase::Annotation::Annotation()
     addChild( line );
 
     addChild( textswitch );
-    texts = visBase::SceneObjectGroup::create();
+    texts = visBase::DataObjectGroup::create();
     texts->setSeparate(false);
     texts->ref();
-    textswitch->addChild( texts->getData() );
+    textswitch->addChild( texts->getInventorNode() );
     textswitch->whichChild = 0;
     Text* text = Text::create(); texts->addObject( text );
     text = Text::create(); texts->addObject( text );
@@ -96,22 +97,22 @@ visBase::Annotation::Annotation()
     scaleswitch->addChild(scalegroup);
     scaleswitch->whichChild = 0;
 
-    visBase::SceneObjectGroup* scale = visBase::SceneObjectGroup::create();
+    visBase::DataObjectGroup* scale = visBase::DataObjectGroup::create();
     scale->setSeparate(false);
     scale->ref();
-    scalegroup->addChild( scale->getData() );
+    scalegroup->addChild( scale->getInventorNode() );
     scales += scale;
     
-    scale = visBase::SceneObjectGroup::create();
+    scale = visBase::DataObjectGroup::create();
     scale->setSeparate(false);
     scale->ref();
-    scalegroup->addChild( scale->getData() );
+    scalegroup->addChild( scale->getInventorNode() );
     scales += scale;
     
-    scale = visBase::SceneObjectGroup::create();
+    scale = visBase::DataObjectGroup::create();
     scale->setSeparate(false);
     scale->ref();
-    scalegroup->addChild( scale->getData() );
+    scalegroup->addChild( scale->getInventorNode() );
     scales += scale;
     
     updateTextPos();
@@ -124,6 +125,7 @@ visBase::Annotation::~Annotation()
     scales[1]->unRef();
     scales[2]->unRef();
     texts->unRef();
+    pickstyle->unRef();
 }
 
 
@@ -248,7 +250,7 @@ void visBase::Annotation::updateTextPos(int textid)
 
 visBase::Text* visBase::Annotation::getText( int dim, int textnr )
 {
-    SceneObjectGroup* group = 0;
+    DataObjectGroup* group = 0;
     group = scales[dim];
 
     mDynamicCastGet(visBase::Text*,text,group->getObject(textnr));

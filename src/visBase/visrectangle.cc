@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.36 2003-12-19 09:00:19 nanne Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.37 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -289,7 +289,7 @@ Coord3 visBase::RectangleDragger::getDraggerSize() const
 }
 
 
-SoNode* visBase::RectangleDragger::getData()
+SoNode* visBase::RectangleDragger::getInventorNode()
 { return root; }
 
 
@@ -538,7 +538,7 @@ visBase::Rectangle::Rectangle()
 	manipswitch->addChild( manipsep );
 	manipswitch->whichChild = SO_SWITCH_NONE;
 
-	manipsep->addChild( dragger->getData() );
+	manipsep->addChild( dragger->getInventorNode() );
 
 	// Manip rectangle
 	maniprecttrans = new SoTranslation;

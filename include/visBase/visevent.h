@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.11 2003-12-30 13:10:18 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.12 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 #include "position.h"
 
 class SoEventCallback;
@@ -61,7 +61,7 @@ public:
 };
 
 
-class EventCatcher : public SceneObject
+class EventCatcher : public DataObject
 {
 public:
     static EventCatcher*	create()
@@ -72,7 +72,7 @@ public:
 
     CNotifier<EventCatcher, const EventInfo&>		eventhappened;
 
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
     bool			isEventHandled() const;
     void			eventIsHandled();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: viscoord.h,v 1.9 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "callback.h"
 #include "position.h"
-#include "vissceneobj.h"
+#include "visdata.h"
 
 class SoCoordinate3;
 class Executor;
@@ -36,7 +36,7 @@ getPos.
 set
 */
 
-class Coordinates : public SceneObject
+class Coordinates : public DataObject
 {
 public:
 
@@ -61,7 +61,7 @@ public:
     bool		autoUpdate();
     void		update();
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 protected:
 
     int			getFreeIdx();

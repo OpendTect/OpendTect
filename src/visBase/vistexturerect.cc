@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.39 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.40 2004-01-05 09:43:23 kristofer Exp $";
 
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -67,7 +67,7 @@ visBase::TextureRect::~TextureRect()
     for ( int idx=0; idx<textureset.size(); idx++ )
     {
 	visBase::Texture2* text = textureset[idx];
-	textureswitch->removeChild( text->getData() );
+	textureswitch->removeChild( text->getInventorNode() );
 	text->unRef();
     }
 
@@ -80,7 +80,7 @@ void visBase::TextureRect::setTexture( visBase::Texture2& newtext, int idx )
     visBase::Texture2* text = idx < textureset.size() ? textureset[idx] : 0;
     if ( text )
     {
-	textureswitch->removeChild( text->getData() );
+	textureswitch->removeChild( text->getInventorNode() );
 	text->unRef();
 	textureset -= text;
     }
@@ -96,7 +96,7 @@ void visBase::TextureRect::setTexture( visBase::Texture2& newtext, int idx )
 
     text = &newtext;
     text->ref();
-    textureswitch->insertChild( text->getData(), idx );
+    textureswitch->insertChild( text->getInventorNode(), idx );
 }
 
 
@@ -119,13 +119,13 @@ void visBase::TextureRect::setRectangle( Rectangle* nr )
 	rectangle->selection()->remove( mCB(this,TextureRect,triggerSel) );
 	rectangle->deSelection()->remove( mCB(this,TextureRect,triggerDeSel) );
 
-	removeChild( rectangle->getData() );
+	removeChild( rectangle->getInventorNode() );
 	rectangle->unRef();
     }
 
     rectangle = nr;
     rectangle->ref();
-    addChild( rectangle->getData() );
+    addChild( rectangle->getInventorNode() );
     rectangle->setMaterial( 0 );
 
     rectangle->manipStarts()->notify( mCB(this,TextureRect,triggerManipStarts));
@@ -205,7 +205,7 @@ void visBase::TextureRect::clear()
     {
 	const int idx = textureset.size()-1;
 	visBase::Texture2* text = textureset[idx];
-	textureswitch->removeChild( text->getData() );
+	textureswitch->removeChild( text->getInventorNode() );
 	text->unRef();
 	textureset.remove( idx );
     }

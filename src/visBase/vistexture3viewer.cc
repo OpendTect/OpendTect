@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.16 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.17 2004-01-05 09:43:23 kristofer Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -57,7 +57,7 @@ int visBase::Texture3Viewer::addSlice( int dim, float origpos )
     slice->ref();
     if ( texture ) slice->setTexture( *texture );
     textureobjects += slice;
-    addChild( slice->getData() );
+    addChild( slice->getInventorNode() );
     return slice->id();
 } 
 
@@ -87,7 +87,7 @@ void visBase::Texture3Viewer::removeObject( int idnumber )
 	if ( !textureobjects[idx] ) continue;
 	if ( textureobjects[idx]->id()!=idnumber ) continue;
 
-	removeChild( textureobjects[idx]->getData() );
+	removeChild( textureobjects[idx]->getInventorNode() );
 	textureobjects[idx]->unRef();
 
 	textureobjects.replace( 0, idx );
@@ -222,13 +222,13 @@ void visBase::Texture3Slice::setTexture( Texture3& nt )
 {
     if ( texture )
     {
-	removeChild( texture->getData() );
+	removeChild( texture->getInventorNode() );
 	texture->unRef();
     }
 
     texture = &nt;
     texture->ref();
-    insertChild( 0, texture->getData() );
+    insertChild( 0, texture->getInventorNode() );
 }
 
 void visBase::Texture3Slice::setUpCoords()
@@ -358,7 +358,7 @@ void visBase::MovableTextureSlice::setTexture( Texture3& text )
     group->unref();
     group = new SoGroup;
     group->ref();
-    group->addChild( texture->getData() );
+    group->addChild( texture->getInventorNode() );
     texturecoords = new SoTextureCoordinate3;
     group->addChild( texturecoords );
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.3 2003-12-04 16:00:00 nanne Exp $
+ RCS:           $Id: visdragger.cc,v 1.4 2004-01-05 09:43:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,14 +30,15 @@ Dragger::Dragger()
     , finished(this)
     , onoff( new SoSwitch )
     , group( new SoGroup )
-    , transform( visBase::Transformation::create() )
+    , positiontransform( visBase::Transformation::create() )
+    , displaytrans( 0 )
 {
     onoff->ref();
     group = new SoGroup;
     onoff->addChild( group );
 
-    transform->ref();
-    group->addChild( transform->getData() );
+    positiontransform->ref();
+    group->addChild( positiontransform->getInventorNode() );
     setDraggerType( Translate );
     setRotation( Coord3(0,1,0), -M_PI/2 );
 }
@@ -53,9 +54,10 @@ Dragger::~Dragger()
 	group->removeChild( dragger );
     }
 
-    group->removeChild( transform->getData() );
-    transform->unRef();
+    group->removeChild( positiontransform->getInventorNode() );
+    positiontransform->unRef();
     onoff->unref();
+    if ( displaytrans ) displaytrans->unRef();
 }
 
 
@@ -78,6 +80,31 @@ void Dragger::setDraggerType( Type tp )
     dragger->addStartCallback( visBase::Dragger::startCB, this );
     dragger->addMotionCallback( visBase::Dragger::motionCB, this );
     dragger->addFinishCallback( visBase::Dragger::finishCB, this );
+}
+
+
+void Dragger::setTransformation( Transformation* nt )
+{
+    Coord3 pos = getPos();
+    if ( displaytrans )
+    {
+	displaytrans->unRef();
+	displaytrans = 0;
+    }
+
+    displaytrans = nt;
+    if ( displaytrans )
+    {
+	displaytrans->ref();
+    }
+
+    setPos( pos );
+}
+
+
+Transformation* Dragger::getTransformation()
+{
+    return displaytrans;
 }
 
 
@@ -113,23 +140,23 @@ bool Dragger::isOn() const
 
 void Dragger::setSize( const Coord3& size )
 {
-    transform->setScale( size );
+    positiontransform->setScale( size );
 }
 
 
 Coord3 Dragger::getSize() const
 {
-    return transform->getScale();
+    return positiontransform->getScale();
 }
 
 
 void Dragger::setRotation( const Coord3& vec, float angle )
 {
-    transform->setRotation( vec, angle );
+    positiontransform->setRotation( vec, angle );
 }
 
 
-SoNode* Dragger::getData()
+SoNode* Dragger::getInventorNode()
 {
     return onoff;
 }
@@ -137,8 +164,8 @@ SoNode* Dragger::getData()
 
 void Dragger::setPos( const Coord3& pos )
 {
-    Coord3 newpos = transformation ? transformation->transform( pos ) : pos;
-    transform->setTranslation( newpos );
+    Coord3 newpos = displaytrans ? displaytrans->transform( pos ) : pos;
+    positiontransform->setTranslation( newpos );
 
     mDynamicCastGet( SoTranslate1Dragger*, t1d, dragger )
     mDynamicCastGet( SoDragPointDragger*, dpd, dragger )
@@ -156,13 +183,13 @@ Coord3 Dragger::getPos() const
     else pos_ = dpd->translation.getValue();
 
     Coord3 pos( pos_[1], pos_[2], pos_[0] );
-    pos.x *= transform->getScale()[0];
-    pos.y *= transform->getScale()[1];
-    pos.z *= transform->getScale()[2];
+    pos.x *= positiontransform->getScale()[0];
+    pos.y *= positiontransform->getScale()[1];
+    pos.z *= positiontransform->getScale()[2];
 
-    Coord3 newpos = transform->getTranslation();
+    Coord3 newpos = positiontransform->getTranslation();
     pos += newpos;
-    return transformation ? transformation->transformBack( pos ) : pos;
+    return displaytrans ? displaytrans->transformBack( pos ) : pos;
 }
 
 

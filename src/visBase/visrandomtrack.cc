@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.20 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.21 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -52,7 +52,7 @@ visBase::RandomTrack::RandomTrack()
     eventcatcher->eventhappened.notify(
 		            mCB(this,visBase::RandomTrack,eventCB) );
 
-    addChild( eventcatcher->getData() );
+    addChild( eventcatcher->getInventorNode() );
 
     SoShapeHints* hints = new SoShapeHints;
     hints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
@@ -69,7 +69,7 @@ visBase::RandomTrack::~RandomTrack()
 {
     for ( int idx=0; idx<sections.size(); idx++ )
     {
-	removeChild( sections[idx]->getData() );
+	removeChild( sections[idx]->getInventorNode() );
 	sections[idx]->unRef();
     }
 
@@ -395,14 +395,14 @@ void visBase::RandomTrack::rebuild()
 	strip->setTextureCoordIndex( 3, 3 );
 
 	sections += strip;
-	addChild( strip->getData() );
+	addChild( strip->getInventorNode() );
     }
 
     while ( sections.size()>knots.size()-1 )
     {
 	const int idx = sections.size()-1;
 	TriangleStripSet* strip = sections[idx];
-	removeChild( strip->getData() );
+	removeChild( strip->getInventorNode() );
 	strip->unRef();
 	sections.remove( idx );
     }

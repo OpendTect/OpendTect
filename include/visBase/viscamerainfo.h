@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamerainfo.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: viscamerainfo.h,v 1.3 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 
 class SoCameraInfo;
 
@@ -25,7 +25,7 @@ namespace visBase
 
 */
 
-class CameraInfo : public SceneObject
+class CameraInfo : public DataObject
 {
 public:
     static CameraInfo*	create()
@@ -37,7 +37,7 @@ public:
     void		setMoving(bool yn);
     bool		isMoving() const;
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 
 protected:
     			~CameraInfo();

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.26 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.27 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -210,7 +210,7 @@ visBase::ThreadWorker* visBase::Texture::getThreadWorker()
 { return threadworker; }
 
 
-SoNode* visBase::Texture::getData()
+SoNode* visBase::Texture::getInventorNode()
 { return onoff; }
 
 
@@ -585,7 +585,7 @@ const Interval<float>& visBase::Texture::getColorDataRange() const
 
 void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    SceneObject::fillPar( par, saveids );
+    DataObject::fillPar( par, saveids );
 
     int ctid = colortab->id();
     par.set( colortabstr, ctid );
@@ -604,7 +604,7 @@ void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int visBase::Texture::usePar( const IOPar& par )
 {
-    int res = SceneObject::usePar( par );
+    int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
 
     int coltabid;

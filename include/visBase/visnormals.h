@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.4 2003-11-24 10:51:14 kristofer Exp $
+ RCS:		$Id: visnormals.h,v 1.5 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "vissceneobj.h"
+#include "visdata.h"
 
 class CallBacker;
 class SoNormal;
@@ -29,7 +29,7 @@ namespace visBase
 
 */
 
-class Normals : public SceneObject
+class Normals : public DataObject
 {
 public:
     static Normals*	create()
@@ -39,7 +39,7 @@ public:
     int			addNormal( const Coord3& );
     void		removeNormal( int );
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 
 protected:
     			~Normals();

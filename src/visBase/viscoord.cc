@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.9 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.10 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "viscoord.h"
 
@@ -180,4 +180,4 @@ void visBase::Coordinates::update()
 }
 
 
-SoNode* visBase::Coordinates::getData() { return coords; }
+SoNode* visBase::Coordinates::getInventorNode() { return coords; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.4 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: viswell.h,v 1.5 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace visBase
 {
 class DrawStyle;
 class PolyLine;
-class SceneObjectGroup;
+class DataObjectGroup;
 class Text;
 class Transformation;
 
@@ -96,9 +96,9 @@ protected:
     PolyLine*			track;
     DrawStyle*			drawstyle;
     Text*			welltxt;
-    SceneObjectGroup*		markergroup;
+    DataObjectGroup*		markergroup;
     SoSwitch*			markernmsw;
-    SceneObjectGroup*		markernames;
+    DataObjectGroup*		markernames;
     SoPlaneWellLog*		log;
     Transformation*		transformation;
 

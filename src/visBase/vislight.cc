@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vislight.cc,v 1.4 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
@@ -46,13 +46,13 @@ float visBase::Light::intensity() const
 { return light->intensity.getValue(); }
 
 
-SoNode* visBase::Light::getData()
+SoNode* visBase::Light::getInventorNode()
 { return light; }
 
 
 void visBase::Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 {
-    SceneObject::fillPar( par, storeids );
+    DataObject::fillPar( par, storeids );
 
     par.setYN( isonstr, isOn() );
     par.set( intensitystr, intensity() );
@@ -61,7 +61,7 @@ void visBase::Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
 
 int visBase::Light::usePar( const IOPar& par )
 {
-    int res = SceneObject::usePar( par );
+    int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
 
     bool yn;

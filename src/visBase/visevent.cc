@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.11 2003-12-30 13:10:15 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.12 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -44,14 +44,14 @@ void visBase::EventCatcher::setEventType( EventType type_ )
 
 void visBase::EventCatcher::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    SceneObject::fillPar( par, saveids );
+    DataObject::fillPar( par, saveids );
     par.set( eventtypestr, (int) type );
 }
 
 
 int visBase::EventCatcher::usePar( const IOPar& par )
 {
-    int res = SceneObject::usePar( par );
+    int res = DataObject::usePar( par );
     if ( res!= 1 ) return res;
 
     int type;
@@ -70,10 +70,10 @@ void visBase::EventCatcher::setCBs()
     if ( type==MouseClick || type==Any )
 	node->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
 				   internalCB, this );
-    else if ( type==Keyboard || type==Any )
+    if ( type==Keyboard || type==Any )
 	node->addEventCallback( SoKeyboardEvent::getClassTypeId(),
 				   internalCB, this );
-    else if ( type==MouseMovement || type==Any )
+    if ( type==MouseMovement || type==Any )
 	node->addEventCallback( SoLocation2Event::getClassTypeId(),
 				    internalCB, this );
 }
@@ -84,10 +84,10 @@ void visBase::EventCatcher::removeCBs()
     if ( type==MouseClick || type==Any )
 	node->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
 				   internalCB, this );
-    else if ( type==Keyboard || type==Any )
+    if ( type==Keyboard || type==Any )
 	node->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
 				   internalCB, this );
-    else if ( type==MouseMovement || type==Any )
+    if ( type==MouseMovement || type==Any )
 	node->removeEventCallback( SoLocation2Event::getClassTypeId(),
 				    internalCB, this );
 }
@@ -112,7 +112,7 @@ void visBase::EventCatcher::eventIsHandled()
 }
 
 
-SoNode* visBase::EventCatcher::getData()
+SoNode* visBase::EventCatcher::getInventorNode()
 { return node; }
 
 

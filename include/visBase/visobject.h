@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.20 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visobject.h,v 1.21 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 #include "color.h"
 
 class SoSeparator;
@@ -29,7 +29,7 @@ class Transformation;
     Base class for all objects that are visual on the scene.
 */
 
-class VisualObject : public SceneObject
+class VisualObject : public DataObject
 {
 public:
     virtual void		turnOn(bool)				= 0;
@@ -38,26 +38,16 @@ public:
     virtual void		setMaterial( Material* )		= 0;
     virtual Material*		getMaterial()				= 0;
 
-    virtual void		setTransformation( Transformation* );
-    				/*< Makes it possible to let the object
-				    transform its coords before giving them
-				    to OI.
-				    \note This is only a stub, you must
-					  implement it if you need it
-				*/
-    virtual Transformation*	getTransformation();
-    				/*<\brief Only a stub, returs zero */
-
     void			setSelectable( bool yn ) { isselectable=yn; }
     bool			selectable() const { return isselectable; }
     NotifierAccess*		selection() { return &selnotifier; }
     NotifierAccess*		deSelection() { return &deselnotifier; }
 
     virtual int			usePar( const IOPar& iopar )
-				{ return SceneObject::usePar(iopar); }
+				{ return DataObject::usePar(iopar); }
     virtual void		fillPar( IOPar& iopar,
 	    				 TypeSet<int>& saveids ) const
-				{ SceneObject::fillPar( iopar, saveids );}
+				{ DataObject::fillPar( iopar, saveids );}
 
 protected:
     void		triggerSel()
@@ -86,7 +76,7 @@ public:
     const Material*	getMaterial() const { return material; }
     Material*		getMaterial() { return material; }
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 
     virtual int		usePar( const IOPar& iopar );
     virtual void	fillPar( IOPar& iopar, TypeSet<int> & ) const;

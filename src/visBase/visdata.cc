@@ -4,9 +4,11 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.18 2003-12-16 13:36:46 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.19 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visdata.h"
+
+#include "errh.h"
 #include "visdataman.h"
 #include "visselman.h"
 #include "iopar.h"
@@ -20,8 +22,8 @@ const char* visBase::DataObject::typestr = "Type";
 const char* visBase::DataObject::namestr = "Name";
 
 
-const SoNode* visBase::DataObject::getData() const
-{ return const_cast<const SoNode*>(((visBase::DataObject*)this)->getData() ); }
+const SoNode* visBase::DataObject::getInventorNode() const
+{ return const_cast<const SoNode*>(((visBase::DataObject*)this)->getInventorNode() ); }
 
 
 const char* visBase::DataObject::name() const
@@ -33,7 +35,7 @@ const char* visBase::DataObject::name() const
 
 void visBase::DataObject::setName( const char* nn )
 {
-    SoNode* node = getData();
+    SoNode* node = getInventorNode();
     if ( node )
 	node->setName( nn );
 
@@ -89,6 +91,12 @@ bool visBase::DataObject::isSelected() const
 { return selectable() && DM().selMan().selected().indexOf( id()) != -1; }
 
 
+void visBase::DataObject::setTransformation( visBase::Transformation* )
+{   
+    pErrMsg("Not implemented");
+}   
+    
+
 void visBase::DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 {
     par.set( typestr, getClassName() );
@@ -102,7 +110,7 @@ void visBase::DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 
 bool visBase::DataObject::dumpOIgraph( const char* filename, bool binary )
 {
-    SoNode* node = getData();
+    SoNode* node = getInventorNode();
     if ( !node ) return false;
 
     SoWriteAction writeaction;

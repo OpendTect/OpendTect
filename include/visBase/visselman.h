@@ -7,16 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.11 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visselman.h,v 1.12 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
+#include "callback.h"
 #include "sets.h"
-#include "vissceneobj.h"
 
+class IOPar;
 class SoSelection;
 class SoNode;
 class SoPath;
@@ -26,7 +27,6 @@ namespace Threads { class Mutex; };
 namespace visBase
 {
 class Scene;
-class SceneObject;
 class DataObject;
 class DataManager;
 class Selectable;
@@ -37,7 +37,7 @@ selected, it has to register himself with regSelObject. At registration it has
 to give two objects, first of all, he gives the object that outside users
 will associate him with when they want to add their CB to detect his selection.
 
-Secondly it has to give the SceneObject that actually is selected.
+Secondly it has to give the DataObject that actually is selected.
 */
 
 class SelectionManager : public CallBackClass

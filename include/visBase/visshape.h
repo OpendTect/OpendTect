@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visshape.h,v 1.8 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -72,7 +72,7 @@ public:
     int				usePar( const IOPar& );
     void			fillPar( IOPar&, TypeSet<int>& ) const;
 
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
 protected:
     virtual			~Shape();

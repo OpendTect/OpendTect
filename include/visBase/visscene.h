@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.10 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visscene.h,v 1.11 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 
 #include "sets.h"
-#include "vissceneobjgroup.h"
+#include "visdatagroup.h"
 
 class SoEnvironment;
 
@@ -25,12 +25,12 @@ namespace visBase
     class EventCatcher;
 
 /*!\brief
-    Scene manages all SceneObjects and has some managing
+    Scene manages all DataObjects and has some managing
     functions such as the selection management and variables that should
     be common for the whole scene.
 */
 
-class Scene : public SceneObjectGroup
+class Scene : public DataObjectGroup
 {
 public:
     static Scene*	create()
@@ -39,7 +39,7 @@ public:
     void		setAmbientLight( float );
     float		ambientLight() const;
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 
 protected:
     virtual		~Scene();

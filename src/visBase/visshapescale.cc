@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visshapescale.cc,v 1.5 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.6 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"
@@ -35,12 +35,12 @@ visBase::ShapeScale::~ShapeScale()
 }
 
 
-void visBase::ShapeScale::setShape( SceneObject* no )
+void visBase::ShapeScale::setShape( DataObject* no )
 {
     if ( shape ) shape->unRef();
     shape = no;
     if ( no ) no->ref();
-    shapescalekit->setPart("shape", no ? no->getData() : 0 );
+    shapescalekit->setPart("shape", no ? no->getInventorNode() : 0 );
 }
 
 
@@ -76,7 +76,7 @@ bool visBase::ShapeScale::isFrozen() const
 }
 
 
-SoNode*  visBase::ShapeScale::getData() 
+SoNode*  visBase::ShapeScale::getInventorNode() 
 {
     return shapescalekit;
 }
@@ -84,7 +84,7 @@ SoNode*  visBase::ShapeScale::getData()
 
 int visBase::ShapeScale::usePar( const IOPar& iopar )
 {
-    int res = SceneObject::usePar( iopar );
+    int res = DataObject::usePar( iopar );
     if ( res!= 1 ) return res;
 
     int shapeid;
@@ -93,7 +93,7 @@ int visBase::ShapeScale::usePar( const IOPar& iopar )
 
     DataObject* dataobj = DM().getObj( shapeid );
     if ( !dataobj ) { setShape( (SoNode*) 0 ); return 0; }
-    mDynamicCastGet( SceneObject*, sceneobj, dataobj );
+    mDynamicCastGet( DataObject*, sceneobj, dataobj );
     if ( !sceneobj ) return -1;
 
     setShape( sceneobj );
@@ -103,7 +103,7 @@ int visBase::ShapeScale::usePar( const IOPar& iopar )
 
 void visBase::ShapeScale::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
-    SceneObject::fillPar( iopar, saveids );
+    DataObject::fillPar( iopar, saveids );
 
     int shapeid = shape ? shape->id() : -1;
     iopar.set( shapeidstr, shapeid );

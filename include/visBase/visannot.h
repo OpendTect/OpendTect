@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.15 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visannot.h,v 1.16 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,8 @@ class AxisInfo;
 namespace visBase
 {
 class Text;
-class SceneObjectGroup;
+class DataObjectGroup;
+class PickStyle;
 
 /*!\brief
     Annotation is a simple wireframe box with text on its
@@ -59,8 +60,9 @@ protected:
 
     SoCoordinate3*		coords;
 
-    ObjectSet<SceneObjectGroup>	scales;
-    SceneObjectGroup*		texts;
+    ObjectSet<DataObjectGroup>	scales;
+    PickStyle*			pickstyle;
+    DataObjectGroup*		texts;
     
     SoSwitch*			textswitch;
     SoSwitch*			scaleswitch;

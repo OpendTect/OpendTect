@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.13 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: viscamera.h,v 1.14 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 #include "position.h"
 
 class SoPerspectiveCamera;
@@ -27,7 +27,7 @@ namespace visBase
 
 */
 
-class Camera : public SceneObject
+class Camera : public DataObject
 {
 public:
     static Camera*	create()
@@ -65,7 +65,7 @@ public:
     void		setBalanceAdjustment(float);
     float		getBalanceAdjustment() const;
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
     Coord3 		centerFrustrum();

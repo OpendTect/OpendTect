@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.9 2003-11-07 15:24:46 dgb Exp $
+ RCS:           $Id: viswell.cc,v 1.10 2004-01-05 09:43:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "vispolyline.h"
 #include "visdrawstyle.h"
 #include "vistext.h"
-#include "vissceneobjgroup.h"
+#include "visdatagroup.h"
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vistransform.h"
@@ -57,21 +57,21 @@ Well::Well()
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
     drawstyle->ref();
-    sep->addChild( drawstyle->getData() );
+    sep->addChild( drawstyle->getInventorNode() );
     track->ref();
     track->setMaterial( visBase::Material::create() );
-    sep->addChild( track->getData() );
+    sep->addChild( track->getInventorNode() );
     welltxt->ref();
-    sep->addChild( welltxt->getData() );
+    sep->addChild( welltxt->getInventorNode() );
 
-    markergroup = visBase::SceneObjectGroup::create();
+    markergroup = visBase::DataObjectGroup::create();
     markergroup->ref();
-    addChild( markergroup->getData() );
+    addChild( markergroup->getInventorNode() );
     addChild( markernmsw );
-    markernames = visBase::SceneObjectGroup::create();
+    markernames = visBase::DataObjectGroup::create();
     markernames->setSeparate(false);
     markernames->ref();
-    markernmsw->addChild( markernames->getData() );
+    markernmsw->addChild( markernames->getInventorNode() );
     markernmsw->whichChild = 0;
 
     addChild( log );
@@ -81,14 +81,14 @@ Well::Well()
 Well::~Well()
 {
     if ( transformation ) transformation->unRef();
-    removeChild( welltxt->getData() );
+    removeChild( welltxt->getInventorNode() );
     welltxt->unRef();
-    removeChild( track->getData() );
+    removeChild( track->getInventorNode() );
     track->unRef();
-    removeChild( drawstyle->getData() );
+    removeChild( drawstyle->getInventorNode() );
     drawstyle->unRef();
     markergroup->removeAll();
-    removeChild( markergroup->getData() );
+    removeChild( markergroup->getInventorNode() );
     markergroup->unRef();
     markernames->unRef();
 }

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.6 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 #include "draw.h"
 
 class SoDrawStyle;
@@ -23,7 +23,7 @@ namespace visBase
 */
 
 
-class DrawStyle : public SceneObject
+class DrawStyle : public DataObject
 {
 public:
     static DrawStyle*	create()
@@ -47,7 +47,7 @@ public:
     int			usePar( const IOPar& );
     void		fillPar( IOPar&, TypeSet<int>& ) const;
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 private:
     virtual		~DrawStyle();
 

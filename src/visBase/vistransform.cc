@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.12 2003-11-07 12:22:03 bert Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.13 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -154,7 +154,7 @@ Coord3 visBase::Transformation::transformBack( const Coord3& pos ) const
 
 void visBase::Transformation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    SceneObject::fillPar( par, saveids );
+    DataObject::fillPar( par, saveids );
     const SbMat& matrix = transform_->matrix.getValue().getValue();
 
     BufferString key = matrixstr; key += 1; 
@@ -173,7 +173,7 @@ void visBase::Transformation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int visBase::Transformation::usePar( const IOPar& par )
 {
-    int res = SceneObject::usePar( par );
+    int res = DataObject::usePar( par );
     if ( res!= 1 ) return res;
 
     double matrix[4][4];
@@ -207,7 +207,7 @@ int visBase::Transformation::usePar( const IOPar& par )
 
 
 
-SoNode* visBase::Transformation::getData()
+SoNode* visBase::Transformation::getInventorNode()
 {
     return transform_;
 }

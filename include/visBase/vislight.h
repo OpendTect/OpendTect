@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vislight.h,v 1.7 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 
 
 class SoLight;
@@ -26,7 +26,7 @@ Base class for all lights
 
 */
 
-class Light : public SceneObject
+class Light : public DataObject
 {
 public:
 
@@ -37,7 +37,7 @@ public:
     			/*!< 0 = nada, 1 = full light */
     float		intensity() const;
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 
     virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int		usePar( const IOPar& );

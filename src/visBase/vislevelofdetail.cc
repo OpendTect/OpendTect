@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.4 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
 
 
 #include "vislevelofdetail.h"
@@ -32,16 +32,16 @@ visBase::LevelOfDetail::~LevelOfDetail()
 }
 
 
-void visBase::LevelOfDetail::addChild( SceneObject* obj, float m )
+void visBase::LevelOfDetail::addChild( DataObject* obj, float m )
 {
     int nrkids = lod->getNumChildren();
     if ( nrkids )
 	lod->screenArea.set1Value( nrkids-1, m );
-    lod->addChild( obj->getData() );
+    lod->addChild( obj->getInventorNode() );
     children += obj;
     obj->ref();
 }
 
 
-SoNode* visBase::LevelOfDetail::getData()
+SoNode* visBase::LevelOfDetail::getInventorNode()
 { return lod; }

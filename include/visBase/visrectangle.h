@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.31 2003-12-19 09:00:08 nanne Exp $
+ RCS:		$Id: visrectangle.h,v 1.32 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class SoDragger;
 namespace visBase
 {
 
-class RectangleDragger : public SceneObject
+class RectangleDragger : public DataObject
 {
 public:
     static RectangleDragger*	create()
@@ -53,7 +53,7 @@ public:
     Notifier<RectangleDragger>	changed;
     Notifier<RectangleDragger>	finished;
 
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
 protected:
 				~RectangleDragger();

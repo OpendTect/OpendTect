@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislevelofdetail.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vislevelofdetail.h,v 1.4 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 
 class SoLevelOfDetail;
 
@@ -26,22 +26,22 @@ resolution. Depending on how large parts of the screen the objects will fill,
 one of the versions will be used.
 */
 
-class LevelOfDetail : public SceneObject
+class LevelOfDetail : public DataObject
 {
 public:
     static LevelOfDetail*	create()
 				mCreateDataObj(LevelOfDetail);
 
-    void			addChild( SceneObject*, float maxscreensize );
+    void			addChild( DataObject*, float maxscreensize );
     				//!< maxscreensize is in pixels. The versions
     				//!< are added with the full versions first.
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
 protected:
     				~LevelOfDetail();
 
     SoLevelOfDetail*		lod;
-    ObjectSet<SceneObject>	children;
+    ObjectSet<DataObject>	children;
 };
 
 }; // Namespace

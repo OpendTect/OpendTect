@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.3 2003-12-04 15:59:45 nanne Exp $
+ RCS:           $Id: visdragger.h,v 1.4 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace visBase
 class Transformation;
 
 
-class Dragger : public SceneObject
+class Dragger : public DataObject
 {
 public:
     static Dragger*		create()
@@ -51,11 +51,14 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
+    void			setTransformation( Transformation* );
+    Transformation*		getTransformation();
+
     Notifier<Dragger>		started;
     Notifier<Dragger>		motion;
     Notifier<Dragger>		finished;
 
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
 protected:
     				~Dragger();
@@ -66,8 +69,9 @@ protected:
 
     SoSwitch*			onoff;
     SoGroup*			group;
-    Transformation*		transform;
+    Transformation*		positiontransform;
     SoDragger*			dragger;
+    Transformation*		displaytrans;
 };
 
 } // namespace visBase

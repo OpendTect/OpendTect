@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.10 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vistransform.h,v 1.11 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 #include "position.h"
 
 class SoMatrixTransform;
@@ -36,7 +36,7 @@ x' = x''/m; y' = y''/m; z'=z''/m;
 */
 
 
-class Transformation : public SceneObject
+class Transformation : public DataObject
 {
 public:
     static Transformation*	create()
@@ -62,7 +62,7 @@ public:
     virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int		usePar( const IOPar& );
     
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 private:
     virtual		~Transformation();
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.9 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.10 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -99,7 +99,7 @@ void visBase::ownclass::set##clssname( visBase::clssname* newitem ) \
 { \
     if ( variable ) \
     { \
-	removeNode( variable->getData() ); \
+	removeNode( variable->getInventorNode() ); \
 	variable->unRef(); \
 	variable = 0; \
     } \
@@ -108,7 +108,7 @@ void visBase::ownclass::set##clssname( visBase::clssname* newitem ) \
     { \
 	variable = newitem; \
 	variable->ref(); \
-	insertNode( variable->getData() ); \
+	insertNode( variable->getInventorNode() ); \
     } \
 } \
  \
@@ -214,7 +214,7 @@ int visBase::Shape::usePar( const IOPar& par )
 }
 
 	
-SoNode* visBase::Shape::getData()
+SoNode* visBase::Shape::getInventorNode()
 { return onoff; }
 
 

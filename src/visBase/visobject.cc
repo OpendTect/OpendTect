@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.24 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.25 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visobject.h"
 
@@ -29,20 +29,6 @@ visBase::VisualObject::VisualObject( bool selectable_ )
 
 visBase::VisualObject::~VisualObject()
 { }
-
-
-void visBase::VisualObject::setTransformation( Transformation* )
-{   
-    pErrMsg("Not implemented");
-}   
-    
-
-visBase::Transformation* visBase::VisualObject::getTransformation()
-{   
-    return 0;
-}
-
-
 
 
 visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
@@ -81,7 +67,7 @@ void visBase::VisualObjectImpl::setMaterial( Material* nm )
 {
     if ( material )
     {
-	root->removeChild( material->getData() );
+	root->removeChild( material->getInventorNode() );
 	material->unRef();
     }
 
@@ -90,12 +76,12 @@ void visBase::VisualObjectImpl::setMaterial( Material* nm )
     if ( material )
     {
 	material->ref();
-	root->insertChild( material->getData(), 0 );
+	root->insertChild( material->getInventorNode(), 0 );
     }
 }
 
 
-SoNode* visBase::VisualObjectImpl::getData() 
+SoNode* visBase::VisualObjectImpl::getInventorNode() 
 { return onoff; }
 
 

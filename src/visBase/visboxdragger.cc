@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.8 2003-12-19 09:00:19 nanne Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.9 2004-01-05 09:43:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,7 @@ bool BoxDragger::isOn() const
 }
 
 
-SoNode* BoxDragger::getData()
+SoNode* BoxDragger::getInventorNode()
 { return onoff; }
 
 

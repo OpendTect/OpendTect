@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.6 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.7 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "vismaterial.h"
 #include "color.h"
@@ -115,12 +115,12 @@ void visBase::Material::updateMaterial()
 }
 
 
-SoNode* visBase::Material::getData() { return material; }
+SoNode* visBase::Material::getInventorNode() { return material; }
 
 
 int visBase::Material::usePar( const IOPar& iopar )
 {
-    int res = SceneObject::usePar( iopar );
+    int res = DataObject::usePar( iopar );
     if ( res!=1 ) return res;
 
     int r,g,b;
@@ -153,7 +153,7 @@ int visBase::Material::usePar( const IOPar& iopar )
 
 void visBase::Material::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
-    SceneObject::fillPar( iopar, saveids );
+    DataObject::fillPar( iopar, saveids );
 
     Color color = getColor();
     iopar.set( colorstr, color.r(), color.g(), color.b() ) ;

@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.15 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vistexture.h,v 1.16 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 
 class DataClipper;
 class BasicTask;
@@ -43,7 +43,7 @@ If ThreadWorker is set, it utilizes mt processing.
 
 */
 
-class Texture : public SceneObject
+class Texture : public DataObject
 {
 public:
     enum		DataType { Color, Transparency,
@@ -80,7 +80,7 @@ public:
     void		setColorPars(bool,bool,const Interval<float>&);
     const Interval<float>& getColorDataRange() const;
 
-    SoNode*		getData();
+    SoNode*		getInventorNode();
 
     virtual void        fillPar(IOPar&,TypeSet<int>&) const;
     virtual int         usePar(const IOPar&);

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.4 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visdrawstyle.h"
 #include "iopar.h"
@@ -73,7 +73,7 @@ void visBase::DrawStyle::setLineStyle( const LineStyle& nls )
 
 
 
-SoNode* visBase::DrawStyle::getData()
+SoNode* visBase::DrawStyle::getInventorNode()
 {
     return drawstyle;
 }
@@ -122,7 +122,7 @@ int visBase::DrawStyle::usePar( const IOPar& par )
 
 void visBase::DrawStyle::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    SceneObject::fillPar( par, saveids );
+    DataObject::fillPar( par, saveids );
 
     BufferString linestyleval;
     linestyle.toString( linestyleval );

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.20 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.21 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -302,7 +302,7 @@ int visBase::DataManager::getId( const SoPath* path ) const
 
 	for ( int idx=0; idx<nrobjs; idx++ )
 	{
-	    const SoNode* objnode = objects[idx]->getData();
+	    const SoNode* objnode = objects[idx]->getInventorNode();
 	    if ( !objnode ) continue;
 
 	    if ( objnode==node )
@@ -326,7 +326,7 @@ void visBase::DataManager::getIds( const SoPath* path, TypeSet<int>& res ) const
 
 	for ( int idx=0; idx<nrobjs; idx++ )
 	{
-	    const SoNode* objnode = objects[idx]->getData();
+	    const SoNode* objnode = objects[idx]->getInventorNode();
 	    if ( !objnode ) continue;
 
 	    if ( objnode==node )

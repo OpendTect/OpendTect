@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.26 2003-12-16 13:36:50 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.27 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ typedef visBase::DataObject* (*FactPtr)(void);
 
 namespace visBase
 {
+class Transformation;
 class SelectionManager;
 class DataManager;
 
@@ -44,8 +45,8 @@ public:
     const char*			name() const;
     void			setName( const char* );
 
-    virtual SoNode*		getData() { return 0; }
-    virtual const SoNode*	getData() const;
+    virtual SoNode*		getInventorNode() { return 0; }
+    virtual const SoNode*	getInventorNode() const;
 
     void			ref() const;
     void			unRef() const;
@@ -61,6 +62,26 @@ public:
     bool			isSelected() const;
     virtual NotifierAccess*	selection() { return 0; }
     virtual NotifierAccess*	deSelection() { return 0; }
+
+
+    virtual void		setTransformation( Transformation* );
+    				/*!< All positions going from the outside
+				     world to the vis should be transformed
+				     witht this transform. This enables us
+				     to have different coord-systems outside
+				     OI, e.g. we can use UTM coords
+				     outside the vis without loosing precision
+				     in the vis.
+				 */
+    virtual Transformation*	getTransformation() { return 0; }
+    				/*!< All positions going from the outside
+				     world to the vis should be transformed
+				     witht this transform. This enables us
+				     to have different coord-systems outside
+				     OI, e.g. we can use UTM coords
+				     outside the vis without loosing precision
+				     in the vis.
+				 */
 
     virtual int			usePar( const IOPar& );
     				/*!< Returns -1 on error and 1 on success.

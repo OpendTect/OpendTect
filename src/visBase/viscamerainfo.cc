@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscamerainfo.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: viscamerainfo.cc,v 1.3 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "viscamerainfo.h"
 #include "SoCameraInfo.h"
@@ -57,7 +57,7 @@ bool visBase::CameraInfo::isMoving() const
 }
 
 
-SoNode* visBase::CameraInfo::getData()
+SoNode* visBase::CameraInfo::getInventorNode()
 {
     return camerainfo;
 }

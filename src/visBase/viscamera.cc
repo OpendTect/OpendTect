@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.13 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.14 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -32,7 +32,7 @@ visBase::Camera::~Camera()
 {}
 
 
-SoNode* visBase::Camera::getData()
+SoNode* visBase::Camera::getInventorNode()
 { return camera; }
 
 
@@ -165,7 +165,7 @@ float visBase::Camera::getBalanceAdjustment() const
 
 int visBase::Camera::usePar( const IOPar& iopar )
 {
-    int res = SceneObject::usePar( iopar );
+    int res = DataObject::usePar( iopar );
     if ( res != 1 ) return res;
 
     Coord3 pos;
@@ -237,7 +237,7 @@ float visBase::Camera::frustrumRadius()
 
 void visBase::Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
-    SceneObject::fillPar( iopar, saveids );
+    DataObject::fillPar( iopar, saveids );
     Coord3 pos = position();
     iopar.set( posstr, pos.x, pos.y, pos.z );
     

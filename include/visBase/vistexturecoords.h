@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexturecoords.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vistexturecoords.h,v 1.3 2004-01-05 09:43:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "vissceneobj.h"
+#include "visdata.h"
 
 class SoTextureCoordinate3;
 class Coord3;
@@ -27,7 +27,7 @@ namespace visBase
 
 */
 
-class TextureCoords : public SceneObject
+class TextureCoords : public DataObject
 {
 public:
     static TextureCoords*	create()
@@ -39,7 +39,7 @@ public:
     int				addCoord( const Coord& );
     void			removeCoord( int );
 
-    SoNode*			getData();
+    SoNode*			getInventorNode();
 
 protected:
     				~TextureCoords();

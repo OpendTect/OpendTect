@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.3 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.4 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -123,7 +123,7 @@ void visBase::DepthTabPlaneDragger::setDim( int newdim )
 
 	    dragger->ref();
 	    removeChild( dragger );
-	    addChild( rotation->getData() );
+	    addChild( rotation->getInventorNode() );
 	    addChild( dragger );
 	    dragger->unref();
 	}
@@ -140,7 +140,7 @@ void visBase::DepthTabPlaneDragger::setDim( int newdim )
 
 	    dragger->ref();
 	    removeChild( dragger );
-	    addChild( rotation->getData() );
+	    addChild( rotation->getInventorNode() );
 	    addChild( dragger );
 	    dragger->unref();
 	}
@@ -237,7 +237,7 @@ void visBase::DepthTabPlaneDragger::setTransformation( Transformation* nt )
 
     if ( transform )
     {
-	removeChild( transform->getData() );
+	removeChild( transform->getInventorNode() );
 	transform->unRef();
     }
 
@@ -245,7 +245,7 @@ void visBase::DepthTabPlaneDragger::setTransformation( Transformation* nt )
 
     if ( transform )
     {
-	insertChild(0, transform->getData() );
+	insertChild(0, transform->getInventorNode() );
 	transform->ref();
     }
 

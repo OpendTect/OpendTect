@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.4 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
 
 #include "vistexturecoords.h"
 
@@ -92,7 +92,7 @@ void visBase::TextureCoords::removeCoord(int idx)
 }
 
 
-SoNode* visBase::TextureCoords::getData()
+SoNode* visBase::TextureCoords::getInventorNode()
 { return coords; }
 
 
