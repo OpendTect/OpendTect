@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.20 2003-01-30 14:52:26 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.21 2003-03-06 22:13:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,9 +112,15 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 	, licfeat((int)Licenser::UdfFeat)
 {
     finaliseDone.notify( mCB(this,uiBatchLaunch,remSel) );
+    HostDataList hdl;
+    rshcomm = hdl.rshComm();
+    if ( rshcomm == "" ) rshcomm = "rsh";
+    nicelvl = hdl.defNiceLevel();
 
+    BufferString dispstr( "Remote (using " );
+    dispstr += rshcomm; dispstr += ")";
     remfld = new uiGenInput( this, "Execute",
-			     BoolInpSpec( "Local", "Remote (using rsh)" ) );
+			     BoolInpSpec( "Local", dispstr ) );
     remfld->valuechanged.notify( mCB(this,uiBatchLaunch,remSel) );
 
     opts.add( "Output window" );
@@ -128,7 +134,6 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     optfld->box()->selectionChanged.notify( mCB(this,uiBatchLaunch,optSel) );
 
     StringListInpSpec spec;
-    HostDataList hdl;
     for ( int idx=0; idx<hdl.size(); idx++ )
 	spec.addString( hdl[idx]->name() );
     remhostfld = new uiGenInput( this, "Hostname", spec );
@@ -242,9 +247,14 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     {
 	comm += "_rmt ";
 	comm += hostname;
+	comm += " --rexec ";
+	comm += rshcomm;
     }
+    if ( nicelvl != 0 )
+	{ comm += " --nice "; comm += nicelvl; }
     comm += " "; comm += progname;
     comm += " -bg "; comm += parfname;
+
 
     if ( !StreamProvider( comm ).executeCommand(dormt) )
     {

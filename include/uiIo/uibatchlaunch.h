@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.h,v 1.4 2003-01-21 15:31:42 bert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.5 2003-03-06 22:13:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,9 @@ protected:
     BufferString	hostname;
     BufferString	progname;
     BufferString	parfname;
+    BufferString	rshcomm;
     int			licfeat;
+    int			nicelvl;
 
     uiFileInput*	filefld;
     uiLabeledComboBox*	optfld;
