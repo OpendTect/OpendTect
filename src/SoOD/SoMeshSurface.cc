@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.8 2003-10-27 16:00:11 nanne Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.9 2003-11-05 13:29:38 arend Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -255,7 +255,9 @@ void SoMeshSurface::GLRender( SoGLRenderAction* action )
 	    {
 		SbThreadAutoLock quelock( creatorqueMutex );
 		SoMeshSurfaceBrick* brick = square->getBrick(missingresolution);
-
+#ifdef __win__
+		brick->build(true);
+#else
 		const int existingindex = creationquebricks.find( brick );
 		if ( existingindex!=-1 )
 		{
@@ -269,6 +271,7 @@ void SoMeshSurface::GLRender( SoGLRenderAction* action )
 		    creationquebricks.push( brick );
 
 		creationcondvar->wakeOne();
+#endif
 	    }
 	}
     }
@@ -515,6 +518,7 @@ void SoMeshSurface::stopThreads()
 
 void SoMeshSurface::startThreads( int nrthreads )
 {
+#ifdef __win__
     SbThreadAutoLock lock( creatorqueMutex );
     weAreStopping = false;
 
@@ -522,6 +526,7 @@ void SoMeshSurface::startThreads( int nrthreads )
 	threads.append( SbThread::create( &creationFunc, this ));
 
     creationcondvar->wakeAll();
+#endif
 }
 
 
