@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.11 2004-11-29 11:05:41 bert Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.12 2005-02-15 13:25:08 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,9 +111,10 @@ class JobIOHandler : public CallBacker
 {
 public:
     			JobIOHandler( int firstport )
-			    : sockprov_ ( *new SocketProvider( firstport ) )
+			    : sockprov_( 0 )
 			    , thread( 0 )
-			    , exitreq_( false )
+			    , exitreq_( 0 ) 
+			    , firstport_( firstport )
 			    {
 				threadmutex.lock();
 
@@ -125,18 +126,12 @@ public:
 
     virtual		~JobIOHandler()
 			    {
-				/* // TODO : exit gracefully
-				if ( thread )
-				{
-				    thread->stop();
-				}
+				threadmutex.lock();
+				if( exitreq_ ) *exitreq_ = true;
 				threadmutex.unlock();
-				*/
-
-				delete &sockprov_; 
 			    }
 
-    int			port()	{ return sockprov_.port(); }
+    int			port() { return sockprov_ ? sockprov_->port() : -1; }
 
     void		addJobDesc( const HostData& hd, int descnr )
 			    {
@@ -167,8 +162,9 @@ public:
 
 protected:
 
-    bool			exitreq_;
-    SocketProvider& 		sockprov_;
+    bool*			exitreq_;
+    SocketProvider* 		sockprov_;
+    int				firstport_;
     ObjQueue<StatusInfo>	statusqueue_;
 
     Threads::Mutex		jhrespmutex_;
@@ -176,11 +172,6 @@ protected:
     
     char			getRespFor( int desc, const char* hostnm );
     JobHostRespInfo*		getJHRFor( int desc, const char* hostnm );
-
-    void			stopDispatching()
-				{
-				    if ( thread ) thread->threadExit();
-				}
 
     void 			doDispatch( CallBacker* ); //!< work thread
 
@@ -253,11 +244,21 @@ void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
 
 void JobIOHandler::doDispatch( CallBacker* )
 {
+    SocketProvider& sockprov = *new SocketProvider( firstport_ );
+    sockprov_ = &sockprov;
+
+    bool exitreq = false; exitreq_ = &exitreq;
+    
     while( 1 ) 
     {
-	Socket* sock_ = sockprov_.makeConnection(1); // 1 sec timeout
+	Socket* sock_ = sockprov.makeConnection(1); // 1 sec timeout
 
-	if ( exitreq_ ) stopDispatching();
+	if ( exitreq )
+	{
+	    delete &sockprov;
+	    if ( thread ) thread->threadExit();
+	    return;
+	}
 
 	char tag=mCTRL_STATUS;
 	int jobid=-1;
