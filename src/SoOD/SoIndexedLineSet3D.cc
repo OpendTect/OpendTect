@@ -13,6 +13,7 @@
 #include <Inventor/elements/SoMaterialBindingElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
+#include <Inventor/elements/SoViewingMatrixElement.h>
 
 #ifdef mac
 # include "OpenGL/gl.h"
@@ -311,7 +312,7 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
     {
 	int nrjoints;
 	generateCoordinates( action, curindex, corner1, corner2, corner3,
-			     corner4, reverse, endnormals, nrjoints, false );
+			     corner4, reverse, endnormals, nrjoints, render );
 	if ( nrjoints<2 )
 	    break;
 
@@ -319,7 +320,8 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	{
 	    beginSolidShape(reinterpret_cast<SoGLRenderAction*>(action));
 	    glPushMatrix();
-	    //glLoadIdentity();
+	    SbMatrix m = SoViewingMatrixElement::get(state);
+	    glLoadMatrixf(m[0]);
 	    mb.sendFirst();
 	    glBegin(GL_QUADS);
 	}
