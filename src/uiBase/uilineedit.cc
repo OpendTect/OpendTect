@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.11 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.12 2002-03-18 13:41:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,7 @@ class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
 public:
 
                         uiLineEditBody( uiLineEdit& handle,
-				   uiParent*,const char* starttxt=0,
-				   const char* nm="Line Edit");
+				   uiParent*, const char* nm="Line Edit body");
 
     virtual int 	nrTxtLines() const		{ return 1; }
 
@@ -38,7 +37,7 @@ private:
 
 
 uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt, 
-				const char* deftxt, const char* nm )
+				const char* nm )
     : uiObjBodyImpl<uiLineEdit,QLineEdit>(handle, parnt, nm)
     , messenger_ ( *new i_lineEditMessenger( this, &handle ))
 { 
@@ -49,17 +48,25 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
 //------------------------------------------------------------------------------
 
 uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm )
-    : uiObject( parnt, nm, mkbody(parnt,deftxt,nm) )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
     , returnPressed(this), textChanged(this)
     , UserInputObjImpl<const char*>()
 {
     setText( deftxt ? deftxt : "" );
 }
 
-uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* deftxt, 
-				    const char* nm)
+uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
+			const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
+    , returnPressed(this), textChanged(this)
+    , UserInputObjImpl<const char*>()
+{
+    setText( spec.text() ? spec.text() : "" );
+}
+
+uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm)
 { 
-    body_ = new uiLineEditBody(*this,parnt,deftxt,nm);
+    body_ = new uiLineEditBody(*this,parnt,nm);
     return *body_; 
 }
 

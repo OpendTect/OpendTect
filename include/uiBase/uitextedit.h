@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.3 2001-10-04 13:15:05 arend Exp $
+ RCS:           $Id: uitextedit.h,v 1.4 2002-03-18 13:41:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,14 +16,14 @@ ________________________________________________________________________
 
 
 class uiTextEditBody;
+class uiTextBrowserBody;
+class QTextEdit;
 
-class uiTextEdit : public uiObject
+class uiTextEditBase : public uiObject
 {
 public:
 
-                        uiTextEdit( uiParent* parnt, 
-				    const char* nm="uiTextEdit",
-				    bool readonly=false );
+                        uiTextEditBase( uiParent*, const char*, uiObjectBody& );
 
     void		setText( const char* );
     void		append( const char* ); 
@@ -38,15 +38,75 @@ public:
 
 protected:
 
+    virtual QTextEdit&	qte()			    = 0;
+    const QTextEdit&	qte() const 
+			{ return const_cast<uiTextEditBase*>(this)->qte(); }
+
     static int          defaultWidth_;
     static int          defaultHeight_;
+
+    mutable BufferString result;
+};
+
+class uiTextEdit : public uiTextEditBase
+{
+public:
+
+                        uiTextEdit( uiParent* parnt, 
+				    const char* nm="uiTextEdit",
+				    bool readonly=false );
+
+    void		append( const char* ); 
+
+protected:
+
+    virtual QTextEdit&	qte();
 
 private:
 
     uiTextEditBody*	body_;
     uiTextEditBody&	mkbody(uiParent*, const char*, bool);
+};
 
-    BufferString	result;
+class uiTextBrowser : public uiTextEditBase
+{
+friend class		i_BrowserMessenger;
+public:
+
+                        uiTextBrowser( uiParent* parnt, 
+				    const char* nm="uiBrowser" );
+
+    const char*		source() const;
+    void		setSource( const char* ); 
+
+
+    void		backward();
+    void		forward();
+    void		home();
+    void		reload();
+
+
+    bool		canGoForward()		{ return cangoforw_; }
+    bool		canGoBackward()		{ return cangobackw_; }
+    Notifier<uiTextBrowser> goneforwardorback;
+
+    const char* 	lastLink()		{ return lastlink_; }
+    Notifier<uiTextBrowser> linkhighlighted;
+    Notifier<uiTextBrowser> linkclicked;
+
+protected:
+
+    BufferString	lastlink_;
+    bool		cangoforw_;
+    bool		cangobackw_;
+
+
+    virtual QTextEdit&	qte();
+
+private:
+
+    uiTextBrowserBody*	body_;
+    uiTextBrowserBody&	mkbody(uiParent*, const char* );
 };
 
 #endif

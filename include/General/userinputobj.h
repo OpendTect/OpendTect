@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.2 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: userinputobj.h,v 1.3 2002-03-18 13:41:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,26 +56,15 @@ public:
 			    { return notifyValueChanged_( cb ); }
 
 
-//TODO : replace pure virtual functions with default impl....
-#define DEBUG_VIRTUAL
-#ifdef DEBUG_VIRTUAL
+			//! return false if not updated for whatever reason.
     virtual bool	update( const DataInpSpec& )		=0;
 
 protected:
-
+			//! return false if not available
     virtual bool	notifyValueChanging_( const CallBack& )	=0;
+
+			//! return false if not available
     virtual bool	notifyValueChanged_( const CallBack& )	=0;
-
-#else
-			//! returns true if successful
-    virtual bool	update( const DataInpSpec& )		{ return false;}
-
-protected:
-
-    virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
-    virtual bool	notifyValueChanged_( const CallBack& )	{ return false;}
-
-#endif
 };
 
 

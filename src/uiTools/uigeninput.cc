@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.40 2002-03-12 12:11:41 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.41 2002-03-18 13:41:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,11 @@ protected:
 
     void		init()
 			    {
-				update_( spec_ );
+				if( !update_( spec_ ) )
+				{
+				    pErrMsg("blah");
+				    update_( spec_ );
+				}
 
 				int pw = spec_.prefFldWidth();
 				if (pw>=0) 
@@ -224,7 +228,7 @@ public:
 					 const DataInpSpec& spec,
 					 const char* nm="Line Edit Field" ) 
 			    : uiInputFld( p, spec )
-			    , usrinpobj( *new T(p) ) 
+			    , usrinpobj( *new T(p, spec) ) 
 			    {
 				init();
 
@@ -258,7 +262,7 @@ public:
 			    : uiSimpleInputFld<uiBoolInput>( p, spec, nm )
 			    {}
 
-    virtual uiObject*	mainObj()	{ return usrinpobj.uiGroup::uiObj(); }
+    virtual uiObject*	mainObj()	{ return &usrinpobj.uiObj(); }
 };
 
 
@@ -270,7 +274,7 @@ public:
 					 const DataInpSpec& spec,
 					 const char* nm="BinID Input Field" );
 
-    virtual uiObject*	mainObj()	{ return binidGrp; }
+    virtual uiObject*	mainObj()	{ return binidGrp.uiObj(); }
 
     virtual int		nElems()		{ return 2; }
     virtual UserInputObj* element( int idx )	{ return idx ? &crl_y : &inl_x;}
@@ -297,6 +301,8 @@ protected:
     virtual void        setvalue_( const char* t,int idx)
 			    { if (idx) crl_y.setText(t); else inl_x.setText(t);}
 
+    virtual bool	update_( const DataInpSpec& spec );
+
 };
 
 uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
@@ -311,9 +317,6 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
 {
     mDynamicCastGet(const BinIDCoordInpSpec*,spc,&spec)
     if ( !spc ){ pErrMsg("huh"); return; }
-
-    inl_x.setText( spec.text(0) );
-    crl_y.setText( spec.text(1) );
 
     binidGrp.setHAlignObj( &inl_x );
     crl_y.attach( rightTo, &inl_x );
@@ -337,6 +340,17 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     init();
 }
 
+bool uiBinIDInpFld::update_( const DataInpSpec& spec )
+{
+    mDynamicCastGet(const BinIDCoordInpSpec*,spc,&spec)
+    if ( !spc ){ pErrMsg("huh"); return false; }
+
+    inl_x.setText( spec.text(0) );
+    crl_y.setText( spec.text(1) );
+
+    return true;
+}
+
 
 void uiBinIDInpFld::otherFormSel(CallBacker* cb)
 {
@@ -353,7 +367,7 @@ public:
 
 			uiIntervalInpFld( uiGenInput* p, 
 					 const DataInpSpec& spec,
-					 const char* nm="Bool Input Field" );
+					 const char* nm="Interval Input Field");
 
     virtual int		nElems()		{ return step ? 3 : 2; }
     virtual UserInputObj* element( int idx=0 )	{ return le(idx); }
@@ -393,6 +407,8 @@ protected:
 				if ( idx>1 ) return step;
 				return idx ? &stop : &start;
 			    }
+
+    virtual bool        update_( const DataInpSpec& nw );
 };
 
 template<class T>
@@ -418,8 +434,6 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
     start.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
     stop.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
 
-    start.setText( spec.text(0) );
-    stop.setText( spec.text(1) );
     if ( spc->hasStep() )
     {
 	step = new uiLineEdit(&intvalGrp,"",nm);
@@ -427,7 +441,6 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
 	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
 	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
 
-	step->setText( spec.text(2) );
 	lbl = new uiLabel(&intvalGrp, "Step" );
     }
 
@@ -442,6 +455,18 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
 
     init();
 }
+
+template<class T>
+bool uiIntervalInpFld<T>::update_( const DataInpSpec& spec )
+{
+    start.setText( spec.text(0) );
+    stop.setText( spec.text(1) );
+    if ( step  )
+	step->setText( spec.text(2) );
+
+    return true;
+}
+
 
 
 class uiStrLstInpFld : public uiInputFld

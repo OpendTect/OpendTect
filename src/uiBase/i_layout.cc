@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.47 2002-02-08 14:14:18 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.48 2002-03-18 13:41:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,16 @@ void i_LayoutItem::commitGeometrySet( bool isPrefSz )
     if ( isPrefSz ) curpos( preferred ) = mPos;
 
     if ( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
+#if 0
+    cout << "setting Layout on: ";
+    if( objLayouted() ) 
+	cout << objLayouted()->name() << endl;
+    else 
+	cout << "Unknown" << endl;
 
+    cout << "l: " << mPos.left() << " t: " << mPos.top();
+    cout << " hor: " << mPos.hNrPics() << " ver: " << mPos.vNrPics() << endl;
+#endif
     mQLayoutItem_.setGeometry ( QRect ( mPos.left(), mPos.top(), 
                                         mPos.hNrPics(), mPos.vNrPics() )); 
 }
@@ -362,6 +371,27 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		mUpdated();
 	    break;
 	} 
+
+
+	case hCentered: 
+	{
+	    if ( finalLoop )
+	    {
+		int mngrcentre = ( mngr().curpos(lom).left()
+				     + mngr().curpos(lom).right() ) / 2;
+
+		int shift = mngrcentre >= 0 ?  mngrcentre - horCentre(lom) : 0;
+
+		if ( shift > 0 )
+		{
+		    if ( mPos.leftToAtLeast( mCP(mPos.left() + shift) ) ) 
+			mUpdated();
+		}
+	    }
+	    break;
+	} 
+
+
 	case ensureRightOf:
 	{
 	    if ( mPos.leftToAtLeast( mCP(otherPos.right() + mHorSpacing )))  

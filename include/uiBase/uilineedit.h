@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.7 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: uilineedit.h,v 1.8 2002-03-18 13:41:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,9 @@ class uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
 public:
 
                         uiLineEdit(uiParent*,const char* starttxt=0,
+				   const char* nm="Line Edit");
+
+                        uiLineEdit(uiParent*,const DataInpSpec&,
 				   const char* nm="Line Edit");
 
     void		setEdited( bool = true );
@@ -50,7 +53,7 @@ protected:
 private:
 
     uiLineEditBody*	body_;
-    uiLineEditBody&	mkbody(uiParent*, const char*, const char*);
+    uiLineEditBody&	mkbody(uiParent*, const char*);
 
     BufferString	result;
 };
