@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.8 2004-10-29 10:27:21 nanne Exp $
+ RCS:           $Id: uicanvas.h,v 1.9 2005-01-18 11:45:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ public:
     void			setAspectRatio( float );
     float			aspectRatio();
 
+    void			setMouseTracking( bool yn = true );
     CNotifier<uiScrollView,const uiMouseEvent&>	mousepressed;
     CNotifier<uiScrollView,const uiMouseEvent&>	mousemoved;
     CNotifier<uiScrollView,const uiMouseEvent&>	mousereleased;
