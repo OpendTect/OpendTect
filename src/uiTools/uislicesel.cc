@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.7 2002-09-30 15:39:49 bert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.8 2002-11-12 15:14:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "survinfo.h"
 #include "ranges.h"
+#include "thread.h"
 
 
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_, 
@@ -32,6 +33,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 	, zfld(0)
 	, doupdfld(0)
 	, cschanged(this)
+        , updatemutex( *new Threads::Mutex )
 {
     int slctyp = cs_.hrg.start.inl == cs_.hrg.stop.inl ? 0 :
 	         cs_.hrg.start.crl == cs_.hrg.stop.crl ? 1 : 
@@ -123,6 +125,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 uiSliceSel::~uiSliceSel()
 {
     delete &cs;
+    delete &updatemutex;
 }
 
 
@@ -136,9 +139,13 @@ void uiSliceSel::updateSel( CallBacker* )
 
 void uiSliceSel::csChanged( CallBacker* )
 {
+    if ( !updatemutex.tryLock() )
+	return;
+
     if ( !doupdfld || !doupdfld->isChecked() ) return;
     readInput();
     cschanged.trigger();
+    updatemutex.unlock();
 }
 
 

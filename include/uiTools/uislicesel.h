@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.3 2002-08-19 07:30:00 nanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.4 2002-11-12 15:14:51 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ class uiGenInput;
 class CubeSampling;
 class uiPushButton;
 class uiCheckBox;
+
+namespace Threads { class Mutex; };
 
 
 class uiSliceSel : public uiDialog
@@ -47,6 +49,8 @@ protected:
 
     CubeSampling&		cs;
     Notifier<uiSliceSel>	cschanged;
+
+    Threads::Mutex&		updatemutex;
 };
 
 #endif
