@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.5 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uifileinput.h,v 1.6 2001-10-18 14:01:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ public:
 			    , bool forread=true, const char* filtr=0 );
 
     void		setFileName(const char*);
+    void		setDefaultSelectionDir( const char* nm )
+			{ defseldir = nm; }
     const char*		fileName();
 
 protected:
@@ -36,6 +38,7 @@ protected:
     bool		forread;
     BufferString	fname;
     BufferString	filter;
+    BufferString	defseldir;
 
     virtual void	doSelect(CallBacker*);
 
