@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.58 2004-06-30 15:11:40 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.59 2004-07-28 08:54:38 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -51,6 +51,8 @@ PickSetDisplay::PickSetDisplay()
     group->ref();
     addChild( group->getInventorNode() );
     setScreenSize(initsz);
+
+    fillMarkerSet();
 }
 
 
@@ -69,10 +71,7 @@ void PickSetDisplay::copyFromPickSet( const PickSet& pickset )
     }
 
    if ( hasdir ) //show Arrows
-   {
-       TypeSet<char*> types; getTypeNames( types );
-       setType( types.size()-1 );
-   }
+       setType( markertypes.size()-1 );
 }
 
 
@@ -264,17 +263,12 @@ int PickSetDisplay::getType() const
 }
 
 
-void PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
+void PickSetDisplay::fillMarkerSet()
 {
     int idx = 0;
     const char** names = MarkerStyle3D::TypeNames;
-    while ( true )
-    {
-	const char* tp = names[idx];
-	if ( !tp ) break;
-	strs += (char*)tp;
-	idx++;
-    }
+    while ( *names )
+	markertypes.add( *names++ );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.36 2004-06-23 10:36:21 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.37 2004-07-28 08:54:45 nanne Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "bufstringset.h"
 
 class Color;
 class IOPar;
@@ -70,7 +71,7 @@ public:
 
     void			setType(int);
     int				getType() const;
-    void			getTypeNames(TypeSet<char*>&);
+    BufferStringSet&		getMarkerTypes()	{ return markertypes; }
 
     void			showAll(bool yn);
     bool			allShown() const	{ return showall; }
@@ -87,7 +88,10 @@ public:
 protected:
     virtual			~PickSetDisplay();
 
-    void			pickCB( CallBacker* =0 );
+    void			pickCB(CallBacker* cb=0);
+
+    BufferStringSet		markertypes;
+    void			fillMarkerSet();
 
     int				picktype;
     float			picksz;
