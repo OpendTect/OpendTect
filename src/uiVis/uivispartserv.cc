@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.129 2003-02-17 14:16:46 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.130 2003-02-19 16:16:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "visrandomtrackdisplay.h"
 #include "uiexecutor.h"
 #include "uifiledlg.h"
+#include "uigeninputdlg.h"
 #include "uimaterialdlg.h"
 #include "uimenu.h"
 #include "uipickszdlg.h"
@@ -44,6 +45,7 @@ ________________________________________________________________________
 #include "uiworkareadlg.h"
 #include "uicolor.h"
 #include "uidset.h"
+#include "uibinidtable.h"
 #include "colortab.h"
 #include "surfaceinfo.h"
 
@@ -391,11 +393,12 @@ void uiVisPartServer::setSelObjectId( int id )
 #define mResetManip		1240
 #define mSetPickSz		1241
 #define mDuplicate		1242
-#define mAddKnot		1243
+#define mEditKnots		1243
 #define mInsertKnot		1244
 #define mInsertKnotStart	1245
 ////Leave 100 spaces for submnus
 #define mInsertKnotStop		1346
+#define mShiftHor		1347
 
 
 void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
@@ -483,6 +486,8 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	    resmnu->insertItem( colitm, mResolutionStart+idx );
 	    colitm->setChecked( curres==idx );
 	}
+	
+	mnu.insertItem( new uiMenuItem("Shift ..."), mShiftHor );
 	mnu.insertItem( resmnu );
     }
 
@@ -498,7 +503,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
     mDynamicCastGet(const visSurvey::RandomTrackDisplay*, rtd, dobj );
     if ( rtd )
     {
-	mnu.insertItem( new uiMenuItem("Add knot"), mAddKnot );
+	mnu.insertItem( new uiMenuItem("Edit knots"), mEditKnots );
 	uiPopupMenu* insertknotmnu = new uiPopupMenu( appserv().parent(),
 				    "Insert knot before...");
 	for ( int idx=0; idx<rtd->nrKnots(); idx++ )
@@ -599,15 +604,31 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	return true;
     }
 
-    if ( mnu==mAddKnot )
+    if ( mnu==mEditKnots )
     {
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
-	const int nrknots = rtd->nrKnots();
-	const Coord lastknot = rtd->getKnotPos( nrknots-1 );
-	const Coord secondlastknot = rtd->getKnotPos( nrknots-2 );
-	const Coord diff = lastknot-secondlastknot;
-	const Coord newknot = lastknot+diff;
-	rtd->addKnot( newknot );
+	TypeSet<BinID> bidset;
+	rtd->getAllKnotPos( bidset );
+	uiBinIDTableDlg dlg( appserv().parent(), "Specify nodes", bidset );
+	if ( dlg.go() )
+	{
+	    TypeSet<BinID> newbids;
+	    dlg.getBinIDs( newbids );
+	    if ( newbids.size() < 2 ) return true;
+	    rtd->removeAllKnots();
+	    for ( int idx=0; idx<newbids.size(); idx++ )
+	    {
+		const BinID bid = newbids[idx];
+		if ( idx < 2 )
+		    rtd->setKnotPos( idx, bid );
+		else
+		    rtd->addKnot( bid );
+	    }
+
+	    setSelObjectId( rtd->id() );
+	}
+
+	return true;
     }
 
     if ( mnu>=mInsertKnotStart && mnu<=mInsertKnotStop )
@@ -615,23 +636,24 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
 	int knotidx = mnu-mInsertKnotStart;
 
-	Coord newknot;
+	BinID newknot;
 	if ( !knotidx )
 	{
-	    const Coord lastknot = rtd->getKnotPos( 0 );
-	    const Coord secondlastknot = rtd->getKnotPos( 1 );
-	    const Coord diff = lastknot-secondlastknot;
-	    Coord newknot = lastknot+diff;
+	    const BinID lastknot = rtd->getKnotPos( 0 );
+	    const BinID secondlastknot = rtd->getKnotPos( 1 );
+	    const BinID diff = lastknot-secondlastknot;
+	    newknot = lastknot+diff;
 	}
 	else
 	{
-	    const Coord previousknot = rtd->getKnotPos( knotidx-1 );
-	    const Coord nextknot = rtd->getKnotPos( knotidx );
-	    newknot = Coord((nextknot.x+previousknot.x)/2,
-		    	    (nextknot.y+previousknot.y)/2 );
+	    const BinID previousknot = rtd->getKnotPos( knotidx-1 );
+	    const BinID nextknot = rtd->getKnotPos( knotidx );
+	    newknot = BinID((nextknot.inl+previousknot.inl)/2,
+		    	    (nextknot.crl+previousknot.crl)/2 );
 	}
 
 	rtd->insertKnot( knotidx, newknot );
+	setSelObjectId( rtd->id() );
     }
 
     if ( mnu>=mResolutionStart && mnu<=mResolutionStop )
@@ -695,6 +717,19 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	return true;
     }
 
+    if ( mnu==mShiftHor )
+    {
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj);
+	float shift = sd->getTimeShift();
+	DataInpSpec* inpspec = new FloatInpSpec( shift );
+	uiGenInputDlg dlg( appserv().parent(), "Specify horizon shift", 
+			   "Shift (ms)", inpspec );
+	if ( dlg.go() )
+	    sd->setTimeShift( dlg.getfValue() );
+
+	sendEvent( evInteraction );
+    }
+
     return true;
 }
 
@@ -756,6 +791,10 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
     mDynamicCastGet(const visSurvey::PickSetDisplay*,ps,dobj);
     if ( ps )
         res = ps->nrPicks();
+
+    mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,dobj);
+    if ( sd )
+	res = sd->getTimeShift();
 
     return res;
 }
@@ -853,9 +892,9 @@ bool uiVisPartServer::setCubeData( int id, AttribSliceSet* sliceset )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vv,obj);
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj);
     if ( pdd ) return pdd->putNewData(sliceset);
-    if ( vv ) return vv->putNewData( sliceset );
+    if ( vd ) return vd->putNewData( sliceset );
 
     delete sliceset;
     return false;
@@ -960,9 +999,20 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 	int knotidx = rtd->getSelKnotIdx();
 	if ( knotidx >= 0 )
 	{
-	    Coord crd = rtd->getManipKnotPos( knotidx );
+	    BinID binid  = rtd->getManipKnotPos( knotidx );
 	    res = "Inl/Crl: ";
-	    res += crd.x; res += "/"; res += crd.y;
+	    res += binid.inl; res += "/"; res += binid.crl;
+	}
+    }
+
+    mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,dobj)
+    if ( sd )
+    {
+	float shift = sd->getTimeShift();
+	if ( shift )
+	{
+	    res = "Horizon shift: ";
+	    res += shift; res += " (ms)";
 	}
     }
 
@@ -1480,7 +1530,7 @@ bool uiVisPartServer::hasDuplicate( int id ) const
 bool uiVisPartServer::duplicateObject( int id, int sceneid )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
     mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
 
     int newid = -1;
