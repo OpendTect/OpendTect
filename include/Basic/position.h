@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.34 2004-11-19 07:56:21 nanne Exp $
+ RCS:		$Id: position.h,v 1.35 2005-01-06 08:29:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,9 +167,9 @@ public:
 		BinID( int il, int cl=1 ) : inl(il), crl(cl)	{}
 
     int&	r() { return inl; }
-    const int&	r() const { return inl; }
+    int		r() const { return inl; }
     int&	c() { return crl; }
-    const int&	c() const { return crl; }
+    int		c() const { return crl; }
 
 		/* Implements +, -, * and other operators. See the documentation
 		   for details */

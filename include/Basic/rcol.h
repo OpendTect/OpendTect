@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.5 2004-10-21 07:00:11 nanne Exp $
+ RCS:		$Id: rcol.h,v 1.6 2005-01-06 08:28:50 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 #include <math.h>
+#include <stdint.h>
 
 template <class T> class TypeSet;
 
@@ -25,11 +26,16 @@ class RCol
 {
 public:
     virtual		~RCol() {}
+    int&		operator[](int idx) { return idx ? c() : r(); }
+    int			operator[](int idx) const { return idx ? c() : r(); }
     virtual int&	r() 				= 0;
-    virtual const int&	r() const			= 0;
+    virtual int		r() const			= 0;
 
     virtual int&	c() 				= 0;
-    virtual const int&	c() const			= 0;
+    virtual int		c() const			= 0;
+
+    inline int64_t	getSerialized() const;
+    inline void		setSerialized( int64_t );
 
     const RCol&		operator+=( const RCol& rc )
 			{ r() += rc.r(); c() += rc.c(); return *this; }
@@ -104,6 +110,19 @@ clss	operator/( int denominator ) const \
 	{ return clss( row/denominator, col/denominator ); }
 
 
+inline int64_t RCol::getSerialized() const
+{
+    return (((uint64_t) r() )<<32)+
+	    ((uint64_t) c() &  0xFFFFFFFF);
+}
+
+
+
+inline void RCol::setSerialized( int64_t serialized )
+{
+    r() = serialized>>32;
+    c() = (int32_t) (serialized & 0xFFFFFFFF);
+}
 
 
 /*!\brief Object that builds a line from start in the direction of dir with
