@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Feb 2004
- RCS:           $Id: uisegysip.h,v 1.1 2004-02-26 23:23:14 bert Exp $
+ RCS:           $Id: uisegysip.h,v 1.2 2004-03-01 13:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ public:
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,BinIDSampler&,StepInterval<double>&,
 	    			Coord crd[3]);
+    const char*		scanFile() const;
 
     MultiID&		segyid;
 

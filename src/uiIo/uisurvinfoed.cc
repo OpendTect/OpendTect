@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.53 2004-02-29 00:25:11 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.54 2004-03-01 13:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,9 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uisurvey.h"
 #include "uimsg.h"
+#include "uimain.h"
 #include "uifiledlg.h"
+#include "uifilebrowser.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
 #include "ioman.h"
 #include "ptrman.h"
@@ -39,16 +41,17 @@ static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
 
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
-    : uiDialog(p,uiDialog::Setup("Survey setup",
-				 "Specify survey parameters","0.3.2")
-				 .nrstatusflds(1))
-    , rootdir(GetBaseDataDir())
-    , orgdirname(si_?si_->dirname.buf():"")
-    , survinfo(si_)
-    , survparchanged(this)
-    , x0fld(0)
-    , dirnamechanged(false)
-    , globcurdirname(SI().dirname)
+	: uiDialog(p,uiDialog::Setup("Survey setup",
+				     "Specify survey parameters","0.3.2")
+				     .nrstatusflds(1))
+	, rootdir(GetBaseDataDir())
+	, orgdirname(si_?si_->dirname.buf():"")
+	, survinfo(si_)
+	, survparchanged(this)
+	, x0fld(0)
+	, dirnamechanged(false)
+	, globcurdirname(SI().dirname)
+	, browser(0)
 {
     if ( !survinfo ) return;
 
@@ -87,8 +90,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 		       orgstorepath,orgdirname) )
 	    return;
 	File_makeWritable( dirnm, YES, YES );
-	newSurvey( orgdirname );
     }
+    newSurvey( orgdirname );
 
     dirnmfld = new uiGenInput( this, "Survey short name (directory name)", 
 			       StringInpSpec( isnew ? "" : orgdirname.buf()) );
@@ -405,8 +408,8 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 	BufferString dirnm = File_getFullPath( orgstorepath, orgdirname );
 	if ( File_exists(dirnm) )
 	    File_remove( dirnm, YES );
-	newSurvey( globcurdirname );
     }
+    newSurvey( globcurdirname );
     return true;
 }
 
@@ -504,8 +507,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	return false;
     }
     
-    if ( isnew )
-	newSurvey( globcurdirname );
+    newSurvey( globcurdirname );
     return true;
 }
 
@@ -624,6 +626,19 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 
     survinfo->setWSProjName( SI().getWSProjName() );
     survinfo->setWSPwd( SI().getWSPwd() );
+
+    const char* scanfile = sip->scanFile();
+    if ( scanfile )
+    {
+	if ( browser )
+	    browser->setFileName( scanfile );
+	else
+	{
+	    browser = new uiFileBrowser( this,
+			uiFileBrowser::Setup(scanfile).readonly(true) );
+	}
+	browser->show();
+    }
 }
 
 

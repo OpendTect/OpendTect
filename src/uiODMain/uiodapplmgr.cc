@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.11 2004-01-29 10:24:34 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.12 2004-03-01 13:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -556,6 +556,10 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	return selectColorAttrib( visid );
     else if ( evid == uiVisPartServer::evGetColorData )
 	return getNewData( visid, true );
+    else if ( evid == uiVisPartServer::evViewAll )
+	sceneMgr().viewAll(0);
+    else if ( evid == uiVisPartServer::evToHomePos )
+	sceneMgr().toHomePos(0);
     else
 	pErrMsg("Unknown event from visserv");
 

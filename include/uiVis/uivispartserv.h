@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.111 2004-02-19 12:42:07 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.112 2004-03-01 13:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,6 +182,9 @@ public:
     				/*!< Returns dragger position or
 				     Nr positions in picksets */
 
+    static const int		evViewAll;
+    static const int		evToHomePos;
+
     				// ColorTable stuff
     int				getColTabId(int) const;
     void			setClipRate(int,float);
@@ -259,6 +262,8 @@ protected:
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
     void			updatePlanePos(CallBacker*);
+    void			vwAll(CallBacker*);
+    void			toHome(CallBacker*);
 
 
     static const char*		workareastr;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.16 2004-02-28 11:10:06 bert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.17 2004-03-01 13:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiCheckBox;
 class uiGenInput;
 class uiPushButton;
 class uiRadioButton;
+class uiFileBrowser;
 class BinIDSampler;
 class SurveyInfo;
 class uiLabel;
@@ -44,6 +45,8 @@ public:
     virtual bool		getInfo(uiDialog*,BinIDSampler&,
 	    				StepInterval<double>&,
 					Coord crd[3])	= 0;
+
+    virtual const char*		scanFile() const	{ return 0; }
 };
 
 
@@ -103,6 +106,7 @@ protected:
     uiCheckBox*		overrule;
     uiPushButton*	applybut;
     ObjectSet<CallBacker> sipbuts;
+    uiFileBrowser*	browser;
 
     bool		dirnamechanged;
     void		setValues();

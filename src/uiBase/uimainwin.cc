@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.80 2004-01-07 14:30:11 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.81 2004-03-01 13:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -542,14 +542,17 @@ public:
 
     int			exec(); 
 
-    void		reject( CallBacker* s)	
-			    { if( mHandle.rejectOK(s) ) done_(0); }
+    void		reject( CallBacker* s )	
+			{
+			    mHandle.cancelpushed_ = s == cnclBut;
+			    if ( mHandle.rejectOK(s) ) done_(0);
+			}
                         //!< to be called by a 'cancel' button
-    void		accept( CallBacker* s)	
-			    { if( mHandle.acceptOK(s) ) done_(1); }
+    void		accept( CallBacker* s )	
+			    { if ( mHandle.acceptOK(s) ) done_(1); }
                         //!< to be called by a 'ok' button
     void		done( int i )
-			    { if( mHandle.doneOK(i) ) done_(i); }
+			    { if ( mHandle.doneOK(i) ) done_(i); }
 
     void		uiSetResult( int v ) { reslt = v; }
     int			uiResult(){ return reslt; }
@@ -959,6 +962,7 @@ void uiDialogBody::provideHelp( CallBacker* )
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 	: uiMainWin(s.wintitle_)
+    	, cancelpushed_(false)
 {
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );

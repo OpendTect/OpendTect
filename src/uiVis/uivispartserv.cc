@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.188 2004-01-29 10:23:47 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.189 2004-03-01 13:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,15 +47,17 @@ ________________________________________________________________________
 #include "uivismenu.h"
 
 
-const int uiVisPartServer::evUpdateTree = 	0;
-const int uiVisPartServer::evSelection = 	1;
-const int uiVisPartServer::evDeSelection = 	2;
-const int uiVisPartServer::evGetNewData = 	3;
-const int uiVisPartServer::evMouseMove = 	4;
-const int uiVisPartServer::evInteraction = 	5;
-const int uiVisPartServer::evSelectAttrib = 	6;
-const int uiVisPartServer::evSelectColorAttrib= 7;
-const int uiVisPartServer::evGetColorData = 	8;
+const int uiVisPartServer::evUpdateTree =	0;
+const int uiVisPartServer::evSelection =	1;
+const int uiVisPartServer::evDeSelection =	2;
+const int uiVisPartServer::evGetNewData =	3;
+const int uiVisPartServer::evMouseMove =	4;
+const int uiVisPartServer::evInteraction =	5;
+const int uiVisPartServer::evSelectAttrib =	6;
+const int uiVisPartServer::evSelectColorAttrib=	7;
+const int uiVisPartServer::evGetColorData =	8;
+const int uiVisPartServer::evViewAll =		9;
+const int uiVisPartServer::evToHomePos =	10;
 
 const char* uiVisPartServer::appvelstr = "AppVel";
 const char* uiVisPartServer::workareastr = "Work Area";
@@ -989,8 +991,14 @@ void uiVisPartServer::toggleDraggers()
 void uiVisPartServer::setZScale()
 {
     uiZScaleDlg dlg( appserv().parent() );
+    dlg.vwallcb = mCB(this,uiVisPartServer,vwAll);
+    dlg.homecb = mCB(this,uiVisPartServer,toHome);
     dlg.go();
 }
+
+
+void uiVisPartServer::vwAll( CallBacker* ) { sendEvent( evViewAll ); }
+void uiVisPartServer::toHome( CallBacker* ) { sendEvent( evToHomePos ); }
 
 
 bool uiVisPartServer::setWorkingArea()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.36 2004-01-07 14:30:17 nanne Exp $
+ RCS:           $Id: uidialog.h,v 1.37 2004-03-01 13:27:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,6 +143,9 @@ protected:
     virtual bool        rejectOK(CallBacker*){ return true;}//!< confirm reject 
     virtual bool        acceptOK(CallBacker*){ return true;}//!< confirm accept 
     virtual bool        doneOK(int)	     { return true; } //!< confirm exit 
+
+    bool		cancelpushed_;
+
 };
 
 #endif
