@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.6 2004-11-05 19:24:19 arend Exp $
+ RCS:		$Id: jobrunner.h,v 1.7 2004-11-05 20:13:56 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class JobDescProv;
 class JobIOMgr;
 class StatusInfo;
 class BufferStringSet;
+class FilePath;
 
 class JobHostInfo
 {
@@ -78,6 +79,7 @@ public:
     void			setNiceNess( int n );
 
     void			showMachStatus( BufferStringSet& ) const;
+    const FilePath&		getBaseFilePath(JobInfo&, const HostData&);
 
 protected:
 

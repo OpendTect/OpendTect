@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.73 2004-11-05 19:24:45 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.74 2004-11-05 20:14:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -481,10 +481,28 @@ void uiSeisMMProc::stopPush( CallBacker* )
 
 void uiSeisMMProc::vwLogPush( CallBacker* )
 {
-    int rhidx = runnerHostIdx( curUsedMachName() );
-    if ( rhidx < 0 ) return;
-    BufferString msg( "Nerd impl view log - host idx " );
-    msg += rhidx; pErrMsg( msg );
+    BufferString hostnm( curUsedMachName() );
+
+    JobHostInfo* jhi = 0;
+    const ObjectSet<JobHostInfo>& hi = jobrunner->hostInfo();
+    for ( int idx=0; idx<hi.size(); idx++ )
+    {
+	if ( hi[idx]->hostdata_.isKnownAs(hostnm) )
+	{ jhi = hi[idx]; break; }
+    }
+
+    if ( !jhi ) return;
+
+    JobInfo* ji = jobrunner->currentJob( jhi );
+
+    FilePath logfp( jobrunner->getBaseFilePath(*ji, jhi->hostdata_) );
+
+    logfp.setExtension( ".log", false );
+
+    delete logvwer;
+    logvwer = new uiFileBrowser( this, uiFileBrowser::Setup(logfp.fullPath())
+					.scroll2bottom(true) );
+    logvwer->go();
 }
 
 

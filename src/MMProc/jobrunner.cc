@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.8 2004-11-05 19:24:32 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.9 2004-11-05 20:13:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,14 +163,26 @@ JobIOMgr& JobRunner::iomgr()
     return *iomgr__;
 }
 
-bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
+
+const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 {
-    IOPar iop; descprov_->getJob( ji.descnr_, iop );
+    static FilePath basefp;
 
     BufferString basenm( hd.name() );
     basenm += "_"; basenm += ji.descnr_;
 
-    FilePath basefp( procdir_ ); basefp.add( basenm );
+    basefp = procdir_;
+    basefp.add( basenm );
+
+    return basefp;
+}
+    
+
+bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
+{
+    IOPar iop; descprov_->getJob( ji.descnr_, iop );
+
+    FilePath basefp( getBaseFilePath(ji,hd) );
 
     if ( !iomgr().startProg( prog_, hd, iop, basefp, ji, rshcomm_ ) )
     {
@@ -242,17 +254,6 @@ bool JobRunner::isPaused( int hnr ) const
     return ji ? ji->state_ == JobInfo::Paused : false;
 }
 
-/*
-bool JobRunner::isAssigned( int hnr ) const
-{
-    if ( hnr < 0 || hnr >= hostinfo_.size() )
-	return false;
-    const JobInfo* ji = currentJob( hostinfo_[hnr] );
-
-    return !ji ? false : isAssigned( *ji );
-}
-*/
-
 
 bool JobRunner::isAssigned( const JobInfo& ji ) const
 {
@@ -308,11 +309,13 @@ const char* JobRunner::nrDoneMessage() const
     return "Jobs completed";
 }
 
+
 void JobRunner::setNiceNess( int n )
 {
     niceval_ = n;
     if ( iomgr__ ) iomgr__->setNiceNess(n);
 }
+
 
 bool JobRunner::haveIncomplete() const
 {
@@ -345,7 +348,6 @@ int JobRunner::doCycle()
 
     return haveIncomplete() ? MoreToDo : Finished;
 }
-
 
 
 void JobRunner::updateJobInfo()
