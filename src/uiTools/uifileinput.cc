@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.5 2001-07-13 22:03:34 bert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.6 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include <datainpspec.h>
 
 
-uiFileInput::uiFileInput( uiObject* p, const char* txt, const char* fnm,
+uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm,
 			  bool fr, const char* filt )
 	: uiGenInput( p, txt, FileNameInpSpec(fnm) )
 	, forread(fr)
