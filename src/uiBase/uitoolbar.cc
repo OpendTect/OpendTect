@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.12 2002-04-17 06:57:13 kristofer Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.13 2002-05-15 14:54:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,6 +127,14 @@ uiToolBar* uiToolBar::getNew( QMainWindow& main, const char* nm, ToolBarDock d,
 int uiToolBar::addButton(const ioPixmap& pm, const CallBack& cb,
 			 const char* nm, bool toggle)
 { return body_->addButton(pm,cb,nm,toggle); }
+
+
+void uiToolBar::setLabel( const char* lbl )
+{
+    if ( body_->qthing() ) 
+	body_->qthing()->setLabel( QString(lbl) );
+}
+
 
 void uiToolBar::turnOn( int idx, bool yn )
 { body_->turnOn( idx, yn ); }

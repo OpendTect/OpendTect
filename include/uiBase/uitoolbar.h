@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.7 2002-04-17 06:57:10 kristofer Exp $
+ RCS:           $Id: uitoolbar.h,v 1.8 2002-05-15 14:54:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ public:
     int 		addButton( const ioPixmap&, const CallBack& cb, 
 				   const char* nm="ToolBarButton",
 				   bool toggle=false );
+
+    void		setLabel(const char*);
 
     void		turnOn( int idx, bool yn );
     			/*!< Does only work on toggle-buttons */
