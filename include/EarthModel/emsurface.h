@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.43 2004-08-09 14:09:31 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.44 2004-08-18 13:58:13 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -74,6 +74,8 @@ public:
     bool		isDefined(const EM::PosID&) const;
     Coord3		getPos(const EM::PosID&) const;
     bool		isLoaded() const;
+    Executor*		saver();
+    Executor*		loader();
 
     const char*		dbInfo() const			{ return dbinfo; }
     void		setDBInfo( const char* s )	{ dbinfo = s; }
