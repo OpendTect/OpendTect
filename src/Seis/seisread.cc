@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.41 2004-09-27 13:07:07 nanne Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.42 2004-09-29 14:37:44 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -352,7 +352,10 @@ bool SeisTrcReader::mkNextFetcher()
 	{
 	    BufferString msg( "Line not found in line set: " );
 	    msg += seldata->linekey_;
-	    ErrMsg( msg );
+	    if ( islinesel )
+		{ errmsg = msg; return false; }
+	    else
+		ErrMsg( msg );
 	    curlineidx++;
 	}
     }
@@ -395,9 +398,8 @@ bool SeisTrcReader::readNext2D()
 
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
-    if ( mNeedNextFetcher() && !mkNextFetcher() )
-	return 0;
-    if ( !readNext2D() )
+    if ( (mNeedNextFetcher() && !mkNextFetcher())
+      || !readNext2D() )
 	return errmsg == "" ? 0 : -1;
 
     if ( inforead && tbuf->size() )
