@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.29 2004-11-15 17:32:30 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.30 2004-11-29 13:19:34 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -99,7 +99,7 @@ private:
 
     static const IOPar&	datatypeparspec;
 
-    void		destroyVars();
+    void		destroyVars(int);
 
 };
 
