@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.1 2002-05-16 14:00:59 kristofer Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.2 2002-05-22 06:17:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "multiid.h"
 
 class LineStyle;
 
@@ -37,8 +38,8 @@ public:
     static WellDisplay*		create()
 				mCreateDataObj0arg(WellDisplay);
 
-    bool			setWellId( int );
-    int				wellId() const { return wellid; }
+    bool			setWellId( const MultiID& );
+    const MultiID&		wellId() const { return wellid; }
 
     int				nrAttribs() const;
     const char*			getAttribName( int ) const;
@@ -60,7 +61,7 @@ protected:
     virtual		~WellDisplay();
 
     int 		displayedattrib;
-    int			wellid;
+    MultiID		wellid;
     visBase::PolyLine*	line;
     visBase::DrawStyle*	drawstyle;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.3 2002-05-21 13:44:44 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.4 2002-05-22 06:17:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -76,7 +76,7 @@ protected:
     			friend EMManager;
 			friend EMObject;
 
-    			Horizon(EMManager&, int id);
+    			Horizon(EMManager&, const MultiID&);
     			~Horizon();
 
 

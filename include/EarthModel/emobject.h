@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.2 2002-05-16 15:35:42 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.3 2002-05-22 06:17:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "callback.h"
 #include "bufstring.h"
+#include "multiid.h"
 
 class IOObj;
 class Executor;
@@ -36,9 +37,9 @@ public:
 	    				EMManager&,
 	    				BufferString& errmsg );
 
-    				EMObject( EMManager&, int id );
+    				EMObject( EMManager&, const MultiID&);
     virtual			~EMObject( ) {}
-    unsigned short		id() const { return id_; }
+    const MultiID&		id() const { return id_; }
     const char*			name() const { return name_; }
     CNotifier<EMObject, PosID>	poschnotifier;
 
@@ -51,7 +52,7 @@ public:
 				    ? (const char*) errmsg : (const char*) 0; }
 
 protected:
-    unsigned short		id_;
+    MultiID			id_;
     class EMManager&		manager;
     BufferString		name_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.1 2002-05-16 14:19:03 kristofer Exp $
+ RCS:		$Id: emmanager.h,v 1.2 2002-05-22 06:17:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,9 @@ ________________________________________________________________________
 #include "sets.h"
 #include "bufstring.h"
 #include "ptrman.h"
+#include "multiid.h"
+
+class Executor;
 
 namespace EarthModel
 {
@@ -36,21 +39,22 @@ public:
 			~EMManager();
 
     void		init();
-    const char*		getName( int id );
+    const char*		getName( const MultiID& );
 
-    int			add( Type, const char* name );
+    MultiID		add( Type, const char* name );
     			/*! Return the id */
 
-    EMObject*		getObject( int id );
-    const EMObject*	getObject( int id ) const;
+    EMObject*		getObject( const MultiID& );
+    const EMObject*	getObject( const MultiID& ) const;
 
-    int			load( int id );
-    bool		isLoaded( int id );
+    Executor*		load( const MultiID& );
+    bool		isLoaded( const MultiID& );
 
 protected:
     ObjectSet<EMObject>	objects;
     BufferString	errmsg;
 };
+
 
 static inline EMManager& EMM()
 {

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.2 2002-05-19 15:50:14 bert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.3 2002-05-22 06:17:03 kristofer Exp $";
 
 #include "emmanager.h"
 #include "emobject.h"
@@ -44,7 +44,7 @@ void EarthModel::EMManager::init()
 }
 
 
-int EarthModel::EMManager::add( EarthModel::EMManager::Type type,
+MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 				const char* name )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Mdl)->id) );
@@ -60,13 +60,12 @@ int EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 
 	if ( !ctio->ioobj ) return -1;
 	MultiID key = ctio->ioobj->key();
-	int id = key.ID(key.nrKeys()-1);
 
-	Horizon* hor = new Horizon( *this, id );
+	Horizon* hor = new Horizon( *this, key );
 	PtrMan<Executor> exec = hor->saver();
 	exec->execute();
 
-	return id;
+	return key;
     }
 
     if ( type==EarthModel::EMManager::Well )
@@ -80,20 +79,19 @@ int EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 	if ( !ctio->ioobj ) return -1;
 
 	MultiID key = ctio->ioobj->key();
-	int id = key.ID(key.nrKeys()-1);
 
-	EarthModel::Well* well = new EarthModel::Well( *this, id );
+	EarthModel::Well* well = new EarthModel::Well( *this, key );
 	PtrMan<Executor> exec = well->saver();
 	exec->execute();
 
-	return id;
+	return key;
     }
 
     return -1;
 }
 
 
-EarthModel::EMObject* EarthModel::EMManager::getObject( int id )
+EarthModel::EMObject* EarthModel::EMManager::getObject( const MultiID& id )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -105,7 +103,7 @@ EarthModel::EMObject* EarthModel::EMManager::getObject( int id )
 }
 
 
-const EarthModel::EMObject* EarthModel::EMManager::getObject( int id ) const
+const EarthModel::EMObject* EarthModel::EMManager::getObject( const MultiID& id ) const
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {

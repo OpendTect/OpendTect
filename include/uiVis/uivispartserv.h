@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.33 2002-05-16 14:01:28 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.34 2002-05-22 06:17:42 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ class CubeSampling;
 class AttribSelSpec;
 class AttribSlice;
 class IOPar;
+class MultiID;
 
 namespace visSurvey
 {
@@ -134,7 +135,7 @@ public:
     bool		allPicksShown(int);
 
     			//Well stuff
-    int			addWellDisplay(int emwellid);
+    int			addWellDisplay(const MultiID& emwellid);
     void		removeWellDisplay(int);
     int			getNrWellAttribs(int) const;
     const char*		getWellAttribName(int, int idx) const;

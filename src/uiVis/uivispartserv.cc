@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.50 2002-05-16 14:01:40 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.51 2002-05-22 06:17:03 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -657,7 +657,7 @@ bool uiVisPartServer::allPicksShown( int id )
 }
 
 
-int uiVisPartServer::addWellDisplay( int emwellid )
+int uiVisPartServer::addWellDisplay( const MultiID& emwellid )
 {
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.3 2002-05-21 13:44:29 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.4 2002-05-22 06:17:03 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.3 2002-05-21 13:44:29 kristo
 #include "ioman.h"
 #include "ioobj.h"
 
-EarthModel::Horizon::Horizon(EMManager& man, int id_)
+EarthModel::Horizon::Horizon(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
     , surfaces( *new Geometry::CompositeGridSurface )
 { }
@@ -71,13 +71,13 @@ void EarthModel::Horizon::addSquare( int inl, int crl,
 
 unsigned short EarthModel::Horizon::getSurfID( PosID posid )
 {
-    return (posid.id>>32) & 0x0000FFFF;
+    return (posid.subid>>32) & 0x0000FFFF;
 }
 
 
 unsigned long EarthModel::Horizon::getSurfPID( PosID posid )
 {
-    return posid.id & 0x00000000FFFFFFFFl;
+    return posid.subid & 0x00000000FFFFFFFFl;
 }
 
 
@@ -85,18 +85,15 @@ EarthModel::PosID EarthModel::Horizon::getPosID( unsigned short surfid,
 						 unsigned long  surfpid ) const
 {
     PosID res;
-    res.id = ( ((unsigned long long) id())<<48 ) +
-	     ( ((unsigned long long) surfid)<<32 ) +
-	     surfpid;
+    res.subid = ( ((unsigned long long) surfid)<<32 ) + surfpid;
+    res.objid = id();
     return res;
 }
 
 
 Executor* EarthModel::Horizon::loader()
 {
-    MultiID key = IOM().key();
-    key.add( id() );
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    PtrMan<IOObj> ioobj = IOM().get( id() );
 
     Executor* exec = EarthModelHorizonTranslator::reader( *this, ioobj, errmsg);
     if ( errmsg[0] )
@@ -111,9 +108,7 @@ Executor* EarthModel::Horizon::loader()
 
 Executor* EarthModel::Horizon::saver()
 {
-    MultiID key = IOM().key();
-    key.add( id() );
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    PtrMan<IOObj> ioobj = IOM().get( id() );
 
     Executor* exec = EarthModelHorizonTranslator::writer( *this, ioobj, errmsg);
     if ( errmsg[0] )

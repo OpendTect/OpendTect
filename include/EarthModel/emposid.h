@@ -7,11 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.1 2002-05-16 14:19:03 kristofer Exp $
+ RCS:		$Id: emposid.h,v 1.2 2002-05-22 06:17:42 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
+
+#include "multiid.h"
 
 namespace EarthModel
 {
@@ -25,9 +27,8 @@ to. The meaning of the latter bits are interpreted by that object.
 class PosID
 {
 public:
-    unsigned long long int	id;
-
-    unsigned short		emObject() const { return id>>48; }
+    unsigned long long int	subid;
+    MultiID			objid;
 };
 
 }; // Namespace

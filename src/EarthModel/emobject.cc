@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.1 2002-05-16 14:18:55 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.2 2002-05-22 06:17:03 kristofer Exp $";
 
 #include "emobject.h"
 #include "emhorizontransl.h"
@@ -18,7 +18,7 @@ EarthModel::EMObject* EarthModel::EMObject::create( const IOObj& ioobj,
     EarthModel::EMObject* res = 0;
     const char* group = ioobj.group();
 
-    int id = ioobj.key().ID( ioobj.key().nrKeys()-1);
+    MultiID id = ioobj.key();
 
     if ( !strcmp( group, EarthModelWellTranslator::keyword ))
 	res = new EarthModel::Well( manager, id );
@@ -29,7 +29,7 @@ EarthModel::EMObject* EarthModel::EMObject::create( const IOObj& ioobj,
 }
 
 
-EarthModel::EMObject::EMObject( EMManager& emm_, int id__ )
+EarthModel::EMObject::EMObject( EMManager& emm_, const MultiID& id__ )
     : manager( emm_ )
     , poschnotifier( this )
     , id_( id__ )

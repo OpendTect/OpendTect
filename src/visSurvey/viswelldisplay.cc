@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.1 2002-05-16 14:00:12 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.2 2002-05-22 06:17:03 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -44,7 +44,7 @@ visSurvey::WellDisplay::~WellDisplay()
 }
 
 
-bool visSurvey::WellDisplay::setWellId( int id )
+bool visSurvey::WellDisplay::setWellId( const MultiID& id )
 {
     const EarthModel::EMManager& em = EarthModel::EMM();
     mDynamicCastGet( const EarthModel::Well*, well, em.getObject( id ) );
