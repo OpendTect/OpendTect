@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.40 2004-07-16 15:35:25 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.41 2004-10-20 14:45:42 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -15,12 +15,12 @@ static const char* rcsID = "$Id: cbvswriter.cc,v 1.40 2004-07-16 15:35:25 bert E
 #include "survinfo.h"
 
 const int CBVSIO::integersize = 4;
-const int CBVSIO::version = 1;
+const int CBVSIO::version = 2;
 const int CBVSIO::headstartbytes = 8 + 2 * CBVSIO::integersize;
 
 
 CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
-			const PosAuxInfo* e )
+			const PosAuxInfo* e, CoordPol coordpol )
 	: strm_(*s)
 	, auxinfo_(e)
 	, thrbytes_(0)
@@ -36,6 +36,7 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
 	, input_rectnreg_(false)
     	, forcedlinestep_(0,0)
 {
+    coordpol_ = coordpol;
     init( i );
 }
 
@@ -55,6 +56,7 @@ CBVSWriter::CBVSWriter( std::ostream* s, const CBVSWriter& cw,
 	, auxnrbytes_(0)
     	, forcedlinestep_(cw.forcedlinestep_)
 {
+    coordpol_ = cw.coordpol_;
     init( ci );
 }
 
@@ -104,6 +106,7 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     put_platform( ucbuf + 3 );
     ucbuf[4] = version;
     putAuxInfoSel( ucbuf + 5 );
+    ucbuf[6] = (unsigned char)coordpol_;
     if ( !strm_.write((const char*)ucbuf,headstartbytes) )
 	mErrRet("Cannot start writing to file")
 
@@ -132,20 +135,27 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
 void CBVSWriter::putAuxInfoSel( unsigned char* ptr ) const
 {
     *ptr = 0;
+    int auxbts = 0;
 
 #define mDoMemb(memb,n) \
     if ( auxinfosel_.memb ) \
     { \
 	*ptr |= (unsigned char)n; \
-	const_cast<CBVSWriter*>(this)->auxnrbytes_ += sizeof(auxinfo_->memb); \
+	auxbts += sizeof(auxinfo_->memb); \
     }
 
     mDoMemb(startpos,1)
-    mDoMemb(coord,2)
+    if ( coordpol_ == InAux && auxinfosel_.coord )
+    {
+	*ptr |= (unsigned char)2;
+	auxbts += 2 * sizeof(double);
+    }
     mDoMemb(offset,4)
     mDoMemb(pick,8)
     mDoMemb(refpos,16)
     mDoMemb(azimuth,32)
+
+    const_cast<CBVSWriter*>(this)->auxnrbytes_ = auxbts;
 }
 
 
@@ -274,6 +284,11 @@ void CBVSWriter::getBinID()
 
 int CBVSWriter::put( void** cdat, int offs )
 {
+#ifdef __debug__
+    // gdb says: "Couldn't find method ostream::tellp"
+    std::streampos curfo = strm_.tellp();
+#endif
+
     getBinID();
     if ( prevbinid_.inl != curbinid_.inl )
     {
@@ -352,7 +367,13 @@ bool CBVSWriter::writeAuxInfo()
 	strm_.write( (const char*)&auxinfo_->memb, sizeof(auxinfo_->memb) );
 
 	mDoWrAI(startpos)
-	mDoWrAI(coord)
+	if ( coordpol_ == InTrailer )
+	    trailercoords_ += auxinfo_->coord;
+	else if ( coordpol_ == InAux && auxinfosel_.coord )
+	{
+	    strm_.write( (const char*)&auxinfo_->coord.x, sizeof(double) );
+	    strm_.write( (const char*)&auxinfo_->coord.y, sizeof(double) );
+	}
 	mDoWrAI(offset)
 	mDoWrAI(pick)
 	mDoWrAI(refpos)
@@ -373,9 +394,9 @@ void CBVSWriter::doClose( bool islast )
     writeGeom();
     strm_.seekp( kp );
 
-    if ( !survgeom_.fullyrectandreg && !writeTrailer() )
+    if ( !writeTrailer() )
     {
-	// damn! we were almost there!
+	// shazbut! we were almost there!
 	errmsg_ = "Could not write CBVS trailer";
 	ErrMsg( errmsg_ );
     }
@@ -459,24 +480,41 @@ void CBVSWriter::getRealGeometry()
 
 bool CBVSWriter::writeTrailer()
 {
-    const int nrinl = inldata_.size();
     std::streampos trailerstart = strm_.tellp();
-    strm_.write( (const char*)&nrinl, integersize );
-    for ( int iinl=0; iinl<nrinl; iinl++ )
-    {
-	CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata_[iinl];
-	strm_.write( (const char*)&inlinf.inl, integersize );
-	const int nrcrl = inlinf.segments.size();
-	strm_.write( (const char*)&nrcrl, integersize );
 
-	for ( int icrl=0; icrl<nrcrl; icrl++ )
+    if ( coordpol_ == InTrailer )
+    {
+	const int sz = trailercoords_.size();
+	strm_.write( (const char*)&sz, integersize );
+	for ( int idx=0; idx<sz; idx++ )
 	{
-	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =inlinf.segments[icrl];
-	    strm_.write( (const char*)&seg.start, integersize );
-	    strm_.write( (const char*)&seg.stop, integersize );
-	    strm_.write( (const char*)&seg.step, integersize );
+	    Coord c( trailercoords_[idx] );
+	    strm_.write( (const char*)(&c.x), sizeof(double) );
+	    strm_.write( (const char*)(&c.y), sizeof(double) );
 	}
-	if ( !strm_.good() ) return false;
+    }
+
+    if ( !survgeom_.fullyrectandreg )
+    {
+	const int nrinl = inldata_.size();
+	strm_.write( (const char*)&nrinl, integersize );
+	for ( int iinl=0; iinl<nrinl; iinl++ )
+	{
+	    CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata_[iinl];
+	    strm_.write( (const char*)&inlinf.inl, integersize );
+	    const int nrcrl = inlinf.segments.size();
+	    strm_.write( (const char*)&nrcrl, integersize );
+
+	    for ( int icrl=0; icrl<nrcrl; icrl++ )
+	    {
+		CBVSInfo::SurvGeom::InlineInfo::Segment& seg
+		    	= inlinf.segments[icrl];
+		strm_.write( (const char*)&seg.start, integersize );
+		strm_.write( (const char*)&seg.stop, integersize );
+		strm_.write( (const char*)&seg.step, integersize );
+	    }
+	    if ( !strm_.good() ) return false;
+	}
     }
 
     int bytediff = (int)(strm_.tellp() - trailerstart);

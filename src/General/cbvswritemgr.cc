@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.27 2004-08-27 10:07:32 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.28 2004-10-20 14:45:42 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -104,10 +104,11 @@ void VBrickSpec::setStd( bool yn )
 
 CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 			    const PosAuxInfo* pai, VBrickSpec* bs,
-			    bool sf )
+			    bool sf, CBVSIO::CoordPol cp )
 	: CBVSIOMgr(fnm)
 	, info_(i)
     	, single_file(sf)
+    	, coordpol_(cp)
 {
     const int totsamps = info_.nrsamples;
     if ( totsamps < 1 ) return;
@@ -120,7 +121,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
     {
 	std::ostream* strm = mkStrm();
 	if ( !strm ) return;
-	CBVSWriter* wr = new CBVSWriter( strm, info_, pai );
+	CBVSWriter* wr = new CBVSWriter( strm, info_, pai, coordpol_ );
 	if ( !single_file )
 	    wr->setByteThreshold( 1900000000 );
 	writers_ += wr;
@@ -155,7 +156,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	std::ostream* strm = mkStrm();
 	if ( !strm )
 	    { cleanup(); return; }
-	CBVSWriter* wr = new CBVSWriter( strm, inf, pai );
+	CBVSWriter* wr = new CBVSWriter( strm, inf, pai, coordpol_ );
 	writers_ += wr;
 
 	if ( writers_.size() == 1 )

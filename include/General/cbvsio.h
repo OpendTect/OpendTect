@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.10 2004-08-27 10:07:32 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.11 2004-10-20 14:45:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     static const int	version;
     static const int	headstartbytes;
 
+    enum CoordPol	{ InAux=0, InTrailer=1, NotStored=2 };
+
 protected:
 
     const char*		errmsg_;
@@ -53,6 +55,8 @@ protected:
     int			nrcomps_;
     bool		strmclosed_;
     int			nrxlines_;
+    CoordPol		coordpol_;
+    TypeSet<Coord>	trailercoords_;
 
 };
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.22 2004-07-22 16:14:07 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.23 2004-10-20 14:45:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,10 +37,10 @@ class CBVSWriter : public CBVSIO
 public:
 
 			CBVSWriter(std::ostream*,const CBVSInfo&,
-				   const PosAuxInfo* =0);
+				   const PosAuxInfo*,CoordPol cp=InAux);
 			//!< If info.posauxinfo has a true, the PosAuxInfo
-			//!< is mandatory. The relevant field(s) should then be
-			//!< filled before the first put() of any position
+			//!< cannot be null. The relevant field(s) should then
+			//!< be filled before the first put() of any position
 			CBVSWriter(std::ostream*,const CBVSWriter&,
 				   const CBVSInfo&);
 			//!< For usage in CBVS pack

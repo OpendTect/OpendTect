@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.21 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.22 2004-10-20 14:45:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
     int			trcNrAtPosition() const		{ return posidx; }
     const BinIDRange&	binIDRange() const		{ return bidrg; }
 
+    const TypeSet<Coord>& trailerCoords() const	 { return trailercoords_; }
+
 protected:
 
     std::istream&	strm_;
@@ -81,6 +83,7 @@ protected:
     void		toOffs(std::streampos);
     bool		getNextBinID(BinID&,int&,int&);
     int			getPosNr(const BinID&,int&,int&) const;
+    Coord		getTrailerCoord( const BinID& bid ) const;
     bool		goTo(int posnr,const BinID&,int,int);
     void		mkPosNrs();
 

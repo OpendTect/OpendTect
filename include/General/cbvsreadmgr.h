@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.16 2004-09-30 15:33:31 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.17 2004-10-20 14:45:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ public:
     			//!< returns number of readers left.
 
     void		dumpInfo(std::ostream&,bool include_compinfo) const;
+    const TypeSet<Coord>& trailerCoords() const;
 
 protected:
 

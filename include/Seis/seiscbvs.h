@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.26 2004-09-23 21:13:56 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.27 2004-10-20 14:45:42 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -57,12 +57,15 @@ public:
     bool		singleFile() const		{ return single_file; }
     void		setSingleFile( bool yn=true )	{ single_file = yn; }
 
+    void		setCoordPol(bool dowrite,bool intrailer);
+
 protected:
 
     bool		forread;
     bool		headerdone;
     bool		donext;
     int			nrdone;
+    int			coordpol;
 
     // Following variables are inited by commitSelections_
     bool*		compsel;

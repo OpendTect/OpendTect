@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.48 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.49 2004-10-20 14:45:42 bert Exp $";
 
 /*!
 
@@ -16,7 +16,7 @@ The CBVS header starts with the following bytes:
 3: platform indicator set by put_platform()
 4: version of CBVS.
 5: info on "aux pos info"
-6: not used (yet)
+6: coordinate storage policy
 7: not used (yet)
 
 The next 8 bytes are reserved for 2 integers:
@@ -86,6 +86,7 @@ bool CBVSReader::readInfo()
     iinterp.set( dc );
 
     // const int version = (int)ptr[4];
+    coordpol_ = (CoordPol)ptr[6]; // Must be got before getAuxInfoSel() called!
     getAuxInfoSel( ptr + 5 );
     // const int nrbytesinheader = iinterp.get( ptr+8 );
 
@@ -101,7 +102,8 @@ bool CBVSReader::readInfo()
     removeTrailingBlanks( info_.usertext.buf() );
 
     datastartfo = strm_.tellg();
-    if ( !info_.geom.fullyrectandreg && !readTrailer() )
+    bool needtrailer = !info_.geom.fullyrectandreg || coordpol_ == InTrailer;
+    if ( needtrailer && !readTrailer() )
 	return false;
 
     firstbinid.inl = info_.geom.step.inl > 0
@@ -181,7 +183,11 @@ void CBVSReader::getAuxInfoSel( const char* ptr )
     if ( info_.auxinfosel.memb ) auxnrbytes += sizeof(t)
     auxnrbytes = 0;
     mAddBytes(startpos,float);
-    mAddBytes(coord,double); mAddBytes(coord,double); // both x and y
+    if ( coordpol_ == InAux )
+    {
+	mAddBytes(coord,double); // x
+	mAddBytes(coord,double); // y
+    }
     mAddBytes(offset,float);
     mAddBytes(pick,float);
     mAddBytes(refpos,float);
@@ -283,54 +289,69 @@ bool CBVSReader::readGeom()
 bool CBVSReader::readTrailer()
 {
     strm_.seekg( -3, std::ios::end );
-    BufferString buf(3*integersize);
-    strm_.read( buf.buf(), 3 ); buf[3] = '\0';
+    char buf[40];
+    strm_.read( buf, 3 ); buf[3] = '\0';
     if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
     
     strm_.seekg( -4-integersize, std::ios::end );
-    strm_.read( buf.buf(), integersize );
+    strm_.read( buf, integersize );
     const int nrbytes = iinterp.get( buf, 0 );
 
     strm_.seekg( -4-integersize-nrbytes, std::ios::end );
-    strm_.read( buf.buf(), integersize );
-    const int nrinl = iinterp.get( buf, 0 );
-    if ( nrinl == 0 ) mErrRet("No traces in file")
-
-    for ( int iinl=0; iinl<nrinl; iinl++ )
+    if ( coordpol_ == InTrailer )
     {
-	strm_.read( buf.buf(), 2 * integersize );
-	CBVSInfo::SurvGeom::InlineInfo* iinf
-		= new CBVSInfo::SurvGeom::InlineInfo(
-						iinterp.get( buf, 0 ) );
-	if ( !iinl )
-	    bidrg.start.inl = bidrg.stop.inl = iinf->inl;
-
-	const int nrseg = iinterp.get( buf, 1 );
-	CBVSInfo::SurvGeom::InlineInfo::Segment crls;
-	for ( int iseg=0; iseg<nrseg; iseg++ )
+	strm_.read( buf, integersize );
+	const int sz = iinterp.get( buf, 0 );
+	for ( int idx=0; idx<sz; idx++ )
 	{
-	    strm_.read( buf.buf(), 3 * integersize );
-
-	    crls.start = iinterp.get(buf,0);
-	    crls.stop = iinterp.get(buf,1);
-	    crls.step = iinterp.get(buf,2);
-	    iinf->segments += crls;
-
-	    if ( !iinl && !iseg )
-		bidrg.start.crl = bidrg.stop.crl = crls.start;
-	    else
-		bidrg.include( BinID(iinf->inl,crls.start) );
-	    bidrg.include( BinID(iinf->inl,crls.stop) );
+	    strm_.read( buf, 2 * sizeof(double) );
+	    trailercoords_ += Coord( dinterp.get(buf,0), dinterp.get(buf,1) );
 	}
-	info_.geom.inldata += iinf;
     }
 
-    info_.geom.start = bidrg.start;
-    info_.geom.stop = bidrg.stop;
+    if ( !info_.geom.fullyrectandreg )
+    {
+	strm_.read( buf, integersize );
+	const int nrinl = iinterp.get( buf, 0 );
+	if ( nrinl == 0 ) mErrRet("No traces in file")
 
-    curinlinfnr_ = cursegnr_ = 0;
-    curbinid_.inl = info_.geom.inldata[curinlinfnr_]->inl;
-    curbinid_.crl = info_.geom.inldata[curinlinfnr_]->segments[cursegnr_].start;
+	for ( int iinl=0; iinl<nrinl; iinl++ )
+	{
+	    strm_.read( buf, 2 * integersize );
+	    CBVSInfo::SurvGeom::InlineInfo* iinf
+		= new CBVSInfo::SurvGeom::InlineInfo( iinterp.get( buf, 0 ) );
+	    if ( !iinl )
+		bidrg.start.inl = bidrg.stop.inl = iinf->inl;
+
+	    const int nrseg = iinterp.get( buf, 1 );
+	    CBVSInfo::SurvGeom::InlineInfo::Segment crls;
+	    for ( int iseg=0; iseg<nrseg; iseg++ )
+	    {
+		strm_.read( buf, 3 * integersize );
+
+		crls.start = iinterp.get(buf,0);
+		crls.stop = iinterp.get(buf,1);
+		crls.step = iinterp.get(buf,2);
+		iinf->segments += crls;
+
+		if ( !iinl && !iseg )
+		    bidrg.start.crl = bidrg.stop.crl = crls.start;
+		else
+		    bidrg.include( BinID(iinf->inl,crls.start) );
+		bidrg.include( BinID(iinf->inl,crls.stop) );
+	    }
+	    info_.geom.inldata += iinf;
+	}
+
+	info_.geom.start = bidrg.start;
+	info_.geom.stop = bidrg.stop;
+
+	curinlinfnr_ = cursegnr_ = 0;
+	curbinid_.inl = info_.geom.inldata[curinlinfnr_]->inl;
+	curbinid_.crl = info_.geom.inldata[curinlinfnr_]
+	    		->segments[cursegnr_].start;
+    }
+
     return strm_.good();
 }
 
@@ -593,14 +614,15 @@ bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
 #define mCondGetAux(memb) \
     if ( info_.auxinfosel.memb ) \
 	{ mGetAuxFromStrm(auxinf,buf,memb,strm_); }
-#define mCondGetCoordAux() \
-    if ( info_.auxinfosel.coord ) \
-	{ mGetCoordAuxFromStrm(auxinf,buf,strm_); }
 
 bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 {
     if ( strmclosed_ )
 	return true;
+#ifdef __debug__
+    // gdb says: "Couldn't find method ostream::tellp"
+    std::streampos curfo = strm_.tellg();
+#endif
 
     auxinf.binid = curbinid_;
     auxinf.coord = info_.geom.b2c.transform( curbinid_ );
@@ -622,7 +644,10 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 
     char buf[2*sizeof(double)];
     mCondGetAux(startpos)
-    mCondGetCoordAux()
+    if ( coordpol_ == InAux && info_.auxinfosel.coord )
+	{ mGetCoordAuxFromStrm(auxinf,buf,strm_); }
+    else if ( coordpol_ == InTrailer )
+	auxinf.coord = getTrailerCoord( auxinf.binid );
     mCondGetAux(offset)
     mCondGetAux(pick)
     mCondGetAux(refpos)
@@ -630,6 +655,47 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 
     hinfofetched = true;
     return strm_.good();
+}
+
+
+Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
+{
+    int arridx = 0;
+    if ( info_.geom.fullyrectandreg )
+    {
+	if ( bid.inl != info_.geom.start.inl )
+	{
+	    const int nrcrl = (info_.geom.stop.crl-info_.geom.start.crl)
+			    / info_.geom.step.crl + 1;
+	    arridx = nrcrl * (bid.inl - info_.geom.start.inl);
+	}
+	arridx += (bid.crl-info_.geom.start.crl) / info_.geom.step.crl;
+    }
+    else
+    {
+	for ( int iinl=0; iinl<info_.geom.inldata.size(); iinl++ )
+	{
+	    const CBVSInfo::SurvGeom::InlineInfo& inlinf
+				= *info_.geom.inldata[iinl];
+	    bool inlmatches = inlinf.inl == bid.inl;
+	    for ( int icrl=0; icrl<inlinf.segments.size(); icrl++ )
+	    {
+		const StepInterval<int>& seg = inlinf.segments[icrl];
+		if ( !inlmatches || !seg.includes(bid.crl,false) )
+		    arridx += seg.nrSteps() + 1;
+		else
+		{
+		    arridx += (bid.crl - seg.start) / seg.step;
+		    break;
+		}
+	    }
+	    if ( inlmatches ) break;
+	}
+    }
+
+    if ( arridx < trailercoords_.size() )
+	return trailercoords_[arridx];
+    return SI().transform( bid );
 }
 
 

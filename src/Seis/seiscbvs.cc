@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.55 2004-09-30 15:33:32 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.56 2004-10-20 14:45:42 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -47,6 +47,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
     	, brickspec(*new VBrickSpec)
     	, single_file(false)
     	, nobidsubsel(false)
+    	, coordpol((int)CBVSIO::NotStored)
 {
 }
 
@@ -87,6 +88,17 @@ void CBVSSeisTrcTranslator::destroyVars()
     delete [] compsel; compsel = 0;
     delete [] userawdata; userawdata = 0;
     delete [] targetptrs; targetptrs = 0;
+}
+
+
+void CBVSSeisTrcTranslator::setCoordPol( bool dowrite, bool intrailer )
+{
+    if ( !dowrite )
+	coordpol = (int)CBVSIO::NotStored;
+    else if ( intrailer )
+	coordpol = (int)CBVSIO::InTrailer;
+    else
+	coordpol = (int)CBVSIO::InAux;
 }
 
 
@@ -298,9 +310,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     ti.sampling.step = outsd.step;
     ti.nr = ++nrdone;
 
-    if ( !rdmgr->info().auxinfosel.coord )
-	ti.coord = SI().transform( ti.binid );
-    else if ( ti.binid.inl == 0 && ti.binid.crl == 0 )
+    if ( ti.binid.inl == 0 && ti.binid.crl == 0 )
 	ti.binid = SI().transform( ti.coord );
 
     return (headerdone = true);
@@ -377,7 +387,8 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.sd = insd;
     info.nrsamples = innrsamples;
 
-    wrmgr = new CBVSWriteMgr( fnm, info, &auxinf, &brickspec, single_file );
+    wrmgr = new CBVSWriteMgr( fnm, info, &auxinf, &brickspec, single_file,
+	    			(CBVSIO::CoordPol)coordpol );
     if ( wrmgr->failed() )
 	{ errmsg = wrmgr->errMsg(); return false; }
 
