@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.77 2004-12-23 16:31:54 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.78 2005-01-11 10:32:53 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -436,8 +436,12 @@ void PlaneDataDisplay::setSelSpec( const AttribSelSpec& as_ )
     as = as_;
     delete cache;
     cache = 0;
-//  trect->useTexture( false );
-    setName( as.userRef() );
+
+    const char* usrref = as.userRef();
+    if ( !usrref || !*usrref )
+	trect->useTexture( false );
+
+    setName( usrref );
 }
 
 
@@ -543,13 +547,14 @@ bool PlaneDataDisplay::setDataVolume( bool colordata, AttribSliceSet* sliceset )
 
 void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype ) 
 {
+    trect->removeAllTextures( true );
     if ( !sliceset )
     {
 	trect->setData( 0, 0, 0 );
+	trect->useTexture( false );
 	return;
     }
 
-    trect->removeAllTextures( true );
     const int nrslices = sliceset->size();
     for ( int slcidx=0; slcidx<nrslices; slcidx++ )
     {
