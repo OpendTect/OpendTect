@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.3 2005-03-17 14:59:17 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.4 2005-03-24 16:32:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , mpeserv(mps)
     , currentfinished(false)
     , curtrackid(-1)
+    , pickmode(false)
 {
     setHelpID( "108.0.0" );
 
@@ -91,6 +92,7 @@ bool Wizard::processPage1()
     colorfld->setColor( Color::drawDef(defcolnr++) );
     mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
     stickSetChange(0);
+    pickmode = true;
     return true;
 }
 
@@ -121,9 +123,11 @@ uiGroup* Wizard::createPage2()
 bool Wizard::processPage2()
 {
     mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+    pickmode = false;
     if ( !engine().interactionseeds.size() )
     {
 	mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+	pickmode = true;
 	mErrRet( "You did not create any seedpoints" );
     }
 
@@ -214,6 +218,9 @@ void Wizard::nextPage( CallBacker* )
 
 void Wizard::cancelWizard( CallBacker* )
 {
+    if ( pickmode )
+	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+
     if ( curtrackid < 0 ) return;
 
     if ( !currentfinished )

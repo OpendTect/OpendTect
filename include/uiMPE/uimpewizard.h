@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.3 2005-03-17 14:59:27 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.h,v 1.4 2005-03-24 16:32:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ protected:
 
     uiMPEPartServer*		mpeserv;
     static int			defcolnr;
+    bool			pickmode;
     bool			currentfinished;
     int				curtrackid;
     BufferString		trackertype;
