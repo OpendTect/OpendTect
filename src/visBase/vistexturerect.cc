@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.26 2003-02-07 16:40:26 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.27 2003-02-14 11:49:54 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -18,9 +18,6 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.26 2003-02-07 16:40:26 na
 
 #include <math.h>
 
-#include "Inventor/nodes/SoSeparator.h"
-#include "Inventor/nodes/SoComplexity.h"
-
 mCreateFactoryEntry( visBase::TextureRect );
 
 
@@ -31,16 +28,12 @@ const char* visBase::TextureRect::resolutionstr = "Resolution";
 
 visBase::TextureRect::TextureRect()
     : texture(0)
-    , quality( new SoComplexity )
     , rectangle( 0 )
     , manipstartnotifier( this )
     , manipchnotifier( this )
     , manipendsnotifier( this )
     , resolution(0)
 {
-    insertChild( 0, quality );
-    quality->textureQuality.setValue( 1 );
-
     setTexture( *visBase::Texture2::create() );
     useTexture( true );
 
@@ -188,7 +181,7 @@ void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     int rectid = rectangle->id();
 
-    par.set( texturequalitystr, quality->textureQuality.getValue() );
+    par.set( texturequalitystr, getTextureQuality() );
     par.set( rectangleidstr, rectid );
     par.setYN( usestexturestr, usesTexture() );
     par.set( resolutionstr, resolution );
@@ -235,13 +228,13 @@ void visBase::TextureRect::setData( const Array2D<float>& data )
 
 void visBase::TextureRect::setTextureQuality( float q )
 {
-    quality->textureQuality.setValue( q );
+    texture->setTextureQuality( q );
 }
 
 
 float visBase::TextureRect::getTextureQuality() const
 {
-    return quality->textureQuality.getValue();
+    return texture->getTextureQuality();
 }
 
 

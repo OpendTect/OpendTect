@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.6 2003-02-04 09:10:43 nanne Exp $
+ RCS:		$Id: vistexture.h,v 1.7 2003-02-14 11:50:04 nanne Exp $
 ________________________________________________________________________
 
 
@@ -17,8 +17,10 @@ ________________________________________________________________________
 
 class DataClipper;
 class BasicTask;
-class SoSwitch;
 class visBaseTextureColorIndexMaker;
+class SoSwitch;
+class SoGroup;
+class SoComplexity;
 
 namespace visBase
 {
@@ -61,6 +63,9 @@ public:
     void		setThreadWorker( ThreadWorker* );
     ThreadWorker*	getThreadWorker();
 
+    void		setTextureQuality(float);
+    float		getTextureQuality() const;
+
     SoNode*		getData();
 
 protected:
@@ -74,6 +79,8 @@ protected:
     virtual void	finishEditing()					= 0;
 
     SoSwitch*		onoff;
+    SoGroup*		texturegrp;
+    SoComplexity*	quality;
 
 private:
     void		colorTabChCB( CallBacker* );

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.10 2003-02-04 09:10:36 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.11 2003-02-14 11:49:54 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.10 2003-02-04 09:10:36 nanne 
 #include "thread.h"
 
 #include "Inventor/nodes/SoSwitch.h"
+#include "Inventor/nodes/SoGroup.h"
+#include "Inventor/nodes/SoComplexity.h"
 
 #define NRCOLORS 256
 
@@ -37,8 +39,14 @@ visBase::Texture::Texture()
     , usetrans( true )
     , histogram( NRCOLORS, 0 )
     , onoff( new SoSwitch )
+    , texturegrp( new SoGroup )
+    , quality( new SoComplexity )
 {
     onoff->ref();
+    onoff->addChild( texturegrp );
+    texturegrp->insertChild( quality, 0 );
+    quality->textureQuality.setValue( 1 );
+
     setColorTab( *visBase::VisColorTab::create() );
 }
 
@@ -66,6 +74,18 @@ bool visBase::Texture::turnOn( bool yn )
 
 bool visBase::Texture::isOn() const
 { return !onoff->whichChild.getValue(); }
+
+
+void visBase::Texture::setTextureQuality( float q )
+{
+    quality->textureQuality.setValue( q );
+}
+
+
+float visBase::Texture::getTextureQuality() const
+{
+    return quality->textureQuality.getValue();
+}
 
 
 void visBase::Texture::setAutoScale( bool yn )

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.8 2003-02-04 09:10:36 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.9 2003-02-14 11:49:54 nanne Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -26,7 +26,7 @@ visBase::Texture3::Texture3()
     , x2sz( -1 )
     , texture( new SoTexture3 )
 {
-    onoff->addChild( texture );
+    texturegrp->addChild( texture );
     texture->wrapR = SoTexture3::CLAMP;
     texture->wrapS = SoTexture3::CLAMP;
     texture->wrapT = SoTexture3::CLAMP;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.17 2003-02-07 16:40:32 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.18 2003-02-14 11:50:04 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,8 +19,6 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 class Coord3;
-
-class SoComplexity;
 
 namespace visBase
 {
@@ -89,7 +87,6 @@ protected:
     void		triggerManipEnds() { manipendsnotifier.trigger(); }
 
     Texture2*		texture;
-    SoComplexity*	quality;
     Rectangle*		rectangle;
 
     int			resolution;
