@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.4 2003-12-23 11:25:53 kristofer Exp $
+ RCS:		$Id: extremefinder.h,v 1.5 2003-12-30 13:11:38 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,8 @@ class ExtremeFinder1D : public BasicTask
 public:
     			ExtremeFinder1D( const MathFunction<float>&,
 					 bool max, int itermax, double tol,
-					 const Interval<double>& interval );
+					 const Interval<double>& startinterval,
+					 const Interval<double>* limitinterval);
 			/*!<\param func		The function, f(x) where the
 						extreme value shoud be found
 			    \param max		Specifies wether a min or max
@@ -39,20 +40,25 @@ public:
 			    \param itermax	Maximum number of iterations
 			    \param tol		Tolerance on the function
 			     			variable (x)
-			    \param interval	The interval of x that the
+			    \param startinterval The interval of x that the
 			    			search will be inited by.
 			    			Note that the search can go
 						outside of this interval.
+			    \param limitinterval Set to true if only solutions
+			    			within the interval is permitted
 			*/
 
     virtual		~ExtremeFinder1D();
 
-    void		reStart( const Interval<double>& interval );
+    void		reStart( const Interval<double>& startinterval,
+				 const Interval<double>* limitinterval);
     			/*!<
-			    \param interval	The interval of x that the
+			    \param startinterval The interval of x that the
 			    			search will be inited by.
 			    			Note that the search can go
 						outside of this interval.
+			    \param limitinterval Set to true if only solutions
+			    			within the interval is permitted
 			*/
 
     double		extremePos() const;
@@ -79,6 +85,7 @@ protected:
     double			u, w, v, x;
     float			fw, fv, fx;
 
+    Interval<double>*		limits;
     int				iter;
     const double 		tol;
     const MathFunction<float>&	func;

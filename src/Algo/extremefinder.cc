@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.6 2003-12-23 11:25:09 kristofer Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.7 2003-12-30 13:11:18 kristofer Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
@@ -23,13 +23,15 @@ static const char* rcsID = "$Id: extremefinder.cc,v 1.6 2003-12-23 11:25:09 kris
 
 
 ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
-		  int itermax_, double tol_, const Interval<double>& interval )
+		  int itermax_, double tol_, const Interval<double>& sinterval,
+		  const Interval<double>* linterval )
     : max( max_ )
     , func( func_ )
     , itermax( itermax_ )
     , tol( tol_ )
+    , limits( 0 )
 {
-    reStart( interval );
+    reStart( sinterval, linterval );
 }
 
 
@@ -40,11 +42,23 @@ ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
     fw=fv=fx= max ? -func.getValue( x ) : func.getValue( x ); \
     return
 
-void ExtremeFinder1D::reStart( const Interval<double>& interval )
+void ExtremeFinder1D::reStart( const Interval<double>& sinterval,
+       			       const Interval<double>* linterval )
 {
-    ax = interval.start;
-    bx = interval.center();
-    cx = interval.stop;
+    if ( linterval )
+    {
+	if ( limits ) *limits = *linterval;
+	else limits = new Interval<double>(*linterval);
+    }
+    else if ( limits )
+    {
+	delete limits;
+	limits = 0;
+    }
+
+    ax = sinterval.start;
+    bx = sinterval.center();
+    cx = sinterval.stop;
     iter = 0;
     e = 0;
 
@@ -119,7 +133,9 @@ void ExtremeFinder1D::reStart( const Interval<double>& interval )
 
 
 ExtremeFinder1D::~ExtremeFinder1D()
-{}
+{
+    delete limits;
+}
 
 
 double ExtremeFinder1D::extremePos() const
@@ -190,7 +206,8 @@ int ExtremeFinder1D::nextStep()
 		b=x;
 	    SHIFT(v,w,x,u);
 	    SHIFT(fv,fw,fx,fu);
-	    return 1; //We have a new estimate - return
+	    //We have a new estimate - return
+	    return limits && limits->includes(x) ? 1 : 0;
 	}
 	else
 	{
@@ -329,7 +346,8 @@ int ExtremeFinderND::nrIter() const
 float ExtremeFinderND::linextreme(double* vec)
 {
     AlongVectorFunction<float> vecfunc( func, p, vec );
-    ExtremeFinder1D finder( vecfunc, max, 100, 1e-4, Interval<double>( 0, 1 ));
+    ExtremeFinder1D finder( vecfunc, max, 100, 1e-4, Interval<double>( 0, 1 ),
+	    		    0);
 
     int res = 1;
     while ( res==1 ) res = finder.doStep();
