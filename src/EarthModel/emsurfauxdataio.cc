@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.21 2004-12-17 13:31:02 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.22 2005-01-17 16:27:02 nanne Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.21 2004-12-17 13:31:02 n
 #include "survinfo.h"
 #include "strmprov.h"
 #include "binidselimpl.h"
+#include "filegen.h"
 #include <iostream>
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
@@ -36,16 +37,17 @@ const char* EM::dgbSurfDataWriter::shiftstr = "Shift";
 
 EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 				    const BinIDSampler* sel_, bool binary_,
-       				    const char* filename )
-    : Executor( "Aux data writer" )
-    , stream( 0 )
-    , chunksize( 100 )
-    , dataidx( dataidx_ )
-    , surf( surf_ )
-    , sel( sel_ )
-    , sectionindex( 0 )
-    , binary( binary_ )
+       				    const char* fnm_ )
+    : Executor("Aux data writer")
+    , stream(0)
+    , chunksize(100)
+    , dataidx(dataidx_)
+    , surf(surf_)
+    , sel(sel_)
+    , sectionindex(0)
+    , binary(binary_)
     , nrdone(0)
+    , filename(fnm_)
 {
     IOPar par( "Surface Data" );
     par.set( attrnmstr, surf.auxdata.auxDataName(dataidx) );
@@ -103,6 +105,10 @@ EM::dgbSurfDataWriter::~dgbSurfDataWriter()
 }
 
 
+#define mErrRetWrite(msg) \
+{ errmsg = msg; File_remove(filename.buf(),0); return ErrorOccurred; }
+
+
 int EM::dgbSurfDataWriter::nextStep()
 {
     EM::PosID posid( surf.id() );
@@ -113,18 +119,19 @@ int EM::dgbSurfDataWriter::nextStep()
 	    if ( nrdone )
 	    {
 		sectionindex++;
-		if ( sectionindex>=surf.geometry.nrSections() )
+		if ( sectionindex >= surf.geometry.nrSections() )
 		    return Finished;
 	    }
 	    else
 	    {
-		if ( !writeInt(surf.geometry.nrSections()))
-		    return ErrorOccurred;
+		if ( !writeInt(surf.geometry.nrSections()) )
+		    mErrRetWrite("Error in writing data information")
 	    }
 
-
-	    const EM::SectionID sectionid = surf.geometry.sectionID( sectionindex );
-	    const Geometry::MeshSurface* meshsurf = surf.geometry.getSurface(sectionid);
+	    const EM::SectionID sectionid = 
+					surf.geometry.sectionID( sectionindex );
+	    const Geometry::MeshSurface* meshsurf = 
+					surf.geometry.getSurface( sectionid );
 
 	    const int nrnodes = meshsurf->size();
 	    for ( int idy=0; idy<nrnodes; idy++ )
@@ -140,7 +147,8 @@ int EM::dgbSurfDataWriter::nextStep()
 		const EM::SubID subid = surf.geometry.rowCol2SubID( emrc );
 		posid.setSubID( subid );
 		posid.setSectionID( sectionid );
-		const float auxvalue = surf.auxdata.getAuxDataVal(dataidx,posid);
+		const float auxvalue = 
+		    		surf.auxdata.getAuxDataVal(dataidx,posid);
 		if ( mIsUndefined( auxvalue ) )
 		    continue;
 
@@ -148,8 +156,11 @@ int EM::dgbSurfDataWriter::nextStep()
 		values += auxvalue;
 	    }
 
-	    if ( !writeInt( sectionid ) || !writeInt(subids.size()))
-		return ErrorOccurred;
+	    if ( !subids.size() )
+		mErrRetWrite("No data available for this surface")
+
+	    if ( !writeInt(sectionid) || !writeInt(subids.size()) )
+		mErrRetWrite("Error in writing data information")
 	}
 
 	const int subidindex = subids.size()-1;
@@ -157,7 +168,7 @@ int EM::dgbSurfDataWriter::nextStep()
 	const float auxvalue = values[subidindex];
 
 	if ( !writeInt64(subid) || !writeFloat(auxvalue) )
-	    return ErrorOccurred;
+	    mErrRetWrite("Error in writing datavalues")
 
 	subids.remove( subidindex );
 	values.remove( subidindex );
@@ -165,18 +176,6 @@ int EM::dgbSurfDataWriter::nextStep()
 
     nrdone++;
     return MoreToDo;
-}
-
-
-int EM::dgbSurfDataWriter::nrDone() const 
-{
-    return nrdone;
-}
-
-
-int EM::dgbSurfDataWriter::totalNr() const
-{
-    return totalnr;
 }
 
 
@@ -221,6 +220,21 @@ bool EM::dgbSurfDataWriter::writeFloat( float val )
 }
 
 
+int EM::dgbSurfDataWriter::nrDone() const 
+{ return nrdone; }
+
+
+int EM::dgbSurfDataWriter::totalNr() const
+{ return totalnr; }
+
+
+const char* EM::dgbSurfDataWriter::message() const
+{ return errmsg; }
+
+
+
+// Reader +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     : Executor( "Aux data reader" )
     , intinterpreter( 0 )
@@ -264,12 +278,20 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 	intinterpreter = new DataInterpreter<int>( writtendatachar );
 
 	if ( !par.get(EM::dgbSurfDataWriter::int64datacharstr,dc) )
-	{ error = true; return; }
+	{
+	    error = true; 
+	    errmsg = "Error in reading data characteristics (int64)";
+	    return;
+	}
 	writtendatachar.set( dc.buf() );
 	int64interpreter = new DataInterpreter<int64>( writtendatachar );
 					     
 	if ( !par.get(EM::dgbSurfDataWriter::floatdatacharstr,dc) )
-	{ error = true; return; }
+	{
+	    error = true;
+	    errmsg = "Error in reading data characteristics (float)"; 
+	    return;
+	}
 	writtendatachar.set( dc.buf() );
 	floatinterpreter = new DataInterpreter<float>( writtendatachar );
     }
@@ -308,10 +330,13 @@ void EM::dgbSurfDataReader::setSurface( EM::Surface& surf_ )
 }
 
 
+#define mErrRetRead(msg) { \
+    if ( msg ) errmsg = msg; \
+    surf->auxdata.removeAuxData(dataidx); return ErrorOccurred; }
+
 int EM::dgbSurfDataReader::nextStep()
 {
-    if ( error )
-	return ErrorOccurred; 
+    if ( error ) mErrRetRead(0)
 
     EM::PosID posid( surf->id() );
     for ( int idx=0; idx<chunksize; idx++ )
@@ -327,12 +352,12 @@ int EM::dgbSurfDataReader::nextStep()
 	    else
 	    {
 		if ( !readInt(nrsections) )
-		    return ErrorOccurred;
+		    mErrRetRead( "Error in reading data information" )
 	    }
 
 	    int cp;
-	    if ( !readInt(cp) || !readInt(valsleftonsection))
-		return ErrorOccurred;
+	    if ( !readInt(cp) || !readInt(valsleftonsection) )
+		mErrRetRead( "Error in reading data information" )
 
 	    currentsection = cp;
 	    totalnr = 100;
@@ -347,7 +372,7 @@ int EM::dgbSurfDataReader::nextStep()
 	EM::SubID subid;
 	float val;
 	if ( !readInt64(subid) || !readFloat(val) )
-	    return ErrorOccurred;
+	    mErrRetRead( "Error in reading data values" )
 
 	posid.setSubID( subid );
 	posid.setSectionID( currentsection );
@@ -360,17 +385,6 @@ int EM::dgbSurfDataReader::nextStep()
     return MoreToDo;
 }
 
-
-int EM::dgbSurfDataReader::nrDone() const 
-{
-    return nrdone;
-}
-
-
-int EM::dgbSurfDataReader::totalNr() const
-{
-    return totalnr;
-}
 
 static int sizeofint = sizeof(int);
 static int sizeofint64 = sizeof(int64);
@@ -396,3 +410,15 @@ bool EM::dgbSurfDataReader::readInt64( int64& res )
 
 bool EM::dgbSurfDataReader::readFloat( float& res )
 { mReadData(floatinterpreter,sizeoffloat) }
+
+
+int EM::dgbSurfDataReader::nrDone() const 
+{ return nrdone; }
+
+
+int EM::dgbSurfDataReader::totalNr() const
+{ return totalnr; }
+
+
+const char* EM::dgbSurfDataReader::message() const
+{ return errmsg; }

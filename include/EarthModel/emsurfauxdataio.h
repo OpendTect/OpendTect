@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.11 2004-12-17 13:31:02 nanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.12 2005-01-17 16:27:10 nanne Exp $
 ________________________________________________________________________
 
 
@@ -47,10 +47,10 @@ public:
 
 				~dgbSurfDataWriter();
 
-    int				nextStep();
-    int				nrDone() const;
-    int				totalNr() const;
-
+    virtual int			nextStep();
+    virtual int			nrDone() const;
+    virtual int			totalNr() const;
+    virtual const char*		message() const;
 
     static const char*		attrnmstr;
     static const char*		infostr;
@@ -62,8 +62,8 @@ public:
 
     static BufferString		createHovName(const char* base,int idx);
 
-
 protected:
+
     bool			writeInt(int);
     bool			writeInt64(int64);
     bool			writeFloat(float);
@@ -78,9 +78,11 @@ protected:
     int				chunksize;
     int				nrdone;
     int				totalnr;
+    BufferString		errmsg;
 
     std::ostream*		stream;
     bool			binary;
+    BufferString		filename;
 };
 
 
@@ -97,9 +99,10 @@ public:
 
     void			setSurface(EM::Surface& surf);
 
-    int				nextStep();
-    int				nrDone() const;
-    int				totalNr() const;
+    virtual int			nextStep();
+    virtual int			nrDone() const;
+    virtual int			totalNr() const;
+    virtual const char*		message() const;
 
 protected:
     bool			readInt(int&);
@@ -120,6 +123,7 @@ protected:
     int				chunksize;
     int				nrdone;
     int				totalnr;
+    BufferString		errmsg;
 
     std::istream*		stream;
     DataInterpreter<int>*	intinterpreter;
