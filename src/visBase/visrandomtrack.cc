@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.3 2003-01-24 07:39:15 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.4 2003-01-30 13:09:33 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -247,6 +247,7 @@ void visBase::RandomTrack::rebuild()
     while ( sections.size()<knots.size()-1 )
     {
 	TriangleStripSet* strip = TriangleStripSet::create();
+	strip->setTexture2( Texture2::create() );
 	strip->ref();
 	if ( sections.size() )
 	    strip->setCoordinates( sections[0]->getCoordinates() );
