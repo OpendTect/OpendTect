@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.2 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: rowcol.h,v 1.3 2002-09-25 05:37:25 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ ________________________________________________________________________
 class RowCol
 {
 public:
-		RowCol( int r=0, int c=0 ) : row(r), col(c)	{}
+		RowCol( int r, int c ) : row(r), col(c)		{}
+		RowCol() : row( 0 ), col ( 0 )			{}
 
     void	operator+=( const RowCol& rc )
 		{ row += rc.row; col += rc.col; }
