@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.22 2004-06-23 10:38:30 nanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.23 2004-07-16 15:35:26 bert Exp $";
 
 #include "vissurvobj.h"
 
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: vissurvobj.cc,v 1.22 2004-06-23 10:38:30 nanne 
 #include "attribslice.h"
 #include "iopar.h"
 #include "linsolv.h"
-#include "seistrc.h"
+#include "seisbuf.h"
 #include "survinfo.h"
 #include "visdataman.h"
 #include "vistransform.h"
@@ -32,9 +32,9 @@ bool SurveyObject::setDataVolume( bool color, AttribSliceSet* slc )
 }
 
 
-void SurveyObject::setTraceData( bool color, ObjectSet<SeisTrc>* trcs )
+void SurveyObject::setTraceData( bool color, SeisTrcBuf& trcs )
 {
-    if ( trcs ) deepErase( *trcs );
+    trcs.deepErase();
 }
 
 

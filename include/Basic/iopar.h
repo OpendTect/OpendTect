@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.26 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: iopar.h,v 1.27 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,6 +110,8 @@ public:
     inline bool		get( const char* k, double& v1,
 	    		     double& v2, double& v3, double& v4 ) const
 			{ return getSc(k,v1,v2,v3,v4,1,false); }
+    bool		get(const char*,int&,int&,int&) const;
+    bool		get(const char*,int&,int&,float&) const;
 
     bool		get(const char*, TypeSet<int>& ) const;
     bool		get(const char*, TypeSet<long long>& ) const;
@@ -134,7 +136,6 @@ public:
 			      bool set_undef_if_not_found) const;
     bool		getSc(const char*,double&,double&,double&,double&,
 	    			double sc, bool set_undef_if_not_found) const;
-    bool		get(const char*,int&,int&,int&) const;
     bool		getYN(const char*,bool&,char c=0) const;
     inline bool		isTrue( const char* key, char c=0 ) const
 			{ bool b = false; return getYN(key,b,c) && b; }
@@ -159,6 +160,7 @@ public:
     void		set(const char*,double,double,double);
     void		set(const char*,double,double,double,double);
     void		set(const char*,int,int,int);
+    void		set(const char*,int,int,float);
     void		setYN(const char*,bool);
 
     void		set(const char*,const BinID&);

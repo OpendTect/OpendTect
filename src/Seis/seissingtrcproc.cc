@@ -4,18 +4,19 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.14 2004-07-02 15:30:54 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.15 2004-07-16 15:35:26 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
 #include "seiswrite.h"
+#include "seistrctr.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
+#include "binidselimpl.h"
 #include "multiid.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ioman.h"
-#include "binidsel.h"
 #include "scaler.h"
 #include "ptrman.h"
 
@@ -24,7 +25,6 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.14 2004-07-02 15:30:54 b
 	: Executor(nm) \
 	, wrr_(out ? new SeisTrcWriter(out) : 0) \
 	, msg_(msg) \
-	, starter_(0) \
 	, nrskipped_(0) \
 	, intrc_(new SeisTrc) \
 	, nrwr_(0) \
@@ -35,7 +35,7 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.14 2004-07-02 15:30:54 b
     	, skipnull_(false)
 
 
-SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelData& in,
+SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelection& in,
 					  const IOObj* out, const char* nm,
 				       	  const char* msg )
 	mInitVars()
@@ -100,7 +100,6 @@ void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
     delete wrr_;
-    delete starter_;
     delete intrc_;
     delete &wrrkey_;
     delete scaler_;
@@ -108,7 +107,8 @@ SeisSingleTraceProc::~SeisSingleTraceProc()
 }
 
 
-bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
+bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
+				ObjectSet<IOPar>& iops )
 {
     outtrc_ = intrc_;
     if ( !wrr_ )
@@ -120,9 +120,10 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
     currentobj_ = 0;
 
     totnr_ = 0;
+    bool allszsfound = true;
     for ( int idx=0; idx<nrobjs_; idx++ )
     {
-	SeisTrcReader* rdr_ = new SeisTrcReader( os[idx] );
+	SeisTrcReader* rdr_ = new SeisTrcReader( ioobjs[idx] );
 	if ( !rdr_->ioObj() )
 	{
 	    curmsg_ = "Cannot find read object";
@@ -136,29 +137,33 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
 	    return false;
 	}
 
-	if ( is.size() && is[idx] )
+	const bool is3d = !SeisTrcTranslator::is2D( *rdr_->ioObj() );
+	bool szdone = false;
+	if ( iops.size() > idx && iops[idx] )
 	{
-	    rdr_->usePar( *is[idx] );
-	    if ( rdr_->trcSel() )
+	    rdr_->usePar( *iops[idx] );
+	    if ( is3d && rdr_->selData() )
 	    {
-		if ( rdr_->trcSel()->bidsel )
-		{
-		    BinIDProvider* prov = rdr_->trcSel()->bidsel->provider();
-		    totnr_ += prov->size();
-		    delete prov;
-		}
-		else
-		{
-		    int nr = rdr_->trcSel()->intv.width();
-		    if ( nr < 10000000 ) totnr_ = nr + 1;
-		}
+		totnr_ = rdr_->selData()->expectedNrTraces();
+		szdone = true;
 	    }
 	}
-	
+	if ( is3d && !szdone )
+	{
+	    BinIDSampler bs; StepInterval<float> zrg;
+	    if ( SeisTrcTranslator::getRanges(*ioobjs[idx],bs,zrg) )
+	    {
+		totnr_ += BinIDSamplerProv(bs).size();
+		szdone = true;
+	    }
+	}
+
+	if ( !szdone )
+	    allszsfound = false;
 	rdrset_ += rdr_;
     }
 
-    if ( totnr_ < 3 ) totnr_ = -1;
+    if ( !allszsfound || totnr_ < 3 ) totnr_ = -1;
 
     nextObj();
     return true;
@@ -167,10 +172,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
 
 void SeisSingleTraceProc::nextObj()
 {
-    if ( starter_ )
-	{ delete starter_; starter_ = 0; }
-    starter_ = rdrset_[currentobj_]->starter();
-
+    rdrset_[currentobj_]->prepareWork();
     return;
 }
 
@@ -186,25 +188,24 @@ void SeisSingleTraceProc::setScaler( Scaler* newsclr )
 
 const char* SeisSingleTraceProc::message() const
 {
-    return starter_ ? starter_->message() : (const char*)curmsg_;
+    return (const char*)curmsg_;
 }
 
 
 int SeisSingleTraceProc::nrDone() const
 {
-    return starter_ ? starter_->nrDone() : nrwr_;
+    return nrwr_;
 }
 
 
 const char* SeisSingleTraceProc::nrDoneText() const
 {
-    return starter_ ? starter_->nrDoneText() : "Traces written";
+    return "Traces written";
 }
 
 
 int SeisSingleTraceProc::totalNr() const
 {
-    if ( starter_ ) return starter_->totalNr();
     return totnr_-nrskipped_ < 0 ? -1 : totnr_-nrskipped_;
 }
 
@@ -224,16 +225,6 @@ int SeisSingleTraceProc::nextStep()
 {
     if ( rdrset_.size() <= currentobj_ || !rdrset_[currentobj_] || !wrr_ )
 	return -1;
-
-    else if ( starter_ )
-    {
-	int rv = starter_->doStep();
-	if ( rv ) return rv;
-	delete starter_;
-	starter_ = 0;
-	curmsg_ = msg_;
-	return 1;
-    }
 
     int retval = 1;
     for ( int idx=0; idx<trcsperstep_; idx++ )

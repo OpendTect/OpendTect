@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.6 2004-07-02 15:30:54 bert Exp $
+ RCS:           $Id: uiseissel.h,v 1.7 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
     virtual void	usePar(const IOPar&);
 
     bool		is2D() const;
-    void		set2DPol(int);
+    void		set2DPol(SeisSelSetup::Pol2D);
 
 protected:
 

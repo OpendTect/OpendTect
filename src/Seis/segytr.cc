@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.29 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.30 2004-07-16 15:35:26 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -129,21 +129,21 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
     SeisTrcInfo info;
     trhead.fill( info, ext_coord_scaling );
-    SamplingData<float> sd( info.sampling );
-    if ( !sd.step ) sd.step = binhead_dpos;
+    insd = info.sampling;
+    if ( !insd.step ) insd.step = binhead_dpos;
     if ( !mIsUndefined(ext_time_shift) )
-	sd.start = ext_time_shift;
+	insd.start = ext_time_shift;
     if ( !mIsUndefined(ext_sample_rate) )
-	sd.step = ext_sample_rate;
+	insd.step = ext_sample_rate;
 
-    int nrsamples = ext_nr_samples;
-    if ( nrsamples <= 0 )
+    innrsamples = ext_nr_samples;
+    if ( innrsamples <= 0 )
     {
-	nrsamples = trhead.nrSamples();
-	if ( !nrsamples ) nrsamples = binhead_ns;
+	innrsamples = trhead.nrSamples();
+	if ( !innrsamples ) innrsamples = binhead_ns;
     }
 
-    addComp( getDataChar(numbfmt), sd, nrsamples );
+    addComp( getDataChar(numbfmt)  );
     DataCharacteristics& dc = tarcds[0]->datachar;
     dc.fmt = DataCharacteristics::Ieee;
     const float scfac = trhead.postScale( numbfmt );
@@ -211,7 +211,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     SegyTxtHeader txthead;
     txthead.setUserInfo( pinfo->usrinfo );
     txthead.setPosInfo( hdef.xcoord, hdef.ycoord, hdef.inl, hdef.crl );
-    txthead.setStartPos( outcd->sd.start );
+    txthead.setStartPos( outsd.start );
     txthead.setEbcdic();
     if ( !sConn().doIO( txthead.txt, SegyTxtHeaderLength ) )
 	{ errmsg = "Cannot write SEG-Y EBCDIC header"; return false; }
@@ -220,8 +220,8 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
     binhead.lino = pinfo->nr;
     binhead.reno = 1;
-    binhead.hns = (short)outcd->nrsamples;
-    binhead.hdt = (short)(outcd->sd.step * SI().zFactor() * 1e3 + .5);
+    binhead.hns = (short)outnrsamples;
+    binhead.hdt = (short)(outsd.step * SI().zFactor() * 1e3 + .5);
     binhead.fold = 1;
     unsigned char binheadbuf[400];
     binhead.putTo( binheadbuf );
@@ -238,7 +238,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     if ( useinpsd )
 	trhead.putSampling( trc.samplingData(selComp()), trc.size(selComp()) );
     else
-	trhead.putSampling( outcd->sd, outcd->nrsamples );
+	trhead.putSampling( outsd, outnrsamples );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: welltransl.h,v 1.5 2004-05-05 20:54:27 bert Exp $
+ RCS:		$Id: welltransl.h,v 1.6 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 
@@ -15,8 +15,9 @@ ________________________________________________________________________
 
 #include "transl.h"
 #include "position.h"
-class BufferStringSet;
 class Executor;
+class BinIDValueSet;
+class BufferStringSet;
 
 
 namespace Well { class Data; };
@@ -43,8 +44,9 @@ public:
 	    			   const CallBack* cb=0) const;
     virtual bool	implSetReadOnly(const IOObj*,bool) const;
 
-    static Executor*	createBinIDValues(const BufferStringSet&,const IOPar&,
-	    				  ObjectSet< TypeSet<BinIDValue> >&);
+    static Executor*	createBinIDValueSets(const BufferStringSet&,
+					     const IOPar&,
+					     ObjectSet<BinIDValueSet>&);
     			//!< Implemented using TrackSampler
 };
 

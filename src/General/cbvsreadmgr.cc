@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.33 2004-06-28 16:00:05 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.34 2004-07-16 15:35:25 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -305,48 +305,43 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 {
     if ( !ireader ) return true;
 
-    const CBVSInfo& ci = rdr->info();
-    if ( ci.nrtrcsperposn != info_.nrtrcsperposn )
+    const CBVSInfo& rdrinfo = rdr->info();
+    if ( rdrinfo.nrtrcsperposn != info_.nrtrcsperposn )
 	mErrRet("Number of traces per position")
-    if ( !ci.geom.fullyrectandreg )
-	const_cast<CBVSInfo&>(ci).geom.step.inl = info_.geom.step.inl;
-    else if ( ci.geom.step.inl != info_.geom.step.inl )
+    if ( !rdrinfo.geom.fullyrectandreg )
+	const_cast<CBVSInfo&>(rdrinfo).geom.step.inl = info_.geom.step.inl;
+    else if ( rdrinfo.geom.step.inl != info_.geom.step.inl )
 	mErrRet("In-line number step")
-    if ( ci.geom.step.crl != info_.geom.step.crl )
+    if ( rdrinfo.geom.step.crl != info_.geom.step.crl )
 	mErrRet("Cross-line number step")
-
-    for ( int icomp=0; icomp<ci.compinfo.size(); icomp++ )
+    if ( !mIsEqual(rdrinfo.sd.step,info_.sd.step,mDefEps) )
+	mErrRet("Sample interval")
+    if ( mIsEqual(rdrinfo.sd.start,info_.sd.start,mDefEps) )
     {
-	const BasicComponentInfo& cicompinf = *ci.compinfo[icomp];
-	BasicComponentInfo& compinf = *info_.compinfo[icomp];
-	if ( !mIsEqual(cicompinf.sd.step,compinf.sd.step,mDefEps) )
-	    mErrRet("Sample interval")
-	if ( mIsEqual(cicompinf.sd.start,compinf.sd.start,mDefEps) )
+	// Normal, horizontal (=vertical optimised)  storage
+	if ( rdrinfo.nrsamples != info_.nrsamples )
+	    mErrRet("Number of samples")
+    }
+    else
+    {
+	StepInterval<float> intv = info_.sd.interval(info_.nrsamples);
+	intv.stop += info_.sd.step;
+	float diff = rdrinfo.sd.start - intv.stop;
+	if ( diff < 0 ) diff = -diff;
+	if ( diff > info_.sd.step / 10  )
 	{
-	    if ( cicompinf.nrsamples != compinf.nrsamples )
-		mErrRet("Number of samples")
+	    mErrMsgMk("Time range")
+	    errmsg_ += "\nis unexpected.\nExpected: ";
+	    errmsg_ += intv.stop; errmsg_ += " s.\nFound: ";
+	    errmsg_ += rdrinfo.sd.start; errmsg_ += ".";
+	    return false;
 	}
-	else
-	{
-	    StepInterval<float> intv = compinf.sd.interval(compinf.nrsamples);
-	    intv.stop += compinf.sd.step;
-	    float diff = cicompinf.sd.start - intv.stop;
-	    if ( diff < 0 ) diff = -diff;
-	    if ( diff > compinf.sd.step / 10  )
-	    {
-		mErrMsgMk("Time range")
-		errmsg_ += "\nis unexpected.\nExpected: ";
-		errmsg_ += intv.stop; errmsg_ += " s.\nFound: ";
-		errmsg_ += cicompinf.sd.start; errmsg_ += " s.";
-		return false;
-	    }
-	    vertical_ = true;
-	    compinf.nrsamples += cicompinf.nrsamples;
-	}
+	vertical_ = true;
+	info_.nrsamples += rdrinfo.nrsamples;
     }
 
     if ( !vertical_ )
-	info_.geom.merge( ci.geom );
+	info_.geom.merge( rdrinfo.geom );
     // We'll just assume that in vertical situation the files have exactly
     // the same geometry ...
 
@@ -590,7 +585,7 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
 
     for ( int idx=0; idx<readers_.size(); idx++ )
     {
-	avsamps.stop += readers_[idx]->info().compinfo[0]->nrsamples;
+	avsamps.stop += readers_[idx]->info().nrsamples;
 
 	const bool islast = avsamps.stop >= selsamps.stop;
 	if ( islast ) avsamps.stop = selsamps.stop;
@@ -670,10 +665,7 @@ static void putComps( std::ostream& strm,
 	     << (bci.datachar.isInteger() ? "Integer" : "Floating point") <<' ';
 	if ( bci.datachar.isInteger() )
 	     strm << (bci.datachar.isSigned() ? "(Signed) " : "(Unsigned) ");
-	strm << (int)bci.datachar.nrBytes() << " bytes\n";
-	strm << "Z/T start: " << bci.sd.start
-	     << " step: " << bci.sd.step << '\n';
-	strm << "Number of samples: " << bci.nrsamples << "\n\n";
+	strm << (int)bci.datachar.nrBytes() << " bytes\n\n";
     }
 }
 
@@ -710,6 +702,9 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	 << info().geom.stop.inl << " (step " << info().geom.step.inl << ").\n";
     strm << "X-line range: " << info().geom.start.crl << " - "
 	 << info().geom.stop.crl << " (step " << info().geom.step.crl << ").\n";
+    strm << "Z start: " << info().sd.start
+	 << " step: " << info().sd.step << '\n';
+    strm << "Number of samples: " << info().nrsamples << "\n\n";
     strm << std::endl;
 
     Interval<int> inlgap( mUndefIntVal, mUndefIntVal );

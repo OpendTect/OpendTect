@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.46 2004-07-13 14:28:32 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.47 2004-07-16 15:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,13 +23,13 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioman.h"
 #include "survinfo.h"
+#include "binidvalset.h"
 #include "surfaceinfo.h"
 #include "uiimphorizon.h"
 #include "uiimpfault.h"
 #include "uiexphorizon.h"
 #include "uiiosurfacedlg.h"
 #include "uigeninputdlg.h"
-#include "uimsg.h"
 #include "uisurfaceman.h"
 #include "uiexecutor.h"
 #include "uiioobjsel.h"
@@ -346,7 +346,7 @@ bool uiEMPartServer::storeObject( const MultiID& id )
 
 
 bool uiEMPartServer::getDataVal( const MultiID& id, 
-				 ObjectSet< TypeSet<BinIDZValues> >& data, 
+				 ObjectSet<BinIDValueSet>& data, 
 				 BufferString& attrnm, float& shift )
 {
     mDynamicCastAll()
@@ -365,8 +365,8 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 	const EM::PatchID patchid = hor->patchID( patchidx );
 	const Geometry::MeshSurface* meshsurf = hor->getSurface( patchid );
 
-	data += new TypeSet<BinIDZValues>;
-	TypeSet<BinIDZValues>& res = *data[patchidx];
+	BinIDValueSet& res = *new BinIDValueSet( 1+1, false );
+	data += &res;
 
 	EM::PosID posid( objid, patchid );
 	const int nrnodes = meshsurf->size();
@@ -380,7 +380,7 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 	    posid.setSubID( subid );
 	    const float auxvalue = hor->getAuxDataVal(dataidx,posid);
 
-	    res += BinIDZValues( BinIDZValue(bid,auxvalue,auxvalue) );
+	    res.add( bid, coord.z, auxvalue );
 	}
     }
 
@@ -389,7 +389,7 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 
 
 void uiEMPartServer::setDataVal( const MultiID& id, 
-				 ObjectSet< TypeSet<BinIDZValues> >& data,
+				 ObjectSet<BinIDValueSet>& data,
        				 const char* attrnm )
 {
     mDynamicCastAll()
@@ -401,16 +401,17 @@ void uiEMPartServer::setDataVal( const MultiID& id,
     for ( int patchidx=0; patchidx<data.size(); patchidx++ )
     {
 	const EM::PatchID patchid = hor->patchID( patchidx );
-	TypeSet<BinIDZValues>& bidzvals = *data[patchidx];
+	BinIDValueSet& bivs = *data[patchidx];
 
 	EM::PosID posid( objid, patchid );
-	for ( int idx=0; idx<bidzvals.size(); idx++ )
+	BinIDValueSet::Pos pos;
+	float z, val; BinID bid;
+	while ( bivs.next(pos) )
 	{
-	    BinIDZValues bidzv = bidzvals[idx];
-	    RowCol rc( bidzv.binid.inl, bidzv.binid.crl );
+	    bivs.get( pos, bid, z, val );
+	    RowCol rc( bid.inl, bid.crl );
 	    EM::SubID subid = hor->rowCol2SubID( rc );
 	    posid.setSubID( subid );
-	    float val = bidzv.values.size() ? bidzv.values[0] : mUndefValue;
 	    hor->setAuxDataVal( dataidx, posid, val );
 	}
     }
@@ -461,11 +462,13 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 
 
 void uiEMPartServer::getSurfaceDef( const ObjectSet<MultiID>& selhorids,
-				    TypeSet<BinID>& bidset,
-				    TypeSet<Interval<float> >& zrgset,
+				    BinIDValueSet& bivs,
 				    const BinIDRange* br ) const
 {
+    bivs.empty(); bivs.setNrVals( 2, false );
     if ( !selhorids.size() ) return;
+    else if ( !br ) br = &SI().range(false);
+
     EM::EMManager& em = EM::EMM();
     const EM::ObjectID& id = em.multiID2ObjectID(*selhorids[0]); 
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
@@ -479,16 +482,13 @@ void uiEMPartServer::getSurfaceDef( const ObjectSet<MultiID>& selhorids,
 	hor2->ref();
     }
 
-    bidset.erase();
-    zrgset.erase();
-
-    BinID step( SI().inlStep(), SI().crlStep() );
-
-    for ( int inl=br->start.inl; inl<br->stop.inl; inl+=step.inl )
+    const BinID step( SI().inlStep(), SI().crlStep() );
+    BinID bid;
+    for ( bid.inl=br->start.inl; bid.inl<br->stop.inl; bid.inl+=step.inl )
     {
-	for ( int crl=br->start.crl; crl<br->stop.crl; crl+=step.crl )
+	for ( bid.crl=br->start.crl; bid.crl<br->stop.crl; bid.crl+=step.crl )
 	{
-	    RowCol rc(inl,crl);
+	    RowCol rc(bid.inl,bid.crl);
 	    TypeSet<Coord3> z1pos, z2pos;
 	    hor->getPos( rc, z1pos );
 	    if ( !z1pos.size() ) continue;
@@ -496,10 +496,7 @@ void uiEMPartServer::getSurfaceDef( const ObjectSet<MultiID>& selhorids,
 	    if ( !hor2 )
 	    {
 		for ( int posidx=0; posidx<z1pos.size(); posidx++ )
-		{
-		    bidset += BinID(inl,crl);
-		    zrgset += Interval<float>(z1pos[posidx].z,z1pos[posidx].z);
-		}
+		    bivs.add( bid, z1pos[posidx].z, z1pos[posidx].z );
 	    }
 	    else
 	    {
@@ -522,8 +519,7 @@ void uiEMPartServer::getSurfaceDef( const ObjectSet<MultiID>& selhorids,
 		}
 
 		zintv.sort();
-		bidset += BinID(inl,crl);
-		zrgset += zintv;
+		bivs.add( bid, zintv.start, zintv.stop );
 	    }
 	}
     }

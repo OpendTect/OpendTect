@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.5 2004-05-27 10:07:10 bert Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.6 2004-07-16 15:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "position.h"
+#include "binidvalset.h"
 #include "executor.h"
 #include "attribengman.h"
 #include "attribdescset.h"
@@ -125,8 +125,9 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
 	if ( !uiMSG().askGoOn(msg) ) return false;
     }
 
-    TypeSet<BinIDZValues> positions;
+    BinIDValueSet bivs( 1, true );
     TypeSet<float> mdset;
+    TypeSet<BinIDValueSet::Pos> poss;
     StepInterval<float> intv = rangefld->getFStepInterval();
     const int nrsteps = intv.nrSteps();
     for ( int idx=0; idx<nrsteps; idx++ )
@@ -140,7 +141,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
 	if ( zistime )
 	    pos.z = d2t->getTime( md );
 	mdset += md;
-	positions += BinIDZValues( bid, pos.z );
+	poss += bivs.add( bid, pos.z );
     }
 
     AttribSelSpec selspec;
@@ -151,26 +152,25 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     aem.setAttribSpec( selspec );
 
     BufferString errmsg;
-    ObjectSet< TypeSet<BinIDZValues> > posset;
-    posset += &positions;
-    PtrMan<Executor> exec = aem.tableOutputCreator( errmsg, posset );
+    ObjectSet<BinIDValueSet> bivsset;
+    bivsset += &bivs;
+    PtrMan<Executor> exec = aem.tableOutputCreator( errmsg, bivsset );
     uiExecutor uiexec( this, *exec );
     bool ret = uiexec.go();
     if ( !ret ) return false;
 
     Well::Log* newlog = new Well::Log( lognm );
+    float v[2]; BinID bid;
     for ( int idx=0; idx<mdset.size(); idx++ )
     {
-	TypeSet<float>& vals = positions[idx].values;
-	newlog->addValue( mdset[idx], vals.size() ? vals[0] : mUndefValue );
+	bivs.get( poss[idx], bid, v );
+	if ( !mIsUndefined(v[1]) )
+	    newlog->addValue( mdset[idx], v[1] );
     }
 
-    const Interval<float>& valrg = newlog->valueRange();
-    if ( !valrg.width() || mIsUndefined(valrg.start) 
-	    		|| mIsUndefined(-valrg.stop) )
+    if ( !newlog->size() )
     {
-	if ( !valrg.width() )
-	    uiMSG().error( "No values collected" );
+	uiMSG().error( "No values collected" );
 	delete newlog;
 	return false;
     }

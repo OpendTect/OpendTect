@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.9 2004-06-28 16:00:05 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.10 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class IOPar;
 class Scaler;
 class SeisTrc;
 class MultiID;
-class SeisSelData;
+class SeisSelection;
 class SeisTrcReader;
 class SeisTrcWriter;
 
@@ -36,7 +36,8 @@ class SeisSingleTraceProc : public Executor
 {
 public:
 
-			SeisSingleTraceProc(const SeisSelData&,const IOObj* out,
+			SeisSingleTraceProc(const SeisSelection&,
+					    const IOObj* out,
 					    const char* nm="Trace processor",
 					    const char* msg="Processing");
 			SeisSingleTraceProc(const IOObj* in,const IOObj* out,
@@ -94,7 +95,6 @@ protected:
     int			nrwr_;
     int			nrskipped_;
     int			totnr_;
-    Executor*		starter_;
     MultiID&		wrrkey_;
     int			trcsperstep_;
     int			currentobj_;

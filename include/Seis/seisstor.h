@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.8 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: seisstor.h,v 1.9 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -15,21 +15,20 @@ Trace storage objects handle seismic data storage.
 -*/
 
 
-#include <seisinfo.h>
+#include "seisinfo.h"
 class Conn;
 class IOObj;
-class Executor;
-class SeisTrcSel;
+class SeisSelData;
 class SeisTrcTranslator;
 
 
 /*!\brief base class for seis reader and writer. */
 
-class SeisStorage
+class SeisStoreAccess
 {
 public:
 
-    virtual		~SeisStorage();
+    virtual		~SeisStoreAccess();
     void		close();
 
     Conn*		curConn();
@@ -47,10 +46,10 @@ public:
     const IOObj*	ioObj() const
 			{ return ioobj; }
     void		setIOObj(const IOObj*);
-    const SeisTrcSel*	trcSel() const
-			{ return trcsel; }
-    void		setTrcSel(SeisTrcSel*);
-			//!< This hands over mem management
+    const SeisSelData*	selData() const
+			{ return seldata; }
+    void		setSelData(SeisSelData*);
+			//!< The SeisSelData becomes mine
     int			selectedComponent() const
 			{ return selcomp; }
 			//!< default = -1 is all components
@@ -65,7 +64,7 @@ public:
 
 protected:
 
-			SeisStorage(const IOObj*);
+			SeisStoreAccess(const IOObj*);
     virtual void	init()			{}
     void		cleanUp(bool alsoioobj=true);
 
@@ -73,7 +72,7 @@ protected:
     int			nrtrcs;
     int			selcomp;
     SeisTrcTranslator*	trl;
-    SeisTrcSel*		trcsel;
+    SeisSelData*	seldata;
     BufferString	errmsg;
 
 };

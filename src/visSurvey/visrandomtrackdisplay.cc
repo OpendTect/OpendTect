@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.38 2004-06-23 10:28:24 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.39 2004-07-16 15:35:26 bert Exp $
  ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@
 #include "attribsel.h"
 #include "binidselimpl.h"
 #include "iopar.h"
+#include "seisbuf.h"
 #include "seistrc.h"
 #include "interpol.h"
 #include "survinfo.h"
@@ -51,6 +52,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     , moving(this)
     , selknotidx(-1)
     , ismanip( true )
+    , cache(*new SeisTrcBuf(true))
+    , colcache(*new SeisTrcBuf(true))
 {
     setRandomTrack( visBase::RandomTrack::create() );
 
@@ -105,9 +108,8 @@ RandomTrackDisplay::~RandomTrackDisplay()
 
     delete &as;
     delete &colas;
-
-    deepErase( cache );
-    deepErase( colcache );
+    delete &cache;
+    delete &colcache;
 }
 
 
@@ -271,19 +273,16 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 }
 
 
-void RandomTrackDisplay::setTraceData( bool colordata,
-						  ObjectSet<SeisTrc>* trcset )
+void RandomTrackDisplay::setTraceData( bool colordata, SeisTrcBuf& trcbuf )
 {
-    if ( !trcset )
+    const int nrtrcs = trcbuf.size();
+    if ( !nrtrcs )
     {
 	const int nrsections = bidsset.size();
 	for ( int snr=0; snr<nrsections; snr++ )
 	    track->setData(snr,0,0);
 	return;
     }
-    
-    const int nrtrcs = trcset->size();
-    if ( !nrtrcs ) return;
 
     if ( colordata )
     {
@@ -292,25 +291,19 @@ void RandomTrackDisplay::setTraceData( bool colordata,
 			     colas.useclip ? cliprate : colas.range );
     }
     
-    setData( *trcset, colordata ? colas.datatype : 0 );
-    if ( colordata )
-    {
-	deepErase( colcache );
-	colcache = *trcset;
-	return;
-    }
-
-    deepErase( cache );
-    cache = *trcset;
-    ismanip = false;
+    setData( trcbuf, colordata ? colas.datatype : 0 );
+    SeisTrcBuf& cach = colordata ? colcache : cache;
+    cach.deepErase();
+    cach.stealTracesFrom( trcbuf );
+    if ( !colordata )
+	ismanip = false;
 }
 
 
-void RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset,
-					     int datatype )
+void RandomTrackDisplay::setData( const SeisTrcBuf& trcbuf, int datatype )
 {
     const Interval<float> zrg = getDataTraceRange();
-    const float step = trcset[0]->info().sampling.step;
+    const float step = trcbuf.get(0)->info().sampling.step;
     const int nrsamp = mNINT( zrg.width() / step ) + 1;
 
     const int nrsections = bidsset.size();
@@ -322,9 +315,10 @@ void RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset,
 	for ( int bidnr=0; bidnr<nrbids; bidnr++ )
 	{
 	    BinID curbid = binidset[bidnr];
-	    const SeisTrc* trc = getTrc( curbid, trcset );
-	    if ( !trc ) continue;
+	    int trcidx = trcbuf.find( curbid );
+	    if ( trcidx < 0 ) continue;
 
+	    const SeisTrc* trc = trcbuf.get( trcidx );
 	    float ctime = zrg.start;
 	    for ( int ids=0; ids<nrsamp; ids++ )
 	    {
@@ -340,60 +334,41 @@ void RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset,
 }
 
 
-const SeisTrc* RandomTrackDisplay::getTrc( const BinID& bid, 
-					const ObjectSet<SeisTrc>& trcset ) const
-{
-    const int nrtrcs = trcset.size();
-    for ( int trcidx=0; trcidx<nrtrcs; trcidx++ )
-    {
-	if ( trcset[trcidx]->info().binid == bid )
-	    return trcset[trcidx];
+#define mFindTrc(inladd,crladd) \
+    if ( trcidx < 0 ) \
+    { \
+	bid.inl = reqbid.inl + step.inl * (inladd); \
+	bid.crl = reqbid.crl + step.crl * (crladd); \
+	trcidx = cache.find( bid ); \
     }
-
-    return 0;
-}
 
 
 float RandomTrackDisplay::getValue( const Coord3& pos ) const
 {
     if ( !cache.size() ) return mUndefValue;
 
-    BinID bid( SI().transform(pos) );
-    const SeisTrc* trc = getTrc( bid, cache );
-    if ( !trc )
+    BinID reqbid( SI().transform(pos) );
+    int trcidx = cache.find( reqbid );
+    if ( trcidx < 0 )
     {
-	ObjectSet<const SeisTrc> trcs; trcs.allowNull(false);
 	const BinID step( SI().inlWorkStep(), SI().crlWorkStep() );
-	trcs += getTrc(BinID(bid.inl+step.inl,bid.crl+step.crl), cache );
-	trcs += getTrc(BinID(bid.inl+step.inl,bid.crl), cache );
-	trcs += getTrc(BinID(bid.inl+step.inl,bid.crl-step.crl), cache );
-
-	trcs += getTrc(BinID(bid.inl,bid.crl+step.crl), cache );
-	trcs += getTrc(BinID(bid.inl,bid.crl-step.crl), cache );
-
-	trcs += getTrc(BinID(bid.inl-step.inl,bid.crl+step.crl), cache );
-	trcs += getTrc(BinID(bid.inl-step.inl,bid.crl), cache );
-	trcs += getTrc(BinID(bid.inl-step.inl,bid.crl-step.crl), cache );
-
-	float closestdist;
-	for ( int idx=0; idx<trcs.size(); idx++ )
+	BinID bid;
+	mFindTrc(1,0) mFindTrc(-1,0) mFindTrc(0,1) mFindTrc(0,-1)
+	if ( trcidx < 0 )
 	{
-	    float dist = trcs[idx]->info().coord.distance(pos);
-	    if ( !idx || dist<closestdist )
-	    {
-		closestdist = dist;
-		trc = trcs[idx];
-	    }
+	    mFindTrc(1,1) mFindTrc(-1,1) mFindTrc(1,-1) mFindTrc(-1,-1)
 	}
 
-	if ( !trc )
+	if ( trcidx < 0 )
 	    return mUndefValue;
     }
 
-    const int sampidx = trc->nearestSample( pos.z, 0 );
-    return sampidx<0 || sampidx>=trc->size(0)
-    	   ? mUndefValue : trc->get( sampidx, 0 );
+    const SeisTrc& trc = *cache.get( trcidx );
+    const int sampidx = trc.nearestSample( pos.z, 0 );
+    return sampidx < 0 || sampidx >= trc.size(0) ? mUndefValue
+						 : trc.get( sampidx, 0 );
 }
+
 
 bool RandomTrackDisplay::canAddKnot( int knotnr ) const
 {
@@ -614,7 +589,7 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
     const visBase::Transformation* utm2display= SPM().getUTM2DisplayTransform();
     Coord3 xytpos = utm2display->transformBack( pos );
     BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
-    if ( !getTrc(binid,cache) ) return mUndefValue;
+    if ( cache.find(binid) < 0 ) return mUndefValue;
 
     float zdiff = 0;
     const Interval<float>& intv = track->getDepthInterval();

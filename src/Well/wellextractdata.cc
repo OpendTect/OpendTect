@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.20 2004-06-28 16:00:05 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.21 2004-07-16 15:35:26 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.20 2004-06-28 16:00:05 b
 #include "welllog.h"
 #include "welldata.h"
 #include "welltransl.h"
+#include "binidvalset.h"
 #include "survinfo.h"
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -135,7 +136,7 @@ int Well::TrackSampler::nextStep()
     if ( curidx >= ids.size() )
 	return 0;
 
-    BinIDValueSet* bivset = new BinIDValueSet;
+    BinIDValueSet* bivset = new BinIDValueSet(1,true);
     bivsets += bivset;
 
     IOObj* ioobj = IOM().get( MultiID(ids.get(curidx)) );
@@ -245,7 +246,7 @@ bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
 void Well::TrackSampler::addBivs( BinIDValueSet& bivset, const BinIDValue& biv,
 				  const Coord3& precisepos ) const
 {
-    bivset += biv;
+    bivset.add( biv );
     if ( selpol == Corners )
     {
 	BinID stp( SI().inlStep(), SI().crlStep() );
@@ -266,9 +267,9 @@ void Well::TrackSampler::addBivs( BinIDValueSet& bivset, const BinIDValue& biv,
 	mTestNext(-,-)
 
 	BinIDValue newbiv( biv );
-	newbiv.binid.inl = nearest.inl; bivset += newbiv;
-	newbiv.binid.crl = nearest.crl; bivset += newbiv;
-	newbiv.binid.inl = biv.binid.inl; bivset += newbiv;
+	newbiv.binid.inl = nearest.inl; bivset.add( newbiv );
+	newbiv.binid.crl = nearest.crl; bivset.add( newbiv );
+	newbiv.binid.inl = biv.binid.inl; bivset.add( newbiv );
     }
 }
 
@@ -307,8 +308,8 @@ int Well::LogDataExtracter::nextStep()
     ress += newres;
 
     IOObj* ioobj = 0;
-    const BinIDValueSet& bivset = *bivsets[curidx];
-    if ( !bivset.size() ) mRetNext()
+    const BinIDValueSet& bivs = *bivsets[curidx];
+    if ( bivs.isEmpty() ) mRetNext()
 
     ioobj = IOM().get( MultiID(ids.get(curidx)) );
     if ( !ioobj ) mRetNext()
@@ -327,7 +328,7 @@ int Well::LogDataExtracter::nextStep()
     if ( track.size() < 2 ) mRetNext()
     if ( !wr.getLogs() ) mRetNext()
     
-    getData( bivset, wd, track, *newres );
+    getData( bivs, wd, track, *newres );
 
     mRetNext();
 }
@@ -336,7 +337,7 @@ int Well::LogDataExtracter::nextStep()
 #define mDefWinSz SI().zIsTime() ? wl.dahStep(true)*10 : SI().zRange().step
 
 
-void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
+void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 				      const Well::Data& wd,
 				      const Well::Track& track,
 				      TypeSet<float>& res ) const
@@ -387,22 +388,29 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
     if ( usegenalgo )
     {
 	// Much slower, less precise but should always work
-	getGenTrackData( bivset, track, wl, res );
+	getGenTrackData( bivs, track, wl, res );
 	return;
     }
 
     // The idea here is to calculate the dah from the Z only.
     // Should be OK for all wells without horizontal sections
 
-    int bividx = 0; int trackidx = 0;
+    int trackidx = 0;
     const float tol = 0.001;
     float z1 = track.pos(trackidx).z;
-    while ( bividx < bivset.size() && bivset[bividx].value < z1 - tol )
-	{ res += mUndefValue; bividx++; }
-    if ( bividx >= bivset.size() ) // Duh. All data below track.
+    BinIDValueSet::Pos bvpos;
+    BinIDValue biv;
+    while ( bivs.next(bvpos) )
+    {
+	bivs.get( bvpos, biv );
+	if ( biv.value < z1 - tol )
+	    res += mUndefValue;
+	else
+	    break;
+    }
+    if ( !bvpos.valid() ) // Duh. All data below track.
 	{ res.erase(); return; }
 
-    BinIDValue biv( bivset[bividx] );
     for ( trackidx=1; trackidx<track.size(); trackidx++ )
     {
 	if ( track.pos(trackidx).z > biv.value - tol )
@@ -413,9 +421,10 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 
     float prevwinsz = mDefWinSz;
     float prevdah = mUndefValue;
-    for ( ; bividx<bivset.size(); bividx++ )
+    bivs.prev( bvpos );
+    while ( bivs.next(bvpos) )
     {
-	biv = bivset[bividx];
+	bivs.get( bvpos, biv );
 	float z2 = track.pos( trackidx ).z;
 	while ( biv.value > z2 )
 	{
@@ -429,7 +438,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 	{
 	    // This is not uncommon. A new binid with higher posns.
 	    trackidx = 1;
-	    bividx--;
+	    bivs.prev( bvpos );
 	    prevdah = mUndefValue;
 	    continue;
 	}
@@ -446,18 +455,24 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 }
 
 
-void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
+void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
 					      const Well::Track& track,
 					      const Well::Log& wl,
 					      TypeSet<float>& res ) const
 {
-    int bividx = 0;
-    while ( bividx<bivset.size() && mIsUndefined(bivset[bividx].value) )
-	{ res += mUndefValue; bividx++; }
-    if ( bividx >= bivset.size() || !track.size() )
+    BinIDValueSet::Pos bvpos;
+    BinIDValue biv;
+    while ( bivs.next(bvpos) )
+    {
+	bivs.get( bvpos, biv );
+	if ( !mIsUndefined(biv.value) )
+	    break;
+	res += mUndefValue;
+    }
+
+    if ( !bvpos.valid() || !track.size() )
 	{ res.erase(); return; }
 
-    BinIDValue biv( bivset[bividx] );
     BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );
     const float dtol = SI().transform(biv.binid).distance( SI().transform(b) );
     const float ztol = SI().zRange().step * 5;
@@ -466,15 +481,16 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 
     float prevdah = mUndefValue;
     float prevwinsz = mDefWinSz;
-    for ( ; bividx<bivset.size(); bividx++ )
+    bivs.prev( bvpos );
+    while ( bivs.next(bvpos) )
     {
-	float dah = findNearest( track, bivset[bividx], startdah, dahstep );
+	bivs.get( bvpos, biv );
+	float dah = findNearest( track, biv, startdah, dahstep );
 	if ( mIsUndefined(dah) )
 	    { res += mUndefValue; continue; }
 	else
 	{
 	    Coord3 pos = track.getPos( dah );
-	    BinIDValue biv = bivset[bividx];
 	    Coord coord = SI().transform( biv.binid );
 	    if ( coord.distance(pos) > dtol || fabs(pos.z-biv.value) > ztol )
 		res += mUndefValue;

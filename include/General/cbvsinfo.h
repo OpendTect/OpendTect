@@ -8,16 +8,17 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.16 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.17 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <posauxinfo.h>
-#include <binid2coord.h>
-#include <basiccompinfo.h>
-#include <scaler.h>
-#include <sets.h>
+#include "posauxinfo.h"
+#include "binid2coord.h"
+#include "basiccompinfo.h"
+#include "samplingdata.h"
+#include "scaler.h"
+#include "sets.h"
 class CubeSampling;
 
 
@@ -102,6 +103,8 @@ public:
 
     PosAuxInfoSelection		auxinfosel;
     ObjectSet<BasicComponentInfo> compinfo;
+    SamplingData<float>		sd;
+    int				nrsamples;
     SurvGeom			geom;
 
     BufferString		stdtext;

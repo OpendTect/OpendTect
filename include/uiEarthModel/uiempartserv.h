@@ -7,20 +7,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.28 2004-05-27 08:06:40 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.29 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
+class BinID;
 class BinIDRange;
-class BinIDValue;
-class BinIDZValues;
+class BinIDValueSet;
 class BufferString;
 class MultiID;
-class uiPopupMenu;
 class SurfaceInfo;
-class BinID;
+class uiPopupMenu;
 template <class T> class Interval;
 
 namespace EM { class SurfaceIODataSelection; };
@@ -63,16 +62,15 @@ public:
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     void		getSurfaceDef(const ObjectSet<MultiID>&,
-	    			      TypeSet<BinID>&,
-				      TypeSet<Interval<float> >&,
+	    			      BinIDValueSet&,
 				      const BinIDRange* br=0) const;
 
     bool		storeObject(const MultiID&);
     void		setDataVal(const MultiID&,
-	    			   ObjectSet< TypeSet<BinIDZValues> >&,
+	    			   ObjectSet<BinIDValueSet>&,
 				   const char*);
     bool		getDataVal(const MultiID&,
-	    			   ObjectSet< TypeSet<BinIDZValues> >&,
+	    			   ObjectSet<BinIDValueSet>&,
 				   BufferString&,float&);
 
     static const int	evDisplayHorizon;

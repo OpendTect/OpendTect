@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.9 2004-05-12 15:03:49 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.10 2004-07-16 15:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "welltransl.h"
 #include "wellextractdata.h"
 #include "featset.h"
+#include "binidvalset.h"
 #include "uiexecutor.h"
 #include "uimsg.h"
 #include "debug.h"
@@ -59,18 +60,18 @@ const BufferStringSet& uiNLAPartServer::modelInputs() const
 }
 
 
-void uiNLAPartServer::getBinIDValues(
-			  ObjectSet< TypeSet<BinIDValue> >& bivsets ) const
+void uiNLAPartServer::getBinIDValueSets(
+				  ObjectSet<BinIDValueSet>& bivsets ) const
 {
     const NLACreationDesc& crdesc = creationDesc();
 
     if ( !crdesc.isdirect )
-	PickSetGroupTranslator::createBinIDValues( crdesc.outids, bivsets );
+	PickSetGroupTranslator::createBinIDValueSets( crdesc.outids, bivsets );
     else
     {
-	Executor* ex = WellTranslator::createBinIDValues( crdesc.outids,
-							  crdesc.pars,
-							  bivsets );
+	Executor* ex = WellTranslator::createBinIDValueSets( crdesc.outids,
+							     crdesc.pars,
+							     bivsets );
 	if ( !ex ) return;
 	uiExecutor uiex( appserv().parent(), *ex );
 	if ( !uiex.go() )
@@ -96,16 +97,16 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 	}
 
 	// Put the positions in BinIDValueSets
-	ObjectSet< TypeSet<BinIDValue> > bivsets;
+	ObjectSet<BinIDValueSet> bivsets;
 	for ( int idx=0; idx<fss.size(); idx++ )
 	{
 	    FeatureSet& fs = *fss[idx];
-	    TypeSet<BinIDValue>* bivset = new TypeSet<BinIDValue>;
+	    BinIDValueSet* bivset = new BinIDValueSet( 1, true );
 	    bivsets += bivset;
 	    for ( int ivec=0; ivec<fs.size(); ivec++ )
 	    {
 		const FVPos& fvp = fs[ivec]->fvPos();
-		*bivset += BinIDValue( fvp.inl, fvp.crl, fvp.ver );
+		bivset->add( BinID(fvp.inl,fvp.crl), fvp.ver );
 	    }
 	}
 

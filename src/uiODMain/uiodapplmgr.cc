@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.39 2004-07-14 15:44:16 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.40 2004-07-16 15:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ ________________________________________________________________________
 
 #include "attribdescset.h"
 #include "attribsel.h"
+#include "seisbuf.h"
+#include "binidvalset.h"
 #include "pickset.h"
 #include "survinfo.h"
 #include "errh.h"
@@ -292,8 +294,8 @@ bool uiODApplMgr::selectColorAttrib( int id )
 
 void uiODApplMgr::storeSurface( int visid )
 {
-    ObjectSet< TypeSet<BinIDZValues> > bidzvset;
-    visserv->getRandomPosDataPos( visid, bidzvset );
+    ObjectSet<BinIDValueSet> bivs;
+    visserv->fetchSurfaceData( visid, bivs );
     const AttribSelSpec* as = visserv->getSelSpec( visid );
     BufferString dispname( as ? as->userRef() : 0 );
     if ( as && as->isNLA() )
@@ -306,7 +308,7 @@ void uiODApplMgr::storeSurface( int visid )
     }
 
     if ( as && as->id() >= 0 )
-	emserv->setDataVal( *visserv->getMultiID(visid), bidzvset, dispname );
+	emserv->setDataVal( *visserv->getMultiID(visid), bivs, dispname );
     emserv->storeObject( *visserv->getMultiID(visid) );
 }
 
@@ -406,23 +408,21 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	case 1:
 	{
 	    if ( as.id()<-1 && colordata )
-	    { visserv->setTraceData(visid,true,0); return true; }
+	    { SeisTrcBuf b; visserv->setTraceData(visid,true,b); return true; }
 
 	    const Interval<float> zrg = visserv->getDataTraceRange( visid );
 	    TypeSet<BinID> bids;
 	    visserv->getDataTraceBids( visid, bids );
-	    ObjectSet<SeisTrc> data;
+	    SeisTrcBuf data( true );
 	    if ( !attrserv->createOutput( bids, zrg, data, as ) )
 		return false;
-	    
-	    visserv->setTraceData( visid, colordata, &data );
-
+	    visserv->setTraceData( visid, colordata, data );
 	    return true;
 	}
 	case 2:
 	{
 	    if ( as.id()<-1 && colordata )
-	    { visserv->setRandomPosData(visid,true,0); return true; }
+	    { visserv->stuffSurfaceData(visid,true,0); return true; }
 
 	    if ( as.id() == AttribSelSpec::otherAttrib )
 	    {
@@ -433,18 +433,13 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 		return selok;
 	    }
 
-	    ObjectSet< TypeSet<BinIDZValues> > data;
-	    visserv->getRandomPosDataPos( visid, data );
+	    ObjectSet<BinIDValueSet> data;
+	    visserv->fetchSurfaceData( visid, data );
 	    if ( !attrserv->createOutput(data,as) )
 		return false;
 
-	    const ObjectSet< const TypeSet<const BinIDZValues> >& to_pass =
-		reinterpret_cast< const ObjectSet< 
-			    const TypeSet< const BinIDZValues > >& >(data);
-	    visserv->setRandomPosData( visid, colordata, &to_pass );
-
+	    visserv->stuffSurfaceData( visid, colordata, &data );
 	    deepErase( data );
-
 	    return true;
 	}
     }
@@ -466,14 +461,10 @@ bool uiODApplMgr::evaluateAttribute( int visid )
     }
     else if ( format == 2 )
     {
-	ObjectSet< TypeSet<BinIDZValues> > data;
-	visserv->getRandomPosDataPos( visid, data );
+	ObjectSet<BinIDValueSet> data;
+	visserv->fetchSurfaceData( visid, data );
 	attrserv->createOutput( attrserv->curDescSet(), data );
-
-	const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
-	    reinterpret_cast< const ObjectSet< 
-			    const TypeSet< const BinIDZValues > >& >( data );
-	visserv->setRandomPosData( visid, false, &to_pass );
+	visserv->stuffSurfaceData( visid, false, &data );
 	deepErase( data );
     }
     else
@@ -661,12 +652,8 @@ bool uiODApplMgr::handlePickServEv( int evid )
     }
     else if ( evid == uiPickPartServer::evGetHorDef )
     {
-	TypeSet<BinID> bidset;
-	TypeSet<Interval<float> > zrgset;
-	emserv->getSurfaceDef( pickserv->selHorIDs(), bidset, zrgset, 
+	emserv->getSurfaceDef( pickserv->selHorIDs(), pickserv->genDef(),
 			       pickserv->selBinIDRange() );
-	pickserv->horDef() = bidset;
-	pickserv->horDepth() = zrgset;
     }
     else
 
@@ -768,17 +755,17 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Put data in the training and test feature sets
 
 	if ( !attrserv->curDescSet() ) { pErrMsg("Huh"); return true; }
-	ObjectSet< TypeSet<BinIDValue> > bivsets;
+	ObjectSet<BinIDValueSet> bivss;
 	if ( nlaserv->willDoExtraction() )
 	{
-	    nlaserv->getBinIDValues( bivsets );
-	    if ( !bivsets.size() )
+	    nlaserv->getBinIDValueSets( bivss );
+	    if ( !bivss.size() )
 		{ uiMSG().error("No valid data locations found"); return true; }
 	}
 	ObjectSet<FeatureSet> fss;
 	bool extrres = attrserv->extractFeatures( nlaserv->creationDesc(),
-						  bivsets, fss );
-	deepErase( bivsets );
+						  bivss, fss );
+	deepErase( bivss );
 	if ( extrres )
 	{
 	    FeatureSet fswrite;
@@ -792,7 +779,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     else if ( evid == uiNLAPartServer::evSaveMisclass )
     {
 	const FeatureSet& fsmc = nlaserv->fsMCA();
-	TypeSet<BinIDZValue> mcpicks;
+	BinIDValueSet mcpicks( 2, true );
 	for ( int idx=0; idx<fsmc.size(); idx++ )
 	{
 	    const FeatureVec& fv = *fsmc[idx];
@@ -801,8 +788,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 		continue;
 
 	    if ( fv[0] != fv[1] )
-		mcpicks += BinIDZValue( fv.fvPos().inl, fv.fvPos().crl,
-					fv.fvPos().ver, conf );
+		mcpicks.add( fv.fvPos(), fv.fvPos().ver, conf );
 	}
 	pickserv->setMisclassSet( mcpicks );
 	PickSetGroup& psg = pickserv->group();
@@ -882,16 +868,12 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
 {
     BufferString attrnm;
     float shift = 0;
-    ObjectSet< TypeSet<BinIDZValues> > data;
+    ObjectSet<BinIDValueSet> data;
     if ( !emserv->getDataVal(*visserv->getMultiID(visid),data,attrnm,shift) )
 	return;
-
-    const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
-	reinterpret_cast< const ObjectSet< 
-			const TypeSet< const BinIDZValues > >& >( data );
-    visserv->setRandomPosData( visid, false, &to_pass );
-
+    visserv->stuffSurfaceData( visid, false, &data );
     deepErase( data );
+
     mDynamicCastGet( visSurvey::SurfaceDisplay*, sd, visserv->getObject(visid));
     sd->setShift( shift );
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.26 2004-06-23 11:18:40 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.27 2004-07-16 15:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 	: uiApplPartServer(a)
     	, psg(*new PickSetGroup)
 	, pickcolor(Color::DgbColor)
+    	, gendef(2,true)
 {
 }
 
@@ -107,8 +108,7 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     selbr = &rp.bidrg;
     const bool do2hors = !rp.iscube && rp.horidx2 >= 0 && 
 			 rp.horidx2 != rp.horidx;
-    hordef.erase();
-    hordepth.erase();
+    gendef.empty();
     deepErase( selhorids );
     if ( !rp.iscube )
     {
@@ -120,28 +120,28 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     else
     {
 	const BinID stp = BinID( SI().inlStep(), SI().crlStep() );
-	for ( int inl=selbr->start.inl; inl<=selbr->stop.inl; inl +=stp.inl)
+	BinID bid;
+	for ( bid.inl=selbr->start.inl; bid.inl<=selbr->stop.inl;
+		bid.inl +=stp.inl )
 	{
-	    for ( int crl=selbr->start.crl; crl<=selbr->stop.crl;
-		    	crl += stp.crl )
-	    {
-		hordef += BinID( inl, crl );
-		hordepth += rp.zrg;
-	    }
+	    for ( bid.crl=selbr->start.crl; bid.crl<=selbr->stop.crl;
+		    	bid.crl += stp.crl )
+		gendef.add( bid, rp.zrg.start, rp.zrg.stop );
 	}
     }
 
-    const int nrpts = hordef.size();
+    const int nrpts = gendef.totalSize();
     if ( !nrpts ) return true;
 
+    BinID bid; Interval<float> zrg;
     for ( int ipt=0; ipt<rp.nr; ipt++ )
     {
 	const int ptidx = Stat_getIndex( nrpts );
-	BinIDValue bv = hordef[ptidx];
-	const Interval<float>& zrg = hordepth[ptidx];
-	bv.value = zrg.start + Stat_getRandom() * zrg.width();
+	BinIDValueSet::Pos pos = gendef.getPos( ptidx );
+	gendef.get( pos, bid, zrg.start, zrg.stop );
+	float val = zrg.start + Stat_getRandom() * zrg.width();
 
-	ps += PickLocation( SI().transform(bv.binid), bv.value );
+	ps += PickLocation( SI().transform(bid), val );
     }
 
     return true;
@@ -233,16 +233,18 @@ void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
 }
 
 
-void uiPickPartServer::setMisclassSet( const TypeSet<BinIDZValue>& bzvs )
+void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
 {
     static const BufferString sMisClassStr = "Misclassified [NN]";
 
     PickSet* pickset = new PickSet( sMisClassStr );
     pickset->color.set( 255, 0, 0 );
-    for ( int idx=0; idx<bzvs.size(); idx++ )
+    BinIDValueSet::Pos pos; BinIDValue biv;
+    while ( bivs.next(pos,false) )
     {
-	Coord pos = SI().transform( bzvs[idx].binid );
-	*pickset += PickLocation( pos.x, pos.y, bzvs[idx].z );
+	bivs.get( pos, biv );
+	Coord pos = SI().transform( biv.binid );
+	*pickset += PickLocation( pos.x, pos.y, biv.value );
     }
 
     psg.clear();

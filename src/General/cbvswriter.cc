@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.39 2004-06-28 16:00:05 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.40 2004-07-16 15:35:25 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -169,15 +169,15 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	strm_.write( (const char*)&cinf.datatype, integersize );
        	cinf.datachar.dump( dcdump[0], dcdump[1] );
 	strm_.write( (const char*)dcdump, 4 );
-	strm_.write( (const char*)&cinf.sd.start, sizeof(float) );
-	strm_.write( (const char*)&cinf.sd.step, sizeof(float) );
-	strm_.write( (const char*)&cinf.nrsamples, integersize );
+	strm_.write( (const char*)&info.sd.start, sizeof(float) );
+	strm_.write( (const char*)&info.sd.step, sizeof(float) );
+	strm_.write( (const char*)&info.nrsamples, integersize );
 	float a = 0, b = 1; // LinScaler( a, b ) - future use?
 	strm_.write( (const char*)&a, sizeof(float) );
 	strm_.write( (const char*)&b, sizeof(float) );
 
 	nrbytespersample_[icomp] = cinf.datachar.nrBytes();
-	cnrbytes_[icomp] = cinf.nrsamples * nrbytespersample_[icomp];
+	cnrbytes_[icomp] = info.nrsamples * nrbytespersample_[icomp];
     }
 }
 

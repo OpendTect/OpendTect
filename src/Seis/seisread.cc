@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.25 2004-06-28 16:00:05 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.26 2004-07-16 15:35:26 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -17,113 +17,83 @@ static const char* rcsID = "$Id: seisread.cc,v 1.25 2004-06-28 16:00:05 bert Exp
 #include "survinfo.h"
 
 
+#define mUndefPtr(clss) ((clss*)0xdeadbeef) // Like on AIX. Nothing special.
+
+
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
-	: SeisStorage(ioob)
-    	, outer(0)
+	: SeisStoreAccess(ioob)
+    	, outer(mUndefPtr(BinIDRange))
 {
     init();
+}
+
+#define mDelOuter if ( outer != mUndefPtr(BinIDRange) ) delete outer
+
+SeisTrcReader::~SeisTrcReader()
+{
+    mDelOuter;
 }
 
 
 void SeisTrcReader::init()
 {
     foundvalidinl = foundvalidcrl =
-    new_packet = needskip = started = forcefloats = false;
+    new_packet = needskip = prepared = forcefloats = false;
     prev_inl = mUndefIntVal;
-    delete outer; outer = 0;
+    mDelOuter; outer = mUndefPtr(BinIDRange);
 }
 
 
-class SeisReadStarter : public Executor
+bool SeisTrcReader::prepareWork()
 {
-public:
-
-const char* message() const
-{ return tselst ? tselst->message() : msg; }
-int nrDone() const
-{ return tselst ? tselst->nrDone() : (rdr.curConn() ? 2 : 1); }
-const char* nrDoneText() const
-{ return tselst ? tselst->nrDoneText() : "Step"; }
-int totalNr() const
-{ return tselst ? tselst->totalNr() : 2; }
-
-SeisReadStarter( SeisTrcReader& r )
-	: Executor("Seismic Reader Starter")
-	, rdr(r)
-	, msg("Opening data store")
-	, tselst(0)
-	, conn(0)
-{
-    if ( rdr.trcsel )
-	tselst = rdr.trcsel->starter();
-}
-
-~SeisReadStarter()
-{
-    delete tselst;
-    delete conn;
-}
-
-
-int nextStep()
-{
-    if ( !rdr.ioObj() )
+    if ( !ioobj )
     {
-	msg = "No info from Object Manager";
-	return -1;
+	errmsg = "Info for input seismic data not found in Object Manager";
+	return false;
+    }
+    if ( !trl )
+    {
+	errmsg = "No data interpreter available for '";
+	errmsg += ioobj->name(); errmsg += "'";
+	return false;
     }
 
-    if ( tselst )
-    {
-	int rv = tselst->doStep();
-	if ( rv < 0 ) return rv;
-	if ( rv > 0 ) return rv;
-	delete tselst; tselst = 0;
-	return 1;
-    }
-
-    conn = rdr.openFirst();
+    Conn* conn = openFirst();
     if ( !conn )
     {
-	msg = "Cannot open seismic data";
-	return -1;
+	errmsg = "Cannot open data files for '";
+	errmsg += ioobj->name(); errmsg += "'";
+	return false;
     }
-    else if ( !rdr.initRead(conn) )
+    else if ( !initRead(conn) )
     {
-	msg = rdr.errMsg();
-	return -1;
-    }
-    conn = 0;
-
-    if ( rdr.forcefloats )
-    {
-	ObjectSet<SeisTrcTranslator::TargetComponentData>& tarcds =
-					rdr.translator()->componentInfo();
-	for ( int idx=0; idx<tarcds.size(); idx++ )
-	    tarcds[idx]->datachar = DataCharacteristics();
+	delete conn;
+	return false;
     }
 
-    rdr.started = true;
-    rdr.outer = !rdr.trcsel || rdr.trcsel->isEmpty() || !rdr.trcsel->bidsel ? 0
-	      : rdr.trcsel->bidsel->getOuter();
-    return 0;
+    return (prepared = true);
 }
 
-    Conn*		conn;
-    SeisTrcReader&	rdr;
-    const char*		msg;
-    Executor*		tselst;
-
-};
 
 
-Executor* SeisTrcReader::starter()
+void SeisTrcReader::startWork()
 {
-    return new SeisReadStarter( *this );
+    if ( forcefloats )
+    {
+	for ( int idx=0; idx<trl->componentInfo().size(); idx++ )
+	    trl->componentInfo()[idx]->datachar = DataCharacteristics();
+    }
+
+    trl->setSelData( seldata );
+    if ( trl->inlCrlSorted() && seldata
+      && seldata->type_ != SeisSelData::TrcNrs )
+	outer = seldata->binidRange();
+    else
+	outer = 0;
 }
 
 
-bool SeisTrcReader::multiConn() const
+bool SeisTrcReader::isMultiConn() const
 {
     return ioobj && ioobj->hasConnType(StreamConn::sType)
 	&& ((IOStream*)ioobj)->multiConn();
@@ -142,7 +112,7 @@ Conn* SeisTrcReader::openFirst()
     if ( !conn || conn->bad() )
     {
 	delete conn; conn = 0;
-	if ( iostrm && multiConn() )
+	if ( iostrm && isMultiConn() )
 	{
 	    while ( !conn || conn->bad() )
 	    {
@@ -195,24 +165,12 @@ bool SeisTrcReader::initRead( Conn* conn )
 }
 
 
-bool SeisTrcReader::doStart()
-{
-    Executor* st = starter();
-    if ( !st->execute(0) )
-    {
-	errmsg = st->message();
-	delete st;
-	return false;
-    }
-    delete st; 
-    return true;
-}
-
-
 int SeisTrcReader::get( SeisTrcInfo& ti )
 {
-    if ( !started && !doStart() )
+    if ( !prepared && !prepareWork() )
 	return -1;
+    else if ( outer == mUndefPtr(BinIDRange) )
+	startWork();
 
     bool needsk = needskip; needskip = false;
     if ( needsk && !trl->skip() )
@@ -233,8 +191,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	ti.new_packet = true;
     }
 
-    const int selres = !trcsel || !trcsel->bidsel ? 0
-		     : trcsel->bidsel->excludes(ti.binid);
+    const int selres = seldata ? seldata->selRes(ti.binid) : 0;
     if ( selres / 256 == 0 )
 	foundvalidcrl = true;
     if ( selres % 256 == 0 )
@@ -262,17 +219,16 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     }
 
     nrtrcs++;
-    if ( trcsel )
+    if ( seldata )
     {
-	if ( nrtrcs < trcsel->intv.start
-	  ||    (trcsel->intv.step > 1
-	     && (nrtrcs-trcsel->intv.start-1)%trcsel->intv.step) )
-	    return trl->skip() ? 2 : nextConn( ti );
-	else if ( nrtrcs > trcsel->intv.stop )
+	int selres = seldata->selRes( nrtrcs );
+	if ( selres > 1 )
 	    return 0;
+	if ( selres == 1 )
+	    return trl->skip() ? 2 : nextConn( ti );
     }
 
-    // This trace is, believe it or not, actually selected
+    // Hey, the trace is (believe it or not) actually selected!
     if ( new_packet )
     {
 	ti.new_packet = true;
@@ -286,8 +242,10 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 bool SeisTrcReader::get( SeisTrc& trc )
 {
     needskip = false;
-    if ( !started && !doStart() )
+    if ( !prepared && !prepareWork() )
 	return false;
+    else if ( outer == mUndefPtr(BinIDRange) )
+	startWork();
 
     if ( !trl->read(trc) )
     {
@@ -302,7 +260,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
 int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 {
     new_packet = false;
-    if ( !multiConn() ) return 0;
+    if ( !isMultiConn() ) return 0;
 
     trl->cleanUp();
     IOStream* iostrm = (IOStream*)ioobj;
@@ -329,9 +287,10 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     int rv = get(ti);
     if ( rv < 1 ) return rv;
 
-    if ( trcsel && trcsel->bidsel && iostrm->directNumberMultiConn() )
+    if ( seldata && seldata->type_ != SeisSelData::TrcNrs
+	         && iostrm->directNumberMultiConn() )
     {
-	if ( !binidInConn(trcsel->bidsel->excludes(ti.binid)) )
+	if ( !binidInConn(seldata->selRes(ti.binid)) )
 	    return nextConn( ti );
     }
 
@@ -344,23 +303,23 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
 void SeisTrcReader::trySkipConns()
 {
-    if ( !multiConn() || !trcsel || !trcsel->bidsel ) return;
+    if ( !isMultiConn() || !seldata || seldata->type_ == SeisSelData::TrcNrs )
+	return;
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     if ( !iostrm || !iostrm->directNumberMultiConn() ) return;
 
     BinID binid;
-    const BinIDSelector* sel = trcsel->bidsel;
-    BinIDProvider* bp = sel->provider();
-    if ( bp && bp->size() == 0 ) { delete bp; return; }
-
-    if ( !bp )	binid = SI().range().start;
-    else	binid = (*bp)[0];
-    delete bp;
+    if ( seldata->type_ == SeisSelData::Range )
+	binid.crl = seldata->crlrg_.start;
+    else if ( seldata->table_.totalSize() == 0 )
+	return;
+    else
+	binid.crl = seldata->table_.firstPos().crl;
 
     do
     {
 	binid.inl = iostrm->connNr();
-	if ( binidInConn(sel->excludes(binid)) )
+	if ( binidInConn(seldata->selRes(binid)) )
 	    return;
 
     } while ( iostrm->toNextConnNr() );
@@ -369,14 +328,13 @@ void SeisTrcReader::trySkipConns()
 
 bool SeisTrcReader::binidInConn( int r ) const
 {
-    return r == 0
-	|| !trl->inlCrlSorted()
-	|| r%256 != 2;
+    return r == 0 || !trl->inlCrlSorted() || r%256 != 2;
 }
 
 
 void SeisTrcReader::fillPar( IOPar& iopar ) const
 {
-    SeisStorage::fillPar( iopar );
-    if ( trl && trl->trcSel() ) trl->trcSel()->fillPar( iopar );
+    SeisStoreAccess::fillPar( iopar );
+    if ( seldata )	seldata->fillPar( iopar );
+    else		SeisSelData::removeFromPar( iopar );
 }

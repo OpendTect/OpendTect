@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.6 2004-07-02 15:30:55 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.7 2004-07-16 15:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,9 +58,9 @@ const char* uiSeisSelDlg::standardTranslSel( int pol2d )
 {
     static FileMultiString fms;
     fms = "";
-    if ( pol2d < mNo3DSeis )
+    if ( pol2d != SeisSelSetup::Only2D )
 	fms += "CBVS";
-    if ( pol2d > mNo2DSeis )
+    if ( pol2d != SeisSelSetup::No2D )
 	fms += "2D";
     return fms.buf();
 }
@@ -179,13 +179,14 @@ void uiSeisSel::usePar( const IOPar& iop )
 }
 
 
-void uiSeisSel::set2DPol( int pol )
+void uiSeisSel::set2DPol( SeisSelSetup::Pol2D pol )
 {
     setup.pol2d_ = pol;
     if ( ctio.ioobj )
     {
-	bool curis2d = SeisTrcTranslator::is2D( *ctio.ioobj );
-	if ( (curis2d && pol <= mNo2DSeis) || (!curis2d && pol >= mNo3DSeis) )
+	const bool curis2d = SeisTrcTranslator::is2D( *ctio.ioobj );
+	if ( (curis2d && pol == SeisSelSetup::No2D)
+	  || (!curis2d && pol == SeisSelSetup::Only2D) )
 	{
 	    ctio.setObj( 0 );
 	    updateInput();

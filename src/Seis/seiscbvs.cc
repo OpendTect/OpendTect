@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.46 2003-12-10 14:09:09 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.47 2004-07-16 15:35:26 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -82,7 +82,7 @@ void CBVSSeisTrcTranslator::destroyVars()
 
     delete [] blockbufs; blockbufs = 0;
     delete [] storinterps; storinterps = 0;
-    delete [] comps; comps = 0;
+    delete [] compsel; compsel = 0;
     delete [] userawdata; userawdata = 0;
     delete [] samedatachar; samedatachar = 0;
     delete [] stptrs; stptrs = 0;
@@ -131,11 +131,12 @@ bool CBVSSeisTrcTranslator::initRead_()
     minimalhdrs = !rdmgr->hasAuxInfo();
     const int nrcomp = rdmgr->nrComponents();
     const CBVSInfo& info = rdmgr->info();
+    insd = info.sd;
+    innrsamples = info.nrsamples;
     for ( int idx=0; idx<nrcomp; idx++ )
     {
 	BasicComponentInfo& cinf = *info.compinfo[idx];
-	addComp( cinf.datachar, cinf.sd, cinf.nrsamples, cinf.name(),
-		 cinf.datatype );
+	addComp( cinf.datachar, cinf.name(), cinf.datatype );
     }
     pinfo->usrinfo = info.usertext;
     pinfo->stdinfo = info.stdtext;
@@ -149,14 +150,17 @@ bool CBVSSeisTrcTranslator::initRead_()
 
 bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
+    if ( !trc.data().nrComponents() ) return false;
     forread = false;
 
+    insd = trc.samplingData(0);
+    innrsamples = trc.size(0);
     for ( int idx=0; idx<trc.data().nrComponents(); idx++ )
     {
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	BufferString nm( "Component " );
 	nm += idx+1;
-	addComp( dc, trc.samplingData(idx), trc.size(idx), nm );
+	addComp( dc, nm );
 	if ( preseldatatype )
 	    tarcds[idx]->datachar = DataCharacteristics(
 			(DataCharacteristics::UserType)preseldatatype );
@@ -168,125 +172,83 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 void CBVSSeisTrcTranslator::calcSamps()
 {
-    const int nrcomps = tarcds.size();
-    const int nrselcomps = nrSelComps();
-    userawdata = new bool [nrselcomps];
+    samps.start = 0; samps.step = 1; samps.stop = innrsamples-1;
+    outnrsamples = innrsamples; outsd = insd;
+    if ( !seldata ) return;
 
-    useinpsd = true;
-    int iselc = -1;
-    for ( int ic=0; ic<nrcomps; ic++ )
-    {
-	if ( tarcds[ic]->destidx < 0 ) continue;
-	iselc++;
+    const float stepratio = seldata->zrg_.step / insd.step;
+    samps.step = mNINT(stepratio);
+    if ( samps.step < 1 ) samps.step = 1;
 
-	userawdata[iselc] = true;
-	// snap outcds[iselc]->sd.step
-	if ( !iselc )
-	{
-	    float stepratio = outcds[iselc]->sd.step / inpcds[iselc]->sd.step;
-	    samps.step = mNINT(stepratio);
-	    if ( samps.step < 1 ) samps.step = 1;
-	}
-	if ( samps.step != 1 )
-	    { useinpsd = userawdata[iselc] = false; }
+    Interval<float> zrg( seldata->zRange() );
+    float diff = zrg.start - insd.start;
+    diff /= insd.step;
+    int idiff = mNINT(diff);
+    const float outstart = insd.start + idiff * insd.step;
 
-	TargetComponentData& outcd = *outcds[iselc];
-	const ComponentData& inpcd = *inpcds[iselc];
-	if ( iselc )
-	{
-	    outcd.sd.start = outcds[0]->sd.start;
-	    outcd.sd.step = outcds[0]->sd.step;
-	    outcd.nrsamples = outcds[0]->nrsamples;
-	    continue;
-	}
+    float outstop = zrg.stop;
+    const float instop = insd.start + insd.step * innrsamples;
+    if ( outstop > instop ) outstop = instop;
+    const float outstep = samps.step * insd.step;
+    float fnrsamps = (outstop - outstart) / outstep + 1;
 
-	// snap outcd.sd.start
-	float diff = outcd.sd.start - inpcd.sd.start;
-	diff /= inpcd.sd.step;
-	int idiff = mNINT(diff);
-	if ( idiff ) useinpsd = false;
-	const float outstart = inpcd.sd.start + idiff * inpcd.sd.step;
+    outnrsamples = mNINT(fnrsamps);
+    float fsampnr = (outstart - insd.start) / insd.step;
+    samps.start = mNINT(fsampnr);
+    samps.stop = samps.start + (outnrsamples-1) * samps.step;
+    if ( samps.start < 0 ) samps.start = 0;
+    if ( samps.stop < 0 ) samps.stop = 0;
+    if ( samps.start >= innrsamples )
+	samps.start = innrsamples - 1;
+    if ( samps.stop >= innrsamples )
+	samps.stop = innrsamples - 1;
 
-	float outstop = outcd.sd.start + outcd.sd.step * outcd.nrsamples;
-	const float instop = inpcd.sd.start + inpcd.sd.step * inpcd.nrsamples;
-	if ( outstop > instop ) outstop = instop;
-	const float outstep = samps.step * inpcd.sd.step;
-	float fnrsamps = (outstop - outstart) / outstep;
+    // Finally, assign fully checked output ranges
+    outnrsamples = (samps.stop - samps.start) / samps.step + 1;
+    if ( outnrsamples < 1 ) outnrsamples = 1;
+    outsd.start = insd.start + samps.start * insd.step;
+    outsd.step = insd.step * samps.step;
 
-	outcd.sd.start = outstart;
-	outcd.sd.step = outstep;
-	outcd.nrsamples = mNINT(fnrsamps);
-
-	float fsampnr = (outstart - inpcd.sd.start) / inpcd.sd.step;
-	samps.start = mNINT(fsampnr);
-	samps.stop = samps.start + (outcd.nrsamples-1) * samps.step;
-	if ( samps.start < 0 ) samps.start = 0;
-	if ( samps.stop < 0 ) samps.stop = 0;
-	if ( samps.start >= inpcd.nrsamples )
-	    samps.start = inpcd.nrsamples - 1;
-	if ( samps.stop >= inpcd.nrsamples )
-	    samps.stop = inpcd.nrsamples - 1;
-	assign( cbvssamps, samps );
-
-	outcd.nrsamples = (samps.stop - samps.start) / samps.step + 1;
-	outcd.sd.start = inpcd.sd.start + samps.start * inpcd.sd.step;
-    }
+    assign( cbvssamps, samps );
 }
 
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    const int nrcomps = nrSelComps();
+    calcSamps();
     if ( forread )
     {
 	CubeSampling cs;
-	if ( trcsel && trcsel->bidsel && trcsel->bidsel->type() < 2 )
+	if ( seldata && seldata->type_ == SeisSelData::Range )
 	{
-	    const BinIDRange& br = *(BinIDRange*)trcsel->bidsel;
-	    BinID start = br.start; BinID stop = br.stop;
-	    start.inl -= br.stepOut().inl; stop.inl += br.stepOut().inl;
-	    start.crl -= br.stepOut().crl; stop.crl += br.stepOut().crl;
-	    cs.hrg.start = start; cs.hrg.stop = stop;
+	    cs.hrg.start = BinID(seldata->inlrg_.start,seldata->crlrg_.start);
+	    cs.hrg.stop = BinID(seldata->inlrg_.stop,seldata->crlrg_.stop);
 	}
-	cs.zrg.start = outcds[0]->sd.start;
-	cs.zrg.stop = cs.zrg.start
-	    	    + outcds[0]->sd.step * (outcds[0]->nrsamples - 1);
+	cs.zrg.start = outsd.start; cs.zrg.step = outsd.step;
+	cs.zrg.stop = outsd.start + (outnrsamples-1) * outsd.step;
 
 	if ( !rdmgr->pruneReaders( cs ) )
 	    { errmsg = "Input contains no relevant data"; return false; }
-
-	const BasicComponentInfo& ci = *rdmgr->info().compinfo[0];
-	for ( int idx=0; idx<nrcomps; idx++ )
-	{
-	    inpcds[idx]->sd.start = ci.sd.start;
-	    inpcds[idx]->nrsamples = ci.nrsamples;
-	}
     }
 
-    calcSamps();
+    const int nrcomps = nrSelComps();
     samedatachar = new bool [nrcomps];
+    userawdata = new bool [nrcomps];
     storinterps = new TraceDataInterpreter* [nrcomps];
     stptrs = new unsigned char* [nrcomps];
     tdptrs = new unsigned char* [nrcomps];
     for ( int idx=0; idx<nrcomps; idx++ )
     {
 	samedatachar[idx] = inpcds[idx]->datachar == outcds[idx]->datachar;
-	userawdata[idx] = samedatachar[idx] && userawdata[idx];
-	if ( idx )
-	    outcds[idx]->nrsamples = actualsz;
-	else
-	    actualsz = outcds[idx]->nrsamples;
+	userawdata[idx] = samps.step == 1 && samedatachar[idx];
 	storinterps[idx] = new TraceDataInterpreter(
                   forread ? inpcds[idx]->datachar : outcds[idx]->datachar );
     }
 
     blockbufs = new unsigned char* [nrcomps];
+    int bufsz = innrsamples + 1;
     for ( int iselc=0; iselc<nrcomps; iselc++ )
     {
-	int bufsz = inpcds[iselc]->nrsamples;
-	if ( outcds[iselc]->nrsamples > bufsz )
-	    bufsz = outcds[iselc]->nrsamples;
-	bufsz += 1;
 	int nbts = inpcds[iselc]->datachar.nrBytes();
 	if ( outcds[iselc]->datachar.nrBytes() > nbts )
 	    nbts = outcds[iselc]->datachar.nrBytes();
@@ -295,46 +257,45 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	if ( !blockbufs[iselc] ) { errmsg = "Out of memory"; return false; }
     }
 
-    comps = new bool [tarcds.size()];
+    compsel = new bool [tarcds.size()];
     for ( int idx=0; idx<tarcds.size(); idx++ )
-	comps[idx] = tarcds[idx]->destidx >= 0;
+	compsel[idx] = tarcds[idx]->destidx >= 0;
 
     if ( !forread )
 	return startWrite();
-
-    return !trcsel || !trcsel->bidsel
-	|| trcsel->bidsel->includes(rdmgr->binID())
-	? true : toNext();
+    else if ( seldata && seldata->selRes(rdmgr->binID()) )
+	return toNext();
+    return true;
 }
 
 
 bool CBVSSeisTrcTranslator::toNext()
 {
-    if ( !trcsel || !trcsel->bidsel )
+    if ( !seldata )
 	return rdmgr->toNext();
 
     const CBVSInfo& info = rdmgr->info();
     if ( info.nrtrcsperposn > 1 )
     {
-	bool rv = rdmgr->toNext();
-	if ( !rv ) return false;
-	if ( trcsel->bidsel->includes(rdmgr->binID()) )
+	if ( !rdmgr->toNext() )
+	    return false;
+	else if ( !seldata->selRes(rdmgr->binID()) )
 	    return true;
     }
 
     BinID nextbid = rdmgr->nextBinID();
     if ( nextbid == BinID(0,0) )
 	return false;
-    if ( trcsel->bidsel->includes(nextbid) )
+    if ( !seldata->selRes(nextbid) )
 	return rdmgr->toNext();
 
     // find next requested BinID
-    while ( 1 )
+    while ( true )
     {
 
-	while ( 1 )
+	while ( true )
 	{
-	    int res = trcsel->bidsel->excludes( nextbid );
+	    int res = seldata->selRes( nextbid );
 	    if ( !res ) break;
 
 	    if ( res%256 == 2 )
@@ -370,8 +331,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !storinterps && !commitSelections() ) return false;
     if ( headerdone ) return true;
 
-    donext = donext ||   ( trcsel && trcsel->bidsel
-			&& !trcsel->bidsel->includes(rdmgr->binID()) );
+    donext = donext || (seldata && seldata->selRes(rdmgr->binID()));
 
     if ( donext && !toNext() ) return false;
     donext = true;
@@ -380,9 +340,8 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
 
     ti.getFrom( auxinf );
-    if ( !useinpsd )
-	ti.sampling.start = outcds[0]->sd.start;
-    ti.sampling.step = outcds[0]->sd.step;
+    ti.sampling.start = outsd.start;
+    ti.sampling.step = outsd.step;
     ti.nr = ++nrdone;
 
     if ( !rdmgr->info().auxinfosel.coord )
@@ -399,7 +358,7 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
     if ( !headerdone && !readInfo(trc.info()) )
 	return false;
 
-    prepareComponents( trc, actualsz );
+    prepareComponents( trc, outnrsamples );
     const CBVSInfo& info = rdmgr->info();
     const int nselc = nrSelComps();
     for ( int iselc=0; iselc<nselc; iselc++ )
@@ -409,7 +368,7 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
     }
 
-    if ( !rdmgr->fetch( (void**)stptrs, comps, &cbvssamps ) )
+    if ( !rdmgr->fetch( (void**)stptrs, compsel, &cbvssamps ) )
     {
 	errmsg = rdmgr->errMsg();
 	return false;
@@ -422,7 +381,7 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 	if ( samedatachar[iselc] )
 	{
 	    // Take each n-th sample
-	    for ( int outsmp=0; outsmp<outcds[iselc]->nrsamples; outsmp++ )
+	    for ( int outsmp=0; outsmp<outnrsamples; outsmp++ )
 	    {
 		memcpy( tdptrs[iselc], stptrs[iselc],
 			(int)inpcds[iselc]->datachar.nrBytes() );
@@ -434,8 +393,7 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 	else
 	{
 	    // Convert data into other format
-	    for ( int outsmp=0,inp_samp=0; outsmp<outcds[iselc]->nrsamples;
-		  outsmp++ )
+	    for ( int outsmp=0,inp_samp=0; outsmp<outnrsamples; outsmp++ )
 	    {
 		trc.set( outsmp,
 			 storinterps[iselc]->get( stptrs[iselc], inp_samp ),
@@ -481,6 +439,8 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.usertext = pinfo->usrinfo;
     for ( int idx=0; idx<nrSelComps(); idx++ )
 	info.compinfo += new BasicComponentInfo(*outcds[idx]);
+    info.sd = insd;
+    info.nrsamples = innrsamples;
 
     wrmgr = new CBVSWriteMgr( fnm, info, &auxinf, &brickspec );
     if ( wrmgr->failed() )
@@ -501,7 +461,7 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 	{
 	    if ( samedatachar[iselc] )
 	    {
-		for ( int outsmp=0; outsmp<outcds[iselc]->nrsamples; outsmp++ )
+		for ( int outsmp=0; outsmp<outnrsamples; outsmp++ )
 		    memcpy( stptrs[iselc], tdptrs[iselc],
 			    (int)inpcds[iselc]->datachar.nrBytes() );
 		tdptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes()
@@ -510,13 +470,13 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 	    }
 	    else
 	    {
-		float t = outcds[iselc]->sd.start;
+		float t = outsd.start;
 		int icomp = selComp(iselc);
-		for ( int outsmp=0; outsmp<outcds[iselc]->nrsamples; outsmp++ )
+		for ( int outsmp=0; outsmp<outnrsamples; outsmp++ )
 		{
 		    storinterps[iselc]->put( stptrs[iselc], outsmp,
 			    		     trc.getValue(t,icomp) );
-		    t += outcds[iselc]->sd.step;
+		    t += outsd.step;
 		}
 	    }
 	}

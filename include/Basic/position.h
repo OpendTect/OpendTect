@@ -8,13 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.27 2004-06-16 14:54:18 bert Exp $
+ RCS:		$Id: position.h,v 1.28 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
-#include "sets.h"
+class BufferString;
 
 
 /*!\brief a cartesian coordinate in 2D space. */
@@ -46,7 +46,6 @@ public:
     double	y;
 };
 
-class BufferString;
 bool getDirectionStr( const Coord&, BufferString& );
 /*!< Returns strings like 'South-West', NorthEast depending on the given
      coord that is assumed to have the x-axis pointing northwards, and the
@@ -55,6 +54,7 @@ bool getDirectionStr( const Coord&, BufferString& );
 
 
 /*!\brief a cartesian coordinate in 3D space. */
+
 class Coord3 : public Coord
 {
 public:
@@ -164,11 +164,14 @@ public:
     void	fill(char*) const;
     bool	use(const char*);
 
-
     int		inl;
     int		crl;
+
 };
 
+
+
+class BinIDValues;
 
 /*!\brief BinID and a value. */
 
@@ -179,51 +182,58 @@ public:
 		: binid(inl,crl), value(v)	{}
 		BinIDValue( const BinID& b, float v=mUndefValue )
 		: binid(b), value(v)		{}
+		BinIDValue(const BinIDValues&,int);
 
     bool	operator==( const BinIDValue& biv ) const
-		{ return biv.binid == binid; }
+		{ return biv.binid == binid
+		      && mIsEqual(value,biv.value,compareepsilon); }
     bool	operator!=( const BinIDValue& biv ) const
-		{ return biv.binid != binid; }
+		{ return !(*this == biv); }
 
     BinID	binid;
     float	value;
+
+    static float compareepsilon; // 1e-4 default
 };
 
 
-/*!\brief BinID, Z and value. */
+/*!\brief BinID and values. If one of the values is Z, make it the first one. */
 
-class BinIDZValue : public BinIDValue
+class BinIDValues
 {
 public:
-		BinIDZValue( int inl=0, int crl=0, float zz=0,
-			     float v=mUndefValue )
-		: BinIDValue(inl,crl,v), z(zz)		{}
-		BinIDZValue( const BinID& b, float zz=0, float v=mUndefValue )
-		: BinIDValue(b,v), z(zz)		{}
+			BinIDValues( int inl=0, int crl=0, int n=2 )
+			: binid(inl,crl), vals(0), sz(0) { setSize(n); }
+			BinIDValues( const BinID& b, int n=2 )
+			: binid(b), vals(0), sz(0)	{ setSize(n); }
+			BinIDValues( const BinIDValues& biv )
+			: vals(0), sz(0)		{ *this = biv; }
+			BinIDValues( const BinIDValue& biv )
+			: binid(biv.binid), vals(0), sz(0)
+					{ setSize(1); value(0) = biv.value; }
+    BinIDValues&	operator =(const BinIDValues&);
 
-    float	z;
-};
-
-
-class BinIDZValues
-{
-public:
-    			BinIDZValues()
-			: binid(0,0), z(mUndefValue)		{}
-    			BinIDZValues( const BinID& b, float zz=0 )
-		    	: binid(b), z(zz)			{}
-			BinIDZValues( const BinIDZValue& bidv )
-			: binid(bidv.binid), z(bidv.z)
-			{ values += bidv.value; }
-
-    bool		operator==( const BinIDZValues& biv ) const
-			{ return biv.binid == binid; }
-    bool		operator!=( const BinIDZValues& biv ) const
-			{ return biv.binid != binid; }
+    bool		operator==( const BinIDValues& biv ) const;
+    			//!< uses BinIDValue::compareepsilon
+    inline bool		operator!=( const BinIDValues& biv ) const
+			{ return !(*this == biv); }
 
     BinID		binid;
-    float		z;
-    TypeSet<float>	values;
+    int			size() const			{ return sz; }
+    float&		value( int idx )		{ return vals[idx]; }
+    float		value( int idx ) const		{ return vals[idx]; }
+    float*		values()			{ return vals; }
+    const float*	values() const			{ return vals; }
+
+    void		setSize(int,bool kpvals=false);
+    void		setVals(const float*);
+
+protected:
+
+    float*		vals;
+    int			sz;
+    static float	udf;
+
 };
 
 
@@ -310,7 +320,7 @@ inline Coord3 Coord3::cross(const Coord3& b) const
 inline Coord3 Coord3::normalize() const
 {
     const double absval = abs();
-    return *this/absval;
+    return *this / absval;
 }
 
 #endif

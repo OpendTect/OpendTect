@@ -16,11 +16,11 @@
 #include "iopar.h"
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
-	: SeisStorage(ioob)
+	: SeisStoreAccess(ioob)
 	, binids(*new BinIDRange)
     	, nrtrcs(0)
     	, nrwritten(0)
-    	, started(false)
+    	, prepared(false)
 {
     binids.start.inl = mUndefIntVal;
 }
@@ -32,59 +32,29 @@ SeisTrcWriter::~SeisTrcWriter()
 }
 
 
-class SeisWriteStarter : public Executor
+bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 {
-public:
-
-const char* message() const		{ return msg; }
-int nrDone() const			{ return 0; }
-const char* nrDoneText() const		{ return "Please wait"; }
-
-SeisWriteStarter( SeisTrcWriter& w, const SeisTrc& t )
-    	: Executor("Seismic Writer Starter")
-	, wr(w)
-	, msg("Initializing data store")
-	, trc(t)
-{
-}
-
-int nextStep()
-{
-    if ( !wr.ioObj() )
+    if ( !ioobj )
     {
-	msg = "No info from Object Manager (cannot initialise writing)";
-	return -1;
+	errmsg = "Info for output seismic data not found in Object Manager";
+	return false;
     }
-    if ( !wr.trl )
+    if ( !trl )
     {
-	msg = "No data interpreter available";
-	return -1;
+	errmsg = "No data interpreter available for '";
+	errmsg += ioobj->name(); errmsg += "'";
+	return false;
     }
 
-    mDynamicCastGet(const IOStream*,strm,wr.ioObj())
+    mDynamicCastGet(const IOStream*,strm,ioobj)
     if ( !strm || !strm->isMulti() )
-	fullImplRemove( *wr.ioObj() );
+	fullImplRemove( *ioobj );
 
-    if ( !wr.ensureRightConn(trc,true) )
-    {
-	msg = wr.errMsg();
-    	return -1;
-    }
+    if ( !ensureRightConn(trc,true) )
+    	return false;
 
-    wr.started = true;
-    return 0;
-}
-
-    SeisTrcWriter&	wr;
-    BufferString	msg;
-    const SeisTrc&	trc;
-
-};
-
-
-Executor* SeisTrcWriter::starter( const SeisTrc& trc )
-{
-    return new SeisWriteStarter( *this, trc );
+    prepared = true;
+    return true;
 }
 
 
@@ -153,20 +123,25 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 
 bool SeisTrcWriter::put( const SeisTrc& trc )
 {
-    if ( !started )
-    {
-	SeisWriteStarter* ex = new SeisWriteStarter( *this, trc );
-	if ( !ex->execute() )
-	{
-	    errmsg = ex->msg; delete ex;
-	    return false;
-	}
-	delete ex;
-    }
+    if ( !prepared ) prepareWork(trc);
 
     nrtrcs++;
-    if ( trcsel && !trcsel->intv.includes(nrtrcs) )
-	return true;
+    if ( seldata )
+    {
+	if ( seldata->type_ == SeisSelData::TrcNrs )
+	{
+	    int selres = seldata->selRes(nrtrcs);
+	    if ( selres == 1 )
+		return true;
+	    else if ( selres > 1 )
+	    {
+		errmsg = "Selected number of traces reached";
+		return false;
+	    }
+	}
+	else if ( seldata->selRes( trc.info().binid ) )
+	    return true;
+    }
 
     if ( !ensureRightConn(trc,false) )
 	return false;
@@ -218,8 +193,8 @@ void SeisTrcWriter::fillAuxPar( IOPar& iopar ) const
     fms += binids.stop.inl; fms += binids.stop.crl;
     iopar.set( SeisPacketInfo::sBinIDs, fms );
 
-    iopar.set( SeisStorage::sNrTrcs, nrwritten );
-    iopar.set( SeisTrcInfo::sSamplingInfo, trl->componentInfo()[0]->sd.start,
-	    				   trl->componentInfo()[0]->sd.step );
-    iopar.set( SeisTrcInfo::sNrSamples, trl->componentInfo()[0]->nrsamples );
+    iopar.set( SeisStoreAccess::sNrTrcs, nrwritten );
+    iopar.set( SeisTrcInfo::sSamplingInfo, trl->outSD().start,
+	    				   trl->outSD().step );
+    iopar.set( SeisTrcInfo::sNrSamples, trl->outNrSamples() );
 }

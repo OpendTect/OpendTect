@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.39 2004-05-25 14:10:10 kristofer Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.40 2004-07-16 15:35:25 bert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -522,6 +522,24 @@ bool IOPar::get( const char* s, int& i1, int& i2, int& i3 ) const
 }
 
 
+bool IOPar::get( const char* s, int& i1, int& i2, float& f ) const
+{
+    const char* ptr = (*this)[s];
+    bool havedata = false;
+    if ( ptr && *ptr )
+    {
+	FileMultiString fms = ptr;
+	ptr = fms[0];
+	if ( *ptr ) { i1 = atoi( ptr ); havedata = true; }
+	ptr = fms[1];
+	if ( *ptr ) { i2 = atoi( ptr ); havedata = true; }
+	ptr = fms[2];
+	if ( *ptr ) { f = atof( ptr ); havedata = true; }
+    }
+    return havedata;
+}
+
+
 bool IOPar::getYN( const char* s, bool& i, char c ) const
 {
     const char* ptr = (*this)[s];
@@ -667,6 +685,15 @@ void IOPar::set( const char* s, int i1, int i2, int i3 )
     FileMultiString fms = getStringFromInt(0,i1);
     fms.add( getStringFromInt(0,i2) );
     fms.add( getStringFromInt(0,i3) );
+    set( s, fms );
+}
+
+
+void IOPar::set( const char* s, int i1, int i2, float f )
+{
+    FileMultiString fms = getStringFromInt(0,i1);
+    fms.add( getStringFromInt(0,i2) );
+    fms.add( getStringFromDouble(0,f) );
     set( s, fms );
 }
 

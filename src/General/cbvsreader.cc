@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.46 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.47 2004-07-16 15:35:25 bert Exp $";
 
 /*!
 
@@ -29,6 +29,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "datainterp.h"
 #include "binidselimpl.h"
 #include "survinfoimpl.h"
+#include "errh.h"
 
 
 CBVSReader::CBVSReader( std::istream* s )
@@ -220,17 +221,17 @@ bool CBVSReader::readComps()
 	    newinf->datachar.set( ucbuf[0], ucbuf[1] );
 	    // extra 2 bytes reserved for compression type
 	    newinf->datachar.fmt = DataCharacteristics::Ieee;
-	    //TODO find out how to allow SGI!!
 	strm_.read( ucbuf, sizeof(float) );
-	    newinf->sd.start = finterp.get( ucbuf, 0 );
+	    info_.sd.start = finterp.get( ucbuf, 0 );
 	strm_.read( ucbuf, sizeof(float) );
-	    newinf->sd.step = finterp.get( ucbuf, 0 );
-	strm_.read( ucbuf, integersize );
-	    newinf->nrsamples = iinterp.get( ucbuf, 0 );
+	    info_.sd.step = finterp.get( ucbuf, 0 );
+	int nrsamples;
+	strm_.read( ucbuf, integersize ); // nr samples
+	    info_.nrsamples = iinterp.get( ucbuf, 0 );
 	strm_.read( ucbuf, 2*sizeof(float) );
 	    // reserved for per-component scaling: LinScaler( a, b )
 
-	if ( newinf->nrsamples < 0 || newinf->datatype < 0 )
+	if ( info_.nrsamples < 0 || newinf->datatype < 0 )
 	{
 	    delete newinf;
 	    mErrRet("Corrupt CBVS format: Component desciption error")
@@ -238,9 +239,9 @@ bool CBVSReader::readComps()
 
 	info_.compinfo += newinf;
 
-	cnrbytes_[icomp] = newinf->nrsamples * newinf->datachar.nrBytes();
+	cnrbytes_[icomp] = info_.nrsamples * newinf->datachar.nrBytes();
 	bytespertrace += cnrbytes_[icomp];
-	samprg = Interval<int>( 0, newinf->nrsamples-1 );
+	samprg = Interval<int>( 0, info_.nrsamples-1 );
     }
 
     return true;
@@ -549,8 +550,7 @@ bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
 	    bid.crl = firstbinid.crl;
 	    bid.inl += info_.geom.step.inl;
 	    if ( !bidrg.includes(bid) )
-		// Huh?
-		{ bid = BinID(0,0); return false; }
+		{ pErrMsg("Huh"); bid = BinID(0,0); return false; }
 	}
     }
     else
@@ -576,8 +576,7 @@ bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
 		    cursegnr = 0;
 		    curinlinfnr++;
 		    if ( curinlinfnr >= info_.geom.inldata.size() )
-			// Huh?
-			{ bid = BinID(0,0); return false; }
+			{ pErrMsg("Huh"); bid = BinID(0,0); return false; }
 		    inlinf = info_.geom.inldata[curinlinfnr];
 		    curseg = &inlinf->segments[cursegnr];
 		    bid.inl = inlinf->inl;
@@ -605,7 +604,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 
     auxinf.binid = curbinid_;
     auxinf.coord = info_.geom.b2c.transform( curbinid_ );
-    auxinf.startpos = info_.compinfo[0]->sd.start;
+    auxinf.startpos = info_.sd.start;
     auxinf.offset = auxinf.azimuth = 0;
     auxinf.pick = auxinf.refpos = mUndefValue;
 
@@ -661,8 +660,8 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	    strm_.seekg( samps->start*bps, std::ios::cur );
 	strm_.read( (char*)bufs[iselc] + offs * bps,
 		(samps->stop-samps->start+1) * bps );
-	if ( samps->stop < compinfo->nrsamples-1 )
-	    strm_.seekg( (compinfo->nrsamples-samps->stop-1)*bps,
+	if ( samps->stop < info_.nrsamples-1 )
+	    strm_.seekg( (info_.nrsamples-samps->stop-1)*bps,
 		    std::ios::cur );
     }
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.15 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.16 2004-07-16 15:35:25 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -38,6 +38,8 @@ CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
     geom = ci.geom;
     stdtext = ci.stdtext;
     usertext = ci.usertext;
+    sd = ci.sd;
+    nrsamples = ci.nrsamples;
 
     deepErase( compinfo );
     for ( int idx=0; idx<ci.compinfo.size(); idx++ )
@@ -293,13 +295,9 @@ bool CBVSInfo::contributesTo( const CubeSampling& cs ) const
       || cs.hrg.start.crl > geom.stop.crl || cs.hrg.stop.crl < geom.start.crl )
 	return false;
 
-    for ( int idx=0; idx<compinfo.size(); idx++ )
-    {
-	const BasicComponentInfo& ci = *compinfo[idx];
-	float stop = ci.sd.atIndex(ci.nrsamples-1);
-	if ( cs.zrg.start-1e-7 > stop || cs.zrg.stop < ci.sd.start-1e-7 )
-	    return false;
-    }
+    float zend = sd.start + (nrsamples-1) * sd.step;
+    if ( sd.start > cs.zrg.stop+1e-7 || zend < cs.zrg.start-1e-7 )
+	return false;
 
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.8 2004-03-04 17:27:42 bert Exp $
+ RCS:		$Id: seisbuf.h,v 1.9 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 */
@@ -40,6 +40,7 @@ public:
     bool		isOwner() const		{ return owner_; }
 
     void		copyInto(SeisTrcBuf&) const;
+    void		stealTracesFrom(SeisTrcBuf&);
     virtual SeisTrcBuf*	clone() const		{ return new SeisTrcBuf(*this);}
 
     void		deepErase()		{ ::deepErase(trcs); }
@@ -122,7 +123,6 @@ class SeisTrcBufWriter : public Executor
 public:
 
 			SeisTrcBufWriter(const SeisTrcBuf&,SeisTrcWriter&);
-			~SeisTrcBufWriter();
 
     const char*		message() const;
     int			nextStep();
@@ -134,7 +134,6 @@ protected:
 
     const SeisTrcBuf&	trcbuf;
     SeisTrcWriter&	writer;
-    Executor*		starter;
     int			nrdone;
 
 };

@@ -8,14 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Component information
- RCS:		$Id: basiccompinfo.h,v 1.6 2003-12-10 14:09:08 bert Exp $
+ RCS:		$Id: basiccompinfo.h,v 1.7 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidobj.h"
 #include "datachar.h"
-#include "samplingdata.h"
 
 
 /*!\brief Info on one component */
@@ -25,7 +24,7 @@ class BasicComponentInfo : public UserIDObject
 public:
 			BasicComponentInfo( const char* nm=0 )
 			: UserIDObject(nm)
-			, datatype(0), sd(0,1), nrsamples(0)	{}
+			, datatype(0)				{}
 			BasicComponentInfo( const BasicComponentInfo& ci )
 			: UserIDObject((const char*)ci.name())
 								{ *this = ci; }
@@ -35,7 +34,6 @@ public:
 			    setName( ci.name() );
 			    datatype = ci.datatype;
 			    datachar = ci.datachar;
-			    sd = ci.sd; nrsamples= ci.nrsamples;
 			    return *this;
 			}
 
@@ -43,15 +41,11 @@ public:
 			{
 			    return name() == ci.name()
 				&& datatype == ci.datatype
-				&& datachar == ci.datachar
-				&& sd == ci.sd
-				&& nrsamples == ci.nrsamples;
+				&& datachar == ci.datachar;
 			}
 
     int			datatype;
     DataCharacteristics	datachar;
-    SamplingData<float>	sd;
-    int			nrsamples;
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.18 2004-07-02 15:30:55 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.19 2004-07-16 15:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ bool uiSeisTransfer::removeNull() const
 }
 
 
-Executor* uiSeisTransfer::getTrcProc( const SeisSelData& insel,
+Executor* uiSeisTransfer::getTrcProc( const SeisSelection& insel,
 				      const IOObj* outobj,
 				      const char* extxt,
 				      const char* worktxt ) const

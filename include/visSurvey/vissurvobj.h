@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.29 2004-06-23 10:37:41 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.30 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 
@@ -21,10 +21,11 @@ ________________________________________________________________________
 #include "cubesampling.h"
 
 class AttribSelSpec;
-class ColorAttribSel;
 class AttribSliceSet;
-class SeisTrc;
+class BinIDValueSet;
+class ColorAttribSel;
 class MultiID;
+class SeisTrcBuf;
 
 namespace visBase { class Transformation; };
 
@@ -118,21 +119,15 @@ public:
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
     				{ return Interval<float>(0,0); }
-    virtual void		setTraceData(bool color,
-					     ObjectSet<SeisTrc>* trcs);
-    				/*!< trcs becomes mine */
+    virtual void		setTraceData(bool forcolor,SeisTrcBuf&);
 
-				//Random access
-    virtual void		getDataRandomPos(ObjectSet<
-					TypeSet<BinIDZValues> >&) const	{}
-				/*!< Content of objectset becomes
-				     callers */
-    virtual void		setRandomPosData(bool color,const ObjectSet<
-	    				const TypeSet<const BinIDZValues> >*) {}
-    				/*!< The data should have exactly the
-				     same structure as the positions
-				     given in setRandomPosData
-				*/
+				// Link to outside world
+    virtual void		fetchData(ObjectSet<BinIDValueSet>&) const {}
+				/*!< Content of objectset becomes callers.
+				     Every patch is put in a BinIDValueSet */
+    virtual void		stuffData(bool forcolordata,
+	    				  const ObjectSet<BinIDValueSet>*) {}
+    				/*!< Every patch should have a BinIDValueSet */
 
     static float		sDefMaxDist;
 

@@ -4,37 +4,22 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.35 2004-06-16 14:54:18 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.36 2004-07-16 15:35:25 bert Exp $";
 
-#include "survinfo.h"
-#include "sets.h"
-#include "separstr.h"
+#include "binidvalset.h"
 #include "iopar.h"
-#include "survinfoimpl.h"
+#include "separstr.h"
+#include "finding.h"
+#include "sorting.h"
 #include <math.h>
 #include <string.h>
-#include <stdio.h>
-#include <limits.h>
-#include <ptrman.h>
-#include <errh.h>
 
-const char* BinIDExcluder::sKeyIncAll   = "Include All";
-const char* BinIDSelector::sKeyseltyp   = "BinID selection";
-const char* BinIDSelector::sKeyseltyps[]=
-        { "No", "Range", "Regular sampling", 0 };
-const char* BinIDSelector::sKeyfinl     = "First In-line";
-const char* BinIDSelector::sKeylinl     = "Last In-line";
-const char* BinIDSelector::sKeyfcrl     = "First Cross-line";
-const char* BinIDSelector::sKeylcrl     = "Last Cross-line";
-const char* BinIDSelector::sKeysoinl    = "Stepout In-line";
-const char* BinIDSelector::sKeysocrl    = "Stepout Cross-line";
-const char* BinIDSelector::sKeystepinl  = "Step In-line";
-const char* BinIDSelector::sKeystepcrl  = "Step Cross-line";
-const char* BinIDSelector::sKeywellpos	= "Well positions";
-const char* BinIDSelector::sKeywellgrp	= "Well Group";
-const char* BinIDSelector::sKeyreparea	= "Use representative area";
-const char* BinIDSelector::sKeytab	= "Table";
-const char* BinIDSelector::sKeyfname	= "File name";
+
+float BinIDValue::compareepsilon = 1e-4;
+float BinIDValues::udf = mUndefValue;
+#define mSetUdf(arr,nvals) \
+    for ( int idx=0; idx<nvals; idx++ ) \
+	arr[idx] = mUndefValue
 
 
 double Coord::distance( const Coord& coord ) const
@@ -54,13 +39,10 @@ void Coord::fill( char* str ) const
 }
 
 
-
-
-static char buf[80];
-
 bool Coord::use( const char* str )
 {
     if ( !str || !*str ) return false;
+    static char buf[80];
 
     strcpy( buf, *str == '(' ? str+1 : str );
     char* ptr = strchr( buf, ',' );
@@ -100,7 +82,10 @@ bool getDirectionStr( const Coord& coord, BufferString& res )
 }
 
 
-double Coord3::abs() const { return sqrt( x*x + y*y + z*z ); }
+double Coord3::abs() const
+{
+    return sqrt( x*x + y*y + z*z );
+}
 
 
 void Coord3::fill(char* str, const char* start,
@@ -142,6 +127,11 @@ bool Coord3::use(const char* str)
 }
 
 
+double Coord3::distance( const Coord3& b ) const
+{
+    double dx = x-b.x, dy = y-b.y, dz = z-b.z;
+    return sqrt( dx*dx + dy*dy + dz*dz );
+}
 
 
 void BinID::fill( char* str ) const
@@ -154,6 +144,8 @@ void BinID::fill( char* str ) const
 bool BinID::use( const char* str )
 {
     if ( !str || !*str ) return false;
+
+    static char buf[80];
     strcpy( buf, str );
     char* ptr = strchr( buf, '/' );
     if ( !ptr ) return false;
@@ -180,757 +172,820 @@ BinID BinID::operator-( const BinID& bi ) const
 }
 
 
-const char* BinIDExcluder::selectorType() const
+BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
+    	: binid(bvs.binid)
+    	, value(bvs.value(nr))
 {
-    return "BinID";
 }
 
 
-bool BinIDProvider::isEqual( const BinIDProvider& bp ) const
+BinIDValues& BinIDValues::operator =( const BinIDValues& bvs )
 {
-    int sz = size();
-    if ( sz != bp.size() ) return false;
+    if ( &bvs != this )
+    {
+	binid = bvs.binid;
+	setSize( bvs.sz );
+	if ( vals )
+	    memcpy( vals, bvs.vals, sz * sizeof(float) );
+    }
+    return *this;
+}
+
+
+bool BinIDValues::operator ==( const BinIDValues& bvs ) const
+{
+    if ( binid != bvs.binid || sz != bvs.sz )
+	return false;
 
     for ( int idx=0; idx<sz; idx++ )
-	if ( (*this)[idx] != bp[idx] ) return false;
+	if ( !mIsEqual(vals[idx],bvs.vals[idx],BinIDValue::compareepsilon) )
+	    return false;
+
     return true;
 }
 
 
-BinIDSelector* BinIDSelector::create( const IOPar& iopar )
+void BinIDValues::setSize( int newsz, bool kpvals )
 {
-    const char* res = iopar.find( sKeyseltyp );
-    if ( !res || !*res ) return 0;
+    if ( newsz == sz ) return;
 
-    if ( !strcmp(res,sKeyseltyps[0]) ) return 0;
-    int seltyp = -1;
-    if ( !strcmp(res,sKeyseltyps[1]) ) seltyp = 0;
-    else if ( !strcmp(res,sKeyseltyps[2]) ) seltyp = 1;
-    if ( seltyp < 0 || seltyp > 2 ) return 0;
-
-    BinIDRange* rg = seltyp == 0 ? new BinIDRange
-				 : (BinIDRange*)new BinIDSampler;
-    rg->start = SI().range(false).start; rg->stop = SI().range(false).stop;
-    res = iopar[sKeyfinl];
-    if ( res && *res ) rg->start.inl = atoi(res);
-    res = iopar[sKeyfcrl];
-    if ( res && *res ) rg->start.crl = atoi(res);
-    res = iopar[sKeylinl];
-    if ( res && *res ) rg->stop.inl = atoi(res);
-    res = iopar[sKeylcrl];
-    if ( res && *res ) rg->stop.crl = atoi(res);
-    if ( seltyp == 1 )
+    if ( newsz < 1 )
+	{ delete [] vals; vals = 0; sz = 0; }
+    else if ( !kpvals )
     {
-	BinIDSampler* bs = (BinIDSampler*)rg;
-	if ( SI().is3D() )
-	    bs->step = SI3D().step(false);
-	res = iopar[sKeystepinl];
-	if ( res && *res ) bs->step.inl = atoi(res);
-	res = iopar[sKeystepcrl];
-	if ( res && *res ) bs->step.crl = atoi(res);
+	delete [] vals; vals = new float [newsz];
+	sz = vals ? newsz : 0;
+	return;
     }
-
-    bool incall = false;
-    iopar.getYN( sKeyIncAll, incall );
-    if ( incall ) rg->setIncludeAll( incall );
-    return rg;
-}
-
-
-BinIDSelector* BinIDSelector::create( const char* str )
-{
-    if ( !str || !*str || (*str != '-' && !isdigit(*str)) )
-	return 0;
-
-    FileMultiString fms( str );
-    int sz = fms.size();
-    if ( sz < 4 ) return 0;
-
-    bool hasso = sz > 6;
-    if ( sz > 4 )
-    {
-	const char* el4 = fms[4];
-	if ( *el4 == 'S' ) { hasso = true; }
-    }
-    bool issamp = hasso ? sz > 6 : sz > 4;
-    BinIDRange* rg = issamp ? new BinIDSampler : new BinIDRange;
-
-    int i = 0;
-    rg->start.inl = atoi( fms[i++] ); rg->stop.inl = atoi( fms[i++] );
-    rg->start.crl = atoi( fms[i++] ); rg->stop.crl = atoi( fms[i++] );
-    if ( hasso )
-    {
-	BinID so;
-	so.inl = atoi( ((char*)fms[i++]) + 1 );
-	so.crl = atoi( fms[i++] );
-	rg->setStepOut( so );
-    }
-    if ( issamp )
-    {
-	BinIDSampler* bs = (BinIDSampler*)rg;
-	bs->step.inl = atoi( fms[i++] );
-	bs->step.crl = atoi( fms[i++] );
-    }
-
-    return rg;
-}
-
-
-void BinIDSelector::fillPar( IOPar& iopar ) const
-{
-    iopar.set( sKeyseltyp, sKeyseltyps[type()+1] );
-    BinID so = stepOut();
-    if ( so.inl || so.crl )
-    {
-	iopar.set( sKeysoinl, so.inl );
-	iopar.set( sKeysocrl, so.crl );
-    }
-    if ( includesAll() )
-	iopar.setYN( sKeyIncAll, true );
-}
-
-BinIDSelector* BinIDRange::getBidSel( const IOPar& iopar )
-{
-    BinIDSelector* bs = create( iopar );
-    if ( !bs || bs->type() > 1 ) { delete bs; return 0; }
-
-    mDynamicCastGet(BinIDRange*,br,bs)
-    if ( !br ) { pErrMsg("Huh"); delete bs; return 0; }
-
-    copyFrom( *br );
-    return bs;
-}
-
-
-bool BinIDRange::usePar( const IOPar& iopar )
-{
-    PtrMan<BinIDSelector> bs = getBidSel( iopar );
-    return bs ? true : false;
-}
-
-
-bool BinIDSampler::usePar( const IOPar& iopar )
-{
-    PtrMan<BinIDSelector> bsel = getBidSel( iopar );
-    if ( !bsel ) return false;
-
-    mDynamicCastGet(BinIDSampler*,bs,bsel.ptr())
-    if ( !bs ) return true;
-    step = bs->step;
-    return true;
-}
-
-
-void BinIDRange::fillPar( IOPar& iopar ) const
-{
-    BinIDSelector::fillPar( iopar );
-    iopar.set( sKeyfinl, start.inl );
-    iopar.set( sKeylinl, stop.inl );
-    iopar.set( sKeyfcrl, start.crl );
-    iopar.set( sKeylcrl, stop.crl );
-}
-
-
-void BinIDSampler::fillPar( IOPar& iopar ) const
-{
-    BinIDRange::fillPar( iopar );
-    iopar.set( sKeystepinl, step.inl );
-    iopar.set( sKeystepcrl, step.crl );
-}
-
-
-bool BinIDRange::fillString( char* str ) const
-{
-    if ( !str ) return false;
-    FileMultiString fms;
-    fms += start.inl; fms += stop.inl;
-    fms += start.crl; fms += stop.crl;
-    if ( stepout.inl || stepout.crl )
-    {
-	fms += "S";
-	strcat( fms.buf(), getStringFromInt(0,stepout.inl) );
-	fms += stepout.crl;
-    }
-    strcpy( str, fms );
-    return true;
-}
-
-
-BinIDRange* BinIDRange::getOuter() const
-{
-    return new BinIDRange( start.inl - stepout.inl, start.crl - stepout.crl,
-			   stop.inl  + stepout.inl, stop.crl  + stepout.crl );
-}
-
-
-int BinIDRange::excludes_( const BinID& bid ) const
-{
-    int inlval = (!start.inl || bid.inl+stepout.inl >= start.inl)
-		 && (!stop.inl || bid.inl-stepout.inl <= stop.inl) ? 0 : 2;
-    int crlval = (!start.crl || bid.crl+stepout.crl >= start.crl)
-		 && (!stop.crl || bid.crl-stepout.crl <= stop.crl) ? 0 : 2;
-    return inlval + crlval * 256;
-}
-
-
-bool BinIDRange::isEqBidSel( const BinIDSelector& b ) const
-{
-    const BinIDRange& br = (const BinIDRange&)b;
-    return br.start == start && br.stop == stop && br.stepout == stepout;
-}
-
-
-bool BinIDRange::include( const BinID& bid, const char* )
-{
-    if ( bid.inl > stop.inl )  stop.inl  = bid.inl;
-    if ( bid.inl < start.inl ) start.inl = bid.inl;
-    if ( bid.crl > stop.crl )  stop.crl  = bid.crl;
-    if ( bid.crl < start.crl ) start.crl = bid.crl;
-    return true;
-}
-
-
-void BinIDRange::shift( const BinID& sh )
-{
-    start.inl += sh.inl; stop.inl += sh.inl;
-    start.crl += sh.crl; stop.crl += sh.crl;
-}
-
-
-int BinIDRangeProv::size() const
-{
-    if ( SI().is3D()
-      && SI3D().step(false).inl < 2 && SI3D().step(false).crl < 2 )
-	return (br.stop.inl - br.start.inl + 2*br.stepout.inl + 1)
-	     * (br.stop.crl - br.start.crl + 2*br.stepout.crl + 1);
-
-    BinIDSampler bs;
-    ((BinIDRange&)bs) = br;
-    if ( SI().is3D() )
-	bs.step = SI3D().step(false);
-    return BinIDSamplerProv(bs).size();
-}
-
-
-BinID BinIDRangeProv::operator[]( int idx ) const
-{
-    if ( SI().is3D()
-      && SI3D().step(false).inl < 2 && SI3D().step(false).crl < 2 )
-    {
-	int nrxl = br.stop.crl - br.start.crl + 2*br.stepout.crl + 1;
-	int inlidx = idx / nrxl;
-	int crlidx = idx - inlidx * nrxl;
-	return BinID( br.start.inl - br.stepout.inl + inlidx,
-		      br.start.crl - br.stepout.crl + crlidx );
-    }
-
-    BinIDSampler bs;
-    ((BinIDRange&)bs) = br;
-    if ( SI().is3D() )
-	bs.step = SI3D().step(false);
-    return (BinIDSamplerProv(bs))[idx];
-}
-
-
-BinIDSampler::BinIDSampler()
-	: step(1,1)
-{
-    if ( SI().isValid() && SI().is3D() )
-	step = SI3D().step(false);
-}
-
-
-int BinIDSampler::excludes_( const BinID& bid ) const
-{
-    int res = BinIDRange::excludes_(bid);
-    if ( res ) return res;
-
-    BinID rel( bid );
-    rel.inl -= start.inl; rel.crl -= start.crl;
-    int restinl = step.inl ? rel.inl % step.inl : 0;
-    if ( restinl > stepout.inl ) restinl = step.inl - restinl;
-    int restcrl = step.crl ? rel.crl % step.crl : 0;
-    if ( restcrl > stepout.crl ) restcrl = step.crl - restcrl;
-
-    int inlval = restinl <= stepout.inl ? 0 : 2;
-    int crlval = restcrl <= stepout.crl ? 0 : 2;
-    return inlval + crlval * 256;
-}
-
-
-bool BinIDSampler::isEqBidSel( const BinIDSelector& b ) const
-{
-    const BinIDSampler& bs = (const BinIDSampler&)b;
-    return BinIDRange::isEq(b) && bs.step == step;
-}
-
-
-bool BinIDSampler::fillString( char* str ) const
-{
-    if ( !BinIDRange::fillString(str) ) return false;
-
-    FileMultiString fms( str );
-    fms += step.inl; fms += step.crl;
-    strcpy( str, fms );
-    return true;
-}
-
-
-int BinIDSamplerProv::ovLap( bool inl ) const
-{
-    int st = inl ? step.inl : step.crl;
-    return st ? (inl?br.stepOut().inl:br.stepOut().crl) * 2 + 1 - st : 0;
-}
-
-
-int BinIDSamplerProv::dirSize( bool inl ) const
-{
-    int so = inl ? br.stepOut().inl : br.stepOut().crl;
-    if ( ovLap(inl) >= 0 )
-	return inl ? br.stop.inl-br.start.inl+1 + 2*so
-		   : br.stop.crl-br.start.crl+1 + 2*so;
-
-    int st = inl ? step.inl : step.crl;
-    if ( !st ) st = 1;
-    int sz = (inl ? br.stop.inl-br.start.inl
-		  : br.stop.crl-br.start.crl) / st + 1;
-    if ( sz < 0 ) sz = -sz;
-    return sz * (so*2 + 1);
-}
-
-
-int BinIDSamplerProv::size() const
-{
-    return dirSize(true) * dirSize(false);
-}
-
-
-BinID BinIDSamplerProv::operator[]( int idx ) const
-{
-    int nrxl = dirSize( false );
-    int inlidx = idx / nrxl;
-    int crlidx = idx - inlidx * nrxl;
-
-    BinID ret;
-    if ( ovLap(true) >= 0 )
-	ret.inl = br.start.inl - br.stepOut().inl + inlidx;
     else
     {
-	int blksz = br.stepOut().inl*2 + 1;
-	int nblks = inlidx / blksz;
-	int inblk = inlidx - nblks * blksz;
-	ret.inl = br.start.inl + nblks * step.inl + inblk - br.stepOut().inl;
+	float* oldvals = vals;
+	vals = new float [newsz];
+	int oldsz = sz;
+	sz = vals ? newsz : 0;
+	if ( sz )
+	    memcpy( vals, oldvals, (oldsz > sz ? sz : oldsz) * sizeof(float) );
+	delete [] oldvals;
     }
-    if ( ovLap(false) >= 0 )
-	ret.crl = br.start.crl - br.stepOut().crl + crlidx;
-    else
+}
+
+
+void BinIDValues::setVals( const float* vs )
+{
+    if ( sz ) memcpy( vals, vs, sz * sizeof(float) );
+}
+
+
+static int findIndexFor( const TypeSet<int>& nrs, int nr, bool* found = 0 )
+{
+    int ret;
+    bool fnd = findPos( nrs.arr(), nrs.size(), nr, -1, ret );
+    if ( found ) *found = fnd;
+    return ret;
+}
+
+
+BinIDValueSet::BinIDValueSet( int nv, bool ad )
+	: nrvals(nv)
+	, allowdup(ad)
+{
+}
+
+
+BinIDValueSet::BinIDValueSet( const BinIDValueSet& s )
+    	: nrvals(0)
+{
+    *this = s;
+}
+
+
+BinIDValueSet::~BinIDValueSet()
+{
+    empty();
+}
+
+
+BinIDValueSet& BinIDValueSet::operator =( const BinIDValueSet& bvs )
+{
+    if ( &bvs == this ) return *this;
+
+    copyStructureFrom( bvs );
+
+    for ( int iinl=0; iinl<bvs.inls.size(); iinl++ )
     {
-	int blksz = br.stepOut().crl*2 + 1;
-	int nblks = crlidx / blksz;
-	int inblk = crlidx - nblks * blksz;
-	ret.crl = br.start.crl + nblks * step.crl + inblk - br.stepOut().crl;
+	const TypeSet<float*>& bvsvals = *bvs.valsets[iinl];
+
+	inls += bvs.inls[iinl];
+	crlsets += new TypeSet<int>( *bvs.crlsets[iinl] );
+	valsets += new TypeSet<float*>( bvsvals );
+
+	TypeSet<float*>& vals = *valsets[iinl];
+	for ( int icrl=0; icrl<bvsvals.size(); icrl++ )
+	{
+	    vals[icrl] = new float [nrvals];
+	    memcpy( vals[icrl], bvsvals[icrl], nrvals * sizeof(float) );
+	}
+    }
+
+    return *this;
+}
+
+
+void BinIDValueSet::empty()
+{
+    for ( int iinl=0; iinl<inls.size(); iinl++ )
+    {
+	TypeSet<float*>& vals = *valsets[iinl];
+	for ( int icrl=0; icrl<vals.size(); icrl++ )
+	    delete [] vals[icrl];
+    }
+    inls.erase();
+    deepErase( crlsets );
+    deepErase( valsets );
+}
+
+
+void BinIDValueSet::append( const BinIDValueSet& bvs )
+{
+    Pos pos; BinIDValues bivs;
+    while ( bvs.next(pos,!bvs.allowdup) )
+    {
+	bvs.get( pos, bivs );
+	add( bivs );
+    }
+}
+
+
+Interval<int> BinIDValueSet::inlRange() const
+{
+    Interval<int> ret( mUndefIntVal, -mUndefIntVal );
+    for ( int iinl=0; iinl<inls.size(); iinl++ )
+	ret.include( inls[iinl] );
+    return ret;
+}
+
+
+Interval<int> BinIDValueSet::crlRange() const
+{
+    Interval<int> ret( mUndefIntVal, -mUndefIntVal );
+    if ( !inls.size() ) return ret;
+
+    Pos pos; BinID bid;
+    while ( next(pos) )
+    {
+	get( pos, bid );
+	ret.include( bid.crl );
     }
 
     return ret;
 }
 
 
-class BinIDTableImplInlData
+Interval<float> BinIDValueSet::valRange( int valnr ) const
 {
-public:
+    Interval<float> ret( mUndefValue, -mUndefValue );
+    if ( valnr >= nrvals || valnr < 0 || isEmpty() )
+	return ret;
 
-    class CrlAnnot
-    {
-    public:
-			CrlAnnot( int c, const char* ann )
-			: crl(c), annot(0)	{ setAnnot( ann ); }
-			CrlAnnot( const CrlAnnot& ca )
-			: crl(ca.crl), annot(0)	{ setAnnot( ca.annot ); }
-			~CrlAnnot()		{ delete [] annot; }
-        CrlAnnot&	operator =( const CrlAnnot& ca )
-			{ crl = ca.crl; setAnnot( ca.annot ); return *this; }
+    Pos pos; const float* vals;
+    while ( next(pos) )
+	ret.include( ((*valsets[pos.i])[pos.j])[valnr], false );
 
-	void		setAnnot( const char* ann )
-			{
-			    if ( ann == annot ) return;
-			    delete [] annot; annot = 0;
-			    if ( ann && *ann )
-			    {
-				annot = new char [ strlen(ann)+1 ];
-				strcpy( annot, ann );
-			    }
-			}
-
-	int		crl;
-	char*		annot;
-    };
-
-			BinIDTableImplInlData( int i )
-				: inl(i)	{}
-			BinIDTableImplInlData( const BinIDTableImplInlData& b )
-			: inl(b.inl)	{ deepAppend( data, b.data ); }
-			~BinIDTableImplInlData();
-    BinIDTableImplInlData& operator =( const BinIDTableImplInlData& b )
-			{ inl = b.inl; deepCopy( data, b.data ); return *this; }
-
-    int			inl;
-    ObjectSet<CrlAnnot>	data;
-
-    int			indexOf( int crl )
-			{
-			    for ( int idx=0; idx<data.size(); idx++ )
-				if ( data[idx]->crl == crl ) return idx;
-			    return -1;
-			}
-
-    void		set( int idx, int crl, const char* ann )
-			{
-			    if ( idx < 0 || idx >= data.size() )
-				data += new CrlAnnot( crl, ann );
-			    else
-			    {
-				CrlAnnot& ca = *data[idx];
-				ca.crl = crl;
-				ca.setAnnot( ann );
-			    }
-			}
-    void		set( int crl, const char* ann )
-			{
-			    for ( int idx=0; idx<data.size(); idx++ )
-				if ( data[idx]->crl == crl )
-				    { data[idx]->setAnnot( ann ); return; }
-			    data += new CrlAnnot( crl, ann );
-			}
-    bool		remove( int crl )
-			{
-			    for ( int idx=0; idx<data.size(); idx++ )
-			    {
-				if ( data[idx]->crl == crl )
-				{
-				    delete data[idx];
-				    data.remove(idx);
-				    return true;
-				}
-			    }
-			    return false;
-			}
-    void		clear();
-};
-
-
-BinIDTableImplInlData::~BinIDTableImplInlData()
-{
-    clear();
+    return ret;
 }
 
 
-void BinIDTableImplInlData::clear()
+void BinIDValueSet::copyStructureFrom( const BinIDValueSet& bvs )
 {
-    deepErase( data );
+    empty();
+    const_cast<int&>(nrvals) = bvs.nrvals;
+    allowdup = bvs.allowdup;
 }
 
 
-class BinIDTableImpl : public ObjectSet< BinIDTableImplInlData >
+BinIDValueSet::Pos BinIDValueSet::findFirst( const BinID& bid ) const
 {
-public:
-		BinIDTableImpl()	{}
-		BinIDTableImpl( const BinIDTableImpl& b )
-					{ deepAppend( *this, b ); }
-		~BinIDTableImpl()	{ deepErase( *this ); }
-
-    void	clear()			{ deepErase( *this ); }
-    int		findInl(int,bool&) const;
-
-};
-
-
-int BinIDTableImpl::findInl( int inl, bool& found ) const
-{
-    found = false;
-    int hiidx = size() - 1;
-    int loidx = 0;
-
-    if ( loidx >= hiidx )
+    bool found; int idx = findIndexFor(inls,bid.inl,&found);
+    Pos pos( found ? idx : -1, -1 );
+    if ( pos.i >= 0 )
     {
-	if ( hiidx == -1 ) return -1;
-	int i = (*this)[0]->inl;
-	found = i == inl;
-	return i <= inl ? 0 : -1;
+	TypeSet<int>& crls = *crlsets[pos.i];
+	idx = findIndexFor(crls,bid.crl,&found);
+	pos.j = found ? idx : -1;
+	if ( found )
+	{
+	    pos.j = idx;
+	    while ( pos.j && crls[pos.j-1] == bid.crl )
+		pos.j--;
+	}
     }
 
-    int loinl = (*this)[loidx]->inl;
-    if ( inl <= loinl )
-	{ found = inl == loinl; return found ? loidx : loidx-1; }
-    int hiinl = (*this)[hiidx]->inl;
-    if ( inl >= hiinl )
-	{ found = inl == hiinl; return hiidx; }
+    return pos;
+}
 
-    while ( 1 )
+
+bool BinIDValueSet::next( BinIDValueSet::Pos& pos, bool skip_dup ) const
+{
+    if ( pos.i < 0 )
     {
-	int mididx = (hiidx + loidx) / 2;
-	int midinl = (*this)[mididx]->inl;
-	if ( midinl == inl )
-	    { found = true; return mididx; }
-	else if ( midinl > inl )
+	if ( inls.size() < 1 ) return false;
+	pos.i = pos.j = 0;
+	return true;
+    }
+    else if ( pos.i >= inls.size() )
+	{ pos.i = pos.j = -1; return false; }
+    else if ( pos.j < 0 )
+    	{ pos.j = 0; return true; }
+
+    TypeSet<int>& crls = *crlsets[pos.i];
+    if ( pos.j > crls.size()-2 )
+    {
+	pos.j = 0;
+	pos.i++;
+	if ( pos.i >= inls.size() )
+	    pos.i = pos.j = -1;
+	return pos.i >= 0;
+    }
+
+    pos.j++;
+    if ( skip_dup && crls[pos.j] == crls[pos.j-1] )
+	return next( pos, true );
+
+    return true;
+}
+
+
+bool BinIDValueSet::prev( BinIDValueSet::Pos& pos, bool skip_dup ) const
+{
+    if ( !pos.valid() )
+	return false;
+    if ( pos.i == 0 && pos.j == 0)
+	{ pos.i = pos.j = -1; return false; }
+
+    int curcrl = (*crlsets[pos.i])[pos.j];
+    if ( pos.j )
+	pos.j--;
+    else
+    {
+	pos.i--;
+	pos.j = crlsets[pos.i]->size() - 1;
+    }
+
+    if ( !skip_dup ) return true;
+
+    while ( (*crlsets[pos.i])[pos.j] == curcrl )
+	return prev( pos, true );
+
+    return true;
+}
+
+
+bool BinIDValueSet::valid( const Pos& pos ) const
+{
+    return pos.valid()
+	&& inls.indexOf(pos.i) >= 0
+	&& crlsets[pos.i]->size() > pos.j;
+}
+
+
+void BinIDValueSet::get( const Pos& pos, BinID& bid, float* vs ) const
+{
+    if ( !pos.valid() )
+	{ bid.inl = bid.crl = 0; }
+    else
+    {
+	bid.inl = inls[pos.i];
+	bid.crl = (*crlsets[pos.i])[pos.j];
+	if ( vs && nrvals )
 	{
-	    if ( hiidx == mididx )
-		return loidx;
-	    hiidx = mididx; hiinl = midinl;
+	    memcpy( vs, (*valsets[pos.i])[pos.j], nrvals * sizeof(float) );
+	    return;
+	}
+    }
+
+    if ( vs ) 
+	mSetUdf(vs,mUndefValue);
+}
+
+
+float* BinIDValueSet::gtVals( const Pos& pos ) const
+{
+    const float* res = pos.valid() && nrvals ? (*valsets[pos.i])[pos.j] : 0;
+    return const_cast<float*>( res );
+}
+
+
+BinIDValueSet::Pos BinIDValueSet::getPos( int glidx ) const
+{
+    int firstidx = 0; Pos pos;
+    for ( pos.i=0; pos.i<inls.size(); pos.i++ )
+    {
+	TypeSet<int>& crls = *crlsets[pos.i];
+	if ( firstidx + crls.size() > glidx )
+	{
+	    pos.j = glidx - firstidx;
+	    return pos;
+	}
+	firstidx += crls.size();
+    }
+
+    return Pos(-1,-1);
+}
+
+
+BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid, const float* arr )
+{
+    Pos pos( findFirst(bid) );
+    if ( pos.i < 0 )
+    {
+	pos.i = findIndexFor(inls,bid.inl) + 1;
+	if ( pos.i > inls.size()-1 )
+	{
+	    inls += bid.inl;
+	    crlsets += new TypeSet<int>;
+	    valsets += new TypeSet<float*>;
+	    pos.i = inls.size() - 1;
 	}
 	else
 	{
-	    if ( loidx == mididx )
-		return loidx;
-	    loidx = mididx; loinl = midinl;
+	    inls.insert( pos.i, bid.inl );
+	    crlsets.insertAt( new TypeSet<int>, pos.i );
+	    valsets.insertAt( new TypeSet<float*>, pos.i );
 	}
     }
 
-    return -1;
+    if ( pos.j < 0 || allowdup )
+	addNew( pos, bid.crl, arr );
+
+    return pos;
 }
 
 
-BinIDTable::BinIDTable()
-	: binids(*new BinIDTableImpl)
-	, stepout(0,0)
+void BinIDValueSet::addNew( BinIDValueSet::Pos& pos, int crl, const float* arr )
 {
-}
+    TypeSet<int>& crls = *crlsets[pos.i];
+    TypeSet<float*>& vals = *valsets[pos.i];
 
-
-BinIDTable::BinIDTable( const BinIDTable& bt )
-	: binids(*new BinIDTableImpl(bt.binids))
-	, stepout(bt.stepout)
-	, fname(bt.fname)
-{
-}
-
-
-BinIDTable::~BinIDTable()
-{
-    clear();
-    delete &binids;
-}
-
-
-void BinIDTable::fillPar( IOPar& iopar ) const
-{
-    BinIDSelector::fillPar( iopar );
-    iopar.set( BinIDSelector::sKeyfname, fname );
-}
-
-
-int BinIDTable::excludes_( const BinID& bid ) const
-{
-    bool found;
-    const int inlidx = binids.findInl( bid.inl, found );
-    if ( !found ) return 2;
-
-    return binids[inlidx]->indexOf(bid.crl) < 0 ? 512 : 0;
-}
-
-
-BinIDRange* BinIDTable::getOuter() const
-{
-    BinIDRange* ret = new BinIDRange;
-    if ( binids.size() == 0 ) return ret;
-    BinID cur( binids[0]->inl, binids[0]->data[0]->crl );
-    ret->start = cur; ret->stop = cur;
-
-    const int sz = binids.size();
-    for ( int idx=0; idx<sz; idx++ )
+    float* newvals = 0;
+    if ( nrvals )
     {
-	const BinIDTableImplInlData& inldat = *binids[idx];
-	cur.inl = inldat.inl;
-	for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
-	{
-	    cur.crl = inldat.data[icrl]->crl;
-	    ret->include( cur );
-	}
+	newvals = new float [nrvals];
+	if ( arr )
+	    memcpy( newvals, arr, nrvals * sizeof(float) );
+	else
+	    mSetUdf( newvals, nrvals );
     }
-    return ret;
-}
 
-
-bool BinIDTable::isEqBidSel( const BinIDSelector& b ) const
-{
-    const BinIDTable& bt = (const BinIDTable&)b;
-    if ( binids.size() != bt.binids.size() ) return false;
-    for ( int idx=0; idx<binids.size(); idx++ )
+    if ( pos.j < 0 )
+	pos.j = findIndexFor(crls,crl) + 1;
+    else
     {
-	const BinIDTableImplInlData& inldat = *binids[idx];
-	if ( bt.binids[idx]->data.size() != inldat.data.size() )
-	    return false;
-	for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
-	    if ( bt.binids[idx]->indexOf( inldat.data[icrl]->crl ) < 0 )
-		return false; 
+	pos.j++;
+	while ( pos.j < crls.size() && crls[pos.j] == crl )
+	    pos.j++;
     }
-    return true;
-}
 
-
-bool BinIDTable::include( const BinID& bid, const char* s )
-{
-    bool found;
-    const int inlidx = binids.findInl( bid.inl, found );
-    if ( !found )
+    if ( pos.j > crls.size() - 1 )
     {
-	BinIDTableImplInlData* newinldat = new BinIDTableImplInlData( bid.inl );
-	newinldat->set( 0 , bid.crl, s );
-	binids.insertAfter( newinldat, inlidx );
+	crls += crl;
+	if ( newvals ) vals += newvals;
     }
     else
     {
-	BinIDTableImplInlData& inldat = *binids[inlidx];
-	inldat.set( bid.crl, s );
-    }
-
-    return true;
-}
-
-
-bool BinIDTable::include( const BinIDTable& bidt )
-{
-    for ( int idx=0; idx<bidt.binids.size(); idx++ )
-    {
-	BinIDTableImplInlData& inldat = *bidt.binids[idx];
-	for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
-	    include( BinID(inldat.inl,inldat.data[icrl]->crl),
-		     inldat.data[icrl]->annot );
-    }
-    return true;
-}
-
-
-bool BinIDTable::exclude( const BinID& bid )
-{
-    bool found;
-    const int inlidx = binids.findInl( bid.inl, found );
-    if ( !found ) return false;
-
-    return binids[inlidx]->remove( bid.crl );
-}
-
-
-void BinIDTable::clear()
-{
-    binids.clear();
-}
-
-
-const char* BinIDTable::annotFor( const BinID& bid ) const
-{
-    bool found = false;
-    const int inlidx = binids.findInl( bid.inl, found );
-    if ( !found ) return 0;
-    BinIDTableImplInlData& inldat = *binids[inlidx];
-    int crlidx = inldat.indexOf( bid.crl );
-    return crlidx < 0 ? 0 : inldat.data[crlidx]->annot;
-}
-
-
-void BinIDTable::setStepOut( const BinID& so, BinID step )
-{
-    // refuse if already have stepout
-    if ( (!so.inl && !so.crl) || stepout.inl || stepout.crl ) return;
-    stepout = so;
-    BinID stepso( so.inl*step.inl, so.crl*step.crl );
-
-    TypeSet<BinID> oldbids;
-    for ( int idx=0; idx<binids.size(); idx++ )
-    {
-	BinIDTableImplInlData& inldat = *binids[idx];
-	for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
-	    oldbids += BinID(inldat.inl,inldat.data[icrl]->crl);
-    }
-
-    for ( int idx=0; idx<oldbids.size(); idx++ )
-    {
-	BinID bid = oldbids[idx];
-        for ( int iinl=-stepso.inl; iinl<=stepso.inl; iinl+=step.inl )
-        {   
-            for ( int icrl=-stepso.crl; icrl<=stepso.crl; icrl+=step.crl )
-	    {
-		if ( iinl || icrl )
-		    include( BinID(bid.inl+iinl,bid.crl+icrl) );
-	    }
-        }
+	crls.insert( pos.j, crl );
+	if ( newvals ) vals.insert( pos.j,  newvals );
     }
 }
 
 
-int BinIDTable::size() const
+BinIDValueSet::Pos BinIDValueSet::add( const BinIDValues& bivs )
 {
-    int sz = 0;
-    for ( int idx=0; idx<binids.size(); idx++ )
-	sz += binids[idx]->data.size();
-    return sz;
+    if ( bivs.size() >= nrvals )
+	return add( bivs.binid, bivs.values() );
+    BinIDValues locbivs( 0, 0, nrvals );
+    for ( int idx=0; idx<bivs.size(); idx++ )
+	locbivs.value(idx) = bivs.value(idx);
+    for ( int idx=bivs.size(); idx<nrvals; idx++ )
+	locbivs.value(idx) = mUndefValue;
+    return add( bivs.binid, locbivs.values() );
 }
 
 
-BinID BinIDTable::operator[]( int ifind ) const
+void BinIDValueSet::set( BinIDValueSet::Pos pos, const float* vals )
 {
-    int sz = 0;
-    for ( int idx=0; idx<binids.size(); idx++ )
-    {
-	const BinIDTableImplInlData& inldat = *binids[idx];
-	sz += inldat.data.size();
-	if ( sz > ifind )
-	{
-	    sz -= inldat.data.size();
-	    return BinID( inldat.inl, inldat.data[ifind-sz]->crl );
-	}
-    }
-    return BinID(0,0);
+    if ( !pos.valid() || !nrvals ) return;
+
+    if ( vals )
+	memcpy( (*valsets[pos.i])[pos.j], vals, nrvals*sizeof(float) );
+    else
+	mSetUdf( (*valsets[pos.i])[pos.j], nrvals );
 }
 
 
-void BinIDTable::shift( const BinID& bid )
+int BinIDValueSet::nrPos( int inlidx ) const
 {
-    for ( int idx=0; idx<binids.size(); idx++ )
-    {
-	BinIDTableImplInlData& inldat = *binids[idx];
-	inldat.inl += bid.inl;
-	for ( int icrl=0; icrl<inldat.data.size(); idx++ )
-	    inldat.data[icrl]->crl += bid.crl;
-    }
+    return inlidx < 0 || inlidx >= inls.size() ? 0 : crlsets[inlidx]->size();
 }
 
 
-const char* BinIDTable::annot( int ifind ) const
+int BinIDValueSet::totalSize() const
 {
-    int sz = 0;
-    for ( int idx=0; idx<binids.size(); idx++ )
-    {
-	const BinIDTableImplInlData& inldat = *binids[idx];
-	sz += inldat.data.size();
-	if ( sz > ifind )
-	{
-	    sz -= inldat.data.size();
-	    return inldat.data[ ifind - sz ]->annot;
-	}
-    }
-    return 0;
+    int nr = 0;
+    for ( int idx=0; idx<inls.size(); idx++ )
+	nr += crlsets[idx]->size();
+    return nr;
 }
 
 
-bool BinIDTable::setAnnot( int ifind, const char* s )
+bool BinIDValueSet::hasInl( int inl ) const
 {
-    int sz = 0;
-    for ( int idx=0; idx<binids.size(); idx++ )
+    return inls.indexOf(inl) >= 0;
+}
+
+
+bool BinIDValueSet::hasCrl( int crl ) const
+{
+    for ( int iinl=0; iinl<inls.size(); iinl++ )
     {
-	BinIDTableImplInlData& inldat = *binids[idx];
-	sz += inldat.data.size();
-	if ( sz > ifind )
-	{
-	    sz -= inldat.data.size();
-	    inldat.set( ifind - sz, inldat.data[ifind-sz]->crl, s );
-	    return true;
-	}
+	TypeSet<int>& crls = *crlsets[iinl];
+	for ( int icrl=0; icrl<crls.size(); icrl++ )
+	    if ( crls[icrl] == crl ) return true;
     }
     return false;
 }
 
-double Coord3::distance( const Coord3& b ) const
+
+BinID BinIDValueSet::firstPos() const
 {
-    double dx = x-b.x, dy = y-b.y, dz = z-b.z;
-    return sqrt( dx*dx + dy*dy + dz*dz );
+    Pos pos; next(pos);
+    BinID bid; get(pos,bid);
+    return bid;
+}
+
+
+void BinIDValueSet::remove( const Pos& pos )
+{
+    if ( pos.i < 0 || pos.i >= inls.size() ) return;
+    TypeSet<int>& crls = *crlsets[pos.i];
+    TypeSet<float*>& vals = *valsets[pos.i];
+    if ( pos.j < 0 || pos.j >= crls.size() ) return;
+    crls.remove( pos.j );
+    delete [] vals[pos.j];
+    vals.remove( pos.j );
+}
+
+
+void BinIDValueSet::removeDuplicateBids()
+{
+    Pos pos; next(pos,false);
+    BinID prev; get( pos, prev );
+    bool donext = true;
+    BinID cur;
+    while ( !donext || next(pos,false) )
+    {
+	get( pos, cur );
+	if ( prev == cur )
+	    { remove(pos); donext = false; }
+	else
+	    prev = cur;
+    }
+}
+
+
+void BinIDValueSet::setNrVals( int newnrvals, bool kp_data )
+{
+    if ( newnrvals == nrvals ) return;
+
+    const int orgnrvals = nrvals;
+    const_cast<int&>( nrvals ) = newnrvals;
+
+    if ( !nrvals )
+    {
+	for ( int iinl=0; iinl<inls.size(); iinl++ )
+	{
+	    TypeSet<float*>& vals = *valsets[iinl];
+	    const int sz = crlsets[iinl]->size();
+	    for ( int icrl=0; icrl<sz; icrl++ )
+		delete vals[icrl];
+	    vals.erase();
+	}
+	return;
+    }
+
+    if ( !orgnrvals )
+    {
+	for ( int iinl=0; iinl<inls.size(); iinl++ )
+	{
+	    TypeSet<float*>& vals = *valsets[iinl];
+	    vals.erase(); // shouldn't be necessary
+	    const int sz = crlsets[iinl]->size();
+	    for ( int icrl=0; icrl<sz; icrl++ )
+	    {
+		float* newvs = new float [ nrvals ];
+		mSetUdf( newvs, nrvals );
+		vals += newvs;
+	    }
+	}
+	return;
+    }
+
+    const int transfsz = !kp_data ? 0
+			: (orgnrvals > nrvals ? nrvals : orgnrvals);
+    for ( int iinl=0; iinl<inls.size(); iinl++ )
+    {
+	float** vals = valsets[iinl]->arr();
+	const int sz = crlsets[iinl]->size();
+	for ( int icrl=0; icrl<sz; icrl++ )
+	{
+	    float* orgdata = vals[icrl];
+	    vals[icrl] = new float [nrvals ];
+	    if ( transfsz )
+		memcpy( vals[icrl], orgdata, transfsz * sizeof(float) );
+	    delete orgdata;
+	    for ( int idx=transfsz; idx<nrvals; idx++ )
+		vals[icrl][idx] = mUndefValue;
+	}
+    }
+}
+
+
+void BinIDValueSet::sortDuplicateBids( int valnr, bool asc )
+{
+    if ( valnr >= nrvals || !allowdup ) return;
+
+    for ( int iinl=0; iinl<inls.size(); iinl++ )
+    {
+	TypeSet<int>& crls = *crlsets[iinl];
+	TypeSet<float*>& vals = *valsets[iinl];
+	for ( int icrl=1; icrl<crls.size(); icrl++ )
+	{
+	    int curcrl = crls[icrl];
+	    int firstdup = icrl - 1;
+	    if ( crls[icrl-1] == curcrl )
+	    {
+		for ( int idup=icrl+1; idup<crls.size(); idup++ )
+		{
+		    if ( crls[idup] == curcrl )
+			icrl = idup;
+		    else
+			break;
+		}
+		sortPart( crls, vals, valnr, firstdup, icrl, asc );
+	    }
+	}
+    }
+}
+
+
+void BinIDValueSet::sortPart( TypeSet<int>& crls, TypeSet<float*>& vals,
+			      int valnr, int firstidx, int lastidx, bool asc )
+{
+    int nridxs = lastidx - firstidx + 1;
+    float* vs = new float [ nridxs ];
+    int* idxs = new int [ nridxs ];
+    for ( int idx=firstidx; idx<=lastidx; idx++ )
+    {
+	idxs[idx] = idx;
+	vs[idx-firstidx] = vals[idx][valnr];
+    }
+    sort_coupled( vs, idxs, nridxs );
+
+    float** newvals = new float* [ nridxs ];
+    for ( int idx=0; idx<nridxs; idx++ )
+    {
+	int sortidx = idxs[idx];
+	if ( !asc ) sortidx = nridxs - sortidx - 1;
+	newvals[ idx ] = vals[ sortidx ];
+    }
+
+    for ( int idx=firstidx; idx<=lastidx; idx++ )
+	vals[idx] = newvals[ idx - firstidx ];
+
+    delete [] vs; delete [] idxs; delete [] newvals;
+}
+
+
+void BinIDValueSet::getExtended( BinIDValueSet& bvs,
+				 const BinID& so, const BinID& sos ) const
+{
+    bool orgallowdup = bvs.allowdup;
+    bvs.copyStructureFrom( *this );
+    bvs.allowdup = orgallowdup;
+
+    Pos pos; BinIDValues bivs; 
+    while ( next(pos,!bvs.allowdup) )
+    {
+	get( pos, bivs );
+	const BinID bid( bivs.binid );
+	for ( int iinl=-so.inl; iinl<=so.inl; iinl+=sos.inl )
+	{
+	    bivs.binid.inl = bid.inl + iinl;
+	    for ( int icrl=-so.crl; icrl<=so.crl; icrl+=sos.crl )
+	    {
+		bivs.binid.crl = bid.crl + icrl;
+		bvs.add( bivs );
+	    }
+	}
+    }
+}
+
+
+BinIDValueSet::Pos BinIDValueSet::add( const BinIDValue& biv )
+{
+    return nrvals < 2 ? add(biv.binid,&biv.value)  : add(BinIDValues(biv));
+}
+
+
+BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid, float v )
+{
+    if ( nrvals < 2 )
+	return add( bid, nrvals == 1 ? &v : 0 );
+
+    BinIDValues bvs( bid, 1 );
+    bvs.value(0) = v;
+    return add( bvs );
+}
+
+
+BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid, float v1, float v2 )
+{
+    if ( nrvals == 0 )
+	return add( bid );
+    else if ( nrvals < 3 )
+    {
+	float v[2]; v[0] = v1; v[1] = v2;
+	return add( bid, v );
+    }
+
+    BinIDValues bvs( bid, 2 );
+    bvs.value(0) = v1; bvs.value(1) = v2;
+    return add( bvs );
+}
+
+
+BinIDValueSet::Pos BinIDValueSet::add( const BinID& bid,
+				       const TypeSet<float>& vals )
+{
+    if ( !vals.size() )
+	return add( bid );
+    else if ( vals.size() >= nrvals )
+	return add( bid, vals.arr() );
+
+    BinIDValues bvs( bid, vals.size() );
+    bvs.setVals( vals.arr() );
+    return add( bvs );
+}
+
+
+void BinIDValueSet::get( const Pos& pos, BinIDValues& bivs ) const
+{
+    bivs.setSize( nrvals );
+    get( pos, bivs.binid, bivs.values() );
+}
+
+
+void BinIDValueSet::get( const Pos& pos, BinIDValue& biv ) const
+{
+    if ( nrvals < 2 )
+	get( pos, biv.binid, &biv.value );
+    else
+    {
+	BinIDValues bvs; get( pos, bvs ); biv.binid = bvs.binid;
+	biv.value = bvs.value(0);
+    }
+}
+
+
+void BinIDValueSet::get( const BinIDValueSet::Pos& pos,
+			 BinID& bid, float& v ) const
+{
+    if ( nrvals < 2 )
+	get( pos, bid, &v );
+    else
+    {
+	BinIDValues bvs; get( pos, bvs ); bid = bvs.binid;
+	v = bvs.value(0);
+    }
+}
+
+
+void BinIDValueSet::get( const BinIDValueSet::Pos& pos, BinID& bid,
+			 float& v1, float& v2 ) const
+{
+    if ( nrvals < 3 )
+    {
+	float v[2]; get( pos, bid, v );
+	v1 = v[0]; v2 = v[1];
+    }
+    else
+    {
+	BinIDValues bvs; get( pos, bvs ); bid = bvs.binid;
+	v1 = bvs.value(0); v2 = bvs.value(1);
+    }
+}
+
+
+void BinIDValueSet::get( const BinIDValueSet::Pos& pos, BinID& bid,
+			 TypeSet<float>& vals ) const
+{
+    if ( vals.size() != nrvals )
+    {
+	vals.erase();
+	for ( int idx=0; idx<nrvals; idx++ )
+	    vals += mUndefValue;
+    }
+    get( pos, bid, vals.arr() );
+}
+
+
+void BinIDValueSet::set( const BinIDValueSet::Pos& pos, float v )
+{
+    set( pos, &v );
+}
+
+
+void BinIDValueSet::set( const BinIDValueSet::Pos& pos, float v1, float v2 )
+{
+    float v[2]; v[0] = v1; v[1] = v2;
+    set( pos, v );
+}
+
+
+void BinIDValueSet::set( const BinIDValueSet::Pos& pos,
+			 const TypeSet<float>& vals )
+{
+    set( pos, vals.arr() );
+}
+
+
+void BinIDValueSet::fillPar( IOPar& iop, const char* ky ) const
+{
+    FileMultiString fms;
+    fms += nrvals; fms += allowdup ? "D" : "N";
+    BufferString key; if ( ky && *ky ) { key = ky; key += ".Setup"; }
+    iop.set( key, fms );
+
+    for ( int iinl=0; iinl<inls.size(); iinl++ )
+    {
+	fms = ""; fms += inls[iinl];
+	TypeSet<int>& crls = *crlsets[iinl];
+	TypeSet<float*>& vals = *valsets[iinl];
+	for ( int icrl=0; icrl<crls.size(); icrl++ )
+	{
+	    fms += crls[icrl];
+	    if ( nrvals )
+	    {
+		const float* v = vals[icrl];
+		for ( int idx=0; idx<nrvals; idx++ )
+		    fms += v[idx];
+	    }
+	}
+	if ( ky && *ky )
+	    { key = ky; key += "."; }
+	else
+	    key = "";
+	key += iinl;
+	iop.set( key, fms );
+    }
+}
+
+
+void BinIDValueSet::usePar( const IOPar& iop, const char* ky )
+{
+    BinIDValues bivs( 0, 0, nrvals );
+    FileMultiString fms;
+    BufferString key; if ( ky && *ky ) { key = ky; key += ".Setup"; }
+    const char* res = iop.find( key );
+    if ( res && *res )
+    {
+	empty();
+	fms = res;
+	setNrVals( atoi(fms[0]), false );
+	allowdup = *fms[1] == 'D';
+    }
+
+    for ( int iinl=0; ; iinl++ )
+    {
+	if ( ky && *ky )
+	    { key = ky; key += "."; }
+	else
+	    key = "";
+	key += iinl;
+	res = iop.find( key );
+	if ( !res ) return;
+	if ( !*res ) continue;
+
+	fms = res;
+	bivs.binid.inl = atoi( fms[0] );
+	int nrpos = (fms.size() - 1) / (nrvals + 1);
+	for ( int icrl=0; icrl<nrpos; icrl++ )
+	{
+	    int fmsidx = 1 + icrl * (nrvals + 1);
+	    bivs.binid.crl = atoi( fms[fmsidx] );
+	    fmsidx++;
+	    for ( int ival=0; ival<nrvals; ival++ )
+		bivs.value(ival) = atof( fms[fmsidx+ival] );
+	    add( bivs );
+	}
+    }
 }

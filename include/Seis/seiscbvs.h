@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.21 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.22 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -62,10 +62,8 @@ protected:
 
     // Following variables are inited by commitSelections_
     TraceDataInterpreter** storinterps;
-    int			actualsz;
     StepInterval<int>	samps;
-    Interval<int>	cbvssamps;
-    bool*		comps;
+    bool*		compsel;
     bool*		userawdata;
     bool*		samedatachar;
     unsigned char**	blockbufs;
@@ -78,6 +76,7 @@ protected:
     CBVSWriteMgr*	wrmgr;
     PosAuxInfo		auxinf;
     bool		minimalhdrs;
+    Interval<int>	cbvssamps;
 
     virtual void	cleanUp();
     virtual bool	initRead_();

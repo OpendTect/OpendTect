@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.30 2004-06-28 16:00:05 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.31 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -16,13 +16,14 @@ Translators for seismic traces.
 
 #include "transl.h"
 #include "ctxtioobj.h"
+#include "samplingdata.h"
 #include "basiccompinfo.h"
 
 class BinID;
 class Coord;
 class SeisTrc;
 class LinScaler;
-class SeisTrcSel;
+class SeisSelData;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class BinIDSampler;
@@ -40,9 +41,9 @@ The protocol is as follows:
 
 READ:
 
-2) initRead() call initialises SeisPacketInfo, Component info and SeisTrcSel
+2) initRead() call initialises SeisPacketInfo, Component info and SeisSelData
    on input (if any)
-3) Client subselects in components and space (SeisTrcSel)
+3) Client subselects in components and space (SeisSelData)
 4) commitSelections()
 5) By checking readInfo(), client may determine whether space selection
    was satisfied. Space selection is just a hint. This is done to protect
@@ -54,7 +55,7 @@ WRITE:
 2) with initWrite() client passes Connection and example trace. Translator
    will fill default writing layout. If Translator is single component,
    only the first component will have a destidx != -1.
-3) Client sets BinIDSelector and Components as wanted
+3) Client sets trace selection and components as wanted
 4) commitSelections() writes 'global' header, if any
 5) write() writes selected traces/trace sections
 
@@ -67,6 +68,10 @@ Note the existence of minimalHdrs(). If this is true, we have only
 inline/crossline. If you use setMinimalHdrs(), only inline/crossline and trace
 data are read & written. Of course, for rigid formats like SEG-Y, this has no
 advantage, so then the flag will be ignored.
+
+Another note: the SeisSelData type 'TrcNrs' is not supported by this class.
+That is because of nasty implementation details on this level. The classes
+SeisTrcReader and SeisTrcWriter do support it.
 
 */
 
@@ -95,12 +100,11 @@ public:
 
     protected:
 			ComponentData( const char* nm="Seismic Data" )
-			: BasicComponentInfo(nm)
-			{ sd = SamplingData<float>(mUndefValue,mUndefValue); }
+			: BasicComponentInfo(nm)	{}
 			ComponentData( const ComponentData& cd )
 			: BasicComponentInfo(cd)	{}
 			ComponentData(const SeisTrc&,int icomp=0,
-					  const char* nm="Seismic Data");
+				      const char* nm="Seismic Data");
 	void		operator=(const ComponentData&);
 			    //!< Protection against assignment.
     };
@@ -148,14 +152,16 @@ public:
 			   Note that Conn may need to have an IOObj* */
     Conn*		curConn()			{ return conn; }
 
-    SeisPacketInfo&			packetInfo();
-    const SeisTrcSel*			trcSel()	{ return trcsel; }
-    ObjectSet<TargetComponentData>&	componentInfo()	{ return tarcds; }
-    void				useInputSampling( bool yn=true )
-					{ useinpsd = yn; }
+    SeisPacketInfo&		packetInfo();
+    const SeisSelData*		selData()		{ return seldata; }
+    ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds; }
+    const SamplingData<float>&	inpSD() const		{ return insd; }
+    int				inpNrSamples() const	{ return innrsamples; }
+    const SamplingData<float>&	outSD() const		{ return outsd; }
+    int				outNrSamples() const	{ return outnrsamples; }
 
-    void		setTrcSel( const SeisTrcSel* t ) { trcsel = t; }
-			/*!< This SeisTrcSel is seen as a hint ... */
+    void		setSelData( const SeisSelData* t ) { seldata = t; }
+			/*!< This SeisSelData is seen as a hint ... */
     bool		commitSelections(const SeisTrc* trc=0);
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
@@ -172,7 +178,8 @@ public:
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
     virtual void	toSupported( DataCharacteristics& ) const {}
 			//!< change the input to a supported characteristic
-    virtual void	usePar(const IOPar&);
+
+    virtual void	usePar( const IOPar& )		{}
 
     inline int		selComp( int nr=0 ) const	{ return inpfor_[nr]; }
     inline int		nrSelComps() const		{ return nrout_; }
@@ -199,16 +206,16 @@ protected:
     Conn*		conn;
     const char*		errmsg;
     SeisPacketInfo*	pinfo;
-    bool		useinpsd;
-    int			lastinlwritten;
-    bool		enforce_regular_write;
 
-    const SeisTrcSel*			trcsel;
+    SamplingData<float>			insd;
+    int					innrsamples;
     ObjectSet<ComponentData>		cds;
     ObjectSet<TargetComponentData>	tarcds;
+    const SeisSelData*			seldata;
+    SamplingData<float>			outsd;
+    int					outnrsamples;
 
     void		addComp(const DataCharacteristics&,
-				const SamplingData<float>&,int,
 				const char* nm=0,int dtype=0);
 
     bool		initConn(Conn*,bool forread);
@@ -222,10 +229,6 @@ protected:
     virtual bool	commitSelections_()		{ return true; }
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
     							{ return true; }
-
-    IOPar&		storediopar;
-    virtual void	useStoredPar();
-
     void		prepareComponents(SeisTrc&,int actualsz) const;
 
 			// Quick access to selected, like selComp() etc.
@@ -241,6 +244,8 @@ private:
     int*		inpfor_;
     int			nrout_;
     int			prevnr_;
+    int			lastinlwritten;
+    bool		enforce_regular_write;
 
     void		enforceBounds(const SeisTrc*);
     bool		writeBlock();

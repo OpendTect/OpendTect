@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.11 2004-05-28 15:54:21 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.12 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "enums.h"
 
 class MultiID;
+class BinIDValueSet;
 class IODirEntryList;
 
 
@@ -78,7 +79,6 @@ class TrackSampler : public ::Executor
 {
 public:
 
-    typedef TypeSet<BinIDValue>	BinIDValueSet;
     enum SelPol		{ NearPos, Corners };
     			DeclareEnumUtils(SelPol)
 
@@ -135,7 +135,6 @@ class LogDataExtracter : public ::Executor
 {
 public:
 
-    typedef TypeSet<BinIDValue>	BinIDValueSet;
     enum SamplePol	{ Avg, Med, MostFreq, Nearest };
     			DeclareEnumUtils(SamplePol)
 

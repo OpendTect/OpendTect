@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.17 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.18 2004-07-16 15:35:26 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -61,6 +61,17 @@ void SeisTrcBuf::add( SeisTrcBuf& tb )
 	SeisTrc* trc = tb.get( idx );
 	add( owner_ && trc ? new SeisTrc(*trc) : trc );
     }
+}
+
+
+void SeisTrcBuf::stealTracesFrom( SeisTrcBuf& tb )
+{
+    for ( int idx=0; idx<tb.size(); idx++ )
+    {
+	SeisTrc* trc = tb.get( idx );
+	add( trc );
+    }
+    tb.trcs.erase();
 }
 
 
@@ -320,47 +331,33 @@ SeisTrcBufWriter::SeisTrcBufWriter( const SeisTrcBuf& b, SeisTrcWriter& w )
 	: Executor("Trace storage")
 	, trcbuf(b)
 	, writer(w)
-	, starter(0)
 	, nrdone(0)
 {
     if ( trcbuf.size() )
-	starter = writer.starter( *trcbuf.get(0) );
+	writer.prepareWork( *trcbuf.get(0) );
 }
 
-
-SeisTrcBufWriter::~SeisTrcBufWriter()
-{
-    delete starter;
-}
 
 const char* SeisTrcBufWriter::message() const
 {
-    return starter ? starter->message() : "Writing traces";
+    return "Writing traces";
 }
 const char* SeisTrcBufWriter::nrDoneText() const
 {
-    return starter ? starter->nrDoneText() : "Traces written";
+    return "Traces written";
 }
 int SeisTrcBufWriter::totalNr() const
 {
-    return starter ? starter->totalNr() : trcbuf.size();
+    return trcbuf.size();
 }
 int SeisTrcBufWriter::nrDone() const
 {
-    return starter ? starter->nrDone() : nrdone;
+    return nrdone;
 }
 
 
 int SeisTrcBufWriter::nextStep()
 {
-    if ( starter )
-    {
-	int res = starter->doStep();
-	if ( res ) return res;
-	delete starter; starter = 0;
-	return 1;
-    }
-
     Interval<int> nrs( nrdone, nrdone+9 );
     if ( nrs.start >= trcbuf.size() ) return 0;
     if ( nrs.stop >= trcbuf.size() ) nrs.stop = trcbuf.size() - 1;

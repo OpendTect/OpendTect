@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.42 2004-06-28 16:00:05 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.43 2004-07-16 15:35:26 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -60,9 +60,7 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 						 const char* nm )
 	: BasicComponentInfo(nm)
 {
-    sd = trc.samplingData( icomp );
     datachar = trc.data().getInterpreter(icomp)->dataChar();
-    nrsamples = trc.size( icomp );
 }
 
 
@@ -75,9 +73,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 	, inpcds(0)
 	, outcds(0)
 	, pinfo(0)
-	, storediopar(*new IOPar)
-	, useinpsd(false)
-	, trcsel(0)
+	, seldata(0)
     	, prevnr_(mUndefIntVal)
     	, trcblock_(*new SeisTrcBuf)
     	, lastinlwritten(SI().range().start.inl)
@@ -92,7 +88,6 @@ SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
     delete pinfo;
-    delete &storediopar;
     delete &trcblock_;
 }
 
@@ -114,7 +109,6 @@ void SeisTrcTranslator::cleanUp()
     delete [] outcds; outcds = 0;
     nrout_ = 0;
     errmsg = 0;
-    useinpsd = false;
     delete pinfo; pinfo = 0;
 }
 
@@ -145,7 +139,6 @@ bool SeisTrcTranslator::initRead( Conn* c )
 	return false;
     }
 
-    useStoredPar();
     return true;
 }
 
@@ -161,7 +154,6 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 	return false;
     }
 
-    useStoredPar();
     return true;
 }
 
@@ -171,6 +163,15 @@ bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
     errmsg = "No selected components found";
     const int sz = tarcds.size();
     if ( sz < 1 ) return false;
+
+    outsd = insd; outnrsamples = innrsamples;
+    if ( seldata )
+    {
+	Interval<float> zrg( seldata->zRange() );
+	outsd.start = zrg.start;
+	outsd.step = seldata->zrg_.step;
+	outnrsamples = (int)(((zrg.stop-zrg.start) / outsd.step) + .5) + 1;
+    }
 
     ArrPtrMan<int> selnrs = new int[sz];
     ArrPtrMan<int> inpnrs = new int[sz];
@@ -220,68 +221,60 @@ void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 {
     static const float eps = SeisTrc::snapdist;
 
-    for ( int idx=0; idx<nrout_; idx++ )
+    SamplingData<float> avsd;
+    avsd.start = trc ? trc->startPos( 0 ) : insd.start;
+    avsd.step = trc ? trc->info().sampling.step : insd.step;
+    int sz = trc ? trc->size( 0 ) : innrsamples;
+
+    Interval<float> reqintv;
+    reqintv.start = outsd.start;
+    reqintv.stop = reqintv.start + outsd.step * (outnrsamples-1);
+    const float avstop = avsd.start + avsd.step * (sz-1);
+    if ( reqintv.start > reqintv.stop ) Swap(reqintv.start,reqintv.stop);
+    if ( reqintv.start < avsd.start ) reqintv.start = avsd.start;
+    if ( reqintv.stop > avstop ) reqintv.stop = avstop;
+
+    // If requested start not on a sample, make sure it is
+    // First, the start time:
+    float sampdist = (reqintv.start - avsd.start) / avsd.step;
+    int intdist = mNINT(sampdist);
+    if ( !trc )
     {
-	SamplingData<float> avsd;
-	avsd.start = trc ? trc->startPos( idx ) : inpcds[idx]->sd.start;
-	avsd.step = trc ? trc->info().sampling.step : inpcds[idx]->sd.step;
-	int sz = trc ? trc->size( idx ) : inpcds[idx]->nrsamples;
-
-	Interval<float> reqintv;
-	reqintv.start = outcds[idx]->sd.start;
-	reqintv.stop = reqintv.start
-		     + outcds[idx]->sd.step * (outcds[idx]->nrsamples-1);
-	const float avstop = avsd.start + avsd.step * (sz-1);
-	if ( reqintv.start > reqintv.stop ) Swap(reqintv.start,reqintv.stop);
-
-	if ( reqintv.start < avsd.start )
-	    reqintv.start = avsd.start;
-	if ( reqintv.stop > avstop )
-	    reqintv.stop = avstop;
-
-	// If requested start not on a sample, make sure it is
-	// First, the start time:
-	float sampdist = (reqintv.start - avsd.start) / avsd.step;
-	int intdist = mNINT(sampdist);
-	if ( !trc )
+	sampdist -= intdist;
+	if ( sampdist < -eps || sampdist > eps )
 	{
-	    sampdist -= intdist;
-	    if ( sampdist < -eps || sampdist > eps )
-	    {
-		// Reading and not on sample: read more to allow interpolation
-		sampdist += intdist - 1.5;
-		intdist = sampdist < 0 ? 0 : mNINT(sampdist);
-	    }
+	    // Reading and not on sample: read more to allow interpolation
+	    sampdist += intdist - 1.5;
+	    intdist = sampdist < 0 ? 0 : mNINT(sampdist);
 	}
-	reqintv.start = avsd.start + avsd.step * intdist;
-
-	// Then, the stop time:
-	sampdist = (avstop - reqintv.stop) / avsd.step;
-	intdist = mNINT(sampdist);
-	if ( !trc )
-	{
-	    sampdist -= intdist;
-	    if ( sampdist < -eps || sampdist > eps )
-	    {
-		// Reading and not on sample: read more to allow interpolation
-		sampdist += intdist - 1.5;
-		intdist = sampdist < 0 ? 0 : mNINT(sampdist);
-	    }
-	}
-	reqintv.stop = avstop - avsd.step * intdist;
-
-	if ( reqintv.start > reqintv.stop ) Swap(reqintv.start,reqintv.stop);
-
-	float reqstep = outcds[idx]->sd.step;
-	sampdist = reqstep / avsd.step;
-	intdist = (int)(sampdist + eps);
-	if ( intdist < 1 ) intdist = 1;
-	outcds[idx]->sd.step = avsd.step * intdist;
-	outcds[idx]->sd.start = reqintv.start;
-	float fnrsamps = (reqintv.stop - reqintv.start) / outcds[idx]->sd.step
-	    		+ 1;
-	outcds[idx]->nrsamples = (int)(fnrsamps + eps);
     }
+    reqintv.start = avsd.start + avsd.step * intdist;
+
+    // Then, the stop time:
+    sampdist = (avstop - reqintv.stop) / avsd.step;
+    intdist = mNINT(sampdist);
+    if ( !trc )
+    {
+	sampdist -= intdist;
+	if ( sampdist < -eps || sampdist > eps )
+	{
+	    // Reading and not on sample: read more to allow interpolation
+	    sampdist += intdist - 1.5;
+	    intdist = sampdist < 0 ? 0 : mNINT(sampdist);
+	}
+    }
+    reqintv.stop = avstop - avsd.step * intdist;
+
+    if ( reqintv.start > reqintv.stop ) Swap(reqintv.start,reqintv.stop);
+
+    float reqstep = outsd.step;
+    sampdist = reqstep / avsd.step;
+    intdist = (int)(sampdist + eps);
+    if ( intdist < 1 ) intdist = 1;
+    outsd.step = avsd.step * intdist;
+    outsd.start = reqintv.start;
+    float fnrsamps = (reqintv.stop - reqintv.start) / outsd.step + 1;
+    outnrsamples = (int)(fnrsamps + eps);
 }
 
 
@@ -418,100 +411,6 @@ bool SeisTrcTranslator::dumpBlock()
 }
 
 
-void SeisTrcTranslator::usePar( const IOPar& iopar )
-{
-    int nr = 0;
-    BufferString nrstr;
-    while ( 1 )
-    {
-	if ( !nr )	nrstr = "";
-	else		{ nrstr = "."; nrstr += nr; }
-	nr++;
-
-	BufferString keystr = SurveyInfo::sKeyZRange; keystr += nrstr;
-	const char* res = iopar.find( (const char*)keystr );
-	if ( !res )
-	{
-	    if ( nr > 1 )	break;
-	    else		continue;
-	}
-	storediopar.set( keystr, res );
-
-	keystr = "Name"; keystr += nrstr;
-	const char* nm = iopar.find( (const char*)keystr );
-	storediopar.set( "Name", nm );
-
-	keystr = "Index"; keystr += nrstr;
-	storediopar.set( keystr, iopar.find( (const char*)keystr ) );
-	keystr = "Data characteristics"; keystr += nrstr;
-	storediopar.set( keystr, iopar.find( (const char*)keystr ) );
-    }
-}
-
-
-void SeisTrcTranslator::useStoredPar()
-{
-    if ( cds.size() < 1 ) return;
-
-    int nr = 0;
-    BufferString nrstr;
-    while ( 1 )
-    {
-	if ( cds.size() < nr ) break;
-	if ( !nr )
-	    nrstr = "";
-	else
-	    { nrstr = "."; nrstr += nr; }
-	TargetComponentData* tcd = tarcds[nr ? nr-1 : 0];
-	nr++;
-
-	BufferString keystr( "Name" ); keystr += nrstr;
-	const char* nm = storediopar.find( (const char*)keystr );
-	if ( nm && *nm ) tcd->setName( nm );
-
-	keystr = SurveyInfo::sKeyZRange; keystr += nrstr;
-	const char* res = storediopar.find( (const char*)keystr );
-	if ( res && *res )
-	{
-	    FileMultiString fms( res );
-	    const int sz = fms.size();
-	    StepInterval<float> posns;
-	    posns.start = tcd->sd.start;
-	    posns.stop = tcd->sd.start + tcd->sd.step * (tcd->nrsamples-1);
-	    posns.step = tcd->sd.step;
-	    if ( sz > 0 )
-	    {
-		const char* res = fms[0];
-		if ( *res ) posns.start = atof( res );
-	    }
-	    if ( sz > 1 )
-	    {
-		const char* res = fms[1];
-		if ( *res ) posns.stop = atof( res );
-	    }
-	    if ( sz > 2 )
-	    {
-		const char* res = fms[2];
-		if ( *res ) posns.step = atof( res );
-	    }
-	    tcd->sd.start = posns.start;
-	    tcd->sd.step = posns.step;
-	    tcd->nrsamples = posns.nrSteps() + 1;
-	}
-
-	keystr = "Index"; keystr += nrstr;
-	res = storediopar.find( (const char*)keystr );
-	if ( res && *res )
-	    tcd->destidx = atoi( res );
-
-	keystr = "Data characteristics"; keystr += nrstr;
-	res = storediopar.find( (const char*)keystr );
-	if ( res && *res )
-	    tcd->datachar.set( res );
-    }
-}
-
-
 void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 {
     for ( int idx=0; idx<nrout_; idx++ )
@@ -530,12 +429,9 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 
 
 void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
-				 const SamplingData<float>& s,
-				 int ns, const char* nm, int dtype )
+				 const char* nm, int dtype )
 {
     ComponentData* newcd = new ComponentData( nm );
-    newcd->sd = s;
-    newcd->nrsamples = ns;
     newcd->datachar = dc;
     newcd->datatype = dtype;
     cds += newcd;
@@ -595,9 +491,9 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
     newtrc->data().delComponent(0);
     for ( int idx=0; idx<nrout_; idx++ )
     {
-	newtrc->data().addComponent( outcds[idx]->nrsamples,
+	newtrc->data().addComponent( outnrsamples,
 				     outcds[idx]->datachar, true );
-	newtrc->info().sampling = outcds[idx]->sd;
+	newtrc->info().sampling = outsd;
     }
 
     return newtrc;
@@ -617,13 +513,6 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, BinIDSampler& bs,
     const SeisPacketInfo& pinfo = tr->packetInfo();
     bs.copyFrom( pinfo.binidsampling );
     bs.step = pinfo.binidsampling.step;
-
-    assign( zrg, SI().zRange() );
-    const ObjectSet<TargetComponentData>& cinfo = tr->componentInfo();
-    if ( !cinfo.size() ) return true;
-
-    const TargetComponentData& cd = *cinfo[0];
-    zrg = cd.sd.interval( cd.nrsamples );
-
+    zrg = tr->insd.interval( tr->innrsamples );
     return true;
 }

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.22 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.23 2004-07-16 15:35:25 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -81,8 +81,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	: CBVSIOMgr(fnm)
 	, info_(i)
 {
-    const BasicComponentInfo& cinf0 = *info_.compinfo[0];
-    const int totsamps = cinf0.nrsamples;
+    const int totsamps = info_.nrsamples;
     if ( totsamps < 1 ) return;
 
     VBrickSpec spec; if ( bs ) spec = *bs;
@@ -119,12 +118,9 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	    { endsamp++; extrasamps--; }
 	if ( endsamp >= totsamps ) endsamp = totsamps-1;
 
-	for ( int idx=0; idx<inf.compinfo.size(); idx++ )
-	{
-	    inf.compinfo[idx]->sd.start = cinf0.sd.start
-					+ startsamp * cinf0.sd.step;
-	    inf.compinfo[idx]->nrsamples = endsamp - startsamp + 1;
-	}
+	inf.sd.start = info_.sd.start + startsamp * info_.sd.step;
+	inf.sd.start = info_.sd.start + startsamp * info_.sd.step;
+	inf.nrsamples = endsamp - startsamp + 1;
 
 	std::ostream* strm = mkStrm();
 	if ( !strm )

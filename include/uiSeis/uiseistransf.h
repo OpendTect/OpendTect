@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.10 2004-07-02 15:30:54 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.11 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 class IOObj;
 class Executor;
-class SeisSelData;
+class SeisSelection;
 class uiGenInput;
 class uiBinIDSubSel;
 class uiSeisFmtScale;
@@ -28,7 +28,7 @@ public:
 
     void		updateFrom(const IOObj&);
 
-    Executor*		getTrcProc(const SeisSelData& from,const IOObj* to,
+    Executor*		getTrcProc(const SeisSelection& from,const IOObj* to,
 	    			   const char* executor_txt,
 				   const char* work_txt) const;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.19 2004-06-23 11:18:46 nanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.20 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "ranges.h"
 #include "multiid.h"
-#include "position.h"
+#include "binidvalset.h"
 #include "bufstringset.h"
 
 class Color;
@@ -57,13 +57,12 @@ public:
     const Color&		getPickColor()		{ return pickcolor; }
     bool			storeSinglePickSet(PickSet*);
     void			renamePickset(const char*,BufferString&);
-    void			setMisclassSet(const TypeSet<BinIDZValue>&);
+    void			setMisclassSet(const BinIDValueSet&);
 
+    BinIDValueSet&		genDef() 		{ return gendef; }
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids; }
     const BinIDRange*		selBinIDRange() const	{ return selbr; }
-    TypeSet<BinID>&		horDef() 		{ return hordef; }
-    TypeSet<Interval<float> >& 	horDepth()		{ return hordepth; }
 
 protected:
 
@@ -73,9 +72,8 @@ protected:
     BoolTypeSet			selsets;
     Color&			pickcolor;
 
+    BinIDValueSet 		gendef;
     ObjectSet<SurfaceInfo> 	hinfos;
-    TypeSet<BinID> 		hordef;
-    TypeSet<Interval<float> >	hordepth;
     ObjectSet<MultiID>		selhorids;
     const BinIDRange*		selbr;
 

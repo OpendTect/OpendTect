@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.31 2004-06-23 10:34:49 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.32 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 
@@ -21,8 +21,6 @@ ________________________________________________________________________
 class ColorAttribSel;
 class AttribSelSpec;
 class CubeSampling;
-class BinID;
-class SeisTrc;
 class BinID;
 
 namespace visBase { class RandomTrack; class Material; 
@@ -75,8 +73,7 @@ public:
 
     void			getDataTraceBids(TypeSet<BinID>&) const;
     Interval<float>		getDataTraceRange() const;
-    void			setTraceData( bool color,
-	    				      ObjectSet<SeisTrc>* trcs);
+    void			setTraceData(bool,SeisTrcBuf&);
 
     bool			canAddKnot(int knotnr) const;
     				/*!< If knotnr<nrKnots the function Checks if
@@ -146,9 +143,7 @@ protected:
     ColorAttribSel&		colas;
     int				selknotidx;
 
-    void			setData(const ObjectSet<SeisTrc>&,int datatp=0);
-    const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&)
-									const;
+    void			setData(const SeisTrcBuf&,int datatp=0);
 
     BinID			snapPosition(const BinID&) const;
     bool			checkPosition(const BinID&) const;
@@ -157,8 +152,8 @@ protected:
     void			knotNrChanged(CallBacker*);
 
     ObjectSet< TypeSet<BinID> > bidsset;
-    ObjectSet<SeisTrc>		cache;
-    ObjectSet<SeisTrc>		colcache;
+    SeisTrcBuf&			cache;
+    SeisTrcBuf&			colcache;
     bool			ismanip;
 
     static const char*		trackstr;

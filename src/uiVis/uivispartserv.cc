@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.226 2004-06-21 15:32:47 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.227 2004-07-16 15:35:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,10 +27,12 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uicursor.h"
 #include "iopar.h"
+#include "binidvalset.h"
 #include "uivismenu.h"
 #include "uicolor.h"
 #include "uitrackingman.h"
 #include "visinterpret.h"
+#include "seisbuf.h"
 
 
 const int uiVisPartServer::evUpdateTree =	0;
@@ -319,46 +321,47 @@ void uiVisPartServer::selectTexture( int id, int textureidx )
 }
 
 
-void uiVisPartServer::getRandomPosDataPos( int id,
-			   ObjectSet< TypeSet<BinIDZValues> >& bidzvset ) const
+void uiVisPartServer::fetchSurfaceData( int id,
+				       ObjectSet<BinIDValueSet>& bivs ) const
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->getDataRandomPos( bidzvset );
+    if ( so )
+	so->fetchData( bivs );
 }
 
 
-void uiVisPartServer::setRandomPosData( int id, bool color,
-		    const ObjectSet<const TypeSet<const BinIDZValues> >* nd )
+void uiVisPartServer::stuffSurfaceData( int id, bool color,
+					const ObjectSet<BinIDValueSet>* bp )
 {
-    if ( !nd ) return;
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( !so )
-	return;
-
-    so->setRandomPosData( color, nd );
+    if ( so )
+	so->stuffData( color, bp );
 }
 
 
 void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( so ) so->getDataTraceBids( bids );
+    if ( so )
+	so->getDataTraceBids( bids );
 }
 	
 
 Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( so ) return so->getDataTraceRange();
-    return Interval<float>(0,0);
+    return so ? so->getDataTraceRange() : Interval<float>(0,0);
 }
 
 
-void uiVisPartServer::setTraceData( int id, bool color,ObjectSet<SeisTrc>* data)
+void uiVisPartServer::setTraceData( int id, bool color, SeisTrcBuf& data )
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( so ) so->setTraceData( color, data );
+    if ( so )
+	so->setTraceData( color, data );
+    else
+	data.deepErase();
 }
 
 
@@ -785,10 +788,12 @@ void uiVisPartServer::removeColorData( int id )
     {
 	case 0:
 	    so->setDataVolume( true, 0 );
-	case 1:
-	    so->setTraceData( true, 0 );
+	case 1: {
+	    SeisTrcBuf dum( false );
+	    so->setTraceData( true, dum );
+	}
 	case 2:
-	    so->setRandomPosData( true, 0 );
+	    so->stuffData( true, 0 );
     }
 }
 

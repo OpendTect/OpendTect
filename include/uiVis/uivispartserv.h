@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.126 2004-05-15 13:14:52 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.127 2004-07-16 15:35:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,11 @@ ________________________________________________________________________
 #include "attribsel.h"
 
 class AttribSliceSet;
+class BinIDValueSet;
 class BufferStringSet;
 class ColorTable;
 class PickSet;
-class SeisTrc;
+class SeisTrcBuf;
 class SurfaceInfo;
 class uiPopupMenu;
 class uiTrackingMan;
@@ -99,18 +100,12 @@ public:
     			//Trace data
     void		getDataTraceBids(int id, TypeSet<BinID>&) const;
     Interval<float>	getDataTraceRange(int id) const;
-    void		setTraceData(int id, bool color, ObjectSet<SeisTrc>* );
-			//!< Traces become mine
+    void		setTraceData(int id,bool color,SeisTrcBuf&);
 
-    			//Random position data
-    void		getRandomPosDataPos(int id,
-				    ObjectSet<TypeSet<BinIDZValues> >&) const;
-    			/*!< Content of objectset becomes callers */
-    void		setRandomPosData(int id, bool color, const ObjectSet<
-	    			const TypeSet<const BinIDZValues> >* );
-    			/*!< The data should have exactly the same
-			     structure as the positions given in
-			     getRandomPosDataPos */
+    			// See visSurvey::SurfaceDisplay for details
+    void		fetchSurfaceData(int,ObjectSet<BinIDValueSet>&) const;
+    void		stuffSurfaceData(int,bool forcolordata,
+					 const ObjectSet<BinIDValueSet>*);
 
     bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0);
     			/*!<\param menutype Please refer to \ref

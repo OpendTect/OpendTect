@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.9 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.10 2004-07-16 15:35:26 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -14,26 +14,26 @@ static const char* rcsID = "$Id: seisstor.cc,v 1.9 2003-11-07 12:21:58 bert Exp 
 #include "iopar.h"
 #include "ioman.h"
 
-const char* SeisStorage::sNrTrcs = "Nr of traces";
+const char* SeisStoreAccess::sNrTrcs = "Nr of traces";
 
 
-SeisStorage::SeisStorage( const IOObj* ioob )
+SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
 	: trl(0)
 	, ioobj(0)
-	, trcsel(0)
+	, seldata(0)
 	, selcomp(-1)
 {
     setIOObj( ioob );
 }
 
 
-SeisStorage::~SeisStorage()
+SeisStoreAccess::~SeisStoreAccess()
 {
     cleanUp( true );
 }
 
 
-void SeisStorage::setIOObj( const IOObj* ioob )
+void SeisStoreAccess::setIOObj( const IOObj* ioob )
 {
     close();
     if ( !ioob ) return;
@@ -42,49 +42,49 @@ void SeisStorage::setIOObj( const IOObj* ioob )
     if ( !trl )
 	{ delete ioobj; ioobj = 0; }
     else
-	trl->setTrcSel( trcsel );
+	trl->setSelData( seldata );
 }
 
 
-const Conn* SeisStorage::curConn() const
+const Conn* SeisStoreAccess::curConn() const
 { return trl ? trl->curConn() : 0; }
-Conn* SeisStorage::curConn()
+Conn* SeisStoreAccess::curConn()
 { return trl ? trl->curConn() : 0; }
 
 
-void SeisStorage::setTrcSel( SeisTrcSel* tsel )
+void SeisStoreAccess::setSelData( SeisSelData* tsel )
 {
-    delete trcsel; trcsel = tsel;
-    if ( trl ) trl->setTrcSel( trcsel );
+    delete seldata; seldata = tsel;
+    if ( trl ) trl->setSelData( seldata );
 }
 
 
-void SeisStorage::cleanUp( bool alsoioobj )
+void SeisStoreAccess::cleanUp( bool alsoioobj )
 {
     delete trl; trl = 0;
     nrtrcs = 0;
     if ( alsoioobj )
     {
 	delete ioobj; ioobj = 0;
-	delete trcsel; trcsel = 0;
+	delete seldata; seldata = 0;
     }
     init();
 }
 
 
-void SeisStorage::close()
+void SeisStoreAccess::close()
 {
     cleanUp( false );
 }
 
 
-void SeisStorage::fillPar( IOPar& iopar ) const
+void SeisStoreAccess::fillPar( IOPar& iopar ) const
 {
     if ( ioobj ) iopar.set( "ID", ioobj->key() );
 }
 
 
-void SeisStorage::usePar( const IOPar& iopar )
+void SeisStoreAccess::usePar( const IOPar& iopar )
 {
     const char* res = iopar["ID"];
     if ( *res )
@@ -95,13 +95,13 @@ void SeisStorage::usePar( const IOPar& iopar )
 	delete ioob;
     }
 
-    if ( !trcsel ) trcsel = new SeisTrcSel;
-    trcsel->usePar( iopar );
-    if ( trcsel->isEmpty() ) { delete trcsel; trcsel = 0; }
+    if ( !seldata ) seldata = new SeisSelData;
+    if ( !seldata->usePar(iopar) )
+	{ delete seldata; seldata = 0; }
 
     if ( trl )
     {
-	trl->setTrcSel( trcsel );
+	trl->setSelData( seldata );
 	trl->usePar( iopar );
     }
 
