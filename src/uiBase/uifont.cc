@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.2 2000-11-27 15:25:59 bert Exp $
+ RCS:           $Id: uifont.cc,v 1.3 2001-01-24 12:58:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ void uiFont::updateMetrics()
 
 int uiFont::height() const
 {
-    return mQFontMetrics.lineSpacing();
+    return mQFontMetrics.lineSpacing() + 2;
 }
 
 
@@ -123,8 +123,15 @@ int uiFont::width(const char* str) const
 }
 
 
+//! the inter-line spacing
+int uiFont::leading() const
+{
+    return mQFontMetrics.leading();
+}
+
+
+//! the distance from the base line to the uppermost line with pixels.
 int uiFont::ascent() const
-//!< \return the distance from the base line to the uppermost line with pixels
 {
     return mQFontMetrics.ascent();
 }

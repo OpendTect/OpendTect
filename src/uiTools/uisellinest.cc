@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.1 2000-11-27 10:20:46 bert Exp $
+ RCS:           $Id: uisellinest.cc,v 1.2 2001-01-24 12:59:00 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 uiSelLineStyle::uiSelLineStyle( uiObject* p, const LineStyle& l,
 				const char* txt )
-	: uiGroup( p, "Line style selector", 0 )
+	: uiGroup( p, "Line style selector" )
 	, ls( l )
 {
     UserIDSet itms( LineStyle::TypeNames );

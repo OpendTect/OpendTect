@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uilineedit.cc,v 1.2 2001-01-24 12:58:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "i_qlineedit.h"
 #include "i_qobjwrap.h"
 
-#include "qsize.h" 
+#include <qsize.h> 
 
 //------------------------------------------------------------------------------
 
@@ -95,5 +95,23 @@ has been called.
 bool uiLineEdit::isEdited() const
 {
     return mQtThing()->edited();
+}
+
+
+void uiLineEdit::setReadOnly( bool yn )
+{
+    mQtThing()->setReadOnly( yn );
+
+    if( yn )
+	mQtThing()->setBackgroundColor( QColor() );
+    else
+	mQtThing()->setBackgroundMode( QWidget::PaletteBase );
+
+}
+
+
+bool uiLineEdit::isReadOnly() const
+{
+    return mQtThing()->isReadOnly();
 }
 

@@ -17,7 +17,7 @@ ________________________________________________________________________
 uiLabel::uiLabel( uiObject* p, const char* txt, uiObject* buddy )
 	: uiWrapObj<i_QLabel>(new i_QLabel( *this, p, "Label" ), p,txt)
 {
-    mQtThing()->setText( txt );
+    setText( txt );
     if ( buddy ) 
     {
 	mQtThing()->setBuddy( &buddy->qWidget() );
@@ -26,4 +26,12 @@ uiLabel::uiLabel( uiObject* p, const char* txt, uiObject* buddy )
     setStretch( 0, 0 );
 }
 
-const QWidget* 	uiLabel::qWidget_() const 	{ return mQtThing(); } 
+const QWidget* uiLabel::qWidget_() const
+    { return mQtThing(); } 
+
+void uiLabel::setText( const char* txt )
+    { mQtThing()->setText( QString( txt ) ); }
+
+const char* uiLabel::text()
+    { return mQtThing()->text(); }
+

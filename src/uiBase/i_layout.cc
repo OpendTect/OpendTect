@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.1 2000-11-27 10:20:34 bert Exp $
+ RCS:           $Id: i_layout.cc,v 1.2 2001-01-24 12:58:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -373,6 +373,50 @@ void i_LayoutItem::layout()
 		    updated();
 		}
 		break;
+	    case stretchedBelow:
+		{
+		    int nwWidth = loMngr().pos().width();
+		    if( mPos.width() < nwWidth )
+		    {
+			mPos.setWidth( nwWidth );
+			updated();
+		    }
+		    if( mPos.topToAtLeast( otherPos.bottom() + mVerSpacing))
+			updated(); 
+		}
+		break;
+	    case stretchedAbove:
+		{
+		    int nwWidth = loMngr().pos().width();
+		    if( mPos.width() < nwWidth )
+		    {
+			mPos.setWidth( nwWidth );
+			updated();
+		    }
+		}
+		break;
+	    case stretchedLeftTo:
+		{
+		    int nwHeight = loMngr().pos().height();
+		    if( mPos.height() < nwHeight )
+		    {
+			mPos.setHeight( nwHeight );
+			updated();
+		    }
+		}
+		break;
+	    case stretchedRightTo:
+		{
+		    int nwHeight = loMngr().pos().height();
+		    if( mPos.height() < nwHeight )
+		    {
+			mPos.setHeight( nwHeight );
+			updated();
+		    }
+		    if( mPos.leftToAtLeast( otherPos.right() + mHorSpacing ) )  
+			updated(); 
+		}
+		break;
 	    case ensureLeftOf:
 		break;
 	    default:
@@ -445,6 +489,21 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 	    other-> constrList.append( 
 			    new uiConstraint( ensureRightOf, this, margn ) );
 	    break;
+	case stretchedBelow:
+	    break;
+	case stretchedAbove:
+	    other-> constrList.append( 
+			    new uiConstraint( ensureBelow, this, margn ) );
+	    break;
+	case stretchedLeftTo:
+	    other-> constrList.append( 
+			    new uiConstraint( ensureRightOf, this, margn ) );
+	    break;
+	case stretchedRightTo:
+	    other-> constrList.append( 
+			    new uiConstraint( ensureLeftOf, this, margn ) );
+	    break;
+
 	case leftBorder:
 	case rightBorder:
 	case topBorder:
@@ -511,7 +570,7 @@ i_LayoutMngr::i_LayoutMngr( uiObject *parnt, int border, int space,
 			    , UserIDObject( parnt->name() )
 			    , parnt_( parnt )
 			    , curmode( preferred )
-			    , mintextwidgetheight( 0 )
+			    , mintextwidgetheight_( 0 )
 
 {}
 
@@ -521,7 +580,7 @@ i_LayoutMngr::i_LayoutMngr( QWidget* prntWidg, uiObject *parnt,
 			    , UserIDObject( parnt->name() )
 			    , parnt_( parnt )
 			    , curmode( preferred )
-			    , mintextwidgetheight( 0 )
+			    , mintextwidgetheight_( 0 )
 
 {}
 
@@ -725,12 +784,22 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     }
 }
 
+
+int& i_LayoutMngr::mintextwidgetheight()
+{
+    if( !parnt_->prntLayoutMngr() || parnt_->prntLayoutMngr() == this ) 
+	return mintextwidgetheight_;
+
+    return parnt_->prntLayoutMngr()->mintextwidgetheight();
+}
+
+
 void i_LayoutMngr::doLayout( const QRect &externalRect )
 {
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
-    mintextwidgetheight = -1;
+    mintextwidgetheight_ = -1;
 
     childIter.toFirst(); 
     while ( (curChld = childIter.current()) ) 
@@ -739,8 +808,8 @@ void i_LayoutMngr::doLayout( const QRect &externalRect )
 	if( curChld->uiClient() && curChld->uiClient()->isSingleLine() )
 	{ 
 	    int chldPref = curChld->uiClient()->preferredHeight();
-	    if( chldPref > mintextwidgetheight ) 
-		mintextwidgetheight = chldPref;
+	    if( chldPref > mintextwidgetheight() ) 
+		mintextwidgetheight() = chldPref;
 	}
     }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uigroup.cc,v 1.2 2001-01-24 12:58:47 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,8 +67,9 @@ int uiGroup::horCentre() const
 {
     mChkmLayout();
     int offs = mLayoutItm->loMngr().pos().left() + mLayoutItm->pos().left();
+    int border = loMngr.borderSpace();
 
-    if( hCentreObj ) return hCentreObj->horCentre() + offs;
+    if( hCentreObj ) return hCentreObj->horCentre() + offs + border;
 
     return (mLayoutItm->loMngr().pos().left() + 
             mLayoutItm->loMngr().pos().right()  ) / 2;
@@ -78,7 +79,8 @@ int uiGroup::horAlign() const
 {
     mChkmLayout();
     int offs = mLayoutItm->loMngr().pos().left() + mLayoutItm->pos().left();
+    int border = loMngr.borderSpace();
 
-    if( hAlignObj ) return hAlignObj->horAlign() + offs;
+    if( hAlignObj ) return hAlignObj->horAlign() + offs + border;
     return offs;
 }

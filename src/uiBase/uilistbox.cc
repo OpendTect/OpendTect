@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.2 2001-01-24 12:58:50 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,22 +35,23 @@ public:
 QSize i_QListBox::sizeHint() const
 {  
     int fieldWdt = 0;
-    int nRows = 0;
+    int nLines = 0;
     
     const uiListBox* ptClient = dynamic_cast<const uiListBox*> ( uiClient() );
     if( ptClient )
     {
 	fieldWdt = ptClient->fieldWdt;
-	nRows = ptClient->nRows;
+	nLines = ptClient->nLines;
     }
 
     const uiFont* mFont = uiClient()->font();
     if( !mFont ) { pErrMsg("uiClient has no font!"); return QSize(); }
 
-    int totHeight = mFont->height()   * nRows;
-    int totWidth  = mFont->maxWidth() * fieldWdt;
 
-    if ( !(fieldWdt && nRows) )
+    int totHeight= mFont->height() * nLines + 2*frameWidth();
+    int totWidth = mFont->maxWidth() * fieldWdt + 2*frameWidth();
+
+    if ( !(fieldWdt && nLines) )
     {
 	int i = 0;
 	QListBoxItem* itm = item (i);
@@ -66,7 +67,7 @@ QSize i_QListBox::sizeHint() const
 		    totWidth = QMAX ( totWidth, w);
 		}
 	    }
-	    if ( !nRows ) 
+	    if ( !nLines ) 
 	    {
 		totHeight += mFont->height();
 	    } 
@@ -79,15 +80,16 @@ QSize i_QListBox::sizeHint() const
 
 //------------------------------------------------------------------------------
 
-uiListBox::uiListBox(  uiObject* parnt, const char* nm, bool isMultiSelect )
+uiListBox::uiListBox(  uiObject* parnt, const char* nm, bool isMultiSelect,
+		       int preferredNrLines, int preferredFieldWidth )
 : uiWrapObj<i_QListBox>( new i_QListBox( *this, parnt, nm ), parnt, nm )
 , _messenger ( *new i_listMessenger( mQtThing(), this ))
-, fieldWdt( 10 )
-, nRows( 5 )
+, fieldWdt( preferredFieldWidth )
+, nLines( preferredNrLines )
 , cur_id( -1 )
 {
     if( isMultiSelect ) mQtThing()->setSelectionMode( QListBox::Extended );
-    setStretch( 1, 1 );
+    setStretch( 1, isSingleLine() ? 0 : 1 );
 }
 
 uiListBox::~uiListBox() {} // mQtThing is deleted by Qt.
@@ -132,12 +134,12 @@ int uiListBox::insertItems( const char** textList )
 
 uiSize uiListBox::minimumSize() const
 {  
-    if( font() ) { pErrMsg("No font!"); return uiSize(); }
+    if( !font() ) { pErrMsg("No font!"); return uiSize(); }
 
-    int fieldWdt = 3;
-    int nRows = 1;
+//    int fieldWdt = 3;
+//    int nLines = 1;
 
-    int totHeight = font()->height() * nRows;
+    int totHeight = font()->height() * nLines;
     int totWidth  = font()->maxWidth() * fieldWdt;
 
     return uiSize ( totWidth , totHeight );
@@ -159,6 +161,6 @@ uiSize uiListBox::minimumSize() const
 /*! \fn QSize i_QListBox::sizeHint() const
     \reimp
     Computes preferred size by looking at the items in the list.
-    If the uiClient object has a fieldWdt and/or a nRows value set, 
+    If the uiClient object has a fieldWdt and/or a nLines value set, 
     then that overrides.
 */
