@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.16 2001-07-17 10:40:16 bert Exp $
+ RCS:           $Id: uigeninput.h,v 1.17 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,16 +55,16 @@ only if the uiGenInput has not been finalised yet.
 class uiGenInput : public uiGroup
 {
 public:
-			uiGenInput( uiObject* p, const char* disptxt
+			uiGenInput( uiParent* p, const char* disptxt
 				  , const char* inputStr=0 ); 
 
-			uiGenInput( uiObject* p, const char* disptxt,
+			uiGenInput( uiParent* p, const char* disptxt,
 			    const DataInpSpec& );
 
-			uiGenInput( uiObject* p, const char* disptxt,
+			uiGenInput( uiParent* p, const char* disptxt,
 			    const DataInpSpec& ,const DataInpSpec& );
 
-			uiGenInput( uiObject* p, const char* disptxt,
+			uiGenInput( uiParent* p, const char* disptxt,
 			    const DataInpSpec&, const DataInpSpec&,
 			    const DataInpSpec& );
 
@@ -184,6 +184,8 @@ protected:
     ObjectSet<uiDataInpFld>	flds;
     TypeSet<FieldIdx>&		idxes;
 
+    bool		finalised;
+
     BufferString	selText;
     bool		withchk;
     bool		withclr;
@@ -203,7 +205,7 @@ protected:
 
 			//! DataInpField factory
     uiDataInpFld& 	createInpFld(const DataInpSpec&);
-    virtual void	finalise_();
+    void		doFinalise();
     inline DataInpSpec*	spec( int nr )
 			{
 			    return const_cast<DataInpSpec*>

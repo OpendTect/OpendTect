@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.17 2001-08-16 11:05:48 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.18 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,9 +12,9 @@ ________________________________________________________________________
 #include <uicombobox.h>
 #include <uilabel.h>
 #include <uidobjset.h>
+#include <uiobjbody.h>
 
 #include <i_qcombobox.h>
-#include <i_qobjwrap.h>
 
 #include <qsize.h> 
 
@@ -22,71 +22,94 @@ ________________________________________________________________________
 #include <qlabel.h>
 #endif
 
-typedef i_QObjWrapper<QComboBox> i_QComboBox;
+
+class uiComboBoxBody : public uiObjBodyImpl<uiComboBox,QComboBox>
+{
+
+public:
+
+			uiComboBoxBody( uiComboBox& handle, uiParent* p,
+					const char* nm, bool ed)
+			    : uiObjBodyImpl<uiComboBox,QComboBox>(handle,p,nm)
+			    , messenger_( *new i_comboMessenger( this, &handle))
+			    {
+				setEditable( ed );
+				setAutoCompletion( ed );
+				setStretch( 1, 0 );
+			    }
+
+    virtual bool        isSingleLine() const { return true; }
+
+private:
+
+    i_comboMessenger&    messenger_;
+
+};
+
 
 //------------------------------------------------------------------------------
 
-uiComboBox::uiComboBox(  uiObject* parnt, const char* nm, bool ed )
-	: uiWrapObj<i_QComboBox>(new i_QComboBox(*this,nm,parnt,false),parnt,nm)
+
+uiComboBox::uiComboBox(  uiParent* parnt, const char* nm, bool ed )
 						//false: no read/write
-	, _messenger ( *new i_comboMessenger( mQtThing(), this ))
-	, selectionchanged( this )
+    : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
+    , selectionChanged( this )
 {
-    mQtThing()->setEditable( ed );
-    mQtThing()->setAutoCompletion( ed );
     setStretch( 1, 0 );
 }
 
-uiComboBox::uiComboBox(  uiObject* parnt, const PtrUserIDObjectSet& uids,
+uiComboBox::uiComboBox(  uiParent* parnt, const PtrUserIDObjectSet& uids,
 			 bool ed )
-	: uiWrapObj<i_QComboBox>(
-		new i_QComboBox(*this,(const char*)uids->name(),parnt,false),
-				parnt, (const char*)uids->name() )
-	, _messenger ( *new i_comboMessenger( mQtThing(), this ))
-	, selectionchanged( this )
+    : uiObject( parnt, (const char*)uids->name(), 
+		mkbody(parnt,(const char*)uids->name(),ed) )
+    , selectionChanged( this )
 {
-    mQtThing()->setEditable( ed );
-    mQtThing()->setAutoCompletion( ed );
     setStretch( 1, 0 );
     addItems( uids );
 }
 
+
 uiComboBox::~uiComboBox()
 {}
 
-const QWidget* 	uiComboBox::qWidget_() const 	{ return mQtThing(); } 
+
+uiComboBoxBody& uiComboBox::mkbody(uiParent* parnt, const char* nm, bool ed)
+{
+    body_= new uiComboBoxBody(*this,parnt,nm,ed);
+    return *body_; 
+}
 
 int uiComboBox::currentItem() const
 {
-    return mQtThing()->currentItem();
+    return body_->currentItem();
 }
 
 
 void uiComboBox::empty()
 {
-    mQtThing()->clear();
+    body_->QComboBox::clear();
 }
 
 
 const char* uiComboBox::getText() const
 {
     static QString ret;
-    ret = mQtThing()->currentText();
+    ret = body_->currentText();
     return ret;
 }
 
 
 void uiComboBox::setText( const char* txt )
 {
-    NotifyStopper stopper(selectionchanged);
+    NotifyStopper stopper(selectionChanged);
     if ( isPresent(txt) )
 	setCurrentItem(txt);
     else
     {
-	bool iseditable = mQtThing()->editable();
-	if ( !iseditable ) mQtThing()->setEditable( true );
-	mQtThing()->setEditText( txt ? txt : "" );
-	if ( !iseditable ) mQtThing()->setEditable( false );
+	bool iseditable = body_->editable();
+	if ( !iseditable ) body_->setEditable( true );
+	body_->setEditText( txt ? txt : "" );
+	if ( !iseditable ) body_->setEditable( false );
     }
 }
 
@@ -95,56 +118,56 @@ bool uiComboBox::isPresent( const char* txt ) const
 {
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
-	if ( mQtThing()->text(idx) == txt ) return true;
+	if ( body_->text(idx) == txt ) return true;
     return false;
 }
 
 
 const char* uiComboBox::textOfItem( int idx ) const
 {
-    if ( idx < 0 || idx >= mQtThing()->count() ) return "";
-    const_cast<uiComboBox*>(this)->rettxt = (const char*)mQtThing()->text(idx);
+    if ( idx < 0 || idx >= body_->count() ) return "";
+    const_cast<uiComboBox*>(this)->rettxt = (const char*)body_->text(idx);
     return (const char*)rettxt;
 }
 
 
 int uiComboBox::size() const
 {
-    return mQtThing()->count();
+    return body_->count();
 }
 
 
 void uiComboBox::setCurrentItem( const char* txt )
 {
-    NotifyStopper stopper(selectionchanged);
+    NotifyStopper stopper(selectionChanged);
 
-    const int sz = mQtThing()->count();
+    const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( mQtThing()->text(idx) == txt )
-	    { mQtThing()->setCurrentItem( idx ); return; }
+	if ( body_->text(idx) == txt )
+	    { body_->setCurrentItem( idx ); return; }
     }
 }
 
 void uiComboBox::setCurrentItem( int idx )
 {
-    NotifyStopper stopper(selectionchanged);
+    NotifyStopper stopper(selectionChanged);
 
-    if ( idx >= 0 && idx < mQtThing()->count() )
-	mQtThing()->setCurrentItem( idx );
+    if ( idx >= 0 && idx < body_->count() )
+	body_->setCurrentItem( idx );
 }
 
 
 void uiComboBox::setItemText( int idx, const char* txt )
 {
-    if ( idx >= 0 && idx < mQtThing()->count() )
-	mQtThing()->changeItem( QString(txt), idx );
+    if ( idx >= 0 && idx < body_->count() )
+	body_->changeItem( QString(txt), idx );
 }
 
 
 void uiComboBox::addItem( const char* text ) 
 { 
-    mQtThing()->insertItem( QString( text ), -1 );
+    body_->insertItem( QString( text ), -1 );
 }
 
 
@@ -161,7 +184,7 @@ void uiComboBox::addItems( const PtrUserIDObjectSet& uids )
     int curidx = currentItem();
     if ( uids.currentIndex() >= 0 ) curidx = size() + uids.currentIndex() - 1;
     for ( int idx=0; idx<uids.size(); idx++ )
-	mQtThing()->insertItem( QString( uids[idx]->name() ), -1 );
+	body_->insertItem( QString( uids[idx]->name() ), -1 );
     setCurrentItem( curidx );
 }
 
@@ -169,11 +192,11 @@ void uiComboBox::addItems( const PtrUserIDObjectSet& uids )
 void uiComboBox::addItems( const ObjectSet<BufferString>& strs )
 {
     for ( int idx=0; idx<strs.size(); idx++ )
-	mQtThing()->insertItem( QString( *strs[idx] ), -1 );
+	body_->insertItem( QString( *strs[idx] ), -1 );
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiObject* p, const char* txt,
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char* txt,
 					const char* nm, bool ed )
 	: uiGroup(p,"Labeled combobox")
 {
@@ -183,7 +206,7 @@ uiLabeledComboBox::uiLabeledComboBox( uiObject* p, const char* txt,
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiObject* p, const PtrUserIDObjectSet& s,
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const PtrUserIDObjectSet& s,
 				      bool ed )
 	: uiGroup(p,"Labeled combobox")
 {

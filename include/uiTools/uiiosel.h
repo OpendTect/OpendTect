@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.13 2001-07-20 16:17:16 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.14 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ protected:
     virtual void	objSel()		{}
 			//!< notification when user selects from combo
 
-    virtual void	finalise_();
+    void		doFinalise();
 
 };
 

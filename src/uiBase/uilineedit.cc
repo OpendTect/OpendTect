@@ -4,56 +4,87 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.4 2001-05-03 12:14:25 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.5 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uilineedit.h"
-
+#include "uibody.h"
 #include "i_qlineedit.h"
-#include "i_qobjwrap.h"
+#include "uiobjbody.h"
 
 #include <qsize.h> 
 
+
+class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
+{
+public:
+
+                        uiLineEditBody( uiLineEdit& handle,
+				   uiParent*,const char* starttxt=0,
+				   const char* nm="Line Edit");
+
+    virtual bool        isSingleLine() const { return true; }
+
+private:
+
+    i_lineEditMessenger& messenger_;
+
+};
+
+
+
+
+uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt, 
+				const char* deftxt, const char* nm )
+    : uiObjBodyImpl<uiLineEdit,QLineEdit>(handle, parnt, nm)
+    , messenger_ ( *new i_lineEditMessenger( this, &handle ))
+{}
+
 //------------------------------------------------------------------------------
 
-uiLineEdit::uiLineEdit(  uiObject* parnt, const char* deftxt, const char* nm )
-	: uiWrapObj<i_QLineEdit>(new i_QLineEdit(*this,parnt,deftxt), parnt, nm)
-	, _messenger ( *new i_lineEditMessenger( mQtThing(), this ))
-	, textChanged(this)
-	, returnPressed(this)
+uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,deftxt,nm) )
+    , textChanged(this)
+    , returnPressed(this)
 {
     setText( deftxt ? deftxt : "" );
 }
 
-const QWidget* 	uiLineEdit::qWidget_() const 	{ return mQtThing(); } 
+uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* deftxt, 
+				    const char* nm)
+{ 
+    body_ = new uiLineEditBody(*this,parnt,deftxt,nm);
+    return *body_; 
+}
+
 
 const char* uiLineEdit::text() const
 {
-    const_cast<uiLineEdit*>(this)->result = (const char*)mQtThing()->text();
+    const_cast<uiLineEdit*>(this)->result = (const char*)body_->text();
     return (const char*)result;
 }
 
 
 int uiLineEdit::getIntValue() const
 {
-    const_cast<uiLineEdit*>(this)->result = (const char*)mQtThing()->text();
+    const_cast<uiLineEdit*>(this)->result = (const char*)body_->text();
     return *(const char*)result ? atoi(result) : 0;
 }
 
 
 double uiLineEdit::getValue() const
 {
-    const_cast<uiLineEdit*>(this)->result = (const char*)mQtThing()->text();
+    const_cast<uiLineEdit*>(this)->result = (const char*)body_->text();
     return *(const char*)result ? atof(result) : mUndefValue;
 }
 
 
 void uiLineEdit::setText( const char* t )
 {
-    mQtThing()->setText( QString( t ));
-    mQtThing()->setCursorPosition( 0 );
+    body_->setText( QString( t ));
+    body_->setCursorPosition( 0 );
 }
 
 
@@ -87,7 +118,7 @@ changes its contents.
 */
 void uiLineEdit::setEdited( bool yn )
 {
-    mQtThing()->setEdited( yn );
+    body_->setEdited( yn );
 }
 
 
@@ -101,24 +132,24 @@ has been called.
 */
 bool uiLineEdit::isEdited() const
 {
-    return mQtThing()->edited();
+    return body_->edited();
 }
 
 
 void uiLineEdit::setReadOnly( bool yn )
 {
-    mQtThing()->setReadOnly( yn );
+    body_->setReadOnly( yn );
 
     if( yn )
-	mQtThing()->setBackgroundColor( QColor() );
+	body_->setBackgroundColor( QColor() );
     else
-	mQtThing()->setBackgroundMode( QWidget::PaletteBase );
+	body_->setBackgroundMode( QWidget::PaletteBase );
 
 }
 
 
 bool uiLineEdit::isReadOnly() const
 {
-    return mQtThing()->isReadOnly();
+    return body_->isReadOnly();
 }
 

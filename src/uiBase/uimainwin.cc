@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.6 2001-06-07 21:24:12 windev Exp $
+ RCS:           $Id: uimainwin.cc,v 1.7 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,13 +12,15 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "qmainwindow.h"
 #include "qwidget.h"
-#include "i_qobjwrap.h"
 
 #include "uistatusbar.h"
 #include "qstatusbar.h"
 #include "uimenu.h"
 #include "uigroup.h"
 #include "uimsg.h"
+#include "uiobjbody.h"
+#include "uibody.h"
+#include "uiparentbody.h"
 
 #include "msgh.h"
 #include "errh.h"
@@ -29,91 +31,179 @@ ________________________________________________________________________
 #include <qpopupmenu.h>
 #endif
 
-uiMainWin::uiMainWin( uiParent* parnt, const char* nm , bool wantStatusBar, 
-		      bool wantMenuBar)
-	: uiObject( parnt, nm )
-	, mLoMngr( 0 )
-	, mQtThing(new i_QMainWindow(*this,
-			parnt ? &parnt->clientQWidget() : 0, nm))
-	, mCentralWidget( 0 )
-	, mStatusBar( 0 ) , mMenuBar(0) 
-{ 
-    mCentralWidget = new uiGroup("uiGroup client area",this);
 
-    mLoMngr = mCentralWidget->mLayoutMngr(); 
-    mQtThing->setCentralWidget( &mCentralWidget->qWidget() ); 
+#ifdef __debug__
+#include <qmenubar.h>
+#endif
+
+//class uiMainWinBody : public uiBodyIsaQthingImpl<uiMainWin,QMainWindow>
+//		    , public uiParentBody
+class uiMainWinBody : public uiParentBody, public UserIDObject
+		    , public QMainWindow
+{
+public:
+			uiMainWinBody( uiMainWin& handle, uiParent* parnt=0,
+				   const char* nm="uiMainWinBody" );
+
+
+    void		construct( bool wantStatusBar, bool wantMenuBar);
+    virtual		~uiMainWinBody();
+
+#define mHANDLE_OBJ     uiMainWin
+#define mQWIDGET_BASE   QMainWindow
+#define mQWIDGET_BODY   QMainWindow
+#define UIBASEBODY_ONLY
+#include                "i_uiobjqtbody.h"
+
+public:
+
+
+    uiStatusBar* 	uistatusbar();
+    uiMenuBar* 		uimenubar();
+
+    virtual void        polish()
+                        {
+			    MsgClass::theCB = mCB(&uiMSG(),uiMsg,handleMsg);
+                            QMainWindow::polish();
+                        }
+
+    uiGroup*		uiCentralWidg()		{ return centralWidget_; }
+
+    virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
+			{ 
+			    if ( !initing && centralWidget_ ) 
+				centralWidget_->manageChld( o, b );
+			}
+
+    virtual void  	attachChild ( constraintType tp,
+                                              uiObject* child,
+                                              uiObject* other, int margin )
+                        {
+                            if ( !child || !other || initing ) return;
+
+			    centralWidget_->attachChild( tp, child, other,
+							margin); 
+                        }
+
+    void		reDraw( bool deep )
+			{
+			    update();
+			    centralWidget_->reDraw(deep);
+			}
+
+    virtual int		minTextWidgetHeight() const
+			{ return centralWidget_->minTextWidgetHeight(); }
+
+
+//protected:
+
+    virtual void	finalise();
+
+    bool		initing;
+
+    uiGroup*		centralWidget_;
+
+    uiStatusBar* 	mStatusBar;
+    uiMenuBar* 		mMenuBar;
+
+protected:
+
+    virtual const QWidget* managewidg_() const 
+			{ 
+			    if ( !initing ) 
+				return centralWidget_->body()->managewidg();
+			    return qwidget_();
+			}
+};
+
+
+
+uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt, 
+			      const char* nm )
+	//: uiBodyIsaQthingImpl<uiMainWin,QMainWindow> ( handle__, parnt )
+	: uiParentBody()
+	, UserIDObject( nm )
+	, QMainWindow( parnt && parnt->body() ? 
+			    parnt->body()->qwidget() : 0, nm )
+	, handle_( handle__ )
+	, initing( true )
+	, centralWidget_( 0 )
+	, mStatusBar( 0 ) , mMenuBar(0)  {}
+
+void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar)
+{ 
+    centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget" );
+    setCentralWidget( centralWidget_->body()->qwidget() ); 
 
     if( wantStatusBar )
     {
-	QStatusBar* mbar=mQtThing->statusBar();
+	QStatusBar* mbar= statusBar();
 	if( mbar )
-	    mStatusBar = new uiStatusBar( this, "MainWindow StatusBar client", 
-					  *mbar);
+	    mStatusBar = new uiStatusBar( &handle(),
+					  "MainWindow StatusBar handle", *mbar);
 	else
 	    pErrMsg("No statusbar returned from Qt");
     }
     if( wantMenuBar )
     {   
-	QMenuBar* myBar =  mQtThing->menuBar();
+	QMenuBar* myBar =  menuBar();
+
+bool tl = myBar->isTopLevel();
+
 	if( myBar )
-	    mMenuBar = new uiMenuBar( this, "MainWindow MenuBar client", 
+	    mMenuBar = new uiMenuBar( &handle(), "MainWindow MenuBar handle", 
 				      *myBar);
 	else
 	    pErrMsg("No menubar returned from Qt");
     }
+    initing = false;
 }
 
 
-uiMainWin::~uiMainWin( )
+uiMainWinBody::~uiMainWinBody( )
 {
-    delete mCentralWidget;
+    delete centralWidget_;
 }
 
-void uiMainWin::forceRedraw_( bool deep )
+
+void uiMainWinBody::finalise()
+    { centralWidget_->finalise();  finaliseChildren(); }
+
+
+
+uiStatusBar* uiMainWinBody::uistatusbar()
 {
-    uiObject::forceRedraw_( deep );
-    mCentralWidget->forceRedraw_( deep );
-}
-
-
-void uiMainWin::finalise_()
-{
-    uiObject::finalise_();
-    mCentralWidget->finalise();
-}
-
-
-const QWidget* uiMainWin::qWidget_() const
-{ return mQtThing; }
-
-void uiMainWin::qThingDel( i_QObjWrp* qth )
-{
-    mQtThing=0;
-}
-
-
-const uiParent& uiMainWin::clientWidget_() const
-{ 
-    return *mCentralWidget; 
-}
-
-
-uiStatusBar* uiMainWin::statusBar()
-{
-    if ( !mStatusBar) pErrMsg("No statusbar. See uiMainWin's constructor"); 
+    if ( !mStatusBar) pErrMsg("No statusbar. See uiMainWinBody's constructor"); 
     return mStatusBar;
 }
 
 
-uiMenuBar* uiMainWin::menuBar()
+uiMenuBar* uiMainWinBody::uimenubar()
 {
-    if ( !mMenuBar ) pErrMsg("No menuBar. See uiMainWin's constructor"); 
+    if ( !mMenuBar ) pErrMsg("No menuBar. See uiMainWinBody's constructor"); 
     return mMenuBar;
 }
 
 
-void uiMainWin::polish()
-{
-    MsgClass::theCB = mCB(&uiMSG(),uiMsg,handleMsg);
-    uiObject::polish();
+
+uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
+		      bool wantSBar, bool wantMBar )
+    : uiParent( nm, 0 )
+    , body_( 0 )
+{ 
+    body_= new uiMainWinBody( *this, parnt, nm ); 
+    setBody( body_ );
+    body_->construct(wantSBar,wantMBar);
 }
+
+uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
+uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
+void uiMainWin::show()				{ body_->uiShow(); }
+void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
+
+uiObject* uiMainWin::uiObj()
+    { return body_->uiCentralWidg()->uiObj(); }
+
+const uiObject* uiMainWin::uiObj() const
+    { return body_->uiCentralWidg()->uiObj(); }
+

@@ -11,27 +11,45 @@ ________________________________________________________________________
 
 #include <uilabel.h>
 #include <qlabel.h> 
-#include <i_qobjwrap.h>
+#include <uiobjbody.h>
 
 
-uiLabel::uiLabel( uiObject* p, const char* txt, uiObject* buddy )
-	: uiWrapObj<i_QLabel>(new i_QLabel( *this, p, "Label" ), p,txt)
+class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 {
-    setText( txt );
+public:
+
+                        uiLabelBody(uiLabel& handle, uiParent* parnt,
+				    const char* txt )
+			    : uiObjBodyImpl<uiLabel,QLabel>( handle, parnt,txt )
+			    {}
+
+    virtual bool        isSingleLine() const { return true; }
+
+};
+
+
+uiLabel::uiLabel(uiParent* parnt,const char* txt, uiObject* buddy)
+    : uiObject( parnt, txt, mkbody(parnt,txt) )
+{
+    setText(txt);
+
     if ( buddy ) 
     {
-	mQtThing()->setBuddy( &buddy->qWidget() );
+	body_->setBuddy( buddy->body()->qwidget() );
 	buddy->attach( rightOf, this );
     }
     setStretch( 0, 0 );
 }
 
-const QWidget* uiLabel::qWidget_() const
-    { return mQtThing(); } 
+uiLabelBody& uiLabel::mkbody(uiParent* parnt,const char* txt)
+{ 
+    body_= new uiLabelBody(*this,parnt,txt);
+    return *body_; 
+}
 
 void uiLabel::setText( const char* txt )
-    { mQtThing()->setText( QString( txt ) ); }
+    { body_->setText( QString( txt ) ); }
 
 const char* uiLabel::text()
-    { return mQtThing()->text(); }
+    { return body_->text(); }
 

@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.3 2001-05-16 14:57:23 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimain.h"
 #include "uimainwin.h"
-#include "uiobj.h"
+#include "uiobjbody.h"
 #include "uifont.h"
 #include "errh.h"
 #include "settings.h"
@@ -75,7 +75,7 @@ void uiMain::setTopLevel( uiMainWin* obj )
 {
     if( !app )  { pErrMsg("Huh?") ; return; }
     mainobj = obj;
-    app->setMainWidget( &obj->qWidget() ); 
+    app->setMainWidget( obj->body()->qwidget() ); 
 }
 
 

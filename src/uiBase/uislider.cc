@@ -4,48 +4,76 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.2 2001-05-04 10:09:03 windev Exp $
+ RCS:           $Id: uislider.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uislider.h"
-
 #include "i_qslider.h"
-#include "i_qobjwrap.h"
+#include "uiobjbody.h"
 
 #include <qsize.h> 
 
+
 //------------------------------------------------------------------------------
 
-uiSlider::uiSlider(  uiObject* parnt, const char* nm )
-	: uiWrapObj<i_QSlider>(new i_QSlider(*this,parnt), parnt, nm)
-	, _messenger ( *new i_SliderMessenger( mQtThing(), this ))
-	, valueChanged(this)
-	, sliderMoved(this)
+
+
+class uiSliderBody : public uiObjBodyImpl<uiSlider,QSlider>
 {
-    mQtThing()->setOrientation( QSlider::Horizontal );
+public:
+
+                        uiSliderBody( uiSlider& handle,
+				      uiParent* parnt, const char* nm);
+
+    virtual bool        isSingleLine() const { return true; }
+
+private:
+
+    i_SliderMessenger& messenger_;
+
+};
+
+uiSliderBody::uiSliderBody( uiSlider& handle,uiParent* parnt, const char* nm )
+    : uiObjBodyImpl<uiSlider,QSlider>(handle, parnt, nm)
+    , messenger_ ( *new i_SliderMessenger( this, &handle ))
+{}
+
+
+//------------------------------------------------------------------------------
+
+uiSlider::uiSlider(  uiParent* parnt, const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt, nm) )
+    , valueChanged(this)
+    , sliderMoved(this)
+{
+    body_->setOrientation( QSlider::Horizontal );
     setTickMarks( true );
 }
 
-const QWidget* 	uiSlider::qWidget_() const 	{ return mQtThing(); } 
+uiSliderBody& uiSlider::mkbody(uiParent* parnt, const char* nm)
+{ 
+    body_= new uiSliderBody(*this,parnt,nm);
+    return *body_; 
+}
 
 const char* uiSlider::text() const
 {
-    result = mQtThing()->value();
+    result = body_->value();
     return (const char*)result;
 }
 
 
 int uiSlider::getIntValue() const
 {
-    return mQtThing()->value();
+    return body_->value();
 }
 
 
 double uiSlider::getValue() const
 {
-    return mQtThing()->value();
+    return body_->value();
 }
 
 
@@ -57,16 +85,16 @@ void uiSlider::setText( const char* t )
 
 void uiSlider::setValue( int i )
 {
-    mQtThing()->setValue( i );
+    body_->setValue( i );
 }
 
 
 void uiSlider::setValue( double d )
 {
-    mQtThing()->setValue( d );
+    body_->setValue( d );
 }
 
 void uiSlider::setTickMarks( bool yn )
 {
-    mQtThing()->setTickmarks ( yn ? QSlider::Below : QSlider::NoMarks );
+    body_->setTickmarks ( yn ? QSlider::Below : QSlider::NoMarks );
 }

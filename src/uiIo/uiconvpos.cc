@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.1 2001-07-27 10:25:42 nanne Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,16 +25,16 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     xfld = new uiGenInput( this, "X-coordinate", DoubleInpSpec() );
     yfld = new uiGenInput( this, "Y-coordinate", DoubleInpSpec() );
     docoordbut = new uiPushButton( this, "->" );
-    docoordbut->notify( mCB(this,uiConvertPos, getCoord) );
+    docoordbut->activated.notify( mCB(this,uiConvertPos, getCoord) );
     dobinidbut = new uiPushButton( this, "<-" );
-    dobinidbut->notify( mCB(this,uiConvertPos, getBinID) );
+    dobinidbut->activated.notify( mCB(this,uiConvertPos, getBinID) );
     crlfld->attach( alignedBelow, inlfld );
     docoordbut->attach( rightTo, inlfld );
     dobinidbut->attach( alignedBelow, docoordbut );
     xfld->attach( rightTo, docoordbut );
     yfld->attach( alignedBelow, xfld );
-    okText = "Quit";
-    cnclText = "";
+    setOkText("Quit");
+    setCancelText("");
 }
 
 void uiConvertPos::getCoord()

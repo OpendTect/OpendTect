@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.3 2001-07-11 09:08:40 nanne Exp $
+ RCS:           $Id: uimsg.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "uistatusbar.h"
 #include "uiobj.h"
+#include "uibody.h"
+#include "uiparentbody.h"
 
 #undef Ok
 #include <qmessagebox.h>
@@ -73,34 +75,34 @@ void uiMsg::toStatusbar( MsgClass* mc )
 
 void uiMsg::message( const char* text, const char* caption )
 {
-    QMessageBox::information( &mainwin_->clientQWidget(),
+    QMessageBox::information( mainwin_->body()->qwidget(),
 			      QString(caption), QString(text), QString("Ok") );
 }
 
 
 void uiMsg::warning( const char* text, const char* caption )
 {
-    QMessageBox::warning( &mainwin_->clientQWidget(), QString(caption),
+    QMessageBox::warning( mainwin_->body()->qwidget(), QString(caption),
 			  QString(text), QString("Ok") );
 }
 
 
 void uiMsg::error( const char* text, const char* caption )
 {
-    QMessageBox::critical( &mainwin_->clientQWidget(), QString(caption),
+    QMessageBox::critical( mainwin_->body()->qwidget(), QString(caption),
 			   QString(text), QString("Ok") );
 }
 
 
 void uiMsg::about( const char* text, const char* caption )
 {
-    QMessageBox::about( &mainwin_->clientQWidget(), QString(caption),
+    QMessageBox::about( mainwin_->body()->qwidget(), QString(caption),
 			QString(text) );
 }
 
 
 bool uiMsg::askGoOn( const char* text, const char* caption )
 {
-    return !QMessageBox::warning( &mainwin_->clientQWidget(), QString(caption),
+    return !QMessageBox::warning( mainwin_->body()->qwidget(), QString(caption),
                                   QString(text), QString("Yes"), QString("No"));
 }

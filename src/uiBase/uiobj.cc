@@ -4,110 +4,327 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.7 2001-06-08 15:59:43 bert Exp $
+ RCS:           $Id: uiobj.cc,v 1.8 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
+#include "uiobjbody.h"
+#include "uigroup.h"
+#include "uibuttongroup.h"
 #include "i_layout.h"
-#include "i_qobjwrap.h"
+#include "i_layoutitem.h"
 #include "errh.h"
 #include "timer.h"
 
 #include <qpalette.h> 
 #include <qtooltip.h> 
 
+#define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
+#define mBody()		mBody_( body() )
+#define mConstBody()	mBody_(const_cast<uiObject*>(this)->body())
+
+#define pbody()		dynamic_cast<uiParentBody*>( body() )
+//#define pbody()		static_cast<uiParentBody*>( body() )
+#define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
 
 
-uiObject::uiObject( uiParent* parnt, const char* nm )
-    : UserIDObject( nm )
-    , parent_( parnt )
+void uiObjHandle::finalise()
+    { if (body()) body()->finalise(); }
+
+void uiObjHandle::clear()
+    { if (body()) body()->clear(); }
+
+
+uiParent::uiParent( const char* nm, uiParentBody* b )
+    : uiObjHandle(nm, b)  				{}
+
+
+void uiParent::addChild( uiObjHandle& child )
+{
+    if ( child == static_cast<uiObjHandle*>(this) ) return;
+    if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
+
+    uiParentBody* b = pbody();
+    if ( !b )			
+	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
+
+    b->addChild( child );
+}
+
+
+void uiParent::manageChld( uiObjHandle& child, uiObjectBody& bdy )
+{
+    if ( &child == static_cast<uiObjHandle*>(this) ) return;
+    if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
+
+    uiParentBody* b = pbody();
+    if ( !b )			
+	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
+
+    b->manageChld( child, bdy );
+}
+
+
+void uiParent::attachChild ( constraintType tp, uiObject* child,
+			     uiObject* other, int margin )
+{
+    if ( child == static_cast<uiObjHandle*>(this) ) return;
+    if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
+
+    uiParentBody* b = pbody();
+    if ( !b )			
+	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
+
+    b->attachChild ( tp, child, other, margin );
+}
+
+
+int uiParent::minTextWidgetHeight() const
+{
+    const uiParentBody* b = dynamic_cast<const uiParentBody*>( body() );
+    return b->minTextWidgetHeight();
+}
+
+
+void uiParentBody::finaliseChildren()
+{
+    if(!finalised)
+    {
+	finalised= true;
+	for( int idx=0; idx<children.size(); idx++ )
+	    children[idx]->finalise();
+    }
+}
+
+
+void uiParentBody::clearChildren()
+{
+    for( int idx=0; idx<children.size(); idx++ )
+	children[idx]->clear();
+}
+
+uiObject::uiObject( uiParent* p, const char* nm )
+    : uiObjHandle( nm, 0 )
+    , finalising(this)
+    , setGeometry(this)
+    , parent_( p )				
+{ 
+    if ( p ) p->addChild( *this );  
+}
+
+uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
+    : uiObjHandle( nm, &b )
+    , finalising(this)
+    , setGeometry(this)
+    , parent_( p )				
+{ 
+    if ( p ) p->manageChld( *this, b );  
+}
+
+
+void uiObject::setToolTip(const char* t)
+    { mBody()->setToolTip(t); }
+
+
+void uiObject::enableToolTips(bool yn)	{ uiObjectBody::enableToolTips(yn); }
+
+
+bool uiObject::toolTipsEnabled() 
+    { return uiObjectBody::toolTipsEnabled(); }
+
+
+void uiObject::show()				{ mBody()->uiShow(); }
+
+
+void uiObject::hide()				{ mBody()->uiHide(); }
+
+
+void uiObject::setFocus()			{ mBody()->uisetFocus();}
+
+
+
+Color uiObject::backgroundColor() const	
+    { return mConstBody()->uibackgroundColor(); }
+
+
+void uiObject::setBackgroundColor(const Color& col)
+    { mBody()->uisetBackgroundColor(col); }
+
+
+void uiObject::setSensitive(bool yn)	
+    { mBody()->uisetSensitive(yn); }
+
+
+bool uiObject::sensitive() const
+    { return mConstBody()->uisensitive(); }
+
+
+int uiObject::preferredWidth() const
+    { return mConstBody()->preferredWidth(); }
+
+
+void uiObject::setPrefWidth( int w )
+    { mBody()->setPrefWidth(w); }
+
+
+void uiObject::setPrefWidthInChar( float w )
+     { mBody()->setPrefWidthInChar(w); }
+
+
+int uiObject::preferredHeight() const
+    { return mConstBody()->preferredHeight(); }
+
+
+void uiObject::setPrefHeight( int h )
+    { mBody()->setPrefHeight(h); }
+
+
+void uiObject::setPrefHeightInChar( float h )
+     {mBody()->setPrefHeightInChar(h);}
+
+
+void uiObject::setStretch( int hor, int ver )
+     {mBody()->setStretch(hor,ver); }
+
+
+void uiObject::attach ( constraintType tp, int margin )
+    { mBody()->attach(tp, 0, margin); }
+
+void uiObject::attach ( constraintType tp, uiObject* other, int margin )
+    { mBody()->attach(tp, other, margin); }
+
+void uiObject::attach ( constraintType tp, uiGroup* other, int margin )
+    { mBody()->attach(tp, other->uiObj(), margin); }
+
+void uiObject::attach ( constraintType tp, uiButtonGroup* other, int margin )
+    { mBody()->attach(tp, other->uiObj(), margin); }
+
+
+void uiObject::setFont( const uiFont& f )
+    { mBody()->uisetFont(f); }
+
+
+const uiFont* uiObject::font() const
+    { return mConstBody()->uifont(); }
+
+
+uiSize uiObject::actualSize( bool include_border ) const
+    { return mConstBody()->actualSize( include_border ); }
+
+
+void uiObject::setCaption( const char* c )
+    { mBody()->uisetCaption(c); }
+
+
+
+void uiObject::triggerSetGeometry( const i_LayoutItem* mylayout, uiRect& geom )
+    { if ( mylayout == mBody()->layoutItem() ) setGeometry.trigger(geom); }   
+
+void uiObject::reDraw( bool deep )
+    { mBody()->reDraw( deep ); }
+
+
+uiObjectBody::uiObjectBody( uiParent* parnt )
+    : uiBody()
     , horStretch( 0 )
     , verStretch( 0 )
-    , mLayoutItm( 0 )
-    , isHidden( false )
-    , pref_width( -1 )
+    , layoutItem_( 0 )
+    , is_hidden( false )
+    , pref_width( - 1 )
     , pref_char_width( -1 )
     , pref_height( -1 )
     , pref_char_height( -1 )
     , cached_pref_width( 0 )
     , cached_pref_height( 0 )
+    , parent_( parnt ? mParntBody(parnt) : 0  )
     , font_( 0 )
-    , finalised( false )
 { }
 
-uiObject::~uiObject() 
+uiObjectBody::~uiObjectBody() 
 { }
 
 
-void uiObject::show()
+void uiBody::uiShow()			{ finalise(); qwidget()->show(); }
+
+void uiObjectBody::uiShow()
 {
-    isHidden = false;
+    is_hidden = false;
     finalise();
-    qWidget().show();
+    qwidget()->show();
 }
 
-void uiObject::hide()
+
+void uiBody::uiHide()			{ qwidget()->hide(); }
+
+void uiObjectBody::uiHide()
 {
-    if( !isHidden )
+    if( !is_hidden )
     {
 	cached_pref_width  = preferredWidth();
 	cached_pref_height = preferredHeight();
-	isHidden = true; // not before call to preferredXX !!
+	is_hidden = true; // not before call to preferredXX !!
     }
 
-    qWidget().hide();
+    qwidget()->hide();
 }
 
-void uiObject::setFocus()
+void uiObjectBody::uisetFocus()
 { 
-    qWidget().setFocus();
+    qwidget()->setFocus();
 }
 
-void uiObject::setSensitive( bool yn )
+void uiObjectBody::uisetSensitive( bool yn )
 {
-    qWidget().setEnabled( yn );
-}
-
-
-bool uiObject::sensitive() const
-{
-    return qWidget().isEnabled();
-}
-
-void uiObject::forceRedraw_( bool deep )
-{
-    qWidget().update();
+    qwidget()->setEnabled( yn );
 }
 
 
-Color uiObject::backgroundColor() const
+bool uiObjectBody::uisensitive() const
 {
-    return Color( qWidget().backgroundColor().rgb() );
+    return qwidget()->isEnabled();
+}
+
+void uiObjectBody::reDraw( bool deep )
+{
+    qwidget()->update();
 }
 
 
-void uiObject::setBackgroundColor( const Color& c )
+Color uiObjectBody::uibackgroundColor() const
 {
-    QPalette p = qWidget().palette();
+    return Color( qwidget()->backgroundColor().rgb() );
+}
+
+
+void uiObjectBody::uisetBackgroundColor( const Color& c )
+{
+    QPalette p = qwidget()->palette();
     p.setColor( QColorGroup::Background, QColor( QRgb( c.rgb() ))  );
-    qWidget().setPalette( p );
+    qwidget()->setPalette( p );
 }
 
 
-int uiObject::preferredWidth() const
+#ifdef __debug__ 
+#define mChkmLayout()   if(!layoutItem_) { pErrMsg("No layoutItem"); return 0; }
+#else
+#define mChkmLayout()   if(!layoutItem_) { return 0; } 
+#endif
+
+
+int uiObjectBody::preferredWidth() const
 {   // Also look at uiComboBox::preferredWidth() when changing this method.
 
     mChkmLayout();
-    if( isHidden ) return cached_pref_width;
+    if( is_hidden ) return cached_pref_width;
     if( pref_width >= 0 ) return pref_width;
     if( pref_char_width >= 0 ) 
     {
-	if( !font() ){ pErrMsg("uiObject has no font!"); return 0; }
+	if( !uifont() ){ pErrMsg("uiObjectBody has no uifont!"); return 0; }
  
 #ifdef EXTENSIVE_DEBUG
-	int ret_val = pref_char_width * font()->avgWidth();
+	int ret_val = pref_char_width * uifont()->avgWidth();
 	BufferString msg;
 	msg += "Preferred width of";
 	msg += name();
@@ -116,42 +333,27 @@ int uiObject::preferredWidth() const
 	pErrMsg(msg);
 	return ret_val;
 #else
-	return mNINT( pref_char_width * (float)font()->avgWidth() ); 
+	return mNINT( pref_char_width * (float)uifont()->avgWidth() ); 
 #endif
     }
 
-    return mLayoutItm->mQLayoutItem().sizeHint().width(); 
+    return layoutItem_->sizeHint().width(); 
 }
 
 
-int uiObject::horAlign() const
-{
-    mChkmLayout();
-    return mLayoutItm->i_LayoutItem::horAlign();
-}
-
-
-int uiObject::horCentre() const
-//! \return -1 if error
-{
-    mChkmLayout();
-    return mLayoutItm->i_LayoutItem::horCentre();
-}
-
-
-int uiObject::preferredHeight() const
+int uiObjectBody::preferredHeight() const
 { 
     mChkmLayout();
     if( pref_height >= 0 ) return pref_height;
     if( pref_char_height >= 0 ) 
-	{ return mNINT( pref_char_height * (float)font()->height() ); }
+	{ return mNINT( pref_char_height * (float)uifont()->height() ); }
 
-    int prfHgt = isHidden ? cached_pref_height 
-			  : mLayoutItm->mQLayoutItem().sizeHint().height(); 
+    int prfHgt = is_hidden ? cached_pref_height 
+			   : layoutItem_->sizeHint().height(); 
 
-    if( isSingleLine() )
+    if( isSingleLine() && parent_ )
     {
-	int min_height =  mLayoutMngr() ? mLayoutMngr()->minTxtWidgHgt() : 0;
+	int min_height =  parent_->minTextWidgetHeight();
 	if( min_height >= 0  && prfHgt <= min_height ) 
 	    return min_height;
     }
@@ -161,84 +363,61 @@ int uiObject::preferredHeight() const
 }
 
 
-uiSize uiObject::minimumSize() const
-/*! \return minimum size of widget; (-1,-1) if failure. 
-     Used by dGB's layout manager 					*/
+
+uiSize uiObjectBody::actualSize( bool include_border ) const
 {
     mChkmLayout();
-    QSize s = mLayoutItm->i_LayoutItem::minimumSize();
-    return uiSize( s.width(), s.height() );
+    return layoutItem_->actualSize( include_border );
 }
 
 
-uiSize uiObject::actualSize( bool include_border ) const
+void uiObjectBody::setToolTip( const char* txt )
 {
-    mChkmLayout();
-    return mLayoutItm->actualSize( include_border );
+    QToolTip::add( qwidget(), txt );
 }
 
 
-int uiObject::minimumTextWidgetHeight() const
-{
-    const i_LayoutMngr* mgr = mLayoutMngr();
-    return mgr ? mgr->minTxtWidgHgt() : 30;
-}
-
-
-void uiObject::setToolTip( const char* txt )
-{
-    QToolTip::add( &qWidget(), txt );
-}
-
-
-void uiObject::enableToolTips( bool yn )
+void uiObjectBody::enableToolTips( bool yn )
 {
     QToolTip::setEnabled( yn );
 }
 
 
-bool uiObject::toolTipsEnabled()
-{
-    return QToolTip::enabled();
-}
+bool uiObjectBody::toolTipsEnabled()
+    { return QToolTip::enabled(); }
 
 
-void uiObject::setCaption( const char* str )
-{
-    qWidget().setCaption( QString( str ) );
-}
+void uiObjectBody::uisetCaption( const char* str )
+    { qwidget()->setCaption( QString( str ) ); }
 
+i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
+    { return new i_uiLayoutItem( mngr , *this ); }
 
-int uiObject::borderSpace() const
-{
-    return mLayoutMngr() ? mLayoutMngr()->borderSpace() : 10;
-}
 
 
 /*!
     attaches to parent if other=0
 */
-bool uiObject::attach ( constraintType tp, uiObject* other, int margin )
+void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin )
 {
-    if ( prntLayoutMngr() ) 
-	return prntLayoutMngr()->attach ( tp, qWidget(), 
-					  other ? &other->qWidget() : 0,
-					  margin );
-    else
-	return false;
+//    parent_->attachChild( tp, this, other, margin );
+    parent_->attachChild( tp, &uiObjHandle(), other, margin );
 }
 
-const uiFont* uiObject::font() const
+const uiFont* uiObjectBody::uifont() const
 {
     if( !font_ )
-    { const_cast<uiObject*>(this)->font_ = &uiFontList::get(className(*this)); }
+    { 
+	const_cast<uiObjectBody*>(this)->font_ = 
+					&uiFontList::get(className(*this)); 
+    }
 
     return font_;
 }
 
-void uiObject::setFont( const uiFont& f )
+void uiObjectBody::uisetFont( const uiFont& f )
 {
     font_ = &f;
-    qWidget().setFont( font_->qFont() );
-    mLayoutMngr()->setMinTxtWidgHgt( 0 );
+    qwidget()->setFont( font_->qFont() );
+    parent_->setMinTextWidgetHeight();
 }

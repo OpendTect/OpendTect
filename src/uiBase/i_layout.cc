@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.10 2001-06-07 21:50:19 bert Exp $
+ RCS:           $Id: i_layout.cc,v 1.11 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,9 +13,8 @@ ________________________________________________________________________
 #include "errh.h"
 
 #include "i_layout.h"
-#include "i_qobjwrap.h"
-
-#include "uicanvas.h"
+#include "i_layoutitem.h"
+#include "uiobjbody.h"
 
 #include <qlist.h>
 #include <qmenubar.h>
@@ -31,40 +30,17 @@ ________________________________________________________________________
 int i_LayoutMngr::mintxtwidgethgt = -1;
 
 
-class uiConstraint
-{
-friend class i_LayoutItem;
-public:
-
-    			uiConstraint ( constraintType t, i_LayoutItem* o,
-				       int marg )
-			{ 
-			    other = o; type = t; margin = marg; 
-			    if( !other && 
-				((type < leftBorder)||( type > bottomBorder))
-			    ) 
-				{ pErrMsg("No attachment defined!!"); }
-			}
-
-
-protected:
-    constraintType	type;
-    i_LayoutItem* 	other;
-    int			margin;
-};
-
-
 //------------------------------------------------------------------------------
 
 i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm ) 
-:   mngr( m ), mQLayoutItem_( itm ), pt_hStretch( 0 ), pt_vStretch( 0 ),
+:   mngr_( m ), mQLayoutItem_( itm ), 
     preferred_pos_inited( false ), minimum_pos_inited( false )
 {}
 
 
 i_LayoutItem::~i_LayoutItem()
 {
-//    delete &mQLayoutItem_;
+    delete &mQLayoutItem_;
 
     constraintIterator it = iterator();
     uiConstraint* c;
@@ -90,29 +66,27 @@ constraintIterator i_LayoutItem::iterator()
 
 
 uiSize i_LayoutItem::actualSize( bool include_border ) const
-{
-    uiSize sz= pos_[setGeom].size();
-    if ( include_border ) return sz;
-    mDynamicCastGet(const uiScrollView*,sv,uiClient())
-    if ( !sv ) return sz;
-
-    int fw = sv->frameWidth();
-    return uiSize ( sz.width() - 2*fw,  sz.height() - 2*fw);
-}
+    { return pos_[setGeom].size(); }
 
 
-void i_LayoutItem::setGeometry()
+int i_LayoutItem::stretch( bool hor )
+    { return bodyLayouted()->stretch( hor ); }
+
+
+void i_LayoutItem::commitGeometrySet()
 {
     uiRect mPos = pos_[ setGeom ];
+
+    if( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
 
 //#define DEBUG_LAYOUT 
 #ifdef DEBUG_LAYOUT
 
     BufferString msg;
-    if( uiClient() )
+    if( objLayouted() )
     {   
 	msg = "setting geometry on: ";
-	msg +=  uiClient()->name();
+	msg +=  objLayouted()->name();
 	msg += "; top: ";
         msg += mPos.top();
         msg += " left: ";
@@ -135,8 +109,6 @@ void i_LayoutItem::setGeometry()
     mQLayoutItem_.setGeometry ( QRect ( mPos.left(), mPos.top(), 
                                        mPos.width(), mPos.height() )); 
 #endif
-
-    if( uiClient() ) uiClient()->setGeometry( mPos );
 }
 
 void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
@@ -145,10 +117,10 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
     int preferred_width;
     int preferred_height;
 
-    if( uiClient() )
+    if( objLayouted() )
     {
-	preferred_width  = uiClient()->preferredWidth();
-	preferred_height = uiClient()->preferredHeight();
+	preferred_width  = objLayouted()->preferredWidth();
+	preferred_height = objLayouted()->preferredHeight();
     }
     else
     {
@@ -160,7 +132,7 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
 
     BufferString msg;
     msg = "initLayout on ";
-    msg+= uiClient() ? (char*)uiClient()->name() : "UNKNOWN";      
+    msg+= objLayouted() ? const_cast<char*>((const char*)objLayouted()->name()) : "UNKNOWN";      
     msg+= "  mngrTop: ";
     msg+= mngrTop;
     msg+= "  mngrLeft: ";
@@ -169,19 +141,19 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
     pErrMsg( msg );
 
 #endif
-    switch ( mngr.curMode() )
+    switch ( mngr().curMode() )
     {
 	case minimum:
             if( !minimum_pos_inited)
 	    {
 		mPos.zero();
            
-                if( pt_hStretch && *pt_hStretch )
+                if( stretch(true) )
 		    mPos.setWidth( minimumSize().width() );
                 else
 		    mPos.setWidth( preferred_width );
 
-                if( pt_vStretch && *pt_vStretch )
+                if( stretch(false) )
 		    mPos.setHeight( minimumSize().height() );
                 else
 		    mPos.setHeight( preferred_height );
@@ -339,7 +311,7 @@ void i_LayoutItem::layout()
 		break;
 	    case leftBorder:
 		{
-		    int nwLeft = loMngr().pos().left() + mHorSpacing;
+		    int nwLeft = mngr().pos().left() + mHorSpacing;
 		    if( mPos.left() != nwLeft )
 		    {
 			mPos.leftTo( nwLeft );
@@ -349,13 +321,13 @@ void i_LayoutItem::layout()
 		break;
 	    case rightBorder:
 		{
-		    int nwRight = loMngr().pos().right() - mHorSpacing;
+		    int nwRight = mngr().pos().right() - mHorSpacing;
 		    if( mPos.rightToAtLeast( nwRight ) ) updated();
 		}
 		break;
 	    case topBorder:
 		{
-		    int nwTop = loMngr().pos().top() + mVerSpacing;
+		    int nwTop = mngr().pos().top() + mVerSpacing;
 		    if( mPos.top() != nwTop )
 		    {
 			mPos.topTo( nwTop );
@@ -365,7 +337,7 @@ void i_LayoutItem::layout()
 		break;
 	    case bottomBorder:
 		{
-		    int nwBottom = loMngr().pos().bottom() - mVerSpacing;
+		    int nwBottom = mngr().pos().bottom() - mVerSpacing;
 		    if( mPos.bottomToAtLeast( nwBottom ))
 			updated();
 		}
@@ -386,7 +358,7 @@ void i_LayoutItem::layout()
 		break;
 	    case stretchedBelow:
 		{
-		    int nwWidth = loMngr().pos().width();
+		    int nwWidth = mngr().pos().width();
 		    if( mPos.width() < nwWidth )
 		    {
 			mPos.setWidth( nwWidth );
@@ -398,7 +370,7 @@ void i_LayoutItem::layout()
 		break;
 	    case stretchedAbove:
 		{
-		    int nwWidth = loMngr().pos().width();
+		    int nwWidth = mngr().pos().width();
 		    if( mPos.width() < nwWidth )
 		    {
 			mPos.setWidth( nwWidth );
@@ -408,7 +380,7 @@ void i_LayoutItem::layout()
 		break;
 	    case stretchedLeftTo:
 		{
-		    int nwHeight = loMngr().pos().height();
+		    int nwHeight = mngr().pos().height();
 		    if( mPos.height() < nwHeight )
 		    {
 			mPos.setHeight( nwHeight );
@@ -418,7 +390,7 @@ void i_LayoutItem::layout()
 		break;
 	    case stretchedRightTo:
 		{
-		    int nwHeight = loMngr().pos().height();
+		    int nwHeight = mngr().pos().height();
 		    if( mPos.height() < nwHeight )
 		    {
 			mPos.setHeight( nwHeight );
@@ -528,6 +500,7 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
     }
 }
 
+
 //------------------------------------------------------------------
 
 class i_LayoutIterator :public QGLayoutIterator
@@ -574,27 +547,37 @@ i_LayoutItem* i_LayoutIterator::takeCurrent_()
 }
 
 //-----------------------------------------------------------------
+#if 0
 
-i_LayoutMngr::i_LayoutMngr( uiObject *parnt, int border, int space,
+i_LayoutMngr::i_LayoutMngr( uiParentBody *parnt, int border, int space,
 			    const char *name, bool autoAdd )
-			    : QLayout( &parnt->qWidget(), border, space, name )
+			    : QLayout( parnt->qwidget(), border, space, name)
 			    , UserIDObject( parnt->name() )
-			    , parnt_( parnt )
-			    , finalised( false )
 			    , curmode( preferred )
 
 { setAutoAdd( autoAdd ); }
 
-i_LayoutMngr::i_LayoutMngr( QWidget* prntWidg, uiObject *parnt, 
+i_LayoutMngr::i_LayoutMngr( QWidget* prnt,  
+//i_LayoutMngr::i_LayoutMngr( QWidget* prntWidg, uiObject *parnt, 
 			    int border, int space, const char *name, 
 			    bool autoAdd )
-			    : QLayout( prntWidg, border, space, name )
+			    : QLayout( prnt, border, space, name )
 			    , UserIDObject( parnt->name() )
-			    , parnt_( parnt )
-			    , finalised( false )
 			    , curmode( preferred )
 
 { setAutoAdd( autoAdd ); }
+
+#else
+
+i_LayoutMngr::i_LayoutMngr( QWidget* parnt, int border, int space,
+			    const char *name )
+			    : QLayout( parnt, border, space, name)
+			    , UserIDObject( name )
+			    , curmode( preferred )
+
+{}
+
+#endif
 
 i_LayoutMngr::~i_LayoutMngr()
 {
@@ -604,57 +587,23 @@ i_LayoutMngr::~i_LayoutMngr()
 	delete l;
 }
 
+
+void i_LayoutMngr::addItem( i_LayoutItem* itm )
+{
+    if( !itm ) return;
+    childrenList.append( itm );
+}
+
+
 void i_LayoutMngr::addItem( QLayoutItem *qItem )
 {
     if( !qItem ) return;
-
-    QWidgetItem* qwItem;
-    try{ qwItem = dynamic_cast<QWidgetItem*>( qItem );}
-    catch(...) { qwItem=0; }
-
-    i_QObjWrp* iqlItem = 0;
-    if ( qwItem ) 
-    {
-	try{ iqlItem = dynamic_cast<i_QObjWrp*> ( qwItem->widget() ); }
-	catch(...){ iqlItem=0; }
-    }
-
-    i_LayoutItem* uiItem;
-
-    // check if already inserted. 
-    QListIterator<i_LayoutItem> childIter( childrenList );
-    childIter.toFirst();
-    while ( i_LayoutItem* loop = childIter.current() ) 
-    {
-        ++childIter;
-	if( loop->widget() == qItem->widget() ) 
-	{
-	    #ifdef __debug__
-	    if( !iqlItem ) // hmm. we have a non-ui widget, which is already
-                           // known to the manager. In contrast to native
-			   // Qt widgets, uiWidgets are added 
-			   // twice to the manager, once at construction 
-			   // and once by Qt's autoAdd functionality.
-			   // Since the iqlItem==0, we have a Qt widget, 
-			   // which should have been added only once.
-		pErrMsg("WARNING: Native QWidget already present. Returning");
-	    #endif
-	    return;
-	}
-
-    }
-
-
-    uiItem = iqlItem ? new i_uiLayoutItem( *iqlItem->uiClient(), *this, *qItem )
-		     : new i_LayoutItem( *this, *qItem);
-
-    childrenList.append( uiItem );
+    childrenList.append( new i_LayoutItem( *this, *qItem) );
 }
 
 
 QSize i_LayoutMngr::minimumSize() const
 {
-    //finalise();
     setMode( minimum ); 
     doLayout( QRect() );
     uiRect mPos = pos();
@@ -663,7 +612,6 @@ QSize i_LayoutMngr::minimumSize() const
 
 QSize i_LayoutMngr::sizeHint() const
 {
-    //finalise();
     setMode( preferred ); 
     doLayout( QRect() );
     uiRect mPos = pos();
@@ -706,12 +654,12 @@ void i_LayoutMngr::childrenClear( uiObject* cb )
     while ( (curChld = childIter.current()) )
     {
         ++childIter;
-	uiObject* cl = curChld->uiClient();
+	uiObject* cl = curChld->objLayouted();
 	if( cl && cl != cb ) cl->clear();
     }
 }
 
-void i_LayoutMngr::forceChildrenRedraw( uiObject* cb, bool deep )
+void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 {
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
@@ -720,8 +668,8 @@ void i_LayoutMngr::forceChildrenRedraw( uiObject* cb, bool deep )
     while ( (curChld = childIter.current()) )
     {
         ++childIter;
-	uiObject* cl = curChld->uiClient();
-	if( cl && cl != cb ) cl->forceRedraw_( deep );
+	uiObjectBody* cl = curChld->bodyLayouted();
+	if( cl && cl != cb ) cl->reDraw( deep );
     }
 
 }
@@ -729,7 +677,6 @@ void i_LayoutMngr::forceChildrenRedraw( uiObject* cb, bool deep )
 
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
-    //finalise();
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
@@ -755,11 +702,10 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     while ( (curChld = childIter.current()) )
     {
         ++childIter;
-	if ( ( curChld->pt_hStretch && *curChld->pt_hStretch ) 
-           ||( curChld->pt_vStretch && *curChld->pt_vStretch ) )
+	if ( curChld->stretch(true) || curChld->stretch(false) )
         {
 	    resizeList.append( new resizeItem( curChld, 
-			    *curChld->pt_hStretch, *curChld->pt_vStretch ) );
+			    curChld->stretch(true), curChld->stretch(false)) );
         }
     } 
 
@@ -840,32 +786,13 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     while ( (curChld = childIter.current()) )
     {
         ++childIter;
-	curChld->setGeometry();
-    }
-}
-
-
-void i_LayoutMngr::finalise_()
-{
-    finalised=true;
-    //parnt_->finalise();
-
-    i_LayoutItem*       	curChld=0;
-    QListIterator<i_LayoutItem> childIter( childrenList );
-
-    childIter.toFirst();
-    while ( (curChld = childIter.current()) )
-    {
-        ++childIter;
-	uiObject* cl = curChld->uiClient();
-	if( cl ) cl->finalise();
+	curChld->commitGeometrySet();
     }
 }
 
 
 void i_LayoutMngr::doLayout( const QRect &externalRect )
 {
-    //finalise();
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
@@ -873,9 +800,10 @@ void i_LayoutMngr::doLayout( const QRect &externalRect )
     while ( (curChld = childIter.current()) ) 
     { 
 	++childIter;
-	if( curChld->uiClient() && curChld->uiClient()->isSingleLine() )
+	uiObjectBody* cl = curChld->bodyLayouted();
+	if( cl && cl->isSingleLine() )
 	{ 
-	    int chldPref = curChld->uiClient()->preferredHeight();
+	    int chldPref = cl->preferredHeight();
 	    if( chldPref > mintxtwidgethgt ) 
 		mintxtwidgethgt = chldPref;
 	}
@@ -898,7 +826,6 @@ void i_LayoutMngr::doLayout( const QRect &externalRect )
 
 void i_LayoutMngr::layoutChildren( int* itr )
 {
-    //finalise();
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
@@ -925,7 +852,6 @@ void i_LayoutMngr::layoutChildren( int* itr )
 uiRect i_LayoutMngr::childrenRect()
 //!< returns rectangle wrapping around all children.
 {
-    //finalise();
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
@@ -977,9 +903,6 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
 			    QWidget* other, int margin) 
 //!< \return true if successful
 {
-    //finalised = false;
-    //parnt_->finalised = false;
-
     QListIterator<i_LayoutItem> childIter( childrenList );
    
     childIter.toFirst();
@@ -991,14 +914,14 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
     while ( ( loop = childIter.current() ) && !(cur && oth) ) 
     {
         ++childIter;
-	if( loop->widget() == &current) cur = loop;
-        if( loop->widget() == other)   oth = loop;
+	if( loop->qwidget() == &current) cur = loop;
+        if( loop->qwidget() == other)   oth = loop;
     }
 
-    if (cur && ( (!oth && !other) || (other && oth && (oth->widget()==other)) ))
+    if (cur && ((!oth && !other) || (other && oth && (oth->qwidget()==other)) ))
     {
-      cur->attach( type, oth, margin );
-      return true;
+	cur->attach( type, oth, margin );
+	return true;
     }
 
     const char* curnm =  current.name();
@@ -1023,11 +946,11 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
     \brief Adds a QlayoutItem to the manager's children
 
     If the item to add ( qItem ) happens to be a QWidgetItem, then it's 
-    widget is almost certain a QWidget wrapped by the i_QObjWrapper template 
+    widget is almost certain a QWidget wrapped by the uiObjectBody template 
     class, since all QWidget's generated by this library are wrapped by this 
     wrapper.
-    This makes the QWidget a i_QObjWrp object, which gives us a reference to 
-    a uiClient, so we can delegate some methods to the client side, which 
+    This makes the QWidget a uiObjectBody object, which gives us a reference to 
+    a uiObjHandle, so we can delegate some methods to the handle side, which 
     opens the way for overriding/adapting some of the QWidget's behaviour.
     (for example, see i_uiLayoutItem::horAlign)
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.18 2001-06-07 21:24:11 windev Exp $
+ RCS:           $Id: uilistbox.cc,v 1.19 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,49 +12,93 @@ ________________________________________________________________________
 #include <uilistbox.h>
 #include <uifont.h>
 #include <uidobjset.h>
+#include <uiobjbody.h>
 
 #include <i_qlistbox.h>
-#include <i_qobjwrap.h>
 
 #include <qsize.h> 
 
-typedef i_QObjWrapper<QListBox> i_QListBoxBase;
 
 
-/*!\brief Derived QListBox, only to override sizeHint() */
-
-class i_QListBox : public i_QListBoxBase
+class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListBox>
 {
-public:
-          
-			i_QListBox( uiObject& client,
-				    uiObject* parnt=0, const char* name=0 )
-			: i_QListBoxBase( client, parnt, name ) {}
 
-        virtual QSize   sizeHint() const;
+public:
+
+                        uiListBoxBody(uiListBox& handle, 
+				  uiParent* parnt=0, 
+				  const char* nm="uiListBoxBody",
+				  bool isMultiSelect=false,
+				  int preferredNrLines=0,
+				  int preferredFieldWidth=0);
+
+    virtual 		~uiListBoxBody()		{ delete &messenger_; }
+
+    void 		setLines( int prefNrLines )
+			{ 
+			    if(prefNrLines >= 0) nLines=prefNrLines;
+			    setStretch( 1, isSingleLine() ? 0 : 1 );
+			}
+
+    virtual uiSize	minimumSize() const; //!< \reimp
+    virtual bool	isSingleLine() const		 { return nLines==1; }
+
+    QSize 		sizeHint() const;
+
+protected:
+
+    int 		fieldWdt;
+    int 		nLines;
+
+private:
+
+    i_listMessenger&    messenger_;
 
 };
 
 
-QSize i_QListBox::sizeHint() const
+
+uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt, 
+			const char* nm, bool isMultiSelect,
+			int preferredNrLines, int preferredFieldWidth )
+	: uiObjBodyImpl<uiListBox,QListBox>( handle, parnt, nm )
+	, messenger_ (*new i_listMessenger(this, &handle))
+	, fieldWdt(preferredFieldWidth)
+	, nLines(preferredNrLines)
 {
-    mDynamicCastGet(const uiListBox*,ptClient,uiClient())
-    if ( !ptClient ) { pErrMsg("uiClient is not a listbox!"); return QSize(); }
-    const uiFont* mFont = ptClient->font();
-    if( !mFont ) { pErrMsg("uiClient has no font!"); return QSize(); }
+    if( isMultiSelect ) setSelectionMode( QListBox::Extended );
+    setStretch( 1, isSingleLine() ? 0 : 1 );
+}
+
+
+/* TODO: over-ride uiObjectBody::preferredWidth() 
+and uiObjectBody::preferredHeight() instead of sizeHint.
+
+Do something like:
+
+- determine preferred char-xxx, depending on items in list
+- set pref_char_xxx (uiObjectBody)
+- set pref_xxx to 0
+- return uiObjectBody::preferredXxxx()
+
+*/
+//! over-rides QWidget::sizeHint()
+QSize uiListBoxBody::sizeHint() const
+{
+    const uiFont* mFont = const_cast<uiListBoxBody*>(this)->uiObjHandle().font();
+    if( !mFont ) { pErrMsg("uiObjHandle has no font!"); return QSize(); }
 
     // initialize to requested size or reasonable default size
     // reasonable sizes are 3 <= nrlines <= 7 , 20 <= nrchars <= 40.
-    const int sz = ptClient->size();
-    int nrchars = ptClient->fieldWdt ? ptClient->fieldWdt : 20;
-    int nrlines = ptClient->nLines ? ptClient->nLines
-		: sz > 7 ? 7 : (sz < 3 ? 3 : sz);
+    const int sz = count();
+    int nrchars = fieldWdt ? fieldWdt : 20;
+    int nrlines = nLines ? nLines : sz > 7 ? 7 : (sz < 3 ? 3 : sz);
 
     // if biggest string is over 20 chars, grow box to max 40 chars.
     const int fontavgpixwidth = mFont->avgWidth();
     const int maxwdth = 40 * fontavgpixwidth;
     int pixwidth = nrchars * fontavgpixwidth;
-    if ( !ptClient->fieldWdt )
+    if ( !fieldWdt )
     {
 	QListBoxItem* itm = item( 0 );
 	for ( int idx=0; itm; itm = item(++idx) )
@@ -70,32 +114,32 @@ QSize i_QListBox::sizeHint() const
     return QSize ( pixwidth+extrasz, pixheight+extrasz );
 }
 
+uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw)
+    : uiObject( p, nm, mkbody(p,nm,ms,nl,pfw) )
+    , selectionChanged( this )
+    , doubleClicked( this )
+    , rightButtonClicked( this )
+    , lastClicked_( -1 )
+{}
 
-uiListBox::uiListBox(  uiObject* parnt, const char* nm, bool isMultiSelect,
-		       int preferredNrLines, int preferredFieldWidth )
-	: uiWrapObj<i_QListBox>(new i_QListBox(*this,parnt,nm),parnt,nm)
-	, _messenger (*new i_listMessenger(mQtThing(),this))
-	, fieldWdt(preferredFieldWidth)
-	, nLines(preferredNrLines)
+
+uiListBox::uiListBox( uiParent* p, const PtrUserIDObjectSet& uids,
+		      bool ms, int nl, int pfw )
+    : uiObject( p, (const char*)uids->name(), 
+		mkbody(p,(const char*)uids->name(), ms,nl,pfw))
+    , selectionChanged( this )
+    , doubleClicked( this )
+    , rightButtonClicked( this )
+    , lastClicked_( -1 )
 {
-    if( isMultiSelect ) mQtThing()->setSelectionMode( QListBox::Extended );
-    setStretch( 1, isSingleLine() ? 0 : 1 );
+    addItems( uids );
 }
 
-
-uiListBox::uiListBox( uiObject* p, const PtrUserIDObjectSet& uids,
-			bool isMultiSelect,
-			int preferredNrLines, int preferredFieldWidth )
-	: uiWrapObj<i_QListBox>(
-		new i_QListBox( *this,p,(const char*)uids->name() ),
-				      p,(const char*)uids->name() )
-	, _messenger(*new i_listMessenger(mQtThing(),this))
-	, fieldWdt(preferredFieldWidth)
-	, nLines(preferredNrLines)
+uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, bool ms,
+				  int nl, int pfw)
 {
-    if( isMultiSelect ) mQtThing()->setSelectionMode( QListBox::Extended );
-    setStretch( 1, isSingleLine() ? 0 : 1 );
-    addItems( uids );
+    body_= new uiListBoxBody(*this,p,nm,ms,nl,pfw);
+    return *body_;
 }
 
 
@@ -104,42 +148,40 @@ uiListBox::~uiListBox()
 }
 
 
-const QWidget* 	uiListBox::qWidget_() const 	{ return mQtThing(); } 
-
+void uiListBox::setLines( int prefNrLines )
+    { body_->setLines(prefNrLines); }
 
 int uiListBox::size() const
-{
-    return mQtThing()->count();
-}
+    { return body_->count(); }
 
 
 bool uiListBox::isSelected ( int idx ) const
 {
-    if ( idx < 0 || idx >= mQtThing()->count() ) return false;
-    return mQtThing()->isSelected( idx );
+    if ( idx < 0 || idx >= body_->count() ) return false;
+    return body_->isSelected( idx );
 }
 
 
 void uiListBox::setSelected( int idx, bool yn )
 {
-    if ( idx >= 0 && idx < mQtThing()->count() )
-	mQtThing()->setSelected( idx, yn );
+    if ( idx >= 0 && idx < body_->count() )
+	body_->setSelected( idx, yn );
 }
 
 
 void uiListBox::selAll( bool yn )
 {
-    if ( mQtThing()->selectionMode() != QListBox::Extended ) return;
+    if ( body_->selectionMode() != QListBox::Extended ) return;
 
-    const int sz = mQtThing()->count();
+    const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
-	mQtThing()->setSelected( idx, yn );
+	body_->setSelected( idx, yn );
 }
 
 
 void uiListBox::addItem( const char* text ) 
 { 
-    mQtThing()->insertItem( QString( text ) , -1 );
+    body_->insertItem( QString( text ) , -1 );
 }
 
 
@@ -156,14 +198,14 @@ void uiListBox::addItems( const PtrUserIDObjectSet& uids )
     int curidx = currentItem();
     if ( uids.currentIndex() >= 0 ) curidx = size() + uids.currentIndex();
     for ( int idx=0; idx<uids.size(); idx++ )
-	mQtThing()->insertItem( QString( uids[idx]->name() ), -1 );
+	body_->insertItem( QString( uids[idx]->name() ), -1 );
     setCurrentItem( curidx );
 }
 
 
 void uiListBox::empty()
 {
-    mQtThing()->clear();
+    body_->QListBox::clear();
 }
 
 
@@ -171,41 +213,41 @@ bool uiListBox::isPresent( const char* txt ) const
 {
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
-	if ( mQtThing()->text(idx) == txt ) return true;
+	if ( body_->text(idx) == txt ) return true;
     return false;
 }
 
 
 const char* uiListBox::textOfItem( int idx ) const
 {
-    if ( idx < 0 || idx >= mQtThing()->count() ) return "";
-    const_cast<uiListBox*>(this)->rettxt = (const char*)mQtThing()->text(idx);
+    if ( idx < 0 || idx >= body_->count() ) return "";
+    rettxt = (const char*)body_->text(idx);
     return (const char*)rettxt;
 }
 
 
 int uiListBox::currentItem() const
 {
-    return mQtThing()->currentItem();
+    return body_->currentItem();
 }
 
 
 void uiListBox::setCurrentItem( const char* txt )
 {
-    const int sz = mQtThing()->count();
+    const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( mQtThing()->text(idx) == txt )
+	if ( body_->text(idx) == txt )
 	    { setCurrentItem( idx ); return; }
     }
 }
 
 void uiListBox::setCurrentItem( int idx )
 {
-    if ( idx >= 0 && idx < mQtThing()->count() )
+    if ( idx >= 0 && idx < body_->count() )
     {
-	mQtThing()->setCurrentItem( idx );
-	if ( mQtThing()->selectionMode() != QListBox::Extended )
+	body_->setCurrentItem( idx );
+	if ( body_->selectionMode() != QListBox::Extended )
 	    setSelected( idx );
     }
 }
@@ -213,16 +255,17 @@ void uiListBox::setCurrentItem( int idx )
 
 void uiListBox::setItemText( int idx, const char* txt )
 {
-    mQtThing()->changeItem( QString(txt), idx );
+    body_->changeItem( QString(txt), idx );
 }
 
 
-uiSize uiListBox::minimumSize() const
+uiSize uiListBoxBody::minimumSize() const
 {  
-    if( !font() ) { pErrMsg("No font!"); return uiSize(); }
+    const uiFont* mFont = const_cast<uiListBoxBody*>(this)->uiObjHandle().font();
+    if( !mFont ) { pErrMsg("uiObjHandle has no font!"); return uiSize(); }
 
-    int totHeight = font()->height() * nLines;
-    int totWidth  = font()->maxWidth() * fieldWdt;
+    int totHeight = mFont->height() * nLines;
+    int totWidth  = mFont->maxWidth() * fieldWdt;
 
     return uiSize ( totWidth , totHeight );
 }

@@ -4,13 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.2 2001-05-16 14:57:20 arend Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uifiledlg.h"
-#include "i_qobjwrap.h" 
 #include <qfiledialog.h> 
 
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,

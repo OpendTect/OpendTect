@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.7 2001-06-07 21:24:09 windev Exp $
+ RCS:           $Id: uifont.cc,v 1.8 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 
 #include "errh.h"
+#include "uibody.h"
 
 #include <qfont.h>
 #include <qfontdialog.h> 
@@ -143,7 +144,7 @@ bool select( uiFont& fnt, uiParent* parnt, const char* nm )
   
     QFont fontNew;
     fontNew = QFontDialog::getFont( &ok, fnt.qFont(), 
-				    parnt ? &parnt->qWidget() : 0, nm );
+				    parnt ? parnt->body()->qwidget() : 0, nm );
     if( ok ) 
     { 
 	*fnt.mQtThing = fontNew;
@@ -301,13 +302,13 @@ void uiFontList::update( Settings& settings )
 uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
 	: uiDialog(p,nm)
 {
-    cnclText = "";
+    setCancelText("");
     uiFontList::initialise();
     const ObjectSet<uiFont>& fonts = uiFontList::fonts;
     for ( int idx=0; idx<fonts.size(); idx++ )
     {
 	uiButton* but = new uiPushButton( this, (const char*)fonts[idx]->key());
-        but->notify( mCB(this,uiSetFonts,butPushed) );
+        but->activated.notify( mCB(this,uiSetFonts,butPushed) );
 	if( idx ) but->attach( centeredBelow, buttons[idx-1]);
 	buttons += but;
     }
@@ -321,7 +322,7 @@ void uiSetFonts::butPushed( CallBacker* obj )
     int idx = buttons.indexOf( sender );
     if ( idx < 0 ) { pErrMsg("idx < 0. Why?"); return; }
 
-    if ( select(*uiFontList::fonts[idx],sender) )
+    if ( select(*uiFontList::fonts[idx],sender->parent()) )
     {
 	uiFontList::update( Settings::common() );
 	if ( !idx ) uiMain::theMain().setFont( uiFontList::get(0), true );

@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.2 2000-12-22 09:51:08 bert Exp $
+ RCS:           $Id: iodraw.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "iodraw.h"
+#include "iodrawtool.h"
 #include "errh.h"
 #include "pixmap.h"
 #include "color.h"
@@ -22,11 +22,11 @@ ________________________________________________________________________
 #include <qpen.h>
 #include <qbrush.h> 
 
-ioDrawTool::ioDrawTool( QPaintDevice* client, int x_0, int y_0 )
+ioDrawTool::ioDrawTool( QPaintDevice* handle, int x_0, int y_0 )
     : mQPainter( 0 )
     , mQPen( *new QPen() )
     , freeMQPainter ( false )
-    , mQPaintDev( client )
+    , mQPaintDev( handle )
     , mQPaintDevMetrics( 0 )
     , active_( false ) 
     , x0( x_0 )
@@ -165,9 +165,9 @@ void ioDrawTool::clear( const uiRect* rect, const Color* col )
 void ioDrawTool::drawPixmap (const uiPoint destTopLeft, ioPixmap* pm,
 						 const uiRect srcAreaInPixmap )
 {
-    if ( !pm ) 
+    if ( !pm || !pm->Pixmap() ) 
     { 
-	pErrMsg( "ioDrawTool::drawPixmap : No pixmap passed" ); 
+	pErrMsg( "ioDrawTool::drawPixmap : No pixmap" ); 
 	return; 
     }
 

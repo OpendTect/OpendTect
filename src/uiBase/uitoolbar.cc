@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.5 2001-08-15 16:41:15 bert Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.6 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,39 @@ ________________________________________________________________________
 
 #include "i_qtoolbut.h"
 
+#include "uibody.h"
+
+
+class uiToolBarBody : public uiBodyImpl<uiToolBar,QToolBar>
+{
+public:
+
+			uiToolBarBody( uiToolBar& handle, QToolBar& bar )
+			    : uiBodyImpl<uiToolBar,QToolBar>( handle, 0, bar )
+			    {}
+
+			~uiToolBarBody()	{ deepErase(receivers); }
+
+
+    void 		addButton( const ioPixmap&, const CallBack& cb, 
+				   const char* nm="ToolBarButton" );
+
+    void		display(bool yn=true);
+			//!< you must call this after all buttons are added
+
+//    void		addChild( uiObjHandle* child, uiBody*, bool manage=true );
+
+    static QMainWindow::ToolBarDock
+			qdock(uiToolBar::ToolBarDock);
+
+protected:
+    virtual const QWidget*      managewidg_() const	{ return qwidget(); }
+
+private:
+    ObjectSet<i_QToolButReceiver> receivers; // for deleting
+};
+
+
 
 uiToolBar* uiToolBar::getNew( const char* nm, ToolBarDock d, bool newline,
 			      uiMainWin* main )
@@ -31,54 +64,66 @@ uiToolBar* uiToolBar::getNew( const char* nm, ToolBarDock d, bool newline,
     QMainWindow* mw = static_cast<QMainWindow*>( qApp->mainWidget() );
     if ( !mw ) return 0;
 
-    return new uiToolBar( nm, mw, d );
+    QMainWindow::ToolBarDock d_ = uiToolBarBody::qdock(d);
+    QToolBar& bar = *new QToolBar( QString(nm), mw, d_, newline );
+
+    return new uiToolBar( nm, bar );
 }
 
 
-uiToolBar::uiToolBar(const char* nm,QMainWindow* mw,ToolBarDock d, bool newline)
-    : qbar( new QToolBar( QString(nm), mw, (QMainWindow::ToolBarDock) qdock(d),
-	     newline ) )
-{}
+uiToolBar::uiToolBar( const char* nm, QToolBar& qtb )
+    : uiParent( nm, 0 )
+    { setBody( &mkbody(nm,qtb) ); }
 
-
-uiToolBar::~uiToolBar()
-    { deepErase(receivers); }
+uiToolBarBody& uiToolBar::mkbody( const char* nm, QToolBar& qtb )
+{ 
+    body_=new uiToolBarBody( *this, qtb );
+    return *body_; 
+}
 
 
 void uiToolBar::addButton(const ioPixmap& pm, const CallBack& cb,const char* nm)
+    { body_->addButton(pm,cb,nm); }
+
+
+void uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,const char* nm)
 {
+#if 0 
+
+    uiToolButton* but = new uiToolButton( this, nm, pm, &cb );
+
+#else
+
     i_QToolButReceiver* br= new i_QToolButReceiver;
     QToolButton* but= new QToolButton( *pm.Pixmap(), QString(nm), QString::null,
-                           br,  SLOT(buttonPressed()),qbar, nm );
+                           br,  SLOT(buttonPressed()),qthing(), nm );
 
     receivers += br;
 
     br->pressed.notify( cb );
+
+#endif
 }
 
 
 void uiToolBar::display( bool yn )
 {
-    if ( !qbar ) return;
-    if ( yn )	qbar->show();
-    else	qbar->hide();
+    if ( !body_->qthing() ) return;
+    if ( yn )	body_->qthing()->show();
+    else	body_->qthing()->hide();
 }
 
 
-const QWidget* uiToolBar::qWidget_() const     
-    { return qbar; }
-
-
-int uiToolBar::qdock(ToolBarDock d )
+QMainWindow::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
 {
     switch( d )
     {
-	case Top:	return QMainWindow::Top;
-	case Bottom:	return QMainWindow::Bottom;
-	case Right:	return QMainWindow::Right;
-	case Left:	return QMainWindow::Left;
-	case Minimized:	return QMainWindow::Minimized;
+	case uiToolBar::Top:		return QMainWindow::Top;
+	case uiToolBar::Bottom:		return QMainWindow::Bottom;
+	case uiToolBar::Right:		return QMainWindow::Right;
+	case uiToolBar::Left:		return QMainWindow::Left;
+	case uiToolBar::Minimized:	return QMainWindow::Minimized;
     }
-    return 0;
+    return (QMainWindow::ToolBarDock) 0;
 }
 

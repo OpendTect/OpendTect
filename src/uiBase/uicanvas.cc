@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.5 2001-08-22 10:47:03 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.6 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,69 +12,118 @@ ________________________________________________________________________
 #include <uicanvas.h>
 #include <errh.h>
 #include <uiobj.h>
-#include <uidrawable.h>
+#include <i_uidrwbody.h>
 
-#include <i_qtdrawable.h>
-#include <i_qobjwrap.h>
+#include <iodrawimpl.h>
 
 #include <qscrollview.h>
 #include <qpainter.h>
 
-mTemplTypeDef( i_drwblQObj, QWidget, drwblQCanvas )
-mTemplTypeDefT( i_drwblQObj, QScrollView, i_QObjWrapper_QScrollView )
+#include <uimouse.h>
 
-class i_QCanvas : public drwblQCanvas
+#define mButState( e ) ( e->state() | e->button() )
+
+class uiScrollViewBody;
+class uiMouseEvent;
+
+
+int uiCanvasDefaults::defaultWidth  = 600;
+int uiCanvasDefaults::defaultHeight = 400;
+
+
+class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QWidget>
 {
+
 public:
-                        i_QCanvas ( uiCanvas& uiWrapper,
-                                       uiObject* parent=0,
-                                       const char *name= "i_QCanvas" )
-                            : drwblQCanvas (uiWrapper, parent, name )
-                            , mUiScrollClient( uiWrapper ) {}
+                        uiCanvasBody( uiCanvas& handle, uiParent* p,
+				      const char *nm="uiCanvasBody")
+			    : uiDrawableObjBody<uiCanvas,QWidget>
+				( handle, p, nm ) 
+			    {
+				setStretch( 2, 2 );
+				setPrefWidth( uiCanvasDefaults::defaultWidth );
+				setPrefHeight( uiCanvasDefaults::defaultHeight);
+			    }
 
-
-    virtual QSize       sizeHint () const;
-
-protected:
-    uiCanvas&           mUiScrollClient;
+    virtual             ~uiCanvasBody() {};
 };
+
+
 
 //! Derived class from QScrollView in order to handle 'n relay Qt's events
 /*
     defined locally in .cc file.
 */
-class i_ScrollableCanvas : public i_QObjWrapper_QScrollView
+class uiScrollViewBody : public uiDrawableObjBody<uiScrollView,QScrollView>
 {
-
-    friend class        uiDrawableObj;
-
-protected:
-
 public:
-                        i_ScrollableCanvas( uiScrollView& uiWrapper,
-                                          uiObject* parnt=0,
-                                          const char *nm="i_ScrollableCanvas" )
-                            : i_QObjWrapper_QScrollView( uiWrapper, parnt, nm )
-                            , mUiScrollClient( uiWrapper )
+
+                        uiScrollViewBody( uiScrollView& handle,
+                                          uiParent* p=0,
+                                          const char *nm="uiScrollViewBody" )
+			    : uiDrawableObjBody<uiScrollView,QScrollView> 
+				( handle, p, nm )
                             , rubberstate( uiMouseEvent::NoButton )
                             , rbnding( false )
-                            , aspectrat( 0.0 ), rbidx( 0 ) {}
+                            , aspectrat( 0.0 ), rbidx( 0 ) 
+			    {
+				setStretch( 2, 2 );
+				setPrefWidth( uiCanvasDefaults::defaultWidth );
+				setPrefHeight( uiCanvasDefaults::defaultHeight);
+			    }
 
 //    void                update();
-    QSize               sizeHint() const;
 
     uiMouseEvent::ButtonState rubberstate;
     float               aspectrat;
 
-protected:
-    uiScrollView&       mUiScrollClient;
+    virtual QPaintDevice* mQPaintDevice()	{ return viewport(); }
 
+    uiRect		visibleArea() const;
+
+    void		setPrefContentsWidth( int w )      
+			{ 
+			    setPrefWidth( w + 2*frameWidth() ); 
+			}
+    void		setPrefContentsHeight( int h )     
+			{ 
+			    setPrefHeight( h + 2*frameWidth() ); 
+			}
+
+    virtual uiSize      actualSize( bool include_border = true) const
+			{
+			    uiSize sz= uiObjectBody::actualSize(include_border);
+			    if ( include_border ) return sz;
+
+			    int fw = frameWidth();
+			    int w = sz.width()-2*fw;
+			    if ( w<0 ) w=0;
+			    int h = sz.height()-2*fw;
+			    if ( h<0 ) h=0;
+			    return uiSize( w, h );
+			}
+
+
+    void		setRubberBandingOn(uiMouseEvent::ButtonState b)
+				    { rubberstate = b; }
+    uiMouseEvent::ButtonState	rubberBandingOn() const	{ return rubberstate; }
+    void			setAspectRatio(float r)	{ aspectrat = r; }
+    float			aspectRatio()		{ return aspectrat; }
+
+    virtual void        reDraw( bool deep )
+			    { 
+				uiObjectBody::reDraw( deep ); 
+				viewport()->update();
+			    }
+protected:
 
     virtual void        drawContents ( QPainter * p, int clipx,
                             int clipy, int clipw, int cliph );
     virtual void        resizeEvent( QResizeEvent * );
+/*
     virtual void        paintEvent( QPaintEvent* ev )
                         { QScrollView::paintEvent(ev); }
+*/
     virtual void        contentsMousePressEvent( QMouseEvent * e );
     virtual void        contentsMouseMoveEvent ( QMouseEvent * e );
     virtual void        contentsMouseReleaseEvent ( QMouseEvent * e );
@@ -84,145 +133,23 @@ protected:
     int                 rbidx;
     bool                rbnding;
 
-
 };
 
-int uiCanvasABC::defaultWidth  = 600;
-int uiCanvasABC::defaultHeight = 400;
 
-#define mButState( e ) ( e->state() | e->button() )
-
-//------ ui (client) widgets impl.  --------
-
-uiCanvasABC::uiCanvasABC( uiParent* parnt, const char *nm )
-	: uiDrawableObj( parnt, nm ) 
+uiRect uiScrollViewBody::visibleArea() const
 {
-    setStretch( 2, 2 );
-    setPrefWidth( defaultWidth );
-    setPrefHeight( defaultHeight );
-}
-
-
-uiCanvas::uiCanvas( uiObject* parnt, const char* nm )
-	: uiMltplWrapObj<uiCanvasABC,i_QCanvas>(
-			new i_QCanvas( *this, parnt, nm ), parnt, nm) 
-{
-}
-
-
-uiCanvas::~uiCanvas()
-{}
-
-const QWidget* 	uiCanvas::qWidget_() const 	{ return mQtThing(); } 
-
-uiScrollView::uiScrollView( uiObject* parnt, const char *nm)
-	: uiMltplWrapObj<uiCanvasABC,i_ScrollableCanvas>(
-			new i_ScrollableCanvas( *this, parnt, nm ), parnt, nm ) 
-	, mousepressed(this)
-	, mousemoved(this)
-	, mousereleased(this)
-	, mousedoubleclicked(this)
-{}
-
-
-uiScrollView::~uiScrollView()
-{}
-
-
-QPaintDevice* uiScrollView::mQPaintDevice() 
-{ 
-    return mQtThing()->viewport(); 
-}
-
-
-const QWidget* 	uiScrollView::qWidget_() const 	{ return mQtThing(); } 
-
-void uiScrollView::resizeContents ( int w, int h )
-{
-    mQtThing()->resizeContents( w, h );
-}
-
-
-void uiScrollView::updateContents( uiRect area, bool erase )
-{
-    mQtThing()->updateContents ( area.topLeft().x(),  area.topLeft().y(),
-			       area.width(), area.height() );
-}
-
-
-void uiScrollView::updateContents()
-{
-    mQtThing()->viewport()->update();
-}
-
-
-void uiScrollView::setContentsPos ( uiPoint topLeft )
-/*!<
-    Scrolls the content so that the point (x, y) is in the top-left corner. 
-    \sa void QScrollView::setContentsPos ( int x, int y )
-*/
-{
-    mQtThing()->setContentsPos( topLeft.x(), topLeft.y() );
-}
-
-
-uiRect uiScrollView::visibleArea() const
-{
-    QSize vpSize = mQtThing()->clipper()->size();
-    uiPoint tl( mQtThing()->contentsX(), mQtThing()->contentsY() );
-
+    QSize vpSize = clipper()->size();
+    uiPoint tl( contentsX(), contentsY() );
     return uiRect( tl.x(), tl.y(), 
 		   tl.x()+vpSize.width(), tl.y()+vpSize.height() );
 }
 
 
-int uiScrollView::frameWidth() const
-{
-    return mQtThing()->frameWidth();
-}
-
-
-uiMouseEvent::ButtonState uiScrollView::rubberBandingOn() const
-{ return mQtThing()->rubberstate; }
-
-
-void uiScrollView::setRubberBandingOn( uiMouseEvent::ButtonState b )
-{ mQtThing()->rubberstate = b; }
-
-
-void uiScrollView::setAspectRatio( float r)
-{ mQtThing()->aspectrat = r; }
-
-
-float uiScrollView::aspectRatio()
-{ return mQtThing()->aspectrat; }
-
-//------ Qt widgets impl. --------
-
-
-QSize i_QCanvas::sizeHint() const
-{
-    return QSize( mUiScrollClient.pref_width, mUiScrollClient.pref_height );
-}
-
-
-QSize i_ScrollableCanvas::sizeHint() const
-{
-    return QSize( mUiScrollClient.pref_width, mUiScrollClient.pref_height );
-}
-
-/*
-void i_ScrollableCanvas::update()
-{
-    viewport()->update();
-}
-*/
-
-void i_ScrollableCanvas::drawContents ( QPainter * p, int clipx,
+void uiScrollViewBody::drawContents ( QPainter * p, int clipx,
                                             int clipy, int clipw, int cliph )
 {
 
-    if ( !mUiScrollClient.drawTool()->setActivePainter( p ))
+    if ( !drawTool()->setActivePainter( p ))
     {
         pErrMsg( "Could not make Qpainter active." );
         return;
@@ -232,7 +159,7 @@ void i_ScrollableCanvas::drawContents ( QPainter * p, int clipx,
 }
 
 
-void i_ScrollableCanvas::resizeEvent( QResizeEvent *QREv )
+void uiScrollViewBody::resizeEvent( QResizeEvent *QREv )
 {
     const QSize& os = QREv->oldSize();
     uiSize oldSize( os.width(), os.height() );
@@ -247,7 +174,7 @@ void i_ScrollableCanvas::resizeEvent( QResizeEvent *QREv )
 }
 
 
-void i_ScrollableCanvas::contentsMousePressEvent ( QMouseEvent * e )
+void uiScrollViewBody::contentsMousePressEvent ( QMouseEvent * e )
 {
     if ( mButState( e ) == rubberstate )
     {
@@ -277,12 +204,13 @@ void i_ScrollableCanvas::contentsMousePressEvent ( QMouseEvent * e )
 	uiMouseEvent::ButtonState bSt = 
 		    ( uiMouseEvent::ButtonState )(  mButState( e ) );
 	uiMouseEvent evt( bSt, e->x(), e->y() );
-	mUiScrollClient.contentsMousePressHandler( evt );
+
+	handle_.mousepressed.trigger( evt, handle_ );
     } 
 }
 
 
-void i_ScrollableCanvas::contentsMouseMoveEvent( QMouseEvent * e )
+void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent * e )
 {
 // TODO: start a timer, so no move-events required to continue scrolling
 
@@ -336,12 +264,13 @@ void i_ScrollableCanvas::contentsMouseMoveEvent( QMouseEvent * e )
 	uiMouseEvent::ButtonState bSt = 
 		    ( uiMouseEvent::ButtonState )(  mButState( e ) );
 	uiMouseEvent evt( bSt, e->x(), e->y() );
-	mUiScrollClient.contentsMouseMoveHandler( evt );
+
+	handle_.mousemoved.trigger( evt, handle_ );
     } 
 }
 
 
-void i_ScrollableCanvas::contentsMouseReleaseEvent ( QMouseEvent * e )
+void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent * e )
 {
     if ( rbnding && mButState( e ) == rubberstate )
     {
@@ -361,22 +290,95 @@ void i_ScrollableCanvas::contentsMouseReleaseEvent ( QMouseEvent * e )
 
 	rubber.checkCorners();
 	if( rubber.width() > 10 && rubber.height() > 10 )
-	    mUiScrollClient.rubberBandHandler( rubber );
+	    handle_.rubberBandHandler( rubber );
     }
     else
     {
 	uiMouseEvent::ButtonState bSt = 
 		    ( uiMouseEvent::ButtonState )(  mButState( e ) );
 	uiMouseEvent evt( bSt, e->x(), e->y() );
-	mUiScrollClient.contentsMouseReleaseHandler( evt );
+
+	handle_.mousereleased.trigger( evt, handle_ );
     } 
 }
 
 
-void i_ScrollableCanvas::contentsMouseDoubleClickEvent ( QMouseEvent * e )
+void uiScrollViewBody::contentsMouseDoubleClickEvent ( QMouseEvent * e )
 {
-    uiMouseEvent::ButtonState bSt = 
-		( uiMouseEvent::ButtonState )(  mButState( e ) );
+    uiMouseEvent::ButtonState bSt =
+                ( uiMouseEvent::ButtonState )(  mButState( e ) );
     uiMouseEvent evt( bSt, e->x(), e->y() );
-    mUiScrollClient.contentsMouseDoubleClickHandler( evt );
+    handle_.mousedoubleclicked.trigger( evt, handle_ );
 }
+
+
+
+uiCanvas::uiCanvas( uiParent* p, const char *nm )
+    : uiDrawableObj( p,nm, mkbody(p,nm) ) {}
+
+uiCanvasBody& uiCanvas::mkbody( uiParent* p,const char* nm)
+{
+    body_ = new uiCanvasBody( *this,p,nm );
+    return *body_;
+}
+
+
+
+uiScrollView::uiScrollView( uiParent* p, const char *nm )
+    : uiDrawableObj( p,nm, mkbody(p,nm) )
+    , mousepressed(this)
+    , mousemoved( this )
+    , mousereleased( this )
+    , mousedoubleclicked( this ) {}
+
+uiScrollViewBody& uiScrollView::mkbody( uiParent* p,const char* nm)
+{
+    body_ = new uiScrollViewBody( *this,p,nm );
+    return *body_;
+}
+
+void uiScrollView::updateContents()	
+{ body_->viewport()->update(); }
+
+
+void uiScrollView::updateContents( uiRect area, bool erase= true )
+{ 
+    body_->updateContents ( area.topLeft().x(),  area.topLeft().y(),
+                               area.width(), area.height() );
+
+}
+
+
+
+
+
+
+void uiScrollView::resizeContents( int w, int h )
+    { body_->resizeContents(w,h); }
+
+void uiScrollView::setContentsPos( uiPoint topLeft )
+    { body_->setContentsPos(topLeft.x(),topLeft.y()); }
+
+
+uiRect uiScrollView::visibleArea() const
+    { return body_->visibleArea(); }
+
+
+int  uiScrollView::frameWidth() const
+    { return body_->frameWidth(); }
+
+
+void  uiScrollView::setRubberBandingOn(uiMouseEvent::ButtonState st)
+    { body_->setRubberBandingOn(st); }
+
+uiMouseEvent::ButtonState uiScrollView::rubberBandingOn() const
+    { return body_->rubberBandingOn(); }
+
+void  uiScrollView::setAspectRatio( float r )
+    { body_->setAspectRatio(r); }
+
+float  uiScrollView::aspectRatio()
+    { return body_->aspectRatio(); }
+
+
+

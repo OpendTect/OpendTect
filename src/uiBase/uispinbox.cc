@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.2 2001-06-07 21:24:14 windev Exp $
+ RCS:           $Id: uispinbox.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,76 +12,83 @@ ________________________________________________________________________
 #include "uispinbox.h"
 
 #include "i_qspinbox.h"
-#include "i_qobjwrap.h"
+#include "uiobjbody.h"
 
 #include <qsize.h> 
 
 
-typedef i_QObjWrapper<QSpinBox> i_QSpinBoxBase;
-
-class i_QSpinBox : public i_QSpinBoxBase
-//!< Derived QSpinBox, to override mapTextToValue and mapValueToText
+class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QSpinBox>
 {
 public:
 
-                        i_QSpinBox( uiObject& client,
-                                    uiObject* parnt=0, const char* name=0 )
-                        : i_QSpinBoxBase( client, parnt, name ) {}
+                        uiSpinBoxBody(uiSpinBox&,uiParent*, const char* );
+
+    virtual bool        isSingleLine() const		{ return true; }
 
 protected:
+
     virtual int		mapTextToValue( bool* ok );
     virtual QString	mapValueToText( int v );
+
+private:
+
+    i_SpinBoxMessenger& messenger_;
+
 };
 
 
-int i_QSpinBox::mapTextToValue( bool* ok )
+uiSpinBoxBody::uiSpinBoxBody(uiSpinBox& handle, uiParent* p, const char* nm)
+    : uiObjBodyImpl<uiSpinBox,QSpinBox>( handle, p, nm )
+    , messenger_( *new i_SpinBoxMessenger( this, &handle) )	{}
+
+
+int uiSpinBoxBody::mapTextToValue( bool* ok )
 {
-    mDynamicCastGet(uiSpinBox*,ptClient,uiClient())
-    if( ptClient && ptClient->useMappers() )
+    if( handle_.useMappers() )
     {
-        return ptClient->mapTextToValue( ok );
+        return handle_.mapTextToValue( ok );
     }
-    return i_QSpinBoxBase::mapTextToValue( ok );
+    return QSpinBox::mapTextToValue( ok );
 }
 
 
-QString i_QSpinBox::mapValueToText( int v )
+QString uiSpinBoxBody::mapValueToText( int v )
 {
-    mDynamicCastGet(uiSpinBox*,ptClient,uiClient())
-    if( ptClient && ptClient->useMappers() )
+    if( handle_.useMappers() )
     {
-        return QString( ptClient->mapValueToText( v ) );
+        return QString( handle_.mapValueToText( v ) );
     }
-    return i_QSpinBoxBase::mapValueToText(v);
+    return QSpinBox::mapValueToText(v);
 }
 
 //------------------------------------------------------------------------------
 
-uiSpinBox::uiSpinBox(  uiObject* parnt, const char* nm )
-	: uiWrapObj<i_QSpinBox>(new i_QSpinBox(*this,parnt), parnt, nm)
-	, _messenger ( *new i_SpinBoxMessenger( mQtThing(), this ))
-	, valueChanged(this)
-{
-}
+uiSpinBox::uiSpinBox(  uiParent* parnt, const char* nm )
+    : uiObject( parnt,nm,mkbody(parnt,nm) )
+    , valueChanged(this)				{}
 
-const QWidget* 	uiSpinBox::qWidget_() const 	{ return mQtThing(); } 
+uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
+{ 
+    body_= new uiSpinBoxBody(*this,parnt, nm);
+    return *body_; 
+}
 
 const char* uiSpinBox::text() const
 {
-    result = mQtThing()->value();
+    result = body_->value();
     return (const char*)result;
 }
 
 
 int uiSpinBox::getIntValue() const
 {
-    return mQtThing()->value();
+    return body_->value();
 }
 
 
 double uiSpinBox::getValue() const
 {
-    return mQtThing()->value();
+    return body_->value();
 }
 
 
@@ -93,12 +100,12 @@ void uiSpinBox::setText( const char* t )
 
 void uiSpinBox::setValue( int i )
 {
-    mQtThing()->setValue( i );
+    body_->setValue( i );
 }
 
 
 void uiSpinBox::setValue( double d )
 {
-    mQtThing()->setValue( d );
+    body_->setValue( d );
 }
 

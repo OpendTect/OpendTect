@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.1 2000-11-27 10:19:43 bert Exp $
+ RCS:           $Id: uisellinest.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class LineStyle;
 class uiSelLineStyle : public uiGroup
 { 	
 public:
-			uiSelLineStyle(uiObject*,const LineStyle&,
+			uiSelLineStyle(uiParent*,const LineStyle&,
 				       const char* txt=0);
 
     LineStyle		getStyle() const;

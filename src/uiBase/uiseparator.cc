@@ -11,24 +11,38 @@ ________________________________________________________________________
 
 #include <uiseparator.h>
 #include <qframe.h> 
-#include <i_qobjwrap.h>
+#include <uiobjbody.h> 
 
-
-uiSeparator::uiSeparator( uiObject* p, const char* txt, bool hor, bool raised )
-	: uiWrapObj<i_QFrame>(new i_QFrame( *this, p, txt ), p,txt)
+class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
 {
-    int style = hor ? QFrame::HLine : QFrame::VLine;
-    style    |= raised ? QFrame::Raised : QFrame::Sunken;
+public:
+                        uiSeparatorBody(uiSeparator& handle, uiParent* p,
+					const char* nm, bool hor, bool raised)
+			    : uiObjBodyImpl<uiSeparator,QFrame>(handle,p,nm)
+			    {
+				int style = hor ? QFrame::HLine : QFrame::VLine;
+				style    |= raised ? QFrame::Raised 
+						   : QFrame::Sunken;
 
-//    mQtThing()->setFrameShape( hor ? QFrame::HLine : QFrame::VLine );
-//    mQtThing()->setFrameShadow( raised ? QFrame::Raised : QFrame::Sunken );
-    mQtThing()->setFrameStyle( style );
+				setFrameStyle( style );
+			    }
+};
+
+
+uiSeparator::uiSeparator( uiParent* p, const char* txt, bool hor, bool raised )
+    : uiObject(p,txt, mkbody(p,txt,hor,raised) )
+{}
+
+uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt, 
+				      bool hor, bool raised )
+{ 
+    body_= new uiSeparatorBody(*this,p,txt,hor,raised);
+    return *body_; 
 }
 
-const QWidget* 	uiSeparator::qWidget_() const 	{ return mQtThing(); } 
 
 void uiSeparator::setRaised( bool yn)
 { 
-    mQtThing()-> setFrameShadow( yn ? QFrame::Raised : QFrame::Sunken );
+    body_->setFrameShadow( yn ? QFrame::Raised : QFrame::Sunken );
 } 
 

@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.3 2001-05-04 10:09:02 windev Exp $
+ RCS:           $Id: uimenu.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uimenu.h>
-#include <i_qobjwrap.h>
 #include <i_qmenu.h>
+#include <uiparentbody.h>
 #include <uidobjset.h> 
+
+#include <uiobjbody.h> 
 
 #include <qmenudata.h> 
 #include <qmenubar.h>
@@ -21,24 +23,144 @@ ________________________________________________________________________
 #include <uimainwin.h>
 
 
-uiMenuData::uiMenuData()
+#include "uibody.h"
+#include "uimainwin.h"
+
+
+class uiMenuDataBody : public uiBodyImpl<uiMenuData,QMenuData>
 {
-}
+public:
+
+			uiMenuDataBody(uiMenuData& handle, 
+				       uiParent* parnt,
+				       QMenuBar& qThing )
+			    : uiBodyImpl<uiMenuData,QMenuData>
+				( handle, parnt, qThing )
+			    , bar_( &qThing )
+			    , popup_( 0 )	{}
+
+			uiMenuDataBody(uiMenuData& handle, 
+				       uiParent* parnt,
+				       QPopupMenu& qThing )
+			    : uiBodyImpl<uiMenuData,QMenuData>
+				( handle, parnt, qThing )	
+			    , popup_( &qThing )
+			    , bar_( 0 )	{}
+
+			~uiMenuDataBody()	{ deepErase( itms ); }
+
+    virtual void	insertItem( uiMenuItem* it, int idx )
+			{
+			    QString nm( it->name() );
+			    i_MenuMessenger* msgr__= it->messenger();
+			    QMenuData* theqthng__ = qthing();
+
+			    int id__ = theqthng__->insertItem(
+				     nm, msgr__, SLOT( activated() ),0,-1,idx);
+
+			    it->setId( id__ );
+			    it->setMenu( this );
+			    itms += it;
+			}
+
+    void		insertItem( uiPopupMenu* pmnu, int idx )
+			{
+			    uiPopupItem* it = &pmnu->item();
+
+			    QString nm( it->name() );
+			    QPopupMenu* pu = pmnu->body_->popup();
+
+			    int id_ =  qthing()->insertItem( nm, pu, -1, idx) ;
+
+			    it->setId( id_ );
+			    it->setMenu( this );
+			    itms += it;
+			}
+
+    void		insertItem( const char* text, const CallBack& cb, 
+				    int idx )
+			{ 
+			    uiMenuItem* it = new uiMenuItem( text, cb );
+			    insertItem ( it, idx ); 
+			    itms += it;
+			} 
+
+    void		insertSeparator(int);
+
+    bool		isCheckable();
+    void		setCheckable( bool yn );
+
+    QMenuBar*		bar()				{ return bar_; }
+    QPopupMenu*		popup()				{ return popup_; }
+
+    virtual const QWidget*	managewidg_() const 	{ return qwidget(); }
+
+private:
+
+    ObjectSet<uiMenuItem>	itms;
+
+    QMenuBar*		bar_;
+    QPopupMenu*		popup_;
+
+};
 
 
-uiMenuData::~uiMenuData()
-{ 
-    itms.deepErase(); 
-}
+//-----------------------------------------------------------------------
+
+uiMenuItem::uiMenuItem( const char* nm )
+    : UserIDObject( nm )
+    , activated( this )
+    , messenger_( *new i_MenuMessenger( this ) ) 
+    , id_( 0 )
+    , menu_( 0 )
+{}
+
+uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb)
+    : UserIDObject( nm )
+    , activated( this )
+    , messenger_( *new i_MenuMessenger( this ) )
+    , id_( 0 )
+    , menu_( 0 )
+{ activated.notify( cb ); }
+
+
+uiMenuItem::~uiMenuItem()
+    { delete &messenger_; }
+ 
+bool uiMenuItem::isEnabled () const
+    { return menu_->qthing()->isItemEnabled( id_ ); }
+
+
+void uiMenuItem::setEnabled ( bool yn )
+    { menu_->qthing()->setItemEnabled( id_, yn ); }
+
+
+bool uiMenuItem::isChecked () const
+    { return menu_->qthing()->isItemChecked( id_ ); }
+
+
+void uiMenuItem::setChecked( bool yn )
+    { menu_->qthing()->setItemChecked( id_, yn ); }
+
+
+void uiMenuItem::set( const char* txt )
+    { menu_->qthing()->changeItem ( id_, QString(txt) ); }
+
+
+//-----------------------------------------------------------------------
+
+
+
+uiMenuData::uiMenuData( const char* nm, uiMenuDataBody* b )
+    : uiObjHandle( nm, b )
+    , body_( b )				{}
+
+
+uiMenuData::~uiMenuData()			{ delete body_; }
 
 
 void uiMenuData::insertItem( uiMenuItem* it, int idx )
-{
-    it->id = qMenuData().insertItem( QString( it->name() ), 
-			 &it->_messenger, SLOT( activated() ), 0, -1, idx );
-    it->parent=this;
-    itms += it;
-}
+    { body_->insertItem( it, idx); }
 
 /*!
     \brief Add a menu item by menu-text and CallBack.
@@ -49,78 +171,72 @@ void uiMenuData::insertItem( uiMenuItem* it, int idx )
 
 */
 void uiMenuData::insertItem( const char* text, const CallBack& cb, int idx )
-{ 
-    uiMenuItem* it = new uiMenuItem( text, cb );
-    insertItem ( it, idx ); 
-    itms += it;
-} 
-
+    { body_->insertItem( text, cb, idx); }
 
 void uiMenuData::insertItem( uiPopupMenu* it, int idx )
-{
-    it->id = qMenuData().insertItem( QString( it->name() ), it->mQtThing(),
-				     -1, idx);
-    itms += it;
-}
+    { body_->insertItem( it, idx); }
+
+void uiMenuData::insertSeparator( int idx ) 
+    { body_->insertSeparator(idx); }
 
 
-void uiMenuData:: insertSeparator( int idx ) 
-{
-    qMenuData().insertSeparator( idx );
-}
+void uiMenuDataBody::insertSeparator( int idx ) 
+    { qthing()->insertSeparator( idx ); }
 
-
-uiMenuItem::uiMenuItem( const char* nm ) 
-    : UserIDObject( nm )
-    , _messenger( *new i_MenuMessenger( this ) )
-    , id( 0 ) 
-{
-}
-
-
-uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
-	: UserIDObject( nm )
-	, _messenger( *new i_MenuMessenger( this ) )
-	, id( 0 ) 
+void uiMenuData::setMenuBody(uiMenuDataBody* b)  
 { 
-    notifyCBL += cb; 
+    body_=b;
+    setBody( b );
 }
 
-uiMenuItem::~uiMenuItem()
-{
-    delete &_messenger;
+uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm )
+    : uiMenuData( nm, 0 )
+{ 
+    setMenuBody( new uiMenuDataBody( *this, parnt,
+			*new QMenuBar(parnt->body()->qwidget(),nm ) ));
 }
-
-
-bool uiMenuItem::isEnabled () const
-    { return parent->qMenuData().isItemEnabled( id ); }
-void uiMenuItem::setEnabled ( bool yn )
-    { parent->qMenuData().setItemEnabled( id, yn ); }
-bool uiMenuItem::isChecked () const
-    { return parent->qMenuData().isItemChecked( id ); }
-void uiMenuItem::setChecked( bool yn )
-    { parent->qMenuData().setItemChecked( id, yn ); }
-void uiMenuItem::set( const char* txt )
-    { parent->qMenuData().changeItem ( id, QString(txt) ); }
-
 
 uiMenuBar::uiMenuBar( uiMainWin* parnt, const char* nm, QMenuBar& qThing )
-	: uiNoWrapObj<QMenuBar>( &qThing, parnt, nm, false ) 
-{
+    : uiMenuData( nm, 0 )
+{ 
+    setMenuBody( new uiMenuDataBody( *this, parnt, qThing ) ); 
 }
 
-const QWidget* 	uiMenuBar::qWidget_() const 	{ return mQtThing(); } 
-QMenuData& uiMenuBar::qMenuData()		{ return *mQtThing(); }
 
 
-uiPopupMenu::uiPopupMenu( uiObject* parnt, const char* nm )
-	: uiWrapObj<i_QPopupMenu>( new i_QPopupMenu( *(uiObject*)this, 
-				     parnt ? &parnt->clientQWidget() : 0, nm ), 
-				     parnt, nm ) 
+
+
+
+
+uiPopupItem::uiPopupItem( uiPopupMenu& menu, const char* nm )
+: uiMenuItem( nm )
+{}
+
+bool uiPopupItem::isCheckable()
 {
+    if( !menu_->popup() ) { pErrMsg("Huh?"); return false; }
+    return menu_->popup()->isCheckable(); 
 }
 
-const QWidget* 	uiPopupMenu::qWidget_() const 	{ return mQtThing(); } 
-QMenuData& uiPopupMenu::qMenuData()		{ return *mQtThing(); }
-bool uiPopupMenu::isCheckable()		{ return mQtThing()->isCheckable(); }
-void uiPopupMenu::setCheckable(bool yn) { mQtThing()->setCheckable(yn); }
+
+void uiPopupItem::setCheckable( bool yn )
+{
+    if( !menu_->popup() ) { pErrMsg("Huh?"); return; }
+    menu_->popup()->setCheckable(yn); 
+}
+
+
+
+
+uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm )
+: uiMenuData( nm, 0 )
+, item_( *new uiPopupItem( *this, nm ) )
+{
+    setMenuBody ( new uiMenuDataBody( *this, parnt, 
+                              *new QPopupMenu(parnt->body()->qwidget(),nm ) ));
+}
+
+uiPopupMenu::~uiPopupMenu() { delete &item_; }
+
+bool uiPopupMenu::isCheckable()		{ return item().isCheckable(); }
+void uiPopupMenu::setCheckable(bool yn) { item().setCheckable(yn); }

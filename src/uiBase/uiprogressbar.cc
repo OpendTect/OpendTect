@@ -11,40 +11,56 @@ ________________________________________________________________________
 
 #include <uiprogressbar.h>
 #include <qprogressbar.h> 
-#include <i_qobjwrap.h>
+#include <uiobjbody.h> 
 
 
-uiProgressBar::uiProgressBar( uiObject* p, const char* txt, 
+class uiProgressBarBody : public uiObjBodyImpl<uiProgressBar,QProgressBar>
+{
+public:
+
+                        uiProgressBarBody( uiProgressBar& handle, 
+					   uiParent* parnt, const char* nm )
+			    : uiObjBodyImpl<uiProgressBar,QProgressBar>
+				( handle, parnt,nm)		{}
+
+    virtual bool        isSingleLine() const			{ return true; }
+
+};
+
+uiProgressBar::uiProgressBar( uiParent* p, const char* txt, 
 			      int totalSteps, int progress )
-	: uiWrapObj<i_QProgressBar>(new i_QProgressBar( *this, p, txt ), p,txt)
+    : uiObject(p,txt,mkbody(p,txt))
 {
     setProgress( progress );
     setTotalSteps( totalSteps );
     setPrefWidthInChar( 20 );
 }
 
-const QWidget* 	uiProgressBar::qWidget_() const 	{ return mQtThing(); } 
-
+uiProgressBarBody& uiProgressBar::mkbody(uiParent* p, const char* txt)
+{
+    body_= new uiProgressBarBody(*this,p,txt);
+    return *body_; 
+}
 
 void uiProgressBar::setProgress( int progr )
 { 
-    mQtThing()->setProgress( progr );
+    body_->setProgress( progr );
 } 
 
 
 int uiProgressBar::Progress() const
 {
-    return mQtThing()->progress();
+    return body_->progress();
 }
 
 
 void uiProgressBar::setTotalSteps( int tstp )
 { 
-    mQtThing()->setTotalSteps( tstp );
+    body_->setTotalSteps( tstp );
 } 
 
 
 int uiProgressBar::totalSteps() const
 {
-    return mQtThing()->totalSteps();
+    return body_->totalSteps();
 }
