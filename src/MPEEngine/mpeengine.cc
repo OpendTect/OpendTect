@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.14 2005-03-17 14:55:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.15 2005-03-25 16:17:56 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -411,14 +411,18 @@ CubeSampling Engine::getDefaultActiveVolume()
 #include "emhortubetracker.h"
 #include "emfaulteditor.h"
 #include "emfaulttracker.h"
+#include "emhorizoneditor.h"
 #include "emhorizontracker.h"
 
 
 void MPE::initStandardClasses()
 {
+#ifdef __debug__
     MPE::HorizontalTubeEditor::initClass();
     MPE::HorizontalTubeTracker::initClass();
+#endif
     MPE::FaultEditor::initClass();
     MPE::FaultTracker::initClass();
+    MPE::HorizonEditor::initClass();
     MPE::HorizonTracker::initClass();
 }
