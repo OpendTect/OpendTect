@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.62 2002-11-05 15:13:46 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.63 2002-12-04 15:17:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -787,7 +787,6 @@ void uiDialogBody::finalise(bool)
         if ( !setup.menubar_ && setup.dlgtitle_ != "" )
 	{
 	    title = new uiLabel( centralWidget_, setup.dlgtitle_ );
-	    title->setPrefWidthInChar( setup.dlgtitle_.size() + 2 ); 
 
 	    uiObject* obj = setup.separator_ 
 				? (uiObject*) new uiSeparator(centralWidget_)
