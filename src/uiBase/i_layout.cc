@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.23 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.24 2001-09-26 14:58:26 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,6 +191,8 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
 }
 
 
+#ifdef __debug__
+
 int i_LayoutItem::isPosOk( uiConstraint* c, int i )
 {
     if( i <= max_pos ) return i;
@@ -245,12 +247,14 @@ int i_LayoutItem::isPosOk( uiConstraint* c, int i )
 }
 
 
-#ifdef __debug__
 #define mCP(val)	isPosOk(constr,(val))
 #define mUpdated()	{ isPosOk(constr,MAX_ITER-iteridx); *chupd=true; }
+
 #else
+
 #define mCP(val)	(val)
 #define mUpdated()	{ *chupd=true; }
+
 #endif
 
 void i_LayoutItem::layout( layoutMode m, const int iteridx, bool* chupd )

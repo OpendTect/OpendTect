@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.6 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.7 2001-09-26 14:58:33 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ public:
     constraintIterator		iterator();
 
 protected:
+
     bool			preferred_pos_inited;
     bool			minimum_pos_inited;
 
@@ -103,7 +104,9 @@ private:
 
     constraintList		constrList;
 
+#ifdef __debug__
     int 			isPosOk( uiConstraint*, int );
+#endif
 };
 
 
