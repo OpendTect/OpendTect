@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.8 2005-04-05 06:41:45 cvskris Exp $
+ RCS:           $Id: mpeengine.h,v 1.9 2005-04-05 10:19:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,7 @@ public:
 
     				/*Editors */
     ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
+    void			removeEditor(const EM::ObjectID&);
 
     				/*Factories */
     void			addTrackerFactory(TrackerFactory*);
