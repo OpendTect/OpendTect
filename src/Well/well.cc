@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.25 2004-05-10 11:12:58 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.26 2004-05-11 13:08:41 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -122,8 +122,15 @@ float Well::Log::getValue( float dh ) const
 	return mUndefValue;
 
     const int idx2 = idx1 + 1;
+    const float v1 = val_[idx1];
+    const float v2 = val_[idx2];
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
+    if ( mIsUndefined(v1) )
+	return d1 > d2 ? v2 : mUndefValue;
+    if ( mIsUndefined(v2) )
+	return d2 > d1 ? v1 : mUndefValue;
+
     return ( d1*val_[idx2] + d2*val_[idx1] ) / (d1 + d2);
 }
 

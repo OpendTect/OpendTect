@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.8 2004-05-06 11:16:47 bert Exp $
+ RCS:		$Id: wellreader.h,v 1.9 2004-05-11 13:08:41 bert Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ public:
     bool		getMarkers(std::istream&) const;
     bool		getD2T(std::istream&) const;
 
-    Interval<float>	getLogZRange(const char*) const;
+    Interval<float>	getLogDahRange(const char*) const;
     			//!< If no log with this name, returns [undef,undef]
 
 protected:

@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.12 2004-05-10 16:00:23 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.13 2004-05-11 13:08:41 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -140,7 +140,7 @@ int Well::TrackSampler::nextStep()
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
     if ( !wr.getInfo() ) mRetNext()
     if ( timesurv && !wr.getD2T() ) mRetNext()
-    fulldahrg = wr.getLogZRange( lognm );
+    fulldahrg = wr.getLogDahRange( lognm );
     if ( mIsUndefined(fulldahrg.start) ) mRetNext()
     wr.getMarkers();
 
@@ -162,19 +162,17 @@ void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
     if ( SI().zIsTime() )
 	dahincr = 1000 * dahincr; // As dx = v * dt , Using v = 1000 m/s
 
-    BinIDValue biv; float dah = dahrg.start;
+    BinIDValue biv; float dah = dahrg.start - dahincr;
     int trackidx = 0; Coord3 precisepos;
-    if ( !getSnapPos(wd,dah,biv,trackidx,precisepos) )
-	return;
-
-    addBivs( bivset, biv, precisepos );
-    BinIDValue prevbiv = biv;
+    BinIDValue prevbiv; prevbiv.binid.inl = -999;
 
     while ( true )
     {
 	dah += dahincr;
-	if ( dah > dahrg.stop || !getSnapPos(wd,dah,biv,trackidx,precisepos) )
+	if ( dah > dahrg.stop )
 	    return;
+	else if ( !getSnapPos(wd,dah,biv,trackidx,precisepos) )
+	    continue;
 
 	if ( biv.binid != prevbiv.binid || !mIS_ZERO(biv.value-prevbiv.value) )
 	{
