@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.106 2002-12-03 07:44:40 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.107 2002-12-12 16:48:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1664,7 +1664,7 @@ bool uiVisPartServer::setZScale()
 {
     uiZScaleDlg dlg( appserv().parent() );
     dlg.go();
-    return dlg.valueChanged();
+    return dlg.valueChanged() && dlg.doViewAll();
 }
 
 
