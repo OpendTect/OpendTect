@@ -4,13 +4,14 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.2 2005-03-18 11:21:27 cvskris Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.3 2005-03-18 13:41:49 cvskris Exp $";
 
 #include "parametriccurve.h"
 
 #include "extremefinder.h"
 #include "mathfunc.h"
 #include "sets.h"
+#include "trigonometry.h"
 #include "undefval.h"
 
 namespace Geometry
@@ -39,8 +40,9 @@ protected:
 bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 					   float eps ) const
 {
+    pErrMsg("This function is not tested, quality not assured (yet)");
     CurveSqDistanceFunction mfunc( *this, pos );
-    StepInterval<int> prange = parameterRange();
+    const StepInterval<int> prange = parameterRange();
     if ( Values::isUdf(p) || !prange.includes(p,false) )
     {
 	float closestsqdist = mUdf(float);
@@ -70,6 +72,47 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 }
 
 
+bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
+					       float eps ) const
+{
+    pErrMsg("This function is not tested, quality not assured (yet)");
+    const StepInterval<int> prange = parameterRange();
+    if ( Values::isUdf(p) || !prange.includes(p,false) )
+    {
+	float closestdist = mUdf(float);
+	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
+	{
+	    const Coord3 pos = getPosition(idx);
+	    const float dist =
+		plane.A*pos.x+plane.B*pos.y+plane.D*pos.z+plane.D;
+	    if ( fabs(dist)<closestdist )
+	    {
+		closestdist = dist;
+		p = idx;
+	    }
+	}
+    }
+
+    const Interval<float> limits( prange.start, prange.stop );
+    for ( int idx=0; idx<20; idx++ )
+    {
+	const Coord3 pos = computePosition(p);
+	float fp = plane.A*pos.x+plane.B*pos.y+plane.D*pos.z+plane.D;
+
+	const Coord3 dir = computeTangent(p);
+	float dp = plane.A*dir.x+plane.B*dir.y+plane.D*dir.z+plane.D;
+
+	const float diff = dp/fp;
+	p = p - diff;
+	if ( fabs(diff)<eps )
+	    return true;
+
+	if ( !prange.includes(p) )
+	    return false;
+    }
+
+    return false;
+}
     
 void ParametricCurve::getPosIDs( TypeSet<GeomPosID>& ids ) const
 {
