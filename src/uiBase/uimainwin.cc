@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.78 2003-12-23 15:55:37 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.79 2003-12-29 11:56:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,9 +141,9 @@ public:
 			    return true;
 			}
 
-    static Qt::Dock	qdock( uiMainWin::Dock );
+    static Qt::Dock	qdock(uiMainWin::Dock);
 
-    void 		uimoveDockWindow( uiDockWin& dwin, uiMainWin::Dock d );
+    void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
 
 #ifdef SUPPORT_PERSISTENCE
     void		storePositions();
@@ -171,8 +171,8 @@ private:
     bool		popped_up;
 
 
-    ObjectSet<uiDockWin>	_wins2move;
-    TypeSet<uiMainWin::Dock>	_docks4wins;
+    ObjectSet<uiDockWin>	wins2move;
+    TypeSet<uiMainWin::Dock>	docks4wins;
     void			moveDockWindows();
 };
 
@@ -308,10 +308,19 @@ uiToolBar* uiMainWinBody::uitoolbar()
     return toolbar;
 }
 
-void uiMainWinBody::uimoveDockWindow( uiDockWin& dwin, uiMainWin::Dock d )
+void uiMainWinBody::uimoveDockWindow( uiDockWin& dwin, uiMainWin::Dock dock,
+				      int index )
 {
-    _wins2move += &dwin;
-    _docks4wins += d;
+    if ( index < 0 )
+    {
+	wins2move += &dwin;
+	docks4wins += dock;
+    }
+    else
+    {
+	wins2move.insertAt( &dwin, index );
+	docks4wins.insert( index, dock );
+    }
 
     moveDockWindows();
 }
@@ -320,11 +329,11 @@ void uiMainWinBody::moveDockWindows()
 {
     if ( !poppedUp() ) return;
 
-    for( int idx=0; idx< _wins2move.size(); idx++ )
-	moveDockWindow( _wins2move[idx]->qwidget() , qdock( _docks4wins[idx]) );
+    for( int idx=0; idx<wins2move.size(); idx++ )
+	moveDockWindow( wins2move[idx]->qwidget(), qdock(docks4wins[idx]) );
 
-    _wins2move.erase();
-    _docks4wins.erase();
+    wins2move.erase();
+    docks4wins.erase();
 }
 
 #ifdef SUPPORT_PERSISTENCE
@@ -414,6 +423,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 //    body_->uiCentralWidg()->setBorder(10);
 }
 
+
 uiMainWin::uiMainWin( const char* nm )
     : uiParent( nm, 0 )
     , body_( 0 )			
@@ -422,8 +432,10 @@ uiMainWin::uiMainWin( const char* nm )
     , windowClosed(this)
 {}
 
+
 uiMainWin::~uiMainWin()
 { delete body_; }
+
 
 void uiMainWin::provideHelp( const char* winid )
 {
@@ -445,8 +457,8 @@ bool uiMainWin::touch() 			{ return body_->touch(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 
-void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d )
-    { body_->uimoveDockWindow( dwin , d ); }
+void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
+    { body_->uimoveDockWindow(dwin,d,index); }
 
 void uiMainWin::removeDockWindow( uiDockWin* dwin )
 {
@@ -963,13 +975,15 @@ void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
 void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
 void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
 void uiDialog::enableSaveButton(const char* t)  { mBody->enableSaveButton(t); }
-void uiDialog::setButtonSensitive(uiDialog::Button b, bool s ) 
-					    { mBody->setButtonSensitive(b,s); }
-void uiDialog::setSaveButtonChecked(bool b) { mBody->setSaveButtonChecked(b); }
-bool uiDialog::saveButtonChecked() const{ return mBody->saveButtonChecked(); }
-uiButton* uiDialog::button(Button b)	{ return mBody->button(b); }
+uiButton* uiDialog::button(Button b)		{ return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
 void uiDialog::setHelpID( const char* id )	{ mBody->setHelpID(id); }
 const char* uiDialog::helpID() const		{ return mBody->helpID(); }
 int uiDialog::uiResult() const			{ return mBody->uiResult(); }
+void uiDialog::setButtonSensitive(uiDialog::Button b, bool s ) 
+    { mBody->setButtonSensitive(b,s); }
+void uiDialog::setSaveButtonChecked(bool b) 
+    { mBody->setSaveButtonChecked(b); }
+bool uiDialog::saveButtonChecked() const
+    { return mBody->saveButtonChecked(); }

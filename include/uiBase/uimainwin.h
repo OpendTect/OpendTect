@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.32 2003-12-23 15:55:54 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.33 2003-12-29 11:56:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ public:
 			//! automatically set by uiMain::setTopLevel
     void		setExitAppOnClose( bool yn );
 
-    void		moveDockWindow( uiDockWin&, Dock d=Top );
+    void		moveDockWindow(uiDockWin&,Dock d=Top,int index=-1);
     void		removeDockWindow(uiDockWin*);
 
     Notifier<uiMainWin>	finaliseStart;
