@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.11 2003-10-31 12:21:38 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.12 2003-11-03 10:25:40 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -60,9 +60,15 @@ void HelpViewer::use( const char* url, const char* wintitl )
 
 static StreamData openHFile( const char* nm, const char* scope )
 {
+    FileNameString fnm;
     BufferString subfnm( HelpViewer::subdirNm(scope) );
-    subfnm = File_getFullPath( subfnm, nm );
-    FileNameString fnm = GetDataFileName( subfnm );
+    if ( !File_exists(subfnm) )
+	fnm = GetDataFileName( "docnotinst.html" );
+    else
+    {
+	subfnm = File_getFullPath( subfnm, nm );
+	fnm = GetDataFileName( subfnm );
+    }
 
     StreamData sd = StreamProvider( fnm ).makeIStream();
     if ( !sd.usable() )
