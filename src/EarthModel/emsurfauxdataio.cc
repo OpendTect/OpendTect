@@ -20,7 +20,7 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.6 2003-07-16 10:00:01 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.7 2003-07-29 13:04:34 nanne Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
@@ -288,6 +288,7 @@ int EM::dgbSurfDataReader::nextStep()
 		return ErrorOccurred;
 
 	    currentpatch = cp;
+	    totalnr = valsleftonpatch/chunksize+1;
 	}
 
 	int subid;
