@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.6 2004-09-21 15:59:22 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.7 2004-10-06 17:30:39 kristofer Exp $";
 
 
 
@@ -235,59 +235,64 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 		bool changecurbestpos;
 		const float curscore =
 		    computeScore( currc, changecurbestpos, curbestpos );
-		if ( curscore<meshdist/2 && curscore<=bestscore )
-		{
-		    bestidx = curdiridx;
-		    changebestposition = changecurbestpos;
-		    bestpos = curbestpos;
-		    bestscore = curscore;
-		}
+		    if ( !mIsUndefined(curscore) &&
+			    curscore<meshdist/2 && curscore<=bestscore )
+		    {
+			bestidx = curdiridx;
+			changebestposition = changecurbestpos;
+			bestpos = curbestpos;
+			bestscore = curscore;
+		    }
 
-		break;
-	    }
-
-	    /*If we are really close, check if we can get a match */
-
-	    if ( zerodist )
-	    {
-		Coord3 curbestpos;
-		bool changecurbestpos;
-		const float curscore =
-		    computeScore( currc, changecurbestpos, curbestpos );
-		if ( curscore<meshdist/16 && curscore<=bestscore  )
-		{
-		    bestidx = curdiridx;
-		    changebestposition = changecurbestpos;
-		    bestpos = curbestpos;
-		    bestscore = curscore;
 		    break;
 		}
 
-		continue;
-	    }
+		/*If we are really close, check if we can get a match */
 
-	    if ( distance<0 )
-	    {
-		if ( bestidx!=-1 )
-		    break;
-
-		const RowCol prevrc = prevdir*step+rc;
-		Coord3 prevbestpos;
-		bool changeprevbestpos;
-		const float prevscore =
-		    computeScore( prevrc, changeprevbestpos, prevbestpos );
-
-		if ( !changeprevbestpos )
+		if ( zerodist )
 		{
-		    changebestposition = false;
-		    bestidx = dirs.indexOf(prevdir);
-		    break;
+		    Coord3 curbestpos;
+		    bool changecurbestpos;
+		    const float curscore =
+			computeScore( currc, changecurbestpos, curbestpos );
+		    if ( !mIsUndefined( curscore ) &&
+			    curscore<meshdist/16 && curscore<=bestscore  )
+		    {
+			bestidx = curdiridx;
+			changebestposition = changecurbestpos;
+			bestpos = curbestpos;
+			bestscore = curscore;
+			break;
+		    }
+
+		    continue;
 		}
-		
-		Coord3 curbestpos;
-		bool changecurbestpos;
-		const float curscore =
-		    computeScore( currc, changecurbestpos, curbestpos );
+
+		if ( distance<0 )
+		{
+		    if ( bestidx!=-1 )
+			break;
+
+		    const RowCol prevrc = prevdir*step+rc;
+		    Coord3 prevbestpos;
+		    bool changeprevbestpos;
+		    const float prevscore =
+			computeScore( prevrc, changeprevbestpos, prevbestpos );
+
+		    if ( !mIsUndefined( prevscore ) && !changeprevbestpos )
+		    {
+			changebestposition = false;
+			bestidx = dirs.indexOf(prevdir);
+			break;
+		    }
+		    
+		    Coord3 curbestpos;
+		    bool changecurbestpos;
+		    const float curscore =
+			computeScore( currc, changecurbestpos, curbestpos );
+
+		    if ( mIsUndefined(prevscore)&&mIsUndefined(curscore) )
+		    break;
 
 		const bool usecur = curscore<prevscore;
 		changebestposition = usecur
@@ -315,14 +320,15 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	    const float prevscore =
 		computeScore( prevrc, changeprevbestpos, prevbestpos );
 
-	    if ( prevscore<meshdist/2 )
+	    if ( !mIsUndefined(prevscore) && prevscore<meshdist/2 )
 	    {
 		changebestposition = false;
 		bestidx = dirs.indexOf(lastdefineddir);
 	    }
 	}
-
-	return false;
+	
+	if ( bestidx==-1 )
+	    return false;
     }
 
     const RowCol newrc = rc+dirs[bestidx%nrdirs]*step;
