@@ -37,7 +37,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.55 2004-07-19 13:21:17 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.56 2004-07-19 15:10:57 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -48,7 +48,7 @@ bool ExecOSCmd( const char* comm, bool inbg )
 {
     if ( !comm || !*comm ) return false;
 
-#ifdef __win__
+#ifndef __win__
 
     BufferString oscmd(comm);
 
