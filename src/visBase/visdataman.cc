@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.16 2002-05-07 05:47:18 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.17 2002-05-08 07:01:50 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -84,6 +84,8 @@ bool visBase::DataManager::usePar( const IOPar& par )
     for ( int idx=0; idx<freeid; idx++ )
 	lefttodo += idx;
 
+    ObjectSet<DataObject> createdobj;
+
     bool change = true;
     while ( lefttodo.size() && change )
     {
@@ -117,6 +119,9 @@ bool visBase::DataManager::usePar( const IOPar& par )
 		obj->unRef();
 		continue;
 	    }
+
+	    createdobj += obj;
+	    obj->ref();
 	   
 	    lefttodo.remove( idx );
 	    idx--;
@@ -131,6 +136,10 @@ bool visBase::DataManager::usePar( const IOPar& par )
     }
 
     freeid = maxid+1;
+
+    for ( int idx=0;idx<createdobj.size(); idx++ )
+	createdobj[idx]->unRef();
+
     return true;
 }
 
@@ -154,7 +163,15 @@ bool visBase::DataManager::removeAll(int nriterations)
     if ( !nriterations )
     {
 	pErrMsg("All objects not unreferenced");
-	while ( objects.size() ) remove( 0 );
+	while ( objects.size() )
+	{
+	    BufferString msg = "Forcing removal of ID: ";
+	    msg += ids[0];
+	    msg += objects[0]->getClassName();
+	    pErrMsg( msg );
+	    remove( 0 );
+	}
+
 	return false;
     }
 
@@ -186,13 +203,17 @@ void visBase::DataManager::unRef( int id )
     int idx = getIdx( id );
     if ( idx<0 )
     {
-	pErrMsg("Internal Error: Trying to remove non-existing id");
+	BufferString msg = "Trying to remove non-existing ID: ";
+	msg += id;
+	pErrMsg(msg);
 	return;
     }
 
     if ( !refcounts[idx] )
     {
-	pErrMsg("Decreasing a zero reference") ;
+	BufferString msg =  "Decreasing a zero reference on ID: ";
+	msg += id;
+	pErrMsg(msg) ;
 	return;
     }
 
@@ -207,13 +228,17 @@ void visBase::DataManager::unRef( const DataObject* d )
     int idx = objects.indexOf( d );
     if ( idx<0 )
     {
-	pErrMsg("Trying to remove non-existing id");
+	BufferString msg = "Trying to remove non-existing id of type: ";
+	msg += d->getClassName();
+	pErrMsg(msg);
 	return;
     }
 
     if ( !refcounts[idx] )
     {
-	pErrMsg("Decreasing a zero reference");
+	BufferString msg =  "Decreasing a zero reference on ID: ";
+	msg += ids[idx];
+	pErrMsg(msg) ;
 	return;
     }
 
