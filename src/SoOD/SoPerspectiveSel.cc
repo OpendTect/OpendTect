@@ -184,9 +184,12 @@ int SoPerspectiveSel::whichToTraverse(SoAction *action)
   for ( int i=0; i<n; i++)
   {
       SbVec3f pvec = this->perspectives[i];
-      pvec.normalize();
+      SbVec3f worldpvec;
+      mat.multVecMatrix(pvec, worldpvec);
+      worldpvec -= worldcenter;
+      worldpvec.normalize();
 
-      float cosangle = fabs(pvec.dot(vec));
+      float cosangle = fabs(worldpvec.dot(vec));
       if ( !i || cosangle>maxangle )
       {
 	  maxangle = cosangle;
