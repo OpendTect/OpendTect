@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.2 2003-01-29 11:39:50 niclas Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.3 2003-02-24 08:23:54 niclas Exp $";
 
 
 #include "houghtransform.h"
@@ -139,7 +139,7 @@ void PlaneFrom3DSpaceHoughTransform::setParamSpaceSize( int dipsize,
 	    Vector3 ab( cosdip*cosazimuth[azimuth], 
 			sindip,
 			cosdip*sinazimuth[azimuth] );
-	    Vector3 ad( sinazimuth[azimuth], 0, cosazimuth[azimuth] );
+	    Vector3 ad( sinazimuth[azimuth], 0, -cosazimuth[azimuth] );
 	    normals[normalidx] = ad.cross( ab );
 	}
     }
@@ -178,6 +178,7 @@ void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
    
     for ( int idx=datasize-1; idx>=datasize-savesize; idx-- )
     {
+	if (  mIS_ZERO( datacopy[idx] ) ) continue;//Remove when debug is done
 	calcpositions += indexes[idx];
     }
 
