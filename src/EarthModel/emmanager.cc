@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.3 2002-05-22 06:17:03 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.4 2002-05-22 07:15:47 kristofer Exp $";
 
 #include "emmanager.h"
 #include "emobject.h"
@@ -112,4 +112,38 @@ const EarthModel::EMObject* EarthModel::EMManager::getObject( const MultiID& id 
     }
 
     return 0;
+}
+
+
+Executor* EarthModel::EMManager::load( const MultiID& id )
+{
+    EMObject* obj = getObject( id );
+    if ( obj ) return obj->loader();
+    
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj ) return 0;
+
+    const char* grpname = ioobj->group();
+    if ( !strcmp( grpname, EarthModelWellTranslator::keyword ))
+    {
+	EarthModel::Well* well = new EarthModel::Well( *this, id );
+	objects += well;
+	return well->loader();
+    }
+
+    if ( !strcmp( grpname, EarthModelHorizonTranslator::keyword ))
+    {
+	EarthModel::Horizon* hor = new EarthModel::Horizon( *this, id );
+	objects += hor;
+	return hor->loader();
+    }
+
+    return 0;
+}
+
+
+bool EarthModel::EMManager::isLoaded(const MultiID& id ) const
+{
+    const EMObject* obj = getObject( id );
+    return obj ? obj->isLoaded() : false;
 }
