@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.11 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uifiledlg.h,v 1.12 2005-01-25 13:30:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     void		setMode( Mode m)	{ mode_=m; }
     Mode		mode() const		{ return mode_; }
 
+    const char*		selectedFilter() const	{ return selectedfilter; }
+
     void		setOkText( const char* txt )	{ oktxt_ = txt; }
     void		setCancelText( const char* txt ){ cnclxt_ = txt; }
 
@@ -68,6 +70,7 @@ protected:
     BufferString	cnclxt_;
     uiParent*		parnt_;
     BufferStringSet	filenames;
+    BufferString	selectedfilter;
 };
 
 #endif
