@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.31 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uimainwin.h,v 1.32 2003-12-23 15:55:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiDockWin;
 
 class uiMainWin : public uiParent
 {
-
+friend class uiMainWinBody;
 public:
 			/*!
 			    nrStatusFlds == 0	: no statysbar
@@ -104,6 +104,8 @@ public:
     virtual uiMainWin*	mainwin()				{ return this; }
 
 protected:
+
+    virtual bool	closeOK() const {return true;}//!< confirm window close
 
 			uiMainWin( const char* );
     uiObject*		mainobject();
