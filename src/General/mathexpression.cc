@@ -397,11 +397,9 @@ MathExpression* MathExpression::parse( const char* input )
 		return 0;
 	    }
 
-	    MathExpression* res;
-	    if ( str[idx]  == '+' )
-		res = new MathExpressionPlus;
-	    else
-		res = new MathExpressionMinus;
+	    MathExpression* res = str[idx]  == '+' 
+				? (MathExpression*) new MathExpressionPlus
+				: (MathExpression*) new MathExpressionMinus;
 
 	    res->setInput( 0, inp0 );
 	    res->setInput( 1, inp1 );

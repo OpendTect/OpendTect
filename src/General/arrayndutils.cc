@@ -4,6 +4,8 @@
  * DATE     : Oct 1999
 -*/
 
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.9 2001-04-18 14:44:58 bert Exp $";
+
 #include <arrayndutils.h>
 
 
@@ -12,10 +14,11 @@ DefineEnumNames( ArrayNDWindow, WindowType, 0, "Windowing type")
   "CosTaper5", "CosTaper10", "CosTaper20", 0 };
 
 
-ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz_,
+ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz_, bool rectangular_,
 				ArrayNDWindow::WindowType type_ )
     : size ( sz_ )
     , type ( type_ )
+    , rectangular( rectangular_ )
     , window ( 0 )
 {
     buildWindow();
@@ -53,8 +56,7 @@ bool ArrayNDWindow::setType( const char* t )
 bool ArrayNDWindow::buildWindow( )
 {
     unsigned long totalsz = size.getTotalSz();
-    window = new DataBuffer(totalsz, sizeof(float), false);  
-    const int bytespersample = sizeof(float);
+    window = new float[totalsz];  
     const int ndim = size.getNDim();
     ArrayNDIter position( size );
 
@@ -90,24 +92,45 @@ bool ArrayNDWindow::buildWindow( )
 	return false;
     }
 
-    for ( unsigned long off=0; off<totalsz; off++ )
+    if ( !rectangular )
     {
-	float dist = 0;    
-
-	for ( int idx=0; idx<ndim; idx++ )
+	for ( unsigned long off=0; off<totalsz; off++ )
 	{
-	    int sz =  size.getSize(idx);
-	    int halfsz = sz / 2;
-	    float distval = ((float) (position[idx] - halfsz) / halfsz);
-	    dist += distval * distval;
-	}
+	    float dist = 0;    
 
-	dist = sqrt( dist );
+	    for ( int idx=0; idx<ndim; idx++ )
+	    {
+		int sz =  size.getSize(idx);
+		int halfsz = sz / 2;
+		float distval = ((float) (position[idx] - halfsz) / halfsz);
+		dist += distval * distval;
+	    }
 
-	*((float*)(window->data()+bytespersample*off ))
-						=windowfunc->getValue( dist );
-	position.next();
-    }	
+	    dist = sqrt( dist );
+
+	    window[off] = windowfunc->getValue( dist );
+	    position.next();
+	}	
+    }
+    else
+    {
+	for ( unsigned long off=0; off<totalsz; off++ )
+	{
+	    float windowval = 1;
+
+	    for ( int idx=0; idx<ndim; idx++ )
+	    {
+		int sz =  size.getSize(idx);
+		int halfsz = sz / 2;
+		float distval = ((float) (position[idx] - halfsz) / halfsz);
+		windowval *= windowfunc->getValue( distval );
+	    }
+
+	    window[off] = windowval;
+	    position.next();
+	}	
+    }
+	
 
     delete windowfunc;
     return true;

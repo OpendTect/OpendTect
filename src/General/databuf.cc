@@ -24,21 +24,21 @@ bool RawDataArray::isZero() const
 }
 
 
-DataBuffer::DataBuffer( int n, int byts, bool init )
+DataBuffer::DataBuffer( int n, int byts, bool doinit )
 	: RawDataArray(byts)
 {
     if ( n )
     {
 	nelem_ = n;
-	data_ = mMALLOC(nelem_*bytes_,unsigned char);
+	data_ = new unsigned char [ nelem_ * bytes_ ];
     }
-    if ( init ) zero();
+    if ( doinit ) zero();
 }
 
 
 DataBuffer::~DataBuffer()
 {
-    if ( data_ ) free( data_ );
+    delete [] data_;
 }
 
 
@@ -50,7 +50,7 @@ DataBuffer& DataBuffer::operator=( const DataBuffer& tb )
 	{
 	    if ( bytes_ != tb.bytes_ )
 	    {
-		if ( data_ ) free( data_ ); data_ = 0;
+		delete [] data_; data_ = 0;
 		bytes_ = tb.bytes_; nelem_ = 0;
 	    }
 	    reSize( tb.size() );
@@ -64,32 +64,36 @@ DataBuffer& DataBuffer::operator=( const DataBuffer& tb )
 }
 
 
-void DataBuffer::reSize( int n )
+void DataBuffer::reSize( int n, bool copy )
 {
-    if ( n == nelem_ ) return;
+    if ( n == nelem_ )
+	return;
 
-    if ( data_ )
+    if ( !n || !copy )
     {
-	if ( n )
-	    data_ = mREALLOC(data_,n*bytes_,unsigned char);
-	else
-	    { free( data_ ); data_ = 0; }
+	delete [] data_;
+	data_ = n ? new unsigned char [ n * bytes_ ] : 0;
     }
-    else if ( n )
-	data_ = mMALLOC(n*bytes_,unsigned char);
-
+    else
+    {
+	unsigned char* olddata = data_;
+	data_ = new unsigned char [ n * bytes_ ];
+	if ( data_ )
+	    memcpy( data_, olddata, n > nelem_ ? nelem_ : n );
+	delete [] olddata;
+    }
     nelem_ = data_ ? n : 0;
 }
 
 
-void DataBuffer::reByte( int n )
+void DataBuffer::reByte( int n, bool copy )
 {
     if ( n == bytes_ ) return;
 
     bytes_ = n;
     n = nelem_;
     nelem_ = -1;
-    reSize( n );
+    reSize( n, copy );
 }
 
 
@@ -201,10 +205,10 @@ void TraceData::delComponent( int icomp )
 }
 
 
-void TraceData::reSize( int n, int icomp )
+void TraceData::reSize( int n, int icomp, bool copydata )
 {
     if ( icomp < nrcomp_ )
-	data_[icomp]->reSize( n );
+	data_[icomp]->reSize( n, copydata );
 }
 
 
