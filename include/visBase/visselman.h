@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.3 2002-02-28 12:41:46 kristofer Exp $
+ RCS:		$Id: visselman.h,v 1.4 2002-03-01 10:12:19 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -62,6 +62,10 @@ public:
     Notifier<SelectionManager>	deselnotifer;
     				/*!< Use to get changes in selection */
     int				nrSelected() const;
+    				/*!< \note
+				     May return more than one even if Single
+				     is selected since many instances may have
+				     been registered with different assocs */
     const VisualObject*		getSelected( int ) const;
 
     void	regSelObject( const VisualObject& associated,

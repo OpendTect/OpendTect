@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.3 2002-02-28 12:41:39 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.4 2002-03-01 10:12:12 kristofer Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -102,24 +102,54 @@ void visBase::SelectionManager::deNotifyDeSelection(const VisualObject& assoc,
 
 int visBase::SelectionManager::nrSelected() const
 {
-    return node->getNumSelected();
+    int nrpaths = node->getNumSelected();
+    if ( !nrpaths ) return 0;
+
+    int res = 0;
+
+    const SoPathList* list = node->getList();
+    if ( !list ) return 0;
+
+    for ( int pathnr=0; pathnr<nrpaths; pathnr++ )
+    {
+	const SoPath* path = (*list)[pathnr];
+	const SoNode* tail = path->getTail();
+
+	for ( int idy=0; idy<detobjs.size(); idy++ )
+	{
+	    if ( tail==detobjs[idy]->getData() )
+		res++;
+	}
+    }
+
+    return res;
 }
 
 
 const visBase::VisualObject*
 visBase::SelectionManager::getSelected( int idx ) const
 {
+    int nrpaths = node->getNumSelected();
+    if ( !nrpaths ) return 0;
+
+    int count = 0;
+
     const SoPathList* list = node->getList();
-    if ( !list ) return false;
+    if ( !list ) return 0;
 
-    const int size = nrSelected();
-    const SoPath* path = (*list)[idx];
-    const SoNode* tail = path->getTail();
-
-    for ( int idy=0; idy<detobjs.size(); idy++ )
+    for ( int pathnr=0; pathnr<nrpaths; pathnr++ )
     {
-	if ( tail==detobjs[idy]->getData() )
-	    return assobjs[idy];
+	const SoPath* path = (*list)[pathnr];
+	const SoNode* tail = path->getTail();
+
+	for ( int idy=0; idy<detobjs.size(); idy++ )
+	{
+	    if ( tail==detobjs[idy]->getData() )
+	    {
+		if ( count==idx ) return assobjs[idy];
+		count++;
+	    }
+	}
     }
 
     return 0;

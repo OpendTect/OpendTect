@@ -5,10 +5,12 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.8 2002-02-28 07:51:08 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.9 2002-03-01 10:12:12 kristofer Exp $";
 
 #include "visobject.h"
 #include "colortab.h"
+#include "visscene.h"
+#include "visselman.h"
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoSwitch.h"
@@ -29,7 +31,7 @@ visBase::VisualObjectImpl::VisualObjectImpl( Scene& scene_ )
     , diffuseintencity( 0.8 )
     , specularintensity( 0 )
     , emmissiveintensity( 0 )
-    , shininess( 0.2 )
+    , shininess( 0 )
     , transparency( 0 )
     , colortable( 0 )
     , scene( scene_ )
@@ -56,6 +58,7 @@ visBase::VisualObjectImpl::VisualObjectImpl( Scene& scene_ )
 
 visBase::VisualObjectImpl::~VisualObjectImpl()
 {
+    scene.selMan().unRegSelObject( *this );
     onoff->unref();
     delete colortable;
 }
