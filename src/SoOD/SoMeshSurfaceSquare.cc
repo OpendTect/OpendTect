@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.18 2003-12-04 16:00:18 nanne Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.19 2004-01-19 12:45:25 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -408,7 +408,7 @@ void SoMeshSurfaceSquare::touch( int row, int col )
     {
 	SoMeshSurfaceBrick* brick = getBrick(idx);
 	const int spacing = brick->spacing.getValue();
-	const int sidesize = brick->sideSize.getValue();
+	const int nrcells = brick->sideSize.getValue();
 
 	if ( relrow%spacing || relcol%spacing )
 	    continue;
@@ -418,16 +418,16 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 	    for ( int rowidx=-1; rowidx<=1; rowidx++ )
 	    {
 		const int localrow = relrow/spacing+rowidx;
-		if ( localrow<0 || localrow>=sidesize)
+		if ( localrow<0 || localrow>=nrcells)
 		    continue;
 
 		for ( int colidx=-1; colidx<=1; colidx++ )
 		{
 		    const int localcol = relcol/spacing+colidx;
-		    if ( localcol<0 || localcol>=sidesize)
+		    if ( localcol<0 || localcol>=nrcells)
 			continue;
 
-		    brick->invalidateNormal(localrow*(sidesize+1)+localcol);
+		    brick->invalidateNormal(localrow*(nrcells+1)+localcol);
 		}
 	    }
 	}
