@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.26 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: sets.h,v 1.27 2003-11-24 08:41:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,11 @@ public:
 
     virtual void	erase()				{ tvec.erase(); }
     virtual void	remove( int idx )		{ tvec.remove(idx); }
+    virtual inline void	removeFast( int idx );
+    			/*!<Moves the last item to the position of the removed
+			  	item, and removes the last item, thus avoiding
+				the memmove.
+			*/
     virtual void	remove( int i1, int i2 )	{ tvec.remove(i1,i2); }
     virtual void	insert( int idx, const T& typ )	{ tvec.insert(idx,typ);}
 
@@ -160,6 +165,14 @@ inline void sort( TypeSet<T>& ts )
 		{ tmp = ts[j]; ts[j] = ts[j+d]; ts[j+d] = tmp; }
 }
 
+template <class T>
+inline void TypeSet<T>::removeFast(int idx)
+{
+    const int last = size()-1;
+    if ( idx!=last )
+	tvec[idx]=tvec[last];
+    tvec.remove(last);
+}
 
 /*!\brief Set of pointers to objects
 
@@ -245,6 +258,11 @@ public:
 
     virtual void	erase()				{ e_rase(); }
     virtual void	remove( int idx )		{ ovec.remove(idx); }
+    virtual inline void	removeFast( int idx );
+    			/*!<Moves the last pointer to the position of the
+			  	removed pointer, and removes the last item,
+				thus avoiding the memmove.
+			*/
     virtual void	remove( int i1, int i2 )	{ ovec.remove(i1,i2); }
 
 
@@ -336,5 +354,13 @@ inline void sort( ObjectSet<T>& os )
 	    }
 }
 
+template <class T>
+inline void ObjectSet<T>::removeFast(int idx)
+{
+    const int last = size()-1;
+    if ( idx!=last )
+	ovec[idx]=ovec[last];
+    ovec.remove(last);
+}
 
 #endif
