@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.6 2002-05-23 19:03:21 kristofer Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.7 2002-05-24 10:53:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 uiImportHorizon::uiImportHorizon( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Import Horizon",
-				     "Specify horizon paramaters",0))
+				     "Specify horizon parameters",0))
 	, ctio(*new CtxtIOObj(EarthModelHorizonTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Ascii file");
