@@ -2,10 +2,22 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt_file,v 1.2 2004-10-05 14:18:05 dgb Exp $
+# $Id: od_do_rmt_file,v 1.3 2004-10-08 14:20:44 dgb Exp $
 #
 # remote execution script for passing arguments file to od_do_rmt
 #_______________________________________________________________________________
 
+if ( `grep DTECT_DEBUG "$1"` == "" ) then
+    set havedebug=no
+else
+    set havedebug=yes
+endif
 
-./bin/od_do_rmt `cat $1`  >& /dev/null &
+echo $havedebug
+
+if ( $havedebug == yes ) then
+    ./bin/od_do_rmt `cat $1`
+else
+    ./bin/od_do_rmt `cat $1` >& /dev/null &
+endif
+
