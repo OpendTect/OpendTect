@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.12 2004-11-02 10:42:41 kristofer Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.13 2004-11-03 09:52:42 kristofer Exp $";
 
 #include "viscoord.h"
 
@@ -84,7 +84,6 @@ void visBase::Coordinates::setTransformation( visBase::Transformation* nt )
 		SbVec3d utmoffset = utmposition->utmposition.getValue();
 		pos.x -= utmoffset[0];
 		pos.y -= utmoffset[1];
-		pos.z -= utmoffset[2];
 	    }
 	}
 	
@@ -132,7 +131,6 @@ int visBase::Coordinates::addPos( const Coord3& pos )
 	    SbVec3d utmoffset = utmposition->utmposition.getValue();
 	    postoset.x -= utmoffset[0];
 	    postoset.y -= utmoffset[1];
-	    postoset.z -= utmoffset[2];
 	}
     }
     
@@ -153,7 +151,6 @@ Coord3 visBase::Coordinates::getPos( int idx, bool scenespace ) const
 	    SbVec3d utmoffset = utmposition->utmposition.getValue();
 	    res.x += utmoffset[0];
 	    res.y += utmoffset[1];
-	    res.z += utmoffset[2];
 	}
 
 	if ( transformation && !scenespace )
@@ -178,11 +175,11 @@ void visBase::Coordinates::setPos( int idx, const Coord3& pos )
 	    postoset = transformation->transform( postoset );
 
 	if ( !utmposition && !idx && !size(false) &&
-		(postoset.x>1e5 || postoset.y>1e5 || postoset.z>1e5) )
+		(postoset.x>1e5 || postoset.y>1e5) )
 	{
 	    utmposition = new UTMPosition;
 	    utmposition->utmposition.setValue(
-		    SbVec3d(postoset.x,postoset.y,postoset.z) );
+		    SbVec3d(postoset.x,postoset.y,0) );
 	    root->insertChild( utmposition, 0 );
 	}
 
@@ -191,7 +188,6 @@ void visBase::Coordinates::setPos( int idx, const Coord3& pos )
 	    SbVec3d utmoffset = utmposition->utmposition.getValue();
 	    postoset.x -= utmoffset[0];
 	    postoset.y -= utmoffset[1];
-	    postoset.z -= utmoffset[2];
 	}
     }
     
