@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.237 2004-09-13 09:41:51 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.238 2004-09-15 09:05:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1066,31 +1066,31 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
 	uiCursorChanger cursorlock( uiCursor::Wait );
 	so->setResolution(mnuid-firstresmnusel);
     }
-    else if ( mnuid==trackmanmnuid )
-    {
-	mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,so)
-	if ( sid && sid->trackMan() )
-	    showTrackingManager( sid->id(), *sid->trackMan() );
-    }
 }
 
 
-int uiVisPartServer::addInterpreter( int sceneid, Tracking::TrackManager& tm )
+int uiVisPartServer::addInterpreter( int sceneid )
 {
     visSurvey::SurfaceInterpreterDisplay* sid =
 				visSurvey::SurfaceInterpreterDisplay::create();
-    sid->setTrackMan( tm );
     sid->turnOn( true );
     addObject( sid, sceneid, true );
     return sid->id();
 }
 
 
-void uiVisPartServer::showTrackingManager( int id, Tracking::TrackManager& tm )
+void uiVisPartServer::setTrackMan( int id, Tracking::TrackManager& tm )
 {
     mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,getObject(id))
+    if ( !sid ) return;
+    sid->setTrackMan( tm );
     tracktools->setInterpreter( sid );
     tracktools->setTrackMan( &tm );
+}
+
+
+void uiVisPartServer::showTrackingManager()
+{
     tracktools->updateAttribNames();
     tracktools->display();
     tracktools->undock();

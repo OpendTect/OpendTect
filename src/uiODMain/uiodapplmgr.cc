@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.49 2004-09-13 09:44:13 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.50 2004-09-15 09:08:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "vissurvpickset.h"
 #include "vissurvsurf.h"
 #include "vissurvsurfeditor.h"
-#include "vissurvstickset.h"
 #include "visinterpret.h"
 
 #include "attribdescset.h"
@@ -523,7 +522,8 @@ bool uiODApplMgr::handleTrackServEv( int evid )
     int sceneid = trackserv->sceneID();
     if ( evid == uiTrackingPartServer::evAddInterpreter )
     {
-	int id = visserv->addInterpreter( sceneid, trackserv->trackManager() );
+	int id = visserv->addInterpreter( sceneid );
+	visserv->setTrackMan( id, trackserv->trackManager() );
 	trackserv->setInterpreterID( sceneid, id );
     }
     else if ( evid == uiTrackingPartServer::evAddSurface )
@@ -580,8 +580,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
     }
     else if ( evid == uiTrackingPartServer::evShowManager )
     {
-	int id = trackserv->interpreterID( sceneid );
-	visserv->showTrackingManager( id, trackserv->trackManager() );
+	visserv->showTrackingManager();
     }
     else if ( evid == uiTrackingPartServer::evGetData )
     {
@@ -591,6 +590,16 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	const AttribSliceSet* sliceset = trackserv->getCachedData( *as );
 	AttribSliceSet* newset = attrserv->createOutput( cs, *as, sliceset );
 	trackserv->setSliceSet( newset );
+    }
+    else if ( evid == uiTrackingPartServer::evInitVisStuff )
+    {
+	TypeSet<int> sceneids;
+	visserv->getChildIds( -1, sceneids );
+	TypeSet<int> interpreterids;
+	visserv->findObject( typeid(visSurvey::SurfaceInterpreterDisplay), 
+			     interpreterids );
+	trackserv->setInterpreterID( sceneids[0], interpreterids[0] );
+	visserv->setTrackMan( interpreterids[0], trackserv->trackManager() );
     }
     else
 	pErrMsg("Unknown event from trackserv");

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.131 2004-09-13 09:41:57 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.132 2004-09-15 09:05:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,9 +191,9 @@ public:
     				/*!< \returns id of new object */
 
     				// Tracking stuff
-    int				addInterpreter(int,Tracking::TrackManager&);
-    void			showTrackingManager(int,
-	    					Tracking::TrackManager&);
+    int				addInterpreter(int);
+    void			setTrackMan(int,Tracking::TrackManager&);
+    void			showTrackingManager();
     static const int		evRemoveTrackTools;
     uiToolBar*			getTrackTB() const	
     				{ return (uiToolBar*)tracktools; }
@@ -261,7 +261,6 @@ protected:
     int				changecolormnusel;
     int				changematerialmnusel;
     int				firstresmnusel;
-    int				trackmanmnuid;
 
     static const char*		workareastr;
     static const char*		appvelstr;
