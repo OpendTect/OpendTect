@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.4 2001-08-31 16:38:18 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.5 2002-03-04 12:25:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,10 @@ public:
     bool	exists(int forread) const;
     bool	remove() const;
 
-    StreamData	makeOStream() const;
-    StreamData	makeIStream() const;
+    StreamData	makeOStream(bool inbg=false) const;
+		//!< 'inbg' will execute in background if remote
+    StreamData	makeIStream(bool inbg=false) const;
+		//!< see makeOStream remark
 
     const char*	fullName() const;
     const char*	hostName() const			{ return hostname; }
