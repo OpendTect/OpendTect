@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.2 2000-01-24 16:46:06 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.3 2000-03-02 15:29:58 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
@@ -157,6 +157,12 @@ bool SeisTrcWriter::handleConn( const SeisTrcInfo& ti )
     }
 
     return initWrite();
+}
+
+
+bool SeisTrcWriter::prepareRetry()
+{
+    if ( trl ) trl->prepareRetry();
 }
 
 

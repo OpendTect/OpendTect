@@ -1,11 +1,10 @@
 /*+
- * NAME     : %M%
  * AUTHOR   : A.H. Bril
- * DATE     : Mar 1994
+ * DATE     : March 1994
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.1.1.2 1999-09-16 09:32:30 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.2 2000-03-02 15:28:56 bert Exp $";
 
 #include <string.h>
 #include <stdio.h>

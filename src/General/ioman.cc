@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.1.1.2 1999-09-16 09:33:34 arend Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.2 2000-03-02 15:29:27 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -328,7 +328,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, UnitID parentid )
     {
 	UserIDString cleanname( ctio.ctxt.name() );
 	char* ptr = cleanname;
-	cleanupString( ptr, NO, *ptr == '/', YES );
+	cleanupString( ptr, NO, *ptr == *sDirSep, YES );
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newId(), NO );
 	iostrm->setFileName( cleanname );
 	dirPtr()->mkUniqueName( iostrm );
@@ -367,7 +367,7 @@ int IOMan::levelOf( const char* dirnm ) const
     while ( ptr )
     {
 	ptr++; lvl++;
-	ptr = strchr( ptr, '/' );
+	ptr = strchr( ptr, *sDirSep );
     }
     return lvl;
 }

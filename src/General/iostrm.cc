@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.2 2000-01-24 16:35:50 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.3 2000-03-02 15:29:28 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -27,6 +27,8 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 	, fnrs(0,0,1)
 	, type_(StreamConn::File)
 	, curfnr(0)
+	, nrretries(0)
+	, retrydelay(0)
 {
     connclassdef_ = &StreamConn::classdef;
     if ( mkdef ) genFileName();
@@ -70,6 +72,8 @@ void IOStream::copyFrom( const IOObj* obj )
 	rew = iosobj->rew;
 	fnrs = iosobj->fnrs;
 	curfnr = iosobj->curfnr;
+	nrretries = iosobj->nrretries;
+	retrydelay = iosobj->retrydelay;
     }
 }
 
@@ -142,7 +146,12 @@ Conn* IOStream::getConn( Conn::State rw ) const
     StreamConn*	s = 0;
     if ( fr )	s = new StreamConn( sp->makeIStream() );
     else	s = new StreamConn( sp->makeOStream() );
-    if ( s )	s->ioobj = (IOObj*)this;
+    if ( s )
+    {
+	s->ioobj = (IOObj*)this;
+	s->setNrRetries( nrretries );
+	s->setRetryDelay( retrydelay );
+    }
 
     delete sp;
     return s;
@@ -217,6 +226,13 @@ int IOStream::getFrom( ascistream& stream )
 	extension = stream.valstr;
 	stream.next();
     }
+    if ( !strcmp(kw,"Retry") )
+    {
+	FileMultiString fms( stream.valstr );
+	nrretries = atoi(fms[0]);
+	retrydelay = atoi(fms[1]);
+	stream.next();
+    }
     if ( !strcmp(kw,"Multi") )
     {
 	FileMultiString fms( stream.valstr );
@@ -282,6 +298,13 @@ int IOStream::putTo( ascostream& stream ) const
 	stream.put( "$Hostname", hostname );
     if ( extension[0] )
 	stream.put( "$Extension", extension );
+    if ( nrretries )
+    {
+	FileMultiString fms;
+	fms += nrretries;
+	fms += retrydelay;
+	stream.put( "$Retry", fms );
+    }
     if ( isMulti() )
     {
 	FileMultiString fms;

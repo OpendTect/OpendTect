@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.2 2000-01-24 16:46:04 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.3 2000-03-02 15:29:54 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -151,6 +151,12 @@ bool SeisTrcReader::initRead()
 }
 
 
+bool SeisTrcReader::prepareRetry()
+{
+    if ( trl ) trl->prepareRetry();
+}
+
+
 const SeisKeyData& SeisTrcReader::keyData() const
 {
     static SeisKeyData dum_skd;
@@ -260,10 +266,19 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
     delete conn; conn = 0;
     if ( !ioobj->toNextConnNr() ) return 0;
-    trySkipConns();
 
+    trySkipConns();
     conn = ioobj->getConn( Conn::Read );
-    if ( !conn || conn->bad() ) { delete conn; conn = 0; return 0; }
+
+    while ( !conn || conn->bad() )
+    {
+	delete conn; conn = 0;
+	if ( !ioobj->toNextConnNr() ) return 0;
+
+	trySkipConns();
+	conn = ioobj->getConn( Conn::Read );
+    }
+
     icfound = NO;
 
     if ( !trl->initRead(spi,*conn) )
