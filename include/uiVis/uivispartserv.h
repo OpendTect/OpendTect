@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.25 2002-04-29 10:53:42 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.26 2002-05-02 07:25:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,6 +151,7 @@ public:
 			//Dialogs
     bool		setZScale();
     void		setMaterial(int);
+    void		setPickSize(int);
 
 protected:
 

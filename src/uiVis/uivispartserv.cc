@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.34 2002-04-30 14:14:13 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.35 2002-05-02 07:25:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ________________________________________________________________________
 
 #include "uizscaledlg.h"
 #include "uimaterialdlg.h"
+#include "uipickszdlg.h"
 #include "uislicesel.h"
 
 #include "cubesampling.h"
@@ -681,6 +682,17 @@ void uiVisPartServer::setMaterial( int id )
     if ( !vo ) return;
 
     uiMaterialDlg dlg( appserv().parent(), vo->getMaterial() );
+    dlg.go();
+}
+
+
+void uiVisPartServer::setPickSize( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PickSetDisplay*,ps,obj)
+    if ( !ps ) return;
+
+    uiPickSizeDlg dlg( appserv().parent(), ps );
     dlg.go();
 }
 
