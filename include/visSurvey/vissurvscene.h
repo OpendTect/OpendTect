@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.16 2002-04-29 09:28:16 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.17 2002-04-29 10:35:06 nanne Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,12 @@ public:
     void			addXYTObject( SceneObject* );
     void			addInlCrlTObject( SceneObject* );
 
-    void			showAnnotText( bool yn );
+    void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
+    void			showAnnotScale(bool);
+    bool			isAnnotScaleShown() const;
+    void			showAnnot(bool);
+    bool			isAnnotShown() const;
 
     Notifier<Scene>		mouseposchange;
     Geometry::Pos		getMousePos( bool xyt ) const;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.29 2002-04-29 09:30:58 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.30 2002-04-29 10:34:56 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -121,6 +121,30 @@ void visSurvey::Scene::showAnnotText( bool yn )
 bool  visSurvey::Scene::isAnnotTextShown() const
 {
     return annot->isTextShown();
+}
+
+
+void visSurvey::Scene::showAnnotScale( bool yn )
+{
+    annot->showScale( yn );
+}
+
+
+bool visSurvey::Scene::isAnnotScaleShown() const
+{
+    return annot->isScaleShown();
+}
+
+
+void visSurvey::Scene::showAnnot( bool yn )
+{
+    annot->turnOn( yn );
+}
+
+
+bool visSurvey::Scene::isAnnotShown() const
+{
+    return annot->isOn();
 }
 
 
