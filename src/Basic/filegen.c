@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.32 2002-11-18 08:42:56 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.33 2003-03-13 12:10:33 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -147,7 +147,7 @@ int File_isWritable( const char* fnm )
     FileNameString cmd;
     if ( !File_exists(fnm) ) return 0;
 
-    sprintf( cmd, "test -w %s", fnm );
+    sprintf( cmd, "test -w '%s'", fnm );
     return !system( cmd );
 }
 
@@ -403,20 +403,22 @@ int File_rename( const char* from, const char* to )
 
 #else
 
-    rv = rename(from,to) ? NO : YES;
-    if ( rv ) return rv;
+    if ( !rename(from,to) )
+	return YES;
 
     // Probably to other disk
     len = strlen( from ) + strlen( to ) + 25;
     cmd = mMALLOC(len,char);
     
-    strcpy( cmd, "/bin/mv -f " );
+    strcpy( cmd, "/bin/mv -f '" );
     strcat( cmd, from );
-    strcat( cmd, " " );
+    strcat( cmd, "' '" );
     strcat( cmd, to );
+    strcat( cmd, "'" );
 
     rv = system( cmd ) != -1 ? YES : NO;
-    if ( rv ) rv = File_exists( to );
+    if ( rv )
+	rv = File_exists( to );
     mRet( rv )
 
 #endif
@@ -467,10 +469,11 @@ int File_copy( const char* from, const char* to, int recursive )
     
     strcpy( cmd, "/bin/cp " );
     if ( recursive ) strcat( cmd, "-r " );
-    strcat( cmd, " " );
+    strcat( cmd, " '" );
     strcat( cmd, from );
-    strcat( cmd, " " );
+    strcat( cmd, "' '" );
     strcat( cmd, to );
+    strcat( cmd, "'" );
 
     retval = system( cmd ) != -1 ? YES : NO;
     if ( retval ) retval = File_exists( to );
@@ -485,8 +488,8 @@ int File_remove( const char* fname, int force, int recursive )
 
 #ifdef __win__
 	
-    if ( !fname ) return NO;
-    if ( !File_exists(fname) ) return YES;
+    if ( !File_exists(fname) )
+	return YES;
 
     if ( recursive )
     { 
@@ -511,37 +514,40 @@ int File_remove( const char* fname, int force, int recursive )
 #else
 
     char* cmd = 0;
+    char* ptr;
     int len, retval, islink;
-    FileNameString cmd_targ;
     FileNameString targ_fname;
 
-    if ( !fname ) return NO;
-    if ( !File_exists(fname) ) return YES;
-    islink = File_isLink(fname) ? YES : NO;
-    if ( islink ) 
-    {
-	strcpy( targ_fname, File_linkTarget(fname) );
-        if ( !File_exists( targ_fname ) ) 
-	    islink = NO;
-    }
-
-    len = strlen( fname ) + 30;
+    if ( !File_exists(fname) )
+	return YES;
 
     if ( !recursive )
 	return unlink((char*)fname) ? NO : YES;
 
+    len = strlen( fname ) + 30;
     cmd = mMALLOC(len,char);
-    strcpy( cmd,     "/bin/rm -" );
-    if ( recursive ) strcat( cmd, "r" );
-    if ( force )     strcat( cmd, "f" );
-                     strcat( cmd, " " );
-    if ( islink )    strcpy( cmd_targ, cmd );
-                     strcat( cmd, fname );
-    if ( islink )    strcat( cmd_targ, targ_fname );
+    strcpy( cmd, "/bin/rm -r" );
+    if ( force )
+	strcat( cmd, "f" );
+    strcat( cmd, " '" );
 
-    if ( islink && !system( cmd_targ ) && File_exists( targ_fname ) )
-	mRet(NO)
+    islink = File_isLink(fname) ? YES : NO;
+    if ( File_isLink(fname) ) 
+    {
+	strcpy( targ_fname, File_linkTarget(fname) );
+        if ( File_exists( targ_fname ) ) 
+	{
+	    ptr = cmd + strlen(cmd);
+	    strcat( cmd, targ_fname );
+	    strcat( cmd, "'" );
+	    if ( !system(cmd) || File_exists(targ_fname) )
+		mRet(NO)
+	    *ptr = '\0';
+	}
+    }
 
+    strcat( cmd, fname );
+    strcat( cmd, "'" );
     retval = system( cmd ) ? NO : YES;
     if ( retval && File_exists( fname ) ) retval = NO;
     mRet( retval )
@@ -567,8 +573,9 @@ int File_makeWritable( const char* fname, int recursive, int yn )
     FileNameString cmd;
     strcpy( cmd, "chmod " );
     if ( recursive ) strcat( cmd, "-R ");
-    strcat( cmd, yn ? "ug+w " : "a-w " );
+    strcat( cmd, yn ? "ug+w '" : "a-w '" );
     strcat( cmd, fname );
+    strcat( cmd, "'" );
     return system( cmd ) != -1 ? YES : NO;
 
 #endif
@@ -594,10 +601,11 @@ int File_createLink( const char* from, const char* to )
     char cmd[512];
     if ( !from || !to || !*from || !*to ) return NO;
 
-    strcpy( cmd, "ln -s " );
+    strcpy( cmd, "ln -s '" );
     strcat( cmd, from );
-    strcat( cmd, " " );
+    strcat( cmd, "' '" );
     strcat( cmd, to );
+    strcat( cmd, "'" );
     if ( system( cmd ) == -1 ) return -1;
     return File_isLink( to );
 #endif
