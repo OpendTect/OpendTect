@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.6 2001-05-25 23:31:54 bert Exp $
+ RCS:		$Id: filegen.h,v 1.7 2001-06-02 15:33:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ extern "C" {
 /*!
 These functions deliver services related to files. In principle, they shield
 from knowledge of the OS, and could so also be used on non-UNIX platforms.
-Only UNIX is currently implemented, though.
+Only UNIX is currently fully implemented, most notably recursive copy and
+remove are lacking on windows.
 */
 
 /*! Functions returning YES/true on success */
