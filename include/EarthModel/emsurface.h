@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.6 2003-06-05 11:58:18 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.7 2003-06-17 12:51:37 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,8 @@ In addition, they are also linked together.
 class BinID;
 class RowCol;
 class CubeSampling;
+template <class T>
+class Interval;
 
 namespace Geometry
 {
@@ -69,13 +71,14 @@ class Surface : public EMObject
 public:
     int			nrPatches() const;
     PatchID		patchID(int idx) const;
-    PatchID		addPatch(bool addtohistory);
-    bool		addPatch(PatchID, bool addtohistory);
+    const char*		patchName(const PatchID&) const;
+    PatchID		addPatch(const char* nm, bool addtohistory);
+    bool		addPatch(const char* nm, PatchID, bool addtohistory);
     			/*!< Return false if the patchid allready exists */
     			
     void		removePatch(EM::PatchID, bool addtohistory);
 
-    void		setPos( PatchID patch, const RowCol&, const Coord3&,
+    bool		setPos( PatchID patch, const SubID&, const Coord3&,
 	    			bool autoconnect, bool addtohistory );
     Coord3		getPos(const EM::PosID&) const;
     bool		setPos(const EM::PosID&, const Coord3&,
@@ -105,6 +108,7 @@ public:
 
    
     bool		isLoaded() const;
+    bool		isFullResolution() const;
 
     int			nrAuxData() const;
     			/*!<\return	The number of data per node.
@@ -120,7 +124,11 @@ public:
     			/*!<\return The name of aux-data or 0 if the data
 				    is removed;
 			*/
-    int			addAuxData( const char* name );
+    const char*		auxDataInfo(int dataidx) const;
+    			/*!<\return The info of aux-data or 0 if the data
+				    is removed;
+			*/
+    int			addAuxData( const char* name, const char* info );
     			/*!<\return The dataidx of the new data.
 				    The index is persistent in runtime.
 			*/
@@ -131,8 +139,32 @@ public:
 				      float value );
 
 
-
     const Geometry::GridSurface*		getSurface(PatchID) const;
+    bool		getGridRowCol( const EM::SubID&, RowCol& ) const;
+    EM::SubID		getSurfSubID( const RowCol& ) const;
+    EM::SubID		getSurfSubID( const Geometry::PosID& ) const;
+
+    RowCol		loadedStep() const;
+    void		setTranslatorData( const RowCol& step,
+	    				   const RowCol& loadedstep,
+					   const RowCol& origo,
+					   const Interval<int>* rowrange,
+					   const Interval<int>* colrange );
+    			/*!< Sets subselection data
+			    \param step		The step that the surface
+						is defined in
+			    \param loadedstep	The step that is loaded
+			    \param origo	The origo that is used with
+						step
+			    \param rowrange	Should be set if a subselection
+		       				is done
+			    \param colrange	Should be set if a subselection
+		       				is done
+			*/
+						
+
+    static RowCol	subID2RowCol( const EM::SubID& );
+    static EM::SubID	rowCol2SubID( const RowCol& );
 
 protected:
     virtual Geometry::GridSurface*		createPatchSurface() const = 0;
@@ -148,9 +180,19 @@ protected:
 
     ObjectSet<Geometry::GridSurface>	surfaces;
     TypeSet<PatchID>			patchids;
+    ObjectSet<BufferString>		patchnames;
 
     ObjectSet<BufferString>			auxdatanames;
+    ObjectSet<BufferString>			auxdatainfo;
     ObjectSet<ObjectSet<TypeSet<float> > >	auxdata;
+
+    RowCol					loadedstep;
+    RowCol					step;
+    RowCol					origo;
+
+    Interval<int>*				rowinterval;
+    Interval<int>*				colinterval;
+
 };
 
 
