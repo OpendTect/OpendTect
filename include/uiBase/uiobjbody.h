@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.4 2001-09-20 08:30:59 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.5 2001-09-21 14:56:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,8 @@ public:
 								uiObjHandle()); 
 				    finalise_();
 				}
+
+    virtual bool		prefSzIsMin() const	{ return true; }  
 
 protected:
 

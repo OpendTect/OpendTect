@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.21 2001-09-21 13:54:24 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.22 2001-09-21 14:56:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,6 +123,7 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
     int preferred_width;
     int preferred_height;
 
+
     if( objLayouted() )
     {
 	preferred_width  = objLayouted()->preferredWidth();
@@ -133,6 +134,20 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
 	QSize sh(mQLayoutItem_.sizeHint());
 	preferred_width  = sh.width();
 	preferred_height = sh.height();
+    }
+
+    int min_width;
+    int min_height;
+
+    if( bodyLayouted() && bodyLayouted()->prefSzIsMin() )
+    {
+	min_width = preferred_width;
+	min_height = preferred_height;
+    }
+    else
+    {
+	min_width = minimumSize().width();
+	min_height = minimumSize().height();
     }
 
 #ifdef DEBUG_LAYOUT
@@ -154,33 +169,8 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
             if( !minimum_pos_inited)
 	    {
 		mPos.zero();
-
-#ifndef dont_use_preferred_wh
-/*
-    Use preferred width & height for initial values. This makes that dialogs can
-    not be shrinked
-*/
-
-//		mPos.setWidth( preferred_width );
-//		mPos.setHeight( preferred_height );
-
-		mPos.setWidth( minimumSize().width() );
-		mPos.setHeight( minimumSize().height() );
-
-
-#else           
-                if( stretch(true) )
-		    mPos.setWidth( minimumSize().width() );
-                else
-		    mPos.setWidth( preferred_width );
-
-                if( stretch(false) )
-		    mPos.setHeight( minimumSize().height() );
-                else
-		    mPos.setHeight( preferred_height );
-
-#endif
-
+		mPos.setWidth( min_width );
+		mPos.setHeight( min_height );
 		minimum_pos_inited = true;
 	    }
 	    break;

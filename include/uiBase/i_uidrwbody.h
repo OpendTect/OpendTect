@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.1 2001-08-23 15:02:41 windev Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.2 2001-09-21 14:56:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,8 @@ public:
 
     virtual QPaintDevice* 	mQPaintDevice()		{ return this; }
     virtual const QPaintDevice*	mQPaintDevice() const	{ return this; }
+
+    virtual bool		prefSzIsMin() const    { return false; }
 
 };
 
