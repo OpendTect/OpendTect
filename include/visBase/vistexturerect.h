@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.29 2004-01-29 10:10:58 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.30 2004-02-02 15:36:04 nanne Exp $
 ________________________________________________________________________
 
 
@@ -72,6 +72,7 @@ public:
     void			setResolution(int);
     int				getNrResolutions() const;
     int				getResolution() const;
+    void			finishTextures();
 
     const TypeSet<float>&       getHistogram() const;
 
