@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.11 2002-09-30 15:39:49 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.12 2002-10-09 10:28:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,13 +203,14 @@ void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
 
 	avsets.erase();
 	sendEvent( evGetAvailableSets );
-	for ( int idx=0; idx<avsets.size(); idx++ )
+	PtrUserIDObjectSet nms = avsets;
+	for ( int idx=0; idx<nms.size(); idx++ )
 	{
-	    if ( !strcmp(newnm,avsets[idx]->name()) )
+	    if ( !strcmp(newnm,nms[idx]->name()) )
 	    {
 		BufferString msg( "Pickset: "); msg += newnm;
 		msg += "\nalready exists.";
-		uiMSG().about( msg );
+		uiMSG().message( msg );
 		newnm = oldnm;
 		return;
 	    }
