@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.10 2003-04-23 12:31:17 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.11 2003-04-23 13:11:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,6 +156,9 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     setVSzPol( uiObject::smallvar );
 
 //    setStretch( s.colgrow_ ? 2 : 1, s.rowgrow_ ? 2 : 1 );
+
+    setSelectionMode( s.selmode_ );
+
 }
 
 
@@ -336,12 +339,35 @@ void uiTable::setValue( const Pos& p, int i )
 }
 
 
+void uiTable::setSelectionMode( SelectionMode m )
+{
+    switch ( m ) 
+    {
+	case Single : body_->setSelectionMode( QTable::Single ); break;
+	case Multi : body_->setSelectionMode( QTable::Multi ); break;
+	case SingleRow : body_->setSelectionMode( QTable::SingleRow ); break;
+	case MultiRow : body_->setSelectionMode( QTable::MultiRow ); break;
+	default :  body_->setSelectionMode( QTable::NoSelection ); break;
+    }
+
+}
+
+
 void uiTable::clicked_( CallBacker* cb )
 {
     mCBCapsuleUnpack(const uiMouseEvent&,ev,cb);
 
     if ( ev.buttonState() & uiMouseEvent::RightButton )
-	rightClk();
+	{ rightClk(); return; }
+
+    if ( setup_.snglclkedit_ )
+	editCell( notifpos_, false );
+}
+
+
+void uiTable::editCell( const Pos& p, bool replace )
+{
+    body_->editCell( p.y(), p.x(), replace );
 }
 
 

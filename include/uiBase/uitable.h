@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.7 2003-04-23 12:33:49 arend Exp $
+ RCS:           $Id: uitable.h,v 1.8 2003-04-23 13:11:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,15 @@ public:
     typedef Point<int>	Pos;
     typedef Size2D<int>	Size;
 
+    enum SelectionMode
+    {
+	NoSelection,	//!< No cell can be selected by the user.
+	Single,		//!< The user may only select a single range of cells.
+	Multi,		//!< The user may select multiple ranges of cells.
+	SingleRow,	//!< The user may select one row at once.
+	MultiRow,	//!< The user may select multiple rows.
+    };
+
     class Setup
     {
     public:
@@ -47,8 +56,8 @@ public:
 			    , maxrowhgt_( 3 )
 			    , mincolwdt_( uiObject::baseFldSize() )
 			    , maxcolwdt_( 2.3 * uiObject::baseFldSize() )
-
-	{}
+			    , selmode_( NoSelection )
+			    , snglclkedit_( true ) {}
 
 	Setup& size( const Size& s )		{ size_ = s; return *this; }
 	Setup& rowdesc( const char* s )		{ rowdesc_ = s; return *this; }
@@ -61,6 +70,8 @@ public:
 	Setup& minrowhgt( float s )		{ minrowhgt_= s; return *this; }
 	Setup& maxcolwdt( float s )		{ maxcolwdt_= s; return *this; }
 	Setup& mincolwdt( float s )		{ mincolwdt_= s; return *this; }
+	Setup& selmode( SelectionMode s )	{ selmode_= s; return *this; }
+	Setup& singleclickedit( bool s=true )   { snglclkedit_=s; return *this;}
 
 	Size		size_;
 	BufferString	rowdesc_;
@@ -73,6 +84,8 @@ public:
 	float		maxrowhgt_; //!< expressed in multiples of font height
 	float		mincolwdt_; //!< times average font width
 	float		maxcolwdt_; //!< times average font width
+	SelectionMode	selmode_;
+	bool		snglclkedit_;
     };
 
                         uiTable(uiParent*, const Setup&,const char* nm="Table");
@@ -158,6 +171,9 @@ public:
 
     int			getIntValue( const Pos& p ) const;
     void		setValue( const Pos& p, int i );
+
+    void		setSelectionMode( SelectionMode );
+    void		editCell( const Pos& p, bool replace=false );
 
 protected:
 
