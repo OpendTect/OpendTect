@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.14 2003-01-28 17:28:16 bert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.15 2003-02-03 14:07:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,9 +58,9 @@ public:
     void		setMisclassSet(const TypeSet<BinIDZValue>&);
 
     ObjectSet<SurfaceInfo>& horInfos()		{ return hinfos; }
-    int			selHorID() const	{ return selhorid; }
+    const MultiID&	selHorID() const	{ return selhorid; }
     const BinIDRange*	selBinIDRange() const	{ return selbr; }
-    TypeSet<BinIDZValue>& horDef()
+    TypeSet<BinIDValue>& horDef()
     			{ return usehd1 ? hordef : hordef2; }
 
 protected:
@@ -72,10 +72,10 @@ protected:
     Color&		pickcolor;
 
     ObjectSet<SurfaceInfo> hinfos;
-    TypeSet<BinIDZValue> hordef;
-    TypeSet<BinIDZValue> hordef2;
+    TypeSet<BinIDValue> hordef;
+    TypeSet<BinIDValue> hordef2;
     bool		usehd1;
-    int			selhorid;
+    MultiID		selhorid;
     const BinIDRange*	selbr;
 
     bool		mkRandLocs(PickSet&,const RandLocGenPars&);

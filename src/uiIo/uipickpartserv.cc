@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.15 2003-01-28 17:28:16 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.16 2003-02-03 14:07:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
 	{
 	    for ( int crl=selbr->start.crl; crl<=selbr->stop.crl;
 		    	crl += stp.crl )
-		hordef += BinIDZValue( inl, crl, mUndefValue );
+		hordef += BinIDValue( inl, crl, mUndefValue );
 	}
     }
 
@@ -132,13 +132,13 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     for ( int ipt=0; ipt<rp.nr; ipt++ )
     {
 	int ptidx = Stat_getIndex( nrpts );
-	BinIDZValue bv = hordef[ptidx];
+	BinIDValue bv = hordef[ptidx];
 
 	if ( rp.iscube )
 
-	    bv.z = rp.zrg.start + Stat_getRandom() * zwidth;
+	    bv.value = rp.zrg.start + Stat_getRandom() * zwidth;
 
-	else if ( mIsUndefined(bv.z) )
+	else if ( mIsUndefined(bv.value) )
 
 	    continue;
 
@@ -146,7 +146,7 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
 	{
 	    // Horizons are likely to have equal geometry, so
 	    if ( ptidx >= hordef2.size() ) ptidx = hordef2.size() / 2;
-	    BinIDZValue bv2 = hordef2[ptidx];
+	    BinIDValue bv2 = hordef2[ptidx];
 	    if ( bv.binid != bv2.binid )
 	    {
 		// But alas. Need extensive search now
@@ -161,10 +161,10 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
 		if ( !found ) // Need both horizons defined. Try again.
 		    { ipt--; continue; }
 	    }
-	    bv.z += Stat_getRandom() * (bv2.z - bv.z);
+	    bv.value += Stat_getRandom() * (bv2.value - bv.value);
 	}
 
-	ps += PickLocation( SI().transform(bv.binid), bv.z );
+	ps += PickLocation( SI().transform(bv.binid), bv.value );
     }
 
     return true;
@@ -261,12 +261,14 @@ void uiPickPartServer::setMisclassSet( const TypeSet<BinIDZValue>& bzvs )
 {
     static const BufferString sMisClassStr = "Misclassified [NN]";
 
-    /* Ehhhh ...?
-    sendEvent( evGetAvailableSets );
-    PtrUserIDObjectSet nms = avsets;
-    for ( int idx=0; idx<nms.size(); idx++ )
+    PickSet* pickset = new PickSet( sMisClassStr );
+    pickset->color.set( 255, 0, 0 );
+    for ( int idx=0; idx<bzvs.size(); idx++ )
     {
-	if ( sMisClassStr == nms[idx]->name() )
+	Coord pos = SI().transform( bzvs[idx].binid );
+	*pickset += PickLocation( pos.x, pos.y, bzvs[idx].z );
     }
-    */
+
+    psg.clear();
+    psg.add( pickset );
 }
