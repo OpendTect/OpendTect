@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.17 2004-04-15 13:12:24 macman Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.18 2004-05-04 15:47:27 bert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -113,14 +113,6 @@ void Threads::Thread::threadExit()
     pthread_exit( 0 );
 }
 
-#define dbg_nr_proc() \
-    if ( DBG::isOn( DBG_MT ) )  \
-    { \
-	BufferString msg( "Number of Processors found: " ); \
-	msg += ret; \
-	DBG::message( msg ); \
-    }
-
 
 #ifdef __win__
 int Threads::getNrProcessors()
@@ -187,9 +179,14 @@ int Threads::getNrProcessors()
 
     if ( DBG::isOn( DBG_MT ) ) 
     {
-	BufferString msg( "Number of Processors found: " );
-	msg += ret;
-	DBG::message( msg );
+	static bool msgdone = false;
+	if ( !msgdone )
+	{
+	    BufferString msg( "Number of Processors found: " );
+	    msg += ret;
+	    DBG::message( msg );
+	    msgdone = true;
+	}
     }
 
     return ret;
