@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.14 2003-12-15 16:02:45 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.15 2003-12-16 12:59:21 nanne Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -353,46 +353,27 @@ int EM::dgbSurfDataReader::totalNr() const
     return totalnr;
 }
 
-bool EM::dgbSurfDataReader::readInt( int& res )
-{
-    if ( intinterpreter )
-    {
-	char buf[sizeof(res)];
-	stream->read(buf,sizeof(res));
-	res = intinterpreter->get(buf,0);
-    }
-    else
-	(*stream) >> res;
+static int sizeofint = sizeof(int);
+static int sizeoflonglong = sizeof(long long);
+static int sizeoffloat = sizeof(float);
 
+#define mReadData(interpreter,size) \
+    if ( interpreter ) \
+    { \
+	char buf[sizeof(res)]; \
+	stream->read(buf,sizeof(res)); \
+	res = interpreter->get(buf,0); \
+    } \
+    else \
+	(*stream) >> res; \
+\
     return (*stream);
-}
 
+bool EM::dgbSurfDataReader::readInt( int& res )
+{ mReadData(intinterpreter,sizeofint) }
 
 bool EM::dgbSurfDataReader::readLongLong( long long& res )
-{
-    if ( longlonginterpreter )
-    {
-	char buf[sizeof(res)];
-	stream->read(buf,sizeof(res));
-	res = longlonginterpreter->get(buf,0);
-    }
-    else
-	(*stream) >> res;
+{ mReadData(longlonginterpreter,sizeoflonglong) }
 
-    return (*stream);
-}
-
-
-bool EM::dgbSurfDataReader::readFloat(float& res)
-{
-    if ( floatinterpreter )
-    {
-	char buf[sizeof(res)];
-	stream->read(buf,sizeof(res));
-	res = floatinterpreter->get(buf,0);
-    }
-    else
-	(*stream) >> res;
-
-    return (*stream);
-}
+bool EM::dgbSurfDataReader::readFloat( float& res )
+{ mReadData(floatinterpreter,sizeoffloat) }
