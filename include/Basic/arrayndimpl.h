@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.21 2002-02-21 12:28:13 kristofer Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.22 2002-04-17 14:24:59 nanne Exp $
 ________________________________________________________________________
 
 */
@@ -23,23 +23,27 @@ class ArrayNDMemStor : public ArrayND<T>::LinearStorage
 {
 public:
 
-    bool	isOK() const { return ptr; }
-    T		get(int pos) const {return ptr[pos]; }
-    void	set(int pos, T val ) { ptr[pos] = val; }
+    bool	isOK() const			{ return ptr; }
+    T		get(int pos) const		{ return ptr[pos]; }
+    void	set(int pos, T val )		{ ptr[pos] = val; }
 
-    const T*	getData() const { return ptr; }
+    const T*	getData() const			{ return ptr; }
 
-    void	setSize( int nsz )
-		{ ptr = ptr ? mREALLOC(ptr,nsz,T) : mMALLOC(nsz,T); sz = nsz; }
-    int		size() const { return sz; }
+    void	setSize( int nsz )		{ if ( sz == nsz ) return;
+						  sz = nsz; alloc(); }
+    int		size() const			{ return sz; }
 
 		ArrayNDMemStor( int nsz )
-		    : ptr ( 0 ), sz( nsz ) { if ( nsz ) ptr = mMALLOC(nsz,T);}
-    inline	~ArrayNDMemStor() { mFREE(ptr);  ptr = 0; }
+		    : ptr (0), sz(nsz)		{ alloc(); }
+    inline	~ArrayNDMemStor()		{ delete [] ptr; }
 
 protected:
+
     int		sz;
     T*		ptr;
+
+    void	alloc()			{ delete [] ptr; ptr = new T [sz]; }
+
 };
 
 
