@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.34 2003-03-18 16:05:18 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.35 2003-04-24 15:01:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,9 +93,16 @@ uiSurvey::uiSurvey( uiParent* p )
     uiButton* tutbut = 0;
     if ( GetDgbApplicationCode() == mDgbApplCodeGDI )
     {
-	tutbut = new uiPushButton( leftgrp, "Get Tutorial" );
-	tutbut->attach( centeredBelow, listbox );
-	tutbut->activated.notify( mCB(this,uiSurvey,tutButPushed) );
+	static const char* tutdirnm = "Tutorial";
+	const bool direxists = dirlist->indexOf(tutdirnm) >= 0;
+	BufferString dirnm( GetDataFileName(tutdirnm) );
+	const bool tutinst = File_exists( dirnm );
+	if ( tutinst && !direxists )
+	{
+	    tutbut = new uiPushButton( leftgrp, "Get Tutorial" );
+	    tutbut->attach( centeredBelow, listbox );
+	    tutbut->activated.notify( mCB(this,uiSurvey,tutButPushed) );
+	}
     }
 
     uiSeparator* horsep1 = new uiSeparator( this );
