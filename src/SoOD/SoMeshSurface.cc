@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.12 2003-12-04 16:00:18 nanne Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.13 2003-12-10 15:41:03 nanne Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -49,6 +49,7 @@ SoMeshSurface::SoMeshSurface()
     , weAreStopping( false )
     , pickcallbacks( 0 )
     , texturerangeisset( false )
+    , wireframeon(false)
 {
     SO_NODE_CONSTRUCTOR(SoMeshSurface);
 
@@ -174,6 +175,7 @@ void SoMeshSurface::allocSpace( int newrowstart, int newrowstop,
 
 void SoMeshSurface::turnOnWireFrame( bool yn )
 {
+    wireframeon = yn;
     const int nrsquares = getNumChildren();
     for ( int idx=0; idx<nrsquares; idx++ )
 	getSquare(idx)->turnOnWireFrame( yn );
@@ -367,6 +369,7 @@ void SoMeshSurface::makeFirstSquare( int row, int col )
     square->origo.set1Value(1, firstcol);
     square->sizepower = partSizePower.getValue();
     square->addPickCB( pickCB, this );
+    square->turnOnWireFrame( wireframeon );
     if ( texturerangeisset )
 	square->setTextureRange( texturefirstrow, texturefirstcol,
 				 texturelastrow, texturelastcol );
@@ -389,6 +392,7 @@ void SoMeshSurface::addSquareRow( bool start )
 	square->origo.set1Value(1, col);
 	square->sizepower = partSizePower.getValue();
   	square->addPickCB( pickCB, this );
+	square->turnOnWireFrame( wireframeon );
 	if ( texturerangeisset )
 	    square->setTextureRange( texturefirstrow, texturefirstcol,
 				     texturelastrow, texturelastcol );
@@ -437,6 +441,7 @@ void SoMeshSurface::addSquareCol( bool start )
 	square->origo.set1Value(1, col);
 	square->sizepower = partSizePower.getValue();
   	square->addPickCB( pickCB, this );
+	square->turnOnWireFrame( wireframeon );
 	if ( texturerangeisset )
 	    square->setTextureRange( texturefirstrow, texturefirstcol,
 				     texturelastrow, texturelastcol );

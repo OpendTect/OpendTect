@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurface.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: SoMeshSurface.h,v 1.6 2003-12-10 15:41:13 nanne Exp $
 ________________________________________________________________________
 
 
@@ -139,6 +139,8 @@ protected:
     SbList<SbThread*>			threads;
 
     SbList<SoMeshSurfaceSquare*>	rendersquares;
+
+    bool				wireframeon;
 
 					~SoMeshSurface();
 };
