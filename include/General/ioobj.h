@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.6 2001-07-06 11:41:30 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.7 2001-09-17 16:46:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ public:
 
     static IOObj*	produce(const char*,const char* nm=0,const char* ky=0,
 				bool initdefaults=true);
+    static bool		isKey(const char*);
 
     Translator*		getTranslator() const;
     void		acquireNewKey();
