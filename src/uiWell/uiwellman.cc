@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.24 2004-11-09 13:13:58 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.25 2004-11-19 08:08:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,8 @@ uiWellMan::uiWellMan( uiParent* p )
 
 uiWellMan::~uiWellMan()
 {
-    delete welldata, wellrdr;
+    delete welldata;
+    delete wellrdr;
 }
 
 
