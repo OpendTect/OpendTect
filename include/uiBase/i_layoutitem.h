@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.15 2002-01-25 13:32:58 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.16 2002-01-31 14:24:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,8 +73,6 @@ public:
 				    { return layoutpos[m];}
     inline uiRect&		curpos(layoutMode m)	{ return layoutpos[m];}
 
-    constraintIterator		iterator();
-
     bool			inited() const 
 				{ 
 				    return minimum_pos_inited 
@@ -93,7 +91,7 @@ protected:
 
     void			initLayout( layoutMode m, int mngrTop, 
 							  int mngrLeft );
-    void			layout( layoutMode m, const int, bool*, bool );
+    bool			layout( layoutMode m, const int, bool );
 
     void			attach( constraintType, 
 					i_LayoutItem *other, int margin);

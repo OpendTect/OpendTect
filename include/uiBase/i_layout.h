@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.23 2002-01-22 10:51:20 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.24 2002-01-31 14:24:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 #include <qlayout.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qrect.h>
 
 class resizeItem;
@@ -52,8 +52,8 @@ protected:
     bool		enabled_;
 };
 
-mTemplTypeDef(QList,uiConstraint,constraintList)
-mTemplTypeDef(QListIterator,uiConstraint,constraintIterator)
+mTemplTypeDef(QPtrList,uiConstraint,constraintList)
+mTemplTypeDef(QPtrListIterator,uiConstraint,constraintIterator)
 
 class i_LayoutItem;
 
@@ -151,8 +151,7 @@ private:
     void 		doLayout( layoutMode m, const QRect& );
 
     void 		moveChildrenTo( int , int, layoutMode );
-    void 		fillResizeList( ObjectSet<resizeItem>&, 
-					int&, int&, int&, int&, bool );
+    void 		fillResizeList( ObjectSet<resizeItem>&, bool ); 
     bool		tryToGrowItem( resizeItem&, const int, const int, 
 				       int, int, const QRect&, int);
     void		resizeTo( const QRect&, bool );
@@ -160,7 +159,7 @@ private:
 
     uiRect 		childrenRect( layoutMode m );
 
-    QList<i_LayoutItem>	childrenList;
+    QPtrList<i_LayoutItem> childrenList;
 
     uiRect		layoutpos[ nLayoutMode ];
 
