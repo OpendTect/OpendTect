@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.2 2003-01-03 08:15:15 kristofer Exp $
+ RCS:		$Id: viscoord.h,v 1.3 2003-01-07 10:20:14 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -24,20 +24,10 @@ namespace Geometry { class PosIdHolder; }
 
 namespace visBase
 {
-class CoordinatesBuilder;
-
-class CoordinateMessage
-{
-public:
-    enum Event		{ ChangedPos, NrChanged } event;
-    unsigned long	coordnr;
-    unsigned long	newnr; //Only set when NrChanged
-};
 
 
 /*!\brief
-A set of coordinates along with some notification service. It can quicly be
-build with a Geometry::PosIdHolder&, but that is not nessesary.
+A set of coordinates.
 */
 
 class Coordinates : public SceneObject
@@ -48,24 +38,30 @@ public:
 			mCreateDataObj(Coordinates);
     friend		class CoordinatesBuilder;
 
-    Executor*		setPositions( Geometry::PosIdHolder&, bool connect );
-    Coord3		getPos( int );
-
-    void		notify( const CallBack& );
-    void		removeNotification( const CallBack& cb );
+    int			size(bool includedelete=false) const;
+    int			addPos( const Coord3& );
+    Coord3		getPos( int ) const;
+    void		setPos( int,  const Coord3& );
+    void		removePos( int );
 
     SoNode*		getData();
 protected:
-    				~Coordinates();
-     void			hanldePosIdHolderCh( CallBacker* );
 
-     Geometry::PosIdHolder*	posidholder;
-     TypeSet<unsigned int>	posids;
-
-     SoCoordinate3*		coords;
-     CNotifier<visBase::Coordinates,
-     	      const visBase::CoordinateMessage&> notifier; 
+    			~Coordinates();
+     SoCoordinate3*	coords;
+     TypeSet<int>	unusedcoords;
 };
+
+/*
+class CoordinateMessage
+{
+public:
+    enum Event		{ ChangedPos, NrChanged } event;
+    unsigned long	coordnr;
+    unsigned long	newnr; //Only set when NrChanged
+};
+*/
+
 
 };
 
