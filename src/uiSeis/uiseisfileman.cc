@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.14 2002-11-21 15:12:20 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.15 2002-11-22 16:25:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,20 +57,20 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     renamebut = new uiPushButton( butgrp, "Rename ..." );
     renamebut->activated.notify( mCB(this,uiSeisFileMan,renamePush) );
     renamebut->attach( alignedBelow, rembut );
-    relocbut = new uiPushButton( butgrp, "Location ..." );
+    relocbut = new uiPushButton( butgrp, "Move ..." );
     relocbut->activated.notify( mCB(this,uiSeisFileMan,relocatePush) );
     relocbut->attach( alignedBelow, renamebut );
-    mergebut = new uiPushButton( butgrp, "Merge ..." );
-    mergebut->activated.notify( mCB(this,uiSeisFileMan,mergePush) );
-    mergebut->attach( alignedBelow, relocbut );
     copybut = new uiPushButton( butgrp, "Copy ..." );
     copybut->activated.notify( mCB(this,uiSeisFileMan,copyPush) );
-    copybut->attach( alignedBelow, mergebut );
+    copybut->attach( alignedBelow, relocbut );
+    mergebut = new uiPushButton( butgrp, "Merge ..." );
+    mergebut->activated.notify( mCB(this,uiSeisFileMan,mergePush) );
+    mergebut->attach( alignedBelow, copybut );
 
-    rembut->attach( widthSameAs, relocbut );
-    renamebut->attach( widthSameAs, relocbut );
-    mergebut->attach( widthSameAs, relocbut );
-    copybut->attach( widthSameAs, relocbut );
+    renamebut->attach( widthSameAs, rembut );
+    relocbut->attach( widthSameAs, rembut );
+    copybut->attach( widthSameAs, rembut );
+    mergebut->attach( widthSameAs, rembut );
     listfld->attach( heightSameAs, butgrp );
   
     infofld = new uiTextEdit( this, "File Info", true );
@@ -226,7 +226,8 @@ void uiSeisFileMan::relocatePush( CallBacker* )
     }
 
     const char* dirpath = File_getPathOnly( fulloldname );
-    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, dirpath );
+    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, dirpath, 0,
+	   	      "Select destination directory" );
     if ( !dlg.go() ) return;
     BufferString newdirpath = dlg.fileName();
     BufferString fname = File_getFileName( fulloldname );
