@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.9 2003-12-29 08:03:02 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.10 2004-05-31 06:48:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 
 /*!\brief Object with row and col. */
+
+template <class T> class TypeSet;
 
 class RowCol
 {
@@ -44,9 +46,24 @@ public:
     int		operator!=( const RowCol& rc ) const
 		{ return ! (rc == *this); }
 
+    float	angleTo(const RowCol&) const;
+    		/*!<\returns the smallest angle between the vector going from
+		     0,0 to the object and the vector going from 0,0 to rc.*/
+    float	clockwiseAngleTo(const RowCol& rc) const;
+    		/*!<\returns the angle between the vector going from 0,0 to the
+		     object and the vector going from 0,0 to rc in the
+		     clockwise direction.*/
+    float	counterClockwiseAngleTo(const RowCol&) const;
+    		/*!<\returns the angle between the vector going from 0,0 to the
+		     object and the vector going from 0,0 to rc in the
+		     counterclockwise direction.*/
+
     int		row;
     int		col;
 
+    static const TypeSet<RowCol>&	clockWiseSequence();
+private:
+    static TypeSet<RowCol>&		clockwisedirs_;
 };
 
 
