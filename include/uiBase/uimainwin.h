@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.33 2003-12-29 11:56:42 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.34 2004-01-07 14:30:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ public:
 
 protected:
 
-    virtual bool	closeOK() const {return true;}//!< confirm window close
+    virtual bool	closeOK() 	{return true;}//!< confirm window close
 
 			uiMainWin( const char* );
     uiObject*		mainobject();

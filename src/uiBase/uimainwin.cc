@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.79 2003-12-29 11:56:33 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.80 2004-01-07 14:30:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,8 +125,6 @@ public:
 
     void		close();
 
-    virtual void	hide();
-
     bool		poppedUp() const { return popped_up; }
     bool		touch()
 			{
@@ -153,6 +151,7 @@ public:
 protected:
 
     virtual void	finalise( bool trigger_finalise_start_stop=true );
+    void		closeEvent(QCloseEvent*);
 
     bool		exitapponclose_;
 
@@ -272,16 +271,18 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 }
 
 
+void uiMainWinBody::closeEvent( QCloseEvent* ce )
+{
+    mMwHandle.closeOK() ? ce->accept() : ce->ignore();
+}
+
+
 #define mHide() \
     if ( !mMwHandle.closeOK() ) return; \
     mMwHandle.windowClosed.trigger(mMwHandle); \
     if( modal_ )	qApp->exit_loop(); \
     QMainWindow::hide();
 
-void uiMainWinBody::hide()
-{
-    mHide();
-}
 
 void uiMainWinBody::close()
 {
@@ -676,6 +677,7 @@ protected:
     void		done_(int);
 
     virtual void	finalise(bool);
+    void		closeEvent(QCloseEvent*);
 
 private:
 
@@ -684,6 +686,7 @@ private:
     void		layoutChildren(uiObject*);
 
 };
+
 
 uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
 			    const uiDialog::Setup& s )
@@ -756,6 +759,12 @@ void uiDialogBody::done_( int v )
 }
 
 
+void uiDialogBody::closeEvent( QCloseEvent* ce )
+{
+    reject(0);
+}
+
+
 /*!
     Construct OK and Cancel buttons just before the first show.
     This gives chance not to construct them in case OKtext and CancelText have
@@ -785,17 +794,17 @@ void uiDialogBody::initChildren()
 
     if ( okBut )
     {
-	okBut->activated.notify( mCB( this, uiDialogBody, accept ));
+	okBut->activated.notify( mCB(this,uiDialogBody,accept) );
 	okBut->setDefault();
     }
     if ( cnclBut )
     {
-	cnclBut->activated.notify( mCB( this, uiDialogBody, reject ));
+	cnclBut->activated.notify( mCB(this,uiDialogBody,reject) );
 	if ( !okBut )
 	    cnclBut->setDefault();
     }
     if ( helpBut )
-	helpBut->activated.notify( mCB( this, uiDialogBody, provideHelp ));
+	helpBut->activated.notify( mCB(this,uiDialogBody,provideHelp) );
 
     childrenInited = true;
 }
