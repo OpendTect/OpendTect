@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.12 2004-11-02 13:56:44 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.13 2004-12-06 17:14:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,20 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "errh.h"
 
+uiManipButGrp::ButData::ButData( uiToolButton* b, const ioPixmap& p,
+				 const char* t )
+	: but(b)
+    	, pm(new ioPixmap(p))
+    	, tt(t)
+{
+}
+
+
+uiManipButGrp::ButData::~ButData()
+{
+    delete pm;
+}
+
 
 uiToolButton* uiManipButGrp::addButton( Type tp, const CallBack& cb,
 					const char* tooltip )
@@ -43,6 +57,9 @@ uiToolButton* uiManipButGrp::addButton( Type tp, const CallBack& cb,
 	    pm = new ioPixmap( GetDataFileName("trashcan.png") ); break;
 	case ReadOnly:
 	    pm = new ioPixmap( GetDataFileName("readonly.png") ); break;
+	default:
+	    pErrMsg("Unknown toolbut typ");
+	    pm = new ioPixmap( GetDataFileName("home.png") ); break;
     }
 
     return addButton( *pm, cb, tooltip );
@@ -54,9 +71,50 @@ uiToolButton* uiManipButGrp::addButton( const ioPixmap& pm, const CallBack& cb,
 {
     uiToolButton* button = new uiToolButton( this, "ToolButton", pm, cb );
     button->setToolTip( tooltip );
+    butdata += new ButData( button, pm, tooltip );
+    altbutdata += 0;
     return button;
 }
 
+
+void uiManipButGrp::setAlternative( uiToolButton* button, const ioPixmap& pm,
+				    const char* tt )
+{
+    for ( int idx=0; idx<butdata.size(); idx++ )
+    {
+	if ( butdata[idx]->but == button )
+	{
+	    uiManipButGrp::ButData* bd = altbutdata[idx];
+	    if ( !bd )
+		altbutdata.replace( new uiManipButGrp::ButData(button,pm,tt),
+				    idx );
+	    else
+	    {
+		bd->but = button;
+		delete bd->pm; bd->pm = new ioPixmap(pm);
+		bd->tt = tt;
+	    }
+	}
+    }
+}
+				    
+
+void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
+{
+    for ( int idx=0; idx<butdata.size(); idx++ )
+    {
+	uiManipButGrp::ButData* normbd = butdata[idx];
+	if ( normbd->but == button )
+	{
+	    uiManipButGrp::ButData* altbd = altbutdata[idx];
+	    if ( yn && !altbd ) return;
+	    uiManipButGrp::ButData& bd = yn ? *altbd : *normbd;
+	    button->setPixmap( *bd.pm );
+	    button->setToolTip( bd.tt );
+	    break;
+	}
+    }
+}
 
 
 uiIOObjManipGroup::uiIOObjManipGroup( uiListBox* l, IODirEntryList& el,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.6 2004-10-18 15:10:51 nanne Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.7 2004-12-06 17:14:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,12 +27,31 @@ class uiManipButGrp : public uiButtonGroup
 {
 public:
     			uiManipButGrp(uiParent* p)
-			    : uiButtonGroup(p,"")	{}
+			    : uiButtonGroup(p,"") { altbutdata.allowNull(); }
+			~uiManipButGrp()
+			{ deepErase(butdata); deepErase(altbutdata); }
 
     enum Type		{ FileLocation, Rename, Remove, ReadOnly };
 
     uiToolButton*	addButton(Type,const CallBack&,const char* tip);
     uiToolButton*	addButton(const ioPixmap&,const CallBack&,const char*);
+    void		setAlternative(uiToolButton*,const ioPixmap&,
+	    				const char*);
+    void		useAlternative(uiToolButton*,bool);
+
+protected:
+
+    struct ButData
+    {
+			ButData(uiToolButton*,const ioPixmap&,const char*);
+			~ButData();
+	uiToolButton*	but;
+	ioPixmap*	pm;
+	BufferString	tt;
+    };
+
+    ObjectSet<ButData>	butdata;
+    ObjectSet<ButData>	altbutdata;
 };
 
 
