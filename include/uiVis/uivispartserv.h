@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.122 2004-05-06 15:15:45 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.123 2004-05-07 12:27:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,6 +149,7 @@ public:
     			/*<! Get the id with getEventObjId() */
     			/*!< Get selSpec with getSelSpec */
 
+    void		calculateAllAttribs();
     bool		calculateAttrib(int id,bool newsel);
     bool		calculateColorAttrib(int,bool);
 

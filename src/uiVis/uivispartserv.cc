@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.207 2004-05-07 10:29:24 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.208 2004-05-07 12:27:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -532,9 +532,6 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	for ( int idy=0; idy<children.size(); idy++ )
 	{
 	    int childid = children[idy];
-	    calculateAttrib( childid, false );
-	    calculateColorAttrib( childid, false );
-
 	    if ( hasconnections.indexOf( childid ) >= 0 ) continue;
 
 	    setUpConnections( childid );
@@ -550,6 +547,22 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	visSurvey::SPM().setZScale( appvel/1000 );
 
     return true;
+}
+
+
+void uiVisPartServer::calculateAllAttribs()
+{
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	TypeSet<int> children;
+	getChildIds( scenes[idx]->id(), children );
+	for ( int idy=0; idy<children.size(); idy++ )
+	{
+	    int childid = children[idy];
+	    calculateAttrib( childid, false );
+	    calculateColorAttrib( childid, false );
+	}
+    }
 }
 
 
