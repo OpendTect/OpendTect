@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.1 2003-01-17 16:23:16 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.2 2003-01-21 09:17:06 nanne Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,10 @@ public:
 
     static RandomTrackDisplay*	create()
 				mCreateDataObj(RandomTrackDisplay);
+
+    void			setAttribSelSpec(AttribSelSpec&);
+    AttribSelSpec&		getAttribSelSpec();
+    const AttribSelSpec&	getAttribSelSpec() const;
 
     void			setDepthInterval(const Interval<float>&);
     const Interval<float>&	getDepthInterval() const;

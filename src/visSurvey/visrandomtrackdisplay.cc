@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.1 2003-01-17 16:23:07 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.2 2003-01-21 09:16:52 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -41,6 +41,18 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
 visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
 {
 }
+
+
+AttribSelSpec& visSurvey::RandomTrackDisplay::getAttribSelSpec()
+{ return as; }
+
+
+const AttribSelSpec& visSurvey::RandomTrackDisplay::getAttribSelSpec() const
+{ return as; }
+
+
+void visSurvey::RandomTrackDisplay::setAttribSelSpec( AttribSelSpec& as_ )
+{ as = as_; }
 
 
 void visSurvey::RandomTrackDisplay::setDepthInterval( 
