@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.18 2004-02-13 17:03:00 bert Exp $
+ RCS:		$Id: ioman.h,v 1.19 2004-02-17 10:58:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class CtxtIOObj;
 class Translator;
 
 
-/*!> Class IOMan manages the Meta-data store for the IOObj's. This info
+/*!\brief manages the Meta-data store for the IOObj's. This info
 is read from the .omf files.
 
 There will be one IOMan available through the gloabal function IOM(). Creating
@@ -131,37 +131,51 @@ inline IOMan& IOM()
 
 
 /*!\mainpage
-  \section intro Introduction
+  \section Introduction Introduction
 
   This module uses the services from the Basic module and adds services that
   are (in general) more or less OpendTect specific. Just like the Basic module
   the services are used by all other modules.
 
 
-  \section cont Content
+  \section Content Content
   Some of the groups of services are:
 
-  -# I/O management system
-  - ioman.h : the IOM() object provides a lookup of objects in the data store
-  - iooobj.h : Subclasses of IOObj hold all data necessary to access a stored
-    object.
-  - iostrm.h : IOStream is the most common subclass of IOObj because files
-    are most commonly where data is stored.
-  -# Translators
-  - transl.h : Translators are the objects that know file and database formats.
-    All normal data will be put into and written from in-memory objects via
-    subclasses of Translator.
-  -# ArrayND
-  - arraynd.h and arrayndinfo.h : interface for multi-dimensional but flexible
-    arrays of any (simple) type.
-  - arrayndimpl.h : implementation with specific classed for 1, 2, and 3D.
-  - arrayndslice.h and arrayndutils.h : Slices and other utlities.
-  -# CBVS
-  - cbvsreadmgr.h : reads the 'Common Basic Volume Storage' format
-  - cbvswritemgr.h : writes CBSV format.
-  -# Transformations
-  - transform.h and transfact.h : Interface and factory for transforms
-  - costrans.h, fft.h, wavelettrans.h : transforms
+<ul>
+ <li>I/O management system
+  <ul>
+   <li>ioman.h : the IOM() object of the IOMan class provides a lookup of
+       objects in the data store
+   <li>iooobj.h : Subclasses of IOObj hold all data necessary to access a stored
+       object.
+   <li>iostrm.h : IOStream is the most common subclass of IOObj because
+       OpendTect stores its data in files.
+  </ul>
+ <li>Translators
+  <ul>
+   <li>transl.h : Translators are the objects that know file and database
+       formats. All normal data will be put into and written from in-memory
+       objects via subclasses of Translator.
+  </ul>
+ <li>ArrayND
+  <ul>
+   <li>arraynd.h and arrayndinfo.h : interface for multi-dimensional but
+       flexible arrays of any (simple) type.
+   <li>arrayndimpl.h : implementation with specific classed for 1, 2, and 3D.
+   <li>arrayndslice.h and arrayndutils.h : Slices and other utlities.
+  </ul>
+ <li>CBVS
+  <ul>
+   <li>cbvsreadmgr.h : reads the 'Common Basic Volume Storage' format
+   <li>cbvswritemgr.h : writes CBSV format.
+  </ul>
+ <li>Transformations
+  <ul>
+   <li>transform.h and transfact.h : Interface and factory for transforms
+   <li>costrans.h, fft.h, wavelettrans.h : transforms
+  </ul>
+</ul>
+
 */
 
 

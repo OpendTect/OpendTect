@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.26 2004-02-13 17:04:09 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.27 2004-02-17 10:58:52 bert Exp $
 ________________________________________________________________________
 
  This file contains general defines that are so basic they apply to each and
@@ -100,8 +100,8 @@ ________________________________________________________________________
 #endif
 
 
-/*!\mainpage
-  \section intro Introduction
+/*!\mainpage Basic utilities
+  \section Introduction Introduction
 
   This module handles all things that are so basic to all other modules that
   they can be seen as a layer of common services to the entire system. One of
@@ -120,43 +120,58 @@ ________________________________________________________________________
   objects that do selected things in a way that fits our system.
 
 
-  \section cont Content
+  \section Content Content
 
   We'll just name a few groups of services. There are many more isolated
   useful objects, defines, functions and so forth.
 
-  -# Sets/Lists
-  - sets.h : 'The' classes for sets of objects and pointers to objects
-  - sortedlist.h and sortedtable.h : sets that are sorted during build
-  - toplist.h : holds a "top N" list
-  - iopar.h : IOPar is a keyword-value lookup list that is used as 'generic'
-    parameter list throughout OpendTect.
-  -# Strings
-  - string2.h : things not in the standard <string.h>
-  - bufstring.h and bufstringset.h : Variable length strings commonly used in
-    OpendTect with a guaranteed minimum buffer size. That makes them ideal
-    as bridge with C strings.
-  - compoundkey.h and multiid.h : dot-separated keys.
-  - fixstring.h: fixed length strings but with tools like '+=' .
-  -# System-wide service objects
-  - msgh.h, errh.h and debug.h : Message pushing without user interface
-  - settings.h : access to persistent user specific settings
-  - survinfo.h : access to the survey setup (names, positions, ranges)
-  -# Positions (coordinates, inlines/crosslines=BinIDs)
-  - position.h and posgeom.h : basic map position tools
-  - binidexcl.h, binidprov.h, binidsel.h, binidselimpl.h: 
-    BinID selection and iteration
-  -# File and stream handling
-  - filegen.h : basic file tools like existence, path operations, copy, etc.
-  - ascstream.h : read and write of the typical OpendTect standard Ascii data
-  - dirlist.h : list contents of a directory
-  - strmprov.h and strmdata.h : access files, pipes, or devices for read
-    or write and make sure they are closed correctly.
-  -# CallBacks
-  - callback.h : our (simple but powerful) event system
-  -# Template floating-point algorithms
-  - simpnumer.h, sorting.h, periodicvalue.h, genericnumer.h, extremefinder.h
-  
+<ul>
+ <li>Sets/Lists
+  <ul>
+   <li>sets.h : 'The' classes for sets of objects and pointers to objects
+   <li>sortedlist.h and sortedtable.h : sets that are sorted during build
+   <li>toplist.h : holds a "top N" list
+   <li>iopar.h : IOPar is a keyword-value lookup list that is used as 'generic'
+       parameter list throughout OpendTect.
+  </ul>
+ <li>Strings
+  <ul>
+   <li>string2.h : things not in the standard <string.h>
+   <li>bufstring.h and bufstringset.h : Variable length strings commonly used in
+       OpendTect with a guaranteed minimum buffer size. That makes them ideal
+       as bridge with C strings.
+   <li>compoundkey.h and multiid.h : dot-separated keys.
+   <li>fixstring.h: fixed length strings but with tools like '+=' .
+  </ul>
+ <li>System-wide service objects
+  <ul>
+   <li>msgh.h, errh.h and debug.h : Message pushing without user interface
+   <li>settings.h : access to persistent user specific settings
+   <li>survinfo.h : access to the survey setup (names, positions, ranges)
+  </ul>
+ <li>Positions (coordinates, inlines/crosslines=BinIDs)
+  <ul>
+   <li>position.h and posgeom.h : basic map position tools
+   <li>binidexcl.h, binidprov.h, binidsel.h, binidselimpl.h: 
+       BinID selection and iteration
+  </ul>
+ <li>File and stream handling
+  <ul>
+   <li>filegen.h : basic file tools like existence, path operations, copy, etc.
+   <li>ascstream.h : read and write of the typical OpendTect standard Ascii data
+   <li>dirlist.h : list contents of a directory
+   <li>strmprov.h and strmdata.h : access files, pipes, or devices for read
+       or write and make sure they are closed correctly.
+  </ul>
+ <li>CallBacks
+  <ul>
+   <li>callback.h : our (simple but powerful) event system
+  </ul>
+ <li>Template floating-point algorithms
+  <ul>
+   <li>simpnumer.h, sorting.h, periodicvalue.h, genericnumer.h, extremefinder.h
+  </ul>
+</ul>
 
 */
 
