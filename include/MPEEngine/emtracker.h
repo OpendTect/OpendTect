@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.5 2005-03-17 14:52:34 cvsnanne Exp $
+ RCS:           $Id: emtracker.h,v 1.6 2005-03-30 13:44:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
     				EMTracker( EM::EMObject* );
     virtual			~EMTracker();
 
-    const char*			objectName() const;
+    BufferString		objectName() const;
     EM::ObjectID		objectID() const;
 
     virtual bool		isEnabled() const	{ return isenabled; }

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.4 2005-03-17 14:52:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.5 2005-03-30 13:44:14 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -35,7 +35,7 @@ EMTracker::~EMTracker()
 }
 
 
-const char* EMTracker::objectName() const
+BufferString EMTracker::objectName() const
 { return emobject ? emobject->name() : 0; }
 
 
