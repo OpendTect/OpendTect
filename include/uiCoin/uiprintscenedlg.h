@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.4 2004-02-04 08:43:12 kristofer Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.5 2004-05-27 13:53:44 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
+class IOPar;
 class SoNode;
 class uiFileInput;
 class uiComboBox;
