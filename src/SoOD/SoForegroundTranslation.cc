@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoForegroundTranslation.cc,v 1.1 2003-09-16 09:22:39 kristofer Exp $";
+static const char* rcsID = "$Id: SoForegroundTranslation.cc,v 1.2 2003-09-22 07:43:37 kristofer Exp $";
 
 
 #include "SoForegroundTranslation.h"
@@ -55,6 +55,7 @@ SoForegroundTranslation::SoForegroundTranslation()
     SO_NODE_ADD_FIELD( lift, ( 1 ) );
 }
 
+
 void SoForegroundTranslation::doAction( SoAction* action )
 {
     const float liftvalue = lift.getValue();
@@ -62,10 +63,16 @@ void SoForegroundTranslation::doAction( SoAction* action )
 
     SoState* state = action->getState();
     const SbViewVolume& vv = SoViewVolumeElement::get(state);
+    const SbMatrix& mat = SoModelMatrixElement::get(state);
 
     SbVec3f projectiondir = vv.getProjectionDirection();
     projectiondir.normalize();
-    SoModelMatrixElement::translateBy(state, this,projectiondir*(-liftvalue));
+    projectiondir *=-liftvalue;
+
+    SbVec3f localprojdir;
+    mat.inverse().multDirMatrix( projectiondir, localprojdir );
+    
+    SoModelMatrixElement::translateBy(state, this,localprojdir);
 }
 
     
