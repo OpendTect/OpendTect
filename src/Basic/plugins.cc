@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.25 2003-11-11 17:38:48 arend Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.26 2003-11-11 18:16:27 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -83,7 +83,10 @@ static bool loadPlugin( const char* libnm, int argc, char** argv,
     if ( inittype == PI_AUTO_INIT_NONE ) return false;
 
 #ifdef __win__
-    HMODULE handle = LoadLibrary( libnm );
+    BufferString targetlibnm( libnm );
+    if ( File_isLink(libnm) )
+	targetlibnm = File_linkTarget(libnm);
+    HMODULE handle = LoadLibrary( targetlibnm );
 #else
     void* handle = dlopen( libnm, RTLD_GLOBAL | RTLD_NOW );
 #endif
