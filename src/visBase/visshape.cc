@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.1 2003-01-07 10:29:54 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.2 2003-01-09 13:03:10 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: visshape.cc,v 1.1 2003-01-07 10:29:54 kristofer
 #include "vismaterial.h"
 #include "visnormals.h"
 #include "vistexture2.h"
+#include "vistexture3.h"
 #include "vistexturecoords.h"
 
 #include "Inventor/nodes/SoSeparator.h"
@@ -39,7 +40,7 @@ visBase::Shape::Shape( SoShape* shape_ )
 visBase::Shape::~Shape()
 {
     if ( texture2 ) texture2->unRef();
-    // if ( texture3 ) texture3->unRef();
+    if ( texture3 ) texture3->unRef();
     if ( material ) material->unRef();
 
     root->unref();
@@ -71,7 +72,7 @@ visBase::clssname* visBase::ownclass::get##clssname() \
 
 
 setGetItem( Shape, Texture2, texture2 );
-//setGetItem( Shape, Texture3, texture3 );
+setGetItem( Shape, Texture3, texture3 );
 setGetItem( Shape, Material, material );
 
 

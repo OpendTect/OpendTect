@@ -4,17 +4,18 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.10 2002-11-15 11:40:18 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.11 2003-01-09 13:03:10 kristofer Exp $";
 
 
 #include "vistexture3viewer.h"
+
 #include "visdataman.h"
+#include "vistexture3.h"
 #include "visselman.h"
 
 #include "Inventor/nodes/SoRotation.h"
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoFaceSet.h"
-#include "Inventor/nodes/SoTexture3.h"
 #include "Inventor/nodes/SoGroup.h"
 #include "Inventor/nodes/SoTextureCoordinate3.h"
 #include "Inventor/nodes/SoShapeHints.h"
@@ -27,6 +28,7 @@ mCreateFactoryEntry( visBase::Texture3Slice );
 visBase::Texture3Viewer::Texture3Viewer()
     : texture( 0 )
 {
+    setTexture( *visBase::Texture3::create() );
     textureobjects.allowNull();
 }
 
@@ -39,7 +41,7 @@ visBase::Texture3Viewer::~Texture3Viewer()
 	    removeObject( textureobjects[idx]->id() );
     }
 
-    if ( texture ) texture->unref();
+    if ( texture ) texture->unRef();
 }
 
 
@@ -49,7 +51,7 @@ int visBase::Texture3Viewer::addSlice( int dim, float origpos )
     slice->setDim( dim );
     slice->setPosition( origpos );
     slice->ref();
-    if ( texture ) slice->setTexture( texture );
+    if ( texture ) slice->setTexture( *texture );
     textureobjects += slice;
     addChild( slice->getData() );
     return slice->id();
@@ -117,10 +119,10 @@ bool visBase::Texture3Viewer::isObjectShown( int idnumber ) const
 }
 
 
-void visBase::Texture3Viewer::setTexture( SoTexture3* nt )
+void visBase::Texture3Viewer::setTexture( Texture3& nt )
 {
-    if ( texture ) texture->unref();
-    texture = nt;
+    if ( texture ) texture->unRef();
+    texture = &nt;
     texture->ref();
 
     for ( int idx=0; idx<textureobjects.size(); idx++ )
@@ -130,6 +132,10 @@ void visBase::Texture3Viewer::setTexture( SoTexture3* nt )
 	textureobjects[idx]->setTexture( nt );
     }
 }
+
+
+visBase::Texture3& visBase::Texture3Viewer::getTexture()
+{ return *texture; }
 
 
 visBase::Texture3Slice::Texture3Slice()
@@ -154,7 +160,9 @@ visBase::Texture3Slice::Texture3Slice()
 
 
 visBase::Texture3Slice::~Texture3Slice()
-{}
+{
+    if ( texture ) texture->unRef();
+}
 
 
 int visBase::Texture3Slice::dim() const { return dim_; }
@@ -176,11 +184,17 @@ void visBase::Texture3Slice::setPosition( float np )
 }
 
 
-void visBase::Texture3Slice::setTexture( SoTexture3* nt )
+void visBase::Texture3Slice::setTexture( Texture3& nt )
 {
-    if ( texture ) removeChild( texture );
-    texture = nt;
-    insertChild( 0, texture );
+    if ( texture )
+    {
+	removeChild( texture->getData() );
+	texture->unRef();
+    }
+
+    texture = &nt;
+    texture->ref();
+    insertChild( 0, texture->getData() );
 }
 
 void visBase::Texture3Slice::setUpCoords()
@@ -242,6 +256,7 @@ visBase::MovableTextureSlice::MovableTextureSlice()
     , texturecoords( new SoTextureCoordinate3 )
     , dim_( 0 )
     , motion(this)
+    , texture( 0 )
 {
     addChild( rotation );
     addChild( dragger );
@@ -263,6 +278,8 @@ visBase::MovableTextureSlice::~MovableTextureSlice()
     dragger->removeMotionCallback( 
 	    visBase::MovableTextureSlice::motionCB, this );
     group->unref();
+
+    if ( texture ) texture->unRef();
 }
 
 
@@ -294,12 +311,20 @@ void visBase::MovableTextureSlice::setPosition(float nv)
 }
 
 
-void visBase::MovableTextureSlice::setTexture( SoTexture3* text )
+void visBase::MovableTextureSlice::setTexture( Texture3& text )
 {
+    if ( texture )
+    {
+	texture->unRef();
+    }
+
+    texture = &text;
+    texture->ref();
+
     group->unref();
     group = new SoGroup;
     group->ref();
-    group->addChild( text );
+    group->addChild( texture->getData() );
     texturecoords = new SoTextureCoordinate3;
     group->addChild( texturecoords );
 
