@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.3 2002-02-05 15:44:41 nanne Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.4 2002-04-21 15:06:56 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -194,7 +194,7 @@ int SeisSingleTraceProc::nextStep()
 	return -1;
     else if ( starter_ )
     {
-	int rv = starter_->nextStep();
+	int rv = starter_->doStep();
 	if ( rv ) return rv;
 	delete starter_;
 	starter_ = 0;

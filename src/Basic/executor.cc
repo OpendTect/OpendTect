@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.9 2002-04-19 16:08:53 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.10 2002-04-21 15:06:56 bert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -25,7 +25,7 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast,
 	int rv = MoreToDo;
 	while ( rv )
 	{
-	    rv = nextStep();
+	    rv = doStep();
 	    if ( rv < 0 )
 	    {
 		const char* msg = message();
@@ -59,7 +59,7 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast,
     int rv;
     while ( go_on )
     {
-	rv = nextStep();
+	rv = doStep();
 	curmsg = message();
 	int newnrdone = nrDone();
 	go_on = false;
@@ -111,6 +111,16 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast,
 }
 
 
+int Executor::doStep()
+{
+    prestep.trigger();
+    int res = nextStep();
+    if ( res == MoreToDo )
+	poststep.trigger();
+    return res;
+}
+
+
 ExecutorGroup::ExecutorGroup( const char* nm )
 	: Executor( nm )
 	, executors( *new ObjectSet<Executor> )
@@ -137,7 +147,7 @@ int ExecutorGroup::nextStep()
     const int nrexecs = executors.size();
     if ( !nrexecs ) return Finished;
 
-    int res = executors[currentexec]->nextStep();
+    int res = executors[currentexec]->doStep();
     if ( res == Finished )
     {
 	if ( currentexec < nrexecs-1 )

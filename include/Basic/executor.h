@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.8 2002-04-19 16:09:11 bert Exp $
+ RCS:		$Id: executor.h,v 1.9 2002-04-21 15:06:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ template <class T> class ObjectSet;
 /*!\brief specification to enable chunkwise execution a process.
 
 Interface enabling separation of the control of execution of any process from
-what actually is going on. The work is done by calling the nextStep() method
+what actually is going on. The work is done by calling the doStep() method
 until either ErrorOccurred or Finished is returned. To enable logging and/or
 communication with the user, two types of info can be made available (the
 methods will be called before the step is executed). Firstly, a message.
@@ -29,7 +29,7 @@ Secondly, info on the progress.
 It is common that Executors are combined to a new Executor object. This is
 the most common reason why totalNr() can change.
 
-If nextStep returns -1 (Failure) the error message should be in message().
+If doStep returns -1 (Failure) the error message should be in message().
 
 The execute() utility executes the process while logging message() etc. to
 a stream. Useful in batch situations.
@@ -41,15 +41,16 @@ class Executor : public UserIDObject
 {
 public:
 			Executor( const char* nm )
-			: UserIDObject(nm)		{}
+			: UserIDObject(nm)
+			, prestep(this), poststep(this)	{}
     virtual		~Executor()			{}
 
-    virtual int		nextStep()			= 0;
-    			//!< Essentially returns as required by BasicTask
-    static const int	ErrorOccurred;		// -1
-    static const int	Finished;		// 0
-    static const int	MoreToDo;		// 1
-    static const int	WarningAvailable;	// 2
+    virtual int		doStep();
+
+    static const int	ErrorOccurred;		//!< -1
+    static const int	Finished;		//!< 0
+    static const int	MoreToDo;		//!< 1
+    static const int	WarningAvailable;	//!< 2
 
     virtual const char*	message() const			{ return "Working"; }
     virtual int		totalNr() const			{ return -1; }
@@ -59,6 +60,10 @@ public:
 
     virtual bool	execute(ostream* log=0,bool isfirst=true,
 	    			bool islast=true,int delaybetwnstepsinms=0);
+
+    Notifier<Executor>	prestep;
+    Notifier<Executor>	poststep; //!< Only when MoreToDo will be returned.
+
 };
 
 
@@ -120,7 +125,6 @@ public:
     virtual void	add( Executor* );
     			/*!< You will become mine!! */
 
-    virtual int		nextStep();
     virtual const char*	message() const;
     virtual int		totalNr() const;
     virtual int		nrDone() const;
@@ -132,6 +136,7 @@ public:
 
 protected:
 
+    virtual int		nextStep();
     int			currentexec;
     int			nrdone;
     BufferString	nrdonetext;

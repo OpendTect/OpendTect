@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.9 2002-01-17 14:19:06 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.10 2002-04-21 15:06:56 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -251,7 +251,7 @@ int SeisTrcBufWriter::nextStep()
 {
     if ( starter )
     {
-	int res = starter->nextStep();
+	int res = starter->doStep();
 	if ( res ) return res;
 	delete starter; starter = 0;
 	return 1;
