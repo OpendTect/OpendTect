@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.18 2002-07-02 13:55:24 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.19 2002-07-08 05:43:03 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.18 2002-07-02 13:55:
 #include "visselman.h"
 #include "visdataman.h"
 #include "visrectangle.h"
+#include "vismaterial.h"
 #include "sorting.h"
 #include "iopar.h"
 
@@ -36,6 +37,9 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     trect->ref();
     selection()->notify( mCB(this,PlaneDataDisplay,select));
     deSelection()->notify( mCB(this,PlaneDataDisplay,deSelect));
+
+    trect->getMaterial()->setAmbience( 0.6 );
+    trect->getMaterial()->setDiffIntensity( 0.8 );
 
     setType( Inline );
 
