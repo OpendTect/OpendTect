@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.19 2004-02-17 10:58:52 bert Exp $
+ RCS:		$Id: ioman.h,v 1.20 2004-02-17 16:51:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,10 +146,13 @@ inline IOMan& IOM()
   <ul>
    <li>ioman.h : the IOM() object of the IOMan class provides a lookup of
        objects in the data store
-   <li>iooobj.h : Subclasses of IOObj hold all data necessary to access a stored
+   <li>ioobj.h : Subclasses of IOObj hold all data necessary to access a stored
        object.
    <li>iostrm.h : IOStream is the most common subclass of IOObj because
        OpendTect stores its data in files.
+   <li>ctxtioobj.h : The context of an IOObj selection: what type of object,
+       is it for read or write, should the user be able to create a new entry,
+       etc.
   </ul>
  <li>Translators
   <ul>
