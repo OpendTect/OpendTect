@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.6 2003-06-03 12:46:12 bert Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.7 2003-08-28 08:18:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,12 +42,13 @@ uiImportLMKFault::uiImportLMKFault( uiParent* p )
 				     "Specify fault parameters","104.1.2"))
 	, ctio(*new CtxtIOObj(EMFaultTranslator::ioContext()))
 {
-    infld = new uiFileInput( this, "Input Landmark file");
+    infld = new uiFileInput( this, "Input Landmark file" );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
 
-    formatfilefld = new uiFileInput( this, "Input Landmark formatfile",0,
-	    			     true, "*.fault_fmt;*");
+    formatfilefld = new uiFileInput( this, "Input Landmark formatfile",
+	    			     uiFileInput::Setup()
+				     .filter("*.fault_fmt;*") );
     formatfilefld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     formatfilefld->attach( alignedBelow, infld );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.15 2003-08-14 09:46:29 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.16 2003-08-28 08:18:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     gfgrp->setHAlignObj( gfnmfld );
     gfgrp->attach( alignedBelow, typfld );
 
-    outfld = new uiFileInput( this, "Output Ascii file", "", false );
+    outfld = new uiFileInput( this, "Output Ascii file",
+	    		      uiFileInput::Setup().forread(false) );
     outfld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     outfld->attach( alignedBelow, gfgrp );

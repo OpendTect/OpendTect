@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.6 2003-01-16 11:26:25 bert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.7 2003-08-28 08:20:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 	filetypesfld->addItem( (const char*) fullname.getString() );
     }
 
-    fileinputfld = new uiFileInput( this, "Select filename", 0, false,0 );
+    fileinputfld = new uiFileInput( this, "Select filename",
+				    uiFileInput::Setup().forread(false) );
     BufferString datadirnm( GetDataDir() );
     BufferString dirnm = File_getFullPath( datadirnm, "Misc" );
     fileinputfld->setDefaultSelectionDir( dirnm );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.24 2003-05-02 13:04:16 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.25 2003-08-28 08:18:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,8 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 	    { fname += "_"; fname += GetSoftwareUser(); }
 	fname += ".txt";
     }
-    filefld = new uiFileInput( this, "Log file", fname, false );
+    filefld = new uiFileInput( this, "Log file",
+	   		       uiFileInput::Setup(fname).forread(false) );
     filefld->attach( alignedBelow, optfld );
 }
 
@@ -248,7 +249,9 @@ void uiFullBatchDialog::addStdFields()
     singmachfld->valuechanged.notify( mCB(this,uiFullBatchDialog,singTogg) );
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
-    parfnamefld = new uiFileInput( dogrp, txt, singparfname, false, "*.par;;*");
+    parfnamefld = new uiFileInput( dogrp, txt, uiFileInput::Setup(singparfname)
+					       .forread(false)
+					       .filter("*.par;;*") );
     parfnamefld->attach( alignedBelow, singmachfld );
 
     dogrp->setHAlignObj( singmachfld );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.16 2003-05-27 13:17:43 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.17 2003-08-28 08:19:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,8 +65,9 @@ void uiSeisImpCBVS::init( bool fromioobj )
     }
     else
     {
-	finpfld = new uiFileInput( this, "(First) CBVS file name", GetDataDir(),
-				    true, "*.cbvs;;*" );
+	finpfld = new uiFileInput( this, "(First) CBVS file name",
+	       			   uiFileInput::Setup(GetDataDir())
+				   .filter("*.cbvs;;*") );
 	finpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,finpSel) );
 
 	StringListInpSpec spec;
