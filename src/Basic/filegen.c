@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.22 2002-05-16 12:55:32 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.23 2002-06-14 09:20:32 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -303,23 +303,41 @@ int File_createDir( const char* dirname, int mode )
 }
 
 
-int File_rename( const char* oldname, const char* newname )
+#define mRet(v) { mFREE(cmd); return v; }
+
+int File_rename( const char* from, const char* to )
 {
-    if ( !oldname || !*oldname || !newname || !*newname ) return NO;
+    int rv, len;
+    char* cmd = 0;
+
+    if ( !from || !*from || !to || !*to ) return NO;
+    if ( !File_exists(from) ) return YES;
 
 #ifdef __win__
 
-    return MoveFile( oldname, newname );
+    return MoveFile( from, to );
 
 #else
 
-    return rename(oldname,newname) ? NO : YES;
+    rv = rename(from,to) ? NO : YES;
+    if ( rv ) return rv;
+
+    // Probably to other disk
+    len = strlen( from ) + strlen( to ) + 25;
+    cmd = mMALLOC(len,char);
+    
+    strcpy( cmd, "/bin/mv -f " );
+    strcat( cmd, from );
+    strcat( cmd, " " );
+    strcat( cmd, to );
+
+    rv = system( cmd ) != -1 ? YES : NO;
+    if ( rv ) rv = File_exists( to );
+    mRet( rv )
 
 #endif
 }
 
-
-#define mRet(v) { mFREE(cmd); return v; }
 
 int File_copy( const char* from, const char* to, int recursive )
 {
