@@ -5,11 +5,12 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.7 2001-06-18 13:57:19 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.8 2001-06-26 07:51:50 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
 #include "filegen.h"
+#include "strmprov.h"
 #include <fstream>
 
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
@@ -24,13 +25,19 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm )
 	: CBVSIOMgr(fnm)
 	, info_(*new CBVSInfo)
 {
-    while ( 1 )
+    if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO) )
+	addReader( &cin );
+    else
     {
-	BufferString fname = getFileName( readers_.size() );
-	if ( !File_exists((const char*)fname) ) break;
+	while ( 1 )
+	{
+	    BufferString fname = getFileName( readers_.size() );
+	    if ( !File_exists((const char*)fname) )
+		break;
 
-	if ( !addReader(fname) ) return;
-	fnames_ += new BufferString( fname );
+	    if ( !addReader(fname) ) return;
+	    fnames_ += new BufferString( fname );
+	}
     }
 
     if ( !readers_.size() )
@@ -70,10 +77,16 @@ bool CBVSReadMgr::addReader( const char* fname )
 	return false;
     }
 
-    CBVSReader* newrdr = new CBVSReader( newstrm );
+    return addReader( newstrm );
+}
+
+
+bool CBVSReadMgr::addReader( istream* strm )
+{
+    CBVSReader* newrdr = new CBVSReader( strm );
     if ( newrdr->errMsg() )
     {
-	mkErrMsg( errmsg_, fname, newrdr->errMsg() );
+	errmsg_ = newrdr->errMsg();
 	return false;
     }
 

@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.7 2001-06-18 13:57:50 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.8 2001-06-26 07:51:57 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.7 2001-06-18 13:57:50 bert Exp 
 #include "binidselimpl.h"
 #include "uidset.h"
 #include "survinfo.h"
+#include "strmprov.h"
 
 
 UserIDSet CBVSSeisTrcTranslator::datatypeparspec(
@@ -102,7 +103,12 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     if ( !conn || !conn->ioobj )
 	{ errmsg = "Cannot reconstruct file name"; return false; }
 
+    // Catch the 'stdin' pretty name (currently "Std-IO")
+    StreamProvider sp;
     fnm = conn->ioobj->fullUserExpr(true);
+    if ( fnm == sp.fullName() )
+	fnm = StreamProvider::sStdIO;
+
     conn->close();
     return true;
 }

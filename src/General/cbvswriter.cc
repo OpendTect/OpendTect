@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.13 2001-05-31 13:25:41 windev Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.14 2001-06-26 07:51:50 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -75,7 +75,7 @@ void CBVSWriter::init( const CBVSInfo& i )
 CBVSWriter::~CBVSWriter()
 {
     close();
-    delete &strm_;
+    if ( &strm_ != &cout ) delete &strm_;
 }
 
 
