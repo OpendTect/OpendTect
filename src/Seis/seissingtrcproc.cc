@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.17 2004-07-28 16:44:45 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.18 2004-08-24 16:24:57 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.17 2004-07-28 16:44:45 b
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
+#include "seisresampler.h"
 #include "cubesampling.h"
 #include "multiid.h"
 #include "ioobj.h"
@@ -26,13 +27,14 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.17 2004-07-28 16:44:45 b
 	, wrr_(out ? new SeisTrcWriter(out) : 0) \
 	, msg_(msg) \
 	, nrskipped_(0) \
-	, intrc_(new SeisTrc) \
+	, intrc_(*new SeisTrc) \
 	, nrwr_(0) \
 	, wrrkey_(*new MultiID) \
 	, totnr_(-1) \
     	, trcsperstep_(10) \
     	, scaler_(0) \
-    	, skipnull_(false)
+    	, skipnull_(false) \
+    	, resampler_(0)
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelection& in,
@@ -100,9 +102,10 @@ void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
     delete wrr_;
-    delete intrc_;
+    delete &intrc_;
     delete &wrrkey_;
     delete scaler_;
+    delete resampler_;
     deepErase( rdrset_ );
 }
 
@@ -110,7 +113,7 @@ SeisSingleTraceProc::~SeisSingleTraceProc()
 bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 				ObjectSet<IOPar>& iops )
 {
-    outtrc_ = intrc_;
+    worktrc_ = &intrc_;
     if ( !wrr_ )
     {
 	curmsg_ = "Cannot find write object";
@@ -186,6 +189,12 @@ void SeisSingleTraceProc::setScaler( Scaler* newsclr )
 }
 
 
+void SeisSingleTraceProc::setResampler( SeisResampler* r )
+{
+    delete resampler_; resampler_ = r;
+}
+
+
 const char* SeisSingleTraceProc::message() const
 {
     return (const char*)curmsg_;
@@ -229,7 +238,7 @@ int SeisSingleTraceProc::nextStep()
     int retval = 1;
     for ( int idx=0; idx<trcsperstep_; idx++ )
     {
-	int rv = rdrset_[currentobj_]->get( intrc_->info() );
+	int rv = rdrset_[currentobj_]->get( intrc_.info() );
 	if ( !rv )
 	{ 
 	    currentobj_++;
@@ -243,14 +252,18 @@ int SeisSingleTraceProc::nextStep()
 	else if ( rv == 2 )
 	    continue;
 
+	worktrc_ = &intrc_;
 	skipcurtrc_ = false;
 	selcb_.doCall( this );
 	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
-	if ( !rdrset_[currentobj_]->get(*intrc_) )
+	if ( !rdrset_[currentobj_]->get(intrc_) )
 	    { curmsg_ = rdrset_[currentobj_]->errMsg(); return -1; }
 
-	if ( skipnull_ && intrc_->isNull() )
+	if ( resampler_ )
+	    worktrc_ = resampler_->get(intrc_);
+
+	if ( skipnull_ && worktrc_->isNull() )
 	    skipcurtrc_ = true;
 
 	if ( !skipcurtrc_ )
@@ -258,9 +271,9 @@ int SeisSingleTraceProc::nextStep()
 	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
 	if ( scaler_ )
-	    scaleTrc( *const_cast<SeisTrc*>(outtrc_), *scaler_ );
+	    scaleTrc( *const_cast<SeisTrc*>(worktrc_), *scaler_ );
 
-	if ( !wrr_->put(*outtrc_) )
+	if ( !wrr_->put(*worktrc_) )
 	    { curmsg_ = wrr_->errMsg(); return -1; }
 
 	nrwr_++;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.10 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.11 2004-08-24 16:24:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class MultiID;
 class SeisSelection;
 class SeisTrcReader;
 class SeisTrcWriter;
+class SeisResampler;
 
 
 /*!\brief Single trace processing executor
@@ -57,10 +58,8 @@ public:
 
     const SeisTrcReader* reader(int idx=0) const { return rdrset_[idx]; }
     const SeisTrcWriter* writer() const		 { return wrr_; }
-    SeisTrc&		inputTrace()		 { return *intrc_; }
+    SeisTrc&		getTrace()		 { return *worktrc_; }
 
-    void		setOuputTrace( const SeisTrc& t ) { outtrc_ = &t; }
-    			//!< should be called before first nextStep()
     void		setTracesPerStep( int n ) { trcsperstep_ = n; }
     			//!< default is 10
 
@@ -76,6 +75,7 @@ public:
 			{ if ( totnr_ < 0 ) totnr_ = nr; }
     void		setScaler(Scaler*);
     			//!< Scaler becomes mine.
+    void		setResampler(SeisResampler*);
     void		skipNullTraces( bool yn=true )	{ skipnull_ = yn; }
 
     void		setInput(const IOObj*,const IOObj*,const char*,
@@ -85,8 +85,9 @@ protected:
 
     ObjectSet<SeisTrcReader> rdrset_;
     SeisTrcWriter*	wrr_;
-    SeisTrc*		intrc_;
-    const SeisTrc*	outtrc_;
+    SeisTrc&		intrc_;
+    SeisTrc*		worktrc_;
+    SeisResampler*	resampler_;
     CallBack		selcb_;
     CallBack		proccb_;
     BufferString	msg_;

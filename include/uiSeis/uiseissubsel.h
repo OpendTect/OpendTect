@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.6 2004-08-23 09:50:12 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.7 2004-08-24 16:24:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class IOPar;
 class uiGenInput;
 class HorSampling;
+class CubeSampling;
 class uiBinIDSubSel;
 class uiSeis2DSubSel;
 class BufferStringSet;
@@ -33,6 +34,7 @@ public:
 
     void		setInput(const HorSampling&);
     void		setInput(const StepInterval<float>&);
+    void		setInput(const CubeSampling&);
     bool		isAll() const;
     bool		getSampling(HorSampling&) const;
     bool		getZRange(Interval<float>&) const;

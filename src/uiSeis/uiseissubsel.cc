@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.7 2004-08-23 16:12:39 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.8 2004-08-24 16:24:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,14 +12,13 @@ ________________________________________________________________________
 #include "uiseissubsel.h"
 #include "uibinidsubsel.h"
 #include "uigeninput.h"
+#include "seistrcsel.h"
 #include "survinfo.h"
 #include "iopar.h"
 #include "separstr.h"
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "uimsg.h"
-
-static const char* sKeySingLine = "Single line";
 
 
 uiSeisSubSel::uiSeisSubSel( uiParent* p )
@@ -56,6 +55,13 @@ void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
 {
     sel2d->setInput( zrg );
     sel3d->setInput( zrg );
+}
+
+
+void uiSeisSubSel::setInput( const CubeSampling& cs )
+{
+    setInput( cs.hrg );
+    setInput( cs.zrg );
 }
 
 
@@ -210,11 +216,16 @@ void uiSeis2DSubSel::selChg( CallBacker* )
 
 void uiSeis2DSubSel::usePar( const IOPar& iopar )
 {
-    //TODO other fields
-    BufferString lnm( iopar.find( sKeySingLine ) );
+    BufferString lnm( iopar.find( SeisSelData::sKeySingLine ) );
     if ( lnm.size() && yesNoFromString(lnm.buf()) )
 	lnmsfld->setText( lnm );
     lnmsfld->setChecked( lnm.size() && lnm == lnmsfld->text() );
+
+    StepInterval<int> trcrg = trcrgfld->getIStepInterval();
+    iopar.get( sKey::FirstCrl, trcrg.start );
+    iopar.get( sKey::LastCrl, trcrg.stop );
+    iopar.get( sKey::StepCrl, trcrg.step );
+    trcrgfld->setValue(trcrg);
 
     const char* res = iopar.find( sKey::ZRange );
     if ( res  )
@@ -257,7 +268,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	if ( lnmsfld->isChecked() )
 	    lnm = lnmsfld->text();
 	if ( lnm == "" ) lnm = "No";
-	iopar.set( sKeySingLine, lnm );
+	iopar.set( SeisSelData::sKeySingLine, lnm );
 
 	StepInterval<float> zrg;
 	if ( !getZRange( zrg ) )
