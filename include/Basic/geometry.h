@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.8 2000-08-12 16:50:46 bert Exp $
+ RCS:           $Id: geometry.h,v 1.9 2000-08-15 10:23:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,7 @@ public:
 			    return other.isInside(topLeft())
 				&& other.isInside(bottomRight());
 			}
+    inline void		fitIn(const Rect<T>&);
 
     inline bool		operator >(const Rect<T>&) const;
 
@@ -141,6 +142,7 @@ public:
 			{ return revX() ? left()-right() : right() - left(); }
     inline T 		height() const
 			{ return revY() ? bottom()-top() : top()-bottom(); }
+    inline Rect<T>	grownBy(double sidesincreasebyfactor=1) const;
 
     inline T 		left() const 		{ return topLeft_.x(); }
     inline T 		top() const 		{ return topLeft_.y(); }
@@ -197,6 +199,23 @@ inline bool Rect<T>::yOutside( T y ) const
 
 
 template <class T>
+inline T widerPos( T x1, T x2, double f )
+{ return (T)(x1 + f * (x1 - x2)); }
+
+inline int widerPos( int x1, int x2, double f )
+{ return mNINT(x1 + f * (x1 - x2)); }
+
+
+template <class T>
+inline Rect<T> Rect<T>::grownBy( double f ) const
+{
+    f *= .5;
+    return Rect<T>( widerPos(left(),right(),f), widerPos(top(),bottom(),f),
+		    widerPos(right(),left(),f), widerPos(bottom(),top(),f) );
+}
+
+
+template <class T>
 inline bool Rect<T>::operator >( const Rect<T>& r ) const
 {
 #ifdef __RECT_LARGE_DIMS__
@@ -214,6 +233,32 @@ inline bool Rect<T>::operator >( const Rect<T>& r ) const
 
 #endif
 
+}
+
+
+template <class T>
+inline void Rect<T>::fitIn( const Rect<T>& r )
+{
+    if ( revX() )
+    {
+	if ( r.left() < left() ) topLeft_.setX(r.left());
+	if ( r.right() > right() ) bottomRight_.setX(r.right());
+    }
+    else
+    {
+	if ( r.left() > left() ) topLeft_.setX(r.left());
+	if ( r.right() < right() ) bottomRight_.setX(r.right());
+    }
+    if ( revY() )
+    {
+	if ( r.bottom() < bottom() ) bottomRight_.setY(r.bottom());
+	if ( r.top() > top() ) topLeft_.setY(r.top());
+    }
+    else
+    {
+	if ( r.bottom() > bottom() ) bottomRight_.setY(r.bottom());
+	if ( r.top() < top() ) topLeft_.setY(r.top());
+    }
 }
 
 
