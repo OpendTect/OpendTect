@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.44 2003-02-17 15:16:13 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.45 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -580,8 +580,8 @@ void uiGroup::attach ( constraintType c, uiObject *other, int margin,
 }
 
 
-uiSize uiGroup::actualSize( bool include_border) const	
-    { return uiObj()->actualSize(include_border); }
+uiSize uiGroup::actualsize( bool include_border) const	
+    { return uiObj()->actualsize(include_border); }
 
 
 void uiGroup::setIsMain( bool yn )

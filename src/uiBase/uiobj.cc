@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.47 2003-01-09 13:56:43 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.48 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -322,8 +322,8 @@ const uiFont* uiObject::font() const
     { return mConstBody()->uifont(); }
 
 
-uiSize uiObject::actualSize( bool include_border ) const
-    { return mConstBody()->actualSize( include_border ); }
+uiSize uiObject::actualsize( bool include_border ) const
+    { return mConstBody()->actualsize( include_border ); }
 
 
 void uiObject::setCaption( const char* c )
@@ -622,9 +622,9 @@ int uiObjectBody::prefVNrPics() const
 }
 
 
-uiSize uiObjectBody::actualSize( bool include_border ) const
+uiSize uiObjectBody::actualsize( bool include_border ) const
 {
-    return layoutItem_->actualSize( include_border );
+    return layoutItem_->actualsize( include_border );
 }
 
 
@@ -666,8 +666,15 @@ const uiFont* uiObjectBody::uifont() const
 {
     if( !font_ )
     { 
+// TODO: implement new font handling. uiParent should have a get/set font 
+//       and all children should use this font.
+#if 0
 	const_cast<uiObjectBody*>(this)->font_ = 
 					&uiFontList::get(className(*this)); 
+#else
+	QFont qf( qwidget()->font() );
+	const_cast<uiObjectBody*>(this)->font_ = &uiFontList::getFromQfnt(&qf); 
+#endif
 	const_cast<uiObjectBody*>(this)->qwidget()->setFont( font_->qFont() );
     }
 
@@ -698,9 +705,23 @@ void uiObjectBody::gtFntWdtHgt() const
 {
     if( !fnt_hgt || !fnt_wdt || !fnt_maxwdt || !fm )
     {
-	if( fm ) delete fm;
+	if( fm )
+	{
+	    pErrMsg("Already have a fontmetrics. Deleting..."); 
+	    delete fm;
+	}
 	const_cast<uiObjectBody*>(this)->fm =
+
+
+// TODO: implement new font handling. uiParent should have a get/set font 
+//       and all children should use this font.
+#if 0
 			     new QFontMetrics( uifont()->qFont() );
+#else
+			     new QFontMetrics( qwidget()->font() );
+#endif
+
+
 
 	const_cast<uiObjectBody*>(this)->fnt_hgt = fm->lineSpacing() + 2;
 	const_cast<uiObjectBody*>(this)->fnt_wdt = fm->width(QChar('x'));

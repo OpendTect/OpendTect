@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.29 2002-11-05 15:13:38 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.30 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,18 +157,19 @@ private:
     void 		fillResizeList( ObjectSet<resizeItem>&, bool ); 
     bool		tryToGrowItem( resizeItem&, const int, const int, 
 				       int, int, const QRect&, int);
-    void		resizeTo( const QRect&, bool );
-    void		childrenCommitGeometrySet(bool isPrefSz);
+    void		resizeTo( const QRect& );
+    void		childrenCommitGeometrySet(bool);
 
     uiRect 		childrenRect( layoutMode m );
 
     QPtrList<i_LayoutItem> childrenList;
 
     uiRect		layoutpos[ nLayoutMode ];
+    QRect		prefGeometry;
 
-    QRect		prevGeometry;
     bool		minimumDone;
     bool		preferredDone;
+    bool		prefposStored;
     bool		ismain;
 
     int 		hspacing;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.16 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uifont.cc,v 1.17 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,6 +181,12 @@ uiFont& uiFontList::get( const char* key )
 }
 
 
+uiFont& uiFontList::getFromQfnt( QFont* qf )
+{
+    return gtFont( 0, 0, qf );
+}
+
+
 int uiFontList::nrKeys()
 {
     return fonts.size(); 
@@ -211,16 +217,23 @@ void uiFontList::listKeys( UserIDSet& ids )
 }
 
 
-uiFont& uiFontList::gtFont( const char* key, const FontData* fdat )
+uiFont& uiFontList::gtFont( const char* key, const FontData* fdat,
+			    const QFont* qf )
 {
     initialise();
-    if( !key || !*key ) return *fonts[0]; 
+    if ( (!key || !*key) && !qf ) return *fonts[0]; 
 
     for ( int idx=0; idx<fonts.size(); idx++ )
     {
 	uiFont* fnt = fonts[ idx ];
-	if ( !strcmp(fnt->key(),key) ) 
+	if ( key && !strcmp(fnt->key(),key) ) 
 	{
+	    if ( fdat ) fnt->setFontData( *fdat );
+	    return *fnt; 
+	}
+	if( qf && fnt->qFont() == *qf )
+	{
+cout << ".";
 	    if ( fdat ) fnt->setFontData( *fdat );
 	    return *fnt; 
 	}
@@ -333,7 +346,7 @@ void uiSetFonts::butPushed( CallBacker* obj )
     if ( select(*uiFontList::fonts[idx],sender->parent()) )
     {
 	uiFontList::update( Settings::common() );
-	if ( !idx ) uiMain::theMain().setFont( uiFontList::get(0), true );
+	if ( !idx ) uiMain::theMain().setFont( uiFontList::get(), true );
     }
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.32 2003-01-16 11:26:25 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.33 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ uiSurvey::uiSurvey( uiParent* p )
     listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
     listbox->doubleClicked.notify( mCB(this,uiSurvey,accept) );
     listbox->setPrefWidth( lbwidth );
-    listbox->setStretch( 1, 2 );
+    listbox->setStretch( 2, 2 );
     leftgrp->attach( leftOf, rightgrp );
 
     newbut = new uiPushButton( leftgrp, "New ..." );
@@ -105,17 +105,30 @@ uiSurvey::uiSurvey( uiParent* p )
 
     uiGroup* infoleft = new uiGroup( this, "Survey info left" );
     uiGroup* inforight = new uiGroup( this, "Survey info right" );
-    infoleft->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)) );
-    inforight->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)));
     infoleft->attach( alignedBelow, leftgrp );
     infoleft->attach( ensureBelow, horsep1 );
     inforight->attach( alignedBelow, rightgrp );
     inforight->attach( ensureBelow, horsep1 );
 
-    inllbl = new uiLabel( infoleft, "" );  inllbl->setHSzPol( uiObject::wide );
-    crllbl = new uiLabel( infoleft, "" );  crllbl->setHSzPol( uiObject::wide );
-    zlbl = new uiLabel( inforight, "" );   zlbl->setHSzPol( uiObject::wide );
-    binlbl = new uiLabel( inforight, "" ); binlbl->setHSzPol( uiObject::wide );
+    infoleft->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)) );
+    inforight->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)));
+
+    inllbl = new uiLabel( infoleft, "" ); 
+    crllbl = new uiLabel( infoleft, "" );
+    zlbl = new uiLabel( inforight, "" ); 
+    binlbl = new uiLabel( inforight, "" );
+#if 0
+    inllbl->setHSzPol( uiObject::widevar );
+    crllbl->setHSzPol( uiObject::widevar );
+    zlbl->setHSzPol( uiObject::widevar );
+    binlbl->setHSzPol( uiObject::widevar );
+#else
+    inllbl->setPrefWidthInChar( 40 );
+    crllbl->setPrefWidthInChar( 40 );
+    zlbl->setPrefWidthInChar( 40 );
+    binlbl->setPrefWidthInChar( 40 );
+#endif
+
     crllbl->attach( alignedBelow, inllbl );
     binlbl->attach( alignedBelow, zlbl );
    

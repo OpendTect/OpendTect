@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.16 2003-02-18 15:33:33 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.17 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,13 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
     , messenger_( *new i_BrowserMessenger(this, &handle))
 {
     if( plaintxt ) setTextFormat(Qt::PlainText); 
+
+    mimeSourceFactory()->setExtensionType( "par", "text/plain" );
+    mimeSourceFactory()->setExtensionType( "log", "text/plain" );
+    mimeSourceFactory()->setExtensionType( "sim", "text/plain" );
+    mimeSourceFactory()->setExtensionType( "fw", "text/plain" );
+    mimeSourceFactory()->setExtensionType( "nn", "text/plain" );
+    mimeSourceFactory()->setExtensionType( "dict", "text/plain" );
 
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );

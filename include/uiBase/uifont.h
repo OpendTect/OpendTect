@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.3 2001-05-16 14:58:40 arend Exp $
+ RCS:           $Id: uifont.h,v 1.4 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ public:
     static void		listKeys(UserIDSet&);
 
     static uiFont&	get(const char* key=0);
+    static uiFont&	getFromQfnt(QFont*);
 
     static uiFont&	add(const char* key,const FontData&);
     static uiFont&	add(const char* key,
@@ -96,7 +97,8 @@ protected:
 
     static ObjectSet<uiFont> fonts;
     static void		initialise();
-    static uiFont&	gtFont(const char* key,const FontData* =0);
+    static uiFont&	gtFont(const char* key,const FontData* =0,
+			       const QFont* =0 );
 
 private:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.29 2003-02-17 15:16:21 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.30 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,8 +147,9 @@ public:
     void 			uisetFont( const uiFont& );
     const uiFont*		uifont() const;
 
-    virtual uiSize		actualSize( bool include_border = true) const;
-    virtual uiSize		minimumSize() const
+    virtual uiSize		actualsize( bool include_border = true) const;
+
+    virtual uiSize		minimumsize() const
 				{return uiSize(mUndefIntVal,mUndefIntVal,true);}
 
     void			uisetCaption( const char* );

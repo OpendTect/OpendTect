@@ -5,9 +5,11 @@ Wed Feb 19 13:30:27 2003
 PreferredMethod: Socket
 Available.1: SeisWorks
 Host.1: dgb14
+Platform.1: Solaris 2.6
 Script.1: /users/appman/bin/set_sw_env.csh
-TransferVariable.1.1: OW_PMPATH
-TransferVariable.1.2: SELECTED_SURVEY
+TransferVariables.1: OW_PMPATH SELECTED_SURVEY
+Remote Shell Command.1: ssh
 Available.2: GeoFrame
+Platform.2: Solaris 2.8
 Host.2: dgb26
 Script.2: /users/appman/bin/set_gf_env.csh

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.27 2003-01-15 15:34:35 bert Exp $
+ RCS:           $Id: uimainwin.h,v 1.28 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,9 +84,6 @@ public:
     void		setShrinkAllowed( bool yn=true );
     bool		shrinkAllowed();
 
-    bool		poppedUp() const;
-    virtual uiMainWin*	mainwin()				{ return this; }
-
 			//! automatically set by uiMain::setTopLevel
     void		setExitAppOnClose( bool yn );
 
@@ -104,6 +101,11 @@ public:
 
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
     static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
+
+
+    bool		poppedUp() const;
+    void		touch(); //!< resets pop-up timer if !poppedUp yet
+    virtual uiMainWin*	mainwin()				{ return this; }
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.27 2003-02-17 15:15:19 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.28 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ public:
     virtual bool	fillPar( IOPar& ) const		{ return true; }
     virtual void	usePar( const IOPar& )		{}
 
-    uiSize		actualSize( bool include_border = true) const;
+    uiSize		actualsize( bool include_border = true) const;
 
     void		setCaption( const char* );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.22 2002-12-04 09:20:37 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.23 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,13 @@ public:
                                              + curpos(m).bottom() ) / 2;
 				    }
 
-    virtual QSize 		minimumSize() const 
-				    { return qwidget()->minimumSize(); }
+    virtual uiSize 		minimumsize() const 
+				    {
+					QSize s =  qwidget()->minimumSize();
+
+					return
+					    uiSize( s.width(), s.height(),true);
+				    }
 
     uiSize			prefSize() const
 				{ 
@@ -68,7 +73,7 @@ public:
     virtual void       		updatedAlignment(layoutMode)	{}
     virtual void       		initChildLayout(layoutMode)	{}
 
-    uiSize			actualSize( bool include_border = true) const;
+    uiSize			actualsize( bool include_border = true) const;
 
     inline const i_LayoutMngr& 	mngr() const 		{ return mngr_; } 
 
@@ -90,7 +95,7 @@ protected:
     uiRect			layoutpos[ nLayoutMode ];
 
     int 			stretch( bool hor ) const;
-    virtual void		commitGeometrySet( bool isPrefSz );
+    virtual void		commitGeometrySet(bool);
 
     void			initLayout( layoutMode m, int mngrTop, 
 							  int mngrLeft );
@@ -157,13 +162,13 @@ public:
 
     virtual		~i_uiLayoutItem();
 
-    virtual QSize 	minimumSize() const
+    virtual uiSize 	minimumsize() const
 			    { 
-				uiSize s =  uiObjBody_.minimumSize();
+				uiSize s =  uiObjBody_.minimumsize();
 				if( s.hNrPics()!=mUndefIntVal )  
-				    return QSize( s.hNrPics() , s.vNrPics() ); 
+				    return s;
 
-				return i_LayoutItem::minimumSize();
+				return i_LayoutItem::minimumsize();
 			    }
 
     virtual uiObject*	  objLayouted()	{ return &uiObjBody_.uiObjHandle(); }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.68 2003-01-17 15:20:03 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.69 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ public:
 
 			    if( poptimer.isActive() )
 				poptimer.stop();
-			    poptimer.start( 1, true );
+			    poptimer.start( 100, true );
 
 			    if( modal_ )	
 				looplevel__ = qApp->enter_loop();
@@ -152,6 +152,14 @@ public:
     virtual void	hide();
 
     bool		poppedUp() const { return popped_up; }
+    void		touch()
+			{
+			    if ( popped_up ) return;
+
+			    if( poptimer.isActive() )
+				poptimer.stop();
+			    poptimer.start( 100, true );
+			}
 
     static Qt::Dock	qdock( uiMainWin::Dock );
 
@@ -276,8 +284,8 @@ uiMainWinBody::~uiMainWinBody( )
 
 void uiMainWinBody::popTimTick(CallBacker*)
 {
-    popped_up = true;
-
+    if ( popped_up ) { pErrMsg( "huh?" ); }
+	popped_up = true;
     moveDockWindows();
 //    restorePositions();
 }
@@ -461,6 +469,7 @@ void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
+void uiMainWin::touch() 			{ body_->touch(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d )

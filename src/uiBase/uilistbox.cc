@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.46 2003-02-18 09:30:29 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.47 2003-02-25 15:12:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
 			    }
 			}
 
-    virtual uiSize	minimumSize() const; //!< \reimp
+    virtual uiSize	minimumsize() const; //!< \reimp
     virtual int 	nrTxtLines() const
 			    { return prefnrlines ? prefnrlines : 7; }
 
@@ -301,10 +301,14 @@ int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
 }
 
 
-uiSize uiListBoxBody::minimumSize() const
+uiSize uiListBoxBody::minimumsize() const
 { 
     int totHeight = fontHgt() * prefnrlines;
     int totWidth  = fontWdt( true ) * fieldWdt;
+
+
+    cout << "uiListBoxBody::minimumsize : totWidth = " << totWidth;
+    cout << ", totHeight = " << totHeight;
 
     return uiSize ( totWidth , totHeight, true );
 }
