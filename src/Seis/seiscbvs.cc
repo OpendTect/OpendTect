@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.32 2003-02-18 16:32:21 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.33 2003-02-21 10:26:39 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -486,7 +486,8 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 	tdptrs[iselc] = const_cast<unsigned char*>(
 			trc.data().getComponent(selComp(iselc))->data() );
 	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
-	if ( !userawdata[iselc] )
+	const Scaler* sc = trc.scaler( selComp(iselc) );
+	if ( !userawdata[iselc] || sc )
 	{
 	    if ( samedatachar[iselc] )
 	    {
@@ -497,7 +498,7 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 				* samps.step;
 		stptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes();
 	    }
-	    else
+	    else if ( !sc )
 	    {
 		const TraceDataInterpreter* inpinterp
 			= trc.data().getInterpreter(selComp(iselc));
@@ -507,6 +508,17 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 		    storinterps[iselc]->put( stptrs[iselc], outsmp,
 			inpinterp->get( tdptrs[iselc], inp_samp ) );
 		    inp_samp += samps.step;
+		}
+	    }
+	    else
+	    {
+		float t = outcds[iselc]->sd.start;
+		int icomp = selComp(iselc);
+		for ( int outsmp=0; outsmp<outcds[iselc]->nrsamples; outsmp++ )
+		{
+		    storinterps[iselc]->put( stptrs[iselc], outsmp,
+			    		     trc.getValue(t,icomp) );
+		    t += outcds[iselc]->sd.step;
 		}
 	    }
 	}
