@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.16 2003-01-20 14:31:11 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.17 2003-06-05 08:56:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,11 +76,7 @@ uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm)
 const char* uiLineEdit::getvalue_() const
 {
     const_cast<uiLineEdit*>(this)->result = (const char*)body_->text();
-    return (const char*)result;
-
-    if ( *(const char*)result ) return (const char*)result;
-
-    return isEdited() ? (const char*)result : undefVal<const char*>();
+    return result;
 }
 
 
@@ -134,7 +130,7 @@ bool uiLineEdit::isReadOnly() const
     return body_->isReadOnly();
 }
 
-bool uiLineEdit::update( const DataInpSpec& spec )
+bool uiLineEdit::update_( const DataInpSpec& spec )
 {
     setText( spec.text() );
     return true;

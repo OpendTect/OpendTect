@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.44 2003-02-13 12:27:32 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.45 2003-06-05 08:56:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,10 +80,10 @@ public:
 
 
 			DataInpSpec( DataType t )
-			    : tp_(t) {}
+			    : tp_(t), prefempty_(true) {}
 
 			DataInpSpec( const DataInpSpec& o )
-			    : tp_(o.tp_) {}
+			    : tp_(o.tp_), prefempty_(true) {}
 
     virtual		~DataInpSpec() {}
 
@@ -93,6 +93,8 @@ public:
     virtual int 	nElems() const			{ return 1; }
 
     virtual bool	isUndef( int idx=0 ) const	=0;
+    bool		preferEmpty() const 		{ return prefempty_; }
+    void		setPrefEmpty( bool yn=true )	{ prefempty_ = yn; }
 
     virtual bool	hasLimits() const		{ return false; }
 
@@ -122,6 +124,7 @@ protected:
 
     void		setType( DataType t )		{ tp_ = t; }
     DataType		tp_;
+    bool		prefempty_;
 };
 
 

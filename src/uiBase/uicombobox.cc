@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.30 2003-04-01 10:13:51 arend Exp $
+ RCS:           $Id: uicombobox.cc,v 1.31 2003-06-05 08:56:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,7 +167,7 @@ void uiComboBox::setItemText( int idx, const char* txt )
 }
 
 
-bool uiComboBox::update( const DataInpSpec& spec )
+bool uiComboBox::update_( const DataInpSpec& spec )
 {
     mDynamicCastGet(const StringListInpSpec*,spc,&spec)
     if ( !spc ) { return false; }

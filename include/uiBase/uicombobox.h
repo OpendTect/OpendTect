@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.14 2003-04-01 12:02:13 arend Exp $
+ RCS:           $Id: uicombobox.h,v 1.15 2003-06-05 08:56:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
     virtual void        setReadOnly( bool = true );
     virtual bool        isReadOnly() const;
 
-    virtual bool	update( const DataInpSpec& spec );
+    virtual bool	update_( const DataInpSpec& spec );
 
 protected:
 

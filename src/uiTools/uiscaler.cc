@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.8 2003-05-22 11:10:27 bert Exp $
+ RCS:           $Id: uiscaler.cc,v 1.9 2003-06-05 08:56:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,11 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
 
     ynfld = new uiCheckBox( this, lbl );
     ynfld->activated.notify( mCB(this,uiScaler,typeSel) );
-    linearfld = new uiGenInput( this, "Shift/Factor", DoubleInpSpec(), 
-				DoubleInpSpec() );
+
+    DoubleInpSpec dis;
+    dis.setPrefEmpty( false );
+    linearfld = new uiGenInput( this, "Shift/Factor", dis, dis );
+
     if ( !typefld )
 	ynfld->attach( leftOf, linearfld );
     else
