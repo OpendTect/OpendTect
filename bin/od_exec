@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.24 2004-03-23 16:33:12 bert Exp $
+# $Id: od_exec,v 1.25 2004-04-23 14:44:19 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -64,7 +64,14 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 	set xtermcmdarg = "--askclose"
     endif
 
-    set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $DTECT_APPL $xtermcmdarg"
+    set xtermpath=`which xterm` >&! /dev/null
+    if ( $status != 0 ) then
+	set xtermpath=/usr/bin/X11/xterm
+	if ( $HDIR == sun5 ) set xtermpath=/usr/openwin/bin/xterm
+	else if ( $HDIR == mac ) set xtermpath=/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+    endif
+
+    set xtermcmd="$xtermpath -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $DTECT_APPL $xtermcmdarg"
 
     shift
     goto next_arg
