@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.9 2004-11-05 20:16:08 dgb Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.10 2004-11-09 12:36:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,7 +222,9 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	;
     if ( haveenv )
 #ifdef __win__
-	setEnvVar( "DTECT_DATA", getUnixPath(datadir.buf()) );
+	FilePath dtectdatafp( datadir.buf() );
+	
+	setEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
 #else
 	setEnvVar( "DTECT_DATA", datadir.buf() );
 #endif
