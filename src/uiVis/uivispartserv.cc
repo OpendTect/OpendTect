@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.116 2003-01-23 13:13:07 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.117 2003-01-24 11:22:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,10 +176,7 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
     if ( !scene ) return -1;
 
     visSurvey::SurfaceDisplay* horizon = visSurvey::SurfaceDisplay::create();
-    horizon->turnOn( false );
-    scene->addObject( horizon ); //Must be done before loading surface
-    				 //Otherwise the transform won't be set
-
+    horizon->setTransformation( visSurvey::SPM().getUTM2DisplayTransform() );
 
     PtrMan<Executor> exec = horizon->setSurfaceId( emhorid );
     if ( !exec )
@@ -197,7 +194,9 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
     }
 
     horizon->setZValues();
-    horizon->turnOn( true );
+    scene->addObject( horizon ); //Must be done before loading surface
+    				 //Otherwise the transform won't be set
+
 
     setUpConnections( horizon->id() );
     return horizon->id();
@@ -350,13 +349,15 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 
     const visBase::DataObject* dobj = visBase::DM().getObj( id );
 
-    if ( hasAttrib(id) )
+    if ( hasAttrib( id ) )
 	 mnu.insertItem( new uiMenuItem("Select attribute ..."), mSelAttrib);
-    if ( isMovable(id) )
+    if ( isMovable( id ) )
 	mnu.insertItem( new uiMenuItem("Position ..."), mPosition );
-    if ( isManipulated(id) )
+    if ( isManipulated( id ) )
 	mnu.insertItem( new uiMenuItem("Reset manipulation"), mResetManip );
-    if ( hasMaterial(id ) )
+    if ( hasColor( id ) )
+	mnu.insertItem( new uiMenuItem("Color ..."), mColor );
+    if ( hasMaterial( id ) )
 	mnu.insertItem( new uiMenuItem("Properties ..."), mProperties );
     if ( hasDuplicate( id ) )
 	mnu.insertItem( new uiMenuItem("Duplicate"), mDuplicate );
@@ -385,6 +386,21 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	    mnu.insertItem( new uiMenuItem("Dump OI ..."), mDumpIV );
     }
 
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj);
+    if ( pdd )
+    {
+	uiPopupMenu* resmnu = new uiPopupMenu( appserv().parent(),"Resolution");
+	const int curres = pdd->getResolution();
+	const int nrres = pdd->getNrResolutions();
+	for ( int idx=0; idx<nrres; idx++ )
+	{
+	    uiMenuItem* resitm = new uiMenuItem(pdd->getResName(idx));
+	    resmnu->insertItem( resitm, mResolutionStart+idx );
+	    resitm->setChecked( curres==idx );
+	}
+	mnu.insertItem( resmnu );
+    }
+
     mDynamicCastGet(const visSurvey::PickSetDisplay*,pickset,dobj);
     if ( pickset )
     {
@@ -411,12 +427,12 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	    resmnu->insertItem( colitm, mResolutionStart+idx );
 	    colitm->setChecked( curres==idx );
 	}
+	mnu.insertItem( resmnu );
     }
 
     mDynamicCastGet(const visSurvey::WellDisplay*, well, dobj );
     if ( well )
     {
-	mnu.insertItem( new uiMenuItem("Color ..."), mColor );
 	mnu.insertItem( new uiMenuItem("Linestyle ..."), mLineStyle );
 	uiMenuItem* welltxt = new uiMenuItem("Show well name");
 	mnu.insertItem( welltxt, mShowWellName );
@@ -440,7 +456,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	mnu.insertItem( insertknotmnu, mInsertKnot );
     }
 
-
+#ifdef __debug__
     if ( scenes.size()>1 )
     {
 	uiPopupMenu* sharemnu = new uiPopupMenu( appserv().parent(),
@@ -456,6 +472,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 
 	mnu.insertItem( sharemnu, mShare );
     }
+#endif
 
     if ( scene->getFirstIdx(id)!=-1 )
 	mnu.insertItem( new uiMenuItem("Remove"), mRemove );
@@ -565,7 +582,9 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
     {
 	const int resolution = mnu-mResolutionStart;
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,surf,dobj);
-	surf->setResolution( resolution );
+	if ( surf ) surf->setResolution( resolution );
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj);
+	if ( pdd ) pdd->setResolution( resolution );
 	return true;
     }
 
@@ -1315,32 +1334,36 @@ bool uiVisPartServer::selectAttrib( int id )
     eventmutex.lock();
     if ( !sendEvent( evSelectAttrib ) ) return false;
     AttribSelSpec myattribspec( attribspec );
+    setAttribSelSpec( id, myattribspec );
     eventmutex.unlock();
+    return true;
+}
 
+
+void uiVisPartServer::setAttribSelSpec( int id, AttribSelSpec& attrspec )
+{
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj);
     if ( vd )
     {
-	vd->setAttribSelSpec( myattribspec );
+	vd->setAttribSelSpec( attrspec );
     }
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
     if ( rtd ) 
-	rtd->setAttribSelSpec( myattribspec );
+	rtd->setAttribSelSpec( attrspec );
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj);
     if ( pdd )
     {
-	pdd->setAttribSelSpec( myattribspec );
+	pdd->setAttribSelSpec( attrspec );
     }
 
     mDynamicCastGet(visSurvey::SurfaceDisplay*,surface,dobj);
     if ( surface )
     {
-	surface->setAttribSelSpec( myattribspec );
+	surface->setAttribSelSpec( attrspec );
     }
-
-    return true;
 }
 
 
@@ -1487,6 +1510,20 @@ bool uiVisPartServer::setMaterial( int id )
     }
 
     return true;
+}
+
+
+bool uiVisPartServer::hasColor( int id ) const
+{
+    const visBase::DataObject* dobj = visBase::DM().getObj( id );
+
+    mDynamicCastGet(const visSurvey::WellDisplay*,wd,dobj);
+    if ( wd ) return true;
+
+    mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,dobj);
+    if ( sd && !sd->usesTexture() ) return true;
+
+    return false;
 }
 
 

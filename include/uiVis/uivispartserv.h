@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.75 2003-01-22 12:08:06 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.76 2003-01-24 11:22:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,6 +140,7 @@ public:
 
 
     static const int		evSelectAttrib;
+    void			setAttribSelSpec(int,AttribSelSpec&);
     void			setSelSpec(const AttribSelSpec&);
     				/*!< Should only be called as a direct 
 				     reply to evSelectAttrib */
@@ -194,6 +195,8 @@ protected:
 
     bool			hasMaterial( int id ) const;
     bool			setMaterial( int id );
+
+    bool			hasColor(int) const;
 
     bool			hasDuplicate(int) const;
     bool			duplicateObject(int,int);
