@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.9 2001-07-21 14:39:43 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.10 2001-07-23 10:39:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ protected:
     ObjectSet<DataBuffer>* dbufs;
     int			bytesperwrite;
     int			explicitbytes;
+    bool		rectnreg;
 
     void		writeHdr(const CBVSInfo&);
     void		putExplicits(unsigned char*) const;
