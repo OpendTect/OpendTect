@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.7 2004-10-04 15:51:40 nanne Exp $
+ RCS:           $Id: uitabbar.cc,v 1.8 2005-01-13 13:42:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,6 @@ int uiTab::id()
 
 class uiTabBarBody : public uiObjBodyImpl<uiTabBar,QTabBar>
 {
-
 public:
 
 			uiTabBarBody( uiTabBar& handle, uiParent* p,
@@ -59,20 +58,7 @@ public:
 			    }
 
     virtual		~uiTabBarBody()	{ delete &messenger_; }
-/*
-    void		addGrpTotabs(uiGroup& grp) { tabs += &grp; }
-    virtual void	finalise(bool t)
-			{
-			    for ( int idx=0; idx< tabs.size(); idx++ )
-				tabs[idx]->finalise();
 
-			    uiObjBodyImpl<uiTabBar,QTabBar>::finalise(t);
-			}
-
-protected:
-
-    ObjectSet<uiGroup>  tabs;
-*/
 private:
 
     i_tabbarMessenger&	messenger_;

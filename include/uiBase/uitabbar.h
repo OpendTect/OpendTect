@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.6 2004-10-04 15:33:29 nanne Exp $
+ RCS:           $Id: uitabbar.h,v 1.7 2005-01-13 13:42:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,26 +18,9 @@ class ioPixmap;
 class uiTabBarBody;
 class uiGroup;
 class uiTabBody;
+class uiTab;
 
-class uiTab : public UserIDObject
-{
-friend class		uiTabBar;
-public:
-//			uiTab( const char* );
-			uiTab(uiGroup&);
-
-    int 		id();
-
-    const uiTabBody&	body() const	{ return body_; }
-    uiGroup&		group()		{ return grp_; }
-
-
-protected:
-    uiTabBody&		body_;
-    uiGroup&		grp_;
-};
-
-
+//! TabBar widget only. Normally you'd want to use the uiTabStack class.
 class uiTabBar : public uiObject
 {
 friend class		i_tabbarMessenger;
@@ -60,11 +43,6 @@ public:
     
     int			size() const;
 
-/*
-    void		removeToolTip( int index );
-    void		setToolTip( int index, const QString & tip );
-    QString		toolTip( int index ) const;
-*/
     Notifier<uiTabBar>  selected;
 
     int			idOf(uiGroup* grp) const;
@@ -78,5 +56,22 @@ protected:
     ObjectSet<uiTab>	tabs_;
 };
 
+
+class uiTab : public UserIDObject
+{
+friend class		uiTabBar;
+public:
+			uiTab(uiGroup&);
+
+    int 		id();
+
+    const uiTabBody&	body() const	{ return body_; }
+    uiGroup&		group()		{ return grp_; }
+
+protected:
+
+    uiTabBody&		body_;
+    uiGroup&		grp_;
+};
 
 #endif

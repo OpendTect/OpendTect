@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.9 2004-10-04 15:33:39 nanne Exp $
+ RCS:           $Id: uitabstack.cc,v 1.10 2005-01-13 13:42:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     tabgrp_->setBorder(10);
 
     tabgrp_->attach( stretchedBelow, tabbar_, 0 );
-//    tabgrp_->setStretch( 2, 2 );
 
     tabbar_->selected.notify( mCB( this, uiTabStack, tabSel ) );
 }
@@ -106,24 +105,8 @@ int uiTabStack::size() const
     return tabbar_->size();
 }
 
-/*
-void uiTabStack::removeTabToolTip( uiGroup* grp )
-{
-    if ( grp )
-	body_->removeTabToolTip( grp->mainObject()->body()->qwidget() );
-}
-
-
-void uiTabStack::setTabToolTip( uiGroup* grp , const char* tip )
-{ 
-    if( grp ) 
-	body_->setTabToolTip( grp->mainObject()->body()->qwidget(), QString(tip) ); 
-}
-*/
-
 void uiTabStack::setCurrentPage( int id )
 { 
-//    NotifyStopper stopper(currentChanged);
     tabbar_->setCurrentTab( id );
     tabSel();
 }
@@ -152,26 +135,3 @@ int uiTabStack::currentPageId() const
 { 
     return tabbar_->currentTabId();
 }
-
-/*
-const char* uiTabStack::tabText( int idx ) const
-{
-    rettxt = (const char*)body_->label(idx);
-    return (const char*)rettxt;
-}
-
-
-const char* uiTabStack::tabText( uiGroup* grp ) const
-{
-    rettxt = (const char*)body_->tabLabel(grp->mainObject()->body()->qwidget());
-    return (const char*)rettxt;
-}
-
-
-void uiTabStack::setTabText( uiGroup* grp , const char* txt )
-{
-    if( !grp ) return;
-
-    body_->setTabLabel( grp->mainObject()->body()->qwidget() , QString(txt) );
-}
-*/

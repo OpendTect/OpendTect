@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uitabstack.h,v 1.3 2005-01-13 13:42:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,28 +16,35 @@ ________________________________________________________________________
 
 class uiTabBar;
 
+
+/* \brief Provides a way to create tabs with associated uiGroups.
+
+    uiTabBar provides only the tabs. uiTabStack forms a system that
+    combines such a tab-bar with uiGroups by which selection of a tab
+    automatically makes the associated uiGroup visible.
+
+    uiGroups that are to be added to the stack, *must* use the
+    tabGroup() as a parent. Otherwise, you will get a programmer error
+    message complaining that the added group "Must be child or
+    child-of-child."
+   
+*/
 class uiTabStack : public uiGroup
 {
 public:
 			uiTabStack( uiParent*, const char* nm,
 				    bool manage=true );
 
+			// use this as parent for groups to add
+    uiGroup*		tabGroup() { return tabgrp_; }
+
 			//! returns id of  new tab
     void		addTab( uiGroup*, const char* txt =0 );
-//    void		addTab( uiGroup&, const ioPixmap&, const char* txt=0 );
     void		insertTab( uiGroup*, const char*, int index = -1 );
-//    void		insertTab( uiGroup&, const ioPixmap&, const char* txt=0,
-//				   int index = -1 );
     void		removeTab( int id );
 
     void		setTabEnabled( uiGroup*, bool );
     bool		isTabEnabled( uiGroup* ) const;
-
-/*
-    void		removeTabToolTip( uiGroup* );
-    void		setTabToolTip( uiGroup*, const char* tip );
-    const char*		tabToolTip( uiGroup* ) const;
-*/
 
     void		setCurrentPage( int id );
     void		setCurrentPage( uiGroup* );
@@ -48,12 +55,6 @@ public:
     int			currentPageId() const;
 
     int			size() const;
-/*
-    const char*		tabText( int idx ) const;
-    const char*		tabText( uiGroup* ) const;
-    void		setTabText( uiGroup*, const char* txt );
-*/
-    uiGroup*		tabGroup() { return tabgrp_; }
 
 protected:
 
