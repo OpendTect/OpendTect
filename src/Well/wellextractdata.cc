@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.6 2004-05-07 16:15:34 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.7 2004-05-08 17:47:32 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -299,18 +299,33 @@ int Well::LogDataExtracter::nextStep()
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
     if ( !wr.getInfo() ) mRetNext()
-    if ( timesurv && !wr.getD2T() ) mRetNext()
+
+    PtrMan<Well::Track> timetrack = 0;
+    if ( timesurv )
+    {
+	if ( !wr.getD2T() ) mRetNext()
+	timetrack = new Well::Track( wd.track() );
+	timetrack->toTime( *wd.d2TModel() );
+    }
 
     const BinIDValueSet& bivset = *bivsets[curidx];
     TypeSet<float>* newres = new TypeSet<float>;
     ress += newres;
 
+    getData( *bivsets[curidx], timesurv ? *timetrack : wd.track(), *newres );
+
+    mRetNext();
+}
+
+
+void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
+				      const Well::Track& track,
+				      TypeSet<float>& res ) const
+{
     //TODO fill the newres with the right log values
     // Make use of the fact that // bivset.value (= Z = depth or time)
     // is sorted
-    // For testing now, just put the 'depth' in
-    	for ( int idx=0; idx<bivset.size(); idx++ )
-	    *newres += bivset[idx].value;
-
-    mRetNext();
+    // For testing now, just put the input time or depth in output
+    for ( int idx=0; idx<bivset.size(); idx++ )
+	res += bivset[idx].value;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.6 2004-05-07 16:15:34 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.7 2004-05-08 17:47:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ namespace Well
 {
 class Info;
 class Data;
+class Track;
 class Marker;
 
 /*!\brief Collects info about all wells in store */
@@ -163,6 +164,8 @@ protected:
     int					curidx;
     const bool				timesurv;
 
+    void		getData(const BinIDValueSet&,const Track&,
+	    			TypeSet<float>&) const;
 };
 
 

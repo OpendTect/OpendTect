@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.6 2004-05-06 16:15:22 bert Exp $
+ RCS:		$Id: welltrack.h,v 1.7 2004-05-08 17:47:32 bert Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 namespace Well
 {
+class D2TModel;
 
 class Track
 {
@@ -40,6 +41,8 @@ public:
     			// If you know what you're doing:
     Coord3		coordAfterIdx(float d_ah,int) const;
     			//!< Beware: no bounds check on index.
+
+    void		toTime(const D2TModel&);
 
 protected:
 
