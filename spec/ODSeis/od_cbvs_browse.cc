@@ -152,6 +152,10 @@ int main( int argc, char** argv )
 	if ( !mIsZero(trc.info().offset,mDefEps)
 		&& !mIsUndefined(trc.info().offset) )
 	    std::cerr << "Offset: " << trc.info().offset << std::endl;
+	if ( !mIsZero(trc.info().azimuth,mDefEps)
+		&& !mIsUndefined(trc.info().azimuth) )
+	    std::cerr << "Azimuth: " << (trc.info().azimuth*57.29577951308232)
+		      << std::endl;
 	if ( !mIsZero(trc.info().coord.x,0.1) )
 	{
 	    BufferString str; trc.info().coord.fill(str.buf());

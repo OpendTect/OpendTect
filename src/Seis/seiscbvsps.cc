@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.3 2004-12-30 17:29:35 bert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.4 2005-01-01 12:56:17 bert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -128,9 +128,9 @@ bool SeisCBVSPSReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 SeisCBVSPSWriter::SeisCBVSPSWriter( const char* dirnm )
     	: SeisCBVSPSIO(dirnm)
     	, reqdtype_(DataCharacteristics::Auto)
-    	, curinl_(mUndefIntVal)
     	, tr_(0)
-	, nringather_(0)
+    	, prevbid_(*new BinID(mUndefIntVal,mUndefIntVal))
+	, nringather_(1)
 {
     if ( !File_isDirectory(dirnm_) )
     {
@@ -148,12 +148,15 @@ SeisCBVSPSWriter::SeisCBVSPSWriter( const char* dirnm )
 SeisCBVSPSWriter::~SeisCBVSPSWriter()
 {
     close();
+    delete &prevbid_;
 }
 
 
 void SeisCBVSPSWriter::close()
 {
     delete tr_; tr_ = 0;
+    prevbid_ = BinID( mUndefIntVal, mUndefIntVal );
+    nringather_ = 1;
 }
 
 
@@ -167,7 +170,7 @@ void SeisCBVSPSWriter::usePar( const IOPar& iopar )
 
 bool SeisCBVSPSWriter::newInl( const SeisTrc& trc )
 {
-    if ( mIsUndefInt(curinl_) )
+    if ( mIsUndefInt(prevbid_.inl) )
     {
 	if ( reqdtype_ == DataCharacteristics::Auto )
 	    dc_ = trc.data().getInterpreter()->dataChar();
@@ -176,9 +179,7 @@ bool SeisCBVSPSWriter::newInl( const SeisTrc& trc )
     }
 
     const BinID& trcbid = trc.info().binid;
-    curinl_ = trcbid.inl;
-
-    BufferString fnm = curinl_; fnm += ext();
+    BufferString fnm = trcbid.inl; fnm += ext();
     FilePath fp( dirnm_ ); fp.add( fnm );
     fnm = fp.fullPath();
 
@@ -195,7 +196,6 @@ bool SeisCBVSPSWriter::newInl( const SeisTrc& trc )
     for ( int idx=0; idx<ci.size(); idx++ )
 	ci[idx]->datachar = dc_;
 
-    nringather_ = 0;
     return true;
 }
 
@@ -204,11 +204,14 @@ bool SeisCBVSPSWriter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
     const BinID trcbid = ti.binid;
-    if ( trcbid.inl != curinl_ )
+    if ( trcbid.inl != prevbid_.inl )
     {
 	if ( !newInl(trc) )
 	    return false;
     }
+    if ( trcbid.crl != prevbid_.crl )
+	nringather_ = 1;
+    prevbid_ = trcbid;
 
     ti.binid = BinID( trcbid.crl, nringather_ );
     bool res = tr_->write( trc );

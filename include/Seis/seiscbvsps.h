@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.3 2004-12-30 17:29:35 bert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.4 2005-01-01 12:56:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "seispswrite.h"
 class IOPar;
+class BinID;
 template <class T> class SortedList;
 class SeisTrcTranslator;
 
@@ -95,7 +96,7 @@ public:
 
 protected:
 
-    int					curinl_;
+    BinID&				prevbid_;
     int					nringather_;
     DataCharacteristics::UserType	reqdtype_;
     DataCharacteristics			dc_;
