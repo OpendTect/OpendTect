@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.61 2004-07-22 16:14:07 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.62 2004-08-26 10:31:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,11 +211,7 @@ protected:
 
     void		init()
 			    {
-				if ( !update_( spec_ ) )
-				{
-				    pErrMsg("huh?");
-				    update_( spec_ );
-				}
+				update_( spec_ );
 
 				uiObject::SzPolicy hpol =
 					 p_ ? p_->elemSzPol() : uiObject::undef;
