@@ -35,7 +35,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.46 2003-11-12 11:09:46 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.47 2003-11-12 11:55:28 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -328,11 +328,14 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-	if ( File_exists(fname) )
-	    sd.istrm = new ifstream( fname, ios_base::in | ios_base::binary );
-	else if ( File_isLink( fname ) )
+#ifdef __win__
+	if ( File_isLink( fname ) )
 	    sd.istrm = new ifstream( File_linkTarget(fname),
 					    ios_base::in | ios_base::binary );
+	else
+#endif
+	if ( File_exists(fname) )
+	    sd.istrm = new ifstream( fname, ios_base::in | ios_base::binary );
 	return sd;
     }
 
