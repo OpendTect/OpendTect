@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.16 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.17 2003-11-24 08:37:20 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -14,112 +14,6 @@ static const char* rcsID = "$Id: trigonometry.cc,v 1.16 2003-11-07 12:21:57 bert
 #include "sets.h"
 
 #include <math.h>
-
-Vector3::Vector3( const Coord3& origin, const Coord3& target )
-    : x( target.x - origin.x )
-    , y( target.y - origin.y )
-    , z( target.z - origin.z )
-{}
-
-
-Vector3::Vector3( float x_, float y_, float z_ )
-    : x( x_ )
-    , y( y_ )
-    , z( z_ )
-{}
-
-
-Vector3::Vector3() {}
-
-
-Vector3 Vector3::operator+(const Vector3& b) const
-{
-    return Vector3( x+b.x, y+b.y, z+b.z );
-}
-
-
-Vector3& Vector3::operator+=(const Vector3& b)
-{
-    (*this) = (*this) + b;
-    return *this;
-}
-
-
-Vector3 Vector3::operator-(const Vector3& b) const
-{
-    return Vector3( x-b.x, y-b.y, z-b.z );
-}
-
-
-Vector3& Vector3::operator-=(const Vector3& b)
-{
-    (*this) = (*this) - b;
-    return *this;
-}
-
-
-Vector3 Vector3::operator*(float f) const
-{
-    return Vector3( x*f, y*f, z*f );
-}
-
-
-Vector3& Vector3::operator*=(float f)
-{
-    (*this) = (*this) * f;
-    return *this;
-}
-
-
-Vector3 Vector3::operator/(float f) const
-{
-    return Vector3( x/f, y/f, z/f );
-}
-
-
-Vector3& Vector3::operator/=(float f)
-{
-    (*this) = (*this) / f;
-    return *this;
-}
-
-
-bool Vector3::operator==(const Vector3& b) const
-{
-    if ( mIS_ZERO( (*this).x - b.x ) && mIS_ZERO( (*this).y - b.y ) && 
-         mIS_ZERO( (*this).z - b.z ) )
-	return true;
-    else
-	return false;
-}
-
-
-float Vector3::dot( const Vector3& b ) const { return x*b.x + y*b.y + z*b.z; }
-
-
-Vector3 Vector3::cross( const Vector3& b ) const
-{
-    return Vector3( y*b.z-z*b.y, z*b.x-x*b.z, x*b.y-y*b.x );
-}
-
-
-double Vector3::abs() const { return sqrt( x*x + y*y + z*z ); }
-
-
-Vector3& Vector3::normalize()
-{
-    double absval = abs();
-    x /= absval;
-    y /= absval;
-    z /= absval;
-    return *this;
-}
-
-
-Vector3 operator*( float f, const Vector3& b )
-{
-    return Vector3( b.x*f, b.y*f, b.z*f );
-}
 
 
 TypeSet<Vector3>* makeSphereVectorSet( double dradius )
@@ -257,15 +151,9 @@ Plane3::Plane3( float A_, float B_, float C_, float D_ )
 {}
 
 
-Plane3::Plane3( const Vector3& norm, const Coord3& point )
+Plane3::Plane3( const Coord3& vec, const Coord3& point, bool istwovec )
 {
-    set( norm, point );
-}
-
-
-Plane3::Plane3( const Vector3& v0, const Vector3& v1 )
-{
-    set( v0, v1 );
+    set( vec, point, istwovec );
 }
 
 
@@ -281,22 +169,23 @@ Plane3::Plane3( const TypeSet<Coord3>& pts )
 }
 
 
-void Plane3::set( const Vector3& norm, const Coord3& point )
+void Plane3::set( const Vector3& norm, const Coord3& point, bool istwovec )
 {
-    A = norm.x;
-    B = norm.y;
-    C = norm.z;
-    D =  -(norm.x*point.x) - (norm.y*point.y) - ( norm.z*point.z );
-}
-
-
-void Plane3::set( const Vector3& v0, const Vector3& v1 )
-{
-    Vector3 norm = v1.cross( v0 );
-    A = norm.x;
-    B = norm.y;
-    C = norm.z;
-    D = 0;
+    if ( istwovec )
+    {
+	Vector3 cross = point.cross( norm );
+	A = cross.x;
+	B = cross.y;
+	C = cross.z;
+	D = 0;
+    }
+    else
+    {
+	A = norm.x;
+	B = norm.y;
+	C = norm.z;
+	D =  -(norm.x*point.x) - (norm.y*point.y) - ( norm.z*point.z );
+    }
 }
 
 
@@ -343,34 +232,11 @@ float Plane3::set( const TypeSet<Coord3>& pts )
     if ( !pca.calculate() )
 	return -1;
 
-    const float eigen0 = pca.getEigenValue(0);
-    const float eigen1 = pca.getEigenValue(1);
-    const float eigen2 = pca.getEigenValue(2);
-    const float eigensum = eigen0+eigen1+eigen2;
-
-    TypeSet<float> normalvec;
-    float eigen;
-    if ( eigen2<eigen0 && eigen2<eigen1 )
-    {
-	pca.getEigenVector(2,normalvec);
-	eigen = eigen2;
-    }
-    else if ( eigen1 < eigen2 && eigen1 < eigen0 )
-    {
-	pca.getEigenVector(1,normalvec );
-	eigen = eigen1;
-    }
-    else if ( eigen0 < eigen1 && eigen0 < eigen2 )
-    {
-	pca.getEigenVector(0,normalvec );
-	eigen = eigen0;
-    }
-    else
-	return 0;
-
-    Vector3 normal( normalvec[0], normalvec[1], normalvec[2] );
-    set( normal, midpt );
-    return 1-eigen/eigensum;
+    Vector3 normal;
+    pca.getEigenVector(2,normal);
+    set( normal, midpt, false );
+    return 1-pca.getEigenValue(2)/
+	   (pca.getEigenValue(0)+pca.getEigenValue(0)+pca.getEigenValue(0));
 }
 
 
