@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.14 2002-04-11 09:11:44 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.15 2002-04-11 14:23:02 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -159,6 +159,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 		if ( removeidx != -1 )
 		{
 		    group->removeObject( removeidx );
+		    changed.trigger();
 		}
 	    }
 
@@ -192,7 +193,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 			 mIS_ZERO( newpos.y-mousepressposition.y ) &&
 			 mIS_ZERO( newpos.z-mousepressposition.z ) )
 		    {
-			newpos.z /= scene.apparentVel();
+			newpos.z /= -scene.apparentVel();
 			addPick( newpos );
 		    }
 		}
