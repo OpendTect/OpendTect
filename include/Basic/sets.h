@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.3 2000-03-22 13:40:51 bert Exp $
+ RCS:		$Id: sets.h,v 1.4 2000-07-28 14:55:33 arend Exp $
 ________________________________________________________________________
 
 The TypeSet is meant for simple types or small objects that have a copy
@@ -26,7 +26,11 @@ pointers to the the objects.
 #include <Vector.h>
 #endif
 
-
+/*!
+The TypeSet is meant for simple types or small objects that have a copy
+constructor. The `-=' function will only remove the first occurrence that
+matches with the `==' operator.
+*/
 template <class T>
 class TypeSet
 {
@@ -112,6 +116,10 @@ inline bool operator !=( const TypeSet<T>& a, const TypeSet<T>& b )
 { return !(a == b); }
 
 
+/*!
+The ObjectSet does not manage the objects, it is just a collection of
+pointers to the the objects.
+*/
 template <class T>
 class ObjectSet
 {
