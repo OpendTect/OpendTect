@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.44 2004-04-29 16:12:01 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.45 2004-04-29 16:59:33 nanne Exp $
 ________________________________________________________________________
 
 
@@ -76,6 +76,7 @@ public:
     void			acceptManipulation();
     BufferString		getManipulationString() const;
     NotifierAccess*		getManipulationNotifier()    { return &moving; }
+    BufferString		getManipulationPos() const;
 
     bool			hasMaterial() const		{ return true; }
     void			setMaterial(visBase::Material*);

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.64 2004-04-29 16:11:47 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.65 2004-04-29 16:59:39 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -354,6 +354,23 @@ BufferString PlaneDataDisplay::getManipulationString() const
 	res = SI().zIsTime() ? "Time: " : "Depth: ";
 	float val = getCubeSampling(true).zrg.start;
 	res += SI().zIsTime() ? mNINT(val * 1000) : val;
+    }
+
+    return res;
+}
+
+
+BufferString PlaneDataDisplay::getManipulationPos() const
+{
+    BufferString res;
+    if ( type == Inline )
+	res = getCubeSampling(true).hrg.start.inl;
+    else if ( type == Crossline )
+	res = getCubeSampling(true).hrg.start.crl;
+    else if ( type == Timeslice )
+    {
+	float val = getCubeSampling(true).zrg.start;
+	res = SI().zIsTime() ? mNINT(val * 1000) : val;
     }
 
     return res;
