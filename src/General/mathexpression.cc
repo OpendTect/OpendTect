@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Mar 2000
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Mar 2000
+ RCS:           $Id: mathexpression.cc,v 1.27 2004-01-07 08:21:53 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "mathexpressionimpl.h"
 #include "ctype.h"
@@ -80,14 +83,15 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
     return true;
 }
 
-static void parens( const char* str, int& idx, int& parenslevel, int len)
+
+static void parens( const char* str, int& idx, int& parenslevel, int len )
 {
-    do
+    while ( parenslevel && idx<len )
     {
 	if ( str[idx]=='(' ) parenslevel++;
 	if ( parenslevel && str[idx]==')' ) parenslevel--;
 	if ( parenslevel ) idx++;
-    } while ( parenslevel && idx<len );
+    }
 }
 
 
@@ -282,7 +286,7 @@ MathExpression* MathExpression::parse( const char* input )
     }
 
 
-    // <, >, <=, >=, ==
+    // <, >, <=, >=, ==, !=
     for ( int idx=0; idx<len; idx++ )
     {
 	absolute( str, idx, inabs)
@@ -391,7 +395,7 @@ MathExpression* MathExpression::parse( const char* input )
 		return 0;
 	    }
 
-	    MathExpression* res = (MathExpression*) new MathExpressionPlus;
+	    MathExpression* res = new MathExpressionPlus;
 
 	    res->setInput( 0, inp0 );
 	    res->setInput( 1, inp1 );
@@ -401,7 +405,7 @@ MathExpression* MathExpression::parse( const char* input )
     }
 
 
-    // * /
+    // * / ^
     for ( int idx=0; idx<len; idx++ )
     {
 	absolute( str, idx, inabs)
@@ -410,23 +414,19 @@ MathExpression* MathExpression::parse( const char* input )
 	parens(str, idx, parenslevel, len);
 	if ( parenslevel ) continue;
 
-	if ( str[idx] == '*' ||  str[idx] == '/' )
+	if ( str[idx] == '*' || str[idx] == '/' || str[idx] == '^' )
 	{
 	    if ( !idx ) continue;
 
 	    ArrPtrMan<char> arg0 = new char[len+1];
 	    strcpy( arg0, str );
 	    arg0[idx] = 0;
-
 	    MathExpression* inp0 = parse( arg0 );
-
 	    if ( !inp0 ) return 0;
 
 	    ArrPtrMan<char> arg1 = new char[len+1];
 	    strcpy( arg1, &str[idx+1] );
-
 	    MathExpression* inp1 = parse( arg1 );
-
 	    if ( !inp1 )
 	    {
 		delete inp0;
@@ -434,9 +434,9 @@ MathExpression* MathExpression::parse( const char* input )
 	    }
 	
 	    MathExpression* res;
-
 	    if ( str[idx]=='*' ) res = new MathExpressionMultiply;
 	    if ( str[idx]=='/' ) res = new MathExpressionDivide;
+	    if ( str[idx]=='^' ) res = new MathExpressionPower;
 
 	    res->setInput( 0, inp0 );
 	    res->setInput( 1, inp1 );
@@ -445,47 +445,6 @@ MathExpression* MathExpression::parse( const char* input )
 	}
     }
 
-    // Power of (^)
-
-    for ( int idx=0; idx<len; idx++ )
-    {
-	absolute( str, idx, inabs)
-	if ( inabs ) continue;
-
-	parens(str, idx, parenslevel, len);
-	if ( parenslevel ) continue;
-
-	if ( str[idx] == '^' )
-	{
-	    if ( !idx ) continue;
-
-	    ArrPtrMan<char> arg0 = new char[len+1];
-	    strcpy( arg0, str );
-	    arg0[idx] = 0;
-
-	    MathExpression* inp0 = parse( arg0 );
-
-	    if ( !inp0 ) return 0;
-
-	    ArrPtrMan<char> arg1 = new char[len+1];
-	    strcpy( arg1, &str[idx+1] );
-
-	    MathExpression* inp1 = parse( arg1 );
-
-	    if ( !inp1 )
-	    {
-		delete inp0;
-		return 0;
-	    }
-	
-	    MathExpression* res = new MathExpressionPower;
-
-	    res->setInput( 0, inp0 );
-	    res->setInput( 1, inp1 );
-
-	    return res;
-	}
-    }
 
     char* endptr;
     double tres = strtod( str, &endptr );
@@ -494,162 +453,44 @@ MathExpression* MathExpression::parse( const char* input )
 	return new MathExpressionConstant( tres );
 
 
-    if ( !strncasecmp( str, "sqrt(", 5 ) && str[len-1] == ')' )
-    {
-	ArrPtrMan<char> arg0 = new char[len-5];
-	strcpy( arg0, str+5 );
-	arg0[len-6] = 0;
-
-	MathExpression* inp0 = parse( arg0 );
-	if ( !inp0 ) return 0;
-
-	MathExpression* inp1 = parse( "0.5" );
-
-	if ( !inp1 )
-	{
-	    delete inp0;
-	    return 0;
-	}
-    
-	MathExpression* res = new MathExpressionPower;
-
-	res->setInput( 0, inp0 );
-	res->setInput( 1, inp1 );
-
-	return res;
-	
+#define mParseFunction( func, clss ) { \
+    BufferString funcstr(func); funcstr += "("; \
+    int funclen = funcstr.size(); \
+    if ( !strncasecmp( str, funcstr.buf(), funclen ) && str[len-1] == ')' ) \
+    { \
+	ArrPtrMan<char> arg0 = new char[len-funclen]; \
+	strcpy( arg0, str+funclen ); \
+	arg0[len-funclen-1] = 0; \
+	MathExpression* inp = parse( arg0 ); \
+	if ( !inp ) return false; \
+\
+	MathExpression* res = new MathExpression##clss; \
+	res->setInput( 0, inp ); \
+	return res; \
+    } \
     }
 
-
+    // sqrt
+    mParseFunction( "sqrt", Sqrt )
     // exp(x) -> e^x
-    if ( !strncasecmp( str, "exp(", 4 ) && str[len-1] == ')' )
-    {
-	MathExpression* inp0 = parse( "2.7182818284590452354" );
-
-	if ( !inp0 ) return 0;
-
-	ArrPtrMan<char> arg1 = new char[len+1];
-	strcpy( arg1, str+4 );
-	arg1[len-5] = 0;
-
-	MathExpression* inp1 = parse( arg1 );
-
-	if ( !inp1 )
-	{
-	    delete inp0;
-	    return 0;
-	}
+    mParseFunction( "exp", Exp )
     
-	MathExpression* res = new MathExpressionPower;
-
-	res->setInput( 0, inp0 );
-	res->setInput( 1, inp1 );
-
-	return res;
-	
-    }
-
-
     // ln (Natural log)  &  log (10log)
-    if ( !strncasecmp( str, "ln(", 3 ) && str[len-1] == ')' )
-    {
-	ArrPtrMan<char> arg0 = new char[len-3];
-	strcpy( arg0, str+3 );
-	arg0[len-4] = 0;
+    mParseFunction( "ln", NatLog )
+    mParseFunction( "log", Log )
 
-	MathExpression* inp = parse( arg0 );
+//  sin(), asin(), cos(), acos(), tan(), atan()
+    mParseFunction( "sin", Sine )
+    mParseFunction( "asin", ArcSine )
+    mParseFunction( "cos", Cosine )
+    mParseFunction( "acos", ArcCosine )
+    mParseFunction( "tan", Tangent )
+    mParseFunction( "atan", ArcTangent )
 
-	if ( !inp ) return false;
-
-	MathExpression* res = new MathExpressionNatLog;
-	res->setInput( 0, inp );
-
-	return res;
-    }
+    // random number
+    mParseFunction( "rand", Random )
 
 
-    if ( !strncasecmp( str, "log(", 4 ) && str[len-1] == ')' )
-    {
-	ArrPtrMan<char> arg0 = new char[len-4];
-	strcpy( arg0, str+4 );
-	arg0[len-5] = 0;
-
-	MathExpression* inp = parse( arg0 );
-
-	if ( !inp ) return false;
-
-	MathExpression* res = new MathExpressionLog;
-	res->setInput( 0, inp );
-
-	return res;
-    }
-
-
-//  sin(), cos(), tan()
-    if ( !strncasecmp( str, "sin(", 4 ) && str[len-1] == ')' )
-    {
-	ArrPtrMan<char> arg0 = new char[len-4];
-	strcpy( arg0, str+4 );
-	arg0[len-5] = 0;
-
-	MathExpression* inp = parse( arg0 );
-
-	if ( !inp ) return false;
-
-	MathExpression* res = new MathExpressionSine;
-	res->setInput( 0, inp );
-
-	return res;
-    }
-
-
-    if ( !strncasecmp( str, "cos(", 4 ) && str[len-1] == ')' )
-    {
-	ArrPtrMan<char> arg0 = new char[len-4];
-	strcpy( arg0, str+4 );
-	arg0[len-5] = 0;
-
-	MathExpression* inp = parse( arg0 );
-
-	if ( !inp ) return false;
-
-	MathExpression* res = new MathExpressionCosine;
-	res->setInput( 0, inp );
-
-	return res;
-    }
-
-    if ( !strncasecmp( str, "tan(", 4 ) && str[len-1] == ')' )
-    {
-	ArrPtrMan<char> arg0 = new char[len-4];
-	strcpy( arg0, str+4 );
-	arg0[len-5] = 0;
-
-	MathExpression* inp = parse( arg0 );
-
-	if ( !inp ) return false;
-
-	MathExpression* res = new MathExpressionTangent;
-	res->setInput( 0, inp );
-
-	return res;
-    }
-
-    if ( !strncasecmp( str, "random(", 7  ) && str[len-1] == ')' )
-    {
-	ArrPtrMan<char> arg0 = new char[len-4];
-	strcpy( arg0, str+4 );
-	arg0[len-5] = 0;
-
-	MathExpression* inp = parse( arg0 );
-
-	if ( !inp ) return false;
-
-	MathExpression* res = new MathExpressionRandom;
-	res->setInput( 0, inp );
-
-	return res;
-    }
     if ( (!strncasecmp( str, "min(", 4 ) || 
 	  !strncasecmp( str, "max(", 4 ) ||
 	  !strncasecmp( str, "sum(", 4 ) ||
@@ -658,7 +499,6 @@ MathExpression* MathExpression::parse( const char* input )
 	  !strncasecmp( str, "avg(", 4 ) ) && str[len-1] == ')' )
     {
 	TypeSet<int> argumentstop;
-
 	for ( int idx=4; idx<len; idx++ )
 	{
 	    absolute( str, idx, inabs)
@@ -678,7 +518,7 @@ MathExpression* MathExpression::parse( const char* input )
 
 	ObjectSet<MathExpression> inputs;
 
-	int prevstop = 3;	
+	int prevstop = 3;
 	for ( int idx=0; idx<argumentstop.size(); idx++ )
 	{
 	    ArrPtrMan<char> arg = new char[len+1];
@@ -754,12 +594,7 @@ MathExpression* MathExpression::parse( const char* input )
     }
 
     if ( isvariable )
-    {
 	return new MathExpressionVariable( str );
-    }
-
-	
-
 
     return 0;	
 }
@@ -792,5 +627,3 @@ void MathExpression::copyInput( MathExpression* target ) const
     for ( int idx=0; idx<sz; idx++ )
 	target->setInput(idx, inputs[idx]->clone() );
 }
-	
-	    
