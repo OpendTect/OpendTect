@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.2 2004-08-23 16:22:18 kristofer Exp $
+ RCS:		$Id: refcount.h,v 1.3 2004-08-25 18:06:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ public: \
 		    ClassName* obj = const_cast<ClassName*>(this); \
 		    obj->__refcount--; \
 		} \
+    int		nrRefs() const { return this ? __refcount : 0 ; } \
 private: \
     int		__refcount;	\
 protected: \
