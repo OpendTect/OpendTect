@@ -1,0 +1,39 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) 2002 de Groot-Bril Earth Sciences B.V.
+# $Id: od_do_rmt,v 1.1 2002-01-31 16:53:35 dgb Exp $
+#
+# remote execution script
+#_______________________________________________________________________________
+
+
+set comm=""
+
+next_arg:
+
+if ( $1 == "+-+" ) then
+
+	shift
+	eval $comm
+	set comm=""
+	goto next_arg
+
+else if ( $1 == "+-+-+" ) then
+
+	shift
+	eval $comm
+	goto do_rest
+
+else
+
+set comm="$comm $1"
+shift
+goto next_arg
+
+endif
+
+
+do_rest:
+
+$dGB_APPL/bin/dgb_exec $*
