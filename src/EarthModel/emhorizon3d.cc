@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.22 2003-05-05 11:57:30 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.23 2003-05-22 08:25:53 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -62,12 +62,6 @@ Executor* EarthModel::Horizon::loader()
     }
 
     return exec;
-}
-
-
-bool  EarthModel::Horizon::isLoaded() const
-{
-    return nrPatches();
 }
 
 
