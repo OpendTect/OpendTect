@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.34 2003-06-02 08:09:57 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.35 2003-07-01 14:26:25 nanne Exp $
 ________________________________________________________________________
 
 
@@ -123,6 +123,7 @@ protected:
     ColorAttribSel&		colas;
 
     AttribSliceSet*             cache;
+    AttribSliceSet*             colcache;
     CubeSampling&		cs;
     CubeSampling&		manipcs;
 

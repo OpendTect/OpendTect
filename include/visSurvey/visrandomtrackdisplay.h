@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.16 2003-06-02 08:09:57 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.17 2003-07-01 14:26:25 nanne Exp $
 ________________________________________________________________________
 
 
@@ -126,6 +126,7 @@ protected:
 
     ObjectSet< TypeSet<BinID> > bidsset;
     ObjectSet<SeisTrc>		cache;
+    ObjectSet<SeisTrc>		colcache;
     bool			ismanip;
 
     static const char*		trackstr;

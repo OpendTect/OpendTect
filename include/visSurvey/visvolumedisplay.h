@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.22 2003-06-02 08:09:57 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.23 2003-07-01 14:26:25 nanne Exp $
 ________________________________________________________________________
 
 
@@ -112,6 +112,7 @@ protected:
 
     visBase::CubeView*		cube;
     AttribSliceSet*		cache;
+    AttribSliceSet*		colcache;
 
     AttribSelSpec&		as;
     ColorAttribSel&		colas;
