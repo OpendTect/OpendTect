@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.1 2003-08-15 15:29:22 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.2 2003-08-16 13:14:44 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.1 2003-08-15 15:29:22 bert Ex
 #include "filegen.h"
 #include "errh.h"
 #include "strmprov.h"
+#include "keystrs.h"
 #include <fstream>
 
 const char* Well::IO::sKeyWell = "Well";
@@ -84,8 +85,11 @@ const char* Well::Reader::rdHdr( istream& strm, const char* fileky ) const
 
 bool Well::Reader::get() const
 {
+    wd.setD2TModel( 0 );
     if ( !getInfo() )
 	return false;
+    else if ( wd.d2TModel() )
+	return true;
 
     getLogs();
     getMarkers();
@@ -112,6 +116,25 @@ bool Well::Reader::getInfo( istream& strm ) const
 	return false;
     if ( *ver < '2' && *(ver+2) < '6' )
 	return getOldTimeWell(strm);
+
+    ascistream astrm( strm, NO );
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	if ( astrm.hasKeyword(sKey::Name) )
+	    wd.info().setName( astrm.value() );
+	else if ( astrm.hasKeyword(Well::Info::sKeyuwid) )
+	    wd.info().uwid = astrm.value();
+	else if ( astrm.hasKeyword(Well::Info::sKeyoper) )
+	    wd.info().oper = astrm.value();
+	else if ( astrm.hasKeyword(Well::Info::sKeystate) )
+	    wd.info().state = astrm.value();
+	else if ( astrm.hasKeyword(Well::Info::sKeycounty) )
+	    wd.info().county = astrm.value();
+	else if ( astrm.hasKeyword(Well::Info::sKeycoord) )
+	    wd.info().surfacecoord.use( astrm.value() );
+	else if ( astrm.hasKeyword(Well::Info::sKeyelev) )
+	    wd.info().surfaceelev = astrm.getValue();
+    }
 
     return true;
 }
@@ -182,9 +205,55 @@ bool Well::Reader::getLogs() const
 }
 
 
+Well::Log* Well::Reader::rdLogHdr( istream& strm, int idx ) const
+{
+    Well::Log* newlog = new Well::Log;
+    ascistream astrm( strm, NO );
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	if ( astrm.hasKeyword(sKey::Name) )
+	    newlog->setName( astrm.value() );
+    }
+    if ( newlog->name() == "" )
+    {
+	BufferString nm( "[" ); nm += idx+1; nm += "]";
+	newlog->setName( nm );
+    }
+    return newlog;
+}
+
+
 bool Well::Reader::addLog( istream& strm ) const
 {
-    return false;
+    const char* ver = rdHdr( strm, sKeyLog );
+    if ( !ver ) return false;
+
+    Well::Log* newlog = rdLogHdr( strm, wd.logs().nrLogs() );
+
+    float dah, val, prevdah = mUndefValue;
+    while ( strm )
+    {
+	strm >> dah >> val;
+	if ( !strm ) break;
+
+	if ( mIsUndefined(dah) || mIS_ZERO(dah-prevdah)
+	|| ( !newlog->nrValues() && mIsUndefined(val) ) )
+	    continue;
+
+	newlog->addValue( dah, val );
+	prevdah = dah;
+    }
+
+    for ( int idx=newlog->nrValues()-1; idx>=0; idx-- )
+    {
+	dah = newlog->dah(idx);
+	val = newlog->value(idx);
+	if ( mIsUndefined(val) || (mIS_ZERO(dah) && mIS_ZERO(val)) )
+	    newlog->removeValue(idx);
+    }
+
+    wd.logs().add( newlog );
+    return true;
 }
 
 

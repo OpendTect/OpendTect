@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.2 2003-08-15 15:29:22 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.3 2003-08-16 13:14:44 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -13,11 +13,18 @@ static const char* rcsID = "$Id: well.cc,v 1.2 2003-08-15 15:29:22 bert Exp $";
 #include "welld2tmodel.h"
 #include "finding.h"
 
+const char* Well::Info::sKeyuwid;
+const char* Well::Info::sKeyoper;
+const char* Well::Info::sKeystate;
+const char* Well::Info::sKeycounty;
+const char* Well::Info::sKeycoord;
+const char* Well::Info::sKeyelev;
 const char* Well::D2TModel::sKeyTimeWell = "=Time";
 
 
 Well::Data::Data( const char* nm )
-    	: track_(*new Well::Track)
+    	: info_(nm)
+    	, track_(*new Well::Track)
     	, logs_(*new Well::LogSet)
     	, d2tmodel_(0)
 {
@@ -43,8 +50,8 @@ void Well::LogSet::add( Well::Log* l )
 
     logs += l;
     if ( dahintv.start > l->dah(0) ) dahintv.start = l->dah(0);
-    if ( dahintv.stop < l->dah(l->nrSamples()-1) )
-	dahintv.stop = l->dah(l->nrSamples()-1);
+    if ( dahintv.stop < l->dah(l->nrValues()-1) )
+	dahintv.stop = l->dah(l->nrValues()-1);
 }
 
 

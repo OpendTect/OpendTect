@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.1 2003-08-15 11:12:15 bert Exp $
+ RCS:		$Id: welllog.h,v 1.2 2003-08-16 13:14:44 bert Exp $
 ________________________________________________________________________
 
 
@@ -23,10 +23,10 @@ class Log : public ::UserIDObject
 {
 public:
 
-			Log( const char* nm )
+			Log( const char* nm=0 )
 			: ::UserIDObject(nm)	{}
 
-    int			nrSamples() const	{ return val_.size(); }
+    int			nrValues() const	{ return val_.size(); }
     float		value( int idx ) const	{ return val_[idx]; }
     float		dah( int idx ) const	{ return dah_[idx]; }
 
@@ -34,6 +34,8 @@ public:
     void		addValue( float z, float val )
 			{ dah_ += z; val_ += val; }
     			//!< z must be > last dah. No checks.
+    void		removeValue( int idx )
+			{ dah_.remove(idx); val_.remove(idx); }
 
 protected:
 

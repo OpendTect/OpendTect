@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.1 2003-08-15 15:29:22 bert Exp $
+ RCS:		$Id: wellreader.h,v 1.2 2003-08-16 13:14:44 bert Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 namespace Well
 {
 class Data;
+class Log;
 
 class Reader : public IO
 {
@@ -44,6 +45,7 @@ protected:
 
     const char*		rdHdr(istream&,const char*) const;
     bool		getOldTimeWell(istream&) const;
+    Log*		rdLogHdr(istream&,int) const;
 
 };
 
