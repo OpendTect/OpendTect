@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.40 2003-11-24 08:39:52 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.41 2003-12-15 15:59:24 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.40 2003-11-24 08:39:52 krist
 #include "linsolv.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "settings.h"
 
 EM::Horizon::Horizon(EMManager& man, const EM::ObjectID& id_)
     : Surface( man, id_ )
@@ -175,7 +176,9 @@ Executor* EM::Horizon::saver( const EM::SurfaceIODataSelection* newsel,
 	    }
 	}
 
-	Executor* exec = new EM::dgbSurfDataWriter(*this,0,0,false,fnm);
+	bool binary = true;
+	mSettUse(getYN,"dTect.Surface","Binary format",binary);
+	Executor* exec = new EM::dgbSurfDataWriter(*this,0,0,binary,fnm);
 	return exec;
     }
     else
