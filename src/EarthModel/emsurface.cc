@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.21 2003-08-25 06:56:17 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.22 2003-08-26 11:51:58 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -276,6 +276,18 @@ Coord3 EM::Surface::getPos( const PatchID& patch, const RowCol& rc) const
 	return Coord3( mUndefValue, mUndefValue, mUndefValue );
 
     return surfaces[surfidx]->getGridPos( geomnode );
+}
+
+
+void EM::Surface::getPos( const RowCol& rc, TypeSet<Coord3>& crdset ) const
+{
+    const int nrsubsurf = nrPatches();
+    for ( int surfidx=0; surfidx<nrsubsurf; surfidx++ )
+    {
+	Coord3 crd = getPos( patchID(surfidx), rc );
+	if ( crd.isDefined() )
+	    crdset += crd;
+    }
 }
 
 

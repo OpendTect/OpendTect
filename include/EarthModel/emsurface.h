@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.16 2003-08-15 13:16:12 nanne Exp $
+ RCS:		$Id: emsurface.h,v 1.17 2003-08-26 11:51:52 nanne Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,8 @@ public:
 
     Coord3		getPos(const EM::PosID&) const;
     Coord3		getPos(const PatchID& patch, const RowCol&) const;
+    void		getPos(const RowCol&,TypeSet<Coord3>&) const;
+    			//!< Returns positions from all patches on RowCol
     
     int			findPos( const CubeSampling&,
 	    			 TypeSet<EM::PosID>* res ) const;
