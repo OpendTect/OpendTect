@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.9 2002-04-25 13:42:13 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.10 2002-04-29 09:26:21 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -40,6 +40,9 @@ public:
     void			showText( bool yn );
     bool			isTextShown() const;
 
+    void			showScale( bool yn );
+    bool			isScaleShown() const;
+
     void			setCorner( int, float, float, float );
     void			setText( int dim, const char * );
 
@@ -51,9 +54,11 @@ protected:
 
     SoCoordinate3*		coords;
 
-    ObjectSet<SceneObjectGroup>	texts;
+    ObjectSet<SceneObjectGroup>	scales;
+    SceneObjectGroup*		texts;
     
     SoSwitch*			textswitch;
+    SoSwitch*			scaleswitch;
 };
 
 };

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.9 2002-04-25 13:42:47 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.10 2002-04-29 09:26:23 kristofer Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -20,21 +20,17 @@ static const char* rcsID = "$Id: visannot.cc,v 1.9 2002-04-25 13:42:47 kristofer
 #include "Inventor/nodes/SoPickStyle.h"
 
 
+mCreateFactoryEntry( visBase::Annotation );
+
 visBase::Annotation::Annotation()
     : coords( new SoCoordinate3 )
     , textswitch( new SoSwitch )
+    , scaleswitch( new SoSwitch )
+    , texts( 0 )
 {
     SoPickStyle* pickstyle = new SoPickStyle;
     addChild( pickstyle );
     pickstyle->style = SoPickStyle::UNPICKABLE;
-
-    texts += visBase::SceneObjectGroup::create(true);
-    texts += visBase::SceneObjectGroup::create(true);
-    texts += visBase::SceneObjectGroup::create(true);
-    
-    texts[0]->ref();
-    texts[1]->ref();
-    texts[2]->ref();
 
     addChild( coords );
 
@@ -78,26 +74,49 @@ visBase::Annotation::Annotation()
     addChild( line );
 
     addChild( textswitch );
-    SoGroup* textgroup = new SoGroup;
-    textswitch->addChild(textgroup);
-    textswitch->whichChild = 0;
+    texts = visBase::SceneObjectGroup::create();
+    texts->setSeparate(false);
+    texts->ref();
+    textswitch->addChild( texts->getData() );
+    scaleswitch->whichChild = 0;
+    Text* text = Text::create(); texts->addObject( text );
+    text = Text::create(); texts->addObject( text );
+    text = Text::create(); texts->addObject( text );
 
-    textgroup->addChild( texts[0]->getData() );
-    Text* text = Text::create(); texts[0]->addObject( text );
-    textgroup->addChild( texts[1]->getData() );
-    text = Text::create(); texts[1]->addObject( text );
-    textgroup->addChild( texts[2]->getData() );
-    text = Text::create(); texts[2]->addObject( text );
 
+    addChild( scaleswitch );
+    SoGroup* scalegroup = new SoGroup;
+    scaleswitch->addChild(scalegroup);
+    scaleswitch->whichChild = 0;
+
+    visBase::SceneObjectGroup* scale = visBase::SceneObjectGroup::create();
+    scale->setSeparate(false);
+    scale->ref();
+    scalegroup->addChild( scale->getData() );
+    scales += scale;
+    
+    scale = visBase::SceneObjectGroup::create();
+    scale->setSeparate(false);
+    scale->ref();
+    scalegroup->addChild( scale->getData() );
+    scales += scale;
+    
+    scale = visBase::SceneObjectGroup::create();
+    scale->setSeparate(false);
+    scale->ref();
+    scalegroup->addChild( scale->getData() );
+    scales += scale;
+    
     updateTextPos();
 }
 
 
 visBase::Annotation::~Annotation()
 {
-    texts[0]->unRef();
-    texts[1]->unRef();
-    texts[2]->unRef();
+    scales[0]->unRef();
+    scales[1]->unRef();
+    scales[2]->unRef();
+    texts->unRef();
 }
 
 
@@ -113,6 +132,18 @@ bool visBase::Annotation::isTextShown() const
 }
 
 
+void visBase::Annotation::showScale( bool yn )
+{
+    scaleswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
+}
+
+
+bool visBase::Annotation::isScaleShown() const
+{
+    return scaleswitch->whichChild.getValue()==0;
+}
+
+
 void visBase::Annotation::setCorner( int idx, float x, float y, float z )
 {
     float c[3] = { x, y, z };
@@ -123,7 +154,7 @@ void visBase::Annotation::setCorner( int idx, float x, float y, float z )
 
 void visBase::Annotation::setText( int dim, const char* string )
 {
-    visBase::Text* text = getText( dim, 0 );
+    visBase::Text* text = (visBase::Text*) texts->getObject( dim );
     if ( !text ) return;
 
     text->setText( string );
@@ -163,14 +194,14 @@ void visBase::Annotation::updateTextPos(int textid)
     SbVec3f p1 = coords->point[pidx1];
     SbVec3f tp;
 
-    while ( texts[textid]->size()>1 )
-	texts[textid]->removeObject( texts[textid]->size()-1 );
+    scales[textid]->removeAll();
 
     tp[0] = (p0[0]+p1[0]) / 2;
     tp[1] = (p0[1]+p1[1]) / 2;
     tp[2] = (p0[2]+p1[2]) / 2;
 
-    getText( textid, 0 )->setPosition( Geometry::Pos( tp[0], tp[1], tp[2] ));
+    ((visBase::Text*)texts->getObject(textid))
+			->setPosition( Geometry::Pos( tp[0], tp[1], tp[2] ));
 
     int dim = -1;
     if ( mIS_ZERO(p0[1]-p1[1]) && mIS_ZERO(p0[2]-p1[2])) dim = 0;
@@ -195,7 +226,7 @@ void visBase::Annotation::updateTextPos(int textid)
 	    if ( val>range.stop ) break;
 
 	    Text* text = Text::create();
-	    texts[textid]->addObject( text );
+	    scales[textid]->addObject( text );
 	    Geometry::Pos pos( p0[0], p0[1], p0[2] );
 	    pos[dim] = val;
 	    text->setPosition( pos );
@@ -210,7 +241,7 @@ void visBase::Annotation::updateTextPos(int textid)
 visBase::Text* visBase::Annotation::getText( int dim, int textnr )
 {
     SceneObjectGroup* group = 0;
-    group = texts[dim];
+    group = scales[dim];
 
     mDynamicCastGet(visBase::Text*,text,group->getObject(textnr));
     return text;
