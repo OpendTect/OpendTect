@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.2 2005-01-20 08:41:35 kristofer Exp $
+ RCS:		$Id: vismpe.h,v 1.3 2005-01-21 12:42:24 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,11 @@ public:
     bool			isInlCrl() const { return true; }
 
     void			showManipulator(bool);
-    bool			isManipulatorShown() const;
+    void			setDraggerTransparency( float );
+    void			showDragger(bool);
+    bool			isDraggerShown() const;
+    
+    CubeSampling		getCubeSampling() const;
 
 protected:
 				~MPEDisplay();

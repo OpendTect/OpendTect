@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.3 2005-01-20 08:41:32 kristofer Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.4 2005-01-21 12:42:28 kristofer Exp $";
 
 #include "vismpe.h"
 
@@ -55,7 +55,7 @@ MPEDisplay::MPEDisplay()
 
     rectangle->setVertexOrdering(1);
 //  rectangle->setFaceType(1);
-    rectangle->setMaterial(0);
+    rectangle->setMaterial(visBase::Material::create());
     rectangle->getCoordinates()->addPos( Coord3( -1, -1, 0 ) );
     rectangle->getCoordinates()->addPos( Coord3( 1, -1, 0 ) );
     rectangle->getCoordinates()->addPos( Coord3( 1, 1, 0 ) );
@@ -116,6 +116,10 @@ MPEDisplay::~MPEDisplay()
     boxdragger->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger->unRef();
 }
+
+
+CubeSampling MPEDisplay::getCubeSampling() const
+{ return getBoxPosition(); }
 
 
 CubeSampling MPEDisplay::getBoxPosition() const
@@ -217,7 +221,7 @@ void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 
 void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 {
-    const CubeSampling newcube = getCubeSampling();
+    const CubeSampling newcube = getBoxPosition();
     if ( newcube!=engine.activeVolume() )
 	engine.setActiveVolume( newcube );
 }
@@ -229,10 +233,20 @@ void MPEDisplay::showManipulator( bool yn )
 }
 
 
-bool MPEDisplay::isManipulatorShown() const
+void MPEDisplay::setDraggerTransparency( float nt )
 {
-    return boxdragger->isOn();
+    rectangle->getMaterial()->setTransparency(nt);
 }
+
+
+void MPEDisplay::showDragger( bool yn )
+{
+    dragger->turnOn(yn);
+}
+
+
+bool MPEDisplay::isDraggerShown() const
+{ return dragger->isOn(); }
 
 
 void MPEDisplay::rectangleMovedCB( CallBacker* cb )
