@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.32 2004-05-25 12:22:28 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.33 2004-06-03 12:44:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -840,6 +840,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evNewAttrSet )
     {
+	trackserv->setAttribDescSet( attrserv->curDescSet() );
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {
