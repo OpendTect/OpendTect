@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.27 2003-11-07 12:22:03 bert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.28 2003-12-11 09:43:37 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -141,7 +141,6 @@ const AttribSelSpec& visSurvey::RandomTrackDisplay::getAttribSelSpec() const
 void visSurvey::RandomTrackDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 {
     as = as_;
-    colas.datatype = 0;
     track->useTexture( false );
     setName( as.userRef() );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.42 2003-12-08 10:05:52 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.43 2003-12-11 09:43:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,7 +176,6 @@ void visSurvey::VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
     as = as_;
     delete cache;
     cache = 0;
-    colas.datatype = 0;
     cube->useTexture( false );
 }
 
