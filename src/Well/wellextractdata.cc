@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.13 2004-05-11 13:08:41 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.14 2004-05-26 14:47:16 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -341,7 +341,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 	return;
     const Well::Log& wl = wd.logs().getLog( wlidx );
 
-    if ( !track.alwaysDownward() )
+    if ( true || !track.alwaysDownward() )
     {
 	// Slower, less precise
 	getGenTrackData( bivset, wd, track, wl, res );
@@ -402,7 +402,7 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
     BinIDValue biv( bivset[bividx] );
     const float dahstep = SI().zRange().step / 2;
     const float extratol = 1.01; // Allow 1% extra tolerance
-    const float ztolbase = extratol * dahstep;
+    const float ztol = extratol * dahstep;
     BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );
     const float dtol = SI().transform(biv.binid).distance( SI().transform(b) )
 		     * extratol;
@@ -413,27 +413,23 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
     {
 	biv = bivset[bividx];
 	Coord coord = SI().transform( biv.binid );
-	float vel = 1;
-	while ( dah <= lastdah )
+	for ( ; dah <= lastdah; dah += dahstep )
 	{
 	    Coord3 pos = track.getPos( dah );
-	    if ( timesurv ) vel = wd.d2TModel()->getVelocity(dah);
-	    float ztol = ztolbase * vel;
 	    if ( coord.distance(pos) < dtol && fabs(pos.z-biv.value) < ztol )
 		break;
-	    dah += dahstep;
 	}
 	if ( dah > lastdah ) return;
-	addValAtDah( dah, wl, vel, res );
+	addValAtDah( dah, wl, dahstep, res );
     }
 }
 
 
 void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
-					  float vel, TypeSet<float>& res ) const
+					  float ds, TypeSet<float>& res ) const
 {
     float val = samppol == Nearest ? wl.getValue( dah )
-				   : calcVal(wl,dah,SI().zRange().step*vel);
+				   : calcVal(wl,dah,ds/2);
     res += val;
 }
 
