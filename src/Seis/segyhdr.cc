@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.17 2004-03-01 15:18:18 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.18 2004-03-10 14:44:40 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -416,11 +416,12 @@ unsigned short SegyTraceheader::nrSamples() const
 
 void SegyTraceheader::putSampling( SamplingData<float> sd, unsigned short ns )
 {
-    float drt = sd.start * 1000;
+    const float zfac = SI().zFactor();
+    float drt = sd.start * zfac;
     short delrt = (short)mNINT(drt);
     IbmFormat::putShort( delrt, buf+108 );
     IbmFormat::putUnsignedShort( (unsigned short)
-	    			 (sd.step*1e3*SI().zFactor()+.5), buf+116 );
+	    			 (sd.step*1e3*zfac+.5), buf+116 );
     IbmFormat::putUnsignedShort( ns, buf+114 );
 }
 
@@ -476,15 +477,15 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 	    IbmFormat::putInt( ti.binid.crl, buf+hdef.crl-1 );
     }
 
-    const float fac = SI().zFactor();
+    const float zfac = SI().zFactor();
     if ( !mIsUndefined(ti.pick) && hdef.pick != 255 )
-	IbmFormat::putInt( mNINT(ti.pick*fac), buf+hdef.pick-1 );
+	IbmFormat::putInt( mNINT(ti.pick*zfac), buf+hdef.pick-1 );
 
     // Absolute priority, therefore possibly overwriting previous
-    float drt = ti.sampling.start * fac;
+    float drt = ti.sampling.start * zfac;
     short delrt = (short)mNINT(drt);
     IbmFormat::putShort( delrt, buf+108 );
-    IbmFormat::putUnsignedShort( (unsigned short)(ti.sampling.step*fac*1e3+.5),
+    IbmFormat::putUnsignedShort( (unsigned short)(ti.sampling.step*zfac*1e3+.5),
 				 buf+116 );
 }
 
@@ -501,11 +502,11 @@ float SegyTraceheader::postScale( int numbfmt ) const
 void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 {
     ti.nr = IbmFormat::asInt( buf+0 );
-    const float fac = 1. / SI().zFactor();
-    ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * fac;
-    ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * fac * 0.001;
+    const float zfac = 1. / SI().zFactor();
+    ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * zfac;
+    ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * zfac * 0.001;
     ti.pick = ti.refpos = mUndefValue;
-    if ( hdef.pick != 255 ) ti.pick = IbmFormat::asInt( buf+hdef.pick ) * fac;
+    if ( hdef.pick != 255 ) ti.pick = IbmFormat::asInt( buf+hdef.pick ) * zfac;
     ti.coord.x = ti.coord.y = 0;
     if ( hdef.xcoord != 255 ) ti.coord.x = IbmFormat::asInt( buf+hdef.xcoord-1);
     if ( hdef.ycoord != 255 ) ti.coord.y = IbmFormat::asInt( buf+hdef.ycoord-1);

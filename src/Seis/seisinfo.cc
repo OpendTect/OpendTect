@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.17 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.18 2004-03-10 14:44:40 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -250,8 +250,9 @@ void SeisTrcInfo::gettr( SUsegy& trc ) const
 {
     trc.tracl = trc.fldr = trc.tracf = nr;
     trc.trid = 1;
-    trc.dt = (int)(sampling.step*1e6 + .5);
-    trc.delrt = (short)mNINT(sampling.start * 1000);
+    const float zfac = SI().zFactor();
+    trc.dt = (int)(sampling.step * 1e3 * zfac + .5);
+    trc.delrt = (short)mNINT(sampling.start * zfac);
 
     SULikeHeader* head = (SULikeHeader*)(&trc);
     head->indic = 123456;
@@ -268,8 +269,9 @@ void SeisTrcInfo::gettr( SUsegy& trc ) const
 void SeisTrcInfo::puttr( const SUsegy& trc )
 {
     nr = trc.tracl;
-    sampling.step = trc.dt * 1e-6;
-    sampling.start = trc.delrt * .001;
+    const float zfac = 1. / SI().zFactor();
+    sampling.step = trc.dt * 0.001 * zfac;
+    sampling.start = trc.delrt * zfac;
     SULikeHeader* head = (SULikeHeader*)(&trc);
     if ( head->indic == 123456 )
     {
@@ -279,9 +281,8 @@ void SeisTrcInfo::puttr( const SUsegy& trc )
 	offset = head->offset;
 	azimuth = head->azimuth;
 	refpos = head->refpos;
-	sampling.start = head->startpos;
-	if ( mIS_ZERO(sampling.start) )
-	    sampling.start = trc.delrt * .001;
+	if ( !mIS_ZERO(head->startpos) )
+	    sampling.start = head->startpos;
     }
 }
 
