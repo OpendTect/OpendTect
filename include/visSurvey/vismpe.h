@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.5 2005-03-17 16:21:58 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.6 2005-03-23 16:00:26 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -54,6 +54,7 @@ public:
     void			setTrackMode(const TrackMode& tm)
 				{ trackmode_ = tm; }
 
+    bool			isManipulated() const	{ return manipulated_; }
     void			showManipulator(bool);
     void			setDraggerTransparency(float);
     float			getDraggerTransparency() const;
@@ -108,6 +109,7 @@ protected:
 
     TrackMode			trackmode_;
     AttribSelSpec&		as_;
+    bool			manipulated_;
 };
 
 };
