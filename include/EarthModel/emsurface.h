@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.2 2003-05-05 12:04:16 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.3 2003-05-12 08:19:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -84,8 +84,21 @@ public:
     int			findPos( const CubeSampling&,
 	    			 TypeSet<EarthModel::PosID>* res ) const;
 
-    int			getNeighbors( const EarthModel::PosID&, 
-	    			      TypeSet<EarthModel::PosID>* res ) const;
+    int			getNeighbors( const EarthModel::PosID& posid, 
+	    			      TypeSet<EarthModel::PosID>* res,
+	   			      int size=1, bool circle=false ) const;
+    			/*!<\param posid	The posid that we want the
+						neigbors to
+			    \param res		A pointer where the result is
+			    			stored
+			    \param size		Specifies how far from posid the
+						search should continue
+			    \param circle	Specifies wether size should
+			    			be seen as a radius or the
+						half sidelength of a square
+			    \return		The number of neigbors found
+			*/
+
 
     void		getLinkedPos( const EarthModel::PosID& posid,
 	    			      TypeSet<EarthModel::PosID>& ) const;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.1 2003-05-05 12:06:06 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.2 2003-05-12 08:19:50 kristofer Exp $";
 
 #include "emsurface.h"
 
@@ -183,59 +183,86 @@ int EarthModel::Surface::findPos( const RowCol& rowcol,
 }
 
 
-int EarthModel::Surface::getNeighbors( const EarthModel::PosID& posid_,
-				       TypeSet<EarthModel::PosID>* res ) const
+int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
+					TypeSet<EarthModel::PosID>* res,
+       					int maxradius, bool circle ) const
 {
-    TypeSet<EarthModel::PosID> neigbors;
-    TypeSet<EarthModel::PosID> posids;
-    getLinkedPos( posid_, posids );
-    posids += posid_;
+    ObjectSet< TypeSet<EarthModel::PosID> > neigbors;
+    const RowCol start = Geometry::GridSurface::getGridNode(posid_.subID());
+    neigbors += new TypeSet<EarthModel::PosID>( 1, posid_ );
 
-    for ( int idy=0; idy<posids.size(); idy++ )
+    for ( int idx=0; idx<neigbors.size(); idx++ )
     {
-	const EarthModel::PosID& posid = posids[idy];
-	const RowCol rowcol = Geometry::GridSurface::getGridNode(posid.subID());
-
-	for ( int drow=-1; drow<=1; drow++ )
+	for ( int idz=0; idz<neigbors[idx]->size(); idz++ )
 	{
-	    for ( int dcol=-1; dcol<=1; dcol++ )
+	    EarthModel::PosID currentposid = (*neigbors[idx])[idz];
+	    const RowCol rowcol =
+		     Geometry::GridSurface::getGridNode(currentposid.subID());
+
+	    for ( int row=-1; row<=1; row++ )
 	    {
-		const RowCol neighborrowcol( rowcol.row+drow, rowcol.col+dcol );
-		const EarthModel::PosID neighborposid( posid.emObject(),
-			posid.patchID(),
-			Geometry::GridSurface::getPosID(neighborrowcol) );
-		TypeSet<EarthModel::PosID> neighborposids;
-		getLinkedPos( neighborposid, neighborposids );
-		neighborposids += neighborposid;
-
-		bool found = false;
-		for ( int idx=0; idx<neighborposids.size(); idx++ )
+		for ( int col=-1; col<=1; col++ )
 		{
-		    if ( neigbors.indexOf(neighborposids[idx])!=-1 )
+		    const RowCol neighborrowcol(rowcol.row+row,rowcol.col+col);
+		    const int drow = abs(neighborrowcol.row-start.row);
+		    const int dcol = abs(neighborrowcol.col-start.col);
+
+		    if ( drow>maxradius || dcol>maxradius )
+			continue;
+
+		    if ( circle && (drow*drow+dcol*dcol)> maxradius*maxradius)
+			continue;
+		   
+
+		    
+		    const Geometry::GridSurface* surface =
+		    			getSurface(currentposid.patchID());
+
+		    if ( !surface->isDefined(neighborrowcol))
+			continue;
+
+		    bool found = false;
+		    const EarthModel::PosID
+			    neighborposid(currentposid.emObject(),
+			    currentposid.patchID(),
+			    Geometry::GridSurface::getPosID(neighborrowcol) );
+
+		    for ( int idy=0; idy<neigbors.size(); idy++ )
 		    {
-			found = true;
-			break;
+			const TypeSet<EarthModel::PosID>& posids=*neigbors[idy];
+			if ( posids.indexOf(neighborposid)!=-1 )
+			{
+			    found = true;
+			    break;
+			}
 		    }
+
+		    if ( found )
+			continue;
+
+		    TypeSet<EarthModel::PosID>& posids =
+			*new TypeSet<EarthModel::PosID>( 1, neighborposid );
+		    getLinkedPos( neighborposid, posids );
+		    neigbors += &posids;
+
 		}
-
-		if ( !found ) neigbors += neighborposid;
-
 	    }
 	}
     }
 
-    for ( int idx=0; idx<neigbors.size(); idx++ )
+
+    if ( res )
     {
-	if ( getPos(neigbors[idx]).isDefined() )
+	for ( int idx=0; idx<neigbors.size(); idx++ )
 	{
-	    neigbors.remove(idx);
-	    idx--;
+	    (*res) += (*neigbors[idx])[0];
 	}
     }
 
+    const int size = neigbors.size();
+    deepErase( neigbors );
 
-    if ( res ) *res = neigbors;
-    return neigbors.size();
+    return size;
 }
 
 
