@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.30 2001-12-06 14:13:45 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.31 2001-12-20 10:39:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -293,6 +293,7 @@ void uiIOObjSel::processInput()
 bool uiIOObjSel::existingTyped() const
 {
     const char* inp = getInput();
+    IOM().to( ctio.ctxt.stdSelKey() );
     return (*IOM().dirPtr())[inp];
 }
 
