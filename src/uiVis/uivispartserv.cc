@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.163 2003-10-06 15:58:53 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.164 2003-10-07 07:12:51 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -549,12 +549,12 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
 	float val;
 	if ( dim==2 )
 	{
-	    val = tracker->center()[dim];
+	    val = tracker->planeCenter()[dim];
 	    if ( SI().zIsTime() )
 		val *= 1000;
 	}
 	else
-	    val = tracker->center()[dim];
+	    val = tracker->planeCenter()[dim];
 
 	res = mNINT(val);
     }
@@ -935,6 +935,8 @@ void uiVisPartServer::toggleDraggers()
 	    if ( vd ) vd->showBox(isdraggeron);
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
 	    if ( rtd ) rtd->showDragger(isdraggeron);
+	    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,obj)
+	    if ( sid ) sid->showBox(isdraggeron);
 	}
     }
 }
@@ -1541,6 +1543,13 @@ void uiVisPartServer::toogleDirection(int id)
 }
 
 
+const CubeSampling& uiVisPartServer::getInterpreterPlane( int id ) const
+{
+    return interpreterdisplay->getPlane();
+}
+
+
+
 bool uiVisPartServer::isInterpreter(int id) const
 {
     if ( !interpreterdisplay ) return false;
@@ -1582,10 +1591,18 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 }
 
 
-void uiVisPartServer::interactionCB( CallBacker* )
+void uiVisPartServer::interactionCB( CallBacker* cb )
 {
     Threads::MutexLocker lock( eventmutex );
-    eventobjid = getSelObjectId();
+    mDynamicCastGet( visBase::DataObject*, dataobj, cb );
+    if ( dataobj )
+    {
+	eventobjid = dataobj->id();
+    }
+    else
+    {
+	eventobjid = getSelObjectId();
+    }
     sendEvent( evInteraction );
 }
 
