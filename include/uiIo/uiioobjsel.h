@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.4 2001-05-07 15:55:01 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.5 2001-05-07 16:37:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ class uiIOObjSel : public uiIOSelect
 public:
 			uiIOObjSel(uiObject*,CtxtIOObj&,const char* txt=0,
 				      bool withclear=false);
+
+    CtxtIOObj&		ctxtIOObj()		{ return ctio; }
 
 protected:
 
