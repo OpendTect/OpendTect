@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.6 2002-09-12 05:30:25 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.7 2002-11-11 09:20:54 kristofer Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -94,6 +94,8 @@ void Threads::WorkThread::doWork( CallBacker* )
 		controlcond.unlock();
 		manager.imFinished( this );
 	    }
+	    else
+		controlcond.unlock();
 	}
 	else
 	    controlcond.unlock();
