@@ -4,42 +4,37 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.3 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.4 2003-10-16 15:01:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiwellman.h"
+#include "uiwelldlgs.h"
 #include "iodirentry.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "ctxtioobj.h"
-#include "wellimpasc.h"
-#include "welltransl.h"
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
 #include "wellmarker.h"
 #include "wellreader.h"
 #include "wellwriter.h"
-#include "uilistbox.h"
+#include "welltransl.h"
 #include "uiioobjmanip.h"
+#include "uigroup.h"
+#include "uilistbox.h"
 #include "uitextedit.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
+#include "uigeninputdlg.h"
 #include "pixmap.h"
 #include "filegen.h"
-#include "streamconn.h"
-
-#include "uitable.h"
-#include "uicolor.h"
+#include "strmprov.h"
 #include "ptrman.h"
 #include "uimsg.h"
-
-#include "uilistbox.h"
-#include "uifileinput.h"
-#include "uilabel.h"
 
 
 static const int infoheight = 8;
@@ -52,7 +47,6 @@ uiWellMan::uiWellMan( uiParent* p )
 				 "Manage wells",
 				 "").nrstatusflds(1))
     , ctio(*mMkCtxtIOObj(Well))
-    , ioobj(0)
 {
     IOM().to( ctio.ctxt.stdSelKey() );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
@@ -70,9 +64,13 @@ uiWellMan::uiWellMan( uiParent* p )
 
     butgrp = new uiButtonGroup( topgrp, "" );
     butgrp->attach( rightTo, logsfld );
+    const ioPixmap renpm( GetDataFileName("renameobj.png") );
+    uiToolButton* renbut = new uiToolButton( butgrp, "Rename", renpm );
+    renbut->activated.notify( mCB(this,uiWellMan,renameLogPush) );
+    renbut->setToolTip( "Rename selected log" );
     const ioPixmap rempm( GetDataFileName("trashcan.png") );
     rembut = new uiToolButton( butgrp, "Remove", rempm );
-    rembut->activated.notify( mCB(this,uiWellMan,remLogPush) );
+    rembut->activated.notify( mCB(this,uiWellMan,removeLogPush) );
     rembut->setToolTip( "Remove selected log" );
 
     uiPushButton* markerbut = new uiPushButton( this, "Edit markers ..." );
@@ -96,51 +94,158 @@ uiWellMan::uiWellMan( uiParent* p )
 
 uiWellMan::~uiWellMan()
 {
-    delete &ctio;
+    delete &ctio; // NOT ctio.ioobj
 }
 
 
 void uiWellMan::selChg( CallBacker* cb )
 {
     entrylist->setCurrent( listfld->currentItem() );
-    ioobj = entrylist->selected();
+    ctio.ioobj = entrylist->selected();
 
     mkFileInfo();
     manipgrp->selChg( cb );
+    fillLogsFld();
 
     BufferString msg;
-    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ioobj), msg );
+    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ctio.ioobj), msg );
     toStatusBar( msg );
 }
 
 
-void uiWellMan::remLogPush( CallBacker* )
-{
-    if ( !logsfld->size() || !logsfld->nrSelected() ) return;
+#define mGetReader() \
+    if ( !ctio.ioobj ) return; \
+    mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read)) \
+    if ( !conn ) return; \
+    PtrMan<Well::Data> well = new Well::Data; \
+    Well::Reader rdr( conn->fileName(), *well );
 
-    return;
+
+void uiWellMan::fillLogsFld()
+{
+    mGetReader()
+    ObjectSet<BufferString> lognms;
+    rdr.getLogInfo( lognms );
+
+    logsfld->empty();
+    for ( int idx=0; idx<lognms.size(); idx++)
+	logsfld->addItem( lognms[idx]->buf() );
+    logsfld->selAll( false );
 }
 
 
-void uiWellMan::fillLogsFld( const Well::LogSet& logset )
+#define mErrRet(msg) \
+{ uiMSG().error(msg); return; }
+
+
+void uiWellMan::addMarkers( CallBacker* )
 {
-    logsfld->empty();
-    for ( int idx=0; idx<logset.size(); idx++)
-	logsfld->addItem( logset.getLog(idx).name() );
-    logsfld->selAll( false );
+    mGetReader()
+    if ( !rdr.getD2T() )
+	mErrRet( "Cannot add markers without depth to time model" );
+
+    rdr.getMarkers();
+    uiMarkerDlg dlg( this );
+    dlg.setMarkerSet( well->markers() );
+    if ( dlg.go() )
+    {
+	dlg.getMarkerSet( well->markers() );
+	Well::Writer wtr( conn->fileName(), *well );
+	wtr.putMarkers();
+    }
+}
+
+
+void uiWellMan::addLogs( CallBacker* )
+{
+    mGetReader()
+    if ( !rdr.getD2T() )
+	mErrRet( "Cannot add logs without depth to time model" );
+
+    rdr.getLogs();
+    uiLoadLogsDlg dlg( this, *well );
+    if ( dlg.go() )
+    {
+	Well::Writer wtr( conn->fileName(), *well );
+	wtr.putLogs();
+	fillLogsFld();
+    }
+}
+
+
+void uiWellMan::removeLogPush( CallBacker* )
+{
+    if ( !logsfld->size() || !logsfld->nrSelected() ) return;
+
+    if ( !uiMSG().askGoOn("This log will be removed from disk."
+			  "\nDo you wish to continue?") )
+	return;
+
+    mGetReader()
+    rdr.getLogs();
+    Well::Log* log = well->logs().remove( logsfld->currentItem() );
+    if ( strcmp(log->name(),logsfld->getText()) )
+	return;
+    delete log;
+
+    if ( rdr.removeAll(Well::IO::sExtLog) )
+    {
+	Well::Writer wtr( conn->fileName(), *well );
+	wtr.putLogs();
+	fillLogsFld();
+    }
+}
+
+
+void uiWellMan::renameLogPush( CallBacker* )
+{
+    if ( !logsfld->size() || !logsfld->nrSelected() ) mErrRet("No log selected")
+
+    mGetReader()
+    const int lognr = logsfld->currentItem() + 1;
+    BufferString basenm = File_removeExtension( conn->fileName() );
+    BufferString logfnm = Well::IO::mkFileName( basenm, Well::IO::sExtLog, 
+	    					lognr );
+    StreamProvider sp( logfnm );
+    StreamData sdi = sp.makeIStream();
+    if ( !rdr.addLog(*sdi.istrm) ) 
+	mErrRet("Cannot read selected log")
+
+    Well::Log& log = well->logs().getLog( 0 );
+
+    BufferString titl( "Rename '" );
+    titl += log.name(); titl += "'";
+    uiGenInputDlg dlg( this, titl, "New name",
+    			new StringInpSpec(log.name()) );
+    if ( !dlg.go() ) return;
+
+    BufferString newnm = dlg.text();
+    if ( logsfld->isPresent(newnm) )
+    {
+	if ( newnm != ctio.ioobj->name() )
+	uiMSG().error( "Name already in use" );
+	return;
+    }
+
+    log.setName( newnm );
+    Well::Writer wtr( conn->fileName(), *well );
+    StreamData sdo = sp.makeOStream();
+    wtr.putLog( *sdo.ostrm, log );
+    sdo.close();
+    fillLogsFld();
 }
 
 
 void uiWellMan::mkFileInfo()
 {
-    if ( !ioobj )
+    if ( !ctio.ioobj )
     {
 	infofld->setText( "" );
 	return;
     }
 
     BufferString txt;
-    mDynamicCastGet(StreamConn*,conn,ioobj->getConn(Conn::Read))
+    mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read))
     if ( !conn ) return;
 
     BufferString fname( conn->fileName() );
@@ -176,207 +281,3 @@ BufferString uiWellMan::getFileSize( const char* filenm )
     return szstr;
 }
 
-
-void uiWellMan::addMarkers( CallBacker* )
-{
-    if ( !ioobj ) return;
-
-    mDynamicCastGet(StreamConn*,conn,ioobj->getConn(Conn::Read))
-    if ( !conn ) return;
-    PtrMan<Well::Data> well = new Well::Data;
-    Well::Reader rdr( conn->fileName(), *well );
-    if ( !rdr.getMarkers() )
-    {
-//	uiMSG().error( "Cannot read markers" );
-//	return;
-    }
-
-    uiMarkerDlg dlg( this );
-    dlg.setMarkerSet( well->markers() );
-    if ( dlg.go() )
-    {
-	dlg.getMarkerSet( well->markers() );
-	Well::Writer wtr( conn->fileName(), *well );
-	wtr.putMarkers();
-    }
-}
-
-
-void uiWellMan::addLogs( CallBacker* )
-{
-    if ( !ioobj ) return;
-
-    mDynamicCastGet(StreamConn*,conn,ioobj->getConn(Conn::Read))
-    if ( !conn ) return;
-    PtrMan<Well::Data> well = new Well::Data;
-    Well::Reader rdr( conn->fileName(), *well );
-    rdr.getLogs();
-
-    uiLoadLogsDlg dlg( this, *well );
-    if ( dlg.go() )
-    {
-	Well::Writer wtr( conn->fileName(), *well );
-	wtr.putLogs();
-    }
-}
-
-
-
-// ==================================================================
-
-static const char* collbls[] =
-{
-    "Name", "Depth", "Color", 0
-};
-
-static const int maxnrrows = 10;
-static const int initnrrows = 5;
-
-uiMarkerDlg::uiMarkerDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Well Markers","Define marker properties"))
-{
-    table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
-	    				       .rowcangrow(), "Table" );
-    table->setColumnLabels( collbls );
-    table->setColumnReadOnly( 2, true );
-    table->setNrRows( initnrrows );
-    markerAdded(0);
-
-    table->rowInserted.notify( mCB(this,uiMarkerDlg,markerAdded) );
-    table->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
-}
-
-
-void uiMarkerDlg::markerAdded( CallBacker* )
-{
-    const int nrrows = table->nrRows();
-    for ( int idx=0; idx<nrrows; idx++ )
-    {
-	BufferString labl( "Marker " );
-	labl += idx+1;
-	table->setRowLabel( idx, labl );
-    }
-}
-
-
-void uiMarkerDlg::mouseClick( CallBacker* )
-{
-    uiTable::RowCol rc = table->notifiedCell();
-    if ( rc.col != 2 ) return;
-
-    Color newcol = table->getColor( rc );
-    if ( select(newcol,this,"Marker color") )
-	table->setColor( rc, newcol );
-}
-
-
-
-void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
-{
-    const int nrmarkers = markers.size();
-    if ( !nrmarkers ) return;
-
-    int nrrows = nrmarkers + initnrrows < maxnrrows ? nrmarkers + initnrrows 
-						    : nrmarkers;
-    table->setNrRows( nrrows );
-    for ( int idx=0; idx<nrmarkers; idx++ )
-    {
-	const Well::Marker* marker = markers[idx];
-	table->setText( uiTable::RowCol(idx,0), marker->name() );
-	table->setValue( uiTable::RowCol(idx,1), marker->dah );
-	table->setColor( uiTable::RowCol(idx,2), marker->color );
-    }
-
-    markerAdded(0);
-}
-
-
-void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
-{
-    deepErase( markers );
-    const int nrrows = table->nrRows();
-    for ( int idx=0; idx<nrrows; idx++ )
-    {
-	const char* name = table->text( uiTable::RowCol(idx,0) );
-	if ( !name || !*name ) continue;
-
-	Well::Marker* marker = new Well::Marker( name );
-	marker->dah = table->getfValue( uiTable::RowCol(idx,1) );
-	marker->color = table->getColor( uiTable::RowCol(idx,2) );
-	markers += marker;
-    }
-}
-
-
-// ==================================================================
-
-static const char* lasfilefilt = "*.las;;*.LAS;;*.txt;;*";
-static const char* ftlbltxt = "(ft)";
-static const char* mlbltxt = "(m)";
-static const float defundefval = -999.25;
-
-
-uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
-    : uiDialog(p,uiDialog::Setup("Logs","Define log parameters",""))
-    , wd(wd_)
-{
-    lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
-			      uiFileInput::Setup().filter(lasfilefilt)
-			      			  .withexamine() );
-    lasfld->setDefaultSelectionDir( GetDataDir() );
-    lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );
-
-    intvfld = new uiGenInput( this, "Depth interval to load",
-			      FloatInpIntervalSpec(false) );
-    intvfld->attach( alignedBelow, lasfld );
-    unitlbl = new uiLabel( this, mlbltxt );
-    unitlbl->attach( rightOf, intvfld );
-
-    udffld = new uiGenInput( this, "Undefined value in logs",
-                    FloatInpSpec(defundefval));
-    udffld->attach( alignedBelow, intvfld );
-
-    logsfld = new uiLabeledListBox( this, "Select logs", true );
-    logsfld->attach( alignedBelow, udffld );
-}
-
-
-void uiLoadLogsDlg::lasSel( CallBacker* )
-{
-    const char* lasfnm = lasfld->text();
-    if ( !lasfnm || !*lasfnm ) return;
-
-    Well::Data wd_; Well::AscImporter wdai( wd_ );
-    Well::AscImporter::LasFileInfo lfi;
-    const char* res = wdai.getLogInfo( lasfnm, lfi );
-    if ( res ) { uiMSG().error( res ); return; }
-
-    logsfld->box()->empty();
-    logsfld->box()->addItems( lfi.lognms );
-
-    udffld->setValue( lfi.undefval );
-    intvfld->setValue( lfi.zrg );
-}
-
-
-bool uiLoadLogsDlg::acceptOK( CallBacker* )
-{
-    Well::AscImporter wdai( wd );
-    Well::AscImporter::LasFileInfo lfi;
-    lfi.undefval = udffld->getValue();
-    assign( lfi.zrg, intvfld->getFInterval() );
-    for ( int idx=0; idx<logsfld->box()->size(); idx++ )
-    {
-	if ( logsfld->box()->isSelected(idx) )
-	    lfi.lognms += new BufferString( logsfld->box()->textOfItem(idx) );
-    }
-
-    const char* lasfnm = lasfld->text();
-    if ( !lasfnm || !*lasfnm ) 
-    { uiMSG().error("Enter valid filename"); return false; }
-
-    const char* res = wdai.getLogs( lasfnm, lfi, false );
-    if ( res ) { uiMSG().error( res ); return false; }
-
-    return true;
-}
