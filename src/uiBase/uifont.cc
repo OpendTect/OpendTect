@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.6 2001-05-16 14:57:21 arend Exp $
+ RCS:           $Id: uifont.cc,v 1.7 2001-06-07 21:24:09 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -317,7 +317,7 @@ uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
 
 void uiSetFonts::butPushed( CallBacker* obj )
 {
-    uiButton* sender = dynamic_cast<uiButton*>(obj);
+    mDynamicCastGet(uiButton*,sender,obj)
     int idx = buttons.indexOf( sender );
     if ( idx < 0 ) { pErrMsg("idx < 0. Why?"); return; }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.8 2001-05-31 14:09:25 windev Exp $
+ RCS:           $Id: i_layout.cc,v 1.9 2001-06-07 21:24:07 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ uiSize i_LayoutItem::actualSize( bool include_border ) const
 {
     uiSize sz= pos_[setGeom].size();
     if ( include_border ) return sz;
-    const uiScrollView* sv = dynamic_cast<const uiScrollView*>( uiClient() );
+    mDynamicCastGet(uiScrollView*,sv,uiClient())
     if ( !sv ) return sz;
 
     int fw = sv->frameWidth();
@@ -608,10 +608,16 @@ void i_LayoutMngr::addItem( QLayoutItem *qItem )
 {
     if( !qItem ) return;
 
-    QWidgetItem* qwItem = dynamic_cast<QWidgetItem*>( qItem );
+    QWidgetItem* qwItem;
+    try{ qwItem = dynamic_cast<QWidgetItem*>( qItem );}
+    catch(...) { qwItem=0; }
 
     i_QObjWrp* iqlItem = 0;
-    if ( qwItem ) iqlItem = dynamic_cast<i_QObjWrp*> ( qwItem->widget() );
+    if ( qwItem ) 
+    {
+	try{ iqlItem = dynamic_cast<i_QObjWrp*> ( qwItem->widget() ); }
+	catch(...){ iqlItem=0; }
+    }
 
     i_LayoutItem* uiItem;
 

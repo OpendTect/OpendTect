@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.1 2001-02-16 17:02:07 arend Exp $
+ RCS:           $Id: uispinbox.cc,v 1.2 2001-06-07 21:24:14 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ protected:
 
 int i_QSpinBox::mapTextToValue( bool* ok )
 {
-    uiSpinBox* ptClient = dynamic_cast<uiSpinBox*> ( uiClient() );
+    mDynamicCastGet(uiSpinBox*,ptClient,uiClient())
     if( ptClient && ptClient->useMappers() )
     {
         return ptClient->mapTextToValue( ok );
@@ -47,7 +47,7 @@ int i_QSpinBox::mapTextToValue( bool* ok )
 
 QString i_QSpinBox::mapValueToText( int v )
 {
-    uiSpinBox* ptClient = dynamic_cast<uiSpinBox*> ( uiClient() );
+    mDynamicCastGet(uiSpinBox*,ptClient,uiClient())
     if( ptClient && ptClient->useMappers() )
     {
         return QString( ptClient->mapValueToText( v ) );

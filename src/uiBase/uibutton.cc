@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.5 2001-05-16 14:57:16 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.6 2001-06-07 21:24:08 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,8 @@ uiButton::uiButton( uiObject* parnt, const char* nm )
 
 bool uiButton::add2LM( uiParent* parnt ) const
 {
-    return dynamic_cast<uiButtonGroup*>(parnt) ? false : true;
+    mDynamicCastGet(uiButtonGroup*,p,parnt)
+    return p;
 }
 
 

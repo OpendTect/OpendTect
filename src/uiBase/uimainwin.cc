@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.5 2001-05-31 14:09:28 windev Exp $
+ RCS:           $Id: uimainwin.cc,v 1.6 2001-06-07 21:24:12 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,11 +35,13 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm , bool wantStatusBar,
 	, mLoMngr( 0 )
 	, mQtThing(new i_QMainWindow(*this,
 			parnt ? &parnt->clientQWidget() : 0, nm))
-	, mCentralWidget(*new uiGroup("uiGroup client area",this))
+	, mCentralWidget( 0 )
 	, mStatusBar( 0 ) , mMenuBar(0) 
 { 
-    mLoMngr = mCentralWidget.mLayoutMngr(); 
-    mQtThing->setCentralWidget( &mCentralWidget.qWidget() ); 
+    mCentralWidget = new uiGroup("uiGroup client area",this);
+
+    mLoMngr = mCentralWidget->mLayoutMngr(); 
+    mQtThing->setCentralWidget( &mCentralWidget->qWidget() ); 
 
     if( wantStatusBar )
     {
@@ -64,20 +66,20 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm , bool wantStatusBar,
 
 uiMainWin::~uiMainWin( )
 {
-    delete &mCentralWidget;
+    delete mCentralWidget;
 }
 
 void uiMainWin::forceRedraw_( bool deep )
 {
     uiObject::forceRedraw_( deep );
-    mCentralWidget.forceRedraw_( deep );
+    mCentralWidget->forceRedraw_( deep );
 }
 
 
 void uiMainWin::finalise_()
 {
     uiObject::finalise_();
-    mCentralWidget.finalise();
+    mCentralWidget->finalise();
 }
 
 
@@ -92,7 +94,7 @@ void uiMainWin::qThingDel( i_QObjWrp* qth )
 
 const uiParent& uiMainWin::clientWidget_() const
 { 
-    return mCentralWidget; 
+    return *mCentralWidget; 
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uimsg.cc,v 1.2 2001-06-07 21:24:13 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ uiMsg::uiMsg()
 
 void uiMsg::handleMsg( CallBacker* cb )
 {
-    MsgClass* mc = dynamic_cast<MsgClass*>( cb );
+    mDynamicCastGet(MsgClass*,mc,cb)
     if ( !mc ) return;
 
     switch ( mc->type() )

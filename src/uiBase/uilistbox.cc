@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.17 2001-05-30 21:47:14 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.18 2001-06-07 21:24:11 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,8 @@ public:
 
 
 QSize i_QListBox::sizeHint() const
-{  
-    const uiListBox* ptClient = dynamic_cast<const uiListBox*> ( uiClient() );
+{
+    mDynamicCastGet(const uiListBox*,ptClient,uiClient())
     if ( !ptClient ) { pErrMsg("uiClient is not a listbox!"); return QSize(); }
     const uiFont* mFont = ptClient->font();
     if( !mFont ) { pErrMsg("uiClient has no font!"); return QSize(); }
