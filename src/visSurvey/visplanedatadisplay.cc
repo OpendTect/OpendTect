@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.66 2004-04-30 10:46:52 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.67 2004-05-19 12:18:17 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -593,9 +593,11 @@ bool PlaneDataDisplay::isOn() const
 { return trect->isOn(); }
 
 
-float PlaneDataDisplay::getValue( const Coord3& pos ) const
+float PlaneDataDisplay::getValue( const Coord3& pos_ ) const
 {
     if ( !cache ) return mUndefValue;
+    const BinID bid = SI().transform(pos_);
+    const Coord3 pos( bid.inl, bid.crl, pos_.z );
 
     Coord3 origo = trect->getRectangle().origo();
     Coord localpos;
