@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.40 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.41 2003-11-21 08:50:15 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -150,10 +150,10 @@ extern "C" const char* GetSurveyFileName();
 
 #define mErrRet(str) \
     { errmsg = str; return false; }
-#define mErrRetNotGDIDir(fname) \
+#define mErrRetNotODDir(fname) \
     { \
         errmsg = "$DTECT_DATA="; errmsg += GetBaseDataDir(); \
-        errmsg += "\nThis is not a dGB data storage directory."; \
+        errmsg += "\nThis is not an OpendTect data storage directory."; \
         return false; \
     }
 
@@ -168,11 +168,11 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     if ( !GetBaseDataDir() )
 	mErrRet("Please set the environment variable DTECT_DATA.")
     else if ( !File_exists(GetBaseDataDir()) )
-	mErrRetNotGDIDir(fname)
+	mErrRetNotODDir(fname)
 
     fname = GetBaseDataDir();
     fname = File_getFullPath( fname, ".omf" );
-    if ( File_isEmpty(fname) ) mErrRetNotGDIDir(fname)
+    if ( File_isEmpty(fname) ) mErrRetNotODDir(fname)
 
     fname = GetDataDir();
     if ( !File_exists(fname) )
@@ -186,7 +186,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	    fname += "Please remove this file";
 	    mErrRet(fname)
 	}
-	else if ( IOM().bad() ) mErrRetNotGDIDir(fname)
+	else if ( IOM().bad() ) mErrRetNotODDir(fname)
     }
     else
     {
@@ -215,7 +215,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	    fname += "Please remove this file";
 	    mErrRet(fname)
 	}
-	else if ( IOM().bad() ) mErrRetNotGDIDir(fname)
+	else if ( IOM().bad() ) mErrRetNotODDir(fname)
     }
 
     return true;
