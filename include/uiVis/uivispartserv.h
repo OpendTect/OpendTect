@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.11 2002-04-12 19:04:55 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.12 2002-04-16 06:48:27 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 #include "ranges.h"
+#include "thread.h"
+
 class UserIDSet;
 class PickSet;
 class PickSetGroup;
@@ -33,73 +35,88 @@ class SeisDisplay;
 
 namespace visBase{ class Material; };
 
+namespace Threads { class Mutex; };
+
 
 /*! \brief Service provider for application level - Visutes */
 
 class uiVisPartServer : public uiApplPartServer
 {
 public:
-			uiVisPartServer(uiApplService&,const CallBack);
+			uiVisPartServer(uiApplService&);
 			~uiVisPartServer();
     const char*		name() const		{ return "Visualisation"; }
 
+    			//Events and their functions
     static const int	evShowPosition;
-			//!< Display position of selected plane.
-    static const int	evSelectionChange;
+    static const int	evSelection;
     static const int	evDeSelection;
-			//!< 
     static const int	evPicksChanged;
-			//!<
+    static const int	evGetNewData;
+    int			getEventObjId() const { return eventobjid; }
+    			/* Tells which object the event is about */
+
+    			//General stuff
+    bool		deleteAllObjects();
+    void		setSelObjectId(int);
+    			//!< set to -1 if you want to deselect
+    int			getSelObjectId() const;
 
     enum ElementType    { Inline, Crossline, Timeslice };
     enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay };
-
-    int			addScene();
-    visSurvey::Scene*	getSelScene();
+    ObjectType		getObjectType( int ) const;
+    void		setObjectName(int,const char*);
+    const char*		getObjectName(int);
 
     void		turnOn(int,bool);
     bool		isOn(int);
+    void		setViewMode(bool yn);
 
-    ObjectType		getObjectType( int id ) const;
-    void		setObjectName(const char*,int);
-    const char*		getObjectName(int);
-
-    bool		deleteAllObjects();
-    int			addDataDisplay(uiVisPartServer::ElementType);
-    void		removeDataDisplay();
-
-    int                 addPickSetDisplay();
-    void                removePickSetDisplay();
-    bool		setPicks(const PickSet&);
-    void		getPickSets(UserIDSet&);
-    void		getPickSetData(const char*,PickSet&);
-    int 		nrPicks(int);
-
-    void		setSelObjectId(int id);
-    int			getSelObjectId() const;
-    void		deSelectObject(int);
+    			// Scene Stuff
+    int			addScene();
+    visSurvey::Scene*	getScene(int); //Should be removed ->crap!!
     void		setSelSceneId(int id)	{ selsceneid = id; }
     int			getSelSceneId()		{ return selsceneid; }
 
-    void		setColorSeq(const ColorTable&);
-    const ColorTable&   getColorSeq();
+			//DataDisplay stuff
+    int			addDataDisplay(uiVisPartServer::ElementType);
+    void		removeDataDisplay(int);
+    void		resetManipulation( int );
+    float		getPlanePos(int) const;
+    void		setAttribSelSpec(int,AttribSelSpec&);
+    CubeSampling&	getCubeSampling(int,bool manippos);
+    AttribSelSpec&	getAttribSelSpec(int);
+    void		putNewData(int,AttribSlice*);
 
-    void		setColor(const Color&);
-    Color		getColor() const;
-    visBase::Material*	getMaterial();
+    			//PickSets stuff
+    int                 addPickSetDisplay();
+    void                removePickSetDisplay(int);
+    bool		setPicks(int, const PickSet&);
+    void		getAllPickSets(UserIDSet&);
+    void		getPickSetData(const char*,PickSet&);
+    int 		nrPicks(int);
 
-    void		setClipRate(float);
-    float		getClipRate();
-    void		setAutoscale(bool);
-    bool		getAutoscale();
-    void		setDataRange(const Interval<float>&);
-    Interval<float>	getDataRange();
+			//ColorSeqs
+    int			setColorSeq(int, ColorTable&);
+    const ColorTable&   getColorSeq(int);
 
-    CubeSampling&	getCubeSampling(bool);
-    AttribSelSpec&	getAttribSelSpec();
-    void		setAttribSelSpec(AttribSelSpec&);
-    void		putNewData(AttribSlice*);
-    float		getPlanePos();
+    			//Property stuff
+    bool		canSetColorSeq(int) const;
+    void		linkColorSeq(int fromid, int toid);
+
+    bool		canSetColor(int) const;
+    Color		getColor(int) const;
+    void		setColor(int,const Color&);
+    void		linkColor(int fromid, int toid );
+    visBase::Material*	getMaterial(int id);	//Should be removed ASAP
+
+    bool		canSetScale(int);
+    void		setClipRate(int,float);
+    float		getClipRate(int);
+    void		setAutoscale(int,bool);
+    bool		getAutoscale(int);
+    void		setDataRange(int,const Interval<float>&);
+    Interval<float>	getDataRange(int);
 
 protected:
 
@@ -107,10 +124,14 @@ protected:
     void		deselectObjCB(CallBacker*);
     void		picksChangedCB(CallBacker*);
     void		showPosCB(CallBacker*);
+    void		getDataCB(CallBacker*);
 
     const CallBack	appcb;
     int			selsceneid;
-    float		planepos;
+    bool		viewmode;
+
+    Threads::Mutex&	eventmutex;
+    int			eventobjid;
 
     ObjectSet<visSurvey::PickSetDisplay>	picks;
     ObjectSet<visSurvey::SeisDisplay>		seisdisps;

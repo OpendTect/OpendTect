@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.7 2002-04-10 07:40:58 kristofer Exp $
+ RCS:		$Id: visselman.h,v 1.8 2002-04-16 06:47:50 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -56,8 +56,8 @@ public:
 
     const TypeSet<int>&		selected() const { return selectedids; }
 
-    Notifier<SelectionManager>	selnotifer;
-    Notifier<SelectionManager>	deselnotifer;
+    CNotifier<SelectionManager,int>	selnotifer;
+    CNotifier<SelectionManager,int>	deselnotifer;
 
 protected:
     void			select( int id, bool keep, bool lock );
