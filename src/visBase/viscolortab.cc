@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.19 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.20 2004-08-25 11:36:23 nanne Exp $";
 
 #include "viscolortab.h"
 
@@ -42,6 +42,8 @@ visBase::VisColorTab::~VisColorTab()
 	colseq->change.remove( mCB( this, VisColorTab, colorseqchanged ));
 	colseq->unRef();
     }
+
+    delete &scale;
 }
 
 
