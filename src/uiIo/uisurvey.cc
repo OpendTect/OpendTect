@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.45 2003-10-30 12:15:31 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.46 2003-11-01 16:51:47 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -526,8 +526,19 @@ void uiSurvey::updateViewsGlobal()
 {
     BufferString capt( "Open" );
     capt += GetProjectVersionName();
-    BufferString fnm( GetSoftwareDir() );
-    fnm = File_getFullPath( fnm, ".rel.od" );
+    BufferString fnm = File_getFullPath( GetSoftwareDir(), ".rel.od" );
+#ifdef __win__
+    fnm += ".win";
+#else
+    const char* ptr = getenv( "binsubdir" );
+    if ( !ptr ) ptr = getenv( "HDIR" );
+    if ( ptr ) { fnm += "."; fnm += ptr; }
+#endif
+    if ( !File_exists(fnm) )
+	fnm = File_getFullPath( GetSoftwareDir(), ".rel.od" );
+    if ( !File_exists(fnm) )
+	fnm = File_getFullPath( GetSoftwareDir(), ".rel" );
+
     if ( File_exists(fnm) )
     {
 	char* ptr = strrchr( capt.buf(), 'V' );
