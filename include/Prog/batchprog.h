@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.2 2002-04-12 21:37:34 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.3 2002-04-15 15:29:55 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -59,6 +59,7 @@ protected:
 
     bool		initOutput();
     bool		writePid(int);
+    void		progKilled(CallBacker*);
 
 };
 
@@ -66,7 +67,8 @@ protected:
 inline const BatchProgram& BP() { return *BatchProgram::inst_; }
 
 #ifdef __prog__
-    int main( int argc, char** argv ) { return Execute_batch( &argc, argv ); }
+    int main( int argc, char** argv )
+	{ return Execute_batch(&argc,argv); }
 #endif
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: sighndl.h,v 1.2 2002-01-29 11:13:20 bert Exp $
+ RCS:           $Id: sighndl.h,v 1.3 2002-04-15 15:29:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     static void			startNotify(EvType,const CallBack&);
     static void			stopNotify(EvType,const CallBack&);
     static void			stopProcess(int,bool friendly=true);
+    static void			stopRemote(const char*,int,bool friendly=true);
 
 protected:
 
