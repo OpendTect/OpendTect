@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.15 2002-07-24 17:08:12 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.16 2002-07-25 12:56:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,9 @@ protected:
     bool		readTrailer();
     void		getText(int,BufferString&);
     void		toOffs(streampos);
-    bool		getNextBinID(BinID&,bool);
+    bool		getNextBinID(BinID&,int&,int&);
+    int			getPosNr(const BinID&,int&,int&) const;
+    bool		goTo(int posnr,const BinID&,int,int);
 
 private:
 
@@ -86,8 +88,8 @@ private:
     int			bytespertrace;
     BinID		firstbinid;
     BinID		lastbinid;
-    int			curinlinfnr;
-    int			cursegnr;
+    int			curinlinfnr_;
+    int			cursegnr_;
     int			posidx;
     int			auxnrbytes;
     bool		needaux;
@@ -102,6 +104,10 @@ private:
 
     streampos		lastposfo;
     streampos		datastartfo;
+
+    friend class	CBVSReadMgr;
+    void		setCurBinID( const BinID& b )
+			{ curbinid_ = b; }
 
 };
 

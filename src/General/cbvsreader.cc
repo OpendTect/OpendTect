@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.35 2002-07-24 17:08:12 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.36 2002-07-25 12:56:24 bert Exp $";
 
 /*!
 
@@ -313,9 +313,9 @@ bool CBVSReader::readTrailer()
 	info_.geom.inldata += iinf;
     }
 
-    curinlinfnr = cursegnr = 0;
-    curbinid_.inl = info_.geom.inldata[curinlinfnr]->inl;
-    curbinid_.crl = info_.geom.inldata[curinlinfnr]->segments[cursegnr].start;
+    curinlinfnr_ = cursegnr_ = 0;
+    curbinid_.inl = info_.geom.inldata[curinlinfnr_]->inl;
+    curbinid_.crl = info_.geom.inldata[curinlinfnr_]->segments[cursegnr_].start;
     return strm_.good();
 }
 
@@ -327,7 +327,7 @@ bool CBVSReader::toStart()
     curbinid_ = firstbinid;
     if ( !info_.geom.fullyrectandreg )
     {
-	curinlinfnr = cursegnr = 0;
+	curinlinfnr_ = cursegnr_ = 0;
 	curbinid_.inl = info_.geom.inldata[0]->inl;
 	curbinid_.crl = info_.geom.inldata[0]->segments[0].start;
     }
@@ -347,31 +347,57 @@ void CBVSReader::toOffs( streampos sp )
 
 bool CBVSReader::goTo( const BinID& bid )
 {
-    if ( strmclosed_ ) return false;
+    int ci = curinlinfnr_, cc = cursegnr_;
+    int posnr = getPosNr( bid, ci, cc );
+    if ( posnr < 0 ) return false;
 
-    int nrposns = 0;
+    return goTo( posnr, bid, ci, cc );
+}
+
+
+bool CBVSReader::goTo( int posnr, const BinID& bid, int ci, int cs )
+{
+    // Be careful: offsets can be larger than what fits in an int!
+    streampos sp = posnr * info_.nrtrcsperposn;
+    sp *= auxnrbytes + bytespertrace;
+
+    toOffs( datastartfo + sp );
+    hinfofetched = false;
+    curbinid_ = bid;
+    curinlinfnr_ = ci; cursegnr_ = cs;
+    return true;
+}
+
+
+int CBVSReader::getPosNr( const BinID& bid,
+			  int& curinlinfnr, int& cursegnr ) const
+{
+    if ( strmclosed_ ) return -1;
+
+    int posnr = 0;
+    BinID curbinid;
     if ( info_.geom.fullyrectandreg )
     {
 	if ( !bidrg.includes(bid) )
-	    return false;
+	    return -1;
 	
 	if ( info_.geom.step.inl == 1 )
-	    curbinid_.inl = bid.inl;
+	    curbinid.inl = bid.inl;
 	else
 	{
 	    StepInterval<int> inls( firstbinid.inl, lastbinid.inl,
 				    info_.geom.step.inl );
-	    curbinid_.inl = inls.atIndex( inls.nearestIndex( bid.inl ) );
+	    curbinid.inl = inls.atIndex( inls.nearestIndex( bid.inl ) );
 	}
 	if ( info_.geom.step.crl == 1 )
-	    curbinid_.crl = bid.crl;
+	    curbinid.crl = bid.crl;
 	else
 	{
 	    StepInterval<int> crls( firstbinid.crl, lastbinid.crl,
 				    info_.geom.step.crl );
-	    curbinid_.crl = crls.atIndex( crls.nearestIndex( bid.crl ) );
+	    curbinid.crl = crls.atIndex( crls.nearestIndex( bid.crl ) );
 	}
-	nrposns =
+	posnr =
 	    ((bid.inl-firstbinid.inl) / info_.geom.step.inl) * nrxlines_
 	  + ((bid.crl-firstbinid.crl) / info_.geom.step.crl);
     }
@@ -393,7 +419,7 @@ bool CBVSReader::goTo( const BinID& bid )
 		{
 		    curseg = &curiinf->segments[iseg];
 		    if ( curiinf->inl != bid.inl || !curseg->includes(bid.crl) )
-			nrposns += curseg->nrSteps() + 1;
+			posnr += curseg->nrSteps() + 1;
 		    else
 		    {
 			curinlinfnr = iinl; cursegnr = iseg;
@@ -404,19 +430,16 @@ bool CBVSReader::goTo( const BinID& bid )
 
 		if ( foundseg ) break;
 	    }
-	    if ( !foundseg ) return false;
+	    if ( !foundseg ) return -1;
 	}
 
 	int segposn = curseg->nearestIndex( bid.crl );
-	nrposns += segposn;
-	curbinid_.inl = curiinf->inl;
-	curbinid_.crl = curseg->atIndex( segposn );
+	posnr += segposn;
+	curbinid.inl = curiinf->inl;
+	curbinid.crl = curseg->atIndex( segposn );
     }
 
-    toOffs( datastartfo + (streampos)(nrposns * info_.nrtrcsperposn
-	      * (auxnrbytes + bytespertrace)) );
-    hinfofetched = false;
-    return true;
+    return posnr;
 }
 
 
@@ -427,7 +450,7 @@ bool CBVSReader::nextPosIdx()
 	posidx = 0;
 
     if ( !posidx )
-	return getNextBinID( curbinid_, true );
+	return getNextBinID( curbinid_, curinlinfnr_, cursegnr_ );
 
     return true;
 }
@@ -459,13 +482,13 @@ bool CBVSReader::skip( bool tonextpos )
 
 BinID CBVSReader::nextBinID() const
 {
-    BinID bid;
-    const_cast<CBVSReader*>(this)->getNextBinID( bid, false );
+    BinID bid; int ci = curinlinfnr_; int cc = cursegnr_;
+    const_cast<CBVSReader*>(this)->getNextBinID( bid, ci, cc );
     return bid;
 }
 
 
-bool CBVSReader::getNextBinID( BinID& bid, bool set_vars )
+bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
 {
     if ( curbinid_ == lastbinid )
 	{ bid = BinID(0,0); return false; }
@@ -500,25 +523,21 @@ bool CBVSReader::getNextBinID( BinID& bid, bool set_vars )
 		bid.crl = curseg->stop;
 	    else
 	    {
-		int newsegnr = cursegnr+1;
-		if ( newsegnr < inlinf->segments.size() )
-		    bid.crl = inlinf->segments[newsegnr].start;
+		cursegnr++;
+		if ( cursegnr < inlinf->segments.size() )
+		    bid.crl = inlinf->segments[cursegnr].start;
 		else
 		{
-		    newsegnr = 0;
-		    int newinlinfnr = curinlinfnr + 1;
-		    if ( newinlinfnr >= info_.geom.inldata.size() )
+		    cursegnr = 0;
+		    curinlinfnr++;
+		    if ( curinlinfnr >= info_.geom.inldata.size() )
 			// Huh?
 			{ bid = BinID(0,0); return false; }
-		    if ( set_vars )
-			curinlinfnr = newinlinfnr;
-		    inlinf = info_.geom.inldata[newinlinfnr];
-		    curseg = &inlinf->segments[newsegnr];
+		    inlinf = info_.geom.inldata[curinlinfnr];
+		    curseg = &inlinf->segments[cursegnr];
 		    bid.inl = inlinf->inl;
 		    bid.crl = curseg->start;
 		}
-		if ( set_vars )
-		    cursegnr = newsegnr;
 	    }
 	}
     }
