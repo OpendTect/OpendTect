@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.5 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.6 2004-09-09 12:44:34 nanne Exp $";
 
 #include "vistexturecoords.h"
 
@@ -37,7 +37,7 @@ visBase::TextureCoords::~TextureCoords()
 }
 
 
-void visBase::TextureCoords::setCoord( int idx,  const Coord3& pos )
+void visBase::TextureCoords::setCoord( int idx, const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex );
 
@@ -48,11 +48,12 @@ void visBase::TextureCoords::setCoord( int idx,  const Coord3& pos )
 }
 
 
-void visBase::TextureCoords::setCoord( int idx,  const Coord& pos )
+void visBase::TextureCoords::setCoord( int idx, const Coord& pos )
 {
     Threads::MutexLocker lock( mutex );
-    if ( idx>=coords->point.getNum() )
-	return;
+
+    for ( int idy=coords->point.getNum(); idy<idx; idy++ )
+	unusedcoords += idy;
 
     coords->point.set1Value( idx, SbVec3f( pos.x, pos.y, 0 ));
 }
@@ -82,13 +83,9 @@ void visBase::TextureCoords::removeCoord(int idx)
 {
     Threads::MutexLocker lock( mutex );
     if ( idx==coords->point.getNum()-1 )
-    {
 	coords->point.deleteValues( idx );
-    }
     else
-    {
 	unusedcoords += idx;
-    }
 }
 
 
