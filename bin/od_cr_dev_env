@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.7 2003-12-09 15:47:32 arend Exp $
+# $Id: od_cr_dev_env,v 1.8 2003-12-10 09:53:53 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -10,26 +10,18 @@
 
 
 if [ "$#" -lt 2 ]; then
-	echo "Usage : $0 OpendtTect_directory existing_target_directory [MinGW home]"
+	echo "Usage : $0 OpendtTect_directory existing_target_directory"
 	exit 1
 fi
 
 if [ ${MINGWHOME:-'No'} == "No" ]; then
-    export MINGWHOME=""
+    export MINGWHOME="/cygdrive/c/MinGW"
 fi
 
 if [ "$HDIR" = "win" ]; then
     inpdir=`cygpath -u "$1"` 
     outdir=`cygpath -u "$2"`
     soext=dll
-
-    if [ "$#" -eq 3 ]; then
-	export MINGWHOME=`cygpath -u "$3"`
-    fi
-
-    if [ ${MINGWHOME:-'No'} == "No" ]; then
-	export MINGWHOME="/cygdrive/c/MinGW"
-    fi
 else
     inpdir=$1
     outdir=$2
