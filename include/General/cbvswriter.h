@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.8 2001-05-31 13:23:52 windev Exp $
+ RCS:		$Id: cbvswriter.h,v 1.9 2001-07-21 14:39:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include <iostream>
 
 template <class T> class DataInterpreter;
+class DataBuffer;
 
 
 /*!\brief Writer for CBVS format
@@ -37,7 +38,8 @@ class CBVSWriter : public CBVSIO
 public:
 
 			CBVSWriter(ostream*,const CBVSInfo&,
-				   const CBVSInfo::ExplicitData* =0);
+				   const CBVSInfo::ExplicitData* =0,
+				   bool forceintegrity=false);
 			//!< If info.explinfo has a true, the ExplicitData
 			//!< is mandatory. The relevant field(s) should then be
 			//!< filled before the first put() of any position
@@ -54,7 +56,7 @@ public:
 			//!< Expects a buffer for each component
 			//!< returns -1 = error, 0 = OK,
 			//!< 1=not written (threshold reached)
-    void		close();
+    void		close()			{ doClose(true); }
 			//!< has no effect (but doesn't hurt) if put() returns 1
     const CBVSInfo::SurvGeom& survGeom() const	{ return survgeom; }
     const CBVSInfo::ExplicitInfo& explInfo()	{ return explinfo; }
@@ -63,11 +65,15 @@ protected:
 
     ostream&		strm_;
     unsigned long	thrbytes_;
+    ObjectSet<DataBuffer>* dbufs;
+    int			bytesperwrite;
+    int			explicitbytes;
 
     void		writeHdr(const CBVSInfo&);
     void		putExplicits(unsigned char*) const;
     void		writeComps(const CBVSInfo&);
     void		writeGeom();
+    void		doClose(bool);
 
     void		getRealGeometry();
     bool		writeTrailer();
@@ -76,6 +82,7 @@ protected:
 private:
 
     streampos		geomfo; //!< file offset of geometry data
+    streampos		newblockfo; //!< file offset for next block write
     bool		finishing_inline;
     int			trcswritten;
     int			previnl;
