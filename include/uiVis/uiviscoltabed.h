@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.1 2003-01-27 13:18:41 kristofer Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.2 2003-05-22 15:02:36 nanne Exp $
 ________________________________________________________________________
 
 
@@ -26,17 +26,18 @@ class ColorTableEditor;
 class uiVisColTabEd : public uiGroup
 {
 public:
-    				uiVisColTabEd( uiParent* );
+    				uiVisColTabEd(uiParent*);
 				~uiVisColTabEd();
 
-    void			setColTab( int coltabid );
-    void			setPrefHeight( int );
+    void			setColTab(int coltabid);
+    void			setHistogram(const TypeSet<float>&);
+    void			setPrefHeight(int);
 
 protected:
 
-    void			colTabEdChangedCB( CallBacker* );
-    void			colTabChangedCB( CallBacker* );
-    void			delColTabCB( CallBacker* );
+    void			colTabEdChangedCB(CallBacker*);
+    void			colTabChangedCB(CallBacker*);
+    void			delColTabCB(CallBacker*);
     void			updateEditor();
     void			enableCallBacks();
     void			disableCallBacks();

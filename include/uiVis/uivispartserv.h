@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.84 2003-04-23 15:25:10 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.85 2003-05-22 15:02:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,41 +52,41 @@ public:
     const char*			getObjectName(int) const;
 
     int				addScene();
-    void			removeScene(int id);
+    void			removeScene(int);
 
-    void			shareObject( int sceneid, int id );
+    void			shareObject(int sceneid,int id);
 
     int				addInlCrlTsl(int scene,int type);
     int				addRandomLine(int scene);
     int				addVolView(int scene);
-    int				addSurface(int scene, const MultiID& );
-    void			getSurfaceInfo( ObjectSet<SurfaceInfo>& );
-    int				addWell(int scene, const MultiID& emwellid );
+    int				addSurface(int scene,const MultiID&);
+    void			getSurfaceInfo(ObjectSet<SurfaceInfo>&);
+    int				addWell(int scene,const MultiID&);
 
     int				addSurfTrackerCube( int scene );
     				/*!< Get position with getCubeSampling */
     int				getSurfTrackerCubeId();
     int				addSurfEditor(int scid, Geometry::GridSurface&);
 
-    void			removeObject( int id, int sceneid );
+    void			removeObject(int id,int sceneid);
 
-    int				addPickSet(int scene, const PickSet& pickset );
+    int				addPickSet(int scene,const PickSet&);
     void			getAllPickSets(UserIDSet&);
     void			setPickSetData(int,const PickSet&);
     void			getPickSetData(int,PickSet&) const;
 
-    MultiID			getMultiID( int id ) const;
+    MultiID			getMultiID(int) const;
 	
     int				getSelObjectId() const;
     void			setSelObjectId(int);
 
-    void			makeSubMenu( uiPopupMenu&, int scene, int id);
+    void			makeSubMenu(uiPopupMenu&,int scene,int id);
     				/*!< Gives menu ids from 1024 and above */
-    bool			handleSubMenuSel( int mnu, int scene, int id);
+    bool			handleSubMenuSel(int mnu,int scene,int id);
 
     				//Events and their functions
     static const int		evUpdateTree;
-    void			getChildIds( int id, TypeSet<int>& ) const;
+    void			getChildIds(int id,TypeSet<int>&) const;
 				/*!< Gets a scenes' children or a volumes' parts
 				     If id==-1, it will give the ids of the
 				     scenes */
@@ -110,37 +110,30 @@ public:
     static const int		evDeSelection;
     				/*<! Get the id with getEventObjId() */
 
-    static const int		evGetNewCubeData;
+    static const int		evGetNewData;
     				/*<! Get the id with getEventObjId() */
     				/*!< Get selSpec with getSelSpec */
-    const CubeSampling*		getCubeSampling( int id ) const;
+    const CubeSampling*		getCubeSampling(int) const;
     				/*!< Should only be called as a direct 
 				     reply to evGetNewCubeData */
-    const AttribSliceSet*	getCachedData( int id ) const;
-    bool			setCubeData( int id, AttribSliceSet* );
+    const AttribSliceSet*	getCachedData(int) const;
+    bool			setCubeData(int,AttribSliceSet*);
     				/*!< data becomes mine */
     void			setSliceIdx(int,int);
 
-    static const int		evGetNewRandomPosData;
-    				/*!< Get selSpec with getSelSpec */
-    				/*<! Get the id with getEventObjId() */
-    void			getRandomPosDataPos( int id,
-				    ObjectSet<TypeSet<BinIDZValue> >& ) const;
+    void			getRandomPosDataPos(int,
+				    ObjectSet<TypeSet<BinIDZValue> >&) const;
     				/*!< Content of objectset becomes callers */
-    void			setRandomPosData( int id, const ObjectSet
+    void			setRandomPosData(int,const ObjectSet
 				   <const TypeSet<const BinIDZValue> >&);
     				/*!< The data should have exactly the same
 				     structure as the positions given in
 				     getRandomPosDataPos */
 
-    static const int		evGetRandomTracePosData;
-    				/*<! Get the id with getEventObjId() */
-    				/*!< Get selSpec with getSelSpec */
     void			getRandomTrackPositions(int id,
 	    						TypeSet<BinID>&) const;
     const Interval<float>	getRandomTraceZRange( int id ) const;
-    void			setRandomTrackData( int id,
-	    						ObjectSet<SeisTrc>& );
+    void			setRandomTrackData(int id,ObjectSet<SeisTrc>&);
     				/*!< Traces becomes mine */
 
     static const int		evMouseMove;
@@ -163,11 +156,12 @@ public:
     				// ColorTable stuff
     int				getColTabId(int) const;
     void			setClipRate(int,float);
+    const TypeSet<float>*	getHistogram(int) const;
 
 				//General stuff
     int				getEventObjId() const;
-    const AttribSelSpec*	getSelSpec( int id ) const;
-    void			setSelSpec( int id, const AttribSelSpec& );
+    const AttribSelSpec*	getSelSpec(int) const;
+    void			setSelSpec(int,const AttribSelSpec&);
     bool			deleteAllObjects();
     void			setZScale();
     bool			setWorkingArea();
@@ -175,13 +169,13 @@ public:
     void			turnOn(int,bool);
     bool			isOn(int) const;
 
-    bool			usePar( const IOPar& );
-    void			fillPar( IOPar& ) const;
+    bool			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
 
 protected:
 
-    visSurvey::Scene*		getScene( int id );
-    const visSurvey::Scene*	getScene( int id ) const;
+    visSurvey::Scene*		getScene(int);
+    const visSurvey::Scene*	getScene(int) const;
 
     bool			hasAttrib( int id ) const;
     bool			selectAttrib( int id );

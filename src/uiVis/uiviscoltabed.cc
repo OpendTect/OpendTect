@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.2 2003-02-17 14:16:46 nanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.3 2003-05-22 15:02:31 nanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -67,6 +67,12 @@ void uiVisColTabEd::setColTab( int id )
 	enableCallBacks();
 	updateEditor();
     }
+}
+
+
+void uiVisColTabEd::setHistogram( const TypeSet<float>& hist )
+{
+    coltabed->setHistogram( hist );
 }
 
 

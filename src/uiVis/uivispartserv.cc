@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.147 2003-05-02 16:16:39 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.148 2003-05-22 15:02:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,12 +56,10 @@ ________________________________________________________________________
 const int uiVisPartServer::evUpdateTree = 0;
 const int uiVisPartServer::evSelection = 1;
 const int uiVisPartServer::evDeSelection = 2;
-const int uiVisPartServer::evGetNewCubeData = 3;
-const int uiVisPartServer::evGetNewRandomPosData = 4;
-const int uiVisPartServer::evMouseMove = 5;
-const int uiVisPartServer::evGetRandomTracePosData = 6;
-const int uiVisPartServer::evInteraction = 7;
-const int uiVisPartServer::evSelectAttrib = 8;
+const int uiVisPartServer::evGetNewData = 3;
+const int uiVisPartServer::evMouseMove = 4;
+const int uiVisPartServer::evInteraction = 5;
+const int uiVisPartServer::evSelectAttrib = 6;
 
 const char* uiVisPartServer::appvelstr = "AppVel";
 const char* uiVisPartServer::workareastr = "Work Area";
@@ -1129,6 +1127,23 @@ void uiVisPartServer::setClipRate( int id, float cr )
 }
 
 
+const TypeSet<float>* uiVisPartServer::getHistogram( int id ) const
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
+    if ( pdd ) return &pdd->getHistogram();
+
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd ) return &vd->getHistogram();
+
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj)
+    if ( rtd ) return &rtd->getHistogram();
+
+    return 0;
+}
+
+
 int uiVisPartServer::getEventObjId() const { return eventobjid; }
 
 
@@ -1462,25 +1477,11 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
     if ( !res ) return res;
 
     res = false;
-    if ( vd || pdd )
+    if ( vd || pdd || rtd || sd )
     {
 	Threads::MutexLocker lock( eventmutex );
 	eventobjid = id;
-	res = sendEvent( evGetNewCubeData );
-    }
-
-    if ( rtd )
-    {
-	Threads::MutexLocker lock( eventmutex );
-	eventobjid = id;
-	res = sendEvent( evGetRandomTracePosData );
-    }
-
-    if ( sd )
-    {
-	Threads::MutexLocker lock( eventmutex );
-	eventobjid = id;
-	res = sendEvent( evGetNewRandomPosData );
+	res = sendEvent( evGetNewData );
     }
 
     if ( res ) acceptManipulation( id );
