@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.5 2004-09-20 11:57:06 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.6 2004-09-21 15:59:22 kristofer Exp $";
 
 
 
@@ -92,11 +92,12 @@ bool SurfaceCutLine::shouldSurfaceTrack(int idx, const RowCol& dir) const
 	return true;
 
     //Dont track if we are tracking in the direction of the existing line
-    const RowCol backdir =
-	((idx ? (*this)[idx-1] : (*this)[1])-(*this)[idx]).getDirection();
+    const RowCol backdir = ((idx
+		? (*this)[idx-1]-(*this)[idx]
+		: (*this)[0]-(*this)[1])).getDirection();
     const float angle = backdir.angleTo(dir);
     static const float sixtydegrees = M_PI/3;
-    return angle>sixtydegrees;
+    return angle<sixtydegrees;
 }
     
 

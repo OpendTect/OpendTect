@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.16 2004-09-21 15:57:39 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.17 2004-09-21 15:58:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictask.h"
 #include "rcol.h"
 
 

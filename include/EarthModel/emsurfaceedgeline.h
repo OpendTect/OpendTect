@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.10 2004-09-20 11:57:28 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.11 2004-09-21 16:01:33 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ public:
     void		remove(int,int);
     void		removeAll();
     void		insert(int, const RowCol&);
+    void		insert(int, const TypeSet<RowCol>&);
     void		set(int, const RowCol&);
     void		copyNodesFrom( const TypeSet<RowCol>&,
 	    			       bool reverse=false );
@@ -89,6 +90,7 @@ public:
 				    const EdgeLineSegment* next ) const;
 
     virtual bool	canTrack() const { return true; }
+    virtual int		reTrackOrderIndex() const { return 0; }
     virtual bool	reTrack( const EdgeLineSegment* prev,
 	    			 const EdgeLineSegment* next );
     virtual bool	track( int idx, bool forward,
@@ -186,6 +188,7 @@ class EdgeLine : public CallBackClass
 public:
     			EdgeLine( EM::Surface&, const EM::SectionID& );
     virtual		~EdgeLine() { deepErase( segments ); }
+    virtual void	setTime2Depth( const MathFunction<float>* );
     EdgeLine*		clone() const;
     void		setSection( const EM::SectionID& );
 
@@ -206,6 +209,9 @@ public:
 	    			       bool cutexisting );
     const EdgeLineSegment* getSegment(int idx) const { return segments[idx]; }
     EdgeLineSegment*	getSegment(int idx) { return segments[idx]; }
+
+    bool		reTrackLine();
+    bool		repairLine();
 
     const EM::Surface&	getSurface() const { return surface; }
     EM::SectionID	getSection() const { return section; }
@@ -235,6 +241,8 @@ protected:
 
     ObjectSet<EdgeLineSegment>	segments;
     bool			removezerosegs;
+
+    const MathFunction<float>*	t2d;
 
     static const char*		segmentprefixstr;
     static const char*		nrsegmentsstr;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.12 2004-09-20 11:57:06 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.13 2004-09-21 15:59:22 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -120,6 +120,21 @@ void EdgeLineSegment::removeAll()
 void EdgeLineSegment::insert( int p1, const RowCol& rc )
 {
     nodes.insert(p1,rc);
+    if ( notifier ) notifier->trigger();
+}
+
+
+void EdgeLineSegment::insert( int p1, const TypeSet<RowCol>& rcs )
+{
+    if ( !rcs.size() ) return;
+    if ( p1>=size() )
+	nodes.append( rcs );
+    else
+    {
+	for ( int idx=0; idx<rcs.size(); idx++ )
+	    nodes.insert( p1+idx, rcs[idx] );
+    }
+	
     if ( notifier ) notifier->trigger();
 }
 
@@ -238,10 +253,7 @@ bool EdgeLineSegment::isConnToPrev(int idx) const
 bool EdgeLineSegment::areAllNodesOutsideBad(int idx,
 	const EdgeLineSegment* prev, const EdgeLineSegment* next) const
 {
-    if ( !idx && !prev )
-	return true;
-
-    if ( idx==size()-1 && !next )
+    if ( (!idx&&!prev) || (idx==size()-1&&!next) )
 	return true;
 
     RowCol nextrc;
@@ -339,7 +351,7 @@ bool EdgeLineSegment::trackWithCache( int start, bool forward,
 	    lastdefined = dir;
 	else
 	{
-	    if ( !dir.isNeighborTo(lastdefined) )
+	    if ( !dir.isNeighborTo(lastdefined, RowCol(1,1) ) )
 		break;
 
 	    const RowCol testrc = lastnode+dir*step;
@@ -392,7 +404,7 @@ void EdgeLineSegment::reverse()
 void EdgeLineSegment::makeLine( const RowCol& start, const RowCol& stop )
 {
     PtrMan<NotifyStopper> stopper = notifier ? new NotifyStopper(*notifier) : 0;
-    RowCol::makeLine( start, stop, nodes, surface.geometry.step() );
+    RCol::makeLine( start, stop, nodes, surface.geometry.step() );
 
     if ( notifier )
     {
@@ -685,6 +697,7 @@ void EdgeLineSegment::posChangeCB(CallBacker* cb)
 EdgeLine::EdgeLine( EM::Surface& surf, const EM::SectionID& sect )
     : surface( surf )
     , section( sect )
+    , t2d( 0 )
     , changenotifier(this)
     , removezerosegs( true )
 {}
@@ -701,6 +714,14 @@ EdgeLine* EM::EdgeLine::clone() const
     }
     
     return res;
+}
+
+
+void EdgeLine::setTime2Depth( const MathFunction<float>* nt2d )
+{
+    t2d = nt2d;
+    for ( int idx=0; idx<segments.size(); idx++ )
+	segments[idx]->setTime2Depth(t2d);
 }
 
 
@@ -1029,6 +1050,7 @@ void EdgeLine::insertSegments( ObjectSet<EM::EdgeLineSegment>& ns, int idx,
     for ( int idy=0; idy<ns.size(); idy++ )
     {
 	ns[idy]->commitChanges();
+	ns[idy]->setTime2Depth(t2d);
 	const int newidx = idx+idy;
 	if ( newidx>=segments.size() )
 	    segments += ns[idy];
@@ -1080,8 +1102,217 @@ void EdgeLine::insertSegment( EdgeLineSegment* els, int idx,
 }
 
 
+bool EdgeLine::reTrackLine()
+{
+    bool prevremovestatus = setRemoveZeroSegments(false);
+
+    int highestretrackindex = 0;
+    for ( int idz=0; idz<nrSegments(); idz++ )
+    {
+	if ( getSegment(idz)->reTrackOrderIndex()>highestretrackindex )
+	    highestretrackindex = getSegment(idz)->reTrackOrderIndex();
+    }
+
+    for ( int index=highestretrackindex; index>=0; index-- )
+    {
+	for ( int idz=0; idz<nrSegments(); idz++ )
+	{
+	    EM::EdgeLineSegment* segment = getSegment(idz);
+	    if ( segment->reTrackOrderIndex()!= index ||
+		 !segment->size() || !segment->canTrack())
+		continue;
+
+	    EM::EdgeLineSegment* prevseg = 0;
+	    for ( int idu=idz-1; idu!=idz && !prevseg; idu-- )
+	    {
+		if ( idu<0 ) idu = nrSegments()-1;
+		if ( getSegment(idu)->size() )
+		    prevseg =  getSegment(idu);
+	    }
+
+	    if ( prevseg->reTrackOrderIndex()<index ) prevseg = 0;
+
+	    EM::EdgeLineSegment* nextseg = 0;
+	    for ( int idu=idz+1; idu!=idz && !nextseg; idu++ )
+	    {
+		if ( idu>=nrSegments()) idu = 0;
+		if ( getSegment(idu)->size() )
+		    nextseg =  getSegment(idu);
+	    }
+
+	    if ( nextseg->reTrackOrderIndex()<index ) nextseg = 0;
+
+	    segment->reTrack( prevseg, nextseg );
+	    cutLineBy( segment->first(), segment->last(), segment );
+	}
+    }
+
+    setRemoveZeroSegments(prevremovestatus);
+
+    return true;
+}
+
+
+bool EdgeLine::repairLine()
+{
+    const RCol& step = surface.geometry.step();
+
+    for ( int idz=0; idz<nrSegments(); idz++ )
+    {
+	EM::EdgeLineSegment* segment = getSegment(idz);
+	if ( !segment->size() )
+	    continue;
+
+	int previdx = -1;
+	for ( int idu=idz-1; idu!=idz && previdx==-1; idu-- )
+	{
+	    if ( idu<0 ) idu = nrSegments()-1;
+	    if ( getSegment(idu)->size() )
+		previdx = idu;
+	}
+	EM::EdgeLineSegment* prevseg = getSegment(previdx);
+
+	if ( prevseg->isContinuedBy(segment) &&
+	     prevseg->reTrackOrderIndex()==segment->reTrackOrderIndex() )
+	    continue;
+
+	const bool forward = segment->reTrackOrderIndex()<=
+			     prevseg->reTrackOrderIndex();
+	const RowCol start = forward ? prevseg->last() : segment->first();
+	RowCol incomingdir, outgoingdir;
+
+	if ( forward )
+	{
+	    if ( prevseg->size()>1 ) incomingdir =
+		(*prevseg)[prevseg->size()-2]-start;
+	    else
+	    {
+		EM::EdgeLineSegment* nextseg = 0;
+		for ( int idu=previdx-1; idu!=idz && !nextseg; idu-- )
+		{
+		    if ( idu<0 ) idu = nrSegments()-1;
+		    if ( getSegment(idu)->size() )
+			nextseg = getSegment(idu);
+		}
+
+		if ( !nextseg ) return false;
+		incomingdir = nextseg->last()-start;
+	    }
+	}
+	else
+	{
+	    if ( segment->size()>1 ) outgoingdir = (*segment)[1]-start;
+	    else
+	    {
+		EM::EdgeLineSegment* nextseg = 0;
+		for ( int idu=idz+1; idu!=idz && !nextseg; idu++ )
+		{
+		    if ( idu>=nrSegments()) idu = 0;
+		    if ( getSegment(idu)->size() )
+			nextseg = getSegment(idu);
+		}
+
+		if ( !nextseg ) return false;
+		outgoingdir = nextseg->first()-start;
+	    }
+	}
+
+	const int startidx = forward ? 0 : prevseg->size()-1;
+	EM::EdgeLineIterator iterator( *this, forward,
+					forward ? idz : previdx, startidx );
+	RowCol stop = iterator.currentRowCol();
+
+	TypeSet<int> segmentstoremove;
+	int cursegidx = iterator.currentSegment();
+	int curnodeidx = iterator.currentNodeIdx();
+	bool stopischanged = false;
+
+	do
+	{
+	    const EM::EdgeLineSegment* curseg =
+			    getSegment(iterator.currentSegment());
+	    if ( curseg->reTrackOrderIndex()>prevseg->reTrackOrderIndex() )
+		break;
+
+	    const RowCol rc = iterator.currentRowCol();
+	    if ( forward )
+		outgoingdir = rc-start;
+	    else
+		incomingdir = rc-start;
+
+	    if ( stop!=rc )
+	    {
+		stop = rc;
+		stopischanged = true;
+
+		cursegidx = iterator.currentSegment();
+		curnodeidx = iterator.currentNodeIdx();
+
+		if ( segmentstoremove.indexOf(cursegidx)==-1 )
+		     segmentstoremove += cursegidx;
+	    }
+
+	    if ( outgoingdir.clockwiseAngleTo(incomingdir)<=3*M_PI/2+0.01 )
+		break;
+
+	} while ( iterator.next() );
+
+	if ( !stopischanged ) 
+	    continue;
+
+	segmentstoremove -= cursegidx;
+	const bool prevremovestatus = setRemoveZeroSegments(false);
+	TypeSet<RowCol> empty;
+	for ( int idu=0; idu<segmentstoremove.size(); idu++ )
+	    getSegment(segmentstoremove[idu])->copyNodesFrom(empty,false);
+
+	if ( forward )
+	{
+	    segment = getSegment(cursegidx);
+	    if ( curnodeidx>0 )
+		segment->remove(0,curnodeidx-1);
+	}
+	else
+	{
+	    prevseg = getSegment(cursegidx);
+	    if ( curnodeidx<prevseg->size()-1 )
+		prevseg->remove(curnodeidx+1, prevseg->size()-1 );
+
+	}
+
+	setRemoveZeroSegments(prevremovestatus);
+
+	TypeSet<RowCol> rcs;
+	RCol::makeLine( forward ? start : stop, forward ? stop : start,
+			rcs, step );
+
+	rcs.remove(0);
+	rcs.remove(rcs.size()-1);
+
+	if ( rcs.size() )
+	{
+	    if ( !prevseg->reTrackOrderIndex() )
+		prevseg->insert(prevseg->size(), rcs );
+	    else if ( !segment->reTrackOrderIndex() )
+		segment->insert(0, rcs);
+	    else
+	    {
+		EM::EdgeLineSegment* helpsegment = new
+		    EM::EdgeLineSegment( surface, section );
+		helpsegment->insert(0,rcs);
+		insertSegment( helpsegment, -1, true );
+	    }
+	}
+
+	idz = -1;
+    }
+
+    return true;
+}
+
+
 int EdgeLine::cutLineBy( const RowCol& start, const RowCol& stop,
-       		          const EdgeLineSegment* donttouch )
+			 const EdgeLineSegment* donttouch )
 {
     int startidx;
     int startseg = getSegment( start, &startidx );
