@@ -1,22 +1,33 @@
 #ifndef iodir_H
 #define iodir_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.5 2001-07-13 22:04:11 bert Exp $
+ RCS:		$Id: iodir.h,v 1.6 2001-10-12 10:41:32 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
  
  
 #include <ioobj.h>
 #include <selector.h>
 class AliasObjectSet;
 class AliasObject;
+
+/*\brief 'Directory' of IOObj objects.
+
+The IODir class is responsible for finding all IOObj's in the system. An IODir
+instance will actually load all IOObj's, provides access to keys and allows
+searching. It has a key of its own.
+
+Few operation are done through the IODir directly: usually, IOMan will be
+the service access point.
+
+*/
 
 
 class IODir : public UserIDObject

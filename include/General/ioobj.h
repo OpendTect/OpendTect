@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.7 2001-09-17 16:46:26 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.8 2001-10-12 10:41:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,11 @@ class ascistream;
 class ascostream;
 class Translator;
 class IOPar;
+
+/*\brief object describing how to do I/O for objects
+
+
+*/
 
 
 class IOObj : public DefObject
@@ -32,6 +37,7 @@ public:
 
     IOObj*		clone() const;
     IOObj*		getParent() const;
+    			//!< Will return null for objects in the survey dir
     virtual MultiID	key() const			{ return key_; }
 
     virtual		~IOObj();
@@ -60,18 +66,25 @@ public:
     virtual void	genDefaultImpl()		{}
 
     virtual int		setName(const char*);
+    			//!< Set the user reference
     virtual const char*	dirName() const;
+    			//!< The full path to the position in the tree
+			//!<\note may not be the directory of an implementation
     bool		isStandAlone() const { return dirname_ ? true : false; }
+    			//!< IOObjs can be dependent on the IODir
     void		setStandAlone(const char* dirnm);
-    IOPar*		trOpts() const			{ return opts; }
-    void		mkOpts();
+    			//!< uncouple IOObj from IODir
+    IOPar&		pars() const			{ return pars_; }
+    			//!< These are the extra parameters: #xxx: yyy in .omf
 
-    static IOObj*	produce(const char*,const char* nm=0,const char* ky=0,
-				bool initdefaults=true);
     static bool		isKey(const char*);
+    			//!< Returns whether given string may be a valid key
 
     Translator*		getTranslator() const;
+    			//!< returns a subclass of Translator according to
+			//!< the translator name and group.
     void		acquireNewKey();
+    			//!< This will give the IOObj a new (free) ID
 
 protected:
 
@@ -90,8 +103,11 @@ protected:
 
 private:
 
-    IOPar*		opts;
+    IOPar&		pars_;
     int			myKey() const;
+
+    static IOObj*	produce(const char*,const char* nm=0,const char* ky=0,
+				bool initdefaults=true);
 
 };
 

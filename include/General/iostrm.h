@@ -1,16 +1,15 @@
 #ifndef iostrm_H
 #define iostrm_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.7 2001-09-03 12:21:34 kristofer Exp $
+ RCS:		$Id: iostrm.h,v 1.8 2001-10-12 10:41:32 bert Exp $
 ________________________________________________________________________
 
- An IOStream is a file (default), device or command entry in the omf.
 
 -*/
  
@@ -18,6 +17,8 @@ ________________________________________________________________________
 #include <streamconn.h>
 #include <ranges.h>
 class StreamProvider;
+
+/*\brief An IOStream is a file (default), device or command entry in the omf. */
 
 
 class IOStream : public IOObject
