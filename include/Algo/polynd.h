@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: polynd.h,v 1.4 2001-05-04 16:12:17 bert Exp $
+ RCS:           $Id: polynd.h,v 1.5 2002-08-28 12:58:12 nanne Exp $
 ________________________________________________________________________
 
 PolynomialND is a N-dimensional polynomial with arbitary orders in each
@@ -98,6 +98,16 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
     float p1_2 = p1 * p1; float p1_3 = p1_2 * p1;
     float p2_2 = p2 * p2; float p2_3 = p2_2 * p2;
 
+    const float p0p1 =  p0 * p1;
+    const float p0p1_2 = p0p1 * p1;
+    const float p0p1_3 = p0p1_2 * p1;
+    const float p0_2p1 =  p0_2 * p1;
+    const float p0_2p1_2 = p0_2p1 * p1;
+    const float p0_2p1_3 = p0_2p1_2 * p1;
+    const float p0_3p1 =  p0_3 * p1;
+    const float p0_3p1_2 = p0_3p1 * p1;
+    const float p0_3p1_3 = p0_3p1_2 * p1;
+
     const T* ptr = coeffs.getData();
 
     T res = 	ptr[0] +
@@ -126,20 +136,20 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 		ptr[18] * p0 * p2_2 +
 		ptr[19] * p0 * p2_3 +
 
-    		ptr[20] * p0 * p1 +
-		ptr[21] * p0 * p1 * p2 +
-		ptr[22] * p0 * p1 * p2_2 +
-		ptr[23] * p0 * p1 * p2_3 +
+    		ptr[20] * p0p1 +
+		ptr[21] * p0p1 * p2 +
+		ptr[22] * p0p1 * p2_2 +
+		ptr[23] * p0p1 * p2_3 +
 
-    		ptr[24] * p0 * p1_2 +
-		ptr[25] * p0 * p1_2 * p2 +
-		ptr[26] * p0 * p1_2 * p2_2 +
-		ptr[27] * p0 * p1_2 * p2_3 +
+    		ptr[24] * p0p1_2 +
+		ptr[25] * p0p1_2 * p2 +
+		ptr[26] * p0p1_2 * p2_2 +
+		ptr[27] * p0p1_2 * p2_3 +
 
-    		ptr[28] * p0 * p1_3 +
-		ptr[29] * p0 * p1_3 * p2 +
-		ptr[30] * p0 * p1_3 * p2_2 +
-		ptr[31] * p0 * p1_3 * p2_3 +
+    		ptr[28] * p0p1_3 +
+		ptr[29] * p0p1_3 * p2 +
+		ptr[30] * p0p1_3 * p2_2 +
+		ptr[31] * p0p1_3 * p2_3 +
 
 
     		ptr[32] * p0_2 +
@@ -147,21 +157,20 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 		ptr[34] * p0_2 * p2_2 +
 		ptr[35] * p0_2 * p2_3 +
 
-    		ptr[36] * p0_2 * p1 +
-		ptr[37] * p0_2 * p1 * p2 +
-		ptr[38] * p0_2 * p1 * p2_2 +
-		ptr[39] * p0_2 * p1 * p2_3 +
+    		ptr[36] * p0_2p1 +
+		ptr[37] * p0_2p1 * p2 +
+		ptr[38] * p0_2p1 * p2_2 +
+		ptr[39] * p0_2p1 * p2_3 +
 
-    		ptr[40] * p0_2 * p1_2 +
-		ptr[41] * p0_2 * p1_2 * p2 +
-		ptr[42] * p0_2 * p1_2 * p2_2 +
-		ptr[43] * p0_2 * p1_2 * p2_3 +
+    		ptr[40] * p0_2p1_2 +
+		ptr[41] * p0_2p1_2 * p2 +
+		ptr[42] * p0_2p1_2 * p2_2 +
+		ptr[43] * p0_2p1_2 * p2_3 +
 
-    		ptr[44] * p0_2 * p1_3 +
-		ptr[45] * p0_2 * p1_3 * p2 +
-		ptr[46] * p0_2 * p1_3 * p2_2 +
-		ptr[47] * p0_2 * p1_3 * p2_3 +
-
+    		ptr[44] * p0_2p1_3 +
+		ptr[45] * p0_2p1_3 * p2 +
+		ptr[46] * p0_2p1_3 * p2_2 +
+		ptr[47] * p0_2p1_3 * p2_3 +
 
 
 
@@ -170,20 +179,20 @@ T PolynomialND<T>::getValue3D( float p0, float p1, float p2 ) const
 		ptr[50] * p0_3 * p2_2 +
 		ptr[51] * p0_3 * p2_3 +
 
-    		ptr[52] * p0_3 * p1 +
-		ptr[53] * p0_3 * p1 * p2 +
-		ptr[54] * p0_3 * p1 * p2_2 +
-		ptr[55] * p0_3 * p1 * p2_3 +
+    		ptr[52] * p0_3p1 +
+		ptr[53] * p0_3p1 * p2 +
+		ptr[54] * p0_3p1 * p2_2 +
+		ptr[55] * p0_3p1 * p2_3 +
 
-    		ptr[56] * p0_3 * p1_2 +
-		ptr[57] * p0_3 * p1_2 * p2 +
-		ptr[58] * p0_3 * p1_2 * p2_2 +
-		ptr[59] * p0_3 * p1_2 * p2_3 +
+    		ptr[56] * p0_3p1_2 +
+		ptr[57] * p0_3p1_2 * p2 +
+		ptr[58] * p0_3p1_2 * p2_2 +
+		ptr[59] * p0_3p1_2 * p2_3 +
 
-    		ptr[60] * p0_3 * p1_3 +
-		ptr[61] * p0_3 * p1_3 * p2 +
-		ptr[62] * p0_3 * p1_3 * p2_2 +
-		ptr[63] * p0_3 * p1_3 * p2_3;
+    		ptr[60] * p0_3p1_3 +
+		ptr[61] * p0_3p1_3 * p2 +
+		ptr[62] * p0_3p1_3 * p2_2 +
+		ptr[63] * p0_3p1_3 * p2_3;
 
     return res;
 }
