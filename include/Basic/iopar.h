@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.12 2002-01-08 14:35:56 bert Exp $
+ RCS:		$Id: iopar.h,v 1.13 2002-03-18 09:53:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,8 +95,14 @@ public:
 			{ return getSc(k,v,1,false); }
     inline bool		get( const char* k, float& v1, float& v2 ) const
 			{ return getSc(k,v1,v2,1,false); }
+    inline bool		get( const char* k, float& v1,
+	    		     float& v2, float& v3 ) const
+			{ return getSc(k,v1,v2,v3,1,false); }
     inline bool		get( const char* k, double& v1, double& v2 ) const
 			{ return getSc(k,v1,v2,1,false); }
+    inline bool		get( const char* k, double& v1,
+	    		     double& v2, double& v3 ) const
+			{ return getSc(k,v1,v2,v3,1,false); }
     bool		getSc(const char*,float&,float sc,
 			      bool set_undef_if_not_found) const;
 			//!< get with a scale applied
@@ -104,7 +110,11 @@ public:
 			      bool set_undef_if_not_found) const;
     bool		getSc(const char*,float&,float&,float sc,
 			      bool set_undef_if_not_found) const;
+    bool		getSc(const char*,float&,float&,float&,float sc,
+			      bool set_undef_if_not_found) const;
     bool		getSc(const char*,double&,double&,double sc,
+			      bool set_undef_if_not_found) const;
+    bool		getSc(const char*,double&,double&,double&,double sc,
 			      bool set_undef_if_not_found) const;
     bool		get(const char*,int&,int&,int&) const;
     bool		getYN(const char*,bool&,char c=0) const;
@@ -115,7 +125,9 @@ public:
     void		set(const char*,double);
     void		set(const char*,int,int);
     void		set(const char*,float,float);
+    void		set(const char*,float,float,float);
     void		set(const char*,double,double);
+    void		set(const char*,double,double,double);
     void		set(const char*,int,int,int);
     void		setYN(const char*,bool);
 
