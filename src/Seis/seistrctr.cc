@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.58 2005-03-09 12:22:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.59 2005-03-29 15:34:27 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -343,7 +343,7 @@ bool SeisTrcTranslator::writeBlock()
     }
 
     if ( !enforce_survinfo_write )
-	{ dumpBlock(); return true; }
+	return dumpBlock();
 
     StepInterval<int> inlrg, crlrg;
     SI().sampling(true).hrg.get( inlrg, crlrg );
