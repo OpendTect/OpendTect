@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.2 2000-07-27 09:54:03 bert Exp $
+ RCS:           $Id: draw.h,v 1.3 2000-07-28 13:37:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,41 +15,53 @@ ________________________________________________________________________
 #include "color.h"
 #include "fontdata.h"
 
-class Draw
+
+class Alignment
 {
 public:
+    enum Pos		{ Start, Middle, Stop };
+			DeclareEnumUtils(Pos)
 
-    enum MarkerType	{ NoMarker, Square, Circle, Cross };
-			DeclareEnumUtils(MarkerType)
-    enum LineStyle	{ NoLine, Solid, Dash, Dot, DashDot, DashDotDot };
-			DeclareEnumUtils(LineStyle)
+			Alignment( Pos h=Start, Pos v=Start )
+			: hor(h), ver(v)	{}
+
+    Pos			hor;
+    Pos			ver;
+
 };
 
 
-class MarkerAppearance
+class MarkerStyle
 {
 public:
 
-			MarkerAppearance( Draw::MarkerType t=Draw::Square,
-					  Color c=Color(0,0,0,0) )
-			: type(t), color(c)	{}
+    enum Type		{ None, Square, Circle, Cross };
+			DeclareEnumUtils(Type)
 
-    Draw::MarkerType	type;
+			MarkerStyle( Type t=Square, Color c=Color::Black,
+				     FontData fd=FontData() )
+			: type(t), color(c), fontdata(fd)	{}
+
+    Type		type;
     Color		color;
     FontData		fontdata;
 
 };
 
 
-class LineAppearance
+class LineStyle
 {
 public:
 
-			LineAppearance( Draw::LineStyle s=Draw::Solid,
-					int w=1, Color c=Color(0,0,0,0) )
-			: style(s), width(w), color(c)	{}
+    enum Type		{ None, Solid, Dash, Dot, DashDot, DashDotDot };
+			// This enum should not be changed: it is cast
+			// directly to a UI enum.
+			DeclareEnumUtils(Type)
 
-    Draw::LineStyle	style;
+			LineStyle( Type t=Solid,int w=1,Color c=Color::Black )
+			: type(t), width(w), color(c)	{}
+
+    Type		type;
     int			width;
     Color		color;
 
