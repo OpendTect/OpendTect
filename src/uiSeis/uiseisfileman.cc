@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.39 2004-07-22 16:14:07 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.40 2004-07-28 16:44:45 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiseisfileman.h"
-#include "seistrcsel.h"
 #include "iodirentry.h"
 #include "ioobj.h"
 #include "iodir.h"
@@ -20,6 +19,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "cbvsio.h"
 #include "ctxtioobj.h"
+#include "cubesampling.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uimsg.h"
@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "binidselimpl.h"
+#include "cubesampling.h"
 #include "survinfo.h"
 
 
@@ -121,22 +121,20 @@ void uiSeisFileMan::mkFileInfo()
 	return;
     }
 
-#define mRangeTxt(line,ic) \
-    txt += seldata.line.start; txt += " - "; txt += seldata.line.stop; \
-    txt += " ["; txt += steps.binid.ic; txt += "]"
+#define mRangeTxt(line) \
+    txt += cs.hrg.start.line; txt += " - "; txt += cs.hrg.stop.line; \
+    txt += " ["; txt += cs.hrg.step.line; txt += "]"
 
 #define mZRangeTxt(memb) \
-    txt += SI().zIsTime() ? mNINT(1000*seldata.zrg_.memb) : seldata.zrg_.memb
+    txt += SI().zIsTime() ? mNINT(1000*cs.zrg.memb) : cs.zrg.memb
 
-    BufferString txt; SeisSelData seldata; BinIDValue steps;
-    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, seldata, &steps ) )
+    BufferString txt; CubeSampling cs;
+    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, cs ) )
     {
-	txt = "Inline range: "; mRangeTxt(inlrg_,inl);
-	txt += "\nCrossline range: "; mRangeTxt(crlrg_,crl);
+	txt = "Inline range: "; mRangeTxt(inl);
+	txt += "\nCrossline range: "; mRangeTxt(crl);
 	txt += "\nZ-range: "; mZRangeTxt(start); txt += " - ";
-	mZRangeTxt(stop); txt += " [";
-	txt += SI().zIsTime() ? mNINT(1000*steps.value) : steps.value;
-	txt += "]";
+	mZRangeTxt(stop); txt += " ["; mZRangeTxt(step); txt += "]";
     }
 
     if ( ctio.ioobj->pars().size() )

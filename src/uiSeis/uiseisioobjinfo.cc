@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.3 2004-07-22 16:14:07 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.4 2004-07-28 16:44:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "conn.h"
 #include "survinfo.h"
 #include "binidselimpl.h"
+#include "cubesampling.h"
 #include "errh.h"
 
 # include <sstream>
@@ -150,12 +151,11 @@ bool uiSeisIOObjInfo::getRanges( StepInterval<int>& inlrg,
 {
     mChkIOObj(false);
 
-    SeisSelData seldata; BinIDValue biv;
-    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, seldata, &biv ) )
+    CubeSampling cs;
+    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, cs ) )
     {
-	assign( inlrg, seldata.inlrg_ ); assign( crlrg, seldata.crlrg_ );
-	inlrg.step = biv.binid.inl; crlrg.step = biv.binid.crl;
-	assign( zrg, seldata.zrg_ ); zrg.step = biv.value;
+	cs.hrg.get( inlrg, crlrg );
+	zrg = cs.zrg;
 	return true;
     }
 

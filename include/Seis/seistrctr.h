@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.34 2004-07-23 11:53:00 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.35 2004-07-28 16:44:45 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -23,10 +23,10 @@ class BinID;
 class Coord;
 class SeisTrc;
 class LinScaler;
-class BinIDValue;
 class SeisTrcBuf;
 class SeisSelData;
 class SeisTrcInfo;
+class CubeSampling;
 class SeisPacketInfo;
 
 
@@ -196,7 +196,8 @@ public:
     virtual void	cleanUp();
     			//!< Prepare for new initialisation.
 
-    static bool		getRanges(const IOObj&,SeisSelData&,BinIDValue* step=0);
+    static bool		getRanges(const MultiID&,CubeSampling&);
+    static bool		getRanges(const IOObj&,CubeSampling&);
     static  bool	is2D(const IOObj&);
 
 protected:

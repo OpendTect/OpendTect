@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.47 2004-07-23 11:53:00 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.48 2004-07-28 16:44:45 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -15,11 +15,13 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.47 2004-07-23 11:53:00 bert Ex
 #include "seisbuf.h"
 #include "iopar.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "sorting.h"
 #include "separstr.h"
 #include "scaler.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "cubesampling.h"
 #include "errh.h"
 #include <math.h>
 
@@ -477,8 +479,14 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 }
 
 
-bool SeisTrcTranslator::getRanges( const IOObj& ioobj, SeisSelData& sd,
-				   BinIDValue* step )
+bool SeisTrcTranslator::getRanges( const MultiID& ky, CubeSampling& cs )
+{
+    PtrMan<IOObj> ioobj = IOM().get( ky );
+    return ioobj ? getRanges( *ioobj, cs ) : false;
+}
+
+
+bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs )
 {
     PtrMan<Translator> transl = ioobj.getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
@@ -488,16 +496,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, SeisSelData& sd,
 	{ delete cnn; return false; }
 
     const SeisPacketInfo& pinf = tr->packetInfo();
-    sd.type_ = SeisSelData::Range;
-    assign( sd.inlrg_, pinf.inlrg );
-    assign( sd.crlrg_, pinf.crlrg );
-    assign( sd.zrg_, pinf.zrg );
-    if ( step )
-    {
-	step->binid.inl = pinf.inlrg.step;
-	step->binid.crl = pinf.crlrg.step;
-	step->value = pinf.zrg.step;
-    }
-
+    cs.hrg.set( pinf.inlrg, pinf.crlrg );
+    cs.zrg = pinf.zrg;
     return true;
 }

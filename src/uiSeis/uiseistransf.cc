@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.19 2004-07-16 15:35:26 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.20 2004-07-28 16:44:45 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseistransf.h"
 #include "uiseisfmtscale.h"
-#include "uibinidsubsel.h"
 #include "uigeninput.h"
 #include "uimainwin.h"
 #include "uimsg.h"
