@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.6 2004-11-29 17:17:52 bert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.7 2004-12-01 16:42:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,25 +70,31 @@ public:
 
     int			nrLiths() const			{ return liths_.size();}
     const Lithology&	lith( int idx ) const		{ return *liths_[idx]; }
-    int			nrProps() const			{ return props_.size();}
-    const PropertyRef&	prop( int idx ) const		{ return *props_[idx]; }
+    Lithology&		lith( int idx )			{ return *liths_[idx]; }
+    int			findLith(const char*) const;
+    static const char*	sKeyLith;
 
 protected:
 
     			UnitRepository();
+    virtual		~UnitRepository();
 
     ObjectSet<TopUnitRef>	tops_;
     ObjectSet<Lithology>	liths_;
-    ObjectSet<PropertyRef>	props_;
     int				curtopidx_;
 
     UnitRef*		fnd(const char*) const;
     UnitRef*		fnd(const char*,int) const;
     UnitRef*		fndAny(const char*) const;
+    void		addLith(const char*,Repos::Source);
+
+private:
 
     friend UnitRepository& UnR();
 
+    ObjectSet<Lithology> unusedliths_;
     void		addTreeFromFile(const Repos::FileProvider&);
+
 };
 
 
@@ -98,7 +104,7 @@ protected:
 /*!\mainpage Stratigraphy
 
 This module supports hierarchical naming of units, with supporting tools like
-property assignment and lithology selection.
+lithology selection.
 
 Although a stratigraphic framework can be used independently of any geometry,
 an easy way to think about it is how it could be used for wells. Every layer

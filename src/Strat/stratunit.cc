@@ -4,10 +4,11 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.4 2004-11-29 17:17:52 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.5 2004-12-01 16:42:48 bert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
+#include "separstr.h"
 
 
 const Strat::Lithology& Strat::Lithology::undef()
@@ -38,6 +39,30 @@ const Strat::NodeUnitRef& Strat::NodeUnitRef::undef()
     if ( !udf )
 	udf = new Strat::NodeUnitRef( 0, "undef", "Undefined" );
     return *udf;
+}
+
+
+void Strat::Lithology::fill( BufferString& str ) const
+{
+    FileMultiString fms;
+    fms += name();
+    fms += id_;
+    fms += porous_ ? "P" : "N";
+    str = fms;
+}
+
+
+bool Strat::Lithology::use( const char* str )
+{
+    FileMultiString fms( str );
+    const int sz = fms.size();
+    if ( sz < 2 ) return false;
+
+    setName( fms[0] );
+    id_ = atoi( fms[1] );
+    porous_ = sz > 2 ? *fms[2] == 'P' : false;
+
+    return true;
 }
 
 
