@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.81 2003-02-11 09:57:31 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.82 2003-02-26 13:32:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,8 @@ public:
 				     If id==-1, it will give the ids of the
 				     scenes */
     BufferString		getTreeInfo(int id) const;
+    BufferString		getDisplayName(int) const;
+
     bool			isInlCrlTsl(int,int dim) const;
     				/*!< dim==0 : inline
 				     dim==1 : crossline
