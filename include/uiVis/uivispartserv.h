@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.125 2004-05-13 09:16:52 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.126 2004-05-15 13:14:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ public:
 			     structure as the positions given in
 			     getRandomPosDataPos */
 
-    bool		showMenu( int id, int menutype=0 );
+    bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0);
     			/*!<\param menutype Please refer to \ref
 					uiVisMenu::executeMenu for a detailed
 					description.

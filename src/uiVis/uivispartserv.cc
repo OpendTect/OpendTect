@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.214 2004-05-13 09:16:55 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.215 2004-05-15 13:14:56 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,10 +122,10 @@ void uiVisPartServer::removeScene( int sceneid )
 }
 
 
-bool uiVisPartServer::showMenu( int id, int menutype )
+bool uiVisPartServer::showMenu( int id, int menutype, const TypeSet<int>* path)
 {
     uiVisMenu* menu = getMenu( id, false );
-    return menu ? menu->executeMenu(menutype) : true;
+    return menu ? menu->executeMenu(menutype,path) : true;
 }
 
 
@@ -905,11 +905,12 @@ void uiVisPartServer::removeConnections( int id )
 
 void uiVisPartServer::rightClickCB( CallBacker* cb )
 {
-    const int selobjid = getSelObjectId();
-    if ( selobjid==-1 )
+    mDynamicCastGet( visBase::DataObject*,dataobj,cb );
+    const int id = dataobj ? dataobj->id() : getSelObjectId();
+    if ( id==-1 )
 	return;
 
-    showMenu(selobjid,1);
+    showMenu( id, 1, dataobj ? dataobj->rightClickedPath() : 0 );
 }
 
 
