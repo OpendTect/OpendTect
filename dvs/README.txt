@@ -1,15 +1,20 @@
 
-DVS is a set of simple wrapper scripts around cvs. It is basically
-a cvs front-end, dedicated for use with OpendTect and the dGB environment.
+				-----
+				 DVS
+				-----
 
+DVS is a set of simple wrapper scripts around cvs. It is basically a
+cvs front-end, dedicated for use with OpendTect and the dGB
+environment.
 
 ========================================================================
 Setting up dvs
 ========================================================================
 
-At dGB, dvs is installed in the directory "/users/appman/dvs". 
-Just source the script "/users/appman/dvs/set_dvs_env.csh" from
-your .login and you should be fine.
+At dGB, dvs is installed in the directory "/users/appman/dvs". Just
+setenv OD_I_AM_A_DEVELOPER and source the script
+"/users/appman/dvs/set_dvs_env.csh" from your .login and you should be
+fine.
 
 For external users, dvs must be checked out from the cvs repository.
 The simplest way to do this is by using read-only cvs access:
@@ -20,20 +25,22 @@ The simplest way to do this is by using read-only cvs access:
 
 Setting up dvs from csh:
 
-    dvs needs some invironment variables to be set, in order to function
-    properly. The most important one is DGB_CVS_DIR. This needs
-    to point to the dvs directory. If you have dvs in your $WORK directory,
-    you don't have to set DGB_CVS_DIR. Otherwise, set it in your .login.
+    dvs needs some invironment variables to be set, in order to
+    function properly. The most important one is DGB_CVS_DIR. This
+    needs to point to the dvs directory. If you have dvs in your $WORK
+    directory, you don't have to set DGB_CVS_DIR. Otherwise, set it in
+    your .login.
 
-    The set_dvs_env.csh in the dvs directory, takes care of setting dvs
-    up, from within csh. Just set either $WORK or $DGB_CVS_DIR in
+    The set_dvs_env.csh in the dvs directory, takes care of setting
+    dvs up, from within csh. Just set either $WORK or $DGB_CVS_DIR in
     your .login file, and then "source <dvs dir>/set_dvs_env.csh"
 
 
 Setting up dvs with read/write access from csh:
 
-    just add a "setenv OD_I_AM_A_DEVELOPER yes" to your .login,
-    before sourcing set_dvs_env.csh.
+    just add a "setenv OD_I_AM_A_DEVELOPER yes" to your .login, before
+    sourcing set_dvs_env.csh.
+
 
 ========================================================================
 Setting up read/write ssh acces to the cvs server (cvs.opendtect.org)
@@ -63,8 +70,8 @@ a password...
 
    <<< ONLY the .pub file!! >>>
 
-   The id_dsa key-file should remain secret. Please realise that the id_dsa
-   file is a security risk. With that key, one can get shell
+   The id_dsa key-file should remain secret. Please realise that the
+   id_dsa file is a security risk. With that key, one can get shell
    access to our webserver. So, please take all measures at your
    disposal to make sure noone but yourself has access to your id_dsa
    key.
@@ -84,16 +91,27 @@ for example:
     cvshelene@cvs.opendtect.org's password: 
     [cvshelene@dgbserver cvshelene]$ 
 
-just type "yes" to accept the host key to be added to your known_hosts.
+Just type "yes" to accept the host key to be added to your
+known_hosts. That should log you in to the server.
 
+Now verify that if you log-out and re-login, that you can
+automatically login without typing any password.
 
 ========================================================================
 Checking out a new work directory
 ========================================================================
 
-Once you have ssh access to the cvs server, you can check-out a new
-work directory. For people working internally at dGB, there is a
-script "mk_work_dir" in the system wide dvs directory: "/users/appman/dvs"
+Once you have access to the cvs server, you can check-out a new work
+directory. There is a "mk_work_dir" script in the dvs directory, that
+should take care of setting up your work directory. 
 
+In case you want read/write cvs access in your work directory, make
+sure you have setup ssh and have set OD_I_AM_A_DEVELOPER in your
+.login.
+
+Then execute the mk_work_dir script. It accepts two arguments. The
+first is the work-directory you want to prepare. The second argument
+is optional and can only be used within dgb, because the internal cvs
+server is not reachable from the outside.
 
 
