@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.9 2004-01-26 10:16:44 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.10 2004-01-26 13:01:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,13 +90,11 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     zoomslider->attach( rightAlignedBelow, wsp );
 
     leftgrp->attach( leftOf, wsp );
-    appl.scenemgrinited = true;
 }
 
 
 uiODSceneMgr::~uiODSceneMgr()
 {
-    appl.scenemgrinited = false;
     cleanUp( false );
 }
 
