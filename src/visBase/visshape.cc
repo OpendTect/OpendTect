@@ -8,10 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.10 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.11 2004-05-17 06:14:39 kristofer Exp $";
 
 #include "visshape.h"
 
+#include "errh.h"
 #include "iopar.h"
 #include "viscoord.h"
 #include "visdataman.h"
@@ -55,19 +56,31 @@ visBase::Shape::~Shape()
     if ( texture3 ) texture3->unRef();
     if ( material ) material->unRef();
 
-    onoff->unref();
+    getInventorNode()->unref();
 }
 
 
 void visBase::Shape::turnOn(bool n)
 {
-    onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
+    if ( onoff ) onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
+    else if ( n )
+    {
+	pErrMsg( "Turning off object without switch");
+    }
 }
 
 
 bool visBase::Shape::isOn() const
 {
-    return !onoff->whichChild.getValue();
+    return !onoff || !onoff->whichChild.getValue();
+}
+
+
+void visBase::Shape::removeSwitch()
+{
+    root->ref();
+    onoff->unref();
+    onoff = 0;
 }
 
 
@@ -215,7 +228,7 @@ int visBase::Shape::usePar( const IOPar& par )
 
 	
 SoNode* visBase::Shape::getInventorNode()
-{ return onoff; }
+{ return onoff ? (SoNode*) onoff : (SoNode*) root; }
 
 
 void visBase::Shape::insertNode( SoNode*  node )

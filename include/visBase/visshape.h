@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.8 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.9 2004-05-17 06:14:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,11 @@ public:
 
     void			turnOn(bool);
     bool			isOn() const;
+    void			removeSwitch();
+    				/*!<Will turn the object permanently on.
+				    \note Must be done before giving away the
+				    SoNode with getInventorNode() to take
+				    effect. */
 
     void			setRenderCache(int mode);
     				/*!<\param mode=0 off

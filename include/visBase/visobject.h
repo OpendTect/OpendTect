@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.28 2004-05-15 13:15:49 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.29 2004-05-17 06:14:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -78,6 +78,10 @@ class VisualObjectImpl : public VisualObject
 public:
     void		turnOn(bool);
     bool		isOn() const;
+    void		removeSwitch();
+    			/*!<Will turn the object permanently on.
+			   \note Must be done before giving away the SoNode with
+			   getInventorNode() to take effect */
 
     void		setMaterial(Material*);
     const Material*	getMaterial() const { return material; }

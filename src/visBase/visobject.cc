@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.27 2004-04-27 12:09:19 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.28 2004-05-17 06:14:39 kristofer Exp $";
 
 #include "visobject.h"
 
@@ -47,20 +47,25 @@ visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
 
 visBase::VisualObjectImpl::~VisualObjectImpl()
 {
-    onoff->unref();
+    getInventorNode()->unref();
     if ( material ) material->unRef();
 }
 
 
 void visBase::VisualObjectImpl::turnOn( bool yn )
 {
-    onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
+    if ( onoff ) onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
+    else if ( !yn )
+    {
+	pErrMsg( "Turning off object without switch");
+    }
+
 }
 
 
 bool visBase::VisualObjectImpl::isOn() const
 {
-    return !onoff->whichChild.getValue();
+    return !onoff || !onoff->whichChild.getValue();
 }
 
 
@@ -82,8 +87,16 @@ void visBase::VisualObjectImpl::setMaterial( Material* nm )
 }
 
 
+void visBase::VisualObjectImpl::removeSwitch()
+{
+    root->ref();
+    onoff->unref();
+    onoff = 0;
+}
+
+
 SoNode* visBase::VisualObjectImpl::getInventorNode() 
-{ return onoff; }
+{ return onoff ? (SoNode*) onoff : (SoNode*) root; }
 
 
 void visBase::VisualObjectImpl::addChild( SoNode* nn )
