@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.25 2004-12-20 13:45:04 dgb Exp $
+ RCS:           $Id: hostdata.cc,v 1.26 2004-12-23 12:33:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "ascstream.h"
 #include "errh.h"
+#include "msgh.h"
 #include "separstr.h"
 #include "filepath.h"
 #include <iostream>
@@ -228,16 +229,21 @@ bool HostDataList::readHostFile( const char* fname )
 	    break;
 	}
     }
-    static bool complain = true;
+
+    static bool complain = getenv("OD_NO_DATAHOST_CHK") ? false : true;
     if ( sharehost.size() && !sharedata_.host_ && complain )
     {
 	BufferString msg("No host ");
 	msg += sharehost;
 	msg += "  found in ";
 	msg += fname;
-	msg += ". Multi machine batch processing might not work as expected.";
+	msg += ". Multi machine batch processing may not work as expected.";
 
-	ErrMsg( msg );
+	if ( TheUIOMsg() )
+	    TheUIOMsg()->warning( msg, "Data host not in BatchHosts." );
+	else 
+	    ErrMsg( msg );
+
 	complain = false;
     }
 
