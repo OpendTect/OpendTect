@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.7 2002-03-20 21:01:54 bert Exp $
+ RCS:		$Id: visdata.h,v 1.8 2002-04-10 07:40:58 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,43 +35,49 @@ class DataObject : public CallBackClass
 {
 public:
 
-    int			id() { return id_; }
-    const char*		name() const;
-    void		setName( const char* );
+    int				id() const { return id_; }
+    const char*			name() const;
+    void			setName( const char* );
 
-    virtual SoNode*	getData() { return 0; }
-    			/*!< May return null if object isn't OpenInventor */
+    virtual SoNode*		getData() { return 0; }
 
-    void		ref() const;
-    void		unRef() const;
+    void			ref() const;
+    void			unRef() const;
 
+    virtual bool		selectable() const { return false; }
+    void			select();
+    				/*<! Is here for convenience. Will rewire to
+				     SelectionManager.	*/
+    void			deSelect();
+    				/*<! Is here for convenience. Will rewire to
+				     SelectionManager.	*/
+    bool			isSelected() const;
     virtual NotifierAccess*	selection() { return 0; }
     virtual NotifierAccess*	deSelection() { return 0; }
 
-    virtual int		usePar( const IOPar& ) { return 1; }
-    			/*!< Returns -1 on error and 1 on success.
-			     If it returns 0 it is missing something. Parse
-			     everything else and retry later.
-			*/
+    virtual int			usePar( const IOPar& ) { return 1; }
+    				/*!< Returns -1 on error and 1 on success.
+				     If it returns 0 it is missing something.
+				     Parse everything else and retry later.
+				*/
 
-    virtual void	fillPar( IOPar& ) const { return; }
+    virtual void		fillPar( IOPar& ) const { return; }
 			
 protected:
     friend			SelectionManager;
-    virtual const SoNode*	getSelObj() const { return 0; }
     virtual void		triggerSel() {}
     virtual void		triggerDeSel() {}
     
-			DataObject();
-    virtual		~DataObject();
-    void		init();
+				DataObject();
+    virtual			~DataObject();
+    void			init();
 
-    friend		DataManager;
-    void		remove() { delete this; }
-    			/* Should only be called by DataManager */
+    friend			DataManager;
+    void			remove() { delete this; }
+    				/* Should only be called by DataManager */
 private:
-    int			id_;
-    BufferString*	name_;
+    int				id_;
+    BufferString*		name_;
 };
 
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.5 2002-04-09 13:26:22 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.6 2002-04-10 07:41:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class AttribSlice;
 namespace visSurvey
 {
 class Scene;
-class PickSet;
+class PickSetDisplay;
 class SeisDisplay;
 };
 
@@ -44,18 +44,19 @@ public:
 
     static const int	evShowPosition;
 			//!< Display position of selected plane.
-    static const int	evSelectPlane;
+    static const int	evSelectionChange;
 			//!< 
-    static const int	evDeselectPlane;
-			//!<
 
     enum ElementType    { Inline, Crossline, Timeslice };
+    enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay };
 
     int			addScene();
     visSurvey::Scene*	getSelScene();
 
     void		turnOn(int,bool);
     bool		isOn(int);
+
+    ObjectType		getObjectType( int id ) const;
 
     bool		deleteAllObjects();
     int			addDataDisplay(uiVisPartServer::ElementType);
@@ -70,7 +71,7 @@ public:
     int 		nrPicks(int);
 
     void		setSelObjectId(int id);
-    int			getSelObjectId()	{ return selobjid; }
+    int			getSelObjectId() const;
     void		setSelSceneId(int id)	{ selsceneid = id; }
     int			getSelSceneId()		{ return selsceneid; }
 
@@ -95,13 +96,12 @@ public:
 protected:
 
     const CallBack	appcb;
-    int			selobjid;
     int			selsceneid;
     float		planepos;
 
-    ObjectSet<visSurvey::PickSet>	picks;
-    ObjectSet<visSurvey::SeisDisplay>	seisdisps;
-    ObjectSet<visSurvey::Scene>         scenes;
+    ObjectSet<visSurvey::PickSetDisplay>	picks;
+    ObjectSet<visSurvey::SeisDisplay>		seisdisps;
+    ObjectSet<visSurvey::Scene>         	scenes;
 };
 
 #endif

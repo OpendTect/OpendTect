@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.6 2002-03-20 08:21:45 nanne Exp $
+ RCS:		$Id: visselman.h,v 1.7 2002-04-10 07:40:58 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,8 @@ ________________________________________________________________________
 class SoSelection;
 class SoNode;
 class SoPath;
+
+namespace Threads { class Mutex; };
 
 namespace visBase
 {
@@ -44,39 +46,27 @@ public:
 				SelectionManager();
     virtual			~SelectionManager();
 
-    void			deSelectAll();
-    void			select( int id ) {}
-    void			deSelect( int id ) {}
+    void			setAllowMultiple(bool yn);
+    bool			allowMultiple() const { return allowmultiple; }
 
+    void			select( int id, bool keepoldsel = false )
+				{ select( id, keepoldsel, true ); }
+    void			deSelect( int id ) { deSelect( id, true ); }
+    void			deSelectAll() { deSelectAll( true ); }
 
-    bool			isSelectable(  const DataObject& assoc );
-    				/*!< Check if the object is selectable */
-   
+    const TypeSet<int>&		selected() const { return selectedids; }
+
     Notifier<SelectionManager>	selnotifer;
     Notifier<SelectionManager>	deselnotifer;
 
-    int				nrSelected() const;
-    const DataObject*		getSelDataObject( int ) const;
-    const Scene*		getSelScene( int ) const;
-    int				getSelNr( const DataObject*,
-	    				  const Scene* =0) const ;
-
 protected:
-    void	select( Scene*, SoPath* );
-    void	deSelect( Scene*, SoPath* );
+    void			select( int id, bool keep, bool lock );
+    void			deSelect( int id, bool lock );
+    void			deSelectAll(bool lock);
 
-    friend	visBase::DataObject;
-    void	regSelObject( DataObject& );
-    void	unRegSelObject( DataObject& );
-
-    ObjectSet<const DataObject>		selected;
-    ObjectSet<Scene>			selscenes;
-
-    ObjectSet<DataObject>		selobjs;
-
-    friend		visBase::Scene;
-    static void		selectCB(void*, SoPath* );
-    static void		deSelectCB(void*, SoPath* );
+    TypeSet<int>		selectedids;
+    bool			allowmultiple;
+    Threads::Mutex&		mutex;
 };
 
 };
