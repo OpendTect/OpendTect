@@ -1,25 +1,25 @@
-dGB-GDI V2.2
+dGB-GDI V2.8
 Default settings
-Fri May 9 12:41:11 1997
+Tue Aug 8 18:01:28 2000
 !
-*Help viewer                  :	htmlview
-*Printer                      :	lpr
-*Font face                    :	Helvetica
-*Bold font                    :	Yes
-*Dialog font size             :	120
-*Graphics large font size     :	100
-*Graphics small font size     :	80
-*Query before remove          :	Yes
-*Show modifiers               :	Yes
-*Seg-Y headers                : /tmp/segyhead.txt
-Hor field offset              : 8
-Vert field offset             : 2
-Company                       :
-Display UnitID                :	Yes
-Display Table style           :	No
-Default display quantity      :	Density
-In-line byte                  : 9
-Cross-line byte               : 21
-X-coord byte                  : 73
-Y-coord byte                  : 77
-SU pick file                  : /tmp/picks.su
+Help viewer              : htmlview
+Printer                  : /tmp/tmp.txt
+Font face                : Helvetica
+Bold font                : Yes
+Dialog font size         : 120
+Graphics large font size : 100
+Graphics small font size : 80
+Query before remove      : Yes
+Show modifiers           : Yes
+Seg-Y headers            : /tmp/segyhead.txt
+Hor field offset         : 8
+Vert field offset        : 2
+Company                  :
+Display UnitID           : Yes
+Display Table style      : No
+Default display quantity : Density
+In-line byte             : 9
+Cross-line byte          : 21
+X-coord byte             : 73
+Y-coord byte             : 77
+SU pick file             : /tmp/picks.su
