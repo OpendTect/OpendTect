@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.80 2002-08-08 10:33:12 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.81 2002-08-12 14:21:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -955,7 +955,8 @@ void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
 }
 
 
-void uiVisPartServer::getHorizonNames( ObjectSet<BufferString>& nms )
+void uiVisPartServer::getHorizonNames( ObjectSet<BufferString>& nms,
+					TypeSet<int>* allids )
 {
     TypeSet<int> sceneids;
     getSceneIds( sceneids );
@@ -970,6 +971,7 @@ void uiVisPartServer::getHorizonNames( ObjectSet<BufferString>& nms )
 	{
 	    int horid = horids[idh];
 	    nms += new BufferString( getObjectName(horid) );
+	    if ( allids ) (*allids) += horid;
 	}
     }
 }

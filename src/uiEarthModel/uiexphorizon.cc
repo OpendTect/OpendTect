@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.1 2002-08-08 10:33:12 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.2 2002-08-12 14:20:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "filegen.h"
 #include "uimsg.h"
 #include "uibinidsubsel.h"
@@ -24,17 +25,29 @@ ________________________________________________________________________
 
 
 uiExportHorizon::uiExportHorizon( uiParent* p, 
-				  const ObjectSet<BufferString>& strs )
+				  const ObjectSet<BufferString>& strs,
+				  const TypeSet<int>& horids_, 
+				  const ObjectSet<BufferString>& attribs_ )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format",0))
+	, selhorid(-1)
+	, horids(horids_)
+	, attribs(attribs_)
 
 {
     inbox = new uiLabeledListBox( this, "Available horizons" );
     inbox->box()->addItems( strs );
+    inbox->box()->selectionChanged.notify( mCB(this,uiExportHorizon,selChg) );
+
+    attrlbl = new uiLabel( this, "" );
+    attrlbl->setHSzPol( uiObject::medium );
+    attrlbl->attach( alignedBelow, inbox );
+    uiLabel* lbltxt = new uiLabel( this, "Calculated attribute: " );
+    lbltxt->attach( leftOf, attrlbl );
 
     xyfld = new uiGenInput( this, "Positions in:",
                             BoolInpSpec("X/Y","Inl/Crl") );
-    xyfld->attach( alignedBelow, inbox );
+    xyfld->attach( alignedBelow, attrlbl );
 
     zfld = new uiGenInput( this, "Include depth", BoolInpSpec() );
     zfld->setValue( false );
@@ -47,6 +60,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p,
 	dirnm = File_getFullPath( datadirnm, "Grids" );
     outfld->setDefaultSelectionDir( dirnm );
     outfld->attach( alignedBelow, zfld );
+
+    selChg( 0 );
 }
 
 
@@ -115,3 +130,10 @@ const char* uiExportHorizon::selectedItem()
     return inbox->box()->getText();
 }
 
+
+void uiExportHorizon::selChg( CallBacker* )
+{
+    int selitmnr = inbox->box()->currentItem();
+    selhorid = horids[selitmnr];
+    attrlbl->setText( *attribs[selitmnr] );
+}

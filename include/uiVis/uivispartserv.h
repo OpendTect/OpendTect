@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.52 2002-08-08 10:33:12 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.53 2002-08-12 14:21:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 #include "ranges.h"
+#include "sets.h"
 #include "thread.h"
 #include "geompos.h"
 #include "position.h"
@@ -168,7 +169,8 @@ public:
     void		getHorData(int,TypeSet<float>&) const;
     void		putNewHorData(int,const ObjectSet<const float>& );
     void		getHorizonIds(int,TypeSet<int>&);
-    void		getHorizonNames(ObjectSet<BufferString>&);
+    void		getHorizonNames(ObjectSet<BufferString>&,
+					TypeSet<int>* set=0);
     int			getHorizonID(const char*);
     void		setHorizonRes(int, int res );
     			//!< 0 is automatic.
