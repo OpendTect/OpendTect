@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.2 2001-04-24 10:52:48 bert Exp $
+ RCS:           $Id: uicombobox.h,v 1.3 2001-04-30 14:58:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
     const char*		textOfItem(int) const;
+    void		setItemText(int,const char*);
 
     void		clear();
     void		addItem(const char*); 
