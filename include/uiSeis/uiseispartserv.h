@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.7 2004-02-17 16:22:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 
-/*! \brief Service provider for application level - seismics */
+/*! \brief Seismic User Interface Part Server */
 
 class uiSeisPartServer : public uiApplPartServer
 {
@@ -39,5 +39,16 @@ protected:
 
 };
 
+
+/*!\mainpage Seismics User Interface
+
+  Most of the tools in this module enable import and export of seismic
+  data into/from the OpendTect data store. The merge and manage tools manipulate
+  seismic data already in the data store.
+
+  A standalone 'application' is the uiSeisMMProc class, which handles the
+  distribution of processing on multiple machines.
+
+*/
 
 #endif

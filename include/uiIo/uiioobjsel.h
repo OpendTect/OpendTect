@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.33 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.34 2004-02-17 16:22:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ class uiLabeledListBox;
 class uiIOObjManipGroup;
 
 
-/*! \brief dialog returning an IOObj* after successful go(). */
+/*! \brief Dialog letting the user select an object.
+           It returns an IOObj* after successful go(). */
 
 class uiIOObjRetDlg : public uiDialog
 {
@@ -124,5 +125,25 @@ protected:
 
 };
 
+
+/*!\mainpage User Interface related to I/O
+
+  This module contains some basic classes that handle the selection and
+  management of an IOObj. An IOObj contains all info necessary to be able
+  to load or store an object from disk. In OpendTect, users select IOObj's,
+  not files (at least most often not direct but via na IOObj entry). Users
+  recognise the IOObj by its name. Every IOObj has a unique identifier, the
+  IOObj's key() which is a MultiID.
+
+  In order to make the right selection, the IOObj selectors must know the
+  context of the selection: what type of object, is it for read or write,
+  should the user be able to create a new entry, and so forth. That's why
+  you have to pass a CtxtIOObj .
+
+  Other objects have been stuffed into this module as there was space left.
+  More seriously, one can say that those objects are too OpendTect specific for
+  the uiTools directory, but too general for any specific UI directory.
+
+*/
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.6 2004-02-17 16:22:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,20 @@ protected:
     BufferStringSet	inpnms;
 
 };
+
+
+/*!\mainpage Non-Linear Analysis User Interface
+
+  This class was designed in such a way that the existing dGB Neural network
+  module could be put in a plugin in an easy way. In that way we kept the
+  possibility to make some money by selling our neural network stuff and
+  still make OpendTect free software.
+
+  Without this small sacrifice I don't think OpendTect would have ever started.
+  We tried to keep the interface as general as possible, though. So it's very
+  well possible and feasible (frighteningly!) to make your own special
+  analysis module.
+  */
 
 
 #endif

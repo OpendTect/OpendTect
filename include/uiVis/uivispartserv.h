@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.109 2004-01-29 10:23:52 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.110 2004-02-17 16:22:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ namespace Threads { class Mutex; };
 namespace Geometry { class GridSurface; };
 
 
-/*! \brief Service provider for application level - Visutes */
+/*! \brief The Visualisation Part Server */
 
 class uiVisPartServer : public uiApplPartServer
 {
@@ -264,5 +264,15 @@ protected:
     static const char*		workareastr;
     static const char*		appvelstr;
 };
+
+
+/*!\mainpage Visualisation User Interface
+
+  This module provides the plain user interface classes necessary to do the
+  3D visualisation in the way that the user wants.
+
+  The uiVisPartServer is a rather big class, that could use a bit of redesign.
+
+  */
 
 #endif

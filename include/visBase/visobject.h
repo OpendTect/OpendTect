@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.21 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.22 2004-02-17 16:22:34 bert Exp $
 ________________________________________________________________________
 
 
@@ -25,9 +25,7 @@ namespace visBase
 class Material;
 class Transformation;
 
-/*!\brief
-    Base class for all objects that are visual on the scene.
-*/
+/*!\brief Base class for all objects that are visual on the scene. */
 
 class VisualObject : public DataObject
 {
@@ -103,5 +101,16 @@ private:
 
 };
 
+
+/*!\mainpage Visualistion - Open Inventor-based tools
+
+  All 3D visualisation in OpendTect is COIN based. COIN is an implementation
+  of the OpenInventor interface sepecification. As usual, COIN is not visible
+  to any object outside this module.
+
+  The classes starting with 'So' are in fact extensions of the COIN library, the
+  'vis' classes are classes used in the rest of OpendTect.
+
+*/
 
 #endif

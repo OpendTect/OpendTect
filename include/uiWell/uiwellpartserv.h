@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.9 2004-02-17 16:22:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class MultiID;
 template <class T> class Interval;
 
-/*! \brief Service provider for application level - Wells */
+/*! \brief Part Server for Wells */
 
 class uiWellPartServer : public uiApplPartServer
 {
@@ -41,5 +41,13 @@ protected:
 
     void			refreshMarkers(CallBacker*);
 };
+
+/*!\mainpage Well User Interface
+
+  Apart from nice visualisation import and management of well data must be
+  done. The uiWellPartServer delivers the services needed.
+
+*/
+
 
 #endif

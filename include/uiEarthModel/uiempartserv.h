@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.25 2004-01-29 10:50:31 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.26 2004-02-17 16:22:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ template <class T> class Interval;
 
 namespace EM { class SurfaceIODataSelection; };
 
-/*! \brief Service provider for application level - seismics */
+/*! \brief Earth Model UI Part Server */
 
 class uiEMPartServer : public uiApplPartServer
 {
@@ -87,5 +87,14 @@ protected:
     
 };
 
+
+/*!\mainpage Earth Model User Interface
+
+ The earth model objects are visualised by the visXX classes. The I/O,
+ parameters and other data-related issues also require standard user interface
+ elements. The classes in this module provide these services via the
+ uiEMPartServer interface.
+
+*/
 
 #endif

@@ -7,21 +7,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.17 2003-11-24 10:52:04 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.18 2004-02-17 16:22:34 bert Exp $
 ________________________________________________________________________
 
 
 -*/
-
-/*! \mainpage
-  \section intro Introduction
-
-  This module contains front-end classes for displaying 3D objects. Most 
-  functions in these classes deal with the geometry or position of the object, 
-  as well as handling new data and information about the attribute 
-  displayed.<br>
-*/
-
 
 #include "gendefs.h"
 #include "callback.h"
@@ -95,6 +85,16 @@ protected:
 SurveyParamManager& SPM();
 
 }; // Namespace
+
+
+/*! \mainpage 3D Visualisation - OpendTect specific
+
+  This module contains front-end classes for displaying 3D objects. Most 
+  functions in these classes deal with the geometry or position of the object, 
+  as well as handling new data and information about the attribute 
+  displayed.
+
+*/
 
 
 #endif
