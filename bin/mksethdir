@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: mksethdir,v 1.6 2004-01-16 10:50:45 arend Exp $
+# $Id: mksethdir,v 1.7 2004-05-06 15:22:40 dgb Exp $
 #
 # HDIR variable setup
 # usage from a csh-script:
@@ -18,6 +18,8 @@ if ( ! $?HDIR ) then
 	setenv HDIR sun5
     else if ( "$HDIR" == "Linux" ) then
 	setenv HDIR lux
+    else if ( "$HDIR" == "Darwin" ) then
+	setenv HDIR mac
     else if ( "$HDIR" == "IRIX" || "$HDIR" == "IRIX64" ) then
 	setenv HDIR sgi
     else if ( $?COMSPEC ) then
