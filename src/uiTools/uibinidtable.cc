@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.3 2003-03-06 17:14:08 bert Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.4 2003-03-12 16:24:11 arend Exp $
  ________________________________________________________________________
 
 -*/
@@ -37,19 +37,30 @@ void uiBinIDTable::init( int nrrows )
     colnms += new BufferString("Inline");
     colnms += new BufferString("Crossline");
 
-    ObjectSet<BufferString> rownms;
-    for ( int idx=0; idx<nrrows+5; idx++ )
-    {
-	BufferString base( "Node " );
-	base += idx;
-	rownms += new BufferString( base );
-    }
+    table = new uiTable( this, uiTable::Setup().rowdesc("Node").rowcangrow(),
+		         "Table" );
 
-    table = new uiTable( this, "Table" );
+
     table->setColumnLabels( colnms );
-    table->setRowLabels( rownms );
+    table->setNrRows( nrrows+5 );
+    nodeAdded();
 
+    deepErase( colnms );
+
+    table->rowInserted.notify( mCB(this,uiBinIDTable,nodeAdded) );
 }
+
+void uiBinIDTable::nodeAdded(CallBacker*)
+{
+    const int nrrows = table->nrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	BufferString labl( "Node " );
+	labl += idx;
+	table->setRowLabel( idx, labl );
+    }
+}
+
     
 
 void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
@@ -58,20 +69,20 @@ void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
     for ( int idx=0; idx<nrbids; idx++ )
     {
 	const BinID bid = bids[idx];
-	table->setText( idx, 0, BufferString(bid.inl) );
-	table->setText( idx, 1, BufferString(bid.crl) );
+	table->setText( uiTable::Pos(0,idx), BufferString(bid.inl) );
+	table->setText( uiTable::Pos(1,idx), BufferString(bid.crl) );
     }
 }
 
 
 void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids )
 {
-    int nrrows = table->numRows();
+    int nrrows = table->size().height();
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	BinID bid(0,0);
-	BufferString inlstr = table->text(idx,0);
-	BufferString crlstr = table->text(idx,1);
+	BufferString inlstr = table->text(uiTable::Pos(0,idx));
+	BufferString crlstr = table->text(uiTable::Pos(1,idx));
 	if ( !(*inlstr) || !(*crlstr) )
 	    continue;
 	bid.inl = atoi(inlstr);
