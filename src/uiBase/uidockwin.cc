@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.16 2004-05-10 14:44:43 macman Exp $
+ RCS:           $Id: uidockwin.cc,v 1.17 2004-07-13 08:49:30 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,11 @@ ________________________________________________________________________
 
 #include <qdockwindow.h>
 
-#ifdef __mac__
-# define _machack_
+#if defined( __mac__ ) || defined( __win__ )
+# define _redraw_hack_
 # include "timer.h"
 #endif
+
 
 class uiDockWinBody : public uiParentBody
 		    , public QDockWindow
@@ -41,7 +42,7 @@ protected:
 
     virtual void	finalise();
 
-#ifdef _machack_
+#ifdef _redraw_hack_
 
 // the doc windows are not correctly drawn on the mac at pop-up
 
@@ -77,7 +78,7 @@ protected:
 
 };
 
-#ifdef _machack_
+#ifdef _redraw_hack_
 Timer uiDockWinBody::redrtimer;
 #endif
 
@@ -90,12 +91,12 @@ uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt,
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
-#ifdef _machack_
+#ifdef _redraw_hack_
 	, mycallback_( mCB(this, uiDockWinBody, redrTimTick) )
 #endif
 {
     if ( *nm ) setCaption( nm );
-#ifdef _machack_
+#ifdef _redraw_hack_
     redrtimer.tick.notify( mycallback_ );
     redrtimer.start( 500, true );
 #endif
@@ -116,7 +117,7 @@ void uiDockWinBody::construct()
 
 uiDockWinBody::~uiDockWinBody( )
 {
-#ifdef _machack_
+#ifdef _redraw_hack_
     redrtimer.tick.remove( mycallback_ );
 #endif
     delete centralWidget_; centralWidget_ = 0;
