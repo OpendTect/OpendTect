@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.8 2001-10-18 14:01:15 bert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.9 2001-12-06 09:36:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm,
 	, forread(fr)
 	, fname( fnm )
 	, filter(filt)
+	, newfltr(false)
 {
     setWithSelect( true );
 }
@@ -38,6 +39,7 @@ void uiFileInput::doSelect( CallBacker* )
 {
     fname = text();
     if ( fname == "" ) fname = defseldir;
+    if ( newfltr ) filter = selfltr;
     uiFileDialog dlg( this, forread, fname, filter );
     if ( dlg.go() )
 	setFileName( dlg.fileName() );
