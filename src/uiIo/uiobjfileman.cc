@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.1 2004-10-28 15:01:09 nanne Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.2 2004-11-09 10:23:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,7 @@ BufferString uiObjFileMan::getFileInfo()
     txt += "\nFile name: "; txt += fp.fileName();
     txt += "\nFile size: "; txt += getFileSizeString( getFileSize(fname) );
     conn->close();
+    delete conn;
     return txt;
 }
 
