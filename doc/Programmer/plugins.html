@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.20 2004-01-09 11:02:09 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.21 2004-01-12 15:01:15 bert Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -133,8 +133,8 @@ If <code>"make PLAN_B=yes"</code> does not compile anything (because a uiHello.s
 <h4>Problems</h4>
 The two problems we are faced with are:
 <ol>
-<li>How to create a new menu item
-<li>How does one make a new dialog
+<li>How to add a new menu item
+<li>How to create a dialog
 </ol>
 The real problem behind the first is not so much how to make the item itself, but how to get hold of the parent menu it must be inserted into. This is a threshold that needs to be conquered for every new system: you'll need an entry point, a seed to get you going. In OpendTect, the entry point is the global instance of the uiODMain class that can be accessed through the <code>uiODMain* ODMainWin()</code> global function. Once you have that, you can reach any object you need. 
 </p><p>
@@ -146,12 +146,12 @@ To see where things start, go to the PLAN_B InituiHelloPlugin function at the bo
     return 0; // All OK - no error messages
 }
 </pre></code>
-As you can see, the ODMainWin() instance is passed to a new instance of <code>uiHelloMgr</code> which is programmed above it. This Manager object is needed as you will find that any non-trivial GUI plugin will need some kind of top-level 'application management' object to drive it.
+As you can see, the ODMainWin() instance is passed to a new instance of <code>uiHelloMgr</code> which is programmed in the lines above it. This Manager object is needed as you will find that any non-trivial GUI plugin will need some kind of top-level 'application management' object to drive it.
 </p><p>
 </p>
 <h4>The <code>uiHelloMgr</code></h4>
 <p>
-An important part of any GUI system is callback handling. In OpendTect, callbacks are basic objects used throughout the system, not only in the User Interface. In any case, because callbacks can only be sent to objects that are <code>CallBacker</code>s, we have made <code>uiHelloMgr</code> a descendent of <code>CallBacker</a>, so it can receive the callback from the menu.
+An important part of any GUI system is callback handling. In OpendTect, callbacks are basic objects used throughout the system, not only in the User Interface. In any case, because callbacks can only be sent to objects that are <code>CallBacker</code>s, we have made <code>uiHelloMgr</code> a descendent of <code>CallBacker</code>, so it can receive the callback from the menu.
 When the uiHelloMgr is constructed, it will add a menu item to the OpendTect menu:
 </p><p>
 <code><pre>
@@ -160,18 +160,18 @@ When the uiHelloMgr is constructed, it will add a menu item to the OpendTect men
     appl.menuMgr().utilMnu()->insertItem( newitem );
 </code></pre>
 </p><p>
-The new menu item is defined by the display text (the '&amp;' makes the 'D' the shortcut key) and the CallBack that needs to be called when the item is activated (by the user). Note the mCB which is a macro that makes the rather difficult C++ notation easy to understand. See callback.h in the Basic include directory if you're really interested.
+The new menu item is defined by the display text (the '&amp;' makes the 'D' the shortcut key) and the CallBack that needs to be called when the item is activated (by the user). Note the <code>mCB</code> which is a macro that makes the rather difficult C++ notation easy to understand. See callback.h in the <code>Basic</code> include directory if you're really interested.
 </p><p>
 The next line inserts the item into the 'Utilities' menu. You'll find a bunch of methods in the <code>uiODMenuMgr</code> class to access all menus and toolbars.
 </p>
 <h4>The <code>uiHelloMsgBringer</code></h4>
 <p>
-All Dialogs windows in OpendTect are objects of type <code>uiDialog</code> (in a few cases like the OpendTect main window itself <code>uiMainWin</code>). The <code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code> which means it has (by default) Ok and Cancel buttons, a window title, and so forth. The class contains a field for user input of the string to display as message. To make the example a bit lively, we added a field whether the message should be, eh, just a message, or a warning. You can see the <code>uiGenInput</code> class will serve both input fields nicely, you just need to define another <code>InpSpec</code> instance:
+All dialog windows in OpendTect are objects of type <code>uiDialog</code> (in a few cases like the OpendTect main window itself they descend from <code>uiMainWin</code>). The <code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code> which means it has (by default) Ok and Cancel buttons, a window title, and so forth. The class contains a field for user input of the string to display as message. To make the example a bit lively, we added a field whether the message should be, eh, just a message, or a warning. You can see the <code>uiGenInput</code> class will serve both input fields nicely, you just need to define another <code>InpSpec</code> instance:
 <code><pre>txtfld = new uiGenInput( this, "Hello message",
-                                    StringInpSpec("Hello world") );
-    typfld = new uiGenInput( this, "Message type",
-                             BoolInpSpec("Info","Warning") );
-    typfld->attach( alignedBelow, txtfld );
+                         StringInpSpec("Hello world") );
+typfld = new uiGenInput( this, "Message type",
+                         BoolInpSpec("Info","Warning") );
+typfld->attach( alignedBelow, txtfld );
 </code></pre>
 </p><p>
 Note that "Hello world" is the inital string displayed in <code>txtfld</code>. Another feature of the OpendTect UI is the automatic layout: we program the positions of the various fields by attaching them in certain ways - most commonly <code>alignedBelow</code>.
@@ -341,9 +341,9 @@ These methods must be defined by subclasses. To implement these methods there ar
 <p></p>
 In the uicoh.cc file we see that although <code>uiAttrDescEd</code> is not a <code>uiDialog</code> like the the uiHello example, it still is a valid parent (being a <code>uiGroup</code>) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the <code>inpfld</code> is a special Attribute UI class which is handled just like any pre-defined uiBase or <code>uiTools</code> class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.
 <p></p>
-Further on the specific uiAttrdescEd methods, we take the example of <code>uiCoherencyAttrDescEd::putStuffToScreen</code>. Using the <code>mGetMyForm</code> macro, we get access to the AttribParameterForm that is currently being edited. In this case, the attribute set editor wants us to take the values from the form and put them on the screen. Thus, we have to check whether there is something in the first place (macro <code>mIfHaveValFor</code>), and if so, put the value into the corresponding UI element. For inputs to this attribute (input cubes or other attributes), there is a special 'putInp' method. A special feature is the attrparset - if something is added to this set, the set editor knows that attribute evaluations can be done with this parameter. In this case, the user can evaluate the effect of time gate differences by using the special button.
+Further on the specific uiAttrdescEd methods, we take the example of <code>uiCoherencyAttrDescEd::putStuffToScreen</code>. Using the <code>mGetMyForm</code> macro, we get access to the <code>AttribParameterForm</code> that is currently being edited. In this case, the attribute set editor wants us to take the values from the form and put them on the screen. Thus, we have to check whether there is something in the first place (macro <code>mIfHaveValFor</code>), and if so, put the value into the corresponding UI element. For inputs to this attribute (input cubes or other attributes), there is a special 'putInp' method. A special feature is the attrparset - if something is added to this set, the set editor knows that attribute evaluations can be done with this parameter. In this case, the user can evaluate the effect of time gate differences by using the special button.
 <p></p>
-The <code>fillParsFromScreen</code> method's implementation follows similar patterns. Noteworthy is the use of the change tracker to update the pars - this allows the set editor to figure out whether the attribute set was changed (and subsequently warn the user when no save has beeen done).
+The <code>fillParsFromScreen</code> method's implementation follows similar patterns. Noteworthy is the use of the change tracker to update the pars - this allows the set editor to figure out whether the attribute set was changed (and subsequently warn the user when no save has beeen done). Note that for getting the data from the screen, there are two methods: <code>fillParsFromScreen</code> and <code>fillDescFromScreen</code>. Where <code>fillParsFromScreen</code> only retrieves the data for the <code>AttribParameterForm</code>, <code>fillDescFromScreen</code> fills the rest of the <code>AttribDesc</code>, which are the input and output selections.
 <p></p>
 The funny thing is that uicoh.cc stops without 'doing' anything. That's because the attribute set editor object is 'doing' everything. Some people will want to call this an example of the 'Holliwood principle' - "Don't call us - we'll call you".
 <p></p>
