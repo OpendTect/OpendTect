@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.17 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.18 2004-07-05 09:08:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 
     			BatchProgPar(const char*);
 
-    enum Type		{ File, Words, QWord };
+    enum Type		{ FileRead, FileWrite, Words, QWord };
 
     Type		type;
     bool		mandatory;
@@ -41,9 +41,12 @@ public:
 
     static Type		getType( const char* s )
 			{
-			    return *s == 'W' ? Words
-				: (*s == 'Q' ? QWord
-					     : File);
+			    if ( *s == 'W' ) return Words;
+			    if ( *s == 'Q' ) return QWord;
+			    if ( !strcmp("FileRead",s) )
+				return FileRead;
+			    else
+				return FileWrite;
 			}
 };
 
@@ -168,17 +171,21 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p, const char* appnm )
 	    if ( !bpp.mandatory ) txt += "]";
 
 	    uiGenInput* newinp;
-	    if ( bpp.type != BatchProgPar::File )
+	    if ( bpp.type == BatchProgPar::Words ||
+		 bpp.type == BatchProgPar::QWord )
 		newinp = new uiGenInput( this, txt );
 	    else
 	    {
-		uiFileInput* fi = new uiFileInput( this, txt );
+		BufferString filt;
+		if ( bpp.desc == "Parameter file" )
+		    filt = "Parameter files (*.par);;";
+		filt += "Any files (*)";
+		bool forread = bpp.type == BatchProgPar::FileRead;
+		uiFileInput* fi = new uiFileInput( this, txt,
+			uiFileInput::Setup().forread(forread)
+					    .filter(filt.buf()) );
 		newinp = fi;
 		fi->setDefaultSelectionDir( startdir );
-		BufferString filt( "*" );
-		if ( bpp.desc == "Parameter file" )
-		    filt += ";;*.par";
-		fi->setFilter( filt );
 	    }
 
 	    if ( iarg )
