@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.7 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: iodirentry.h,v 1.8 2004-10-20 14:41:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
     IOObj*		selected()
 			{ return current() ? current()->ioobj : 0 ; }
     int			indexOf(const char*) const;
+    void		removeWithTranslator(const char*);
 
     MultiID		lastiokey;
     IOObjContext&	ctxt;

@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.10 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.11 2004-10-20 14:41:51 bert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -163,6 +163,25 @@ void IODirEntryList::curRemoved()
     if ( cur_ >= size() ) cur_ = size() - 1;
     cur = current();
     lastiokey = cur && cur->ioobj ? (const char*)cur->ioobj->key() : "";
+}
+
+
+void IODirEntryList::removeWithTranslator( const char* trnm )
+{
+    BufferString nm = trnm;
+    int curidx = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	IODirEntry* entry = (*this)[idx];
+	if ( entry->ioobj && nm == entry->ioobj->translator() )
+	{
+	    if ( idx == cur_ )
+		cur_--;
+	    *this -= entry;
+	    idx--;
+	}
+    }
+    if ( cur_ < 0 ) cur_ = size() - 1;
 }
 
 
