@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.2 2005-01-26 22:54:34 bert Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.3 2005-01-26 22:59:03 bert Exp $";
 
 
 #include "linear.h"
@@ -75,8 +75,13 @@ static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
 	const float yd = mArrVal(yvals) - ypred;
 	sumd2 = yd * yd;
     }
-    ls.sd.ax = sqrt( sumd2 / ((nrpts-2) * sumx2) );
-    ls.sd.a0 = sqrt( (sumx2 * sumd2) / (nrpts * (nrpts-2) * sumx2) );
+    if ( nrpts < 3 )
+	ls.sd.ax = ls.sd.a0 = 0;
+    else
+    {
+	ls.sd.ax = sqrt( sumd2 / ((nrpts-2) * sumx2) );
+	ls.sd.a0 = sqrt( (sumx2 * sumd2) / (nrpts * (nrpts-2) * sumx2) );
+    }
 }
 
 
