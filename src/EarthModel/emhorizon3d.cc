@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.41 2003-12-15 15:59:24 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.42 2004-05-21 10:20:36 bert Exp $";
 
 #include "emhorizon.h"
 
@@ -195,81 +195,87 @@ namespace EM
 class HorizonImporter : public Executor
 {
 public:
-    HorizonImporter( EM::Horizon& hor, const Grid& g )
+
+HorizonImporter( EM::Horizon& hor, const Grid& g )
 	: Executor("Horizon Import")
 	, horizon( hor )
 	, grid( g )
+{
+    const int nrrows = grid.nrRows();
+    const int nrcols = grid.nrCols();
+    for ( int row=0; row<nrrows; row++ )
     {
-	const int nrrows = grid.nrRows();
-	const int nrcols = grid.nrCols();
-	for ( int row=0; row<nrrows; row++ )
+	for ( int col=0; col<nrcols; col++ )
 	{
-	    for ( int col=0; col<nrcols; col++ )
-	    {
-		GridNode gridnode( col, row );
-		const Coord coord = grid.getCoord( gridnode );
-		const BinID bid = SI().transform(coord);
+	    GridNode gridnode( col, row );
+	    const Coord coord = grid.getCoord( gridnode );
+	    const BinID bid = SI().transform(coord);
 
-		if ( !row && !col )
-		{
-		    inlrange.start = bid.inl; inlrange.stop = bid.inl;
-		    crlrange.start = bid.crl; crlrange.stop = bid.crl;
-		}
-		else
-		{
-		    inlrange.include( bid.inl );
-		    crlrange.include( bid.crl );
-		}
+	    if ( !row && !col )
+	    {
+		inlrange.start = bid.inl; inlrange.stop = bid.inl;
+		crlrange.start = bid.crl; crlrange.stop = bid.crl;
+	    }
+	    else
+	    {
+		inlrange.include( bid.inl );
+		crlrange.include( bid.crl );
 	    }
 	}
-
-
-	const GridNode node00( 0, 0 );
-	const GridNode node11( 1, 1 );
-
-	const BinID bid00 = SI().transform(grid.getCoord( node00 ));
-	const BinID bid11 = SI().transform(grid.getCoord( node11 ));
-
-	inlrange.step = abs(bid00.inl-bid11.inl);
-	crlrange.step = abs(bid00.crl-bid11.crl);
-
-	const RowCol step( inlrange.step, crlrange.step );
-	const RowCol origo(bid00.inl,bid00.crl);
-	horizon.setTranslatorData( step, step, origo, 0, 0 );
-	patch = hor.addPatch( g.name(), true );
-
-	inl = inlrange.start;
     }
 
-    int		totalNr() const { return inlrange.nrSteps()+1; }
-    int		nrDone() const { return inlrange.getIndex(inl); }
-    const char*	nrDoneText() const { return "Gridlines imported"; }
-    int		nextStep()
-		{
-		    if ( inl>inlrange.stop )
-			return Finished;
 
-		    for ( int crl=crlrange.start; crl<=crlrange.stop;
-			      crl+=crlrange.step )
-		    {
-			const BinID bid(inl,crl);
-			const Coord coord = SI().transform(bid);
-			const GridNode gridnode = grid.getNode(coord);
-			const float val = grid.getValue( gridnode );
-			if ( mIsUndefined(val) )
-			    continue;
+    const GridNode node00( 0, 0 );
+    const GridNode node11( 1, 1 );
 
-			Coord3 pos(coord.x, coord.y, val );
-			horizon.setPos( patch, horizon.getRowCol(bid), pos,
-				   	true, false );
-		    }
+    const BinID bid00 = SI().transform(grid.getCoord( node00 ));
+    const BinID bid11 = SI().transform(grid.getCoord( node11 ));
 
-		    inl += inlrange.step;
-		    return MoreToDo;
-		}
+    inlrange.step = abs(bid00.inl-bid11.inl);
+    if ( !inlrange.step ) inlrange.step = 1;
+    crlrange.step = abs(bid00.crl-bid11.crl);
+    if ( !crlrange.step ) crlrange.step = 1;
+
+    const RowCol step( inlrange.step, crlrange.step );
+    const RowCol origo(bid00.inl,bid00.crl);
+    horizon.setTranslatorData( step, step, origo, 0, 0 );
+    patch = hor.addPatch( g.name(), true );
+
+    inl = inlrange.start;
+}
+
+const char*	message() const { return "Transforming grid data"; }
+int		totalNr() const { return inlrange.nrSteps()+1; }
+int		nrDone() const { return inlrange.getIndex(inl); }
+const char*	nrDoneText() const { return "Gridlines imported"; }
+
+int nextStep()
+{
+    if ( inl>inlrange.stop )
+	return Finished;
+
+    for ( int crl=crlrange.start; crl<=crlrange.stop;
+	      crl+=crlrange.step )
+    {
+	const BinID bid(inl,crl);
+	const Coord coord = SI().transform(bid);
+	const GridNode gridnode = grid.getNode(coord);
+	const float val = grid.getValue( gridnode );
+	if ( mIsUndefined(val) )
+	    continue;
+
+	Coord3 pos(coord.x, coord.y, val );
+	horizon.setPos( patch, horizon.getRowCol(bid), pos,
+			true, false );
+    }
+
+    inl += inlrange.step;
+    return MoreToDo;
+}
 
 
 protected:
+
     EM::Horizon&	horizon;
     const Grid&		grid;
     StepInterval<int>	inlrange;
