@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.64 2004-12-27 15:07:32 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.65 2005-01-04 15:02:12 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -311,9 +311,28 @@ const char* _GetHomeDir()
     const char* ptr = getenv( "DTECT_WINHOME" );
     if ( !ptr ) ptr = getenv( "dGB_WINHOME" );
 
-    if ( !ptr ) ptr = getCleanWinPath( getenv("DTECT_HOME") );
+    if ( !ptr ) ptr = getCleanWinPath( getenv("DTECT_HOME") ); // should be set
+    if ( !ptr )
+    {
+	ErrMsg("Warning: No DTECT_HOME nor DTECT_WINHOME set. \n
+		 Falling back to USERPROFILE, APPDATA, etc.");
+    }
+    
     if ( !ptr ) ptr = getCleanWinPath( getenv("dGB_HOME") );
     if ( !ptr ) ptr = getCleanWinPath( getenv("HOME") );
+
+    if ( !ptr ) ptr = getenv( "USERPROFILE" ); // set by OS
+    if ( !ptr ) ptr = getenv( "APPDATA" );     // set by OS -- but is hidden 
+
+    if ( !ptr )
+	ptr = getenv( "DTECT_USERPROFILE_DIR" ); // set by init script
+
+    if ( !ptr && (!getenv("HOMEDRIVE") || !getenv("HOMEPATH")) ) 
+    {
+	if ( !ptr ) // Last resort. Is known to cause problems when used 
+		    // during initialisation of statics. (0xc0000005)
+	    ptr = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User profile"
+    }
 
     if ( ptr && *ptr )
     {
@@ -355,24 +374,13 @@ const char* GetSettingsDir(void)
 
 #else    
 
-    const char* ptr = getCleanWinPath( getenv("DTECT_SETTINGS") );
-    if ( ptr ) mkfullpth = NO;
+    const char* ptr = getenv( "DTECT_WINSETTINGS" );
+    if( !ptr) ptr = getCleanWinPath( getenv("DTECT_SETTINGS") );
 
-    if ( !ptr )
-	ptr = getenv( "USERPROFILE" ); // should be set by OS
-
-    if ( !ptr )
-	ptr = getenv( "APPDATA" ); // should be set by OS -- but is hidden 
-
-    if ( !ptr )
-	ptr = getenv( "DTECT_APPLICATION_DATA" ); // set by init script
-
-    if ( !ptr )
+    if ( ptr )
+	mkfullpth = NO;
+    else
 	ptr = _GetHomeDir();
-
-    if ( !ptr ) // Last resort. Is known to cause problems when used 
-                // during initialisation of statics. (0xc0000005)
-	ptr = GetSpecialFolderLocation( CSIDL_APPDATA ); // "Application Data"
 
     if ( !ptr )
 	return 0;
@@ -392,7 +400,7 @@ const char* GetSettingsDir(void)
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgbuf, "GetSettingsDir: '%s'", ptr );
+	sprintf( dbgbuf, "GetSettingsDir: '%s'", ptr ? ptr : "<none>" );
 	od_debug_message( dbgbuf );
     }
 
@@ -407,32 +415,6 @@ const char* GetPersonalDir(void)
 
     if ( !ptr )
 	ptr = _GetHomeDir();
-
-#ifdef __win__
-
-    if ( !ptr ) 
-	ptr = getenv( "USERPROFILE" ); // should be set by OS
-
-    if ( !ptr ) 
-	ptr = getenv( "DTECT_USERPROFILE_DIR" );
-
-    if ( !ptr ) 
-	ptr = getenv( "DTECT_MYDOCUMENTS_DIR" );
-
-    if ( !ptr )
-	ptr = _GetHomeDir();
-
-    if ( !ptr ) 
-	ptr = getenv( "APPDATA" );
-
-    if ( !ptr ) // Last resort. Is known to cause problems when used 
-                // during initialisation of statics. (0xc0000005)
-	ptr = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User Profile"
-
-    char* chptr = (char*)ptr;
-    while ( chptr && *chptr++ ) { if ( *chptr == '\r' ) *chptr='\0'; }
-
-#endif
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
