@@ -62,7 +62,7 @@ public:
 				{ return LoadPlugin(libnm,argc_,argv_); }
     void			loadAuto( bool late=true )
 				{ LoadAutoPlugins( argc_, argv_,
-				  late?PI_AUTO_INIT_EARLY:PI_AUTO_INIT_LATE); }
+				  late?PI_AUTO_INIT_LATE:PI_AUTO_INIT_EARLY); }
 
     bool			isLoaded(const char*); //!< file or username
     const ObjectSet<BufferString>& loadedFileNames() const
