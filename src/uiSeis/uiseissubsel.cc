@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.23 2004-10-12 07:33:27 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.24 2004-10-12 15:47:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,16 +166,41 @@ bool uiSeisSubSel::isSing2DLine() const
 }
 
 
+const char* uiSeisSubSel::selectedLine() const
+{
+    return is2d_ ? sel2d->selectedLine() : "";
+}
+
+
+void uiSeisSubSel::setSelectedLine( const char* nm )
+{
+    if ( is2d_ )
+	sel2d->setSelectedLine( nm );
+}
+
+
 static const BufferStringSet emptylnms;
 
 
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry )
 	: uiGroup( p, "2D seismics sub-selection" )
 	, lnmsfld(0)
+	, lnmfld(0)
 	, singLineSel(this)
 {
+    if ( for_new_entry )
+	lnmfld = new uiGenInput( this, "Line name in Set" );
+    else
+    {
+	lnmsfld = new uiGenInput( this, "One line only",
+				  StringListInpSpec(emptylnms) );
+	lnmsfld->setWithCheck( true );
+	lnmsfld->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
+    }
+
     selfld = new uiGenInput( this, "Select", BoolInpSpec("All","Part",true) );
     selfld->valuechanged.notify( mCB(this,uiSeis2DSubSel,selChg) );
+    selfld->attach( alignedBelow, lnmfld ? lnmfld : lnmsfld );
 
     trcrgfld = new uiGenInput( this, "Trace number range (start, stop, step)",
 	    			IntInpIntervalSpec(true) );
@@ -194,15 +219,6 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry )
 	zfld->setValue( mNINT(zrg.step*1000), 2 );
     }
     zfld->attach( alignedBelow, trcrgfld );
-
-    if ( !for_new_entry )
-    {
-	lnmsfld = new uiGenInput( this, "One line only",
-				  StringListInpSpec(emptylnms) );
-	lnmsfld->setWithCheck( true );
-	lnmsfld->attach( alignedBelow, zfld );
-	lnmsfld->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
-    }
 
     setHAlignObj( selfld );
     setHCentreObj( selfld );
@@ -225,7 +241,24 @@ bool uiSeis2DSubSel::isAll() const
 
 bool uiSeis2DSubSel::isSingLine() const
 {
-    return lnmsfld && lnmsfld->isChecked();
+    return lnmfld || lnmsfld->isChecked();
+}
+
+
+const char* uiSeis2DSubSel::selectedLine() const
+{
+    if ( lnmsfld )
+	return lnmsfld->isChecked() ? lnmsfld->text() : "";
+    return lnmfld->text();
+}
+
+
+void uiSeis2DSubSel::setSelectedLine( const char* nm )
+{
+    if ( lnmfld )
+	lnmfld->setText( nm );
+    else
+	lnmsfld->setText( nm );
 }
 
 
@@ -234,7 +267,9 @@ void uiSeis2DSubSel::clear()
     trcrgfld->setValue(1,0); trcrgfld->setText("",1); trcrgfld->setValue(1,2);
     setInput( SI().zRange() );
     selfld->setValue( true );
-    if ( lnmsfld )
+    if ( lnmfld )
+	lnmfld->setText( "" );
+    else
     {
 	lnmsfld->setChecked( false );
 	lnmsfld->newSpec( StringListInpSpec(emptylnms), 0 );
@@ -313,9 +348,11 @@ void uiSeis2DSubSel::selChg( CallBacker* )
 void uiSeis2DSubSel::usePar( const IOPar& iopar )
 {
     LineKey lk; lk.usePar( iopar, false );
-    if ( lnmsfld )
+    BufferString lnm( lk.lineName() );
+    if ( lnmfld )
+	lnmfld->setText( lnm );
+    else
     {
-	BufferString lnm( lk.lineName() );
 	lnmsfld->setText( lnm );
 	lnmsfld->setChecked( lnm != "" );
     }
@@ -358,7 +395,9 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     iopar.set( sKey::BinIDSel, isall ? sKey::No : sKey::Range );
 
     BufferString lnm;
-    if ( lnmsfld && lnmsfld->isChecked() )
+    if ( lnmfld )
+	lnm = lnmfld->text();
+    else if ( lnmsfld->isChecked() )
 	lnm = lnmsfld->text();
     if ( lnm == "" )
 	iopar.removeWithKey( sKey::LineKey );
