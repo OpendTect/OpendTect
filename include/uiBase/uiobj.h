@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.4 2001-05-02 13:50:12 windev Exp $
+ RCS:           $Id: uiobj.h,v 1.5 2001-05-02 20:25:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ public:
     void		shallowRedraw( CallBacker* =0 )	{ forceRedraw_(false); }
     void		deepRedraw( CallBacker* =0 )	{ forceRedraw_(true); }
 
-mTProtected:
+mProtected:
 
     virtual const QWidget*	qWidget_() const 	= 0;
     virtual const uiObject& clientWidget_()const	{ return *this; }
