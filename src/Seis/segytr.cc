@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.8 2001-07-06 11:40:39 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.9 2001-07-18 16:15:49 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -27,6 +27,8 @@ const char* SEGYSeisTrcTranslator::sExternalTimeShift = "Start time overrule";
 const char* SEGYSeisTrcTranslator::sExternalSampleRate = "Sample rate overrule";
 const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 	= "Coordinate scaling overrule";
+const char* SEGYSeisTrcTranslator::sUseLiNo
+	= "Use tape header line number or inline";
 
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm )
@@ -41,6 +43,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm )
 	, ext_coord_scaling(mUndefValue)
 	, ext_time_shift(mUndefValue)
 	, ext_sample_rate(mUndefValue)
+	, use_lino(false)
 	, do_string_dump(false)
 	, dumpstr(0)
 {
@@ -125,6 +128,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
     SeisTrcInfo info;
     trhead.fill( info, ext_coord_scaling );
+    if ( use_lino ) info.binid.inl = pinfo.nr;
     SamplingData<float> sd( info.sampling.start, info.sampling.step );
     if ( !sd.step ) sd.step = binhead_dpos;
     if ( !mIsUndefined(ext_time_shift) )
@@ -234,6 +238,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar* iopar )
     iopar->get( sExternalCoordScaling, ext_coord_scaling );
     iopar->get( sExternalTimeShift, ext_time_shift );
     iopar->get( sExternalSampleRate, ext_sample_rate );
+    iopar->getYN( sUseLiNo, use_lino );
 }
 
 
