@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.11 2003-03-02 14:23:05 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.12 2003-03-03 15:41:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ ________________________________________________________________________
 uiMergeSeis::uiMergeSeis( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Seismic file merging",
 				     "Specify input/output seismics",
-				     "0"))
+				     "103.1.2"))
 	, ctio(SeisTrcTranslator::ioContext())
 	, req(0)
 	, inpsz(0)
