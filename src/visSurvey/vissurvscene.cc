@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.38 2002-08-22 14:32:04 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.39 2002-09-17 10:23:01 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -518,6 +518,6 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
     if ( sd )
 	mouseposval = sd->getValue( inlcrl );
     else if ( hd )
-	mouseposval = hd->getValue( inlcrl );
+	mouseposval = hd->getValue( xytmousepos );
     mouseposchange.trigger();
 }
