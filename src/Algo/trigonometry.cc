@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.22 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.23 2005-03-02 18:46:24 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -199,6 +199,42 @@ float Line3::distanceToPoint( const Coord3& point ) const
    Vector3 v( alpha, beta, gamma );
 
    return v.cross( p0p1 ).abs() / v.abs();
+}
+
+
+/*
+   |
+   B-------C
+   |      /
+   |     /
+   |    /
+   |   /
+   |  /
+   |a/
+   |/
+   A
+   |
+   |
+
+Given: A, C and dir
+Wanted: B
+
+B = dir/|dir| * |AB|
+|AB| = |AC| * cos(a)
+dir.AC = |dir|*|AC|*cos(a)
+
+dir.AC / |dir| = |AC|*cos(a)
+
+B = dir/|dir| * dir.AC / |dir|
+
+*/
+
+
+Coord3 Line3::closestPoint( const Coord3& point ) const
+{
+    Coord3 AC( point.x - x0, point.y - y0, point.z - z0 );
+    Coord3 dir = direction(); 
+    return dir*dir.dot(AC);
 }
 
 

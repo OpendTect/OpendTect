@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.13 2004-06-03 10:40:09 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.14 2005-03-02 18:46:24 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -95,6 +95,9 @@ public:
 			}
  
     float               distanceToPoint( const Coord3& point ) const;
+    Coord3		closestPoint( const Coord3& point ) const;
+    			/*!<\returns the point on the line that is closest to
+			 	     the given point */
  
     float		x0;
     float		y0;
