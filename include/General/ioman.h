@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.5 2001-08-22 22:34:45 bert Exp $
+ RCS:		$Id: ioman.h,v 1.6 2001-09-03 19:31:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ public:
 			     $HOME/.dgbSurvey file */
 
     static bool		validSurveySetup(BufferString& errmsg);
+    MultiID		newKey() const;
 
 private:
 
@@ -104,7 +105,6 @@ private:
     bool		setRootDir(const char*);
 
     bool		setDir(const char*);
-    MultiID		newKey() const;
     bool		getAuxfname(const MultiID&,FileNameString&) const;
 
 };
