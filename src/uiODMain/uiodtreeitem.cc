@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.46 2004-09-07 11:40:44 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.47 2004-09-14 14:01:49 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -302,20 +302,42 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiVisMenu*,menu,cb)
     if ( visserv->hasAttrib(displayid) )
     {
+	uiAttribPartServer* attrserv = applMgr()->attrServer();
+	const AttribSelSpec& as = *visserv->getSelSpec(displayid);
 	uiPopupMenu* selattrmnu = new uiPopupMenu( menu->getParent(),
 						   attrselmnutxt);
-	firstsetattrmnuid = menu->getFreeID();
-	lastsetattrmnuid = firstsetattrmnuid;
-	applMgr()->attrServer()->createAttribSubMenu( *selattrmnu,
-					  lastsetattrmnuid,
-					  *visserv->getSelSpec(displayid));
-	for ( int idx=firstsetattrmnuid; idx<=lastsetattrmnuid; idx++ )
+	storedstartid = menu->getFreeID();
+	storedstopid = storedstartid;
+	uiPopupMenu* stored =
+	    	attrserv->createStoredCubesSubMenu( storedstopid, as );
+	selattrmnu->insertItem( stored );
+	for ( int idx=storedstartid; idx<=storedstopid; idx++ )
 	    menu->getFreeID();
+
+	attrstartid = menu->getFreeID();
+	attrstopid = attrstartid;
+	uiPopupMenu* attrib = 
+	    	attrserv->createAttribSubMenu( attrstopid, as );
+	selattrmnu->insertItem( attrib );
+	for ( int idx=attrstartid; idx<=attrstopid; idx++ )
+	    menu->getFreeID();
+
+	nlastartid = menu->getFreeID();
+	nlastopid = nlastartid;
+	uiPopupMenu* nla = 
+	    	attrserv->createNLASubMenu( nlastopid, as );
+	if ( nla )
+	{
+	    selattrmnu->insertItem( nla );
+	    for ( int idx=nlastartid; idx<=nlastopid; idx++ )
+		menu->getFreeID();
+	}
 
 	menu->addSubMenu(selattrmnu,9999);
     }
-    else 
-	firstsetattrmnuid = lastsetattrmnuid = -1;
+    else
+	storedstartid = storedstopid = attrstartid = attrstopid = 
+	nlastartid = nlastopid = -1;
 
     duplicatemnuid = visserv->canDuplicate(displayid)
 		    ? menu->addItem( new uiMenuItem("Duplicate") ) 
@@ -370,23 +392,22 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->removeObject( displayid, sceneID() );
 	parent->removeChild( this );
     }
-    else if ( firstsetattrmnuid!=-1 && mnuid>=firstsetattrmnuid &&
-	    mnuid<=lastsetattrmnuid )
+    else if ( mnuid>=storedstartid && mnuid<=storedstopid )
     {
 	menu->setIsHandled(true);
-	const AttribSelSpec* as = visserv->getSelSpec( displayid );
-	AttribSelSpec myas( *as );
-	if ( applMgr()->attrServer()->handleAttribSubMenu(
-		    mnuid-firstsetattrmnuid, myas ))
-	{
-	    visserv->setSelSpec( displayid, myas );
-	    visserv->resetColorDataType( displayid );
-	    visserv->calculateAttrib( displayid, false );
-	    updateColumnText(0);
-	}
+	handleAttribSubMenu( mnuid-storedstartid, 0 );
     }
-    else if ( firstsetattrmnuid!=-1 && mnuid>=sharefirstmnuid &&
-	    mnuid<=sharelastmnuid )
+    else if ( mnuid>=attrstartid && mnuid<=attrstopid )
+    {
+	menu->setIsHandled(true);
+	handleAttribSubMenu( mnuid-attrstartid, 1 );
+    }
+    else if ( mnuid>=nlastartid && mnuid<=nlastopid )
+    {
+	menu->setIsHandled(true);
+	handleAttribSubMenu( mnuid-nlastartid, 2 );
+    }
+    else if ( mnuid>=sharefirstmnuid && mnuid<=sharelastmnuid )
     {
 	menu->setIsHandled(true);
 	TypeSet<int> sceneids;
@@ -404,6 +425,20 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 		}
 	    }
 	}
+    }
+}
+
+
+void uiODDisplayTreeItem::handleAttribSubMenu( int mnuid, int type )
+{
+    const AttribSelSpec* as = visserv->getSelSpec( displayid );
+    AttribSelSpec myas( *as );
+    if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,type,myas) )
+    {
+	visserv->setSelSpec( displayid, myas );
+	visserv->resetColorDataType( displayid );
+	visserv->calculateAttrib( displayid, false );
+	updateColumnText(0);
     }
 }
 
