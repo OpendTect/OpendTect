@@ -105,8 +105,7 @@ int main( int argc, char** argv )
 	}
 	else
 	{
-	    const CBVSInfo::SurvGeom::InlineInfo* inlinf
-			= info.geom.getInfoFor( bid.inl );
+	    const PosInfo::InlData* inlinf = info.geom.getInfoFor( bid.inl );
 	    if ( !inlinf )
 	    {
 		std::cerr << "This inline is not present in the cube"
