@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.2 1999-10-18 14:05:49 dgb Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.3 2000-04-12 16:06:07 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -329,12 +329,12 @@ void IOPar::setYN( const char* keyw, bool i )
 }
 
 
-void IOPar::get( const char* s, Coord& coord ) const
-{ get( s, coord.x, coord.y ); }
+bool IOPar::get( const char* s, Coord& coord ) const
+{ return get( s, coord.x, coord.y ); }
 void IOPar::set( const char* s, const Coord& coord )
 { set( s, coord.x, coord.y ); }
-void IOPar::get( const char* s, BinID& binid ) const
-{ get( s, binid.inl, binid.crl ); }
+bool IOPar::get( const char* s, BinID& binid ) const
+{ return get( s, binid.inl, binid.crl ); }
 void IOPar::set( const char* s, const BinID& binid )
 { set( s, binid.inl, binid.crl ); }
 
