@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.37 2003-03-04 16:59:34 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.38 2003-03-05 12:01:05 nanne Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -344,7 +344,7 @@ void SurveyInfo::savePars( const char* basedir ) const
     if ( !basedir || !*basedir )
 	basedir = GetDataDir();
 
-    BufferString fname = File_getFullPath( basedir, dirname );
+    BufferString fname( basedir );
     fname = File_getFullPath( fname, ".defs" );
     pars_.dump( fname );
 }

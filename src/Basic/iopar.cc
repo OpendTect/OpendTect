@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.24 2003-03-04 16:59:34 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.25 2003-03-05 12:01:05 nanne Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -760,5 +760,6 @@ bool IOPar::dump( const char* fnm, const char* typ ) const
     if ( !astream.putHeader( ky ) ) return false;
 
     pars_.putTo( astream );
+    sd.close();
     return true;
 }
