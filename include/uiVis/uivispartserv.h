@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.101 2003-10-28 11:13:13 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.102 2003-10-29 17:07:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,12 +62,13 @@ public:
     int				addVolView(int scene);
     int				addSurface(int scene,const MultiID&);
     void			getSurfaceInfo(ObjectSet<SurfaceInfo>&);
+    void			shiftHorizon(int id,float);
     int				addWell(int scene,const MultiID&);
     void			displayLog(int id,int,int);
 
-    int				addInterpreter( int scene );
+    int				addInterpreter(int scene);
     void			toogleDirection(int obj);
-    const CubeSampling&		getInterpreterPlane( int obj ) const;
+    const CubeSampling&		getInterpreterPlane(int obj) const;
 
     void			removeObject(int id,int sceneid);
 
@@ -76,9 +77,9 @@ public:
     void			setPickSetData(int,const PickSet&);
     void			getPickSetData(int,PickSet&) const;
 
-    int				addStickSet(int scene, const MultiID&);
+    int				addStickSet(int scene,const MultiID&);
     MultiID			getMultiID(int) const;
-    int				getObjectId(int scene, const MultiID& ) const;
+    int				getObjectId(int scene,const MultiID&) const;
 	
     int				getSelObjectId() const;
     void			setSelObjectId(int);

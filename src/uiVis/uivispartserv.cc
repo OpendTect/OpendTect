@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.173 2003-10-28 18:00:47 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.174 2003-10-29 17:06:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -284,6 +284,14 @@ void uiVisPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 }
 
 
+void uiVisPartServer::shiftHorizon( int id, float shift )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
+    if ( sd ) sd->setShift( shift );
+}
+
+
 int uiVisPartServer::addWell( int sceneid, const MultiID& multiid )
 {
     visSurvey::Scene* scene = getScene( sceneid );
@@ -306,13 +314,11 @@ int uiVisPartServer::addWell( int sceneid, const MultiID& multiid )
 }
 
 
-void uiVisPartServer::displayLog( int visid, int selidx, int lognr ) 
+void uiVisPartServer::displayLog( int id, int selidx, int lognr ) 
 {
-    visBase::DataObject* dobj = visBase::DM().getObj( visid );
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::WellDisplay*,wd,dobj)
-    if ( !wd ) return;
-
-    wd->displayLog( selidx, lognr );
+    if ( wd ) wd->displayLog( selidx, lognr );
 }
 
 
