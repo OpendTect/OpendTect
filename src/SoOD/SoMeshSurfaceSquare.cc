@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.1 2003-09-30 12:59:18 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.2 2003-10-02 10:02:45 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -218,7 +218,9 @@ bool SoMeshSurfaceSquare::setResolution(int nr)
     {
 	if ( getBrick(idx)->isValid() )
 	{
-	    if ( idx!=currentres )
+	    if ( idx!=currentres ||
+		    (triswitchptr->whichChild.getValue()==-1)==showtri ||
+		    (wireswitchptr->whichChild.getValue()==-1)==showwire )
 	    {
 		triswitchptr->whichChild = showtri ? idx : -1;
 		wireswitchptr->whichChild = showwire ? idx : -1;
