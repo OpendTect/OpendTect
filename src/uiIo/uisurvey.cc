@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.29 2002-11-06 12:58:22 arend Exp $
+ RCS:           $Id: uisurvey.cc,v 1.30 2002-11-15 13:51:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -398,7 +398,7 @@ void uiSurvey::selChange()
 void uiSurvey::updateInfo( CallBacker* cb )
 {
     mDynamicCastGet(uiSurveyInfoEditor*,dlg,cb);
-    if ( cb )
+    if ( dlg )
 	survinfo = dlg->getSurvInfo();
     else
 	getSurvInfo();
