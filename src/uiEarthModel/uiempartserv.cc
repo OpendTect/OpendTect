@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.28 2003-09-16 09:48:43 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.29 2003-09-30 13:45:59 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "emsticksettransl.h"
 #include "emposid.h"
+#include "geommeshsurface.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "survinfo.h"
 #include "surfaceinfo.h"
-#include "geom2dsnappedsurface.h"
 #include "uiimphorizon.h"
 #include "uiimpfault.h"
 #include "uiexphorizon.h"
@@ -282,17 +282,17 @@ bool uiEMPartServer::getDataVal( const MultiID& emid,
     for ( int patchidx=0; patchidx<hor->nrPatches(); patchidx++ )
     {
 	const EM::PatchID patchid = hor->patchID( patchidx );
-	const Geometry::GridSurface* gridsurf = hor->getSurface( patchid );
+	const Geometry::MeshSurface* meshsurf = hor->getSurface( patchid );
 
 	data += new TypeSet<BinIDZValue>;
 	TypeSet<BinIDZValue>& res = *data[patchidx];
 
 	EM::PosID posid( emid, patchid );
-	const int nrnodes = gridsurf->size();
+	const int nrnodes = meshsurf->size();
 	for ( int idy=0; idy<nrnodes; idy++ )
 	{
-	    const Geometry::PosID geomposid = gridsurf->getPosID(idy);
-	    const Coord3 coord = gridsurf->getPos( geomposid );
+	    const Geometry::PosID geomposid = meshsurf->getPosID(idy);
+	    const Coord3 coord = meshsurf->getPos( geomposid );
 	    const BinID bid = SI().transform(coord);
 	    const RowCol emrc( bid.inl, bid.crl );
 	    const EM::SubID subid = hor->rowCol2SubID( emrc );
