@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.12 2001-10-18 09:37:33 windev Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.13 2002-01-18 22:40:38 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -125,17 +125,58 @@ bool PickSetGroupTranslator::retrieve( PickSetGroup& psg, const IOObj* ioobj,
 }
 
 
-bool PickSetGroupTranslator::store( const PickSetGroup& psg, const IOObj* ioobj,
-			       BufferString& bs, const bool* selarr )
+bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
+				    const IOObj* ioobj,
+				    BufferString& bs, const bool* selarr,
+				    bool domrg )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
     mDynamicCastGet(PickSetGroupTranslator*,t,ioobj->getTranslator())
     if ( !t ) { bs = "Selected object is not a PickSet Group"; return false; }
+
     PtrMan<PickSetGroupTranslator> tr = t;
+    PickSetGroup mrgd;
+    if ( domrg )
+    {
+	Conn* conn = ioobj->getConn( Conn::Read );
+	if ( conn )
+	{
+	    delete conn;
+	    if ( !retrieve(mrgd,ioobj,bs) )
+		return false;
+	}
+
+	const int orgsz = mrgd.nrSets();
+	for ( int idx=0; idx<inppsg.nrSets(); idx++ )
+	{
+	    const PickSet& ps = *inppsg.get( idx );
+	    const UserIDString& nm = ps.name();
+	    bool found = false;
+	    for ( int iorg=0; iorg<orgsz; iorg++ )
+	    {
+		PickSet& mrgdps = *mrgd.get( iorg );
+		if ( nm == mrgdps.name() )
+		{
+		    found = true;
+		    mrgdps.copy( ps );
+		    break;
+		}
+	    }
+	    if ( !found )
+	    {
+		PickSet* newps = new PickSet( ps.name() );
+		newps->copy( ps );
+		mrgd.add( newps );
+	    }
+	}
+    }
+
+    bs = "";
+    const PickSetGroup& wrgrp = domrg ? mrgd : inppsg;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
-    bs = tr->write( psg, *conn, selarr );
+    bs = tr->write( wrgrp, *conn, selarr );
     return bs == "";
 }
 
