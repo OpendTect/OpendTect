@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.35 2003-04-14 15:37:26 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.36 2003-05-15 09:35:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -351,6 +351,10 @@ const visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTab() const
 
 visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTab()
 { return cube->getViewerColorTab(); }
+
+
+const TypeSet<float>& visSurvey::VolumeDisplay::getHistogram() const
+{ return cube->getHistogram(); }
 
 
 void visSurvey::VolumeDisplay::setMaterial( visBase::Material* nm)

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.33 2003-05-07 13:09:18 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.34 2003-05-15 09:34:31 nanne Exp $";
 
 #include <Inventor/nodes/SoSwitch.h>
 
@@ -263,6 +263,12 @@ void visBase::TextureRect::setResolution( int res )
 int visBase::TextureRect::getResolution() const
 {
     return textureset[curidx]->getResolution();
+}
+
+
+const TypeSet<float>& visBase::TextureRect::getHistogram() const
+{
+    return textureset[curidx]->getHistogram();
 }
 
 

@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.20 2003-04-17 15:17:28 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.21 2003-05-15 09:35:55 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -361,6 +361,10 @@ visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab()
 
 const visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab() const
 { return track->getColorTab(); }
+
+
+const TypeSet<float>& visSurvey::RandomTrackDisplay::getHistogram() const
+{ return track->getHistogram(); }
 
 
 void visSurvey::RandomTrackDisplay::rightClicked( CallBacker* )

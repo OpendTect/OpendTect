@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.13 2003-04-17 15:03:44 nanne Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.14 2003-05-15 09:34:41 nanne Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ public:
 
     void			setColorTab( VisColorTab& );
     VisColorTab&		getColorTab();
+    const TypeSet<float>&	getHistogram() const;
 
     void			setResolution(int);
     int				getResolution() const;

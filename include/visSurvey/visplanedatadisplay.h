@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.31 2003-04-23 15:28:13 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.32 2003-05-15 09:36:02 nanne Exp $
 ________________________________________________________________________
 
 
@@ -102,6 +102,8 @@ public:
     void			setResolution(int);
     int				getResolution() const;
     int				getNrResolutions() const;
+
+    const TypeSet<float>&	getHistogram() const;
 
 protected:
 				~PlaneDataDisplay();

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.15 2003-04-17 15:03:51 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.16 2003-05-15 09:34:31 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -303,6 +303,10 @@ void visBase::RandomTrack::setColorTab( VisColorTab& nc )
 
 visBase::VisColorTab& visBase::RandomTrack::getColorTab()
 { return sections[0]->getTexture2()->getColorTab(); }
+
+
+const TypeSet<float>& visBase::RandomTrack::getHistogram() const
+{ return sections[0]->getTexture2()->getHistogram(); }
 
 
 void visBase::RandomTrack::setMaterial( Material* mat )

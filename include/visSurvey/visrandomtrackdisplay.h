@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.14 2003-04-14 15:37:37 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.15 2003-05-15 09:36:02 nanne Exp $
 ________________________________________________________________________
 
 
@@ -78,6 +78,7 @@ public:
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
     const visBase::VisColorTab&	getColorTab() const;
+    const TypeSet<float>&	getHistogram() const;
 
     void                        setMaterial( visBase::Material* );
     const visBase::Material*    getMaterial() const;
