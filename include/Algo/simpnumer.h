@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.7 2000-11-13 08:54:21 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.8 2000-11-16 08:53:13 bert Exp $
 ________________________________________________________________________
 
 */
@@ -87,7 +87,7 @@ inline T polyInterpolate( float x0, T y0, float x1, T y1, float x2, T y2,
  Interpolate sampled when 4 points are known, but some may be undefined.
  If you need to do this irregularly, you can just remove those points
  and call the apropriate interpolation.
-/*
+*/
 
 template <class T>
 inline T polyInterpolateWithUdf( T y0, T y1, T y2, T y3, float x )
