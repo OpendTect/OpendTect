@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.31 2003-11-26 13:02:18 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.32 2003-12-10 09:58:14 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -93,51 +93,23 @@ const char* GetSoftwareDir()
 const char* GetExecScript( int remote )
 {
     static FileNameString progname;
-    static int envset = NO;
-    static int envread = NO;
 
-    if ( envset ) return progname;
-
-    if ( !envread  )
-    {
-	if( getenv("OD_EXEC_SCRIPT") )
-	{
-	    strcpy( progname, getenv("OD_EXEC_SCRIPT") );
-	    envset=YES;
-	}
-	envread = YES;
-	if ( envset ) return progname;
-    }
-
-    strcpy( progname, GetSoftwareDir() );
+    strcpy( progname, "'" );
+    strcat( progname, GetSoftwareDir() );
     strcpy( progname, File_getFullPath(progname, "bin") );
 #ifdef __win__
     strcpy( progname, File_getFullPath(progname, "win") );
 #endif
     strcpy( progname, File_getFullPath(progname, "od_exec") );
 
-#ifdef __win__
-    FileNameString execnm;
-    strcpy( execnm, GetSoftwareDir() );
-    strcpy( execnm, File_getFullPath(execnm, "\\bin\\win\\sys\\csh.exe") );
-
-    static FileNameString execname;
-    strcpy( execname, "\"" );
-    strcat( execname, execnm );
-    strcat( execname, "\" "  );
-#endif
-
     if( remote )
 	strcat( progname, "_rmt " );
 
 #ifdef __win__
     strcat( progname, ".csh" );
-
-    strcat( execname, "\"" );
-    strcat( execname, progname );
-    strcat( execname, "\"" );
-    return execname;
 #endif
+
+    strcat( progname, "'" );
     return progname;
 }
 
