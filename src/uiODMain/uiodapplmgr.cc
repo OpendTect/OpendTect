@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.19 2004-04-30 12:31:15 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.20 2004-05-03 16:03:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,7 +280,7 @@ bool uiODApplMgr::selectColorAttrib( int id )
 void uiODApplMgr::storeSurface( int visid )
 {
     ObjectSet< TypeSet<BinIDZValues> > bidzvset;
-    visserv->getRandomPosDataPos( visid, bidzvset, true );
+    visserv->getRandomPosDataPos( visid, bidzvset );
     const AttribSelSpec* as = visserv->getSelSpec( visid );
     BufferString dispname( as ? as->userRef() : 0 );
     if ( as && as->isNLA() )
