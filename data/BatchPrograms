@@ -42,3 +42,6 @@ mk_2d_vol
 	Comment: That cube can then be used to calculate a steering cube.
 	ExampleInput: mk_2d_vol_example.par
 !
+lmhostid
+	Comment: Display the FlexLM hostid of this machine
+!
