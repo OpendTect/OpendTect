@@ -7,11 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.2 2002-02-28 07:14:47 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.3 2002-03-04 14:20:49 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
+
+#include "visobject.h"
 
 class Color;
 
@@ -27,14 +29,11 @@ class Scene;
 
 
 */
-class PickSet
+
+class PickSet : public visBase::VisualObject
 {
 public:
-    		PickSet( Scene &, int system=2 );
-		/*!< system = 0: x, y, z
-		     system = 1: x, y, t
-		     system = 2: inl, crl, t
-		 */
+    		PickSet( Scene & );
     virtual	~PickSet();
 
     int		nrPicks();
@@ -47,10 +46,21 @@ public:
     float	getTSz() const { return inlsz; }
 
     void	setSize( float inl, float crl, float t );
+
+    void	turnOn(bool);
+    bool	isOn() const;
+    bool	regForSelection( const VisualObject* assoc=0 ) { return false;}
+
     void	setColor( const Color& );
+    void	switchColorMode( bool totable ) {}
+    bool	isColorTable() const { return false; }
+
+    ColorTable*		colorTable() { return 0; }
+    const ColorTable*	colorTable() const { return 0; }
+    void		colorTableChanged() {}
+
 protected:
     visBase::SceneObjectGroup*	group;
-    int				groupid;
 
     Scene&	scene;
     Color&	color;

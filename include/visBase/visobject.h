@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.8 2002-02-28 08:25:48 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.9 2002-03-04 14:21:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -51,8 +51,8 @@ public:
     virtual void	switchColorMode( bool totable )			= 0;
     virtual bool	isColorTable() const				= 0;
 
-    virtual const ColorTable&	colorTable() const			= 0;
-    virtual ColorTable&		colorTable()				= 0;
+    virtual const ColorTable*	colorTable() const			= 0;
+    virtual ColorTable*		colorTable()				= 0;
     				/*!< if you change the ct,
 				     you must notify the object
 				     with colorTableChanged()
@@ -78,8 +78,8 @@ public:
     virtual void	switchColorMode( bool totable );
     bool		isColorTable() const;
 
-    const ColorTable&	colorTable() const;
-    ColorTable&		colorTable();
+    const ColorTable*	colorTable() const;
+    ColorTable*		colorTable();
     virtual void	colorTableChanged() {}
 
     SoNode*		getData();

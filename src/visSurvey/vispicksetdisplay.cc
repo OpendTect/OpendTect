@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.3 2002-02-28 14:37:24 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.4 2002-03-04 14:21:10 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "vissceneobjgroup.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.3 2002-02-28 14:37:24 
 #include "geompos.h"
 #include "color.h"
 
-visSurvey::PickSet::PickSet( visSurvey::Scene& scene_, int system )
+visSurvey::PickSet::PickSet( visSurvey::Scene& scene_ )
     : group( new visBase::SceneObjectGroup( true, true ) )
     , scene( scene_ )
     , inlsz( 5 )
@@ -23,19 +23,11 @@ visSurvey::PickSet::PickSet( visSurvey::Scene& scene_, int system )
     , color( *new Color )
 {
     color.set( 0, 255, 0 );
-
-    if ( !system )
-	groupid = scene.addXYZObject( group );
-    else if ( system==1 )
-	groupid = scene.addXYTObject( group );
-    else 
-	groupid = scene.addInlCrlTObject( group );
 }
 
 
 visSurvey::PickSet::~PickSet()
 {
-    scene.removeObject( groupid );
     delete &color;
 }
 
@@ -80,6 +72,32 @@ void visSurvey::PickSet::setSize( float inl, float crl, float t )
 
 	cube->setWidth( nsz );
     }
+}
+
+
+void visSurvey::PickSet::turnOn( bool ns )
+{
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Cube*, cube,
+			group->getObject( group->getId(idx) ) );
+	if ( !cube ) continue;
+
+	cube->turnOn( ns );
+    }
+}
+
+
+bool visSurvey::PickSet::isOn() const
+{
+    if ( group->size() )
+    {
+	mDynamicCastGet(visBase::Cube*, cube,
+		group->getObject(group->getId(0)));
+	return cube->isOn();
+    }
+
+    return true;
 }
 
 

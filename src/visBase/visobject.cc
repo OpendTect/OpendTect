@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.9 2002-03-01 10:12:12 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.10 2002-03-04 14:21:03 kristofer Exp $";
 
 #include "visobject.h"
 #include "colortab.h"
@@ -97,18 +97,18 @@ bool  visBase::VisualObjectImpl::isColorTable() const
 }
 
 
-const ColorTable& visBase::VisualObjectImpl::colorTable() const
+const ColorTable* visBase::VisualObjectImpl::colorTable() const
 {
     if ( !colortable )
 	const_cast<VisualObjectImpl*>(this)->colortable = new ColorTable;
-    return *colortable;
+    return colortable;
 }
 
 
-ColorTable& visBase::VisualObjectImpl::colorTable()
+ColorTable* visBase::VisualObjectImpl::colorTable()
 {
     if ( !colortable ) colortable = new ColorTable;
-    return *colortable;
+    return colortable;
 }
 
 
