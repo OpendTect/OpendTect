@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.22 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.23 2004-09-06 16:14:07 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -26,9 +26,11 @@ const char* SegyTraceheaderDef::sXCoordByte = "X-coord byte";
 const char* SegyTraceheaderDef::sYCoordByte = "Y-coord byte";
 const char* SegyTraceheaderDef::sInlByte = "In-line byte";
 const char* SegyTraceheaderDef::sCrlByte = "Cross-line byte";
+const char* SegyTraceheaderDef::sTrNrByte = "Trace number byte";
 const char* SegyTraceheaderDef::sPickByte = "Pick byte";
 const char* SegyTraceheaderDef::sInlByteSz = "Nr bytes for In-line";
 const char* SegyTraceheaderDef::sCrlByteSz = "Nr bytes for Cross-line";
+const char* SegyTraceheaderDef::sTrNrByteSz = "Nr bytes for trace number";
 
 
 static void Ebcdic2Ascii(unsigned char*,int);
@@ -483,6 +485,13 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 	else
 	    IbmFormat::putInt( ti.binid.crl, buf+hdef.crl-1 );
     }
+    if ( hdef.trnr != 255 )
+    {
+	if ( hdef.trnrbytesz == 2 )
+	    IbmFormat::putShort( ti.nr, buf+hdef.trnr-1 );
+	else
+	    IbmFormat::putInt( ti.nr, buf+hdef.trnr-1 );
+    }
 
     const float zfac = SI().zFactor();
     if ( !mIsUndefined(ti.pick) && hdef.pick != 255 )
@@ -524,6 +533,9 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( hdef.crl != 255 )
 	ti.binid.crl = hdef.crlbytesz == 2 ? IbmFormat::asShort(buf+hdef.crl-1)
 					   : IbmFormat::asInt(buf+hdef.crl-1);
+    if ( hdef.trnr != 255 )
+	ti.nr = hdef.trnrbytesz == 2 ? IbmFormat::asShort(buf+hdef.trnr-1)
+				     : IbmFormat::asInt(buf+hdef.trnr-1);
     ti.offset = IbmFormat::asInt( buf+36 );
 
     double scale = getCoordScale( extcoordsc );
@@ -557,6 +569,8 @@ void SegyTraceheaderDef::usePar( const IOPar& iopar )
     if ( *res ) inl = atoi( res );
     res = iopar[ sCrlByte ];
     if ( *res ) crl = atoi( res );
+    res = iopar[ sTrNrByte ];
+    if ( *res ) trnr = atoi( res );
     res = iopar[ sXCoordByte ];
     if ( *res ) xcoord = atoi( res );
     res = iopar[ sYCoordByte ];
@@ -565,6 +579,8 @@ void SegyTraceheaderDef::usePar( const IOPar& iopar )
     if ( *res ) inlbytesz = atoi( res );
     res = iopar[ sCrlByteSz ];
     if ( *res ) crlbytesz = atoi( res );
+    res = iopar[ sTrNrByteSz ];
+    if ( *res ) trnrbytesz = atoi( res );
     res = iopar[ sPickByte ];
     if ( *res ) pick = atoi( res );
 }
@@ -585,9 +601,11 @@ void SegyTraceheaderDef::fillPar( IOPar& iopar, const char* key ) const
 {
     iopar.set( IOPar::compKey(key,sInlByte), inl );
     iopar.set( IOPar::compKey(key,sCrlByte), crl );
+    iopar.set( IOPar::compKey(key,sTrNrByte), trnr );
     iopar.set( IOPar::compKey(key,sXCoordByte), xcoord );
     iopar.set( IOPar::compKey(key,sYCoordByte), ycoord );
     iopar.set( IOPar::compKey(key,sInlByteSz), inlbytesz );
     iopar.set( IOPar::compKey(key,sCrlByteSz), crlbytesz );
+    iopar.set( IOPar::compKey(key,sTrNrByteSz), trnrbytesz );
     iopar.set( IOPar::compKey(key,sPickByte), pick );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.22 2004-07-01 15:14:43 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.23 2004-09-06 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
     }
 
-    transffld = new uiSeisTransfer( this, true );
+    transffld = new uiSeisTransfer( this, true, true );
     transffld->attach( alignedBelow, (constraintType*) modefld
 	    ? (uiGroup*) modefld : (uiGroup*) oinpfld );
 

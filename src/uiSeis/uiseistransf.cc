@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.22 2004-08-26 10:47:45 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.23 2004-09-06 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,12 +28,12 @@ ________________________________________________________________________
 #include "errh.h"
 
 
-uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format )
+uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool fne )
 	: uiGroup(p,"Seis transfer pars")
 	, is2d(false)
 	, issteer(false)
 {
-    selfld = new uiSeisSubSel( this );
+    selfld = new uiSeisSubSel( this, fne );
 
     scfmtfld = new uiSeisFmtScale( this, with_format );
     scfmtfld->attach( alignedBelow, selfld );

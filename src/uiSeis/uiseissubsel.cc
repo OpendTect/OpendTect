@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.11 2004-09-03 09:12:04 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.12 2004-09-06 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,11 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiSeisSubSel::uiSeisSubSel( uiParent* p )
+uiSeisSubSel::uiSeisSubSel( uiParent* p, bool for_new_entry )
     	: uiGroup(p,"Gen seis subsel")
 	, is2d_(false)
 {
-    sel2d = new uiSeis2DSubSel( this );
+    sel2d = new uiSeis2DSubSel( this, for_new_entry );
     sel3d = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
 				     .withtable(false).withz(true) );
     sel3d->attach( alignedWith, sel2d );
@@ -156,7 +156,7 @@ int uiSeisSubSel::expectedNrTraces() const
 static const BufferStringSet emptylnms;
 
 
-uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const BufferStringSet* lnms )
+uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry )
 	: uiGroup( p, "2D seismics sub-selection" )
 	, lnmsfld(0)
 {
@@ -181,11 +181,13 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const BufferStringSet* lnms )
     }
     zfld->attach( alignedBelow, trcrgfld );
 
-    if ( !lnms ) lnms = &emptylnms;
-    lnmsfld = new uiGenInput( this, "One line only",
-			      StringListInpSpec(*lnms) );
-    lnmsfld->setWithCheck( true );
-    lnmsfld->attach( alignedBelow, zfld );
+    if ( !for_new_entry )
+    {
+	lnmsfld = new uiGenInput( this, "One line only",
+				  StringListInpSpec(emptylnms) );
+	lnmsfld->setWithCheck( true );
+	lnmsfld->attach( alignedBelow, zfld );
+    }
 
     setHAlignObj( selfld );
     setHCentreObj( selfld );
@@ -210,9 +212,12 @@ void uiSeis2DSubSel::clear()
 {
     trcrgfld->setValue(1,0); trcrgfld->setText("",1); trcrgfld->setValue(1,2);
     setInput( SI().zRange() );
-    lnmsfld->setChecked( false );
-    lnmsfld->newSpec( StringListInpSpec(emptylnms), 0 );
     selfld->setValue( true );
+    if ( lnmsfld )
+    {
+	lnmsfld->setChecked( false );
+	lnmsfld->newSpec( StringListInpSpec(emptylnms), 0 );
+    }
     selChg( 0 );
 }
 
@@ -225,7 +230,9 @@ void uiSeis2DSubSel::setInput( const StepInterval<int>& rg )
 
 void uiSeis2DSubSel::setInput( const Interval<float>& zrg )
 {
-    if ( SI().zIsTime() )
+    if ( !SI().zIsTime() )
+	zfld->setValue( zrg );
+    else
     {
 	zfld->setValue( mNINT(zrg.start*1000), 0 );
 	zfld->setValue( mNINT(zrg.stop*1000), 1 );
@@ -233,8 +240,6 @@ void uiSeis2DSubSel::setInput( const Interval<float>& zrg )
 	if ( szrg )
 	    zfld->setValue( mNINT(szrg->step*1000), 2 );
     }
-    else
-	zfld->setValue( zrg );
 }
 
 
@@ -247,7 +252,6 @@ void uiSeis2DSubSel::setInput( const HorSampling& hs )
 
 void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 {
-    const BufferString prevlnm( lnmsfld->isChecked() ? lnmsfld->text() : "" );
     uiSeisIOObjInfo oinf(ioobj,false); CubeSampling cs;
     if ( !oinf.getRanges(cs) )
 	{ clear(); return; }
@@ -255,17 +259,24 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
     setInput( cs.hrg );
     setInput( cs.zrg );
 
+    if ( !lnmsfld ) return;
+
+    const BufferString prevlnm( lnmsfld && lnmsfld->isChecked()
+				? lnmsfld->text() : "" );
+
     BufferString fnm( ioobj.fullUserExpr(true) );
     Seis2DLineGroup lg( fnm );
     BufferStringSet lnms;
     const int sz = lg.nrLines();
     for ( int idx=0; idx<sz; idx++ )
+    {
 	lnms.add( lg.lineKey(idx) );
-    lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
-    const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
-    lnmsfld->setChecked( prevok );
-    if ( prevok )
-	lnmsfld->setText( prevlnm );
+	lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
+	const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
+	lnmsfld->setChecked( prevok );
+	if ( prevok )
+	    lnmsfld->setText( prevlnm );
+    }
 }
 
 
@@ -274,7 +285,8 @@ void uiSeis2DSubSel::selChg( CallBacker* )
     bool disp = !isAll();
     trcrgfld->display( disp );
     zfld->display( disp );
-    lnmsfld->display( disp );
+    if ( lnmsfld )
+	lnmsfld->display( disp );
 }
 
 
@@ -283,8 +295,11 @@ void uiSeis2DSubSel::usePar( const IOPar& iopar )
     BufferStringSet lnms;
     iopar.get( SeisSelData::sKeyLineKeys, lnms );
     BufferString lnm( lnms.size() ? lnms.get(0) : "" );
-    lnmsfld->setText( lnm );
-    lnmsfld->setChecked( lnm != "" );
+    if ( lnmsfld )
+    {
+	lnmsfld->setText( lnm );
+	lnmsfld->setChecked( lnm != "" );
+    }
 
     StepInterval<int> trcrg = trcrgfld->getIStepInterval();
     iopar.get( sKey::FirstCrl, trcrg.start );
@@ -330,7 +345,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	iopar.set( sKey::StepCrl, trcrg.step );
 
 	BufferString lnm;
-	if ( lnmsfld->isChecked() )
+	if ( lnmsfld && lnmsfld->isChecked() )
 	    lnm = lnmsfld->text();
 	if ( lnm == "" )
 	    iopar.removeWithKey( SeisSelData::sKeyLineKeys );

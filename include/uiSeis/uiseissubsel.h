@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.8 2004-08-26 10:47:45 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.9 2004-09-06 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiSeisSubSel : public uiGroup
 {
 public:
 
-    			uiSeisSubSel(uiParent*);
+    			uiSeisSubSel(uiParent*,bool for_new_entry=false);
 
     bool		is2D() const		{ return is2d_; }
     void		set2D( bool yn )	{ is2d_ = yn; typChg(0); }
@@ -63,7 +63,7 @@ class uiSeis2DSubSel : public uiGroup
 { 	
 public:
 
-			uiSeis2DSubSel(uiParent*,const BufferStringSet* lnms=0);
+			uiSeis2DSubSel(uiParent*,bool for_new_entry);
 
     void		clear();
     void		setInput(const StepInterval<int>&);

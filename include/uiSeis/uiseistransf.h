@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.12 2004-08-24 16:24:57 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.13 2004-09-06 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,8 @@ class uiSeisTransfer : public uiGroup
 {
 public:
 
-			uiSeisTransfer(uiParent*,bool with_format);
+			uiSeisTransfer(uiParent*,bool with_format,
+					bool for_new_entry);
 
     void		updateFrom(const IOObj&);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.2 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: segythdef.h,v 1.3 2004-09-06 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,14 +30,17 @@ public:
 				unsigned char c=21,
 				unsigned char x=73,
 				unsigned char y=77,
+				unsigned char t=1,
 				unsigned char p=255,
 				unsigned char ibs=4,
-				unsigned char cbs=4 )
-			: inl(i), crl(c), xcoord(x), ycoord(y), pick(p)
-			, inlbytesz(ibs), crlbytesz(cbs)	{}
+				unsigned char cbs=4,
+				unsigned char tbs=4)
+			: inl(i), crl(c), xcoord(x), ycoord(y), trnr(t), pick(p)
+			, inlbytesz(ibs), crlbytesz(cbs), trnrbytesz(tbs) {}
 
     unsigned char	inl, inlbytesz;
     unsigned char	crl, crlbytesz;
+    unsigned char	trnr, trnrbytesz;
     unsigned char	xcoord, ycoord;
     unsigned char	pick;
 
@@ -50,7 +53,8 @@ public:
                                 || isReserved( b, ycoord )
                                 || isReserved( b, pick )
                                 || isReserved( b, inl )
-                                || isReserved( b, crl );
+                                || isReserved( b, crl )
+                                || isReserved( b, trnr );
                         }
 
     void		usePar(const IOPar&);
@@ -61,8 +65,10 @@ public:
     static const char*	sYCoordByte;
     static const char*	sInlByte;
     static const char*	sCrlByte;
+    static const char*	sTrNrByte;
     static const char*	sInlByteSz;
     static const char*	sCrlByteSz;
+    static const char*	sTrNrByteSz;
     static const char*	sPickByte;
 
 };
