@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.1 2002-02-06 22:30:19 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.2 2002-02-12 13:38:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,7 @@ public:
 			~Rectangle();
     void		setOrigo( float, float, float );
     float		origo( int ) const;
+    float		manipOrigo(int) const;
 
     void		setWidth( float, float );
     float		width( int ) const;
@@ -66,6 +67,7 @@ public:
 
     bool		moveObjectToManipRect();
     void		resetManip();
+    bool		isManipRectOnObject() const;
 
 protected:
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.1 2002-02-06 22:29:14 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.2 2002-02-12 13:37:57 kristofer Exp $";
 
 #include "visrectangle.h"
 
@@ -176,6 +176,37 @@ float visBase::Rectangle::origo( int n ) const
 }
 
 
+float visBase::Rectangle::manipOrigo( int dim ) const
+{
+    SbVec3f centerpos( maniprecttrans->translation.getValue());
+    SbVec3f scale = maniprectscale->scaleFactor.getValue();
+
+    SbVec3f origopos;
+
+    float res;
+
+    switch ( orientation )
+    {
+    case XY:
+	if ( dim==0 ) res = getStartPos(0, centerpos[0], scale[0] );
+	else if ( dim==1 ) res = getStartPos(1, centerpos[1], scale[1] );
+	else res = getStartPos(2, centerpos[2], 0 );
+    break;
+    case XZ:
+    	if ( dim==0 ) res = getStartPos(0, centerpos[0], scale[0] );
+	else if ( dim==1 ) res = getStartPos(2, -centerpos[2], 0 );
+	else res = getStartPos(1, centerpos[1], scale[1]);
+    break;
+    case YZ:
+    	if ( dim==0 ) res = getStartPos(2, -centerpos[2], 0 );
+	else if ( dim==1 ) res = getStartPos(1, centerpos[1], scale[1] );
+	else res = getStartPos(0, centerpos[0], scale[0]);
+    }
+
+    return res;
+}
+
+
 void visBase::Rectangle::setWidth( float x, float y )
 {
     widthscale->scaleFactor.setValue( x, y, (x+y)/2 );
@@ -323,27 +354,8 @@ bool visBase::Rectangle::moveObjectToManipRect()
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
 
-    SbVec3f origopos;
+    SbVec3f origopos( manipOrigo( 0 ), manipOrigo( 1 ), manipOrigo( 2 ) );
 
-    switch ( orientation )
-    {
-    case XY:
-	origopos.setValue( getStartPos(0, centerpos[0], scale[0] ),
-			   getStartPos(1, centerpos[1], scale[1] ),
-		           getStartPos(2, centerpos[2], 0 ) );
-    break;
-    case XZ:
-	origopos.setValue( getStartPos(0, centerpos[0], scale[0] ),
-			   getStartPos(2, -centerpos[2], 0 ),
-		           getStartPos(1, centerpos[1], scale[1]) );
-    break;
-    case YZ:
-	origopos.setValue( getStartPos(2, -centerpos[2], 0 ),
-			   getStartPos(1, centerpos[1], scale[1] ),
-		           getStartPos(0, centerpos[0], scale[0]) );
-    break;
-    }
-    
     if ( origotrans->translation.getValue()!=origopos )
     {
 	origotrans->translation.setValue( origopos );
@@ -362,6 +374,28 @@ bool visBase::Rectangle::moveObjectToManipRect()
     }
 
     resetManip();
+
+    return res;
+}
+
+
+bool visBase::Rectangle::isManipRectOnObject() const
+{
+    bool res = true;
+    SbVec3f centerpos( maniprecttrans->translation.getValue());
+    SbVec3f scale = maniprectscale->scaleFactor.getValue();
+
+    SbVec3f origopos( manipOrigo( 0 ), manipOrigo( 1 ), manipOrigo( 2 ) );
+
+    if ( origotrans->translation.getValue()!=origopos )
+    res = false;
+
+    float newxwidth = getWidth( 0, scale[0] );
+    float newywidth = getWidth( 1, scale[1] );
+
+    if ( !mIS_ZERO( newxwidth-widthscale->scaleFactor.getValue()[0] ) ||
+	 !mIS_ZERO( newywidth-widthscale->scaleFactor.getValue()[1] ) )
+	res = false;
 
     return res;
 }
