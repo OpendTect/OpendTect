@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.11 2004-01-12 13:18:54 kristofer Exp $
+ RCS:		$Id: string2.h,v 1.12 2004-09-02 15:52:17 bert Exp $
 ________________________________________________________________________
 -*/
 
@@ -70,6 +70,8 @@ void		prettyNumber(char*,int is_float);
 const char*	getYesNoString(int);
 /*!> returns 1 or 0 by inspecting string */
 int		yesNoFromString(const char*);
+/*!> returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
+const char*	getRankPostFix(int);
 
 
 #ifdef __cpp__
