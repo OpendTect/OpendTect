@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.42 2002-12-04 09:20:44 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.43 2002-12-04 09:27:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -434,7 +434,7 @@ int i_uiGroupLayoutItem::centre(layoutMode m, bool hor) const
 
 	if( hcobjbody ) hcentreitm = hcobjbody->layoutItem();
 
-	if( hcentreitm ) return hcentreitm->horCentre(m);
+	if( hcentreitm ) return hcentreitm->centre(m);
     }
 
     return ( curpos(m).left() + curpos(m).right() ) / 2;
