@@ -4,12 +4,13 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.11 2001-07-10 12:45:29 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.12 2002-01-17 14:19:06 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
 #include "separstr.h"
 #include "iopar.h"
+#include "survinfo.h"
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -297,6 +298,12 @@ BinID BinIDRangeProv::operator[]( int idx ) const
     ((BinIDRange&)bs) = br;
     bs.step = SI().step();
     return (BinIDSamplerProv(bs))[idx];
+}
+
+
+BinIDSampler::BinIDSampler()
+	: step(SI().step())
+{
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.8 2001-07-02 12:42:56 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.9 2002-01-17 14:19:06 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -31,10 +31,22 @@ void SeisTrcBuf::fill( SeisTrcBuf& buf ) const
 
 void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 {
-    if ( !size() ) return;
-    spi.range.start = spi.range.stop = get(0)->info().binid;
-    for ( int idx=1; idx<size(); idx++ )
-	spi.range.include( get(idx)->info().binid );
+    const int sz = size();
+    if ( sz < 1 ) return;
+    spi.binidsampling.start = spi.binidsampling.stop = get(0)->info().binid;
+    if ( sz < 2 ) return;
+
+    bool doneinl = false, donecrl = false;
+    BinID pbid = spi.binidsampling.start;
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	BinID bid( get(idx)->info().binid );
+	spi.binidsampling.include( bid );
+	if ( !doneinl && bid.inl != pbid.inl )
+	    { spi.binidsampling.step.inl = bid.inl - pbid.inl; doneinl = true; }
+	if ( !donecrl && bid.crl != pbid.crl )
+	    { spi.binidsampling.step.crl = bid.crl - pbid.crl; donecrl = true; }
+    }
 }
 
 

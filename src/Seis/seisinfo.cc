@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.8 2001-12-11 14:24:02 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.9 2002-01-17 14:19:06 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -98,14 +98,14 @@ const char* SeisPacketInfo::sBinIDs = "BinID range";
 
 
 SeisPacketInfo::SeisPacketInfo()
-	: range(*new BinIDRange)
+	: binidsampling(*new BinIDSampler)
 {
     clear();
 }
 
 
 SeisPacketInfo::SeisPacketInfo( const SeisPacketInfo& spi )
-	: range(*new BinIDRange)
+	: binidsampling(*new BinIDSampler)
 {
     *this = spi;
 }
@@ -116,7 +116,9 @@ void SeisPacketInfo::clear()
 {
     usrinfo = defaultusrinfo;
     nr = 0;
-    range = SI().range();
+    binidsampling.start = SI().range().start;
+    binidsampling.stop = SI().range().stop;
+    binidsampling.step = SI().step();
 }
 
 
@@ -125,14 +127,14 @@ SeisPacketInfo& SeisPacketInfo::operator=( const SeisPacketInfo& spi )
     stdinfo = spi.stdinfo;
     usrinfo = spi.usrinfo;
     nr = spi.nr;
-    range = spi.range;
+    binidsampling = spi.binidsampling;
     return *this;
 }
 
 
 SeisPacketInfo::~SeisPacketInfo()
 {
-    delete &range;
+    delete &binidsampling;
 }
 
 

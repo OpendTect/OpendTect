@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.8 2001-12-11 14:24:12 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.9 2002-01-17 14:19:14 bert Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.
@@ -20,7 +20,7 @@ Seismic Packet and trace information. Simple, accessible information.
 #include <enums.h>
 #include <datachar.h>
 class SUsegy;
-class BinIDRange;
+class BinIDSampler;
 class SeisTrc;
 
 /*!\brief Information for a packet of seismics, AKA tape header info */
@@ -37,7 +37,7 @@ public:
     BufferString	usrinfo;
     BufferString	stdinfo;
     int			nr;
-    BinIDRange&		range;
+    BinIDSampler&	binidsampling;
 
     void		clear();
 
