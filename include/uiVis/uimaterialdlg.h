@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.1 2002-04-04 16:07:29 nanne Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.2 2002-04-12 07:10:46 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,13 @@ namespace visBase { class Material; };
 class uiMaterialDlg : public uiDialog
 {
 public:
-			uiMaterialDlg(uiParent*,visBase::Material*);
+			uiMaterialDlg(uiParent*,visBase::Material*,
+				      bool ambience=true,
+				      bool diffusecolor=true,
+				      bool specularcolor=true,
+				      bool emmissivecolor=true,
+				      bool shininess=true,
+				      bool transparency=true );
 
 protected:
 

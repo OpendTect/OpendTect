@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.1 2002-04-04 16:07:29 nanne Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.2 2002-04-12 07:10:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,38 +18,74 @@ const int cMaxVal = 100;
 const int cStepVal = 10;
 
 
-uiMaterialDlg::uiMaterialDlg( uiParent* p, visBase::Material* mat )
-	: uiDialog(p,"Material")
-	, material(mat)
+uiMaterialDlg::uiMaterialDlg( uiParent* p, visBase::Material* mat,
+       bool ambience, bool diffusecolor, bool specularcolor,
+       bool emmissivecolor, bool shininess, bool transparency )
+    : uiDialog(p,"Material")
+    , material(mat)
+    , ambslider( 0 )
+    , diffslider( 0 )
+    , specslider( 0 )
+    , emisslider( 0 )
+    , shineslider( 0 )
+    , transslider( 0 )
 {
-    ambslider = new uiLabeledSlider( this, "Ambience" );
-    ambslider->sldr()->valueChanged.notify( 
-	mCB(this,uiMaterialDlg,ambSliderMove) );
+    uiGroup* prevslider = 0;
 
-    diffslider = new uiLabeledSlider( this, "Diffuse color" );
-    diffslider->sldr()->valueChanged.notify( 
-	mCB(this,uiMaterialDlg,diffSliderMove) );
-    diffslider->attach( alignedBelow, ambslider );
+    if ( ambience )
+    {
+	ambslider = new uiLabeledSlider( this, "Ambience" );
+	ambslider->sldr()->valueChanged.notify( 
+	    mCB(this,uiMaterialDlg,ambSliderMove) );
 
-    specslider = new uiLabeledSlider( this, "Specular color" );
-    specslider->sldr()->valueChanged.notify( 
-	mCB(this,uiMaterialDlg,specSliderMove) );
-    specslider->attach( alignedBelow, diffslider );
+	prevslider = ambslider;
+    }
 
-    emisslider = new uiLabeledSlider( this, "Emissive color" );
-    emisslider->sldr()->valueChanged.notify( 
-	mCB(this,uiMaterialDlg,emisSliderMove) );
-    emisslider->attach( alignedBelow, specslider );
+    if ( diffusecolor )
+    {
+	diffslider = new uiLabeledSlider( this, "Diffuse color" );
+	diffslider->sldr()->valueChanged.notify( 
+	    mCB(this,uiMaterialDlg,diffSliderMove) );
+	if ( prevslider ) diffslider->attach( alignedBelow, prevslider );
+	prevslider = diffslider;
+    }
 
-    shineslider = new uiLabeledSlider( this, "Shininess" );
-    shineslider->sldr()->valueChanged.notify( 
-	mCB(this,uiMaterialDlg,shineSliderMove) );
-    shineslider->attach( alignedBelow, emisslider );
+    if ( specularcolor )
+    {
+	specslider = new uiLabeledSlider( this, "Specular color" );
+	specslider->sldr()->valueChanged.notify( 
+	    mCB(this,uiMaterialDlg,specSliderMove) );
+	if ( prevslider ) specslider->attach( alignedBelow, prevslider );
+	prevslider = specslider;
 
-    transslider = new uiLabeledSlider( this, "Transparency" );
-    transslider->sldr()->valueChanged.notify( 
-	mCB(this,uiMaterialDlg,transSliderMove) );
-    transslider->attach( alignedBelow, shineslider );
+    }
+
+    if ( emmissivecolor )
+    {
+	emisslider = new uiLabeledSlider( this, "Emissive color" );
+	emisslider->sldr()->valueChanged.notify( 
+	    mCB(this,uiMaterialDlg,emisSliderMove) );
+	if ( prevslider ) emisslider->attach( alignedBelow, prevslider );
+	prevslider = emisslider;
+    }
+
+    if ( shininess )
+    {
+	shineslider = new uiLabeledSlider( this, "Shininess" );
+	shineslider->sldr()->valueChanged.notify( 
+	    mCB(this,uiMaterialDlg,shineSliderMove) );
+	if (  prevslider ) shineslider->attach( alignedBelow, prevslider );
+	prevslider = shineslider;
+    }
+
+    if ( transparency )
+    {
+	transslider = new uiLabeledSlider( this, "Transparency" );
+	transslider->sldr()->valueChanged.notify( 
+	    mCB(this,uiMaterialDlg,transSliderMove) );
+	if (  prevslider ) transslider->attach( alignedBelow, prevslider );
+	prevslider = transslider;
+    }
 
     setCancelText( "" );
 
@@ -59,46 +95,70 @@ uiMaterialDlg::uiMaterialDlg( uiParent* p, visBase::Material* mat )
 
 void uiMaterialDlg::doFinalise( CallBacker* )
 {
-    ambslider->sldr()->setMinValue( cMinVal );
-    ambslider->sldr()->setMaxValue( cMaxVal );
-    ambslider->sldr()->setStep( cStepVal );
-    ambslider->sldr()->setValue( material->getAmbience()*100 );
+    if ( ambslider )
+    {
+	ambslider->sldr()->setMinValue( cMinVal );
+	ambslider->sldr()->setMaxValue( cMaxVal );
+	ambslider->sldr()->setStep( cStepVal );
+	ambslider->sldr()->setValue( material->getAmbience()*100 );
+    }
 
-    diffslider->sldr()->setMinValue( cMinVal );
-    diffslider->sldr()->setMaxValue( cMaxVal );
-    diffslider->sldr()->setStep( cStepVal );
-    diffslider->sldr()->setValue( material->getDiffIntensity()*100 );
+    if ( diffslider )
+    {
+	diffslider->sldr()->setMinValue( cMinVal );
+	diffslider->sldr()->setMaxValue( cMaxVal );
+	diffslider->sldr()->setStep( cStepVal );
+	diffslider->sldr()->setValue( material->getDiffIntensity()*100 );
+    }
 
-    specslider->sldr()->setMinValue( cMinVal );
-    specslider->sldr()->setMaxValue( cMaxVal );
-    specslider->sldr()->setStep( cStepVal );
-    specslider->sldr()->setValue( material->getSpecIntensity()*100 );
+    if ( specslider )
+    {
+	specslider->sldr()->setMinValue( cMinVal );
+	specslider->sldr()->setMaxValue( cMaxVal );
+	specslider->sldr()->setStep( cStepVal );
+	specslider->sldr()->setValue( material->getSpecIntensity()*100 );
+    }
 
-    emisslider->sldr()->setMinValue( cMinVal );
-    emisslider->sldr()->setMaxValue( cMaxVal );
-    emisslider->sldr()->setStep( cStepVal );
-    emisslider->sldr()->setValue( material->getEmmIntensity()*100 );
+    if ( emisslider )
+    {
+	emisslider->sldr()->setMinValue( cMinVal );
+	emisslider->sldr()->setMaxValue( cMaxVal );
+	emisslider->sldr()->setStep( cStepVal );
+	emisslider->sldr()->setValue( material->getEmmIntensity()*100 );
+    }
 
-    shineslider->sldr()->setMinValue( cMinVal );
-    shineslider->sldr()->setMaxValue( cMaxVal );
-    shineslider->sldr()->setStep( cStepVal );
-    shineslider->sldr()->setValue( material->getShininess()*100 );
+    if ( shineslider )
+    {
+	shineslider->sldr()->setMinValue( cMinVal );
+	shineslider->sldr()->setMaxValue( cMaxVal );
+	shineslider->sldr()->setStep( cStepVal );
+	shineslider->sldr()->setValue( material->getShininess()*100 );
+    }
 
-    transslider->sldr()->setMinValue( cMinVal );
-    transslider->sldr()->setMaxValue( cMaxVal );
-    transslider->sldr()->setStep( cStepVal );
-    transslider->sldr()->setValue( material->getTransparency()*100 );
+    if ( transslider )
+    {
+	transslider->sldr()->setMinValue( cMinVal );
+	transslider->sldr()->setMaxValue( cMaxVal );
+	transslider->sldr()->setStep( cStepVal );
+	transslider->sldr()->setValue( material->getTransparency()*100 );
+    }
 }
 
 
 bool uiMaterialDlg::acceptOK( CallBacker* )
 {
-    material->setAmbience( ambslider->sldr()->getValue()/100 );
-    material->setDiffIntensity( diffslider->sldr()->getValue()/100 );
-    material->setSpecIntensity( specslider->sldr()->getValue()/100 );
-    material->setEmmIntensity( emisslider->sldr()->getValue()/100 );
-    material->setShininess( shineslider->sldr()->getValue()/100 );
-    material->setTransparency( transslider->sldr()->getValue()/100 );
+    if ( ambslider )
+	material->setAmbience( ambslider->sldr()->getValue()/100 );
+    if ( diffslider )
+	material->setDiffIntensity( diffslider->sldr()->getValue()/100 );
+    if ( specslider )
+	material->setSpecIntensity( specslider->sldr()->getValue()/100 );
+    if ( emisslider )
+	material->setEmmIntensity( emisslider->sldr()->getValue()/100 );
+    if ( shineslider )
+	material->setShininess( shineslider->sldr()->getValue()/100 );
+    if ( transslider )
+	material->setTransparency( transslider->sldr()->getValue()/100 );
     
     return true;
 }
@@ -106,31 +166,37 @@ bool uiMaterialDlg::acceptOK( CallBacker* )
 
 void uiMaterialDlg::ambSliderMove( CallBacker* )
 {
-    material->setAmbience( ambslider->sldr()->getValue()/100 );
+    if ( ambslider )
+	material->setAmbience( ambslider->sldr()->getValue()/100 );
 }
 
 void uiMaterialDlg::diffSliderMove( CallBacker* )
 {
-    material->setDiffIntensity( diffslider->sldr()->getValue()/100 );
+    if ( diffslider )
+	material->setDiffIntensity( diffslider->sldr()->getValue()/100 );
 }
 
 void uiMaterialDlg::specSliderMove( CallBacker* )
 {
-    material->setSpecIntensity( specslider->sldr()->getValue()/100 );
+    if ( specslider )
+	material->setSpecIntensity( specslider->sldr()->getValue()/100 );
 }
 
 void uiMaterialDlg::emisSliderMove( CallBacker* )
 {
-    material->setEmmIntensity( emisslider->sldr()->getValue()/100 );
+    if ( specslider )
+	material->setEmmIntensity( emisslider->sldr()->getValue()/100 );
 }
 
 void uiMaterialDlg::shineSliderMove( CallBacker* )
 {
-    material->setShininess( shineslider->sldr()->getValue()/100 );
+    if ( shineslider )
+	material->setShininess( shineslider->sldr()->getValue()/100 );
 }
 
 void uiMaterialDlg::transSliderMove( CallBacker* )
 {
-    material->setTransparency( transslider->sldr()->getValue()/100 );
+    if ( transslider )
+	material->setTransparency( transslider->sldr()->getValue()/100 );
 }
 
