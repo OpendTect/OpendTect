@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.11 2002-06-21 16:02:41 bert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.12 2003-01-20 14:31:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm,
 void uiFileInput::setFileName( const char* s )
 {
     setText( s );
+    uiLineEdit* le = dynamic_cast<uiLineEdit*>(element());
+    if( le ) le->end();
 }
 
 

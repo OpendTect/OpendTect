@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.8 2002-03-18 13:41:54 arend Exp $
+ RCS:           $Id: uilineedit.h,v 1.9 2003-01-20 14:31:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,11 @@ public:
     virtual bool	update( const DataInpSpec& spec );
 
     void		setPasswordMode();
+
+			//! Moves the text cursor to the beginning of the line. 
+    void		home();
+			//! Moves the text cursor to the end of the line. 
+    void		end();
 
     Notifier<uiLineEdit> returnPressed;	
     Notifier<uiLineEdit> textChanged;	
