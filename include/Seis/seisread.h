@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.5 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: seisread.h,v 1.6 2002-07-01 09:33:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
 			     get(trc.info()) returned 1. If you don't,
 			     the trace selections may be ignored. */
 
+    void		forceFloatData( bool yn=true )	{ forcefloats = yn; }
     void		fillPar(IOPar&) const;
 
 protected:
@@ -59,6 +60,7 @@ protected:
     bool		new_packet;
     bool		needskip;
     bool		rdinited;
+    bool		forcefloats;
 
     void		init();
     bool		openFirst();

@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.8 2002-06-26 16:34:41 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.9 2002-07-01 09:33:05 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -170,6 +170,15 @@ void SeisSingleTraceProc::nextObj()
     starter_ = rdrset_[currentobj_]->starter();
 
     return;
+}
+
+
+void SeisSingleTraceProc::setScaler( Scaler* newsclr )
+{
+    if ( newsclr == scaler_ ) return;
+    delete scaler_; scaler_ = newsclr;
+    for ( int idx=0; idx<rdrset_.size(); idx++ )
+	rdrset_[idx]->forceFloatData( scaler_ ? true : false );
 }
 
 

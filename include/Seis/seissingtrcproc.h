@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.5 2002-06-24 15:40:05 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.6 2002-07-01 09:33:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ public:
     int			nrWritten() const	{ return nrwr_; }
     void		setTotalNrIfUnknown( int nr )
 			{ if ( totnr_ < 0 ) totnr_ = nr; }
-    void		setScaler( Scaler* s )	{ scaler_ = s; }
+    void		setScaler(Scaler*);
     			//!< Scaler becomes mine.
 
 protected:

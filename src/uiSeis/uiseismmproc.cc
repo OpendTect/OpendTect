@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.24 2002-06-26 16:34:41 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.25 2002-07-01 09:33:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,7 +177,7 @@ void uiSeisMMProc::execFinished()
     {
 	Time_sleep( 2 );
 	if ( !jm->removeTempSeis() )
-	    uiMSG().warning( "Could not remove temporary seismics" );
+	    ErrMsg( "Could not remove all temporary seismics" );
 	progrfld->append( "Data transferred" );
 	statusBar()->message( "Finished", 0 );
 	finished = true;
@@ -276,11 +276,7 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
     if ( res == 0 )
     {
 	if ( !jm->removeTempSeis() )
-	{
-	    msg = "Could not remove all tempory seismic data from\n";
-	    msg += jm->tempStorageDir();
-	    uiMSG().warning( msg );
-	}
+	    ErrMsg( "Could not remove all temporary seismics" );
 	jm->cleanup();
     }
 

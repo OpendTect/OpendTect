@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.15 2002-04-21 15:06:56 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.16 2002-07-01 09:33:05 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -26,7 +26,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 
 void SeisTrcReader::init()
 {
-    icfound = new_packet = needskip = rdinited = false;
+    icfound = new_packet = needskip = rdinited = forcefloats = false;
 }
 
 
@@ -93,6 +93,13 @@ int nextStep()
 	return -1;
     }
 
+    if ( rdr.forcefloats )
+    {
+	ObjectSet<SeisTrcTranslator::TargetComponentData>& tarcds =
+					rdr.translator()->componentInfo();
+	for ( int idx=0; idx<tarcds.size(); idx++ )
+	    tarcds[idx]->datachar = DataCharacteristics();
+    }
     return NO;
 }
 
