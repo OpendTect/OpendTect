@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.1 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: multiid.h,v 1.2 2001-02-16 15:42:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,11 @@ class MultiID : public CompoundKey
 public:
 			MultiID( const char* s=0 )
 			: CompoundKey(s)	{}
-			MultiID( int i )	{ add(i); }
+			MultiID( const MultiID& mid )
+			: CompoundKey(mid)	{}
+			MultiID( int i )
+			{ add(i); }
+
     MultiID&		operator =( const MultiID& mi )
 			{ id = mi.id; return *this; }
     MultiID&		operator =( const CompoundKey& ck )
