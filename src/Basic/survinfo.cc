@@ -4,12 +4,13 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.2 2000-04-17 14:56:43 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.3 2000-06-23 14:11:11 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
 #include "filegen.h"
 #include "separstr.h"
+#include "errh.h"
 #include <fstream.h>
 
 static const char* sKey = "Survey Info";
@@ -55,7 +56,7 @@ SurveyInfo::SurveyInfo( const char* rootdir )
     ifstream strm( fname );
     if ( strm.fail() )
     {
-	cerr << "Cannot read survey definition file!" << endl;
+	ErrMsg( "Cannot read survey definition file!" );
 	return;
     }
     ascistream astream( strm );

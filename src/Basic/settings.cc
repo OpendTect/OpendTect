@@ -5,11 +5,12 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.2 2000-04-17 14:56:41 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.3 2000-06-23 14:11:09 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
 #include "ascstream.h"
+#include "errh.h"
 #include <fstream.h>
 
 
@@ -70,7 +71,7 @@ Settings::Settings( const char* strmopen )
 	strm = new ifstream( GetDataFileName( "dgbSettings" ) );
     if ( !strm || !strm->good() )
     {
-	cerr << "Cannot find system's dgbSettings file" << endl;
+	ErrMsg( "Cannot find system's dgbSettings file" );
 	delete strm;
 	return;
     }

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.2 2000-03-02 15:29:27 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.3 2000-06-23 14:11:21 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: ioman.cc,v 1.2 2000-03-02 15:29:27 bert Exp $";
 #include "transl.h"
 #include "ctxtioobj.h"
 #include "filegen.h"
+#include "errh.h"
 #include <stdlib.h>
 #include <fstream.h>
 
@@ -68,8 +69,9 @@ void IOMan::init()
 	    basicdirnm = File_getFullPath( basicdirnm, "Misc" );
 	    if ( !File_copy(basicdirnm,dirnm,YES) )
 	    {
-		cerr << "Cannot create directory: "
-		     << dirnm << endl;
+		BufferString msg( "Cannot create directory: " );
+		msg += dirnm;
+		ErrMsg( msg );
 		state_ = Bad;
 		return;
 	    }
@@ -220,8 +222,9 @@ IOObj* IOMan::getByName( const char* objname,
     {
 	if ( havepar && !to(uids[idx]) )
 	{
-	    cerr << "Survey is corrupt. Cannot go to directory with ID: "
-		 << uids[idx] << endl;
+	    BufferString msg( "Survey is corrupt. Cannot go to dir with ID: " );
+	    msg += uids[idx];
+	    ErrMsg( msg );
 	    return 0;
 	}
 

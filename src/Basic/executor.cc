@@ -5,10 +5,11 @@
  * FUNCTION : functions
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.1 2000-03-02 15:28:55 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.2 2000-06-23 14:11:07 bert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
+#include "errh.h"
 #include <iostream.h>
 
 
@@ -22,11 +23,11 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 	    rv = nextStep();
 	    if ( rv < 0 )
 	    {
-		cerr << (message() ? message() : "") << endl;
-		return NO;
+		if ( message() ) ErrMsg( message() );
+		return false;
 	    }
 	}
-	return YES;
+	return true;
     }
 
     ostream& stream = *strm;
@@ -42,9 +43,9 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
     if ( strm )
 	stream << '\t' << prevmsg << endl;
 
-    int go_on = YES;
-    int newmsg = YES;
-    int needendl = NO;
+    bool go_on = true;
+    bool newmsg = true;
+    bool needendl = false;
     int nrdone = 0;
     int nrdonedone = 0;
     int rv;
@@ -53,7 +54,7 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 	rv = nextStep();
 	curmsg = message();
 	int newnrdone = nrDone();
-	go_on = NO;
+	go_on = false;
 	switch( rv )
 	{
 	case -1:
@@ -63,27 +64,27 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 	    stream << "\nFinished: " << Time_getLocalString() << endl;
 	break;
 	default:
-	    go_on = YES;
+	    go_on = true;
 	    if ( curmsg != prevmsg )
 	    {
 		if ( needendl ) stream << endl;
-		needendl = NO;
+		needendl = false;
 		stream << '\t' << curmsg << endl;
-		newmsg = YES;
+		newmsg = true;
 	    }
 	    else if ( newmsg && newnrdone )
 	    {
-		newmsg = NO;
+		newmsg = false;
 		if ( !nrdone )
 		    stream << '\t' << nrDoneText() << ":\n\t\t";
 		stream << newnrdone;
 		nrdonedone = 1;
-		needendl = YES;
+		needendl = true;
 	    }
 	    else if ( newnrdone && newnrdone != nrdone )
 	    {
 		nrdonedone++;
-		needendl = nrdonedone%8 ? YES : NO;
+		needendl = nrdonedone%8 ? true : false;
 		stream << (nrdonedone%8 ? " " : "\n\t\t");
 		stream << newnrdone;
 		stream.flush();
@@ -96,5 +97,5 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 
     if ( islast )
 	stream << endl << endl << "End of processing" << endl;
-    return rv < 0 ? NO : YES;
+    return rv < 0 ? false : true;
 }
