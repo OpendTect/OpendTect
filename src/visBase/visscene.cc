@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.20 2004-09-16 08:06:49 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.21 2004-09-28 10:04:45 nanne Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -26,6 +26,7 @@ visBase::Scene::Scene()
 {
     selroot->ref();
     selroot->addChild( environment );
+    events.ref();
     selroot->addChild( events.getInventorNode() );
     selroot->addChild( DataObjectGroup::getInventorNode() );
     events.nothandled.notify( mCB(this,visBase::Scene,mousePickCB) );
@@ -36,6 +37,7 @@ visBase::Scene::~Scene()
 {
     removeAll();
     events.nothandled.remove( mCB(this,visBase::Scene,mousePickCB) );
+    events.unRef();
 
     selroot->unref();
 }
