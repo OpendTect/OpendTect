@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.27 2003-12-17 15:44:06 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.28 2003-12-18 12:45:49 nanne Exp $";
 
 #include "emmanager.h"
 
@@ -280,7 +280,7 @@ void EM::EMManager::getSurfaceData( const MultiID& id,
     if ( !ioobj ) return;
 
     const char* grpname = ioobj->group();
-    if ( !strcmp( grpname, EMHorizonTranslatorGroup::keyword ))
+    if ( !strcmp(grpname,EMHorizonTranslatorGroup::keyword) )
     {
 	PtrMan<EMHorizonTranslator> tr = mTranslCreate(EMHorizon,mDGBKey);
 	if ( !tr->startRead( *ioobj ) )
@@ -290,5 +290,12 @@ void EM::EMManager::getSurfaceData( const MultiID& id,
 	sd.rg = newsd.rg;
 	deepCopy( sd.patches, newsd.patches );
 	deepCopy( sd.valnames, newsd.valnames );
+    }
+    else if ( !strcmp(grpname,EMFaultTranslatorGroup::keyword) )
+    {
+	PtrMan<EMFaultTranslator> tr = mTranslCreate(EMFault,mDGBKey);
+
+	sd.patches.add( "[1]" );
+// 	TODO: implement all SurfaceIOData related functions in EMFaultTranslator
     }
 }
