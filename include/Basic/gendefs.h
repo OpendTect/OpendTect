@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.16 2001-07-20 10:44:30 windev Exp $
+ RCS:		$Id: gendefs.h,v 1.17 2001-08-31 15:44:40 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,11 +19,6 @@ ________________________________________________________________________
 
 #define mMaxUserIDLength	127
 #define mMaxUnitIDLength	60
-
-#ifdef PATH_LENGTH
-# undef PATH_LENGTH
-#endif
-#define PATH_LENGTH		255
 
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mNINT(x)		( (int)((x)>0 ? (x)+.5 : (x)-.5) )
@@ -56,9 +51,15 @@ ________________________________________________________________________
 #define mFREE(ptr)		{ if (ptr) free(ptr); ptr = 0; }
 
 
+#ifdef PATH_LENGTH
+# undef PATH_LENGTH
+#endif
+
 #ifdef __msvc__
 
-#include <windefs.h>
+# include <windefs.h>
+# include <stdlib.h>
+# define PATH_LENGTH			_MAX_PATH
 
 # define mPolyRet(base,clss)		base
 # define mTFriend(T,clss)
@@ -70,6 +71,8 @@ ________________________________________________________________________
 	 typ out = 0; try { out = dynamic_cast< typ >( in ); } catch (...) {}
 
 #else
+
+#define PATH_LENGTH			255
 
 # define mPolyRet(base,clss)		clss
 # define mTFriend(T,clss)		template <class T> friend class clss

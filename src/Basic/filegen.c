@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.11 2001-05-31 12:55:14 windev Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.12 2001-08-31 15:44:40 windev Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -227,7 +227,14 @@ const char* File_getTempFileName( const char* id, const char* ext, int full )
 
 #ifdef __win__
 
-    sprintf( pathbuf, "dgb%d%d%s", id, (int)(Stat_getRandom() * 10000), getPID() );
+	static FileNameString tmppath;
+
+	if( full )
+		GetTempPath( PATH_LENGTH, tmppath );
+	else
+		sprintf( tmppath, "" );
+
+	GetTempFileName( tmppath, "dgb", 0, pathbuf );
 
 #else
 
@@ -313,9 +320,13 @@ int File_copy( const char* from, const char* to, int recursive )
 {
 #ifdef __win__
 
+    if ( !from || !*from || !to || !*to ) return NO;
     if ( !File_exists(from) ) return YES;
+
     if ( recursive )
-	{ fprintf(stderr,"File_copy recursive not impl\n"); return NO; }
+	{ 
+		fprintf(stderr,"File_copy recursive not impl\n"); return NO; 
+	}
 
     return CopyFile( from, to, FALSE );
 
@@ -349,8 +360,9 @@ int File_remove( const char* fname, int force, int recursive )
 {
 
 #ifdef __win__
-
-    if ( !File_exists(fname) ) return YES;
+//  use system() with XCOPY & ATTRIB 
+	
+	if ( !File_exists(fname) ) return YES;
 
     if ( recursive )
 	{ fprintf(stderr,"File_remove recursive not impl\n"); return NO; }

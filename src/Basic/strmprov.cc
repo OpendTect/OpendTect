@@ -25,10 +25,14 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.11 2001-07-26 09:34:31 windev Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.12 2001-08-31 15:44:40 windev Exp $";
 
 static FixedString<1024> oscommand;
+#ifdef __msvc__
+#define exeCmd(comm) false
+#else
 #define exeCmd(comm) system((const char*)comm) ? false : true
+#endif
 
 DefineClassID(StreamProvider);
 const char* StreamProvider::sStdIO = "Std-IO";
@@ -302,10 +306,10 @@ StreamData StreamProvider::makeOStream() const
 
     sd.fp = popen( oscommand, "w" );
     sd.ispipe = true;
-#ifndef __msvc__
+//#ifndef __msvc__
     if ( sd.fp )
 	sd.ostrm = new ofstream( fileno(sd.fp) );
-#endif
+//#endif
 
     return sd;
 }
