@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.3 2004-03-02 13:39:00 bert Exp $
+ RCS:		$Id: seisscanner.h,v 1.4 2004-03-02 17:40:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,9 @@ public:
 			~SeisScanner();
 
     const char*		message() const;
-    const char*		nrDoneText() const;
+    int			totalNr() const;
     int			nrDone() const;
+    const char*		nrDoneText() const;
 
     bool		getSurvInfo(BinIDSampler&,StepInterval<double>&,
 	    			    Coord crd[3]) const;
@@ -59,6 +60,9 @@ protected:
     bool		first_trace;
     bool		first_position;
     int			chnksz;
+    mutable int		totalnr;
+    int			expectedcrls;
+    int			nrcrlsthisline;
     SeisTrc&		trc;
     SeisTrcReader&	reader;
     mutable BufferString curmsg;

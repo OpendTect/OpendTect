@@ -4,12 +4,13 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.5 2004-03-02 13:39:00 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.6 2004-03-02 17:40:37 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
 #include "seisread.h"
 #include "seistrc.h"
+#include "seistrctr.h"
 #include "binidselimpl.h"
 #include "binid2coord.h"
 #include "strmprov.h"
@@ -28,6 +29,7 @@ SeisScanner::SeisScanner( const IOObj& ioobj )
     	, reader(*new SeisTrcReader(&ioobj))
 	, trc(*new SeisTrc)
     	, chnksz(10)
+    	, totalnr(-2)
 {
     init();
     Stat_initRandom(0);
@@ -47,7 +49,7 @@ void SeisScanner::init()
     first_trace = true;
     nrvalidtraces = nrnulltraces = nrlines = 0;
     nrtrcsperposn = tracesthisposition = 1;
-    nrdistribvals = 0;
+    nrdistribvals = nrcrlsthisline = expectedcrls = 0;
     invalidsamplenr = -1;
     nonnullsamplerg.start = MAXINT;
     nonnullsamplerg.stop = 0;
@@ -73,6 +75,26 @@ const char* SeisScanner::nrDoneText() const
 int SeisScanner::nrDone() const
 {
     return reader.tracesHandled();
+}
+
+
+int SeisScanner::totalNr() const
+{
+    if ( totalnr == -2 )
+    {
+	totalnr = -1;
+	if ( reader.ioObj() )
+	{
+	    BinIDSampler bs; StepInterval<float> si;
+	    if ( SeisTrcTranslator::getRanges(*reader.ioObj(),bs,si) )
+	    {
+		BinIDSamplerProv bsp( bs );
+		totalnr = bsp.size();
+		((SeisScanner*)this)->expectedcrls = bsp.dirSize(false);
+	    }
+	}
+    }
+    return totalnr;
 }
 
 
@@ -354,6 +376,7 @@ void SeisScanner::handleFirstTrc()
     yrg.start = yrg.stop = mininlbinidcoord.y;
     prevbid = mininlbinid;
     nrlines++;
+    nrcrlsthisline = 1;
 }
 
 
@@ -435,6 +458,13 @@ void SeisScanner::handleBinIDChange()
 
 	curlinestart = curlinestop = curbid;
 	curlinestartcoord = curlinestopcoord = curcoord;
+	if ( expectedcrls > 0 && expectedcrls != nrcrlsthisline )
+	{
+	    totalnr -= expectedcrls - nrcrlsthisline;
+	    if ( totalnr < nrDone() )
+		totalnr = nrDone() + expectedcrls;
+	}
+	nrcrlsthisline = 1;
     }
     else
     {
