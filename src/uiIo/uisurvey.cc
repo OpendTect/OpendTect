@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.49 2003-11-12 12:57:04 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.50 2004-01-12 16:49:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
+#include "uisetdatadir.h"
 #include "uitextedit.h"
 #include "uimain.h"
 #include "uifont.h"
@@ -101,6 +102,7 @@ static void fill()
 uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 	: uiDialog(p,uiDialog::Setup("Survey selection",
 		   "Select and setup survey","0.3.1"))
+	, survinfo(0)
 {
     SurveyInfo::produceWarnings( false );
     const int lbwidth = 250;
@@ -131,19 +133,26 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     listbox->setStretch( 2, 2 );
     leftgrp->attach( leftOf, rightgrp );
 
-    newbut = new uiPushButton( leftgrp, "New ..." );
+    newbut = new uiPushButton( leftgrp, "New ...",
+	    			mCB(this,uiSurvey,newButPushed) );
     newbut->activated.notify( mCB(this,uiSurvey,newButPushed) );
-    newbut->attach( alignedBelow, listbox );
-    rmbut = new uiPushButton( leftgrp, "Remove ..." );
-    rmbut->activated.notify( mCB(this,uiSurvey,rmButPushed) );
-    rmbut->attach( rightAlignedBelow, listbox );
+    newbut->attach( rightOf, listbox );
+    newbut->setPrefWidthInChar( 12 );
+    rmbut = new uiPushButton( leftgrp, "Remove ...",
+	    			mCB(this,uiSurvey,rmButPushed) );
+    rmbut->attach( alignedBelow, newbut );
+    rmbut->setPrefWidthInChar( 12 );
+    editbut = new uiPushButton( leftgrp, "Edit ...",
+	    			mCB(this,uiSurvey,editButPushed) );
+    editbut->attach( alignedBelow, rmbut );
+    editbut->setPrefWidthInChar( 12 );
+    datarootbut = new uiPushButton( leftgrp, "Set Data Root ...",
+	    			mCB(this,uiSurvey,dataRootPushed) );
+    datarootbut->attach( centeredBelow, listbox );
 
-    editbut = new uiPushButton( rightgrp, "Edit ..." );
-    editbut->activated.notify( mCB(this,uiSurvey,editButPushed) );
-    editbut->attach( alignedBelow, mapcanvas );
-    convbut = new uiPushButton( rightgrp, "X/Y <-> I/C ..." );
-    convbut->activated.notify( mCB(this,uiSurvey,convButPushed) );
-    convbut->attach( rightAlignedBelow, mapcanvas );
+    convbut = new uiPushButton( rightgrp, "X/Y <-> I/C ...",
+	    			mCB(this,uiSurvey,editButPushed) );
+    convbut->attach( centeredBelow, mapcanvas );
     uiButton* tutbut = 0;
     if ( isgdi )
     {
@@ -246,6 +255,18 @@ void uiSurvey::editButPushed( CallBacker* )
 {
     if ( !survInfoDialog() )
 	updateInfo(0);
+}
+
+
+void uiSurvey::dataRootPushed( CallBacker* )
+{
+    uiSetDataDir dlg( this );
+    if ( dlg.go() )
+    {
+	delete dirlist;
+	dirlist = new DirList( GetBaseDataDir(), DirList::DirsOnly );
+	updateSvyList();
+    }
 }
 
 
@@ -575,5 +596,6 @@ void uiSurvey::updateViewsGlobal()
 void uiSurvey::getSurvInfo()
 {
     BufferString fname( File_getFullPath(GetBaseDataDir(), listbox->getText()));
+    delete survinfo;
     survinfo = SurveyInfo::read( fname );
 }
