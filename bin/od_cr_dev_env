@@ -1,0 +1,32 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# $Id: od_cr_dev_env,v 1.1 2003-11-27 15:39:33 bert Exp $
+#
+# Script copies sources and libs into a development directory
+#
+#_______________________________________________________________________________
+
+
+if ( $#argv != 2 ) then
+	echo "Usage : $0 OpendtTect_directory existing_target_directory"
+	exit 1
+endif
+
+set inpdir=$1
+set outdir=$2
+
+if ( ! -d $inpdir || ! -e $inpdir/.rel.od.doc ) then
+	echo "$0 : $inpdir does not have the doc package installed"
+	exit 1
+endif
+
+if ( ! -w $outdir  ) then
+	echo "$0 : target directory $outdir not writable"
+	exit 1
+endif
+
+
+#TODO implement
+touch $2/.rel.od.doc
