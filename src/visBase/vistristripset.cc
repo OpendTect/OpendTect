@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.2 2002-03-11 10:46:03 kristofer Exp $";
+static const char* rcsID = "$Id: vistristripset.cc,v 1.3 2002-03-12 07:11:09 kristofer Exp $";
 
 #include "vistristripset.h"
 #include "geomposlist.h"
@@ -19,8 +19,8 @@ visBase::TriangleStripSet::TriangleStripSet()
     : coords( new SoCoordinate3 )
     , strips( new SoIndexedTriangleStripSet )
 {
-    root->addChild( coords );
-    root->addChild( strips );
+    addChild( coords );
+    addChild( strips );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.1 2002-03-11 10:46:03 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.2 2002-03-12 07:11:09 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -37,7 +37,7 @@ visBase::TextureRect::TextureRect( bool usermanip )
     , selnotifier( this )
     , deselnotifier( this )
 {
-    root->addChild( textureswitch );
+    addChild( textureswitch );
     textureswitch->addChild( texturegrp );
 
     texturegrp->addChild( modcolor );
@@ -82,13 +82,13 @@ void visBase::TextureRect::setRectangle( Rectangle* nr )
 	rectangle->deSelection()->remove(
 				mCB( this, TextureRect, triggerDeSel ));
 
-	root->removeChild( rectangle->getData() );
+	removeChild( rectangle->getData() );
 	visBase::DataManager::manager.unRef( rectangle );
     }
 
     rectangle = nr;
     rectangle->ref();
-    root->addChild( rectangle->getData() );
+    addChild( rectangle->getData() );
     rectangle->setMaterial( 0 );
 
     rectangle->manipStarts()->notify( mCB( this,TextureRect, triggerManipStarts));

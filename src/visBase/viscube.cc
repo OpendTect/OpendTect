@@ -4,13 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.4 2002-03-11 10:46:03 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.5 2002-03-12 07:11:09 kristofer Exp $";
 
 #include "viscube.h"
 #include "geompos.h"
 
 #include "Inventor/nodes/SoCube.h"
-#include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoTranslation.h"
 
 
@@ -19,8 +18,8 @@ visBase::Cube::Cube()
     : cube( new SoCube )
     , position( new SoTranslation )
 {
-    root->addChild( position );
-    root->addChild( cube );
+    addChild( position );
+    addChild( cube );
 }
 
 

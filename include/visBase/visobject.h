@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.11 2002-03-12 07:01:31 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.12 2002-03-12 07:11:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -60,11 +60,14 @@ protected:
 
 			VisualObjectImpl();
     virtual		~VisualObjectImpl();
-    SoSeparator*	root;
+
     SoSwitch*		onoff;
     SoDrawStyle*	drawstyle;
 
     Material*		material;
+
+private:
+    SoSeparator*	root;
 };
 
 };

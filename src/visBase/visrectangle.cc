@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.11 2002-03-11 10:46:03 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.12 2002-03-12 07:11:09 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -348,20 +348,20 @@ visBase::Rectangle::Rectangle( bool usermanip)
 { 
     if ( dragger ) dragger->ref();
 
-    root->addChild( origotrans );
-    root->addChild( orientationrot );
-    root->addChild( widthscale );
-    root->addChild( localorigotrans );
+    addChild( origotrans );
+    addChild( orientationrot );
+    addChild( widthscale );
+    addChild( localorigotrans );
     localorigotrans->translation.setValue( 0.5, 0.5, 0 );
 
-    root->addChild( localscale );
+    addChild( localscale );
     float localwidth = 2;
     localscale->scaleFactor.setValue(	1.0/localwidth,
 	    				1.0/localwidth,
 					1.0/localwidth );
 
     SoCoordinate3* coords = new SoCoordinate3;
-    root->addChild( coords );
+    addChild( coords );
     float hlocalwidth = localwidth / 2;
     coords->point.set1Value( 0, -hlocalwidth, -hlocalwidth, 0 );
     coords->point.set1Value( 1, -hlocalwidth,  hlocalwidth, 0 );
@@ -370,20 +370,20 @@ visBase::Rectangle::Rectangle( bool usermanip)
     coords->point.set1Value( 4, -hlocalwidth, -hlocalwidth, 0 );
 
     SoNormal* normals = new SoNormal;
-    root->addChild( normals );
+    addChild( normals );
     normals->vector.setValue( 0, 0, 1 );
 
     SoShapeHints* shapehint = new SoShapeHints;
-    root->addChild( shapehint );
+    addChild( shapehint );
 
     shapehint->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
     shapehint->vertexOrdering = SoShapeHints::CLOCKWISE;
 
     SoNormalBinding* nbind = new SoNormalBinding;
-    root->addChild( nbind );
+    addChild( nbind );
     nbind->value = SoNormalBinding::PER_FACE;
 
-    root->addChild( planesep );
+    addChild( planesep );
     planesep->addChild( plane );
     plane->numVertices.set1Value(0, 5);
 
@@ -395,7 +395,7 @@ visBase::Rectangle::Rectangle( bool usermanip)
 
 	// Manip switch & separator
 	manipswitch = new SoSwitch;
-	root->addChild( manipswitch );
+	addChild( manipswitch );
 
 	SoSeparator* manipsep = new SoSeparator;
 	manipswitch->addChild( manipsep );

@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.6 2002-03-11 10:46:28 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.7 2002-03-12 07:11:58 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "vissceneobjgroup.h"
@@ -21,11 +21,13 @@ visSurvey::PickSet::PickSet()
     , tsz( 0.05 )
 {
     group->ref();
+    addChild( group->getData() );
 }
 
 
 visSurvey::PickSet::~PickSet()
 {
+    removeChild( group->getData() );
     group->unRef();
 }
 
