@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.4 2002-01-29 11:13:02 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.5 2002-03-04 12:29:22 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     }
 
     bool rv = false;
-    StreamData sd = StreamProvider( comm ).makeOStream();
+    StreamData sd = StreamProvider( comm ).makeOStream( execRemote() );
     if ( !sd.usable() )
     {
 	uiMSG().error( "Cannot create pipe to processing application" );
