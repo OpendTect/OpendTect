@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.4 2004-01-12 13:50:33 kristofer Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.5 2004-01-12 14:40:59 kristofer Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -83,7 +83,7 @@ int DataInpSpec::getIntValue( int idx ) const
 {
     int res = 0;
     const char* valstr = text(idx);
-    return valstr && getFromString(res, valstr,0);
+    return valstr && getFromString(res, valstr,0) ? res : 0;
 }
 
 
@@ -91,7 +91,7 @@ double DataInpSpec::getValue( int idx ) const
 {
     double res = 0;
     const char* valstr = text(idx);
-    return valstr && getFromString(res,valstr,0);
+    return valstr && getFromString(res,valstr,0) ? res : 0;
 }
 
 
@@ -99,7 +99,7 @@ float DataInpSpec::getfValue( int idx ) const
 {
     float res = 0;
     const char* valstr = text(idx);
-    return valstr && getFromString(res,valstr,0);
+    return valstr && getFromString(res,valstr,0) ? res : 0;
 }
 
 
