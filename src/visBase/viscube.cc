@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.12 2003-05-09 09:04:17 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.13 2003-09-22 09:10:55 kristofer Exp $";
 
 #include "viscube.h"
 #include "iopar.h"
@@ -22,7 +22,7 @@ visBase::Cube::Cube()
     : Shape( new SoCube )
     , position( new SoTranslation )
 {
-    addNode( position );
+    insertNode( position );
 }
 
 
