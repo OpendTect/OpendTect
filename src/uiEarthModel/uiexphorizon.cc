@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.24 2003-11-24 08:54:54 kristofer Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.25 2003-12-16 12:13:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,7 @@ static void writeGF( ostream& strm, const BinIDZValue& bizv,
     const float val = mIsUndefined(bizv.value) ? mGFUndefValue : bizv.value;
     const float zfac = SI().zIsTime() ? 1000 : 1;
     const float depth = mIsUndefined(bizv.z) ? mGFUndefValue
-					     : depth * zfac;
+					     : bizv.z * zfac;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	     crd.x, crd.y, segid, 14, depth, crl, crl, bizv.binid.crl,
 	     val, bizv.binid.inl, "" );
@@ -133,6 +133,11 @@ bool uiExportHorizon::writeAscii()
     tr->startRead( *infld->selIOObj() );
     EM::SurfaceIODataSelection& sels = tr->selections();
     infld->getSelection( sels );
+    if ( dogf && sels.selvalues.size() > 1 &&
+	    !uiMSG().askGoOn("Only the first selected attribute will be used\n"
+			     "Do you wish to continue?") )
+	return false;
+
     PtrMan<Executor> exec = tr->reader( *hor );
     if ( !exec ) mErrRet( "Cannot read selected horizon" );
 
@@ -140,11 +145,11 @@ bool uiExportHorizon::writeAscii()
     if ( !dlg.go() ) return false;
 
     const float zfac = SI().zIsTime() ? 1000 : 1;
-    bool saveauxdata = sels.selvalues.size();
+    const int nrattribs = hor->nrAuxData();
     TypeSet<int>& patches = sels.selpatches;
     for ( int idx=0; idx<patches.size(); idx++ )
     {
-	int patchidx = patches[idx];
+	const int patchidx = patches[idx];
 	BufferString fname( basename ); 
 	if ( patchidx )
 	{ fname += "^"; fname += idx; }
@@ -173,7 +178,7 @@ bool uiExportHorizon::writeAscii()
 	    const Coord3 crd = meshsurf->getPos( geomposid );
 	    const BinID bid = SI().transform(crd);
 	    float auxvalue = mUndefValue;
-	    if ( saveauxdata && hor->nrAuxData() )
+	    if ( nrattribs )
 	    {
 		const RowCol emrc( bid.inl, bid.crl );
 		const EM::SubID subid = hor->rowCol2SubID( emrc );
@@ -185,33 +190,31 @@ bool uiExportHorizon::writeAscii()
 	    {
 		BinIDZValue bzv( bid, crd.z, auxvalue );
 		writeGF( *sdo.ostrm, bzv, crd, idx );
+		continue;
 	    }
+
+	    if ( !doxy )
+		*sdo.ostrm << bid.inl << '\t' << bid.crl;
 	    else
 	    {
-		if ( !doxy )
-		    *sdo.ostrm << bid.inl << '\t' << bid.crl;
-		else
-		{
-		    // ostreams print doubles awfully
-		    str = "";
-		    str += crd.x; str += "\t"; str += crd.y;
-		    *sdo.ostrm << str;
-		}
-
-		if ( addzpos )
-		{
-		    float depth = crd.z;
-		    if ( !mIsUndefined(depth) ) 
-			depth *= zfac;
-		    *sdo.ostrm << '\t' << depth;
-		}
-
-		if ( saveauxdata )
-		    *sdo.ostrm << '\t' << auxvalue;
-
-		*sdo.ostrm << '\n';
+		// ostreams print doubles awfully
+		str = "";
+		str += crd.x; str += "\t"; str += crd.y;
+		*sdo.ostrm << str;
 	    }
 
+	    if ( addzpos )
+	    {
+		float depth = crd.z;
+		if ( !mIsUndefined(depth) ) 
+		    depth *= zfac;
+		*sdo.ostrm << '\t' << depth;
+	    }
+
+	    for ( int idx=0; idx<nrattribs; idx++ )
+		*sdo.ostrm << '\t' << hor->getAuxDataVal(idx,posid);
+
+	    *sdo.ostrm << '\n';
 	}
 
 	if ( dogf ) *sdo.ostrm << "EOD";
