@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.113 2004-03-11 15:31:23 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.114 2004-04-14 09:43:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ class Scene;
 namespace Threads { class Mutex; };
 namespace Geometry { class GridSurface; };
 
+class uiVisMenuFactory;
+
 
 /*! \brief The Visualisation Part Server */
 
@@ -65,6 +67,8 @@ public:
 
     int				addScene();
     void			removeScene(int);
+
+    uiVisMenuFactory*		getMenuFactory(const char* typespec );
 
     void			shareObject( int sceneid, int id );
 
@@ -247,6 +251,8 @@ protected:
     bool			loadcreateSurface(int);
 
     ObjectSet<visSurvey::Scene>	scenes;
+
+    ObjectSet<uiVisMenuFactory>	menufactories;
 
     ColorAttribSel		colorspec;
     AttribSelSpec		attribspec;
