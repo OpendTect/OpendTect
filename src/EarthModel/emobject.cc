@@ -4,12 +4,14 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.2 2002-05-22 06:17:03 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.3 2002-05-22 07:50:04 kristofer Exp $";
 
 #include "emobject.h"
 #include "emhorizontransl.h"
 #include "emwelltransl.h"
 #include "ioobj.h"
+#include "ptrman.h"
+#include "ioman.h"
 
 EarthModel::EMObject* EarthModel::EMObject::create( const IOObj& ioobj,
 				    bool load, EarthModel::EMManager& manager,
@@ -34,3 +36,10 @@ EarthModel::EMObject::EMObject( EMManager& emm_, const MultiID& id__ )
     , poschnotifier( this )
     , id_( id__ )
 {}
+
+
+BufferString EarthModel::EMObject::name() const
+{
+    PtrMan<IOObj> ioobj = IOM().get( id_ );
+    return BufferString( ioobj ? ioobj->name() : "");
+}

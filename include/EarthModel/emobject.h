@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.4 2002-05-22 07:00:08 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.5 2002-05-22 07:50:24 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ public:
     				EMObject( EMManager&, const MultiID&);
     virtual			~EMObject( ) {}
     const MultiID&		id() const { return id_; }
-    const char*			name() const { return name_; }
+    BufferString		name() const;
     CNotifier<EMObject, PosID>	poschnotifier;
 
     virtual Executor*		loader() { return 0; }
@@ -54,8 +54,6 @@ public:
 protected:
     MultiID			id_;
     class EMManager&		manager;
-    BufferString		name_;
-
     BufferString		errmsg;
 };
 
