@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.9 2004-09-06 16:14:07 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.10 2004-10-03 21:42:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,9 @@ public:
 
     int			expectedNrSamples() const;
     int			expectedNrTraces() const;
+
+    void		notifySing2DLineSel(const CallBack&);
+    bool		isSing2DLine() const;
 
 protected:
 
@@ -88,6 +91,8 @@ public:
     int			expectedNrSamples() const;
     int			expectedNrTraces() const;
 
+    Notifier<uiSeis2DSubSel> singLineSel;
+    bool		isSingLine() const;
 
 protected:
 
@@ -97,6 +102,7 @@ protected:
     uiGenInput*		lnmsfld;
 
     virtual void	selChg(CallBacker*);
+    void		singLineChg(CallBacker*);
     void		doFinalise(CallBacker*);
 
 };

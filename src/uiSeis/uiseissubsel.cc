@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.19 2004-09-28 14:38:51 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.20 2004-10-03 21:42:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,12 +154,25 @@ int uiSeisSubSel::expectedNrTraces() const
     return is2d_ ? sel2d->expectedNrTraces() : sel3d->expectedNrTraces();
 }
 
+
+void uiSeisSubSel::notifySing2DLineSel( const CallBack& cb )
+{
+    sel2d->singLineSel.notify( cb );
+}
+
+bool uiSeisSubSel::isSing2DLine() const
+{
+    return is2d_ ? sel2d->isSingLine() : false;
+}
+
+
 static const BufferStringSet emptylnms;
 
 
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry )
 	: uiGroup( p, "2D seismics sub-selection" )
 	, lnmsfld(0)
+	, singLineSel(this)
 {
     selfld = new uiGenInput( this, "Select", BoolInpSpec("All","Part",true) );
     selfld->valuechanged.notify( mCB(this,uiSeis2DSubSel,selChg) );
@@ -188,6 +201,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry )
 				  StringListInpSpec(emptylnms) );
 	lnmsfld->setWithCheck( true );
 	lnmsfld->attach( alignedBelow, zfld );
+	lnmsfld->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
     }
 
     setHAlignObj( selfld );
@@ -206,6 +220,12 @@ void uiSeis2DSubSel::doFinalise( CallBacker* cb )
 bool uiSeis2DSubSel::isAll() const
 {
     return selfld->getBoolValue();
+}
+
+
+bool uiSeis2DSubSel::isSingLine() const
+{
+    return lnmsfld && lnmsfld->isChecked();
 }
 
 
@@ -280,6 +300,12 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
     lnmsfld->setChecked( prevok );
     if ( prevok )
 	lnmsfld->setText( prevlnm );
+}
+
+
+void uiSeis2DSubSel::singLineChg( CallBacker* )
+{
+    singLineSel.trigger();
 }
 
 
