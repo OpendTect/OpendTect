@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.2 2002-03-18 15:27:09 kristofer Exp $
+ RCS:		$Id: vismaterial.h,v 1.3 2002-03-20 08:16:44 nanne Exp $
 ________________________________________________________________________
 
 
@@ -36,21 +36,27 @@ public:
     const Color&	getColor() const { return color; }
 
     void		setAmbience( float );
+			/*!< Should be between 0 and 1 */
     float		getAmbience() const { return ambience; }
 
     void		setDiffIntensity( float );
+			/*!< Should be between 0 and 1 */
     float		getDiffIntensity() const { return diffuseintencity; }
 
     void		setSpecIntensity( float );
+			/*!< Should be between 0 and 1 */
     float		getSpecIntensity() const { return specularintensity; }
 
     void		setEmmIntensity( float );
+			/*!< Should be between 0 and 1 */
     float		getEmmIntensity() const { return emmissiveintensity; }
 
     void		setShininess( float );
+			/*!< Should be between 0 and 1 */
     float		getShininess() const { return shininess; }
 
     void		setTransparency( float );
+			/*!< Should be between 0 and 1 */
     float		getTransparency() const { return transparency; }
 
     SoNode*		getData();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.4 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: visscene.h,v 1.5 2002-03-20 08:16:44 nanne Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,9 @@ public:
     void		setAmbientLight( float );
     float		ambientLight() const;
 
-    void		deSelectAll();
+    virtual void	deSelectAll();
+    virtual void	select( int id ) {}
+    virtual void	deSelect( int id ) {}
 
     SoNode*		getData();
 
