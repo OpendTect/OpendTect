@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.20 2001-12-19 14:56:09 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.21 2002-01-07 10:27:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -364,6 +364,9 @@ void uiObjectBody::fontchanged()
     fnt_hgt=0;  fnt_wdt=0; fnt_maxwdt=0;
     delete fm;
     fm=0;
+
+    pref_width_hint=0;
+    pref_height_hint=0;
 }
 
 
@@ -540,6 +543,9 @@ void uiObjectBody::uisetFont( const uiFont& f )
     font_ = &f;
     qwidget()->setFont( font_->qFont() );
     parent_->setMinTextWidgetHeight();
+
+    pref_width_hint=0;
+    pref_height_hint=0;
 }
 
 int uiObjectBody::fontWdtFor( const char* str) const

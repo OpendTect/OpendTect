@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.26 2002-01-05 21:55:20 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.27 2002-01-07 10:27:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -505,10 +505,19 @@ void uiDialogBody::finalise()
     {
 	uiObject* alignObj = dlgGroup->uiObj();
 
+	int prefbutwdt = 10;
+
+
 	if ( okText != "" )
+	{
 	    okBut = new uiPushButton( centralWidget_, okText );
+	    prefbutwdt = mMAX( prefbutwdt, okText.size());
+	}
 	if ( cnclText != "" )
+	{
 	    cnclBut = new uiPushButton( centralWidget_, cnclText );
+	    prefbutwdt = mMAX( prefbutwdt, cnclText.size());
+	}
 	if ( withsavebut && saveText != "" )
 	    saveBut = new uiCheckBox( centralWidget_, saveText );
 	if ( helpId != "" )
@@ -543,6 +552,8 @@ void uiDialogBody::finalise()
 	    okBut->attach( bottomBorder, 0 );
 	    okBut->activated.notify( mCB( this, uiDialogBody, accept ));
 	    okBut->setDefault();
+
+	    okBut->setPrefWidthInChar( prefbutwdt );
 	}
 
 	if ( cnclBut )
@@ -561,6 +572,8 @@ void uiDialogBody::finalise()
 	    cnclBut->attach( bottomBorder, 0 );
 
 	    cnclBut->activated.notify( mCB( this, uiDialogBody, reject ));
+
+	    cnclBut->setPrefWidthInChar( prefbutwdt );
 	}
 
 	if( saveBut )
