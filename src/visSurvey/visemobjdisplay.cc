@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.4 2005-01-17 08:03:34 kristofer Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.5 2005-02-17 10:47:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.4 2005-01-17 08:03:34 kristofer Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.5 2005-02-17 10:47:22 cvskris Exp $";
 
 
 #include "vissurvemobj.h"
@@ -175,6 +175,12 @@ void EMObjectDisplay::useTexture(bool yn)
 
 
 bool EMObjectDisplay::usesTexture() const { return usestexture; }
+
+
+void EMObjectDisplay::readAuxData()
+{
+    //TODO
+}
 
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.3 2005-01-10 11:00:59 kristofer Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.4 2005-02-17 10:47:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,8 @@ public:
 
     void			useTexture(bool yn);
     bool			usesTexture() const;
+
+    void			readAuxData();
     
     bool			hasColorAttribute() const; 
     const AttribSelSpec*	getSelSpec() const;
