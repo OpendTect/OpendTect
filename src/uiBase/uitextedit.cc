@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.15 2003-02-17 14:04:12 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.16 2003-02-18 15:33:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,13 @@ ________________________________________________________________________
 #include <i_qtxtbrowser.h>
 
 #include <qstringlist.h>
+
+#define WORK_AROUND
+#ifdef WORK_AROUND
+#include <strmprov.h>
+#include <strmdata.h>
+#include <ascstream.h>
+#endif
 
 int uiTextEditBase::defaultWidth_	= 600;
 int uiTextEditBase::defaultHeight_	= 400;
@@ -32,7 +39,6 @@ const char* uiTextEditBase::text() const
     result = (const char*)qte().text();
     return (const char*)result;
 }
-
 
 
 
@@ -112,15 +118,6 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
 {
     if( plaintxt ) setTextFormat(Qt::PlainText); 
 
-    mimeSourceFactory()->setExtensionType( "*", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "log", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "sim", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "fw", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "nn", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "dict", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "inp", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "las", "text/plain" );
-
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
     setPrefHeight( handle.defaultHeight() );
@@ -148,16 +145,42 @@ uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
 
 QTextEdit& uiTextBrowser::qte()				{ return *body_; }
 
+#ifdef WORK_AROUND
+static BufferString thesrc;
+#endif
 
 const char* uiTextBrowser::source() const
 { 
+#ifdef WORK_AROUND
+    return thesrc;
+#else
     result = (const char*)body_->source();
     return (const char*)result;
+#endif
 }
 
 
 void uiTextBrowser::setSource( const char* src )
-{ body_->setSource(src); }
+{
+#ifdef WORK_AROUND
+    StreamData sd = StreamProvider( src ).makeIStream();
+    if ( !sd.istrm || sd.istrm->fail() )
+	{ sd.close(); return; }
+
+    thesrc = src;
+    BufferString contents;
+
+    char buf[1024]; int maxlines=65536;
+    while ( sd.istrm->getline(buf,1024) && maxlines-- >= 0 )
+	{ contents += buf; contents += "\n"; }
+
+    sd.close();
+
+    body_->setText( QString((const char*)contents) );
+#else
+    body_->setSource(src);
+#endif
+}
 
 
 void uiTextBrowser::backward()
@@ -173,7 +196,13 @@ void uiTextBrowser::home()
 
 
 void uiTextBrowser::reload()
-{ body_->reload(); }
+{
+#ifdef WORK_AROUND
+    setSource(thesrc);
+#else
+    body_->reload();
+#endif
+}
 
 
 int uiTextBrowser::nrLines()
