@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.8 2004-02-04 09:39:25 kristofer Exp $
+ RCS:           $Id: ptrman.h,v 1.9 2004-06-03 14:51:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,9 @@ public: \
 				{ return ptr_ != p; } \
 \
     inline bool			operator !() const { return !ptr_; } \
+\
+    void			erase() \
+				{ delete ArrBrIfNec ptr_; ptr_ = 0; } \
 
 #define mDefPtrMan3(Clss,ArrBrIfNec) \
 private: \
@@ -52,9 +55,6 @@ private: \
     T*				ptr_; \
 \
     Clss<T>&			operator=(const T& p) const; \
-\
-    void			erase() \
-				{ delete ArrBrIfNec ptr_; ptr_ = 0; } \
 \
 };
 
