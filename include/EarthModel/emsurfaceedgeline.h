@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.1 2004-08-20 07:54:06 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.2 2004-08-23 09:44:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -103,6 +103,8 @@ public:
     const EM::Surface&	getSurface() const { return surface; }
     EM::Surface&	getSurface() { return surface; }
     EM::SectionID	getSection() const { return section; }
+
+    const TypeSet<RowCol>&	getNodes() const { return nodes; }
 protected:
     virtual bool	internalIdenticalSettings(const EdgeLineSegment&) const;
     			/*!<\returns true if the segments are of the same
