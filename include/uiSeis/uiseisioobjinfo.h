@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.6 2004-10-07 11:27:25 bert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.7 2004-10-28 15:14:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
 				{ getNmsSubSel(nm,b,add,true); }
 
     static const char*	sKeyEstMBs;
+
+    const IOObj*	ioObj() const;
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.15 2004-10-11 14:49:57 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.16 2004-10-28 15:14:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,10 +61,16 @@ uiSeisIOObjInfo::~uiSeisIOObjInfo()
 }
 
 
+const IOObj* uiSeisIOObjInfo::ioObj() const
+{
+    return ctio.ioobj;
+}
+
+
 #define mChkIOObj(ret) \
     if ( doerrs && !ctio.ioobj ) \
     { \
-	uiMSG().error( "Cannot find object in data store" ); \
+	uiMSG().error( "Cannot find seismic object in data store" ); \
 	return ret; \
     }
 
