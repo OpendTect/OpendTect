@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.34 2004-04-13 12:11:03 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.35 2004-05-17 06:18:24 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -88,8 +88,8 @@ public:
     PatchID		addPatch(const char* nm, bool addtohistory);
     bool		addPatch(const char* nm, PatchID, bool addtohistory);
     			/*!< Return false if the patchid allready exists */
-    			
     void		removePatch(EM::PatchID, bool addtohistory);
+    CNotifier<Surface,const PatchID&>	patchchnotifier;
 
     bool		setPos( const PatchID& patch, const RowCol&,
 	    			const Coord3&, bool autoconnect, bool addtoh );
