@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.14 2004-04-28 21:30:59 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.15 2004-11-16 10:08:06 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "strmdata.h"
 #include "ioparlist.h"
+#include "filepath.h"
 #include <iostream>
 #ifndef __msvc__
 # include <unistd.h>
@@ -35,8 +36,9 @@ int main( int argc, char ** argv )
 	std::cerr << "Usage: " << argv[0] << " program parfile" << std::endl;
 	exitProgram( 1 );
     }
-    const char* fnm = argv[ 2 + bgadd ];
-    StreamProvider spin( fnm );
+
+    FilePath fp( argv[ 2 + bgadd ] );
+    StreamProvider spin( fp.fullPath() );
     StreamData sdin = spin.makeIStream();
     if ( !sdin.usable() )
     {
@@ -50,7 +52,7 @@ int main( int argc, char ** argv )
 	exitProgram( 1 );
     }
     sdin.close();
-    parlist.setFileName( fnm );
+    parlist.setFileName( fp.fullPath() );
 
 #ifndef __win__
     if ( bgadd )
