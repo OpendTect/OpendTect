@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.3 2002-01-18 12:38:12 arend Exp $
+ RCS:           $Id: uimain.h,v 1.4 2002-02-07 16:15:27 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,15 +16,23 @@ ________________________________________________________________________
 class uiMainWin;
 class QApplication;
 class uiFont;
+class QWidget;
 
 
 class uiMain 
 {
 public:
 			uiMain(int argc,char** argv);
+private:
+			uiMain(QApplication*);
+
+    void 		init(QApplication*, int argc, char **argv);
+
+public:
+
     virtual		~uiMain();
 
-    int			exec();	
+    virtual int		exec();	
     void 		exit(int retcode=0);
 
     void		setTopLevel(uiMainWin*);
@@ -49,8 +57,8 @@ protected:
     static QApplication*  app;
     static const uiFont*  font_;
 
-private:
-			uiMain( QApplication* );
+    virtual void	init( QWidget* mainwidget )		{}
+
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.9 2002-01-18 12:38:03 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.10 2002-02-07 16:15:27 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,22 @@ QApplication* 	uiMain::app     = 0;
 uiMain* 	uiMain::themain = 0;
 
 uiMain::uiMain( int argc, char **argv )
-: mainobj( 0 )
+    : mainobj( 0 )
+    { init(0,argc,argv); }
+
+
+uiMain::uiMain( QApplication* qapp )
+    : mainobj( 0 )
+{ 
+#ifdef NO_MORE_DTECT
+    init(qapp,0,0); 
+#else
+    app = qapp;
+#endif
+}
+
+
+void uiMain::init(QApplication* qap, int argc, char **argv )
 {
     if ( app ) 
     {
@@ -36,7 +51,11 @@ uiMain::uiMain( int argc, char **argv )
     else
 	themain = this;
 
-    app = new QApplication( argc, argv );
+    if(qap) 
+	app = qap;
+    else
+	app = new QApplication( argc, argv );
+
     app->setStyle( new QCDEStyle() );
     font_ = 0;
 
@@ -51,12 +70,6 @@ uiMain::uiMain( int argc, char **argv )
     }
     if ( !enab )
 	uiObject::enableToolTips( false );
-}
-
-uiMain::uiMain( QApplication* app_  )
-: mainobj( 0 )
-{
-    app = app_;
 }
 
 uiMain::~uiMain()
@@ -77,6 +90,9 @@ void uiMain::setTopLevel( uiMainWin* obj )
 {
     if( !app )  { pErrMsg("Huh?") ; return; }
     mainobj = obj;
+
+    init( obj->body()->qwidget() );
+
     app->setMainWidget( obj->body()->qwidget() ); 
 }
 
