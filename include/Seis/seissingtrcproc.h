@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.4 2002-06-20 15:59:45 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.5 2002-06-24 15:40:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class SeisTrc;
 class IOObj;
 class IOPar;
 class MultiID;
+class Scaler;
 
 
 /*!\brief Single trace processing executor
@@ -68,6 +69,8 @@ public:
     int			nrWritten() const	{ return nrwr_; }
     void		setTotalNrIfUnknown( int nr )
 			{ if ( totnr_ < 0 ) totnr_ = nr; }
+    void		setScaler( Scaler* s )	{ scaler_ = s; }
+    			//!< Scaler becomes mine.
 
 protected:
 
@@ -88,6 +91,7 @@ protected:
     int			trcsperstep_;
     int			currentobj_;
     int			nrobjs_;
+    Scaler*		scaler_;
 
     virtual void	wrapUp();
     void		nextObj();

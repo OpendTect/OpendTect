@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.6 2002-06-19 15:41:29 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.7 2002-06-24 15:40:05 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -31,6 +31,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 	, wrrkey_(*new MultiID)
 	, totnr_(-1)
     	, trcsperstep_(10)
+    	, scaler_(0)
 {
     outtrc_ = intrc_;
 
@@ -75,6 +76,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 	, wrrkey_(*new MultiID)
 	, totnr_(-1)
     	, trcsperstep_(10)
+    	, scaler_(0)
 {
     outtrc_ = intrc_;
 
@@ -110,6 +112,7 @@ SeisSingleTraceProc::~SeisSingleTraceProc()
     delete starter_;
     delete intrc_;
     delete &wrrkey_;
+    delete scaler_;
     deepErase( rdrset_ );
 }
 
@@ -189,6 +192,17 @@ int SeisSingleTraceProc::totalNr() const
 }
 
 
+static void scaleTrc( SeisTrc& trc, Scaler& sclr )
+{
+    for ( int icomp=0; icomp<trc.data().nrComponents(); icomp++ )
+    {
+	const int sz = trc.size( icomp );
+	for ( int isamp=0; isamp<sz; isamp++ )
+	    trc.set( isamp, sclr.scale(trc.get(isamp,icomp)), icomp );
+    }
+}
+
+
 int SeisSingleTraceProc::nextStep()
 {
     if ( !rdrset_[currentobj_] || !wrr_ )
@@ -229,7 +243,9 @@ int SeisSingleTraceProc::nextStep()
 	proccb_.doCall( this );
 	if ( skipcurtrc_ ) { nrskipped_++; continue; }
 
-	//TODO do explicit execute of writer starter
+	if ( scaler_ )
+	    scaleTrc( *const_cast<SeisTrc*>(outtrc_), *scaler_ );
+
 	if ( !wrr_->put(*outtrc_) )
 	    { curmsg_ = wrr_->errMsg(); return -1; }
 
@@ -250,4 +266,3 @@ void SeisSingleTraceProc::wrapUp()
     }
     wrr_->close();
 }
-
