@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.4 2001-04-12 07:17:37 bert Exp $
+ RCS:           $Id: uigeninput.h,v 1.5 2001-05-01 09:29:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,22 @@ optionally accompanied with either a label or a checkbox.
 
 The uiGeninput is constructed with a number of DataInpSpec's, which determine
 what kind of input field is going to be under the hood.
+
+The usage of the DataInpSpec keeps the constructor for uiGenInput very simple
+and also it's most common use. For example, to define a uiGenInput that inputs
+a string, you'd do something like
+
+\code
+uiGenInput* xx = new uiGenInput( this,"Input name", StringInp("Initial"));
+\endcode
+
+For more complicated inputs, you'd have to explicitely construct a
+DataInpSpec sub-class, and fill in it's details, like allowed range, etc.
+
+When passed to the constructor of a uiGenInput, the DataInpSpec objects
+are copied. You can use uiGenInput::getInpSpec to get a hold of them, but
+only if the uiGenInput has not been finalised yet.
+
 
 */
 
