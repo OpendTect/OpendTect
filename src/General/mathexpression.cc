@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.29 2004-01-16 10:11:48 kristofer Exp $
+ RCS:           $Id: mathexpression.cc,v 1.30 2004-10-07 11:07:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -580,7 +580,9 @@ MathExpression* MathExpression::parse( const char* input )
 
     if ( !strcasecmp( input, "pi" ) )
 	return new MathExpressionConstant( M_PI );
-	
+
+    if ( !strcasecmp( input, "undef" ) )
+	return new MathExpressionConstant( mUndefValue );
 
     bool isvariable = true;
 
