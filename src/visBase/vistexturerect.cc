@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.4 2002-03-18 09:26:18 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.5 2002-04-05 15:14:59 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -188,8 +188,9 @@ void visBase::TextureRect::updateTexture()
 {
     if ( !data ) return;
 
-    int ssize = data->info().getSize( 1 );
-    int tsize = data->info().getSize( 0 );
+    bool isinl = getRectangle().orientation() == visBase::Rectangle::YZ;
+    int ssize = data->info().getSize( isinl ? 0 : 1 );
+    int tsize = data->info().getSize( isinl ? 1 : 0 );
 
     unsigned char imagedata[ssize*tsize*4];
 
@@ -199,7 +200,7 @@ void visBase::TextureRect::updateTexture()
     {
 	for ( int s=0; s<ssize; s++ )
 	{
-	    float val = data->get( t, s );
+	    float val = isinl ? data->get( s, t ) : data->get( t, s );
 	    const Color color = colortable->color(val);
 	    imagedata[idx++] = color.r();
 	    imagedata[idx++] = color.g();
