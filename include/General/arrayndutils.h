@@ -7,19 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.13 2001-06-02 12:40:51 windev Exp $
+ RCS:           $Id: arrayndutils.h,v 1.14 2002-02-22 16:00:06 kristofer Exp $
 ________________________________________________________________________
 
 
 @$*/
-#include <arraynd.h>
-#include <enums.h>
-#include <databuf.h>
-#include <arraynd.h>
-#include <arrayndslice.h>
-#include <mathfunc.h>
-#include <math.h>
+#include "arraynd.h"
+#include "enums.h"
+#include "databuf.h"
+#include "arraynd.h"
+#include "arrayndslice.h"
+#include "mathfunc.h"
+#include "simpnumer.h"
+
 #include <iostrm.h>
+#include <math.h>
 
 #ifndef M_PI
 # define M_PI           3.14159265358979323846  /* pi */
@@ -491,7 +493,7 @@ inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
     const ArrayNDInfo& srcsz = src.info(); 
 
     const int ndim = destsz.getNDim();
-    if ( ndim != srcsz.getNDim() || ndim != copypos.info() ) return false;
+    if ( ndim != srcsz.getNDim() || ndim != copypos.size() ) return false;
 
     for ( int idx=0; idx<ndim; idx++ )
     {
@@ -513,7 +515,8 @@ inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
 		    dePeriodize( srcposition[idx], srcsz.getSize(idx) );
 	}
 
-	dest( destposition.getPos()) = src.get( srcposition );
+	dest.set( destposition.getPos(), src.get( &srcposition[0] ));
+
 		
     } while ( destposition.next() );
 
@@ -605,6 +608,44 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
 
     return true;
 }    
+
+
+template <class T>
+inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
+		   int p0, int p1, bool destperiodic=false )
+{
+    const ArrayNDInfo& destsz = dest.info(); 
+    const ArrayNDInfo& srcsz = src.info(); 
+
+    const int srcsz0 = srcsz.getSize(0);
+    const int srcsz1 = srcsz.getSize(1);
+
+    const int destsz0 = destsz.getSize(0);
+    const int destsz1 = destsz.getSize(1);
+
+    if ( !destperiodic )
+    {
+	if ( p0 + srcsz0 > destsz0 ||
+	     p1 + srcsz1 > destsz1  )
+	     return false;
+    }
+
+
+    int idx = 0;
+    const T* ptr = src.getData();
+
+    for ( int id0=0; id0<srcsz0; id0++ )
+    {
+	for ( int id1=0; id1<srcsz1; id1++ )
+	{
+	    dest.set( dePeriodize( id0 + p0, destsz0),
+		  dePeriodize( id1 + p1, destsz1),
+		  ptr[idx++]);
+	}
+    }
+
+    return true;
+}
 
 
 template <class T>
