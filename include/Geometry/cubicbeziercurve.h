@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: cubicbeziercurve.h,v 1.3 2005-02-17 10:25:47 cvskris Exp $
+RCS:           $Id: cubicbeziercurve.h,v 1.4 2005-03-02 18:38:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ public:
 			CubicBezierCurve( const Coord3&, const Coord3&,
 					  int firstparam=0, int step=1 );
     CubicBezierCurve*	clone() const;
-
     IntervalND<float>	boundingBox(bool) const;
 
     Coord3 		computePosition( float ) const;
@@ -68,9 +67,46 @@ protected:
     bool		iscircular;
 };
 
+/*! Implementation of deCastaleau's algoritm. For more info, refer to
+ *  "The NURBS book", figure 1.17. */
 
-Coord3 cubicDeCasteljau( const Coord3&, const Coord3&,
-		         const Coord3&, const Coord3&, float u );
+inline Coord3 cubicDeCasteljau( const Coord3* p, char i0, char di, float u )
+{
+    p += i0;
+    if ( mIsZero(u,1e-3) ) return *p;
+    else if ( mIsEqual(u,1,1e-3) ) return p[3*di];
+
+    const float one_minus_u = 1-u;
+    Coord3 interpolpos1 = 	p[di]*one_minus_u+p[di*2]	* u;
+
+    const Coord3 interpolpos0 = (*p*one_minus_u+p[di]*u)	* one_minus_u +
+				interpolpos1			* u;
+
+    interpolpos1 = 		interpolpos1 			* one_minus_u +
+				(p[di*2]*one_minus_u+p[3*di]*u) * u;
+
+    return interpolpos0*one_minus_u+interpolpos1*u;
+}
+
+
+inline Coord3 cubicDeCasteljauTangent( const Coord3* p, char i0, char di,
+				       float u)
+{
+    p += i0;
+    if ( mIsZero(u,1e-3) ) return p[di]-*p;
+    else if ( mIsEqual(u,1,1e-3) ) return p[3*di]-p[2*di];
+
+    const float one_minus_u = 1-u;
+    Coord3 interpolpos1 =	p[di]*one_minus_u+p[2*di]	* u;
+
+    const Coord3 interpolpos0 = (*p*one_minus_u+p[di]*u)	* one_minus_u +
+				interpolpos1			* u;
+
+    interpolpos1 =		interpolpos1			* one_minus_u +
+				(p[2*di]*one_minus_u+p[3*di]*u) * u;
+
+    return interpolpos1-interpolpos0;
+}
 
 };
 

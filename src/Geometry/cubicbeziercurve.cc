@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.5 2005-02-20 13:42:26 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.6 2005-03-02 18:38:15 cvskris Exp $";
 
 #include "cubicbeziercurve.h"
 
@@ -75,10 +75,10 @@ Coord3 CubicBezierCurve::computePosition( float param) const
     const GeomPosID nextparam = range.atIndex(nextidx);
 
     const float u = (param-prevparam)/range.step;
-    return cubicDeCasteljau( positions[previdx],
-	    		     getBezierVertex(prevparam,false),
-			     getBezierVertex(nextparam,true),
-			     positions[previdx+1], u);
+    Coord3 temppos[] = { positions[previdx], getBezierVertex(prevparam,false),
+			 getBezierVertex(nextparam,true),
+			 positions[previdx+1] };
+    return cubicDeCasteljau( temppos, 0, 1, u );
 }
 
 
@@ -328,25 +328,6 @@ Coord3 CubicBezierCurve::computeDirection( GeomPosID param ) const
     return (c1-c0)/(diff)*directioninfluence;
 }
 
-
-/*! Implementation of deCastaleau's algoritm. For more info, refer to
- *  "The NURBS book", figure 1.17. */
-
-
-Coord3 cubicDeCasteljau( const Coord3& p0, const Coord3& p1,
-			 const Coord3& p2, const Coord3& p3, float u )
-{
-    const float one_minus_u = 1-u;
-    Coord3 interpolpos1 = 	p1*one_minus_u+p2*u;
-
-    const Coord3 interpolpos0 = (p0*one_minus_u+p1*u)	* one_minus_u +
-				interpolpos1		* u;
-
-    interpolpos1 =		interpolpos1		* one_minus_u +
-				(p2*one_minus_u+p3*u) 	* u;
-
-    return interpolpos0*one_minus_u+interpolpos1*u;
-}
 
 }; //Namespace
 

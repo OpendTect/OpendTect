@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.6 2005-02-20 13:42:26 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.7 2005-03-02 18:38:15 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -13,11 +13,140 @@ static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.6 2005-02-20 13:42:26
 #include "arrayndimpl.h"
 #include "cubicbeziercurve.h"
 #include "errh.h"
+#include "mathfunc.h"
 #include "rowcol.h"
 #include "survinfo.h"
+#include "trigonometry.h"
+
 
 namespace Geometry
 {
+
+#define idx00	0
+#define idx01	1
+#define idx02	2
+#define idx03	3
+#define idx10	4
+#define idx11	5
+#define idx12	6
+#define idx13	7
+#define idx20	8
+#define idx21	9
+#define idx22	10
+#define idx23	11
+#define idx30	12
+#define idx31	13
+#define idx32	14
+#define idx33	15
+
+CubicBezierSurfacePatch::CubicBezierSurfacePatch(
+    const Coord3& t00, const Coord3& t01, const Coord3& t02, const Coord3& t03,
+    const Coord3& t10, const Coord3& t11, const Coord3& t12, const Coord3& t13,
+    const Coord3& t20, const Coord3& t21, const Coord3& t22, const Coord3& t23,
+    const Coord3& t30, const Coord3& t31, const Coord3& t32, const Coord3& t33)
+{
+    pos[idx00] = t00; pos[idx01] = t01; pos[idx02] = t02; pos[idx03] = t03;
+    pos[idx10] = t10; pos[idx11] = t11; pos[idx12] = t12; pos[idx13] = t13;
+    pos[idx20] = t20; pos[idx21] = t21; pos[idx22] = t22; pos[idx23] = t23;
+    pos[idx30] = t30; pos[idx31] = t31; pos[idx32] = t32; pos[idx33] = t33;
+}
+
+
+CubicBezierSurfacePatch* CubicBezierSurfacePatch::clone() const
+{
+    return new CubicBezierSurfacePatch(
+			        pos[idx00], pos[idx01], pos[idx02], pos[idx03],
+				pos[idx10], pos[idx11], pos[idx12], pos[idx13],
+				pos[idx20], pos[idx21], pos[idx22], pos[idx23],
+				pos[idx30], pos[idx31], pos[idx32], pos[idx33]);
+}
+
+
+IntervalND<float> CubicBezierSurfacePatch::computeBoundingBox() const
+{
+    IntervalND<float> bbox(3);
+    bbox.setRange(*pos);
+    for ( int idx=1; idx<16; idx++ )
+	bbox.include( pos[idx] );
+
+    return bbox;
+}
+
+
+Coord3 CubicBezierSurfacePatch::computePos( float u, float v ) const
+{
+    if ( mIsZero(u,1e-3) )
+	return cubicDeCasteljau(pos,idx00,1,v);
+    else if ( mIsEqual(u,1,1e-3) )
+	return cubicDeCasteljau(pos, idx30, 1 ,v);
+   
+    Coord3 temppos [] = { cubicDeCasteljau(pos,idx00,1,v),
+			  cubicDeCasteljau(pos,idx10,1,v),
+			  cubicDeCasteljau(pos,idx20,1,v),
+			  cubicDeCasteljau(pos,idx30,1,v) };
+
+    return cubicDeCasteljau( temppos, 0, 1, u );
+}
+
+
+Coord3 CubicBezierSurfacePatch::computeUTangent( float u, float v ) const
+{
+    Coord3 temppos [] = { cubicDeCasteljau(pos,idx00,1,v),
+			  cubicDeCasteljau(pos,idx10,1,v),
+			  cubicDeCasteljau(pos,idx20,1,v),
+			  cubicDeCasteljau(pos,idx30,1,v) };
+
+    return cubicDeCasteljauTangent( temppos, 0, 1, u );
+}
+
+
+Coord3 CubicBezierSurfacePatch::computeVTangent( float u, float v ) const
+{
+    Coord3 temppos [] = { cubicDeCasteljau(pos,idx00,4,u),
+			  cubicDeCasteljau(pos,idx01,4,u),
+			  cubicDeCasteljau(pos,idx02,4,u),
+			  cubicDeCasteljau(pos,idx03,4,u) };
+
+    return cubicDeCasteljauTangent( temppos, 0, 1, v );
+}
+
+
+Coord3 CubicBezierSurfacePatch::computeNormal( float u, float v ) const
+{
+    return computeUTangent(u,v).cross(computeVTangent(u,v));
+}
+
+
+bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
+				float& u, float& v, float eps ) const
+{
+    const Coord3 linepoint(line.x0, line.y0, line.z0 );
+    const Coord3 linedir( line.alpha, line.beta, line.gamma );
+    for ( int idx=0; idx<20; idx++ )
+    {
+	const Coord3 currentpos = computePos(u,v);
+	const float sqdist = (currentpos-linepoint).cross(linedir).sqAbs();
+	if ( sqdist<eps ) return true;
+
+	const Coord3 utangent = computeUTangent(u,v);
+	const Coord3 vtangent = computeVTangent(u,v);
+	const Coord3 dfu = utangent.cross(linedir);
+	const Coord3 dfv = vtangent.cross(linedir);
+
+	const float du = 2*(dfu.x+dfu.y+dfu.z);
+	const float dv = 2*(dfv.x+dfv.y+dfv.z);
+
+	u = u-(sqdist/du);
+	if ( u<0 || u>1 ) return false;
+
+	v = v-(sqdist/dv);
+	if ( v<0 || v>1 ) return false;
+    }
+
+    pErrMsg( "Maximum nr of iterations reached" );
+
+    return false;
+}
 
 
 CubicBezierSurface::CubicBezierSurface(const Coord3& p0, const Coord3& p1,
@@ -112,8 +241,6 @@ Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
 	    return Coord3::udf();
     }
 
-    const int prevrow = rowrange.atIndex(prevrowidx);
-
     int prevcolidx = colrange.getIndex(params.y);
     if ( prevcolidx<0 || prevcolidx>nrCols()-1 )
 	return Coord3::udf();
@@ -125,41 +252,14 @@ Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
 	    return Coord3::udf();
     }
 
+    const int prevrow = rowrange.atIndex(prevrowidx);
     const int prevcol = colrange.atIndex(prevcolidx);
 
-    const float u = (params.x-prevrow)/rowrange.step;
-    const float v = (params.y-prevcol)/colrange.step;
+    const CubicBezierSurfacePatch* patch = getPatch(RowCol(prevrow,prevcol));
 
-    RowCol rc0(prevrow,prevcol);
-    RowCol rc1(prevrow,prevcol+colrange.step);
-    const Coord3 row0 = cubicDeCasteljau( getKnot(rc0,true),
-					  getBezierVertex( rc0,RowCol(0,1)),
-					  getBezierVertex( rc1,RowCol(0,-1)),
-					  getKnot(rc1,true),
-					  v );
-
-    const Coord3 row1 = cubicDeCasteljau( getBezierVertex( rc0,RowCol(1,0)),
-					  getBezierVertex( rc0,RowCol(1,1)),
-					  getBezierVertex( rc1,RowCol(1,-1)),
-					  getBezierVertex( rc1,RowCol(1,0)),
-					  v );
-
-    rc0.row += rowrange.step;
-    rc1.row += rowrange.step;
-
-    const Coord3 row2 = cubicDeCasteljau( getBezierVertex( rc0,RowCol(-1,0)),
-					  getBezierVertex( rc0,RowCol(-1,1)),
-					  getBezierVertex( rc1,RowCol(-1,-1)),
-					  getBezierVertex( rc1,RowCol(-1,0)),
-					  v );
-
-    const Coord3 row3 = cubicDeCasteljau( getKnot( rc0,true ),
-					  getBezierVertex( rc0,RowCol(0,1)),
-					  getBezierVertex( rc1,RowCol(0,-1)),
-					  getKnot( rc1,true ),
-					  v );
-
-    return cubicDeCasteljau( row0, row1, row2, row3, u );
+    if ( !patch ) return Coord3::udf();
+    return patch->computePos((params.x-prevrow)/rowrange.step,
+	    		     (params.y-prevcol)/colrange.step);
 }
 
 
@@ -167,6 +267,65 @@ Coord3 CubicBezierSurface::computeNormal( const Coord& ) const
 {
     pErrMsg( "Not impl" );
     return Coord3::udf();
+}
+
+
+bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
+{
+    IntervalND<float> bbox = boundingBox(false);
+    if ( !bbox.isSet() ) return false;
+
+    Coord3 center( bbox.getRange(0).center(), bbox.getRange(1).center(),
+			 bbox.getRange(2).center() );
+    Coord3 closestpointonline = line.closestPoint(center);
+    if ( !bbox.includes(closestpointonline) )
+	return false;
+
+    RowCol rc(origo);
+    for ( int rowidx=0; rowidx<nrRows()-1; rowidx++, rc.row+=step.row )
+    {
+	rc.col=origo.col;
+	for ( int colidx=0; colidx<nrCols()-1; colidx++, rc.col+=step.col )
+	{
+	    const CubicBezierSurfacePatch* patch = getPatch(rc);
+	    if ( !patch ) continue;
+
+	    bbox = patch->computeBoundingBox();
+	    if ( !bbox.isSet() ) continue;
+
+	    center.x = bbox.getRange(0).center();
+	    center.y = bbox.getRange(1).center();
+	    center.z = bbox.getRange(2).center();
+
+	    closestpointonline = line.closestPoint(center);
+	    if ( !bbox.includes(closestpointonline) )
+		continue;
+
+	    PtrMan<CubicBezierSurfacePatch> dummypatch = 0;
+	    const float zfactor = SI().zFactor();
+	    Line3 intersectionline( line );
+	    if ( !mIsEqual(zfactor,1,1e-3) )
+	    {
+		dummypatch = patch->clone();
+		for ( int idx=dummypatch->nrPos()-1; idx>=0; idx-- )
+		    dummypatch->pos[idx].z *= zfactor;
+
+		patch = dummypatch;
+
+		intersectionline.z0 *= zfactor;
+		intersectionline.gamma *= zfactor;
+	    }
+
+	    float u = res.x;
+	    float v = res.y;
+	    if ( !patch->intersectWithLine( intersectionline, u, v, 1 ) )
+		continue;
+
+	    res.x = u; res.y=v; return true;
+	}
+    }
+
+    return false;
 }
 
 
@@ -359,6 +518,35 @@ void CubicBezierSurface::setDirectionInfluence(float ndi)
     directioninfluence = ndi;
     triggerMovement();
 }
+
+
+const CubicBezierSurfacePatch*
+CubicBezierSurface::getPatch(const RCol& rc) const
+{
+    const RowCol rc01( rc.r(), rc.c()+step.col );
+    const RowCol rc10( rc.r()+step.row, rc.c() );
+    const RowCol rc11( rc.r()+step.row, rc.c()+step.col );
+
+    return new CubicBezierSurfacePatch( getKnot(rc,true),
+	    				getBezierVertex(rc,RowCol(0,1)),
+	    				getBezierVertex(rc01,RowCol(0,-1)),
+					getKnot(rc01,true ),
+
+    					getBezierVertex(rc,  RowCol(1,0)),
+	    				getBezierVertex(rc,  RowCol(1,1)),
+	    				getBezierVertex(rc01,RowCol(1,-1)),
+	    				getBezierVertex(rc01,RowCol(1,-1)),
+
+    					getBezierVertex(rc10,  RowCol(-1,0)),
+	    				getBezierVertex(rc10,  RowCol(-1,1)),
+	    				getBezierVertex(rc11,  RowCol(-1,-1)),
+	    				getBezierVertex(rc11,  RowCol(-1,-1)),
+
+    					getBezierVertex(rc10,  RowCol(0,0)),
+	    				getBezierVertex(rc10,  RowCol(0,1)),
+	    				getBezierVertex(rc11,  RowCol(0,-1)),
+	    				getBezierVertex(rc11,  RowCol(0,-1)) );
+    }
 
 
 bool CubicBezierSurface::checkSelfIntersection( const RCol& ownrc ) const
