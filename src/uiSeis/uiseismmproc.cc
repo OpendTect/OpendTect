@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.74 2004-11-05 20:14:19 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.75 2004-11-10 14:19:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uifilebrowser.h"
 #include "uiiosel.h"
+#include "uiexecutor.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
 #include "uislider.h"
@@ -340,6 +341,15 @@ void uiSeisMMProc::doCycle( CallBacker* )
     nrcyclesdone++;
 
     jobrunner->nextStep();
+    if ( jobrunner->jobsInProgress() == 0 )
+    {
+	if ( wrapUp() )
+	    return;
+	delete jobrunner;
+	jobrunner = jobprov->getRunner();
+	if ( !jobrunner )
+	    return;
+    }
 
     setNiceNess();
     updateCurMachs();
@@ -399,19 +409,6 @@ void uiSeisMMProc::updateCurMachs()
 }
 
 
-
-//TODO replace by HostDataList method
-static const HostData* hdFor( const HostDataList& hdl, const char* nm )
-{
-    for ( int idx=0; idx<hdl.size(); idx++ )
-    {
-	if ( !strcmp(hdl[idx]->name(),nm) )
-	    return hdl[idx];
-    }
-    return 0;
-}
-
-
 int uiSeisMMProc::runnerHostIdx( const char* mach ) const
 {
     if ( !jobrunner || !mach || !*mach ) return -1;
@@ -448,7 +445,7 @@ void uiSeisMMProc::addPush( CallBacker* )
 	char* ptr = strchr( hnm.buf(), ' ' );
 	if ( ptr ) *ptr = '\0';
 
-	const HostData* hd = hdFor( hdl, hnm.buf() );
+	const HostData* hd = hdl.find( hnm.buf() );
 	if ( !hd ) { pErrMsg("Huh"); continue; }
 	if ( !jobrunner->addHost(*hd) && jobrunner->jobsLeft() > 0 )
 	{
@@ -482,21 +479,17 @@ void uiSeisMMProc::stopPush( CallBacker* )
 void uiSeisMMProc::vwLogPush( CallBacker* )
 {
     BufferString hostnm( curUsedMachName() );
-
     JobHostInfo* jhi = 0;
     const ObjectSet<JobHostInfo>& hi = jobrunner->hostInfo();
     for ( int idx=0; idx<hi.size(); idx++ )
     {
 	if ( hi[idx]->hostdata_.isKnownAs(hostnm) )
-	{ jhi = hi[idx]; break; }
+	    { jhi = hi[idx]; break; }
     }
-
     if ( !jhi ) return;
 
     JobInfo* ji = jobrunner->currentJob( jhi );
-
     FilePath logfp( jobrunner->getBaseFilePath(*ji, jhi->hostdata_) );
-
     logfp.setExtension( ".log", false );
 
     delete logvwer;
@@ -515,9 +508,47 @@ void uiSeisMMProc::jrpSel( CallBacker* )
 }
 
 
+static void rmTmpSeis( SeisJobExecProv* jp )
+{
+    Time_sleep( 2.25 );
+    if ( !jp->removeTempSeis() )
+	ErrMsg( "Could not remove all temporary seismics" );
+}
+
+
+bool uiSeisMMProc::wrapUp()
+{
+    Executor* exec = jobprov ? jobprov->getPostProcessor() : 0;
+    if ( !exec ) return true;
+
+    uiExecutor uiex( this, *exec );
+    if ( !uiex.go() )
+	{ delete exec; return false; }
+    delete exec;
+
+    setOkText( "Dismiss" );
+    setCancelText( "Dismiss" );
+    rmTmpSeis( jobprov );
+    return true;
+}
+
+
 bool uiSeisMMProc::rejectOK( CallBacker* )
 {
     if ( !outioobjinfo->ioObj() ) return true;
+
+    int res = 0;
+    if ( jobrunner->jobsInProgress() > 0 )
+    {
+	BufferString msg = "This will stop all processing!\n\n";
+	msg += "Do you want to remove already processed data?";
+	res = uiMSG().askGoOnAfter( msg );
+    }
+    if ( res == 2 ) return false;
+
+    jobrunner->stopAll();
+    if ( res == 0 )
+	rmTmpSeis( jobprov );
 
     return true;
 }
@@ -527,5 +558,10 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 {
     if ( !outioobjinfo->ioObj() ) return true;
 
-    return true;
+    if ( usedmachfld->box()->size() && !uiMSG().askGoOn(
+	    "This will stop further processing and wrap up",false) )
+	return false;
+    
+    jobrunner->stopAll();
+    return wrapUp();
 }

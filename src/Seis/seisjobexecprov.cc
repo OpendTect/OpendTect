@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.4 2004-10-28 15:13:43 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.5 2004-11-10 14:19:13 bert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -113,7 +113,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv()
 	return 0;
     }
 
-    MultiID key = tempStorID();
+    MultiID key = tempStorID( true );
     if ( key == "" )
 	return 0;
     iopar_.set( seisoutkey_, key );
@@ -189,7 +189,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 }
 
 
-MultiID SeisJobExecProv::tempStorID() const
+MultiID SeisJobExecProv::tempStorID( bool create ) const
 {
     FilePath fp( iopar_.find(sKeyTmpStor) );
     fp.add( "i.*" );
@@ -209,13 +209,15 @@ MultiID SeisJobExecProv::tempStorID() const
 	    return iostrm->key();
     }
 
-    // No. So create one.
+    MultiID ret;
+    if ( !create )
+	return ret;
+
     fp.setFileName( 0 );
     BufferString objnm( "~" );
     objnm += fp.fileName();
     ctio_.setName( objnm );
     IOM().getEntry( ctio_ );
-    MultiID ret;
     if ( !ctio_.ioobj )
 	errmsg_ = "Cannot create temporary object for seismics";
     else
@@ -240,4 +242,20 @@ Executor* SeisJobExecProv::getPostProcessor()
     return new SeisSingleTraceProc( inioobj, outioobj,
 				    "Data transfer", &iopar_,
 				    "Writing results to output cube" );
+}
+
+
+bool SeisJobExecProv::removeTempSeis()
+{
+    if ( is2d_ ) return true;
+
+    MultiID tmpkey( iopar_.find(seisoutkey_) );
+    PtrMan<IOObj> ioobj = IOM().get( tmpkey );
+    if ( !ioobj ) return true;
+
+    FilePath fp( ioobj->fullUserExpr(true) );
+    IOM().permRemove( tmpkey );
+
+    fp.setFileName(0);
+    return File_remove(fp.fullPath().buf(),YES);
 }

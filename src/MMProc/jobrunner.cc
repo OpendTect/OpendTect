@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.9 2004-11-05 20:13:42 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.10 2004-11-10 14:19:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -323,6 +323,13 @@ bool JobRunner::haveIncomplete() const
 	if ( jobinfos_[ijob]->state_ != JobInfo::Completed )
 	    return true;
     return false;
+}
+
+
+bool JobRunner::stopAll()
+{
+    //TODO get rid of all processes - set all statuses to Failed
+    return true;
 }
 
 

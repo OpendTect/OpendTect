@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.22 2004-11-09 12:56:22 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.23 2004-11-10 14:19:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,4 +340,16 @@ void HostDataList::handleLocal()
 	    delete hd;
 	}
     }
+}
+
+
+HostData* HostDataList::findHost( const char* nm ) const
+{
+    const HostData* ret = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( (*this)[idx]->isKnownAs(nm) )
+	    { ret = (*this)[idx]; break; }
+    }
+    return const_cast<HostData*>( ret );
 }

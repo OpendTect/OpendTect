@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.17 2004-11-05 19:24:19 arend Exp $
+ RCS:           $Id: hostdata.h,v 1.18 2004-11-10 14:19:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,6 +158,9 @@ public:
     int			firstPort() const	{ return portnr_; }
     const char*		rshComm() const		{ return rshcomm_; }
 
+    HostData*		find( const char* nm )	{ return findHost(nm); }
+    const HostData*	find( const char* nm ) const { return findHost(nm); }
+
 protected:
 
     bool		realaliases_;
@@ -172,6 +175,7 @@ protected:
 
     void		handleLocal();
     bool		readHostFile(const char*);
+    HostData*		findHost(const char*) const;
 };
 
 #undef mRetNoneIfEmpty

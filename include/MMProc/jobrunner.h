@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.7 2004-11-05 20:13:56 arend Exp $
+ RCS:		$Id: jobrunner.h,v 1.8 2004-11-10 14:19:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
     bool			addHost(const HostData&);
     void			removeHost(int);
     void			pauseHost(int,bool);
+    bool			stopAll();
     bool			isFailed(int) const;
     bool			isPaused(int) const;
     bool			isAssigned( const JobInfo& ji ) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.3 2004-10-28 15:13:48 bert Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.4 2004-11-10 14:19:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
 
     JobRunner*		getRunner();
     Executor*		getPostProcessor();
+    bool		removeTempSeis();
 
     const MultiID&	outputID() const	{ return seisoutid_; }
 
@@ -79,7 +80,7 @@ protected:
     JobDescProv*	mk2DJobProv();
     JobDescProv*	mk3DJobProv();
     void		getMissingLines(TypeSet<int>&,const char*) const;
-    MultiID		tempStorID() const;
+    MultiID		tempStorID(bool) const;
 
 };
 

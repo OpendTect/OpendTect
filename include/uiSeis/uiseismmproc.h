@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.26 2004-11-05 19:24:53 arend Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.27 2004-11-10 14:19:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ protected:
     void		setNiceNess();
     void		updateAliveDisp();
     void		updateCurMachs();
+    bool		wrapUp();
     int			runnerHostIdx(const char*) const;
 
     const char* 	curUsedMachName();
