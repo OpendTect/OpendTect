@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.17 2002-09-12 15:01:22 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.18 2002-09-17 06:49:52 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -163,7 +163,7 @@ bool EarthModel::Horizon::import( const Grid& grid )
 	    float val = grid.getValue( gridnode );
 
 	    Geometry::Pos pos(coord.x, coord.y, val );
-	    surfaces.getSurfaces()[0]->setPos( gridnode, pos );
+	    surfaces.getSurfaces()[0]->setGridPos( gridnode, pos );
 	}
     }
 
