@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.24 2004-03-05 10:16:24 dgb Exp $
+ RCS:		$Id: visobject.h,v 1.25 2004-03-31 06:44:17 nanne Exp $
 ________________________________________________________________________
 
 
@@ -111,10 +111,10 @@ private:
   the DIF' principle (Don't implement the future), the layer only contains
   those tools that are really used in OpendTect.
 
-  The classes starting with 'So' are in fact extensions of the COIN library, the
-  'vis' classes are classes used in the rest of OpendTect. Before a So-class
-  can be used, it needs to be initiated, this is done in 
-  visBase::initODInventorClasses().
+  The function visBase::initODInventorClasses() initialises our own 
+  Inventor classes, which are in fact extensions of the COIN library. 
+  These classes can be found is SoOD. The 'vis' classes in this module are 
+  used in the rest of OpendTect. 
 
   In the 3D visualisation world you'll see that it is almost unavoidable that
   all objects will be managed by a centralised manager. That is
