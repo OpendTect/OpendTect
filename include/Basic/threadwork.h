@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.9 2003-02-22 10:21:35 kristofer Exp $
+ RCS:		$Id: threadwork.h,v 1.10 2003-03-06 12:43:45 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -52,8 +52,6 @@ public:
 protected:
 
     friend class		WorkThread;
-    				/* Interface from threads */
-    void			imFinished( WorkThread* );
 
     ObjectSet<BasicTask>	workload;
     ObjectSet<CallBack>		callbacks;
