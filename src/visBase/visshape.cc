@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.7 2003-09-17 10:09:12 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.8 2003-09-22 09:10:18 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: visshape.cc,v 1.7 2003-09-17 10:09:12 kristofer
 #include "Inventor/nodes/SoMaterialBinding.h"
 #include "Inventor/nodes/SoNormalBinding.h"
 #include "Inventor/nodes/SoSeparator.h"
+#include "Inventor/nodes/SoShapeHints.h"
 #include "Inventor/nodes/SoSwitch.h"
 
 
@@ -44,7 +45,7 @@ visBase::Shape::Shape( SoNode* shape_ )
     onoff->ref();
     onoff->addChild( root );
     onoff->whichChild = 0;
-    addNode( shape );
+    insertNode( shape );
 }
 
 
@@ -107,7 +108,7 @@ void visBase::ownclass::set##clssname( visBase::clssname* newitem ) \
     { \
 	variable = newitem; \
 	variable->ref(); \
-	addNode( variable->getData() ); \
+	insertNode( variable->getData() ); \
     } \
 } \
  \
@@ -130,7 +131,7 @@ void visBase::Shape::setMaterialBinding( int nv )
     if ( !materialbinding )
     {
 	materialbinding = new SoMaterialBinding;
-	addNode( materialbinding );
+	insertNode( materialbinding );
     }
     if ( !nv )
     {
@@ -157,6 +158,8 @@ int visBase::Shape::getMaterialBinding() const
 	   materialbinding->value.getValue()==
 	   			SoMaterialBinding::PER_FACE_INDEXED ? 1 : 2;
 }
+
+
 
 
 
@@ -215,7 +218,7 @@ SoNode* visBase::Shape::getData()
 { return onoff; }
 
 
-void visBase::Shape::addNode( SoNode*  node )
+void visBase::Shape::insertNode( SoNode*  node )
 {
     root->insertChild( node, 0 );
 }
@@ -234,6 +237,7 @@ visBase::VertexShape::VertexShape( SoVertexShape* shape_ )
     , coords( 0 )
     , texturecoords( 0 )
     , normalbinding( 0 )
+    , shapehints( 0 )
 {
     setCoordinates( visBase::Coordinates::create() );
 }
@@ -267,7 +271,7 @@ void visBase::VertexShape::setNormalPerFaceBinding( bool nv )
     if ( !normalbinding )
     {
 	normalbinding = new SoNormalBinding;
-	addNode( normalbinding );
+	insertNode( normalbinding );
     }
     if ( nv )
     {
@@ -288,6 +292,55 @@ bool visBase::VertexShape::getNormalPerFaceBinding() const
     if ( !normalbinding ) return true;
     return normalbinding->value.getValue()==SoNormalBinding::PER_FACE ||
 	   normalbinding->value.getValue()==SoNormalBinding::PER_FACE_INDEXED;
+}
+
+
+void visBase::VertexShape::setVertexOrdering( int nv )
+{
+    if ( !shapehints )
+    {
+	shapehints = new SoShapeHints;
+	insertNode( shapehints );
+    }
+
+    if ( !nv )
+	shapehints->vertexOrdering = SoShapeHints::CLOCKWISE;
+    else if ( nv==1 )
+	shapehints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+    else
+	shapehints->vertexOrdering = SoShapeHints::UNKNOWN_ORDERING;
+}
+
+
+int visBase::VertexShape::getVertexOrdering() const
+{
+    if ( !shapehints ) return 2;
+
+    if ( shapehints->vertexOrdering.getValue()==SoShapeHints::CLOCKWISE )
+	return 0;
+    if ( shapehints->vertexOrdering.getValue()==SoShapeHints::COUNTERCLOCKWISE )
+	return 1;
+
+    return 2;
+}
+
+
+void visBase::VertexShape::setConvexFlag(bool yn)
+{
+    if ( !shapehints )
+    {
+	shapehints = new SoShapeHints;
+	insertNode( shapehints );
+    }
+
+    shapehints->faceType = yn ? SoShapeHints::CONVEX 
+			      : SoShapeHints::UNKNOWN_FACE_TYPE;
+}
+
+
+bool visBase::VertexShape::getConvexFlag() const
+{
+    return shapehints&&shapehints->faceType.getValue()==SoShapeHints::CONVEX;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.5 2003-09-17 10:09:14 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.6 2003-09-22 09:10:21 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ class SoMaterialBinding;
 class SoNormalBinding;
 class SoSeparator;
 class SoShape;
+class SoShapeHints;
 class SoSwitch;
 class SoVertexShape;
 
@@ -75,7 +76,7 @@ public:
 
 protected:
     virtual			~Shape();
-    void			addNode( SoNode* );
+    void			insertNode( SoNode* );
     				/*!< Inserts the node _before_ the shape */
     void			removeNode( SoNode* );
 
@@ -120,6 +121,17 @@ public:
     			/*!< If yn==false, normals are set per vertex */
     bool		getNormalPerFaceBinding() const;
     			/*!< If yn==false, normals are set per vertex */
+
+    void		setVertexOrdering(int);
+    			/*!\param vo=0 clockwise
+			   \param vo=1 counterclockwise
+			   \param vo=2 unknown
+		        */
+    int			getVertexOrdering() const;
+
+    void		setConvexFlag(bool=true);
+    bool		getConvexFlag() const;
+
 protected:
     			~VertexShape();
 
@@ -129,6 +141,7 @@ protected:
 
 private:
     SoNormalBinding*	normalbinding;
+    SoShapeHints*	shapehints;
 };
 
 
