@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		12-4-1999
  Contents:	Simple numerical functions
- RCS:		$Id: simpnumer.h,v 1.3 2000-01-20 15:36:10 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.4 2000-02-10 13:03:31 bert Exp $
 ________________________________________________________________________
 
 */
@@ -95,6 +95,7 @@ inline T polyInterpolate( T y0, T y1, T y2, T y3, float pos )
 
 // Interpolate when 4 points are known.
 // Make sure none of the positions are the same. Will just crash 'silently'.
+// No undefined values allowed.
 //
 
 template <class T>
@@ -106,6 +107,55 @@ inline T polyInterpolate( float x0, T y0, float x1, T y1, float x2, T y2,
 		y1 * xx0 * xx2 * xx3 / ((x1 - x0) * (x1 - x2) * (x1 - x3)) +
 		y2 * xx0 * xx1 * xx3 / ((x2 - x0) * (x2 - x1) * (x2 - x3)) +
 		y3 * xx0 * xx1 * xx2 / ((x3 - x0) * (x3 - x1) * (x3 - x2));
+}
+
+
+// Interpolate sampled when 4 points are known, but some may be undefined.
+// If you need to do this irregularly, you can just remove those points
+// and call the apropriate interpolation.
+//
+
+template <class T>
+inline T polyInterpolateWithUdf( T y0, T y1, T y2, T y3, float x )
+{
+    static bool udf[4];
+    udf[0] = mIsUndefined(y0); udf[1] = mIsUndefined(y1);
+    udf[2] = mIsUndefined(y2); udf[3] = mIsUndefined(y3);
+
+    int nrudf = udf[0] ? 1 : 0;
+    if ( udf[1] ) nrudf++; if ( udf[2] ) nrudf++; if ( udf[3] ) nrudf++;
+
+    if ( nrudf )
+    {
+	if ( nrudf > 2 ) return mUndefValue;
+
+	float pos[3]; T* v[3]; int ipos = 0;
+	if ( !udf[0] ) { pos[ipos] = -1; v[ipos] = &y0; ipos++; }
+	if ( !udf[1] ) { pos[ipos] = 0; v[ipos] = &y1; ipos++; }
+	if ( !udf[2] ) { pos[ipos] = 1; v[ipos] = &y2; ipos++; }
+	if ( !udf[3] ) { pos[ipos] = 2; v[ipos] = &y3; }
+
+	return nrudf == 2 ?
+	linearInterpolate( pos[0], *v[0], pos[1], *v[1], x )
+      : parabolicInterpolate( pos[0], *v[0], pos[1], *v[1], pos[2], *v[2], x );
+    }
+
+    return polyInterpolate( y0, y1, y2, y3, x );
+}
+
+
+// Interpolate when 3 points are known.
+// Make sure none of the positions are the same. Will just crash 'silently'.
+//
+
+template <class T>
+inline T parabolicInterpolate( float x0, T y0, float x1, T y1, float x2, T y2, 
+			       float x )
+{
+    float xx0 = x - x0, xx1 = x-x1, xx2 = x-x2;
+    return 	y0 * xx1 * xx2 / ((x0 - x1) * (x0 - x2)) +
+		y1 * xx0 * xx2 / ((x1 - x0) * (x1 - x2)) +
+		y2 * xx0 * xx1 / ((x2 - x0) * (x2 - x1));
 }
 
 /*
