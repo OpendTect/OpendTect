@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.6 2000-08-07 15:11:22 bert Exp $
+ RCS:		$Id: ranges.h,v 1.7 2000-08-23 09:06:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,29 +29,33 @@ public:
     int		operator!=( const Interval<T>& i ) const
 		{ return ! (i == *this); }
 
-    T		width() const
-		{ return isRev() ? start - stop : stop - start; }
+    T		width( bool allowrev=true ) const
+		{ return allowrev && isRev() ? start - stop : stop - start; }
     void	shift( const T& len )
 		{ start += len; stop += len; }
-    void	widen( const T& len )
+    void	widen( const T& len, bool allowrev=true )
 		{
-		    if ( isRev() )
+		    if ( allowrev && isRev() )
 			{ start += len; stop -= len; }
 		    else
 			{ start -= len; stop += len; }
 		}
 
-    int		includes( const T& t ) const
-		{ return isRev() ? t>=stop && start>=t : t>=start && stop>=t; }
-    void	include( const T& i )
+    int		includes( const T& t, bool allowrev=true ) const
 		{
-		    if ( isRev() )
+		    return allowrev && isRev()
+			? t>=stop && start>=t
+			: t>=start && stop>=t;
+		}
+    void	include( const T& i, bool allowrev=true )
+		{
+		    if ( allowrev && isRev() )
 			{ if ( stop>i ) stop=i; if ( start<i ) start=i; }
 		    else
 			{ if ( start>i ) start=i; if ( stop<i ) stop=i; }
 		}
-    void	include( const Interval<T>& i )
-		{ include( i.start ); include( i.stop ); }
+    void	include( const Interval<T>& i, bool allowrev=true )
+		{ include( i.start, allowrev ); include( i.stop, allowrev ); }
 
     T		atIndex( int idx, const T& step ) const
 		{ return start + step * idx; }
