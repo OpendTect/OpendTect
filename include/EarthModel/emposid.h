@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.14 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emposid.h,v 1.15 2004-10-05 17:34:31 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,6 @@ public:
     void			setObjectID(const ObjectID&);
     void			setSectionID(SectionID);
     void			setSubID(SubID);
-    void			setSubID(const RowCol&);
 
     RowCol			getRowCol() const;
     				/*!< Should not be used, only for db
