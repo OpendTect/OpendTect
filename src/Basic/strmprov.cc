@@ -37,7 +37,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.53 2004-05-12 12:33:03 dgb Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.54 2004-07-19 12:36:35 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -63,7 +63,7 @@ bool ExecOSCmd( const char* comm, bool inbg )
         NULL,				// Process handle not inheritable. 
         NULL,				// Thread handle not inheritable. 
         FALSE,				// Set handle inheritance to FALSE. 
-        inbg ? DETACHED_PROCESS : 0,	// Creation flags. 
+        0,				// Creation flags. 
         NULL,				// Use parent's environment block. 
         NULL,       			// Use parent's starting directory. 
         &si,				// Pointer to STARTUPINFO structure.
@@ -204,10 +204,29 @@ void StreamProvider::set( const char* devname )
     if ( ptr )
     {
 #ifdef __win__ // non-msvc compiler, like MinGw
+	bool isdrive = false;
 	// if only one char before the ':', it must be a drive letter.
 	if ( ptr == fname.buf() + 1 
 		|| ( *fname.buf()=='\"' && (ptr == fname.buf()+2) ) 
 		|| ( *fname.buf()=='\'' && (ptr == fname.buf()+2) ) )
+	{
+	    isdrive = true;
+	}
+	else
+	{
+	    BufferString buf(fname.buf());
+	    char* ptr2 = strchr( buf.buf(), ':' );
+	    *ptr2='\0';
+
+	    ptr2 = buf.buf();
+	    skipLeadingBlanks( ptr2 );
+
+	    // If spaces are found, it cannot come from a hostname.
+	    // So, further up in the string must be a drive letter
+	    isdrive = strchr( ptr2, ' ' );
+	}
+
+	if( isdrive )
 	    ptr = fname.buf();
 	else
 #endif
