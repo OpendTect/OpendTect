@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.6 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: viscamera.h,v 1.7 2002-05-08 08:33:55 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,8 @@ public:
     Geometry::Pos	position() const;
 
     void		pointAt(const Geometry::Pos&);
+    void		pointAt(const Geometry::Pos& pos,
+	    			const Geometry::Pos& upvector );
     void		setOrientation( const Geometry::Pos& dirvector,
 					float angle );
     void		getOrientation( Geometry::Pos& dirvector,

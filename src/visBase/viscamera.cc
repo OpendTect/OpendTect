@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.6 2002-04-30 14:13:00 kristofer Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.7 2002-05-08 08:35:15 kristofer Exp $";
 
 #include "viscamera.h"
 #include "geompos.h"
@@ -73,6 +73,14 @@ void visBase::Camera::getOrientation( Geometry::Pos& dir, float& angle )
 void visBase::Camera::pointAt(const Geometry::Pos& pos)
 {
     camera->pointAt( SbVec3f( pos.x, pos.y, pos.z ));
+}
+
+
+void visBase::Camera::pointAt(const Geometry::Pos& pos,
+			      const Geometry::Pos& upvector)
+{
+    camera->pointAt( SbVec3f( pos.x, pos.y, pos.z ),
+	    	     SbVec3f( upvector.x, upvector.y, upvector.z ));
 }
 
 
