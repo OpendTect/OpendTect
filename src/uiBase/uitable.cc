@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.1 2003-02-14 15:34:42 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.2 2003-02-21 09:03:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,93 @@ ________________________________________________________________________
 #include <uilabel.h>
 #include <uiobjbody.h>
 
-#include <i_qtable.h>
 
 #include <qsize.h> 
 #include <sets.h> 
+
+#define private public
+#include <i_qtable.h>
+#undef private
+
+
+class Q_EXPORT QTableHeader : public QHeader
+{
+    friend class QTable;
+    Q_OBJECT
+    
+public:
+    enum SectionState {
+        Normal,
+        Bold,
+        Selected
+    };
+    
+    QTableHeader( int, QTable *t, QWidget* parent=0, const char* name=0 );
+    ~QTableHeader() {};
+    void addLabel( const QString &s, int size );
+    void setLabel( int section, const QString & s, int size = -1 );
+    void setLabel( int section, const QIconSet & iconset, const QString & s,
+                   int size = -1 );
+    void removeLabel( int section );
+    
+    void setSectionState( int s, SectionState state );
+    void setSectionStateToAll( SectionState state );
+    SectionState sectionState( int s ) const;
+    
+    int sectionSize( int section ) const;
+    int sectionPos( int section ) const;
+    int sectionAt( int section ) const;
+    
+    void setSectionStretchable( int s, bool b );
+    bool isSectionStretchable( int s ) const; 
+    
+    void updateCache();
+
+signals:
+    void sectionSizeChanged( int s );
+    
+protected:
+    void paintEvent( QPaintEvent *e );
+    void paintSection( QPainter *p, int index, const QRect& fr );
+    void mousePressEvent( QMouseEvent *e );
+    void mouseMoveEvent( QMouseEvent *e );
+    void mouseReleaseEvent( QMouseEvent *e );
+    void mouseDoubleClickEvent( QMouseEvent *e );
+    void resizeEvent( QResizeEvent *e );
+
+private slots:
+    void doAutoScroll();
+    void sectionWidthChanged( int col, int os, int ns );
+    void indexChanged( int sec, int oldIdx, int newIdx );
+      void updateStretches();
+    void updateWidgetStretches();
+
+private:
+    void updateSelections();
+    void saveStates();
+    void setCaching( bool b );
+    void swapSections( int oldIdx, int newIdx, bool swapTable = TRUE );
+    bool doSelection( QMouseEvent *e );
+    void sectionLabelChanged( int section );
+    void resizeArrays( int n );
+
+private:
+    QMemArray<int> states, oldStates;
+    QMemArray<bool> stretchable;
+    QMemArray<int> sectionSizes, sectionPoses;
+    bool mousePressed;
+    int pressPos, startPos, endPos;
+    QTable *table;
+    QTimer *autoScrollTimer;
+    QWidget *line1, *line2;
+    bool caching;
+    int resizedSection;
+    bool isResizing;
+    int numStretches;
+    QTimer *stretchTimer, *widgetStretchTimer;
+    QTableHeaderPrivate *d;
+
+};
 
 
 
@@ -52,9 +135,28 @@ public:
 				setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
-//    virtual uiSize	minimumSize() const; //!< \reimp
+//    virtual uiSize	minimumsize() const; //!< \reimp
     virtual int 	nrTxtLines() const
 			    { return numRows() ? numRows()+1 : 7; }
+
+void setRowLabels( const QStringList &labels )
+{
+    int i = 0;
+    for ( QStringList::ConstIterator it = labels.begin();
+          it != labels.end() && i < numRows(); ++i, ++it )
+        leftHeader->setLabel( i, *it );
+}
+
+
+void setColumnLabels( const QStringList &labels )
+{
+    int i = 0;
+    for ( QStringList::ConstIterator it = labels.begin();
+          it != labels.end() && i < numCols(); ++i, ++it )
+        topHeader->setLabel( i, *it );
+}
+
+
 
 private:
 
@@ -174,7 +276,7 @@ void uiTable::setColumnLabels( const ObjectSet<BufferString>& labels )
 }
 
 /*
-uiSize uiTableBody::minimumSize() const
+uiSize uiTableBody::minimumsize() const
 { 
     int totHeight = fontHgt() * prefnrlines;
     int totWidth  = fontWdt( true ) * fieldWdt;
