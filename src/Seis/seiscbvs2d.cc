@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.24 2004-11-12 11:37:24 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.25 2004-11-15 17:32:30 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -75,7 +75,7 @@ static CBVSSeisTrcTranslator* gtTransl( const char* fnm, bool infoonly,
 
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->setSingleFile( true );
-    tr->setNoBinIDSubSel( true );
+    tr->set2D( true );
     tr->needHeaderInfoOnly( infoonly );
     if ( msg ) *msg = "";
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read)) )
@@ -149,7 +149,6 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
     {
 	seldata = new SeisSelData( sd );
 	tr->setSelData( seldata );
-		// For Z range only because of setNoBinIDSubSel
     }
 }
 

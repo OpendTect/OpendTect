@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.57 2004-10-21 12:35:26 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.58 2004-11-15 17:32:30 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -28,8 +28,6 @@ const IOPar& CBVSSeisTrcTranslator::datatypeparspec
 	= *new IOPar( "CBVS option");
 
 
-#define mPosOK() (!seldata || nobidsubsel || !seldata->selRes(rdmgr->binID()))
-
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	: SeisTrcTranslator(nm,unm)
 	, headerdone(false)
@@ -46,7 +44,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
     	, minimalhdrs(false)
     	, brickspec(*new VBrickSpec)
     	, single_file(false)
-    	, nobidsubsel(false)
+    	, is2d(false)
     	, coordpol((int)CBVSIO::NotStored)
 {
 }
@@ -186,7 +184,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    if ( forread && !nobidsubsel && seldata && seldata->isPositioned() )
+    if ( forread && !is2d && seldata && seldata->isPositioned() )
     {
 	CubeSampling cs;
 	Interval<int> inlrg = seldata->inlRange();
@@ -229,15 +227,43 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
     if ( !forread )
 	return startWrite();
-    else if ( !mPosOK() )
+
+    if ( is2d && seldata && seldata->type_ == SeisSelData::Range )
+    {
+	// For 2D, inline is just an index number
+	SeisSelData& sd = *const_cast<SeisSelData*>( seldata );
+	sd.inlrg_.start = sd.inlrg_.stop = rdmgr->binID().inl;
+    }
+
+    if ( selRes(rdmgr->binID()) )
 	return toNext();
+
     return true;
+}
+
+
+bool CBVSSeisTrcTranslator::inactiveSelData() const
+{
+    return isEmpty( seldata ) || seldata->type_ == SeisSelData::TrcNrs;
+}
+
+
+int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
+{
+    if ( inactiveSelData() )
+	return 0;
+
+    // Table for 2D: can't select because inl/crl in file is not 'true'
+    if ( is2d && seldata->type_ == SeisSelData::Table )
+	return 0;
+
+    return seldata->selRes(bid);
 }
 
 
 bool CBVSSeisTrcTranslator::toNext()
 {
-    if ( nobidsubsel || isEmpty(seldata) )
+    if ( inactiveSelData() )
 	return rdmgr->toNext();
 
     const CBVSInfo& info = rdmgr->info();
@@ -245,23 +271,23 @@ bool CBVSSeisTrcTranslator::toNext()
     {
 	if ( !rdmgr->toNext() )
 	    return false;
-	else if ( !seldata->selRes(rdmgr->binID()) )
+	else if ( !selRes(rdmgr->binID()) )
 	    return true;
     }
 
     BinID nextbid = rdmgr->nextBinID();
     if ( nextbid == BinID(0,0) )
 	return false;
-    if ( !seldata->selRes(nextbid) )
+
+    if ( !selRes(nextbid) )
 	return rdmgr->toNext();
 
     // find next requested BinID
     while ( true )
     {
-
 	while ( true )
 	{
-	    int res = seldata->selRes( nextbid );
+	    int res = selRes( nextbid );
 	    if ( !res ) break;
 
 	    if ( res%256 == 2 )
@@ -270,10 +296,10 @@ bool CBVSSeisTrcTranslator::toNext()
 		return false;
 	}
 
-	if ( goTo(nextbid) ) break;
-	if ( !info.geom.toNextBinID(nextbid) )
+	if ( goTo(nextbid) )
+	    break;
+	else if ( !info.geom.toNextBinID(nextbid) )
 	    return false;
-
     }
 
     return true;
@@ -297,7 +323,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !storinterps && !commitSelections() ) return false;
     if ( headerdone ) return true;
 
-    donext = donext || !mPosOK();
+    donext = donext || selRes( rdmgr->binID() );
 
     if ( donext && !toNext() ) return false;
     donext = true;
