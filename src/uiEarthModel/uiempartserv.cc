@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.1 2002-09-17 13:26:44 bert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.2 2002-09-19 14:56:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "emwelltransl.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
-#include "horizoninfo.h"
+#include "surfaceinfo.h"
 
 const int uiEMPartServer::evGetHorData = 0;
 
@@ -65,7 +65,7 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
 }
 
 
-bool uiEMPartServer::exportHorizon( const ObjectSet<HorizonInfo>& his )
+bool uiEMPartServer::exportHorizon( const ObjectSet<SurfaceInfo>& his )
 {
     uiExportHorizon dlg( appserv().parent(), his );
     if ( !dlg.go() ) return false;

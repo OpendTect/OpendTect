@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.1 2002-09-17 13:26:44 bert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.2 2002-09-19 14:59:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiapplserv.h>
-class HorizonInfo;
+class SurfaceInfo;
 class MultiID;
 class BinIDZValue;
 
@@ -32,7 +32,7 @@ public:
     bool		selectHorizon(MultiID&);
     bool		selectWellTracks(ObjectSet<MultiID>&);
     bool		importHorizon();
-    bool		exportHorizon(const ObjectSet<HorizonInfo>&);
+    bool		exportHorizon(const ObjectSet<SurfaceInfo>&);
     bool		storePickSets();
     bool		importWellTrack();
 

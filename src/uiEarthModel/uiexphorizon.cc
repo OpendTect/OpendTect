@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.3 2002-09-17 13:26:13 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.4 2002-09-19 14:56:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,12 +22,12 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "survinfo.h"
 #include "geompos.h"
-#include "horizoninfo.h"
+#include "surfaceinfo.h"
 #include "ctxtioobj.h"
 
 
 uiExportHorizon::uiExportHorizon( uiParent* p, 
-				  const ObjectSet<HorizonInfo>& hinfos )
+				  const ObjectSet<SurfaceInfo>& hinfos )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format",0))
 	, hinfos_(hinfos)
