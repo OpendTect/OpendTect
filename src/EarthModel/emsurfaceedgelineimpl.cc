@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.2 2004-09-07 06:20:49 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.3 2004-09-15 13:29:06 kristofer Exp $";
 
 
 
@@ -431,12 +431,7 @@ SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Surface& surface,
 {
     mSetupCreateCut(false);
 
-    //Keep this?
-    //if ( !elset.isOnLine(seed,&lineidx,&segmentidx,&segmentpos) )
-	//return 0;
-
-    SurfaceCutLine* scl =
-	    new SurfaceCutLine( surface, section );
+    SurfaceCutLine* scl = new SurfaceCutLine( surface, section );
     scl->setCuttingSurface( cuttingsurface, cutonposside );
     scl->setTime2Depth( t2d );
     (*scl) += seed;
@@ -447,10 +442,12 @@ SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Surface& surface,
 	
     while ( scl->trackWithCache( scl->size()-1, true, 0, 0 ) )
     {
+	//Check that new node doesn't exist on segment before
 	const RowCol& newtracked = scl->last();
-	if ( scl->indexOf( newtracked, true )!=scl->size() )
+	if ( scl->indexOf( newtracked, true )!=scl->size()-1 )
 	{
-	    delete scl; scl = 0; break;
+	    scl->remove( scl->size()-1 );
+	    break;
 	}
     }
 
