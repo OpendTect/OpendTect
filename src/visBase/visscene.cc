@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.14 2004-04-14 09:42:03 nanne Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.15 2004-05-13 07:42:39 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -23,8 +23,8 @@ visBase::Scene::Scene()
     , environment( new SoEnvironment )
     , mouseevents( *EventCatcher::create() )
     , mousedownid( -1 )
+    , rightclicknotifier( this )
 {
-
     selroot->ref();
     selroot->addChild( environment );
     selroot->addChild( DataObjectGroup::getInventorNode() );
@@ -97,14 +97,13 @@ void visBase::Scene::mousePickCB( CallBacker* cb )
 
 	for ( int idx=0; idx<sz; idx++ )
 	{
-	    const DataObject* dataobj =
+	    DataObject* dataobj =
 			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
 
 	    if ( dataobj->selectable() && mousedownid==dataobj->id() )
 	    {
-		if ( eventinfo.mousebutton == 1 )
-		    visBase::DM().selMan().rightClicked( mousedownid );
-
+		if ( eventinfo.mousebutton == 1 && dataobj->rightClicked() )
+		    dataobj->triggerRightClick();
 		if ( eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
 		    visBase::DM().selMan().select( mousedownid, true );
 		else if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl)
