@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.3 2001-04-17 11:40:14 bert Exp $
+ RCS:		$Id: selector.h,v 1.4 2002-01-01 23:05:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,8 @@ class ArraySelector : public Selector<T>
 {
 public:
 
-			ArraySelector() : vals(0), sz(0)	  {}
+			ArraySelector()
+			: vals(0), sz(0), valsmine(true)	  {}
 			ArraySelector( const T* v, int s )
 			: vals(v), sz(s), valsmine(false)	  {}
 			ArraySelector( const ArraySelector& x )

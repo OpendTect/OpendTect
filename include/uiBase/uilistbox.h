@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.16 2001-12-30 23:02:19 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.17 2002-01-01 23:05:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,13 +53,17 @@ public:
     virtual void	clear()			{ setCurrentItem(0); }
 
     void		empty();
-    void		addItem(const char*); 
+    void		addItem(const char*,bool embedded=false); 
+    			//!< embedded = put [...] around text
     void		addItems(const char**); 
     void		addItems(const PtrUserIDObjectSet&);
     void		setItemText(int,const char*);
     int			currentItem() const;
     const char*		getText() const	 { return textOfItem(currentItem()); }
-    const char*		textOfItem(int) const;
+    const char*		textOfItem(int,bool disembed=false) const;
+    			//!< disembed = remove [...] from text
+    bool		isEmbedded(int) const;
+    			//!< check for [...] around text
     void                setCurrentItem(int);
     void                setCurrentItem(const char*); //!< First match
 
@@ -76,7 +80,7 @@ public:
 protected:
 
     mutable BufferString	rettxt;
-    int			lastClicked_;
+    int				lastClicked_;
 
 private:
 

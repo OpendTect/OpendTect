@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.28 2001-12-30 23:01:59 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.29 2002-01-01 23:05:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,9 +192,15 @@ void uiListBox::selAll( bool yn )
 }
 
 
-void uiListBox::addItem( const char* text ) 
-{ 
-    body_->insertItem( QString( text ) , -1 );
+void uiListBox::addItem( const char* text, bool embed ) 
+{
+    if ( !embed )
+	body_->insertItem( QString(text?text:""), -1 );
+    else
+    {
+	BufferString s( "[" ); s += text; s += "]";
+	body_->insertItem( QString(s), -1 );
+    }
 }
 
 
@@ -231,11 +237,28 @@ bool uiListBox::isPresent( const char* txt ) const
 }
 
 
-const char* uiListBox::textOfItem( int idx ) const
+const char* uiListBox::textOfItem( int idx, bool disembed ) const
 {
-    if ( idx < 0 || idx >= body_->count() ) return "";
+    if ( idx < 0 || idx >= body_->count() )
+	return "";
+
     rettxt = (const char*)body_->text(idx);
-    return (const char*)rettxt;
+    if ( !disembed || rettxt[0] != '[' )
+	return rettxt;
+
+    const int sz = rettxt.size();
+    if ( rettxt[sz-1] != ']' )
+	return rettxt;
+
+    rettxt[sz-1] = '\0';
+    return ((const char*)rettxt) + 1;
+}
+
+
+bool uiListBox::isEmbedded( int idx ) const
+{
+    rettxt = (const char*)body_->text(idx);
+    return rettxt[0] == '[' && rettxt[rettxt.size()-1] == ']';
 }
 
 
