@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.21 2003-08-13 13:45:48 arend Exp $
+ RCS:		$Id: sets.h,v 1.22 2003-08-18 08:01:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,15 +46,16 @@ public:
 				{ append( t ); }
     virtual		~TypeSet()
 				{}
-    TypeSet<T>&		operator =( const TypeSet<T>& ts ) { return copy(ts); }
+    TypeSet<T>&		operator =( const TypeSet<T>& ts )
+				{ return copy(ts); }
 
     virtual int		size() const
 				{ return typs.size(); }
     virtual T&		operator[]( int idx ) const
 				{ return (T&)typs[idx]; }
 
-    virtual int		indexOf( const T& typ ) const {
-
+    virtual int		indexOf( const T& typ ) const
+			{
 			    const unsigned int sz = size();
 			    for ( unsigned int idx=0; idx<sz; idx++ )
 				if ( typs[idx] == typ ) return idx;
@@ -65,8 +66,8 @@ public:
 				{ typs.push_back(typ); return *this; }
     TypeSet<T>&	operator -=( const T& typ )
 				{ typs.erase(typ); return *this; }
-    virtual TypeSet<T>&	copy( const TypeSet<T>& ts ) {
-
+    virtual TypeSet<T>&	copy( const TypeSet<T>& ts )
+			{
 			    if ( &ts != this )
 			    {
 				const unsigned int sz = size();
@@ -77,10 +78,9 @@ public:
 					(*this)[idx] = ts[idx];
 			    }
 			    return *this;
-
 			}
-    virtual void	append( const TypeSet<T>& ts ) {
-
+    virtual void	append( const TypeSet<T>& ts )
+			{
 			    const unsigned int sz = ts.size();
 			    for ( unsigned int idx=0; idx<sz; idx++ )
 				*this += ts[idx];
@@ -91,8 +91,9 @@ public:
     virtual void	remove( int i1, int i2 )	{ typs.remove(i1,i2); }
     virtual void	insert( int idx, const T& typ )	{ typs.insert(idx,typ);}
 
-    Vector<T>&		vec()				{ return typs; }
-    const Vector<T>&	vec() const			{ return typs; }
+			//! 3rd party access
+    vector<T>&		vec()		{ return typs.vec(); }
+    const vector<T>&	vec() const	{ return typs.vec(); }
     T*			arr()		{ return size() ? &(*this)[0] : 0; }
     const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 
@@ -170,54 +171,57 @@ template <class T>
 class ObjectSet
 {
 public:
-    			ObjectSet() : allow0(false) {}
+    			ObjectSet() : allow0(false)
+				{}
     			ObjectSet( const ObjectSet<T>& t )
-						{ *this = t; }
-    virtual		~ObjectSet()		{}
+				{ *this = t; }
+    virtual		~ObjectSet()
+				{}
     ObjectSet<T>&	operator =( const ObjectSet<T>& os )
-			{ allow0 = os.allow0; copy(os); return *this; }
+				{ allow0 = os.allow0; copy(os); return *this; }
 
-    void		allowNull(bool yn_=true){ allow0 = yn_; }
-    bool		nullAllowed() const	{ return allow0; }
+    void		allowNull( bool yn_=true )
+				{ allow0 = yn_; }
+    bool		nullAllowed() const
+				{ return allow0; }
 
     virtual int		size() const
 				{ return objs.size(); }
     virtual T*		operator[]( int idx ) const
 				{ return (T*)(objs[idx]); }
-    virtual T*		operator[]( const T* t ) const {
-
+    virtual T*		operator[]( const T* t ) const
+			{
 			    int idx = indexOf(t);
 			    return idx < 0 ? 0 : (T*)t;
 			}
-    virtual int		indexOf( const T* ptr ) const {
+    virtual int		indexOf( const T* ptr ) const
+			{
 
 			    for ( int idx=0; idx<size(); idx++ )
 				if ( (T*)objs[idx] == ptr ) return idx;
 			    return -1;
 			}
-    virtual ObjectSet<T>& operator +=( T* ptr ) {
-
+    virtual ObjectSet<T>& operator +=( T* ptr )
+			{
 				if ( ptr || allow0 ) objs.push_back((void*)ptr);
 				return *this;
 
 			}
-    virtual ObjectSet<T>& operator -=( T* ptr ) {
-
+    virtual ObjectSet<T>& operator -=( T* ptr )
+			{
 			    if ( ptr || allow0 ) objs.erase((void*)ptr);
 			    return *this;
 			}
-    virtual T*		replace( T* newptr, int idx ) {
- 
+    virtual T*		replace( T* newptr, int idx )
+			{
 			    if (idx<0||idx>size()) return 0;
 			    T* ptr = (T*)objs[idx];
 			    objs[idx] = (void*)newptr; return ptr;
 			}
-
     virtual void	insertAt( T* newptr, int idx )
 			{
 			    objs.insert( idx, (void*) newptr );
 			}
-
     virtual void	insertAfter( T* newptr, int idx )
 			{
 			    *this += newptr;
@@ -226,21 +230,21 @@ public:
 			    else
 				objs.moveAfter( (void*)newptr, objs[idx] );
 			}
-    virtual void	copy( const ObjectSet<T>& os ) {
-
+    virtual void	copy( const ObjectSet<T>& os )
+			{
 			    if ( &os != this )
 				{ erase(); allow0 = os.allow0; append( os ); }
 			}
-    virtual void	append( const ObjectSet<T>& os ) {
-
-			    int sz = os.size();
+    virtual void	append( const ObjectSet<T>& os )
+			{
+			    const int sz = os.size();
 			    for ( int idx=0; idx<sz; idx++ )
 				*this += os[idx];
 			}
 
-    virtual void	erase()			{ objs.erase(); }
-    virtual void	remove( int idx )	{ objs.remove(idx); }
-    virtual void	remove( int i1, int i2 ) { objs.remove(i1,i2); }
+    virtual void	erase()				{ objs.erase(); }
+    virtual void	remove( int idx )		{ objs.remove(idx); }
+    virtual void	remove( int i1, int i2 )	{ objs.remove(i1,i2); }
 
 private:
 
