@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.11 2001-05-11 20:28:16 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.12 2001-05-25 18:25:52 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -26,10 +26,7 @@ CBVSReader::CBVSReader( istream* s )
 	, samprgs(0)
 {
     if ( readInfo() )
-    {
-	lastposfo = datastartfo;
-	strm_.seekg( lastposfo, ios::beg );
-    }
+	toOffs( datastartfo );
 }
 
 
@@ -160,7 +157,7 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
 
 
 #undef mErrRet
-#define mErrRet(s) { strm_.seekg( 0, ios::beg ); errmsg_ = s; return false; }
+#define mErrRet(s) { toOffs(0); errmsg_ = s; return false; }
 
 
 bool CBVSReader::readComps()
@@ -254,7 +251,7 @@ bool CBVSReader::readGeom()
 
 
 #undef mErrRet
-#define mErrRet(s) { strm_.seekg( 0, ios::beg ); return s; }
+#define mErrRet(s) { toOffs(0); return s; }
 
 bool CBVSReader::readTrailer()
 {
@@ -307,10 +304,16 @@ bool CBVSReader::toStart()
 	curbinid_.crl = info_.geom.inldata[0]->segments[0].start;
     }
     posidx = 0;
-    lastposfo = datastartfo;
-    strm_.seekg( datastartfo, ios::beg );
+    toOffs( datastartfo );
     hinfofetched = false;
     return true;
+}
+
+
+void CBVSReader::toOffs( streampos sp )
+{
+    lastposfo = sp;
+    strm_.seekg( lastposfo, ios::beg );
 }
 
 
@@ -382,9 +385,8 @@ bool CBVSReader::goTo( const BinID& bid )
 	curbinid_.crl = curseg->atIndex( segposn );
     }
 
-    lastposfo = ((streampos)nrposns) * info_.nrtrcsperposn
-	      * (explicitnrbytes + bytespertrace);
-    strm_.seekg( datastartfo + lastposfo, ios::beg );
+    toOffs( ((streampos)nrposns) * info_.nrtrcsperposn
+	      * (explicitnrbytes + bytespertrace) );
     hinfofetched = false;
     return true;
 }
@@ -426,8 +428,7 @@ bool CBVSReader::skip( bool tonextpos )
 	}
     }
 
-    lastposfo += posadd;
-    strm_.seekg( datastartfo + lastposfo, ios::beg );
+    toOffs( lastposfo + posadd );
     return true;
 }
 
@@ -460,7 +461,7 @@ BinID CBVSReader::nextBinID() const
 	if ( !curseg->includes(bid.crl) )
 	{
 	    const_cast<int&>(cursegnr) ++;
-	    if ( cursegnr > inlinf->segments.size() )
+	    if ( cursegnr >= inlinf->segments.size() )
 	    {
 		const_cast<int&>(cursegnr) = 0;
 		const_cast<int&>(curinlinfnr) ++;

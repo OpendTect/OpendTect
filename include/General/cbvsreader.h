@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.7 2001-04-20 15:42:10 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.8 2001-05-25 18:24:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ protected:
     bool		readGeom();
     bool		readTrailer();
     void		getText(int,BufferString&);
+    void		toOffs(streampos);
 
 private:
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Component information
- RCS:		$Id: basiccompinfo.h,v 1.2 2001-05-11 20:29:37 bert Exp $
+ RCS:		$Id: basiccompinfo.h,v 1.3 2001-05-25 18:24:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
     BasicComponentInfo&	operator=( const BasicComponentInfo& ci )
 			{
 			    if ( this == &ci ) return *this;
-			    UserIDObject::operator =( ci );
+			    setName( ci.name() );
 			    datatype = ci.datatype;
 			    datachar = ci.datachar;
 			    sd = ci.sd; nrsamples= ci.nrsamples;

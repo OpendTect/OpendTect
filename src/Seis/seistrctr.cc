@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.12 2001-05-21 12:43:16 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.13 2001-05-25 18:26:01 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -80,7 +80,7 @@ SeisTrcTranslator::~SeisTrcTranslator()
 void SeisTrcTranslator::cleanUp()
 {
     deepErase( cds );
-    tarcds.erase();	//MEMLK should be deepErase( tarcds );
+    deepErase( tarcds );
     delete [] inpfor_; inpfor_ = 0;
     delete [] inpcds; inpcds = 0;
     delete [] outcds; outcds = 0;

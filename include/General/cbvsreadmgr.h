@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.2 2001-04-20 15:42:10 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.3 2001-05-25 18:24:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,6 @@ public:
 
 protected:
 
-    BufferString	basefname_;
     ObjectSet<CBVSReader> readers_;
     ObjectSet<BufferString> fnames_;
     CBVSInfo&		info_;

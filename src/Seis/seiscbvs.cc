@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.3 2001-05-24 14:39:29 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.4 2001-05-25 18:26:01 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -40,6 +40,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	, preseldatatype(0)
 	, rdmgr(0)
 	, wrmgr(0)
+	, nrdone(0)
 {
 }
 
@@ -59,6 +60,9 @@ void CBVSSeisTrcTranslator::close()
 
 void CBVSSeisTrcTranslator::cleanUp()
 {
+    headerdone = false;
+    donext =false;
+    nrdone = 0;
     destroyVars();
     SeisTrcTranslator::cleanUp();
 }
@@ -283,6 +287,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	errmsg = "Cannot get header info";
 	return false;
     }
+    ti.nr = ++nrdone;
     ti.binid = expldat.binid;
     ti.sampling.start = useinpsd ? expldat.startpos : outcds[0]->sd.start;
     ti.sampling.step = outcds[0]->sd.step;
@@ -446,5 +451,6 @@ void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
     if ( !iopar ) return;
 
     const char* res = (*iopar)[ (const char*)datatypeparspec.name() ];
-    if ( *res ) preseldatatype = (DataCharacteristics::UserType)(*res);
+    if ( *res )
+	preseldatatype = (DataCharacteristics::UserType)(*res-'0');
 }
