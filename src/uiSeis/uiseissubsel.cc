@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.26 2004-11-11 13:04:51 nanne Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.27 2004-11-18 16:15:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,12 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiSeisSubSel::uiSeisSubSel( uiParent* p, bool for_new_entry, bool wstep )
+uiSeisSubSel::uiSeisSubSel( uiParent* p, bool for_new_entry, bool wstep,
+			    bool m2dln )
     	: uiGroup(p,"Gen seis subsel")
 	, is2d_(false)
 {
-    sel2d = new uiSeis2DSubSel( this, for_new_entry );
+    sel2d = new uiSeis2DSubSel( this, for_new_entry, m2dln );
     sel3d = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
 				     .withtable(false).withz(true)
 				     .withstep(wstep) );
@@ -183,20 +184,26 @@ void uiSeisSubSel::setSelectedLine( const char* nm )
 static const BufferStringSet emptylnms;
 
 
-uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry )
+uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry, bool mln )
 	: uiGroup( p, "2D seismics sub-selection" )
 	, lnmsfld(0)
 	, lnmfld(0)
+    	, multiln(mln)
+	, lineSel(this)
 	, singLineSel(this)
 {
     if ( for_new_entry )
 	lnmfld = new uiGenInput( this, "Store in Set as" );
     else
     {
-	lnmsfld = new uiGenInput( this, "One line only",
+	lnmsfld = new uiGenInput( this, multiln ? "One line only" : "Line name",
 				  StringListInpSpec(emptylnms) );
-	lnmsfld->setWithCheck( true );
-	lnmsfld->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
+	if ( multiln )
+	{
+	    lnmsfld->setWithCheck( true );
+	    lnmsfld->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
+	}
+	lnmsfld->valuechanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
     }
 
     selfld = new uiGenInput( this, "Select", BoolInpSpec("All","Part",true) );
@@ -242,15 +249,13 @@ bool uiSeis2DSubSel::isAll() const
 
 bool uiSeis2DSubSel::isSingLine() const
 {
-    return lnmfld || lnmsfld->isChecked();
+    return lnmfld || !multiln || lnmsfld->isChecked();
 }
 
 
 const char* uiSeis2DSubSel::selectedLine() const
 {
-    if ( lnmsfld )
-	return lnmsfld->isChecked() ? lnmsfld->text() : "";
-    return lnmfld->text();
+    return isSingLine() ? (lnmfld ? lnmfld : lnmsfld)->text() : "";
 }
 
 
@@ -272,7 +277,8 @@ void uiSeis2DSubSel::clear()
 	lnmfld->setText( "" );
     else
     {
-	lnmsfld->setChecked( false );
+	if ( multiln )
+	    lnmsfld->setChecked( false );
 	lnmsfld->newSpec( StringListInpSpec(emptylnms), 0 );
     }
     selChg( 0 );
@@ -320,15 +326,22 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 
     if ( !lnmsfld ) return;
 
-    const BufferString prevlnm( lnmsfld && lnmsfld->isChecked()
-				? lnmsfld->text() : "" );
+    const BufferString prevlnm( selectedLine() );
 
     BufferStringSet lnms; oinf.getLineNames( lnms );
     lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
     const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
-    lnmsfld->setChecked( prevok );
+    if ( multiln )
+	lnmsfld->setChecked( prevok );
+
     if ( prevok )
 	lnmsfld->setText( prevlnm );
+}
+
+
+void uiSeis2DSubSel::lineChg( CallBacker* )
+{
+    lineSel.trigger();
 }
 
 
@@ -355,7 +368,7 @@ void uiSeis2DSubSel::usePar( const IOPar& iopar )
     else
     {
 	lnmsfld->setText( lnm );
-	lnmsfld->setChecked( lnm != "" );
+	if ( multiln ) lnmsfld->setChecked( lnm != "" );
     }
 
     StepInterval<int> trcrg = trcrgfld->getIStepInterval();
@@ -395,11 +408,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     const bool isall = isAll();
     iopar.set( sKey::BinIDSel, isall ? sKey::No : sKey::Range );
 
-    BufferString lnm;
-    if ( lnmfld )
-	lnm = lnmfld->text();
-    else if ( lnmsfld->isChecked() )
-	lnm = lnmsfld->text();
+    BufferString lnm( selectedLine() );
     if ( lnm == "" )
 	iopar.removeWithKey( sKey::LineKey );
     else

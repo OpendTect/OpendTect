@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.1 2004-05-27 13:03:14 macman Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.2 2004-11-18 16:15:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
 
 uiSeisSEGYExamine( uiParent* p, const char* fname, bool mult )
 	: uiDialog(p,
-		uiDialog::Setup("Examine SEG-Y","Define SEG-Y parameters",0)
+		uiDialog::Setup("Examine SEG-Y","",0)
 		.modal(false)
 		.oktext("")
 		.canceltext("Dismiss"))

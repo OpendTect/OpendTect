@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.12 2004-11-11 13:04:59 nanne Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.13 2004-11-18 16:15:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class uiSeisSubSel : public uiGroup
 public:
 
     			uiSeisSubSel(uiParent*,bool for_new_entry=false,
-				     bool withstep=true);
+				     bool withstep=true,bool multi2dlnes=false);
 
     bool		is2D() const		{ return is2d_; }
     void		set2D( bool yn )	{ is2d_ = yn; typChg(0); }
@@ -69,7 +69,7 @@ class uiSeis2DSubSel : public uiGroup
 { 	
 public:
 
-			uiSeis2DSubSel(uiParent*,bool for_new_entry);
+			uiSeis2DSubSel(uiParent*,bool for_new_entry,bool mln);
 
     void		clear();
     void		setInput(const StepInterval<int>&);
@@ -94,6 +94,7 @@ public:
     int			expectedNrSamples() const;
     int			expectedNrTraces() const;
 
+    Notifier<uiSeis2DSubSel> lineSel;
     Notifier<uiSeis2DSubSel> singLineSel;
     bool		isSingLine() const;
     const char*		selectedLine() const;
@@ -106,8 +107,10 @@ protected:
     uiGenInput*		zfld;
     uiGenInput*		lnmfld;
     uiGenInput*		lnmsfld;
+    bool		multiln;
 
     virtual void	selChg(CallBacker*);
+    void		lineChg(CallBacker*);
     void		singLineChg(CallBacker*);
     void		doFinalise(CallBacker*);
 

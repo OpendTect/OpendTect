@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.30 2004-11-11 13:04:51 nanne Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.31 2004-11-18 16:15:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,12 @@ ________________________________________________________________________
 
 
 uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool fne, 
-				bool withstep )
+				bool withstep, bool multi2dlines )
 	: uiGroup(p,"Seis transfer pars")
 	, is2d(false)
 	, issteer(false)
 {
-    selfld = new uiSeisSubSel( this, fne, withstep );
+    selfld = new uiSeisSubSel( this, fne, withstep, multi2dlines );
 
     scfmtfld = new uiSeisFmtScale( this, with_format );
     scfmtfld->attach( alignedBelow, selfld );
