@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.6 2004-01-16 08:35:03 arend Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.7 2004-01-16 15:37:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.6 2004-01-16 08:35:03 arend Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.7 2004-01-16 15:37:14 nanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -340,9 +340,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCreateVolMnuItm: 	applMgr().createVol(); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mAddSceneMnuItm: 		
-#ifdef __win__
 				sceneMgr().tile(); // otherwise crash ...!
-#endif
 				sceneMgr().addScene(); break;
     case mCascadeMnuItm: 	sceneMgr().cascade(); break;
     case mTileMnuItm: 		sceneMgr().tile(); break;
