@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.57 2002-09-19 07:09:48 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.58 2002-09-19 14:53:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,14 +32,14 @@ class AttribSliceSet;
 class IOPar;
 class MultiID;
 class BinIDRange;
-class HorizonInfo;
+class SurfaceInfo;
 
 namespace visSurvey
 {
 class Scene;
 class PickSetDisplay;
 class WellDisplay;
-class HorizonDisplay;
+class SurfaceDisplay;
 class PlaneDataDisplay;
 class VolumeDisplay;
 };
@@ -81,7 +81,7 @@ public:
 
     enum ElementType    { Inline, Crossline, Timeslice };
     enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay, WellDisplay,
-    			  HorizonDisplay, VolumeDisplay };
+    			  SurfaceDisplay, VolumeDisplay };
     ObjectType		getObjectType( int ) const;
     void		setObjectName(int,const char*);
     const char*		getObjectName(int) const;
@@ -175,22 +175,23 @@ public:
     bool		isWellTextShown(int) const;
     void		getWellIds(int,TypeSet<int>&);
 
-    			// Horizon stuff
-    int			addHorizonDisplay(const MultiID& emhorid);
-    void		removeHorizonDisplay( int );
-    void		getHorAttribData(int,ObjectSet< TypeSet<BinIDZValue> >&,
+    			// Surface stuff
+    int			addSurfaceDisplay(const MultiID& emhorid);
+    void		removeSurfaceDisplay( int );
+    void		getSurfAttribData(int,
+	    				 ObjectSet< TypeSet<BinIDZValue> >&,
 	    				 bool posonly,
 					 const BinIDRange* br=0) const;
     			//!< The data in the objset will be managed by caller
-    void		getHorAttribValues(int,TypeSet<float>&) const;
-    void		putNewHorData(int,
+    void		getSurfAttribValues(int,TypeSet<float>&) const;
+    void		putNewSurfData(int,
 	    			      const ObjectSet< TypeSet<BinIDZValue> >&);
-    void		getHorizonIds(int,TypeSet<int>&) const;
-    void		getHorizonInfo(ObjectSet<HorizonInfo>&) const;
-    void		getHorizonNames(ObjectSet<BufferString>&) const;
-    int			getHorizonID(const char*,int nr) const;
-    void		setHorizonNrTriPerPixel(int id, float);
-    float		getHorizonNrTriPerPixel(int id) const;
+    void		getSurfaceIds(int,TypeSet<int>&) const;
+    void		getSurfaceInfo(ObjectSet<SurfaceInfo>&) const;
+    void		getSurfaceNames(ObjectSet<BufferString>&) const;
+    int			getSurfaceID(const char*,int nr) const;
+    void		setSurfaceNrTriPerPixel(int id, float);
+    float		getSurfaceNrTriPerPixel(int id) const;
 
 			// Resolution
     void		setResolution(int, int res );
@@ -253,7 +254,7 @@ protected:
     ObjectSet<visSurvey::PickSetDisplay>	picks;
     ObjectSet<visSurvey::PlaneDataDisplay>	seisdisps;
     ObjectSet<visSurvey::WellDisplay>         	wells;
-    ObjectSet<visSurvey::HorizonDisplay>       	horizons;
+    ObjectSet<visSurvey::SurfaceDisplay>       	surfaces;
     ObjectSet<visSurvey::Scene>         	scenes;
     ObjectSet<visSurvey::VolumeDisplay>		volumes;
 
