@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.151 2003-06-06 14:08:01 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.152 2003-06-23 13:17:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -1111,7 +1111,7 @@ const ColorAttribSel* uiVisPartServer::getColorSelSpec( int id ) const
     mDynamicCastAllConst();
     if ( pdd ) return &pdd->getColorSelSpec();
     if ( rtd ) return &rtd->getColorSelSpec();
-    if ( vd ) return &rtd->getColorSelSpec();
+    if ( vd ) return &vd->getColorSelSpec();
 
     return 0;
 }
