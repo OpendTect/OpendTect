@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.21 2002-01-10 12:11:58 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.22 2002-01-14 15:30:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,12 +71,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 			     IntInpIntervalSpec(true) );
     zfld = new uiGenInput( rangegrp, "Time range (s)",
 			   DoubleInpIntervalSpec(true) );
-    crlfld->attach( alignedBelow, inlfld );
-    zfld->attach( alignedBelow, crlfld );
     rangegrp->setHAlignObj( inlfld->uiObj() );
     rangegrp->attach( alignedBelow, dirnmfld ); 
-    if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
     rangegrp->attach( ensureBelow, rglbl ); 
+    if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
+    crlfld->attach( alignedBelow, inlfld );
+    zfld->attach( alignedBelow, crlfld );
 
     uiSeparator* horsep2 = new uiSeparator( this );
     horsep2->attach( stretchedBelow, rangegrp );
@@ -90,8 +90,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     coordset->changed.notify( mCB(this,uiSurveyInfoEditor,chgSetMode) );
 
     crdgrp = new uiGroup( this, "Coordinate settings" );
-    crdgrp->attach( alignedBelow, rangegrp );
-    crdgrp->attach( ensureBelow, coordset );
     ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
 			     BinIDCoordInpSpec() );
     ic0fld->changed.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
@@ -102,12 +100,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
     xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
     xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
+    crdgrp->setHAlignObj( ic0fld->uiObj() );
+    crdgrp->attach( alignedBelow, rangegrp );
+    crdgrp->attach( ensureBelow, coordset );
     ic1fld->attach( alignedBelow, ic0fld );
     ic2fld->attach( alignedBelow, ic1fld );
     xy0fld->attach( rightOf, ic0fld );
     xy1fld->attach( rightOf, ic1fld );
     xy2fld->attach( rightOf, ic2fld );
-    crdgrp->setHAlignObj( ic0fld->uiObj() );
 
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
     DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
@@ -119,15 +119,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", dis );
     overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
     overrule->setChecked( false );
+    trgrp->setHAlignObj( xinlfld->uiObj() );
+    trgrp->attach( alignedBelow, rangegrp );
+    trgrp->attach( ensureBelow, coordset );
     xinlfld->attach( rightOf, x0fld );
     xcrlfld->attach( rightOf, xinlfld );
     y0fld->attach( alignedBelow, x0fld );
     yinlfld->attach( rightOf, y0fld );
     ycrlfld->attach( rightOf, yinlfld );
     overrule->attach( alignedBelow, ycrlfld );
-    trgrp->setHAlignObj( xinlfld->uiObj() );
-    trgrp->attach( alignedBelow, rangegrp );
-    trgrp->attach( ensureBelow, coordset );
 
 
     applybut = new uiPushButton( this, "Apply" ); 
@@ -202,8 +202,7 @@ void uiSurveyInfoEditor::doFinalise()
 {
     if ( survinfo->rangeUsable() ) setValues();
 
-    crdgrp->display( coordset->getBoolValue() ); 
-    trgrp->display( !coordset->getBoolValue() );
+    chgSetMode(0);
     ic1fld->setFldsSensible( false, 0 );
 }
 
@@ -212,7 +211,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 {
     BufferString newdirnm = dirnmfld->text();
     if ( newdirnm == "" )
-	{ ErrMsg( "Please specify directory name." ); return false; }
+	{ uiMSG().error( "Please specify directory name." ); return false; }
 
     if ( !appButPushed() ) return false;
 
@@ -228,13 +227,13 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	{
 	    BufferString errmsg( "Please rename survey.\n\n '");
 	    errmsg += newdirnm; errmsg += "' already exists!";
-	    ErrMsg( errmsg ); 
+	    uiMSG().error( errmsg ); 
 	    return false;
 	}
 
 	if ( !File_copy( from, to, YES ) )
 	{
-	    ErrMsg( "Cannot create proper new survey directory" );
+	    uiMSG().error( "Cannot create proper new survey directory" );
 	    return false;
 	}
 
@@ -245,7 +244,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
         if ( orgdirname != newdirnm ) dirnmch_ = true;
 
     if ( !survinfo->write( rootdir ) )
-        ErrMsg( "Failed to write survey info.\nNo changes committed." );
+        uiMSG().error( "Failed to write survey info.\nNo changes committed." );
     else
     {
         delete SurveyInfo::theinst_;
@@ -277,7 +276,10 @@ bool uiSurveyInfoEditor::setRanges()
     br.stop.inl = irg.stop;   br.stop.crl = crg.stop;
     survinfo->setRange( br );
     if ( !survinfo->rangeUsable() )
-        { ErrMsg( "Please specify inline/crossline ranges" ); return false; }
+    { 
+	uiMSG().error( "Please specify inline/crossline ranges" ); 
+        return false; 
+    }
 
     StepInterval<double> zrs( zfld->getDStepInterval() );
     survinfo->setZRange( zrs );
@@ -301,7 +303,7 @@ bool uiSurveyInfoEditor::setCoords()
     c[2].x = xy1fld->getValue(0); c[2].y = xy1fld->getValue(1);
   
     const char* msg = survinfo->set3Pts( c, b, xline );
-    if ( msg ) { ErrMsg( msg ); return false; }
+    if ( msg ) { uiMSG().error( msg ); return false; }
 
     return true;
 }
@@ -315,7 +317,7 @@ bool uiSurveyInfoEditor::setRelation()
     xtr.c = xcrlfld->getValue(); ytr.c = ycrlfld->getValue();
     if ( !xtr.valid(ytr) )
     {
-        ErrMsg( "The transformation is not valid." );
+        uiMSG().error( "The transformation is not valid." );
         return false;
     }
 

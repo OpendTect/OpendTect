@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.21 2002-01-07 10:20:30 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.22 2002-01-14 15:30:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,9 +110,13 @@ uiSurvey::uiSurvey( uiParent* p )
     binsize1->attach( alignedBelow, zrange1 );
 
     irange2 = new uiLabel( infogrp, "" );
+    irange2->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium ) );
     xrange2 = new uiLabel( infogrp, "" );
+    xrange2->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium ) );
     zrange2 = new uiLabel( infogrp, "" );
+    zrange2->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium ) );
     binsize2 = new uiLabel( infogrp, "" );
+    binsize2->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium ) );
     irange2->attach( rightOf, irange1 );
     xrange2->attach( rightOf, xrange1 );
     zrange2->attach( rightOf, zrange1 );
@@ -159,6 +163,10 @@ void uiSurvey::newButPushed( CallBacker* )
     mkInfo();
     if ( !survInfoDialog() )
 	updateInfo(0);
+
+    rmbut->setSensitive(true);
+    editbut->setSensitive(true);
+    convbut->setSensitive(true);
 }
 
 
@@ -213,7 +221,6 @@ bool uiSurvey::survInfoDialog()
 
 void uiSurvey::rmButPushed( CallBacker* )
 {
-
     BufferString selnm( listbox->getText() );
     BufferString msg( "This will remove the entire survey:\n\t" );
     msg += selnm;
@@ -252,6 +259,10 @@ void uiSurvey::tutButPushed( CallBacker* )
 
     updateSvyList();
     tuthl.fillTut();
+
+    rmbut->setSensitive(true);
+    editbut->setSensitive(true);
+    convbut->setSensitive(true);
 }
 
 
@@ -259,6 +270,7 @@ void uiSurvey::updateSvyList()
 {
     dirlist->update();
     dirlist->sort();
+    if ( !dirlist->size() ) updateInfo(0);
     listbox->empty();
     listbox->addItems( dirlist );
 }
@@ -359,6 +371,11 @@ void uiSurvey::mkInfo()
 	zrange2->setText( "" );
 
     notes->setText( survinfo->comment() );
+
+    bool anysvy = dirlist->size();
+    rmbut->setSensitive( anysvy );
+    editbut->setSensitive( anysvy );
+    convbut->setSensitive( anysvy );
 }
 
 
@@ -410,6 +427,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     return true;
 }
+
 
 void uiSurvey::getSurvInfo()
 {
