@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.3 2002-02-08 17:04:14 nanne Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.4 2002-05-07 13:01:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
         ioobjids += new MultiID( ioobj.key() );
     }
 
+    if ( ioobjnms.size() )
+	ioobjnms.setCurrent(0);
     seisinpfld = new uiLabeledListBox( this, "Select Seismics to merge", true );
     seisinpfld->box()->addItems( ioobjnms );
 
@@ -63,6 +65,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     remfld = new uiCheckBox( this, "Remove original files on succes" );
     remfld->attach( alignedBelow, seisoutfld );
     remfld->setChecked( false );
+    remfld->display( false ); // TODO: check if merge is really succesfull
 }
 
 
@@ -140,6 +143,9 @@ bool uiMergeSeis::handleInput()
     for ( int idx=0; idx<inpsz; idx++ )
     {
 	IOObj* ioobj = selobjs[idx];
+	if ( ioobj->pars().size() && ioobj->pars().hasKey("Type") )
+	    ctio.ioobj->pars().set( "Type", ioobj->pars().find("Type") );
+
         if ( !SeisTrcTranslator::getRanges( *ioobj, bs, zrg ) )
 	{
 	    BufferString msg( "Cannot read \"" );

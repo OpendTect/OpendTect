@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.1 2002-02-08 22:00:56 bert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.2 2002-05-07 13:01:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ public:
     bool		exportSeis(ExternalType);
 
     bool		mergeSeis();
+    void		manageSeismics();
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.3 2002-04-16 08:45:23 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.4 2002-05-07 13:01:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,4 +55,15 @@ bool uiSeisPartServer::mergeSeis()
 {
     uiMergeSeis dlg( appserv().parent() );
     return dlg.go();
+}
+
+
+void uiSeisPartServer::manageSeismics()
+{
+/*
+TODO: restore this
+#include "uiseisfileman.h"
+    uiSeisFileMan dlg( appserv().parent() );
+    dlg.go();
+*/
 }
