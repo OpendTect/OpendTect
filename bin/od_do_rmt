@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.13 2004-11-09 16:40:25 arend Exp $
+# $Id: od_do_rmt,v 1.14 2004-11-09 16:42:57 arend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -68,6 +68,15 @@ if ( -e "$DTECT_APPL/bin/init_dtect" ) then
 endif
 
 if ( "$HDIR" == "win" ) then
+
+    set usernm=""
+    if ( $?USERNAME ) then
+	set usernm="$USERNAME"
+    endif
+    if ( $?user ) then
+	set usernm="$user"
+    endif
+
     set prescript=""
     if ( -x "$DTECT_APPL/bin/$HDIR/SearchODFile" ) then
 	set prescript=`"$DTECT_APPL/bin/$HDIR/SearchODFile" od_prepare.bat`
@@ -75,7 +84,7 @@ if ( "$HDIR" == "win" ) then
 
     if ( -e "$prescript" ) then
         set prescr=`cygpath -w "$prescript"`
-	cmd /c "$prescr" $datahost $datadrive $datashare $username $userpass
+	cmd /c "$prescr" $datahost $datadrive $datashare $usernm $datapass
     endif
 endif
 
