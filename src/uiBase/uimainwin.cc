@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.35 2002-01-09 16:27:49 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.36 2002-01-11 11:11:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -591,21 +591,19 @@ void uiDialogBody::finalise()
 
 	}
 
-	if( saveBut )
+	if( saveBut && !helpBut )
 	{
 	    if( okBut )
-		saveBut->attach(rightOf, okBut);
+		saveBut->attach(rightTo, okBut);
 	    if( cnclBut )
 		cnclBut->attach(ensureRightOf, saveBut);
 
 	    saveBut->attach( bottomBorder, 0 );
 	}
 
-	if ( helpBut )
+	if ( helpBut && !saveBut )
 	{
-	    if ( saveBut )
-		helpBut->attach(rightOf, saveBut);
-	    else if ( (!cnclBut && !okBut) || (cnclBut && okBut) )
+	    if ( (!cnclBut && !okBut) || (cnclBut && okBut) )
 	    {
 		helpBut->attach( centeredBelow, horSepar
 			? (uiObject*) horSepar
@@ -621,6 +619,17 @@ void uiDialogBody::finalise()
 
 	    helpBut->attach( bottomBorder, 0 );
 	    helpBut->activated.notify( mCB( this, uiDialogBody, provideHelp ));
+	}
+
+	if ( helpBut && saveBut )
+	{
+	    saveBut->attach( centeredBelow, horSepar
+		     ? (uiObject*) horSepar
+                     : (uiObject*) centralWidget_->uiObj() );
+	    helpBut->attach(rightTo, saveBut);
+
+	    if ( cnclBut ) helpBut->attach( ensureLeftOf, cnclBut );
+	    if ( okBut ) saveBut->attach( rightTo, okBut );
 	}
 
 	childrenInited = true;
