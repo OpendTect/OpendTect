@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.17 2002-04-11 06:40:11 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.18 2002-04-12 06:28:26 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -686,7 +686,7 @@ void visBase::Rectangle::setDraggerSize( float w, float h, float d )
     if ( !dragger ) return;
 
     w = getScale( 0, w );
-    h = getScale( 0, h );
+    h = getScale( 1, h );
 
     dragger->setDraggerSize( w, h, d );
 }
