@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.5 2001-07-06 11:41:48 bert Exp $
+ RCS:		$Id: segyhdr.h,v 1.6 2002-09-03 08:35:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,11 +109,16 @@ public:
     void		fill(SeisTrcInfo&,float) const;
 
     float		postScale(int numbfmt) const;
+    Coord		getCoord(bool rcv,float extcoordsc);
 
     unsigned char*	buf;
     bool		needswap;
     SegyTraceheaderDef&	hdef;
     int			seqnr;
+
+protected:
+
+    double		getCoordScale(float extcoordsc) const;
 
 };
 

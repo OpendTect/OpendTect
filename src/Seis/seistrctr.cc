@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.29 2002-08-01 13:31:11 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.30 2002-09-03 08:35:00 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.29 2002-08-01 13:31:11 bert Ex
 #include "scaler.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "errh.h"
+#include <math.h>
 
 
 int SeisTrcTranslator::selector( const char* key )
@@ -212,6 +214,27 @@ void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 	    float fnrsamps = (stop - outcds[idx]->sd.start)
 			     / outcds[idx]->sd.step + 1 + eps;
 	    outcds[idx]->nrsamples = (int)fnrsamps;
+	}
+    }
+}
+
+
+void SeisTrcTranslator::fillOffsAzim( SeisTrcInfo& ti, const Coord& gp,
+				      const Coord& sp )
+{
+    static bool warnfail = getenv( "dGB_WARN_BINID_SRCOORDS" );
+    ti.offset = gp.distance( sp );
+    ti.azimuth = atan2( gp.y - sp.y, gp.x - sp.x );
+    if ( warnfail )
+    {
+	Coord pos( .5 * (gp.x + sp.x), .5 * (gp.y + sp.y) );
+	BinID bid( SI().transform(pos) );
+	if ( bid != ti.binid )
+	{
+	    BufferString msg( "S/R posns don't match Inl/Crl. Hdr=" );
+	    msg += ti.binid.inl; msg += "/"; msg += ti.binid.crl;
+	    msg += " S/R="; msg += bid.inl; msg += "/"; msg += bid.crl;
+	    ErrMsg( msg );
 	}
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.20 2002-07-24 17:08:12 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.21 2002-09-03 08:35:00 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -201,6 +201,7 @@ protected:
     bool		initConn(Conn&,bool forread);
     void		setDataType( int icomp, int d )
 			{ cds[icomp]->datatype = tarcds[icomp]->datatype = d; }
+    void		fillOffsAzim(SeisTrcInfo&,const Coord&,const Coord&);
 
     virtual void	cleanUp();
 			/* Subclasses will need to implement the following: */

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.12 2002-06-21 22:37:04 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.13 2002-09-03 08:35:00 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -493,14 +493,28 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 					   : IbmFormat::asInt(buf+hdef.crl-1);
     ti.offset = IbmFormat::asInt( buf+36 );
 
+    double scale = getCoordScale( extcoordsc );
+    ti.coord.x *= scale;
+    ti.coord.y *= scale;
+}
+
+
+double SegyTraceheader::getCoordScale( float extcoordsc ) const
+{
+    if ( !mIsUndefined(extcoordsc) ) return extcoordsc;
     short scalco = IbmFormat::asShort( buf+70 );
-    if ( !mIsUndefined(extcoordsc) || scalco != 1 && scalco != 0 )
-    {
-        double scale = scalco > 0 ? scalco : -1./scalco;
-	if ( !mIsUndefined(extcoordsc) ) scale = extcoordsc;
-        ti.coord.x *= scale;
-        ti.coord.y *= scale;
-    }
+    return scalco ? (scalco > 0 ? scalco : -1./scalco) : 1;
+}
+
+
+Coord SegyTraceheader::getCoord( bool rcv, float extcoordsc )
+{
+    double scale = getCoordScale( extcoordsc );
+    Coord ret(	IbmFormat::asInt( buf+(rcv?80:72) ),
+		IbmFormat::asInt( buf+(rcv?84:76) ) );
+    ret.x *= scale;
+    ret.y *= scale;
+    return ret;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.8 2002-08-02 12:48:17 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.9 2002-09-03 08:35:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "binidselimpl.h"
 #include "sorting.h"
 #include "uiexecutor.h"
+#include "keystrs.h"
 
 #include <math.h>
 
@@ -142,25 +143,31 @@ bool uiMergeSeis::handleInput()
 	return false; 
     }
 
+    static const char* optdirkey = "Optimized direction";
+    static const char* typekey = sKey::Type;
     int order[inpsz];
     int inlstart[inpsz];
     BinIDSampler bs;
     StepInterval<float> zrg;
     StepInterval<float> zrgprev;
     BufferString type = "";
+    BufferString optdir = "Vertical";
     for ( int idx=0; idx<inpsz; idx++ )
     {
 	IOObj* ioobj = selobjs[idx];
-	if ( ioobj->pars().size() && ioobj->pars().hasKey("Type") )
+	if ( ioobj->pars().hasKey(typekey) )
 	{    
 	    if ( !idx ) 
-		type = ioobj->pars().find("Type");
-	    else if ( type != ioobj->pars().find("Type") )
+		type = ioobj->pars().find(typekey);
+	    else if ( type != ioobj->pars().find(typekey) )
 	    {
 		uiMSG().error( "Different file types selected" );
 		return false;
 	    }
 	}
+
+	if ( !idx && ioobj->pars().hasKey(optdirkey) )
+	    optdir = ioobj->pars().find( optdirkey );
 
         if ( !SeisTrcTranslator::getRanges( *ioobj, bs, zrg ) )
 	{
@@ -196,7 +203,11 @@ bool uiMergeSeis::handleInput()
 	}
     }
 
-    ctio.ioobj->pars().set( "Type", type );
+    if ( type == "" )
+	ctio.ioobj->pars().removeWithKey( typekey );
+    else
+	ctio.ioobj->pars().set( typekey, type );
+    ctio.ioobj->pars().set( optdirkey, optdir );
     IOM().dirPtr()->commitChanges( ctio.ioobj );
 
     sort_coupled( inlstart, order, inpsz );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.9 2002-01-17 14:19:14 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.10 2002-09-03 08:35:00 bert Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.
@@ -94,6 +94,13 @@ public:
     static const char*	sSamplingInfo;
     static const char*	sNrSamples;
 };
+
+
+inline float mathAng2DegFromNorth( float rads )
+{
+    float deg = 90 - 57.2957795131 * rads;
+    return deg < 0 ? deg + 360 : deg;
+}
 
 
 #endif
