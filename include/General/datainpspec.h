@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.43 2003-02-07 16:11:37 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.44 2003-02-13 12:27:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -429,11 +429,12 @@ It does not change the underlying true/false texts.
 class BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInpSpec( const char* truetxt="Yes"
-				, const char* falsetxt="No" , bool yesno=true )
+			BoolInpSpec( const char* truetxt=0,
+				     const char* falsetxt=0,bool yesno=true)
 			    : DataInpSpec( DataTypeImpl<bool>() )
-			    , truetext( truetxt ), falsetext( falsetxt )
-			    , yn( yesno ) 
+			    , truetext(truetxt && *truetxt ? truetxt : "Yes")
+			    , falsetext(falsetxt && *falsetxt ? falsetxt : "No")
+			    , yn(yesno) 
 			    {}
 
 			BoolInpSpec( const BoolInpSpec& oth)
@@ -455,10 +456,10 @@ public:
     bool		checked() const			{ return yn; }
     void		setChecked( bool yesno )	{ yn=yesno; }
     virtual const char*	text( int idx=0 ) const
-			    { 
-				return yn ? (const char*)truetext 
-					  : (const char*)falsetext; 
-			    }
+			{ 
+			    return yn ? (const char*)truetext 
+				      : (const char*)falsetext; 
+			}
 
     virtual void	setText( const char* s, int idx=0 )
 			    { yn = s && strcmp(s,falsetext); }
