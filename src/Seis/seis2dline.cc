@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.32 2004-10-21 12:36:59 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.33 2004-11-02 13:56:44 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -41,10 +41,14 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
     BufferString fnm( ioobj->fullUserExpr(true) );
     Seis2DLineSet lg( fnm );
     const int nrlines = lg.nrLines();
+    BufferStringSet nms;
     for ( int iln=0; iln<nrlines; iln++ )
-	lg.remove( 0 );
-    File_remove( fnm, NO );
-    return true;
+	nms.add( lg.lineKey(iln) );
+    for ( int iln=0; iln<nrlines; iln++ )
+	lg.remove( nms.get(iln) );
+    nms.deepErase();
+
+    return File_remove( fnm, NO );
 }
 
 

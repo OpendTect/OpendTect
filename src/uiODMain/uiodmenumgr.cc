@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.18 2004-10-04 16:25:41 nanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.19 2004-11-02 13:56:44 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.18 2004-10-04 16:25:41 nanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.19 2004-11-02 13:56:44 bert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -187,7 +187,7 @@ void uiODMenuMgr::fillProcMenu()
 {
     mInsertItem( procmnu, "&Attributes ...", mManAttribsMnuItm );
     procmnu->insertSeparator();
-    mInsertItem( procmnu, "Create &Volume ...", mCreateVolMnuItm );
+    mInsertItem( procmnu, "&Create Seismic output ...", mCreateVolMnuItm );
     mInsertItem( procmnu, "Create &Surface output ...", mCreateSurfMnuItm );
     mInsertItem( procmnu, "&Re-Start ...", mReStartMnuItm );
 }
@@ -283,7 +283,7 @@ void uiODMenuMgr::fillDtectTB()
 {
     mAddTB(dtecttb,"survey.png","Survey setup",false,manSurvCB);
     mAddTB(dtecttb,"attributes.png","Edit attributes",false,manAttrCB);
-    mAddTB(dtecttb,"out_vol.png","Create volume",false,outVolCB);
+    mAddTB(dtecttb,"out_vol.png","Create seismic output",false,outVolCB);
 }
 
 #undef mAddTB

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.11 2004-10-18 15:10:46 nanne Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.12 2004-11-02 13:56:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -242,9 +242,12 @@ bool uiRmIOObjImpl( IOObj& ioob, bool askexist )
 {
     BufferString mess = "Remove ";
     if ( askexist ) mess += " existing ";
-    mess += "'";
+    mess += " data file(s), at\n'";
     if ( !ioob.isLink() )
-	{ mess += ioob.fullUserExpr(true); mess += "'?"; }
+    {
+	mess += ioob.fullUserExpr(true);
+	mess += "'?";
+    }
     else
     {
 	FileNameString fullexpr( ioob.fullUserExpr(true) );
@@ -256,9 +259,8 @@ bool uiRmIOObjImpl( IOObj& ioob, bool askexist )
 
     if ( !fullImplRemove(ioob) )
     {
-	BufferString mess = "Could not remove '";
-	mess += ioob.fullUserExpr(true);
-	mess += "'\nRemove entry from list anyway?";
+	BufferString mess = "Could not remove data file(s).\n";
+	mess += "Remove entry from list anyway?";
 	if ( !uiMSG().askGoOn(mess) )
 	    return false;
     }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.47 2004-10-28 15:01:29 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.48 2004-11-02 13:56:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -317,6 +317,7 @@ void attribSel( CallBacker* )
     FilePath fp( fname );
     if ( !fp.isAbsolute() )
 	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
+    fname = fp.fullPath();
 
     txt += "\nLocation: "; txt += fp.pathOnly();
     txt += "\nFile name: "; txt += fp.fileName();
