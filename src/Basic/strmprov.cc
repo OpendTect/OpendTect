@@ -31,7 +31,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.34 2003-05-13 15:27:56 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.35 2003-05-14 14:08:53 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -485,11 +485,11 @@ bool StreamProvider::setReadOnly( bool yn ) const
 
     if ( !hostname[0] )
 	return fname == sStdIO || fname == sStdErr ? false :
-		File_makeWritable( (const char*)fname, NO, yn );
+		File_makeWritable( (const char*)fname, NO, !yn );
 
     sprintf( oscommand.buf(), "%s %s 'chmod %s %s && echo 1'",
 	      (const char*)rshcomm,
-	      (const char*)hostname, yn ? "ug+w" : "a-w",
+	      (const char*)hostname, yn ? "a-w" : "ug+w",
 	      (const char*)fname );
 
     mRemoteTest(return);
