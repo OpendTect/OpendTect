@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.11 2001-06-26 15:02:48 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.12 2001-07-27 15:54:22 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ private:
 
     bool		hinfofetched;
     int			bytespertrace;
+    BinID		firstbinid;
     BinID		lastbinid;
     int			curinlinfnr;
     int			cursegnr;

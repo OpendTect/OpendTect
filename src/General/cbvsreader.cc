@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.22 2001-07-02 12:42:53 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.23 2001-07-27 15:58:23 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -82,14 +82,18 @@ bool CBVSReader::readInfo()
     removeTrailingBlanks( info_.usertext.buf() );
 
     datastartfo = strm_.tellg();
-    curbinid_ = info_.geom.start;
     if ( !info_.geom.fullyrectandreg && !readTrailer() )
 	return false;
 
-    lastbinid.inl = info_.geom.step.inl > 0
-		  ? info_.geom.stop.inl : info_.geom.start.inl;
-    lastbinid.crl = info_.geom.step.crl > 0
-		  ? info_.geom.stop.crl : info_.geom.start.crl;
+    firstbinid.inl = info_.geom.step.inl > 0
+		   ? info_.geom.start.inl : info_.geom.stop.inl;
+    firstbinid.crl = info_.geom.step.crl > 0
+		   ? info_.geom.start.crl : info_.geom.stop.crl;
+    lastbinid.inl  = info_.geom.step.inl > 0
+		   ? info_.geom.stop.inl : info_.geom.start.inl;
+    lastbinid.crl  = info_.geom.step.crl > 0
+		   ? info_.geom.stop.crl : info_.geom.start.crl;
+    curbinid_ = firstbinid;
     if ( !info_.geom.fullyrectandreg )
     {
 	CBVSInfo::SurvGeom::InlineInfo& iinf =
@@ -244,8 +248,8 @@ bool CBVSReader::readGeom()
 	info_.geom.b2c = SI().binID2Coord();
 
     if ( info_.geom.fullyrectandreg )
-	nrxlines_ = (info_.geom.stop.crl - info_.geom.start.crl)
-                  / info_.geom.step.crl + 1;
+	nrxlines_ = (lastbinid.crl - firstbinid.crl) / info_.geom.step.crl + 1;
+
     bidrg.start = bidrg.stop
 		= BinID( info_.geom.start.inl, info_.geom.start.crl );
     bidrg.include( BinID( info_.geom.stop.inl, info_.geom.stop.crl ) );
@@ -297,7 +301,7 @@ bool CBVSReader::toStart()
 {
     if ( strmclosed_ ) return false;
 
-    curbinid_ = info_.geom.start;
+    curbinid_ = firstbinid;
     if ( !info_.geom.fullyrectandreg )
     {
 	curinlinfnr = cursegnr = 0;
@@ -332,7 +336,7 @@ bool CBVSReader::goTo( const BinID& bid )
 	    curbinid_.inl = bid.inl;
 	else
 	{
-	    StepInterval<int> inls( info_.geom.start.inl, info_.geom.stop.inl,
+	    StepInterval<int> inls( firstbinid.inl, lastbinid.inl,
 				    info_.geom.step.inl );
 	    curbinid_.inl = inls.atIndex( inls.nearestIndex( bid.inl ) );
 	}
@@ -340,13 +344,13 @@ bool CBVSReader::goTo( const BinID& bid )
 	    curbinid_.crl = bid.crl;
 	else
 	{
-	    StepInterval<int> crls( info_.geom.start.crl, info_.geom.stop.crl,
+	    StepInterval<int> crls( firstbinid.crl, lastbinid.crl,
 				    info_.geom.step.crl );
 	    curbinid_.crl = crls.atIndex( crls.nearestIndex( bid.crl ) );
 	}
 	nrposns =
-	    ((bid.inl-info_.geom.start.inl) / info_.geom.step.inl) * nrxlines_
-	  + ((bid.crl-info_.geom.start.crl) / info_.geom.step.crl);
+	    ((bid.inl-firstbinid.inl) / info_.geom.step.inl) * nrxlines_
+	  + ((bid.crl-firstbinid.crl) / info_.geom.step.crl);
     }
     else
     {
@@ -451,7 +455,7 @@ bool CBVSReader::getNextBinID( BinID& bid, bool set_vars )
 	bid.crl += info_.geom.step.crl;
 	if ( !bidrg.includes(bid) )
 	{
-	    bid.crl = info_.geom.start.crl;
+	    bid.crl = firstbinid.crl;
 	    bid.inl += info_.geom.step.inl;
 	    if ( !bidrg.includes(bid) )
 		// Huh?
@@ -509,7 +513,9 @@ bool CBVSReader::getNextBinID( BinID& bid, bool set_vars )
 
 bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
 {
-    if ( strmclosed_ || hinfofetched ) return true;
+    if ( strmclosed_ ) return true;
+    if ( hinfofetched )
+	strm_.seekg( -explicitnrbytes, ios::cur );
 
     expldat.binid = curbinid_;
     expldat.coord = info_.geom.b2c.transform( curbinid_ );

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.6 2001-06-28 21:16:51 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.7 2001-07-27 15:58:23 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -47,22 +47,12 @@ int CBVSInfo::SurvGeom::outOfRange( const BinID& bid ) const
 {
     int res = 0;
 
-    if ( step.inl > 0 )
-	{ if ( bid.inl < start.inl || bid.inl > stop.inl
+    if ( bid.inl < start.inl || bid.inl > stop.inl
 	    || (bid.inl-start.inl)%step.inl )
-	    res = 2; }
-    else
-	{ if ( bid.inl > start.inl || bid.inl < stop.inl
-	    || (start.inl-bid.inl)%(-step.inl) )
-	    res = 2; }
-    if ( step.crl > 0 )
-	{ if ( bid.crl < start.crl || bid.crl > stop.crl
+	    res = 2;
+    if ( bid.crl < start.crl || bid.crl > stop.crl
 	    || (bid.crl-start.crl)%step.crl )
-	    res += 2 * 256; }
-    else
-	{ if ( bid.crl > start.crl || bid.crl < stop.crl
-	    || (start.crl-bid.crl)%(-step.crl) )
-	    res += 2 * 256; }
+	    res += 2 * 256;
 
     return res;
 }
@@ -112,7 +102,7 @@ bool CBVSInfo::SurvGeom::toNextInline( BinID& bid ) const
     }
     else if ( fullyrectandreg )
     {
-	bid.crl = start.crl;
+	bid.crl = step.crl > 0 ? start.crl : stop.crl;
 	bid.inl += step.inl;
 	return !outOfRange( bid );
     }
@@ -187,14 +177,17 @@ void CBVSInfo::SurvGeom::toIrreg()
 
     deepErase( inldata );
     fullyrectandreg = false;
-    const int nrinls = (stop.inl-start.inl)/step.inl + 1;
+    const int nrinls = (stop.inl-start.inl)/ abs(step.inl) + 1;
+    const int startinl = step.inl > 0 ? start.inl : stop.inl;
     for ( int idx=0; idx<nrinls; idx++ )
     {
-	int curinl = start.inl + idx * step.inl;
+	int curinl = startinl + idx * step.inl;
 	CBVSInfo::SurvGeom::InlineInfo* newinf
 	    = new CBVSInfo::SurvGeom::InlineInfo( curinl );
 	newinf->segments += CBVSInfo::SurvGeom::InlineInfo::Segment(
-				start.crl, stop.crl, step.crl );
+				step.crl > 0 ? start.crl : stop.crl,
+				step.crl > 0 ? stop.crl : start.crl,
+				step.crl );
 	inldata += newinf;
     }
 }
