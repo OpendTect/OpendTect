@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.6 2002-05-27 06:36:15 kristofer Exp $";
+static const char* rcsID = "$Id: vistristripset.cc,v 1.7 2002-05-27 08:41:32 kristofer Exp $";
 
 #include "vistristripset.h"
 #include "geomposlist.h"
@@ -37,6 +37,7 @@ visBase::TriangleStripSet::TriangleStripSet()
     textureswitch->addChild( texturegroup );
     ctmaterial = new SoMaterial;
     texturegroup->addChild( ctmaterial );
+    ctmaterial->transparency.setIgnored(true);
     SoMaterialBinding* mbind = new SoMaterialBinding;
     mbind->value = SoMaterialBinding::PER_VERTEX_INDEXED;
     texturegroup->addChild( mbind );
@@ -216,14 +217,14 @@ void visBase::TriangleStripSet::updateTexture()
     {
 	Color col = colortable->tableColor( idx );
 	ctmaterial->diffuseColor.set1Value( idx,
-				col.r()/255, col.g()/255, col.b()/255 );
-	ctmaterial->transparency.set1Value( idx, col.t()/255 );
+				col.r()/255.0, col.g()/255.0, col.b()/255.0 );
+	//ctmaterial->transparency.set1Value( idx, col.t()/255.0 );
     }
 
     Color col = colortable->color( mUndefValue );
     ctmaterial->diffuseColor.set1Value( nrsteps,
-	    			col.r()/255, col.g()/255, col.b()/255 );
-    ctmaterial->transparency.set1Value( nrsteps, col.t()/255 );
+	    			col.r()/255.0, col.g()/255.0, col.b()/255.0 );
+    //ctmaterial->transparency.set1Value( nrsteps, col.t()/255.0 );
 
 
     const int nrindexes = strips->coordIndex.getNum();
