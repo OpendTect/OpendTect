@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.14 2003-12-24 11:07:22 bert Exp $
+ RCS:		$Id: genc.h,v 1.15 2004-01-16 10:34:36 bert Exp $
 ________________________________________________________________________
 
 
@@ -188,6 +188,9 @@ void		swap_bytes(void*,int nbytes);
 
 int		getPID();
 		/*!< returns process ID */
+
+int		setEnvVar(const char* env,const char* val);
+		/*!< sets environment variable to a value. */
 
 
 #ifdef __cpp__

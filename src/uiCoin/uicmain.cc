@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.cc,v 1.9 2004-01-15 13:25:42 bert Exp $
+ RCS:           $Id: uicmain.cc,v 1.10 2004-01-16 10:34:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,9 +23,9 @@ uicMain::uicMain(int argc,char** argv)
 void uicMain::init( QWidget* mw )
 {
     if ( !getenv("SOQT_BRIL_X11_SILENCER_HACK") )
-	putenv( "SOQT_BRIL_X11_SILENCER_HACK=1" );
+	setEnvVar( "SOQT_BRIL_X11_SILENCER_HACK", "1" );
     if ( !getenv("COIN_FULL_INDIRECT_RENDERING") )
-	putenv( "COIN_FULL_INDIRECT_RENDERING=1" );
+	setEnvVar( "COIN_FULL_INDIRECT_RENDERING", "1" );
 
 	if ( DBG::isOn() )
 	    DBG::message( "SoQt::init() ..." );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.4 2004-01-13 12:24:06 arend Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.5 2004-01-16 10:34:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "settings.h"
 #include "filegen.h"
+#include <stdlib.h>
 
 
 extern "C" { const char* GetBaseDataDir(); }
@@ -201,13 +202,17 @@ bool uiSetDataDir::acceptOK( CallBacker* )
     }
 
     // OK - we're (almost) certain that the directory exists and is valid
-    const bool haveenv = getenv("DTECT_DATA");
+    const bool haveenv = getenv("DTECT_DATA") || getenv( "dGB_DATA" )
+#ifdef __win__
+		      || getenv( "DTECT_WINDATA" ) || getenv( "dGB_WINDATA" )
+#endif
+	;
     if ( haveenv )
-    {
-	BufferString envsett("DTECT_DATA=");
-	envsett += datadir;
-	putenv( envsett.buf() );
-    }
+#ifdef __win__
+	setEnvVar( "DTECT_WINDATA", datadir.buf() );
+#else
+	setEnvVar( "DTECT_DATA", datadir.buf() );
+#endif
 
     Settings::common().set( "Default DATA directory", datadir );
     if ( !Settings::common().write() )
@@ -218,10 +223,6 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	uiMSG().warning( "Cannot write your user settings.\n"
 			 "Preferences cannot be stored!" );
     }
-
-    if ( haveenv )
-	uiMSG().warning( "The selected directory will overrule your DTECT_DATA"
-	       		 "\nfor this run of OpendTect only." );
 
     IOMan::newSurvey();
     return true;

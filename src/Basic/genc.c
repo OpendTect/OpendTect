@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.33 2004-01-13 13:48:55 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.34 2004-01-16 10:34:36 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -399,6 +399,22 @@ void put_platform( unsigned char* ptr )
 int getPID()
 {
     return getpid();
+}
+
+
+int setEnvVar( const char* env, const char* val )
+{
+    char* buf;
+    if ( !env || !*env ) return NO;
+    if ( !val ) val = "";
+
+    buf = mMALLOC( strlen(env)+strlen(val) + 2, char );
+    strcpy( buf, env );
+    if ( *val ) strcat( buf, "=" );
+    strcat( buf, val );
+
+    putenv( buf );
+    return YES;
 }
 
 
