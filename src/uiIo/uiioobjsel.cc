@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.11 2001-07-18 16:17:37 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.12 2001-07-18 21:48:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,16 +22,22 @@ ________________________________________________________________________
 #include "transl.h"
 
 
+static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
+{
+    CtxtIOObj newctio( ctio );
+    newctio.ioobj = 0; newctio.setName( nm );
+    newctio.fillObj();
+    return newctio.ioobj;
+}
+
+
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
-			      uiIOObjSelAuxInfo* auxinfo )
+			      const char* trglobexpr )
 	: uiDialog(p,c.ctxt.forread?"Input":"Output")
 	, ctio(c)
 	, nmfld(0)
 	, ioobj(0)
-	, selchg(this)
-	, grp(0)
 {
-    notifs.add( "IOObj.Selection change", selchg );
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
     nm += ctio.ctxt.trgroup->name();
@@ -39,8 +45,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     IOM().to( MultiID(IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id) );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt.trgroup,
-				    ctio.ctxt.maychdir,
-				    auxinfo ? auxinfo->trglobexpr : 0 );
+				    ctio.ctxt.maychdir, trglobexpr );
     if ( ctio.ioobj )
         entrylist->setSelected( ctio.ioobj->key() );
 
@@ -49,12 +54,6 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     {
 	nmfld = new uiGenInput( this, "Name" );
 	nmfld->attach( alignedBelow, listfld );
-    }
-
-    if ( auxinfo && auxinfo->grpcr )
-    {
-	grp = auxinfo->grpcr->create( this, &notifs );
-	grp->attach( centeredBelow, nmfld ? nmfld : listfld );
     }
 
     //TODO
@@ -79,14 +78,12 @@ void uiIOObjSelDlg::selChg( CallBacker* c )
     ioobj = entrylist->selected();
     if ( nmfld && c )
 	nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
-    selchg.trigger( ioobj ? ioobj->key() : MultiID(""), this );
 }
 
 
 void uiIOObjSelDlg::fillPar( IOPar& iopar ) const
 {
-    if ( ioobj ) iopar.set( "ID", ioobj->key() );
-    if ( grp ) grp->fillPar( iopar );
+    iopar.set( "ID", ioobj ? (const char*)ioobj->key() : "" );
 }
 
 
@@ -103,7 +100,6 @@ void uiIOObjSelDlg::usePar( const IOPar& iopar )
 	    const_cast<uiIOObjSelDlg*>( this )->selChg(0);
 	}
     }
-    if ( grp ) grp->usePar( iopar );
 }
 
 
@@ -135,11 +131,13 @@ bool uiIOObjSelDlg::acceptOK( CallBacker* )
 	return true;
     }
 
-    // create new entry
-    CtxtIOObj newctio( ctio );
-    newctio.ioobj = 0; newctio.setName( seltxt );
-    newctio.fillObj();
-    ioobj = newctio.ioobj;
+    return createEntry( seltxt );
+}
+
+
+bool uiIOObjSelDlg::createEntry( const char* seltxt )
+{
+    ioobj = mkEntry( ctio, seltxt );
     if ( !ioobj )
     {
 	uiMSG().error( "Cannot create object with this name" );
@@ -151,13 +149,12 @@ bool uiIOObjSelDlg::acceptOK( CallBacker* )
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
-			bool wclr, uiIOObjSelAuxInfo* ai )
+			bool wclr, const char* trglexp )
 	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
 		     txt ? txt : (const char*)c.ctxt.trgroup->name(), wclr )
 	, ctio(c)
 	, forread(c.ctxt.forread)
-	, auxinfo(ai? *ai : uiIOObjSelAuxInfo())
-	, iopar(*new IOPar)
+	, trglobexpr(trglexp)
 {
     updateInput();
 }
@@ -165,25 +162,21 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
 
 uiIOObjSel::~uiIOObjSel()
 {
-    delete &iopar;
 }
 
 
-bool uiIOObjSel::fillPar( IOPar& iop ) const
+bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
-    iop.set( "ID", ctio.ioobj ? ctio.ioobj->key() : MultiID("") );
-    iop.merge( iopar );
+    iopar.set( "ID", ctio.ioobj ? ctio.ioobj->key() : MultiID("") );
     return true;
 }
 
 
-void uiIOObjSel::usePar( const IOPar& iop )
+void uiIOObjSel::usePar( const IOPar& iopar )
 {
     const char* res = iopar.find( "ID" );
     if ( res && *res )
 	setInput( res );
-    iopar.merge( iop );
-    iopar.set( "ID", ctio.ioobj ? ctio.ioobj->key() : MultiID("") );
 }
 
 
@@ -231,8 +224,7 @@ bool uiIOObjSel::commitInput( bool mknew )
     if ( existingTyped() ) return true;
     if ( !mknew ) return false;
 
-    ctio.setName( getInput() );
-    IOM().getEntry( ctio );
+    ctio.setObj( createEntry( getInput() ) );
     return ctio.ioobj;
 }
 
@@ -240,17 +232,31 @@ bool uiIOObjSel::commitInput( bool mknew )
 void uiIOObjSel::doObjSel( CallBacker* )
 {
     ctio.ctxt.forread = forread;
-    uiIOObjSelDlg dlg( this, ctio, &auxinfo );
-    if ( dlg.go() && dlg.ioObj() )
+    uiIOObjSelDlg* dlg = mkDlg();
+    if ( dlg && dlg->go() && dlg->ioObj() )
     {
-	ctio.setObj( dlg.ioObj()->clone() );
+	ctio.setObj( dlg->ioObj()->clone() );
 	updateInput();
 	selDone( 0 );
+	newSelection( dlg );
     }
+    delete dlg;
 }
 
 
 void uiIOObjSel::objSel()
 {
     ctio.setObj( IOM().get(getKey()) );
+}
+
+
+uiIOObjSelDlg* uiIOObjSel::mkDlg()
+{
+    return new uiIOObjSelDlg( this, ctio, trglobexpr );
+}
+
+
+IOObj* uiIOObjSel::createEntry( const char* nm )
+{
+    return mkEntry( ctio, nm );
 }
