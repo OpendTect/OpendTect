@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.33 2003-12-08 22:17:25 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.34 2003-12-14 20:53:55 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -427,20 +427,42 @@ char EM::Surface::whichSide( const Coord3& timepos,
     Coord3 c00, c10, c01, c11;
     getMeshCoords( closestmesh, c00, c10, c01, c11, time2depthfunc );
 
-    Coord3 average(0,0,0);
+    Coord3 center(0,0,0);
     int nrvals = 0;
-    if ( c00.isDefined() ) { average += c00; nrvals++; }
-    if ( c10.isDefined() ) { average += c10; nrvals++; }
-    if ( c01.isDefined() ) { average += c01; nrvals++; }
-    if ( c11.isDefined() ) { average += c11; nrvals++; }
+    const bool c00def = c00.isDefined(); if ( c00def ) {center+=c00; nrvals++;}
+    const bool c10def = c10.isDefined(); if ( c10def ) {center+=c10; nrvals++;}
+    const bool c01def = c01.isDefined(); if ( c01def ) {center+=c01; nrvals++;}
+    const bool c11def = c11.isDefined(); if ( c11def ) {center+=c11; nrvals++;}
+    center /= nrvals;
 
-    average /= nrvals;
+    float maxdist = -1;
+    if ( c00def )
+    { const double dist=c00.distance(center); if (dist>maxdist) maxdist=dist; }
+    if ( c10def )
+    { const double dist=c10.distance(center); if (dist>maxdist) maxdist=dist; }
+    if ( c01def )
+    { const double dist=c01.distance(center); if (dist>maxdist) maxdist=dist; }
+    if ( c11def )
+    { const double dist=c11.distance(center); if (dist>maxdist) maxdist=dist; }
 
     const Coord3 pos = time2depthfunc
 	? Coord3( timepos, time2depthfunc->getValue( timepos.z ) )
 	: timepos;
 
-    const Plane3 plane( meshnormal, average, false );
+    
+    const Coord3 centertopos = pos-center;
+    const double centertoposlen = centertopos.abs();
+    if ( mIS_ZERO(centertoposlen) )
+	return 0;
+
+    const double cosangle = meshnormal.dot(centertopos/centertoposlen);
+    const double oneminus_cos2angle = 1-cosangle*cosangle;
+    const double sinangle = oneminus_cos2angle<=0 ?0:sqrt(oneminus_cos2angle);
+    const double distonplane = centertoposlen*sinangle;
+    if ( distonplane>maxdist )
+	return -2;
+
+    const Plane3 plane( meshnormal, center, false );
     const Line3 line( pos, meshnormal );
     Coord3 intersection;
     plane.intersectWith( line, intersection );
