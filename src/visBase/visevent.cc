@@ -4,9 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.8 2002-12-24 13:25:44 nanne Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.9 2003-07-08 09:49:28 jeroen Exp $";
 
 #include "visevent.h"
+#include "visdetail.h"
 #include "visdataman.h"
 #include "iopar.h"
 
@@ -14,6 +15,7 @@ static const char* rcsID = "$Id: visevent.cc,v 1.8 2002-12-24 13:25:44 nanne Exp
 #include "Inventor/events/SoMouseButtonEvent.h"
 #include "Inventor/events/SoKeyboardEvent.h"
 #include "Inventor/events/SoLocation2Event.h"
+#include "Inventor/details/SoFaceDetail.h"
 #include "Inventor/SoPickedPoint.h"
 #include "Inventor/SbLinear.h"
 
@@ -149,6 +151,14 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 		eventinfo.localpickedpos.x = localpos[0];
 		eventinfo.localpickedpos.y = localpos[1];
 		eventinfo.localpickedpos.z = localpos[2];
+
+		const SoDetail* detail = pickedpoint->getDetail();
+		mDynamicCastGet( const SoFaceDetail*, facedetail, detail );
+		if ( facedetail )
+		{
+		    SoFaceDetail* fd = const_cast< SoFaceDetail* >(facedetail);
+		    eventinfo.detail = new visBase::FaceDetail( fd );
+		}
 	    }
 	}
     }
