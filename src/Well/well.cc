@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.13 2003-11-07 17:02:54 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.14 2003-11-10 10:31:57 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -177,7 +177,7 @@ float Well::D2TModel::getTime( float dh ) const
 	int idx0 = idx1 < 0 ? 1 : idx1;
 	const float v = (dah_[idx0] - dah_[idx0-1]) / (t_[idx0] - t_[idx0-1]);
 	idx0 = idx1 < 0 ? 0 : idx1;
-	return t_[idx0] + v * ( dh - dah_[idx0] );
+	return t_[idx0] + ( dh - dah_[idx0] ) / v;
     }
 
     const int idx2 = idx1 + 1;
