@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.3 2001-05-25 18:24:51 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.4 2001-06-18 13:56:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ public:
 			//!< See CBVSReader::skip comments
 
     bool		getHInfo(CBVSInfo::ExplicitData&);
-    bool		fetch(void**,const Interval<int>* samps=0);
+    bool		fetch(void**,const bool* comps=0,
+				const Interval<int>* samps=0);
 			//!< See CBVSReader::fetch comments
 
     static const char*	check(const char*);

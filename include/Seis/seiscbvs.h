@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.3 2001-05-25 18:24:58 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.4 2001-06-18 13:56:37 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -51,6 +51,8 @@ protected:
     // Following variables are inited by commitSelections_
     TraceDataInterpreter** storinterps;
     StepInterval<int>*	samps;
+    Interval<int>*	cbvssamps;
+    bool*		comps;
     bool*		userawdata;
     bool*		samedatachar;
     int*		actualsz;

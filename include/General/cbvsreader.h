@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.9 2001-05-31 13:23:50 windev Exp $
+ RCS:		$Id: cbvsreader.h,v 1.10 2001-06-18 13:56:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,10 +48,11 @@ public:
 			//!< at current position.
 
     bool		getHInfo(CBVSInfo::ExplicitData&);
-    bool		fetch(void**,const Interval<int>* samps=0);
+    bool		fetch(void**,const bool* comps=0,
+				const Interval<int>* samps=0);
+			//!< 'comps',if provided, selects the compnents
 			//!< If 'samps' is non-null, it should hold start
 			//!< and end sample for each component.
-			//!< If start > stop component is skipped.
 
     static const char*	check(istream&);
 			//!< Determines whether a file is a CBVS file
