@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.37 2002-02-05 14:02:40 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.38 2002-04-22 14:40:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,6 +181,15 @@ void uiListBox::addItems( const char** textList )
     const char* pt_cur = *textList;
     while ( pt_cur )
         addItem( pt_cur++ );
+}
+
+
+void uiListBox::addItems( const ObjectSet<BufferString>& strs )
+{
+    int curidx = currentItem();
+    for ( int idx=0; idx<strs.size(); idx++ )
+	body_->insertItem( QString( *strs[idx] ), -1 );
+    setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
 
