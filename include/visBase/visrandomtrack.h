@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.12 2003-03-10 15:49:12 nanne Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.13 2003-04-17 15:03:44 nanne Exp $
 ________________________________________________________________________
 
 
@@ -77,6 +77,9 @@ public:
 
     void			setMaterial( Material* );
     Material*			getMaterial();
+
+    void			useTexture(bool);
+    bool			usesTexture() const;
 
     int				getSectionIdx() const {return sectionidx;}
     Coord			getClickedPos() const    { return selknotpos; }
