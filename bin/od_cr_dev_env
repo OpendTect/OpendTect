@@ -2,29 +2,31 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.4 2003-12-04 13:43:32 arend Exp $
+# $Id: od_cr_dev_env,v 1.5 2003-12-09 15:37:09 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
 #_______________________________________________________________________________
 
-logfile="/cygdrive/c/temp/od_cr_dev_env.$$.log"
 
-if [ ! "$#" -eq 2 ]; then
-	echo "Usage : $0 OpendtTect_directory existing_target_directory"
-	echo "Usage : $0 OpendtTect_directory existing_target_directory" >> $logfile
+if [ ! "$#" -lt 2 ]; then
+	echo "Usage : $0 OpendtTect_directory existing_target_directory [MinGW home]"
 	exit 1
 fi
 
-MINGWHOME=""
+if [ ${MINGWHOME:-'No'} == "No" ]; then
+    export MINGWHOME=""
+fi
+
 if [ "$HDIR" = "win" ]; then
     inpdir=`cygpath -u "$1"` 
     outdir=`cygpath -u "$2"`
     soext=dll
 
-    if [ ${MINGWHOME:-'No'} == "No" ]; then
-	source "$DTECT_APPL/bin/win/getMinGWdir.sh"
+    if [ ! "$#" -eq 3 ]; then
+	export MINGWHOME=`cygpath -u "$3"`
     fi
+
     if [ ${MINGWHOME:-'No'} == "No" ]; then
 	export MINGWHOME="/cygdrive/c/MinGW"
     fi
@@ -34,18 +36,13 @@ else
     soext=so
 fi
 
-echo "Input dir: " $inpdir >> $logfile
-echo "Output dir: " $outdir >> $logfile
-
 if [ ! -d "$inpdir" ] || [ ! -e "$inpdir/.rel.od.doc" ]; then
 	echo "$0 : $inpdir does not have the doc package installed"
-	echo "$0 : $inpdir does not have the doc package installed" >> $logfile
 	exit 1
 fi
 
 if [ ! -w "$outdir"  ]; then
 	echo "$0 : target directory $outdir not writable"
-	echo "$0 : target directory $outdir not writable" >> $logfile
 	exit 1
 fi
 
@@ -56,12 +53,8 @@ fi
 
 cd "$outdir"
 
-pwd >> $logfile
-
 for item in plugins include Pmake
 do 
-    echo " copying" $item >> $logfile
-    echo cp -a "$inpdir/$item" .  >> $logfile  
     cp -a "$inpdir/$item" .
 
 done 
@@ -74,11 +67,7 @@ if [ -d plugins ]; then
     ln -s Makefile.od Makefile
 fi
 
-echo "setting up lib" >> $logfile
-
 cd "$outdir"
-
-pwd >> $logfile
 
 mkdir lib
 cd lib
@@ -86,8 +75,6 @@ mkdir $HDIR
 cd $HDIR
 ln -s . G
 ln -s . O
-
-echo "setting up bin" >> $logfile
 
 cd "$outdir"
 mkdir bin
@@ -97,8 +84,6 @@ cd $HDIR
 mkdir so
 cd so
 
-
-echo " copying ${soext}'s" >> $logfile
 
 cp -a "$inpdir/bin/$HDIR/so"/*.$soext .
 cp -a "$inpdir/bin/$HDIR/so"/*.a .
