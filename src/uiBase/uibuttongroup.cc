@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.1 2001-08-23 15:05:06 windev Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.2 2001-08-27 12:58:50 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,8 +91,8 @@ private:
 };
 
 
-uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm="uiButtonGrp",
-                                    bool vertical = true, int strips = 1 )
+uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
+			      bool vertical, int strips )
     : uiParent( nm, 0 )
     , grpobj_( 0 )
     , body_( 0 )

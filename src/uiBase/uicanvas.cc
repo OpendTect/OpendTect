@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.7 2001-08-24 12:45:04 kristofer Exp $
+ RCS:           $Id: uicanvas.cc,v 1.8 2001-08-27 12:58:50 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -341,7 +341,7 @@ void uiScrollView::updateContents()
 { body_->viewport()->update(); }
 
 
-void uiScrollView::updateContents( uiRect area, bool erase= true )
+void uiScrollView::updateContents( uiRect area, bool erase )
 { 
     body_->updateContents ( area.topLeft().x(),  area.topLeft().y(),
                                area.width(), area.height() );
