@@ -4,16 +4,16 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emposid.cc,v 1.10 2004-10-05 17:34:33 kristofer Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.11 2004-12-14 12:37:46 kristofer Exp $";
 
 #include "emposid.h"
 #include "iopar.h"
 #include "geomgridsurface.h"
 
 
-const char* EM::PosID::emobjstr ="Object";
-const char* EM::PosID::sectionstr = "Patch";
-const char* EM::PosID::subidstr = "Sub ID";
+const char* EM::PosID::emobjStr() { return "Object"; }
+const char* EM::PosID::sectionStr() { return  "Patch"; }
+const char* EM::PosID::subidStr() { return  "Sub ID"; }
 
 
 RowCol EM::PosID::getRowCol() const
@@ -24,9 +24,9 @@ RowCol EM::PosID::getRowCol() const
 
 void EM::PosID::fillPar( IOPar& par ) const
 {
-    par.set( emobjstr, emobj );
-    par.set( sectionstr, section );
-    par.set( subidstr, subid );
+    par.set( emobjStr(), emobj );
+    par.set( sectionStr(), section );
+    par.set( subidStr(), subid );
 }
 
 
@@ -34,9 +34,9 @@ bool EM::PosID::usePar( const IOPar& par )
 {
     int tmpsection;
     long long tmpsubid;
-    const bool res = par.get( emobjstr, emobj ) &&
-		     par.get( sectionstr, tmpsection ) &&
-		     par.get( subidstr, tmpsubid );
+    const bool res = par.get( emobjStr(), emobj ) &&
+		     par.get( sectionStr(), tmpsection ) &&
+		     par.get( subidStr(), tmpsubid );
     if ( res )
     {
 	section = tmpsection;

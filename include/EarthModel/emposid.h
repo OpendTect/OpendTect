@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.15 2004-10-05 17:34:31 kristofer Exp $
+ RCS:		$Id: emposid.h,v 1.16 2004-12-14 12:37:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -22,9 +22,9 @@ ________________________________________________________________________
 namespace EM
 {
 
-typedef int ObjectID;
-typedef short SectionID;
-typedef long long SubID;
+typedef int32_t ObjectID;
+typedef int16_t SectionID;
+typedef int64_t SubID;
 
 
 /*!\brief
@@ -66,9 +66,9 @@ protected:
     SectionID			section;
     SubID			subid;
 
-    static const char*		emobjstr;
-    static const char* 		sectionstr;
-    static const char*		subidstr;
+    static const char*		emobjStr();
+    static const char* 		sectionStr();
+    static const char*		subidStr();
 };
 
 
