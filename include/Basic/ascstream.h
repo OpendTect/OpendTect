@@ -7,28 +7,31 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.2 2000-03-02 15:24:25 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.3 2000-04-17 14:53:42 bert Exp $
 ________________________________________________________________________
 
- An asc stream gets/puts data in/from a standard ascii format file.
+ An asc stream gets/puts data in/from a dGB standard ascii format file.
+
+ For input, the maximum size of the keyword is 1023, the max size of the
+ value is limited by the line length maximum of USHRT_MAX-1, i.e. 65534.
+ If word parsing is used, the limit is 1023 per word.
 
 -*/
 
-#include <gendefs.h>
+#include <bufstring.h>
+#include <limits.h>
 class MeasureUnit;
 class istream;
 class ostream;
 
 #define mParagraphMarker	"!"
 #define mKeyValSepar		':'
+#define mMaxWordLength		1023
 #define	mMaxFileHeadLength	80
-#define	mMaxFileKeyLength	80
-#define	mMaxFileEntryLength	1023
+#define	mMaxLineLength		(USHRT_MAX-1)
 
 
 typedef char AscStreamHeader[mMaxFileHeadLength+1];
-typedef char AscStreamKeyword[256]; // allow long keywords
-typedef char AscStreamValue[mMaxFileEntryLength+1];
 
 
 class ascostream
@@ -59,17 +62,22 @@ public:
     ostream&	stream() const		{ return *streamptr; }
 		operator ostream&()	{ return *streamptr; }
 
-private:
+protected:
+
     ostream*	streamptr;
-    int		mystrm;
+    int		colonpos;
+    bool	mystrm;
     bool	tabs;
-    int		pad;
+    bool	pad;
+
+private:
+
     void	init( ostream* strmptr )
 		{
 		    streamptr = strmptr; tabs = NO; pad = YES;
 		    colonpos = 25;
 		}
-    int		colonpos;
+
 };
 
 
@@ -78,51 +86,67 @@ class ascistream
 public:
 			ascistream(istream& strm,int rdhead=YES)
 				: mystrm(NO)
+				, keybuf("",mMaxWordLength)
+				, valbuf("",mMaxWordLength)
 				{ init(&strm,rdhead); }
 			ascistream(istream* strm,int rdhead=YES)
 				: mystrm(YES)
+				, keybuf("",mMaxWordLength)
+				, valbuf("",mMaxWordLength)
 				{ init(strm,rdhead); }
 			~ascistream();
 
     ascistream&		next();
-    ascistream&		nextLine(char*,int);
 
-    bool			isOfFileType(const char*) const;
+    bool		isOfFileType(const char*) const;
     const char*		fileType() const
 			{ return filetype; }
     const char*		version() const;
     const char*		nextWord();
     void		toFirstWord()
-			{ curword[0] = '\0'; nextwordptr = valstr; }
+			{ curword[0] = '\0'; nextwordptr = valbuf; }
 
     enum EntryType	{ Empty, Keyword, KeyVal, ParagraphMark, EndOfFile };
     EntryType		type() const;
     bool		atEOS() const
 			{ return type() > KeyVal; }
+    bool		isTabbed() const	{ return tabbed; }
     bool		hasKeyword(const char*) const;
     bool		hasValue(const char*) const;
     int			getVal() const;
     double		getValue(const MeasureUnit* mu=0) const;
     bool		getYN() const;
 
-    istream&		stream() const		{ return *streamptr; }
+    inline istream&	stream() const		{ return *streamptr; }
 
-    AscStreamKeyword	keyword;
-    AscStreamValue	valstr;
-    bool		tabbed;
+    const char*		keyWord() const		{ return keybuf; }
+    const char*		value() const		{ return valbuf; }
 
-private:
+    void		setKeyWord( const char* s ) { keybuf = s; }
+    void		setValue( const char* s ) { valbuf = s; }
+    void		setTabbed( bool yn ) 	{ tabbed = yn; }
+
+protected:
+
     istream*		streamptr;
     bool		mystrm;
+    bool		tabbed;
+    BufferString	keybuf;
+    BufferString	valbuf;
 
-    void		init(istream*,int);
-    void		resetCurrent();
+    void		resetPtrs(bool);
 
     const char*		nextwordptr;
-    AscStreamValue	curword;
+    char		curword[mMaxWordLength+1];
 
     AscStreamHeader	filetype, header, timestamp;
+
+private:
+
+    void		init(istream*,int);
+
 };
+
 
 inline bool atEndOfSection( const ascistream& strm )
 { return strm.atEOS(); }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.3 2000-03-03 09:42:42 bert Exp $
+ RCS:		$Id: strmoper.h,v 1.4 2000-04-17 14:53:43 bert Exp $
 ________________________________________________________________________
 
 */
@@ -25,7 +25,7 @@ bool		readWithRetry(istream&,void*,unsigned int nrbytes,
 			      unsigned int nrretries,unsigned int delay);
 bool		writeWithRetry(ostream&,const void*,unsigned int nrbytes,
 			       unsigned int nrretries,unsigned int delay);
-int		wordFromLine(istream&,char*);
+bool		wordFromLine(istream&,char*,int maxnrchars);
 
 
 #endif
