@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.2 2002-04-09 09:32:41 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.3 2002-04-10 08:51:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -42,8 +42,7 @@ public:
 				     released.
 				*/
 
-    int				pickedobjid;    
-    				/* Set to -1 if nothing was picked */
+    TypeSet<int>		pickedobjids;    
     Geometry::Pos		pickedpos;
     					
     int				key;

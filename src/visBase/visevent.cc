@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.2 2002-04-09 09:32:44 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.3 2002-04-10 08:51:38 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdataman.h"
@@ -90,8 +90,8 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* node )
 	const SoPath* path = pickedpoint->getPath();
 	if ( path )
 	{
-	    eventinfo.pickedobjid = visBase::DM().getId( path );
-	    if ( eventinfo.pickedobjid > -1 )
+	    visBase::DM().getIds( path, eventinfo.pickedobjids );
+	    if ( eventinfo.pickedobjids.size() )
 	    {
 		SbVec3f pos3d = pickedpoint->getPoint();
 		eventinfo.pickedpos.x = pos3d[0];
@@ -101,7 +101,7 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* node )
 	}
     }
     else
-	eventinfo.pickedobjid = -1;
+	eventinfo.pickedobjids.erase();
 
     SoType eventtype =  event->getTypeId();
     if ( eventtype==SoKeyboardEvent::getClassTypeId() )
