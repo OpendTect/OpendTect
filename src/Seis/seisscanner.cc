@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.8 2004-03-09 13:07:17 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.9 2004-03-11 07:52:15 nanne Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -52,7 +52,7 @@ void SeisScanner::init()
     nrnulltraces = 0;
     nrdistribvals = nrcrlsthisline = expectedcrls = 0;
     invalidsamplenr = -1;
-    nonnullsamplerg.start = MAXINT;
+    nonnullsamplerg.start = INT_MAX;
     nonnullsamplerg.stop = 0;
     invalidsamplebid.inl = -999;
     valrg.start = mUndefValue;
