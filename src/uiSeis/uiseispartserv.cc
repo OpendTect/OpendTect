@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.1 2002-02-08 22:01:28 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.2 2002-02-09 14:13:04 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,9 @@ bool uiSeisPartServer::ioSeis( uiSeisPartServer::ExternalType t, bool forread )
 #endif
 
     PtrMan<uiDialog> dlg = t == uiSeisPartServer::SegY
-	      ? new uiSeisImpExp( appserv().parent(), forread, segyid )
-	      : new uiSeisIdealImpExp( appserv().parent(), forread, (int)t==1 );
+      ? (uiDialog*) new uiSeisImpExp( appserv().parent(), forread, segyid )
+      : (uiDialog*) new uiSeisIdealImpExp( appserv().parent(), forread,
+	      				   (int)t==1 );
 
     return dlg->go();
 }
