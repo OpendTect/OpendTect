@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: cubicbeziercurve.h,v 1.1 2005-01-06 09:44:18 kristofer Exp $
+RCS:           $Id: cubicbeziercurve.h,v 1.2 2005-01-10 15:27:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,8 @@ public:
     float		directionInfluence() const;
     void		setDirectionInfluence(float);
 
-    bool		isCircular() const { return iscircular; }
-    void		setCircular(bool yn);
+    bool		isCircular() const;
+    bool		setCircular(bool yn);
 
 protected:
     int			getIndex( GeomPosID param ) const
