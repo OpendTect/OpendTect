@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.28 2004-07-28 12:45:00 arend Exp $
+# $Id: od_exec,v 1.29 2004-08-27 10:49:32 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -47,9 +47,9 @@ else if ( "$1" == "--prescript" ) then
 
     set extrascript="$2"
     if ( ! -e $extrascript ) then
-	if ( -e $DTECT_APPL/bin/$extrascript ) then
+	if ( -e "$DTECT_APPL/bin/$extrascript" ) then
 	    set extrascript="$DTECT_APPL/bin/$extrascript"
-	else if ( -e $bindir/$extrascript ) then
+	else if ( -e "$bindir/$extrascript" ) then
 	    set extrascript="$bindir/$extrascript"
 	endif
     endif
@@ -68,13 +68,13 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
     if ( $status != 0 ) then
 	set xtermpath=/usr/bin/X11/xterm
 	if ( $HDIR == sun5 ) set xtermpath=/usr/openwin/bin/xterm
-	if ( $HDIR == mac ) set xtermpath=$DTECT_APPL/bin/mac_term
+	if ( $HDIR == mac ) set xtermpath="$DTECT_APPL/bin/mac_term"
     endif
 
     if ( $HDIR == mac ) then
 	set xtermcmd="$DTECT_APPL/bin/mac_term $xtermcmdarg"
     else
-	set xtermcmd="$xtermpath -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $DTECT_APPL $xtermcmdarg"
+	set xtermcmd="$xtermpath -bg lightyellow -fg black -geometry 80x25 -e \"$DTECT_APPL/bin/od_xterm_exec\" $DTECT_APPL $xtermcmdarg"
     endif
 
     shift
@@ -83,14 +83,14 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 endif
 
 
-if ( ! -d $bindir ) then
+if ( ! -d "$bindir" ) then
     echo "Fatal error: Cannot start program because directory:"
     echo "$bindir"
     echo "Does not exist."
     exit 1
 endif
 
-setenv XAPPLRESDIR	$DTECT_APPL/data
+setenv XAPPLRESDIR	"$DTECT_APPL/data"
 setenv PATH		"${bindir}:${PATH}"
 
 if ( $HDIR == mac ) then
@@ -127,7 +127,7 @@ if ( $issys == yes ) then
     $xtermcmd $nicecmd $* $extraargs
 else
     if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$* $extraargs"
-    $xtermcmd $nicecmd $bindir/$* $extraargs
+    $xtermcmd $nicecmd "$bindir/$*" $extraargs
 endif
 
 exit $status
