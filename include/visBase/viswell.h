@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.7 2004-05-11 12:20:24 kristofer Exp $
+ RCS:           $Id: viswell.h,v 1.8 2004-05-24 13:56:25 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,9 @@ public:
     void			addMarker(const Coord3&,const Color&,
 	    				  const char*);
     void			removeAllMarkers();
-    void			setMarkerSize(int);
-    int				markerSize() const;
+    void			setMarkerScreenSize(int);
+    int				markerScreenSize() const;
+    bool			canShowMarkers() const;
     void			showMarkers(bool);
     bool			markersShown() const;
     void			showMarkerName(bool);
