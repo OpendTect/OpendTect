@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.3 2003-01-06 20:35:46 kristofer Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.4 2003-05-22 08:33:19 kristofer Exp $";
 
 
 #include "pca.h"
@@ -101,7 +101,7 @@ void PCA::clearAllSamples()
 
 #define SIGN(a,b) ((b)<0 ? -fabs(a) : fabs(a))
 
-void PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
+bool PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
 {
     for ( int idx=2;idx<=n;idx++) e[idx-1]=e[idx];
 
@@ -120,7 +120,11 @@ void PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
 
 	    if ( idy!=idx )
 	    {
-		if ( iter++==30) pErrMsg("Too many iterations");
+		if ( iter++==30)
+		{
+		    pErrMsg("Too many iterations");
+		    return false;
+		}
 
 		float g = (d[idx+1]-d[idx])/(2.0*e[idx]);
 		float r = sqrt((g*g)+1.0);
@@ -166,6 +170,8 @@ void PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
 	    }
 	} while (idy != idx);
     }
+
+    return true;
 }
 
 
@@ -265,7 +271,7 @@ void PCA::tred2( ObjectSet<float>& a, int n, float d[], float e[])
 }
 
 
-void PCA::calculate()
+bool PCA::calculate()
 {
     if ( threadworker ) threadworker->addWork( tasks );
     else
@@ -290,12 +296,15 @@ void PCA::calculate()
 	a += ptr+idx*nrvars-1;
 
     tred2( a, nrvars, d, e );
-    tqli( d, e, nrvars, a );
+    if ( !tqli( d, e, nrvars, a ) )
+	return false;
 
     eigenvalues.erase();
 
     for ( int idx=1; idx<=nrvars; idx++ )
 	eigenvalues += d[idx];
+
+    return true;
 }
 
 
