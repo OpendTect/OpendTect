@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.69 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.70 2003-03-06 16:39:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -503,7 +503,7 @@ void uiMainWin::toStatusBar( const char* txt, int fldidx )
     uiStatusBar* sb = statusBar();
     if ( sb )
 	sb->message( txt, fldidx );
-    else
+    else if ( *txt )
     	UsrMsg(txt);
 }
 

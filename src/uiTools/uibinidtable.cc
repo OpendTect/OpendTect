@@ -4,14 +4,16 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.1 2003-02-19 16:12:32 nanne Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.2 2003-03-06 16:39:09 bert Exp $
  ________________________________________________________________________
 
 -*/
 
 #include "uibinidtable.h"
 #include "uitable.h"
+#include "uimsg.h"
 #include "position.h"
+#include "survinfo.h"
 
 
 uiBinIDTable::uiBinIDTable( uiParent* p, int nr )
@@ -74,6 +76,23 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids )
 	    continue;
 	bid.inl = atoi(inlstr);
 	bid.crl = atoi(crlstr);
+	if ( !SI().isReasonable(bid) )
+	{
+	    Coord c( atof(inlstr), atof(crlstr) );
+	    if ( SI().isReasonable(c) )
+		bid = SI().transform(c);
+	    else
+	    {
+		BufferString msg( "Position " );
+		msg += bid.inl; msg += "/"; msg += bid.crl;
+		msg += " is probably wrong.\nDo you wish to discard it?";
+		if ( uiMSG().askGoOn(msg) )
+		{
+		    table->removeRow( idx );
+		    continue;
+		}
+	    }
+	}
 	bids += bid;
     }
 }
