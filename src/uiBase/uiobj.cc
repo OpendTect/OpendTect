@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.19 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.20 2001-12-19 14:56:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -269,6 +269,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , fnt_hgt( 0 )
     , fnt_wdt( 0 )
     , fnt_maxwdt( 0 )
+    , fm( 0 )
 #ifdef USE_DISPLAY_TIMER
     , displTim( *new Timer("Display timer"))
 { 
@@ -283,6 +284,7 @@ uiObjectBody::~uiObjectBody()
 #ifdef USE_DISPLAY_TIMER
     delete &displTim;
 #endif
+    delete fm;
 }
 
 
@@ -356,6 +358,14 @@ void uiObjectBody::reDraw( bool deep )
 {
     qwidget()->update();
 }
+
+void uiObjectBody::fontchanged()
+{
+    fnt_hgt=0;  fnt_wdt=0; fnt_maxwdt=0;
+    delete fm;
+    fm=0;
+}
+
 
 
 Color uiObjectBody::uibackgroundColor() const
@@ -532,14 +542,24 @@ void uiObjectBody::uisetFont( const uiFont& f )
     parent_->setMinTextWidgetHeight();
 }
 
+int uiObjectBody::fontWdtFor( const char* str) const
+{
+    gtFntWdtHgt();
+    if( !fm ) return 0;
+    return fm->width( QString( str ) );
+}
+
 void uiObjectBody::gtFntWdtHgt() const
 {
-    if( !fnt_hgt || !fnt_wdt || !fnt_maxwdt )
+    if( !fnt_hgt || !fnt_wdt || !fnt_maxwdt || !fm )
     {
-	QFontMetrics fm( qwidget()->font() );
-	const_cast<uiObjectBody*>(this)->fnt_hgt = fm.lineSpacing() + 2;
-	const_cast<uiObjectBody*>(this)->fnt_wdt = fm.width(QChar('x'));
-	const_cast<uiObjectBody*>(this)->fnt_maxwdt = fm.maxWidth();
+	if( fm ) delete fm;
+	const_cast<uiObjectBody*>(this)->fm =
+			     new QFontMetrics( qwidget()->font() );
+
+	const_cast<uiObjectBody*>(this)->fnt_hgt = fm->lineSpacing() + 2;
+	const_cast<uiObjectBody*>(this)->fnt_wdt = fm->width(QChar('x'));
+	const_cast<uiObjectBody*>(this)->fnt_maxwdt = fm->maxWidth();
     }
 
 #ifdef __debug__

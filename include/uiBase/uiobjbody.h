@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.8 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.9 2001-12-19 14:56:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ class QCloseEvent;
 class i_LayoutItem;
 class i_LayoutMngr;
 class Timer;
+class QFontMetrics;
 
 class uiObjectBody : public uiBody, public CallBacker
 {
@@ -141,11 +142,7 @@ public:
 				    if( !display_ ) display( display_ );
 				}
 
-    virtual void		fontchanged() 
-{ 
-pErrMsg("Font changed..");
-fnt_hgt=0;  fnt_wdt=0; fnt_maxwdt=0;
-}
+    virtual void		fontchanged();
 
 protected:
 
@@ -164,6 +161,7 @@ protected:
 					gtFntWdtHgt(); 
 					return max ? fnt_maxwdt : fnt_wdt; 
 				    }
+    int				fontWdtFor( const char* ) const;
 
 
 private:
@@ -194,6 +192,7 @@ private:
     int				fnt_hgt;
     int				fnt_wdt;
     int				fnt_maxwdt;
+    QFontMetrics*		fm;
 
     void                	gtFntWdtHgt() const;
     void			getSzHint();

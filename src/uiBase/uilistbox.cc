@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.25 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.26 2001-12-19 14:56:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
     virtual uiSize	minimumSize() const; //!< \reimp
     virtual bool	isSingleLine() const		 { return nLines==1; }
 
-//    QSize 		sizeHint() const;
+    QSize 		sizeHint() const;
 
 protected:
 
@@ -71,7 +71,6 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
     if( isMultiSelect ) setSelectionMode( QListBox::Extended );
     setStretch( 1, isSingleLine() ? 0 : 2 );
 }
-#if 0
 
 /* TODO: over-ride uiObjectBody::prefHNrPics() 
 and uiObjectBody::prefVNrPics() instead of sizeHint.
@@ -87,8 +86,6 @@ Do something like:
 //! over-rides QWidget::sizeHint()
 QSize uiListBoxBody::sizeHint() const
 {
-    const uiFont* mFont = const_cast<uiListBoxBody*>(this)->uiObjHandle().font();
-    if( !mFont ) { pErrMsg("uiObjHandle has no font!"); return QSize(); }
 
     // initialize to requested size or reasonable default size
     // reasonable sizes are 3 <= nrlines <= 7 , 20 <= nrchars <= 40.
@@ -97,7 +94,7 @@ QSize uiListBoxBody::sizeHint() const
     int nrlines = nLines ? nLines : sz > 7 ? 7 : (sz < 3 ? 3 : sz);
 
     // if biggest string is over 20 chars, grow box to max 40 chars.
-    const int fontavgpixwidth = mFont->avgWidth();
+    const int fontavgpixwidth = fontWdt();
     const int maxwdth = 40 * fontavgpixwidth;
     int pixwidth = nrchars * fontavgpixwidth;
     if ( !fieldWdt )
@@ -105,17 +102,17 @@ QSize uiListBoxBody::sizeHint() const
 	QListBoxItem* itm = item( 0 );
 	for ( int idx=0; itm; itm = item(++idx) )
 	{
-	    const int pixw = mFont->width( itm->text() ) + 2 * fontavgpixwidth;
+	    const int pixw = fontWdtFor( itm->text() ) + 2 * fontavgpixwidth;
 	    if ( pixw > pixwidth )
 		pixwidth = pixw > maxwdth ? maxwdth : pixw;
 	}
     }
 
     const int extrasz = 2 * frameWidth();
-    const int pixheight = mFont->height() * nrlines;
+    const int pixheight = fontHgt() * nrlines;
     return QSize ( pixwidth+extrasz, pixheight+extrasz );
 }
-#endif
+
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw)
     : uiObject( p, nm, mkbody(p,nm,ms,nl,pfw) )
     , selectionChanged( this )
