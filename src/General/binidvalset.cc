@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.4 2005-02-08 16:19:59 nanne Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.5 2005-02-23 14:45:23 cvsarend Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: binidvalset.cc,v 1.4 2005-02-08 16:19:59 nanne 
 
 #define mSetUdf(arr,nvals) \
     for ( int idx=0; idx<nvals; idx++ ) \
-	arr[idx] = mUndefValue
+	Values::setUdf(arr[idx])
 #define mInl(pos) (inls[pos.i])
 #define mCrl(pos) ((*crlsets[pos.i])[pos.j])
 #define mVals(pos) (nrvals ? (*valsets[pos.i])[pos.j] : 0)
@@ -138,7 +138,7 @@ static void ignoreName( std::istream& strm )
 
 bool BinIDValueSet::getFrom( std::istream& strm )
 {
-    BinID bid( 0, mUndefIntVal); char buf[1024]; TypeSet<float> vals;
+    BinID bid( 0, mUdf(int) ); char buf[1024]; TypeSet<float> vals;
     int idx = 0;
     ignoreName( strm );
     while ( wordFromLine(strm,buf,1024) )
@@ -148,7 +148,7 @@ bool BinIDValueSet::getFrom( std::istream& strm )
 	else			vals += atof( buf );
 	idx++;
     }
-    if ( mIsUndefInt(bid.crl) ) return false;
+    if ( Values::isUdf(bid.crl) ) return false;
 
     empty();
     setNrVals( vals.size() );
@@ -195,16 +195,23 @@ int BinIDValueSet::nrCrls( int inl ) const
 
 Interval<int> BinIDValueSet::inlRange() const
 {
-    Interval<int> ret( mUndefIntVal, -mUndefIntVal );
+    Interval<int> ret( mUdf(int), mUdf(int) );
+
+    bool first = true;
     for ( int iinl=0; iinl<inls.size(); iinl++ )
-	ret.include( inls[iinl], false );
+    {
+	if ( first )
+	    { ret.start = ret.stop = inls[iinl]; first = false; }
+	else
+	    ret.include( inls[iinl], false );
+    }
     return ret;
 }
 
 
 Interval<int> BinIDValueSet::crlRange( int inl ) const
 {
-    Interval<int> ret( mUndefIntVal, -mUndefIntVal );
+    Interval<int> ret( mUdf(int), mUdf(int) );
     if ( !inls.size() ) return ret;
 
     const int inlidx = inls.indexOf( inl );
@@ -217,10 +224,14 @@ Interval<int> BinIDValueSet::crlRange( int inl ) const
     }
     
     Pos pos; BinID bid;
+    bool first = true;
     while ( next(pos) )
     {
 	get( pos, bid );
-	ret.include( bid.crl, false );
+	if ( first )
+	    { ret.start = ret.stop = bid.crl; first = false; }
+	else
+	    ret.include( bid.crl, false );
     }
 
     return ret;
@@ -229,15 +240,21 @@ Interval<int> BinIDValueSet::crlRange( int inl ) const
 
 Interval<float> BinIDValueSet::valRange( int valnr ) const
 {
-    Interval<float> ret( mUndefValue, -mUndefValue );
+    Interval<float> ret( mUdf(float), mUdf(float) );
     if ( valnr >= nrvals || valnr < 0 || isEmpty() )
 	return ret;
 
     Pos pos;
     while ( next(pos) )
     {
-	float val = mVals(pos)[valnr];
-	if ( !mIsUndefined(val) )
+	const float val = mVals(pos)[valnr];
+	if ( !Values::isUdf(val) )
+	    { ret.start = ret.stop = val; break; }
+    }
+    while ( next(pos) )
+    {
+	const float val = mVals(pos)[valnr];
+	if ( !Values::isUdf(val) )
 	    ret.include( val, false );
     }
 
@@ -353,7 +370,7 @@ void BinIDValueSet::get( const Pos& pos, BinID& bid, float* vs ) const
     }
 
     if ( vs ) 
-	mSetUdf(vs,mUndefValue);
+	mSetUdf(vs,nrvals);
 }
 
 
@@ -455,7 +472,7 @@ BinIDValueSet::Pos BinIDValueSet::add( const BinIDValues& bivs )
     for ( int idx=0; idx<bivs.size(); idx++ )
 	locbivs.value(idx) = bivs.value(idx);
     for ( int idx=bivs.size(); idx<nrvals; idx++ )
-	locbivs.value(idx) = mUndefValue;
+	Values::setUdf( locbivs.value(idx) );
     return add( bivs.binid, locbivs.values() );
 }
 
@@ -617,7 +634,7 @@ void BinIDValueSet::setNrVals( int newnrvals, bool kp_data )
 		    newdata[idx] = data[idx];
 		delete [] data;
 		for ( int idx=transfsz; idx<nrvals; idx++ )
-		    newdata[idx] = mUndefValue;
+		    Values::setUdf( newdata[idx] );
 		data = newdata;
 	    }
 	}
@@ -814,7 +831,7 @@ void BinIDValueSet::get( const BinIDValueSet::Pos& pos, BinID& bid,
     {
 	vals.erase();
 	for ( int idx=0; idx<nrvals; idx++ )
-	    vals += mUndefValue;
+	    vals += mUdf(float);
     }
     get( pos, bid, vals.arr() );
 }

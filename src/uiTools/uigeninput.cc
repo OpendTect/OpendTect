@@ -4,12 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.65 2005-01-19 16:20:11 nanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.66 2005-02-23 14:47:04 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictypes.h"
 #include "uigeninput.h"
 #include "uilineedit.h"
 #include "uiboolinp.h"
@@ -18,6 +17,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "datainpspec.h"
 #include "survinfo.h"
+#include "undefval.h"
 
 
 //! maps a uiGenInput's idx to a field- and sub-idx
@@ -78,34 +78,34 @@ public:
 			}
 
     virtual bool	isUndef(int idx) const
-			{ return isUndefined(text(idx)); } 
+			{ return Values::isUdf(text(idx)); } 
 
     const char*		text( int idx ) const
 			{ 
 			    const char* ret = element(idx)
 					    ? element(idx)->text() : 0;
 
-			    return ret ? ret : undefVal<const char*>();
+			    return ret ? ret : mUdf(const char*);
 			}
     int			getIntValue( int idx )	const
 			{ 
 			    return element(idx) ? element(idx)->getIntValue() 
-						: undefVal<int>();
+						: mUdf(int);
 			}
     double		getValue( int idx )
 			{ 
 			    return element(idx) ? element(idx)->getValue() 
-						: undefVal<double>();
+						: mUdf(double);
 			}
     float		getfValue( int idx )	const
 			{ 
 			    return element(idx) ? element(idx)->getfValue() 
-						: undefVal<float>();
+						: mUdf(float);
 			}
     bool		getBoolValue( int idx )	const
 			{ 
 			    return element(idx) ? element(idx)->getBoolValue() 
-						: undefVal<bool>();
+						: mUdf(bool);
 			}
 
     virtual void	setText( const char* s, int idx )
@@ -149,7 +149,7 @@ public:
     bool		isReadOnly( int idx=0 ) const
 			{ 
 			    return element(idx) ? element(idx)->isReadOnly()
-						: undefVal<bool>();
+						: mUdf(bool);
 			}
 
     void		setSensitive(bool yn, int idx=-1)		
@@ -427,14 +427,14 @@ protected:
 
     virtual T		getvalue_(int idx) const		
 			    { 
-				return le(idx) ?  conv2<T>( le(idx)->text() ) 
-					       : undefVal<T>(); 
+				return le(idx) ? Conv::to<T>( le(idx)->text() ) 
+					       : mUdf(T); 
 			    }
 
     virtual void        setvalue_( T t, int idx)	
 			    { 
 				if ( le(idx) ) 
-				    le(idx)->setText( conv2<const char*>(t) );
+				    le(idx)->setText( Conv::to<const char*>(t));
 			    }
 
 

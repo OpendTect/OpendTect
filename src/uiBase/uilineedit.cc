@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.21 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.22 2005-02-23 14:47:04 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ const char* uiLineEdit::getvalue_() const
 
 void uiLineEdit::setvalue_( const char* t )
 {
-    body_->setText( isUndefined(t) ? QString() : QString(t) );
+    body_->setText( Values::isUdf(t) ? QString() : QString(t) );
     body_->setCursorPosition( 0 );
     setEdited( false );
 }

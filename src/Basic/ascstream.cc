@@ -4,12 +4,13 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.14 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.15 2005-02-23 14:45:23 cvsarend Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
 #include "general.h"
 #include "timefun.h"
+#include "convert.h"
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
@@ -100,15 +101,15 @@ bool ascostream::put( const char* keyword, int value )
 
 bool ascostream::put( const char* keyword, float value )
 {
-    return mIsUndefined(value) ? stream().good()
-	 : put( keyword, getStringFromFloat(0,value) );
+    return Values::isUdf(value) ? stream().good()
+	 : put( keyword, Conv::to<const char*>(value) );
 }
 
 
 bool ascostream::put( const char* keyword, double value )
 {
-    return mIsUndefined(value) ? stream().good()
-	 : put( keyword, getStringFromDouble(0,value) );
+    return Values::isUdf(value) ? stream().good()
+	 : put( keyword, Conv::to<const char*>(value) );
 }
 
 
@@ -292,8 +293,8 @@ int ascistream::getVal() const
 
 double ascistream::getValue() const
 {
-    double res = atof( valbuf );
-    if ( mIsUndefined(res) )
-	res = mUndefValue;
+    double res;
+    Conv::udfset( res, (const char*)valbuf );
+   
     return res;
 }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.33 2005-01-18 11:04:12 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.34 2005-02-23 14:45:12 cvsarend Exp $
 ________________________________________________________________________
 
  This file contains general defines that are so basic they can be used in
@@ -35,11 +35,20 @@ ________________________________________________________________________
 				      : mIsZero(x,e) )
 #define mDefEps			(1e-10)
 
+#ifdef FORCE_NEW_UNDEF
+#define mUndefValue		_obsolete_see__undefval_h__
+#define mIsUndefined(x)		_obsolete_see__undefval_h__
+#define sUndefValue		_obsolete_use__sKey__FloatUdf__see_keystrs_h
+#define mUndefIntVal		_obsolete_see__undefval_h__
+#define mIsUndefInt(x)		_obsolete_see__undefval_h__
+#else
+/* TODO: remove once all modules are converted to new undef handling */
 #define mUndefValue		1e30
 #define mIsUndefined(x)		(((x)>9.99999e29)&&((x)<1.00001e30))
 #define sUndefValue		"1e30"
 #define mUndefIntVal		2109876543
 #define mIsUndefInt(x)		((x) == mUndefIntVal)
+#endif
 
 #undef	YES
 #define	YES	1

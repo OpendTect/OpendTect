@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.14 2004-07-02 15:30:54 bert Exp $
+ RCS:		$Id: scaler.h,v 1.15 2005-02-23 14:45:12 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <gendefs.h>
+#include "undefval.h"
 
 #define sLinScaler	"Linear"
 #define sLogScaler	"Logarithmic"
@@ -40,7 +41,7 @@ public:
     virtual const char*	type() const		= 0;
 
     virtual double	scale(double) const	= 0;
-    virtual double	unScale(double) const	{ return mUndefValue; }
+    virtual double	unScale(double) const	{ return mUdf(double); }
     virtual const char*	toString() const	= 0;
     virtual void	fromString(const char*)	= 0;
 };

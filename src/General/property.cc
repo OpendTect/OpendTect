@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.6 2004-11-25 17:23:03 bert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.7 2005-02-23 14:45:23 cvsarend Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -231,12 +231,12 @@ bool MathProperty::dependsOn( const Property* p ) const
 
 float MathProperty::value() const
 {
-    if ( !expr_ ) return mUndefValue;
+    if ( !expr_ ) return mUdf(float);
 
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const Property* p = inps_[idx];
-	if ( !p ) return mUndefValue;
+	if ( !p ) return mUdf(float);
 	expr_->setVariable( idx, inps_[idx]->value() );
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.7 2005-01-13 11:59:26 nanne Exp $
+ RCS:		$Id: rcol.h,v 1.8 2005-02-23 14:45:12 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "plftypes.h"
+#include "undefval.h"
 
 #include <math.h>
 
@@ -176,7 +177,7 @@ int RColLineBuilder<T>::nextStep()
     {
 	const T& lastpos = line[line.size()-1];
 
-	float disttoline = mUndefValue;
+	float disttoline = mUdf(float);
 
 	if ( dir.r() )
 	{

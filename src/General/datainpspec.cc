@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.10 2005-01-27 10:22:31 kristofer Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.11 2005-02-23 14:47:04 cvsarend Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -352,8 +352,8 @@ double BinIDCoordInpSpec::value( int idx ) const
 bool BinIDCoordInpSpec::isUndef( int idx ) const
 {
     if ( idx<0 || idx>1 ) return true;
-    return idx ? isUndefined( crl_y )
-	       : isUndefined( inl_x );
+    return idx ? Values::isUdf( crl_y )
+	       : Values::isUdf( inl_x );
 } 
 
 

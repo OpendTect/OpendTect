@@ -5,6 +5,7 @@
 -*/
 
 #include "genericnumer.h"
+#include "undefval.h"
     
 #define ITMAX 100
 #define EPS 3.0e-8
@@ -118,11 +119,11 @@ float findValueInAperture( const FloatMathFunction& func, float startx,
     if ( !negativefound && !positivefound )
 	return 0;
 
-    float positivesol = mUndefValue;
+    float positivesol;  Values::setUdf(positivesol);
     if ( positivefound )
 	findValue( func, startx+dist-dx, startx+dist, positivesol, target, tol);
 
-    float negativesol = -mUndefValue;
+    float negativesol; Values::setUdf(negativesol);
     if ( negativefound )
 	findValue( func, startx-dist, startx-dist+dx, negativesol, target, tol);
 
@@ -226,7 +227,7 @@ float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
 	}
     }
 
-    return mUndefValue;
+    return mUdf(float);
 }
     
 #undef ITMAX

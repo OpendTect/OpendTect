@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.53 2005-01-27 10:22:31 kristofer Exp $
+ RCS:           $Id: datainpspec.h,v 1.54 2005-02-23 14:47:04 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ranges.h"
 #include "string2.h"
-#include "basictypes.h"
+#include "undefval.h"
 #include "bufstringset.h"
 
 class BinID2Coord;
@@ -135,7 +135,7 @@ class NumInpSpec : public DataInpSpec
 public:
 			NumInpSpec() 
 			    : DataInpSpec( DataTypeImpl<T>() ) , limits_(0)
-			    { value_ = undefVal<T>(); }
+			    { Values::setUdf( value_ ); }
 			NumInpSpec( T val ) 
 			    : DataInpSpec( DataTypeImpl<T>() ) , limits_(0)
 			    , value_( val )			{}
@@ -149,14 +149,14 @@ public:
 			    { return new NumInpSpec<T>( *this ); }
 
     virtual bool	isUndef( int idx=0 ) const	
-			    { return isUndefined(value_); }
+			    { return Values::isUdf(value_); }
 
     virtual bool	setText( const char* s, int idx=0 )
 			    { return getFromString( value_, s ); }
 
     T			value() const	
 			{
-			    if ( isUndefined(value_) ) return undefVal<T>();
+			    if ( Values::isUdf(value_) ) return mUdf(T);
 			    return value_;
 			}
 
@@ -213,12 +213,12 @@ public:
 			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
 			    , interval_( withstep ?  new StepInterval<T>( 
-							undefVal<T>(), 
-							undefVal<T>(), 
-							undefVal<T>() ) 
+							mUdf(T), 
+							mUdf(T), 
+							mUdf(T) ) 
 						  : new Interval<T>(
-							undefVal<T>(), 
-							undefVal<T>() ) )
+							mUdf(T), 
+							mUdf(T) ) )
 			    {}
 
 			NumInpIntervalSpec( const Interval<T>& interval ) 
@@ -249,7 +249,7 @@ public:
     virtual bool	isUndef( int idx=0 ) const
 			    {	
 				if ( !interval_ ) return true;
-				return isUndefined( value_(idx) ); 
+				return Values::isUdf( value_(idx) ); 
 			    }
 
     virtual void	setValue( const Interval<T>& intval )
@@ -267,7 +267,7 @@ public:
 
     T			value( int idx=0 ) const
 			    {
-				if ( isUndef(idx) ) return undefVal<T>();
+				if ( isUndef(idx) ) return mUdf(T);
 				return value_(idx);
 			    }
 
@@ -360,7 +360,7 @@ protected:
     T			value_( int idx=0 ) const
 			{
 			    if ( pt_value_(idx) ) return *pt_value_(idx);
-			    return undefVal<T>();
+			    return mUdf(T);
 			}
 
     T*			pt_value_( int idx=0 ) const
@@ -502,9 +502,8 @@ public:
 			BinIDCoordInpSpec( bool doCoord,
 					   bool isRelative=false,
 					   bool withOtherBut=false,
-					   double inline_x = undefVal<double>(),
-					   double crossline_y =
-							     undefVal<double>(),
+					   double inline_x = mUdf(double),
+					   double crossline_y = mUdf(double),
 					   const BinID2Coord* b2c=0 );
     virtual DataInpSpec* clone() const;
     virtual int 	nElems()  const;

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.45 2004-12-17 13:31:02 nanne Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.46 2005-02-23 14:45:23 cvsarend Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: iopar.cc,v 1.45 2004-12-17 13:31:02 nanne Exp $
 #include "separstr.h"
 #include "ascstream.h"
 #include "bufstringset.h"
+#include "convert.h"
 
 
 IOPar::IOPar( const char* nm )
@@ -269,7 +270,8 @@ bool IOPar::get( const char* s, type& res ) const \
     return true; \
 }
 
-get1Val(int,strtol(ptr, &endptr, 0));
+get1Val(int32,strtol(ptr, &endptr, 0));
+get1Val(uint32,strtoul(ptr, &endptr, 0));
 get1Val(int64,strtoll(ptr, &endptr, 0));
 get1Val(uint64,strtoull(ptr, &endptr, 0));
 
@@ -324,12 +326,12 @@ bool IOPar::getSc( const char* s, float& f, float sc, bool udf ) const
     const char* ptr = find( s );
     if ( ptr && *ptr )
     {
-	f = atof( ptr );
-	if ( !mIsUndefined(f) ) f *= sc;
+	Conv::udfset( f, ptr );
+	if ( !Values::isUdf(f) ) f *= sc;
 	return true;
     }
     else if ( udf )
-	f = mUndefValue;
+	Values::setUdf(f);
 
     return false;
 }
@@ -341,11 +343,11 @@ bool IOPar::getSc( const char* s, double& d, double sc, bool udf ) const
     if ( ptr && *ptr )
     {
 	d = atof( ptr );
-	if ( !mIsUndefined(d) ) d *= sc;
+	if ( !Values::isUdf(d) ) d *= sc;
 	return true;
     }
     else if ( udf )
-	d = mUndefValue;
+	Values::setUdf(d);
 
     return false;
 }
@@ -398,20 +400,20 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 	{
 	    havedata = true;
 	    d1 = atof( ptr );
-	    if ( !mIsUndefined(d1) ) d1 *= sc;
+	    if ( !Values::isUdf(d1) ) d1 *= sc;
 	}
 	else if ( udf )
-	    d1 = mUndefValue;
+	    Values::setUdf(d1);
 
 	ptr = fms[1];
 	if ( *ptr )
 	{
 	    havedata = true;
 	    d2 = atof( ptr );
-	    if ( !mIsUndefined(d2) ) d2 *= sc;
+	    if ( !Values::isUdf(d2) ) d2 *= sc;
 	}
 	else if ( udf )
-	    d2 = mUndefValue;
+	    Values::setUdf(d2);
     }
     return havedata;
 }
@@ -429,31 +431,31 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 	if ( *ptr )
 	{
 	    d1 = atof( ptr );
-	    if ( !mIsUndefined(d1) ) d1 *= sc;
+	    if ( !Values::isUdf(d1) ) d1 *= sc;
 	    havedata = true;
 	}
 	else if ( udf )
-	    d1 = mUndefValue;
+	    Values::setUdf(d1);
 
 	ptr = fms[1];
 	if ( *ptr )
 	{
 	    d2 = atof( ptr );
-	    if ( !mIsUndefined(d2) ) d2 *= sc;
+	    if ( !Values::isUdf(d2) ) d2 *= sc;
 	    havedata = true;
 	}
 	else if ( udf )
-	    d2 = mUndefValue;
+	    Values::setUdf(d2);
 
 	ptr = fms[2];
 	if ( *ptr )
 	{
 	    d3 = atof( ptr );
-	    if ( !mIsUndefined(d3) ) d3 *= sc;
+	    if ( !Values::isUdf(d3) ) d3 *= sc;
 	    havedata = true;
 	}
 	else if ( udf )
-	    d3 = mUndefValue;
+	    Values::setUdf(d3);
     }
     return havedata;
 }
@@ -472,40 +474,40 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 	{
 	    havedata = true;
 	    d1 = atof( ptr );
-	    if ( !mIsUndefined(d1) ) d1 *= sc;
+	    if ( !Values::isUdf(d1) ) d1 *= sc;
 	}
 	else if ( udf )
-	    d1 = mUndefValue;
+	    Values::setUdf(d1);
 
 	ptr = fms[1];
 	if ( *ptr )
 	{
 	    havedata = true;
 	    d2 = atof( ptr );
-	    if ( !mIsUndefined(d2) ) d2 *= sc;
+	    if ( !Values::isUdf(d2) ) d2 *= sc;
 	}
 	else if ( udf )
-	    d2 = mUndefValue;
+	    Values::setUdf(d2);
 
 	ptr = fms[2];
 	if ( *ptr )
 	{
 	    havedata = true;
 	    d3 = atof( ptr );
-	    if ( !mIsUndefined(d3) ) d3 *= sc;
+	    if ( !Values::isUdf(d3) ) d3 *= sc;
 	}
 	else if ( udf )
-	    d3 = mUndefValue;
+	    Values::setUdf(d3);
 
 	ptr = fms[3];
 	if ( *ptr )
 	{
 	    havedata = true;
 	    d4 = atof( ptr );
-	    if ( !mIsUndefined(d4) ) d4 *= sc;
+	    if ( !Values::isUdf(d4) ) d4 *= sc;
 	}
 	else if ( udf )
-	    d4 = mUndefValue;
+	    Values::setUdf(d4);
     }
     return havedata;
 }
@@ -588,128 +590,100 @@ void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 }
 
 
-#define mSetMulti(type, tostringfunc ) \
+#define mSetMulti(type ) \
 void IOPar::set( const char* keyw, const TypeSet<type>& vals ) \
 {\
     if ( !vals.size() ) return;\
 \
     type val = vals[0];\
-    FileMultiString fms( tostringfunc );\
+    FileMultiString fms( Conv::to<const char*>(val) );\
 \
     const int nrvals = vals.size();\
 \
     for ( int idx=1; idx<nrvals; idx++ )\
     {\
 	val = vals[idx];\
-	fms += tostringfunc;\
+	fms += Conv::to<const char*>(val);\
     }\
 \
     set( keyw, fms );\
 }
 
 
-mSetMulti( int, getStringFromInt(0,val) );
-mSetMulti( int64, getStringFromInt64(0,val) );
-mSetMulti( uint64, getStringFromUInt64(0,val) );
-mSetMulti( float, getStringFromFloat(0,val) );
-mSetMulti( double, getStringFromDouble(0,val) );
+mSetMulti( int );
+mSetMulti( int64 );
+mSetMulti( uint64 );
+mSetMulti( float );
+mSetMulti( double );
 
 
-#define mSet1Val( type, tostringfunc ) \
+#define mSet1Val( type ) \
 void IOPar::set( const char* keyw, type val ) \
 {\
-    set( keyw, tostringfunc(0,val) );\
+    set( keyw, Conv::to<const char*>(val) );\
 }
 
-mSet1Val( int, getStringFromInt );
-mSet1Val( int64, getStringFromInt64 );
-mSet1Val( uint64, getStringFromUInt64 );
-mSet1Val( float, mIsUndefined(val) ? sUndefValue : getStringFromFloat );
-mSet1Val( double, mIsUndefined(val) ? sUndefValue : getStringFromDouble);
+mSet1Val( int32 );
+mSet1Val( uint32 );
+mSet1Val( int64 );
+mSet1Val( uint64 );
+mSet1Val( float );
+mSet1Val( double );
 
-
-void IOPar::set( const char* s, int i1, int i2 )
-{
-    FileMultiString fms = getStringFromInt(0,i1);
-    fms.add( getStringFromInt(0,i2) );
-    set( s, fms );
+#define mSet2Val( type ) \
+void IOPar::set( const char* s, type v1, type v2 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    set( s, fms ); \
 }
 
+mSet2Val( int32 );
+mSet2Val( uint32 );
+mSet2Val( int64 );
+mSet2Val( uint64 );
+mSet2Val( float );
+mSet2Val( double );
 
-void IOPar::set( const char* s, float f1, float f2 )
-{
-    FileMultiString fms =
-	     mIsUndefined(f1) ? sUndefValue : getStringFromFloat(0,f1);
-    fms.add( mIsUndefined(f2) ? sUndefValue : getStringFromFloat(0,f2) );
-    set( s, fms );
+#define mSet3Val( type ) \
+void IOPar::set( const char* s, type v1, type v2, type v3 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    fms.add( Conv::to<const char*>(v3) ); \
+    set( s, fms ); \
 }
 
+mSet3Val( int32 );
+mSet3Val( uint32 );
+mSet3Val( int64 );
+mSet3Val( uint64 );
+mSet3Val( float );
+mSet3Val( double );
 
-void IOPar::set( const char* s, float f1, float f2, float f3 )
-{
-    FileMultiString fms =
-	     mIsUndefined(f1) ? sUndefValue : getStringFromFloat(0,f1);
-    fms.add( mIsUndefined(f2) ? sUndefValue : getStringFromFloat(0,f2) );
-    fms.add( mIsUndefined(f3) ? sUndefValue : getStringFromFloat(0,f3) );
-    set( s, fms );
+#define mSet4Val( type ) \
+void IOPar::set( const char* s, type v1, type v2, type v3, type v4 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    fms.add( Conv::to<const char*>(v3) ); \
+    fms.add( Conv::to<const char*>(v4) ); \
+    set( s, fms ); \
 }
 
-
-void IOPar::set( const char* s, float f1, float f2, float f3, float f4 )
-{
-    FileMultiString fms =
-	     mIsUndefined(f1) ? sUndefValue : getStringFromFloat(0,f1);
-    fms.add( mIsUndefined(f2) ? sUndefValue : getStringFromFloat(0,f2) );
-    fms.add( mIsUndefined(f3) ? sUndefValue : getStringFromFloat(0,f3) );
-    fms.add( mIsUndefined(f4) ? sUndefValue : getStringFromFloat(0,f4) );
-    set( s, fms );
-}
-
-
-void IOPar::set( const char* s, double d1, double d2 )
-{
-    FileMultiString fms =
-	     mIsUndefined(d1) ? sUndefValue : getStringFromDouble(0,d1);
-    fms.add( mIsUndefined(d2) ? sUndefValue : getStringFromDouble(0,d2) );
-    set( s, fms );
-}
-
-
-void IOPar::set( const char* s, double d1, double d2, double d3 )
-{
-    FileMultiString fms =
-	     mIsUndefined(d1) ? sUndefValue : getStringFromDouble(0,d1);
-    fms.add( mIsUndefined(d2) ? sUndefValue : getStringFromDouble(0,d2) );
-    fms.add( mIsUndefined(d3) ? sUndefValue : getStringFromDouble(0,d3) );
-    set( s, fms );
-}
-
-
-void IOPar::set( const char* s, double d1, double d2, double d3, double d4 )
-{
-    FileMultiString fms =
-	     mIsUndefined(d1) ? sUndefValue : getStringFromDouble(0,d1);
-    fms.add( mIsUndefined(d2) ? sUndefValue : getStringFromDouble(0,d2) );
-    fms.add( mIsUndefined(d3) ? sUndefValue : getStringFromDouble(0,d3) );
-    fms.add( mIsUndefined(d4) ? sUndefValue : getStringFromDouble(0,d4) );
-    set( s, fms );
-}
-
-
-void IOPar::set( const char* s, int i1, int i2, int i3 )
-{
-    FileMultiString fms = getStringFromInt(0,i1);
-    fms.add( getStringFromInt(0,i2) );
-    fms.add( getStringFromInt(0,i3) );
-    set( s, fms );
-}
+mSet4Val( int32 );
+mSet4Val( uint32 );
+mSet4Val( int64 );
+mSet4Val( uint64 );
+mSet4Val( float );
+mSet4Val( double );
 
 
 void IOPar::set( const char* s, int i1, int i2, float f )
 {
-    FileMultiString fms = getStringFromInt(0,i1);
-    fms.add( getStringFromInt(0,i2) );
-    fms.add( getStringFromDouble(0,f) );
+    FileMultiString fms = Conv::to<const char*>( i1 );
+    fms.add( Conv::to<const char*>(i2) );
+    fms.add( Conv::to<const char*>(f) );
     set( s, fms );
 }
 

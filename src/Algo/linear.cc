@@ -4,10 +4,11 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.4 2005-01-28 13:31:16 bert Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.5 2005-02-23 14:45:23 cvsarend Exp $";
 
 
 #include "linear.h"
+#include "undefval.h"
 #include <math.h>
 
 LinePars* SecondOrderPoly::createDerivative() const
@@ -28,7 +29,7 @@ static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
     }
 
     ls.lp.a0 = (float)sumx; ls.lp.ax = 0;
-    ls.sd.a0 = 0; ls.sd.ax = mUndefValue;
+    ls.sd.a0 = 0; Values::setUdf(ls.sd.ax);
     ls.corrcoeff = 1;
     if ( nrpts < 2 )
 	return;
@@ -49,8 +50,8 @@ static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
     {
 	// No x range
 	ls.lp.a0 = 0;
-	ls.lp.ax = mUndefValue;
-	ls.sd.a0 = mUndefValue; ls.sd.ax = 0;
+	Values::setUdf(ls.lp.ax);
+	Values::setUdf(ls.sd.a0); ls.sd.ax = 0;
 	ls.corrcoeff = 1;
 	return;
     }

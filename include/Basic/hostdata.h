@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.18 2004-11-10 14:19:13 bert Exp $
+ RCS:           $Id: hostdata.h,v 1.19 2005-02-23 14:47:04 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,14 +35,15 @@ protected:
 			    : name_(nm)
 			    , iswin_(iswin)
 			    , localhd_(0)
-			    , sharedata_(0)	{}
+			    , sharedata_(0)	{ init(nm); }
 public:
     			HostData( const char* nm, const HostData& localhost,
 				  bool iswin=false )
 			    : name_(nm)
 			    , iswin_(iswin)
 			    , localhd_(&localhost)
-			    , sharedata_(0)	{}
+			    , sharedata_(0)	{ init(nm); }
+
 
     			HostData( const HostData& oth )
 			    : name_( oth.name_ )
@@ -52,7 +53,7 @@ public:
 			    , data_pr_( oth.data_pr_ )
 			    , pass_( oth.pass_ )
 			    , localhd_( oth.localhd_ )
-			    , sharedata_( oth.sharedata_ ) {}
+			    , sharedata_( oth.sharedata_ ) { init(oth.name_); }
 
     virtual		~HostData()	{ deepErase(aliases_); }
 
@@ -105,6 +106,12 @@ protected:
     const ShareData*	sharedata_;
 
     friend class	HostDataList;
+
+    void		init( const char* nm )
+			{
+			    char* dot = strstr( name_.buf(), "." );
+			    if ( dot ) { *dot ='\0'; addAlias(nm); }
+			}
 };
 
 

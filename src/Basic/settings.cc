@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.25 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.26 2005-02-23 14:45:23 cvsarend Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: settings.cc,v 1.25 2004-04-01 13:39:50 bert Exp
 #include "strmprov.h"
 #include <filegen.h>
 
-static const char* sKey = "Default settings";
+static const char* sKeyDeflt = "Default settings";
 
 static ObjectSet<Settings>& getSetts()
 {
@@ -101,7 +101,7 @@ bool Settings::doReRead( bool cpodsetts )
     }
 
     ascistream stream( *sd.istrm, true );
-    if ( !stream.isOfFileType( sKey ) )
+    if ( !stream.isOfFileType( sKeyDeflt ) )
     {
 	BufferString emsg = "User settings file '";
 	emsg += usedfname;
@@ -146,7 +146,7 @@ bool Settings::write( bool do_merge ) const
     }
 
     ascostream stream( *sd.ostrm );
-    stream.putHeader( sKey );
+    stream.putHeader( sKeyDeflt );
     putTo( stream, false );
     sd.close();
 

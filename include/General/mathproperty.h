@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.4 2005-01-26 16:16:11 bert Exp $
+ RCS:		$Id: mathproperty.h,v 1.5 2005-02-23 14:45:12 cvsarend Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "property.h"
+#include "undefval.h"
 class MathExpression;
 
 
@@ -24,7 +25,7 @@ class ValueProperty : public Property
 public:
 
     			ValueProperty( const PropertyRef* pr,
-				       float v=mUndefValue )
+				       float v=mUdf(float) )
 			: Property(pr), val_(v)		{}
 
     virtual float	value() const		{ return val_; }

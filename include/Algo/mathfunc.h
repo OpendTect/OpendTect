@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.13 2005-02-02 10:23:23 duntao Exp $
+ RCS:		$Id: mathfunc.h,v 1.14 2005-02-23 14:45:12 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,13 +230,13 @@ public:
 
     float		getValue( float pos ) const
 			{
-			    if ( mIsUndefined(pos) ) return mUndefValue;
+			    if ( Values::isUdf(pos) ) return mUdf(float);
 			    return pos*pos * a + pos * b + c;
 			}
 
     float		getExtremePos() const
 			{
-			    if ( mIsZero(a,mDefEps) ) return mUndefValue;
+			    if ( mIsZero(a,mDefEps) ) return mUdf(float);
 			    return -b / (2*a);
 			}
 
@@ -273,7 +273,7 @@ public:
 
     float		getValue( float pos ) const
 			{
-			    if ( mIsUndefined(pos) ) return mUndefValue;
+			    if ( Values::isUdf(pos) ) return mUdf(float);
 			    const float possq = pos * pos;
 			    return possq * pos * a + possq * b + pos * c + d;
 			}
@@ -283,7 +283,7 @@ public:
 
     void		getExtremePos( float& pos0, float& pos1 ) const
 			{
-			    pos0 = pos1 = mUndefValue;
+			    pos0 = pos1 = mUdf(float);
 			    if ( mIsZero(a,mDefEps) && mIsZero(b,mDefEps) )
 				return;
 			    else if ( mIsZero(a,mDefEps) )

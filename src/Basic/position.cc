@@ -4,22 +4,23 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.45 2005-02-23 10:09:25 cvskris Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.46 2005-02-23 14:45:23 cvsarend Exp $";
 
 #include "position.h"
 #include "bufstring.h"
+#include "undefval.h"
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
 
 
 float BinIDValue::compareepsilon = 1e-4;
-float BinIDValues::udf = mUndefValue;
+float BinIDValues::udf = mUdf(float);
 
 
 const Coord3& Coord3::udf()
 {
-   static Coord3 _udf(mUndefValue, mUndefValue, mUndefValue );
+   static Coord3 _udf( mUdf(float), mUdf(float), mUdf(float) );
    return _udf;
 }
 
@@ -222,7 +223,7 @@ void BinIDValues::setSize( int newsz, bool kpvals )
 	sz = newsz < 1 ? 0 : newsz;
 	delete [] vals; vals = sz ? new float [sz] : 0;
 	for ( int idx=0; idx<sz; idx++ )
-	    vals[idx] = mUndefValue;
+	    Values::setUdf( vals[idx] );
     }
     else
     {
@@ -234,7 +235,7 @@ void BinIDValues::setSize( int newsz, bool kpvals )
 	    vals[idx] = oldvals[idx];
 	delete [] oldvals;
 	for ( int idx=transfsz; idx<sz; idx++ )
-	    vals[idx] = mUndefValue;
+	    Values::setUdf( vals[idx] );
     }
 }
 

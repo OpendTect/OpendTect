@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.9 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: userinputobj.h,v 1.10 2005-02-23 14:47:04 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictypes.h"
 #include "datainpspec.h"
+#include "convert.h"
+#include "initval.h"
 
 class CallBack;
 class PtrUserIDObjectSet;
@@ -88,26 +89,26 @@ public:
 			    : clearvalset_(false)	{}
 
     virtual const char*	text() const
-			{ return conv2<const char*>( getvalue_() ); }
+			{ return Conv::to<const char*>( getvalue_() ); }
     virtual int		getIntValue() const
-			    { return conv2<int>( getvalue_() ); }
+			    { return Conv::to<int>( getvalue_() ); }
     virtual double	getValue() const
-			    { return conv2<double>( getvalue_() );}
+			    { return Conv::to<double>( getvalue_() );}
     virtual float	getfValue() const
-			    { return conv2<float>( getvalue_() ); }
+			    { return Conv::to<float>( getvalue_() ); }
     virtual bool	getBoolValue() const
-			    { return conv2<bool>( getvalue_() ); }
+			    { return Conv::to<bool>( getvalue_() ); }
 
     virtual void	setValue( int i )
-			    { setvalue_( conv2<T>(i) ); }
+			    { setvalue_( Conv::to<T>(i) ); }
     virtual void	setText( const char* s )
-			    { setvalue_( conv2<T>(s) ); }
+			    { setvalue_( Conv::to<T>(s) ); }
     virtual void	setValue( double d )
-			    { setvalue_( conv2<T>(d) ); }
+			    { setvalue_( Conv::to<T>(d) ); }
     virtual void	setValue( float f )
-			    { setvalue_( conv2<T>(f) ); }
+			    { setvalue_( Conv::to<T>(f) ); }
     virtual void	setValue( bool b )
-			    { setvalue_( conv2<T>(b) ); }
+			    { setvalue_( Conv::to<T>(b) ); }
 
     void		initClearValue()
 			    { setClearValue( getvalue_() ); }
@@ -116,7 +117,7 @@ public:
 				if ( clearvalset_ )
 				    setvalue_(clearval_);
 				else if ( !clear_() )
-				    setvalue_( UndefValues<T>::initVal() );
+				    setvalue_( Values::initVal<T>() );
 			    }
     void		setClearValue( const T& v )
 			    { clearvalset_ = true; clearval_ = v; }

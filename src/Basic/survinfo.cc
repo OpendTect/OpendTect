@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.61 2004-12-08 13:58:17 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.62 2005-02-23 14:45:23 cvsarend Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: survinfo.cc,v 1.61 2004-12-08 13:58:17 nanne Ex
 #include "iopar.h"
 #include "cubesampling.h"
 #include "keystrs.h"
+#include "undefval.h"
 
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";
@@ -93,7 +94,7 @@ BinID BinID2Coord::transform( const Coord& coord,
     static BinID binid;
     static double x, y;
 
-    if ( mIsUndefined(coord.x) || mIsUndefined(coord.y) )
+    if ( Values::isUdf(coord.x) || Values::isUdf(coord.y) )
 	return binid;
 
     double det = xtr.det( ytr );
@@ -223,7 +224,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	    si->cs_.zrg.start = atof(fms[0]);
 	    si->cs_.zrg.stop = atof(fms[1]);
 	    si->cs_.zrg.step = atof(fms[2]);
-	    if ( mIsUndefined(si->cs_.zrg.step)
+	    if ( Values::isUdf(si->cs_.zrg.step)
 	      || mIsZero(si->cs_.zrg.step,mDefEps) )
 		si->cs_.zrg.step = 0.004;
 	    if ( fms.size() > 3 )
@@ -338,7 +339,7 @@ bool SurveyInfo::isReasonable( const BinID& b ) const
 
 bool SurveyInfo::isReasonable( const Coord& crd ) const
 {
-    if ( mIsUndefined(crd.x) || mIsUndefined(crd.y) )
+    if ( Values::isUdf(crd.x) || Values::isUdf(crd.y) )
 	return false;
 
     return isReasonable( transform(crd) ); 

@@ -4,12 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.9 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.10 2005-02-23 14:45:23 cvsarend Exp $";
 
 
 #include "dataclipper.h"
 #include "stats.h"
 #include "sorting.h"
+#include "undefval.h"
 
 
 DataClipper::DataClipper( float cr0, float cr1 )
@@ -53,7 +54,7 @@ void DataClipper::putData( float v )
 	    return;
     }
 
-    if ( !mIsUndefined( v ) ) samples += v;
+    if ( !Values::isUdf( v ) ) samples += v;
 }
 
 
@@ -71,7 +72,7 @@ void DataClipper::putData( const float* vals, int nrvals )
 		    continue;
 
 		float val =  vals[idx];
-		if ( !mIsUndefined( val ) ) samples += val;
+		if ( !Values::isUdf( val ) ) samples += val;
 	    }
 	}
 	else
@@ -81,7 +82,7 @@ void DataClipper::putData( const float* vals, int nrvals )
 		double rand = Stat_getRandom();
 		rand *= (nrvals-1);
 		float val =  vals[mNINT(rand)];
-		if ( !mIsUndefined( val ) )
+		if ( !Values::isUdf( val ) )
 		    samples += val;
 	    }
 	}
@@ -91,7 +92,7 @@ void DataClipper::putData( const float* vals, int nrvals )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    float val = vals[idx];
-	    if ( !mIsUndefined( val ) ) samples += val;
+	    if ( !Values::isUdf( val ) ) samples += val;
 	}
     }
 }

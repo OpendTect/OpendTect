@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.37 2005-02-23 10:07:56 cvskris Exp $
+ RCS:		$Id: position.h,v 1.38 2005-02-23 14:45:12 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,9 +126,9 @@ inline Coord3 operator*( double f, const Coord3& b )
 class CoordValue
 {
 public:
-		CoordValue( double x=0, double y=0, float v=mUndefValue )
+		CoordValue( double x=0, double y=0, float v=mUdf(float) )
 		: coord(x,y), value(v)		{}
-		CoordValue( const Coord& c, float v=mUndefValue )
+		CoordValue( const Coord& c, float v=mUdf(float) )
 		: coord(c), value(v)		{}
     bool	operator==( const CoordValue& cv ) const
 		{ return cv.coord == coord; }
@@ -146,9 +146,9 @@ class Coord3Value
 {
 public:
     		Coord3Value( double x=0, double y=0, double z=0, 
-			     float v=mUndefValue )
+			     float v=mUdf(float) )
 		: coord(x,y,z), value(v) 	{}
-		Coord3Value( const Coord3& c, float v=mUndefValue )
+		Coord3Value( const Coord3& c, float v=mUdf(float) )
 		: coord(c), value(v)		{}
     bool	operator==( const Coord3Value& cv ) const
 		{ return cv.coord == coord; }
@@ -195,9 +195,9 @@ class BinIDValues;
 class BinIDValue
 {
 public:
-		BinIDValue( int inl=0, int crl=0, float v=mUndefValue )
+		BinIDValue( int inl=0, int crl=0, float v=mUdf(float) )
 		: binid(inl,crl), value(v)	{}
-		BinIDValue( const BinID& b, float v=mUndefValue )
+		BinIDValue( const BinID& b, float v=mUdf(float) )
 		: binid(b), value(v)		{}
 		BinIDValue(const BinIDValues&,int);
 
@@ -270,7 +270,7 @@ inline bool Coord3::operator!=( const Coord3& b ) const
 
 inline bool Coord3::isDefined() const
 {
-    return !mIsUndefined(x) && !mIsUndefined(y) && !mIsUndefined(z);
+    return !Values::isUdf(x) && !Values::isUdf(y) && !Values::isUdf(z);
 }
 
 

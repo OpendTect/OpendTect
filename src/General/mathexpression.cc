@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.31 2004-11-09 10:21:11 nanne Exp $
+ RCS:           $Id: mathexpression.cc,v 1.32 2005-02-23 14:45:23 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -580,7 +580,7 @@ MathExpression* MathExpression::parse( const char* input )
 	return new MathExpressionConstant( M_PI );
 
     if ( !strcasecmp( input, "undef" ) )
-	return new MathExpressionConstant( mUndefValue );
+	return new MathExpressionConstant( mUdf(float) );
 
     bool isvariable = true;
 

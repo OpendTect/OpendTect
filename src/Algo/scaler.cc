@@ -5,12 +5,13 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.2 2004-06-16 14:54:18 bert Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.3 2005-02-23 14:45:23 cvsarend Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
 #include "string2.h"
 #include "genc.h"
+#include "undefval.h"
 #include <stdio.h>
 #include <math.h>
 #include <limits.h>
@@ -64,13 +65,13 @@ void LinScaler::set( double x0, double y0, double x1, double y1 )
 
 double LinScaler::scale( double v ) const
 {
-    return mIsUndefined(v) ? v : constant + factor * v;
+    return Values::isUdf(v) ? v : constant + factor * v;
 }
 
 
 double LinScaler::unScale( double v ) const
 {
-    if ( mIsUndefined(v) ) return v;
+    if ( Values::isUdf(v) ) return v;
     v -= constant; if ( factor ) v /= factor;
     return v;
 }
@@ -99,7 +100,7 @@ void LinScaler::fromString( const char* str )
 
 double LogScaler::scale( double v ) const
 {
-    if ( v <= 0 || mIsUndefined(v) ) return mUndefValue;
+    if ( v <= 0 || Values::isUdf(v) ) return Values::udfVal(v);
     return ten ? log10(v) : log(v);
 }
 
@@ -124,10 +125,10 @@ void LogScaler::fromString( const char* str )
 
 double ExpScaler::scale( double v ) const
 {
-    if ( mIsUndefined(v) ) return mUndefValue;
+    if ( Values::isUdf(v) ) return Values::udfVal(v);
     double maxv = LN_MAXDOUBLE;
     if ( ten ) maxv /= 2.3025851;
-    if ( v > maxv ) return mUndefValue;
+    if ( v > maxv ) return Values::udfVal(v);
     return ten ? PowerOf(10,v) : exp(v);
 }
 
@@ -160,7 +161,7 @@ void AsymptScaler::set( double c, double w, double l )
 
 double AsymptScaler::scale( double v ) const
 {
-    if ( mIsUndefined(v) ) return v;
+    if ( Values::isUdf(v) ) return v;
     // TODO
 
     v -= center_;
@@ -173,7 +174,7 @@ double AsymptScaler::scale( double v ) const
 
 double AsymptScaler::unScale( double v ) const
 {
-    if ( mIsUndefined(v) ) return v;
+    if ( Values::isUdf(v) ) return v;
     // TODO
     // v = unscale_implementation;
     v /= factor;

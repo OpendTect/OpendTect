@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.13 2004-12-17 13:31:02 nanne Exp $
+ RCS:		$Id: string2.h,v 1.14 2005-02-23 14:45:12 cvsarend Exp $
 ________________________________________________________________________
 -*/
 
@@ -54,7 +54,8 @@ void		cleanupString(char*,int ,int,int);
 
 /*!> returns the string for an int in a static buffer. You'll have to pass a
      C-style ('printf') format. */
-const char*	getStringFromInt(const char* fmt,int);
+const char*	getStringFromInt(const char* fmt,int32);
+const char*	getStringFromUInt(const char* fmt,uint32);
 /*!> is like getStringFromInt. Treats "%lg" special: it will do removal of
      trailing zeros and use %f in more cases than std. */
 const char*	getStringFromInt64(const char* fmt,int64);
@@ -76,8 +77,13 @@ const char*	getRankPostFix(int);
 #ifdef __cpp__
 }
 #include <stdlib.h>
+#include "undefval.h"
+
 inline const char* toString( double d )	{ return getStringFromDouble(0, d ); }
-inline const char* toString( int i )	{ return getStringFromInt(0, i ); }
+inline const char* toString( int32 i )	{ return getStringFromInt(0, i ); }
+inline const char* toString( uint32 i )	{ return getStringFromUInt(0, i ); }
+inline const char* toString( int64 i )	{ return getStringFromInt64(0, i ); }
+inline const char* toString( uint64 i )	{ return getStringFromUInt64(0, i ); }
 inline const char* toString( float f )	{ return getStringFromFloat(0, f ); }
 inline const char* toString( bool b )	{ return getYesNoString( b ); }
 
@@ -100,12 +106,14 @@ inline bool getFromString( type& i, const char* s, type undef=udfv ) \
     return false; \
 }
 
+
+
 // inline bool getFromString( double& d, const char* s, double udefval );
-mImplGetFromStrFunc(double, strtod(s,&e), mUndefValue )
+mImplGetFromStrFunc(double, strtod(s,&e), mUdf(double) )
 // inline bool getFromString( float& d, const char* s, float udefval );
-mImplGetFromStrFunc(float, strtod(s,&e), mUndefValue )
+mImplGetFromStrFunc(float, strtod(s,&e), mUdf(float) )
 // inline bool getFromString( int& d, const char* s, int udefval );
-mImplGetFromStrFunc(int, strtol(s,&e,10), mUndefIntVal)
+mImplGetFromStrFunc(int, strtol(s,&e,10), mUdf(int) )
 #undef mImplGetFromStrFunc
 
 inline bool getFromString( bool& b, const char* s )

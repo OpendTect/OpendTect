@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.20 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uifont.cc,v 1.21 2005-02-23 14:47:04 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ ________________________________________________________________________
 
 bool uiFontList::inited = false;
 ObjectSet<uiFont> uiFontList::fonts;
-static const char* sKey = "Font.def";
+static const char* fDefKey = "Font.def";
 
 
 uiFont::uiFont( const char* key, const char* fam, int ps, FontData::Weight w,
@@ -251,7 +251,7 @@ void uiFontList::initialise()
 void uiFontList::use( const Settings& settings )
 {
     initialise();
-    IOPar* fontpar = settings.subselect( sKey );
+    IOPar* fontpar = settings.subselect( fDefKey );
     if ( fontpar && fontpar->size() == 0 ) { delete fontpar; fontpar = 0; }
 
     bool haveguessed = false;
@@ -301,7 +301,7 @@ void uiFontList::update( Settings& settings )
     {
 	uiFont& fnt = *fonts[idx];
 	fnt.fontData().putTo( fdbuf );
-	settings.set( IOPar::compKey(sKey,fnt.key()), fdbuf );
+	settings.set( IOPar::compKey(fDefKey,fnt.key()), fdbuf );
     }
     settings.write();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.32 2004-12-17 13:31:02 nanne Exp $
+ RCS:		$Id: iopar.h,v 1.33 2005-02-23 14:45:12 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,8 @@ public:
     const char*		find(const char*) const;
 			//!< returns null if not found
 
-    bool		get(const char*,int&) const;
+    bool		get(const char*,int32&) const;
+    bool		get(const char*,uint32&) const;
     bool		get(const char*,int64&) const;
     bool		get(const char*,uint64&) const;
     bool		get(const char*,int&,int&) const;
@@ -115,7 +116,8 @@ public:
     bool		get(const char*,int&,int&,int&) const;
     bool		get(const char*,int&,int&,float&) const;
 
-    bool		get(const char*, TypeSet<int>& ) const;
+    bool		get(const char*, TypeSet<int32>& ) const;
+    bool		get(const char*, TypeSet<uint32>& ) const;
     bool		get(const char*, TypeSet<int64>& ) const;
     bool		get(const char*, TypeSet<uint64>& ) const;
     bool		get(const char*, TypeSet<double>& ) const;
@@ -150,22 +152,25 @@ public:
     bool		get(const char*,BufferString&,BufferString&) const;
     bool		get(const char*,BufferStringSet&) const;
 
+
+#define mSet(type) \
+    void		set(const char*,type); \
+    void		set(const char*,type,type); \
+    void		set(const char*,type,type,type); \
+    void		set(const char*,type,type,type,type);
+
+			mSet(int32);
+			mSet(uint32);
+			mSet(int64);
+			mSet(uint64);
+			mSet(float);
+			mSet(double);
+#undef mSet
+    
     void		set(const char*,const char*);
-    void		set(const char*,int);
-    void		set(const char*,int64);
-    void		set(const char*,uint64);
-    void		set(const char*,float);
-    void		set(const char*,double);
     void		set(const char*,const char*,const char*);
-    void		set(const char*,int,int);
-    void		set(const char*,float,float);
-    void		set(const char*,float,float,float);
-    void		set(const char*,float,float,float,float);
-    void		set(const char*,double,double);
-    void		set(const char*,double,double,double);
-    void		set(const char*,double,double,double,double);
-    void		set(const char*,int,int,int);
     void		set(const char*,int,int,float);
+
     void		setYN(const char*,bool);
     void		setPtr(const char*,void*);
 
@@ -178,7 +183,8 @@ public:
 	    				const BufferString&);
     void		set(const char*,const BufferStringSet&);
 
-    void		set(const char*, const TypeSet<int>& );
+    void		set(const char*, const TypeSet<int32>& );
+    void		set(const char*, const TypeSet<uint32>& );
     void		set(const char*, const TypeSet<int64>& );
     void		set(const char*, const TypeSet<uint64>& );
     void		set(const char*, const TypeSet<double>& );
