@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.31 2005-01-09 15:00:02 bert Exp $
+ RCS:		$Id: ranges.h,v 1.32 2005-02-18 11:34:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,10 @@ public:
     template <class TT> inline
     void			include( const TT& val );
 
+    template <class TT> inline
+    bool			includes( const TT& val ) const;
+    inline bool			intersects( const IntervalND<T>& ) const;
+
 protected:
 
     int			ndim;
@@ -177,6 +181,77 @@ void IntervalND<T>::include( const TT& val )
 	ranges[dim].include(val[dim]);
 
     isset = true;
+}
+
+
+template <class T> template <class TT> inline
+bool IntervalND<T>::includes( const TT& val ) const
+{
+#ifdef __debug__
+    if ( !isset )
+    {
+	pErrMsg("Doing includes on undefined IntervalND");
+	return false;
+    }
+#endif
+
+    for ( int dim=0; dim<ndim; dim++ )
+    {
+	if ( !ranges[dim].includes(val[dim]) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+template <class T> inline
+bool IntervalND<T>::intersects( const IntervalND<T>& b ) const
+{
+    if ( !isset || !b.isset || ndim!=b.ndim)
+    {
+	pErrMsg("Invalid intersection");
+	return false;
+    }
+
+    T vector[ndim];
+    bool isstart[ndim];
+
+    for ( int dim=0; dim<ndim; dim++ )
+    {
+	vector[dim] = ranges[dim].start;
+	isstart[dim] = true;
+    }
+
+    do
+    {
+	if ( b.includes((T*)vector) )
+	    return true;
+
+	int dim = 0;
+	while ( dim<ndim )
+	{
+	    if ( isstart[dim] )
+	    {
+		isstart[dim] = false;
+		vector[dim] = ranges[dim].stop;
+		break;
+	    }
+	    else
+	    {
+		isstart[dim] = true;
+		vector[dim] = ranges[dim].start;
+		dim++;
+	    }
+	}
+
+	if ( dim==ndim )
+	    break;
+
+    } while ( true );
+
+
+    return false;
 }
 
 
