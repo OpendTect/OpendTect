@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: pickset.h,v 1.5 2001-09-06 11:32:33 bert Exp $
+ RCS:		$Id: pickset.h,v 1.6 2001-10-15 16:02:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,12 +44,12 @@ public:
 
 /*!\brief Group of picks with a common 'value' at the location */
 
-class PickGroup : public UserIDObject
-		, public TypeSet<PickLocation>
+class PickSet : public UserIDObject
+	      , public TypeSet<PickLocation>
 {
 public:
 
-			PickGroup( const char* nm )
+			PickSet( const char* nm )
 			: UserIDObject(nm)	{}
 
 };
@@ -57,26 +57,26 @@ public:
 
 /*!\brief Set of Pick Groups */
 
-class PickSet : public UserIDObject
+class PickSetGroup : public UserIDObject
 {
 public:
 
-			PickSet( const char* nm=0 )
+			PickSetGroup( const char* nm=0 )
 			: UserIDObject(nm)		{}
-			~PickSet()		{ deepErase(groups); }
+			~PickSetGroup()		{ deepErase(sets); }
 
-    int			nrGroups() const	{ return groups.size(); }
-    PickGroup*		get( int nr )		{ return groups[nr]; }
-    const PickGroup*	get( int nr ) const	{ return groups[nr]; }
-    void		add(PickGroup*&);
-			//!< PickGroup becomes mine. Will merge if necessary.
-			//!< So PickGroup may be deleted (will be set to null)
+    int			nrSets() const		{ return sets.size(); }
+    PickSet*		get( int nr )		{ return sets[nr]; }
+    const PickSet*	get( int nr ) const	{ return sets[nr]; }
+    void		add(PickSet*&);
+			//!< PickSet becomes mine. Will merge if necessary.
+			//!< So PickSet may be deleted (will be set to null)
     void		remove( int idx )
-			{ delete groups[idx]; groups.remove(idx); }
+			{ delete sets[idx]; sets.remove(idx); }
 
 protected:
 
-    ObjectSet<PickGroup> groups;
+    ObjectSet<PickSet> sets;
 
 };
 
