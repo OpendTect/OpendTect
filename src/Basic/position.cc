@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.21 2003-01-23 07:36:26 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.22 2003-01-30 14:51:57 niclas Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -865,14 +865,15 @@ bool BinIDTable::setAnnot( int ifind, const char* s )
 
 
 Coord3::Coord3( float x_, float y_, float z_ )
-    : x(x_), y(y_), z(z_)
+    : Coord(x_, y_)
+    , z(z_)
 {}
 
 
 Coord3::Coord3() {}
 
 
-float& Coord3::operator[](int idx)
+double& Coord3::operator[](int idx)
 {
     if ( !idx )
 	return x;
@@ -882,7 +883,7 @@ float& Coord3::operator[](int idx)
 }
 
 
-float Coord3::operator[](int idx) const
+double Coord3::operator[](int idx) const
 {
     if ( !idx )
 	return x;
@@ -929,7 +930,7 @@ Coord3& Coord3::operator-=( const Coord3& p )
 }
 
 
-float Coord3::dist( const Coord3& b ) const
+double Coord3::dist( const Coord3& b ) const
 {
     double dx = x-b.x, dy = y-b.y, dz = z-b.z;
     return sqrt( dx*dx+dy*dy+dz*dz );
