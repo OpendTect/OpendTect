@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.252 2005-03-09 16:44:38 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.253 2005-03-17 15:03:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1104,22 +1104,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
 }
 
 
-int uiVisPartServer::addInterpreter( int sceneid )
-{
-    visSurvey::MPEDisplay* sid = visSurvey::MPEDisplay::create();
-    sid->turnOn( true );
-    addObject( sid, sceneid, true );
-    return sid->id();
-}
-
-
-void uiVisPartServer::setTrackMan( int id, Tracking::TrackManager& tm )
-{
-    pErrMsg("Functions shoul be removed" );
-}
-
-
-void uiVisPartServer::showTrackingManager()
+void uiVisPartServer::showMPEToolbar()
 {
     mpetools->updateAttribNames();
     if ( !mpetools->isShown() )

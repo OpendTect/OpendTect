@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.72 2005-03-09 16:43:22 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.73 2005-03-17 15:03:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -608,7 +608,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     }
     else if ( evid == uiMPEPartServer::evEndSeedPick )
     {
-	//TODO Turn on everything again
+	//Turn on everything again
 	TypeSet<int> scenes;
 	visserv->getChildIds( -1, scenes );
 	for ( int idx=0; idx<scenes.size(); idx++ )
@@ -617,7 +617,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	menuMgr().enableMenuBar( true );
 	menuMgr().dtectTB()->setSensitive( true );
 	menuMgr().manTB()->setSensitive( true );
-	visserv->turnSeedPickingOn(false);
+	visserv->turnSeedPickingOn( false );
     }
     else if ( evid == uiMPEPartServer::evGetAttribData )
     {
@@ -628,6 +628,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	AttribSliceSet* newset = attrserv->createOutput( cs, *as, cache );
 	mpeserv->setAttribData(*as,newset );
     }
+    else if ( evid == uiMPEPartServer::evShowToolbar )
+	visserv->showMPEToolbar();
     else
 	pErrMsg("Unknown event from mpeserv");
 
@@ -731,9 +733,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
     else if (  evid == uiVisPartServer::evRemoveTrackTools )
 	appl.removeDockWindow( visserv->getTrackTB() );
     else if (  evid == uiVisPartServer::evTrackNewObject )
-    {
-	return mpeserv->addTracker(visserv->getDesTrackerType()) != -1;
-    }
+	return mpeserv->startWizard( visserv->getDesTrackerType(), 0 );
     else
 	pErrMsg("Unknown event from visserv");
 

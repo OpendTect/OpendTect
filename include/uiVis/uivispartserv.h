@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.136 2005-03-09 16:44:44 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.137 2005-03-17 15:03:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,9 +196,7 @@ public:
     const char*			getDesTrackerType() const;
     void			turnSeedPickingOn(bool yn);
 
-    int				addInterpreter(int);
-    void			setTrackMan(int,Tracking::TrackManager&);
-    void			showTrackingManager();
+    void			showMPEToolbar();
     static const int		evRemoveTrackTools;
     uiToolBar*			getTrackTB() const	
     				{ return (uiToolBar*)mpetools; }
