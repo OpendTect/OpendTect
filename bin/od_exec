@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.5 2002-05-30 13:53:17 bert Exp $
+# $Id: od_exec,v 1.6 2002-10-31 13:35:55 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -16,7 +16,7 @@ endif
 
 set binsubdir=$HDIR
 if ( $binsubdir == sun5 ) then
-    if ( -d $dGB_APPL/bin/sol26 ) then
+    if ( -d $dGB_APPL/bin/sol26 || $dGB_APPL/bin/sol28 ) then
 	set v=`uname -r|sed 's/5\.//'`
 	if ( "$v" == "6" || "$v" == "7" ) then
 	    set binsubdir=sol26
