@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.23 2003-02-14 08:41:39 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.24 2003-04-14 15:11:41 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -73,7 +73,8 @@ public:
     static const char*		typestr;
     static const char*		namestr;
 
-    bool			dumpOIgraph( const char* filename );
+    bool			dumpOIgraph( const char* filename,
+	    				     bool binary=false);
 
 protected:
     friend class		SelectionManager;

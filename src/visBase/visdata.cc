@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.15 2003-02-14 08:42:04 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.16 2003-04-14 15:11:34 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
@@ -100,14 +100,14 @@ void visBase::DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 }
 
 
-bool visBase::DataObject::dumpOIgraph( const char* filename )
+bool visBase::DataObject::dumpOIgraph( const char* filename, bool binary )
 {
     SoNode* node = getData();
     if ( !node ) return false;
 
     SoWriteAction writeaction;
     if ( !writeaction.getOutput()->openFile(filename) ) return false;
-    writeaction.getOutput()->setBinary(false);
+    writeaction.getOutput()->setBinary(binary);
     writeaction.apply( node );
     writeaction.getOutput()->closeFile();
     return true;
