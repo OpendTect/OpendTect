@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.10 2004-09-28 11:45:40 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.11 2004-09-29 10:38:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,5 +256,5 @@ void uiSeisIOObjInfo::getLineNames( BufferStringSet& bss, bool add ) const
 	return;
 
     for ( int idx=0; idx<lset->nrLines(); idx++ )
-	bss.add( lset->lineName(idx) );
+	bss.addIfNew( lset->lineName(idx) );
 }
