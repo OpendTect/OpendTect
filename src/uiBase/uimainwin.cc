@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.25 2002-01-04 23:45:30 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.26 2002-01-05 21:55:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,8 +340,8 @@ public:
 			//!< OK button disabled when set to empty
     void		setCancelText( const char* txt );
 			//!< cancel button disabled when set to empty
-    void		enableSaveButton( const char* txt="Save defaults" )
-			    { saveText = txt; }
+    void		enableSaveButton( const char* txt )
+			    { saveText = txt; withsavebut = true; }
 
     void		setTitleText( const char* txt );
 
@@ -393,6 +393,7 @@ protected:
     BufferString	helpId;
     bool		separ;
     bool		withmenubar;
+    bool		withsavebut;
 
     uiPushButton*	okBut;
     uiPushButton*	cnclBut;
@@ -413,12 +414,13 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm,
 			    const char* hid )
     : uiMainWinBody(handle,parnt,nm,modal)
     , dlgGroup( 0 )
-    , okText("Ok"), cnclText("Cancel"), saveText(""), titleText("")
+    , okText("Ok"), cnclText("Cancel"), saveText("Save defaults"), titleText("")
     , okBut( 0 ), cnclBut( 0 ), saveBut( 0 ), helpBut( 0 ), title( 0 )
     , reslt( 0 )
     , separ( separator ), horSepar( 0 )
     , childrenInited(false)
     , withmenubar(withmb)
+    , withsavebut(false)
     , helpId(hid)
 {
 }
@@ -434,6 +436,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
     , separ( s.separator_ ), horSepar( 0 )
     , childrenInited(false)
     , withmenubar(s.menubar_)
+    , withsavebut(s.savebutton_)
     , helpId(s.helpid_)
 {
 }
@@ -506,7 +509,7 @@ void uiDialogBody::finalise()
 	    okBut = new uiPushButton( centralWidget_, okText );
 	if ( cnclText != "" )
 	    cnclBut = new uiPushButton( centralWidget_, cnclText );
-	if ( saveText != "" )
+	if ( withsavebut && saveText != "" )
 	    saveBut = new uiCheckBox( centralWidget_, saveText );
 	if ( helpId != "" )
 	    helpBut = new uiPushButton( centralWidget_, "?" );
@@ -653,10 +656,8 @@ void uiDialog::setCaption( const char* txt )	{ mBody->setCaption(txt); }
 void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
 void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
 void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
-void uiDialog::enableSaveButton( const char* txt )
-    { mBody->enableSaveButton(txt); }
-bool uiDialog::saveButtonChecked()	
-    { return mBody->saveButtonChecked(); }
+void uiDialog::enableSaveButton(const char* t)  { mBody->enableSaveButton(t); }
+bool uiDialog::saveButtonChecked()	{ return mBody->saveButtonChecked(); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
 uiGroup* uiDialog::topGroup()			{return mBody->uiCentralWidg();}

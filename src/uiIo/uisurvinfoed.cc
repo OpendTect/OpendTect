@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.16 2002-01-05 00:12:13 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.17 2002-01-05 21:55:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -351,28 +351,20 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
     if ( !dlg.go() ) return;
 
     const IdealConn& conn = dlg.iddfld->conn();
-    BinIDSampler bs; StepInterval<double> zrg;
-    ObjectSet<Coord> coords; ObjectSet<BinID> binids;
-    if ( !conn.getSurveySetup(bs,zrg,coords,binids) )
+    BinIDSampler bs; StepInterval<double> zrg; Coord crd[3];
+    if ( !conn.getSurveySetup(bs,zrg,crd) )
 	{ uiMSG().error(conn.errMsg()); return; }
-
-    survinfo->setWSProjName( SI().getWSProjName() );
-    survinfo->setWSPwd( SI().getWSPwd() );
-    if ( binids.size() == 0 )
-	{ uiMSG().error("Could not retrieve the information"); return; }
 
     survinfo->setRange( bs );
     survinfo->setZRange( zrg );
-    BinID bid[2]; Coord crd[3]; int xline;
-    int a, b, c;
-    if ( binids[0]->inl == binids[1]->inl ) { a=0; b=1; c=2; }
-    else if ( binids[1]->inl == binids[2]->inl ) { a=2; b=0; c=1; } 
-    else { a=0; b=2; c=1; }
-
-    bid[0] = *binids[a]; bid[1] = *binids[c]; xline = binids[b]->crl;
-    crd[0] = *coords[a]; crd[1] = *coords[b]; crd[2] = *coords[c]; 
-    survinfo->set3Pts( crd, bid, xline );
+    BinID bid[2];
+    bid[0].inl = bs.start.inl; bid[0].crl = bs.start.crl;
+    bid[1].inl = bs.stop.inl; bid[1].crl = bs.start.crl;
+    survinfo->set3Pts( crd, bid, bs.stop.crl );
     setValues();
+
+    survinfo->setWSProjName( SI().getWSProjName() );
+    survinfo->setWSPwd( SI().getWSPwd() );
 }
 
 
