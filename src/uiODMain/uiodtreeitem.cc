@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.48 2004-09-15 06:44:41 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.49 2004-09-16 08:09:30 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -615,7 +615,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    trackmnu->insertItem( new uiMenuItem("Relations ..."), relmnuid );
 	}
 
-	uiMenuItem* storemenuitem =  new uiMenuItem("Store");
+	uiMenuItem* storemenuitem =  new uiMenuItem("Save");
 	storemnuid = menu->addItem( storemenuitem );
 	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid));
 
@@ -626,7 +626,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     }
 
 
-    storeasmnuid = menu->addItem( new uiMenuItem("Store as ...") );
+    storeasmnuid = menu->addItem( new uiMenuItem("Save as ...") );
 
 #ifdef __debug__
     reloadmnuid = menu->addItem( new uiMenuItem("Reload") );
