@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.6 2004-04-28 21:30:59 bert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.7 2004-05-14 14:10:39 bert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -130,9 +130,33 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 	astrm.put( Well::Log::sKeyUnitLbl, wl.unitMeasLabel() );
     astrm.newParagraph();
 
-    for ( int idx=0; idx<wl.size(); idx++ )
-	strm << wl.dah(idx) << '\t' << wl.value(idx) << '\n';
-    return true;
+    Interval<int> wrintv( 0, wl.size()-1 );
+    float dah, val;
+    for ( ; wrintv.start<wl.size(); wrintv.start++ )
+    {
+	dah = wl.dah(wrintv.start); val = wl.value(wrintv.start);
+	if ( !mIsUndefined(dah) && !mIsUndefined(val) )
+	    break;
+    }
+    for ( ; wrintv.stop>=0; wrintv.stop-- )
+    {
+	dah = wl.dah(wrintv.stop); val = wl.value(wrintv.stop);
+	if ( !mIsUndefined(dah) && !mIsUndefined(val) )
+	    break;
+    }
+
+    for ( int idx=wrintv.start; idx<=wrintv.stop; idx++ )
+    {
+	dah = wl.dah(idx); val = wl.value(idx);
+	if ( mIsUndefined(dah) )
+	    continue;
+	if ( mIsUndefined(val) )
+	    strm << dah << '\t' << sUndefValue << '\n';
+	else
+	    strm << dah << '\t' << val << '\n';
+    }
+
+    return strm.good();
 }
 
 

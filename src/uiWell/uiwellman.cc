@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.17 2004-04-29 16:41:41 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.18 2004-05-14 14:10:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logsfld = new uiListBox( topgrp, "Available logs", true );
     logsfld->attach( rightTo, manipgrp );
     logsfld->setToolTip( "Available logs" );
+    topgrp->setHAlignObj( logsfld );
 
     butgrp = new uiButtonGroup( topgrp, "" );
     butgrp->attach( rightTo, logsfld );
@@ -92,11 +93,11 @@ uiWellMan::uiWellMan( uiParent* p )
 
     uiPushButton* markerbut = new uiPushButton( this, "Edit markers ..." );
     markerbut->activated.notify( mCB(this,uiWellMan,addMarkers) );
-    markerbut->attach( alignedBelow, topgrp );
+    markerbut->attach( ensureBelow, topgrp );
 
     uiPushButton* logsbut = new uiPushButton( this, "Add logs ..." );
     logsbut->activated.notify( mCB(this,uiWellMan,addLogs) );
-    logsbut->attach( rightOf, markerbut );
+    logsbut->attach( alignedBelow, topgrp );
 
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( alignedBelow, markerbut );

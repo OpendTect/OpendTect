@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.3 2004-05-12 12:33:03 dgb Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.4 2004-05-14 14:10:39 bert Exp $";
 
 #include "filepath.h"
 #include <iostream>
@@ -151,7 +151,8 @@ void FilePath::setExtension( const char* ext, bool replace )
     if ( !ext ) ext = "";
     skipLeadingBlanks( ext );
 
-    if ( *ext == '.' ) ext++;
+    if ( *ext == '.' )
+	ext++;
     if ( lvls_.size() < 1 )
     {
 	if ( *ext )
@@ -162,12 +163,9 @@ void FilePath::setExtension( const char* ext, bool replace )
     BufferString& fname = *lvls_[lvls_.size()-1];
     char* ptr = strrchr( fname.buf(), '.' );
     if ( ptr && replace )
-	strcpy( ptr, ext );
+	strcpy( *ext ? ptr+1 : ptr, ext );
     else if ( *ext )
-    {
-	fname += ".";
-    	fname += ext;
-    }
+	{ fname += "."; fname += ext; }
 }
 
 

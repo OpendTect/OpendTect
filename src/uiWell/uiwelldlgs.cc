@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.15 2004-05-06 12:40:35 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.16 2004-05-14 14:10:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,14 +167,16 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
 
     logsfld->box()->empty();
     logsfld->box()->addItems( lfi.lognms );
+    logsfld->box()->selAll( true );
 
     BufferString lbl( "(" ); lbl += lfi.zunitstr.buf(); lbl += ")";
     unitlbl->setText( lbl );
     unitlbl->display( true );
+    intvunfld->display( false );
+    bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';
+    intvunfld->setValue( !isft );
 
     udffld->setValue( lfi.undefval );
-    if ( intvunfld->getBoolValue() )
-	{ lfi.zrg.start /= mFromFeetFac; lfi.zrg.stop /= mFromFeetFac; }
     intvfld->setValue( lfi.zrg );
 }
 
@@ -198,15 +200,19 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     SI().pars().setYN( SurveyInfo::sKeyDpthInFt, zinft );
     SI().savePars();
 
+    const char* lasfnm = lasfld->text();
+    if ( !lasfnm || !*lasfnm ) 
+	{ uiMSG().error("Enter valid filename"); return false; }
+
+    BufferStringSet lognms;
     for ( int idx=0; idx<logsfld->box()->size(); idx++ )
     {
 	if ( logsfld->box()->isSelected(idx) )
-	    lfi.lognms += new BufferString( logsfld->box()->textOfItem(idx) );
+	    lognms += new BufferString( logsfld->box()->textOfItem(idx) );
     }
-
-    const char* lasfnm = lasfld->text();
-    if ( !lasfnm || !*lasfnm ) 
-    { uiMSG().error("Enter valid filename"); return false; }
+    if ( lognms.size() == 0 )
+	{ uiMSG().error("Please select at least one log"); return false; }
+    lfi.lognms = lognms;
 
     const char* res = wdai.getLogs( lasfnm, lfi, false );
     if ( res ) { uiMSG().error( res ); return false; }
