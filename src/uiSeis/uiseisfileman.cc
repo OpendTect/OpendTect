@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.41 2004-08-27 10:07:33 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.42 2004-10-04 15:04:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,11 +43,11 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 	, ctio(*mMkCtxtIOObj(SeisTrc))
 {
     IOM().to( ctio.ctxt.stdSelKey() );
-    ctio.ctxt.trglobexpr = "CBVS";
+    ctio.ctxt.trglobexpr = "CBVS`2D";
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
 
     uiGroup* topgrp = new uiGroup( this, "Top things" );
-    listfld = new uiListBox( topgrp, "Seismic cubes" );
+    listfld = new uiListBox( topgrp, "Seismic cubes/Line sets" );
     listfld->setHSzPol( uiObject::medvar );
     for ( int idx=0; idx<entrylist->size(); idx++ )
 	listfld->addItem( (*entrylist)[idx]->name() );
@@ -89,8 +89,10 @@ void uiSeisFileMan::selChg( CallBacker* cb )
 {
     entrylist->setCurrent( listfld->currentItem() );
     const IOObj* selioobj = entrylist->selected();
+    const bool is2d = selioobj && SeisTrcTranslator::is2D( *selioobj );
     ctio.setObj( selioobj ? selioobj->clone() : 0 );
-    copybut->setSensitive( ctio.ioobj && ctio.ioobj->implExists(true) );
+    copybut->setSensitive( !is2d && selioobj && ctio.ioobj->implExists(true) );
+    mergebut->setSensitive( is2d );
     mkFileInfo();
     manipgrp->selChg( cb );
 
@@ -133,8 +135,11 @@ void uiSeisFileMan::mkFileInfo()
     uiSeisIOObjInfo oinf( *ctio.ioobj, false );
     if ( oinf.getRanges(cs) )
     {
-	txt = "Inline range: "; mRangeTxt(inl);
-	txt += "\nCrossline range: "; mRangeTxt(crl);
+	txt = "";
+	if ( !mIsUndefInt(cs.hrg.stop.inl) )
+	    { txt += "Inline range: "; mRangeTxt(inl); }
+	if ( !mIsUndefInt(cs.hrg.stop.crl) )
+	    { txt += "\nCrossline range: "; mRangeTxt(crl); }
 	txt += "\nZ-range: "; mZRangeTxt(start); txt += " - ";
 	mZRangeTxt(stop); txt += " ["; mZRangeTxt(step); txt += "]";
     }

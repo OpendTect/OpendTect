@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.20 2004-10-03 21:42:33 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.21 2004-10-04 15:04:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -267,6 +267,8 @@ void uiSeis2DSubSel::setInput( const Interval<float>& zrg )
 void uiSeis2DSubSel::setInput( const HorSampling& hs )
 {
     StepInterval<int> trg( 1, hs.nrCrl(), 1 );
+    if ( mIsUndefInt(hs.stop.crl) )
+	trg.stop = mUndefIntVal;
     trcrgfld->setValue( trg );
 }
 
@@ -285,16 +287,7 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
     const BufferString prevlnm( lnmsfld && lnmsfld->isChecked()
 				? lnmsfld->text() : "" );
 
-    BufferString fnm( ioobj.fullUserExpr(true) );
-    Seis2DLineSet ls( fnm );
-    BufferStringSet lnms;
-    const int sz = ls.nrLines();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const char* lnm = ls.lineName( idx );
-	lnms.addIfNew( lnm );
-    }
-
+    BufferStringSet lnms; oinf.getLineNames( lnms );
     lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
     const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
     lnmsfld->setChecked( prevok );
