@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.1 2002-02-05 16:34:03 nanne Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.2 2002-02-06 14:07:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,17 +31,18 @@ ________________________________________________________________________
 
 
 uiMergeSeis::uiMergeSeis( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Seismic processing",
+	: uiDialog(p,uiDialog::Setup("Seismic file merging",
 				     "Specify input/output seismics",
 				     "0"))
 	, ctio(SeisTrcTranslator::ioContext())
-	, ioobjnms(*new UserIDSet("Stored seismic data"))
 	, req(0)
 	, inpsz(0)
 	, rev(false)
+	, proc(0)
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     const UserIDObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
+    UserIDSet ioobjnms("Stored seismic data");
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
         const IOObj& ioobj = *ioobjs[idx];
