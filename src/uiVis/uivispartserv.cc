@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.154 2003-08-22 11:29:34 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.155 2003-09-09 15:59:04 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "vissurvinterpret.h"
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
+#include "vissurvstickset.h"
 #include "vissurvsurf.h"
 #include "vissurvwell.h"
 #include "visvolumedisplay.h"
@@ -361,6 +362,22 @@ void uiVisPartServer::getPickSetData( int id, PickSet& pickset ) const
 	Coord3 pos = psd->getPick( idx );
 	pickset += PickLocation( pos.x, pos.y, pos.z );
     }
+}
+
+
+int uiVisPartServer::addStickSet(int sceneid, const MultiID& multiid )
+{
+    TypeSet<int> sceneids;
+
+    visSurvey::Scene* scene = getScene( sceneid );
+    if ( !scene ) return -1;
+
+    visSurvey::StickSetDisplay* ssd = visSurvey::StickSetDisplay::create();
+    ssd->setStickSet( multiid );
+
+    scene->addObject( ssd );
+
+    return ssd->id();
 }
 
 

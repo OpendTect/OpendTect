@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.89 2003-08-22 11:30:17 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.90 2003-09-09 15:58:50 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ public:
     void			setPickSetData(int,const PickSet&);
     void			getPickSetData(int,PickSet&) const;
 
+    int				addStickSet(int scene, const MultiID&);
     MultiID			getMultiID(int) const;
 	
     int				getSelObjectId() const;
