@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.59 2004-12-08 12:54:47 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.60 2004-12-10 15:26:51 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -360,11 +360,11 @@ const char* GetSettingsDir(void)
     const char* ptr = getCleanWinPath( getenv("DTECT_SETTINGS") );
     if ( ptr ) mkfullpth = NO;
 
-    if ( !ptr && getenv("OD_PREFER_HOME") )
-	ptr = _GetHomeDir();
+    if ( !ptr )
+	ptr = getenv( "USERPROFILE" ); // should be set by OS
 
     if ( !ptr )
-	ptr = getenv( "APPDATA" ); // should be set by OS
+	ptr = getenv( "APPDATA" ); // should be set by OS -- but is hidden 
 
     if ( !ptr )
 	ptr = getenv( "DTECT_APPLICATION_DATA" ); // set by init script
@@ -424,6 +424,9 @@ const char* GetPersonalDir(void)
 
     if ( !ptr )
 	ptr = _GetHomeDir();
+
+    if ( !ptr ) 
+	ptr = getenv( "APPDATA" );
 
     if ( !ptr ) // Last resort. Is known to cause problems when used 
                 // during initialisation of statics. (0xc0000005)
