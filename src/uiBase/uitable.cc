@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.19 2004-07-09 13:11:31 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.20 2004-07-09 13:53:10 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -673,11 +673,13 @@ void uiTable::updateCellSizes( uiSize* size )
 
     if ( !setup_.manualresize_ && body_->layoutItem()->inited() )
     {
-	for ( int idx=0; idx < nrCols(); idx++ )
-	    body_->setColumnStretchable ( idx, true );
+	if ( !setup_.fillcol_ )
+	    for ( int idx=0; idx < nrCols(); idx++ )
+		body_->setColumnStretchable ( idx, true );
 
-	for ( int idx=0; idx < nrRows(); idx++ )
-	    body_->setRowStretchable ( idx, true );
+        if ( !setup_.fillrow_ )
+	    for ( int idx=0; idx < nrRows(); idx++ )
+		body_->setRowStretchable ( idx, true );
     }
 
     int nc = nrCols();
@@ -742,5 +744,4 @@ void uiTable::updateCellSizes( uiSize* size )
 	    availhgt -= rowhgt;
 	}
     }
-
 }
