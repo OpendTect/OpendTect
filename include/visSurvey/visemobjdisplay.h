@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.2 2005-01-07 11:40:55 kristofer Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.3 2005-01-10 11:00:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -78,6 +78,7 @@ protected:
     void				removeAttribCache();
 
     mVisTrans*				transformation;
+    mVisTrans*				translation;
     visBase::EventCatcher*		eventcatcher;
 
     ObjectSet<visBase::VisualObject>	sections;
