@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.13 2003-08-12 14:37:54 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.14 2003-10-28 17:59:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,8 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 
     const float zfact( SI().zIsTime() ? 1000 : 1 );
     Interval<int> zrg( mNINT(cs_.zrg.start*zfact), mNINT(cs_.zrg.stop*zfact) );
-    BufferString zstr; zstr = SI().zIsTime() ? "Time range (" : "Depth range (";
-    zstr += SI().getZUnit(); zstr += ")";
+    BufferString zstr( SI().zIsTime() ? "Time range " : "Depth range " );
+    zstr += SI().getZUnit();
     z0fld = new uiLabeledSpinBox( this, zstr );
     StepInterval<int> totzrg = 
 	    StepInterval<int>( mNINT(SI().zRange().start*zfact),

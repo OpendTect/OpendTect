@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.43 2003-10-21 08:54:59 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.44 2003-10-28 17:57:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -403,8 +403,8 @@ void uiSurvey::mkInfo()
 {
     BufferString inlinfo( "In-line range: " );
     BufferString crlinfo( "Cross-line range: " );
-    BufferString zinfo( "Z range (" );
-    zinfo += survinfo->getZUnit(); zinfo += "): ";
+    BufferString zinfo( "Z range " );
+    zinfo += survinfo->getZUnit();
     BufferString bininfo( "Bin size (m/line): " );
 
     if ( survinfo->rangeUsable() )

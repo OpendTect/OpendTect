@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.172 2003-10-28 11:13:04 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.173 2003-10-28 18:00:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -531,7 +531,7 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
         res = psd->nrPicks();
 
     if ( sd )
-	res = sd->getTimeShift();
+	res = sd->getShift();
 
     mDynamicCastGet(const visBase::MovableTextureSlice*,mts,obj)
     if ( mts )
@@ -821,11 +821,11 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 
     if ( sd )
     {
-	float shift = sd->getTimeShift();
+	float shift = sd->getShift();
 	if ( shift )
 	{
 	    res = "Horizon shift: ";
-	    res += shift; res += " (ms)";
+	    res += shift; res += " "; res += SI().getZUnit();
 	}
     }
 
