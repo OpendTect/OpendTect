@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.19 2004-08-13 08:10:16 kristofer Exp $
+ RCS:           $Id: sighndl.cc,v 1.20 2004-09-27 08:09:53 dgb Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.19 2004-08-13 08:10:16 kristofer Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.20 2004-09-27 08:09:53 dgb Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -256,10 +256,10 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
 	{ stopProcess( pid, friendly ); }
 
     BufferString cmd( mach );
-    cmd += ":@kill ";
+    cmd += ":@'kill ";
     cmd += friendly ? "-TERM " : "-9 ";
     cmd += pid;
-    cmd += " > /dev/null";
+    cmd += " > /dev/null'";
 
     StreamProvider strmp( cmd );
     if ( rshcomm && *rshcomm )
