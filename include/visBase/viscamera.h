@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.14 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: viscamera.h,v 1.15 2004-11-02 10:47:39 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "visdata.h"
 #include "position.h"
 
-class SoPerspectiveCamera;
+class UTMCamera;
 
 namespace visBase
 {
@@ -75,7 +75,7 @@ protected:
     virtual		~Camera();
 
 
-    SoPerspectiveCamera*	camera;
+    UTMCamera*		camera;
 
     static const char*	posstr;
     static const char*	orientationstr;
