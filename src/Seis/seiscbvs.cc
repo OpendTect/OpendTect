@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.45 2003-11-13 11:49:43 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.46 2003-12-10 14:09:09 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -135,7 +135,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     {
 	BasicComponentInfo& cinf = *info.compinfo[idx];
 	addComp( cinf.datachar, cinf.sd, cinf.nrsamples, cinf.name(),
-		 cinf.scaler, cinf.datatype );
+		 cinf.datatype );
     }
     pinfo->usrinfo = info.usertext;
     pinfo->stdinfo = info.stdtext;
@@ -156,8 +156,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	BufferString nm( "Component " );
 	nm += idx+1;
-	mDynamicCastGet(const LinScaler*,sc,trc.scaler(idx))
-	addComp( dc, trc.samplingData(idx), trc.size(idx), nm, sc );
+	addComp( dc, trc.samplingData(idx), trc.size(idx), nm );
 	if ( preseldatatype )
 	    tarcds[idx]->datachar = DataCharacteristics(
 			(DataCharacteristics::UserType)preseldatatype );
@@ -406,7 +405,6 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
     for ( int iselc=0; iselc<nselc; iselc++ )
     {
 	const BasicComponentInfo& ci = *info.compinfo[ selComp(iselc) ];
-	trc.setScaler( ci.scaler, iselc );
 	tdptrs[iselc] = trc.data().getComponent( iselc )->data();
 	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
     }
@@ -499,29 +497,16 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 	tdptrs[iselc] = const_cast<unsigned char*>(
 			trc.data().getComponent(selComp(iselc))->data() );
 	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
-	const Scaler* sc = trc.scaler( selComp(iselc) );
-	if ( !userawdata[iselc] || sc )
+	if ( !userawdata[iselc] )
 	{
 	    if ( samedatachar[iselc] )
 	    {
 		for ( int outsmp=0; outsmp<outcds[iselc]->nrsamples; outsmp++ )
-		memcpy( stptrs[iselc], tdptrs[iselc],
-			(int)inpcds[iselc]->datachar.nrBytes() );
+		    memcpy( stptrs[iselc], tdptrs[iselc],
+			    (int)inpcds[iselc]->datachar.nrBytes() );
 		tdptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes()
 				* samps.step;
 		stptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes();
-	    }
-	    else if ( !sc )
-	    {
-		const TraceDataInterpreter* inpinterp
-			= trc.data().getInterpreter(selComp(iselc));
-		for ( int outsmp=0,inp_samp=0; outsmp<outcds[iselc]->nrsamples;
-		  outsmp++ )
-		{
-		    storinterps[iselc]->put( stptrs[iselc], outsmp,
-			inpinterp->get( tdptrs[iselc], inp_samp ) );
-		    inp_samp += samps.step;
-		}
 	    }
 	    else
 	    {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.18 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.19 2003-12-10 14:09:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include <tracedata.h>
 #include <datachar.h>
 #include <datatrc.h>
-#include <scaler.h>
 class Interpolator1D;
 class Socket;
 
@@ -33,9 +32,6 @@ sample at the info().sampling.start can be set to non-zero. The first component
 Interpolation between samples is automatic if you use the getValue() method.
 The interpolation method can be customised.
 
-The values in the buffers will be scaled/unscaled if a Scaler has been set
-for the component.
-
 */
 
 
@@ -45,18 +41,18 @@ public:
 
 			SeisTrc( int ns=0, const DataCharacteristics& dc
 					    = DataCharacteristics() )
-			: soffs_(0), intpols_(0), scalers_(0)
-			{ data_.addComponent( ns, dc ); }
+			: soffs_(0), intpols_(0)
+						{ data_.addComponent(ns,dc); }
 			SeisTrc( const SeisTrc& t )
-			: soffs_(0), intpols_(0), scalers_(0)
-			{ *this = t; }
+			: soffs_(0), intpols_(0)
+						{ *this = t; }
 			~SeisTrc();
     SeisTrc&		operator =(const SeisTrc& t);
 
-    SeisTrcInfo&	info()		{ return info_; }
-    const SeisTrcInfo&	info() const	{ return info_; }
-    TraceData&		data()		{ return data_; }
-    const TraceData&	data() const	{ return data_; }
+    SeisTrcInfo&	info()			{ return info_; }
+    const SeisTrcInfo&	info() const		{ return info_; }
+    TraceData&		data()			{ return data_; }
+    const TraceData&	data() const		{ return data_; }
 
     inline int		sampleOffset( int icomp ) const
 			{ return soffs_ && icomp && icomp < soffs_->size()
@@ -67,9 +63,9 @@ public:
 
 
     inline void		set( int idx, float v, int icomp )
-			{ data_.setValue( idx, unscaled(v,icomp), icomp ); }
+			{ data_.setValue( idx, v, icomp ); }
     inline float	get( int idx, int icomp ) const
-			{ return scaled(data_.getValue(idx,icomp),icomp); }
+			{ return data_.getValue(idx,icomp); }
 
     inline int		size( int icomp ) const
 			{ return data_.size( icomp ); }
@@ -84,11 +80,6 @@ public:
     void		setInterpolator(Interpolator1D*,int icomp=0);
 			//!< Passed Interpolator1D becomes mine
 			//!< setData() will be called with appropriate args.
-
-    void		setScaler(const Scaler*,int icomp=0);
-			//!< May be set to null
-    const Scaler*	scaler( int icomp=0 ) const;
-			//!< May return null!
 
     inline bool		isNull( int icomp ) const
 			{ return data_.isZero(icomp); }
@@ -130,19 +121,6 @@ protected:
     SeisTrcInfo		info_;
     TypeSet<int>*	soffs_;
     ObjectSet<Interpolator1D>* intpols_;
-    ObjectSet<Scaler>*	scalers_;
-
-    inline float	scaled( float v, int icomp ) const
-			{
-			    return !scalers_ || scalers_->size() <= icomp
-				 ? v : (*scalers_)[icomp]->scale( v );
-			}
-
-    inline float	unscaled( float v, int icomp ) const
-			{
-			    return !scalers_ || scalers_->size() <= icomp
-				 ? v : (*scalers_)[icomp]->unScale( v );
-			}
 
 private:
 

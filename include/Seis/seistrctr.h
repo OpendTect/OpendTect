@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.28 2003-11-07 14:35:48 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.29 2003-12-10 14:09:08 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -207,8 +207,7 @@ protected:
 
     void		addComp(const DataCharacteristics&,
 				const SamplingData<float>&,int,
-				const char* nm=0,const LinScaler* =0,
-				int dtype=0);
+				const char* nm=0,int dtype=0);
 
     bool		initConn(Conn*,bool forread);
     void		setDataType( int icomp, int d )

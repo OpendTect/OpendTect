@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.36 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.37 2003-12-10 14:09:09 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -170,9 +170,7 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	strm_.write( (const char*)&cinf.sd.start, sizeof(float) );
 	strm_.write( (const char*)&cinf.sd.step, sizeof(float) );
 	strm_.write( (const char*)&cinf.nrsamples, integersize );
-	float a = 0, b = 1;
-	if ( cinf.scaler )
-	    { a = cinf.scaler->constant; b = cinf.scaler->factor; }
+	float a = 0, b = 1; // LinScaler( a, b ) - future use?
 	strm_.write( (const char*)&a, sizeof(float) );
 	strm_.write( (const char*)&b, sizeof(float) );
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.21 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.22 2003-12-10 14:09:09 bert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -29,8 +29,6 @@ void SeisTrc::cleanUp()
     delete soffs_; soffs_ = 0;
     if ( intpols_ )
 	{ deepErase( *intpols_ ); delete intpols_; intpols_ = 0; }
-    if ( scalers_ )
-	{ deepErase( *scalers_ ); delete scalers_; scalers_ = 0; }
 }
 
 
@@ -62,15 +60,6 @@ SeisTrc& SeisTrc::operator =( const SeisTrc& t )
 	}
     }
 
-    if ( t.scalers_ )
-    {
-	scalers_ = new ObjectSet<Scaler>;
-	scalers_->allowNull();
-	for ( int idx=0; idx<t.scalers_->size(); idx++ )
-	    *scalers_ += (*t.scalers_)[idx]
-			? (*t.scalers_)[idx]->duplicate() : 0;
-    }
-
     return *this;
 }
 
@@ -96,12 +85,6 @@ Interpolator1D* SeisTrc::interpolator( int icomp )
 {
     const Interpolator1D* i = ((const SeisTrc*) this)->interpolator( icomp );
     return const_cast<Interpolator1D*>(i);
-}
-
-
-const Scaler* SeisTrc::scaler( int icomp ) const
-{
-    return !scalers_ || icomp>=scalers_->size() ? 0 : (*scalers_)[icomp];
 }
 
 
@@ -132,32 +115,6 @@ void SeisTrc::setInterpolator( Interpolator1D* intpol, int icomp )
 }
 
 
-void SeisTrc::setScaler( const Scaler* sc, int icomp )
-{
-    if ( (!sc && !scalers_) || icomp >= data().nrComponents() )
-	return;
-
-    if ( !scalers_ )
-	scalers_ = new ObjectSet<Scaler>;
-    scalers_->allowNull(true);
-    while ( scalers_->size() <= icomp )
-	(*scalers_) += 0;
-
-    Scaler* newsc = sc ? sc->duplicate() : 0;
-    delete scalers_->replace( newsc, icomp );
-
-
-    if ( !sc )
-    {
-	// See if we can just remove the lot again.
-	for ( int idx=0; idx<scalers_->size(); idx++ )
-	    if ( (*scalers_)[idx] ) return;
-
-	deepErase( *scalers_ ); delete scalers_; scalers_ = 0;
-    }
-}
-
-
 float SeisTrc::getValue( float t, int icomp ) const
 {
     const int sz = size( icomp );
@@ -175,10 +132,10 @@ float SeisTrc::getValue( float t, int icomp ) const
 
 	polyintpol.setData( *data().getComponent(icomp),
 			    *data().getInterpreter(icomp) );
-	return scaled( polyintpol.value(pos), icomp );
+	return polyintpol.value(pos);
     }
 
-    return scaled( intpol->value(pos), icomp );
+    return intpol->value(pos);
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.11 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.12 2003-12-10 14:09:09 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.11 2003-11-07 12:21:58 b
 #include "iopar.h"
 #include "ioman.h"
 #include "binidsel.h"
+#include "scaler.h"
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,

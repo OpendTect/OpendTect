@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.40 2003-11-07 14:35:48 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.41 2003-12-10 14:09:09 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -525,15 +525,13 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 
 void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 				 const SamplingData<float>& s,
-				 int ns, const char* nm, const LinScaler* sc,
-				 int dtype )
+				 int ns, const char* nm, int dtype )
 {
     ComponentData* newcd = new ComponentData( nm );
     newcd->sd = s;
     newcd->nrsamples = ns;
     newcd->datachar = dc;
     newcd->datatype = dtype;
-    newcd->scaler = sc ? (LinScaler*)sc->duplicate() : 0;
     cds += newcd;
     bool isl = newcd->datachar.littleendian;
     newcd->datachar.littleendian = __islittle__;

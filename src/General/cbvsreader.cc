@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.44 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.45 2003-12-10 14:09:09 bert Exp $";
 
 /*!
 
@@ -228,12 +228,7 @@ bool CBVSReader::readComps()
 	strm_.read( ucbuf, integersize );
 	    newinf->nrsamples = iinterp.get( ucbuf, 0 );
 	strm_.read( ucbuf, 2*sizeof(float) );
-	{
-	    float a = finterp.get( ucbuf, 0 );
-	    float b = finterp.get( ucbuf, 1 );
-	    if ( !mIS_ZERO(a) || !mIS_ZERO(1-b) )
-		newinf->scaler = new LinScaler( a, b );
-	}
+	    // reserved for per-component scaling: LinScaler( a, b )
 
 	if ( newinf->nrsamples < 0 || newinf->datatype < 0 )
 	{
