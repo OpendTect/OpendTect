@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.3 2003-10-22 15:26:59 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.4 2003-10-23 14:58:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,9 +105,10 @@ void Well::setLineStyle( const LineStyle& lst )
 
 const LineStyle& Well::lineStyle() const
 {
-    const LineStyle& curls = drawstyle->lineStyle();
-    static LineStyle ls( curls.type, curls.width, 
-	    		 track->getMaterial()->getColor() );
+    static LineStyle ls;
+    ls.type = drawstyle->lineStyle().type;
+    ls.width = drawstyle->lineStyle().width;
+    ls.color = track->getMaterial()->getColor();
     return ls;
 }
 
