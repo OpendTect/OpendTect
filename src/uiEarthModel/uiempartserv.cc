@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.38 2003-12-18 12:45:10 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.39 2004-01-02 13:08:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uiexphorizon.h"
 #include "uiiosurfacedlg.h"
 #include "uigeninputdlg.h"
+#include "uimsg.h"
 #include "uisurfaceman.h"
 #include "uiexecutor.h"
 #include "uiioobjsel.h"
@@ -106,6 +107,75 @@ BufferString uiEMPartServer::getName(const MultiID& mid) const
 }
 
 
+bool uiEMPartServer::selectHorizon(MultiID& id)
+{ return selectSurface(id, true ); }
+
+
+bool  uiEMPartServer::createHorizon(MultiID& id, const char* nm )
+{ return createSurface(id, true, nm ); }
+
+
+bool uiEMPartServer::createFault(MultiID& id, const char* nm )
+{ return createSurface(id, false, nm ); }
+
+
+
+bool uiEMPartServer::createSurface(MultiID& id, bool ishor,
+				   const char* proposedname)
+{
+    BufferString instruction = "Enter new ";
+    instruction += ishor ? "horizon" : "fault";
+    instruction += "name";
+    DataInpSpec* inpspec = new StringInpSpec("Kalle");
+    uiGenInputDlg dlg( appserv().parent(), instruction, "Name", inpspec );
+
+    EM::ObjectID objid;
+    bool success = false;
+    while ( !success )
+    {
+	if ( !dlg.go() )
+	    break;
+
+	if ( EM::EMM().getID(ishor?EM::EMManager::Hor
+		    : EM::EMManager::Fault, dlg.text()) != -1 )
+	{
+	    if ( !uiMSG().askGoOn(
+			"An object with that name does allready exist."
+			 " Overwrite?", true ) )
+		continue;
+	}
+
+	objid = EM::EMM().add( ishor
+		? EM::EMManager::Hor : EM::EMManager::Fault, dlg.text() );
+	if ( objid==-1 )
+	{
+	    uiMSG().error("Could not create object with that name");
+	    continue;
+	}
+
+	success = true;
+    }
+
+    if ( success )
+    {
+	mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(objid) );
+	emsurf->ref();
+	id = emsurf->multiID();
+
+	if ( !emsurf->nrPatches() )
+	    emsurf->addPatch(0,true);
+
+	emsurf->unRefNoDel();
+    }
+
+    return true;
+}
+
+
+bool uiEMPartServer::selectFault(MultiID& id)
+{ return selectSurface(id, false ); }
+
+
 bool uiEMPartServer::selectSurface( MultiID& id, bool selhor )
 {
     uiReadSurfaceDlg dlg( appserv().parent(), selhor );
@@ -165,9 +235,22 @@ bool uiEMPartServer::createStickSet( MultiID& id )
 	if ( !dlg.go() )
 	    break;
 
+	if ( EM::EMM().getID(EM::EMManager::StickSet, dlg.text()) != -1 )
+	{
+	    if ( !uiMSG().askGoOn(
+			"An object with that name does allready exist."
+			 " Overwrite?", true ) )
+		continue;
+	}
+
 	id = EM::EMM().add( EM::EMManager::StickSet, dlg.text() );
-	if ( id.ID(0)!=-1 )
-	    success = true;
+	if ( id.ID(0)==-1 )
+	{
+	    uiMSG().error("Could not create object with that name");
+	    continue;
+	}
+
+	success = true;
     }
 
     return success;
