@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.7 2004-10-07 19:12:09 kristofer Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.8 2005-01-11 14:12:38 nanne Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,9 @@ public:
 			SurfaceConnectLine( EM::Surface& surf,
 					    const EM::SectionID& sect )
 			    : EdgeLineSegment( surf, sect ) {}
-    virtual bool	shouldSurfaceTrack(int,const RowCol&) const { return false; }
+
+    virtual bool	shouldSurfaceTrack(int,const RowCol&) const 
+    			{ return false; }
     int		    	reTrackOrderIndex() const { return 1; }
     bool		isNodeOK(const RowCol&) const;
 
@@ -54,7 +56,8 @@ public:
 protected:
     static const char*	connectingsectionstr;
     EM::SectionID	connectingsection;
-    bool	internalIdenticalSettings(const EM::EdgeLineSegment&) const;
+    bool		internalIdenticalSettings(
+	    				const EM::EdgeLineSegment&) const;
 
 };
 
@@ -114,7 +117,8 @@ public:
     bool		usePar( const IOPar&);
 
 protected:
-    bool	internalIdenticalSettings(const EM::EdgeLineSegment&) const;
+    bool		internalIdenticalSettings(
+	    				const EM::EdgeLineSegment&) const;
     void		removeCache();
     void		commitChanges();
     bool		isAtCuttingEdge(int idx) const;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.12 2005-01-06 09:39:57 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.13 2005-01-11 14:12:44 nanne Exp $";
 
 
 
@@ -139,12 +139,14 @@ bool SurfaceCutLine::isNodeOK(const RowCol& testrc) const
     if ( mIsUndefined(disttosurface) )
 	return false;
 
-    return fabs(disttosurface)<meshdist/2;
+//  return fabs(disttosurface)<meshdist/2;
+    return disttosurface<meshdist/2;
 }
 
 
-bool SurfaceCutLine::trackWithCache( int start, bool forward, const
-			    EdgeLineSegment* prev, const EdgeLineSegment* next)
+bool SurfaceCutLine::trackWithCache( int start, bool forward,
+				     const EdgeLineSegment* prev,
+				     const EdgeLineSegment* next )
 {
     if ( !cuttingsurface ) 
 	return EdgeLineSegment::track( start, forward, prev, next );
@@ -161,9 +163,9 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
     const RowCol& sourcerc = (*this)[start];
 
     RowCol backnode;
-    if ( !getNeighborNode(start, !forward, backnode, prev, next ) )
+    if ( !getNeighborNode(start,!forward,backnode,prev,next) )
     {
-	if ( !getSurfaceStart( start, !forward, backnode ) )
+	if ( !getSurfaceStart(start,!forward,backnode) )
 	    return false;
     }
 
@@ -214,7 +216,8 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	else curdiridx++;
 
 	const RowCol& curdir = dirs[curdiridx%nrdirs];
-	if ( firstfound && !curdir.isNeighborTo(lastdefineddir,RowCol(1,1),true ) )
+	const bool isnb = curdir.isNeighborTo(lastdefineddir,RowCol(1,1),true);
+	if ( firstfound && !isnb )
 	    break;
 
 	const RowCol currc = curdir*step+sourcerc;
@@ -224,7 +227,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	{
 	    const Coord3 pos = surface.geometry.getPos( section, currc );
 	    poscache += pos;
-	    if (  pos.isDefined() )
+	    if ( pos.isDefined() )
 	    {
 		distance = cuttingsurface->geometry.normalDistance(pos,t2d);
 		if ( cutonpositiveside ) distance = -distance;
@@ -369,6 +372,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	(*this) += newrc;
     else insert( 0, newrc );
 
+    /* TODO: Needs better testing. Gives weired results now
     if ( changebestposition )
     {
 	const int cacheindex = cacherc.indexOf(newrc);
@@ -388,6 +392,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	    distcache += distance;
 	}
     }
+    */
 
     return true;
 }
@@ -483,7 +488,7 @@ void SurfaceCutLine::commitChanges()
 
 SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Surface& surface,
     const SectionID& section, int relidx, const RowCol& seed,
-    bool boothdirs, const MathFunction<float>* t2d )
+    bool bothdirs, const MathFunction<float>* t2d )
 {
     mSetupCreateCut(false);
 
@@ -495,26 +500,38 @@ SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Surface& surface,
     {
 	delete scl; return 0;
     }
-	
-    while ( scl->trackWithCache( scl->size()-1, true, 0, 0 ) )
+
+    bool forward = true;
+
+    RowCol backnode;
+    if ( !scl->getNeighborNode(0,!forward,backnode,0,0) )
+    {
+	if ( !scl->getSurfaceStart(0,!forward,backnode) )
+	    return false;
+    }
+
+    (*scl) += backnode;
+
+    while ( scl->trackWithCache(scl->size()-1,forward,0,0) )
     {
 	//Check that new node doesn't exist on segment before
 	const RowCol& newtracked = scl->last();
-	if ( scl->indexOf( newtracked, true )!=scl->size()-1 )
+	if ( scl->indexOf(newtracked,forward) != scl->size()-1 )
 	{
 	    scl->remove( scl->size()-1 );
 	    break;
 	}
     }
 
-    if ( !scl ) return 0;
     if ( scl->size()>1 )
 	scl->remove(0);
 
-    while ( scl->trackWithCache( 0, false, 0, 0 ) )
+    forward = false;
+
+    while ( scl->trackWithCache(0,forward,0,0) )
     {
 	const RowCol& newtracked = scl->first();
-	if ( scl->indexOf( newtracked, false )!=0 )
+	if ( scl->indexOf(newtracked,forward) != 0 )
 	{
 	    delete scl; scl = 0; break;
 	}
@@ -603,7 +620,7 @@ SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Surface& surface,
 	scl->setCuttingSurface( cuttingsurface, cutonposside );
 	scl->setTime2Depth( t2d );
 	(*scl) += possibletrackstarts[idx];
-	while ( scl->trackWithCache(forward ? scl->size()-1 : 0, forward,0,0))
+	while ( scl->trackWithCache(forward ? scl->size()-1 : 0,forward,0,0) )
 	{
 	    const int newidx = forward ? scl->size()-1 : 0;
 	    const RowCol& newtracked = (*scl)[newidx];
