@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.3 2004-11-29 17:04:26 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.4 2004-11-29 17:17:52 bert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -18,6 +18,25 @@ const Strat::Lithology& Strat::Lithology::undef()
 	udf = new Strat::Lithology( "Undefined" );
 	udf->setId( -1 );
     }
+    return *udf;
+}
+
+
+const Strat::LeafUnitRef& Strat::LeafUnitRef::undef()
+{
+    static Strat::LeafUnitRef* udf = 0;
+    if ( !udf )
+	udf = new Strat::LeafUnitRef( 0, "undef", Strat::Lithology::undef(),
+				      "Undefined" );
+    return *udf;
+}
+
+
+const Strat::NodeUnitRef& Strat::NodeUnitRef::undef()
+{
+    static Strat::NodeUnitRef* udf = 0;
+    if ( !udf )
+	udf = new Strat::NodeUnitRef( 0, "undef", "Undefined" );
     return *udf;
 }
 

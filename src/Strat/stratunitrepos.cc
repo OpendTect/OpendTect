@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.2 2004-11-29 17:04:26 bert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.3 2004-11-29 17:17:52 bert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -38,7 +38,6 @@ Strat::UnitRepository& Strat::UnR()
 
 
 Strat::UnitRepository::UnitRepository()
-    : udfunit_(0,"undef",Strat::Lithology::undef(),"Undefined")
 {
     Repos::FileProvider rfp( filenamebase );
     addTreeFromFile( rfp );
@@ -49,6 +48,7 @@ Strat::UnitRepository::UnitRepository()
 
 void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp )
 {
+    //TODO a bit of work here would be nice :-)
 }
 
 

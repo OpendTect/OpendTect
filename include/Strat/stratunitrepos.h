@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.5 2004-11-29 17:04:26 bert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.6 2004-11-29 17:17:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,18 +68,19 @@ public:
     const UnitRef*	findAny( const char* c ) const	{ return fndAny(c); }
     int			treeOf(const char* code) const;
 
-    const LeafUnitRef&	undefUnit() const		{ return udfunit_; }
-
-    ObjectSet<Lithology>	liths_;
-    ObjectSet<PropertyRef>	props_;
+    int			nrLiths() const			{ return liths_.size();}
+    const Lithology&	lith( int idx ) const		{ return *liths_[idx]; }
+    int			nrProps() const			{ return props_.size();}
+    const PropertyRef&	prop( int idx ) const		{ return *props_[idx]; }
 
 protected:
 
     			UnitRepository();
 
-    ObjectSet<TopUnitRef> tops_;
-    LeafUnitRef		udfunit_;
-    int			curtopidx_;
+    ObjectSet<TopUnitRef>	tops_;
+    ObjectSet<Lithology>	liths_;
+    ObjectSet<PropertyRef>	props_;
+    int				curtopidx_;
 
     UnitRef*		fnd(const char*) const;
     UnitRef*		fnd(const char*,int) const;
