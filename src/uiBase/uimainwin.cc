@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.77 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.78 2003-12-23 15:55:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -271,16 +271,21 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 	mMwHandle.finaliseDone.trigger(mMwHandle);
 }
 
+
+#define mHide() \
+    if ( !mMwHandle.closeOK() ) return; \
+    mMwHandle.windowClosed.trigger(mMwHandle); \
+    if( modal_ )	qApp->exit_loop(); \
+    QMainWindow::hide();
+
 void uiMainWinBody::hide()
 {
-    mMwHandle.windowClosed.trigger(mMwHandle);
-    if( modal_ )	qApp->exit_loop();
-    QMainWindow::hide();
+    mHide();
 }
 
 void uiMainWinBody::close()
 {
-    hide();
+    mHide();
     if ( exitapponclose_ )	qApp->quit();
 }
 
