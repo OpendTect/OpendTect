@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.7 2003-03-21 08:42:41 kristofer Exp $
+ RCS:		$Id: string2.h,v 1.8 2003-06-23 12:44:54 kristofer Exp $
 ________________________________________________________________________
 -*/
 
@@ -80,14 +80,45 @@ inline const char* toString( int i )	{ return getStringFromInt(0, i ); }
 inline const char* toString( float f )	{ return getStringFromFloat(0, f ); }
 inline const char* toString( bool b )	{ return getYesNoString( b ); }
 
-inline void getFromString( double& d, const char* s )
-    { if ( s ) d = atof( s ); else d = mUndefValue; }
-inline void getFromString( float& f, const char* s )
-    { if ( s ) f = (float)atof( s ); else f = (float) mUndefValue; }
-inline void getFromString( int& i, const char* s )
-    { if ( s ) i = atoi( s ); else i = mUndefIntVal; }
-inline void getFromString( bool& b, const char* s )
-    { if ( s ) b = ( yesNoFromString( s ) ? true : false );else b = false; }
+#define mImplGetFromStrFunc( type, func, undef ) \
+inline bool getFromString( type& i, const char* s ) \
+{ \
+    if ( s ) \
+    { \
+	char* e; \
+	i = func; \
+	if ( e==s ) \
+	{ \
+	    i = undef; \
+	    return false;\
+	}\
+	return true; \
+    } \
+ \
+    i = undef; \
+    return false; \
+}
+
+// inline bool getFromString( double& d, const char* s );
+mImplGetFromStrFunc(double, strtod(s,&e), mUndefValue )
+// inline bool getFromString( float& d, const char* s );
+mImplGetFromStrFunc(float, strtof(s,&e), mUndefValue )
+// inline bool getFromString( int& d, const char* s );
+mImplGetFromStrFunc(int, strtol(s,&e,10), mUndefIntVal)
+#undef mImplGetFromStrFunc
+
+inline bool getFromString( bool& b, const char* s )
+{
+    if ( s )
+    {
+	b = ( yesNoFromString( s ) ? true : false );
+	return true;
+    }
+
+    b = false;
+    return false;
+}
+
 
 #endif
 
