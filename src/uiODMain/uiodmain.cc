@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.31 2004-12-23 16:26:15 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.32 2004-12-23 16:54:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,7 @@ bool uiODMain::buildUI()
     menumgr->initSceneMgrDepObjs();
 
     const char* s = getenv( "DTECT_CBAR_POS" );
-    if ( !s ) s = Settings::common().find( "Color Bar Position" );
+    if ( !s ) s = Settings::common().find( "dTect.ColorBar Position" );
     const bool isvert = !s || *s == 'v' || *s == 'V';
     const bool isontop = s && *s
 		&& (*s == 't' || *s == 'T' || *(s+1) == 't' || *(s+1) == 'T');
