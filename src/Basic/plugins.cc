@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.27 2003-11-17 14:38:28 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.28 2003-11-26 09:53:05 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -94,11 +94,11 @@ static bool loadPlugin( const char* lnm, int argc, char** argv,
 
     const BufferString libnm( lnm );
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( DBG::isOn(DBG_SETTINGS) )
     {
 	BufferString msg( "Attempting to load plugin " );
 	msg += libnm;
-	dgb_debug_message( msg.buf() );
+	DBG::message( msg );
     }
 
 #ifdef __win__
@@ -225,17 +225,17 @@ static void loadPluginDir( const char* dirnm, int argc, char** argv,
 static void autoLoadPlugins( const char* dirnm,
 			     int argc, char** argv, int inittype )
 {
-
-    if ( dgb_debug_isOn(DBG_SETTINGS) )
-    {
-        char buf[255];
-        sprintf(buf, "Attempting to load plugins from: %s\n", dirnm );
-        dgb_debug_message( buf );
+#define mTryLoadDbgMsg(dir) \
+    if ( DBG::isOn(DBG_SETTINGS) ) \
+    { \
+	BufferString msg( "Attempt load plugins from: " ); msg += dir; \
+	DBG::message( msg ); \
     }
 
     if ( !File_isDirectory(dirnm) )
 	return;
 
+    mTryLoadDbgMsg( dirnm );
     loadPluginDir( dirnm, argc, argv, inittype );
 
     mDefinePrognm( prognm );
@@ -243,13 +243,7 @@ static void autoLoadPlugins( const char* dirnm,
     if ( !File_isDirectory(specdirnm) )
 	return;
 
-    if ( dgb_debug_isOn(DBG_SETTINGS) )
-    {
-        char buf[255];
-        sprintf(buf, "Attempting to load plugins from: %s\n", specdirnm.buf() );
-        dgb_debug_message( buf );
-    }
-
+    mTryLoadDbgMsg( specdirnm );
     loadPluginDir( specdirnm, argc, argv, inittype );
 }
 
@@ -270,11 +264,12 @@ static const char* getDefDir( bool instdir )
 
     dnm = File_getFullPath( dnm, getHDir() );
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( DBG::isOn(DBG_SETTINGS) )
     {
-        char buf[255];
-        sprintf(buf, "getDefDir: %s\n", dnm.buf() );
-        dgb_debug_message( buf );
+        BufferString msg( "plugins.cc - getDefDir(" );
+        msg += instdir ? "inst" : "usr";
+        msg += ") -> "; msg += dnm;
+	DBG::message( msg );
     }
 
     return dnm.buf();
