@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.21 2003-11-07 12:21:55 bert Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.22 2003-11-24 10:52:04 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ class RandomTrackDisplay :  public visBase::VisualObject,
 			  public visSurvey::SurveyObject
 {
 public:
+    bool			isInlCrl() const { return true; }
 
     static RandomTrackDisplay*	create()
 				mCreateDataObj(RandomTrackDisplay);

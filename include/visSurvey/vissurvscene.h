@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.27 2003-11-07 12:21:55 bert Exp $
+ RCS:		$Id: vissurvscene.h,v 1.28 2003-11-24 10:52:04 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,15 @@ public:
 				mCreateDataObj(Scene);
 
     virtual void		addObject( visBase::SceneObject* );
+    				/*!< If the object is a visSurvey::SurveyObject
+				     it will ask if it's an inlcrl-object or
+				     not. If it's not an
+				     visSurvey::SurveyObject, it will be put in
+				     displaydomain
+				*/
+    void			addUTMObject( visBase::VisualObject* );
+    void			addInlCrlTObject( visBase::SceneObject* );
+
     virtual void		removeObject( int idx );
 
     void			showAnnotText(bool);
@@ -89,9 +98,6 @@ protected:
     void			setup();
 
     virtual int			useOldPar( const IOPar& );
-
-    void			addUTMObject( visBase::VisualObject* );
-    void			addInlCrlTObject( visBase::VisualObject* );
 
     void			mouseMoveCB( CallBacker* = 0 );
     

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.16 2003-11-07 12:21:55 bert Exp $
+ RCS:		$Id: vissurvobj.h,v 1.17 2003-11-24 10:52:04 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
     					{ return mUndefValue; }
 
     virtual NotifierAccess*	getMovementNotification()   { return 0; }
+    virtual bool		isInlCrl() const	    { return false; }
 
     float			zFactor() const;
 

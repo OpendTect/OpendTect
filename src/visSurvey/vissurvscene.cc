@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.51 2003-11-07 12:22:03 bert Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.52 2003-11-24 10:51:53 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -94,7 +94,7 @@ void visSurvey::Scene::addUTMObject( visBase::VisualObject* obj )
 }
 
 
-void visSurvey::Scene::addInlCrlTObject( visBase::VisualObject* obj )
+void visSurvey::Scene::addInlCrlTObject( visBase::SceneObject* obj )
 {
     visBase::SceneObjectGroup::addObject( obj );
 }
@@ -109,44 +109,18 @@ void  visSurvey::Scene::addObject( visBase::SceneObject* sobj )
 		mCB( this,visSurvey::Scene,filterPicks ));
     }
 
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, sobj );
-    if ( pdd )
+    if ( survobj && survobj->isInlCrl() )
     {
-	addInlCrlTObject( pdd );
+	addInlCrlTObject( sobj );
 	return;
     }
 
-    mDynamicCastGet( visSurvey::VolumeDisplay*, vd, sobj );
-    if ( vd )
+    mDynamicCastGet( visBase::VisualObject*, visobj, sobj );
+    if ( visobj )
     {
-	addInlCrlTObject( vd );
+	addUTMObject(visobj);
 	return;
     }
-
-    mDynamicCastGet( visSurvey::RandomTrackDisplay*, rtd, sobj );
-    if ( rtd )
-    {
-	addInlCrlTObject( rtd );
-	return;
-    }
-
-
-    mDynamicCastGet( visSurvey::SurfaceInterpreterDisplay*, si, sobj );
-    if ( si )
-    {
-	addInlCrlTObject( si );
-	return;
-    }
-
-    mDynamicCastGet( visBase::VisualObject*, vo, sobj );
-    if ( vo )
-    {
-	addUTMObject( vo );
-	return;
-    }
-
-    pErrMsg("Adding disallowed object to survey scene");
-    return;
 }
 
 
@@ -225,7 +199,11 @@ void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     for ( ; kid<size(); kid++ )
     {
 	if ( getObject(kid)==annot ) continue;
-	if ( getObject(kid)==inlcrl2displtransform ) continue;
+	if ( getObject(kid)==inlcrl2displtransform )
+	{
+	    par.set(xytobjprefixstr,nrkids);
+	    continue;
+	}
 
 	const int objid = getObject(kid)->id();
 
@@ -260,24 +238,10 @@ int visSurvey::Scene::usePar( const IOPar& par )
 */
     int res = useOldPar( par );
     if ( res!=1 ) return res;
+// End of old session format
 
-    res = visBase::SceneObject::usePar( par );
-
+    res = visBase::SceneObjectGroup::usePar( par );
     if ( res!=1 ) return res;
-
-    int nrkids = 0;
-    par.get( nokidsstr, nrkids );
-    for ( int idx=0; idx<nrkids; idx++ )
-    {
-	BufferString key = kidprefix;
-	key += idx;
-	int objid;
-	if ( !par.get( key, objid ) ) return -1;
-	visBase::DataObject* dobj = visBase::DM().getObj( objid );
-	if ( !dobj ) return 0;
-	mDynamicCastGet(visBase::SceneObject*,so,dobj);
-	if ( so ) addObject( so );
-    }
 
     bool txtshown = true;
     par.getYN( annottxtstr, txtshown );

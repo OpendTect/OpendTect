@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.38 2003-11-07 12:21:55 bert Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.39 2003-11-24 10:52:04 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,8 @@ class PlaneDataDisplay :  public visBase::VisualObject,
 			  public visSurvey::SurveyObject
 {
 public:
+
+    bool			isInlCrl() const { return true; }
 
     enum Type			{ Inline, Crossline, Timeslice };
 
