@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.28 2004-05-19 14:59:18 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.29 2004-06-23 10:37:41 nanne Exp $
 ________________________________________________________________________
 
 
@@ -18,11 +18,11 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "color.h"
+#include "cubesampling.h"
 
 class AttribSelSpec;
 class ColorAttribSel;
 class AttribSliceSet;
-class CubeSampling;
 class SeisTrc;
 class MultiID;
 
@@ -38,94 +38,103 @@ class SurveyObject
 {
 public:
     virtual float		calcDist(const Coord3&) const
-    					{ return mUndefValue; }
+				{ return mUndefValue; }
     				/*<\Calculates distance between pick and 
 				    object*/
-    virtual float		maxDist() const		{ return mUndefValue; }
+    virtual float		maxDist() const		{ return sDefMaxDist; }
     				/*<\Returns maximum allowed distance between 
 				    pick and object. If calcDist() > maxDist()
 				    pick will not be displayed. */
+    virtual bool		allowPicks() const	{ return false; }
+    				/*<\Returns whether picks can be created 
+				    on object. */
 
-    virtual NotifierAccess*	getMovementNotification()   { return 0; }
-    virtual bool		isInlCrl() const	    { return false; }
+    virtual NotifierAccess*	getMovementNotification()	{ return 0; }
+    virtual bool		isInlCrl() const	    	{ return false;}
 
-    const char*			errMsg() const		    { return errmsg; }
+    const char*			errMsg() const		    	{return errmsg;}
 
-    virtual void		getChildren( TypeSet<int>& ) const;
+    virtual void		getChildren( TypeSet<int>& ) const	{}
 
-    virtual bool		canDuplicate() const;
-    virtual SurveyObject*	duplicate() const;
+    virtual bool		canDuplicate() const		{ return false;}
+    virtual SurveyObject*	duplicate() const		{ return 0; }
 
-    virtual const MultiID*	getMultiID() const;
+    virtual const MultiID*	getMultiID() const		{ return 0; }
 
-    virtual void		showManipulator(bool yn);
-    virtual bool		isManipulatorShown() const;
-    virtual bool		isManipulated() const;
-    virtual bool		canResetManipulation() const;
-    virtual void		resetManipulation();
-    virtual void		acceptManipulation();
-    virtual BufferString	getManipulationString() const;
-    virtual NotifierAccess*	getManipulationNotifier();
+    virtual void		showManipulator(bool yn)	{}
+    virtual bool		isManipulatorShown() const	{ return false;}
+    virtual bool		isManipulated() const		{ return false;}
+    virtual bool		canResetManipulation() const	{ return false;}
+    virtual void		resetManipulation()		{}
+    virtual void		acceptManipulation()		{}
+    virtual BufferString	getManipulationString() const	{ return ""; }
+    virtual NotifierAccess*	getManipulationNotifier()	{ return 0; }
 
-    virtual bool		allowMaterialEdit() const;
+    virtual bool		allowMaterialEdit() const	{ return false;}
     				/*!\note Mofication of color should be done
 				  	 with setMaterial on
 					 visBase::VisualObject */
 
-    virtual bool		hasColor() const;
-    virtual void		setColor(Color)		{}
-    virtual Color		getColor() const;
+    virtual bool		hasColor() const		{ return false;}
+    virtual void		setColor(Color)			{}
+    virtual Color		getColor() const		
+    				{ return Color::DgbColor; }
 
-    virtual int			nrResolutions() const;
-    virtual BufferString	getResolutionName(int) const;
-    virtual int			getResolution() const;
-    virtual void		setResolution(int);
+    virtual int			nrResolutions() const		{ return 1; }
+    virtual BufferString	getResolutionName(int i) const	{ return i; }
+    virtual int			getResolution() const		{ return 0; }
+    virtual void		setResolution(int)		{}
     
-    virtual int			getAttributeFormat() const;
+    virtual int			getAttributeFormat() const	{ return -1; }
     				/*<\retval 0	volume
 				   \retval 1	traces
 				   \retval 2	random pos
 				   \retval -1	Does not have attribs 
 				*/
-    virtual const AttribSelSpec* getSelSpec() const;
-    virtual const ColorAttribSel* getColorSelSpec() const;
-    virtual const TypeSet<float>* getHistogram() const;
-    virtual int			getColTabID() const;
+    virtual const AttribSelSpec* getSelSpec() const		{ return 0; }
+    virtual const ColorAttribSel* getColorSelSpec() const	{ return 0; }
+    virtual const TypeSet<float>* getHistogram() const		{ return 0; }
+    virtual int			getColTabID() const		{ return -1; }
 
-    virtual void		setSelSpec( const AttribSelSpec& );
-    virtual void		setColorSelSpec(const ColorAttribSel&);
+    virtual void		setSelSpec(const AttribSelSpec&)	{}
+    virtual void		setColorSelSpec(const ColorAttribSel&)	{}
 
-    virtual bool		canHaveMultipleTextures() const;
-    virtual int			nrTextures() const;
-    virtual void		selectTexture(int);
-    virtual float		getValue(const Coord3&) const;
+    virtual bool		canHaveMultipleTextures() const { return false;}
+    virtual int			nrTextures() const		{ return 0; }
+    virtual void		selectTexture(int)			{}
+    virtual float		getValue(const Coord3&) const
+				{ return mUndefValue; }
    
    				//Volume data 
-    virtual CubeSampling	getCubeSampling() const;
-    virtual void		setCubeSampling(CubeSampling);
-    virtual bool		setDataVolume( bool color, AttribSliceSet* slc);
+    virtual CubeSampling	getCubeSampling() const
+				{ CubeSampling cs; return cs; }
+    virtual void		setCubeSampling(CubeSampling)		{}
+    virtual bool		setDataVolume(bool color,AttribSliceSet* slc);
 				/*!<\note slc becomes mine */
-    virtual const AttribSliceSet* getCacheVolume( bool color ) const;
+    virtual const AttribSliceSet* getCacheVolume( bool color ) const
+				{ return 0; }
 
     				//Trace-data
-    virtual void		getDataTraceBids(TypeSet<BinID>&) const;
-    virtual Interval<float>	getDataTraceRange() const;
-    virtual void		setTraceData( bool color,
-	    					      ObjectSet<SeisTrc>* trcs);
+    virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
+    virtual Interval<float>	getDataTraceRange() const
+    				{ return Interval<float>(0,0); }
+    virtual void		setTraceData(bool color,
+					     ObjectSet<SeisTrc>* trcs);
     				/*!< trcs becomes mine */
 
 				//Random access
-    virtual void		getDataRandomPos( ObjectSet<
-			    			TypeSet<BinIDZValues> >&) const;
+    virtual void		getDataRandomPos(ObjectSet<
+					TypeSet<BinIDZValues> >&) const	{}
 				/*!< Content of objectset becomes
 				     callers */
-    virtual void		setRandomPosData(bool color,
-	    			    const ObjectSet<const TypeSet<const BinIDZValues> >*);
+    virtual void		setRandomPosData(bool color,const ObjectSet<
+	    				const TypeSet<const BinIDZValues> >*) {}
     				/*!< The data should have exactly the
 				     same structure as the positions
 				     given in setRandomPosData
 				*/
 
+    static float		sDefMaxDist;
 
 protected:
     BufferString		errmsg;

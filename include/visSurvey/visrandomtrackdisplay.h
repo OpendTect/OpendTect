@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.30 2004-06-02 12:32:15 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.31 2004-06-23 10:34:49 nanne Exp $
 ________________________________________________________________________
 
 
@@ -121,11 +121,13 @@ public:
 
     int				getSelKnotIdx() const	{ return selknotidx; }
 
-    virtual float               calcDist(const Coord3&) const;
     virtual NotifierAccess*	getMovementNotification() { return &moving; }
     NotifierAccess*		getManipulationNotifier() { return &knotmoving;}
 
     SoNode*			getInventorNode();
+
+    virtual float               calcDist(const Coord3&) const;
+    virtual bool		allowPicks() const		{ return true; }
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.21 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.22 2004-06-23 10:38:30 nanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -17,177 +17,30 @@ static const char* rcsID = "$Id: vissurvobj.cc,v 1.21 2004-06-16 14:54:19 bert E
 #include "visdataman.h"
 #include "vistransform.h"
 
+namespace visSurvey {
 
-const char* visSurvey::SurveyParamManager::zscalestr = "Z Scale";
-float visSurvey::SurveyParamManager::defzscale = 2;
+float SurveyObject::sDefMaxDist = 10;
 
-
-void visSurvey::SurveyObject::getChildren( TypeSet<int>& ) const
-{}
-
-
-bool visSurvey::SurveyObject::canDuplicate() const
-{ return false; }
+const char* SurveyParamManager::zscalestr = "Z Scale";
+float SurveyParamManager::defzscale = 2;
 
 
-visSurvey::SurveyObject* visSurvey::SurveyObject::duplicate() const
-{ return 0; }
-
-
-const MultiID* visSurvey::SurveyObject::getMultiID() const
-{ return 0; }
-
-
-void visSurvey::SurveyObject::showManipulator(bool yn) {}
-
-
-bool visSurvey::SurveyObject::isManipulatorShown() const
-{ return false; }
-
-
-bool visSurvey::SurveyObject::isManipulated() const
-{ return false; }
-
-
-bool visSurvey::SurveyObject::canResetManipulation() const
-{ return false; }
-
-
-void visSurvey::SurveyObject::resetManipulation()
-{  }
-
-
-void visSurvey::SurveyObject::acceptManipulation()
-{  }
-
-
-BufferString visSurvey::SurveyObject::getManipulationString() const
+bool SurveyObject::setDataVolume( bool color, AttribSliceSet* slc )
 {
-    return BufferString("");
+    delete slc;
+    return true;
 }
 
 
-NotifierAccess* visSurvey::SurveyObject::getManipulationNotifier()
-{ return 0; }
-
-
-bool visSurvey::SurveyObject::hasColor() const
-{ return false; }
-
-
-bool visSurvey::SurveyObject::allowMaterialEdit() const
-{ return false; }
-
-
-Color visSurvey::SurveyObject::getColor() const
-{ return Color::DgbColor; }
-
-
-int visSurvey::SurveyObject::nrResolutions() const
-{ return 1; }
-
-
-BufferString visSurvey::SurveyObject::getResolutionName(int idx) const
-{ return BufferString(idx); }
-
-
-int visSurvey::SurveyObject::getResolution() const
-{ return 0; }
-
-
-void visSurvey::SurveyObject::setResolution(int)
-{}
-
-
-
-int visSurvey::SurveyObject::getAttributeFormat() const
-{ return -1; }
-
-
-const AttribSelSpec* visSurvey::SurveyObject::getSelSpec() const
-{ return 0; }
-
-
-const ColorAttribSel* visSurvey::SurveyObject::getColorSelSpec() const
-{ return 0; }
-
-
-void visSurvey::SurveyObject::setSelSpec( const AttribSelSpec& )
-{}
-
-
-void visSurvey::SurveyObject::setColorSelSpec( const ColorAttribSel& )
-{}
-
-
-bool visSurvey::SurveyObject::canHaveMultipleTextures() const
-{ return false; }
-
-
-int visSurvey::SurveyObject::nrTextures() const
-{ return 0; }
-
-
-void visSurvey::SurveyObject::selectTexture(int)
-{}
-
-
-float visSurvey::SurveyObject::getValue(const Coord3&) const
-{ return mUndefValue; }
-
-
-
-const TypeSet<float>* visSurvey::SurveyObject::getHistogram() const
-{ return 0; }
-
-
-int visSurvey::SurveyObject::getColTabID() const { return -1; }
-
-
-CubeSampling visSurvey::SurveyObject::getCubeSampling() const
+void SurveyObject::setTraceData( bool color, ObjectSet<SeisTrc>* trcs )
 {
-    CubeSampling cs;
-    return cs;
-} 
+    if ( trcs ) deepErase( *trcs );
+}
 
 
-void visSurvey::SurveyObject::setCubeSampling( CubeSampling )
-{}
-
-
-bool visSurvey::SurveyObject::setDataVolume( bool, AttribSliceSet* slc)
-{ delete slc; return true; }
-
-
-const AttribSliceSet* visSurvey::SurveyObject::getCacheVolume( bool ) const
-{ return 0; }
-
-
-void visSurvey::SurveyObject::getDataTraceBids(TypeSet<BinID>&) const
-{}
-
-
-Interval<float> visSurvey::SurveyObject::getDataTraceRange() const
-{ return Interval<float>(0,0); }
-
-
-void visSurvey::SurveyObject::setTraceData( bool, ObjectSet<SeisTrc>* trcs)
-{ if ( trcs ) deepErase( *trcs ); }
-
-
-void visSurvey::SurveyObject::getDataRandomPos(
-	ObjectSet< TypeSet<BinIDZValues> >&) const
-{}
-
-
-void visSurvey::SurveyObject::setRandomPosData(bool,
-	const ObjectSet<const TypeSet<const BinIDZValues> >* vals )
-{}
-
-
-visSurvey::SurveyParamManager& visSurvey::SPM()
+SurveyParamManager& SPM()
 {
-    static visSurvey::SurveyParamManager* spm = 0;
+    static SurveyParamManager* spm = 0;
 
     if ( !spm ) spm = new SurveyParamManager;
 
@@ -195,7 +48,7 @@ visSurvey::SurveyParamManager& visSurvey::SPM()
 }
 
 
-visSurvey::SurveyParamManager::SurveyParamManager()
+SurveyParamManager::SurveyParamManager()
     : zscalechange( this )
     , utm2displaytransform( 0 )
     , zscaletransform( 0 )
@@ -207,7 +60,7 @@ visSurvey::SurveyParamManager::SurveyParamManager()
 }
 
 
-visSurvey::SurveyParamManager::~SurveyParamManager()
+SurveyParamManager::~SurveyParamManager()
 {
     if ( utm2displaytransform ) utm2displaytransform->unRef();
     if ( zscaletransform ) zscaletransform->unRef();
@@ -218,7 +71,7 @@ visSurvey::SurveyParamManager::~SurveyParamManager()
 }
 
 
-void visSurvey::SurveyParamManager::setZScale( float a )
+void SurveyParamManager::setZScale( float a )
 {
     if ( !utm2displaytransform ) createTransforms();
 
@@ -235,12 +88,11 @@ void visSurvey::SurveyParamManager::setZScale( float a )
 }
 
 
-float visSurvey::SurveyParamManager::getZScale() const
+float SurveyParamManager::getZScale() const
 { return utm2displaytransform ? zscale : defzscale; }
 
 
-visBase::Transformation*
-visSurvey::SurveyParamManager::getUTM2DisplayTransform()
+visBase::Transformation* SurveyParamManager::getUTM2DisplayTransform()
 {
     if ( !utm2displaytransform )
 	createTransforms();
@@ -249,8 +101,7 @@ visSurvey::SurveyParamManager::getUTM2DisplayTransform()
 }
 
 
-visBase::Transformation*
-visSurvey::SurveyParamManager::getZScaleTransform()
+visBase::Transformation* SurveyParamManager::getZScaleTransform()
 {
     if ( !utm2displaytransform )
 	createTransforms();
@@ -259,8 +110,7 @@ visSurvey::SurveyParamManager::getZScaleTransform()
 }
 
 
-visBase::Transformation*
-visSurvey::SurveyParamManager::getInlCrl2DisplayTransform()
+visBase::Transformation* SurveyParamManager::getInlCrl2DisplayTransform()
 {
     if ( !utm2displaytransform )
 	createTransforms();
@@ -269,7 +119,7 @@ visSurvey::SurveyParamManager::getInlCrl2DisplayTransform()
 }
 
 
-void visSurvey::SurveyParamManager::createTransforms()
+void SurveyParamManager::createTransforms()
 {
     utm2displaytransform = visBase::Transformation::create();
     zscaletransform = visBase::Transformation::create();
@@ -338,7 +188,7 @@ void visSurvey::SurveyParamManager::createTransforms()
 }
 
 
-void visSurvey::SurveyParamManager::removeTransforms(CallBacker*)
+void SurveyParamManager::removeTransforms(CallBacker*)
 {
     if ( utm2displaytransform )
     {
@@ -358,3 +208,5 @@ void visSurvey::SurveyParamManager::removeTransforms(CallBacker*)
 
     zscale = 1;
 }
+
+}; // namespace visSurvey
