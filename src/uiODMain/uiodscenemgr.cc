@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.34 2005-03-25 15:50:23 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.35 2005-03-25 15:58:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,9 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs->addFactory( new uiODTimesliceTreeItemFactory, 3000 );
     tifs->addFactory( new uiODRandomLineTreeItemFactory, 4000 );
     tifs->addFactory( new uiODPickSetTreeItemFactory, 5000 );
+#ifdef __debug__
     tifs->addFactory( new uiODBodyTreeItemFactory, 5500 );
+#endif
     tifs->addFactory( new uiODHorizonTreeItemFactory, 6000);
     tifs->addFactory( new uiODFaultTreeItemFactory, 7000 );
     tifs->addFactory( new uiODWellTreeItemFactory, 8000 );
