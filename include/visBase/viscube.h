@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.2 2002-02-28 07:02:48 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.3 2002-02-28 07:50:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ Cube is a basic cube that is settable in size.
 
 */
 
-class Cube : public VisualObject
+class Cube : public VisualObjectImpl
 {
 public:
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.6 2002-02-27 08:46:59 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.7 2002-02-28 07:51:08 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "visscene.h"
@@ -323,7 +323,7 @@ void visBase::RectangleDragger::finishCB(void* obj, SoDragger* )
 
 
 visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
-    : VisualObject( scene_ )
+    : VisualObjectImpl( scene_ )
     , origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
     , orientation_( visBase::Rectangle::XY )

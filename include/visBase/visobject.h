@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.5 2002-02-26 17:54:40 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.6 2002-02-28 07:50:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,8 +35,31 @@ class Scene;
 class VisualObject : public SceneObject
 {
 public:
-			VisualObject(Scene&);
-    virtual		~VisualObject();
+    virtual			~VisualObject() {}
+    virtual void		turnOn(bool)			= 0;
+    virtual bool		isOn() const			= 0;
+
+    virtual void		setColor(const Color& )		= 0;
+
+    virtual void		switchColorMode( bool totable )	= 0;
+    virtual bool		isColorTable() const		= 0;
+
+    virtual const ColorTable&	colorTable() const		= 0;
+    virtual ColorTable&		colorTable()			= 0;
+    				/*!< if you change the ct,
+				     you must notify the object
+				     with colorTableChanged()
+				*/
+
+    virtual void		colorTableChanged()		= 0;
+};
+
+
+class VisualObjectImpl : public VisualObject
+{
+public:
+			VisualObjectImpl(Scene&);
+    virtual		~VisualObjectImpl();
     void		turnOn(bool);
     bool		isOn() const;
 
@@ -45,10 +68,9 @@ public:
     virtual void	switchColorMode( bool totable );
     bool		isColorTable() const;
 
-    virtual void	setColorTable( ColorTable* );
-    			/*!< I will take over you */
     const ColorTable&	colorTable() const;
     ColorTable&		colorTable();
+    virtual void	colorTableChanged();
 
     SoNode*		getData();
 

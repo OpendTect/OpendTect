@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.3 2002-02-26 17:54:40 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.4 2002-02-28 07:50:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ namespace visBase
     axis.
 */
 
-class Annotation : public VisualObject
+class Annotation : public VisualObjectImpl
 {
 public:
 

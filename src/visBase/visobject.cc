@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.7 2002-02-27 14:42:35 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.8 2002-02-28 07:51:08 kristofer Exp $";
 
 #include "visobject.h"
 #include "colortab.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: visobject.cc,v 1.7 2002-02-27 14:42:35 kristofe
 #include "Inventor/nodes/SoMaterialBinding.h"
 #include "Inventor/nodes/SoGroup.h"
 
-visBase::VisualObject::VisualObject( Scene& scene_ )
+visBase::VisualObjectImpl::VisualObjectImpl( Scene& scene_ )
     : root( new SoSeparator )
     , onoff( new SoSwitch )
     , material( new SoSwitch )
@@ -54,26 +54,26 @@ visBase::VisualObject::VisualObject( Scene& scene_ )
 }
 
 
-visBase::VisualObject::~VisualObject()
+visBase::VisualObjectImpl::~VisualObjectImpl()
 {
     onoff->unref();
     delete colortable;
 }
 
 
-void visBase::VisualObject::turnOn(bool n)
+void visBase::VisualObjectImpl::turnOn(bool n)
 {
     onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
 }
 
 
-bool visBase::VisualObject::isOn() const
+bool visBase::VisualObjectImpl::isOn() const
 {
     return !onoff->whichChild.getValue();
 }
 
 
-void visBase::VisualObject::setColor( const Color& nc )
+void visBase::VisualObjectImpl::setColor( const Color& nc )
 {
     color = nc;
     updateMaterial();
@@ -81,46 +81,38 @@ void visBase::VisualObject::setColor( const Color& nc )
     
 
 
-void visBase::VisualObject::switchColorMode( bool totable )
+void visBase::VisualObjectImpl::switchColorMode( bool totable )
 {
     material->whichChild = totable ? 1 : 0;
     if ( totable && !colortable ) colortable = new ColorTable;
 }
 
 
-bool  visBase::VisualObject::isColorTable() const
+bool  visBase::VisualObjectImpl::isColorTable() const
 {
     return material->whichChild.getValue();
 }
 
 
-void visBase::VisualObject::setColorTable( ColorTable* nct )
-{
-    Interval<float> intv = nct->getInterval();
-    ColorTable::get( nct->name(), *colortable );
-    colortable->scaleTo( intv );
-}
-
-
-const ColorTable& visBase::VisualObject::colorTable() const
+const ColorTable& visBase::VisualObjectImpl::colorTable() const
 {
     if ( !colortable )
-	const_cast<VisualObject*>(this)->colortable = new ColorTable;
+	const_cast<VisualObjectImpl*>(this)->colortable = new ColorTable;
     return *colortable;
 }
 
 
-ColorTable& visBase::VisualObject::colorTable()
+ColorTable& visBase::VisualObjectImpl::colorTable()
 {
     if ( !colortable ) colortable = new ColorTable;
     return *colortable;
 }
 
 
-SoNode* visBase::VisualObject::getData() { return onoff; }
+SoNode* visBase::VisualObjectImpl::getData() { return onoff; }
 
 
-void visBase::VisualObject::updateMaterial()
+void visBase::VisualObjectImpl::updateMaterial()
 {
     defaultmaterial->ambientColor.setValue( color.r() * ambience/255,
 					    color.g() * ambience/255,

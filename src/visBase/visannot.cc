@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.3 2002-02-26 17:54:21 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.4 2002-02-28 07:51:08 kristofer Exp $";
 
 #include "visannot.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: visannot.cc,v 1.3 2002-02-26 17:54:21 kristofer
 
 visBase::Annotation::Annotation( Scene& s)
     : coords( new SoCoordinate3 )
-    , VisualObject( s )
+    , VisualObjectImpl( s )
 {
     root->addChild( coords );
 
