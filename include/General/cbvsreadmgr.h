@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.13 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.14 2004-07-28 16:43:41 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <cbvsio.h>
-#include <cbvsinfo.h>
-#include <datainterp.h>
+#include "cbvsio.h"
+#include "cbvsinfo.h"
+#include "datainterp.h"
 #include <iosfwd>
 class CBVSReader;
 class CBVSInfo;
@@ -78,6 +78,7 @@ protected:
     DataInterpreter<int> iinterp;
     DataInterpreter<float> finterp;
     DataInterpreter<double> dinterp;
+    int			rdr1firstsampnr_;
 
     bool		addReader(std::istream*,const CubeSampling*);
     bool		addReader(const char*,const CubeSampling*);
