@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uilineedit.h,v 1.5 2001-09-23 22:22:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
 
     void		setReadOnly( bool = true );
     bool		isReadOnly() const;
+    void		setPasswordMode();
 
     Notifier<uiLineEdit> textChanged;
     Notifier<uiLineEdit> returnPressed;

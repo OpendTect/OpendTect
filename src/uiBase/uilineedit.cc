@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.6 2001-09-21 15:04:36 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.7 2001-09-23 22:22:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,12 @@ void uiLineEdit::setValue( float f )
     BufferString s;
     if ( !mIsUndefined(f) ) s += f;
     setText( s );
+}
+
+
+void uiLineEdit::setPasswordMode()
+{
+    body_->setEchoMode( QLineEdit::Password );
 }
 
 
