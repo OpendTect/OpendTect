@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.15 2002-07-25 21:48:44 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.16 2002-09-20 11:00:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ protected:
     ObjectSet<DataBuffer> dbufs;
     int			bytesperwrite;
     int			auxnrbytes;
-    bool		rectnreg;
+    bool		input_rectnreg;
     int*		nrbytespersample_;
 
     void		writeHdr(const CBVSInfo&);
@@ -87,9 +87,9 @@ private:
     int			trcswritten;
     BinID		prevbinid_;
     bool		finishing_inline;
-    bool		nrtrcsperposn_known;
-
     int			nrtrcsperposn;
+    int			nrtrcsperposn_status;
+    int			checknrtrcsperposn;
     PosAuxInfoSelection	auxinfosel;
     CBVSInfo::SurvGeom	survgeom;
 

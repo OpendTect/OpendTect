@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.38 2002-09-12 10:57:37 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.39 2002-09-20 11:00:51 bert Exp $";
 
 /*!
 
@@ -359,7 +359,7 @@ bool CBVSReader::goTo( const BinID& bid )
 bool CBVSReader::goTo( int posnr, const BinID& bid, int ci, int cs )
 {
     // Be careful: offsets can be larger than what fits in an int!
-    streamoff so = posnr * info_.nrtrcsperposn;
+    streamoff so = posnr * (info_.nrtrcsperposn < 2 ? 1 : info_.nrtrcsperposn);
     so *= auxnrbytes + bytespertrace;
 
     toOffs( datastartfo + streampos(so) );
@@ -409,6 +409,7 @@ int CBVSReader::getPosNr( const BinID& bid,
 	const CBVSInfo::SurvGeom::InlineInfo::Segment* curseg =
 		&curiinf->segments[cursegnr];
 	posnr = posnrs[curinlinfnr];
+
 	if ( bid.inl != curiinf->inl || !curseg->includes(bid.crl) )
 	{
 	    const int sz = info_.geom.inldata.size();
@@ -418,8 +419,7 @@ int CBVSReader::getPosNr( const BinID& bid,
 		curiinf = info_.geom.inldata[iinl];
 		if ( curiinf->inl != bid.inl ) continue;
 
-		posnr = posnrs[curinlinfnr];
-		foundseg = false;
+		posnr = posnrs[iinl];
 		for ( int iseg=0; iseg<curiinf->segments.size(); iseg++ )
 		{
 		    curseg = &curiinf->segments[iseg];
@@ -484,6 +484,13 @@ bool CBVSReader::skip( bool tonextpos )
 {
     if ( hinfofetched ) 
 	hinfofetched = false;
+
+    if ( info_.nrtrcsperposn < 1 )
+    {
+	// BinID will be set later, just go one trace further
+	posidx = 0;
+	curbinid_.inl = curbinid_.crl = 0;
+    }
     else if ( !nextPosIdx() )
 	return false;
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.28 2002-09-11 14:39:08 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.29 2002-09-20 11:00:51 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -28,11 +28,13 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i, const PosAuxInfo* e )
 	, prevbinid_(-999,-999)
 	, trcswritten(0)
 	, nrtrcsperposn(i.nrtrcsperposn)
+	, nrtrcsperposn_status(2)
+	, checknrtrcsperposn(0)
 	, auxinfosel(i.auxinfosel)
 	, survgeom(i.geom)
 	, bytesperwrite(0)
 	, auxnrbytes(0)
-	, nrtrcsperposn_known(false)
+	, input_rectnreg(false)
 {
     init( i );
 }
@@ -46,12 +48,12 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
 	, prevbinid_(-999,-999)
 	, trcswritten(0)
 	, nrtrcsperposn(cw.nrtrcsperposn)
+	, nrtrcsperposn_status(cw.nrtrcsperposn_status)
 	, auxinfosel(cw.auxinfosel)
 	, survgeom(ci.geom)
 	, bytesperwrite(0)
 	, auxnrbytes(0)
 	, newblockfo(0)
-	, nrtrcsperposn_known(cw.nrtrcsperposn_known)
 {
     init( ci );
 }
@@ -73,9 +75,9 @@ void CBVSWriter::init( const CBVSInfo& i )
       && !auxinfosel.pick && !auxinfosel.refpos )
 	auxinfo = 0;
 
-    rectnreg = survgeom.fullyrectandreg;
-
     writeHdr( i ); if ( errmsg_ ) return;
+
+    input_rectnreg = survgeom.fullyrectandreg;
 
     newblockfo = strm_.tellp();
     strm_.seekp( 8 );
@@ -208,16 +210,23 @@ void CBVSWriter::writeGeom()
 
 void CBVSWriter::newSeg( bool newinl )
 {
+    const bool goodgeom = nrtrcsperposn_status == 0 && nrtrcsperposn > 0;
+    if ( !goodgeom && !newinl )
+    {
+	inldata[inldata.size()-1]->segments[0].stop = curbinid_.crl;
+	return;
+    }
+
     if ( !trcswritten ) prevbinid_ = curbinid_;
 
     int newstep = SI().step(false).crl;
     if ( newinl )
     {
-	if ( inldata.size() )
+	if ( goodgeom && inldata.size() )
 	    newstep = inldata[inldata.size()-1]->segments[0].step;
 	inldata += new CBVSInfo::SurvGeom::InlineInfo( curbinid_.inl );
     }
-    else
+    else if ( goodgeom )
 	newstep = inldata[inldata.size()-1]->segments[0].step;
 
     inldata[inldata.size()-1]->segments +=
@@ -228,15 +237,16 @@ void CBVSWriter::newSeg( bool newinl )
 
 void CBVSWriter::getBinID()
 {
-    if ( rectnreg || !auxinfo )
+    const int nrtrcpp = nrtrcsperposn < 2 ? 1 : nrtrcsperposn;
+    if ( input_rectnreg || !auxinfo )
     {
-	int posidx = trcswritten / nrtrcsperposn;
+	int posidx = trcswritten / nrtrcpp;
 	curbinid_.inl = survgeom.start.inl
 		   + survgeom.step.inl * (posidx / nrxlines_);
 	curbinid_.crl = survgeom.start.crl
 		   + survgeom.step.crl * (posidx % nrxlines_);
     }
-    else if ( !(trcswritten % nrtrcsperposn) )
+    else if ( !(trcswritten % nrtrcpp) )
     {
 	curbinid_ = auxinfo->binid;
 	if ( !trcswritten || prevbinid_.inl != curbinid_.inl )
@@ -302,12 +312,35 @@ int CBVSWriter::put( void** cdat, int offs )
     if ( thrbytes_ && strm_.tellp() >= thrbytes_ )
 	finishing_inline = true;
 
-    if ( !nrtrcsperposn_known && trcswritten )
+    if ( nrtrcsperposn_status && trcswritten )
     {
-	if ( prevbinid_ == curbinid_ )
-	    nrtrcsperposn++;
+	if ( trcswritten == 1 )
+	    nrtrcsperposn = 1;
+
+	if ( nrtrcsperposn_status == 2 )
+	{
+	    if ( prevbinid_ == curbinid_ )
+		nrtrcsperposn++;
+	    else
+	    {
+		nrtrcsperposn_status = 1;
+		checknrtrcsperposn = 1;
+	    }
+	}
 	else
-	    nrtrcsperposn_known = true;
+	{
+	    if ( prevbinid_ == curbinid_ )
+		checknrtrcsperposn++;
+	    else
+	    {
+		nrtrcsperposn_status = 0;
+		if ( checknrtrcsperposn != nrtrcsperposn )
+		{
+		    input_rectnreg = true;
+		    nrtrcsperposn = -1;
+		}
+	    }
+	}
     }
     prevbinid_ = curbinid_;
     trcswritten++;
