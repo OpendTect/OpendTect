@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.71 2002-07-10 09:39:27 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.72 2002-07-16 15:18:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,8 @@ void uiVisPartServer::usePar( const IOPar& par )
 	   (visSurvey::HorizonDisplay*)visBase::DM().getObj(horizonids[idx]);
 	horizons += hor;
 
-	getDataCB( hor );
+	if ( hor->getAttribSelSpec().id() >= 0 )
+	    getDataCB( hor );
     }
 
     float appvel;
