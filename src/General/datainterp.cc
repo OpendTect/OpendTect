@@ -5,12 +5,24 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.4 2001-03-19 10:20:01 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.5 2001-04-21 15:37:30 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
 #include "ibmformat.h"
 #include "separstr.h"
+
+DefineEnumNames(DataCharacteristics,UserType,1,"Data storage") {
+	"0 - auto",
+	"1 - 8  bit signed",
+        "2 - 8  bit unsigned",
+        "3 - 16 bit signed",
+        "4 - 16 bit unsigned",
+        "5 - 32 bit signed",
+        "6 - 32 bit unsigned",
+        "7 - 32 bit floating point",
+        "8 - 64 bit floating point",
+	0 };
 
 // sys/types.h is a bit of a mess, so ...
 typedef signed char TS1;
@@ -71,6 +83,19 @@ void DataCharacteristics::set( const char* s )
 					     : DataCharacteristics::Ieee;
     if ( sz > 4 )
 	littleendian = yesNoFromString( fms[4] );
+}
+
+
+DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
+	: BinDataDesc( ut<F32, ut>UI32 || (int)ut % 2)
+	, fmt(Ieee)
+	, littleendian(__islittle__)
+{
+    if ( ut == Auto )
+	*this = DataCharacteristics();
+    else
+	nrbytes = (BinDataDesc::ByteCount)
+		  (ut < SI16 ? 1 : (ut < SI32 ? 2 : (ut > F32 ? 8 : 4) ) );
 }
 
 
