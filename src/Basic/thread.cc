@@ -4,16 +4,15 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.19 2004-10-05 15:15:40 dgb Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.20 2004-11-29 10:56:17 bert Exp $";
 
 #include "thread.h"
 #include "callback.h"
-#include "errno.h"
-
-#include "debug.h"
+#include "settings.h"
 #include "debugmasks.h"
+#include "debug.h"
+#include "errno.h" // for EBUSY
 
-#include "settings.h"		// Only for getNrProcessors
 
 Threads::Mutex::Mutex()
 {
@@ -114,24 +113,7 @@ void Threads::Thread::threadExit()
 }
 
 
-#ifdef __win__
-int Threads::getNrProcessors()
-{
-    int res = 1;
-
-    if ( !getenv("DTECT_USE_MULTIPROC") && !getenv("DTECT_DEBUG") )
-	return res;
-
-    if ( !Settings::common().get("Nr Processors", res ) )
-    {
-	struct _SYSTEM_INFO sysinfo;
-	GetSystemInfo(&sysinfo);
-	res = sysinfo.dwNumberOfProcessors; /* total number of CPUs */
-    }
-    return res;
-
-}
-#else
+#ifndef __win__
 
 #include <unistd.h>
 
@@ -142,11 +124,20 @@ int Threads::getNrProcessors()
 # include <mach/machine.h>
 #endif
 
-int Threads::getNrProcessors()
+#endif
+
+
+static int getSysNrProc()
 {
-    int res;
-    if ( Settings::common().get("Nr Processors", res ) )
-	return res;
+    int ret;
+
+#ifdef __win__
+
+    struct _SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    ret = sysinfo.dwNumberOfProcessors; /* total number of CPUs */
+
+#else
 
     int maxnrproc = sysconf(_SC_CHILD_MAX);
 
@@ -174,25 +165,47 @@ int Threads::getNrProcessors()
 # endif
 #endif
 
-    int ret;
-    if ( maxnrproc==-1 && nrprocessors==-1 ) ret= 2;
-    else if ( maxnrproc==-1 ) ret= nrprocessors;
-    else if ( nrprocessors==-1 ) ret= maxnrproc;
-    else  ret= mMIN(nrprocessors,maxnrproc);
+    if ( maxnrproc == -1 && nrprocessors == -1 )
+	ret = 2;
+    else if ( maxnrproc == -1 )
+	ret = nrprocessors;
+    else if ( nrprocessors == -1 )
+	ret = maxnrproc;
+    else
+	ret = mMIN(nrprocessors,maxnrproc);
 
-    if ( DBG::isOn( DBG_MT ) ) 
-    {
-	static bool msgdone = false;
-	if ( !msgdone )
-	{
-	    BufferString msg( "Number of Processors found: " );
-	    msg += ret;
-	    DBG::message( msg );
-	    msgdone = true;
-	}
-    }
+#endif
 
     return ret;
 }
 
-#endif
+
+int Threads::getNrProcessors()
+{
+    static int nrproc = -1;
+    if ( nrproc > 0 ) return nrproc;
+    nrproc = 1;
+
+    const char* envres = getenv( "DTECT_USE_MULTIPROC" );
+    bool douse = !__iswin__;
+    if ( envres && (*envres == 'n' || *envres == 'N') )
+	douse = false;
+    if ( envres && (*envres == 'y' || *envres == 'Y') )
+	douse = true;
+    if ( !douse ) return nrproc;
+
+    const bool havesett = Settings::common().get( "Nr Processors", nrproc );
+    if ( !havesett )
+	nrproc = getSysNrProc();
+
+    if ( DBG::isOn( DBG_MT ) ) 
+    {
+	BufferString msg = "Number of processors (";
+	msg += havesett ? "User settings" : "System";
+	msg += "): "; msg += nrproc;
+	DBG::message( msg );
+    }
+
+    if ( nrproc < 1 ) nrproc = 1;
+    return nrproc;
+}
