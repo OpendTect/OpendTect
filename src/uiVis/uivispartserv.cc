@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.66 2002-06-27 08:53:42 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.67 2002-06-27 10:40:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -538,6 +538,11 @@ int uiVisPartServer::addPickSetDisplay()
     scene->addXYTObject( pickset );
     setSelObjectId( pickset->id() );
     pickset->changed.notify( mCB( this, uiVisPartServer, picksChangedCB ));
+    if ( picks.size() > 1 && picks[0] )
+    {
+	pickset->setSize( picks[0]->getXSz(), picks[0]->getYSz(), 
+			  picks[0]->getZSz() );
+    }
     return pickset->id();
 }
 
