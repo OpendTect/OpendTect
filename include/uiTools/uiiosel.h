@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.22 2002-11-26 08:23:47 nanne Exp $
+ RCS:           $Id: uiiosel.h,v 1.23 2003-04-29 15:45:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,8 @@ public:
     			//!< Called by 'Select ...' button push.
     			//!< Make sure selok_ is true if that is the case!
     Notifier<uiIOSelect> selectiondone;
+
+    const char*		labelText() const;
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.32 2003-04-23 15:07:59 nanne Exp $
+ RCS:           $Id: uiiosel.cc,v 1.33 2003-04-29 15:45:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,6 +292,12 @@ void uiIOSelect::setReadOnly( bool yn )
 }
 
 
+const char* uiIOSelect::labelText() const
+{
+    return inp_->label()->text();
+}
+
+
 uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
 				const char* inp, bool wclr )
 	: uiIOSelect(p,mCB(this,uiIOFileSelect,doFileSel),txt,wclr)
@@ -305,7 +311,7 @@ uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
 void uiIOFileSelect::doFileSel( CallBacker* c )
 {
     BufferString caption( "Select " );
-    caption += inp_->label()->text();
+    caption += labelText();
     uiFileDialog fd( this, forread, getInput(),
 		     filter == "" ? 0 : (const char*)filter, caption );
     if ( seldir )
