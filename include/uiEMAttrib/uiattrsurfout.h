@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.1 2004-10-04 16:09:59 nanne Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.2 2004-10-06 19:21:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class IOPar;
 class MultiID;
 class NLAModel;
 class uiAttrSel;
+class uiGenInput;
 class uiIOObjSel;
 
 
@@ -41,6 +42,7 @@ protected:
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
     void		addNLA(int&);
+    void		attribSel(CallBacker*);
 
     CtxtIOObj&		ctio;
     AttribDescSet&	ads;
@@ -48,9 +50,8 @@ protected:
     const NLAModel*	nlamodel;
 
     uiAttrSel*		attrfld;
+    uiGenInput*		attrnmfld;
     uiIOObjSel*		objfld;
 };
-
-
 
 #endif

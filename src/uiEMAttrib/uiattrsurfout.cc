@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.1 2004-10-04 16:09:54 nanne Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.2 2004-10-06 19:20:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "uiattrsel.h"
 #include "uiioobjsel.h"
+#include "uigeninput.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -38,10 +39,14 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const AttribDescSet& ad,
     , nlaid(mid)
 {
     setHelpID( "101.2.0" );
-    setTitleText( "Create surface output" );
+    setTitleText( "" );
 
     attrfld = new uiAttrSel( uppgrp, &ads, "Quantity to output" );
     attrfld->setNLAModel( nlamodel );
+    attrfld->selectiondone.notify( mCB(this,uiAttrSurfaceOut,attribSel) );
+
+    attrnmfld = new uiGenInput( uppgrp, "Attribute name", StringInpSpec() );
+    attrnmfld->attach( alignedBelow, attrfld );
 
     ctio.ctxt.forread = true;
     objfld = new uiIOObjSel( uppgrp, ctio, "Calculate on surface" );
@@ -49,6 +54,8 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const AttribDescSet& ad,
 
     uppgrp->setHAlignObj( attrfld );
     addStdFields();
+    singmachfld->display( false );
+    singmachfld->setValue( true );
 }
 
 
@@ -56,6 +63,12 @@ uiAttrSurfaceOut::~uiAttrSurfaceOut()
 {
     delete ctio.ioobj;
     delete &ctio;
+}
+
+
+void uiAttrSurfaceOut::attribSel( CallBacker* )
+{
+    attrnmfld->setText( attrfld->getInput() );
 }
 
 
@@ -67,6 +80,7 @@ bool uiAttrSurfaceOut::prepareProcessing()
 	return false;
     }
 
+    attrfld->processInput();
     if ( attrfld->attribID() < 0 && attrfld->outputNr() < 0 )
     {
 	uiMSG().error( "Please select the output quantity" );
@@ -103,7 +117,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     BufferString key;
     BufferString keybase = AttribParseTools::outputstr; keybase += ".1.";
     key = keybase; key += AttribOutput::typekey;
-    iopar.set( key, "Surface" );
+    iopar.set( key, AttribOutput::surfkey );
 
     key = keybase; key += CubeAttribOutput::attribkey;
     key += "."; key += AttribParseTools::maxkeystr;
@@ -112,10 +126,12 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     key = keybase; key += CubeAttribOutput::attribkey; key += ".0";
     iopar.set( key, nlamodelid < 0 ? attrfld->attribID() : nlamodelid );
 
-    key = keybase; key += "Surface ID";
+    key = keybase; key += SurfaceAttribOutput::surfidkey;
     iopar.set( key, ctio.ioobj->key() );
 
-    iopar.set( "Target value", attrfld->getInput() );
+    BufferString attrnm = attrnmfld->text();
+    if ( attrnm == "" ) attrnm = attrfld->getInput();
+    iopar.set( "Target value", attrnm );
     ads.removeAttrib( ads.descNr(nlamodelid) );
 
     ads.setRanges( iopar );
