@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.161 2003-10-02 08:17:57 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.162 2003-10-06 10:57:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,7 +216,7 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
     visSurvey::SurfaceDisplay* sd = visSurvey::SurfaceDisplay::create();
     sd->setTransformation( visSurvey::SPM().getUTM2DisplayTransform() );
 
-    PtrMan<Executor> exec = sd->setSurfaceId( emhorid );
+    PtrMan<Executor> exec = sd->createSurface( emhorid );
     if ( !exec )
     {
 	sd->ref(); sd->unRef();
@@ -285,7 +285,7 @@ int uiVisPartServer::addWell( int sceneid, const MultiID& multiid )
 }
 
 
-int uiVisPartServer::addPickSet(int sceneid, const PickSet& pickset )
+int uiVisPartServer::addPickSet( int sceneid, const PickSet& pickset )
 {
     TypeSet<int> sceneids;
     bool doshare = false;
@@ -694,11 +694,12 @@ void uiVisPartServer::getRandomPosDataPos( int id,
 
 
 void uiVisPartServer::setRandomPosData( int id,
-		    const ObjectSet<const TypeSet<const BinIDZValue> >& nd )
+		    const ObjectSet<const TypeSet<const BinIDZValue> >* nd,
+       		    bool colordata )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
-    if ( sd ) sd->putNewData( nd );
+    if ( sd ) sd->putNewData( nd, colordata );
 }
 
 
@@ -719,7 +720,7 @@ const Interval<float> uiVisPartServer::getRandomTraceZRange( int id ) const
 }
 
 
-void uiVisPartServer::setRandomTrackData( int id, ObjectSet<SeisTrc>& data,
+void uiVisPartServer::setRandomTrackData( int id, ObjectSet<SeisTrc>* data,
        					  bool colordata )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
@@ -993,6 +994,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	for ( int idy=0; idy<children.size(); idy++ )
 	{
 	    calculateAttrib( children[idy], false );
+	    calculateColorAttrib( children[idy], false );
 
 	    if ( hasconnections.indexOf( children[idy] ) >= 0 ) continue;
 
@@ -1217,7 +1219,7 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 bool uiVisPartServer::hasColorAttrib( int id ) const
 {
     mDynamicCastAllConst();
-    return ( vd || rtd || pdd );
+    return ( vd || rtd || pdd || sd );
 }
 
 
@@ -1227,6 +1229,7 @@ const ColorAttribSel* uiVisPartServer::getColorSelSpec( int id ) const
     if ( pdd ) return &pdd->getColorSelSpec();
     if ( rtd ) return &rtd->getColorSelSpec();
     if ( vd ) return &vd->getColorSelSpec();
+    if ( sd ) return &sd->getColorSelSpec();
 
     return 0;
 }
@@ -1238,6 +1241,7 @@ void uiVisPartServer::setColorSelSpec( int id, const ColorAttribSel& myas )
     if ( pdd ) pdd->setColorSelSpec( myas );
     if ( rtd ) rtd->setColorSelSpec( myas );
     if ( vd ) vd->setColorSelSpec( myas );
+    if ( sd ) sd->setColorSelSpec( myas );
 }
 
 
@@ -1250,16 +1254,16 @@ void uiVisPartServer::setColorSelSpec( const ColorAttribSel& myas )
 bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 {
     mDynamicCastAll();
-    if ( !vd && !pdd && !rtd )
+    if ( !vd && !pdd && !rtd && !sd )
 	return false;
 
-    const ColorAttribSel* as = getColorSelSpec( id );
-    if ( !as ) return false;
-    if ( !newselect && as->id()<0 )
+    const ColorAttribSel* colas = getColorSelSpec( id );
+    if ( !colas ) return false;
+    if ( !newselect && colas->as.id()<0 )
 	return false;
 
     bool res = true;
-    if ( newselect || ( as->id() < 0 ) )
+    if ( newselect || ( colas->as.id() < 0 ) )
 	res = selectColorAttrib( id );
 	
     if ( !res ) return res;

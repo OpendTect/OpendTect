@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.95 2003-09-30 12:37:47 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.96 2003-10-06 10:57:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,8 @@ public:
     BufferString		getDisplayName(int) const;
 
     bool			isInlCrlTsl(int,int dim) const;
-    				/*!< dim==0 : inline
+    				/*!< dim==-1 : any slice
+				     dim==0 : inline
 				     dim==1 : crossline
 				     dim==2 : tslc */
     bool			isVolView(int) const;
@@ -132,7 +133,8 @@ public:
 				    ObjectSet<TypeSet<BinIDZValue> >&) const;
     				/*!< Content of objectset becomes callers */
     void			setRandomPosData(int,const ObjectSet
-				   <const TypeSet<const BinIDZValue> >&);
+				   <const TypeSet<const BinIDZValue> >*,
+				   bool colordata=false);
     				/*!< The data should have exactly the same
 				     structure as the positions given in
 				     getRandomPosDataPos */
@@ -140,7 +142,7 @@ public:
     void			getRandomTrackPositions(int id,
 	    						TypeSet<BinID>&) const;
     const Interval<float>	getRandomTraceZRange(int id) const;
-    void			setRandomTrackData(int,ObjectSet<SeisTrc>&,
+    void			setRandomTrackData(int,ObjectSet<SeisTrc>*,
 	    					   bool colordata=false);
     				/*!< Traces become mine */
 
