@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.9 2001-12-28 15:49:17 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.10 2002-04-15 13:34:19 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
@@ -100,14 +100,19 @@ Executor* SeisTrcWriter::starter( const SeisTrc& trc )
 
 bool SeisTrcWriter::openConn()
 {
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+    	{ errmsg = "No data from object manager"; return false; }
 
     delete conn;
     conn = ioobj->getConn( Conn::Write );
     if ( !conn || conn->bad() )
-	{ delete conn; conn = 0; }
+    {
+	errmsg = "Cannot write to ";
+	errmsg += ioobj->fullUserExpr(false);
+	delete conn; conn = 0;
+    }
 
-    return conn ? true : false;
+    return conn;
 }
 
 
@@ -181,7 +186,7 @@ bool SeisTrcWriter::handleConn( const SeisTrc& trc, bool tonext )
 
     if ( !openConn() )
     {
-	if ( errmsg == "" ) errmsg = "Cannot create file";
+	if ( errmsg == "" ) errmsg = "Cannot create output file";
 	return false;
     }
 
