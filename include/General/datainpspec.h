@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.23 2001-07-04 12:01:45 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.24 2001-07-04 12:36:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,7 +232,7 @@ public:
 
 			NumInpIntervalSpec( const NumInpIntervalSpec<T>& o )
 			    : NumInpWithLimitsSpec<T>( o )
-			    , interval_( o.interval_.clone() )	{}
+			    , interval_( o.interval_->clone() )	{}
 
 			~NumInpIntervalSpec()	{ delete interval_; }
 
