@@ -1,0 +1,5 @@
+#!/bin/csh
+
+foreach tf ( *.tag )
+	rm -rf $tf $tf:r
+end
