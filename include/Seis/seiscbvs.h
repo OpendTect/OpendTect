@@ -1,0 +1,80 @@
+#ifndef seiscbvs_h
+#define seiscbvs_h
+
+/*+
+________________________________________________________________________
+
+ CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ Author:	A.H. Bril
+ Date:		April 2001
+ RCS:		$Id: seiscbvs.h,v 1.1 2001-05-23 07:52:38 bert Exp $
+________________________________________________________________________
+
+CBVS-based seimic translator.
+
+-*/
+
+#include <seistrctr.h>
+#include <tracedata.h>
+class CBVSReadMgr;
+class CBVSWriteMgr;
+
+
+class CBVSSeisTrcTranslator : public SeisTrcTranslator
+{			isTranslator(CBVS,SeisTrc)
+public:
+
+			CBVSSeisTrcTranslator(const char* nm=0);
+			~CBVSSeisTrcTranslator();
+
+    bool		readInfo(SeisTrcInfo&);
+    bool		read(SeisTrc&);
+    bool		skip(int nrtrcs=1);
+    bool		write(const SeisTrc&);
+    void		close();
+
+    bool		supportsGoTo() const		{ return true; }
+    bool		goTo(const BinID&);
+
+    const UserIDSet*	parSpec(Conn::State) const
+			{ return &datatypeparspec; }
+    virtual void	usePar(const IOPar*);
+
+protected:
+
+    bool		forread;
+    bool		headerdone;
+    bool		donext;
+
+    // Following variables are inited by commitSelections_
+    TraceDataInterpreter** storinterps;
+    StepInterval<int>*	samps;
+    bool*		userawdata;
+    bool*		samedatachar;
+    int*		actualsz;
+    unsigned char**	blockbufs;
+    unsigned char**	stptrs;
+    unsigned char**	tdptrs;
+    int			preseldatatype;
+
+    CBVSReadMgr*	rdmgr;
+    CBVSWriteMgr*	wrmgr;
+
+    virtual void	cleanUp();
+    virtual bool	initRead_();
+    virtual bool	initWrite_(const SeisTrc&);
+    virtual bool	commitSelections_();
+    bool		startWrite();
+    bool		toNext();
+
+private:
+
+    static UserIDSet	datatypeparspec;
+
+    void		calcSamps();
+    void		destroyVars();
+
+};
+
+
+#endif
