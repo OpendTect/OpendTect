@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.16 2001-07-23 10:38:41 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.17 2001-10-02 11:47:52 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -20,7 +20,7 @@ const int CBVSIO::headstartbytes = 8 + 2 * CBVSIO::integersize;
 
 
 CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
-			const CBVSInfo::ExplicitData* e, bool forceintegrity )
+			const CBVSInfo::ExplicitData* e )
 	: strm_(*s)
 	, expldat(e)
 	, thrbytes_(0)
@@ -30,7 +30,6 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
 	, nrtrcsperposn(i.nrtrcsperposn)
 	, explinfo(i.explinfo)
 	, survgeom(i.geom)
-	, dbufs(forceintegrity ? new ObjectSet<DataBuffer> : 0)
 	, bytesperwrite(0)
 	, explicitbytes(0)
 {
@@ -48,7 +47,6 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
 	, nrtrcsperposn(cw.nrtrcsperposn)
 	, explinfo(cw.explinfo)
 	, survgeom(ci.geom)
-	, dbufs(cw.dbufs ? new ObjectSet<DataBuffer> : 0)
 	, bytesperwrite(0)
 	, explicitbytes(0)
 	, newblockfo(0)
@@ -86,11 +84,7 @@ CBVSWriter::~CBVSWriter()
 {
     close();
     if ( &strm_ != &cout ) delete &strm_;
-    if ( dbufs )
-    {
-	deepErase(*dbufs);
-	delete dbufs;
-    }
+    deepErase(dbufs);
 }
 
 
@@ -276,23 +270,12 @@ int CBVSWriter::put( void** cdat )
     if ( !writeExplicits() )
 	{ errmsg_ = "Cannot write Trace header data"; return -1; }
 
-    if ( dbufs )
+    DataBuffer* buf = dbufs[dbufs.size()-1];
+    unsigned char* ptr = buf->data() + explicitbytes;
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
-	DataBuffer* buf = (*dbufs)[dbufs->size()-1];
-	unsigned char* ptr = buf->data() + explicitbytes;
-	for ( int icomp=0; icomp<nrcomps_; icomp++ )
-	{
-	    memcpy( ptr, cdat[icomp], cnrbytes_[icomp] );
-	    ptr += cnrbytes_[icomp];
-	}
-    }
-    else
-    {
-	for ( int icomp=0; icomp<nrcomps_; icomp++ )
-	{
-	    if ( !writeWithRetry(strm_,cdat[icomp],cnrbytes_[icomp],2,100) )
-		{ errmsg_ = "Cannot write CBVS data"; return -1; }
-	}
+	memcpy( ptr, cdat[icomp], cnrbytes_[icomp] );
+	ptr += cnrbytes_[icomp];
     }
 
     if ( thrbytes_ && strm_.tellp() >= thrbytes_ )
@@ -310,12 +293,9 @@ bool CBVSWriter::writeExplicits()
 
     DataBuffer* buf = 0;
     unsigned char* ptr;
-    if ( dbufs )
-    {
-	buf = new DataBuffer( bytesperwrite, 1 );
-	*dbufs += buf;
-	ptr = buf->data();
-    }
+    buf = new DataBuffer( bytesperwrite, 1 );
+    dbufs += buf;
+    ptr = buf->data();
 
 #define mDoWrExpl(memb)  \
     if ( explinfo.memb ) \
@@ -348,17 +328,13 @@ void CBVSWriter::doClose( bool islast )
     strm_.seekp( geomfo );
     writeGeom();
 
-    strm_.seekp( dbufs ? newblockfo : kp );
+    strm_.seekp( newblockfo );
 
-    if ( dbufs )
-    {
-	for ( int idx=0; idx<dbufs->size(); idx++ )
-	    if ( !writeWithRetry(strm_,(*dbufs)[idx]->data(),
-				 bytesperwrite,2,100) )
-		{ errmsg_ = "Cannot write CBVS data"; return; }
-	deepErase( *dbufs );
-	newblockfo = strm_.tellp();
-    }
+    for ( int idx=0; idx<dbufs.size(); idx++ )
+	if ( !writeWithRetry(strm_,dbufs[idx]->data(),bytesperwrite,2,100) )
+	    { errmsg_ = "Cannot write CBVS data"; return; }
+    deepErase( dbufs );
+    newblockfo = strm_.tellp();
 
     if ( !survgeom.fullyrectandreg && !writeTrailer() )
     {

@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.10 2001-07-27 15:58:50 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.11 2001-10-02 11:47:52 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -44,7 +44,6 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	, rdmgr(0)
 	, wrmgr(0)
 	, nrdone(0)
-	, wrintegr(false)
 {
 }
 
@@ -411,7 +410,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     for ( int idx=0; idx<nrSelComps(); idx++ )
 	info.compinfo += new BasicComponentInfo(*tarcds[idx]);
 
-    wrmgr = new CBVSWriteMgr( fnm, info, &expldat, wrintegr );
+    wrmgr = new CBVSWriteMgr( fnm, info, &expldat );
     if ( wrmgr->failed() )
 	{ errmsg = wrmgr->errMsg(); return false; }
 
@@ -479,5 +478,4 @@ void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
     const char* res = (*iopar)[ (const char*)datatypeparspec.name() ];
     if ( *res )
 	preseldatatype = (DataCharacteristics::UserType)(*res-'0');
-    iopar->getYN( "Force write integrity", wrintegr );
 }
