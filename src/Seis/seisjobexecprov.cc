@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.8 2004-11-29 13:14:50 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.9 2004-12-24 12:20:56 bert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.8 2004-11-29 13:14:50 be
 #include "keystrs.h"
 #include "strmprov.h"
 #include "ptrman.h"
+#include "survinfo.h"
+#include "cubesampling.h"
 #include <iostream>
 
 const char* SeisJobExecProv::sKeyTmpStor = "Temporary storage location";
@@ -265,7 +267,17 @@ MultiID SeisJobExecProv::tempStorID() const
 	ctio_.ioobj->pars() = outioobjpars_;
 	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj)
 	fp.add( "i.*" );
-	iostrm->fileNumbers() = inls;
+	if ( inls.start != inls.stop || inls.start != 0 )
+	    iostrm->fileNumbers() = inls;
+	else
+	{
+	    StepInterval<int> fnrs;
+	    // That cannot be right.
+	    fnrs.start = SI().sampling().hrg.start.inl;
+	    fnrs.stop = SI().sampling().hrg.stop.inl;
+	    fnrs.step = SI().sampling().hrg.step.inl;
+	    iostrm->fileNumbers() = fnrs;
+	}
 	iostrm->setFileName( fp.fullPath() );
 	IOM().commitChanges( *iostrm );
 	ctio_.setObj(0);
