@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.83 2004-04-29 12:33:23 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.84 2004-05-14 08:11:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -838,11 +838,12 @@ uiObject* uiDialogBody::createChildren()
 	const ioPixmap pixmap( GetDataFileName("contexthelp.png") );
 	helpBut = new uiToolButton( centralWidget_, "Help button", pixmap );
 	helpBut->setPrefWidthInChar( 5 );
+	bool shwhid = getenv( "DTECT_SHOW_HELP" );
 #ifdef __debug__
-	helpBut->setToolTip( setup.helpid_ );
-#else
-	helpBut->setToolTip( "Help on this window" );
+	shwhid = true;
 #endif
+	helpBut->setToolTip( shwhid ? setup.helpid_.buf()
+				    : "Help on this window" );
     }
     if ( !setup.menubar_ && setup.dlgtitle_ != "" )
     {
