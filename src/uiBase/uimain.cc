@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.17 2003-01-08 13:44:12 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.18 2003-02-14 10:01:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
 
     qInstallMsgHandler( myMessageOutput );
     QApplication::setColorSpec( QApplication::ManyColor );
+    QApplication::setDesktopSettingsAware( FALSE );
 
     if(qap) 
 	app = qap;
@@ -66,9 +67,8 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
 	app = new QApplication( argc, argv );
 
     app->setStyle( new QCDEStyle() );
+
     font_ = 0;
-
-
     setFont( *font() , true );
 
     bool enab = true;
