@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.22 2002-01-07 13:17:01 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.23 2002-01-08 10:36:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,13 +80,6 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
 	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
 
     b->attachChild ( tp, child, other, margin );
-}
-
-
-int uiParent::minTextWidgetHeight() const
-{
-    const uiParentBody* b = dynamic_cast<const uiParentBody*>( body() );
-    return b->minTextWidgetHeight();
 }
 
 
@@ -466,12 +459,12 @@ int uiObjectBody::prefVNrPics() const
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 	    const_cast<uiObjectBody*>(this)->pref_height_ = pref_height_hint;
 
-	    if( isSingleLine() && parent_ )
+	    if( isSingleLine() )
 	    {
-		int min_height =  parent_->minTextWidgetHeight();
-		if( min_height >= 0  && pref_height_ <= min_height ) 
-		    const_cast<uiObjectBody*>(this)->pref_height_ =
-								    min_height;
+		int fh = fontHgt();
+		if( !fh ){ pErrMsg("Font has 0 height."); return 0; }
+
+		const_cast<uiObjectBody*>(this)->pref_height_= mNINT(1.45 * fh);
 	    }
 	}
     }
@@ -539,7 +532,6 @@ void uiObjectBody::uisetFont( const uiFont& f )
 {
     font_ = &f;
     qwidget()->setFont( font_->qFont() );
-    parent_->setMinTextWidgetHeight();
 }
 
 int uiObjectBody::fontWdtFor( const char* str) const

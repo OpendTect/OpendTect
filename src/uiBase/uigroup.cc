@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.23 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.24 2002-01-08 10:36:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,12 +122,6 @@ public:
     uiObject*		hCentreObj()			{ return hcentreobj; }
     void		setHCentreObj( uiObject* o );
 
-
-    virtual int		minTextWidgetHeight() const
-			{
-			    return loMngr ? loMngr->minTxtWidgHgt() 
-					: uiParentBody::minTextWidgetHeight();
-			}
 
     void		setIsMain( bool yn ) 
 			    { if( loMngr ) loMngr->setIsMain( yn ); }

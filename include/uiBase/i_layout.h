@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.20 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.21 2002-01-08 10:36:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,8 +129,6 @@ public:
     void		forceChildrenRedraw( uiObjectBody*, bool deep );
     void		childrenClear( uiObject* );
     bool		isChild( uiObject* );
-    void		setMinTxtWidgHgt( int h )   { mintxtwidgethgt=h; }
-    int			minTxtWidgHgt() const       { return mintxtwidgethgt; }
 
     int                 childStretch( bool hor ) const;
 
@@ -163,8 +161,6 @@ private:
     QList<i_LayoutItem>	childrenList;
 
     uiRect		layoutpos[ nLayoutMode ];
-
-    static int		mintxtwidgethgt;
 
     QRect		prevGeometry;
     bool		minimumDone;

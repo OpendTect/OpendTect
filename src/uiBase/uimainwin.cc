@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.31 2002-01-08 07:42:13 kristofer Exp $
+ RCS:           $Id: uimainwin.cc,v 1.32 2002-01-08 10:36:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,9 +103,6 @@ public:
 			    update();
 			    centralWidget_->reDraw(deep);
 			}
-
-    virtual int		minTextWidgetHeight() const
-			{ return centralWidget_->minTextWidgetHeight(); }
 
     void		go()			
 			{ 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.36 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.37 2002-01-08 10:36:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,9 +28,6 @@ ________________________________________________________________________
 #else
 #define MAX_ITER	10000
 #endif
-
-//int i_LayoutMngr::mintxtwidgethgt = -1;
-int i_LayoutMngr::mintxtwidgethgt = 5;
 
 
 //------------------------------------------------------------------------------
@@ -1213,19 +1210,6 @@ void i_LayoutMngr::doLayout( layoutMode m, const QRect &externalRect )
     {
 	relpos(m) = uiRect(externalRect.left(), externalRect.top(), 
 	    externalRect.right(), externalRect.bottom());
-    }
-
-    childIter.toFirst(); 
-    while ( (curChld = childIter.current()) ) 
-    { 
-	++childIter;
-	uiObjectBody* cl = curChld->bodyLayouted();
-	if( cl && cl->isSingleLine() )
-	{ 
-	    int chldPref = cl->prefVNrPics();
-	    if( chldPref > mintxtwidgethgt ) 
-		mintxtwidgethgt = chldPref;
-	}
     }
 
 #if 0
