@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.17 2001-09-20 08:30:59 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.18 2001-09-20 13:26:17 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 
 #define MAX_ITER	10000
-#define NOT_OK_TRIGGER	 9800
+#define NOT_OK_TRIGGER	 4832
 
 
 int i_LayoutMngr::mintxtwidgethgt = -1;
@@ -213,32 +213,32 @@ int i_LayoutItem::isPosOk( uiConstraint* c, int i )
 
 	switch ( c->type )
 	{
-	    case leftOf: 	msg+= " leftOf "; break;
-	    case rightOf:	msg+= " rightOf "; break;
-	    case leftTo:	msg+= " leftTo "; break;
-	    case rightTo:	msg+= " rightTo "; break;
+	    case leftOf: 		msg+= " leftOf "; break;
+	    case rightOf:		msg+= " rightOf "; break;
+	    case leftTo:		msg+= " leftTo "; break;
+	    case rightTo:		msg+= " rightTo "; break;
 	    case leftAlignedBelow:	msg+= " leftAlignedBelow "; break;
 	    case leftAlignedAbove:	msg+= " leftAlignedAbove "; break;
 	    case rightAlignedBelow:	msg+= " rightAlignedBelow "; break;
 	    case rightAlignedAbove:	msg+= " rightAlignedAbove "; break;
-	    case alignedBelow:	msg+= " alignedBelow "; break;
-	    case alignedAbove:   	msg+= " alignedAbove "; break;
-	    case centeredBelow:	msg+= " centeredBelow "; break;
-	    case centeredAbove:	msg+= " centeredAbove "; break;
-	    case ensureLeftOf:	msg+= " ensureLeftOf "; break;
-	    case ensureRightOf:	msg+= " ensureRightOf "; break;
-	    case ensureBelow:	msg+= " ensureBelow "; break;
-	    case leftBorder:	msg+= " leftBorder "; break;
-	    case rightBorder:	msg+= " rightBorder "; break;
-	    case topBorder:	msg+= " topBorder "; break;
-	    case bottomBorder:	msg+= " bottomBorder "; break;
-	    case heightSameAs: 	msg+= " heightSameAs "; break;
-	    case widthSameAs:	msg+= " widthSameAs "; break;
+	    case alignedBelow:		msg+= " alignedBelow "; break;
+	    case alignedAbove:		msg+= " alignedAbove "; break;
+	    case centeredBelow:		msg+= " centeredBelow "; break;
+	    case centeredAbove:		msg+= " centeredAbove "; break;
+	    case ensureLeftOf:		msg+= " ensureLeftOf "; break;
+	    case ensureRightOf:		msg+= " ensureRightOf "; break;
+	    case ensureBelow:		msg+= " ensureBelow "; break;
+	    case leftBorder:		msg+= " leftBorder "; break;
+	    case rightBorder:		msg+= " rightBorder "; break;
+	    case topBorder:		msg+= " topBorder "; break;
+	    case bottomBorder:		msg+= " bottomBorder "; break;
+	    case heightSameAs: 		msg+= " heightSameAs "; break;
+	    case widthSameAs:		msg+= " widthSameAs "; break;
 	    case stretchedBelow:	msg+= " stretchedBelow "; break;
 	    case stretchedAbove:	msg+= " stretchedAbove "; break;
 	    case stretchedLeftTo:	msg+= " stretchedLeftTo "; break;
 	    case stretchedRightTo:	msg+= " stretchedRightTo "; break;
-	    default: 	msg+= " .. "; break;
+	    default:		 	msg+= " .. "; break;
 	}
 
 	msg+= "\"";
@@ -253,9 +253,14 @@ int i_LayoutItem::isPosOk( uiConstraint* c, int i )
 }
 
 
+#ifdef __debug__
+#define mCP(val)	isPosOk(constr,(val))
+#define mUpdated()	{ isPosOk(constr,MAX_ITER-iteridx); *chupd=true; }
+#else
+#define mCP(val)	(val)
+#define mUpdated()	{ *chupd=true; }
+#endif
 
-#define mCP(val) isPosOk(constr,(val))
-#define mUpdated() { isPosOk(constr,MAX_ITER-iteridx); *chupd=true; }
 void i_LayoutItem::layout(layoutMode m, const int iteridx, bool* chupd )
 {
 //    if ( !constrList ) return;
@@ -692,11 +697,14 @@ class resizeItem
 public:
 			resizeItem( i_LayoutItem* it, int hStre, int vStre ) 
                         : item( it ), hStr( hStre ), vStr( vStre )
-                        , hDelta( 0 ), vDelta( 0 )  {}
+                        , hDelta( 0 ), vDelta( 0 ) 
+			, nhiter( hStre? 2 : 0 ), nviter( vStre ? 2 : 0 ) {}
 
     i_LayoutItem* 	item;
-    int 		hStr;
-    int 		vStr;
+    const int 		hStr;
+    const int 		vStr;
+    int			nhiter;
+    int			nviter;
     int			hDelta;
     int			vDelta;
 
@@ -799,8 +807,79 @@ void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, layoutMode m )
     }
 }
 
+bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
+{
+    layoutChildren( setGeom );
+    uiRect childrenBBox = childrenRect(setGeom);  
 
-void i_LayoutMngr::resizeTo( QRect& targetRect )
+    if(   ( childrenBBox.width() > targetRect.width() )
+	||( childrenBBox.height() > targetRect.height() ))
+	{ pErrMsg("huh"); return false; }
+
+    bool done_something = false;
+
+    uiRect& myGeomtry  = cur.item->pos( setGeom );
+    const uiRect& refGeom = cur.item->pos( minimum );
+
+    bool hdone = false;
+    bool vdone = false;
+
+
+    if( cur.nhiter ) 
+    {
+	hdone = true;
+	myGeomtry.setWidth ( refGeom.width() + ++cur.hDelta );
+    }
+
+    if(  cur.nviter )
+    {
+	vdone = true;
+	myGeomtry.setHeight( refGeom.height() + ++cur.vDelta );
+    }
+   
+    layoutChildren( setGeom );
+    childrenBBox = childrenRect(setGeom);  
+
+    bool do_layout = false;
+
+    if( hdone && ( childrenBBox.width() > targetRect.width()) )  
+    { 
+	cur.nhiter--;
+	cur.hDelta--;
+
+	myGeomtry.setWidth( refGeom.width() + cur.hDelta );
+	do_layout = true;
+    }
+    else { done_something = true; }
+
+    if( vdone && (childrenBBox.height() > targetRect.height() ))
+    {   
+	cur.nviter--;
+	cur.vDelta--;
+
+	myGeomtry.setHeight( refGeom.height() + cur.vDelta );
+	do_layout = true;
+    }
+    else { done_something = true; }
+
+    if( do_layout ) 
+    {   // move all items to top-left corner first 
+	moveChildrenTo(targetRect.top(),targetRect.left(),setGeom);
+
+	layoutChildren( setGeom );
+	childrenBBox = childrenRect(setGeom);  
+    } 
+
+    if( ( childrenBBox.width() > targetRect.width() ) )
+	{ pErrMsg("hShit!"); return false; }
+    if	( childrenBBox.height() > targetRect.height() )
+	{ pErrMsg("vShit!"); return false; }
+
+    return done_something;
+}
+
+
+void i_LayoutMngr::resizeTo( const QRect& targetRect )
 {
 
     doLayout( setGeom, targetRect );//init to prefer'd size and initial layout
@@ -809,34 +888,25 @@ void i_LayoutMngr::resizeTo( QRect& targetRect )
     int hSpace = targetRect.width() - childrenBBox.width();
     int vSpace = targetRect.height() - childrenBBox.height();
 
-    if( !hSpace && !vSpace ) return;
+
+    if( (!hSpace && !vSpace) || hSpace<0 || vSpace<0 ) return;
 
     ObjectSet<resizeItem> resizeList;
     int maxHstr, maxVstr;
     int nrHstr, nrVstr;
     fillResizeList( resizeList, maxHstr, maxVstr, nrHstr, nrVstr );
 
-
     int iter = MAX_ITER;
-//#define dont_use_while
-#ifndef dont_use_while
+
+#if 0
     while( (hSpace || vSpace) && (hSpace >= 0) && (vSpace >= 0) && iter )
     {   
-        if( iter ) iter--;
 
 	int hDelta = maxHstr ? hSpace / maxHstr : 0;
 	int vDelta = maxVstr ? vSpace / maxVstr : 0;
 
 	if( !hDelta && !vDelta )
 	    break;
-#else
-
-    int hDelta = maxHstr ? hSpace / maxHstr : 0;
-    int vDelta = maxVstr ? vSpace / maxVstr : 0;
-
-    if( (hSpace || vSpace) && iter && (hDelta || vDelta))
-    {
-#endif
 
 	for( int idx=0; idx<resizeList.size(); idx++ )
 	{
@@ -864,77 +934,26 @@ void i_LayoutMngr::resizeTo( QRect& targetRect )
 
 	hSpace = targetRect.width() - childrenBBox.width();
 	vSpace = targetRect.height() - childrenBBox.height();
-/*
-	if( hSpace < 0 ) 
-	    { pErrMsg("huh"); hSpace=0; }
-	if( vSpace < 0 ) 
-	    { pErrMsg("huh"); vSpace=0; }
-*/
+
+	if( (hSpace < 0) || (vSpace < 0) ) 
+	    { pErrMsg("Space left < 0");  }
     }
+#endif
 
-//#define do_final_iter
-#ifdef do_final_iter
-    bool go_on = true;
-    while( go_on && iter && (nrHstr > 1 || nrVstr > 1) )
+    for( bool go_on = true; go_on && iter; iter--)
     {   
-        if( iter ) iter--;
-        go_on = false;
-
+	go_on = false;
 	for( int idx=0; idx<resizeList.size(); idx++ )
 	{
 	    resizeItem* cur = resizeList[idx];
-
-
-	    if( cur->hStr || cur->vStr )
-	    {
-		uiRect& myGeomtry  = cur->item->pos( setGeom );
-		const uiRect& refGeom = cur->item->pos( minimum );
-
-		go_on = true;
-
-		if( (nrHstr > 1) && cur->hStr ) 
-			    myGeomtry.setWidth ( refGeom.width() + 
-						     ++cur->hDelta );
-		else if( (nrVstr > 1) && cur->vStr ) 
-			    myGeomtry.setHeight( refGeom.height() + 
-						     ++cur->vDelta );
-		layoutChildren( setGeom );
-		childrenBBox = childrenRect(setGeom);  
-	       
-		bool do_layout = false;
-
-		if( (nrHstr > 1) && cur->hStr &&
-		     ( childrenBBox.width() > targetRect.width() ))  
-		{ 
-		    if( --cur->hDelta < 0 ) cur->hDelta = 0;
-		    myGeomtry.setWidth( refGeom.width() + cur->hDelta );
-
-		    do_layout = true;
-		    cur->hStr--;
-		}
-		else if( (nrVstr > 1) && cur->vStr && 
-			    (childrenBBox.height() > targetRect.height() ))
-		{   
-		    if( --cur->vDelta < 0 ) cur->vDelta = 0;
-		    myGeomtry.setHeight( refGeom.height() + cur->vDelta );
-
-		    do_layout = true;
-		    cur->vStr--; 
-		}
-
-		if(do_layout) 
-		{   // move all items to top-left corner first 
-		    do_layout = false;
-
-		    moveChildrenTo(targetRect.top(),targetRect.left(),setGeom);
-
-		    layoutChildren( setGeom );
-		    childrenBBox = childrenRect(setGeom);  
-		} 
+	    if( cur && (cur->nhiter || cur->nviter)) 
+	    { 
+		if( tryToGrowItem( *cur, targetRect ) ) 
+		    go_on = true; 
 	    }
 	}
     }
-#endif
+
     deepErase( resizeList );
     if ( !iter ) pErrMsg("Stopped resize. Too many iterations ");
 }
@@ -1024,16 +1043,12 @@ void i_LayoutMngr::layoutChildren( layoutMode m )
     while ( child_updated && iter ) 
     {
         if( iter ) iter--;
-if(iter < 3  )
-{
-pErrMsg(".");
-}
         child_updated = false;
         childIter.toFirst();
 	while ( (curChld = childIter.current()) )
 	{ 
 	    ++childIter;
-	    curChld->layout(m,iter,&child_updated); 
+	    curChld->layout(m, iter ,&child_updated); 
 	}
 	//pos_[ curMode() ] = childrenRect();
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.13 2001-09-20 08:30:59 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.14 2001-09-20 13:26:17 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,8 @@ private:
     void 		moveChildrenTo( int , int, layoutMode );
     void 		fillResizeList( ObjectSet<resizeItem>&, 
 					int&, int&, int&, int& );
-    void		resizeTo( QRect& );
+    bool		tryToGrowItem( resizeItem&, const QRect&);
+    void		resizeTo( const QRect& );
     void		childrenCommitGeometrySet();
 
     uiRect 		childrenRect( layoutMode m );
