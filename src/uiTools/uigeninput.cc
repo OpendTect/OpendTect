@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.50 2003-04-22 14:06:45 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.51 2003-04-23 08:13:56 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,6 +210,10 @@ protected:
 				    switch( spec_.type().rep() )
 				    {
 				    case DataType::stringTp:
+					hpol = nel > 1 ? uiObject::smallvar
+						       : uiObject::medvar;
+				    break;
+				    case DataType::boolTp:
 					hpol = nel > 1 ? uiObject::smallvar
 						       : uiObject::medvar;
 				    break;
