@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.8 2002-07-03 15:18:33 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.9 2002-07-31 06:34:17 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -179,8 +179,8 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
 	drawstyle->setLineStyle( lst );
     }
 
-    bool welltxtshown;
-    if ( !par.getYN( showwellnmstr, welltxtshown ) ) return -1;
+    bool welltxtshown = true;
+    par.getYN( showwellnmstr, welltxtshown );
     showWellText( welltxtshown );
 
     return 1;
