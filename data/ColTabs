@@ -8,6 +8,8 @@ Standard color tables
 1.Value-Color.1: 0`255`0`0
 1.Value-Color.2: 0.5`255`255`255
 1.Value-Color.3: 1`0`0`255
+1.Transparency.0: 0`0
+1.Transparency.1: 1`0
 1.Undef color:	200`200`200
 1.Marker color: 0`240`0
 
@@ -16,12 +18,16 @@ Standard color tables
 2.Value-Color.2: 0.25`255`200`0
 2.Value-Color.3: 0.5`255`255`255
 2.Value-Color.4: 1`0`0`0
+2.Transparency.0: 0`0
+2.Transparency.1: 1`0
 2.Undef color:	150`200`150
 2.Marker color: 0`240`0
 
 3.Name       :	Grey scales
 3.Value-Color.1: 0`255`255`255
 3.Value-Color.2: 1`0`0`0
+3.Transparency.0: 0`0
+3.Transparency.1: 1`0
 3.Undef color:	255`255`200
 3.Marker color: 0`240`0
 
@@ -32,6 +38,8 @@ Standard color tables
 4.Value-Color.4: 0.55`255`255`0
 4.Value-Color.5: 0.8`255`0`0
 4.Value-Color.6: 1`255`0`255
+4.Transparency.0: 0`0
+4.Transparency.1: 1`0
 4.Undef color:	200`200`200
 4.Marker color: 0`0`0
 
@@ -39,6 +47,8 @@ Standard color tables
 5.Value-Color.1: 0`255`255`255
 5.Value-Color.2: 0.5`255`255`0
 5.Value-Color.3: 1`255`0`0
+5.Transparency.0: 0`0
+5.Transparency.1: 1`0
 5.Undef color:	200`200`200
 5.Marker color: 0`240`0
 
@@ -48,6 +58,8 @@ Standard color tables
 6.Value-Color.3: 0.5`255`255`255
 6.Value-Color.4: 0.75`255`255`0
 6.Value-Color.5: 1`255`0`0
+6.Transparency.0: 0`0
+6.Transparency.1: 1`0
 6.Undef color:	200`200`200
 6.Marker color: 0`0`0
 
@@ -58,6 +70,8 @@ Standard color tables
 7.Value-Color.4: 0.6`255`255`255
 7.Value-Color.5: 0.95`0`0`255
 7.Value-Color.6: 1`0`255`0
+7.Transparency.0: 0`0
+7.Transparency.1: 1`0
 7.Undef color:	200`200`200
 7.Marker color: 0`0`0
 
@@ -68,6 +82,8 @@ Standard color tables
 8.Value-Color.4: 0.5`255`0`0
 8.Value-Color.5: 0.95`255`255`0
 8.Value-Color.6: 1`255`255`0
+8.Transparency.0: 0`0
+8.Transparency.1: 1`0
 8.Undef color:	150`200`150
 8.Marker color: 0`240`0
 
@@ -75,6 +91,8 @@ Standard color tables
 9.Value-Color.1: 0`0`0`255
 9.Value-Color.2: 0.5`255`255`255
 9.Value-Color.3: 1`0`0`255
+9.Transparency.0: 0`0
+9.Transparency.1: 1`0
 9.Undef color:	200`200`200
 9.Marker color: 0`240`0
 
@@ -89,6 +107,8 @@ Standard color tables
 10.Value-Color.8: 0.8`0`255`0
 10.Value-Color.9: 0.80001`0`0`255
 10.Value-Color.10: 1`0`0`255
+10.Transparency.0: 0`0
+10.Transparency.1: 1`0
 10.Undef color:	200`200`200
 10.Marker color: 0`0`0
 
