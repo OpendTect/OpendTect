@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.22 2004-08-31 12:18:54 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.23 2004-09-17 12:43:16 kristofer Exp $";
 
 #include "emfault.h"
 #include "emsurfacetr.h"
@@ -47,10 +47,13 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
     bool istimestick = mIsEqual(stick[0].z,stick[stick.size()-1].z,1e-6); 
 
     Coord3 stoppos;
+    BinID prevbid(-1,-1);
     for ( int idx=0; idx<stick.size()-1; idx++ )
     {
-	const Coord3 startpos( stick[idx], stick[idx].z*velocity/2 );
-	stoppos = Coord3( stick[idx+1], stick[idx+1].z*velocity/2 );
+	const Coord3 startpos( SI().transform(SI().transform(stick[idx])),
+				stick[idx].z*velocity/2 );
+	stoppos = Coord3( SI().transform(SI().transform(stick[idx+1])),
+				stick[idx+1].z*velocity/2 );
 
 	if ( !startpos.isDefined() || !stoppos.isDefined() )
 	    break;
@@ -71,6 +74,11 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
 
 	    const Coord3 newprojectedpos = startpos+newrelpos;
 	    const BinID newprojectedbid = SI().transform( newprojectedpos );
+	    if ( istimestick && newprojectedbid==prevbid )
+		continue; 
+
+	    prevbid = newprojectedbid;
+
 	    const Coord3 newpos( SI().transform(newprojectedbid),
 				 newprojectedpos.z/(velocity/2) );
 	    setPos( sectionid, rowcol, newpos, false, true );
@@ -84,8 +92,8 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
 	}
     }
 
-    Coord3 crd( SI().transform(SI().transform(stoppos)),
-	    	stoppos.z/(velocity/2) );
+    Coord3 crd( SI().transform(SI().transform(stick[stick.size()-1])),
+	    	stick[stick.size()-1].z );
     setPos( sectionid, rowcol, crd, false, true );
     surface.setPosAttrib( PosID(surface.id(), sectionid,
 			  rowCol2SubID(rowcol)),
@@ -95,7 +103,8 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
 }
 
 
-Geometry::MeshSurface* EM::FaultGeometry::createSectionSurface( const SectionID& pid ) const
+Geometry::MeshSurface*
+EM::FaultGeometry::createSectionSurface( const SectionID& pid ) const
 {
     return new Geometry::MeshSurfaceImpl;
 }

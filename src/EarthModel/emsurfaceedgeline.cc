@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.9 2004-09-16 09:39:56 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.10 2004-09-17 12:43:16 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -191,8 +191,7 @@ bool EdgeLineSegment::isDefined( const RowCol& rc ) const
 
 bool EdgeLineSegment::isAtEdge( const RowCol& rc ) const
 { 
-    const PosID pid( surface.id(), section,
-	    		 surface.geometry.rowCol2SubID(rc));
+    const PosID pid( surface.id(), section, surface.geometry.rowCol2SubID(rc));
     return surface.geometry.isAtEdge(pid);
 }
 
