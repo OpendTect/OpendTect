@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.16 2004-12-14 12:37:16 kristofer Exp $
+ RCS:		$Id: emposid.h,v 1.17 2004-12-20 12:31:20 nanne Exp $
 ________________________________________________________________________
 
 
@@ -15,16 +15,15 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "geomposidholder.h"
-
 #include "rowcol.h"
 
 
 namespace EM
 {
 
-typedef int32_t ObjectID;
-typedef int16_t SectionID;
-typedef int64_t SubID;
+typedef int32 ObjectID;
+typedef int16 SectionID;
+typedef int64 SubID;
 
 
 /*!\brief
