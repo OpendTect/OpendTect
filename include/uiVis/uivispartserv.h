@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.30 2002-05-03 15:50:35 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.31 2002-05-07 07:30:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ public:
 
     			// Scene Stuff
     int			addScene();
+    void		removeScene(int);
     void		setSelSceneId(int id)	{ selsceneid = id; }
     int			getSelSceneId()		{ return selsceneid; }
     void		getSceneIds(TypeSet<int>&);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.41 2002-05-06 10:08:03 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.42 2002-05-07 07:29:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,6 +306,16 @@ int uiVisPartServer::addScene()
     newscene->ref();
     selsceneid = newscene->id();
     return selsceneid;
+}
+
+
+void uiVisPartServer::removeScene( int sceneid )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    scene->mouseposchange.remove(
+		mCB( this, uiVisPartServer, mouseMoveCB ) );
+    scenes -= scene;
 }
 
 
