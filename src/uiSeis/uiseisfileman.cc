@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.15 2002-11-22 16:25:23 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.16 2002-11-26 08:04:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,17 +99,20 @@ void uiSeisFileMan::mkFileInfo()
 	return;
     }
 
+#define mRangeTxt(line) \
+    txt += bs.start.line; txt += " - "; txt += bs.stop.line; \
+    txt += " - "; txt += bs.step.line; \
+
     BufferString txt;
     BinIDSampler bs;
     StepInterval<float> zrg;
     if ( SeisTrcTranslator::getRanges( *ioobj, bs, zrg ) )
     {
-	txt = "Inline range: "; txt += bs.start.inl; txt += " - "; 
-			        txt += bs.stop.inl;
-	txt += "\nCrossline range: "; txt += bs.start.crl; txt += " - "; 
-			           txt += bs.stop.crl;
+	txt = "Inline range: "; mRangeTxt(inl);
+	txt += "\nCrossline range: "; mRangeTxt(crl);
 	txt += "\nZ-range: "; txt += zrg.start; txt += " - "; 
-			        txt += zrg.stop;
+			        txt += zrg.stop; txt += " - ";
+				txt += zrg.step;
     }
 
     if ( ioobj->pars().size() )
