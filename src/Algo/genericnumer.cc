@@ -150,7 +150,7 @@ float similarity( const MathFunction<float>& a, const MathFunction<float>& b,
     }
 
     if ( sq1 + sq2 < 1e-10 ) return 0;
-    return 1 - (sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2)));
+    return mMAX( 0, 1 - (sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2))));
 }
 
 
