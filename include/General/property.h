@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.4 2004-02-20 16:10:06 bert Exp $
+ RCS:		$Id: property.h,v 1.5 2004-11-25 17:23:03 bert Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "repos.h"
 #include "enums.h"
 #include "uidobj.h"
 #include "bufstringset.h"
@@ -36,21 +37,22 @@ public:
 			: UserIDObject(nm)
 			, stdtype_(t)
 			, hcaff_(h)
-			, origin_(2)			{}
+			, source_(Repos::Survey)	{}
 
     BufferStringSet&	specialUnitsOfMeasure()		{ return units_; }
     bool		hcAffected() const		{ return hcaff_; }
     void		setHCAffected( bool yn )	{ hcaff_ = yn; }
     StdType		stdType() const			{ return stdtype_; }
     void		setStdType( StdType t ) 	{ stdtype_ = t; }
-    bool		surveySpecific() const		{ return origin_ == 2; }
+    Repos::Source	source() const			{ return source_; }
+    void		setSource( Repos::Source s )	{ source_ = s; }
 
 protected:
 
     StdType		stdtype_;
     BufferStringSet	units_;
     bool		hcaff_;
-    int			origin_;
+    Repos::Source	source_;
 
     friend class	PropertyRefRepository;
 };
@@ -99,8 +101,7 @@ public:
     bool		set(const PropertyRef&);
     			//!< returns whether it has added.
     			//!< if not (i.e. pr with ref exists), it updates.
-    bool		write() const;
-    			//!< Writes survey specific to .properties file
+    bool		write(Repos::Source) const;
 
 private:
 
@@ -108,8 +109,7 @@ private:
 
     ObjectSet<const PropertyRef> entries;
 
-    void		addFromFile(const char*,int);
-    void		getSurvPropFileNm(BufferString&) const;
+    void		addFromFile(const Repos::FileProvider&);
 
     friend PropertyRefRepository& PrRR();
 

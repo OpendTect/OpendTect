@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.5 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.6 2004-11-25 17:23:03 bert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: property.cc,v 1.5 2004-04-01 13:39:50 bert Exp 
 #include "strmprov.h"
 #include "separstr.h"
 #include "debug.h"
+#include "repos.h"
 #include "errh.h"
 
 
@@ -39,6 +40,8 @@ DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 	0
 };
 
+static const char* filenamebase = "Properties";
+
 
 PropertyRefRepository& PrRR()
 {
@@ -60,31 +63,21 @@ PropertyRefRepository& PrRR()
 
 PropertyRefRepository::PropertyRefRepository()
 {
-    BufferString fnm = GetDataFileName( "StdProperties" );
-    addFromFile( fnm, 0 );
-
-    FilePath fp( GetSettingsDir() ); fp.add( "properties" );
-    fnm = fp.fullPath();
-    addFromFile( fnm, 1 );
-
-    getSurvPropFileNm( fnm );
-    addFromFile( fnm, 2 );
+    Repos::FileProvider rfp( filenamebase );
+    addFromFile( rfp );
+    while ( rfp.next() )
+	addFromFile( rfp );
 }
 
 
-void PropertyRefRepository::getSurvPropFileNm( BufferString& fnm ) const
+void PropertyRefRepository::addFromFile( const Repos::FileProvider& rfp )
 {
-    FilePath fp( GetDataDir() ); fp.add( ".properties" );
-    fnm = fp.fullPath();
-}
-
-
-void PropertyRefRepository::addFromFile( const char* fnm, int orign )
-{
+    BufferString fnm = rfp.fileName();
     if ( !File_exists(fnm) ) return;
     StreamData sd = StreamProvider( fnm ).makeIStream();
     if ( !sd.usable() ) return;
 
+    const Repos::Source src = rfp.source();
     ascistream stream( *sd.istrm, true );
     while ( !atEndOfSection( stream.next() ) )
     {
@@ -99,7 +92,7 @@ void PropertyRefRepository::addFromFile( const char* fnm, int orign )
 	for ( int idx=2; idx<sz; idx++ )
 	    pr.specialUnitsOfMeasure().add( fms[idx] );
 
-	pr.origin_ = orign;
+	pr.source_ = src;
 	set( pr );
     }
 
@@ -137,28 +130,34 @@ bool PropertyRefRepository::set( const PropertyRef& pr )
 }
 
 
-bool PropertyRefRepository::write() const
+bool PropertyRefRepository::write( Repos::Source src ) const
 {
-    BufferString fnm; getSurvPropFileNm( fnm );
+    Repos::FileProvider rfp( filenamebase );
+    BufferString fnm = rfp.fileName( src );
 
-    bool havesurvspec = false;
+    bool havesrc = false;
     for ( int idx=0; idx<entries.size(); idx++ )
     {
-	if ( entries[idx]->surveySpecific() )
-	    { havesurvspec = true; break; }
+	if ( entries[idx]->source() == src )
+	    { havesrc = true; break; }
     }
-    if ( !havesurvspec )
+    if ( !havesrc )
 	return File_remove( fnm, NO );
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
-    if ( !sd.usable() ) return false;
+    if ( !sd.usable() )
+    {
+	BufferString msg( "Cannot write to " ); msg += fnm;
+	ErrMsg( fnm );
+	return false;
+    }
 
     ascostream strm( *sd.ostrm );
-    strm.putHeader( "Survey Properties" );
+    strm.putHeader( "Properties" );
     for ( int idx=0; idx<entries.size(); idx++ )
     {
 	const PropertyRef& pr = *entries[idx];
-	if ( !pr.surveySpecific() ) continue;
+	if ( pr.source_ != src ) continue;
 
 	FileMultiString fms( eString(PropertyRef::StdType,pr.stdType()) );
 	fms += getYesNoString( pr.hcAffected() );
