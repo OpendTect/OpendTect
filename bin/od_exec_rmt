@@ -2,15 +2,15 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.33 2004-12-08 15:56:21 dgb Exp $
+# $Id: od_exec_rmt,v 1.34 2004-12-24 08:46:41 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
 
-if ( $?DTECT_DEBUG ) set verbose=yes
+if ( $?DTECT_SCRIPT_VERBOSE ) set verbose=yes
 
 
-if ( $?DTECT_DEBUG ) then
+if ( $?DTECT_SCRIPT_DEBUG ) then
     echo "od_exec_rmt $*"
 endif
 
@@ -136,6 +136,13 @@ if ( $?DTECT_DEBUG ) then
     set transf="${transf} +-+ setenv DTECT_DEBUG $DTECT_DEBUG"
 endif
 
+if ( $?DTECT_SCRIPT_DEBUG ) then
+    set transf="${transf} +-+ setenv DTECT_SCRIPT_DEBUG $DTECT_SCRIPT_DEBUG"
+endif
+if ( $?DTECT_SCRIPT_VERBOSE ) then
+    set transf="${transf} +-+ setenv DTECT_SCRIPT_VERBOSE $DTECT_SCRIPT_VERBOSE"
+endif
+
 if ( $?OD_REMOTE_DISPLAY ) then
 	set transf="${transf} +-+ setenv DISPLAY $OD_REMOTE_DISPLAY"
 else if ( $?DISPLAY ) then
@@ -193,7 +200,7 @@ if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 	    od_prepare.bat | sed -e "s%\\%\\\\%g" -e 's%^%"%g' -e 's%$%"%g'`
 
 
-	if ( $?DTECT_DEBUG) then
+	if ( $?DTECT_SCRIPT_DEBUG) then
 	    echo cmd /c \
 		"%PRESCRIPT% $remotehost _none_ _none_ $usernm $remotepass"
 	endif
@@ -202,7 +209,7 @@ if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 
 	set remotehost="\\${remotehost}"
 
-	if ( $?DTECT_DEBUG ) then
+	if ( $?DTECT_SCRIPT_DEBUG ) then
 	    echo ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf
 	    ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf
 	    exit $status 
@@ -217,7 +224,7 @@ if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 endif
 
 
-if ( $?DTECT_DEBUG ) then
+if ( $?DTECT_SCRIPT_DEBUG ) then
     echo ${rshcomm} ${remoteuser} "${remotehost}" "${do_exec} $transf"
 endif
 

@@ -2,13 +2,13 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.40 2004-12-06 14:31:31 dgb Exp $
+# $Id: od_exec,v 1.41 2004-12-24 08:46:41 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
 
 
-if ( $?DTECT_DEBUG ) set verbose=yes
+if ( $?DTECT_SCRIPT_VERBOSE ) set verbose=yes
 
 if ( ! $?DTECT_APPL ) then
     echo "$0 : Error : environment not initialized."
@@ -230,14 +230,14 @@ endif
 
 
 if ( $issys == yes ) then
-    if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $allargs"
+    if ( $?DTECT_SCRIPT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $allargs"
     if ( $background == yes ) then
 	$xtermcmd $nicecmd $allargs &
     else
 	$xtermcmd $nicecmd $allargs 
     endif
 else
-    if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$allargs"
+    if ( $?DTECT_SCRIPT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$allargs"
     if ( $background == yes ) then
 	$xtermcmd $nicecmd "$bindir"/$allargs &
     else
