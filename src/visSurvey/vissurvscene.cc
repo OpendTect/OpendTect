@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.35 2002-07-31 11:06:26 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.36 2002-08-01 13:27:38 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -347,8 +347,8 @@ int visSurvey::Scene::usePar( const IOPar& par )
 
     if ( res!= 1 ) return res;
 
-    int nrdisplobj;
-    if ( !par.get( nodisplobjstr, nrdisplobj )) return -1;
+    int nrdisplobj = 0;
+    par.get( nodisplobjstr, nrdisplobj );
 
     TypeSet<int> displobjids( nrdisplobj, -1 );
     for ( int idx=0; idx<displobjids.size(); idx++ )
@@ -427,14 +427,16 @@ int visSurvey::Scene::usePar( const IOPar& par )
 	if ( so ) addInlCrlTObject( so );
     }
 
-    bool txtshown;
-    if ( !par.getYN( annottxtstr, txtshown ) ) return -1;
+    bool txtshown = true;
+    par.getYN( annottxtstr, txtshown );
     showAnnotText( txtshown );
-    bool scaleshown;
-    if ( !par.getYN( annotscalestr, scaleshown ) ) return -1;
+
+    bool scaleshown = true;
+    par.getYN( annotscalestr, scaleshown );
     showAnnotScale( scaleshown );
-    bool cubeshown;
-    if ( !par.getYN( annotcubestr, cubeshown ) ) return -1;
+
+    bool cubeshown = true;
+    par.getYN( annotcubestr, cubeshown );
     showAnnot( cubeshown );
 
     return 1;
