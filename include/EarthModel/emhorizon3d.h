@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.11 2002-09-27 12:28:40 dgb Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.12 2002-10-14 13:45:21 niclas Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "emobject.h"
 #include "sets.h"
-#include "geompos.h"
 #include "position.h"
 
 class BinID;
@@ -60,7 +59,7 @@ public:
     static unsigned long	getSurfPID(PosID);
     PosID			getPosID(unsigned short surfid,
 	    				 unsigned long  surfpid ) const;
-    Geometry::Pos		getPos(PosID);
+    Coord3		getPos(PosID);
 
     Executor*		loader();
     bool		isLoaded() const;

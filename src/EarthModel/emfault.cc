@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.4 2002-09-25 12:01:47 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.5 2002-10-14 13:42:12 niclas Exp $";
 
 #include "emfault.h"
 #include "ptrman.h"
@@ -26,7 +26,7 @@ EarthModel::Fault::~Fault()
 
 
 EarthModel::PosID EarthModel::Fault::setPos(int row, int col,
-					    const Geometry::Pos& pos )
+					    const Coord3& pos )
 {
     if ( !surface ) surface = new Geometry::GridSurfaceImpl;
     const RowCol node( row, col );
@@ -40,7 +40,7 @@ EarthModel::PosID EarthModel::Fault::setPos(int row, int col,
 }    
 
 
-Geometry::Pos EarthModel::Fault::getPos( int row, int col ) const
+Coord3 EarthModel::Fault::getPos( int row, int col ) const
 {
     const RowCol node( row, col );
     return surface->getGridPos( node );
@@ -48,7 +48,7 @@ Geometry::Pos EarthModel::Fault::getPos( int row, int col ) const
 
 
 EarthModel::PosID EarthModel::Fault::addPosOnRow( int row, bool start,
-						  const Geometry::Pos& pos )
+						  const Coord3& pos )
 {
     EarthModel::PosID result;
     if ( !surface ) surface = new Geometry::GridSurfaceImpl;
@@ -72,7 +72,7 @@ EarthModel::PosID EarthModel::Fault::addPosOnRow( int row, bool start,
     
 EarthModel::PosID EarthModel::Fault::insertPosOnRow( int row, int column,
 						      bool moveup,
-						      const Geometry::Pos& pos )
+						      const Coord3& pos )
 {
     EarthModel::PosID result;
     if ( !surface ) surface = new Geometry::GridSurfaceImpl;
@@ -113,7 +113,7 @@ void EarthModel::Fault::insertRow( int row, bool moveup )
 {   
     if ( !surface ) surface = new Geometry::GridSurfaceImpl;
     float undef = surface->undefVal();
-    Geometry::Pos undefpos;
+    Coord3 undefpos;
     undefpos.x = undef;
     undefpos.y = undef;
     undefpos.z = undef;
@@ -129,7 +129,7 @@ void EarthModel::Fault::insertRow( int row, bool moveup )
 		RowCol sourceNode( currow, curcol );
 		RowCol destNode( currow+1, curcol );
 
-		Geometry::Pos sourcePos = surface->getGridPos(sourceNode);
+		Coord3 sourcePos = surface->getGridPos(sourceNode);
 		surface->setGridPos( destNode, sourcePos );
 		surface->setGridPos( sourceNode, undefpos );
 	    }
@@ -146,7 +146,7 @@ void EarthModel::Fault::insertRow( int row, bool moveup )
 		RowCol sourceNode( currow, curcol );
 		RowCol destNode( currow+1, curcol );
 		    
-		Geometry::Pos sourcePos = surface->getGridPos(sourceNode);
+		Coord3 sourcePos = surface->getGridPos(sourceNode);
 		surface->setGridPos( destNode, sourcePos );
 		surface->setGridPos( sourceNode, undefpos );
 	    }

@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.3 2002-09-20 06:38:58 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.4 2002-10-14 13:45:21 niclas Exp $
 ________________________________________________________________________
 
 
 -*/
 #include "emobject.h"
+#include "position.h"
 
 namespace Geometry
 {
-    class Pos;
     class GridSurfaceImpl;
 };
 
@@ -32,17 +32,17 @@ public:
 			Fault( EarthModel::EMManager&, const MultiID &);
 			~Fault();
 
-    PosID		setPos( int row, int col, const Geometry::Pos& );
+    PosID		setPos( int row, int col, const Coord3& );
 			/*!<
 			 */
-    Geometry::Pos	getPos( int row, int col ) const;
+    Coord3 		getPos( int row, int col ) const;
     PosID		addPosOnRow( int row, bool start,
-	    			     const Geometry::Pos& );
+	    			     const Coord3& );
 			/*!< If start==true, adding pos first on row,
 			     else last */
         
     PosID		insertPosOnRow( int row, int column, bool moveup,
-					const Geometry::Pos& );
+					const Coord3& );
 			/*!< If moveup==true, shifting upwards and inserting,
 			  else downwards. */
 		 

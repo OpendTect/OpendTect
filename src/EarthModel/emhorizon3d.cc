@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.19 2002-09-17 10:06:03 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.20 2002-10-14 13:42:12 niclas Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -46,7 +46,7 @@ int EarthModel::Horizon::findPos( const RowCol& rowcol,
     const int nrsubsurf = surfaces.nrSubSurfaces();
     for ( unsigned short surface=0; surface<nrsubsurf; surface++ )
     {
-	Geometry::Pos pos = surfaces.getGridPos( surface, rowcol );
+	Coord3 pos = surfaces.getGridPos( surface, rowcol );
 	if ( !pos.isDefined() ) continue;
 
 	unsigned long surfpid = Geometry::GridSurface::getPosId( rowcol );
@@ -56,7 +56,7 @@ int EarthModel::Horizon::findPos( const RowCol& rowcol,
 	    if ( surfpid!=getSurfPID(res[idx]) ) continue;
 
 	    unsigned short tmpsurf = getSurfID(res[idx]);
-	    Geometry::Pos tmppos = surfaces.getPos( tmpsurf, surfpid );
+	    Coord3 tmppos = surfaces.getPos( tmpsurf, surfpid );
 	    if ( mIS_ZERO( tmppos.z-pos.z ) ) continue;
 
 	    PosID pid = getPosID( surface, surfpid );
@@ -162,7 +162,7 @@ bool EarthModel::Horizon::import( const Grid& grid )
 	    Coord coord = grid.getCoord( gridnode );
 	    float val = grid.getValue( gridnode );
 
-	    Geometry::Pos pos(coord.x, coord.y, val );
+	    Coord3 pos(coord.x, coord.y, val );
 	    surfaces.getSurfaces()[0]->setGridPos( gridnode, pos );
 	}
     }
