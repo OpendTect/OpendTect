@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.1 2000-11-27 10:19:28 bert Exp $
+ RCS:           $Id: uimsg.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,12 @@ ________________________________________________________________________
 #include <callback.h>
 class uiObject;
 class MsgClass;
+class uiMainWin;
 
 
 class uiMsg : public CallBacker
 {
-    friend class uiMainWin;
+    friend class uiMainWinBody;
     friend uiMsg& uiMSG();
 
 public:

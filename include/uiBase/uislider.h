@@ -7,25 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.1 2001-02-16 17:01:43 arend Exp $
+ RCS:           $Id: uislider.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
-class QSlider;
-template <class T> class i_QObjWrapper;
-mTemplTypeDefT(i_QObjWrapper,QSlider,i_QSlider)
 
-class	i_SliderMessenger;
+class uiSliderBody;
 
-class uiSlider : public uiWrapObj<i_QSlider>
+class uiSlider : public uiObject
 {
 public:
 
-                        uiSlider(uiObject*, const char* nm="Line Edit");
-
-    virtual bool        isSingleLine() const { return true; }
+                        uiSlider(uiParent*, const char* nm="Line Edit");
 
     const char*		text() const;
     int 		getIntValue() const;
@@ -39,15 +34,12 @@ public:
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
 
-protected:
-
-    const QWidget*	qWidget_() const;
-
 private:
 
-    i_SliderMessenger& _messenger;
-
     mutable BufferString result;
+
+    uiSliderBody*	body_;
+    uiSliderBody&	mkbody(uiParent*, const char*);
 
 };
 

@@ -7,60 +7,31 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.1 2001-05-16 14:58:47 arend Exp $
+ RCS:           $Id: uiparent.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <errh.h>
+#include <uidobj.h>
+#include <uihandle.h>
+#include <uilayout.h>
 
-class QWidget;
-class i_LayoutMngr;
+class uiObjHandle;
+class uiObjectBody;
+class uiObject;
 
-class uiParent
+
+class uiParent : public uiObjHandle
 {
-friend class		uiObject;
-friend class            uiGroup;
-
+friend class uiParentBody;
 public:
-			uiParent()			{}
+			uiParent( const char* nm, uiParentBody* );
 
-    inline QWidget&     qWidget()
-                        {
-                            if( ! qWidget_() )
-                            {
-                                pErrMsg("FATAL: no qWidget_!");
-                                exit(-1);
-                            }
-                            return *const_cast<QWidget*>(qWidget_());
-                        }
-    inline const QWidget& qWidget() const
-                        {
-                            if( ! qWidget_() )
-                            {
-                                pErrMsg("FATAL: no qWidget_!");
-                                exit(-1);
-                            }
-                            return *qWidget_();
-                        }
-
-    inline uiParent&    clientWidget()
-                        { return const_cast<uiParent&>(clientWidget_()); }
-    inline const uiParent& clientWidget() const{ return clientWidget_(); }
-
-    inline QWidget&     clientQWidget()
-                        {  return clientWidget().qWidget(); }
-    inline const QWidget& clientQWidget() const
-                        { return clientWidget().qWidget(); }
-
-protected:
-
-    virtual const QWidget*	qWidget_() const	=0;
-    virtual const uiParent&	clientWidget_()const	{ return *this; }
-
-    virtual i_LayoutMngr*	mLayoutMngr()		{ return 0; }
-    virtual i_LayoutMngr*	prntLayoutMngr()	{ return 0; }
-
+    void		addChild( uiObjHandle& );
+    void		manageChld( uiObjHandle&, uiObjectBody& );
+    void                attachChild ( constraintType tp, uiObject* child,
+				      uiObject* other, int margin );
+    int			minTextWidgetHeight() const;
 };
 
 #endif

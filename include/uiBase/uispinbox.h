@@ -7,24 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.1 2001-02-16 17:01:43 arend Exp $
+ RCS:           $Id: uispinbox.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
 
-class i_SpinBoxMessenger;
-class i_QSpinBox;
+class uiSpinBoxBody;
 
-class uiSpinBox : public uiWrapObj<i_QSpinBox>
+class uiSpinBox : public uiObject
 {
-friend class		i_QSpinBox;
+friend class		uiSpinBoxBody;
 public:
 
-                        uiSpinBox(uiObject*, const char* nm="SpinBox");
-
-    virtual bool        isSingleLine() const { return true; }
+                        uiSpinBox(uiParent*, const char* nm="SpinBox");
 
     const char*		text() const;
     int 		getIntValue() const;
@@ -43,13 +40,12 @@ protected:
     virtual int		mapTextToValue( bool* ok )	{ return 0; }
     virtual const char*	mapValueToText( int )		{ return 0; }
 
-    const QWidget*	qWidget_() const;
-
 private:
 
-    i_SpinBoxMessenger& _messenger;
-
     mutable BufferString result;
+
+    uiSpinBoxBody*	body_;
+    uiSpinBoxBody&	mkbody(uiParent*, const char*);
 
 };
 

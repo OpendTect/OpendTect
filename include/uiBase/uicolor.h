@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.2 2001-05-16 14:58:36 arend Exp $
+ RCS:           $Id: uicolor.h,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiColorInput : public uiPushButton
 //!< \brief This button will have the selected color as background color.
 public:
 
-			uiColorInput(uiObject*,const Color&,
+			uiColorInput(uiParent*,const Color&,
 				     const char* seltxt="Select color",
 				     const char* buttxt="Color ...");
 

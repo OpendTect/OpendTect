@@ -7,19 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.2 2001-05-31 21:23:13 bert Exp $
+ RCS:           $Id: uitoolbar.h,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-#include <sets.h>
+#include <uiparent.h>
 
-class QToolBar;
-class QMainWindow;
 class ioPixmap;
-
-class i_QToolButReceiver;
+class uiToolBarBody;
+class uiMainWin;
+class QToolBar;
 
 class uiToolBar : public uiParent
 {
@@ -42,12 +40,9 @@ public:
     static uiToolBar*	getNew( const char* nm="uiToolBar", ToolBarDock d=Top,
 			        bool newline=false, uiMainWin* main=0 );
 
-			uiToolBar( const char* nm, QMainWindow*, ToolBarDock,
-				   bool newline=false );
-
-			~uiToolBar();
-
-    inline QToolBar*	mQtThing()	{ return qbar; }
+protected:
+			uiToolBar( const char* nm, QToolBar& );
+public:
 
     void 		addButton( const ioPixmap&, const CallBack& cb, 
 				   const char* nm="ToolBarButton" );
@@ -57,14 +52,9 @@ public:
 
 protected:
 
-    QToolBar*		qbar;
+    uiToolBarBody*	body_;
+    uiToolBarBody&	mkbody(const char*, QToolBar&);
 
-    virtual const QWidget* qWidget_() const;
-
-    int			qdock(ToolBarDock);
-
-private:
-    ObjectSet<i_QToolButReceiver> receivers; // for deleting
 };
 
 #endif

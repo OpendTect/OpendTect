@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qcombobox.h,v 1.1 2000-11-27 10:19:26 bert Exp $
+ RCS:           $Id: i_qcombobox.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 class i_comboMessenger : public QObject 
 {
     Q_OBJECT
-    friend class	uiComboBox;
+    friend class	uiComboBoxBody;
 
 protected:
 			i_comboMessenger( QComboBox*  sender,
@@ -52,7 +52,8 @@ private slots:
     \sa QComboBox::activated
 */
 
-    void 		activated( int index ) { _receiver->notifyHandler(); }
+    void 		activated( int index ) 
+			{_receiver->selectionChanged.trigger(*_receiver);}
 
 };
 

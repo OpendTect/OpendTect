@@ -7,73 +7,106 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.8 2001-07-18 14:58:37 bert Exp $
+ RCS:           $Id: uigroup.h,v 1.9 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
+#include <uiparent.h>
 #include <callback.h>
 class IOPar;
 
-class QWidget;
-template <class T> class i_QObjWrapper;
-mTemplTypeDefT( i_QObjWrapper, QWidget, i_QWidget )
+class uiGroupBody;
+class uiParentBody;
 
-class i_LayoutMngr;
+class uiGroup;
+class uiGroupObjBody;
+class uiGroupParentBody;
 
-class uiGroup : public uiWrapObj<i_QWidget>
+class uiGroupObj : public uiObject
 { 	
-    friend class 	uiMainWin;
-    friend class 	uiDialog;
-    friend class 	i_LayoutMngr;
+friend class uiGroup;
+protected:
+			uiGroupObj( uiParent*, const char* nm, bool manage );
+private:
+
+//    uiGroupObjBody*	mkbody(uiParent*,const char*);
+    uiGroupObjBody*	body_;
+};
+
+
+class uiGroup : public uiParent
+{ 	
+friend class		uiGroupObjBody;
 public:
 			uiGroup( uiParent* , const char* nm="uiGroup", 
-				 int border=0, int spacing=10);
-protected:
-			uiGroup( const char* nm, uiParent*, 
-				 int border=10, int spacing=10);
-			//!< C'tor for creating a client widget in a window.
-public:
-    virtual		~uiGroup();
+			    int border=0, int spacing=10, bool manage=true );
+
+    inline uiGroupObj*	uiObj()				    { return grpobj_; }
+    inline const uiGroupObj* uiObj() const		    { return grpobj_; }
+    inline		operator const uiGroupObj*() const  { return grpobj_; }
+    inline		operator uiGroupObj*() 		    { return grpobj_; }
+    inline		operator const uiObject&() const    { return *grpobj_; }
+    inline		operator uiObject&() 		    { return *grpobj_; }
+
 
     void		setSpacing( int ); 
     void		setBorder( int ); 
-    virtual void	clear();
 
-    uiObject*		hAlignObj()			{ return halignobj; }
-    void		setHAlignObj( uiObject* o ) 	{ halignobj = o;}
-    uiObject*		hCentreObj()			{ return hcentreobj; }
-    void		setHCentreObj( uiObject* o ) 	{ hcentreobj = o;}
+    uiObject*		hAlignObj();
+    void		setHAlignObj( uiObject* o );
+    uiObject*		hCentreObj();
+    void		setHCentreObj( uiObject* o );
+
+// uiObject methods, delegated to uiObj():
+
+    inline void		display( bool yn = true )
+			    { if ( yn ) show(); else hide(); }
+    void		show();
+    void		hide();
+    void		setFocus();
+
+    Color               backgroundColor() const;
+    void                setBackgroundColor(const Color&);
+    void		setSensitive(bool yn=true);
+    bool		sensitive() const;
+
+    int			preferredWidth() const;
+    void                setPrefWidth( int w );
+    void                setPrefWidthInChar( float w );
+    int			preferredHeight() const;
+    void		setPrefHeight( int h );
+    void		setPrefHeightInChar( float h );
+    void                setStretch( int hor, int ver );
+
+    void		attach( constraintType, int margin=-1);
+    void		attach( constraintType, uiObject *oth, int margin=-1);
+    void		attach( constraintType t, uiGroup *o, int margin=-1)
+			    { attach(t, o->uiObj(), margin); } 
+
+    void 		setFont( const uiFont& );
+    const uiFont*	font() const;
 
     virtual bool	fillPar( IOPar& ) const		{ return true; }
     virtual void	usePar( const IOPar& )		{}
 
+    uiSize		actualSize( bool include_border = true) const;
 
+    void		setCaption( const char* );
+
+    void		shallowRedraw( CallBacker* =0 )		{reDraw(false);}
+    void		deepRedraw( CallBacker* =0 )		{reDraw(true); }
+    void		reDraw( bool deep );
+
+
+//
 protected:
 
-    const QWidget*	qWidget_() const;
+    uiGroupObj*		grpobj_;
+    uiGroupParentBody*	body_;
 
-    virtual i_LayoutMngr* mLayoutMngr() { return loMngr; }
-    virtual i_LayoutMngr* prntLayoutMngr()
-			{ 
-			    return ( parent_ && parent_->mLayoutMngr() )
-					? parent_->mLayoutMngr() : loMngr; 
-			}
-   
-    i_LayoutMngr* 	loMngr;
-
-    virtual void        forceRedraw_( bool deep );
-    virtual void	finalise_();
-
-    uiObject*		hcentreobj;
-    uiObject*		halignobj;
-
-private:
-
-    virtual int         horAlign() const;
-    virtual int         horCentre() const;
-
+    virtual void	reDraw_( bool deep )			{}
 };
 
 class NotifierAccess;

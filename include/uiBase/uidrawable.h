@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.4 2001-05-16 14:58:38 arend Exp $
+ RCS:           $Id: uidrawable.h,v 1.5 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,18 +16,16 @@ ________________________________________________________________________
 #include <iodraw.h>
 
 
-class uiDrawableObj : public uiObject , public ioDrawArea
+class uiDrawableObj : public uiObject, public ioDrawArea
 {
-    mTFriend		(T,i_drwblQObj);
-public:
-			uiDrawableObj( uiParent* parnt, const char* nm )
-			: uiObject( parnt, nm )
-			, preDraw(this)
-			, postDraw(this)
-			, reSized(this)		{}
 
-    virtual		~uiDrawableObj();
-    virtual QPaintDevice* mQPaintDevice();
+    mTTFriend(C,T,uiDrawableObjBody);
+public:
+			uiDrawableObj( uiParent* parnt, const char* nm, 
+				       uiObjectBody& );
+
+    virtual		~uiDrawableObj()	{}
+
 
     Notifier<uiDrawableObj> preDraw;
     Notifier<uiDrawableObj> postDraw;
@@ -35,8 +33,24 @@ public:
 
 mProtected:
 
-    virtual void	reDrawHandler( uiRect updateArea )	{}
-    virtual void	reSizeHandler( uiSize, uiSize )		{}
+/* \brief handler for additional redrawing stuff
+
+reDrawHandler() is called from uiDrawableObjBody::handlePaintEvent, which
+
+1) triggers preDraw on associated uiDrawableObj (i.e. this)
+2) calls Qt's paintEvent handler on associated widget
+3) calls reDrawHandler() on associated uiDrawableObj (i.e. this)
+4) triggers postDraw on associated uiDrawableObj (i.e. this)
+
+Subclasses can override this method to do some additoinal drawing.
+
+\sa uiDrawableObjBody::handlePaintEvent( uiRect r, QPaintEvent* QPEv=0 )
+
+*/
+    virtual void        reDrawHandler( uiRect updateArea )      {}
+    virtual void        reSizeHandler( uiSize, uiSize )         {}
+
+    virtual ioDrawTool* drawTool_( int x0, int y0 );
 
 };
 

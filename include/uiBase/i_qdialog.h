@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qdialog.h,v 1.2 2001-05-16 14:58:31 arend Exp $
+ RCS:           $Id: i_qdialog.h,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,10 +26,10 @@ class i_QDialog : public ii_QDialog
 {
 //    Q_OBJECT
 public:
-                        i_QDialog(uiDialog& client, uiParent* parnt, 
+                        i_QDialog(uiDialog& handle, uiParent* parnt, 
                                   const char* nm, bool modal )
-                        : ii_QDialog( client, parnt, nm, modal )
-                        , mClient( &client ) {}
+                        : ii_QDialog( handle, parnt, nm, modal )
+                        , mClient( &handle ) {}
 
 //protected slots:
 protected:

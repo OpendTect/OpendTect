@@ -7,33 +7,31 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiprogressbar.h,v 1.4 2001-05-27 21:19:46 bert Exp $
+ RCS:           $Id: uiprogressbar.h,v 1.5 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
-class QProgressBar;
-template <class T> class i_QObjWrapper;
-mTemplTypeDefT(i_QObjWrapper,QProgressBar,i_QProgressBar)
 
-class uiProgressBar : public uiWrapObj<i_QProgressBar>
+class uiProgressBarBody;
+
+class uiProgressBar : public uiObject
 {
 public:
 
-                        uiProgressBar( uiObject*,const char* nm="ProgressBar", 
+                        uiProgressBar( uiParent*,const char* nm="ProgressBar", 
 				       int totalSteps=100, int progress=0);
-
-    virtual bool        isSingleLine() const { return true; }
 
     void		setProgress(int);
     int			Progress() const;
     void		setTotalSteps(int);
     int			totalSteps() const;
 
-protected:
+private:
 
-    const QWidget*	qWidget_() const;
+    uiProgressBarBody*	body_;
+    uiProgressBarBody&	mkbody(uiParent*, const char*);
 };
 
 #endif

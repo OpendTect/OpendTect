@@ -7,122 +7,135 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.3 2001-05-16 14:58:45 arend Exp $
+ RCS:           $Id: uimenu.h,v 1.4 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
+#include <uihandle.h>
 #include <uidobjset.h>
 
-class QMenuData;
-class QMenuBar;
-class QPopupMenu;
-
-template <class T> class i_QObjWrapper;
-mTemplTypeDefT( i_QObjWrapper, QMenuData,  i_QMenuData )
-mTemplTypeDefT( i_QObjWrapper, QPopupMenu, i_QPopupMenu )
+class uiParent;
+class uiMainWin;
 
 class uiMenuItem;
-class i_MenuMessenger;
 class uiPopupMenu;
-class uiMenuItem;
 
-class QObject;
+class uiMenuDataBody;
+class i_MenuMessenger;
 
 
-class uiMenuData  
+class QMenuBar;
+
+class uiMenuData : public uiObjHandle
 {
+friend class			uiMenuDataBody;
+protected:
+				uiMenuData( const char* nm, uiMenuDataBody* b );
 public:
+				~uiMenuData();
 
-    virtual		~uiMenuData();
-    
-    void		insertItem(uiMenuItem*,int idx=-1);
-    void                insertItem(const char* text, const CallBack& cb, 
-				   int idx=-1);
-    void		insertItem(uiPopupMenu*,int idx=-1);
-
-    void 		insertSeparator(int idx=-1);
-
-    virtual QMenuData& 	qMenuData() = 0;
+    void			insertItem(uiMenuItem*,int idx=-1);
+    void			insertItem(const char* text, const CallBack& cb,
+					   int idx=-1);
+    void			insertItem(uiPopupMenu*,int idx=-1);
+    void			insertSeparator(int idx=-1);
 
 protected:
-			uiMenuData();
 
-    UserIDObjectSet<UserIDObject> itms;
+    void			setMenuBody(uiMenuDataBody* b);
+    uiMenuDataBody*		body_;
 
 };
 
+/*! 
 
+    Stores the id of the item in Qt and has a 
+    messenger, so Qt's signals can be relayed.
+
+*/
 class uiMenuItem : public UserIDObject
 {
-    friend class	uiMenuData;
-    friend class	i_MenuMessenger;
+friend class			uiMenuDataBody;
 
 public:
-			uiMenuItem( const char* nm="uiMenuItem" );
-			uiMenuItem( const char* nm, const CallBack& cb ); 
+				uiMenuItem( const char* nm="uiMenuItem" );
+				uiMenuItem( const char* nm, const CallBack& cb);
+				~uiMenuItem();
 
-    virtual		~uiMenuItem();
+				//! sets a new text 2b displayed
+    void			set( const char* txt );
 
-			//! sets a new text 2b displayed
-    void		set( const char* txt );
+    bool			isEnabled()			const;
+    void			setEnabled( bool yn );
+    bool			isChecked()			const;
+    void 			setChecked( bool yn );
 
-    void                notify( const CallBack& cb ) { notifyCBL += cb; }
-
-    bool 		isEnabled() 			const;
-    void 		setEnabled( bool yn );
-    bool 		isChecked()			const;
-    void 		setChecked( bool yn );
-
-protected:
-
-    //! Handler called from Qt.
-    virtual void        notifyHandler() 	{ Notifier(); }
-
-    void                Notifier()     { notifyCBL.doCall(this); }
-    CallBackList        notifyCBL;
-
-    i_MenuMessenger&	_messenger;
-    int			id;
-    uiMenuData*		parent;
-
-};
-
-class uiMenuBar : public uiMenuData, public uiNoWrapObj<QMenuBar>
-{
-    friend class	uiMainWin;
-
-public:                        
-
-    virtual QMenuData& 	qMenuData();
+    Notifier<uiMenuItem>	activated;
 
 protected:
-			uiMenuBar( uiMainWin* parnt, const char* nm, 
-				   QMenuBar& qThing );
-    const QWidget*	qWidget_() const;
+
+    void 			setId( int id )                 { id_ = id; }
+    void			setMenu( uiMenuDataBody* m )	{ menu_ = m; }
+
+    i_MenuMessenger*		messenger()		{ return &messenger_; }
+    uiMenuDataBody*             menu_;
+
+private:
+
+    i_MenuMessenger&            messenger_;
+
+    int                         id_;
 
 };
 
 
-class uiPopupMenu : public uiMenuData, public uiWrapObj<i_QPopupMenu>
+class uiPopupItem : public uiMenuItem
 {
-    friend class	uiMenuData;
+friend class uiPopupMenu;
+protected:
+				uiPopupItem( uiPopupMenu& menu,
+					     const char* nm="uiMenuItem");
+public:
+
+    bool			isCheckable();
+    void			setCheckable( bool yn );
+
+private:
+
+    //uiPopupMenu*		popmenu_;
+
+};
+
+
+class uiMenuBar : public uiMenuData
+{
+    friend class		uiMainWinBody;
+public:
+				uiMenuBar( uiParent* parnt, const char* nm );
+protected:
+				uiMenuBar( uiMainWin* parnt, const char* nm, 
+					   QMenuBar& );
+};
+
+
+
+class uiPopupMenu : public uiMenuData
+{
 
 public:                        
-			uiPopupMenu( uiObject* parnt,
-                                     const char* nm="uiPopupMenu");
+				uiPopupMenu( uiParent* parnt,
+					     const char* nm="uiPopupMenu");
+				~uiPopupMenu();
 
-    virtual QMenuData& 	qMenuData();
+    bool			isCheckable();
+    void			setCheckable( bool yn );
 
-    bool		isCheckable();
-    void		setCheckable( bool yn );
+    uiPopupItem&		item()			{ return item_; }
 
-protected:
+private:
 
-    const QWidget*	qWidget_() const;
-
-    int			id;
+    uiPopupItem&		item_;
 
 };
 

@@ -7,16 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.9 2001-06-08 16:00:44 bert Exp $
+ RCS:           $Id: uiobj.h,v 1.10 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "uiparent.h"
-#include "uidobj.h"
-#include "uilayout.h"
+#include "uihandle.h"
 #include "uigeom.h"
+#include "uilayout.h"
 #include "color.h"
 #include "errh.h"
 
@@ -27,42 +26,29 @@ ________________________________________________________________________
 #define mTemplTypeDefT(fromclass,templ_arg,toclass) \
 	mTemplTypeDef(fromclass,templ_arg,toclass)
 
-class QWidget;
-class i_LayoutMngr;
-class i_LayoutItem;
 class uiFont;
-class i_QObjWrp;
+class uiObjectBody;
+class uiParent;
+class uiGroup;
 class uiButtonGroup;
-class Timer;
+class i_LayoutItem;
 
-template <class T> class i_QObjWrapper;
-
-class uiObject : public UserIDObject, public uiParent 
+class uiObject : public uiObjHandle
 {
-friend class 		i_LayoutMngr;
-friend class 		i_LayoutItem;
-friend class 		i_uiLayoutItem; 
-friend class 		uiGroup;
-friend class 		uiMainWin;
-mTFriend		(T, i_QObjWrapper );
-
-protected:
-			uiObject( uiParent* parnt = 0, 
-				  const char* nm = "uiObject" );
-
+    friend class	uiObjectBody;
 public:
-    virtual		~uiObject();
+			uiObject( uiParent* p, const char* nm );
+			uiObject( uiParent* p, const char* nm, uiObjectBody& );
+			~uiObject()			{}
 
     void		setToolTip(const char*);
     static void		enableToolTips(bool yn=true);
     static bool		toolTipsEnabled();
 
-
     inline void		display( bool yn = true )
-			{ if ( yn ) show(); else hide(); }
+			    { if ( yn ) show(); else hide(); }
     void		show();
     void		hide();
-    virtual void	clear()		{}
     void		setFocus();
 
     Color               backgroundColor() const;
@@ -70,37 +56,18 @@ public:
     void		setSensitive(bool yn=true);
     bool		sensitive() const;
 
-    virtual int		preferredWidth() const;
-    void                setPrefWidth( int w )      
-			{ 
-			    pref_char_width = -1;
-			    pref_width = w; 
-			}
-    void                setPrefWidthInChar( float w )
-			{ 
-			    pref_width = -1;
-			    pref_char_width = w; 
-			}
-    virtual int		preferredHeight() const;
-    virtual void	setPrefHeight( int h )     
-			{ 
-			    pref_char_height = -1;
-			    pref_height = h; 
-			}
-    virtual void	setPrefHeightInChar( float h )
-			{ 
-			    pref_height = -1;
-			    pref_char_height = h; 
-			}
-    void                setStretch( int hor, int ver )
-                        { horStretch = hor; verStretch = ver; }
+    int			preferredWidth() const;
+    void                setPrefWidth( int w );
+    void                setPrefWidthInChar( float w );
+    int			preferredHeight() const;
+    void		setPrefHeight( int h );
+    void		setPrefHeightInChar( float h );
+    void                setStretch( int hor, int ver );
 
-    virtual bool	isSingleLine() const { return false; }
-
-    virtual void	qThingDel( i_QObjWrp* qth )  =0;
-
-    bool		attach ( constraintType, uiObject *other=0, 
-				 int margin=-1 );
+    void		attach( constraintType, int margin=-1);
+    void		attach( constraintType, uiObject* oth, int margin=-1);
+    void		attach( constraintType, uiGroup* oth, int margin=-1);
+    void		attach( constraintType, uiButtonGroup* oth, int mrg=-1);
 
     void 		setFont( const uiFont& );
     const uiFont*	font() const;
@@ -108,190 +75,39 @@ public:
     uiSize		actualSize( bool include_border = true) const;
 
     void		setCaption( const char* );
-    int			borderSpace() const;
 
-    void		shallowRedraw( CallBacker* =0 )	{ forceRedraw_(false); }
-    void		deepRedraw( CallBacker* =0 )	{ forceRedraw_(true); }
+			//! setGeometry should be triggered by this's layoutItem
+    void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
 
-mProtected:
+    void		shallowRedraw( CallBacker* =0 )		{reDraw(false);}
+    void		deepRedraw( CallBacker* =0 )		{reDraw(true); }
+    void		reDraw( bool deep );
 
-    virtual bool	closeOK() { return true; } 
-                        //!< hook. Accepts/denies closing of window.
-    virtual void	setGeometry(uiRect) {}
-                        //!< hook. Called when geometry on widget is set. 
+    uiParent*		parent() { return parent_; }
 
-                        /*! called after a widget has been fully created 
-			    and before it is shown the very first time. */ 
-    virtual void	polish() {}
-
-    virtual uiSize	minimumSize() const;
-
-    virtual i_LayoutMngr* mLayoutMngr() 
-                        { return parent_ ? parent_->mLayoutMngr() : 0; }
-                        //!< manager used by children 
-    inline const i_LayoutMngr* mLayoutMngr() const
-			{ return const_cast<uiObject*>(this)->mLayoutMngr(); }
-
-    virtual i_LayoutMngr* prntLayoutMngr() 
-                        { return parent_ ? parent_->mLayoutMngr() : 0; }
-                        //!< manager who manages 'this'
-    inline const i_LayoutMngr* prntLayoutMngr() const
-		    { return const_cast<uiObject*>(this)->prntLayoutMngr(); }
-
-    int			minimumTextWidgetHeight() const;
-
-    virtual int		horAlign() const;
-    virtual int		horCentre() const;
-
-    virtual void	forceRedraw_( bool deep );
-
-    inline void		finalise() { if(!finalised) finalise_(); }
-                        //!< hook. Called for uiGroup and uiDialog by mngr. 
-    virtual void	finalise_()
-			    { finalised= true; }
-
-    uiParent*       	parent_;
-    i_uiLayoutItem*	mLayoutItm; //!< initialised in c'tor of i_LayoutItem
-
-    int			horStretch;
-    int			verStretch;
-
-    bool		isHidden;
-    int			pref_width;
-    float		pref_char_width;
-    int			pref_height;
-    float		pref_char_height;
-    int			cached_pref_width;
-    int			cached_pref_height;
-
-    bool		finalised;
+			/*! \brief 'post' constructor.
+			    Will be triggered before an object or its
+			    children is/are shown by calling Qt's show().
+			*/
+    Notifier<uiObject>	finalising;
 
 
-private:
-    const uiFont*	font_;
-};
-
-
-//! Template implementation of uiObject.
-/*!
-*/
-template <class P, class C>
-class uiMltplObj : public P
-{
-public:
-
-                        uiMltplObj( C* qthng, uiObject* parnt=0, 
-				    const char* nm=0, bool addToMngr = true )
-                        : P( parnt, nm )
-			, qtThing( qthng )
-                        {
-			    if( qthng && addToMngr && prntLayoutMngr() )
-				prntLayoutMngr()->add( qthng );
-			}
-
-                        uiMltplObj( C* qthng, uiParent* parnt=0, 
-				    const char* nm=0, bool addToMngr = true )
-                        : P( parnt, nm )
-			, qtThing( qthng )
-                        {
-			    if( qthng && addToMngr && prntLayoutMngr() )
-				prntLayoutMngr()->add( qthng );
-			}
-
-    virtual		~uiMltplObj() {}
-
-    virtual void	qThingDel( i_QObjWrp* qth ){}
-
-    inline C*		mQtThing() { return qtThing; }
-    inline const C*	mQtThing() const { return qtThing; }
+			/*! \brief triggered when getting a new geometry 
+			    A reference to the new geometry is passed 
+			    which *can* be manipulated, before the 
+			    geometry is actually set to the QWidget.
+			*/
+    CNotifier<uiObject,uiRect&>	setGeometry;
 
 protected:
-    C*			qtThing;
-};
 
+                        //! hook. Accepts/denies closing of window.
+    virtual bool	closeOK()		{ return true; } 
 
+private:
 
-//! Template implementation of uiObject.
-/*!
-*/
-template <class P, class C>
-class uiMltplWrapObj : public uiMltplObj<P,C>
-{
-public:
-                        uiMltplWrapObj( C* qthng, uiObject* parnt=0, 
-					const char* nm=0, bool addToMngr=true)
-			: uiMltplObj<P,C>(qthng, parnt, nm, addToMngr ){}
-
-                        uiMltplWrapObj( C* qthng, uiParent* parnt=0, 
-					const char* nm=0, bool addToMngr=true)
-			: uiMltplObj<P,C>(qthng, parnt, nm, addToMngr ){}
-
-    virtual		~uiMltplWrapObj()
-			{ 
-			    if( qtThing )
-			    {   // avoid infinite recursion!
-#ifndef __msvc__
-				qtThing->clientDel( this );
-#endif
-				delete qtThing;
-			    }
-			}
-
-    virtual void	qThingDel( i_QObjWrp* qth )
-			{
-#if 0	
-			    if( dynamic_cast< QWidget* >(qth)     != 
-				dynamic_cast< QWidget* >(qtThing)    )
-			    {
-				pErrMsg("Warning: Unkown qtThing delete");
-				return;
-			    }
-#endif
-			    qtThing=0;
-			}
-};
-
-//! Template implementation of uiObject.
-/*!
-*/
-template <class T>
-class uiNoWrapObj : public uiMltplObj< uiObject , T >
-{
-public:
-                        uiNoWrapObj( T* qthng, uiParent* parnt, const char* nm, 
-			       bool addToMngr=true )
-                        : uiMltplObj<uiObject,T>( qthng, parnt, nm, addToMngr )
-                        {}
-
-                        uiNoWrapObj( T* qthng, uiObject* parnt, const char* nm, 
-			       bool addToMngr=true )
-                        : uiMltplObj<uiObject,T>( qthng, parnt, nm, addToMngr )
-                        {}
-};
-
-//! Template implementation of uiObject.
-/*!
-*/
-template <class T>
-class uiWrapObj : public uiMltplWrapObj< uiObject , T >
-{
-public:
-
-                        uiWrapObj( T* qthng, 
-				   uiObject* parnt, const char* nm, 
-				   bool addToMngr=true )
-                        : uiMltplWrapObj<uiObject, T> 
-					    ( qthng, parnt, nm, addToMngr )
-                        {}
-
-                        uiWrapObj( T* qthng, 
-				   uiParent* parnt, const char* nm, 
-				   bool addToMngr=true )
-                        : uiMltplWrapObj<uiObject, T> 
-					    ( qthng, parnt, nm, addToMngr )
-                        {}
-
-
+    uiParent*		parent_;
 
 };
+
 #endif

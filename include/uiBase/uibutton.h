@@ -7,152 +7,125 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.5 2001-05-30 16:36:13 arend Exp $
+ RCS:           $Id: uibutton.h,v 1.6 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
-class QButton;
-class QPushButton;
-class QRadioButton;
-class QCheckBox;
-class QToolButton;
-class i_ButMessenger;
 class uiButtonGroup;
-class QButtonGroup;
-template <class T> class i_QButtWrapper;
-template <class T> class i_QObjWrapper;
+class uiButtonBody;
 
-mTemplTypeDefT(i_QButtWrapper,QButton,i_QButton)
-mTemplTypeDefT(i_QButtWrapper,QPushButton,i_PushButton)
-mTemplTypeDefT(i_QButtWrapper,QRadioButton,i_RadioButton)
-mTemplTypeDefT(i_QButtWrapper,QCheckBox,i_CheckBox)
-mTemplTypeDefT(i_QButtWrapper,QToolButton,i_ToolButton)
-mTemplTypeDefT(i_QObjWrapper,QButtonGroup,i_QButtonGroup)
+class uiPushButtonBody;
+class uiRadioButtonBody;
+class uiCheckBoxBody;
+class uiToolButtonBody;
+class ioPixmap;
+
 
 //! Button Abstract Base class
 class uiButton : public uiObject
 {
-
-    friend class	i_ButMessenger;
-
 public:
-			uiButton(uiObject* parnt,const char*);
+			uiButton( uiParent*, const char*, const CallBack*,
+				  uiObjectBody&);
+
     virtual		~uiButton()		{}
 
-    virtual QButton&    qButton() = 0;
-    inline const QButton& qButton() const
-                        { return ((uiButton*)this)->qButton(); }
-
-    virtual bool        isSingleLine() const { return true; }
-
-    virtual void        notify( const CallBack& cb ) { notifyCBL += cb; }
-
-    virtual void	setText(const char*);
+    void		setText(const char*);
     const char*		text();
 
-protected:
-
-    //! Button signals emitted by Qt.
-    enum notifyTp	{ clicked, pressed, released, toggled, stateChanged };
-
-    //! Handler called from Qt.
-    virtual void        notifyHandler( notifyTp ) = 0; 
-
-    void                Notifier()     { notifyCBL.doCall(this); }
-    CallBackList        notifyCBL;
-
-    bool		add2LM(uiParent*) const;
-
+    Notifier<uiButton>	activated;
 };
 
-class uiPushButton : public uiMltplWrapObj<uiButton,i_PushButton>
+class uiPushButton : public uiButton
 {
 public:
-			uiPushButton(uiObject* parnt,const char* txt); 
-    virtual		~uiPushButton();
+				uiPushButton( uiParent*, const char* nm,
+					      const CallBack* cb =0); 
+				uiPushButton( uiParent*, const char* nm,
+					      const ioPixmap&,
+					      const CallBack* cb =0); 
 
-    virtual QButton&    qButton();
-    void		setDefault( bool yn = true);
-protected:
+    void			setDefault( bool yn = true);
 
-    const QWidget*	qWidget_() const;
-    virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == clicked ) Notifier(); }
+private:
+
+    uiPushButtonBody*		body_;
+    uiPushButtonBody&		mkbody(uiParent*,const ioPixmap*,const char*);
+
 };
 
 
-class uiRadioButton : public uiMltplWrapObj<uiButton,i_RadioButton>
+class uiRadioButton : public uiButton
 {                        
 public:
-			uiRadioButton(uiObject* parnt,const char* txt);
-    virtual             ~uiRadioButton();
+				uiRadioButton( uiParent*, const char* nm,
+					       const CallBack* cb =0);
 
-    virtual QButton&    qButton(); 
+    bool			isChecked() const;
+    virtual void		setChecked( bool check );
 
-    bool 		isChecked() const;
-    virtual void 	setChecked( bool check );
+private:
 
-protected:
+    uiRadioButtonBody*		body_;
+    uiRadioButtonBody&		mkbody(uiParent*, const char*);
 
-    const QWidget*	qWidget_() const;
-    virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == clicked ) Notifier(); }
 };
 
 
-class uiCheckBox: public uiMltplWrapObj<uiButton,i_CheckBox>
+class uiCheckBox: public uiButton
 {
 public:
 
-                        uiCheckBox(uiObject* parnt,const char* txt);
-    virtual             ~uiCheckBox();
+				uiCheckBox( uiParent*, const char* nm,
+					    const CallBack* cb =0);
 
-    virtual QButton&    qButton(); 
+    bool			isChecked () const;
+    void			setChecked ( bool check ) ;
 
-    bool 		isChecked () const;
-    void 		setChecked ( bool check ) ;
+private:
 
-protected:
+    uiCheckBoxBody*		body_;
+    uiCheckBoxBody&		mkbody(uiParent*, const char*);
 
-    const QWidget*	qWidget_() const;
-    virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == stateChanged ) Notifier(); }
 };
 
 
-class uiToolButton : public uiMltplWrapObj<uiButton,i_ToolButton>
+class uiToolButton : public uiButton
 {
 public:
-                        uiToolButton(uiObject* parnt,const char* txt);
-    virtual             ~uiToolButton();
+				uiToolButton( uiParent*, const char* nm,
+                                              const CallBack* cb =0);
+				uiToolButton( uiParent*, const char* nm,
+					      const ioPixmap&,
+					      const CallBack* cb =0); 
+private:
 
-    virtual QButton&    qButton(); 
+    uiToolButtonBody*		body_;
+    uiToolButtonBody&		mkbody(uiParent*, const char*);
 
-
-protected:
-
-    const QWidget*	qWidget_() const;
-    virtual void        notifyHandler( notifyTp tp ) 
-			{ if ( tp == clicked ) Notifier(); }
 };
 
 
-class uiButtonGroup : public uiWrapObj<i_QButtonGroup>
+//! Button Abstract Base class
+class uiButtonBody
 {
-public:
-			uiButtonGroup(uiObject* parnt,const char* txt,
-                                        bool vertical = true, int strips = 1 ); 
-    virtual             ~uiButtonGroup();
+    friend class        i_ButMessenger;
 
-    virtual QButtonGroup& qButtonGroup();
+public:
+			uiButtonBody()				{}
+    virtual		~uiButtonBody()				{}
+
+    //! Button signals emitted by Qt.
+    enum notifyTp       { clicked, pressed, released, toggled, stateChanged };
 
 protected:
-
-    const QWidget*	qWidget_() const;
-
+    //! Handler called from Qt.
+    virtual void        notifyHandler( notifyTp )		=0;
 };
+
+
 
 
 #endif

@@ -7,31 +7,29 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.11 2001-05-30 21:49:32 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.12 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
 
-class i_QListBox;
-class i_listMessenger;
 class PtrUserIDObjectSet;
 
+class uiListBoxBody;
 
-class uiListBox : public uiWrapObj<i_QListBox>
+class uiListBox : public uiObject
 {
-    friend class	i_listMessenger;
-    friend class	i_QListBox;
-
+friend class i_listMessenger;
 public:
 
-                        uiListBox(uiObject* parnt=0, 
+                        uiListBox(uiParent* parnt=0, 
 				  const char* nm="uiListBox",
 				  bool isMultiSelect=false,
 				  int preferredNrLines=0,
 				  int preferredFieldWidth=0);
-			uiListBox(uiObject*,const PtrUserIDObjectSet&,
+
+			uiListBox(uiParent*,const PtrUserIDObjectSet&,
 				  bool isMultiSelect=false,
 				  int preferredNrLines=0,
 				  int preferredFieldWidth=0);
@@ -43,14 +41,7 @@ public:
 			    If set to 1, then the list can not 
 			    grow/shrink vertically.
 			*/
-    void 		setLines( int prefNrLines )
-			{ 
-			    if(prefNrLines >= 0) nLines=prefNrLines;
-			    setStretch( 1, isSingleLine() ? 0 : 1 );
-			}
-
-    void                notify( const CallBack& cb ) { notifyCBL += cb; }
-			//!< Triggered when selection has changed. 
+    void 		setLines( int prefNrLines );
 
     int			size() const;
     bool		isPresent(const char*) const;
@@ -70,25 +61,25 @@ public:
     void                setCurrentItem(int);
     void                setCurrentItem(const char*); //!< First match
 
-    virtual uiSize	minimumSize() const; //!< \reimp
-    virtual bool	isSingleLine() const { return nLines==1; }
+    int			lastClicked()		{ return lastClicked_; }
+
+    Notifier<uiListBox> selectionChanged;
+
+			//! sets lastClicked
+    Notifier<uiListBox> doubleClicked;
+
+			//! sets lastClicked
+    Notifier<uiListBox> rightButtonClicked;
 
 protected:
 
-    const QWidget*	qWidget_() const;
-
-    virtual void        notifyHandler() //!< Handler called from Qt.
-			{ Notifier(); }
-    void                Notifier()     { notifyCBL.doCall(this); }
-    CallBackList        notifyCBL;
-
-    int 		fieldWdt;
-    int 		nLines;
-    BufferString	rettxt;
+    mutable BufferString	rettxt;
+    int			lastClicked_;
 
 private:
 
-    i_listMessenger&    _messenger;
+    uiListBoxBody*		body_;
+    uiListBoxBody&		mkbody(uiParent*, const char*, bool, int, int);
 
 };
 

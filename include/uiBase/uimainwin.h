@@ -7,57 +7,49 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.4 2001-06-07 21:22:51 windev Exp $
+ RCS:           $Id: uimainwin.h,v 1.5 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
+#include <uiparent.h>
+#include <uihandle.h>
 
-template <class T> class i_QObjWrapper;
-class QMainWindow;
-mTemplTypeDefT( i_QObjWrapper, QMainWindow, i_QMainWindow )
-
-class i_LayoutMngr;
+class uiMainWinBody;
 class uiStatusBar;
 class uiMenuBar;
-class uiGroup;
+class uiObject;
 
-class uiMainWin : public uiObject
+class uiMainWin : public uiParent
 {
+
 public:
 			uiMainWin( uiParent* parnt=0, 
 				   const char* nm="uiMainWin",
 				   bool wantStatusBar = true, 
 				   bool wantMenuBar = true );
-    virtual		~uiMainWin();
+
 
     uiStatusBar* 	statusBar();
     uiMenuBar* 		menuBar();
 
+    void                show();
+
+    uiObject*		uiObj();
+    const uiObject*	uiObj() const;
+
+    void		shallowRedraw( CallBacker* =0 )		{reDraw(false);}
+    void		deepRedraw( CallBacker* =0 )		{reDraw(true); }
+    void		reDraw(bool deep);
+
 protected:
-    const QWidget*	qWidget_() const;
-    void		qThingDel( i_QObjWrp* qth );
 
-    virtual i_LayoutMngr* mLayoutMngr() 	{ return mLoMngr; } 
-    virtual i_LayoutMngr* prntLayoutMngr() 	{ return 0; }
-    
-    virtual void	forceRedraw_( bool deep );
-    virtual void	finalise_();
+    void		doPolish(CallBacker*);
 
-    // don't change order of these 3 attributes!
-    i_LayoutMngr*	mLoMngr;
-    i_QMainWindow*	mQtThing;
-    uiGroup*		mCentralWidget;
 
-    uiStatusBar* 	mStatusBar;
-    uiMenuBar* 		mMenuBar;
+private:
 
-    virtual const uiParent& clientWidget_() 	const;
-
-    virtual void	polish();
-
+    uiMainWinBody*	body_;
 };
-
 
 #endif

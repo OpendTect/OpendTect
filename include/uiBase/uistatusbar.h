@@ -7,21 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.1 2000-11-27 10:19:28 bert Exp $
+ RCS:           $Id: uistatusbar.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
+#include <uihandle.h>
 
+class uiStatusBarBody;
 class QStatusBar;
-//template <class T> class i_QObjWrapper;
-//typedef i_QObjWrapper<QStatusBar> i_QStatusBar;
+class uiMainWin;
 
-class uiStatusBar : public uiNoWrapObj<QStatusBar>
+class uiStatusBar : public uiObjHandle
 {
 //friend class i_QStatusBar;
-friend class uiMainWin;
+friend class uiMainWinBody;
 public:
 
     void 		message( const char* msg);
@@ -30,8 +30,10 @@ protected:
 
                         uiStatusBar( uiMainWin* parnt, const char* nm,  
                                      QStatusBar& ); 
-			//!< for use by uiMainWin
-    const QWidget*	qWidget_() const;
+private:
+
+    uiStatusBarBody*	body_;
+    uiStatusBarBody&	mkbody(uiMainWin*, const char*, QStatusBar&);
 };
 
 #endif // uiStatusBar

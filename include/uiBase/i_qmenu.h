@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qmenu.h,v 1.2 2001-05-04 10:08:54 windev Exp $
+ RCS:           $Id: i_qmenu.h,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,11 +35,11 @@ protected:
 
 private:
 
-    uiMenuItem* _receiver;
+    uiMenuItem*			_receiver;
 
 private slots:
 
-    void activated() 		{ _receiver->notifyHandler(); }
+    void activated() 		{ _receiver->activated.trigger( *_receiver ); }
 
 };
 

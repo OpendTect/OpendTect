@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.3 2001-08-07 06:11:38 nanne Exp $
+ RCS:           $Id: pixmap.h,v 1.4 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidobj.h"
-#include "iodraw.h"
+#include "iodrawimpl.h"
 
 class QPixmap;
 class QPaintDevice;
@@ -21,7 +21,7 @@ class QPaintDevice;
 class ArrayRGB;
 
 //! off-screen pixel-based paint device
-class ioPixmap : public UserIDObject , public ioDrawArea
+class ioPixmap : public UserIDObject , public ioDrawAreaImpl
 {
 public:
 			ioPixmap() : qpixmap( 0 ) {}

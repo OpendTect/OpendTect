@@ -7,31 +7,26 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.9 2001-06-03 15:44:25 bert Exp $
+ RCS:           $Id: uicombobox.h,v 1.10 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 #include <uigroup.h>
 
-class QComboBox;
 class PtrUserIDObjectSet;
 class uiLabel;
-
-template <class T> class i_QObjWrapper;
-mTemplTypeDefT(i_QObjWrapper, QComboBox, i_QComboBox);
+class uiComboBoxBody;
 
 class BufferString;
 template <class T> class ObjectSet;
 
-class uiComboBox : public uiWrapObj<i_QComboBox>
+class uiComboBox : public uiObject
 {
-friend class i_comboMessenger;
-friend i_QComboBox;
 public:
 
-			uiComboBox(uiObject*,const char* nm="Combo Box",
+			uiComboBox(uiParent*,const char* nm="Combo Box",
 				   bool editable=false);
-			uiComboBox(uiObject*,const PtrUserIDObjectSet&,
+			uiComboBox(uiParent*,const PtrUserIDObjectSet&,
 				   bool editable=false);
     virtual 		~uiComboBox();
 
@@ -59,23 +54,15 @@ public:
     const char*		textOfItem(int) const;
     void		setItemText(int,const char*);
 
-    virtual bool        isSingleLine() const { return true; }
-
-			//! Triggered when selection has changed. 
-    Notifier<uiComboBox> selectionchanged;
-
-protected:
-
-    const QWidget*	qWidget_() const;
-
-
-    virtual void        notifyHandler() //!< Handler called from Qt.
-			{ selectionchanged.trigger(); }
+			//! Triggered when selection has changed.
+    Notifier<uiComboBox> selectionChanged;
 
 private:
 
-    i_comboMessenger&    _messenger;
     BufferString	rettxt;
+
+    uiComboBoxBody*	body_;
+    uiComboBoxBody&	mkbody(uiParent*, const char*, bool);
 
 };
 
@@ -83,10 +70,10 @@ private:
 class uiLabeledComboBox : public uiGroup
 {
 public:
-		uiLabeledComboBox( uiObject*,const char* txt,
+		uiLabeledComboBox( uiParent*,const char* txt,
 				   const char* nm="Labeled Combobox",
 				   bool editable=false);
-		uiLabeledComboBox(uiObject*,const PtrUserIDObjectSet&,
+		uiLabeledComboBox( uiParent*,const PtrUserIDObjectSet&,
 					    bool ed=false);
 
     uiComboBox*	box()		{ return cb; }

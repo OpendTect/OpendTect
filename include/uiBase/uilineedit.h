@@ -7,26 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.3 2001-05-03 12:14:24 arend Exp $
+ RCS:           $Id: uilineedit.h,v 1.4 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiobj.h>
-class QLineEdit;
-template <class T> class i_QObjWrapper;
-mTemplTypeDefT(i_QObjWrapper,QLineEdit,i_QLineEdit)
 
-class	i_lineEditMessenger;
+class uiLineEditBody;
 
-class uiLineEdit : public uiWrapObj<i_QLineEdit>
+class uiLineEdit : public uiObject
 {
 public:
 
-                        uiLineEdit(uiObject*,const char* starttxt=0,
+                        uiLineEdit(uiParent*,const char* starttxt=0,
 				   const char* nm="Line Edit");
-
-    virtual bool        isSingleLine() const { return true; }
 
     const char*		text() const;
     int 		getIntValue() const;
@@ -46,13 +41,10 @@ public:
     Notifier<uiLineEdit> textChanged;
     Notifier<uiLineEdit> returnPressed;
 
-protected:
-
-    const QWidget*	qWidget_() const;
-
 private:
 
-    i_lineEditMessenger& _messenger;
+    uiLineEditBody*	body_;
+    uiLineEditBody&	mkbody(uiParent*, const char*, const char*);
 
     BufferString	result;
 

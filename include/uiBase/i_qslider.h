@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qslider.h,v 1.1 2001-02-16 17:01:37 arend Exp $
+ RCS:           $Id: i_qslider.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class QString;
 class i_SliderMessenger : public QObject 
 {
     Q_OBJECT
-    friend class	uiSlider;
+    friend class	uiSliderBody;
 
 protected:
 			i_SliderMessenger( QSlider*  sender,

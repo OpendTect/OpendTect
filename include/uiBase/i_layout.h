@@ -7,34 +7,50 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.9 2001-06-07 21:22:48 windev Exp $
+ RCS:           $Id: i_layout.h,v 1.10 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uilayout.h"
+//#include "i_layoutitem.h"
 #include "uigeom.h"
-
 #include "uiobj.h"
 
 #include <qlayout.h>
 #include <qlist.h>
-
-#include "i_qobjwrap.h"
-#include "uigroup.h"
 
 //!  internal enum used to determine in which direction a widget can be stretched and to check which outer limit must be checked
 enum stretchLimitTp { left=1, right=2, above=4, below=8, 
                       rightLimit=16, bottomLimit=32 };
 
 
-class uiConstraint;
+class uiConstraint
+{
+friend class i_LayoutItem;
+public:
+
+			uiConstraint ( constraintType t, i_LayoutItem* o,
+				       int marg )
+			{
+			    other = o; type = t; margin = marg;
+			    if( !other &&
+				((type < leftBorder)||( type > bottomBorder))
+			    )
+				{ pErrMsg("No attachment defined!!"); }
+			}
+
+
+protected:
+    constraintType      type;
+    i_LayoutItem*       other;
+    int                 margin;
+};
 
 mTemplTypeDef(QList,uiConstraint,constraintList)
 mTemplTypeDef(QListIterator,uiConstraint,constraintIterator)
 
 class i_LayoutItem;
-
 
 
 enum layoutMode { minimum=0, preferred=1, setGeom=2, all=3 };
@@ -77,19 +93,16 @@ class i_LayoutMngr : public QLayout, public UserIDObject
     friend class	i_LayoutItem;
 
 public:
-			i_LayoutMngr( uiObject* parnt, int border, int space,
-				      const char* name=0, bool autoAdd=false );
-//				      const char* name, bool autoAdd );
 
-//! constructor for if parnt doesn't know it's widget yet (constr. uiDialog)
-			i_LayoutMngr( QWidget* prntWidg, uiObject* parnt, 
+			i_LayoutMngr( QWidget* prnt,
 				      int border, int space,
-				      const char* name=0, bool autoAdd=false );
-//				      const char* name, bool autoAdd );
+				      const char* name=0 );
 
     virtual		~i_LayoutMngr();
  
     virtual void 	addItem( QLayoutItem*);
+    void	 	addItem( i_LayoutItem* );
+
     virtual QSize 	sizeHint() const;
     virtual QSize 	minimumSize() const;
 
@@ -102,14 +115,14 @@ public:
 
     layoutMode		curMode() const { return curmode; } 
     inline const uiRect& pos() const { return pos_[curMode()]; }
-    void		forceChildrenRedraw( uiObject*, bool deep );
+    void		forceChildrenRedraw( uiObjectBody*, bool deep );
     void		childrenClear( uiObject* );
     int			borderSpace() const	    { return margin(); }
     void		setMinTxtWidgHgt( int h )   { mintxtwidgethgt=h; }
     int			minTxtWidgHgt() const       { return mintxtwidgethgt; }
-    inline void		finalise() 
-			    { if(!finalised && parnt_) finalise_(); }
+
 protected:
+
     void 		setGeometry( const QRect& );
     void		childUpdated() 		{ a_child_updated = true; }
     int			horSpacing() const 	{ return spacing(); }
@@ -119,9 +132,8 @@ protected:
     inline void 	setMode( layoutMode m  ) const 
                         { const_cast<i_LayoutMngr*>(this)->setMode(m); }
  
-    void		finalise_();
- 
 private:
+
     void 		doLayout( const QRect& );
     inline void 	doLayout( const QRect& r ) const 
                         { const_cast<i_LayoutMngr*>(this)->doLayout(r); }
@@ -135,121 +147,9 @@ private:
 
     uiRect		pos_[ nLayoutMode ];
 
-    uiObject*		parnt_;
-    bool		finalised;
-
     layoutMode		curmode;
     static int		mintxtwidgethgt;
 
 };
-
-
-//! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-class i_LayoutItem
-{   
-    friend class	i_LayoutMngr;
-
-public: 
-			i_LayoutItem( i_LayoutMngr& , QLayoutItem& );
-
-    virtual		~i_LayoutItem();
-
-    virtual QWidget*   	widget() { return mQLayoutItem_.widget(); }
-    const QWidget*  	widget() const
-			    { return ((i_LayoutItem*)this)->widget(); }
-    inline QLayoutItem& mQLayoutItem()		   { return mQLayoutItem_; }
-    inline const QLayoutItem& mQLayoutItem() const { return mQLayoutItem_; }
-
-
-    virtual int		horAlign() const 
-			    { return pos().left(); }
-    virtual int		horCentre() const 
-			    { return ( pos().left() 
-                                     + pos().right() ) / 2; 
-			    }
-    virtual QSize 	minimumSize() const 
-			    { return mQLayoutItem_.widget() -> minimumSize(); }
-
-    virtual void       	invalidate();
-
-    uiSize		actualSize( bool include_border = true) const;
-
-    const i_LayoutMngr& loMngr() const 	{ return mngr; } 
-    inline const uiRect& pos() const 	{ return pos_[mngr.curMode()]; }
-    inline uiRect&	pos() 		{ return pos_[mngr.curMode()]; }
-
-    constraintIterator	iterator();
-protected:
-
-    void		setGeometry();
-
-    void		initLayout ( int mngrTop, int mngrLeft );
-    void		layout ();
-
-    void 		updated() const		{ mngr.childUpdated(); }
-    int			horSpacing() const	{ return mngr.horSpacing(); }
-    int			verSpacing() const	{ return mngr.verSpacing(); }
-
-    void 		attach(constraintType, i_LayoutItem *other, int margin);
-
-    const int* 		pt_hStretch;
-    const int* 		pt_vStretch;
-
-    virtual uiObject*	uiClient() { return 0; }
-    const uiObject*  	uiClient() const
-			{ return ((i_LayoutItem*)this)->uiClient(); }
-
-private:
-
-    QLayoutItem& 	mQLayoutItem_;   
-    i_LayoutMngr&       mngr;
-
-    constraintList	constrList;
-
-    uiRect		pos_[ nLayoutMode ];
-    bool		preferred_pos_inited;
-    bool		minimum_pos_inited;
-
-};
-
-
-//! Wrapper around QLayoutItems that have been wrapped by a i_QObjWrp wrapper and therefore have a reference to a uiObject.
-class i_uiLayoutItem : public i_LayoutItem
-{
-public:
-			i_uiLayoutItem( uiObject& wrapper, 
-					i_LayoutMngr& mngr, 
-					QLayoutItem& item )
-			: i_LayoutItem( mngr, item )
-                        , uiObject_( wrapper ) 
-                        {
-			    pt_hStretch = &wrapper.horStretch;
-			    pt_vStretch = &wrapper.verStretch;
-                            wrapper.mLayoutItm = this;
-                        }
-
-    virtual int		horAlign() const 
-			{ return uiObject_.horAlign(); }
-
-    virtual int		horCentre() const 
-			{ return uiObject_.horCentre(); }
-
-    virtual QSize 	minimumSize() const
-			{ uiSize s =  uiObject_.minimumSize();
-			  return QSize( s.width() , s.height() ); 
-			}
-
-    virtual uiObject*	uiClient() { return &uiObject_; }
-protected:
-
-    uiObject&		uiObject_;
-
-};
-
-#ifdef __debug__ 
-#define mChkmLayout()   if(!mLayoutItm) { pErrMsg("No mLayoutItm"); return 0; }
-#else
-#define mChkmLayout()	if(!mLayoutItm) { return 0; } 
-#endif
 
 #endif

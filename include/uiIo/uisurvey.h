@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.1 2001-07-27 10:27:49 nanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.2 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,8 @@ class uiCanvas;
 class uiListBox;
 class uiPushButton;
 class uiSurveyMap;
-class uiTextView;
+class uiTextEdit;
+class uiLabel;
 
 class uiSurvey : public uiDialog
 {
@@ -45,7 +46,7 @@ protected:
     uiLabel*		xrange2; 
     uiLabel*		zrange2;
     uiLabel*		binsize2;
-    uiTextView*		notes;
+    uiTextEdit*		notes;
 
     bool		acceptOK(CallBacker*);  
     void		newButPushed(CallBacker*);
