@@ -37,7 +37,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.54 2004-07-19 12:36:35 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.55 2004-07-19 13:21:17 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -49,6 +49,16 @@ bool ExecOSCmd( const char* comm, bool inbg )
     if ( !comm || !*comm ) return false;
 
 #ifdef __win__
+
+    BufferString oscmd(comm);
+
+    if ( inbg ) 
+	oscmd += "&";
+
+    int res = system( oscmd );
+    return !res;
+
+#else
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -90,11 +100,6 @@ bool ExecOSCmd( const char* comm, bool inbg )
     }
 
     return res;
-
-#else
-
-    int res = system(comm);
-    return !res;
 
 #endif
 }
@@ -335,7 +340,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
 }
 
 
-StreamData StreamProvider::makeIStream( bool inbg ) const
+StreamData StreamProvider::makeIStream() const
 {
     StreamData sd; sd.setFileName( fname );
     if ( isbad || !*(const char*)fname )
@@ -381,7 +386,7 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
 
 #else
 
-    mkOSCmd( true, inbg );
+    mkOSCmd( true );
 
     sd.fp = popen( oscommand, "r" );
     sd.ispipe = true;
@@ -402,7 +407,7 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
 }
 
 
-StreamData StreamProvider::makeOStream( bool inbg ) const
+StreamData StreamProvider::makeOStream() const
 {
     StreamData sd; sd.setFileName( fname );
     if ( isbad ||  !*(const char*)fname )
@@ -430,7 +435,7 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
 
 #else
 
-    mkOSCmd( false, inbg );
+    mkOSCmd( false );
 
     sd.fp = popen( oscommand, "w" );
     sd.ispipe = true;
@@ -452,7 +457,7 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
 
 bool StreamProvider::executeCommand( bool inbg ) const
 {
-    mkOSCmd( true, inbg );
+    mkOSCmd( true );
     return ExecOSCmd( oscommand, inbg );
 }
 
@@ -557,7 +562,7 @@ static const char* getCmd( const char* fnm )
 # define mGetCmd(fname) (const char*)(fname)
 #endif
 
-void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
+void StreamProvider::mkOSCmd( bool forread ) const
 {
     if ( !hostname[0] )
 	oscommand = mGetCmd(fname);
@@ -606,12 +611,8 @@ void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
 	}
     }
 
-#ifndef __win__
 
-    if ( inbg ) 
-	oscommand += "&";
 
-#endif
 
     if ( DBG::isOn(DBG_IO) )
     {
