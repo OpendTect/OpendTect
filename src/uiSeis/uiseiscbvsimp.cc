@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.24 2004-09-07 16:24:01 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.25 2004-10-07 21:09:09 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseiscbvsimp.h"
+#include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "seistrctr.h"
 #include "ioman.h"
@@ -230,17 +231,19 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     if ( dolink )
 	return true;
 
+    uiSeisIOObjInfo ioobjinfo( *outctio_.ioobj, true );
+    if ( !ioobjinfo.checkSpaceLeft(transffld->spaceInfo()) )
+	return false;
+
     const char* titl = oinpfld ? "Copying seismic data"
 				: "Importing CBVS seismic cube";
-    /*TODO
-    PtrMan<Executor> stp = transffld->getTrcProc( inctio_.ioobj, outctio_.ioobj,
-	   			titl, "Loading data" );
-    if ( !stp || !transffld->checkSpaceLeft( *outctio_.ioobj ) )
+    PtrMan<Executor> stp = transffld->getTrcProc( *inctio_.ioobj,
+	    			*outctio_.ioobj, titl, "Loading data",
+				oinpfld->attrNm() );
+    if ( !stp )
 	return false;
 
     uiExecutor dlg( this, *stp );
-    return dlg.go() == 1
-	&& transffld->provideUserInfo(*outctio_.ioobj);
-    */
-    return true;
+    return dlg.go() == 1 && !ioobjinfo.is2D()
+	&& ioobjinfo.provideUserInfo();
 }

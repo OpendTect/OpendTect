@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.65 2004-10-06 12:10:03 dgb Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.66 2004-10-07 21:09:09 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseismmproc.h"
 #include "uiseistransf.h"
+#include "uiseisioobjinfo.h"
 #include "seismmjobman.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -387,10 +388,8 @@ void uiSeisMMProc::execFinished( bool userestart )
 	statusBar()->message( "", 3 );
 	finished = true;
 	setOkText( "Quit" ); setCancelText( "Quit" );
-	/*TODO
 	if ( targetioobj )
-	    uiSeisTransfer::provideUserInfo( *targetioobj );
-	    */
+	    uiSeisIOObjInfo(*targetioobj,false).provideUserInfo();
     }
     else
     {
