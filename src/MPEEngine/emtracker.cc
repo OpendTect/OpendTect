@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.5 2005-03-30 13:44:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.6 2005-04-01 14:59:52 cvsnanne Exp $";
 
 #include "emtracker.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: emtracker.cc,v 1.5 2005-03-30 13:44:14 cvsnanne
 #include "sectionselector.h"
 #include "sectiontracker.h"
 #include "trackplane.h"
+#include "iopar.h"
 
 namespace MPE 
 {
@@ -105,6 +106,13 @@ SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )
     {
 	delete sectiontracker;
 	return 0;
+    }
+
+    if ( sectiontrackers.size() )
+    {
+	IOPar par;
+	sectiontrackers[0]->fillPar( par );
+	sectiontracker->usePar( par );
     }
 
     sectiontrackers += sectiontracker;
