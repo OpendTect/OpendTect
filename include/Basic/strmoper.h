@@ -8,12 +8,14 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.2 2000-03-02 15:24:34 bert Exp $
+ RCS:		$Id: strmoper.h,v 1.3 2000-03-03 09:42:42 bert Exp $
 ________________________________________________________________________
 
 */
 
 #include <gendefs.h>
+class istream;
+class ostream;
 
 ostream*	openOutputStream(const char*);
 istream*	openInputStream(const char*);
