@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.5 2001-05-02 20:25:39 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.6 2001-05-18 13:37:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiIOSelect : public uiGroup
 {
 public:
 
-			uiIOSelect(uiObject*,const CallBack& do_selection,
+			uiIOSelect(uiParent*,const CallBack& do_selection,
 				   const char* txt,
 				   bool selection_editable=true,
 				   bool withclear=false);
@@ -77,7 +77,7 @@ protected:
 class uiIOFileSelect : public uiIOSelect
 {
 public:
-			uiIOFileSelect(uiObject*,const char* txt,
+			uiIOFileSelect(uiParent*,const char* txt,
 					bool for_read,
 					const char* inp=0,
 					bool withclear=false);

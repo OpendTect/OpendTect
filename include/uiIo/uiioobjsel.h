@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.6 2001-05-08 08:20:40 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.7 2001-05-18 13:37:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiGenInput;
 class uiIOObjSelDlg : public uiDialog
 {
 public:
-			uiIOObjSelDlg(uiObject*,const CtxtIOObj&);
+			uiIOObjSelDlg(uiParent*,const CtxtIOObj&);
 			~uiIOObjSelDlg();
 
     const IOObj*	ioObj() const		{ return ioobj; }
@@ -49,7 +49,7 @@ protected:
 class uiIOObjSel : public uiIOSelect
 {
 public:
-			uiIOObjSel(uiObject*,CtxtIOObj&,const char* txt=0,
+			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,
 				      bool withclear=false);
 
     CtxtIOObj&		ctxtIOObj()		{ return ctio; }
