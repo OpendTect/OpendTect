@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.33 2003-01-02 15:43:57 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.34 2003-01-03 17:51:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,16 +24,23 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "uigeninput.h"
 #include "hostdata.h"
-#include "iopar.h"
+#include "ioparlist.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "timer.h"
 #include "timefun.h"
 #include "filegen.h"
 #include "executor.h"
+#include "ptrman.h"
 #include <stdlib.h>
 
+const char* sTmpStorKey = "Temporary storage directory";
+const char* sTmpSeisID = "Temporary seismics";
 
-uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
-	: uiDialog(p, uiDialog::Setup(getFirstJM(prognm,iop).name(),"",0)
+
+uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
+			    const IOParList& iopl )
+	: uiDialog(p,uiDialog::Setup(getFirstJM(prognm,*iopl[0]).name(),"",0)
 		.nrstatusflds(-1)
 		.oktext("Finish Now")
 		.canceltext("Abort")
@@ -44,25 +51,45 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     	, finished(false)
     	, jmfinished(false)
 	, logvwer(0)
+    	, iopl(*new IOParList(iopl))
+    	, nrcyclesdone(0)
+    	, tmpstordirfld(0)
 {
-    statusBar()->addMsgFld( "Message", uiStatusBar::Left, 2 );
-    statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 2 );
-    statusBar()->addMsgFld( "NrDone", uiStatusBar::Left, 1 );
+    statusBar()->addMsgFld( "Message", uiStatusBar::Left, 4 );
+    statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 4 );
+    statusBar()->addMsgFld( "NrDone", uiStatusBar::Left, 2 );
+    statusBar()->addMsgFld( "Activity", uiStatusBar::Left, 1 );
     tim.tick.notify( mCB(this,uiSeisMMProc,doCycle) );
 
-    const char* res = iop.find( "Target value" );
-    BufferString txt( "Manage processing" );
+    const IOPar& iopar = *iopl[0];
+    const char* res = iopar.find( "Target value" );
+    BufferString txt( "Multi-Machine Processing " );
     if ( res && *res )
-	{ txt += ": "; txt += res; }
+	{ txt += "'"; txt += res; txt += "' "; }
     setTitleText( txt );
 
-    tmpstordirfld = new uiIOFileSelect( this, "Temporary storage directory",
-	    				false, jm->tempStorageDir() );
-    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
-    tmpstordirfld->selectDirectory( true );
+    bool isrestart = false;
+    res = iopar.find( sTmpSeisID );
+    if ( res )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(res) );
+	isrestart = ioobj && ioobj->implExists(true);
+    }
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep 1", true );
-    sep->attach( stretchedBelow, tmpstordirfld );
+    uiSeparator* sep = 0;
+    if ( isrestart )
+	jm->setRestartID( res );
+    else
+    {
+	tmpstordirfld = new uiIOFileSelect( this, sTmpStorKey, false,
+					    jm->tempStorageDir() );
+	tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
+	res = iopar.find( sTmpStorKey );
+	if ( res && File_isDirectory(res) ) tmpstordirfld->setInput( res );
+	tmpstordirfld->selectDirectory( true );
+	sep = new uiSeparator( this, "Hor sep 1", true );
+	sep->attach( stretchedBelow, tmpstordirfld );
+    }
 
     machgrp = new uiGroup( this, "Machine handling" );
 
@@ -96,8 +123,11 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 
     usedmachgrp->attach( ensureRightOf, addbut );
     machgrp->setHAlignObj( addbut );
-    machgrp->attach( alignedBelow, tmpstordirfld );
-    machgrp->attach( ensureBelow, sep );
+    if ( tmpstordirfld )
+    {
+	machgrp->attach( alignedBelow, tmpstordirfld );
+	machgrp->attach( ensureBelow, sep );
+    }
 
     sep = new uiSeparator( this, "Hor sep 2", true );
     sep->attach( stretchedBelow, machgrp );
@@ -176,6 +206,62 @@ void uiSeisMMProc::setDataTransferrer( SeisMMJobMan* newjm )
 }
 
 
+static int askRemaining( const SeisMMJobMan& jm )
+{
+    const int nrlines = jm.totalNr();
+    if ( nrlines == 0 ) return 1;
+    int linenr = jm.lineToDo(0);
+    BufferString msg;
+    if ( nrlines == 1 )
+    {
+	msg = "Inline "; msg += linenr;
+	msg += " was not calculated.\n"
+		"This may be due to a gap or an unexpected error.\n"
+		"Do you want to re-try this line?";
+    }
+    else
+    {
+	msg = "The following inlines were not calculated.\n"
+		"This may be due to gaps or an unexpected error.\n";
+
+	int intvstep = mUndefIntVal;
+	int prevline = linenr;
+	for ( int idx=1; idx<nrlines; idx++ )
+	{
+	    linenr = jm.lineToDo(idx);
+	    if ( linenr - prevline < intvstep )
+		intvstep = linenr - prevline;
+	    prevline = linenr;
+	}
+
+	int intvstart = prevline = jm.lineToDo( 0 );
+	for ( int idx=1; idx<=nrlines; idx++ )
+	{
+	    linenr = idx == nrlines ? prevline + intvstep+1 : jm.lineToDo(idx);
+	    if ( linenr - prevline != intvstep )
+	    {
+		if ( prevline == intvstart )
+		    // Prev line is stand-alone
+		    msg += prevline;
+		else if ( prevline - intvstart == intvstep )
+		    // Prev line and cur are a pair only
+		    { msg += intvstart; msg += " "; msg += prevline; }
+		else
+		    // A real range of lines
+		    { msg += intvstart; msg += "-"; msg += prevline; }
+		msg += " ";
+		intvstart = linenr;
+	    }
+	    prevline = linenr;
+	}
+
+	msg += "\nDo you want to try to calculate these lines?";
+    }
+
+    return uiMSG().askGoOnAfter( msg, "Quit program" );
+}
+
+
 void uiSeisMMProc::execFinished()
 {
     if ( jmfinished )
@@ -194,28 +280,27 @@ void uiSeisMMProc::execFinished()
 	updateCurMachs();
 	progrfld->append( "Checking integrity of processed data" );
 	SeisMMJobMan* newjm = new SeisMMJobMan( *jm );
-	const int nrlines = newjm->totalNr();
-	if ( nrlines < 1 )
+	if ( newjm->totalNr() < 1 )
 	    setDataTransferrer( newjm );
 	else
 	{
-	    BufferString msg( "The following inlines were not calculated.\n" );
-	    msg += "This may be due to gaps or an unexpected error.\n";
-	    for ( int idx=0; idx<nrlines; idx++ )
+	    bool start_again = true;
+	    if ( tmpstordirfld )
 	    {
-		msg += newjm->lineToDo(idx);
-		if ( idx != nrlines-1 ) msg += " ";
+		int res = askRemaining( *newjm );
+		if ( res == 2 )
+		    { reject(this); return; }
+		else if ( res == 1 )
+		{
+		    start_again = false;
+		    setDataTransferrer( newjm );
+		}
+		else
+		    uiMSG().message( "Please select the hosts to perform"
+				     " the remaining calculations" );
 	    }
-	    msg += "\nDo you want to try to calculate these lines?";
-	    int res = uiMSG().askGoOnAfter( msg, "Quit program" );
-	    if ( res == 2 )
-		reject(this);
-	    else if ( res == 1 )
-		setDataTransferrer( newjm );
-	    else
+	    if ( start_again )
 	    {
-		uiMSG().message( "Please select the hosts to perform"
-				 " the remaining calculations" );
 		delete jm; jm = newjm;
 		task = newjm;
 		newJM();
@@ -238,6 +323,14 @@ void uiSeisMMProc::doCycle( CallBacker* )
     case 2:	uiMSG().warning( task->message() );			break;
     }
 
+    nrcyclesdone++;
+    if ( nrcyclesdone == 1 && task == jm )
+    {
+	iopl[0]->set( sTmpStorKey, jm->tempStorageDir() );
+	iopl[0]->set( sTmpSeisID, jm->tempSeisID() );
+	iopl.write();
+    }
+
     prepareNextCycle( delay );
 }
 
@@ -250,6 +343,13 @@ void uiSeisMMProc::prepareNextCycle( int msecs )
     const int nrdone = task->nrDone();
     BufferString str; str += nrdone;
     sb.message( str, 2 );
+    static const int nrdispstrs = 8;
+    static const char* dispstrs[]
+	= { ">", " >", "  >", "   >", "   <", "  <", " <", "<" };
+    if ( task == jm )
+	sb.message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
+    else
+	sb.message("");
 
     const int totsteps = task->totalNr();
     const bool hastot = totsteps > 0;
@@ -262,7 +362,6 @@ void uiSeisMMProc::prepareNextCycle( int msecs )
 
     tim.start( delay, true );
 }
-
 
 
 void uiSeisMMProc::updateCurMachs()

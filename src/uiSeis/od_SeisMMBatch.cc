@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.2 2002-05-08 12:17:06 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.3 2003-01-03 17:51:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,8 @@ int main( int argc, char ** argv )
 	cerr << "Usage: " << argv[0] << " program parfile" << endl;
 	return 1;
     }
-    StreamProvider spin( argv[2+bgadd] );
+    const char* fnm = argv[ 2 + bgadd ];
+    StreamProvider spin( fnm );
     StreamData sdin = spin.makeIStream();
     if ( !sdin.usable() )
     {
@@ -50,6 +51,7 @@ int main( int argc, char ** argv )
 	return 1;
     }
     sdin.close();
+    parlist.setFileName( fnm );
 
 #ifndef __msvc__
     if ( bgadd )
@@ -66,7 +68,7 @@ int main( int argc, char ** argv )
 #endif 
 
     uiMain app( argc, argv );
-    uiSeisMMProc* smmp = new uiSeisMMProc( 0, argv[1+bgadd], *parlist[0] );
+    uiSeisMMProc* smmp = new uiSeisMMProc( 0, argv[1+bgadd], parlist );
 
     app.setTopLevel( smmp );
     smmp->show();

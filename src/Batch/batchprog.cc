@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.24 2002-12-20 13:37:39 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.25 2003-01-03 17:51:26 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -101,8 +101,8 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
     iopar_ = new IOPar( *parlist[0] );
 
-    usesock_ =  iopar_->get( "Master host", masterhost_ ); 
-    usesock_ &= iopar_->get( "Master port", masterport_ ); 
+    usesock_ = iopar_->get( "Master host", masterhost_ )
+	    && iopar_->get( "Master port", masterport_ ); 
     iopar_->get( "Job ID", jobid_ ); 
 
     const char* res = iopar_->find( "Log file" );

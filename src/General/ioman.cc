@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.28 2002-11-07 07:47:24 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.29 2003-01-03 17:51:26 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -611,6 +611,7 @@ IOParList* IOMan::getAuxList( const MultiID& ky ) const
     if ( !sd.usable() ) return 0;
 
     IOParList* iopl = new IOParList( *sd.istrm );
+    iopl->setFileName( fn );
 
     sd.close();
     return iopl;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.13 2002-08-28 13:42:10 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.14 2003-01-03 17:51:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiGroup;
 class Executor;
 class uiButton;
 class uiSlider;
+class IOParList;
 class uiTextEdit;
 class SeisMMJobMan;
 class uiProgressBar;
@@ -30,7 +31,8 @@ class uiLabeledListBox;
 class uiSeisMMProc : public uiDialog
 {
 public:
-                        uiSeisMMProc(uiParent*,const char* prognm,const IOPar&);
+                        uiSeisMMProc(uiParent*,const char* prognm,
+				     const IOParList&);
 			~uiSeisMMProc();
 
 protected:
@@ -39,7 +41,9 @@ protected:
     Executor*		task;
     BufferString	rshcomm;
     Timer&		tim;
+    IOParList&		iopl;
     int			delay;
+    int			nrcyclesdone;
 
     uiLabeledListBox*	avmachfld;
     uiLabeledListBox*	usedmachfld;

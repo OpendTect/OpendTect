@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.15 2002-06-14 09:21:47 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.16 2003-01-03 17:51:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ bool uiGenBatchLaunch::acceptOK( CallBacker* )
         return false;
     }
 
+    parlist->setFileName( fname );
     return true;
 }
 
@@ -288,7 +289,7 @@ void uiFullBatchDialog::doButPush( CallBacker* cb )
     if ( !prepareProcessing() ) return;
 
     IOPar* iopar = new IOPar( "Processing" );
-    IOParList iopl; iopl += iopar;
+    IOParList iopl; iopl.deepErase(); iopl += iopar;
     if ( !fillPar(*iopar) )
 	return;
 
