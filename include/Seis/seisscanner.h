@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.1 2004-02-26 22:40:50 bert Exp $
+ RCS:		$Id: seisscanner.h,v 1.2 2004-02-29 00:25:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,8 @@ protected:
     BinID		invalidsamplebid;
     int			invalidsamplenr;
     bool		inlgapsfound, crlgapsfound;
+    int			firstinlgapbefore;
+    BinID		firstcrlgapbefore;
     bool		varcrlstart, varcrlend;
 
     void		init();

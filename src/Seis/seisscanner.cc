@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.2 2004-02-27 11:36:31 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.3 2004-02-29 00:25:11 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -76,6 +76,12 @@ int SeisScanner::nrDone() const
 bool SeisScanner::getSurvInfo( BinIDSampler& bs, StepInterval<double>& zrg,
 			       Coord crd[3] ) const
 {
+    if ( nrvalidtraces < 3 )
+    {
+	curmsg = "Not enough valid traces found";
+	return false;
+    }
+
     bs.start.inl = inlrg.start; bs.stop.inl = inlrg.stop;
     bs.step.inl = inlrg.step;
     bs.start.crl = crlrg.start; bs.stop.crl = crlrg.stop;
@@ -83,6 +89,17 @@ bool SeisScanner::getSurvInfo( BinIDSampler& bs, StepInterval<double>& zrg,
     zrg.start = sampling.atIndex( nonnullsamplerg.start );
     zrg.stop = sampling.atIndex( nonnullsamplerg.stop );
     zrg.step = sampling.step;
+
+    if ( inlrg.start == inlrg.stop )
+    {
+	curmsg = "Only one in-line in data";
+	return false;
+    }
+    else if ( crlrg.start == crlrg.stop )
+    {
+	curmsg = "Only one cross-line in data";
+	return false;
+    }
 
     // Setup the inl/crl vs coord things via longest inline
     const bool usemin = longestinlstart.inl - mininlbinid.inl
@@ -116,9 +133,9 @@ void SeisScanner::report( IOPar& iopar ) const
     iopar.clear();
     if ( !reader.ioObj() ) { iopar.setName( "No scan executed" ); return; }
 
-    BufferString bs = "Report for "; bs += reader.ioObj()->translator();
-    bs += " cube '"; bs += reader.ioObj()->name(); bs += "'\n\n";
-    iopar.setName( bs );
+    BufferString str = "Report for "; str += reader.ioObj()->translator();
+    str += " cube '"; str += reader.ioObj()->name(); str += "'\n\n";
+    iopar.setName( str );
 
     iopar.add( "->", "Sampling info" );
     iopar.set( "Z step", sampling.step );
@@ -147,19 +164,43 @@ void SeisScanner::report( IOPar& iopar ) const
     iopar.set( "Last inline", inlrg.stop );
     iopar.set( "Step inline", inlrg.step );
     iopar.setYN( "Gaps in inline numbers", inlgapsfound );
+    if ( inlgapsfound )
+	iopar.set( "First inline gap found before", firstinlgapbefore );
     iopar.set( "First crossline", crlrg.start );
     iopar.set( "Last crossline", crlrg.stop );
     iopar.set( "Step crossline", crlrg.step );
     iopar.setYN( "Gaps in crossline numbers", inlgapsfound );
+    if ( crlgapsfound )
+	iopar.set( "First crossline gap found before", firstcrlgapbefore );
     iopar.setYN( "Lines start at variable crossline numbers", varcrlstart );
     iopar.setYN( "Lines end at variable crossline numbers", varcrlend );
+    if ( varcrlstart || varcrlend )
+	iopar.set( "Longest in-line.Number", longestinlstart.inl );
 
+    iopar.add( "->", "Survey setup" );
+    BinIDSampler bs; StepInterval<double> zrg; Coord crd[3];
+    if ( !getSurvInfo(bs,zrg,crd) )
+	iopar.add( "Error", curmsg );
+    else
+    {
+	iopar.set( "Position.1", bs.start );
+	iopar.set( "Coordinate.1", crd[0] );
+	iopar.set( "Position.2", bs.stop );
+	iopar.set( "Coordinate.2", crd[1] );
+	iopar.set( "Position.3", BinID(bs.start.inl,bs.stop.crl) );
+	iopar.set( "Coordinate.3", crd[2] );
+    }
+    iopar.set( "Bounding coordinate.Minimum", Coord(xrg.start,yrg.start) );
+    iopar.set( "Bounding box coordinates.Maximum", Coord(xrg.stop,yrg.stop) );
 
     if ( !mIsUndefined(valrg.start) )
     {
 	iopar.add( "->", "Data values" );
 	iopar.set( "Minimum value", valrg.start );
 	iopar.set( "Maximum value", valrg.stop );
+	iopar.set( "Median value", distribvals[nrdistribvals/2] );
+	iopar.set( "1/4 value", distribvals[nrdistribvals/4] );
+	iopar.set( "3/4 value", distribvals[3*nrdistribvals/4] );
 	if ( invalidsamplebid.inl > 0 )
 	{
 	    iopar.set( "First invalid value at", invalidsamplebid );
@@ -323,6 +364,7 @@ void SeisScanner::handleBinIDChange()
 	{
 	    if ( step < inlrg.step ) inlrg.step = step;
 	    inlgapsfound = true;
+	    firstinlgapbefore = curbid.inl;
 	}
 
 	if ( mininlbinid.inl > curbid.inl )
@@ -366,6 +408,7 @@ void SeisScanner::handleBinIDChange()
 	{
 	    if ( step < crlrg.step ) crlrg.step = step;
 	    crlgapsfound = true;
+	    firstcrlgapbefore = curbid;
 	}
     }
 }

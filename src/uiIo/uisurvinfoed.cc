@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.52 2004-02-28 11:10:06 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.53 2004-02-29 00:25:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,27 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     orgstorepath = survinfo ? survinfo->datadir : rootdir;
     isnew = !survinfo || orgdirname == "";
 
-    if ( isnew )
+    if ( !isnew )
+    {
+	BufferString storagedir = File_getFullPath( orgstorepath, orgdirname );
+	int linkcount = 0;
+	while ( linkcount++ < 20 && File_isLink(storagedir) )
+	{
+	    BufferString newstoragedir = File_linkTarget(storagedir);
+	    if ( !File_isAbsPath(newstoragedir) )
+	    {
+		storagedir = File_getPathOnly(storagedir);
+		newstoragedir = File_getFullPath(storagedir,newstoragedir);
+	    }
+	    storagedir = newstoragedir;
+	}
+	if ( linkcount < 20 )
+	{
+	    orgstorepath = File_getPathOnly( storagedir );
+	    orgdirname = File_getFileName( storagedir );
+	}
+    }
+    else
     {
 	orgstorepath = rootdir;
 	orgdirname = newSurvTempDirName();
@@ -77,7 +97,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     survnmfld->attach( alignedBelow, dirnmfld );
 
     pathfld = new uiGenInput( this, "Location on disk",
-	    			StringInpSpec(rootdir) );
+	    			StringInpSpec(orgstorepath) );
     pathfld->attach( alignedBelow, survnmfld );
 
 #ifdef __win__
@@ -278,7 +298,7 @@ int uiSurveyInfoEditor::addInfoProvider( uiSurvInfoProvider* p )
 const char* uiSurveyInfoEditor::newSurvTempDirName()
 {
     static BufferString nm;
-    nm = "_Temp_Survey_";
+    nm = "_New_Survey_";
     const char* usr = GetSoftwareUser();
     if ( usr ) nm += usr;
     return nm.buf();
@@ -292,13 +312,19 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
     BufferString fnmout( outpath ); fnmout = File_getFullPath(fnmout,outdirnm);
     if ( File_exists(fnmout) )
     {
-	uiMSG().error( "Cannot copy to new directory because it exists" );
+	BufferString msg( "Cannot copy " ); msg += fnmin;
+	msg += " to "; msg += fnmout;
+	msg += "\nbecause target directory exists";
+	uiMSG().error( msg );
 	return false;
     }
     File_copy( fnmin, fnmout, YES );
     if ( !File_exists(fnmout) )
     {
-	uiMSG().error( "Copy to new directory failed" );
+	BufferString msg( "Copy " ); msg += fnmin;
+	msg += " to "; msg += fnmout; msg += " failed\n"
+	    "See starup window for details";
+	uiMSG().error( msg );
 	return false;
     }
 
@@ -313,13 +339,19 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
     BufferString fnmout( path ); fnmout = File_getFullPath(fnmout,outdirnm);
     if ( File_exists(fnmout) )
     {
-	uiMSG().error( "Cannot rename to new directory name because it exists");
+	BufferString msg( "Cannot rename " ); msg += fnmin;
+	msg += " to "; msg += fnmout;
+	msg += "\nbecause target directory exists";
+	uiMSG().error( msg );
 	return false;
     }
     File_rename( fnmin, fnmout );
     if ( !File_exists(fnmout) )
     {
-	uiMSG().error( "Rename to new directory name failed" );
+	BufferString msg( "Rename " ); msg += fnmin;
+	msg += " to "; msg += fnmout; msg += " failed\n"
+	    "See starup window for details";
+	uiMSG().error( msg );
 	return false;
     }
 
@@ -368,11 +400,13 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
 bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 {
-    BufferString dirnm = File_getFullPath( orgstorepath, orgdirname );
-    if ( File_exists(dirnm) )
-	File_remove( dirnm, YES );
     if ( isnew )
+    {
+	BufferString dirnm = File_getFullPath( orgstorepath, orgdirname );
+	if ( File_exists(dirnm) )
+	    File_remove( dirnm, YES );
 	newSurvey( globcurdirname );
+    }
     return true;
 }
 
