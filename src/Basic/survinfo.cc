@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.60 2004-11-11 13:08:03 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.61 2004-12-08 13:58:17 nanne Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -453,7 +453,7 @@ const char* SurveyInfo::getZUnit( bool wb ) const
 void SurveyInfo::setZUnit( bool istime, bool meter )
 {
     zistime_ = istime;
-    zinfeet_ = meter;
+    zinfeet_ = istime ? false : !meter;
 }
 
 
