@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.26 2004-06-03 11:15:49 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.27 2004-06-07 11:59:22 kristofer Exp $";
 
 #include "emobject.h"
 
@@ -124,13 +124,7 @@ void EM::EMObject:: removePosAttrib(int attr)
     if ( idx==-1 )
 	return;
 
-    delete posattribs[idx];
-    posattribs.remove(idx);
-
-    delete posattrchnotifiers[idx];
-    posattrchnotifiers.remove(idx);
-
-    attribs.remove(idx);
+    posattribs[idx]->erase();
 }
 
 
