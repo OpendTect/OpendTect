@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.11 2004-01-12 15:02:44 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.12 2004-01-26 10:16:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ uiODMain::uiODMain( uicMain& a )
     	, cursession(0)
     	, sessionSave(this)
     	, sessionRestore(this)
+        , scenemgrinited(false)
 {
     setIcon( dtect_xpm_data, "OpendTect" );
     uiMSG().setMainWin( this );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.5 2004-01-07 14:31:53 nanne Exp $
+ RCS:           $Id: uiodmain.h,v 1.6 2004-01-26 10:16:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,12 @@ public:
     IOPar&		sessionPars();	//!< On session save or restore
     					//!< notification, to get/put data
 
+    bool		hasSessionChanged(); /*!< Compares current session with 
+    						  last saved. */
     void		saveSession();	//!< pops up the save session dialog
     void		restoreSession(); //!< pops up the restore session dlg
+
+    bool		scenemgrinited;
 
 protected:
 
@@ -75,7 +79,6 @@ private:
     bool		buildUI();
 
     CtxtIOObj*		getUserSessionIOData(bool);
-    bool		hasSessionChanged();
     bool		updateSession();
     void		doRestoreSession();
 
