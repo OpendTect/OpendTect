@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.236 2004-09-08 14:58:35 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.237 2004-09-13 09:41:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ const int uiVisPartServer::evSelectColorAttrib=	7;
 const int uiVisPartServer::evGetColorData =	8;
 const int uiVisPartServer::evViewAll =		9;
 const int uiVisPartServer::evToHomePos =	10;
+const int uiVisPartServer::evRemoveTrackTools = 11;
 
 const char* uiVisPartServer::appvelstr = "AppVel";
 const char* uiVisPartServer::workareastr = "Work Area";
@@ -60,8 +61,10 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , eventobjid(-1)
     , eventmutex(*new Threads::Mutex)
     , mouseposval( mUndefValue )
-    , trackdlg(0)
 {
+    tracktools = new uiTrackingMan( appserv().parent() );
+    tracktools->display( false );
+
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifer.notify( 
@@ -81,7 +84,7 @@ uiVisPartServer::~uiVisPartServer()
 	    mCB(this,uiVisPartServer,deselectObjCB) );
     delete &eventmutex;
 
-    delete trackdlg;
+    sendEvent( evRemoveTrackTools );
     deleteAllObjects();
 }
 
@@ -419,8 +422,6 @@ const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 
 bool uiVisPartServer::deleteAllObjects()
 {
-    delete trackdlg; trackdlg = 0;
-
     while ( scenes.size() )
 	removeScene( scenes[0]->id() );
 
@@ -1034,16 +1035,6 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
 
 	menu->addSubMenu( resmnu, 5000 );
     }
-
-    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,so);
-    const bool nodlg = !trackdlg || ( trackdlg && trackdlg->isHidden() );
-    if ( sid && nodlg )
-    {
-	uiVisMenu* menu = getMenu( sid->id(), false );
-	trackmanmnuid = menu->addItem( new uiMenuItem("Show manager") );
-    }
-    else
-	trackmanmnuid = -1;
 }
 
 
@@ -1097,20 +1088,10 @@ int uiVisPartServer::addInterpreter( int sceneid, Tracking::TrackManager& tm )
 
 void uiVisPartServer::showTrackingManager( int id, Tracking::TrackManager& tm )
 {
-    if ( !trackdlg )
-    {
-	mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,getObject(id))
-	trackdlg = new uiTrackingMan( appserv().parent(), *sid, tm );
-	trackdlg->windowClosed.notify( 
-				mCB(this,uiVisPartServer,trackmanDlgClosed));
-	trackdlg->go();
-    }
-
-    trackdlg->show();
-    trackdlg->updateAttribNames();
-}
-
-
-void uiVisPartServer::trackmanDlgClosed( CallBacker* )
-{
+    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,getObject(id))
+    tracktools->setInterpreter( sid );
+    tracktools->setTrackMan( &tm );
+    tracktools->updateAttribNames();
+    tracktools->display();
+    tracktools->undock();
 }

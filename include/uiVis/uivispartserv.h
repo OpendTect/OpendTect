@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.130 2004-09-08 14:58:35 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.131 2004-09-13 09:41:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ class PickSet;
 class SeisTrcBuf;
 class SurfaceInfo;
 class uiPopupMenu;
+class uiToolBar;
 class uiTrackingMan;
 class uiVisMenu;
 
@@ -193,8 +194,9 @@ public:
     int				addInterpreter(int,Tracking::TrackManager&);
     void			showTrackingManager(int,
 	    					Tracking::TrackManager&);
-    void			trackmanDlgClosed(CallBacker*);
-    uiTrackingMan*		trackdlg;
+    static const int		evRemoveTrackTools;
+    uiToolBar*			getTrackTB() const	
+    				{ return (uiToolBar*)tracktools; }
 
     bool			dumpOI(int id) const;
     
@@ -233,8 +235,9 @@ protected:
     ObjectSet<visSurvey::Scene>	scenes;
 
     ObjectSet<uiVisMenu>	menus;
-
     uiVisMenu*			vismenu;
+
+    uiTrackingMan*		tracktools;
 
     Coord3			xytmousepos;
     Coord3			inlcrlmousepos;
