@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.33 2002-01-25 11:36:06 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.34 2002-02-13 16:33:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -551,7 +551,7 @@ void uiGroup::setBorder( int b )
 uiObject* uiGroup::hAlignObj()
     { return body_->hAlignObj(); }
 
-void uiGroup::setTabFrame( bool yn )
+void uiGroup::setFrame( bool yn )
 {
     if( yn )
 	grpobj_->body_->setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
