@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.15 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.16 2004-01-08 10:57:11 bert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -17,89 +17,64 @@ static const char* rcsID = "$Id: thread.cc,v 1.15 2003-11-07 12:21:57 bert Exp $
 
 Threads::Mutex::Mutex()
 {
-#ifdef __pthread__
     pthread_mutexattr_init( &attr );
     pthread_mutex_init( &mutex, &attr );
-#endif
 }
 
 Threads::Mutex::~Mutex()
 {
-#ifdef __pthread__
     pthread_mutex_destroy( &mutex );
     pthread_mutexattr_destroy( &attr );
-#endif
 }
 
 int Threads::Mutex::lock()
 { 
-#ifdef __pthread__
     return pthread_mutex_lock( &mutex ); 
-#endif
-    return 0;
 }
 
 
 int Threads::Mutex::unlock()
 {
-#ifdef __pthread__
     return pthread_mutex_unlock( &mutex );
-#endif
-    return 0;
 }
 
 
 bool Threads::Mutex::tryLock()
 {
-#ifdef __pthread__
     return pthread_mutex_trylock( &mutex ) != EBUSY;
-#endif
-    return false;
 }
 
 
 Threads::ConditionVar::ConditionVar()
 {
-#ifdef __pthread__
     pthread_condattr_init( &condattr );
     pthread_cond_init( &cond, &condattr );
-#endif
 }
 
 Threads::ConditionVar::~ConditionVar()
 {
-#ifdef __pthread__
     pthread_cond_destroy( &cond );
     pthread_condattr_destroy( &condattr );
-#endif
 }
 
 
 int Threads::ConditionVar::wait()
 {
-#ifdef __pthread__
     return pthread_cond_wait( &cond, &mutex );
-#endif
-    return 0;
 }
 
 
 int Threads::ConditionVar::signal(bool all)
 {
-#ifdef __pthread__
     return all 	? pthread_cond_broadcast( &cond )
 		: pthread_cond_signal( &cond );
-#endif
-    return 0;
 }
 
 
 Threads::Thread::Thread( void (func)(void*) )
     	: id(0)
 {
-#ifdef __pthread__
     pthread_create( &id, 0, (void* (*)(void*)) func, 0 );
-#endif
 }
 
 
@@ -116,34 +91,26 @@ Threads::Thread::Thread( const CallBack& cbin )
     	, cb(cbin)
 {
     if ( !cb.willCall() ) return;
-#ifdef __pthread__
     pthread_create( &id, 0, thread_exec_fn, (void*)(&cb) );
-#endif
 }
 
 
 void Threads::Thread::stop()
 {
-#ifdef __pthread__
     pthread_join( id, 0 );
     delete this;
-#endif
 }
 
 
 void Threads::Thread::detach()
 {
-#ifdef __pthread__
     pthread_detach( id );
-#endif
 }
 
 
 void Threads::Thread::threadExit()
 {
-#ifdef __pthread__
     pthread_exit( 0 );
-#endif
 }
 
 #define dbg_nr_proc() \
