@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.2 2003-06-10 13:47:17 arend Exp $
+ RCS:		$Id: debug.h,v 1.3 2003-06-10 14:14:14 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,8 @@ namespace DBG
     bool 		isOn( int flag=0xffff );
 
     void		message( const char* ); // default: to stdout
-
+    void		message( int flag, const char* msg ) 
+			    { if ( isOn(flag) ) message(msg); }
 };
 
 
