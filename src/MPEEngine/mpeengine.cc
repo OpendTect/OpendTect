@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.9 2005-03-02 18:41:03 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.10 2005-03-07 08:33:30 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -384,6 +384,6 @@ void MPE::initStandardClasses()
 {
     MPE::HorizontalTubeEditor::initClass();
     MPE::HorizontalTubeTracker::initClass();
-    MPE::FaultEditor::initClass();
-    MPE::FaultTracker::initClass();
+    //MPE::FaultEditor::initClass();
+    //MPE::FaultTracker::initClass();
 }
