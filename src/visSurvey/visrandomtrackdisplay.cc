@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.7 2003-02-07 10:12:14 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.8 2003-02-14 18:20:32 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -23,21 +23,27 @@
 #include "vismaterial.h"
 #include "visrandomtrack.h"
 
+#include <math.h>
+
 
 mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
 
 visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     : VisualObject(true)
     , track(visBase::RandomTrack::create())
+    , texturematerial(visBase::Material::create())
     , as(*new AttribSelSpec)
-    , selected_(false)
-    , manipulated(false)
-    , succeeded_(false)
+    , knotmoving(this)
+    , selknotidx(-1)
 {
     track->ref();
 
-    track->getMaterial()->setAmbience( 0.8 );
-    track->getMaterial()->setDiffIntensity( 0.8 );
+    texturematerial->ref();
+    texturematerial->setAmbience( 0.8 );
+    texturematerial->setDiffIntensity( 0.8 );
+    track->setMaterial( texturematerial );
+
+    track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
 
     const StepInterval<double>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().range(true).start.inl,
@@ -80,6 +86,7 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
 visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
 {
     track->unRef();
+    texturematerial->unRef();
 }
 
 
@@ -144,7 +151,7 @@ void visSurvey::RandomTrackDisplay::getAllKnotPos( TypeSet<Coord>& crdset )
 {
     const int nrknots = track->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
-	crdset += track->getKnotPos( idx );
+	crdset += getManipKnotPos( idx );
 }
 
 
@@ -165,7 +172,9 @@ void visSurvey::RandomTrackDisplay::removeAllKnots()
 
 
 #define mGetBinIDs( x, y ) \
+    bool reverse = stop.x - start.x < 0; \
     int step = inlwise ? SI().inlWorkStep() : SI().crlWorkStep(); \
+    if ( reverse ) step *= -1; \
     for ( int idi=0; idi<nrlines; idi++ ) \
     { \
 	BinID bid; \
@@ -174,58 +183,92 @@ void visSurvey::RandomTrackDisplay::removeAllKnots()
 				       (float)stop.x, (float)stop.y, \
 				       (float)bidx ); \
 	int bidy = (int)(val + .5); \
-	bids += inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
+	BinID nextbid = inlwise ? BinID(bidx,bidy) : BinID(bidy,bidx); \
+	SI().snap( nextbid ); \
+	bids += nextbid ; \
+	(*bset) += nextbid; \
     }
 
 
 void visSurvey::RandomTrackDisplay::getDataPositions( TypeSet<BinID>& bids )
 {
-    trcspersection.erase();
+    deepErase( bidsset );
     TypeSet<Coord> crdset;
     getAllKnotPos( crdset );
     for ( int idx=1; idx<crdset.size(); idx++ )
     {
+	TypeSet<BinID>* bset = new TypeSet<BinID>;
+	bidsset += bset;
 	Coord start = crdset[idx-1];
 	Coord stop = crdset[idx];
-	const int nrinl = int((stop.x - start.x)/SI().inlWorkStep() + 1);
-	const int nrcrl = int((stop.y - start.y)/SI().crlWorkStep() + 1);
+	const int nrinl = int(fabs(stop.x - start.x)/SI().inlWorkStep() + 1);
+	const int nrcrl = int(fabs(stop.y - start.y)/SI().crlWorkStep() + 1);
 	bool inlwise = nrinl > nrcrl;
 	int nrlines = inlwise ? nrinl : nrcrl;
 	if ( inlwise )
 	{ mGetBinIDs(x,y); }
 	else 
 	{ mGetBinIDs(y,x); }
-
-	trcspersection += nrlines;
     }
 }
 
 
-bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>& trcset )
+bool visSurvey::RandomTrackDisplay::putNewData(const ObjectSet<SeisTrc>& trcset)
 {
     const int nrtrcs = trcset.size();
     if ( !nrtrcs ) return false;
-    const int nrsamp = trcset[0]->size(0);
+    
+    const Interval<float> zrg = getManipDepthInterval();
+    const float step = trcset[0]->info().sampling.step;
+    const int nrsamp = mNINT( zrg.width() / step ) + 1;
 
-    const int nrsections = track->nrKnots() - 1;
+    const int nrsections = bidsset.size();
     for ( int snr=0; snr<nrsections; snr++ )
     {
-	const int nrtrcsinsection = trcspersection[snr];
-	Array2DImpl<float> arr( nrtrcsinsection, nrsamp );
-	for ( int trcidx=0; trcidx<nrtrcsinsection; trcidx++ )
+	TypeSet<BinID> binidset = *(bidsset[snr]);
+	const int nrbids = binidset.size();
+	Array2DImpl<float> arr( nrsamp, nrbids );
+	for ( int bidnr=0; bidnr<nrbids; bidnr++ )
 	{
-	    if ( trcidx > nrtrcs ) return false;
-	    SeisTrc* trc = trcset[trcidx];
+	    BinID curbid = binidset[bidnr];
+	    const SeisTrc* trc = getTrc( curbid, trcset );
 	    if ( !trc ) continue;
-	    
-	    for ( int ids=0; ids<nrsamp; ids++ )
-		arr.set( trcidx, ids, trc->get(ids,0) );
-	}
 
+	    float ctime = zrg.start;
+	    for ( int ids=0; ids<nrsamp; ids++ )
+	    {
+		arr.set( ids, bidnr, trc->getValue(ctime,0) );
+		ctime += step;
+	    }
+	}
+	
 	track->setData( snr, arr );
     }
 
     return true;
+}
+
+
+const SeisTrc* visSurvey::RandomTrackDisplay::getTrc( const BinID& bid, 
+					const ObjectSet<SeisTrc>& trcset )
+{
+    const int nrtrcs = trcset.size();
+    for ( int trcidx=0; trcidx<nrtrcs; trcidx++ )
+    {
+	if ( trcset[trcidx]->info().binid == bid )
+	    return trcset[trcidx];
+    }
+
+    return 0;
+}
+
+ 
+void visSurvey::RandomTrackDisplay::acceptManip()
+{
+    const int nrknots = track->nrKnots();
+    setDepthInterval( getManipDepthInterval() );
+    for ( int idx=0; idx<nrknots; idx++ )
+	setKnotPos( idx, getManipKnotPos( idx ) );
 }
 
 
@@ -253,6 +296,15 @@ visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab()
 { return track->getColorTab(); }
 
 
+void visSurvey::RandomTrackDisplay::knotMoved( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,sel,cb);
+    
+    selknotidx = sel;
+    knotmoving.trigger();
+}
+
+
 void visSurvey::RandomTrackDisplay::setMaterial( visBase::Material* nm)
 { track->setMaterial(nm); }
 
@@ -263,34 +315,6 @@ const visBase::Material* visSurvey::RandomTrackDisplay::getMaterial() const
 
 visBase::Material* visSurvey::RandomTrackDisplay::getMaterial()
 { return track->getMaterial(); }
-
-
-void visSurvey::RandomTrackDisplay::select()
-{
-    if ( selected_ ) return;
-    selected_ = true;
-}
-
-
-void visSurvey::RandomTrackDisplay::deSelect()
-{
-    if ( !selected_ ) return;
-    selected_ = false;
-
-/*
-    if ( manipulated )
-	updateAtNewPos();
-*/
-}
-
-
-bool visSurvey::RandomTrackDisplay::updateAtNewPos()
-{
-    succeeded_ = false;
-//  moved.trigger();
-    manipulated = false;
-    return succeeded_;
-}
 
 
 SoNode* visSurvey::RandomTrackDisplay::getData()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.4 2003-01-27 13:15:53 kristofer Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.5 2003-02-14 18:20:39 nanne Exp $
 ________________________________________________________________________
 
 
@@ -22,8 +22,9 @@ class AttribSelSpec;
 class CubeSampling;
 class Coord;
 class SeisTrc;
+class BinID;
 
-namespace visBase { class RandomTrack; class VisColorTab; };
+namespace visBase { class RandomTrack; class VisColorTab; class Material; };
 
 namespace visSurvey
 {
@@ -61,10 +62,10 @@ public:
     void			getAllKnotPos(TypeSet<Coord>&);
     void			removeKnot(int);
     void			removeAllKnots();
+    void			acceptManip();
 
-    bool			updateAtNewPos();
     void			getDataPositions(TypeSet<BinID>&);
-    bool			putNewData(ObjectSet<SeisTrc>&);
+    bool			putNewData(const ObjectSet<SeisTrc>&);
 
     void			showDragger(bool);
     bool			isDraggerShown() const;
@@ -78,6 +79,10 @@ public:
     const visBase::Material*    getMaterial() const;
     visBase::Material*          getMaterial();
 
+    Notifier<RandomTrackDisplay> knotmoving;
+    void			knotMoved(CallBacker*);
+    int				getSelKnotIdx() const	{ return selknotidx; }
+
     SoNode*			getData();
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
@@ -87,16 +92,13 @@ protected:
 				~RandomTrackDisplay();
 
     visBase::RandomTrack*	track;
-
-    void			select();
-    void			deSelect();
-
+    visBase::Material*		texturematerial;
     AttribSelSpec&		as;
+    int				selknotidx;
 
-    TypeSet<int>		trcspersection;
-    bool			selected_;
-    bool			manipulated;
-    bool			succeeded_;
+    const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&);
+
+    ObjectSet< TypeSet<BinID> > bidsset;
 };
 
 };
