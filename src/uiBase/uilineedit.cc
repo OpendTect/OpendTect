@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.5 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uilineedit.cc,v 1.6 2001-09-21 15:04:36 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
 				const char* deftxt, const char* nm )
     : uiObjBodyImpl<uiLineEdit,QLineEdit>(handle, parnt, nm)
     , messenger_ ( *new i_lineEditMessenger( this, &handle ))
-{}
+{ setStretch( 1, 0 ); }
 
 //------------------------------------------------------------------------------
 
