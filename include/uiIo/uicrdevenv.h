@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.h,v 1.1 2004-01-16 08:35:03 arend Exp $
+ RCS:           $Id: uicrdevenv.h,v 1.2 2004-01-22 15:19:06 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,12 @@ public:
     static bool		isOK( const char* dir=0 ); //!< default dir: $WORK
 
 protected:
-			uiCrDevEnv(uiParent*, const char*, const char*);
+			uiCrDevEnv( uiParent*, const char*, const char*,
+				    const char*);
 
     uiGenInput*		workdirfld;
     uiFileInput*	basedirfld;
+    uiGenInput*		cyginstfld;
 
     bool		acceptOK(CallBacker*);
 };

@@ -4,7 +4,7 @@
  * FUNCTION : Synchronize OpendTect sys tools with cygwin, if installed.
 -*/
 
-static const char* rcsID = "$Id: SyncCygwin.cc,v 1.1 2004-01-22 10:14:23 dgb Exp $";
+static const char* rcsID = "$Id: SyncCygwin.cc,v 1.2 2004-01-22 15:19:06 dgb Exp $";
 
 
 #include "prog.h"
@@ -63,7 +63,18 @@ int main( int argc, char** argv )
 
     BufferString tofile = File_getFullPath( todir, "cygwin1.dll" );
 
-    if ( !File_copy(cygdll,tofile,false) ) return 5;
+    BufferString oldfile = File_getFullPath( todir, "cygwin1_old.dll" );
+    if ( File_exists(oldfile) ) 
+    {
+	if ( !File_remove(oldfile, false) ) return 5;
+    }
+    if ( !File_rename( tofile, oldfile ) ) return 6;
+
+    if ( !File_copy(cygdll,tofile,false) ) 
+    {
+	if ( !File_rename( oldfile, tofile ) ) return 7;
+	return 8;
+    }
 
     return 0;
 }
