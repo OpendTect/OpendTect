@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.55 2004-09-07 08:22:07 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.56 2004-12-23 15:08:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "uiexphorizon.h"
 #include "uiiosurfacedlg.h"
 #include "uigeninputdlg.h"
+#include "uilistboxdlg.h"
 #include "uisurfaceman.h"
 #include "uiexecutor.h"
 #include "uiioobjsel.h"
@@ -261,10 +262,10 @@ bool uiEMPartServer::createStickSet( MultiID& id )
 bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
 {
     mDynamicCastAll()
-    if ( !hor ) return false;
+    if ( !surface ) return false;
 
-    hor->auxdata.removeAll();
-    PtrMan<Executor> exec = hor->auxdata.auxDataLoader( selidx );
+    surface->auxdata.removeAll();
+    PtrMan<Executor> exec = surface->auxdata.auxDataLoader( selidx );
     uiExecutor exdlg( appserv().parent(), *exec );
     return exdlg.go();
 }
@@ -273,7 +274,7 @@ bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
 bool uiEMPartServer::loadAuxData( const MultiID& id, const char* attrnm )
 {
     mDynamicCastAll()
-    if ( !hor ) return false;
+    if ( !surface ) return false;
     
     EM::SurfaceIOData sd;
     em.getSurfaceData( id, sd );
@@ -291,13 +292,39 @@ bool uiEMPartServer::loadAuxData( const MultiID& id, const char* attrnm )
 }
 
 
+bool uiEMPartServer::loadAuxData( const MultiID& id )
+{
+    mDynamicCastAll()
+    if ( !surface ) return false;
+
+    EM::SurfaceIOData sd;
+    em.getSurfaceData( id, sd );
+    uiListBoxDlg dlg( appserv().parent(), sd.valnames, "Surface data" );
+    dlg.box()->setMultiSelect();
+    if ( !dlg.go() ) return false;
+
+    TypeSet<int> selattribs;
+    dlg.box()->getSelectedItems( selattribs );
+    if ( !selattribs.size() ) return false;
+
+    surface->auxdata.removeAll();
+    ExecutorGroup exgrp( "Surface data loader" );
+    exgrp.setNrDoneText( "Nr done" );
+    for ( int idx=0; idx<selattribs.size(); idx++ )
+	exgrp.add( surface->auxdata.auxDataLoader(selattribs[idx]) );
+
+    uiExecutor exdlg( appserv().parent(), exgrp );
+    return exdlg.go();
+}
+
+
 int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx, 
 					  const MultiID& id, bool hasauxdata )
 {
     mDynamicCastAll()
-    if ( !hor ) return 0;
+    if ( !surface ) return 0;
 
-    const char* curval = hor->auxdata.auxDataName( 0 );
+    const char* curval = surface->auxdata.auxDataName( 0 );
     EM::SurfaceIOData sd;
     em.getSurfaceData( id, sd );
 
@@ -353,26 +380,36 @@ bool uiEMPartServer::storeObject( const MultiID& id, bool storeas )
 }
 
 
+bool uiEMPartServer::storeAuxData( const MultiID& id )
+{
+    mDynamicCastAll()
+    if ( !surface ) return false;
+    PtrMan<Executor> exgrp = surface->auxdata.auxDataSaver(-1);
+    uiExecutor exdlg( appserv().parent(), *exgrp );
+    return exdlg.go();
+}
+
+
 bool uiEMPartServer::getDataVal( const MultiID& id, 
 				 ObjectSet<BinIDValueSet>& data, 
 				 BufferString& attrnm, float& shift )
 {
     mDynamicCastAll()
-    if ( !hor ) return false;
+    if ( !surface ) return false;
 
-    if ( !hor->auxdata.nrAuxData() )
+    if ( !surface->auxdata.nrAuxData() )
 	return false;
 
     int dataidx = 0;
-    attrnm = hor->auxdata.auxDataName( dataidx );
-    shift = hor->geometry.getShift();
+    attrnm = surface->auxdata.auxDataName( dataidx );
+    shift = surface->geometry.getShift();
 
     deepErase( data );
-    for ( int sectionidx=0; sectionidx<hor->geometry.nrSections(); sectionidx++ )
+    for ( int sidx=0; sidx<surface->geometry.nrSections(); sidx++ )
     {
-	const EM::SectionID sectionid = hor->geometry.sectionID( sectionidx );
+	const EM::SectionID sectionid = surface->geometry.sectionID( sidx );
 	const Geometry::MeshSurface* meshsurf =
-	    				hor->geometry.getSurface( sectionid );
+				    surface->geometry.getSurface( sectionid );
 
 	BinIDValueSet& res = *new BinIDValueSet( 1+1, false );
 	data += &res;
@@ -385,11 +422,11 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 	    const Coord3 coord = meshsurf->getPos( geomposid );
 	    const BinID bid = SI().transform(coord);
 	    const RowCol emrc( bid.inl, bid.crl );
-	    const EM::SubID subid = hor->geometry.rowCol2SubID( emrc );
+	    const EM::SubID subid = surface->geometry.rowCol2SubID( emrc );
 	    posid.setSubID( subid );
-	    const float auxvalue = hor->auxdata.getAuxDataVal(dataidx,posid);
+	    const float auxval = surface->auxdata.getAuxDataVal(dataidx,posid);
 
-	    res.add( bid, coord.z, auxvalue );
+	    res.add( bid, coord.z, auxval );
 	}
     }
 
@@ -397,31 +434,50 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 }
 
 
-void uiEMPartServer::setDataVal( const MultiID& id, 
-				 ObjectSet<BinIDValueSet>& data,
-       				 const char* attrnm )
+void uiEMPartServer::setAuxData( const MultiID& id,
+				 ObjectSet<BinIDValueSet>& data, 
+				 const char* attribnm )
+{
+    BufferStringSet nms; nms.add( attribnm );
+    setAuxData( id, data, nms );
+}
+
+
+
+void uiEMPartServer::setAuxData( const MultiID& id,
+				 ObjectSet<BinIDValueSet>& data, 
+				 const BufferStringSet& attribnms )
 {
     mDynamicCastAll()
-    if ( !hor ) return;
+    if ( !surface ) { uiMSG().error( "Cannot find surface" ); return; }
+    if ( !data.size() || 
+	 attribnms.size() >= data[0]->nrVals() ) { pErrMsg("Huh"); return; }
 
-    hor->auxdata.removeAll();
-    int	dataidx = hor->auxdata.addAuxData( attrnm );
+    surface->auxdata.removeAll();
 
-    for ( int sectionidx=0; sectionidx<data.size(); sectionidx++ )
+    TypeSet<int> dataidxs;
+    for ( int idx=0; idx<attribnms.size(); idx++ )
+	dataidxs += surface->auxdata.addAuxData( attribnms.get(idx) );
+
+    BinID bid;
+    BinIDValueSet::Pos pos;
+    const int nrvals = surface->auxdata.nrAuxData();
+    float vals[nrvals];
+    for ( int sidx=0; sidx<data.size(); sidx++ )
     {
-	const EM::SectionID sectionid = hor->geometry.sectionID( sectionidx );
-	BinIDValueSet& bivs = *data[sectionidx];
+	const EM::SectionID sectionid = surface->geometry.sectionID( sidx );
+	BinIDValueSet& bivs = *data[sidx];
 
 	EM::PosID posid( objid, sectionid );
-	BinIDValueSet::Pos pos;
-	float z, val; BinID bid;
 	while ( bivs.next(pos) )
 	{
-	    bivs.get( pos, bid, z, val );
+	    bivs.get( pos, bid, vals );
 	    RowCol rc( bid.inl, bid.crl );
-	    EM::SubID subid = hor->geometry.rowCol2SubID( rc );
+	    EM::SubID subid = surface->geometry.rowCol2SubID( rc );
 	    posid.setSubID( subid );
-	    hor->auxdata.setAuxDataVal( dataidx, posid, val );
+	    for ( int idv=0; idv<nrvals; idv++ )
+		surface->auxdata.setAuxDataVal( dataidxs[idv], posid, 
+						vals[idv+1] );
 	}
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.30 2004-09-07 08:22:10 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.31 2004-12-23 15:08:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ class BinID;
 class BinIDRange;
 class BinIDValueSet;
 class BufferString;
+class BufferStringSet;
 class MultiID;
 class SurfaceInfo;
 class uiPopupMenu;
@@ -46,6 +47,7 @@ public:
     bool		createHorizon(MultiID& id, const char* nm="");
     bool		selectFault(MultiID& id);
     bool		createFault(MultiID&, const char* nm="");
+    bool		loadAuxData(const MultiID&);
     bool		loadAuxData(const MultiID&,int);
     bool		loadAuxData(const MultiID&,const char*);
     int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&,
@@ -66,9 +68,12 @@ public:
 				      const BinIDRange* br=0) const;
 
     bool		storeObject(const MultiID&,bool storeas);
-    void		setDataVal(const MultiID&,
+    bool		storeAuxData(const MultiID&);
+    void		setAuxData(const MultiID&,
+	    			   ObjectSet<BinIDValueSet>&,const char*);
+    void		setAuxData(const MultiID&,
 	    			   ObjectSet<BinIDValueSet>&,
-				   const char*);
+				   const BufferStringSet&);
     bool		getDataVal(const MultiID&,
 	    			   ObjectSet<BinIDValueSet>&,
 				   BufferString&,float&);
