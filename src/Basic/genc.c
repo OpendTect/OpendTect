@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.41 2004-05-06 14:16:07 macman Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.42 2004-05-07 09:36:03 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -165,12 +165,7 @@ const char* GetBinDir()
     static FileNameString bindir;
 
     strcpy( bindir, GetSoftwareDir() );
-
-#ifdef __mac__
-    strcpy( bindir, mkFullPath(bindir, "Contents/MacOS" ) );
-#else
     strcpy( bindir, mkFullPath(bindir, "bin") );
-#endif
 
     return bindir;
 }
