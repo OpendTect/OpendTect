@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.14 2004-05-06 11:16:47 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.15 2004-05-06 12:40:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
 
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
-    SI().pars().setYN( SurvInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
+    SI().pars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
     SI().savePars();
     return true;
 }
@@ -189,13 +189,13 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 				      : mUndefValue;
     lfi.zrg.stop = *intvfld->text(1) ? intvfld->getFInterval().stop
 				     : mUndefValue;
-    const bool zinft = !unitfld->getBoolValue();
+    const bool zinft = !intvunfld->getBoolValue();
     if ( zinft )
     {
 	if ( !mIsUndefined(lfi.zrg.start) ) lfi.zrg.start *= mFromFeetFac;
 	if ( !mIsUndefined(lfi.zrg.stop) ) lfi.zrg.stop *= mFromFeetFac;
     }
-    SI().pars().setYN( SurvInfo::sKeyDpthInFt, zinft );
+    SI().pars().setYN( SurveyInfo::sKeyDpthInFt, zinft );
     SI().savePars();
 
     for ( int idx=0; idx<logsfld->box()->size(); idx++ )
