@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.7 2004-06-28 16:00:05 bert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.8 2004-08-26 10:47:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,10 @@ public:
     bool		horOptim() const;
     void		updateIOObj(IOObj*) const;
 
-    void		setSteering(bool);
+    bool		is2D() const		{ return is2d; }
     void		set2D(bool);
+    bool		isSteer() const		{ return issteer; }
+    void		setSteering(bool);
 
 protected:
 

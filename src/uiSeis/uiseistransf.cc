@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.21 2004-08-24 16:24:57 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.22 2004-08-26 10:47:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,14 +49,10 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format )
 
 void uiSeisTransfer::updateFrom( const IOObj& ioobj )
 {
-    set2D( SeisTrcTranslator::is2D(ioobj) );
     scfmtfld->updateFrom( ioobj );
-    CubeSampling cs;
-    if ( SeisTrcTranslator::getRanges(ioobj,cs) )
-    {
-	selfld->setInput( cs.hrg );
-	selfld->setInput( cs.zrg );
-    }
+    selfld->setInput( ioobj );
+    is2d = selfld->is2D();
+    issteer = scfmtfld->isSteer();
 }
 
 

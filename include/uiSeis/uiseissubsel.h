@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.7 2004-08-24 16:24:57 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.8 2004-08-26 10:47:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "ranges.h"
 class IOPar;
+class IOObj;
 class uiGenInput;
 class HorSampling;
 class CubeSampling;
@@ -32,9 +33,11 @@ public:
     bool		is2D() const		{ return is2d_; }
     void		set2D( bool yn )	{ is2d_ = yn; typChg(0); }
 
+    void		clear();
     void		setInput(const HorSampling&);
     void		setInput(const StepInterval<float>&);
     void		setInput(const CubeSampling&);
+    void		setInput(const IOObj&);
     bool		isAll() const;
     bool		getSampling(HorSampling&) const;
     bool		getZRange(Interval<float>&) const;
@@ -62,6 +65,7 @@ public:
 
 			uiSeis2DSubSel(uiParent*,const BufferStringSet* lnms=0);
 
+    void		clear();
     void		setInput(const StepInterval<int>&);
     			//!< Trace number range
     void		setInput(const Interval<float>&);
@@ -72,6 +76,7 @@ public:
     void		setInput( const StepInterval<int>& tr,
 	    			  const Interval<float>& zr )
 			{ setInput( tr ); setInput( zr ); }
+    void		setInput(const IOObj&);
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.8 2004-08-24 16:24:57 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.9 2004-08-26 10:47:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,11 @@ ________________________________________________________________________
 #include "uibinidsubsel.h"
 #include "uigeninput.h"
 #include "seistrcsel.h"
+#include "seistrctr.h"
+#include "seis2dline.h"
 #include "survinfo.h"
 #include "iopar.h"
+#include "ioobj.h"
 #include "separstr.h"
 #include "cubesampling.h"
 #include "keystrs.h"
@@ -42,6 +45,15 @@ void uiSeisSubSel::typChg( CallBacker* )
 }
 
 
+void uiSeisSubSel::clear()
+{
+    if ( is2d_ )
+	sel2d->clear();
+    else
+	sel3d->clear();
+}
+
+
 void uiSeisSubSel::setInput( const HorSampling& hs )
 {
     if ( is2d_ )
@@ -62,6 +74,21 @@ void uiSeisSubSel::setInput( const CubeSampling& cs )
 {
     setInput( cs.hrg );
     setInput( cs.zrg );
+}
+
+
+void uiSeisSubSel::setInput( const IOObj& ioobj )
+{
+    if ( is2d_ )
+	sel2d->setInput( ioobj );
+    else
+    {
+	CubeSampling cs;
+	if ( !SeisTrcTranslator::getRanges(ioobj,cs) )
+	    clear();
+	else
+	    setInput( cs );
+    }
 }
 
 
@@ -125,6 +152,8 @@ int uiSeisSubSel::expectedNrTraces() const
     return is2d_ ? sel2d->expectedNrTraces() : sel3d->expectedNrTraces();
 }
 
+static const BufferStringSet emptylnms;
+
 
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const BufferStringSet* lnms )
 	: uiGroup( p, "2D seismics sub-selection" )
@@ -151,7 +180,6 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const BufferStringSet* lnms )
     }
     zfld->attach( alignedBelow, trcrgfld );
 
-    static const BufferStringSet emptylnms;
     if ( !lnms ) lnms = &emptylnms;
     lnmsfld = new uiGenInput( this, "One line only",
 			      StringListInpSpec(*lnms) );
@@ -174,6 +202,17 @@ void uiSeis2DSubSel::doFinalise( CallBacker* cb )
 bool uiSeis2DSubSel::isAll() const
 {
     return selfld->getBoolValue();
+}
+
+
+void uiSeis2DSubSel::clear()
+{
+    trcrgfld->setValue(1,0); trcrgfld->setText("",1); trcrgfld->setValue(1,2);
+    setInput( SI().zRange() );
+    lnmsfld->setChecked( false );
+    lnmsfld->newSpec( StringListInpSpec(emptylnms), 0 );
+    selfld->setValue( true );
+    selChg( 0 );
 }
 
 
@@ -202,6 +241,30 @@ void uiSeis2DSubSel::setInput( const HorSampling& hs )
 {
     StepInterval<int> trg( 1, hs.nrCrl(), 1 );
     trcrgfld->setValue( trg );
+}
+
+
+void uiSeis2DSubSel::setInput( const IOObj& ioobj )
+{
+    const BufferString prevlnm( lnmsfld->isChecked() ? lnmsfld->text() : "" );
+    CubeSampling cs;
+    if ( !SeisTrcTranslator::getRanges(ioobj,cs) )
+	{ clear(); return; }
+
+    setInput( cs.hrg );
+    setInput( cs.zrg );
+
+    BufferString fnm( ioobj.fullUserExpr(true) );
+    Seis2DLineGroup lg( fnm );
+    BufferStringSet lnms;
+    const int sz = lg.nrLines();
+    for ( int idx=0; idx<sz; idx++ )
+	lnms.add( lg.lineKey(idx) );
+    lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
+    const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
+    lnmsfld->setChecked( prevok );
+    if ( prevok )
+	lnmsfld->setText( prevlnm );
 }
 
 
