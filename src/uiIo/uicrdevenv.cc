@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.9 2004-01-23 12:39:15 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.10 2004-01-23 12:51:11 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,14 +130,11 @@ bool uiCrDevEnv::isOK( const char* d )
 #undef mErrRet
 #define mErrRet(s) { uiMSG().error(s); return; }
 
-#define mShowDoc() { if ( !docshown ) { showProgrDoc(); docshown = true; } }
-
 void uiCrDevEnv::crDevEnv( uiParent* appl )
 {
 
     BufferString oldworkdir(getenv("WORK"));
     const bool oldok = isOK( oldworkdir );
-    bool docshown=false;
 
     const char* cygwin = 0;
 
@@ -159,7 +156,12 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    uiMSG().message( "Please run the Cygwin (bash) shell"
 			     "at least once after the installation.\n\n"
 			     "This will make sure you have a Cygwin home "
-			     "directory for your work environment." );
+			     "directory for your work environment.\n\n"
+			     "Please refer to the documentation to see which "
+			     "packages to install" );
+
+	    showProgrDoc();
+
 	    return;
 	}
     }
@@ -271,7 +273,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     uiMSG().message(aboutto);
 
-    mShowDoc();
+    showProgrDoc();
 
     BufferString cmd( "@'" );
     cmd += GetSoftwareDir();
