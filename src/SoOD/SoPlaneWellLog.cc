@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.4 2003-10-22 15:07:34 nanne Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.5 2003-10-31 14:28:47 nanne Exp $";
 
 
 #include "SoPlaneWellLog.h"
@@ -218,7 +218,7 @@ SbVec3f SoPlaneWellLog::getNormal( const SbVec3f& pt1, const SbVec3f& pt2,
 				   const SbVec3f& projdir )
 {
     SbVec3f diff = pt2;
-    diff -= pt1;
+    diff -= pt1; diff.setValue( 0, 0, -1 ); //TODO:
     return diff.cross( projdir );
 }
 
@@ -227,7 +227,6 @@ void SoPlaneWellLog::valueChangedCB( void* data, SoSensor* )
 {
     SoPlaneWellLog* thisp = reinterpret_cast<SoPlaneWellLog*>( data );
     thisp->valchanged = true;
-    //TODO: Do sorting, clipping and compute each node's radius
 }
 
 
@@ -264,12 +263,14 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 	SbVec3f projectiondir = vv.getProjectionDirection();
 	if ( path1.getNum() && sw1ptr->whichChild.getValue() == -3  )
 	{
-	    worldwidth = vv.getWorldToScreenScale( path1[0], nsize );
+	    const int hnum = path1.getNum() / 2;
+	    worldwidth = vv.getWorldToScreenScale( path1[hnum], nsize );
 	    buildLog( 1, projectiondir, newres );
 	}
 	if ( path2.getNum() && sw2ptr->whichChild.getValue() == -3 )
 	{
-	    worldwidth = vv.getWorldToScreenScale( path2[0], nsize );
+	    const int hnum = path2.getNum() / 2;
+	    worldwidth = vv.getWorldToScreenScale( path2[hnum], nsize );
 	    buildLog( 2, projectiondir, newres );
 	}
 
