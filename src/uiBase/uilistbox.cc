@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.54 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.55 2004-07-30 15:51:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,10 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uiobjbody.h"
 #include "bufstringset.h"
+#include "color.h"
 
 #include "i_qlistbox.h"
+
 
 
 class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListBox>
@@ -159,15 +161,27 @@ void uiListBox::selAll( bool yn )
 }
 
 
+void uiListBox::createQString( QString& qs, const char* str, bool embed )
+{
+    if ( !str ) str = "";
+    BufferString bs( str );
+    if ( embed ) { bs = "["; bs += str; bs += "]"; }
+    qs = bs.buf();
+}
+
+
+void uiListBox::createQPixmap( QPixmap& qpm, int index )
+{
+    QListBoxItem* itm = body_->item( index );
+    if ( !itm ) return;
+    QRect rect = body_->itemRect( itm );
+    qpm.resize( rect.height()-2, rect.height()-2 );
+}
+
+
 void uiListBox::addItem( const char* text, bool embed ) 
 {
-    if ( !embed )
-	body_->insertItem( QString(text?text:""), -1 );
-    else
-    {
-	BufferString s( "[" ); s += text; s += "]";
-	body_->insertItem( QString(s), -1 );
-    }
+    insertItem( text, -1, embed );
 }
 
 
@@ -187,6 +201,36 @@ void uiListBox::addItems( const BufferStringSet& strs )
     for ( int idx=0; idx<strs.size(); idx++ )
 	body_->insertItem( QString( strs.get(idx) ), -1 );
     setCurrentItem( curidx < 0 ? 0 : curidx );
+}
+
+
+void uiListBox::insertItem( const char* text, int index, bool embed )
+{
+    QString qs;
+    createQString( qs, text, embed );
+    body_->insertItem( qs, index );
+}
+
+
+void uiListBox::insertItem( const char* text, const Color& col, int index )
+{
+    insertItem( text, index, false );
+
+    if ( index < 0 ) index = size()-1;
+    setColor( col, index );
+}
+
+
+void uiListBox::setColor( const Color& col, int index )
+{
+    if ( index >= size() ) return;
+
+    QPixmap qpm;
+    createQPixmap( qpm, index );
+    qpm.fill( QColor(col.r(),col.g(),col.b()) );
+
+    QString qs = body_->text( index );
+    body_->changeItem( qpm, qs, index );
 }
 
 

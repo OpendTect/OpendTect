@@ -7,15 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.26 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.27 2004-07-30 15:51:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uigroup.h>
-class uiLabel;
+#include "uigroup.h"
+
 class BufferStringSet;
+class Color;
+class uiLabel;
 class uiListBoxBody;
+
+class QString;
+class QPixmap;
 
 
 class uiListBox : public uiObject
@@ -63,6 +68,10 @@ public:
     			//!< embedded = put [...] around text
     void		addItems(const char**); 
     void		addItems(const BufferStringSet&);
+    void		insertItem(const char*,int idx=-1,bool embedded=false);
+    void		insertItem(const char*,const Color&,int idx=-1);
+    void		setColor(const Color&,int);
+
     void		setItemText(int,const char*);
     int			currentItem() const;
     const char*		getText() const	 { return textOfItem(currentItem()); }
@@ -93,9 +102,11 @@ protected:
 
 private:
 
-    uiListBoxBody*		body_;
-    uiListBoxBody&		mkbody(uiParent*, const char*, bool, int, int);
+    uiListBoxBody*	body_;
+    uiListBoxBody&	mkbody(uiParent*,const char*,bool,int,int);
 
+    void		createQString(QString&,const char*,bool);
+    void		createQPixmap(QPixmap&,int);
 };
 
 
