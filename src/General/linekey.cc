@@ -4,7 +4,7 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID = "$Id: linekey.cc,v 1.1 2004-10-11 14:49:57 bert Exp $";
+static const char* rcsID = "$Id: linekey.cc,v 1.2 2004-12-01 12:12:42 nanne Exp $";
 
 #include "linekey.h"
 #include "iopar.h"
@@ -47,8 +47,7 @@ void LineKey::fillPar( IOPar& iop, bool iopnm ) const
     else
     {
 	iop.setName( lineName() );
-	if ( strchr( buf(), '|' ) )
-	    iop.set( sKey::Attribute, attrName() );
+	iop.set( sKey::Attribute, attrName() );
     }
 }
 
