@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.11 2004-05-17 06:14:39 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.12 2004-05-19 06:11:14 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -63,7 +63,7 @@ visBase::Shape::~Shape()
 void visBase::Shape::turnOn(bool n)
 {
     if ( onoff ) onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
-    else if ( n )
+    else if ( !n )
     {
 	pErrMsg( "Turning off object without switch");
     }
