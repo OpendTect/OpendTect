@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.16 2001-05-25 14:03:26 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.17 2001-05-30 16:12:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ public:
     virtual float	getfValue( int idx ) const
 			    { return text(idx) ? atof( text(idx) ) : 0; }
     virtual bool	getBoolValue( int idx ) const
-			    { return yesNoFromString( text(idx) ); }
+			    { return (bool)getIntValue(idx); }
 
     virtual void	setValue( int i, int idx )
 			    { setText( toString( i ),idx); }
@@ -105,7 +105,7 @@ public:
     virtual void	setValue( float f, int idx )
 			    { setText( toString( f ),idx); }
     virtual void	setValue( bool b, int idx )
-			    { setText( toString( b ),idx); }
+			    { setValue( ((int)b), idx ); }
 
 
 protected:
@@ -378,14 +378,18 @@ public:
 
     bool		checked() const			{ return yn; }
     void		setChecked( bool yesno )	{ yn=yesno; }
-    virtual const char*	text( int idx ) const
+    virtual const char*	text( int idx=0 ) const
 			{ 
-			    return yn ? (const char*) truetext 
-				      : (const char*) falsetext; 
+			    return yn ? (const char*)truetext 
+				      : (const char*)falsetext; 
 			}
 
-    virtual void	setText( const char* s, int idx )
-			    { getFromString( yn, s ); }
+    virtual void	setText( const char* s, int idx=0 )
+			    { yn = s && strcmp(s,falsetext); }
+    virtual bool	getBoolValue( int idx=0 ) const
+			    { return yn; }
+    virtual void	setValue( bool b, int idx=0 )
+			    { yn = b; }
 
 protected:
 
