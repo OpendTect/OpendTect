@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.24 2001-08-14 13:22:53 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.25 2001-10-12 14:32:41 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -473,25 +473,32 @@ bool CBVSReader::getNextBinID( BinID& bid, bool set_vars )
 	bid.crl += curseg->step;
 	if ( !curseg->includes(bid.crl) )
 	{
-	    int newsegnr = cursegnr+1;
-	    if ( newsegnr < inlinf->segments.size() )
-		bid.crl = inlinf->segments[newsegnr].start;
+	    if ( curseg->step > 0 && bid.crl < curseg->start )
+		bid.crl = curseg->start;
+	    else if ( curseg->step < 0 && bid.crl > curseg->start )
+		bid.crl = curseg->stop;
 	    else
 	    {
-		newsegnr = 0;
-		int newinlinfnr = curinlinfnr + 1;
-		if ( newinlinfnr >= info_.geom.inldata.size() )
-		    // Huh?
-		    { bid = BinID(0,0); return false; }
+		int newsegnr = cursegnr+1;
+		if ( newsegnr < inlinf->segments.size() )
+		    bid.crl = inlinf->segments[newsegnr].start;
+		else
+		{
+		    newsegnr = 0;
+		    int newinlinfnr = curinlinfnr + 1;
+		    if ( newinlinfnr >= info_.geom.inldata.size() )
+			// Huh?
+			{ bid = BinID(0,0); return false; }
+		    if ( set_vars )
+			curinlinfnr = newinlinfnr;
+		    inlinf = info_.geom.inldata[newinlinfnr];
+		    curseg = &inlinf->segments[newsegnr];
+		    bid.inl = inlinf->inl;
+		    bid.crl = curseg->start;
+		}
 		if ( set_vars )
-		    curinlinfnr = newinlinfnr;
-		inlinf = info_.geom.inldata[newinlinfnr];
-		curseg = &inlinf->segments[newsegnr];
-		bid.inl = inlinf->inl;
-		bid.crl = curseg->start;
+		    cursegnr = newsegnr;
 	    }
-	    if ( set_vars )
-		cursegnr = newsegnr;
 	}
     }
 
