@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.23 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.24 2002-01-18 18:04:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,12 +51,12 @@ public:
 			, modal_(true)
 			, savebutton_(false), separator_(true)
 			, menubar_(false), toolbar_(false), statusbar_(false)
-			, mainwidgcentered_( false )
+			, mainwidgcentered_(false), savechecked_(false)
 			{}
 
 	BufferString	wintitle_, dlgtitle_, helpid_;
 	BufferString	savetext_, oktext_, canceltext_;
-	bool		modal_, savebutton_, separator_;
+	bool		modal_, savebutton_, separator_, savechecked_;
 	bool		menubar_, toolbar_, statusbar_, mainwidgcentered_;
 
 	Setup&	savetext( const char* s )   { savetext_ = s;    return *this; }
@@ -68,6 +68,7 @@ public:
 	Setup&	menubar( bool yn=true )     { menubar_ = yn;    return *this; }
 	Setup&	toolbar( bool yn=true )     { toolbar_ = yn;    return *this; }
 	Setup&	statusbar( bool yn=true )   { statusbar_ = yn;  return *this; }
+	Setup&	savechecked( bool yn=true ) { savechecked_ = yn; return *this; }
 	Setup&	mainwidgcentered( bool yn=false ) 
 				    { mainwidgcentered_ = yn; return *this; }
 
@@ -100,8 +101,10 @@ public:
 			//! Save button enabled when set to non-empty
     void		enableSaveButton( const char* txt="Save defaults" );
 			//! title text. Default equal to name
+
+    void		setSaveButtonChecked(bool);
     void		setTitleText( const char* txt );
-    bool		saveButtonChecked();
+    bool		saveButtonChecked() const;
 
     void		setSeparator( bool yn );
 			//!< Separator between central dialog and Ok/Cancel bar?
