@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.145 2003-04-23 15:25:15 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.146 2003-04-23 15:27:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -966,7 +966,7 @@ void uiVisPartServer::setSliceIdx( int id, int idx )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) pdd->setDataIdx( idx );
+    if ( pdd ) pdd->setSliceIdx( idx );
 }
 
 
