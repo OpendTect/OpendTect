@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.17 2003-06-03 12:46:12 bert Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.18 2003-06-17 12:50:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -70,8 +70,7 @@ public:
 			     sub-horizon.
 			*/
 
-    Coord		getCoord( const RowCol& node ) const;
-    RowCol		getClosestNode( const Coord& pos ) const;
+    static BinID	getBinID( const EM::SubID& );
 
 protected:
     friend class	EMManager;
@@ -84,9 +83,6 @@ protected:
 	    			Horizon(EMManager&, const MultiID&);
     				~Horizon();
 
-    void	setTransform( float x1, float y1, float row1, float col1,
-	    		      float x2, float y2, float row2, float col2,
-			      float x3, float y3, float row3, float col3 );
 
     float	a11,a12,a13,a21,a22,a23; //Transformation coords
     float	b11,b12,b13,b21,b22,b23; //Reverse transformation coords
