@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.1 2005-01-06 09:44:18 kristofer Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.2 2005-01-20 15:45:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,8 @@ public:
 
     Coord3		getRowDirection(const RCol&, bool computeifudf ) const;
     Coord3		getColDirection(const RCol&, bool computeifudf ) const;
-
+    float		directionInfluence() const;
+    void		setDirectionInfluence(float);
 protected:
 
     Coord3		computeRowDirection(const RCol&) const;
@@ -57,6 +58,8 @@ protected:
     Array2D<Coord3>*	rowdirections;
     Array2D<Coord3>*	coldirections;
     Array2D<Coord3>*	positions;
+
+    float		directioninfluence;
 };
 
 };
