@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999,2002 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec_rmt,v 1.5 2003-01-24 09:25:04 bert Exp $
+# $Id: od_exec_rmt,v 1.6 2003-02-06 16:22:13 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -47,6 +47,14 @@ if ( $?DISPLAY ) then
 		setenv DISPLAY ${hona}":1.0"
 	endif
 	set transf="${transf} +-+ setenv DISPLAY $DISPLAY"
+endif
+
+if ( $?dGB_TRANSFER_VARS ) then
+    foreach var ( $dGB_TRANSFER_VARS )
+	set dollarvar=`echo "$ ${var}" | sed "s/ //"`
+	set varvalue=`eval "echo $dollarvar"`
+	set transf="${transf} +-+ setenv $var $varvalue"
+    end
 endif
 
 set transf="$transf +-+-+ $*"
