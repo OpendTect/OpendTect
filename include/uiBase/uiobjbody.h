@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.13 2002-01-11 12:20:25 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.14 2002-01-15 15:45:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,8 @@ public:
 				{ 
 				    if( finalised )
 				    { 
-					pErrMsg("Not allowed when finalized."); 
+					if( pref_width_set != w )
+					 pErrMsg("Not allowed when finalized.");
 					return;
 				    }
 				    pref_char_width = -1;
@@ -72,7 +73,8 @@ public:
 				{ 
 				    if( finalised )
 				    { 
-					pErrMsg("Not allowed when finalized."); 
+					if( pref_char_width != w )
+					 pErrMsg("Not allowed when finalized.");
 					return;
 				    }
 				    pref_width_set = -1;
@@ -84,7 +86,8 @@ public:
 				{ 
 				    if( finalised )
 				    { 
-					pErrMsg("Not allowed when finalized."); 
+					if( pref_height_set != h )
+					 pErrMsg("Not allowed when finalized.");
 					return;
 				    }
 				    pref_char_height = -1;
@@ -94,7 +97,8 @@ public:
 				{ 
 				    if( finalised )
 				    { 
-					pErrMsg("Not allowed when finalized."); 
+					if( pref_char_height != h )
+					 pErrMsg("Not allowed when finalized.");
 					return;
 				    }
 				    pref_height_set = -1;
@@ -105,7 +109,8 @@ public:
 				{ 
 				    if( finalised )
 				    { 
-					pErrMsg("Not allowed when finalized."); 
+					if( hStretch != hor || vStretch != ver )
+					 pErrMsg("Not allowed when finalized.");
 					return;
 				    }
 				    hStretch = hor; vStretch = ver; 
