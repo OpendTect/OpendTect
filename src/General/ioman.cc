@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.11 2001-07-13 22:01:11 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.12 2001-08-22 22:34:29 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -121,6 +121,84 @@ void IOMan::init()
 IOMan::~IOMan()
 {
     delete dirptr;
+}
+
+
+extern "C" const char* GetSurveyFileName();
+
+#define mErrRet(str) \
+    { errmsg = str; return false; }
+#define mErrRetNotGDIDir(fname) \
+    { \
+        errmsg = "$dGB_DATA="; \
+        errmsg += getenv("dGB_DATA"); \
+        errmsg += "\nThis is not a dGB-GDI data directory."; \
+        return false; \
+    }
+
+bool IOMan::validSurveySetup( BufferString& errmsg )
+{
+    errmsg = "";
+    if ( !IOM().bad() ) return true;
+
+    delete IOMan::theinst_;
+    IOMan::theinst_ = 0;
+    FileNameString fname;
+    if ( !getenv("dGB_DATA") )
+	mErrRet("Please set the environment variable dGB_DATA.")
+    else if ( !File_exists(getenv("dGB_DATA")) )
+	mErrRetNotGDIDir(fname)
+
+    fname = getenv("dGB_DATA");
+    fname = File_getFullPath( fname, ".omf" );
+    if ( File_isEmpty(fname) ) mErrRetNotGDIDir(fname)
+
+    fname = GetDataDir();
+    if ( !File_exists(fname) )
+    {
+	fname = GetSurveyFileName();
+	if ( File_exists(fname) && !File_remove( fname, YES, NO ) )
+	{
+	    fname = "The file ";
+	    fname += GetSurveyFileName();
+	    fname += " contains an invalid survey.\n";
+	    fname += "Please remove this file";
+	    mErrRet(fname)
+	}
+	else if ( IOM().bad() ) mErrRetNotGDIDir(fname)
+    }
+    else
+    {
+	fname = File_getFullPath( fname, ".survey" );
+	bool hassurv = !File_isEmpty(fname);
+	fname = File_getFullPath( GetDataDir(), ".omf" );
+	bool hasomf = !File_isEmpty(fname);
+
+	if ( hassurv && hasomf )
+	    // Why the heck did it fail?
+	    mErrRet("Cannot start Object Management. Please contact support")
+	if ( !hassurv && !hasomf )
+	    cerr << "Warning: Essential data files not found in ";
+	else if ( !hassurv )
+	    cerr << "Warning: No '.survey' found in ";
+	else if ( !hasomf )
+	    cerr << "Warning: No '.omf' found in ";
+	cerr << GetDataDir();
+	cerr << ". This survey is corrupt." << endl;
+
+	fname = GetSurveyFileName();
+	if ( File_exists(fname) && !File_remove( fname, YES, NO ) )
+	{
+	    fname = "The file ";
+	    fname += GetSurveyFileName();
+	    fname += " contains an invalid survey.\n";
+	    fname += "Please remove this file";
+	    mErrRet(fname)
+	}
+	else if ( IOM().bad() ) mErrRetNotGDIDir(fname)
+    }
+
+    return true;
 }
 
 
