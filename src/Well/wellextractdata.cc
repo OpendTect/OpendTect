@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.21 2004-07-16 15:35:26 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.22 2004-07-21 12:14:08 nanne Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -28,7 +28,9 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.21 2004-07-16 15:35:26 b
 #include "multiid.h"
 #include "sorting.h"
 #include "errh.h"
+
 #include <iostream>
+#include <math.h>
 
 
 DefineEnumNames(Well::TrackSampler,SelPol,1,Well::TrackSampler::sKeySelPol)

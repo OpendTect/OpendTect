@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.6 2003-11-24 08:36:35 kristofer Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.7 2004-07-21 12:16:44 nanne Exp $";
 
 
 #include "pca.h"
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: pca.cc,v 1.6 2003-11-24 08:36:35 kristofer Exp 
 #include "sorting.h"
 #include "thread.h"
 #include "threadwork.h"
+
+#include <math.h>
 
 
 class PCACovarianceCalculator : public BasicTask
