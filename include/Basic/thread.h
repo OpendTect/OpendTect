@@ -7,22 +7,20 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.17 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: thread.h,v 1.18 2004-01-07 15:36:02 bert Exp $
 ________________________________________________________________________
 
 */
 
 #include "callback.h"
-
-#ifndef __msvc__
-#define __pthread__ 1
+#ifdef __win
+# include "pthreadwin.h"
+# undef small
+#else
+# include <pthread.h>
 #endif
 
-#ifdef __pthread__
-#include <pthread.h>
-// win
-#undef small
-#endif
+
 
 /*!\brief interface to threads that should be portable.
 
@@ -35,17 +33,11 @@ simply too big and dependent.
 namespace Threads
 {
 
-#ifdef __pthread__
-    static bool		isThreadsImplemented()	{ return true; }
-#else
-    static bool		isThreadsImplemented()	{ return false; }
-#endif
+/*!\brief Is a lock that allows a thread to have exlusive rights to something.
 
-/*!\brief
-Is a lock that allows a thread to have exlusive rights to something. It is
-guaranteed that once locked, noone else will be able to lock it before it is
-unlocked. If a thread tries to lock it, it will be postponed until the thread
-that has locked it will unlock it.
+It is guaranteed that once locked, noone else will be able to lock it before
+it is unlocked. If a thread tries to lock it, it will be postponed until
+the thread that has locked it will unlock it.
 */
 
 class Mutex
@@ -66,17 +58,14 @@ public:
 
 protected:
 
-#ifdef __pthread__
     pthread_mutex_t 	mutex;
     pthread_mutexattr_t	attr;
-#endif
 
 };
 
 
-/*!\brief
-Is an object that is convenient to use when a mutex should be locked and
-unlocked automaticly when returning.
+/*!\brief Is an object that is convenient to use when a mutex should be
+  locked and unlocked automaticly when returning.
 
 Example:
 
@@ -146,10 +135,8 @@ public:
 
 protected:
 
-#ifdef __pthread__
     pthread_cond_t		cond;
     pthread_condattr_t		condattr;
-#endif
 
 };
 
@@ -191,9 +178,7 @@ public:
 
 protected:
 
-#ifdef __pthread__
     pthread_t			id;
-#endif
 
 private:
 
