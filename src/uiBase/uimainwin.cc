@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.91 2004-12-23 15:14:29 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.92 2005-03-31 15:31:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,7 +158,7 @@ private:
 
     bool		modal_;
     int			looplevel__;
-
+    int			getFlags(bool hasparent,bool modal) const;
 
     void 		popTimTick(CallBacker*);
     Timer		poptimer;
@@ -172,28 +172,33 @@ private:
 
 
 
-uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt, 
+uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p, 
 			      const char* nm, bool modal )
-	: uiParentBody( nm )
+	: uiParentBody(nm)
 //	, UserIDObject( nm )
-	, QMainWindow( parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0, 
-		       nm, 
-		       (parnt && modal) ? 
-				WType_TopLevel | WShowModal| WGroupLeader :
-				WType_TopLevel )
-	, handle_( handle__ )
+	, QMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
+		      nm,getFlags(p,modal) )
+	, handle_(handle__)
 	, initing( true )
 	, centralWidget_( 0 )
-	, statusbar(0), menubar(0)  
-	, modal_( parnt && modal )
+	, statusbar(0)
+	, menubar(0)
+	, modal_(p && modal)
 	, poptimer("Popup timer")
-	, popped_up( false )
-	, exitapponclose_( false )
+	, popped_up(false)
+	, exitapponclose_(false)
 {
     if ( nm && *nm ) setCaption( nm );
-    poptimer.tick.notify(mCB(this,uiMainWinBody,popTimTick));
+    poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 
     setDockMenuEnabled( false );
+}
+
+
+int uiMainWinBody::getFlags( bool hasparent, bool modal ) const
+{
+    return hasparent && modal ? WType_TopLevel | WShowModal| WGroupLeader
+			      : WType_TopLevel;
 }
 
 
@@ -206,26 +211,26 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
     centralWidget_->setBorder(10);
     centralWidget_->setStretch(2,2);
 
-    if( nrstatusflds != 0 )
+    if ( nrstatusflds != 0 )
     {
 	QStatusBar* mbar= statusBar();
-	if( mbar )
+	if ( mbar )
 	    statusbar = new uiStatusBar( &handle(),
 					  "MainWindow StatusBar handle", *mbar);
 	else
 	    pErrMsg("No statusbar returned from Qt");
 
-	if( nrstatusflds > 0 )
+	if ( nrstatusflds > 0 )
 	{
 	    for( int idx=0; idx<nrstatusflds; idx++ )
 		statusbar->addMsgFld();
 	}
     }
-    if( wantmenubar )
+    if ( wantmenubar )
     {   
 	QMenuBar* myBar =  menuBar();
 
-	if( myBar )
+	if ( myBar )
 	    menubar = new uiMenuBar( &handle(), "MainWindow MenuBar handle", 
 				      *myBar);
 	else
@@ -253,13 +258,13 @@ void uiMainWinBody::popTimTick(CallBacker*)
 
 void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 {
-    if( trigger_finalise_start_stop )
+    if ( trigger_finalise_start_stop )
 	mMwHandle.finaliseStart.trigger(mMwHandle);
 
     centralWidget_->finalise();
     finaliseChildren();
 
-    if( trigger_finalise_start_stop )
+    if ( trigger_finalise_start_stop )
 	mMwHandle.finaliseDone.trigger(mMwHandle);
 }
 
@@ -278,7 +283,7 @@ void uiMainWinBody::close()
 
     mMwHandle.windowClosed.trigger(mMwHandle);
 
-    if( modal_ )
+    if ( modal_ )
 	qApp->exit_loop();
 
     QMainWindow::hide();
@@ -462,7 +467,7 @@ void uiMainWin::removeDockWindow( uiParent* parnt )
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 
 void uiMainWin::setShrinkAllowed(bool yn)  
-    { if( topGroup() ) topGroup()->setShrinkAllowed(yn); }
+    { if ( topGroup() ) topGroup()->setShrinkAllowed(yn); }
 
 bool uiMainWin::shrinkAllowed()	 	   
     { return topGroup() ? topGroup()->shrinkAllowed() : false; }
@@ -484,10 +489,10 @@ void uiMainWin::toStatusBar( const char* txt, int fldidx, int msecs )
 uiMainWin* uiMainWin::activeWindow()
 {
     QWidget* _aw = qApp->activeWindow();
-    if( !_aw )		return 0;
+    if ( !_aw )		return 0;
 
     uiMainWinBody* _awb = dynamic_cast<uiMainWinBody*>(_aw);
-    if( !_awb )		return 0;
+    if ( !_awb )		return 0;
 
     return &_awb->handle();
 
@@ -713,13 +718,14 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
 {
 }
 
+
 int uiDialogBody::exec()
 { 
     uiSetResult( 0 );
 
-    if( setup.fixedsize_ )
+    if ( setup.fixedsize_ )
     {
-	setMaximumSize( QSize(0,0));
+	setMaximumSize( QSize(0,0) );
 	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
     }
 
@@ -733,18 +739,18 @@ int uiDialogBody::exec()
 void uiDialogBody::setOkText( const char* txt )    
 { 
     setup.oktext_ = txt; 
-    if( okBut ) okBut->setText(txt);
+    if ( okBut ) okBut->setText(txt);
 }
 
 
 void uiDialogBody::setTitleText( const char* txt )    
 { 
     setup.dlgtitle_ = txt; 
-    if( title ) 
+    if ( title ) 
     { 
 	title->setText(txt); 
 	uiObjectBody* tb = dynamic_cast<uiObjectBody*>( title->body() ); 
-	if( tb && !tb->itemInited() )
+	if ( tb && !tb->itemInited() )
 	    title->setPrefWidthInChar( 
 		    mMAX( tb->prefWidthInCharSet(), strlen(txt) + 2 )); 
     }
@@ -753,7 +759,7 @@ void uiDialogBody::setTitleText( const char* txt )
 void uiDialogBody::setCancelText( const char* txt ) 
 { 
     setup.canceltext_ = txt; 
-    if( cnclBut ) cnclBut->setText(txt);
+    if ( cnclBut ) cnclBut->setText(txt);
 }
 
 
@@ -763,9 +769,7 @@ bool uiDialogBody::saveButtonChecked() const
 }
 
 
-/*!
-    Hides the box, which also exits the event loop in case of a modal box.
-*/
+/*! Hides the box, which also exits the event loop in case of a modal box.  */
 void uiDialogBody::done_( int v )
 {
     uiSetResult( v );
@@ -833,7 +837,7 @@ uiObject* uiDialogBody::createChildren()
 
     if ( setup.savebutton_ && setup.savetext_ != "" )
     {
-	if( setup.savebutton_ == uiDialog::Setup::PushButton )
+	if ( setup.savebutton_ == uiDialog::Setup::PushButton )
 	    saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_);
 	else
 	{
