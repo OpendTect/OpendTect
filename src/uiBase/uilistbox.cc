@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.50 2003-10-17 14:19:02 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.51 2003-10-20 07:15:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 #include "i_qlistbox.h"
-
-#include "qsize.h"
-
 
 
 class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListBox>
