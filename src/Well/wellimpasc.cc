@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.18 2004-02-19 14:02:53 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.19 2004-03-01 14:34:17 nanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -63,13 +63,15 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
 
 	if ( wd.track().size() == 0 )
 	{
-	    surfcoord = c;
-	    if ( SI().isReasonable( wd.info().surfacecoord ) )
-	    {
-		surfcoord.x = wd.info().surfacecoord.x;
-		surfcoord.y = wd.info().surfacecoord.y;
-	    }
+	    if ( !SI().isReasonable(wd.info().surfacecoord) )
+		wd.info().surfacecoord = c;
+	    if ( mIsUndefined(wd.info().surfaceelev) )
+		wd.info().surfaceelev = -c.z;
+
+	    surfcoord.x = wd.info().surfacecoord.x;
+	    surfcoord.y = wd.info().surfacecoord.y;
 	    surfcoord.z = -wd.info().surfaceelev;
+
 	    prevc = tosurf ? surfcoord : c;
 	}
 
@@ -135,6 +137,7 @@ const char* Well::AscImporter::getLogInfo( const char* fnm,
 const char* Well::AscImporter::getLogInfo( istream& strm,
 					   LasFileInfo& lfi ) const
 {
+    convs.allowNull();
     convs.erase();
 
     char linebuf[1024]; char wordbuf[64];
@@ -214,17 +217,9 @@ const char* Well::AscImporter::getLogInfo( istream& strm,
 	break;
 	case 'W':
 	    if ( mIsKey("STRT") )
-	    {
 		lfi.zrg.start = atof(val2);
-		const UnitOfMeasure* mu = UnitOfMeasure::getGuessed( val1 );
-		if ( mu ) lfi.zrg.start = mu->internalValue( lfi.zrg.start );
-	    }
 	    if ( mIsKey("STOP") )
-	    {
-		lfi.zrg.start = atof(val2);
-		const UnitOfMeasure* mu = UnitOfMeasure::getGuessed( val1 );
-		if ( mu ) lfi.zrg.start = mu->internalValue( lfi.zrg.start );
-	    }
+		lfi.zrg.stop = atof(val2);
 	    if ( mIsKey("NULL") )
 		lfi.undefval = atof( val1 );
 	    if ( mIsKey("WELL") )
@@ -238,6 +233,7 @@ const char* Well::AscImporter::getLogInfo( istream& strm,
 	}
     }
 
+    if ( convs[0] ) lfi.zunitstr = convs[0]->symbol();
     const char* ret = strm.good() ? 0 : "Only header found; No data";
 
     if ( !lfi.lognms.size() )
@@ -319,19 +315,29 @@ const char* Well::AscImporter::getLogs( istream& strm,
     }
 
     float val; double dpth, prevdpth = -1e30;
-    bool havestart = !mIsUndefined(lfi.zrg.start);
-    bool havestop = !mIsUndefined(lfi.zrg.stop);
-    TypeSet<float> vals;
+    Interval<float> reqzrg;
+    assign( reqzrg, lfi.zrg );
+    bool havestart = !mIsUndefined(reqzrg.start);
+    bool havestop = !mIsUndefined(reqzrg.stop);
+    if ( convs[0] )
+    {
+	reqzrg.start = convs[0]->internalValue( reqzrg.start );
+	reqzrg.stop = convs[0]->internalValue( reqzrg.stop );
+    }
 
+    TypeSet<float> vals;
     while ( 1 )
     {
 	strm >> dpth;
 	if ( strm.fail() || strm.eof() ) break;
-	dpth = mIS_ZERO(dpth-lfi.undefval) ? mUndefValue
-					   : convs[0]->internalValue( dpth );
-	if ( havestop && dpth > lfi.zrg.stop ) break;
+	if ( mIS_ZERO(dpth-lfi.undefval) )
+	    dpth = mUndefValue;
+	else if ( convs[0] )
+	    dpth = convs[0]->internalValue( dpth );
+
+	if ( havestop && dpth > reqzrg.stop ) break;
 	bool douse = !mIsUndefined(dpth)
-	          && (!havestart || dpth >= lfi.zrg.start);
+	          && (!havestart || dpth >= reqzrg.start);
 	if ( mIS_ZERO(prevdpth-dpth) )
 	    douse = false;
 	else
@@ -343,8 +349,11 @@ const char* Well::AscImporter::getLogs( istream& strm,
 	    strm >> val;
 	    if ( !douse || !issel[ilog] ) continue;
 
-	    val = mIS_ZERO(val-lfi.undefval) ? mUndefValue
-		: (useconvs_ ? convs[ilog+1]->internalValue( val ) : val);
+	    if ( mIS_ZERO(val-lfi.undefval) )
+		val = mUndefValue;
+	    else if ( useconvs_ && convs[ilog+1] )
+		val = convs[ilog+1]->internalValue( val );
+
 	    vals += val;
 	}
 	if ( !vals.size() ) continue;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.9 2004-02-19 14:02:53 bert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.10 2004-03-01 14:35:26 nanne Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,7 @@ public:
 	BufferStringSet	lognms;
 	Interval<float>	zrg;
 	float		undefval;
+	BufferString	zunitstr;
 
 	BufferString	wellnm; //!< only info; not used by getLogs
     };
