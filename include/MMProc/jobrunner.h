@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.10 2004-11-11 11:35:57 bert Exp $
+ RCS:		$Id: jobrunner.h,v 1.11 2004-11-11 15:03:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,10 +57,10 @@ public:
     bool			isAssigned( const JobInfo& ji ) const;
 
     int				nrJobs( bool failed=false ) const
-    				{ return (failed ? jobinfos_ : failedjobs_)
+    				{ return (failed ? failedjobs_ : jobinfos_)
 				    	 .size(); }
     const JobInfo&		jobInfo( int idx, bool failed=false ) const
-    				{ return *(failed ? jobinfos_ : failedjobs_)
+    				{ return *(failed ? failedjobs_ : jobinfos_)
 				    	 [idx]; }
 
     int				jobsDone() const;
