@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.80 2004-11-11 16:39:50 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.81 2004-11-11 22:11:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	, jrpstartfld(0), jrpstopfld(0)
     	, jobprov(0), jobrunner(0)
     	, outioobjinfo(0), isrestart(false)
-	, timer(0) , paused(false)
+	, timer(0)
 {
     const IOPar& iopar = *iopl[0];
     MultiID outid = iopar.find( SeisJobExecProv::outputKey(iopar) );
@@ -553,31 +553,20 @@ void uiSeisMMProc::pauseJobs()
 {
     if ( !jobrunner ) return;
 
-    bool pause = false;
-
     const char* txt = jrppolselfld->text();
-    if ( *txt == 'P' ) pause = true;
-    else if ( *txt == 'G' )
+    bool pause = *txt == 'P';
+    if ( *txt == 'G' )
     {
-    
 	const int t = getSecs( Time_getLocalString() );
 	const int t0 = getSecs( jrpstartfld->text() );
 	const int t1 = getSecs( jrpstopfld->text() );
-
-        bool run = t1 >= t0 ? t >= t0 && t <= t1
-			    : t >= t0 || t <= t1;
-	pause = !run;
+        pause = t1 > t0 ? t < t0 || t > t1
+			: t < t1 || t > t0;
     }
 
-    if ( pause == paused ) return;
-    
     const int nrhosts = jobrunner->hostInfo().size();
-
-    for ( int idx=0; idx < nrhosts ; idx++ )
-    {
-	jobrunner->pauseHost(idx, pause );
-    }
-    paused = pause;
+    for ( int idx=0; idx<nrhosts; idx++ )
+	jobrunner->pauseHost( idx, pause );
 }
 
 
@@ -625,13 +614,15 @@ bool uiSeisMMProc::wrapUp( bool force )
 	return false;
 
     Executor* exec = jobprov ? jobprov->getPostProcessor() : 0;
-    if ( !exec ) return true;
+    if ( exec )
+    {
+	uiExecutor uiex( this, *exec );
+	if ( !uiex.go() )
+	    { delete exec; return false; }
+	delete exec;
+    }
 
-    uiExecutor uiex( this, *exec );
-    if ( !uiex.go() )
-	{ delete exec; return false; }
-    delete exec;
-
+    progrfld->append( "Processing completed" );
     setOkText( "Dismiss" );
     setCancelText( "Dismiss" );
     rmTmpSeis( jobprov );
