@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.6 2002-04-10 07:41:49 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.7 2002-04-10 09:15:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class UserIDSet;
 class PickSet;
 class PickSetGroup;
 class Color;
+class ColorTable;
 class CallBack;
 class CubeSampling;
 class AttribSelSpec;
@@ -74,6 +75,9 @@ public:
     int			getSelObjectId() const;
     void		setSelSceneId(int id)	{ selsceneid = id; }
     int			getSelSceneId()		{ return selsceneid; }
+
+    void		setColorSeq(const ColorTable&);
+    const ColorTable&   getColorSeq();
 
     void		setColor(const Color&);
     Color		getColor() const;

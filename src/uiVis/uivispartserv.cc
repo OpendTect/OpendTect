@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.7 2002-04-10 07:41:24 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.8 2002-04-10 09:15:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "geompos.h"
 #include "uidset.h"
 #include "color.h"
+#include "colortab.h"
 
 #include "cubesampling.h"
 #include "attribsel.h"
@@ -43,6 +44,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
 	, appcb(appcb_)
 	, planepos(0)
 {
+    visBase::DM().selMan().selnotifer.notify( 
+	mCB(this,uiVisPartServer,selectObj) );
 }
 
 
@@ -88,7 +91,6 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
     coltab->colorSeq().loadFromStorage("Red-White-Black");
     sd->textureRect().setColorTab( coltab );
     sd->textureRect().manipChanges()->notify(mCB(this,uiVisPartServer,showPos));
-    sd->selection()->notify( mCB(this,uiVisPartServer,selectObj) );
 
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -129,8 +131,6 @@ int uiVisPartServer::getSelObjectId() const
     return visBase::DM().selMan().selected()[0];
 }
 
-
-//  ============ Pick management =========================
 
 int uiVisPartServer::addPickSetDisplay()
 {
@@ -231,9 +231,6 @@ int uiVisPartServer::nrPicks( int id )
 }
 
 
-// =============== Material management ===================
-
-
 void uiVisPartServer::setColor( const Color& col )
 {
     visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
@@ -256,8 +253,6 @@ visBase::Material* uiVisPartServer::getMaterial()
     return vo->getMaterial();
 }
 
-
-// ============= DataRange management ================================
 
 float uiVisPartServer::getClipRate()
 {
@@ -307,7 +302,21 @@ Interval<float> uiVisPartServer::getDataRange()
 }
 
 
-// ============= Various ================================
+void uiVisPartServer::setColorSeq( const ColorTable& ctab )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    sd->textureRect().getColorTab().colorSeq().colors() = ctab;
+    sd->textureRect().getColorTab().colorSeq().colorsChanged();
+}
+
+const ColorTable& uiVisPartServer::getColorSeq()
+{
+    visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    return sd->textureRect().getColorTab().colorSeq().colors();
+}
+
 
 void uiVisPartServer::turnOn( int id, bool yn )
 {
