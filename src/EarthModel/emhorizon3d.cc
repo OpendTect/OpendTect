@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.56 2005-03-10 11:48:21 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.57 2005-03-14 16:56:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,9 @@ namespace EM {
 
 Horizon::Horizon( EMManager& man, const ObjectID& id_ )
     : Surface(man,id_,*new HorizonGeometry(*this))
-{}
+{
+    geometry.addSection( "", true );
+}
 
 
 const char* Horizon::typeStr() { return EMHorizonTranslatorGroup::keyword; }
@@ -286,9 +288,9 @@ HorizonGeometry::HorizonGeometry( Surface& surf )
 
 
 bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
-				       SectionID, float velocity )
+				       SectionID sid, float velocity )
 {
-    /*
+/*
     SectionID sectionid = sid;
     if ( !nrSections() || !hasSection(sid) ) 
 	sectionid = addSection( "", true );
@@ -337,7 +339,8 @@ bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
 				   rowCol2SubID(rowcol) );
 	    setPos( posid, newpos, true );
 	    if ( rowcol == startrc )
-		surface.setPosAttrib( posid, EMObject::sPermanentControlNode, true);
+		surface.setPosAttrib( posid, EMObject::sPermanentControlNode,
+				      true);
 
 	    float distance = mUndefValue;
 	    RowCol nextstep;

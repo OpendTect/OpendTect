@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.27 2005-03-10 11:57:09 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.28 2005-03-14 16:56:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,23 +34,24 @@ EMObject* Fault::create( const ObjectID& id, EMManager& emm )
 { return new Fault( emm, id ); }
 
 
-Fault::Fault( EMManager& em_, const ObjectID& mid_ )
-    : Surface(em_,mid_, *new FaultGeometry(*this) )
-{}
+Fault::Fault( EMManager& em, const ObjectID& mid )
+    : Surface(em,mid,*new FaultGeometry(*this))
+{
+    geometry.addSection( "", true );
+}
 
 
 const IOObjContext& Fault::getIOObjContext() const
 { return EMFaultTranslatorGroup::ioContext(); }
 
 
-FaultGeometry::FaultGeometry(Fault& flt)
-    : SurfaceGeometry( flt )
+FaultGeometry::FaultGeometry( Fault& flt )
+    : SurfaceGeometry(flt)
 {}
 
 
 FaultGeometry::~FaultGeometry()
-{
-}
+{}
 
 
 bool FaultGeometry::isHidden( const PosID& pid ) const
@@ -92,16 +93,16 @@ void FaultGeometry::setHidden( SectionID sectionid,
 
 
 
-bool FaultGeometry::insertHiddenColumn( SectionID section, int col)
+bool FaultGeometry::insertHiddenColumn( SectionID sectionid, int col)
 {
     if ( sectionids.size()>1 )
 	pErrMsg( "TODO: Implement support for multiple sections." );
 
-    StepInterval<int> rowrg = rowRange(section);
+    StepInterval<int> rowrg = rowRange(sectionid);
     if ( rowrg.width(false)<0 )
 	return false;
 
-    StepInterval<int> colrg = colRange(section);
+    StepInterval<int> colrg = colRange(sectionid);
 
     if ( col<colrg.start-1 || col>colrg.stop+1 )
 	return false;
@@ -111,9 +112,9 @@ bool FaultGeometry::insertHiddenColumn( SectionID section, int col)
 	for ( int rowidx=rowrg.start; rowidx<=rowrg.stop; rowidx+=rowrg.step )
 	{
 	    surface.changePosID(
-		 PosID( surface.id(),section,
+		 PosID( surface.id(),sectionid,
 			rowCol2SubID(RowCol(rowidx,colidx))),
-		 PosID( surface.id(),section,
+		 PosID( surface.id(),sectionid,
 			rowCol2SubID(RowCol(RowCol(rowidx,colidx+colrg.step)))),
 		 	true );
 	}
@@ -122,22 +123,22 @@ bool FaultGeometry::insertHiddenColumn( SectionID section, int col)
     for ( int rowidx=rowrg.start; rowidx<=rowrg.stop; rowidx+=rowrg.step )
     {
 	const RowCol rc(  RowCol( rowidx, col ) );
-	setHidden( section, rc, true, true );
+	setHidden( sectionid, rc, true, true );
     }
 
     return true;
 }
 
 
-Coord3 FaultGeometry::getPos(SectionID section, const RowCol& rc) const
+Coord3 FaultGeometry::getPos( SectionID sectionid, const RowCol& rc ) const
 {
-    if ( !isHidden( section, rc ) )
-	return SurfaceGeometry::getPos(section,rc);
+    if ( !isHidden(sectionid,rc) )
+	return SurfaceGeometry::getPos(sectionid,rc);
 
-    const StepInterval<int> rowrg = rowRange(section);
+    const StepInterval<int> rowrg = rowRange(sectionid);
     if ( rowrg.width(false)<0 ) return Coord3::udf();
 
-    const StepInterval<int> colrg = colRange(section);
+    const StepInterval<int> colrg = colRange(sectionid);
 
     int colstep = step().col;
 
@@ -149,13 +150,13 @@ Coord3 FaultGeometry::getPos(SectionID section, const RowCol& rc) const
 	if ( !colrg.includes(nextrc.col) && !colrg.includes(prevrc.col) )
 	    break;
 
-	if ( colrg.includes(nextrc.col) && !isHidden(section,nextrc)
-		&& isDefined(section,nextrc) )
-	    return SurfaceGeometry::getPos(section,nextrc);
+	if ( colrg.includes(nextrc.col) && !isHidden(sectionid,nextrc)
+		&& isDefined(sectionid,nextrc) )
+	    return SurfaceGeometry::getPos(sectionid,nextrc);
 
-	if ( colrg.includes(prevrc.col) && !isHidden(section,prevrc)
-		&& isDefined(section,prevrc) )
-	    return SurfaceGeometry::getPos(section,prevrc);
+	if ( colrg.includes(prevrc.col) && !isHidden(sectionid,prevrc)
+		&& isDefined(sectionid,prevrc) )
+	    return SurfaceGeometry::getPos(sectionid,prevrc);
 
 	stepout += colstep;
     }
