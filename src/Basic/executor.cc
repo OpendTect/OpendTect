@@ -2,15 +2,19 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 14-6-1996
- * FUNCTION : functions
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.3 2001-05-31 12:55:13 windev Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.4 2002-02-20 17:15:00 bert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
 #include "errh.h"
 #include <iostream>
+
+const int Executor::ErrorOccurred	= -1;
+const int Executor::Finished		= 0;
+const int Executor::MoreToDo		= 1;
+const int Executor::WarningAvailable	= 2;
 
 
 bool Executor::execute( ostream* strm, bool isfirst, bool islast )
@@ -23,7 +27,8 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
 	    rv = nextStep();
 	    if ( rv < 0 )
 	    {
-		if ( message() ) ErrMsg( message() );
+		const char* msg = message();
+		if ( msg && *msg ) ErrMsg( msg );
 		return false;
 	    }
 	}
@@ -37,7 +42,7 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast )
     stream << "Process: '" << name() << "'" << endl;
     stream << "Started: " << Time_getLocalString() << endl << endl;
 
-    UserIDString curmsg, prevmsg;
+    BufferString curmsg, prevmsg;
     prevmsg = message();
 
     if ( strm )
