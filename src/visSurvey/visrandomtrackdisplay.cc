@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.3 2003-01-21 16:09:48 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.4 2003-01-23 16:15:37 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -98,8 +98,15 @@ void visSurvey::RandomTrackDisplay::setDepthInterval(
 { track->setDepthInterval( intv ); }
 
 
-const Interval<float>& visSurvey::RandomTrackDisplay::getDepthInterval() const
+const Interval<float> visSurvey::RandomTrackDisplay::getDepthInterval() const
 { return track->getDepthInterval(); }
+
+
+const Interval<float>
+visSurvey::RandomTrackDisplay::getManipDepthInterval() const
+{
+    return track->getDraggerDepthInterval();
+}
 
 
 int visSurvey::RandomTrackDisplay::nrKnots() const
@@ -125,6 +132,10 @@ void visSurvey::RandomTrackDisplay::insertKnot( int knotidx, const Coord& crd )
 
 Coord visSurvey::RandomTrackDisplay::getKnotPos( int knotidx ) const
 { return track->getKnotPos( knotidx ); }
+
+
+Coord visSurvey::RandomTrackDisplay::getManipKnotPos( int knotidx ) const
+{ return track->getDraggerKnotPos( knotidx ); }
 
 
 void visSurvey::RandomTrackDisplay::getAllKnotPos( TypeSet<Coord>& crdset )

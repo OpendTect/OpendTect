@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.12 2003-01-16 15:33:01 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.13 2003-01-23 16:15:20 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,10 @@ public:
 
     void			setCenter( const Coord3& );
     Coord3			center() const;
+    Coord3			manipCenter() const;
     void			setWidth( const Coord3& );
     Coord3			width() const;
+    Coord3			manipWidth() const;
 
     void			showBox(bool yn);
     void			resetManip();
@@ -59,10 +61,10 @@ public:
     AttribSelSpec&		getAttribSelSpec();
     const AttribSelSpec&	getAttribSelSpec() const;
     void			setAttribSelSpec(AttribSelSpec&);
-    CubeSampling&		getCubeSampling();
-    const CubeSampling&		getCubeSampling() const
+    CubeSampling&		getCubeSampling(bool manippos=true);
+    const CubeSampling&		getCubeSampling(bool manippos=true) const
 				{ return const_cast<VolumeDisplay*>(this)->
-				    	getCubeSampling(); }
+				    	getCubeSampling(manippos); }
     void			setCubeSampling(const CubeSampling&);
     bool			putNewData( AttribSliceSet* );
     const AttribSliceSet*	getPrevData() const;
@@ -103,9 +105,8 @@ protected:
 
     void			select();
     void			deSelect();
-    void			manipFinished(CallBacker*);
-    void			manipInMotion(CallBacker*);
     void			initSlice(int);
+    void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
 
     visBase::CubeView*		cube;

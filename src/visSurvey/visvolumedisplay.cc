@@ -4,15 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.20 2003-01-23 07:18:39 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.21 2003-01-23 16:15:37 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "visvolumedisplay.h"
+
 #include "viscubeview.h"
-#include "visboxdragger.h"
 #include "vistexturerect.h"
 #include "vistexture3viewer.h"
 #include "visrectangle.h"
@@ -49,8 +49,7 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     cube->ref();
     cube->getMaterial()->setAmbience( 0.8 );
 
-    cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
-    cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
+    cube->getBoxManipEnd()->notify(mCB(this,VolumeDisplay,manipMotionFinishCB));
 
     CubeSampling cs;
     cs.hrg.start.inl = (5*SI().range().start.inl+3*SI().range().stop.inl)/8;
@@ -81,8 +80,7 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
     selection()->remove( mCB(this,VolumeDisplay,select));
     deSelection()->remove( mCB(this,VolumeDisplay,deSelect));
 
-    cube->dragger()->motion.remove( mCB(this,VolumeDisplay,manipInMotion) );
-    cube->dragger()->finished.remove( mCB(this,VolumeDisplay,manipFinished) );
+    cube->getBoxManipEnd()->remove(mCB(this,VolumeDisplay,manipMotionFinishCB));
     cube->unRef();
 
     delete &as;
@@ -97,6 +95,10 @@ Coord3 visSurvey::VolumeDisplay::center() const
 { return cube->center(); }
 
 
+Coord3 visSurvey::VolumeDisplay::manipCenter() const
+{ return cube->draggerCenter(); }
+
+
 void visSurvey::VolumeDisplay::setWidth( const Coord3& pos )
 { cube->setWidth( pos ); }
 
@@ -105,12 +107,17 @@ Coord3 visSurvey::VolumeDisplay::width() const
 { return cube->width(); }
 
 
+Coord3 visSurvey::VolumeDisplay::manipWidth() const
+{ return cube->draggerWidth(); }
+
+
 void visSurvey::VolumeDisplay::showBox( bool yn )
 { cube->showBox( yn ); }
 
 
 void visSurvey::VolumeDisplay::resetManip()
 {
+    cube->resetDragger();
 }
 
 
@@ -149,10 +156,10 @@ void visSurvey::VolumeDisplay::setAttribSelSpec( AttribSelSpec& as_ )
 { as = as_; }
 
 
-CubeSampling& visSurvey::VolumeDisplay::getCubeSampling()
+CubeSampling& visSurvey::VolumeDisplay::getCubeSampling(bool manippos)
 {
-    Coord3 center_ = cube->draggerCenter();
-    Coord3 width_ = cube->draggerWidth();
+    Coord3 center_ = manippos ? cube->draggerCenter() : cube->center();
+    Coord3 width_ = manippos ? cube->draggerWidth() : cube->width();
 
     CubeSampling* cs = new CubeSampling;
     cs->hrg.start = BinID( mNINT( center_.x - width_.x / 2 ),
@@ -180,6 +187,7 @@ void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
 			  (cs_.hrg.stop.crl + cs_.hrg.start.crl) / 2,
 			  (cs_.zrg.stop + cs_.zrg.start) / 2 );
     setCenter( newcenter );
+    resetManip();
 }
 
 
@@ -292,30 +300,36 @@ void visSurvey::VolumeDisplay::deSelect()
 }
 
 
-void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
+void visSurvey::VolumeDisplay::manipMotionFinishCB( CallBacker* )
 {
-    CubeSampling cs = getCubeSampling();
-    BinIDRange br;
-    br.start = cs.hrg.start;
-    br.stop = cs.hrg.stop;
-    SI().checkRange( br );
-    cs.hrg.start = br.start;
-    cs.hrg.stop = br.stop;
+    CubeSampling cs = getCubeSampling(true);
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
 
-    Interval<double> intv( cs.zrg.start, cs.zrg.stop );
-    SI().checkZRange( intv );
-    cs.zrg.start = (float)intv.start;
-    cs.zrg.stop = (float)intv.stop;
+    const Interval<int> inlrange( SI().range(true).start.inl,
+				  SI().range(true).stop.inl );
+    const Interval<int> crlrange( SI().range(true).start.crl,
+				  SI().range(true).stop.crl );
 
-    setCubeSampling( cs );
-    cube->resetDragger();
-}
+    if ( !inlrange.includes( cs.hrg.start.inl ) ||
+	    !inlrange.includes( cs.hrg.stop.inl ) ||
+	    !crlrange.includes( cs.hrg.start.crl ) ||
+	    !crlrange.includes( cs.hrg.stop.crl ) ||
+	    !SI().zRange(true).includes( cs.zrg.start ) ||
+	    !SI().zRange(true).includes( cs.zrg.stop ) )
+    {
+	resetManip();
+	return;
+    }
 
-
-void visSurvey::VolumeDisplay::manipInMotion( CallBacker* )
-{
+    const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
+			 cs.hrg.stop.crl - cs.hrg.start.crl, 
+			 cs.zrg.stop - cs.zrg.start );
+    cube->setDraggerWidth( newwidth );
+    const Coord3 newcenter( (cs.hrg.stop.inl + cs.hrg.start.inl) / 2,
+			  (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
+			  (cs.zrg.stop + cs.zrg.start) / 2 );
+    cube->setDraggerCenter( newcenter );
 }
 
 
@@ -398,8 +412,6 @@ bool visSurvey::VolumeDisplay::isVolRenShown() const
 }
 
 
-
-
 void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 {
     visBase::VisualObject::fillPar( par, saveids );
@@ -427,13 +439,11 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     mDynamicCastGet(visBase::CubeView*,cv,dataobj);
     if ( !cv ) return -1;
 
-    cube->dragger()->motion.remove( mCB(this,VolumeDisplay,manipInMotion) );
-    cube->dragger()->finished.remove( mCB(this,VolumeDisplay,manipFinished) );
+    cube->getBoxManipEnd()->remove(mCB(this,VolumeDisplay,manipMotionFinishCB));
     cube->unRef();
     cube = cv;
     cube->ref();
-    cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
-    cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
+    cube->getBoxManipEnd()->notify(mCB(this,VolumeDisplay,manipMotionFinishCB));
 
     inlid = cube->addSlice( 0 );
     visBase::DM().getObj( inlid )->setName("inline");

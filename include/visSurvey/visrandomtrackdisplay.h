@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.2 2003-01-21 09:17:06 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.3 2003-01-23 16:15:20 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,9 @@ public:
     const AttribSelSpec&	getAttribSelSpec() const;
 
     void			setDepthInterval(const Interval<float>&);
-    const Interval<float>&	getDepthInterval() const;
+    const Interval<float>	getDepthInterval() const;
+    const Interval<float>	getManipDepthInterval() const;
+    
 
     int				nrKnots() const;
     void			addKnot(const Coord&);
@@ -56,6 +58,7 @@ public:
     void			insertKnot(int,const Coord&);
     void			setKnotPos(int,const Coord&);
     Coord			getKnotPos(int) const;
+    Coord			getManipKnotPos(int) const;
     void			getAllKnotPos(TypeSet<Coord>&);
     void			removeKnot(int);
     void			removeAllKnots();
