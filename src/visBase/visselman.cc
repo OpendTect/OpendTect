@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.7 2002-04-10 07:40:28 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.8 2002-04-10 08:58:48 kristofer Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: visselman.cc,v 1.7 2002-04-10 07:40:28 kristofe
 visBase::SelectionManager::SelectionManager()
     : selnotifer( this )
     , deselnotifer( this )
+    , allowmultiple( false )
     , mutex( *new Threads::Mutex )
 { }
 
