@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.7 2001-05-18 13:36:45 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.8 2001-05-28 20:56:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ void uiIOSelect::fillPar( IOPar& iopar ) const
 	BufferString buf;
 	const char* key = *entries_[idx];
 	const char* usrnm = idx == curidx ? getInput() : userNameFromKey( key );
-	buf = usrnm; buf += "`"; buf += usrnm;
+	buf = usrnm; buf += "`"; buf += key;
 	iopar.set( IOPar::compKey("Selection",idx-startidx+1),
 		   (const char*)buf );
     }
@@ -94,6 +94,7 @@ void uiIOSelect::fillPar( IOPar& iopar ) const
 
 void uiIOSelect::usePar( const IOPar& iopar )
 {
+    bool havecur = entries_.size();
     deepErase( entries_ );
     if ( withclear_ ) entries_ += new BufferString;
 
@@ -111,7 +112,7 @@ void uiIOSelect::usePar( const IOPar& iopar )
     }
     updateFromEntries();
 
-    if ( nrItems() )
+    if ( !havecur && nrItems() )
     {
         int curidx = 0;
         iopar.get( "Current", curidx );
