@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expdiscfilter.h,v 1.4 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: expdiscfilter.h,v 1.5 2004-12-23 14:44:40 kristofer Exp $
 ________________________________________________________________________
 
 DiscFilter radius= planefilter=true [constantvel=true] [velocity=] [fast=]
@@ -225,7 +225,7 @@ protected:
 	float*          mostfreq;
 
 	Array3DImpl<float>		indata;
-	RunningStatistics<float,float>	stat;
+	RunningStatistics<float>	stat;
 
 	const DiscFilterAttrib&	calculator;
     };
