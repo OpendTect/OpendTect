@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.3 2004-11-17 10:41:05 dgb Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.4 2004-11-29 10:57:25 bert Exp $";
 
 
 #include "winutils.h"
@@ -61,13 +61,13 @@ const char* getCleanUnxPath( const char* path )
 }
 
 #define mRet(ret) \
-    if ( dgb_debug_isOn(DBG_SETTINGS) ) \
+    if ( od_debug_isOn(DBG_SETTINGS) ) \
     { \
         BufferString msg("getCleanWinPath for:"); \
 	msg += path; \
 	msg += " : "; \
 	msg += ret; \
-        dgb_debug_message( msg ); \
+        od_debug_message( msg ); \
     } \
     return ret;  
 

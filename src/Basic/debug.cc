@@ -4,38 +4,63 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.7 2004-05-27 15:19:05 macman Exp $
+ RCS:           $Id: debug.cc,v 1.8 2004-11-29 10:57:25 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.7 2004-05-27 15:19:05 macman Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.8 2004-11-29 10:57:25 bert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
 #include "bufstring.h"
 
 #include <iostream>
+#include <fstream>
+
+static std::ostream* dbglogstrm = 0;
+
 
 namespace DBG
 {
 
 static int getMask()
 {
-    BufferString envmask = getenv("DTECT_DEBUG");
-    int res = atoi( envmask );
+    static bool maskgot = false;
+    static int themask = 0;
+    if ( maskgot ) return themask;
+    maskgot = true;
 
-    const char* buf=envmask.buf();
-    if ( buf[0] == 'y' || buf[0]=='Y' ) res = 0xffff;
+    BufferString envmask = getenv( "DTECT_DEBUG" );
+    const char* buf = envmask.buf();
+    themask = atoi( buf );
+    if ( buf[0] == 'y' || buf[0] == 'Y' ) themask = 0xffff;
 
-    if( res )
+    const char* dbglogfnm = getenv( "DTECT_DEBUG_LOGFILE" );
+    if ( dbglogfnm && !themask )
+	themask = 0xffff;
+
+    if ( themask )
     {
-	BufferString msg("Debugging on, with mask: ");
-	msg += res;
-	message(msg);
+	BufferString msg;
+	if ( dbglogfnm )
+	{
+	    dbglogstrm = new std::ofstream( dbglogfnm );
+	    if ( dbglogstrm && !dbglogstrm->good() )
+	    {
+		delete dbglogstrm; dbglogstrm = 0;
+		msg = "Cannot open debug log file '";
+		msg += dbglogfnm; msg == "': reverting to stdout";
+		message( msg );
+	    }
+	}
+
+	msg = "Debugging on, with mask: ";
+	msg += themask;
+	message( msg );
     }
 
-    return res;
+    return themask;
 }
 
 
@@ -49,11 +74,16 @@ bool isOn( int flag )
 
 void message( const char* msg )
 {
+    if ( dbglogstrm )
+	*dbglogstrm << msg << std::endl;
+    else
+    {
 #ifdef __mac__
-    printf( "%s\n", msg );
+	printf( "%s\n", msg ); fflush( stdout );
 #else
-    std::cout << msg << std::endl;
+	std::cout << msg << std::endl;
 #endif
+    }
 }
 
 
@@ -64,15 +94,10 @@ void message( int flag, const char* msg )
 
 };
 
-extern "C"{
 
-int dgb_debug_isOn( int flag )
+extern "C" int od_debug_isOn( int flag )
     { return DBG::isOn(flag); }
-void dgb_debug_message( const char* msg )
+extern "C" void od_debug_message( const char* msg )
     { DBG::message(msg); }
-void dgb_debug_messagef( int flag, const char* msg )
+extern "C" void od_debug_messagef( int flag, const char* msg )
     { DBG::message(flag,msg); }
-
-}
-
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.7 2003-12-24 11:59:21 bert Exp $
+ RCS:		$Id: debug.h,v 1.8 2004-11-29 10:57:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,8 @@ ________________________________________________________________________
  
 /*!\brief defines a generic interface for supplying debug/runtime info
 
-    The isOn() is controlled by the environment variable dGB_DEBUG.
-    If dGB_DEBUG starts with a "Y" or "y" then the mask is set to 0xffff.
+    The isOn() is controlled by the environment variable DTECT_DEBUG.
+    If DTECT_DEBUG starts with a "Y" or "y" then the mask is set to 0xffff.
     isOn returns the bitwise "and" of the passed flag and the internal
     environment mask, converted to a boolean.
 
@@ -28,6 +28,8 @@ ________________________________________________________________________
     You can also make sure the debugmask you're using is defined in one
     of your header files and equals the one in "debugmasks.h", so you 
     don't have to include "debugmasks.h".
+
+    if you want the output in a file, set the full path in DTECT_DEBUG_LOGFILE.
 
 */
 
@@ -44,9 +46,9 @@ namespace DBG
 extern "C" {
 # endif
 
-int			dgb_debug_isOn( int flag );
-void			dgb_debug_message( const char* msg );
-void			dgb_debug_messagef( int flag, const char* msg );
+int			od_debug_isOn( int flag );
+void			od_debug_message( const char* msg );
+void			od_debug_messagef( int flag, const char* msg );
 
 # ifdef __cpp__
 }

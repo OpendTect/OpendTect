@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.54 2004-11-17 13:34:40 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.55 2004-11-29 10:57:25 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -160,11 +160,11 @@ const char* GetSoftwareDir()
 	dir = progname;
     }
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSoftwareDir: %s\n", dir );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     cachedDir = mMALLOC( strlen(dir)+ 1, char );
@@ -223,12 +223,12 @@ const char* GetDataFileName( const char* fname )
     if ( fname && *fname )
 	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
 
-    if ( dgb_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetDataFileName for %s: %s\n", fname ? fname : "(null)",
 			filenamebuf );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     return filenamebuf;
@@ -262,12 +262,12 @@ const char* SearchODFile( const char* fname )
     if ( !nm ) nm = checkFile( GetSoftwareDir(), "", fname );
     if ( !nm ) nm = checkFile( GetBaseDataDir(), "", fname );
 
-    if ( dgb_debug_isOn(DBG_SETTINGS) )
+    if ( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "SearchODFile for %s: %s\n", fname ? fname : "(null)",
 			nm );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     return nm;
@@ -287,11 +287,11 @@ const char* GetSoftwareUser()
     if ( !ptr ) ptr = getenv( "DTECT_USER" );
     if ( !ptr ) ptr = getenv( "dGB_USER" );
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSoftwareUser: %s\n", ptr ? ptr : "Not set" );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     return ptr;
@@ -384,11 +384,11 @@ const char* GetSettingsDir(void)
 	else if ( !File_createDir(ptr,0) ) ptr = 0;
     }
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSettingsDir: %s\n", ptr );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     return ptr;
@@ -426,11 +426,11 @@ const char* GetPersonalDir(void)
 
 #endif
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetPersonalDir: %s\n", ptr );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     return ptr;
@@ -457,11 +457,11 @@ const char* GetSurveyFileName()
 	inited = YES;
     }
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSurveyFileName: %s\n", sfname );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     return sfname;
@@ -486,12 +486,12 @@ const char* GetSurveyName()
 	fnm = GetSurveyFileName();
 	if ( !fnm )
 	{
-	    if( dgb_debug_isOn(DBG_SETTINGS) )
+	    if( od_debug_isOn(DBG_SETTINGS) )
 	    {
 		char buf[255];
 		sprintf(buf,
 		    "GetSurveyName: GetSurveyFileName returned NULL\n" );
-		dgb_debug_message( buf );
+		od_debug_message( buf );
 	    }
 	    return 0;
 	}
@@ -499,12 +499,12 @@ const char* GetSurveyName()
 	fp = fopen( fnm, "r" );
 	if ( !fp )
 	{
-	    if( dgb_debug_isOn(DBG_SETTINGS) )
+	    if( od_debug_isOn(DBG_SETTINGS) )
 	    {
 		char buf[255];
 		sprintf(buf,
 		    "GetSurveyName: Could not open SurveyFile: \"%s\"\n", fnm );
-		dgb_debug_message( buf );
+		od_debug_message( buf );
 	    }
 	    return 0;
 	}
@@ -519,11 +519,11 @@ const char* GetSurveyName()
 	surveynamedirty = 0;
     }
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetSurveyName: %s\n", surveyname );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     return surveyname;
@@ -573,11 +573,11 @@ const char* GetDataDir()
 
     strcpy( filenamebuf, mkFullPath(basedir,survnm) );
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if( od_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
 	sprintf(buf, "GetDataDir: %s\n", filenamebuf );
-	dgb_debug_message( buf );
+	od_debug_message( buf );
     }
 
     return filenamebuf;
