@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.8 2004-09-22 10:07:32 kristofer Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.9 2005-01-24 11:13:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -58,12 +58,14 @@ protected:
     virtual void	GLRender(SoGLRenderAction* action);
     virtual void	getBoundingBox(SoGetBoundingBoxAction* action);
     virtual void	pick(SoPickAction* );
+    virtual void	rayPick(SoRayPickAction* );
     virtual void	getPrimitiveCount(SoGetPrimitiveCountAction * );
     virtual void	doAction(SoAction*);
     virtual		~SoShapeScale();
 
     SbVec3f		scaleby;
-    bool		changescale;
+    char		changescale;
+    			//-1 = don't know, 0 = no, 1 = yes		
 };
 
 #endif
