@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.25 2004-11-15 12:58:56 nanne Exp $
+ RCS:		$Id: batchprog.h,v 1.26 2005-03-30 11:19:22 cvsarend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -17,15 +17,16 @@ ________________________________________________________________________
 
 #include "prog.h"
 #include "uidobj.h"
-#include "mmdefs.h"
 #include "bufstringset.h"
 #include "genc.h"
+#include "timefun.h"
+#include <iosfwd>
 class IOPar;
 class IOObj;
 class Socket;
 class StreamData;
 class IOObjContext;
-
+class MMSockCommunic;
 
 /*!\brief Main object for 'standard' batch programs.
 
@@ -48,12 +49,12 @@ class BatchProgram : public UserIDObject
 {
 public:
 
-    const IOPar&	pars() const		{ return *iopar_; }
-    IOPar&		pars()			{ return *iopar_; }
+    const IOPar&	pars() const		{ return *iopar; }
+    IOPar&		pars()			{ return *iopar; }
 
-    int			nrArgs() const		{ return *pargc_ - argshift_; }
-    const char*		arg( int idx ) const	{ return argv_[idx+argshift_]; }
-    const char*		fullPath() const	{ return fullpath_; }
+    int			nrArgs() const		{ return *pargc - argshift; }
+    const char*		arg( int idx ) const	{ return argv_[idx+argshift]; }
+    const char*		fullPath() const	{ return fullpath; }
     const char*		progName() const;
 
 			//! This method must be defined by user
@@ -61,69 +62,60 @@ public:
 
 			// For situations where you need the old-style stuff
     char**		argv()			{ return argv_; }
-    int			argc()			{ return *pargc_; }
-    int&		argc_r()		{ return *pargc_; }
-    int			realArgsStartAt() const	{ return argshift_; }
-    BufferStringSet&	cmdLineOpts()	{ return opts_; }
+    int			argc()			{ return *pargc; }
+    int&		argc_r()		{ return *pargc; }
+    int			realArgsStartAt() const	{ return argshift; }
+    BufferStringSet&	cmdLineOpts()		{ return opts; }
 
     IOObj*		getIOObjFromPars(const char* keybase,bool mknew,
 					 const IOObjContext& ctxt,
 					 bool msgiffail=true) const;
 
-    			// Socket stuff.
-
-			//! write status over sock if sock avail.
-    inline bool		writeStatus( char tag, int stat, const char* errmsg=0 )
-			    { return writeStatus_( tag, stat, errmsg, true ); }
-			//! update status over sock if sock avail.
-    inline bool		updateStatus( char tag, int stat, const char* errmsg=0 )
-			    { return writeStatus_( tag, stat, errmsg, false ); }
-
-			//! write error msg over sock if sock avail.
-    bool		writeErrorMsg( const char* msg );
 			//! pause requested (via socket) by master?
-    bool		pauseRequested()	{ return pausereq_; }
+    bool		pauseRequested()	{ return pausereq; }
+
+    bool		errorMsg( const char* msg, bool cc_stderr=false);
+    bool		infoMsg( const char* msg, bool cc_stdout=false);
 
 protected:
 
     friend int		Execute_batch(int*,char**);
     friend const BatchProgram& BP();
+    friend class	MMSockCommunic;
 
 			BatchProgram(int*,char**);
 			~BatchProgram();
 
-    static BatchProgram* inst_;
+    static BatchProgram* inst;
 
-    int*		pargc_;
+    int*		pargc;
     char**		argv_;
-    int			argshift_;
-    FileNameString	fullpath_;
-    bool		stillok_;
-    bool		inbg_;
-    StreamData&		sdout_;
-    IOPar*		iopar_;
-    BufferStringSet	opts_;
-
-    Socket*		mkSocket();
-    BufferString	masterhost_;
-    int			masterport_;
-    bool		usesock_;
-    int			jobid_;
-    bool		pausereq_;
+    int			argshift;
+    FileNameString	fullpath;
+    bool		stillok;
+    bool		inbg;
+    StreamData&		sdout;
+    IOPar*		iopar;
+    BufferStringSet	opts;
 
     bool		initOutput();
     void		progKilled(CallBacker*);
     void		killNotify( bool yn );
 
-    bool		writeStatus_( char tag, int, const char*, bool force );
+    MMSockCommunic*	mmComm()		{ return comm; }
 
-    int			exitstat_;
-    int			timestamp_;
+    int 		jobId()			{ return jobid; }
+    void		setPauseReq( bool yn )	{ pausereq = yn; }
 
+private:
+
+    MMSockCommunic*	comm;
+    bool		pausereq;
+    int			jobid;
 };
 
 
-inline const BatchProgram& BP() { return *BatchProgram::inst_; }
+inline const BatchProgram& BP() { return *BatchProgram::inst; }
 
 #ifdef __prog__
 # ifdef __win__
@@ -137,5 +129,100 @@ inline const BatchProgram& BP() { return *BatchProgram::inst_; }
     }
 
 #endif // __prog__
+
+
+#define mReturn( ret ) { \
+    if ( ret ) { nrattempts = 0; return true; } \
+    if ( nrattempts++ < maxtries ) return true; \
+    stillok = false; \
+    setErrMsg("Lost connection with master."); \
+    return false; \
+}
+
+#define mTryMaxtries( fn ) { \
+    for ( int i=0; i<maxtries; i++ ) \
+    { \
+	bool ret = fn; \
+	if ( ret ) return true; \
+	Time_sleep(1); \
+    } \
+    stillok = false; \
+    setErrMsg("Lost connection with master."); \
+    return false; \
+}
+
+
+/*! \brief Multi-machine socket communicator
+ *
+ *  
+ * 
+ */ 
+class MMSockCommunic
+{
+public:
+    enum State		{ Undef, Working, Finished, Done, Paused, JobError,
+	                  HostError, Killed, Timeout };
+
+			MMSockCommunic( const char* host, int port,
+					BatchProgram& );
+
+    bool		ok()	{ return stillok; }
+    const char*		peekMsg() const { return msg_; }
+    const char*		getMsg()	{ msg__=msg_; msg_=""; return msg__; }
+			
+    bool		updateState( State s )
+			    { bool ret = sendState_(s); mReturn(ret) }
+    bool		updateProgress( int p )
+			    { bool ret = sendProgress_(p); mReturn(ret) }
+			    
+    bool		sendState( State s, bool isexit=false )
+			    { mTryMaxtries( sendState_(s,isexit) ) }
+    bool		sendProgress( int p )
+			    { mTryMaxtries( sendProgress_(p) ) }
+
+			//! hostrelated error messages are more serious.
+    bool		sendErrMsg( const char* msg )
+			    { mTryMaxtries( sendErrMsg_(msg) ) }
+    bool		sendPID( int pid )
+			    { mTryMaxtries( sendPID_(pid) ) }
+
+
+protected:
+
+    BufferString	masterhost;
+    int			masterport;
+    bool		stillok;
+    BufferString	msg_;
+    BufferString	msg__;
+
+    Socket*		mkSocket();
+
+    bool		sendState_( State, bool isexit=false );
+    bool		sendProgress_( int );
+    bool		sendPID_( int );
+    bool		sendErrMsg_( const char* msg );
+
+private:    
+
+    BatchProgram&	bp;
+
+    bool		updateMsg( char tag, int, const char* msg=0 );
+    bool		sendMsg( char tag, int, const char* msg=0 );
+
+			//! directly to bp.stdout.ostrem or std::cerr.
+    void		directMsg( const char* msg );
+
+    void		setErrMsg( const char* m )
+			{
+			    msg_ = ("["); msg_ += getPID(); msg_ += "]: ";
+			    msg_ += m;
+			}
+
+    int			timestamp;
+    int			nrattempts;
+    int 		maxtries;
+};
+
+#undef mReturn
 
 #endif

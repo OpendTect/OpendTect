@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.5 2004-04-28 21:30:58 bert Exp $
+ RCS:		$Id: _execbatch.h,v 1.6 2005-03-30 11:19:22 cvsarend Exp $
 ________________________________________________________________________
 
  The implementation fo Execute_batch should be in the executable on 
@@ -30,11 +30,11 @@ int Execute_batch( int* pargc, char** argv )
 
     PIM().setArgs( *pargc, argv ); PIM().loadAuto( false );
 
-    BatchProgram::inst_ = new BatchProgram( pargc, argv );
-    if ( !BP().stillok_ )
+    BatchProgram::inst = new BatchProgram( pargc, argv );
+    if ( !BP().stillok )
 	return 1;
 
-    if ( BP().inbg_ )
+    if ( BP().inbg )
     {
 #ifndef __win__
 	switch ( fork() )
@@ -51,10 +51,10 @@ int Execute_batch( int* pargc, char** argv )
 #endif
     }
 
-    BatchProgram& bp = *BatchProgram::inst_;
-    bool allok = bp.initOutput() && bp.go( *bp.sdout_.ostrm );
-    bp.stillok_ = allok;
-    delete BatchProgram::inst_;
+    BatchProgram& bp = *BatchProgram::inst;
+    bool allok = bp.initOutput() && bp.go( *bp.sdout.ostrm );
+    bp.stillok = allok;
+    delete BatchProgram::inst;
     return allok ? 0 : 1;
 }
 

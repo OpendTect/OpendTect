@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.89 2005-03-24 16:52:46 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.90 2005-03-30 11:19:23 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -314,6 +314,7 @@ void uiSeisMMProc::startWork( CallBacker* )
     jobrunner->preJobStart.notify( mCB(this,uiSeisMMProc,jobPrepare) );
     jobrunner->postJobStart.notify( mCB(this,uiSeisMMProc,jobStarted) );
     jobrunner->jobFailed.notify( mCB(this,uiSeisMMProc,jobFailed) );
+    jobrunner->msgAvail.notify( mCB(this,uiSeisMMProc,infoMsgAvail) );
 
     timer = new Timer("uiSeisMMProc timer");
     timer->tick.notify( mCB(this,uiSeisMMProc,doCycle) );
@@ -430,7 +431,7 @@ int uiSeisMMProc::runnerHostIdx( const char* mach ) const
 {
     if ( !jobrunner || !mach || !*mach ) return -1;
 
-    const ObjectSet<JobHostInfo>& hi = jobrunner->hostInfo();
+    const ObjectSet<HostNFailInfo>& hi = jobrunner->hostInfo();
     for ( int idx=0; idx<hi.size(); idx++ )
     {
 	if ( hi[idx]->hostdata_.isKnownAs(mach) )
@@ -469,7 +470,7 @@ void uiSeisMMProc::addPush( CallBacker* )
 	    BufferString msg = "Could not start job";
 	    if ( lb )
 		{ msg += " on "; msg += hnm; }
-	    uiMSG().warning( msg );
+	    progrfld->append( msg );
 	}
     }
 }
@@ -496,17 +497,17 @@ void uiSeisMMProc::stopPush( CallBacker* )
 void uiSeisMMProc::vwLogPush( CallBacker* )
 {
     BufferString hostnm( curUsedMachName() );
-    JobHostInfo* jhi = 0;
-    const ObjectSet<JobHostInfo>& hi = jobrunner->hostInfo();
+    HostNFailInfo* hfi = 0;
+    const ObjectSet<HostNFailInfo>& hi = jobrunner->hostInfo();
     for ( int idx=0; idx<hi.size(); idx++ )
     {
 	if ( hi[idx]->hostdata_.isKnownAs(hostnm) )
-	    { jhi = hi[idx]; break; }
+	    { hfi = hi[idx]; break; }
     }
-    if ( !jhi ) return;
+    if ( !hfi ) return;
 
-    JobInfo* ji = jobrunner->currentJob( jhi );
-    FilePath logfp( jobrunner->getBaseFilePath(*ji, jhi->hostdata_) );
+    JobInfo* ji = jobrunner->currentJob( hfi );
+    FilePath logfp( jobrunner->getBaseFilePath(*ji, hfi->hostdata_) );
     logfp.setExtension( ".log", false );
 
     delete logvwer;
@@ -569,8 +570,23 @@ void uiSeisMMProc::jobFailed( CallBacker* cb )
     addObjNm( msg, jobrunner, ji.descnr_ );
     if ( ji.hostdata_ )
 	{ msg += " on "; msg += ji.hostdata_->name(); }
-    if ( ji.curmsg_ != "" )
-	{ msg += ": "; msg += ji.curmsg_; }
+    if ( ji.infomsg_ != "" )
+	{ msg += ": "; msg += ji.infomsg_; }
+    progrfld->append( msg );
+}
+
+
+void uiSeisMMProc::infoMsgAvail( CallBacker* cb )
+{
+    const JobInfo& ji = jobrunner->curJobInfo();
+    if ( ji.infomsg_ == "" ) { pErrMsg("huh?"); return; }
+
+    BufferString msg( "Info for " );
+    addObjNm( msg, jobrunner, ji.descnr_ );
+    if ( ji.hostdata_ )
+	{ msg += " on "; msg += ji.hostdata_->name(); }
+
+    msg += ": "; msg += ji.infomsg_; 
     progrfld->append( msg );
 }
 
@@ -681,12 +697,15 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
 {
     if ( !outioobjinfo->ioObj() || !jobrunner ) return true;
 
-    int res = 0;
-    if ( jobrunner->jobsInProgress() > 0 )
+    int res = 1;
+    if ( jobrunner->jobsDone() > 0 || jobrunner->jobsInProgress() > 0 )
     {
 	BufferString msg = "This will stop all processing!";
 	if ( is2d )
+	{
+	    msg += "\n\nDo you want to do this?";
 	    res = uiMSG().askGoOn( msg ) ? 1 : 2;
+	}
 	else
 	{
 	    msg += "\n\nDo you want to remove already processed data?";

@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.70 2005-02-21 14:51:05 cvsarend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.71 2005-03-30 11:19:23 cvsarend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.70 2005-02-21 14:51:05 cvsaren
 #include "socket.h"
 #include "separstr.h"
 #include "hostdata.h"
-#include "mmdefs.h"
 #include "plugins.h"
 #include "strmprov.h"
 #include "ctxtioobj.h"
@@ -36,66 +35,67 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.70 2005-02-21 14:51:05 cvsaren
 # include "_execbatch.h"
 #endif
 
-#define mErrStrm (sdout_.ostrm ? *sdout_.ostrm : std::cerr)
 
-BatchProgram* BatchProgram::inst_;
+
+
+BatchProgram* BatchProgram::inst;
 
 BatchProgram::BatchProgram( int* pac, char** av )
 	: UserIDObject("")
-	, pargc_(pac)
+	, pargc(pac)
 	, argv_(av)
-	, argshift_(2)
-	, stillok_(false)
-	, fullpath_(av[0])
-	, inbg_(NO)
-	, sdout_(*new StreamData)
-    	, masterport_(0)
-	, usesock_( false )
-	, jobid_( 0 )
-	, timestamp_( Time_getMilliSeconds() )
-	, exitstat_( mSTAT_UNDEF )
-	, pausereq_( false )
+	, argshift(2)
+	, stillok(false)
+	, fullpath(av[0])
+	, inbg(NO)
+	, sdout(*new StreamData)
+	, comm(0)
+	, pausereq( false )
 {
-    od_putProgInfo( *pargc_, argv_ );
+    od_putProgInfo( *pargc, argv_ );
 
+    BufferString masterhost;
+    int masterport = -1;
+    
     const char* fn = argv_[1];
     while ( fn && *fn == '-' )
     {
 	if ( !strcmp(fn,"-bg") )
-	    inbg_ = YES;
+	    inbg = YES;
 	else if ( !strncmp(fn,"-masterhost",11) )
 	{
-	    argshift_++;
-	    fn = argv_[ argshift_ - 1 ];
-	    masterhost_ = fn;
+	    argshift++;
+	    fn = argv_[ argshift - 1 ];
+	    masterhost = fn;
 	}
 	else if ( !strncmp(fn,"-masterport",11) )
 	{
-	    argshift_++;
-	    fn = argv_[ argshift_ - 1 ];
-	    masterport_ = atoi(fn);
+	    argshift++;
+	    fn = argv_[ argshift - 1 ];
+	    masterport = atoi(fn);
 	}
 	else if ( !strncmp(fn,"-jobid",6) )
 	{
-	    argshift_++;
-	    fn = argv_[ argshift_ - 1 ];
-	    jobid_ = atoi(fn);
+	    argshift++;
+	    fn = argv_[ argshift - 1 ];
+	    jobid = atoi(fn);
 	}
 	else if ( *(fn+1) )
-	    opts_ += new BufferString( fn+1 );
+	    opts += new BufferString( fn+1 );
 
-	argshift_++;
-	fn = argv_[ argshift_ - 1 ];
+	argshift++;
+	fn = argv_[ argshift - 1 ];
     }
 
-    usesock_ = masterhost_.size() && masterport_ > 0; // both must be set.
+    if ( masterhost.size() && masterport > 0 )  // both must be set.
+	comm = new MMSockCommunic( masterhost, masterport, *this );
      
     if ( !fn || !*fn )
     {
 	BufferString msg( progName() );
 	msg += ": No parameter file name specified";
 
-	writeErrorMsg( msg ); std::cerr << msg << std::endl;
+	errorMsg( msg );
 	return;
     }
 
@@ -124,7 +124,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	msg += ": Cannot open parameter file: ";
 	msg += fn;
 
-	writeErrorMsg( msg ); std::cerr << msg << std::endl;
+	errorMsg( msg );
 	return;
     }
  
@@ -136,16 +136,16 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	msg += ": Invalid input file: ";
 	msg += fn;
 
-	writeErrorMsg( msg ); std::cerr << msg << std::endl;
+	errorMsg( msg ); 
         return;
     }
 
-    iopar_ = new IOPar( *parlist[0] );
+    iopar = new IOPar( *parlist[0] );
 
-    const char* res = iopar_->find( "Log file" );
+    const char* res = iopar->find( "Log file" );
     if ( !res )
-	iopar_->set( "Log file", StreamProvider::sStdErr );
-    res = iopar_->find( "Survey" );
+	iopar->set( "Log file", StreamProvider::sStdErr );
+    res = iopar->find( "Survey" );
     if ( !res || !*res )
 	IOMan::newSurvey();
     else
@@ -161,48 +161,45 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
     killNotify( true );
 
-    stillok_ = true;
+    stillok = true;
 }
 
 
 BatchProgram::~BatchProgram()
 {
-    mErrStrm << "Finished batch processing." << std::endl;
+    infoMsg( "Finished batch processing." );
 
-    if ( exitstat_ == mSTAT_UNDEF ) 
-	exitstat_ = stillok_ ? mSTAT_DONE : mSTAT_ERROR;
-
-    writeStatus( mEXIT_STATUS, exitstat_ );
+    if( comm ) comm->sendState( stillok ? MMSockCommunic::Done
+				        : MMSockCommunic::HostError, true );
 
     killNotify( false );
 
-    sdout_.close();
-    delete &sdout_;
-    deepErase( opts_ );
-    delete iopar_;
+    sdout.close();
+    delete &sdout;
+    deepErase( opts );
+    delete iopar;
+    delete comm; 
 }
 
 
 const char* BatchProgram::progName() const
 {
     static UserIDString ret;
-    ret = FilePath( fullpath_ ).fileName();
+    ret = FilePath( fullpath ).fileName();
     return ret;
 }
 
 
 void BatchProgram::progKilled( CallBacker* )
 {
-    mErrStrm << "BatchProgram Killed." << std::endl;
+    infoMsg( "BatchProgram Killed." );
 
-    exitstat_ = mSTAT_KILLED;
-    writeStatus( mEXIT_STATUS, exitstat_ );
+    if ( comm ) comm->sendState( MMSockCommunic::Killed, true );
     killNotify( false );
 
 #ifdef __debug__
     abort();
 #endif
-
 }
 
 
@@ -217,122 +214,39 @@ void BatchProgram::killNotify( bool yn )
 }
 
 
-#define mReturn( ret ) { \
-    if ( ret ) { nrattempts = 0; return true; } \
-    if ( nrattempts++ < maxtries ) return true; \
-    return false; \
-}
-
-bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
-				 bool force )
+bool BatchProgram::errorMsg( const char* msg, bool cc_stderr )
 {
-    static int maxelapsed  = atoi( getenv("DTECT_MM_MILLISECS")
-				 ? getenv("DTECT_MM_MILLISECS") : "1000");
-    static int maxtries = atoi( getenv("DTECT_MM_MSTR_RETRY")
-				 ? getenv("DTECT_MM_MSTR_RETRY") : "10");
-    static int nrattempts = 0;
+    if ( sdout.ostrm )
+	*sdout.ostrm << '\n' << msg << '\n' << std::endl;
 
-    int elapsed = Time_getMilliSeconds() - timestamp_;
-    if ( elapsed < 0 )
-    {
-	mErrStrm << "System clock skew detected (Ignored)." << std::endl;
-	force = true;
-    }
+    if ( !sdout.ostrm || cc_stderr )
+	std::cerr << '\n' << msg << '\n' << std::endl;
 
-    bool hasmessage = errmsg && *errmsg;
-    if ( !force && !hasmessage && elapsed < maxelapsed )
-	return true;
+    if ( comm && comm->ok() ) return comm->sendErrMsg(msg);
 
-    timestamp_ = Time_getMilliSeconds();
-
-    if ( !usesock_ ) return true;
-
-    Socket* sock = mkSocket();
-    if ( !sock || !sock->ok() )
-    {
-	mErrStrm << "Cannot open communication socket to Master." << std::endl;
-	mReturn(false)
-    }
-
-    FileMultiString statstr;
-
-    statstr += jobid_;
-    statstr += status;
-    statstr += HostData::localHostName();
-
-    if ( hasmessage )
-	statstr += errmsg;
-
-    sock->writetag( tag, statstr );
-
-    bool ret = true;
-
-    char masterinfo;
-    BufferString errbuf;
-
-    ret = sock->readtag( masterinfo );
-
-    if ( !ret )
-    {
-	sock->fetchMsg( errbuf );
-	mErrStrm << "Error writing status to Master: " << errbuf << std::endl;
-    }
-
-    else if ( masterinfo == mRSP_WORK )
-	pausereq_ = false;  
-
-    else if ( masterinfo == mRSP_PAUSE )
-	pausereq_ = true; 
-
-    else if ( masterinfo == mRSP_STOP ) 
-    {
-	mErrStrm << "Exiting on request of Master." << std::endl;
-	exitProgram( -1 );
-    }
-    else
-    {
-	errbuf = "Master sent an unkown response code.";
-	ret = false;
-    }
-
-    delete sock;
-    mReturn(ret)
+    return true;
 }
 
 
-bool BatchProgram::writeErrorMsg( const char* msg )
+bool BatchProgram::infoMsg( const char* msg, bool cc_stdout)
 {
-    if ( !usesock_ ) return false;
+    if ( sdout.ostrm )
+	*sdout.ostrm << '\n' << msg << '\n' << std::endl;
 
-    if ( Socket* sock = mkSocket() )
-    {
-	FileMultiString statstr;
+    if ( !sdout.ostrm || cc_stdout )
+	std::cout << '\n' << msg << '\n' << std::endl;
 
-	statstr += jobid_;
-	statstr += -1; // status
-	statstr += HostData::localHostName();
-	statstr += msg;
-
-	return sock->writetag( mERROR_MSG, statstr );
-    }
-
-    return false;
+    return true;
 }
 
 
-Socket* BatchProgram::mkSocket()
-{
-    if ( !usesock_ ) return 0;
-
-    return new Socket( masterhost_, masterport_ );
-}
 
 bool BatchProgram::initOutput()
 {
-    stillok_ = false;
-    if ( !writeStatus( mPID_TAG, getPID() ) )
+    stillok = false;
+    if ( comm && !comm->sendPID(getPID()) )
     {
-	mErrStrm << "Could not write status. Exiting." << std::endl;
+	errorMsg( "Could not contact master. Exiting.", true );
 	exit( 0 );
     }
 
@@ -354,8 +268,8 @@ bool BatchProgram::initOutput()
 #endif
 	comm += getPID();
 	StreamProvider sp( comm );
-	sdout_ = sp.makeOStream();
-	if ( !sdout_.usable() )
+	sdout = sp.makeOStream();
+	if ( !sdout.usable() )
 	{
 	    std::cerr << name() << ": Cannot open window for output"<<std::endl;
 	    std::cerr << "Using std output instead" << std::endl;
@@ -367,19 +281,19 @@ bool BatchProgram::initOutput()
     if ( !res || strcmp(res,"window") )
     {
 	StreamProvider spout( res );
-	sdout_ = spout.makeOStream();
-	if ( !sdout_.ostrm )
+	sdout = spout.makeOStream();
+	if ( !sdout.ostrm )
 	{
 	    std::cerr << name() << ": Cannot open log file" << std::endl;
 	    std::cerr << "Using stderror instead" << std::endl;
-	    sdout_.ostrm = &std::cerr;
+	    sdout.ostrm = &std::cerr;
 	}
     }
 
-    stillok_ = sdout_.usable();
-    if ( stillok_ )
+    stillok = sdout.usable();
+    if ( stillok )
 	PIM().loadAuto( true );
-    return stillok_;
+    return stillok;
 }
 
 
@@ -400,7 +314,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 	    if ( res == "" )
 	    {
 		if ( msgiffail )
-		    *sdout_.ostrm << "Please specify '" << iopkey
+		    *sdout.ostrm << "Please specify '" << iopkey
 				  << "'" << std::endl;
 		return 0;
 	    }
@@ -427,7 +341,149 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 
     IOObj* ioobj = IOM().get( MultiID(res.buf()) );
     if ( !ioobj )
-	*sdout_.ostrm << "Cannot find the specified '" << basekey << "'"
+	*sdout.ostrm << "Cannot find the specified '" << basekey << "'"
 	    		<< std::endl;
     return ioobj;
+}
+
+/*--------------------------------------------------------------------------*/
+
+// should only be needed for MMSockCommunic ...
+#include "mmdefs.h"
+
+MMSockCommunic::MMSockCommunic( const char* host, int port, BatchProgram& bp_ )
+	: masterhost( host )
+    	, masterport( port )
+	, timestamp( Time_getMilliSeconds() )
+	, stillok( true )
+	, nrattempts( 0 )
+	, maxtries ( atoi( getenv("DTECT_MM_MSTR_RETRY")
+		 	 ? getenv("DTECT_MM_MSTR_RETRY") : "10") )
+	, bp( bp_ )
+{}
+
+
+bool MMSockCommunic::sendErrMsg_( const char* msg )
+{
+    return sendMsg( mERROR_MSG, -1, msg ); 
+}
+
+
+bool MMSockCommunic::sendPID_( int pid )
+{ 
+    return sendMsg( mPID_TAG, pid );
+}
+
+bool MMSockCommunic::sendProgress_( int progress )
+{ 
+    return sendMsg( mPROC_STATUS, progress );
+}
+
+bool MMSockCommunic::sendState_( State stat, bool isexit )
+{
+    int _stat = mSTAT_UNDEF;
+    switch( stat )
+    {
+	case Working	: _stat = mSTAT_WORKING; break;
+	case Finished	: _stat = mSTAT_FINISHED; break;
+	case Done	: _stat = mSTAT_DONE; break;
+	case Paused	: _stat = mSTAT_PAUSED; break;
+	case JobError	: _stat = mSTAT_JOBERROR; break;
+	case HostError	: _stat = mSTAT_HSTERROR; break;
+	case Killed	: _stat = mSTAT_KILLED; break;
+	case Timeout	: _stat = mSTAT_TIMEOUT; break;
+	default		: _stat = mSTAT_UNDEF; break;
+    }
+    
+    return sendMsg( isexit ? mEXIT_STATUS : mCTRL_STATUS, _stat );
+}
+
+bool MMSockCommunic::updateMsg( char tag , int status, const char* msg )
+{
+    static int maxelapsed  = atoi( getenv("DTECT_MM_MILLISECS")
+				 ? getenv("DTECT_MM_MILLISECS") : "1000");
+
+    int elapsed = Time_getMilliSeconds() - timestamp;
+    if ( elapsed < 0 )
+    {
+	directMsg( "System clock skew detected (Ignored)." );
+    }
+    else if ( elapsed < maxelapsed  )
+    {
+	return true;
+    }
+
+    return sendMsg( tag , status, msg );
+}
+
+
+bool MMSockCommunic::sendMsg( char tag , int status, const char* msg )
+{
+    timestamp = Time_getMilliSeconds();
+
+    Socket* sock = mkSocket();
+    if ( !sock || !sock->ok() )
+    {
+	setErrMsg( "Cannot open communication socket to Master." );
+	return false;
+    }
+
+    FileMultiString statstr;
+
+    statstr += bp.jobId();
+    statstr += status;
+    statstr += HostData::localHostName();
+
+    if ( msg && *msg )
+	statstr += msg;
+
+    sock->writetag( tag, statstr );
+
+    bool ret = true;
+
+    char masterinfo;
+    BufferString errbuf;
+
+    ret = sock->readtag( masterinfo );
+
+    if ( !ret )
+    {
+	BufferString emsg( "Error writing status to Master: " );
+	emsg += errbuf;
+	setErrMsg( errbuf );
+    }
+
+    else if ( masterinfo == mRSP_WORK )
+	bp.setPauseReq( false );
+
+    else if ( masterinfo == mRSP_PAUSE )
+	bp.setPauseReq( true );
+
+    else if ( masterinfo == mRSP_STOP ) 
+    {
+	directMsg( "Exiting on request of Master." );
+	exitProgram( -1 );
+    }
+    else
+    {
+	BufferString emsg( "Master sent an unkown response code. " );
+	emsg += errbuf;
+	setErrMsg( errbuf );
+	ret = false;
+    }
+
+    delete sock;
+    return ret;
+}
+
+
+void  MMSockCommunic::directMsg( const char* msg )
+{
+    (bp.sdout.ostrm ? *bp.sdout.ostrm : std::cerr) << msg << std::endl;
+}
+
+
+Socket* MMSockCommunic::mkSocket()
+{
+    return new Socket( masterhost, masterport );
 }

@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.41 2004-12-24 08:46:41 dgb Exp $
+# $Id: od_exec,v 1.42 2005-03-30 11:19:22 cvsarend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -124,6 +124,14 @@ if ( ! -d "$bindir" ) then
     echo "$bindir"
     echo "Does not exist."
     exit 1
+endif
+
+if ( ! -e "$bindir/$1" ) then
+    if ( $?DEBUG && -e "$bindir/G/$1" ) then
+	set bindir="$bindir/G"
+    else if ( -e "$bindir/O/$1" ) 
+	set bindir="$bindir/O"
+    endif
 endif
 
 setenv XAPPLRESDIR	"$DTECT_APPL/data"

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.31 2005-03-24 12:12:08 cvsbert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.32 2005-03-30 11:19:22 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ protected:
     void		jobPrepare(CallBacker*);
     void		jobStarted(CallBacker*);
     void		jobFailed(CallBacker*);
+    void		infoMsgAvail(CallBacker*);
     void		jrpSel(CallBacker*);
 
     void		startWork(CallBacker*);

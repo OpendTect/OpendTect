@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.13 2005-02-28 16:37:50 cvsarend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.14 2005-03-30 11:19:23 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,7 +194,13 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 	{
 	    if ( !hostnm || !*hostnm )  { jhri = jhri_; break; }		
 
-	    if ( jhri_->hostdata_.isKnownAs(hostnm) )
+	    BufferString shrthostnm = hostnm;
+
+	    char* ptr = strchr( shrthostnm.buf(), '.' );
+	    if ( ptr ) *ptr = '\0';
+
+	    if ( jhri_->hostdata_.isKnownAs(hostnm)  
+	      || jhri_->hostdata_.isKnownAs(shrthostnm) )
 		{ jhri = jhri_; break; }		
 	}
     }
@@ -296,9 +302,9 @@ void JobIOHandler::doDispatch( CallBacker* )
 	    {
 		pErrMsg( "Error in socket communication." );
 	    }
-
-	    delete sock_; sock_ =0;
 	}
+
+	delete sock_; sock_ =0;
     }
 }
 

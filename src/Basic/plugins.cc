@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.34 2005-02-23 12:22:11 cvsarend Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.35 2005-03-30 11:19:22 cvsarend Exp $";
 
 #include "plugins.h"
 #include "filepath.h"
@@ -76,6 +76,32 @@ static const char* getFnName( const char* libnm, const char* fnbeg,
 
 
 #ifdef __win__
+# define sLibPref ""
+# define sLibExt ".dll"
+#else
+# ifdef __mac__
+#  define sLibPref "lib"
+#  define sLibExt ".dylib"
+# else
+#  define sLibPref "lib"
+#  define sLibExt ".so"
+# endif
+#endif
+
+static bool isLib( const char* fnm )
+{
+    const char* extptr = strrchr( fnm, '.' );
+    if ( !extptr || !*extptr ) return false;
+
+    while ( const char* anotherdot = strrchr(extptr, '.') )
+	{ extptr = anotherdot; }
+    
+    if ( !extptr || !*extptr ) return false;
+    return caseInsensitiveEqual( extptr, sLibExt, 0 );
+}
+
+
+#ifdef __win__
 # define mNotLoadedRet(act) \
 	{ if ( handle ) FreeLibrary(handle); return false; }
 # define mFnGettter GetProcAddress
@@ -94,6 +120,8 @@ static bool loadPlugin( const char* lnm, int argc, char** argv,
 {
     if ( !lnm || !*lnm  || inittype == PI_AUTO_INIT_NONE )
 	return false;
+
+    if ( !isLib(lnm) ) return false;
 
     const BufferString libnm( lnm );
     if( DBG::isOn(DBG_SETTINGS) )
@@ -179,16 +207,10 @@ static void loadALOPlugins( const char* dnm, const char* fnm,
     while ( *sd.istrm )
     {
 	sd.istrm->getline( buf, 128 );
-#ifdef __win__
-	BufferString libnm = buf; libnm += ".dll";
-#else
-# ifdef __mac__
-	BufferString libnm = "lib"; libnm += buf; libnm += ".dylib";
-# else
-	BufferString libnm = "lib"; libnm += buf; libnm += ".so";
-# endif
-#endif
-	if ( !PIM().isLoaded(libnm) )
+
+	BufferString libnm = sLibPref; libnm += buf; libnm += sLibExt;
+
+	if ( isLib(libnm) && !PIM().isLoaded(libnm) )
 	{
 	    fp.setFileName( libnm );
 	    loadPlugin( fp.fullPath(), argc, argv, inittype );
@@ -226,7 +248,7 @@ static void loadPluginDir( const char* dirnm, int argc, char** argv,
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString& libnm = dl.get(idx);
-	if ( !isALO(libnm) && !PIM().isLoaded(libnm) )
+	if ( isLib(libnm) && !PIM().isLoaded(libnm) )
 	{
 	    FilePath fp( dirnm ); fp.add( libnm );
 	    loadPlugin( fp.fullPath(), argc, argv, inittype );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.18 2005-03-23 15:44:27 cvsbert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.19 2005-03-30 11:19:23 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,11 @@ ________________________________________________________________________
 #include "queue.h"
 #include "mmdefs.h"
 #include "timefun.h"
+#include "debugmasks.h"
 #include <iostream>
+
+#define mDebugOn        (DBG::isOn(DBG_MM))
+
 
 static BufferString tmpfnm_base;
 
@@ -44,8 +48,10 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, niceval_(19)
 	, firstport_(19636)
     	, prog_(cmd)
-	, timeout_(		atoi( getenv("DTECT_JOB_TIMEOUT")
+	, jobtimeout_(		atoi( getenv("DTECT_JOB_TIMEOUT")
 				    ? getenv("DTECT_JOB_TIMEOUT"): "120000") )
+	, hosttimeout_(		atoi( getenv("DTECT_HOST_TIMEOUT")
+				    ? getenv("DTECT_HOST_TIMEOUT"): "600000") )
     	, maxhostfailures_(	atoi( getenv("DTECT_MAX_HOSTFAIL")
 				    ? getenv("DTECT_MAX_HOSTFAIL") : "2") )
     	, maxjobfailures_(	atoi( getenv("DTECT_MAX_JOBFAIL")
@@ -53,6 +59,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, preJobStart(this)
 	, postJobStart(this)
 	, jobFailed(this)
+	, msgAvail(this)
     	, curjobiop_(*new IOPar)
     	, curjobfp_(*new FilePath)
     	, curjobinfo_(0)
@@ -82,43 +89,51 @@ JobRunner::~JobRunner()
 }
 
 
-JobHostInfo* JobRunner::jobHostInfoFor( const HostData& hd ) const
+HostNFailInfo* JobRunner::hostNFailInfoFor( const HostData* hd ) const
 {
-    const JobHostInfo* jhi = 0;
+    if ( !hd ) return 0;
 
+    HostNFailInfo* hfi = 0;
     for ( int idx=0; idx<hostinfo_.size(); idx++ )
-	if ( &hostinfo_[idx]->hostdata_ == &hd )
-	    { jhi = hostinfo_[idx]; break; }
+	if ( &hostinfo_[idx]->hostdata_ == hd )
+	    { hfi = hostinfo_[idx]; break; }
 
-    return const_cast<JobHostInfo*>( jhi );
+    return hfi;
 }
 
 
 bool JobRunner::addHost( const HostData& hd )
 {
-    JobHostInfo* jhi = jobHostInfoFor( hd );
-    const bool isnew = !jhi;
+
+    HostNFailInfo* hfi = hostNFailInfoFor( &hd );
+    const bool isnew = !hfi;
     if ( isnew )
-	jhi = new JobHostInfo( hd );
-    else if ( isFailed(jhi) )
-	jhi->nrfailures_ = 0;
+    {
+	hfi = new HostNFailInfo( hd );
+	hfi->starttime_ = Time_getMilliSeconds();
+    }
+    else if ( hostStatus(hfi) == HostFailed )
+    {
+	hfi->nrfailures_ = 0;
+	hfi->starttime_ = Time_getMilliSeconds();
+    }
     else
 	return true; // host already in use
 
-    bool res = assignJob( *jhi );
+    bool res = assignJob( *hfi );
     if ( isnew )
     {
 	if ( res )
-	    hostinfo_ += jhi;
+	    hostinfo_ += hfi;
 	else
-	    delete jhi;
+	    delete hfi;
     }
 
     return res;
 }
 
 
-bool JobRunner::assignJob( JobHostInfo& jhi )
+bool JobRunner::assignJob( HostNFailInfo& hfi )
 {
     // First go for new jobs, then try failed
     for ( int tryfailed=0; tryfailed<2; tryfailed++ )
@@ -127,13 +142,14 @@ bool JobRunner::assignJob( JobHostInfo& jhi )
 	{
 	    JobInfo& ji = *jobinfos_[ijob];
 	    bool isnew = ji.state_ == JobInfo::ToDo;
-	    bool isfailed = ji.state_ == JobInfo::Failed;
+	    bool isfailed = ( ji.state_ == JobInfo::JobFailed
+		           || ji.state_ == JobInfo::HostFailed);
 	    if ( isfailed )
 		{ if ( !tryfailed ) continue; }
 	    else if ( !isnew )
 		continue;
 
-	    StartRes res = startJob( ji, jhi );
+	    StartRes res = startJob( ji, hfi );
 	    if ( res == HostBad )
 		return false;
 	    else if ( res == Started )
@@ -145,20 +161,19 @@ bool JobRunner::assignJob( JobHostInfo& jhi )
 }
 
 
-JobRunner::StartRes JobRunner::startJob( JobInfo& ji, JobHostInfo& jhi )
+JobRunner::StartRes JobRunner::startJob( JobInfo& ji, HostNFailInfo& hfi )
 {
-    if ( isFailed(&jhi) ) return HostBad;
+    if ( hostStatus(&hfi) == HostFailed ) return HostBad;
 
-    ji.attempts_++;
-    if ( ji.attempts_ > maxjobfailures_ )
+    if ( ji.failures_ > maxjobfailures_ )
     {
 	jobinfos_ -= &ji; failedjobs_ += &ji;
 	return JobBad;
     }
 
-    if ( !runJob(ji,jhi.hostdata_) )
+    if ( !runJob(ji,hfi.hostdata_) )
     {
-	return isFailed(&jhi) ? HostBad : NotStarted;
+	return hostStatus(&hfi) == HostFailed ? HostBad : NotStarted;
     }
 
     return Started;
@@ -186,15 +201,38 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 }
    
 
-#define mJobFailed() \
-{ \
-    if ( curjobinfo_ && curjobinfo_->hostdata_ ) \
-    { \
-	JobHostInfo* jhi = jobHostInfoFor( *curjobinfo_->hostdata_ ); \
-	if ( jhi ) jhi->nrfailures_++; \
-    } \
-    jobFailed.trigger(); \
+void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
+{ 
+    if ( !isAssigned(ji) ) return;
+
+    curjobinfo_ = &ji;
+    ji.state_ = reason;
+
+    if ( ji.hostdata_ ) 
+    {
+	if ( reason == JobInfo::JobFailed ) ji.failures_++;
+
+	HostNFailInfo* hfi = hostNFailInfoFor( ji.hostdata_ );
+	if ( hfi ) hfi->nrfailures_++;
+    }
+
+    if ( mDebugOn )
+    {
+	BufferString msg("JobRunner::failedJob : ");
+	if ( ji.state_ == JobInfo::HostFailed ) msg += "host failed. ";
+	if ( ji.state_ == JobInfo::JobFailed ) msg += "job failed. ";
+	msg += "\n Job failed "; msg += ji.failures_; msg += " times ";
+	msg += "\n Failed on host: "; msg += ji.hostdata_->name();
+	msg += "\n Status: "; msg += ji.statusmsg_;
+	msg += "\n Info: "; msg += ji.infomsg_;
+
+	DBG::message(msg);
+    }
+    
+    jobFailed.trigger();
+    ji.infomsg_ = "";
 } 
+
 
 bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 {
@@ -202,15 +240,17 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
     curjobfp_ = getBaseFilePath(ji,hd);
     curjobinfo_ = &ji;
     ji.hostdata_ = &hd;
-    ji.state_ = JobInfo::Working;
+    ji.state_ = JobInfo::Scheduled;
     ji.timestamp_ = 0;
+    ji.statusmsg_ = " scheduled";
+    ji.infomsg_ = "";
+    ji.osprocid_ = -1;
     preJobStart.trigger();
 
     if ( !iomgr().startProg( prog_, curjobiop_, curjobfp_, ji, rshcomm_ ) )
     {
-	ji.state_ = JobInfo::Failed;
-	if ( iomgr().peekMsg() ) iomgr().fetchMsg(ji.curmsg_);
-	mJobFailed();
+	if ( iomgr().peekMsg() ) iomgr().fetchMsg(ji.infomsg_);
+	failedJob( ji, JobInfo::HostFailed );
 	return false;
     }
 
@@ -219,12 +259,12 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 }
 
 
-JobInfo* JobRunner::currentJob( const JobHostInfo* jhi ) const
+JobInfo* JobRunner::currentJob( const HostNFailInfo* hfi ) const
 {
     for ( int idx=0; idx<jobinfos_.size(); idx++ )
     {
 	const JobInfo* ji = jobinfos_[idx];
-	if ( ji->hostdata_ == &jhi->hostdata_ && isAssigned(*ji) )
+	if ( ji->hostdata_ == &hfi->hostdata_ && isAssigned(*ji) )
 	    return const_cast<JobInfo*>( ji );
     }
     return 0;
@@ -235,17 +275,15 @@ void JobRunner::removeHost( int hnr )
 {
     if ( hnr < 0 || hnr >= hostinfo_.size() )
 	return;
-    JobHostInfo* jhi = hostinfo_[hnr];
-    hostinfo_ -= jhi;
+    HostNFailInfo* hfi = hostinfo_[hnr];
+    hostinfo_ -= hfi;
 
-    JobInfo* ji = currentJob( jhi );
+    JobInfo* ji = currentJob( hfi );
 
     if ( ji )
     {
-	curjobinfo_ = ji;
-	ji->hostdata_ = &jhi->hostdata_;
-	ji->state_ = JobInfo::Failed;
-	mJobFailed();
+	ji->hostdata_ = &hfi->hostdata_;
+	failedJob( *ji, JobInfo::HostFailed );
 
 	iomgr().reqModeForJob( *ji, JobIOMgr::Stop );
 
@@ -253,7 +291,7 @@ void JobRunner::removeHost( int hnr )
 	    iomgr().removeJob( ji->hostdata_->name(), ji->descnr_ );
     }
 
-    delete jhi;
+    delete hfi;
 }
 
 
@@ -264,7 +302,7 @@ void JobRunner::pauseHost( int hnr, bool yn )
     JobInfo* ji = currentJob( hostinfo_[hnr] );
     if ( !ji ) return;
 
-    if ( ji->state_ == JobInfo::Working && yn )
+    if ( isAssigned(*ji) && ji->state_ != JobInfo::Paused && yn )
 	iomgr().reqModeForJob( *ji, JobIOMgr::Pause );
     else if ( ji->state_ == JobInfo::Paused && !yn )
 	iomgr().reqModeForJob( *ji, JobIOMgr::Work );
@@ -282,21 +320,42 @@ bool JobRunner::isPaused( int hnr ) const
 
 bool JobRunner::isAssigned( const JobInfo& ji ) const
 {
-    return ji.state_ == JobInfo::Paused || ji.state_ == JobInfo::Working;
+    return ji.state_ >= JobInfo::Scheduled && ji.state_ <= JobInfo::Paused;
 }
 
 
-bool JobRunner::isFailed( int hnr ) const
+bool JobRunner::hostFailed( int hnr ) const
 {
     return hnr < 0 || hnr >= hostinfo_.size() ? true
-	 : isFailed( hostinfo_[hnr] );
+	 : hostStatus( hostinfo_[hnr] ) == HostFailed;
 }
 
 
-
-bool JobRunner::isFailed( const JobHostInfo* jhi ) const
+JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 {
-    return jhi ? jhi->nrfailures_ > maxhostfailures_ : true;
+    if ( !hfi ) return HostFailed;
+
+    if ( !hfi->nrfailures_ ) return OK;
+
+    if ( hfi->nrfailures_ <= maxhostfailures_ ) return SomeFailed;
+
+    int totltim = hfi->starttime_ ? Time_getMilliSeconds() - hfi->starttime_
+				  : -1;
+
+    if ( totltim < 0 ) { pErrMsg( "huh?" ); return SomeFailed; }
+
+    if ( totltim <= hosttimeout_ ) // default: 10 mins.
+	return SomeFailed;
+
+    int lastsuctim = hfi->lastsuccess_ ?
+			    Time_getMilliSeconds() - hfi->lastsuccess_ : -1; 
+
+    if ( lastsuctim < -1 ) { pErrMsg( "huh?" ); return HostFailed; }
+    if ( lastsuctim < 0 )  return HostFailed;
+    
+    if ( hfi->nrsucces_ > 0 && lastsuctim < hosttimeout_ ) return SomeFailed;
+
+    return HostFailed;
 }
 
 
@@ -353,7 +412,9 @@ bool JobRunner::haveIncomplete() const
 
 bool JobRunner::stopAll()
 {
-    //TODO get rid of all processes - set all statuses to Failed
+    while( hostinfo_.size() > 0 )
+	removeHost(0); 
+	
     return true;
 }
 
@@ -366,16 +427,16 @@ int JobRunner::doCycle()
 	return Finished;
 
     // Put idle hosts to work
-    ObjectSet<JobHostInfo> hinf( hostinfo_ );
+    ObjectSet<HostNFailInfo> hinf( hostinfo_ );
     for ( int ih=0; ih<hinf.size(); ih++ )
     {
-	JobHostInfo* jhi = hinf[ih];
-	if ( isFailed(jhi) )
+	HostNFailInfo* hfi = hinf[ih];
+	if ( hostStatus(hfi) == HostFailed )
 	    continue;
 
-	JobInfo* ji = currentJob( jhi );
+	JobInfo* ji = currentJob( hfi );
 	if ( !ji )
-	    assignJob( *jhi );
+	    assignJob( *hfi );
     }
 
     return haveIncomplete() ? MoreToDo : Finished;
@@ -402,12 +463,10 @@ void JobRunner::updateJobInfo()
 
 	    int elapsed = Time_getMilliSeconds() - ji.timestamp_; 
 
-	    if ( elapsed > timeout_ )
+	    if ( elapsed > jobtimeout_ )
 	    {
-		curjobinfo_ = &ji;
-		ji.state_ = JobInfo::Failed;
-		ji.curmsg_ = "Timed out.";
-		mJobFailed();
+		ji.statusmsg_ = "Timed out.";
+		failedJob( ji, JobInfo::HostFailed );
 		
 		if ( ji.hostdata_ )
 		    iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
@@ -430,7 +489,7 @@ void JobRunner::showMachStatus( BufferStringSet& res ) const
 	    BufferString* mch = new BufferString( ji.hostdata_->name() );
 
 	    *mch += " -:- ";
-	    *mch += ji.curmsg_;
+	    *mch += ji.statusmsg_;
 
 	    res += mch;
 	}
@@ -443,44 +502,46 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     JobInfo* ji = gtJob( si.descnr );
     if ( !ji ) return;
 
-    if ( si.msg.size() ) ji->curmsg_ = si.msg;
+    curjobinfo_ = ji;
+
+    ji->infomsg_ = "";
     ji->timestamp_ = si.timestamp;
+    if ( si.msg.size() ) ji->infomsg_ = si.msg;
 
     switch( si.tag )
     {
     case mPID_TAG :
 	ji->osprocid_ = si.status;
+	ji->state_ = JobInfo::Working;
+	ji->statusmsg_ = " inititalising";
     break;
     case mPROC_STATUS :
 	ji->nrdone_ = si.status;
 
-	ji->curmsg_ = " active; ";
-	ji->curmsg_ += ji->nrdone_;
-	ji->curmsg_ += " traces done.";
+	ji->statusmsg_ = " active; ";
+	ji->statusmsg_ += ji->nrdone_;
+	ji->statusmsg_ += " traces done.";
     break;
     case mCTRL_STATUS :
         switch( si.status )
 	{
-	case mSTAT_INITING:
-	    ji->state_ = JobInfo::Working;
-	    ji->curmsg_ = " inititalising";
-	break;
 	case mSTAT_WORKING:
 	    ji->state_ = JobInfo::Working;
-	    ji->curmsg_ = " active";
+	    ji->statusmsg_ = " active";
 	break;
-	case mSTAT_ERROR:
-	    curjobinfo_ = ji;
-	    ji->state_ = JobInfo::Failed;
-	    mJobFailed();
+	case mSTAT_JOBERROR:
+	    failedJob( *ji, JobInfo::JobFailed );
+	break;
+	case mSTAT_HSTERROR:
+	    failedJob( *ji, JobInfo::HostFailed );
 	break;
 	case mSTAT_PAUSED:
 	    ji->state_ = JobInfo::Paused;
-	    ji->curmsg_ = " paused";
+	    ji->statusmsg_ = " paused";
 	break;
 	case mSTAT_FINISHED:
 	    ji->state_ = JobInfo::Completed;
-	    ji->curmsg_ = " finished";
+	    ji->statusmsg_ = " finished";
 	break;
 	}
     break;
@@ -488,23 +549,38 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
         switch( si.status )
 	{
 	case mSTAT_DONE:
+	{
 	    ji->state_ = JobInfo::Completed;
-	    ji->curmsg_ = " finished";
+	    ji->statusmsg_ = " finished";
+	    HostNFailInfo* hfi = hostNFailInfoFor( ji->hostdata_ );
+	    if ( hfi )
+	    {
+		hfi->nrsucces_++;
+		hfi->lastsuccess_ = Time_getMilliSeconds();
+	    }
+	}
 	break;
 
-	case mSTAT_ERROR:
+	case mSTAT_JOBERROR:
+	    failedJob( *ji, JobInfo::JobFailed );
+	break;
+
+	case mSTAT_HSTERROR:
 	case mSTAT_KILLED: 
-	    ji->state_ = JobInfo::Failed;
+	    failedJob( *ji, JobInfo::HostFailed );
 	break;
 
 	default:
-	    ji->curmsg_ = "Unknown exit status received.";
-	    ji->state_ = JobInfo::Failed;
+	    ji->infomsg_ = "Unknown exit status received.";
+	    failedJob( *ji, JobInfo::HostFailed );
 	break;
 	}
 	iomgr().removeJob( si.hostnm , si.descnr );
     break;
     }
+
+    if ( ji->infomsg_.size() ) // not already handled by failedJob()
+	msgAvail.trigger();
 }
 
 
