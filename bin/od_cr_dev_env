@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.9 2003-12-12 15:40:57 arend Exp $
+# $Id: od_cr_dev_env,v 1.10 2003-12-22 15:56:41 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -12,10 +12,6 @@
 if [ "$#" -lt 2 ]; then
 	echo "Usage : $0 OpendtTect_directory existing_target_directory"
 	exit 1
-fi
-
-if [ ${MINGWHOME:-'No'} == "No" ]; then
-    export MINGWHOME="/cygdrive/c/MinGW"
 fi
 
 if [ "$HDIR" = "win" ]; then
@@ -86,7 +82,6 @@ cd "$outdir"
 for fil in init.bash init.csh 
 do
     sed -e "s%__WORK__%$outdir%" \
-        -e "s%__MINGWHOME__%$MINGWHOME%" \
         -e "s%__hdir__%$HDIR%" \
         "$inpdir/.$fil" > $fil
 done
