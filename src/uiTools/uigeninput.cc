@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.55 2003-05-16 11:19:23 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.56 2003-05-23 15:01:36 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -904,6 +904,9 @@ bool uiGenInput::isChecked()
 void uiGenInput::checkBoxSel( CallBacker* cb )
 {
     if ( !cbox ) return;
+
+    checked_ = cbox->isChecked();
+
     const bool elemsens = cbox->sensitive() && cbox->isChecked();
 
     for ( int idx=0; idx<flds.size(); idx++ )
