@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		Sep 2002
- RCS:		$Id: surfaceinfo.h,v 1.2 2003-02-03 14:07:39 nanne Exp $
+ RCS:		$Id: surfaceinfo.h,v 1.3 2003-02-11 09:57:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,12 @@ ________________________________________________________________________
 class SurfaceInfo
 {
 public:
-		   	 SurfaceInfo( MultiID i, const char* nm, 
+		   	 SurfaceInfo( const char* nm, MultiID mi, int vi=-1, 
 				      const char* attr=0)
-		    	: id(i), name(nm), attrnm(attr) {}
+		    	: multiid(mi), visid(vi), name(nm), attrnm(attr) {}
 
-    MultiID		id;
+    MultiID		multiid;
+    int			visid;
     BufferString	name;
     BufferString	attrnm;
 
