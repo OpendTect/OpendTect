@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.8 2004-06-23 11:15:09 nanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.9 2004-11-16 12:25:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,10 @@ namespace Threads { class Mutex; };
 class uiSliceSel : public uiDialog
 {
 public:
-    enum Type			{ Inl, Crl, Tsl, Vol };
+    enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
 
 				uiSliceSel(uiParent*,const CubeSampling&,
+					   const CubeSampling&,
 					   const CallBack&,Type);
 				~uiSliceSel();
     const CubeSampling&		getCubeSampling()	{ return cs; }
@@ -42,6 +43,11 @@ protected:
     bool			acceptOK(CallBacker*);
     void			setBoxValues(uiSpinBox*,
 	    				     const StepInterval<int>&, int );
+    void			createInlFld();
+    void			createCrlFld();
+    void			createZFld();
+    void			createUpdateFld();
+					    
 
     uiLabeledSpinBox*           inl0fld;
     uiLabeledSpinBox*           crl0fld;
@@ -52,9 +58,12 @@ protected:
     uiCheckBox*			doupdfld;
     uiLabeledSpinBox*		stepfld;
 
+    const CubeSampling&		curcs;
+    const CubeSampling&		maxcs;
+
     CubeSampling&		cs;
     Notifier<uiSliceSel>	cschanged;
-    bool			isinl, iscrl, istsl, isvol;
+    bool			isinl, iscrl, istsl, isvol, is2d;
 
     Threads::Mutex&		updatemutex;
 };

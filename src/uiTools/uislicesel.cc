@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.20 2004-07-29 16:52:30 bert Exp $
+ RCS:           $Id: uislicesel.cc,v 1.21 2004-11-16 12:25:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,17 @@ ________________________________________________________________________
 #include "thread.h"
 
 
-uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_, 
+uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs_,
+			const CubeSampling& maxcs_,
 			const CallBack& appcb, Type type )
-    : uiDialog(p,uiDialog::Setup("Slice creation",
+    : uiDialog(p,uiDialog::Setup("Positioning",
 				 "Specify what you want to see",
-				 0).modal(type==Vol))
-    , cs(*new CubeSampling)
+				 0).modal(type==Vol||type==TwoD))
+    , cs(*new CubeSampling(curcs_))
+    , curcs(curcs_)
+    , maxcs(maxcs_)
     , doupdfld(0)
+    , inl0fld(0)
     , cschanged(this)
     , updatemutex(*new Threads::Mutex)
 {
@@ -31,70 +35,101 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
     iscrl = type == Crl;
     istsl = type == Tsl;
     isvol = type == Vol;
-    
-    Interval<int> inlrg( cs_.hrg.start.inl, cs_.hrg.stop.inl );
-    BufferString label( isinl ? "Inline nr" : "Inline range" );
-    inl0fld = new uiLabeledSpinBox( this, label );
-    setBoxValues( inl0fld->box(), SI().inlRange(), inlrg.start );
-    inl1fld = new uiSpinBox( this );
-    setBoxValues( inl1fld, SI().inlRange(), inlrg.stop );
-    inl1fld->attach( rightTo, inl0fld );
-    inl1fld->display( !isinl );
+    is2d = type == TwoD;
 
-    Interval<int> crlrg( cs_.hrg.start.crl, cs_.hrg.stop.crl );
-    label = iscrl ? "Xline nr" : "Xline range";
-    crl0fld = new uiLabeledSpinBox( this, label );
-    setBoxValues( crl0fld->box(), SI().crlRange(), crlrg.start );
-    crl0fld->attach( alignedBelow, inl0fld );
-    crl1fld = new uiSpinBox( this );
-    crl1fld->attach( rightTo, crl0fld );
-    setBoxValues( crl1fld, SI().crlRange(), crlrg.stop );
-    crl1fld->display( !iscrl );
+    if ( !is2d )
+	createInlFld();
 
-    const float zfact( SI().zIsTime() ? 1000 : 1 );
-    Interval<int> zrg( mNINT(cs_.zrg.start*zfact), mNINT(cs_.zrg.stop*zfact) );
-    label = SI().zIsTime() ? "Time " : "Depth ";
-    if ( !istsl ) label += "range ";
-    label += SI().getZUnit();
-    z0fld = new uiLabeledSpinBox( this, label );
-    StepInterval<int> totzrg = 
-	    StepInterval<int>( mNINT(SI().zRange().start*zfact),
-			       mNINT(SI().zRange().stop*zfact),
-			       mNINT(SI().zRange().step*zfact) );
-    setBoxValues( z0fld->box(), totzrg, zrg.start );
-    z0fld->attach( alignedBelow, crl0fld );
-    z1fld = new uiSpinBox( this );
-    z1fld->attach( rightTo, z0fld );
-    setBoxValues( z1fld, totzrg, zrg.stop );
-    z1fld->display( !istsl );
+    createCrlFld();
+    createZFld();
 
-    mainObject()->setTabOrder( (uiObject*)inl0fld, (uiObject*)crl0fld );
+    if ( inl0fld )
+	mainObject()->setTabOrder( (uiObject*)inl0fld, (uiObject*)crl0fld );
     mainObject()->setTabOrder( (uiObject*)crl0fld, (uiObject*)z0fld );
 
-    if ( !isvol )
-    {
-	doupdfld = new uiCheckBox( this, "Immediate update" );
-	doupdfld->setChecked( false );
-	doupdfld->activated.notify( mCB(this,uiSliceSel,updateSel) );
-	doupdfld->attach( alignedBelow, z0fld );
-
-	stepfld = new uiLabeledSpinBox( this, "Step" );
-	int step = isinl ? SI().inlStep()
-	    		 : (iscrl ? SI().crlStep() : totzrg.step);
-	stepfld->box()->setMinValue( step );
-	stepfld->box()->setStep( step );
-	int width = isinl ? inl0fld->box()->maxValue() 
-	    		  : ( iscrl ? crl0fld->box()->maxValue() 
-			            : z0fld->box()->maxValue() );
-	stepfld->box()->setMaxValue( width );
-	stepfld->box()->valueChanged.notify( mCB(this,uiSliceSel,stepSel) );
-	stepfld->attach( rightOf, doupdfld );
-	mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)doupdfld );
-	mainObject()->setTabOrder( (uiObject*)doupdfld, (uiObject*)stepfld );
-    }
+    if ( !isvol && !is2d )
+	createUpdateFld();
 
     finaliseDone.notify( mCB(this,uiSliceSel,updateSel) );
     cschanged.notify( appcb );
+}
+
+
+void uiSliceSel::createInlFld()
+{
+    Interval<int> inlrg( curcs.hrg.start.inl, curcs.hrg.stop.inl );
+    StepInterval<int> maxinlrg( maxcs.hrg.start.inl, maxcs.hrg.stop.inl,
+				maxcs.hrg.step.inl );
+    BufferString label( isinl ? "Inline nr" : "Inline range" );
+    inl0fld = new uiLabeledSpinBox( this, label );
+    setBoxValues( inl0fld->box(), maxinlrg, inlrg.start );
+    inl1fld = new uiSpinBox( this );
+    setBoxValues( inl1fld, maxinlrg, inlrg.stop );
+    inl1fld->attach( rightTo, inl0fld );
+    inl1fld->display( !isinl );
+}
+
+
+void uiSliceSel::createCrlFld()
+{
+    Interval<int> crlrg( curcs.hrg.start.crl, curcs.hrg.stop.crl );
+    StepInterval<int> maxcrlrg( maxcs.hrg.start.crl, maxcs.hrg.stop.crl,
+				maxcs.hrg.step.crl );
+    BufferString label = is2d ? "Trace range" 
+			      : ( iscrl ? "Xline nr" : "Xline range" );
+    crl0fld = new uiLabeledSpinBox( this, label );
+    setBoxValues( crl0fld->box(), maxcrlrg, crlrg.start );
+    crl1fld = new uiSpinBox( this );
+    setBoxValues( crl1fld, maxcrlrg, crlrg.stop );
+    crl1fld->attach( rightTo, crl0fld );
+    crl1fld->display( !iscrl );
+    if ( inl0fld ) crl0fld->attach( alignedBelow, inl0fld );
+}
+
+
+void uiSliceSel::createZFld()
+{
+    const float zfact( SI().zFactor() );
+    Interval<int> zrg( mNINT(curcs.zrg.start*zfact), 
+	    	       mNINT(curcs.zrg.stop*zfact) );
+    BufferString label = SI().zIsTime() ? "Time " : "Depth ";
+    if ( !istsl ) label += "range "; label += SI().getZUnit();
+    StepInterval<int> maxzrg = 
+		    StepInterval<int>( mNINT(maxcs.zrg.start*zfact),
+				       mNINT(maxcs.zrg.stop*zfact),
+				       mNINT(maxcs.zrg.step*zfact) );
+
+    z0fld = new uiLabeledSpinBox( this, label );
+    setBoxValues( z0fld->box(), maxzrg, zrg.start );
+    z1fld = new uiSpinBox( this );
+    setBoxValues( z1fld, maxzrg, zrg.stop );
+    z1fld->attach( rightTo, z0fld );
+    z1fld->display( !istsl );
+    z0fld->attach( alignedBelow, crl0fld );
+}
+
+
+void uiSliceSel::createUpdateFld()
+{
+    doupdfld = new uiCheckBox( this, "Immediate update" );
+    doupdfld->setChecked( false );
+    doupdfld->activated.notify( mCB(this,uiSliceSel,updateSel) );
+    doupdfld->attach( alignedBelow, z0fld );
+
+    stepfld = new uiLabeledSpinBox( this, "Step" );
+    const int zstep = mNINT( SI().zRange().step*SI().zFactor() );
+    const int step = isinl ? SI().inlStep()
+			   : (iscrl ? SI().crlStep() : zstep );
+    stepfld->box()->setMinValue( step );
+    stepfld->box()->setStep( step );
+    const int width = isinl ? inl0fld->box()->maxValue() 
+			    : ( iscrl ? crl0fld->box()->maxValue() 
+				      : z0fld->box()->maxValue() );
+    stepfld->box()->setMaxValue( width );
+    stepfld->box()->valueChanged.notify( mCB(this,uiSliceSel,stepSel) );
+    stepfld->attach( rightOf, doupdfld );
+    mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)doupdfld );
+    mainObject()->setTabOrder( (uiObject*)doupdfld, (uiObject*)stepfld );
 }
 
 
@@ -150,29 +185,31 @@ void uiSliceSel::stepSel( CallBacker* )
 
 void uiSliceSel::readInput()
 {
-    StepInterval<int> intv;
-    intv.start = inl0fld->box()->getValue();
-    intv.stop = isinl ? intv.start : inl1fld->getValue();
-    SI().checkInlRange( intv );
-    if ( intv.start > intv.stop )
-	Swap( intv.start, intv.stop );
     BinID siworkstp( SI().sampling(true).hrg.step );
-    if ( !isinl && intv.start == intv.stop )
-	intv.stop += siworkstp.inl;
-    cs.hrg.start.inl = intv.start;
-    cs.hrg.stop.inl = intv.stop;
+    if ( inl0fld )
+    {
+	StepInterval<int> intv;
+	intv.start = inl0fld->box()->getValue();
+	intv.stop = isinl ? intv.start : inl1fld->getValue();
+	SI().checkInlRange( intv );
+	if ( intv.start > intv.stop )
+	    Swap( intv.start, intv.stop );
+	if ( !isinl && intv.start == intv.stop )
+	    intv.stop += siworkstp.inl;
+	cs.hrg.start.inl = intv.start;
+	cs.hrg.stop.inl = intv.stop;
+    }
 
-    
+    StepInterval<int> intv;
     intv.start = crl0fld->box()->getValue();
     intv.stop = iscrl ? intv.start : crl1fld->getValue();
-    SI().checkCrlRange( intv );
+    if ( !is2d ) SI().checkCrlRange( intv );
     if ( intv.start > intv.stop )
 	Swap( intv.start, intv.stop );
     if ( !iscrl && intv.start == intv.stop )
 	intv.stop += siworkstp.crl;
     cs.hrg.start.crl = intv.start;
     cs.hrg.stop.crl = intv.stop;
-
 
     Interval<float> zintv;
     zintv.start = z0fld->box()->getValue() / SI().zFactor();
