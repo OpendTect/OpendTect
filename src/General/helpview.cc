@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.17 2003-11-10 16:55:43 arend Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.18 2003-11-11 13:07:57 dgb Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -214,15 +214,27 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 	}
     }
 
-    if ( htmlfnm == "" )
-	htmlfnm = "index.html";
-
     BufferString url( GetSoftwareDir() );
     url = File_getFullPath( url, "data" );
     url = File_getFullPath( url, subdirNm(scope) );
+
+    if ( htmlfnm == "" )
+	htmlfnm = "index.html";
     url = File_getFullPath( url, htmlfnm );
-    if ( linknm != sMainIndex )
+    if ( !File_exists(url) )
+    {
+	url = File_getPathOnly( url );
+	if ( htmlfnm == "index.html" )
+	    htmlfnm = "book1.htm";
+	else
+	    htmlfnm = "index.html";
+	url = File_getFullPath( url, htmlfnm );
+    }
+    if ( !File_exists(url) )
+	url = GetDataFileName( "notfound.html" );
+    else if ( linknm != sMainIndex )
 	{ url += "#"; url += linknm; }
+
     return url;
 }
 
