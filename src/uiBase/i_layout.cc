@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.26 2001-09-28 08:09:24 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.27 2001-09-28 08:33:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -842,7 +842,7 @@ void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, layoutMode m )
 
 bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, 
 				  const int maxhdelt, const int maxvdelt,
-				  const int hdir, const int vdir,
+				  int hdir, int vdir,
 				  const QRect& targetRect )
 {
     BufferString msg;
@@ -872,6 +872,11 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur,
 
     bool hdone = false;
     bool vdone = false;
+
+    if( cur.hStr>1 && ( myGeomtry.right()+hdir < targetRect.right()) ) 
+	hdir = abs(hdir);
+    if( cur.vStr>1 && ( myGeomtry.bottom()+vdir < targetRect.bottom()) )
+	vdir = abs(vdir);
 
     //if( doh && cur.nhiter ) 
     if( hdir && cur.nhiter>0
@@ -985,14 +990,10 @@ return true;
 
 void i_LayoutMngr::resizeTo( const QRect& targetRect )
 {
-
-
-
-
     doLayout( setGeom, targetRect );//init to prefer'd size and initial layout
     uiRect childrenBBox = childrenRect(setGeom);  
 
-#if 1
+#if 0
     const uiRect& refRect = childrenBBox;
 #else
     const uiRect& refRect = pos(preferred);
@@ -1033,8 +1034,8 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 
 #endif
 
-#ifdef __debug__
-    if( hdir<0 )
+#if 0
+    if( hdir<0 && !ismain )
     {
 	static bool print=true;
 	if( print ) // print only once
