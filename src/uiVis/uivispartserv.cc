@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.243 2004-10-01 12:29:40 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.244 2004-10-08 09:49:28 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,11 +83,12 @@ uiVisPartServer::~uiVisPartServer()
 	    mCB(this,uiVisPartServer,selectObjCB) );
     visBase::DM().selMan().deselnotifer.remove(
 	    mCB(this,uiVisPartServer,deselectObjCB) );
-    delete &eventmutex;
 
     eventmutex.lock();
     sendEvent( evRemoveTrackTools );
     deleteAllObjects();
+
+    delete &eventmutex;
 }
 
 
