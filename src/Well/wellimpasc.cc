@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.21 2004-04-28 21:30:59 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.22 2004-05-21 14:11:22 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -75,11 +75,11 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
 	    prevc = tosurf ? surfcoord : c;
 	}
 
-	if ( *ptr )
-	{
-	    getNextWord( ptr, valbuf );
-	    dah = atof(valbuf) * zfac;
-	}
+	getNextWord( ptr, valbuf );
+	float newdah = *ptr ? atof(valbuf) * zfac : 0;
+
+	if ( wd.track().size() == 0 || !mIS_ZERO(newdah) )
+	    dah = newdah;
 	else
 	    dah += c.distance( prevc );
 
@@ -106,17 +106,13 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
     float z, val, prevdah = mUndefValue;
     bool firstpos = true;
     bool t_in_ms = false;
+    TypeSet<float> tms; TypeSet<float> dahs;
     while ( *sd.istrm )
     {
 	*sd.istrm >> z >> val;
-	if ( firstpos )
-	{
-	    firstpos = false;
-	    t_in_ms = val > 2 * SI().zRange(false).stop;
-	}
-
 	z *= zfac;
 	if ( !*sd.istrm ) break;
+
 	if ( istvd )
 	{
 	    z = wd.track().getDahForTVD( z, prevdah );
@@ -124,12 +120,18 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
 	    prevdah = z;
 	}
 
-	if ( t_in_ms ) val /= 1000;
-	d2t.add( z, val );
+	tms += val;
+	dahs += z;
     }
-
     sd.close();
-    return d2t.size() ? 0 : "No valid Depth/Time points found";
+    if ( !tms.size() ) return "No valid Depth/Time points found";
+
+    const bool t_in_sec = tms[tms.size()-1] < 2 * SI().zRange(false).stop;
+
+    for ( int idx=0; idx<tms.size(); idx++ )
+	d2t.add( dahs[idx], t_in_sec ? tms[idx] : tms[idx] * 0.001 );
+
+    return 0;
 }
 
 
