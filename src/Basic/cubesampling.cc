@@ -4,51 +4,39 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.7 2004-07-28 16:42:49 bert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.8 2004-07-29 14:19:36 bert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
 #include "binidselimpl.h"
+#include "keystrs.h"
 #include "iopar.h"
 #include <math.h>
 
-const char* HorSampling::startstr = "Start";
-const char* HorSampling::stopstr = "Stop";
-const char* HorSampling::stepstr = "Step";
 
-const char* CubeSampling::zrangestr = "Z range";
-
-void HorSampling::init()
+void HorSampling::init( bool tosi )
 {
-    start = SI().range(false).start;
-    stop = SI().range(false).stop;
-    step.inl = SI().inlStep();
-    step.crl = SI().crlStep();
+    if ( tosi )
+    {
+	start = SI().sampling(false).hrg.start;
+	stop = SI().sampling(false).hrg.stop;
+	step = SI().sampling(false).hrg.step;
+    }
+    else
+    {
+	start.inl = start.crl = stop.inl = stop.crl = 0;
+	step.inl = step.crl = 1;
+    }
 }
 
 
-void CubeSampling::init()
+void CubeSampling::init( bool tosi )
 {
-    hrg.init();
-    assign( zrg, SI().zRange(false) );
-}
-
-
-HorSampling::HorSampling( const BinIDRange& bidr )
-{ set( bidr ); }
-HorSampling::HorSampling( const BinIDSampler& bs )
-{ set( bs ); }
-HorSampling& HorSampling::set( const BinIDSampler& bs )
-{ set( (const BinIDRange&)bs ); return *this; }
-
-
-HorSampling& HorSampling::set( const BinIDRange& bidr )
-{
-    start = bidr.start;
-    stop = bidr.stop;
-    if ( bidr.type() == 1 )
-	step = ((const BinIDSampler&)bidr).step;
-    return *this;
+    hrg.init( tosi );
+    if ( tosi )
+	zrg = SI().zRange(false);
+    else
+	{ zrg.start = zrg.stop = 0; zrg.step = 1; }
 }
 
 
@@ -80,20 +68,39 @@ void HorSampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 }
 
 
-bool HorSampling::usePar( const IOPar& par )
+void HorSampling::limitTo( const HorSampling& c )
 {
-    return
-	par.get( startstr, start.inl, start.crl ) &&
-	par.get( stopstr, stop.inl, stop.crl ) &&
-	par.get( stepstr, step.inl, step.crl );
+    HorSampling hs( c ); hs.normalise();
+    normalise();
+    if ( hs.start.inl > start.inl ) start.inl = hs.start.inl;
+    if ( hs.start.crl > start.crl ) start.crl = hs.start.crl;
+    if ( hs.stop.crl < stop.crl ) stop.crl = hs.stop.crl;
+    if ( hs.stop.inl < stop.inl ) stop.inl = hs.stop.inl;
+    if ( hs.step.inl > step.inl ) step.inl = hs.step.inl;
+    if ( hs.step.crl > step.crl ) step.crl = hs.step.crl;
 }
 
 
-void HorSampling::fillPar( IOPar& par ) const
+bool HorSampling::usePar( const IOPar& pars )
 {
-    par.set( startstr, start.inl, start.crl );
-    par.set( stopstr, stop.inl, stop.crl );
-    par.set( stepstr, step.inl, step.crl );
+    bool ret = pars.get( sKey::FirstInl, start.inl )
+	    || pars.get( sKey::FirstCrl, start.crl )
+	    || pars.get( sKey::LastInl, stop.inl )
+	    || pars.get( sKey::LastCrl, stop.crl );
+    pars.get( sKey::StepInl, step.inl );
+    pars.get( sKey::StepCrl, step.crl );
+    return ret;
+}
+
+
+void HorSampling::fillPar( IOPar& pars ) const
+{
+    pars.set( sKey::FirstInl, start.inl );
+    pars.set( sKey::FirstCrl, start.crl );
+    pars.set( sKey::LastInl, stop.inl );
+    pars.set( sKey::LastCrl, stop.crl );
+    pars.set( sKey::StepInl, step.inl );
+    pars.set( sKey::StepCrl, step.crl );
 }
 
 
@@ -229,10 +236,22 @@ void CubeSampling::include( const CubeSampling& c )
     hrg.include( cs.hrg.start ); hrg.include( cs.hrg.stop );
     if ( cs.zrg.start < zrg.start ) zrg.start = cs.zrg.start;
     if ( cs.zrg.stop > zrg.stop ) zrg.stop = cs.zrg.stop;
+    if ( cs.zrg.step < zrg.step ) zrg.step = cs.zrg.step;
 }
 
 
-void CubeSampling::snapToSurvey(bool work)
+void CubeSampling::limitTo( const CubeSampling& c )
+{
+    CubeSampling cs( c ); cs.normalise();
+    normalise();
+    hrg.limitTo( cs.hrg );
+    if ( zrg.start < cs.zrg.start ) zrg.start = cs.zrg.start;
+    if ( zrg.stop > cs.zrg.stop ) zrg.stop = cs.zrg.stop;
+    if ( zrg.step < cs.zrg.step ) zrg.step = cs.zrg.step;
+}
+
+
+void CubeSampling::snapToSurvey( bool work )
 {
     hrg.snapToSurvey(work);
     zrg.start = SI().zRange(work).snap( zrg.start-SI().zRange(work).step/2 );
@@ -264,14 +283,14 @@ bool CubeSampling::operator==( const CubeSampling& cs ) const
 bool CubeSampling::usePar( const IOPar& par )
 {
     return hrg.usePar( par ) &&
-	   par.get( zrangestr, zrg.start, zrg.stop, zrg.step );
+	   par.get( sKey::ZRange, zrg.start, zrg.stop, zrg.step );
 }
 
 
 void CubeSampling::fillPar( IOPar& par ) const
 {
     hrg.fillPar( par );
-    par.set( zrangestr, zrg.start, zrg.stop, zrg.step );
+    par.set( sKey::ZRange, zrg.start, zrg.stop, zrg.step );
 }
 
 
