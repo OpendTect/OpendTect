@@ -4,12 +4,13 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.43 2004-11-19 07:56:14 nanne Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.44 2005-01-06 08:53:37 kristofer Exp $";
 
 #include "position.h"
 #include "bufstring.h"
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 
 
 float BinIDValue::compareepsilon = 1e-4;
