@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.17 2002-10-03 07:45:58 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.18 2002-11-15 10:56:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include <iostream>
 
 template <class T> class DataInterpreter;
-class DataBuffer;
 
 
 /*!\brief Writer for CBVS format
@@ -49,9 +48,11 @@ public:
     unsigned long	byteThreshold() const	{ return thrbytes_; }		
 			//!< The default is unlimited
     void		setByteThreshold( unsigned long n )
-						{ thrbytes_ = n; }		
+			    { thrbytes_ = n; }		
     void		forceXlineStep( int stp )
-						{ forcedxlinestep = stp; }
+			    { forcedxlinestep_ = stp; }
+    void		forceNrTrcsPerPos( int nr )
+			    { nrtrcsperposn_ = nr; nrtrcsperposn_status_ = 0; }
 
     int			put(void**,int offs=0);
 			//!< Expects a buffer for each component
@@ -59,19 +60,17 @@ public:
 			//!< 1=not written (threshold reached)
     void		close()			{ doClose(true); }
 			//!< has no effect (but doesn't hurt) if put() returns 1
-    const CBVSInfo::SurvGeom& survGeom() const	{ return survgeom; }
-    const PosAuxInfoSelection& auxInfoSel()	{ return auxinfosel; }
+    const CBVSInfo::SurvGeom& survGeom() const	{ return survgeom_; }
+    const PosAuxInfoSelection& auxInfoSel()	{ return auxinfosel_; }
 
 protected:
 
     ostream&		strm_;
     unsigned long	thrbytes_;
-    ObjectSet<DataBuffer> dbufs;
-    int			bytesperwrite;
-    int			auxnrbytes;
-    bool		input_rectnreg;
+    int			auxnrbytes_;
+    bool		input_rectnreg_;
     int*		nrbytespersample_;
-    int			forcedxlinestep;
+    int			forcedxlinestep_;
 
     void		writeHdr(const CBVSInfo&);
     void		putAuxInfoSel(unsigned char*) const;
@@ -85,19 +84,18 @@ protected:
 
 private:
 
-    streampos		geomfo; //!< file offset of geometry data
-    streampos		newblockfo; //!< file offset for next block write
-    int			trcswritten;
+    streampos		geomsp_; //!< file offset of geometry data
+    int			trcswritten_;
     BinID		prevbinid_;
-    bool		finishing_inline;
-    int			nrtrcsperposn;
-    int			nrtrcsperposn_status;
-    int			checknrtrcsperposn;
-    PosAuxInfoSelection	auxinfosel;
-    CBVSInfo::SurvGeom	survgeom;
+    bool		file_lastinl_;
+    int			nrtrcsperposn_;
+    int			nrtrcsperposn_status_;
+    int			checknrtrcsperposn_;
+    PosAuxInfoSelection	auxinfosel_;
+    CBVSInfo::SurvGeom	survgeom_;
 
-    const PosAuxInfo*	auxinfo;
-    ObjectSet<CBVSInfo::SurvGeom::InlineInfo>	inldata;
+    const PosAuxInfo*	auxinfo_;
+    ObjectSet<CBVSInfo::SurvGeom::InlineInfo>	inldata_;
 
     void		init(const CBVSInfo&);
     void		getBinID();

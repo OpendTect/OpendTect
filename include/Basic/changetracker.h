@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/09/2000
- RCS:           $Id: changetracker.h,v 1.6 2002-08-20 12:47:44 bert Exp $
+ RCS:           $Id: changetracker.h,v 1.7 2002-11-15 10:56:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ inline bool ChangeTracker::update( T& val, const U& newval )
 
 inline bool ChangeTracker::update( char*& val, const char*& newval )
 {
-    bool ret = set( val, newval );
+    bool ret = set( *((const char**)(&val)), newval );
     if ( val ) strcpy( val, newval ? newval : "" );
     return ret;
 }

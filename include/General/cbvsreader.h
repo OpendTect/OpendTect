@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.18 2002-09-12 10:57:37 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.19 2002-11-15 10:56:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
 			//!< returns an error message, or null if OK.
 
     int			trcNrAtPosition() const		{ return posidx; }
+    const BinIDRange&	binIDRange() const		{ return bidrg; }
 
 protected:
 

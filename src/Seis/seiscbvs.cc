@@ -5,12 +5,13 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.27 2002-10-03 13:32:23 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.28 2002-11-15 10:56:13 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
+#include "seisbuf.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
 #include "iostrm.h"
@@ -45,6 +46,8 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	, nrdone(0)
     	, minimalhdrs(false)
     	, brickspec(*new VBrickSpec)
+    	, previnl(-999)
+    	, inltrcs(*new SeisTrcBuf)
 {
 }
 
@@ -53,12 +56,13 @@ CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
 {
     cleanUp();
     delete &brickspec;
+    delete &inltrcs;
 }
 
 
 void CBVSSeisTrcTranslator::close()
 {
-    cleanUp();
+    writeInl();
     SeisTrcTranslator::close();
 }
 
@@ -486,14 +490,46 @@ bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
 {
     if ( !storinterps ) commitSelections( &trc );
 
-    auxinf.binid = trc.info().binid;
-    auxinf.startpos = trc.info().sampling.start;
-    auxinf.coord = trc.info().coord;
-    auxinf.offset = trc.info().offset;
-    auxinf.azimuth = trc.info().azimuth;
-    auxinf.pick = trc.info().pick;
-    auxinf.refpos = trc.info().refpos;
+    bool writeinl = previnl != trc.info().binid.inl && previnl != -999;
+    previnl = trc.info().binid.inl;
+    if ( writeinl && !writeInl() )
+	return false;
 
+    PosAuxInfo* auxinf = new PosAuxInfo;
+    auxinf->binid = trc.info().binid;
+    auxinf->startpos = trc.info().sampling.start;
+    auxinf->coord = trc.info().coord;
+    auxinf->offset = trc.info().offset;
+    auxinf->azimuth = trc.info().azimuth;
+    auxinf->pick = trc.info().pick;
+    auxinf->refpos = trc.info().refpos;
+
+    inlauxinfos += auxinf;
+    SeisTrc* newtrc = new SeisTrc(trc);
+    if ( !newtrc )
+	{ errmsg = "Out of memory"; return false; }
+    inltrcs.add( newtrc );
+    return true;
+}
+
+
+bool CBVSSeisTrcTranslator::writeInl()
+{
+    for ( int idx=0; idx<inltrcs.size(); idx++ )
+    {
+	auxinf = *inlauxinfos[idx];
+	if ( !writeTrc(*inltrcs.get(idx)) )
+	    return false;
+    }
+
+    deepErase( inlauxinfos );
+    inltrcs.deepErase();
+    return true;
+}
+
+
+bool CBVSSeisTrcTranslator::writeTrc( const SeisTrc& trc )
+{
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
 	tdptrs[iselc] = const_cast<unsigned char*>(
@@ -526,10 +562,7 @@ bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
     }
 
     if ( !wrmgr->put( (void**)stptrs ) )
-    {
-	errmsg = wrmgr->errMsg();
-	return false;
-    }
+	{ errmsg = wrmgr->errMsg(); return false; }
 
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.26 2002-10-09 15:42:03 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.27 2002-11-15 10:56:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,8 +90,8 @@ public:
     virtual Coord	transform(const BinID&) const	= 0;
     virtual BinID	transform(const Coord&) const	= 0;
 
-    Coord		minCoord(bool work=true) const;
-    Coord		maxCoord(bool work=true) const;
+    virtual Coord	minCoord(bool work=true) const;
+    virtual Coord	maxCoord(bool work=true) const;
     bool		isReasonable(const BinID&) const;
 			//!< Checks if in or near survey
     inline bool		isReasonable( const Coord& c ) const

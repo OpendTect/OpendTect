@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.40 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.41 2002-11-15 10:56:13 bert Exp $";
 
 /*!
 
@@ -304,15 +304,31 @@ bool CBVSReader::readTrailer()
 	CBVSInfo::SurvGeom::InlineInfo* iinf
 		= new CBVSInfo::SurvGeom::InlineInfo(
 						iinterp.get( buf, 0 ) );
+	if ( !iinl )
+	    bidrg.start.inl = bidrg.stop.inl = iinf->inl;
+
 	const int nrseg = iinterp.get( buf, 1 );
+	CBVSInfo::SurvGeom::InlineInfo::Segment crls;
 	for ( int iseg=0; iseg<nrseg; iseg++ )
 	{
 	    strm_.read( buf.buf(), 3 * integersize );
-	    iinf->segments += CBVSInfo::SurvGeom::InlineInfo::Segment(
-		iinterp.get(buf,0), iinterp.get(buf,1), iinterp.get(buf,2) );
+
+	    crls.start = iinterp.get(buf,0);
+	    crls.stop = iinterp.get(buf,1);
+	    crls.step = iinterp.get(buf,2);
+	    iinf->segments += crls;
+
+	    if ( !iinl && !iseg )
+		bidrg.start.crl = bidrg.stop.crl = crls.start;
+	    else
+		bidrg.include( BinID(iinf->inl,crls.start) );
+	    bidrg.include( BinID(iinf->inl,crls.stop) );
 	}
 	info_.geom.inldata += iinf;
     }
+
+    info_.geom.start = bidrg.start;
+    info_.geom.stop = bidrg.stop;
 
     curinlinfnr_ = cursegnr_ = 0;
     curbinid_.inl = info_.geom.inldata[curinlinfnr_]->inl;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.44 2002-11-06 12:57:54 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.45 2002-11-15 10:56:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,6 +173,13 @@ const char*		text( int idx ) const
 
 				return false;
 			    }
+
+    void		valChangingNotify(CallBacker*)
+			    { p_->valuechanging.trigger( *p_ ); }
+
+    void		valChangedNotify(CallBacker*)
+			    { p_->valuechanged.trigger( *p_ ); }
+
 protected:
 
     virtual bool        update_( const DataInpSpec& nw )
@@ -181,13 +188,6 @@ protected:
 						    ? element()->update(nw)
 						    : false; 
 			    } 
-
-    void		valChangingNotify(CallBacker*)
-			    { p_->valuechanging.trigger( *p_ ); }
-
-    void		valChangedNotify(CallBacker*)
-			    { p_->valuechanged.trigger( *p_ ); }
-
 
     DataInpSpec&	spec_;
     uiGenInput*		p_;
@@ -421,7 +421,7 @@ protected:
 };
 
 template<class T>
-uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
+uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& spec,
 				    const char* nm) 
     : uiInputFld( p, spec )
     , intvalGrp( *new uiGroup(p,nm) ) 

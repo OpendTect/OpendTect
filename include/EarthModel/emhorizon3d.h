@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.12 2002-10-14 13:45:21 niclas Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.13 2002-11-15 10:56:13 bert Exp $
 ________________________________________________________________________
 
 
@@ -80,8 +80,8 @@ public:
 protected:
     friend class	EMManager;
     friend class	EMObject;
-    friend class	dgbEarthModelHorizonReader;
-    friend class	dgbEarthModelHorizonWriter;
+    friend class	::dgbEarthModelHorizonReader;
+    friend class	::dgbEarthModelHorizonWriter;
 
     		Horizon(EMManager&, const MultiID&);
     		~Horizon();

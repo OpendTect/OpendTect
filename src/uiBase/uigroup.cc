@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.40 2002-11-05 15:13:46 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.41 2002-11-15 10:56:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,9 +97,9 @@ public:
 
     virtual int			stretch( bool hor, bool ) const;
 
-protected:
-
     uiGroupParentBody*		prntbody_;
+
+protected:
 
     virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mngr );
 
@@ -133,8 +133,6 @@ public:
 			    loMngr->deleteNotify(
 					mCB(this,uiGroupParentBody,mngrDel) );
 			}
-public:
-
 
     virtual		~uiGroupParentBody()		
 			{
@@ -165,10 +163,11 @@ public:
     void		layoutChildren(layoutMode m )
 			    { if( loMngr ) loMngr->layoutChildren(m); }
 
+    uiGroup&		handle_;
+
 protected:
 
     i_LayoutMngr* 	loMngr;
-    uiGroup&		handle_;
 
     uiObject*		hcentreobj;
     uiObject*		halignobj;

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.3 2002-07-25 11:49:13 nanne Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.4 2002-11-15 10:56:13 bert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -106,11 +106,13 @@ Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
 	    break;
 	    case Seis::Event::ZC:
 	    case Seis::Event::ZCNegPos: case Seis::Event::ZCPosNeg:
+	    {
 		// Linear (who cares?)
 		float reldist = cur / ( cur - prev );
 		float pos = inc < 0 ? idx + reldist : idx - reldist;
 		ev.pos = trc.startPos(curcomp) + pos * sr;
 		ev.val = 0;
+	    }
 	    break;
 	    }
 	    return ev;
