@@ -4,29 +4,34 @@
 :: This script collects information on the OpendTect installation setup,
 :: the data area and the system on which it is run.
 ::
-:: CVS: $Id: collect_support_info.bat,v 1.5 2005-01-04 14:48:50 arend Exp $
+:: CVS: $Id: collect_support_info.bat,v 1.6 2005-01-12 12:00:02 dgb Exp $
 ::______________________________________________________________________________
 ::
 
-if "%DTECT_WINAPPL%No" == "No" goto nodtectappl
+if "%DTECT_WINAPPL%No" NEQ "No" goto dtectapplset
+
+:: assume started in  %DTECT_WINAPPL%\bin
+
+cd ..
+for /F "tokens=*" %%i in ('cd') do set DTECT_WINAPPL=%%i
+
+:dtectapplset
 
 :: Should be set by installer
-cd %DTECT_WINAPPL%
-
-:nodtectappl
+cd %DTECT_WINAPPL%\bin
 
 :: Get dir of cygwin utils shipped with OpendTect
 for /F "tokens=*" %%i in ('cd') do set ODSYSDIR=%%i
-set ODSYSDIR=%ODSYSDIR%\bin\win\sys
+set ODSYSDIR=%ODSYSDIR%\win\sys
 set PATH=%ODSYSDIR%;%PATH%
 
 set CSHEXE=tcsh.exe
 set CSHCMD=tcsh -f
 
 :: Get cygwin directory, if installed
-if not exist .\bin\win\GetCygdir.exe goto doit
+if not exist .\win\GetCygdir.exe goto doit
 
- for /F "tokens=*" %%i in ('.\bin\win\GetCygdir.exe') do set CYGWINDIR=%%i
+ for /F "tokens=*" %%i in ('.\win\GetCygdir.exe') do set CYGWINDIR=%%i
  set CYGWINDIR=%CYGWINDIR%\bin
 
  if not exist %CYGWINDIR% goto doit
@@ -89,9 +94,9 @@ echo  Calling csh script >> "%outfil%"
 echo ------------------------------------------------------ >> "%outfil%"
 echo                       --------- >> "%outfil%"
 
-%CSHCMD% "%DTECT_WINAPPL%\bin\win\collect_support_info.csh" "%outfil%"
+%CSHCMD% ".\win\collect_support_info.csh" "%outfil%"
 
-unix2dos "%outfil%"
+unix2dos -q "%outfil%"
 
 echo ===========================================================================
 echo Done. Support Info written to:
