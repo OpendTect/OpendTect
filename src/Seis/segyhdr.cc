@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.7 2001-06-28 10:42:47 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.8 2001-06-28 10:57:32 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -438,9 +438,19 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 	    IbmFormat::putInt( mNINT(ti.coord.y * 10), buf+hdef.ycoord-1 );
     }
     if ( ti.binid.inl > 0 && hdef.inl != 255 )
-	IbmFormat::putInt( ti.binid.inl, buf+hdef.inl-1 );
+    {
+	if ( hdef.inlbytesz == 2 )
+	    IbmFormat::putShort( ti.binid.inl, buf+hdef.inl-1 );
+	else
+	    IbmFormat::putInt( ti.binid.inl, buf+hdef.inl-1 );
+    }
     if ( ti.binid.crl > 0 && hdef.crl != 255 )
-	IbmFormat::putInt( ti.binid.crl, buf+hdef.crl-1 );
+    {
+	if ( hdef.crlbytesz == 2 )
+	    IbmFormat::putShort( ti.binid.crl, buf+hdef.crl-1 );
+	else
+	    IbmFormat::putInt( ti.binid.crl, buf+hdef.crl-1 );
+    }
     if ( !mIsUndefined(ti.pick) && hdef.pick != 255 )
 	IbmFormat::putInt( mNINT(ti.pick*1000), buf+hdef.pick-1 );
 
@@ -464,8 +474,6 @@ float SegyTraceheader::postScale( int numbfmt ) const
 
 void SegyTraceheader::fill( SeisTrcInfo& ti ) const
 {
-    static bool shortbid = getenv("dGB_SEGY_SHORT_BINID") ? true : false;
-
     ti.nr = IbmFormat::asInt( buf+0 );
     ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * .001;
     ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * 1.e-6;
@@ -475,16 +483,12 @@ void SegyTraceheader::fill( SeisTrcInfo& ti ) const
     if ( hdef.xcoord != 255 ) ti.coord.x = IbmFormat::asInt( buf+hdef.xcoord-1);
     if ( hdef.ycoord != 255 ) ti.coord.y = IbmFormat::asInt( buf+hdef.ycoord-1);
     ti.binid.inl = ti.binid.crl = 0;
-    if ( shortbid )
-    {
-    if ( hdef.inl != 255 ) ti.binid.inl = IbmFormat::asShort( buf+hdef.inl-1 );
-    if ( hdef.crl != 255 ) ti.binid.crl = IbmFormat::asShort( buf+hdef.crl-1 );
-    }
-    else
-    {
-    if ( hdef.inl != 255 ) ti.binid.inl = IbmFormat::asInt( buf+hdef.inl-1 );
-    if ( hdef.crl != 255 ) ti.binid.crl = IbmFormat::asInt( buf+hdef.crl-1 );
-    }
+    if ( hdef.inl != 255 )
+	ti.binid.inl = hdef.inlbytesz == 2 ? IbmFormat::asShort(buf+hdef.inl-1)
+					   : IbmFormat::asInt(buf+hdef.inl-1);
+    if ( hdef.crl != 255 )
+	ti.binid.crl = hdef.crlbytesz == 2 ? IbmFormat::asShort(buf+hdef.crl-1)
+					   : IbmFormat::asInt(buf+hdef.crl-1);
     ti.offset = IbmFormat::asInt( buf+36 );
 
     short scalco = IbmFormat::asShort( buf+70 );
