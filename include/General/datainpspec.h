@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.12 2001-05-10 06:53:55 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.13 2001-05-10 07:17:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,11 +40,11 @@ public:
 
     Type		type() const			{ return tp_; }
 
-    virtual DataInpSpec* clone() const =0;
+    virtual DataInpSpec* clone() const			=0;
     virtual int 	nElems() const			{ return 1; }
     virtual void	getText( BufferString&, int idx=0 ) const =0;
 
-    virtual bool	isUndef() const =0;
+    virtual bool	isUndef() const			=0;
 
     void		setPrefFldWidth( int w )	{ pfw_=w; }
     int			prefFldWidth() const		{ return pfw_; }
@@ -67,23 +67,22 @@ class NumInpWithLimitsSpec : public DataInpSpec
 public:
 			NumInpWithLimitsSpec(DataInpSpec::Type t ) 
 			    : DataInpSpec( t, mPrefNumWdt ), limits_(0) {}
-
 			NumInpWithLimitsSpec( const NumInpWithLimitsSpec<T>& o )
 			    : DataInpSpec( o ), limits_(0) {}
-
 			~NumInpWithLimitsSpec()	{ delete limits_; }
 
     bool		hasLimits() const	{ return limits_?true:false; }
     const Interval<T>*	limits()		{ return limits_; }
     void		setLimits( const Interval<T>& r)
-			    {
-				if( limits_ ) delete limits_;
-				limits_ = new Interval<T>( r );
-			    }
+			{
+			    if( limits_ ) delete limits_;
+			    limits_ = new Interval<T>( r );
+			}
 
 protected:
 
     Interval<T>*	limits_;
+
 };
 
 
@@ -95,11 +94,9 @@ class NumInpSpec : public NumInpWithLimitsSpec<T>
 public:
 			NumInpSpec(DataInpSpec::Type t ) 
 			    : NumInpWithLimitsSpec<T>( t ), isUndef_( true ) {}
-
 			NumInpSpec(DataInpSpec::Type t, T val ) 
 			    : NumInpWithLimitsSpec<T>( t )
 			    , isUndef_( false ), value_( val ) {}
-
 			NumInpSpec( const NumInpSpec<T>& o )
 			    : NumInpWithLimitsSpec<T>( o )
 			    , isUndef_( o.isUndef_ )
@@ -107,45 +104,46 @@ public:
 
     virtual bool	isUndef() const	{ return isUndef_; }
     T			value() const	
-			{ 
-			    if( isUndef() )
+			{
+			    if ( !isUndef() ) return value;
+
+			    switch( type() )
 			    {
-				switch( type() ){
-				    case floatTp:
-				    case doubleTp:
-					return (T) mUndefValue;
-					break;
-				    default:
-					return (T) 0;
-				}
+				case floatTp: case doubleTp:
+				    return (T)mUndefValue;
+				default:
+				    return (T)0;
 			    }
-			    return value_; 
 			}
 
     virtual void	getText( BufferString& dest, int idx ) const
-			    { if(!isUndef()) dest = value(); }
+			{
+			    if ( isUndef() )	dest = "";
+			    else		dest = value();
+			}
 
 protected:
 
     bool		isUndef_;
     T			value_;
+
 }; 
 
 
 #define mDefNumInpClass( clssNm, type ) \
-    class  clssNm : public NumInpSpec<type>\
-    {\
-    public:\
-			clssNm() \
-			    : NumInpSpec<type>( type##Tp )	{} \
-			clssNm( type var ) \
-			    : NumInpSpec<type>( type##Tp, var )	{} \
-			clssNm( const clssNm& o ) \
-			    : NumInpSpec<type>(o)		{} \
-    \
-    virtual DataInpSpec* clone() const \
-			{ return new clssNm( *this ); } \
-    };
+class  clssNm : public NumInpSpec<type>\
+{\
+public:\
+				clssNm() \
+				    : NumInpSpec<type>( type##Tp )	{} \
+				clssNm( type var ) \
+				    : NumInpSpec<type>( type##Tp, var )	{} \
+				clssNm( const clssNm& o ) \
+				    : NumInpSpec<type>(o)		{} \
+\
+    virtual DataInpSpec*	clone() const \
+				{ return new clssNm( *this ); } \
+};
 
 /*! \brief Specifications for float inputs.  */
 mDefNumInpClass( FloatInpSpec, float )
@@ -168,40 +166,39 @@ public:
 			    Interval<T>* interval=0 ) 
 			    : NumInpWithLimitsSpec<T>( t )
 			    , interval_( interval ) {}
-
 			NumInpIntervalSpec( const NumInpIntervalSpec<T>& o )
 			    : NumInpWithLimitsSpec<T>( o )
 			    , interval_( o.interval_ ){}
-
 			~NumInpIntervalSpec()	{ delete interval_; }
 
     virtual bool	isUndef() const { return interval_ ? false : true; }
-
     virtual int 	nElems() const	{ return hasStep() ? 3 : 2; }
     bool		hasStep() const	{ return stpi() ? true : false; }
 
     T			value( int idx=0 ) const
 			{
-
 			    if( isUndef() )
 			    {
-				switch( type() ){
-				    case floatIntervalTp:
-				    case doubleIntervalTp:
+				switch( type() )
+				{
+				    case floatIntervalTp: case doubleIntervalTp:
 					return (T) mUndefValue;
-					break;
 				    default:
 					 return (T)0;
 				}
 			    }
-			    if( !idx ) return interval_->start;
-			    if( idx == 1 ) return interval_->start;
-			    if( hasStep() ) return stpi()->step; 
+
+			    if ( idx == 0 )	return interval_->start;
+			    if ( idx == 1 )	return interval_->stop;
+			    if ( hasStep() )	return stpi()->step; 
 			    return (T)0;
 			}
 
     virtual void	getText( BufferString& dest, int idx ) const
-			    { if( !isUndef() ) dest = value( idx ); }
+			{
+			    if ( isUndef() )	dest = "";
+			    else		dest = value(idx);
+			}
 
 protected:
 
@@ -214,17 +211,17 @@ protected:
 
 
 #define mDefIntervalClass( clssNm, type ) \
-    class  clssNm : public NumInpIntervalSpec<type>\
-    {\
-    public:\
-			clssNm( Interval<type>* var=0 ) \
-			: NumInpIntervalSpec<type>( type##IntervalTp, var ) {}\
-			clssNm( const clssNm& o ) \
-			: NumInpIntervalSpec<type>(o)	{} \
-     \
-    virtual DataInpSpec* clone() const \
-			{ return new clssNm( *this ); } \
-    };
+class  clssNm : public NumInpIntervalSpec<type> \
+{ \
+public: \
+		    clssNm( Interval<type>* var=0 ) \
+		    : NumInpIntervalSpec<type>( type##IntervalTp, var ) {} \
+		    clssNm( const clssNm& o ) \
+		    : NumInpIntervalSpec<type>(o)	{} \
+\
+    virtual DataInpSpec*	clone() const \
+				{ return new clssNm( *this ); } \
+};
 
 /*! \brief Specifications for float inputs.  */
 mDefIntervalClass( FloatInpIntervalSpec, float )
@@ -237,8 +234,8 @@ mDefIntervalClass( IntInpIntervalSpec, int )
 
 #undef mDefIntervalClass
 
-/*! \brief Specifications for character string inputs.
-*/
+/*! \brief Specifications for character string inputs. */
+
 class StringInpSpec : public DataInpSpec
 {
 public:
@@ -246,18 +243,22 @@ public:
 			    : DataInpSpec( stringTp, mUndefWdt )
 			    , isUndef_(s?false:true), str( s ) {}
 
-    virtual bool	isUndef() const { return isUndef_; }
+    virtual bool	isUndef() const			{ return isUndef_; }
 
     virtual DataInpSpec* clone() const	{ return new StringInpSpec( *this ); }
-    const char*		text() const	{ return str; }
-    void		setText( const char* txt) { str = txt; }
+    const char*		text() const			{ return str; }
+    void		setText( const char* txt )	{ str = txt; }
 
     virtual void	getText( BufferString& dest, int idx ) const
-			    { if(!isUndef()) dest = str; }
+			{
+			    if( isUndef() )	dest = "";
+			    else		dest = str;
+			}
 protected:
 
     bool		isUndef_;
     BufferString	str;
+
 };
 
 /*! \brief Specifications for file-name inputs.
@@ -298,7 +299,6 @@ public:
 
     virtual DataInpSpec* clone() const  
 			    { return new BoolInpSpec( *this ); }
-
     const char*		trueFalseTxt( bool tf = true ) const
 			    { return tf ? truetext : falsetext; }
     void 		setTrueFalseTxt( bool tf, const char* txt )
@@ -306,7 +306,6 @@ public:
 
     bool		checked() const			{ return yn; }
     void		setChecked( bool yesno )	{ yn=yesno; }
-
     virtual void	getText( BufferString& dest, int idx ) const
 			    { dest = yn ? truetext : falsetext; }
 
@@ -315,6 +314,7 @@ protected:
     BufferString	truetext;
     BufferString	falsetext;
     bool		yn;
+
 };
 
 
@@ -327,13 +327,11 @@ class StringListInpSpec : public DataInpSpec
 public:
 				StringListInpSpec( const char** sl=0 )
 				    : DataInpSpec( stringListTp, mUndefWdt )
-				    { 
-					while( *sl )
-					{
-					    strings_ += new BufferString(*sl);
-					    (*sl)++;
-					}
-				    }
+				{
+				    if ( !sl ) return;
+				    while( *sl )
+					strings_ += new BufferString( *sl++ );
+				}
 
 				StringListInpSpec( const StringListInpSpec& oth)
 				    : DataInpSpec( stringListTp, mUndefWdt )
@@ -343,19 +341,21 @@ public:
 
     virtual bool		isUndef() const	
 				    { return strings_.size()?false:true; }
-
     virtual DataInpSpec*	clone() const	
 				    { return new StringListInpSpec( *this ); }
-
     const ObjectSet<BufferString>& strings() const	{ return strings_; }
-    void			addString( const char* txt) 
-				    { strings_ += new BufferString( txt); }
-
+    void			addString( const char* txt )
+				    { strings_ += new BufferString( txt ); }
     virtual void		getText( BufferString& dest, int idx ) const
-				    { if(!isUndef()) dest = *strings_[idx]; }
+				{
+				    if( isUndef() )	dest = "";
+				    else		dest = *strings_[idx];
+				}
+
 protected:
 
     ObjectSet<BufferString>	strings_;
+
 };
 
 
@@ -380,22 +380,20 @@ public:
 
     virtual DataInpSpec* clone() const  
 			{ return new BinIDCoordInpSpec( *this ); }
-
     double		value( int idx ) const { return idx ? crl_y : inl_x; }
-
     virtual bool	isUndef() const		
 			{ return mIsUndefined(inl_x) && mIsUndefined(crl_y); }
-
     virtual void	getText( BufferString& dest, int idx ) const
-			{ if(! isUndef() ) dest = value(idx); }
-
+			{
+			    if( isUndef() )	dest = "";
+			    else		dest = value( idx );
+			}
     const char*		otherTxt() const
 			{
 			    if( !withOtherBut_ ) return 0;
 			    if( doCoord_ ) { return "Inline/Xline ..."; }
 			    return isRelative_? "Distance ..." : "Coords ...";
 			}
-
     const BinID2Coord*	binID2Coord() const
 			{ return b2c_; }
 
