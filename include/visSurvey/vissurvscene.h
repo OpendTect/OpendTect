@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.1 2002-02-26 20:19:43 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.2 2002-02-26 20:23:11 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ public:
     float			apparentVel() const;
     void			settApparentVel() const;
 
-    static float		defVel() { return defvel; }
+    static const float		defvel;
 
 protected:
     visBase::SceneObjectGroup*	xytworld;
@@ -59,8 +59,6 @@ protected:
 
 private:
     float			appvel;
-
-    static float		defvel;
 };
 
 };

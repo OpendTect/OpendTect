@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.1 2002-02-26 20:19:33 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.2 2002-02-26 20:23:01 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "vistransform.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.1 2002-02-26 20:19:33 krist
 
 int visSurvey::SurveyScene::xytidoffset = INT_MAX >> 2;
 int visSurvey::SurveyScene::inlcrloffset = INT_MAX >> 1;
-float visSurvey::SurveyScene::defvel = 1000;
+const float visSurvey::SurveyScene::defvel = 1000;
 
 visSurvey::SurveyScene::SurveyScene()
     : xytworld( new visBase::SceneObjectGroup(true) )
