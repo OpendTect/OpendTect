@@ -12,13 +12,9 @@
 :: set in the BatchHosts file and are basically just strings.
 :: 
 ::
-:: $Id: od_prepare.bat,v 1.2 2004-11-10 14:55:34 dgb Exp $
+:: $Id: od_prepare.bat,v 1.3 2004-11-10 15:57:28 dgb Exp $
 ::______________________________________________________________________________
 
-
-echo aap > c:\cygwin\tmp\prep.txt
-echo %* >> c:\cygwin\tmp\prep.txt
-echo noot >> c:\cygwin\tmp\prep.txt
 
 set datahost=%1
 set datadrive=%2
@@ -27,19 +23,11 @@ set username=%4
 set userpass=%5
 
 
-::if "%DTECT_DEBUG%No" == "No" goto setcred
-::echo net use "\\%datahost%" . "/USER:%datahost%\%username%"
-
-:setcred
 net use "\\%datahost%" %userpass% "/USER:%datahost%\%username%" > nul 2>&1
 
 if  "%datadrive%" == "_none_" goto end 
 if  "%datashare%" == "_none_" goto end 
 
-if "%DTECT_DEBUG%No" == "No" goto mount
-echo net use %datadrive%: "\\%dathost%\%datashare%"
-
-:mount
 net use %datadrive%: "\\%datahost%\%datashare%" > nul 2>&1
 
 :end
