@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.22 2001-07-04 11:32:32 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.23 2001-07-04 12:01:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,13 +221,19 @@ template <class T>
 class NumInpIntervalSpec : public NumInpWithLimitsSpec<T>
 {
 public:
-			NumInpIntervalSpec(DataInpSpec::Type t,
-			    Interval<T>* interval ) 
+			NumInpIntervalSpec(DataInpSpec::Type t )
 			    : NumInpWithLimitsSpec<T>( t )
-			    , interval_( interval ) {}
+			    , interval_( 0 )			{}
+
+			NumInpIntervalSpec(DataInpSpec::Type t,
+			    const Interval<T>& interval ) 
+			    : NumInpWithLimitsSpec<T>( t )
+			    , interval_( interval.clone() )	{}
+
 			NumInpIntervalSpec( const NumInpIntervalSpec<T>& o )
 			    : NumInpWithLimitsSpec<T>( o )
-			    , interval_( o.interval_ ){}
+			    , interval_( o.interval_.clone() )	{}
+
 			~NumInpIntervalSpec()	{ delete interval_; }
 
     virtual int 	nElems()  const	{ return hasStep() ? 3 : 2; }
@@ -237,6 +243,12 @@ public:
 			{	
 			    if ( !interval_ ) return true;
 			    return undef.check( value_(idx) ); 
+			}
+
+    virtual void	setValue( const Interval<T>& intval )
+			{
+			    if ( interval_ ) delete interval_;
+			    interval_ = intval.clone();
 			}
 
     virtual void	setText( const char* s, int idx )
@@ -294,11 +306,15 @@ private:
 class  clssNm : public NumInpIntervalSpec<type> \
 { \
 public: \
-		    clssNm( Interval<type>* var=0 ) \
+		    clssNm() \
+		    : NumInpIntervalSpec<type>( type##IntervalTp )\
+		    {} \
+		    clssNm( const Interval<type>& var ) \
 		    : NumInpIntervalSpec<type>( type##IntervalTp,var )\
 		    {} \
 		    clssNm( const clssNm& o ) \
-		    : NumInpIntervalSpec<type>(o)	{} \
+		    : NumInpIntervalSpec<type>(o) \
+		    {} \
 \
     virtual DataInpSpec*	clone() const \
 				{ return new clssNm( *this ); } \

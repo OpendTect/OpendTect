@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.12 2001-07-02 12:42:03 bert Exp $
+ RCS:		$Id: ranges.h,v 1.13 2001-07-04 12:01:28 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,9 @@ public:
 		Interval()			{ start = 0; stop = 0; }
 		Interval( const T& t1, const T& t2 )
 						{ start = t1; stop = t2; }
+
+    virtual Interval<T>* clone() const		
+		{ return new Interval<T>( *this ); }
 
     inline int	operator==( const Interval<T>& i ) const
 		{ return start == i.start && stop == i.stop; }
@@ -103,10 +106,14 @@ typedef Interval<double> DepthGate;
 template <class T>
 class StepInterval : public Interval<T>
 {
+#define cloneTp	mPolyRet( Interval<T>, StepInterval<T> )
 public:
 		StepInterval()			{ step = 1; }
 		StepInterval( const T& t1, const T& t2, const T& t3 )
 		: Interval<T>(t1,t2)		{ step = t3; }
+
+    virtual cloneTp* clone() const	
+		{ return new StepInterval<T>( *this ); }
 
     inline T	atIndex( int idx ) const
 		{ return Interval<T>::atIndex(idx,step); }
