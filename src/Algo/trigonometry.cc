@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.4 2003-01-08 09:08:46 niclas Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.5 2003-01-10 10:45:55 dgb Exp $";
 
 #include "trigonometry.h"
 
@@ -210,11 +210,11 @@ float Line3::distanceToPoint( Coord3& point ) const
 Plane3::Plane3() {}
 
 							     
-Plane3::Plane3( float _A, float _B, float _C, float _D )
-    : A( _A )
-    , B( _B )
-    , C( _C )
-    , D( _D )
+Plane3::Plane3( float A_, float B_, float C_, float D_ )
+    : A( A_ )
+    , B( B_ )
+    , C( C_ )
+    , D( D_ )
 {}
 
 
