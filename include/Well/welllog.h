@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.8 2004-02-12 15:49:46 bert Exp $
+ RCS:		$Id: welllog.h,v 1.9 2004-03-01 14:35:47 nanne Exp $
 ________________________________________________________________________
 
 
@@ -38,8 +38,9 @@ public:
     void		removeValue(int idx)
 			{ dah_.remove(idx); val_.remove(idx); }
 
-    const Interval<float>& range() const		{ return range_; }
-    Interval<float>	selrange;
+    const Interval<float>& valueRange() const		{ return range_; }
+    void		setSelValueRange(const Interval<float>&);
+    const Interval<float>& selValueRange() const	{ return selrange_; }
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
@@ -50,6 +51,7 @@ protected:
     TypeSet<float>	dah_;
     TypeSet<float>	val_;
     Interval<float>	range_;
+    Interval<float>	selrange_;
     BufferString	unitmeaslbl_;
 
 };
