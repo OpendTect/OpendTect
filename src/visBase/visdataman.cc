@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.11 2002-04-30 14:13:00 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.12 2002-05-02 14:14:32 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -83,8 +83,10 @@ bool visBase::DataManager::usePar( const IOPar& par )
     for ( int idx=0; idx<freeid; idx++ )
 	lefttodo += idx;
 
-    while ( lefttodo.size() )
+    bool change = true;
+    while ( lefttodo.size() && change )
     {
+	change = false;
 	for ( int idx=0; idx<lefttodo.size(); idx++ )
 	{
 	    PtrMan<IOPar> iopar = par.subselect( lefttodo[idx] );
@@ -92,10 +94,35 @@ bool visBase::DataManager::usePar( const IOPar& par )
 	    {
 		lefttodo.remove( idx );
 		idx--;
+		change = true;
 		continue;
 	    }
+
+	    const char* type = iopar->find( DataObject::typestr );
+	    DataObject* obj = factory().create( type );
+	    if ( !obj ) continue;
+
+	    int no = objects.indexOf( obj );
+	    ids[no] = lefttodo[idx];
+	    obj->id_ = lefttodo[idx];  
+
+	    int res = obj->usePar( *iopar );
+	    if ( res==-1 ) return false;
+	    if ( res==0 ) continue;
+	   
+	    lefttodo.remove( idx );
+	    idx--;
+	    change = true;
 	}
     }
+
+    int maxid = -1;
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	if ( ids[idx]>maxid ) maxid=ids[idx];
+    }
+
+    freeid = maxid+1;
     return true;
 }
 
@@ -275,6 +302,18 @@ void visBase::DataManager::getIds( const SoPath* path, TypeSet<int>& res ) const
     }
 }
 
+
+void visBase::DataManager::getIds( const type_info& ti,
+				   TypeSet<int>& res) const
+{
+    res.erase();
+
+    for ( int idx=0; idx<objects.size(); idx++ )
+    {
+	if ( typeid(*objects[idx])==ti )
+	    res += ids[idx];
+    }
+}
 
 void visBase::DataManager::remove( int idx )
 {
