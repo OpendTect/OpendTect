@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.18 2002-03-06 14:17:42 nanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.19 2002-03-08 16:23:13 nanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -135,7 +135,7 @@ void ColorTable::calcList( int nritems )
 }
 
 
-Color ColorTable::color( float v ) const
+Color ColorTable::color( float v, bool use_undefcol ) const
 {
     if ( mIsUndefined(v) ) return undefcolor;
     const int sz = cvs.size();
@@ -144,10 +144,18 @@ Color ColorTable::color( float v ) const
     ColorVal cv( cvs[0] );
     if ( sz == 1 || mIS_ZERO(v-cv.value) ) return cv.color;
     bool isrev = cvs[0].value > cvs[1].value;
-    if ( (isrev && v>cv.value) || (!isrev && v<cv.value) ) return undefcolor;
+    if ( (isrev && v>cv.value) || (!isrev && v<cv.value) ) 
+	if ( use_undefcol )	
+	    return undefcolor;
+	else
+	    v = cv.value;
 
     ColorVal cv2 = cvs[sz-1];
-    if ( (isrev && v<cv2.value) || (!isrev && v>cv2.value) ) return undefcolor;
+    if ( (isrev && v<cv2.value) || (!isrev && v>cv2.value) )
+	if ( use_undefcol )	
+	    return undefcolor;
+	else
+	    v = cv2.value;
 
     if ( uselist )
     {
