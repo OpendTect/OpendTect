@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.21 2003-11-07 12:21:50 bert Exp $
+# $Id: od_exec,v 1.22 2004-01-30 09:03:32 arend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -86,8 +86,15 @@ if ( $?LD_LIBRARY_PATH ) then
 else
 	setenv LD_LIBRARY_PATH	"${bindir}/so:/lib:/usr/lib"
 endif
-unsetenv QTDIR
+if ( $HDIR == sgi ) then
+    if ( $?LD_LIBRARYN32_PATH ) then
+        setenv LD_LIBRARYN32_PATH "${bindir}/so:${LD_LIBRARYN32_PATH}"
+    else
+        setenv LD_LIBRARYN32_PATH "${bindir}/so:/lib:/usr/lib"
+    endif
+endif
 
+unsetenv QTDIR
 
 if ( $extrascript != "" ) then
 	source $extrascript
