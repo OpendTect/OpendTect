@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.20 2004-04-01 13:39:51 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.21 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,6 +230,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
     const char* titl = oinpfld ? "Copying seismic data"
 				: "Importing CBVS seismic cube";
+    /*TODO
     PtrMan<Executor> stp = transffld->getTrcProc( inctio_.ioobj, outctio_.ioobj,
 	   			titl, "Loading data" );
     if ( !stp || !transffld->checkSpaceLeft( *outctio_.ioobj ) )
@@ -238,4 +239,6 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     uiExecutor dlg( this, *stp );
     return dlg.go() == 1
 	&& transffld->provideUserInfo(*outctio_.ioobj);
+    */
+    return true;
 }

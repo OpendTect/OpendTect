@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.8 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 class IOObj;
 class Executor;
+class SeisSelData;
 class uiGenInput;
 class uiBinIDSubSel;
 class uiSeisFmtScale;
@@ -23,32 +24,39 @@ class uiSeisTransfer : public uiGroup
 {
 public:
 
-			uiSeisTransfer(uiParent*,bool with_format,
-				       bool with_steps=true);
+			uiSeisTransfer(uiParent*,bool with_format);
 
     void		updateFrom(const IOObj&);
 
-    Executor*		getTrcProc(const IOObj* from,const IOObj* to,
+    Executor*		getTrcProc(const SeisSelData& from,const IOObj* to,
 	    			   const char* executor_txt,
 				   const char* work_txt) const;
 
-    uiBinIDSubSel*	subselfld;
     uiSeisFmtScale*	scfmtfld;
     uiGenInput*		remnullfld;
 
-    static bool		provideUserInfo(const IOObj&);
     void		setSteering(bool);
+    void		set2D(bool);
 
-    int			expectedNrTraces() const;
-    int			expectedNrSamples() const;
     int			maxBytesPerSample() const;
 
+
+    /* Put this where?
+    static bool		provideUserInfo(const IOObj&);
     int			expectedMBs(const IOObj&) const;
     bool		checkSpaceLeft(const IOObj&) const;
     static int		expectedMBs(const IOObj&,int expectednrsamps,
 				    int maxbytespsamp,int expectednrtrcs);
     static bool		checkSpaceLeft(const IOObj&,int expectednrsamps,
 				       int maxbytespsamp,int expectednrtrcs);
+   */
+
+protected:
+
+    bool		is2d;
+    bool		issteer;
+
+    void		updFldsForType(CallBacker*);
 
 };
 

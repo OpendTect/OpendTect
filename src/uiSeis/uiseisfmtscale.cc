@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.10 2003-11-07 12:22:02 bert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.11 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseisfmtscale.h"
 #include "uiscaler.h"
+#include "uimainwin.h"
 #include "datachar.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -23,6 +24,8 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt )
 	: uiGroup(p,"Seis format and scale")
 	, imptypefld(0)
 	, optimfld(0)
+	, is2d(false)
+	, issteer(false)
 {
     if ( wfmt )
 	imptypefld = new uiGenInput( this, "Storage",
@@ -41,18 +44,34 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt )
     }
 
     setHAlignObj( scalefld );
+    mainwin()->finaliseDone.notify( mCB(this,uiSeisFmtScale,updFldsForType) );
 }
 
 
 void uiSeisFmtScale::setSteering( bool yn )
 {
-    if ( yn )
+    issteer = yn;
+    updFldsForType(0);
+}
+
+
+void uiSeisFmtScale::set2D( bool yn )
+{
+    is2d = yn;
+    updFldsForType(0);
+}
+
+
+void uiSeisFmtScale::updFldsForType( CallBacker* )
+{
+    if ( issteer )
     {
 	scalefld->setUnscaled();
 	if ( imptypefld ) imptypefld->setValue( 0 );
     }
-    scalefld->setSensitive( !yn );
-    if ( imptypefld ) imptypefld->setSensitive( !yn );
+    scalefld->setSensitive( !issteer );
+    if ( imptypefld ) imptypefld->setSensitive( !issteer );
+    if ( optimfld ) optimfld->display( !is2d );
 }
 
 
@@ -70,18 +89,26 @@ int uiSeisFmtScale::getFormat() const
 
 bool uiSeisFmtScale::horOptim() const
 {
-    return optimfld ? optimfld->getBoolValue() : false;
+    return !is2d && optimfld ? optimfld->getBoolValue() : false;
 }
 
 
 void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 {
-    if ( !imptypefld ) return;
-
-    const char* res = ioobj.pars().find( "Data storage" );
-    if ( !res ) return;
-
-    imptypefld->setValue( (int)*res );
+    const char* res = ioobj.pars().find( "Type" );
+    setSteering( res && *res == 'S' );
+    if ( imptypefld )
+    {
+	const char* res = ioobj.pars().find( "Data storage" );
+	if ( res )
+	    imptypefld->setValue( (int)*res );
+    }
+    if ( optimfld )
+    {
+	res = ioobj.pars().find( "Optimized direction" );
+	if ( res && *res == 'H' )
+	    optimfld->setValue( true );
+    }
 }
 
 
@@ -91,9 +118,9 @@ void uiSeisFmtScale::updateIOObj( IOObj* ioobj ) const
 
     const int tp = getFormat();
     ioobj->pars().set( "Data storage", DataCharacteristics::UserTypeNames[tp] );
-    const bool horoptim = horOptim();
-    ioobj->pars().set( "Optimized direction",
-	    		horOptim() ? "Horizontal" : "Vertical" );
+    ioobj->pars().removeWithKey( "Optimized direction" );
+    if ( horOptim() )
+	ioobj->pars().set( "Optimized direction", "Horizontal" );
 
     IOM().to( ioobj->key() );
     IOM().commitChanges( *ioobj );

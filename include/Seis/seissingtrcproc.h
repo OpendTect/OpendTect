@@ -7,19 +7,20 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.8 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.9 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <executor.h>
-class SeisTrcReader;
-class SeisTrcWriter;
-class SeisTrc;
 class IOObj;
 class IOPar;
-class MultiID;
 class Scaler;
+class SeisTrc;
+class MultiID;
+class SeisSelData;
+class SeisTrcReader;
+class SeisTrcWriter;
 
 
 /*!\brief Single trace processing executor
@@ -35,6 +36,9 @@ class SeisSingleTraceProc : public Executor
 {
 public:
 
+			SeisSingleTraceProc(const SeisSelData&,const IOObj* out,
+					    const char* nm="Trace processor",
+					    const char* msg="Processing");
 			SeisSingleTraceProc(const IOObj* in,const IOObj* out,
 					    const char* nm="Trace processor",
 					    const IOPar* iniopar=0,
@@ -72,6 +76,9 @@ public:
     void		setScaler(Scaler*);
     			//!< Scaler becomes mine.
     void		skipNullTraces( bool yn=true )	{ skipnull_ = yn; }
+
+    void		setInput(const IOObj*,const IOObj*,const char*,
+				 const IOPar*,const char*);
 
 protected:
 

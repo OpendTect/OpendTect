@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.20 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.21 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ public:
     MultiID		parentkey;	//!< If set, require this parent
     bool		maydooper;	//!< Will we allow add/remove etc?
     BufferString	deftransl;	//!< Translator to use for new entry
-    BufferString	trglobexpr;	//!< Only display when matches globexpr
+    BufferString	trglobexpr;	//!< Only select when matches globexpr
+    					//!< Multiple: fill with FileMultiString
     BufferString	ioparkeyval[2];	//!< Allow only/not with this key-value
     bool		includekeyval;	//!< Is keyval only or not allowed
 

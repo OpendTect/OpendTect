@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.19 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.20 2004-06-28 16:00:05 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -168,7 +168,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
 
     BinIDValue biv; float dah = dahrg.start - dahincr;
     int trackidx = 0; Coord3 precisepos;
-    BinIDValue prevbiv; prevbiv.binid.inl = -999;
+    BinIDValue prevbiv; prevbiv.binid.inl = mUndefIntVal;
 
     while ( true )
     {

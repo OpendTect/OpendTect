@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.32 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.33 2004-06-28 16:00:05 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -687,7 +687,7 @@ static void handleInlGap( std::ostream& strm, Interval<int>& inlgap )
 	    	      << '-' << inlgap.stop << " not present.";
 
     strm.flush();
-    inlgap.start = inlgap.stop = -999;
+    inlgap.start = inlgap.stop = mUndefIntVal;
 }
 
 
@@ -712,7 +712,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	 << info().geom.stop.crl << " (step " << info().geom.step.crl << ").\n";
     strm << std::endl;
 
-    Interval<int> inlgap( -999, -999 );
+    Interval<int> inlgap( mUndefIntVal, mUndefIntVal );
 
     if ( !info().geom.fullyrectandreg )
     {
@@ -728,7 +728,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	    if ( !inlinf )
 	    {
 		inlgaps = true;
-		if ( inlgap.start == -999 )
+		if ( mIsUndefInt(inlgap.start) )
 		    inlgap.start = inlgap.stop = inl;
 		else if ( inl == inlgap.stop + info().geom.step.inl )
 		    inlgap.stop = inl;
@@ -739,7 +739,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	    if ( inlinf->segments.size() > 1 )
 		crlgaps = true;
 	}
-	if ( inlgap.start != -999 )
+	if ( !mIsUndefInt(inlgap.start) )
 	    handleInlGap( strm, inlgap );
 
 	if ( crlgaps )

@@ -1,5 +1,5 @@
-#ifndef ui2dseissubsel_h
-#define ui2dseissubsel_h
+#ifndef uiseis2dsubsel_h
+#define uiseis2dsubsel_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.2 2004-06-28 09:35:20 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.3 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,19 +17,20 @@ ________________________________________________________________________
 class IOPar;
 class uiGenInput;
 class BufferStringSet;
+class BinIDSampler;
 
 
-class ui2DSeisSubSel : public uiGroup
+class uiSeis2DSubSel : public uiGroup
 { 	
 public:
 
-			ui2DSeisSubSel(uiParent*,const BufferStringSet* lnms=0);
+			uiSeis2DSubSel(uiParent*,const BufferStringSet* lnms=0);
 
     void		setInput(const StepInterval<int>&);
     			//!< Trace number range
     void		setInput(const StepInterval<float>&);
     			//!< Z range
-    void		setInput(const BinIDRange&);
+    void		setInput(const BinIDSampler&);
     			//!< The pseudo-ranges; converted to trace ranges
     void		setInput(const char* linename);
     void		setInput( const StepInterval<int>& tr,

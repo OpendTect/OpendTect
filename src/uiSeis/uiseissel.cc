@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.3 2004-06-28 07:43:37 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.4 2004-06-28 16:00:06 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissel.h"
 #include "uibinidsubsel.h"
-#include "ui2dseissubsel.h"
+#include "uiseis2dsubsel.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "ctxtioobj.h"
@@ -38,7 +38,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	subsel = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
 					  .withtable(false).withz(true) );
 	subsel->attach( alignedBelow, topgrp );
-	subsel2d = new ui2DSeisSubSel( this );
+	subsel2d = new uiSeis2DSubSel( this );
 	subsel2d->attach( alignedBelow, topgrp );
 	if ( ctio.iopar )
 	{
@@ -53,7 +53,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 }
 
 
-const char* standardTranslSel( int pol2d )
+const char* uiSeisSelDlg::standardTranslSel( int pol2d )
 {
     static FileMultiString fms;
     fms = "";
@@ -148,6 +148,12 @@ void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
     if ( !ctio.iopar ) ctio.iopar = new IOPar;
     ((uiSeisSelDlg*)dlg)->fillPar( *ctio.iopar );
+}
+
+
+bool uiSeisSel::is2D() const
+{
+    return ctio.ioobj && SeisTrcTranslator::is2D( *ctio.ioobj );
 }
 
 

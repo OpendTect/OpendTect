@@ -8,11 +8,11 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.30 2004-06-16 14:54:18 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.31 2004-06-28 16:00:04 bert Exp $
 ________________________________________________________________________
 
- This file contains general defines that are so basic they apply to each and
- every source file.
+ This file contains general defines that are so basic they can be used in
+ any source file.
 
 -*/
 
@@ -31,31 +31,29 @@ ________________________________________________________________________
 
 #define mIsZero(x,eps)		( (x) < (eps) && (x) > (-eps) )
 #define mIsEqual(x,y,eps)	( (x-y) < (eps) && (x-y) > (-eps) )
-#define mIsEqualRel(x,y,e)	( y ? x/y-1<(e) && x/y-1>(-e) : mIsZero(x,e) )
+#define mIsEqualRel(x,y,e)	( (y) ? ((x)/(y))-1<(e) && ((x)/(y)-1)>(-e) \
+				      : mIsZero(x,e) )
 #define mDefEps			(1e-10)
 
 #define mUndefValue		1e30
 #define mIsUndefined(x)		(((x)>9.99999e29)&&((x)<1.00001e30))
 #define sUndefValue		"1e30"
 #define mUndefIntVal		2109876543
+#define mIsUndefInt(x)		((x) == mUndefIntVal)
 
 #undef	YES
 #define	YES	1
 #undef	NO
 #define	NO	0
 
-#define Fail	NO
-#define Ok	YES
 
 #define mMALLOC(sz,tp)		(tp*)malloc((sz)*sizeof(tp))
 #define mREALLOC(var,sz,tp)	(tp*)realloc(var,(sz)*sizeof(tp))
 #define mFREE(ptr)		{ if (ptr) free(ptr); ptr = 0; }
 
-
 #ifdef PATH_LENGTH
 # undef PATH_LENGTH
 #endif
-
 
 #ifdef __win__
 # include <stdio.h>

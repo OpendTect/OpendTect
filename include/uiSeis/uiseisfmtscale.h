@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.7 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,12 +32,18 @@ public:
     void		updateIOObj(IOObj*) const;
 
     void		setSteering(bool);
+    void		set2D(bool);
 
 protected:
 
     uiGenInput*		imptypefld;
     uiGenInput*		optimfld;
     uiScaler*		scalefld;
+
+    bool		is2d;
+    bool		issteer;
+
+    void		updFldsForType(CallBacker*);
 
 };
 

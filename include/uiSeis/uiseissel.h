@@ -6,14 +6,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.3 2004-06-28 07:43:06 bert Exp $
+ RCS:           $Id: uiseissel.h,v 1.4 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiioobjsel.h"
+#include "seistrcsel.h"
 class uiBinIDSubSel;
-class ui2DSeisSubSel;
+class uiSeis2DSubSel;
 
 
 class uiSeisSelDlg : public uiIOObjSelDlg
@@ -35,7 +36,7 @@ protected:
     bool		is2d;
 
     uiBinIDSubSel*	subsel;
-    ui2DSeisSubSel*	subsel2d;
+    uiSeis2DSubSel*	subsel2d;
 
     void		entrySel(CallBacker*);
     void		fillFlds(CallBacker*);
@@ -58,6 +59,8 @@ public:
 			//!< Extra, ctio will be filled anyway
     virtual void	usePar(const IOPar&);
 			//!< Extra, ctio will be used anyway
+
+    bool		is2D() const;
 
 protected:
 

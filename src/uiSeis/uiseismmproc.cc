@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.62 2004-04-28 21:30:59 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.63 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -387,8 +387,10 @@ void uiSeisMMProc::execFinished( bool userestart )
 	statusBar()->message( "", 3 );
 	finished = true;
 	setOkText( "Quit" ); setCancelText( "Quit" );
+	/*TODO
 	if ( targetioobj )
 	    uiSeisTransfer::provideUserInfo( *targetioobj );
+	    */
     }
     else
     {

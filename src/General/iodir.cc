@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.14 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.15 2004-06-28 16:00:05 bert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -19,23 +19,23 @@ static const char* rcsID = "$Id: iodir.cc,v 1.14 2004-04-27 15:51:15 bert Exp $"
 
 
 IODir::IODir( const char* dirnm )
-	: state_(Fail)
+	: isok_(false)
 	, dirname_(dirnm)
 	, curid_(0)
 {
-    if ( build() ) state_ = Ok;
+    if ( build() ) isok_ = true;
 }
 
 
 IODir::IODir()
-	: state_(Fail)
+	: isok_(false)
 	, curid_(0)
 {
 }
 
 
 IODir::IODir( const MultiID& ky )
-	: state_(Fail)
+	: isok_(false)
 	, curid_(0)
 {
     IOObj* ioobj = getObj( ky );
@@ -43,7 +43,7 @@ IODir::IODir( const MultiID& ky )
     dirname_ = ioobj->dirName();
     delete ioobj;
 
-    if ( build() ) state_ = Ok;
+    if ( build() ) isok_ = true;
 }
 
 
@@ -216,10 +216,10 @@ bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
     dir.key_ = ky;
 
     dir.objs_ += mainobj;
-    dir.state_ = Ok;
+    dir.isok_ = true;
     bool ret = dir.doWrite();
     dir.objs_ -= mainobj;
-    dir.state_ = Fail;
+    dir.isok_ = false;
     return ret;
 }
 
@@ -228,7 +228,7 @@ void IODir::reRead()
 {
     deepErase(objs_);
     curid_ = 0;
-    if ( build() ) state_ = Ok;
+    if ( build() ) isok_ = true;
 }
 
 

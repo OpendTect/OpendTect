@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.15 2004-04-28 21:30:59 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.16 2004-06-28 16:00:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiseisfmtscale.h"
 #include "uibinidsubsel.h"
 #include "uigeninput.h"
+#include "uimainwin.h"
 #include "uimsg.h"
 #include "seissingtrcproc.h"
 #include "seiscbvs.h"
@@ -26,81 +27,75 @@ ________________________________________________________________________
 #include "errh.h"
 
 
-uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool wstp )
+uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format )
 	: uiGroup(p,"Seis transfer pars")
+	, is2d(false)
+	, issteer(false)
 {
-    subselfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
-	    				.withz(true).withstep(wstp) );
     scfmtfld = new uiSeisFmtScale( this, with_format );
-    scfmtfld->attach( alignedBelow, subselfld );
 
     remnullfld = new uiGenInput( this, "Null traces",
 	    			BoolInpSpec("Discard","Pass") );
     remnullfld->attach( alignedBelow, scfmtfld );
 
     setHAlignObj( remnullfld );
+    mainwin()->finaliseDone.notify( mCB(this,uiSeisTransfer,updFldsForType) );
 }
 
 
 void uiSeisTransfer::updateFrom( const IOObj& ioobj )
 {
-    BinIDSampler bs; StepInterval<float> zrg;
-    bs.copyFrom( SI().range() );
-    bs.step = BinID( SI().inlStep(), SI().crlStep() );
-    assign( zrg, SI().zRange() );
-    if ( SeisTrcTranslator::getRanges( ioobj, bs, zrg ) )
-	subselfld->setInput( bs, zrg );
-
+    set2D( SeisTrcTranslator::is2D(ioobj) );
     scfmtfld->updateFrom( ioobj );
+}
+
+
+void uiSeisTransfer::updFldsForType( CallBacker* )
+{
+    scfmtfld->setSteering( issteer );
+    scfmtfld->set2D( is2d );
 }
 
 
 void uiSeisTransfer::setSteering( bool yn )
 {
-    scfmtfld->setSteering(yn);
+    issteer = yn;
+    updFldsForType(0);
 }
 
 
-int uiSeisTransfer::expectedNrTraces() const
+void uiSeisTransfer::set2D( bool yn )
 {
-    return subselfld->expectedNrTraces();
-}
-
-
-int uiSeisTransfer::expectedNrSamples() const
-{
-    return subselfld->expectedNrSamples();
+    is2d = yn;
+    updFldsForType(0);
 }
 
 
 int uiSeisTransfer::maxBytesPerSample() const
 {
+    if ( issteer ) return 4;
     DataCharacteristics dc(
 	    (DataCharacteristics::UserType)scfmtfld->getFormat() );
     return (int)dc.nrBytes();
 }
 
 
-Executor* uiSeisTransfer::getTrcProc( const IOObj* inobj, const IOObj* outobj,
+Executor* uiSeisTransfer::getTrcProc( const SeisSelData& insel,
+				      const IOObj* outobj,
 				      const char* extxt,
 				      const char* worktxt ) const
 {
     scfmtfld->updateIOObj( const_cast<IOObj*>(outobj) );
-    IOPar iop; 
-    if ( !subselfld->fillPar(iop) )
-	return 0;
-
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( inobj, outobj, extxt,
-	    						&iop, worktxt );
-    PtrMan<BinIDRange> brg = subselfld->getRange();
-    PtrMan<BinIDProvider> prov = brg->provider();
-    stp->setTotalNrIfUnknown( prov->size() );
+    SeisSingleTraceProc* stp = new SeisSingleTraceProc( insel, outobj, extxt,
+	    						worktxt );
     stp->setScaler( scfmtfld->getScaler() );
-    stp->skipNullTraces( remnullfld->getBoolValue() );
+    stp->skipNullTraces( !is2d && remnullfld->getBoolValue() );
 
     return stp;
 }
 
+
+/* Put this where?
 
 # include <sstream>
 
@@ -128,7 +123,6 @@ bool uiSeisTransfer::provideUserInfo( const IOObj& ioobj )
 
     return true;
 }
-
 
 int uiSeisTransfer::expectedMBs( const IOObj& ioobj ) const
 {
@@ -188,3 +182,5 @@ bool uiSeisTransfer::checkSpaceLeft( const IOObj& ioobj, int expnrsamps,
     }
     return true;
 }
+
+*/

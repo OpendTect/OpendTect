@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.2 2004-06-28 09:35:32 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.3 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "ui2dseissubsel.h"
+#include "uiseis2dsubsel.h"
 #include "uigeninput.h"
 #include "survinfo.h"
 #include "iopar.h"
@@ -17,12 +17,12 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-ui2DSeisSubSel::ui2DSeisSubSel( uiParent* p, const BufferStringSet* lnms )
+uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const BufferStringSet* lnms )
 	: uiGroup( p, "2D seismics sub-selection" )
 	, lnmsfld(0)
 {
     selfld = new uiGenInput( this, "Select", BoolInpSpec("All","Part",true) );
-    selfld->valuechanged.notify( mCB(this,ui2DSeisSubSel,selChg) );
+    selfld->valuechanged.notify( mCB(this,uiSeis2DSubSel,selChg) );
 
     trcrgfld = new uiGenInput( this, "Trace range (start, stop, step)",
 	    			IntInpIntervalSpec(true) );
@@ -52,29 +52,29 @@ ui2DSeisSubSel::ui2DSeisSubSel( uiParent* p, const BufferStringSet* lnms )
     setHAlignObj( selfld );
     setHCentreObj( selfld );
 
-    mainObject()->finaliseStart.notify( mCB(this,ui2DSeisSubSel,doFinalise) );
+    mainObject()->finaliseStart.notify( mCB(this,uiSeis2DSubSel,doFinalise) );
 }
 
 
-void ui2DSeisSubSel::doFinalise( CallBacker* cb )
+void uiSeis2DSubSel::doFinalise( CallBacker* cb )
 {
     selChg( cb );
 }
 
 
-bool ui2DSeisSubSel::isAll() const
+bool uiSeis2DSubSel::isAll() const
 {
     return selfld->getBoolValue();
 }
 
 
-void ui2DSeisSubSel::setInput( const StepInterval<int>& rg )
+void uiSeis2DSubSel::setInput( const StepInterval<int>& rg )
 {
     trcrgfld->setValue( rg );
 }
 
 
-void ui2DSeisSubSel::setInput( const StepInterval<float>& rg )
+void uiSeis2DSubSel::setInput( const StepInterval<float>& rg )
 {
     if ( SI().zIsTime() )
     {
@@ -87,14 +87,14 @@ void ui2DSeisSubSel::setInput( const StepInterval<float>& rg )
 }
 
 
-void ui2DSeisSubSel::setInput( const BinIDSampler& bs )
+void uiSeis2DSubSel::setInput( const BinIDSampler& bs )
 {
     StepInterval<int> trg( 1, BinIDSamplerProv(bs).dirSize(false), 1 );
     trcrgfld->setValue( trg );
 }
 
 
-void ui2DSeisSubSel::selChg( CallBacker* )
+void uiSeis2DSubSel::selChg( CallBacker* )
 {
     bool disp = !isAll();
     trcrgfld->display( disp );
@@ -103,7 +103,7 @@ void ui2DSeisSubSel::selChg( CallBacker* )
 }
 
 
-void ui2DSeisSubSel::usePar( const IOPar& iopar )
+void uiSeis2DSubSel::usePar( const IOPar& iopar )
 {
     //TODO other fields
     const char* res = iopar.find( SurveyInfo::sKeyZRange );
@@ -129,7 +129,7 @@ void ui2DSeisSubSel::usePar( const IOPar& iopar )
 }
 
 
-bool ui2DSeisSubSel::fillPar( IOPar& iopar ) const
+bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 {
     //TODO other fields
     StepInterval<float> zrg;
@@ -143,17 +143,18 @@ bool ui2DSeisSubSel::fillPar( IOPar& iopar ) const
 }
 
 
-void ui2DSeisSubSel::getRange( StepInterval<int>& trg )
+bool uiSeis2DSubSel::getRange( StepInterval<int>& trg ) const
 {
     const char* res = trcrgfld->text( 1 );
     if ( !res || !*res )
-	{ trg.stop = mUndefIntVal; return; }
+	{ trg.stop = mUndefIntVal; return false; }
 
     trg = trcrgfld->getIStepInterval();
+    return true;
 }
 
 
-bool ui2DSeisSubSel::getZRange( StepInterval<float>& zrg ) const
+bool uiSeis2DSubSel::getZRange( StepInterval<float>& zrg ) const
 {
     const StepInterval<double> survzrg = SI().zRange(false);
     if ( isAll() )
@@ -183,14 +184,14 @@ bool ui2DSeisSubSel::getZRange( StepInterval<float>& zrg ) const
 }
 
 
-int ui2DSeisSubSel::expectedNrTraces() const
+int uiSeis2DSubSel::expectedNrTraces() const
 {
     StepInterval<int> trg; getRange( trg );
     return mIsUndefInt(trg.stop) ? -1 : trg.nrSteps() + 1;
 }
 
 
-int ui2DSeisSubSel::expectedNrSamples() const
+int uiSeis2DSubSel::expectedNrSamples() const
 {
     StepInterval<float> zrg; getZRange( zrg );
     return zrg.nrSteps() + 1;

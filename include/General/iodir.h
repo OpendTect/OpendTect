@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.11 2004-01-08 15:30:04 bert Exp $
+ RCS:		$Id: iodir.h,v 1.12 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
 			IODir(const MultiID&);
 			~IODir();
     void		reRead();
-    bool		bad() const		{ return state_ == Fail; }
+    bool		bad() const		{ return !isok_; }
     const MultiID&	key() const		{ return key_; }
 
     const IOObj*	main() const;
@@ -71,7 +71,7 @@ private:
 
     ObjectSet<IOObj>	objs_;
     FileNameString	dirname_;
-    int			state_;
+    bool		isok_;
     int			curid_;
     MultiID		key_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.29 2003-12-10 14:09:08 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.30 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -173,8 +173,6 @@ public:
     virtual void	toSupported( DataCharacteristics& ) const {}
 			//!< change the input to a supported characteristic
     virtual void	usePar(const IOPar&);
-    static bool		getRanges(const IOObj&,BinIDSampler&,
-	    			  StepInterval<float>&);
 
     inline int		selComp( int nr=0 ) const	{ return inpfor_[nr]; }
     inline int		nrSelComps() const		{ return nrout_; }
@@ -191,6 +189,10 @@ public:
 
     virtual void	cleanUp();
     			//!< Prepare for new initialisation.
+
+    static bool		getRanges(const IOObj&,BinIDSampler&,
+	    			  StepInterval<float>&);
+    static  bool	is2D(const IOObj&);
 
 protected:
 

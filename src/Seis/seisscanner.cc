@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.13 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.14 2004-06-28 16:00:05 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -57,7 +57,7 @@ void SeisScanner::init()
     invalidsamplenr = -1;
     nonnullsamplerg.start = INT_MAX;
     nonnullsamplerg.stop = 0;
-    invalidsamplebid.inl = -999;
+    invalidsamplebid.inl = mUndefIntVal;
     valrg.start = mUndefValue;
     first_trace = true;
 }
@@ -153,7 +153,7 @@ void SeisScanner::report( IOPar& iopar ) const
 	iopar.set( "Median value", distribvals[nrdistribvals/2] );
 	iopar.set( "1/4 value", distribvals[nrdistribvals/4] );
 	iopar.set( "3/4 value", distribvals[3*nrdistribvals/4] );
-	if ( invalidsamplebid.inl > 0 )
+	if ( !mIsUndefInt(invalidsamplebid.inl) )
 	{
 	    iopar.set( "First invalid value at", invalidsamplebid );
 	    iopar.set( "First invalid value sample number", invalidsamplenr );

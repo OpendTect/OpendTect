@@ -22,7 +22,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
     	, nrwritten(0)
     	, started(false)
 {
-    binids.start.inl = -999;
+    binids.start.inl = mUndefIntVal;
 }
 
 
@@ -178,7 +178,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     }
 
     nrwritten++;
-    if ( binids.start.inl == -999 )
+    if ( mIsUndefInt(binids.start.inl) )
 	binids.start = binids.stop = trc.info().binid;
     else
 	binids.include( trc.info().binid );

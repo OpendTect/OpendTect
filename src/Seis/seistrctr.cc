@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.41 2003-12-10 14:09:09 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.42 2004-06-28 16:00:05 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -78,7 +78,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 	, storediopar(*new IOPar)
 	, useinpsd(false)
 	, trcsel(0)
-    	, prevnr_(-999)
+    	, prevnr_(mUndefIntVal)
     	, trcblock_(*new SeisTrcBuf)
     	, lastinlwritten(SI().range().start.inl)
     	, enforce_regular_write(true)
@@ -94,6 +94,12 @@ SeisTrcTranslator::~SeisTrcTranslator()
     delete pinfo;
     delete &storediopar;
     delete &trcblock_;
+}
+
+
+bool SeisTrcTranslator::is2D( const IOObj& ioobj )
+{
+    return *ioobj.translator() == '2';
 }
 
 
@@ -311,7 +317,7 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 	return writeTrc_( trc );
     }
 
-    bool wrblk = prevnr_ != trc.info().binid.inl && prevnr_ != -999;
+    bool wrblk = prevnr_ != trc.info().binid.inl && !mIsUndefInt(prevnr_);
     prevnr_ = trc.info().binid.inl;
     if ( wrblk && !writeBlock() )
 	return false;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.18 2003-11-07 12:22:01 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.19 2004-06-28 16:00:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ bool uiMergeSeis::acceptOK( CallBacker* )
     if ( !handleInput() ) return false;
     const int estnrtrcs = checkRanges();
 
+    /*TODO 
     //TODO get these from cubes
     const int nrsamps = SI().zRange(false).nrSteps() + 1;
     const int bps = 4;
@@ -131,6 +132,7 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 	}
     }
 
+    */
     return true;
 }
 

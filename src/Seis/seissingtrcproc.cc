@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.12 2003-12-10 14:09:09 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.13 2004-06-28 16:00:05 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -17,50 +17,41 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.12 2003-12-10 14:09:09 b
 #include "ioman.h"
 #include "binidsel.h"
 #include "scaler.h"
+#include "ptrman.h"
+
+
+#define mInitVars() \
+	: Executor(nm) \
+	, wrr_(out ? new SeisTrcWriter(out) : 0) \
+	, msg_(msg) \
+	, starter_(0) \
+	, nrskipped_(0) \
+	, intrc_(new SeisTrc) \
+	, nrwr_(0) \
+	, wrrkey_(*new MultiID) \
+	, totnr_(-1) \
+    	, trcsperstep_(10) \
+    	, scaler_(0) \
+    	, skipnull_(false)
+
+
+SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelData& in,
+					  const IOObj* out, const char* nm,
+				       	  const char* msg )
+	mInitVars()
+{
+    PtrMan<IOObj> inioobj = IOM().get( in.key_ );
+    IOPar iop; in.fillPar( iop );
+    setInput( inioobj, out, nm, &iop, msg );
+}
 
 
 SeisSingleTraceProc::SeisSingleTraceProc( const IOObj* in, const IOObj* out,
 				       	  const char* nm, const IOPar* iop,
 				       	  const char* msg )
-	: Executor(nm)
-	, wrr_(out ? new SeisTrcWriter(out) : 0)
-	, msg_(msg)
-	, starter_(0)
-	, nrskipped_(0)
-	, intrc_(new SeisTrc)
-	, nrwr_(0)
-	, wrrkey_(*new MultiID)
-	, totnr_(-1)
-    	, trcsperstep_(10)
-    	, scaler_(0)
-    	, skipnull_(false)
+	mInitVars()
 {
-    outtrc_ = intrc_;
-
-    if ( !wrr_ )
-    {
-	curmsg_ = "Cannot find write object";
-        return;
-    }
-
-    if ( !in )
-    {
-	curmsg_ = "No input specified";
-	return;
-    }
-
-    wrrkey_ = out->key();
-    currentobj_ = 0;
-    nrobjs_ = 1;
-
-    ObjectSet<IOObj> objset_;
-    ObjectSet<IOPar> iopset_;
-    objset_ += in->clone();
-    iopset_ += const_cast<IOPar*>(iop);
-    if ( !init( objset_, iopset_ ) )
-	return;
-
-    nextObj();
+    setInput( in, out, nm, iop, msg );
 }
 
 
@@ -68,44 +59,41 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 					  const IOObj* out, const char* nm, 
 					  ObjectSet<IOPar>* iopset, 
 					  const char* msg )
-	: Executor(nm)
-	, wrr_(out ? new SeisTrcWriter(out) : 0)
-	, msg_(msg)
-	, starter_(0)
-	, nrskipped_(0)
-	, intrc_(new SeisTrc)
-	, nrwr_(0)
-	, wrrkey_(*new MultiID)
-	, totnr_(-1)
-    	, trcsperstep_(10)
-    	, scaler_(0)
-    	, skipnull_(false)
+	mInitVars()
 {
-    outtrc_ = intrc_;
-
-    if ( !wrr_ )
-    {
-	curmsg_ = "Cannot find write object";
-        return;
-    }
-
     if ( !objset.size() )
     {
 	curmsg_ = "No input specified";
 	return;
     }
 
-    wrrkey_ = out->key();
     nrobjs_ = objset.size();
-    currentobj_ = 0;
 
     if ( iopset && iopset->size() != nrobjs_ )
 	iopset->erase();
 
-    if ( !init( objset, *iopset ) )
-	return;
+    init( objset, *iopset );
+}
 
-    nextObj();
+
+void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
+				    const char* nm, const IOPar* iop,
+				    const char* msg )
+{
+    deepErase( rdrset_ );
+    if ( !in )
+    {
+	curmsg_ = "Cannot find input seismic data object";
+	return;
+    }
+
+    nrobjs_ = 1;
+
+    ObjectSet<IOObj> objset_;
+    ObjectSet<IOPar> iopset_;
+    objset_ += in->clone();
+    iopset_ += const_cast<IOPar*>(iop);
+    init( objset_, iopset_ );
 }
 
 
@@ -122,6 +110,15 @@ SeisSingleTraceProc::~SeisSingleTraceProc()
 
 bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
 {
+    outtrc_ = intrc_;
+    if ( !wrr_ )
+    {
+	curmsg_ = "Cannot find write object";
+        return false;
+    }
+    wrrkey_ = wrr_->ioObj()->key();
+    currentobj_ = 0;
+
     totnr_ = 0;
     for ( int idx=0; idx<nrobjs_; idx++ )
     {
@@ -162,6 +159,8 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
     }
 
     if ( totnr_ < 3 ) totnr_ = -1;
+
+    nextObj();
     return true;
 }
 
