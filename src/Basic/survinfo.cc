@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.28 2002-07-30 11:33:11 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.29 2002-08-19 06:43:04 nanne Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -498,7 +498,9 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
     const BinIDRange& rg = work ? wrange_ : range_;
     intv.sort();
     if ( intv.start < rg.start.inl ) intv.start = rg.start.inl;
+    if ( intv.start > rg.stop.inl )  intv.start = rg.stop.inl;
     if ( intv.stop > rg.stop.inl )   intv.stop = rg.stop.inl;
+    if ( intv.stop < rg.start.inl )  intv.stop = rg.start.inl;
 }
 
 void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
@@ -506,16 +508,22 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
     const BinIDRange& rg = work ? wrange_ : range_;
     intv.sort();
     if ( intv.start < rg.start.crl ) intv.start = rg.start.crl;
+    if ( intv.start > rg.stop.inl )  intv.start = rg.stop.crl;
     if ( intv.stop > rg.stop.crl )   intv.stop = rg.stop.crl;
+    if ( intv.stop < rg.start.inl )  intv.stop = rg.start.crl;
 }
 
 void SurveyInfo::checkRange( BinIDRange& chk, bool work ) const
 {
     const BinIDRange& rg = work ? wrange_ : range_;
     if ( chk.start.inl < rg.start.inl ) chk.start.inl = rg.start.inl;
+    if ( chk.start.inl > rg.stop.inl )  chk.start.inl = rg.stop.inl;
     if ( chk.stop.inl > rg.stop.inl )   chk.stop.inl = rg.stop.inl;
+    if ( chk.stop.inl < rg.start.inl )  chk.stop.inl = rg.start.inl;
     if ( chk.start.crl < rg.start.crl ) chk.start.crl = rg.start.crl;
+    if ( chk.start.crl > rg.stop.crl )  chk.start.crl = rg.stop.crl;
     if ( chk.stop.crl > rg.stop.crl )   chk.stop.crl = rg.stop.crl;
+    if ( chk.stop.crl < rg.start.crl )  chk.stop.crl = rg.start.crl;
     snap( chk.start, BinID(1,1), false );
     snap( chk.stop, BinID(-1,-1), false );
 }
@@ -526,7 +534,9 @@ void SurveyInfo::checkZRange( Interval<double>& intv, bool work ) const
     const StepInterval<double>& rg = work ? wzrange_ : zrange_;
     intv.sort();
     if ( intv.start < rg.start ) intv.start = rg.start;
+    if ( intv.start > rg.stop )  intv.start = rg.stop;
     if ( intv.stop > rg.stop )   intv.stop = rg.stop;
+    if ( intv.stop < rg.start )  intv.stop = rg.start;
 }
 
 
