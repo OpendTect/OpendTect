@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.1 2003-06-17 12:46:56 kristofer Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.2 2003-06-17 13:32:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ namespace EM
 class Surface;
 class SurfPosCalc;
 class RowColConverter;
+class dgbSurfDataReader;
 
 
 /*!
@@ -134,7 +135,7 @@ protected:
 
     ObjectSet<BufferString>	auxdatanames;
     ObjectSet<BufferString>	auxdatainfo;
-    ObjectSet<Executor>		auxdataexecs;
+    ObjectSet<EM::dgbSurfDataReader> auxdataexecs;
     TypeSet<int>		auxdatasel;
 
     const IOPar*		par;
