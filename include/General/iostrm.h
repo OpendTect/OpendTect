@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.6 2001-08-31 16:38:18 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.7 2001-09-03 12:21:34 kristofer Exp $
 ________________________________________________________________________
 
  An IOStream is a file (default), device or command entry in the omf.
@@ -77,7 +77,7 @@ public:
     void		setBlockSize( int bs )		{ blocksize = bs; }
     int			skipFiles() const		{ return skipfiles; }
     void		setSkipFiles( int sf )		{ skipfiles = sf; }
-    void		setRewind( bool yn )		{ rew = yn; }
+    void		setRewind( bool yn_ )		{ rew = yn_; }
     bool		rewindTape() const		{ return rew; }
 
     int			zeroPadding() const		{ return padzeros; }
