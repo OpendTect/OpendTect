@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.158 2003-09-29 12:24:00 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.159 2003-09-30 06:38:27 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -1498,6 +1498,18 @@ int uiVisPartServer::addInterpreter( int sceneid )
     setUpConnections( interpreterdisplay->id() );
 
     return interpreterdisplay->id();
+}
+
+
+void uiVisPartServer::toogleDirection(int id)
+{
+    if ( !interpreterdisplay || interpreterdisplay->id()!=id ) return;
+
+    int dim = interpreterdisplay->getDim();
+    if ( ++dim>=3 )
+	dim = 0;
+
+    interpreterdisplay->setDim(dim);
 }
 
 
