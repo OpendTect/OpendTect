@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.12 2002-05-08 07:32:42 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.13 2002-07-08 14:58:56 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
@@ -12,13 +12,28 @@ static const char* rcsID = "$Id: visdata.cc,v 1.12 2002-05-08 07:32:42 kristofer
 #include "iopar.h"
 
 #include "Inventor/nodes/SoNode.h"
+#include <Inventor/actions/SoWriteAction.h>
+#include <Inventor/SoOutput.h>
+
 
 const char* visBase::DataObject::typestr = "Type";
 const char* visBase::DataObject::namestr = "Name";
 
 
+const SoNode* visBase::DataObject::getData() const
+{ return const_cast<const SoNode*>(((visBase::DataObject*)this)->getData() ); }
+
+
 const char* visBase::DataObject::name() const
 {
+    const SoNode* node = getData();
+    if ( node )
+    {
+	const char* name_ = node->getName();
+	if ( !name_ || !name_[0]) return 0;
+	return name_;
+    }
+
     if ( !name_ || !(*name_)[0]) return 0;
     return (const char*)*name_;
 }
@@ -26,6 +41,13 @@ const char* visBase::DataObject::name() const
 
 void visBase::DataObject::setName( const char* nn )
 {
+    SoNode* node = getData();
+    if ( node )
+    {
+	node->setName( nn );
+	return;
+    }
+
     if ( !name_ ) name_ = new BufferString;
     
     (*name_) = nn;
@@ -88,6 +110,19 @@ void visBase::DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 	par.set( namestr, nm );
 }
 
+
+bool visBase::DataObject::dumpOIgraph( const char* filename )
+{
+    SoNode* node = getData();
+    if ( !node ) return false;
+
+    SoWriteAction writeaction;
+    if ( !writeaction.getOutput()->openFile(filename) ) return false;
+    writeaction.getOutput()->setBinary(false);
+    writeaction.apply( node );
+    writeaction.getOutput()->closeFile();
+    return true;
+}
 
 
 int visBase::DataObject::usePar( const IOPar& par )
