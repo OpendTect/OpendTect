@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.10 2002-04-11 08:41:49 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.11 2002-04-15 09:41:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,8 @@ public:
 
     float			apparentVel() const;
     void			setApparentVel( float );
+
+    Notifier<Scene>		appvelchange;
 
 protected:
     				~Scene();

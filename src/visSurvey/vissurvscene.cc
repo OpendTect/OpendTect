@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.13 2002-04-11 14:02:26 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.14 2002-04-15 09:42:08 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -22,6 +22,7 @@ visSurvey::Scene::Scene()
     : inlcrltransformation( visBase::Transformation::create() )
     , timetransformation( visBase::Transformation::create() )
     , appvel( 1000 )
+    , appvelchange( this )
 {
     visBase::Transformation* reversedz = visBase::Transformation::create();
     addObject( reversedz );
@@ -158,6 +159,7 @@ float visSurvey::Scene::apparentVel() const { return appvel; }
 
 void visSurvey::Scene::setApparentVel( float a )
 {
+    if ( mIS_ZERO(appvel-a) ) return;
     appvel = a;
 
     timetransformation->setA(
@@ -165,6 +167,8 @@ void visSurvey::Scene::setApparentVel( float a )
 	0,	1,	0,		0,
 	0,	0,	appvel,		0,
 	0,	0,	0,		1 );
+
+    appvelchange.trigger();
 }
 
 
