@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.47 2005-03-02 08:57:08 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.48 2005-03-25 15:40:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "cubesampling.h"
 #include "binidselimpl.h"
+#include "horizonscanner.h"
 
 #include "streamconn.h"
 #include "binidvalset.h"
@@ -161,9 +162,11 @@ bool uiImportHorizon::doWork()
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
 
-    bool isxy, doscale;
-    if ( !analyzeData(isxy,doscale) )
-	mErrRet("Cannot analyze data");
+    BufferStringSet filenames;
+    if ( !getFileNames(filenames) ) return false;
+
+    HorizonScanner scanner( filenames );
+    bool isxy = scanner.posIsXY();
 
     const bool doxy = xyfld->getBoolValue();
     if ( doxy != isxy )
@@ -176,7 +179,7 @@ bool uiImportHorizon::doWork()
 
     HorSampling hs; subselfld->getHorSampling( hs );
     ObjectSet<BinIDValueSet> sections;
-    if ( !readFiles(sections,doscale,&hs) ) return false;
+    if ( !readFiles(sections,scanner.needZScaling(),&hs) ) return false;
     if ( !sections.size() )
 	mErrRet( "Nothing to import" );
 
@@ -232,97 +235,18 @@ bool uiImportHorizon::readFiles( ObjectSet<BinIDValueSet>& sections,
 
 void uiImportHorizon::scanFile( CallBacker* )
 {
+    uiCursorChanger cursorlock( uiCursor::Wait );
     HorSampling hs( false );
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return;
 
-    bool isxy, doscale;
-    if ( !analyzeData(isxy,doscale) ) return;
-    xyfld->setValue( isxy );
+    HorizonScanner scanner( filenames );
+    scanner.execute();
+    scanner.launchBrowser();
 
-    uiCursorChanger cursorlock( uiCursor::Wait );
-    for ( int idx=0; idx<filenames.size(); idx++ )
-    {
-	const char* fname = filenames.get( idx );
-	BinIDValueSet& bvs = *getBidValSet( fname, false, 0 );
-	Interval<int> inlrg = bvs.inlRange();
-	Interval<int> crlrg = bvs.crlRange();
-	if ( !idx )
-	    hs.set( inlrg, crlrg );
-	else
-	{
-	    hs.include( BinID(inlrg.start,crlrg.start) );
-	    hs.include( BinID(inlrg.stop,crlrg.stop) );
-	}
-
-	hs.step.inl = mNINT( (float)inlrg.width() / (bvs.nrInls()-1) );
-	int inl0 = inlrg.start;
-	hs.step.crl = mNINT( (float)bvs.crlRange(inl0).width() / 
-				(bvs.nrCrls(inl0)-1) );
-	delete &bvs;
-    }
-
+    xyfld->setValue( scanner.posIsXY() );
+    hs.set( scanner.inlRg(), scanner.crlRg() );
     subselfld->setInput( hs );
-}
-
-
-bool uiImportHorizon::analyzeData( bool& isxy, bool& doscale )
-{
-    uiCursorChanger cursorlock( uiCursor::Wait );
-    BufferStringSet filenames;
-    if ( !getFileNames(filenames) ) return false;
-
-    StreamProvider sp( filenames.get(0) );
-    StreamData sd = sp.makeIStream();
-    if ( !sd.usable() )
-	return false;
-
-    const float fac = SI().zIsTime() ? 0.001
-				     : (SI().zInMeter() ? .3048 : 3.28084);
-    Interval<float> validrg( SI().zRange(false) );
-    const float zwidth = validrg.width();
-    validrg.sort();
-    validrg.start -= zwidth;
-    validrg.stop += zwidth;
-
-    int maxcount = 100;
-    int count, nrxy, nrbid, nrscale, nrnoscale;
-    count = nrxy = nrbid = nrscale = nrnoscale = 0;
-    Coord crd;
-    BinID bid;
-    float val;
-    char buf[1024]; char valbuf[80];
-    while ( *sd.istrm )
-    {
-	if ( count > maxcount ) 
-	{
-	    if ( nrscale == nrnoscale ) maxcount *= 2;
-	    else break;
-	}
-
-	sd.istrm->getline( buf, 1024 );
-	const char* ptr = getNextWord( buf, valbuf );
-	if ( !ptr || !*ptr ) 
-	    continue;
-	crd.x = atof( valbuf );
-	ptr = getNextWord( ptr, valbuf );
-	crd.y = atof( valbuf );
-	BinID bid( mNINT(crd.x), mNINT(crd.y) );
-	if ( SI().isReasonable(crd) ) nrxy++;
-	if ( SI().isReasonable(bid) ) nrbid++;
-
-	ptr = getNextWord( ptr, valbuf );
-	val = atof( valbuf );
-	if ( mIsUndefined(val) ) continue;
-
-	if ( validrg.includes(val) ) nrnoscale++;
-	else if ( validrg.includes(val*fac) ) nrscale++;
-	count++;
-    }
-
-    isxy = nrxy > nrbid;
-    doscale = nrscale > nrnoscale;
-    return true;
 }
 
 
@@ -383,145 +307,3 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
     sd.close();
     return set;
 }
-
-/*
-class HorizonScanner
-{
-public:
-
-HorizonScanner(const char* fnm)
-    : posgeomdetect(new PosGeomDetector)
-{
-    filenames.add( fnm );
-}
-
-
-HorizonScanner(const BufferStringSet& fnms)
-    : posgeomdetect(new PosGeomDetector)
-{
-    filenames = fnms;
-}
-
-
-bool scan()
-{
-    if ( !examine() ) return false;
-
-    for ( int idx=0; idx<filenames.size(); idx++ )
-    {
-	const char* fname = filenames.get( idx );
-	StreamProvider sp( fname );
-	StreamData sd = sp.makeIStream();
-	if ( !sd.usable() ) continue;
-
-	const float udfval = udffld->getfValue();
-	const bool doxy = xyfld->getBoolValue();
-
-	Coord crd;
-	BinID bid;
-	char buf[1024]; char valbuf[80];
-	while ( *sd.istrm )
-	{
-	    sd.istrm->getline( buf, 1024 );
-	    const char* ptr = getNextWord( buf, valbuf );
-	    if ( !ptr || !*ptr ) 
-		continue;
-	    crd.x = atof( valbuf );
-	    ptr = getNextWord( ptr, valbuf );
-	    crd.y = atof( valbuf );
-	    bid = doxy ? SI().transform( crd ) 
-		       : BinID(mNINT(crd.x),mNINT(crd.y));
-	    if ( hs && !hs->isEmpty() && !hs->includes(bid) ) continue;
-
-	    TypeSet<float> values;
-	    while ( *ptr )
-	    {
-		ptr = getNextWord( ptr, valbuf );
-		values += atof( valbuf );
-	    }
-	    
-	    if ( !values.size() ) continue;
-	    if ( set->nrVals() != values.size() )
-		set->setNrVals( values.size() );
-
-	    if ( mIsEqual(values[0],udfval,mDefEps) )
-		values[0] = mUndefValue;
-
-	    if ( doscale && !mIsUndefined(values[0]) )
-		values[0] *= factor;
-
-	    if ( scaler )
-		values[0] = scaler->scale( values[0] );
-
-	    set->add( bid, values );
-	}
-
-	sd.close();
-    }
-
-    return true;
-}
-
-
-bool examine()
-{
-    StreamProvider sp( filenames.get(0) );
-    StreamData sd = sp.makeIStream();
-    if ( !sd.usable() )
-	return false;
-
-    const float fac = SI().zIsTime() ? 0.001
-				     : (SI().zInMeter() ? .3048 : 3.28084);
-    Interval<float> validrg( SI().zRange(false) );
-    const float zwidth = validrg.width();
-    validrg.sort();
-    validrg.start -= zwidth;
-    validrg.stop += zwidth;
-
-    int maxcount = 100;
-    int count, nrxy, nrbid, nrscale, nrnoscale;
-    count = nrxy = nrbid = nrscale = nrnoscale = 0;
-    Coord crd;
-    BinID bid;
-    float val;
-    char buf[1024]; char valbuf[80];
-    while ( *sd.istrm )
-    {
-	if ( count > maxcount ) 
-	{
-	    if ( nrscale == nrnoscale ) maxcount *= 2;
-	    else break;
-	}
-
-	sd.istrm->getline( buf, 1024 );
-	const char* ptr = getNextWord( buf, valbuf );
-	if ( !ptr || !*ptr ) 
-	    continue;
-	crd.x = atof( valbuf );
-	ptr = getNextWord( ptr, valbuf );
-	crd.y = atof( valbuf );
-	BinID bid( mNINT(crd.x), mNINT(crd.y) );
-	if ( SI().isReasonable(crd) ) nrxy++;
-	if ( SI().isReasonable(bid) ) nrbid++;
-
-	ptr = getNextWord( ptr, valbuf );
-	val = atof( valbuf );
-	if ( mIsUndefined(val) ) continue;
-
-	if ( validrg.includes(val) ) nrnoscale++;
-	else if ( validrg.includes(val*fac) ) nrscale++;
-	count++;
-    }
-
-    sd.close();
-    isxy = nrxy > nrbid;
-    doscale = nrscale > nrnoscale;
-    return true;
-}
-
-
-    bool	isxy;
-    bool	doscale;
-
-};
-*/

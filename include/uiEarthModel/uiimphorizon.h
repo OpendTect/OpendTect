@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.10 2005-02-10 16:23:05 nanne Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.11 2005-03-25 15:40:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,6 @@ protected:
     BinIDValueSet*	getBidValSet(const char*,bool,const HorSampling*);
 
     void		scanFile(CallBacker*);
-    bool		analyzeData(bool&,bool&);
 
     CtxtIOObj&		ctio;
     EM::ObjectID	emobjid;
