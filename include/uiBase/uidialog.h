@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.26 2002-01-23 10:41:15 nanne Exp $
+ RCS:           $Id: uidialog.h,v 1.27 2002-01-30 15:46:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,21 +43,23 @@ public:
     {
     public:
 			Setup( const char* window_title,
-			       const char* dialog_title,
-			       const char* help_id )
-			: wintitle_(window_title), dlgtitle_(dialog_title)
+			       const char* dialog_title =0,
+			       const char* help_id =0 )
+			: wintitle_(window_title)
+			, dlgtitle_(dialog_title ? dialog_title : window_title)
 			, helpid_(help_id), savetext_("Save defaults")
 			, oktext_("Ok"), canceltext_("Cancel")
 			, modal_(true)
 			, savebutton_(false), separator_(true)
 			, menubar_(false), toolbar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
+			, fixedsize_(false)
 			{}
 
 	BufferString	wintitle_, dlgtitle_, helpid_;
 	BufferString	savetext_, oktext_, canceltext_;
 	bool		modal_, savebutton_, separator_, savechecked_;
-	bool		menubar_, toolbar_, mainwidgcentered_;
+	bool		menubar_, toolbar_, mainwidgcentered_, fixedsize_;
 	int		nrstatusflds_;
 
 	Setup&	savetext( const char* s )   { savetext_ = s;    return *this; }
@@ -73,15 +75,11 @@ public:
 	Setup&	savechecked( bool yn=true ) { savechecked_ = yn; return *this; }
 	Setup&	mainwidgcentered( bool yn=false ) 
 				    { mainwidgcentered_ = yn; return *this; }
+	Setup&	fixedsize( bool yn=true )  { fixedsize_ = yn; return *this; }
 
     };
 
 			uiDialog(uiParent*,const Setup&);
-    			//TODO remove the old crappy constructor
-			uiDialog( uiParent* p =0, const char* nm="uiDialog", 
-				  bool modal=true, bool separator=true,
-				  bool wantMBar=false, bool wantSBar=false,
-				  bool wantTBar=false, const char* helpid=0 );
 
     int			go(); 
 

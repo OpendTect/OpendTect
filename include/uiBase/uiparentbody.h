@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.4 2002-01-08 10:36:08 arend Exp $
+ RCS:           $Id: uiparentbody.h,v 1.5 2002-01-30 15:46:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ public:
 
     virtual			~uiParentBody()		{ deepErase(children);}
 
-    void			addChild( uiObjHandle& child )
+    virtual void		addChild( uiObjHandle& child )
 				    { 
 					if( children.indexOf(&child ) < 0 )
 					    children += &child; 

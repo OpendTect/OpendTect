@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.45 2002-01-29 09:55:23 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.46 2002-01-30 15:46:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,15 @@ public:
                         }
 
     uiGroup*		uiCentralWidg()		{ return centralWidget_; }
+
+
+    virtual void        addChild( uiObjHandle& child )
+			{ 
+			    if ( !initing && centralWidget_ ) 
+				centralWidget_->addChild( child );
+			    else
+				uiParentBody::addChild( child );
+			}
 
     virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
 			{ 
@@ -351,8 +360,6 @@ uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
 class uiDialogBody : public uiMainWinBody
 { 	
 public:
-			uiDialogBody(uiDialog&,uiParent*,const char*, 
-				      bool,bool,bool,const char*);
 			uiDialogBody(uiDialog&,uiParent*,
 				     const uiDialog::Setup&);
 
@@ -375,9 +382,9 @@ public:
     void		setCancelText( const char* txt );
 			//!< cancel button disabled when set to empty
     void		enableSaveButton( const char* txt )
-			    { saveText = txt; withsavebut = true; }
+			    { setup.savetext_ = txt; setup.savebutton_ = true; }
     void		setSaveButtonChecked( bool yn )
-			    { saveChecked = yn;
+			    { setup.savechecked_ = yn;
 			      if ( saveBut ) saveBut->setChecked(yn); }
     void		setSaveButtonSensitive( bool yn )
 			    { if ( saveBut ) saveBut->setSensitive(yn); }
@@ -388,14 +395,22 @@ public:
     uiCheckBox*		saveButton()			{ return saveBut; }
 
 			//! Separator between central dialog and Ok/Cancel bar?
-    void		setSeparator( bool yn )		{ separ = yn; }
-    bool		separator() const		{ return separ; }
+    void		setSeparator( bool yn )	  { setup.separator_ = yn; }
+    bool		separator() const	  { return setup.separator_; }
 
     void		setDlgGrp( uiGroup* cw )	{ dlgGroup=cw; }
 
     void		setHSpacing( int spc )	{ dlgGroup->setHSpacing(spc); }
     void		setVSpacing( int spc )	{ dlgGroup->setVSpacing(spc); }
     void		setBorder( int b )	{ dlgGroup->setBorder( b ); }
+
+    virtual void        addChild( uiObjHandle& child )
+			{ 
+			    if ( !initing ) 
+				dlgGroup->addChild( child );
+			    else
+				uiMainWinBody::addChild( child );
+			}
 
     virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
 			{ 
@@ -424,18 +439,8 @@ protected:
     int 		reslt;
     bool		childrenInited;
 
-
     uiGroup*            dlgGroup;
-    BufferString	okText;
-    BufferString	cnclText;
-    BufferString	saveText;
-    BufferString	titleText;
-    BufferString	helpId;
-    bool		separ;
-    bool		withmenubar;
-    bool		withsavebut;
-    bool		saveChecked;
-    bool		mainwidgcentered;
+    uiDialog::Setup	setup;
 
     uiPushButton*	okBut;
     uiPushButton*	cnclBut;
@@ -450,46 +455,26 @@ protected:
 
 };
 
-
-uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm, 
-			    bool modal, bool separator, bool withmb, 
-			    const char* hid )
-    : uiMainWinBody(handle,parnt,nm,modal)
-    , dlgGroup( 0 )
-    , okText("Ok"), cnclText("Cancel"), saveText("Save defaults"), titleText("")
-    , okBut( 0 ), cnclBut( 0 ), saveBut( 0 ), helpBut( 0 ), title( 0 )
-    , reslt( 0 )
-    , separ( separator ), horSepar( 0 )
-    , childrenInited(false)
-    , withmenubar(withmb)
-    , withsavebut(false)
-    , saveChecked(false)
-    , mainwidgcentered( false )
-    , helpId(hid)
-{
-}
-
 uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
 			    const uiDialog::Setup& s )
     : uiMainWinBody(handle,parnt,s.wintitle_,s.modal_)
     , dlgGroup( 0 )
-    , okText(s.oktext_), cnclText(s.canceltext_), saveText(s.savetext_)
-    , titleText(s.dlgtitle_)
+    , setup( s )
     , okBut( 0 ), cnclBut( 0 ), saveBut( 0 ), helpBut( 0 ), title( 0 )
     , reslt( 0 )
-    , separ( s.separator_ ), horSepar( 0 )
     , childrenInited(false)
-    , withmenubar(s.menubar_)
-    , withsavebut(s.savebutton_)
-    , saveChecked(s.savechecked_)
-    , helpId(s.helpid_)
-    , mainwidgcentered( s.mainwidgcentered_ )
 {
 }
 
 int uiDialogBody::exec()
 { 
     uiSetResult( 0 );
+
+    if( setup.fixedsize_ )
+    {
+	setMaximumSize( QSize(0,0));
+	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
+    }
 
     go();
 
@@ -500,14 +485,14 @@ int uiDialogBody::exec()
 
 void uiDialogBody::setOkText( const char* txt )    
 { 
-    okText = txt; 
+    setup.oktext_ = txt; 
     if( okBut ) okBut->setText(txt);
 }
 
 
 void uiDialogBody::setTitleText( const char* txt )    
 { 
-    titleText = txt; 
+    setup.dlgtitle_ = txt; 
     if( title ) 
     { 
 	title->setText(txt); 
@@ -520,7 +505,7 @@ void uiDialogBody::setTitleText( const char* txt )
 
 void uiDialogBody::setCancelText( const char* txt ) 
 { 
-    cnclText = txt; 
+    setup.canceltext_ = txt; 
     if( cnclBut ) cnclBut->setText(txt);
 }
 
@@ -558,44 +543,45 @@ void uiDialogBody::finalise()
     {
 	uiObject* alignObj = dlgGroup->uiObj();
 
-	if ( okText != "" )
+	if ( setup.oktext_ != "" )
 	{
-	    okBut = new uiPushButton( centralWidget_, okText );
+	    okBut = new uiPushButton( centralWidget_, setup.oktext_ );
 	}
-	if ( cnclText != "" )
+	if ( setup.canceltext_ != "" )
 	{
-	    cnclBut = new uiPushButton( centralWidget_, cnclText );
+	    cnclBut = new uiPushButton( centralWidget_, setup.canceltext_ );
 	}
-	if ( withsavebut && saveText != "" )
+	if ( setup.savebutton_ && setup.savetext_ != "" )
 	{
-	    saveBut = new uiCheckBox( centralWidget_, saveText );
-	    saveBut->setChecked( saveChecked );
+	    saveBut = new uiCheckBox( centralWidget_, setup.savetext_ );
+	    saveBut->setChecked( setup.savechecked_ );
 	}
-	if ( helpId != "" && GetDgbApplicationCode() == mDgbApplCodeGDI )
+	if ( setup.helpid_ != "" && GetDgbApplicationCode() == mDgbApplCodeGDI )
 	{
 	    helpBut = new uiPushButton( centralWidget_, "?" );
 	    helpBut->setPrefWidthInChar( 3 );
 	}
-        if ( !withmenubar && titleText != "" )
+        if ( !setup.menubar_ && setup.dlgtitle_ != "" )
 	{
-	    title = new uiLabel( centralWidget_, titleText );
-	    title->setPrefWidthInChar( titleText.size() + 2 ); 
+	    title = new uiLabel( centralWidget_, setup.dlgtitle_ );
+	    title->setPrefWidthInChar( setup.dlgtitle_.size() + 2 ); 
 
-	    uiObject* obj = separ ? (uiObject*) new uiSeparator(centralWidget_)
-				  : (uiObject*) title;
+	    uiObject* obj = setup.separator_ 
+				? (uiObject*) new uiSeparator(centralWidget_)
+				: (uiObject*) title;
 
 	    if ( obj != title )
 	    {
 		title->attach( centeredAbove, obj );
 		obj->attach( stretchedBelow, title, -2 );
 	    }
-	    if ( mainwidgcentered )
+	    if ( setup.mainwidgcentered_ )
 		dlgGroup->attach( centeredBelow, obj );
 	    else
 		dlgGroup->attach( stretchedBelow, obj );
 	}
 
-	if ( separ && (okBut || cnclBut || saveBut || helpBut) )
+	if ( setup.separator_ && (okBut || cnclBut || saveBut || helpBut) )
 	{
 	    horSepar = new uiSeparator( centralWidget_ );
 	    horSepar->attach( stretchedBelow, dlgGroup, -2 );
@@ -688,30 +674,10 @@ void uiDialogBody::finalise()
 
 void uiDialogBody::provideHelp( CallBacker* )
 {
-    HelpViewer::use( HelpViewer::getURLForWinID(helpId) );
+    HelpViewer::use( HelpViewer::getURLForWinID(setup.helpid_) );
 }
 
 #define mBody static_cast<uiDialogBody*>(body_)
-
-uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
-		    bool wantMBar, bool wantSBar, bool wantTBar,
-		    const char* hid)
-	: uiMainWin( nm )
-	, finaliseStart( this )
-	, finaliseDone( this )
-{
-    body_= new uiDialogBody( *this, parnt, nm, modal, sep,
-	    			wantMBar, hid );
-    setBody( body_ );
-    body_->construct( wantSBar, wantMBar, wantTBar );
-
-    uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
-
-    cw->setStretch( 2, 2 );
-    mBody->setDlgGrp( cw );
-    setTitleText( nm );
-}
-
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 	: uiMainWin(s.wintitle_)

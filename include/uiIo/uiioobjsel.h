@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.19 2001-12-06 14:14:57 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.20 2002-01-30 15:46:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,11 +29,8 @@ class uiIOObjRetDlg : public uiDialog
 {
 public:
 
-			uiIOObjRetDlg(uiParent* p,const char* nm,
-                                  bool mo=true,bool se=true,
-				  bool wantMBar=false, bool wantSBar=false,
-                                  bool wantTBar=false)
-			: uiDialog(p,nm,mo,se,wantMBar,wantSBar,wantTBar) {}
+			uiIOObjRetDlg(uiParent* p,const Setup& s)
+			: uiDialog(p,s) {}
 
     virtual const IOObj* ioObj() const		= 0;
  

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.cc,v 1.1 2001-12-04 16:35:03 bert Exp $
+ RCS:           $Id: uiselsimple.cc,v 1.2 2002-01-30 15:46:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 uiSelectFromList::uiSelectFromList( uiParent* p,
 				    const ObjectSet<BufferString>& strs,
 				    const char* cur, const char* captn )
-	: uiDialog(p,captn)
+	: uiDialog(p,Setup(captn))
 	, selfld(0)
 	, sel_(-1)
 {
