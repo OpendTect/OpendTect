@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.11 2003-03-06 18:39:29 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.12 2003-03-07 13:12:20 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -17,11 +17,13 @@ static const char* rcsID = "$Id: visrandomtrack.cc,v 1.11 2003-03-06 18:39:29 na
 #include "vistexture2.h"
 #include "vistristripset.h"
 #include "viscoord.h"
+#include "visevent.h"
 #include "vistexturecoords.h"
 #include "visdataman.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoSwitch.h"
+#include "Inventor/nodes/SoShapeHints.h"
 #include "Inventor/nodes/SoScale.h"
 #include "Inventor/nodes/SoMaterial.h"
 
@@ -33,12 +35,27 @@ const char* visBase::RandomTrack::draggersizestr = "DraggerSize";
 mCreateFactoryEntry( visBase::RandomTrack );
 
 visBase::RandomTrack::RandomTrack()
-    : dragger( 0 )
+    : VisualObjectImpl( false )
+    , dragger( 0 )
     , draggerswitch( 0 )
+    , eventcatcher(visBase::EventCatcher::create())
     , depthrg( 0, 1 )
     , knotmovement( this )
-    , knotsel( this )
+    , knotnrchange( this )
 {
+    eventcatcher->ref();
+    eventcatcher->setEventType(visBase::MouseClick);
+    eventcatcher->eventhappened.notify(
+		            mCB(this,visBase::RandomTrack,eventCB) );
+
+    addChild( eventcatcher->getData() );
+
+    SoShapeHints* hints = new SoShapeHints;
+    hints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
+    hints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+    addChild( hints );
+
+
     addKnot( Coord( 0, 0 ) );
     addKnot( Coord( 1, 0 ) );
 }
@@ -51,6 +68,8 @@ visBase::RandomTrack::~RandomTrack()
 	removeChild( sections[idx]->getData() );
 	sections[idx]->unRef();
     }
+
+    eventcatcher->unRef();
 }
 
 
@@ -65,7 +84,7 @@ void visBase::RandomTrack::showDragger( bool yn )
 
 	draggerswitch->whichChild = 0;
 	if ( dragger->knots.getNum()>knots.size() )
-	    dragger->knots.deleteValues(knots.size(),dragger->knots.getNum()-1);
+	    dragger->knots.deleteValues(knots.size());
 
 	for ( int idx=0; idx<knots.size(); idx++ )
 	{
@@ -86,7 +105,25 @@ void visBase::RandomTrack::showDragger( bool yn )
 
 bool visBase::RandomTrack::isDraggerShown() const
 {
-    return draggerswitch &&draggerswitch->whichChild.getValue()==SO_SWITCH_NONE;
+    return draggerswitch &&draggerswitch->whichChild.getValue()!=SO_SWITCH_NONE;
+}
+
+
+void visBase::RandomTrack::moveObjectToDraggerPos()
+{
+    if ( !dragger ) return;
+    
+    for ( int idx=0; idx<knots.size(); idx++ )
+    {
+	SbVec2f kp = dragger->knots[idx];
+	knots[idx].x = kp[0];
+	knots[idx].y = kp[1];
+    }
+
+    depthrg.start = dragger->z0.getValue();
+    depthrg.stop = dragger->z1.getValue();
+    rebuild();
+    dragger->showFeedback(false);
 }
 
 
@@ -98,6 +135,9 @@ void visBase::RandomTrack::addKnot( const Coord& np )
 {
     knots += np;
     rebuild();
+    if ( isDraggerShown() )
+	showDragger( true );		//Rebuild the dragger
+    knotnrchange.trigger();
 }
 
 
@@ -105,6 +145,10 @@ void visBase::RandomTrack::insertKnot( int pos, const Coord& np )
 {
     knots.insert( pos, np );
     rebuild();
+    if ( isDraggerShown() )
+	showDragger( true );		//Rebuild the dragger
+
+    knotnrchange.trigger();
 }
 
 
@@ -137,6 +181,11 @@ void visBase::RandomTrack::removeKnot( int pos )
 
     knots.remove( pos );
     rebuild();
+
+    if ( dragger )
+	dragger->knots.deleteValues( pos, 1 );
+
+    knotnrchange.trigger();
 }
 
 
@@ -334,6 +383,7 @@ void visBase::RandomTrack::rebuild()
 	sections[idx-1]->setCoordIndex( 3, idx*2+1 );
 	sections[idx-1]->setCoordIndex( 4, -1 );
     }
+
 }
 
 
@@ -379,7 +429,6 @@ void visBase::RandomTrack::startCB(void* data,
 				    SoRandomTrackLineDragger* dragger)
 {
     visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
-    myself->knotsel.trigger( dragger->getMovingKnot() );
 }
 
 
@@ -434,3 +483,56 @@ int visBase::RandomTrack::usePar( const IOPar& par )
 }
 
 
+void visBase::RandomTrack::eventCB(CallBacker* cb)
+{
+    if ( eventcatcher->isEventHandled() ) return;
+    if ( !isDraggerShown() ) return;
+
+     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
+
+     if ( eventinfo.type != visBase::MouseClick ) return;
+     if ( eventinfo.mousebutton ) return; // only accept left-click
+     if ( eventinfo.pressed ) return; // only do stuff on mouse release
+
+     int eventid = -1;
+     int sectionidx = -1;
+     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+     {
+	 for ( int idy=0; idy<sections.size(); idy++ )
+	 {
+	     if ( eventinfo.pickedobjids[idx]==sections[idy]->id() )
+	     {
+		 sectionidx=idy;
+		 break;
+	     }
+	 }
+	 
+	 if ( sectionidx!=-1 )
+	     break;
+     }
+
+     if ( sectionidx==-1 )
+	 return;
+
+     Coord knotpos( dragger->xyzSnap( 0, eventinfo.localpickedpos.x ),
+		    dragger->xyzSnap( 1, eventinfo.localpickedpos.y ));
+
+     if ( eventinfo.ctrl && !eventinfo.shift && !eventinfo.alt )
+     {
+	 if ( knotpos.distance(knots[sectionidx]) <
+	      knotpos.distance(knots[sectionidx+1]) )
+	 {
+	     removeKnot( sectionidx );
+	 }
+	 else
+	 {
+	     removeKnot( sectionidx+1 );
+	 }
+     }
+     else
+     {
+	 insertKnot( sectionidx+1, knotpos );
+     }
+
+     eventcatcher->eventIsHandled();
+}
