@@ -4,9 +4,10 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.17 2002-04-29 09:03:33 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.18 2002-05-06 12:15:37 kristofer Exp $";
 
 #include "vistexturerect.h"
+#include "iopar.h"
 #include "visrectangle.h"
 #include "arrayndimpl.h"
 #include "dataclipper.h"
@@ -25,6 +26,11 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.17 2002-04-29 09:03:33 kr
 
 mCreateFactoryEntry( visBase::TextureRect );
 
+
+const char* visBase::TextureRect::texturequalitystr = "Texture quality";
+const char* visBase::TextureRect::rectangleidstr = "Rectangle ID";
+const char* visBase::TextureRect::colortabidstr = "ColorTable ID";
+const char* visBase::TextureRect::usestexturestr = "Uses texture";
 
 visBase::TextureRect::TextureRect()
     : texture( new SoTexture2 )
@@ -206,6 +212,59 @@ bool visBase::TextureRect::usesTexture() const
     return textureswitch->whichChild.getValue() == 0;
 }
 
+
+void visBase::TextureRect::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    int rectid = rectangle->id();
+    int ctid = colortable->id();
+
+    par.set( texturequalitystr, quality->textureQuality.getValue() );
+    par.set( rectangleidstr, rectid );
+    par.set( colortabidstr, ctid );
+    par.setYN( usestexturestr, usesTexture() );
+
+    if ( saveids.indexOf( rectid )==-1 ) saveids += rectid;
+    if ( saveids.indexOf( ctid )==-1 ) saveids += ctid;
+}
+
+
+int visBase::TextureRect::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res!= 1 ) return res;
+
+    float texturequality;
+    if ( !par.get( texturequalitystr, texturequality )) return -1;
+    setTextureQuality( texturequality );
+
+    int rectid;
+    if ( !par.get( rectangleidstr, rectid ) ) return -1;
+    DataObject* dataobj = DM().getObj( rectid );
+    if ( !dataobj ) return 0;
+    mDynamicCastGet( Rectangle*, rect, dataobj );
+    if ( !rect ) return -1;
+
+    setRectangle( rect );
+
+    int coltabid;
+    if ( !par.get( colortabidstr, coltabid ) ) return -1;
+    dataobj = DM().getObj( coltabid );
+    if ( !dataobj ) return 0;
+    mDynamicCastGet( VisColorTab*, coltab, dataobj );
+    if ( !coltab ) return -1;
+
+    setColorTab( coltab );
+
+    bool usetext;
+    if ( !par.getYN( usestexturestr, usetext )) return -1;
+
+    useTexture(usetext);
+
+    return 1;
+}
+    
 
 void visBase::TextureRect::setData( const Array2D<float>& d )
 {
