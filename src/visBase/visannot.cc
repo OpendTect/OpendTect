@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.6 2002-03-12 07:11:09 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.7 2002-04-19 08:58:07 kristofer Exp $";
 
 #include "visannot.h"
 
@@ -14,10 +14,12 @@ static const char* rcsID = "$Id: visannot.cc,v 1.6 2002-03-12 07:11:09 kristofer
 #include "Inventor/nodes/SoText2.h"
 #include "Inventor/nodes/SoTranslation.h"
 #include "Inventor/nodes/SoDrawStyle.h"
+#include "Inventor/nodes/SoSwitch.h"
 
 
 visBase::Annotation::Annotation()
     : coords( new SoCoordinate3 )
+    , textswitch( new SoSwitch )
 {
     addChild( coords );
 
@@ -60,10 +62,14 @@ visBase::Annotation::Annotation()
     line->coordIndex.setValues( 0, 2, indexes );
     addChild( line );
 
-    texts += new SoText2;
-    texts += new SoText2;
-    texts += new SoText2;
+    addChild( textswitch );
+    SoGroup* textgroup = new SoGroup;
+    textswitch->addChild(textgroup);
+    textswitch->whichChild = 0;
 
+    texts += new SoText2;
+    texts += new SoText2;
+    texts += new SoText2;
     textpositions += new SoTranslation;
     textpositions += new SoTranslation;
     textpositions += new SoTranslation;
@@ -71,23 +77,35 @@ visBase::Annotation::Annotation()
     SoSeparator* text = new SoSeparator;
     text->addChild( textpositions[0] );
     text->addChild( texts[0] );
-    addChild( text );
+    textgroup->addChild( text );
 
     text = new SoSeparator;
     text->addChild( textpositions[1] );
     text->addChild( texts[1] );
-    addChild( text );
+    textgroup->addChild( text );
 
     text = new SoSeparator;
     text->addChild( textpositions[2] );
     text->addChild( texts[2] );
-    addChild( text );
+    textgroup->addChild( text );
 
     texts[0]->justification = SoText2::CENTER;
     texts[1]->justification = SoText2::CENTER;
     texts[2]->justification = SoText2::CENTER;
 
     updateTextPos();
+}
+
+
+void visBase::Annotation::showText( bool yn )
+{
+    textswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
+}
+
+
+bool visBase::Annotation::isTextShown() const
+{
+    return textswitch->whichChild.getValue()==0;
 }
 
 

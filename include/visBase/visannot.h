@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.6 2002-03-20 20:41:37 bert Exp $
+ RCS:		$Id: visannot.h,v 1.7 2002-04-19 08:57:52 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,8 +20,10 @@ ________________________________________________________________________
 
 class SoCoordinate3;
 class SoText2;
+class SoSwitch;
 class SoTranslation;
 class SoDrawStyle;
+class AxisInfo;
 
 namespace visBase
 {
@@ -37,6 +39,8 @@ public:
     static Annotation*		create()
 				mCreateDataObj0arg(Annotation);
 
+    void			showText( bool yn );
+    bool			isTextShown() const;
     void			setCorner( int, float, float, float );
     void			setText( int dim, const char * );
     void			setLineStyle( const LineStyle& );
@@ -54,6 +58,7 @@ protected:
 
     ObjectSet<SoText2>		texts;
     ObjectSet<SoTranslation>	textpositions;
+    SoSwitch*			textswitch;
 
 };
 
