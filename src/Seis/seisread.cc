@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.11 2001-03-26 16:02:23 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.12 2001-06-18 13:57:50 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -144,6 +144,13 @@ bool SeisTrcReader::initRead()
 	errmsg = trl->errMsg();
 	cleanUp();
 	return false;
+    }
+
+    const int nrcomp = trl->componentInfo().size();
+    if ( nrcomp > 1 && selcomp != -1 )
+    {
+	for ( int idx=0; idx<nrcomp; idx++ )
+	    trl->componentInfo()[idx]->destidx = idx == selcomp ? 0 : -1;
     }
 
     needskip = false;

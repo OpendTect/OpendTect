@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.18 2001-05-31 14:09:05 windev Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.19 2001-06-18 13:57:19 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -517,7 +517,8 @@ bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
 }
 
 
-bool CBVSReader::fetch( void** bufs, const Interval<int>* samps )
+bool CBVSReader::fetch( void** bufs, const bool* comps,
+			const Interval<int>* samps )
 {
     if ( !hinfofetched )
     {
@@ -527,19 +528,21 @@ bool CBVSReader::fetch( void** bufs, const Interval<int>* samps )
 
     if ( !samps ) samps = samprgs;
 
+    int iselc = -1;
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
-	BasicComponentInfo* compinfo = info_.compinfo[icomp];
-	if ( samps[icomp].start > samps[icomp].stop )
+	if ( comps && !comps[icomp] )
 	{
 	    strm_.seekg( cnrbytes_[icomp], ios::cur );
 	    continue;
 	}
+	iselc++;
 
+	BasicComponentInfo* compinfo = info_.compinfo[icomp];
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps[icomp].start )
 	    strm_.seekg( samps[icomp].start*bps, ios::cur );
-	strm_.read( (char*)bufs[icomp],
+	strm_.read( (char*)bufs[iselc],
 		(samps[icomp].stop-samps[icomp].start+1) * bps );
 	if ( samps[icomp].stop < compinfo->nrsamples-1 )
 	    strm_.seekg( (compinfo->nrsamples-samps[icomp].stop-1)*bps,

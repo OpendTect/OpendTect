@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.6 2001-05-31 13:25:39 windev Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.7 2001-06-18 13:57:19 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -208,9 +208,9 @@ bool CBVSReadMgr::getHInfo( CBVSInfo::ExplicitData& ed )
 }
 
 
-bool CBVSReadMgr::fetch( void** d, const Interval<int>* s )
+bool CBVSReadMgr::fetch( void** d, const bool* c, const Interval<int>* s )
 {
-    return readers_[curnr_]->fetch( d, s );
+    return readers_[curnr_]->fetch( d, c, s );
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.6 2001-06-07 21:24:03 windev Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.7 2001-06-18 13:57:50 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -31,6 +31,8 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	, forread(true)
 	, storinterps(0)
 	, samps(0)
+	, cbvssamps(0)
+	, comps(0)
 	, userawdata(0)
 	, samedatachar(0)
 	, actualsz(0)
@@ -82,6 +84,8 @@ void CBVSSeisTrcTranslator::destroyVars()
     delete [] blockbufs; blockbufs = 0;
     delete [] storinterps; storinterps = 0;
     delete [] samps; samps = 0;
+    delete [] cbvssamps; cbvssamps = 0;
+    delete [] comps; comps = 0;
     delete [] userawdata; userawdata = 0;
     delete [] samedatachar; samedatachar = 0;
     delete [] actualsz; actualsz = 0;
@@ -152,41 +156,48 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 void CBVSSeisTrcTranslator::calcSamps()
 {
-    const int nrcomps = nrSelComps();
-    samps = new StepInterval<int> [nrcomps];
-    userawdata = new bool [nrcomps];
+    const int nrcomps = tarcds.size();
+    const int nrselcomps = nrSelComps();
+    samps = new StepInterval<int> [nrselcomps];
+    cbvssamps = new Interval<int> [nrcomps];
+    userawdata = new bool [nrselcomps];
 
     useinpsd = true;
-    for ( int idx=0; idx<nrcomps; idx++ )
+    int iselc = -1;
+    for ( int ic=0; ic<nrcomps; ic++ )
     {
-	userawdata[idx] = true;
-	// snap outcds[idx]->sd.step
-	float stepratio = outcds[idx]->sd.step / inpcds[idx]->sd.step;
-	samps[idx].step = mNINT(stepratio);
-	if ( samps[idx].step < 1 ) samps[idx].step = 1;
-	float outstep = samps[idx].step * inpcds[idx]->sd.step;
-	if ( samps[idx].step != 1 ) { useinpsd = userawdata[idx] = false; }
+	if ( tarcds[ic]->destidx < 0 ) continue;
+	iselc++;
 
-	// snap outcds[idx]->sd.start
-	float diff = outcds[idx]->sd.start - inpcds[idx]->sd.start;
-	diff /= outcds[idx]->sd.step;
+	userawdata[iselc] = true;
+	// snap outcds[iselc]->sd.step
+	float stepratio = outcds[iselc]->sd.step / inpcds[iselc]->sd.step;
+	samps[iselc].step = mNINT(stepratio);
+	if ( samps[iselc].step < 1 ) samps[iselc].step = 1;
+	float outstep = samps[iselc].step * inpcds[iselc]->sd.step;
+	if ( samps[iselc].step != 1 ) { useinpsd = userawdata[iselc] = false; }
+
+	// snap outcds[iselc]->sd.start
+	float diff = outcds[iselc]->sd.start - inpcds[iselc]->sd.start;
+	diff /= outcds[iselc]->sd.step;
 	int idiff = mNINT(diff);
 	if ( idiff ) useinpsd = false;
-	float outstart = inpcds[idx]->sd.start + idiff * inpcds[idx]->sd.step;
+	float outstart = inpcds[iselc]->sd.start
+		       + idiff * inpcds[iselc]->sd.step;
 
-	float orgoutstop = outcds[idx]->sd.start
-			 + outcds[idx]->sd.step * outcds[idx]->nrsamples;
+	float orgoutstop = outcds[iselc]->sd.start
+			 + outcds[iselc]->sd.step * outcds[iselc]->nrsamples;
 	float fnrsamps = (orgoutstop - outstart) / outstep;
 
-	outcds[idx]->sd.start = outstart;
-	outcds[idx]->sd.step = outstep;
-	outcds[idx]->nrsamples = mNINT(fnrsamps);
+	outcds[iselc]->sd.start = outstart;
+	outcds[iselc]->sd.step = outstep;
+	outcds[iselc]->nrsamples = mNINT(fnrsamps);
 
-	float fstart = (outstart - inpcds[idx]->sd.start) / outstep;
-	samps[idx].start = mNINT(fstart);
-	samps[idx].stop = samps[idx].start + outcds[idx]->nrsamples - 1;
+	float fstart = (outstart - inpcds[iselc]->sd.start) / outstep;
+	samps[iselc].start = mNINT(fstart);
+	samps[iselc].stop = samps[iselc].start + outcds[iselc]->nrsamples - 1;
+	assign( cbvssamps[ic], samps[iselc] );
     }
-
 }
 
 
@@ -210,19 +221,23 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     }
 
     blockbufs = new unsigned char* [nrcomps];
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    for ( int iselc=0; iselc<nrcomps; iselc++ )
     {
-	int bufsz = inpcds[icomp]->nrsamples;
-	if ( outcds[icomp]->nrsamples > bufsz )
-	    bufsz = outcds[icomp]->nrsamples;
+	int bufsz = inpcds[iselc]->nrsamples;
+	if ( outcds[iselc]->nrsamples > bufsz )
+	    bufsz = outcds[iselc]->nrsamples;
 	bufsz += 1;
-	int nbts = inpcds[icomp]->datachar.nrBytes();
-	if ( outcds[icomp]->datachar.nrBytes() > nbts )
-	    nbts = outcds[icomp]->datachar.nrBytes();
+	int nbts = inpcds[iselc]->datachar.nrBytes();
+	if ( outcds[iselc]->datachar.nrBytes() > nbts )
+	    nbts = outcds[iselc]->datachar.nrBytes();
 
-	blockbufs[icomp] = new unsigned char [ nbts * bufsz ];
-	if ( !blockbufs[icomp] ) { errmsg = "Out of memory"; return false; }
+	blockbufs[iselc] = new unsigned char [ nbts * bufsz ];
+	if ( !blockbufs[iselc] ) { errmsg = "Out of memory"; return false; }
     }
+
+    comps = new bool [tarcds.size()];
+    for ( int idx=0; idx<tarcds.size(); idx++ )
+	comps[idx] = tarcds[idx]->destidx >= 0;
 
     if ( !forread )
 	return startWrite();
@@ -312,46 +327,46 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 
     prepareComponents( trc, actualsz );
     const CBVSInfo& info = rdmgr->info();
-    for ( int icomp=0; icomp<nrSelComps(); icomp++ )
+    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	const BasicComponentInfo& ci = *info.compinfo[ selComp(icomp) ];
-	trc.setScaler( ci.scaler, icomp );
-	tdptrs[icomp] = trc.data().getComponent(selComp(icomp))->data();
-	stptrs[icomp] = userawdata[icomp] ? tdptrs[icomp] : blockbufs[icomp];
+	const BasicComponentInfo& ci = *info.compinfo[ selComp(iselc) ];
+	trc.setScaler( ci.scaler, iselc );
+	tdptrs[iselc] = trc.data().getComponent( iselc )->data();
+	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
     }
 
-    if ( !rdmgr->fetch( (void**)stptrs, samps ) )
+    if ( !rdmgr->fetch( (void**)stptrs, comps, cbvssamps ) )
     {
 	errmsg = rdmgr->errMsg();
 	return false;
     }
 
-    for ( int icomp=0; icomp<nrSelComps(); icomp++ )
+    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	if ( userawdata[icomp] ) continue;
+	if ( userawdata[iselc] ) continue;
 
-	if ( samedatachar[icomp] )
+	if ( samedatachar[iselc] )
 	{
 	    // Take each n-th sample
-	    for ( int outsmp=0; outsmp<outcds[icomp]->nrsamples; outsmp++ )
+	    for ( int outsmp=0; outsmp<outcds[iselc]->nrsamples; outsmp++ )
 	    {
-		memcpy( tdptrs[icomp], stptrs[icomp],
-			(int)inpcds[icomp]->datachar.nrBytes() );
-		stptrs[icomp] += (int)inpcds[icomp]->datachar.nrBytes()
-				* samps[icomp].step;
-		tdptrs[icomp] += (int)inpcds[icomp]->datachar.nrBytes();
+		memcpy( tdptrs[iselc], stptrs[iselc],
+			(int)inpcds[iselc]->datachar.nrBytes() );
+		stptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes()
+				* samps[iselc].step;
+		tdptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes();
 	    }
 	}
 	else
 	{
 	    // Convert data into other format
-	    for ( int outsmp=0,inp_samp=0; outsmp<outcds[icomp]->nrsamples;
+	    for ( int outsmp=0,inp_samp=0; outsmp<outcds[iselc]->nrsamples;
 		  outsmp++ )
 	    {
 		trc.set( outsmp,
-			 storinterps[icomp]->get( stptrs[icomp], inp_samp ),
-			 icomp);
-		inp_samp += samps[icomp].step;
+			 storinterps[iselc]->get( stptrs[iselc], inp_samp ),
+			 iselc);
+		inp_samp += samps[iselc].step;
 	    }
 	}
 
@@ -405,32 +420,32 @@ bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
     expldat.pick = trc.info().pick;
     expldat.refpos = trc.info().refpos;
 
-    for ( int icomp=0; icomp<nrSelComps(); icomp++ )
+    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	tdptrs[icomp] = const_cast<unsigned char*>(
-			trc.data().getComponent(selComp(icomp))->data() );
-	stptrs[icomp] = userawdata[icomp] ? tdptrs[icomp] : blockbufs[icomp];
-	if ( !userawdata[icomp] )
+	tdptrs[iselc] = const_cast<unsigned char*>(
+			trc.data().getComponent(selComp(iselc))->data() );
+	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
+	if ( !userawdata[iselc] )
 	{
-	    if ( samedatachar[icomp] )
+	    if ( samedatachar[iselc] )
 	    {
-		for ( int outsmp=0; outsmp<outcds[icomp]->nrsamples; outsmp++ )
-		memcpy( stptrs[icomp], tdptrs[icomp],
-			(int)inpcds[icomp]->datachar.nrBytes() );
-		tdptrs[icomp] += (int)inpcds[icomp]->datachar.nrBytes()
-				* samps[icomp].step;
-		stptrs[icomp] += (int)inpcds[icomp]->datachar.nrBytes();
+		for ( int outsmp=0; outsmp<outcds[iselc]->nrsamples; outsmp++ )
+		memcpy( stptrs[iselc], tdptrs[iselc],
+			(int)inpcds[iselc]->datachar.nrBytes() );
+		tdptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes()
+				* samps[iselc].step;
+		stptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes();
 	    }
 	    else
 	    {
 		const TraceDataInterpreter* inpinterp
-			= trc.data().getInterpreter(selComp(icomp));
-		for ( int outsmp=0,inp_samp=0; outsmp<outcds[icomp]->nrsamples;
+			= trc.data().getInterpreter(selComp(iselc));
+		for ( int outsmp=0,inp_samp=0; outsmp<outcds[iselc]->nrsamples;
 		  outsmp++ )
 		{
-		    storinterps[icomp]->put( stptrs[icomp], outsmp,
-			inpinterp->get( tdptrs[icomp], inp_samp ) );
-		    inp_samp += samps[icomp].step;
+		    storinterps[iselc]->put( stptrs[iselc], outsmp,
+			inpinterp->get( tdptrs[iselc], inp_samp ) );
+		    inp_samp += samps[iselc].step;
 		}
 	    }
 	}

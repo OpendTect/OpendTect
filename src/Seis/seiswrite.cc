@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.7 2001-03-23 11:25:48 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.8 2001-06-18 13:57:50 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
@@ -128,7 +128,17 @@ bool SeisTrcWriter::initWrite( const SeisTrc& trc )
 	return false;
     }
     wrinited = true;
-    return trl->initWrite( *conn, trc );
+    if ( !trl->initWrite( *conn, trc ) )
+	return false;
+
+    const int nrcomp = trl->componentInfo().size();
+    if ( nrcomp > 1 && selcomp != -1 )
+    {
+	for ( int idx=0; idx<nrcomp; idx++ )
+	    trl->componentInfo()[idx]->destidx = idx == selcomp ? 0 : -1;
+    }
+
+    return true;
 }
 
 
