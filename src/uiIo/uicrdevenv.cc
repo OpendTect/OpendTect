@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.3 2004-01-16 16:37:14 bert Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.4 2004-01-22 15:18:04 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,13 +21,61 @@ ________________________________________________________________________
 
 extern "C" { const char* GetBaseDataDir(); }
 
+#ifdef __win__
+
+#include <windows.h>
+#include <regstr.h>
+#include <ctype.h>
+#include <winreg.h>
+#include <iostream>
+
+const char* getCygDir()
+{
+    static BufferString answer;
+
+    HKEY hKeyRoot = HKEY_LOCAL_MACHINE;
+    LPCTSTR subkey="SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
+    LPTSTR Value="native";
+
+    BYTE* Value_data = new BYTE[80];
+    DWORD Value_size = 80;
+
+    HKEY hKeyNew=0;
+    DWORD retcode=0;
+    DWORD Value_type=0;
+
+
+    retcode = RegOpenKeyEx ( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew);
+    if (retcode != ERROR_SUCCESS) return 0;
+
+
+    retcode = RegQueryValueEx( hKeyNew, Value, NULL, &Value_type, Value_data,
+                               &Value_size);
+    if (retcode != ERROR_SUCCESS) return 0;
+
+
+    answer = (const char*) Value_data;
+    if ( !File_isDirectory(answer) ) return 0;
+
+
+    BufferString bindir = File_getFullPath(answer,"bin");
+    if ( !File_isDirectory(bindir) ) return 0;
+
+    return answer;
+}
+
+#endif
+
+
 
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
-			const char* workdirnm  )
+			const char* workdirnm, const char* cygwin )
 	: uiDialog(p,uiDialog::Setup("Create Work Enviroment",
 		    		     "Specify a work directory",
 		    		     "8.0.1"))
 	, workdirfld(0)
+	, basedirfld(0)
+	, cyginstfld(0)
 {
     const char* titltxt =
     "For OpendTect development you'll need a $WORK dir\n"
@@ -40,6 +88,13 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 
     workdirfld = new uiGenInput( this, "Directory name", workdirnm );
     workdirfld->attach( alignedBelow, basedirfld );
+
+#ifdef __win__
+    cyginstfld = new uiGenInput( this, 0,
+			     BoolInpSpec("Setup cygwin",0,cygwin&&*cygwin) );
+
+    cyginstfld->attach( alignedBelow, workdirfld );
+#endif
 }
 
 
@@ -68,6 +123,11 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     BufferString oldworkdir(getenv("WORK"));
     const bool oldok = isOK( oldworkdir );
+    const char* cygwin = 0;
+
+#ifdef __win__
+    cygwin = getCygDir();
+#endif
 
     BufferString workdirnm;
 
@@ -86,21 +146,24 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    File_remove( workdirnm, true );
 	    workdirnm = oldworkdir;
 	}
-
     }
 
+    bool installcyg = false;
     
     if ( workdirnm == "" )
     {
 	BufferString worksubdirm = "ODWork";
-	BufferString basedirnm = GetPersonalDir();
+
+	BufferString basedirnm = cygwin ? cygwin : GetPersonalDir();
 
 	// pop dialog
-	uiCrDevEnv dlg( appl, basedirnm, worksubdirm );
+	uiCrDevEnv dlg( appl, basedirnm, worksubdirm, cygwin );
 	if ( !dlg.go() ) return;
 
 	basedirnm = dlg.basedirfld->text();
 	worksubdirm = dlg.workdirfld->text();
+
+	installcyg = dlg.cyginstfld ? dlg.cyginstfld->getBoolValue() : false;
 
 	if ( !File_isDirectory(basedirnm) )
 	    mErrRet( "Invalid directory selected" )
@@ -160,6 +223,10 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     cmd = File_getFullPath( cmd, "od_cr_dev_env" );
     cmd += "' '"; cmd += GetSoftwareDir();
     cmd += "' '"; cmd += workdirnm; cmd += "'";
+
+    if ( installcyg )
+	cmd += " --installcygwin";
+
     StreamProvider( cmd ).executeCommand( false );
 
     BufferString relfile = File_getFullPath( workdirnm, ".rel.od.doc" );
