@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: mksethdir,v 1.3 2003-10-19 13:53:07 bert Exp $
+# $Id: mksethdir,v 1.4 2003-10-31 12:34:21 bert Exp $
 #
 # HDIR variable setup
 # usage from a csh-script:
@@ -49,4 +49,4 @@ if ( ! -d $ROOT_DIR/bin/$binsubdir ) then
     set binsubdir=$HDIR
 endif
 
-echo "$sethdirstr set binsubdir=$binsubdir"
+echo "$sethdirstr setenv binsubdir $binsubdir"
