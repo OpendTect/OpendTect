@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.26 2001-07-18 07:56:33 nanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.27 2001-07-19 22:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -495,7 +495,7 @@ class uiStrLstInpFld : public uiIntInpField
 public:
 			uiStrLstInpFld( uiGenInput* p, 
 					 const DataInpSpec& spec,
-					 const char* nm="Line Edit Field" ) 
+					 const char* nm="uiStrLstInpFld" ) 
 			    : uiIntInpField( p, spec )
 			    , cbb( *new uiComboBox(p,nm) ) 
 			{
@@ -503,6 +503,9 @@ public:
 			    if ( !spc ) { pErrMsg("Huh") ; return; }
 
 			    cbb.addItems( spc->strings() );
+			    int cursel = spc->getIntValue(0);
+			    if ( cursel >= 0 && cursel < spc->strings().size() )
+				cbb.setCurrentItem( cursel );
 			    init();
 
 			    cbb.selectionchanged.notify( 

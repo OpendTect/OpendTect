@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.10 2001-07-18 16:14:57 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.11 2001-07-19 22:16:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,7 @@ class uiPushButton;
 class IOPar;
 
 
-/*! \brief UI element for selection of data objects
-
-*/
+/*! \brief UI element for selection of data objects */
 
 class uiIOSelect : public uiGroup
 {
@@ -29,7 +27,6 @@ public:
 
 			uiIOSelect(uiParent*,const CallBack& do_selection,
 				   const char* txt,
-				   bool selection_editable=true,
 				   bool withclear=false);
 			~uiIOSelect();
 
@@ -38,11 +35,10 @@ public:
     void		setInput(const char* key);
 			//!< Will fetch user name using userNameFromKey
 
-    int			nrItems() const		 { return entries_.size(); }
+    int			nrItems() const;
     int			getCurrentItem() const;
     void		setCurrentItem(int);
-    const char*		getItem( int idx ) const
-			{ return idx >= 0 ? (const char*)(*entries_[idx]) :""; }
+    const char*		getItem(int) const;
 
     void		addSpecialItem(const char* key,const char* value=0);
 			//!< If value is null, add value same as key
@@ -79,6 +75,8 @@ protected:
 
     virtual void	objSel()		{}
 			//!< notification when user selects from combo
+
+    virtual void	finalise_();
 
 };
 

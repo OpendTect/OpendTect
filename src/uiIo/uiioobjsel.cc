@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.12 2001-07-18 21:48:01 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.13 2001-07-19 22:15:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,6 +200,12 @@ const char* uiIOObjSel::userNameFromKey( const char* ky ) const
 void uiIOObjSel::processInput()
 {
     const char* inp = getInput();
+    if ( specialitems.findKeyFor(inp) )
+    {
+	ctio.setObj( 0 );
+	return;
+    }
+
     int selidx = getCurrentItem();
     if ( selidx < 0 || !strcmp(inp,getItem(selidx)) ) return;
 
@@ -220,6 +226,13 @@ bool uiIOObjSel::existingTyped() const
 
 bool uiIOObjSel::commitInput( bool mknew )
 {
+    const char* inp = getInput();
+    if ( specialitems.findKeyFor(inp) )
+    {
+	ctio.setObj( 0 );
+	return true;
+    }
+
     processInput();
     if ( existingTyped() ) return true;
     if ( !mknew ) return false;
@@ -237,7 +250,6 @@ void uiIOObjSel::doObjSel( CallBacker* )
     {
 	ctio.setObj( dlg->ioObj()->clone() );
 	updateInput();
-	selDone( 0 );
 	newSelection( dlg );
     }
     delete dlg;
@@ -246,7 +258,11 @@ void uiIOObjSel::doObjSel( CallBacker* )
 
 void uiIOObjSel::objSel()
 {
-    ctio.setObj( IOM().get(getKey()) );
+    const char* key = getKey();
+    if ( specialitems.find(key) )
+	ctio.setObj( 0 );
+    else
+	ctio.setObj( IOM().get(getKey()) );
 }
 
 

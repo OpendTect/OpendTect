@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.13 2001-07-18 16:17:48 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.14 2001-07-19 22:15:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 
 uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
-			bool seled, bool withclear )
+			bool withclear )
 	: uiGroup(p)
 	, doselcb_(butcb)
 	, selectiondone(this)
@@ -27,7 +27,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
 {
     if ( withclear ) addSpecialItem( "" );
 
-    inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", seled );
+    inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", true );
     inp_->box()->selectionchanged.notify( mCB(this,uiIOSelect,selDone) );
     inp_->box()->setPrefWidthInChar( 20 );
     selbut_ = new uiPushButton( this, "Select ..." );
@@ -43,6 +43,13 @@ uiIOSelect::~uiIOSelect()
 {
     delete &specialitems;
     deepErase( entries_ );
+}
+
+
+void uiIOSelect::finalise_()
+{
+    uiGroup::finalise_();
+    updateFromEntries();
 }
 
 
@@ -200,10 +207,27 @@ void uiIOSelect::setCurrentItem( int idx )
 }
 
 
+int uiIOSelect::nrItems() const
+{
+    return specialitems.size() + entries_.size();
+}
+
+
+const char* uiIOSelect::getItem( int idx ) const
+{
+    const int nrspec = specialitems.size();
+    const int nrentries = entries_.size();
+    return idx < nrspec
+	 ? (idx < 0 ? "" : specialitems.getValue(idx))
+	 : (idx < nrentries + nrspec ? (const char*)*entries_[idx-nrspec] : "");
+}
+
+
 void uiIOSelect::doSel( CallBacker* )
 {
     processInput();
     doselcb_.doCall( this );
+    updateFromEntries();
 }
 
 
@@ -216,7 +240,7 @@ void uiIOSelect::selDone( CallBacker* )
 
 uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
 				const char* inp, bool wclr )
-	: uiIOSelect(p,mCB(this,uiIOFileSelect,doFileSel),txt,!frrd,wclr)
+	: uiIOSelect(p,mCB(this,uiIOFileSelect,doFileSel),txt,wclr)
 	, forread(frrd)
 {
     if ( inp && *inp ) setInput( inp );
