@@ -1,32 +1,107 @@
-#!/bin/csh -f
+#!/bin/sh
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.1 2003-11-27 15:39:33 bert Exp $
+# $Id: od_cr_dev_env,v 1.2 2003-12-04 11:39:49 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
 #_______________________________________________________________________________
 
+logfile="/tmp/od_cr_dev_env.$$"
 
-if ( $#argv != 2 ) then
+if [ ! "$#" -eq 2 ]; then
 	echo "Usage : $0 OpendtTect_directory existing_target_directory"
+	echo "Usage : $0 OpendtTect_directory existing_target_directory" >> $logfile
 	exit 1
-endif
+fi
 
-set inpdir=$1
-set outdir=$2
+MINGWHOME=""
+if [ "$HDIR" = "win" ]; then
+    inpdir=`cygpath -u "$1"` 
+    outdir=`cygpath -u "$2"`
+    soext=dll
 
-if ( ! -d $inpdir || ! -e $inpdir/.rel.od.doc ) then
+    if [ ${MINGWHOME:-'No'} == "No" ]; then
+	source "$DTECT_APPL/bin/win/getMinGWdir.sh"
+    fi
+    if [ ${MINGWHOME:-'No'} == "No" ]; then
+	export MINGWHOME="/cygdrive/c/MinGW"
+    fi
+else
+    inpdir=$1
+    outdir=$2
+    soext=so
+fi
+
+echo "Input dir: " $inpdir
+echo "Output dir: " $outdir
+
+if [ ! -d "$inpdir" ] || [ ! -e "$inpdir/.rel.od.doc" ]; then
 	echo "$0 : $inpdir does not have the doc package installed"
+	echo "$0 : $inpdir does not have the doc package installed" >> $logfile
 	exit 1
-endif
+fi
 
-if ( ! -w $outdir  ) then
+if [ ! -w "$outdir"  ]; then
 	echo "$0 : target directory $outdir not writable"
+	echo "$0 : target directory $outdir not writable" >> $logfile
 	exit 1
-endif
+fi
 
 
-#TODO implement
-touch $2/.rel.od.doc
+# ----------------------------------------------------------------------------
+# Setup work directory
+# ----------------------------------------------------------------------------
+
+cd "$outdir"
+
+for item in plugins include Pmake
+do 
+    echo " copying" $item
+    cp -a "$odpath"/$item .
+done 
+
+if [ -d plugins ]; then
+    cd plugins
+    if [ -e Makefile.lnk ]; then
+	\rm Makefile.lnk
+    fi
+    ln -s Makefile.od Makefile
+fi
+
+echo "setting up lib"
+
+cd "$outdir"
+mkdir lib
+cd lib
+mkdir $HDIR
+cd $HDIR
+ln -s . G
+ln -s . O
+
+echo "setting up bin"
+
+cd "$outdir"
+mkdir bin
+cd bin
+mkdir $HDIR
+cd $HDIR
+mkdir so
+cd so
+
+
+echo " copying ${soext}'s"
+cp -a "$odpath/bin/$HDIR/so"/*.$soext .
+cp -a "$odpath/bin/$HDIR/so"/*.a .
+
+
+cd "$outdir"
+
+for fil in init.bash init.csh 
+do
+    sed -e "s/__WORK__/$outdir/" \
+        -e "s/__MINGWHOME__/$MINGWHOME/" \
+        "$odpath/bin/.$fil" > $fil
+done
+
