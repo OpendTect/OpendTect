@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.2 2005-01-07 12:18:29 kristofer Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.3 2005-01-10 12:30:53 kristofer Exp $";
 
 #include "mpeengine.h"
 
@@ -281,7 +281,7 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 	if ( strcmp(editorfactories[idx]->emObjectType(), emobj->getTypeStr()) )
 	    continue;
 
-	ObjectEditor* editor = editorfactories[idx]->create(emobj);
+	ObjectEditor* editor = editorfactories[idx]->create(*emobj);
 	editors += editor;
 	return editor;
     }
@@ -322,5 +322,14 @@ void Engine::addEditorFactory( EditorFactory* nef )
     editorfactories += nef;
 }
 
+}; //namespace
 
-};  //namespace
+#include "emhortubeeditor.h"
+#include "emhortubetracker.h"
+
+
+void MPE::initStandardClasses()
+{
+    MPE::HorizontalTubeEditor::initClass();
+    MPE::HorizontalTubeTracker::initClass();
+}
