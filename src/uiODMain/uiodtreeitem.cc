@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.40 2004-08-18 15:08:03 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.41 2004-08-19 15:33:31 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -557,7 +557,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	else if ( menu->getPath() )
 	    section = uivissurf->getSection( menu->getPath() );
 
-	if ( section != -1 )
+	if ( section != -1 && uivissurf->isHorizon(displayid) )
 	{
 	    cutmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Cut by ..."), cutmnuid );
