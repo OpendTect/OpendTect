@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.27 2002-04-30 14:13:00 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.28 2002-05-07 07:13:20 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -763,7 +763,7 @@ void visBase::Rectangle::setDraggerSize( float w, float h, float d )
 
 
 
-void visBase::Rectangle::moveObjectToManipRect(CallBacker*)
+void visBase::Rectangle::moveObjectToManipRect()
 {
     SbVec3f centerpos( maniprecttrans->translation.getValue());
     SbVec3f scale = maniprectscale->scaleFactor.getValue();
