@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.18 2004-09-22 16:04:02 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.19 2004-09-28 14:38:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -376,7 +376,7 @@ bool uiSeis2DSubSel::getRange( StepInterval<int>& trg ) const
     if ( isAll() || !res || !*res )
     {
 	trg.stop = mUndefIntVal;
-	return false;
+	return true;
     }
 
     trg = trcrgfld->getIStepInterval();
