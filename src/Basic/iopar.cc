@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.21 2002-05-08 10:00:56 kristofer Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.22 2002-12-13 12:49:32 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -39,7 +39,7 @@ IOPar::IOPar( const IOPar& iop )
 }
 
 
-IOPar& IOPar::operator=( const IOPar& iop )
+IOPar& IOPar::operator =( const IOPar& iop )
 {
     if ( this != &iop )
     {
@@ -49,6 +49,32 @@ IOPar& IOPar::operator=( const IOPar& iop )
 	    add( iop.pars_[idx]->name(), iop.pars_[idx]->obj->name() );
     }
     return *this;
+}
+
+
+bool IOPar::isEqual( const IOPar& iop, bool worder ) const
+{
+    if ( &iop == this ) return true;
+    const int sz = size();
+    if ( iop.size() != sz ) return false;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( worder )
+	{
+	    if ( iop.pars_[idx]->name() != pars_[idx]->name()
+		|| iop.pars_[idx]->obj->name() != pars_[idx]->obj->name() )
+		return false;
+	}
+	else
+	{
+	    const char* res = iop.find( getKey(idx) );
+	    if ( !res || strcmp(res,getValue(idx)) )
+		return false;
+	}
+    }
+
+    return true;
 }
 
 
