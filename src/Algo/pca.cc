@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.1 2002-12-30 08:57:35 kristofer Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.2 2002-12-30 12:49:30 kristofer Exp $";
 
 
 #include "pca.h"
@@ -252,4 +252,20 @@ void PCA::calculate()
 	    }
 	} while (m != l);
     }
+
+    eigenvalues.erase();
+
+    for ( int idx=0; idx<nrvars; idx++ )
+	eigenvalues += d[idx];
+}
+
+
+float PCA::getEigenValue(int idx) const { return eigenvalues[idx]; }
+
+
+void PCA::getEigenVector(int idy, TypeSet<float>& res ) const
+{
+    res.erase();
+    for ( int idx=0; idx<nrvars; idx++ )
+	res += covariancematrix.get(idx, idy );
 }

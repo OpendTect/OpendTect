@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.1 2002-12-30 08:57:32 kristofer Exp $
+ RCS:		$Id: pca.h,v 1.2 2002-12-30 12:49:43 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,8 +35,8 @@ public:
 
     void				calculate();
 
-    float				getEigenValue(int);
-    Vector3				getEigenVector(int) const;
+    float			getEigenValue(int) const;
+    void			getEigenVector(int, TypeSet<float>&) const;
 
 protected:
     const int			nrvars;
@@ -45,6 +45,7 @@ protected:
     TypeSet<float>		samplesums;
     Threads::ThreadWorkManager*	threadworker;
     ObjectSet<BasicTask>	tasks;
+    TypeSet<float>		eigenvalues;
 };
 
 
