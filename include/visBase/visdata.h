@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.6 2002-03-20 20:41:37 bert Exp $
+ RCS:		$Id: visdata.h,v 1.7 2002-03-20 21:01:54 bert Exp $
 ________________________________________________________________________
 
 
@@ -45,8 +45,8 @@ public:
     void		ref() const;
     void		unRef() const;
 
-    virtual i_Notifier*	selection() { return 0; }
-    virtual i_Notifier*	deSelection() { return 0; }
+    virtual NotifierAccess*	selection() { return 0; }
+    virtual NotifierAccess*	deSelection() { return 0; }
 
     virtual int		usePar( const IOPar& ) { return 1; }
     			/*!< Returns -1 on error and 1 on success.
