@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.32 2004-12-30 15:04:40 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.33 2004-12-30 17:29:35 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -52,6 +52,7 @@ public:
     virtual bool	implSetReadOnly(const IOObj*,bool) const;
     virtual const char*	defExtension() const	{ return sKeyDefExtension; }
     static const char*	sKeyDefExtension;
+    static const char*	sKeyDataStorage;
 
     bool		minimalHdrs() const		{ return minimalhdrs; }
     void		setMinimalHdrs( bool yn=true )	{ minimalhdrs = yn; }

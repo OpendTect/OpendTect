@@ -4,9 +4,10 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.2 2004-12-30 15:04:40 bert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.3 2004-12-30 17:29:35 bert Exp $";
 
 #include "seiscbvsps.h"
+#include "seispsioprov.h"
 #include "seiscbvs.h"
 #include "seisbuf.h"
 #include "filepath.h"
@@ -14,6 +15,21 @@ static const char* rcsID = "$Id: seiscbvsps.cc,v 1.2 2004-12-30 15:04:40 bert Ex
 #include "survinfo.h"
 #include "sortedlist.h"
 #include "dirlist.h"
+#include "iopar.h"
+
+class CBVSSeisPSIOProvider : public SeisPSIOProvider
+{
+public:
+			CBVSSeisPSIOProvider() : SeisPSIOProvider("CBVS") {}
+    SeisPSReader*	makeReader( const char* dirnm ) const
+			{ return new SeisCBVSPSReader(dirnm); }
+    SeisPSWriter*	makeWriter( const char* dirnm ) const
+			{ return new SeisCBVSPSWriter(dirnm); }
+    static int		factid;
+};
+
+// This adds the CBVS type pre-stack seismics data storage to the factory
+int CBVSSeisPSIOProvider::factid = SPSIOPF().add( new CBVSSeisPSIOProvider );
 
 
 SeisCBVSPSIO::SeisCBVSPSIO( const char* dirnm )
@@ -138,6 +154,14 @@ SeisCBVSPSWriter::~SeisCBVSPSWriter()
 void SeisCBVSPSWriter::close()
 {
     delete tr_; tr_ = 0;
+}
+
+
+void SeisCBVSPSWriter::usePar( const IOPar& iopar )
+{
+    const char* res = iopar.find( CBVSSeisTrcTranslator::sKeyDataStorage );
+    if ( res && *res )
+	reqdtype_ = (DataCharacteristics::UserType)(*res-'0');
 }
 
 

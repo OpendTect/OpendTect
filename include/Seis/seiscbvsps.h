@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.2 2004-12-30 15:04:40 bert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.3 2004-12-30 17:29:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ public:
 
     void		setPrefStorType( DataCharacteristics::UserType ut )
 						{ reqdtype_ = ut; }
+    void		usePar(const IOPar&);
     void		close();
 
     bool		put(const SeisTrc&);
