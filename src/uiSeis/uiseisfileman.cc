@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.3 2002-06-13 15:31:13 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.4 2002-06-14 09:22:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,17 @@ void uiSeisFileMan::mkFileInfo()
 
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     if ( iostrm )
-	{ txt += "\nFile name: "; txt += iostrm->fileName(); }
+    {
+	BufferString fname( iostrm->fileName() );
+	if ( !File_isAbsPath(fname) )
+	{
+	    fname = GetDataDir();
+	    fname = File_getFullPath( fname, "Seismics" );
+	    fname = File_getFullPath( fname, iostrm->fileName() );
+	}
+	txt += "\nLocation: "; txt += File_getPathOnly(fname);
+	txt += "\nFile name: "; txt += File_getFileName(fname);
+    }
     
     infofld->setText( txt );
 }
@@ -185,23 +195,26 @@ void uiSeisFileMan::relocatePush( CallBacker* )
     int curitm = listfld->currentItem();
     const FileNameString fulloldname = ioobj->fullUserExpr(true);
     const char* dirpath = File_getPathOnly( fulloldname );
-    const char* fname = File_getFileName( fulloldname );
+    BufferString fname = File_getFileName( fulloldname );
     uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, dirpath );
     if ( dlg.go() )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj)
 	if ( !iostrm ) return;
-        const char* newdirpath = dlg.fileName();
-	const FileNameString fullnewname = File_getFullPath(newdirpath,fname);
+        BufferString newdirpath = dlg.fileName();
+
+	BufferString fullnewname = File_getFullPath(newdirpath,fname);
 	if ( File_exists(fullnewname) )
 	{
-	    uiMSG().error( "Filename exists at this location\n"
-			   "Please select new location or rename file" );
+	    uiMSG().error( "New name exists at given location\n"
+			   "Please select another location" );
 	    return;
 	}
+	UsrMsg( "Moving cube ..." );
 	if ( !File_rename(fulloldname,fullnewname) )
 	{
-	    uiMSG().error( "Could move file to new location" );
+	    uiMSG().error( "Could not move file to new location" );
+	    UsrMsg( "" );
 	    return;
 	}
 	iostrm->setFileName( fullnewname );
