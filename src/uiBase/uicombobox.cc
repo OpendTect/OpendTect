@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.15 2001-06-03 15:43:51 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.16 2001-07-23 10:30:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ const char* uiComboBox::getText() const
 
 void uiComboBox::setText( const char* txt )
 {
-    NotifyStopper<uiComboBox> stopper(selectionchanged);
+    NotifyStopper stopper(selectionchanged);
     if ( isPresent(txt) )
 	setCurrentItem(txt);
     else
@@ -114,7 +114,7 @@ int uiComboBox::size() const
 
 void uiComboBox::setCurrentItem( const char* txt )
 {
-    NotifyStopper<uiComboBox> stopper(selectionchanged);
+    NotifyStopper stopper(selectionchanged);
 
     const int sz = mQtThing()->count();
     for ( int idx=0; idx<sz; idx++ )
@@ -126,7 +126,7 @@ void uiComboBox::setCurrentItem( const char* txt )
 
 void uiComboBox::setCurrentItem( int idx )
 {
-    NotifyStopper<uiComboBox> stopper(selectionchanged);
+    NotifyStopper stopper(selectionchanged);
 
     if ( idx >= 0 && idx < mQtThing()->count() )
 	mQtThing()->setCurrentItem( idx );
