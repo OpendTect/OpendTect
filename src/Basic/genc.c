@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.38 2004-02-06 13:07:46 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.39 2004-02-06 13:11:11 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -278,12 +278,8 @@ const char* GetSurveyFileName()
 	ptr = GetSoftwareUser();
 	if ( ptr )
 	{
-	    static FileNameString usrsfname;
-	    strcpy( usrsfname, sfname );
-	    strcat( usrsfname, "." );
-	    strcat( usrsfname, ptr );
-	    if ( FileExists(usrsfname) )
-		strcpy( sfname, usrsfname );
+	    strcat( sfname, "." );
+	    strcat( sfname, ptr );
 	}
 	inited = YES;
     }
