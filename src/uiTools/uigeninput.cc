@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.59 2003-12-22 15:26:22 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.60 2004-02-19 14:20:36 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,8 +57,8 @@ public:
 
     virtual UserInputObj* element( int idx=0 )		= 0;
 
-    const UserInputObj*	  element( int idx=0 ) const
-			   {return const_cast<uiInputFld*>(this)->element(idx);}
+    const UserInputObj*	element( int idx=0 ) const
+			{ return const_cast<uiInputFld*>(this)->element(idx); }
 
     virtual uiObject*	mainObj()			= 0;
 
@@ -66,13 +66,13 @@ public:
     virtual uiObject*	elemObj( int idx=0 )
 			{
 			    UserInputObj* elem = element(idx);
-			    if ( !elem )	return 0;
+			    if ( !elem ) return 0;
 
 			    uiObject* ob = dynamic_cast<uiObject*>(elem);
-			    if ( ob )	return ob;
+			    if ( ob ) return ob;
 
 			    uiGroup* grp = dynamic_cast<uiGroup*>(elem);
-			    if ( grp )	return grp->mainObject(); 
+			    if ( grp ) return grp->mainObject(); 
 
 			    return 0;
 			}
@@ -84,6 +84,7 @@ public:
 			    pErrMsg("Sorry, not implemented..");
 			    return true;
 			} // TODO implement
+
     virtual bool	isUndef(int idx) const
 			{ return !*text(idx); } 
 
@@ -93,27 +94,25 @@ public:
 						: undefVal<const char*>();
 			}
     int			getIntValue( int idx )	const
-			    { 
-				return element(idx) 
-						? element(idx)->getIntValue() 
+			{ 
+			    return element(idx) ? element(idx)->getIntValue() 
 						: undefVal<int>();
-			    }
+			}
     double		getValue( int idx )
-			    { 
-				return element(idx) ? element(idx)->getValue() 
-						    : undefVal<double>();
-			    }
+			{ 
+			    return element(idx) ? element(idx)->getValue() 
+						: undefVal<double>();
+			}
     float		getfValue( int idx )	const
-			    { 
-				return element(idx) ? element(idx)->getfValue() 
-						    : undefVal<float>();
-			    }
+			{ 
+			    return element(idx) ? element(idx)->getfValue() 
+						: undefVal<float>();
+			}
     bool		getBoolValue( int idx )	const
-			    { 
-				return element(idx) 
-						? element(idx)->getBoolValue() 
+			{ 
+			    return element(idx) ? element(idx)->getBoolValue() 
 						: undefVal<bool>();
-			    }
+			}
 
     virtual void	setText( const char* s, int idx )
 			    { if ( element(idx) ) element(idx)->setText(s); }
@@ -128,57 +127,69 @@ public:
 
 			//! stores current value as clear state.
     void		initClearValue()
-			    { 
-				for(int idx=0;idx<nElems()&&element(idx);idx++)
-				    element(idx)->initClearValue();
-			    }
+			{ 
+			    for(int idx=0;idx<nElems()&&element(idx);idx++)
+				element(idx)->initClearValue();
+			}
     void		clear()
-			    { 
-				for(int idx=0;idx<nElems()&&element(idx);idx++)
-				    element(idx)->clear();
+			{ 
+			    for(int idx=0;idx<nElems()&&element(idx);idx++)
+				element(idx)->clear();
+			}
+
+    void		display( bool yn, int idx=-1 )
+			{
+			    if ( idx >= 0 && elemObj(idx) )
+			    {
+				elemObj(idx)->display( yn );
+				return;
 			    }
+
+			    for ( int el=0; el<nElems()&&elemObj(el); el++ )
+				elemObj(el)->display( yn );
+			} 
 
     virtual void	setReadOnly( bool yn = true, int idx=0 )
 			    { if (element(idx)) element(idx)->setReadOnly(yn);}
 
     bool		isReadOnly( int idx=0 ) const
-			    { 
-				return element(idx) ? element(idx)->isReadOnly()
-						    : undefVal<bool>();
-			    }
+			{ 
+			    return element(idx) ? element(idx)->isReadOnly()
+						: undefVal<bool>();
+			}
 
     void		setSensitive(bool yn, int idx=-1)		
-			    { 
-				if ( idx >= 0 ) 
-				{ 
-				    if (elemObj(idx) )
-					elemObj(idx)->setSensitive(yn); 
-				}
-				else
-				    for(int ix=0;ix<nElems()&&elemObj(ix);ix++)
-					elemObj(ix)->setSensitive(yn); 
+			{ 
+			    if ( idx >= 0 && elemObj(idx) )
+			    {
+				elemObj(idx)->setSensitive( yn );
+				return;
 			    }
+
+			    for ( int el=0; el<nElems()&&elemObj(el); el++ )
+				elemObj(el)->setSensitive( yn ); 
+			}
 
     DataInpSpec&	spec()				{ return spec_; }
 
     bool                update( const DataInpSpec& nw )
+			{
+			    if ( spec_.type() != nw.type() ) return false;
+
+			    if ( update_(nw) )
 			    {
-				if ( spec_.type() != nw.type() ) return false;
-
-				if ( update_(nw) )
-				{
-				    spec_ = nw;
-				    return true;
-				}
-
-				return false;
+				spec_ = nw;
+				return true;
 			    }
+
+			    return false;
+			}
 
     virtual void	updateSpec()
-			    { 
-				for(int idx=0;idx<nElems()&&element(idx);idx++)
-				    spec_.setText( element(idx)->text(), idx );
-			    }
+			{ 
+			    for(int idx=0;idx<nElems()&&element(idx);idx++)
+				spec_.setText( element(idx)->text(), idx );
+			}
 
     void		valChangingNotify(CallBacker*)
 			    { p_->valuechanging.trigger( *p_ ); }
@@ -787,6 +798,22 @@ void uiGenInput::doFinalise()
 }
 
 
+void uiGenInput::displayField( bool yn, int elemnr, int fldnr )
+{
+    if ( elemnr < 0 && fldnr < 0 )
+    {
+	uiGroup::display( yn );
+	return;
+    }
+
+    for ( int idx=0; idx<flds.size(); idx++ )
+    {
+	if ( fldnr >= 0 && fldnr != idx ) continue;
+
+	flds[idx]->display( yn, elemnr );
+    }
+}
+
 
 void uiGenInput::setReadOnly( bool yn, int nr )
 {
@@ -797,7 +824,7 @@ void uiGenInput::setReadOnly( bool yn, int nr )
 
     rdonly_ = yn; rdonlyset_=true;
 
-    for( int idx=0; idx < flds.size(); idx++ )
+    for( int idx=0; idx<flds.size(); idx++ )
 	flds[idx]->setReadOnly( yn );
 }
 
@@ -817,7 +844,6 @@ void uiGenInput::setSensitive( bool yn, int elemnr, int fldnr )
 
 	flds[idx]->setSensitive( yn, elemnr );
     }
-
 }
 
 
