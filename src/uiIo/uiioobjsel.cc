@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.16 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.17 2001-08-30 16:16:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,12 +14,15 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uimenu.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iolink.h"
 #include "iodir.h"
 #include "iopar.h"
 #include "transl.h"
+#include "ptrman.h"
+#include "filegen.h"
 
 
 static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
@@ -38,6 +41,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	, nmfld(0)
 	, ioobj(0)
 {
+    finalising.notify( mCB(this,uiIOObjSelDlg,selChg) );
+
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
     nm += ctio.ctxt.trgroup->name();
@@ -58,6 +63,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     listfld->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
     listfld->doubleClicked.notify( mCB(this,uiDialog,acceptOK) );
+    listfld->rightButtonClicked.notify( mCB(this,uiIOObjSelDlg,rightClk) );
 
     setOkText( "Select" );
     selChg(0);
@@ -74,8 +80,72 @@ void uiIOObjSelDlg::selChg( CallBacker* c )
 {
     entrylist->setCurrent( listfld->currentItem() );
     ioobj = entrylist->selected();
-    if ( nmfld && c )
+    if ( nmfld )
 	nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
+}
+
+
+void uiIOObjSelDlg::rightClk( CallBacker* c )
+{
+    int prevcur = listfld->currentItem();
+    entrylist->setCurrent( listfld->lastClicked() );
+    ioobj = entrylist->selected();
+    bool chgd = false;
+    if ( ioobj )
+    {
+	uiPopupMenu* mnu = new uiPopupMenu( this, "Action" );
+	uiMenuItem* rmit = new uiMenuItem( "Remove" );
+	mnu->insertItem( rmit );
+
+	int ret = mnu->exec();
+	if ( ret != -1 )
+	{
+	    if ( ret == rmit->id() )
+		chgd = rmEntry();
+	}
+    }
+    if ( !chgd ) return;
+
+    if ( prevcur >= entrylist->size() ) prevcur--;
+    entrylist->setCurrent( prevcur );
+    ioobj = entrylist->selected();
+    listfld->empty();
+    listfld->addItems( entrylist->Ptr() );
+}
+
+
+bool uiIOObjSelDlg::rmEntry()
+{
+    PtrMan<Translator> tr = ioobj->getTranslator();
+    bool rmabl = tr ? tr->implRemovable(ioobj) : ioobj->implRemovable();
+
+    if ( rmabl )
+    {
+	FileNameString mess( "Remove '" );
+	if ( !ioobj->isLink() )
+	    { mess += ioobj->fullUserExpr(YES); mess += "'?"; }
+	else
+	{
+	    FileNameString fullexpr( ioobj->fullUserExpr(YES) );
+	    mess += File_getFileName(fullexpr);
+	    mess += "'\n- and everything in it! - ?";
+	}
+	if ( uiMSG().askGoOn(mess) )
+	{
+	    bool rmd = tr ? tr->implRemove(ioobj) : ioobj->implRemove();
+	    if ( !rmd )
+	    {
+		mess = "Could not remove '";
+		mess += ioobj->fullUserExpr(YES); mess += "'";
+		uiMSG().warning( mess );
+	    }
+	}
+    }
+
+    entrylist->curRemoved();
+    IOM().removeAux( ioobj->key() );
+    IOM().dirPtr()->permRemove( ioobj->key() );
+    return true;
 }
 
 

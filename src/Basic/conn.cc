@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.7 2001-06-07 21:23:59 windev Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.8 2001-08-30 16:16:05 bert Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
@@ -123,6 +123,8 @@ StreamConn::StreamConn( const char* nm, State s )
     default:
     break;
     }
+
+    (void)bad();
 }
 
 
@@ -135,8 +137,10 @@ StreamConn::~StreamConn()
 
 bool StreamConn::bad() const
 {
-    if ( state_ == Bad ) return YES;
-    if ( !sd.usable() ) (State&)state_ = Bad;
+    if ( state_ == Bad )
+	return true;
+    else if ( !sd.usable() )
+	const_cast<StreamConn*>(this)->state_ = Bad;
     return state_ == Bad;
 }
 
