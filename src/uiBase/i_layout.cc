@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.44 2002-01-22 15:55:41 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.45 2002-01-24 12:35:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ void i_LayoutItem::invalidate()
 { 
     mQLayoutItem_.invalidate();
     preferred_pos_inited = false;
-    minimum_pos_inited = false;
+    //minimum_pos_inited = false;
 }
 
 
@@ -271,6 +271,11 @@ void i_LayoutItem::layout( layoutMode m, const int iteridx, bool* chupd,
     while ( (constr = it.current()) )
     {
 	++it;
+#if 0
+	if(  constr && constr->other && constr->other->bodyLayouted() 
+		&&  constr->other->bodyLayouted()->isHidden()  )
+	    continue;
+#endif
 
 	const uiRect& otherPos 
 		= constr->other ? constr->other->curpos(m) : curpos(m);
@@ -991,6 +996,11 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
     while ( i_LayoutItem* curChld = childIter.current() )
     {
         ++childIter;
+#if 0
+	if(  curChld->bodyLayouted() 
+		&&  curChld->bodyLayouted()->isHidden()  )
+	    continue;
+#endif
 
 	int hs = curChld->stretch(true);
 	int vs = curChld->stretch(false);
@@ -1393,8 +1403,8 @@ uiRect i_LayoutMngr::childrenRect( layoutMode m )
 void i_LayoutMngr::invalidate() 
 { 
     prevGeometry = QRect();
-    minimumDone = false;
-    preferredDone = false;
+    //minimumDone = false;
+    //preferredDone = false;
 
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );

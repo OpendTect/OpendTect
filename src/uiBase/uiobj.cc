@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.29 2002-01-22 15:55:41 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.30 2002-01-24 12:35:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -393,7 +393,7 @@ int uiObjectBody::prefHNrPics() const
 {
     if( pref_width_ <= 0 )
     {
-	if( is_hidden )		{ return 0; }
+	if( is_hidden )		{ return pref_width_; }
 	mChkLayoutItm();
 
 	if( pref_width_set >= 0 ) 
@@ -444,7 +444,7 @@ int uiObjectBody::prefVNrPics() const
 {
     if( pref_height_ <= 0 )
     {
-	if( is_hidden )		{ return 0; }
+	if( is_hidden )		{ return pref_height_; }
 	mChkLayoutItm();
 
 	if( pref_height_set >= 0 ) 

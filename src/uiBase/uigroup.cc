@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.31 2002-01-22 10:51:20 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.32 2002-01-24 12:35:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,14 @@ public:
     virtual void	invalidate();
     virtual void	updatedAlignment(layoutMode);
     virtual void	initChildLayout(layoutMode);
+//#define grp_layout__
+#ifdef grp_layout__
+    virtual void	layout( layoutMode m, const int, bool*, bool );
+#endif
 
 protected:
+
+    i_LayoutMngr* 	loMngr();
 
     uiGroupParentBody&	grpprntbody;
 
@@ -148,8 +154,6 @@ public:
     void		updatedAlignment(layoutMode m )
 			    { if( loMngr ) loMngr->updatedAlignment(m); }
 
-    void		initChildLayout(layoutMode m )
-			    { if( loMngr ) loMngr->initChildLayout(m); }
 
     void		layoutChildren(layoutMode m )
 			    { if( loMngr ) loMngr->layoutChildren(m); }
@@ -283,9 +287,25 @@ void uiGroupObjBody::reDraw( bool deep )
 
 int uiGroupObjBody::stretch( bool hor, bool ) const
 {
+#if 0
     int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
     return s != mUndefIntVal ? s : 
 	( prntbody_->loMngr ? prntbody_->loMngr->childStretch( hor ) : 0 );
+#else
+    int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
+    if( s != mUndefIntVal ) return s;
+
+    if( prntbody_->loMngr )
+    {
+	s = prntbody_->loMngr->childStretch( hor );
+	if( s )
+	{
+	    if( hor )	const_cast<uiGroupObjBody*>(this)->hStretch = s; 
+	    else	const_cast<uiGroupObjBody*>(this)->vStretch = s;
+	}
+    }
+    return 0;
+#endif
 }
 
 i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
@@ -319,8 +339,12 @@ i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mngr,
 void i_uiGroupLayoutItem::invalidate()
 { 
     i_uiLayoutItem::invalidate(); 
+#if 0
     for( int idx=0; idx<nLayoutMode; idx++ )
         horalign[idx]=-1;
+#else
+        horalign[setGeom]=-1;
+#endif
 }
 
 
@@ -333,9 +357,27 @@ void i_uiGroupLayoutItem::updatedAlignment( layoutMode m )
 
 void i_uiGroupLayoutItem::initChildLayout( layoutMode m )
 { 
-    grpprntbody.initChildLayout(m);
+     if( loMngr() ) loMngr()->initChildLayout(m); 
 }
 
+#ifdef grp_layout__
+void i_uiGroupLayoutItem::layout( layoutMode m, const int iteridx, bool* chupd,
+				  bool finalLoop )
+{ 
+    i_uiLayoutItem::layout(m,iteridx, chupd, finalLoop ); 
+
+    uiRect mPos = loMngr()->curpos( m );
+    QRect geom( mPos.left(), mPos.top(),
+                                        mPos.hNrPics(), mPos.vNrPics() );
+
+    //if( bodyLayouted() && bodyLayouted()->isHidden() && loMngr() )
+    if( loMngr() )
+	loMngr()->doLayout( m, geom );
+}
+#endif
+
+i_LayoutMngr* i_uiGroupLayoutItem::loMngr() 
+    { return grpprntbody.loMngr; } 
 
 int i_uiGroupLayoutItem::horAlign( layoutMode m ) const 
 {

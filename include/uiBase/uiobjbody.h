@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.14 2002-01-15 15:45:52 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.15 2002-01-24 12:35:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uifont.h"
 //#include "i_layout.h"
 
-//#define USE_DISPLAY_TIMER
+#define USE_DISPLAY_TIMER
 
 class uiButtonGroup;
 class QWidget;
@@ -180,6 +180,9 @@ public:
     void			setShrinkAllowed( bool yn ) { allowshrnk = yn; }
     bool			shrinkAllowed()		{ return allowshrnk; }
 
+
+    bool			isHidden()		{ return is_hidden; }
+
 protected:
 
     virtual const QWidget*	managewidg_() const	{ return qwidget_(); }
@@ -193,15 +196,14 @@ protected:
     int				fontWdtFor( const char* ) const;
 
 
+    int				hStretch;
+    int				vStretch;
+
 private:
 
     i_LayoutItem*		layoutItem_;
     uiParentBody*      		parent_;
     const uiFont*		font_;
-
-
-    int				hStretch;
-    int				vStretch;
 
     bool			allowshrnk;
 
