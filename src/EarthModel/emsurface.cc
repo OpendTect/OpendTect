@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.27 2003-11-24 08:39:52 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.28 2003-12-03 19:06:24 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -123,7 +123,7 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
 
 
 bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
-				    const MathFunction<float>* time2depthfunc )
+			    const MathFunction<float>* time2depthfunc ) const 
 {
     TypeSet<EM::PosID> nodes;
     if ( cs ) findPos(*cs, &nodes );
@@ -151,6 +151,13 @@ bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
 	}
     }
 
+    return computeNormal( res, nodes, time2depthfunc );
+}
+
+
+bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
+			     const MathFunction<float>* time2depthfunc ) const
+{
     PCA pca(3);
     const int nrnodes = nodes.size();
     for ( int idx=0; idx<nrnodes; idx++ )

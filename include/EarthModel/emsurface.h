@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.25 2003-11-24 08:39:49 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.26 2003-12-03 19:06:33 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -196,8 +196,25 @@ public:
 			     to a RowCol that is used
 			     on the Geometry::MeshSurface */
 
+    bool		computeNormal( Coord3& res,
+	    				const TypeSet<EM::PosID>& nodes,
+					const MathFunction<float>* depthconv=0
+					) const;
+    			/*!< Computes an aproximation of the orientation of a
+			     part of a surface
+			     \param nodes	orientation is computed on the
+			     			connections surrounding these
+						nodes.
+			     \param depthconv	Convert the depth before
+			     			computing. This can be handy
+						if z is given in timedomain wich
+						will give problems in pca. If
+						ommitted, the z coords will not
+						be converted.
+			*/
     bool		computeNormal( Coord3& res, const CubeSampling* cs=0,
-	    			       const MathFunction<float>* depthconv=0 );
+	    			       const MathFunction<float>* depthconv=0
+				       ) const;
     			/*!< Computes an aproximation of the surface's
 			     orientation
 			     \param cs		Compute only within this cube.
