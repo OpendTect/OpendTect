@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.3 2001-03-27 11:59:17 bert Exp $
+ RCS:		$Id: conn.h,v 1.4 2001-04-17 07:28:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,8 @@ public:
 			{ return conn_ ? conn_->retryDelay() : 0; }
 
     void		setConn( Conn* c, bool becomesmine=true )
-			{ delete conn_; conn_ = c; mine_ = becomesmine; }
+			{ if ( mine_ ) delete conn_;
+			  conn_ = c; mine_ = becomesmine; }
 
 protected:
 
