@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.63 2005-03-03 16:43:48 cvsnanne Exp $
+ RCS:           $Id: survinfo.cc,v 1.64 2005-04-04 10:30:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -577,10 +577,10 @@ void SurveyInfo::snapZ( float& z, int dir, bool work ) const
 	{ z = zrg.stop; return; }
 
     const float idxeps = pow(2,-13);
-    float fidx = (z-zrg.start) / zrg.step;
+    const float fidx = (z-zrg.start) / zrg.step;
     int targetidx = mNINT(fidx);
     if ( dir && !mIsEqual(fidx,targetidx,idxeps) )
-	targetidx = dir < 0 ? (int)(floorf(fidx)) : (int)(ceilf(fidx));
+	targetidx = dir < 0 ? (int)(floor(fidx)) : (int)(ceil(fidx));
 
     z = zrg.atIndex(targetidx);
 }
