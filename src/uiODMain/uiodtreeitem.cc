@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.65 2005-01-18 14:44:02 helene Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.66 2005-01-25 15:00:51 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1668,9 +1668,8 @@ bool uiODSceneTreeItem::showSubMenu()
     if ( yn )
 	mnu.insertItem( new uiMenuItem("Dump OI ..."), mDumpIV );
 
-    yn = false;
-    Settings::common().getYN( IOPar::compKey("dTect","Enable snapshot"),
-			      yn );
+    yn = true;
+    Settings::common().getYN( IOPar::compKey("dTect","Enable snapshot"), yn );
     if ( yn )
 	mnu.insertItem( new uiMenuItem("Save snapshot..."), mSubMnuSnapshot );
 
