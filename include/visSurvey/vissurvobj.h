@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.33 2004-10-01 12:29:06 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.34 2005-03-11 12:24:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -127,7 +127,10 @@ public:
 				// Link to outside world
     virtual void		fetchData(ObjectSet<BinIDValueSet>&) const {}
 				/*!< Content of objectset becomes callers.
-				     Every patch is put in a BinIDValueSet */
+				     Every patch is put in a BinIDValueSet.
+				     The first value int the bidset is the
+				     depth, the eventual second value is the
+				     cached value */
     virtual void		stuffData(bool forcolordata,
 	    				  const ObjectSet<BinIDValueSet>*) {}
     				/*!< Every patch should have a BinIDValueSet */
