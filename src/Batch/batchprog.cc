@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.63 2004-11-04 16:48:32 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.64 2004-11-05 13:20:42 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -245,7 +245,7 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
 	return false;
     }
 
-    SeparString statstr;
+    FileMultiString statstr;
 
     statstr += jobid_;
     statstr += status;
