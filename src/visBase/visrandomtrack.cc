@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.4 2003-01-30 13:09:33 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.5 2003-02-12 12:53:04 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -30,6 +30,7 @@ visBase::RandomTrack::RandomTrack()
     : dragger( 0 )
     , draggerswitch( 0 )
     , depthrg( 0, 1 )
+    , knotmovement( this )
 {
     addKnot( Coord( 0, 0 ) );
     addKnot( Coord( 1, 0 ) );
@@ -298,6 +299,7 @@ void visBase::RandomTrack::rebuild()
     }
 }
 
+
 void visBase::RandomTrack::createDragger()
 {
     if ( draggerswitch ) return;
@@ -311,4 +313,13 @@ void visBase::RandomTrack::createDragger()
 
     material->transparency.setValue( 0.9 );
     dragger->setPart( "feedbackMaterial", material );
+}
+
+
+void visBase::RandomTrack::motionCB(void* data,
+				    SoRandomTrackLineDragger* dragger)
+{
+    visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
+    CBCapsule<int> caps( dragger->getMovingKnot(), myself );
+    myself->knotmovement.trigger( &caps );
 }
