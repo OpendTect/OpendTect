@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.2 2002-02-27 10:37:02 kristofer Exp $
+ RCS:		$Id: visselman.h,v 1.3 2002-02-28 12:41:46 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,10 +49,20 @@ public:
     void	deSelectAll();
 
     bool	isSelectable(  const VisualObject& assoc );
+    		/*!< Check if the object is selectable */
+   
+   		/*! Use to get selection event on specific objects */ 
     void	notifySelection( const VisualObject& assoc, const CallBack& );
     void	deNotifySelection( const VisualObject& assoc, const CallBack& );
     void	notifyDeSelection( const VisualObject& assoc, const CallBack& );
     void	deNotifyDeSelection( const VisualObject& assoc,const CallBack&);
+
+				
+    Notifier<SelectionManager>	selnotifer;
+    Notifier<SelectionManager>	deselnotifer;
+    				/*!< Use to get changes in selection */
+    int				nrSelected() const;
+    const VisualObject*		getSelected( int ) const;
 
     void	regSelObject( const VisualObject& associated,
 	    		      const SceneObject& detected );

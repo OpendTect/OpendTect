@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.2 2002-02-27 10:37:15 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.3 2002-02-28 12:41:39 kristofer Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -15,6 +15,8 @@ static const char* rcsID = "$Id: visselman.cc,v 1.2 2002-02-27 10:37:15 kristofe
 
 visBase::SelectionManager::SelectionManager()
     : node( new SoSelection )
+    , selnotifer( this )
+    , deselnotifer( this )
 {
     node->ref();
     node->addSelectionCallback(visBase::SelectionManager::selectCB, this );
@@ -98,6 +100,32 @@ void visBase::SelectionManager::deNotifyDeSelection(const VisualObject& assoc,
 }
 
 
+int visBase::SelectionManager::nrSelected() const
+{
+    return node->getNumSelected();
+}
+
+
+const visBase::VisualObject*
+visBase::SelectionManager::getSelected( int idx ) const
+{
+    const SoPathList* list = node->getList();
+    if ( !list ) return false;
+
+    const int size = nrSelected();
+    const SoPath* path = (*list)[idx];
+    const SoNode* tail = path->getTail();
+
+    for ( int idy=0; idy<detobjs.size(); idy++ )
+    {
+	if ( tail==detobjs[idy]->getData() )
+	    return assobjs[idy];
+    }
+
+    return 0;
+}
+
+
 void visBase::SelectionManager::regSelObject( const VisualObject& a,
 					      const SceneObject& d )
 {
@@ -149,15 +177,13 @@ void visBase::SelectionManager::select( SoPath* path )
 {
     SoNode* tail = path->getTail();
 
-    int pos = -1;
     for ( int idx=0; idx<detobjs.size(); idx++ )
     {
 	if ( tail==detobjs[idx]->getData() )
-	{ pos = idx; break; }
+	    selnotifiers[idx]->trigger();
     }
 
-    if ( pos==-1 ) return;
-    selnotifiers[pos]->trigger();
+    selnotifer.trigger();
 }
 
 
@@ -165,15 +191,13 @@ void visBase::SelectionManager::deSelect( SoPath* path )
 {
     SoNode* tail = path->getTail();
 
-    int pos = -1;
     for ( int idx=0; idx<detobjs.size(); idx++ )
     {
 	if ( tail==detobjs[idx]->getData() )
-	{ pos = idx; break; }
+	    deselnotifiers[idx]->trigger();
     }
 
-    if ( pos==-1 ) return;
-    deselnotifiers[pos]->trigger();
+    deselnotifer.trigger();
 }
 
 
