@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.5 2001-03-19 10:17:47 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.6 2001-04-05 16:21:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ public:
     inline void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
 			//!< returns error message or null on success
+
+    const BinID2Coord&	binID2Coord() const	{ return b2c; }
 
 private:
 
