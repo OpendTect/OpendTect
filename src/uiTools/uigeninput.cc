@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.17 2001-05-11 20:28:30 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.18 2001-05-14 12:20:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,8 +54,8 @@ programmer to decide.
 class uiDataInpFld : public CallBacker
 {
 public:
-                        uiDataInpFld( const DataInpSpec& spec ) 
-			: spec_( *spec.clone() ) {}
+                        uiDataInpFld( uiGenInput* p, const DataInpSpec& spec ) 
+			: spec_( *spec.clone() ), p_( p ) {}
 
     virtual const char* text( int idx ) const =0;
 
@@ -90,7 +90,6 @@ public:
                         // can be a uiGroup, i.e. for radio button group
     virtual uiObject&	uiObj() =0;
 
-    virtual void	changeNotify( const CallBack& cb ) = 0;
 
     DataInpSpec&	spec() { return spec_; }
 
@@ -102,9 +101,13 @@ public:
 protected:
 
     virtual bool        update_( const DataInpSpec* )
-			   { return false; } // TODO: implement
+			    { return false; } // TODO: implement
+
+    void		changeNotify()	{ p_->changed.trigger( *p_ ); }
+    void		checkNotify()	{ p_->checked.trigger( *p_ ); }
 
     DataInpSpec&	spec_;
+    uiGenInput*		p_;
 
     void		init()
 			{
@@ -125,8 +128,8 @@ Converts everything to and from a string.
 class uiTextInpFld : public uiDataInpFld
 {
 public:
-                        uiTextInpFld( const DataInpSpec& spec )
-			: uiDataInpFld( spec ) {}
+                        uiTextInpFld( uiGenInput* p, const DataInpSpec& spec )
+			: uiDataInpFld( p, spec ) {}
 
     virtual int         getIntValue( int idx ) const
 			    { return text(idx) ? atoi( text(idx) ) : 0; }
@@ -161,8 +164,9 @@ converts everything formats to and from int
 class uiIntInpField : public uiDataInpFld
 {
 public:
-                        uiIntInpField(const DataInpSpec& spec,int clearValue=0)
-                        : uiDataInpFld( spec )
+                        uiIntInpField( uiGenInput* p, const DataInpSpec& spec, 
+				       int clearValue=0)
+                        : uiDataInpFld( p, spec )
 			, clear_(clearValue) {}
 
     virtual const char* text( int idx ) const
@@ -203,24 +207,24 @@ protected:
 class uiLineInpFld : public uiTextInpFld
 {
 public:
-			uiLineInpFld( uiObject* p, 
+			uiLineInpFld( uiGenInput* p, 
 					 const DataInpSpec& spec,
 					 const char* nm="Line Edit Field" ) 
-			    : uiTextInpFld( spec )
+			    : uiTextInpFld( p, spec )
 			    , li( *new uiLineEdit(p,0,nm) ) 
 			{
 			    BufferString tmp;
 			    spec.getText( tmp );
 			    li.setText( tmp );
 			    init();
+			    li.textChanged.notify( 
+				mCB(this,uiDataInpFld,changeNotify) );
 			}
 
     virtual const char*	text(int idx) const		{ return li.text(); }
     virtual void        setText( const char* t,int idx)	{ li.setText(t);}
     virtual uiObject&	uiObj()				{ return li; }
 
-    virtual void	changeNotify( const CallBack& cb ) 
-			    { li.textChanged.notify(cb); }
 protected:
     uiLineEdit&	li;
 };
@@ -230,7 +234,7 @@ class uiBoolInpFld : public uiIntInpField
 {
 public:
 
-			uiBoolInpFld( uiObject* p, 
+			uiBoolInpFld( uiGenInput* p, 
 				      const DataInpSpec& spec,
 				      const char* nm="Bool Input Field" );
 
@@ -254,12 +258,10 @@ public:
 			    { setValue( i ? true : false, idx ); }
 
     virtual uiObject&	uiObj()				{ return *butOrGrp; }
-    virtual void	changeNotify( const CallBack& cb )
-			{ changed.notify(cb); }
 
 protected:
 
-    void		radioButSel(CallBacker*);
+    void		selected(CallBacker*);
 
     BufferString        truetxt;
     BufferString        falsetxt;
@@ -268,14 +270,11 @@ protected:
     uiCheckBox*		cb;
     uiRadioButton*	rb1;
     uiRadioButton*	rb2;
-
-    Notifier<uiBoolInpFld> changed;
-
 };
 
-uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec& spec, const char* nm)
-    :uiIntInpField( spec )
-    , butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true ), changed( this )
+uiBoolInpFld::uiBoolInpFld(uiGenInput* p, const DataInpSpec& spec, const char* nm)
+    :uiIntInpField( p, spec )
+    , butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true )
 {
     const BoolInpSpec* spc = dynamic_cast< const BoolInpSpec* >(&spec);
     if ( !spc ) { pErrMsg("huh?");butOrGrp = new uiGroup(p,nm); return; }
@@ -285,17 +284,10 @@ uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec& spec, const char* nm)
     truetxt = spc->trueFalseTxt(true);
     falsetxt = spc->trueFalseTxt(false);
 
-    if ( truetxt == "" )
+    if ( truetxt == ""  || falsetxt == "" )
     { 
-	cb = new uiCheckBox( p, nm ); 
-	butOrGrp = cb;
-	setValue( yn );
-	return; 
-    }
-
-    if ( falsetxt == "" )
-    { 
-	cb = new uiCheckBox( p, truetxt );
+	cb = new uiCheckBox( p, (truetxt == "") ? nm : (const char*)truetxt ); 
+	cb->notify( mCB(this,uiBoolInpFld,selected) );
 	butOrGrp = cb;
 	setValue( yn );
 	return; 
@@ -306,9 +298,9 @@ uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec& spec, const char* nm)
     butOrGrp = grp_;
 
     rb1 = new uiRadioButton( butOrGrp, truetxt );
-    rb1->notify( mCB(this,uiBoolInpFld,radioButSel) );
+    rb1->notify( mCB(this,uiBoolInpFld,selected) );
     rb2 = new uiRadioButton( butOrGrp, falsetxt );
-    rb2->notify( mCB(this,uiBoolInpFld,radioButSel) );
+    rb2->notify( mCB(this,uiBoolInpFld,selected) );
 
     rb2->attach( rightTo, rb1 );
     grp_->setHAlignObj( rb1 );
@@ -319,18 +311,21 @@ uiBoolInpFld::uiBoolInpFld(uiObject* p, const DataInpSpec& spec, const char* nm)
 }
 
 
-void uiBoolInpFld::radioButSel(CallBacker* cb)
+void uiBoolInpFld::selected(CallBacker* cber)
 {
-    if ( cb == rb1 )		{ yn = rb1->isChecked(); }
-    else if ( cb == rb2 )	{ yn = !rb2->isChecked(); }
+    bool yn_ = yn;
+    if ( cber == rb1 )		{ yn = rb1->isChecked(); }
+    else if ( cber == rb2 )	{ yn = !rb2->isChecked(); }
+    else if( cber == cb)	{ yn = cb->isChecked(); }
     else return;
 
+    if ( yn != yn_ )		changeNotify();
     setValue( yn );
 }
 
+
 void uiBoolInpFld::setValue( bool b, int idx )
-{ 
-    if ( yn != b ) changed.trigger();
+{
     yn = b; 
 
     if ( cb ) { cb->setChecked( yn ); return; }
@@ -346,7 +341,7 @@ class uiBinIDInpFld : public uiTextInpFld
 {
 public:
 
-			uiBinIDInpFld( uiObject* p, 
+			uiBinIDInpFld( uiGenInput* p, 
 					 const DataInpSpec& spec,
 					 const char* nm="BinID Input Field" );
 
@@ -360,11 +355,6 @@ public:
     virtual void        setText( const char* t,int idx)
 			    { if (idx) crl_y.setText(t); else inl_x.setText(t);}
 
-    virtual void	changeNotify( const CallBack& cb ) 
-			{ 
-			    inl_x.textChanged.notify(cb); 
-			    crl_y.textChanged.notify(cb); 
-			}
 protected:
     // don't change order of these 3 attributes!
     uiGroup&		binidGrp;
@@ -377,9 +367,9 @@ protected:
 
 };
 
-uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec& spec,
+uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
 			      const char* nm ) 
-    : uiTextInpFld( spec )
+    : uiTextInpFld( p, spec )
     , binidGrp( *new uiGroup(p,nm) )
     , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
     , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
@@ -395,6 +385,9 @@ uiBinIDInpFld::uiBinIDInpFld( uiObject* p, const DataInpSpec& spec,
 
     binidGrp.setHAlignObj( &inl_x );
     crl_y.attach( rightTo, &inl_x );
+
+    inl_x.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
+    crl_y.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
 
     if ( spc->otherTxt() )
     {
@@ -424,7 +417,7 @@ class uiIntervalInpFld : public uiTextInpFld
 {
 public:
 
-			uiIntervalInpFld( uiObject* p, 
+			uiIntervalInpFld( uiGenInput* p, 
 					 const DataInpSpec& spec,
 					 const char* nm="Bool Input Field" );
 
@@ -438,12 +431,6 @@ public:
     virtual void        setText( const char* t,int idx)	
 			    { if (le(idx)) le(idx)->setText(t); }
 
-    virtual void	changeNotify( const CallBack& cb ) 
-			{ 
-			    start.textChanged.notify(cb); 
-			    stop.textChanged.notify(cb); 
-			    if (step) step->textChanged.notify(cb); 
-			}
 protected:
     uiGroup&		intvalGrp;
 
@@ -464,9 +451,9 @@ protected:
 };
 
 template<class T>
-uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec& spec,
+uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
 				    const char* nm) 
-    : uiTextInpFld( spec )
+    : uiTextInpFld( p, spec )
     , intvalGrp( *new uiGroup(p,nm) ) 
     , start( *new uiLineEdit(&intvalGrp,0,nm) )
     , stop( *new uiLineEdit(&intvalGrp,0,nm) )
@@ -481,12 +468,16 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec& spec,
 	// TODO: implement check for limits
     }
 
+    start.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
+    stop.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
+
     BufferString tmp;
     spec.getText( tmp, 0 ); start.setText( tmp );
     spec.getText( tmp, 1 ); stop.setText( tmp );
     if ( spc-> hasStep() )
     {
 	step = new uiLineEdit(&intvalGrp,0,nm);
+	step->textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
 	spec.getText( tmp, 2 ); step->setText( tmp );
     }
 
@@ -502,10 +493,10 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiObject* p, const DataInpSpec& spec,
 class uiStrLstInpFld : public uiIntInpField
 {
 public:
-			uiStrLstInpFld( uiObject* p, 
+			uiStrLstInpFld( uiGenInput* p, 
 					 const DataInpSpec& spec,
 					 const char* nm="Line Edit Field" ) 
-			    : uiIntInpField( spec )
+			    : uiIntInpField( p, spec )
 			    , cbb( *new uiComboBox(p,nm) ) 
 			{
 			    const StringListInpSpec* spc = 
@@ -514,6 +505,9 @@ public:
 
 			    cbb.addItems( spc->strings() );
 			    init();
+
+			    cbb.selectionchanged.notify( 
+				mCB(this,uiDataInpFld,changeNotify) );
 			}
 
     virtual bool	isUndef(int) const		{ return false; }
@@ -529,8 +523,6 @@ public:
 
     virtual uiObject&	uiObj()				{ return cbb; }
 
-    virtual void	changeNotify( const CallBack& cb ) 
-			    { cbb.selectionchanged.notify(cb); }
 
 protected:
     uiComboBox&		cbb;
@@ -610,7 +602,6 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     for( int idx=0; idx<fld->nElems(); idx++ )
 	idxes += FieldIdx( flds.size()-1, idx );
 
-    fld->changeNotify( mCB(this,uiGenInput,inpFldChanged) );
     return *fld;
 }
 
@@ -674,7 +665,6 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
 
 void uiGenInput::addInput( const DataInpSpec& inp )
 {
-    mCheckFinalised();
     inputs += inp.clone();
 }
 
@@ -833,12 +823,6 @@ void uiGenInput::checkBoxSel( CallBacker* cb )
     if ( selbut ) selbut->setSensitive( isChecked() );
     if ( clrbut ) clrbut->setSensitive( isChecked() );
 }
-
-void uiGenInput::inpFldChanged( CallBacker* cb )
-{
-    changed.trigger();
-}
-
 
 void uiGenInput::doSelect_( CallBacker* cb )
     { doSelect( cb ); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.11 2001-05-10 12:51:10 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.12 2001-05-14 12:20:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,8 +181,6 @@ protected:
     void		doClear(CallBacker*);
 
     void 		checkBoxSel(CallBacker*);
-
-    void 		inpFldChanged(CallBacker*);
 
 			//! DataInpField factory
     uiDataInpFld& 	createInpFld(const DataInpSpec&);
