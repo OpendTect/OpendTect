@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.13 2003-12-12 16:32:27 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.14 2003-12-12 16:41:25 nanne Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -255,6 +255,10 @@ mDefDIGswp(int,S2)
 mDefDIGswp(int,S4)
 mDefDIGswp(int,U2)
 mDefDIGswp(int,U4)
+mDefDIGswp(long long,S2)
+mDefDIGswp(long long,S4)
+mDefDIGswp(long long,U2)
+mDefDIGswp(long long,U4)
 
 
 #define mDefDIGF2Iswp(rettyp,typ) \
@@ -385,6 +389,9 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 mDefDIPIScswp(int,S2)
 mDefDIPISswp(int,S4)
 mDefDIPISswp(int,S8)
+mDefDIPIScswp(long long,S2)
+mDefDIPIScswp(long long,S4)
+mDefDIPISswp(long long,S8)
 
 
 #define mDefDIPUswp(inptyp,typ) \
@@ -416,6 +423,8 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 
 mDefDIPUIcswp(int,U2)
 mDefDIPUIswp(int,U4)
+mDefDIPUIcswp(long long,U2)
+mDefDIPUIcswp(long long,U4)
 
 
 #define mDefDIPFswp(inptyp,typ) \
