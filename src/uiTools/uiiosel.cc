@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.11 2001-06-26 07:52:15 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.12 2001-07-13 22:03:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,8 @@ const char* uiIOSelect::getInput() const
 
 const char* uiIOSelect::getKey() const
 {
+    const_cast<uiIOSelect*>(this)->processInput();
+
     const int nrspec = specialitems.size();
     const int curit = getCurrentItem();
     if ( curit < 0 ) return "";
@@ -199,6 +201,7 @@ void uiIOSelect::setCurrentItem( int idx )
 
 void uiIOSelect::doSel( CallBacker* )
 {
+    processInput();
     doselcb_.doCall( this );
 }
 
