@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.7 2002-03-12 07:11:58 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.8 2002-03-14 14:27:54 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "vissceneobjgroup.h"
@@ -77,4 +77,28 @@ void visSurvey::PickSet::setSize( float inl, float crl, float t )
 
 	cube->setWidth( nsz );
     }
+}
+
+
+void visSurvey::PickSet::removePick( const Geometry::Pos& pos )
+{
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
+	if ( !cube ) continue;
+
+//	TODO: remove cube nearest to pos.
+	if ( cube->centerPos() == pos )
+	{
+	    cube->remove();
+	    return;
+	}
+    }
+
+}
+
+
+void visSurvey::PickSet::removeAll()
+{
+    group->removeAll();
 }
