@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.85 2003-05-22 15:02:36 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.86 2003-05-27 15:25:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ namespace Geometry { class GridSurface; };
 
 class uiVisPartServer : public uiApplPartServer
 {
+    friend class 		uiVisMenu;
+
 public:
 				uiVisPartServer(uiApplService&);
 				~uiVisPartServer();
@@ -147,6 +149,13 @@ public:
     				/*!< Should only be called as a direct 
 				     reply to evSelectAttrib */
 
+    static const int		evSelectColorAttrib;
+    static const int		evGetColorData;
+    const ColorAttribSel*	getColorSelSpec(int) const;
+    void			setColorSelSpec(const ColorAttribSel&);
+    void			setColorSelSpec(int,const ColorAttribSel&);
+    void			setColorData(int,AttribSliceSet*);
+
     static const int		evInteraction;
     				/*<! Get the id with getEventObjId() */
     BufferString		getInteractionMsg(int id) const;
@@ -177,36 +186,44 @@ protected:
     visSurvey::Scene*		getScene(int);
     const visSurvey::Scene*	getScene(int) const;
 
-    bool			hasAttrib( int id ) const;
-    bool			selectAttrib( int id );
-    bool			calculateAttrib( int id, bool newsel );
+    bool			hasAttrib(int id) const;
+    bool			selectAttrib(int id);
+    bool			calculateAttrib(int id,bool newsel);
 
-    bool			isMovable( int id ) const;
-    bool			setPosition( int id );
+    bool			calculateColorAttrib(int,bool);
+    bool			selectColorAttrib(int);
 
-    bool			isManipulated( int id ) const;
-    void			acceptManipulation( int id );
-    bool			resetManipulation( int id );
+    bool			isMovable(int id) const;
+    bool			setPosition(int id);
 
-    bool			hasMaterial( int id ) const;
-    bool			setMaterial( int id );
+    bool			isManipulated(int id) const;
+    void			acceptManipulation(int id);
+    bool			resetManipulation(int id);
 
-    bool			hasColor( int id ) const;
+    bool			hasMaterial(int id) const;
+    bool			setMaterial(int id);
+
+    bool			hasColor(int id) const;
 
     bool			hasDuplicate(int) const;
     bool			duplicateObject(int,int);
     
-    void			setUpConnections( int id );
+    void			setUpConnections(int id);
     				/*!< Should set all cbs for the object */
-    bool			dumpOI( int id ) const;
+    void			removeConnections(int id);
+
+    bool			dumpOI(int id) const;
     void			toggleDraggers();
 
     ObjectSet<visSurvey::Scene>	scenes;
     visSurvey::SurfaceInterpreterDisplay* interpreterdisplay;
 
+    ColorAttribSel		colorspec;
     AttribSelSpec		attribspec;
     				/* For temporary use when sending 
 				   evSelectAttrib events */
+
+    uiVisMenu*			vismenu;
 
     Coord3			xytmousepos;
     Coord3			inlcrlmousepos;
@@ -221,8 +238,6 @@ protected:
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
     void			updatePlanePos(CallBacker*);
-    void			createPopupMenu(CallBacker*);
-    void			handlePopupMenu(int,int);
 
 
     static const char*		workareastr;

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.49 2003-05-15 09:35:55 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.50 2003-05-27 15:26:26 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -34,8 +34,10 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     , trect(visBase::TextureRect::create())
     , cache(0)
     , as(*new AttribSelSpec)
+    , colas(*new ColorAttribSel)
     , cs(*new CubeSampling)
     , manipcs(*new CubeSampling)
+    , colsel(-1)
     , moving(this)
 {
     trect->ref();
@@ -279,6 +281,7 @@ visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
     trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged) );
     trect->unRef();
     delete &as;
+    delete &colas;
 }
 
 
@@ -295,6 +298,22 @@ void visSurvey::PlaneDataDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
     cache = 0;
     trect->useTexture( false );
     setName( as.userRef() );
+}
+
+
+ColorAttribSel& visSurvey::PlaneDataDisplay::getColorSelSpec()
+{ return colas; }
+
+const ColorAttribSel& visSurvey::PlaneDataDisplay::getColorSelSpec() const
+{ return colas; }
+
+void visSurvey::PlaneDataDisplay::setColorSelSpec( const ColorAttribSel& as_ )
+{ colas = as_; }
+
+
+void visSurvey::PlaneDataDisplay::setColorData( AttribSliceSet* sliceset )
+{
+    setData( sliceset, colas.colsel );
 }
 
 
@@ -369,7 +388,8 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
 }
 
     
-void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset ) 
+void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset,
+       					   int colorsel	) 
 {
     if ( !sliceset ) return;
 
@@ -392,7 +412,7 @@ void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset )
 		    datacube->set( zidx, lidx, val );
 		}
 	    }
-	    trect->setData( *datacube, slcidx );
+	    trect->setData( *datacube, slcidx, colorsel );
 	}
 	else
 	{
@@ -400,7 +420,7 @@ void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset )
 	    float* data = datacube->getData();
 	    memcpy( data, (*sliceset)[slcidx]->getData(), 
 		    				slicesize*sizeof(float) );
-	    trect->setData( *datacube, slcidx );
+	    trect->setData( *datacube, slcidx, colorsel );
 	}
 
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.32 2003-05-15 09:36:02 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.33 2003-05-27 15:26:32 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class AttribSelSpec;
+class ColorAttribSel;
 class AttribSliceSet;
 class CubeSampling;
 
@@ -69,13 +70,18 @@ public:
     AttribSelSpec&		getAttribSelSpec();
     const AttribSelSpec&	getAttribSelSpec() const;
     void			setAttribSelSpec(const AttribSelSpec&);
-    bool			putNewData( AttribSliceSet* );
+    bool			putNewData(AttribSliceSet*);
     				/*!< Becomes mine */
     const AttribSliceSet*	getPrevData() const;
     void			setSliceIdx(int);
 
     void			turnOn(bool);
     bool			isOn() const;
+
+    void			setColorSelSpec(const ColorAttribSel&);
+    ColorAttribSel&		getColorSelSpec();
+    const ColorAttribSel&	getColorSelSpec() const;
+    void			setColorData(AttribSliceSet*);
 
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
@@ -109,15 +115,19 @@ protected:
 				~PlaneDataDisplay();
     void			appVelChCB(CallBacker*);
     void			manipChanged(CallBacker*);
-    void			setData(const AttribSliceSet*);
+    void			setData(const AttribSliceSet*,int colorsel=-1);
 
     visBase::TextureRect*	trect;
 
     Type			type;
     AttribSelSpec&		as;
+
     AttribSliceSet*             cache;
     CubeSampling&		cs;
     CubeSampling&		manipcs;
+
+    ColorAttribSel&		colas;
+    int				colsel;
 
     static const char*		trectstr;
     Notifier<PlaneDataDisplay>	moving;

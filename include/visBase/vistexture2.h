@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.4 2003-01-28 07:59:44 kristofer Exp $
+ RCS:		$Id: vistexture2.h,v 1.5 2003-05-27 15:26:53 nanne Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,11 @@ public:
     void		setTextureSize(int, int );
 
     void		setData( const Array2D<float>* );
+    void		setColorData(const Array2D<float>*,int sel);
+    			/*!< sets second dataset that will be used for setting
+    			     the transparency,whiteness,brightness or color
+			     (specified by sel). */
+			     
 
 protected:
     			~Texture2();

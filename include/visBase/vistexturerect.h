@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.24 2003-05-15 09:34:41 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.25 2003-05-27 15:26:53 nanne Exp $
 ________________________________________________________________________
 
 
@@ -62,7 +62,8 @@ public:
     				/*!< Should be between 0 and 0.5 */
     float			clipRate() const;
 
-    void			setData(const Array2D<float>&,int);
+    void			setData(const Array2D<float>&,int,
+	    				int colorsel=-1);
     void			showTexture(int);
     void			clear();
 
