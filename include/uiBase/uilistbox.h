@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.27 2004-07-30 15:51:11 nanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.28 2004-09-01 12:34:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class Color;
+class ioPixmap;
 class uiLabel;
 class uiListBoxBody;
 
@@ -61,6 +62,7 @@ public:
     void		setSelected(int,bool yn=true);
     void		selAll(bool yn=true);
     virtual void	clear();
+    void		sort(bool asc=true);
 
     void		empty();
     void		removeItem(int);
@@ -70,7 +72,9 @@ public:
     void		addItems(const BufferStringSet&);
     void		insertItem(const char*,int idx=-1,bool embedded=false);
     void		insertItem(const char*,const Color&,int idx=-1);
+    void		insertItem(const char*,const ioPixmap&,int idx=-1);
     void		setColor(const Color&,int);
+    ioPixmap*		pixmap(int);
 
     void		setItemText(int,const char*);
     int			currentItem() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.56 2004-08-25 10:38:11 nanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.57 2004-09-01 12:33:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "bufstringset.h"
 #include "color.h"
+#include "pixmap.h"
 
 #include "i_qlistbox.h"
 
@@ -220,6 +221,14 @@ void uiListBox::insertItem( const char* text, const Color& col, int index )
 }
 
 
+void uiListBox::insertItem( const char* text, const ioPixmap& pm, int index )
+{
+    QString qs;
+    createQString( qs, text, false );
+    body_->insertItem( *pm.Pixmap(), qs, index );
+}
+
+
 void uiListBox::setColor( const Color& col, int index )
 {
     if ( index >= size() ) return;
@@ -233,6 +242,13 @@ void uiListBox::setColor( const Color& col, int index )
 }
 
 
+ioPixmap* uiListBox::pixmap( int index )
+{
+    const QPixmap* qpm = body_->pixmap(index);
+    return qpm ? new ioPixmap( *qpm ) : 0;
+}
+
+
 void uiListBox::empty()
 {
     body_->QListBox::clear();
@@ -242,6 +258,12 @@ void uiListBox::empty()
 void uiListBox::clear()
 {
     body_->clearSelection();
+}
+
+
+void uiListBox::sort( bool asc )
+{
+    body_->sort( asc );
 }
 
 
