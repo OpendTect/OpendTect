@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.11 2000-10-12 10:49:49 arend Exp $
+ RCS:           $Id: geometry.h,v 1.12 2000-10-12 15:47:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,11 +153,10 @@ public:
     inline void 	setRight( T val )	{ bottomRight_.setX( val ); }
     inline void 	setBottom( T val )	{ bottomRight_.setY( val ); }
 
-    //! Makes sure top < bottom, and left < right. If not, swappes l/r cq t/b 
-    void		checkCorners()
+    void		checkCorners( bool leftislow=true, bool topislow=true )
 			{ 
-			    if( left() > right() ) swapHor(); 
-			    if( top()  > bottom()) swapVer(); 
+			    if( leftislow == left() > right() )  swapHor(); 
+			    if( topislow  == top()  > bottom() ) swapVer(); 
 			}
 
     inline Size2D<T>	size() const { return Size2D<T>( width(), height() ); }
