@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.8 2004-10-19 12:48:21 bert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.9 2005-03-01 13:19:57 cvshelene Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -134,7 +134,7 @@ Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
 void SeisTrcPropCalc::getPreciseExtreme( Seis::Event& ev, int idx, int inc,
 				 float y2, float y3 ) const
 {
-    float y1 = idx-inc < 0 && idx-inc >= trc.size(curcomp)
+    float y1 = idx-inc < 0 || idx-inc >= trc.size(curcomp)
 		? y2 : trc.get( idx-inc, curcomp );
     ev.pos = trc.startPos(curcomp) + idx * trc.info().sampling.step;
     ev.val = y2;
