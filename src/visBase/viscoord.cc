@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.13 2004-11-03 09:52:42 kristofer Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.14 2004-11-03 11:05:49 kristofer Exp $";
 
 #include "viscoord.h"
 
@@ -175,7 +175,7 @@ void visBase::Coordinates::setPos( int idx, const Coord3& pos )
 	    postoset = transformation->transform( postoset );
 
 	if ( !utmposition && !idx && !size(false) &&
-		(postoset.x>1e5 || postoset.y>1e5) )
+		(fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
 	{
 	    utmposition = new UTMPosition;
 	    utmposition->utmposition.setValue(

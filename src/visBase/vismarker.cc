@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.16 2004-11-03 08:39:02 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.17 2004-11-03 11:05:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ void visBase::Marker::setCenterPos( const Coord3& pos_ )
 
     if ( transformation ) pos = transformation->transform( pos );
 
-    if ( !xytranslation && (pos.x>1e5 || pos.y>1e5) )
+    if ( !xytranslation && (fabs(pos.x)>1e5 || fabs(pos.y)>1e5) )
     {
 	xytranslation = new UTMPosition;
 	insertChild( childIndex( translation ), xytranslation );
