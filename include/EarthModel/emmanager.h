@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.14 2003-08-22 11:25:44 nanne Exp $
+ RCS:		$Id: emmanager.h,v 1.15 2003-09-09 16:06:22 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ class SurfaceIOData;
 class EMManager
 {
 public:
-    enum Type		{ Hor, Fault };
+    enum Type		{ Hor, Fault, StickSet };
 
 			EMManager();
 			~EMManager();

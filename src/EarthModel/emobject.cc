@@ -4,12 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.10 2003-08-22 11:25:17 nanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.11 2003-09-09 16:06:12 kristofer Exp $";
 
 #include "emobject.h"
 
 #include "emhorizontransl.h"
 #include "emfaulttransl.h"
+#include "emsticksettransl.h"
 #include "emmanager.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -26,6 +27,8 @@ EM::EMObject* EM::EMObject::create( const IOObj& ioobj, EM::EMManager& manager )
 	res = new EM::Horizon( manager, id );
     else if ( !strcmp( group, EMFaultTranslator::keyword ))
 	res = new EM::Fault( manager, id );
+    else if ( !strcmp( group, EMStickSetTranslator::keyword ))
+	res = new EM::StickSet( manager, id );
 
     return res;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.15 2003-08-28 08:21:42 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.16 2003-09-09 16:05:15 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,9 @@ public:
 
     bool		importLMKFault();
     bool		selectFault(MultiID&);
+
+    bool		selectStickSet(MultiID&);
+    bool		createStickSet(MultiID&);
 
     void		manageSurfaces();
     bool		loadSurface(const MultiID&,

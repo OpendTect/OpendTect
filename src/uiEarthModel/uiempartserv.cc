@@ -4,17 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.25 2003-08-26 11:53:14 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.26 2003-09-09 16:04:39 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiempartserv.h"
 
+#include "datainpspec.h"
 #include "emhorizontransl.h"
 #include "emmanager.h"
 #include "emfaulttransl.h"
 #include "emsurfaceiodata.h"
+#include "emsticksettransl.h"
 #include "emposid.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -26,6 +28,7 @@ ________________________________________________________________________
 #include "uiimpfault.h"
 #include "uiexphorizon.h"
 #include "uiiosurfacedlg.h"
+#include "uigeninputdlg.h"
 #include "uihoridealio.h"
 #include "uisurfaceman.h"
 #include "uiexecutor.h"
@@ -113,6 +116,63 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
     EM::SurfaceIODataSelection sel( sd );
     dlg.getSelection( sel );
     return loadSurface( id, &sel );
+}
+
+
+bool uiEMPartServer::selectStickSet( MultiID& id )
+{
+   CtxtIOObj ctio( EMStickSetTranslator::ioContext() );
+   ctio.ctxt.forread = true;
+   uiIOObjSelDlg dlg( appserv().parent(), ctio );
+   if ( !dlg.go() ) return false;
+
+    id = dlg.ioObj()->key();
+
+    EM::EMManager& em = EM::EMM();
+    if ( em.isLoaded(id) )
+	return true;
+
+    if ( !em.createObject(id) )
+	return false;
+
+    mDynamicCastGet(EM::StickSet*,stickset,em.getObject(id))
+    if ( stickset )
+    {
+	PtrMan<Executor> exec = stickset->loader();
+	if ( !exec ) mErrRet( IOM().nameOf(id) );
+	EM::EMM().ref( id );
+	uiExecutor exdlg( appserv().parent(), *exec );
+	if ( exdlg.go() <= 0 )
+	{
+	    EM::EMM().unRef( id );
+	    return false;
+	}
+
+	EM::EMM().unRefNoDel( id );
+	return true;
+    }
+
+    return false;
+}
+
+
+bool uiEMPartServer::createStickSet( MultiID& id )
+{
+    DataInpSpec* inpspec = new StringInpSpec();
+    uiGenInputDlg dlg( appserv().parent(), "Enter name", "EnterName", inpspec );
+
+    bool success = false;
+    while ( !success )
+    {
+	if ( !dlg.go() )
+	    break;
+
+	id = EM::EMM().add( EM::EMManager::StickSet, dlg.text() );
+	if ( id.ID(0)!=-1 )
+	    success = true;
+    }
+
+    return success;
 }
 
 

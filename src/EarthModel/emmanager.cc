@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.20 2003-08-22 11:25:16 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.21 2003-09-09 16:06:12 kristofer Exp $";
 
 #include "emmanager.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.20 2003-08-22 11:25:16 nanne E
 #include "emfaulttransl.h"
 #include "emhistory.h"
 #include "emhorizontransl.h"
+#include "emsticksettransl.h"
 #include "emobject.h"
 #include "emsurfaceiodata.h"
 #include "errh.h"
@@ -58,11 +59,13 @@ void EM::EMManager::init()
 
 MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 {
-    CtxtIOObj* ctio;
+    CtxtIOObj* ctio = 0;
     if ( type==EM::EMManager::Hor )
 	ctio = new CtxtIOObj(EMHorizonTranslator::ioContext());
     else if ( type==EM::EMManager::Fault )
 	ctio = new CtxtIOObj(EMFaultTranslator::ioContext());
+    else if ( type==EMManager::StickSet )
+	ctio = new CtxtIOObj(EMStickSetTranslator::ioContext());
     else
 	return -1;
 
@@ -73,10 +76,17 @@ MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
     if ( !ctio->ioobj ) return -1;
 
     EMObject* obj = EM::EMObject::create( *ctio->ioobj, *this );
+    if ( !obj )
+	return -1;
+
     objects += obj;
     refcounts += 0;
 
-    return obj ? obj->id() : -1;
+    PtrMan<Executor> saver = obj->saver();
+    if ( saver )
+	saver->execute();
+
+    return obj->id();
 } 
 
 
