@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.6 2002-09-17 13:26:12 bert Exp $
+ RCS:		$Id: position.h,v 1.7 2002-10-14 11:36:59 niclas Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,34 @@ public:
     double	x;
     double	y;
 };
+
+
+/*!\brief a cartesian coordinate in 3D space. */
+class Coord3
+{
+public:
+    		Coord3 ( float x_, float y_, float z_ )
+		    : x(x_), y(y_), z(z_)       {}
+		Coord3() {}
+
+    float	dist( const Coord3& b ) const;
+    float&	operator[](int idx)
+		{ if ( !idx ) return x; if ( idx==1 ) return y; return z; }
+
+    bool	operator==( const Coord3& b ) const
+		{
+		    const float dx = x-b.x;
+		    const float dy = y-b.y;
+		    const float dz = z-b.z;
+		    return !mNINT(dx) && !mNINT(dy) && !mNINT(dz);
+		}
+
+    bool	isDefined() const
+		{ return !mIsUndefined(x)&&!mIsUndefined(y)&&!mIsUndefined(z);}
+
+    float	x, y, z;
+};
+
 
 
 /*!\brief coordinate and a value. */
