@@ -94,6 +94,7 @@ static void parens( const char* str, int& idx, int& parenslevel, int len)
 MathExpression* MathExpression::parse( const char* input )
 {
     int len = strlen( input );
+    if ( !len ) return 0;
 
     ArrPtrMan<char> str = new char[len+1];
     str[0]=0;
