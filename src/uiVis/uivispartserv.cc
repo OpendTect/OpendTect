@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.249 2005-01-28 16:18:44 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.250 2005-02-04 14:35:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,14 +97,14 @@ const char* uiVisPartServer::name() const  { return "Visualisation"; }
 
 void uiVisPartServer::setObjectName( int id, const char* nm )
 {
-    visBase::DataObject* obj = visBase::DM().getObj( id );
+    visBase::DataObject* obj = visBase::DM().getObject( id );
     if ( obj ) obj->setName( nm );
 }
 
 
 const char* uiVisPartServer::getObjectName( int id ) const
 {
-    visBase::DataObject* obj = visBase::DM().getObj( id );
+    visBase::DataObject* obj = visBase::DM().getObject( id );
     if ( !obj ) return 0;
     return obj->name();
 }
@@ -164,7 +164,7 @@ void uiVisPartServer::shareObject( int sceneid, int id )
     visSurvey::Scene* scene = getScene( sceneid );
     if ( !scene ) return;
 
-    mDynamicCastGet(visBase::DataObject*,dobj,visBase::DM().getObj(id))
+    mDynamicCastGet(visBase::DataObject*,dobj,visBase::DM().getObject(id))
     if ( !dobj ) return;
 
     scene->addObject( dobj );
@@ -188,7 +188,7 @@ void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<int>& res )
 
 visBase::DataObject* uiVisPartServer::getObject( int id ) const
 {
-    mDynamicCastGet(visBase::DataObject*,dobj,visBase::DM().getObj(id))
+    mDynamicCastGet(visBase::DataObject*,dobj,visBase::DM().getObject(id))
     return dobj;
 }
 
@@ -196,7 +196,7 @@ visBase::DataObject* uiVisPartServer::getObject( int id ) const
 void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 				 bool saveinsessions  )
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObj(sceneid))
+    mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     scene->addObject( dobj );
     //TODO: Handle saveinsessions
 
@@ -334,7 +334,7 @@ void uiVisPartServer::fetchSurfaceData( int id,
 				       ObjectSet<BinIDValueSet>& bivs ) const
 {
     uiCursorChanger cursorlock( uiCursor::Wait );
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->fetchData( bivs );
@@ -440,7 +440,7 @@ bool uiVisPartServer::deleteAllObjects()
 
     menus.erase();
 
-    return visBase::DM().reInit();
+    return visBase::DM().removeAll();
 }
 
 
@@ -503,7 +503,7 @@ bool uiVisPartServer::setWorkingArea()
     for ( int ids=0; ids<sceneids.size(); ids++ )
     {
 	int sceneid = sceneids[ids];
-	visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
 	if ( scene ) scene->updateRange();
 
@@ -512,7 +512,7 @@ bool uiVisPartServer::setWorkingArea()
 	getChildIds( sceneid, objids );
 	for ( int ido=0; ido<objids.size(); ido++ )
 	{
-	    visBase::DataObject* dobj = visBase::DM().getObj( objids[ido] );
+	    visBase::DataObject* dobj = visBase::DM().getObject( objids[ido] );
 	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
 	    if ( pdd ) pdd->setGeometry( true );
 	}
@@ -547,7 +547,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	visSurvey::Scene* newscene =
-		(visSurvey::Scene*) visBase::DM().getObj( sceneids[idx] );
+		(visSurvey::Scene*) visBase::DM().getObject( sceneids[idx] );
 	addScene( newscene );
 
 	TypeSet<int> children;
@@ -611,7 +611,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 
 void uiVisPartServer::turnOn( int id, bool yn )
 {
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visBase::VisualObject*,vo,dobj)
     if ( vo ) vo->turnOn( yn );
 
@@ -620,7 +620,7 @@ void uiVisPartServer::turnOn( int id, bool yn )
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	visSurvey::Scene* scene =
-		(visSurvey::Scene*) visBase::DM().getObj( sceneids[idx] );
+		(visSurvey::Scene*) visBase::DM().getObject( sceneids[idx] );
 	if ( scene ) scene->filterPicks();
     }
 }
@@ -628,7 +628,7 @@ void uiVisPartServer::turnOn( int id, bool yn )
 
 bool uiVisPartServer::isOn( int id ) const
 {
-    const visBase::DataObject* dobj = visBase::DM().getObj( id );
+    const visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet( const visBase::VisualObject*,vo,dobj)
     return vo ? vo->isOn() : false;
 }
@@ -848,7 +848,7 @@ bool uiVisPartServer::dumpOI( int id ) const
 			  "Select output file" );
     if ( filedlg.go() )
     {
-	visBase::DataObject* obj = visBase::DM().getObj( id );
+	visBase::DataObject* obj = visBase::DM().getObject( id );
 	if ( !obj ) return false;
 	return obj->dumpOIgraph( filedlg.fileName() );
     }
@@ -944,7 +944,7 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
 void uiVisPartServer::selectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sel,cb);
-    visBase::DataObject* dobj = visBase::DM().getObj( sel );
+    visBase::DataObject* dobj = visBase::DM().getObject( sel );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
     if ( !viewmode && so )
 	so->showManipulator(true);
@@ -958,7 +958,7 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 void uiVisPartServer::deselectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,oldsel,cb);
-    visBase::DataObject* dobj = visBase::DM().getObj( oldsel );
+    visBase::DataObject* dobj = visBase::DM().getObject( oldsel );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj)
     if ( so )
     {    

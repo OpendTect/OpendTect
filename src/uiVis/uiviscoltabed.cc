@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.7 2005-01-10 10:02:50 nanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.8 2005-02-04 14:35:43 kristofer Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -51,7 +51,7 @@ void uiVisColTabEd::setColTab( int id )
 {
     if ( coltab && coltab->id()==id ) return;
 
-    visBase::DataObject* obj = id>=0 ? visBase::DM().getObj( id ) : 0;
+    visBase::DataObject* obj = id>=0 ? visBase::DM().getObject( id ) : 0;
     mDynamicCastGet(visBase::VisColorTab*,nct,obj);
 
     if ( coltab )

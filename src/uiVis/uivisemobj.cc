@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.1 2005-01-17 08:36:11 kristofer Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.2 2005-02-04 14:35:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,7 @@ uiVisEMObject::~uiVisEMObject()
 bool uiVisEMObject::isOK() const
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
-	    	    visBase::DM().getObj(displayid));
+	    	    visBase::DM().getObject(displayid));
     return emvis;
 }
 
@@ -205,7 +205,7 @@ void uiVisEMObject::setUpConnections()
 
 const char* uiVisEMObject::getObjectType( int id )
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visBase::DM().getObj(id));
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visBase::DM().getObject(id));
     if ( !emvis ) return 0;
 
     const MultiID* mid = emvis->getMultiID();
@@ -221,7 +221,7 @@ const char* uiVisEMObject::getObjectType( int id )
 
 bool uiVisEMObject::canHandle(int id)
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visBase::DM().getObj(id));
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visBase::DM().getObject(id));
     return emvis;
 }
 
