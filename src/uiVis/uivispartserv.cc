@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.229 2004-07-30 14:29:26 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.230 2004-08-04 07:29:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1080,7 +1080,7 @@ int uiVisPartServer::addInterpreter( int sceneid, Tracking::TrackManager& tm )
     visSurvey::SurfaceInterpreterDisplay* sid =
 				visSurvey::SurfaceInterpreterDisplay::create();
     sid->setTrackMan( tm );
-    sid->turnOn( false );
+    sid->turnOn( true );
     addObject( sid, sceneid, true );
     return sid->id();
 }
