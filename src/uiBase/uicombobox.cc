@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.14 2001-05-11 20:28:28 bert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.15 2001-06-03 15:43:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,21 @@ void uiComboBox::empty()
 const char* uiComboBox::getText() const
 {
     return mQtThing()->currentText();
+}
+
+
+void uiComboBox::setText( const char* txt )
+{
+    NotifyStopper<uiComboBox> stopper(selectionchanged);
+    if ( isPresent(txt) )
+	setCurrentItem(txt);
+    else
+    {
+	bool iseditable = mQtThing()->editable();
+	if ( !iseditable ) mQtThing()->setEditable( true );
+	mQtThing()->setEditText( txt ? txt : "" );
+	if ( !iseditable ) mQtThing()->setEditable( false );
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.8 2001-05-11 20:29:48 bert Exp $
+ RCS:           $Id: uicombobox.h,v 1.9 2001-06-03 15:44:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,9 @@ public:
 			     item. This text may differ from
 			     textOfItem(currentItem()) when the box is editable.
 			*/
+    void		setText(const char*);
+			/*!< This text will be put instead of what's
+			     in the item! */
 
     bool		isPresent(const char*) const;
 

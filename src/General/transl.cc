@@ -7,9 +7,10 @@
 
 #include "transl.h"
 #include "ioobj.h"
+#include "iopar.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.4 2001-05-31 13:25:47 windev Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.5 2001-06-03 15:43:48 bert Exp $";
 
 DefineAbstractClassDef(Translator,"Translator");
 UserIDObjectSet<Translator> Translator::groups_( "Object type displayed" );
@@ -73,6 +74,14 @@ Translator* Translator::trProd( const char* nm ) const
 	}
     }
     return cd ? (Translator*)cd->getNew() : 0;
+}
+
+
+IOPar& Translator::mkSelHist( const char* nm )
+{
+    BufferString parnm = nm;
+    parnm += " selection history";
+    return *new IOPar( parnm );
 }
 
 

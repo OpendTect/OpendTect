@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.9 2001-05-30 16:11:33 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.10 2001-06-03 15:43:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ void uiIOSelect::fillPar( IOPar& iopar ) const
 
 void uiIOSelect::usePar( const IOPar& iopar )
 {
+    bool haveold = inp_->box()->size();
     bool havenew = false; BufferString bs;
     for ( int idx=1; ; idx++ )
     {
@@ -117,7 +118,11 @@ void uiIOSelect::usePar( const IOPar& iopar )
     }
 
     if ( havenew )
+    {
 	updateFromEntries();
+	if ( !haveold )
+	    selDone(0);
+    }
 }
 
 

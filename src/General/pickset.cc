@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.6 2001-05-28 20:55:15 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.7 2001-06-03 15:43:48 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -13,8 +13,6 @@ static const char* rcsID = "$Id: pickset.cc,v 1.6 2001-05-28 20:55:15 bert Exp $
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
-
-IOPar& PickSetTranslator::selhist = *new IOPar( "Pick Set selection history" );
 
 
 bool PickLocation::fromString( const char* s )

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.4 2001-05-31 13:23:56 windev Exp $
+ RCS:		$Id: transl.h,v 1.5 2001-06-03 15:44:24 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -60,35 +60,39 @@ public:
     static Translator*		produce(const char* grp, const char*);
 
 protected:
+
     const ClassDef*		conndef_;
     static UserIDObjectSet<Translator>	groups_;
 
     Translator*			trProd(const char*) const;
+    static IOPar&		mkSelHist(const char*);
 };
 
 
 #define isTranslatorGroup(clss) \
-hasFactoryUidConcrete(Ppaste(clss,Translator)); \
+hasFactoryUidConcrete( clss##Translator ); \
 Translator* make( const char* nm ) const { return trProd(nm); } \
 ObjectTypeSelectionFun getSelector() const \
-	{ return Ppaste(clss,Translator)::selector; } \
+	{ return clss##Translator::selector; } \
 IOObjContext getContext() const \
-	{ return Ppaste(clss,Translator)::ioContext(); } \
-static int listid;
+	{ return clss##Translator::ioContext(); } \
+static int listid; \
+static IOPar& selhist;
 
 #define isTranslator(spec,clss) \
 private: \
 Translator* make(const char* nm) const \
-	{ return Ppaste(clss,Translator)::produce(nm); } \
-isUidProducable(Ppaste3(spec,clss,Translator))
+	{ return clss##Translator::produce(nm); } \
+isUidProducable(spec##clss##Translator)
 
 #define defineTranslatorGroup(clss,prnm) \
-defineConcreteFactory(Ppaste(clss,Translator),prnm); \
-int Ppaste(clss,Translator)::listid = \
-	Translator::groups_ += (Translator*)new Ppaste(clss,Translator)(prnm)
+defineConcreteFactory(clss##Translator,prnm); \
+int clss##Translator::listid = \
+	Translator::groups_ += (Translator*)new clss##Translator(prnm); \
+IOPar& clss##Translator::selhist = mkSelHist(prnm)
 
 #define defineTranslator(spec,clss,prnm) \
-defineProducable(Ppaste3(spec,clss,Translator),Ppaste(clss,Translator),prnm); \
+defineProducable(spec##clss##Translator,clss##Translator,prnm); \
 
 
 /*$-*/
