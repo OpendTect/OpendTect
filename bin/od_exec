@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.25 2004-04-23 14:44:19 bert Exp $
+# $Id: od_exec,v 1.26 2004-05-10 13:30:57 macman Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -68,10 +68,14 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
     if ( $status != 0 ) then
 	set xtermpath=/usr/bin/X11/xterm
 	if ( $HDIR == sun5 ) set xtermpath=/usr/openwin/bin/xterm
-	else if ( $HDIR == mac ) set xtermpath=/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal
+	if ( $HDIR == mac ) set xtermpath=$DTECT_APPL/bin/mac_term
     endif
 
-    set xtermcmd="$xtermpath -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $DTECT_APPL $xtermcmdarg"
+    if ( $HDIR == mac ) then
+	set xtermcmd="$DTECT_APPL/bin/mac_term $xtermcmdarg"
+    else
+	set xtermcmd="$xtermpath -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $DTECT_APPL $xtermcmdarg"
+    endif
 
     shift
     goto next_arg
@@ -89,10 +93,20 @@ endif
 setenv XAPPLRESDIR	$DTECT_APPL/data
 setenv PATH		"${bindir}:${PATH}"
 
-if ( $?LD_LIBRARY_PATH ) then
-    setenv LD_LIBRARY_PATH	"${bindir}/so:${LD_LIBRARY_PATH}"
+echo HDIR: $HDIR
+
+if ( $HDIR == mac ) then
+    if ( $?DYLD_LIBRARY_PATH ) then
+	setenv DYLD_LIBRARY_PATH	"${bindir}/so:${DYLD_LIBRARY_PATH}"
+    else
+	setenv DYLD_LIBRARY_PATH	"${bindir}/so:/lib:/usr/lib"
+    endif
 else
-    setenv LD_LIBRARY_PATH	"${bindir}/so:/lib:/usr/lib"
+    if ( $?LD_LIBRARY_PATH ) then
+	setenv LD_LIBRARY_PATH	"${bindir}/so:${LD_LIBRARY_PATH}"
+    else
+	setenv LD_LIBRARY_PATH	"${bindir}/so:/lib:/usr/lib"
+    endif
 endif
 
 if ( $HDIR == sgi ) then

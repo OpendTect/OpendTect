@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>WindowSettings</key>
+	<array>
+		<dict>
+			<key>Columns</key>
+			<string>80</string>
+			<key>CustomTitle</key>
+			<string>OpendTect Terminal</string>
+			<key>Rows</key>
+			<string>24</string>
+			<key>Shell</key>
+			<string>NO</string>
+			<key>ShellExitAction</key>
+			<string>2</string>
+			<key>TermCapString</key>
+			<string>xterm-color</string>
+			<key>ExecutionString</key>
+			<string>__termcmd__</string>
+		</dict>
+	</array>
+</dict>
+</plist>
