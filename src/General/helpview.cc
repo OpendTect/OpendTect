@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.24 2004-10-21 15:45:58 dgb Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.25 2004-12-06 10:36:34 dgb Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: helpview.cc,v 1.24 2004-10-21 15:45:58 dgb Exp 
 #include "filepath.h"
 #include "string2.h"
 #include <stdlib.h>
+
+#include "debugmasks.h"
 
 #ifdef __win__
 # include <windows.h>
@@ -45,8 +47,31 @@ static bool GetBrowser( BufferString& defaultBrowser, BufferString& browserArgs)
 
     if (ret != ERROR_SUCCESS)
     {
-	//pErrMsg("Can't find registery key for browser?");
-	return(FALSE);
+	char  *keyName = "http\\shell\\open\\command";
+
+	ret = RegOpenKeyEx( HKEY_CLASSES_ROOT, keyName, NULL,
+			    KEY_ALL_ACCESS, &mykey);
+
+	if (ret != ERROR_SUCCESS)
+	{
+	    defaultBrowser =
+			"C:\\Program Files\\Internet Explorer\\iexplore.exe";
+	    browserArgs = " -nohome ";
+
+
+	    if ( DBG::isOn(DBG_DBG) )
+	    {
+		BufferString
+		    msg( "Unable to find browser in registry. Trying: " );
+		msg += defaultBrowser;
+		msg += " ";
+		msg += browserArgs;
+
+		DBG::message( msg );
+	    }
+
+	    return false;
+	}
     }
 
     memset(value, 0, sizeof(value));
@@ -143,6 +168,17 @@ void HelpViewer::use( const char* url, const char* wintitl )
     replaceCharacter( _url.buf(), '\\' , '/' );
     args += _url;
     args += "\"";
+
+    if ( DBG::isOn(DBG_DBG) )
+    {
+        BufferString msg( "Launching browser: " );
+	msg += browser;
+	msg += " ";
+	msg += args;
+
+        DBG::message( msg );
+    }
+
 
     HINSTANCE ret = ShellExecute( NULL, NULL, browser, args, NULL, SW_NORMAL);
     int err = (int) ret;
