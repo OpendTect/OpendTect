@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.36 2002-02-21 17:42:08 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.37 2002-02-22 15:05:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,7 @@ class NumInpIntervalSpec : public DataInpSpec
 {
 public:
 			NumInpIntervalSpec( bool withstep=false )
-			    : DataInpSpec( DataTypeImpl<T>() )
+			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
 			    , interval_( withstep ?  new StepInterval<T>( 
 							undef.value(), 
@@ -259,7 +259,7 @@ public:
 			    {}
 
 			NumInpIntervalSpec( const Interval<T>& interval ) 
-			    : DataInpSpec( DataTypeImpl<T>() )
+			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
 			    , interval_( interval.clone() )	{}
 
