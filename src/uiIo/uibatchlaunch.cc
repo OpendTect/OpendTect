@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.14 2002-06-08 10:19:18 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.15 2002-06-14 09:21:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,12 +127,14 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     static BufferString fname = "";
     if ( fname == "" )
     {
-	fname = "/tmp/out";
+	fname = GetDataDir();
+	fname = File_getFullPath( fname, "Proc" );
+	fname = File_getFullPath( fname, "log" );
 	if ( GetSoftwareUser() )
 	    { fname += "_"; fname += GetSoftwareUser(); }
-	fname += ".log";
+	fname += ".txt";
     }
-    filefld = new uiFileInput( this, "Output file", fname, false );
+    filefld = new uiFileInput( this, "Log file", fname, false );
     filefld->attach( alignedBelow, optfld );
 }
 
