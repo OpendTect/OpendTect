@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.2 2002-07-02 13:55:24 nanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.3 2002-08-19 07:30:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiSliceSel : public uiDialog
 {
 public:
 				uiSliceSel(uiParent*,const CubeSampling&,
-					   const CallBack&);
+					   const CallBack&,bool isvol=false);
 				~uiSliceSel();
     const CubeSampling&		getCubeSampling()	{ return cs; }
 
