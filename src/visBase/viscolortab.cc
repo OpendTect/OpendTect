@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.2 2002-03-14 08:50:11 nanne Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.3 2002-04-10 11:39:49 nanne Exp $";
 
 #include "viscolortab.h"
 #include "visdataman.h"
@@ -35,6 +35,7 @@ Color  visBase::VisColorTab::color( float val ) const
 void visBase::VisColorTab::scaleTo( const Interval<float>& rg )
 {
     scale.factor = 1.0/rg.width();
+    if ( rg.start > rg.stop ) scale.factor *= -1;
     scale.constant = -rg.start*scale.factor;
 
     change.trigger();
