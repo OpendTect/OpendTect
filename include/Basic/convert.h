@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.2 2005-03-31 12:17:28 cvsarend Exp $
+ RCS:           $Id: convert.h,v 1.3 2005-03-31 12:19:26 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ template <class T, class F>
 inline T& to( const F& fr )
 { 
     static T ret;
-    setUdf(ret);
+    Values::setUdf(ret);
     set<T,F>(ret,fr);
 
     return ret;
@@ -49,7 +49,7 @@ template <class T, class F>
 inline T& udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 { 
     static T ret;
-    setUdf(ret);
+    Values::setUdf(ret);
     udfset<T,F>(ret,fr,und);
 
     return ret;
