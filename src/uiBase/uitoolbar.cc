@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.21 2004-09-14 06:36:00 kristofer Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.22 2004-09-16 12:25:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,6 +213,12 @@ void uiToolBar::display( bool yn, bool, bool )
 void uiToolBar::addSeparator()
 { qtoolbar->addSeparator(); }
 
+void uiToolBar::dock()
+{ qtoolbar->dock(); }
+
+void uiToolBar::undock()
+{ qtoolbar->undock(); }
+
 
 void uiToolBar::setStretchableWidget( uiObject* obj )
 {
@@ -221,20 +227,33 @@ void uiToolBar::setStretchableWidget( uiObject* obj )
 }
 
 
-void uiToolBar::setMovingEnabled( bool yn )
-{ qtoolbar->setMovingEnabled( yn ); }
+#define mSetFunc(func,var) \
+void uiToolBar::func( var value ) \
+{ \
+    qtoolbar->func( value ); \
+}
+
+#define mGetFunc(func,var) \
+var uiToolBar::func() const \
+{ \
+    return qtoolbar->func(); \
+}
 
 
-bool uiToolBar::isMovingEnabled()
-{ return qtoolbar->isMovingEnabled(); }
+mSetFunc(setMovingEnabled,bool)
+mGetFunc(isMovingEnabled,bool)
 
+mSetFunc(setNewLine,bool)
 
-void uiToolBar::dock()
-{ qtoolbar->dock(); }
+mSetFunc(setCloseMode,int)
+mGetFunc(closeMode,int)
 
-void uiToolBar::undock()
-{ qtoolbar->undock(); }
+mSetFunc(setHorizontallyStretchable,bool)
+mGetFunc(isHorizontallyStretchable,bool)
 
+mSetFunc(setVerticallyStretchable,bool)
+mGetFunc(isVerticallyStretchable,bool)
 
-void uiToolBar::setNewLine( bool yn )
-{ qtoolbar->setNewLine( yn ); }
+mSetFunc(setResizeEnabled,bool)
+mGetFunc(isResizeEnabled,bool)
+

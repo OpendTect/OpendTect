@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.15 2004-09-14 06:36:00 kristofer Exp $
+ RCS:           $Id: uitoolbar.h,v 1.16 2004-09-16 12:25:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,8 +65,20 @@ public:
 
     void		addSeparator();
     void		setStretchableWidget(uiObject*);
+
+
     void		setMovingEnabled(bool);
-    bool		isMovingEnabled();
+    bool		isMovingEnabled() const;
+
+    void		setCloseMode(int);
+    			/*!< 0: Never; 1: Docked; 2: Undocked; 3: Always */
+    int			closeMode() const;
+    void		setHorizontallyStretchable(bool yn=true);
+    bool		isHorizontallyStretchable() const;
+    void		setVerticallyStretchable(bool yn=true);
+    bool		isVerticallyStretchable() const;
+    void		setResizeEnabled(bool yn=true);
+    bool		isResizeEnabled() const;
 
     void		dock();
     void		undock();
