@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.14 2004-09-13 16:18:51 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.15 2004-09-17 14:28:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class IOPar;
 class Executor;
 class SeisTrcBuf;
 class SeisSelData;
+class CubeSampling;
 class BufferStringSet;
 class Seis2DLineIOProvider;
 
@@ -91,6 +92,8 @@ public:
 	    			   BufferString& stdinfo) const;
     bool		getRanges(int,StepInterval<int>& trcrg,
 	    			  StepInterval<float>& zrg) const;
+    const char*		getCubeSampling(CubeSampling&,int linenr=-1) const;
+    			//!< returns err msg, or null when OK
 
     static const char*	sKeyAttrib;
     static const char*	sKeyDefAttrib;

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.19 2004-09-17 12:37:36 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.20 2004-09-17 14:28:06 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -14,6 +14,8 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.19 2004-09-17 12:37:36 bert E
 #include "strmprov.h"
 #include "ascstream.h"
 #include "bufstringset.h"
+#include "cubesampling.h"
+#include "survinfo.h"
 #include "filegen.h"
 #include "keystrs.h"
 #include "iopar.h"
@@ -47,50 +49,27 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 
 bool TwoDSeisTrcTranslator::initRead_()
 {
+    errmsg = 0;
     if ( !conn->ioobj )
 	{ errmsg = "Cannot reconstruct 2D filename"; return false; }
     BufferString fnm( conn->ioobj->fullUserExpr(true) );
     if ( !File_exists(fnm) ) return false;
+
     Seis2DLineSet lset( fnm );
-    const char* linekey = seldata ? seldata->linekey_.buf() : 0;
-    int linenr = 0;
-    bool havelinesel = linekey && *linekey;
-    if ( havelinesel )
-	linenr = lset.indexOf( linekey );
-    if ( linenr < 0 ) linenr = 0;
-
     lset.getTxtInfo( 0, pinfo->usrinfo, pinfo->stdinfo );
-    const int nrlines = lset.nrLines();
-    if ( linenr >= nrlines )
-	{ errmsg = "No lines"; return false; }
 
-    StepInterval<int> trg; StepInterval<float> zrg;
-    if ( !lset.getRanges(linenr,trg,zrg) )
-	{ errmsg = "No range info"; return false; }
+    const char* linekey = seldata ? seldata->linekey_.buf() : 0;
+    int linenr = linekey && *linekey ? lset.indexOf( linekey ) : -1;
+    CubeSampling cs( false );
+    errmsg = lset.getCubeSampling( cs, linenr );
+    if ( errmsg && *errmsg )
+	return false;
 
-    if ( !havelinesel )
-    {
-	StepInterval<int> newtrg; StepInterval<float> newzrg;
-	for ( int iln=1; iln<nrlines; iln++ )
-	{
-	    if ( lset.getRanges(iln,newtrg,newzrg) )
-	    {
-		if ( newtrg.stop > trg.stop ) trg.stop = newtrg.stop;
-		if ( newtrg.step < trg.step ) trg.step = newtrg.step;
-		if ( newzrg.start < zrg.start ) zrg.start = newzrg.start;
-		if ( newzrg.stop > zrg.stop ) zrg.stop = newzrg.stop;
-	    }
-	}
-    }
-
-    insd.start = zrg.start;
-    insd.step = zrg.step;
-    innrsamples = (int)((zrg.stop-zrg.start) / zrg.step + 1.5);
-    pinfo->inlrg.start = 0; pinfo->crlrg.start = trg.start;
-    pinfo->inlrg.stop = nrlines - 1; pinfo->crlrg.stop = trg.stop;
-    pinfo->inlrg.step = 1; pinfo->crlrg.step = trg.step;
-    if ( havelinesel )
-	pinfo->inlrg.start = pinfo->inlrg.stop = linenr;
+    insd.start = cs.zrg.start; insd.step = cs.zrg.step;
+    innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
+    pinfo->inlrg.start = cs.hrg.start.inl; pinfo->inlrg.stop = cs.hrg.stop.inl;
+    pinfo->inlrg.step = cs.hrg.step.inl; pinfo->crlrg.step = cs.hrg.step.crl;
+    pinfo->crlrg.start = cs.hrg.start.crl; pinfo->crlrg.stop = cs.hrg.stop.crl;
     addComp( DataCharacteristics(), pinfo->stdinfo, Seis::UnknowData );
     return true;
 }
@@ -400,4 +379,54 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms ) const
     const int sz = nrLines();
     for ( int idx=0; idx<sz; idx++ )
 	nms.addIfNew( attribute(idx) );
+}
+
+
+const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
+{
+    cs.hrg.step.inl = cs.hrg.step.crl = 1;
+    cs.hrg.start.inl = 0; cs.hrg.stop.inl = nrLines()-1;
+    cs.hrg.start.crl = 0; cs.hrg.stop.crl = mUndefIntVal;
+    cs.zrg = SI().zRange();
+    const int nrlines = nrLines();
+    if ( nrlines < 1 )
+	return "No lines in Line Set";
+
+    bool havelinesel = lnr >= 0;
+    if ( !havelinesel )
+	lnr = 0;
+    else
+	cs.hrg.start.inl = cs.hrg.stop.inl = lnr;
+
+    StepInterval<int> trg; StepInterval<float> zrg;
+    bool foundone = false;
+
+    if ( getRanges(lnr,trg,zrg) )
+	foundone = true;
+
+    if ( !havelinesel )
+    {
+	StepInterval<int> newtrg; StepInterval<float> newzrg;
+	for ( int iln=1; iln<nrlines; iln++ )
+	{
+	    if ( getRanges(iln,newtrg,newzrg) )
+	    {
+		foundone = true;
+		if ( newtrg.start < trg.start ) trg.start = newtrg.start;
+		if ( newtrg.stop > trg.stop ) trg.stop = newtrg.stop;
+		if ( newtrg.step < trg.step ) trg.step = newtrg.step;
+		if ( newzrg.start < zrg.start ) zrg.start = newzrg.start;
+		if ( newzrg.stop > zrg.stop ) zrg.stop = newzrg.stop;
+		if ( newzrg.step < zrg.step ) zrg.step = newzrg.step;
+	    }
+	}
+    }
+
+    if ( !foundone )
+	return "No range info present";
+
+    cs.hrg.start.crl = trg.start; cs.hrg.stop.crl = trg.stop;
+    cs.hrg.step.crl = trg.step;
+    cs.zrg = zrg;
+    return 0;
 }
