@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.5 2004-01-22 16:19:40 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.6 2004-01-22 16:25:59 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,16 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     {
 	BufferString worksubdirm = "ODWork";
 
-	BufferString basedirnm = cygwin ? cygwin : GetPersonalDir();
+	BufferString basedirnm = GetPersonalDir();
+
+	if ( cygwin )
+	{
+	    basedirnm = File_getFullPath(cygwin, "home") ;
+	    basedirnm = File_getFullPath( basedirnm, getenv("USER"));
+
+	    if ( !File_isDirectory( basedirnm ) )
+		basedirnm = GetPersonalDir();
+	}
 
 	// pop dialog
 	uiCrDevEnv dlg( appl, basedirnm, worksubdirm, cygwin );
