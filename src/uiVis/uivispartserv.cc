@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.133 2003-03-03 15:20:02 bert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.134 2003-03-03 15:54:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1265,6 +1265,15 @@ void uiVisPartServer::turnOn( int id, bool yn )
 
     mDynamicCastGet(visBase::VisualObject*,so,obj);
     if ( so ) so->turnOn( yn );
+
+    TypeSet<int> sceneids;
+    getChildIds( -1, sceneids );
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	visSurvey::Scene* scene =
+		(visSurvey::Scene*) visBase::DM().getObj( sceneids[idx] );
+	if ( scene ) scene->filterPicks();
+    }
 }
 
 
@@ -1663,7 +1672,8 @@ void uiVisPartServer::setUpConnections( int id )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
     if ( pdd )
-	pdd->moving.notify( mCB(this,uiVisPartServer,interactionCB) );
+	pdd->getMovementNotification()->notify( 
+				    mCB(this,uiVisPartServer,interactionCB) );
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,pickset,obj);
     if ( pickset )

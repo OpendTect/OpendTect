@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.43 2003-02-26 16:33:08 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.44 2003-03-03 15:54:10 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -310,9 +310,9 @@ CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
     cubesampl.hrg.stop = cubesampl.hrg.start;
     cubesampl.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-    cubesampl.zrg.start = (manippos
-	    ? trect->getRectangle().manipOrigo().z
-	    : trect->getRectangle().origo().z);
+    float zrg0 = manippos ? trect->getRectangle().manipOrigo().z
+			  : trect->getRectangle().origo().z;
+    cubesampl.zrg.start = (float)(int)(1000*zrg0) / 1000;
     cubesampl.zrg.stop = cubesampl.zrg.start;
 
     if ( trect->getRectangle().orientation()==visBase::Rectangle::XY )
@@ -347,6 +347,8 @@ void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
     setWidth( width );
     Coord3 origo(cs_.hrg.start.inl,cs_.hrg.start.crl,cs_.zrg.start);
     setOrigo( origo );
+
+    moving.trigger();
 }
 
 
