@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.31 2003-01-02 15:42:21 nanne Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.32 2003-02-18 16:32:21 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -58,18 +58,18 @@ CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
 
 void CBVSSeisTrcTranslator::cleanUp()
 {
+    SeisTrcTranslator::cleanUp();
     headerdone = false;
     donext =false;
     nrdone = 0;
     destroyVars();
-    SeisTrcTranslator::cleanUp();
 }
 
 
 void CBVSSeisTrcTranslator::destroyVars()
 {
-    delete rdmgr;
-    delete wrmgr;
+    delete rdmgr; rdmgr = 0;
+    delete wrmgr; wrmgr = 0;
 
     if ( !blockbufs ) return;
 
@@ -556,6 +556,8 @@ int CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
     if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return NO;
     mDynamicCastGet(const IOStream*,iostrm,ioobj)
     if ( !iostrm ) return NO;
+    if ( iostrm->isMulti() )
+	return iostrm->implRemove();
 
     BufferString pathnm = iostrm->dirName();
     BufferString basenm = iostrm->fileName();

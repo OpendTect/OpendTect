@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.6 2002-11-15 10:56:13 bert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.7 2003-02-18 16:32:21 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -18,8 +18,7 @@ const char* SeisStorage::sNrTrcs = "Nr of traces";
 
 
 SeisStorage::SeisStorage( const IOObj* ioob )
-	: conn(0)
-	, trl(0)
+	: trl(0)
 	, ioobj(0)
 	, trcsel(0)
 	, selcomp(-1)
@@ -47,6 +46,12 @@ void SeisStorage::setIOObj( const IOObj* ioob )
 }
 
 
+const Conn* SeisStorage::curConn() const
+{ return trl ? trl->curConn() : 0; }
+Conn* SeisStorage::curConn()
+{ return trl ? trl->curConn() : 0; }
+
+
 void SeisStorage::setTrcSel( SeisTrcSel* tsel )
 {
     delete trcsel; trcsel = tsel;
@@ -56,9 +61,7 @@ void SeisStorage::setTrcSel( SeisTrcSel* tsel )
 
 void SeisStorage::cleanUp( bool alsoioobj )
 {
-    if ( trl )
-	{ trl->close(); delete trl; trl = 0; }
-    delete conn; conn = 0;
+    delete trl; trl = 0;
     nrtrcs = 0;
     if ( alsoioobj )
     {

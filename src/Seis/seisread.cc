@@ -5,13 +5,12 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.16 2002-07-01 09:33:05 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.17 2003-02-18 16:32:21 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
-#include "storlayout.h"
 #include "executor.h"
 #include "iostrm.h"
 #include "survinfo.h"
@@ -37,7 +36,7 @@ public:
 const char* message() const
 { return tselst ? tselst->message() : msg; }
 int nrDone() const
-{ return tselst ? tselst->nrDone() : (rdr.conn ? 2 : 1); }
+{ return tselst ? tselst->nrDone() : (rdr.curConn() ? 2 : 1); }
 const char* nrDoneText() const
 { return tselst ? tselst->nrDoneText() : "Step"; }
 int totalNr() const
@@ -48,6 +47,7 @@ SeisReadStarter( SeisTrcReader& r )
 	, rdr(r)
 	, msg("Opening data store")
 	, tselst(0)
+	, conn(0)
 {
     if ( rdr.trcsel )
 	tselst = rdr.trcsel->starter();
@@ -56,6 +56,7 @@ SeisReadStarter( SeisTrcReader& r )
 ~SeisReadStarter()
 {
     delete tselst;
+    delete conn;
 }
 
 
@@ -76,22 +77,18 @@ int nextStep()
 	return 1;
     }
 
-    if ( rdr.connState() != Conn::Read && rdr.connState() != Conn::RW )
+    conn = rdr.openFirst();
+    if ( !conn )
     {
-	if ( !rdr.openFirst() )
-	{
-	    msg = "Cannot open seismic data";
-	    return -1;
-	}
-	msg = "Reading global header data";
-	return YES;
+	msg = "Cannot open seismic data";
+	return -1;
     }
-
-    if ( !rdr.initRead() )
+    else if ( !rdr.initRead(conn) )
     {
 	msg = rdr.errMsg();
 	return -1;
     }
+    conn = 0;
 
     if ( rdr.forcefloats )
     {
@@ -100,9 +97,11 @@ int nextStep()
 	for ( int idx=0; idx<tarcds.size(); idx++ )
 	    tarcds[idx]->datachar = DataCharacteristics();
     }
-    return NO;
+
+    return 0;
 }
 
+    Conn*		conn;
     SeisTrcReader&	rdr;
     const char*		msg;
     Executor*		tselst;
@@ -123,10 +122,11 @@ bool SeisTrcReader::multiConn() const
 }
 
 
-bool SeisTrcReader::openFirst()
+Conn* SeisTrcReader::openFirst()
 {
     trySkipConns();
-    conn = ioobj->getConn( Conn::Read );
+
+    Conn* conn = ioobj->getConn( Conn::Read );
     if ( !conn || conn->bad() )
     {
 	delete conn; conn = 0;
@@ -140,13 +140,13 @@ bool SeisTrcReader::openFirst()
 	    }
 	}
     }
-    return conn ? true : false;
+    return conn;
 }
 
 
-bool SeisTrcReader::initRead()
+bool SeisTrcReader::initRead( Conn* conn )
 {
-    if ( !trl->initRead(*conn) )
+    if ( !trl->initRead(conn) )
     {
 	errmsg = trl->errMsg();
 	cleanUp();
@@ -221,35 +221,16 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     int res = 0;
     if ( sel && (res = sel->excludes(ti.binid)) )
     {
-	// Now, we must skip the trace, but ...
-	const StorageLayout& lyo = trl->storageLayout();
-	bool clustinl = lyo.type() == StorageLayout::Inline;
-	bool clustcrl = lyo.type() == StorageLayout::Xline;
-	bool isrange = sel->type() == 0;
-	if ( clustinl || clustcrl )
+	// Must skip trace, can we just go to next file?
+	if ( trl->inlCrlSorted() && res % 256 == 2 && sel->type() < 2
+	    && multiConn() )
 	{
-	    if ( lyo.isCont() )
-	    {
-		// ... maybe we can stop now
-		if ( isrange && icfound && !validBidselRes(res,clustcrl) )
-		    return 0;
-	    }
-	    else
-	    {
-		// ... maybe we can go to the next file
-		if (
-		     ( isrange && icfound )
-		  || ( ((clustinl && res%256==2) || (clustcrl && res/256==2)) )
-		   )
-		{
-		    icfound = false;
-		    return nextConn( ti );
-		}
-		icfound = false;
-	    }
+	    IOStream* iostrm = (IOStream*)ioobj;
+	    if ( iostrm->directNumberMultiConn() )
+		return nextConn( ti );
 	}
 
-	// ... no, we must skip
+	// ... nah, just skip
 	return trl->skip() ? 2 : nextConn( ti );
     }
 
@@ -292,13 +273,13 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 {
     new_packet = false;
     if ( !multiConn() ) return 0;
-    IOStream* iostrm = (IOStream*)ioobj;
 
-    delete conn; conn = 0;
+    trl->cleanUp();
+    IOStream* iostrm = (IOStream*)ioobj;
     if ( !iostrm->toNextConnNr() ) return 0;
 
     trySkipConns();
-    conn = iostrm->getConn( Conn::Read );
+    Conn* conn = iostrm->getConn( Conn::Read );
 
     while ( !conn || conn->bad() )
     {
@@ -310,8 +291,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     }
 
     icfound = false;
-
-    if ( !trl->initRead(*conn) )
+    if ( !trl->initRead(conn) )
     {
 	errmsg = trl->errMsg();
 	return -1;
@@ -321,8 +301,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
     if ( trcsel && trcsel->bidsel && iostrm->directNumberMultiConn() )
     {
-	if ( !validBidselRes( trcsel->bidsel->excludes(ti.binid),
-		      trl->storageLayout().type() == StorageLayout::Xline) )
+	if ( !binidInConn(trcsel->bidsel->excludes(ti.binid)) )
 	    return nextConn( ti );
     }
 
@@ -336,12 +315,11 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 void SeisTrcReader::trySkipConns()
 {
     if ( !multiConn() || !trcsel || !trcsel->bidsel ) return;
-    const BinIDSelector* sel = trcsel->bidsel;
-    IOStream* iostrm = (IOStream*)ioobj;
-    if ( !iostrm->directNumberMultiConn() ) return;
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( !iostrm || !iostrm->directNumberMultiConn() ) return;
 
-    bool clustcrl = trl->storageLayout().type() == StorageLayout::Xline;
     BinID binid;
+    const BinIDSelector* sel = trcsel->bidsel;
     BinIDProvider* bp = sel->provider();
     if ( bp && bp->size() == 0 ) { delete bp; return; }
 
@@ -349,14 +327,19 @@ void SeisTrcReader::trySkipConns()
     else	binid = (*bp)[0];
     delete bp;
 
-    int& newinlcrl = clustcrl ? binid.crl : binid.inl;
     do
     {
-	newinlcrl = iostrm->connNr();
-	if ( validBidselRes( sel->excludes(binid), clustcrl ) )
+	binid.inl = iostrm->connNr();
+	if ( binidInConn(sel->excludes(binid)) )
 	    return;
 
     } while ( iostrm->toNextConnNr() );
+}
+
+
+bool SeisTrcReader::binidInConn( int r ) const
+{
+    return r == 0 || (trl->inlCrlSorted() && r/256 != 2);
 }
 
 

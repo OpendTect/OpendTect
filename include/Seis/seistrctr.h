@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.22 2002-11-21 17:10:37 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.23 2003-02-18 16:32:21 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -16,7 +16,6 @@ Translators for seismic traces.
 
 #include <transl.h>
 #include <ctxtioobj.h>
-#include <storlayout.h>
 #include <basiccompinfo.h>
 #include <streamconn.h>
 
@@ -60,7 +59,9 @@ WRITE:
 5) write() writes selected traces/trace sections
 
 
-lastly) close() finishes work (does not close connection).
+lastly) close() finishes work (does not close connection). If you don't close
+yourself, the destructor will do it but make sure it's done because otherwise
+you'll likely loose an entire inline when writing.
 
 Note the existence of minimalHdrs(). If this is true, we have only
 inline/crossline. If you use setMinimalHdrs(), only inline/crossline and trace
@@ -132,13 +133,15 @@ public:
 
 			/*! Init functions must be called, because
 			     Conn object must be always available */
-    bool		initRead(Conn&);
+    bool		initRead(Conn*);
 			/*!< After call, component and packet info will
 			   be available. Note that Conn MUST have IOObj* */
-    bool		initWrite(Conn&,const SeisTrc&);
+    bool		initWrite(Conn*,const SeisTrc&);
 			/*!< After call, default component and packet info
 			   will be generated according to the example trace.
 			   Note that Conn MUST have IOObj* */
+    Conn*		curConn()			{ return conn; }
+    			//!< Translator may replace your initial Conn!!!
 
     SeisPacketInfo&			packetInfo()	{ return pinfo; }
     const SeisTrcSel*			trcSel()	{ return trcsel; }
@@ -157,31 +160,34 @@ public:
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     bool		write(const SeisTrc&);
 
-    virtual void	close();
+    void		close();
     const char*		errMsg() const			{ return errmsg; }
 
-    virtual StorageLayout storageLayout() const	
-			{ return StorageLayout(StorageLayout::Inline,true); }
-
+    virtual bool	inlCrlSorted() const		{ return true; }
     virtual void	toSupported( DataCharacteristics& ) const {}
 			//!< change the input to a supported characteristic
     virtual void	usePar(const IOPar*);
+    static bool		getRanges(const IOObj&,BinIDSampler&,
+	    			  StepInterval<float>&);
 
     inline int		selComp( int nr=0 ) const	{ return inpfor_[nr]; }
     inline int		nrSelComps() const		{ return nrout_; }
     SeisTrc*		getEmpty();
 			/*!< Returns an empty trace with the target data
 				characteristics for component 0 */
+    SeisTrc*		getFilled(const BinID&);
+			/*!< Returns a full sized trace with zeros. */
 
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }
     bool		minimalHdrs() const		{ return false; }
     void		setMinimalHdrs()		{}
 
+    virtual void	cleanUp();
+    			//!< Prepare for new initialisation.
+
     static int		selector(const char*);
     static const IOObjContext&	ioContext();
-    static bool		getRanges(const IOObj&,BinIDSampler&,
-	    			  StepInterval<float>&);
 
 protected:
 
@@ -189,6 +195,8 @@ protected:
     const char*		errmsg;
     SeisPacketInfo&	pinfo;
     bool		useinpsd;
+    int			lastinlwritten;
+    bool		enforce_regular_write;
 
     const SeisTrcSel*			trcsel;
     ObjectSet<ComponentData>		cds;
@@ -199,16 +207,17 @@ protected:
 				const char* nm=0,const LinScaler* =0,
 				int dtype=0);
 
-    bool		initConn(Conn&,bool forread);
+    bool		initConn(Conn*,bool forread);
     void		setDataType( int icomp, int d )
 			{ cds[icomp]->datatype = tarcds[icomp]->datatype = d; }
     void		fillOffsAzim(SeisTrcInfo&,const Coord&,const Coord&);
 
-    virtual void	cleanUp();
 			/* Subclasses will need to implement the following: */
     virtual bool	initRead_()			{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
+    virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
+    							{ return true; }
 
     IOPar&		storediopar;
     virtual void	useStoredPar();
@@ -219,7 +228,7 @@ protected:
     ComponentData**	inpcds;
     TargetComponentData** outcds;
 
-    			// Buffer to write when writeBlock() is called
+    			// Buffer written when writeBlock() is called
     SeisTrcBuf&		trcblock_;
     virtual bool	writeTrc_(const SeisTrc&)	{ return false; }
 
@@ -230,7 +239,8 @@ private:
     int			prevnr_;
 
     void		enforceBounds(const SeisTrc*);
-    bool		writeBlock(bool);
+    bool		writeBlock();
+    bool		dumpBlock();
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.7 2002-11-02 22:13:23 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.8 2003-02-18 16:32:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,21 +85,17 @@ bool uiSeisTransfer::provideUserInfo( const IOObj& ioobj ) const
     if ( !tr )
 	{ pErrMsg("Non-CBVS entry"); return true; }
 
-    PtrMan<Conn> conn = ioobj.getConn( Conn::Read );
-    if ( !conn )
+    Conn* conn = ioobj.getConn( Conn::Read );
+    if ( !conn || !tr->initRead(conn) )
     {
 	uiMSG().error( "Cannot open imported seismic data files" );
-	return false;
-    }
-
-    if ( !tr->initRead(*conn) )
-    {
-	uiMSG().error( tr->errMsg() );
+	delete conn;
 	return false;
     }
 
     ostringstream strm;
     tr->readMgr()->dumpInfo( strm, false );
     uiMSG().message( strm.str().c_str() );
+
     return true;
 }

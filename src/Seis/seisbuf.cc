@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.12 2002-11-24 22:19:29 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.13 2003-02-18 16:32:21 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -51,10 +51,33 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 }
 
 
-void SeisTrcBuf::sort( int seisinf_attrnr, bool ascending )
+bool SeisTrcBuf::isSorted( bool ascending, int seisinf_attrnr ) const
 {
     const int sz = size();
-    if ( sz < 2 ) return;
+    if ( sz < 2 ) return true;
+
+    float prevval = get(0)->info().getAttr(seisinf_attrnr);
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	float val = get(idx)->info().getAttr(seisinf_attrnr);
+	float diff = val - prevval;
+	if ( !mIS_ZERO(diff) )
+	{
+	    if ( (ascending && diff < 0) || (!ascending && diff > 0) )
+		return false;
+	}
+	prevval = val;
+    }
+
+    return true;
+}
+
+
+void SeisTrcBuf::sort( bool ascending, int seisinf_attrnr )
+{
+    const int sz = size();
+    if ( sz < 2 || isSorted(ascending,seisinf_attrnr) )
+	return;
 
     ArrPtrMan<int> idxs = new int [sz];
     ArrPtrMan<float> vals = new float [sz];
@@ -74,20 +97,40 @@ void SeisTrcBuf::sort( int seisinf_attrnr, bool ascending )
 }
 
 
-void SeisTrcBuf::removeDuplicates( int seisinf_attrnr, bool destroy )
+void SeisTrcBuf::enforceNrTrcs( int nrrequired, int seisinf_attrnr )
 {
-    int sz = size();
-    if ( sz < 2 ) return;
+    SeisTrc* prevtrc = get(0);
+    if ( !prevtrc ) return;
 
-    float prevval = get(0)->info().getAttr(seisinf_attrnr);
-    for ( int idx=1; idx<sz; idx++ )
+    float prevval = prevtrc->info().getAttr(seisinf_attrnr);
+    int nrwithprevval = 1;
+    for ( int idx=1; idx<=size(); idx++ )
     {
-	SeisTrc* trc = get(idx);
-	float val = trc->info().getAttr(seisinf_attrnr);
+	SeisTrc* trc = idx==size() ? 0 : get(idx);
+	float val = trc ? trc->info().getAttr(seisinf_attrnr) : prevval-1;
+
 	if ( mIS_ZERO(prevval-val) )
-	    { remove(trc); idx--; sz--; if ( destroy ) delete trc; }
+	{
+	    nrwithprevval++;
+	    if ( nrwithprevval > nrrequired )
+	    {
+		remove(trc); idx--; delete trc;
+		nrwithprevval = nrrequired;
+	    }
+	}
 	else
-	    prevval = val;
+	{
+	    for ( int idx=nrwithprevval; idx<nrrequired; idx++ )
+	    {
+		SeisTrc* newtrc = new SeisTrc(*prevtrc);
+		newtrc->data().zero();
+		add( newtrc );
+		idx++;
+	    }
+	    nrwithprevval = 1;
+	}
+
+	prevval = val;
     }
 }
 

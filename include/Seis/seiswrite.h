@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.6 2001-03-23 11:27:30 bert Exp $
+ RCS:		$Id: seiswrite.h,v 1.7 2003-02-18 16:32:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,21 +36,21 @@ public:
 			~SeisTrcWriter();
 
     virtual Executor*	starter(const SeisTrc&);
-    bool		isMultiComp() const;
     virtual bool	put(const SeisTrc&);
 
     void		fillAuxPar(IOPar&) const;
+    bool		isMultiComp() const;
+    bool		isMultiConn() const;
 
 protected:
 
-    void		init();
-    bool		initWrite(const SeisTrc&);
-    bool		openConn();
-    bool		handleConn(const SeisTrc&,bool nxt=true);
+    Conn*		crConn(int);
+    bool		startWrite(Conn*,const SeisTrc&);
+    bool		ensureRightConn(const SeisTrc&);
 
     BinIDRange&		binids;
-    int			nrwrconn;
-    bool		wrinited;
+    int			nrtrcs;
+    int			nrwritten;
 
 };
 

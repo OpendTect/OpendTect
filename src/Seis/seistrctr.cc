@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.31 2002-11-21 17:10:09 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.32 2003-02-18 16:32:21 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -84,14 +84,17 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const ClassDef* cd )
 	, trcsel(0)
     	, prevnr_(-999)
     	, trcblock_(*new SeisTrcBuf)
+    	, lastinlwritten(SI().range().start.inl)
+    	, enforce_regular_write(true)
 {
+    if ( getenv("dGB_DONT_ENFORCE_REGULAR_WRITE") )
+	enforce_regular_write = false;
 }
 
 
 SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
-    close();
     delete &pinfo;
     delete &storediopar;
     delete &trcblock_;
@@ -100,13 +103,14 @@ SeisTrcTranslator::~SeisTrcTranslator()
 
 void SeisTrcTranslator::cleanUp()
 {
+    close();
+
     deepErase( cds );
     deepErase( tarcds );
     delete [] inpfor_; inpfor_ = 0;
     delete [] inpcds; inpcds = 0;
     delete [] outcds; outcds = 0;
     nrout_ = 0;
-    conn = 0;
     errmsg = 0;
     useinpsd = false;
     pinfo = SeisPacketInfo();
@@ -115,26 +119,37 @@ void SeisTrcTranslator::cleanUp()
 
 void SeisTrcTranslator::close()
 {
-    writeBlock( true ); // when we are reading, the block will be empty
-    conn = 0;
+    if ( conn && !conn->forRead() )
+	writeBlock();
+    delete conn; conn = 0;
 }
 
 
-bool SeisTrcTranslator::initRead( Conn& c )
+bool SeisTrcTranslator::initRead( Conn* c )
 {
     cleanUp();
     if ( !initConn(c,true)
-      || !initRead_() ) return false;
+      || !initRead_() )
+    {
+	conn = 0;
+	return false;
+    }
+
     useStoredPar();
     return true;
 }
 
 
-bool SeisTrcTranslator::initWrite( Conn& c, const SeisTrc& trc )
+bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 {
     cleanUp();
     if ( !initConn(c,false)
-      || !initWrite_( trc ) ) return false;
+      || !initWrite_( trc ) )
+    {
+	conn = 0;
+	return false;
+    }
+
     useStoredPar();
     return true;
 }
@@ -256,20 +271,16 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 {
     if ( !inpfor_ ) commitSelections( &trc );
 
-    StorageLayout lyo( storageLayout() );
-    if ( lyo.type() == StorageLayout::Random
-	|| lyo.type() == StorageLayout::Any )
+    if ( !inlCrlSorted() )
     {
-	// Can't buffer
-	trcblock_.add( const_cast<SeisTrc*>( &trc ) );
-	return writeBlock( false );
+	// No buffering: who knows what we'll get?
+	dumpBlock();
+	return writeTrc_( trc );
     }
 
-    const int& nr = lyo.type() ==StorageLayout::Inline
-		  ? trc.info().binid.inl : trc.info().binid.crl;
-    bool wrblk = prevnr_ != nr && prevnr_ != -999;
-    prevnr_ = nr;
-    if ( wrblk && !writeBlock(true) )
+    bool wrblk = prevnr_ != trc.info().binid.inl && prevnr_ != -999;
+    prevnr_ = trc.info().binid.inl;
+    if ( wrblk && !writeBlock() )
 	return false;
 
     SeisTrc* newtrc = new SeisTrc(trc);
@@ -281,20 +292,90 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 }
 
 
-bool SeisTrcTranslator::writeBlock( bool destroytrcs )
+bool SeisTrcTranslator::writeBlock()
 {
+    int sz = trcblock_.size();
+    SeisTrc* firsttrc = sz ? trcblock_.get(0) : 0;
+    const int firstcrl = sz ? firsttrc->info().binid.crl : -1;
+    StepInterval<int> crlrg(0,0,SI().getStep(false,false));
+    bool upwrd = sz < 2 || firstcrl < trcblock_.get(sz-1)->info().binid.crl;
+
+    if ( prepareWriteBlock(crlrg,upwrd) )
+    {
+	if ( firsttrc )
+	    lastinlwritten = firsttrc->info().binid.inl;
+
+	if ( sz && enforce_regular_write )
+	{
+	    trcblock_.sort( upwrd );
+	    int nrperpos = 1;
+	    for ( int idx=1; idx<sz; idx++ )
+	    {
+		if ( trcblock_.get(idx)->info().binid.crl != firstcrl )
+		    break;
+		nrperpos++;
+	    }
+	    trcblock_.enforceNrTrcs( nrperpos );
+	    sz = trcblock_.size();
+	}
+
+	if ( !crlrg.start && !crlrg.stop )
+	    dumpBlock();
+	else
+	{
+	    const int firstafter = upwrd ? crlrg.stop + crlrg.step
+					 : crlrg.start + crlrg.step;
+	    int stp = upwrd ? crlrg.step : -crlrg.step;
+	    int bufidx = 0;
+	    SeisTrc* trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
+	    BinID binid( lastinlwritten, upwrd ? crlrg.start : crlrg.stop );
+	    SeisTrc* filltrc = 0;
+	    for ( binid.crl; binid.crl != firstafter; binid.crl += stp )
+	    {
+		while ( trc
+		     && ( (upwrd && trc->info().binid.crl < binid.crl)
+		       || (!upwrd && trc->info().binid.crl > binid.crl) ) )
+		{
+		    bufidx++;
+		    trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
+		}
+		if ( trc )
+		{
+		    if ( !writeTrc_(*trc) )
+			return false;
+		}
+		else
+		{
+		    if ( !filltrc )
+			filltrc = getFilled( binid );
+		    else
+		    {
+			filltrc->info().binid = binid;
+			filltrc->info().coord = SI().transform(binid);
+		    }
+		    if ( !writeTrc_(*filltrc) )
+			return false;
+		}
+	    }
+	    delete filltrc;
+	    trcblock_.deepErase();
+	}
+    }
+
+    return true;
+}
+
+
+bool SeisTrcTranslator::dumpBlock()
+{
+    bool rv = true;
     for ( int idx=0; idx<trcblock_.size(); idx++ )
     {
 	if ( !writeTrc_(*trcblock_.get(idx)) )
-	    return false;
+	    { rv = false; break; }
     }
-
-    if ( destroytrcs )
-	trcblock_.deepErase();
-    else
-	trcblock_.erase();
-
-    return true;
+    trcblock_.deepErase();
+    return rv;
 }
 
 
@@ -430,19 +511,25 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 }
 
 
-bool SeisTrcTranslator::initConn( Conn& c, bool forread )
+bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 {
-    conn = 0; errmsg = 0;
-    if ( ((forread && c.forRead()) || (!forread && c.forWrite()) )
-      && &c.classDef() == &connClassDef() )
-	conn = &c;
-    else
+    close(); errmsg = "";
+
+    if ( !c )
     {
-	errmsg = "Internal error: Bad connection established";
+	errmsg = "Translator error: No connection established";
 	return false;
     }
 
-    errmsg = 0;
+    if ( ((forread && c->forRead()) || (!forread && c->forWrite()) )
+      && &c->classDef() == &connClassDef() )
+	conn = c;
+    else
+    {
+	errmsg = "Translator error: Bad connection established";
+	return false;
+    }
+
     return true;
 }
 
@@ -450,12 +537,35 @@ bool SeisTrcTranslator::initConn( Conn& c, bool forread )
 SeisTrc* SeisTrcTranslator::getEmpty()
 {
     DataCharacteristics dc;
-    if ( tarcds.size() && inpfor_ )
+    if ( outcds )
+	dc = outcds[0]->datachar;
+    else if ( tarcds.size() && inpfor_ )
 	dc = tarcds[selComp()]->datachar;
     else
 	toSupported( dc );
 
     return new SeisTrc( 0, dc );
+}
+
+
+SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
+{
+    if ( !outcds )
+	return 0;
+
+    SeisTrc* newtrc = new SeisTrc;
+    newtrc->info().binid = binid;
+    newtrc->info().coord = SI().transform( binid );
+
+    newtrc->data().delComponent(0);
+    for ( int idx=0; idx<nrout_; idx++ )
+    {
+	newtrc->data().addComponent( outcds[idx]->nrsamples,
+				     outcds[idx]->datachar, true );
+	newtrc->info().sampling = outcds[idx]->sd;
+    }
+
+    return newtrc;
 }
 
 
@@ -465,8 +575,9 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, BinIDSampler& bs,
     PtrMan<Translator> transl = ioobj.getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
     if ( !tr ) return false;
-    PtrMan<Conn> conn = ioobj.getConn( Conn::Read );
-    if ( !conn || !tr->initRead(*conn) ) return false;
+    Conn* cnn = ioobj.getConn( Conn::Read );
+    if ( !cnn || !tr->initRead(cnn) )
+	{ delete cnn; return false; }
 
     const SeisPacketInfo& pinfo = tr->packetInfo();
     bs.copyFrom( pinfo.binidsampling );
@@ -478,5 +589,6 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, BinIDSampler& bs,
 
     const TargetComponentData& cd = *cinfo[0];
     zrg = cd.sd.interval( cd.nrsamples );
+
     return true;
 }

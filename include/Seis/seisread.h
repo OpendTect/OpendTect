@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.6 2002-07-01 09:33:04 bert Exp $
+ RCS:		$Id: seisread.h,v 1.7 2003-02-18 16:32:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,14 +63,12 @@ protected:
     bool		forcefloats;
 
     void		init();
-    bool		openFirst();
-    bool		initRead();
+    Conn*		openFirst();
+    bool		initRead(Conn*);
     void		trySkipConns();
     int			nextConn(SeisTrcInfo&);
 
-    inline bool		validBidselRes( int r, bool clcrl ) const
-			{ return r == 0 || (clcrl && r/256 != 2)
-				        || (!clcrl && r%256 != 2); }
+    bool		binidInConn(int) const;
     bool		multiConn() const;
 
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.8 2001-10-12 10:41:32 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.9 2003-02-18 16:32:20 bert Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,8 @@ public:
 			{ return curfnr+fnrs.step; }
     void		resetConnNr()
 			{ curfnr = fnrs.start; }
+    void		setConnNr( int nr )
+			{ curfnr = nr; }
 
     const char*		hostName() const		{ return hostname; }
     void		setHostName( const char* hn )	{ hostname = hn; }
@@ -89,12 +91,14 @@ public:
     void		setNrRetries( int n )		{ nrretries = n; }
     void		setRetryDelay( int n )		{ retrydelay = n; }
 
+    StreamProvider*	streamProvider(bool) const;
+    bool		isMulti() const
+			{ return fnrs.start != fnrs.stop; }
+
 protected:
 
     int			getFrom(ascistream&);
     int			putTo(ascostream&) const;
-
-    StreamProvider*	streamProvider(bool) const;
 
     FixedString<32>	hostname;
     int			nrfiles;
@@ -115,8 +119,6 @@ protected:
     StreamConn::Type	type_;
 
     bool		getDev(ascistream&);
-    bool		isMulti() const
-			{ return fnrs.start != fnrs.stop; }
     bool		validNr() const
 			{ return curfnr*fnrs.step <= fnrs.stop*fnrs.step; }
 };

@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.7 2001-07-13 22:01:11 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.8 2003-02-18 16:32:21 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -82,14 +82,8 @@ const char* IOStream::fullUserExpr( bool forread ) const
 {
     StreamProvider* sp = streamProvider( forread );
     if ( !sp ) return "<bad>";
-
-    static char* ret = 0;
-    delete [] ret;
-
-    const char* s = sp->fullName();
-    ret = new char [strlen(s)+1];
-    strcpy( ret, s );
-
+    static BufferString ret;
+    ret = isMulti() ? (const char*)fname : sp->fullName();
     delete sp;
     return ret;
 }
@@ -107,7 +101,7 @@ bool IOStream::implExists( bool fr ) const
 bool IOStream::implRemovable() const
 {
     if ( type_ != StreamConn::File ) return NO;
-    return implExists( NO );
+    return isMulti() ? true : implExists(NO);
 }
 
 
@@ -115,9 +109,21 @@ bool IOStream::implRemove() const
 {
     if ( type_ != StreamConn::File ) return NO;
 
-    StreamProvider* sp = streamProvider( YES );
-    bool ret = sp && sp->remove();
-    delete sp;
+    int nrfiles = isMulti() ? fnrs.nrSteps() + 1 : 1;
+    int kpcurfnr = curfnr;
+    int& fnr = const_cast<int&>( curfnr );
+
+    bool ret = true;
+    for ( int idx=0; idx<nrfiles; idx++ )
+    {
+	fnr = fnrs.start + idx*fnrs.step;
+	StreamProvider* sp = streamProvider( false );
+	bool thisret = sp && sp->remove(false);
+	delete sp;
+	if ( !thisret ) ret = false;
+    }
+
+    fnr = kpcurfnr;
     return ret;
 }
 
@@ -125,8 +131,6 @@ bool IOStream::implRemove() const
 Conn* IOStream::getConn( Conn::State rw ) const
 {
     bool fr = rw == Conn::Read;
-    if ( !validNr() ) return 0;
-
     StreamProvider* sp = streamProvider( fr );
     if ( !sp ) return 0;
 

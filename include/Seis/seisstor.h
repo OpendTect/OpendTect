@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.6 2001-06-18 13:56:37 bert Exp $
+ RCS:		$Id: seisstor.h,v 1.7 2003-02-18 16:32:21 bert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -15,15 +15,12 @@ Trace storage objects handle seismic data storage.
 -*/
 
 
-#include <conn.h>
 #include <seisinfo.h>
-#include <storlayout.h>
-class IOObj;
 class Conn;
+class IOObj;
 class Executor;
-class SeisTrc;
-class SeisTrcTranslator;
 class SeisTrcSel;
+class SeisTrcTranslator;
 
 
 /*!\brief base class for seis reader and writer. */
@@ -35,8 +32,9 @@ public:
     virtual		~SeisStorage();
     void		close();
 
-    Conn::State		connState() const
-			{ return conn ? conn->state() : Conn::Bad; }
+    Conn*		curConn();
+    const Conn*		curConn() const;
+
     const char*		errMsg() const
 			{ return errmsg; }
     SeisTrcTranslator*	translator()
@@ -60,7 +58,7 @@ public:
 			{ selcomp = i; }
 
     virtual void	usePar(const IOPar&);
-				// After usePar(), check connState()
+				// Afterwards check whether curConn is still OK.
     virtual void	fillPar(IOPar&) const;
 
     static const char*	sNrTrcs;
@@ -72,7 +70,6 @@ protected:
     void		cleanUp(bool alsoioobj=true);
 
     IOObj*		ioobj;
-    Conn*		conn;
     int			nrtrcs;
     int			selcomp;
     SeisTrcTranslator*	trl;

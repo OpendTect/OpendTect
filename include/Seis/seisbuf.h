@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.5 2002-11-21 17:10:37 bert Exp $
+ RCS:		$Id: seisbuf.h,v 1.6 2003-02-18 16:32:21 bert Exp $
 ________________________________________________________________________
 
 This object buffers seismic traces. The traces are not managed, but can be
@@ -62,11 +62,13 @@ public:
 				     int icomp=0) const;
 
     void		revert();
-    void		sort(int seisinfo_attrnr=6,bool ascending=true);
-    			//!< See seisinfo.h ,
+    bool		isSorted(bool ascend=true,int siattrnr=6) const;
+    			//!< See sort() for parameters.
+    void		sort(bool ascending=true,int seisinfo_attrnr=6);
+    			//!< See also seisinfo.h ,
     			//!< Default will sort on xline. Inline is 5.
-    void		removeDuplicates(int seisinfo_attrnr=6,
-	    				 bool destroy=true);
+    void		enforceNrTrcs(int nrrequired,int seisinfo_attrnr=6);
+    			//!< Makes sure nrtrcs per position is constant
 
 protected:
 
