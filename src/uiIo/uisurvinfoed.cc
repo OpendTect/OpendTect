@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.20 2002-01-07 16:17:16 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.21 2002-01-10 12:11:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,10 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     uiLabel* dirnm = new uiLabel( this, nm );
     dirnmfld->attach( alignedBelow, survnmfld );
     dirnm->attach( rightOf, dirnmfld );
+
+    uiSeparator* horsep1 = new uiSeparator( this );
+    horsep1->attach( stretchedBelow, dirnmfld, -2 );
+
     BufferString txt( "Fetch setup from " );
     txt += IdealConn::guessedType() == IdealConn::SW
 	 ? "SeisWorks ..." : "GeoFrame ...";
@@ -57,6 +61,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 	wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
     }
 
+    uiLabel* rglbl = new uiLabel( this, "Survey ranges:" );
+    rglbl->attach( leftBorder );
+    rglbl->attach( ensureBelow, horsep1 );
     uiGroup* rangegrp = new uiGroup( this, "Survey ranges" );
     inlfld = new uiGenInput( rangegrp, "In-line range",
 			     IntInpIntervalSpec(true) );
@@ -66,44 +73,50 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 			   DoubleInpIntervalSpec(true) );
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
+    rangegrp->setHAlignObj( inlfld->uiObj() );
+    rangegrp->attach( alignedBelow, dirnmfld ); 
+    if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
+    rangegrp->attach( ensureBelow, rglbl ); 
 
-    coordset = new uiGenInput( this, "Coordinate settings", BoolInpSpec( "Easy",
-			       "Advanced" ) );
+    uiSeparator* horsep2 = new uiSeparator( this );
+    horsep2->attach( stretchedBelow, rangegrp );
+
+    uiLabel* crdlbl = new uiLabel( this, "Coordinate settings:" );
+    crdlbl->attach( leftBorder );
+    crdlbl->attach( ensureBelow, horsep2 );
+    coordset = new uiGenInput( this, "", BoolInpSpec( "Easy", "Advanced" ) );
+    coordset->attach( alignedBelow, rangegrp );
+    coordset->attach( rightTo, crdlbl );
     coordset->changed.notify( mCB(this,uiSurveyInfoEditor,chgSetMode) );
-    coordgrp = new uiGroup( this, "Coordinate settings" );
-    ic0fld = new uiGenInput( coordgrp, "First In-line/Cross-line",
-	    		     IntInpSpec(), IntInpSpec() );
+
+    crdgrp = new uiGroup( this, "Coordinate settings" );
+    crdgrp->attach( alignedBelow, rangegrp );
+    crdgrp->attach( ensureBelow, coordset );
+    ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
+			     BinIDCoordInpSpec() );
     ic0fld->changed.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
-    ic1fld = new uiGenInput( coordgrp, "Cross-line on above in-line",
-			     IntInpSpec(), IntInpSpec() );
-    ic2fld = new uiGenInput( coordgrp, 
-			     "In-line/Cross-line not on above in-line",
-			     IntInpSpec(), IntInpSpec() );
-    xy0fld = new uiGenInput( coordgrp, "= (X,Y)", DoubleInpSpec(), 
-			     DoubleInpSpec() ); 
-    xy1fld = new uiGenInput( coordgrp, "= (X,Y)", DoubleInpSpec(), 
-			     DoubleInpSpec() ); 
-    xy2fld = new uiGenInput( coordgrp, "= (X,Y)", DoubleInpSpec(), 
-			     DoubleInpSpec() );
+    ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line", 
+			     BinIDCoordInpSpec() );
+    ic2fld = new uiGenInput( crdgrp, "In-line/Cross-line not on above in-line",
+			     BinIDCoordInpSpec() );
+    xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
+    xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
+    xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
     ic1fld->attach( alignedBelow, ic0fld );
     ic2fld->attach( alignedBelow, ic1fld );
     xy0fld->attach( rightOf, ic0fld );
     xy1fld->attach( rightOf, ic1fld );
     xy2fld->attach( rightOf, ic2fld );
-    applybut = new uiPushButton( this, "Apply" ); 
-    applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
-    applybut->attach( centeredBelow, coordgrp);
+    crdgrp->setHAlignObj( ic0fld->uiObj() );
 
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
-    x0fld = new uiGenInput ( trgrp, "X = ", DoubleInpSpec() );
-    xinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
-    xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
-    y0fld = new uiGenInput ( trgrp, "Y = ", DoubleInpSpec() );
-    y0fld->attach( widthSameAs, x0fld );
-    yinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
-    yinlfld->attach( widthSameAs, xinlfld );
-    ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
-    ycrlfld->attach( widthSameAs, xcrlfld );
+    DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
+    x0fld = new uiGenInput ( trgrp, "X = ", dis );
+    xinlfld = new uiGenInput ( trgrp, "+ in-line *", dis );
+    xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", dis );
+    y0fld = new uiGenInput ( trgrp, "Y = ", dis );
+    yinlfld = new uiGenInput ( trgrp, "+ in-line *", dis );
+    ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", dis );
     overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
     overrule->setChecked( false );
     xinlfld->attach( rightOf, x0fld );
@@ -112,29 +125,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     yinlfld->attach( rightOf, y0fld );
     ycrlfld->attach( rightOf, yinlfld );
     overrule->attach( alignedBelow, ycrlfld );
-
-    uiSeparator* horsep1 = new uiSeparator( this );
-    uiSeparator* horsep2 = new uiSeparator( this );
-    uiLabel* labelrg = new uiLabel( this, "Survey ranges:" );
-    rangegrp->setHAlignObj( inlfld->uiObj() );
-    coordgrp->setHAlignObj( ic0fld->uiObj() );
     trgrp->setHAlignObj( xinlfld->uiObj() );
-    horsep1->attach( stretchedBelow, dirnmfld, -2 );
-    labelrg->attach( leftBorder );
-    labelrg->attach( ensureBelow, horsep1 );
-    rangegrp->attach( alignedBelow, dirnmfld ); 
-    if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
-    rangegrp->attach( ensureBelow, labelrg ); 
-    horsep2->attach( stretchedBelow, rangegrp );
-    coordset->attach( leftBorder );
-    coordset->attach( ensureBelow, horsep2 );
-    coordgrp->attach( alignedBelow, rangegrp );
-    coordgrp->attach( ensureBelow, coordset );
     trgrp->attach( alignedBelow, rangegrp );
     trgrp->attach( ensureBelow, coordset );
-    trgrp->display(false);
 
-    if ( survinfo->rangeUsable() ) setValues();
+
+    applybut = new uiPushButton( this, "Apply" ); 
+    applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
+    applybut->attach( centeredBelow, crdgrp);
 
     finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
     survparchanged.notify( appcb );
@@ -202,6 +200,10 @@ bool uiSurveyInfoEditor::appButPushed()
 
 void uiSurveyInfoEditor::doFinalise()
 {
+    if ( survinfo->rangeUsable() ) setValues();
+
+    crdgrp->display( coordset->getBoolValue() ); 
+    trgrp->display( !coordset->getBoolValue() );
     ic1fld->setFldsSensible( false, 0 );
 }
 
@@ -370,7 +372,7 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
 
 void uiSurveyInfoEditor::chgSetMode( CallBacker* )
 {
-    coordgrp->display( coordset->getBoolValue() );
+    crdgrp->display( coordset->getBoolValue() );
     trgrp->display( !coordset->getBoolValue() );
 }
 

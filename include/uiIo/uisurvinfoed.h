@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.7 2002-01-04 00:08:46 bert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.8 2002-01-10 12:12:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ protected:
     uiGenInput*		xy1fld;
     uiGenInput*		xy2fld;
     uiGenInput*		coordset;
-    uiGroup*		coordgrp;
+    uiGroup*		crdgrp;
     uiGroup*		trgrp;
     uiLabel*		labelcs;
     uiLabel*		labeltr;
