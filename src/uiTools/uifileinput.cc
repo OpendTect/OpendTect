@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.23 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.24 2004-05-07 12:55:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,12 @@ void uiFileInput::isFinalised( CallBacker* )
 void uiFileInput::setFileName( const char* s )
 {
     setText( s );
+}
+
+
+void uiFileInput::enableExamine( bool yn )
+{
+    examinebut->setSensitive( yn );
 }
 
 

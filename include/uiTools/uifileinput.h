@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.14 2004-03-19 14:36:39 nanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.15 2004-05-07 12:55:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,9 @@ public:
 			}
     void		setSelectMode( uiFileDialog::Mode m) 
 			    { selmodset = true;  selmode = m; }
+
+    void		enableExamine(bool);
+    			//!< only if examinebut present
 
 protected:
 
