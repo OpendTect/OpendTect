@@ -1,28 +1,34 @@
-dGB-dTect V1.4
+dGB-dTect V1.5
 Batch Processing Hosts
-Thu Nov 28 13:26:51 2002
+Thu Mar  6 12:22:27 2003
 !
+--
+-- Remote shell: Should be rsh or ssh
+--
 Remote shell: rsh
+--
+-- Default 'nice' level should hardly ever not be 19.
+--
 Default nice level: 19
 !
 --
--- The list of hosts that are available for batch processing. Format is:
+-- The list of hosts that are available for batch processing.
 --
--- hostname_for_program: name_in_user_displays
+-- Format is:
 --
--- The user display hostnames must be unique. The user hostname can be omitted,
--- in which case the real hostname will be displayed to the user.
+-- real_hostname: name_in_user_displays
+--
+-- The user display hostnames must be unique. If you omit them,
+-- the real hostname will be used for user display.
 --
 --
-dgb8:	IRIX machine (<<1 GHz)
-dgb26:	Solaris machine (<1 GHz)
-dgb20:	Demo machine (1.0 GHz)
-dgb27:	Matthijs' machine (2 x 1.0 GHz)
-dgb32:	Nanne's machine (1.8 GHz)
-dgb33:	Bert's machine (1.8 GHz)
-dgb35:	Herald's machine (2.2 GHz)
-dgb36:	Proc 1 (2 x 2.2 GHz)
-dgb37:	Proc 2 (2 x 2.2 GHz)
-dgb38:	Proc 3 (2 x 2.2 GHz)
-dgb39:	Proc 4 (2 x 2.2 GHz)
-dgb40:	Proc 5 (2 x 2.2 GHz)
+work4:	John's machine
+work5:	Joe's machine
+vis1:	vis 1 = SGI/IRIX (16 processors)
+vis2:	vis 2 = SGI/IRIX (8 processors)
+sol28:	The Solaris 2.8 Sun Blade
+proc1:	Proc 1 (2 x 2.2 GHz)
+proc2:	Proc 2 (2 x 2.2 GHz)
+proc3:	Proc 3 (2 x 2.2 GHz)
+proc4:	Proc 4 (2 x 2.2 GHz)
+proc5:	Proc 5 (2 x 2.2 GHz)
