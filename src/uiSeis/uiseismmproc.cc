@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.78 2004-11-11 16:00:43 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.79 2004-11-11 16:12:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -636,13 +636,14 @@ bool uiSeisMMProc::wrapUp( bool force )
     setOkText( "Dismiss" );
     setCancelText( "Dismiss" );
     rmTmpSeis( jobprov );
+    delete jobrunner; jobrunner = 0;
     return true;
 }
 
 
 bool uiSeisMMProc::rejectOK( CallBacker* )
 {
-    if ( !outioobjinfo->ioObj() ) return true;
+    if ( !outioobjinfo->ioObj() || !jobrunner ) return true;
 
     int res = 0;
     if ( jobrunner->jobsInProgress() > 0 )
@@ -663,7 +664,7 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
 
 bool uiSeisMMProc::acceptOK(CallBacker*)
 {
-    if ( !outioobjinfo->ioObj() ) return true;
+    if ( !outioobjinfo->ioObj() || !jobrunner ) return true;
 
     if ( usedmachfld->box()->size() && !uiMSG().askGoOn(
 	    "This will stop further processing and wrap up",false) )
