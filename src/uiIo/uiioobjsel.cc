@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.8 2001-05-30 16:11:31 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.9 2001-06-29 15:49:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,12 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "iolink.h"
 #include "transl.h"
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c )
-	: uiDialog(p)
+	: uiDialog(p,c.ctxt.forread?"Input":"Output")
 	, ctio(c)
 	, nmfld(0)
 	, ioobj(0)
@@ -45,7 +46,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c )
 
     //TODO
     //listfld->selection.notify( mCB(this,uiIOObjSelDlg,selChg) );
-    //listfld->doubleclick.notify( mCB(this,uiDialog,accept) );
+    //listfld->doubleclick.notify( mCB(this,uiDialog,acceptOK) );
     listfld->notify( mCB(this,uiIOObjSelDlg,selChg) );
 
     setOkText( "Select" );
@@ -70,8 +71,19 @@ void uiIOObjSelDlg::selChg( CallBacker* c )
 bool uiIOObjSelDlg::acceptOK( CallBacker* )
 {
     selChg( 0 );
-    if ( !ioobj ) { uiMSG().error( "Please select an object" ); return false; }
-    if ( !nmfld ) return true;
+    if ( !nmfld )
+    {
+	mDynamicCastGet(IOLink*,iol,ioobj)
+	if ( !ioobj || iol )
+	{
+	    IOM().to( iol );
+	    entrylist->fill( IOM().dirPtr() );
+	    listfld->empty();
+	    listfld->addItems( entrylist->Ptr() );
+	    return false;
+	}
+	return true;
+    }
 
     const char* seltxt = nmfld->text();
     if ( ioobj->name() == seltxt ) return true;
