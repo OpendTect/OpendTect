@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.5 2001-05-04 11:24:59 windev Exp $
+ RCS:           $Id: datainpspec.h,v 1.6 2001-05-07 14:52:07 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -284,6 +284,11 @@ public:
 					while( *s++ )
 					    strings_ += new BufferString(*s);
 				    }
+
+				StringListInpSpec( const StringListInpSpec& oth)
+				    : DataInpSpec( stringTp )
+				    ,pw( oth.pw )
+				    { deepCopy( strings_, oth.strings_ ); }
 
 				~StringListInpSpec() { deepErase(strings_); }
 
