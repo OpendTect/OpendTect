@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.23 2002-01-04 14:45:07 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.24 2002-01-04 16:17:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -318,7 +318,9 @@ class uiDialogBody : public uiMainWinBody
 { 	
 public:
 			uiDialogBody(uiDialog&,uiParent*,const char*, 
-				      bool, bool,bool,bool,const char*);
+				      bool,bool,bool,const char*);
+			uiDialogBody(uiDialog&,uiParent*,
+				     const uiDialog::Setup&);
 
     int			exec(); 
 
@@ -408,7 +410,7 @@ protected:
 
 uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm, 
 			    bool modal, bool separator, bool withmb, 
-			    bool withtb, const char* hid )
+			    const char* hid )
     : uiMainWinBody(handle,parnt,nm,modal)
     , dlgGroup( 0 )
     , okText("Ok"), cnclText("Cancel"), saveText(""), titleText("")
@@ -418,6 +420,21 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm,
     , childrenInited(false)
     , withmenubar(withmb)
     , helpId(hid)
+{
+}
+
+uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
+			    const uiDialog::Setup& s )
+    : uiMainWinBody(handle,parnt,s.wintitle,s.modal)
+    , dlgGroup( 0 )
+    , okText(s.oktext), cnclText(s.canceltext), saveText(s.savetext)
+    , titleText(s.dlgtitle)
+    , okBut( 0 ), cnclBut( 0 ), saveBut( 0 ), helpBut( 0 ), title( 0 )
+    , reslt( 0 )
+    , separ( s.separator ), horSepar( 0 )
+    , childrenInited(false)
+    , withmenubar(s.menubar)
+    , helpId(s.helpid)
 {
 }
 
@@ -557,11 +574,15 @@ void uiDialogBody::finalise()
 	{
 	    if ( saveBut )
 		helpBut->attach(rightOf, saveBut);
-	    else if ( cnclBut )
+	    else if ( (!cnclBut && !okBut) || (cnclBut && okBut) )
 	    {
-		helpBut->attach( leftOf, cnclBut );
+		helpBut->attach( centeredBelow,
+				 horSepar ? horSepar : centralWidget_->uiObj());
+		if ( cnclBut ) helpBut->attach( ensureLeftOf, cnclBut );
 		if ( okBut ) helpBut->attach( ensureRightOf, okBut );
 	    }
+	    else if ( cnclBut )
+		helpBut->attach( leftOf, cnclBut );
 	    else if ( okBut )
 		helpBut->attach( rightOf, okBut );
 
@@ -593,9 +614,8 @@ uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
 	, finaliseStart( this )
 	, finaliseDone( this )
 {
-
     body_= new uiDialogBody( *this, parnt, nm, modal, sep,
-	    			wantMBar, wantTBar, hid );
+	    			wantMBar, hid );
     setBody( body_ );
     body_->construct( wantSBar, wantMBar, wantTBar );
 
@@ -605,6 +625,21 @@ uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
     mBody->setDlgGrp( cw );
 
     setTitleText( nm );
+}
+
+
+uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
+	: uiMainWin(s.wintitle)
+    	, finaliseStart(this)
+    	, finaliseDone(this)
+{
+    body_= new uiDialogBody( *this, p, s );
+    setBody( body_ );
+    body_->construct( s.statusbar, s.menubar, s.toolbar );
+    uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
+    cw->setStretch( 1, 1 );
+    mBody->setDlgGrp( cw );
+    setTitleText( s.dlgtitle );
 }
 
 
