@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.17 2004-05-21 16:55:42 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.18 2004-05-24 14:28:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,20 +31,22 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "filegen.h"
 
 
-static const char* mrkrcollbls[] = { "Name", "Depth", "Color", 0 };
+static const char* mrkrcollbls[] = { "Name", "Depth (MD)", "Color", 0 };
 static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
 
-static const int maxnrrows = 10;
+static const int maxrowsondisplay = 10;
 static const int initnrrows = 5;
 #define mFromFeetFac 0.3048
 
 
-uiMarkerDlg::uiMarkerDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Well Markers",
-				 "Define marker properties",
-				 "107.1.1"))
+uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
+	: uiDialog(p,uiDialog::Setup("Well Markers",
+				     "Define marker properties",
+				     "107.1.1"))
+    	, track(t)
 {
     table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
 	    				       .rowcangrow() 
@@ -57,6 +59,21 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p )
     BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
     unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( leftAlignedBelow, table );
+
+    uiButton* rfbut = new uiPushButton( this, "Read file ...",
+	    				mCB(this,uiMarkerDlg,rdFile) );
+    rfbut->attach( rightTo, unitfld ); rfbut->attach( rightBorder );
+}
+
+
+int uiMarkerDlg::getNrRows() const
+{
+    for ( int idx=table->nrRows()-1; idx>=0; idx-- )
+    {
+	const char* name = table->text( uiTable::RowCol(idx,0) );
+	if ( name && *name ) return idx+1;
+    }
+    return 0;
 }
 
 
@@ -71,22 +88,88 @@ void uiMarkerDlg::mouseClick( CallBacker* )
 }
 
 
-void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
+void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
+				bool add )
 {
-    const int nrmarkers = markers.size();
-    if ( !nrmarkers ) return;
+    const int nrnew = markers.size();
+    if ( !nrnew ) return;
 
     const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
-    int nrrows = nrmarkers + initnrrows < maxnrrows ? nrmarkers + initnrrows 
-						    : nrmarkers;
+    int startrow = add ? getNrRows() : 0;
+    const int nrrows = nrnew + initnrrows + startrow;
     table->setNrRows( nrrows );
-    for ( int idx=0; idx<nrmarkers; idx++ )
+
+    for ( int idx=0; idx<nrnew; idx++ )
     {
+	int irow = startrow + idx;
 	const Well::Marker* marker = markers[idx];
-	table->setText( uiTable::RowCol(idx,0), marker->name() );
-	table->setValue( uiTable::RowCol(idx,1), marker->dah*zfac );
-	table->setColor( uiTable::RowCol(idx,2), marker->color );
+	table->setText( uiTable::RowCol(irow,0), marker->name() );
+	table->setValue( uiTable::RowCol(irow,1), marker->dah*zfac );
+	table->setColor( uiTable::RowCol(irow,2), marker->color );
     }
+    Well::Marker mrk;
+    for ( int irow=startrow+nrnew; irow<nrrows; irow++ )
+    {
+	table->setText( uiTable::RowCol(irow,0), "" );
+	table->setText( uiTable::RowCol(irow,1), "" );
+	table->setColor( uiTable::RowCol(irow,2), mrk.color );
+    }
+}
+
+
+class uiReadMarkerFile : public uiDialog
+{
+public:
+
+uiReadMarkerFile::uiReadMarkerFile( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Import Markers",
+				 "Specify Marker import",
+				 "107.1.4"))
+{
+    fnmfld = new uiFileInput( this, "Input Ascii file",
+	    		uiFileInput::Setup().filter("*;;*.dat;;*.txt")
+					    .forread(true));
+    fnmfld->setDefaultSelectionDir(
+	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
+    istvdfld = new uiGenInput( this, "Depth (col 1) is",
+	    			BoolInpSpec("TVDSS","MD") );
+    istvdfld->attach( alignedBelow, fnmfld );
+    replfld = new uiGenInput( this, "Replace current markers", BoolInpSpec() );
+    replfld->attach( alignedBelow, istvdfld );
+}
+
+bool acceptOK( CallBacker* )
+{
+    fnm = fnmfld->fileName();
+    if ( File_isEmpty(fnm) )
+	{ uiMSG().error( "Invalid input file" ); return false; }
+    istvd = istvdfld->getBoolValue();
+    repl = replfld->getBoolValue();
+    return true;
+}
+
+    BufferString	fnm;
+    bool		istvd;
+    bool		repl;
+    uiFileInput*	fnmfld;
+    uiGenInput*		istvdfld;
+    uiGenInput*		replfld;
+
+};
+
+
+void uiMarkerDlg::rdFile( CallBacker* )
+{
+    uiReadMarkerFile dlg( this );
+    if ( !dlg.go() ) return;
+    Well::Data wd; wd.track() = track;
+    Well::AscImporter wdai( wd );
+    const bool inft = !unitfld->getBoolValue();
+    const char* res = wdai.getMarkers( dlg.fnm, dlg.istvd, inft );
+    if ( res && *res )
+	uiMSG().error( res );
+    else
+	setMarkerSet( wd.markers(), !dlg.repl );
 }
 
 
@@ -95,7 +178,7 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
     deepErase( markers );
 
     const float zfac = unitfld->getBoolValue() ? 1 : mFromFeetFac;
-    const int nrrows = table->nrRows();
+    const int nrrows = getNrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	const char* name = table->text( uiTable::RowCol(idx,0) );
@@ -121,11 +204,13 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
 // ==================================================================
 
 
-uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::D2TModel& d )
+uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
 				     "Edit velocity model",
 				     "107.1.4"))
-    	, d2t(d)
+	, wd(d)
+    	, d2t(*d.d2TModel())
+    	, orgd2t(new Well::D2TModel(*d.d2TModel()))
 {
     table = new uiTable( this, uiTable::Setup().rowdesc("Control Pt")
 	    				       .rowcangrow() 
@@ -133,15 +218,20 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::D2TModel& d )
     table->setColumnLabels( t2dcollbls );
     table->setNrRows( initnrrows );
 
+    uiButton* updnowbut = new uiPushButton( this, "Update display",
+	    				    mCB(this,uiD2TModelDlg,updNow) );
+    updnowbut->attach( centeredBelow, table );
+
     BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
     unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( leftAlignedBelow, table );
+    unitfld->attach( ensureBelow, updnowbut );
 
     const int sz = d2t.size();
     if ( !sz ) return;
 
     int nrrows = sz + initnrrows;
-    if ( nrrows > maxnrrows ) nrrows = maxnrrows;
+    if ( nrrows > maxrowsondisplay ) nrrows = maxrowsondisplay;
     table->setNrRows( nrrows );
     const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
     for ( int idx=0; idx<sz; idx++ )
@@ -152,33 +242,49 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::D2TModel& d )
 }
 
 
+uiD2TModelDlg::~uiD2TModelDlg()
+{
+    delete orgd2t;
+}
+
+
+void uiD2TModelDlg::updNow( CallBacker* )
+{
+    d2t.erase();
+    const float zfac = unitfld->getBoolValue() ? 1 : mFromFeetFac;
+    const int nrrows = table->nrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	const char* sval = table->text( uiTable::RowCol(idx,0) );
+	if ( !sval || !*sval ) continue;
+	float dah = atof(sval) * zfac;
+	sval = table->text( uiTable::RowCol(idx,1) );
+	if ( !sval || !*sval ) continue;
+	float tm = atof(sval) * 0.001;
+	d2t.add( dah, tm );
+    }
+    if ( d2t.size() > 1 )
+	wd.d2tchanged.trigger();
+    else
+	uiMSG().error( "Please define at least two control points." );
+}
+
+
+bool uiD2TModelDlg::rejectOK( CallBacker* )
+{
+    d2t = *orgd2t;
+    wd.d2tchanged.trigger();
+    return true;
+}
+
+
 bool uiD2TModelDlg::acceptOK( CallBacker* )
 {
     SI().pars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
     SI().savePars();
 
-    Well::D2TModel newd2t( d2t );
-    newd2t.erase();
-    const float zfac = unitfld->getBoolValue() ? 1 : mFromFeetFac;
-    const int nrrows = table->nrRows();
-    for ( int idx=0; idx<nrrows; idx++ )
-    {
-	const char* s1 = table->text( uiTable::RowCol(idx,0) );
-	const char* s2 = table->text( uiTable::RowCol(idx,1) );
-	if ( !s1 || !*s1 || !s2 || !*s2 ) continue;
-
-	float dah = atof(s1) * zfac; float tm = atof(s2) * 0.001;
-	newd2t.add( dah, tm );
-    }
-
-    if ( !newd2t.size() )
-    {
-	uiMSG().error( "Edited model seems to be empty." );
-	return false;
-    }
-
-    d2t = newd2t;
-    return true;
+    updNow( 0 );
+    return d2t.size() > 1;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.19 2004-05-21 16:55:42 bert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.20 2004-05-24 14:28:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,7 +196,7 @@ void uiWellMan::edMarkers( CallBacker* )
     }
 
 
-    uiMarkerDlg dlg( this );
+    uiMarkerDlg dlg( this, wd->track() );
     dlg.setMarkerSet( wd->markers() );
     if ( !dlg.go() ) return;
 
@@ -222,12 +222,11 @@ void uiWellMan::edD2T( CallBacker* )
 	wd = welldata;
 
 
-    uiD2TModelDlg dlg( this, *wd->d2TModel() );
+    uiD2TModelDlg dlg( this, *wd );
     if ( !dlg.go() ) return;
     Well::Writer wtr( fname, *wd );
     if ( !wtr.putD2T() )
 	uiMSG().error( "Cannot write new model to disk" );
-    wd->d2tchanged.trigger();
 }
 
 

@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.9 2004-04-29 17:05:32 nanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.10 2004-05-24 14:28:36 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.9 2004-04-29 17:05:32 nanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.10 2004-05-24 14:28:36 bert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -152,7 +152,11 @@ void uiODMenuMgr::fillFileMenu()
     mInsertItem( impseis, "SEG-Y ...", mImpSeisSEGYMnuItm );
     mInsertItem( impseis, "CBVS ...", mImpSeisCBVSMnuItm );
     mInsertItem( imphor, "&Ascii ...", mImpHorAsciiMnuItm );
-    mInsertItem( impwell, "&Ascii ...", mImpWellAsciiMnuItm );
+    uiPopupMenu* impwellasc = new uiPopupMenu( &appl, "&Ascii" );
+    mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
+    mInsertItem( impwellasc, "&Logs ...", mImpWellAsciiLogsMnuItm );
+    mInsertItem( impwellasc, "&Markers ...", mImpWellAsciiMarkersMnuItm );
+    impwell->insertItem( impwellasc );
 
     expmnu = new uiPopupMenu( &appl, "&Export" );
     uiPopupMenu* expseis = new uiPopupMenu( &appl, "&Seismics" );
@@ -332,7 +336,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpSeisSEGYMnuItm: 	mDoOp(Exp,Seis,0); break;
     case mImpHorAsciiMnuItm: 	mDoOp(Imp,Hor,0); break;
     case mExpHorAsciiMnuItm: 	mDoOp(Exp,Hor,0); break;
-    case mImpWellAsciiMnuItm: 	mDoOp(Imp,Wll,0); break;
+    case mImpWellAsciiTrackMnuItm:  mDoOp(Imp,Wll,0); break;
+    case mImpWellAsciiLogsMnuItm:  mDoOp(Imp,Wll,1); break;
+    case mImpWellAsciiMarkersMnuItm:  mDoOp(Imp,Wll,2); break;
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
     case mManHorMnuItm: 	mDoOp(Man,Hor,0); break;
     case mManFaultMnuItm: 	mDoOp(Man,Flt,0); break;

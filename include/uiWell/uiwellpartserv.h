@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.12 2004-05-24 12:18:10 kristofer Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.13 2004-05-24 14:28:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,9 @@ public:
     const char*			name() const		{ return "Wells"; }
 
     				// Services
-    bool			importWell();
+    bool			importTrack();
+    bool			importLogs();
+    bool			importMarkers();
 
     void			manageWells();
     bool			selectWells(ObjectSet<MultiID>&);

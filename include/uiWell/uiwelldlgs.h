@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.12 2004-05-21 16:55:42 bert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.13 2004-05-24 14:28:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ class uiLabeledListBox;
 class StreamData;
 class uiTable;
 
-namespace Well { class Data; class LogSet; class Marker; class D2TModel; };
+namespace Well
+{ class Data; class LogSet; class Marker; class D2TModel; class Track; };
 
 
 /*! \brief Dialog for marker specifications */
@@ -32,17 +33,21 @@ namespace Well { class Data; class LogSet; class Marker; class D2TModel; };
 class uiMarkerDlg : public uiDialog
 {
 public:
-				uiMarkerDlg(uiParent*);
+				uiMarkerDlg(uiParent*,const Well::Track&);
 
-    void			setMarkerSet(const ObjectSet<Well::Marker>&);
+    void			setMarkerSet(const ObjectSet<Well::Marker>&,
+	    				     bool addtoexisting=false);
     void			getMarkerSet(ObjectSet<Well::Marker>&) const;
 
 protected:
 
     uiTable*			table;
     uiGenInput*			unitfld;
+    const Well::Track&		track;
 
+    int				getNrRows() const;
     void			mouseClick(CallBacker*);
+    void			rdFile(CallBacker*);
     bool			acceptOK(CallBacker*);
 };
 
@@ -52,15 +57,20 @@ protected:
 class uiD2TModelDlg : public uiDialog
 {
 public:
-				uiD2TModelDlg(uiParent*,Well::D2TModel&);
+				uiD2TModelDlg(uiParent*,Well::Data&);
+				~uiD2TModelDlg();
 
 protected:
 
+    Well::Data&			wd;
     Well::D2TModel&		d2t;
+    Well::D2TModel*		orgd2t;
 
     uiTable*			table;
     uiGenInput*			unitfld;
 
+    void			updNow(CallBacker*);
+    bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.30 2004-05-13 19:03:21 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.31 2004-05-24 14:28:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,7 +177,15 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     case Wll:
 	switch ( at )
 	{
-	case Imp:	wellserv->importWell();		break;
+	case Imp:
+	    if ( opt == 0 )
+		wellserv->importTrack();
+	    else if ( opt == 1 )
+		wellserv->importLogs();
+	    else if ( opt == 2 )
+		wellserv->importMarkers();
+
+	break;
 	case Man:	wellserv->manageWells();	break;
 	}
     break;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.14 2004-05-24 12:18:06 kristofer Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.15 2004-05-24 14:28:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,10 +33,22 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
 }
 
 
-bool uiWellPartServer::importWell()
+bool uiWellPartServer::importTrack()
 {
     uiWellImportAsc dlg( appserv().parent() );
     return dlg.go();
+}
+
+
+bool uiWellPartServer::importLogs()
+{
+    manageWells(); return true;
+}
+
+
+bool uiWellPartServer::importMarkers()
+{
+    manageWells(); return true;
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.22 2004-05-21 14:11:22 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.23 2004-05-24 14:28:36 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.22 2004-05-21 14:11:22 bert E
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
+#include "wellmarker.h"
 #include "filegen.h"
 #include "strmprov.h"
 #include "unitofmeasure.h"
@@ -96,6 +97,7 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
 				       bool zinfeet )
 {
     mOpenFile( fnm );
+    std::istream& strm = *sd.istrm;
 
     if ( !wd.d2TModel() )
 	wd.setD2TModel( new Well::D2TModel );
@@ -107,11 +109,12 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
     bool firstpos = true;
     bool t_in_ms = false;
     TypeSet<float> tms; TypeSet<float> dahs;
-    while ( *sd.istrm )
+    while ( strm )
     {
-	*sd.istrm >> z >> val;
+	strm >> z >> val;
+	if ( !strm ) break;
+	if ( mIsUndefined(z) ) continue;
 	z *= zfac;
-	if ( !*sd.istrm ) break;
 
 	if ( istvd )
 	{
@@ -133,6 +136,42 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
 
     return 0;
 }
+
+
+const char* Well::AscImporter::getMarkers( const char* fnm, bool istvd, 
+					   bool zinfeet )
+{
+    mOpenFile( fnm );
+    std::istream& strm = *sd.istrm;
+    const float zfac = zinfeet ? 0.3048 : 1;
+    float z, prevdah = mUndefValue;
+#   define mBufSz 128
+    char buf[mBufSz];
+    while ( strm )
+    {
+	strm >> z;
+	if ( !strm ) break;
+	strm.getline( buf, mBufSz );
+	char* ptr = buf; skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
+	if ( mIsUndefined(z) || !*ptr ) continue;
+	z *= zfac;
+
+	if ( istvd )
+	{
+	    z = wd.track().getDahForTVD( z, prevdah );
+	    if ( mIsUndefined(z) ) continue;
+	    prevdah = z;
+	}
+
+	Well::Marker* newmrk = new Well::Marker( ptr );
+	newmrk->dah = z;
+	wd.markers() += newmrk;
+    }
+    sd.close();
+
+    return 0;
+}
+
 
 
 const char* Well::AscImporter::getLogInfo( const char* fnm,

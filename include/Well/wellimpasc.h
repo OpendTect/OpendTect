@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.12 2004-04-28 21:30:58 bert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.13 2004-05-24 14:28:36 bert Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,8 @@ public:
     const char*		getTrack(const char*,bool first_is_surface,
 	    			 bool depthinfeet=false);
     const char*		getD2T(const char*,bool istvd,bool depthinfeet=false);
+    const char*		getMarkers(const char*,bool istvd,
+	    			   bool depthinfeet=false);
 
     class LasFileInfo
     {
