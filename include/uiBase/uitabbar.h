@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uitabbar.h,v 1.6 2004-10-04 15:33:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
+#include "uiobj.h"
 
 class ioPixmap;
 class uiTabBarBody;
@@ -24,7 +24,7 @@ class uiTab : public UserIDObject
 friend class		uiTabBar;
 public:
 //			uiTab( const char* );
-			uiTab( uiGroup& );
+			uiTab(uiGroup&);
 
     int 		id();
 
@@ -43,15 +43,16 @@ class uiTabBar : public uiObject
 friend class		i_tabbarMessenger;
 friend class		uiTabStack;
 public:
-			uiTabBar( uiParent*, const char* nm,
-				  const CallBack* cb =0 );
+			uiTabBar(uiParent*,const char* nm,
+				 const CallBack* cb=0);
 
-    int			addTab( uiTab* );
-    int			insertTab( uiTab*, int index = -1 );
-    void		removeTab( uiTab* );
+    int			addTab(uiTab*);
+    int			insertTab(uiTab*,int index=-1);
+    void		removeTab(int index);
+    void		removeTab(uiGroup*);
 
-    void		setTabEnabled( int id, bool );
-    bool		isTabEnabled( int id ) const;
+    void		setTabEnabled(int id,bool);
+    bool		isTabEnabled(int id) const;
 
     void		setCurrentTab(int id);
     int			currentTabId() const;
@@ -66,8 +67,8 @@ public:
 */
     Notifier<uiTabBar>  selected;
 
-    int			idOf( uiGroup* grp ) const;
-    uiGroup*		page( int id ) const;
+    int			idOf(uiGroup* grp) const;
+    uiGroup*		page(int id) const;
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.8 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uitabstack.cc,v 1.9 2004-10-04 15:33:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,12 @@ void uiTabStack::insertTab( uiGroup* grp, const char* txt, int index )
 
     if ( !hAlignObj() )
 	setHAlignObj( grp );
+}
+
+
+void uiTabStack::removeTab( int index )
+{
+    tabbar_->removeTab( index );
 }
 
 

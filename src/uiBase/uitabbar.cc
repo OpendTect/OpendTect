@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.5 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uitabbar.cc,v 1.6 2004-10-04 15:33:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,9 +97,7 @@ uiTabBarBody& uiTabBar::mkbody(uiParent* parnt, const char* nm )
 
 int uiTabBar::addTab( uiTab* tab )
 {
-    if ( !tab ) return -1;
-    tabs_ += tab;
-    return body_->addTab( &tab->body_ ); 
+    return insertTab( tab, -1 );
 }
 
 int uiTabBar::insertTab( uiTab* tab, int index )
@@ -109,8 +107,30 @@ int uiTabBar::insertTab( uiTab* tab, int index )
     return body_->insertTab( &tab->body_, index ); 
 }
 
-void uiTabBar::removeTab( uiTab* tab )
-    { if ( tab ) body_->removeTab( &tab->body_ ); }
+
+void uiTabBar::removeTab( int index )
+{
+    uiTab* tab = tabs_[index];
+    if ( !tab ) return;
+
+    tabs_ -= tab;
+    body_->removeTab( &tab->body_ );
+    delete tab;
+}
+
+
+void uiTabBar::removeTab( uiGroup* grp )
+{
+    for ( int idx=0; idx<tabs_.size(); idx++ )
+    {
+	if ( &tabs_[idx]->group() == grp )
+	{
+	    removeTab( idx );
+	    return;
+	}
+    }
+}
+
 
 void uiTabBar::setTabEnabled( int idx, bool yn )
     { body_->setTabEnabled( idx, yn ); }
