@@ -74,23 +74,32 @@ int main( int argc, char** argv )
     const CBVSReadMgr& mgr = *tri->readMgr();
     mgr.dumpInfo( std::cerr, true );
     const CBVSInfo& info = mgr.info();
+    const int singinl = info.geom.start.inl == info.geom.stop.inl
+			? info.geom.start.inl : -999;
 
-    SeisTrc trc; BinID bid;
+    SeisTrc trc; BinID bid( singinl, 0 );
+    BinID step( abs(info.geom.step.inl), abs(info.geom.step.crl) );
     StepInterval<int> samps;
     const int nrcomps = info.compinfo.size();
     while ( true )
     {
-	std::cerr << "\nExamine In-line ( 0 to stop ): "; getInt( bid.inl );
-	if ( !bid.inl ) exitProgram( 0 );
+	if ( singinl == -999 )
+	{
+	    std::cerr << "\nExamine In-line (" << info.geom.start.inl
+		<< "-" << info.geom.stop.inl;
+	    if ( step.inl > 1 )
+		std::cerr << " [" << step.inl << "]";
+	    int stopinl = info.geom.start.inl == 0 ? -1 : 0;
+	    std::cerr << ' ' << stopinl << " to stop ): ";
+	    getInt( bid.inl );
+	    if ( bid.inl == stopinl ) break;
+	}
 
 	if ( info.geom.fullyrectandreg )
 	{
-	    bid.crl = info.geom.start.crl;
-	    if ( !info.geom.includes(bid) )
+	    if ( bid.inl < info.geom.start.inl || bid.inl > info.geom.stop.inl )
 	    {
-		std::cerr << "The inline range is " << info.geom.start.inl
-		     << " - " << info.geom.stop.inl << " step "
-		     << info.geom.step.inl << std::endl;
+		std::cerr << "Invalid inline" << std::endl;
 		continue;
 	    }
 	}
@@ -115,7 +124,18 @@ int main( int argc, char** argv )
 	    std::cerr << std::endl;
 	}
 
-	std::cerr << "X-line: "; getInt( bid.crl );
+	if ( singinl == -999 )
+	    std::cerr << "X-line (0 for new in-line): ";
+	else
+	    std::cerr << "X-line or trace number (0 to stop): ";
+	getInt( bid.crl );
+	if ( bid.crl == 0 )
+	{
+	    if ( singinl == -999 )
+		continue;
+	    else
+		break;
+	}
 
 	if ( !tri->goTo( bid ) )
 	    { std::cerr << "Cannot find this position" << std::endl; continue; }
@@ -132,6 +152,11 @@ int main( int argc, char** argv )
 	if ( !mIsZero(trc.info().offset,mDefEps)
 		&& !mIsUndefined(trc.info().offset) )
 	    std::cerr << "Offset: " << trc.info().offset << std::endl;
+	if ( !mIsZero(trc.info().coord.x,0.1) )
+	{
+	    BufferString str; trc.info().coord.fill(str.buf());
+	    std::cerr << "Coordinate: " << str << std::endl;
+	}
 
 	while ( true )
 	{

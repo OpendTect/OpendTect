@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.38 2004-09-30 15:33:31 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.39 2004-10-05 10:26:18 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -714,8 +714,12 @@ static void handleInlGap( std::ostream& strm, Interval<int>& inlgap )
 
 void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 {
+    const int singinl = info().geom.start.inl == info().geom.stop.inl
+			? info().geom.start.inl : -999;
+    const char* Datastr = singinl == -999 ? "Data" : "Cube";
+    const char* datastr = singinl == -999 ? "data" : "cube";
     if ( nrReaders() > 1 )
-	strm << "Cube is stored in " << nrReaders() << " files\n";
+	strm << Datastr << " is stored in " << nrReaders() << " files\n";
     strm << '\n';
 
     if ( info().nrtrcsperposn > 1 )
@@ -724,13 +728,23 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
     if ( inclcompinfo )
 	putComps( strm, info().compinfo );
 
-    strm << "The cube is "
+    strm << "The " << datastr << " is "
 	 << (info().geom.fullyrectandreg ? "100% rectangular." : "irregular.")
 	 << '\n';
-    strm << "In-line range: " << info().geom.start.inl << " - "
-	 << info().geom.stop.inl << " (step " << info().geom.step.inl << ").\n";
-    strm << "X-line range: " << info().geom.start.crl << " - "
-	 << info().geom.stop.crl << " (step " << info().geom.step.crl << ").\n";
+    if ( singinl != -999 )
+    {
+	strm << "Line number: " << singinl << '\n';
+	strm << "Trace range: ";
+    }
+    else
+    {
+	strm << "In-line range: " << info().geom.start.inl << " - "
+	     << info().geom.stop.inl
+	     << " (step " << info().geom.step.inl << ").\n";
+	strm << "X-line range: ";
+    }
+    strm << info().geom.start.crl << " - " << info().geom.stop.crl
+	 << " (step " << info().geom.step.crl << ").\n";
     strm << "Z start: " << info().sd.start
 	 << " step: " << info().sd.step << '\n';
     strm << "Number of samples: " << info().nrsamples << "\n\n";
@@ -769,14 +783,14 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	if ( crlgaps )
 	{
 	    if ( inlgaps )
-		strm << "\nData holes (X-line gaps) also found.";
+		strm << "\nX-line/Trace number gaps also found.";
 	    else
 		strm << " Gaps present.";
 	}
 	else
 	{
 	    if ( inlgaps )
-		strm << "\nNo data holes (X-line gaps) found.";
+		strm << "\nNo X-line/Trace number gaps found.";
 	    else
 		strm << " not present.";
 	}
