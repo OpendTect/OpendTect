@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.61 2004-09-27 08:25:11 dgb Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.62 2004-10-05 14:19:23 dgb Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -270,7 +270,7 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     else if ( masterinfo == mRSP_STOP ) 
     {
 	mErrStrm << "Exiting on request of Master." << std::endl;
-	exit( -1 );
+	exitProgram( -1 );
     }
     else
     {
