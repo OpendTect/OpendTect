@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.10 2003-03-04 14:47:05 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.11 2003-03-06 18:39:29 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -37,6 +37,7 @@ visBase::RandomTrack::RandomTrack()
     , draggerswitch( 0 )
     , depthrg( 0, 1 )
     , knotmovement( this )
+    , knotsel( this )
 {
     addKnot( Coord( 0, 0 ) );
     addKnot( Coord( 1, 0 ) );
@@ -342,6 +343,7 @@ void visBase::RandomTrack::createDragger()
 
     dragger = new SoRandomTrackLineDragger;
     dragger->addMotionCallback( visBase::RandomTrack::motionCB, this );
+    dragger->addStartCallback( visBase::RandomTrack::startCB, this );
     draggerswitch = new SoSwitch;
     insertChild( 0, draggerswitch );
     draggerswitch->addChild( dragger );
@@ -353,11 +355,31 @@ void visBase::RandomTrack::createDragger()
 }
 
 
+int visBase::RandomTrack::getSectionIdx( const TriangleStripSet* tss ) const
+{
+    
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	if ( sections[idx]->id() == tss->id() )
+	    return idx;
+    }
+    return -1;
+}
+
+
 void visBase::RandomTrack::motionCB(void* data,
 				    SoRandomTrackLineDragger* dragger)
 {
     visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
     myself->knotmovement.trigger( dragger->getMovingKnot() );
+}
+
+
+void visBase::RandomTrack::startCB(void* data,
+				    SoRandomTrackLineDragger* dragger)
+{
+    visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
+    myself->knotsel.trigger( dragger->getMovingKnot() );
 }
 
 

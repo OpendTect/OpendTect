@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.5 2003-02-19 09:22:31 nanne Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.6 2003-03-06 18:39:29 nanne Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
@@ -34,6 +34,7 @@ void SoRandomTrackLineDragger::initClass()
 
 SoRandomTrackLineDragger::SoRandomTrackLineDragger()
     : motionCBList( *new SoCallbackList )
+    , startCBList( *new SoCallbackList )
 {
     SO_KIT_CONSTRUCTOR(SoRandomTrackLineDragger);
     SO_KIT_ADD_CATALOG_ENTRY(subDraggerSep,SoSeparator, false,
@@ -102,6 +103,7 @@ SoRandomTrackLineDragger::~SoRandomTrackLineDragger()
     delete z0fieldsensor;
     delete z1fieldsensor;
     delete &motionCBList;
+    delete &startCBList;
 }
 
 
@@ -126,6 +128,18 @@ void SoRandomTrackLineDragger::removeMotionCallback(
 }
 
 
+void SoRandomTrackLineDragger::addStartCallback(
+				SoRandomTrackLineDraggerCB* func, void* data)
+{
+    startCBList.addCallback((SoCallbackListCB*) func, data );
+}
+
+
+void SoRandomTrackLineDragger::removeStartCallback(
+			    SoRandomTrackLineDraggerCB* func, void* data)
+{
+    startCBList.removeCallback((SoCallbackListCB*) func, data );
+}
 
 
 float SoRandomTrackLineDragger::xyzSnap( int dim, float val ) const
@@ -140,11 +154,11 @@ float SoRandomTrackLineDragger::xyzSnap( int dim, float val ) const
 }
 
 
-void SoRandomTrackLineDragger::startCB( void* parent, SoDragger* )
+void SoRandomTrackLineDragger::startCB( void* parent, SoDragger* dragger )
 {
     SoRandomTrackLineDragger* myself =
 	reinterpret_cast<SoRandomTrackLineDragger*>(parent);
-    myself->dragStart();
+    myself->dragStart(dragger);
 }
 
 
@@ -173,10 +187,37 @@ void SoRandomTrackLineDragger::fieldChangeCB( void* parent, SoSensor* )
 }
 
 
-void SoRandomTrackLineDragger::dragStart()
+void SoRandomTrackLineDragger::dragStart(SoDragger* dragger_)
 {
     SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
     sw->whichChild = 0;
+
+    SoDragPointDragger* dragger =
+			reinterpret_cast<SoDragPointDragger*>( dragger_ );
+
+    SoNodeKitListPart* partlist =
+	SO_GET_ANY_PART( this, "subDraggers", SoNodeKitListPart );
+
+    const int nrdraggers = partlist->getNumChildren();
+    int draggerid = -1;
+    for ( int idx=0; idx<nrdraggers; idx++ )
+    {
+	if ( dragger==partlist->getChild(idx) )
+	{
+	    draggerid = idx;
+	    break;
+	}
+    }
+
+    if ( draggerid==-1 )
+    {
+	pErrMsg("Hue!");
+	return;
+    }
+
+    movingknot = draggerid/2;
+
+    startCBList.invokeCallbacks( this );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoRandomTrackLineDragger.h,v 1.4 2003-02-12 12:52:24 kristofer Exp $
+ RCS:		$Id: SoRandomTrackLineDragger.h,v 1.5 2003-03-06 18:39:39 nanne Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,8 @@ public:
 
     void	addMotionCallback(SoRandomTrackLineDraggerCB*, void* = 0 );
     void	removeMotionCallback(SoRandomTrackLineDraggerCB*, void* = 0 );
+    void	addStartCallback(SoRandomTrackLineDraggerCB*, void* = 0 );
+    void	removeStartCallback(SoRandomTrackLineDraggerCB*, void* = 0 );
     int		getMovingKnot() const { return movingknot; }
     		/*!< Only valid after cb has been issued */
 
@@ -77,7 +79,7 @@ protected:
     static void			finishCB( void*, SoDragger* );
     static void			fieldChangeCB( void*, SoSensor* );
 
-    void			dragStart();
+    void			dragStart(SoDragger*);
     void			drag(SoDragger*);
     void			dragFinish();
 
@@ -89,6 +91,7 @@ protected:
     SoFieldSensor*		z1fieldsensor;
 
     SoCallbackList&		motionCBList;
+    SoCallbackList&		startCBList;
     int				movingknot;
 
 private:
