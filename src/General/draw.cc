@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.9 2001-05-02 13:50:27 windev Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.10 2001-05-14 13:21:50 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -13,7 +13,6 @@ The main chunk is color table related.
 
 #include "draw.h"
 #include "colortab.h"
-#include "fontdata.h"
 #include "separstr.h"
 #include "iopar.h"
 #include "settings.h"
@@ -27,27 +26,6 @@ DefineEnumNames(LineStyle,Type,0,"Line style")
     { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 DefineEnumNames(Alignment,Pos,3,"Alignment position")
     { "Start", "Middle", "Stop", 0 };
-
-DefineEnumNames(FontData,Weight,2,"Font weight")
-    { "Light", "Normal", "Demi-Bold", "Bold", "Black", 0 };
-const char* FontData::universalfamilies[] =
-    { "Helvetica", "Courier", "Times", 0 };
-BufferString		FontData::defaultfamily(FontData::universalfamilies[0]);
-int			FontData::defaultpointsize = 12;
-FontData::Weight	FontData::defaultweight = FontData::Bold;
-bool			FontData::defaultitalic = false;
-const char* FontData::defaultkeys[] =
-{ "Control", "Graphics small", "Graphics medium", "Graphics large", 0 };
-static const int numwghts[] = { 25, 50, 63, 75, 87, 0 };
-int FontData::numWeight( FontData::Weight w )
-{ return numwghts[(int)w]; }
-FontData::Weight FontData::enumWeight( int w )
-{
-    int idx = 0;
-    while ( numwghts[idx] && numwghts[idx] < w ) idx++;
-    if ( !numwghts[idx] ) idx--;
-    return (FontData::Weight)idx;
-}
 
 
 // The some draw.h stuff
@@ -93,19 +71,12 @@ void LineStyle::fromString( const char* s )
     color.use( colfms );
 }
 
-// Then the Color stuff ...
+// And the ColorTable stuff ...
 
 const char* ColorVal::sKey = "Value-Color";
 const char* ColorTable::sKeyName = "Color table name";
 const char* ColorTable::sKeyMarkColor = "Marker color";
 const char* ColorTable::sKeyUdfColor = "Undef color";
-
-Color		Color::NoColor		= Color( 0, 0, 0, 255 );
-Color		Color::Black		= Color( 0, 0, 0 );
-Color		Color::White		= Color( 255, 255, 255 );
-Color		Color::DgbColor		= Color( 0, 240, 0 );
-Color		Color::Wheat		= Color( 245, 222, 179 );
-Color		Color::LightGrey	= Color( 230, 230, 230 );
 
 DefineEnumNames(ColorTable,Type,0,"Color table name")
 {
@@ -120,85 +91,6 @@ DefineEnumNames(ColorTable,Type,0,"Color table name")
 	0
 };
 
-static const int ncols = 10;
-static Color drawcols[] = {
-	Color( 220,  50,  50 ), // red
-	Color(  50,  50, 220 ), // blue
-	Color(  50, 200,  50 ), // green
-	Color(  50, 200, 200 ), // cyan
-	Color( 255, 210,   0 ), // gold
-	Color( 220,   0, 220 ), // magenta
-	Color( 140, 130,  80 ), // khaki
-	Color( 100, 160,   0 ), // orange
-	Color( 140,  35,  80 ), // dark violet red
-	Color( 204, 133,  61 ), // peru
-};
-
-
-// Then real FontData methods ...
-
-void FontData::getFrom( const char* s )
-{
-    FileMultiString fms( s );
-    const int nr = fms.size();
-    if ( nr < 1 ) return;
-
-    family_ = fms[0];
-    if ( nr > 1 ) pointsize_ = atoi( fms[1] );
-    if ( nr > 2 ) weight_ = eEnum(FontData::Weight,fms[2]);
-    if ( nr > 3 ) italic_ = yesNoFromString(fms[3]);
-}
-
-
-void FontData::putTo( BufferString& s )
-{
-    FileMultiString fms;
-    fms += family_;
-    fms += pointsize_;
-    fms += eString(FontData::Weight,weight_);
-    fms += getYesNoString( italic_ );
-    s = fms;
-}
-
-
-// Then real Color methods ...
-
-const Color& Color::drawDef( int idx )
-{
-    return drawcols[ idx % ncols ];
-}
-
-
-void Color::fill( char* str ) const
-{
-    FileMultiString fms;
-    fms += (int)r();
-    fms += (int)g();
-    fms += (int)b();
-    if ( t() ) fms += (int)t();
-    strcpy( str, (const char*)fms );
-}
-
-
-bool Color::use( const char* str )
-{
-    if ( !str || !*str ) return false;
-
-    const FileMultiString fms( str );
-    const int sz = fms.size();
-    if ( sz < 3 ) return false;
-
-    unsigned char r_ = (unsigned char)atoi( fms[0] );
-    unsigned char g_ = (unsigned char)atoi( fms[1] );
-    unsigned char b_ = (unsigned char)atoi( fms[2] );
-    unsigned char t_ = sz > 3 ? (unsigned char)atoi( fms[3] ) : t();
-    set( r_, g_, b_, t_ );
-
-    return true;
-}
-
-
-// Finally ColorTable methods ...
 
 void ColorTable::calcList( int nritems )
 {
