@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.7 2001-08-31 16:38:18 bert Exp $
+ RCS:		$Id: transl.h,v 1.8 2001-10-10 13:24:34 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -23,6 +23,7 @@ description of IOObj context.
 #include <streamconn.h>
 #include <selector.h>
 #include <ctxtioobj.h>
+#include <iopar.h>
 #include <iosfwd>
 
 class IOPar;
@@ -58,6 +59,7 @@ public:
 
     static void			dumpGroups(ostream&);
     static Translator*		produce(const char* grp, const char*);
+    virtual void		clearSelHist()		{}
 
 protected:
 
@@ -76,6 +78,7 @@ ObjectTypeSelectionFun getSelector() const \
 	{ return clss##Translator::selector; } \
 IOObjContext getContext() const \
 	{ return clss##Translator::ioContext(); } \
+void clearSelHist() { selhist.clear(); } \
 static int listid; \
 static IOPar& selhist;
 
