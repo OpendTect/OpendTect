@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.13 2003-05-08 08:33:14 kristofer Exp $
+ RCS:		$Id: simpnumer.h,v 1.14 2003-08-15 11:12:00 bert Exp $
 ________________________________________________________________________
 
 */
 
-#include <general.h>
+#include <finding.h>
 #include <math.h>
 
 #ifndef M_PI
@@ -278,21 +278,7 @@ inline T polyInterpolate3D( T v000, T v001, T v002, T v003,
 template <class X>
 inline int getLowIndex( const X& x, int sz, double pos )
 {
-    if ( pos < x[0] ) return -1;
-    if ( x[sz-1] < pos ) return sz-1;
-
-    int idx1 = 0;
-    int idx2 = sz-1;
-    while ( idx2 - idx1 > 1 )
-    {
-	int newidx = (idx2 + idx1) / 2;
-	double xval = x[newidx];
-	double diff = pos - xval;
-	if ( mIsZero(diff) ) return newidx;
-	else if ( diff > 0 ) idx1 = newidx;
-	else		     idx2 = newidx;
-    }
-    return idx1;
+    int idx; findFPPos( x, sz, pos, -1, idx ); return idx;
 }
 
 /*!>
