@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.12 2002-05-02 14:20:33 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.13 2002-05-07 12:10:17 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -32,6 +32,7 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     , selected_( false )
     , cs(*new CubeSampling)
     , as(*new AttribSelSpec)
+    , moving( this )
 {
     trect->ref();
     selection()->notify( mCB(this,PlaneDataDisplay,select));
@@ -44,12 +45,6 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     trect->useTexture( false );
 
     SPM().appvelchange.notify(  mCB(this,PlaneDataDisplay,appVelChCB));
-}
-
-
-void visSurvey::PlaneDataDisplay::setNewDataCallBack(const CallBack ncb)
-{
-    newdatacb = ncb;
 }
 
 
@@ -198,6 +193,74 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
 }
 
 
+float visSurvey::PlaneDataDisplay::calcDist( const Geometry::Pos& pos ) const
+{
+    Geometry::Pos xytpos = SPM().coordDispl2XYT( pos );
+    Geometry::Pos planeorigo = trect->getRectangle().origo();
+    float width0 = trect->getRectangle().width( 0 );
+    float width1 = trect->getRectangle().width( 1 );
+
+    BinID binid = SI().transform( Coord( xytpos.x, xytpos.y ));
+    
+    BinID inlcrldist( 0, 0 );
+    float zdiff = 0;
+
+    if ( type==Inline )
+    {
+	inlcrldist.inl = abs(binid.inl-mNINT(planeorigo.x));
+	
+	if ( binid.crl<planeorigo.y )
+	    inlcrldist.crl = mNINT(planeorigo.y-binid.crl);
+	else if ( binid.crl>planeorigo.y+width1 )
+	    inlcrldist.crl = mNINT( binid.crl-planeorigo.y-width1);
+
+	if ( xytpos.z<planeorigo.z)
+	    zdiff = planeorigo.z-xytpos.z;
+	else if ( xytpos.z>planeorigo.z+width0 )
+	    zdiff = xytpos.z-planeorigo.z-width0;
+
+    }
+    else if ( type==Crossline )
+    {
+	inlcrldist.crl = abs(binid.crl-mNINT(planeorigo.x));
+	
+	if ( binid.inl<planeorigo.y )
+	    inlcrldist.inl = mNINT(planeorigo.y-binid.inl);
+	else if ( binid.inl>planeorigo.y+width0 )
+	    inlcrldist.inl = mNINT( binid.inl-planeorigo.y-width0);
+
+	if ( xytpos.z<planeorigo.z)
+	    zdiff = planeorigo.z-xytpos.z;
+	else if ( xytpos.z>planeorigo.z+width1 )
+	    zdiff = xytpos.z-planeorigo.z-width1;
+
+    }
+    else
+    {
+	if ( binid.inl<planeorigo.x )
+	    inlcrldist.inl = mNINT(planeorigo.x-binid.inl);
+	else if ( binid.inl>planeorigo.x+width0 )
+	    inlcrldist.inl = mNINT( binid.inl-planeorigo.x-width0);
+
+	if ( binid.crl<planeorigo.y )
+	    inlcrldist.crl = mNINT(planeorigo.y-binid.crl);
+	else if ( binid.crl>planeorigo.y+width1 )
+	    inlcrldist.crl = mNINT( binid.crl-planeorigo.y-width1);
+
+	zdiff = (planeorigo.z - xytpos.z) * SPM().getAppVel();
+    }
+
+    const float inldist =
+	SI().transform( BinID(0,0)).distance( SI().transform(BinID(1,0)));
+    const float crldist =
+	SI().transform( BinID(0,0)).distance( SI().transform(BinID(0,1)));
+    float inldiff = inlcrldist.inl * inldist;
+    float crldiff = inlcrldist.crl * crldist;
+
+    return sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
+}
+
+
 void visSurvey::PlaneDataDisplay::appVelChCB( CallBacker* cb )
 {
     resetDraggerSizes( SPM().getAppVel() );
@@ -264,10 +327,10 @@ visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
 }
 
 
-bool visSurvey::PlaneDataDisplay::getNewTextureData()
+bool visSurvey::PlaneDataDisplay::updateAtNewPos()
 {
     succeeded_ = false;
-    newdatacb.doCall( this );
+    moving.trigger();
     return succeeded_;
 }
 
@@ -372,7 +435,7 @@ void visSurvey::PlaneDataDisplay::deSelect()
 
     if ( trect->getRectangle().isManipRectOnObject() ) return;
 
-    if ( getNewTextureData() )
+    if ( updateAtNewPos() )
 	trect->getRectangle().moveObjectToManipRect();
     else
 	trect->getRectangle().resetManip();
