@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.29 2002-10-08 09:45:59 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.30 2002-10-09 10:45:10 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -22,14 +22,19 @@ static const char* rcsID = "$Id: filegen.c,v 1.29 2002-10-08 09:45:59 bert Exp $
 
 # ifdef sun5
 #  include <sys/statvfs.h>
-#  define mStatFS statvfs
+#  define mStatFS(a,b) statvfs(a,b)
+   static struct statvfs fsstatbuf;
 # else
 #  include <sys/statfs.h>
-#  define mStatFS statfs
+#  ifdef __sgi__
+#   define mStatFS(a,b) statfs(a,b,sizeof(struct statfs),0)
+#  else
+#   define mStatFS(a,b) statfs(a,b)
+#  endif
+   static struct statfs fsstatbuf;
 # endif
 
  static struct stat statbuf;
- static struct mStatFS fsstatbuf;
 
 #else
 
@@ -91,12 +96,12 @@ int File_isRemote( const char* fname )
       || mStatFS(fname,&fsstatbuf) )
 	return NO;
 
-#ifdef lux
+#ifdef sun5
+    return fsstatbuf.f_basetype[0] == 'n' && fsstatbuf.f_basetype[1] == 'f';
     /* return fsstatbuf.f_type == NFS_SUPER_MAGIC
 	|| fsstatbuf.f_type == SMB_SUPER_MAGIC; */
-    return fsstatbuf.f_type == 0x6969 || fsstatbuf.f_type == 0x517B;
 #else
-    return fsstatbuf.f_basetype[0] == 'n' && fsstatbuf.f_basetype[1] == 'f';
+    return fsstatbuf.f_type == 0x6969 || fsstatbuf.f_type == 0x517B;
 #endif
 }
 
@@ -113,7 +118,13 @@ int File_getFreeMBytes( const char* dirnm )
       || mStatFS(dirnm,&fsstatbuf) )
 	return 0;
 
-    res *= res * fsstatbuf.f_bavail * fsstatbuf.f_bsize;
+#ifndef __sgi__
+# define mFreeBlkMemb f_bavail
+#else
+# define mFreeBlkMemb f_bfree
+#endif
+
+    res *= res * fsstatbuf.mFreeBlkMemb * fsstatbuf.f_bsize;
     return (int)(res + .5);
 
 #endif
