@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.15 2004-05-26 23:35:56 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.16 2004-05-27 10:07:10 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -328,6 +328,13 @@ int Well::LogDataExtracter::nextStep()
 }
 
 
+#ifdef __debug__
+#include <fstream>
+#endif
+
+#define mDefWinSz SI().zIsTime() ? wl.dahStep(true)*10 : SI().zRange().step
+
+
 void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 				      const Well::Data& wd,
 				      const Well::Track& track,
@@ -341,9 +348,29 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 	return;
     const Well::Log& wl = wd.logs().getLog( wlidx );
 
-    if ( !track.alwaysDownward() )
+#ifdef __debug__
+    std::ofstream strm( "/tmp/welltrack.dat" );
+    float last_dah = track.dah( track.size()-1 );
+    const float dah_step = wl.dahStep(true);
+    for ( float d_ah=track.dah(0); d_ah<=last_dah; d_ah += dah_step )
     {
-	// Much slower, less precise in Z direction
+	Coord3 tpos = track.getPos( d_ah );
+	Coord3 zpos = wd.track().getPos( d_ah );
+	float val = wl.getValue( d_ah );
+	BinID bid = SI().transform( zpos );
+	Coord bidcoord = SI().transform( bid );
+	Coord offs; offs.x = zpos.x - bidcoord.x; offs.y = zpos.y - bidcoord.y;
+	strm << d_ah << '\t' << val << '\t'
+	     << bid.inl << '\t' << bid.crl << '\t'
+	     << offs.x << '\t' << offs.y << '\t'
+	     << zpos.z << '\t' << tpos.z << '\n';
+    }
+    strm.close();
+#endif
+
+    if ( getenv("DTECT_ALWAYS_USE_GEN_LOG_EXTR") || !track.alwaysDownward() )
+    {
+	// Much slower, less precise but should always work
 	getGenTrackData( bivset, track, wl, res );
 	return;
     }
@@ -365,9 +392,8 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
     if ( trackidx >= track.size() ) // Duh. Entire track below data.
 	return;
 
+    float prevwinsz = mDefWinSz;
     float prevdah = mUndefValue;
-    float dah = mUndefValue;
-    bool nowinsz = true;
     for ( ; bividx<bivset.size(); bividx++ )
     {
 	biv = bivset[bividx];
@@ -384,19 +410,19 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 	{
 	    trackidx = 1;
 	    bividx--;
-	    nowinsz = true;
+	    prevdah = mUndefValue;
 	    continue;
 	}
-	dah = ( (z2-biv.value) * track.dah(trackidx-1)
+
+	float dah = ( (z2-biv.value) * track.dah(trackidx-1)
 		    + (biv.value-z1) * track.dah(trackidx) )
-		  / (z2 - z1);
-	if ( !mIsUndefined(prevdah) )
-	    addValAtDah( prevdah, wl, res, nowinsz ? 5 : (dah-prevdah)/2 );
+		    / (z2 - z1);
+
+	float winsz = mIsUndefined(prevdah) ? prevwinsz : (dah-prevdah) / 2;
+	addValAtDah( dah, wl, res, winsz );
+	prevwinsz = winsz;
 	prevdah = dah;
-	nowinsz = false;
     }
-    if ( !mIsUndefined(prevdah) && !mIsUndefined(dah) )
-	addValAtDah( prevdah, wl, res, nowinsz ? 5 : (dah-prevdah)/2 );
 }
 
 
@@ -413,14 +439,15 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 	{ res.erase(); return; }
 
     BinIDValue biv( bivset[bividx] );
-    const float zstep = SI().zRange().step / 2;
-    const float dahstep = SI().zIsTime() ? zstep * 500 : zstep;
-	// Assumes minimum velocity is 500 m/s
+    float startdah = track.dah(0);
+    const float lastdah = track.dah( track.size() - 1 );
+    const float dahstep = wl.dahStep(true);
     BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );
     const float dtol = SI().transform(biv.binid).distance( SI().transform(b) );
-    const float ztol = zstep * 20;
-    float startdah = track.dah(0);
+    const float ztol = SI().zRange().step * 5;
 
+    float prevdah = mUndefValue;
+    float prevwinsz = mDefWinSz;
     for ( ; bividx<bivset.size(); bividx++ )
     {
 	float dah = findNearest( track, bivset[bividx], startdah, dahstep );
@@ -434,7 +461,13 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 	    if ( coord.distance(pos) > dtol || fabs(pos.z-biv.value) > ztol )
 		res += mUndefValue;
 	    else
-		addValAtDah( dah, wl, res, dahstep );
+	    {
+		float winsz = mIsUndefined(prevdah) ? prevwinsz
+		    				    : (dah-prevdah) / 2;
+		addValAtDah( dah, wl, res, winsz );
+		prevwinsz = winsz;
+		prevdah = dah;
+	    }
 	}
     }
 }
@@ -442,8 +475,11 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 float Well::LogDataExtracter::findNearest( const Well::Track& track,
 		    const BinIDValue& biv, float startdah, float dahstep ) const
 {
-    const float zfac = SI().zIsTime() ? 3000 : 1;
-		// Use a distance criterion based on 3000 m/s
+    if ( mIsUndefined(dahstep) || mIS_ZERO(dahstep) )
+	return mUndefValue;
+
+    const float zfac = SI().zIsTime() ? 10000 : 1;
+		// Use a distance criterion weighing the Z a lot
     float dah = startdah;
     const float lastdah = track.dah( track.size() - 1 );
     Coord3 tpos = track.getPos(dah); tpos.z *= zfac;
@@ -478,7 +514,7 @@ void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 				       float winsz ) const
 {
-    Interval<float> rg( dah-winsz, dah+winsz );
+    Interval<float> rg( dah-winsz, dah+winsz ); rg.sort();
     TypeSet<float> vals;
     for ( int idx=0; idx<wl.size(); idx++ )
     {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.4 2004-05-06 12:33:25 bert Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.5 2004-05-27 10:07:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,8 +183,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     else
     {
 	Well::Log& log = wd.logs().getLog( logidx );
-	while ( log.size() )
-	    log.removeValue(0);
+	log.erase();
 	for ( int idx=0; idx<newlog->size(); idx++ )
 	    log.addValue( newlog->dah(idx), newlog->value(idx) );
 	delete newlog;

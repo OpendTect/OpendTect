@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.27 2004-05-21 16:55:42 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.28 2004-05-27 10:07:10 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -25,6 +25,28 @@ const char* Well::D2TModel::sKeyTimeWell = "=Time";
 const char* Well::D2TModel::sKeyDataSrc	= "Data source";
 const char* Well::Marker::sKeyDah	= "Depth along hole";
 const char* Well::Log::sKeyUnitLbl	= "Unit of Measure";
+
+
+float Well::DahObj::dahStep( bool ismin ) const
+{
+    const int sz = dah_.size();
+    if ( sz < 2 ) return mUndefValue;
+
+    float kpval = dah_[1] - dah_[0];
+    for ( int idx=2; idx<sz; idx++ )
+    {
+	float val = dah_[idx] - dah_[idx-1];
+	if ( !ismin )
+	    kpval += val;
+	else
+	{
+	    if ( val < kpval )
+		kpval = val;
+	}
+    }
+    if ( !ismin ) kpval /= sz - 1; // average
+    return kpval;
+}
 
 
 Well::Data::Data( const char* nm )
@@ -114,6 +136,19 @@ Well::Log* Well::LogSet::remove( int idx )
 }
 
 
+Well::Log& Well::Log::operator =( const Well::Log& l )
+{
+    if ( &l != this )
+    {
+	setName( l.name() );
+	dah_ = l.dah_; val_ = l.val_;
+	range_ = l.range_; selrange_ = l.selrange_;
+	displogrthm_ = l.displogrthm_;
+    }
+    return *this;
+}
+
+
 float Well::Log::getValue( float dh ) const
 {
     int idx1;
@@ -153,6 +188,18 @@ void Well::Log::addValue( float z, float val )
 void Well::Log::setSelValueRange( const Interval<float>& newrg )
 {
     assign( selrange_, newrg );
+}
+
+
+Well::Track& Well::Track::operator =( const Track& t )
+{
+    if ( &t != this )
+    {
+	setName( t.name() );
+	dah_ = t.dah_;
+	pos_ = t.pos_;
+    }
+    return *this;
 }
 
 

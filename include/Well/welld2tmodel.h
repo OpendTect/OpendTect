@@ -7,34 +7,33 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.9 2004-05-21 16:55:42 bert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.10 2004-05-27 10:07:10 bert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "uidobj.h"
+#include "welldahobj.h"
 #include "color.h"
 
 namespace Well
 {
 
-class D2TModel : public ::UserIDObject
+class D2TModel : public DahObj
 {
 public:
 
 			D2TModel( const char* nm= 0 )
-			: ::UserIDObject(nm)	{}
+			: DahObj(nm)	{}
 			D2TModel( const D2TModel& d2t )
-			: ::UserIDObject("") 	{ *this = d2t; }
+			: DahObj("") 	{ *this = d2t; }
     D2TModel&		operator =(const D2TModel&);
 
     float		getTime(float d_ah) const;
     float		getVelocity(float d_ah) const;
 
-    int			size() const		{ return t_.size(); }
-    float		t( int idx ) const	{ return t_[idx]; }
-    float		dah( int idx ) const	{ return dah_[idx]; }
+    inline float	t( int idx ) const	{ return t_[idx]; }
+    float		value( int idx ) const	{ return t(idx); }
 
     BufferString	desc;
     BufferString	datasource;
@@ -45,12 +44,13 @@ public:
 
     void		add( float d_ah, float tm )
 						{ dah_ += d_ah; t_ += tm; }
-    void		erase()			{ dah_.erase(); t_.erase(); }
 
 protected:
 
-    TypeSet<float>	dah_;
     TypeSet<float>	t_;
+
+    void		removeAux( int idx )	{ t_.remove(idx); }
+    void		eraseAux()		{ t_.erase(); }
 
 };
 

@@ -7,28 +7,31 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.8 2004-05-09 15:17:12 bert Exp $
+ RCS:		$Id: welltrack.h,v 1.9 2004-05-27 10:07:10 bert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "sets.h"
+#include "welldahobj.h"
 #include "position.h"
 
 namespace Well
 {
 class D2TModel;
 
-class Track
+class Track : public DahObj
 {
 public:
 
-			Track()				{}
+			Track( const char* nm=0 )
+			: DahObj(nm)			{}
+			Track( const Track& t )
+			: DahObj("")			{ *this = t; }
+    Track&		operator =(const Track&);
 
-    int			size() const			{ return pos_.size(); }
     const Coord3&	pos( int idx ) const		{ return pos_[idx]; }
-    float		dah( int idx ) const		{ return dah_[idx]; }
+    float		value( int idx ) const		{ return pos_[idx].z; }
 
     void		addPoint( const Coord& c, float z, float d )
 			{ pos_ += Coord3(c,z); dah_ += d; }
@@ -48,8 +51,10 @@ public:
 protected:
 
 
-    TypeSet<float>	dah_;
     TypeSet<Coord3>	pos_;
+
+    void		removeAux( int idx )		{ pos_.remove(idx); }
+    void		eraseAux()			{ pos_.erase(); }
 
 };
 
