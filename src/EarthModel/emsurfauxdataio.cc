@@ -20,7 +20,7 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.7 2003-07-29 13:04:34 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.8 2003-08-01 12:28:33 nanne Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
@@ -88,6 +88,7 @@ EM::dgbSurfDataWriter::~dgbSurfDataWriter()
 
 int EM::dgbSurfDataWriter::nextStep()
 {
+    EM::PosID posid( surf.id() );
     for ( int idx=0; idx<chunksize; idx++ )
     {
 	while ( !subids.size() )
@@ -120,7 +121,8 @@ int EM::dgbSurfDataWriter::nextStep()
 
 		const RowCol emrc( bid.inl, bid.crl );
 		const EM::SubID subid = surf.rowCol2SubID( emrc );
-		const EM::PosID posid( surf.id(), patchid, subid );
+		posid.setSubID( subid );
+		posid.setPatchID( patchid );
 		const float auxvalue = surf.getAuxDataVal(dataidx,posid);
 		if ( mIsUndefined( auxvalue ) )
 		    continue;
@@ -141,6 +143,7 @@ int EM::dgbSurfDataWriter::nextStep()
 	    return ErrorOccurred;
 
 	subids.remove( subidindex );
+	values.remove( subidindex );
     }
 
     nrdone++;
@@ -267,6 +270,7 @@ int EM::dgbSurfDataReader::nextStep()
     if ( error )
 	return ErrorOccurred; 
 
+    EM::PosID posid( surf->id() );
     for ( int idx=0; idx<chunksize; idx++ )
     {
 	while ( !valsleftonpatch )
@@ -296,8 +300,9 @@ int EM::dgbSurfDataReader::nextStep()
 	if ( !readLong(subid) || !readFloat(val) )
 	    return ErrorOccurred;
 
-	surf->setAuxDataVal( dataidx,
-		EM::PosID( surf->id(),currentpatch,subid ), val);
+	posid.setSubID( subid );
+	posid.setPatchID( currentpatch );
+	surf->setAuxDataVal( dataidx, posid, val );
 
 	valsleftonpatch--;
     }
