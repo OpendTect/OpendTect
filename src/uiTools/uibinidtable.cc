@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.2 2003-03-06 16:39:09 bert Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.3 2003-03-06 17:14:08 bert Exp $
  ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
 
 void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids )
 {
-    const int nrrows = table->numRows();
+    int nrrows = table->numRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	BinID bid(0,0);
@@ -89,10 +89,12 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids )
 		if ( uiMSG().askGoOn(msg) )
 		{
 		    table->removeRow( idx );
+		    nrrows--; idx--;
 		    continue;
 		}
 	    }
 	}
+	SI().snap( bid );
 	bids += bid;
     }
 }
