@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.206 2004-05-06 15:15:48 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.207 2004-05-07 10:29:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "viscolortab.h"
 #include "visobject.h"
-#include "vismaterial.h"
 #include "vissurvobj.h"
 #include "visselman.h"
 #include "vissurvscene.h"
@@ -799,11 +798,10 @@ bool uiVisPartServer::hasMaterial( int id ) const
 
 bool uiVisPartServer::setMaterial( int id )
 {
-    if ( !hasMaterial(id) ) return false;
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
+    if ( !hasMaterial(id) || !vo ) return false;
 
-    visBase::Material* mat = vo ? vo->getMaterial() : vo->getMaterial();
-    uiMaterialDlg dlg( appserv().parent(), mat, true,
+    uiMaterialDlg dlg( appserv().parent(), vo->getMaterial(), true,
 		       true, false, false, false, true );
     dlg.go();
 
@@ -1012,8 +1010,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
 
     mDynamicCastGet( uiVisMenu*, menu, caller );
     const int id = menu->id();
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
-    mDynamicCastGet( visBase::VisualObject*, vo, getObject(id));
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( !so ) return;
     
     if ( mnuid==selcolorattrmnusel )
@@ -1022,9 +1019,9 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
 	resetManipulation(id);
     else if ( mnuid==changecolormnusel )
     {
-	Color col = vo->getMaterial()->getColor();
+	Color col = so->getColor();
 	if ( select( col, appserv().parent(), "Color selection", false ) )
-	    vo->getMaterial()->setColor( col );
+	    so->setColor( col );
     }
     else if ( mnuid==changematerialmnusel )
 	setMaterial(id);

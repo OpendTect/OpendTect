@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.24 2004-04-30 11:47:10 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.25 2004-05-07 10:28:35 nanne Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "position.h"
 #include "ranges.h"
+#include "color.h"
 
 class AttribSelSpec;
 class ColorAttribSel;
@@ -63,6 +64,9 @@ public:
 
     virtual bool		hasColor() const;
     virtual bool		hasMaterial() const;
+
+    virtual void		setColor(Color)		{}
+    virtual Color		getColor() const;
 
     virtual int			nrResolutions() const;
     virtual BufferString	getResolutionName(int) const;

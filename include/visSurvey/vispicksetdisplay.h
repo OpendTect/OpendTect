@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.32 2004-05-06 12:15:36 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.33 2004-05-07 10:28:35 nanne Exp $
 ________________________________________________________________________
 
 
@@ -65,8 +65,8 @@ public:
     float			getPickSize() const 	{ return picksz; }
     void			setSize(float);
 
-    void			setColor(const Color&);
-    const Color&		getColor() const;
+    void			setColor(Color);
+    Color			getColor() const;
 
     void			setType(int);
     int				getType() const;

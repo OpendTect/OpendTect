@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.17 2004-04-30 11:47:03 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.18 2004-05-07 10:28:28 nanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -77,6 +77,10 @@ bool visSurvey::SurveyObject::hasColor() const
 
 bool visSurvey::SurveyObject::hasMaterial() const
 { return false; }
+
+
+Color visSurvey::SurveyObject::getColor() const
+{ return Color::DgbColor; }
 
 
 int visSurvey::SurveyObject::nrResolutions() const
