@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.3 2000-08-17 17:04:59 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.4 2000-08-18 19:10:20 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -329,11 +329,13 @@ void ColorTable::usePar( const IOPar& iopar )
 void ColorTable::getNames( UserIDSet& names )
 {
     names.deepErase();
+    names.setName( "Color table" );
+
     int idx = 0;
     while ( idx < (int)UserDefined )
 	names.add( TypeNames[idx++] );
+    names.setCurrent(0);
 
-    names.setName( "Color table" );
     IOPar* iopar = Settings::common().subselect( names.name() );
     if ( !iopar || !iopar->size() ) { delete iopar; return; }
 
@@ -349,6 +351,7 @@ void ColorTable::getNames( UserIDSet& names )
 	if ( res && *res )
 	    names.add( res );
     }
+    names.setCurrent(0);
 }
 
 
