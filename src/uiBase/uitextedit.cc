@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.20 2003-05-02 14:43:46 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.21 2003-05-07 09:38:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,12 @@ const char* uiTextEditBase::text() const
 { 
     result = (const char*)qte().text();
     return (const char*)result;
+}
+
+
+bool uiTextEditBase::isModified() const
+{ 
+    return qte().isModified();
 }
 
 
