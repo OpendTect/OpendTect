@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.52 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.53 2004-08-18 14:30:34 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -43,6 +43,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, nrdone(0)
     	, minimalhdrs(false)
     	, brickspec(*new VBrickSpec)
+    	, single_file(false)
 {
 }
 
@@ -120,7 +121,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     forread = true;
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
-    rdmgr = new CBVSReadMgr( fnm );
+    rdmgr = new CBVSReadMgr( fnm, 0, single_file );
     if ( rdmgr->failed() )
 	{ errmsg = rdmgr->errMsg(); return false; }
 
@@ -372,7 +373,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.sd = insd;
     info.nrsamples = innrsamples;
 
-    wrmgr = new CBVSWriteMgr( fnm, info, &auxinf, &brickspec );
+    wrmgr = new CBVSWriteMgr( fnm, info, &auxinf, &brickspec, single_file );
     if ( wrmgr->failed() )
 	{ errmsg = wrmgr->errMsg(); return false; }
 
