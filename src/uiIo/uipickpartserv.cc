@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.9 2002-09-17 13:26:13 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.10 2002-09-23 10:41:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "surfaceinfo.h"
 #include "datainpspec.h"
 #include "ctxtioobj.h"
 #include "color.h"
@@ -27,7 +28,7 @@ ________________________________________________________________________
 
 const int uiPickPartServer::evGetAvailableSets = 0;
 const int uiPickPartServer::evFetchPicks = 1;
-const int uiPickPartServer::evGetHorNames = 2;
+const int uiPickPartServer::evGetHorInfo = 2;
 const int uiPickPartServer::evGetHorDef = 3;
 
 
@@ -57,11 +58,15 @@ void uiPickPartServer::importPickSet()
 bool uiPickPartServer::fetchPickSets()
 {
     psg.clear();
-    deepErase( hornms );
-    sendEvent( evGetHorNames );
+    deepErase( hinfos );
+    sendEvent( evGetHorInfo );
+    ObjectSet<BufferString> hornms;
+    for ( int idx=0; idx<hinfos.size(); idx++ )
+    {
+	hornms += new BufferString( hinfos[idx]->name );
+    }
     uiFetchPicks dlg( appserv().parent(), psgid, hornms );
-    deepErase( hornms );
-    if ( !dlg.go() ) return false;
+    if ( !dlg.go() ) { deepErase( hinfos ); return false; }
 
     if ( !dlg.nrSets() )
     { 
@@ -94,7 +99,7 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     Stat_initRandom(0);
     if ( !rp.isvol )
     {
-	selhor = rp.hornm;
+	selhorid = hinfos[rp.horidx]->id;
 	selbr = &rp.bidrg;
 	hordef.erase();
 	sendEvent( evGetHorDef );
