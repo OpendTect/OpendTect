@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.63 2002-12-04 15:17:24 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.64 2002-12-16 15:58:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,11 +147,7 @@ public:
 				looplevel__ = -1;
 			}
 
-    void		close()
-			{
-			    hide();
-			    if ( exitapponclose_ )	qApp->quit();
-			}
+    void		close();
 
     virtual void	hide() 
 			{
@@ -291,6 +287,7 @@ void uiMainWinBody::popTimTick(CallBacker*)
 }
 
 #define mMwHandle static_cast<uiMainWin&>(handle_)
+
 void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 {
     if( trigger_finalise_start_stop )
@@ -301,6 +298,14 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 
     if( trigger_finalise_start_stop )
 	mMwHandle.finaliseDone.trigger(mMwHandle);
+}
+
+
+void uiMainWinBody::close()
+{
+    mMwHandle.windowClosed.trigger(mMwHandle);
+    hide();
+    if ( exitapponclose_ )	qApp->quit();
 }
 
 
@@ -420,6 +425,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , body_( 0 )
     , finaliseStart(this)
     , finaliseDone(this)
+    , windowClosed(this)
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
@@ -432,6 +438,7 @@ uiMainWin::uiMainWin( const char* nm )
     , body_( 0 )			
     , finaliseStart(this)
     , finaliseDone(this)
+    , windowClosed(this)
 {}
 
 uiMainWin::~uiMainWin()
@@ -942,3 +949,4 @@ bool uiDialog::saveButtonChecked() const{ return mBody->saveButtonChecked(); }
 uiButton* uiDialog::button(Button b)	{ return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
+int uiDialog::uiResult() const			{ return mBody->uiResult(); }

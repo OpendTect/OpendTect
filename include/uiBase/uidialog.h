@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.29 2002-08-14 08:45:25 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.30 2002-12-16 15:59:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,9 @@ public:
     void		setCancelText( const char* txt );
 			//! Save button enabled when set to non-empty
     void		enableSaveButton( const char* txt="Save defaults" );
-			//! title text. Default equal to name
+			//! 0: cancel; 1: OK
+    int			uiResult() const;
+    			
 
     void		setButtonSensitive( Button, bool);
     void		setSaveButtonChecked(bool);
