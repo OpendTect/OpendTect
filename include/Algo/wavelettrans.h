@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.11 2004-02-12 14:33:49 nanne Exp $
+ RCS:           $Id: wavelettrans.h,v 1.12 2004-03-11 15:47:43 nanne Exp $
 ________________________________________________________________________
 
 @$*/
@@ -151,8 +151,7 @@ public:
     enum		WaveletType { Morlet, Gaussian, MexicanHat };
     			DeclareEnumUtils(WaveletType);
 
-    void		setWavelet(CWT::WaveletType t)
-			{ wt = t; }
+    void		setWavelet(CWT::WaveletType);
     void		setScale(int s)			{ scale_start = s; }
     void		setNrVoices(int nv)		{ nrvoices = nv; }
 			
@@ -176,6 +175,9 @@ public:
 			{ return false; }
     bool		transform(const ArrayND<float_complex>&,
 	    				ArrayND<float>& ) const;
+
+    float		getFrequency(int ns,float dt,int scaleidx) const;
+    int			getNrScales(int ns) const;
 
 protected:
 

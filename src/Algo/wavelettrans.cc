@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.9 2004-02-12 14:34:04 nanne Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.10 2004-03-11 15:47:48 nanne Exp $";
 
 
 #include "wavelettrans.h"
@@ -414,7 +414,7 @@ DefineEnumNames(CWT,WaveletType,0,"Wavelet Type")
 CWT::CWT()
     : info(0)
     , wt(WaveletType(0))
-    , scale_start(4)
+    , scale_start(8)
     , nrvoices(5)
     , inited(false)
 {
@@ -424,6 +424,14 @@ CWT::CWT()
 CWT::~CWT()
 {
     delete info;
+}
+
+
+void CWT::setWavelet( WaveletType wt_ )
+{
+    wt = wt_;
+    if ( wt != Morlet )
+	scale_start = 16;
 }
 
 
@@ -547,10 +555,10 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
 void CWT::getMorletWavelet( int nrsamples, float scale, 
 						TypeSet<float>& data ) const
 {
-    float omega0 = 5;
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
+	float omega0 = idx<=nrsamples/2 ? 5 : -5;
 	float omega = 2 * M_PI * omidx / scale;
         float val = (omega-omega0) * (omega-omega0) / 2;
 	data += exp( -val );
@@ -581,4 +589,38 @@ void CWT::getGaussWavelet( int nrsamples, float scale,
         float omega2 = omega*omega;
         data += exp( -omega2/2 );
     }
+}
+
+
+int CWT::getNrScales( int nrsamples ) const
+{
+    if ( !nrsamples ) return 0;
+
+    int nroctaves = isPower( nrsamples, 2 ) - 1;
+    return nrvoices * nroctaves;
+}
+
+
+float CWT::getFrequency( int nrsamples, float dt, int scaleidx ) const
+{
+    if ( !nrsamples || mIS_ZERO(dt) )
+	return mUndefValue;
+
+    float df = 1. / ( dt * nrsamples );
+
+    int curoctave = (int)( scaleidx / nrvoices );
+    int curvoice = scaleidx % nrvoices;
+    int scale = scale_start * (int)pow((float)2,curoctave);
+    float curscale = scale * pow(2,(float)(curvoice+1)/nrvoices);
+
+    float omega0 = 0;
+    if ( wt == Gaussian )
+	omega0 = sqrt(2.);
+    else if ( wt == Morlet )
+	omega0 = 5;
+    else if ( wt == MexicanHat )
+	omega0 = sqrt(2.);
+
+    float freqidx = curscale * omega0 / (2*M_PI);
+    return freqidx * df;
 }
