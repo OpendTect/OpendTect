@@ -13,7 +13,7 @@
 #include "errh.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.12 2003-10-16 12:59:56 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.13 2003-10-31 08:34:08 bert Exp $";
 
 
 int defaultSelector( const char* mytyp, const char* typ )
@@ -83,7 +83,8 @@ TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
 	    return *grps[idx];
     }
 
-    pFreeFnErrMsg( "Requested trgroup doesn't exist", "getGroup" );
+    if ( strcmp(nm,"Appl dir") )
+	{ pFreeFnErrMsg( "Requested trgroup doesn't exist", "getGroup" ); }
     return emptygrp;
 }
 
