@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.17 2004-04-27 12:05:19 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.18 2004-05-06 21:44:32 kristofer Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -47,6 +47,14 @@ void visBase::Texture3::setTextureSize( int x0, int x1, int x2 )
     if ( texture )
 	texture->images.setValue( SbVec3s( x0sz, x1sz, x2sz ),
 				  usesTransperancy() ? 4 : 3, 0 );
+}
+
+
+int visBase::Texture3::getTextureSize( int dim ) const
+{
+    if ( !dim ) return x0sz;
+    
+    return dim==1 ? x1sz : x2sz;
 }
 
 

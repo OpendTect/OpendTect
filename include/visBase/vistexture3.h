@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture3.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vistexture3.h,v 1.6 2004-05-06 21:44:35 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,7 @@ public:
 			mCreateDataObj( Texture3 );
 
     void		setTextureSize(int, int, int );
+    int			getTextureSize(int dim) const;
 
     void		setData( const Array3D<float>*, DataType=Color );
     			/*!< Sets data to texture.
