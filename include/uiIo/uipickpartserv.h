@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.2 2002-03-12 16:02:46 bert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.3 2002-03-22 15:08:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,13 +29,17 @@ public:
 
     const char*		name() const			{ return "Picks"; }
 
+			// Services
     bool		fetchPickSets();
     bool		storePickSets();
 
     static const int	evGetAvailableSets;
     static const int	evFetchPicks;
 
+			// Interaction stuff
     PickSetGroup&	group()				{ return psg; }
+    			//!< 1) Result of fetchPickSets()
+    			//!< 2) Must be filled on evFetchPicks
     UserIDSet&		availableSets()			{ return avsets; }
     const BoolTypeSet& selectedSets() const		{ return selsets; }
     MultiID&		psgID()				{ return psgid; }
