@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.84 2004-05-14 08:11:44 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.85 2004-08-25 11:32:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -460,6 +460,7 @@ bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 bool uiMainWin::touch() 			{ return body_->touch(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
+bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
     { body_->uimoveDockWindow(dwin,d,index); }
