@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.60 2002-05-27 11:31:46 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.61 2002-05-27 15:53:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -767,6 +767,22 @@ void uiVisPartServer::setWellLineStyle( int id, const LineStyle& lst )
     if ( !well ) return;
 
     well->setLineStyle( lst );
+}
+
+
+void uiVisPartServer::showWellText( int id, bool yn )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::WellDisplay*,well,obj)
+    if ( well ) well->showWellText( yn );
+}
+
+
+bool uiVisPartServer::isWellTextShown( int id ) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::WellDisplay*,well,obj)
+    return well ? well->isWellTextShown() : false;
 }
 
 

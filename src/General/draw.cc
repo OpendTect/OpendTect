@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.26 2002-05-27 09:09:17 kristofer Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.27 2002-05-27 15:53:23 nanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -394,7 +394,11 @@ void ColorTable::add( const IOPar& iopar, UserIDSet* names,
 
 void ColorTable::get( const char* nm, ColorTable& ct )
 {
-    if ( !nm || !*nm ) return;
+    BufferString ctname = "Rainbow";
+    if ( !nm || !*nm )
+	mSettUse(get,"dTect.Color table","Name",ctname);
+    else
+	ctname = nm;
 
     PtrMan<IOPar> iopar = Settings::common().subselect( "Color table" );
     if ( iopar && iopar->size() )
@@ -409,7 +413,7 @@ void ColorTable::get( const char* nm, ColorTable& ct )
 	    }
 	    
 	    const char* res = (*ctiopar)[sNameKey];
-	    if ( !strcmp(res,nm) )
+	    if ( !strcmp(res,ctname) )
 	    {
 		ct.usePar( *ctiopar );
 		return;
@@ -421,7 +425,7 @@ void ColorTable::get( const char* nm, ColorTable& ct )
     for ( int idx=0; idx<tabpars.size(); idx++ )
     {
 	const IOPar& iop = *tabpars[idx];
-	if ( !strcmp(nm,iop[sNameKey]) )
+	if ( !strcmp(ctname,iop[sNameKey]) )
 	{
 	    ct.usePar( iop );
     	    return;
@@ -429,13 +433,13 @@ void ColorTable::get( const char* nm, ColorTable& ct )
     }
 
     //NEXT version remove
-    if ( !strcmp(nm,"Blue-Green-Magenta") )
+    if ( !strcmp(ctname,"Blue-Green-Magenta") )
 	get( "Rainbow", ct );
-    else if ( !strcmp(nm,"White-Yellow-Red") )
+    else if ( !strcmp(ctname,"White-Yellow-Red") )
 	get( "SunRise", ct );
-    else if ( !strcmp(nm,"Blue-Cyan-WYR") )
+    else if ( !strcmp(ctname,"Blue-Cyan-WYR") )
 	get( "Pastel", ct );
-    else if ( !strcmp(nm,"Blue-White-Blue") )
+    else if ( !strcmp(ctname,"Blue-White-Blue") )
 	get( "Blue Spirit", ct );
 }
 

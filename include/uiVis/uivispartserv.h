@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.41 2002-05-27 11:31:12 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.42 2002-05-27 15:53:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,8 @@ public:
     int			displayedWellAttrib(int) const;
     const LineStyle*	wellLineStyle(int) const;
     void		setWellLineStyle(int, const LineStyle& );
+    void		showWellText(int,bool);
+    bool		isWellTextShown(int) const;
     void		getWellIds(int,TypeSet<int>&);
 
     			// Horizon stuff

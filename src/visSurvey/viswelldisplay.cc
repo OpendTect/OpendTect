@@ -4,11 +4,12 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.5 2002-05-23 15:39:38 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.6 2002-05-27 15:53:23 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
 #include "visdrawstyle.h"
+#include "vistext.h"
 #include "emmanager.h"
 #include "emwell.h"
 #include "iopar.h"
@@ -27,6 +28,7 @@ const char* visSurvey::WellDisplay::linestylestr = "Line style";
 visSurvey::WellDisplay::WellDisplay()
     : line( visBase::PolyLine::create() )
     , drawstyle( visBase::DrawStyle::create() )
+    , welltxt( visBase::Text::create() )
     , displayedattrib( -1 )
     , wellid( -1 )
 {
@@ -35,11 +37,15 @@ visSurvey::WellDisplay::WellDisplay()
     line->ref();
     addChild( line->getData() );
     line->setMaterial( 0 );
+    welltxt->ref();
+    addChild( welltxt->getData() );
 }
 
 
 visSurvey::WellDisplay::~WellDisplay()
 {
+    removeChild( welltxt->getData() );
+    welltxt->unRef();
     removeChild( line->getData() );
     line->unRef();
     removeChild( drawstyle->getData() );
@@ -64,6 +70,9 @@ bool visSurvey::WellDisplay::setWellId( const MultiID& id )
     for ( int idx=0; idx<well->nrKnots(); idx++ )
 	line->addPoint( well->getKnot( idx ) );
 
+    welltxt->setText( well->name() );
+    welltxt->setPosition( well->getKnot(0) );
+    welltxt->setJustification( visBase::Text::Center );
 
     return true;
 }
@@ -102,6 +111,18 @@ const LineStyle& visSurvey::WellDisplay::lineStyle() const
 void visSurvey::WellDisplay::setLineStyle( const LineStyle& lst )
 {
     drawstyle->setLineStyle( lst );
+}
+
+
+void visSurvey::WellDisplay::showWellText( bool yn )
+{
+    welltxt->turnOn( yn );
+}
+
+
+bool visSurvey::WellDisplay::isWellTextShown() const
+{
+    return welltxt->isOn();
 }
 
 
