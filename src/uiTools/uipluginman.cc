@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.4 2003-10-24 08:36:42 bert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.5 2003-11-02 22:37:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,19 +22,20 @@ ________________________________________________________________________
 uiPluginMan::uiPluginMan( uiParent* p )
 	: uiDialog(p,Setup("Plugins",""))
 {
-    listfld = new uiListBox( this, "Plugin list" );
+    uiGroup* leftgrp = new uiGroup( this, "Left group" );
+    listfld = new uiListBox( leftgrp, "Plugin list" );
+    listfld->setPrefWidthInChar( 25 );
     fillList();
     listfld->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
-    listfld->setPrefHeightInChar( 10 );
 
-    infofld = new uiTextEdit( this, "Info" );
-    infofld->attach( rightOf, listfld );
-    infofld->attach( heightSameAs, listfld );
-    infofld->setPrefWidthInChar( 70 );
-
-    uiPushButton* loadbut = new uiPushButton( this, "Load new ...",
+    uiPushButton* loadbut = new uiPushButton( leftgrp, " Load a plugin ... ",
 	    			mCB(this,uiPluginMan,loadPush) );
     loadbut->attach( alignedBelow, listfld );
+
+    infofld = new uiTextEdit( this, "Info" );
+    infofld->attach( rightOf, leftgrp );
+    infofld->setPrefWidthInChar( 70 );
+    infofld->setPrefHeightInChar( 15 );
 
     finaliseDone.notify( mCB(this,uiPluginMan,selChg) );
     setCancelText( "" );
