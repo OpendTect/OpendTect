@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: linear.h,v 1.1 2005-01-26 16:40:27 bert Exp $
+ RCS:		$Id: linear.h,v 1.2 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,22 +15,16 @@ ________________________________________________________________________
 
 #include "mathfunc.h"
 
-/*!\brief 2D data point. */
-struct DataPoint2D	{ float x, y; };
-
-/*!\brief 3D data point. */
-struct DataPoint3D	{ float x, y, z; };
-
 
 /*!\brief steepness and intercept. */
 
-class LinePars : public MathFunction<float>
+class LinePars : public MathFunction<float,float>
 {
 public:
 		LinePars( float i0=0, float i1=0 )
 		: a0(i0), ax(i1)		{}
  
-    float	getValue( double x ) const
+    float	getValue( float x ) const
 		{ return (float)(a0 + ax * x); }
  
     float	a0, ax;
@@ -39,14 +33,14 @@ public:
 
 /*!\brief steepnesses and intercept. */
 
-class PlanePars : public MathXYFunction<float>
+class PlanePars : public MathXYFunction<float,float>
 {
 public:
-		PlanePars( double i0=0, double i1=0, double i2=0 )
+		PlanePars( float i0=0, float i1=0, float i2=0 )
 		: a0(i0), ax(i1), ay(i2)	{}
 
-    float	getValue( const Coord& c ) const
-		{ return (float)(a0 + ax * c.x + ay * c.y); }
+    float	getValue( float x, float y ) const
+		{ return a0 + ax * x + ay * y; }
 
     float	a0, ax, ay;
 
@@ -65,7 +59,7 @@ public:
     float	corrcoeff;	// Correlation coefficient
 
     void	use(const float*,const float*,int nrpts);
-    void	use(const DataPoint2D*,int nrpts);
+    void	use(const DataPoint2D<float>*,int nrpts);
 };
 
 
@@ -80,8 +74,26 @@ public:
     PlanePars	sd;		// Standard deviations in parameters
     float	corrcoeff;	// Correlation coefficient
 
-    void	use(const float*,const float*,const float*,int nrpts); //!< NI
-    void	use(const DataPoint3D*,int nrpts); //!< NI
+};
+
+
+/*!\brief helps making nice axes for graphs */
+
+class AxisLayout
+{
+public:
+				AxisLayout()
+				    : sd(0,1), stop(1)	{}
+				AxisLayout( Interval<float> dr )
+							{ setDataRange(dr); }
+
+    void			setDataRange(Interval<float>);
+
+    float			findEnd(float datastop) const;
+
+    SamplingData<float>		sd;
+    float			stop;
+
 };
 
 

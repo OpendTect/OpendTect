@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.1 2005-01-06 09:25:21 kristofer Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.2 2005-01-28 13:31:16 bert Exp $";
    
 
 #include "trackplane.h"
@@ -46,7 +46,7 @@ bool TrackPlane::isVertical() const
 }
 
 
-Coord3 TrackPlane::normal(const MathFunction<float>* mightbeusedlater) const
+Coord3 TrackPlane::normal(const FloatMathFunction* mightbeusedlater) const
 {
     if ( !isVertical() )
 	return Coord3(0,0,1);
@@ -59,7 +59,8 @@ Coord3 TrackPlane::normal(const MathFunction<float>* mightbeusedlater) const
 }
 
 
-float TrackPlane::distance(const Coord3& pos, const MathFunction<float>* t2d ) const
+float TrackPlane::distance( const Coord3& pos,
+			    const FloatMathFunction* t2d ) const
 {
     if ( !isVertical() )
     {

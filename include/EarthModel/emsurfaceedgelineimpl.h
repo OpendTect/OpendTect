@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.8 2005-01-11 14:12:38 nanne Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.9 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "emsurfaceedgeline.h"
-template <class T> class MathFunction;
 
 namespace EM
 {
@@ -79,7 +78,7 @@ public:
     bool		trackWithCache( int, bool, const EdgeLineSegment*,
 					const EdgeLineSegment* );
 
-    virtual void	setTime2Depth( const MathFunction<float>* f) { t2d=f; }
+    virtual void	setTime2Depth( const FloatMathFunction* f) { t2d=f; }
     void		setCuttingSurface( const EM::Surface* cs, bool pos )
 			{ cuttingsurface = cs; cutonpositiveside = pos; }
 
@@ -89,7 +88,7 @@ public:
     SurfaceCutLine*	createCutFromEdges( EM::Surface& surface,
 					    const EM::SectionID& section,
 					    int relidx,
-					    const MathFunction<float>* t2d );
+					    const FloatMathFunction* t2d );
     			/*!< Creates a cutline from a surface relation.
 			     \variable relidx	Surface relation that
 			     			will be tracked.
@@ -100,14 +99,14 @@ public:
 					   const EM::SectionID& section,
 					   int relidx, const RowCol& seed,
 					   bool boothdirs,
-					   const MathFunction<float>* t2d );
+					   const FloatMathFunction* t2d );
     			/*!< Creates a cutline from a surface relation.
 			     \variable relidx	Surface relation that
 			     			will be tracked.
 			*/
     static void		computeDistancesAlongLine( const EM::EdgeLine&,
 					       const EM::Surface&,
-					       const  MathFunction<float>* t2d,
+					       const  FloatMathFunction* t2d,
 					       TypeSet<RowCol>&,
 					       TypeSet<float>&,
 					       bool negate,
@@ -136,7 +135,7 @@ protected:
     BoolTypeSet		ischanged;
     const float		meshdist;
 
-    const MathFunction<float>*	t2d;
+    const FloatMathFunction*	t2d;
     const EM::Surface*	cuttingsurface;
     bool		cutonpositiveside;
 

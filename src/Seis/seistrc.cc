@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.27 2004-08-25 14:25:31 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.28 2005-01-28 13:31:16 bert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -334,7 +334,7 @@ inline void reset()
     if ( idx_ && !bw_ ) idx_ = 1;
 }
 
-inline double x() const
+inline float x() const
 {
     return td().start() + (idx_-1) * td().step();
 }

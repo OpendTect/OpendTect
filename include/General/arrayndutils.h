@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.20 2004-07-21 11:39:31 nanne Exp $
+ RCS:           $Id: arrayndutils.h,v 1.21 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 
@@ -187,19 +187,19 @@ protected:
 
     bool			buildWindow( );
 
-    class BoxWindow : public MathFunction<float>
+    class BoxWindow : public FloatMathFunction
     {
     public:
-	float	getValue( double x ) const
+	float	getValue( float x ) const
 		{ return fabs(x) > 1 ? 0 : 1; }
     };
 
-    class HammingWindow : public MathFunction<float>
+    class HammingWindow : public FloatMathFunction
     {
     public:
-	float	getValue( double x ) const
+	float	getValue( float x ) const
 		{
-		    double rx = fabs( x );
+		    float rx = fabs( x );
 		    if ( rx > 1 )
 			return 0;
 
@@ -207,50 +207,50 @@ protected:
 		}
     };
 
-    class HanningWindow : public MathFunction<float>
+    class HanningWindow : public FloatMathFunction
     {
     public:
-	float	getValue( double x ) const
+	float	getValue( float x ) const
 		{
-		    double rx = fabs( x );
+		    float rx = fabs( x );
 		    if ( rx > 1 ) return 0;
 
 		    return (1 + cos( M_PI * rx )) / 2.0;
 		}
     };
 
-    class BlackmanWindow : public MathFunction<float>
+    class BlackmanWindow : public FloatMathFunction
     {
     public:
-	float	getValue( double x ) const
+	float	getValue( float x ) const
 		{
-		    double rx = fabs( x );
+		    float rx = fabs( x );
 		    if ( rx > 1 ) return 0;
 
 		    return 0.42 + 0.5*cos( M_PI * rx )+ 0.08*cos( 2 *M_PI*rx);
 		}
     };
 
-    class BarlettWindow : public MathFunction<float>
+    class BarlettWindow : public FloatMathFunction
     {
     public:
-	float	getValue( double x ) const
+	float	getValue( float x ) const
 		{
-		    double rx = fabs( x );
+		    float rx = fabs( x );
 
 		    if ( rx > 1 ) return 0;
 		    return 1-rx;
 		}
     };
 
-    class CosTaperWindow : public MathFunction<float>
+    class CosTaperWindow : public FloatMathFunction
     {
     public:
 		CosTaperWindow( float pct )	{ setPct( pct ); }
 
-	float	getValue( double x ) const
+	float	getValue( float x ) const
 		{
-		    double rx = fabs( x );
+		    float rx = fabs( x );
 
 		    if ( rx > 1 ) return 0;
 		    if ( rx < thresh ) return 1;
@@ -269,54 +269,7 @@ protected:
 
 };
    
-#if 0
-template <class Type>
-inline bool ArrayNDWindow::apply( ArrayND<Type>* in, ArrayND<Type>* out_) const
-{
-    ArrayND<Type>* out = out_ ? out_ : in; 
 
-    if ( out_ && in->info() != out_->info() ) return false;
-
-    if ( in->info() != size) return false;
-
-    unsigned long totalSz = size.getTotalSz();
-
-    Type* indata = in->getData();
-    Type* outdata = out->getData();
-
-    if ( indata && outdata )
-    {
-	for ( unsigned long idx = 0; idx < totalSz; idx++ )
-	    outdata[idx] = indata[idx] * window[idx];
-    }
-    else
-    {
-	const ArrayND<Type>::LinearStorage* instorage = in->getStorage();
-	ArrayND<Type>::LinearStorage* outstorage = in->getStorage();
-
-	if ( instorage && outstorage )
-	{
-	    for ( unsigned long idx = 0; idx < totalSz; idx++ )
-		outstorage->set(idx, instorage->get(idx) * window[idx] );
-	}
-	else
-	{
-	    ArrayNDIter iter( size );
-
-	    int idx = 0;
-	    
-	    do
-	    {
-		out->set(iter.getPos(), in->get( iter.getPos() ) * window[idx]);
-		idx++;
-
-	    } while ( iter.next() );
-	}
-    }
-
-    return true;
-}
-#endif 
 template<class T>
 inline T Array3DInterpolate( const Array3D<T>& array,
 		      float p0, float p1, float p2,
@@ -698,69 +651,5 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
     return true;
 }
 
-#ifdef KEEP_FOR_A_WHILE
-/*
-I included this routine for my NLA module, but I'm not currently working
-on it. It's not tested, so I commented it out, since I needed to check
-in.
-AL 2/05/2001
-*/
 
-/*! \brief Calculates the average over an Array2D
-
-*/
-template <class T>
-inline bool avg( Array2D<T>* in, Array1D<T>* out_ = 0, int loopDim=1 )
-{
-
-    slice.setPos( loopDim, 0 );
-    slice.init();
-
-    slice.setPos( loopDim, fetchIdx );
-    real* vec = slice.getData();
-
-
-    ArrayND<T>* out = out_ ? out_ : in; 
-
-    T avg = 0;
-
-    if ( out_ && in->info() != out_->info() ) return false;
-
-    const int sz = in->info().getTotalSz();
-
-    T* inpptr = in->getData();
-    T* outptr = out->getData();
-
-    if ( inpptr && outptr )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	    avg += inpptr[idx]; 
-
-	avg /= sz;
-
-	for ( int idx=0; idx<sz; idx++ )
-	    outptr[idx] = inpptr[idx] - avg;
-    }
-    else
-    {
-	ArrayNDIter iter( in->info() );
-
-	do
-	{
-	    avg += in->get( iter.getPos() );
-	} while ( iter.next() );
-
-	iter.reset();
-	avg /= sz;
-
-	do
-	{
-	    out->set(iter.getPos(), in->get( iter.getPos() ) - avg); 
-
-	} while ( iter.next() );
-    }
-
-    return true;
-}
-#endif // KEEP_FOR_A_WHILE
 #endif

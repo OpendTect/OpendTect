@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.22 2004-08-25 12:27:06 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.23 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ public:
 
     inline int		size( int icomp ) const
 			{ return data_.size( icomp ); }
-    inline double	getX( int idx, int icomp ) const
+    inline float	getX( int idx, int icomp ) const
 			{ return startPos(icomp) + idx * info_.sampling.step; }
     float		getValue(float,int icomp) const;
 
@@ -158,16 +158,16 @@ public:
 			  return ismutable; }
     inline float	operator[]( int i ) const
 			{ return trc.get( i, curcomp ); }
-    int			getIndex( double val ) const
+    int			getIndex( float val ) const
 			{ return trc.info().nearestSample( val ); }
-    double		getX( int idx ) const
+    float		getX( int idx ) const
 			{ return trc.getX( idx, curcomp ); }
-    float		getValue( double v ) const
+    float		getValue( float v ) const
 			{ return trc.getValue( v, curcomp ); }
 
     inline int		size() const	{ return trc.size( curcomp ); }
-    inline double	step() const	{ return trc.info().sampling.step; }
-    double		start() const	{ return trc.startPos(curcomp); }
+    inline float	step() const	{ return trc.info().sampling.step; }
+    float		start() const	{ return trc.startPos(curcomp); }
 
     bool		isMutable() const	{ return ismutable; }
 

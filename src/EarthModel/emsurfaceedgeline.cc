@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.22 2005-01-12 14:13:53 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.23 2005-01-28 13:31:16 bert Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -722,7 +722,7 @@ EdgeLine* EM::EdgeLine::clone() const
 }
 
 
-void EdgeLine::setTime2Depth( const MathFunction<float>* nt2d )
+void EdgeLine::setTime2Depth( const FloatMathFunction* nt2d )
 {
     t2d = nt2d;
     for ( int idx=0; idx<segments.size(); idx++ )

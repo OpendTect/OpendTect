@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.45 2005-01-06 09:40:02 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.46 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 
@@ -50,7 +50,6 @@ In addition, they are also linked together.
 class BinID;
 class RowCol;
 template <class T> class Interval;
-template <class T> class MathFunction;
 template <class T> class StepInterval;
 
 namespace EM

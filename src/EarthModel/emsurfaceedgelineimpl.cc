@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.13 2005-01-11 14:12:44 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.14 2005-01-28 13:31:16 bert Exp $";
 
 
 
@@ -488,7 +488,7 @@ void SurfaceCutLine::commitChanges()
 
 SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Surface& surface,
     const SectionID& section, int relidx, const RowCol& seed,
-    bool bothdirs, const MathFunction<float>* t2d )
+    bool bothdirs, const FloatMathFunction* t2d )
 {
     mSetupCreateCut(false);
 
@@ -542,7 +542,7 @@ SurfaceCutLine* SurfaceCutLine::createCutFromSeed( Surface& surface,
 
 
 SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Surface& surface,
-   const SectionID& section, int relidx, const MathFunction<float>* t2d )
+   const SectionID& section, int relidx, const FloatMathFunction* t2d )
 {
     mSetupCreateCut(true);
 
@@ -705,7 +705,7 @@ SurfaceCutLine* SurfaceCutLine::createCutFromEdges( Surface& surface,
 
 
 void SurfaceCutLine::computeDistancesAlongLine( const EdgeLine& line,
-	const Surface& cuttingsurface, const  MathFunction<float>* t2d,
+	const Surface& cuttingsurface, const  FloatMathFunction* t2d,
 	TypeSet<RowCol>& border, TypeSet<float>& distances, bool negate,
 	bool usecaching )
 {

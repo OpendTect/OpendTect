@@ -5,13 +5,12 @@
 -*/
 
 #include "genericnumer.h"
-#include "mathfuncsampler.h"
     
 #define ITMAX 100
 #define EPS 3.0e-8
 
 
-bool findValue( const MathFunction<float>& func, float x1, float x2, float& res,
+bool findValue( const FloatMathFunction& func, float x1, float x2, float& res,
 		   float targetval, float tol)
 { 
     int iter;
@@ -85,7 +84,7 @@ bool findValue( const MathFunction<float>& func, float x1, float x2, float& res,
 #undef ITMAX
 #undef EPS
 
-float findValueInAperture( const MathFunction<float>& func, float startx, 
+float findValueInAperture( const FloatMathFunction& func, float startx, 
 			   const TimeGate& aperture, float dx, float target,
 			   float tol)
 {
@@ -132,11 +131,11 @@ float findValueInAperture( const MathFunction<float>& func, float startx,
 }
 
 
-float similarity( const MathFunction<float>& a, const MathFunction<float>& b, 
+float similarity( const FloatMathFunction& a, const FloatMathFunction& b, 
 			 float a1, float b1, float dist, int sz, bool normalize)
 {
-    MathFunctionSampler<float> sampa(a);
-    MathFunctionSampler<float> sampb(b);
+    MathFunctionSampler<float,float> sampa(a);
+    MathFunctionSampler<float,float> sampb(b);
 
     sampa.sd.start = a1;
     sampa.sd.step = dist;
@@ -153,7 +152,7 @@ float similarity( const MathFunction<float>& a, const MathFunction<float>& b,
 #define SIGN(a,b) ((b) > 0.0 ? fabs(a) : -fabs(a))
 #define SHFT(a,b,c,d) (a)=(b);(b)=(c);(c)=(d);
 
-float findExtreme( const MathFunction<float>& func, bool minimum, float x1,
+float findExtreme( const FloatMathFunction& func, bool minimum, float x1,
 		   float x3, float tol)   
 {
     float x2 = (x1+x3)/2;

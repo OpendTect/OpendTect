@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.10 2005-01-13 11:49:58 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.11 2005-01-28 13:31:16 bert Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -64,7 +64,7 @@ void SurfaceGeometry::removeAll()
 
 bool SurfaceGeometry::findClosestNodes( TopList<float,PosID>& toplist,
 				    const Coord3& pos_,
-				    const MathFunction<float>* t2dfunc) const
+				    const FloatMathFunction* t2dfunc) const
 {
     const int nrsections = nrSections();
     for ( int section=0; section<nrsections; section++ )
@@ -77,7 +77,7 @@ bool SurfaceGeometry::findClosestNodes( TopList<float,PosID>& toplist,
 bool SurfaceGeometry::findClosestNodes( const SectionID& sectionid,
 				    TopList<float,PosID>& toplist,
 				    const Coord3& pos_,
-				    const MathFunction<float>* t2dfunc ) const
+				    const FloatMathFunction* t2dfunc ) const
 {
     toplist.setTop(false);
 
@@ -117,7 +117,7 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sectionid,
 
 
 bool SurfaceGeometry::findClosestMesh( PosID& res, const Coord3& timepos,
-			           const MathFunction<float>* t2dfunc ) const
+			           const FloatMathFunction* t2dfunc ) const
 {
     TopList<float, PosID> closestnodes( 20, mUndefValue, false );
     if ( !findClosestNodes(closestnodes,timepos,t2dfunc) )
@@ -160,7 +160,7 @@ bool SurfaceGeometry::findClosestMesh( PosID& res, const Coord3& timepos,
 
 
 bool SurfaceGeometry::computeMeshNormal( Coord3& res, const PosID& pid,
-				     const MathFunction<float>* t2dfunc ) const
+				     const FloatMathFunction* t2dfunc ) const
 {
     Coord3 c00, c10, c01, c11;
     bool c00def, c10def, c01def, c11def;
@@ -227,7 +227,7 @@ bool SurfaceGeometry::computeMeshNormal( Coord3& res, const PosID& pid,
 
 
 bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
-		 const MathFunction<float>* t2dfunc, bool normalize ) const 
+		 const FloatMathFunction* t2dfunc, bool normalize ) const 
 {
     TypeSet<PosID> nodes;
     if ( cs ) 
@@ -276,7 +276,7 @@ if ( !fetched[nodeindex] ) \
 }
 
 bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
-		     const MathFunction<float>* t2d, bool normalize ) const
+		     const FloatMathFunction* t2d, bool normalize ) const
 {
     const Coord3 nodetpos = getPos(node);
     const bool defnode = nodetpos.isDefined();
@@ -417,7 +417,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const PosID& node,
 
 
 bool SurfaceGeometry::computeNormal( Coord3& res, const TypeSet<PosID>& nodes,
-				 const MathFunction<float>* t2dfunc, bool normalize ) const
+				 const FloatMathFunction* t2dfunc, bool normalize ) const
 {
     TypeSet<Coord3> normals;
     const int nrnodes = nodes.size();
@@ -436,7 +436,7 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const TypeSet<PosID>& nodes,
 
 
 float SurfaceGeometry::normalDistance( const Coord3& timepos,
-				   const MathFunction<float>* t2dfunc,
+				   const FloatMathFunction* t2dfunc,
 				   Interval<float>* meshvariation ) const
 {
     PosID closestmesh(0,0,0);
@@ -485,7 +485,7 @@ float SurfaceGeometry::normalDistance( const Coord3& timepos,
 
 
 char SurfaceGeometry::whichSide( const Coord3& timepos,
-			     const MathFunction<float>* t2dfunc,
+			     const FloatMathFunction* t2dfunc,
 			     float fuzzy ) const
 {
     Interval<float> meshvariation;
@@ -522,7 +522,7 @@ void SurfaceGeometry::getMeshCoords( const PosID& pid,
 				 Coord3& c01, Coord3& c11,
 				 bool& c00def, bool& c10def, 
 				 bool& c01def, bool& c11def,
-				 const MathFunction<float>* t2dfunc ) const
+				 const FloatMathFunction* t2dfunc ) const
 {
     TypeSet<PosID> nodealiases;
     getLinkedPos( pid, nodealiases );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.7 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: samplfunc.h,v 1.8 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ period() return the period ( i.e. 2*pi for phase ).
 */
 
 template <class RT,class T>
-class SampledFunction : public MathFunction<RT>
+class SampledFunction : public MathFunction<RT,RT>
 {
 public:
 				SampledFunction( bool periodic_= false )
@@ -43,7 +43,7 @@ public:
     int				getNearestIndex(float x) const
 				    { return mNINT(getIndex( x )); }
 
-    RT				getValue(double x) const
+    RT				getValue( RT x ) const
 				{ 
 				    return periodic 
 					? interpolateYPeriodicSampled( *this,

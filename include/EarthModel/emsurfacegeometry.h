@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.6 2005-01-13 12:35:07 kristofer Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.7 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "position.h"
 #include "bufstringset.h"
+#include "mathfunc.h"
 
 template <class T, class AT> class TopList;
 
@@ -24,7 +25,6 @@ template <class T, class AT> class TopList;
 class RowCol;
 template <class T> class Interval;
 template <class T> class StepInterval;
-template <class T> class MathFunction;
 
 
 namespace Geometry { class MeshSurface; };
@@ -149,21 +149,21 @@ public:
     int		findPos(const RowCol&,TypeSet<PosID>&) const;
     bool	findClosestNodes(TopList<float,EM::PosID>& res,
 	    			const Coord3& pos,
-				const MathFunction<float>* depthconv=0) const;
+				const FloatMathFunction* depthconv=0) const;
     bool	findClosestNodes(const EM::SectionID&,
 	    			TopList<float,EM::PosID>& res,
 	    			const Coord3& pos,
-				const MathFunction<float>* depthconv=0) const;
+				const FloatMathFunction* depthconv=0) const;
     bool	findClosestMesh(EM::PosID& res, const Coord3& pos,
-				const MathFunction<float>* depthconv=0) const;
+				const FloatMathFunction* depthconv=0) const;
 
     bool	computeMeshNormal( Coord3& res, const EM::PosID&, 
-	    			const MathFunction<float>* dconv=0) const;
+	    			const FloatMathFunction* dconv=0) const;
     bool	computeNormal( Coord3& res, const EM::PosID& posid,
-	    			const MathFunction<float>* dconv=0,
+	    			const FloatMathFunction* dconv=0,
 				bool normalize=true ) const;
     bool	computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
-				const MathFunction<float>* depthconv=0,
+				const FloatMathFunction* depthconv=0,
 				bool normalize=true ) const;
 		/*!< Computes an aproximation of the orientation of a
 		     part of a surface
@@ -178,7 +178,7 @@ public:
 					be converted.
 		*/
     bool	computeNormal( Coord3& res, const CubeSampling* cs=0,
-			       const MathFunction<float>* depthconv=0,
+			       const FloatMathFunction* depthconv=0,
 			       bool normalize=true ) const;
 		/*!< Computes an aproximation of the surface's
 		     orientation
@@ -194,7 +194,7 @@ public:
 		*/
 
     float	normalDistance( const Coord3&,
-	    		   const MathFunction<float>* depthconv=0,
+	    		   const FloatMathFunction* depthconv=0,
 			   Interval<float>* meshvariation=0) const;
 		/*!< Computes the distance along normal of the closest mesh's
 		     plane.
@@ -210,7 +210,7 @@ public:
 		*/
 
     char	whichSide( const Coord3&,
-	    		   const MathFunction<float>* depthconv=0,
+	    		   const FloatMathFunction* depthconv=0,
 			   float fuzzyness=0 ) const;
 		/*!< Determies wich side of the surface the position is.
 		  \retval	1	The positive side
@@ -247,7 +247,7 @@ protected:
 				    Coord3& c01, Coord3& c11,
 				    bool& c00def, bool& c10def,
 				    bool& c01def, bool& c11def,
-				   const MathFunction<float>* depthconv=0)const;
+				   const FloatMathFunction* depthconv=0)const;
 
     Surface&				surface;
 

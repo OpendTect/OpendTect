@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.6 2004-05-17 06:31:41 kristofer Exp $
+ RCS:		$Id: extremefinder.h,v 1.7 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 
@@ -15,12 +15,9 @@ ________________________________________________________________________
 
 #include "basictask.h"
 #include "ranges.h"
-#include "sets.h"
+#include "mathfunc.h"
 
-template <class T> class MathFunctionND;
-template <class T> class MathFunction;
-
-/*!\brief Finds extreme values in MathFunctions
+/*!\brief Finds extreme values in FloatMathFunctions
 
 Implementation of Brent's Method in one dimension.
 
@@ -29,10 +26,10 @@ Implementation of Brent's Method in one dimension.
 class ExtremeFinder1D : public BasicTask
 {
 public:
-    			ExtremeFinder1D( const MathFunction<float>&,
-					 bool max, int itermax, double tol,
-					 const Interval<double>& startinterval,
-					 const Interval<double>* limitinterval);
+    			ExtremeFinder1D( const FloatMathFunction&,
+					 bool max, int itermax, float tol,
+					 const Interval<float>& startinterval,
+					 const Interval<float>* limitinterval);
 			/*!<\param func		The function, f(x) where the
 						extreme value shoud be found
 			    \param max		Specifies wether a min or max
@@ -50,8 +47,8 @@ public:
 
     virtual		~ExtremeFinder1D();
 
-    void		reStart( const Interval<double>& startinterval,
-				 const Interval<double>* limitinterval);
+    void		reStart( const Interval<float>& startinterval,
+				 const Interval<float>* limitinterval);
     			/*!<
 			    \param startinterval The interval of x that the
 			    			search will be inited by.
@@ -61,7 +58,7 @@ public:
 			    			within the interval is permitted
 			*/
 
-    double		extremePos() const;
+    float		extremePos() const;
     			/*!<\returns The x value of the extreme value */
     float		extremeVal() const;
     			/*!<\returns The extreme value */
@@ -79,16 +76,17 @@ public:
 			*/
 
 protected:
-    double 			ax,bx,cx;
-    double			e, d;
-    double			a, b;
-    double			u, w, v, x;
+
+    float 			ax,bx,cx;
+    float			e, d;
+    float			a, b;
+    float			u, w, v, x;
     float			fw, fv, fx;
 
-    Interval<double>*		limits;
+    Interval<float>*		limits;
     int				iter;
-    const double 		tol;
-    const MathFunction<float>&	func;
+    const float 		tol;
+    const FloatMathFunction&	func;
     const bool			max;
     const int			itermax;
 };
@@ -97,10 +95,11 @@ protected:
 class BisectionExtremeFinder1D : public BasicTask
 {
 public:
-    			BisectionExtremeFinder1D( const MathFunction<float>&,
-					 bool max, int itermax, double tol,
-					 const Interval<double>& startinterval,
-					 const Interval<double>* limitinterval);
+    			BisectionExtremeFinder1D(
+					const FloatMathFunction&,
+					bool max, int itermax, float tol,
+					const Interval<float>& startinterval,
+					const Interval<float>* limitinterval);
 			/*!<\param func		The function, f(x) where the
 						extreme value shoud be found
 			    \param max		Specifies wether a min or max
@@ -118,8 +117,8 @@ public:
 
     virtual		~BisectionExtremeFinder1D();
 
-    void		reStart( const Interval<double>& startinterval,
-				 const Interval<double>* limitinterval);
+    void		reStart( const Interval<float>& startinterval,
+				 const Interval<float>* limitinterval);
     			/*!<
 			    \param startinterval The interval of x that the
 			    			search will be inited by.
@@ -129,7 +128,7 @@ public:
 			    			within the interval is permitted
 			*/
 
-    double		extremePos() const;
+    float		extremePos() const;
     			/*!<\returns The x value of the extreme value */
     float		extremeVal() const;
     			/*!<\returns The extreme value */
@@ -147,19 +146,19 @@ public:
 			*/
 
 protected:
-    Interval<double>*		limits;
+    Interval<float>*		limits;
     int				iter;
-    const double 		tol;
+    const float 		tol;
     const bool			max;
     const int			itermax;
 
-    Interval<double>		current;
-    double			startfuncval;
-    double			stopfuncval;
-    double			centerfuncval;
+    Interval<float>		current;
+    float			startfuncval;
+    float			stopfuncval;
+    float			centerfuncval;
 
     bool			isok;
-    const MathFunction<float>&	func;
+    const FloatMathFunction&	func;
 };
 
 
@@ -175,7 +174,7 @@ class ExtremeFinderND : public BasicTask
 
 public:
 
-    			ExtremeFinderND( const MathFunctionND<float>& func,
+    			ExtremeFinderND( const FloatMathFunctionND&,
 					 bool max, int itermax );
 			/*!<\param func		The function to be searched
 			    \param max		Specifies wether a min or max
@@ -203,7 +202,7 @@ public:
 
     float 		extremeVal() { return fret; }
     			/*!<\return	The extreme value */
-    const double*	extremePos() { return p; }
+    const float*	extremePos() { return p; }
     			/*!<\return	A pointer to the extreme positions */
 
     template<class IDXABL>	
@@ -216,9 +215,9 @@ public:
 			*/
 private:
 
-    float		linextreme(double*);
+    float		linExtreme(float*);
 
-    double*		p;
+    float*		p;
     ObjectSet<float>	xi;
     float		ftol;
     int			n;
@@ -227,10 +226,10 @@ private:
 
     float*		pt;
 
-    const bool 				max;
-    const int				itermax;
-    const MathFunctionND<float>&	func;
+    const bool 			max;
+    const int			itermax;
+    const FloatMathFunctionND&	func;
 };
 
-#endif
 
+#endif

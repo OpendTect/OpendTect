@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.20 2004-07-16 09:10:17 nanne Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.21 2005-01-28 13:31:17 bert Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: visannot.cc,v 1.20 2004-07-16 09:10:17 nanne Ex
 #include "vispickstyle.h"
 #include "ranges.h"
 #include "samplingdata.h"
-#include "axisinfo.h"
+#include "linear.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoSeparator.h"
@@ -229,12 +229,12 @@ void visBase::Annotation::updateTextPos( int textid )
     else
 	return;
 
-    Interval<double> range( p0[dim], p1[dim] );
-    SamplingData<double> sd = AxisInfo::prettySampling(range);
+    Interval<float> range( p0[dim], p1[dim] );
+    const SamplingData<float> sd = AxisLayout( range ).sd;
 
     for ( int idx=0; ; idx++ )
     {
-	double val = sd.atIndex(idx);
+	float val = sd.atIndex(idx);
 	if ( val <= range.start )	continue;
 	else if ( val > range.stop )	break;
 

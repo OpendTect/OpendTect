@@ -7,16 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.13 2004-07-22 09:12:28 nanne Exp $
+ RCS:           $Id: genericnumer.h,v 1.14 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 
 */
 
-#include "ranges.h"
+#include "mathfunc.h"
 #include <math.h>
-
-template <class T> class MathFunction;
 
 /*!>
 Compute z = x convolved with y; i.e.,
@@ -115,7 +113,7 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 }
 
 
-float similarity(const MathFunction<float>&,const MathFunction<float>&, 
+float similarity(const FloatMathFunction&,const FloatMathFunction&, 
 		 float x1, float x2, float dist, int sz, bool normalize );
 
 /*!> uses parabolic search for the position where a function gets
@@ -124,7 +122,7 @@ There is no use to have a tolerance lower than the square root of the system's
 float-precision. */
 
 
-bool findValue(const MathFunction<float>&,float x1,float x2,float& res,
+bool findValue(const FloatMathFunction&,float x1,float x2,float& res,
 	       float targetval = 0,float tol=1e-5);
 
 
@@ -135,7 +133,7 @@ intervals should be used when searching for a solution. When a solution is
 found in an interval, a high precision search is started in that interval.
 */
 
-float findValueInAperture(const MathFunction<float>&,float startx, 
+float findValueInAperture(const FloatMathFunction&,float startx, 
 	 	const TimeGate& aperture,float dx,float target=0,
 		float tol=1e-5);
 
@@ -146,7 +144,7 @@ f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,
 mUndefValue is returned;
 */
 
-float findExtreme( const MathFunction<float>&, bool minima, float x1, float x2,
+float findExtreme( const FloatMathFunction&, bool minima, float x1, float x2,
 		   float tol = 1e-5);
 
 #endif

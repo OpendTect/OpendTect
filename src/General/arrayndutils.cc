@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.12 2005-01-10 08:28:24 helene Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.13 2005-01-28 13:31:16 bert Exp $";
 
 #include <arrayndutils.h>
 
@@ -62,7 +62,7 @@ bool ArrayNDWindow::buildWindow()
     const int ndim = size.getNDim();
     ArrayNDIter position( size );
 
-    MathFunction<float>* windowfunc = 0;
+    FloatMathFunction* windowfunc = 0;
 
     switch ( type )
     {

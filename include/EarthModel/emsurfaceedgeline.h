@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.15 2005-01-11 14:11:56 nanne Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.16 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 
@@ -15,10 +15,8 @@ ________________________________________________________________________
 
 #include "emposid.h"
 #include "callback.h"
+#include "mathfunc.h"
 #include "refcount.h"
-
-template <class T> class MathFunction;
-
 
 
 namespace EM
@@ -57,7 +55,7 @@ public:
 			EdgeLineSegment( const EdgeLineSegment& );
 			~EdgeLineSegment();
     void		setSection(const EM::SectionID& s) { section=s; }
-    virtual void	setTime2Depth( const MathFunction<float>* ) {}
+    virtual void	setTime2Depth(const FloatMathFunction*) {}
     virtual bool	shouldSurfaceTrack(int,const RowCol& trackdir) const;
     virtual bool	shouldSurfaceExpand() const { return false; }
 
@@ -188,7 +186,7 @@ class EdgeLine : public CallBackClass
 public:
     			EdgeLine( EM::Surface&, const EM::SectionID& );
     virtual		~EdgeLine() { deepErase( segments ); }
-    virtual void	setTime2Depth( const MathFunction<float>* );
+    virtual void	setTime2Depth(const FloatMathFunction*);
     EdgeLine*		clone() const;
     void		setSection( const EM::SectionID& );
 
@@ -243,7 +241,7 @@ protected:
     ObjectSet<EdgeLineSegment>	segments;
     bool			removezerosegs;
 
-    const MathFunction<float>*	t2d;
+    const FloatMathFunction*	t2d;
 
     static const char*		segmentprefixstr;
     static const char*		nrsegmentsstr;

@@ -7,16 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: trackplane.h,v 1.1 2005-01-06 09:25:55 kristofer Exp $
+ RCS:		$Id: trackplane.h,v 1.2 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "cubesampling.h"
+#include "mathfunc.h"
 
-
-template <class T> class MathFunction;
 
 namespace MPE
 {
@@ -42,9 +41,9 @@ public:
     const CubeSampling&	boundingBox() const { return cubesampling; }
     CubeSampling&	boundingBox() { return cubesampling; }
 
-    Coord3		normal(const MathFunction<float>* t2d=0) const;
+    Coord3		normal(const FloatMathFunction* t2d=0) const;
     float		distance(const Coord3&,
-	    			 const MathFunction<float>* t2d=0) const;
+	    			 const FloatMathFunction* t2d=0) const;
     			/*!<\note does not check the plane's boundaries */
     const BinIDValue&	motion() const { return motion_; }
     void		setMotion( int inl, int crl, float z );

@@ -8,26 +8,36 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.11 2005-01-26 16:40:27 bert Exp $
+ RCS:		$Id: mathfunc.h,v 1.12 2005-01-28 13:31:16 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "position.h"
+#include "samplingdata.h"
+#include <math.h>
 class LinePars;
 
-#include <math.h>
+
+/*!\brief 2D data point. */
+template <class T>
+struct DataPoint2D	{ T x, y; };
+
+/*!\brief 3D data point. */
+template <class T>
+struct DataPoint3D	{ T x, y, z; };
+
 
 /*!\brief Multidimensional Mathematical function
 
 A MathFunctionND must deliver a value at any position: F(x*).
-The positioning needs more precision than the outcome, hence
-the doubles in the position.
+The positioning may need a different precision than the outcome, hence
+the two types.
 
 */
 
-template <class RT>
+template <class RT,class PT>
 class MathFunctionND
 {
 public:
@@ -36,63 +46,89 @@ public:
     RT		getValue( const IDXABL& x ) const
     		{
 		    const int nrdim = getNrDim();
-		    double pos[nrdim];
+		    PT pos[nrdim];
 		    for ( int idx=0; idx<nrdim; idx++ )
 			pos[idx] = x[idx];
 		    return getValue( pos );
 		}
 
-    virtual RT	getValue( const double* x) const= 0;
+    virtual RT	getValue( const PT* x) const	= 0;
     virtual int	getNrDim() const 		= 0;
 };
+
+typedef MathFunctionND<float,float> FloatMathFunctionND;
 
 
 /*!\brief Mathematical function
 
 A MathFunction must deliver a value at any position: F(x).
-The positioning needs more precision than the outcome, hence
-the doubles in the position.
+The positioning may need a different precision than the outcome, hence
+the two types.
 
 */
 
-template <class RT>
-class MathFunction : public MathFunctionND<RT>
+template <class RT,class PT>
+class MathFunction : public MathFunctionND<RT,PT>
 {
 public:
 
-    virtual RT	getValue(double) const	= 0;
+    virtual RT	getValue(PT) const	= 0;
 
-    RT		getValue( const double* pos ) const { return getValue(pos[0]);}
+    RT		getValue( const PT* pos ) const { return getValue(pos[0]);}
     int		getNrDim() const { return 1; }
+};
+
+typedef MathFunction<float,float> FloatMathFunction;
+
+
+/*! \brief Makes a MathFunction indexable through an operator[].
+*/
+
+template <class RT,class PT>
+class MathFunctionSampler
+{
+public:
+			MathFunctionSampler( const MathFunction<RT,PT>& f )
+			    : func( f )
+			{}
+    RT			operator[](int idx) const
+			{ return func.getValue( sd.atIndex(idx) ); }
+
+    SamplingData<PT>	sd;
+
+protected:
+
+    const MathFunction<RT,PT>&	func;
+
 };
 
 
 /*!\brief a Math Function as in F(x,y). */
 
-template <class RT>
-class MathXYFunction : public MathFunctionND<RT>
+template <class RT,class PT>
+class MathXYFunction : public MathFunctionND<RT,PT>
 {
 public:
 
-    virtual RT	getValue(const Coord&) const	= 0;
+    virtual RT	getValue(PT,PT) const		= 0;
 
-    RT		getValue( const double* pos ) const
-    		        { return getValue(Coord(pos[0],pos[1]));}
+    RT		getValue( const PT* pos ) const
+    		        { return getValue(pos[0],pos[1]);}
     int		getNrDim() const { return 2; }
 
 };
 
 
 /*!\brief a Math Function as in F(x,y,z). */
-template <class RT>
-class MathXYZFunction : public MathFunctionND<RT>
+template <class RT,class PT>
+class MathXYZFunction : public MathFunctionND<RT,PT>
 {
 public:
 
-    virtual RT	getValue(const Coord3&) const	= 0;
+    virtual RT	getValue(PT,PT,PT) const	= 0;
 
-    RT		getValue( const double* pos ) const
-    		        { return getValue(Coord3(pos[0],pos[1],pos[2]));}
+    RT		getValue( const PT* pos ) const
+    		        { return getValue(pos[0],pos[1],pos[2]);}
     int		getNrDim() const { return 3; }
 
 };
@@ -107,21 +143,21 @@ a MathFunctionND (func). The value returned is:
 f(x) = func(P+N*x)
 */
 
-template <class RT>
-class AlongVectorFunction : public MathFunction<RT>
+template <class RT,class PT>
+class AlongVectorFunction : public MathFunction<RT,PT>
 {
 public:
-    			AlongVectorFunction( const MathFunctionND<RT>& func_,
-					     const double* P_, const double* N_)
+    			AlongVectorFunction( const MathFunctionND<RT,PT>& func_,
+					     const PT* P_, const PT* N_)
 			    : P( P_ )
 			    , N( N_ )
 			    , func( func_ )
 			{}
 
-    RT			getValue( double lambda ) const
+    RT			getValue( PT lambda ) const
 			{
 			    const int ndim = func.getNrDim();
-			    double pos[ndim];
+			    PT pos[ndim];
 			    for ( int idx=0; idx<ndim; idx++ )
 				pos[idx] = P[idx]+N[idx]*lambda;
 
@@ -129,9 +165,9 @@ public:
 			}
 protected:
 
-    const double*		P;
-    const double*		N;
-    const MathFunctionND<RT>&	func;
+    const PT*				P;
+    const PT*				N;
+    const MathFunctionND<RT,PT>&	func;
 };
 
 
@@ -140,7 +176,7 @@ protected:
     a x^2 + b x + c
 */
 
-class SecondOrderPoly : public MathFunction<float>
+class SecondOrderPoly : public FloatMathFunction
 {
 public:
     			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
@@ -158,10 +194,10 @@ public:
 			    b = ( y2-y0 ) / 2;
 			}
 
-    float		getValue( double pos ) const
+    float		getValue( float pos ) const
 			{
 			    if ( mIsUndefined(pos) ) return mUndefValue;
-			    return pos *pos * a + pos * b + c;
+			    return pos*pos * a + pos * b + c;
 			}
 
     float		getExtremePos() const
@@ -181,7 +217,7 @@ public:
     a x^3 + b x^2 + c x + d
 */
 
-class ThirdOrderPoly : public MathFunction<float>
+class ThirdOrderPoly : public FloatMathFunction
 {
 public:
     			ThirdOrderPoly( float a_=0, float b_=0,
@@ -201,7 +237,7 @@ public:
 			    d = y1;
 			}
 
-    float		getValue( double pos ) const
+    float		getValue( float pos ) const
 			{
 			    if ( mIsUndefined(pos) ) return mUndefValue;
 			    const float possq = pos * pos;
