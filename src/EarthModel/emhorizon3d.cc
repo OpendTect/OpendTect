@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.9 2002-05-24 14:39:14 bert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.10 2002-05-24 15:01:55 bert Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -159,10 +159,10 @@ bool EarthModel::Horizon::import( const Grid& grid )
     {
 	for ( int col=0; col<nrcols-1; col++ )
 	{
-	    GridNode gn00( row, col );
-	    GridNode gn01( row, col+1 );
-	    GridNode gn10( row+1, col );
-	    GridNode gn11( row+1, col+1 );
+	    GridNode gn00( col, row );
+	    GridNode gn01( col, row+1 );
+	    GridNode gn10( col+1, row );
+	    GridNode gn11( col+1, row+1 );
 
 	    if ( !mIsUndefined( grid.getValue( gn00 ) ) &&
 		    !mIsUndefined( grid.getValue( gn01 ) ) &&
