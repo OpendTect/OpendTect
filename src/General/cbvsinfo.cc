@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.5 2001-06-07 21:50:13 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.6 2001-06-28 21:16:51 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -261,8 +261,9 @@ int CBVSInfo::SurvGeom::getInfoIdxFor( int inl ) const
 }
 
 
-CBVSInfo::SurvGeom::InlineInfo* CBVSInfo::SurvGeom::getInfoFor( int inl )
+CBVSInfo::SurvGeom::InlineInfo* CBVSInfo::SurvGeom::gtInfFor( int inl ) const
 {
     int idx = getInfoIdxFor( inl );
-    return idx < 0 ? 0 : inldata[idx];
+    return idx < 0 ? 0
+	 : const_cast<CBVSInfo::SurvGeom::InlineInfo*>(inldata[idx]);
 }
