@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.23 2004-02-19 12:42:08 nanne Exp $
+ RCS:		$Id: visobject.h,v 1.24 2004-03-05 10:16:24 dgb Exp $
 ________________________________________________________________________
 
 
@@ -105,17 +105,20 @@ private:
 /*!\mainpage Visualistion - Open Inventor-based tools
 
   All 3D visualisation in OpendTect is COIN based. COIN is an implementation
-  of the OpenInventor interface sepecification. As usual, COIN is not visible
-  to any object outside this module.
-  You can see this module as a layer on top of the COIN library. You will find 
-  only those tools which are really used in OpendTect.
+  of the OpenInventor interface sepecification. As usual, the external package
+  (i.e. COIN) is not visible to any object outside this module.
+  This module can be seen as a layer on top of the COIN library. Compliant with
+  the DIF' principle (Don't implement the future), the layer only contains
+  those tools that are really used in OpendTect.
 
   The classes starting with 'So' are in fact extensions of the COIN library, the
   'vis' classes are classes used in the rest of OpendTect. Before a So-class
   can be used, it needs to be initiated, this is done in 
-  visBase::initdGBInventorClasses().
-  Ofcourse all objects need to be managed, visBase::DataManager is designed 
-  for that. 
+  visBase::initODInventorClasses().
+
+  In the 3D visualisation world you'll see that it is almost unavoidable that
+  all objects will be managed by a centralised manager. That is
+  visBase::DataManager. 
 
   The main classes for displaying scene objects are:
   - visBase::TextureRect, for inlines, crosslines and timeslices.
