@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.21 2002-04-25 15:29:29 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.22 2002-05-16 12:55:32 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -319,18 +319,19 @@ int File_rename( const char* oldname, const char* newname )
 }
 
 
+#define mRet(v) { mFREE(cmd); return v; }
+
 int File_copy( const char* from, const char* to, int recursive )
 {
 #ifdef __win__
+    char* cmd = 0;
+    int len, retval;
 
     if ( !from || !*from || !to || !*to ) return NO;
     if ( !File_exists(from) ) return YES;
 
     if ( recursive )
     { 
-
-	char* cmd;
-	int len, retval;
 	if ( !from || !*from || !to || !*to ) return NO;
 	if ( !File_exists(from) ) return YES;
 	if ( File_exists(to) ) return NO;
@@ -354,7 +355,7 @@ int File_copy( const char* from, const char* to, int recursive )
 
 #else
 
-    char* cmd;
+    char* cmd = 0;
     int len, retval;
     if ( !from || !*from || !to || !*to ) return NO;
     if ( !File_exists(from) ) return YES;
@@ -371,8 +372,7 @@ int File_copy( const char* from, const char* to, int recursive )
 
     retval = system( cmd ) != -1 ? YES : NO;
     if ( retval ) retval = File_exists( to );
-    mFREE(cmd);
-    return retval;
+    mRet( retval )
 
 #endif
 }
@@ -408,7 +408,7 @@ int File_remove( const char* fname, int force, int recursive )
 
 #else
 
-    char* cmd;
+    char* cmd = 0;
     int len, retval, islink;
     FileNameString cmd_targ;
     FileNameString targ_fname;
@@ -424,11 +424,11 @@ int File_remove( const char* fname, int force, int recursive )
     }
 
     len = strlen( fname ) + 30;
-    cmd = mMALLOC(len,char);
 
     if ( !recursive )
 	return unlink((char*)fname) ? NO : YES;
 
+    cmd = mMALLOC(len,char);
     strcpy( cmd,     "/bin/rm -" );
     if ( recursive ) strcat( cmd, "r" );
     if ( force )     strcat( cmd, "f" );
@@ -438,15 +438,11 @@ int File_remove( const char* fname, int force, int recursive )
     if ( islink )    strcat( cmd_targ, targ_fname );
 
     if ( islink && !system( cmd_targ ) && File_exists( targ_fname ) )
-    {
-	mFREE(cmd); 
-	return NO;
-    }
+	mRet(NO)
 
     retval = system( cmd ) ? NO : YES;
     if ( retval && File_exists( fname ) ) retval = NO;
-    mFREE(cmd);
-    return retval;
+    mRet( retval )
 
 #endif
 }
