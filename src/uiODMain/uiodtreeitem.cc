@@ -8,24 +8,28 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.6 2004-04-27 14:05:57 kristofer Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.7 2004-04-29 14:52:13 kristofer Exp $";
 
 
 #include "uiodtreeitemimpl.h"
 #include "errh.h"
 #include "ptrman.h"
+#include "ioobj.h"
+#include "ioman.h"
 #include "uimenu.h"
 #include "pickset.h"
 #include "survinfo.h"
 #include "uilistview.h"
 #include "uibinidtable.h"
 #include "uivismenu.h"
+#include "uitrackingdlg.h"
 #include "uisoviewer.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uimsg.h"
 #include "uigeninputdlg.h"
 #include "uiempartserv.h"
+#include "uiwellpropdlg.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
 #include "uipickpartserv.h"
@@ -33,6 +37,10 @@ static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.6 2004-04-27 14:05:57 krist
 #include "uiattribpartserv.h"
 
 #include "visrandomtrackdisplay.h"
+#include "vissurvwell.h"
+#include "vissurvpickset.h"
+#include "vissurvscene.h"
+#include "settings.h"
 #include "visplanedatadisplay.h"
 #include "vissurvsurf.h"
 #include "uiexecutor.h"
@@ -267,7 +275,7 @@ bool uiODDisplayTreeItem::init()
     uilistviewitem->setChecked( visserv->isOn(displayid) );
     uilistviewitem->stateChanged.notify( mCB(this,uiODDisplayTreeItem,checkCB));
 
-    name_ = visserv->getDisplayName( displayid );
+    name_ = createDisplayName();
 
     uiVisMenuFactory* menu = visserv->getMenuFactory( displayid, true );
     menu->createnotifier.notify( mCB(this,uiODDisplayTreeItem,createMenuCB));
@@ -281,15 +289,9 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 {
     if ( !col )
     {
-	name_ = applMgr()->visServer()->getDisplayName( displayid );
+	name_ = createDisplayName();
+	uiTreeItem::updateColumnText(col);
     }
-    else
-    {
-	BufferString text = applMgr()->visServer()->getTreeInfo(displayid);
-	uilistviewitem->setText( text, col );
-    }
-
-    uiTreeItem::updateColumnText(col);
 }
 
 
@@ -309,6 +311,31 @@ int uiODDisplayTreeItem::uiListViewItemType() const
 {
     return uiListViewItem::CheckBox;
 }
+
+
+BufferString uiODDisplayTreeItem::createDisplayName() const
+{
+    const uiVisPartServer* visserv = const_cast<uiODDisplayTreeItem*>(this)->
+							applMgr()->visServer();
+    const AttribSelSpec* as =  visserv->getSelSpec( displayid );
+    BufferString dispname( as ? as->userRef() : 0 );
+    if ( as && as->isNLA() )
+    {
+	dispname = as->objectRef();
+	const char* nodenm = as->userRef();
+	if ( IOObj::isKey(as->userRef()) )
+	    nodenm = IOM().nameOf( as->userRef(), false );
+	dispname += " ("; dispname += nodenm; dispname += ")";
+    }
+
+    if ( as &&  !dispname[0] )
+	dispname = "<right-click>";
+    else if ( !as )
+	dispname = visserv->getObjectName(displayid);
+
+    return dispname;
+}
+
 
 
 const char* uiODDisplayTreeItem::attrselmnutxt = "Select Attribute ...";
@@ -333,8 +360,35 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	firstsetattrmnuid = -1;
 
     duplicatemnuid = visserv->canDuplicate(displayid)
-	? menu->addItem( new uiMenuItem("Duplicate") ) 
-	: -1;
+		    ? menu->addItem( new uiMenuItem("Duplicate") ) 
+		    : -1;
+
+    TypeSet<int> sceneids;
+    visserv->getChildIds(-1,sceneids);
+    if ( sceneids.size()>1 )
+    {
+	sharefirstmnusel = menu->getCurrentIdx();
+	uiPopupMenu* sharemnu = new uiPopupMenu( menu->getParent(),
+						 "Share with...");
+	for ( int idx=0; idx<sceneids.size(); idx++ )
+	{
+	    if ( sceneids[idx]!=sceneID() )
+	    {
+		uiMenuItem* itm =
+		    	new uiMenuItem(visserv->getObjectName(sceneids[idx]));
+		sharemnu->insertItem( itm, menu->getFreeIdx() );
+	    }
+	}
+
+	menu->addItem( sharemnu );
+
+	sharelastmnusel = menu->getCurrentIdx()-1;
+    }
+    else
+    {
+	sharefirstmnusel = -1;
+	sharelastmnusel = -1;
+    }
 
     removemnuid = menu->addItem( new uiMenuItem("Remove"), -1000 );
 }
@@ -348,19 +402,20 @@ void uiODDisplayTreeItem::handleMenuCB(CallBacker* cb)
     if ( mnuid==-1 || menu->isHandled() ) return;
     if ( mnuid==duplicatemnuid )
     {
+	menu->setIsHandled(true);
 	int newid =visserv->duplicateObject(displayid,sceneID());
 	if ( newid!=1 ) uiODDisplayTreeItem::factory( this, applMgr(), newid );
-	menu->setIsHandled(true);
     }
     else if ( mnuid==removemnuid )
     {
+	menu->setIsHandled(true);
 	visserv->removeObject( displayid, sceneID() );
 	parent->removeChild( this );
-	menu->setIsHandled(true);
     }
     else if ( firstsetattrmnuid!=-1 && mnuid>=firstsetattrmnuid &&
 	    mnuid<=lastsetattrmnuid )
     {
+	menu->setIsHandled(true);
 	const AttribSelSpec* as = visserv->getSelSpec( displayid );
 	AttribSelSpec myas( *as );
 	if ( applMgr()->attrServer()->handleAttribSubMenu(
@@ -371,7 +426,26 @@ void uiODDisplayTreeItem::handleMenuCB(CallBacker* cb)
 	    visserv->calculateAttrib( displayid, false );
 	    updateColumnText(0);
 	}
+    }
+    else if ( firstsetattrmnuid!=-1 && mnuid>=sharefirstmnusel &&
+	    mnuid<=sharelastmnusel )
+    {
 	menu->setIsHandled(true);
+	TypeSet<int> sceneids;
+	visserv->getChildIds(-1,sceneids);
+	int idy=0;
+	for ( int idx=0; idx<mnuid-sharefirstmnusel; idx++ )
+	{
+	    if ( sceneids[idx]!=sceneID() )
+	    {
+		idy++;
+		if ( idy==mnuid-sharefirstmnusel )
+		{
+		    visserv->shareObject(sceneids[idx], displayid);
+		    break;
+		}
+	    }
+	}
     }
 }
 
@@ -387,22 +461,7 @@ bool uiODEarthModelSurfaceTreeItem::init()
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( displayid==-1 )
     {
-	visSurvey::SurfaceDisplay* sd = visSurvey::SurfaceDisplay::create();
-	displayid = sd->id();
-	visserv->addObject( sd, sceneID(), true );
-	PtrMan<Executor> exec = sd->createSurface( mid );
-	if ( !exec )
-	{
-	    visserv->removeObject(displayid,sceneID());
-	    return false;
-	}
-
-	uiExecutor uiexec (getUiParent(), *exec );
-	if ( !uiexec.execute() )
-	{
-	    visserv->removeObject(displayid,sceneID());
-	    return false;
-	}
+	createSurfaceDisplay();
     }
     else
     {
@@ -419,18 +478,47 @@ bool uiODEarthModelSurfaceTreeItem::init()
 }
 
 
+BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
+{
+    const uiVisPartServer* visserv =
+       const_cast<uiODEarthModelSurfaceTreeItem*>(this)->applMgr()->visServer();
+    BufferString dispname = uiODDisplayTreeItem::createDisplayName();
+    bool hasattrnm = dispname[0];
+    if ( hasattrnm ) dispname += " (";
+    dispname += visserv->getObjectName( displayid );
+    if ( hasattrnm ) dispname += ")";
+    return dispname;
+}
 
 
 void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet( uiVisMenuFactory*, menu, cb );
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    mDynamicCastGet( visSurvey::SurfaceDisplay*, sd,
+	    	     visserv->getObject(displayid));
+	
     storemnusel = menu->addItem( new uiMenuItem("Store ...") );
+
+    uiMenuItem* colitm = new uiMenuItem("Use single color");
+    colitm->setChecked( !sd->usesTexture() );
+    singlecolmnusel = menu->addItem( colitm );
+
+    uiMenuItem* wireframeitem = new uiMenuItem("Wireframe");
+    wireframeitem->setChecked( sd->isWireFrameOn() );
+    wireframemnusel = menu->addItem( wireframeitem );
+
+    uiMenuItem* edititem = new uiMenuItem("Edit");
+    edititem->setChecked( sd->editingEnabled() );
+    editmnusel = menu->addItem( edititem );
+
+    undoredomnusel = menu->addItem( new uiMenuItem("Undo/Redo ..."));
 
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
     {
-	uiVisPartServer* visserv = applMgr()->visServer();
 	attribstartmnusel = menu->getCurrentIdx();
 	const AttribSelSpec* as = visserv->getSelSpec(displayid);
 	const bool hasauxdata = as && as->id() == -1;
@@ -456,6 +544,33 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 }
 
 
+bool uiODEarthModelSurfaceTreeItem::createSurfaceDisplay()
+{
+    visSurvey::SurfaceDisplay* sd = visSurvey::SurfaceDisplay::create();
+    displayid = sd->id();
+    uiVisPartServer* visserv = applMgr()->visServer();
+    visserv->addObject( sd, sceneID(), true );
+
+    PtrMan<Executor> exec = sd->createSurface( mid );
+    if ( !exec )
+    {
+	visserv->removeObject(displayid,sceneID());
+	return false;
+    }
+
+    uiExecutor uiexec (getUiParent(), *exec );
+    if ( !uiexec.execute() )
+    {
+	visserv->removeObject(displayid,sceneID());
+	return false;
+    }
+
+    sd->setZValues();
+
+    return true;
+}
+
+
 void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
@@ -463,6 +578,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
     mDynamicCastGet( uiVisMenuFactory*, menu, caller );
     if ( mnuid==-1 || menu->isHandled() )
 	return;
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    mDynamicCastGet( visSurvey::SurfaceDisplay*, sd,
+	    	     visserv->getObject(displayid));
 	
     if ( mnuid==storemnusel )
     {
@@ -472,7 +591,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
     else if ( mnuid==reloadmnusel )
     {
 	menu->setIsHandled(true);
-	const MultiID& emsurfid = applMgr()->visServer()->getMultiID(displayid);
+	const MultiID& emsurfid = sd->surfaceId();
 	uiTreeItem* parent__ = parent;
 
 	applMgr()->visServer()->removeObject(displayid, sceneID());
@@ -480,7 +599,18 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 	if ( !applMgr()->EMServer()->loadSurface( emsurfid ) )
 	    return;
 
-	displayid = applMgr()->visServer()->addSurface( sceneID(), emsurfid );
+	createSurfaceDisplay();
+    }
+    else if ( mnuid==singlecolmnusel )
+	sd->useTexture( !sd->usesTexture() );
+    else if ( mnuid==wireframemnusel )
+	sd->turnOnWireFrame( !sd->isWireFrameOn() );
+    else if ( mnuid==editmnusel )
+	sd->enableEditing( !sd->editingEnabled() );
+    else if ( mnuid==undoredomnusel )
+    {
+	uiTrackingDlg dlg( getUiParent() );
+	dlg.go();
     }
     else if ( mnuid>=attribstartmnusel && mnuid<=attribstopmnusel )
     {
@@ -709,6 +839,16 @@ bool uiODFaultParentTreeItem::showSubMenu()
 }
 
 
+uiTreeItem* uiODFaultFactory::create(int visid) const
+{
+    mDynamicCastGet( visSurvey::SurfaceDisplay*, so, 
+	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    if ( !so ) return 0;
+
+    return so && !so->isHorizon() ? new uiODFaultTreeItem(visid) : 0;
+}
+
+
 uiODFaultTreeItem::uiODFaultTreeItem( const MultiID& mid_ )
     : uiODEarthModelSurfaceTreeItem( mid_ )
 {}
@@ -748,6 +888,16 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 }
 
 
+uiTreeItem* uiODHorizonFactory::create(int visid) const
+{
+    mDynamicCastGet( visSurvey::SurfaceDisplay*, so, 
+	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    if ( !so ) return 0;
+
+    return so && so->isHorizon() ? new uiODHorizonTreeItem(visid) : 0;
+}
+
+
 uiODHorizonTreeItem::uiODHorizonTreeItem( const MultiID& mid_ )
     : uiODEarthModelSurfaceTreeItem( mid_ )
 {}
@@ -756,6 +906,25 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( const MultiID& mid_ )
 uiODHorizonTreeItem::uiODHorizonTreeItem( int id )
     : uiODEarthModelSurfaceTreeItem( 0 )
 { displayid=id; }
+
+
+void uiODHorizonTreeItem::updateColumnText(int col)
+{
+    if ( col==1 )
+    {
+	uiVisPartServer* visserv = applMgr()->visServer();
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
+			visserv->getObject(displayid));
+	if ( sd->isHorizon() )
+	{
+	    BufferString shift = sd->getShift();
+	    uilistviewitem->setText( shift, col );
+	    return;
+	}
+    }
+
+    return uiODDisplayTreeItem::updateColumnText(col);
+}
 
 
 void uiODHorizonTreeItem::createMenuCB(CallBacker* cb)
@@ -802,12 +971,10 @@ void uiODHorizonTreeItem::handleMenuCB(CallBacker* cb)
     }
 }
 
-/*
 
 uiODWellParentTreeItem::uiODWellParentTreeItem()
     : uiODTreeItem( "Well" )
 {}
-
 
 
 bool uiODWellParentTreeItem::showSubMenu()
@@ -832,46 +999,143 @@ bool uiODWellParentTreeItem::showSubMenu()
 }
 
 
-mMultiIDDisplayConstructor( Well )
+uiTreeItem* uiODWellFactory::create(int visid) const
+{
+    mDynamicCastGet( visSurvey::WellDisplay*, wd, 
+	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    return wd ? new uiODHorizonTreeItem(visid) : 0;
+}
+
+
+uiODWellTreeItem::uiODWellTreeItem( int did )
+{ displayid=did; }
+
+
+uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid_ )
+{ mid = mid_; }
 
 
 bool uiODWellTreeItem::init()
 {
-    mMultiIDInit( addWell, isWell);
-    return true;
-}
-
-
-uiPopupMenu* uiODWellTreeItem::createMenu( uiPopupMenu** selattrmnu )
-{
-    uiPopupMenu* mnu = uiODDisplayTreeItem::createMenu( selattrmnu );
-    mnu->insertItem( new uiMenuItem("Select Attribute ..."), mWellAttribSel );
-    mnu->insertItem( new uiMenuItem("Select logs ..."), mSelectLogs );
-    return mnu;
-}
-
-
-bool uiODWellTreeItem::handleMenu( int mnuid )
-{
-    const MultiID& wellid = applMgr()->visServer()->getMultiID( displayid );
-    if ( mnuid == mSelectLogs )
+    uiVisPartServer* visserv = applMgr()->visServer();
+    if ( displayid==-1 )
     {
-	int selidx = -1;
-	int lognr = 1;
-	applMgr()->wellServer()->selectLogs( wellid, selidx, lognr );
-	if ( selidx > -1 )
-	    applMgr()->visServer()->displayLog( displayid, selidx, lognr );
+	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
+	displayid = wd->id();
+	visserv->addObject(wd,sceneID(),true);
+	if ( !wd->setWellId(mid) )
+	{
+	    visserv->removeObject(wd,sceneID());
+	    return false;
+	}
     }
-    else if ( mnuid == mWellAttribSel )
+    else
     {
+	mDynamicCastGet( visSurvey::WellDisplay*, wd,
+			 visserv->getObject(displayid));
+	if ( !wd )
+	    return false;
+    }
+
+    return uiODDisplayTreeItem::init();
+}
+	    
+	
+void uiODWellTreeItem::createMenuCB( CallBacker* cb )
+{
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet( uiVisMenuFactory*, menu, cb );
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    mDynamicCastGet( visSurvey::WellDisplay*, wd,
+	    	     visserv->getObject(displayid));
+
+    propertiesmnusel = menu->addItem(  new uiMenuItem("Properties"));
+
+    uiPopupMenu* showmnu = new uiPopupMenu( menu->getParent(), "Show ..." );
+
+    uiMenuItem* wellnameitem = new uiMenuItem("Well name");
+    wellnameitem->setChecked( wd->wellNameShown() );
+    namemnusel = menu->getFreeIdx();
+    showmnu->insertItem( wellnameitem );
+
+    uiMenuItem* markeritem = new uiMenuItem("Markers");
+    markeritem->setChecked( wd->markersShown() );
+    markermnusel = menu->getFreeIdx();
+    showmnu->insertItem( markeritem );
+
+    uiMenuItem* markernameitem = new uiMenuItem("Markers");
+    markernameitem->setChecked( wd->markerNameShown() );
+    markernamemnusel = menu->getFreeIdx();
+    showmnu->insertItem( markernameitem );
+
+    uiMenuItem* showlogsmnuid = new uiMenuItem("Logs");
+    showlogsmnuid->setChecked( wd->logsShown() );
+    showlogmnusel = menu->getFreeIdx();
+    showmnu->insertItem( showlogsmnuid );
+
+    menu->addItem( showmnu );
+
+    selattrmnusel = menu->addItem(  new uiMenuItem("Select Attribute ...") );
+    sellogmnusel = menu->addItem(  new uiMenuItem("Select logs ...") );
+}
+
+
+void uiODWellTreeItem::handleMenuCB(CallBacker* cb)
+{
+    uiODDisplayTreeItem::handleMenuCB(cb);
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet( uiVisMenuFactory*, menu, caller );
+    if ( mnuid==-1 || menu->isHandled() )
+	return;
+
+    uiVisPartServer* visserv = applMgr()->visServer();
+    mDynamicCastGet( visSurvey::WellDisplay*, wd,
+	    	     visserv->getObject(displayid));
+    const MultiID& wellid = wd->wellId();
+    if ( mnuid==selattrmnusel )
+    {
+	menu->setIsHandled(true);
 	applMgr()->wellAttribServer()->setAttribSet( 
 				*applMgr()->attrServer()->curDescSet() );
 	applMgr()->wellAttribServer()->selectAttribute( wellid );
     }
+    else if ( mnuid==sellogmnusel )
+    {
+	menu->setIsHandled(true);
+	int selidx = -1;
+	int lognr = 1;
+	applMgr()->wellServer()->selectLogs( wellid, selidx, lognr );
+	if ( selidx > -1 )
+	    wd->displayLog(selidx,lognr);
+    }
+    else if ( propertiesmnusel )
+    {
+	menu->setIsHandled(true);
+	uiWellPropDlg dlg( getUiParent(), wd );
+	dlg.go();
+    }
+    else if ( namemnusel )
+    {
+	menu->setIsHandled(true);
+	wd->showWellName( !wd->wellNameShown() );
+    }
+    else if ( markermnusel )
+    {
+	menu->setIsHandled(true);
+	wd->showMarkers( !wd->markersShown() );
 
-    return uiODDisplayTreeItem::handleMenu( mnuid );
+    }
+    else if ( markernamemnusel )
+    {
+	menu->setIsHandled(true);
+	wd->showMarkerName( !wd->markerNameShown() );
+    }
+    else if ( showlogmnusel )
+    {
+	wd->showLogs( !wd->logsShown() );
+    }
 }
-
 
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
@@ -920,6 +1184,14 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 }
 
 
+uiTreeItem* uiODPickSetFactory::create(int visid) const
+{
+    mDynamicCastGet( visSurvey::PickSetDisplay*, psd, 
+	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    return psd ? new uiODPickSetTreeItem(visid) : 0;
+}
+
+
 uiODPickSetTreeItem::uiODPickSetTreeItem( const PickSet* ps_ )
     : ps( ps_ )
 {}
@@ -931,42 +1203,102 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int id )
 
 bool uiODPickSetTreeItem::init()
 {
-    mDisplayInit( uiODDisplayTreeItem, addPickSet(sceneID(), *ps ),
-	     	  isPickSet(displayid) );
-    ps = 0;
-    return true;
+    uiVisPartServer* visserv = applMgr()->visServer();
+    if ( displayid==-1 )
+    {
+	visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
+	displayid = psd->id();
+	psd->copyFromPickSet(*ps);
+	visserv->addObject(psd,sceneID(),true);
+    }
+    else
+    {
+	mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
+			 visserv->getObject(displayid) );
+	if ( !psd )
+	    return false;
+    }
+
+    return uiODDisplayTreeItem::init();
+}
+
+
+void uiODPickSetTreeItem::updateColumnText(int col)
+{
+    if ( col==1 )
+    {
+	uiVisPartServer* visserv = applMgr()->visServer();
+	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+			visserv->getObject(displayid));
+	BufferString text = psd->nrPicks();
+	uilistviewitem->setText( text, col );
+	return;
+    }
+
+    return uiODDisplayTreeItem::updateColumnText(col);
 }
 
 
 
 
-bool uiODPickSetTreeItem::showSubMenu()
+void uiODPickSetTreeItem::createMenuCB(CallBacker*cb)
 {
-    PtrMan<uiPopupMenu> mnu = createMenu(0);
-    mnu->insertItem( new uiMenuItem("Rename ..."), mSubMnuPickRename );
-    mnu->insertItem( new uiMenuItem("Store ..."), mSubMnuPickStore );
-    mnu->insertItem( new uiMenuItem("Set directions ..."), mSubMnuPickSetDirs );
-    const int mnuid = mnu && mnu->nrItems() ? mnu->exec() : -1;
+    uiODDisplayTreeItem::createMenuCB(cb);
+    mDynamicCastGet( uiVisMenuFactory*, menu, cb );
 
-    if ( mnuid<0 )
-	return false;
+    renamemnuid = menu->addItem( new uiMenuItem("Rename ...") );
+    storemnuid = menu->addItem( new uiMenuItem("Store ...") );
+    dirmnuid = menu->addItem( new uiMenuItem("Set directions ...") );
 
-    if ( handleMenu( mnuid ) )
-	return true;
-    else if ( mnuid==mSubMnuPickRename )
+    uiVisPartServer* visserv = applMgr()->visServer();
+    mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
+	    	     visserv->getObject(displayid));
+    uiMenuItem* showallitem = new uiMenuItem("Show all");
+    showallitem->setChecked( psd->allShown() );
+    showallmnuid = menu->addItem( showallitem );
+
+    propertymnuid = menu->addItem( new uiMenuItem("Properties ...") );
+}
+
+
+void uiODPickSetTreeItem::handleMenuCB(CallBacker* cb)
+{
+    uiODDisplayTreeItem::handleMenuCB(cb);
+    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
+    mDynamicCastGet( uiVisMenuFactory*, menu, caller );
+    if ( mnuid==-1 || menu->isHandled() )
+	return;
+
+    if ( mnuid==renamemnuid )
+    {
+	menu->setIsHandled(true);
 	applMgr()->renamePickset( displayid );
-    else if ( mnuid==mSubMnuPickStore )
+    }
+    else if ( mnuid==storemnuid )
+    {
+	menu->setIsHandled(true);
 	applMgr()->storeSinglePickSet( displayid );
-    else if ( mnuid==mSubMnuPickSetDirs )
+    }
+    else if ( mnuid==dirmnuid )
+    {
+	menu->setIsHandled(true);
 	applMgr()->setPickSetDirs( displayid );
+    }
+    else if ( mnuid==showallmnuid )
+    {
+	uiVisPartServer* visserv = applMgr()->visServer();
+	mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
+			 visserv->getObject(displayid));
+	const bool showall = !psd->allShown();
+	psd->showAll(showall);
+    }
 
     updateColumnText(0);
     updateColumnText(1);
-
-    return true;
 }
 
 
+/*
 uiODVolumeParentTreeItem::uiODVolumeParentTreeItem()
     : uiODTreeItem( "Volume" )
 {}
@@ -1033,6 +1365,40 @@ bool uiODPlaneDataTreeItem::init()
 
     return uiODDisplayTreeItem::init();
 }
+
+
+void uiODPlaneDataTreeItem::updateColumnText(int col)
+{
+    if ( col==1 )
+    {
+	uiVisPartServer* visserv = applMgr()->visServer();
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+			visserv->getObject(displayid));
+	CubeSampling cs =  pdd->getCubeSampling(true);
+	BufferString text;
+	switch ( dim )
+	{
+	    case 0:
+		text = cs.hrg.start.inl;
+		break;
+	    case 1:
+		text = cs.hrg.start.crl;
+		break;
+	    case 2:
+		{
+		    float val = cs.zrg.start;
+		    text = SI().zIsTime() ? mNINT(val * 1000) : val;
+		}
+	}
+
+
+	uilistviewitem->setText( text, col );
+	return;
+    }
+
+    return uiODDisplayTreeItem::updateColumnText(col);
+}
+
 
 
 uiTreeItem* uiODInlineFactory::create(int visid) const
@@ -1113,21 +1479,55 @@ uiODSceneTreeItem::uiODSceneTreeItem( const char* name__, int displayid_)
 {}
 
 
+#define mAnnotText	0
+#define mAnnotScale	1
+#define mSurveyBox	2
+#define mDumpIV		3
+
+
 bool uiODSceneTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     uiVisPartServer* visserv = applMgr()->visServer();
-    visserv->makeSubMenu(mnu,sceneID(),displayid);
+    mDynamicCastGet( visSurvey::Scene*, scene, visserv->getObject(displayid));
+
+    const bool showcube = scene->isAnnotShown();
+    uiMenuItem* anntxt = new uiMenuItem("Annotation text");
+    mnu.insertItem( anntxt, mAnnotText );
+    anntxt->setChecked( showcube && scene->isAnnotTextShown() );
+    anntxt->setEnabled( showcube );
+
+    uiMenuItem* annscale = new uiMenuItem("Annotation scale");
+    mnu.insertItem( annscale, mAnnotScale );
+    annscale->setChecked( showcube && scene->isAnnotScaleShown() );
+    annscale->setEnabled( showcube );
+
+    uiMenuItem* annsurv = new uiMenuItem("Survey box");
+    mnu.insertItem( annsurv, mSurveyBox );
+    annsurv->setChecked( showcube );
+
+
+    bool doi = false;
+    Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), doi );
+    if ( doi )
+	mnu.insertItem( new uiMenuItem("Dump OI ..."), mDumpIV );
 
     if ( getenv("DTECT_ENABLE_SCENE_PRINT") )
 	mnu.insertItem( new uiMenuItem("'Print' to file ..."), mSubMnuScenePr );
 
     const int mnuid=mnu.exec();
-    if ( mnuid>1023 )
-	applMgr()->visServer()->handleSubMenuSel( mnuid, sceneID(), displayid );
+    if ( mnuid==mAnnotText )
+	scene->showAnnotText( !scene->isAnnotTextShown() );
+    else if ( mnuid==mAnnotScale )
+	scene->showAnnotScale( !scene->isAnnotScaleShown() );
+    else if ( mnuid==mSurveyBox )
+	scene->showAnnot( !scene->isAnnotShown() );
+    else if ( mnuid==mDumpIV )
+	visserv->dumpOI( displayid );
     else if ( mnuid==mSubMnuScenePr )
     {
 	viewer()->renderToFile();
     }
+
     return true;
 }
