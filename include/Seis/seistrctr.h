@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.32 2004-07-19 11:30:10 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.33 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -23,10 +23,10 @@ class BinID;
 class Coord;
 class SeisTrc;
 class LinScaler;
-class SeisSelData;
+class BinIDValue;
 class SeisTrcBuf;
+class SeisSelData;
 class SeisTrcInfo;
-class BinIDSelector;
 class SeisPacketInfo;
 
 
@@ -161,7 +161,7 @@ public:
 
     void		setSelData( const SeisSelData* t ) { seldata = t; }
 			/*!< This SeisSelData is seen as a hint ... */
-    bool		commitSelections(const SeisTrc* trc=0);
+    bool		commitSelections();
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
 
@@ -196,7 +196,7 @@ public:
     virtual void	cleanUp();
     			//!< Prepare for new initialisation.
 
-    static bool		getRanges(const IOObj&,SeisSelData&);
+    static bool		getRanges(const IOObj&,SeisSelData&,BinIDValue* step=0);
     static  bool	is2D(const IOObj&);
 
 protected:
@@ -227,6 +227,7 @@ protected:
     virtual bool	commitSelections_()		{ return true; }
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
     							{ return true; }
+    virtual void	blockDumped(int nrtrcs)		{}
     void		prepareComponents(SeisTrc&,int actualsz) const;
 
 			// Quick access to selected, like selComp() etc.
@@ -244,8 +245,9 @@ private:
     int			prevnr_;
     int			lastinlwritten;
     bool		enforce_regular_write;
+    bool		enforce_survinfo_write;
 
-    void		enforceBounds(const SeisTrc*);
+    void		enforceBounds();
     bool		writeBlock();
     bool		dumpBlock();
 

@@ -24,18 +24,18 @@ static const char* rcsID = "$Id";
 #include "seisfact.h"
 
 
-int main( int argc, char** argv )
+static int doWork( int argc, char** argv )
 {
     if ( argc < 3 )
     {
 	std::cerr << "Usage: " << argv[0] << " inpfile outpfile"<< std::endl
 	     << "Format: CBVS.\n" << std::endl;
-	exitProgram( 1 );
+	return 1;
     }
     else if ( !File_exists(argv[1]) )
     {
 	std::cerr << argv[1] << " does not exist" << std::endl;
-	exitProgram( 1 );
+	return 1;
     }
 
     BufferString fname( argv[1] );
@@ -47,7 +47,7 @@ int main( int argc, char** argv )
     }
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
-        { std::cerr << tri->errMsg() << std::endl; exitProgram(1); }
+        { std::cerr << tri->errMsg() << std::endl; return 1; }
 
     const CBVSReadMgr& rdmgr = *tri->readMgr();
     const CBVSInfo::SurvGeom& geom = rdmgr.info().geom;
@@ -77,22 +77,27 @@ int main( int argc, char** argv )
 
 	    else if ( !tri->read(trc) )
 		{ std::cerr << "Cannot read " << linenr << '/' << trcnr
-		       << std::endl; exitProgram(1); }
+		       << std::endl; return 1; }
 
 	    Swap( trc.info().binid.inl, trc.info().binid.crl );
 	    trc.info().coord = SI().transform( trc.info().binid );
 
 	    if ( !nrwr
 		    && !tro->initWrite(new StreamConn(fname,Conn::Write),trc) )
-		{ std::cerr << "Cannot start write!" << std::endl;
-		    		exitProgram(1); }
+		{ std::cerr << "Cannot start write!" << std::endl; return 1; }
 
 	    if ( !tro->write(trc) )
-		{ std::cerr << "Cannot write!" << std::endl; exitProgram(1); }
+		{ std::cerr << "Cannot write!" << std::endl; return 1; }
 
 	    nrwr++;
 	}
     }
 
-    exitProgram( nrwr ? 0 : 1 ); return 0;
+    return nrwr ? 0 : 1;
+}
+
+
+int main( int argc, char** argv )
+{
+    return exitProgram( doWork(argc,argv) );
 }

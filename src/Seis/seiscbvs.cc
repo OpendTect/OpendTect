@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.49 2004-07-19 13:21:49 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.50 2004-07-22 16:14:07 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -35,10 +35,8 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
 	, forread(true)
 	, storinterps(0)
 	, userawdata(0)
-	, samedatachar(0)
 	, blockbufs(0)
-	, stptrs(0)
-	, tdptrs(0)
+	, targetptrs(0)
 	, preseldatatype(0)
 	, rdmgr(0)
 	, wrmgr(0)
@@ -84,9 +82,7 @@ void CBVSSeisTrcTranslator::destroyVars()
     delete [] storinterps; storinterps = 0;
     delete [] compsel; compsel = 0;
     delete [] userawdata; userawdata = 0;
-    delete [] samedatachar; samedatachar = 0;
-    delete [] stptrs; stptrs = 0;
-    delete [] tdptrs; tdptrs = 0;
+    delete [] targetptrs; targetptrs = 0;
 }
 
 
@@ -171,52 +167,12 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 }
 
 
-void CBVSSeisTrcTranslator::calcSamps()
-{
-    samps.start = 0; samps.step = 1; samps.stop = innrsamples-1;
-    outnrsamples = innrsamples; outsd = insd;
-    if ( !seldata ) return;
-
-    const float stepratio = seldata->zrg_.step / insd.step;
-    samps.step = mNINT(stepratio);
-    if ( samps.step < 1 ) samps.step = 1;
-
-    Interval<float> zrg( seldata->zRange() );
-    float diff = zrg.start - insd.start;
-    diff /= insd.step;
-    int idiff = mNINT(diff);
-    const float outstart = insd.start + idiff * insd.step;
-
-    float outstop = zrg.stop;
-    const float instop = insd.start + insd.step * innrsamples;
-    if ( outstop > instop ) outstop = instop;
-    const float outstep = samps.step * insd.step;
-    float fnrsamps = (outstop - outstart) / outstep + 1;
-
-    outnrsamples = mNINT(fnrsamps);
-    float fsampnr = (outstart - insd.start) / insd.step;
-    samps.start = mNINT(fsampnr);
-    samps.stop = samps.start + (outnrsamples-1) * samps.step;
-    if ( samps.start < 0 ) samps.start = 0;
-    if ( samps.stop < 0 ) samps.stop = 0;
-    if ( samps.start >= innrsamples )
-	samps.start = innrsamples - 1;
-    if ( samps.stop >= innrsamples )
-	samps.stop = innrsamples - 1;
-
-    // Finally, assign fully checked output ranges
-    outnrsamples = (samps.stop - samps.start) / samps.step + 1;
-    if ( outnrsamples < 1 ) outnrsamples = 1;
-    outsd.start = insd.start + samps.start * insd.step;
-    outsd.step = insd.step * samps.step;
-
-    assign( cbvssamps, samps );
-}
-
-
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    calcSamps();
+    float fsampnr = (outsd.start - insd.start) / insd.step;
+    samps.start = mNINT( fsampnr );
+    samps.stop = samps.start + outnrsamples - 1;
+
     if ( forread )
     {
 	CubeSampling cs;
@@ -233,15 +189,12 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     }
 
     const int nrcomps = nrSelComps();
-    samedatachar = new bool [nrcomps];
     userawdata = new bool [nrcomps];
     storinterps = new TraceDataInterpreter* [nrcomps];
-    stptrs = new unsigned char* [nrcomps];
-    tdptrs = new unsigned char* [nrcomps];
+    targetptrs = new unsigned char* [nrcomps];
     for ( int idx=0; idx<nrcomps; idx++ )
     {
-	samedatachar[idx] = inpcds[idx]->datachar == outcds[idx]->datachar;
-	userawdata[idx] = samps.step == 1 && samedatachar[idx];
+	userawdata[idx] = inpcds[idx]->datachar == outcds[idx]->datachar;
 	storinterps[idx] = new TraceDataInterpreter(
                   forread ? inpcds[idx]->datachar : outcds[idx]->datachar );
     }
@@ -365,11 +318,11 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
     for ( int iselc=0; iselc<nselc; iselc++ )
     {
 	const BasicComponentInfo& ci = *info.compinfo[ selComp(iselc) ];
-	tdptrs[iselc] = trc.data().getComponent( iselc )->data();
-	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
+	unsigned char* trcdata = trc.data().getComponent( iselc )->data();
+	targetptrs[iselc] = userawdata[iselc] ? trcdata : blockbufs[iselc];
     }
 
-    if ( !rdmgr->fetch( (void**)stptrs, compsel, &cbvssamps ) )
+    if ( !rdmgr->fetch( (void**)targetptrs, compsel, &samps ) )
     {
 	errmsg = rdmgr->errMsg();
 	return false;
@@ -377,32 +330,14 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 
     for ( int iselc=0; iselc<nselc; iselc++ )
     {
-	if ( userawdata[iselc] ) continue;
-
-	if ( samedatachar[iselc] )
-	{
-	    // Take each n-th sample
-	    for ( int outsmp=0; outsmp<outnrsamples; outsmp++ )
-	    {
-		memcpy( tdptrs[iselc], stptrs[iselc],
-			(int)inpcds[iselc]->datachar.nrBytes() );
-		stptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes()
-				* samps.step;
-		tdptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes();
-	    }
-	}
-	else
+	if ( !userawdata[iselc] )
 	{
 	    // Convert data into other format
-	    for ( int outsmp=0,inp_samp=0; outsmp<outnrsamples; outsmp++ )
-	    {
-		trc.set( outsmp,
-			 storinterps[iselc]->get( stptrs[iselc], inp_samp ),
-			 iselc);
-		inp_samp += samps.step;
-	    }
+	    for ( int isamp=0; isamp<outnrsamples; isamp++ )
+		trc.set( isamp,
+			 storinterps[iselc]->get( targetptrs[iselc], isamp ),
+			 iselc );
 	}
-
     }
 
     headerdone = false;
@@ -455,39 +390,34 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 {
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	tdptrs[iselc] = const_cast<unsigned char*>(
-			trc.data().getComponent(selComp(iselc))->data() );
-	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
+	const unsigned char* trcdata
+	    		= trc.data().getComponent( selComp(iselc) )->data();
+	unsigned char* blockbuf = blockbufs[iselc];
+	targetptrs[iselc] = userawdata[iselc]
+	    		  ? const_cast<unsigned char*>( trcdata )
+			  : blockbuf;
 	if ( !userawdata[iselc] )
 	{
-	    if ( samedatachar[iselc] )
-	    {
-		for ( int outsmp=0; outsmp<outnrsamples; outsmp++ )
-		    memcpy( stptrs[iselc], tdptrs[iselc],
-			    (int)inpcds[iselc]->datachar.nrBytes() );
-		tdptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes()
-				* samps.step;
-		stptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes();
-	    }
-	    else
-	    {
-		float t = outsd.start;
-		int icomp = selComp(iselc);
-		for ( int outsmp=0; outsmp<outnrsamples; outsmp++ )
-		{
-		    storinterps[iselc]->put( stptrs[iselc], outsmp,
-			    		     trc.getValue(t,icomp) );
-		    t += outsd.step;
-		}
-	    }
+	    // Convert data into other format
+	    int icomp = selComp(iselc);
+	    for ( int isamp=samps.start; isamp<=samps.stop; isamp++ )
+		storinterps[iselc]->put( blockbuf, isamp-samps.start,
+					 trc.get(isamp,icomp) );
 	}
     }
 
     trc.info().putTo( auxinf );
-    if ( !wrmgr->put( (void**)stptrs ) )
+    if ( !wrmgr->put( (void**)targetptrs ) )
 	{ errmsg = wrmgr->errMsg(); return false; }
 
     return true;
+}
+
+
+void CBVSSeisTrcTranslator::blockDumped( int nrtrcs )
+{
+    if ( nrtrcs > 1 && wrmgr )
+	wrmgr->ensureConsistent();
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.21 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.22 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,8 +59,10 @@ public:
 			//!< Expects a buffer for each component
 			//!< returns -1 = error, 0 = OK,
 			//!< 1=not written (threshold reached)
-    void		close()			{ doClose(true); }
-			//!< has no effect (but doesn't hurt) if put() returns 1
+    void		close()			{ doClose( true ); }
+    void		ciaoForNow()		{ doClose(false); }
+			//!< closes as if final close but doesn't
+			//!< actually close stream. Makes result readable.
     const CBVSInfo::SurvGeom& survGeom() const	{ return survgeom_; }
     const PosAuxInfoSelection& auxInfoSel()	{ return auxinfosel_; }
 

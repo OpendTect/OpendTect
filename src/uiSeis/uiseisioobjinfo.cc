@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.2 2004-07-19 11:30:11 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.3 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,12 +150,12 @@ bool uiSeisIOObjInfo::getRanges( StepInterval<int>& inlrg,
 {
     mChkIOObj(false);
 
-    SeisSelData seldata;
-    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, seldata ) )
+    SeisSelData seldata; BinIDValue biv;
+    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, seldata, &biv ) )
     {
-	inlrg = seldata.inlrg_;
-	crlrg = seldata.crlrg_;
-	zrg = seldata.zrg_;
+	assign( inlrg, seldata.inlrg_ ); assign( crlrg, seldata.crlrg_ );
+	inlrg.step = biv.binid.inl; crlrg.step = biv.binid.crl;
+	assign( zrg, seldata.zrg_ ); zrg.step = biv.value;
 	return true;
     }
 

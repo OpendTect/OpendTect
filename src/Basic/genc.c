@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.42 2004-05-07 09:36:03 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.43 2004-07-22 16:14:07 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -545,7 +545,7 @@ int setEnvVar( const char* env, const char* val )
     return YES;
 }
 
-void exitProgram( int ret )
+int exitProgram( int ret )
 {
 
 #ifdef __win__
@@ -568,6 +568,7 @@ void exitProgram( int ret )
 #endif
 
     exit(ret);
+    return ret;
 }
 
 

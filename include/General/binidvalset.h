@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.2 2004-07-19 14:56:08 bert Exp $
+ RCS:		$Id: binidvalset.h,v 1.3 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,10 +125,8 @@ public:
     void		sortDuplicateBids(int value_nr,bool ascending=true);
     void		removeDuplicateBids();
 
-    void		getExtended(BinIDValueSet&,const BinID& stepout,
-	    			    const BinID& stepoutstep) const;
-    			//!< empties and restructures the input set
-    			//!< only allowdup and nrvals of the input set are kept
+    void		extend(const BinID& stepout,const BinID& stepoutstep);
+    			//!< Adds only BinID postions not yet in set
 
     			// Convenience stuff
     Pos			add(const BinIDValue&);
@@ -147,6 +145,11 @@ public:
     			// Slow! Can still come in handly for small sets
     void		fillPar(IOPar&,const char* key) const;
     void		usePar(const IOPar&,const char* key);
+
+    			// Fast
+    bool		getFrom(std::istream&);
+				//!< re-structures but keeps allowdup
+    bool		putTo(std::ostream&) const;
 
     			// Direct access to value arrays
     inline float*	getVals( const Pos& p )		{ return gtVals(p); }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswritemgr.h,v 1.11 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: cbvswritemgr.h,v 1.12 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
 
     int			nrComponents() const;
     const BinID&	binID() const;
+
+    void		ensureConsistent();
 
 protected:
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.45 2004-07-19 13:21:49 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.46 2004-07-22 16:14:07 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -78,9 +78,14 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, trcblock_(*new SeisTrcBuf)
     	, lastinlwritten(SI().range().start.inl)
     	, enforce_regular_write(true)
+    	, enforce_survinfo_write(false)
 {
-    if ( getenv("DTECT_DONT_ENFORCE_REGULAR_WRITE") )
-	enforce_regular_write = false;
+    const char* envvar = getenv("DTECT_ENFORCE_REGULAR_SEISWRITE");
+    if ( envvar && *envvar )
+	enforce_regular_write = yesNoFromString(envvar);
+    envvar = getenv("DTECT_ENFORCE_SURVINFO_SEISWRITE");
+    if ( envvar && *envvar )
+	enforce_survinfo_write = yesNoFromString(envvar);
 }
 
 
@@ -164,7 +169,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 }
 
 
-bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
+bool SeisTrcTranslator::commitSelections()
 {
     errmsg = "No selected components found";
     const int sz = tarcds.size();
@@ -175,7 +180,6 @@ bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
     {
 	Interval<float> zrg( seldata->zRange() );
 	outsd.start = zrg.start;
-	outsd.step = seldata->zrg_.step;
 	outnrsamples = (int)(((zrg.stop-zrg.start) / outsd.step) + .5) + 1;
     }
 
@@ -218,69 +222,33 @@ bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
     errmsg = 0;
     if ( !pinfo ) pinfo = new SeisPacketInfo;
 
-    enforceBounds( trc );
+    enforceBounds();
     return commitSelections_();
 }
 
 
-void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
+void SeisTrcTranslator::enforceBounds()
 {
-    static const float eps = SeisTrc::snapdist;
+    // Ranges
+    outsd.step = insd.step;
+    float outstop = outsd.start + (outnrsamples - 1) * outsd.step;
+    if ( outsd.start < insd.start )
+	outsd.start = insd.start;
+    const float instop = insd.start + (innrsamples - 1) * insd.step;
+    if ( outstop > instop )
+	outstop = instop;
 
-    SamplingData<float> avsd;
-    avsd.start = trc ? trc->startPos( 0 ) : insd.start;
-    avsd.step = trc ? trc->info().sampling.step : insd.step;
-    int sz = trc ? trc->size( 0 ) : innrsamples;
-
-    Interval<float> reqintv;
-    reqintv.start = outsd.start;
-    reqintv.stop = reqintv.start + outsd.step * (outnrsamples-1);
-    const float avstop = avsd.start + avsd.step * (sz-1);
-    if ( reqintv.start > reqintv.stop ) Swap(reqintv.start,reqintv.stop);
-    if ( reqintv.start < avsd.start ) reqintv.start = avsd.start;
-    if ( reqintv.stop > avstop ) reqintv.stop = avstop;
-
-    // If requested start not on a sample, make sure it is
-    // First, the start time:
-    float sampdist = (reqintv.start - avsd.start) / avsd.step;
-    int intdist = mNINT(sampdist);
-    if ( !trc )
-    {
-	sampdist -= intdist;
-	if ( sampdist < -eps || sampdist > eps )
-	{
-	    // Reading and not on sample: read more to allow interpolation
-	    sampdist += intdist - 1.5;
-	    intdist = sampdist < 0 ? 0 : mNINT(sampdist);
-	}
-    }
-    reqintv.start = avsd.start + avsd.step * intdist;
-
-    // Then, the stop time:
-    sampdist = (avstop - reqintv.stop) / avsd.step;
-    intdist = mNINT(sampdist);
-    if ( !trc )
-    {
-	sampdist -= intdist;
-	if ( sampdist < -eps || sampdist > eps )
-	{
-	    // Reading and not on sample: read more to allow interpolation
-	    sampdist += intdist - 1.5;
-	    intdist = sampdist < 0 ? 0 : mNINT(sampdist);
-	}
-    }
-    reqintv.stop = avstop - avsd.step * intdist;
-
-    if ( reqintv.start > reqintv.stop ) Swap(reqintv.start,reqintv.stop);
-
-    float reqstep = outsd.step;
-    sampdist = reqstep / avsd.step;
-    intdist = (int)(sampdist + eps);
-    if ( intdist < 1 ) intdist = 1;
-    outsd.step = avsd.step * intdist;
-    outsd.start = reqintv.start;
-    float fnrsamps = (reqintv.stop - reqintv.start) / outsd.step + 1;
-    outnrsamples = (int)(fnrsamps + eps);
+    // Snap to samples
+    float sampdist = (outsd.start - insd.start) / insd.step;
+    int startsamp = mNINT(sampdist);
+    if ( startsamp < 0 ) startsamp = 0;
+    if ( startsamp > innrsamples-1 ) startsamp = innrsamples-1;
+    outsd.start = insd.start + startsamp * insd.step;
+    sampdist = (outstop - insd.start) / insd.step;
+    int endsamp = mNINT(sampdist);
+    if ( endsamp < startsamp ) endsamp = startsamp;
+    if ( endsamp > innrsamples-1 ) endsamp = innrsamples-1;
+    outnrsamples = endsamp - startsamp + 1;
 }
 
 
@@ -307,7 +275,7 @@ void SeisTrcTranslator::fillOffsAzim( SeisTrcInfo& ti, const Coord& gp,
 
 bool SeisTrcTranslator::write( const SeisTrc& trc )
 {
-    if ( !inpfor_ ) commitSelections( &trc );
+    if ( !inpfor_ ) commitSelections();
 
     if ( !inlCrlSorted() )
     {
@@ -335,71 +303,68 @@ bool SeisTrcTranslator::writeBlock()
     int sz = trcblock_.size();
     SeisTrc* firsttrc = sz ? trcblock_.get(0) : 0;
     const int firstcrl = sz ? firsttrc->info().binid.crl : -1;
-    StepInterval<int> crlrg(0,0,SI().getStep(false,false));
     bool upwrd = sz < 2 || firstcrl < trcblock_.get(sz-1)->info().binid.crl;
 
-    if ( prepareWriteBlock(crlrg,upwrd) )
+    if ( firsttrc )
+	lastinlwritten = firsttrc->info().binid.inl;
+
+    if ( sz && enforce_regular_write )
     {
-	if ( firsttrc )
-	    lastinlwritten = firsttrc->info().binid.inl;
-
-	if ( sz && enforce_regular_write )
+	trcblock_.sort( upwrd );
+	int nrperpos = 1;
+	for ( int idx=1; idx<sz; idx++ )
 	{
-	    trcblock_.sort( upwrd );
-	    int nrperpos = 1;
-	    for ( int idx=1; idx<sz; idx++ )
-	    {
-		if ( trcblock_.get(idx)->info().binid.crl != firstcrl )
-		    break;
-		nrperpos++;
-	    }
-	    trcblock_.enforceNrTrcs( nrperpos );
-	    sz = trcblock_.size();
+	    if ( trcblock_.get(idx)->info().binid.crl != firstcrl )
+		break;
+	    nrperpos++;
 	}
+	trcblock_.enforceNrTrcs( nrperpos );
+	sz = trcblock_.size();
+    }
 
-	if ( !crlrg.start && !crlrg.stop )
-	    dumpBlock();
+    if ( !enforce_survinfo_write )
+	{ dumpBlock(); return true; }
+
+    StepInterval<int> crlrg( SI().range(true).start.inl,
+			     SI().range(true).stop.inl,
+			     SI().inlStep() );
+    const int firstafter = upwrd ? crlrg.stop + crlrg.step
+				 : crlrg.start + crlrg.step;
+    int stp = upwrd ? crlrg.step : -crlrg.step;
+    int bufidx = 0;
+    SeisTrc* trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
+    BinID binid( lastinlwritten, upwrd ? crlrg.start : crlrg.stop );
+    SeisTrc* filltrc = 0;
+    for ( binid.crl; binid.crl != firstafter; binid.crl += stp )
+    {
+	while ( trc
+	     && ( (upwrd && trc->info().binid.crl < binid.crl)
+	       || (!upwrd && trc->info().binid.crl > binid.crl) ) )
+	{
+	    bufidx++;
+	    trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
+	}
+	if ( trc )
+	{
+	    if ( !writeTrc_(*trc) )
+		return false;
+	}
 	else
 	{
-	    const int firstafter = upwrd ? crlrg.stop + crlrg.step
-					 : crlrg.start + crlrg.step;
-	    int stp = upwrd ? crlrg.step : -crlrg.step;
-	    int bufidx = 0;
-	    SeisTrc* trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
-	    BinID binid( lastinlwritten, upwrd ? crlrg.start : crlrg.stop );
-	    SeisTrc* filltrc = 0;
-	    for ( binid.crl; binid.crl != firstafter; binid.crl += stp )
+	    if ( !filltrc )
+		filltrc = getFilled( binid );
+	    else
 	    {
-		while ( trc
-		     && ( (upwrd && trc->info().binid.crl < binid.crl)
-		       || (!upwrd && trc->info().binid.crl > binid.crl) ) )
-		{
-		    bufidx++;
-		    trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
-		}
-		if ( trc )
-		{
-		    if ( !writeTrc_(*trc) )
-			return false;
-		}
-		else
-		{
-		    if ( !filltrc )
-			filltrc = getFilled( binid );
-		    else
-		    {
-			filltrc->info().binid = binid;
-			filltrc->info().coord = SI().transform(binid);
-		    }
-		    if ( !writeTrc_(*filltrc) )
-			return false;
-		}
+		filltrc->info().binid = binid;
+		filltrc->info().coord = SI().transform(binid);
 	    }
-	    delete filltrc;
-	    trcblock_.deepErase();
+	    if ( !writeTrc_(*filltrc) )
+		return false;
 	}
     }
 
+    delete filltrc;
+    trcblock_.deepErase();
     return true;
 }
 
@@ -413,6 +378,7 @@ bool SeisTrcTranslator::dumpBlock()
 	    { rv = false; break; }
     }
     trcblock_.deepErase();
+    blockDumped( trcblock_.size() );
     return rv;
 }
 
@@ -506,7 +472,8 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 }
 
 
-bool SeisTrcTranslator::getRanges( const IOObj& ioobj, SeisSelData& sd )
+bool SeisTrcTranslator::getRanges( const IOObj& ioobj, SeisSelData& sd,
+				   BinIDValue* step )
 {
     PtrMan<Translator> transl = ioobj.getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
@@ -517,6 +484,15 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, SeisSelData& sd )
 
     const SeisPacketInfo& pinf = tr->packetInfo();
     sd.type_ = SeisSelData::Range;
-    sd.inlrg_ = pinf.inlrg; sd.crlrg_ = pinf.crlrg; sd.zrg_ = pinf.zrg;
+    assign( sd.inlrg_, pinf.inlrg );
+    assign( sd.crlrg_, pinf.crlrg );
+    assign( sd.zrg_, pinf.zrg );
+    if ( step )
+    {
+	step->binid.inl = pinf.inlrg.step;
+	step->binid.crl = pinf.crlrg.step;
+	step->value = pinf.zrg.step;
+    }
+
     return true;
 }

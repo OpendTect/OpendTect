@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.22 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.23 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -61,14 +61,12 @@ protected:
     int			nrdone;
 
     // Following variables are inited by commitSelections_
-    TraceDataInterpreter** storinterps;
-    StepInterval<int>	samps;
+    Interval<int>	samps;
     bool*		compsel;
     bool*		userawdata;
-    bool*		samedatachar;
     unsigned char**	blockbufs;
-    unsigned char**	stptrs;
-    unsigned char**	tdptrs;
+    unsigned char**	targetptrs;
+    TraceDataInterpreter** storinterps;
     int			preseldatatype;
     VBrickSpec&		brickspec;
 
@@ -76,13 +74,13 @@ protected:
     CBVSWriteMgr*	wrmgr;
     PosAuxInfo		auxinf;
     bool		minimalhdrs;
-    Interval<int>	cbvssamps;
 
     virtual void	cleanUp();
     virtual bool	initRead_();
     virtual bool	initWrite_(const SeisTrc&);
     virtual bool	commitSelections_();
     virtual bool	writeTrc_(const SeisTrc&);
+    virtual void	blockDumped(int);
     bool		startWrite();
     bool		toNext();
     bool		getFileName(BufferString&);
@@ -91,7 +89,6 @@ private:
 
     static const IOPar&	datatypeparspec;
 
-    void		calcSamps();
     void		destroyVars();
 
 };

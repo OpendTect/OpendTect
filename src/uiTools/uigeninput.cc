@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.60 2004-02-19 14:20:36 nanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.61 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -874,6 +874,31 @@ int uiGenInput::nElements() const
 
     return nel;
 }
+
+
+void uiGenInput::setValue( const Interval<int>& i )
+{
+    setValue(i.start,0); setValue(i.stop,1);
+    mDynamicCastGet(const StepInterval<int>*,si,&i)
+    if ( si ) setValue(si->step,2);
+}
+
+
+void uiGenInput::setValue( const Interval<double>& i )
+{
+    setValue(i.start,0); setValue(i.stop,1);
+    mDynamicCastGet(const StepInterval<double>*,si,&i)
+    if ( si ) setValue(si->step,2);
+}
+
+
+void uiGenInput::setValue( const Interval<float>& i )
+{
+    setValue(i.start,0); setValue(i.stop,1);
+    mDynamicCastGet(const StepInterval<float>*,si,&i)
+    if ( si ) setValue(si->step,2);
+}
+
 
 UserInputObj* uiGenInput::element( int nr )
 { 

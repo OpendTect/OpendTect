@@ -21,20 +21,20 @@ static const char* rcsID = "$Id";
 #include "seisfact.h"
 
 
-int main( int argc, char** argv )
+static int doWork( int argc, char** argv )
 {
     if ( argc < 4 )
     {
-	std::cerr << "Usage: " << argv[0] << " component inpfile outpfile"<< std::endl
-	     << "Format: CBVS." << std::endl
-	     << "set component to -1 for polar dip, -2 for azimuth"
-	     << " (2 components required!)" << std::endl;
-	exitProgram( 1 );
+	std::cerr << "Usage: " << argv[0]
+		  << " component inpfile outpfile\nFormat: CBVS.\n"
+		     "set component to -1 for polar dip, -2 for azimuth\n"
+		     " (2 components required!)" << std::endl;
+	return 1;
     }
     else if ( !File_exists(argv[2]) )
     {
 	std::cerr << argv[2] << " does not exist" << std::endl;
-	exitProgram( 1 );
+	return 1;
     }
 
     const int selcomp = atoi( argv[1] );
@@ -48,7 +48,7 @@ int main( int argc, char** argv )
     }
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
-        { std::cerr << tri->errMsg() << std::endl; exitProgram( 1 ); }
+        { std::cerr << tri->errMsg() << std::endl; return 1; }
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
 	= tri->componentInfo();
@@ -91,14 +91,20 @@ int main( int argc, char** argv )
 
 	if ( !nrwr && !tro->initWrite(
 		    	new StreamConn(fname,Conn::Write),outtrc) )
-	    { std::cerr << "Cannot start write!" << std::endl; exitProgram(1); }
+	    { std::cerr << "Cannot start write!" << std::endl; return 1; }
 
 	if ( !tro->write(outtrc) )
-	    { std::cerr << "Cannot write!" << std::endl; exitProgram(1); }
+	    { std::cerr << "Cannot write!" << std::endl; return 1; }
 
 	nrwr++;
     }
 
     std::cerr << nrwr << " traces written.";
-    exitProgram( nrwr ? 0 : 1 ); return 0;
+    return nrwr ? 0 : 1;
+}
+
+
+int main( int argc, char** argv )
+{
+    return exitProgram( doWork(argc,argv) );
 }

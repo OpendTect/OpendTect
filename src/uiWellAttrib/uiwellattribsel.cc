@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.6 2004-07-16 15:35:26 bert Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.7 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,11 +125,11 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
 	if ( !uiMSG().askGoOn(msg) ) return false;
     }
 
-    BinIDValueSet bivs( 1, true );
+    BinIDValueSet bivs( 2, true );
     TypeSet<float> mdset;
-    TypeSet<BinIDValueSet::Pos> poss;
     StepInterval<float> intv = rangefld->getFStepInterval();
     const int nrsteps = intv.nrSteps();
+    TypeSet<BinIDValueSet::Pos> poss;
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = intv.atIndex( idx );
@@ -140,8 +140,18 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
 
 	if ( zistime )
 	    pos.z = d2t->getTime( md );
+	bivs.add( bid, pos.z, (float)idx );
 	mdset += md;
-	poss += bivs.add( bid, pos.z );
+	poss += BinIDValueSet::Pos(0,0);
+    }
+
+    BinIDValueSet::Pos pos;
+    while ( bivs.next(pos) )
+    {
+	float& vidx = bivs.getVals(pos)[1];
+	int posidx = mNINT(vidx);
+	poss[posidx] = pos;
+	vidx = mUndefValue;
     }
 
     AttribSelSpec selspec;

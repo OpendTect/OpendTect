@@ -30,7 +30,7 @@ int main( int argc, char** argv )
     {
 	std::cerr << "Usage: " << argv[0]
 	     << " inpfile outpfile "
-	     << "[inl1,inl2,inlstep,crl1,crl2,crlstep,startz,stepz,nrz]\n";
+	     << "[inl1,inl2,crl1,crl2,startz,nrz]\n";
 	std::cerr << "Format input: CBVS ; Format ouput: x y z v [v ...]"
 		  << std::endl;
 	exitProgram( 1 );
@@ -63,13 +63,10 @@ int main( int argc, char** argv )
 	SeisSelData sd;
 	sd.inlrg_.start = atoi(fms[0]);
 	sd.inlrg_.stop = atoi(fms[1]);
-	sd.inlrg_.step = atoi(fms[2]);
-	sd.crlrg_.start = atoi(fms[3]);
-	sd.crlrg_.stop = atoi(fms[4]);
-	sd.crlrg_.step = atoi(fms[5]);
-	sd.zrg_.start = atof(fms[6]);
-	sd.zrg_.stop = atof(fms[7]);
-	sd.zrg_.step = atof(fms[8]);
+	sd.crlrg_.start = atoi(fms[2]);
+	sd.crlrg_.stop = atoi(fms[3]);
+	sd.zrg_.start = atof(fms[4]);
+	sd.zrg_.stop = atof(fms[5]);
 	tri->setSelData( &sd );
     }
 

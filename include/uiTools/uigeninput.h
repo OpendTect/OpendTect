@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.26 2004-02-19 14:21:17 nanne Exp $
+ RCS:           $Id: uigeninput.h,v 1.27 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,21 +155,11 @@ Returns true, if changes are accepted.
 			{ setValue(c.x,0); setValue(c.y,1); }
     inline void		setValue( const BinID& b )
 			{ setValue(b.inl,0); setValue(b.crl,1); }
-    inline void		setValue( const Interval<int>& i )
-			{ setValue(i.start,0); setValue(i.stop,1); }
-    inline void		setValue( const Interval<float>& i )
-			{ setValue(i.start,0); setValue(i.stop,1); }
-    inline void		setValue( const Interval<double>& i )
-			{ setValue(i.start,0); setValue(i.stop,1); }
-    inline void		setValue( const StepInterval<int>& i )
-			{ setValue(i.start,0); setValue(i.stop,1);
-			  setValue(i.step,2); }
-    inline void		setValue( const StepInterval<float>& i )
-			{ setValue(i.start,0); setValue(i.stop,1);
-			  setValue(i.step,2); }
-    inline void		setValue( const StepInterval<double>& i )
-			{ setValue(i.start,0); setValue(i.stop,1);
-			  setValue(i.step,2); }
+    inline void		setValue( const BinIDValue& b )
+			{ setValue(b.binid); setValue(b.value,2); }
+    void		setValue(const Interval<int>&); //!< and StepIntv
+    void		setValue(const Interval<float>&); //!< and StepIntv
+    void		setValue(const Interval<double>&); //!< and StepIntv
 
     void		displayField(bool yn=true,int elemnr=-1,int fldnr=-1);
     void		setReadOnly( bool yn=true,int nr=-1);

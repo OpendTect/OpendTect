@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.11 2004-03-15 07:40:30 kristofer Exp $
+ RCS:           $Id: cubesampling.h,v 1.12 2004-07-22 16:14:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,8 +118,8 @@ public:
     			//!< Returns false if intersection is empty
 
     void		snapToSurvey(bool work=true);
-    			/*!< Checks if it is on valid bids. If not, it will
-			     expand until it is */
+    			/*!< Checks if it is on valid bids and sample positions.
+			     If not, it will expand until it is */
 
     bool		operator==( const CubeSampling& cs ) const;
     bool		operator!=( const CubeSampling& cs ) const

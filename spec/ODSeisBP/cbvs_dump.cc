@@ -72,8 +72,10 @@ bool BatchProgram::go( std::ostream& logstrm )
     ioobj.setFileName( fname );
     ioobj.setGroup( mTranslGroupName(SeisTrc) );
     ioobj.setTranslator( mTranslKey(CBVSSeisTrc) );
-    SeisSelData seldata;
-    SeisTrcTranslator::getRanges( ioobj, seldata );
+    SeisSelData seldata; BinIDValue biv;
+    SeisTrcTranslator::getRanges( ioobj, seldata, &biv );
+    const float zstep = biv.value;
+    const BinID icstep( biv.binid );
 
     fname = StreamProvider::sStdIO;
     pars().get( "Output", fname );
@@ -92,11 +94,11 @@ bool BatchProgram::go( std::ostream& logstrm )
     if ( res && *res == 'I' )
     {
 	outstrm << "Range.Inline: " << seldata.inlrg_.start << ' '
-		<< seldata.inlrg_.stop << ' ' << seldata.inlrg_.step << '\n';
+		<< seldata.inlrg_.stop << ' ' << icstep.inl << '\n';
 	outstrm << "Range.Xline: " << seldata.crlrg_.start << ' '
-		<< seldata.crlrg_.stop << ' ' << seldata.crlrg_.step << '\n';
+		<< seldata.crlrg_.stop << ' ' << icstep.crl << '\n';
 	outstrm << "Range.Z: " << seldata.zrg_.start << ' '
-	    	<< seldata.zrg_.stop << ' ' << seldata.zrg_.step << std::endl;
+	    	<< seldata.zrg_.stop << ' ' << zstep << std::endl;
 	if ( ci.size() > 1 )
 	    outstrm << "Components.Nr: " << ci.size() << std::endl;
 
@@ -134,7 +136,7 @@ bool BatchProgram::go( std::ostream& logstrm )
 	    ci[idx]->destidx = -1;
     }
 
-    StepInterval<float>& zrg = seldata.zrg_;
+    StepInterval<float> zrg( seldata.zrg_.start, seldata.zrg_.stop, zstep );
     if ( havesel )
     {
 	FileMultiString fms;
@@ -146,7 +148,6 @@ bool BatchProgram::go( std::ostream& logstrm )
 		const int sz = fms.size();
 		if ( sz > 0 ) seldata.inlrg_.start = atoi( fms[0] );
 		if ( sz > 1 ) seldata.inlrg_.stop = atoi( fms[1] );
-		if ( sz > 2 ) seldata.inlrg_.step = atoi( fms[2] );
 	    }
 	    if ( crlselstr )
 	    {
@@ -154,7 +155,6 @@ bool BatchProgram::go( std::ostream& logstrm )
 		const int sz = fms.size();
 		if ( sz > 0 ) seldata.crlrg_.start = atoi( fms[0] );
 		if ( sz > 1 ) seldata.crlrg_.stop = atoi( fms[1] );
-		if ( sz > 2 ) seldata.crlrg_.step = atoi( fms[2] );
 	    }
 	}
 	if ( zselstr )
@@ -162,12 +162,11 @@ bool BatchProgram::go( std::ostream& logstrm )
 	    fms = zselstr;
 	    const int sz = fms.size();
 	    if ( SI().zIsTime() )
-		{ zrg.start *= 1000; zrg.stop *= 1000; zrg.step *= 1000; }
+		{ zrg.start *= 1000; zrg.stop *= 1000; }
 	    if ( sz > 0 ) zrg.start = atof( fms[0] );
 	    if ( sz > 1 ) zrg.stop = atof( fms[1] );
-	    if ( sz > 2 ) zrg.step = atof( fms[2] );
 	    if ( SI().zIsTime() )
-		{ zrg.start *= 0.001; zrg.stop *= 0.001; zrg.step *= 0.001; }
+		{ zrg.start *= 0.001; zrg.stop *= 0.001; }
 	}
 
 	tri->setSelData( &seldata );
@@ -175,13 +174,13 @@ bool BatchProgram::go( std::ostream& logstrm )
 
     res = pars().find( "Output.Type" );
     const bool doasc = !res || (*res != 'b' && *res != 'B');
-    const int nrsamples = zrg.nrSteps() + 1;
+    const int nrsamples = (int)((zrg.stop-zrg.start)/zstep + 1.5);
     if ( doasc )
-	outstrm << zrg.start << ' ' << zrg.step << ' ' << nrsamples <<std::endl;
+	outstrm << zrg.start << ' ' << zstep << ' ' << nrsamples<<std::endl;
     else
     {
 	outstrm.write( (char*)&zrg.start, sizeof(float) );
-	outstrm.write( (char*)&zrg.step, sizeof(float) );
+	outstrm.write( (char*)&zstep, sizeof(float) );
 	outstrm.write( (char*)&nrsamples, sizeof(int) );
     }
 
