@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.20 2003-03-21 09:01:49 kristofer Exp $
+ RCS:		$Id: iopar.h,v 1.21 2003-04-22 10:05:38 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,9 @@ public:
     const char*		find(const char*) const;
 			//!< returns null if not found
 
-    bool		get(const char*,int&) const;
+    bool		get(const char*, int&) const;
+    bool		get(const char*, long long& ) const;
+    bool		get(const char*, unsigned long long& ) const;
     bool		get(const char*,int&,int&) const;
     inline bool		get( const char* k, float& v ) const
 			{ return getSc(k,v,1,false); }
@@ -148,6 +150,8 @@ public:
 
     void		set(const char*,const char*);
     void		set(const char*,int);
+    void		set(const char*,long long);
+    void		set(const char*,unsigned long long);
     void		set(const char*,float);
     void		set(const char*,double);
     void		set(const char*,const char*,const char*);
