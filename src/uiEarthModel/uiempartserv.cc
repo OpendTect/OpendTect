@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.6 2003-01-03 15:51:39 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.7 2003-02-03 14:10:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,10 @@ ________________________________________________________________________
 #include "emfaulttransl.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "survinfo.h"
 #include "surfaceinfo.h"
+#include "geom2dsnappedsurface.h"
+#include "geomcompositesurface.h"
 
 const int uiEMPartServer::evGetHorData = 0;
 
@@ -32,7 +35,7 @@ const int uiEMPartServer::evGetHorData = 0;
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-    	, selhorid_(-1)
+    	, selhorid_("")
 {
 }
 
@@ -78,7 +81,7 @@ bool uiEMPartServer::exportHorizon( const ObjectSet<SurfaceInfo>& his )
     uiExportHorizon dlg( appserv().parent(), his );
     if ( !dlg.go() ) return false;
 
-    selhorid_ = dlg.selHorID();
+//    selhorid_ = dlg.selHorID();
     deepErase( horbidzvs_ );
     sendEvent( evGetHorData );
     return dlg.writeAscii( horbidzvs_ );
@@ -151,3 +154,52 @@ bool uiEMPartServer::importLMKFault()
 }
 
 
+void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
+{
+    int nrobjects = EarthModel::EMM().nrObjects();
+    for ( int idx=0; idx<nrobjects; idx++ )
+    {
+	EarthModel::EMManager& em = EarthModel::EMM();
+	mDynamicCastGet(EarthModel::Horizon*,hor,em.getEMObject(idx))
+	if ( hor )
+	    hinfos += new SurfaceInfo( hor->id(), hor->name() );
+    }
+}
+
+
+void uiEMPartServer::getSurfaceDef( const MultiID& id, 
+				    ObjectSet< TypeSet<BinIDValue> >& bidvset,
+				    const BinIDRange* br ) const
+{
+    EarthModel::EMManager& em = EarthModel::EMM();
+    mDynamicCastGet(EarthModel::Horizon*,hor,em.getObject(id))
+    if ( !hor ) return;
+
+    deepErase( bidvset );
+    const Geometry::CompositeGridSurface& grdsurf = hor->getSurfaces();
+    const int nrsubsurf = grdsurf.nrSubSurfaces();
+    for ( int idx=0; idx<nrsubsurf; idx++ )
+    {
+	bidvset += new TypeSet<BinIDValue>;
+	TypeSet<BinIDValue>& res = *bidvset[idx];
+
+	const Geometry::Snapped2DSurface* surface = grdsurf.getSurfaces()[idx];
+	const int nrrows = surface->nrRows();
+	for ( int row=0; row<nrrows; row++ )
+	{
+	    const int nrcols = surface->nrCols( row );
+	    for ( int col=0; col<nrcols; col++ )
+	    {
+		const RowCol rc(row,col);
+		Coord3 pos = surface->getGridPos( rc );
+		BinIDValue bidval;
+		bidval.binid = SI().transform( Coord( pos.x, pos.y ) );
+		if ( br && br->excludes( bidval.binid ) )
+		    continue;
+
+		bidval.value = pos.z;
+		res += bidval;
+	    }
+	}
+    }
+}

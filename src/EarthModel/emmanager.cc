@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.9 2003-01-03 15:50:10 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.10 2003-02-03 14:10:28 nanne Exp $";
 
 #include "emmanager.h"
 #include "emobject.h"
@@ -132,6 +132,24 @@ const EarthModel::EMObject* EarthModel::EMManager::getObject( const MultiID& id 
 	if ( objects[idx]->id()==id )
 	    return objects[idx];
     }
+
+    return 0;
+}
+
+
+const EarthModel::EMObject* EarthModel::EMManager::getEMObject( int idx ) const
+{
+    if ( objects.size() )
+	return objects[idx];
+
+    return 0;
+}
+
+
+EarthModel::EMObject* EarthModel::EMManager::getEMObject( int idx )
+{
+    if ( objects.size() )
+	return objects[idx];
 
     return 0;
 }

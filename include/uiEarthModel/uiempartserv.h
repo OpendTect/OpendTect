@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.4 2002-09-23 07:10:05 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.5 2003-02-03 14:10:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiapplserv.h>
+#include "uiapplserv.h"
+#include "multiid.h"
 class SurfaceInfo;
-class MultiID;
+class BinIDValue;
+class BinIDRange;
 class BinIDZValue;
 
 
@@ -36,20 +38,23 @@ public:
     bool		selectWellTracks(ObjectSet<MultiID>&);
     bool		importLMKFault();
     bool		selectFault(MultiID&);
+    void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
+    void		getSurfaceDef(const MultiID&, 
+	    			      ObjectSet< TypeSet<BinIDValue> >&, 
+				      const BinIDRange*) const;
 
     static const int	evGetHorData;
 
 			// Interaction stuff
-    int			selHorID() const		{ return selhorid_; }
+    const MultiID&	selHorID() const		{ return selhorid_; }
     ObjectSet< TypeSet<BinIDZValue> >& horData()	{ return horbidzvs_; }
 
 
 protected:
 
     ObjectSet< TypeSet<BinIDZValue> >	horbidzvs_;
-    int					selhorid_;
+    MultiID		selhorid_;
     
-
 };
 
 

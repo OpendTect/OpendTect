@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.6 2003-01-03 15:50:15 nanne Exp $
+ RCS:		$Id: emmanager.h,v 1.7 2003-02-03 14:10:34 nanne Exp $
 ________________________________________________________________________
 
 
@@ -39,17 +39,21 @@ public:
 			~EMManager();
 
     void		init();
-    const char*		getName( const MultiID& );
+    const char*		getName(const MultiID&);
 
-    MultiID		add( Type, const char* name );
+    MultiID		add(Type,const char* name);
     			/*! Return the id */
 
-    EMObject*		getObject( const MultiID& );
-    const EMObject*	getObject( const MultiID& ) const;
+    int			nrObjects() const	{ return objects.size(); }
+    
+    EMObject*		getObject(const MultiID&);
+    const EMObject*	getObject(const MultiID&) const;
+    const EMObject*	getEMObject(int) const;
+    EMObject*		getEMObject(int);
     void		removeObject(const MultiID&);
 
-    Executor*		load( const MultiID& );
-    bool		isLoaded( const MultiID& ) const;
+    Executor*		load(const MultiID&);
+    bool		isLoaded(const MultiID&) const;
 
 protected:
     ObjectSet<EMObject>	objects;
