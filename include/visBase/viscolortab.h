@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.8 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: viscolortab.h,v 1.9 2003-01-02 14:21:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -50,8 +50,9 @@ public:
     const ColorSequence&	colorSeq() const { return *colseq; }
     ColorSequence&		colorSeq() { return *colseq; }
 
-    Notifier<VisColorTab>	change;
-    void			triggerChange() { change.trigger(); }
+    Notifier<VisColorTab>	rangechange;
+    Notifier<VisColorTab>	sequencechange;
+    void			triggerRangeChange() { rangechange.trigger(); }
 
     int				usePar( const IOPar& );
     void			fillPar( IOPar&, TypeSet<int>& ) const;
