@@ -1,5 +1,5 @@
-#ifndef Vector_H
-#define Vector_H
+#ifndef vectoraccess_h
+#define vectoraccess_h
 
 /*+
 ________________________________________________________________________
@@ -7,8 +7,8 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.17 2003-11-07 12:21:50 bert Exp $
+ Contents:	Access to STL vector class with extensions
+ RCS:		$Id: vectoraccess.h,v 1.18 2003-12-24 11:59:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,33 +19,39 @@ ________________________________________________________________________
 
 /*!\brief Simple vector-based container simplifying index-based work.
 
+This class is an implementation detail of the 'sets.h' and 'sortedlist.h'
+classes. Thus, this class is not meant to be used anywhere else in OpendTect!
+Use TypeSet, ObjectSet or SortedList instead. If you need to have the
+std::vector to pass to an external C++ object, use the TypeSet::vec() or
+SortedList::vec().
+
 NOTE: because this class is based directly upon the STL vector, we have a
 problem for the bool type. In STL, they have made the vector<bool> implemented
-in terms of the bit_vector. But then we cannot return a reference to T!!!
-This is why there is a 'BoolTypeSet'.
+in terms of the bit_vector. That really sucks because we cannot return a
+reference to T! This is why there is a 'BoolTypeSet'.
  
  */
 
 template <class T>
-class Vector
+class VectorAccess
 {
 public:
 
-    inline		Vector()			{}
-    inline		Vector( unsigned int n ) : v(n)	{}
-    inline		Vector( unsigned int n, const T& t )
+    inline		VectorAccess()			{}
+    inline		VectorAccess( unsigned int n ) : v(n)	{}
+    inline		VectorAccess( unsigned int n, const T& t )
 				: v(n,t)		{}
-    inline		Vector( const Vector& v2 )
+    inline		VectorAccess( const VectorAccess& v2 )
 				: v(v2.v)		{}
     inline vector<T>&	vec()				{ return v; }
     inline const vector<T>& vec() const			{ return v; }
 
     inline T&		operator[]( int idx )		{ return v[idx]; }
     inline const T&	operator[]( int idx ) const
-    			{ return (*const_cast<Vector*>(this))[idx]; }
+    			{ return (*const_cast<VectorAccess*>(this))[idx]; }
     inline unsigned int	size() const			{ return v.size(); }
 
-    inline Vector&	operator =( const Vector& v2 )
+    inline VectorAccess& operator =( const VectorAccess& v2 )
 			{ v = v2.v; return *this; }
     inline void		push_back( const T& t )		{ v.push_back(t); }
     inline void		insert( int pos, const T& val )

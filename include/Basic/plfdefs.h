@@ -1,13 +1,13 @@
-#ifndef Pmacros_h
-#define Pmacros_h
+#ifndef plfdefs_h
+#define plfdefs_h
 
 /*
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
- Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.9 2003-12-24 11:07:22 bert Exp $
+ Contents:	Defines that encapsulate system things
+ RCS:		$Id: plfdefs.h,v 1.10 2003-12-24 11:59:21 bert Exp $
 ________________________________________________________________________
 
 */
@@ -21,10 +21,10 @@ HDIR can be:
 
 	lux		Linux
 	sun5		Sun Solaris 5.x
-	ibm		IBM AIX 4.x
-	sgi		SGI IRIX 5.x
+	sgi		SGI IRIX 6.x
 	win		M$ Windows
 
+Then you get:
 OS type:
 
 	__unix__	Unix
@@ -41,13 +41,13 @@ Compiler type:
 
 	__gnuc__	GNU gcc
 	__sunc__	Sun c
-	__msvc__	Microsoft Visual C++
+	__msvc__	M$ Visual C++
 
 Language:
 
 	__cpp__		C++ (else C)
 
-Bytes:
+Byte order:
 
 	__little__	little-endian (PC,DEC)
 	__islittle__	'true' if __little__ defined, else 'false'

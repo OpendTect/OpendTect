@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.22 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.23 2003-12-24 11:59:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,9 @@ ________________________________________________________________________
 #define mODMajorVersion		1
 #define mODMinorVersion		0
 
-#include <Pmacros.h>
+#include <plfdefs.h>
 
 #define mMaxUserIDLength	127
-#define mMaxUnitIDLength	60
 
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mNINT(x)		( (int)((x)>0 ? (x)+.5 : (x)-.5) )

@@ -8,16 +8,12 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sorting.h,v 1.7 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: sorting.h,v 1.8 2003-12-24 11:59:21 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
-
-#ifndef Vector_H
-#include <Vector.h>
-#endif
 
 
 #define mDoSort(extra_var,extra_action) \

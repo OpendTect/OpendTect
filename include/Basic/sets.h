@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.27 2003-11-24 08:41:47 kristofer Exp $
+ RCS:		$Id: sets.h,v 1.28 2003-12-24 11:59:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,8 @@ ________________________________________________________________________
 #ifndef gendefs_H
 #include <gendefs.h>
 #endif
-#ifndef Vector_H
-#include <Vector.h>
+#ifndef vectoraccess_h
+#include <vectoraccess.h>
 #endif
 
 /*!\brief Set of (small) copyable elements
@@ -27,7 +27,8 @@ constructor. The `-=' function will only remove the first occurrence that
 matches using the `==' operator. The requirement of the presence of that
 operator is actually not that bad: at least you can't forget it.
 
-Do not make TypeSet<bool>. Use the BoolTypeSet typedef. See Vector for details.
+Do not make TypeSet<bool>. Use the BoolTypeSet typedef. See vectoraccess.h for
+details.
 
 */
 
@@ -105,7 +106,7 @@ public:
 
 protected:
 
-    Vector<T>		tvec;
+    VectorAccess<T>	tvec;
 
 };
 
@@ -271,7 +272,7 @@ public:
 
 protected:
 
-    Vector<void*>	ovec;
+    VectorAccess<void*>	ovec;
     bool		allow0;
 
 };

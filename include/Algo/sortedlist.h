@@ -8,16 +8,13 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedlist.h,v 1.5 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: sortedlist.h,v 1.6 2003-12-24 11:59:21 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
-
-#ifndef Vector_H
-#include <Vector.h>
-#endif
+#include "vectoraccess.h"
 
 /*!\brief
   A SortedList is a list where all objects are stored in ascending order.
@@ -32,35 +29,38 @@ template <class T>
 class SortedList
 {
 public:
-    			SortedList(bool allowmultiples_)
-			    : allowmultiples( allowmultiples_ ) {}
+    			SortedList( bool allowmultiples_ )
+			    : allowmultiples(allowmultiples_) {}
 
-    int 		size() const { return typs.size(); }
-    const T&		operator[]( int idx ) const { return (T&)typs[idx]; }
-    int			indexOf( const T& ) const;
+    int 		size() const			{ return tvec.size(); }
+    const T&		operator[]( int idx ) const	{ return (T&)tvec[idx];}
+    int			indexOf(const T&) const;
     			/*!< Returns -1 if not found */
 
-    SortedList<T>&	operator +=( const T& );
-    SortedList<T>&	operator -=( const T& );
+    SortedList<T>&	operator +=(const T&);
+    SortedList<T>&	operator -=(const T&);
 
-    template <class U> void		intersect( const U& );
+    // The following functions handle external indexables: classes or
+    // arrays - things that support the [] operator.
+
+    template <class U> SortedList<T>&	copy(const U&);
+    template <class U> SortedList<T>&	operator =(const U&);
+    template <class U> SortedList<T>&	operator +=(const U&);
+    template <class U> SortedList<T>&	operator -=(const U&);
+    template <class U> void		intersect(const U&);
 					/*!< Remove all entries not present
-					     in both lists. U should be capable
-					     of doing an indexOf().
-					 */
+					     in both lists. */
 
-    template <class U> SortedList<T>&	copy( const U& array );
+    void		erase();
+    void		remove( int idx );
 
-    template <class U> SortedList<T>&	operator =( const U& array );
+    vector<T>&		vec()		{ return tvec.vec(); }
+    const vector<T>&	vec() const	{ return tvec.vec(); }
+    T*			arr()		{ return size() ? &(*this)[0] : 0; }
+    const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 
-    template <class U> SortedList<T>&	operator +=( const U& array );
+protected:
 
-    template <class U> SortedList<T>&	operator -=( const U& array );
-
-    void				erase();
-    void				remove( int idx );
-
-private:
     int			getPos( const T& ) const;
     			/*!< If not found, it will return position of the
 			     item just above, and size() if val is higher than
@@ -68,7 +68,8 @@ private:
 			 */
 
     bool		allowmultiples;
-    Vector<T>		typs;
+    VectorAccess<T>	tvec;
+
 };
 
 
@@ -113,7 +114,7 @@ int SortedList<T>::getPos( const T& typ ) const
 template <class T> inline
 int SortedList<T>::indexOf( const T& typ ) const
 {
-    if ( !typs.size() ) return -1;
+    if ( !tvec.size() ) return -1;
 
     int pos = getPos( typ );
 
@@ -131,14 +132,14 @@ SortedList<T>&	SortedList<T>::operator +=( const T& nv )
 
     if ( newpos == size() )
     {
-	typs.push_back( nv );
+	tvec.push_back( nv );
 	return *this;
     }
 
     if ( !allowmultiples && (*this)[newpos] == nv )
 	return *this;
 
-    typs.insert( newpos, nv );
+    tvec.insert( newpos, nv );
     return *this;
 }
 
@@ -153,7 +154,7 @@ SortedList<T>&	SortedList<T>::operator -=( const T& nv )
 
     if ( pos == -1 ) return *this;
 
-    typs.remove( pos );
+    tvec.remove( pos );
     return *this;
 }
 
@@ -209,13 +210,13 @@ SortedList<T>&  SortedList<T>::operator -=( const U& array )
 
 
 template <class T> inline
-void SortedList<T>::erase() { typs.erase(); }
+void SortedList<T>::erase() { tvec.erase(); }
 
 
 template <class T> inline
 void  SortedList<T>::remove( int pos )
 {
-    typs.remove( pos );
+    tvec.remove( pos );
 }
 
 #endif

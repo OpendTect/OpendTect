@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.6 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: debug.h,v 1.7 2003-12-24 11:59:21 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "Pmacros.h"  
+#include "gendefs.h"  
  
 /*!\brief defines a generic interface for supplying debug/runtime info
 
