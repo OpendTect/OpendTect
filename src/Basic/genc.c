@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.44 2004-09-27 08:08:36 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.45 2004-10-01 11:55:15 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -550,7 +550,9 @@ const char* _GetHomeDir()
 
 const char* GetSettingsDir(void)
 {
-    const char* ptr = _GetHomeDir();
+    const char* ptr = getenv( "OD_SETTINGS_DIR" );
+    if ( !ptr )
+	ptr = _GetHomeDir();
 
 #ifdef __win__
     if ( !ptr )
@@ -592,7 +594,9 @@ const char* GetSettingsDir(void)
 
 const char* GetPersonalDir(void)
 {
-    const char* ptr = _GetHomeDir();
+    const char* ptr = getenv( "OD_PERSONAL_DIR" );
+    if ( !ptr )
+	ptr = _GetHomeDir();
 
 #ifdef __win__
 
