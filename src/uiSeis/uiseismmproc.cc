@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.66 2004-10-07 21:09:09 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.67 2004-10-21 13:09:02 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,14 +61,26 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     	, running(false)
     	, finished(false)
     	, jmfinished(false)
-	, logvwer(0)
     	, iopl(*new IOParList(iopl))
     	, nrcyclesdone(0)
-    	, tmpstordirfld(0)
-    	, stopbut(0)
     	, estmbs(0)
     	, targetioobj(0)
-    	, autorembut(0)
+	, avmachfld(0)
+	, usedmachfld(0)
+	, jrppolselfld(0)
+	, addbut(0)
+	, stopbut(0)
+	, vwlogbut(0)
+	, autorembut(0)
+	, detectbut(0)
+	, tmpstordirfld(0)
+	, progrfld(0)
+	, logvwer(0)
+	, machgrp(0)
+	, jrpstartfld(0)
+	, jrpstopfld(0)
+	, nicefld(0)
+	, progbar(0)
 {
     const IOPar& iopar = *iopl[0];
     const char* res = iopar.find( "Target value" );
@@ -137,39 +149,67 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 
     HostDataList hdl;
     rshcomm = hdl.rshComm();
-    avmachfld = new uiLabeledListBox( machgrp, "Available hosts", true,
-				      uiLabeledListBox::AboveMid );
-    for ( int idx=0; idx<hdl.size(); idx++ )
+
+    const bool multihost = hdl.size() > 1;
+    if ( multihost )
     {
-	const HostData& hd = *hdl[idx];
-	BufferString nm( hd.name() );
-	const int nraliases = hd.nrAliases();
-	for ( int idx=0; idx<nraliases; idx++ )
-	    { nm += " / "; nm += hd.alias(idx); }
-	avmachfld->box()->addItem( nm );
+	avmachfld = new uiLabeledListBox( machgrp, "Available hosts", true,
+					  uiLabeledListBox::AboveMid );
+	for ( int idx=0; idx<hdl.size(); idx++ )
+	{
+	    const HostData& hd = *hdl[idx];
+	    BufferString nm( hd.name() );
+	    const int nraliases = hd.nrAliases();
+	    for ( int idx=0; idx<nraliases; idx++ )
+		{ nm += " / "; nm += hd.alias(idx); }
+	    avmachfld->box()->addItem( nm );
+	}
+
+	avmachfld->setPrefWidthInChar( 30 );
+	machgrp->setHAlignObj( avmachfld );
+
     }
+    else
+	attaligned = false;
 
-    avmachfld->setPrefWidthInChar( 30 );
-    machgrp->setHAlignObj( avmachfld );
-
-    addbut = new uiPushButton( machgrp, ">> Add >>" );
-    addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
-    addbut->attach( centeredRightOf, avmachfld );
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Machine handling" );
-    usedmachfld = new uiLabeledListBox( usedmachgrp, "Used hosts", false,
-				        uiLabeledListBox::AboveMid );
+    usedmachfld = new uiLabeledListBox( usedmachgrp,
+				    multihost ? "Used hosts" : "", false,
+				    uiLabeledListBox::AboveMid );
     usedmachfld->setPrefWidthInChar( 30 );
+
 
     stopbut = new uiPushButton( usedmachgrp, "Stop" );
     stopbut->activated.notify( mCB(this,uiSeisMMProc,stopPush) );
-    stopbut->attach( alignedBelow, usedmachfld );
     vwlogbut = new uiPushButton( usedmachgrp, "View log" );
     vwlogbut->activated.notify( mCB(this,uiSeisMMProc,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
-    usedmachgrp->attach( ensureRightOf, addbut );
-    machgrp->setHAlignObj( addbut );
+    if( multihost )
+    {
+	stopbut->attach( alignedBelow, usedmachfld );
+
+	addbut = new uiPushButton( machgrp, ">> Add >>" );
+
+	if ( avmachfld ) addbut->attach( centeredRightOf, avmachfld );
+
+	usedmachgrp->attach( ensureRightOf, addbut );
+	machgrp->setHAlignObj( addbut );
+
+    }
+    else
+    {
+	addbut = new uiPushButton( usedmachgrp, "Start" );
+	addbut->attach( alignedBelow, usedmachfld );
+	stopbut->attach( rightOf, addbut );
+
+    	machgrp->setHAlignObj( usedmachfld );
+    }
+
+    addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
+
+
     if ( sep )
     {
 	if ( attaligned )
@@ -203,8 +243,14 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 
 
     finaliseDone.notify( mCB(this,uiSeisMMProc,jrpSel) );
-    jrppolgrp->setHAlignObj( jrpstartfld );
-    jrppolgrp->attach( alignedBelow, machgrp );
+
+    if( multihost )
+    {
+	jrppolgrp->setHAlignObj( jrpstartfld );
+	jrppolgrp->attach( alignedBelow, machgrp );
+    }
+    else
+	jrppolgrp->attach( ensureBelow, machgrp );
 
     sep = new uiSeparator( this, "Hor sep 2", true );
     sep->attach( stretchedBelow, jrppolgrp );
@@ -437,8 +483,11 @@ void uiSeisMMProc::execFinished( bool userestart )
 		delete jm; jm = newjm;
 		if ( add_localhost )
 		{
-		    avmachfld->box()->selAll( false );
-		    avmachfld->box()->setSelected( 0, true );
+		    if ( avmachfld )
+		    {
+			avmachfld->box()->selAll( false );
+			avmachfld->box()->setSelected( 0, true );
+		    }
 		    addPush(0);
 		}
 		task = newjm;
@@ -642,17 +691,20 @@ void uiSeisMMProc::addPush( CallBacker* )
 	}
     }
 
-
-    for( int idx=0; idx<avmachfld->box()->size(); idx++ )
+    if ( avmachfld )
     {
-	if ( avmachfld->box()->isSelected(idx) )
+	for( int idx=0; idx<avmachfld->box()->size(); idx++ )
 	{
-	    BufferString hnm( avmachfld->box()->textOfItem(idx) );
-	    char* ptr = strchr( hnm.buf(), '/' );
-	    if ( ptr ) *(--ptr) = '\0';
-	    jm->addHost( hnm );
+	    if ( avmachfld->box()->isSelected(idx) )
+	    {
+		BufferString hnm( avmachfld->box()->textOfItem(idx) );
+		char* ptr = strchr( hnm.buf(), '/' );
+		if ( ptr ) *(--ptr) = '\0';
+		jm->addHost( hnm );
+	    }
 	}
     }
+    else jm->addHost( "localhost" );
 
     if ( !running && jm->nrHostsInQueue() )
     {
