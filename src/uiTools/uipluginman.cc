@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.6 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.7 2003-12-04 16:18:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "plugins.h"
 #include "filegen.h"
+#include "strmprov.h"
 
 
 uiPluginMan::uiPluginMan( uiParent* p )
@@ -64,7 +65,33 @@ void uiPluginMan::selChg( CallBacker* )
     BufferString txt;
     txt = "Filename: "; txt += fnm;
     txt += "\nCreated by: "; txt += piinf.creator;
-    txt += "\nVersion: "; txt += piinf.version;
+    if ( piinf.version && *piinf.version )
+    {
+	txt += "\nVersion: ";
+	if ( *piinf.version != '=' )
+	    txt += piinf.version;
+	else
+	{
+	    BufferString fnm( GetSoftwareDir() );
+	    fnm = File_getFullPath( fnm, ".rel." );
+	    fnm += piinf.version+1;
+	    fnm += ".";
+	    const char* plfenv = getenv( "binsubdir" );
+	    if ( !plfenv ) plfenv = getenv( "HDIR" );
+	    fnm += plfenv;
+	    StreamData sd = StreamProvider( fnm ).makeIStream();
+	    if ( !sd.usable() )
+		txt += "<unknown>";
+	    else
+	    {
+		char buf[80];
+		sd.istrm->getline( buf, 80 );
+		txt += buf;
+	    }
+	    sd.close();
+	}
+    }
+
     txt += "\n\n";
     txt += piinf.text;
 

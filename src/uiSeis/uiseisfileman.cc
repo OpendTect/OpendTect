@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.34 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.35 2003-12-04 16:18:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,8 +175,8 @@ void uiSeisFileMan::copyPush( CallBacker* )
 
     MultiID key( iostrm->key() );
     uiSeisImpCBVS dlg( this, iostrm );
-    if ( dlg.go() )
-	manipgrp->refreshList( key );
+    dlg.go();
+    manipgrp->refreshList( key );
 }
 
 
@@ -218,6 +218,6 @@ void uiSeisFileMan::mergePush( CallBacker* )
 
     MultiID key( ctio.ioobj->key() );
     uiMergeSeis dlg( this );
-    if ( dlg.go() )
-	manipgrp->refreshList( key );
+    dlg.go();
+    manipgrp->refreshList( key );
 }
