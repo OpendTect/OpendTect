@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.18 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uicombobox.cc,v 1.19 2001-09-20 14:28:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ public:
 			    {
 				setEditable( ed );
 				setAutoCompletion( ed );
-				setStretch( 1, 0 );
 			    }
 
     virtual bool        isSingleLine() const { return true; }
@@ -54,9 +53,7 @@ uiComboBox::uiComboBox(  uiParent* parnt, const char* nm, bool ed )
 						//false: no read/write
     : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
     , selectionChanged( this )
-{
-    setStretch( 1, 0 );
-}
+{}
 
 uiComboBox::uiComboBox(  uiParent* parnt, const PtrUserIDObjectSet& uids,
 			 bool ed )
@@ -64,7 +61,6 @@ uiComboBox::uiComboBox(  uiParent* parnt, const PtrUserIDObjectSet& uids,
 		mkbody(parnt,(const char*)uids->name(),ed) )
     , selectionChanged( this )
 {
-    setStretch( 1, 0 );
     addItems( uids );
 }
 
