@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.4 2002-05-22 06:17:03 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.5 2002-05-22 07:22:18 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -103,6 +103,12 @@ Executor* EarthModel::Horizon::loader()
     }
 
     return exec;
+}
+
+
+bool  EarthModel::Horizon::isLoaded() const
+{
+    return surfaces.nrSubSurfaces();
 }
 
 
