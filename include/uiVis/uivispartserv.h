@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.46 2002-07-02 13:55:24 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.47 2002-07-09 12:35:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,12 @@ public:
     ObjectType		getObjectType( int ) const;
     void		setObjectName(int,const char*);
     const char*		getObjectName(int);
+
+    bool		dumpOI( int id, const char* filename ) const;
+    			/*!< Writes out all display data to a file. This is
+			     only for debugging COIN stuff. Should not be used
+			     apart from that
+			*/
 
     			/* Mouse stuff */
     Geometry::Pos	getMousePos(bool xyt) const
@@ -157,6 +163,11 @@ public:
     			//!< The data in the objset is managed by caller
     void		putNewHorData(int,const ObjectSet<const float>& );
     void		getHorizonIds(int,TypeSet<int>&);
+    void		setHorizonRes(int, int res );
+    			//!< 0 is automatic.
+    int			getHorizonRes(int) const;
+    int			getNrHorizonRes(int) const;
+    BufferString	getHorizonResText(int,int) const;
 
 			//ColorSeqs
     bool		canSetColorSeq(int) const;

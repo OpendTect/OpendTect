@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.69 2002-07-08 05:52:49 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.70 2002-07-09 12:35:56 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "vistexturerect.h"
 #include "visobject.h"
 #include "errh.h"
+#include "uiexecutor.h"
 
 #include "uimsg.h"
 
@@ -211,6 +212,14 @@ const char* uiVisPartServer::getObjectName( int id )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     if ( !obj ) return 0;
     return obj->name();
+}
+
+
+bool uiVisPartServer::dumpOI( int id, const char* filename ) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    if ( !obj ) return false;
+    return obj->dumpOIgraph( filename );
 }
 
 
@@ -834,10 +843,20 @@ int uiVisPartServer::addHorizonDisplay( const MultiID& emhorid )
 
     visSurvey::HorizonDisplay* horizon = visSurvey::HorizonDisplay::create();
 
-    if ( !horizon->setHorizonId( emhorid ) )
+    PtrMan<Executor> exec = horizon->setHorizonId( emhorid );
+
+    if ( !exec )
     {
 	horizon->ref(); horizon->unRef();
 	pErrMsg( "EarthModel em does not exist" );
+	return -1;
+    }
+
+    uiExecutor uiexec (appserv().parent(), *exec );
+    uiexec.retEach( 100 );
+    if ( !uiexec.execute() )
+    {
+	horizon->ref(); horizon->unRef();
 	return -1;
     }
 
@@ -901,6 +920,46 @@ void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
 	if ( hor )
 	    ids += hor->id();
     }
+}
+
+
+void uiVisPartServer::setHorizonRes( int id, int res )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( !hor ) return;
+
+    hor->setResolution(res);
+}
+
+
+int uiVisPartServer::getHorizonRes(int id) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( !hor ) return -1;
+
+    return hor->getResolution();
+}
+
+
+int uiVisPartServer::getNrHorizonRes(int id) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( !hor ) return -1;
+
+    return hor->getNrResolutions();
+}
+
+
+BufferString uiVisPartServer::getHorizonResText(int id,int res) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+    if ( !hor ) return 0;
+
+    return hor->getResName(res);
 }
 
 
