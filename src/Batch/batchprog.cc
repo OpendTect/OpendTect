@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.49 2003-11-12 12:57:04 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.50 2004-01-06 15:14:25 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -198,17 +198,19 @@ void BatchProgram::killNotify( bool yn )
 bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
 				 bool force )
 {
+    static int maxelapsed  = atoi( getenv("DTECT_MM_MILLISECS")
+				 ? getenv("DTECT_MM_MILLISECS") : "1000");
     // if ( !usesock_ ) return true;
 
     int elapsed = Time_getMilliSeconds() - timestamp_;
     if ( elapsed < 0 )
     {
-	mErrStrm << "sys: Elapsed time seems to be negative!" << endl;
+	mErrStrm << "System clock skew detected (Ignored)." << endl;
 	force = true;
     }
 
     bool hasmessage = errmsg && *errmsg;
-    if ( !force && !hasmessage && elapsed < 1000 )
+    if ( !force && !hasmessage && elapsed < maxelapsed )
 	return true;
 
     timestamp_ = Time_getMilliSeconds();
@@ -216,9 +218,9 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     if ( !usesock_ ) return true;
 
     Socket* sock = mkSocket();
-    if ( !sock )
+    if ( !sock || !sock->ok() )
     {
-	mErrStrm << "sys: Cannot create socket!" << endl;
+	mErrStrm << "Cannot open communication socket to Master." << endl;
 	return false;
     }
 
@@ -230,8 +232,14 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     bool ret = true;
 
     char masterinfo;
+    BufferString errbuf;
+
     ret = sock->readtag( masterinfo );
-    if ( masterinfo != mRSP_ACK )
+    if ( !ret )
+    {
+	sock->fetchMsg( errbuf );
+    }
+    else if ( masterinfo != mRSP_ACK )
     {
 	if ( masterinfo == mRSP_REQ_STOP ) 
 	{
@@ -245,14 +253,19 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
 	else if ( masterinfo == mRSP_REQ_CONT )
 	    pausereq_ = false;  
 
-	else ret = false;
+	else
+	{
+	    errbuf = "Master sent an unkown response code.";
+	    ret = false;
+	}
+    }
+
+    if ( !ret )
+    {
+	mErrStrm << "Error writing status to Master: " << errbuf << endl;
     }
 
     delete sock;
-
-    if ( !ret )
-	mErrStrm << "Error writing status to Master." << endl;
-
     return ret;
 }
 
