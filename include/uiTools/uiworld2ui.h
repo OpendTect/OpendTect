@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.6 2005-03-22 09:42:08 cvsduntao Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.7 2005-03-24 08:20:57 cvsduntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,29 +117,26 @@ public:
     void		setCartesianRemap( const uiSize& sz,
     				float minx, float maxx, float miny, float maxy )
 			{
-			    uiWorldRect wr( minx, maxy, maxx, miny );
+			    uiWorldRect wr = xyRng2WrdRect(minx,maxx,miny,maxy);
 			    setRemap( sz, wr );
 			}
     void		setCartesianRemap( const uiRect& rc,
     				float minx, float maxx, float miny, float maxy )
 			{
-			    uiWorldRect wr( minx, maxy, maxx, miny );
+			    uiWorldRect wr = xyRng2WrdRect(minx,maxx,miny,maxy);
 			    setRemap( rc, wr );
 			}
-			//! Call this if window size changed(uiSize) but
-			//! the world rect. remains the same. Normally after 
-			//! window resize. Must be called only after the two
-			//! coordinate system has been set up.
-    void		setUisize (const uiSize& sz )
-    				{ set ( sz, wrdrect_ ); }
-    void		setUirect (const uiRect& rc )
-    				{ set ( rc, wrdrect_ ); }
-			//! Call this if the world rect. has changed but the
-			//! display window(uiSize) remains the same. Must be
-			//! called only after the two coordinate system has 
-			//! been set up.
-    void		setWorldRect (const uiWorldRect& wr )
-    				{ set ( uisize_, wr ); }
+			
+			//! The following reset...() functions must be called
+			//! ONLY AFTER a call to set...() is made.
+    void		resetUiSize( const uiSize& sz )
+    				{ set( sz, wrdrect_ ); }
+    void		resetUiRect( const uiRect& rc )
+    				{ set( rc, wrdrect_ ); }
+    void		resetWorldRect( const uiWorldRect& wr )
+    				{ set( uisize_, wr ); }
+    void		resetWorldRectRemap( const uiWorldRect& wr )
+    				{ setRemap( uisize_, wr ); }
 
     inline const World2UiData&	world2UiData() const
 			{ return w2ud; }
@@ -183,6 +180,11 @@ public:
     			{ return p0.x() + (uix-uiorigin.x())*fac.x(); }
     inline float	toWorldY ( int uiy ) const
     			{ return p0.y() + (uiy-uiorigin.y())*fac.y(); }
+
+    uiWorldRect		xyRng2WrdRect( float minx, float maxx,
+    				       float miny, float maxy )
+			    { return uiWorldRect( minx, maxy, maxx, miny ); }
+			
 
     uiWorldPoint	origin() const		{ return p0; }
     uiWorldPoint	worldPerPixel() const	{ return fac; }
