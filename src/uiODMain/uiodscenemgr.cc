@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.21 2004-05-19 07:11:57 kristofer Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.22 2004-06-23 11:20:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -480,16 +480,6 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 	globalhighest = highest;
     }
 
-    if ( getenv("DTECT_SHOW_TRACKINGITEMS") )
-    {
-	//scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
-    }
-    //scn.itemmanager->addChild( new uiODWellFactoryTreeItem );
-    //scn.itemmanager->addChild( new uiODFaultParentTreeItem );
-    //scn.itemmanager->addChild( new uiODHorizonParentTreeItem );
-    //scn.itemmanager->addChild( new uiODPickSetFactoryTreeItem );
-    //scn.itemmanager->addChild( new uiODRandomLineFactoryTreeItem );
-    //scn.itemmanager->addChild( new uiODVolumeFactoryTreeItem );
     scn.itemmanager->addChild( new uiODSceneTreeItem(scn.sovwr->getTitle(),
 						 scn.sovwr->sceneId() ) );
     scn.lv->display();
