@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.6 2001-03-30 08:52:58 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.7 2001-07-13 22:01:11 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -190,9 +190,16 @@ void IOStream::setWriter( const char* str )
 
 void IOStream::setFileName( const char* str )
 {
-    if ( !str ) return;
     type_ = StreamConn::File;
-    fname = str;
+    StreamProvider sp = StreamProvider( str );
+    type_ = sp.type();
+    if ( type_ != StreamConn::Command )
+	fname = sp.fullName();
+    else
+    {
+	setReader( sp.command() );
+	setWriter( sp.command() );
+    }
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.9 2001-07-06 11:18:03 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.10 2001-07-13 22:01:11 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -35,13 +35,13 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm )
 	    if ( !File_exists((const char*)fname) )
 		break;
 
-	    if ( !addReader(fname) ) return;
-	    fnames_ += new BufferString( fname );
+	    if ( addReader(fname) )
+		fnames_ += new BufferString( fname );
 	}
     }
 
     if ( !readers_.size() )
-	mkErrMsg( errmsg_, basefname_, "does not exist" );
+	mkErrMsg( errmsg_, basefname_, "cannot be opened" );
     else
 	createInfo();
 }
@@ -74,6 +74,7 @@ bool CBVSReadMgr::addReader( const char* fname )
     if ( !newstrm || !*newstrm )
     {
 	mkErrMsg( errmsg_, fname, "cannot be opened" );
+	delete newstrm;
 	return false;
     }
 
@@ -87,6 +88,7 @@ bool CBVSReadMgr::addReader( istream* strm )
     if ( newrdr->errMsg() )
     {
 	errmsg_ = newrdr->errMsg();
+	delete newrdr;
 	return false;
     }
 
