@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.31 2002-12-09 11:19:31 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.32 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ ________________________________________________________________________
 #include "uisurvmap.h"
 #include "uitextedit.h"
 #include "uimain.h"
+#include "uifont.h"
+#include "iodrawtool.h"
 #include "strmprov.h"
 
 #include <math.h>

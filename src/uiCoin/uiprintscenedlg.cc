@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.5 2002-10-30 15:32:50 nanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.6 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 	: uiDialog(p, uiDialog::Setup("Print Scene",
-		    		      "Enter filename and fileformat"))
+		    		      "Enter filename and fileformat","50.0.1"))
 	, scene(scene_)
 {
     horwidthfld = new uiGenInput( this, "Size", IntInpSpec(800) );

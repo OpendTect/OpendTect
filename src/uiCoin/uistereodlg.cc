@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uistereodlg.cc,v 1.2 2002-08-20 07:42:11 nanne Exp $
+ RCS:           $Id: uistereodlg.cc,v 1.3 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,8 @@ ________________________________________________________________________
 
 
 uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<uiSoViewer>& vwrs_ )
-	: uiDialog(p, uiDialog::Setup("Stereo viewing","Set stereo offset")
+	: uiDialog(p, uiDialog::Setup("Stereo viewing",
+		    		      "Set stereo offset","50.0.2")
 		      .canceltext(""))
 	, vwrs(vwrs_)
 {

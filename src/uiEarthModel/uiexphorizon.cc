@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.7 2002-10-17 13:16:24 arend Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.8 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ static const char* exptyps[] = { "X/Y", "Inl/Crl", "IESX (3d_ci7m)", 0 };
 uiExportHorizon::uiExportHorizon( uiParent* p, 
 				  const ObjectSet<SurfaceInfo>& hinfos )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
-				     "Specify output format",0))
+				     "Specify output format","104.0.1"))
 	, hinfos_(hinfos)
 	, selinfo_(-1)
 {

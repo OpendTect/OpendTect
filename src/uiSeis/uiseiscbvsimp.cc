@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.10 2002-12-20 13:02:51 nanne Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.11 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,9 @@ ________________________________________________________________________
 
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
-	: uiDialog(p,"Import CBVS cube")
+	: uiDialog(p,Setup("Import CBVS cube",
+		    	   "Specify import parameters",
+			   "103.0.1"))
 	, inctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
 	, outctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
 {
@@ -37,7 +39,9 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
-	: uiDialog(p,"Copy cube data")
+	: uiDialog(p,Setup("Copy cube data",
+		    	   "Specify copy parameters",
+			   "103.1.1"))
 	, inctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
 	, outctio_(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.2 2002-09-26 11:53:53 kristofer Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.3 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ ________________________________________________________________________
 
 uiImportLMKFault::uiImportLMKFault( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Import Landmark Fault",
-				     "Specify fault parameters",0))
+				     "Specify fault parameters","104.1.2"))
 	, ctio(*new CtxtIOObj(EarthModelFaultTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Landmark file");

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.2 2002-08-08 08:55:35 nanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.3 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 uiImportPickSet::uiImportPickSet( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Import Pickset",
-				     "Specify pickset parameters",0))
+				     "Specify pickset parameters","105.0.1"))
 	, ctio(*new CtxtIOObj(PickSetGroupTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Ascii file");

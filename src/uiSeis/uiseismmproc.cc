@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.37 2003-01-10 12:35:10 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.38 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,9 @@ const char* sTmpSeisID = "Temporary seismics";
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 			    const IOParList& iopl )
-	: uiDialog(p,uiDialog::Setup(getFirstJM(prognm,*iopl[0]).name(),"",0)
+	: uiDialog(p,uiDialog::Setup(
+		    getFirstJM(prognm,*iopl[0]).name(),
+		    "","103.2.0")
 		.nrstatusflds(-1)
 		.oktext("Finish Now")
 		.canceltext("Abort")

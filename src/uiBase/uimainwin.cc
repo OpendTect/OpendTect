@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.66 2003-01-15 15:34:35 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.67 2003-01-16 11:26:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -798,6 +798,9 @@ void uiDialogBody::finalise(bool)
 	{
 	    helpBut = new uiPushButton( centralWidget_, "?" );
 	    helpBut->setPrefWidthInChar( 3 );
+#ifdef __debug__
+	    helpBut->setToolTip( setup.helpid_ );
+#endif
 	}
         if ( !setup.menubar_ && setup.dlgtitle_ != "" )
 	{
