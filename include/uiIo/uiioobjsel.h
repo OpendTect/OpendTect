@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.14 2001-08-30 16:16:17 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.15 2001-09-02 12:29:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,13 +22,28 @@ class uiListBox;
 class uiGenInput;
 
 
+/*! \brief dialog returning an IOObj* after successful go(). */
+
+class uiIOObjRetDlg : public uiDialog
+{
+public:
+
+			uiIOObjRetDlg(uiParent* p,const char* nm,
+                                  bool mo=true,bool se=true,int bo=0,int sp=10)
+			: uiDialog(p,nm,mo,se,bo,sp)	{}
+
+    virtual const IOObj* ioObj() const		= 0;
+ 
+};
+
+
 /*! \brief Dialog for selection of IOObjs
 
 This class may be subclassed to make selection more specific.
 
 */
 
-class uiIOObjSelDlg : public uiDialog
+class uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
@@ -97,8 +112,8 @@ protected:
     virtual const char*	userNameFromKey(const char*) const;
     virtual void	objSel();
 
-    virtual void	newSelection(uiIOObjSelDlg*)		{}
-    virtual uiIOObjSelDlg* mkDlg();
+    virtual void	newSelection(uiIOObjRetDlg*)		{}
+    virtual uiIOObjRetDlg* mkDlg();
     virtual IOObj*	createEntry(const char*);
 
 };
