@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.23 2003-09-24 09:19:17 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.24 2003-09-30 12:54:56 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -12,10 +12,9 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.23 2003-09-24 09:19:17 kristof
 #include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "emhistoryimpl.h"
-#include "emhorizontransl.h"
 #include "emmanager.h"
 #include "executor.h"
-#include "geom2dsnappedsurface.h"
+#include "geommeshsurface.h"
 #include "grid.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -132,7 +131,7 @@ bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
 
     patchnames += new BufferString(name);
 
-    Geometry::GridSurface* newsurf = createPatchSurface( patchid );
+    Geometry::MeshSurface* newsurf = createPatchSurface( patchid );
     surfaces += newsurf;
 
     for ( int idx=0; idx<nrAuxData(); idx++ )
@@ -190,15 +189,15 @@ bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
 				   bool addtohistory)
 {
     RowCol node;
-    if ( !getGridRowCol( subid, node, patch ) )
+    if ( !getMeshRowCol( subid, node, patch ) )
 	return false;
 
     int patchindex=patchids.indexOf(patch);
     if ( patchindex==-1 ) return false;
 
-    const Geometry::PosID posid = Geometry::GridSurface::getPosID(node);
-    Geometry::GridSurface* surface = surfaces[patchindex];
-    const Coord3 oldpos = surface->getGridPos( node );
+    const Geometry::PosID posid = Geometry::MeshSurface::getPosID(node);
+    Geometry::MeshSurface* surface = surfaces[patchindex];
+    const Coord3 oldpos = surface->getMeshPos( node );
     if ( oldpos==pos ) return true;
 
     TypeSet<EM::PosID> nodeonotherpatches;
@@ -207,8 +206,8 @@ bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
 
     const int auxdataindex = surface->indexOf( node );
 
-    surface->setGridPos( node, pos );
-    surface->setFillType( node, Geometry::GridSurface::Filled );
+    surface->setMeshPos( node, pos );
+    surface->setFillType( node, Geometry::MeshSurface::Filled );
 
     if ( auxdataindex==-1 )
     {
@@ -237,7 +236,7 @@ bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
     {
 	const int patchsurfidx =
 	    patchids.indexOf(nodeonotherpatches[idx].patchID());
-	double otherz = surfaces[patchsurfidx]->getGridPos(node).z;
+	double otherz = surfaces[patchsurfidx]->getMeshPos(node).z;
 	
 	if ( mIS_ZERO(otherz-pos.z) )
 	{
@@ -272,10 +271,10 @@ Coord3 EM::Surface::getPos( const PatchID& patch, const RowCol& rc) const
 {
     const int surfidx = patchids.indexOf( patch );
     RowCol geomnode;
-    if ( !getGridRowCol( rc, geomnode, patch ) )
+    if ( !getMeshRowCol( rc, geomnode, patch ) )
 	return Coord3( mUndefValue, mUndefValue, mUndefValue );
 
-    return surfaces[surfidx]->getGridPos( geomnode );
+    return surfaces[surfidx]->getMeshPos( geomnode );
 }
 
 
@@ -301,7 +300,7 @@ bool EM::Surface::isDefined( const PatchID& patch, const RowCol& rc) const
 {
     const int surfidx = patchids.indexOf( patch );
     RowCol geomnode;
-    if ( !getGridRowCol( rc, geomnode, patch ) )
+    if ( !getMeshRowCol( rc, geomnode, patch ) )
 	return false;
 
     return surfaces[surfidx]->isDefined( geomnode );
@@ -315,11 +314,11 @@ int EM::Surface::findPos( const RowCol& rowcol,
     const int nrsubsurf = nrPatches();
     for ( PatchID surface=0; surface<nrsubsurf; surface++ )
     {
-	Geometry::GridSurface* gridsurf = surfaces[surface];
-	if ( !gridsurf->isDefined( rowcol ) )
+	Geometry::MeshSurface* meshsurf = surfaces[surface];
+	if ( !meshsurf->isDefined( rowcol ) )
 	    continue;
 
-	Coord3 pos = gridsurf->getGridPos( rowcol );
+	Coord3 pos = meshsurf->getMeshPos( rowcol );
 	EM::SubID subid = rowCol2SubID( rowcol );
 
 	for ( int idx=0; idx<res.size(); idx++ )
@@ -497,13 +496,13 @@ void EM::Surface::getLinkedPos( const EM::PosID& posid,
 
     const EM::SubID subid = posid.subID();
     const RowCol rowcol = subID2RowCol(subid);
-    const Geometry::GridSurface* owngridsurf = getSurface( posid.patchID() );
+    const Geometry::MeshSurface* ownmeshsurf = getSurface( posid.patchID() );
 
     const int nrsubsurf = nrPatches();
     for ( int surface=0; surface<nrsubsurf; surface++ )
     {
-	Geometry::GridSurface* gridsurf = surfaces[surface];
-	if ( owngridsurf->isLinked( subid, gridsurf, subid ) )
+	Geometry::MeshSurface* meshsurf = surfaces[surface];
+	if ( ownmeshsurf->isLinked( subid, meshsurf, subid ) )
 	{
 	    res += EM::PosID( id(),patchids[surface], subid );
 	}
@@ -642,7 +641,7 @@ float EM::Surface::getAuxDataVal( int dataidx, const EM::PosID& posid ) const
     if ( !patchauxdata ) return mUndefValue;
 
     RowCol geomrc;
-    getGridRowCol( posid.subID(), geomrc, posid.patchID() );
+    getMeshRowCol( posid.subID(), geomrc, posid.patchID() );
     const int subidx = surfaces[patchidx]->indexOf( geomrc );
     if ( subidx==-1 ) return mUndefValue;
     return (*patchauxdata)[subidx];
@@ -657,7 +656,7 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
     if ( patchidx==-1 ) return;
 
     RowCol geomrc; 
-    getGridRowCol( posid.subID(), geomrc, posid.patchID() );
+    getMeshRowCol( posid.subID(), geomrc, posid.patchID() );
     const int subidx = surfaces[patchidx]->indexOf( geomrc );
     if ( subidx==-1 ) return;
 
@@ -673,14 +672,14 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
 }
 
 
-bool EM::Surface::getGridRowCol( const EM::SubID& subid, RowCol& gridrowcol, 
+bool EM::Surface::getMeshRowCol( const EM::SubID& subid, RowCol& meshrowcol, 
 				 const PatchID& patchid ) const
 {
-    return getGridRowCol( subID2RowCol(subid), gridrowcol, patchid );
+    return getMeshRowCol( subID2RowCol(subid), meshrowcol, patchid );
 }
 
 
-bool EM::Surface::getGridRowCol( const RowCol& emrowcol, RowCol& gridrowcol,
+bool EM::Surface::getMeshRowCol( const RowCol& emrowcol, RowCol& meshrowcol,
        				 const PatchID& patchid ) const
 {
     const int idx = patchids.indexOf( patchid );
@@ -689,7 +688,7 @@ bool EM::Surface::getGridRowCol( const RowCol& emrowcol, RowCol& gridrowcol,
     if ( relrowcol.row%loadedstep.row || relrowcol.col%loadedstep.col )
 	return false;
 
-    gridrowcol = relrowcol/loadedstep;
+    meshrowcol = relrowcol/loadedstep;
     return true;
 }
 
@@ -706,13 +705,13 @@ EM::SubID EM::Surface::getSurfSubID( const RowCol& nodeid,
 EM::SubID EM::Surface::getSurfSubID( const Geometry::PosID& gposid,
        				     const PatchID& patchid ) const
 {
-    const RowCol& nodeid = Geometry::GridSurface::getGridNode(gposid);
+    const RowCol& nodeid = Geometry::MeshSurface::getMeshNode(gposid);
     return getSurfSubID( nodeid, patchid );
 }
 
 
 
-const Geometry::GridSurface* EM::Surface::getSurface( PatchID patchid )const
+const Geometry::MeshSurface* EM::Surface::getSurface( PatchID patchid )const
 {
     const int idx = patchids.indexOf( patchid );
     return idx==-1 ? 0 : surfaces[idx];
@@ -767,7 +766,7 @@ void EM::Surface::getRange( StepInterval<int>& rg, bool rowdir ) const
 void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
 			    bool rowdir ) const
 {
-    const Geometry::GridSurface& gsurf = *getSurface( patchid );
+    const Geometry::MeshSurface& gsurf = *getSurface( patchid );
     if ( rowdir )
     {
 	const RowCol firstrow(gsurf.firstRow(),0);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.23 2003-08-15 13:16:12 nanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.24 2003-09-30 12:56:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -82,7 +82,7 @@ protected:
     friend class	::dgbEMHorizonReader;
     friend class	::dgbEMHorizonWriter;
 
-    Geometry::GridSurface* createPatchSurface(const PatchID&) const;
+    Geometry::MeshSurface* createPatchSurface(const PatchID&) const;
 
 	    		Horizon(EMManager&, const MultiID&);
     			~Horizon();

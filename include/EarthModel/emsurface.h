@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.18 2003-09-24 09:19:10 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.19 2003-09-30 12:56:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ template <class T> class StepInterval;
 
 namespace Geometry
 {
-    class GridSurface;
+    class MeshSurface;
 };
 
 
@@ -62,8 +62,8 @@ class EMManager;
 class SurfaceIODataSelection;
 
 /*!\brief
-The horizon is made up of one or more grids (so they can overlap at faults).
-The grids are defined by knot-points in a matrix and the fillstyle inbetween
+The horizon is made up of one or more meshes (so they can overlap at faults).
+The meshes are defined by knot-points in a matrix and the fillstyle inbetween
 the knots.
 */
 
@@ -154,7 +154,7 @@ public:
     const char*		dbInfo() const			{ return dbinfo; }
     void		setDBInfo( const char* s )	{ dbinfo = s; }
 
-    const Geometry::GridSurface*		getSurface(PatchID) const;
+    const Geometry::MeshSurface*		getSurface(PatchID) const;
     RowCol		loadedStep() const;
     RowCol		step() const;
     void		setTranslatorData( const RowCol& step,
@@ -183,21 +183,21 @@ public:
 	    			 StepInterval<int>&,bool rowdir) const;
 
 protected:
-    bool		getGridRowCol(const EM::SubID&,RowCol&,
+    bool		getMeshRowCol(const EM::SubID&,RowCol&,
 	    			      const PatchID&) const;
     			/*!< Converts EM::SubID to rowcol that is used
-			     on the Geometry::GridSurface */
-    bool		getGridRowCol(const RowCol&,RowCol&,
+			     on the Geometry::MeshSurface */
+    bool		getMeshRowCol(const RowCol&,RowCol&,
 	    			      const PatchID&) const;
     			/*!< Converts input RowCol(in surface domain)
 			     to a RowCol that is used
-			     on the Geometry::GridSurface */
+			     on the Geometry::MeshSurface */
     EM::SubID		getSurfSubID(const RowCol&,const PatchID&) const;
     EM::SubID		getSurfSubID(const Geometry::PosID&,
 	    			     const PatchID&) const;
 
 
-    virtual Geometry::GridSurface*	createPatchSurface(const PatchID&) 
+    virtual Geometry::MeshSurface*	createPatchSurface(const PatchID&) 
 								      const = 0;
 
 //   int			findPos( const RowCol& rowcol,
@@ -209,7 +209,7 @@ protected:
     					~Surface();
     void				cleanUp();
 
-    ObjectSet<Geometry::GridSurface>	surfaces;
+    ObjectSet<Geometry::MeshSurface>	surfaces;
     TypeSet<PatchID>			patchids;
     ObjectSet<BufferString>		patchnames;
 

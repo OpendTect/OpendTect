@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.31 2003-08-15 13:15:54 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.32 2003-09-30 12:54:56 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.31 2003-08-15 13:15:54 nanne
 #include "emsurfauxdataio.h"
 #include "emmanager.h"
 #include "executor.h"
-#include "geom2dsnappedsurface.h"
+#include "geomgridsurface.h"
 #include "grid.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -46,10 +46,10 @@ BinID EM::Horizon::getBinID( const RowCol& rc )
 
 
 
-Geometry::GridSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
+Geometry::MeshSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
     									   const
 {
-    Geometry::Snapped2DSurface* newsurf = new Geometry::Snapped2DSurface();
+    Geometry::GridSurface* newsurf = new Geometry::GridSurface();
     const RowCol rc00( 0, 0 );
     const RowCol rc10( 1, 0 );
     const RowCol rc11( 1, 1 );

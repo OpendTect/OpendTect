@@ -4,13 +4,13 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.11 2003-08-15 13:15:54 nanne Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.12 2003-09-30 12:54:56 kristofer Exp $";
 
 #include "emfault.h"
 
 #include "emfaulttransl.h"
 #include "emhistoryimpl.h"
-#include "geomgridsurfaceimpl.h"
+#include "geommeshsurfaceimpl.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -57,7 +57,7 @@ Executor* EM::Fault::saver( const EM::SurfaceIODataSelection* newsel,
 }
 
 
-Geometry::GridSurface* EM::Fault::createPatchSurface( const PatchID& id ) const
+Geometry::MeshSurface* EM::Fault::createPatchSurface( const PatchID& id ) const
 {
-    return new Geometry::GridSurfaceImpl;
+    return new Geometry::MeshSurfaceImpl;
 }

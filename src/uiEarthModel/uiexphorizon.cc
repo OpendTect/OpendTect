@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.16 2003-08-28 08:18:34 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.17 2003-09-30 12:57:55 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "uiexecutor.h"
 #include "ptrman.h"
-#include "geomgridsurface.h"
+#include "geommeshsurface.h"
 
 #include <stdio.h>
 
@@ -155,13 +155,13 @@ bool uiExportHorizon::writeAscii()
 		    gfcommfld->text() );
 
 	const EM::PatchID patchid = hor->patchID( patchidx );
-	const Geometry::GridSurface* gridsurf = hor->getSurface( patchid );
+	const Geometry::MeshSurface* meshsurf = hor->getSurface( patchid );
 	EM::PosID posid( infld->selIOObj()->key(), patchid );
-	const int nrnodes = gridsurf->size();
+	const int nrnodes = meshsurf->size();
 	for ( int idy=0; idy<nrnodes; idy++ )
 	{
-	    const Geometry::PosID geomposid = gridsurf->getPosID(idy);
-	    const Coord3 crd = gridsurf->getPos( geomposid );
+	    const Geometry::PosID geomposid = meshsurf->getPosID(idy);
+	    const Coord3 crd = meshsurf->getPos( geomposid );
 	    const BinID bid = SI().transform(crd);
 	    float auxvalue = mUndefValue;
 	    if ( saveauxdata && hor->nrAuxData() )

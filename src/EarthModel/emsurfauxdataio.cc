@@ -14,13 +14,13 @@ ___________________________________________________________________
 #include "datainterp.h"
 #include "datachar.h"
 #include "emsurface.h"
-#include "geomgridsurface.h"
+#include "geommeshsurface.h"
 #include "iopar.h"
 #include "survinfo.h"
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.9 2003-09-29 10:50:53 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.10 2003-09-30 12:55:27 kristofer Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
@@ -70,9 +70,9 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
     for ( int idx=0; idx<surf.nrPatches(); idx++ )
     {
 	EM::PatchID patchid = surf.patchID(idx);
-	const Geometry::GridSurface* gridsurf = surf.getSurface(patchid);
+	const Geometry::MeshSurface* meshsurf = surf.getSurface(patchid);
 
-	nrnodes += gridsurf->size();
+	nrnodes += meshsurf->size();
     }
 
     totalnr = nrnodes/chunksize+1;
@@ -107,13 +107,13 @@ int EM::dgbSurfDataWriter::nextStep()
 
 
 	    const EM::PatchID patchid = surf.patchID( patchindex );
-	    const Geometry::GridSurface* gridsurf = surf.getSurface(patchid);
+	    const Geometry::MeshSurface* meshsurf = surf.getSurface(patchid);
 
-	    const int nrnodes = gridsurf->size();
+	    const int nrnodes = meshsurf->size();
 	    for ( int idy=0; idy<nrnodes; idy++ )
 	    {
-		const Geometry::PosID geomposid = gridsurf->getPosID(idy);
-		const Coord3 coord = gridsurf->getPos( geomposid );
+		const Geometry::PosID geomposid = meshsurf->getPosID(idy);
+		const Coord3 coord = meshsurf->getPos( geomposid );
 
 		const BinID bid = SI().transform(coord);
 		if ( sel && sel->excludes(bid) )

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.19 2003-09-12 06:41:19 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.20 2003-09-30 12:55:27 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.19 2003-09-12 06:41:19 krist
 #include "emsurface.h"
 #include "emsurfauxdataio.h"
 #include "filegen.h"
-#include "geomgridsurface.h"
+#include "geommeshsurface.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "streamconn.h"
@@ -722,7 +722,7 @@ int EM::dgbSurfaceWriter::nextStep()
 
     if ( patchindex!=oldpatchindex )
     {
-	const Geometry::GridSurface* gsurf =
+	const Geometry::MeshSurface* gsurf =
 	    			surface.getSurface(patchsel[patchindex]);
 
 	StepInterval<int> patchrange;
