@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.42 2002-01-15 10:20:12 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.43 2002-01-22 10:51:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,9 +80,11 @@ int i_LayoutItem::stretch( bool hor ) const
 }
 
 
-void i_LayoutItem::commitGeometrySet()
+void i_LayoutItem::commitGeometrySet( bool isPrefSz )
 {
     uiRect mPos = curpos( setGeom );
+
+    if( isPrefSz ) curpos( preferred ) = mPos;
 
     if( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
 
@@ -95,6 +97,7 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
     uiRect& mPos = curpos( m );
     int pref_h_nr_pics =0;
     int pref_v_nr_pics =0;
+
 
     if( m != minimum )
     {
@@ -134,16 +137,13 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
 		pPos.setVNrPics( pref_v_nr_pics );
 		preferred_pos_inited = true;
 	    }
-#if 0
-	    mPos.setHNrPics( pref_h_nr_pics  );
-	    mPos.setVNrPics( pref_v_nr_pics );
-#else
 	    uiRect& mPos = curpos( m );
 	    mPos = curpos( preferred );
 
 	    mPos.setLeft( mMAX( pPos.left(), mngrLeft ));
 	    mPos.setTop( mMAX( pPos.top(), mngrTop ));
-#endif
+
+	    initChildLayout(m);
 	    }
 	    break;
 
@@ -581,6 +581,7 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 	    other-> constrList.append( 
 			    new uiConstraint( rightAlignedBelow, this, margn));
 	    break;
+#if 1
 	case alignedBelow:
 	    other-> constrList.append( 
 			    new uiConstraint( alignedAbove, this, margn ) );
@@ -589,6 +590,14 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 	    other-> constrList.append( 
 			    new uiConstraint( alignedBelow, this, margn ) );
 	    break;
+#else
+	case alignedBelow:
+	    break;
+	case alignedAbove:
+	    other-> constrList.append( 
+			    new uiConstraint( ensureBelow, this, margn ) );
+	    break;
+#endif
 	case centeredBelow:
 	    other-> constrList.append( 
 			    new uiConstraint( centeredAbove, this, margn ) );
@@ -1047,7 +1056,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	    || ((itm.hStr==1) && (abs(itm.hDelta+hdir) < abs(maxhdelt)))
 	   )
         &&!( (hdir>0) && 
-	     ( itmGeometry.right() > targetRect.right() )
+	     ( itmGeometry.right() + hdir > targetRect.right() )
 	   )
         &&!( (hdir<0) && 
              ( itmGeometry.right() <= targetRect.right() )
@@ -1057,6 +1066,8 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
         hdone = true;
         itm.hDelta += hdir;
         itmGeometry.setWidth ( refGeom.width() + itm.hDelta );
+	if( hdir>0 &&  itmGeometry.right() == targetRect.right() )
+	    itmGeometry.setLeft ( itmGeometry.left() - 1 );
     }   
     
     if( vdir && itm.nviter>0 
@@ -1064,7 +1075,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
             || ((itm.vStr==1) && (abs(itm.vDelta+vdir) < abs(maxvdelt)))
 	   )
         &&!( (vdir>0) && 
-	       ( itmGeometry.bottom() > targetRect.bottom() ) )
+	       ( itmGeometry.bottom() + vdir > targetRect.bottom() ) )
         &&!( (vdir<0) && 
               ( itmGeometry.bottom() <= targetRect.bottom()) )
       )
@@ -1072,6 +1083,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
         vdone = true; 
         itm.vDelta += vdir;
         itmGeometry.setHeight( refGeom.height() + itm.vDelta );
+//        itmGeometry.setTop( itmGeometry.top() - 1 );
     }
 
 
@@ -1226,17 +1238,14 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
     prevGeometry = targetRect;
 
-    bool isPrefSz=false;
+    uiRect mPos = curpos( preferred );
+    bool isPrefSz = ( extRect.width() == mPos.hNrPics() 
+		   && extRect.height() == mPos.vNrPics() 
+		   && extRect.left() == mPos.left()    );
 
     if( managedBody.uiObjHandle().mainwin()  )
-	isPrefSz = !managedBody.uiObjHandle().mainwin()->poppedUp();
-    else
-    {
-	uiRect mPos = curpos( preferred );
-	if( extRect.width()==mPos.hNrPics() 
-				&& extRect.left() == mPos.left()) 
-	    isPrefSz = true;
-    }
+	isPrefSz |= !managedBody.uiObjHandle().mainwin()->poppedUp();
+
 #if 0
     if( isPrefSz )
 	doLayout( setGeom, targetRect );
@@ -1247,12 +1256,12 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
     layoutChildren( setGeom, true ); // move stuff that's attached to border
 
-    childrenCommitGeometrySet();
+    childrenCommitGeometrySet( isPrefSz );
     QLayout::setGeometry( extRect );
 
 }
 
-void i_LayoutMngr::childrenCommitGeometrySet()
+void i_LayoutMngr::childrenCommitGeometrySet( bool isPrefSz )
 {
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
@@ -1261,7 +1270,7 @@ void i_LayoutMngr::childrenCommitGeometrySet()
     while ( (curChld = childIter.current()) )
     {
         ++childIter;
-	curChld->commitGeometrySet();
+	curChld->commitGeometrySet( isPrefSz );
     }
 }
 
@@ -1395,6 +1404,19 @@ void i_LayoutMngr::updatedAlignment(layoutMode m)
     { 
 	++childIter; 
 	curChld->updatedAlignment(m);
+    }
+}
+
+void i_LayoutMngr::initChildLayout(layoutMode m)
+{ 
+    i_LayoutItem*       	curChld=0;
+    QListIterator<i_LayoutItem> childIter( childrenList );
+    childIter.toFirst(); 
+
+    while ( (curChld = childIter.current()) ) 
+    { 
+	++childIter; 
+	curChld->initLayout( m, -1, -1 );
     }
 }
 

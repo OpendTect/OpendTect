@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.30 2002-01-17 16:16:36 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.31 2002-01-22 10:51:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 
     virtual void	invalidate();
     virtual void	updatedAlignment(layoutMode);
+    virtual void	initChildLayout(layoutMode);
 
 protected:
 
@@ -146,6 +147,9 @@ public:
 
     void		updatedAlignment(layoutMode m )
 			    { if( loMngr ) loMngr->updatedAlignment(m); }
+
+    void		initChildLayout(layoutMode m )
+			    { if( loMngr ) loMngr->initChildLayout(m); }
 
     void		layoutChildren(layoutMode m )
 			    { if( loMngr ) loMngr->layoutChildren(m); }
@@ -319,10 +323,17 @@ void i_uiGroupLayoutItem::invalidate()
         horalign[idx]=-1;
 }
 
+
 void i_uiGroupLayoutItem::updatedAlignment( layoutMode m )
 { 
     horalign[m]=-1;
     grpprntbody.updatedAlignment(m);
+}
+
+
+void i_uiGroupLayoutItem::initChildLayout( layoutMode m )
+{ 
+    grpprntbody.initChildLayout(m);
 }
 
 
@@ -339,17 +350,16 @@ int i_uiGroupLayoutItem::horAlign( layoutMode m ) const
 
 	if( halignitm )
 	{
-	    int hal = halignitm->horAlign( m );
-	    if( hal != horalign[m] )
+	    if( horalign[m] < 0 )
 	    {
 		const_cast<i_uiGroupLayoutItem*>(this)->updatedAlignment(m);
+
 		grpprntbody.layoutChildren(m);
 
 		const_cast<i_uiGroupLayoutItem*>(this)->horalign[m] =
 						halignitm->horAlign( m );
-		hal = horalign[m];
 	    }
-	    return hal + myleft;
+	    return horalign[m] + myleft;
 	}
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.12 2002-01-11 13:34:01 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.13 2002-01-22 10:51:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ public:
 
     virtual void       		invalidate();
     virtual void       		updatedAlignment(layoutMode)	{}
+    virtual void       		initChildLayout(layoutMode)	{}
 
     uiSize			actualSize( bool include_border = true) const;
 
@@ -82,7 +83,7 @@ protected:
     uiRect			layoutpos[ nLayoutMode ];
 
     int 			stretch( bool hor ) const;
-    void			commitGeometrySet();
+    void			commitGeometrySet( bool isPrefSz );
 
     void			initLayout( layoutMode m, int mngrTop, 
 							  int mngrLeft );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.34 2002-01-15 14:21:00 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.35 2002-01-22 10:51:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,11 +34,16 @@ public:
 				  int preferredFieldWidth=0);
 
     virtual 		~uiListBoxBody()		{ delete &messenger_; }
-
+#define __bigstretch
     void 		setLines( int prefNrLines )
 			{ 
 			    if(prefNrLines >= 0) prefnrlines=prefNrLines;
-			    setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
+#ifdef __bigstretch
+				setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
+#else
+			    if( stretch(true) == 1 && stretch(false) < 2 )
+				setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
+#endif
 			}
 
     virtual uiSize	minimumSize() const; //!< \reimp
@@ -67,7 +72,11 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 	, prefnrlines(preferredNrLines)
 {
     if( isMultiSelect ) setSelectionMode( QListBox::Extended );
+#ifdef __bigstretch
     setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
+#else
+    setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
+#endif
     setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium) );
 }
 

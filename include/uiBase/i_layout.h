@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.22 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.23 2002-01-22 10:51:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,7 @@ public:
 
     virtual void       	invalidate();
     virtual void       	updatedAlignment(layoutMode);
+    virtual void       	initChildLayout(layoutMode);
 	
     bool 		attach ( constraintType, QWidget&, QWidget*, int);
 
@@ -155,7 +156,7 @@ private:
     bool		tryToGrowItem( resizeItem&, const int, const int, 
 				       int, int, const QRect&, int);
     void		resizeTo( const QRect&, bool );
-    void		childrenCommitGeometrySet();
+    void		childrenCommitGeometrySet(bool isPrefSz);
 
     uiRect 		childrenRect( layoutMode m );
 
