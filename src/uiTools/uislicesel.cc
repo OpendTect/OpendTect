@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.9 2002-11-18 13:43:38 kristofer Exp $
+ RCS:           $Id: uislicesel.cc,v 1.10 2002-11-22 16:03:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,9 +139,11 @@ void uiSliceSel::updateSel( CallBacker* )
 
 void uiSliceSel::csChanged( CallBacker* )
 {
+    if ( !doupdfld || !doupdfld->isChecked() ) return;
+
     if ( !updatemutex.tryLock() )
 	return;
-
+/*
     bool inlfldsens = inlfld ? inlfld->sensitive() : false;
     if ( inlfld ) inlfld->setSensitive(false);
     bool crlfldsens = crlfld ? crlfld->sensitive() : false;
@@ -158,12 +160,13 @@ void uiSliceSel::csChanged( CallBacker* )
     if ( doupdfld ) doupdfld->setSensitive(false);
     bool stepfldsens = stepfld ? stepfld->sensitive() : false;
     if ( stepfld ) stepfld->setSensitive(false);
+*/
 
-    if ( !doupdfld || !doupdfld->isChecked() ) return;
     readInput();
     cschanged.trigger();
     updatemutex.unlock();
 
+/*
     if ( inlfld ) inlfld->setSensitive(inlfldsens);
     if ( crlfld ) crlfld->setSensitive(crlfldsens);
     if ( zfld ) zfld->setSensitive(zfldsens);
@@ -172,6 +175,7 @@ void uiSliceSel::csChanged( CallBacker* )
     if ( zrgfld ) zrgfld->setSensitive(zrgfldsens);
     if ( doupdfld ) doupdfld->setSensitive(doupdfldsens);
     if ( stepfld ) stepfld->setSensitive(stepfldsens);
+*/
 }
 
 
