@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.15 2004-01-26 12:25:52 nanne Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.16 2004-02-12 15:49:34 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -23,6 +23,7 @@ const char* Well::Info::sKeyelev	= "Surface elevation";
 const char* Well::D2TModel::sKeyTimeWell = "=Time";
 const char* Well::D2TModel::sKeyDataSrc	= "Data source";
 const char* Well::Marker::sKeyDah	= "Depth along hole";
+const char* Well::Log::sKeyUnitLbl	= "Unit of Measure";
 
 
 Well::Data::Data( const char* nm )

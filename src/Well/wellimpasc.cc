@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.14 2004-02-03 16:35:57 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.15 2004-02-12 15:49:34 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -29,6 +29,7 @@ inline static StreamData getSD( const char* fnm )
 Well::AscImporter::~AscImporter()
 {
     deepErase( convs );
+    unitmeasstrs.deepErase();
 }
 
 
@@ -182,6 +183,7 @@ const char* Well::AscImporter::getLogInfo( istream& strm,
 		    lfi.lognms += new BufferString( wordbuf );
 		}
 		convs += MeasureUnit::getGuessed( unstr );
+		unitmeasstrs.add( unstr );
 		qnr++;
 	    }
 	    break;
@@ -194,7 +196,7 @@ const char* Well::AscImporter::getLogInfo( istream& strm,
 	switch ( section )
 	{
 	case 'C':
-	    if ( mIsKey("DEPTH") )
+	    if ( mIsKey("depth") && !hasdepthlog )
 		hasdepthlog = true;
 	    else
 	    {
@@ -209,6 +211,7 @@ const char* Well::AscImporter::getLogInfo( istream& strm,
 		lfi.lognms += new BufferString( info );
 	    }
 	    convs += MeasureUnit::getGuessed( val1 );
+	    unitmeasstrs.add( val1 );
 	break;
 	case 'W':
 	    if ( mIsKey("STRT") )
@@ -299,11 +302,19 @@ const char* Well::AscImporter::getLogs( istream& strm,
     BoolTypeSet issel( inplfi.lognms.size(), false );
     for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
     {
-	int outidx = indexOf( lfi.lognms, *inplfi.lognms[idx] );
 	if ( indexOf(lfi.lognms,*inplfi.lognms[idx]) >= 0 )
 	{
 	    issel[idx] = true;
-	    wd.logs().add( new Well::Log(inplfi.lognms[idx]->buf()) );
+	    Well::Log* newlog = new Well::Log( inplfi.lognms[idx]->buf() );
+	    BufferString unlbl;
+	    if ( convs[idx] )
+	    {
+		if ( idx == 0 || useconvs_ )
+		    unlbl = "Converted to SI from ";
+		unlbl += unitmeasstrs.get( idx );
+	    }
+	    newlog->setUnitMeasLabel( unlbl );
+	    wd.logs().add( newlog );
 	}
     }
 
@@ -317,7 +328,7 @@ const char* Well::AscImporter::getLogs( istream& strm,
 	strm >> dpth;
 	if ( strm.fail() || strm.eof() ) break;
 	dpth = mIS_ZERO(dpth-lfi.undefval) ? mUndefValue
-	     : convs[0]->toSI( dpth );
+					   : convs[0]->toSI( dpth );
 	if ( havestop && dpth > lfi.zrg.stop ) break;
 	bool douse = !mIsUndefined(dpth)
 	          && (!havestart || dpth >= lfi.zrg.start);
@@ -333,7 +344,7 @@ const char* Well::AscImporter::getLogs( istream& strm,
 	    if ( !douse || !issel[ilog] ) continue;
 
 	    val = mIS_ZERO(val-lfi.undefval) ? mUndefValue
-		: convs[ilog+1]->toSI( val );
+		: (useconvs_ ? convs[ilog+1]->toSI( val ) : val);
 	    vals += val;
 	}
 	if ( !vals.size() ) continue;

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.13 2004-01-22 16:09:11 nanne Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.14 2004-02-12 15:49:34 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -262,6 +262,8 @@ Well::Log* Well::Reader::rdLogHdr( istream& strm, int idx ) const
     {
 	if ( astrm.hasKeyword(sKey::Name) )
 	    newlog->setName( astrm.value() );
+	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl) )
+	    newlog->setUnitMeasLabel( astrm.value() );
     }
     if ( newlog->name() == "" )
     {
