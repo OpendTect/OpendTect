@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.46 2002-12-04 15:19:35 nanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.47 2003-01-09 13:56:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -281,6 +281,37 @@ void uiObject::attach ( constraintType tp, uiGroup* other, int margin,
 void uiObject::attach ( constraintType tp, uiButtonGroup* other, int margin,
 			bool reciprocal )
     { mBody()->attach(tp, other->uiObj(), margin, reciprocal); }
+
+/*!
+    Moves the \a second widget around the ring of focus widgets so
+    that keyboard focus moves from the \a first widget to the \a
+    second widget when the Tab key is pressed.
+
+    Note that since the tab order of the \a second widget is changed,
+    you should order a chain like this:
+
+    \code
+        setTabOrder( a, b ); // a to b
+        setTabOrder( b, c ); // a to b to c
+        setTabOrder( c, d ); // a to b to c to d
+    \endcode
+
+    \e not like this:
+
+    \code
+        setTabOrder( c, d ); // c to d   WRONG
+        setTabOrder( a, b ); // a to b AND c to d
+        setTabOrder( b, c ); // a to b to c, but not c to d
+    \endcode
+
+    If \a first or \a second has a focus proxy, setTabOrder()
+    correctly substitutes the proxy.
+*/
+void uiObject::setTabOrder( uiObject* first, uiObject* second )
+{
+    QWidget::setTabOrder( first->body()->qwidget(), second->body()->qwidget() );
+}
+
 
 
 void uiObject::setFont( const uiFont& f )
