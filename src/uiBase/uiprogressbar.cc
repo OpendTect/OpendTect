@@ -20,6 +20,7 @@ uiProgressBar::uiProgressBar( uiObject* p, const char* txt,
 {
     setProgress( progress );
     setTotalSteps( totalSteps );
+    setPrefWidthInChar( 20 );
 }
 
 const QWidget* 	uiProgressBar::qWidget_() const 	{ return mQtThing(); } 
