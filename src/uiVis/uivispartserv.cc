@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.219 2004-05-27 11:54:16 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.220 2004-05-27 13:04:53 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -677,8 +677,7 @@ bool uiVisPartServer::selectAttrib( int id )
 {
     eventmutex.lock();
     eventobjid = id;
-    sendEvent( evSelectAttrib );
-    return true;
+    return sendEvent( evSelectAttrib );
 }
 
 
@@ -701,7 +700,11 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 
     if ( newselect || ( as->id()==AttribSelSpec::attribNotSel ) )
     {
-	if ( !selectAttrib( id ) ) return false;
+	if ( !selectAttrib( id ) )
+	{
+	    so->setSelSpec( AttribSelSpec("",AttribSelSpec::noAttrib,""));
+	    return false;
+	}
     }
 
     bool res = false;
