@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.41 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.42 2002-08-02 10:27:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,6 @@ public:
     virtual uiSize	minimumSize() const; //!< \reimp
     virtual int 	nrTxtLines() const
 			    { return prefnrlines ? prefnrlines : 7; }
-
-protected:
 
     int 		fieldWdt;
     int 		prefnrlines;
@@ -278,6 +276,28 @@ void uiListBox::setCurrentItem( int idx )
 void uiListBox::setItemText( int idx, const char* txt )
 {
     body_->changeItem( QString(txt), idx );
+}
+
+
+void uiListBox::setFieldWidth( int fw )
+{
+    body_->fieldWdt = fw;
+}
+
+
+int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
+{
+    const int sz = size();
+    int len = minwdth;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	int itlen = strlen( textOfItem(idx) );
+	if ( itlen >= maxwdth )
+	    { len = maxwdth; break; }
+	else if ( itlen > len )
+	    len = itlen;
+    }
+    return len + 1;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.38 2002-06-24 15:01:39 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.39 2002-08-02 10:27:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     listfld = new uiLabeledListBox( this, entrylist->Ptr() );
     if ( ismultisel )
 	listfld->box()->setMultiSelect( true );
+    listfld->box()->setFieldWidth( listfld->box()->optimumFieldWidth() );
 
     if ( !ctio.ctxt.forread )
     {

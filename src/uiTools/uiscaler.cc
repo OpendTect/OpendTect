@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.4 2002-05-31 10:54:55 bert Exp $
+ RCS:           $Id: uiscaler.cc,v 1.5 2002-08-02 10:27:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ void uiScaler::doFinalise( CallBacker* )
 }
 
 
-Scaler* uiScaler::getScaler()
+Scaler* uiScaler::getScaler() const
 {
     if ( !ynfld->isChecked() ) return 0;
 
@@ -85,6 +85,40 @@ Scaler* uiScaler::getScaler()
     if ( scaler->isEmpty() )
 	{ delete scaler; scaler = 0; }
     return scaler;
+}
+
+
+void uiScaler::setInput( const Scaler& sc )
+{
+    const char* typ = sc.type();
+    int typnr = 0;
+    if ( !strcmp(typ,sLinScaler) )
+    {
+	const LinScaler& lsc = (const LinScaler&)sc;
+	linearfld->setValue( lsc.constant, 0 );
+	linearfld->setValue( lsc.factor, 1 );
+    }
+    else
+    {
+	if ( !typefld ) return;
+
+	if ( !strcmp(typ,sLogScaler) )
+	{
+	    typnr = 1;
+	    basefld->setValue( ((const LogScaler&)sc).ten );
+	}
+	else if ( !strcmp(typ,sExpScaler) )
+	{
+	    typnr = 2;
+	    basefld->setValue( ((const ExpScaler&)sc).ten );
+	}
+	else return;
+    }
+
+    if ( typefld )
+	typefld->setValue( typnr );
+
+    typeSel(0);
 }
 
 
