@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.122 2003-01-30 14:51:29 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.123 2003-02-03 14:13:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,6 +229,13 @@ int uiVisPartServer::addWell( int sceneid, const MultiID& emwellid )
 
 int uiVisPartServer::addPickSet(int sceneid, const PickSet& pickset )
 {
+    if ( sceneid < 0 )
+    {
+	TypeSet<int> sceneids;
+	getChildIds( -1, sceneids );
+	if ( sceneids.size() ) sceneid = sceneids[0];
+    }
+	    
     visSurvey::Scene* scene = getScene( sceneid );
     if ( !scene ) return -1;
 
@@ -236,17 +243,27 @@ int uiVisPartServer::addPickSet(int sceneid, const PickSet& pickset )
 
     ps->setColor( pickset.color );
     ps->setName( pickset.name() );
+    setPickSetData( ps->id(), pickset );
 
+    scene->addObject( ps );
+    setUpConnections( ps->id() );
+    return ps->id();
+}
+
+
+void uiVisPartServer::setPickSetData( int id, const PickSet& pickset )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PickSetDisplay*,ps,dobj);
+    if ( !ps ) return;
+
+    ps->removeAll();
     int nrpicks = pickset.size();
     for ( int idx=0; idx<nrpicks; idx++ )
     {
 	Coord crd( pickset[idx].pos );
 	ps->addPick( Coord3(crd.x,crd.y,pickset[idx].z) );
     }
-
-    scene->addObject( ps );
-    setUpConnections( ps->id() );
-    return ps->id();
 }
 
 
