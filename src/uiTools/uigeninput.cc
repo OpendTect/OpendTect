@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.38 2002-01-24 15:27:50 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.39 2002-02-21 17:52:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -562,63 +562,55 @@ already present in 'flds'.
 */
 uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 {
-    uiDataInpFld* fld;
+    uiDataInpFld* fld=0;
 
-    switch( desc.type() )
+    switch( desc.type().rep() )
     {
-	case DataInpSpec::stringTp:
-	case DataInpSpec::fileNmTp:
-	    {
-		fld = new uiLineInpFld( this, desc ); 
-	    }
-	    break;
-
-	case DataInpSpec::floatTp:
-	case DataInpSpec::doubleTp:
-	case DataInpSpec::intTp:
-	    {
-		fld = new uiLineInpFld( this, desc ); 
-	    }
-	    break;
-
-	case DataInpSpec::boolTp:
-	    {
-		fld = new uiBoolInpFld( this, desc ); 
-	    }
-	    break;
-
-	case DataInpSpec::intIntervalTp:
-	    {
-		fld = new uiIntervalInpFld<int>( this, desc ); 
-	    }
-	    break;
-	case DataInpSpec::floatIntervalTp:
-	    {
-		fld = new uiIntervalInpFld<float>( this, desc ); 
-	    }
-	    break;
-	case DataInpSpec::doubleIntervalTp:
-	    {
-		fld = new uiIntervalInpFld<double>( this, desc ); 
-	    }
-	    break;
-
-	case DataInpSpec::binIDCoordTp:
-	    {
-		fld = new uiBinIDInpFld( this, desc ); 
-	    }
-	    break;
-	case DataInpSpec::stringListTp:
-	    {
-		fld = new uiStrLstInpFld( this, desc ); 
-	    }
-	    break;
-	default:
-	    {
-		fld = new uiLineInpFld( this, desc ); 
-	    }
-	    break;
+    case DataType::boolTp:
+    {
+	fld = new uiBoolInpFld( this, desc ); 
     }
+    break;
+
+    case DataType::stringTp:
+    {
+	if( desc.type().form() == DataType::list )
+	    fld = new uiStrLstInpFld( this, desc ); 
+	else
+	    fld = new uiLineInpFld( this, desc ); 
+    }
+    break;
+
+    case DataType::floatTp:
+    case DataType::doubleTp:
+    case DataType::intTp:
+    {
+	if( desc.type().form() == DataType::interval )
+	{
+	    switch( desc.type().rep() )
+	    {
+
+	    case DataType::intTp:
+		fld = new uiIntervalInpFld<int>( this, desc ); 
+	    break;
+	    case DataType::floatTp:
+		fld = new uiIntervalInpFld<float>( this, desc ); 
+	    break;
+	    case DataType::doubleTp:
+		fld = new uiIntervalInpFld<double>( this, desc ); 
+	    break;
+	    }
+	}
+	else if( desc.type().form() == DataType::binID )
+	    fld = new uiBinIDInpFld( this, desc ); 
+	else
+	    fld = new uiLineInpFld( this, desc ); 
+    }
+    break;
+    }
+
+    if( ! fld ) { pErrMsg("huh"); fld = new uiLineInpFld( this, desc ); }
+
 
     uiObject* other= flds.size() ? &flds[ flds.size()-1 ]->uiObj() : 0;
     if ( other )
