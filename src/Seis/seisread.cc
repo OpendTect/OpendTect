@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.31 2004-08-25 14:25:57 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.32 2004-09-03 09:12:04 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -51,7 +51,7 @@ void SeisTrcReader::init()
     if ( tbuf ) tbuf->deepErase();
     mDelOuter; outer = mUndefPtr(BinIDRange);
     delete fetcher; fetcher = 0;
-    curlinenr = -1;
+    curlineidx = -1;
 }
 
 
@@ -288,26 +288,43 @@ bool SeisTrcReader::get( SeisTrc& trc )
 }
 
 
+BufferString SeisTrcReader::curLineKey() const
+{
+    return curlinenr >= 0 && lgrp && lgrp->nrLines() > curlinenr
+	 ? lgrp->lineKey( curlinenr ) : BufferString("");
+}
+
+
 bool SeisTrcReader::mkNextFetcher()
 {
-    bool issingline = seldata && seldata->linekey_ != "";
-    if ( curlinenr != -1 && issingline )
+    curlineidx++; tbuf->deepErase();
+    const bool islinesel = seldata && seldata->linekeys_.size();
+    const int maxline = islinesel ? seldata->linekeys_.size()-1 : mUndefIntVal;
+    if ( curlineidx >= maxline )
 	return false;
 
-    curlinenr++; tbuf->deepErase();
-    if ( issingline )
+    curlinenr = curlineidx;
+    if ( islinesel )
     {
 	bool found = false;
-	const int nrlines = lgrp->nrLines();
-	for ( ; curlinenr<nrlines; curlinenr++ )
+	while ( !found )
 	{
-	    if ( lgrp->lineKey(curlinenr) == seldata->linekey_ )
-		{ found = true; break; }
-	}
-	if ( !found )
-	{
-	    errmsg = "Selected line not found in line set";
-	    return false;
+	    const int nrlines = lgrp->nrLines();
+	    const char* lkey = seldata->linekeys_.get( curlineidx );
+	    for ( int idx=0; idx<nrlines; idx++ )
+	    {
+		if ( lgrp->lineKey(idx) == lkey )
+		    { curlinenr = idx; found = true; break; }
+	    }
+	    if ( found )
+		break;
+
+	    BufferString msg( "Line not found in line set: " );
+	    msg += lkey;
+	    ErrMsg( msg );
+	    if ( maxline == 0 )
+		{ errmsg = msg; return false; }
+	    found = false;
 	}
     }
     fetcher = lgrp->lineFetcher( curlinenr, *tbuf, seldata );

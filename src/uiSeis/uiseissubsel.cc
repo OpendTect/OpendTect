@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.10 2004-08-27 10:07:33 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.11 2004-09-03 09:12:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,10 +280,11 @@ void uiSeis2DSubSel::selChg( CallBacker* )
 
 void uiSeis2DSubSel::usePar( const IOPar& iopar )
 {
-    BufferString lnm( iopar.find( SeisSelData::sKeySingLine ) );
-    if ( lnm.size() && yesNoFromString(lnm.buf()) )
-	lnmsfld->setText( lnm );
-    lnmsfld->setChecked( lnm.size() && lnm == lnmsfld->text() );
+    BufferStringSet lnms;
+    iopar.get( SeisSelData::sKeyLineKeys, lnms );
+    BufferString lnm( lnms.size() ? lnms.get(0) : "" );
+    lnmsfld->setText( lnm );
+    lnmsfld->setChecked( lnm != "" );
 
     StepInterval<int> trcrg = trcrgfld->getIStepInterval();
     iopar.get( sKey::FirstCrl, trcrg.start );
@@ -331,8 +332,10 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	BufferString lnm;
 	if ( lnmsfld->isChecked() )
 	    lnm = lnmsfld->text();
-	if ( lnm == "" ) lnm = "No";
-	iopar.set( SeisSelData::sKeySingLine, lnm );
+	if ( lnm == "" )
+	    iopar.removeWithKey( SeisSelData::sKeyLineKeys );
+	else
+	    iopar.set( SeisSelData::sKeyLineKeys, lnm );
 
 	StepInterval<float> zrg;
 	if ( !getZRange( zrg ) )

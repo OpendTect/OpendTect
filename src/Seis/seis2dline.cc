@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.10 2004-09-02 15:52:47 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.11 2004-09-03 09:12:04 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -122,18 +122,36 @@ const char* Seis2DLineGroup::type() const
 }
 
 
+const char* Seis2DLineGroup::lineName( const IOPar& iop )
+{
+    return iop.name().buf();
+}
+
+
 const char* Seis2DLineGroup::lineName( int idx ) const
 {
-    return idx >= pars_.size() ? 0 : pars_[idx]->name().buf();
+    return idx >= 0 && idx < pars_.size()
+	 ? lineName( *pars_[idx] ) : "";
+}
+
+
+const char* Seis2DLineGroup::attribute( const IOPar& iop )
+{
+    const char* res = iop.find( sKeyAttrib );
+    return res ? res : sKeyDefAttrib;
 }
 
 
 const char* Seis2DLineGroup::attribute( int idx ) const
 {
-    const char* res = 0;
-    if ( idx < pars_.size() )
-	res = pars_[idx]->find( sKeyAttrib );
-    return res ? res : sKeyDefAttrib;
+    return idx >= 0 && idx < pars_.size()
+	 ? attribute( *pars_[idx] ) : sKeyDefAttrib;
+}
+
+
+BufferString Seis2DLineGroup::lineKey( const IOPar& iop )
+{
+    return lineKey( lineName(iop), attribute(iop) );
 }
 
 
@@ -161,6 +179,17 @@ BufferString Seis2DLineGroup::attrNamefromKey( const char* key )
     char* ptr = key ? strchr( key, '|' ) : 0;
     if ( ptr ) ret = ptr + 1;
     return ret;
+}
+
+
+int Seis2DLineGroup::indexOf( const char* key ) const
+{
+    for ( int idx=0; idx<pars_.size(); idx++ )
+    {
+	if ( lineKey(*pars_[idx]) == key )
+	    return idx;
+    }
+    return -1;
 }
 
 
@@ -281,6 +310,11 @@ Seis2DLineGroup::Putter* Seis2DLineGroup::lineAdder( IOPar* newiop ) const
 	return 0;
     }
 
+    BufferString newlinekey = lineKey( *newiop );
+    int idx = indexOf( lineKey(*newiop) );
+    if ( idx >= 0 )
+	return lineReplacer( idx );
+
     const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
     return liop_->getAdder( *newiop, previop );
 }
@@ -288,6 +322,9 @@ Seis2DLineGroup::Putter* Seis2DLineGroup::lineAdder( IOPar* newiop ) const
 
 void Seis2DLineGroup::commitAdd( IOPar* newiop )
 {
+    if ( !newiop || indexOf( lineKey(*newiop) ) >= 0 )
+	{ delete newiop; return; }
+
     pars_ += newiop;
     writeFile();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.9 2004-09-02 15:52:47 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.10 2004-09-03 09:12:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
     const char*		attribute(int) const;
     BufferString	lineKey( int idx ) const
     			{ return lineKey( lineName(idx), attribute(idx) ); }
+    int			indexOf(const char* linekey) const;
 
     struct		Putter
     {
@@ -58,9 +59,10 @@ public:
 	    			    const SeisSelData* sd=0) const;
     				//!< May return null
     Putter*		lineReplacer(int) const;
-    				//!< May return null. When finished: commitAdd
+    				//!< May return null.
     Putter*		lineAdder(IOPar*) const;
     				//!< May return null. When finished: commitAdd
+    				//!< will return replacer if linekey exists
     void		commitAdd(IOPar*);
     				//!< Must be called after successful add
     void		remove(int);
@@ -75,6 +77,9 @@ public:
     static const char*	sKeyAttrib;
     static const char*	sKeyDefAttrib;
 
+    static const char*	lineName(const IOPar&);
+    static const char*	attribute(const IOPar&);
+    static BufferString	lineKey(const IOPar&);
     static BufferString	lineKey(const char* lnm,const char* attrnm);
 			//!< "line_name|attribute"
     static BufferString	lineNamefromKey(const char*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.12 2004-08-25 12:27:06 bert Exp $
+ RCS:		$Id: seisread.h,v 1.13 2004-09-03 09:12:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ public:
 
     bool		isPrepared() const		{ return prepared; }
     int			curLineNumber() const		{ return curlinenr; }
+    BufferString	curLineKey() const;
     							//!< 2D only
 
 protected:
@@ -70,11 +71,11 @@ protected:
     bool		prepared;
     bool		inforead;
     int			prev_inl;
+    int			curlineidx;
     int			curlinenr;
     BinIDRange*		outer;
     SeisTrcBuf*		tbuf;
     Executor*		fetcher;
-    BufferString	linename;
 
     void		init();
     Conn*		openFirst();
