@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.18 2002-07-31 11:27:58 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.19 2002-08-01 06:34:11 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,8 @@ protected:
     visBase::SceneObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
 
-    static const char*		grpstr;
+    static const char*		nopickstr;
+    static const char*		pickprefixstr;
     static const char*		showallstr;
     static const char*		shapestr;
     static const char*		sizestr;

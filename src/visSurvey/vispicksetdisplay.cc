@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.32 2002-07-31 11:27:51 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.33 2002-08-01 06:34:18 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -21,7 +21,8 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.32 2002-07-31 11:27:51
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
 
-const char* visSurvey::PickSetDisplay::grpstr = "Group";
+const char* visSurvey::PickSetDisplay::nopickstr = "No Picks";
+const char* visSurvey::PickSetDisplay::pickprefixstr = "Pick ";
 const char* visSurvey::PickSetDisplay::showallstr = "Show all";
 const char* visSurvey::PickSetDisplay::shapestr = "Shape";
 const char* visSurvey::PickSetDisplay::sizestr = "Size";
@@ -332,16 +333,24 @@ void visSurvey::PickSetDisplay::fillPar( IOPar& par,
 	TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
-    int grpid = group->id();
-    par.set( grpstr, grpid );
+
+    const int nrpicks = group->size();
+    par.set( nopickstr, nrpicks );
+
+    for ( int idx=0; idx<nrpicks; idx++ )
+    {
+	const SceneObject* so = group->getObject( idx );
+        mDynamicCastGet(const visBase::Marker*, marker, so );
+	Geometry::Pos pos = marker->centerPos();
+	BufferString key = pickprefixstr; key += idx;
+	par.set( key, pos.x, pos.y, pos.z );
+    }
+
     par.setYN( showallstr, showall );
 
     int type = getType();
     par.set( shapestr, type );
     par.set( sizestr, picksz );
-
-
-    if ( saveids.indexOf( grpid )==-1 ) saveids += grpid;
 }
 
 
@@ -350,42 +359,31 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
-    int grpid;
-    if ( !par.get( grpstr, grpid ) )
+    int nopicks;
+    if ( !par.get( nopickstr, nopicks ) )
 	return -1;
 
-    visBase::DataObject* dataobj = visBase::DM().getObj( grpid );
-    if ( !dataobj ) return 0;
+    group->removeAll();
 
-    mDynamicCastGet( visBase::SceneObjectGroup*, sogrp, dataobj );
-    if ( !sogrp ) return -1;
+    picktype = 0;
+    par.get( shapestr, picktype );
 
-    removeChild( group->getData() );
-    group->unRef();
-    group = sogrp;
-    group->ref();
-    addChild( group->getData() );
-    
+    picksz = 5;
+    par.get( sizestr, picksz );
+
+    for ( int idx=0; idx<nopicks; idx++ )
+    {
+	Geometry::Pos pos;
+	BufferString key = pickprefixstr; key += idx;
+	if ( !par.get( key, pos.x, pos.y, pos.z ) )
+	    return -1;
+
+	addPick( pos );
+    }
+
     bool shwallpicks;
     if ( !par.getYN( showallstr, shwallpicks ) ) return -1;
     showAll( shwallpicks );
 
-    int type = 0;
-    par.get( shapestr, type );
-
-    float markersize = 5;
-    par.get( sizestr, markersize );
-    setSize( markersize );
-    picksz = markersize;
-
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-        mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
-        if ( !marker ) continue;
-
-	marker->setType( (visBase::Marker::Type)type );
-	marker->setSize( markersize );
-    }
- 
     return 1;
 }
