@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.10 2001-07-23 10:39:10 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.11 2001-10-02 11:48:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,7 @@ class CBVSWriter : public CBVSIO
 public:
 
 			CBVSWriter(ostream*,const CBVSInfo&,
-				   const CBVSInfo::ExplicitData* =0,
-				   bool forceintegrity=false);
+				   const CBVSInfo::ExplicitData* =0);
 			//!< If info.explinfo has a true, the ExplicitData
 			//!< is mandatory. The relevant field(s) should then be
 			//!< filled before the first put() of any position
@@ -65,7 +64,7 @@ protected:
 
     ostream&		strm_;
     unsigned long	thrbytes_;
-    ObjectSet<DataBuffer>* dbufs;
+    ObjectSet<DataBuffer> dbufs;
     int			bytesperwrite;
     int			explicitbytes;
     bool		rectnreg;

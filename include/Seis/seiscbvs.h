@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.6 2001-07-21 16:35:47 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.7 2001-10-02 11:48:09 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -36,7 +36,6 @@ public:
 
     bool		supportsGoTo() const		{ return true; }
     bool		goTo(const BinID&);
-    void		forceWriteIntegrity( bool yn )	{ wrintegr = yn; }
 
     const UserIDSet*	parSpec(Conn::State) const
 			{ return &datatypeparspec; }
@@ -50,7 +49,6 @@ protected:
     bool		headerdone;
     bool		donext;
     int			nrdone;
-    bool		wrintegr;
 
     // Following variables are inited by commitSelections_
     TraceDataInterpreter** storinterps;
