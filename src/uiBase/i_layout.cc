@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.18 2001-09-20 13:26:17 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.19 2001-09-21 09:58:11 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,15 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
             if( !minimum_pos_inited)
 	    {
 		mPos.zero();
-           
+
+#ifndef dont_use_preferred_wh
+/*
+    Use preferred width & height for initial values. This makes that dialogs can
+    not be shrinked and get us into trouble ;-))
+*/
+		mPos.setWidth( preferred_width );
+		mPos.setHeight( preferred_height );
+#else           
                 if( stretch(true) )
 		    mPos.setWidth( minimumSize().width() );
                 else
@@ -162,6 +170,8 @@ void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
 		    mPos.setHeight( minimumSize().height() );
                 else
 		    mPos.setHeight( preferred_height );
+
+#endif
 
 		minimum_pos_inited = true;
 	    }
@@ -812,9 +822,11 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
     layoutChildren( setGeom );
     uiRect childrenBBox = childrenRect(setGeom);  
 
-    if(   ( childrenBBox.width() > targetRect.width() )
-	||( childrenBBox.height() > targetRect.height() ))
-	{ pErrMsg("huh"); return false; }
+    bool doh = true;
+    bool dov = true;
+
+    if ( childrenBBox.width() > targetRect.width() )	doh = false;
+    if ( childrenBBox.height() > targetRect.height() )	dov = false;
 
     bool done_something = false;
 
@@ -825,13 +837,13 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
     bool vdone = false;
 
 
-    if( cur.nhiter ) 
+    if( doh && cur.nhiter ) 
     {
 	hdone = true;
 	myGeomtry.setWidth ( refGeom.width() + ++cur.hDelta );
     }
 
-    if(  cur.nviter )
+    if(  dov && cur.nviter )
     {
 	vdone = true;
 	myGeomtry.setHeight( refGeom.height() + ++cur.vDelta );
@@ -870,9 +882,9 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, const QRect& targetRect )
 	childrenBBox = childrenRect(setGeom);  
     } 
 
-    if( ( childrenBBox.width() > targetRect.width() ) )
+    if( doh && ( childrenBBox.width() > targetRect.width() ) )
 	{ pErrMsg("hShit!"); return false; }
-    if	( childrenBBox.height() > targetRect.height() )
+    if( dov && ( childrenBBox.height() > targetRect.height() ) )
 	{ pErrMsg("vShit!"); return false; }
 
     return done_something;
@@ -889,7 +901,9 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
     int vSpace = targetRect.height() - childrenBBox.height();
 
 
-    if( (!hSpace && !vSpace) || hSpace<0 || vSpace<0 ) return;
+//    if( (!hSpace && !vSpace) || hSpace<0 || vSpace<0 ) return;
+// allow space <0 in one direction.
+    if ( hSpace<=0 && vSpace<=0 ) return;
 
     ObjectSet<resizeItem> resizeList;
     int maxHstr, maxVstr;

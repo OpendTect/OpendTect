@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.4 2001-09-20 08:30:59 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.5 2001-09-21 09:58:11 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,8 +91,6 @@ protected:
 				    { return mQLayoutItem_.widget(); }
     virtual const QWidget*	managewidg_() const 
 				    { return mQLayoutItem_.widget(); }
-
-
 
     uiRect			layoutpos[ nLayoutMode ];
 
