@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.177 2003-12-01 16:04:33 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.178 2003-12-08 11:08:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,6 +232,7 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
 
     scene->addObject( sd );
     sd->setZValues();
+    sd->turnOnWireFrame( false );
 
     setUpConnections( sd->id() );
     return sd->id();
