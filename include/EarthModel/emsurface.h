@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.27 2003-12-06 11:08:49 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.28 2003-12-09 19:55:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -120,7 +120,6 @@ public:
     void		getLinkedPos( const EM::PosID& posid,
 	    			      TypeSet<EM::PosID>& ) const;
 
-   
     bool		isLoaded() const;
     bool		isFullResolution() const;
 

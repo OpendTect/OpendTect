@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.15 2003-11-24 08:39:49 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.16 2003-12-09 19:55:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -60,9 +60,7 @@ public:
 				     linked to the posid given
 				*/
     				
-    				
-    virtual void		setPosAttrib( EM::PosID&, int attr,
-	   				      bool yn );
+    virtual void		setPosAttrib( EM::PosID&, int attr, bool yn );
     virtual bool		isPosAttrib(EM::PosID&, int attr) const;
 
     CNotifier<EMObject, PosID>	poschnotifier;
