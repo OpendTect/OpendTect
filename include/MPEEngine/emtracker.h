@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.1 2005-01-06 09:25:55 kristofer Exp $
+ RCS:           $Id: emtracker.h,v 1.2 2005-01-20 08:49:17 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,11 @@ class TrackPlane;
 class EMTracker
 {
 public:
-    			EMTracker();
+    			EMTracker( EM::EMObject* );
     virtual		~EMTracker();
 
-    virtual const char*	objectName() const				= 0;
-    virtual EM::ObjectID objectID() const				= 0;
+    const char*		objectName() const;
+    EM::ObjectID	objectID() const;
 
     virtual bool	isEnabled() const { return isenabled; }
     virtual void	enable(bool yn) { isenabled=yn; }
@@ -46,9 +46,12 @@ public:
     const char*		errMsg() const;
 
 protected:
-    bool				isenabled;
-    ObjectSet<SectionTracker>		sectiontrackers;
-    BufferString			errmsg;
+    virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
+    SectionTracker*		getSectionTracker(EM::SectionID);
+    bool			isenabled;
+    ObjectSet<SectionTracker>	sectiontrackers;
+    BufferString		errmsg;
+    EM::EMObject*		emobject;
 };
 
 
