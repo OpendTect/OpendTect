@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.5 2001-07-23 14:51:32 kristofer Exp $
+ RCS:           $Id: wavelettrans.h,v 1.6 2001-07-24 07:11:30 kristofer Exp $
 ________________________________________________________________________
 
 @$*/
@@ -170,8 +170,7 @@ public:
 			{ return false; }
 
 protected:
-    bool		isPossible( int ) const
-			{ return true; } // TO BE FIXED!!
+    bool		isPossible( int sz) const { return sz & 1; }
     bool		isFast( int ) const { return true; }
 
     void		transform1D( const ArrayND<float>::LinearStorage&,
@@ -187,15 +186,15 @@ protected:
     template <class T> class Wavelet
     {
     public:
-		Wavelet( WaveletTransform::WaveletType, float scale );
-		~Wavelet() {};
-	float	correllate( const ArrayND<float>::LinearStorage&,
-			    int size, int off, int space ) const;
-	float	correllate( const ArrayND<float_complex>::LinearStorage&,
-			    int size, int off, int space ) const;
+			Wavelet( WaveletTransform::WaveletType, float scale );
+			~Wavelet() {};
+	T		correllate( const ArrayND<float>::LinearStorage&,
+				    int size, int off, int space ) const;
+	float_complex	correllate(const ArrayND<float_complex>::LinearStorage&,
+				   int size, int off, int space ) const;
 
     protected:
-	float*	data;
+	T*	data;
 	int	len;
 	int	firstpos;
     };
@@ -213,18 +212,30 @@ ContiniousWaveletTransform::Wavelet<T>::
 Wavelet(WaveletTransform::WaveletType, float scale ) {}
 
 
+#define mWvltCorrellate(type)	\
+    type sum = 0;						\
+								\
+    int storpos = off + ((signalsize-len) >> 1) * space;		\
+    for ( int idx=0; idx<len; idx++ )				\
+    {								\
+	sum =+ stor.get( storpos ) * data[idx];			\
+	storpos += space;					\
+    }								\
+								\
+    return sum
+
 template <class T>
-float ContiniousWaveletTransform::Wavelet<T>::
-correllate( const ArrayND<float_complex>::LinearStorage&,
-            int size, int off, int space ) const
-{ return 0; }
+float_complex ContiniousWaveletTransform::Wavelet<T>::
+correllate( const ArrayND<float_complex>::LinearStorage& stor,
+            int signalsize, int off, int space ) const
+{ mWvltCorrellate(float_complex); }
 
 
 template <class T>
-float ContiniousWaveletTransform::Wavelet<T>::
-correllate( const ArrayND<float>::LinearStorage&,
-            int size, int off, int space ) const
-{ return 0; }
+T ContiniousWaveletTransform::Wavelet<T>::
+correllate( const ArrayND<float>::LinearStorage& stor,
+            int signalsize, int off, int space ) const
+{ mWvltCorrellate(T); }
 
 
 #endif
