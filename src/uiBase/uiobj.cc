@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.14 2001-10-15 11:23:20 windev Exp $
+ RCS:           $Id: uiobj.cc,v 1.15 2001-10-24 15:20:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,8 @@ uiParent::uiParent( const char* nm, uiParentBody* b )
 
 void uiParent::addChild( uiObjHandle& child )
 {
-    if ( child == static_cast<uiObjHandle*>(this) ) return;
+    mDynamicCastGet( uiObjHandle*, thisuiobj, this );
+    if ( thisuiobj && child == thisuiobj ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 
     uiParentBody* b = pbody();

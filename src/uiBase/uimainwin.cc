@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.12 2001-10-05 13:20:15 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.13 2001-10-24 15:20:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,8 +104,8 @@ public:
 
     uiGroup*		centralWidget_;
 
-    uiStatusBar* 	mStatusBar;
-    uiMenuBar* 		mMenuBar;
+    uiStatusBar* 	statusbar;
+    uiMenuBar* 		menubar;
 
 protected:
 
@@ -129,7 +129,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
-	, mStatusBar( 0 ) , mMenuBar(0)  {}
+	, statusbar( 0 ) , menubar(0)  {}
 
 void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar)
 { 
@@ -142,7 +142,7 @@ void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar)
     {
 	QStatusBar* mbar= statusBar();
 	if( mbar )
-	    mStatusBar = new uiStatusBar( &handle(),
+	    statusbar = new uiStatusBar( &handle(),
 					  "MainWindow StatusBar handle", *mbar);
 	else
 	    pErrMsg("No statusbar returned from Qt");
@@ -152,7 +152,7 @@ void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar)
 	QMenuBar* myBar =  menuBar();
 
 	if( myBar )
-	    mMenuBar = new uiMenuBar( &handle(), "MainWindow MenuBar handle", 
+	    menubar = new uiMenuBar( &handle(), "MainWindow MenuBar handle", 
 				      *myBar);
 	else
 	    pErrMsg("No menubar returned from Qt");
@@ -174,15 +174,15 @@ void uiMainWinBody::finalise()
 
 uiStatusBar* uiMainWinBody::uistatusbar()
 {
-    if ( !mStatusBar) pErrMsg("No statusbar. See uiMainWinBody's constructor"); 
-    return mStatusBar;
+    if ( !statusbar) pErrMsg("No statusbar. See uiMainWinBody's constructor"); 
+    return statusbar;
 }
 
 
 uiMenuBar* uiMainWinBody::uimenubar()
 {
-    if ( !mMenuBar ) pErrMsg("No menuBar. See uiMainWinBody's constructor"); 
-    return mMenuBar;
+    if ( !menubar ) pErrMsg("No menuBar. See uiMainWinBody's constructor"); 
+    return menubar;
 }
 
 

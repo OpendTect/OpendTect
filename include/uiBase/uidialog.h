@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.12 2001-10-17 11:53:08 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.13 2001-10-24 15:20:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 class uiDialogBody;
+class uiMenuBar;
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
@@ -29,6 +30,7 @@ friend class uiDialogBody;
 public:
 			uiDialog( uiParent* p =0, const char* nm="uiDialog", 
 				  bool modal=true, bool separator=true,
+				  bool withmenubar=false,
 				  int border=7, int spacing=10);
 
 
@@ -37,6 +39,8 @@ public:
     void		reject( CallBacker* cb =0);
     void		accept( CallBacker* cb =0);
     void		done( CallBacker* cb =0);
+
+    uiMenuBar*		menuBar();
 
     void		setSpacing( int ); 
     void		setBorder( int ); 
@@ -70,7 +74,7 @@ protected:
 private:
 
     uiDialogBody*	body_;
-    uiDialogBody&	mkbody(uiParent*, const char*, bool, bool, int, int);
+    uiDialogBody&	mkbody(uiParent*, const char*,bool,bool,bool,int, int);
 };
 
 #endif
