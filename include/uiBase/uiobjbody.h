@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.3 2001-09-18 06:24:31 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.4 2001-09-20 08:30:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,10 +78,15 @@ public:
 				    pref_char_height = h; 
 				}
 
-    void               		setStretch( int hor, int ver )
-				    { horStretch = hor; verStretch = ver; }
-    virtual int			stretch( bool hor )
-				    { return hor ? horStretch : verStretch; }
+    void               		setStretch( int hor, int ver ) 
+				    { hStretch = hor; vStretch = ver; }
+
+    virtual int			stretch( bool hor, bool retUndef=false ) const
+				{ 
+				    int s = hor ? hStretch : vStretch;
+				    if( retUndef ) return s;
+				    return s != mUndefIntVal ? s : 0;
+				}
 
     virtual bool		isSingleLine() const { return false; }
 
@@ -134,8 +139,8 @@ private:
     uiParentBody*      		parent_;
     const uiFont*		font_;
 
-    int				horStretch;
-    int				verStretch;
+    int				hStretch;
+    int				vStretch;
 
     bool			is_hidden;
     int				pref_width;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.12 2001-08-30 10:49:59 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.13 2001-09-20 08:30:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include <qlist.h>
 #include <qrect.h>
 
+class resizeItem;
+
 //!  internal enum used to determine in which direction a widget can be stretched and to check which outer limit must be checked
 enum stretchLimitTp { left=1, right=2, above=4, below=8, 
                       rightLimit=16, bottomLimit=32 };
@@ -33,19 +35,22 @@ public:
 
 			uiConstraint ( constraintType t, i_LayoutItem* o,
 				       int marg )
+			: other(o), type(t), margin( marg ), enabled_( true )
 			{
-			    other = o; type = t; margin = marg;
 			    if( !other &&
 				((type < leftBorder)||( type > bottomBorder))
 			    )
 				{ pErrMsg("No attachment defined!!"); }
 			}
 
+    bool		enabled()		{ return enabled_ ; }
+    void		disable(bool yn=true)	{ enabled_ = !yn; }
 
 protected:
     constraintType      type;
     i_LayoutItem*       other;
     int                 margin;
+    bool		enabled_;
 };
 
 mTemplTypeDef(QList,uiConstraint,constraintList)
@@ -114,12 +119,40 @@ public:
 	
     bool 		attach ( constraintType, QWidget&, QWidget*, int);
 
-    layoutMode		curMode() const { return curmode; } 
-    inline const uiRect& pos() const { return pos_[curMode()]; }
+/*! \brief sets layout item where position is stored. 
+    A Layout manager needs positioning storage for itself. In case we're 
+    managing a uiGroup, this info is already there in the assicated 
+    layoutitem for that group. So, we have to use that position.
+*/
+#if 0
+    void		setLayoutPosItm( i_LayoutItem* itm );
+
+    const uiRect&	pos(layoutMode m) const	
+                        { return const_cast<i_LayoutMngr*>(this)->pos(m); }
+
+    uiRect&		pos(layoutMode m)
+			{ 
+			    if( !layoutpos )
+			    {
+				pErrMsg("no layout position info");
+				layoutpos = new uiRect[nLayoutMode];
+			    }
+			    return layoutpos[m]; 
+			}
+
+#else
+
+    const uiRect&	pos(layoutMode m) const	{ return layoutpos[m]; }
+    uiRect&		pos(layoutMode m)	{ return layoutpos[m]; }
+
+#endif
+
     void		forceChildrenRedraw( uiObjectBody*, bool deep );
     void		childrenClear( uiObject* );
     void		setMinTxtWidgHgt( int h )   { mintxtwidgethgt=h; }
     int			minTxtWidgHgt() const       { return mintxtwidgethgt; }
+
+    int                 childStretch( bool hor ) const;
 
     int			borderSpace() const	    { return margin(); }
     int			horSpacing() const 	    { return spacing(); }
@@ -128,27 +161,27 @@ public:
 protected:
 
     void 		setGeometry( const QRect& );
-    void		childUpdated() 		{ a_child_updated = true; }
-    void		setMode( layoutMode m ) { curmode = m; } 
-    inline void 	setMode( layoutMode m  ) const 
-                        { const_cast<i_LayoutMngr*>(this)->setMode(m); }
  
 private:
 
-    void 		doLayout( const QRect& );
-    inline void 	doLayout( const QRect& r ) const 
-                        { const_cast<i_LayoutMngr*>(this)->doLayout(r); }
+    void 		doLayout( layoutMode m, const QRect& );
+    inline void 	doLayout( layoutMode m, const QRect& r ) const 
+                        { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
 
-    uiRect 		childrenRect();
-    void 		layoutChildren(int* iterLeft =0);
+    void 		moveChildrenTo( int , int, layoutMode );
+    void 		fillResizeList( ObjectSet<resizeItem>&, 
+					int&, int&, int&, int& );
+    void		resizeTo( QRect& );
+    void		childrenCommitGeometrySet();
+
+    uiRect 		childrenRect( layoutMode m );
+    void 		layoutChildren( layoutMode m );
 
     QList<i_LayoutItem>	childrenList;
 
-    bool		a_child_updated;
+//    uiRect*		layoutpos;
+    uiRect		layoutpos[ nLayoutMode ];
 
-    uiRect		pos_[ nLayoutMode ];
-
-    layoutMode		curmode;
     static int		mintxtwidgethgt;
 
     QRect		prevGeometry;

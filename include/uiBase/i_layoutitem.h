@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.3 2001-08-30 10:49:59 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.4 2001-09-20 08:30:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,11 +32,11 @@ public:
 
 
 
-    virtual int			horAlign() const 
-				    { return pos().left(); }
-    virtual int			horCentre() const 
-				    { return ( pos().left() 
-					     + pos().right() ) / 2; 
+    virtual int			horAlign(layoutMode m) const 
+				    { return pos(m).left(); }
+    virtual int			horCentre(layoutMode m) const 
+				    { return ( pos(m).left() 
+					     + pos(m).right() ) / 2; 
 				    }
 
     virtual QSize 		minimumSize() const 
@@ -51,26 +51,38 @@ public:
 
     inline const i_LayoutMngr& 	mngr() const 	{ return mngr_; } 
 
-    inline const uiRect& 	pos() const 	{ return pos_[mngr_.curMode()];}
-    inline uiRect&		pos() 		{ return pos_[mngr_.curMode()];}
+    inline const uiRect& 	pos(layoutMode m) const	{ return layoutpos[m];}
+    inline uiRect&		pos(layoutMode m)	{ return layoutpos[m];}
 
     constraintIterator		iterator();
 
 protected:
+    bool			preferred_pos_inited;
+    bool			minimum_pos_inited;
 
-    int 			stretch( bool hor );
+    int 			stretch( bool hor ) const;
     void			commitGeometrySet();
 
-    void			initLayout ( int mngrTop, int mngrLeft );
-    void			layout ();
-
-    void 			updated() const	{ mngr_.childUpdated();}
+    void			initLayout( layoutMode m, int mngrTop, 
+							  int mngrLeft );
+    void			layout( layoutMode m, const int, bool* );
 
     void			attach( constraintType, 
 					i_LayoutItem *other, int margin);
 
-    virtual uiObject*		obj2Layout()		{ return 0; }
+    virtual uiObject*		objLayouted()		{ return 0; }
+    inline uiObject*		objLayouted() const
+				{ 
+				    return const_cast<i_LayoutItem*>
+							(this)->objLayouted(); 
+				}
+
     virtual uiObjectBody*	bodyLayouted()		{ return 0; }
+    inline uiObjectBody*	bodyLayouted() const
+				{ 
+				    return const_cast<i_LayoutItem*>
+							(this)->bodyLayouted(); 
+				}
 
     inline QLayoutItem&		mQLayoutItem()		{ return mQLayoutItem_;}
     inline const QLayoutItem&	mQLayoutItem() const 	{ return mQLayoutItem_;}
@@ -81,6 +93,9 @@ protected:
 				    { return mQLayoutItem_.widget(); }
 
 
+
+    uiRect			layoutpos[ nLayoutMode ];
+
 private:
 
     QLayoutItem&		mQLayoutItem_;
@@ -88,11 +103,9 @@ private:
 
     constraintList		constrList;
 
-    uiRect			pos_[ nLayoutMode ];
-    bool			preferred_pos_inited;
-    bool			minimum_pos_inited;
-
+    int 			isPosOk( uiConstraint*, int );
 };
+
 
 //! Wrapper around QLayoutItems that have been wrapped by a i_QObjWrp wrapper and therefore have a reference to a uiObject.
 class i_uiLayoutItem : public i_LayoutItem
@@ -113,12 +126,14 @@ public:
 				return i_LayoutItem::minimumSize();
 			    }
 
-    virtual uiObject*	  obj2Layout()	{ return &uiObjBody_.uiObjHandle(); }
+    virtual uiObject*	  objLayouted()	{ return &uiObjBody_.uiObjHandle(); }
     virtual uiObjectBody* bodyLayouted(){ return &uiObjBody_; }
+
 
 protected:
 
     uiObjectBody&	uiObjBody_;
+
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.10 2001-08-30 08:45:31 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.11 2001-09-20 08:30:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,8 +228,8 @@ void uiObject::reDraw( bool deep )
 
 uiObjectBody::uiObjectBody( uiParent* parnt )
     : uiBody()
-    , horStretch( 0 )
-    , verStretch( 0 )
+    , hStretch( mUndefIntVal  )
+    , vStretch(  mUndefIntVal )
     , layoutItem_( 0 )
     , is_hidden( false )
     , pref_width( - 1 )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.9 2001-08-27 12:53:02 arend Exp $
+ RCS:           $Id: uifont.cc,v 1.10 2001-09-20 08:30:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,29 +34,32 @@ static const char* sKey = "Font.def";
 
 uiFont::uiFont( const char* key, const char* fam, int ps, FontData::Weight w,
 		bool it )
-	: mQtThing(new QFont(QString(fam),ps,FontData::numWeight(w),it))
+	: mQtThing(new QFont(
+			QString((fam && *fam) ? fam : "helvetica"),
+			ps > 1 ? ps : 12 ,
+                        FontData::numWeight(w),it))
 	, mQFontMetrics( *new QFontMetrics( *mQtThing ))
 	, key_( key )
-{
-}
+{}
 
 
 uiFont::uiFont( const char* key, FontData fdat )
-	: mQtThing( new QFont(QString(fdat.family()),
-		    fdat.pointSize(),FontData::numWeight(fdat.weight()),
+	: mQtThing( new QFont(
+		    QString( fdat.family() && *fdat.family()
+				? fdat.family() : "helvetica" ),
+		    fdat.pointSize() > 1 ? fdat.pointSize() : 12,
+		    FontData::numWeight(fdat.weight()),
 		    fdat.isItalic()))  
 	, mQFontMetrics( *new QFontMetrics( *mQtThing ))
 	, key_( key )
-{
-}
+{}
 
 
 uiFont::uiFont( const uiFont& afont )
 	: mQtThing( new QFont( *afont.mQtThing ) )
 	, mQFontMetrics( *new QFontMetrics( *mQtThing ))
 	, key_( afont.key_ )
-{
-}
+{} 
 
 
 uiFont::~uiFont()

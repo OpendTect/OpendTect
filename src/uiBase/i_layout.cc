@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.16 2001-08-30 10:49:59 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.17 2001-09-20 08:30:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ ________________________________________________________________________
 #include <limits.h>
 
 
-#define MAX_ITER 10000
+#define MAX_ITER	10000
+#define NOT_OK_TRIGGER	 9800
 
 
 int i_LayoutMngr::mintxtwidgethgt = -1;
@@ -66,27 +67,30 @@ constraintIterator i_LayoutItem::iterator()
 
 
 uiSize i_LayoutItem::actualSize( bool include_border ) const
-    { return pos_[setGeom].size(); }
+    { return pos(setGeom).size(); }
 
 
-int i_LayoutItem::stretch( bool hor )
-    { return bodyLayouted()->stretch( hor ); }
+int i_LayoutItem::stretch( bool hor ) const
+{ 
+    const uiObjectBody* blo = bodyLayouted();
+    return blo ? blo->stretch( hor ) : 0; 
+}
 
 
 void i_LayoutItem::commitGeometrySet()
 {
-    uiRect mPos = pos_[ setGeom ];
+    uiRect mPos = pos( setGeom );
 
-    if( obj2Layout() ) obj2Layout()->triggerSetGeometry( this, mPos );
+    if( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
 
 //#define DEBUG_LAYOUT 
 #ifdef DEBUG_LAYOUT
 
     BufferString msg;
-    if( obj2Layout() )
+    if( objLayouted() )
     {   
 	msg = "setting geometry on: ";
-	msg +=  obj2Layout()->name();
+	msg +=  objLayouted()->name();
 	msg += "; top: ";
         msg += mPos.top();
         msg += " left: ";
@@ -111,16 +115,16 @@ void i_LayoutItem::commitGeometrySet()
 #endif
 }
 
-void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
+void i_LayoutItem::initLayout( layoutMode m, int mngrTop, int mngrLeft )
 {
-    uiRect& mPos = pos();
+    uiRect& mPos = pos( m );
     int preferred_width;
     int preferred_height;
 
-    if( obj2Layout() )
+    if( objLayouted() )
     {
-	preferred_width  = obj2Layout()->preferredWidth();
-	preferred_height = obj2Layout()->preferredHeight();
+	preferred_width  = objLayouted()->preferredWidth();
+	preferred_height = objLayouted()->preferredHeight();
     }
     else
     {
@@ -133,7 +137,7 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
 
     BufferString msg;
     msg = "initLayout on ";
-    msg+= obj2Layout() ? const_cast<char*>((const char*)obj2Layout()->name()) : "UNKNOWN";      
+    msg+= objLayouted() ? const_cast<char*>((const char*)objLayouted()->name()) : "UNKNOWN";      
     msg+= "  mngrTop: ";
     msg+= mngrTop;
     msg+= "  mngrLeft: ";
@@ -142,7 +146,7 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
     pErrMsg( msg );
 
 #endif
-    switch ( mngr().curMode() )
+    switch ( m )
     {
 	case minimum:
             if( !minimum_pos_inited)
@@ -166,7 +170,7 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
 	case setGeom:
 	    if( !preferred_pos_inited )
 	    {
-		uiRect& pPos = pos_[preferred];
+		uiRect& pPos = pos(preferred);
 		pPos.setLeft( mngrLeft );
 		pPos.setTop( mngrTop );
 
@@ -194,14 +198,73 @@ void i_LayoutItem::initLayout( int mngrTop, int mngrLeft )
     } 
 }
 
-void i_LayoutItem::layout()
+
+int i_LayoutItem::isPosOk( uiConstraint* c, int i )
+{
+    if( i < NOT_OK_TRIGGER ) return i;
+
+    if( c->enabled() ) 
+    {
+	BufferString msg;
+
+	msg = "\n  Layout loop on: \"";
+	msg+= objLayouted() ? (const char*)objLayouted()->name() : "UNKNOWN";
+	msg+= "\"";
+
+	switch ( c->type )
+	{
+	    case leftOf: 	msg+= " leftOf "; break;
+	    case rightOf:	msg+= " rightOf "; break;
+	    case leftTo:	msg+= " leftTo "; break;
+	    case rightTo:	msg+= " rightTo "; break;
+	    case leftAlignedBelow:	msg+= " leftAlignedBelow "; break;
+	    case leftAlignedAbove:	msg+= " leftAlignedAbove "; break;
+	    case rightAlignedBelow:	msg+= " rightAlignedBelow "; break;
+	    case rightAlignedAbove:	msg+= " rightAlignedAbove "; break;
+	    case alignedBelow:	msg+= " alignedBelow "; break;
+	    case alignedAbove:   	msg+= " alignedAbove "; break;
+	    case centeredBelow:	msg+= " centeredBelow "; break;
+	    case centeredAbove:	msg+= " centeredAbove "; break;
+	    case ensureLeftOf:	msg+= " ensureLeftOf "; break;
+	    case ensureRightOf:	msg+= " ensureRightOf "; break;
+	    case ensureBelow:	msg+= " ensureBelow "; break;
+	    case leftBorder:	msg+= " leftBorder "; break;
+	    case rightBorder:	msg+= " rightBorder "; break;
+	    case topBorder:	msg+= " topBorder "; break;
+	    case bottomBorder:	msg+= " bottomBorder "; break;
+	    case heightSameAs: 	msg+= " heightSameAs "; break;
+	    case widthSameAs:	msg+= " widthSameAs "; break;
+	    case stretchedBelow:	msg+= " stretchedBelow "; break;
+	    case stretchedAbove:	msg+= " stretchedAbove "; break;
+	    case stretchedLeftTo:	msg+= " stretchedLeftTo "; break;
+	    case stretchedRightTo:	msg+= " stretchedRightTo "; break;
+	    default: 	msg+= " .. "; break;
+	}
+
+	msg+= "\"";
+	msg+= c->other->objLayouted() ? 
+		    (const char*)c->other->objLayouted()->name() : "UNKNOWN";
+	msg+= "\"";
+	pErrMsg( msg );
+
+	c->disable();
+    }
+    return i;
+}
+
+
+
+#define mCP(val) isPosOk(constr,(val))
+#define mUpdated() { isPosOk(constr,MAX_ITER-iteridx); *chupd=true; }
+void i_LayoutItem::layout(layoutMode m, const int iteridx, bool* chupd )
 {
 //    if ( !constrList ) return;
 
 #define mHorSpacing (constr->margin >= 0 ? constr->margin : mngr_.horSpacing())
 #define mVerSpacing (constr->margin >= 0 ? constr->margin : mngr_.verSpacing())
 
-    uiRect& mPos = pos();
+
+    uiRect& mPos = pos(m);
 
     constraintIterator it = iterator();
 
@@ -210,195 +273,195 @@ void i_LayoutItem::layout()
     {
 	++it;
 
-	uiRect otherPos = constr->other ? constr->other->pos() : uiRect();
+	uiRect otherPos = constr->other ? constr->other->pos(m) : uiRect();
 
 	switch ( constr->type )
 	{
 	    case rightOf:
 	    case rightTo:
-		if( mPos.leftToAtLeast( otherPos.right() + mHorSpacing ) )  
-		    updated(); 
-		if ( mPos.topToAtLeast( otherPos.top() ) ) 
-		     updated();
+		if( mPos.leftToAtLeast( mCP(otherPos.right() + mHorSpacing)))  
+		    mUpdated(); 
+		if ( mPos.topToAtLeast( mCP(otherPos.top()) ) ) 
+		     mUpdated();
 		break;
 	    case leftOf:  
-		if( mPos.rightToAtLeast( otherPos.left() - mHorSpacing ) )  
-		    updated(); 
-		if ( mPos.topToAtLeast( otherPos.top() ) ) 
-		     updated();
+		if( mPos.rightToAtLeast( mCP(otherPos.left() - mHorSpacing)) )  
+		    mUpdated(); 
+		if ( mPos.topToAtLeast( mCP(otherPos.top())) ) 
+		     mUpdated();
 		break;
 	    case leftTo:  
-		if ( mPos.topToAtLeast( otherPos.top() ) ) 
-		     updated();
+		if ( mPos.topToAtLeast( mCP(otherPos.top())) ) 
+		     mUpdated();
 		break;
 		      
 	    case leftAlignedBelow:
-		if( mPos.topToAtLeast( otherPos.bottom() + mVerSpacing))
-		    updated(); 
-		if( mPos.leftToAtLeast( otherPos.left() ) ) 
-		    updated();
+		if( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
+		    mUpdated(); 
+		if( mPos.leftToAtLeast( mCP(otherPos.left())) ) 
+		    mUpdated();
 		break;
 
 	    case leftAlignedAbove: 
-		if( mPos.leftToAtLeast( otherPos.left() ) ) 
-		    updated();
+		if( mPos.leftToAtLeast( mCP(otherPos.left())) ) 
+		    mUpdated();
 		break;
 
 	    case rightAlignedBelow:
-		if( mPos.topToAtLeast( otherPos.bottom() + mVerSpacing))
-		    updated();
-		if( mPos.rightToAtLeast( otherPos.right() ) )
-		    updated();
+		if( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
+		    mUpdated();
+		if( mPos.rightToAtLeast( mCP(otherPos.right())) )
+		    mUpdated();
 		break;
 
 	    case rightAlignedAbove: 
-		if( mPos.rightToAtLeast( otherPos.right() ) )
-		    updated();
+		if( mPos.rightToAtLeast( mCP(otherPos.right()) ) )
+		    mUpdated();
 		break;
 
 	    case alignedBelow:
-		if( mPos.topToAtLeast( otherPos.bottom() + mVerSpacing))
-		    updated();
-		if( mPos.leftToAtLeast( mPos.left() 
-					+ constr->other->horAlign() 
-					- horAlign() 
+		if( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
+		    mUpdated();
+		if( mPos.leftToAtLeast( mCP(mPos.left() 
+					+ constr->other->horAlign(m) 
+					- horAlign(m)) 
 				      )
 		  ) 
-		    updated();
+		    mUpdated();
 		break;
 
 	    case alignedAbove: 
-		if( mPos.leftToAtLeast( mPos.left() 
-					+ constr->other->horAlign() 
-					- horAlign() 
+		if( mPos.leftToAtLeast( mCP(mPos.left() 
+					+ constr->other->horAlign(m) 
+					- horAlign(m)) 
 				      )
 		  ) 
-		    updated();
+		    mUpdated();
 		break;
 
 	    case centeredBelow:
 	    {
-		if( mPos.topToAtLeast( otherPos.bottom() + mVerSpacing))
-		    updated(); 
+		if( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
+		    mUpdated(); 
 
-		if( horCentre() > 0 && constr->other->horCentre() > 0 &&
-		    mPos.leftToAtLeast( mPos.left() 
-					+ constr->other->horCentre() 
-					- horCentre() 
+		if( horCentre(m) > 0 && constr->other->horCentre(m) > 0 &&
+		    mPos.leftToAtLeast( mCP(mPos.left() 
+					+ constr->other->horCentre(m) 
+					- horCentre(m)) 
 				      )
 		  ) 
-		    updated();
+		    mUpdated();
 		break;
 	    }
 	    case centeredAbove: 
             {
-		if( horCentre() > 0 && constr->other->horCentre() > 0 &&
-		    mPos.leftToAtLeast( mPos.left() 
-					+ constr->other->horCentre() 
-					- horCentre() 
+		if( horCentre(m) > 0 && constr->other->horCentre(m) > 0 &&
+		    mPos.leftToAtLeast( mCP(mPos.left() 
+					+ constr->other->horCentre(m) 
+					- horCentre(m)) 
 				      )
 		  ) 
-		    updated();
+		    mUpdated();
 		break;
             } 
 	    case ensureRightOf:
-		if( mPos.leftToAtLeast( otherPos.right() + mHorSpacing ) )  
-		    updated(); 
+		if( mPos.leftToAtLeast( mCP(otherPos.right() + mHorSpacing )))  
+		    mUpdated(); 
 		break;
 
 	    case ensureBelow:
-		if( mPos.topToAtLeast( otherPos.bottom() + mVerSpacing ) ) 
-		    updated(); 
+		if( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing ))) 
+		    mUpdated(); 
 		break;
 	    case leftBorder:
 		{
-		    int nwLeft = mngr().pos().left() + mHorSpacing;
+		    int nwLeft = mngr().pos(m).left() + mHorSpacing;
 		    if( mPos.left() != nwLeft )
 		    {
-			mPos.leftTo( nwLeft );
-			updated();
+			mPos.leftTo( mCP(nwLeft));
+			mUpdated();
 		    }
 		}
 		break;
 	    case rightBorder:
 		{
-		    int nwRight = mngr().pos().right() - mHorSpacing;
-		    if( mPos.rightToAtLeast( nwRight ) ) updated();
+		    int nwRight = mngr().pos(m).right() - mHorSpacing;
+		    if( mPos.rightToAtLeast( mCP(nwRight) ) ) mUpdated();
 		}
 		break;
 	    case topBorder:
 		{
-		    int nwTop = mngr().pos().top() + mVerSpacing;
+		    int nwTop = mngr().pos(m).top() + mVerSpacing;
 		    if( mPos.top() != nwTop )
 		    {
-			mPos.topTo( nwTop );
-			updated();
+			mPos.topTo( mCP(nwTop ));
+			mUpdated();
 		    }
 		}
 		break;
 	    case bottomBorder:
 		{
-		    int nwBottom = mngr().pos().bottom() - mVerSpacing;
-		    if( mPos.bottomToAtLeast( nwBottom ))
-			updated();
+		    int nwBottom = mngr().pos(m).bottom() - mVerSpacing;
+		    if( mPos.bottomToAtLeast( mCP(nwBottom )))
+			mUpdated();
 		}
 		break;
 	    case heightSameAs:
 		if( mPos.height() < ( otherPos.height() ) )
 		{
 		    mPos.setHeight( otherPos.height() );
-		    updated();
+		    mUpdated();
 		}
 		break;
 	    case widthSameAs:
 		if( mPos.width() < ( otherPos.width() ) )
 		{
 		    mPos.setWidth( otherPos.width() );
-		    updated();
+		    mUpdated();
 		}
 		break;
 	    case stretchedBelow:
 		{
-		    int nwWidth = mngr().pos().width();
+		    int nwWidth = mngr().pos(m).width();
 		    if( mPos.width() < nwWidth )
 		    {
 			mPos.setWidth( nwWidth );
-			updated();
+			mUpdated();
 		    }
-		    if( mPos.topToAtLeast( otherPos.bottom() + mVerSpacing))
-			updated(); 
+		    if( mPos.topToAtLeast(mCP(otherPos.bottom() + mVerSpacing)))
+			mUpdated(); 
 		}
 		break;
 	    case stretchedAbove:
 		{
-		    int nwWidth = mngr().pos().width();
+		    int nwWidth = mngr().pos(m).width();
 		    if( mPos.width() < nwWidth )
 		    {
 			mPos.setWidth( nwWidth );
-			updated();
+			mUpdated();
 		    }
 		}
 		break;
 	    case stretchedLeftTo:
 		{
-		    int nwHeight = mngr().pos().height();
+		    int nwHeight = mngr().pos(m).height();
 		    if( mPos.height() < nwHeight )
 		    {
 			mPos.setHeight( nwHeight );
-			updated();
+			mUpdated();
 		    }
 		}
 		break;
 	    case stretchedRightTo:
 		{
-		    int nwHeight = mngr().pos().height();
+		    int nwHeight = mngr().pos(m).height();
 		    if( mPos.height() < nwHeight )
 		    {
 			mPos.setHeight( nwHeight );
-			updated();
+			mUpdated();
 		    }
-		    if( mPos.leftToAtLeast( otherPos.right() + mHorSpacing ) )  
-			updated(); 
+		    if( mPos.leftToAtLeast(mCP(otherPos.right() + mHorSpacing)))
+			mUpdated(); 
 		}
 		break;
 	    case ensureLeftOf:
@@ -408,8 +471,11 @@ void i_LayoutItem::layout()
 		break;
 
 	}
+
+
     }
 }
+
 
 void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other, 
 			    int margn )
@@ -553,7 +619,6 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, int border, int space,
 			    const char *name )
 			    : QLayout( parnt, border, space, name)
 			    , UserIDObject( name )
-			    , curmode( preferred )
 			    , prevGeometry()
 			    , minimumDone( false )
 			    , preferredDone( false )
@@ -579,7 +644,7 @@ void i_LayoutMngr::addItem( i_LayoutItem* itm )
 /*! \brief Adds a QlayoutItem to the manager's children
 
     Should normally not been called, since all ui items are added to the
-    parent's manager using i_LayoutMngr::addItem( i_LayoutItem* itm )
+    parent's manager using _LayoutMngr::addItem( i_LayoutItem* itm )
 
 */
 void i_LayoutMngr::addItem( QLayoutItem *qItem )
@@ -591,31 +656,29 @@ void i_LayoutMngr::addItem( QLayoutItem *qItem )
 
 QSize i_LayoutMngr::minimumSize() const
 {
-    setMode( minimum ); 
     if ( !minimumDone ) 
     { 
-	doLayout( QRect() ); 
+	doLayout( minimum, QRect() ); 
 	const_cast<i_LayoutMngr*>(this)->minimumDone=true; 
     }
-    uiRect mPos = pos();
+    uiRect mPos = pos(minimum);
     return QSize( mPos.width(), mPos.height() );
 }
 
 QSize i_LayoutMngr::sizeHint() const
 {
-    setMode( preferred ); 
     if ( !preferredDone )
     { 
-	doLayout( QRect() ); 
+	doLayout( preferred, QRect() ); 
 	const_cast<i_LayoutMngr*>(this)->preferredDone=true; 
     }
-    uiRect mPos = pos();
+    uiRect mPos = pos(preferred);
     return QSize( mPos.width(), mPos.height() );
 }
 
 QSizePolicy::ExpandData i_LayoutMngr::expanding() const
 {
-    return QSizePolicy::NoDirection;
+    return QSizePolicy::BothDirections;
 }
 
 QLayoutIterator i_LayoutMngr::iterator()
@@ -627,13 +690,13 @@ QLayoutIterator i_LayoutMngr::iterator()
 class resizeItem
 {
 public:
-			resizeItem( i_LayoutItem* it, int hStr, int vStr ) 
-                        : item( it ), nHIt( hStr ? 2 : 0 ), nVIt( vStr ? 2 : 0 )
+			resizeItem( i_LayoutItem* it, int hStre, int vStre ) 
+                        : item( it ), hStr( hStre ), vStr( vStre )
                         , hDelta( 0 ), vDelta( 0 )  {}
 
     i_LayoutItem* 	item;
-    int 		nHIt;
-    int 		nVIt;
+    int 		hStr;
+    int 		vStr;
     int			hDelta;
     int			vDelta;
 
@@ -649,10 +712,27 @@ void i_LayoutMngr::childrenClear( uiObject* cb )
     while ( (curChld = childIter.current()) )
     {
         ++childIter;
-	uiObject* cl = curChld->obj2Layout();
+	uiObject* cl = curChld->objLayouted();
 	if( cl && cl != cb ) cl->clear();
     }
 }
+
+int i_LayoutMngr::childStretch( bool hor ) const
+{
+    QListIterator<i_LayoutItem> childIter( childrenList );
+
+    int sum=0;
+    childIter.toFirst();
+    while ( i_LayoutItem* curChld = childIter.current() )
+    {
+        ++childIter;
+	uiObjectBody* ccbl = curChld->bodyLayouted();
+	if( ccbl ) sum += ccbl->stretch( hor );
+    }
+
+    return sum;
+}
+
 
 void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 {
@@ -669,14 +749,200 @@ void i_LayoutMngr::forceChildrenRedraw( uiObjectBody* cb, bool deep )
 
 }
 
+void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList, 
+				   int& maxh, int& maxv,
+				   int& nrh, int& nrv )
+{
+    QListIterator<i_LayoutItem> childIter( childrenList );
+    childIter.toFirst();
+
+    maxh=0;
+    maxv=0;
+    nrh=0;
+    nrv=0;
+
+    while ( i_LayoutItem* curChld = childIter.current() )
+    {
+        ++childIter;
+	int hs = curChld->stretch(true);
+	int vs = curChld->stretch(false);
+
+	if ( hs || vs )
+        {
+	    if( hs )
+	    {
+		nrh++;
+		if( hs > maxh ) maxh = hs;
+	    }
+	    if( vs )
+	    {
+		nrv++;
+		if( vs > maxv ) maxv = vs;
+	    }
+
+	    resizeList += new resizeItem( curChld, hs, vs );
+        }
+   } 
+}
+
+
+void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, layoutMode m )
+{
+    QListIterator<i_LayoutItem> childIter( childrenList );
+    childIter.toFirst();
+    while ( i_LayoutItem* curChld = childIter.current() )
+    {
+	++childIter;
+	uiRect& chldGeomtry  = curChld->pos(m);
+	chldGeomtry.topTo ( rTop );
+	chldGeomtry.leftTo ( rLeft );
+    }
+}
+
+
+void i_LayoutMngr::resizeTo( QRect& targetRect )
+{
+
+    doLayout( setGeom, targetRect );//init to prefer'd size and initial layout
+    uiRect childrenBBox = childrenRect(setGeom);  
+
+    int hSpace = targetRect.width() - childrenBBox.width();
+    int vSpace = targetRect.height() - childrenBBox.height();
+
+    if( !hSpace && !vSpace ) return;
+
+    ObjectSet<resizeItem> resizeList;
+    int maxHstr, maxVstr;
+    int nrHstr, nrVstr;
+    fillResizeList( resizeList, maxHstr, maxVstr, nrHstr, nrVstr );
+
+
+    int iter = MAX_ITER;
+//#define dont_use_while
+#ifndef dont_use_while
+    while( (hSpace || vSpace) && (hSpace >= 0) && (vSpace >= 0) && iter )
+    {   
+        if( iter ) iter--;
+
+	int hDelta = maxHstr ? hSpace / maxHstr : 0;
+	int vDelta = maxVstr ? vSpace / maxVstr : 0;
+
+	if( !hDelta && !vDelta )
+	    break;
+#else
+
+    int hDelta = maxHstr ? hSpace / maxHstr : 0;
+    int vDelta = maxVstr ? vSpace / maxVstr : 0;
+
+    if( (hSpace || vSpace) && iter && (hDelta || vDelta))
+    {
+#endif
+
+	for( int idx=0; idx<resizeList.size(); idx++ )
+	{
+	    resizeItem* cur = resizeList[idx];
+
+	    uiRect& myGeomtry  = cur->item->pos( setGeom );
+	    const uiRect& refGeom = cur->item->pos( preferred );
+
+
+	    if( hDelta && cur->hStr ) 
+	    {
+		cur->hDelta += cur->hStr*hDelta;
+		myGeomtry.setWidth ( refGeom.width() + cur->hDelta );
+	    }
+
+	    if( vDelta && cur->vStr ) 
+	    {
+		cur->vDelta += cur->vStr*vDelta;
+		myGeomtry.setHeight( refGeom.height() + cur->vDelta );
+	    }
+	}
+
+	layoutChildren( setGeom );
+	childrenBBox = childrenRect(setGeom);  
+
+	hSpace = targetRect.width() - childrenBBox.width();
+	vSpace = targetRect.height() - childrenBBox.height();
+/*
+	if( hSpace < 0 ) 
+	    { pErrMsg("huh"); hSpace=0; }
+	if( vSpace < 0 ) 
+	    { pErrMsg("huh"); vSpace=0; }
+*/
+    }
+
+//#define do_final_iter
+#ifdef do_final_iter
+    bool go_on = true;
+    while( go_on && iter && (nrHstr > 1 || nrVstr > 1) )
+    {   
+        if( iter ) iter--;
+        go_on = false;
+
+	for( int idx=0; idx<resizeList.size(); idx++ )
+	{
+	    resizeItem* cur = resizeList[idx];
+
+
+	    if( cur->hStr || cur->vStr )
+	    {
+		uiRect& myGeomtry  = cur->item->pos( setGeom );
+		const uiRect& refGeom = cur->item->pos( minimum );
+
+		go_on = true;
+
+		if( (nrHstr > 1) && cur->hStr ) 
+			    myGeomtry.setWidth ( refGeom.width() + 
+						     ++cur->hDelta );
+		else if( (nrVstr > 1) && cur->vStr ) 
+			    myGeomtry.setHeight( refGeom.height() + 
+						     ++cur->vDelta );
+		layoutChildren( setGeom );
+		childrenBBox = childrenRect(setGeom);  
+	       
+		bool do_layout = false;
+
+		if( (nrHstr > 1) && cur->hStr &&
+		     ( childrenBBox.width() > targetRect.width() ))  
+		{ 
+		    if( --cur->hDelta < 0 ) cur->hDelta = 0;
+		    myGeomtry.setWidth( refGeom.width() + cur->hDelta );
+
+		    do_layout = true;
+		    cur->hStr--;
+		}
+		else if( (nrVstr > 1) && cur->vStr && 
+			    (childrenBBox.height() > targetRect.height() ))
+		{   
+		    if( --cur->vDelta < 0 ) cur->vDelta = 0;
+		    myGeomtry.setHeight( refGeom.height() + cur->vDelta );
+
+		    do_layout = true;
+		    cur->vStr--; 
+		}
+
+		if(do_layout) 
+		{   // move all items to top-left corner first 
+		    do_layout = false;
+
+		    moveChildrenTo(targetRect.top(),targetRect.left(),setGeom);
+
+		    layoutChildren( setGeom );
+		    childrenBBox = childrenRect(setGeom);  
+		} 
+	    }
+	}
+    }
+#endif
+    deepErase( resizeList );
+    if ( !iter ) pErrMsg("Stopped resize. Too many iterations ");
+}
 
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
     if( extRect == prevGeometry ) return;
     prevGeometry = extRect;
-
-    i_LayoutItem*       	curChld=0;
-    QListIterator<i_LayoutItem> childIter( childrenList );
 
     QSize minSz = minimumSize();
     QRect targetRect = extRect;
@@ -687,98 +953,15 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     { targetRect.setHeight( minSz.height() ); }
 
     QLayout::setGeometry( extRect );
-    setMode(setGeom);
-    doLayout( targetRect );//init to prefer'd size and initial layout
-    uiRect childrenBBox = childrenRect();  
 
-    QList<resizeItem> resizeList;
-    QListIterator<resizeItem> resizeListIterator( resizeList );
-    resizeList.setAutoDelete( true );
+    resizeTo( targetRect );
+    childrenCommitGeometrySet();
+}
 
-    // make list of resizeable children
-    childIter.toFirst();
-    while ( (curChld = childIter.current()) )
-    {
-        ++childIter;
-	if ( curChld->stretch(true) || curChld->stretch(false) )
-        {
-	    resizeList.append( new resizeItem( curChld, 
-			    curChld->stretch(true), curChld->stretch(false)) );
-        }
-    } 
-
-    int iter = MAX_ITER;
-
-    bool go_on = true;
-    while( go_on && iter )
-    {   
-        if( iter ) iter--;
-        go_on = false;
-
-	resizeListIterator.toFirst();
-	while( resizeItem* cur = resizeListIterator.current())
-	{
-            ++resizeListIterator;
-
-	    uiRect& myGeomtry  = cur->item->pos_[ setGeom ];
-	    uiRect& minGeomtry = cur->item->pos_[ minimum ];
-
-	    if( cur->nHIt || cur->nVIt )
-	    {
-		go_on = true;
-
-		if( cur->nHIt ) myGeomtry.setWidth ( minGeomtry.width() + 
-						     ++cur->hDelta );
-		if( cur->nVIt ) myGeomtry.setHeight( minGeomtry.height() + 
-						     ++cur->vDelta );
-		setMode( setGeom );	
-		layoutChildren( &iter );
-		childrenBBox = childrenRect();  
-	       
-		bool do_layout = false;
-
-		if( cur->nHIt && ( childrenBBox.width() > targetRect.width() ))  
-		{ 
-		    if( --cur->hDelta < 0 ) cur->hDelta = 0;
-		    myGeomtry.setWidth( minGeomtry.width() + cur->hDelta );
-
-		    do_layout = true;
-		    cur->nHIt--;
-		}
-
-		if( cur->nVIt && (childrenBBox.height() > targetRect.height() ))
-		{   
-		    if( --cur->vDelta < 0 ) cur->vDelta = 0;
-		    myGeomtry.setHeight( minGeomtry.height() + cur->vDelta );
-
-		    do_layout = true;
-		    cur->nVIt--; 
-		}
-
-		if(do_layout) 
-		{   // move all items to top-left corner first 
-		    do_layout = false;
-
-		    int rTop = targetRect.top();
-		    int rLeft = targetRect.left();
-
-		    childIter.toFirst();
-		    while ( (curChld = childIter.current()) )
-		    {
-			++childIter;
-			uiRect& chldGeomtry  = curChld->pos();
-			chldGeomtry.topTo ( rTop );
-			chldGeomtry.leftTo ( rLeft );
-		    }
-
-		    layoutChildren( &iter );
-		    childrenBBox = childrenRect();  
-		} 
-	    }
-	}
-    }
-    resizeList.clear();
-    if ( !iter ) pErrMsg("Stopped resize. Too many iterations ");
+void i_LayoutMngr::childrenCommitGeometrySet()
+{
+    i_LayoutItem*       	curChld=0;
+    QListIterator<i_LayoutItem> childIter( childrenList );
 
     childIter.toFirst();
     while ( (curChld = childIter.current()) )
@@ -789,10 +972,17 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 }
 
 
-void i_LayoutMngr::doLayout( const QRect &externalRect )
+void i_LayoutMngr::doLayout( layoutMode m, const QRect &externalRect )
 {
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
+
+    bool geomSetExt = ( externalRect.width() && externalRect.height() );
+    if( geomSetExt )
+    {
+	pos(m) = uiRect(externalRect.left(), externalRect.top(), 
+	    externalRect.right(), externalRect.bottom());
+    }
 
     childIter.toFirst(); 
     while ( (curChld = childIter.current()) ) 
@@ -814,40 +1004,44 @@ void i_LayoutMngr::doLayout( const QRect &externalRect )
     while ( (curChld = childIter.current()) ) 
     { 
 	++childIter; 
-	curChld->initLayout( mngrTop, mngrLeft ); 
+	curChld->initLayout( m, mngrTop, mngrLeft ); 
     }
 
-    layoutChildren();
+    layoutChildren(m);
 
-    pos_[ curMode() ] = childrenRect();
+    if( !geomSetExt )
+	pos(m) = childrenRect(m);
 }
 
-void i_LayoutMngr::layoutChildren( int* itr )
+void i_LayoutMngr::layoutChildren( layoutMode m )
 {
     i_LayoutItem*       	curChld=0;
     QListIterator<i_LayoutItem> childIter( childrenList );
 
-    a_child_updated = true;
+    bool child_updated = true;
     int iter = MAX_ITER;
-    if( !itr) itr = &iter;
  
-    while ( a_child_updated && *itr ) 
+    while ( child_updated && iter ) 
     {
-        if( *itr ) (*itr)--;
-
-        a_child_updated = false;
+        if( iter ) iter--;
+if(iter < 3  )
+{
+pErrMsg(".");
+}
+        child_updated = false;
         childIter.toFirst();
 	while ( (curChld = childIter.current()) )
 	{ 
 	    ++childIter;
-	    curChld->layout(); 
+	    curChld->layout(m,iter,&child_updated); 
 	}
 	//pos_[ curMode() ] = childrenRect();
     }
-    if ( !iter ) pErrMsg("Stopped layout. Too many iterations ");
+    if ( !iter ) 
+      { pErrMsg("Stopped layout. Too many iterations "); }
 }
 
-uiRect i_LayoutMngr::childrenRect()
+uiRect i_LayoutMngr::childrenRect( layoutMode m )
 //!< returns rectangle wrapping around all children.
 {
     i_LayoutItem*       	curChld=0;
@@ -858,7 +1052,7 @@ uiRect i_LayoutMngr::childrenRect()
     uiRect chldRect;
     if( curChld ) 
     {
-	const uiRect* childPos = &curChld->pos();
+	const uiRect* childPos = &curChld->pos(m);
 
 	chldRect.setTopLeft( childPos->topLeft() );
 	chldRect.setBottomRight( childPos->bottomRight() );
@@ -866,7 +1060,7 @@ uiRect i_LayoutMngr::childrenRect()
 	while ( (curChld = childIter.current()) )
 	{
 	    ++childIter;
-	    childPos = &curChld->pos();
+	    childPos = &curChld->pos(m);
 
 
 	    if ( childPos->top() < chldRect.top() ) 
@@ -938,8 +1132,13 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
 
     return false;
 }
-
-//-----------------------------------------------------------------------------
-//  Documentation 
-//-----------------------------------------------------------------------------
-
+/*
+void i_LayoutMngr::setLayoutPosItm( i_LayoutItem* itm )
+{
+    if ( !itm ) 
+	{ pErrMsg("i_LayoutItem* == 0"); return; }
+    if ( layoutpos )
+	{ pErrMsg("Layoutpos aready set"); return; }
+    layoutpos = itm->layoutpos;
+}
+*/

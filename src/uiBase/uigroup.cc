@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.13 2001-09-19 12:16:04 nanne Exp $
+ RCS:           $Id: uigroup.cc,v 1.14 2001-09-20 08:30:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,8 @@ public:
 					     uiGroupObjBody& obj, 
 					     uiGroupParentBody& par );
 
-    virtual int		horAlign() const;
-    virtual int		horCentre() const;
+    virtual int		horAlign(layoutMode) const;
+    virtual int		horCentre(layoutMode) const;
 
 protected:
 
@@ -66,21 +66,13 @@ public:
     void		setPrntBody (uiGroupParentBody* pb)
 			    { prntbody_ = pb; }
 
-//  virtual int		stretch( bool hor );
+    virtual int		stretch( bool hor, bool ) const;
 
 protected:
 
     uiGroupParentBody*	prntbody_;
 
-    virtual i_LayoutItem* mkLayoutItem_( i_LayoutMngr& mngr )
-			    { 
-#ifdef __debug__
-			    if( !prntbody_ ) 
-				{ pErrMsg("Yo. No parentbody yet."); return 0; }
-#endif
-				return new i_uiGroupLayoutItem
-						( mngr, *this, *prntbody_ );
-			    }
+    virtual i_LayoutItem* mkLayoutItem_( i_LayoutMngr& mngr );
 
     virtual void	finalise_();
 };
@@ -123,20 +115,6 @@ public:
     void		setHAlignObj( uiObject* o ) 	{ halignobj = o;}
     uiObject*		hCentreObj()			{ return hcentreobj; }
     void		setHCentreObj( uiObject* o ) 	{ hcentreobj = o;}
-
-    int			sumChildrenStretch( bool hor )
-			{
-			    int sum=0;
-			    for( int idx=0; idx<children.size(); idx++ )
-			    {
-				mDynamicCastGet(uiObjectBody*,chbody, 
-							children[idx]->body());
-
-				if ( chbody ) sum += chbody->stretch(hor);
-			    }
-
-			    return sum;
-			}
 
     virtual int		minTextWidgetHeight() const
 			{
@@ -182,13 +160,27 @@ void uiGroupObjBody::reDraw( bool deep )
     uiObjectBody::reDraw( deep ); // calls qWidget().update()
 }
 
-/*
-int uiGroupObjBody::stretch( bool hor )
+int uiGroupObjBody::stretch( bool hor, bool ) const
 {
-    int s = uiObjectBody::stretch( hor );
-    return s ? s : prntbody_->sumChildrenStretch( hor );
+    int s = uiObjectBody::stretch( hor, true ); // true: can be undefined
+
+    return s != mUndefIntVal ? s : 
+	( prntbody_->loMngr ? prntbody_->loMngr->childStretch( hor ) : 0 );
 }
-*/
+
+i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
+{ 
+#ifdef __debug__
+    if( !prntbody_ ) 
+	{ pErrMsg("Yo. No parentbody yet."); return 0; }
+#endif
+    i_uiGroupLayoutItem* itm = 
+			new i_uiGroupLayoutItem( mngr, *this, *prntbody_ );
+
+//    prntbody_->loMngr->setLayoutPosItm( itm );
+
+    return itm;
+}
 
 void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
 
@@ -203,9 +195,9 @@ i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mngr,
 
 
 
-int i_uiGroupLayoutItem::horAlign() const 
+int i_uiGroupLayoutItem::horAlign(layoutMode m) const 
 {
-    int offs = mngr().pos().left() + pos().left();
+    int offs = mngr().pos(m).left() + pos(m).left();
     int border = grpprntbody.loMngr->borderSpace();
 
     if( grpprntbody.halignobj )
@@ -215,16 +207,16 @@ int i_uiGroupLayoutItem::horAlign() const
 
 	if( halobjbody ) halignitm = halobjbody->layoutItem();
 
-	if( halignitm ) return halignitm->horAlign() + offs + border;
+	if( halignitm ) return halignitm->horAlign(m) + offs + border;
     }
 
     return offs;
 }
 
 
-int i_uiGroupLayoutItem::horCentre() const 
+int i_uiGroupLayoutItem::horCentre(layoutMode m) const 
 { 
-    int offs = mngr().pos().left() + pos().left();
+    int offs = mngr().pos(m).left() + pos(m).left();
     int border = grpprntbody.loMngr->borderSpace();
 
     if( grpprntbody.hcentreobj )
@@ -234,10 +226,10 @@ int i_uiGroupLayoutItem::horCentre() const
 
 	if( hcobjbody ) hcentreitm = hcobjbody->layoutItem();
 
-	if( hcentreitm ) return hcentreitm->horCentre() + offs + border;
+	if( hcentreitm ) return hcentreitm->horCentre(m) + offs + border;
     }
 
-    return ( mngr().pos().left() + mngr().pos().right() ) / 2;
+    return ( mngr().pos(m).left() + mngr().pos(m).right() ) / 2;
 }
 
 
@@ -265,7 +257,7 @@ uiGroup::uiGroup( uiParent* p, const char* nm, int border, int spacing,
     else	 p->addChild( *this );
 }
 
-void uiGroup::show()		{ uiObj()->show(); }
+void uiGroup::show()			{ uiObj()->show(); }
 void uiGroup::hide(bool shrink)		{ uiObj()->hide(shrink); }
 void uiGroup::setFocus()		{ uiObj()->setFocus(); }
 
