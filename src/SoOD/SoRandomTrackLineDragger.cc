@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.2 2003-01-02 11:58:30 kristofer Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.3 2003-01-07 10:27:58 kristofer Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
@@ -69,13 +69,12 @@ SoRandomTrackLineDragger::SoRandomTrackLineDragger()
 
     SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
     sw->whichChild = SO_SWITCH_NONE;
-    sw->whichChild = 0;
 
     SoRotation* rot = SO_GET_ANY_PART( this, "subDraggerRot", SoRotation );
     rot->rotation.setValue( SbVec3f( 1, 0, 0 ), M_PI/2 );
 
     SoScale* scale = SO_GET_ANY_PART( this, "subDraggerScale", SoScale );
-    scale->scaleFactor.setValue( SbVec3f( 0.1, 0.2, 0.3 ) );
+    scale->scaleFactor.setValue( SbVec3f( 0.5, 0.5, 0.5 ) );
 
     SoShapeHints* hints =
 		SO_GET_ANY_PART( this, "feedbackShapeHints", SoShapeHints );
@@ -98,6 +97,14 @@ SoRandomTrackLineDragger::~SoRandomTrackLineDragger()
     delete z0fieldsensor;
     delete z1fieldsensor;
 }
+
+
+void SoRandomTrackLineDragger::showFeedback(bool yn)
+{
+    SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
+    sw->whichChild = yn ? 0 : SO_SWITCH_NONE;
+}
+
 
 
 float SoRandomTrackLineDragger::xyzSnap( int dim, float val ) const
@@ -233,7 +240,7 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
     const SbVec2f oldpos = knots[knotid];
 
     if ( changexy &&
-	    (!mIS_ZERO( oldpos[0]-newpos[0])||!mIS_ZERO( oldpos[1]-newpos[1])) )
+	   (!mIS_ZERO( oldpos[0]-newpos[0])||!mIS_ZERO( oldpos[1]-newpos[1])))
     {
 	SbBool enabled = knots.enableNotify(false);
 	knots.set1Value( knotid, SbVec2f( newpos[0], newpos[1] ));
@@ -248,9 +255,6 @@ void SoRandomTrackLineDragger::drag(SoDragger* dragger_)
 
 void SoRandomTrackLineDragger::dragFinish()
 {
-    SoSwitch* sw = SO_GET_ANY_PART( this, "feedbackSwitch", SoSwitch );
-    sw->whichChild = SO_SWITCH_NONE;
-    sw->whichChild = 0;
     updateDraggers();
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoRandomTrackLineDragger.h,v 1.2 2003-01-02 11:58:47 kristofer Exp $
+ RCS:		$Id: SoRandomTrackLineDragger.h,v 1.3 2003-01-07 10:28:13 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,12 @@ public:
     SoSFVec3f			xyzStart;
     SoSFVec3f			xyzStop;
     SoSFVec3f			xyzStep;
+
+    void			showFeedback(bool yn);
+    				/*!< Feedback is turned on when
+				     dragging starts. Use this function
+				     to turn it off.
+				 */
 
 protected:
     float			xyzSnap( int dim, float ) const;
