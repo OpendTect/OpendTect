@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.20 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.21 2004-09-18 08:27:58 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -396,7 +396,7 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 	{
 	    const SbVec3f np = neighbors[neigborindex]->getPos(row,col);
 	    if ( SoMeshSurface::isUndefined(np) ||
-		    SoMeshSurface::isUndefined( coordptr->point[index]) )
+		    SoMeshSurface::isUndefined(coordptr->point[index]) )
 		updateglue = true;
 
 	    coordptr->point.set1Value(index,np);
@@ -433,7 +433,11 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 	}
 	else
 	{
-	    brick->doUpdate();
+	    const SbVec3f pos = getPos(row,col);
+	    if ( SoMeshSurface::isUndefined(pos) )
+		brick->invalidate();
+	    else
+		brick->doUpdate();
 	    getWire(idx)->invalidate();
 	}
     }
