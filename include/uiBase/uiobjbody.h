@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.20 2002-04-15 15:35:01 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.21 2002-05-14 11:35:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,8 @@ public:
     static void			enableToolTips(bool yn=true);
     static bool			toolTipsEnabled();
 
-    void 			display( bool yn = true, bool shrink=false );
+    void 			display( bool yn = true, bool shrink=false,
+					 bool maximised=false );
     void			uisetFocus();
     bool			uiCloseOK() { return uiObjHandle().closeOK(); }
     bool			isDisplayed() const { return display_; }
@@ -245,6 +246,7 @@ private:
     bool			is_hidden;
     bool			finalised;
     bool			display_;
+    bool			display_maximised;
 
     int				pref_width_;
     int				pref_height_;

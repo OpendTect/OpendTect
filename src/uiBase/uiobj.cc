@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.36 2002-04-15 15:35:01 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.37 2002-05-14 11:35:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,10 +136,10 @@ bool uiObject::toolTipsEnabled()
     { return uiObjectBody::toolTipsEnabled(); }
 
 
-void uiObject::display( bool yn, bool shrink )	
+void uiObject::display( bool yn, bool shrink, bool maximise )	
 { 
     finalise();
-    mBody()->display(yn,shrink); 
+    mBody()->display(yn,shrink,maximise); 
 }
 
 void uiObject::setFocus()			{ mBody()->uisetFocus();}
@@ -250,6 +250,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , is_hidden( false )
     , finalised( false )
     , display_( true )
+    , display_maximised( false )
     , pref_width_( 0 )
     , pref_height_( 0 )
     , pref_width_set( - 1 )
@@ -281,11 +282,13 @@ uiObjectBody::~uiObjectBody()
 }
 
 
-void uiObjectBody::display( bool yn, bool shrink )
+void uiObjectBody::display( bool yn, bool shrink, bool maximised )
 {
     display_ = yn;
+    display_maximised = maximised;
 
     if( !display_ && shrink )
+
     {
 	pref_width_  = 0;
 	pref_height_ = 0;
@@ -309,10 +312,13 @@ void uiObjectBody::doDisplay(CallBacker*)
 {
     if( !finalised ) finalise();
 
+
     if( display_ )
     {
 	is_hidden = false;
-	qwidget()->show();
+
+	if( display_maximised )	qwidget()->showMaximized();
+	else			qwidget()->show();
     }
     else
     {
@@ -320,7 +326,6 @@ void uiObjectBody::doDisplay(CallBacker*)
 	{
 	    int sz = prefHNrPics();
 	    sz = prefVNrPics();
-
 	    is_hidden = true;
 
 	    qwidget()->hide();
