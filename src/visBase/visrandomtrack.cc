@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.23 2004-04-27 12:08:31 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.24 2004-05-04 12:32:26 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -141,9 +141,9 @@ int visBase::RandomTrack::nrKnots() const
 { return knots.size(); }
 
 
-void visBase::RandomTrack::addKnot( const Coord& np )
+void visBase::RandomTrack::addKnot( const Coord& pos )
 {
-    knots += np;
+    knots += pos;
     rebuild();
     if ( isDraggerShown() )
 	showDragger( true );		//Rebuild the dragger
@@ -151,9 +151,9 @@ void visBase::RandomTrack::addKnot( const Coord& np )
 }
 
 
-void visBase::RandomTrack::insertKnot( int pos, const Coord& np )
+void visBase::RandomTrack::insertKnot( int idx, const Coord& pos )
 {
-    knots.insert( pos, np );
+    knots.insert( idx, pos );
     rebuild();
     if ( isDraggerShown() )
 	showDragger( true );		//Rebuild the dragger
@@ -162,26 +162,33 @@ void visBase::RandomTrack::insertKnot( int pos, const Coord& np )
 }
 
 
-Coord visBase::RandomTrack::getKnotPos( int pos ) const
-{ return knots[pos]; }
+Coord visBase::RandomTrack::getKnotPos( int idx ) const
+{ return knots[idx]; }
 
 
-Coord visBase::RandomTrack::getDraggerKnotPos( int pos ) const
+Coord visBase::RandomTrack::getDraggerKnotPos( int idx ) const
 {
-    if ( !dragger ) return getKnotPos( pos );
-    SbVec2f draggerpos = dragger->knots[pos];
+    if ( !dragger ) return getKnotPos( idx );
+    SbVec2f draggerpos = dragger->knots[idx];
     return Coord( draggerpos[0], draggerpos[1] );
 }
 
 
-void visBase::RandomTrack::setKnotPos( int pos, const Coord& np )
+void visBase::RandomTrack::setKnotPos( int idx, const Coord& pos )
 {
-    knots[pos] = np;
+    knots[idx] = pos;
     rebuild();
 }
 
 
-void visBase::RandomTrack::removeKnot( int pos )
+void visBase::RandomTrack::setDraggerKnotPos( int idx, const Coord& pos )
+{
+    if ( !dragger ) { setKnotPos( idx, pos ); return; }
+    dragger->knots.set1Value( idx, pos.x, pos.y );
+}
+
+
+void visBase::RandomTrack::removeKnot( int idx )
 {
     if ( knots.size()< 3 )
     {
@@ -189,11 +196,11 @@ void visBase::RandomTrack::removeKnot( int pos )
 	return;
     }
 
-    knots.remove( pos );
+    knots.remove( idx );
     rebuild();
 
     if ( dragger )
-	dragger->knots.deleteValues( pos, 1 );
+	dragger->knots.deleteValues( idx, 1 );
 
     knotnrchange.trigger();
 }

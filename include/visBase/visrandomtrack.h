@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.19 2004-04-27 12:08:27 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.20 2004-05-04 12:33:07 nanne Exp $
 ________________________________________________________________________
 
 
@@ -24,10 +24,10 @@ class IOPar;
 
 namespace visBase
 {
+class EventCatcher;
+class Material;
 class TriangleStripSet;
 class VisColorTab;
-class Material;
-class EventCatcher;
 
 /*!\brief
 
@@ -45,14 +45,15 @@ public:
     void			moveDraggerToObjectPos();
 
     int				nrKnots() const;
-    void			addKnot(const Coord& );
-    void			insertKnot( int pos, const Coord& );
+    void			addKnot(const Coord&);
+    void			insertKnot(int idx,const Coord&);
     Coord			getKnotPos(int) const;
     Coord			getDraggerKnotPos(int) const;
-    void			setKnotPos(int, const Coord& );
-    void			removeKnot( int );
+    void			setKnotPos(int,const Coord&);
+    void			setDraggerKnotPos(int,const Coord&);
+    void			removeKnot(int);
 
-    void			setDepthInterval( const Interval<float>& );
+    void			setDepthInterval(const Interval<float>&);
     const Interval<float>	getDepthInterval() const;
     const Interval<float>	getDraggerDepthInterval() const;
 
@@ -83,7 +84,7 @@ public:
     void			useTexture(bool);
     bool			usesTexture() const;
 
-    int				getSectionIdx() const {return sectionidx;}
+    int				getSectionIdx() const { return sectionidx; }
     Coord			getClickedPos() const    { return selknotpos; }
 
     void			setData(int sectn,const Array2D<float>*,int tp);
