@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.27 2002-12-04 15:19:24 nanne Exp $
+ RCS:           $Id: uiobj.h,v 1.28 2003-01-09 13:56:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,6 +173,9 @@ public:
 				bool reciprocal=true);
     void		attach( constraintType, uiButtonGroup* oth, int mrg=-1,
 				bool reciprocal=true);
+
+
+    static void		setTabOrder( uiObject* first, uiObject* second );
 
     void 		setFont( const uiFont& );
     const uiFont*	font() const;
