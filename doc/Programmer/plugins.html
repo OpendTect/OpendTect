@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.5 2003-10-30 21:59:31 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.6 2003-10-31 16:18:10 bert Exp $
  -->
 
 <body bgcolor="#dddddd"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -12,7 +12,8 @@
 <h1>OpendTect Plugins</h1>
   <a href=#intro>Intro</a>
 | <a href=#concept>Concept</a>
-| <a href=#real>Real examples</a>
+| <a href=#coh>Coherency example</a>
+| <a href=#addmnu>Adding menu items</a>
 </center>
 <br>
 <hr size=3>
@@ -92,11 +93,15 @@ Notice that this is added <i>before</i> the inclusions: It's a directive to esta
 <a name=real><h2>Real examples</h2>
 
 <a name=coh><h3>Attributes: Coherency</h3>
+
+<a name=cohintro><h4>Intro</h4>
 <p>
 Anyone vaguely familiar with interpretation should by now know about Coherency abd Coherency cubes. We have always used the 'Similarity' attribute instead because of patent restrictions. Similarity is just as good for object detection en better suited in combination with the dip/steering concept. Coherency beats Similarity when used for single-attribute display.
 </p><p>
-AThe Coherency attributes were implemented some time ago by Kristofer for his research work, and it seemed a good idea to show how to make your own attribute plugins by looking at the <code>Coh</code> and <code>uiCoh</code> plugin code.
-</p><p>
+The Coherency attributes were implemented some time ago by Kristofer for his research work, and it seemed a good idea to show how to make your own attribute plugins by looking at the <code>Coh</code> and <code>uiCoh</code> plugin code.
+</p>
+<a name=cohrw><h4>The <code>Coh</code> plugin</h4>
+<p>
 The <code>Coh</code> plugin handles the 'Real Work' part. If we start with the plugin 'main' file, <code>uicohpi.cc</code>, we see that it's not that much more complex than the <code>hellopi.cc</code> from the <code>Hello</code> plugin. There are three includes:
 <code>#include "coh.h"</code> gets the Coherency attribute object classes;
 <code>#include "attribfact.h"</code> gets the attribute factory to which the Coherency attributes must be added;
@@ -129,11 +134,36 @@ The actual work is done, like in the Hello world plugin, in:
     return 0; // All OK - no error messages
 }</code></pre>
 This function gets passed argc and argv from the main function. It should return null on success, and an error message if the initialisation failed. In this case, the Coherency attribute is added to AF() (the AttribFactory singleton object) using the macro defined in attribfact.h .
+</p>
+
+<a name=cohrw><h4>Making attributes</h4>
+<p>
+Although cohpi.cc looks pretty simple, underneath the simple <code>AF().add</code> there is of course some real programming of the attribute. For that, we need to switch to coh.h . We see an attribute <code>CoherencyAttrib</code> inheriting the <code>AttribCalc</code> class. Then immediately an enormous macro (in OpendTect macros can often be recognised by the leading 'm') <code>mAttrib5Param</code> which defines the parameters of the attribute. Compare this to what you see in Opendtect in the attribute definition window after loading the uiCoh plugin.
+</p><p>
+If you look at the parts of the ddefinition carefully, you'll see that each parameter is built up with:
+<ul>
+<li>xxxxAttribParameter - the type of the parameter
+<li>the name of the parameter
+<li>Required, Default (or Disabled)
+<li>The default value
+<li>The allowed values
+</ul>
+</p><p>
+MORE
+</p><p>
+On the implementation side of all that, we have some overhead and the actual attribute calculation. If you feel that the overhead is enormous, bear in mind that the Attribute engine will let the attribute work on any part of any input cude or on the output of another attribute, and that things are cut in pieces when multiple processors are available. And there's more but the idea is that all that requires some extra work when making the attributes.
+</p><p>
+When we want to look at the actual work, the place to be is the <code>nextStep()</code> method of the <code>CoherencyAttrib::Task</code> class.
+MORE
+</p>
 
 
+<a name=addmnu><h3>Adding menus</h3>
+<p>
+Adding menu items popping up your own dialogs is pretty easy once you get the hang of it. The uiArkCls plugin is a good example: it shows how to get hold of the parent menus, and what to do to get the CallBacks.
+</p><p>
 
-
-<a name=coh><h3>Adding menus: ArkCls</h3>
+</p>
 
 
 <br><hr size=3>
