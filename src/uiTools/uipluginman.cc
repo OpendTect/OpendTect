@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.3 2003-10-21 14:09:44 bert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.4 2003-10-24 08:36:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,8 +81,11 @@ void uiPluginMan::loadPush( CallBacker* )
     static const char* captn = "Select plugin shared library";
 #endif
 
-    uiFileDialog dlg( this, uiFileDialog::ExistingFile, PIM().defDir(true),
-	    		filt, captn );
+    static BufferString defdir;
+    if ( defdir == "" )
+	defdir = PIM().defDir(true);
+
+    uiFileDialog dlg( this, uiFileDialog::ExistingFile, defdir, filt, captn );
     if ( !dlg.go() ) return;
 
     BufferString fnm = dlg.fileName();
@@ -91,5 +94,5 @@ void uiPluginMan::loadPush( CallBacker* )
     else if ( !PIM().load(fnm) )
 	uiMSG().error( "Couldn't load plugin" );
     else
-	{ fillList(); selChg(0); }
+	{ defdir = File_getPathOnly(fnm); fillList(); selChg(0); }
 }
