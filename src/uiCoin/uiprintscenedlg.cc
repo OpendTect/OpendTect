@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.2 2002-10-17 06:00:23 kristofer Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.3 2002-10-23 08:57:31 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,9 @@ ________________________________________________________________________
 #include "uiprintscenedlg.h"
 #include "uifileinput.h"
 #include "uicombobox.h"
+#include "uimsg.h"
 #include "ptrman.h"
+#include "filegen.h"
 
 #include "Inventor/SoOffscreenRenderer.h"
 
@@ -101,6 +103,14 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     SbString fullname, description;
     r->getWriteFiletypeInfo(filetypenr, extlist, fullname, description);
 
-    if ( !r->render( scene ) ) return false;
-    return r->writeToFile( filename, extlist[0].getString() );
+    if ( !r->render( scene ) )
+	return false;
+
+    r->writeToFile( filename, extlist[0].getString() );
+    if ( !File_exists(filename) )
+    {
+	uiMSG().error( "Couldn't write to specified file" );
+	return false;
+    }
+    return true;
 }
