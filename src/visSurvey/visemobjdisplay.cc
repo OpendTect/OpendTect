@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.5 2005-02-17 10:47:22 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.6 2005-03-07 11:00:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.5 2005-02-17 10:47:22 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.6 2005-03-07 11:00:57 cvskris Exp $";
 
 
 #include "vissurvemobj.h"
@@ -153,6 +153,8 @@ bool EMObjectDisplay::updateFromEM()
     const EM::ObjectID objid = EM::EMM().multiID2ObjectID(mid);
     if ( MPE::engine().getEditor(objid,false) )
 	enableEditing(true);
+
+    getMaterial()->setColor( emobject->preferredColor() );
 
     return true;
 }
