@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.239 2004-09-17 07:41:59 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.240 2004-09-17 15:14:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -422,6 +422,8 @@ const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 
 bool uiVisPartServer::deleteAllObjects()
 {
+    tracktools->setInterpreter( 0 );
+
     while ( scenes.size() )
 	removeScene( scenes[0]->id() );
 
@@ -1027,10 +1029,10 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
 	for ( int idx=0; idx<so->nrResolutions(); idx++ )
 	{
 	    int mid = menu->getFreeID();
-	uiMenuItem* itm = new uiMenuItem(so->getResolutionName(idx));
-	resmnu->insertItem(itm, mid);
-	itm->setChecked(idx==so->getResolution());
-	if ( !idx ) firstresmnusel = mid;
+	    uiMenuItem* itm = new uiMenuItem(so->getResolutionName(idx));
+	    resmnu->insertItem(itm, mid);
+	    itm->setChecked(idx==so->getResolution());
+	    if ( !idx ) firstresmnusel = mid;
 	}
 
 	menu->addSubMenu( resmnu, 5000 );
