@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.3 2002-03-29 17:26:42 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.4 2002-04-01 07:07:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,7 @@ void uiVisPartServer::getPickSetData( const char* nm, PickSet& pickset )
     for ( int idx=0; idx<visps->nrPicks(); idx++ )
     {
 	Geometry::Pos pos = visps->getPick( idx );
-	BinID bid( pos.x, pos.y );
+	BinID bid( mNINT(pos.x), mNINT(pos.y) );
 	Coord crd = SI().transform( bid );
 	pickset += PickLocation( crd, pos.z );
     }
