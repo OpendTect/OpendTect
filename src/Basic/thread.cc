@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.9 2002-09-09 13:10:32 bert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.10 2002-09-11 06:03:42 kristofer Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -132,9 +132,31 @@ void Threads::Thread::threadExit()
 #endif
 }
 
+
+#ifdef __win__
 int Threads::getNrProcessors()
 {
     int res = 2;
     Settings::common().get("Nr Processors", res );
     return res;
 }
+#else
+
+#include <unistd.h>
+
+int Threads::getNrProcessors()
+{
+    int res;
+    int maxnrproc = sysconf(_SC_CHILD_MAX);
+    int nrprocessors = sysconf(_SC_NPROCESSORS_ONLN);
+
+    if ( maxnrproc==-1 && nrprocessors==-1 )
+    {
+	Settings::common().get("Nr Processors", res );
+    }
+    else if ( maxnrproc==-1 ) res = nrprocessors;
+    else if ( nrprocessors==-1 ) res = maxnrproc;
+    else res = mMIN(nrprocessors,maxnrproc);
+    return res;
+}
+#endif
