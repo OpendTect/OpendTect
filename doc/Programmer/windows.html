@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.15 2004-02-24 16:43:32 arend Exp $
+  - RCS:        $Id: windows.html,v 1.16 2004-02-25 08:42:01 arend Exp $
   ------------------------------------------------------------------------------
  -->
 
@@ -400,6 +400,125 @@ have to be in the search path ($PATH). Passing a -L&lt;path to dll&gt; did not
 work.
 </p>
 
+<h4>Notes on compiling Coin</h4>
+<p>
+As said, Coin and SoQt have to be compiled with the cygwin gcc using the
+-mno-cygwin switch. This worked nicely with the Coin-2 version that we used
+before. However, with the current Coin Version 2.2.1 the build process is
+broken. Here are some notes about how we managed to compile Coin and SoQt.
+</p><p>
+When you try to build Coin version 2.2.1, everything compiles just fine
+(except for SoQt 1.0.2, so we've using a previous snapshot), but linking
+is a bit of a nightmare. It seems the configure system/libtool gets confused
+about which libraries to use for the mingw compiler that is actually used by
+"gcc -mno-cygwin".
+</p><p>
+
+So far, we have been able to link Coin by first configuring with the following
+command-line, without setting environment variables for CC or CXX:
+
+<pre>
+./configure --prefix=/users/appman/coin/inst --disable-debug --disable-symbols
+--enable-shared --disable-static --enable-vrml97 --enable-threadsafe
+--enable-rtti --disable-warnings --disable-dependency-tracking --disable-msvc
+--without-x CFLAGS=-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -mno-cygwin
+-mms-bitfields -mcpu=pentium -march=i386 CPPFLAGS=-O2 -D_LARGEFILE_SOURCE
+-D_FILE_OFFSET_BITS=64 -mno-cygwin -mms-bitfields -mcpu=pentium -march=i386
+LDFLAGS=-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -mno-cygwin
+-mms-bitfields -mcpu=pentium -march=i386 -lstdc++ -lpthreadGC
+</pre>
+
+However, when you try to link this, you get unresolved references because
+it tries to link with gcc libraries in /usr/lib/gcc-lib/i686-pc-cygwin, 
+while it is supposed to link with libraries in /usr/lib/gcc-lib/i686-pc-mingw32.
+</p><p>
+So, we moved i686-pc-cygwin to a temporary dir after configuring (and
+compiling), and replaced that with a symlink to i686-pc-mingw32 and then
+'make' to link.
+</p><p>
+This deliveres a cygcoin dll, although it is explicitely linked with the 
+cygwin dll. This can be resolved by manually re-linking and copying the dll
+after the install has been finished.
+</p><p>
+
+Now, when you try to build SoQt (snapshot with changelog dated Jan 16 15:08)
+using the same settings, you get the following link error:
+
+<pre>
+/bin/bash ../../../libtool --mode=link g++  -O2 -fno-exceptions  -s -O2
+-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -mno-cygwin -mms-bitfields
+-mcpu=pentium -march=i386 -lstdc++ -lpthreadGC -DCOIN_DLL
+-L/home/appman/coin/inst/lib -L/users/appman/qt/rel/lib -o libSoQt.la -rpath
+/users/appman/coin/inst/lib -no-undefined -version-info 21:0:1 SoQt.lo
+SoQtComponent.lo SoQtGLWidget.lo SoAny.lo SoQtCursor.lo SoQtObject.lo
+SoQtCommon.lo SoQtComponentCommon.lo SoQtGLWidgetCommon.lo SoQtRenderArea.lo
+ devices/libSoQtDevices.la editors/libSoQtEditors.la engines/libSoGuiEngines.la
+ nodes/libSoGuiNodes.la viewers/libSoQtViewers.la widgets/libSoQtWidgets.la
+ -lqt-mt -lCoin -lopengl32 -lgdi32 -lwinmm -luser32
+grep: /GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la: No such file or directory
+/usr/bin/sed: can't read /GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la: No such file or directory
+libtool: link: `/GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la' is not a valid libtool archive
+</pre>
+
+So, apparantly it tries to find gcc libraries in /GCC, which aren't there.
+
+If you try to rebuild SoQt with CC and CXX set to gcc/g++ -mno-cygwin, you
+get the same error:
+
+<pre>
+make[8]: Entering directory `/home/appman/coin/build/SoQt/src/Inventor/Qt'
+/bin/bash ../../../libtool --mode=link g++ -mno-cygwin  -O2 -fno-exceptions  -s
+-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -mno-cygwin -mms-bitfields
+-mcpu=pentium -march=i386 -lstdc++ -lpthreadGC -DCOIN_DLL
+-L/home/appman/coin/inst/lib
+ -L/users/appman/qt/rel/lib -o libSoQt.la -rpath /users/appman/coin/inst/lib
+ -no-undefined -version-info 21:0:1 SoQt.lo SoQtComponent.lo SoQtGLWidget.lo
+ SoAny.lo SoQtCursor.lo SoQtObject.lo SoQtCommon.lo SoQtComponentCommon.lo
+ SoQtGLWidgetCommon.lo SoQtRenderArea.lo  devices/libSoQtDevices.la
+ editors/libSoQtEditors.la
+engines/libSoGuiEngines.la nodes/libSoGuiNodes.la viewers/libSoQtViewers.la
+widgets/libSoQtWidgets.la -lqt-mt -lCoin -lopengl32 -lgdi32 -lwinmm -luser32
+grep: /GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la: No such file or directory
+/usr/bin/sed: can't read /GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la: No such file or directory
+libtool: link: `/GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la' is not a valid libtool archive
+make[8]: *** [libSoQt.la] Error 1
+</pre>
+
+Let's make a directory /GCC/... :
+
+<pre>
+mkdir -p /GCC/gcc-3.3.1-3/.inst/package-gcc/usr
+cd /GCC/gcc-3.3.1-3/.inst/package-gcc/usr
+ln -s /usr/lib/mingw lib
+</pre>
+
+Then, you get a warning from libtool:
+
+<pre>
+libtool: link: warning: `/GCC/gcc-3.3.1-3/.inst/package-gcc/usr/lib/./libstdc++.la' seems to be moved
+</pre>
+
+And, an error during linking:
+
+<pre>
+Creating library file: .libs/libSoQt.dll.a
+/usr/lib/gcc-lib/i686-pc-cygwin/3.3.1/libgcc.a(w32-shared-ptr.o)(.text+0x189): undefined reference to `_pthread_atfork'
+</pre>
+
+As you see, somewhere it tries to link to the i686-pc-cygwin libgcc.
+So, we apply the same trick and link /usr/lib/gcc-lib to the mingw one before retrying to link:
+
+<pre>
+27/home/appman/coin/build-> cd /usr/lib/gcc-lib/
+27/usr/lib/gcc-lib-> ls
+i686-pc-cygwin/  i686-pc-mingw32/  kp/
+27/usr/lib/gcc-lib-> mv i686-pc-cygwin/ kp
+27/usr/lib/gcc-lib-> ln -s i686-pc-mingw32 i686-pc-cygwin
+27/usr/lib/gcc-lib->
+</pre>
+<p>
+Then, after re-executing 'make' you finally get a SoQt dll.
+</p>
 <br>
 <img src="../hr.png" border=0>
 
