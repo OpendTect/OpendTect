@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.22 2002-12-16 08:33:31 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.23 2003-01-21 10:56:49 niclas Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,8 @@ public:
 
     inline T	width( bool allowrev=true ) const
 		{ return allowrev && isRev() ? start - stop : stop - start; }
+    inline T	center() const
+		{ return (start+stop)/2; }
     inline void	shift( const T& len )
 		{ start += len; stop += len; }
     inline void	widen( const T& len, bool allowrev=true )
