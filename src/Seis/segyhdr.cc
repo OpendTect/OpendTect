@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.1 2001-02-13 17:21:07 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.2 2001-02-28 14:59:18 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -417,10 +417,13 @@ unsigned short SegyTraceheader::nrSamples() const
 }
 
 
-void SegyTraceheader::putNrSamples( unsigned short ns )
+void SegyTraceheader::putSampling( SamplingData<float> sd, unsigned short ns )
 {
+    float drt = sd.start * 1000;
+    short delrt = (short)mNINT(drt);
+    IbmFormat::putShort( delrt, buf+108 );
+    IbmFormat::putUnsignedShort( (unsigned short)(sd.step*1e6+.5), buf+116 );
     IbmFormat::putUnsignedShort( ns, buf+114 );
-    if ( needswap ) swap_bytes( buf+114, 2 );
 }
 
 

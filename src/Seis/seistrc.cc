@@ -5,32 +5,91 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.6 2001-02-13 17:21:08 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.7 2001-02-28 14:59:18 bert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
+#include "interpol1d.h"
 #include <math.h>
 #include <float.h>
 
 
-void SeisTrc::setSampleOffset( int icomp, int so )
+SeisTrc& SeisTrc::operator =( const SeisTrc& t )
 {
-    if ( icomp >= data_.nrComponents() ) return;
-    while ( soffs_.size() <= icomp ) soffs_ += 0;
-    soffs_[icomp] = so;
+    if ( &t == this ) return *this;
+
+    info_ = t.info_;
+    data_ = t.data_;
+
+    if ( t.soffs_ )
+	soffs_ = new TypeSet<int>( *t.soffs_ );
+
+    if ( t.intpols_ )
+    {
+	intpols_ = new ObjectSet<Interpolator1D>;
+	intpols_->allowNull();
+	for ( int idx=0; idx<t.intpols_->size(); idx++ )
+	    *intpols_ += (*t.intpols_)[idx] ? (*t.intpols_)[idx]->clone() : 0;
+    }
+
+    return *this;
 }
 
 
-float SeisTrc::getValue( double t, int icomp ) const
+void SeisTrc::setSampleOffset( int icomp, int so )
 {
-    static const float trcundef = 0;
+    if ( (!so && !soffs_) || icomp >= data_.nrComponents() ) return;
+
+    if ( !soffs_ ) soffs_ = new TypeSet<int>;
+
+    while ( soffs_->size() <= icomp ) (*soffs_) += 0;
+    (*soffs_)[icomp] = so;
+}
+
+
+const Interpolator1D* SeisTrc::interpolator( int icomp ) const
+{
+    return !intpols_ || icomp>=intpols_->size() ? 0 : (*intpols_)[icomp];
+}
+
+
+void SeisTrc::setInterpolator( Interpolator1D* intpol, int icomp )
+{
+    if ( (!intpol && !intpols_) || icomp >= data().nrComponents() )
+	{ delete intpol; return; }
+
+    intpols_ = new ObjectSet<Interpolator1D>;
+    while ( intpols_->size() <= icomp )
+	(*intpols_) += 0;
+
+    intpols_->replace( intpol, icomp );
+    intpol->setData( *data().getComponent(icomp),
+		     *data().getInterpreter(icomp) );
+}
+
+
+float SeisTrc::getValue( float t, int icomp ) const
+{
     static const float snapdist = 1e-4;
+    static PolyInterpolator1D polyintpol( snapdist, 0 );
 
-    register float x = (t - startPos(icomp)) / info_.sampling.step;
-    const_cast<SeisTrc*>(this)->curcomp = icomp;
-    interpolateSampled( *this, size(icomp), x, x, false, trcundef, snapdist );
+    const int sz = size( icomp );
+    int sampidx = nearestSample( t, icomp );
+    if ( sampidx < 0 || sampidx >= sz ) return 0;
 
-    return x;
+    const float pos = ( t - startPos( icomp ) ) / info_.sampling.step;
+    if ( sampidx-pos > -snapdist && sampidx-pos < snapdist )
+	return get( sampidx, icomp );
+
+    const Interpolator1D* intpol = interpolator( icomp );
+    if ( !intpol )
+    {
+	polyintpol.setData( *data().getComponent(icomp),
+			    *data().getInterpreter(icomp) );
+	intpol = &polyintpol;
+    }
+
+    return intpol->value( pos );
 }
 
 
