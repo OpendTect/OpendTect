@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.2 2001-04-27 16:48:16 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.3 2001-04-30 14:58:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,18 +15,18 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uifiledlg.h"
 #include "uidset.h"
+#include "separstr.h"
 #include "iopar.h"
 
 
 uiIOSelect::uiIOSelect( uiObject* p, const CallBack& butcb, const char* txt,
 			bool seled, bool withclear )
 	: uiGroup(p)
-	, inpsels_(*new UserIDSet(txt))
 	, withclear_(withclear)
 	, doselcb_(butcb)
 {
-    if ( withclear ) inpsels_.add( "" );
-    inp_ = new uiLabeledComboBox( this, inpsels_, seled );
+    if ( withclear ) entries_ += new BufferString;
+    inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", seled );
     inp_->box()->notify( mCB(this,uiIOSelect,selDone) );
     inp_->box()->setPrefWidthInChar( 20 );
     selbut_ = new uiPushButton( this, "Select ..." );
@@ -35,49 +35,86 @@ uiIOSelect::uiIOSelect( uiObject* p, const CallBack& butcb, const char* txt,
 
     setHAlignObj( inp_ );
     setHCentreObj( inp_ );
+    updateFromEntries();
 }
 
 
 uiIOSelect::~uiIOSelect()
 {
-    inpsels_.deepErase();
-    delete &inpsels_;
+    deepErase( entries_ );
+}
+
+
+void uiIOSelect::updateFromEntries()
+{
+    int curitnr = inp_->box()->size() ? inp_->box()->currentItem() : -1;
+    BufferString curusrnm;
+    if ( curitnr >= 0 )
+	curusrnm = inp_->box()->textOfItem( curitnr );
+
+    inp_->box()->clear();
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	const char* usrnm = userNameFromKey( *entries_[idx] );
+	if ( usrnm )
+	    inp_->box()->addItem( usrnm );
+	else
+	{
+	    delete entries_[idx];
+	    entries_.remove( idx );
+	    idx--;
+	}
+    }
+
+    if ( curitnr >= 0 && inp_->box()->size() )
+	inp_->box()->setCurrentItem( curusrnm );
 }
 
 
 void uiIOSelect::fillPar( IOPar& iopar ) const
 {
-    int curidx = getItem();
-    iopar.set( "Current", curidx );
+    int startidx = withclear_ ? 1 : 0;
+    iopar.removeWithKey( "Selection.[0-9]*" );
+    int curidx = getCurrentItem();
+    iopar.set( "Current", curidx - startidx + 1 );
 
-    inpsels_.deepErase();
     const int sz = nrItems();
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=startidx; idx<sz; idx++ )
     {
-	const char* res = idx == curidx ? getInput() : getItemText(idx);
-	if ( *res ) inpsels_.add( res );
+	BufferString buf;
+	const char* key = *entries_[idx];
+	const char* usrnm = idx == curidx ? getInput() : userNameFromKey( key );
+	buf = usrnm; buf += "`"; buf += usrnm;
+	iopar.set( IOPar::compKey("Selection",idx-startidx+1),
+		   (const char*)buf );
     }
-    use( inpsels_, iopar, "Text" );
 }
 
 
 void uiIOSelect::usePar( const IOPar& iopar )
 {
-    UserIDSet newinps;
-    use( iopar, newinps, "Text" );
-    setItems( newinps );
-    newinps.deepErase();
-    setCurrentFromIOPar( iopar );
-}
+    deepErase( entries_ );
+    if ( withclear_ ) entries_ += new BufferString;
 
+    BufferString bs;
+    for ( int idx=0; ; idx++ )
+    {
+	if ( !iopar.get( IOPar::compKey("Selection",idx), bs ) )
+	    { if ( idx ) break; else continue; }
 
-void uiIOSelect::setCurrentFromIOPar( const IOPar& iopar )
-{
+	FileMultiString fms( (const char*)bs );
+	const char* key = fms[1];
+	if ( !userNameFromKey(key) ) continue;
+
+	entries_ += new BufferString( key );
+    }
+    updateFromEntries();
+
     if ( nrItems() )
     {
         int curidx = 0;
         iopar.get( "Current", curidx );
-        setCurrentItem( curidx );
+        setCurrentItem( curidx - withclear_ ? 0 : 1 );
     }
 }
 
@@ -88,29 +125,40 @@ const char* uiIOSelect::getInput() const
 }
 
 
-void uiIOSelect::setInput( const char* txt )
+const char* uiIOSelect::getKey() const
 {
-    if ( !inp_->box()->isPresent(txt) )
-	inp_->box()->addItem( txt );
-    inp_->box()->setCurrentItem( txt );
+    return *entries_[getCurrentItem()];
 }
 
 
-int uiIOSelect::nrItems() const
+void uiIOSelect::setInput( const char* key )
 {
-    return inp_->box()->size();
+    const char* usrnm = userNameFromKey( key );
+    if ( !key ) key = "";
+    if ( !usrnm && (!withclear_ || *key ) )
+	return;
+
+    if ( !usrnm ) usrnm = "";
+
+    for ( int idx=0; idx<entries_.size(); idx++ )
+    {
+	if ( *entries_[idx] == key )
+	{
+	    inp_->box()->setItemText( idx, usrnm );
+	    inp_->box()->setCurrentItem( idx );
+	    return;
+	}
+    }
+
+    entries_ += new BufferString( key );
+    inp_->box()->addItem( usrnm );
+    inp_->box()->setCurrentItem( entries_.size() - 1 );
 }
 
 
-int uiIOSelect::getItem() const
+int uiIOSelect::getCurrentItem() const
 {
     return inp_->box()->currentItem();
-}
-
-
-const char* uiIOSelect::getItemText( int idx ) const
-{
-    return inp_->box()->textOfItem( idx );
 }
 
 
@@ -120,32 +168,9 @@ void uiIOSelect::setCurrentItem( int idx )
 }
 
 
-void uiIOSelect::setItems( const UserIDSet& newitems )
+void uiIOSelect::doSel( CallBacker* )
 {
-    inpsels_.deepErase();
-    inp_->box()->clear();
-
-    inpsels_.copyFrom( Ptr(newitems) );
-    if ( withclear_ )
-    {
-	int idx = inpsels_.indexOf( "" );
-	if ( idx < 0 )
-	{
-	    UserIDObject* empty = new UserIDObject( "" );
-	    inpsels_ += empty;
-	    inpsels_.moveAfter( empty, 0 );
-	}
-    }
-    inp_->box()->addItems( inpsels_ );
-}
-
-
-void uiIOSelect::doSel( CallBacker* c )
-{
-    BufferString oldinp = getInput();
     doselcb_.doCall( this );
-    if ( oldinp != getInput() )
-	seldonecb_.doCall( this );
 }
 
 
@@ -171,6 +196,8 @@ void uiIOFileSelect::doFileSel( CallBacker* c )
     uiFileDialog fd( this, forread, getInput(),
 		     filter == "" ? 0 : (const char*)filter, caption );
     if ( fd.go() )
+    {
 	setInput( fd.fileName() );
-    
+	selDone( 0 );
+    }
 }
