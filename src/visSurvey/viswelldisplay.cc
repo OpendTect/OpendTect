@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.2 2002-05-22 06:17:03 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.3 2002-05-22 09:13:18 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -32,6 +32,7 @@ visSurvey::WellDisplay::WellDisplay()
     addChild( drawstyle->getData() );
     line->ref();
     addChild( line->getData() );
+    line->setMaterial( 0 );
 }
 
 
@@ -55,11 +56,12 @@ bool visSurvey::WellDisplay::setWellId( const MultiID& id )
 
     wellid = id;
 
+    setName( well->name() );
+
     if ( well->nrKnots() < 1 ) return true;
     for ( int idx=0; idx<well->nrKnots(); idx++ )
 	line->addPoint( well->getKnot( idx ) );
 
-    setName( well->name() );
 
     return true;
 }
