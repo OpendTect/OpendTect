@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.1 2002-07-25 15:25:51 nanne Exp $
+ RCS:		$Id: vismarker.h,v 1.2 2002-07-29 07:29:49 nanne Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,8 @@ protected:
     SoGroup*		group;
 
     Type		markertype;
+
+    static const char*  centerposstr;
 };
 
 };
