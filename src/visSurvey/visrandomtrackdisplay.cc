@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.5 2003-01-27 13:15:51 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.6 2003-01-30 14:52:03 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -35,6 +35,10 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     , succeeded_(false)
 {
     track->ref();
+
+    track->getMaterial()->setAmbience( 0.8 );
+    track->getMaterial()->setDiffIntensity( 0.8 );
+
     const StepInterval<double>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().range(true).start.inl,
 	    				SI().range(true).stop.inl,
@@ -161,12 +165,11 @@ void visSurvey::RandomTrackDisplay::removeAllKnots()
 
 
 #define mGetBinIDs( x, y ) \
-    nrlines = stop.x - start.x; \
-    if ( lastsection ) nrlines++; \
+    int step = inlwise ? SI().inlWorkStep() : SI().crlWorkStep(); \
     for ( int idi=0; idi<nrlines; idi++ ) \
     { \
 	BinID bid; \
-	int bidx = start.x + idi; \
+	int bidx = (int)start.x + idi*step; \
 	float val = linearInterpolate( (float)start.x, (float)start.y, \
 				       (float)stop.x, (float)stop.y, \
 				       (float)bidx ); \
@@ -177,25 +180,23 @@ void visSurvey::RandomTrackDisplay::removeAllKnots()
 
 void visSurvey::RandomTrackDisplay::getDataPositions( TypeSet<BinID>& bids )
 {
-    bool lastsection = false;
     trcspersection.erase();
     TypeSet<Coord> crdset;
     getAllKnotPos( crdset );
     for ( int idx=1; idx<crdset.size(); idx++ )
     {
-	lastsection = idx == crdset.size()-1;
-	BinID start = SI().transform( crdset[idx-1] );
-	BinID stop = SI().transform( crdset[idx] );
-	const int nrinl = stop.inl - start.inl + 1;
-	const int nrcrl = stop.crl - start.crl + 1;
+	Coord start = crdset[idx-1];
+	Coord stop = crdset[idx];
+	const int nrinl = int((stop.x - start.x)/SI().inlWorkStep() + 1);
+	const int nrcrl = int((stop.y - start.y)/SI().crlWorkStep() + 1);
 	bool inlwise = nrinl > nrcrl;
-	int nrlines;
+	int nrlines = inlwise ? nrinl : nrcrl;
 	if ( inlwise )
-	{ mGetBinIDs(inl,crl); }
+	{ mGetBinIDs(x,y); }
 	else 
-	{ mGetBinIDs(crl,inl); }
+	{ mGetBinIDs(y,x); }
 
-	trcspersection += nrlines + 1;
+	trcspersection += nrlines;
     }
 }
 
@@ -206,24 +207,19 @@ bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>& trcset )
     if ( !nrtrcs ) return false;
     const int nrsamp = trcset[0]->size(0);
 
-    int firsttrc = 0;
-    int lasttrc = 1;
     const int nrsections = track->nrKnots() - 1;
     for ( int snr=0; snr<nrsections; snr++ )
     {
-	int trcidx = 0;
-	firsttrc += lasttrc - 1;
-	const int nrinsection = trcspersection[snr];
-	lasttrc += nrinsection - 1;
-	Array2DImpl<float> arr( nrinsection, nrsamp );
-	for ( int idx=firsttrc; idx<lasttrc; idx++ )
+	const int nrtrcsinsection = trcspersection[snr];
+	Array2DImpl<float> arr( nrtrcsinsection, nrsamp );
+	for ( int trcidx=0; trcidx<nrtrcsinsection; trcidx++ )
 	{
-	    if ( idx > nrtrcs ) return false;
-	    SeisTrc* trc = trcset[idx];
+	    if ( trcidx > nrtrcs ) return false;
+	    SeisTrc* trc = trcset[trcidx];
 	    if ( !trc ) continue;
 	    
 	    for ( int ids=0; ids<nrsamp; ids++ )
-		arr.set( trcidx++, ids, trc->getValue(ids,0) );
+		arr.set( trcidx, ids, trc->getValue(ids,0) );
 	}
 
 	track->setData( snr, arr );
