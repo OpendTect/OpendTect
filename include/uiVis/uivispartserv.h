@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.35 2002-05-22 09:03:28 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.36 2002-05-23 08:25:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ namespace visSurvey
 class Scene;
 class PickSetDisplay;
 class WellDisplay;
+class HorizonDisplay;
 class PlaneDataDisplay;
 };
 
@@ -74,7 +75,8 @@ public:
     void		fillPar( IOPar& ) const;
 
     enum ElementType    { Inline, Crossline, Timeslice };
-    enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay, WellDisplay };
+    enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay, WellDisplay,
+    			  HorizonDisplay };
     ObjectType		getObjectType( int ) const;
     void		setObjectName(int,const char*);
     const char*		getObjectName(int);
@@ -145,6 +147,10 @@ public:
     const LineStyle*	wellLineStyle(int) const;
     void		setWellLineStyle(int, const LineStyle& );
 
+    			// Horizon stuff
+    int			addHorizonDisplay(const MultiID& emhorid);
+    void		removeHorizonDisplay( int );
+
 			//ColorSeqs
     bool		canSetColorSeq(int) const;
     void		modifyColorSeq(int, const ColorTable&);
@@ -196,6 +202,7 @@ protected:
     ObjectSet<visSurvey::PickSetDisplay>	picks;
     ObjectSet<visSurvey::PlaneDataDisplay>	seisdisps;
     ObjectSet<visSurvey::WellDisplay>         	wells;
+    ObjectSet<visSurvey::HorizonDisplay>       	horizons;
     ObjectSet<visSurvey::Scene>         	scenes;
 
     static const char*	appvelstr;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.53 2002-05-22 13:42:07 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.54 2002-05-23 08:25:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
 #include "vissurvwell.h"
+#include "vissurvhorizon.h"
 #include "visplanedatadisplay.h"
 #include "visselman.h"
 #include "vismaterial.h"
@@ -174,6 +175,11 @@ uiVisPartServer::ObjectType uiVisPartServer::getObjectType( int id ) const
     if ( sd ) return DataDisplay;
     mDynamicCastGet(const visSurvey::PickSetDisplay*, psd, dobj );
     if ( psd ) return PickSetDisplay;
+    mDynamicCastGet(const visSurvey::WellDisplay*, well, dobj );
+    if ( well ) return WellDisplay;
+    mDynamicCastGet(const visSurvey::HorizonDisplay*, hor, dobj );
+    if ( well ) return HorizonDisplay;
+
 
     return Unknown;
 }
@@ -755,6 +761,49 @@ void uiVisPartServer::setWellLineStyle( int id, const LineStyle& lst )
     if ( !well ) return;
 
     well->setLineStyle( lst );
+}
+
+
+int uiVisPartServer::addHorizonDisplay( const MultiID& emhorid )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+
+    visSurvey::HorizonDisplay* horizon = visSurvey::HorizonDisplay::create();
+
+    if ( !horizon->setHorizonId( emhorid ) )
+    {
+	horizon->ref(); horizon->unRef();
+	pErrMsg( "EarthModel em does not exist" );
+	return -1;
+    }
+
+    horizons += horizon; 
+
+    if ( horizon->depthIsT() )
+	scene->addXYTObject( horizon );
+    else
+	scene->addXYZObject( horizon );
+
+    setSelObjectId( horizon->id() );
+    return horizon->id();
+}
+
+
+void uiVisPartServer::removeHorizonDisplay( int id )
+{
+    visBase::DataObject* sdobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,sdobj)
+    if ( !hor ) return;
+
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    int objidx = scene->getFirstIdx( hor );
+    if ( objidx>0 )
+    {
+	scene->removeObject( objidx );
+	horizons -= hor;
+    }
 }
 
 
