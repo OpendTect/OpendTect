@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.19 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uimain.cc,v 1.20 2004-01-15 15:03:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "uifont.h"
 #include "errh.h"
+#include "debug.h"
 #include "settings.h"
 #include "qapplication.h"
 
@@ -30,7 +31,9 @@ uiMain* 	uiMain::themain = 0;
 
 uiMain::uiMain( int argc, char **argv )
     : mainobj( 0 )
-    { init(0,argc,argv); }
+{
+    init(0,argc,argv);
+}
 
 
 uiMain::uiMain( QApplication* qapp )
@@ -39,11 +42,7 @@ uiMain::uiMain( QApplication* qapp )
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setLibraryPaths( QStringList("/dev") );
 
-#ifdef NO_MORE_DTECT
-    init(qapp,0,0); 
-#else
     app = qapp;
-#endif
 }
 
 
@@ -61,10 +60,16 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setDesktopSettingsAware( FALSE );
 
-    if(qap) 
+    if ( DBG::isOn() && !qap )
+	DBG::message( "Constructing QApplication ..." );
+
+    if( qap ) 
 	app = qap;
     else
 	app = new QApplication( argc, argv );
+
+    if ( DBG::isOn() && !qap )
+	DBG::message( "... done." );
 
     app->setStyle( new QCDEStyle() );
 
