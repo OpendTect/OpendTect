@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.2 2003-05-12 08:19:50 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.3 2003-05-19 09:03:06 nanne Exp $";
 
 #include "emsurface.h"
 
@@ -106,7 +106,8 @@ void  EarthModel::Surface::setPos( PatchID patch, const RowCol& node,
     if ( autoconnect )
 	findPos( node, nodeonotherpatches );
 
-    surface->setGridPos(node, pos);
+    surface->setGridPos( node, pos );
+    surface->setFillType( node, Geometry::GridSurface::Filled );
 
     if ( addtohistory )
     {
@@ -299,4 +300,5 @@ const Geometry::GridSurface* EarthModel::Surface::getSurface(PatchID patchid)con
 void EarthModel::Surface::cleanUp()
 {
     deepErase( surfaces );
+    patchids.erase();
 }
