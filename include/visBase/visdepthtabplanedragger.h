@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.1 2003-09-22 13:15:52 kristofer Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.2 2003-09-30 06:32:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,10 +34,18 @@ public:
     static DepthTabPlaneDragger*	create()
 					mCreateDataObj(DepthTabPlaneDragger);
 
-    void			setCenter( const Coord3& );
+    void			setCenter( const Coord3&, bool alldims = true );
+    				/*!< \param alldims if true, it updates the
+				            internal cache, so the new position
+					    is valid through a setDim() 
+				*/
     Coord3			center() const;
 
-    void			setSize( const Coord3& );
+    void			setSize( const Coord3&, bool alldims=true );
+    				/*!< \param alldims if true, it updates the
+				            internal cache, so the new position
+					    is valid through a setDim() 
+				*/
     Coord3			size() const;
 
     void			setDim(int dim);
@@ -83,6 +91,8 @@ protected:
 
     int				dim;
     visBase::Transformation*	rotation;
+    TypeSet<Coord3>		centers;
+    TypeSet<Coord3>		sizes;
 
     visBase::Transformation*	transform;
 

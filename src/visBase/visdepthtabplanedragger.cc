@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.1 2003-09-22 13:15:16 kristofer Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.2 2003-09-30 06:32:47 kristofer Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -32,6 +32,9 @@ visBase::DepthTabPlaneDragger::DepthTabPlaneDragger()
     , changed( this )
     , finished( this )
 {
+    centers += center(); centers += center(); centers += center();
+    sizes += size(); sizes += size(); sizes += size();
+
     addChild( dragger );
 
     setDim(dim);
@@ -58,10 +61,18 @@ visBase::DepthTabPlaneDragger::~DepthTabPlaneDragger()
 }
 
 
-void visBase::DepthTabPlaneDragger::setCenter( const Coord3& center )
+void visBase::DepthTabPlaneDragger::setCenter( const Coord3& center,
+					       bool alldims )
 {
     const Coord3 dcenter = world2Dragger( center, true );
     dragger->translation.setValue( SbVec3f(dcenter.x,dcenter.y,dcenter.z) );
+
+    centers[dim] = center;
+
+    if ( alldims )
+    {
+	centers[0] = center; centers[1] = center; centers[2] = center;
+    }
 }
 
 
@@ -72,10 +83,17 @@ Coord3 visBase::DepthTabPlaneDragger::center() const
 }
 
 
-void visBase::DepthTabPlaneDragger::setSize( const Coord3& scale )
+void visBase::DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 {
     const Coord3 dscale = world2Dragger(scale, false);
     dragger->scaleFactor.setValue(SbVec3f( dscale.x/2, dscale.y/2, dscale.z/2));
+
+    sizes[dim] = scale;
+
+    if ( alldims )
+    {
+	sizes[0] = scale; sizes[1] = scale; sizes[2] = scale;
+    }
 }
 
 
@@ -88,8 +106,8 @@ Coord3 visBase::DepthTabPlaneDragger::size() const
 
 void visBase::DepthTabPlaneDragger::setDim( int newdim )
 {
-    const Coord3 centerpos = center();
-    const Coord3 savedsize = size();
+    centers[dim] = center();
+    sizes[dim] = size();
 
     Interval<float> xlim, ylim, zlim;
     getSpaceLimits( xlim, ylim, zlim );
@@ -139,8 +157,8 @@ void visBase::DepthTabPlaneDragger::setDim( int newdim )
 
     setSpaceLimits( xlim, ylim, zlim );
     setWidthLimits( xsizelim, ysizelim, zsizelim );
-    setSize( savedsize );
-    setCenter( centerpos );
+    setSize( sizes[dim], false );
+    setCenter( centers[dim], false );
 }
 
 
