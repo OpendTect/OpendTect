@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.30 2004-09-08 14:58:35 kristofer Exp $
+ RCS:		$Id: position.h,v 1.31 2004-10-04 09:45:30 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
+#include "rcol.h"
 class BufferString;
 
 
@@ -150,20 +151,22 @@ public:
 
 /*!\brief positioning in a seismic survey: inline/crossline. */
 
-class BinID
+class BinID : public RCol
 {
 public:
 		BinID() : inl(0), crl(0)			{}
+		BinID( const RCol& rc ) : inl( rc.r() ), crl( rc.c() ) {}
 		BinID( int il, int cl=1 ) : inl(il), crl(cl)	{}
 
-    BinID	operator+( const BinID& bi ) const;
-    BinID	operator-( const BinID& bi ) const;
-    void	operator+=( const BinID& bi )
-			{ inl += bi.inl; crl += bi.crl; }
-    bool	operator==( const BinID& bi ) const
-			{ return inl == bi.inl && crl == bi.crl; }
-    bool	operator!=( const BinID& bi ) const
-			{ return ! (bi == *this); }
+    int&	r() { return inl; }
+    const int&	r() const { return inl; }
+    int&	c() { return crl; }
+    const int&	c() const { return crl; }
+
+		/* Implements +, -, * and other operators. See the documentation
+		   for details */
+    		mRowColFunctions( BinID, inl, crl );
+
     void	fill(char*) const;
     bool	use(const char*);
 
