@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.22 2004-05-24 14:00:37 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.23 2004-05-24 16:37:40 bert Exp $
 ___________________________________________________________________
 
 -*/
@@ -1071,7 +1071,7 @@ void uiODWellTreeItem::handleMenuCB(CallBacker* cb)
 	int lognr = 1;
 	applMgr()->wellServer()->selectLogs( wellid, selidx, lognr );
 	if ( selidx > -1 )
-	    wd->displayLog(selidx,lognr);
+	    wd->displayLog(selidx,lognr,false);
     }
     else if ( mnuid == propertiesmnuid )
     {

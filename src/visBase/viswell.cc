@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.16 2004-05-24 13:56:59 kristofer Exp $
+ RCS:           $Id: viswell.cc,v 1.17 2004-05-24 16:37:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,7 +243,7 @@ bool Well::markerNameShown() const
 
 
 void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
-		       const Interval<float>& range, int lognr )
+		       const Interval<float>& range, bool sclog, int lognr )
 {
     int nrsamp = crdvals.size();
 
@@ -254,7 +254,10 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	nrsamp = sMaxNrLogSamples;
     }
 
+    const bool rev = range.start > range.stop;
+    log->setRevScale( rev );
     log->clearLog( lognr );
+    Interval<float> rg = range; rg.sort();
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	int index = mNINT(idx*step);
@@ -265,9 +268,15 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	if ( mIsUndefined(pos.z) ) continue;
 
 	float val = mIsUndefined(cv.value) ? 0 : cv.value;
-	val -= range.start;
+	val -= rg.start;
 	if ( val < 0 ) val = 0;
-	else if ( val > range.stop ) val = range.stop;
+	else if ( !val > rg.stop )
+	    val = rg.stop;
+	if ( sclog )
+	{
+	    val += 1;
+	    val = ::log( val );
+	}
 	log->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
     }
 

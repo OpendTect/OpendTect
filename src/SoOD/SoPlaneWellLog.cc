@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.8 2004-03-31 06:41:36 nanne Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.9 2004-05-24 16:37:40 bert Exp $";
 
 
 #include "SoPlaneWellLog.h"
@@ -41,6 +41,7 @@ void SoPlaneWellLog::initClass()
 
 SoPlaneWellLog::SoPlaneWellLog()
     : valuesensor( new SoFieldSensor(SoPlaneWellLog::valueChangedCB,this) )
+    , revscale(false)
 {
     SO_KIT_CONSTRUCTOR(SoPlaneWellLog);
 

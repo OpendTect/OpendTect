@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.13 2004-05-24 14:28:36 bert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.14 2004-05-24 16:37:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,7 @@ public:
     int				logNumber() const;
     int				selectedLog() const;
     Interval<float>		selRange() const;
+    bool			scaleLogarithmic() const;
 
 protected:
 
@@ -120,11 +121,16 @@ protected:
 
     uiLabeledListBox*		logsfld;
     uiGenInput*			rangefld;
-    uiCheckBox*			autofld;
+    uiCheckBox*			logscfld;
     uiGenInput*			dispfld;
 
+    void			resetPush(CallBacker*);
     void			logSel(CallBacker*);
     virtual bool		acceptOK(CallBacker*);
+
+private:
+
+    void			setLogRg(bool);
 
 };
 

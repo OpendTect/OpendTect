@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.38 2004-05-24 13:59:30 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.39 2004-05-24 16:37:40 bert Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -37,6 +37,8 @@ const char* WellDisplay::log1nmstr	 = "Logname 1";
 const char* WellDisplay::log2nmstr	 = "Logname 2";
 const char* WellDisplay::log1rgstr	 = "Logrange 1";
 const char* WellDisplay::log2rgstr	 = "Logrange 2";
+const char* WellDisplay::log1logscstr	 = "Loglogsc 1";
+const char* WellDisplay::log2logscstr	 = "Loglogsc 2";
 const char* WellDisplay::log1colorstr	 = "Logcolor 1";
 const char* WellDisplay::log2colorstr	 = "Logcolor 2";
 
@@ -77,7 +79,6 @@ void WellDisplay::setWell( visBase::Well* well_ )
 
 void WellDisplay::fullRedraw( CallBacker* )
 {
-    //TODO : Time to depth model or track has changed
     Well::Data* wd = Well::MGR().get( wellid, false );
     
     const Well::D2TModel* d2t = wd->d2TModel();
@@ -113,10 +114,10 @@ void WellDisplay::fullRedraw( CallBacker* )
     updateMarkers(0);
 
     if ( log1nm.size() )
-	displayLog(log1nm, log1rg, 1 );
+	displayLog( log1nm, log1logsc, log1rg, 1 );
 
     if ( log2nm.size())
-	displayLog(log2nm, log2rg, 2 );
+	displayLog( log2nm, log2logsc, log2rg, 2 );
 }
 
 
@@ -205,7 +206,7 @@ mShowFunction( showLogs, logsShown )
 mShowFunction( showLogName, logNameShown )
 
 
-void WellDisplay::displayLog( int logidx, int lognr, 
+void WellDisplay::displayLog( int logidx, int lognr, bool logrthm,
 			      const Interval<float>* range )
 {
     Well::Data* wd = Well::MGR().get( wellid );
@@ -242,16 +243,18 @@ void WellDisplay::displayLog( int logidx, int lognr,
 
     Interval<float> selrange;
     assign( selrange, range ? *range : log.selValueRange() );
-    well->setLogData( crdvals, log.name(), selrange, lognr );
+    if ( !range )
+	logrthm = log.dispLogarithmic();
+    well->setLogData( crdvals, log.name(), selrange, logrthm, lognr );
 
     if ( lognr == 1 )
-    { log1nm = log.name(); assign(log1rg,selrange); }
+	{ log1nm = log.name(); assign(log1rg,selrange); log1logsc = logrthm; }
     else
-    { log2nm = log.name(); assign(log2rg,selrange); }
+	{ log2nm = log.name(); assign(log2rg,selrange); log2logsc = logrthm; }
 }
 
 
-void WellDisplay::displayLog( const char* lognm,  
+void WellDisplay::displayLog( const char* lognm, bool logarthm,
 			      const Interval<float>& range, int lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid );
@@ -266,7 +269,7 @@ void WellDisplay::displayLog( const char* lognm,
 
     if ( logidx < 0 ) return; // TODO: errmsg
     
-    displayLog( logidx, lognr, &range );
+    displayLog( logidx, lognr, logarthm, &range );
 }
 
 
@@ -306,12 +309,14 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     par.set( log1nmstr, log1nm );
     par.set( log1rgstr, log1rg.start, log1rg.stop );
+    par.setYN( log1logscstr, log1logsc );
     BufferString colstr;
     logColor(1).fill( colstr.buf() );
     par.set( log1colorstr, colstr );
 
     par.set( log2nmstr, log2nm );
     par.set( log2rgstr, log2rg.start, log2rg.stop );
+    par.setYN( log2logscstr, log2logsc );
     logColor(2).fill( colstr.buf() );
     par.set( log2colorstr, colstr );
 }
@@ -347,8 +352,9 @@ int WellDisplay::usePar( const IOPar& par )
     BufferString log1nm_;
     par.get( log1nmstr, log1nm_ );
     par.get( log1rgstr, log1rg.start, log1rg.stop );
+    par.getYN( log1logscstr, log1logsc );
     if ( *log1nm_.buf() )
-	displayLog( log1nm_, log1rg, 1 );
+	displayLog( log1nm_, log1logsc, log1rg, 1 );
     BufferString colstr; Color col;
     par.get( log1colorstr, colstr );
     if ( col.use(colstr.buf()) )
@@ -357,8 +363,9 @@ int WellDisplay::usePar( const IOPar& par )
     BufferString log2nm_;
     par.get( log2nmstr, log2nm_ );
     par.get( log2rgstr, log2rg.start, log2rg.stop );
+    par.getYN( log2logscstr, log2logsc );
     if ( *log2nm_.buf() )
-	displayLog( log2nm_, log2rg, 2 );
+	displayLog( log2nm_, log2logsc, log2rg, 2 );
     par.get( log2colorstr, colstr );
     if ( col.use(colstr.buf()) )
 	setLogColor( col, 2 );

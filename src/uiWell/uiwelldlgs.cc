@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.18 2004-05-24 14:28:36 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.19 2004-05-24 16:37:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -408,10 +408,13 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
 	    			FloatInpIntervalSpec() );
     rangefld->attach( alignedBelow, logsfld );
 
-    autofld = new uiCheckBox( this, "Auto" );
-    autofld->setChecked( false );
-    autofld->attach( rightTo, rangefld );
-    autofld->activated.notify( mCB(this,uiLogSelDlg,logSel) );
+    logscfld = new uiCheckBox( this, "Logarithmic" );
+    logscfld->setChecked( false );
+    logscfld->attach( rightOf, rangefld );
+
+    uiPushButton* resetbut = new uiPushButton( this, "Reset",
+	    				mCB(this,uiLogSelDlg,resetPush));
+    resetbut->attach( rightOf, logscfld );
 
     dispfld = new uiGenInput( this, "Display", BoolInpSpec("Left","Right") );
     dispfld->attach( alignedBelow, rangefld );
@@ -420,15 +423,27 @@ uiLogSelDlg::uiLogSelDlg( uiParent* p, const Well::LogSet& logs )
 }
 
 
+void uiLogSelDlg::resetPush( CallBacker* )
+{
+    setLogRg( true );
+}
+
+
 void uiLogSelDlg::logSel( CallBacker* )
+{
+    setLogRg( false );
+}
+
+
+void uiLogSelDlg::setLogRg( bool def )
 {
     const int logidx = logsfld->box()->currentItem();
     if ( logidx < 0 || logidx >= logset.size() )
 	return;
 
     const Well::Log& log = logset.getLog(logidx);
-    rangefld->setValue( autofld->isChecked() ? log.valueRange() 
-	    				     : log.selValueRange() );
+    rangefld->setValue( def ? log.valueRange() : log.selValueRange() );
+    logscfld->setChecked( def ? false : log.dispLogarithmic() );
 }
 
 
@@ -439,7 +454,8 @@ bool uiLogSelDlg::acceptOK( CallBacker* )
 	return false;
 
     Well::Log& log = const_cast<Well::Log&>(logset.getLog(logidx));
-    log.setSelValueRange( rangefld->getFInterval() );
+    log.setSelValueRange( selRange() );
+    log.setDispLogarithmic( scaleLogarithmic() );
     return true;
 }
 
@@ -459,6 +475,12 @@ int uiLogSelDlg::selectedLog() const
 Interval<float> uiLogSelDlg::selRange() const
 {
     return rangefld->getFInterval();
+}
+
+
+bool uiLogSelDlg::scaleLogarithmic() const
+{
+    return logscfld->isChecked();
 }
 
 

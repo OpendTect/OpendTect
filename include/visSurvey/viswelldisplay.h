@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.19 2004-05-24 14:33:10 kristofer Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.20 2004-05-24 16:37:40 bert Exp $
 ________________________________________________________________________
 
 
@@ -57,12 +57,12 @@ public:
     void			setMarkerScreenSize(int);
     int				markerScreenSize() const;
 
-    void			displayLog(int idx,int nr,
+    void			displayLog(int idx,int nr,bool logarthm_scale,
 	    				   const Interval<float>* rg=0);
     				//!< idx: idx in Well::LogSet
     				//!< nr==1: left log; nr==2: right log
-    void			displayLog(const char*,const Interval<float>&,
-	    				   int nr);
+    void			displayLog(const char*,bool,
+	    				   const Interval<float>&,int nr);
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
     void			setLogLineWidth(float,int);
@@ -97,13 +97,17 @@ protected:
     BufferString		log2nm;
     Interval<float>		log1rg;
     Interval<float>		log2rg;
+    bool			log1logsc;
+    bool			log2logsc;
 
     static const char*		earthmodelidstr;
     static const char*		wellidstr;
     static const char*		log1nmstr;
     static const char*		log1rgstr;
+    static const char*		log1logscstr;
     static const char*		log2nmstr;
     static const char*		log2rgstr;
+    static const char*		log2logscstr;
     static const char*		log1colorstr;
     static const char*		log2colorstr;
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.9 2004-03-01 14:35:47 nanne Exp $
+ RCS:		$Id: welllog.h,v 1.10 2004-05-24 16:37:40 bert Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,8 @@ public:
 
 			Log( const char* nm=0 )
 			: ::UserIDObject(nm)
-			, range_(mUndefValue,-mUndefValue)	{}
+			, range_(mUndefValue,-mUndefValue)
+			, displogrthm_(false)		{}
 
     int			size() const			{ return val_.size(); }
     float		value(int idx) const		{ return val_[idx]; }
@@ -41,6 +42,8 @@ public:
     const Interval<float>& valueRange() const		{ return range_; }
     void		setSelValueRange(const Interval<float>&);
     const Interval<float>& selValueRange() const	{ return selrange_; }
+    bool		dispLogarithmic() const		{ return displogrthm_; }
+    void		setDispLogarithmic( bool yn )	{ displogrthm_ = yn; }
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
@@ -53,6 +56,7 @@ protected:
     Interval<float>	range_;
     Interval<float>	selrange_;
     BufferString	unitmeaslbl_;
+    bool		displogrthm_;
 
 };
 
