@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.1 2002-09-23 07:10:03 kristofer Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.2 2002-09-26 11:53:53 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ ________________________________________________________________________
 #include "gridread.h"
 #include "valgridtr.h"
 #include "streamconn.h"
+
+#include <fstream>
 
 
 uiImportLMKFault::uiImportLMKFault( uiParent* p )
@@ -68,26 +70,30 @@ uiImportLMKFault::~uiImportLMKFault()
 bool uiImportLMKFault::handleAscii()
 {
     const char* faultnm = outfld->getInput();
-    EarthModel::EMManager& em = EarthModel::EMM();
 
-    MultiID key = em.add( EarthModel::EMManager::Hor, faultnm );
+    EarthModel::EMManager& em = EarthModel::EMM();
+    MultiID key = em.add( EarthModel::EMManager::Fault, faultnm );
     mDynamicCastGet( EarthModel::Fault*, fault, em.getObject( key ) );
     if ( !fault )
 	mErrRet( "Cannot create fault" );
 
     lmkEarthModelFaultTranslator translator;
-    Conn* conn = new StreamConn( infld->fileName(), Conn::Read );
+    ifstream* stream = new ifstream( infld->fileName(), ios::in | ios::binary );
+    Conn* conn = new StreamConn( stream );
 
     PtrMan<Executor> exec =
 	translator.reader( *fault,conn,formatfilefld->fileName()); 
 
     if ( !exec ) mErrRet( "Cannot import fault" );
 
-    BufferString msg;
     uiExecutor dlg( this, *exec );
-    dlg.go();
-    if ( msg && *msg )
-	mErrRet( msg )
+    if ( !dlg.go() )
+	mErrRet( dlg.lastMsg() );
+
+    PtrMan<Executor> saveexec = fault->saver();
+    uiExecutor savedlg( this, *saveexec );
+    if ( !savedlg.go() )
+	mErrRet( savedlg.lastMsg() );
 
     return true;
 }
