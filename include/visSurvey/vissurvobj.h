@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.31 2004-09-17 15:13:50 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.32 2004-09-29 13:02:04 nanne Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,8 @@ public:
     virtual bool		allowPicks() const	{ return false; }
     				/*<\Returns whether picks can be created 
 				    on object. */
+    virtual void		snapToTracePos(Coord3&)	{}
+    				//<\Snaps coordinate to a trace position
 
     virtual NotifierAccess*	getMovementNotification()	{ return 0; }
     virtual bool		isInlCrl() const	    	{ return false;}
