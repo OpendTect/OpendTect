@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.20 2004-01-28 15:26:02 arend Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.21 2004-02-02 11:25:44 dgb Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -43,14 +43,32 @@ void HelpViewer::use( const char* url, const char* wintitl )
 	_url = getURLForLinkName( sMainIndex, applnm );
     }
 
-    replaceCharacter(_url.buf(),' ','%');
-    url = (const char*)_url;
 
 #ifdef __win__
 
-    ShellExecute(NULL,"open",url,NULL,NULL,SW_NORMAL);
+    HINSTANCE ret = ShellExecute(NULL,"open",_url,NULL,NULL,SW_NORMAL);
+    int err = (int) ret;
+
+    if ( err > 32 ) return;
+
+    char *ptr = NULL;
+    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
+	FORMAT_MESSAGE_FROM_SYSTEM,
+	0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
+
+    BufferString errmsg( "Error opening \"" );
+    errmsg += url;
+    errmsg += "\" :\n";
+    errmsg += ptr;
+
+    ErrMsg( errmsg );
+
+    LocalFree(ptr);
 
 #else
+
+    replaceCharacter(_url.buf(),' ','%');
+    url = (const char*)_url;
 
     BufferString cmd( "@" );
     cmd += mGetExecScript();
