@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.19 2004-05-07 16:37:30 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.20 2004-05-17 06:48:32 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -499,15 +499,30 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 	attribstopmnuid = -1;
     }
 
-    cutstartmnuid = menu->getCurrentID();
-    cutstopmnuid = cutstartmnuid;
-    uiPopupMenu* cutmenu = 
-	applMgr()->trackServer()->createTrackerMenu( cutstopmnuid, mid );
-    if ( cutmenu && cutmenu->nrItems() )
+    EM::PatchID section = -1;
+    if ( uivissurf->nrSections()==1 )
+	section = uivissurf->getSection(0);
+    else if ( menu->getPath() )
+	section = uivissurf->getSection(menu->getPath());
+
+    if ( section!=-1 )
     {
-	menu->addSubMenu( cutmenu );
-	for ( int idx=0; idx<cutstopmnuid-cutstartmnuid; idx++ )
-	    menu->getFreeID();
+	cutstartmnuid = menu->getCurrentID();
+	cutstopmnuid = cutstartmnuid;
+	uiPopupMenu* cutmenu = 
+	    applMgr()->trackServer()->createTrackerMenu( cutstopmnuid, mid,
+		    					 section );
+	if ( cutmenu && cutmenu->nrItems() )
+	{
+	    menu->addSubMenu( cutmenu );
+	    for ( int idx=0; idx<cutstopmnuid-cutstartmnuid; idx++ )
+		menu->getFreeID();
+	}
+    }
+    else
+    {
+	cutstartmnuid = -1;
+	cutstopmnuid = -1;
     }
 
 #ifdef __debug__
@@ -567,9 +582,19 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 	    applMgr()->handleStoredSurfaceData( displayid );
     }
     else if ( mnuid>=cutstartmnuid && mnuid<=cutstopmnuid )
-    {
+    {	
 	menu->setIsHandled(true);
-	applMgr()->trackServer()->handleTrackerMenu( mnuid, cutstartmnuid, mid);
+	EM::PatchID section = -1;
+	if ( uivissurf->nrSections()==1 )
+	    section = uivissurf->getSection(0);
+	else if ( menu->getPath() )
+	    section = uivissurf->getSection(menu->getPath());
+
+	if ( section==-1 )
+	    return;
+
+	applMgr()->trackServer()->handleTrackerMenu(mnuid,cutstartmnuid,mid,
+				  		    section);
     }
 }
 
