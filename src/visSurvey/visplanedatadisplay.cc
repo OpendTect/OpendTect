@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.30 2003-01-17 16:23:07 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.31 2003-01-20 11:30:35 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "cubesampling.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.30 2003-01-17 16:23:
 #include "viscolortab.h"
 #include "colortab.h"
 #include "sorting.h"
+#include "vistransform.h"
 #include "iopar.h"
 #include <math.h>
 
@@ -52,7 +53,7 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     trect->getRectangle().setSnapping( true );
     trect->useTexture( false );
 
-    SPM().appvelchange.notify( mCB(this,PlaneDataDisplay,appVelChCB) );
+    SPM().zscalechange.notify( mCB(this,PlaneDataDisplay,appVelChCB) );
 }
 
 
@@ -122,7 +123,7 @@ void visSurvey::PlaneDataDisplay::setType(Type nt)
 	trect->getRectangle().setRange( 2, vrg );
     }
 
-    resetDraggerSizes( SPM().getAppVel() );
+    resetDraggerSizes( SPM().getZScale() );
 }
 
 
@@ -203,7 +204,8 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
 
 float visSurvey::PlaneDataDisplay::calcDist( const Coord3& pos ) const
 {
-    Coord3 xytpos = SPM().coordDispl2XYT( pos );
+    const visBase::Transformation* utm2display= SPM().getUTM2DisplayTransform();
+    Coord3 xytpos = utm2display->transformBack( pos );
     Coord3 planeorigo = trect->getRectangle().origo();
     float width0 = trect->getRectangle().width( 0 );
     float width1 = trect->getRectangle().width( 1 );
@@ -255,7 +257,7 @@ float visSurvey::PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	else if ( binid.crl>planeorigo.y+width1 )
 	    inlcrldist.crl = mNINT( binid.crl-planeorigo.y-width1);
 
-	zdiff = (planeorigo.z - xytpos.z) * SPM().getAppVel();
+	zdiff = (planeorigo.z - xytpos.z) * SPM().getZScale();
     }
 
     const float inldist =
@@ -271,7 +273,7 @@ float visSurvey::PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 void visSurvey::PlaneDataDisplay::appVelChCB( CallBacker* )
 {
-    resetDraggerSizes( SPM().getAppVel() );
+    resetDraggerSizes( SPM().getZScale() );
 }
 
 
@@ -344,7 +346,7 @@ void visSurvey::PlaneDataDisplay::resetManip()
 
 visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
 {
-    SPM().appvelchange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
+    SPM().zscalechange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
     trect->selection()->remove( mCB(this,PlaneDataDisplay,select));
     trect->deSelection()->remove( mCB(this,PlaneDataDisplay,deSelect));
 
