@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.50 2004-09-17 11:59:59 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.51 2004-09-27 09:34:03 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -43,10 +43,10 @@ ___________________________________________________________________
 #include "vissurvwell.h"
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
-#include "settings.h"
 #include "visplanedatadisplay.h"
 #include "uivissurface.h"
 #include "uiexecutor.h"
+#include "settings.h"
 
 
 const char* uiODTreeTop::sceneidkey = "Sceneid";
@@ -570,9 +570,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     }
 
     uiPopupMenu* trackmnu = menu->getMenu( uiVisSurface::trackingmenutxt );
-    bool dotrack = false;
-    mGetTrackingBoolean(dotrack);    
-    if ( dotrack && uilistviewitem->isChecked() && trackmnu )
+    if ( uilistviewitem->isChecked() && trackmnu )
     {
 	if ( applMgr()->EMServer()->isFullResolution(mid) && 
 	     applMgr()->trackServer()->getTrackerID(mid)==-1 )
@@ -616,14 +614,16 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    trackmnu->insertItem( new uiMenuItem("Relations ..."), relmnuid );
 	}
 
-	uiMenuItem* storemenuitem =  new uiMenuItem("Save");
-	storemnuid = menu->addItem( storemenuitem );
-	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid));
-
+	storemnuid = -1;
+	if ( applMgr()->EMServer()->isChanged(mid) )
+	{
+	    uiMenuItem* storemenuitem = new uiMenuItem( "Save" );
+	    storemnuid = menu->addItem( storemenuitem );
+	}
     }
     else
     {
-	storemnuid = trackmnuid = tracksetupmnuid = -1;
+	relmnuid = storemnuid = trackmnuid = tracksetupmnuid = -1;
     }
 
 
@@ -947,17 +947,12 @@ bool uiODFaultParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-
-    bool dotrack = false;
-    mGetTrackingBoolean(dotrack);
-    if ( dotrack )
-	mnu.insertItem( new uiMenuItem("New ..."), 1 );
-
-    const int mnuid = mnu.exec();
+    mnu.insertItem( new uiMenuItem("New ..."), 1 );
 
     MultiID mid;
     bool success = false;
-    
+
+    const int mnuid = mnu.exec();
     if ( mnuid == 0 )
 	success = applMgr()->EMServer()->selectFault(mid);
     else if ( mnuid == 1 )
@@ -1003,17 +998,12 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-
-    bool dotrack = false;
-    Settings::common().getYN(IOPar::compKey("dTect","Enable Tracking"),dotrack);
-    if ( dotrack )
-	mnu.insertItem( new uiMenuItem("New ..."), 1 );
-
-    const int mnuid = mnu.exec();
+    mnu.insertItem( new uiMenuItem("New ..."), 1 );
 
     MultiID mid;
     bool success = false;
-    
+
+    const int mnuid = mnu.exec();
     if ( !mnuid )
 	success = applMgr()->EMServer()->selectHorizon(mid);
     else if ( mnuid == 1 )
@@ -1590,7 +1580,7 @@ uiODSceneTreeItem::uiODSceneTreeItem( const char* name__, int displayid_ )
 #define mSurveyBox	2
 #define mBackgroundCol	3
 #define mDumpIV		4
-#define mSubMnuScenePr	5
+#define mSubMnuSnapshot	5
 
 
 bool uiODSceneTreeItem::showSubMenu()
@@ -1617,13 +1607,16 @@ bool uiODSceneTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("Background color ..."), mBackgroundCol );
 
 
-    bool doi = false;
-    Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), doi );
-    if ( doi )
+    bool yn = false;
+    Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn );
+    if ( yn )
 	mnu.insertItem( new uiMenuItem("Dump OI ..."), mDumpIV );
 
-    if ( getenv("DTECT_ENABLE_SCENE_PRINT") )
-	mnu.insertItem( new uiMenuItem("'Print' to file ..."), mSubMnuScenePr );
+    yn = false;
+    Settings::common().getYN( IOPar::compKey("dTect","Enable snapshot"),
+			      yn );
+    if ( yn )
+	mnu.insertItem( new uiMenuItem("Save snapshot..."), mSubMnuSnapshot );
 
     const int mnuid=mnu.exec();
     if ( mnuid==mAnnotText )
@@ -1640,7 +1633,7 @@ bool uiODSceneTreeItem::showSubMenu()
     }
     else if ( mnuid==mDumpIV )
 	visserv->dumpOI( displayid );
-    else if ( mnuid==mSubMnuScenePr )
+    else if ( mnuid==mSubMnuSnapshot )
     {
 	viewer()->renderToFile();
     }
