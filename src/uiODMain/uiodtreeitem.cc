@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.42 2004-09-01 12:36:53 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.43 2004-09-03 12:17:51 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -292,7 +292,7 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 
 
 
-const char* uiODDisplayTreeItem::attrselmnutxt = "Select Attribute ...";
+const char* uiODDisplayTreeItem::attrselmnutxt = "Select Attribute";
 
 
 void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
@@ -783,7 +783,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     editnodesmnuid = menu->addItem( new uiMenuItem("Edit nodes ...") );
 
     uiPopupMenu* insertnodemnu = new uiPopupMenu( menu->getParent(),
-						  "Insert node ...");
+						  "Insert node");
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    	    visserv->getObject(displayid));
 
@@ -1430,8 +1430,6 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 	updateColumnText(0);
     }
 
-    delete positiondlg;
-    positiondlg = 0;
     applMgr()->enableSceneMenu( true );
 }
 
