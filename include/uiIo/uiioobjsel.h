@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.26 2003-03-20 17:07:56 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.27 2003-03-21 13:35:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,12 @@ ________________________________________________________________________
 #include <uidialog.h>
 #include <multiid.h>
 class IOObj;
+class IOStream;
 class CtxtIOObj;
-class IODirEntryList;
-class uiLabeledListBox;
 class uiGenInput;
 class Translator;
+class IODirEntryList;
+class uiLabeledListBox;
 
 
 /*! \brief dialog returning an IOObj* after successful go(). */
@@ -76,8 +77,9 @@ protected:
     virtual bool	createEntry(const char*);
 
     bool		rmEntry(bool);
-    bool		renEntry();
+    bool		renEntry(Translator*);
     bool		chgEntry(Translator*);
+    bool		renImpl(Translator*,IOStream&,IOStream&);
 
 };
 

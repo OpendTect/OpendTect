@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.47 2003-03-20 17:07:56 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.48 2003-03-21 13:35:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,10 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
-    listfld->box()->rightButtonClicked.notify(mCB(this,uiIOObjSelDlg,rightClk));
     listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
+    if ( ctio.ctxt.maydooper )
+	listfld->box()->rightButtonClicked.notify(
+				mCB(this,uiIOObjSelDlg,rightClk));
 
     setOkText( "Select" );
     selChg( this );
@@ -136,19 +138,21 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
     int prevcur = listfld->box()->currentItem();
     entrylist->setCurrent( listfld->box()->lastClicked() );
     ioobj = entrylist->selected();
+    MultiID prevkey;
     bool chgd = false;
     if ( ioobj )
     {
-	uiPopupMenu* mnu = new uiPopupMenu( this, "Action" );
+	prevkey = ioobj->key();
+	uiPopupMenu* mnu = new uiPopupMenu( this, "&Action" );
 
-	uiMenuItem* renit = new uiMenuItem( "Rename ..." );
+	uiMenuItem* renit = new uiMenuItem( "&Rename ..." );
 	mnu->insertItem( renit );
 
 	mDynamicCastGet(IOStream*,iostrm,ioobj)
 	uiMenuItem* fnmit = 0;
 	if ( iostrm )
 	{
-	    fnmit = new uiMenuItem( "File name ..." );
+	    fnmit = new uiMenuItem( "&File/location ..." );
 	    mnu->insertItem( fnmit );
 	}
 
@@ -162,26 +166,59 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
 	int ret = mnu->exec();
 	if ( ret != -1 )
 	{
-	    if ( ret == rmit->id() )
-		chgd = rmEntry( rmabl );
-	    else if ( ret == renit->id() )
-		chgd = renEntry();
+	    if ( ret == renit->id() )
+		chgd = renEntry( tr );
 	    else if ( fnmit && ret == fnmit->id() )
 		chgd = chgEntry( tr );
+	    else if ( ret == rmit->id() )
+	    {
+		chgd = rmEntry( rmabl );
+		if ( chgd ) prevkey = "";
+	    }
 	}
     }
     if ( !chgd ) return;
 
     entrylist->fill( IOM().dirPtr() );
-    if ( prevcur >= entrylist->size() ) prevcur--;
-    entrylist->setCurrent( prevcur );
+    if ( prevkey == "" )
+	entrylist->setCurrent( prevcur );
+    else
+    {
+	if ( prevcur >= entrylist->size() ) prevcur--;
+	entrylist->setSelected( prevkey );
+    }
     ioobj = entrylist->selected();
     listfld->box()->empty();
     listfld->box()->addItems( entrylist->Ptr() );
 }
 
 
-bool uiIOObjSelDlg::renEntry()
+bool uiIOObjSelDlg::renImpl( Translator* tr, IOStream& iostrm,
+			     IOStream& chiostrm )
+{
+    const bool oldimplexist = tr ? tr->implExists(&iostrm,true)
+				 : iostrm.implExists(true);
+    BufferString newfname( chiostrm.fullUserExpr(true) );
+
+    if ( oldimplexist )
+    {
+	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
+				     : chiostrm.implExists(true);
+	if ( newimplexist && !uiRmIOObjImpl( chiostrm, true ) )
+	    return false;
+
+	if ( tr )
+	    tr->implRename( &iostrm, newfname );
+	else
+	    iostrm.implRename( newfname );
+    }
+
+    iostrm.setFileName( newfname );
+    return true;
+}
+
+
+bool uiIOObjSelDlg::renEntry( Translator* tr )
 {
     BufferString titl( "Rename '" );
     titl += ioobj->name(); titl += "'";
@@ -190,9 +227,24 @@ bool uiIOObjSelDlg::renEntry()
     if ( !dlg.go() ) return false;
 
     BufferString newnm = dlg.text();
-    if ( newnm == ioobj->name() ) return false;
-
+    if ( newnm == ioobj->name() )
+	return false;
     ioobj->setName( newnm );
+
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( iostrm && iostrm->implExists(true) )
+    {
+	IOStream chiostrm;
+	chiostrm.copyFrom( iostrm );
+	if ( tr )
+	    chiostrm.setExt( tr->defExtension() );
+	chiostrm.genDefaultImpl();
+	if ( !renImpl(tr,*iostrm,chiostrm) )
+	    return false;
+
+	iostrm->copyFrom( &chiostrm );
+    }
+
     IOM().commitChanges( *ioobj );
     return true;
 }
@@ -240,33 +292,26 @@ bool uiIOObjSelDlg::rmEntry( bool rmabl )
 bool uiIOObjSelDlg::chgEntry( Translator* tr )
 {
     mDynamicCastGet(IOStream*,iostrm,ioobj)
-    BufferString caption( "New file name for '" );
+    BufferString caption( "New file/location for '" );
     caption += ioobj->name(); caption += "'";
     BufferString oldfnm( iostrm->fullUserExpr(true) );
-    uiFileDialog dlg( this, uiFileDialog::AnyFile, oldfnm, 0, caption );
+    BufferString defext( ctio.ctxt.trgroup->defExtension() );
+    BufferString filefilt( "*" );
+    if ( defext != "" )
+    {
+	filefilt += "."; filefilt += defext;
+	filefilt += ";;*";
+    }
+    uiFileDialog dlg( this, uiFileDialog::AnyFile, oldfnm, filefilt, caption );
     if ( !dlg.go() ) return false;
 
     IOStream chiostrm;
     chiostrm.copyFrom( iostrm );
     BufferString newfnm( dlg.fileName() );
     chiostrm.setFileName( newfnm );
+    if ( !renImpl(tr,*iostrm,chiostrm) )
+	return false;
 
-    const bool oldimplexist = tr ? tr->implExists(iostrm,true)
-				 :iostrm->implExists(true);
-    if ( oldimplexist )
-    {
-	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
-				     : chiostrm.implExists(true);
-	if ( newimplexist && !uiRmIOObjImpl( chiostrm, true ) )
-	    return false;
-
-	if ( tr )
-	    tr->implRename( iostrm, newfnm );
-	else
-	    iostrm->implRename( newfnm );
-    }
-
-    iostrm->setFileName( newfnm );
     IOM().commitChanges( *iostrm );
     return true;
 }
