@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.13 2003-05-13 15:04:07 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.14 2003-05-19 10:41:38 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -417,7 +417,7 @@ float Plane3::distanceToPoint( const Coord3& point ) const
     Coord3 p0;
     if ( intersectWith( linetoplane, p0 ) ) 
     {
-    	return point.dist(p0);
+    	return point.distance(p0);
     }
     else 
         return 0;	
