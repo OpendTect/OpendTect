@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedtable.h,v 1.2 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: sortedtable.h,v 1.3 2005-01-14 13:55:12 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,15 +57,15 @@ SortedTable<T>::SortedTable()
 
 
 template <class T> inline
-void	SortedTable<T>::set( int id, T val )
+void	SortedTable<T>::set( int id_, T val )
 {
-    int newpos = ids.indexOf( id );
+    int newpos = ids.indexOf( id_ );
 
     if ( newpos==-1 )
     {
-	ids += id;
+	ids += id_;
 
-	newpos = ids.indexOf( id );
+	newpos = ids.indexOf( id_ );
 	vals.insert( newpos, val );
     }
 
@@ -74,9 +74,9 @@ void	SortedTable<T>::set( int id, T val )
 
 
 template <class T> inline
-bool	SortedTable<T>::get( int id, T& v ) const
+bool	SortedTable<T>::get( int id_, T& v ) const
 {
-    int pos = ids.indexOf( id );
+    int pos = ids.indexOf( id_ );
 
     if ( pos==-1 )
 	return false;
@@ -87,9 +87,9 @@ bool	SortedTable<T>::get( int id, T& v ) const
 
 
 template <class T> inline
-bool  SortedTable<T>::remove(int id)
+bool  SortedTable<T>::remove(int id_)
 {
-    int pos = ids.indexOf( id );
+    int pos = ids.indexOf( id_ );
 
     if ( pos==-1 ) return false;
 
@@ -150,15 +150,15 @@ SortedPointers<T>::~SortedPointers()
 
 
 template <class T> inline
-void	SortedPointers<T>::set( int id, T* val )
+void	SortedPointers<T>::set( int id_, T* val )
 {
-    int newpos = ids.indexOf( id );
+    int newpos = ids.indexOf( id_ );
 
     if ( newpos==-1 )
     {
-	ids += id;
+	ids += id_;
 
-	newpos = ids.indexOf( id );
+	newpos = ids.indexOf( id_ );
 	vals.insertAt( val, newpos );
     }
 
@@ -167,9 +167,9 @@ void	SortedPointers<T>::set( int id, T* val )
 
 
 template <class T> inline
-const T* SortedPointers<T>::get( int id ) const
+const T* SortedPointers<T>::get( int id_ ) const
 {
-    int pos = ids.indexOf( id );
+    int pos = ids.indexOf( id_ );
 
     if ( pos==-1 )
 	return 0;
@@ -179,9 +179,9 @@ const T* SortedPointers<T>::get( int id ) const
 
 
 template <class T> inline
-T* SortedPointers<T>::get( int id )
+T* SortedPointers<T>::get( int id_ )
 {
-    int pos = ids.indexOf( id );
+    int pos = ids.indexOf( id_ );
 
     if ( pos==-1 )
 	return 0;
@@ -191,9 +191,9 @@ T* SortedPointers<T>::get( int id )
 
 
 template <class T> inline
-bool  SortedPointers<T>::remove(int id)
+bool  SortedPointers<T>::remove(int id_)
 {
-    int pos = ids.indexOf( id );
+    int pos = ids.indexOf( id_ );
 
     if ( pos==-1 ) return false;
 
