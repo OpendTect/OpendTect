@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.9 2001-12-11 16:45:27 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.10 2001-12-21 15:05:33 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -52,7 +52,15 @@ void DataCharacteristics::set( unsigned char c1, unsigned char c2 )
     setFrom( c1, littleendian );
 
     unsigned char f = (c2 & 0x0e) >> 1;
-    if ( !f ) f = (c2 & 0xe0) >> 5;
+    if ( !f )
+    {
+	f = (c2 & 0x70) >> 4;
+	unsigned char g = 0;
+	if ( f&0x04 ) g |= 0x01;
+	if ( f&0x02 ) g |= 0x02;
+	if ( f&0x01 ) g |= 0x04;
+	f = g;
+    }
     fmt = (DataCharacteristics::Format)f;
 };
 
