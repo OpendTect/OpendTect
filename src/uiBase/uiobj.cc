@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.44 2002-11-05 15:13:46 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.45 2002-12-04 11:51:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -619,7 +619,7 @@ const uiFont* uiObjectBody::uifont() const
     { 
 	const_cast<uiObjectBody*>(this)->font_ = 
 					&uiFontList::get(className(*this)); 
-	//const_cast<uiObjectBody*>(this)->qwidget()->setFont( font_->qFont() );
+	const_cast<uiObjectBody*>(this)->qwidget()->setFont( font_->qFont() );
     }
 
     return font_;
@@ -651,7 +651,7 @@ void uiObjectBody::gtFntWdtHgt() const
     {
 	if( fm ) delete fm;
 	const_cast<uiObjectBody*>(this)->fm =
-			     new QFontMetrics( qwidget()->font() );
+			     new QFontMetrics( uifont()->qFont() );
 
 	const_cast<uiObjectBody*>(this)->fnt_hgt = fm->lineSpacing() + 2;
 	const_cast<uiObjectBody*>(this)->fnt_wdt = fm->width(QChar('x'));
