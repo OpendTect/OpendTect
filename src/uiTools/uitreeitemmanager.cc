@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.15 2004-09-17 13:32:08 kristofer Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.16 2005-02-08 09:20:41 kristofer Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -332,32 +332,32 @@ uiParent* uiTreeTopItem::getUiParent()
 }
 
 
-uiTreeCreaterSet::uiTreeCreaterSet()
+uiTreeFactorySet::uiTreeFactorySet()
     : addnotifier( this )
     , removenotifier( this )
 {}
 
 
-uiTreeCreaterSet::~uiTreeCreaterSet()
+uiTreeFactorySet::~uiTreeFactorySet()
 {
-    deepErase( creaters );
+    deepErase( factories );
 }
 
 
-void uiTreeCreaterSet::addCreater(uiTreeItemCreater* ptr, int placement)
+void uiTreeFactorySet::addFactory(uiTreeItemFactory* ptr, int placement)
 {
-    creaters += ptr;
+    factories += ptr;
     placementidxs += placement;
-    addnotifier.trigger(creaters.size()-1);
+    addnotifier.trigger(factories.size()-1);
 }
 
 
-void uiTreeCreaterSet::remove( const char* nm )
+void uiTreeFactorySet::remove( const char* nm )
 {
     int index = -1;
-    for ( int idx=0; idx<creaters.size(); idx++ )
+    for ( int idx=0; idx<factories.size(); idx++ )
     {
-	if ( !strcmp(nm,creaters[idx]->name()) )
+	if ( !strcmp(nm,factories[idx]->name()) )
 	{
 	    index=idx;
 	    break;
@@ -368,23 +368,23 @@ void uiTreeCreaterSet::remove( const char* nm )
 	return;
 
     removenotifier.trigger(index);
-    delete creaters[index];
-    creaters.remove(index);
+    delete factories[index];
+    factories.remove(index);
     placementidxs.remove(index);
 }
 
 
-int uiTreeCreaterSet::nrCreaters() const
+int uiTreeFactorySet::nrFactories() const
 {
-    return creaters.size();
+    return factories.size();
 }
 
 
-const uiTreeItemCreater* uiTreeCreaterSet::getCreater(int idx) const
+const uiTreeItemFactory* uiTreeFactorySet::getFactory(int idx) const
 {
-    return idx<nrCreaters() ? creaters[idx] : 0;
+    return idx<nrFactories() ? factories[idx] : 0;
 }
 
 
-int uiTreeCreaterSet::getPlacementIdx(int idx) const
+int uiTreeFactorySet::getPlacementIdx(int idx) const
 { return placementidxs[idx]; }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.31 2004-12-23 15:12:08 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.32 2005-02-08 09:20:41 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,17 +49,17 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     	, wsp(new uiWorkSpace(a,"OpendTect work space"))
 	, vwridx(0)
     	, lasthrot(0), lastvrot(0), lastdval(0)
-    	, tics(new uiTreeCreaterSet)
+    	, tifs(new uiTreeFactorySet)
 {
 
-    tics->addCreater( new uiODInlineTreeItemCreater, 1000 );
-    tics->addCreater( new uiODCrosslineTreeItemCreater, 2000 );
-    tics->addCreater( new uiODTimesliceTreeItemCreater, 3000 );
-    tics->addCreater( new uiODRandomLineTreeItemCreater, 4000 );
-    tics->addCreater( new uiODPickSetTreeItemCreater, 5000 );
-    tics->addCreater( new uiODHorizonTreeItemCreater, 6000);
-    tics->addCreater( new uiODFaultTreeItemCreater, 7000 );
-    tics->addCreater( new uiODWellTreeItemCreater, 8000 );
+    tifs->addFactory( new uiODInlineTreeItemFactory, 1000 );
+    tifs->addFactory( new uiODCrosslineTreeItemFactory, 2000 );
+    tifs->addFactory( new uiODTimesliceTreeItemFactory, 3000 );
+    tifs->addFactory( new uiODRandomLineTreeItemFactory, 4000 );
+    tifs->addFactory( new uiODPickSetTreeItemFactory, 5000 );
+    tifs->addFactory( new uiODHorizonTreeItemFactory, 6000);
+    tifs->addFactory( new uiODFaultTreeItemFactory, 7000 );
+    tifs->addFactory( new uiODWellTreeItemFactory, 8000 );
 
     wsp->setPrefWidth( cWSWidth );
     wsp->setPrefHeight( cWSHeight );
@@ -459,25 +459,25 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     scn.lv->setPrefWidth( 150 );
     scn.lv->setStretch( 2, 2 );
 
-    scn.itemmanager = new uiODTreeTop( scn.sovwr, scn.lv, &applMgr(), tics );
+    scn.itemmanager = new uiODTreeTop( scn.sovwr, scn.lv, &applMgr(), tifs );
 
     int nradded = 0;
     int globalhighest = INT_MAX;
-    while ( nradded<tics->nrCreaters() )
+    while ( nradded<tifs->nrFactories() )
     {
 	int highest = INT_MIN;
-	for ( int idx=0; idx<tics->nrCreaters(); idx++ )
+	for ( int idx=0; idx<tifs->nrFactories(); idx++ )
 	{
-	    const int placementidx = tics->getPlacementIdx(idx);
+	    const int placementidx = tifs->getPlacementIdx(idx);
 	    if ( placementidx>highest && placementidx<globalhighest )
 		highest = placementidx;
 	}
 
-	for ( int idx=0; idx<tics->nrCreaters(); idx++ )
+	for ( int idx=0; idx<tifs->nrFactories(); idx++ )
 	{
-	    if ( tics->getPlacementIdx(idx)==highest )
+	    if ( tifs->getPlacementIdx(idx)==highest )
 	    {
-		scn.itemmanager->addChild( tics->getCreater(idx)->create() );
+		scn.itemmanager->addChild( tifs->getFactory(idx)->create() );
 		nradded++;
 	    }
 	}
