@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.2 2004-06-01 05:25:18 kristofer Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.3 2004-06-02 09:26:43 kristofer Exp $";
 
 #include "rowcol.h"
 #include "ptrman.h"
@@ -76,3 +76,16 @@ RowCol RowCol::getDirection() const
     else if ( col<0 ) res.col=-1;
     return res;
 }
+
+
+bool RowCol::isNeighborTo( const RowCol& rc, const RowCol& step,
+			   bool eightconnectivity ) const
+{
+    const RowCol diff(abs(row-rc.row),abs(col-rc.col));
+    bool areeightconnected = diff.row<=step.row && diff.col<=step.col;
+    if ( eightconnectivity )
+	return areeightconnected;
+
+    return areeightconnected && (diff.row>0+diff.col>0)<2;
+}
+
