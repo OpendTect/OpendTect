@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.21 2001-07-04 11:06:51 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.22 2001-07-04 11:32:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,7 +176,10 @@ public:
 			}
 
     virtual const char*	text( int idx ) const
-			    { return toString( value() ); }
+			{
+			    if ( isUndef() )	return "";
+			    else		return toString( value() );
+			}
 
 protected:
 
