@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.28 2004-08-05 08:53:26 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.29 2004-09-07 14:35:02 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: visrandomtrack.cc,v 1.28 2004-08-05 08:53:26 kr
 #include "vistexturecoords.h"
 #include "visdataman.h"
 #include "viscoltabmod.h"
+#include "vistransform.h"
 #include "iopar.h"
 #include "errh.h"
 
@@ -43,6 +44,7 @@ visBase::RandomTrack::RandomTrack()
     , knotmovement(this)
     , knotnrchange(this)
     , sectionidx(-1)
+    , transformation(0)
 {
     SoShapeHints* hints = new SoShapeHints;
     hints->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
@@ -62,6 +64,23 @@ visBase::RandomTrack::~RandomTrack()
 	removeChild( sections[idx]->getInventorNode() );
 	sections[idx]->unRef();
     }
+
+    if ( transformation ) transformation->unRef();
+}
+
+
+void visBase::RandomTrack::setTransformation( visBase::Transformation* tf )
+{
+    if ( transformation ) transformation->unRef();
+    transformation = tf;
+    if ( transformation ) transformation->ref();
+    rebuild();
+}
+
+
+visBase::Transformation* visBase::RandomTrack::getTransformation()
+{
+    return transformation;
 }
 
 
@@ -112,6 +131,8 @@ void visBase::RandomTrack::moveObjectToDraggerPos()
 
 void visBase::RandomTrack::moveDraggerToObjectPos()
 {
+    if ( !dragger ) return;
+
     if ( dragger->knots.getNum()>knots.size() )
 	dragger->knots.deleteValues(knots.size());
 
@@ -127,6 +148,13 @@ void visBase::RandomTrack::moveDraggerToObjectPos()
 
 int visBase::RandomTrack::nrKnots() const
 { return knots.size(); }
+
+
+void visBase::RandomTrack::setTrack( const TypeSet<Coord>& posset )
+{
+    copy( knots, posset );
+    rebuild();
+}
 
 
 void visBase::RandomTrack::addKnot( const Coord& pos )
@@ -164,8 +192,13 @@ Coord visBase::RandomTrack::getDraggerKnotPos( int idx ) const
 
 void visBase::RandomTrack::setKnotPos( int idx, const Coord& pos )
 {
-    knots[idx] = pos;
-    rebuild();
+    if ( idx < nrKnots() )
+    {
+	knots[idx] = pos;
+	rebuild();
+    }
+    else
+	addKnot( pos );
 }
 
 
@@ -254,6 +287,7 @@ void visBase::RandomTrack::setDraggerSize( const Coord3& nz )
 
 Coord3 visBase::RandomTrack::getDraggerSize() const
 {
+    if ( !dragger ) return Coord3(0,0,0);
     SoScale* size =
 	dynamic_cast<SoScale*>(dragger->getPart( "subDraggerScale", true ));
     SbVec3f pos = size->scaleFactor.getValue();
@@ -411,6 +445,7 @@ void visBase::RandomTrack::rebuild()
     if ( !sections.size() ) return;
 
     Coordinates* coords = sections[0]->getCoordinates();
+    if ( transformation ) coords->setTransformation( transformation );
 
     for ( int idx=0; idx<knots.size(); idx++ )
     {
@@ -449,15 +484,15 @@ void visBase::RandomTrack::createDragger()
 }
 
 
-void visBase::RandomTrack::motionCB(void* data,
-				    SoRandomTrackLineDragger* dragger)
+void visBase::RandomTrack::motionCB( void* data,
+				     SoRandomTrackLineDragger* dragger)
 {
     visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
     myself->knotmovement.trigger( dragger->getMovingKnot() );
 }
 
 
-void visBase::RandomTrack::startCB(void* data,
+void visBase::RandomTrack::startCB( void* data,
 				    SoRandomTrackLineDragger* dragger)
 {
     visBase::RandomTrack* myself = (visBase::RandomTrack*) data;
