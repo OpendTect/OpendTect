@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.17 2001-07-17 15:25:26 bert Exp $
+ RCS:		$Id: callback.h,v 1.18 2001-07-18 14:58:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,15 +178,64 @@ would result in the availability of:
     T var = cb##caps->data
 
 
-/*!\brief interface class for Notifier */
+/*!\brief interface class for Notifier. See comments there. */
 
 class NotifierAccess
 {
 public:
 
+    virtual		~NotifierAccess()		{}
+
     virtual void	notify(const CallBack&)		=0;
 
 };
+
+
+/*!\brief List of named Notifier objects.
+
+To be able to set up generalised communication mechanisms based on callbacks,
+we'll need to be able to 'publish' a Notifier under a symbolic name.
+The list needs to support:
+
+1) void add( const char* name, NotifierAccess* )
+2) NotifierAccess* find( const char* name )
+
+No management or whatsoever is supported as this is just a generalised way
+to 'publish' event notification abilities.
+
+*/
+
+#ifndef NamedNotifierList
+
+#define NamedNotifierList NamedNotifierSet
+#include <sets.h>
+
+class NamedNotifierSet
+{
+public:
+				~NamedNotifierSet()
+				{ deepErase( names ); }
+
+    void			add( const char* nm, NotifierAccess& na )
+				{ names += new BufferString(nm); notifs += &na;}
+    NotifierAccess*		find(const char*) const;
+
+protected:
+
+    ObjectSet<NotifierAccess>	notifs;
+    ObjectSet<BufferString>	names;
+
+};
+
+inline NotifierAccess* NamedNotifierSet::find( const char* nm ) const
+{
+    for ( int idx=0; idx<names.size(); idx++ )
+	if ( *names[idx] == nm )
+	    return const_cast<NotifierAccess*>( notifs[idx] );
+    return 0;
+}
+
+#endif
 
 
 /*!\brief implementation class for Notifier */
@@ -217,7 +266,7 @@ Notifier<MyClass>	buttonclicked;
 Then users of the class can issue:
 
 \code
-aMyClass.buttonclicked.notify( mCB(this,TheClassOfThis,TheMethodToBeCalled) );
+amyclass.buttonclicked.notify( mCB(this,TheClassOfThis,theMethodToBeCalled) );
 \endcode
 
 The callback is issued when you call the trigger() method, like:
@@ -259,8 +308,9 @@ mProtected:
 
 /* \brief temporarily disables a notifier
 
-Enabling the stopper disables the notifier. On construction, the notifier is disabled. The notifier is automatically enabled again when NotifyStopper goes
-out of scope.
+Enabling the stopper disables the notifier. On construction, the notifier
+is disabled. The notifier is automatically enabled again when
+NotifyStopper goes out of scope.
 
 */
 
