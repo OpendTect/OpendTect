@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.64 2002-05-31 07:19:54 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.65 2002-05-31 10:28:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "geompos.h"
 #include "uidset.h"
+#include "draw.h"
 #include "color.h"
 #include "colortab.h"
 #include "settings.h"
@@ -39,6 +40,7 @@ ________________________________________________________________________
 #include "uimaterialdlg.h"
 #include "uipickszdlg.h"
 #include "uislicesel.h"
+#include "uisellinest.h"
 
 #include "cubesampling.h"
 #include "attribsel.h"
@@ -761,23 +763,17 @@ int uiVisPartServer::displayedWellAttrib( int id ) const
 }
 
 
-const LineStyle* uiVisPartServer::wellLineStyle( int id ) const
+void uiVisPartServer::modifyLineStyle( int id )
 {
-    visBase::DataObject* sdobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::WellDisplay*,well,sdobj)
-    if ( !well ) return 0;
-
-    return &well->lineStyle();
-}
-
-
-void uiVisPartServer::setWellLineStyle( int id, const LineStyle& lst )
-{
-    visBase::DataObject* sdobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::WellDisplay*,well,sdobj)
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::WellDisplay*,well,dobj)
     if ( !well ) return;
 
-    well->setLineStyle( lst );
+    LineStyleDlg dlg( appserv().parent(), well->lineStyle(), 0, false, true );
+    if ( dlg.go() )
+    {
+	well->setLineStyle( dlg.getLineStyle() );
+    }
 }
 
 
