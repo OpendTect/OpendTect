@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.1 2002-02-13 16:33:37 arend Exp $
+ RCS:           $Id: uidockwin.cc,v 1.2 2002-02-26 09:01:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,16 +126,44 @@ uiDockWin::uiDockWin( uiParent* parnt, const char* nm )
     body_->construct();
 }
 
+
 uiDockWin::~uiDockWin()
-{ delete body_; }
+{ 
+    delete body_; 
+}
 
 
-uiGroup* uiDockWin::topGroup()	    	   { return body_->uiCentralWidg(); }
+uiGroup* uiDockWin::topGroup()	    	   
+{ 
+    return body_->uiCentralWidg(); 
+}
 
 
 uiObject* uiDockWin::uiObj()
-    { return body_->uiCentralWidg()->uiObj(); }
+{ 
+    return body_->uiCentralWidg()->uiObj(); 
+}
+
 
 const uiObject* uiDockWin::uiObj() const
-    { return body_->uiCentralWidg()->uiObj(); }
+{ 
+    return body_->uiCentralWidg()->uiObj(); 
+}
 
+
+void uiDockWin::setHorStretchable( bool yn )
+{
+    body_->setHorizontallyStretchable( yn );
+}
+
+
+void uiDockWin::setVerStretchable( bool yn )
+{
+    body_->setVerticallyStretchable( yn );
+}
+
+
+void uiDockWin::setResizeEnabled( bool yn )
+{
+    body_->setResizeEnabled( yn );
+}
