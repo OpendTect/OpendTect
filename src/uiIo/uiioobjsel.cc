@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.9 2001-06-29 15:49:54 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.10 2001-07-13 22:03:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iolink.h"
+#include "iodir.h"
 #include "transl.h"
 
 
@@ -131,11 +132,44 @@ void uiIOObjSel::updateInput()
 
 const char* uiIOObjSel::userNameFromKey( const char* ky ) const
 {
-    static BufferString key;
-    key = "";
+    static BufferString nm;
+    nm = "";
     if ( ky && *ky )
-	key = IOM().nameOf( ky, false );
-    return (const char*)key;
+	nm = IOM().nameOf( ky, false );
+    return (const char*)nm;
+}
+
+
+void uiIOObjSel::processInput()
+{
+    const char* inp = getInput();
+    int selidx = getCurrentItem();
+    if ( !strcmp(inp,getItem(selidx)) ) return;
+
+    const IOObj* ioobj = (*IOM().dirPtr())[inp];
+    if ( !ioobj ) return;
+
+    ctio.setObj( ioobj->clone() );
+    updateInput();
+}
+
+
+bool uiIOObjSel::existingTyped() const
+{
+    const char* inp = getInput();
+    return (*IOM().dirPtr())[inp];
+}
+
+
+bool uiIOObjSel::commitInput( bool mknew )
+{
+    processInput();
+    if ( existingTyped() ) return true;
+    if ( !mknew ) return false;
+
+    ctio.setName( getInput() );
+    IOM().getEntry( ctio );
+    return ctio.ioobj;
 }
 
 
