@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.1 2000-04-12 16:08:57 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.2 2000-04-13 08:23:03 bert Exp $
 ________________________________________________________________________
 
 Overhead is 4 extra bytes for length and minimum length. Maximum size (no
@@ -41,7 +41,7 @@ public:
 			~BufferString()
 			{ free(buf); }
    inline BufferString&	operator=( const BufferString& bs )
-			{ *this = (char*)bs; }
+			{ *this = (char*)bs; return *this; }
    inline BufferString&	operator=( int i )
 			{ *buf = '\0'; *this += i; return *this; }
    inline BufferString&	operator=( double d )
@@ -88,7 +88,7 @@ inline bool BufferString::operator==( const char* s ) const
     if ( !s ) return *buf == '\0';
 
     const char* ptr = buf;
-    while ( *s && *ptr && ptr != buf+len )
+    while ( *s && *ptr )
 	if ( *ptr++ != *s++ ) return false;
 
     return *ptr == *s;
