@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.5 2004-05-06 21:03:52 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.6 2004-05-07 16:15:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,10 +133,13 @@ class LogDataExtracter : public ::Executor
 {
 public:
 
+    typedef TypeSet<BinIDValue>	BinIDValueSet;
     enum SamplePol	{ Med, Avg, MostFreq, Nearest };
     			DeclareEnumUtils(SamplePol)
 
-			LogDataExtracter(const BufferStringSet& ioobjids);
+			LogDataExtracter(const BufferStringSet& ioobjids,
+					 const ObjectSet<BinIDValueSet>&);
+			~LogDataExtracter()	{ deepErase(ress); }
 
     SamplePol		samppol;
     static const char*	sKeySamplePol;
@@ -144,18 +147,21 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    const char*		message() const	   { return "Scanning well tracks"; }
-    const char*		nrDoneText() const { return "Wells inspected"; }
+    const char*		message() const	   { return "Getting log values"; }
+    const char*		nrDoneText() const { return "Wells handled"; }
     int			nrDone() const	   { return curidx; }
     int			totalNr() const	   { return ids.size(); }
 
     const BufferStringSet&	ioObjIds() const	{ return ids; }
+    const ObjectSet< TypeSet<float> >& results() const	{ return ress; }
 
 protected:
 
-    const BufferStringSet&	ids;
-    int				curidx;
-    const bool			timesurv;
+    const BufferStringSet&		ids;
+    const ObjectSet<BinIDValueSet>&	bivsets;
+    ObjectSet< TypeSet<float> >		ress;
+    int					curidx;
+    const bool				timesurv;
 
 };
 

@@ -4,10 +4,11 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.4 2004-05-04 15:51:30 bert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.5 2004-05-07 16:15:34 bert Exp $";
 
 #include "nlacrdesc.h"
 #include "featset.h"
+#include "featsettr.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iodir.h"
@@ -47,6 +48,7 @@ const char* NLACreationDesc::transferData(
 	FeatureSet& fstrain, FeatureSet& fstest,
 	FeatureSet* fswrin ) const
 {
+    fstrain.erase(); fstest.erase();
     const char* res = 0;
     const int nrout = fss.size();
     if ( !nrout )
@@ -54,13 +56,17 @@ const char* NLACreationDesc::transferData(
 
     bool writevecs = doextraction && fsid != "";
     FeatureSet* fswrite = writevecs ? (fswrin ? fswrin : new FeatureSet) : 0;
+
+    // For direct prediction, the sets are ready. If not, add a FeatureDesc
+    // for each output node
     fstrain.copyStructure( *fss[0] );
-    if ( doextraction )
+    if ( doextraction && !isdirect )
     {
         for ( int iout=0; iout<nrout; iout++ )
             fstrain.descs() += new FeatureDesc( *outids[iout] );
     }
     fstest.copyStructure( fstrain );
+
     if ( writevecs )
     {
         fswrite->copyStructure( fstrain );
@@ -72,6 +78,7 @@ const char* NLACreationDesc::transferData(
         }
         else
         {
+	    ioobj->pars().setYN( FeatureSetTranslator::sKeyDoVert, true );
             if ( !fswrite->startPut(ioobj) )
             {
                 writevecs = false;
@@ -80,6 +87,7 @@ const char* NLACreationDesc::transferData(
         }
     }
 
+    // Get the data into train and test set
     for ( int idx=0; idx<fss.size(); idx++ )
     {
         if ( !addFeatData(fstrain,fstest,fswrite,*fss[idx],nrout,idx) )
@@ -101,6 +109,8 @@ const char* NLACreationDesc::transferData(
 
     if ( res && *res ) return res;
 
+    // Correct for shortcomings of random. Make sure ratio test/train is
+    // almost exactly as specified
     const int nrtest = (int)((fstrain.size()+fstest.size()) * ratiotst + .5);
     int nrdiff = nrtest - fstest.size();
     FeatureSet& to = nrdiff < 0 ? fstrain : fstest;
@@ -132,8 +142,11 @@ int NLACreationDesc::addFeatData( FeatureSet& fstrain,
 	if ( res < 0 ) break; if ( res == 0 ) continue;
 
 	FeatureVec* newfv = new FeatureVec( fvin );
-	for ( int idx=0; idx<nrout; idx++ )
-	    *newfv += idx == iout ? 1 : 0;
+	if ( !isdirect )
+	{
+	    for ( int idx=0; idx<nrout; idx++ )
+		*newfv += idx == iout ? 1 : 0;
+	}
 	FeatureSet& addset = Stat_getRandom() < ratiotst ? fstest : fstrain;
 	addset += newfv;
 	nradded++;

@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.5 2004-05-06 21:03:52 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.6 2004-05-07 16:15:34 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -41,7 +41,7 @@ const char* Well::LogDataExtracter::sKeySamplePol = "Data sampling";
 Well::InfoCollector::InfoCollector( bool dologs, bool domarkers )
     : Executor("Well information extraction")
     , domrkrs_(domarkers)
-    , dologs_(dologs_)
+    , dologs_(dologs)
     , curidx_(0)
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
@@ -265,9 +265,11 @@ void Well::TrackSampler::addBivs( BinIDValueSet& bivset, const BinIDValue& biv,
 }
 
 
-Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i )
+Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
+					  const ObjectSet<BinIDValueSet>& b )
 	: Executor("Well log data extraction")
 	, ids(i)
+	, bivsets(b)
     	, samppol(Med)
 	, curidx(0)
     	, timesurv(SI().zIsTime())
@@ -299,6 +301,16 @@ int Well::LogDataExtracter::nextStep()
     if ( !wr.getInfo() ) mRetNext()
     if ( timesurv && !wr.getD2T() ) mRetNext()
 
+    const BinIDValueSet& bivset = *bivsets[curidx];
+    TypeSet<float>* newres = new TypeSet<float>;
+    ress += newres;
+
+    //TODO fill the newres with the right log values
+    // Make use of the fact that // bivset.value (= Z = depth or time)
+    // is sorted
+    // For testing now, just put the 'depth' in
+    	for ( int idx=0; idx<bivset.size(); idx++ )
+	    *newres += bivset[idx].value;
 
     mRetNext();
 }
