@@ -42,7 +42,7 @@ BEGIN { FS=" "; isprog=0; outfil=""; link=1; linkflags=""; compileflags="" }
             close( tmp );
             $0=keep;
         }
-        else if( $i ~ /^\/c\// || $i ~ /^\/d\// || $i ~ /^\/cygdrive/  || $i ~ /^\/tmp/ )
+        else if( $i ~ /^\// )
         {
             keep = $0;
 
@@ -53,12 +53,12 @@ BEGIN { FS=" "; isprog=0; outfil=""; link=1; linkflags=""; compileflags="" }
 
             $0=keep;
 	}
-        else if( $i ~ /=\/cygdrive/ )
+        else if( $i ~ /=\// )
         {
             keep = $0;
 	    curword = $i;
 	    len = length( curword );
-	    start = index( $i, "=/cygdrive");
+	    start = index( $i, "=/");
 	    head =  substr(curword,0,start);
 	    tail =  substr(curword,start+1);
 
