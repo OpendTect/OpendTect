@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.15 2004-05-07 12:55:37 bert Exp $
+ RCS:           $Id: uifileinput.h,v 1.16 2004-05-27 12:42:13 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,6 @@ protected:
     uiFileDialog::Mode  selmode;
 
     uiPushButton*	examinebut;
-    uiFileBrowser*	browser;
 
     virtual void	doSelect(CallBacker*);
     void		examineFile(CallBacker*);

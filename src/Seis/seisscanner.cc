@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.11 2004-04-15 13:12:24 macman Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.12 2004-05-27 12:42:13 macman Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -213,7 +213,7 @@ void SeisScanner::launchBrowser( const char* fnm ) const
     iopar.dump( fnm, "_pretty" );
 
     BufferString nospcfname( fnm );
-    replaceCharacter( nospcfname.buf(), ' ', '%' );
+    replaceCharacter( nospcfname.buf(), ' ', (char)128 );
     BufferString cmd( "@" ); cmd += mGetExecScript();
     cmd += " FileBrowser "; cmd += nospcfname;
     StreamProvider strmprov( cmd );

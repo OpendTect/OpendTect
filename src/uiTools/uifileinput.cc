@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.25 2004-05-12 14:49:31 macman Exp $
+ RCS:           $Id: uifileinput.cc,v 1.26 2004-05-27 12:42:13 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "filepath.h"
-#include "uifilebrowser.h"
+#include "strmprov.h"
 
 
 uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
@@ -26,7 +26,6 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , newfltr(false)
     , selmodset(false)
     , selmode(uiFileDialog::AnyFile)
-    , browser(0)
     , examinebut(0)
 {
     setWithSelect( true );
@@ -51,7 +50,6 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
     , newfltr(false)
     , selmodset(false)
     , selmode(uiFileDialog::AnyFile)
-    , browser(0)
     , examinebut(0)
 {
     setWithSelect( true );
@@ -60,7 +58,6 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
 
 uiFileInput::~uiFileInput()
 {
-    if ( browser ) browser->close();
 }
 
 
@@ -115,9 +112,6 @@ void uiFileInput::doSelect( CallBacker* )
 
     if ( newfname != oldfname )
 	valuechanged.trigger( *this );
-
-    if ( examinebut && browser )
-	browser->setFileName( fileName() );
 }
 
 
@@ -143,11 +137,22 @@ void uiFileInput::getFileNames( BufferStringSet& list ) const
 
 void uiFileInput::examineFile( CallBacker* )
 {
-    const char* fnm = fileName();
-    if ( browser )
-	browser->setFileName( fnm );
-    else
-	browser = new uiFileBrowser( this, fnm );
+    static BufferString fnm_;
+    fnm_ = fileName();
 
-    browser->show();
+    replaceCharacter( fnm_.buf(), ' ', (char)128 );
+
+    BufferString cmd( "@" );
+    cmd += mGetExecScript();
+
+    cmd += " FileBrowser \'";
+    cmd += fnm_; cmd += "\' ";
+
+    StreamProvider strmprov( cmd );
+    if ( !strmprov.executeCommand(false) )
+    {
+        BufferString s( "Failed to submit command '" );
+        s += strmprov.command(); s += "'";
+        ErrMsg( s );
+    }
 }

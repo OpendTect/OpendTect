@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.5 2004-05-06 14:21:19 macman Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.6 2004-05-27 12:42:13 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ int main( int argc, char ** argv )
 #endif
 
     char* fnm = argv[argidx];
-    replaceCharacter( fnm, '%', ' ' );
+    replaceCharacter( fnm, (char)128, ' ' );
 
     uiMain app( argc, argv );
 
