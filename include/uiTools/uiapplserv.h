@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.6 2002-03-27 17:28:41 bert Exp $
+ RCS:		$Id: uiapplserv.h,v 1.7 2003-01-21 16:08:49 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
 			//!< The name is the application name
 
     virtual uiParent*	parent() const					= 0;
-    virtual void	eventOccurred(const uiApplPartServer*,int evid)	= 0;
+    virtual bool	eventOccurred(const uiApplPartServer*,int evid)	= 0;
     			//!< The evid will be specific for each partserver
     virtual void*	getObject(const uiApplPartServer*,int)		= 0;
     			//!< The actual type is a protocol with the partserver
@@ -58,8 +58,8 @@ public:
 
 protected:
 
-    void		sendEvent( int evid ) const
-    			{ const_cast<uiApplService&>(appserv())
+    bool		sendEvent( int evid ) const
+    			{ return const_cast<uiApplService&>(appserv())
 				    .eventOccurred(this,evid); }
     void*		getObject( int objid ) const
 			{ return const_cast<uiApplService&>(appserv())
