@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.61 2002-05-27 15:53:23 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.62 2002-05-28 07:57:01 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,18 @@ void uiVisPartServer::usePar( const IOPar& par )
 			    mCB(this,uiVisPartServer,manipMoveCB));
 
 	getDataCB( sd );
+    }
 
+
+    TypeSet<int> horizonids;
+    visBase::DM().getIds( typeid(visSurvey::HorizonDisplay), horizonids );
+    for ( int idx=0; idx<horizonids.size(); idx++ )
+    {
+	visSurvey::HorizonDisplay* hor =
+	   (visSurvey::HorizonDisplay*)visBase::DM().getObj(horizonids[idx]);
+	horizons += hor;
+
+	getDataCB( hor );
     }
 
     float appvel;
@@ -1153,11 +1164,22 @@ void uiVisPartServer::manipMoveCB( CallBacker* )
 void uiVisPartServer::getDataCB( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,cb);
-    if ( !sd ) return;
+    if ( sd )
+    {
+	Threads::MutexLocker lock( eventmutex );
+	eventobjid = sd->id();
+	sendEvent( evGetNewData );
+	return;
+    }
 
-    Threads::MutexLocker lock( eventmutex );
-    eventobjid = sd->id();
-    sendEvent( evGetNewData );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor, cb );
+    if ( hor )
+    {
+	Threads::MutexLocker lock( eventmutex );
+	eventobjid = hor->id();
+	sendEvent( evGetNewData );
+	return;
+    }
 }
 
 
