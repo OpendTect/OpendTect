@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.253 2005-03-17 15:03:30 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.254 2005-04-05 15:30:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,8 +326,15 @@ int uiVisPartServer::nrTextures(int id) const
 
 void uiVisPartServer::selectTexture( int id, int textureidx )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->selectTexture(textureidx);
+}
+
+
+void uiVisPartServer::selectNextTexture( int id, bool next )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    if ( so ) so->selectNextTexture( next );
 }
 
 

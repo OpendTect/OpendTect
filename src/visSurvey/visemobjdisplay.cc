@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.16 2005-04-04 11:12:04 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.17 2005-04-05 15:29:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.16 2005-04-04 11:12:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.17 2005-04-05 15:29:54 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -49,6 +49,7 @@ EMObjectDisplay::EMObjectDisplay()
     , mid(-1)
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
+    , curtextureidx(0)
     , usestexture(true)
     , editor(0)
     , eventcatcher(0)
@@ -74,6 +75,7 @@ EMObjectDisplay::~EMObjectDisplay()
     const int trackeridx = MPE::engine().getTrackerByObject(objid);
     if ( trackeridx >= 0 )
 	MPE::engine().removeTracker( trackeridx );
+    MPE::engine().removeEditor( objid );
 }
 
 
@@ -118,7 +120,7 @@ void EMObjectDisplay::removeAll()
     sections.erase();
     sectionids.erase();
 
-    EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(mid));
+    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     if ( emobject ) emobject->unRef();
     if ( editor ) editor->unRef();
     if ( translation )
@@ -132,7 +134,7 @@ void EMObjectDisplay::removeAll()
 
 bool EMObjectDisplay::setEMObject( const MultiID& newmid )
 {
-    EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(newmid));
+    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(newmid) );
     if ( !emobject ) return false;
 
     if ( sections.size() ) removeAll();
@@ -147,7 +149,7 @@ bool EMObjectDisplay::updateFromEM()
 { 
     if ( sections.size() ) removeAll();
 
-    EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(mid));
+    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     if ( !emobject ) return false;
 
     setName( emobject->name() );
@@ -277,6 +279,45 @@ void EMObjectDisplay::readAuxData()
     deepErase( auxdata );
 }
 
+
+void EMObjectDisplay::selectTexture( int textureidx )
+{
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
+	if ( psurf )
+	    psurf->selectActiveTexture( textureidx );
+    }
+
+    mDynamicCastGet(EM::Surface*,emsurf,em.getObject(em.multiID2ObjectID(mid)))
+    if ( !emsurf ) return;
+
+    if ( textureidx >= emsurf->auxdata.nrAuxData() )
+	setSelSpec( AttribSelSpec(0,AttribSelSpec::attribNotSel) );
+    else
+    {
+	BufferString attrnm = emsurf->auxdata.auxDataName( textureidx );
+	setSelSpec( AttribSelSpec(attrnm,AttribSelSpec::otherAttrib) );
+    }
+}
+
+
+void EMObjectDisplay::selectNextTexture( bool next )
+{
+    if ( !sections.size() ) return;
+
+    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[0]);
+    if ( !psurf ) return;
+
+    if ( next && curtextureidx < psurf->nrTextures()-1 )
+	curtextureidx++;
+    else if ( !next && curtextureidx )
+	curtextureidx--;
+    else
+	return;
+
+    selectTexture( curtextureidx );
+}
 
 
 const AttribSelSpec* EMObjectDisplay::getSelSpec() const

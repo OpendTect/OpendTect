@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.34 2005-03-11 12:24:49 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.35 2005-04-05 15:30:11 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -105,6 +105,7 @@ public:
     virtual bool		canHaveMultipleTextures() const { return false;}
     virtual int			nrTextures() const		{ return 0; }
     virtual void		selectTexture(int)			{}
+    virtual void		selectNextTexture(bool)			{}
     virtual void		getMousePosInfo(const Coord3&,float& val,
 	    					BufferString& info) const
 				{ val = mUndefValue; info = ""; }

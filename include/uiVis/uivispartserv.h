@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.137 2005-03-17 15:03:30 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.138 2005-04-05 15:30:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,6 +150,7 @@ public:
     bool		canHaveMultipleTextures(int) const;
     int			nrTextures(int) const;
     void		selectTexture(int id,int texture);
+    void		selectNextTexture(int id,bool next);
 
     static const int	evMouseMove;
     Coord3		getMousePos(bool xyt) const;

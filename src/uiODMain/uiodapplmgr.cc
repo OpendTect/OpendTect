@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.74 2005-03-23 16:05:17 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.75 2005-04-05 15:30:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -350,15 +350,6 @@ void uiODApplMgr::getPickSetGroup( PickSetGroup& p ) { p = pickserv->group(); }
 bool uiODApplMgr::storePickSets() { return pickserv->storePickSets(); }
 
 
-bool uiODApplMgr::storeSinglePickSet( int id )
-{
-    mDynamicCastGet( visSurvey::PickSetDisplay*, psd, visserv->getObject(id) );
-    PickSet* ps = new PickSet( psd->name() );
-    psd->copyToPickSet(*ps);
-    return pickserv->storeSinglePickSet( ps );
-}
-
-
 bool uiODApplMgr::setPickSetDirs( int id )
 {
     mDynamicCastGet( visSurvey::PickSetDisplay*, psd, visserv->getObject(id) );
@@ -369,15 +360,6 @@ bool uiODApplMgr::setPickSetDirs( int id )
 
     psd->copyFromPickSet( ps );
     return true;
-}
-
-
-void uiODApplMgr::renamePickset( int id )
-{
-    BufferString newname;
-    const char* oldname = visserv->getObjectName(id);
-    pickserv->renamePickset( oldname, newname );
-    visserv->setObjectName( id, newname );
 }
 
 
@@ -947,17 +929,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 void uiODApplMgr::pageUpDownPressed( bool up )
 {
     const int visid = visserv->getEventObjId();
-    const int format = visserv->getAttributeFormat( visid );
-    if ( format != 2 ) return;
-
-    /*
-
-    mDynamicCastGet(SurfaceDisplay*,sd,visserv->getObject(visid))
-    if ( !sd ) return;
-    sd->showNextTexture( up );
+    visserv->selectNextTexture( visid, up );
     modifyColorTable( visid );
     sceneMgr().updateTrees();
-    */
 }
 
 

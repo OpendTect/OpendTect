@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.5 2005-04-01 15:13:50 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.6 2005-04-05 15:30:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
     interactionlinemenu.ref();
     edgelinemenu.ref();
 
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
     const MultiID* mid = visserv->getMultiID( displayid );
     if ( !mid ) return;
@@ -67,9 +67,9 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
 	}
     }
 
-    if ( !emvis->updateFromEM() ) { emvis->unRef(); return; }
+    if ( !emod->updateFromEM() ) { emod->unRef(); return; }
 
-    if ( emvis->getSelSpec()->id() == AttribSelSpec::noAttrib )
+    if ( emod->getSelSpec()->id() == AttribSelSpec::noAttrib )
 	setDepthAsAttrib();
 
     setUpConnections();
@@ -77,7 +77,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int id, uiVisPartServer* vps )
 
 
 
-#define mRefUnrefRet { emvis->ref(); emvis->unRef(); return; }
+#define mRefUnrefRet { emod->ref(); emod->unRef(); return; }
 
 uiVisEMObject::uiVisEMObject( uiParent* uip, const MultiID& mid, int scene,
 			    uiVisPartServer* vps )
@@ -92,17 +92,17 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const MultiID& mid, int scene,
     interactionlinemenu.ref();
     edgelinemenu.ref();
 
-    visSurvey::EMObjectDisplay* emvis = visSurvey::EMObjectDisplay::create();
-    emvis->setDisplayTransformation(visSurvey::SPM().getUTM2DisplayTransform());
+    visSurvey::EMObjectDisplay* emod = visSurvey::EMObjectDisplay::create();
+    emod->setDisplayTransformation(visSurvey::SPM().getUTM2DisplayTransform());
 
-    if ( !emvis->setEMObject(mid) ) mRefUnrefRet
+    if ( !emod->setEMObject(mid) ) mRefUnrefRet
 
     EM::EMManager& em = EM::EMM();
     mDynamicCastGet(EM::EMObject*,emobj,em.getObject(em.multiID2ObjectID(mid)));
 
-    visserv->addObject( emvis, scene, true );
-    displayid = emvis->id();
-    emvis->setDepthAsAttrib();
+    visserv->addObject( emod, scene, true );
+    displayid = emod->id();
+    emod->setDepthAsAttrib();
 
     setUpConnections();
 }
@@ -117,11 +117,11 @@ uiVisEMObject::~uiVisEMObject()
 	menu->handlenotifier.remove( mCB(this,uiVisEMObject,handleMenuCB) );
     }
 
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
-    if ( emvis && emvis->getEditor() )
+    if ( emod && emod->getEditor() )
     {
-	emvis->getEditor()->noderightclick.remove(
+	emod->getEditor()->noderightclick.remove(
 		mCB(this,uiVisEMObject,nodeRightClick) );
     }
 
@@ -143,9 +143,9 @@ uiVisEMObject::~uiVisEMObject()
 
 bool uiVisEMObject::isOK() const
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visBase::DM().getObject(displayid));
-    return emvis;
+    return emod;
 }
 
 
@@ -187,24 +187,24 @@ void uiVisEMObject::setUpConnections()
     edgelinemenu.handlenotifier.notify(
 	    mCB(this,uiVisEMObject,handleEdgeLineMenuCB) );
 
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid));
-    if ( emvis && emvis->getEditor() )
+    if ( emod && emod->getEditor() )
     {
-	emvis->getEditor()->noderightclick.notify(
+	emod->getEditor()->noderightclick.notify(
 		mCB(this,uiVisEMObject,nodeRightClick) );
-	//interactionlinemenu.setID( emvis->getEditor()->lineID() );
-	//edgelinemenu.setID( emvis->getEditor()->lineID() );
+	//interactionlinemenu.setID( emod->getEditor()->lineID() );
+	//edgelinemenu.setID( emod->getEditor()->lineID() );
     }
 }
 
 
 const char* uiVisEMObject::getObjectType( int id )
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visBase::DM().getObject(id));
-    if ( !emvis ) return 0;
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visBase::DM().getObject(id));
+    if ( !emod ) return 0;
 
-    const MultiID* mid = emvis->getMultiID();
+    const MultiID* mid = emod->getMultiID();
     if ( !mid ) return 0;
 
     mDynamicCastGet(EM::EMObject*,emobj,
@@ -215,25 +215,27 @@ const char* uiVisEMObject::getObjectType( int id )
 }
 
 
-bool uiVisEMObject::canHandle(int id)
+bool uiVisEMObject::canHandle( int id )
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visBase::DM().getObject(id));
-    return emvis;
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+	    	    visBase::DM().getObject(id));
+    return emod;
 }
 
 
 void uiVisEMObject::setDepthAsAttrib()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
-    emvis->setDepthAsAttrib();
+    emod->setDepthAsAttrib();
 }
+
 
 void uiVisEMObject::readAuxData()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
-    emvis->readAuxData();
+    emod->readAuxData();
 }
 
 
@@ -262,18 +264,18 @@ EM::SectionID uiVisEMObject::getSectionID( int idx ) const
 EM::SectionID uiVisEMObject::getSectionID( const TypeSet<int>* path ) const
 {
     if ( !path ) return -1;
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
 
-    return emvis->getSectionID( path );
+    return emod->getSectionID( path );
 }
 
 
 float uiVisEMObject::getShift() const
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 		    visserv->getObject(displayid))
-    Coord3 shift = emvis->getTranslation();
+    Coord3 shift = emod->getTranslation();
     return shift.z;
 }
 
@@ -281,22 +283,22 @@ float uiVisEMObject::getShift() const
 /*
 NotifierAccess* uiVisEMObject::finishEditingNotifier()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
-    return emvis && emvis->getEditor() ? &emvis->getEditor()->finishedEditing : 0;
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
+    return emod && emod->getEditor() ? &emod->getEditor()->finishedEditing : 0;
 }
 
 
 void uiVisEMObject::getMovedNodes(TypeSet<EM::PosID>& res) const
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
-    if ( emvis && emvis->getEditor() ) emvis->getEditor()->getMovedNodes(res);
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
+    if ( emod && emod->getEditor() ) emod->getEditor()->getMovedNodes(res);
 }
 
 
 bool uiVisEMObject::snapAfterEdit() const
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
-    return emvis && emvis->getEditor() ? emvis->getEditor()->snapAfterEdit() : false;
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
+    return emod && emod->getEditor() ? emod->getEditor()->snapAfterEdit() : false;
 }
 
 
@@ -305,12 +307,12 @@ bool uiVisEMObject::snapAfterEdit() const
 void uiVisEMObject::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiVisMenu*,menu,cb)
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
 
     uiMenuItem* colitm = new uiMenuItem( "Use single color" );
     singlecolmnuid = menu->addItem( colitm );
-    colitm->setChecked( !emvis->usesTexture() );
+    colitm->setChecked( !emod->usesTexture() );
 
     shiftmnuid = !strcmp(getObjectType(displayid),EM::Horizon::typeStr())
 	? menu->addItem( new uiMenuItem("Shift ...") )
@@ -323,19 +325,19 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     uiMenuItem* edititem = new uiMenuItem( "Edit" );
     editmnuid = menu->getFreeID();
     trackmnu->insertItem( edititem, editmnuid );
-    edititem->setChecked( emvis->isEditingEnabled() );
+    edititem->setChecked( emod->isEditingEnabled() );
 
     uiMenuItem* wireframeitem = new uiMenuItem("Wireframe");
     wireframemnuid = menu->getFreeID();
     trackmnu->insertItem( wireframeitem, wireframemnuid );
-    wireframeitem->setChecked( emvis->usesWireframe() );
+    wireframeitem->setChecked( emod->usesWireframe() );
 
     const MultiID* mid = visserv->getMultiID( displayid );
     if ( !mid ) return;
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
     mDynamicCastGet(EM::EMObject*,emobj,EM::EMM().getObject(emid));
     removesectionmnuid =
-	emobj->nrSections()>1&&emvis->getSectionID(menu->getPath())!=-1
+	emobj->nrSections()>1&&emod->getSectionID(menu->getPath())!=-1
 	? menu->addItem( new uiMenuItem("Remove section") ) : -1;
 }
 
@@ -347,28 +349,28 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 	    	    visserv->getObject(displayid))
 
     if ( mnuid==singlecolmnuid )
     {
-	emvis->useTexture( !emvis->usesTexture() );
+	emod->useTexture( !emod->usesTexture() );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==wireframemnuid )
     {
 	menu->setIsHandled(true);
-	emvis->useWireframe( !emvis->usesWireframe() );
+	emod->useWireframe( !emod->usesWireframe() );
     }
     else if ( mnuid==editmnuid )
     {
-	emvis->enableEditing(!emvis->isEditingEnabled());
+	emod->enableEditing(!emod->isEditingEnabled());
 	menu->setIsHandled(true);
     }
     else if ( mnuid==shiftmnuid )
     {
 	menu->setIsHandled(true);
-	Coord3 shift = emvis->getTranslation();
+	Coord3 shift = emod->getTranslation();
 	BufferString lbl( "Shift " ); lbl += SI().getZUnit();
 	DataInpSpec* inpspec = new FloatInpSpec( shift.z );
 	uiGenInputDlg dlg( uiparent,"Specify horizon shift", lbl, inpspec );
@@ -378,14 +380,14 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	if ( shift.z == newshift ) return;
 
 	shift.z = newshift;
-	emvis->setTranslation( shift );
-	if ( !emvis->hasStoredAttrib() )
+	emod->setTranslation( shift );
+	if ( !emod->hasStoredAttrib() )
 	    visserv->calculateAttrib( displayid, false );
 	else
 	{
 	    uiMSG().error( "Cannot calculate this attribute on new location"
 		           "\nDepth will be displayed instead" );
-	    emvis->setDepthAsAttrib();
+	    emod->setDepthAsAttrib();
 	}
 	visserv->triggerTreeUpdate();
     }
@@ -395,7 +397,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	if ( !mid ) return;
 	EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
 	mDynamicCastGet(EM::EMObject*,emobj,EM::EMM().getObject(emid))
-	emobj->removeSection(emvis->getSectionID(menu->getPath()), true );
+	emobj->removeSection(emod->getSectionID(menu->getPath()), true );
 
 	EM::History& history = EM::EMM().history();
 	const int currentevent = history.currentEventNr();
@@ -440,9 +442,9 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
 {
     /*
     mDynamicCastGet(uiVisMenu*,menu,cb)
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
 
-    const EM::PosID empid = emvis->getEditor()->getNodePosID(menu->id());
+    const EM::PosID empid = emod->getEditor()->getNodePosID(menu->id());
 
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.getObject(empid.objectID());
@@ -463,7 +465,7 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
 
     uiMenuItem* snapitem = new uiMenuItem("Snap after edit");
     tooglesnappingnodemnusel = menu->addItem(snapitem);
-    snapitem->setChecked(emvis->getEditor()->snapAfterEdit());
+    snapitem->setChecked(emod->getEditor()->snapAfterEdit());
     */
 }
 
@@ -476,9 +478,9 @@ void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
 
-    const EM::PosID* empid = emvis->getEditor()->getEMPosFromDisplayID(menu->id());
+    const EM::PosID* empid = emod->getEditor()->getEMPosFromDisplayID(menu->id());
 
     EM::EMManager& em = EM::EMM();
     EM::EMObject* emobj = em.getObject(empid->objectID());
@@ -505,7 +507,7 @@ void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )
     else if ( mnuid==tooglesnappingnodemnusel )
     {
 	menu->setIsHandled(true);
-        emvis->getEditor()->setSnapAfterEdit(!emvis->getEditor()->snapAfterEdit());
+        emod->getEditor()->setSnapAfterEdit(!emod->getEditor()->snapAfterEdit());
     }
     */
 }
@@ -515,9 +517,9 @@ void uiVisEMObject::createInteractionLineMenuCB( CallBacker* cb )
 {
     /*
     mDynamicCastGet(uiVisMenu*,menu,cb)
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
     mDynamicCastGet( const visSurvey::EdgeLineSetDisplay*, linedisplay,
-	    	     visserv->getObject(emvis->getEditor()->lineID()) );
+	    	     visserv->getObject(emod->getEditor()->lineID()) );
 
     const EM::EdgeLineSegment& interactionline =
 	*linedisplay->getEdgeLineSet()->getLine(0)->getSegment(0);
@@ -583,9 +585,9 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,visserv->getObject(displayid))
     mDynamicCastGet( const visSurvey::EdgeLineSetDisplay*, linedisplay,
-	    	     visserv->getObject(emvis->getEditor()->lineID()) );
+	    	     visserv->getObject(emod->getEditor()->lineID()) );
 
     const EM::EdgeLineSegment& interactionline =
 	*linedisplay->getEdgeLineSet()->getLine(0)->getSegment(0);
@@ -633,7 +635,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 
 	lineset->removeAllNodesOutsideLines();
 	menu->setIsHandled(true);
-	emvis->getEditor()->clearInteractionLine();
+	emod->getEditor()->clearInteractionLine();
     }
     else if ( mnuid==splitlinemnusel )
     {
@@ -666,7 +668,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 	line2->insertSegment(part2cut,-1,true);
 	lineset2->removeAllNodesOutsideLines();
 	menu->setIsHandled(true);
-	emvis->getEditor()->clearInteractionLine();
+	emod->getEditor()->clearInteractionLine();
     }
     else if ( mnuid==mkstoplinemnusel )
     {
@@ -682,7 +684,7 @@ void uiVisEMObject::handleInteractionLineMenuCB( CallBacker* cb )
 
 	lineset->getLine(linenr)->insertSegment( terminationsegment, -1, true );
 	menu->setIsHandled(true);
-	emvis->getEditor()->clearInteractionLine();
+	emod->getEditor()->clearInteractionLine();
     }
     */
 }

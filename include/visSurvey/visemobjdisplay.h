@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.10 2005-04-04 11:12:11 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.11 2005-04-05 15:30:00 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,8 @@ public:
     bool			usesTexture() const;
 
     void			readAuxData();
+    void			selectTexture(int);
+    void			selectNextTexture(bool next);
 
     int				getAttributeFormat() const	{ return 2; }
     bool			hasColorAttribute() const; 
@@ -120,6 +122,7 @@ protected:
 
     Color				nontexturecol;
     bool				usestexture;
+    int					curtextureidx;
 
     AttribSelSpec&			as;
     ColorAttribSel&			colas;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.19 2005-03-07 10:58:25 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.20 2005-04-05 15:31:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,9 +106,7 @@ public:
     const Color&		getPickColor();
     void			getPickSetGroup(PickSetGroup& psg);
     bool			storePickSets();
-    bool			storeSinglePickSet(int);
     bool			setPickSetDirs(int);
-    void			renamePickset(int);
 
     // Work. Don't use unless expert.
     bool			getNewData(int visid,bool);
