@@ -5,10 +5,10 @@
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
- Author:	A.H. Bril
+ Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
- Contents:	Simple numerical functions
- RCS:		$Id: simpnumer.h,v 1.6 2000-07-19 09:25:43 bert Exp $
+ Contents:	'Simple' numerical functions
+ RCS:		$Id: simpnumer.h,v 1.7 2000-11-13 08:54:21 bert Exp $
 ________________________________________________________________________
 
 */
@@ -16,62 +16,14 @@ ________________________________________________________________________
 #include <general.h>
 #include <math.h>
 
-//
-// sort_array: sort quickly (algorithm taken from xv).
-// sort_coupled: sort and remember where it was before sorting.
-//
+/*!
+ linearInterpolate: regular sampling/generalised
+*/
 
-
-#define mDoSort(extra_var,extra_action) \
-{ \
-    T tmp; extra_var; \
-    for ( int d=sz/2; d>0; d=d/2 ) \
-	for ( int i=d; i<sz; i++ ) \
-	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
-	    { \
-		tmp = arr[j]; arr[j] = arr[j+d]; arr[j+d] = tmp; \
-		extra_action; \
-	    } \
-}
-
-
-template <class T>
-inline void sort_array( T* arr, int sz )
-mDoSort(,)
-
-template <class T>
-inline void sort_coupled( T* arr, int* idxs, int sz )
-mDoSort(int itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
-
-#undef mDoSort
-#define mDoSort(extra_var,extra_action) \
-{ \
-    extra_var; \
-    for ( int d=sz/2; d>0; d=d/2 ) \
-	for ( int i=d; i<sz; i++ ) \
-	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
-	    { \
-		Swap( arr[j], arr[j+d] ); \
-		extra_action; \
-	    } \
-}
-
-template <class T>
-inline void sort_idxabl( T& arr, int sz )
-mDoSort(,)
-
-template <class T>
-inline void sort_idxabl_coupled( T& arr, int* idxs, int sz )
-mDoSort(int itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
-
-
-//
-// linearInterpolate: regular sampling/generalised
-//
-
-// Interpolate linearly when the relative distance from first point is known.
-// Usually occurs in sampled arrays. Also usually, 0 < pos < 1.
-//
+/*!>
+ Interpolate linearly when the relative distance from first point is known.
+ Usually occurs in sampled arrays. Also usually, 0 < pos < 1.
+*/
 
 template <class T>
 inline T linearInterpolate( T y0, T y1, float pos )
@@ -80,9 +32,10 @@ inline T linearInterpolate( T y0, T y1, float pos )
 }
 
 
-// Interpolate linearly when two points are known.
-// Make sure these points are not at the same posistion (crash!).
-//
+/*!>
+ Interpolate linearly when two points are known.
+ Make sure these points are not at the same posistion (crash!).
+*/
 
 template <class T>
 inline T linearInterpolate( float x0, T y0, float x1, T y1, float x )
@@ -91,13 +44,14 @@ inline T linearInterpolate( float x0, T y0, float x1, T y1, float x )
 } 
 
 
-//
-// polyInterpolate: regular sampling/generalised
-//
+/*!
+ polyInterpolate: regular sampling/generalised
+*/
 
-// Interpolate regularly sampled. Position is usually between y1 and y2.
-// Then, 0 < pos < 1.
-//
+/*!>
+ Interpolate regularly sampled. Position is usually between y1 and y2.
+ Then, 0 < pos < 1.
+*/
 
 template <class T>
 inline T polyInterpolate( T y0, T y1, T y2, T y3, float pos )
@@ -111,10 +65,11 @@ inline T polyInterpolate( T y0, T y1, T y2, T y3, float pos )
 }
 
 
-// Interpolate when 4 points are known.
-// Make sure none of the positions are the same. Will just crash 'silently'.
-// No undefined values allowed.
-//
+/*!>
+ Interpolate when 4 points are known.
+ Make sure none of the positions are the same. Will just crash 'silently'.
+ No undefined values allowed.
+*/
 
 template <class T>
 inline T polyInterpolate( float x0, T y0, float x1, T y1, float x2, T y2, 
@@ -128,10 +83,11 @@ inline T polyInterpolate( float x0, T y0, float x1, T y1, float x2, T y2,
 }
 
 
-// Interpolate sampled when 4 points are known, but some may be undefined.
-// If you need to do this irregularly, you can just remove those points
-// and call the apropriate interpolation.
-//
+/*!>
+ Interpolate sampled when 4 points are known, but some may be undefined.
+ If you need to do this irregularly, you can just remove those points
+ and call the apropriate interpolation.
+/*
 
 template <class T>
 inline T polyInterpolateWithUdf( T y0, T y1, T y2, T y3, float x )
@@ -162,9 +118,10 @@ inline T polyInterpolateWithUdf( T y0, T y1, T y2, T y3, float x )
 }
 
 
-// Interpolate when 3 points are known.
-// Make sure none of the positions are the same. Will just crash 'silently'.
-//
+/*!>
+ Interpolate when 3 points are known.
+ Make sure none of the positions are the same. Will just crash 'silently'.
+*/
 
 template <class T>
 inline T parabolicInterpolate( float x0, T y0, float x1, T y1, float x2, T y2, 
@@ -176,7 +133,7 @@ inline T parabolicInterpolate( float x0, T y0, float x1, T y1, float x2, T y2,
 		y2 * xx0 * xx1 / ((x2 - x0) * (x2 - x1));
 }
 
-/*
+/*!>
    polyInterpolate2D - interpolates a value inside a 4*4 grid. The notation
    of the vaues are: "v"xy. I.e v00 is the value at (0,0), v13 is the value
    at (1,3). Ideally, x and y should lie within the square defined by (1,1),
@@ -198,7 +155,7 @@ inline T polyInterpolate2D( T v00, T v01, T v02, T v03,
 }
 
 
-/*
+/*!>
    linearInterpolate2D - interpolates a value inside a 1*1 grid. The notation
    of the vaues are: "v"xy. I.e v00 is the value at (0,0), v13 is the value
    at (1,3). Ideally, x and y should lie within the square defined by the
@@ -215,7 +172,7 @@ inline T linearInterpolate2D( T v00, T v01, T v10, T v11, float x, float y )
     return xm*ym*v00 + x*ym*v10 + x*y*v11 + xm*y*v01;
 }
     
-/*
+/*!>
    linearInterpolate3D - interpolates a value inside a 1*1*1 cube. The notation
    of the vaues are: "v"xyz. I.e v000 is the value at (0,0,0), v132 is the value
    at (1,3,2). Ideally, x and y should lie within the cube defined by the input
@@ -235,7 +192,7 @@ inline T linearInterpolate3D( T v000, T v001, T v010, T v011,
 	   x*ym*zm*v100 + x*ym*z*v101 + x*y*zm*v110 + x*y*z*v111;
 }
     
-/*
+/*!>
    polyInterpolate3D - interpolates a value inside a 4*4*4 cube. The notation
    of the vaues are: "v"xyz. I.e v000 is the value at (0,0,0), v132 is the value
    at (1,3,2). Ideally, x and y should lie within the cube defined by (1,1,1),
@@ -289,25 +246,25 @@ inline T polyInterpolate3D( T v000, T v001, T v002, T v003,
 }
 
 
-//
-// Position-sorted indexable objects.
-// These are objects that return a value of type T when the [] operator is
-// applied. Can range from simple arrays and TypeSets to whatever supports
-// the [] operator. The goal is to interpolate between the values. Therefore,
-// the position of the values must be know from either the fact that the
-// values are regular samples or by specifying another indexable object that
-// provides the positions (in float or double).
-//
+/*!
+ Position-sorted indexable objects.
+ These are objects that return a value of type T when the [] operator is
+ applied. Can range from simple arrays and TypeSets to whatever supports
+ the [] operator. The goal is to interpolate between the values. Therefore,
+ the position of the values must be known from either the fact that the
+ values are regular samples or by specifying another indexable object that
+ provides the positions (in float or double).
+*/
 
 
 #define mIsZero(x) ((x)<1e-30&&(x)>-1e-30)
 
-//
-// Find index of nearest point below a given position.
-// The 'x' must return the positions.
-// The return value may be -1, which means that 'pos' is before the first
-// position.
-//
+/*!>
+ Find index of nearest point below a given position.
+ The 'x' must return the positions.
+ The return value may be -1, which means that 'pos' is before the first
+ position.
+*/
 
 template <class X>
 inline int getLowIndex( const X& x, int sz, double pos )
@@ -329,10 +286,10 @@ inline int getLowIndex( const X& x, int sz, double pos )
     return idx1;
 }
 
-//
-// Irregular interpolation.
-// The 'x' must return the X-positions of the 'y' values.
-//
+/*!>
+ Irregular interpolation.
+ The 'x' must return the X-positions of the 'y' values.
+*/
 
 template <class X,class Y,class RT>
 inline void interpolatePositioned( const X& x, const Y& y, int sz,
@@ -390,9 +347,9 @@ inline float interpolatePositioned( const X& x, const Y& y, int sz, float pos,
 }
 
 
-//
-// Regular interpolation.
-//
+/*!>
+ Regular interpolation.
+*/
 
 template <class T,class RT>
 inline void interpolateSampled( const T& idxabl, int sz, float pos, RT& ret,
@@ -433,10 +390,10 @@ inline float interpolateSampled( const T& idxabl, int sz, float pos,
 }
 
 
-//
-// dePeriodize returns a periodic (defined by y(x) = y(x) + N * P) value's value
-// in the functions first period (between 0 and P).
-//
+/*!>
+ dePeriodize returns a periodic (defined by y(x) = y(x) + N * P) value's value
+ in the functions first period (between 0 and P).
+*/
 
 template <class T>
 inline T dePeriodize( T val, T period )
@@ -447,10 +404,10 @@ inline T dePeriodize( T val, T period )
     return n ? val - n * period : val; 
 }
 
-//
-// intpow returns the integer power of an arbitary value. Faster than
-// pow( double, double ), more general than IntPowerOf(double,int).
-//
+/*!>
+ intpow returns the integer power of an arbitary value. Faster than
+ pow( double, double ), more general than IntPowerOf(double,int).
+*/
 
 template <class T> inline
 T intpow( T x, char y)
@@ -460,10 +417,10 @@ T intpow( T x, char y)
 }
 
 
-//
-// interpolateYPeriodicSampled interpolates in an indexable storage with
-// periodic entities ( defined by y(x) = y(x) + N*P )
-//
+/*!>
+ interpolateYPeriodicSampled interpolates in an indexable storage with
+ periodic entities ( defined by y(x) = y(x) + N*P )
+*/
 
 template <class T, class RT>
 inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
@@ -531,11 +488,11 @@ inline float interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
 }
 
 
-//
-// interpolateXPeriodicSampled interpolates in an periodic indexable ( where
-// the position is periodic ), defined by y(x) = x(x+n*P). The period is equal
-// to the size of the given idxabl.
-//
+/*!>
+ interpolateXPeriodicSampled interpolates in an periodic indexable ( where
+ the position is periodic ), defined by y(x) = x(x+n*P). The period is equal
+ to the size of the given idxabl.
+*/
 
 template <class T, class RT>
 inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
@@ -571,12 +528,12 @@ inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
 }
 
 
-//
-// Taper an indexable array from 1 to taperfactor. If lowpos is less 
-// than highpos, the samples array[0] to array[lowpos] will be set to zero. 
-// If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]
-// will be set to zero. The taper can be either cosine or linear.
-//
+/*!>
+ Taper an indexable array from 1 to taperfactor. If lowpos is less 
+ than highpos, the samples array[0] to array[lowpos] will be set to zero. 
+ If lowpos is more than highpos, the samples array[lowpos]  to array[sz-1]
+ will be set to zero. The taper can be either cosine or linear.
+*/
 
 class Taper
 {
@@ -619,14 +576,14 @@ bool taperArray( T* array, int sz, int lowpos, int highpos, Taper::Type type )
 }
 
 
-//
-// Gradient from a series of 4 points, sampled like:
-// x:  -2  -1  0  1  2
-// y: ym2 ym1 y0 y1 y2
-// The gradient estimation is done at x=0. y0 is generally not needed, but it
-// will be used if there are one or more undefineds.
-// The function will return mUndefValue if there are too many missing values.
-//
+/*!>
+ Gradient from a series of 4 points, sampled like:
+ x:  -2  -1  0  1  2
+ y: ym2 ym1 y0 y1 y2
+ The gradient estimation is done at x=0. y0 is generally not needed, but it
+ will be used if there are one or more undefineds.
+ The function will return mUndefValue if there are too many missing values.
+*/
 template <class T>
 inline T sampledGradient( T ym2, T ym1, T y0, T y1, T y2 )
 {
@@ -652,6 +609,7 @@ inline T sampledGradient( T ym2, T ym1, T y0, T y1, T y2 )
     return mUndefValue;
 }
 
+
 template <class X, class Y, class RT>
 inline void getGradient( const X& x, const Y& y, int sz, int firstx, int firsty,
 		  RT* gradptr=0, RT* interceptptr=0 )
@@ -675,6 +633,7 @@ inline void getGradient( const X& x, const Y& y, int sz, int firstx, int firsty,
     if ( interceptptr ) *interceptptr = (y_sum - grad*x_sum)/sz;
 }
 
+
 template <class X>
 inline float variance( const X& x, int sz )
 {
@@ -695,7 +654,7 @@ inline float variance( const X& x, int sz )
 }
 
 
-/*
+/*!>
 solve3DPoly - finds the roots of the equation 
 
     z^3+a*z^2+b*z+c = 0
@@ -738,8 +697,8 @@ inline int solve3DPoly( double a, double b, double c,
 
     root0 = A+B+minus_a_through_3;
 
-    /* 
-    If the complex roots are wanted, uncomment these lines
+    /*!
+    The complex roots can be calculated as follows:
     static const double sqrt3_through_2 = sqrt(3)/2;
 
     root1 = complex_double( 0.5*(A+B)+minus_a_through_3,
@@ -752,5 +711,6 @@ inline int solve3DPoly( double a, double b, double c,
 
     return 1;
 }
+
 
 #endif

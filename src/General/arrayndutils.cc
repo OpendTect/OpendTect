@@ -43,7 +43,7 @@ bool ArrayNDIter::inc( int dim )
 	    
 
 DefineEnumNames( ArrayNDWindow, WindowType, 1, "Window type")
-{ "Box", "Hamming", 0 };
+{ "Box", "Hamming", "Hanning", "Blackman", "Barlett", "CosTaper5", 0 };
 
 
 ArrayNDWindow::ArrayNDWindow( const ArrayNDSize& sz_,
@@ -94,10 +94,18 @@ bool ArrayNDWindow::buildWindow( )
 
     MathFunction<float>* windowfunc = 0;
 
-    if ( type == ArrayNDWindow::Hamming )
-	windowfunc = new ArrayNDWindow::HammingWindow;
-    else if ( type == ArrayNDWindow::Box ) 
+    if ( type == ArrayNDWindow::Box ) 
 	windowfunc = new ArrayNDWindow::BoxWindow;
+    else if ( type == ArrayNDWindow::Hamming )
+	windowfunc = new ArrayNDWindow::HammingWindow;
+    else if ( type == ArrayNDWindow::Hanning )
+	windowfunc = new ArrayNDWindow::HanningWindow;
+    else if ( type == ArrayNDWindow::Blackman )
+	windowfunc = new ArrayNDWindow::BlackmanWindow;
+    else if ( type == ArrayNDWindow::Barlett )
+	windowfunc = new ArrayNDWindow::BarlettWindow;
+    else if ( type == ArrayNDWindow::CosTaper5 )
+	windowfunc = new ArrayNDWindow::CosTaper5Window;
     else
 	return false;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.3 2000-06-29 10:20:23 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.4 2000-11-13 08:54:57 bert Exp $
 ________________________________________________________________________
 
 
@@ -91,7 +91,7 @@ protected:
 class ArrayNDWindow
 {
 public:
-    enum WindowType	{ Box, Hamming };
+    enum WindowType	{ Box, Hamming, Hanning, Blackman, Barlett, CosTaper5 };
 			DeclareEnumUtils(WindowType);
 
 			ArrayNDWindow( const ArrayNDSize&,
@@ -132,6 +132,60 @@ protected:
 			return 0;
 
 		    return 0.54 + 0.46 * cos( M_PI * rx );
+		}
+    };
+
+    class HanningWindow : public MathFunction<float>
+    {
+    public:
+	float	getValue( double x ) const
+		{
+		    double rx = fabs( x );
+		    if ( rx > 1 ) return 0;
+
+		    return (1 + cos( M_PI * rx )) / 2.0;
+		}
+    };
+
+    class BlackmanWindow : public MathFunction<float>
+    {
+    public:
+	float	getValue( double x ) const
+		{
+		    double rx = fabs( x );
+		    if ( rx > 1 ) return 0;
+
+		    return 0.42 + 0.5*cos( M_PI * rx )+ 0.08*cos( 2 *M_PI*rx);
+		}
+    };
+
+    class BarlettWindow : public MathFunction<float>
+    {
+    public:
+	float	getValue( double x ) const
+		{
+		    double rx = fabs( x );
+
+		    if ( rx > 1 ) return 0;
+		    return 1-rx;
+		}
+    };
+
+
+    class CosTaper5Window : public MathFunction<float>
+    {
+    public:
+	float	getValue( double x ) const
+		{
+		    double rx = fabs( x );
+
+		    if ( rx > 1 ) return 0;
+		    if ( rx < 0.95 ) return 1;
+
+		    rx -= 0.95;
+		    rx *= 20;
+		
+		    return (1 + cos( M_PI * rx )) / 2.0;
 		}
     };
 };
