@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.4 2001-09-28 12:06:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,10 +16,12 @@ ________________________________________________________________________
 #include "uigeninput.h"
 
 uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
-	: uiDialog(p, "Convert positions")
+	: uiDialog(p, "Position conversion")
 	, survinfo(si)
 
 {
+    setTitleText( "Coordinates vs Inline/X-line" );
+
     inlfld = new uiGenInput( this, "In-line", IntInpSpec() );
     crlfld = new uiGenInput( this, "Cross-line", IntInpSpec() );
     xfld = new uiGenInput( this, "X-coordinate", DoubleInpSpec() );

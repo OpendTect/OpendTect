@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.11 2001-09-19 12:09:33 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.12 2001-09-28 12:06:32 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -39,11 +39,23 @@ Settings::Settings( const char* setupf )
 
     bool useold = false;
     const char* res = find( "Use new viewers" );
+    bool do_write = false;
     if ( res )
-	{ useold = !yesNoFromString(res); removeWithKey("Use new viewers"); }
+    {
+	useold = !yesNoFromString(res);
+	removeWithKey("Use new viewers");
+	do_write = true;
+    }
+
     res = find( "Use old viewers" );
     if ( !res )
+    {
 	setYN( "Use old viewers", useold );
+	do_write = true;
+    }
+
+    if ( do_write )
+	write( false );
 }
 
 

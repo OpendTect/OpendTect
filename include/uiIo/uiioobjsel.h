@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.15 2001-09-02 12:29:39 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.16 2001-09-28 12:06:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class IOObj;
 class CtxtIOObj;
 class IODirEntryList;
-class uiListBox;
+class uiLabeledListBox;
 class uiGenInput;
 
 
@@ -47,7 +47,8 @@ class uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const char* transl_glob_expr=0);
+				      const char* transl_glob_expr=0,
+				      const char* seltxt=0);
 			~uiIOObjSelDlg();
 
     const IOObj*	ioObj() const		{ return ioobj; }
@@ -61,7 +62,7 @@ protected:
     IODirEntryList*	entrylist;
     IOObj*		ioobj;
 
-    uiListBox*		listfld;
+    uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
     uiGroup*		grp;
 
@@ -85,7 +86,8 @@ class uiIOObjSel : public uiIOSelect
 public:
 			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,
 				   bool wthclear=false,
-				   const char* transl_globexpr=0);
+				   const char* transl_globexpr=0,
+				   const char* selectionlabel=0);
 			~uiIOObjSel();
 
     bool		commitInput(bool mknew);
@@ -106,6 +108,7 @@ protected:
     CtxtIOObj&		ctio;
     bool		forread;
     BufferString	trglobexpr;
+    BufferString	seltxt;
 
     void		doObjSel(CallBacker*);
 

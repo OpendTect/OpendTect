@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.5 2001-09-28 12:06:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,13 +23,15 @@ ________________________________________________________________________
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si, 
 					uiSurveyMap* map )
-	: uiDialog(p,"Survey parameters")
+	: uiDialog(p,"Survey setup")
 	, rootdir( getenv("dGB_DATA") )
 	, dirnmch_(0)
 	, survinfo(si)
 	, survmap(map)
 
 {
+    setTitleText( "Specify survey parameters" );
+
     orgdirname = survinfo->dirname;
     survnm = survinfo->name();
 

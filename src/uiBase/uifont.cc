@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.10 2001-09-20 08:30:59 arend Exp $
+ RCS:           $Id: uifont.cc,v 1.11 2001-09-28 12:06:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -303,9 +303,11 @@ void uiFontList::update( Settings& settings )
 
 
 uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
-	: uiDialog(p,nm)
+	: uiDialog(p,"Fonts")
 {
-    setCancelText("");
+    setTitleText( nm );
+
+    setCancelText( "" );
     uiFontList::initialise();
     const ObjectSet<uiFont>& fonts = uiFontList::fonts;
     for ( int idx=0; idx<fonts.size(); idx++ )
@@ -337,9 +339,11 @@ void uiSetFonts::butPushed( CallBacker* obj )
 
 
 uiSelFonts::uiSelFonts( uiParent* p, const char* nm )
-	: uiDialog(p,nm)
+	: uiDialog(p,"Fonts")
 	, ids(*new UserIDSet)
 {
+    setTitleText( nm );
+
     uiFontList::listKeys( ids );
 }
 

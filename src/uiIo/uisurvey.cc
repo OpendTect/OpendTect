@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.6 2001-09-26 14:07:49 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.7 2001-09-28 12:06:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,9 +35,11 @@ extern "C" const char* GetSurveyFileName();
 extern "C" int GetSurveyName_reRead;
 
 uiSurvey::uiSurvey( uiParent* p )
-	: uiDialog(p,"Survey selection")
+	: uiDialog(p,"Survey setup")
 
 {
+    setTitleText( "Setup and select the survey" );
+
     const int lbwidth = 250;
     const int mapwdth = 300;
     const int maphght = 290;

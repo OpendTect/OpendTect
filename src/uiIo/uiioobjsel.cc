@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.21 2001-09-14 13:29:07 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.22 2001-09-28 12:06:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
-			      const char* trglobexpr )
-	: uiIOObjRetDlg(p,c.ctxt.forread?"Input":"Output")
+			      const char* trglobexpr, const char* seltxt )
+	: uiIOObjRetDlg(p,c.ctxt.forread?"Input selection":"Output selection")
 	, ctio(c)
 	, nmfld(0)
 	, ioobj(0)
@@ -46,7 +46,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
     nm += ctio.ctxt.trgroup->name();
-    setName( nm );
+    setTitleText( nm );
 
     IOM().to( MultiID(IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id) );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt.trgroup,
@@ -54,16 +54,17 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( ctio.ioobj )
         entrylist->setSelected( ctio.ioobj->key() );
 
-    listfld = new uiListBox( this, entrylist->Ptr() );
+    entrylist->setName( seltxt );
+    listfld = new uiLabeledListBox( this, entrylist->Ptr() );
     if ( !ctio.ctxt.forread )
     {
 	nmfld = new uiGenInput( this, "Name" );
 	nmfld->attach( alignedBelow, listfld );
     }
 
-    listfld->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
-    listfld->doubleClicked.notify( mCB(this,uiDialog,acceptOK) );
-    listfld->rightButtonClicked.notify( mCB(this,uiIOObjSelDlg,rightClk) );
+    listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
+    listfld->box()->doubleClicked.notify( mCB(this,uiDialog,acceptOK) );
+    listfld->box()->rightButtonClicked.notify(mCB(this,uiIOObjSelDlg,rightClk));
 
     setOkText( "Select" );
     selChg( this );
@@ -78,7 +79,7 @@ uiIOObjSelDlg::~uiIOObjSelDlg()
 
 void uiIOObjSelDlg::selChg( CallBacker* c )
 {
-    entrylist->setCurrent( listfld->currentItem() );
+    entrylist->setCurrent( listfld->box()->currentItem() );
     ioobj = entrylist->selected();
     if ( c && nmfld )
 	nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
@@ -87,8 +88,8 @@ void uiIOObjSelDlg::selChg( CallBacker* c )
 
 void uiIOObjSelDlg::rightClk( CallBacker* c )
 {
-    int prevcur = listfld->currentItem();
-    entrylist->setCurrent( listfld->lastClicked() );
+    int prevcur = listfld->box()->currentItem();
+    entrylist->setCurrent( listfld->box()->lastClicked() );
     ioobj = entrylist->selected();
     bool chgd = false;
     if ( ioobj )
@@ -109,8 +110,8 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
     if ( prevcur >= entrylist->size() ) prevcur--;
     entrylist->setCurrent( prevcur );
     ioobj = entrylist->selected();
-    listfld->empty();
-    listfld->addItems( entrylist->Ptr() );
+    listfld->box()->empty();
+    listfld->box()->addItems( entrylist->Ptr() );
 }
 
 
@@ -165,7 +166,7 @@ void uiIOObjSelDlg::usePar( const IOPar& iopar )
 	if ( entrylist->selected() && entrylist->selected()->key() != key )
 	{
 	    entrylist->setSelected( MultiID(res) );
-	    listfld->setCurrentItem( entrylist->selected()->name() );
+	    listfld->box()->setCurrentItem( entrylist->selected()->name() );
 	    const_cast<uiIOObjSelDlg*>( this )->selChg(0);
 	}
     }
@@ -182,8 +183,8 @@ bool uiIOObjSelDlg::acceptOK( CallBacker* )
 	{
 	    IOM().to( iol );
 	    entrylist->fill( IOM().dirPtr() );
-	    listfld->empty();
-	    listfld->addItems( entrylist->Ptr() );
+	    listfld->box()->empty();
+	    listfld->box()->addItems( entrylist->Ptr() );
 	    return false;
 	}
 	return true;
@@ -218,12 +219,13 @@ bool uiIOObjSelDlg::createEntry( const char* seltxt )
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
-			bool wclr, const char* trglexp )
+			bool wclr, const char* trglexp, const char* st )
 	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
 		     txt ? txt : (const char*)c.ctxt.trgroup->name(), wclr )
 	, ctio(c)
 	, forread(c.ctxt.forread)
 	, trglobexpr(trglexp)
+	, seltxt(st)
 {
     updateInput();
 }
@@ -335,7 +337,7 @@ void uiIOObjSel::objSel()
 
 uiIOObjRetDlg* uiIOObjSel::mkDlg()
 {
-    return new uiIOObjSelDlg( this, ctio, trglobexpr );
+    return new uiIOObjSelDlg( this, ctio, trglobexpr, seltxt );
 }
 
 
