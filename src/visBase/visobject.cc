@@ -1,13 +1,13 @@
-
 /*+
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : K. Tingdahl
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.19 2002-05-07 12:37:22 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.20 2002-07-30 11:11:02 kristofer Exp $";
 
 #include "visobject.h"
+#include "vistransform.h"
 #include "vismaterial.h"
 #include "visdataman.h"
 #include "iopar.h"
@@ -22,7 +22,22 @@ visBase::VisualObject::VisualObject( bool selectable_ )
     : isselectable( selectable_ )
     , deselnotifier( this )
     , selnotifier( this )
+    , transformation( 0 )
 {}
+
+
+visBase::VisualObject::~VisualObject()
+{
+    if ( transformation ) transformation->unRef();
+}
+
+
+void visBase::VisualObject::setDisplayTransformation( const Transformation* t )
+{
+    if ( transformation ) transformation->unRef();
+    transformation = t;
+    if ( transformation ) transformation->ref();
+}
 
 
 visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
