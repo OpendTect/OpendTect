@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.23 2003-10-20 07:16:44 nanne Exp $
+ RCS:           $Id: uitextedit.cc,v 1.24 2003-11-02 10:17:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 #include <qtextedit.h> 
 
-int uiTextEditBase::defaultWidth_	= 600;
-int uiTextEditBase::defaultHeight_	= 400;
+int uiTextEditBase::defaultWidth_	= 640;
+int uiTextEditBase::defaultHeight_	= 480;
 
 
 uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
