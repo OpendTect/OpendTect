@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.37 2003-03-03 15:19:43 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.38 2003-03-18 16:05:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,19 +27,19 @@ ________________________________________________________________________
 extern "C" const char* GetBaseDataDir();
 
 
-uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si, 
+uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_, 
 					const CallBack& appcb )
 	: uiDialog(p,uiDialog::Setup("Survey setup",
 		    		     "Specify survey parameters","0.3.2")
 				.nrstatusflds(1))
 	, rootdir( GetBaseDataDir() )
 	, dirnmch_(0)
-	, survinfo(si)
+	, survinfo(si_)
 	, survparchanged(this)
     	, x0fld(0)
-    	, orgdirname(si ? (const char*)si->dirname : "")
+    	, orgdirname(si_ ? (const char*)si_->dirname : "")
 {
-    if ( !si ) return;
+    if ( !si_ ) return;
 
     dirnmfld = new uiGenInput( this, "Survey short name (directory name)", 
 			       StringInpSpec( orgdirname ) );
@@ -80,14 +80,25 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 			     IntInpIntervalSpec(true) );
     crlfld = new uiGenInput( rangegrp, "Cross-line range",
 			     IntInpIntervalSpec(true) );
-    zfld = new uiGenInput( rangegrp, "Time range (s)",
-			   DoubleInpIntervalSpec(true) );
+    zfld = new uiGenInput( rangegrp, "Z range", DoubleInpIntervalSpec(true) );
     rangegrp->setHAlignObj( inlfld->uiObj() );
     rangegrp->attach( alignedBelow, pathfld ); 
     rangegrp->attach( ensureBelow, rglbl ); 
     if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
+    timefld = new uiRadioButton( rangegrp, "msec" );
+    timefld->setChecked( true );
+    timefld->attach( alignedBelow, zfld );
+    timefld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
+    meterfld = new uiRadioButton( rangegrp, "meter" );
+    meterfld->attach( rightTo, timefld );
+    meterfld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
+    feetfld = new uiRadioButton( rangegrp, "feet" );
+    feetfld->attach( rightTo,meterfld );
+    feetfld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
+    uiLabel* unitlbl = new uiLabel( rangegrp, "Unit" );
+    unitlbl->attach( leftOf, timefld );
 
     if ( survinfo->is3D() )
     {
@@ -168,8 +179,20 @@ void uiSurveyInfoEditor::setValues()
     crlfld->setValue( crlrg );
     if ( survinfo->zRangeUsable() )
     {
+	bool zistime = survinfo->zIsTime();
 	StepInterval<double> zrg = survinfo->zRange( false );
-	zfld->setValue( zrg );
+	if ( zistime )
+	{
+	    zfld->setValue( mNINT(zrg.start*1000), 0 );
+	    zfld->setValue( mNINT(zrg.stop*1000), 1 );
+	    zfld->setValue( mNINT(zrg.step*1000), 2 );
+	}
+	else
+	    zfld->setValue( zrg );
+
+	timefld->setChecked( zistime );
+	meterfld->setChecked( survinfo->zInMeter() );
+	feetfld->setChecked( survinfo->zInFeet() );
     }
 
     if ( x0fld )
@@ -337,7 +360,12 @@ bool uiSurveyInfoEditor::setRanges()
         return false; 
     }
 
+    survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );
     StepInterval<double> zrs( zfld->getDStepInterval() );
+    if ( survinfo->zIsTime() )
+    {
+	zrs.start /= 1000; zrs.stop /= 1000; zrs.step /= 1000;
+    }
     survinfo->setZRange( zrs, true ); survinfo->setZRange( zrs, false );
     if ( !survinfo->zRangeUsable() )
     {
@@ -467,6 +495,25 @@ void uiSurveyInfoEditor::updStatusBar( const char* dirnm )
     msg += File_getFreeMBytes( dirnm );
     msg += " MB";
     toStatusBar( msg );
+}
+
+
+void uiSurveyInfoEditor::unitPush( CallBacker* cb )
+{
+    mDynamicCastGet(uiRadioButton*,but,cb)
+    if ( !but ) return;
+
+    bool doms, domtr, doft;
+    if ( but == timefld )
+    { doms = true; domtr = doft = false; }
+    else if ( but == meterfld )
+    { domtr = true; doms = doft = false; }
+    else if ( but == feetfld )
+    { doft = true; domtr = doms = false; }
+
+    timefld->setChecked( doms );
+    meterfld->setChecked( domtr );
+    feetfld->setChecked( doft );
 }
 
 

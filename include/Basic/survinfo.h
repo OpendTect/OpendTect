@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.30 2003-03-04 17:05:36 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.31 2003-03-18 16:04:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,12 @@ public:
     inline bool		zRangeUsable() const
 			{ return !mIS_ZERO(zrange_.width()); }
     inline bool		zIsTime() const			{ return zistime_; }
+    inline bool		zInMeter() const		{ return zinmeter_; }
+    inline bool		zInFeet() const			{ return zinfeet_; }
+    void		setZUnit(bool istime,bool un=false);
+    			/*!< un=true: meter; un=false: feet; only used
+   			     when istime = false; */
+    const char*		getZUnit() const;
 
     const char*		comment() const			{ return comment_; }
 
@@ -140,6 +146,8 @@ protected:
     BufferString	datadir;
     BufferString	dirname;
 
+    bool		zinmeter_;
+    bool		zinfeet_;
     bool		zistime_;
     BufferString	comment_;
     BufferString	wsprojnm_;

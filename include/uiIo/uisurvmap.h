@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.10 2003-01-16 11:26:25 bert Exp $
+ RCS:           $Id: uisurvmap.h,v 1.11 2003-03-18 16:05:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,10 +21,9 @@ class uiSurveyMap
 {
 public:
 
-			uiSurveyMap(uiCanvas*,SurveyInfo*);
-    void		drawMap(SurveyInfo*);
+			uiSurveyMap(uiCanvas*);
+    void		drawMap(const SurveyInfo*);
 
-    SurveyInfo*		survinfo;
     uiCanvas*		mapcanvas;
 
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.10 2002-10-08 11:50:22 bert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.11 2003-03-18 16:05:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiGenInput;
 class uiPushButton;
+class uiRadioButton;
 class SurveyInfo;
 class uiLabel;
 
@@ -44,6 +45,9 @@ protected:
     uiGenInput*		inlfld;
     uiGenInput*		crlfld;
     uiGenInput*		zfld;
+    uiRadioButton*	timefld;
+    uiRadioButton*	meterfld;
+    uiRadioButton*	feetfld;
     uiGenInput*		x0fld;
     uiGenInput*		xinlfld;
     uiGenInput*		xcrlfld;
@@ -74,6 +78,7 @@ protected:
     void		setInl1Fld(CallBacker*);
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
+    void		unitPush(CallBacker*);
     void		updStatusBar(const char*);
 };
 

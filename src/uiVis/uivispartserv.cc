@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.142 2003-03-13 13:43:41 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.143 2003-03-18 16:05:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -788,7 +788,10 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
 	else if ( type==visSurvey::PlaneDataDisplay::Crossline )
 	    res = pdd->getCubeSampling(true).hrg.start.crl;
 	else
-	    res = pdd->getCubeSampling(true).zrg.start;
+	{
+	    float val = pdd->getCubeSampling(true).zrg.start;
+	    res = SI().zIsTime() ? mNINT(val * 1000) : val;
+	}
     }
 
     mDynamicCastGet(const visSurvey::PickSetDisplay*,psd,dobj)
@@ -811,8 +814,13 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
 	    if ( !vd ) continue;
 	    int inlid, crlid, tslid;
 	    vd->getPlaneIds( inlid, crlid, tslid );
-	    if ( id == inlid || id == crlid || id == tslid )
+	    if ( id == inlid || id == crlid )
 		res += vd->getPlanePos( id );
+	    else if ( id == tslid )
+	    {
+		float val = vd->getPlanePos( id );
+		res += SI().zIsTime() ? mNINT(val * 1000) : val;
+	    }
 	}
     }
 
@@ -1032,7 +1040,8 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 	else
 	{
 	    res = SI().zIsTime() ? "Time: " : "Depth: ";
-	    res += pdd->getCubeSampling(true).zrg.start;
+	    float val = pdd->getCubeSampling(true).zrg.start;
+	    res += SI().zIsTime() ? mNINT(val * 1000) : val;
 	}
     }
 

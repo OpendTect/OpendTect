@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.33 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uisurvey.cc,v 1.34 2003-03-18 16:05:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -342,7 +342,8 @@ void uiSurvey::mkInfo()
 {
     BufferString inlinfo( "In-line range: " );
     BufferString crlinfo( "Cross-line range: " );
-    BufferString zinfo( "Z range (s): " );
+    BufferString zinfo( "Z range (" );
+    zinfo += survinfo->getZUnit(); zinfo += "): ";
     BufferString bininfo( "Bin size (m/line): " );
 
     if ( survinfo->rangeUsable() )
@@ -375,9 +376,13 @@ void uiSurvey::mkInfo()
 
     if ( survinfo->zRangeUsable() )
     {
-	zinfo += survinfo->zRange().start;
-	zinfo += " - "; zinfo += survinfo->zRange().stop;
-	zinfo += "  step: "; zinfo += survinfo->zRange().step;
+#define mkZString(nr) \
+    zinfo += istime ? mNINT(1000*nr) : nr;
+
+	bool istime = survinfo->zIsTime(); 
+        mkZString( survinfo->zRange().start );
+	zinfo += " - "; mkZString( survinfo->zRange().stop );
+	zinfo += "  step: "; mkZString( survinfo->zRange().step );
     }
 
 
@@ -429,7 +434,7 @@ void uiSurvey::doCanvas( CallBacker* c )
 {
     mDynamicCastGet(uiCanvas*,mapcanvas,c)
     if (!mapcanvas) return;
-    survmap = new uiSurveyMap( mapcanvas, survinfo );
+    survmap = new uiSurveyMap( mapcanvas );
     survmap->drawMap( survinfo );
 }
 

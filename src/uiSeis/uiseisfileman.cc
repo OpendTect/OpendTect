@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.21 2003-03-02 14:23:05 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.22 2003-03-18 16:04:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "binidselimpl.h"
 #include "ptrman.h"
 #include "transl.h"
+#include "survinfo.h"
 
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p )
@@ -103,6 +104,9 @@ void uiSeisFileMan::mkFileInfo()
     txt += bs.start.line; txt += " - "; txt += bs.stop.line; \
     txt += " - "; txt += bs.step.line; \
 
+#define mZRangeTxt(nr) \
+    txt += SI().zIsTime() ? mNINT(1000*nr) : nr;
+
     BufferString txt;
     BinIDSampler bs;
     StepInterval<float> zrg;
@@ -110,9 +114,8 @@ void uiSeisFileMan::mkFileInfo()
     {
 	txt = "Inline range: "; mRangeTxt(inl);
 	txt += "\nCrossline range: "; mRangeTxt(crl);
-	txt += "\nZ-range: "; txt += zrg.start; txt += " - "; 
-			        txt += zrg.stop; txt += " - ";
-				txt += zrg.step;
+	txt += "\nZ-range: "; mZRangeTxt(zrg.start); txt += " - ";
+		mZRangeTxt(zrg.stop); txt += " - "; mZRangeTxt(zrg.step);	
     }
 
     if ( ioobj->pars().size() )

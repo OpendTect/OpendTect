@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.38 2003-03-05 12:01:05 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.39 2003-03-18 16:04:08 nanne Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -95,9 +95,11 @@ BinID BinID2Coord::transform( const Coord& coord ) const
 
 
 SurveyInfo::SurveyInfo()
-	: valid_(false)
-    	, zistime_(true)
-    	, pars_(*new IOPar("Survey defaults"))
+    : valid_(false)
+    , zistime_(true)
+    , zinmeter_(false)
+    , zinfeet_(false)
+    , pars_(*new IOPar("Survey defaults"))
 {
 }
 
@@ -109,8 +111,8 @@ SurveyInfo::~SurveyInfo()
 
 
 SurveyInfo3D::SurveyInfo3D()
-	: step_(1,1)
-    	, wstep_(1,1)
+    : step_(1,1)
+    , wstep_(1,1)
 {
     rdxtr.b = rdytr.c = 1;
     set3binids[2].crl = 0;
@@ -210,7 +212,11 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	    if ( mIsUndefined(si->zrange_.step) || mIS_ZERO(si->zrange_.step) )
 		si->zrange_.step = 0.004;
 	    if ( fms.size() > 3 )
-		si->zistime_ = *fms[3] != 'D';
+	    {
+		si->zistime_ = *fms[3] == 'T';
+		si->zinmeter_ = *fms[3] == 'D';
+		si->zinfeet_ = *fms[3] == 'F';
+	    }
 	    si->zrange_.sort();
 	}
 	else
@@ -298,7 +304,7 @@ bool SurveyInfo::write( const char* basedir ) const
     if ( !mIS_ZERO(zrange_.width()) )
     {
 	fms = ""; fms += zrange_.start; fms += zrange_.stop;
-	fms += zrange_.step; fms += zistime_ ? "T" : "D";
+	fms += zrange_.step; fms += zistime_ ? "T" : ( zinmeter_ ? "D" : "F" );
 	astream.put( sKeyZRange, fms );
     }
     if ( wsprojnm_ != "" )
@@ -523,6 +529,25 @@ bool SurveyInfo::includes( const BinID bid, const float z, bool work ) const
 }
 
 
+const char* SurveyInfo::getZUnit() const
+{
+    if ( zistime_ )
+	return "ms";
+    else if ( zinfeet_ )
+	return "ft";
+    else
+	return "m";
+}
+
+
+void SurveyInfo::setZUnit( bool istime, bool meter )
+{
+    zistime_ = istime;
+    zinmeter_ = istime ? false : meter;
+    zinfeet_ = istime ? false : !meter;
+}
+
+
 BinID SurveyInfo3D::transform( const Coord& c ) const
 {
     if ( !valid_ ) return BinID(0,0);
@@ -655,3 +680,6 @@ void SurveyInfo3D::putTr( const BinID2Coord::BCTransform& tr,
     fms += tr.a; fms += tr.b; fms += tr.c;
     astream.put( key, fms );
 }
+
+
+

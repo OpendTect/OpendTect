@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.1 2003-01-16 11:26:25 bert Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.2 2003-03-18 16:05:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,14 +19,13 @@ ________________________________________________________________________
 #include "iodrawtool.h"
 
 
-uiSurveyMap::uiSurveyMap( uiCanvas* cv, SurveyInfo* si )
+uiSurveyMap::uiSurveyMap( uiCanvas* cv )
 	: mapcanvas(cv)
-	, survinfo(si)
 {
 }
 
 
-void uiSurveyMap::drawMap( SurveyInfo* survinfo )
+void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 {
     ioDrawTool& dt = *mapcanvas->drawTool();
     dt.beginDraw();
@@ -40,7 +39,7 @@ void uiSurveyMap::drawMap( SurveyInfo* survinfo )
     int w = dt.getDevWidth(); int h = dt.getDevHeight();
     dt.drawText( w/2, h/20, txt, al );
 
-    BinIDRange br = survinfo->range();
+    const BinIDRange br = survinfo->range();
     Coord mapcnr[4];
     mapcnr[0] = survinfo->transform( br.start );
     mapcnr[1] = survinfo->transform( BinID(br.start.inl,br.stop.crl) );
@@ -57,10 +56,14 @@ void uiSurveyMap::drawMap( SurveyInfo* survinfo )
         if ( mapcnr[idx].y > maxcoord.y ) maxcoord.y = mapcnr[idx].y;
     }
 
-    Coord mapsize = ( maxcoord - mincoord );
-    Coord border(mapsize.x * 0.25, mapsize.y * 0.25);
-    mincoord -= border;
-    maxcoord += border;
+    const Coord diff( maxcoord - mincoord );
+    float canvsz = mMAX(diff.x,diff.y);
+    canvsz *= 1.5;
+    const Coord center( (mincoord.x+maxcoord.x)/2, (mincoord.y+maxcoord.y)/2 );
+    const Coord lowpart( canvsz/2, 0.47*canvsz );
+    const Coord hipart( canvsz/2, 0.53*canvsz );
+    mincoord = center - lowpart;
+    maxcoord = center + hipart;
 
     uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
     uiSize sz( w, h, true );
@@ -81,22 +84,22 @@ void uiSurveyMap::drawMap( SurveyInfo* survinfo )
 
     dt.setPenColor( Color::Black );
     dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsSmall)) );
-    BufferString ann;
     for ( int idx=0; idx<4; idx++ )
     {
+	bool bot = cpt[idx].y() > h/2;
+	Alignment al( Alignment::Middle, bot ? Alignment::Middle
+	       				     : Alignment::Start);
         BinID bid = survinfo->transform( mapcnr[idx] );
-        int spacing =  cpt[idx].y() > h/2 ? 20 : -20;
-        ann = "";
-        ann += bid.inl; ann += "/"; ann += bid.crl;
-        dt.drawText( cpt[idx].x(), cpt[idx].y()+spacing, ann,
-            Alignment::Middle );
+        int spacing =  bot ? 20 : -20;
+	BufferString annot;
+        annot += bid.inl; annot += "/"; annot += bid.crl;
+        dt.drawText( cpt[idx].x(), cpt[idx].y()+spacing, annot, al );
         double xcoord = double( int( mapcnr[idx].x*10 + .5 ) ) / 10;
         double ycoord = double( int( mapcnr[idx].y*10 + .5 ) ) / 10;
-        ann = "";
-        ann += "("; ann += xcoord; ann += ",";
-        ann += ycoord; ann += ")";
-        dt.drawText( cpt[idx].x(), mNINT(cpt[idx].y()+1.5*spacing), ann,
-            Alignment::Middle );
+        annot = "";
+        annot += "("; annot += xcoord; annot += ",";
+        annot += ycoord; annot += ")";
+        dt.drawText( cpt[idx].x(), mNINT(cpt[idx].y()+1.5*spacing), annot, al );
     }
 
     dt.endDraw();
@@ -116,7 +119,7 @@ uiSurveyMapDlg::uiSurveyMapDlg( uiParent* p )
 
 void uiSurveyMapDlg::doCanvas( CallBacker* )
 {
-    SurveyInfo* survinfo = SI().clone();
-    uiSurveyMap* survmap = new uiSurveyMap( cv, survinfo );
+    uiSurveyMap* survmap = new uiSurveyMap( cv );
+    const SurveyInfo* survinfo = SI().clone();
     survmap->drawMap( survinfo );
 }
