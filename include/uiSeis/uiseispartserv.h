@@ -7,13 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.7 2004-02-17 16:22:34 bert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.8 2004-09-07 14:33:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 #include "multiid.h"
+
+class BufferString;
+class BufferStringSet;
+class MultiID;
+class SeisTrcBuf;
 
 
 /*! \brief Seismic User Interface Part Server */
@@ -27,6 +32,14 @@ public:
     enum ExternalType	{ SegY, CBVS };
     bool		importSeis(ExternalType);
     bool		exportSeis();
+
+    bool		select2DSeis(MultiID&);
+    void		get2DLineInfo(const MultiID&,BufferString&,
+	    			      BufferStringSet&);
+    void		get2DStoredAttribs(const MultiID&,const char*,
+	    				   BufferStringSet&);
+    bool		create2DOutput(const MultiID&,const char*,const char*,
+				       SeisTrcBuf&);
 
     bool		mergeSeis();
     void		manageSeismics();
