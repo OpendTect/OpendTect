@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.16 2002-05-22 16:20:08 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.17 2002-06-05 14:24:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,7 @@ void uiSeisMMProc::setDataTransferrer( SeisMMJobMan* newjm )
     jmfinished = true;
     task_ = jm->dataTransferrer();
     delay = 0;
+    progrfld->append( "Starting data transfer" );
 }
 
 
@@ -163,6 +164,7 @@ void uiSeisMMProc::execFinished()
 	Time_sleep( 2 );
 	if ( !jm->removeTempSeis() )
 	    uiMSG().warning( "Could not remove temporary seismics" );
+	progrfld->append( "Data transferred" );
 	statusBar()->message( "Finished", 0 );
 	finished = true;
     }
@@ -190,8 +192,10 @@ void uiSeisMMProc::execFinished()
 		setDataTransferrer( newjm );
 	    else
 	    {
+		progrfld->append( "Select hosts to calculate lines" );
 		delete jm; jm = newjm;
 		task_ = newjm;
+		newJM();
 	    }
 	}
 	first_time = true;

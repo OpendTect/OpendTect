@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.12 2002-05-22 16:20:08 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.13 2002-06-05 14:24:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "lic.h"
+#include "hostdata.h"
 #include "filegen.h"
 
 
@@ -116,7 +117,11 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     optfld->attach( alignedBelow, remfld );
     optfld->box()->selectionChanged.notify( mCB(this,uiBatchLaunch,optSel) );
 
-    remhostfld = new uiGenInput( this, "Hostname", StringInpSpec(hostname) );
+    StringListInpSpec spec;
+    HostDataList hdl;
+    for ( int idx=0; idx<hdl.size(); idx++ )
+	spec.addString( hdl[idx]->name() );
+    remhostfld = new uiGenInput( this, "Hostname", spec );
     remhostfld->attach( alignedBelow, remfld );
 
     static BufferString fname = "";

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.35 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.36 2002-06-05 14:24:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "transl.h"
 #include "ptrman.h"
 #include "filegen.h"
+#include "errh.h"
 
 
 static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
@@ -35,17 +36,19 @@ static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
 
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
-			      const char* seltxt )
+			      const char* seltxt, bool multisel )
 	: uiIOObjRetDlg(p,c.ctxt.forread?"Input selection":"Output selection")
 	, ctio(c)
 	, nmfld(0)
 	, ioobj(0)
+	, ismultisel(multisel && ctio.ctxt.forread)
 {
     finaliseStart.notify( mCB(this,uiIOObjSelDlg,selChg) );
 
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
     nm += ctio.ctxt.trgroup->name();
+    if ( ismultisel ) nm += "(s)";
     setTitleText( nm );
 
     IOM().to( MultiID(IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id) );
@@ -55,7 +58,9 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     entrylist->setName( seltxt );
     listfld = new uiLabeledListBox( this, entrylist->Ptr() );
-//    listfld->setStretch( 2, 1 );
+    if ( ismultisel )
+	listfld->box()->setMultiSelect( true );
+
     if ( !ctio.ctxt.forread )
     {
 	nmfld = new uiGenInput( this, "Name" );
@@ -64,8 +69,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     listfld->box()->setHSzPol( uiObject::medvar );
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
-    listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
     listfld->box()->rightButtonClicked.notify(mCB(this,uiIOObjSelDlg,rightClk));
+    listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
 
     setOkText( "Select" );
     selChg( this );
@@ -78,8 +83,45 @@ uiIOObjSelDlg::~uiIOObjSelDlg()
 }
 
 
+int uiIOObjSelDlg::nrSel() const
+{
+    if ( !ismultisel )
+	return ioobj ? 1 : 0;
+
+    int nr = 0;
+    for ( int idx=0; idx<listfld->box()->size(); idx++ )
+	if ( listfld->box()->isSelected(idx) ) nr++;
+    return nr;
+}
+
+
+const IOObj* uiIOObjSelDlg::selected( int objnr ) const
+{
+    const int nrsel = nrSel();
+    if ( nrsel < 2 || objnr < 1 ) return ioobj;
+    if ( objnr >= nrsel ) return 0;
+
+    for ( int idx=0; idx<listfld->box()->size(); idx++ )
+    {
+	if ( listfld->box()->isSelected(idx) )
+	    objnr--;
+	if ( objnr < 0 )
+	{
+	    entrylist->setCurrent( idx );
+	    return entrylist->selected();
+	}
+    }
+    BufferString msg( "Should not reach. objnr=" );
+    msg += objnr; msg += " nrsel="; msg += nrsel;
+    pErrMsg( msg );
+    return 0;
+}
+
+
 void uiIOObjSelDlg::selChg( CallBacker* c )
 {
+    if ( ismultisel ) return;
+
     entrylist->setCurrent( listfld->box()->currentItem() );
     ioobj = entrylist->selected();
     if ( c && nmfld )
@@ -180,6 +222,23 @@ bool uiIOObjSelDlg::acceptOK( CallBacker* )
     selChg( 0 );
     if ( !nmfld )
     {
+	if ( ismultisel )
+	{
+	    for ( int idx=0; idx<listfld->box()->size(); idx++ )
+	    {
+		if ( listfld->box()->isSelected(idx) )
+		{
+		    entrylist->setCurrent( idx );
+		    ioobj = entrylist->selected();
+		    break;
+		}
+	    }
+	    if ( !ioobj )
+	    {
+		uiMSG().error( "Please select at least one, or press Cancel" );
+		return false;
+	    }
+	}
 	mDynamicCastGet(IOLink*,iol,ioobj)
 	if ( !ioobj || iol )
 	{
