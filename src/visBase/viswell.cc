@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.8 2003-11-07 14:35:48 bert Exp $
+ RCS:           $Id: viswell.cc,v 1.9 2003-11-07 15:24:46 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vistransform.h"
+#include "survinfo.h"
 #include "iopar.h"
 #include "ranges.h"
 
