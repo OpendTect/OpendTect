@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.19 2003-10-22 15:27:53 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.20 2003-10-23 15:09:34 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -189,6 +189,10 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
     par.set( earthmodelidstr, wellid );
+
+    BufferString linestyle;
+    lineStyle().toString( linestyle );
+    par.set( visBase::Well::linestylestr, linestyle );
 }
 
 
