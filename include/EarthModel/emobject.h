@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.30 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.31 2004-09-14 14:54:10 nanne Exp $
 ________________________________________________________________________
 
 
@@ -76,6 +76,7 @@ public:
     CNotifier<EMObject, PosID>*	getPosAttribChNotifier( int, bool create );
 
     CNotifier<EMObject, PosID>	poschnotifier;
+    Notifier<EMObject>		removenotifier;
 
     virtual Executor*		loader() { return 0; }
     virtual bool		isLoaded() const {return false;}

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.32 2004-09-08 15:10:17 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.33 2004-09-14 14:54:19 nanne Exp $";
 
 #include "emobject.h"
 
@@ -68,10 +68,11 @@ void EM::EMObject::unRefNoDel() const
 
 
 EM::EMObject::EMObject( EMManager& emm_, const EM::ObjectID& id__ )
-    : manager( emm_ )
-    , poschnotifier( this )
-    , id_( id__ )
-    , prefColorChange( this )
+    : manager(emm_)
+    , poschnotifier(this)
+    , removenotifier(this)
+    , id_(id__)
+    , prefColorChange(this)
     , preferredcolor( *new Color(255, 0, 0) )
 {
     posattrchnotifiers.allowNull();
