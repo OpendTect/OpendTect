@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.19 2001-07-19 12:59:55 kristofer Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.20 2001-09-12 12:06:09 arend Exp $
 ________________________________________________________________________
 
 */
@@ -56,12 +56,12 @@ public:
 #undef mChckStrm
 #define mChckStrm \
     if ( strm->fail() ) \
-	{ mNonConstMem(close()); mNonConstMem(stream_fail) = true; return 0; }
+	{ mNonConstMem(close()); mNonConstMem(stream_fail) = true; return T(0);}
 
     T		get( int pos ) const
 		{
 		    if ( !strm ) const_cast<ArrayNDFileStor*>(this)->open();
-		    if ( !strm ) return 0;
+		    if ( !strm ) return T(0);
 
 		    strm->seekg(pos*sizeof(T), ios::beg );
 		    mChckStrm
