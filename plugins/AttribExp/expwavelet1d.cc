@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expwavelet1d.cc,v 1.3 2003-08-28 11:14:02 bert Exp $";
+static const char* rcsID = "$Id: expwavelet1d.cc,v 1.4 2003-08-29 07:03:33 nanne Exp $";
 
 
 #define mEPSILON 1E-9
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: expwavelet1d.cc,v 1.3 2003-08-28 11:14:02 bert 
 #include "interpol.h"
 #include "arrayndimpl.h"
 #include "ptrman.h"
+#include "simpnumer.h"
 
 
 DefineEnumNames(Wavelet1DAttrib, WaveletLen,0,"WaveletLen")
