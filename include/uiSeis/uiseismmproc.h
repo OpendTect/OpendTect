@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.8 2002-05-14 21:30:43 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.9 2002-06-07 14:20:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiSlider;
 class uiIOFileSelect;
 class uiTextEdit;
 class uiFileBrowser;
+class uiGenInput;
 
 
 class uiSeisMMProc : public uiExecutor
@@ -43,6 +44,7 @@ protected:
     uiFileBrowser*	logvwer;
     uiGroup*		machgrp;
     uiSlider*		nicefld;
+    uiGenInput*		rshfld;
 
     bool		running;
     bool		finished;

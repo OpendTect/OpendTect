@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.18 2002-06-07 10:22:36 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.19 2002-06-07 14:20:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uistatusbar.h"
 #include "uislider.h"
+#include "uigeninput.h"
 #include "hostdata.h"
 #include "iopar.h"
 #include "timefun.h"
@@ -45,10 +46,19 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 	{ txt += ": "; txt += res; }
     setTitleText( txt );
 
-    tmpstordirfld = new uiIOFileSelect( this, "Temporary storage directory",
+    uiGroup* jobgrp = new uiGroup( this, "Job pars" );
+    tmpstordirfld = new uiIOFileSelect( jobgrp, "Temporary storage directory",
 	    				false, jm->tempStorageDir() );
     tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
     tmpstordirfld->selectDirectory( true );
+
+    rshfld = new uiGenInput( jobgrp, "Remote shell program to use",
+	    				StringInpSpec("rsh") );
+    rshfld->attach( alignedBelow, tmpstordirfld );
+    jobgrp->setHAlignObj( rshfld->uiObj() );
+
+    uiSeparator* sep = new uiSeparator( this, "Hor sep 1", true );
+    sep->attach( stretchedBelow, jobgrp );
 
     machgrp = new uiGroup( this, "Machine handling" );
 
@@ -75,9 +85,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     usedmachgrp->attach( rightOf, addbut );
     avmachfld->attach( heightSameAs, usedmachgrp );
     machgrp->setHAlignObj( addbut );
-    machgrp->attach( alignedBelow, tmpstordirfld );
+    machgrp->attach( alignedBelow, jobgrp );
+    machgrp->attach( ensureBelow, sep );
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep", true );
+    sep = new uiSeparator( this, "Hor sep 2", true );
     sep->attach( stretchedBelow, machgrp );
     uiLabel* lbl = new uiLabel( this, "Progress" );
     lbl->attach( alignedBelow, sep );
@@ -271,7 +282,9 @@ void uiSeisMMProc::addPush( CallBacker* )
     if ( !running && jm->nrHostsInQueue() )
     {
 	tmpstordirfld->setSensitive(false);
+	rshfld->setSensitive(false);
 	jm->setTempStorageDir( tmpstordirfld->getInput() );
+	jm->setRemExec( rshfld->text() );
 	running = true;
 	prepareNextCycle(0);
     }
