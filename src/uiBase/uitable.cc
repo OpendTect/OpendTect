@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.6 2003-04-01 10:08:08 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.7 2003-04-01 10:13:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ class Input
 {
 public:
 			Input( UserInputObj* o, QWidget* w )
-			    : obj( o ), widg( w ) {}
+			    : obj( o ), widg( w )	{}
+			~Input() 			{ delete obj; }
 
     UserInputObj*	obj;
     QWidget*		widg;
@@ -54,7 +55,8 @@ public:
 
     }
 
-    virtual 		~uiTableBody()		{ delete &messenger_; }
+    virtual 		~uiTableBody()
+			    { deepErase(inputs); delete &messenger_; }
 
     void 		setLines( int prefNrLines )
 			{ 
@@ -127,8 +129,7 @@ public:
 			    }
 
 			    clearCellWidget( pos.y(), pos.x() );
-			    if( inp ) 
-				{ inputs -= inp; delete inp->obj; delete inp; }
+			    if( inp )	{ inputs -= inp; delete inp; }
 			}
 
 protected:
