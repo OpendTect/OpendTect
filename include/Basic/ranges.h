@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.27 2004-01-08 14:37:21 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.28 2004-04-28 12:33:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
     inline T		center() const;
     inline void		shift( const T& len );
     inline void		widen( const T& len, bool allowrev=true );
+    inline void		scale(const T&);
 
     template <class TT>
     inline bool		includes( const TT& t, bool allowrev=true ) const;
@@ -95,6 +96,7 @@ public:
 
     inline int			nrSteps() const;
     virtual inline void		sort( bool asc=true );
+    inline void			scale(const T&);
 
     inline bool			isCompatible( const StepInterval<T>& b,
 	    					T eps=mEPSILON) const;
@@ -241,6 +243,11 @@ void Interval<T>::widen( const T& len, bool allowrev )
 }
 
 
+template <class T> inline
+void Interval<T>::scale( const T& factor )
+{ start *= factor; stop *= factor; }
+
+
 template <class T> template <class TT> inline
 bool Interval<T>::includes( const TT& t, bool allowrev ) const
 {
@@ -335,6 +342,13 @@ void StepInterval<T>::sort( bool asc )
     Interval<T>::sort(asc);
     if ( (asc && step < 0) || (!asc && step > 0) )
 	step = -step;
+}
+
+template <class T> inline
+void StepInterval<T>::scale( const T& factor )
+{
+    Interval<T>::scale( factor );
+    step *= factor;
 }
 
 
