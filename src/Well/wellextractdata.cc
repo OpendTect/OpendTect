@@ -4,13 +4,15 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.8 2004-05-08 22:59:06 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.9 2004-05-09 15:17:12 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
 #include "wellmarker.h"
 #include "welltrack.h"
 #include "welld2tmodel.h"
+#include "welllogset.h"
+#include "welllog.h"
 #include "welldata.h"
 #include "welltransl.h"
 #include "survinfo.h"
@@ -21,6 +23,8 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.8 2004-05-08 22:59:06 be
 #include "iopar.h"
 #include "ptrman.h"
 #include "multiid.h"
+#include "sorting.h"
+#include "errh.h"
 
 DefineEnumNames(Well::TrackSampler,SelPol,1,Well::TrackSampler::sKeySelPol)
 	{ "Nearest trace only", "All corners", 0 };
@@ -31,6 +35,7 @@ const char* Well::TrackSampler::sKeySelPol = "Trace selection";
 const char* Well::TrackSampler::sKeyDataStart = "<Start of data>";
 const char* Well::TrackSampler::sKeyDataEnd = "<End of data>";
 const char* Well::TrackSampler::sKeyLogNm = "Log name";
+const char* Well::LogDataExtracter::sKeyLogNm = Well::TrackSampler::sKeyLogNm;
 
 DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
 		Well::LogDataExtracter::sKeySamplePol)
@@ -279,6 +284,7 @@ Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 
 void Well::LogDataExtracter::usePar( const IOPar& pars )
 {
+    pars.get( sKeyLogNm, lognm );
     const char* res = pars.find( sKeySamplePol );
     if ( res && *res ) samppol = eEnum(SamplePol,res);
 }
@@ -312,10 +318,11 @@ int Well::LogDataExtracter::nextStep()
     }
     const Well::Track& track = timesurv ? *timetrack : wd.track();
     if ( track.size() < 2 ) mRetNext()
-
+    if ( !wr.getLogs() ) mRetNext()
+    
     TypeSet<float>* newres = new TypeSet<float>;
     ress += newres;
-    getData( bivset, track, *newres );
+    getData( bivset, wd, track, *newres );
 
     mRetNext();
 }
@@ -326,41 +333,135 @@ int Well::LogDataExtracter::nextStep()
     bivcoord = SI().transform( biv.binid ); \
 
 void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
+				      const Well::Data& wd,
 				      const Well::Track& track,
 				      TypeSet<float>& res ) const
 {
-    // Find first biv's dah. Assume we can find it on z 
-    // there is a (remote) possibility this is incorrect
-    // - think about horizontal wells!
-    // Luckily, wells are always horizontal or worse near the end.
-    BinIDValue biv; Coord bivcoord;
-    mGtPos(0);
-    float prevz = track.pos( 0 ).z;
-    int hiidx = 0;
-    const double tol = 0.001;
-    for ( int idx=1; idx<track.size(); idx++ )
+    if ( !track.alwaysDownward() )
     {
-	float curz = track.pos( idx ).z;
-	if ( curz > biv.value + tol )
-	    { hiidx = idx; break; }
+	getGenTrackData( bivset, wd, track, res );
+	return;
     }
-    if ( hiidx == 0 ) // all track points lower than first biv? Not likely.
+    int wlidx = wd.logs().indexOf( lognm );
+    if ( wlidx < 0 )
+	return;
+    const Well::Log& wl = wd.logs().getLog( wlidx );
+
+    int bividx = 0; int trackidx = 0;
+    const float tol = 0.001;
+    float z1 = track.pos(trackidx).z;
+    while ( bividx < bivset.size() && bivset[bividx].value < z1 - tol )
+	bividx++;
+    if ( bividx >= bivset.size() ) // Duh. All data below track.
 	return;
 
-    float z1 = track.pos( hiidx - 1 ).z;
-    float z2 = track.pos( hiidx ).z;
-    float dah = ( (biv.value-z2) * track.dah(hiidx-1)
-		+ (z1-biv.value) * track.dah(hiidx) )
-	      / (z2 - z1);
-
-    // Now increase dah until we see next biv
-    // This should also work with horizontal or reversing tracks
-    // (unlike the 'finding the first' algorithm)
-
-    for ( int idx=0; idx<bivset.size(); idx++ )
+    BinIDValue biv; Coord bivcoord;
+    int hiidx = -1;
+    for ( trackidx=1; trackidx<track.size(); trackidx++ )
     {
-	BinIDValue biv = bivset[idx];
-	//TODO
-	res += biv.value;
+	if ( track.pos(trackidx).z > biv.value - tol )
+	    break;
+    }
+    if ( trackidx >= track.size() ) // Duh. Entire track below data.
+	return;
+
+    for ( ; bividx<bivset.size(); bividx++ )
+    {
+	float z2 = track.pos( trackidx ).z;
+	while ( biv.value > z2 )
+	{
+	    trackidx++;
+	    if ( trackidx >= track.size() )
+		return;
+	}
+	z1 = track.pos( trackidx - 1 ).z;
+	float dah = ( (biv.value-z2) * track.dah(trackidx-1)
+		    + (z1-biv.value) * track.dah(trackidx) )
+		  / (z2 - z1);
+	float val = mUndefValue;
+	if ( samppol == Nearest )
+	    res += wl.getValue( dah );
+	else
+	{
+	    float winsz = SI().zRange().step;
+	    if ( SI().zIsTime() )
+		winsz *= wd.d2TModel()->getVelocity( dah );
+	    res += calcVal( wl, dah, winsz );
+	}
+    }
+}
+
+void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
+					      const Well::Data& wd,
+					      const Well::Track& track,
+					      TypeSet<float>& res ) const
+{
+    //TODO Anyone care to tackle this?
+    ErrMsg("Cannot extract data from horizontal tracks (or worse) yet");
+}
+
+
+float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
+				       float winsz ) const
+{
+    Interval<float> rg( dah-winsz, dah+winsz );
+    TypeSet<float> vals;
+    for ( int idx=0; idx<wl.size(); idx++ )
+    {
+	if ( rg.includes(wl.dah(idx)) )
+	{
+	    float val = wl.value(idx);
+	    if ( !mIsUndefined(val) )
+		vals += wl.value(idx);
+	}
+    }
+    if ( vals.size() < 1 ) return mUndefValue;
+    if ( vals.size() == 1 ) return vals[0];
+    if ( vals.size() == 2 ) return samppol == Avg ? (vals[0]+vals[1])/2
+						  : vals[0];
+
+    const int sz = vals.size();
+    if ( samppol == Med )
+    {
+	sort_array( vals.arr(), sz );
+	return vals[sz/2];
+    }
+    else if ( samppol == Avg )
+    {
+	float val = 0;
+	for ( int idx=0; idx<sz; idx++ )
+	    val += vals[idx];
+	return val / sz;
+    }
+    else if ( samppol == MostFreq )
+    {
+	TypeSet<float> valsseen;
+	TypeSet<int> valsseencount;
+	valsseen += vals[0]; valsseencount += 0;
+	for ( int idx=1; idx<sz; idx++ )
+	{
+	    float val = vals[idx];
+	    for ( int ivs=0; ivs<valsseen.size(); ivs++ )
+	    {
+		float vs = valsseen[ivs];
+		if ( mIS_ZERO(vs-val) )
+		    { valsseencount[ivs]++; break; }
+		if ( ivs == valsseen.size()-1 )
+		    { valsseen += val; valsseencount += 0; }
+	    }
+	}
+
+	int maxvsidx = 0;
+	for ( int idx=1; idx<valsseencount.size(); idx++ )
+	{
+	    if ( valsseencount[idx] > valsseencount[maxvsidx] )
+		maxvsidx = idx;
+	}
+	return valsseen[ maxvsidx ];
+    }
+    else
+    {
+	pErrMsg( "SamplePol not supported" );
+	return vals[0];
     }
 }

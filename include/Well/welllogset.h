@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.6 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: welllogset.h,v 1.7 2004-05-09 15:17:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ public:
     int			size() const		{ return logs.size(); }
     Log&		getLog( int idx )	{ return *logs[idx]; }
     const Log&		getLog( int idx ) const	{ return *logs[idx]; }
+    int			indexOf(const char*) const;
 
     Interval<float>	dahInterval() const	{ return dahintv; }
     						//!< not def if start == undef

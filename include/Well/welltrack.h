@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.7 2004-05-08 17:47:32 bert Exp $
+ RCS:		$Id: welltrack.h,v 1.8 2004-05-09 15:17:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,7 @@ public:
     Coord3		coordAfterIdx(float d_ah,int) const;
     			//!< Beware: no bounds check on index.
 
+    bool		alwaysDownward() const;
     void		toTime(const D2TModel&);
 
 protected:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.7 2004-05-08 17:47:32 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.8 2004-05-09 15:17:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class IODirEntryList;
 
 namespace Well
 {
+class Log;
 class Info;
 class Data;
 class Track;
@@ -142,8 +143,10 @@ public:
 					 const ObjectSet<BinIDValueSet>&);
 			~LogDataExtracter()	{ deepErase(ress); }
 
+    BufferString	lognm;
     SamplePol		samppol;
     static const char*	sKeySamplePol;
+    static const char*	sKeyLogNm; //!< equals address of TrackSampler's
 
     void		usePar(const IOPar&);
 
@@ -164,8 +167,11 @@ protected:
     int					curidx;
     const bool				timesurv;
 
-    void		getData(const BinIDValueSet&,const Track&,
+    void		getData(const BinIDValueSet&,const Data&,const Track&,
 	    			TypeSet<float>&) const;
+    void		getGenTrackData(const BinIDValueSet&,const Data&,
+	    				const Track&,TypeSet<float>&) const;
+    float		calcVal(const Well::Log&,float,float) const;
 };
 
 

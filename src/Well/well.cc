@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.23 2004-05-08 21:18:11 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.24 2004-05-09 15:17:12 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -87,6 +87,18 @@ void Well::LogSet::updateDahIntvs()
 {
     for ( int idx=0; idx<logs.size(); idx++ )
 	updateDahIntv( *logs[idx] );
+}
+
+
+int Well::LogSet::indexOf( const char* nm ) const
+{
+    for ( int idx=0; idx<logs.size(); idx++ )
+    {
+	const Log& l = *logs[idx];
+	if ( l.name() == nm )
+	    return idx;
+    }
+    return -1;
 }
 
 
@@ -187,6 +199,24 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 }
 
 
+bool Well::Track::alwaysDownward() const
+{
+    if ( pos_.size() < 2 )
+	return pos_.size();
+
+    float prevz = pos_[0].z;
+    for ( int idx=1; idx<pos_.size(); idx++ )
+    {
+	float curz = pos_[idx].z;
+	if ( curz < prevz )
+	    return false;
+	prevz = curz;
+    }
+
+    return true;
+}
+
+
 void Well::Track::toTime( const D2TModel& d2t )
 {
     TypeSet<float> newdah;
@@ -260,6 +290,22 @@ float Well::D2TModel::getTime( float dh ) const
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
     return (d1 * t_[idx2] + d2 * t_[idx1]) / (d1 + d2);
+}
+
+
+float Well::D2TModel::getVelocity( float dh ) const
+{
+    if ( dah_.size() < 2 ) return mUndefValue;
+
+    int idx1;
+    findFPPos( dah_, dah_.size(), dh, -1, idx1 );
+    if ( idx1 < 1 )
+	idx1 = 1;
+    else if ( idx1 > dah_.size()-1 )
+	idx1 = dah_.size() - 1;
+
+    int idx0 = idx1 - 1;
+    return (dah_[idx1] - dah_[idx0]) / (t_[idx1] - t_[idx0]);
 }
 
 

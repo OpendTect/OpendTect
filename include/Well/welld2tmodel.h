@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.7 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.8 2004-05-09 15:17:11 bert Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ public:
 			: ::UserIDObject(nm)	{}
 
     float		getTime(float d_ah) const;
+    float		getVelocity(float d_ah) const;
 
     int			size() const		{ return t_.size(); }
     float		t( int idx ) const	{ return t_[idx]; }
