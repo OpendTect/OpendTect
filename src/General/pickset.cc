@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.13 2002-01-18 22:40:38 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.14 2002-01-23 14:22:18 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -139,7 +139,7 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
     if ( domrg )
     {
 	Conn* conn = ioobj->getConn( Conn::Read );
-	if ( conn )
+	if ( conn && !conn->bad() )
 	{
 	    delete conn;
 	    if ( !retrieve(mrgd,ioobj,bs) )
