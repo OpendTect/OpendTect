@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.3 2001-02-16 17:01:55 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.4 2001-04-12 07:17:37 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uigroup.h>
-//#include <ranges.h>
 
 class uiLineEdit;
 class uiLabel;
@@ -38,15 +37,15 @@ class uiGenInput : public uiGroup
 public:
 			uiGenInput( uiObject* p, const char* disptxt ); 
 
-			uiGenInput( uiObject* p, const char* disptxt 
-			    ,const DataInpSpec& );
+			uiGenInput( uiObject* p, const char* disptxt,
+			    const DataInpSpec& );
 
-			uiGenInput( uiObject* p, const char* disptxt 
-			    ,const DataInpSpec& ,const DataInpSpec& );
+			uiGenInput( uiObject* p, const char* disptxt,
+			    const DataInpSpec& ,const DataInpSpec& );
 
-			uiGenInput( uiObject* p, const char* disptxt 
-			    ,const DataInpSpec&, const DataInpSpec& 
-			    ,const DataInpSpec& );
+			uiGenInput( uiObject* p, const char* disptxt,
+			    const DataInpSpec&, const DataInpSpec&,
+			    const DataInpSpec& );
 
     void		addInput( const DataInpSpec& );
 
@@ -88,7 +87,7 @@ Don't use when already finalised (i.e. popped up).
 
     void		setWithCheck( bool yn=true )	{ withchk = yn; }
     void		setWithSelect( bool yn=true ) 
-			    { selText = yn ? "Select..." : "" ; }
+			    { selText = yn ? "Select ..." : "" ; }
 
 protected:
 
@@ -103,9 +102,9 @@ protected:
     uiPushButton*	selbut;
     uiPushButton*	clrbut;
 
-                        //! "Select.." is pressed. Calls virtual doSelect
+                        //! "Select ..." is pressed. Calls virtual doSelect
     void		doSelect_(CallBacker*);
-                        //! "Select.." is pressed. Called by doSelect_
+                        //! "Select ..." is pressed. Called by doSelect_
     virtual void	doSelect(CallBacker*)   {}
     void		doClear(CallBacker*);
 
@@ -120,6 +119,8 @@ private:
     bool		checked;
     bool		ro;
     ObjectSet<DataInpSpec> inputs;
+
 };
+
 
 #endif
