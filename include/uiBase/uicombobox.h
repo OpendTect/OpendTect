@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.11 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: uicombobox.h,v 1.12 2002-03-18 15:48:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiComboBoxBody;
 class BufferString;
 template <class T> class ObjectSet;
 
-class uiComboBox : public uiObject, public UserInputObjImpl<const char*>
+class uiComboBox : public uiObject, public UserInputObjImpl<int>
 {
 public:
 
@@ -31,14 +31,12 @@ public:
 				   bool editable=false);
     virtual 		~uiComboBox();
 
-    const char*		getText() const;
-			/*!< This is the text that is actually in the current
+			/*!  This is the text that is actually in the current
 			     item. This text may differ from
 			     textOfItem(currentItem()) when the box is editable.
 			*/
+    const char*		text() const;
     void		setText(const char*);
-			/*!< This text will be put instead of what's
-			     in the item! */
 
     bool		isPresent(const char*) const;
 
@@ -64,9 +62,9 @@ public:
 
 protected:
 
-    virtual void        setvalue_( const char* txt )	{ setCurrentItem(txt); }
-    virtual const char* getvalue_() const		{ return getText(); }
-    virtual void	clear_()			{ setCurrentItem(0); }
+    virtual void        setvalue_( int i )	{ setCurrentItem(i); }
+    virtual int		getvalue_() const	{ return currentItem(); }
+    virtual void	clear_()		{ setCurrentItem(0); }
 
     virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
     virtual bool	notifyValueChanged_( const CallBack& cb )   

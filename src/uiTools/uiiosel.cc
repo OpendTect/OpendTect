@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.23 2002-01-09 15:42:29 arend Exp $
+ RCS:           $Id: uiiosel.cc,v 1.24 2002-03-18 15:48:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,7 +158,7 @@ void uiIOSelect::addSpecialItem( const char* key, const char* value )
 
 const char* uiIOSelect::getInput() const
 {
-    return inp_->box()->getText();
+    return inp_->box()->text();
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.6 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.7 2002-03-18 15:48:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ uiGenBatchLaunch::uiGenBatchLaunch( uiParent* p, UserIDSet nms )
 
 bool uiGenBatchLaunch::acceptOK( CallBacker* )
 {
-    const char* prognm = progfld->box()->getText();
+    const char* prognm = progfld->box()->text();
     if ( ! *prognm )
         { uiMSG().error("Please specify the batch program"); return NO; }
 
@@ -64,7 +64,7 @@ bool uiGenBatchLaunch::acceptOK( CallBacker* )
 
 const char* uiGenBatchLaunch::getProg()
 {
-    return progfld->box()->getText();
+    return progfld->box()->text();
 }
 
 

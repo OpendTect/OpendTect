@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.13 2002-01-08 11:27:22 nanne Exp $
+ RCS:           $Id: uifont.cc,v 1.14 2002-03-18 15:48:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -369,7 +369,7 @@ const char* uiSelFonts::resultFor( const char* str )
     for ( int idx=0; idx<sels.size(); idx++ )
     {
 	if ( sels[idx]->label()->name() == str )
-	    return sels[idx]->box()->getText();
+	    return sels[idx]->box()->text();
     }
 
     return uiFontList::key(0);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.41 2002-03-18 13:41:54 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.42 2002-03-18 15:48:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -486,7 +486,7 @@ public:
 
     virtual bool	isUndef(int) const		{ return false; }
 
-    virtual const char*	text(int idx) const		{ return cbb.getText();}
+    virtual const char*	text(int idx) const		{ return cbb.text();}
     virtual void        setText( const char* t,int idx)	
 			    { cbb.setCurrentItem(t); }
 
