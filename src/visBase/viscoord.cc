@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.16 2004-11-16 09:28:14 kristofer Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.17 2004-11-16 10:33:03 kristofer Exp $";
 
 #include "viscoord.h"
 
@@ -84,7 +84,11 @@ void Coordinates::setLocalTranslation( const Coord& nc )
 	root->insertChild( utmposition, 0 );
     }
 
-    utmposition->utmposition.setValue( SbVec3d(nc.x,nc.y,0) );
+    Coord3 postoset( nc, 0 );
+    if ( transformation )
+	postoset = transformation->transform( postoset );
+
+    utmposition->utmposition.setValue( SbVec3d(postoset.x,postoset.y,0) );
 
     setPositions(worldpos);
 }
@@ -94,7 +98,9 @@ Coord Coordinates::getLocalTranslation() const
 {
     if ( !utmposition ) return Coord(0,0);
     SbVec3d transl = utmposition->utmposition.getValue();
-    return Coord( transl[0], transl[1] );
+    Coord3 res( transl[0], transl[1], 0 );
+    if ( transformation ) res = transformation->transformBack( res );
+    return res;
 }
 
 
@@ -178,7 +184,7 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
 
 	if ( !utmposition && !idx && !size(false) &&
 		(fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
-	    setLocalTranslation(postoset);
+	    setLocalTranslation(pos);
 
 	if ( utmposition )
 	{
