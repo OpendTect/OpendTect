@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.8 2003-10-28 11:13:50 nanne Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.9 2003-10-30 12:22:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,9 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiwelldlgs.h"
 #include "ptrman.h"
+
+
+const char* uiWellPartServer::unitstr = "Show depth in feet";
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )

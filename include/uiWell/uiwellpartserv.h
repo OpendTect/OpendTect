@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.5 2003-10-28 11:14:01 nanne Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.6 2003-10-30 12:22:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
     bool			selectWells(ObjectSet<MultiID>&);
 
     void			selectLogs(const MultiID&,int&,int&);
+
+    static const char*		unitstr;
 };
 
 #endif
