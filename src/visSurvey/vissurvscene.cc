@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.25 2002-04-22 12:34:29 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.26 2002-04-22 14:41:27 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -242,6 +242,7 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;
+    const visSurvey::PlaneDataDisplay* sd = 0;
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -251,6 +252,7 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 	if ( typeid(*pickedobj)==typeid(visSurvey::PlaneDataDisplay) )
 	{
 	    validpicksurface = true;
+	    sd = (const visSurvey::PlaneDataDisplay*) pickedobj;
 	    break;
 	}
     }
@@ -260,5 +262,12 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
     xytmousepos = getRealCoord(eventinfo.pickedpos);
     xytmousepos.z /= -apparentVel();
     xytmousepos.z *= 2;
+
+    Geometry::Pos inlcrl = xytmousepos;
+    BinID binid = SI().transform( Coord( xytmousepos.x, xytmousepos.y ));
+    inlcrl.x = binid.inl;
+    inlcrl.y = binid.crl;
+
+    mouseposval = sd->getValue( inlcrl );
     mouseposchange.trigger();
 }

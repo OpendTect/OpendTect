@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.3 2002-04-22 12:34:50 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.4 2002-04-22 14:41:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,8 @@ public:
 
     void			turnOn(bool);
     bool			isOn() const;
+
+    float			getValue( const Geometry::Pos& ) const;
 
     void			setMaterial( visBase::Material* );
     const visBase::Material*	getMaterial() const;

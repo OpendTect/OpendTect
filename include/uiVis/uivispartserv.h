@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.19 2002-04-22 12:38:40 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.20 2002-04-22 14:41:03 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,9 +72,11 @@ public:
     void		setObjectName(int,const char*);
     const char*		getObjectName(int);
 
+    			/* Mouse stuff */
     Geometry::Pos	getMousePos() const { return mousepos; }
     void		setMousePosDomain( bool xyt ) { mouseposinxyt=xyt; }
     			/*!< If !xyt mouse pos will be in inl, crl, t */
+    float		getMousePosVal() const { return mouseposval; }
 
     void		turnOn(int,bool);
     bool		isOn(int);
@@ -157,6 +159,7 @@ protected:
 
     Geometry::Pos	mousepos;
     bool		mouseposinxyt;
+    float		mouseposval;
 
     ObjectSet<visSurvey::PickSetDisplay>	picks;
     ObjectSet<visSurvey::PlaneDataDisplay>	seisdisps;

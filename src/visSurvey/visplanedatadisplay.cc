@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.4 2002-04-22 12:34:29 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.5 2002-04-22 14:41:27 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
@@ -259,6 +259,10 @@ void visSurvey::PlaneDataDisplay::turnOn(bool n) { trect->turnOn(n); }
 
 
 bool visSurvey::PlaneDataDisplay::isOn() const { return trect->isOn(); }
+
+
+float visSurvey::PlaneDataDisplay::getValue( const Geometry::Pos& pos ) const
+{ return trect->getValue( pos ); }
 
 
 void visSurvey::PlaneDataDisplay::setMaterial( visBase::Material* nm)

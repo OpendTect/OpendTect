@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.14 2002-04-22 10:38:18 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.15 2002-04-22 14:41:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,7 @@ public:
     Notifier<Scene>		mouseposchange;
     Geometry::Pos		getMousePos( bool xyt ) const;
     				/*! If ont xyt it is inlcrlt */
+    float			getMousePosValue() const { return mouseposval;}
 
 protected:
     				~Scene();
@@ -71,6 +72,7 @@ protected:
     visBase::EventCatcher*	eventcatcher;
 
     Geometry::Pos		xytmousepos;
+    float			mouseposval;
 
 private:
     float			appvel;
