@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.3 2004-05-06 11:16:47 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.4 2004-05-06 16:15:22 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ protected:
 
 };
 
+
 /*!\brief Collects positions along selected well tracks */
 
 class TrackSampler : public ::Executor
@@ -76,10 +77,8 @@ class TrackSampler : public ::Executor
 public:
 
     typedef TypeSet<BinIDValue>	BinIDValueSet;
-    enum HorPol		{ Med, Avg, MostFreq, Nearest };
-    			DeclareEnumUtils(HorPol)
-    enum VerPol		{ Corners, NearPos, AvgCorners };
-    			DeclareEnumUtils(VerPol)
+    enum SelPol		{ NearPos, Corners };
+    			DeclareEnumUtils(SelPol)
 
 			TrackSampler(const BufferStringSet& ioobjids,
 				     ObjectSet<BinIDValueSet>&);
@@ -89,8 +88,7 @@ public:
     BufferString	lognm;
     float		above;
     float		below;
-    HorPol		horpol;
-    VerPol		verpol;
+    SelPol		selpol;
 
     void		usePar(const IOPar&);
 
@@ -106,8 +104,7 @@ public:
     static const char*	sKeyTopMrk;
     static const char*	sKeyBotMrk;
     static const char*	sKeyLimits;
-    static const char*	sKeyHorSamplPol;
-    static const char*	sKeyVerSamplPol;
+    static const char*	sKeySelPol;
     static const char*	sKeyDataStart;
     static const char*	sKeyDataEnd;
     static const char*	sKeyLogNm;
@@ -121,7 +118,41 @@ protected:
     Interval<float>		fulldahrg;
 
     void		getData(const Data&,BinIDValueSet&);
-    void		getLimitPos(const Data&,bool,float&) const;
+    void		getLimitPos(const ObjectSet<Marker>&,bool,float&) const;
+    bool		getSnapPos(const Data&,float,BinIDValue&,int&) const;
+
+};
+
+
+/*!\brief Collects positions along selected well tracks */
+
+class LogDataExtracter : public ::Executor
+{
+public:
+
+    enum SamplePol	{ Med, Avg, MostFreq, Nearest };
+    			DeclareEnumUtils(SamplePol)
+
+			LogDataExtracter(const BufferStringSet& ioobjids);
+
+    SamplePol		samppol;
+    static const char*	sKeySamplePol;
+
+    void		usePar(const IOPar&);
+
+    int			nextStep();
+    const char*		message() const	   { return "Scanning well tracks"; }
+    const char*		nrDoneText() const { return "Wells inspected"; }
+    int			nrDone() const	   { return curidx; }
+    int			totalNr() const	   { return ids.size(); }
+
+    const BufferStringSet&	ioObjIds() const	{ return ids; }
+
+protected:
+
+    const BufferStringSet&	ids;
+    int				curidx;
+    const bool			timesurv;
 
 };
 

@@ -4,11 +4,13 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.3 2004-05-06 11:16:47 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.4 2004-05-06 16:15:22 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
 #include "wellmarker.h"
+#include "welltrack.h"
+#include "welld2tmodel.h"
 #include "welldata.h"
 #include "welltransl.h"
 #include "survinfo.h"
@@ -20,19 +22,20 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.3 2004-05-06 11:16:47 be
 #include "ptrman.h"
 #include "multiid.h"
 
-DefineEnumNames(Well::TrackSampler,HorPol,2,Well::TrackSampler::sKeyHorSamplPol)
-	{ "Median", "Average", "Most frequent", "Nearest sample", 0 };
-DefineEnumNames(Well::TrackSampler,VerPol,1,Well::TrackSampler::sKeyVerSamplPol)
-	{ "All corners", "Nearest trace only", "Average corners", 0 };
-
+DefineEnumNames(Well::TrackSampler,SelPol,1,Well::TrackSampler::sKeySelPol)
+	{ "Nearest trace only", "All corners", 0 };
 const char* Well::TrackSampler::sKeyTopMrk = "Top marker";
 const char* Well::TrackSampler::sKeyBotMrk = "Bottom marker";
 const char* Well::TrackSampler::sKeyLimits = "Extraction extension";
-const char* Well::TrackSampler::sKeyHorSamplPol = "Horizontal sampling";
-const char* Well::TrackSampler::sKeyVerSamplPol = "Vertical sampling";
+const char* Well::TrackSampler::sKeySelPol = "Trace selection";
 const char* Well::TrackSampler::sKeyDataStart = "<Start of data>";
 const char* Well::TrackSampler::sKeyDataEnd = "<End of data>";
 const char* Well::TrackSampler::sKeyLogNm = "Log name";
+
+DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
+		Well::LogDataExtracter::sKeySamplePol)
+	{ "Median", "Average", "Most frequent", "Nearest sample", 0 };
+const char* Well::LogDataExtracter::sKeySamplePol = "Data sampling";
 
 
 Well::InfoCollector::InfoCollector( bool dologs, bool domarkers )
@@ -93,8 +96,7 @@ Well::TrackSampler::TrackSampler( const BufferStringSet& i,
 	: Executor("Well data extraction")
 	, above(0)
     	, below(0)
-    	, horpol(Med)
-    	, verpol(Corners)
+    	, selpol(Corners)
     	, ids(i)
     	, bivsets(b)
     	, curidx(0)
@@ -109,10 +111,8 @@ void Well::TrackSampler::usePar( const IOPar& pars )
     pars.get( sKeyBotMrk, botmrkr );
     pars.get( sKeyLogNm, lognm );
     pars.get( sKeyLimits, above, below );
-    const char* res = pars.find( sKeyHorSamplPol );
-    if ( res && *res ) horpol = eEnum(HorPol,res);
-    res = pars.find( sKeyVerSamplPol );
-    if ( res && *res ) verpol = eEnum(VerPol,res);
+    const char* res = pars.find( sKeySelPol );
+    if ( res && *res ) selpol = eEnum(SelPol,res);
 }
 
 
@@ -147,29 +147,129 @@ int Well::TrackSampler::nextStep()
 void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
 {
     Interval<float> dahrg;
-    getLimitPos(wd,true,dahrg.start); if ( mIsUndefined(dahrg.start) ) return;
-    getLimitPos(wd,false,dahrg.stop); if ( mIsUndefined(dahrg.stop) ) return;
+    getLimitPos(wd.markers(),true,dahrg.start);
+    	if ( mIsUndefined(dahrg.start) ) return;
+    getLimitPos(wd.markers(),false,dahrg.stop);
+    	if ( mIsUndefined(dahrg.stop) ) return;
+    if ( dahrg.start > dahrg.stop  ) return;
+
+    float dahincr = SI().zRange().step * .5;
+    if ( SI().zIsTime() )
+	dahincr = 1000 * dahincr; // As dx = v * dt , Using v = 1000 m/s
+
+    BinIDValue biv; float dah = dahrg.start;
+    int trackidx = 0;
+    if ( !getSnapPos(wd,dah,biv,trackidx) )
+	return;
+
+    bivset += biv;
+    BinIDValue prevbiv = biv;
+
+    while ( true )
+    {
+	dah += dahincr;
+	if ( dah > dahrg.stop || !getSnapPos(wd,dah,biv,trackidx) )
+	    return;
+
+	if ( biv.binid != prevbiv.binid || !mIS_ZERO(biv.value-prevbiv.value) )
+	{
+	    bivset += biv; prevbiv = biv;
+	    if ( selpol == Corners )
+	    {
+		//TODO add other corners when hor policy requires that
+	    }
+	}
+    }
 }
 
 
-void Well::TrackSampler::getLimitPos( const Well::Data& wd, bool isstart,
-				      float& val ) const
+bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
+				     BinIDValue& biv, int& trackidx ) const
+{
+    const int tracksz = wd.track().size();
+    while ( trackidx < tracksz && dah > wd.track().dah(trackidx) )
+	trackidx++;
+    if ( trackidx < 1 || trackidx >= tracksz )
+	return false;
+
+    // Position is between trackidx and trackidx-1
+    Coord3 pos = wd.track().coordAfterIdx( dah, trackidx-1 );
+    biv.binid = SI().transform( pos );
+    if ( SI().zIsTime() && wd.d2TModel() )
+    {
+	pos.z = wd.d2TModel()->getTime( dah );
+	if ( mIsUndefined(pos.z) )
+	    return false;
+    }
+    biv.value = SI().zRange().snap( pos.z );
+    return true;
+}
+
+
+void Well::TrackSampler::getLimitPos( const ObjectSet<Marker>& markers,
+				      bool isstart, float& val ) const
 {
     const BufferString& mrknm = isstart ? topmrkr : botmrkr;
     if ( mrknm == sKeyDataStart )
 	val = fulldahrg.start;
-    if ( mrknm == sKeyDataEnd )
+    else if ( mrknm == sKeyDataEnd )
 	val = fulldahrg.stop;
     else
     {
 	val = mUndefValue;
-	for ( int idx=0; idx<wd.markers().size(); idx++ )
+	for ( int idx=0; idx<markers.size(); idx++ )
 	{
-	    if ( wd.markers()[idx]->name() == mrknm )
+	    if ( markers[idx]->name() == mrknm )
 	    {
-		val = wd.markers()[idx]->dah;
+		val = markers[idx]->dah;
 		break;
 	    }
 	}
     }
+
+    float shft = isstart ? (mIsUndefined(above) ? above : -above) : below;
+    if ( mIsUndefined(val) )
+	return;
+
+    if ( !mIsUndefined(shft) )
+	val += shft;
+}
+
+
+Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i )
+	: Executor("Well log data extraction")
+	, ids(i)
+    	, samppol(Med)
+	, curidx(0)
+    	, timesurv(SI().zIsTime())
+{
+}
+
+
+void Well::LogDataExtracter::usePar( const IOPar& pars )
+{
+    const char* res = pars.find( sKeySamplePol );
+    if ( res && *res ) samppol = eEnum(SamplePol,res);
+}
+
+
+#define mRetNext() { \
+    delete ioobj; \
+    curidx++; \
+    return curidx >= ids.size() ? Finished : MoreToDo; }
+
+int Well::LogDataExtracter::nextStep()
+{
+    if ( curidx >= ids.size() )
+	return 0;
+
+    IOObj* ioobj = IOM().get( MultiID(ids.get(curidx)) );
+    if ( !ioobj ) mRetNext()
+    Well::Data wd;
+    Well::Reader wr( ioobj->fullUserExpr(true), wd );
+    if ( !wr.getInfo() ) mRetNext()
+    if ( timesurv && !wr.getD2T() ) mRetNext()
+
+
+    mRetNext();
 }

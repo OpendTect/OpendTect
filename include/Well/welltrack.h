@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.5 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: welltrack.h,v 1.6 2004-05-06 16:15:22 bert Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ public:
 
 			Track()				{}
 
-    int			size() const		{ return pos_.size(); }
+    int			size() const			{ return pos_.size(); }
     const Coord3&	pos( int idx ) const		{ return pos_[idx]; }
     float		dah( int idx ) const		{ return dah_[idx]; }
 
@@ -36,6 +36,10 @@ public:
     Coord3		getPos(float d_ah) const;
     float		getDahForTVD(float,float prevdah=mUndefValue) const;
     			//!< Non-unique. previous DAH may be helpful
+
+    			// If you know what you're doing:
+    Coord3		coordAfterIdx(float d_ah,int) const;
+    			//!< Beware: no bounds check on index.
 
 protected:
 

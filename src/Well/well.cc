@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.20 2004-04-29 12:04:54 nanne Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.21 2004-05-06 16:15:22 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -144,6 +144,12 @@ Coord3 Well::Track::getPos( float dh ) const
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
 	return Coord3(0,0,0);
 
+    return coordAfterIdx( dh, idx1 );
+}
+
+
+Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
+{
     const int idx2 = idx1 + 1;
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
