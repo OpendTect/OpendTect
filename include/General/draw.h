@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.5 2000-08-08 14:16:36 bert Exp $
+ RCS:           $Id: draw.h,v 1.6 2000-10-18 08:28:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,9 @@ public:
     Color		color;
     BufferString	fontkey;
 
+    void		toString(BufferString&) const;
+    void		fromString(const char*);
+
 };
 
 
@@ -65,6 +68,9 @@ public:
     Type		type;
     int			width;
     Color		color;
+
+    void		toString(BufferString&) const;
+    void		fromString(const char*);
 
 };
 
