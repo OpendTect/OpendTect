@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.49 2003-11-11 19:19:24 arend Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.50 2003-11-12 14:48:10 arend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -65,10 +65,12 @@ int File_exists( const char* fname )
 
 int File_isEmpty( const char* fname )
 {
-#ifdef __win__
-    return !File_exists( fname );
+    if( !File_exists( fname ) ) return YES;
+#ifdef __msvc__
+    pErrMsg("File_isEmpty not fully implemented!");
+    return NO;
 #else
-    return !fname || stat(fname,&statbuf) < 0 || statbuf.st_size < 1 ? YES : NO;
+    return stat(fname,&statbuf) < 0 || statbuf.st_size < 1 ? YES : NO;
 #endif
 }
 
@@ -647,7 +649,9 @@ int File_makeWritable( const char* fname, int recursive, int yn )
     FileNameString cmd;
     strcpy( cmd, "attrib " );
     strcat( cmd, yn ? " -R " : " +R " );
+    strcat( cmd, "\"" );
     strcat( cmd, fname );
+    strcat( cmd, "\"" );
     if ( recursive && File_isDirectory(fname) ) strcat( cmd, "\\*.* /S ");
     return system( cmd ) != -1 ? YES : NO;
 
