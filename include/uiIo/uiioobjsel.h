@@ -7,26 +7,56 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.2 2001-05-05 16:33:13 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.3 2001-05-07 09:23:33 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uiiosel.h>
+#include <uidialog.h>
+class IOObj;
 class CtxtIOObj;
+class IODirEntryList;
+class uiListBox;
+class uiGenInput;
+
+/*! \brief Dialog for selection of IOObjs */
+
+class uiIOObjSelDlg : public uiDialog
+{
+public:
+			uiIOObjSelDlg(uiObject*,const CtxtIOObj&);
+			~uiIOObjSelDlg();
+
+    const IOObj*	ioObj() const		{ return ioobj; }
+
+protected:
+
+    const CtxtIOObj&	ctio;
+    IODirEntryList*	entrylist;
+    IOObj*		ioobj;
+
+    uiListBox*		listfld;
+    uiGenInput*		nmfld;
+
+    bool		acceptOK(CallBacker*);
+    void		selChg(CallBacker*);
+};
+
 
 /*! \brief UI element for selection of IOObjs */
 
-class uiIOObjSelect : public uiIOSelect
+class uiIOObjSel : public uiIOSelect
 {
 public:
-			uiIOObjSelect(uiObject*,CtxtIOObj&);
-			~uiIOObjSelect();
+			uiIOObjSel(uiObject*,CtxtIOObj&,const char* txt=0,
+				      bool withclear=false);
 
 protected:
 
     CtxtIOObj&		ctio;
 
+    void		updateInput();
     void		doObjSel(CallBacker*);
 
 };
