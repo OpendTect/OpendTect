@@ -15,14 +15,30 @@ static const char dispchars[] = ".:=|*#>}ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
 ProgressMeter::ProgressMeter( ostream& out, unsigned long dist_,
-			      unsigned short rowlen_ )
-	: strm(&out)
+			      unsigned short rowlen_,
+			      bool df )
+	: strm(out)
 	, rowlen(rowlen_)
 	, dist(dist_)
 	, auxnr(ULONG_MAX)
+	, destrfin(df)
+	, finished(false)
 {
     reset();
     dist = dist_;
+}
+
+
+ProgressMeter::~ProgressMeter()
+{
+    if ( destrfin ) finish();
+}
+
+
+void ProgressMeter::finish()
+{
+    if ( !finished )
+	{ annotate(); finished = true; }
 }
 
 
@@ -32,6 +48,7 @@ void ProgressMeter::reset()
     zeropoint = 0;
     oldtime = Time_getMilliSeconds();
     inited = false;
+    finished = false;
     dist = 1;
     idist = 0;
 }
@@ -56,34 +73,46 @@ unsigned long ProgressMeter::update( unsigned long a )
     unsigned long relprogress = progress - zeropoint;
     if ( !(relprogress % dist) )
     {
-	*strm << (relprogress%(10*dist) ? dispchars[idist]:dispchars[idist+1]);
-	strm->flush();
+	strm << (relprogress%(10*dist) ? dispchars[idist]:dispchars[idist+1]);
+	strm.flush();
     }
 
     if ( relprogress == dist*rowlen ) 
-    {
-	zeropoint = progress;
+	annotate();
 
-	*strm << ' ';
-	if ( auxnr != ULONG_MAX && abs(progress-auxnr) > 1 )
-	    *strm << auxnr << '/';
-  	*strm << progress;
-
-        int newtime = Time_getMilliSeconds();
-	float tdiff = newtime - oldtime;
-	int permsec = (int)((1.e6 * dist * rowlen) / tdiff + .5);
-        *strm<< " (" << permsec * .001 << "/s)" << endl;
-	
-	if ( tdiff >= 0 && tdiff < 5000 )
-	    { idist++; dist *= 10; }
-	else if ( tdiff > 60000 )
-	{
-	    idist--;
-	    if ( idist < 0 ) idist = 0;
-	    else	     dist /= 10;
-	}
-
-        oldtime = newtime; 
-    }
     return progress;
+}
+	
+
+void ProgressMeter::annotate()
+{
+    zeropoint = progress;
+
+    // Show numbers
+    strm << ' ';
+    if ( auxnr != ULONG_MAX && abs(progress-auxnr) > 1 )
+	strm << auxnr << '/';
+    strm << progress;
+
+    // Show rate
+    int newtime = Time_getMilliSeconds();
+    int tdiff = newtime - oldtime;
+    if ( tdiff > 0 )
+    {
+	int permsec = (int)((1.e6 * dist * rowlen) / tdiff + .5);
+	strm << " (" << permsec * .001 << "/s)";
+    }
+    strm << endl;
+    
+    // Adjust display speed
+    if ( tdiff > -1 && tdiff < 5000 )
+	{ idist++; dist *= 10; }
+    else if ( tdiff > 60000 )
+    {
+	idist--;
+	if ( idist < 0 ) idist = 0;
+	else	     dist /= 10;
+    }
+
+    oldtime = newtime; 
 }
