@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.227 2004-07-16 15:35:26 bert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.228 2004-07-29 21:41:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -511,12 +511,12 @@ bool uiVisPartServer::usePar( const IOPar& par )
     if ( par.get( workareastr, res ) )
     {
 	FileMultiString fms(res);
-	BinIDRange hrg; Interval<double> zrg;
-	hrg.start.inl = atoi(fms[0]); hrg.stop.inl = atoi(fms[1]);
-	hrg.start.crl = atoi(fms[2]); hrg.stop.crl = atoi(fms[3]);
-	zrg.start = (double)atof(fms[4]); zrg.stop = (double)atof(fms[5]);
-	const_cast<SurveyInfo&>(SI()).setWorkRange( hrg );
-	const_cast<SurveyInfo&>(SI()).setWorkZRange( zrg );
+	CubeSampling cs;
+	HorSampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zrg;
+	hs.start.inl = atoi(fms[0]); hs.stop.inl = atoi(fms[1]);
+	hs.start.crl = atoi(fms[2]); hs.stop.crl = atoi(fms[3]);
+	zrg.start = atof(fms[4]); zrg.stop = atof(fms[5]);
+	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
 
     if ( !visBase::DM().usePar( par ) )
@@ -582,11 +582,10 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 
     par.set( appvelstr, visSurvey::SPM().getZScale()*1000 );
 
-    BinIDRange hrg = SI().range();
-    StepInterval<double> zrg = SI().zRange();
+    const CubeSampling& cs = SI().sampling( true );
     FileMultiString fms;
-    fms += hrg.start.inl; fms += hrg.stop.inl; fms += hrg.start.crl;
-    fms += hrg.stop.crl; fms += zrg.start; fms += zrg.stop;
+    fms += cs.hrg.start.inl; fms += cs.hrg.stop.inl; fms += cs.hrg.start.crl;
+    fms += cs.hrg.stop.crl; fms += cs.zrg.start; fms += cs.zrg.stop;
     par.set( workareastr, fms );
 
     visBase::DM().fillPar(par, storids);

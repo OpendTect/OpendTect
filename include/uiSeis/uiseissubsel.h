@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.3 2004-06-28 16:00:05 bert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.4 2004-07-29 21:41:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "ranges.h"
 class IOPar;
 class uiGenInput;
+class HorSampling;
 class BufferStringSet;
-class BinIDSampler;
 
 
 class uiSeis2DSubSel : public uiGroup
@@ -30,8 +30,8 @@ public:
     			//!< Trace number range
     void		setInput(const StepInterval<float>&);
     			//!< Z range
-    void		setInput(const BinIDSampler&);
-    			//!< The pseudo-ranges; converted to trace ranges
+    void		setInput(const HorSampling&);
+    			//!< crlrg converted to trace range
     void		setInput(const char* linename);
     void		setInput( const StepInterval<int>& tr,
 	    			  const StepInterval<float>& zr )

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.56 2004-06-23 10:39:52 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.57 2004-07-29 21:41:26 bert Exp $";
 
 #include "vissurvscene.h"
 
@@ -65,13 +65,13 @@ void Scene::updateRange()
 void Scene::setCube()
 {
     if ( !annot ) return;
-    BinIDRange hrg = SI().range();
-    StepInterval<double> vrg = SI().zRange();
+    const HorSampling& hs = SI().sampling(true).hrg;
+    const StepInterval<float>& vrg = SI().zRange(true);
 
-    BinID c0( hrg.start.inl, hrg.start.crl ); 
-    BinID c1( hrg.stop.inl, hrg.start.crl ); 
-    BinID c2( hrg.stop.inl, hrg.stop.crl ); 
-    BinID c3( hrg.start.inl, hrg.stop.crl );
+    BinID c0( hs.start.inl, hs.start.crl ); 
+    BinID c1( hs.stop.inl, hs.start.crl ); 
+    BinID c2( hs.stop.inl, hs.stop.crl ); 
+    BinID c3( hs.start.inl, hs.stop.crl );
 
     annot->setCorner( 0, c0.inl, c0.crl, vrg.start );
     annot->setCorner( 1, c1.inl, c1.crl, vrg.start );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.4 2004-07-28 16:44:45 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.5 2004-07-29 21:41:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ uiSeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
     if ( expectednrsamps < 0 )
 	expectednrsamps = SI().zRange().nrSteps() + 1;
     if ( expectednrtrcs < 0 )
-	expectednrtrcs = BinIDRangeProv(SI().range()).size();
+	expectednrtrcs = SI().sampling(false).hrg.totalNr();
 }
 
 

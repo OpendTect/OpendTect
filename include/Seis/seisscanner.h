@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.5 2004-03-04 17:27:42 bert Exp $
+ RCS:		$Id: seisscanner.h,v 1.6 2004-07-29 21:41:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class IOPar;
 class IOObj;
 class SeisTrc;
-class BinIDSampler;
+class CubeSampling;
 class SeisTrcReader;
 class PosGeomDetector;
 
@@ -37,8 +37,7 @@ public:
     int			nrDone() const;
     const char*		nrDoneText() const;
 
-    bool		getSurvInfo(BinIDSampler&,StepInterval<double>&,
-	    			    Coord crd[3]) const;
+    bool		getSurvInfo(CubeSampling&,Coord crd[3]) const;
     			//!< Z range will be exclusive start/end null samples
     void		report(IOPar&) const;
 

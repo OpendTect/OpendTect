@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.71 2004-07-27 15:41:30 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.72 2004-07-29 21:41:26 bert Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -103,12 +103,12 @@ void PlaneDataDisplay::setType( Type nt )
 
 void PlaneDataDisplay::setGeometry( bool manip, bool init_ )
 {
-    BinID startbid = SI().range().start;
-    BinID stopbid = SI().range().stop;
-    StepInterval<double> vrgd = SI().zRange();
+    BinID startbid = SI().sampling(true).hrg.start;
+    BinID stopbid = SI().sampling(true).hrg.stop;
+    StepInterval<float> vrgd = SI().zRange(true);
 
-    StepInterval<float> inlrg( startbid.inl,stopbid.inl,SI().inlWorkStep() );
-    StepInterval<float> crlrg( startbid.crl,stopbid.crl,SI().crlWorkStep() );
+    StepInterval<float> inlrg( startbid.inl,stopbid.inl,SI().inlStep(true) );
+    StepInterval<float> crlrg( startbid.crl,stopbid.crl,SI().crlStep(true) );
     StepInterval<float> vrg( vrgd.start, vrgd.stop, vrgd.step );
     if ( init_ )
 	trect->getRectangle().setOrigo( 
@@ -165,12 +165,12 @@ void PlaneDataDisplay::setWidth( const Coord3& pos )
 void PlaneDataDisplay::resetDraggerSizes( float appvel )
 {
     const float happvel = appvel/2;
-    BinID startbid = SI().range().start;
-    BinID stopbid = SI().range().stop;
-    StepInterval<double> vrgd = SI().zRange();
+    BinID startbid = SI().sampling(true).hrg.start;
+    BinID stopbid = SI().sampling(true).hrg.stop;
+    StepInterval<float> vrgd = SI().zRange(true);
 
-    StepInterval<float> inlrange( startbid.inl,stopbid.inl,SI().inlWorkStep() );
-    StepInterval<float> crlrange( startbid.crl,stopbid.crl,SI().crlWorkStep() );
+    StepInterval<float> inlrange( startbid.inl,stopbid.inl,SI().inlStep(true) );
+    StepInterval<float> crlrange( startbid.crl,stopbid.crl,SI().crlStep(true) );
 
     float inlspacing = SI().transform(BinID(0,0)).distance(
 		       SI().transform( BinID(1,0)));

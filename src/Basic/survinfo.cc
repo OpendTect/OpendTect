@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.57 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.58 2004-07-29 21:41:26 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -557,6 +557,21 @@ void SurveyInfo::snapStep( BinID& s, BinID rounding, bool work ) const
 
     mSnapStep(inl)
     mSnapStep(crl)
+}
+
+
+void SurveyInfo::snapZ( float& z, int dir, bool work ) const
+{
+    const StepInterval<float>& zrg = sampling(work).zrg;
+    if ( z < zrg.start ) z = zrg.stop; if ( z > zrg.stop ) z = zrg.stop;
+    int idx = zrg.nearestIndex(z);
+    float newz = zrg.atIndex(idx);
+    if ( dir == 1 && newz < z-1e-8 )
+	newz = zrg.atIndex(idx+1);
+    if ( dir == -1 && newz > z+1e-8 )
+	newz = zrg.atIndex(idx-1);
+    z = newz;
+    if ( z < zrg.start ) z = zrg.stop; if ( z > zrg.stop ) z = zrg.stop;
 }
 
 

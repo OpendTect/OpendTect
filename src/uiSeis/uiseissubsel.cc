@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.3 2004-06-28 16:00:05 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.4 2004-07-29 21:41:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "iopar.h"
 #include "separstr.h"
+#include "cubesampling.h"
 #include "uimsg.h"
 
 
@@ -29,7 +30,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const BufferStringSet* lnms )
     trcrgfld->setValue( 1, 0 ); trcrgfld->setValue( 1, 2 );
     trcrgfld->attach( alignedBelow, selfld );
 
-    StepInterval<double> zrg = SI().zRange(true);
+    StepInterval<float> zrg = SI().zRange(true);
     BufferString fldtxt = "Z range "; fldtxt += SI().getZUnit();
     zfld = new uiGenInput( this, fldtxt, FloatInpIntervalSpec(true) );
     if ( !SI().zIsTime() )
@@ -87,9 +88,9 @@ void uiSeis2DSubSel::setInput( const StepInterval<float>& rg )
 }
 
 
-void uiSeis2DSubSel::setInput( const BinIDSampler& bs )
+void uiSeis2DSubSel::setInput( const HorSampling& hs )
 {
-    StepInterval<int> trg( 1, BinIDSamplerProv(bs).dirSize(false), 1 );
+    StepInterval<int> trg( 1, hs.nrCrl(), 1 );
     trcrgfld->setValue( trg );
 }
 
@@ -156,12 +157,12 @@ bool uiSeis2DSubSel::getRange( StepInterval<int>& trg ) const
 
 bool uiSeis2DSubSel::getZRange( StepInterval<float>& zrg ) const
 {
-    const StepInterval<double> survzrg = SI().zRange(false);
+    const StepInterval<float>& survzrg = SI().zRange(false);
     if ( isAll() )
-	assign( zrg, survzrg );
+	zrg = survzrg;
     else
     {
-	assign( zrg, zfld->getDStepInterval() );
+	assign( zrg, zfld->getFStepInterval() );
 	if ( SI().zIsTime() )
 	{
 	    zrg.start *= 0.001;

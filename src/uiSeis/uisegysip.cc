@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.4 2004-03-02 13:39:00 bert Exp $
+ RCS:		$Id: uisegysip.cc,v 1.5 2004-07-29 21:41:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uimsg.h"
 #include "seisscanner.h"
+#include "cubesampling.h"
 #include "filegen.h"
 #include "ptrman.h"
 #include "ioman.h"
@@ -35,8 +36,8 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
 }
 
 
-bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, BinIDSampler& bs,
-				       StepInterval<double>& zrg, Coord crd[3] )
+bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
+				      Coord crd[3] )
 {
     if ( !d ) return false;
     mDynamicCastGet(uiSeisSEGYEntry*,dlg,d)
@@ -52,7 +53,7 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, BinIDSampler& bs,
 
     scanner.launchBrowser( scanFile() );
 
-    if ( !scanner.getSurvInfo(bs,zrg,crd) )
+    if ( !scanner.getSurvInfo(cs,crd) )
     {
 	uiMSG().error( scanner.message() );
 	return false;

@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.17 2004-07-28 16:44:45 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.18 2004-07-29 21:41:26 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.17 2004-07-28 16:44:45 bert 
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "cubesampling.h"
-#include "binidselimpl.h"
 #include "posgeomdetector.h"
 #include "strmprov.h"
 #include "sorting.h"
@@ -101,16 +100,15 @@ int SeisScanner::totalNr() const
 }
 
 
-bool SeisScanner::getSurvInfo( BinIDSampler& bs, StepInterval<double>& zrg,
-			       Coord crd[3] ) const
+bool SeisScanner::getSurvInfo( CubeSampling& cs, Coord crd[3] ) const
 {
-    const char* msg = geomdtector.getSurvInfo( bs, crd );
+    const char* msg = geomdtector.getSurvInfo( cs.hrg, crd );
     if ( msg )
 	{ curmsg = msg; return false; }
 
-    zrg.start = sampling.atIndex( nonnullsamplerg.start );
-    zrg.stop = sampling.atIndex( nonnullsamplerg.stop );
-    zrg.step = sampling.step;
+    cs.zrg.start = sampling.atIndex( nonnullsamplerg.start );
+    cs.zrg.stop = sampling.atIndex( nonnullsamplerg.stop );
+    cs.zrg.step = sampling.step;
 
     return true;
 }
@@ -139,11 +137,11 @@ void SeisScanner::report( IOPar& iopar ) const
     iopar.add( "->", "Global stats" );
     iopar.set( "Number of null traces", (int)nrnulltraces );
     geomdtector.report( iopar );
-    BinIDSampler bs; StepInterval<double> zrg; Coord crd[3];
-    getSurvInfo(bs,zrg,crd);
-    iopar.set( "Z.start", zrg.start );
-    iopar.set( "Z.stop", zrg.stop );
-    iopar.set( "Z.step", zrg.step );
+    CubeSampling cs; Coord crd[3];
+    getSurvInfo(cs,crd);
+    iopar.set( "Z.start", cs.zrg.start );
+    iopar.set( "Z.stop", cs.zrg.stop );
+    iopar.set( "Z.step", cs.zrg.step );
 
     if ( !mIsUndefined(valrg.start) )
     {

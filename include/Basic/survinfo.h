@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.44 2004-07-29 16:52:30 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.45 2004-07-29 21:41:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,8 @@ public:
     StepInterval<int>	inlRange(bool work=true) const;
     StepInterval<int>	crlRange(bool work=true) const;
     const StepInterval<float>& zRange( bool work=true ) const;
-    inline int		inlStep(bool work=true) const;
-    inline int		crlStep(bool work=true) const;
+    int			inlStep(bool work=true) const;
+    int			crlStep(bool work=true) const;
     virtual int		maxNrTraces(bool work=false) const;
 
     void		setWorkRange( const CubeSampling& cs )

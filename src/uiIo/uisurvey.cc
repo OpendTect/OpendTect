@@ -4,13 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.59 2004-05-17 13:56:37 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.60 2004-07-29 21:41:26 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvey.h"
-#include "survinfoimpl.h"
+#include "survinfo.h"
 #include "uibutton.h"
 #include "uicanvas.h"
 #include "uiconvpos.h"
@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "iostrm.h"
 #include "strmprov.h"
+#include "cubesampling.h"
 #include <iostream>
 #include <math.h>
 
@@ -418,57 +419,50 @@ bool uiSurvey::writeSurveyName( const char* nm )
 
 void uiSurvey::mkInfo()
 {
+    const SurveyInfo& si = *survinfo;
     BufferString inlinfo( "In-line range: " );
     BufferString crlinfo( "Cross-line range: " );
     BufferString zinfo( "Z range " );
-    zinfo += survinfo->getZUnit(); zinfo += ": ";
+    zinfo += si.getZUnit(); zinfo += ": ";
     BufferString bininfo( "Bin size (m/line): " );
 
-    if ( survinfo->rangeUsable() )
+    if ( si.sampling(false).hrg.totalNr() )
     {
-	inlinfo += survinfo->range().start.inl;
-	inlinfo += " - "; inlinfo += survinfo->range().stop.inl;
-	inlinfo += "  step: "; inlinfo += survinfo->inlStep();
+	inlinfo += si.sampling().hrg.start.inl;
+	inlinfo += " - "; inlinfo += si.sampling().hrg.stop.inl;
+	inlinfo += "  step: "; inlinfo += si.inlStep();
 	
-	crlinfo += survinfo->range().start.crl;
-	crlinfo += " - "; crlinfo += survinfo->range().stop.crl;
-	crlinfo += "  step: "; crlinfo += survinfo->crlStep();
+	crlinfo += si.sampling().hrg.start.crl;
+	crlinfo += " - "; crlinfo += si.sampling().hrg.stop.crl;
+	crlinfo += "  step: "; crlinfo += si.crlStep();
 
-	if ( survinfo->is3D() )
-	{
-	    const SurveyInfo3D& si = *(SurveyInfo3D*)survinfo;
-	    float inldist = si.transform( BinID(0,0) ).distance(
-		    si.transform( BinID(1,0) ) );
-	    float crldist = si.transform( BinID(0,0) ).distance(
-		    si.transform( BinID(0,1) ) );
+	float inldist = si.transform( BinID(0,0) ).distance(
+		si.transform( BinID(1,0) ) );
+	float crldist = si.transform( BinID(0,0) ).distance(
+		si.transform( BinID(0,1) ) );
 
 #define mkString(dist) \
-    nr = (int)(dist*100+.5); bininfo += nr/100; \
-    rest = nr%100; bininfo += rest < 10 ? ".0" : "."; bininfo += rest; \
+nr = (int)(dist*100+.5); bininfo += nr/100; \
+rest = nr%100; bininfo += rest < 10 ? ".0" : "."; bininfo += rest; \
 
-	    int nr, rest;    
-	    bininfo += "inl: "; mkString(inldist);
-	    bininfo += "  crl: "; mkString(crldist);
-	}
+	int nr, rest;    
+	bininfo += "inl: "; mkString(inldist);
+	bininfo += "  crl: "; mkString(crldist);
     }
 
-    if ( survinfo->zRangeUsable() )
-    {
 #define mkZString(nr) \
     zinfo += istime ? mNINT(1000*nr) : nr;
 
-	bool istime = survinfo->zIsTime(); 
-        mkZString( survinfo->zRange().start );
-	zinfo += " - "; mkZString( survinfo->zRange().stop );
-	zinfo += "  step: "; mkZString( survinfo->zRange().step );
-    }
-
+    const bool istime = si.zIsTime(); 
+    mkZString( si.zRange().start );
+    zinfo += " - "; mkZString( si.zRange().stop );
+    zinfo += "  step: "; mkZString( si.zRange().step );
 
     inllbl->setText( inlinfo );
     crllbl->setText( crlinfo );
     binlbl->setText( bininfo );
     zlbl->setText( zinfo );
-    notes->setText( survinfo->comment() );
+    notes->setText( si.comment() );
 
     bool anysvy = dirlist.size();
     rmbut->setSensitive( anysvy );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.22 2004-07-16 15:35:26 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.23 2004-07-29 21:41:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,13 +189,13 @@ bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
 	}
 
 	IOPar* iopar = new IOPar;
-	iopar->set( BinIDSelector::sKeyseltyp, BinIDSelector::keyseltyps()[2] );
-	iopar->set( BinIDSelector::sKeyfinl, inlrg.start );
-        iopar->set( BinIDSelector::sKeylinl, inlrg.stop );
-        iopar->set( BinIDSelector::sKeystepinl, abs(inlrg.step) );
-        iopar->set( BinIDSelector::sKeyfcrl, crlrg.start );
-        iopar->set( BinIDSelector::sKeylcrl, crlrg.stop );
-        iopar->set( BinIDSelector::sKeystepcrl, abs(crlrg.step) );
+	iopar->set( sKey::BinIDSel, sKey::Range );
+	iopar->set( sKey::FirstInl, inlrg.start );
+        iopar->set( sKey::LastInl, inlrg.stop );
+        iopar->set( sKey::StepInl, abs(inlrg.step) );
+        iopar->set( sKey::FirstCrl, crlrg.start );
+        iopar->set( sKey::LastCrl, crlrg.stop );
+        iopar->set( sKey::StepCrl, abs(crlrg.step) );
 	seliops += iopar;
 	order[idx] = idx;
 	inlstart[idx] = inlrg.start;
@@ -247,12 +247,12 @@ int uiMergeSeis::checkRanges()
     for ( int idx=0; idx<inpsz; idx++ )
     {
 	IOPar& iop = *seliops[idx];
-	iop.get( BinIDSelector::sKeyfinl, inlrg.start );
-	iop.get( BinIDSelector::sKeylinl, inlrg.stop );
-	iop.get( BinIDSelector::sKeystepinl, inlrg.step );
-	iop.get( BinIDSelector::sKeyfcrl, crlrg.start );
-	iop.get( BinIDSelector::sKeylcrl, crlrg.stop );
-	iop.get( BinIDSelector::sKeystepcrl, crlrg.step );
+	iop.get( sKey::FirstInl, inlrg.start );
+        iop.get( sKey::LastInl, inlrg.stop );
+        iop.get( sKey::StepInl, inlrg.step );
+        iop.get( sKey::FirstCrl, crlrg.start );
+        iop.get( sKey::LastCrl, crlrg.stop );
+        iop.get( sKey::StepCrl, crlrg.step );
 	if ( idx )
 	{
 	    if ( (rev && previnlrg.start <= inlrg.stop)
@@ -265,12 +265,12 @@ int uiMergeSeis::checkRanges()
 	       if ( rev )
 	       {
 		   inlrg.stop = previnlrg.start - inlrg.step;
-		   iop.set( BinIDSelector::sKeylinl, inlrg.stop );
+		   iop.set( sKey::LastInl, inlrg.stop );
 	       }
 	       else
 	       {
 		   inlrg.start = previnlrg.stop + inlrg.step;
-		   iop.set( BinIDSelector::sKeyfinl, inlrg.start );
+		   iop.set( sKey::FirstInl, inlrg.start );
 	       }
 	    }
 	}

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.4 2004-04-14 14:06:12 nanne Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.5 2004-07-29 21:41:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uicanvas.h"
 #include "uifont.h"
 #include "uiworld2ui.h"
+#include "cubesampling.h"
 
 #include "draw.h"
 #include "iodrawtool.h"
@@ -30,7 +31,8 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     ioDrawTool& dt = *mapcanvas->drawTool();
     dt.beginDraw();
     dt.clear();
-    if ( !survinfo->rangeUsable() ) { dt.endDraw(); return; }
+    if ( survinfo->sampling(false).hrg.totalNr() < 2 )
+    	{ dt.endDraw(); return; }
 
     dt.setPenColor( Color::Black );
     dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsLarge)) ); 
@@ -39,12 +41,12 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     int w = dt.getDevWidth(); int h = dt.getDevHeight();
     dt.drawText( w/2, h/20, txt, al );
 
-    const BinIDRange br = survinfo->range();
+    const CubeSampling& cs = survinfo->sampling( false );
     Coord mapcnr[4];
-    mapcnr[0] = survinfo->transform( br.start );
-    mapcnr[1] = survinfo->transform( BinID(br.start.inl,br.stop.crl) );
-    mapcnr[2] = survinfo->transform( br.stop );
-    mapcnr[3] = survinfo->transform( BinID(br.stop.inl,br.start.crl) );
+    mapcnr[0] = survinfo->transform( cs.hrg.start );
+    mapcnr[1] = survinfo->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+    mapcnr[2] = survinfo->transform( cs.hrg.stop );
+    mapcnr[3] = survinfo->transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
 
     Coord mincoord = mapcnr[0];
     Coord maxcoord = mapcnr[2];
@@ -119,6 +121,6 @@ uiSurveyMapDlg::uiSurveyMapDlg( uiParent* p )
 void uiSurveyMapDlg::doCanvas( CallBacker* )
 {
     uiSurveyMap* survmap = new uiSurveyMap( cv );
-    const SurveyInfo* survinfo = SI().clone();
-    survmap->drawMap( survinfo );
+    SurveyInfo survinfo( SI() );
+    survmap->drawMap( &survinfo );
 }

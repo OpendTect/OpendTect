@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.59 2004-07-21 13:20:29 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.60 2004-07-29 21:41:26 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvinfoed.h"
 #include "errh.h"
-#include "survinfoimpl.h"
+#include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uigroup.h"
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "cubesampling.h"
 #include "ptrman.h"
 
 extern "C" const char* GetBaseDataDir();
@@ -167,69 +168,66 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     uiLabel* unitlbl = new uiLabel( rangegrp, "Unit" );
     unitlbl->attach( leftOf, timefld );
 
-    if ( survinfo->is3D() )
-    {
-	uiSeparator* horsep2 = new uiSeparator( this );
-	horsep2->attach( stretchedBelow, rangegrp );
+    uiSeparator* horsep2 = new uiSeparator( this );
+    horsep2->attach( stretchedBelow, rangegrp );
 
-	uiLabel* crdlbl = new uiLabel( this, "Coordinate settings:" );
-	crdlbl->attach( leftBorder );
-	crdlbl->attach( ensureBelow, horsep2 );
-	coordset = new uiGenInput( this, "", BoolInpSpec( "Easy", "Advanced" ));
-	coordset->attach( alignedBelow, rangegrp );
-	coordset->attach( rightTo, crdlbl );
-	coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));
+    uiLabel* crdlbl = new uiLabel( this, "Coordinate settings:" );
+    crdlbl->attach( leftBorder );
+    crdlbl->attach( ensureBelow, horsep2 );
+    coordset = new uiGenInput( this, "", BoolInpSpec( "Easy", "Advanced" ));
+    coordset->attach( alignedBelow, rangegrp );
+    coordset->attach( rightTo, crdlbl );
+    coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));
 
-	crdgrp = new uiGroup( this, "Coordinate settings" );
-	ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
-				 BinIDCoordInpSpec(false) ); 
-	ic0fld->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
-	ic1fld = new uiGenInput( crdgrp, "Another position on above in-line",
-				 BinIDCoordInpSpec(false)  );
-	ic2fld = new uiGenInput( crdgrp,
-			"Position not on above in-line",
-			 BinIDCoordInpSpec(false) );
-	xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
-	xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
-	xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
-	crdgrp->setHAlignObj( ic0fld );
-	crdgrp->attach( alignedBelow, rangegrp );
-	crdgrp->attach( ensureBelow, coordset );
-	ic1fld->attach( alignedBelow, ic0fld );
-	ic2fld->attach( alignedBelow, ic1fld );
-	xy0fld->attach( rightOf, ic0fld );
-	xy1fld->attach( rightOf, ic1fld );
-	xy2fld->attach( rightOf, ic2fld );
+    crdgrp = new uiGroup( this, "Coordinate settings" );
+    ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
+			     BinIDCoordInpSpec(false) ); 
+    ic0fld->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
+    ic1fld = new uiGenInput( crdgrp, "Another position on above in-line",
+			     BinIDCoordInpSpec(false)  );
+    ic2fld = new uiGenInput( crdgrp,
+		    "Position not on above in-line",
+		     BinIDCoordInpSpec(false) );
+    xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
+    xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
+    xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
+    crdgrp->setHAlignObj( ic0fld );
+    crdgrp->attach( alignedBelow, rangegrp );
+    crdgrp->attach( ensureBelow, coordset );
+    ic1fld->attach( alignedBelow, ic0fld );
+    ic2fld->attach( alignedBelow, ic1fld );
+    xy0fld->attach( rightOf, ic0fld );
+    xy1fld->attach( rightOf, ic1fld );
+    xy2fld->attach( rightOf, ic2fld );
 
-	trgrp = new uiGroup( this, "I/C to X/Y transformation" );
-	x0fld = new uiGenInput ( trgrp, "X = ", DoubleInpSpec() );
-	x0fld->setElemSzPol( uiObject::small );
-	xinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
-	xinlfld->setElemSzPol( uiObject::small );
-	xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
-	xcrlfld->setElemSzPol( uiObject::small );
-	y0fld = new uiGenInput ( trgrp, "Y = ", DoubleInpSpec() );
-	y0fld->setElemSzPol( uiObject::small );
-	yinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
-	yinlfld->setElemSzPol( uiObject::small );
-	ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
-	ycrlfld->setElemSzPol( uiObject::small );
-	overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
-	overrule->setChecked( false );
-	trgrp->setHAlignObj( xinlfld );
-	trgrp->attach( alignedBelow, rangegrp );
-	trgrp->attach( ensureBelow, coordset );
-	xinlfld->attach( rightOf, x0fld );
-	xcrlfld->attach( rightOf, xinlfld );
-	y0fld->attach( alignedBelow, x0fld );
-	yinlfld->attach( rightOf, y0fld );
-	ycrlfld->attach( rightOf, yinlfld );
-	overrule->attach( alignedBelow, ycrlfld );
+    trgrp = new uiGroup( this, "I/C to X/Y transformation" );
+    x0fld = new uiGenInput ( trgrp, "X = ", DoubleInpSpec() );
+    x0fld->setElemSzPol( uiObject::small );
+    xinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
+    xinlfld->setElemSzPol( uiObject::small );
+    xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
+    xcrlfld->setElemSzPol( uiObject::small );
+    y0fld = new uiGenInput ( trgrp, "Y = ", DoubleInpSpec() );
+    y0fld->setElemSzPol( uiObject::small );
+    yinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
+    yinlfld->setElemSzPol( uiObject::small );
+    ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
+    ycrlfld->setElemSzPol( uiObject::small );
+    overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
+    overrule->setChecked( false );
+    trgrp->setHAlignObj( xinlfld );
+    trgrp->attach( alignedBelow, rangegrp );
+    trgrp->attach( ensureBelow, coordset );
+    xinlfld->attach( rightOf, x0fld );
+    xcrlfld->attach( rightOf, xinlfld );
+    y0fld->attach( alignedBelow, x0fld );
+    yinlfld->attach( rightOf, y0fld );
+    ycrlfld->attach( rightOf, yinlfld );
+    overrule->attach( alignedBelow, ycrlfld );
 
-	applybut = new uiPushButton( this, "Apply" ); 
-	applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
-	applybut->attach( alignedBelow, crdgrp );
-    }
+    applybut = new uiPushButton( this, "Apply" ); 
+    applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
+    applybut->attach( alignedBelow, crdgrp );
 
     finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
 }
@@ -237,57 +235,52 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 
 void uiSurveyInfoEditor::setValues()
 {
-    const BinIDRange br = survinfo->range( false );
-    const BinID bs = BinID( survinfo->inlStep(), survinfo->crlStep() );
-    StepInterval<int> inlrg( br.start.inl, br.stop.inl, bs.inl );
-    StepInterval<int> crlrg( br.start.crl, br.stop.crl, bs.crl );
+    const SurveyInfo& si = *survinfo;
+    const CubeSampling& cs = si.sampling( false );
+    const HorSampling& hs = cs.hrg;
+    StepInterval<int> inlrg( hs.start.inl, hs.stop.inl, hs.step.inl );
+    StepInterval<int> crlrg( hs.start.crl, hs.stop.crl, hs.step.crl );
     inlfld->setValue( inlrg );
     crlfld->setValue( crlrg );
-    if ( survinfo->zRangeUsable() )
-    {
-	bool zistime = survinfo->zIsTime();
-	StepInterval<double> zrg = survinfo->zRange( false );
-	if ( zistime )
-	{
-	    zfld->setValue( mNINT(zrg.start*1000), 0 );
-	    zfld->setValue( mNINT(zrg.stop*1000), 1 );
-	    zfld->setValue( mNINT(zrg.step*1000), 2 );
-	}
-	else
-	    zfld->setValue( zrg );
 
-	timefld->setChecked( zistime );
-	meterfld->setChecked( survinfo->zInMeter() );
-	feetfld->setChecked( survinfo->zInFeet() );
+    bool zistime = si.zIsTime();
+    const StepInterval<float>& zrg = si.zRange( false );
+    if ( zistime )
+    {
+	zfld->setValue( mNINT(zrg.start*1000), 0 );
+	zfld->setValue( mNINT(zrg.stop*1000), 1 );
+	zfld->setValue( mNINT(zrg.step*1000), 2 );
     }
+    else
+	zfld->setValue( zrg );
 
-    if ( x0fld )
+    timefld->setChecked( zistime );
+    meterfld->setChecked( si.zInMeter() );
+    feetfld->setChecked( si.zInFeet() );
+
+    x0fld->setValue( si.b2c_.getTransform(true).a );
+    xinlfld->setValue( si.b2c_.getTransform(true).b );
+    xcrlfld->setValue( si.b2c_.getTransform(true).c );
+    y0fld->setValue( si.b2c_.getTransform(false).a );
+    yinlfld->setValue( si.b2c_.getTransform(false).b );
+    ycrlfld->setValue( si.b2c_.getTransform(false).c );
+
+    Coord c[3]; BinID b[2]; int xline;
+    si.get3Pts( c, b, xline );
+    if ( b[0].inl )
     {
-	SurveyInfo3D& si = *(SurveyInfo3D*)survinfo;
-	x0fld->setValue( si.b2c_.getTransform(true).a );
-	xinlfld->setValue( si.b2c_.getTransform(true).b );
-	xcrlfld->setValue( si.b2c_.getTransform(true).c );
-	y0fld->setValue( si.b2c_.getTransform(false).a );
-	yinlfld->setValue( si.b2c_.getTransform(false).b );
-	ycrlfld->setValue( si.b2c_.getTransform(false).c );
-
-	Coord c[3]; BinID b[2]; int xline;
-	si.get3Pts( c, b, xline );
-	if ( b[0].inl )
+	ic0fld->setValue( b[0] );
+	ic1fld->setValues( b[0].inl, xline );
+	ic2fld->setValue( b[1] );
+	if ( !c[0].x && !c[0].y && !c[1].x && !c[1].y && !c[2].x && !c[2].y)
 	{
-	    ic0fld->setValue( b[0] );
-	    ic1fld->setValues( b[0].inl, xline );
-	    ic2fld->setValue( b[1] );
-	    if ( !c[0].x && !c[0].y && !c[1].x && !c[1].y && !c[2].x && !c[2].y)
-	    {
-		c[0] = si.transform( b[0] );
-		c[1] = si.transform( b[1] );
-		c[2] = si.transform( BinID(b[0].inl,xline) );
-	    }
-	    xy0fld->setValue( c[0] );
-	    xy1fld->setValue( c[2] );
-	    xy2fld->setValue( c[1] );
+	    c[0] = si.transform( b[0] );
+	    c[1] = si.transform( b[1] );
+	    c[2] = si.transform( BinID(b[0].inl,xline) );
 	}
+	xy0fld->setValue( c[0] );
+	xy1fld->setValue( c[2] );
+	xy2fld->setValue( c[1] );
     }
 }
 
@@ -375,13 +368,13 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 
 bool uiSurveyInfoEditor::appButPushed()
 {
-    if ( !x0fld || !setRanges() ) return false;
+    if ( !setRanges() ) return false;
 
     if ( !overrule->isChecked() || coordset->getBoolValue() )
     {
 	if ( !setCoords() ) return false;
 
-	SurveyInfo3D& si = *(SurveyInfo3D*)survinfo;
+	SurveyInfo& si = *survinfo;
 	x0fld->setValue( si.b2c_.getTransform(true).a );
 	xinlfld->setValue( si.b2c_.getTransform(true).b );
 	xcrlfld->setValue( si.b2c_.getTransform(true).c );
@@ -404,8 +397,8 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
     pathfld->setReadOnly( true );
     updStatusBar( orgstorepath );
 
-    if ( survinfo->rangeUsable() ) setValues();
-    if ( !x0fld ) return;
+    if ( survinfo->sampling(false).hrg.totalNr() )
+	setValues();
 
     chgSetMode(0);
     ic1fld->setReadOnly( true, 0 );
@@ -539,43 +532,39 @@ bool uiSurveyInfoEditor::setRanges()
 
     StepInterval<int> irg( inlfld->getIStepInterval() );
     StepInterval<int> crg( crlfld->getIStepInterval() );
-    BinIDRange br;
-    br.start.inl = irg.start; br.start.crl = crg.start;
-    br.stop.inl = irg.stop;   br.stop.crl = crg.stop;
-    survinfo->setRange( br, true ); survinfo->setRange( br, false );
-    if ( !survinfo->rangeUsable() )
+    CubeSampling cs( survinfo->sampling() );
+    HorSampling& hs = cs.hrg;
+    hs.start.inl = irg.start; hs.start.crl = crg.start;
+    hs.stop.inl = irg.stop;   hs.stop.crl = crg.stop;
+    hs.step.inl = irg.step;   hs.step.crl = crg.step;
+    if ( hs.step.inl < 1 ) hs.step.inl = 1;
+    if ( hs.step.crl < 1 ) hs.step.crl = 1;
+
+    survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );
+    cs.zrg = zfld->getFStepInterval();
+    if ( survinfo->zIsTime() )
+	{ cs.zrg.start /= 1000; cs.zrg.stop /= 1000; cs.zrg.step /= 1000; }
+    if ( mIsZero(cs.zrg.step,1e-8) )
+	cs.zrg.step = survinfo->zIsTime() ? 0.004 : 1;
+    cs.normalise();
+    if ( !hs.totalNr() )
     { 
 	uiMSG().error( "Please specify inline/crossline ranges" ); 
         return false; 
     }
-
-    survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );
-    StepInterval<double> zrs( zfld->getDStepInterval() );
-    if ( survinfo->zIsTime() )
-    {
-	zrs.start /= 1000; zrs.stop /= 1000; zrs.step /= 1000;
-    }
-    survinfo->setZRange( zrs, true ); survinfo->setZRange( zrs, false );
-    if ( !survinfo->zRangeUsable() )
+    if ( cs.zrg.nrSteps() == 0 )
     {
 	uiMSG().error( "Please specify time range" );
 	return false;
     }
-
-    if ( !x0fld ) return true;
-
-    BinID bs( irg.step, crg.step );
-    if ( !bs.inl ) bs.inl = 1; if ( !bs.crl ) bs.crl = 1;
-    survinfo->setStep( bs, true ); survinfo->setStep( bs, false );
-
+    survinfo->setRange( cs, false );
+    setValues();
     return true;
 }
 
 
 bool uiSurveyInfoEditor::setCoords()
 {
-    if ( !x0fld ) return true;
-
     BinID b[2]; Coord c[3]; int xline;
     b[0] = ic0fld->getBinID();
     b[1] = ic2fld->getBinID();
@@ -584,7 +573,7 @@ bool uiSurveyInfoEditor::setCoords()
     c[1] = xy2fld->getCoord();
     c[2] = xy1fld->getCoord();
   
-    const char* msg = ((SurveyInfo3D*)survinfo)->set3Pts( c, b, xline );
+    const char* msg = survinfo->set3Pts( c, b, xline );
     if ( msg ) { uiMSG().error( msg ); return false; }
 
     return true;
@@ -593,8 +582,6 @@ bool uiSurveyInfoEditor::setCoords()
 
 bool uiSurveyInfoEditor::setRelation()
 {
-    if ( !x0fld ) return true;
-
     BinID2Coord::BCTransform xtr, ytr;
     xtr.a = x0fld->getValue();   ytr.a = y0fld->getValue();
     xtr.b = xinlfld->getValue(); ytr.b = yinlfld->getValue();
@@ -605,7 +592,7 @@ bool uiSurveyInfoEditor::setRelation()
         return false;
     }
 
-    ((SurveyInfo3D*)survinfo)->b2c_.setTransforms( xtr, ytr );
+    survinfo->b2c_.setTransforms( xtr, ytr );
     return true;
 }
 
@@ -621,20 +608,15 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
     PtrMan<uiDialog> dlg = sip->dialog( this );
     if ( !dlg || !dlg->go() ) return;
 
-    BinIDSampler bs; StepInterval<double> zrg; Coord crd[3];
-    if ( !sip->getInfo(dlg,bs,zrg,crd) )
+    CubeSampling cs; Coord crd[3];
+    if ( !sip->getInfo(dlg,cs,crd) )
 	return;
 
-    survinfo->setRange(bs,true); survinfo->setRange(bs,false);
-    survinfo->setStep(bs.step,true); survinfo->setStep(bs.step,false);
-    survinfo->setZRange(zrg,true); survinfo->setZRange(zrg,false);
-    if ( x0fld )
-    {
-	BinID bid[2];
-	bid[0].inl = bs.start.inl; bid[0].crl = bs.start.crl;
-	bid[1].inl = bs.stop.inl; bid[1].crl = bs.stop.crl;
-	((SurveyInfo3D*)survinfo)->set3Pts( crd, bid, bs.stop.crl );
-    }
+    survinfo->setRange(cs,false);
+    BinID bid[2];
+    bid[0].inl = cs.hrg.start.inl; bid[0].crl = cs.hrg.start.crl;
+    bid[1].inl = cs.hrg.stop.inl; bid[1].crl = cs.hrg.stop.crl;
+    survinfo->set3Pts( crd, bid, cs.hrg.stop.crl );
     setValues();
 
     survinfo->setWSProjName( SI().getWSProjName() );
@@ -688,7 +670,6 @@ void uiSurveyInfoEditor::unitPush( CallBacker* cb )
 
 void uiSurveyInfoEditor::chgSetMode( CallBacker* )
 {
-    if ( !x0fld ) return;
     crdgrp->display( coordset->getBoolValue() );
     trgrp->display( !coordset->getBoolValue() );
 }
@@ -696,6 +677,5 @@ void uiSurveyInfoEditor::chgSetMode( CallBacker* )
 
 void uiSurveyInfoEditor::setInl1Fld( CallBacker* )
 {
-    if ( !x0fld ) return;
     ic1fld->setText( ic0fld->text(0), 0 );
 }
