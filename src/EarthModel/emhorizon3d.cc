@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.13 2002-06-28 08:40:19 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.14 2002-06-28 11:43:09 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -14,6 +14,10 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.13 2002-06-28 08:40:19 krist
 #include "grid.h"
 #include "geom2dsnappedsurface.h"
 #include "survinfo.h"
+#include "arrayndimpl.h"
+#include "arrayndutils.h"
+#include "linsolv.h"
+
 
 #include "ptrman.h"
 #include "ioman.h"
@@ -22,6 +26,9 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.13 2002-06-28 08:40:19 krist
 EarthModel::Horizon::Horizon(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
     , surfaces( *new Geometry::CompositeGridSurface )
+    , a11( 1 ) , a12( 0 ) , a13( 0 ) , a21( 0 ) , a22( 1 ) , a23( 0 )
+    , b11( 1 ) , b12( 0 ) , b13( 0 ) , b21( 0 ) , b22( 1 ) , b23( 0 )
+
 { }
 
 
@@ -140,10 +147,9 @@ bool EarthModel::Horizon::import( const Grid& grid )
     const Coord coord01 = grid.getCoord( node01 );
     const Coord coord10 = grid.getCoord( node10 );
 
-    surfaces.getSurfaces()[0]->setTransform(
-	    coord00.x, coord00.y, node00.row, node00.col,
-	    coord01.x, coord01.y, node01.row, node01.col,
-	    coord10.x, coord00.y, node10.row, node10.col );
+    setTransform( coord00.x, coord00.y, node00.row, node00.col,
+		  coord01.x, coord01.y, node01.row, node01.col,
+		  coord10.x, coord00.y, node10.row, node10.col );
 
     const int nrrows = grid.nrRows();
     const int nrcols = grid.nrCols();
@@ -187,17 +193,77 @@ bool EarthModel::Horizon::import( const Grid& grid )
 
 Coord EarthModel::Horizon::getCoord( const RowCol& node ) const
 {
-    if ( !surfaces.getSurfaces()[0] ) return Coord( mUndefValue, mUndefValue );
-    Geometry::Pos pos = surfaces.getSurfaces()[0]->getPos( node );
-    return Coord( pos.x, pos.y );
+    return Coord( a11*node.row+a12*node.col+a13,
+	    	  a21*node.row+a22*node.col+a23 );
 }
 
 
 RowCol EarthModel::Horizon::getClosestNode( const Coord& pos ) const
 {
-    RowCol res;
-    surfaces.getSurfaces()[0]->transform( pos.x, pos.y, res );
-    return res;
+    return RowCol( mNINT(b11*pos.x+b12*pos.y + b13),
+	           mNINT(b21*pos.x+b22*pos.y + b23) );
+}
+
+
+void EarthModel::Horizon::setTransform(
+    float x1, float y1, float i0_1, float i1_1,
+    float x2, float y2, float i0_2, float i1_2,
+    float x3, float y3, float i0_3, float i1_3 )
+{
+    for ( int idx=0; idx<surfaces.nrSubSurfaces(); idx++ )
+    {
+	surfaces.getSurfaces()[idx]->setTransform( x1, y1, i0_1, i1_1,
+						   x2, y2, i0_2, i1_2,
+						   x3, y3, i0_3, i1_3 );
+    }
+
+    Array2DImpl<double> A(3,3);
+    A.set( 0, 0, i0_1 );
+    A.set( 0, 1, i1_1 );
+    A.set( 0, 2, 1 );
+
+    A.set( 1, 0, i0_2 );
+    A.set( 1, 1, i1_2 );
+    A.set( 1, 2, 1 );
+
+    A.set( 2, 0, i0_3 );
+    A.set( 2, 1, i1_3 );
+    A.set( 2, 2, 1 );
+
+    double b[] = { x1, x2, x3 };
+    double x[3];
+
+    LinSolver<double> linsolver( A );
+    linsolver.apply( b, x );
+    a11 = x[0]; a12 = x[1]; a13 = x[2];
+
+    b[0] = y1; b[1] = y2; b[2] = y3;
+
+    linsolver.apply( b, x );
+    a21 = x[0]; a22 = x[1]; a23 = x[2];
+
+    A.set( 0, 0, x1 );
+    A.set( 0, 1, y1 );
+    A.set( 0, 2, 1 );
+
+    A.set( 1, 0, x2 );
+    A.set( 1, 1, y2 );
+    A.set( 1, 2, 1 );
+
+    A.set( 2, 0, x3 );
+    A.set( 2, 1, y3 );
+    A.set( 2, 2, 1 );
+
+    b[0] = i0_1; b[1] = i0_2; b[2] = i0_3;
+
+    LinSolver<double> linsolverB( A );
+    linsolverB.apply( b, x );
+    b11 = x[0]; b12 = x[1]; b13 = x[2];
+
+    b[0] = i1_1; b[1] = i1_2; b[2] = i1_3;
+
+    linsolverB.apply( b, x );
+    b21 = x[0]; b22 = x[1]; b23 = x[2];
 }
 
 
@@ -214,3 +280,4 @@ void EarthModel::Horizon::getTriStrips(
 	tristrips += subhorstrip;
     }
 }
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.8 2002-06-28 08:40:17 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.9 2002-06-28 11:43:27 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -82,14 +82,22 @@ public:
     Geometry::CompositeGridSurface&		getSurfaces(){return surfaces;}
 
 protected:
-    			friend EMManager;
-			friend EMObject;
+    		friend EMManager;
+		friend EMObject;
+		friend dgbEarthModelHorizonReader;
+		friend dgbEarthModelHorizonWriter;
 
-    			Horizon(EMManager&, const MultiID&);
-    			~Horizon();
+    		Horizon(EMManager&, const MultiID&);
+    		~Horizon();
 
+    void	setTransform( float x1, float y1, float row1, float col1,
+	    		      float x2, float y2, float row2, float col2,
+			      float x3, float y3, float row3, float col3 );
 
-    Geometry::CompositeGridSurface&	surfaces;	
+    float	a11,a12,a13,a21,a22,a23; //Transformation coords
+    float	b11,b12,b13,b21,b22,b23; //Reverse transformation coords
+
+    Geometry::CompositeGridSurface&	surfaces;
 };
 
 }; // Namespace
