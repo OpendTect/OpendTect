@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.7 2001-05-02 13:50:20 windev Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.8 2001-05-02 14:04:57 arend Exp $";
 
 #include "strmoper.h"
 #include "strmprov.h"
@@ -81,7 +81,7 @@ bool readWithRetry( istream& strm, void* ptr, unsigned int nrbytes,
     if ( strm.bad() || strm.eof() ) return false;
     strm.clear();
 
-    strm.read( (const char*)ptr, nrbytes );
+    strm.read( (char*)ptr, nrbytes );
     if ( strm.bad() ) return false;
 
     nrbytes -= strm.gcount();
