@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.2 2002-05-21 09:46:09 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.3 2002-05-21 13:44:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ namespace Geometry
 
 class dgbEarthModelHorizonReader;
 class dgbEarthModelHorizonWriter;
+class Grid;
 
 namespace EarthModel
 {
@@ -61,7 +62,10 @@ public:
     bool		isLoaded() const;
     Executor*		saver();
 
-    Executor*		tableLoader(bool inlcrl, bool depthintime);
+    bool		import( const Grid& );
+    			/*!< Removes all data and sets it to a single-
+			     sub-horizon.
+			*/
 
     void		getTriStrips( Geometry::TriangleStripSet* ) const;
     const Geometry::CompositeGridSurface&	getSurfaces() const

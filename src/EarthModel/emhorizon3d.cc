@@ -4,13 +4,15 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.2 2002-05-21 09:46:36 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.3 2002-05-21 13:44:29 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
 #include "geomtristripset.h"
 #include "emhorizontransl.h"
 #include "executor.h"
+#include "grid.h"
+#include "geom2dsnappedsurface.h"
 
 #include "ptrman.h"
 #include "ioman.h"
@@ -121,6 +123,43 @@ Executor* EarthModel::Horizon::saver()
     }
 
     return exec;
+}
+
+
+bool EarthModel::Horizon::import( const Grid& grid )
+{
+    while ( surfaces.nrSubSurfaces() ) surfaces.removeSubSurface( 0 );
+    surfaces.addSubSurface();
+
+    const int nrrows = grid.nrRows();
+    const int nrcols = grid.nrCols();
+
+    const GridNode n00( 0, 0 );
+    const GridNode n01( 0, 1 );
+    const GridNode n11( 1, 1 );
+
+    const Coord c00 = grid.getCoord( n00 );
+    const Coord c01 = grid.getCoord( n01 );
+    const Coord c11 = grid.getCoord( n11 );
+
+
+    surfaces.getSurfaces()[0]->setTransform( c00.x, c00.y, n00.row, n00.col,
+	    				     c01.x, c01.y, n01.row, n01.col,
+					     c11.x, c11.y, n11.row, n11.col );
+
+    for ( int row=0; row<nrrows; row++ )
+    {
+	for ( int col=0; col<nrcols; col++ )
+	{
+	    GridNode node( row, col );
+	    Coord coord = grid.getCoord( node );
+	    Geometry::Pos pos(coord.x, coord.y, grid.getValue( node ));
+
+	    surfaces.getSurfaces()[0]->setPos( node, pos );
+	}
+    }
+
+    return true;
 }
 
 
