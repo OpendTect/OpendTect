@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.13 2001-04-26 09:34:50 windev Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.14 2001-04-27 16:46:22 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -116,6 +116,14 @@ void IOPar::merge( const IOPar& iopar )
 {
     for ( int idx=0; idx<iopar.pars_.size(); idx++ )
 	set( iopar.pars_[idx]->name(), iopar.pars_[idx]->obj->name() );
+}
+
+
+const char* IOPar::compKey( const char* key1, int k2 )
+{
+    static BufferString intstr;
+    intstr = ""; intstr += k2;
+    return compKey( key1, (const char*)intstr );
 }
 
 
