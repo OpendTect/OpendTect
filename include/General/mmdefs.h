@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		Dec 2002
- RCS:		$Id: mmdefs.h,v 1.7 2004-11-02 16:05:38 arend Exp $
+ RCS:		$Id: mmdefs.h,v 1.8 2004-11-04 16:47:23 arend Exp $
 ________________________________________________________________________
 
 Defines for multimachine status tags and codes
@@ -19,6 +19,7 @@ Defines for multimachine status tags and codes
 #define mPROC_STATUS	'S'
 #define mCTRL_STATUS	'C'
 #define mEXIT_STATUS	'E'
+#define mERROR_MSG	'e'
 
 
 // Control status values

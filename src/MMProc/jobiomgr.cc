@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.2 2004-11-03 16:20:16 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.3 2004-11-04 16:47:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,18 +75,22 @@ protected:
 
 
 JobIOMgr::JobIOMgr( int firstport, int niceval )
-    : hdl_( *new HostDataList )
-    , iohdlr_( *new JobIOHandler(firstport) )
+    : iohdlr_( *new JobIOHandler(firstport) )
     , niceval_( niceval )
 {}
 
 JobIOMgr::~JobIOMgr()
-{ delete &hdl_; delete &iohdlr_; }
+{ delete &iohdlr_; }
+
+
+void JobIOMgr::reqModeForJob( const JobInfo& ji, Mode m )
+    { iohdlr_.reqModeForJob(ji,m); } 
 
 ObjQueue<StatusInfo>& JobIOMgr::statusQueue() { return iohdlr_.statusQueue(); }
 
 bool JobIOMgr::startProg( const char* progname, const HostData& machine,
-	IOPar& iop, const FilePath& basefp, const JobInfo& ji )
+	IOPar& iop, const FilePath& basefp, const JobInfo& ji,
+	const char* rshcomm )
 {
     DBG::message(DBG_MM,"JobIOMgr::startProg");
 
@@ -95,7 +99,9 @@ bool JobIOMgr::startProg( const char* progname, const HostData& machine,
 	return false;
 
     CommandString cmd;
-    mkCommand( cmd, machine, progname, basefp, ioparfp, ji );
+    mkCommand( cmd, machine, progname, basefp, ioparfp, ji, rshcomm );
+
+    iohdlr_.addJobDesc( machine, ji.descnr_ );
 
     if ( mDebugOn )
     {
@@ -112,6 +118,7 @@ bool JobIOMgr::startProg( const char* progname, const HostData& machine,
 	mErrRet(s);
     }
 
+    
     return true;
 }
 
@@ -169,10 +176,10 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
 void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 			  const char* progname, const FilePath& basefp,
-			  const FilePath& iopfp, const JobInfo& ji )
+			  const FilePath& iopfp, const JobInfo& ji,
+			  const char* rshcomm )
 {
-    const bool remote = machine.name() && *machine.name()
-			&& !hdl_[0]->isKnownAs(machine.name());
+    const bool remote = machine.isKnownAs( HostData::localHostName() );
 
     cmd = "@";
     cmd.addWoSpc( GetExecScript(remote) );
@@ -181,7 +188,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     {
 	cmd.add( machine.name() );
 
-	cmd.addFlag( "--rexec", hdl_.rshComm() ); // rsh/ssh/rcmd
+	cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh/rcmd
 
 	if ( machine.isWin()  ) cmd.add( "--iswin" );
 

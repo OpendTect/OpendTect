@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.62 2004-10-05 14:19:23 dgb Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.63 2004-11-04 16:48:32 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.62 2004-10-05 14:19:23 dgb Exp
 #include "timefun.h"
 #include "sighndl.h"
 #include "socket.h"
+#include "separstr.h"
+#include "hostdata.h"
 #include "mmdefs.h"
 #include "plugins.h"
 #include "strmprov.h"
@@ -243,10 +245,16 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
 	return false;
     }
 
-    if ( hasmessage )
-	sock->writeErrorMsg( errmsg );
+    SeparString statstr;
 
-    sock->writetag( tag, jobid_, status );
+    statstr += jobid_;
+    statstr += status;
+    statstr += HostData::localHostName();
+
+    if ( hasmessage )
+	statstr += errmsg;
+
+    sock->writetag( tag, statstr );
 
     bool ret = true;
 
@@ -289,7 +297,14 @@ bool BatchProgram::writeErrorMsg( const char* msg )
 
     if ( Socket* sock = mkSocket() )
     {
-	return sock->writeErrorMsg( msg );
+	FileMultiString statstr;
+
+	statstr += jobid_;
+	statstr += -1; // status
+	statstr += HostData::localHostName();
+	statstr += msg;
+
+	return sock->writetag( mERROR_MSG, statstr );
     }
 
     return false;

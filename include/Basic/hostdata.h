@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.15 2004-11-03 16:20:26 arend Exp $
+ RCS:           $Id: hostdata.h,v 1.16 2004-11-04 16:47:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,17 +32,27 @@ public:
 
 protected:
     			HostData( const char* nm, bool iswin=false )
-			: name_(nm)
-			, iswin_(iswin)
-			, localhd_(0)
-			, sharedata_(0)	{}
+			    : name_(nm)
+			    , iswin_(iswin)
+			    , localhd_(0)
+			    , sharedata_(0)	{}
 public:
     			HostData( const char* nm, const HostData& localhost,
 				  bool iswin=false )
-			: name_(nm)
-			, iswin_(iswin)
-			, localhd_(&localhost)
-			, sharedata_(0)	{}
+			    : name_(nm)
+			    , iswin_(iswin)
+			    , localhd_(&localhost)
+			    , sharedata_(0)	{}
+
+    			HostData( const HostData& oth )
+			    : name_( oth.name_ )
+			    , aliases_( oth.aliases_ )
+			    , iswin_( oth.iswin_ )
+			    , appl_pr_( oth.appl_pr_ )
+			    , data_pr_( oth.data_pr_ )
+			    , pass_( oth.pass_ )
+			    , localhd_( oth.localhd_ )
+			    , sharedata_( oth.sharedata_ ) {}
 
     virtual		~HostData()	{ deepErase(aliases_); }
 
@@ -81,6 +91,7 @@ public:
     			{ return localhd_ ? *localhd_ : *this; }
 
     const ShareData*	shareData() const	{ return sharedata_; }
+    void		setShareData( const ShareData* sd ) { sharedata_ = sd; }
 
 protected:
 

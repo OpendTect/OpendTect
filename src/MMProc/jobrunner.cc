@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.4 2004-11-02 16:05:21 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.5 2004-11-04 16:47:13 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "jobrunner.h"
 #include "jobinfo.h"
-#include "jobiohdlr.h"
+#include "jobiomgr.h"
 #include "jobdescprov.h"
 #include "hostdata.h"
 #include "filepath.h"
@@ -168,7 +168,7 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 
     FilePath basefp( procdir_ ); basefp.add( basenm );
 
-    if ( !iomgr().startProg( prog_, hd, iop, basefp, ji ) )
+    if ( !iomgr().startProg( prog_, hd, iop, basefp, ji, rshcomm_ ) )
     {
 	ji.state_ = JobInfo::Failed;
 	iomgr().fetchMsg(ji.curmsg_);
