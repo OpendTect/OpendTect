@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.4 2003-10-17 14:19:03 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.5 2003-10-21 12:05:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,10 +108,12 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 		prevkey = entries[newcur]->ioobj->key();
 	}
     }
+
     if ( chgd )
     {
 	refreshList( prevkey );
 	selChg(c);
+	if ( tb == locbut ) postRelocation.trigger();
     }
 }
 
@@ -229,12 +231,18 @@ bool uiIOObjManipGroup::relocEntry( Translator* tr )
 	filefilt += "."; filefilt += defext;
 	filefilt += ";;*";
     }
-    uiFileDialog dlg( this, uiFileDialog::AnyFile, oldfnm, filefilt, caption );
+
+    uiFileDialog dlg( this, uiFileDialog::Directory, oldfnm, filefilt, caption);
     if ( !dlg.go() ) return false;
 
     IOStream chiostrm;
     chiostrm.copyFrom( iostrm );
-    BufferString newfnm( dlg.fileName() );
+    const char* newdir = dlg.fileName();
+    if ( !File_isDirectory(newdir) )
+    { uiMSG().error( "Selected path is not a directory" ); return false; }
+
+    const char* filenm = File_getFileName(oldfnm);
+    BufferString newfnm = File_getFullPath( newdir, filenm );
     chiostrm.setFileName( newfnm );
     if ( !doReloc(tr,*iostrm,chiostrm) )
 	return false;
@@ -286,7 +294,6 @@ bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
 	    tr->implRename( &iostrm, newfname, &cb );
 	else
 	    iostrm.implRename( newfname, &cb );
-	postRelocation.trigger();
     }
 
     iostrm.setFileName( newfname );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.31 2003-10-20 07:17:52 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.32 2003-10-21 12:05:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,9 @@ void uiSeisFileMan::relocMsg( CallBacker* cb )
 
 void uiSeisFileMan::postReloc( CallBacker* cb )
 {
-    selChg( cb );
+    int curidx = 
+	entrylist->ObjectSet<IODirEntry>::indexOf( entrylist->current() );
+    listfld->setCurrentItem( curidx );
 }
 
 
