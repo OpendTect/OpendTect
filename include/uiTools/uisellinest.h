@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.4 2002-05-23 09:29:58 nanne Exp $
+ RCS:           $Id: uisellinest.h,v 1.5 2002-05-31 10:26:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 #include "uidobjset.h"
+
+#include "uidialog.h"
 
 class uiComboBox;
 class uiColorInput;
@@ -42,6 +44,22 @@ protected:
     const LineStyle&	ls;
 
 };
+
+
+class LineStyleDlg : public uiDialog
+{
+public:
+                        LineStyleDlg(uiParent*,const LineStyle&,
+				     const char* txt=0,bool withcolor=true,
+				     bool withwidth=false);
+    LineStyle           getLineStyle() const;
+
+protected:
+
+    uiSelLineStyle*     lsfld;
+
+};
+
 
 
 #endif

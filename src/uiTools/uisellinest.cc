@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.7 2002-05-23 09:29:51 nanne Exp $
+ RCS:           $Id: uisellinest.cc,v 1.8 2002-05-31 10:26:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,5 +58,20 @@ LineStyle uiSelLineStyle::getStyle() const
     if ( colinp ) ret.color = colinp->color();
     if ( widthbox ) ret.width = widthbox->box()->getIntValue();
     return ret;
+}
+
+
+LineStyleDlg::LineStyleDlg( uiParent* p, const LineStyle& ls, const char* lbl,
+			    bool wcol, bool wwidth )
+        : uiDialog(p,uiDialog::Setup("Display","Select linestyle"))
+{   
+    lsfld = new uiSelLineStyle( this, ls, lbl ? lbl : "Line style", 
+				wcol, wwidth ); 
+}
+
+
+LineStyle LineStyleDlg::getLineStyle() const
+{   
+    return lsfld->getStyle();
 }
 
