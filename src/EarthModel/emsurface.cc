@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.50 2004-05-28 15:01:38 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.51 2004-05-31 09:28:58 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -211,25 +211,6 @@ bool EM::Surface::findClosestNodes(const PatchID& patchid,
 }
 
 
-#define mGetNeigborCoord( coordname, defname, rowdiff, coldiff ) \
-defname = false; \
-for ( int idy=0; idy<nrnodealiases; idy++ ) \
-{ \
-    const EM::PosID& nodealias = nodealiases[idy]; \
-    const EM::PatchID patchid = nodealias.patchID(); \
-    const RowCol noderc = subID2RowCol(nodealias.subID()); \
-    const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
-    coordname = getPos(patchid, neighborrc); \
-    defname = coordname.isDefined(); \
-    if ( defname ) \
-    { \
-	if ( time2depthfunc ) \
-	    coordname.z = time2depthfunc->getValue(coordname.z); \
-	break; \
-    } \
-} \
-
-
 bool EM::Surface::findClosestMesh(EM::PosID& res, const Coord3& timepos,
 			  const MathFunction<float>* time2depthfunc) const
 {
@@ -374,105 +355,126 @@ bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
 }
 
 
+#define mComputeNormalFetchNode(nodeindex) \
+if ( !fetched[nodeindex] ) \
+{ \
+    fetched[nodeindex]=true; \
+    const Coord3 tpos = getPos(getNeighbor(node,dirs[nodeindex])); \
+    if ( tpos.isDefined() )  \
+    { \
+	while ( coords.size()<=nodeindex ) \
+	    coords += Coord3(mUndefValue,mUndefValue,mUndefValue); \
+	coords[nodeindex] = Coord3(tpos,t2d ? t2d->getValue(tpos.z) : tpos.z); \
+	defnodes[nodeindex] = true; \
+    } \
+}
+
 bool EM::Surface::computeNormal( Coord3& res, const EM::PosID& node,
-			    const MathFunction<float>* time2depthfunc) const
+			    const MathFunction<float>* t2d ) const
 {
-    TypeSet<EM::PosID> nodealiases;
-    getLinkedPos( node, nodealiases );
-    nodealiases += node;
+    const Coord3 nodetpos = getPos(node);
+    const bool defnode = nodetpos.isDefined();
+    const Coord3 nodecoord(nodetpos,
+	     		 t2d&&defnode?t2d->getValue(nodetpos.z):nodetpos.z);
 
-    const int nrnodealiases = nodealiases.size();
-
-    Coord3 nodecoord = getPos(node);
-    const bool nodecoorddef = nodecoord.isDefined();
-    if ( nodecoorddef && time2depthfunc )
-	nodecoord.z = time2depthfunc->getValue(nodecoord.z);
-
-    Coord3 prevrowcoord = nodecoord;
-    bool prevrowcoorddef;
-    mGetNeigborCoord( prevrowcoord, prevrowcoorddef, -step_.row, +0 );
-
-    Coord3 nextrowcoord = nodecoord;
-    bool nextrowcoorddef;
-    mGetNeigborCoord( nextrowcoord, nextrowcoorddef, +step_.row, +0 );
-
-    Coord3 prevcolcoord = nodecoord;
-    bool prevcolcoorddef;
-    mGetNeigborCoord( prevcolcoord, prevcolcoorddef, +0, -step_.col );
-
-    Coord3 nextcolcoord = nodecoord;
-    bool nextcolcoorddef;
-    mGetNeigborCoord( nextcolcoord, nextcolcoorddef, +0, +step_.col );
+    const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
+    BoolTypeSet defnodes(dirs.size(), false );
+    BoolTypeSet fetched(dirs.size(), false );
+    TypeSet<Coord3> coords;
 
     Coord3 rowvector;
-    bool rowvectorvalid = false;
-    if ( prevrowcoorddef&&nextrowcoorddef )
-    {
-	rowvector = nextrowcoord-prevrowcoord;
-	const double rowvectorlen = rowvector.abs();
-	rowvectorvalid = !mIS_ZERO(rowvectorlen);
-	if ( rowvectorvalid )
-	    rowvector/=rowvectorlen;
-    }
-
-    if ( !rowvectorvalid && nodecoorddef && prevrowcoorddef )
-    {
-	rowvector = nodecoord-prevrowcoord;
-	const double rowvectorlen = rowvector.abs();
-	rowvectorvalid = !mIS_ZERO(rowvectorlen);
-	if ( rowvectorvalid )
-	    rowvector/=rowvectorlen;
-    }
-
-    if ( !rowvectorvalid && nodecoorddef && nextrowcoorddef )
-    {
-	rowvector = nextrowcoord-nodecoord;
-	const double rowvectorlen = rowvector.abs();
-	rowvectorvalid = !mIS_ZERO(rowvectorlen);
-	if ( rowvectorvalid )
-	    rowvector/=rowvectorlen;
-    }
-
-
+    RowCol rowvecdir;
+    bool validrowvector = false;
     Coord3 colvector;
-    bool colvectorvalid = false;
-    if ( prevcolcoorddef&&nextcolcoorddef )
+    RowCol colvecdir;
+    bool validcolvector = false;
+
+    for ( int rowidx=0; rowidx<3; rowidx++ )
     {
-	colvector = nextcolcoord-prevcolcoord;
-	const double colvectorlen = colvector.abs();
-	colvectorvalid = !mIS_ZERO(colvectorlen);
-	if ( colvectorvalid )
-	    colvector/=colvectorlen;
+	if ( validrowvector && validcolvector )
+	    break;
+
+	if ( !validrowvector )
+	{
+	    rowvecdir = RowCol(1,rowidx ? (rowidx==1?-1:1) : 0);
+	    if ( validcolvector && rowvecdir==colvecdir )
+		continue;
+
+	    const int nextrowidx = dirs.indexOf(rowvecdir);
+	    const int prevrowidx = dirs.indexOf(-rowvecdir);
+	    mComputeNormalFetchNode(nextrowidx);
+	    mComputeNormalFetchNode(prevrowidx);
+
+	    if ( defnodes[nextrowidx] && defnodes[prevrowidx] )
+	    {
+		rowvector = coords[nextrowidx]-coords[prevrowidx];
+		validrowvector = true;
+	    }
+	    else if ( defnode && defnodes[nextrowidx] )
+	    {
+		rowvector = coords[nextrowidx]-nodecoord;
+		validrowvector = true;
+	    }
+	    else if ( defnode && defnodes[prevrowidx] )
+	    {
+		rowvector = nodecoord-coords[prevrowidx];
+		validrowvector = true;
+	    }
+
+	    if ( validrowvector )
+		rowvector=rowvector.normalize();
+	}
+
+	for ( int colidx=0; colidx<3; colidx++ )
+	{
+	    if ( !validcolvector )
+	    {
+		colvecdir = RowCol(colidx ? (colidx==1?-1:1) : 0, 1);
+		if ( validrowvector && rowvecdir==colvecdir )
+		    continue;
+		const int nextcolidx = dirs.indexOf(colvecdir);
+		const int prevcolidx = dirs.indexOf(-colvecdir);
+		mComputeNormalFetchNode(nextcolidx);
+		mComputeNormalFetchNode(prevcolidx);
+
+		if ( defnodes[nextcolidx] && defnodes[prevcolidx] )
+		{
+		    colvector = coords[nextcolidx]-coords[prevcolidx];
+		    validcolvector = true;
+		}
+		else if ( defnode && defnodes[nextcolidx] )
+		{
+		    colvector = coords[nextcolidx]-nodecoord;
+		    validcolvector = true;
+		}
+		else if ( defnode && defnodes[prevcolidx] )
+		{
+		    colvector = nodecoord-coords[prevcolidx];
+		    validcolvector = true;
+		}
+
+		if ( validcolvector )
+		    colvector=colvector.normalize();
+	    }
+	}
     }
 
-    if ( !colvectorvalid && nodecoorddef && prevcolcoorddef )
-    {
-	colvector = nodecoord-prevcolcoord;
-	const double colvectorlen = colvector.abs();
-	colvectorvalid = !mIS_ZERO(colvectorlen);
-	if ( colvectorvalid )
-	    colvector/=colvectorlen;
-    }
-
-    if ( !colvectorvalid && nodecoorddef && nextcolcoorddef )
-    {
-	colvector = nextcolcoord-nodecoord;
-	const double colvectorlen = colvector.abs();
-	colvectorvalid = !mIS_ZERO(colvectorlen);
-	if ( colvectorvalid )
-	    colvector/=colvectorlen;
-    }
-
-    if ( rowvectorvalid && colvectorvalid )
+    if ( validcolvector && validrowvector )
     {
 	res = rowvector.cross(colvector).normalize();
 	return true;
     }
 
-    if ( !colvectorvalid && nodecoorddef && prevrowcoorddef && nextrowcoorddef )
+    static const int prevrowidx = dirs.indexOf(RowCol(-1,0));
+    mComputeNormalFetchNode(prevrowidx);
+    static const int nextrowidx = dirs.indexOf(RowCol(1,0));
+    mComputeNormalFetchNode(nextrowidx);
+
+    if ( !validcolvector && defnode && defnodes[prevrowidx] &&
+	    defnodes[nextrowidx] )
     {
-	const Coord3 prevvector = (prevrowcoord-nodecoord).normalize();
-	const Coord3 nextvector = (nextrowcoord-nodecoord).normalize();
+	const Coord3 prevvector = (coords[prevrowidx]-nodecoord).normalize();
+	const Coord3 nextvector = (coords[nextrowidx]-nodecoord).normalize();
 	const Coord3 average = prevvector+nextvector;
 	const double len = average.abs();
 	if ( !mIS_ZERO(len) )
@@ -481,11 +483,17 @@ bool EM::Surface::computeNormal( Coord3& res, const EM::PosID& node,
 	    return true;
 	}
     }
-    else if ( !rowvectorvalid && nodecoorddef && prevcolcoorddef &&
-	      nextcolcoorddef )
+
+    static const int prevcolidx = dirs.indexOf(RowCol(0,-1));
+    mComputeNormalFetchNode(prevcolidx);
+    static const int nextcolidx = dirs.indexOf(RowCol(0,1));
+    mComputeNormalFetchNode(nextcolidx);
+
+    if ( !validrowvector && defnode && defnodes[prevcolidx] &&
+	      defnodes[nextcolidx] )
     {
-	const Coord3 prevvector = (prevcolcoord-nodecoord).normalize();
-	const Coord3 nextvector = (nextcolcoord-nodecoord).normalize();
+	const Coord3 prevvector = (coords[prevcolidx]-nodecoord).normalize();
+	const Coord3 nextvector = (coords[nextcolidx]-nodecoord).normalize();
 	const Coord3 average = prevvector+nextvector;
 	const double len = average.abs();
 	if ( !mIS_ZERO(len) )
@@ -580,6 +588,25 @@ char EM::Surface::whichSide( const Coord3& timepos,
     if ( dist<meshvariation.start-fuzzy ) return -1;
     return 0;
 }
+
+
+#define mGetNeigborCoord( coordname, defname, rowdiff, coldiff ) \
+defname = false; \
+for ( int idy=0; idy<nrnodealiases; idy++ ) \
+{ \
+    const EM::PosID& nodealias = nodealiases[idy]; \
+    const EM::PatchID patchid = nodealias.patchID(); \
+    const RowCol noderc = subID2RowCol(nodealias.subID()); \
+    const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
+    coordname = getPos(patchid, neighborrc); \
+    defname = coordname.isDefined(); \
+    if ( defname ) \
+    { \
+	if ( time2depthfunc ) \
+	    coordname.z = time2depthfunc->getValue(coordname.z); \
+	break; \
+    } \
+} \
 
 
 
