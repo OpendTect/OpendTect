@@ -11,16 +11,28 @@
 #include <malloc.h>
 
 
-DataBuffer::DataBuffer( int n, int byts, bool init )
-	: data_(0)
-	, nelem_(n)
-	, bytes_(byts)
+bool RawDataArray::isZero() const
 {
-    if ( nelem_ )
+    if ( !data_ || !nelem_ || !bytes_ ) return true;
+
+    register const unsigned char* ptr = data_;
+    register const int totbytes = nelem_ * bytes_;
+    for ( register int idx=0; idx<totbytes; idx++ )
+        if ( *ptr++ ) return false;
+
+    return true;
+}
+
+
+DataBuffer::DataBuffer( int n, int byts, bool init )
+	: RawDataArray(byts)
+{
+    if ( n )
     {
+	nelem_ = n;
 	data_ = mMALLOC(nelem_*bytes_,unsigned char);
-	if ( init ) zero();
     }
+    if ( init ) zero();
 }
 
 
@@ -85,19 +97,6 @@ void DataBuffer::zero()
 {
     if ( data_ )
 	memset( (char*)data_, 0, nelem_*bytes_ );
-}
-
-
-bool DataBuffer::isZero() const
-{
-    if ( !data_ || !nelem_ || !bytes_ ) return true;
-
-    register const unsigned char* ptr = data_;
-    register const int totbytes = nelem_ * bytes_;
-    for ( register int idx=0; idx<totbytes; idx++ )
-        if ( *ptr++ ) return false;
-
-    return true;
 }
 
  
