@@ -8,34 +8,35 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.1 2001-04-18 16:24:18 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.2 2001-04-20 15:42:10 bert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include <cbvsio.h>
 #include <cbvsinfo.h>
 class CBVSReader;
+class CBVSInfo;
 
 
 /*!\brief Manager for reading CBVS file-packs.
 
 */
 
-class CBVSReadMgr
+class CBVSReadMgr : public CBVSIOMgr
 {
 public:
 
 			CBVSReadMgr(const char*);
 			~CBVSReadMgr();
 
-    bool		failed() const		{ return *(const char*)errmsg_;}
-    const char*		errMsg() const		{ return (const char*)errmsg_; }
-
+    const CBVSInfo&	info() const		{ return info_; }
     void		close();
 
     BinID		nextBinID() const;
     bool		goTo(const BinID&);
     bool		toNext();
+    bool		toStart();
     bool		skip(bool force_next_position=false);
 			//!< See CBVSReader::skip comments
 
@@ -47,26 +48,27 @@ public:
 			//!< Determines whether this is a CBVS file pack.
 			//!< returns an error message, or null if OK.
 
+    int			nrComponents() const;
+    const BinID&	binID() const;
+
     const char*		baseFileName() const
 			{ return (const char*)basefname_; }
-    const CBVSInfo&	info();
 
 protected:
 
     BufferString	basefname_;
     ObjectSet<CBVSReader> readers_;
     ObjectSet<BufferString> fnames_;
-    int			curreader_;
     CBVSInfo&		info_;
-    BufferString	errmsg_;
 
     bool		addReader(const char*);
+    int			nextRdrNr(int) const;
+    const char*		errMsg_() const;
 
 private:
 
     void		createInfo();
     bool		handleInfo(CBVSReader*,int);
-    bool		mergeIrreg(const CBVSInfo::SurvGeom&,int);
 
 };
 

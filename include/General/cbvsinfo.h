@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.6 2001-04-18 14:45:36 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.7 2001-04-20 15:42:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ public:
 			CBVSComponentInfo(const CBVSComponentInfo& cci )
 			: BasicComponentInfo(cci)
 			, scaler(cci.scaler?cci.scaler->duplicate():0)	{}
-    virtual		~CBVSComponentInfo()		{ delete scaler; }
+    virtual		~CBVSComponentInfo()
+			{ delete scaler; scaler = 0; }
     CBVSComponentInfo&	operator =( const BasicComponentInfo& cci )
 			{
 			    if ( this == &cci ) return *this;
@@ -71,8 +72,9 @@ public:
 				CBVSInfo()
 				: seqnr(0), nrtrcsperposn(1)	{}
 				~CBVSInfo()	{ deepErase(compinfo); }
-				CBVSInfo(const CBVSInfo&);
-    inline CBVSInfo&		operator =(const CBVSInfo&);
+				CBVSInfo( const CBVSInfo& ci )
+				{ *this = ci; }
+    CBVSInfo&			operator =(const CBVSInfo&);
 
     struct SurvGeom
     {
@@ -81,7 +83,7 @@ public:
 				~SurvGeom()	{ deepErase(inldata); }
 				SurvGeom( const SurvGeom& sg )
 				{ *this = sg; }
-	inline SurvGeom&	operator =(const SurvGeom&);
+	SurvGeom&		operator =(const SurvGeom&);
 
 	struct InlineInfo
 	{
@@ -103,6 +105,16 @@ public:
 				//!< For write, inldata is ignored in favor
 				//!< of actually written, which is put
 				//!< in trailer.
+
+	void			merge(const CBVSInfo::SurvGeom&);
+	InlineInfo*		getInfoFor(int inl);
+				//!< returns 0 in case of regular
+	void			reCalcBounds();
+
+    protected:
+
+	void			toIrreg();
+	void			mergeIrreg(const CBVSInfo::SurvGeom&);
 
     };
 
@@ -151,38 +163,6 @@ public:
 				  usertext = ""; }
 
 };
-
-
-inline CBVSInfo::SurvGeom& CBVSInfo::SurvGeom::operator =(
-	const CBVSInfo::SurvGeom::SurvGeom& sg )
-{
-    fullyrectandreg = sg.fullyrectandreg;
-    start = sg.start;
-    stop = sg.stop;
-    step = sg.step;
-    b2c = sg.b2c;
-
-    for ( int idx=0; idx<sg.inldata.size(); idx++ )
-	inldata += new CBVSInfo::SurvGeom::InlineInfo( *sg.inldata[idx] );
-
-    return *this;
-}
-
-
-inline CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
-{
-    seqnr = ci.seqnr;
-    nrtrcsperposn = ci.nrtrcsperposn;
-    explinfo = ci.explinfo;
-    geom = ci.geom;
-    stdtext = ci.stdtext;
-    usertext = ci.usertext;
-
-    for ( int idx=0; idx<ci.compinfo.size(); idx++ )
-	compinfo += new CBVSComponentInfo( *ci.compinfo[idx] );
-
-    return *this;
-}
 
 
 #endif

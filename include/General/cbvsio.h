@@ -8,15 +8,21 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.3 2001-04-05 16:21:35 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.4 2001-04-20 15:42:10 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <position.h>
+#include <bufstring.h>
 
 
-/*!\brief Base class for CBVS reader and writer */
+/*!\brief Base class for CBVS reader and writer
+
+CBVS storage assumes inline-sorting of data. X-line sorting is simply not
+supported.
+
+*/
 
 class CBVSIO
 {
@@ -25,7 +31,7 @@ public:
 			CBVSIO()
 			: errmsg_(0), strmclosed_(false), nrxlines_(1)
 			, nrcomps_(0), cnrbytes_(0)	{}
-			~CBVSIO()			{ delete [] cnrbytes_; }
+    virtual		~CBVSIO()			{ delete [] cnrbytes_; }
 
     bool		failed() const			{ return errmsg_; }
     const char*		errMsg() const			{ return errmsg_; }
@@ -46,6 +52,44 @@ protected:
     static const int	integersize;
     static const int	version;
     static const int	headstartbytes;
+
+};
+
+
+/*!\brief Base class for CBVS read and write manager
+
+*/
+
+class CBVSIOMgr
+{
+public:
+
+			CBVSIOMgr( const char* basefname )
+			: basefname_(basefname)
+			, curnr_(0)		{}
+    virtual		~CBVSIOMgr()		{}
+
+    inline bool		failed() const		{ return errMsg(); }
+    inline const char*	errMsg() const
+			{ return *(const char*)errmsg_ ? (const char*)errmsg_
+							: errMsg_(); }
+
+    virtual void	close() 		= 0;
+
+    virtual int		nrComponents() const	= 0;
+    virtual const BinID& binID() const		= 0;
+
+    inline BufferString	getFileName( int nr ) const
+			{ return getFileName(basefname_,nr); }
+    static BufferString	getFileName(const char*,int);
+
+protected:
+
+    BufferString	basefname_;
+    BufferString	errmsg_;
+    int			curnr_;
+
+    virtual const char*	errMsg_() const		= 0;
 
 };
 

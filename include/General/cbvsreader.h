@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.6 2001-04-13 11:52:28 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.7 2001-04-20 15:42:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,8 @@ public:
     BinID		nextBinID() const;
 
     bool		goTo(const BinID&);
-    inline bool		toNext()	{ return skip(false); }
+    bool		toStart();
+    bool		toNext()	{ return skip(false); }
     bool		skip(bool force_next_position=false);
 			//!< if force_next_position, will skip all traces
 			//!< at current position.

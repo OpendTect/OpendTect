@@ -6,20 +6,17 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.10 2001-04-18 14:45:36 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.11 2001-04-20 15:42:10 bert Exp $
 ________________________________________________________________________
 
 */
 
 
-#include <arraynd.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
+#include "arraynd.h"
 #include "bufstring.h"
+
+#include <fstream.h>
+#include <stdio.h>
 
 template <class T>
 class ArrayNDMemStor : public ArrayND<T>::LinearStorage
@@ -51,56 +48,134 @@ class ArrayNDFileStor : public ArrayND<T>::LinearStorage
 {
 public:
 
-    bool	isOK() const { return handle != -1; }
+    bool	isOK() const { return file; }
 
     T		get(int pos) const
 		{
-		    lseek( handle, pos*sizeof(T), SEEK_SET );
+		    if ( !file ) ((ArrayNDFileStor*) this)->open();
+		    if ( !file ) return 0;
+
+		    file->seekg(pos*sizeof(T), ios::beg );
+		    if ( file->fail() )
+		    {
+			((ArrayNDFileStor*) this)->close();
+			return 0;
+		    }
+
 		    T res;
-		    read( handle, &res, sizeof(T));
+		    file->read( &res, sizeof(T));
+		    if ( file->fail() )
+		    {
+			((ArrayNDFileStor*) this)->close();
+			return 0;
+		    }
+
 		    return res;
 		}
 
     void	set(int pos, T val ) 
 		{
-		    lseek( handle, pos*sizeof(T), SEEK_SET );
-		    write( handle, &val, sizeof(T));
+		    if ( !file ) open();
+		    if ( !file ) return;
+
+		    file->seekp( pos*sizeof(T), ios::beg );
+		    if ( file->fail() )
+		    {
+			close();
+			return;
+		    }
+
+		    file->write( &val, sizeof(T));
 		}
 
     const T*	getData() const { return 0; }
 
     void	setSize( int nsz )
 		{
-		    sz = nsz;
-		    if ( sz ) lseek( handle, (sz-1)*sizeof(T), SEEK_SET );
-		    if ( write( handle, &sz, 1 ) == -1 )
-		    {
-			close( handle );
-			handle = -1;
-		    }
+		    if ( file ) close();
+		    open();
 		}
+
     int		size() const { return sz; }
 
 		ArrayNDFileStor( int nsz )
 		    : sz( nsz )
+		    , file( 0 )
+		    , name("Dummy")
 		{
-		    name = "/tmp/XXXXXX";
-
-		    handle = mkstemp( name.buf() );
-		    if ( handle==-1 ) return;
-
+		    tmpnam(name.buf());
 		}
-		
+
     inline	~ArrayNDFileStor()
 		{
-		    close( handle );
+		    close();
 		    remove( name );
+		}
+private:
+    void	open()
+		{
+		    if ( file ) close();
+		    file = new fstream(name, fstream::binary
+						| fstream::out
+						| fstream::app
+						| fstream::trunc );
+
+		    if ( file->fail() )
+		    {
+			close();
+			return;
+		    }
+
+		    T tmp[1000];
+
+		    for ( int idx=0; idx<sz; idx++ )
+		    {
+			if ( (sz-idx)/1000 )
+			{
+			    file->write(&tmp, sizeof(T)*1000);
+			    if ( file->fail() )
+			    {
+				close();
+				return;
+			    }
+
+			    idx += 999;
+			}
+			else
+			{
+			    file->write(&tmp, sizeof(T)*(sz-idx));
+			    if ( file->fail() )
+			    {
+				close();
+				return;
+			    }
+
+			    idx = sz-1;
+			}
+		    }
+
+		    file->close();
+		    file->open(name, fstream::binary
+					| fstream::out
+					| fstream::in );
+		    if ( file->fail() )
+		    {
+			close();
+			return;
+		    }
+		}
+
+    void	close()
+		{
+		    file->close();
+		    delete file;
+		    file = 0;
 		}
 
 protected:
+    fstream*	file;
     BufferString name;
     int		sz;
-    int		handle;
 };
 
 
