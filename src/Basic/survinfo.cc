@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.47 2004-01-08 14:32:32 kristofer Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.48 2004-01-19 15:58:22 nanne Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -23,7 +23,7 @@ const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
 const char* SurveyInfo::sKeyZRange = "Z range";
 const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
 
-SurveyInfo* SurveyInfo::theinst_;
+SurveyInfo* SurveyInfo::theinst_ = 0;
 bool SurveyInfo::dowarnings_ = true;
 
 const SurveyInfo& SI()
