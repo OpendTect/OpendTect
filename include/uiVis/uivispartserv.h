@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.116 2004-04-28 21:30:58 bert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.117 2004-04-29 14:51:35 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,7 @@ public:
 			     If id==-1, it will give the ids of the
 			     scenes */
 
+    bool		hasAttrib(int) const;
     int			getAttributeFormat(int id) const;
    			/*!\retval 0 volume
   			   \retval 1 traces
@@ -90,6 +91,7 @@ public:
     const ColorAttribSel* getColorSelSpec(int id) const;
     void		setSelSpec(int id, const AttribSelSpec&);
     void		setColorSelSpec(int id, const ColorAttribSel& );
+    void		resetColorDataType(int);
     
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id) const;
@@ -117,97 +119,56 @@ public:
     bool		showMenu( int id );
     uiVisMenuFactory*	getMenuFactory(int id, bool create=true);
 
-    int				addInlCrlTsl(int scene,int type);
-    int				addRandomLine(int scene);
-    int				addVolView(int scene);
-    int				addSurface(int scene,const MultiID&);
-    void			getSurfaceInfo(ObjectSet<SurfaceInfo>&);
-    void			shiftHorizon(int id,float);
-    int				addWell(int scene,const MultiID&);
-    void			displayLog(int id,int,int);
-    void			refreshMarkers();
-
-    int				addPickSet(int scene,const PickSet&);
-    void			getAllPickSets(BufferStringSet&);
-    void			setPickSetData(int,const PickSet&);
-    void			getPickSetData(int,PickSet&) const;
-
-    int				addStickSet(int scene,const MultiID&);
-    MultiID			getMultiID(int) const;
-    int				getObjectId(int scene,const MultiID&) const;
+    MultiID		getMultiID(int) const;
 	
-    int				getSelObjectId() const;
-    void			setSelObjectId(int);
+    int			getSelObjectId() const;
+    void		setSelObjectId(int);
 
-    void			makeSubMenu(uiPopupMenu&,int scene,int id);
-    				/*!< Gives menu ids from 1024 and above */
-    bool			handleSubMenuSel(int mnu,int scene,int id);
+    			//Events and their functions
+    void		unlockEvent();
+    			/*!< This function _must_ be called after
+			     the object has sent an event to unlock
+			     the object. */
+    int			getEventObjId() const;
+    			/*<\returns the id that triggered the event */
 
-    				//Events and their functions
-    void			unlockEvent();
-    				/*!< This function _must_ be called after
-				     the object has sent an event to unlock
-				     the object. */
-    int				getEventObjId() const;
-    				/*<\returns the id that triggered the event */
-    int				getEventAttrNr() const;
-				/*<\returns the attr that triggered the event*/
+    static const int	evUpdateTree;
 
-    static const int		evUpdateTree;
-    BufferString		getTreeInfo(int id) const;
-    BufferString		getDisplayName(int) const;
+    static const int	evSelection;
+    			/*<! Get the id with getEventObjId() */
 
-    bool			isInlCrlTsl(int,int dim) const;
-    				/*!< dim==-1 : any slice
-				     dim==0 : inline
-				     dim==1 : crossline
-				     dim==2 : tslc */
-    bool			isVolView(int) const;
-    bool			isRandomLine(int) const;
-    bool			isHorizon(int) const;
-    bool			isFault(int) const;
-    bool			isStickSet(int) const;
-    bool			isWell(int) const;
-    bool			isPickSet(int) const;
-    bool			hasAttrib(int) const;
+    static const int	evDeSelection;
+    			/*<! Get the id with getEventObjId() */
 
-    static const int		evSelection;
-    				/*<! Get the id with getEventObjId() */
+    static const int	evGetNewData;
+    			/*<! Get the id with getEventObjId() */
+    			/*!< Get selSpec with getSelSpec */
 
-    static const int		evDeSelection;
-    				/*<! Get the id with getEventObjId() */
+    bool		calculateAttrib(int id,bool newsel);
+    bool		calculateColorAttrib(int,bool);
+    void		showTexture(int,int);
 
-    static const int		evGetNewData;
-    				/*<! Get the id with getEventObjId() */
-    				/*!< Get selSpec with getSelSpec */
-    bool			calculateAttrib(int id,bool newsel);
-    bool			calculateColorAttrib(int,bool);
-    void			showTexture(int,int);
-
-    static const int		evMouseMove;
-    Coord3			getMousePos(bool xyt) const;
-				/*!< If !xyt mouse pos will be in inl, crl, t */
-    BufferString		getMousePosVal() const;
+    static const int	evMouseMove;
+    Coord3		getMousePos(bool xyt) const;
+			/*!< If !xyt mouse pos will be in inl, crl, t */
+    BufferString	getMousePosVal() const;
 
 
-    static const int		evSelectAttrib;
+    static const int	evSelectAttrib;
 
-    static const int		evSelectColorAttrib;
-    static const int		evGetColorData;
-    void			setColorSelSpec(const ColorAttribSel&);
-    void			setColorData(int,AttribSliceSet*);
-    void			resetColorDataType(int);
+    static const int	evSelectColorAttrib;
+    static const int	evGetColorData;
 
-    static const int		evInteraction;
-    				/*<! Get the id with getEventObjId() */
-    BufferString		getInteractionMsg(int id) const;
-    				/*!< Returns dragger position or
-				     Nr positions in picksets */
+    static const int	evInteraction;
+    			/*<! Get the id with getEventObjId() */
+    BufferString	getInteractionMsg(int id) const;
+    			/*!< Returns dragger position or
+			     Nr positions in picksets */
 
-    static const int		evViewAll;
-    static const int		evToHomePos;
+    static const int	evViewAll;
+    static const int	evToHomePos;
 
-    				// ColorTable stuff
+    			// ColorTable stuff
     int				getColTabId(int) const;
     void			setClipRate(int,float);
     const TypeSet<float>*	getHistogram(int) const;
@@ -224,6 +185,8 @@ public:
     bool			canDuplicate(int) const;
     int				duplicateObject(int id,int sceneid);
     				/*!< \returns id of new object */
+
+    bool			dumpOI(int id) const;
     
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
@@ -258,18 +221,11 @@ protected:
     				/*!< Should set all cbs for the object */
     void			removeConnections(int id);
 
-    bool			dumpOI(int id) const;
     void			toggleDraggers();
-    bool			loadcreateSurface(int);
 
     ObjectSet<visSurvey::Scene>	scenes;
 
     ObjectSet<uiVisMenuFactory>	menufactories;
-
-    ColorAttribSel		colorspec;
-    AttribSelSpec		attribspec;
-    				/* For temporary use when sending 
-				   evSelectAttrib events */
 
     uiVisMenu*			vismenu;
 
