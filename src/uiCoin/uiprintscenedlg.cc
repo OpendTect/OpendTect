@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.16 2005-03-24 16:30:52 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.17 2005-04-04 10:21:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiobj.h"
 #include "ptrman.h"
+#include "uicursor.h"
 
 #include <Inventor/SoOffscreenRenderer.h>
 
@@ -42,8 +43,9 @@ const char* uiPrintSceneDlg::filters[] = {
     0 };
 
 
-const StepInterval<float> sizerange(0.5,100,0.1);
-StepInterval<float> pixelsizerange(1,9000,1);
+static const StepInterval<float> sSizeRange(0.5,999,0.1);
+static StepInterval<float> sPixelSizeRange(1,9999,1);
+static const int sDefdpi = 300;
 
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
@@ -52,11 +54,11 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
 				 "Enter image size and filename","50.0.1"))
     , scene(scene_)
     , heightfld(0)
-    , dpi(SoOffscreenRenderer::getScreenPixelsPerInch())
     , winsz(winsz_)
+    , screendpi(SoOffscreenRenderer::getScreenPixelsPerInch())
 {
     PtrMan<SoOffscreenRenderer> sor =
-			    new SoOffscreenRenderer(*(new SbViewportRegion));
+			    new SoOffscreenRenderer( *(new SbViewportRegion) );
     if ( !sor->getNumWriteFiletypes() )
     {
 	new uiLabel( this,
@@ -68,7 +70,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     }
 
     SbVec2s maxres = SoOffscreenRenderer::getMaximumResolution();
-    pixelsizerange.stop = mMIN(maxres[0],maxres[1]);
+    sPixelSizeRange.stop = mMIN(maxres[0],maxres[1]);
 
     uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, "Width", 2 );
     widthfld = wfld->box();
@@ -90,13 +92,11 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
     lockfld->activated.notify( mCB(this,uiPrintSceneDlg,lockChg) );
     lockfld->attach( alignedBelow, unitfld );
 
-//  TODO: Setting the dpi does not seem to work. Wait for bugfix
-/*
-    dpifld = new uiGenInput( this, "Resolution (dpi)", IntInpSpec(300) );
+    dpifld = new uiGenInput( this, "Resolution (dpi)", 
+	    		     IntInpSpec(mNINT(screendpi)) );
     dpifld->setElemSzPol( uiObject::small );
     dpifld->valuechanging.notify( mCB(this,uiPrintSceneDlg,dpiChg) );
     dpifld->attach( alignedBelow, hfld );
-*/
 
     BufferString filter;
     int idx = 0;
@@ -114,7 +114,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
 				    			.filter(filter) );
     BufferString dirnm = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld->setDefaultSelectionDir( dirnm );
-    fileinputfld->attach( alignedBelow, hfld );
+    fileinputfld->attach( alignedBelow, dpifld );
     fileinputfld->setReadOnly();
 
     init();
@@ -133,12 +133,14 @@ void uiPrintSceneDlg::init()
 
 void uiPrintSceneDlg::pixels2Inch( const SbVec2f& from, SbVec2f& to )
 {
+    const float dpi = dpifld->getfValue();
     to = from / dpi;
 }
 
 
 void uiPrintSceneDlg::inch2Pixels( const SbVec2f& from, SbVec2f& to )
 {
+    const float dpi = dpifld->getfValue();
     to = from * dpi;
 }
 
@@ -164,7 +166,7 @@ void uiPrintSceneDlg::unitChg( CallBacker* )
 {
     SbVec2f size;
     int nrdec = 2;
-    StepInterval<float> range = sizerange;
+    StepInterval<float> range = sSizeRange;
 
     const int sel = unitfld->getIntValue();
     if ( !sel )
@@ -175,7 +177,7 @@ void uiPrintSceneDlg::unitChg( CallBacker* )
     {
 	size = sizepix;
 	nrdec = 0;
-	range = pixelsizerange;
+	range = sPixelSizeRange;
     }
 
     widthfld->setNrDecimals( nrdec );
@@ -261,12 +263,12 @@ bool uiPrintSceneDlg::filenameOK() const
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
     if ( !widthfld ) return true;
-    
     if ( !filenameOK() ) return false;
 
+    uiCursorChanger cursorchanger( uiCursor::Wait );
     SbViewportRegion viewport;
     viewport.setWindowSize( mNINT(sizepix[0]), mNINT(sizepix[1]) );
-//  viewport.setPixelsPerInch( dpifld->getfValue() );
+    viewport.setPixelsPerInch( dpifld->getfValue() );
 
     PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
     if ( !sor->render( scene ) )

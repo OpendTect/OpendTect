@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.6 2005-01-25 14:58:46 nanne Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.7 2005-04-04 10:21:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ protected:
     SbVec2f		sizeinch;
     SbVec2f		sizecm;
     float		aspectratio;	// width / height
-    float		dpi;
+    const float		screendpi;
 
     void		init();
     void		updateSizes();
