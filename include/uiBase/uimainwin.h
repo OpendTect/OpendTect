@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.20 2002-04-12 19:04:55 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.21 2002-04-23 10:04:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,11 @@ class uiMainWin : public uiParent
 {
 
 public:
+			/*!
+			    nrStatusFlds == 0	: no statysbar
+			    nrStatusFlds < 0	: creates empty statusbar.
+				Add status fields yourself in that case.
+			*/
 			uiMainWin( uiParent* parnt=0, 
 				   const char* nm="uiMainWin",
 				   int nrStatusFlds = 1, 
