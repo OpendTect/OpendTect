@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.6 2004-02-27 16:51:29 nanne Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.7 2004-09-27 10:26:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,11 @@ public:
     int			selectedId() const;
     int			nrButtons() const;
     void		setSensitive(int id,bool yn=true);
+
+    void		displayFrame(bool);
+    bool		isFrameDisplayed() const;
+    void		setRadioButtonExclusive(bool);
+    bool		isRadioButtonExclusive() const;
 
 protected:
 

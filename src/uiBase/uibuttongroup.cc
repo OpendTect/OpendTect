@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.9 2004-03-02 13:57:49 nanne Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.10 2004-09-27 10:26:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,3 +147,19 @@ void uiButtonGroup::setSensitive( int id, bool yn )
     QButton* but = grpobj_->body_->find( id );
     if ( but ) but->setEnabled( yn );
 }
+
+
+void uiButtonGroup::displayFrame( bool yn )
+{ grpobj_->body_->setFlat( !yn ); }
+
+
+bool uiButtonGroup::isFrameDisplayed() const
+{ return grpobj_->body_->isFlat(); }
+
+
+void uiButtonGroup::setRadioButtonExclusive( bool yn )
+{ grpobj_->body_->setRadioButtonExclusive( yn ); }
+
+
+bool uiButtonGroup::isRadioButtonExclusive() const
+{ return grpobj_->body_->isRadioButtonExclusive(); }
