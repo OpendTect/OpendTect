@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.6 2004-01-05 14:59:54 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.7 2004-01-06 11:07:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -294,9 +294,9 @@ void uiODSceneMgr::setKeyBindings()
     BufferStringSet keyset;
     scenes[0]->sovwr->getAllKeyBindings( keyset );
 
-    StringListInpSpec inpspec( keyset );
-    inpspec.setText( scenes[0]->sovwr->getCurrentKeyBindings(), 0 );
-    uiGenInputDlg dlg( &appl, "Select Mouse Controls", "Select", &inpspec );
+    StringListInpSpec* inpspec = new StringListInpSpec( keyset );
+    inpspec->setText( scenes[0]->sovwr->getCurrentKeyBindings(), 0 );
+    uiGenInputDlg dlg( &appl, "Select Mouse Controls", "Select", inpspec );
     if ( dlg.go() )
 	mDoAllScenes(sovwr,setKeyBindings,dlg.text());
 }
