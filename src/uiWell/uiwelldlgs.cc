@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.20 2004-06-16 08:34:10 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.21 2004-06-21 15:34:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,8 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 {
     table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
 	    				       .rowcangrow() 
-					       .defrowlbl(), "Table" );
+					       .defrowlbl()
+					       .manualResize() );
     table->setColumnLabels( mrkrcollbls );
     table->setColumnReadOnly( 2, true );
     table->setNrRows( initnrrows );
@@ -231,7 +232,6 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
     if ( !sz ) return;
 
     int nrrows = sz + initnrrows;
-    if ( nrrows > maxrowsondisplay ) nrrows = maxrowsondisplay;
     table->setNrRows( nrrows );
     const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
     for ( int idx=0; idx<sz; idx++ )
