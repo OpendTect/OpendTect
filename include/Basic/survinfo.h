@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.39 2004-03-01 14:44:43 nanne Exp $
+ RCS:		$Id: survinfo.h,v 1.40 2004-04-07 15:13:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ public:
     void		setZUnit(bool istime,bool un=false);
     			/*!< un=true: meter; un=false: feet; only used
    			     when istime = false; */
-    const char*		getZUnit(bool withbrackets=true) const;
+    const char*		getZUnit(bool withparens=true) const;
     float		zFactor() const		{ return zistime_ ? 1000 : 1; }
     			//!< Factor between real and displayed unit
 
