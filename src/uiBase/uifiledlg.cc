@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.19 2004-04-02 10:24:39 arend Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.20 2004-12-10 15:23:07 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,14 +114,17 @@ int uiFileDialog::go()
     fn = list.size() ? list[0] : fd->selectedFile();
 
 #ifdef __win__
-    const char* dirsep = FilePath::sDirSep;
-    char* chptr = fn.buf();
-    while ( chptr && *chptr++ )
-	if ( *chptr == '/' ) *chptr = *dirsep;
+    replaceCharacter( fn.buf(), '/', '\\' );
 #endif
 
     for ( int idx=0; idx<list.size(); idx++ )
-	filenames += new BufferString( list[idx] );
+    {
+	BufferString* bs = new BufferString( list[idx] );
+#ifdef __win__
+	replaceCharacter( bs->buf(), '/', '\\' );
+#endif
+	filenames += bs;
+    }
 
     return 1;
 }
