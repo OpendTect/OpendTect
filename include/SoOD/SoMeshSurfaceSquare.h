@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceSquare.h,v 1.3 2003-10-08 07:47:25 kristofer Exp $
+ RCS:		$Id: SoMeshSurfaceSquare.h,v 1.4 2003-10-08 12:41:15 nanne Exp $
 ________________________________________________________________________
 
 
@@ -125,7 +125,7 @@ private:
     SbBool			cullTest(SoState*);
 
     int				getBlockSize(int res) const;
-    int				getNrBlocks(int res) const;
+    int				getNrBlocks(int res,int dir) const;
     static int			get2Power(int);
 
     void			getOwn5CrdIdxs(int&,int&,int&);

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.6 2003-10-08 09:55:44 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.7 2003-10-08 12:41:09 nanne Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -238,7 +238,7 @@ int SoMeshSurfaceSquare::getNeigborIndex( int relrow, int relcol ) const
 
 
 
-bool SoMeshSurfaceSquare::setResolution(int nr)
+bool SoMeshSurfaceSquare::setResolution( int nr )
 {
     if ( showtri==(glueswitchptr->whichChild.getValue()==-1) )
 	glueswitchptr->whichChild = showtri ? 0 : -1;
@@ -273,7 +273,7 @@ bool SoMeshSurfaceSquare::setResolution(int nr)
 }
 
 
-int SoMeshSurfaceSquare::computeResolution(SoState* state)
+int SoMeshSurfaceSquare::computeResolution( SoState* state )
 {
     int32_t camerainfo = SoCameraInfoElement::get(state);
     int desiredres = 0;
@@ -286,7 +286,7 @@ int SoMeshSurfaceSquare::computeResolution(SoState* state)
 	const float complexity =
 			SbClamp(SoComplexityElement::get(state), 0.0f, 1.0f);
 	const float wantednumcells =
-	    		complexity*screensize[0]*screensize[1] / 16;
+	    		complexity*screensize[0]*screensize[1] / 32;
 
 	int numcells = 4;
 	const int numres = sizepower.getValue();
@@ -507,12 +507,12 @@ void SoMeshSurfaceSquare::updateGlue()
 	glueptr->coordIndex.deleteValues(0);
 	glueptr->normalIndex.deleteValues(0);
 
-	const int row7 = origo[0] + sidesize; const int col7 = origo[1];
-	bool glue7 = !(isUndefined(row7,col7) && 
-		       isUndefined(row7-ownblocksize,col7) );
-	const int row5 = origo[0]; const int col5 = origo[1] + sidesize;
-	bool glue5 = !(isUndefined(row5,col5) && 
-		       isUndefined(row5,col5-ownblocksize) );
+	const int row7 = origo[0] + ownblocksize * getNrBlocks(ownres,0);
+	const int col7 = origo[1];
+	bool glue7 = neigbors[7] || (end[0]-row7)%ownblocksize;
+	const int row5 = origo[0]; 
+	const int col5 = origo[1] + ownblocksize * getNrBlocks(ownres,1);
+	bool glue5 = neigbors[5] || (end[1]-col5)%ownblocksize;
 
 	if ( !glue5 && !glue7 ) return;
 
@@ -540,7 +540,7 @@ void SoMeshSurfaceSquare::getOwn5CrdIdxs( int& row, int& col, int& idx )
 {
     const int ownres = getResolution();
     const int ownblocksize = getBlockSize( ownres );
-    const int nrownblocks = getNrBlocks( ownres );
+    const int nrownblocks = getNrBlocks( ownres, 0 );
 
     for ( int idy=1; idy<nrownblocks; idy++ )
     {
@@ -556,7 +556,7 @@ void SoMeshSurfaceSquare::getOwn7CrdIdxs( int& row, int& col, int& idx )
 {
     const int ownres = getResolution();
     const int ownblocksize = getBlockSize( ownres );
-    const int nrownblocks = getNrBlocks( ownres );
+    const int nrownblocks = getNrBlocks( ownres, 1 );
 
     row -= ownblocksize;
     addGlueIndex( row, col, ownres, idx );
@@ -577,7 +577,7 @@ void SoMeshSurfaceSquare::getNeighbour5CrdIdxs( int& row, int& col, int& idx )
     addGlueIndex( row, col, res5, idx );
 
     const int blocksize = getBlockSize( res5 );
-    const int nrblocks = getNrBlocks( res5 );
+    const int nrblocks = getNrBlocks( res5, 0 );
 
     for ( int idy=0; idy<nrblocks; idy++ )
     {
@@ -592,7 +592,7 @@ void SoMeshSurfaceSquare::getNeighbour7CrdIdxs( int& row, int& col, int& idx )
     SoMeshSurfaceSquare* square7 = neigbors[7];
     const int res7 = square7 ? square7->getResolution() : getResolution();
     const int blocksize = getBlockSize( res7 );
-    const int nrblocks = getNrBlocks( res7 );
+    const int nrblocks = getNrBlocks( res7, 1 );
 
     addGlueIndex( row, col, res7, idx );
 
@@ -790,9 +790,14 @@ int SoMeshSurfaceSquare::getBlockSize( int resolution ) const
 }
 
 
-int SoMeshSurfaceSquare::getNrBlocks( int resolution ) const
+int SoMeshSurfaceSquare::getNrBlocks( int resolution, int dir ) const
 {
-    return get2Power(resolution+1);
+    int nrblocks = get2Power(resolution+1);
+    const int blocksz = getBlockSize( resolution );
+    while ( origo[dir]+(nrblocks-1)*blocksz > end[dir] )
+	nrblocks--;
+
+    return nrblocks;
 }
 
 
