@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.6 2000-03-22 13:39:15 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.7 2000-03-30 08:59:55 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -27,10 +27,10 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 void SeisTrcReader::init()
 {
     itrc = 0;
-    icfound = NO;
-    new_packet = NO;
-    needskip = NO;
-    connrisbidnr = NO;
+    icfound = false;
+    new_packet = false;
+    needskip = false;
+    connrisbidnr = false;
 }
 
 
@@ -132,7 +132,7 @@ bool SeisTrcReader::openFirst()
 	if ( !conn ) { delete ioobj; ioobj = 0; }
 
     }
-    return conn ? YES : NO;
+    return conn ? true : false;
 }
 
 
@@ -143,11 +143,11 @@ bool SeisTrcReader::initRead()
 	delete ioobj; ioobj = 0;
 	delete conn; conn = 0;
 	errmsg = trl->errMsg();
-	return NO;
+	return false;
     }
 
-    needskip = NO;
-    return YES;
+    needskip = false;
+    return true;
 }
 
 
@@ -173,12 +173,12 @@ void SeisTrcReader::setKeyData( const SeisKeyData& skd )
 
 int SeisTrcReader::get( SeisTrcInfo& ti )
 {
-    bool needsk = needskip; needskip = NO;
+    bool needsk = needskip; needskip = false;
     if ( needsk )
     {
 	if ( !trl->skip() )
 	{
-	    if ( trl->errMsg() )
+	    if ( trl->errMsg() && *trl->errMsg() )
 		{ errmsg = trl->errMsg(); return -1; }
 	    return nextConn( ti );
 	}
@@ -217,10 +217,10 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 		  || ( ((clustinl && res%256==2) || (clustcrl && res/256==2)) )
 		   )
 		{
-		    icfound = NO;
+		    icfound = false;
 		    return nextConn( ti );
 		}
-		icfound = NO;
+		icfound = false;
 	    }
 	}
 
@@ -238,30 +238,30 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     // This trace is actually selected
     if ( new_packet )
     {
-	ti.new_packet = YES;
-	new_packet = NO;
+	ti.new_packet = true;
+	new_packet = false;
     }
-    icfound = needskip = YES;
+    icfound = needskip = true;
     return 1;
 }
 
 
 bool SeisTrcReader::get( SeisTrc& trc )
 {
-    needskip = NO;
+    needskip = false;
     if ( !trl->read(trc) )
     {
 	errmsg = trl->errMsg();
 	trl->clearErr();
-	return NO;
+	return false;
     }
-    return YES;
+    return true;
 }
 
 
 int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 {
-    new_packet = NO;
+    new_packet = false;
     if ( !ioobj->multiConn()
       || (keyData().bidsel && keyData().bidsel->size() == 0) )
 	return 0;
@@ -281,7 +281,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	conn = ioobj->getConn( Conn::Read );
     }
 
-    icfound = NO;
+    icfound = false;
 
     if ( !trl->initRead(spi,*conn) )
     {
@@ -298,8 +298,8 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	    return nextConn( ti );
     }
 
-    if ( rv == 2 )	new_packet = YES;
-    else		ti.new_packet = YES;
+    if ( rv == 2 )	new_packet = true;
+    else		ti.new_packet = true;
 
     return rv;
 }
@@ -334,7 +334,7 @@ void SeisTrcReader::finishGetInfo( SeisTrcInfo& ti )
 	ti.coord = SI().transform( binid );
 
     ti.stack_count = 1;
-    ti.new_packet = NO;
+    ti.new_packet = false;
     ti.starttime += ti.dt * 1e-6 * trl->keyData().sg.start;
     ti.dt *= trl->step();
 }
