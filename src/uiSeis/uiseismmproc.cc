@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.43 2003-02-27 10:57:34 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.44 2003-03-06 15:08:23 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,8 +223,10 @@ void uiSeisMMProc::newJM()
 
 void uiSeisMMProc::postStep( CallBacker* )
 {
-    const char* txt = jm->progressMessage();
-    if ( *txt ) progrfld->append( txt );
+    BufferString pm;
+    jm->fetchProgressMessage( pm );
+
+    if ( pm.size() ) progrfld->append( pm );
     updateCurMachs();
 }
 
@@ -501,7 +503,7 @@ bool uiSeisMMProc::getCurMach( BufferString& mach ) const
     if ( curit < 0 ) return false;
 
     mach = usedmachfld->box()->textOfItem(curit);
-    return true;
+    return mach.size() > 0;
 }
 
 
