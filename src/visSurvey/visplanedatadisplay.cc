@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.10 2002-04-29 09:27:44 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.11 2002-04-29 14:05:23 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -39,6 +39,8 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
 
     trect->getRectangle().setSnapping( true );
     trect->useTexture( false );
+
+    SPM().appvelchange.notify(  mCB(this,PlaneDataDisplay,appVelChCB));
 }
 
 
@@ -113,6 +115,8 @@ void visSurvey::PlaneDataDisplay::setType(Type nt)
 	trect->getRectangle().setRange( 1, crlrange );
 	trect->getRectangle().setRange( 2, vrg );
     }
+
+    resetDraggerSizes( SPM().getAppVel() );
 }
 
 
@@ -191,6 +195,12 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
 }
 
 
+void visSurvey::PlaneDataDisplay::appVelChCB( CallBacker* cb )
+{
+    resetDraggerSizes( SPM().getAppVel() );
+}
+
+
 void visSurvey::PlaneDataDisplay::showDraggers(bool yn)
 {
     trect->getRectangle().displayDraggers(yn);
@@ -205,6 +215,7 @@ void visSurvey::PlaneDataDisplay::resetManip()
 
 visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
 {
+    SPM().appvelchange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
     trect->selection()->remove( mCB(this,PlaneDataDisplay,select));
     trect->deSelection()->remove( mCB(this,PlaneDataDisplay,deSelect));
 

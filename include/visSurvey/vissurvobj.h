@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.3 2002-04-29 11:10:08 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.4 2002-04-29 14:05:15 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -40,21 +40,22 @@ public:
     				SurveyParamManager();
 				~SurveyParamManager();
     void			setAppVel( float );
-    float			getAppVel() const { return appvel; }
+    float			getAppVel() const
+				{ return displaytransform ? appvel : defappvel;}
 
     Geometry::Pos		coordDispl2XYT( const Geometry::Pos& ) const;
     Geometry::Pos		coordXYT2Display( const Geometry::Pos& ) const;
 
-    const visBase::Transformation*	getDisplayTransform() const
-					{ return displaytransform; }
-    const visBase::Transformation*	getAppvelTransform() const
-					{ return appveltransform; }
-    const visBase::Transformation*	getInlCrlTransform() const
-					{ return inlcrltransform; }
+    const visBase::Transformation*	getDisplayTransform() const;
+    const visBase::Transformation*	getAppvelTransform() const;
+    const visBase::Transformation*	getInlCrlTransform() const;
 
     Notifier<SurveyParamManager>	appvelchange;
 
 protected:
+    void			createTransforms();
+    static float		defappvel;
+    
     float			appvel;
     visBase::Transformation*	displaytransform;
     visBase::Transformation*	appveltransform;
