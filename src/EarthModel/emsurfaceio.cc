@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.6 2003-06-25 09:34:32 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.7 2003-07-02 06:17:19 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -278,6 +278,12 @@ void EM::dgbSurfaceReader::setReadFillType( bool yn )
 int EM::dgbSurfaceReader::nrDone() const
 {
     return (executors.size() ? ExecutorGroup::nrDone() : 0) + nrdone;
+}
+
+
+const char* EM::dgbSurfaceReader::nrDoneText() const
+{
+    return "Gridlines read";
 }
 
 
@@ -609,6 +615,12 @@ IOPar* EM::dgbSurfaceWriter::pars()
 int EM::dgbSurfaceWriter::nrDone() const
 {
     return (executors.size() ? ExecutorGroup::nrDone() : 0) + nrdone;
+}
+
+
+const char* EM::dgbSurfaceWriter::nrDoneText() const
+{
+    return "Gridlines written";
 }
 
 
