@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.59 2004-11-16 12:27:28 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.60 2004-11-26 19:25:19 dgb Exp $
 ___________________________________________________________________
 
 -*/
@@ -60,9 +60,8 @@ uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
     , tcs(tcs_)
 {
     setProperty<int>( sceneidkey, sovwr->sceneId() );
-    setPropertyPtr<uiSoViewer*>( viewerptr, sovwr );
-    setPropertyPtr<uiODApplMgr*>( applmgrstr, am );
-    // setPropertyPtr<uiODSceneMgr::Scene*>( scenestr, sc );
+    setPropertyPtr( viewerptr, sovwr );
+    setPropertyPtr( applmgrstr, am );
 
     tcs->addnotifier.notify( mCB(this,uiODTreeTop,addCreaterCB) );
     tcs->removenotifier.notify( mCB(this,uiODTreeTop,removeCreaterCB) );
@@ -93,9 +92,9 @@ bool uiODTreeTop::select(int selkey)
 
 uiODApplMgr* uiODTreeTop::applMgr()
 {
-    uiODApplMgr* res = 0;
-    getPropertyPtr<uiODApplMgr*>( applmgrstr, res );
-    return res;
+    void* res = 0;
+    getPropertyPtr( applmgrstr, res );
+    return reinterpret_cast<uiODApplMgr*>( res );
 }
 
 
@@ -106,17 +105,17 @@ uiODTreeItem::uiODTreeItem( const char* name__ )
 
 uiODApplMgr* uiODTreeItem::applMgr()
 {
-    uiODApplMgr* res = 0;
-    getPropertyPtr<uiODApplMgr*>( uiODTreeTop::applmgrstr, res );
-    return res;
+    void* res = 0;
+    getPropertyPtr( uiODTreeTop::applmgrstr, res );
+    return reinterpret_cast<uiODApplMgr*>( res );
 }
 
 
 uiSoViewer* uiODTreeItem::viewer()
 {
-    uiSoViewer* res = 0;
-    getPropertyPtr<uiSoViewer*>( uiODTreeTop::viewerptr, res );
-    return res;
+    void* res = 0;
+    getPropertyPtr( uiODTreeTop::viewerptr, res );
+    return reinterpret_cast<uiSoViewer*>( res );
 }
 
 

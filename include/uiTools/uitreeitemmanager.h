@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.12 2004-09-17 13:32:05 kristofer Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.13 2004-11-26 19:25:19 dgb Exp $
 ________________________________________________________________________
 
 
@@ -82,9 +82,9 @@ public:
 							const char*, T& )
 							instead.
 				*/
-    template<class T> inline void setPropertyPtr(const char* key, const T&);
-    				/*!<Sets a keyed pointer that has been retrieved
-				    with getPropertyPtr().
+    inline void			setPropertyPtr(const char* key,void*);
+    				/*!<Sets a keyed pointer that may have been
+				    retrieved with getPropertyPtr().
 				*/
     template<class T> inline bool getProperty(const char* key, T& res) const;
     				/*!<Gets a keyed value that has been stored
@@ -99,7 +99,7 @@ public:
 							const char*, T& )
 							instead.
 				*/
-    template<class T> inline bool getPropertyPtr(const char* key, T& res) const;
+    inline bool			getPropertyPtr(const char* key,void*&) const;
     				/*!<Gets a keyed pointer that has been stored
 				    with setPropertyPtr().
 				    \retval true	the key was found and
@@ -233,15 +233,10 @@ bool inline uiTreeItem::getProperty( const char* propertykey, T& res ) const
 }
 
 
-template<class T>
-bool inline uiTreeItem::getPropertyPtr( const char* propertykey, T& res ) const
+inline bool uiTreeItem::getPropertyPtr( const char* propertykey, void*& res ) const
 {
-    int tres = 0;
-    if ( properties.get( propertykey, tres ))
-    {
-	res = (T) tres;
+    if ( properties.getPtr( propertykey, res ))
 	return true;
-    }
 
     return parent ? parent->getPropertyPtr( propertykey, res ) : false;
 }
@@ -257,10 +252,9 @@ void inline uiTreeItem::setProperty( const char* propertykey, const T& val )
 }
 
 
-template<class T>
-void inline uiTreeItem::setPropertyPtr( const char* propertykey, const T& val )
+void inline uiTreeItem::setPropertyPtr( const char* propertykey, void* val )
 {
-    properties.set( propertykey, (int) val );
+    properties.setPtr( propertykey, val );
 }
 
 #endif

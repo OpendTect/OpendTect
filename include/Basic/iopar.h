@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.30 2004-10-01 12:37:49 nanne Exp $
+ RCS:		$Id: iopar.h,v 1.31 2004-11-26 19:25:19 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,7 @@ public:
     bool		getSc(const char*,double&,double&,double&,double&,
 	    			double sc, bool set_undef_if_not_found) const;
     bool		getYN(const char*,bool&,char c=0) const;
+    bool		getPtr(const char*,void*&) const;
     inline bool		isTrue( const char* key, char c=0 ) const
 			{ bool b = false; return getYN(key,b,c) && b; }
     bool		get(const char*,BinID&) const;
@@ -166,6 +167,7 @@ public:
     void		set(const char*,int,int,int);
     void		set(const char*,int,int,float);
     void		setYN(const char*,bool);
+    void		setPtr(const char*,void*);
 
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);

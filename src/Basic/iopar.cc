@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.43 2004-10-01 12:37:55 nanne Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.44 2004-11-26 19:25:19 dgb Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -277,7 +277,7 @@ get1Val(unsigned long long,strtoull(ptr, &endptr, 0));
 #define mGetMulti( type, function ) \
 bool IOPar::get( const char* s, TypeSet<type>& res ) const\
 { \
-    const char* ptr = (*this)[s]; \
+    const char* ptr = find(s); \
     if ( !ptr || !*ptr ) return false;\
 \
     FileMultiString fms(ptr);\
@@ -306,7 +306,7 @@ mGetMulti( float, strtod(ptr, &endptr ) );
 
 bool IOPar::get( const char* s, int& i1, int& i2 ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     bool havedata = false;
     if ( ptr && *ptr )
     {
@@ -322,7 +322,7 @@ bool IOPar::get( const char* s, int& i1, int& i2 ) const
 
 bool IOPar::getSc( const char* s, float& f, float sc, bool udf ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     if ( ptr && *ptr )
     {
 	f = atof( ptr );
@@ -338,7 +338,7 @@ bool IOPar::getSc( const char* s, float& f, float sc, bool udf ) const
 
 bool IOPar::getSc( const char* s, double& d, double sc, bool udf ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     if ( ptr && *ptr )
     {
 	d = atof( ptr );
@@ -389,9 +389,9 @@ bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float& f4,
 bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 		 bool udf ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     bool havedata = false;
-    if ( udf || *ptr )
+    if ( udf || (ptr && *ptr) )
     {
 	FileMultiString fms = ptr;
 	ptr = fms[0];
@@ -421,9 +421,9 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 		 bool udf ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     bool havedata = false;
-    if ( udf || *ptr )
+    if ( udf || (ptr && *ptr) )
     {
 	FileMultiString fms = ptr;
 	ptr = fms[0];
@@ -463,9 +463,9 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
 bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 		   double& d4, double sc, bool udf ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     bool havedata = false;
-    if ( udf || *ptr )
+    if ( udf || (ptr && *ptr) )
     {
 	FileMultiString fms = ptr;
 	ptr = fms[0];
@@ -514,7 +514,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 
 bool IOPar::get( const char* s, int& i1, int& i2, int& i3 ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     bool havedata = false;
     if ( ptr && *ptr )
     {
@@ -532,7 +532,7 @@ bool IOPar::get( const char* s, int& i1, int& i2, int& i3 ) const
 
 bool IOPar::get( const char* s, int& i1, int& i2, float& f ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     bool havedata = false;
     if ( ptr && *ptr )
     {
@@ -550,12 +550,21 @@ bool IOPar::get( const char* s, int& i1, int& i2, float& f ) const
 
 bool IOPar::getYN( const char* s, bool& i, char c ) const
 {
-    const char* ptr = (*this)[s];
+    const char* ptr = find( s );
     if ( !ptr || !*ptr ) return false;
 
     if ( !c )	i = yesNoFromString(ptr);
     else	i = toupper(*ptr) == toupper(c);
     return true;
+}
+
+
+bool IOPar::getPtr( const char* s, void*& res ) const
+{
+    const char* ptr = find( s );
+    if ( !ptr || !*ptr ) return false;
+
+    return sscanf( ptr, "%p", &res ) > 0;
 }
 
 
@@ -712,6 +721,13 @@ void IOPar::setYN( const char* keyw, bool i )
 }
 
 
+void IOPar::setPtr( const char* keyw, void* ptr )
+{
+    char buf[80]; sprintf( buf, "%p", ptr );
+    set( keyw, buf );
+}
+
+
 bool IOPar::get( const char* s, Coord& crd ) const
 { return get( s, crd.x, crd.y ); }
 void IOPar::set( const char* s, const Coord& crd )
@@ -787,9 +803,9 @@ void IOPar::set( const char* s, const BufferStringSet& bss )
 
 bool IOPar::get( const char* s, MultiID& mid ) const
 {
-    const char* res = (*this)[s];
-    if ( !res || !*res ) return false;
-    mid = res;
+    const char* ptr = find( s );
+    if ( !ptr || !*ptr ) return false;
+    mid = ptr;
     return true;
 }
 
