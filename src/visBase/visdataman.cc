@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.15 2002-05-07 05:31:52 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.16 2002-05-07 05:47:18 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -153,10 +153,7 @@ bool visBase::DataManager::removeAll(int nriterations)
     if ( !objectsleft ) return true;
     if ( !nriterations )
     {
-#if DEBUG==yes
-	cerr << "Internal error in 'visBase::DataManager::removeAll():\n'"
-		"All objects not unreferenced" << endl;
-#endif
+	pErrMsg("All objects not unreferenced");
 	while ( objects.size() ) remove( 0 );
 	return false;
     }
@@ -193,13 +190,11 @@ void visBase::DataManager::unRef( int id )
 	return;
     }
 
-#if DEBUG==yes
     if ( !refcounts[idx] )
     {
-	cerr << "Internal error in 'visBase::DataManager::unRef( int id )'"
-	        "Decreasing a zero reference" << endl;
+	pErrMsg("Decreasing a zero reference") ;
+	return;
     }
-#endif
 
     refcounts[idx]--;
     if ( !refcounts[idx] )
@@ -212,17 +207,15 @@ void visBase::DataManager::unRef( const DataObject* d )
     int idx = objects.indexOf( d );
     if ( idx<0 )
     {
-	pErrMsg("Internal Error: Trying to remove non-existing id");
+	pErrMsg("Trying to remove non-existing id");
 	return;
     }
 
-#if DEBUG==yes
     if ( !refcounts[idx] )
     {
-	cerr << "Internal error in 'visBase::DataManager::unRef( int id )'"
-	        "Decreasing a zero reference" << endl;
+	pErrMsg("Decreasing a zero reference");
+	return;
     }
-#endif
 
     refcounts[idx]--;
     if ( !refcounts[idx] )
