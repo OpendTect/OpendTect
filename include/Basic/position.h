@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.9 2003-01-23 07:36:16 kristofer Exp $
+ RCS:		$Id: position.h,v 1.10 2003-01-23 16:14:48 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <geometry.h>
+#include <gendefs.h>
 
 
 /*!\brief a cartesian coordinate in 2D space. */
@@ -23,9 +23,6 @@ class Coord
 public:
 		Coord()				{ x = y = 0; }
 		Coord( double cx, double cy )	{ x = cx; y = cy; }
-
-		Coord( const Point<double>& p )	{ x = p.x(); y = p.y(); }
-		operator Point<double>() const { return Point<double>(x,y); }
 
     void	operator+=( double dist )	{ x += dist; y += dist; }
     void	operator+=( const Coord& crd )	{ x += crd.x; y += crd.y; }
@@ -146,18 +143,6 @@ public:
 		: BinIDValue(b,v), z(zz)		{}
 
     float	z;
-};
-
-
-class CoordTransform
-{
-public:
-
-    virtual		~CoordTransform()	{}
-
-    virtual Coord	getTransXY(const Coord&)= 0;
-    virtual Coord	getTrueXY(const Coord&)	= 0;
-
 };
 
 

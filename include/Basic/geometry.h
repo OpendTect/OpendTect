@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.13 2001-02-13 17:15:46 bert Exp $
+ RCS:           $Id: geometry.h,v 1.14 2003-01-23 16:14:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,8 +113,8 @@ public:
 				|| r.bottomRight_ != bottomRight_; }
 
     inline Point<T>	topLeft() const     { return topLeft_; }
-    inline Point<T>	topRight() const    { return uiPoint(top(),right()); }
-    inline Point<T>	bottomLeft() const  { return uiPoint(bottom(),left()); }
+    inline Point<T>	topRight() const    { return Point<T>(top(),right()); }
+    inline Point<T>	bottomLeft() const  { return Point<T>(bottom(),left());}
     inline Point<T>	bottomRight() const { return bottomRight_; }
     inline Point<T>	centre() const 		
                         { return Point<T>( (topLeft_.x()+bottomRight_.x())/2,
@@ -248,21 +248,15 @@ inline Rect<T> Rect<T>::grownBy( double f ) const
 template <class T>
 inline bool Rect<T>::operator >( const Rect<T>& r ) const
 {
-#ifdef __RECT_LARGE_DIMS__
-    /*! Set the __RECT_LARGE_DIMS__ compile flag if your handle real large
-	rectangles. Disadvantage is conversion to double */
+    Size2D<T> diff( width()-r.width(), height()-r.height() );
 
-    return !width() || !height() ? false
-	 : (!r.width() || !r.height() ? true
-	   : ( ((double)width())/r.width() > ((double)r.height())/height() ) );
+    if ( diff.width() > 0 && diff.height() > 0 )
+	return true;
+    if ( diff.width() < 0 && diff.height() < 0 )
+	return false;
 
-#else
-
-    /*! Now we may produce too large numbers for the precision of T. */
-    return width() * height() > r.width() * r.height();
-
-#endif
-
+    return diff.width() < 0 ? diff.height() < -diff.width()
+			    : diff.width() > -diff.height();
 }
 
 
