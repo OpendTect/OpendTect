@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.22 2004-07-30 16:06:16 nanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.23 2004-09-22 13:55:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 				 "Specify well parameters","107.0.0"))
     , ctio(*mMkCtxtIOObj(Well))
 {
+    setOkText( "Go" );
+
     infld = new uiFileInput( this, "Well Track file", 
 	    		     uiFileInput::Setup().withexamine() );
     infld->setDefaultSelectionDir(
@@ -148,7 +150,8 @@ bool uiWellImportAsc::doWork()
 
     if ( !wtr->write(*well,*ctio.ioobj) ) mErrRet( "Cannot write well" );
 
-    return true;
+    uiMSG().message( "Welltrack successfully imported" );
+    return false;
 }
 
 
