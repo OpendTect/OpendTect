@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.3 2003-05-22 15:02:31 nanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.4 2003-05-28 14:24:07 nanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -70,7 +70,7 @@ void uiVisColTabEd::setColTab( int id )
 }
 
 
-void uiVisColTabEd::setHistogram( const TypeSet<float>& hist )
+void uiVisColTabEd::setHistogram( const TypeSet<float>* hist )
 {
     coltabed->setHistogram( hist );
 }

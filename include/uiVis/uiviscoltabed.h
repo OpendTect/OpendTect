@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.2 2003-05-22 15:02:36 nanne Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.3 2003-05-28 14:24:12 nanne Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ public:
 				~uiVisColTabEd();
 
     void			setColTab(int coltabid);
-    void			setHistogram(const TypeSet<float>&);
+    void			setHistogram(const TypeSet<float>*);
     void			setPrefHeight(int);
 
 protected:
