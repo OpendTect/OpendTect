@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.22 2004-07-08 09:57:42 dgb Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.23 2004-07-12 06:46:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 {
     table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
 	    				       .rowcangrow() 
-					       .defrowlbl()
-					       .manualResize() );
+					       .defrowlbl() );
     table->setColumnLabels( mrkrcollbls );
     table->setColumnReadOnly( 2, true );
     table->setNrRows( initnrrows );
