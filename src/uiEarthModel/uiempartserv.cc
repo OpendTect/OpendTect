@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.10 2003-05-05 12:16:13 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.11 2003-05-23 12:25:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "surfaceinfo.h"
 #include "geom2dsnappedsurface.h"
-#include "geomcompositesurface.h"
 
 const int uiEMPartServer::evGetHorData = 0;
 
