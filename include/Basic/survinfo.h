@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.25 2002-10-03 13:32:23 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.26 2002-10-09 15:42:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,8 @@ public:
     static const char*	sKeyCrlRange;
     static const char*	sKeyZRange;
     static const char*	sKeyWSProjName;
+
+    bool		isValid() const		{ return valid_; }
 
 protected:
 

@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.14 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.15 2002-10-09 15:42:03 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -309,7 +309,7 @@ BinID BinIDRangeProv::operator[]( int idx ) const
 BinIDSampler::BinIDSampler()
 	: step(1,1)
 {
-    if ( SI().is3D() )
+    if ( SI().isValid() && SI().is3D() )
 	step = SI3D().step(false);
 }
 
