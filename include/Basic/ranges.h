@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.14 2001-07-04 12:12:29 nanne Exp $
+ RCS:		$Id: ranges.h,v 1.15 2001-09-22 14:26:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,12 +101,13 @@ typedef Interval<double> TimeGate;
 typedef Interval<double> DepthGate;
 
 
+#define cloneTp	mPolyRet( Interval<T>, StepInterval<T> )
+
 /*!\brief Interval with step. */
 
 template <class T>
 class StepInterval : public Interval<T>
 {
-#define cloneTp	mPolyRet( Interval<T>, StepInterval<T> )
 public:
 		StepInterval()			{ step = 1; }
 		StepInterval( const T& t1, const T& t2, const T& t3 )
@@ -122,14 +123,7 @@ public:
     inline int	nearestIndex( const T& x ) const
 		{ return Interval<T>::nearestIndex( x, step ); }
 
-    inline int	nrSteps() const
-		{
-		    if ( !step ) return 0;
-		    double ns = ( (start > stop ? start : stop)
-				- (start > stop ? stop : start) )
-			      / (step > 0 ? step : -step);
-		    return (int)(ns * (1. + 1e-10));
-		}
+    inline int	nrSteps() const;
     virtual void sort( bool asc=true )
 		{
 		    Interval<T>::sort(asc);
@@ -139,22 +133,25 @@ public:
 
      T		step;
 
-#undef cloneTp
 };
+
+
+#undef cloneTp
 
 
 template <class T1,class T2>
 inline void assign( Interval<T1>& i1, const Interval<T2>& i2 )
 { i1.start = (T1)i2.start; i1.stop = (T1)i2.stop; }
 
-
 template <class T1,class T2>
 inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
 { i1.start = (T1)i2.start; i1.stop = (T1)i2.stop; i1.step = (T1)i2.step; }
 
+
 #define mDefIntNrSteps(typ) \
 inline int StepInterval<typ>::nrSteps() const \
 { \
+    if ( !step ) return 0; \
     int ret = ((int)start - stop) / step; \
     return ret < 0 ? -ret : ret; \
 }
@@ -167,6 +164,19 @@ mDefIntNrSteps(unsigned int)
 mDefIntNrSteps(unsigned long)
 mDefIntNrSteps(unsigned short)
 mDefIntNrSteps(unsigned char)
+
+#define mDefFNrSteps(typ,eps) \
+inline int StepInterval<typ>::nrSteps() const \
+{ \
+    if ( !step ) return 0; \
+    typ ns = ( (start > stop ? start : stop) \
+	    - (start > stop ? stop : start) ) \
+	      / (step > 0 ? step : -step); \
+    return (int)(ns * (1. + eps)); \
+}
+
+mDefFNrSteps(float,1e-6)
+mDefFNrSteps(double,1e-10)
 
 
 #endif
