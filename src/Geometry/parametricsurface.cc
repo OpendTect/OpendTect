@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.7 2005-03-10 11:45:04 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.8 2005-03-11 12:08:01 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -91,8 +91,8 @@ int ParametricSurface::nrKnots() const { return nrCols()*nrRows(); }
 
 RowCol ParametricSurface::getKnotRowCol( int idx ) const
 {
-    return RowCol( origo.row+idx/nrRows()*step.row,
-	    	   origo.col+idx%nrRows()*step.col);
+    return RowCol( origo.row+idx/nrCols()*step.row,
+	    	   origo.col+idx%nrCols()*step.col);
 }
 
 
