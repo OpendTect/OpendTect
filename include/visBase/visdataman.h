@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.9 2002-05-02 14:15:16 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.10 2002-05-08 07:33:04 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,8 +49,8 @@ public:
 
     void		ref( int id );
     void		ref( const DataObject* );
-    void		unRef( int id );
-    void		unRef( const DataObject* );
+    void		unRef( int id, bool remove=true );
+    void		unRef( const DataObject*, bool remove=true );
 
     int			getId( const DataObject* ) const;
     int			getId( const SoPath* ) const;
