@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.38 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.39 2004-04-29 16:10:56 nanne Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -744,13 +744,17 @@ void visBase::Rectangle::setWidthRange( int dim, const Interval<float>& range )
 }
 
 
-void visBase::Rectangle::displayDraggers(bool on)
+void visBase::Rectangle::showDraggers( bool yn )
 {
-    if ( manipswitch ) manipswitch->whichChild = on ? 0 : SO_SWITCH_NONE;
+    if ( manipswitch ) manipswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
-void visBase::Rectangle::displayTabs( bool yn )
+bool visBase::Rectangle::draggersShown() const
+{ return manipswitch->whichChild.getValue()==0; }
+
+
+void visBase::Rectangle::showTabs( bool yn )
 {
     if ( dragger ) dragger->showTabs( yn );
 }

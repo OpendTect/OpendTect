@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.32 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.33 2004-04-29 16:11:01 nanne Exp $
 ________________________________________________________________________
 
 
@@ -117,8 +117,9 @@ public:
     void		setSnapping(bool n) { snap = n; }
     bool		isSnapping() const { return snap; }
 
-    void		displayDraggers(bool);
-    void		displayTabs(bool);
+    void		showDraggers(bool);
+    bool		draggersShown() const;
+    void		showTabs(bool);
     void		setDraggerSize( float w, float h, float d );
     Coord3		getDraggerSize() const;
 
