@@ -26,6 +26,7 @@ public:
 				setStretch( 1, 0 );
 				setSzPol( SzPolicySpec().setHSzP( 
 						    SzPolicySpec::medvar) );
+				setCenterIndicator( true );
 			    }
 
     virtual int 	nrTxtLines() const				{ return 1; }
