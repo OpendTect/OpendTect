@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.10 2001-03-19 10:20:06 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.11 2001-03-26 16:02:23 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -316,6 +316,8 @@ void SeisTrcReader::trySkipConns()
 
     if ( !bp )	binid = SI().range().start;
     else	binid = (*bp)[0];
+    delete bp;
+
     int& newinlcrl = clustcrl ? binid.crl : binid.inl;
     do
     {
