@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.9 2003-07-09 11:40:08 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.10 2003-07-10 10:07:44 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -651,6 +651,8 @@ int EM::dgbSurfaceWriter::nextStep()
 	    const char* fnm = dgbSurfDataWriter::createHovName( 
 		    			conn->fileName(),auxdatasel[idx]);
 	    add( new dgbSurfDataWriter(surface,auxdatasel[idx],0,binary,fnm) ); 
+	    // TODO:: Change binid sampler so not all values are written when
+	    // there is a subselection
 	}
 
 	par.set( dgbSurfaceReader::nrpatchstr, patchsel.size() );
@@ -669,17 +671,6 @@ int EM::dgbSurfaceWriter::nextStep()
 	ascostream astream( stream );
 	astream.putHeader( filetype );
 	par.putTo( astream );
-
-/*	
-	for ( int idx=0; idx<auxdatasel.size(); idx++ )
-	{
-	    add( new EM::dgbSurfDataWriter(surface, idx, 0, binary, 
-		EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx)));
-			
-	    // TODO:: Change binid sampler so not all values are written when
-	    // there is a subselection
-	}
-*/	
     }
 
     if ( patchindex>=patchsel.size() )
@@ -803,7 +794,11 @@ int EM::dgbSurfaceWriter::nextStep()
 	    
     rowindex++;
     if ( rowindex>=nrrows )
+    {
 	patchindex++;
+	stream.flush();
+    }
+
     nrdone++;
     return MoreToDo;
 }
