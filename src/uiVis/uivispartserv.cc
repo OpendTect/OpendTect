@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.164 2003-10-07 07:12:51 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.165 2003-10-10 10:08:08 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -231,9 +231,8 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
 	return -1;
     }
 
+    scene->addObject( sd );
     sd->setZValues();
-    scene->addObject( sd ); //Must be done before loading surface
-    				 //Otherwise the transform won't be set
 
     setUpConnections( sd->id() );
     return sd->id();
