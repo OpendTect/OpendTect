@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.57 2004-12-08 11:54:13 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.58 2004-12-08 12:48:12 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -344,15 +344,21 @@ const char* _GetHomeDir()
 const char* GetSettingsDir(void)
 { // NOTE: recompile SearchODFile in spec/General when making changes here...
 
+    int mkfullpth = YES;
+    
 #ifndef __win__
 
     const char* ptr = getenv( "DTECT_SETTINGS" );
 
-    if ( !ptr )
+    if ( ptr )
+	mkfullpth = NO;
+    else
 	ptr = _GetHomeDir();
+
 #else    
 
     const char* ptr = getCleanWinPath( getenv("DTECT_SETTINGS") );
+    if ( ptr ) mkfullpth = NO;
 
     if ( !ptr && getenv("OD_PREFER_HOME") )
 	ptr = _GetHomeDir();
@@ -378,7 +384,7 @@ const char* GetSettingsDir(void)
 
 #endif
 
-    ptr = mkFullPath( ptr, ".od" );
+    if ( mkfullpth ) ptr = mkFullPath( ptr, ".od" );
 
     if ( !File_isDirectory(ptr) )
     {
