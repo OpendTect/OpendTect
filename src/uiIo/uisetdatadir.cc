@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.8 2004-09-27 08:20:25 dgb Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.9 2004-11-05 20:16:08 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include <stdlib.h>
 
 #ifdef __win__
-# include "getspec.h"
+# include "wingetspec.h"
 #endif
 
 

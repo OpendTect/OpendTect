@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.49 2004-10-25 11:14:08 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.50 2004-11-05 20:16:08 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: genc.c,v 1.49 2004-10-25 11:14:08 dgb Exp $";
 # include <process.h>
 # include <float.h>
 # include "windows.h"
-# include "getspec.h"	// GetSpecialFolderLocation()
+# include "wingetspec.h"	// GetSpecialFolderLocation()
 # define sDirSep	"\\"
 # include "string2.h"
 
@@ -467,7 +467,8 @@ static const char* checkFile( const char* path, const char* subdir,
 }
 
 const char* SearchODFile( const char* fname )
-{
+{ // NOTE: recompile SearchODFile in spec/General when making changes here...
+
     const char* nm = checkFile( getenv("OD_FILES"), "", fname );
     if ( !nm ) nm = checkFile( GetPersonalDir(), ".od", fname );
     if ( !nm ) nm = checkFile( GetSettingsDir(), ".od", fname );
@@ -478,7 +479,7 @@ const char* SearchODFile( const char* fname )
     if ( dgb_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
-	sprintf(buf, "SearchConfigFile for %s: %s\n", fname ? fname : "(null)",
+	sprintf(buf, "SearchODFile for %s: %s\n", fname ? fname : "(null)",
 			nm );
 	dgb_debug_message( buf );
     }
@@ -553,7 +554,8 @@ const char* _GetHomeDir()
 }
 
 const char* GetSettingsDir(void)
-{
+{ // NOTE: recompile SearchODFile in spec/General when making changes here...
+
     const char* ptr = getenv( "OD_SETTINGS_DIR" );
 
 #ifndef __win__
@@ -606,7 +608,8 @@ const char* GetSettingsDir(void)
 
 
 const char* GetPersonalDir(void)
-{
+{ // NOTE: recompile SearchODFile in spec/General when making changes here...
+
     const char* ptr = getenv( "OD_PERSONAL_DIR" );
 
     if ( !ptr )
