@@ -25,7 +25,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.10 2001-06-28 21:21:28 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.11 2001-07-26 09:34:31 windev Exp $";
 
 static FixedString<1024> oscommand;
 #define exeCmd(comm) system((const char*)comm) ? false : true
@@ -102,6 +102,7 @@ void StreamProvider::set( const char* devname )
     if ( *ptr == '@' ) { type_ = StreamConn::Command; ptr++; }
     fname = ptr;
 
+#ifndef __msvc__
     // separate hostname from filename
     ptr = strchr( fname.buf(), ':' );
     if ( ptr )
@@ -110,6 +111,7 @@ void StreamProvider::set( const char* devname )
 	hostname = fname;
     }
     else
+#endif
 	ptr = fname.buf();
 
     if ( *ptr == '@' ) { type_ = StreamConn::Command; ptr++; }

@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.2 2001-07-18 16:15:43 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.3 2001-07-26 09:38:13 windev Exp $";
 
 #include "iodirentry.h"
 #include "transl.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: iodirentry.cc,v 1.2 2001-07-18 16:15:43 bert Ex
 #include "ioman.h"
 #include "globexpr.h"
 
+#include "errh.h"
 
 IODirEntry::IODirEntry( IOObj* iob, int selres, bool maychgdir )
 	: UserIDObject("")
@@ -47,7 +48,7 @@ const UserIDString& IODirEntry::name() const
 IODirEntryList::IODirEntryList( IODir* id, const Translator* tr, bool maycd,
 				const char* f )
 	: UserIDObjectSet<IODirEntry>(
-		id->main() ? (const char*)id->main()->name() : "Objects" )
+		id && id->main() ? (const char*)id->main()->name() : "Objects" )
 	, trsel(tr->getSelector())
 	, maychgdir(maycd)
 	, trfilt(f)
@@ -64,6 +65,7 @@ IODirEntryList::~IODirEntryList()
 
 void IODirEntryList::fill( IODir* iodir )
 {
+    if ( !iodir ) { pErrMsg("Can't fill IODirEntryList. No iodir"); return; }
     deepErase();
     setName( iodir->main() ? (const char*)iodir->main()->name() : "Objects" );
     const UserIDObjectSet<IOObj>& ioobjs = iodir->getObjs();
