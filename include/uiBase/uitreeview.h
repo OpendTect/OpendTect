@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.2 2002-02-06 12:35:16 arend Exp $
+ RCS:           $Id: uitreeview.h,v 1.3 2002-03-12 14:41:27 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ public:
 
 			uiListView( uiParent* parnt,
 				    const char* nm = "uiListView",
-				    int preferredNrLines=0 );
+				    int preferredNrLines=0,
+				    bool rootdecorated = true );
 
     virtual		~uiListView()			{}
 
@@ -38,6 +39,9 @@ public:
 
     int			treeStepSize() const;
     void		setTreeStepSize( int );
+
+    bool		rootDecorated() const;
+    void		setRootDecorated( bool yn );
 
     // take & insert are meant to MOVE an item to another point in the tree 
     void		takeItem( uiListViewItem* );

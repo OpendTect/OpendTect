@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.3 2002-02-22 10:22:02 nanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.4 2002-03-12 14:41:27 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
 }
 
 
-uiListView::uiListView( uiParent* p, const char* nm, int nl )
+uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     : uiObject( p, nm, mkbody(p,nm,nl) )
     , selectionChanged(this)
     , currentChanged(this)
@@ -101,7 +101,9 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl )
     , expanded(this)
     , collapsed(this)
     , lastitemnotified(0) 
-{}
+{
+    setRootDecorated( dec );
+}
 
 /*
 uiListView::uiListView( uiParent* p, const PtrUserIDObjectSet& uids,
@@ -140,6 +142,14 @@ int  uiListView::treeStepSize() const
 
 void uiListView::setTreeStepSize(int sz)
     { body_->setTreeStepSize(sz); }
+
+
+bool uiListView::rootDecorated() const
+    { return body_->rootIsDecorated(); }
+
+
+void uiListView::setRootDecorated( bool yn )
+    { body_->setRootIsDecorated(yn); }
 
 /*! \brief insert an already existing item in this object's list of children
 
