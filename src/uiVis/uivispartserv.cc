@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.16 2002-04-12 19:04:55 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.17 2002-04-15 10:20:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,9 @@ bool uiVisPartServer::deleteAllObjects()
 {
     for ( int idx=0; idx<scenes.size(); idx++ )
         scenes[idx]->unRef();
+
+    scenes.erase();
+
     return visBase::DM().reInit();
 }
 
