@@ -34,7 +34,13 @@ set outlib=$1
 shift
 
 
-if ( $HDIR != "win") then
+if ( $HDIR == "win") then
+
+    $* -o $outlib
+    set exitstat=$status
+
+else
+
     set tmpdir=`$PMAKE/bin/get_temp_file_name`
 
     if ( ! -d $tmpdir ) mkdir $tmpdir
@@ -49,19 +55,14 @@ if ( $HDIR != "win") then
 	    ar x $lib `ar t $lib`
     end
 
-    #echo "Executing:" $* *.o -o $outlib
     $* *.o -o $outlib
+    set exitstat=$status
     cd /tmp
 
     rm -rf $tmpdir
-
-else
-
-    echo "Executing:" $* -o $outlib
-    $* -o $outlib
 
 endif
 
 
 
-exit 0
+exit $exitstat
