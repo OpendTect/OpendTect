@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.60 2004-05-06 14:14:58 macman Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.61 2004-09-27 08:25:11 dgb Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -27,7 +27,9 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.60 2004-05-06 14:14:58 macman 
 #endif
 #include <iostream>
 
-#ifndef __win__
+#ifdef __win__
+# include "filegen.h"
+#else
 # include "_execbatch.h"
 #endif
 
@@ -35,6 +37,11 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.60 2004-05-06 14:14:58 macman 
 
 BatchProgram* BatchProgram::inst_;
 
+#ifdef __win__
+# define mGetPath(path)  getWinPath(path)
+#else
+# define mGetPath(path)  path
+#endif
 
 BatchProgram::BatchProgram( int* pac, char** av )
 	: UserIDObject("")
@@ -96,9 +103,19 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
     static BufferString parfilnm; parfilnm = fn;
     replaceCharacter(parfilnm.buf(),'%',' ');
-    fn = parfilnm;
+    fn = mGetPath( parfilnm );
 
     setName( fn );
+
+#ifdef __win__
+
+    int count=10;
+
+    while ( !File_exists(fn) && count-->0 )
+	Time_sleep(1);
+
+#endif
+
     StreamData sd = StreamProvider( fn ).makeIStream();
     if ( !sd.usable() )
     {
