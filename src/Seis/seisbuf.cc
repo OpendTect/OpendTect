@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.1.1.2 1999-09-16 09:35:10 arend Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.2 2000-07-06 16:14:31 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -117,20 +117,15 @@ StepInterval<int> SeisGather::getSI( const StepInterval<int>& stpi ) const
 
 void SeisGather::getStack( SeisTrc& trc, const StepInterval<int>& stpi ) const
 {
+    trc.reSize(0);
     if ( size() < 1 ) return;
 
     StepInterval<int> si = getSI( stpi );
     const int sz = si.nrSteps();
-    trc.reSize(0);
     if ( sz < 1 ) return;
 
     const SeisTrc* trc1 = get( si.start );
-    if ( sz == 1 )
-    {
-	trc.copyData( *trc1 );
-	trc.info().mute_time = trc1->info().mute_time;
-	return;
-    }
+    if ( sz == 1 ) { trc.copy( *trc1 ); return; }
 
     const SeisTrc* arr[sz];
     arr[0] = trc1;
