@@ -4,11 +4,11 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.7 2004-01-09 11:02:09 bert Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.8 2004-07-16 20:33:42 bert Exp $";
 
 #include "uimsg.h"
 
-#ifndef PLAN_B
+#ifdef PLAN_A
 
 extern "C" const char* InituiHelloPlugin( int, char** )
 {
@@ -17,7 +17,7 @@ extern "C" const char* InituiHelloPlugin( int, char** )
 }
 
 
-#else /* PLAN_B is defined */
+#else /* PLAN_A is not defined */
 
 
 #include "uiodmain.h"
@@ -118,4 +118,4 @@ extern "C" const char* InituiHelloPlugin( int, char** )
 }
 
 
-#endif /* ifdef PLAN_B */
+#endif /* ifdef PLAN_A */
