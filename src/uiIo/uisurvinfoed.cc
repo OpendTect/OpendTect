@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.35 2003-02-07 16:11:37 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.36 2003-02-20 11:40:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,14 +41,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 {
     if ( !si ) return;
 
-    survnmfld = new uiGenInput( this, "Survey name",
-	    			StringInpSpec(survinfo->name()) );
-    dirnmfld = new uiGenInput( this, "Directory name", 
+    dirnmfld = new uiGenInput( this, "Survey short name (directory name)", 
 			       StringInpSpec( orgdirname ) );
-    dirnmfld->attach( alignedBelow, survnmfld );
+    survnmfld = new uiGenInput( this, "Full Survey name",
+	    			StringInpSpec(survinfo->name()) );
+    survnmfld->attach( alignedBelow, dirnmfld );
 
-    pathfld = new uiGenInput( this, "Location", StringInpSpec( rootdir ) );
-    pathfld->attach( alignedBelow, dirnmfld );
+    pathfld = new uiGenInput( this, "Location on disk",
+	    			StringInpSpec( rootdir ) );
+    pathfld->attach( alignedBelow, survnmfld );
     uiButton* pathbut;
     if ( !orgdirname.size() )
     {
@@ -82,7 +83,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     zfld = new uiGenInput( rangegrp, "Time range (s)",
 			   DoubleInpIntervalSpec(true) );
     rangegrp->setHAlignObj( inlfld->uiObj() );
-    rangegrp->attach( alignedBelow, dirnmfld ); 
+    rangegrp->attach( alignedBelow, pathfld ); 
     rangegrp->attach( ensureBelow, rglbl ); 
     if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
     crlfld->attach( alignedBelow, inlfld );
@@ -147,10 +148,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 	ycrlfld->attach( rightOf, yinlfld );
 	overrule->attach( alignedBelow, ycrlfld );
 
-
 	applybut = new uiPushButton( this, "Apply" ); 
 	applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
-	applybut->attach( centeredBelow, crdgrp);
+	applybut->attach( alignedBelow, crdgrp );
     }
 
     finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
@@ -245,11 +245,20 @@ void uiSurveyInfoEditor::doFinalise( CallBacker* )
 
 bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 {
-    BufferString newdirnm = dirnmfld->text();
-    if ( newdirnm == "" )
-	{ uiMSG().error( "Please specify directory name." ); return false; }
+    const char* newdirnminp = dirnmfld->text();
+    if ( !newdirnminp || !*newdirnminp )
+    {
+	uiMSG().error( "Please specify the short survey (directory) name." );
+	return false;
+    }
 
-    if ( !appButPushed() ) return false;
+    BufferString newdirnm = newdirnminp;
+    cleanupString( newdirnm.buf(), NO, YES, YES );
+    if ( newdirnm != newdirnminp )
+	dirnmfld->setText( newdirnm );
+
+    if ( !appButPushed() )
+	return false;
 
     if ( orgdirname == "" )
     {
@@ -274,7 +283,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	}
 
 	File_makeWritable( to, YES, YES );
-	survinfo->dirname = dirnmfld->text();
+	survinfo->dirname = newdirnm;
 	BufferString link = File_getFullPath( rootdir, newdirnm ); 
 	if ( link != to )
 	    if ( !File_createLink( to, link ) )
@@ -312,7 +321,9 @@ const char* uiSurveyInfoEditor::dirName()
 
 bool uiSurveyInfoEditor::setRanges()
 {
-    survinfo->setName( survnmfld->text() );
+    BufferString survnm( survnmfld->text() );
+    if ( survnm == "" ) survnm = dirnmfld->text();
+    survinfo->setName( survnm );
 
     StepInterval<int> irg( inlfld->getIStepInterval() );
     StepInterval<int> crg( crlfld->getIStepInterval() );
