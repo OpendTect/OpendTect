@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.13 2002-04-16 10:15:48 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.14 2002-04-16 11:05:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,10 @@ public:
     void		modifyColor( int, const Color&);
     Color		getColor(int) const;
     void		shareColor(int toid, int fromid );
+
+			//Dialogs
+    bool		setZScale();
+    void		setMaterial(int);
 
 protected:
 

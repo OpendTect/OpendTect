@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.19 2002-04-16 10:15:57 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.20 2002-04-16 11:04:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,9 @@ ________________________________________________________________________
 #include "uidset.h"
 #include "color.h"
 #include "colortab.h"
+
+#include "uizscaledlg.h"
+#include "uimaterialdlg.h"
 
 #include "cubesampling.h"
 #include "attribsel.h"
@@ -525,6 +528,29 @@ void uiVisPartServer::shareColor(int toid, int fromid )
 
     visBase::Material* material = fromvo->getMaterial();
     tovo->setMaterial(material);
+}
+
+
+bool uiVisPartServer::setZScale()
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( !scene ) return false;
+
+    uiZScaleDlg dlg( appserv().parent(), *scene );
+    dlg.go();
+    return dlg.valueChanged();
+}
+
+
+void uiVisPartServer::setMaterial( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visBase::VisualObject*,vo,obj);
+    if ( !vo ) return;
+
+    uiMaterialDlg dlg( appserv().parent(), vo->getMaterial() );
+    dlg.go();
 }
 
 
