@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2003
- RCS:           $Id: SoArrow.cc,v 1.1 2003-11-28 15:38:56 nanne Exp $
+ RCS:           $Id: SoArrow.cc,v 1.2 2003-12-11 16:24:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "GL/gl.h"
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/bundles/SoMaterialBundle.h>
 
 
 
@@ -53,6 +54,11 @@ void SoArrow::generatePrimitives( SoAction* action )
 
 void SoArrow::GLRender( SoGLRenderAction* action )
 {
+    if ( !shouldGLRender(action) ) return;
+
+    SoMaterialBundle mb(action);
+    mb.sendFirst();
+
     const float width = lineWidth.getValue();
     const float length = lineLength.getValue();
     const float hh = headHeight.getValue();
@@ -61,26 +67,27 @@ void SoArrow::GLRender( SoGLRenderAction* action )
     glLineWidth( width );
     glPushMatrix();
 
+    const float l2 = length / 2;
     glBegin(GL_LINES);
-    glVertex3f( 0, 0, 0 );
-    glVertex3f( length, 0, 0 );
+    glVertex3f( -l2, 0, 0 );
+    glVertex3f( l2, 0, 0 );
     glEnd();
     
     glDisable(GL_CULL_FACE);
     glBegin(GL_TRIANGLES);
-    glVertex3f( length+hh, 0, 0);
-    glVertex3f( length, hw/2, 0 );
-    glVertex3f( length, -hw/2, 0 );
-    glVertex3f( length+hh, 0, 0 );
-    glVertex3f( length, 0, hw/2 );
-    glVertex3f( length, 0, -hw/2 );
+    glVertex3f( l2+hh, 0, 0);
+    glVertex3f( l2, hw/2, 0 );
+    glVertex3f( l2, -hw/2, 0 );
+    glVertex3f( l2+hh, 0, 0 );
+    glVertex3f( l2, 0, hw/2 );
+    glVertex3f( l2, 0, -hw/2 );
     glEnd();
 
     glBegin(GL_QUADS);
-    glVertex3f( length, hw/2, 0 );
-    glVertex3f( length, 0, hw/2 );
-    glVertex3f( length, -hw/2, 0 );
-    glVertex3f( length, 0, -hw/2 );
+    glVertex3f( l2, hw/2, 0 );
+    glVertex3f( l2, 0, hw/2 );
+    glVertex3f( l2, -hw/2, 0 );
+    glVertex3f( l2, 0, -hw/2 );
     glEnd();
 
     glPopMatrix();
