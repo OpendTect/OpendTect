@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceBrickWire.cc,v 1.2 2003-10-03 06:17:03 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceBrickWire.cc,v 1.3 2003-10-08 09:56:21 kristofer Exp $";
 
 
 #include "SoMeshSurfaceBrickWire.h"
@@ -49,6 +49,7 @@ void SoMeshSurfaceBrickWire::build()
 {
     if ( isValid() ) return;
 
+    coordIndex.enableNotify(false);
     coordIndex.deleteValues(0);
     int nrcrds = 0;
 
@@ -118,6 +119,8 @@ void SoMeshSurfaceBrickWire::build()
 	}
     }
 
+    coordIndex.enableNotify(true);
+    coordIndex.touch();
     invalidFlag = false;
 }
 

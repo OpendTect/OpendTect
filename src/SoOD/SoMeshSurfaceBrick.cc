@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.2 2003-10-08 07:44:10 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.3 2003-10-08 09:56:21 kristofer Exp $";
 
 
 #include "SoMeshSurfaceBrick.h"
@@ -65,11 +65,13 @@ void SoMeshSurfaceBrick::build()
 {
     if ( isValid() ) return;
 
-    bool atnextrow = true;
+    coordIndex.enableNotify(false);
+    normalIndex.enableNotify(false);
     coordIndex.deleteValues(0);
     normalIndex.deleteValues(0);
     int nrcrds = 0;
     int idx00, idx10,nidx00,nidx10;
+    bool atnextrow = true;
 
     const int nrcells = sideSize.getValue();
     for ( int rowidx=0; rowidx<nrcells; rowidx++ )
@@ -96,6 +98,11 @@ void SoMeshSurfaceBrick::build()
 	computeNormal(idx);
 
     invalidFlag = false;
+
+    coordIndex.enableNotify(true);
+    normalIndex.enableNotify(true);
+    coordIndex.touch();
+    normalIndex.touch();
 }
 
 
