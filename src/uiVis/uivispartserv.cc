@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.47 2002-05-08 12:10:18 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.48 2002-05-13 11:25:58 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ const int uiVisPartServer::evPicksChanged    	= 3;
 const int uiVisPartServer::evGetNewData    	= 4;
 const int uiVisPartServer::evSelectableStatusCh = 5;
 const int uiVisPartServer::evMouseMove		= 6;
+
+const char* uiVisPartServer::appvelstr = "AppVel";
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -143,6 +145,11 @@ void uiVisPartServer::usePar( const IOPar& par )
 	getDataCB( sd );
 
     }
+
+    float appvel;
+    if ( par.get( appvelstr, appvel ) )
+	visSurvey::SPM().setAppVel( appvel );
+
 }
 
 
@@ -152,6 +159,8 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 
     for ( int idx=0; idx<scenes.size(); idx++ )
 	storids += scenes[idx]->id();
+
+    par.set( appvelstr, visSurvey::SPM().getAppVel() );
 
     visBase::DM().fillPar(par, storids);
 }
