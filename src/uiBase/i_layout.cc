@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.48 2002-03-18 13:41:54 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.49 2002-03-19 12:11:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -680,6 +680,7 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
     case bottomBorder:
     case ensureRightOf:
     case ensureBelow:
+    case hCentered:
     break;
 
     default:

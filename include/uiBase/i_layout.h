@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.24 2002-01-31 14:24:26 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.25 2002-03-19 12:11:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
 			: other(o), type(t), margin( marg ), enabled_( true )
 			{
 			    if( !other &&
-				((type < leftBorder)||( type > bottomBorder))
+				((type < leftBorder)||( type > hCentered))
 			    )
 				{ pErrMsg("No attachment defined!!"); }
 			}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uilayout.h,v 1.3 2002-03-18 13:41:54 arend Exp $
+ RCS:           $Id: uilayout.h,v 1.4 2002-03-19 12:11:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,10 +20,10 @@ enum constraintType
     rightAlignedBelow, rightAlignedAbove,
     alignedBelow, alignedAbove,		//!< Uses uiObject::horAlign()
     centeredBelow, centeredAbove,	//!< Uses uiObject::horCentre()
-    hCentered,				//!< Centers with respect to parent
     ensureLeftOf, ensureRightOf,
     ensureBelow,
     leftBorder, rightBorder, topBorder, bottomBorder,
+    hCentered,				//!< Centers with respect to parent
     heightSameAs, widthSameAs,
     stretchedBelow, stretchedAbove,   //!< stretches widget to horiz. borders 
     stretchedLeftTo, stretchedRightTo //!< stretches widget to vertical borders

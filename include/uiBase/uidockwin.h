@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.3 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: uidockwin.h,v 1.4 2002-03-19 12:11:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ public:
     void		setHorStretchable(bool);
     void		setVerStretchable(bool);
     void		setResizeEnabled(bool);
+
+    void		display( bool yn = true, bool shrink=false );
 
     QDockWindow*	qwidget();
 
