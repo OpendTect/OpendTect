@@ -4,16 +4,12 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.10 2002-04-15 09:59:32 kristofer Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.11 2002-04-16 06:37:52 kristofer Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
 #include "visdataman.h"
 #include "thread.h"
-
-#include "Inventor/nodes/SoSelection.h"
-#include "Inventor/SoPath.h"
-
 
 visBase::SelectionManager::SelectionManager()
     : selnotifer( this )
@@ -51,7 +47,7 @@ void visBase::SelectionManager::select( int newid, bool keepoldsel, bool lock )
 	{
 	    selectedids += newid;
 	    dataobj->triggerSel();
-	    selnotifer.trigger();
+	    selnotifer.trigger(newid);
 	}
     }
 
@@ -72,7 +68,7 @@ void visBase::SelectionManager::deSelect( int id, bool lock )
 	if ( dataobj )
 	{
 	    dataobj->triggerDeSel();
-	    deselnotifer.trigger();
+	    deselnotifer.trigger(id);
 	}
 
     }
