@@ -42,8 +42,9 @@ bool ArrayNDIter::inc( int dim )
 }
 	    
 
-DefineEnumNames( ArrayNDWindow, WindowType, 1, "Window type")
-{ "Box", "Hamming", "Hanning", "Blackman", "Barlett", "CosTaper5", 0 };
+DefineEnumNames( ArrayNDWindow, WindowType, 0, "Windowing type")
+{ "Box", "Hamming", "Hanning", "Blackman", "Barlett",
+  "CosTaper5", "CosTaper10", "CosTaper20", 0 };
 
 
 ArrayNDWindow::ArrayNDWindow( const ArrayNDSize& sz_,
@@ -94,20 +95,35 @@ bool ArrayNDWindow::buildWindow( )
 
     MathFunction<float>* windowfunc = 0;
 
-    if ( type == ArrayNDWindow::Box ) 
+    switch ( type )
+    {
+    case ArrayNDWindow::Box:
 	windowfunc = new ArrayNDWindow::BoxWindow;
-    else if ( type == ArrayNDWindow::Hamming )
+    break;
+    case ArrayNDWindow::Hamming:
 	windowfunc = new ArrayNDWindow::HammingWindow;
-    else if ( type == ArrayNDWindow::Hanning )
+    break;
+    case ArrayNDWindow::Hanning:
 	windowfunc = new ArrayNDWindow::HanningWindow;
-    else if ( type == ArrayNDWindow::Blackman )
+    break;
+    case ArrayNDWindow::Blackman:
 	windowfunc = new ArrayNDWindow::BlackmanWindow;
-    else if ( type == ArrayNDWindow::Barlett )
+    break;
+    case ArrayNDWindow::Barlett:
 	windowfunc = new ArrayNDWindow::BarlettWindow;
-    else if ( type == ArrayNDWindow::CosTaper5 )
-	windowfunc = new ArrayNDWindow::CosTaper5Window;
-    else
+    break;
+    case ArrayNDWindow::CosTaper5:
+	windowfunc = new ArrayNDWindow::CosTaperWindow(5);
+    break;
+    case ArrayNDWindow::CosTaper10:
+	windowfunc = new ArrayNDWindow::CosTaperWindow(10);
+    break;
+    case ArrayNDWindow::CosTaper20:
+	windowfunc = new ArrayNDWindow::CosTaperWindow(20);
+    break;
+    default:
 	return false;
+    }
 
     for ( unsigned long off=0; off<totalsz; off++ )
     {
