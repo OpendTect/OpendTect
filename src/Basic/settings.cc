@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.15 2001-11-09 15:18:01 windev Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.16 2001-11-12 14:52:43 windev Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -135,7 +135,7 @@ bool Settings::write( bool do_merge ) const
 	me->merge( dup );
     }
 
-    ascostream stream( sd.ostrm );
+    ascostream stream( *sd.ostrm );
     stream.putHeader( sKey );
     putTo( stream, false );
 
