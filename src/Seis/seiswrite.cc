@@ -61,7 +61,9 @@ int nextStep()
 	return -1;
     }
 
-    fullImplRemove( *wr.ioObj() );
+    mDynamicCastGet(const IOStream*,strm,wr.ioObj())
+    if ( !strm || !strm->isMulti() )
+	fullImplRemove( *wr.ioObj() );
 
     if ( !wr.ensureRightConn(trc,true) )
     {
