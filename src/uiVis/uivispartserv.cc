@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.119 2003-01-27 13:19:44 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.120 2003-01-27 15:34:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1194,10 +1194,12 @@ bool uiVisPartServer::hasAttrib( int id ) const
 bool uiVisPartServer::selectAttrib( int id )
 {
     eventmutex.lock();
-    if ( !sendEvent( evSelectAttrib ) ) return false;
-    const AttribSelSpec myattribspec( attribspec );
+    bool selected = sendEvent( evSelectAttrib );
     eventmutex.unlock();
 
+    if ( !selected ) return false;
+
+    const AttribSelSpec myattribspec( attribspec );
     setSelSpec( id, myattribspec );
     eventmutex.lock();
     eventobjid = id;
@@ -1414,14 +1416,16 @@ bool uiVisPartServer::duplicateObject( int id, int sceneid )
 	visBase::DataObject* newobj = visBase::DM().getObj( newid );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,newpdd,newobj);
 
-	visSurvey::PlaneDataDisplay::Type tp = pdd->getType();
-	newpdd->setType( tp );
-	CubeSampling& cs = pdd->getCubeSampling();
-	newpdd->setCubeSampling( cs );
-	IOPar coltabpar;
-	TypeSet<int> dummy;
-	pdd->getColorTab().fillPar( coltabpar, dummy );
-	newpdd->getColorTab().usePar(coltabpar);
+	newpdd->setType( pdd->getType() );
+	newpdd->setCubeSampling( pdd->getCubeSampling() );
+    }
+    else if ( vd )
+    {
+	newid = addVolView( sceneid );
+	visBase::DataObject* newobj = visBase::DM().getObj( newid );
+	mDynamicCastGet(visSurvey::VolumeDisplay*,newvd,newobj);
+
+	newvd->setCubeSampling( vd->getCubeSampling() );
     }
 
     eventobjid = newid;
