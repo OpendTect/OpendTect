@@ -4,9 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.9 2003-06-19 10:36:54 bert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.10 2003-06-19 13:38:32 bert Exp $";
 
 #include "emsurface.h"
+#include "emsurfaceiodata.h"
 
 #include "arrayndimpl.h"
 #include "cubesampling.h"
@@ -21,6 +22,45 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.9 2003-06-19 10:36:54 bert Exp
 #include "linsolv.h"
 #include "ptrman.h"
 #include "survinfo.h"
+
+
+void EM::SurfaceIOData::clear()
+{
+    dbinfo = "";
+    deepErase(valnames);
+    deepErase(patches);
+}
+
+void EM::SurfaceIOData::use( const EM::Surface& surf )
+{
+    clear();
+
+    StepInterval<int> hrg;
+    surf.getRange( hrg, true );
+    rg.start.inl = hrg.start; rg.stop.inl = hrg.stop;
+    rg.step.inl = hrg.step;
+    surf.getRange( hrg, false );
+    rg.start.crl = hrg.start; rg.stop.crl = hrg.stop;
+    rg.step.crl = hrg.step;
+
+    for ( int idx=0; idx<surf.nrPatches(); idx++ )
+	patches += new BufferString( surf.patchName( surf.patchID(idx) ) );
+
+    for ( int idx=0; idx<surf.nrAuxData(); idx++ )
+	valnames += new BufferString( surf.auxDataName(idx) );
+}
+
+
+void EM::SurfaceIODataSelection::setDefault()
+{
+    rg = sd.rg;
+    selvalues.erase(); selpatches.erase();
+    for ( int idx=0; idx<sd.valnames.size(); idx++ )
+	selvalues += idx;
+    for ( int idx=0; idx<sd.patches.size(); idx++ )
+	selpatches += idx;
+}
+
 
 EM::Surface::Surface(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
@@ -464,8 +504,6 @@ void EM::Surface::setTranslatorData( const RowCol& step_,
 }
 
 
-
-
 RowCol EM::Surface::subID2RowCol( const EM::SubID& subid )
 {
     return long2rc(subid);
@@ -480,7 +518,7 @@ EM::SubID EM::Surface::rowCol2SubID( const RowCol& rc )
 
 bool EM::Surface::isFullResolution() const
 {
-    return loadedstep==step;
+    return loadedstep == step;
 }
 
 
@@ -493,29 +531,15 @@ int EM::Surface::nrAuxData() const
 const char* EM::Surface::auxDataName(int dataidx) const
 {
     if ( auxdatanames[dataidx] )
-    {
 	return *auxdatanames[dataidx];
-    }
 
     return 0;
 }
 
 
-const char* EM::Surface::auxDataInfo(int dataidx) const
-{
-    if ( auxdatainfo[dataidx] )
-    {
-	return *auxdatainfo[dataidx];
-    }
-
-    return 0;
-}
-
-
-int EM::Surface::addAuxData(const char* name, const char* info)
+int EM::Surface::addAuxData( const char* name )
 {
     auxdatanames += new BufferString( name );
-    auxdatainfo += info ? new BufferString( info ) : 0;
     ObjectSet<TypeSet<float> >* newauxdata = new ObjectSet<TypeSet<float> >;
     auxdata += newauxdata;
     newauxdata->allowNull(true);
@@ -531,8 +555,6 @@ void EM::Surface::removeAuxData( int dataidx )
 {
     delete auxdatanames[dataidx];
     auxdatanames.replace( 0, dataidx );
-    delete auxdatainfo[dataidx];
-    auxdatainfo.replace( 0, dataidx );
 
     deepEraseArr( *auxdata[dataidx] );
     delete auxdata[dataidx];
@@ -540,7 +562,7 @@ void EM::Surface::removeAuxData( int dataidx )
 }
 
 
-float EM::Surface::getAuxDataVal(int dataidx,const EM::PosID& posid) const
+float EM::Surface::getAuxDataVal( int dataidx, const EM::PosID& posid ) const
 {
     if ( !auxdata[dataidx] ) return mUndefValue;
     const int patchidx = patchids.indexOf(posid.patchID());

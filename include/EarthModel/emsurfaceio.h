@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.2 2003-06-17 13:32:47 kristofer Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.3 2003-06-19 13:38:32 bert Exp $
 ________________________________________________________________________
 
 
@@ -69,9 +69,9 @@ public:
 			     will be loaded.
 			*/
 
+    const char*		dbInfo() const;
     int			nrAuxVals() const;
     const char*		auxDataName(int) const;
-    const char*		auxDataInfo(int) const;
     void		selAuxData(const TypeSet<int>&);
     			/*!< The specified data will be loaded. If this
 			     function is not called, all avaliable auxdata
@@ -120,11 +120,13 @@ public:
     static const char*		colrangestr;
     static const char*		intdatacharstr;
     static const char*		floatdatacharstr;
+    static const char*		dbinfostr;
 
     static const char*		badconnstr;
     static const char*		parseerrorstr;
 
 protected:
+
     double		readFloat(istream&) const;
     int                 readInt(istream&) const;
     StreamConn*		conn;
@@ -134,7 +136,6 @@ protected:
     TypeSet<EM::PatchID>	patchsel;
 
     ObjectSet<BufferString>	auxdatanames;
-    ObjectSet<BufferString>	auxdatainfo;
     ObjectSet<EM::dgbSurfDataReader> auxdataexecs;
     TypeSet<int>		auxdatasel;
 
@@ -230,6 +231,7 @@ public:
     virtual const char*		message() const;
 
 protected:
+
     bool			writeFloat(ostream&,float,
 	    				   const char* eol) const;
     bool                 	writeInt(ostream&,int,const char* eol) const;
@@ -238,6 +240,7 @@ protected:
 
     TypeSet<EM::PatchID>	patchsel;
     TypeSet<int>		auxdatasel;
+    BufferString		dbinfo;
 
     IOPar&			par;
 

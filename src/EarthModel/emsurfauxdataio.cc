@@ -20,7 +20,7 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.2 2003-06-19 12:34:41 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.3 2003-06-19 13:38:32 bert Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
@@ -41,7 +41,6 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 {
     IOPar par( "Surface Data" );
     par.set( attrnmstr, surf.auxDataName(dataidx) );
-    par.set( infostr, surf.auxDataInfo(dataidx) );
 
     if ( binary )
     {

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.3 2003-06-19 12:34:41 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.4 2003-06-19 13:38:32 bert Exp $";
 
 #include "emsurfaceio.h"
 
@@ -31,6 +31,7 @@ const char* EM::dgbSurfaceReader::patchidstr = "Patch ";
 const char* EM::dgbSurfaceReader::patchnamestr = "Patch Name ";
 const char* EM::dgbSurfaceReader::rowrangestr = "Row range";
 const char* EM::dgbSurfaceReader::colrangestr = "Col range";
+const char* EM::dgbSurfaceReader::dbinfostr = "DB info";
 
 const char* EM::dgbSurfaceReader::badconnstr = "Internal: Bad connection";
 const char* EM::dgbSurfaceReader::parseerrorstr = "Cannot parse file";
@@ -113,8 +114,6 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 	{
 	    auxdatanames += new BufferString(dreader->dataName());
 	    auxdataexecs += dreader;
-
-	    auxdatainfo += new BufferString( dreader->dataInfo());
 	}
 	else
 	{
@@ -146,7 +145,17 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     for ( int idx=0; idx<nrAuxVals(); idx++ )
 	auxdatasel += idx;
 
+    BufferString dbinfo;
+    par->get( dbinfostr, dbinfo );
+    surface->setDBInfo( dbinfo );
+
     error = false;
+}
+
+
+const char* EM::dgbSurfaceReader::dbInfo() const
+{
+    return surface ? surface->dbInfo() : "";
 }
 
 
@@ -155,7 +164,6 @@ EM::dgbSurfaceReader::~dgbSurfaceReader()
     deepErase( patchnames );
     deepErase( auxdatanames );
     deepErase( auxdataexecs );
-    deepErase( auxdatainfo );
 
     delete par;
     delete conn;
@@ -206,12 +214,6 @@ int EM::dgbSurfaceReader::nrAuxVals() const
 const char* EM::dgbSurfaceReader::auxDataName( int idx ) const
 {
     return *auxdatanames[idx];
-}
-
-
-const char* EM::dgbSurfaceReader::auxDataInfo( int idx ) const
-{
-    return *auxdatainfo[idx];
 }
 
 
@@ -483,6 +485,7 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	     rowrange.start, rowrange.stop, rowrange.step );
     par.set( EM::dgbSurfaceReader::colrangestr,
 	     colrange.start, colrange.stop, colrange.step );
+    par.set( EM::dgbSurfaceReader::dbinfostr, surface.dbInfo() );
 
     if ( binary )
     {
@@ -550,12 +553,6 @@ int EM::dgbSurfaceWriter::nrAuxVals() const
 const char* EM::dgbSurfaceWriter::auxDataName( int idx ) const
 {
     return surface.auxDataName(idx);
-}
-
-
-const char* EM::dgbSurfaceWriter::auxDataInfo( int idx ) const
-{
-    return surface.auxDataInfo(idx);
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.8 2003-06-19 10:37:20 bert Exp $
+ RCS:		$Id: emsurface.h,v 1.9 2003-06-19 13:38:32 bert Exp $
 ________________________________________________________________________
 
 
@@ -124,11 +124,7 @@ public:
     			/*!<\return The name of aux-data or 0 if the data
 				    is removed;
 			*/
-    const char*		auxDataInfo(int dataidx) const;
-    			/*!<\return The info of aux-data or 0 if the data
-				    is removed;
-			*/
-    int			addAuxData( const char* name, const char* info );
+    int			addAuxData( const char* name );
     			/*!<\return The dataidx of the new data.
 				    The index is persistent in runtime.
 			*/
@@ -138,6 +134,8 @@ public:
     void		setAuxDataVal(int dataidx, const EM::PosID& posid,
 				      float value );
 
+    const char*		dbInfo() const			{ return dbinfo; }
+    void		setDBInfo( const char* s )	{ dbinfo = s; }
 
     const Geometry::GridSurface*		getSurface(PatchID) const;
     bool		getGridRowCol( const EM::SubID&, RowCol& ) const;
@@ -169,6 +167,7 @@ public:
     void		getRange(StepInterval<int>&,bool rowdir) const;
 
 protected:
+
     virtual Geometry::GridSurface*		createPatchSurface() const = 0;
 
     int			findPos( const RowCol& rowcol,
@@ -187,6 +186,7 @@ protected:
     ObjectSet<BufferString>			auxdatanames;
     ObjectSet<BufferString>			auxdatainfo;
     ObjectSet<ObjectSet<TypeSet<float> > >	auxdata;
+    BufferString				dbinfo;
 
     RowCol					loadedstep;
     RowCol					step;

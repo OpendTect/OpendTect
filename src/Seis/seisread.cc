@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.21 2003-03-12 09:41:23 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.22 2003-06-19 13:38:32 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -229,6 +229,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     {
 	foundvalidcrl = false;
 	prev_inl = ti.binid.inl;
+	ti.new_packet = true;
     }
 
     const int selres = !trcsel || !trcsel->bidsel ? 0
