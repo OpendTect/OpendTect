@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.8 2003-02-19 16:47:49 bert Exp $
+ RCS:		$Id: seisread.h,v 1.9 2003-02-25 10:32:47 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <seisstor.h>
+class BinIDRange;
 
 
 /*!\brief reads from a seismic data store.
@@ -56,11 +57,12 @@ public:
 
 protected:
 
-    bool		icfound;
-    bool		new_packet;
-    bool		needskip;
-    bool		started;
+    bool		foundvalidinl, foundvalidcrl;
+    bool		new_packet, needskip;
     bool		forcefloats;
+    bool		started;
+    int			prev_inl;
+    BinIDRange*		outer;
 
     void		init();
     Conn*		openFirst();

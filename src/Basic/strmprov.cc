@@ -31,7 +31,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.30 2003-02-19 16:47:49 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.31 2003-02-25 10:32:47 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -54,16 +54,17 @@ bool ExecOSCmd( const char* comm )
 
 void StreamData::close()
 {
-    if ( fp && fp != stdin && fp != stdout && fp != stderr )
-	{ if ( ispipe ) pclose(fp); else fclose(fp); }
     if ( istrm && istrm != &cin )
 	delete istrm;
     if ( ostrm )
     {
 	ostrm->flush();
 	if ( ostrm != &cout && ostrm != &cerr )
-	delete ostrm;
+	    delete ostrm;
     }
+
+    if ( fp && fp != stdin && fp != stdout && fp != stderr )
+	{ if ( ispipe ) pclose(fp); else fclose(fp); }
 
     init();
 }

@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.24 2003-02-19 16:03:29 nanne Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.25 2003-02-25 10:32:47 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -212,8 +212,7 @@ void BinIDSelector::fillPar( IOPar& iopar ) const
     }
 }
 
-
-BinIDSelector* BinIDRange::_usePar( const IOPar& iopar )
+BinIDSelector* BinIDRange::getBidSel( const IOPar& iopar )
 {
     BinIDSelector* bs = create( iopar );
     if ( !bs || bs->type() > 1 ) { delete bs; return 0; }
@@ -228,14 +227,14 @@ BinIDSelector* BinIDRange::_usePar( const IOPar& iopar )
 
 bool BinIDRange::usePar( const IOPar& iopar )
 {
-    PtrMan<BinIDSelector> bs = _usePar( iopar );
+    PtrMan<BinIDSelector> bs = getBidSel( iopar );
     return bs ? true : false;
 }
 
 
 bool BinIDSampler::usePar( const IOPar& iopar )
 {
-    PtrMan<BinIDSelector> bsel = _usePar( iopar );
+    PtrMan<BinIDSelector> bsel = getBidSel( iopar );
     if ( !bsel ) return false;
 
     mDynamicCastGet(BinIDSampler*,bs,bsel.ptr())
@@ -280,10 +279,10 @@ bool BinIDRange::fillString( char* str ) const
 }
 
 
-int BinIDRange::extreme( bool inl, bool mini ) const
+BinIDRange* BinIDRange::getOuter() const
 {
-    return mini ? (inl ? start.inl-stepout.inl : stop.crl-stepout.crl)
-		: (inl ? stop.inl+stepout.inl : stop.crl+stepout.crl);
+    return new BinIDRange( start.inl - stepout.inl, start.crl - stepout.crl,
+			   stop.inl  + stepout.inl, stop.crl  + stepout.crl );
 }
 
 
@@ -379,16 +378,6 @@ int BinIDSampler::excludes( const BinID& bid ) const
     int inlval = restinl <= stepout.inl ? 0 : 2;
     int crlval = restcrl <= stepout.crl ? 0 : 2;
     return inlval + crlval * 256;
-}
-
-
-int BinIDSampler::extreme( bool inl, bool mini ) const
-{
-    if ( mini ) return BinIDRange::extreme(inl,mini);
-    int nsteps = inl ? (stop.inl - start.inl) / (step.inl?step.inl:1)
-		     : (stop.crl - start.crl) / (step.crl?step.crl:1);
-    return inl	? start.inl + nsteps * step.inl + stepout.inl
-		: start.crl + nsteps * step.crl + stepout.crl;
 }
 
 
@@ -662,35 +651,25 @@ int BinIDTable::excludes( const BinID& bid ) const
 }
 
 
-int BinIDTable::extreme( bool inl, bool mini ) const
+BinIDRange* BinIDTable::getOuter() const
 {
-    if ( binids.size() == 0 ) return mini ? MAXINT : -MAXINT;
-    int extr = inl ? binids[0]->inl : binids[0]->data[0]->crl;
+    BinIDRange* ret = new BinIDRange;
+    if ( binids.size() == 0 ) return ret;
+    BinID cur( binids[0]->inl, binids[0]->data[0]->crl );
+    ret->start = cur; ret->stop = cur;
+
     const int sz = binids.size();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const BinIDTableImplInlData& inldat = *binids[idx];
-	if ( inl )
+	cur.inl = inldat.inl;
+	for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
 	{
-	    if ( mini )
-		{ if ( inldat.inl < extr ) extr = inldat.inl; }
-	    else
-		{ if ( inldat.inl > extr ) extr = inldat.inl; }
-	}
-	else
-	{
-	    for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
-	    {
-		if ( mini )
-		    { if ( inldat.data[icrl]->crl < extr )
-				extr = inldat.data[icrl]->crl;}
-		else
-		    { if ( inldat.data[icrl]->crl > extr )
-				extr = inldat.data[icrl]->crl;}
-	    }
+	    cur.crl = inldat.data[icrl]->crl;
+	    ret->include( cur );
 	}
     }
-    return extr;
+    return ret;
 }
 
 

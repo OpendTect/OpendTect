@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.18 2003-02-19 16:47:49 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.19 2003-02-25 10:32:48 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: seisread.cc,v 1.18 2003-02-19 16:47:49 bert Exp
 
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStorage(ioob)
+    	, outer(0)
 {
     init();
 }
@@ -25,7 +26,10 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 
 void SeisTrcReader::init()
 {
-    icfound = new_packet = needskip = started = forcefloats = false;
+    foundvalidinl = foundvalidcrl =
+    new_packet = needskip = started = forcefloats = false;
+    prev_inl = -9999;
+    delete outer; outer = 0;
 }
 
 
@@ -99,6 +103,8 @@ int nextStep()
     }
 
     rdr.started = true;
+    rdr.outer = !rdr.trcsel || rdr.trcsel->isEmpty() || !rdr.trcsel->bidsel ? 0
+	      : rdr.trcsel->bidsel->getOuter();
     return 0;
 }
 
@@ -222,20 +228,39 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     ti.stack_count = 1;
     ti.new_packet = false;
 
-    const BinIDSelector* sel = trcsel ? trcsel->bidsel : 0;
-    int res = 0;
-    if ( sel && (res = sel->excludes(ti.binid)) )
+    if ( prev_inl == -9999 )
+	prev_inl = ti.binid.inl;
+    else if ( prev_inl != ti.binid.inl )
     {
-	// Must skip trace, can we just go to next file?
-	if ( trl->inlCrlSorted() && res % 256 == 2 && sel->type() < 2
-	    && multiConn() )
+	foundvalidcrl = false;
+	prev_inl = ti.binid.inl;
+    }
+
+    const int selres = !trcsel || !trcsel->bidsel ? 0
+		     : trcsel->bidsel->excludes(ti.binid);
+    if ( selres / 256 == 0 )
+	foundvalidcrl = true;
+    if ( selres % 256 == 0 )
+	foundvalidinl = true;
+
+    if ( selres )
+    {
+	if ( trl->inlCrlSorted() )
 	{
-	    IOStream* iostrm = (IOStream*)ioobj;
-	    if ( iostrm->directNumberMultiConn() )
-		return nextConn( ti );
+	    int outerres = outer ? outer->excludes(ti.binid) : 0;
+	    if ( foundvalidinl && outerres % 256 == 2 )
+		return false;
+
+	    bool neednewinl =  selres % 256 == 2
+			    || foundvalidcrl && outerres / 256 == 2;
+	    if ( neednewinl )
+	    {
+		mDynamicCastGet(IOStream*,iostrm,ioobj)
+		if ( iostrm && iostrm->directNumberMultiConn() )
+		    return nextConn(ti);
+	    }
 	}
 
-	// ... nah, just skip
 	return trl->skip() ? 2 : nextConn( ti );
     }
 
@@ -250,13 +275,13 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	    return 0;
     }
 
-    // This trace is actually selected
+    // This trace is, believe it or not, actually selected
     if ( new_packet )
     {
 	ti.new_packet = true;
 	new_packet = false;
     }
-    icfound = needskip = true;
+    needskip = true;
     return 1;
 }
 
@@ -284,7 +309,8 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
     trl->cleanUp();
     IOStream* iostrm = (IOStream*)ioobj;
-    if ( !iostrm->toNextConnNr() ) return 0;
+    if ( !iostrm->toNextConnNr() )
+	return 0;
 
     trySkipConns();
     Conn* conn = iostrm->getConn( Conn::Read );
@@ -298,7 +324,6 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	conn = iostrm->getConn( Conn::Read );
     }
 
-    icfound = false;
     if ( !trl->initRead(conn) )
     {
 	errmsg = trl->errMsg();
@@ -347,7 +372,9 @@ void SeisTrcReader::trySkipConns()
 
 bool SeisTrcReader::binidInConn( int r ) const
 {
-    return r == 0 || (trl->inlCrlSorted() && r/256 != 2);
+    return r == 0
+	|| !trl->inlCrlSorted()
+	|| r%256 != 2;
 }
 
 
