@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.8 2001-12-10 14:52:59 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.9 2001-12-11 16:45:27 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -44,39 +44,16 @@ const TU1 cMU1 = 255;
 const TU2 cMU2 = 65535;
 const TU4 cMU4 = 4294967295UL;
 
-union _DC_union
-{
-    unsigned char c;
-    struct bits {
-
-	unsigned char	little:1;	// little endian == 1
-	unsigned char	fmt:3;		// 0 == IEEE, 1 == IBM mainframe (SEG-Y)
-					// 2 == SGI
-	unsigned char	zero:4;		// Need this to be zero!
-   } b;
-};
-
-union _DC_union_swp
-{
-    unsigned char c;
-    struct bits {
-	unsigned char	zero:4;
-	unsigned char	fmt:3;
-	unsigned char	little:1;
-   } b;
-};
-
 
 void DataCharacteristics::set( unsigned char c1, unsigned char c2 )
 {
-    _DC_union dc; dc.c = c2;
-    _DC_union dc_swp; dc_swp.c = c2;
-    littleendian = dc.b.little || dc_swp.b.little;
+    // remember that the 'zero' member is always zero.
+    littleendian = (c2 & 0x80) || (c2 & 0x01);
     setFrom( c1, littleendian );
 
-    bool needswp = littleendian != __islittle__;
-    fmt = (needswp ? dc_swp.b.fmt == 0 : dc.b.fmt == 0)
-	? DataCharacteristics::Ieee : DataCharacteristics::Ibm;
+    unsigned char f = (c2 & 0x0e) >> 1;
+    if ( !f ) f = (c2 & 0xe0) >> 5;
+    fmt = (DataCharacteristics::Format)f;
 };
 
 
@@ -108,12 +85,14 @@ DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
 
 void DataCharacteristics::dump( unsigned char& c1, unsigned char& c2 ) const
 {
-    _DC_union dc;
+    union _DC_union { unsigned char c;
+	struct bits { unsigned char islittle:1; unsigned char fmt:3;
+	    	      unsigned char zero:4; } b; };
+    _DC_union dc; dc.c = 0;
 
     BinDataDesc::dump( c1, c2 );
-    dc.c = 0;
     dc.b.fmt = isIeee() ? 0 : 1;
-    dc.b.little = littleendian;
+    dc.b.islittle = littleendian;
     c2 = dc.c;
 }
 
