@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.15 2001-07-21 14:39:16 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.16 2001-07-23 10:38:41 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -69,6 +69,8 @@ void CBVSWriter::init( const CBVSInfo& i )
       && !explinfo.startpos && !explinfo.coord && !explinfo.offset
       && !explinfo.pick && !explinfo.refpos )
 	expldat = 0;
+
+    rectnreg = survgeom.fullyrectandreg;
 
     writeHdr( i ); if ( errmsg_ ) return;
 
@@ -212,7 +214,7 @@ void CBVSWriter::newSeg()
 
 void CBVSWriter::getBinID()
 {
-    if ( survgeom.fullyrectandreg || !expldat )
+    if ( rectnreg || !expldat )
     {
 	int posidx = trcswritten / nrtrcsperposn;
 	curbinid_.inl = survgeom.start.inl
@@ -255,16 +257,19 @@ int CBVSWriter::put( void** cdat )
     getBinID();
     if ( previnl != curbinid_.inl )
     {
+	// getBinID() has added a new segment, so remove it from list ...
+	CBVSInfo::SurvGeom::InlineInfo* newinldat = inldata[inldata.size()-1];
+	inldata.remove( inldata.size()-1 );
 	if ( finishing_inline )
 	{
-	    // remove last segment added
-	    delete inldata[inldata.size()-1];
-	    inldata.remove( inldata.size()-1 );
-
+	    delete newinldat;
 	    close();
 	    return errmsg_ ? -1 : 1;
 	}
+
 	doClose( false );
+	inldata += newinldat;
+
 	if ( errmsg_ ) return -1;
     }
 
