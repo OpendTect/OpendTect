@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.6 2004-05-11 12:20:13 kristofer Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.7 2004-05-11 12:44:31 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,12 +21,11 @@ ________________________________________________________________________
 
 
 /*!\brief
-The SoShapeScale class is used for scaling and translating a marker based on
-projected size.
+The SoShapeScale class is used for scaling and rotating and translating a shape
+based on projected size.
 
-The marker shape is stored in the "shape" part. Any kind of node
-can be used, even group nodes with several shapes, but the marker
-shape should be approximately of unit size, and with a center 
+The marker shape should be behind this node in the scene, and
+should be approximately of unit size, and with a center 
 position in (0, 0, 0).
 	      
 */
@@ -38,10 +37,19 @@ public:
 			SoShapeScale(void);
     static void		initClass(void);
 
-    SoSFBool		doscale;
+    SoSFBool		restoreProportions;
+    			/*!< If true, the scale will be reset to (1,1,1),
+			     wich will make the shape's proportions
+			     equal in all dimensions */
+
     SoSFBool		dorotate;
+
     SoSFFloat		screenSize;
-			/*!< The desired width on screen. Default is 5 pixels */
+			/*!< The desired width on screen. Default is 5 pixels.
+			     If screenSize is equal to zero, the equal-
+			     screen-size-scaling is turned off.
+			*/
+    			
 
 protected:
 

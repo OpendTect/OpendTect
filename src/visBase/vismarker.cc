@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.13 2004-05-11 12:19:26 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.14 2004-05-11 12:44:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ visBase::Marker::Marker()
     addChild( rotation );
     setType( MarkerStyle3D::Cube );
 
-    markerscale->doscale = true;
+    markerscale->restoreProportions = true;
     markerscale->dorotate = true;
 }
 
