@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.27 2002-04-22 10:37:56 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.28 2002-04-22 12:51:04 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
-#include "visseisdisplay.h"
+#include "visplanedatadisplay.h"
 #include "visselman.h"
 #include "vismaterial.h"
 #include "viscolortab.h"
@@ -89,7 +89,7 @@ bool uiVisPartServer::deleteAllObjects()
 uiVisPartServer::ObjectType uiVisPartServer::getObjectType( int id ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(const visSurvey::SeisDisplay*,sd,dobj)
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,sd,dobj)
     if ( sd ) return DataDisplay;
     mDynamicCastGet(const visSurvey::PickSetDisplay*, psd, dobj );
     if ( psd ) return PickSetDisplay;
@@ -136,7 +136,7 @@ void uiVisPartServer::setViewMode(bool yn)
     viewmode = yn;
 
     visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
 
     if ( sd ) sd->showDraggers(!yn);
 }
@@ -171,7 +171,7 @@ void uiVisPartServer::setSelObjectId( int id )
     if ( !viewmode )
     {
 	visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
-	mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
 	if ( sd ) sd->showDraggers(true);
     }
 }
@@ -200,12 +200,12 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
 
-    visSurvey::SeisDisplay::Type type =
-	    etp == Inline ?	visSurvey::SeisDisplay::Inline
-	: ( etp == Crossline ?	visSurvey::SeisDisplay::Crossline
-			     :	visSurvey::SeisDisplay::Timeslice );
+    visSurvey::PlaneDataDisplay::Type type =
+	    etp == Inline ?	visSurvey::PlaneDataDisplay::Inline
+	: ( etp == Crossline ?	visSurvey::PlaneDataDisplay::Crossline
+			     :	visSurvey::PlaneDataDisplay::Timeslice );
 
-    visSurvey::SeisDisplay* sd = visSurvey::SeisDisplay::create( type, *scene,
+    visSurvey::PlaneDataDisplay* sd = visSurvey::PlaneDataDisplay::create( type, *scene,
 				     mCB( this, uiVisPartServer, getDataCB ));
     seisdisps += sd; 
     visBase::VisColorTab* coltab = visBase::VisColorTab::create();
@@ -224,7 +224,7 @@ void uiVisPartServer::removeDataDisplay( int id )
 {
 
     visBase::DataObject* sdobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,sdobj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,sdobj)
     if ( !sd ) return;
 
     sdobj->deSelect();
@@ -241,7 +241,7 @@ void uiVisPartServer::removeDataDisplay( int id )
 void uiVisPartServer::resetManipulation( int id )
 {
     visBase::DataObject* sdobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,sdobj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,sdobj)
     if ( !sd ) return;
 
     sd->resetManip();
@@ -251,11 +251,11 @@ void uiVisPartServer::resetManipulation( int id )
 float uiVisPartServer::getPlanePos(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( !sd ) return 0;
     Geometry::Pos geompos = sd->textureRect().getRectangle().manipOrigo();
-    return	sd->getType()==visSurvey::SeisDisplay::Inline ? geompos.x :
-		sd->getType()==visSurvey::SeisDisplay::Crossline ? geompos.y:
+    return	sd->getType()==visSurvey::PlaneDataDisplay::Inline ? geompos.x :
+		sd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y:
 		geompos.z;
 }
 
@@ -263,7 +263,7 @@ float uiVisPartServer::getPlanePos(int id) const
 bool uiVisPartServer::isPlaneManipulated( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
     if ( !sd ) return false;
 
     Geometry::Pos manippos = sd->textureRect().getRectangle().manipOrigo();
@@ -276,7 +276,7 @@ bool uiVisPartServer::isPlaneManipulated( int id ) const
 void uiVisPartServer::setAttribSelSpec( int id, AttribSelSpec& as )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( sd ) sd->setAttribSelSpec( as );
 }
 
@@ -284,7 +284,7 @@ void uiVisPartServer::setAttribSelSpec( int id, AttribSelSpec& as )
 CubeSampling& uiVisPartServer::getCubeSampling( int id, bool manippos )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     return sd->getCubeSampling( manippos );
 }
 
@@ -292,7 +292,7 @@ CubeSampling& uiVisPartServer::getCubeSampling( int id, bool manippos )
 AttribSelSpec& uiVisPartServer::getAttribSelSpec(int id)
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     return sd->getAttribSelSpec();
 }
 
@@ -300,7 +300,7 @@ AttribSelSpec& uiVisPartServer::getAttribSelSpec(int id)
 void uiVisPartServer::putNewData( int id, AttribSlice* slice )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     if ( sd ) sd->operationSucceeded( sd->putNewData(slice) );
 }
 
@@ -424,7 +424,7 @@ bool uiVisPartServer::picksetIsPresent( const char* psname )
 bool uiVisPartServer::canSetColorSeq( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
     return sd;
 }
 
@@ -432,7 +432,7 @@ bool uiVisPartServer::canSetColorSeq( int id ) const
 void uiVisPartServer::modifyColorSeq(int id, const ColorTable& ctab )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
     if ( !sd ) return;
 
     sd->textureRect().getColorTab().colorSeq().colors() = ctab;
@@ -443,7 +443,7 @@ void uiVisPartServer::modifyColorSeq(int id, const ColorTable& ctab )
 const ColorTable& uiVisPartServer::getColorSeq(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
     return sd->textureRect().getColorTab().colorSeq().colors();
 }
 
@@ -451,11 +451,11 @@ const ColorTable& uiVisPartServer::getColorSeq(int id) const
 void uiVisPartServer::shareColorSeq( int toid, int fromid )
 {
     visBase::DataObject* obj = visBase::DM().getObj( toid );
-    mDynamicCastGet(visSurvey::SeisDisplay*,tosd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,tosd,obj);
     if ( !tosd ) return;
 
     obj = visBase::DM().getObj( fromid );
-    mDynamicCastGet(visSurvey::SeisDisplay*,fromsd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,fromsd,obj);
     if ( !fromsd ) return;
 
     visBase::ColorSequence* colseq =
@@ -467,7 +467,7 @@ void uiVisPartServer::shareColorSeq( int toid, int fromid )
 bool uiVisPartServer::canSetRange(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     return sd;
 }
 
@@ -475,7 +475,7 @@ bool uiVisPartServer::canSetRange(int id) const
 void uiVisPartServer::setClipRate( int id, float cr )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     sd->textureRect().setClipRate( cr );
 }
 
@@ -483,7 +483,7 @@ void uiVisPartServer::setClipRate( int id, float cr )
 float uiVisPartServer::getClipRate(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     return sd->textureRect().clipRate();
 }
 
@@ -491,7 +491,7 @@ float uiVisPartServer::getClipRate(int id) const
 void uiVisPartServer::setAutoscale( int id, bool yn )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     sd->textureRect().setAutoscale( yn );
 }
 
@@ -499,7 +499,7 @@ void uiVisPartServer::setAutoscale( int id, bool yn )
 bool uiVisPartServer::getAutoscale(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     return sd->textureRect().autoScale();
 }
 
@@ -507,7 +507,7 @@ bool uiVisPartServer::getAutoscale(int id) const
 void uiVisPartServer::setDataRange( int id, const Interval<float>& intv )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     sd->textureRect().getColorTab().scaleTo( intv );
 }
 
@@ -515,7 +515,7 @@ void uiVisPartServer::setDataRange( int id, const Interval<float>& intv )
 Interval<float> uiVisPartServer::getDataRange(int id) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj)
     return sd->textureRect().getColorTab().getInterval();
 }
 
@@ -523,11 +523,11 @@ Interval<float> uiVisPartServer::getDataRange(int id) const
 void uiVisPartServer::shareRange( int toid, int fromid )
 {
     visBase::DataObject* obj = visBase::DM().getObj( toid );
-    mDynamicCastGet(visSurvey::SeisDisplay*,tosd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,tosd,obj);
     if ( !tosd ) return;
 
     obj = visBase::DM().getObj( fromid );
-    mDynamicCastGet(visSurvey::SeisDisplay*,fromsd,obj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,fromsd,obj);
     if ( !fromsd ) return;
 
     visBase::VisColorTab* coltab = &fromsd->textureRect().getColorTab();
@@ -603,7 +603,7 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
     if ( !viewmode )
     {
 	visBase::DataObject* obj = visBase::DM().getObj( sel );
-	mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
 	if ( sd ) sd->showDraggers(true);
     }
 
@@ -619,7 +619,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     if ( !viewmode )
     {
 	visBase::DataObject* obj = visBase::DM().getObj( oldsel );
-	mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
 	if ( sd ) sd->showDraggers(false);
     }
 
@@ -650,7 +650,7 @@ void uiVisPartServer::manipMoveCB( CallBacker* )
 
 void uiVisPartServer::getDataCB( CallBacker* cb )
 {
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,cb);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,cb);
     if ( !sd ) return;
 
     Threads::MutexLocker lock( eventmutex );
