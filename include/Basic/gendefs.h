@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.12 2001-06-01 10:39:17 windev Exp $
+ RCS:		$Id: gendefs.h,v 1.13 2001-06-01 12:13:30 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ ________________________________________________________________________
 # define for 				if(0);else for
 # define mPolyRet(base,clss)		base
 # define mPolyRetDownCast(clss,var)	dynamic_cast<clss>(var)
+# define mPolyRetDownCastRef(clss,var)	*(dynamic_cast<clss*>(&var))
 # define mTFriend(T,clss)
 # define mProtected			public
 # ifdef __cpp__
@@ -76,6 +77,7 @@ ________________________________________________________________________
 #else
 # define mPolyRet(base,clss)		clss
 # define mPolyRetDownCast(clss,var)	var
+# define mPolyRetDownCastRef(clss,var)	var
 # define mTFriend(T,clss)		template <class T> friend class clss
 # define mProtected			protected
 #endif
