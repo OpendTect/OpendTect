@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.24 2004-10-28 15:15:04 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.25 2004-11-01 17:17:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ protected:
     void		startWork(CallBacker*);
     void		setNiceNess();
     void		updateAliveDisp();
+    int			runnerHostIdx(const char*) const;
 };
 
 #endif

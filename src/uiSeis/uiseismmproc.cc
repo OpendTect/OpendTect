@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.71 2004-10-28 15:15:04 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.72 2004-11-01 17:17:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,6 +366,20 @@ static const HostData* hdFor( const HostDataList& hdl, const char* nm )
 }
 
 
+int uiSeisMMProc::runnerHostIdx( const char* mach ) const
+{
+    if ( !jobrunner || !mach || !*mach ) return -1;
+
+    const ObjectSet<JobHostInfo>& hi = jobrunner->hostInfo();
+    for ( int idx=0; idx<hi.size(); idx++ )
+    {
+	if ( !strcmp(mach,hi[idx]->hostdata_.name()) )
+	    return idx;
+    }
+    return -1;
+}
+
+
 void uiSeisMMProc::addPush( CallBacker* )
 {
     uiListBox* lb = avmachfld ? avmachfld->box() : 0;
@@ -403,11 +417,18 @@ void uiSeisMMProc::addPush( CallBacker* )
 
 void uiSeisMMProc::stopPush( CallBacker* )
 {
+    int rhidx = runnerHostIdx( usedmachfld->box()->getText() );
+    if ( rhidx >= 0 )
+	jobrunner->removeHost( rhidx );
 }
 
 
 void uiSeisMMProc::vwLogPush( CallBacker* )
 {
+    int rhidx = runnerHostIdx( usedmachfld->box()->getText() );
+    if ( rhidx < 0 ) return;
+    BufferString msg( "Need impl view log - host idx " );
+    msg += rhidx; pErrMsg( msg );
 }
 
 
