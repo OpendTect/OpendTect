@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.18 2003-08-01 14:15:00 bert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.19 2003-08-04 12:25:55 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -553,7 +553,7 @@ int EM::Surface::nrAuxData() const
 
 const char* EM::Surface::auxDataName( int dataidx ) const
 {
-    if ( auxdatanames[dataidx] )
+    if ( nrAuxData() && auxdatanames[dataidx] )
 	return *auxdatanames[dataidx];
 
     return 0;
