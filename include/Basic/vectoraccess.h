@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.10 2001-09-19 14:25:33 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.11 2001-09-20 08:24:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ void push_back( const T& t )
 	    if ( blockszidx != V_EndBlockIdx ) blockszidx++;
 	}
 
-	szdiff = (unsigned short)(allocsz - newsz);
+	szdiff = (unsigned int)(allocsz - newsz);
 
 	if ( elems )	elems = (T*)realloc(elems,allocsz*sizeof(T));
 	else		elems = (T*)malloc(allocsz*sizeof(T));
