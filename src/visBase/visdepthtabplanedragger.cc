@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visdepthtabplanedragger.cc,v 1.12 2005-03-16 18:14:40 cvskris Exp $
+ RCS:           $Id: visdepthtabplanedragger.cc,v 1.13 2005-03-28 19:45:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,8 +172,8 @@ void DepthTabPlaneDragger::setDim( int newdim )
     setWidthLimits( xsizelim, ysizelim, zsizelim );
     NotifyStopper stopper( changed );
     setSize( sizes[dim], false );
-    stopper.restore();
     setCenter( centers[dim], false );
+    stopper.restore();
 }
 
 
