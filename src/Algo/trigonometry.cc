@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.20 2004-01-05 15:18:07 nanne Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.21 2004-06-03 10:40:09 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -338,15 +338,16 @@ bool Plane3::operator!=(const Plane3& b ) const
 
 
 
-float Plane3::distanceToPoint( const Coord3& point ) const
+float Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
 {
-    Vector3 norm( normal() );
+    Vector3 norm( normal().normalize() );
     const Line3 linetoplane( point, norm );
 
     Coord3 p0;
     if ( intersectWith( linetoplane, p0 ) ) 
     {
-    	return point.distance(p0);
+	const Coord3 diff = point-p0;
+	return whichside ? diff.dot(norm) : diff.abs();
     }
     else 
         return 0;	

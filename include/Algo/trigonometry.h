@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.12 2004-01-05 15:18:14 nanne Exp $
+ RCS:		$Id: trigonometry.h,v 1.13 2004-06-03 10:40:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -144,7 +144,12 @@ public:
 
     Coord3		normal() const { return Coord3( A, B, C ); }
  
-    float               distanceToPoint( const Coord3& ) const;
+    float               distanceToPoint( const Coord3&,
+	    				bool wichside=false ) const;
+    			/*!<\param wichside if true, the distance along the
+			  	   normal will be returned, wich can be
+				   negative.
+		        */
     bool		intersectWith( const Line3&, Coord3& ) const;
     			/*!< Returns true if the plane intersects with the
 			     line. If it returns true, the Coord3 is set */
