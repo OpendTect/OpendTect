@@ -8,8 +8,30 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.4 2000-05-29 10:33:38 bert Exp $
+ RCS:		$Id: callback.h,v 1.5 2000-06-22 12:40:20 bert Exp $
 ________________________________________________________________________
+
+-*/
+
+#ifndef CallBacker
+
+#   define CallBacker CallBackClass
+    class CallBackClass
+    { public: virtual void _a_dummy_virtual_enabling_dynamic_cast_() {} };
+
+#else
+
+    class CallBacker;
+
+#endif
+
+
+typedef void (CallBacker::*CallBackFunction)(CallBacker*);
+#define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
+#define mCB(obj,clss,fn) CallBack(obj,mCBFn(clss,fn))
+
+
+/*! \brief CallBacks object-oriented.
 
 If you want a specific class to be the 'callback base class', you must define
 the CallBacker before including this header file. This can
@@ -33,25 +55,7 @@ If you do not define CallBackList you will get dGB's CallBackSet, which is
 based on a simple dumbed-down implementation a bit like the std lib's vector
 class.
 
--*/
-
-#ifndef CallBacker
-
-#   define CallBacker CallBackClass
-    class CallBackClass
-    { public: virtual void _a_dummy_virtual_enabling_dynamic_cast_() {} };
-
-#else
-
-    class CallBacker;
-
-#endif
-
-
-typedef void (CallBacker::*CallBackFunction)(CallBacker*);
-#define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
-#define mCB(obj,clss,fn) CallBack(obj,mCBFn(clss,fn))
-
+*/
 
 class CallBack
 {
@@ -102,6 +106,52 @@ inline void CallBackSet::doCall( CallBacker* obj )
 
 
 #endif
+
+
+/*! \brief Notifier classes help setup a callback handling.
+
+Simply declare a Notifier<T> in the interface, like:
+\code
+Notifier<MyClass>	buttonclicked;
+\endcode
+
+Then users of the class can issue:
+
+\code
+aMyClass.buttonclicked.notify( mCB(this,TheClassOfThis,TheMethodToBeCalled) );
+\endcode
+
+The callback is issued when you call the trigger() method.
+*/
+
+class i_Notifier
+{
+public:
+
+    void		notify( const CallBack& cb )	{ cbs += cb; }
+
+protected:
+
+    CallBackList	cbs;
+    CallBacker*		cber;
+
+			i_Notifier()	{}
+
+};
+
+
+template <class T>
+class Notifier : public i_Notifier
+{
+	friend class	T;
+
+protected:
+
+			Notifier( T* c )	{ cber = c; }
+
+    void		trigger()		{ cbs.doCall(cber); }
+
+};
 
 
 #endif
