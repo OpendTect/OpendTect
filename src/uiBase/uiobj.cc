@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.45 2002-12-04 11:51:19 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.46 2002-12-04 15:19:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,10 @@ ________________________________________________________________________
 #include "i_layoutitem.h"
 #include "errh.h"
 #include "timer.h"
+#include "pixmap.h"
 
 #include <qpalette.h> 
+#include <qpixmap.h> 
 #include <qtooltip.h> 
 #include <qfontmetrics.h> 
 #include <qsettings.h> 
@@ -222,6 +224,12 @@ Color uiObject::backgroundColor() const
 void uiObject::setBackgroundColor(const Color& col)
     { mBody()->uisetBackgroundColor(col); }
 
+
+void uiObject::setBackgroundPixmap( const char* img[] )
+    { mBody()->uisetBackgroundPixmap( img ); }
+
+void uiObject::setBackgroundPixmap( const ioPixmap& pm )
+    { mBody()->uisetBackgroundPixmap( pm ); }
 
 void uiObject::setSensitive(bool yn)	
     { mBody()->uisetSensitive(yn); }
@@ -450,9 +458,19 @@ Color uiObjectBody::uibackgroundColor() const
 
 void uiObjectBody::uisetBackgroundColor( const Color& c )
 {
-    QPalette p = qwidget()->palette();
-    p.setColor( QColorGroup::Background, QColor( QRgb( c.rgb() ))  );
-    qwidget()->setPalette( p );
+    qwidget()->setPaletteBackgroundColor( QColor( QRgb( c.rgb() ) ) );
+}
+
+
+void uiObjectBody::uisetBackgroundPixmap( const char* img[] )
+{
+    qwidget()->setPaletteBackgroundPixmap( QPixmap(img) );
+}
+
+
+void uiObjectBody::uisetBackgroundPixmap( const ioPixmap& pm )
+{
+    qwidget()->setPaletteBackgroundPixmap( *pm.Pixmap() );
 }
 
 

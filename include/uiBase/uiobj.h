@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.26 2002-10-08 09:46:40 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.27 2002-12-04 15:19:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ class uiGroup;
 class uiMainWin;
 class uiButtonGroup;
 class i_LayoutItem;
+class ioPixmap;
 
 class uiObject : public uiObjHandle
 {
@@ -141,6 +142,8 @@ public:
 
     Color               backgroundColor() const;
     void                setBackgroundColor(const Color&);
+    void		setBackgroundPixmap(const char**);
+    void		setBackgroundPixmap(const ioPixmap&);
     void		setSensitive(bool yn=true);
     bool		sensitive() const;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.27 2002-11-05 15:13:38 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.28 2002-12-04 15:19:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class i_LayoutItem;
 class i_LayoutMngr;
 class Timer;
 class QFontMetrics;
+class ioPixmap;
 
 class uiObjectBody : public uiBody, public UserIDObject
 {
@@ -55,6 +56,8 @@ public:
 
     Color              		uibackgroundColor() const;
     void              		uisetBackgroundColor(const Color&);
+    void			uisetBackgroundPixmap(const char**);
+    void			uisetBackgroundPixmap(const ioPixmap&);
     void			uisetSensitive(bool yn=true);
     bool			uisensitive() const;
 
