@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.26 2005-02-10 16:22:35 nanne Exp $
+ RCS:           $Id: emfault.cc,v 1.27 2005-03-10 11:57:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "errh.h"
-#include "geommeshsurfaceimpl.h"
+#include "cubicbeziersurface.h"
 #include "survinfo.h"
 
 namespace EM {
@@ -59,14 +59,14 @@ bool FaultGeometry::isHidden( const PosID& pid ) const
 }
 
 
-bool FaultGeometry::isHidden( const SectionID& sectionid,
+bool FaultGeometry::isHidden( SectionID sectionid,
 			      const RowCol& rc ) const
 {
     return isHidden( PosID( surface.id(), sectionid, rowCol2SubID(rc)) );
 }
 
 
-void FaultGeometry::setHidden( const EM::PosID& pid, bool yn, bool addtohistory)
+void FaultGeometry::setHidden( const PosID& pid, bool yn, bool addtohistory)
 {
     if ( pid.objectID()!=surface.id() )
 	return;
@@ -82,7 +82,7 @@ void FaultGeometry::setHidden( const EM::PosID& pid, bool yn, bool addtohistory)
 }
 
 
-void FaultGeometry::setHidden( const EM::SectionID& sectionid,
+void FaultGeometry::setHidden( SectionID sectionid,
 			       const RowCol& rc, bool yn,
 			       bool addtohistory )
 {
@@ -92,17 +92,16 @@ void FaultGeometry::setHidden( const EM::SectionID& sectionid,
 
 
 
-bool FaultGeometry::insertHiddenColumn( const SectionID& section, int col)
+bool FaultGeometry::insertHiddenColumn( SectionID section, int col)
 {
     if ( sectionids.size()>1 )
 	pErrMsg( "TODO: Implement support for multiple sections." );
 
-    StepInterval<int> rowrg, colrg;
-    getRange( section, rowrg, true );
+    StepInterval<int> rowrg = rowRange(section);
     if ( rowrg.width(false)<0 )
 	return false;
 
-    getRange( section, colrg, false );
+    StepInterval<int> colrg = colRange(section);
 
     if ( col<colrg.start-1 || col>colrg.stop+1 )
 	return false;
@@ -130,17 +129,15 @@ bool FaultGeometry::insertHiddenColumn( const SectionID& section, int col)
 }
 
 
-Coord3 FaultGeometry::getPos(const SectionID& section, const RowCol& rc) const
+Coord3 FaultGeometry::getPos(SectionID section, const RowCol& rc) const
 {
     if ( !isHidden( section, rc ) )
 	return SurfaceGeometry::getPos(section,rc);
 
-    StepInterval<int> rowrg, colrg;
-    getRange( section, rowrg, true );
-    if ( rowrg.width(false)>=0 )
-	getRange( section, colrg, false );
-    else 
-	return Coord3::udf();
+    const StepInterval<int> rowrg = rowRange(section);
+    if ( rowrg.width(false)<0 ) return Coord3::udf();
+
+    const StepInterval<int> colrg = colRange(section);
 
     int colstep = step().col;
 
@@ -181,102 +178,9 @@ void FaultGeometry::updateHiddenPos()
 }
 
 
-bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick, 
-				     const SectionID& sid, float velocity )
-{
-    if ( stick.size() < 2 ) return false;
-
-    SectionID sectionid = sid;
-    if ( !nrSections() || !hasSection(sid) ) 
-	sectionid = addSection( "", true );
-
-    setTranslatorData( sectionid, RowCol(1,1), RowCol(1,1), RowCol(0,0) );
-    const float idealdistance = 25; // TODO set this in some intelligent way
-    RowCol rowcol(0,0);
-
-    bool istimestick = mIsEqual(stick[0].z,stick[stick.size()-1].z,1e-6); 
-
-    Coord3 stoppos;
-    for ( int idx=0; idx<stick.size()-1; idx++ )
-    {
-	const Coord3 startpos( SI().transform(SI().transform(stick[idx])),
-				stick[idx].z*velocity/2 );
-	stoppos = Coord3( SI().transform(SI().transform(stick[idx+1])),
-				stick[idx+1].z*velocity/2 );
-
-	if ( !startpos.isDefined() || !stoppos.isDefined() )
-	    break;
-
-	const BinID startbid = SI().transform( startpos );
-	const BinID stopbid = SI().transform( stoppos );
-
-	TypeSet<BinID> bids;
-	TypeSet<float> times;
-
-	if ( istimestick )
-	{
-	    if ( startbid==stopbid )
-		continue;
-
-	    RCol::makeLine( startbid, stopbid, bids,
-		    	    BinID(SI().inlStep(true),SI().crlStep(true)) );
-	    bids.remove( bids.size()-1 );
-	    times = TypeSet<float>( bids.size(), stick[0].z );
-	}
-	else
-	{
-	    const float distance = startpos.distance(stoppos);
-	    const Coord3 vector = (stoppos-startpos).normalize();
-	    const int nrofsegments = mNINT(distance/idealdistance);
-	    const float segmentlength = distance/nrofsegments;
-
-	    for ( int idy=0; idy<nrofsegments; idy++ )
-	    {
-		const Coord3 newrelpos( vector.x*segmentlength*idy,
-					vector.y*segmentlength*idy,
-					vector.z*segmentlength*idy );
-
-		const Coord3 newprojectedpos = startpos+newrelpos;
-		const BinID newprojectedbid = SI().transform( newprojectedpos );
-
-		bids += newprojectedbid;
-		times += newprojectedpos.z/(velocity/2);
-
-	    }
-	}
-
-	for ( int idy=0; idy<bids.size(); idy++ )
-	{
-	    const Coord3 newpos( SI().transform(bids[idy]), times[idy] );
-	    setPos( sectionid, rowcol, newpos, false, true );
-
-	    if ( !idy )
-	    {
-		surface.setPosAttrib(
-			PosID(surface.id(), sectionid, rowCol2SubID(rowcol)),
-			EMObject::sPermanentControlNode, true);
-	    }
-
-	    istimestick ? rowcol.col++ : rowcol.row++;
-	}
-    }
-
-    Coord3 crd( SI().transform(SI().transform(stick[stick.size()-1])),
-	    	stick[stick.size()-1].z );
-    setPos( sectionid, rowcol, crd, false, true );
-    surface.setPosAttrib( PosID(surface.id(), sectionid,
-			  rowCol2SubID(rowcol)),
-			  EMObject::sPermanentControlNode, true);
-
-    return true;
-}
-
-
-Geometry::MeshSurface*
-FaultGeometry::createSectionSurface( const SectionID& pid ) const
-{
-    return new Geometry::MeshSurfaceImpl;
-}
+Geometry::ParametricSurface*
+FaultGeometry::createSectionSurface() const
+{ return new Geometry::CubicBezierSurface( loadedstep ); }
 
 
 PosID FaultGeometry::getNeighbor( const PosID& posid,
@@ -290,11 +194,8 @@ PosID FaultGeometry::getNeighbor( const PosID& posid,
 
     const SectionID sectionid = posid.sectionID();
 
-    StepInterval<int> rowrg, colrg;
-    getRange( rowrg, true );
-    if ( rowrg.width(false)>=0 )
-	getRange( colrg, false );
-
+    const StepInterval<int> rowrg = rowRange();
+    const StepInterval<int> colrg = colRange();
 
     RowCol currc =  subID2RowCol( posid.subID() );
     while ( true )
@@ -311,14 +212,14 @@ PosID FaultGeometry::getNeighbor( const PosID& posid,
 }
 
 
-int FaultGeometry::findPos( const EM::SectionID& sectionid,
+int FaultGeometry::findPos( SectionID sectionid,
 			    const Interval<float>& x,
 			    const Interval<float>& y,
 			    const Interval<float>& z,
-			    TypeSet<EM::PosID>* res_) const
+			    TypeSet<PosID>* res_) const
 {
-    TypeSet<EM::PosID> tmp;
-    TypeSet<EM::PosID>& tmpres( res_ ? *res_ : tmp );
+    TypeSet<PosID> tmp;
+    TypeSet<PosID>& tmpres( res_ ? *res_ : tmp );
     SurfaceGeometry::findPos( sectionid, x, y, z, &tmpres );
     for ( int idx=0; idx<tmpres.size(); idx++ )
     {
