@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.28 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: position.h,v 1.29 2004-09-03 11:42:44 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ bool getDirectionStr( const Coord&, BufferString& );
 class Coord3 : public Coord
 {
 public:
+
 			Coord3() : z(0)					{}
 			Coord3(const Coord& a, double z_ )
 			    : Coord(a), z(z_)				{}
@@ -99,6 +100,8 @@ public:
     bool	use(const char*);
 
     double	z;
+
+    static const Coord3	udf;
 };
 
 

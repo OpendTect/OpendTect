@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.38 2004-07-22 16:14:07 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.39 2004-09-03 11:42:44 kristofer Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -14,6 +14,9 @@ static const char* rcsID = "$Id: position.cc,v 1.38 2004-07-22 16:14:07 bert Exp
 
 float BinIDValue::compareepsilon = 1e-4;
 float BinIDValues::udf = mUndefValue;
+
+
+const Coord3 Coord3::udf = Coord3(mUndefValue, mUndefValue, mUndefValue );
 
 
 double Coord::distance( const Coord& coord ) const
