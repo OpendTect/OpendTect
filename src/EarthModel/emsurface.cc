@@ -4,11 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.3 2003-05-19 09:03:06 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.4 2003-05-22 08:27:02 kristofer Exp $";
 
 #include "emsurface.h"
 
 #include "arrayndimpl.h"
+#include "cubesampling.h"
 #include "emhistoryimpl.h"
 #include "emhorizontransl.h"
 #include "emmanager.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.3 2003-05-19 09:03:06 nanne Ex
 #include "ioobj.h"
 #include "linsolv.h"
 #include "ptrman.h"
+#include "survinfo.h"
 
 EarthModel::Surface::Surface(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
@@ -120,7 +122,8 @@ void  EarthModel::Surface::setPos( PatchID patch, const RowCol& node,
 
     for ( int idx=0; idx<nodeonotherpatches.size(); idx++ )
     {
-	const int patchsurfidx = patchids.indexOf(nodeonotherpatches[idx].patchID());
+	const int patchsurfidx =
+	    patchids.indexOf(nodeonotherpatches[idx].patchID());
 	double otherz = surfaces[patchsurfidx]->getGridPos(node).z;
 	
 	if ( mIS_ZERO(otherz-pos.z) )
@@ -184,6 +187,75 @@ int EarthModel::Surface::findPos( const RowCol& rowcol,
 }
 
 
+int EarthModel::Surface::findPos( const CubeSampling& cs,
+	                          TypeSet<EarthModel::PosID>* res ) const
+{
+    Coord xypos = SI().transform(cs.hrg.start);
+    Interval<float> xinterval( xypos.x, xypos.x );
+    Interval<float> yinterval( xypos.y, xypos.y );
+
+    xypos = SI().transform(cs.hrg.stop);
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
+
+    xypos = SI().transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
+
+    xypos = SI().transform( BinID(cs.hrg.stop.inl,cs.hrg.start.crl) );
+    xinterval.include( xypos.x );
+    yinterval.include( xypos.y );
+
+    TypeSet<EarthModel::PosID> posids;
+
+    const int nrpatches = nrPatches();
+    for ( int idx=0; idx<nrpatches; idx++ )
+    {
+	TypeSet<Geometry::PosID> nodes;
+	surfaces[idx]->findPos( xinterval.center(), yinterval.center(),
+				cs.zrg.center(),
+				xinterval.width(), yinterval.width(),
+				cs.zrg.width(), nodes );
+
+	const int nrnodes = nodes.size();
+	for ( int idy=0; idy<nrnodes; idy++ )
+	{
+	    const BinID nodebid =
+		SI().transform(surfaces[idx]->getPos(nodes[idy]));
+
+	    if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
+		 nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
+		continue;
+
+	    EarthModel::PosID posid( id(), patchids[idx], nodes[idy] );
+
+	    TypeSet<EarthModel::PosID> clones;
+	    getLinkedPos( posid, clones );
+	    clones += posid;
+
+	    const int nrclones = clones.size();
+	    bool found = false;
+	    for ( int idz=0; idz<nrclones; idz++ )
+	    {
+		if ( posids.indexOf(clones[idz]) != -1 )
+		{
+		    found = true;
+		    break;
+		}
+	    }
+
+	    if ( !found )
+	    {
+		posids += posid;
+	    }
+	}
+    }
+
+    if ( res ) *res = posids;
+    return posids.size();
+}
+
+
 int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
 					TypeSet<EarthModel::PosID>* res,
        					int maxradius, bool circle ) const
@@ -204,6 +276,8 @@ int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
 	    {
 		for ( int col=-1; col<=1; col++ )
 		{
+		    if ( !row && !col ) continue;
+
 		    const RowCol neighborrowcol(rowcol.row+row,rowcol.col+col);
 		    const int drow = abs(neighborrowcol.row-start.row);
 		    const int dcol = abs(neighborrowcol.col-start.col);
@@ -242,8 +316,10 @@ int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
 			continue;
 
 		    TypeSet<EarthModel::PosID>& posids =
-			*new TypeSet<EarthModel::PosID>( 1, neighborposid );
+					    *new TypeSet<EarthModel::PosID>;
 		    getLinkedPos( neighborposid, posids );
+		    posids.insert( 0, neighborposid );
+
 		    neigbors += &posids;
 
 		}
@@ -254,7 +330,8 @@ int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
 
     if ( res )
     {
-	for ( int idx=0; idx<neigbors.size(); idx++ )
+	// Leave out the fist one, since it's the origin
+	for ( int idx=1; idx<neigbors.size(); idx++ )
 	{
 	    (*res) += (*neigbors[idx])[0];
 	}
@@ -263,7 +340,8 @@ int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
     const int size = neigbors.size();
     deepErase( neigbors );
 
-    return size;
+    // Leave out the fist one, since it's the origin
+    return size-1;
 }
 
 
@@ -286,6 +364,12 @@ void EarthModel::Surface::getLinkedPos( const EarthModel::PosID& posid,
 	    res += EarthModel::PosID( id(),patchids[surface], subid );
 	}
     }
+}
+
+
+bool EarthModel::Surface::isLoaded() const
+{
+    return nrPatches();
 }
 
 
