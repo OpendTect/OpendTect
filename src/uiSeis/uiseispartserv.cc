@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.15 2004-09-13 07:52:15 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.16 2004-09-14 14:02:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "ptrman.h"
+#include "uilistboxdlg.h"
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
@@ -77,23 +78,42 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid )
 }
 
 
-#define mGet2DLineGroup(retval) \
+#define mGet2DLineSet(retval) \
     PtrMan<IOObj> ioobj = IOM().get( mid ); \
     if ( !ioobj ) return retval; \
     BufferString fnm = ioobj->fullUserExpr(true); \
-    Seis2DLineSet grp( fnm );
+    Seis2DLineSet lineset( fnm );
 
-void uiSeisPartServer::get2DLineInfo( const MultiID& mid, BufferString& setname,
-				      BufferStringSet& linenames )
+
+void uiSeisPartServer::get2DLineSetName( const MultiID& mid, 
+					   BufferString& setname )
 {
-    mGet2DLineGroup()
-    setname = grp.name();
-    for ( int idx=0; idx<grp.nrLines(); idx++ )
+    mGet2DLineSet()
+    setname = lineset.name();
+}
+
+
+bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
+{
+    mGet2DLineSet(false)
+    BufferStringSet linenames;
+    for ( int idx=0; idx<lineset.nrLines(); idx++ )
     {
-	const char* linenm = grp.lineName(idx);
+	const char* linenm = lineset.lineName(idx);
 	if ( linenames.indexOf(linenm) < 0 )
 	    linenames.add( linenm );
     }
+
+    uiListBoxDlg dlg( appserv().parent(), linenames, "Lines" );
+    dlg.box()->setMultiSelect();
+    if ( !dlg.go() ) return false;
+    for ( int idx=0; idx<dlg.box()->size(); idx++ )
+    {
+	if ( dlg.box()->isSelected(idx) )
+	    res.add( dlg.box()->textOfItem(idx) );
+    }
+
+    return res.size();
 }
 
 
@@ -101,11 +121,11 @@ void uiSeisPartServer::get2DStoredAttribs( const MultiID& mid,
 					   const char* linenm,
 					   BufferStringSet& attribs )
 {
-    mGet2DLineGroup()
-    for ( int idx=0; idx<grp.nrLines(); idx++ )
+    mGet2DLineSet()
+    for ( int idx=0; idx<lineset.nrLines(); idx++ )
     {
-	if ( !strcmp(linenm,grp.lineName(idx)) )
-	    attribs.add( grp.attribute(idx) );
+	if ( !strcmp(linenm,lineset.lineName(idx)) )
+	    attribs.add( lineset.attribute(idx) );
     }
 }
 
@@ -113,18 +133,18 @@ void uiSeisPartServer::get2DStoredAttribs( const MultiID& mid,
 bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linenm,
 				       const char* attribnm, SeisTrcBuf& buf )
 {
-    mGet2DLineGroup(false)
+    mGet2DLineSet(false)
     int lineidx = -1;
     BufferString linekey = Seis2DLineSet::lineKey(linenm,attribnm);
-    for ( int idx=0; idx<grp.nrLines(); idx++ )
+    for ( int idx=0; idx<lineset.nrLines(); idx++ )
     {
-	if ( linekey != grp.lineKey(idx) ) continue;
+	if ( linekey != lineset.lineKey(idx) ) continue;
 	lineidx = idx;
 	break;
     }
 
     if ( lineidx < 0 ) return false;
-    PtrMan<Executor> exec = grp.lineFetcher( lineidx, buf );
+    PtrMan<Executor> exec = lineset.lineFetcher( lineidx, buf );
     uiExecutor dlg( appserv().parent(), *exec );
     return dlg.go();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.8 2004-09-07 14:33:24 nanne Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.9 2004-09-14 14:02:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ public:
     bool		exportSeis();
 
     bool		select2DSeis(MultiID&);
-    void		get2DLineInfo(const MultiID&,BufferString&,
-	    			      BufferStringSet&);
+    bool		select2DLines(const MultiID&,BufferStringSet&);
+    void		get2DLineSetName(const MultiID&,BufferString&);
     void		get2DStoredAttribs(const MultiID&,const char*,
 	    				   BufferStringSet&);
     bool		create2DOutput(const MultiID&,const char*,const char*,
