@@ -16,7 +16,7 @@ static const char* rcsID = "$Id";
 #include "filegen.h"
 #include "ptrman.h"
 #include "strmprov.h"
-#include <iostream.h>
+#include <iostream>
 #include <math.h>
 
 #include "prog.h"
