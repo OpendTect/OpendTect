@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.34 2003-11-11 13:10:03 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.35 2003-11-11 16:26:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 #ifdef __win__ 
 
     comm += " --inbg "; comm += progname;
-    comm += " \""; comm += parfname; comm += "\"";
+    BufferString _parfnm( parfname );
+    replaceCharacter(_parfnm.buf(),' ','%');
+    comm += " \""; comm += _parfnm; comm += "\"";
 
 #else
 
@@ -339,7 +341,12 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 
 #ifdef __win__ 
     comm += " --inbg "; comm += procprognm;
-    comm += " \""; comm += parfname; comm += "\"";
+
+    BufferString _parfnm( parfname );
+    replaceCharacter(_parfnm.buf(),' ','%');
+
+    comm += " \""; comm += _parfnm; comm += "\"";
+
 #else
     comm += " "; comm += procprognm;
     comm += " -bg "; comm += parfname;

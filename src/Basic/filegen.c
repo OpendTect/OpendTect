@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.44 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.45 2003-11-11 16:26:02 arend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -15,11 +15,24 @@ static const char* rcsID = "$Id: filegen.c,v 1.44 2003-11-07 12:21:57 bert Exp $
 #include <malloc.h>
 #include <stdlib.h>
 
-#ifndef __win__
+#  include <sys/stat.h>
+#  include <dirent.h>
 
-# include <sys/stat.h>
+static struct stat statbuf;
+
+#ifdef __win__
+
+# include <windows.h>
+# include <shlwapi.h>
+# include <time.h>
+# include <largeint.h>
+
+# define stat _stat
+# define fstat _fstat
+
+#else
+
 # include <unistd.h>
-# include <dirent.h>
 
 # ifdef lux
 
@@ -34,14 +47,6 @@ static const char* rcsID = "$Id: filegen.c,v 1.44 2003-11-07 12:21:57 bert Exp $
 # endif
 
  static struct mStatFS fsstatbuf;
- static struct stat statbuf;
-
-#else
-
-# include <windows.h>
-# include <shlwapi.h>
-# include <time.h>
-# include <largeint.h>
 
 #endif
 
@@ -50,7 +55,7 @@ static const char* dirsep = sDirSep;
 
 int File_exists( const char* fname )
 {
-#ifdef __win__
+#ifdef __msvc__
     return fname && *fname && PathFileExists( fname );
 #else
     return fname && *fname && stat(fname,&statbuf) >= 0 ? YES : NO;
@@ -60,7 +65,7 @@ int File_exists( const char* fname )
 
 int File_isEmpty( const char* fname )
 {
-#ifdef __win__
+#ifdef __msvc__
     return !File_exists( fname );
 #else
     return !fname || stat(fname,&statbuf) < 0 || statbuf.st_size < 1 ? YES : NO;
@@ -70,7 +75,7 @@ int File_isEmpty( const char* fname )
 
 int File_isDirectory( const char* dirname )
 {
-#ifdef __win__
+#ifdef __msvc__
     return PathIsDirectory( dirname );
 #else
     if ( !dirname || !*dirname || !File_exists(dirname) ) return 0;
@@ -114,7 +119,11 @@ int File_isRemote( const char* fname )
 
 int File_getFreeMBytes( const char* dirnm )
 {
-    double res = mToKbFac;
+    double fac = mToKbFac;
+    double res;
+
+    if ( !File_exists(dirnm) )
+	return 0;
 
 #ifdef __win__
 
@@ -125,37 +134,31 @@ int File_getFreeMBytes( const char* dirnm )
     GetDiskFreeSpaceEx( dirnm, &freeBytesAvail2User,
 			&totalNrBytes, &totalNrFreeBytes);
 
-    double fac = MAXLONG;
-    fac += 1;
-
-    double aap = freeBytesAvail2User.HighPart * fac + 
-		 freeBytesAvail2User.LowPart;
-
-    res *= res * aap;
+    res = freeBytesAvail2User.LowPart * fac * fac;
+    res += ((double)freeBytesAvail2User.HighPart) * 2048;
 
 #else
 
-
-    if ( !File_exists(dirnm)
-      || mStatFS(dirnm,&fsstatbuf) )
+    if ( mStatFS(dirnm,&fsstatbuf) )
 	return 0;
 
-    res *= res			/* to MB */
+    res = fac * fac		/* to MB */
 	* fsstatbuf.f_bavail	/* available blocks */
 #ifdef lux
 	* fsstatbuf.f_bsize;	/* block size */
 #else
 	* fsstatbuf.f_frsize;	/* 'real' block size */
 #endif
-    return (int)(res + .5);
 
 #endif
+
+    return (int)(res + .5);
 }
 
 
 int File_getKbSize( const char* fnm )
 {
-#ifdef __win__
+#ifdef __msvc__
     return 0;
 #else
 
