@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.212 2004-05-11 12:57:03 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.213 2004-05-12 12:30:51 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uizscaledlg.h"
 #include "uiworkareadlg.h"
 #include "uimenu.h"
+#include "uicursor.h"
 #include "iopar.h"
 #include "uivismenu.h"
 #include "uicolor.h"
@@ -280,6 +281,7 @@ const AttribSliceSet* uiVisPartServer::getCachedData( int id,
 bool uiVisPartServer::setCubeData( int id, bool color, AttribSliceSet* sliceset)
 {
     if ( !sliceset ) return false;
+
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so )
     {
@@ -287,6 +289,7 @@ bool uiVisPartServer::setCubeData( int id, bool color, AttribSliceSet* sliceset)
 	return false;
     }
 
+    uiCursorChanger cursorlock( uiCursor::WaitCursor );
     return so->setDataVolume( color, sliceset );
 }
 
@@ -1062,7 +1065,10 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
 	setMaterial(id);
     else if ( firstresmnusel!=-1 && mnuid>=firstresmnusel &&
 	    mnuid-firstresmnusel<so->nrResolutions() )
+    {
+	uiCursorChanger cursorlock( uiCursor::WaitCursor );
 	so->setResolution(mnuid-firstresmnusel);
+    }
     else if ( mnuid==trackmanmnuid )
     {
 	mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,so)
