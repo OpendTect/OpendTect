@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.18 2003-02-19 16:09:34 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.19 2003-02-28 09:01:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,6 +115,7 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     }
     else
     {
+	hordef.erase();
 	BinID bid( selbr->start );
 	BinID stp = BinID( SI().inlStep(), SI().crlStep() );
 	for ( int inl=selbr->start.inl; inl<=selbr->stop.inl; inl +=stp.inl)
