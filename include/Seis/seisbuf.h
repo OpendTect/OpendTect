@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.1.1.2 1999-09-16 09:21:46 arend Exp $
+ RCS:		$Id: seisbuf.h,v 1.2 2000-07-19 09:26:36 bert Exp $
 ________________________________________________________________________
 
 This object buffers seismic traces. The traces are not managed, but can be
@@ -49,6 +49,7 @@ public:
     void		revert();
 
     void		fill(SeisPacketInfo&) const;
+    void		transferData(FloatList&,int takeeach=1) const;
 
 protected:
 

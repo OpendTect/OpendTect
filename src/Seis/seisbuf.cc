@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.3 2000-07-15 15:24:46 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.4 2000-07-19 09:28:02 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -40,6 +40,18 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     spi.range.stop = trc0->info().binid;
     for ( int idx=1; idx<size(); idx++ )
 	spi.range.include( get(idx)->info().binid );
+}
+
+
+void SeisTrcBuf::transferData( FloatList& fl, int takeeach ) const
+{
+    for ( int idx=0; idx<size(); idx+=takeeach )
+    {
+	SeisTrc& trc = *get( idx );
+	const int trcsz = trc.size();
+	for ( int isamp=0; isamp<trcsz; isamp++ )
+	    fl += trc[isamp];
+    }
 }
 
 
