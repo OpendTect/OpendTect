@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.7 2004-11-25 19:23:48 bert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.8 2005-02-23 16:49:53 cvsbert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -13,6 +13,10 @@ static const char* rcsID = "$Id: unitofmeasure.cc,v 1.7 2004-11-25 19:23:48 bert
 #include "filegen.h"
 #include "filepath.h"
 #include "debug.h"
+#include "errh.h"
+
+static const char* filenamebase = "UnitsOfMeasure";
+
 
 UnitOfMeasureRepository& UoMR()
 {
@@ -32,6 +36,20 @@ UnitOfMeasureRepository& UoMR()
 }
 
 
+UnitOfMeasure& UnitOfMeasure::operator =( const UnitOfMeasure& uom )
+{
+    if ( this != &uom )
+    {
+	setName( uom.name() );
+	symbol_ = uom.symbol_;
+	scaler_ = uom.scaler_;
+	proptype_ = uom.proptype_;
+	source_ = uom.source_;
+    }
+    return *this;
+}
+
+
 const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 {
     const UnitOfMeasure* direct = UoMR().get( nm );
@@ -41,10 +59,10 @@ const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 
 UnitOfMeasureRepository::UnitOfMeasureRepository()
 {
-    Repos::FileProvider rfp( "UnitsOfMeasure" );
-    addUnitsFromFile( rfp.fileName() );
+    Repos::FileProvider rfp( filenamebase );
+    addUnitsFromFile( rfp.fileName(), rfp.source() );
     while ( rfp.next() )
-	addUnitsFromFile( rfp.fileName() );
+	addUnitsFromFile( rfp.fileName(), rfp.source() );
 
 #define mAdd(nm,symb,fac,ptyp) \
     add( UnitOfMeasure( nm, symb, fac, PropertyRef::ptyp ) )
@@ -90,7 +108,8 @@ UnitOfMeasureRepository::UnitOfMeasureRepository()
 }
 
 
-void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm )
+void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm,
+						Repos::Source src )
 {
     if ( !File_exists(fnm) ) return;
     StreamData sd = StreamProvider( fnm ).makeIStream();
@@ -112,10 +131,51 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm )
 	    double shft = atof( fms[3] );
 	    un.setScaler( LinScaler(shft,fac) );
 	}
+	un.setSource( src );
 	add( un );
     }
 
     sd.close();
+}
+
+
+bool UnitOfMeasureRepository::write( Repos::Source src ) const
+{
+    Repos::FileProvider rfp( filenamebase );
+    BufferString fnm = rfp.fileName( src );
+
+    bool havesrc = false;
+    for ( int idx=0; idx<entries.size(); idx++ )
+    {
+	if ( entries[idx]->source() == src )
+	    { havesrc = true; break; }
+    }
+    if ( !havesrc )
+	return !File_exists(fnm) || File_remove( fnm, NO );
+
+    StreamData sd = StreamProvider( fnm ).makeOStream();
+    if ( !sd.usable() )
+    {
+	BufferString msg( "Cannot write to " ); msg += fnm;
+	ErrMsg( fnm );
+	return false;
+    }
+
+    ascostream strm( *sd.ostrm );
+    strm.putHeader( "Units of Measure" );
+    for ( int idx=0; idx<entries.size(); idx++ )
+    {
+	const UnitOfMeasure& uom = *entries[idx];
+	if ( uom.source() != src ) continue;
+
+	FileMultiString fms( eString(PropertyRef::StdType,uom.propType()) );
+	fms += uom.symbol();
+	fms += uom.scaler().toString();
+	strm.put( uom.name(), fms );
+    }
+
+    sd.close();
+    return true;
 }
 
 

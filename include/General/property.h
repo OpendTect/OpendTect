@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.5 2004-11-25 17:23:03 bert Exp $
+ RCS:		$Id: property.h,v 1.6 2005-02-23 16:49:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "repos.h"
 #include "enums.h"
 #include "uidobj.h"
-#include "bufstringset.h"
 
 class PropertyRefRepository;
 PropertyRefRepository& PrRR();
@@ -39,7 +38,6 @@ public:
 			, hcaff_(h)
 			, source_(Repos::Survey)	{}
 
-    BufferStringSet&	specialUnitsOfMeasure()		{ return units_; }
     bool		hcAffected() const		{ return hcaff_; }
     void		setHCAffected( bool yn )	{ hcaff_ = yn; }
     StdType		stdType() const			{ return stdtype_; }
@@ -50,7 +48,6 @@ public:
 protected:
 
     StdType		stdtype_;
-    BufferStringSet	units_;
     bool		hcaff_;
     Repos::Source	source_;
 

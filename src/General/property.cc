@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.7 2005-02-23 14:45:23 cvsarend Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.8 2005-02-23 16:49:53 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -89,8 +89,6 @@ void PropertyRefRepository::addFromFile( const Repos::FileProvider& rfp )
 	PropertyRef::StdType st = eEnum(PropertyRef::StdType,ptypestr);
 	bool hc = sz > 1 ? yesNoFromString(fms[1]) : false;
 	PropertyRef pr( stream.keyWord(), st, hc );
-	for ( int idx=2; idx<sz; idx++ )
-	    pr.specialUnitsOfMeasure().add( fms[idx] );
 
 	pr.source_ = src;
 	set( pr );
@@ -142,7 +140,7 @@ bool PropertyRefRepository::write( Repos::Source src ) const
 	    { havesrc = true; break; }
     }
     if ( !havesrc )
-	return File_remove( fnm, NO );
+	return !File_exists(fnm) || File_remove( fnm, NO );
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() )
@@ -161,9 +159,7 @@ bool PropertyRefRepository::write( Repos::Source src ) const
 
 	FileMultiString fms( eString(PropertyRef::StdType,pr.stdType()) );
 	fms += getYesNoString( pr.hcAffected() );
-	for ( int iun=0; iun<pr.units_.size(); iun++ )
-	    fms += pr.units_.get( iun );
-	strm.put( fms );
+	strm.put( pr.name(), fms );
     }
 
     sd.close();
