@@ -4,9 +4,10 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.2 2004-06-18 13:58:07 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.3 2004-08-18 14:32:55 bert Exp $";
 
 #include "seis2dline.h"
+#include "seistrctr.h"
 #include "seisbuf.h"
 #include "survinfo.h"
 #include "strmprov.h"
@@ -15,7 +16,8 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.2 2004-06-18 13:58:07 bert Ex
 #include "iopar.h"
 #include "errh.h"
 
-const char* Seis2DLineGroup::sKeyZRange = SurveyInfo::sKeyZRange;
+const char* Seis2DLineGroup::sKeyAttrib = "Attribute";
+const char* Seis2DLineGroup::sKeyDefAttrib = "Seis";
 const char* Seis2DLineIOProvider::sKeyType = sKey::Type;
 const char* Seis2DLineIOProvider::sKeyLineNr = "Line number";
 
@@ -26,6 +28,46 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
     if ( !theinst ) theinst = new ObjectSet<Seis2DLineIOProvider>;
     return *theinst;
 }
+
+
+//------
+// Translator mechanism is only used for selection etc.
+
+class TwoDSeisTrcTranslator : public SeisTrcTranslator
+{			isTranslator(TwoD,SeisTrc) public:
+			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
+			: SeisTrcTranslator(s1,s2)	{}
+
+    const char*		defExtension() const            { return "2ds"; }
+    bool		implRemove(const IOObj*) const;
+    bool		implRename(const IOObj*,const char*,
+				   const CallBack* cb=0) const;
+    bool		implSetReadOnly(const IOObj*,bool) const;
+
+};
+
+defineTranslator(TwoD,SeisTrc,"2D");
+
+
+bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+{
+    return SeisTrcTranslator::implRemove(ioobj); //TODO
+}
+
+
+bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
+				   const CallBack* cb ) const
+{
+    return SeisTrcTranslator::implRename(ioobj,newnm,cb); //TODO
+}
+
+
+bool TwoDSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
+{
+    return SeisTrcTranslator::implSetReadOnly(ioobj,yn); //TODO
+}
+
+//------
 
 
 Seis2DLineGroup::~Seis2DLineGroup()
@@ -50,6 +92,21 @@ void Seis2DLineGroup::init( const char* fnm )
 }
 
 
+const char* Seis2DLineGroup::lineName( int idx ) const
+{
+    return idx >= pars_.size() ? 0 : pars_[idx]->name().buf();
+}
+
+
+const char* Seis2DLineGroup::attribute( int idx ) const
+{
+    const char* res = 0;
+    if ( idx < pars_.size() )
+	res = pars_[idx]->find( sKeyAttrib );
+    return res ? res : sKeyDefAttrib;
+}
+
+
 static const char* sKeyFileType = "2D Line Group Data";
 
 void Seis2DLineGroup::readFile()
@@ -69,11 +126,16 @@ void Seis2DLineGroup::readFile()
 	    setName( astrm.value() );
     }
 
-    while ( !astrm.type() == ascistream::EndOfFile )
+    while ( astrm.type() != ascistream::EndOfFile )
     {
 	IOPar* newpar = new IOPar;
 	while ( !atEndOfSection(astrm.next()) )
-	    newpar->set( astrm.keyWord(), astrm.value() );
+	{
+	    if ( astrm.hasKeyword(sKey::Name) )
+		newpar->setName( astrm.value() );
+	    else
+		newpar->set( astrm.keyWord(), astrm.value() );
+	}
 	if ( newpar->size() < 1 )
 	    delete newpar;
 	else
@@ -100,6 +162,7 @@ void Seis2DLineGroup::writeFile() const
     for ( int ipar=0; ipar<pars_.size(); ipar++ )
     {
 	const IOPar& iopar = *pars_[ipar];
+	astrm.put( sKey::Name, iopar.name() );
 	for ( int idx=0; idx<iopar.size(); idx++ )
 	    astrm.put( iopar.getKey(idx), iopar.getValue(idx) );
 	astrm.newParagraph();

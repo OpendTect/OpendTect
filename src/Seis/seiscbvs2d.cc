@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.2 2004-07-19 11:30:10 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.3 2004-08-18 14:32:55 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -15,11 +15,19 @@ static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.2 2004-07-19 11:30:10 bert Ex
 #include "survinfo.h"
 #include "keystrs.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "iopar.h"
 #include "errh.h"
 
-#define mGetFname(iop,lnr) \
-	CBVSIOMgr::getFileName( iop.find(sKey::FileName), lnr )
+static BufferString getCBVSFileName( const IOPar& iop, int lnr )
+{
+    BufferString ret = CBVSIOMgr::getFileName( iop.find(sKey::FileName), lnr );
+    FilePath fp( ret );
+    if ( !fp.isAbsolute() )
+	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
+    ret = fp.fullPath();
+    return ret;
+}
 
 int SeisCBVS2DLineIOProvider::factid
 	= (S2DLIOPs() += new SeisCBVS2DLineIOProvider).size() - 1;
@@ -49,7 +57,7 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOPar& iop ) const
 {
     if ( !isUsable(iop) ) return true;
 
-    BufferString fnm = mGetFname( iop, getLineNr(&iop) );
+    BufferString fnm = getCBVSFileName( iop, getLineNr(&iop) );
     return File_isEmpty(fnm);
 }
 
@@ -70,6 +78,7 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b )
 	, tr(CBVSSeisTrcTranslator::getInstance())
 	, msg("Reading traces")
 {
+    tr->setSingleFile( true );
 }
 
 
@@ -134,17 +143,16 @@ int			totalNr() const		{ return totnr; }
 Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 						SeisTrcBuf& tbuf )
 {
+    const int lnr = getLineNr( &iop );
+    BufferString fnm = getCBVSFileName( iop, lnr );
     if ( !isUsable(iop) )
     {
-	BufferString fnm = mGetFname( iop, getLineNr(&iop) );
 	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;
 	errmsg += "' does not exist";
 	ErrMsg(errmsg);
 	return 0;
     }
 
-    const int lnr = getLineNr( &iop );
-    BufferString fnm = mGetFname( iop, lnr );
     const_cast<IOPar&>(iop).set( sKeyLineNr, lnr ); // just to be sure
     return new SeisCBVS2DLineGetter( fnm, tbuf );
 }
@@ -166,6 +174,7 @@ SeisCBVS2DLinePutter( const char* fnm, const SeisTrcBuf& b, int linenr )
 	, crlrg(SI().crlRange(false))
 	, msg("Writing traces")
 {
+    tr->setSingleFile( true );
     bid.inl = SI().inlRange(false).start + linenr * SI().inlRange(false).step;
 }
 
@@ -243,7 +252,7 @@ Executor* SeisCBVS2DLineIOProvider::getPutter( IOPar& iop,
 	mErrRet("No traces to write")
 
     const int lnr = getLineNr(previop,-1) + 1;
-    BufferString fnm = mGetFname( iop, lnr );
+    BufferString fnm = getCBVSFileName( iop, lnr );
     iop.set( sKeyLineNr, lnr );
     return new SeisCBVS2DLinePutter( fnm, tbuf, lnr );
 }

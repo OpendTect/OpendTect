@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.2 2004-06-18 13:58:07 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.3 2004-08-18 14:32:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
     int			nrLines() const			{ return pars_.size(); }
     const IOPar&	getInfo( int idx ) const	{ return *pars_[idx]; }
     bool		isEmpty(int) const;
+    const char*		lineName(int) const;	//!< returns pars_[idx]->name()
+    const char*		attribute(int) const;
 
     Executor*		lineFetcher(int,SeisTrcBuf&) const;
     				//!< May return null
@@ -44,7 +46,8 @@ public:
     				//!< Must be called after successful add
     void		remove(int);
 
-    static const char*	sKeyZRange;
+    static const char*	sKeyAttrib;
+    static const char*	sKeyDefAttrib;
 
 protected:
 
