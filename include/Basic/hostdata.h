@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.7 2002-12-20 13:37:17 arend Exp $
+ RCS:           $Id: hostdata.h,v 1.8 2003-02-05 10:42:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ public:
     virtual		~HostDataList()	{ deepErase(*this); }
 
     int			defNiceLevel() const	{ return defnicelvl_; }
+    int			firstPort() const	{ return portnr_; }
     const char*		rshComm() const		{ return rshcomm_; }
 
 protected:
@@ -72,6 +73,7 @@ protected:
     bool		realaliases_;
     BufferString	rshcomm_;
     int			defnicelvl_;
+    int			portnr_;
 
     void		handleLocal();
     bool		readHostFile(const char*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.6 2002-07-05 13:53:18 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.7 2003-02-05 10:42:32 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ HostDataList::HostDataList()
     	: realaliases_(false)
     	, rshcomm_("rsh")
     	, defnicelvl_(19)
+    	, portnr_(1963)
 {
     const char* bhfnm = "BatchHosts";
     if ( getenv("dGB_BATCH_HOSTS_FILENAME") )
@@ -99,6 +100,8 @@ bool HostDataList::readHostFile( const char* fname )
 	    rshcomm_ = astrm.value();
 	if ( astrm.hasKeyword("Default nice level") )
 	    defnicelvl_ = astrm.getVal();
+	if ( astrm.hasKeyword("First port") )
+	    portnr_ = astrm.getVal();
 	astrm.next();
     }
     while ( !atEndOfSection(astrm.next()) )

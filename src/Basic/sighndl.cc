@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.9 2002-12-19 15:15:49 arend Exp $
+ RCS:           $Id: sighndl.cc,v 1.10 2003-02-05 10:42:32 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.9 2002-12-19 15:15:49 arend Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.10 2003-02-05 10:42:32 arend Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -213,7 +213,8 @@ void SignalHandling::stopProcess( int pid, bool friendly )
 }
 
 
-void SignalHandling::stopRemote( const char* mach, int pid, bool friendly )
+void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
+				 const char* rshcomm )
 {
     if ( !mach || !*mach )
 	{ stopProcess( pid, friendly ); }
@@ -223,7 +224,11 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly )
     cmd += friendly ? "-TERM " : "-9 ";
     cmd += pid;
     cmd += " >& /dev/null";
-    StreamData sd = StreamProvider( cmd ).makeOStream();
+
+    StreamProvider strmp( cmd );
+    if ( rshcomm && *rshcomm )
+	strmp.setRemExec( rshcomm );
+    StreamData sd = strmp.makeOStream();
     sd.close();
 }
 
