@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.4 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: color.h,v 1.5 2004-09-09 09:26:53 kristofer Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -49,6 +49,8 @@ public:
 			{ return (unsigned char)((col_ >> 24) & 0xff); }
 
     inline unsigned int rgb() const
+			{ return col_; }
+    inline unsigned int& rgb() 
 			{ return col_; }
 
     inline void         set( unsigned char r_, unsigned char g_,
