@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.170 2003-10-20 10:23:53 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.171 2003-10-23 12:18:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1019,8 +1019,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	visSurvey::Scene* newscene =
 	    	(visSurvey::Scene*) visBase::DM().getObj( sceneids[idx] );
 
-	newscene->mouseposchange.notify(
-				mCB( this, uiVisPartServer, mouseMoveCB ));
+	newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB));
 	scenes += newscene;
 	newscene->ref();
 
@@ -1040,6 +1039,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 	    setUpConnections( childid );
 	    hasconnections += childid;
+
+	    turnOn( childid, isOn(childid) );
 	}
     }
 
@@ -1237,8 +1238,12 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 	res = selectAttrib( id );
     else if ( sd && as->id() < 0 )
     {
-	sd->setZValues();
-	return true;
+	const char* usrref = as->userRef();
+	if ( !usrref || !(*usrref) )
+	{
+	    sd->setZValues();
+	    return true;
+	}
     }
 	
     if ( !res ) return res;
@@ -1259,7 +1264,7 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 bool uiVisPartServer::hasColorAttrib( int id ) const
 {
     mDynamicCastAllConst();
-    return ( vd || rtd || pdd || sd );
+    return ( vd || rtd || pdd || (sd && sd->usesTexture()) );
 }
 
 
