@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.78 2002-08-05 15:38:18 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.79 2002-08-06 08:17:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,6 +165,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 	if ( hor->getAttribSelSpec().id() >= 0 )
 	    getDataCB( hor );
+	else if ( hor->usesTexture() )
+	    hor->setZValues();
     }
 
     float appvel;
