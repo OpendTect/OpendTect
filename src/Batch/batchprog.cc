@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.11 2002-04-12 21:37:21 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.12 2002-04-15 15:29:33 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.11 2002-04-12 21:37:21 bert Ex
 #include "strmdata.h"
 #include "filegen.h"
 #include "timefun.h"
+#include "sighndl.h"
 #ifndef __msvc__
 #include <unistd.h>
 #endif
@@ -116,6 +117,12 @@ const char* BatchProgram::progName() const
 }
 
 
+void BatchProgram::progKilled( CallBacker* )
+{
+    writePid( -1 );
+}
+
+
 bool BatchProgram::writePid( int pid )
 {
     const char* res = pars()[ "Process info file" ];
@@ -130,6 +137,11 @@ bool BatchProgram::writePid( int pid )
 	}
 	*sd.ostrm << pid << endl;
 	sd.close();
+	CallBack cb( mCB(this,BatchProgram,progKilled) );
+	if ( pid != -1 )
+	    SignalHandling::startNotify( SignalHandling::Kill, cb );
+	else
+	    SignalHandling::stopNotify( SignalHandling::Kill, cb );
     }
     return true;
 }

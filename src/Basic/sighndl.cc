@@ -4,14 +4,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: sighndl.cc,v 1.3 2002-01-29 11:13:02 bert Exp $
+ RCS:           $Id: sighndl.cc,v 1.4 2002-04-15 15:29:33 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.3 2002-01-29 11:13:02 bert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.4 2002-04-15 15:29:33 bert Exp $";
 
 #include "sighndl.h"
+#include "strmdata.h"
+#include "strmprov.h"
 #include "errh.h"
 
 
@@ -161,11 +163,23 @@ void SignalHandling::doStop( int signalnr )
 }
 
 
-extern "C" int getPPID();
-
 void SignalHandling::stopProcess( int pid, bool friendly )
 {
     kill( pid, friendly ? SIGTERM : SIGKILL );
+}
+
+
+void SignalHandling::stopRemote( const char* mach, int pid, bool friendly )
+{
+    if ( !mach || !*mach )
+	{ stopProcess( pid, friendly ); }
+
+    BufferString cmd( mach );
+    cmd += ":@kill ";
+    cmd += friendly ? "-TERM " : "-9 ";
+    cmd += pid;
+    StreamData sd = StreamProvider( cmd ).makeOStream();
+    sd.close();
 }
 
 
