@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.5 2004-09-03 08:21:49 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.6 2004-09-07 09:19:19 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -435,6 +435,9 @@ bool EdgeLineSegment::reTrack( const EdgeLineSegment* prev,
 	    mReTrackReturn(false);
     }
 
+    if ( size()==1 )
+	backward = true;
+
     int idx = 0;
     while ( true )
     {
@@ -669,6 +672,7 @@ EdgeLine::EdgeLine( EM::Surface& surf, const EM::SectionID& sect )
     : surface( surf )
     , section( sect )
     , changenotifier(this)
+    , removezerosegs( true )
 {}
 
 
@@ -878,6 +882,33 @@ bool EdgeLine::isHole() const
 }
 
 
+bool EdgeLine::setRemoveZeroSegments(bool newstatus)
+{
+    const bool prevstatus = removezerosegs;
+    removezerosegs = newstatus;
+    if ( newstatus && !prevstatus )
+    {
+	bool change = false;
+	for ( int idx=0; idx<segments.size(); idx++ )
+	{
+	    if ( segments[idx]->size() )
+		continue;
+
+	    segments[idx]->changeNotifier()->remove(
+		    mCB(this,EdgeLine,sectionChangeCB) );
+	    delete segments[idx];
+	    segments.remove(idx--);
+	    change = true;
+	}
+
+	if ( change ) 
+	    changenotifier.trigger();
+    }
+
+    return prevstatus;
+}
+
+
 
 
 int EdgeLine::computeArea() const
@@ -972,110 +1003,14 @@ void EdgeLine::insertSegments( ObjectSet<EM::EdgeLineSegment>& ns, int idx,
 
     if ( cutexisting )
     {
-	int startidx;
-	int startseg = getSegment( ns[0]->first(), &startidx );
-	if ( startseg==-1 )
+	idx = cutLineBy(ns[0]->first(), ns[ns.size()-1]->last() );
+	if ( idx==-1 )
 	{
-	    deepErase( ns );
+	    deepErase(ns);
 	    return;
 	}
-
-	int stopidx;
-	int stopseg = getSegment( ns[ns.size()-1]->last(), &stopidx );
-	if ( stopseg==-1 )
-	{
-	    deepErase( ns );
-	    return;
-	}
-
-	if ( startseg==stopseg && startidx>stopidx )
-	{
-
-	    while ( startseg ) 
-	    {
-		delete segments[0];
-		segments.remove(0);
-		startseg--;
-	    }
-
-	    while ( segments.size()>1 )
-	    {
-		delete segments[1];
-		segments.remove(1);
-	    }
-
-	    stopseg = 0;
-	}
-
-	int curseg = startseg;
-	int curidx = startidx;
-
-	while ( true )
-	{
-	    if ( curseg!=stopseg )
-	    {
-		const int nrseg = segments.size();
-		segments[curseg]->remove( curidx, segments[curseg]->size()-1 );
-		if ( nrseg!=segments.size() )
-		{
-		    if ( stopseg>curseg ) stopseg--;
-		    if ( startseg>curseg ) startseg--;
-		    curseg--;
-		}
-	    }
-	    else
-	    {
-		if ( startidx>stopidx )
-		{
-		    segments[curseg]->remove(startidx,segments[curseg]->size());
-		    segments[curseg]->remove(0,stopidx);
-
-
-
-		}
-		else if ( nrSegments()==1 )
-		{
-		    for ( int idy=segments[curseg]->size()-1; idy>stopidx;idy--)
-		    {
-			segments[curseg]->insert(0,(*segments[curseg])[idy]);
-			stopidx++;
-			startidx++;
-			idy++;
-		    }
-
-		    segments[curseg]->remove(startidx,
-			    		     segments[curseg]->size());
-		}
-		else
-		{
-		    EdgeLineSegment* nels = segments[curseg]->clone();
-		    segments[curseg]->remove(startidx,segments[curseg]->size());
-		    nels->remove(0,stopidx);
-		    if ( segments.size()<=curseg+1 )
-			segments += nels;
-		    else
-			segments.insertAt(nels,curseg+1);
-		}
-		break;
-	    }
-
-	    if ( ++curseg>=segments.size() )
-		curseg = 0;
-	    curidx = 0;
-	}
-
-	for ( int idy=0; idy<nrSegments(); idy++ )
-	{
-	    if ( segments[idy]->size() ) continue;
-
-	    delete segments[idy];
-	    segments.remove(idy);
-	    if ( idy<=startseg ) startseg--;
-	    idy--;
-	}
-
-	idx = startseg+1;
     }
+
 
     for ( int idy=0; idy<ns.size(); idy++ )
     {
@@ -1131,6 +1066,74 @@ void EdgeLine::insertSegment( EdgeLineSegment* els, int idx,
 }
 
 
+int EdgeLine::cutLineBy( const RowCol& start, const RowCol& stop,
+       		          const EdgeLineSegment* donttouch )
+{
+    int startidx;
+    int startseg = getSegment( start, &startidx );
+    if ( startseg==-1 ) return -1;
+
+    int stopidx;
+    int stopseg = getSegment( stop, &stopidx );
+    if ( stopseg==-1 ) return -1;
+
+    const bool didremovesegments = setRemoveZeroSegments(false);
+    int curseg = startseg;
+    int curidx = startidx;
+
+    while ( true )
+    {
+	if ( curseg!=stopseg || curidx>stopidx )
+	{
+	    if ( segments[curseg]!=donttouch )
+		segments[curseg]->remove( curidx, segments[curseg]->size()-1 );
+	}
+	else
+	{
+	    if ( segments[curseg]==donttouch )
+	    {}
+	    else if ( nrSegments()==1 )
+	    {
+		for ( int idy=segments[curseg]->size()-1; idy>stopidx;idy--)
+		{
+		    segments[curseg]->insert(0,(*segments[curseg])[idy]);
+		    stopidx++;
+		    curidx++;
+		    idy++;
+		}
+
+		segments[curseg]->remove(curidx, segments[curseg]->size());
+	    }
+	    else
+	    {
+		if ( !curidx || stopidx==segments[curseg]->size())
+		    segments[curseg]->remove(curidx,stopidx);
+		else
+		{
+		    EdgeLineSegment* nels = segments[curseg]->clone();
+		    nels->remove(0,stopidx);
+		    if ( segments.size()<=curseg+1 )
+			segments += nels;
+		    else
+			segments.insertAt(nels,curseg+1);
+
+		    segments[curseg]->remove(startidx,segments[curseg]->size());
+		}
+	    }
+	    break;
+	}
+
+	if ( ++curseg>=segments.size() )
+	    curseg = 0;
+	curidx = 0;
+    }
+
+    setRemoveZeroSegments(didremovesegments);
+
+    return startseg+1;
+}
+
+
 void EdgeLine::fillPar( IOPar& par ) const
 {
     par.set( nrsegmentsstr, nrSegments() );
@@ -1177,7 +1180,7 @@ bool EdgeLine::usePar( const IOPar& par )
 void EdgeLine::sectionChangeCB(CallBacker* cb)
 {
     mDynamicCastGet(EdgeLineSegment*, segment, cb );
-    if ( !segment->size() )
+    if ( removezerosegs && !segment->size() )
     {
 	//stop traversal
 	segment->changeNotifier()->disable();
