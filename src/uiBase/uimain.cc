@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.11 2002-04-26 13:24:05 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.12 2002-04-29 13:25:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ void uiMain::setTopLevel( uiMainWin* obj )
     obj->setExitAppOnClose( true );
 
     mainobj = obj;
+    init( obj->body()->qwidget() ); // inits SoQt if uicMain
     app->setMainWidget( obj->body()->qwidget() ); 
 }
 
