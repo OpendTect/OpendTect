@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.23 2004-11-10 12:12:23 arend Exp $
+# $Id: od_exec_rmt,v 1.24 2004-11-10 13:22:33 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -53,7 +53,6 @@ endif
 set datahost=""
 set datadrive=""
 set datashare=""
-set datapass=""
 set datavars=""
 set iswin=0
 

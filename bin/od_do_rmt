@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.18 2004-11-10 13:18:33 arend Exp $
+# $Id: od_do_rmt,v 1.19 2004-11-10 13:22:33 arend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -13,7 +13,7 @@ set comm=""
 set datahost="_none_"
 set datadrive="_none_"
 set datashare="_none_"
-set datapass="_none_"
+set remotepass="_none_"
 
 next_arg:
 
@@ -84,10 +84,10 @@ if ( "$HDIR" == "win" ) then
 		 | sed -e "s% %\\ %g" -e "s%\\%\\\\%g"`
     endif
 
-    set precmd="cmd /c $prescript $datahost $datadrive $datashare $usernm $datapass"
+    set precmd="cmd /c $prescript $datahost $datadrive $datashare $usernm $remotepass"
 
     if ( -e "$prescript" ) then
-	cmd /c "$prescript $datahost $datadrive $datashare $usernm $datapass"
+	cmd /c "$prescript $datahost $datadrive $datashare $usernm $remotepass"
     endif
     
 endif
