@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.6 2003-01-30 14:52:03 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.7 2003-02-07 10:12:14 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -219,7 +219,7 @@ bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>& trcset )
 	    if ( !trc ) continue;
 	    
 	    for ( int ids=0; ids<nrsamp; ids++ )
-		arr.set( trcidx, ids, trc->getValue(ids,0) );
+		arr.set( trcidx, ids, trc->get(ids,0) );
 	}
 
 	track->setData( snr, arr );
