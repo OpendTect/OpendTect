@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.47 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.48 2003-11-11 18:06:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,13 +65,17 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     pathfld = new uiGenInput( this, "Location on disk",
 	    			StringInpSpec( rootdir ) );
     pathfld->attach( alignedBelow, survnmfld );
-    uiButton* pathbut;
+
+#ifdef __win__
+    pathfld->setSensitive( false );
+#else
     if ( !orgdirname.size() )
     {
-	pathbut = new uiPushButton( this, "Select" );
+	uiButton* pathbut = new uiPushButton( this, "Select" );
 	pathbut->attach( rightOf, pathfld );
 	pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
     }
+#endif
 
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->attach( stretchedBelow, pathfld, -2 );
