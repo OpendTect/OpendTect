@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.20 2004-10-07 11:27:25 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.21 2004-10-07 18:27:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiseissegyimpexp.h"
 #include "uiseiscbvsimp.h"
 #include "uiseisfileman.h"
+#include "uiseisioobjinfo.h"
 #include "uisegysip.h"
 #include "uiseissel.h"
 #include "ctxtioobj.h"
@@ -95,25 +96,15 @@ void uiSeisPartServer::get2DLineSetName( const MultiID& mid,
 
 bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
 {
-    mGet2DLineSet(false)
     BufferStringSet linenames;
-    for ( int idx=0; idx<lineset.nrLines(); idx++ )
-    {
-	const char* linenm = lineset.lineName(idx);
-	if ( linenames.indexOf(linenm) < 0 )
-	    linenames.add( linenm );
-    }
-
+    uiSeisIOObjInfo objinfo( mid );
+    objinfo.getLineNames( linenames );
     linenames.sort();
+
     uiListBoxDlg dlg( appserv().parent(), linenames, "Lines" );
     dlg.box()->setMultiSelect();
     if ( !dlg.go() ) return false;
-    for ( int idx=0; idx<dlg.box()->size(); idx++ )
-    {
-	if ( dlg.box()->isSelected(idx) )
-	    res.add( dlg.box()->textOfItem(idx) );
-    }
-
+    dlg.box()->getSelectedItems( res );
     return res.size();
 }
 
@@ -122,12 +113,8 @@ void uiSeisPartServer::get2DStoredAttribs( const MultiID& mid,
 					   const char* linenm,
 					   BufferStringSet& attribs )
 {
-    mGet2DLineSet()
-    for ( int idx=0; idx<lineset.nrLines(); idx++ )
-    {
-	if ( !strcmp(linenm,lineset.lineName(idx)) )
-	    attribs.add( lineset.attribute(idx) );
-    }
+    uiSeisIOObjInfo objinfo( mid );
+    objinfo.getAttribNamesForLine( linenm, attribs );
 }
 
 

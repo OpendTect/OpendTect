@@ -1,12 +1,12 @@
-#ifndef uifileman_h
-#define uifileman_h
+#ifndef uiseisfileman_h
+#define uiseisfileman_h
 /*+
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.9 2004-10-07 18:27:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ protected:
     CtxtIOObj&		ctio;
 
     void		selChg(CallBacker*);
+    void		rightClicked(CallBacker*);
     void		mergePush(CallBacker*);
     void		copyPush(CallBacker*);
     void		relocMsg(CallBacker*);
