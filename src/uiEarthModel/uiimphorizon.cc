@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.3 2002-05-23 11:02:28 kristofer Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.4 2002-05-23 13:39:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,12 +73,13 @@ bool uiImportHorizon::handleAscii()
 	doxy ? (GridTranslator*) new CoordGridTranslator
 	     : (GridTranslator*) new BinIDGridTranslator;
 
-
     GridReader reader( trans, &conn );
     uiExecutor execdlg( this, reader );
     if ( !execdlg.go() ) return false;
 
-    PtrMan<Grid> grid = reader.grid();
+    Grid* dskgrd = reader.grid();
+    PtrMan<Grid> grid = dskgrd->cloneTrimmed();
+    delete dskgrd;
 
     const char* horizonnm = outfld->getInput();
     EarthModel::EMManager& em = EarthModel::EMM();
