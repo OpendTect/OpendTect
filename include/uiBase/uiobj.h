@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.8 2001-05-16 14:58:46 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.9 2001-06-08 16:00:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,6 +137,8 @@ mProtected:
                         //!< manager who manages 'this'
     inline const i_LayoutMngr* prntLayoutMngr() const
 		    { return const_cast<uiObject*>(this)->prntLayoutMngr(); }
+
+    int			minimumTextWidgetHeight() const;
 
     virtual int		horAlign() const;
     virtual int		horCentre() const;

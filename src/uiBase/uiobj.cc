@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.6 2001-05-31 12:22:29 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.7 2001-06-08 15:59:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,6 +175,13 @@ uiSize uiObject::actualSize( bool include_border ) const
 {
     mChkmLayout();
     return mLayoutItm->actualSize( include_border );
+}
+
+
+int uiObject::minimumTextWidgetHeight() const
+{
+    const i_LayoutMngr* mgr = mLayoutMngr();
+    return mgr ? mgr->minTxtWidgHgt() : 30;
 }
 
 
