@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.3 2005-01-13 11:59:45 nanne Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.4 2005-01-17 13:25:52 kristofer Exp $";
 
 #include "parametricsurface.h"
 
@@ -66,7 +66,9 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
     if ( !np.isDefined() ) 
 	return unSetKnot( rc );
 
-    if ( !hasSupport( rc ) )
+    bool wasundef = !getKnot(rc).isDefined();
+
+    if ( wasundef && !hasSupport(rc) )
     {
 	pErrMsg("New rc does not have any support");
 	return false;
@@ -77,6 +79,8 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
     {
 	if ( !insertRow(rc.r()) )
 	    return false;
+
+	wasundef = true;
     }
 
     const int colindex = colIndex( rc.c() );
@@ -84,15 +88,25 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
     {
 	if ( !insertColumn(rc.c()) )
 	    return false;
+	
+	wasundef = true;
     }
 
     _setKnot(getIndex(rc), np);
+    const GeomPosID gpos = rc.getSerialized();
+
+    if ( wasundef ) triggerNrPosCh(gpos);
+    else triggerMovement(gpos);
+
     return true;
 }
 
 
 bool ParametricSurface::unSetKnot( const RCol& rc )
 {
+    if ( !getKnot(rc).isDefined() )
+	return true;
+
     const int index = getIndex(rc);
     if ( index==-1 )
     {
@@ -158,6 +172,7 @@ bool ParametricSurface::unSetKnot( const RCol& rc )
 	}
     }
 
+    triggerNrPosCh(rc.getSerialized());
     return true;
 }
 
