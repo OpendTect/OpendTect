@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.6 2001-08-27 12:56:03 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.7 2001-09-03 22:34:49 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.6 2001-08-27 12:56:03 bert Exp $";
 #include "iopar.h"
 #include "iostrm.h"
 #include "iox.h"
+#include "ioideal.h"
 #include "transl.h"
 #include "ascstream.h"
 #include "separstr.h"
@@ -170,6 +171,8 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 	objptr = new IOStream( nm, ky, gendef );
     else if ( !strcmp(typ,"X-Group") )
 	objptr = new IOX( nm, ky, gendef );
+    else if ( !strcmp(typ,"Ideal") )
+	objptr = new IOIdeal( nm, ky );
 
     return objptr;
 }
