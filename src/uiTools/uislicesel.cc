@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.5 2002-08-15 14:09:39 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.6 2002-08-19 07:04:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_, 
-			const CallBack& appcb )
+			const CallBack& appcb, bool isvol )
         : uiDialog(p,uiDialog::Setup("Slice creation",
 				     "Specify what you want to see",
 				     0))
@@ -36,6 +36,8 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
     int slctyp = cs_.hrg.start.inl == cs_.hrg.stop.inl ? 0 :
 	         cs_.hrg.start.crl == cs_.hrg.stop.crl ? 1 : 
 	         cs_.zrg.start == cs_.zrg.stop         ? 2 : 3 ;
+
+    if ( isvol ) slctyp = 3;
     
     Interval<int> inlrg( cs_.hrg.start.inl, cs_.hrg.stop.inl );
     if ( !slctyp )
@@ -159,6 +161,8 @@ void uiSliceSel::readInput()
 	SI().checkInlRange( intv );
 	if ( intv.start > intv.stop )
 	    Swap( intv.start, intv.stop );
+	if ( intv.start == intv.stop )
+	    intv.stop += SI().step().inl;
         cs.hrg.start.inl = intv.start;
         cs.hrg.stop.inl = intv.stop;
     }
@@ -171,6 +175,8 @@ void uiSliceSel::readInput()
 	SI().checkCrlRange( intv );
 	if ( intv.start > intv.stop )
 	    Swap( intv.start, intv.stop );
+	if ( intv.start == intv.stop )
+	    intv.stop += SI().step().crl;
         cs.hrg.start.crl = intv.start;
         cs.hrg.stop.crl = intv.stop;
     }
@@ -184,6 +190,8 @@ void uiSliceSel::readInput()
 	SI().checkZRange( intv );
 	if ( intv.start > intv.stop )
             Swap( intv.start, intv.stop );
+	if ( intv.start == intv.stop )
+	    intv.stop += SI().zRange().step;
         cs.zrg.start = intv.start;
         cs.zrg.stop = intv.stop;
     }
