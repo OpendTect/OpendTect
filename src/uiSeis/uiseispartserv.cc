@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.27 2004-11-18 12:03:21 nanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.28 2005-01-18 14:39:45 helene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "seistrcsel.h"
 #include "ioobj.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "uiexecutor.h"
 #include "uimsg.h"
@@ -27,6 +28,12 @@ ________________________________________________________________________
 #include "seis2dline.h"
 #include "ptrman.h"
 #include "uilistboxdlg.h"
+#include "uimenu.h"
+#include "seispsioprov.h"
+#include "seisbuf.h"
+#include "seispsread.h"
+#include "seissectview.h"
+
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
@@ -151,4 +158,103 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
     PtrMan<Executor> exec = lineset.lineFetcher( lidx, buf );
     uiExecutor dlg( appserv().parent(), *exec );
     return dlg.go();
+}
+
+
+BufferStringSet uiSeisPartServer::getStoredGathersList()
+{
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
+    const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
+    BufferStringSet ioobjnms;
+
+    const char* psstring = "Pre-Stack Seismics";
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs[idx];
+	if ( strcmp(ioobj.group(),psstring) ) continue;
+	ioobjnms.add( (const char*)ioobj.name() );
+	if ( ioobjnms.size() > 1 )
+	{
+	    for ( int icmp=ioobjnms.size()-2; icmp>=0; icmp-- )
+	    {
+		if ( ioobjnms.get(icmp) > ioobjnms.get(icmp+1) )
+		{
+		    BufferString* tmp = ioobjnms[icmp];
+		    ioobjnms.replace( ioobjnms[icmp+1], icmp );
+		    ioobjnms.replace( tmp, icmp+1  );
+		}
+	    }
+	}
+    }
+    
+    return ioobjnms;
+}
+
+#define mInsertItems(list,mnu,correcttype) \
+mnu->setEnabled( list.size() ); \
+    for ( int idx=start; idx<stop; idx++ ) \
+{ \
+    const BufferString& nm = list.get(idx); \
+    uiMenuItem* itm = new uiMenuItem( nm ); \
+    mnu->insertItem( itm, mnuid, idx ); \
+    mnuid++; \
+}
+
+
+uiPopupMenu* uiSeisPartServer::createStoredGathersSubMenu( int& mnuid )
+{
+    uiPopupMenu* displaygathermnu = new uiPopupMenu( appserv().parent(),
+		                                  "Display Gathers");
+    BufferStringSet ioobjnms = getStoredGathersList();
+    const int start = 0; const int stop = ioobjnms.size();
+    mInsertItems(ioobjnms,displaygathermnu,true);
+    return displaygathermnu;
+}
+	    
+
+bool uiSeisPartServer::handleGatherSubMenu( int mnuid, BinID bid )
+{
+    BufferStringSet ioobjnms = getStoredGathersList();
+    PtrMan<IOObj> ioobj = IOM().getLocal( ioobjnms.get(mnuid) );
+    if ( !ioobj )
+    { 
+	uiMSG().error("No valid gather selected"); 
+	return false;
+    }
+
+    SeisPSReader* rdr = SPSIOPF().getReader( *ioobj, bid.inl );
+    if ( !rdr )
+    {
+	uiMSG().error("This data type can't be handeled,\n"
+		      "please use CBVS data");
+        return false;
+    }
+    
+    SeisTrcBuf tbuf;
+    if ( !rdr->getGather(bid,tbuf) )
+    {
+        uiMSG().error( rdr->errMsg() );
+        return false;
+    }
+    
+    SeisSectionViewer svw;
+    svw.title = "Seismic Gather for inline'";
+    svw.title += bid.inl;
+    svw.title += "' and crossline '";
+    svw.title += bid.crl;
+    svw.title += "'";
+    svw.minimal = true;
+    
+    PtrMan<Executor> exec = svw.preparer();
+    if ( !exec->execute() )
+    {
+        uiMSG().error( exec->message() );
+        return false;
+    }
+
+    for ( int idx=0; idx<tbuf.size(); idx++ )
+        svw.add( tbuf.get(idx) );
+
+    svw.close();
+    return true;
 }

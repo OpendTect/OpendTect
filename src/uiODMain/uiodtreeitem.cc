@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.64 2005-01-11 07:43:11 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.65 2005-01-18 14:44:02 helene Exp $
 ___________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ___________________________________________________________________
 #include "uipickpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiattribpartserv.h"
+#include "uiseispartserv.h"
 #include "uitrackingpartserv.h"
 #include "uislicesel.h"
 #include "uipickszdlg.h"
@@ -375,6 +376,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     }
 
     removemnuid = menu->addItem( new uiMenuItem("Remove"), -1000 );
+    
 }
 
 
@@ -1467,6 +1469,19 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiVisMenu*,menu,cb);
 
     positionmnuid = menu->addItem( new uiMenuItem("Position ...") );
+
+    uiSeisPartServer* seisserv = applMgr()->seisServer();
+    int type = menu->getMenuType();
+    if ( type == 1 )
+    {
+	gathersstartid = menu->getFreeID();
+	gathersstopid = gathersstartid;
+	uiPopupMenu* displaygathermnu = seisserv->
+				    createStoredGathersSubMenu( gathersstopid );
+	for ( int idx=gathersstartid; idx<=gathersstopid; idx++ )
+	    menu->getFreeID();
+	menu->addSubMenu(displaygathermnu,-500);
+    }
 }
 
 
@@ -1493,6 +1508,13 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 		mCB(this,uiODPlaneDataTreeItem,posDlgClosed) );
 	positiondlg->go();
 	applMgr()->enableSceneMenu( false );
+    }
+    else if ( mnuid>=gathersstartid && mnuid<=gathersstopid )
+    {
+	menu->setIsHandled(true);
+	const Coord3 inlcrlpos = visserv->getMousePos(false);
+	const BinID bid( (int)inlcrlpos.x, (int)inlcrlpos.y );
+	applMgr()->seisServer()->handleGatherSubMenu( mnuid-gathersstartid,bid);
     }
 }
 

@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.12 2004-10-21 15:42:24 nanne Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.13 2005-01-18 14:40:30 helene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 #include "multiid.h"
+#include "position.h"
 
 class BufferString;
 class BufferStringSet;
@@ -21,6 +22,7 @@ class CubeSampling;
 class Line2DGeometry;
 class MultiID;
 class SeisTrcBuf;
+class uiPopupMenu;
 
 
 /*! \brief Seismic User Interface Part Server */
@@ -44,6 +46,9 @@ public:
 	    				   BufferStringSet&) const;
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
+    uiPopupMenu*        createStoredGathersSubMenu( int& mnuid );
+    BufferStringSet 	getStoredGathersList ();
+    bool		handleGatherSubMenu (int mnuid, BinID bid);
 
     bool		mergeSeis();
     void		manageSeismics();
