@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.43 2004-01-20 16:16:42 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.44 2004-01-20 16:38:38 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -702,7 +702,6 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
     surface->setMeshPos( geomrowcol, pos );
     surface->setFillType( geomrowcol, Geometry::MeshSurface::Filled );
 
-    removeAuxData();
     if ( !pos.isDefined() )
 	surface->shrink();
 
