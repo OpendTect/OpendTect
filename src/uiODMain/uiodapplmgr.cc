@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.54 2004-09-23 11:30:26 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.55 2004-09-27 10:28:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,7 @@ void uiODApplMgr::resetServers()
 {
     if ( nlaserv ) nlaserv->reset();
     delete attrserv; attrserv = new uiAttribPartServer( applservice );
-    trackserv->setAttribDescSet( attrserv->curDescSet() );
+    delete trackserv; trackserv = new uiTrackingPartServer( applservice );
     visserv->deleteAllObjects();
 }
 
