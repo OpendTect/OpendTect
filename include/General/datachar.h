@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.5 2001-05-02 13:50:06 windev Exp $
+ RCS:		$Id: datachar.h,v 1.6 2001-05-31 21:23:05 bert Exp $
 ________________________________________________________________________
 
 */
@@ -49,6 +49,9 @@ public:
 					     bool l=__islittle__ )
 			: BinDataDesc(ii,is,n)
 			, fmt(f), littleendian(l)		{}
+			DataCharacteristics( const BinDataDesc& bd )
+			: BinDataDesc(bd)
+			, fmt(Ieee), littleendian(__islittle__)	{}
 
     inline bool		isIeee() const		{ return fmt == Ieee; }
 
@@ -74,6 +77,8 @@ public:
 			{ return isEqual(dc); }
     bool		operator !=( const DataCharacteristics& dc ) const
 			{ return !isEqual(dc); }
+    DataCharacteristics& operator =( const BinDataDesc& bd )
+			{ BinDataDesc::operator=(bd); return *this; }
 
     bool		needSwap() const
 			{ return (int)nrbytes > 1
