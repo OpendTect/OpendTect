@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.6 2001-03-19 10:19:47 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.7 2001-03-19 10:33:40 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -225,15 +225,14 @@ const char* File_getTempFileName( const char* id, const char* ext, int full )
 
 #ifdef __win__
 
-    /* Hope for the best ... */
-    sprintf( pathbuf, "dgb%s%d", id, (int)(Stat_getRandom() * 1000000) );
+    sprintf( pathbuf, "dgb%d%d%s", id, (int)(Stat_getRandom() * 10000), getPID() );
 
 #else
 
     if ( id && *id )
-	sprintf( pathbuf, "%sdgb%s%d", full ? "/tmp/" : "", id, getpid() );
+	sprintf( pathbuf, "%sdgb%s%d", full ? "/tmp/" : "", id, getPID() );
     else
-	sprintf( pathbuf, "%sdgb%d", full ? "/tmp/" : "", getpid() );
+	sprintf( pathbuf, "%sdgb%d", full ? "/tmp/" : "", getPID() );
 
 #endif
 

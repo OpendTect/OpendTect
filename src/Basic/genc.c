@@ -4,12 +4,15 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.4 2001-03-19 10:19:47 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.5 2001-03-19 10:33:40 bert Exp $";
 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#ifndef __win__
+#include <unistd.h>
+#endif
 
 #include "genc.h"
 #include "filegen.h"
@@ -135,6 +138,17 @@ void put_platform( unsigned char* ptr )
 	1;
 #endif
 
+}
+
+
+int getPID()
+{
+    return
+#ifdef __win__
+	getpid_();
+#else
+	getpid();
+#endif
 }
 
 
