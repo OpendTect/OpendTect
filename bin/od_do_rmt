@@ -2,11 +2,10 @@
 #_______________________________________________________________________________
 #
 # (C) 2002 de Groot-Bril Earth Sciences B.V.
-# $Id: od_do_rmt,v 1.3 2002-05-16 09:13:51 bert Exp $
+# $Id: od_do_rmt,v 1.4 2003-02-19 12:00:59 arend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
-
 
 set comm=""
 
@@ -27,12 +26,11 @@ else if ( $1 == "+-+-+" ) then
 
 else
 
-set comm="$comm $1"
-shift
-goto next_arg
+	set comm="$comm $1"
+	shift
+	goto next_arg
 
 endif
-
 
 do_rest:
 
