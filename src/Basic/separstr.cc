@@ -5,14 +5,14 @@
  * FUNCTION : Functions concerning comma separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.1.1.2 1999-09-16 09:32:36 arend Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.2 2000-05-01 10:39:31 bert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
 #include "separstr.h"
 #include "string2.h"
 
-static char buf[PATH_LENGTH];
+static char buf[mMaxSepItem+1];
 
 /*$-*/
 
@@ -25,7 +25,7 @@ SeparString::SeparString( const char* str, char separ )
 }
 
 
-const char* SeparString::operator[]( int elemnr ) const
+const char* SeparString::operator[]( unsigned int elemnr ) const
 {
     char* bufptr = buf;
     char* repptr = rep;
@@ -33,16 +33,20 @@ const char* SeparString::operator[]( int elemnr ) const
 
     while ( *repptr )
     {
-	if ( !elemnr ) *bufptr = *repptr;
+	if ( !elemnr )
+	    *bufptr = *repptr;
+
 	if ( *repptr == sep )
 	{
-	    if ( --elemnr == -1 )
+	    if ( --elemnr == -1 || bufptr-buf == mMaxSepItem )
 	    {
 		*bufptr = '\0';
 		return buf;
 	    }
 	}
-	else if ( !elemnr ) bufptr++;
+	else if ( !elemnr )
+	    bufptr++;
+
 	repptr++;
     }
 
@@ -51,10 +55,10 @@ const char* SeparString::operator[]( int elemnr ) const
 }
 
 
-const char* SeparString::from( int idx ) const
+const char* SeparString::from( unsigned int idx ) const
 {
     const char* ptr = rep;
-    for ( ; idx>0; idx-- )
+    for ( ; idx!=0; idx-- )
     {
 	ptr = strchr( ptr, sep );
 	if ( ptr ) ptr++;
@@ -82,11 +86,11 @@ SeparString& SeparString::operator += ( const char* str )
 }
 
 
-int SeparString::size() const
+unsigned int SeparString::size() const
 {
     if ( !*rep ) return 0;
 
-    int idx = *rep == sep ? 1 : 0;
+    unsigned int idx = *rep == sep ? 1 : 0;
     char* ptr = rep;
     while ( ptr )
     {
