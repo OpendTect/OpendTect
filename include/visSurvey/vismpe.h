@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.3 2005-01-21 12:42:24 kristofer Exp $
+ RCS:		$Id: vismpe.h,v 1.4 2005-03-09 16:44:17 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -39,55 +39,69 @@ namespace visSurvey
 
 */
 
-class MPEDisplay :  public visBase::VisualObjectImpl,
-				   public visSurvey::SurveyObject
+class MPEDisplay : public visBase::VisualObjectImpl,
+		   public visSurvey::SurveyObject
 {
 public:
 
     static MPEDisplay*		create()
 				mCreateDataObj(MPEDisplay);
-    bool			isInlCrl() const { return true; }
+    bool			isInlCrl() const	{ return true; }
+
+    enum TrackMode		{ Extend, ReTrack, Erode };
+    TrackMode			getTrackMode() const	{ return trackmode_; }
+    void			setTrackMode(const TrackMode& tm)
+				{ trackmode_ = tm; }
 
     void			showManipulator(bool);
-    void			setDraggerTransparency( float );
+    void			setDraggerTransparency(float);
+    float			getDraggerTransparency() const;
     void			showDragger(bool);
     bool			isDraggerShown() const;
+    void			moveMPEPlane(int nrsteps);
     
     CubeSampling		getCubeSampling() const;
+    void			setCubeSampling(CubeSampling);
+
+    void			setSelSpec(const AttribSelSpec&);
+    const AttribSelSpec*	getSelSpec() const;
+    void			updateTexture();
 
 protected:
 				~MPEDisplay();
     CubeSampling		getBoxPosition() const;
 
-    bool			getPlanePosition( CubeSampling& ) const;
-    void			setPlanePosition( const CubeSampling& );
+    bool			getPlanePosition(CubeSampling&) const;
+    void			setPlanePosition(const CubeSampling&);
 
-    void			setSceneEventCatcher( visBase::EventCatcher* );
+    void			setSceneEventCatcher(visBase::EventCatcher*);
 
 				//Callbacks from boxdragger
-    void			boxDraggerFinishCB( CallBacker* );
+    void			boxDraggerFinishCB(CallBacker*);
 
     				//Callbacks from rectangle
-    void			rectangleMovedCB( CallBacker* );
-    void			rectangleStartCB( CallBacker* );
-    void			rectangleStopCB( CallBacker* );
+    void			rectangleMovedCB(CallBacker*);
+    void			rectangleStartCB(CallBacker*);
+    void			rectangleStopCB(CallBacker*);
 
     				//Callbacks from user
-    void			mouseClickCB( CallBacker* );
+    void			mouseClickCB(CallBacker*);
 
     				//Callbacks from MPE
-    void			updateDraggerPosition( CallBacker* );
-    void			updateBoxPosition( CallBacker* );
+    void			updateDraggerPosition(CallBacker*);
+    void			updateBoxPosition(CallBacker*);
 
     MPE::Engine&		engine;
 
-    visBase::BoxDragger*	boxdragger;
+    visBase::DataObjectGroup*	draggerrect_;
+    visBase::FaceSet*		rectangle_;
+    visBase::DepthTabPlaneDragger* dragger_;
+    visBase::BoxDragger*	boxdragger_;
 
-    visBase::DataObjectGroup*		draggerrect;
-    visBase::FaceSet*			rectangle;
-    visBase::DepthTabPlaneDragger*	dragger;
+    visBase::EventCatcher*	sceneeventcatcher_;
 
-    visBase::EventCatcher*		sceneeventcatcher;
+    TrackMode			trackmode_;
+    AttribSelSpec&		as_;
 };
 
 };

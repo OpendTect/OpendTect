@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.4 2005-01-21 12:42:28 kristofer Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.5 2005-03-09 16:44:10 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.4 2005-01-21 12:42:28 kristofer E
 #include "vismaterial.h"
 #include "vispolyline.h"
 #include "vistexturecoords.h"
+#include "attribsel.h"
 
 
 mCreateFactoryEntry( visSurvey::MPEDisplay );
@@ -28,19 +29,19 @@ mCreateFactoryEntry( visSurvey::MPEDisplay );
 namespace visSurvey {
 
 MPEDisplay::MPEDisplay()
-    : VisualObjectImpl( true )
-    , boxdragger( visBase::BoxDragger::create() )
-    , rectangle( visBase::FaceSet::create() )
-    , draggerrect( visBase::DataObjectGroup::create() )
-    , dragger( visBase::DepthTabPlaneDragger::create() )
-    , engine( MPE::engine() )
-    , sceneeventcatcher( 0 )
+    : VisualObjectImpl(true )
+    , boxdragger_(visBase::BoxDragger::create())
+    , rectangle_(visBase::FaceSet::create())
+    , draggerrect_(visBase::DataObjectGroup::create())
+    , dragger_(visBase::DepthTabPlaneDragger::create())
+    , engine(MPE::engine())
+    , sceneeventcatcher_(0)
+    , as_(*new AttribSelSpec())
 {
-    addChild( boxdragger->getInventorNode() );
-    boxdragger->ref();
-    boxdragger->finished.notify(
-	mCB(this,MPEDisplay,boxDraggerFinishCB) );
-    boxdragger->turnOn(false);
+    addChild( boxdragger_->getInventorNode() );
+    boxdragger_->ref();
+    boxdragger_->finished.notify( mCB(this,MPEDisplay,boxDraggerFinishCB) );
+    boxdragger_->turnOn(false);
 
     const HorSampling& hs = SI().sampling(true).hrg;
     const Interval<float> survinlrg( hs.start.inl, hs.stop.inl );
@@ -48,54 +49,52 @@ MPEDisplay::MPEDisplay()
     const Interval<float> survzrg( SI().zRange(true).start,
 	    			   SI().zRange(true).stop );
 
-    boxdragger->setSpaceLimits( survinlrg, survcrlrg, survzrg );
+    boxdragger_->setSpaceLimits( survinlrg, survcrlrg, survzrg );
 
-    draggerrect->setSeparate(true);
-    draggerrect->ref();
+    draggerrect_->setSeparate(true);
+    draggerrect_->ref();
 
-    rectangle->setVertexOrdering(1);
-//  rectangle->setFaceType(1);
-    rectangle->setMaterial(visBase::Material::create());
-    rectangle->getCoordinates()->addPos( Coord3( -1, -1, 0 ) );
-    rectangle->getCoordinates()->addPos( Coord3( 1, -1, 0 ) );
-    rectangle->getCoordinates()->addPos( Coord3( 1, 1, 0 ) );
-    rectangle->getCoordinates()->addPos( Coord3( -1, 1, 0 ) );
-    rectangle->setCoordIndex( 0, 0 );
-    rectangle->setCoordIndex( 1, 1 );
-    rectangle->setCoordIndex( 2, 2 );
-    rectangle->setCoordIndex( 3, 3 );
-    rectangle->setCoordIndex( 4, -1 );
-    rectangle->setTextureCoords(visBase::TextureCoords::create());
-    rectangle->getTextureCoords()->addCoord( Coord3(0,0,0) );
-    rectangle->getTextureCoords()->addCoord( Coord3(1,0,0) );
-    rectangle->getTextureCoords()->addCoord( Coord3(1,1,0) );
-    rectangle->getTextureCoords()->addCoord( Coord3(0,1,0) );
-    rectangle->setTextureCoordIndex( 0, 0 );
-    rectangle->setTextureCoordIndex( 1, 1 );
-    rectangle->setTextureCoordIndex( 2, 2 );
-    rectangle->setTextureCoordIndex( 3, 3 );
-    rectangle->setTextureCoordIndex( 4, -1 );
-    draggerrect->addObject( rectangle );
+    rectangle_->setVertexOrdering(1);
+//  rectangle_->setFaceType(1);
+    rectangle_->setMaterial(visBase::Material::create());
+    rectangle_->getCoordinates()->addPos( Coord3(-1,-1,0) );
+    rectangle_->getCoordinates()->addPos( Coord3(1,-1,0) );
+    rectangle_->getCoordinates()->addPos( Coord3(1,1,0) );
+    rectangle_->getCoordinates()->addPos( Coord3(-1,1,0) );
+    rectangle_->setCoordIndex( 0, 0 );
+    rectangle_->setCoordIndex( 1, 1 );
+    rectangle_->setCoordIndex( 2, 2 );
+    rectangle_->setCoordIndex( 3, 3 );
+    rectangle_->setCoordIndex( 4, -1 );
+    rectangle_->setTextureCoords(visBase::TextureCoords::create());
+    rectangle_->getTextureCoords()->addCoord( Coord3(0,0,0) );
+    rectangle_->getTextureCoords()->addCoord( Coord3(1,0,0) );
+    rectangle_->getTextureCoords()->addCoord( Coord3(1,1,0) );
+    rectangle_->getTextureCoords()->addCoord( Coord3(0,1,0) );
+    rectangle_->setTextureCoordIndex( 0, 0 );
+    rectangle_->setTextureCoordIndex( 1, 1 );
+    rectangle_->setTextureCoordIndex( 2, 2 );
+    rectangle_->setTextureCoordIndex( 3, 3 );
+    rectangle_->setTextureCoordIndex( 4, -1 );
+    draggerrect_->addObject( rectangle_ );
 
     visBase::IndexedPolyLine* polyline = visBase::IndexedPolyLine::create();
-    polyline->setCoordinates( rectangle->getCoordinates() );
+    polyline->setCoordinates( rectangle_->getCoordinates() );
     polyline->setCoordIndex( 0, 0 );
     polyline->setCoordIndex( 1, 1 );
     polyline->setCoordIndex( 2, 2 );
     polyline->setCoordIndex( 3, 3 );
     polyline->setCoordIndex( 4, 0 );
     polyline->setCoordIndex( 5, -1 );
-    draggerrect->addObject( polyline );
+    draggerrect_->addObject( polyline );
 
-    dragger->ref();
-    addChild( dragger->getInventorNode() );
-    dragger->setOwnShape( draggerrect->getInventorNode() );
-
-    dragger->setDim(0);
-    dragger->changed.notify( mCB(this,MPEDisplay,rectangleMovedCB) );
-    dragger->started.notify( mCB(this,MPEDisplay,rectangleStartCB) );
-    dragger->finished.notify( mCB(this,MPEDisplay,rectangleStopCB) );
-
+    dragger_->ref();
+    addChild( dragger_->getInventorNode() );
+    dragger_->setOwnShape( draggerrect_->getInventorNode() );
+    dragger_->setDim(0);
+    dragger_->changed.notify( mCB(this,MPEDisplay,rectangleMovedCB) );
+    dragger_->started.notify( mCB(this,MPEDisplay,rectangleStartCB) );
+    dragger_->finished.notify( mCB(this,MPEDisplay,rectangleStopCB) );
 
     engine.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
     engine.trackplanechange.notify( mCB(this,MPEDisplay,updateDraggerPosition));
@@ -111,10 +110,25 @@ MPEDisplay::~MPEDisplay()
 
     setSceneEventCatcher( 0 );
 
-    if ( dragger ) dragger->unRef();
-    draggerrect->unRef();
-    boxdragger->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
-    boxdragger->unRef();
+    if ( dragger_ ) dragger_->unRef();
+    draggerrect_->unRef();
+    boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
+    boxdragger_->unRef();
+}
+
+
+void MPEDisplay::setCubeSampling( CubeSampling cs )
+{
+    cs.snapToSurvey( true );
+    const Coord3 newwidth( cs.hrg.stop.inl-cs.hrg.start.inl,
+			   cs.hrg.stop.crl-cs.hrg.start.crl,
+			   cs.zrg.stop-cs.zrg.start );
+    boxdragger_->setWidth( newwidth );
+    
+    const Coord3 newcenter( (cs.hrg.stop.inl+cs.hrg.start.inl)/2,
+    			    (cs.hrg.stop.crl+cs.hrg.start.crl)/2,
+    			    cs.zrg.center() );
+    boxdragger_->setCenter( newcenter );
 }
 
 
@@ -124,8 +138,8 @@ CubeSampling MPEDisplay::getCubeSampling() const
 
 CubeSampling MPEDisplay::getBoxPosition() const
 {
-    Coord3 center = boxdragger->center();
-    Coord3 width = boxdragger->width();
+    Coord3 center = boxdragger_->center();
+    Coord3 width = boxdragger_->width();
 
     CubeSampling cube;
     cube.hrg.start = BinID( mNINT( center.x - width.x / 2 ),
@@ -143,10 +157,9 @@ CubeSampling MPEDisplay::getBoxPosition() const
 
 bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 {
-    const Coord3 center = dragger->center();
-    const Coord3 size = dragger->size();
-    
-    const int dim = dragger->getDim();
+    const Coord3 center = dragger_->center();
+    const Coord3 size = dragger_->size();
+    const int dim = dragger_->getDim();
     if ( !dim )
     {
 	planebox.hrg.start.inl = SI().inlRange().snap(center.x);
@@ -185,35 +198,82 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 }
 
 
+void MPEDisplay::setSelSpec( const AttribSelSpec& as )
+{ as_ = as; }
+
+
+const AttribSelSpec* MPEDisplay::getSelSpec() const
+{ return &as_; }
+
+
+void MPEDisplay::updateTexture()
+{
+}
+
+
+void MPEDisplay::moveMPEPlane( int nr )
+{
+    if ( !dragger_ || !nr ) return;
+
+    const int dim = dragger_->getDim();
+    Coord3 center = dragger_->center();
+    center.x = SI().inlRange().snap( center.x );
+    center.y = SI().crlRange().snap( center.y );
+    center.z = SI().zRange().snap( center.z );
+
+    Interval<float> sx, sy, sz;
+    dragger_->getSpaceLimits( sx, sy, sz );
+
+    const int nrsteps = abs(nr);
+    const float sign = nr > 0 ? 1.001 : -1.001;
+    // sign is slightly to big to avoid that it does not trigger a track
+    for ( int idx=0; idx<nrsteps; idx++ )
+    {
+	if ( !dim )
+	    center.x += sign * SI().inlStep();
+	else if ( dim==1 )
+	    center.y += sign * SI().crlStep();
+	else
+	    center.z += sign * SI().zRange().step;
+
+	if ( !sx.includes(center.x) || !sy.includes(center.y) || 
+	     !sz.includes(center.z) )
+	    return;
+
+	dragger_->setCenter( center, false );
+    }
+}
+
+
 /*
 int MPEDisplay::getDim() const
 {
-    return dragger ? dragger->getDim() : 0;
+    return dragger ? dragger_->getDim() : 0;
 }
 
 
 void MPEDisplay::setDim( int dim )
 {
     if ( dragger )
-	dragger->setDim( dim );
+	dragger_->setDim( dim );
 }
 */
 
 void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
-    if ( sceneeventcatcher )
+    if ( sceneeventcatcher_ )
     {
-	sceneeventcatcher->eventhappened.remove(
+	sceneeventcatcher_->eventhappened.remove(
 					mCB(this,MPEDisplay,mouseClickCB) );
-	sceneeventcatcher->unRef();
+	sceneeventcatcher_->unRef();
     }
 
-    sceneeventcatcher = nevc;
+    sceneeventcatcher_ = nevc;
 
-    if ( sceneeventcatcher )
+    if ( sceneeventcatcher_ )
     {
-	sceneeventcatcher->ref();
-	sceneeventcatcher->eventhappened.notify(
+	sceneeventcatcher_->ref();
+	sceneeventcatcher_->eventhappened.notify(
 	    mCB(this,MPEDisplay,mouseClickCB) );
     }
 }
@@ -229,27 +289,31 @@ void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 
 void MPEDisplay::showManipulator( bool yn )
 {
-    boxdragger->turnOn(yn);
+    boxdragger_->turnOn( yn );
 }
 
 
-void MPEDisplay::setDraggerTransparency( float nt )
+void MPEDisplay::setDraggerTransparency( float transparency )
 {
-    rectangle->getMaterial()->setTransparency(nt);
+    rectangle_->getMaterial()->setTransparency( transparency );
+}
+
+
+float MPEDisplay::getDraggerTransparency() const
+{
+    return rectangle_->getMaterial()->getTransparency();
 }
 
 
 void MPEDisplay::showDragger( bool yn )
-{
-    dragger->turnOn(yn);
-}
+{ dragger_->turnOn( yn ); }
 
 
 bool MPEDisplay::isDraggerShown() const
-{ return dragger->isOn(); }
+{ return dragger_->isOn(); }
 
 
-void MPEDisplay::rectangleMovedCB( CallBacker* cb )
+void MPEDisplay::rectangleMovedCB( CallBacker* )
 {
     if ( isSelected() ) return;
 
@@ -262,7 +326,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* cb )
 
     const CubeSampling& engineplane = engine.trackPlane().boundingBox();
 
-    const int dim = dragger->getDim();
+    const int dim = dragger_->getDim();
     if ( !dim && planebox.hrg.start.inl==engineplane.hrg.start.inl )
 	return;
     if ( dim==1 && planebox.hrg.start.crl==engineplane.hrg.start.crl )
@@ -303,7 +367,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* cb )
 
 
 void MPEDisplay::rectangleStartCB( CallBacker* )
-{ }
+{}
 
 
 void MPEDisplay::rectangleStopCB( CallBacker* )
@@ -317,10 +381,10 @@ void MPEDisplay::rectangleStopCB( CallBacker* )
 
 void MPEDisplay::mouseClickCB( CallBacker* cb )
 {
-    if ( sceneeventcatcher->isEventHandled() || !isOn() ) return;
+    if ( sceneeventcatcher_->isEventHandled() || !isOn() ) return;
 
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
-    if ( eventinfo.type!=visBase::MouseClick )
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+    if ( eventinfo.type != visBase::MouseClick )
 	return;
 
     if ( eventinfo.pickedobjids.indexOf(id())==-1 )
@@ -331,59 +395,59 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
     {
 	if ( eventinfo.pressed )
 	{
-	    int dim = dragger->getDim();
+	    int dim = dragger_->getDim();
 	    if ( ++dim>=3 )
 		dim = 0;
 
-	    dragger->setDim( dim );
+	    dragger_->setDim( dim );
 	    MPE::TrackPlane ntp;
 	    getPlanePosition(ntp.boundingBox());
-	    MPE::engine().setTrackPlane(ntp,false);
+	    MPE::engine().setTrackPlane( ntp, false );
 	}
 
-	sceneeventcatcher->eventIsHandled();
+	sceneeventcatcher_->eventIsHandled();
     }
 }
 
 
 void MPEDisplay::updateBoxPosition( CallBacker* )
 {
-    NotifyStopper stop( dragger->changed );
+    NotifyStopper stop( dragger_->changed );
     const CubeSampling cube = MPE::engine().activeVolume();
     const Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
 			   cube.hrg.stop.crl-cube.hrg.start.crl,
 			   cube.zrg.stop-cube.zrg.start );
-    boxdragger->setWidth( newwidth );
-    dragger->setSize( newwidth );
+    boxdragger_->setWidth( newwidth );
+    dragger_->setSize( newwidth );
 
     const Coord3 newcenter( (cube.hrg.stop.inl+cube.hrg.start.inl)/2,
 			    (cube.hrg.stop.crl+cube.hrg.start.crl)/2,
 			    cube.zrg.center());
 
-    boxdragger->setCenter( newcenter );
+    boxdragger_->setCenter( newcenter );
 
-    dragger->setSpaceLimits(
+    dragger_->setSpaceLimits(
 	    Interval<float>(cube.hrg.start.inl,cube.hrg.stop.inl),
 	    Interval<float>(cube.hrg.start.crl,cube.hrg.stop.crl),
-	    Interval<float>(cube.zrg.start, cube.zrg.stop) );
+	    Interval<float>(cube.zrg.start,cube.zrg.stop) );
 }
 
 
 void MPEDisplay::updateDraggerPosition( CallBacker* )
 {
-    NotifyStopper stop( dragger->changed );
+    NotifyStopper stop( dragger_->changed );
     const CubeSampling& cs = MPE::engine().trackPlane().boundingBox();
-    if ( cs.hrg.start.inl==cs.hrg.stop.inl && dragger->getDim()!=0 )
-	dragger->setDim(0);
-    else if ( cs.hrg.start.crl==cs.hrg.stop.crl && dragger->getDim()!=1 )
-	dragger->setDim(1);
-    else if ( !cs.zrg.width() && dragger->getDim()!=2 ) dragger->setDim(2);
+    if ( cs.hrg.start.inl==cs.hrg.stop.inl && dragger_->getDim()!=0 )
+	dragger_->setDim(0);
+    else if ( cs.hrg.start.crl==cs.hrg.stop.crl && dragger_->getDim()!=1 )
+	dragger_->setDim(1);
+    else if ( !cs.zrg.width() && dragger_->getDim()!=2 ) dragger_->setDim(2);
 
     const Coord3 newcenter((cs.hrg.stop.inl+cs.hrg.start.inl)/2,
 			   (cs.hrg.stop.crl+cs.hrg.start.crl)/2,
 			   cs.zrg.center() );
-    if ( newcenter!=dragger->center() )
-	dragger->setCenter( newcenter );
+    if ( newcenter!=dragger_->center() )
+	dragger_->setCenter( newcenter );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.135 2005-03-07 10:59:31 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.136 2005-03-09 16:44:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,9 @@ class MultiID;
 class PickSet;
 class SeisTrcBuf;
 class SurfaceInfo;
+class uiMPEMan;
 class uiPopupMenu;
 class uiToolBar;
-class uiMPEMan;
 class uiVisMenu;
 
 namespace visBase   { class DataObject; };
@@ -201,7 +201,7 @@ public:
     void			showTrackingManager();
     static const int		evRemoveTrackTools;
     uiToolBar*			getTrackTB() const	
-    				{ return (uiToolBar*)tracktools; }
+    				{ return (uiToolBar*)mpetools; }
 
     bool			dumpOI(int id) const;
     
@@ -242,7 +242,7 @@ protected:
     ObjectSet<uiVisMenu>	menus;
     uiVisMenu*			vismenu;
 
-    uiMPEMan*			tracktools;
+    uiMPEMan*			mpetools;
 
     Coord3			xytmousepos;
     Coord3			inlcrlmousepos;

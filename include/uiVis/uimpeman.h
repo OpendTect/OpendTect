@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.2 2005-01-24 08:31:26 kristofer Exp $
+ RCS:           $Id: uimpeman.h,v 1.3 2005-03-09 16:44:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,13 +38,13 @@ public:
     void			deleteVisObjects();
     void			updateAttribNames();
 
-    void			turnSeedPickingOn( bool yn );
+    void			turnSeedPickingOn(bool);
 
     const char*			getDesTrackerType() const
     				{ return destrackertype; }
 
 protected:
-    visSurvey::MPEDisplay*	getDisplay(int sceneid, bool create=false );
+    visSurvey::MPEDisplay*	getDisplay(int sceneid,bool create=false);
 
     void			seedPropertyChangeCB(CallBacker*);
     void			createSeedMenuCB(CallBacker*);
@@ -61,10 +61,7 @@ protected:
 
     void			cubeDeselCB(CallBacker*);
     void			cubeSelectCB(CallBacker*);
-    void			showCubeButtonPushCB(CallBacker*);
-    void			handleInterpreterSelection();
-
-    void			displayCB(CallBacker*);
+    void			showCubeCB(CallBacker*);
 
     void			attribSel(CallBacker*);
     void			transpChg(CallBacker*);
@@ -75,15 +72,14 @@ protected:
     void			trackBackward(CallBacker*);
     void			trackForward(CallBacker*);
 
-    void			seedMode(CallBacker*);
-    void			extendModeButtonPushCB(CallBacker*);
-    void			retrackMode(CallBacker*);
-    void			eraseMode(CallBacker*);
-    void			mouseEraseMode(CallBacker*);
+    void			seedModeCB(CallBacker*);
+    void			extendModeCB(CallBacker*);
+    void			retrackModeCB(CallBacker*);
+    void			eraseModeCB(CallBacker*);
+    void			mouseEraseModeCB(CallBacker*);
     void			trackModeChg(CallBacker*);
     void			setTrackButton(bool,bool,bool);
-    void			showTracker( bool yn, int trackmode );
-
+    void			showTracker(bool yn,int trackmode);
 
     int				seedidx;
     int				extendidx, retrackidx, eraseidx;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.251 2005-03-07 10:59:31 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.252 2005-03-09 16:44:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,8 +64,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mouseposval(mUndefValue)
     , mouseposstr("")
 {
-    tracktools = new uiMPEMan( appserv().parent(), this );
-    tracktools->display( false );
+    mpetools = new uiMPEMan( appserv().parent(), this );
+    mpetools->display( false );
 
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -430,7 +430,7 @@ const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 
 bool uiVisPartServer::deleteAllObjects()
 {
-    tracktools->deleteVisObjects();
+    mpetools->deleteVisObjects();
 
     while ( scenes.size() )
 	removeScene( scenes[0]->id() );
@@ -662,15 +662,15 @@ bool uiVisPartServer::sendTrackNewObjectEvent()
 }
 
 
-void uiVisPartServer::turnSeedPickingOn(bool yn)
+void uiVisPartServer::turnSeedPickingOn( bool yn )
 {
-    tracktools->turnSeedPickingOn(yn);
+    mpetools->turnSeedPickingOn( yn );
 }
 
 
 const char* uiVisPartServer::getDesTrackerType() const
 {
-    return tracktools ? tracktools->getDesTrackerType() : 0;
+    return mpetools ? mpetools->getDesTrackerType() : 0;
 }
 
 
@@ -1121,10 +1121,10 @@ void uiVisPartServer::setTrackMan( int id, Tracking::TrackManager& tm )
 
 void uiVisPartServer::showTrackingManager()
 {
-    tracktools->updateAttribNames();
-    if ( !tracktools->isShown() )
+    mpetools->updateAttribNames();
+    if ( !mpetools->isShown() )
     {
-	tracktools->display();
-	tracktools->undock();
+	mpetools->display();
+	mpetools->undock();
     }
 }

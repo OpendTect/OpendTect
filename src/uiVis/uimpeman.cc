@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.6 2005-03-07 10:59:31 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.7 2005-03-09 16:44:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,49 +14,43 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "emmanager.h"
 #include "emhistory.h"
-#include "pixmap.h"
+#include "mpeengine.h"
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uicursor.h"
+#include "uimenu.h"
 #include "uislider.h"
 #include "uispinbox.h"
-#include "uibutton.h"
 #include "vismaterial.h"
 #include "visselman.h"
-#include "visdataman.h"
-#include "vissurvsurf.h"
-#include "visseedstickeditor.h"
-#include "vissurvsurfeditor.h"
-#include "vissurvscene.h"
 #include "vistexture3.h"
+#include "vissurvscene.h"
+#include "visseedstickeditor.h"
 #include "vismpe.h"
-#include "uicursor.h"
 #include "uivispartserv.h"
 #include "uivismenu.h"
-#include "mpeengine.h"
-#include "uimenu.h"
+#include "pixmap.h"
 
-
-#define SID visSurvey::SurfaceInterpreterDisplay
 
 #define mAddButton(pm,func,tip,toggle) \
     addButton( ioPixmap( GetDataFileName(pm) ), \
 	    	    mCB(this,uiMPEMan,func), tip, toggle )
 
-
-uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* partserv_ )
+uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     : uiToolBar(p,"Tracking controls")
     , seededitor(0)
-    , visserv( partserv_ )
+    , visserv(ps)
 {
-    seedidx = mAddButton( "seedpickmode.png", seedMode, "Create seed", true );
+    seedidx = mAddButton( "seedpickmode.png", seedModeCB, "Create seed", true );
     addSeparator();
-    extendidx = mAddButton( "trackplane.png", extendModeButtonPushCB,
+    extendidx = mAddButton( "trackplane.png", extendModeCB,
 	    		    "Extend mode", true );
-    retrackidx = mAddButton( "retrackplane.png", retrackMode, 
+    retrackidx = mAddButton( "retrackplane.png", retrackModeCB, 
 	    		     "ReTrack mode", true );
-    eraseidx = mAddButton( "erasingplane.png", eraseMode, "Erase mode", true );
+    eraseidx = mAddButton( "erasingplane.png", eraseModeCB, 
+	    		   "Erase mode", true );
     addSeparator();
-    mouseeraseridx = mAddButton( "eraser.png", mouseEraseMode, 
+    mouseeraseridx = mAddButton( "eraser.png", mouseEraseModeCB, 
 	    			 "Erase with mouse", true );
 
     addSeparator();
@@ -65,8 +59,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* partserv_ )
     updateButtonSensitivity();
 
     addSeparator();
-    showcubeidx = mAddButton("trackcube.png",showCubeButtonPushCB,
-	    		     "Show trackingarea",true);
+    showcubeidx = mAddButton( "trackcube.png", showCubeCB,
+	    		      "Show trackingarea", true );
 
     addSeparator();
     attribfld = new uiComboBox( this, "Attribute" );
@@ -81,10 +75,10 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* partserv_ )
     transfld->valueChanged.notify( mCB(this,uiMPEMan,transpChg) );
 
     addSeparator();
-    trackforwardidx = mAddButton("leftarrow.png",trackBackward,
-	    			 "Track backward",false);
-    trackbackwardidx = mAddButton("rightarrow.png",trackForward,
-	    			  "Track forward",false);
+    trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
+	    			  "Track backward", false );
+    trackbackwardidx = mAddButton( "rightarrow.png", trackForward,
+	    			   "Track forward", false );
 
     nrstepsbox = new uiSpinBox( this );
     nrstepsbox->setToolTip( "Nr of tracking steps" );
@@ -94,24 +88,22 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* partserv_ )
     setResizeEnabled();
     setVerticallyStretchable(false);
     //setSensitive( false );
+    updateAttribNames();
 
     EM::EMM().history().changenotifier.notify(
-	    		mCB(this,uiMPEMan,updateButtonSensitivity));
-
+	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     MPE::engine().seedpropertychange.notify(
-	    		mCB(this,uiMPEMan,seedPropertyChangeCB ));
+	    		mCB(this,uiMPEMan,seedPropertyChangeCB) );
 }
 
 
 uiMPEMan::~uiMPEMan()
 {
-    //if ( trackman )
-	//trackman->newdatacb.remove( mCB(this,uiMPEMan,reloadData) );
     EM::EMM().history().changenotifier.remove(
-	    		mCB(this,uiMPEMan,updateButtonSensitivity));
+	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
     MPE::engine().seedpropertychange.remove(
-	    		mCB(this,uiMPEMan,seedPropertyChangeCB ));
+	    		mCB(this,uiMPEMan,seedPropertyChangeCB) );
 }
 
 
@@ -119,7 +111,6 @@ void uiMPEMan::deleteVisObjects()
 {
     TypeSet<int> scenes;
     visserv->getChildIds( -1, scenes );
-
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	visSurvey::MPEDisplay* mped = getDisplay(scenes[idx]);
@@ -133,25 +124,22 @@ void uiMPEMan::deleteVisObjects()
 
     if ( seededitor )
     {
-	uiVisMenu* menu = visserv->getMenu(seededitor->id(), false );
+	uiVisMenu* menu = visserv->getMenu( seededitor->id(), false );
 	if ( menu )
 	{
-	    menu->createnotifier.remove(
-		    mCB( this, uiMPEMan, createSeedMenuCB ));
-	    menu->handlenotifier.remove(
-		    mCB( this, uiMPEMan, handleSeedMenuCB ));
+	    menu->createnotifier.remove( mCB(this,uiMPEMan,createSeedMenuCB) );
+	    menu->handlenotifier.remove( mCB(this,uiMPEMan,handleSeedMenuCB) );
 	}
 
 	if ( scenes.size() )
 	    visserv->removeObject( seededitor->id(), scenes[0] );
+
 	seededitor->unRef();
-
     }
-
 }
 
 
-visSurvey::MPEDisplay* uiMPEMan::getDisplay(int sceneid, bool create)
+visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 {
     mDynamicCastGet(const visSurvey::Scene*,scene,visserv->getObject(sceneid));
     if ( !scene ) return 0;
@@ -172,51 +160,59 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay(int sceneid, bool create)
 
     visserv->addObject( mpedisplay, scene->id(), false );
     mpedisplay->setDraggerTransparency( transfld->getValue() );
-    mpedisplay->showDragger(isOn(extendidx));
+    mpedisplay->showDragger( isOn(extendidx) );
 
     //mpedisplay->trackmodechange.notify( mCB(this,uiMPEMan,trackModeChg) );
     mpedisplay->deSelection()->notify( mCB(this,uiMPEMan,cubeDeselCB) );
     mpedisplay->selection()->notify( mCB(this,uiMPEMan,cubeSelectCB) );
 
-    //transfld->setValue( mpedisplay->getTransparency() );
+    transfld->setValue( mpedisplay->getDraggerTransparency() );
     trackModeChg( 0 );
     setSensitive( true );
     return mpedisplay;
 }
 
-void uiMPEMan::seedPropertyChangeCB(CallBacker*)
+#define mGetDisplays(create) \
+    ObjectSet<visSurvey::MPEDisplay> displays; \
+    TypeSet<int> scenes; \
+    visserv->getChildIds( -1, scenes ); \
+    for ( int idx=0; idx<scenes.size(); idx++ ) \
+	displays += getDisplay( scenes[idx], create );
+
+
+void uiMPEMan::seedPropertyChangeCB( CallBacker* )
 {
     if ( !seededitor )
 	return;
 
-    seededitor->getMaterial()->setColor(MPE::engine().seedcolor);
-    seededitor->setSeedSize(MPE::engine().seedsize);
+    seededitor->getMaterial()->setColor( MPE::engine().seedcolor );
+    seededitor->setSeedSize( MPE::engine().seedsize );
 }
 
 
-void uiMPEMan::createSeedMenuCB(CallBacker* cb)
+void uiMPEMan::createSeedMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiVisMenu*,menu,cb);
 
-    const int seedidx = seededitor->getSeedIdx(*menu->getPath());
-    bool isconnected = seededitor->isClosed(seedidx);
+    const int seedidx = seededitor->getSeedIdx( *menu->getPath() );
+    bool isconnected = seededitor->isClosed( seedidx );
 
     uiMenuItem* conmenu = new uiMenuItem( isconnected ? "Split" : "Connect" );
     seedmnuid = menu->addItem( conmenu );
-    conmenu->setEnabled(seedidx!=-1);
+    conmenu->setEnabled( seedidx!=-1 );
 
 
     BufferStringSet trackernames;
-    MPE::engine().getAvaliableTrackerTypes(trackernames);
+    MPE::engine().getAvaliableTrackerTypes( trackernames );
     for ( int idx=0; idx<trackernames.size(); idx++ )
     {
 	BufferString txt("Create "); txt += *trackernames[idx];
-	menu->addItem( new uiMenuItem((const char*)txt) );
+	menu->addItem( new uiMenuItem(txt) );
     }
 }
 
 
-void uiMPEMan::handleSeedMenuCB(CallBacker* cb)
+void uiMPEMan::handleSeedMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiVisMenu*,menu,caller);
@@ -225,131 +221,123 @@ void uiMPEMan::handleSeedMenuCB(CallBacker* cb)
 
     if ( mnuid==seedmnuid )
     {
-	const int seedidx = seededitor->getSeedIdx(*menu->getPath());
-	bool isconnected = seededitor->isClosed(seedidx);
+	const int seedidx = seededitor->getSeedIdx( *menu->getPath() );
+	bool isconnected = seededitor->isClosed( seedidx );
 
-	seededitor->closeSeed(seedidx,!isconnected);
-	menu->setIsHandled(true);
+	seededitor->closeSeed( seedidx, !isconnected );
+	menu->setIsHandled( true );
 	return;
     }
 
     BufferStringSet trackernames;
-    MPE::engine().getAvaliableTrackerTypes(trackernames);
-    const int idx=mnuid-seedmnuid-1;
+    MPE::engine().getAvaliableTrackerTypes( trackernames );
+    const int idx = mnuid-seedmnuid-1;
     if ( idx<0 || idx>=trackernames.size() )
 	return;
 
     destrackertype = *trackernames[idx];
     seededitor->getSeeds( MPE::engine().interactionseeds );
     if ( visserv->sendTrackNewObjectEvent() )
-	turnSeedPickingOn(false);
+	turnSeedPickingOn( false );
 
-    menu->setIsHandled(true);
+    menu->setIsHandled( true );
 }
 
 
 void uiMPEMan::updateAttribNames()
 {
-    /*
-    if ( !trackman ) return;
     BufferString oldsel = attribfld->text();
     attribfld->empty();
     attribfld->addItem( "No attribute" );
-    for ( int idx=0; idx<trackman->getAttribSpecs().size(); idx++ )
+
+    ObjectSet<const AttribSelSpec> attribspecs;
+    MPE::engine().getNeededAttribs( attribspecs );
+    for ( int idx=0; idx<attribspecs.size(); idx++ )
     {
-	AttribSelSpec* spec = trackman->getAttribSpecs()[idx];
+	const AttribSelSpec* spec = attribspecs[idx];
 	attribfld->addItem( spec->userRef() );
     }
 
-    if ( mpedisplay )
-	attribfld->setCurrentItem( mpedisplay->getSelSpec()->userRef() );
+    mGetDisplays(false)
+    for ( int idx=0; idx<displays.size(); idx++ )
+        attribfld->setCurrentItem( displays[idx]->getSelSpec()->userRef() );
 
     attribSel(0);
-    */
 }
 
 
-void uiMPEMan::turnSeedPickingOn(bool yn)
+void uiMPEMan::turnSeedPickingOn( bool yn )
 {
-    turnOn( seedidx, yn);
-    seedMode(0);
+    turnOn( seedidx, yn );
+    seedModeCB(0);
 }
 
 #define mSelCBImpl( sel ) \
-    TypeSet<int> scenes; \
-    visserv->getChildIds( -1, scenes ); \
-    for ( int idx=0; idx<scenes.size(); idx++  ) \
-    { \
-	visSurvey::MPEDisplay* mped = getDisplay(scenes[idx],false); \
-	if ( mped ) mped->showManipulator( sel ); \
-    } \
+    mGetDisplays(false) \
+    for ( int idx=0; idx<displays.size(); idx++ ) \
+	displays[idx]->showManipulator( sel ); \
     turnOn( showcubeidx, sel )
 
-void uiMPEMan::cubeSelectCB( CallBacker* ) { mSelCBImpl( true ); }
+void uiMPEMan::cubeSelectCB( CallBacker* )	{ mSelCBImpl( true ); }
+void uiMPEMan::cubeDeselCB( CallBacker* )	{ mSelCBImpl( false ); }
 
 
-void uiMPEMan::cubeDeselCB( CallBacker* ) { mSelCBImpl( false ); }
-
-
-void uiMPEMan::showCubeButtonPushCB( CallBacker* cb )
+void uiMPEMan::showCubeCB( CallBacker* )
 {
     const bool isshown = isOn( showcubeidx );
-
-    TypeSet<int> scenes;
-    visserv->getChildIds( -1, scenes );
-
-    for ( int idx=0; idx<scenes.size(); idx++  )
+    mGetDisplays(isshown)
+    for ( int idx=0; idx<displays.size(); idx++ )
     {
-	visSurvey::MPEDisplay* mped = getDisplay(scenes[idx],isshown);
-	if ( mped )
-	{
-	    if ( isshown ) mped->select();
-	    else mped->deSelect();
-	}
+	if ( isshown )
+	    displays[idx]->select();
+	else
+	    displays[idx]->deSelect();
     }
 
-    setToolTip( showcubeidx, isshown ? "Show trackingarea":"Hide trackingarea");
+    setToolTip( showcubeidx, isshown ? "Show trackingarea"
+	    			     : "Hide trackingarea" );
 }
 
 
 void uiMPEMan::attribSel( CallBacker* )
 {
-    /*
-    if ( !interpreter ) return;
-    const int sel = attribfld->currentItem();
-    if ( !sel )
+    uiCursorChanger cursorchanger( uiCursor::Wait );
+
+    mGetDisplays(false)
+    if ( !attribfld->currentItem() )
     {
-	interpreter->setTexture( 0 );
-	interpreter->setSelSpec( AttribSelSpec() );
+	for ( int idx=0; idx<displays.size(); idx++ )
+	{
+	    displays[idx]->setSelSpec( AttribSelSpec() );
+	    displays[idx]->updateTexture();
+	}
+
 	return;
     }
 
-    uiCursorChanger cursorchanger( uiCursor::Wait );
-
-    for ( int idx=0; idx<trackman->getAttribSpecs().size(); idx++ )
+    ObjectSet<const AttribSelSpec> attribspecs;
+    MPE::engine().getNeededAttribs( attribspecs );
+    for ( int idx=0; idx<attribspecs.size(); idx++ )
     {
-	const AttribSelSpec* spec = trackman->getAttribSpecs()[idx];
+	const AttribSelSpec* spec = attribspecs[idx];
 	if ( strcmp(spec->userRef(),attribfld->text()) )
 	    continue;
 
-	interpreter->setSelSpec( *spec );
-	interpreter->updateTexture(0);
+	for ( int idx=0; idx<displays.size(); idx++ )
+	{
+	    displays[idx]->setSelSpec( *spec );
+	    displays[idx]->updateTexture();
+	}
 	break;
     }
-    */
 }
 
 
 void uiMPEMan::transpChg( CallBacker* )
 {
-    TypeSet<int> scenes;
-    visserv->getChildIds( -1, scenes );
-
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	visSurvey::MPEDisplay* mped = getDisplay(scenes[idx]);
-	if ( mped ) { mped->setDraggerTransparency( transfld->getValue() ); }
-    }
+    mGetDisplays(false)
+    for ( int idx=0; idx<displays.size(); idx++ )
+	displays[idx]->setDraggerTransparency( transfld->getValue() );
 }
 
 
@@ -360,10 +348,11 @@ void uiMPEMan::undoPush( CallBacker* )
 }
 
 
-void uiMPEMan::mouseEraseMode( CallBacker* )
+void uiMPEMan::mouseEraseModeCB( CallBacker* )
 {
+    mGetDisplays(false)
     /*
-    if ( !interpreter ) return;
+    if ( !mped ) return;
     const bool ison = isOn( mouseeraseridx );
     if ( ison )
     {
@@ -371,9 +360,9 @@ void uiMPEMan::mouseEraseMode( CallBacker* )
 	setSensitive( retrackidx, false );
 	setSensitive( eraseidx, false );
 
-	trackerwasonbeforemouseerase = interpreter->isOn();
+	trackerwasonbeforemouseerase = mped->isOn();
 
-	showTracker( false, (int) interpreter->getTrackMode() );
+	showTracker( false, (int)mped->getTrackMode() );
 
 	ioBitmap bitmap(GetDataFileName("eraserbitmap.png"));
 	ioBitmap bitmapmask(GetDataFileName("eraserbitmapmask.png"));
@@ -385,9 +374,7 @@ void uiMPEMan::mouseEraseMode( CallBacker* )
 	setSensitive( retrackidx, true );
 	setSensitive( eraseidx, true );
 
-	showTracker( trackerwasonbeforemouseerase,
-		     (int) interpreter->getTrackMode() );
-
+	showTracker( trackerwasonbeforemouseerase, (int)mped->getTrackMode() );
 	uiCursor::restoreOverride();
     }
 
@@ -406,12 +393,21 @@ void uiMPEMan::mouseEraseMode( CallBacker* )
 }
 
 
-void uiMPEMan::seedMode( CallBacker* )
+void uiMPEMan::seedModeCB( CallBacker* )
 {
     const bool ison = isOn( seedidx );
+    if ( !ison && seededitor )
+    {
+	seededitor->turnOn( false );
+	seededitor->getSeeds( MPE::engine().interactionseeds );
+	return;
+    }
+
     if ( ison )
     {
-	if ( !seededitor ) 
+	if ( seededitor )
+	    seededitor->reset();
+	else
 	{
 	    seededitor = visSurvey::SeedEditor::create();
 	    seededitor->ref();
@@ -420,28 +416,13 @@ void uiMPEMan::seedMode( CallBacker* )
 	    visserv->getChildIds( -1, scenes );
 	    visserv->addObject( seededitor, scenes[0], false );
 
-	    uiVisMenu* menu = visserv->getMenu(seededitor->id(), true );
-	    menu->createnotifier.notify(
-		    mCB( this, uiMPEMan, createSeedMenuCB ));
-	    menu->handlenotifier.notify(
-		    mCB( this, uiMPEMan, handleSeedMenuCB ));
-
-	}
-	else
-	{
-	    seededitor->reset();
+	    uiVisMenu* menu = visserv->getMenu( seededitor->id(), true );
+	    menu->createnotifier.notify( mCB(this,uiMPEMan,createSeedMenuCB) );
+	    menu->handlenotifier.notify( mCB(this,uiMPEMan,handleSeedMenuCB) );
 	}
 
 	seededitor->turnOn(true);
 	seededitor->select();
-    }
-    else
-    {
-	if ( seededitor )
-	{
-	    seededitor->turnOn(false);
-	    seededitor->getSeeds( MPE::engine().interactionseeds );
-	}
     }
 }
 
@@ -462,36 +443,34 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 
 void uiMPEMan::trackForward( CallBacker* )
 {
-    /*
-    if ( !interpreter ) return;
-    int nrsteps = nrstepsbox->getValue();
     uiCursorChanger cursorlock( uiCursor::Wait );
-    interpreter->moveMPEPlane( nrsteps );
-    */
+    const int nrsteps = nrstepsbox->getValue();
+    mGetDisplays(false)
+    for ( int idx=0; idx<displays.size(); idx++ )
+	displays[idx]->moveMPEPlane( nrsteps );
 }
 
 
 void uiMPEMan::trackBackward( CallBacker* )
 {
-    /*
-    if ( !interpreter ) return;
-    int nrsteps = nrstepsbox->getValue();
     uiCursorChanger cursorlock( uiCursor::Wait );
-    interpreter->moveMPEPlane( -nrsteps );
-    */
+    const int nrsteps = nrstepsbox->getValue();
+    mGetDisplays(false)
+    for ( int idx=0; idx<displays.size(); idx++ )
+	displays[idx]->moveMPEPlane( -nrsteps );
 }
 
 
 void uiMPEMan::trackModeChg( CallBacker* )
 {
-    /*
-    if ( !interpreter ) return;
-    SID::TrackMode tm = interpreter->getTrackMode();
-    bool extend = tm == SID::Extend;
-    bool retrack = tm == SID::ReTrack;
-    bool erase = tm == SID::Erode;
+    mGetDisplays(false);
+    if ( !displays.size() ) return;
+
+    visSurvey::MPEDisplay::TrackMode tm = displays[0]->getTrackMode();
+    bool extend = tm == visSurvey::MPEDisplay::Extend;
+    bool retrack = tm == visSurvey::MPEDisplay::ReTrack;
+    bool erase = tm == visSurvey::MPEDisplay::Erode;
     setTrackButton( extend, retrack, erase );
-    */
 }
 
 
@@ -503,57 +482,58 @@ void uiMPEMan::setTrackButton( bool extend, bool retrack, bool erase )
 }
 
 
-void uiMPEMan::showTracker( bool yn, int trackmode )
+void uiMPEMan::showTracker( bool yn, int tm )
 {
-    /*
     setSensitive( showcubeidx, yn );
     setSensitive( trackforwardidx, yn );
     setSensitive( trackbackwardidx, yn );
-    attribfld->setSensitive(yn);
-    transfld->setSensitive(yn);
-    nrstepsbox->setSensitive(yn);
+    attribfld->setSensitive( yn );
+    transfld->setSensitive( yn );
+    nrstepsbox->setSensitive( yn );
 
-    interpreter->turnOn( yn );
-    setTrackButton( yn&&trackmode==SID::Extend, yn&&trackmode==SID::ReTrack,
-	    	    yn&&trackmode==SID::Erode );
-    if ( yn )
-	interpreter->setTrackMode( (SID::TrackMode) trackmode );
-    */
-}
+    visSurvey::MPEDisplay::TrackMode trackmode =
+				(visSurvey::MPEDisplay::TrackMode)tm;
 
+    setTrackButton( yn && trackmode==visSurvey::MPEDisplay::Extend, 
+	    	    yn && trackmode==visSurvey::MPEDisplay::ReTrack,
+	    	    yn && trackmode==visSurvey::MPEDisplay::Erode );
 
-void uiMPEMan::extendModeButtonPushCB( CallBacker* )
-{
-    const bool isshown = isOn(extendidx);
-
-    TypeSet<int> scenes;
-    visserv->getChildIds( -1, scenes );
-
-    for ( int idx=0; idx<scenes.size(); idx++  )
+    mGetDisplays(false)
+    for ( int idx=0; idx<displays.size(); idx++ )
     {
-	visSurvey::MPEDisplay* mped = getDisplay(scenes[idx],isshown);
-	if ( mped ) mped->showDragger(isshown);
+	displays[idx]->turnOn( yn );
+	if ( yn )
+	    displays[idx]->setTrackMode( trackmode );
     }
 }
 
 
-void uiMPEMan::retrackMode( CallBacker* )
+void uiMPEMan::extendModeCB( CallBacker* )
 {
-    /*
-    if ( !interpreter ) return;
-    const bool turnon = !interpreter->isOn() ||
-			 interpreter->getTrackMode()!=SID::ReTrack; 
-    showTracker( turnon, SID::ReTrack );
-    */
+    const bool isshown = isOn( extendidx );
+    mGetDisplays(isshown)
+    for ( int idx=0; idx<displays.size(); idx++ )
+	displays[idx]->showDragger( isshown );
 }
 
 
-void uiMPEMan::eraseMode( CallBacker* )
+void uiMPEMan::retrackModeCB( CallBacker* )
 {
-    /*
-    if ( !interpreter ) return;
-    const bool turnon = !interpreter->isOn() ||
-			 interpreter->getTrackMode()!=SID::Erode; 
-    showTracker( turnon, SID::Erode );
-    */
+    mGetDisplays(false)
+    if ( !displays.size() ) return;
+
+    const bool turnon = displays[0]->isOn() ||
+		displays[0]->getTrackMode()!=visSurvey::MPEDisplay::ReTrack;
+    showTracker( turnon, visSurvey::MPEDisplay::ReTrack );
+}
+
+
+void uiMPEMan::eraseModeCB( CallBacker* )
+{
+    mGetDisplays(false)
+    if ( !displays.size() ) return;
+
+    const bool turnon = displays[0]->isOn() ||
+		displays[0]->getTrackMode()!=visSurvey::MPEDisplay::Erode;
+    showTracker( turnon, visSurvey::MPEDisplay::Erode );
 }
