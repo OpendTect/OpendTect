@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.9 2004-09-29 16:06:28 nanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.10 2005-01-26 13:26:01 duntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,11 @@ public:
     bool 		active() const { return active_; }
     bool	        beginDraw(); 
     bool		endDraw();
+
+
+    void		setRasterXor();
+    void		setRasterNorm();
+
 
 protected:
 
