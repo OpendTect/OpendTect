@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.7 2005-03-02 18:38:15 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.8 2005-03-07 14:47:42 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -128,18 +128,18 @@ bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
 	const float sqdist = (currentpos-linepoint).cross(linedir).sqAbs();
 	if ( sqdist<eps ) return true;
 
-	const Coord3 utangent = computeUTangent(u,v);
-	const Coord3 vtangent = computeVTangent(u,v);
-	const Coord3 dfu = utangent.cross(linedir);
-	const Coord3 dfv = vtangent.cross(linedir);
+	const Coord3 upos = computePos(u+1e-3,v);
+	const float udist = (upos-linepoint).cross(linedir).sqAbs()-sqdist;
 
-	const float du = 2*(dfu.x+dfu.y+dfu.z);
-	const float dv = 2*(dfv.x+dfv.y+dfv.z);
+	const Coord3 vpos = computePos(u,v+1e-3);
+	const float vdist = (vpos-linepoint).cross(linedir).sqAbs()-sqdist;
 
-	u = u-(sqdist/du);
+ 	if ( fabs(udist)>fabs(vdist) )	
+	    u = u-(sqdist/udist*1e-3);
+	else
+	    v = v-(sqdist/vdist*1e-3);
+
 	if ( u<0 || u>1 ) return false;
-
-	v = v-(sqdist/dv);
 	if ( v<0 || v>1 ) return false;
     }
 
