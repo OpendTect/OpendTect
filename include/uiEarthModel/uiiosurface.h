@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.2 2003-07-29 13:03:19 nanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.3 2003-08-01 15:48:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class CtxtIOObj;
 class IODirEntryList;
 class IOObj;
 class MultiID;
+class uiObject;
 
 namespace EM { class Horizon; class SurfaceIODataSelection; };
 
@@ -32,19 +33,15 @@ namespace EM { class Horizon; class SurfaceIODataSelection; };
 class uiIOSurface : public uiGroup
 {
 public:
-			uiIOSurface(uiParent*);
 			~uiIOSurface();
 
     IOObj*		selIOObj() const;
     void		getSelection(EM::SurfaceIODataSelection&);
 
+    virtual bool	processInput()		{ return true; };
+
 protected:
-
-    uiLabeledListBox*	patchfld;
-    uiLabeledListBox*	attrlistfld;
-    uiBinIDSubSel*	rgfld;
-
-    CtxtIOObj&		ctio;
+			uiIOSurface(uiParent*);
 
     void		fillFields(const MultiID&);
     void		fillPatchFld(ObjectSet<BufferString>);
@@ -52,9 +49,19 @@ protected:
     void		fillRangeFld(const BinIDSampler&);
 
     void		mkAttribFld();
-    void		mkPatchFld();
+    void		mkPatchFld(bool);
     void		mkRangeFld();
+    void		mkObjFld(const char*,bool);
 
+    void		deSelect(CallBacker*);
+    void		objSel(CallBacker*);
+
+    uiLabeledListBox*	patchfld;
+    uiLabeledListBox*	attrlistfld;
+    uiBinIDSubSel*	rgfld;
+    uiIOObjSel*		objfld;
+
+    CtxtIOObj&		ctio;
 };
 
 
@@ -63,16 +70,16 @@ class uiSurfaceOutSel : public uiIOSurface
 public:
 			uiSurfaceOutSel(uiParent*,const EM::Horizon&);
 
-    void		processInput();
     const char*		auxDataName() const;
     bool		saveAuxDataOnly() const;
+
+    virtual bool	processInput();
 
 protected:
     void		savePush(CallBacker*);
 
     uiGenInput*		attrnmfld;
     uiGenInput*		savefld;
-    uiIOObjSel*		outfld;
 };
 
 
@@ -89,12 +96,10 @@ public:
     			uiSurfaceSel(uiParent*);
 			~uiSurfaceSel();
 
-protected:
-    void		selChg(CallBacker*);
-    bool		anyHorWithPatches();
+    virtual bool	processInput();
 
-    IODirEntryList*	entrylist;
-    uiLabeledListBox*	objlistfld;
+protected:
+
 
 };
 

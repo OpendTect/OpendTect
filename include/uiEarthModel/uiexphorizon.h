@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.8 2003-07-29 13:03:19 nanne Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.9 2003-08-01 15:48:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ public:
 			uiExportHorizon(uiParent*);
 			~uiExportHorizon();
 
-    bool		writeAscii(const ObjectSet< TypeSet<BinIDZValue> >&);
 
 protected:
 
@@ -43,6 +42,7 @@ protected:
 
     virtual bool	acceptOK(CallBacker*);
     void		typChg(CallBacker*);
+    bool		writeAscii();
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.17 2003-08-01 10:08:20 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.18 2003-08-01 15:48:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,7 +159,7 @@ bool uiEMPartServer::getDataVal( const MultiID& emid,
 	const Geometry::GridSurface* gridsurf = hor->getSurface( patchid );
 
 	data += new TypeSet<BinIDZValue>;
-	TypeSet<BinIDZValue>& res = *data[0];
+	TypeSet<BinIDZValue>& res = *data[patchidx];
 
 	EM::PosID posid( emid, patchid );
 	const int nrnodes = gridsurf->size();
@@ -188,12 +188,6 @@ void uiEMPartServer::setDataVal( const MultiID& emid,
     EM::EMManager& em = EM::EMM();
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(emid))
     if ( !hor ) return;
-
-    for ( int idx=0; idx<hor->nrAuxData(); idx++ )
-    {
-	if ( !strcmp(hor->auxDataName(idx),attrnm) )
-	    return;
-    }
 
     hor->removeAllAuxdata();
     int	dataidx = hor->addAuxData( attrnm );

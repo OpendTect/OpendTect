@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.2 2003-07-29 13:03:09 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.3 2003-08-01 15:48:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,9 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Horizon& hor_ )
 
 bool uiWriteSurfaceDlg::acceptOK( CallBacker* )
 {
-    iogrp->processInput();
+    if ( !iogrp->processInput() )
+	return false;
+
     if ( auxDataOnly() )
 	return checkIfAlreadyPresent();
 
@@ -93,7 +95,7 @@ uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const MultiID* emid )
 
 bool uiReadSurfaceDlg::acceptOK( CallBacker* )
 {
-    return true;
+    return iogrp->processInput();
 }
 
 
