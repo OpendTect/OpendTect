@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.12 2004-12-16 10:34:22 bert Exp $
+ RCS:           $Id: debug.cc,v 1.13 2004-12-20 12:03:35 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.12 2004-12-16 10:34:22 bert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.13 2004-12-20 12:03:35 bert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -97,6 +97,8 @@ void message( int flag, const char* msg )
 
 void putProgInfo( int argc, char** argv )
 {
+    if ( getenv("OD_NO_PROGINFO") ) return;
+
     const bool ison = isOn( DBG_PROGSTART );
 
     BufferString msg;
