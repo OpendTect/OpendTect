@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.3 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.4 2001-02-27 11:22:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,10 @@ public:
     void		snap(BinID&,const BinID& direction) const;
 			// 0 : auto; -1 round downward, 1 round upward
 
+    void		get3Pts(Coord c[3],BinID b[2],int& xline);
+    const char*		set3Pts(Coord c[3],BinID b[2],int xline);
+			//!< returns error message or null on success
+
 private:
 
 			SurveyInfo(const char*);
@@ -72,10 +76,12 @@ private:
     BinIDRange		range_;
     BinID		step_;
 
+    BinID		set3binids[3];
+    Coord		set3coords[3];
+
     static SurveyInfo*	theinst_;
 
 };
 
 
-/*$-*/
 #endif
