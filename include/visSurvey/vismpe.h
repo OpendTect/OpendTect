@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.1 2005-01-06 10:49:17 kristofer Exp $
+ RCS:		$Id: vismpe.h,v 1.2 2005-01-20 08:41:35 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -53,8 +53,10 @@ public:
 
 protected:
 				~MPEDisplay();
-    CubeSampling		getCubePosition() const;
-    void			setCubePosition( const CubeSampling& );
+    CubeSampling		getBoxPosition() const;
+
+    bool			getPlanePosition( CubeSampling& ) const;
+    void			setPlanePosition( const CubeSampling& );
 
     void			setSceneEventCatcher( visBase::EventCatcher* );
 
@@ -68,6 +70,10 @@ protected:
 
     				//Callbacks from user
     void			mouseClickCB( CallBacker* );
+
+    				//Callbacks from MPE
+    void			updateDraggerPosition( CallBacker* );
+    void			updateBoxPosition( CallBacker* );
 
     MPE::Engine&		engine;
 
