@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.12 2002-04-30 14:13:00 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.13 2002-05-02 13:47:51 kristofer Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -269,7 +269,7 @@ void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     VisualObjectImpl::fillPar( par, saveids );
 
     BufferString key;
-    for ( int idx=0; idx<6; idx++ )
+    for ( int idx=0; idx<8; idx++ )
     {
 	key = cornerprefixstr;
 	key += idx;
