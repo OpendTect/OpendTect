@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.4 2001-11-09 15:18:01 windev Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.5 2002-05-17 11:06:39 dgb Exp $";
 
 #include "helpview.h"
 #include "settings.h"
@@ -25,7 +25,7 @@ void HelpViewer::use( const char* url )
     if ( ptr ) comm = ptr;
     comm += " \""; comm += url;
     comm += "\" &";
-    system( comm );
+    ExecOSCmd( comm );
 }
 
 
