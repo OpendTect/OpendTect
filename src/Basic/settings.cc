@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.19 2003-10-09 12:45:05 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.20 2003-10-15 09:12:57 arend Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -24,7 +24,7 @@ Settings::Settings( const char* setupf )
 {
     if ( !setupf || !*setupf )
     {
-	fname = GetHomeDir();
+	fname = GetSettingsDir();
 	fname = File_getFullPath( fname, ".dgbSettings" );
 	const char* ptr = GetSoftwareUser();
 	if ( ptr )
@@ -121,28 +121,26 @@ bool Settings::write( bool do_merge ) const
     ascostream stream( *sd.ostrm );
     stream.putHeader( sKey );
     putTo( stream, false );
+    sd.close();
 
     BufferString oldfname = (const char*)fname;
     oldfname += ".old";
     if ( File_exists(oldfname) && !File_remove(oldfname,NO) )
     {
 	ErrMsg( "Cannot remove '.old' settings file" );
-	sd.close();
 	return false;
     }
     if ( File_exists(fname) && !File_rename(fname,oldfname) )
     {
 	ErrMsg( "Cannot rename settings file to '.old'" );
-	sd.close();
 	return false;
     }
     if ( !File_rename(newfname,fname) )
     {
 	ErrMsg( "Cannot rename new settings file" );
-	sd.close();
 	return false;
     }
-    sd.close();
+
     return true;
 }
 

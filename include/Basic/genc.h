@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.10 2003-09-26 16:24:47 bert Exp $
+ RCS:		$Id: genc.h,v 1.11 2003-10-15 09:12:21 arend Exp $
 ________________________________________________________________________
 
 
@@ -31,38 +31,124 @@ extern "C" {
 const char*	GetProjectVersionName(void);
 		/*!< "dTect Vx.x" */
 
-/*
+/*! Directory of the installed software = $dGB|DTECT_APPL 
 
- Where to get data and application data is linked to environment variables.
- For example, the project data is searched in:
- DTECT_WINDATA (windows only)
- dGB_WINDATA (windows only)
- DTECT_DATA
- dGB_DATA
+ GetSoftwareDir returns the full path of the root of where the executables,
+ program data, etc. is located.
+
+
+ On windows:
+    DTECT_WINDATA
+    dGB_WINDATA
+
+ in that order.
+ On unix:
+
+    DTECT_DATA
+    dGB_DATA
+
  in that order.
 
- GetSoftwareDir : returns the full path of the root of where the executables,
-		  program data, etc. is located.
- GetSoftwareUser: returns the value as set in DTECT_USER (or dGB_USER, etc.).
- 		  This may be null - in fact it is most often null!
- GetUserDir     : returns the full path of the root of where the user data
-		  files will be located.
+ If that fails, it will try to extract the location out of argv[0] 
+
 
  Beware that all functions will likely return a pointer to _the_ _same_ static
  buffer of length PATH_LENGTH!
 
 */
 const char*	GetSoftwareDir(void);
-		/*!< Directory of the installed software = $dGB|DTECT_APPL */
+
+
+/*! DTECT_USER (or dGB_USER, etc.).
+
+ returns the value as set in DTECT_USER (or dGB_USER, etc.).
+ This may be null - in fact it is most often null!
+
+ /sa GetSoftwareDir(void)
+
+*/
 const char*	GetSoftwareUser(void);
-		/*!< $dGB|DTECT_USER */
-const char*	GetHomeDir(void);
-		/*!< $HOME / $HOMEDRIVE/$HOMEPATH */
+
+
+/*! gets user's home directory.
+
+ This gets the user's home directory, if available.
+
+ Since this is not guaranteed on Windows, it is recommended
+ to use GetSettingsDir() or GetPersonalDir(), which will
+ map to "Application Data" resp. "My Documents" if a home directory
+ is not availabile.
+
+ The home directory is linked to environment variables:
+
+ On windows:
+
+    DTECT_WINHOME
+    dGB_WINHOME
+    HOMEDRIVE+HOMEPATH if available and _not_ equal to "C:\"
+
+    else returns 0;
+
+ in that order.
+
+ On unix:
+
+    DTECT_HOME
+    dGB_HOME
+    HOME
+
+ in that order.
+
+*/
+const char*	_GetHomeDir(void);
+
+
+/*! Home dir or "Application Data"
+
+ returns _GetHomeDir() by default.
+
+ On Windows, it returns "Application Data" if home directory not defined.
+
+*/
+const char*	GetSettingsDir(void);
+
+
+/*! Home dir or "My Documents"
+
+ returns _GetHomeDir() by default.
+
+ On Windows, it returns "My Documents" if home directory not defined.
+
+*/
+const char*	GetPersonalDir(void);
+
+
 const char*	GetDataFileName(const char*);
 		/*!< Application data file in $dGB|DTECT_APPL/data */
 
+/*! Data directory
+
+ The data directory is linked to environment variables;
+ the project data is first searched in:
+
+ On windows:
+
+    DTECT_WINDATA
+    dGB_WINDATA
+
+ in that order.
+
+ On unix:
+
+    DTECT_DATA
+    dGB_DATA
+
+ in that order.
+
+ It it is not found, it will try to find it in the settings.
+
+*/
 const char*	GetDataDir(void);
-		/*!< User data: $dGB|DTECT_DATA/project */
 
 int		isFinite(double);
 		/*!< Returns 0 for infinite, NaN, and that sort of crap */
@@ -73,8 +159,9 @@ double		PowerOf(double,double);
 
 
 /* Misc stuff */
-const char*	errno_message();
-		/*!< Will not return meaningful string on Windows */
+
+const char*     errno_message();
+                /*!< Will not return meaningful string on Windows */
 
 void		put_platform(unsigned char*);
 		/*!< Puts into single byte: 0 = Sun/SGI, 1 = Win/Linux */

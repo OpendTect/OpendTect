@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.11 2003-10-10 10:13:24 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.12 2003-10-15 09:12:57 arend Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -158,7 +158,7 @@ static void loadPIs( const char* dnm, int argc, char** argv, int inittype )
 
 extern "C" void LoadAutoPlugins( int argc, char** argv, int inittype )
 {
-    const BufferString homedir( GetHomeDir() );
+    const BufferString homedir( GetPersonalDir() );
     BufferString dirnm = File_getFullPath( homedir, plugindir );
     loadPIs( dirnm, argc, argv, inittype );
     const BufferString swdir( GetSoftwareDir() );

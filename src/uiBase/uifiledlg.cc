@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.13 2003-07-29 08:22:25 nanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.14 2003-10-15 09:12:57 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ int uiFileDialog::go()
     {
 	BufferString tmp( File_getPathOnly(fname_) ); 
 	if ( !File_isDirectory( tmp ) )
-	    fname_ = GetHomeDir();
+	    fname_ = GetPersonalDir();
     }
 
     QWidget* qp =0;

@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.4 2003-06-10 15:09:24 arend Exp $
+ RCS:		$Id: debug.h,v 1.5 2003-10-15 09:12:21 arend Exp $
 ________________________________________________________________________
 
 -*/
- 
+
+#include "Pmacros.h"  
  
 /*!\brief defines a generic interface for supplying debug/runtime info
 
@@ -30,6 +31,7 @@ ________________________________________________________________________
 
 */
 
+# ifdef __cpp__
 namespace DBG
 {
     bool 		isOn( int flag=0xffff );
@@ -39,5 +41,14 @@ namespace DBG
 			   // { if ( isOn(flag) ) message(msg); }
 };
 
+extern "C" {
+# endif
 
+int			dgb_debug_isOn( int flag );
+void			dgb_debug_message( const char* msg );
+void			dgb_debug_messagef( int flag, const char* msg );
+
+# ifdef __cpp__
+}
+# endif
 #endif

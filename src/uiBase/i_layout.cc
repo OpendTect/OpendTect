@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.66 2003-04-02 11:30:56 nanne Exp $
+ RCS:           $Id: i_layout.cc,v 1.67 2003-10-15 09:12:57 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
 {
     if ( !cb ) return;
 
-    i_LayoutItem* itm = dynamic_cast<i_LayoutItem*>( cb );
+    i_LayoutItem* itm = static_cast<i_LayoutItem*>( cb );
 
     if ( !childrenList.removeRef( itm ) )
 	pErrMsg("Removal of layoutitem failed.");

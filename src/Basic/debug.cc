@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.2 2003-06-10 15:08:54 arend Exp $
+ RCS:           $Id: debug.cc,v 1.3 2003-10-15 09:12:57 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.2 2003-06-10 15:08:54 arend Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.3 2003-10-15 09:12:57 arend Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -59,4 +59,16 @@ void message( int flag, const char* msg )
 }
 
 };
+
+extern "C"{
+
+int dgb_debug_isOn( int flag )
+    { return DBG::isOn(flag); }
+void dgb_debug_message( const char* msg )
+    { DBG::message(msg); }
+void dgb_debug_messagef( int flag, const char* msg )
+    { DBG::message(flag,msg); }
+
+}
+
 

@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.40 2003-09-25 10:24:07 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.41 2003-10-15 09:12:57 arend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -435,7 +435,33 @@ int File_rename( const char* from, const char* to )
 
 #ifdef __win__
 
-    return MoveFile( from, to );
+    int ret = MoveFile( from, to );
+
+# ifdef __debug__
+    if( ! ret )
+    {
+
+	LPVOID lpMsgBuf;
+
+	FormatMessage( 
+	    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+	    NULL,
+	    GetLastError(),
+	    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+	    (LPTSTR) &lpMsgBuf,
+	    0,
+	    NULL 
+	);
+
+	// Display the string.
+	MessageBox( NULL, lpMsgBuf, "GetLastError", MB_OK|MB_ICONINFORMATION );
+
+	// Free the buffer.
+	LocalFree( lpMsgBuf );
+	 
+    }
+# endif
+    return ret;
 
 #else
 

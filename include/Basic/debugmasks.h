@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debugmasks.h,v 1.2 2003-06-10 14:00:14 arend Exp $
+ RCS:		$Id: debugmasks.h,v 1.3 2003-10-15 09:12:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,5 +30,6 @@ ________________________________________________________________________
 #define		DBG_IO		0x0008  // general I/O stuff
 #define		DBG_SOCKIO	0x0010  // socket I/O
 #define		DBG_MM		0x0020  // Multi-machine batch processing
+#define		DBG_SETTINGS	0x0040  // Multi-machine batch processing
 
 #endif

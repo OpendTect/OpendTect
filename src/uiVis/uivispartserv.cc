@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.166 2003-10-10 15:20:11 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.167 2003-10-15 09:12:57 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -1408,7 +1408,7 @@ bool uiVisPartServer::hasColor( int id ) const
 
 bool uiVisPartServer::dumpOI( int id ) const
 {
-    uiFileDialog filedlg( appserv().parent(), false, GetHomeDir(), "*.iv",
+    uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(), "*.iv",
 	    		  "Select output file" );
     if ( filedlg.go() )
     {

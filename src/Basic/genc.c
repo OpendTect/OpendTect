@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.18 2003-10-09 12:45:05 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.19 2003-10-15 09:12:57 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -18,7 +18,10 @@ static const char* rcsID = "$Id: genc.c,v 1.18 2003-10-09 12:45:05 bert Exp $";
 #else
 #include <process.h>
 #include <float.h>
+#include "getspec.h"	// GetSpecialFolderLocation()
 #endif
+
+#include "debugmasks.h"
 
 static FileNameString filenamebuf;
 static FileNameString surveyname;
@@ -41,14 +44,46 @@ const char* GetSoftwareDir()
 {
     const char* dir = 0;
 #ifdef __win__
-
     dir = getenv( "DTECT_WINAPPL" );
     if ( !dir ) dir = getenv( "dGB_WINAPPL" );
-
+#else
+    dir = getenv( "DTECT_APPL" );
+    if ( !dir ) dir = getenv( "dGB_APPL" );
 #endif
 
-    if ( !dir ) dir = getenv( "DTECT_APPL" );
-    if ( !dir ) dir = getenv( "dGB_APPL" );
+
+    if ( !dir )
+    {
+	if ( !getenv("dGB_ARGV0") ) return 0;
+
+	static FileNameString progname;
+	strcpy( progname, getenv("dGB_ARGV0") );
+
+	if( !*progname ) return 0;
+
+
+	char* chptr1 = progname;
+	char* chptr2 = chptr1;
+	while ( chptr2 = strstr( chptr1 + 3 , "bin" ) )
+	    chptr1 = chptr2;
+
+	if ( !chptr1 ) return 0;
+
+	*chptr1-- = '\0';
+
+	/* Remove trailing dirseps from pathbuf */
+	const char* dirsep = sDirSep;
+	while ( chptr1 != progname-1 && *chptr1 == *dirsep ) *chptr1-- = '\0';
+
+	dir = progname;
+    }
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "GetSoftwareDir: %s\n", dir );
+	dgb_debug_message( buf );
+    }
 
     return dir;
 }
@@ -59,6 +94,14 @@ const char* GetDataFileName( const char* fname )
     strcpy( filenamebuf, File_getFullPath( GetSoftwareDir(), "data" ) );
     if ( fname && *fname )
 	strcpy( filenamebuf, File_getFullPath( filenamebuf, fname ) );
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "GetDataFileName for %s: %s\n", fname, filenamebuf );
+	dgb_debug_message( buf );
+    }
+
     return filenamebuf;
 }
 
@@ -76,10 +119,17 @@ const char* GetSoftwareUser()
     if ( !ptr ) ptr = getenv( "DTECT_USER" );
     if ( !ptr ) ptr = getenv( "dGB_USER" );
 
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "GetSoftwareUser: %s\n", ptr );
+	dgb_debug_message( buf );
+    }
+
     return ptr;
 }
 
-const char* GetHomeDir()
+const char* _GetHomeDir()
 {
 #ifdef __win__
 
@@ -88,12 +138,17 @@ const char* GetHomeDir()
     const char* ptr = getenv( "DTECT_WINHOME" );
     if ( !ptr ) ptr = getenv( "dGB_WINHOME" );
 
+
     if ( ptr && *ptr ) return ptr;
-    {
-	strcpy( home, getenv("HOMEDRIVE") );
-	strcat( home, getenv("HOMEPATH") );
-    }
-    return home;
+
+    strcpy( home, getenv("HOMEDRIVE") );
+    strcat( home, getenv("HOMEPATH") );
+
+    if( strcmp( home, "" ) && strcmp( home, "c:\\" ) && strcmp( home, "C:\\" ) 
+	&& File_isDirectory( home ) ) // Apparantly, home has been set...
+	return home;
+
+    return 0;
 
 #else
 
@@ -105,6 +160,45 @@ const char* GetHomeDir()
 #endif
 }
 
+const char* GetSettingsDir(void)
+{
+    const char* ptr = _GetHomeDir();
+
+#ifdef __win__
+    if ( !ptr ) 
+	ptr = GetSpecialFolderLocation( CSIDL_APPDATA ); // "Application Data"
+#endif
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "GetSettingsDir: %s\n", ptr );
+	dgb_debug_message( buf );
+    }
+
+    return ptr;
+}
+
+
+const char* GetPersonalDir(void)
+{
+    const char* ptr = _GetHomeDir();
+
+#ifdef __win__
+    if ( !ptr ) 
+	ptr = GetSpecialFolderLocation( CSIDL_PERSONAL ); // "My Documents"
+#endif
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "GetPersonalDir: %s\n", ptr );
+	dgb_debug_message( buf );
+    }
+
+    return ptr;
+}
+
 
 const char* GetSurveyFileName()
 {
@@ -113,7 +207,7 @@ const char* GetSurveyFileName()
 
     if ( !inited )
     {
-	const char* ptr = GetHomeDir();
+	const char* ptr = GetSettingsDir();
 	if ( !ptr ) return 0;
 	strcpy( sfname, File_getFullPath(ptr,".dgbSurvey") );
 	ptr = GetSoftwareUser();
@@ -124,6 +218,14 @@ const char* GetSurveyFileName()
 	}
 	inited = YES;
     }
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "GetSurveyFileName: %s\n", sfname );
+	dgb_debug_message( buf );
+    }
+
     return sfname;
 }
 
@@ -158,6 +260,14 @@ const char* GetSurveyName()
 	fclose( fp );
 	surveynamedirty = 0;
     }
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "GetSurveyName: %s\n", surveyname );
+	dgb_debug_message( buf );
+    }
+
     return surveyname;
 }
 
@@ -167,15 +277,14 @@ extern const char* GetSettingsDataDir();
 const char* GetBaseDataDir()
 {
     const char* dir = 0;
-#ifdef __win__
 
+#ifdef __win__
     dir = getenv( "DTECT_WINDATA" );
     if ( !dir ) dir = getenv( "dGB_WINDATA" );
-
-#endif
-
-    if ( !dir ) dir = getenv( "DTECT_DATA" );
+#else
+    dir = getenv( "DTECT_DATA" );
     if ( !dir ) dir = getenv( "dGB_DATA" );
+#endif
 
     if ( !dir ) dir = GetSettingsDataDir();
     return dir;
@@ -192,6 +301,14 @@ const char* GetDataDir()
     if ( !survnm || !*survnm ) return basedir;
 
     strcpy( filenamebuf, File_getFullPath(basedir,survnm) );
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	char buf[255];
+	sprintf(buf, "GetDataDir: %s\n", filenamebuf );
+	dgb_debug_message( buf );
+    }
+
     return filenamebuf;
 }
 
