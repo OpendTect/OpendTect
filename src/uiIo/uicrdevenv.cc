@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.12 2004-01-27 10:47:28 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.13 2004-01-27 13:47:27 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ const char* getCygDir()
     if ( !File_isDirectory(cygdir) )
     {
 	const char* cygdir = getRegKey( HKEY_CURRENT_USER, 
-			    "SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/",
+			    "Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/",
 			    "native" );
     }
 
