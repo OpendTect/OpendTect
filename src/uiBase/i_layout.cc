@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.38 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.39 2002-01-11 12:20:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -960,7 +960,7 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 	if ( hs || vs )
         {
 	    bool add=false;
-	    if( (!isPrefSz && hs) || ( isPrefSz && hs>1) )
+	    if( (hs>1) || (hs==1 && !isPrefSz) )
 	    {
 		nrh++;
 		maxh = mMAX( maxh, hs );
@@ -968,7 +968,7 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
 	    } 
 	    else hs=0;
 
-	    if( (!isPrefSz && vs) || ( isPrefSz && vs>1) )
+	    if( (vs>1) || (vs==1 && !isPrefSz) )
 	    {
 		nrv++;
 		maxv = mMAX( maxv, vs );
@@ -1002,64 +1002,52 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 				  const QRect& targetRect, int iterNr )
 {
     layoutChildren( setGeom );
-    uiRect childrenBBox = childrenRect(setGeom);  
+    uiRect childrenBBox = childrenRect(setGeom);
 
     int tgtnrhpx = targetRect.width();
     int tgtnrvpx = targetRect.height();
 
-    uiRect& myGeomtry  = itm.item->curpos( setGeom );
+    uiRect& itmGeometry  = itm.item->curpos( setGeom );
     const uiRect& minGeom = itm.item->curpos( minimum );
     const uiRect& refGeom = itm.item->curpos( preferred );
 
     bool hdone = false;
     bool vdone = false;
 
-    if( itm.hStr>1 && 
-		( myGeomtry.right()+hdir < targetRect.right()) ) 
-	hdir = abs(hdir);
-    if( itm.vStr>1 && 
-		( myGeomtry.bottom()+vdir < targetRect.bottom()) )
-	vdir = abs(vdir);
+    if( hdir<0 && itm.hStr>1 && ( itmGeometry.right() <= targetRect.right()) ) 
+	hdir = 1;
+    if( vdir<0 && itm.vStr>1 && ( itmGeometry.bottom() <= targetRect.bottom()) )
+	vdir = 1;
 
-    int oldrgt = myGeomtry.right();
-    int oldbtm = myGeomtry.bottom();
+    int oldrgt = itmGeometry.right();
+    int oldbtm = itmGeometry.bottom();
 
     if( hdir && itm.nhiter>0
-        && ( (itm.hStr>1) || (abs(itm.hDelta+hdir) <= abs(maxhdelt)))
+        && ( (itm.hStr>1) || (abs(itm.hDelta+hdir) < abs(maxhdelt)))
         &&!( (hdir>0) && 
-             ( 
-#if 0
-	        ( childrenBBox.hNrPics() > tgtnrhpx)  
-	      ||( myGeomtry.right() + hdir > targetRect.right() )
-              ||( childrenBBox.right() > targetRect.right() ) 
-#else
-		( myGeomtry.right() + hdir > targetRect.right() )
-#endif
-	     )
+	     ( itmGeometry.right() > targetRect.right() )
 	   )
         &&!( (hdir<0) && 
-             ( childrenBBox.right() <= targetRect.right() )
+             ( itmGeometry.right() <= targetRect.right() )
 	   )
       ) 
     { 
         hdone = true;
         itm.hDelta += hdir;
-        myGeomtry.setWidth ( refGeom.width() + itm.hDelta );
+        itmGeometry.setWidth ( refGeom.width() + itm.hDelta );
     }   
     
     if( vdir && itm.nviter>0 
-        && ( (itm.vStr>1) || abs(itm.vDelta) < abs(maxvdelt))
+        && ( (itm.vStr>1) || abs(itm.vDelta+vdir) < abs(maxvdelt))
         &&!( (vdir>0) && 
-	    (  ( myGeomtry.bottom()+ vdir > targetRect.bottom())
-	    || ( childrenBBox.bottom() > targetRect.bottom() )) )
+	       ( itmGeometry.bottom() > targetRect.bottom() ) )
         &&!( (vdir<0) && 
-            (  ( myGeomtry.bottom() + vdir < targetRect.bottom())
-            || ( refGeom.height()+itm.vDelta+vdir <= minGeom.height()) ))
+              ( itmGeometry.bottom() <= targetRect.bottom()) )
       )
     {   
         vdone = true; 
         itm.vDelta += vdir;
-        myGeomtry.setHeight( refGeom.height() + itm.vDelta );
+        itmGeometry.setHeight( refGeom.height() + itm.vDelta );
     }
 
 
@@ -1099,21 +1087,16 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     {
 	if( ((hdir >0)&&
              ( 
-#if 0
-		( childrenBBox.hNrPics() > tgtnrhpx )  
-	      ||( childrenBBox.right() > targetRect.right() )
-#else
-		( myGeomtry.right() > targetRect.right() )
+		( itmGeometry.right() > targetRect.right() )
 	      ||(  ( childrenBBox.right() > targetRect.right() ) 
 		 &&( childrenBBox.right() > oldcbbrgt )
 	        )
-#endif
 	     ) 
 	    )
 	    || ( (hdir <0) && 
                 !(  ( childrenBBox.right() < oldcbbrgt ) 
-		  ||(  ( myGeomtry.right() > targetRect.right())
-		     &&( myGeomtry.right() < oldrgt)
+		  ||(  ( itmGeometry.right() > targetRect.right())
+		     &&( itmGeometry.right() < oldrgt)
 		    )  
                  )
                )
@@ -1122,18 +1105,25 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	    itm.nhiter--;
 	    itm.hDelta -= hdir;
 
-	    myGeomtry.setWidth( refGeom.width() + itm.hDelta );
+	    itmGeometry.setWidth( refGeom.width() + itm.hDelta );
 	    do_layout = true;
 	}
     }
 
     if( vdone )
     {
-	if(    ( (vdir >0) && ( childrenBBox.vNrPics() > tgtnrvpx ) )
+	if( ((vdir >0)&&
+             ( 
+		( itmGeometry.bottom() > targetRect.bottom() )
+	      ||(  ( childrenBBox.bottom() > targetRect.bottom() ) 
+		 &&( childrenBBox.bottom() > oldcbbbtm )
+	        )
+	     )
+	    ) 
 	    || ( (vdir <0) && 
                 !(  ( childrenBBox.bottom() < oldcbbbtm ) 
-		  ||(  ( myGeomtry.bottom() > targetRect.bottom())
-		     &&( myGeomtry.bottom() < oldbtm)
+		  ||(  ( itmGeometry.bottom() > targetRect.bottom())
+		     &&( itmGeometry.bottom() < oldbtm)
 		    )
                  )
                )
@@ -1142,7 +1132,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 	    itm.nviter--;
 	    itm.vDelta -= vdir;
 
-	    myGeomtry.setHeight( refGeom.height() + itm.vDelta );
+	    itmGeometry.setHeight( refGeom.height() + itm.vDelta );
 	    do_layout = true;
 	}
     }
@@ -1150,25 +1140,20 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     if( do_layout ) 
     {   // move all items to top-left corner first 
 	moveChildrenTo( targetRect.top(), targetRect.left(),setGeom);
-
 	layoutChildren( setGeom );
-	childrenBBox = childrenRect(setGeom);  
     } 
 
  //   return done_something;
-return true;
+    return true;
 }
 
 
 void i_LayoutMngr::resizeTo( const QRect& targetRect, bool isPrefSz )
 {
     doLayout( setGeom, targetRect );//init to prefer'd size and initial layout
-    uiRect childrenBBox = childrenRect(setGeom);  
 
-    const uiRect& refRect = curpos(preferred);
-
-    const int hgrow = targetRect.width()  - refRect.hNrPics();
-    const int vgrow = targetRect.height() - refRect.vNrPics();
+    const int hgrow = targetRect.width()  - curpos(preferred).hNrPics();
+    const int vgrow = targetRect.height() - curpos(preferred).vNrPics();
 
     const int hdir = ( hgrow >= 0 ) ? 1 : -1;
     const int vdir = ( vgrow >= 0 ) ? 1 : -1;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.32 2002-01-10 13:43:00 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.33 2002-01-11 12:20:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -347,7 +347,8 @@ class StringInpSpec : public DataInpSpec
 public:
 			StringInpSpec( const char* s=0 )
 			    : DataInpSpec( stringTp )
-			    , isUndef_(s?false:true), str( s ) {}
+			    , isUndef_(s?false:true), str( s ) 
+			    { setHSzP(SzPolicySpec::medvar); }
 
     virtual bool	isUndef( int idx=0 ) const	{ return isUndef_; }
 

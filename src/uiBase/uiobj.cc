@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.25 2002-01-10 11:14:52 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.26 2002-01-11 12:20:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,7 +257,6 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , is_hidden( false )
     , finalised( false )
     , display_( true )
-    , popped_up_( false )
     , pref_width_( 0 )
     , pref_height_( 0 )
     , pref_width_set( - 1 )
@@ -290,8 +289,6 @@ uiObjectBody::~uiObjectBody()
 
 void uiObjectBody::display( bool yn, bool shrink )
 {
-    popped_up_ = true;
-
     display_ = yn;
 
     if( shrink )
@@ -405,8 +402,6 @@ void uiObjectBody::getSzHint()
 
 int uiObjectBody::prefHNrPics() const
 {
-    const_cast<uiObjectBody*>(this)->popped_up_ = true;
-
     if( pref_width_ <= 0 )
     {
 	if( is_hidden )		{ return 0; }
@@ -458,8 +453,6 @@ int uiObjectBody::prefHNrPics() const
 
 int uiObjectBody::prefVNrPics() const
 {
-    const_cast<uiObjectBody*>(this)->popped_up_ = true;
-
     if( pref_height_ <= 0 )
     {
 	if( is_hidden )		{ return 0; }
@@ -537,8 +530,6 @@ i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
 void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin )
 {
 //    parent_->attachChild( tp, this, other, margin );
-    if( popped_up_ ) 
-	{ pErrMsg("Cannot attach when already popped up."); }
     parent_->attachChild( tp, &uiObjHandle(), other, margin );
 }
 
@@ -581,8 +572,6 @@ void uiObjectBody::gtFntWdtHgt() const
 	const_cast<uiObjectBody*>(this)->fnt_maxwdt = fm->maxWidth();
     }
 
-#ifdef __debug__
-
     if( fnt_hgt<0 || fnt_hgt>100 )
     { 
 	pErrMsg("Font heigt no good. Taking 25."); 
@@ -598,6 +587,4 @@ void uiObjectBody::gtFntWdtHgt() const
 	pErrMsg("Font maxwidth no good. Taking 15."); 
 	const_cast<uiObjectBody*>(this)->fnt_maxwdt = 15;
     }
-
-#endif
 }

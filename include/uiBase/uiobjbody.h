@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.12 2002-01-10 11:14:52 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.13 2002-01-11 12:20:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,11 +60,21 @@ public:
     int				prefHNrPics() const;
     void			setPrefWidth( int w )      
 				{ 
+				    if( finalised )
+				    { 
+					pErrMsg("Not allowed when finalized."); 
+					return;
+				    }
 				    pref_char_width = -1;
 				    pref_width_set = w; 
 				}
     void			setPrefWidthInChar( float w )
 				{ 
+				    if( finalised )
+				    { 
+					pErrMsg("Not allowed when finalized."); 
+					return;
+				    }
 				    pref_width_set = -1;
 				    pref_char_width = w; 
 				}
@@ -72,17 +82,32 @@ public:
     int				prefVNrPics() const;
     void			setPrefHeight( int h )     
 				{ 
+				    if( finalised )
+				    { 
+					pErrMsg("Not allowed when finalized."); 
+					return;
+				    }
 				    pref_char_height = -1;
 				    pref_height_set = h; 
 				}
     void			setPrefHeightInChar( float h )
 				{ 
+				    if( finalised )
+				    { 
+					pErrMsg("Not allowed when finalized."); 
+					return;
+				    }
 				    pref_height_set = -1;
 				    pref_char_height = h; 
 				}
 
     void               		setStretch( int hor, int ver ) 
 				{ 
+				    if( finalised )
+				    { 
+					pErrMsg("Not allowed when finalized."); 
+					return;
+				    }
 				    hStretch = hor; vStretch = ver; 
 				}
 
@@ -125,6 +150,8 @@ public:
 
     virtual void		finalise() 
 				{ 
+				    if( finalised )	return;
+
 				    uiObjHandle().finalising.trigger(
 								uiObjHandle()); 
 				    finalise_();
@@ -176,7 +203,6 @@ private:
     bool			is_hidden;
     bool			finalised;
     bool			display_;
-    bool			popped_up_;
 
     int				pref_width_;
     int				pref_height_;
