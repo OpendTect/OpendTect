@@ -35,6 +35,7 @@ SeisTrcWriter::~SeisTrcWriter()
 {
     close();
     delete &binids;
+    delete &lineauxiopar;
 }
 
 
@@ -47,7 +48,6 @@ void SeisTrcWriter::close()
 	lineiopar = 0;
     }
     SeisStoreAccess::close();
-    delete &lineauxiopar;
 }
 
 
