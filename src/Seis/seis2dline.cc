@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.31 2004-10-21 12:35:26 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.32 2004-10-21 12:36:59 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -338,17 +338,6 @@ Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf,
 	ErrMsg("Line number requested not found in Line Set");
 	return 0;
     }
-
-//TODO remove
-Line2DGeometry geom;
-bool res = liop_->getGeometry( *pars_[ipar], geom );
-if ( res )
-{
-    std::cerr << "\n\n--- Geometry dump ----\n";
-    geom.dump( std::cerr, true );
-    std::cerr << "\n\n--- End Geometry dump ----\n";
-}
-
 
     return liop_->getFetcher( *pars_[ipar], tbuf, sd );
 }
