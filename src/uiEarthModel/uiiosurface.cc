@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.18 2004-05-21 10:19:51 bert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.19 2004-05-26 12:39:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,16 @@ void uiIOSurface::mkObjFld( const char* lbl, bool imp )
 void uiIOSurface::fillFields( const MultiID& id )
 {
     EM::SurfaceIOData sd;
-    const char* res = EM::EMM().getSurfaceData( id, sd );
-    if ( res )
-	{ uiMSG().error( res ); return; }
+    const EM::ObjectID emid = EM::EMM().multiID2ObjectID( id );
+    mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(emid) );
+    if ( emsurf )
+	sd.use(*emsurf);
+    else
+    {
+	const char* res = EM::EMM().getSurfaceData( id, sd );
+	if ( res )
+	    { uiMSG().error( res ); return; }
+    }
 
     fillAttribFld( sd.valnames );
     fillPatchFld( sd.patches );
