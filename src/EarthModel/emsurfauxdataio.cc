@@ -20,7 +20,7 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.3 2003-06-19 13:38:32 bert Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.4 2003-07-07 15:12:38 nanne Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
@@ -233,13 +233,13 @@ EM::dgbSurfDataReader::~dgbSurfDataReader()
 
 const char* EM::dgbSurfDataReader::dataName() const
 {
-    return dataname[0] ? dataname : 0;
+    return dataname[0] ? dataname.buf() : 0;
 }
 
 
 const char* EM::dgbSurfDataReader::dataInfo() const
 {
-    return datainfo[0] ? datainfo : 0;
+    return datainfo[0] ? datainfo.buf() : 0;
 }
 
 
