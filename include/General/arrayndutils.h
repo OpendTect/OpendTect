@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.4 2000-11-13 08:54:57 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.5 2000-11-24 10:11:54 bert Exp $
 ________________________________________________________________________
 
 
@@ -91,7 +91,8 @@ protected:
 class ArrayNDWindow
 {
 public:
-    enum WindowType	{ Box, Hamming, Hanning, Blackman, Barlett, CosTaper5 };
+    enum WindowType	{ Box, Hamming, Hanning, Blackman, Barlett, CosTaper5,
+			 CosTaper10, CosTaper20 };
 			DeclareEnumUtils(WindowType);
 
 			ArrayNDWindow( const ArrayNDSize&,
@@ -171,23 +172,30 @@ protected:
 		}
     };
 
-
-    class CosTaper5Window : public MathFunction<float>
+    class CosTaperWindow : public MathFunction<float>
     {
     public:
+		CosTaperWindow( float pct )	{ setPct( pct ); }
+
 	float	getValue( double x ) const
 		{
 		    double rx = fabs( x );
 
 		    if ( rx > 1 ) return 0;
-		    if ( rx < 0.95 ) return 1;
+		    if ( rx < thresh ) return 1;
 
-		    rx -= 0.95;
-		    rx *= 20;
+		    rx -= thresh;
+		    rx *= fac;
 		
-		    return (1 + cos( M_PI * rx )) / 2.0;
+		    return (1 + cos( M_PI * rx )) * .5;
 		}
+	void	setPct( float pct )
+		{ thresh = 1. - 0.01 * pct; fac = 100. / pct; }
+
+	float	thresh;
+	float	fac;
     };
+
 };
    
 
