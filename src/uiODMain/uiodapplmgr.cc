@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.36 2004-06-04 14:53:23 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.37 2004-06-16 12:38:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -857,7 +857,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evEvaluateAttr )
     {
 	int visid = visserv->getEventObjId();
-	AttribSelSpec as( "Evaluation" );
+	AttribSelSpec as( "Evaluation", AttribSelSpec::otherAttrib );
 	visserv->setSelSpec( visid, as );
 	if ( !evaluateAttribute(visid) )
 	    return false;
