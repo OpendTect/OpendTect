@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.16 2002-07-29 11:24:56 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.17 2002-09-12 15:01:22 nanne Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -139,9 +139,12 @@ bool EarthModel::Horizon::import( const Grid& grid )
     while ( surfaces.nrSubSurfaces() ) surfaces.removeSubSurface( 0 );
     surfaces.addSubSurface();
 
+    const int nrrows = grid.nrRows();
+    const int nrcols = grid.nrCols();
+
     const GridNode node00( 0, 0 );
-    const GridNode node01( 0, 1 );
-    const GridNode node10( 1, 0 );
+    const GridNode node01( 0, nrrows-1 );
+    const GridNode node10( nrcols-1, 0 );
 
     const Coord coord00 = grid.getCoord( node00 );
     const Coord coord01 = grid.getCoord( node01 );
@@ -150,9 +153,6 @@ bool EarthModel::Horizon::import( const Grid& grid )
     setTransform( coord00.x, coord00.y, node00.row, node00.col,
 		  coord01.x, coord01.y, node01.row, node01.col,
 		  coord10.x, coord10.y, node10.row, node10.col );
-
-    const int nrrows = grid.nrRows();
-    const int nrcols = grid.nrCols();
 
     for ( int row=0; row<nrrows; row++ )
     {
