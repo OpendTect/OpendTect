@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.20 2002-01-30 15:46:35 arend Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.21 2002-06-05 14:24:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,10 +47,12 @@ class uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const char* seltxt=0);
+				      const char* seltxt=0,bool multisel=false);
 			~uiIOObjSelDlg();
 
-    const IOObj*	ioObj() const		{ return ioobj; }
+    int			nrSel() const;
+    const IOObj*	selected(int idx=0) const;
+    const IOObj*	ioObj() const			{ return selected(0); }
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -60,6 +62,7 @@ protected:
     const CtxtIOObj&	ctio;
     IODirEntryList*	entrylist;
     IOObj*		ioobj;
+    bool		ismultisel;
 
     uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
