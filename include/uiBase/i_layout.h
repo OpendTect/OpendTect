@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.18 2001-10-04 09:06:43 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.19 2001-10-17 11:53:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,7 +146,7 @@ private:
                         { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
     void 		doLayout( layoutMode m, const QRect& );
 
-    void 		layoutChildren( layoutMode m );
+    void 		layoutChildren( layoutMode m, bool finalLoop=false );
     void 		moveChildrenTo( int , int, layoutMode );
     void 		fillResizeList( ObjectSet<resizeItem>&, 
 					int&, int&, int&, int& );
@@ -159,7 +159,6 @@ private:
 
     QList<i_LayoutItem>	childrenList;
 
-//    uiRect*		layoutpos;
     uiRect		layoutpos[ nLayoutMode ];
 
     static int		mintxtwidgethgt;

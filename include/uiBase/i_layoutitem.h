@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.8 2001-10-04 09:06:43 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.9 2001-10-17 11:53:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ protected:
 
     void			initLayout( layoutMode m, int mngrTop, 
 							  int mngrLeft );
-    void			layout( layoutMode m, const int, bool* );
+    void			layout( layoutMode m, const int, bool*, bool );
 
     void			attach( constraintType, 
 					i_LayoutItem *other, int margin);

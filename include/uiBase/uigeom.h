@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.3 2001-10-10 15:26:43 arend Exp $
+ RCS:           $Id: uigeom.h,v 1.4 2001-10-17 11:53:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,12 @@ public:
 			    }
 			    return false;
 			} 
+    inline void 	bottomTo( int ref )
+			{
+			    int shift = ref - bottom();
+			    setTop( top() + shift ); 
+			    setBottom( bottom() + shift);
+			} 
     inline bool 	leftToAtLeast( int ref )
 			{
 			    int shift = ref - left();
@@ -78,12 +84,21 @@ public:
 			    }
 			    return false;
 			} 
+
     inline void 	leftTo( int ref )
 			{
 			    int shift = ref - left();
 			    setLeft( left() + shift ); 
 			    setRight( right() + shift );
 			} 
+
+    inline void 	rightTo( int ref )
+			{
+			    int shift = ref - right();
+			    setLeft( left() + shift ); 
+			    setRight( right() + shift );
+			} 
+
     inline bool 	rightToAtLeast( int ref )
 			{
 			    int shift = ref - right();

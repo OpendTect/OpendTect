@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.14 2001-10-10 15:26:43 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.15 2001-10-17 11:53:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,13 @@ public:
     void		setPrefHeightInChar( float h );
     void                setStretch( int hor, int ver );
 
+
+/*! \brief attaches object to another
+    In case the stretched... options are used, margin=-1 (default) stretches
+    the object not to cross the border.
+    margin=-2 stretches the object to fill the parent's border. This looks nice
+    with separators.
+*/
     void		attach( constraintType, int margin=-1);
     void		attach( constraintType, uiObject* oth, int margin=-1);
     void		attach( constraintType, uiGroup* oth, int margin=-1);
