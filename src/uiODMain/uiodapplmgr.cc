@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.47 2004-09-07 08:25:08 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.48 2004-09-08 08:38:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -875,7 +875,7 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
     if ( !emserv->getDataVal(*visserv->getMultiID(visid),data,attrnm,shift) )
 	return;
 
-    AttribSelSpec myas( attrnm, -1 );
+    AttribSelSpec myas( attrnm, AttribSelSpec::otherAttrib );
     visserv->setSelSpec( visid, myas );
     visserv->stuffSurfaceData( visid, false, &data );
     deepErase( data );
