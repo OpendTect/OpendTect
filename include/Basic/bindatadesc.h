@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.4 2001-12-09 09:29:53 bert Exp $
+ RCS:		$Id: bindatadesc.h,v 1.5 2001-12-10 14:53:15 bert Exp $
 ________________________________________________________________________
 
 */
@@ -118,6 +118,8 @@ protected:
     bool		isint;
     bool		issigned;
     ByteCount		nrbytes;
+
+    void		setFrom(unsigned char,bool);
 
 };
 
