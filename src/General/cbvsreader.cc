@@ -5,7 +5,24 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.27 2001-11-09 15:18:01 windev Exp $";
+
+/*!
+
+The CBVS header starts with the following bytes:
+0: 'd'
+1: 'G'
+2: 'B'
+3: platform indicator set by put_platform()
+4: version of CBVS.
+5: info on "explicit header data"
+6: not used (yet)
+7: not used (yet)
+
+The next 8 bytes are reserved for 2 integers:
+8-11: total nr bytes in the CBVS header
+12-15: not used (yet)
+
+*/
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -55,7 +72,6 @@ bool CBVSReader::readInfo()
     errmsg_ = check( strm_ );
     if ( errmsg_ ) return false;
 
-    BufferString buf(headstartbytes);
     strm_.read( buf.buf(), headstartbytes );
 
     DataCharacteristics dc;
@@ -111,7 +127,6 @@ bool CBVSReader::readInfo()
 }
 
 
-void CBVSReader::getText( int nrchar, BufferString& txt )
 {
     if ( nrchar > 0 )
     {
@@ -173,7 +188,6 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
 bool CBVSReader::readComps()
 {
 #ifdef __msvc__
-    BufferString mscbuf(4*integersize);
     #define ucbuf mscbuf.buf()
 #else
     unsigned char ucbuf[4*integersize];
@@ -190,7 +204,6 @@ bool CBVSReader::readComps()
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	strm_.read( ucbuf, integersize );
-	BufferString bs; getText( iinterp.get(ucbuf,0), bs );
 	BasicComponentInfo* newinf = new BasicComponentInfo( (const char*)bs );
 	
 	strm_.read( ucbuf, integersize );
@@ -263,7 +276,6 @@ bool CBVSReader::readGeom()
 bool CBVSReader::readTrailer()
 {
     strm_.seekg( -3, ios::end );
-    BufferString buf(3*integersize);
     strm_.read( buf.buf(), 3 ); buf[3] = '\0';
     if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
     
