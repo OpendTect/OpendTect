@@ -133,7 +133,8 @@ void SoManLevelOfDetail::doAction(SoAction *action)
     float complexity = SbClamp(SoComplexityElement::get(state), 0.0f, 1.0f);
 
     SoType actiontype = action->getTypeId();
-    if ( actiontype==SoRayPickAction::getClassTypeId() )
+    if ( actiontype==SoRayPickAction::getClassTypeId() ||
+	 actiontype==SoPickAction::getClassTypeId() )
     {
 	idx = 0;
 	goto traverse;
