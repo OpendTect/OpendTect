@@ -1,16 +1,23 @@
+#ifndef keybindings_h
+#define keybindings_h
+
 /*+
  ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Dec 2002
- RCS:           $Id: keybindings.h,v 1.1 2003-01-13 12:32:37 nanne Exp $
+ RCS:           $Id: keybindings.h,v 1.2 2003-07-25 11:15:04 nanne Exp $
 ________________________________________________________________________
 
 */
 
 #include "bufstring.h"
+#include "sets.h"
 
+class UserIDSet;
+class SoMouseButtonEvent;
+class SoEvent;
 
 /*! \brief Class for setting keybindings.
 
@@ -47,14 +54,46 @@ public:
 };
 
 
-const char* KeyBindings::sName = 	"Name";
-const char* KeyBindings::sRotate = 	"Rotate";
-const char* KeyBindings::sPan = 	"Pan";
-const char* KeyBindings::sZoom = 	"Zoom";
-const char* KeyBindings::sControl = 	"Control";
-const char* KeyBindings::sShift = 	"Shift";
-const char* KeyBindings::sLeft = 	"Left";
-const char* KeyBindings::sRight = 	"Right";
-const char* KeyBindings::sMiddle = 	"Middle";
-const char* KeyBindings::sNone = 	"None";
+class EventButton
+{
+public:
+                                EventButton() {}
 
+    BufferString                mousebut;
+    BufferString                keybut;
+};
+
+
+class KeyBindMan
+{
+public:
+                                KeyBindMan();
+
+    void                        setKeyBindings(const char*);
+    void                        getAllKeyBindings(UserIDSet&);
+    const char*			getCurrentKeyBindings() const
+				{ return curkeyb; }
+
+    const SoEvent*		processSoEvent(const SoEvent* const,bool,bool);
+
+protected:
+
+    bool                        correctButtonsPushed(EventButton,const char*);
+    void                        doZoom(SoMouseButtonEvent*);
+    void                        doPan(SoMouseButtonEvent*);
+    void                        doRotate(SoMouseButtonEvent*);
+
+    ObjectSet<KeyBindings>      keyset;
+    BufferString		curkeyb;
+
+    EventButton                 zoom;
+    EventButton                 pan;
+    EventButton                 rotate;
+
+    bool                        dozoom;
+    bool                        shiftpress;
+    bool                        ctrlpress;
+    bool                        useownevent;
+};
+
+#endif
