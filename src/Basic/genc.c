@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.22 2003-11-05 16:19:50 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.23 2003-11-06 07:50:55 nanne Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -92,7 +92,7 @@ const char* GetSoftwareDir()
 const char* GetExecScript( int remote )
 {
     static FileNameString progname;
-    strcpy( progname, getSoftwareDir() );
+    strcpy( progname, GetSoftwareDir() );
     strcpy( progname, File_getFullPath(progname, "bin") );
     strcpy( progname, File_getFullPath(progname, "od_exec") );
 
