@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.2 2003-08-25 10:31:12 bert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.3 2003-08-25 15:10:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class AscImporter
 {
 public:
 
-			AscImporter( Data& d ) : wd(d)	{}
+			AscImporter( Data& d ) : wd(d)		{}
 			~AscImporter();
 
     const char*		getTrack(const char*,bool first_is_surface);
@@ -41,7 +41,8 @@ public:
     public:
 				LasFileInfo()
 				    : zrg(mUndefValue,-mUndefValue)
-				    , undefval(-999.25)		{}
+				    , undefval(-999.25)	{}
+				~LasFileInfo()		{ deepErase(lognms); }
 
 	ObjectSet<BufferString>	lognms;
 	Interval<float>		zrg;
@@ -51,18 +52,19 @@ public:
     };
 
     const char*		getLogInfo(const char* lasfnm,LasFileInfo&) const;
+    const char*		getLogInfo(istream& lasstrm,LasFileInfo&) const;
     const char*		getLogs(const char* lasfnm,const LasFileInfo&,
+	    			bool istvd=true);
+    const char*		getLogs(istream& lasstrm,const LasFileInfo&,
 	    			bool istvd=true);
 
 protected:
 
     Data&		wd;
 
-    mutable bool		wrap;
-    mutable ObjectSet<MeasureUnit> convs;
-    mutable StreamData		sd;
+    mutable ObjectSet<MeasureUnit>	convs;
+
     void		parseHeader(char*,char*&,char*&,char*&) const;
-    const char*		gtLogInfo(const char* lasfnm,LasFileInfo&,bool) const;
 
 };
 

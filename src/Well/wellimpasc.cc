@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.2 2003-08-25 10:31:12 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.3 2003-08-25 15:10:12 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -33,10 +33,9 @@ Well::AscImporter::~AscImporter()
 
 #define mOpenFile(fnm) \
 	StreamProvider sp( fnm ); \
-	sd = sp.makeIStream(); \
+	StreamData sd = sp.makeIStream(); \
 	if ( !sd.usable() ) \
 	    return "Cannot open input file"
-#define strm (*sd.istrm)
 
 const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf )
 {
@@ -44,10 +43,10 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf )
 
     Coord3 c, c0, prevc;
     float dah = 0;
-    while ( strm )
+    while ( *sd.istrm )
     {
-	strm >> c.x >> c.y >> c.z;
-	if ( !strm || c.distance(c0) < 1 ) break;
+	*sd.istrm >> c.x >> c.y >> c.z;
+	if ( !*sd.istrm || c.distance(c0) < 1 ) break;
 
 	if ( wd.track().size() == 0 )
 	    prevc = tosurf ?
@@ -72,10 +71,10 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd )
     d2t.erase();
 
     float z, val, prevdah = mUndefValue;
-    while ( strm )
+    while ( *sd.istrm )
     {
-	strm >> z >> val;
-	if ( !strm ) break;
+	*sd.istrm >> z >> val;
+	if ( !*sd.istrm ) break;
 	if ( istvd )
 	{
 	    z = wd.track().getDahForTVD( z, prevdah );
@@ -92,17 +91,18 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd )
 const char* Well::AscImporter::getLogInfo( const char* fnm,
 					   LasFileInfo& lfi ) const
 {
-    return gtLogInfo( fnm, lfi, true );
+    mOpenFile( fnm );
+    const char* res = getLogInfo( *sd.istrm, lfi );
+    sd.close();
+    return res;
 }
 
 #define mIsKey(s) caseInsensitiveEqual(keyw,s,0)
 
-const char* Well::AscImporter::gtLogInfo( const char* fnm, LasFileInfo& lfi,
-					   bool closestrm ) const
+const char* Well::AscImporter::getLogInfo( istream& strm,
+					   LasFileInfo& lfi ) const
 {
     deepErase( convs );
-    wrap = false;
-    mOpenFile( fnm );
 
     char linebuf[1024]; char wordbuf[64];
     const char* ptr;
@@ -146,7 +146,6 @@ const char* Well::AscImporter::gtLogInfo( const char* fnm, LasFileInfo& lfi,
 			    || wordbuf[1] == '-'
 			    || wordbuf[2] == '.'
 				) )
-			if ( closestrm ) sd.close();
 			return "Invalid LAS-like file";
 
 		    lfi.lognms += new BufferString( wordbuf );
@@ -163,10 +162,6 @@ const char* Well::AscImporter::gtLogInfo( const char* fnm, LasFileInfo& lfi,
 
 	switch ( section )
 	{
-	case 'V':
-	    if ( mIsKey("WRAP") )
-		wrap = yesNoFromString( val1 );
-	break;
 	case 'C':
 	    if ( mIsKey("DEPTH") )
 		hasdepthlog = true;
@@ -211,7 +206,6 @@ const char* Well::AscImporter::gtLogInfo( const char* fnm, LasFileInfo& lfi,
     }
 
     const char* ret = strm.good() ? 0 : "Only header found; No data";
-    if ( closestrm ) sd.close();
 
     if ( !lfi.lognms.size() )
 	ret = "No logs present";
@@ -253,11 +247,71 @@ void Well::AscImporter::parseHeader( char* startptr, char*& val1, char*& val2,
 const char* Well::AscImporter::getLogs( const char* fnm, const LasFileInfo& lfi,
 					bool istvd )
 {
+    mOpenFile( fnm );
+    const char* res = getLogs( *sd.istrm, lfi, istvd );
+    sd.close();
+    return res;
+}
+
+
+const char* Well::AscImporter::getLogs( istream& strm,
+					const LasFileInfo& lfi, bool istvd )
+{
     LasFileInfo inplfi;
-    const char* res = gtLogInfo( fnm, inplfi, false );
+    const char* res = getLogInfo( strm, inplfi );
     if ( res )
-	{ sd.close(); return res; }
+	return res;
+    if ( lfi.lognms.size() == 0 )
+	return "No logs selected";
 
+    BoolTypeSet issel( inplfi.lognms.size(), false );
+    for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
+    {
+	int outidx = indexOf( lfi.lognms, *inplfi.lognms[idx] );
+	if ( indexOf(lfi.lognms,*inplfi.lognms[idx]) >= 0 )
+	{
+	    issel[idx] = true;
+	    wd.logs().add( new Well::Log(inplfi.lognms[idx]->buf()) );
+	}
+    }
 
+    float val; double dpth, prevdpth = -1e30;
+    bool havestart = !mIsUndefined(lfi.zrg.start);
+    bool havestop = !mIsUndefined(lfi.zrg.stop);
+    TypeSet<float> vals;
+
+    while ( 1 )
+    {
+	strm >> dpth;
+	if ( strm.fail() || strm.eof() ) break;
+	dpth = mIS_ZERO(dpth-lfi.undefval) ? mUndefValue
+	     : convs[0]->toSI( dpth );
+	if ( havestop && dpth > lfi.zrg.stop ) break;
+	bool douse = !mIsUndefined(dpth)
+	          && (!havestart || dpth >= lfi.zrg.start);
+	if ( mIS_ZERO(prevdpth-dpth) )
+	    douse = false;
+	else
+	    prevdpth = dpth;
+
+	vals.erase();
+	for ( int ilog=0; ilog<inplfi.lognms.size(); ilog++ )
+	{
+	    strm >> val;
+	    if ( !douse || !issel[ilog] ) continue;
+
+	    val = mIS_ZERO(val-lfi.undefval) ? mUndefValue
+		: convs[ilog+1]->toSI( val );
+	    vals += val;
+	}
+	if ( !vals.size() ) continue;
+
+	const float z = istvd ? wd.track().getDahForTVD( dpth, prevdpth )
+	    		      : dpth;
+	for ( int idx=0; idx<vals.size(); idx++ )
+	    wd.logs().getLog(idx).addValue( z, vals[idx] );
+    }
+
+    wd.logs().updateDahIntvs();
     return 0;
 }
