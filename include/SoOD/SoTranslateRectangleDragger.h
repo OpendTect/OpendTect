@@ -7,15 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTranslateRectangleDragger.h,v 1.1 2002-11-08 12:22:25 kristofer Exp $
+ RCS:		$Id: SoTranslateRectangleDragger.h,v 1.2 2003-09-16 10:06:57 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 /*!\brief
-
-
+Is a dragger that is made up of a plane that can be dragged back and forth
+along the rectangle's normal. If certain properties should be set on the plane
+(such as texture coordinates (as done in the sliding planes), nodes can be
+inserted in the prefixgroup.
 */
 
 #include <Inventor/draggers/SoDragger.h>
