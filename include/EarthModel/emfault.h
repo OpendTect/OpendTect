@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.4 2002-10-14 13:45:21 niclas Exp $
+ RCS:		$Id: emfault.h,v 1.5 2002-10-17 13:42:44 niclas Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 namespace Geometry
 {
-    class GridSurfaceImpl;
+    class GridSurface;
 };
 
 namespace EarthModel
@@ -53,11 +53,11 @@ public:
     bool		isLoaded() const { return surface; }
     Executor*		saver();
 
-    Geometry::GridSurfaceImpl*		getSurface() { return surface; }
-    const Geometry::GridSurfaceImpl*	getSurface() const { return surface; }
+    Geometry::GridSurface*		getSurface() { return surface; }
+    const Geometry::GridSurface*	getSurface() const { return surface; }
     
 protected:
-    Geometry::GridSurfaceImpl*	surface;
+    Geometry::GridSurface*		surface;
 };
 
 }; // Namespace
