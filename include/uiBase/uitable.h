@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.21 2005-01-27 09:05:19 duntao Exp $
+ RCS:           $Id: uitable.h,v 1.22 2005-01-28 09:16:34 helene Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,7 @@ public:
     const char*		text(const RowCol&) const;
     void		setText(const RowCol&,const char*);
     void		clearCell(const RowCol&);
+    void		clearTable();
     void		setCurrentCell( const RowCol& );
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.25 2005-01-27 09:05:52 duntao Exp $
+ RCS:           $Id: uitable.cc,v 1.26 2005-01-28 09:16:34 helene Exp $
 ________________________________________________________________________
 
 -*/
@@ -767,6 +767,15 @@ void uiTable::updateCellSizes( uiSize* size )
 	}
     }
 }
+
+
+void uiTable::clearTable()
+{
+    for ( int row = 0 ; row < nrRows() ; row++ )
+	for ( int col = 0 ; col < nrCols() ; col++ )
+	    clearCell( RowCol(row,col) );
+}
+
 
 bool  uiTable::isRowSelected(int row)
 {
