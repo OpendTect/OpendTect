@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.25 2003-02-25 10:32:47 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.26 2003-05-19 10:41:08 kristofer Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -892,7 +892,7 @@ Coord3& Coord3::operator-=( const Coord3& p )
 }
 
 
-double Coord3::dist( const Coord3& b ) const
+double Coord3::distance( const Coord3& b ) const
 {
     double dx = x-b.x, dy = y-b.y, dz = z-b.z;
     return sqrt( dx*dx + dy*dy + dz*dz );

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.14 2003-05-12 08:36:44 kristofer Exp $
+ RCS:		$Id: position.h,v 1.15 2003-05-19 10:41:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public:
     bool	operator!=(const Coord3&) const;
     bool	isDefined() const;
 
-    double	dist( const Coord3& b ) const;
+    double	distance( const Coord3& b ) const;
 
 
     double	z;
