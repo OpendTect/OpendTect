@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.24 2002-05-08 08:00:36 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.25 2002-10-11 14:49:50 nanne Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,9 @@ public:
     void		setDraggerSize( float w, float h, float d );
     Geometry::Pos	getDraggerSize() const;
 
+    void		showTabs(bool);
+    bool		tabsShown() const;
+
     Notifier<RectangleDragger>	started;
     Notifier<RectangleDragger>	motion;
     Notifier<RectangleDragger>	changed;
@@ -69,6 +72,7 @@ protected:
 
     SoTabPlaneDragger*	manipxydragger0;
     SoTabPlaneDragger*	manipxydragger1;
+    SoSwitch*		tabswitch;
 
     bool		allowcb;
 
@@ -111,6 +115,7 @@ public:
     bool		isSnapping() const { return snap; }
 
     void		displayDraggers(bool);
+    void		displayTabs(bool);
     void		setDraggerSize( float w, float h, float d );
     Geometry::Pos	getDraggerSize() const;
 

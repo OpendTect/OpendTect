@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.31 2002-05-08 13:42:28 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.32 2002-10-11 14:49:44 nanne Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: visrectangle.cc,v 1.31 2002-05-08 13:42:28 kris
 #include "Inventor/nodes/SoMaterial.h"
 #include "Inventor/nodes/SoShapeHints.h"
 #include "Inventor/nodes/SoTexture2.h"
+#include "Inventor/nodes/SoGroup.h"
 
 
 #include "Inventor/draggers/SoTabPlaneDragger.h"
@@ -47,6 +48,7 @@ visBase::RectangleDragger::RectangleDragger()
     , manipxydragger0( new SoTabPlaneDragger )
     , manipxydragger1( new SoTabPlaneDragger )
     , zdraggerscale( new SoScale )
+    , tabswitch( new SoSwitch )
     , allowcb( true )
 {
     SoSeparator* zmanipsep = new SoSeparator;
@@ -98,7 +100,10 @@ visBase::RectangleDragger::RectangleDragger()
     manipzdraggerleft->addFinishCallback(
 	    visBase::RectangleDragger::finishCB, this );
 
-    root->addChild( manipxydragger0 );
+    root->addChild( tabswitch );
+    SoGroup* tabgrp = new SoGroup;
+    tabswitch->addChild( tabgrp );
+    tabgrp->addChild( manipxydragger0 );
     manipxydragger0->addStartCallback(
 	    visBase::RectangleDragger::startCB, this );
     manipxydragger0->addMotionCallback(
@@ -109,9 +114,9 @@ visBase::RectangleDragger::RectangleDragger()
 	    visBase::RectangleDragger::finishCB, this );
 
     SoRotation* manipxydragger1rot = new SoRotation;
-    root->addChild( manipxydragger1rot );
+    tabgrp->addChild( manipxydragger1rot );
     manipxydragger1rot->rotation.setValue( SbVec3f( 1, 0, 0 ), M_PI );
-    root->addChild( manipxydragger1 );
+    tabgrp->addChild( manipxydragger1 );
     manipxydragger1->addStartCallback(
 	    visBase::RectangleDragger::startCB, this );
     manipxydragger1->addMotionCallback(
@@ -121,6 +126,7 @@ visBase::RectangleDragger::RectangleDragger()
     manipxydragger1->addFinishCallback(
 	    visBase::RectangleDragger::finishCB, this );
 
+    tabswitch->whichChild = 0;
     syncronizeDraggers();
 }
 
@@ -418,6 +424,19 @@ void visBase::RectangleDragger::finishCB(void* obj, SoDragger* )
     ((visBase::RectangleDragger*) obj)->finished.trigger();
 }
 
+
+void visBase::RectangleDragger::showTabs( bool yn )
+{
+    tabswitch->whichChild = yn ? 0 : SO_SWITCH_NONE;
+}
+
+
+bool visBase::RectangleDragger::tabsShown() const
+{
+    return tabswitch->whichChild.getValue()==0;
+}
+
+
 mCreateFactoryEntry( visBase::Rectangle );
 
 const char* visBase::Rectangle::orientationstr = "Orientation";
@@ -694,6 +713,12 @@ void visBase::Rectangle::setWidthRange( int dim, const Interval<float>& range )
 void visBase::Rectangle::displayDraggers(bool on)
 {
     if ( manipswitch ) manipswitch->whichChild = on ? 0 : SO_SWITCH_NONE;
+}
+
+
+void visBase::Rectangle::displayTabs( bool yn )
+{
+    if ( dragger ) dragger->showTabs( yn );
 }
 
 
