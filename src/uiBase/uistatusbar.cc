@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.cc,v 1.4 2002-01-18 14:27:39 arend Exp $
+ RCS:           $Id: uistatusbar.cc,v 1.5 2002-01-22 13:22:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,11 @@ public:
 			}
 
     void		repaint()
-			    { qthing()->repaint(); }
+			    { 
+				qthing()->repaint();
+				for( int idx=0; idx<msgs.size(); idx++)
+				    if(msgs[idx]) msgs[idx]->repaint();
+			     }
 
 protected:
 
