@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.15 2002-04-16 13:13:35 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.16 2002-04-16 14:39:13 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.15 2002-04-16 13:13:35 nann
 visSurvey::Scene::Scene()
     : inlcrltransformation( visBase::Transformation::create() )
     , timetransformation( visBase::Transformation::create() )
-    , appvel( 1000 )
+    , appvel( 0 )
     , appvelchange( this )
 {
     visBase::Transformation* reversedz = visBase::Transformation::create();
@@ -82,7 +82,7 @@ visSurvey::Scene::Scene()
 	0,		0,		0,	1 );
 
     // Set time trans
-    setApparentVel( 2*appvel );
+    setApparentVel( 2000 );
 
     BinIDRange hrg = SI().range();
     StepInterval<double> vrg = SI().zRange();
@@ -165,7 +165,7 @@ void visSurvey::Scene::setApparentVel( float a )
     timetransformation->setA(
 	1,	0,	0,		0,
 	0,	1,	0,		0,
-	0,	0,	appvel,		0,
+	0,	0,	appvel/2,	0,
 	0,	0,	0,		1 );
 
     appvelchange.trigger();
