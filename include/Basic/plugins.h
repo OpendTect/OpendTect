@@ -89,6 +89,9 @@ public:
     				//!< returns without 'lib', extension and path
     const PluginInfo&		getInfo(const char*) const;
 
+    const char*			defDir(bool instdir=true) const;
+    				//! base directoy where plugins are located
+
 private:
 
     				PluginManager();

@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.9 2003-09-26 21:40:31 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.10 2003-10-20 15:17:57 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseismmproc.h"
 #include "uimain.h"
+#include "plugins.h"
 
 #include "prog.h"
 #include "strmprov.h"
@@ -24,6 +25,9 @@ ________________________________________________________________________
 
 int main( int argc, char ** argv )
 {
+    PIM().setArgs( argc, argv );
+    PIM().loadAuto( false );
+
     int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
 	
     if ( argc+bgadd < 3 )
@@ -67,5 +71,6 @@ int main( int argc, char ** argv )
 
     app.setTopLevel( smmp );
     smmp->show();
+    PIM().loadAuto( true );
     return app.exec();
 }

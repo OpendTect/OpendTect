@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.14 2003-10-20 09:49:39 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.15 2003-10-20 15:17:56 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -143,9 +143,8 @@ static void loadPlugins( const char* dirnm, int argc, char** argv,
 }
 
 
-static void loadPIs( const char* dnm, int argc, char** argv, int inittype )
+static void loadPIs( const char* dirnm, int argc, char** argv, int inittype )
 {
-    BufferString dirnm = File_getFullPath( dnm, getHDir() );
     if ( !File_exists(dirnm) )
 	return;
 
@@ -156,15 +155,30 @@ static void loadPIs( const char* dnm, int argc, char** argv, int inittype )
 }
 
 
+static const char* getDefDir( bool instdir )
+{
+    static BufferString dnm;
+    if ( instdir )
+    {
+	dnm = GetSoftwareDir();
+	dnm = File_getFullPath( dnm, plugindir );
+    }
+    else
+    {
+	dnm = GetPersonalDir();
+	dnm = File_getFullPath( dnm, ".od" );
+	dnm = File_getFullPath( dnm, plugindir );
+    }
+
+    dnm = File_getFullPath( dnm, getHDir() );
+    return dnm.buf();
+}
+
+
 extern "C" void LoadAutoPlugins( int argc, char** argv, int inittype )
 {
-    const BufferString homedir( GetPersonalDir() );
-    BufferString dirnm = File_getFullPath( homedir, ".od" );
-    dirnm = File_getFullPath( dirnm, plugindir );
-    loadPIs( dirnm, argc, argv, inittype );
-    const BufferString swdir( GetSoftwareDir() );
-    dirnm = File_getFullPath( swdir, plugindir );
-    loadPIs( dirnm, argc, argv, inittype );
+    loadPIs( getDefDir(false), argc, argv, inittype );
+    loadPIs( getDefDir(true), argc, argv, inittype );
 }
 
 
@@ -181,6 +195,12 @@ void PluginManager::getUsrNm( const char* libnm, BufferString& nm ) const
 {
     const BufferString libnmonly = File_getFileName(libnm);
     nm = getFnName( libnmonly, "" );
+}
+
+
+const char* PluginManager::defDir( bool instdir ) const
+{
+    return getDefDir( instdir );
 }
 
 
