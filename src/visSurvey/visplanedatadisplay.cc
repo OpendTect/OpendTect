@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.7 2002-04-24 09:58:39 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.8 2002-04-24 15:03:53 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
@@ -267,6 +267,9 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSlice* attrslice )
 	trect->getRectangle().resetManip();
 	return false;
     }
+
+    if ( trect->getRectangle().manipOrigo() != trect->getRectangle().origo() )
+	trect->getRectangle().moveObjectToManipRect();
     
     trect->setData( *attrslice );
     trect->useTexture( true );
