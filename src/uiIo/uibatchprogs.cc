@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.18 2004-07-05 09:08:00 nanne Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.19 2005-01-31 10:49:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -283,17 +283,13 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
     comm += " --inxterm+askclose ";
     if ( bpi.issys ) comm += "--sys ";
-#ifdef __win__ // TODO: check if this hurts on *nix
-    comm += "\"";
-
-    BufferString prognm = progfld->box()->text();
-    replaceCharacter(prognm.buf(),' ','%');
-    comm += prognm;
 
     comm += "\"";
-#else
-    comm += progfld->box()->text();
-#endif
+
+    FilePath progfp(  progfld->box()->text() );
+    comm += progfp.fullPath( FilePath::Unix );
+
+    comm += "\"";
 
     ObjectSet<uiGenInput>& inplst = *inps[selidx];
     for ( int iinp=0; iinp<inplst.size(); iinp++ )
@@ -303,15 +299,12 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	BufferString val;
 	if ( finp )
 	{
-#ifdef __win__ // TODO: check if this hurts on *nix
 	    val = "\"";
-	    BufferString prognm = finp->fileName();
-	    replaceCharacter(prognm.buf(),' ','%');
-	    val += prognm;
+
+	    FilePath argfp( finp->fileName() );
+	    val += argfp.fullPath( FilePath::Unix );
+
 	    val += "\"";
-#else
-	    val = finp->fileName();
-#endif
 	}
 	else if ( bpi.args[iinp]->type != BatchProgPar::QWord )
 	    val = inp->text();
