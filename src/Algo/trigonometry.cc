@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.8 2003-04-14 09:00:09 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.9 2003-04-14 14:02:39 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -130,10 +130,11 @@ TypeSet<Vector3>* makeSphereVectorSet( double dradius )
 	const double radius = cos(dip);
 	const double perimeter = twopi*radius;
 
-	int nrazi = mNINT(perimeter/dradius);
+	int nrazi = mNINT((dipidx ? perimeter : M_PI)/dradius);
 	//!< No +1 since it's comes back to 0 when angle is 2*PI
+	//!< The dipidx ? stuff is to avoid multiples 
 	if ( !nrazi ) nrazi = 1;
-	const double dazi = twopi/nrazi;
+	const double dazi = (dipidx ? twopi : M_PI)/nrazi;
 
 	for ( int aziidx=0; aziidx<nrazi; aziidx++ )
 	{
