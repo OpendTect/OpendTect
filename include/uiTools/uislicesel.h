@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.7 2004-05-03 16:05:38 nanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.8 2004-06-23 11:15:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,10 +26,10 @@ namespace Threads { class Mutex; };
 class uiSliceSel : public uiDialog
 {
 public:
+    enum Type			{ Inl, Crl, Tsl, Vol };
+
 				uiSliceSel(uiParent*,const CubeSampling&,
-					   const CallBack&,int type);
-    				/*!< type==0: inline, 1: crossline, 2: timeslice
-				     3: volume */
+					   const CallBack&,Type);
 				~uiSliceSel();
     const CubeSampling&		getCubeSampling()	{ return cs; }
 

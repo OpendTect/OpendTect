@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.18 2004-06-21 10:09:31 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.19 2004-06-23 11:15:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,19 +18,19 @@ ________________________________________________________________________
 
 
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_, 
-			const CallBack& appcb, int type )
+			const CallBack& appcb, Type type )
     : uiDialog(p,uiDialog::Setup("Slice creation",
 				 "Specify what you want to see",
-				 0))
+				 0).modal(type==Vol))
     , cs(*new CubeSampling)
     , doupdfld(0)
     , cschanged(this)
     , updatemutex(*new Threads::Mutex)
 {
-    isinl = !type;
-    iscrl = type == 1;
-    istsl = type == 2;
-    isvol = type == 3;
+    isinl = type == Inl;
+    iscrl = type == Crl;
+    istsl = type == Tsl;
+    isvol = type == Vol;
     
     Interval<int> inlrg( cs_.hrg.start.inl, cs_.hrg.stop.inl );
     BufferString label( isinl ? "Inline nr" : "Inline range" );
