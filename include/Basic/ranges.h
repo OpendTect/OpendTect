@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.21 2002-12-16 07:00:53 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.22 2002-12-16 08:33:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,13 @@ public:
 
     inline T	atIndex( int idx, const T& step ) const
 		{ return start + step * idx; }
-    inline int	getIndex( const T& t, const T& step ) const
+
+    template <class X>
+    inline int	getIndex( const X& t, const T& step ) const
 		{ return (int)(( t  - start ) / step); }
-    int         nearestIndex( const T& x, const T& step ) const
+
+    template <class X>
+    inline int	nearestIndex( const X& x, const T& step ) const
 		{
 		    int nr = getIndex(x,step);
 		    return step < 0
@@ -118,11 +122,17 @@ public:
 
     inline T	atIndex( int idx ) const
 		{ return Interval<T>::atIndex(idx,step); }
-    inline int	getIndex( const T& t ) const
+
+    template <class X>
+    inline int	getIndex( const X& t ) const
 		{ return Interval<T>::getIndex( t, step ); }
-    inline int	nearestIndex( const T& x ) const
+
+    template <class X>
+    inline int	nearestIndex( const X& x ) const
 		{ return Interval<T>::nearestIndex( x, step ); }
-    inline T	snap( const T& t ) const
+
+    template <class X>
+    inline T	snap( const X& t ) const
 		{ return atIndex( nearestIndex( t ) ); }
 
     inline int	nrSteps() const;
