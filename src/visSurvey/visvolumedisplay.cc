@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.34 2003-03-21 15:45:10 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.35 2003-04-14 15:37:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,6 +343,10 @@ void visSurvey::VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
     cube->setVolRenColorTab( ctab );
     cube->setViewerColorTab( ctab );
 }
+
+
+const visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTab() const
+{ return cube->getViewerColorTab(); }
 
 
 visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTab()
