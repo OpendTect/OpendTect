@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.52 2004-09-30 15:31:03 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.53 2004-10-01 12:39:40 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -572,6 +572,15 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     uiPopupMenu* trackmnu = menu->getMenu( uiVisSurface::trackingmenutxt );
     if ( uilistviewitem->isChecked() && trackmnu )
     {
+	applMgr()->trackServer()->setSceneID( sceneID() );
+	applMgr()->trackServer()->setDisplayID( displayid );
+
+	EM::SectionID section = -1;
+	if ( uivissurf->nrSections()==1 )
+	    section = uivissurf->getSection(0);
+	else if ( menu->getPath() )
+	    section = uivissurf->getSection( menu->getPath() );
+
 	const Coord3& pickedpos = menu->getPickedPos();
 	const bool hastracker = applMgr()->trackServer()->getTrackerID(mid)>=0;
 
@@ -585,13 +594,16 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    toggletrackingmnuid = -1;
 	    addsectionmnuid = -1;
 	}
-	else if ( hastracker )
+	else if ( hastracker && section != -1 )
 	{
 	    trackmnuid = -1;
 
 	    addsectionmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Add section ..."),
 		    		  addsectionmnuid );
+	    extendsectionmnuid = menu->getFreeID();
+	    trackmnu->insertItem( new uiMenuItem("Extend section ..."),
+		    		  extendsectionmnuid );
 
 	    tracksetupmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Change setup ..."),
@@ -602,19 +614,15 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    trackmnu->insertItem( tracktogglemnuitem, toggletrackingmnuid );
 	    tracktogglemnuitem->setChecked(
 		    applMgr()->trackServer()->isTrackingEnabled(mid) );
-	}
 
-	EM::SectionID section = -1;
-	if ( uivissurf->nrSections()==1 )
-	    section = uivissurf->getSection(0);
-	else if ( menu->getPath() )
-	    section = uivissurf->getSection( menu->getPath() );
-
-	relmnuid = -1;
-	if ( section != -1 && uivissurf->isHorizon(displayid) )
-	{
-	    relmnuid = menu->getFreeID();
-	    trackmnu->insertItem( new uiMenuItem("Relations ..."), relmnuid );
+	    if ( uivissurf->isHorizon(displayid) )
+	    {
+		relmnuid = menu->getFreeID();
+		trackmnu->insertItem( new uiMenuItem("Relations ..."), 
+				      relmnuid );
+	    }
+	    else
+		relmnuid = -1;
 	}
 
 	storemnuid = -1;
@@ -672,10 +680,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !uivissurf->isHorizon(displayid) && !uivissurf->isFault(displayid))
 	    return;
 
-	applMgr()->trackServer()->setDisplayID( displayid );
-	applMgr()->trackServer()->setSceneID( sceneID() );
 	applMgr()->trackServer()->trackExistingSurface( mid, section, 
-			menu->getPickedPos(), uivissurf->isHorizon(displayid) );
+							menu->getPickedPos() );
     }
     else if ( mnuid==tracksetupmnuid )
     {
@@ -728,9 +734,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==addsectionmnuid )
     {
 	menu->setIsHandled(true);
-	bool ishor = uivissurf->isHorizon( displayid );
-	applMgr()->trackServer()->setDisplayID( displayid );
-	applMgr()->trackServer()->addNewSection( mid, ishor );
+	applMgr()->trackServer()->addNewSection( mid );
+    }
+    else if ( mnuid==extendsectionmnuid )
+    {
+	menu->setIsHandled(true);
+	applMgr()->trackServer()->extendSection( mid, section );
     }
 }
 
