@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.114 2003-01-22 08:56:42 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.115 2003-01-22 12:08:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -490,7 +490,7 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	return duplicateObject( id, sceneid );
 	
     if ( mnu==mSelAttrib )
-	 return calculateAttrib(id);	//Will both select and calculate
+	 return calculateAttrib(id,true);  //Will both select and calculate
 
     if ( mnu==mPosition )
 	return setPosition( id );
@@ -1342,13 +1342,14 @@ bool uiVisPartServer::selectAttrib( int id )
 }
 
 
-bool uiVisPartServer::calculateAttrib( int id )
+bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
 
     const AttribSelSpec* as = getSelSpec( id );
     bool res = true;
-    if ( as->id()<0 ) res = selectAttrib( id );
+    if ( newselect || as->id() < 0 ) 
+	res = selectAttrib( id );
     if ( !res ) return res;
 
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj);
@@ -1415,12 +1416,12 @@ bool uiVisPartServer::setPosition( int id )
 	if ( pdd )
 	{
 	    pdd->setCubeSampling( cs );
-	    return calculateAttrib( id );
+	    return calculateAttrib( id, false );
 	}
 	else if ( vd )
 	{
 	    vd->setCubeSampling( cs );
-	    return calculateAttrib( id );
+	    return calculateAttrib( id, false );
 	}
     }
 
@@ -1439,7 +1440,7 @@ void uiVisPartServer::updatePlanePos( CallBacker* cb )
 
     CubeSampling cs = dlg->getCubeSampling();
     pdd->setCubeSampling( cs );
-    calculateAttrib( id );
+    calculateAttrib( id, false );
     sendEvent( evInteraction );
 }
   
@@ -1639,7 +1640,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     mCBCapsuleUnpack(int,oldsel,cb);
     if ( isManipulated( oldsel ) && hasAttrib(oldsel))
     {
-	if ( calculateAttrib( oldsel ) )
+	if ( calculateAttrib( oldsel, false ) )
 	{
 	    acceptManipulation( oldsel );
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.74 2003-01-22 08:56:29 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.75 2003-01-22 12:08:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,7 +183,7 @@ protected:
 
     bool			hasAttrib( int id ) const;
     bool			selectAttrib( int id );
-    bool			calculateAttrib( int id );
+    bool			calculateAttrib( int id, bool newsel );
 
     bool			isMovable( int id ) const;
     bool			setPosition( int id );
