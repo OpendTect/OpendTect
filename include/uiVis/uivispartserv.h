@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.97 2003-10-06 15:59:00 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.98 2003-10-07 07:12:11 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
 
     int				addInterpreter( int scene );
     void			toogleDirection(int obj);
+    const CubeSampling&		getInterpreterPlane( int obj ) const;
 
     void			removeObject(int id,int sceneid);
 
