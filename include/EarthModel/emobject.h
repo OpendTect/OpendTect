@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.20 2004-05-06 12:31:11 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.21 2004-05-06 21:41:45 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,7 @@ public:
     virtual const char*		posAttribName(int) const;
     virtual int			nrPosAttribs() const;
     virtual int			addPosAttribName(const char*);
+    CNotifier<EMObject, PosID>*	getPosAttribChNotifier( int, bool create );
 
     CNotifier<EMObject, PosID>	poschnotifier;
 
@@ -88,6 +89,7 @@ protected:
 
     ObjectSet<TypeSet<PosID> >	posattribs;
     TypeSet<int>		attribs;
+    ObjectSet<CNotifier<EMObject, PosID> >	posattrchnotifiers;
 };
 
 }; // Namespace

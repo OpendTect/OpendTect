@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.16 2004-05-06 12:31:08 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.17 2004-05-06 21:41:50 kristofer Exp $";
 
 #include "emobject.h"
 
@@ -56,12 +56,15 @@ EM::EMObject::EMObject( EMManager& emm_, const EM::ObjectID& id__ )
     : manager( emm_ )
     , poschnotifier( this )
     , id_( id__ )
-{}
+{
+    posattrchnotifiers.allowNull();
+}
 
 
 EM::EMObject::~EMObject()
 {
     deepErase( posattribs );
+    deepErase( posattrchnotifiers );
 }
 
 
@@ -85,9 +88,12 @@ void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )
     {
-	if ( !yn ) return;
-	attribs += attr;
-	posattribs += new TypeSet<EM::PosID>(1,pid);
+	if ( yn )
+	{
+	    attribs += attr;
+	    posattribs += new TypeSet<EM::PosID>(1,pid);
+	    posattrchnotifiers += 0;
+	}
     }
     else
     {
@@ -96,20 +102,16 @@ void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 
 	if ( idy==-1 )
 	{
-	    if ( !yn ) return;
-	    posids += pid;
+	    if ( yn ) posids += pid;
 	}
 	else if ( !yn )
 	{
 	    posids.removeFast(idy);
-	    if ( !posids.size() )
-	    {
-		delete posattribs[idx];
-		posattribs.remove( idx );
-		attribs.remove( idx );
-	    }
 	}
     }
+
+    CNotifier<EMObject, PosID>* notifier = getPosAttribChNotifier(attr,false);
+    if ( notifier ) notifier->trigger( pid, this );
 }
 
 
@@ -145,3 +147,26 @@ int EM::EMObject::addPosAttribName( const char* name )
 {
     return -1;
 }
+
+
+CNotifier<EM::EMObject, EM::PosID>*
+EM::EMObject::getPosAttribChNotifier( int attr, bool create )
+{
+    int idx=attribs.indexOf(attr);
+    if ( idx==-1 )
+    {
+	if ( !create ) return 0;
+
+	attribs += attr;
+	posattribs += new TypeSet<EM::PosID>;
+	posattrchnotifiers += 0;
+	idx = 0;
+    }
+
+    if ( !posattrchnotifiers[idx] && create )
+	posattrchnotifiers.replace( new CNotifier<EMObject, PosID>(this),idx );
+
+    return posattrchnotifiers[idx];
+}
+
+
