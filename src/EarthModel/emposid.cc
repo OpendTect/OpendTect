@@ -4,15 +4,22 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emposid.cc,v 1.3 2003-06-03 12:46:12 bert Exp $";
+static const char* rcsID = "$Id: emposid.cc,v 1.4 2003-06-03 13:25:44 kristofer Exp $";
 
 #include "emposid.h"
 #include "iopar.h"
+#include "geomgridsurface.h"
 
 
 const char* EM::PosID::emobjstr ="Object";
 const char* EM::PosID::patchstr = "Patch";
 const char* EM::PosID::subidstr = "Sub ID";
+
+
+RowCol EM::PosID::getRowCol() const
+{
+    return Geometry::GridSurface::getGridNode(subID());
+}
 
 
 void EM::PosID::fillPar( IOPar& par ) const

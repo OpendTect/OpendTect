@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.5 2003-06-03 12:46:12 bert Exp $
+ RCS:		$Id: emposid.h,v 1.6 2003-06-03 13:22:33 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,9 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "geomposidholder.h"
+
+#include "rowcol.h"
+
 
 namespace EM
 {
@@ -41,6 +44,12 @@ public:
     const ObjectID&		emObject() const;
     const PatchID&		patchID() const;
     const SubID&		subID() const;
+
+    RowCol			getRowCol() const;
+    				/*!< Should not be used, only for db
+				     purposes (it makes it possible to db
+				     SubID
+				 */
 
     bool			operator==(const PosID& b) const;
     bool			operator!=(const PosID& b) const;
