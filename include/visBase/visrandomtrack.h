@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.1 2003-01-07 10:34:18 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.2 2003-01-07 10:39:27 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,11 @@ public:
 
     void			setDepthInterval( const Interval<float>& );
     const Interval<float>&	getDepthInterval() const;
+
+    void			setXrange( const StepInterval<float>& );
+    void			setYrange( const StepInterval<float>& );
+    void			setZrange( const StepInterval<float>& );
+    				/*!< sets limits for dragging */
 
     void			setClipRate( float );
     float			clipRate() const;
