@@ -10,6 +10,11 @@ Remote shell: rsh
 -- Default 'nice' level should hardly ever not be 19.
 --
 Default nice level: 19
+--
+-- Every MM Batch process will use a socket. The port number will be
+-- assigned, and incremented until a free port is found.
+--
+First port: 37500
 !
 --
 -- The list of hosts that are available for batch processing.
