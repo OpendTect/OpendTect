@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.1 2002-06-24 15:01:39 nanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.2 2002-08-08 08:55:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,9 @@ bool uiImportPickSet::handleAscii()
 		x = c.x; y = c.y;
 	    }
 	}
+
+	if ( z > 2 * SI().zRange(false).stop )
+	    z *= 0.001;
 	*ps += PickLocation( x, y, z );
     }
 
