@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.9 2004-09-27 09:02:52 kristofer Exp $
+ RCS:           $Id: vishingeline.cc,v 1.10 2004-11-16 09:26:44 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,18 +136,18 @@ bool EdgeLineSetDisplay::setEdgeLineSet( int emobjid )
 }
 
 
-void EdgeLineSetDisplay::setTransformation( visBase::Transformation* nt)
+void EdgeLineSetDisplay::setDisplayTransformation( visBase::Transformation* nt)
 {
     if ( transformation ) transformation->unRef();
     transformation = nt;
     if ( transformation ) transformation->ref();
 
     for ( int idx=0; idx<polylines.size(); idx++ )
-	polylines[idx]->setTransformation( nt );
+	polylines[idx]->setDisplayTransformation( nt );
 }
 
 
-visBase::Transformation* EdgeLineSetDisplay::getTransformation()
+visBase::Transformation* EdgeLineSetDisplay::getDisplayTransformation()
 { return transformation; }
 
 
@@ -166,7 +166,7 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 				    visBase::IndexedPolyLine3D::create();
 	    polylines += polyline;
 	    polyline->ref();
-	    polyline->setTransformation( transformation );
+	    polyline->setDisplayTransformation( transformation );
 	    addChild( polyline->getInventorNode() );
 	    polyline->setMaterialBinding( 2 );
 	    polylinesegments += new TypeSet<int>;

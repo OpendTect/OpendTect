@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.61 2004-10-22 14:52:56 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.62 2004-11-16 09:26:44 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -89,7 +89,7 @@ void Scene::setCube()
 
 void Scene::addUTMObject( visBase::VisualObject* obj )
 {
-    obj->setTransformation( SPM().getUTM2DisplayTransform() );
+    obj->setDisplayTransformation( SPM().getUTM2DisplayTransform() );
     int insertpos = getFirstIdx( inlcrl2displtransform );
     insertObject( insertpos, obj );
 }

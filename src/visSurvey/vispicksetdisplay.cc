@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.61 2004-09-29 13:02:19 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.62 2004-11-16 09:26:44 kristofer Exp $";
 
 #include "vissurvpickset.h"
 
@@ -95,7 +95,7 @@ void PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
     visBase::Marker* marker = visBase::Marker::create();
     group->addObject( marker );
 
-    marker->setTransformation( transformation );
+    marker->setDisplayTransformation( transformation );
     marker->setCenterPos( pos );
     marker->setDirection( dir );
     marker->setScreenSize( picksz );
@@ -425,7 +425,7 @@ int PickSetDisplay::usePar( const IOPar& par )
 }
 
 
-void PickSetDisplay::setTransformation( visBase::Transformation* newtr )
+void PickSetDisplay::setDisplayTransformation( visBase::Transformation* newtr )
 {
     if ( transformation==newtr )
 	return;
@@ -441,12 +441,12 @@ void PickSetDisplay::setTransformation( visBase::Transformation* newtr )
     for ( int idx=0; idx<group->size(); idx++ )
     {
 	mDynamicCastGet( visBase::Marker*, marker, group->getObject(idx));
-	marker->setTransformation( transformation );
+	marker->setDisplayTransformation( transformation );
     }
 }
 
 
-visBase::Transformation* PickSetDisplay::getTransformation()
+visBase::Transformation* PickSetDisplay::getDisplayTransformation()
 {
     return transformation;
 }

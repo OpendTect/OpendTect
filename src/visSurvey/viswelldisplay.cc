@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.40 2004-10-01 12:29:21 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.41 2004-11-16 09:26:44 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -342,7 +342,7 @@ int WellDisplay::usePar( const IOPar& par )
 	viswellid = well->id();
     }
     
-    setTransformation( SPM().getUTM2DisplayTransform() );
+    setDisplayTransformation( SPM().getUTM2DisplayTransform() );
 
     MultiID newmid;
     if ( !par.get(earthmodelidstr,newmid) )
@@ -391,13 +391,13 @@ int WellDisplay::usePar( const IOPar& par )
 }
 
 
-void WellDisplay::setTransformation( visBase::Transformation* nt )
+void WellDisplay::setDisplayTransformation( visBase::Transformation* nt )
 {
-    well->setTransformation( nt );
+    well->setDisplayTransformation( nt );
 }
 
 
-visBase::Transformation* WellDisplay::getTransformation()
-{ return well->getTransformation(); }
+visBase::Transformation* WellDisplay::getDisplayTransformation()
+{ return well->getDisplayTransformation(); }
 
 }; // namespace visSurvey
