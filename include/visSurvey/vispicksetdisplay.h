@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.15 2002-05-03 13:38:26 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.16 2002-05-08 13:41:04 nanne Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 
 class Color;
+class IOPar;
 
 namespace visBase { class SceneObjectGroup; class EventCatcher; };
 namespace Geometry { class Pos; }
@@ -54,6 +55,9 @@ public:
     void			filterPicks( ObjectSet<SurveyObject>&,
 	    				     float dist );
 
+    virtual void                fillPar( IOPar&, TypeSet<int>& ) const;
+    virtual int                 usePar( const IOPar& );
+
     void			setSize( float inl, float crl, float t );
     Notifier<PickSetDisplay>	changed;
 
@@ -74,6 +78,9 @@ protected:
 
     visBase::SceneObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
+
+    static const char*	grpstr;
+    static const char*	showallstr;
 };
 
 };

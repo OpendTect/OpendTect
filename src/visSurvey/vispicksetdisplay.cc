@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.25 2002-05-03 13:38:45 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.26 2002-05-08 13:40:54 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -15,8 +15,12 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.25 2002-05-03 13:38:45
 #include "viscube.h"
 #include "geompos.h"
 #include "color.h"
+#include "iopar.h"
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
+
+const char* visSurvey::PickSetDisplay::grpstr = "Group";
+const char* visSurvey::PickSetDisplay::showallstr = "Show all";
 
 visSurvey::PickSetDisplay::PickSetDisplay( )
     : group( visBase::SceneObjectGroup::create() )
@@ -256,4 +260,43 @@ void visSurvey::PickSetDisplay::updateCubeSz( CallBacker* cb )
 }
 
 
-	    
+void visSurvey::PickSetDisplay::fillPar( IOPar& par, 
+	TypeSet<int>& saveids ) const
+{
+    visBase::VisualObjectImpl::fillPar( par, saveids );
+    int grpid = group->id();
+    par.set( grpstr, grpid );
+    par.setYN( showallstr, showall );
+
+    if ( saveids.indexOf( grpid )==-1 ) saveids += grpid;
+    
+}
+
+
+int visSurvey::PickSetDisplay::usePar( const IOPar& par )
+{
+    int res =  visBase::VisualObjectImpl::usePar( par );
+    if ( res != 1 ) return res;
+
+    bool shwallpicks;
+    if ( !par.getYN( showallstr, shwallpicks ) ) return -1;
+    showAll( shwallpicks );
+ 
+    int grpid;
+    if ( !par.get( grpstr, grpid ) )
+	return -1;
+
+    visBase::DataObject* dataobj = visBase::DM().getObj( grpid );
+    if ( !dataobj ) return 0;
+
+    mDynamicCastGet( visBase::SceneObjectGroup*, sogrp, dataobj );
+    if ( !sogrp ) return -1;
+
+    removeChild( group->getData() );
+    group->unRef();
+    group = sogrp;
+    group->ref();
+    addChild( group->getData() );
+    
+    return 1;
+}
