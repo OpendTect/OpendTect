@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.7 2002-12-30 08:01:28 kristofer Exp $
+ RCS:		$Id: threadwork.h,v 1.8 2002-12-30 12:00:23 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ in time. Note that no notification is done when the task is done. It's up to
 the user of the class to implement such things in the ThreadTask.
 */
 
-class ThreadWorkManager
+class ThreadWorkManager : public CallBacker
 {
 public:
 				//Interface from outside world
@@ -46,6 +46,8 @@ public:
     				/*!< Removes the task from queue
 				     and stop it if allready running
 				*/
+
+    Notifier<ThreadWorkManager>	isidle;
     
 protected:
 
