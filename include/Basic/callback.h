@@ -8,10 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.14 2001-05-02 13:49:54 windev Exp $
+ RCS:		$Id: callback.h,v 1.15 2001-05-10 13:57:43 arend Exp $
 ________________________________________________________________________
 
 -*/
+
+#include <gendefs.h>  // only needed for mTFriend and mProtected macros
 
 /*!
 In any OO system callbacks to an unknown client must be possible. To be able
@@ -211,24 +213,62 @@ The callback is issued when you call the trigger() method, like:
 \code
 buttonclicked.trigger();
 \endcode
+
+The callback can be temporary stopped using disable()/enable() pair,
+or by use of a NotifyStopper, which automatically enables the callback
+when going out of scope.
+
 */
 
 template <class T>
 class Notifier : public i_Notifier
 {
     friend		T;
+    mTFriend		(TT,NotifyStopper);
 
 public:
 
-    void		trigger( T& t )		{ trigger(&t); }
+    void		trigger( T& t )				{ trigger(&t); }
+    void		enable( T& t )				{ enable(); }
+    void		disable( T& t )				{ disable(); }
+
+mProtected:
+
+			Notifier( T* c ) : enabled( true )	{ cber = c; }
+
+    inline void		trigger(CallBacker* c=0)
+			{ if ( !enabled ) return; cbs.doCall(c ? c : cber); }
+
+    bool		enabled;
+    inline void		enable()				{enabled=true; }
+    inline void		disable()				{enabled=false;}
+
+};
+
+
+/* \brief temporarily disables a notifier
+
+The notifier is automatically enabled when NotifyStopper goes out of scope.
+
+*/
+template <class T>
+class NotifyStopper 
+{
+public:
+			NotifyStopper( Notifier<T>& theNotifier ) 
+			    : thenotif( theNotifier ) {}
+
+			~NotifyStopper()	{ thenotif.disable();}
+
+    void		enable()		{ thenotif.enable(); }
+    void		disable()		{ thenotif.disable(); }
 
 protected:
 
-			Notifier( T* c )	{ cber = c; }
-
-    inline void		trigger(CallBacker* c=0){ cbs.doCall(c ? c : cber); }
-
+    Notifier<T>& 	thenotif;
 };
+
+
 
 
 /*! \brief Notifier with automatic capsule creation.
