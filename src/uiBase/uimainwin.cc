@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.54 2002-06-11 12:25:24 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.55 2002-06-18 13:04:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -568,7 +568,9 @@ public:
 				case uiDialog::CANCEL : return cnclBut;
 				break;
 				case uiDialog::SAVE   : 
-				    return saveBut_cb ? saveBut_cb : saveBut_pb;
+				    return saveBut_cb
+					? (uiButton*) saveBut_cb
+					: (uiButton*) saveBut_pb;
 				break;
 				case uiDialog::HELP   : return helpBut;
 				break;
@@ -824,7 +826,7 @@ void uiDialogBody::finalise()
 	    }
 	    if( cnclBut )
 		cnclBut->attach(ensureRightOf, 
-				    saveBut_cb ? saveBut_cb : saveBut_pb);
+		    saveBut_cb ? (uiButton*)saveBut_cb : (uiButton*)saveBut_pb);
 
 	    if( saveBut_cb )
 		saveBut_cb->attach( bottomBorder, 0 );
