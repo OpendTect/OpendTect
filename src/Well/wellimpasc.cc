@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.12 2003-11-12 12:57:04 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.13 2003-12-01 13:32:02 nanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -108,6 +108,7 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd,
 	if ( istvd )
 	{
 	    z = wd.track().getDahForTVD( z, prevdah );
+	    if ( mIsUndefined(z) ) continue;
 	    prevdah = z;
 	}
 	d2t.add( z, val );
