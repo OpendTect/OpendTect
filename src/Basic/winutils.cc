@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.7 2005-01-14 10:08:01 arend Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.8 2005-01-14 15:57:08 dgb Exp $";
 
 
 #include "winutils.h"
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: winutils.cc,v 1.7 2005-01-14 10:08:01 arend Exp
 #endif
 
 # include <ctype.h>
+
 
 #ifdef __cpp__
 extern "C" {
@@ -128,25 +129,24 @@ const char* getCleanWinPath( const char* path )
 const char* getCygDir()
 {
     static BufferString answer;
-
     if ( answer != "" )  return answer;
-    
-    HKEY hKeyRoot = HKEY_LOCAL_MACHINE;
-    LPCTSTR subkey="SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
+
+    HKEY hKeyRoot = HKEY_CURRENT_USER;
+    LPTSTR subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
     LPTSTR Value="native"; 
 
-    BYTE Value_data[80];
-    DWORD Value_size = 80;
+    BYTE Value_data[256];
+    DWORD Value_size = sizeof(Value_data);
 
-    HKEY hKeyNew=0;
-    DWORD retcode=0;
-    DWORD Value_type=0;
+    HKEY hKeyNew = 0;
+    DWORD retcode = 0;
+    DWORD Value_type = 0;
 
-    retcode = RegOpenKeyEx ( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew);
+    retcode = RegOpenKeyEx ( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew );
 
     if (retcode != ERROR_SUCCESS)
     {
-	hKeyRoot = HKEY_CURRENT_USER;
+	hKeyRoot = HKEY_LOCAL_MACHINE;
 	subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
 
 	retcode = RegOpenKeyEx( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew);
