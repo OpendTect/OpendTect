@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.12 2004-04-20 15:06:06 nanne Exp $
+ RCS:           $Id: uicolor.cc,v 1.13 2004-05-11 14:26:10 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,47 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibody.h"
 #include "uilabel.h"
-#include "qcolordialog.h"
 #include "uiparentbody.h"
+
+#ifdef __mac__
+# define _machack_
+# define private public // need access to some private stuff in qcolordialog
+#endif
+#include "qcolordialog.h"
+
+#ifdef _machack_
+
+static QRgb mygetRgba( QRgb initial, bool *ok,
+                            QWidget *parent, const char* name )
+{
+    int allocContext = QColor::enterAllocContext();
+    QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
+
+    Q_CHECK_PTR( dlg );
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    dlg->setCaption( QColorDialog::tr( "Select color" ) );
+#endif
+    dlg->setColor( initial );
+    dlg->selectColor( initial );
+    dlg->setSelectedAlpha( qAlpha(initial) );
+    int resultCode = dlg->exec();
+    QColor::leaveAllocContext();
+    QRgb result = initial;
+    if ( resultCode == QDialog::Accepted ) {
+        QRgb c = dlg->color().rgb();
+        int alpha = dlg->selectedAlpha();
+        result = qRgba( qRed(c), qGreen(c), qBlue(c), alpha );
+    }
+    if ( ok )
+        *ok = resultCode == QDialog::Accepted;
+
+    QColor::destroyAllocContext(allocContext);
+    delete dlg;
+    return result;
+}
+
+
+#endif
 
 bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
@@ -24,8 +63,13 @@ bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 
     if ( withtransp )
     {
+#ifdef _machack_
+	rgb = mygetRgba( (QRgb) col.rgb(), &ok, 
+		      parnt ? parnt->pbody()->qwidget() : 0, nm );
+#else
 	rgb = QColorDialog::getRgba( (QRgb) col.rgb(), &ok, 
 		      parnt ? parnt->pbody()->qwidget() : 0, nm );
+#endif
     }
     else
     {
