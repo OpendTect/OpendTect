@@ -4,12 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.57 2004-07-19 11:25:27 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.58 2004-07-20 12:15:00 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
+#include "emsurfacerelations.h"
 
 #include "arrayndimpl.h"
 #include "cubesampling.h"
@@ -117,6 +118,7 @@ EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     , hingelinechange( this )
     , shift(0)
     , changed( 0 )
+    , relations( *new SurfaceRelations(*this ) )
 {
     auxdatanames.allowNull(true);
     auxdatainfo.allowNull(true);
@@ -129,6 +131,7 @@ EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
 EM::Surface::~Surface()
 {
     cleanUp();
+    delete &relations;
 }
 
 
@@ -658,9 +661,12 @@ const char* EM::Surface::patchName( const EM::PatchID& patchid ) const
 
 
 bool EM::Surface::hasPatch( const EM::PatchID& patchid ) const
-{
-    return patchids.indexOf(patchid)!=-1;
-}
+{ return patchNr(patchid)!=-1; }
+
+
+int EM::Surface::patchNr( const EM::PatchID& patchid ) const
+{ return patchids.indexOf(patchid); }
+
 
 
 EM::PatchID EM::Surface::addPatch( const char* nm, bool addtohistory )
@@ -1600,89 +1606,3 @@ Executor* EM::Surface::saver( const EM::SurfaceIODataSelection* newsel,
 	return exec;
     }
 }
-
-
-/*
-
-
-const char* EM::SurfaceRelation::cuttedsurfacestr = "Cutted surface";
-const char* EM::SurfaceRelation::cuttedpatchstr = "Cutted patch";
-const char* EM::SurfaceRelation::cuttingsurfacestr = "Cutting surface";
-const char* EM::SurfaceRelation::positivesidestr = "Positive side";
-
-
-EM::SurfaceRelation::SurfaceRelation()
-    :  cuttedsurface( -1 )
-    , cuttedpatch( -1 )
-    , cuttingsurface( -1 )
-    , positiveside( true )
-    , hingeline( new EM::HingeLine )
-{
-}
-
-
-BufferString EM::SurfaceRelation::getPositiveText() const
-{
-    BufferString res = " on the ";
-    if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Fault )
-    {
-	Coord3 normal;
-	BufferString buff;
-	mDynamicCastGet( EM::Surface*, surf,
-			 EM::EMM().getObject(cuttingsurface) );
-	if ( surf && surf->computeNormal(normal) &&
-	     getDirectionStr(normal,buff))
-	{
-	    res += buff;
-	    res += "ern";
-	}
-	else
-	    res += "positive";
-        res += " side";
-    }
-    else if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Hor )
-	res += "bottom";
-
-    return res;
-}
-
-
-BufferString EM::SurfaceRelation::getNegativeText() const
-{
-    BufferString res = " on the ";
-    if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Fault )
-    {
-	Coord3 normal;
-	BufferString buff;
-	mDynamicCastGet( EM::Surface*, surf,
-			 EM::EMM().getObject(cuttingsurface) );
-	if ( surf && surf->computeNormal(normal) &&
-	     getDirectionStr(-normal,buff))
-	{
-	    res += buff;
-	    res += "ern";
-	}
-	else
-	    res += "negative";
-        res += " side";
-    }
-    else if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Hor )
-	res += "top";
-
-    return res;
-}
-
-
-BufferString EM::Surfaceelation::getUserString() const
-{
-    mDynamicCastGet(EM::Surface*,ownsurf,EM::EMM().getObject(cuttedsurface));
-
-    BufferString res = EM::EMM().name( cuttingsurface );
-    res += " terminates Patch ";
-    res += ownsurf->patchName(cuttedpatch);
-    res += positiveside ? getPositiveText() : getNegativeText();
-    return res;
-}
-
-
-*/

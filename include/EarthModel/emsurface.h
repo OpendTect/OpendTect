@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.39 2004-07-14 15:33:59 nanne Exp $
+ RCS:		$Id: emsurface.h,v 1.40 2004-07-20 12:15:06 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -66,9 +66,12 @@ class SurfaceIODataSelection;
 class HingeLine;
 class EdgeLineSet;
 
+class SurfaceRelations;
+
 /*!\brief Base class for surfaces
   This is the base class for surfaces like horizons and faults. A surface is made up by one or more segments or patches, so they can overlap. 
 */
+
 
 class Surface : public EMObject
 {
@@ -82,6 +85,7 @@ public:
     PatchID		patchID(int idx) const;
     PatchID		patchID(const char*) const;
     bool		hasPatch(const PatchID&) const;
+    int			patchNr(const PatchID&) const;
     const char*		patchName(const PatchID&) const;
     PatchID		addPatch(const char* nm, bool addtohistory);
     bool		addPatch(const char* nm, PatchID, bool addtohistory);
@@ -294,6 +298,9 @@ public:
     virtual bool		createFromStick(const TypeSet<Coord3>&,float)
     				{ return false; }
 
+
+    SurfaceRelations&		relations;
+
 protected:
     friend class		EMManager;
     friend class		EMObject;
@@ -338,46 +345,6 @@ protected:
     ObjectSet<HingeLine>	hingelines;
 };
 
-/*
-class SurfaceRelation
-{
-public:
-			SurfaceRelation();
-
-    EM::ObjectID	cuttedSurface() const;
-    EM::PatchID		cuttedSection() const;
-    void		setCuttedSection( const EM::ObjectID&,
-	    				  const EM::PatchID& );
-
-    EM::ObjectID	cuttingSurface() const;
-    EM::PatchID		cuttingSection() const;
-    void		setCuttingSurface( const EM::ObjectID&,
-	    				   const EM::PatchID& );
-
-    bool		positiveSide() const;
-    void		setPositiveSide(bool yn) const;
-
-protected:
-    EM::ObjectID	cuttedsurface;
-    EM::PatchID		cuttedpatch;
-    EM::ObjectID	cuttingsurface;
-    EM::HingeLine*	hingeline;
-
-    bool		positiveside;
-
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-    BufferString	getUserString() const;
-    BufferString	getPositiveText() const;
-    BufferString	getNegativeText() const;
-
-protected:
-    static const char*	cuttedsurfacestr;
-    static const char*	cuttedpatchstr;
-    static const char*	cuttingsurfacestr;
-    static const char*	positivesidestr;
-};
-*/
 
 }; // Namespace
 
