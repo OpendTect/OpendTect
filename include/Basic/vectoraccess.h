@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.7 2001-02-16 15:36:22 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.8 2001-04-09 16:38:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,11 +111,8 @@ void push_back( const T& t )
 	else		elems = (T*)malloc(allocsz*sizeof(T));
     }
 
-    if ( !elems ) erase();
-    else if ( sizeof(T) <= 8 )
-	elems[ size()-1 ] = t;
-    else
-	memcpy( elems + size() - 1, &t, sizeof(T) );
+    if ( !elems )	erase();
+    else		elems[ size()-1 ] = t;
 }
 
 void erase()
