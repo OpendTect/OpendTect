@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.4 2004-11-05 12:18:55 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.5 2004-11-05 13:21:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,9 @@ protected:
     BufferString	cmd;
 };
 
-
+/*!\brief Connects job to host.
+ *
+ */
 class JobHostRespInfo
 {
 public:
@@ -145,7 +147,7 @@ public:
 				jhrespmutex_.unlock();
 			    }
 
-    void		jobDone( const BufferString& hostnm, int descnr )
+    void		removeJobDesc( const char* hostnm, int descnr )
 			    {
 				jhrespmutex_.lock();
 
@@ -171,8 +173,8 @@ protected:
     Threads::Mutex		jhrespmutex_;
     ObjectSet<JobHostRespInfo>	jobhostresps_;
     
-    char			getRespFor(int desc,const BufferString& hostnm);
-    JobHostRespInfo*		getJHRFor(int desc, const BufferString& hostnm);
+    char			getRespFor( int desc, const char* hostnm );
+    JobHostRespInfo*		getJHRFor( int desc, const char* hostnm );
 
     void			stopDispatching()
 				{
@@ -185,7 +187,7 @@ protected:
 };
 
 
-JobHostRespInfo* JobIOHandler::getJHRFor(int descnr, const BufferString& hostnm)
+JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 {
     JobHostRespInfo* jhri = 0;
 
@@ -197,7 +199,7 @@ JobHostRespInfo* JobIOHandler::getJHRFor(int descnr, const BufferString& hostnm)
 	JobHostRespInfo* jhri_ = jobhostresps_[idx];
 	if ( jhri_->descnr_ == descnr )
 	{
-	    if ( !hostnm.size() )  { jhri = jhri_; break; }		
+	    if ( !hostnm || !*hostnm )  { jhri = jhri_; break; }		
 
 	    if ( jhri_->hostdata_.isKnownAs(hostnm) )
 		{ jhri = jhri_; break; }		
@@ -210,7 +212,7 @@ JobHostRespInfo* JobIOHandler::getJHRFor(int descnr, const BufferString& hostnm)
 }
 
 
-char JobIOHandler::getRespFor( int descnr , const BufferString& hostnm )
+char JobIOHandler::getRespFor( int descnr , const char* hostnm )
 {
     char resp = mRSP_STOP;
 
@@ -314,8 +316,8 @@ void JobIOMgr::reqModeForJob( const JobInfo& ji, Mode m )
     { iohdlr_.reqModeForJob(ji,m); } 
 
 
-void JobIOMgr::jobDone( const BufferString& hostnm, int descnr )
-    { iohdlr_.jobDone(hostnm,descnr); } 
+void JobIOMgr::removeJob( const char* hostnm, int descnr )
+    { iohdlr_.removeJobDesc(hostnm,descnr); } 
 
 
 ObjQueue<StatusInfo>& JobIOMgr::statusQueue()
@@ -331,7 +333,7 @@ bool JobIOMgr::startProg( const char* progname, const HostData& machine,
     FilePath ioparfp;
     if ( !mkIOParFile( ioparfp, basefp, machine, iop ) )
 	return false;
-
+    
     CommandString cmd;
     mkCommand( cmd, machine, progname, basefp, ioparfp, ji, rshcomm );
 
@@ -350,7 +352,7 @@ bool JobIOMgr::startProg( const char* progname, const HostData& machine,
 	BufferString s( "Failed to submit command '" );
 	s += strmprov.command(); s += "'";
 
-	iohdlr_.jobDone( machine.name(), ji.descnr_ );
+	iohdlr_.removeJobDesc( machine.name(), ji.descnr_ );
 	mErrRet(s);
     }
     

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.6 2004-11-05 12:18:55 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.7 2004-11-05 13:21:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "jobiomgr.h"
 #include "queue.h"
 #include "mmdefs.h"
+#include "timefun.h"
 #include <iostream>
 
 static BufferString tmpfnm_base;
@@ -45,6 +46,8 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 	, niceval_(19)
 	, firstport_(19636)
     	, prog_(cmd)
+	, timeout_( atoi( getenv("DTECT_JOBMAN_TIMEOUT")
+			? getenv("DTECT_JOBMAN_TIMEOUT") : "120000") )
 {
     FilePath fp( GetDataDir() );
     fp.add( "Proc" ).add( tmpfnm_base );
@@ -202,7 +205,14 @@ void JobRunner::removeHost( int hnr )
     hostinfo_ -= jhi;
 
     JobInfo* ji = currentJob( jhi );
-    //TODO kill remote process
+
+    if ( ji )
+    {
+	iomgr().reqModeForJob( *ji, JobIOMgr::Stop );
+
+	if ( ji->hostdata_ )
+	    iomgr().removeJob( ji->hostdata_->name(), ji->descnr_ );
+    }
 
     delete jhi;
 }
@@ -216,9 +226,9 @@ void JobRunner::pauseHost( int hnr, bool yn )
     if ( !ji ) return;
 
     if ( ji->state_ == JobInfo::Working && yn )
-	; //TODO pause
+	iomgr().reqModeForJob( *ji, JobIOMgr::Pause );
     else if ( ji->state_ == JobInfo::Paused && !yn )
-	; //TODO un-pause
+	iomgr().reqModeForJob( *ji, JobIOMgr::Work );
 }
 
 
@@ -338,24 +348,20 @@ void JobRunner::updateJobInfo()
 	handleStatusInfo( *si );
 	delete si;
     }
-/*
-    for ( int idx=0; idx<jobds_.size(); idx++ )
+
+    for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
     {
-	int elapsed = Time_getMilliSeconds() - jobds_[idx]->timestamp_; 
+	JobInfo& ji = *jobinfos_[ijob];
 
-	if ( elapsed > timeout )
+	int elapsed = Time_getMilliSeconds() - ji.timestamp_; 
+
+	if ( elapsed > timeout_ )
 	{
-	    jobds_[idx]->ctrlstat_ = mSTAT_TIMEOUT;
-
-	    if ( HostData* mach = jobds_[idx]->machine )
-	    {
-		if ( mach->status >= 0 ) mach->status = -1;
-		else mach->status--;
-	    }
+	    ji.state_ = JobInfo::Failed;
+	    if ( ji.hostdata_ )
+		iomgr().removeJob( ji.hostdata_->name(), ji.descnr_ );
 	}
-
     }
-*/
 }
 
 
@@ -379,16 +385,20 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
     case mCTRL_STATUS :
         switch( si.status )
 	{
-	    case mSTAT_INITING:
-	    case mSTAT_WORKING:
-	    case mSTAT_ERROR:
-	    case mSTAT_PAUSED:
-	    case mSTAT_FINISHED:
-
-		// TODO
-	    ;	
+	case mSTAT_INITING:
+	case mSTAT_WORKING:
+	    ji->state_ = JobInfo::Working;
+	break;
+	case mSTAT_ERROR:
+	    ji->state_ = JobInfo::Failed;
+	break;
+	case mSTAT_PAUSED:
+	    ji->state_ = JobInfo::Paused;
+	break;
+	case mSTAT_FINISHED:
+	    ji->state_ = JobInfo::Completed;
+	break;
 	}
-    
     break;
     case mEXIT_STATUS :
         switch( si.status )
@@ -407,13 +417,9 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	    ji->state_ = JobInfo::Failed;
 	break;
 	}
-	iomgr().jobDone( si.hostnm , si.descnr );
+	iomgr().removeJob( si.hostnm , si.descnr );
     break;
     }
-/*
-    if ( ji->machine && ji->machine->status < 0 )
-	ji->machine->status = 0;
-*/
 }
 
 

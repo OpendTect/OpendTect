@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.4 2004-11-05 12:41:34 arend Exp $
+ RCS:		$Id: jobiomgr.h,v 1.5 2004-11-05 13:21:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ public:
 
     void		setNiceNess( int n )		{ niceval_ = n; }
     void		reqModeForJob( const JobInfo&, Mode );
-    void		jobDone( const BufferString& hostnm, int descnr );
+    void		removeJob( const char* hostnm, int descnr );
 
     ObjQueue<StatusInfo>& statusQueue(); 
 
