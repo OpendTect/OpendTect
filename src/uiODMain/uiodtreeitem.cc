@@ -4,12 +4,14 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.45 2004-09-07 08:25:08 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.46 2004-09-07 11:40:44 kristofer Exp $
 ___________________________________________________________________
 
 -*/
 
 #include "uiodtreeitemimpl.h"
+
+#include "attribsel.h"
 #include "errh.h"
 #include "ptrman.h"
 #include "ioobj.h"
