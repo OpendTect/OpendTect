@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.3 2001-04-24 10:53:27 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.4 2001-04-27 16:48:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,22 @@ uiListBox::uiListBox(  uiObject* parnt, const char* nm, bool isMultiSelect,
 {
     if( isMultiSelect ) mQtThing()->setSelectionMode( QListBox::Extended );
     setStretch( 1, isSingleLine() ? 0 : 1 );
+}
+
+
+uiListBox::uiListBox( uiObject* p, const UserIDSet& uids,
+			bool isMultiSelect,
+			int preferredNrLines, int preferredFieldWidth )
+	: uiWrapObj<i_QListBox>(
+		new i_QListBox( *this,p,(const char*)uids.name() ),
+				      p,(const char*)uids.name() )
+	, _messenger(*new i_listMessenger(mQtThing(),this))
+	, fieldWdt(preferredFieldWidth)
+	, nLines(preferredNrLines)
+{
+    if( isMultiSelect ) mQtThing()->setSelectionMode( QListBox::Extended );
+    setStretch( 1, isSingleLine() ? 0 : 1 );
+    addItems( uids );
 }
 
 
