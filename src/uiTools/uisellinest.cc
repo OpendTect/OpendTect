@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.13 2004-04-13 08:10:20 nanne Exp $
+ RCS:           $Id: uisellinest.cc,v 1.14 2004-04-20 15:05:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,53 @@ uiSelLineStyle::~uiSelLineStyle()
 const LineStyle& uiSelLineStyle::getStyle() const
 {
     return linestyle;
+}
+
+
+void uiSelLineStyle::setStyle( const LineStyle& ls )
+{
+    setColor( ls.color );
+    setWidth( ls.width );
+    setType( (int)ls.type );
+}
+
+
+void uiSelLineStyle::setColor( const Color& col )
+{
+    linestyle.color = col;
+    if ( colinp ) colinp->setColor( col );
+}
+
+
+const Color& uiSelLineStyle::getColor() const
+{
+    return linestyle.color;
+}
+
+
+void uiSelLineStyle::setWidth( int width )
+{
+    linestyle.width = width;
+    if ( widthbox ) widthbox->box()->setValue( width );
+}
+
+
+int uiSelLineStyle::getWidth() const
+{
+    return linestyle.width;
+}
+
+
+void uiSelLineStyle::setType( int tp )
+{
+    linestyle.type = (LineStyle::Type)tp;
+    if ( stylesel ) stylesel->setCurrentItem( tp );
+}
+
+
+int uiSelLineStyle::getType() const
+{
+    return (int)linestyle.type;
 }
 
 

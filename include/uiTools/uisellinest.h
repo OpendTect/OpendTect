@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.9 2004-04-13 08:10:13 nanne Exp $
+ RCS:           $Id: uisellinest.h,v 1.10 2004-04-20 15:05:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,15 @@ public:
 					       bool withwidth=true);
 				~uiSelLineStyle();
 
+    void			setStyle(const LineStyle&);
     const LineStyle&		getStyle() const;
+
+    void			setColor(const Color&);
+    const Color&		getColor() const;
+    void			setWidth(int);
+    int				getWidth() const;
+    void			setType(int);
+    int				getType() const;
 
     Notifier<uiSelLineStyle>	changed;
 
