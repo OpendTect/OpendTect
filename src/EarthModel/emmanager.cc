@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.7 2002-09-20 08:48:51 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.8 2002-09-23 11:35:55 kristofer Exp $";
 
 #include "emmanager.h"
 #include "emobject.h"
@@ -158,6 +158,14 @@ Executor* EarthModel::EMManager::load( const MultiID& id )
 	EarthModel::Horizon* hor = new EarthModel::Horizon( *this, id );
 	objects += hor;
 	return hor->loader();
+    }
+
+
+    if ( !strcmp( grpname, EarthModelFaultTranslator::keyword ))
+    {
+	EarthModel::Fault* fault = new EarthModel::Fault( *this, id );
+	objects += fault;
+	return fault->loader();
     }
 
     return 0;
