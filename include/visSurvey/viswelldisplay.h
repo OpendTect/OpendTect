@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.18 2004-05-21 16:55:42 bert Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.19 2004-05-24 14:33:10 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,12 +49,13 @@ public:
     void			showWellName(bool);
     bool			wellNameShown() const;
 
+    bool			canShowMarkers() const;
     void			showMarkers(bool);
     bool			markersShown() const;
     void			showMarkerName(bool);
     bool			markerNameShown() const;
-    void			setMarkerSize(int);
-    int				markerSize() const;
+    void			setMarkerScreenSize(int);
+    int				markerScreenSize() const;
 
     void			displayLog(int idx,int nr,
 	    				   const Interval<float>* rg=0);

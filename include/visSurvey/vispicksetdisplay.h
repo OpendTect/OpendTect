@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.34 2004-05-11 12:20:36 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.35 2004-05-24 14:33:10 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -61,9 +61,9 @@ public:
     void			removePick(const Coord3&);
     void			removeAll();
 
-    float			getInitSize() const	{ return initsz; }
-    float			getPickSize() const 	{ return picksz; }
-    void			setSize(float);
+    float			getInitScreenSize() const { return initsz; }
+    float			getPickScreenSize() const { return picksz; }
+    void			setScreenSize(float);
 
     void			setColor(Color);
     Color			getColor() const;
