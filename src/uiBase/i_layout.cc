@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.4 2001-05-03 10:30:50 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.5 2001-05-08 14:33:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,14 @@ public:
 
     			uiConstraint ( constraintType t, i_LayoutItem* o,
 				       int marg )
-			{ other = o; type = t; margin = marg; }
+			{ 
+			    other = o; type = t; margin = marg; 
+			    if( !other && 
+				((type < leftBorder)||( type > bottomBorder))
+			    ) 
+				{ pErrMsg("No attachment defined!!"); }
+			}
+
 
 protected:
     constraintType	type;
