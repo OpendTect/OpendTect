@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.9 2001-05-01 16:23:57 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.10 2001-09-19 14:25:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,10 +209,10 @@ void moveToStart( const T& t )
 
 private:
 
-    unsigned char	blockszidx;
-    unsigned short	szdiff;
+    unsigned int	szdiff;
     unsigned int	allocsz;
     T*			elems;
+    unsigned char	blockszidx;
 
 void init( unsigned int sz )
 {
