@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.4 2005-02-01 16:00:52 kristofer Exp $
+ RCS:           $Id: attribprovider.h,v 1.5 2005-02-03 15:35:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,15 +48,11 @@ public:
 
     void			enableOutput( int output, bool yn=true );
 
-    const Interval<int>*	outputInlStepout() const;
-    void			setOutputInlStepout( const Interval<int>& );
-    const Interval<int>*	outputCrlStepout() const;
-    void			setOutputCrlStepout( const Interval<int>& );
-    const Interval<float>*	outputZStepout() const;
-    void			setOutputZStepout( const Interval<float>& );
+    void			setBufferStepout( const BinID& );
+    const BinID&		getBufferStepout() const;
 
     void			setDesiredVolume( const CubeSampling& );
-    bool			getPossibleVolume(int outp,CubeSampling&) const;
+    virtual bool		getPossibleVolume(int outp,CubeSampling&) const;
 
     virtual int			moveToNextTrace();
     BinID			getCurrentPosition() const;
@@ -68,6 +64,8 @@ public:
 
 protected:
 				Provider( Desc& );
+    virtual bool		init();
+    				/*!< Should be run _after_ inputs are set */
     virtual SeisRequester*	getSeisRequester();
     static Provider*	internalCreate( Desc&, ObjectSet<Provider>& existing );
 
@@ -88,23 +86,19 @@ protected:
 					     CubeSampling& ) const;
     void		updateInputReqs(int input=-1);
 
-    virtual Interval<int>*	desInlMargin(int input, int output) const;
-    virtual Interval<int>*	desCrlMargin(int input, int output) const;
-    virtual Interval<int>*	reqInlMargin(int input, int output) const;
-    virtual Interval<int>*	reqCrlMargin(int input, int output) const;
-    virtual Interval<float>*	desZMargin(int input, int output) const;
-    virtual Interval<float>*	reqZMargin(int input, int output) const;
+    virtual const BinID*		desStepout(int input, int output) const;
+    virtual const BinID*		reqStepout(int input, int output) const;
+    virtual const Interval<float>*	desZMargin(int input, int output) const;
+    virtual const Interval<float>*	reqZMargin(int input, int output) const;
 
-    ObjectSet<Provider>	inputs;
-    Desc&		desc;
+    ObjectSet<Provider>			inputs;
+    Desc&				desc;
 
-    TypeSet<int>	outputinterest;
-    Interval<int>*	outputinlstepout;
-    Interval<int>*	outputcrlstepout;
-    Interval<float>*	outputzstepout;
-    CubeSampling*	desiredvolume;
+    TypeSet<int>			outputinterest;
+    BinID				bufferstepout;
+    CubeSampling*			desiredvolume;
 
-    Interval<int>	localcomputezinterval;
+    Interval<int>			localcomputezinterval;
 
     Threads::ThreadWorkManager*		threadmanager;
     ObjectSet<BasicTask>		computetasks;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.1 2005-02-01 14:05:34 kristofer Exp $
+ RCS:           $Id: attribparam.h,v 1.2 2005-02-03 15:35:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,24 +29,33 @@ class Parser;
 class Param
 {
 public:
-    			Param( const char* key_, DataInpSpec* spec_);
+    			Param(  const char* key_, DataInpSpec* spec_ );
     			Param( const Param& );
     virtual		~Param() {}
+
     virtual Param*	clone() const;
 
-    bool		isOK() const;
+    bool		operator==(const Param&) const;
+    bool		operator!=(const Param&) const;
+
+    virtual bool	isOK() const;
 
     bool		isEnabled() const;
     void		setEnabled(bool yn=true);
-
     bool		isRequired() const;
     void		setRequired(bool yn=true);
 
     const char*		getKey() const;
-    const DataInpSpec*	getSpec() const;
+    int			nrValues() const;
+    int			getIntValue( int idx ) const;
+    double		getValue( int idx ) const;
+    float		getfValue( int idx ) const;
+    bool		getBoolValue( int idx ) const;
+    const char*		getStringValue( int idx ) const;
 
-    virtual bool	setValue( const char* );
-    const char*		getValue() const;
+
+    virtual bool	setCompositeValue( const char* );
+    virtual bool	getCompositeValue(BufferString&) const;
 
 protected:
     BufferString	key;
@@ -62,11 +71,11 @@ class ZGateParam : public Param
 public:
     			ZGateParam( const char* );
     virtual ZGateParam*	clone() const;
-    bool		setValue( const char* );
+    bool		setCompositeValue( const char* );
     void		setLimits( const Interval<float>& );
 
 protected:
-    virtual bool	getValueString( BufferString& ) const;
+    virtual bool	getCompositeValue(BufferString&) const;
 };
 
 
@@ -75,10 +84,10 @@ class BinIDParam : public Param
 public:
     			BinIDParam( const char* );
     BinIDParam*		clone() const;
-    bool		setValue( const char* );
+    bool		setCompositeValue( const char* );
 
 protected:
-    virtual bool	getValueString( BufferString& ) const;
+    virtual bool	getCompositeValue(BufferString&) const;
 };
 
 
@@ -90,52 +99,26 @@ public:
     void		addEnum( const char* );
 };
 
-/*
-typedef void(*ParserStatusUpdater)(Parser&);
 
-class Parser
-{ mRefCountImpl(Parser);
+class StringParam : public Param
+{
 public:
-    			Parser( const char* name, ParserStatusUpdater=0 );
-    Parser*		clone() const;
-    void		addParam( Param* );
-    const char*		name() const { return basename; }
-
-    bool		init();
-
-    void		getParamNames( BufferStringSet& ) const;
-
-    void		setParamEnabled( const char* key, bool yn=true );
-    bool		isParamEnabled( const char* key ) const;
-    void		setParamRequired( const char* key, bool yn=true );
-    bool		isParamRequired( const char* key ) const;
-
-    const Param*	getParam(const char* key) const;
-    bool		setValue(const char* key, const char* value );
-    bool		parseDefString( const char* );
-    bool		getDefString( BufferString& );
-
-    bool		isOK();
-
-    int			nrInputs() const { return inputs.size(); }
-    Seis::DataType	inputType(int idx) const { return inputs[idx]; }
-    int			nrOutputs() const { return outputs.size(); }
-    Seis::DataType	outputType(int idx) const { return outputs[idx]; }
-
-    static BufferString	getAttribName( const char* defstr );
-    static bool		getParamString( const char* defstr, const char* key,
-	    				BufferString& );
-
-protected:
-    TypeSet<Seis::DataType>	inputs;
-    TypeSet<Seis::DataType>	outputs;
-
-    ObjectSet<Param>	params;
-    BufferString	basename;
-    ParserStatusUpdater	parserupdater;
+    				StringParam( const char* key );
+    StringParam*		clone() const;
+    virtual bool		setCompositeValue( const char* );
+    virtual bool		getCompositeValue(BufferString&) const;
 };
 
-*/
+
+class SeisStorageRefParam : public StringParam
+{
+public:
+				SeisStorageRefParam( const char* key );
+    SeisStorageRefParam*	clone() const;
+    bool			isOK() const;
+};
+
+
 
 }; //namespace
 

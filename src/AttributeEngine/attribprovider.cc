@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.4 2005-02-01 16:00:43 kristofer Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.5 2005-02-03 15:35:02 kristofer Exp $";
 
 #include "attribprovider.h"
 
@@ -83,12 +83,19 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing )
 	Provider* inputprovider = internalCreate( *inputdesc, existing );
 	if ( !inputprovider )
 	{
+	    existing.remove(existing.indexOf(res), existing.size()-1 );
 	    res->unRef();
-	    existing -= res;
 	    return 0;
 	}
 
 	res->setInput( idx, inputprovider );
+    }
+
+    if ( !res->init() )
+    {
+	existing.remove(existing.indexOf(res), existing.size()-1 );
+	res->unRef();
+	return 0;
     }
 
     res->unRefNoDelete();
@@ -100,9 +107,7 @@ Provider::Provider( Desc& nd )
     : desc( nd )
     , desiredvolume( 0 )
     , outputinterest( nd.nrOutputs(), 0 )
-    , outputinlstepout( 0 )
-    , outputcrlstepout( 0 )
-    , outputzstepout( 0 )
+    , bufferstepout( 0, 0 )
     , threadmanager( 0 )
     , currentbid( -1, -1 )
 {
@@ -160,24 +165,19 @@ void Provider::enableOutput( int out, bool yn )
 }
 
 
-#define mGetSetOutputStepout( type, var, fnpostfix )  \
-void Provider::setOutput##fnpostfix( const Interval<type>& ns ) \
-{ \
-    if ( !ns.start && !ns.stop ) return; \
- \
-    if ( !var ) \
-	var = new Interval<type>( ns ); \
-    else \
-	var->include( ns ); \
-\
-    updateInputReqs(-1); \
-} \
-const Interval<type>* Provider::output##fnpostfix() const { return var; }
+void Provider::setBufferStepout( const BinID& ns )
+{
+    if ( ns.inl<=bufferstepout.inl && ns.crl<=bufferstepout.crl )
+	return;
+
+    bufferstepout.inl = mMAX( bufferstepout.inl, ns.inl );
+    bufferstepout.crl = mMAX( bufferstepout.crl, ns.crl );
+
+    updateInputReqs(-1);
+}
 
 
-mGetSetOutputStepout(int,outputinlstepout,InlStepout);
-mGetSetOutputStepout(int,outputcrlstepout,CrlStepout);
-mGetSetOutputStepout(float,outputzstepout,ZStepout);
+const BinID& Provider::getBufferStepout() const { return bufferstepout; }
 
 
 void Provider::setDesiredVolume( const CubeSampling& ndv )
@@ -250,16 +250,21 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res ) const
 		if ( !inputs[inp]->getPossibleVolume( idy, inputcs ) ) 
 		    continue;
 
-		mGetOverallMargin(Interval<int>, inlmargin, InlMargin(inp,out));
-		mGetOverallMargin(Interval<int>, crlmargin, CrlMargin(inp,out));
-		mGetOverallMargin(Interval<float>, zmargin, ZMargin(inp,out) );
+		const BinID* stepout = reqStepout(inp,out);
+		if ( stepout )
+		{
+		    inputcs.hrg.start.inl += stepout->inl;
+		    inputcs.hrg.start.crl += stepout->crl;
+		    inputcs.hrg.stop.inl -= stepout->inl;
+		    inputcs.hrg.stop.crl -= stepout->crl;
+		}
 
-		inputcs.hrg.start.inl += inlmargin.start;
-		inputcs.hrg.start.crl += crlmargin.start;
-		inputcs.hrg.stop.inl += inlmargin.stop;
-		inputcs.hrg.stop.crl += crlmargin.stop;
-		inputcs.zrg.start += zmargin.start;
-		inputcs.zrg.stop += zmargin.stop;
+		const Interval<float>* zrg = reqZMargin(inp,out);
+		if ( zrg )
+		{
+		    inputcs.zrg.start -= zrg->start;
+		    inputcs.zrg.stop -= zrg->stop;
+		}
 
 		if ( !isset )
 		{
@@ -385,9 +390,14 @@ void Provider::addLocalCompZInterval( const Interval<int>& ni )
 		continue;
 
 	    Interval<int> inputrange( ni );
-	    mGetOverallMargin(Interval<float>, inpzrg, ZMargin(inp,out) );
-	    inputrange.start += (int) (inpzrg.start/dz-0.5);
-	    inputrange.stop += (int) (inpzrg.stop/dz+0.5);
+	    Interval<float> zrg(0,0);
+	    const Interval<float>* req =  reqZMargin(inp,out);
+	    if ( req ) zrg =  *req;
+	    const Interval<float>* des =  desZMargin(inp,out);
+	    if ( req )  zrg.include( *req );
+
+	    inputrange.start += (int) (zrg.start/dz-0.5);
+	    inputrange.stop += (int) (zrg.stop/dz+0.5);
 
 	    inputs[inp]->addLocalCompZInterval(inputrange);
 	}
@@ -488,6 +498,9 @@ SeisRequester* Provider::getSeisRequester()
 }
 
 
+bool Provider::init() { return true; }
+
+
 bool Provider::getInputData( const BinID& )
 { return true; }
 
@@ -540,15 +553,29 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res ) const
 
     res = *desiredvolume;
 
-    mGetOverallMargin(Interval<int>, inlmargin, InlMargin(inp,out) );
-    mGetOverallMargin(Interval<int>, crlmargin, CrlMargin(inp,out) );
-    mGetOverallMargin(Interval<float>, zmargin, ZMargin(inp,out) );
-    res.hrg.start.inl += inlmargin.start;
-    res.hrg.start.crl += crlmargin.start;
-    res.hrg.stop.inl += inlmargin.stop;
-    res.hrg.stop.crl += crlmargin.stop;
-    res.zrg.start += zmargin.start;
-    res.zrg.stop += zmargin.stop;
+    BinID stepout(0,0);
+    const BinID* reqstepout = reqStepout(inp,out);
+    if ( reqstepout ) stepout=*reqstepout;
+    const BinID* desstepout = desStepout(inp,out);
+    if ( desstepout )
+    {
+	stepout.inl = mMAX(stepout.inl,desstepout->inl);
+	stepout.crl = mMAX(stepout.crl,desstepout->crl );
+    }
+
+    res.hrg.start.inl -= stepout.inl;
+    res.hrg.start.crl -= stepout.crl;
+    res.hrg.stop.inl += stepout.inl;
+    res.hrg.stop.crl += stepout.crl;
+
+    Interval<float> zrg(0,0);
+    const Interval<float>* reqzrg = reqZMargin(inp,out);
+    if ( reqzrg ) zrg=*reqzrg;
+    const Interval<float>* deszrg = desZMargin(inp,out);
+    if ( deszrg ) zrg.include( *deszrg );
+    
+    res.zrg.start += zrg.start;
+    res.zrg.stop += zrg.stop;
 
     return true;
 }
@@ -572,26 +599,24 @@ void Provider::updateInputReqs(int inp)
 	if ( computeDesInputCube( inp, out, inputcs ) )
 	    inputs[inp]->setDesiredVolume( inputcs );
 
-	mGetOverallMargin(Interval<int>, inlmargin, InlMargin(inp,out) );
-	mGetOverallMargin(Interval<int>, crlmargin, CrlMargin(inp,out) );
-	mGetOverallMargin(Interval<float>, zmargin, ZMargin(inp,out) );
+	BinID stepout(0,0);
+	const BinID* req = reqStepout(inp,out);
+	if ( req ) stepout=*req;
+	const BinID* des = desStepout(inp,out);
+	if ( des )
+	{
+	    stepout.inl= mMAX(stepout.inl,des->inl);
+	    stepout.crl =  mMAX(stepout.crl,des->crl );
+	}
 
-	mGetMargin( Interval<int>, inlmargin, dummy, outputinlstepout );
-	mGetMargin( Interval<int>, crlmargin, dummy, outputcrlstepout );
-	mGetMargin( Interval<float>, zmargin, dummy, outputzstepout );
-
-	inputs[inp]->setOutputInlStepout( inlmargin );
-	inputs[inp]->setOutputCrlStepout( crlmargin );
-	inputs[inp]->setOutputZStepout( zmargin );
+	inputs[inp]->setBufferStepout( stepout+bufferstepout );
     }
 }
 
-Interval<int>* Provider::desInlMargin(int,int) const { return 0; }
-Interval<int>* Provider::desCrlMargin(int,int) const { return 0; }
-Interval<int>* Provider::reqInlMargin(int,int) const { return 0; }
-Interval<int>* Provider::reqCrlMargin(int,int) const { return 0; }
-Interval<float>* Provider::desZMargin(int,int) const { return 0; }
-Interval<float>* Provider::reqZMargin(int,int) const { return 0; }
+const BinID* Provider::desStepout(int,int) const { return 0; }
+const BinID* Provider::reqStepout(int,int) const { return 0; }
+const Interval<float>* Provider::desZMargin(int,int) const { return 0; }
+const Interval<float>* Provider::reqZMargin(int,int) const { return 0; }
 
 }; //namespace
 

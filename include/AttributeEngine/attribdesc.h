@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.3 2005-02-01 16:00:52 kristofer Exp $
+ RCS:           $Id: attribdesc.h,v 1.4 2005-02-03 15:35:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "bufstring.h"
 #include "seistype.h"
+
+class IOPar;
+class DataInpSpec;
 
 namespace Attrib
 {
@@ -53,7 +56,7 @@ public:
     const char*		attribName() const;
     Desc*		clone() const;
 
-    bool		init(); //Needed?
+    bool		init() { return true; } //Needed?
 
     void		setDescSet( DescSet* );
     DescSet*		descSet() const;
@@ -88,13 +91,17 @@ public:
 
     void		addParam( Param* );
     const Param*	getParam( const char* key ) const;
-    Param*		getParam( const char* key );
+    const Param*	getParam( const char* key );
     void		setParamEnabled( const char* key, bool yn=true );
     bool		isParamEnabled( const char* key ) const;
     void		setParamRequired( const char* key, bool yn=true );
     bool		isParamRequired( const char* key ) const;
+    bool		setParamVal( const char* key, const char* val );
+    //bool		getParamVal( const char* key, BufferString& ) const;
+    //const DataInpSpec*	getParamSpec( const char* key );
 
     void		addInput( const InputSpec& );
+    void		removeOutputs();
     void		addOutputDataType( Seis::DataType );
     void		addOutputDataTypeSameAs( int );
     void		setSteering(bool yn) { issteering=yn; }
@@ -104,6 +111,7 @@ public:
 					BufferString& );
 
 protected:
+    Param*			findParam( const char* key );
     TypeSet<Seis::DataType>	outputtypes;
     TypeSet<int>		outputtypelinks;
     bool			issteering;
@@ -125,21 +133,21 @@ protected:
 }; //Namespace
 
 #define mGetBool( var, varstring ) \
-var = desc.getParam(varstring)->getSpec()->getBoolValue(0); \
+var = desc.getParam(varstring)->getBoolValue(0); \
 
 #define mGetEnum( var, varstring ) \
-var = desc.getParam(varstring)->getSpec()->getIntValue(0); \
+var = desc.getParam(varstring)->getIntValue(0); \
 
 #define mGetBinID( var, varstring ) \
 {\
-    var.inl = desc.getParam(varstring)->getSpec()->getIntValue(0); \
-    var.crl = desc.getParam(varstring)->getSpec()->getIntValue(1); \
+    var.inl = desc.getParam(varstring)->getIntValue(0); \
+    var.crl = desc.getParam(varstring)->getIntValue(1); \
 }
 
 #define mGetFloatInterval( var, varstring ) \
 {\
-    var.start = desc.getParam(varstring)->getSpec()->getfValue(0); \
-    var.stop = desc.getParam(varstring)->getSpec()->getfValue(1); \
+    var.start = desc.getParam(varstring)->getfValue(0); \
+    var.stop = desc.getParam(varstring)->getfValue(1); \
 }
 
 

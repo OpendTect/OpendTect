@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.3 2005-02-01 16:00:43 kristofer Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.4 2005-02-03 15:35:02 kristofer Exp $";
 
 #include "attribdesc.h"
 
@@ -47,7 +47,6 @@ Desc::Desc( const char* attribname_, DescStatusUpdater updater, DescChecker dc )
 {
     mRefCountConstructor;
     inputs.allowNull(true);
-    if ( statusupdater ) statusupdater( *this );
 }
 
 
@@ -63,8 +62,6 @@ Desc::Desc( const Desc& a )
 
     for ( int idx=0; idx<a.params.size(); idx++ )
 	addParam( a.params[idx]->clone() );
-
-    if ( statusupdater ) statusupdater( *this );
 }
 
 
@@ -88,12 +85,6 @@ void Desc::setDescSet( DescSet* nds )
 DescSet* Desc::descSet() const { return ds; }
 
 
-int Desc::isSatisfied() const
-{
-    return id()==-1 ? 2 : 0;
-}
-
-
 int Desc::id() const { return ds ? ds->getID(*this) : -1; }
 
 
@@ -105,7 +96,9 @@ bool Desc::getDefStr( BufferString& res ) const
 	res += " ";
 	res += params[idx]->getKey();
 	res += "=";
-	res += params[idx]->getValue();
+	BufferString val;
+	params[idx]->getCompositeValue(val);
+	res += val;
     }
 
     if ( seloutput!=-1 )
@@ -130,7 +123,7 @@ bool Desc::parseDefStr( const char* defstr )
 	 if ( !getParamString( defstr, params[idx]->getKey(), paramval ) )
 	     return false;
 
-	 if ( !params[idx]->setValue( paramval ) )
+	 if ( !params[idx]->setCompositeValue(paramval) )
 	     return false;
      }
 
@@ -148,6 +141,9 @@ int Desc::nrOutputs() const { return outputtypes.size(); }
 
 
 void Desc::selectOutput(int outp) { seloutput = outp; }
+
+
+int Desc::selectedOutput() const { return seloutput; }
 
 
 Seis::DataType Desc::dataType() const
@@ -181,6 +177,50 @@ bool Desc::setInput( int input, Desc* nd )
 Desc* Desc::getInput( int input ) { return inputs[input]; }
 
 
+int Desc::isSatisfied() const
+{
+    if ( seloutput==-1 ) return 2;
+
+    for ( int idx=0; idx<params.size(); idx++ )
+    {
+	if ( !params[idx]->isOK() )
+	    return 2;
+    }
+
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( !inputspecs[idx].enabled ) continue;
+	if ( !inputs[idx] ) return 2;
+    }
+
+    return 0;
+}
+
+
+bool Desc::isIdenticalTo( const Desc& b, bool cmpoutput ) const
+{
+    if ( this==&b ) return true;
+
+    if ( params.size()!=b.params.size() || inputs.size()!=b.inputs.size() )
+	return false;
+
+    for ( int idx=0; idx<params.size(); idx++ )
+    {
+	if ( *params[idx]!=*b.params[idx] )
+	    return false;
+    }
+
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx]==b.inputs[idx] ) continue;
+	if ( !inputs[idx]->isIdenticalTo(*b.inputs[idx],cmpoutput) )
+	    return false;
+    }
+
+    return cmpoutput ? seloutput==b.seloutput : true;
+}
+
+
 void Desc::addParam( Param* param ) { params += param; }
 
 
@@ -188,21 +228,15 @@ const Param* Desc::getParam( const char* key ) const
 { return const_cast<Desc*>(this)->getParam(key); }
 
 
-Param* Desc::getParam( const char* key )
+const Param* Desc::getParam( const char* key )
 {
-    for ( int idx=0; idx<params.size(); idx++ )
-    {
-	if ( !strcmp(params[idx]->getKey(), key ) )
-	    return params[idx];
-    }
-
-    return 0;
+    return findParam(key);
 }
 
 
 void Desc::setParamEnabled( const char* key, bool yn )
 {
-    Param* param = getParam( key );
+    Param* param = findParam( key );
     if ( !param ) return;
 
     param->setEnabled(yn);
@@ -221,7 +255,7 @@ bool Desc::isParamEnabled( const char* key ) const
 
 void Desc::setParamRequired( const char* key, bool yn )
 {
-    Param* param = getParam( key );
+    Param* param = findParam( key );
     if ( !param ) return;
 
     param->setRequired(yn);
@@ -237,6 +271,39 @@ bool Desc::isParamRequired( const char* key ) const
 }
 
 
+bool Desc::setParamVal( const char* key, const char* val )
+{
+    Param* param = findParam(key);
+    if ( !param ) return false;
+
+    if ( !param->setCompositeValue( val ) )
+	return false;
+
+    if ( statusupdater ) statusupdater(*this);
+    return true;
+}
+
+/*
+bool Desc::getParamVal( const char* key, BufferString& val ) const
+{
+    const Param* param = getParam(key);
+    if ( !param ) return false;
+
+    return param->getCompositeValue(val);
+}
+*/
+
+
+/*
+const DataInpSpec* Desc::getParamSpec(const char* key)
+{
+    const Param* param = getParam(key);
+    if ( !param ) return 0;
+    return param->getSpec();
+}
+*/
+
+
 void Desc::addInput( const InputSpec& is )
 {
     inputspecs += is;
@@ -249,6 +316,13 @@ InputSpec& Desc::inputSpec( int input ) { return inputspecs[input]; }
 
 const InputSpec&  Desc::inputSpec( int input ) const
 { return const_cast<Desc*>(this)->inputSpec(input); }
+
+
+void Desc::removeOutputs()
+{
+    outputtypes.erase();
+    outputtypelinks.erase();
+}
 
 
 void Desc::addOutputDataType( Seis::DataType dt )
@@ -343,6 +417,19 @@ bool Desc::getParamString( const char* defstr, const char* key,
 
     return false;
 }
+
+
+Param* Desc::findParam( const char* key )
+{
+    for ( int idx=0; idx<params.size(); idx++ )
+    {
+	if ( !strcmp(params[idx]->getKey(), key ) )
+	    return params[idx];
+    }
+
+    return 0;
+}
+
 
 
 

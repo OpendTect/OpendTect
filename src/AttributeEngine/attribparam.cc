@@ -4,14 +4,15 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.1 2005-02-01 14:05:24 kristofer Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.2 2005-02-03 15:35:02 kristofer Exp $";
 
 #include "attribparam.h"
 
 #include "datainpspec.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "linekey.h"
 #include "ptrman.h"
-
-
 
 namespace Attrib
 {
@@ -38,6 +39,26 @@ type* type::clone() const { return new type(*this); }
 mParamClone( Param );
 
 
+bool Param::operator==( const Param& b ) const
+{
+    if ( key!=b.key ) return false;
+
+    if ( spec->nElems()!=b.spec->nElems() )
+	return false;
+
+    for ( int idx=0; idx<spec->nElems(); idx++ )
+    {
+	if ( strcmp(spec->text(idx),b.spec->text(idx)) )
+	    return false;
+    }
+
+    return true;
+}
+
+   
+bool Param::operator!=( const Param& b ) const { return !(*this==b); }
+
+
 bool Param::isOK() const
 {
     if ( !enabled ) return true;
@@ -53,56 +74,47 @@ bool Param::isOK() const
 }
 
 
+bool Param::isEnabled() const { return enabled; }
+
+
+void Param::setEnabled(bool yn) { enabled=yn; }
+
+
+bool Param::isRequired() const { return required; }
+
+
+void Param::setRequired(bool yn) { required=yn; }
+
+
+
 const char* Param::getKey() const { return (const char*) key; }
 
 
-const DataInpSpec* Param::getSpec() const { return spec; }
+int Param::nrValues() const { return spec->nElems(); }
 
 
-bool Param::setValue( const char* nv )
+int Param::getIntValue( int idx ) const { return spec->getIntValue(idx); }
+float Param::getfValue( int idx ) const { return spec->getfValue(idx); }
+bool Param::getBoolValue( int idx ) const { return spec->getBoolValue(idx); }
+const char* Param::getStringValue( int idx ) const { return spec->text(idx); }
+
+
+bool Param::setCompositeValue( const char* nv )
 {
-    if ( !spec->setText(nv) )
+    if ( !spec->setText(nv,0) )
 	return false;
 
-
-    return true;
+    return isOK();
 };
 
-/*
-bool Parser::parseDefString( const char* nm )
+
+bool Param::getCompositeValue(BufferString& buf) const
 {
-    BufferString attribname = getAttribName( nm );
-    if ( attribname!=basename )
-	return false;
+    if ( !spec ) return false;
+    buf = spec->text();
 
-    for ( int idx=0; idx<params.size(); idx++ )
-    {
-	BufferString paramval;
-	if ( !getParamString( nm, params[
-    }
-}
-
-
-
-
-
-bool Param::getValueString(bool includekey, BufferString& res) const
-{
-    res = "";
-    BufferString value;
-    if ( !getValueString( value ) )
-	return false;
-
-    if ( includekey ) { res += key; res += "="; }
-    
-    res += value;
     return true;
 }
-
-
-bool Param::getValueString( BufferString& res) const
-{ res = spec->text(); return true; }
-    
 
 ZGateParam::ZGateParam( const char* nm )
     : Param( nm, new FloatInpIntervalSpec(true) )
@@ -110,7 +122,7 @@ ZGateParam::ZGateParam( const char* nm )
 
 mParamClone( ZGateParam );
 
-bool ZGateParam::setValue( const char* gatestrvar )
+bool ZGateParam::setCompositeValue( const char* gatestrvar )
 {
     bool res = false;
     const int gatestrsz = strlen( gatestrvar );
@@ -144,7 +156,7 @@ void ZGateParam::setLimits( const Interval<float>& rg )
 { reinterpret_cast<FloatInpSpec*>(spec)->setLimits(rg); }
 
 
-bool ZGateParam::getValueString( BufferString& res ) const
+bool ZGateParam::getCompositeValue( BufferString& res ) const
 {
     res = "[";
     res += spec->text(0);
@@ -162,7 +174,7 @@ BinIDParam::BinIDParam( const char* nm )
 
 mParamClone( BinIDParam );
 
-bool BinIDParam::setValue( const char* posstr )
+bool BinIDParam::setCompositeValue( const char* posstr )
 {
     int posstrsz = strlen( posstr );
 
@@ -191,7 +203,7 @@ bool BinIDParam::setValue( const char* posstr )
 }
 
 
-bool BinIDParam::getValueString( BufferString& res ) const
+bool BinIDParam::getCompositeValue( BufferString& res ) const
 {
     res = spec->text(0);
     res += ",";
@@ -210,90 +222,66 @@ void EnumParam::addEnum( const char* ne )
 { reinterpret_cast<StringListInpSpec*>(spec)->addString(ne); }
 
 
-Parser::Parser( const char* basename_, ParserStatusUpdater updater )
-    : basename( basename_ )
-    , parserupdater( updater )
+StringParam::StringParam( const char* key_ )
+    : Param( key_, new StringInpSpec )
 {}
 
 
-Parser* Parser::clone() const
+mParamClone( StringParam );
+
+
+bool StringParam::setCompositeValue( const char* str_ )
 {
-    Parser* res = new Parser( basename, parserupdater );
-
-    for ( int idx=0; idx<params.size(); idx++ )
-	res->addParam( params[idx]->clone() );
-
-    return res;
-}
-
-
-bool Parser::getParamString( const char* defstr, const char* key,
-			     BufferString& res )
-{
-    if ( !defstr || !key )
-    return 0;
-
-    const int inpsz = strlen(defstr);
-    const int pattsz = strlen(key);
-    bool inquotes = false;
-    for ( int idx = 0; idx<inpsz; idx ++)
+    BufferString str = str_;
+    if ( str.size() && str[0]=='"' && str[str.size()-1]=='"' )
     {
-	if ( !inquotes && defstr[idx] == '=' )
-	{
-	    int firstpos = idx - 1;
-
-	    while ( isspace(defstr[firstpos]) && firstpos >= 0 ) firstpos --;
-	    if ( firstpos < 0 ) continue;
-
-	    int lastpos = firstpos;
-
-	    while ( !isspace(defstr[firstpos]) && firstpos >= 0 ) firstpos --;
-	    firstpos++;
-
-	    if ( lastpos - firstpos + 1 == pattsz )
-	    {
-		if ( !strncmp( &defstr[firstpos], key, pattsz ) )
-		{
-		    firstpos = idx + 1;
-		    while ( isspace(defstr[firstpos]) && firstpos < inpsz )
-			firstpos ++;
-		    if ( firstpos == inpsz ) continue;
-
-		    bool hasquotes = false;
-		    if (defstr[firstpos] == '"')
-		    {
-			hasquotes = true;
-			if (firstpos == inpsz - 1)
-			continue;
-			firstpos++;
-		    }
-		    lastpos = firstpos;
-
-		    while (( (hasquotes && defstr[lastpos] != '"')
-			    || (!hasquotes && !isspace(defstr[lastpos])) )
-			    &&  lastpos < inpsz)
-			lastpos ++;
-
-		    lastpos --;
-		
-		    char tmpres[lastpos-firstpos+2];
-		    strncpy( tmpres, &defstr[firstpos], lastpos-firstpos+1 );
-		    tmpres[lastpos-firstpos+1] = 0;
-
-		    res = tmpres;
-		    return true;
-		}
-	    }
-	}
-	else if ( defstr[idx] == '"' )
-	    inquotes = !inquotes;
+	if ( !spec->setText( str, 0 ) )
+	    return false;
     }
 
-    return false;
+    return isOK();
 }
 
-*/
 
+bool StringParam::getCompositeValue( BufferString& res ) const
+{
+    const char* txt = spec->text(0);
+    if ( !txt ) return false;
+    const int sz = strlen(txt);
+    bool quote = false;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( isspace(txt[idx]) ) { quote = true; break; }
+    }
+
+    res = "";
+
+    if ( quote ) res += "\"";
+    res += txt;
+    if ( quote ) res += "\"";
+
+    return true;
+}
+
+
+
+SeisStorageRefParam::SeisStorageRefParam( const char* key_ )
+    : StringParam( key_ )
+{}
+
+
+mParamClone( SeisStorageRefParam );
+
+
+bool SeisStorageRefParam::isOK() const
+{
+    const char* val = spec->text(0);
+    const LineKey lk( val );
+
+    const MultiID mid( lk.lineName() );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    return ioobj;
+}
 
 }; //namespace
 
