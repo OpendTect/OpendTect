@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.86 2004-12-23 15:56:35 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.87 2005-03-23 15:46:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -308,7 +308,8 @@ void uiSeisMMProc::startWork( CallBacker* )
     setOkText( "Finish Now" );
     setCancelText( "Abort" );
 
-    jobrunner->jobStarted.notify( mCB(this,uiSeisMMProc,jobStarted) );
+    jobrunner->preJobStart.notify( mCB(this,uiSeisMMProc,jobPrepare) );
+    jobrunner->postJobStart.notify( mCB(this,uiSeisMMProc,jobStarted) );
     jobrunner->jobFailed.notify( mCB(this,uiSeisMMProc,jobFailed) );
 
     timer = new Timer("uiSeisMMProc timer");
@@ -519,9 +520,16 @@ static void addObjNm( BufferString& msg, const JobRunner* jr, int nr )
 }
 
 
+void uiSeisMMProc::jobPrepare( CallBacker* cb )
+{
+    const FilePath& basefp = jobrunner->curJobFilePath();
+    IOPar& iop = jobrunner->curJobIOPar();
+}
+
+
 void uiSeisMMProc::jobStarted( CallBacker* cb )
 {
-    const JobInfo& ji = jobrunner->notifyJob();
+    const JobInfo& ji = jobrunner->curJobInfo();
     BufferString msg( "Started processing " );
     addObjNm( msg, jobrunner, ji.descnr_ );
     if ( ji.hostdata_ )
@@ -532,7 +540,7 @@ void uiSeisMMProc::jobStarted( CallBacker* cb )
 
 void uiSeisMMProc::jobFailed( CallBacker* cb )
 {
-    const JobInfo& ji = jobrunner->notifyJob();
+    const JobInfo& ji = jobrunner->curJobInfo();
     BufferString msg( "Failure for " );
     addObjNm( msg, jobrunner, ji.descnr_ );
     if ( ji.hostdata_ )
