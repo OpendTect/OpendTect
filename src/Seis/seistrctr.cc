@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.43 2004-07-16 15:35:26 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.44 2004-07-19 11:30:11 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -139,6 +139,9 @@ bool SeisTrcTranslator::initRead( Conn* c )
 	return false;
     }
 
+    pinfo->zrg.start = insd.start;
+    pinfo->zrg.step = insd.step;
+    pinfo->zrg.stop = insd.start + insd.step * (innrsamples-1);
     return true;
 }
 
@@ -500,8 +503,7 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 }
 
 
-bool SeisTrcTranslator::getRanges( const IOObj& ioobj, BinIDSampler& bs,
-				   StepInterval<float>& zrg )
+bool SeisTrcTranslator::getRanges( const IOObj& ioobj, SeisSelData& sd )
 {
     PtrMan<Translator> transl = ioobj.getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
@@ -510,9 +512,8 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, BinIDSampler& bs,
     if ( !cnn || !tr->initRead(cnn) )
 	{ delete cnn; return false; }
 
-    const SeisPacketInfo& pinfo = tr->packetInfo();
-    bs.copyFrom( pinfo.binidsampling );
-    bs.step = pinfo.binidsampling.step;
-    zrg = tr->insd.interval( tr->innrsamples );
+    const SeisPacketInfo& pinf = tr->packetInfo();
+    sd.type_ = SeisSelData::Range;
+    sd.inlrg_ = pinf.inlrg; sd.crlrg_ = pinf.crlrg; sd.zrg_ = pinf.zrg;
     return true;
 }

@@ -68,15 +68,12 @@ bool BatchProgram::go( std::ostream& logstrm )
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
         { mErrStrm << tri->errMsg() << std::endl;  return 1; }
 
-    StepInterval<float> zrg; assign( zrg, SI().zRange() );
-    BinIDSampler bidsel;
     IOStream ioobj( "tmp" );
     ioobj.setFileName( fname );
     ioobj.setGroup( mTranslGroupName(SeisTrc) );
     ioobj.setTranslator( mTranslKey(CBVSSeisTrc) );
-    SeisTrcTranslator::getRanges( ioobj, bidsel, zrg );
-    if ( SI().zIsTime() )
-	{ zrg.start *= 1000; zrg.stop *= 1000; zrg.step *= 1000; }
+    SeisSelData seldata;
+    SeisTrcTranslator::getRanges( ioobj, seldata );
 
     fname = StreamProvider::sStdIO;
     pars().get( "Output", fname );
@@ -89,26 +86,27 @@ bool BatchProgram::go( std::ostream& logstrm )
 	{ mErrStrm << "Cannot open output " <<fname<< std::endl; return false; }
     std::ostream& outstrm = *sd.ostrm;
 
-    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci = tri->componentInfo();
+    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
+			= tri->componentInfo();
     const char* res = pars().find( "Output.Mode" );
     if ( res && *res == 'I' )
     {
-	outstrm << "Range.Inline: " << bidsel.start.inl << ' '
-		<< bidsel.stop.inl << ' ' << bidsel.step.inl << std::endl;
-	outstrm << "Range.Xline: " << bidsel.start.crl << ' '
-		<< bidsel.stop.crl << ' ' << bidsel.step.crl << std::endl;
-	outstrm << "Range.Z: " << zrg.start << ' ' << zrg.stop << ' '
-		<< zrg.step << std::endl;
+	outstrm << "Range.Inline: " << seldata.inlrg_.start << ' '
+		<< seldata.inlrg_.stop << ' ' << seldata.inlrg_.step << '\n';
+	outstrm << "Range.Xline: " << seldata.crlrg_.start << ' '
+		<< seldata.crlrg_.stop << ' ' << seldata.crlrg_.step << '\n';
+	outstrm << "Range.Z: " << seldata.zrg_.start << ' '
+	    	<< seldata.zrg_.stop << ' ' << seldata.zrg_.step << std::endl;
 	if ( ci.size() > 1 )
 	    outstrm << "Components.Nr: " << ci.size() << std::endl;
 
 	BinID2Coord b2c( tri->getTransform() );
 	BinID bid;
-	bid.inl = bidsel.start.inl; bid.crl = bidsel.start.crl;
+	bid.inl = seldata.inlrg_.start; bid.crl = seldata.crlrg_.start;
 	prBidCoord( outstrm, b2c, bid );
-	bid.inl = bidsel.stop.inl;
+	bid.inl = seldata.inlrg_.stop;
 	prBidCoord( outstrm, b2c, bid );
-	bid.inl = bidsel.start.inl; bid.crl = bidsel.stop.crl;
+	bid.inl = seldata.inlrg_.start; bid.crl = seldata.crlrg_.stop;
 	prBidCoord( outstrm, b2c, bid );
 
 	char buf[80]; ci[0]->datachar.toString(buf);
@@ -136,6 +134,7 @@ bool BatchProgram::go( std::ostream& logstrm )
 	    ci[idx]->destidx = -1;
     }
 
+    StepInterval<float>& zrg = seldata.zrg_;
     if ( havesel )
     {
 	FileMultiString fms;
@@ -145,36 +144,33 @@ bool BatchProgram::go( std::ostream& logstrm )
 	    {
 		fms = inlselstr;
 		const int sz = fms.size();
-		if ( sz > 0 ) bidsel.start.inl = atoi( fms[0] );
-		if ( sz > 1 ) bidsel.stop.inl = atoi( fms[1] );
-		if ( sz > 2 ) bidsel.step.inl = atoi( fms[2] );
+		if ( sz > 0 ) seldata.inlrg_.start = atoi( fms[0] );
+		if ( sz > 1 ) seldata.inlrg_.stop = atoi( fms[1] );
+		if ( sz > 2 ) seldata.inlrg_.step = atoi( fms[2] );
 	    }
 	    if ( crlselstr )
 	    {
 		fms = crlselstr;
 		const int sz = fms.size();
-		if ( sz > 0 ) bidsel.start.crl = atoi( fms[0] );
-		if ( sz > 1 ) bidsel.stop.crl = atoi( fms[1] );
-		if ( sz > 2 ) bidsel.step.crl = atoi( fms[2] );
+		if ( sz > 0 ) seldata.crlrg_.start = atoi( fms[0] );
+		if ( sz > 1 ) seldata.crlrg_.stop = atoi( fms[1] );
+		if ( sz > 2 ) seldata.crlrg_.step = atoi( fms[2] );
 	    }
-	    SeisTrcSel* tsel = new SeisTrcSel;
-	    tsel->bidsel = bidsel.clone();
-	    tri->setTrcSel( tsel );
 	}
 	if ( zselstr )
 	{
 	    fms = zselstr;
 	    const int sz = fms.size();
+	    if ( SI().zIsTime() )
+		{ zrg.start *= 1000; zrg.stop *= 1000; zrg.step *= 1000; }
 	    if ( sz > 0 ) zrg.start = atof( fms[0] );
 	    if ( sz > 1 ) zrg.stop = atof( fms[1] );
 	    if ( sz > 2 ) zrg.step = atof( fms[2] );
-
-	    StepInterval<float> zrgs( zrg );
 	    if ( SI().zIsTime() )
-		{ zrgs.start *= 0.001; zrgs.stop *= 0.001; zrgs.step *= 0.001; }
-	    ci[compsel]->sd = SamplingData<float>( zrgs.start, zrgs.step );
-	    ci[compsel]->nrsamples = zrgs.nrSteps() + 1;
+		{ zrg.start *= 0.001; zrg.stop *= 0.001; zrg.step *= 0.001; }
 	}
+
+	tri->setSelData( &seldata );
     }
 
     res = pars().find( "Output.Type" );

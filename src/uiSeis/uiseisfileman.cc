@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.37 2004-05-27 11:56:11 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.38 2004-07-19 11:30:11 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiseisfileman.h"
+#include "seistrcsel.h"
 #include "iodirentry.h"
 #include "ioobj.h"
 #include "iodir.h"
@@ -121,21 +122,20 @@ void uiSeisFileMan::mkFileInfo()
     }
 
 #define mRangeTxt(line) \
-    txt += bs.start.line; txt += " - "; txt += bs.stop.line; \
-    txt += " - "; txt += bs.step.line; \
+    txt += seldata.line.start; txt += " - "; txt += seldata.line.stop; \
+    txt += " ["; txt += seldata.line.step; txt += "]"
 
-#define mZRangeTxt(nr) \
-    txt += SI().zIsTime() ? mNINT(1000*nr) : nr;
+#define mZRangeTxt(memb) \
+    txt += SI().zIsTime() ? mNINT(1000*seldata.zrg_.memb) : seldata.zrg_.memb
 
     BufferString txt;
-    BinIDSampler bs;
-    StepInterval<float> zrg;
-    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, bs, zrg ) )
+    SeisSelData seldata;
+    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, seldata ) )
     {
-	txt = "Inline range: "; mRangeTxt(inl);
-	txt += "\nCrossline range: "; mRangeTxt(crl);
-	txt += "\nZ-range: "; mZRangeTxt(zrg.start); txt += " - ";
-		mZRangeTxt(zrg.stop); txt += " - "; mZRangeTxt(zrg.step);	
+	txt = "Inline range: "; mRangeTxt(inlrg_);
+	txt += "\nCrossline range: "; mRangeTxt(crlrg_);
+	txt += "\nZ-range: "; mZRangeTxt(start); txt += " - ";
+	mZRangeTxt(stop); txt += " ["; mZRangeTxt(step); txt += "]";	
     }
 
     if ( ctio.ioobj->pars().size() )

@@ -29,11 +29,9 @@ int main( int argc, char** argv )
     if ( argc < 4 )
     {
 	std::cerr << "Usage: " << argv[0]
-	     << " inl1,inl2,inlstep,crl1,crl2,crlstep[,startz,stepz,nrz]"
+	     << " inl1,inl2,inlstep,crl1,crl2,crlstep,startz,stopz,stepz"
 	     << " inpfile outpfile [min_val,max_val]" << std::endl;
 	std::cerr << "Format: CBVS." << std::endl;
-	std::cerr << "Parameters between brackets [] are optional,"
-	    	     " do not type the brackets!" << std::endl;
 	exitProgram( 1 );
     }
     else if ( !File_exists(argv[2]) )
@@ -63,57 +61,34 @@ int main( int argc, char** argv )
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
 
     SeparString fms( argv[1], ',' );
-    SeisTrcSel tsel;
-    BinIDSampler* bidsmpl = new BinIDSampler;
-    tsel.bidsel = bidsmpl;
-    bidsmpl->start = BinID( atoi(fms[0]), atoi(fms[3]) );
-    bidsmpl->stop = BinID( atoi(fms[1]), atoi(fms[4]) );
-    bidsmpl->step = BinID( atoi(fms[2]), atoi(fms[5]) );
-    // tri->setTrcSel( &tsel );
-    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
-	    = tri->componentInfo();
-    const int nrincomp = ci.size();
-    if ( fms.size() > 6 )
-    {
-	SamplingData<float> sd( atof(fms[6]), atof(fms[7]) );
-	int nrz = atoi( fms[8] );
-	for ( int idx=0; idx<nrincomp; idx++ )
-	{
-	    ci[idx]->sd = sd;
-	    ci[idx]->nrsamples = nrz;
-	}
-    }
+    SeisSelData tsel;
+    tsel.inlrg_.start = atoi(fms[0]); tsel.inlrg_.stop = atoi(fms[1]);
+    tsel.inlrg_.step = atoi(fms[2]);
+    tsel.crlrg_.start = atoi(fms[3]); tsel.crlrg_.stop = atoi(fms[4]);
+    tsel.crlrg_.step = atoi(fms[5]);
+    tsel.zrg_.start = atof(fms[6]); tsel.zrg_.stop = atof(fms[7]);
+    tsel.zrg_.step = atof(fms[8]);
+    tri->setSelData( &tsel );
 
     bool haverange = false;
     Interval<float> rg( -mUndefValue, mUndefValue );
     if ( argc > 4 )
     {
 	fms = argv[4];
-	const int sz = fms.size();
-	if ( sz > 0 ) { haverange = true; rg.start = atof( fms[0] ); }
-	if ( sz > 1 ) { rg.stop = atof( fms[1] ); }
+	if ( fms.size() > 1 )
+	{
+	    haverange = true;
+	    rg.start = atof( fms[0] );
+	    rg.stop = atof( fms[1] );
+	}
 	rg.sort();
     }
-    const float replval = mIsUndefined(rg.stop) ? rg.start
-			: (rg.start + rg.stop) * .5;
+    const float replval = (rg.start + rg.stop) * .5;
 
     SeisTrc trc;
     int nrwr = 0;
     while ( tri->read(trc) )
     {
-	if ( bidsmpl->excludes(trc.info().binid) )
-	    continue;
-
-	if ( !nrwr )
-	{
-	    tro->packetInfo() = tri->packetInfo();
-	    if ( !tro->initWrite(new StreamConn(fname,Conn::Write),trc) )
-		{ std::cerr << "Cannot start write!" << std::endl;
-		    exitProgram(1); }
-	    for ( int idx=0; idx<nrincomp; idx++ )
-		tro->componentInfo()[idx]->setName( ci[idx]->name() );
-	}
-
 	if ( haverange )
 	{
 	    const int nrcomp = trc.data().nrComponents();

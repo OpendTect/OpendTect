@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.15 2004-07-16 15:35:26 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.16 2004-07-19 11:30:11 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -150,10 +150,10 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	}
 	if ( is3d && !szdone )
 	{
-	    BinIDSampler bs; StepInterval<float> zrg;
-	    if ( SeisTrcTranslator::getRanges(*ioobjs[idx],bs,zrg) )
+	    SeisSelData seldata;
+	    if ( SeisTrcTranslator::getRanges(*ioobjs[idx],seldata) )
 	    {
-		totnr_ += BinIDSamplerProv(bs).size();
+		totnr_ += seldata.expectedNrTraces();
 		szdone = true;
 	    }
 	}

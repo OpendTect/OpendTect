@@ -4,13 +4,13 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.18 2004-07-16 15:35:26 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.19 2004-07-19 11:30:10 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
+#include "seistrcsel.h"
 #include "seiswrite.h"
 #include "xfuncimpl.h"
-#include "binidselimpl.h"
 #include "ptrman.h"
 #include "sorting.h"
 
@@ -37,20 +37,28 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 {
     const int sz = size();
     if ( sz < 1 ) return;
-    spi.binidsampling.start = spi.binidsampling.stop = get(0)->info().binid;
+    const SeisTrc* trc = get( 0 );
+    BinID bid = trc->info().binid;
+    spi.inlrg.start = bid.inl; spi.inlrg.stop = bid.inl;
+    spi.crlrg.start = bid.crl; spi.crlrg.stop = bid.crl;
+    spi.zrg.start = trc->info().sampling.start;
+    spi.zrg.step = trc->info().sampling.step;
+    spi.zrg.stop = spi.zrg.start + spi.zrg.step * (trc->size(0) - 1);
     if ( sz < 2 ) return;
 
     bool doneinl = false, donecrl = false;
-    BinID pbid = spi.binidsampling.start;
+    const BinID pbid = bid;
     for ( int idx=1; idx<sz; idx++ )
     {
-	BinID bid( get(idx)->info().binid );
-	spi.binidsampling.include( bid );
+	trc = get( idx ); bid = trc->info().binid;
+	spi.inlrg.include( bid.inl ); spi.crlrg.include( bid.crl );
 	if ( !doneinl && bid.inl != pbid.inl )
-	    { spi.binidsampling.step.inl = bid.inl - pbid.inl; doneinl = true; }
+	    { spi.inlrg.step = bid.inl - pbid.inl; doneinl = true; }
 	if ( !donecrl && bid.crl != pbid.crl )
-	    { spi.binidsampling.step.crl = bid.crl - pbid.crl; donecrl = true; }
+	    { spi.crlrg.step = bid.crl - pbid.crl; donecrl = true; }
     }
+    if ( spi.inlrg.step < 0 ) spi.inlrg.step = -spi.inlrg.step;
+    if ( spi.crlrg.step < 0 ) spi.crlrg.step = -spi.crlrg.step;
 }
 
 

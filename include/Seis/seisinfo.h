@@ -7,20 +7,20 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.14 2004-04-26 15:50:56 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.15 2004-07-19 11:30:10 bert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <samplingdata.h>
-#include <position.h>
-#include <seistype.h>
-#include <enums.h>
-#include <datachar.h>
+#include "enums.h"
+#include "ranges.h"
+#include "position.h"
+#include "seistype.h"
+#include "datachar.h"
+#include "samplingdata.h"
 class SUsegy;
 class SeisTrc;
 class PosAuxInfo;
-class BinIDSampler;
 class IOPar;
 
 /*!\brief Information for a packet of seismics, AKA tape header info */
@@ -29,19 +29,21 @@ class IOPar;
 class SeisPacketInfo
 {
 public:
-			SeisPacketInfo();
-			SeisPacketInfo(const SeisPacketInfo&);
-    SeisPacketInfo&	operator=(const SeisPacketInfo&);
-    virtual		~SeisPacketInfo();
+
+			SeisPacketInfo()	{ clear(); }
 
     BufferString	usrinfo;
     BufferString	stdinfo;
     int			nr;
-    BinIDSampler&	binidsampling;
+
+    StepInterval<int>	inlrg;
+    StepInterval<int>	crlrg;
+    StepInterval<float>	zrg;
 
     void		clear();
 
     static const char*	sBinIDs;
+    static const char*	sZRange;
 
     static BufferString	defaultusrinfo;
 

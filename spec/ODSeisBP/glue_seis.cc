@@ -4,7 +4,7 @@
  * DATE     : 25-9-1999
 -*/
 
-static const char* rcsID = "$Id: glue_seis.cc,v 1.2 2004-04-28 21:30:58 bert Exp $";
+static const char* rcsID = "$Id: glue_seis.cc,v 1.3 2004-07-19 11:30:10 bert Exp $";
 #include "prog.h"
 #include "batchprog.h"
 #include "seisfact.h"
@@ -366,10 +366,7 @@ bool BatchProgram::go( std::ostream& strm_ )
 	    { if ( idx ) break; continue; }
 	SeisRequester* req = new SeisRequester(0);
 	req->usePar( *iop );
-	PtrMan<Executor> ex = req->starter();
-	if ( !ex->execute(&strm,NO,NO) )
-	    return false;
-	while ( 1 )
+	while ( true )
 	{
 	    int res = req->next();
 	    if ( res > 1 ) continue;

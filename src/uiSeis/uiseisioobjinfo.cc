@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.1 2004-07-01 15:14:43 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.2 2004-07-19 11:30:11 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseisioobjinfo.h"
 #include "uimsg.h"
+#include "seistrcsel.h"
 #include "seiscbvs.h"
 #include "cbvsreadmgr.h"
 #include "ptrman.h"
@@ -149,22 +150,22 @@ bool uiSeisIOObjInfo::getRanges( StepInterval<int>& inlrg,
 {
     mChkIOObj(false);
 
-    BinIDSampler bs;
-    if ( !SeisTrcTranslator::getRanges( *ctio.ioobj, bs, zrg ) )
+    SeisSelData seldata;
+    if ( SeisTrcTranslator::getRanges( *ctio.ioobj, seldata ) )
     {
-	if ( doerrs )
-	{
-	    BufferString msg( "Cannot read \"" );
-	    msg += ctio.ioobj->name(); msg += "\"";
-	    uiMSG().error( msg );
-	}
-	return false;
+	inlrg = seldata.inlrg_;
+	crlrg = seldata.crlrg_;
+	zrg = seldata.zrg_;
+	return true;
     }
 
-    inlrg.start = bs.start.inl; inlrg.stop = bs.stop.inl;
-    crlrg.start = bs.start.crl; crlrg.stop = bs.stop.crl;
-    inlrg.step = bs.step.inl; crlrg.step = bs.step.crl;
-    return true;
+    if ( doerrs )
+    {
+	BufferString msg( "Cannot read \"" );
+	msg += ctio.ioobj->name(); msg += "\"";
+	uiMSG().error( msg );
+    }
+    return false;
 }
 
 

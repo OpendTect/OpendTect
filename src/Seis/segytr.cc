@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.30 2004-07-16 15:35:26 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.31 2004-07-19 11:30:10 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -93,8 +93,9 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
     txthead.getText( pinfo->usrinfo );
     pinfo->nr = binhead.lino;
+    pinfo->zrg.step = binhead.hdt * (0.001 / SI().zFactor());
+    binhead_dpos = pinfo->zrg.step;
     binhead_ns = binhead.hns;
-    binhead_dpos = binhead.hdt * (0.001 / SI().zFactor());
 
     if ( itrc <= nr_trc_headers_to_dump )
     {

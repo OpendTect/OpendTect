@@ -4,13 +4,14 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.14 2004-06-28 16:00:05 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.15 2004-07-19 11:30:11 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
 #include "seisread.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "seistrcsel.h"
 #include "binidselimpl.h"
 #include "posgeomdetector.h"
 #include "strmprov.h"
@@ -88,12 +89,11 @@ int SeisScanner::totalNr() const
 	totalnr = -1;
 	if ( reader.ioObj() )
 	{
-	    BinIDSampler bs; StepInterval<float> si;
-	    if ( SeisTrcTranslator::getRanges(*reader.ioObj(),bs,si) )
+	    SeisSelData seldata;
+	    if ( SeisTrcTranslator::getRanges(*reader.ioObj(),seldata) )
 	    {
-		BinIDSamplerProv bsp( bs );
-		totalnr = bsp.size();
-		((SeisScanner*)this)->expectedcrls = bsp.dirSize(false);
+		totalnr = seldata.expectedNrTraces();
+		((SeisScanner*)this)->expectedcrls = seldata.crlrg_.nrSteps()+1;
 	    }
 	}
     }

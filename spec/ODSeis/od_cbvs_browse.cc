@@ -25,31 +25,6 @@ static const char* rcsID = "$Id";
 #include "seisfact.h"
 
 
-static void putComps( const ObjectSet<BasicComponentInfo>& cinfo )
-{
-    std::cerr << "Data is written on a "
-	 << (cinfo[0]->datachar.littleendian ? "little" : "big")
-	 << " endian machine." << std::endl;
-
-    for ( int idx=0; idx<cinfo.size(); idx++ )
-    {
-	const BasicComponentInfo& bci = *cinfo[idx];
-	std::cerr << "\nComponent '" << (const char*)bci.name()
-	    	  << "':\n" << "Data Characteristics: "
-		  << (bci.datachar.isInteger() ? "Integer" : "Floating point")
-		  << ' ';
-	if ( bci.datachar.isInteger() )
-	     std::cerr << (bci.datachar.isSigned() ? "(Signed) "
-		     				   : "(Unsigned) ");
-	std::cerr << (int)bci.datachar.nrBytes() << " bytes" << std::endl;
-	std::cerr << "Z/T start: " << bci.sd.start
-	     << " step: " << bci.sd.step << std::endl;
-	std::cerr << "Number of samples: " << bci.nrsamples << '\n'
-	    	  << std::endl;
-    }
-}
-
-
 static void getInt( int& i )
 {
     char buf[80];
@@ -103,7 +78,7 @@ int main( int argc, char** argv )
     SeisTrc trc; BinID bid;
     StepInterval<int> samps;
     const int nrcomps = info.compinfo.size();
-    while ( 1 )
+    while ( true )
     {
 	std::cerr << "\nExamine In-line ( 0 to stop ): "; getInt( bid.inl );
 	if ( !bid.inl ) exitProgram( 0 );
@@ -143,7 +118,7 @@ int main( int argc, char** argv )
 	std::cerr << "X-line: "; getInt( bid.crl );
 
 	if ( !tri->goTo( bid ) )
-	    { std::cerr << "Position not in data" << std::endl; continue; }
+	    { std::cerr << "Cannot find this position" << std::endl; continue; }
 	if ( !tri->read(trc) )
 	    { std::cerr << "Cannot read trace!" << std::endl; continue; }
 
@@ -158,7 +133,7 @@ int main( int argc, char** argv )
 		&& !mIsUndefined(trc.info().offset) )
 	    std::cerr << "Offset: " << trc.info().offset << std::endl;
 
-	while ( 1 )
+	while ( true )
 	{
 	    std::cerr << "Print samples ( 1 - " << trc.size(0) << " )."
 		      << std::endl;

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.1 2004-06-18 13:58:07 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.2 2004-07-19 11:30:10 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -93,7 +93,7 @@ int nextStep()
 	if ( !tr->initRead(new StreamConn(fname.buf(),Conn::Read)) )
 	    mErrRet(tr->errMsg())
 	const SeisPacketInfo& pinf = tr->packetInfo();
-	totnr = BinIDSamplerProv(pinf.binidsampling).size();
+	totnr = tr->packetInfo().crlrg.nrSteps() + 1;
     }
 
     int lastnr = curnr + 10;

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.21 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.22 2004-07-19 11:30:10 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -21,6 +21,12 @@ static const char* rcsID = "$Id: seisinfo.cc,v 1.21 2004-06-16 14:54:19 bert Exp
 #include <timeser.h>
 #include <float.h>
 #include <iostream>
+
+const char* SeisTrcInfo::sSamplingInfo = "Sampling information";
+const char* SeisTrcInfo::sNrSamples = "Nr of samples";
+const char* SeisPacketInfo::sBinIDs = "BinID range";
+const char* SeisPacketInfo::sZRange = "Z range";
+
 
 static BufferString getUsrInfo()
 {
@@ -44,9 +50,6 @@ static BufferString getUsrInfo()
 }
 
 BufferString SeisPacketInfo::defaultusrinfo = getUsrInfo();
-
-const char* SeisTrcInfo::sSamplingInfo = "Sampling information";
-const char* SeisTrcInfo::sNrSamples = "Nr of samples";
 
 
 DefineEnumNames(Seis,WaveType,0,"Wave type")
@@ -98,47 +101,18 @@ const char* SeisTrcInfo::attrnames[] = {
 	0
 };
 
-const char* SeisPacketInfo::sBinIDs = "BinID range";
-
-
-SeisPacketInfo::SeisPacketInfo()
-	: binidsampling(*new BinIDSampler)
-{
-    clear();
-}
-
-
-SeisPacketInfo::SeisPacketInfo( const SeisPacketInfo& spi )
-	: binidsampling(*new BinIDSampler)
-{
-    *this = spi;
-}
-
-
 
 void SeisPacketInfo::clear()
 {
     usrinfo = defaultusrinfo;
     nr = 0;
-    binidsampling.start = SI().range(false).start;
-    binidsampling.stop = SI().range(false).stop;
-    binidsampling.step = BinID( SI().inlStep(), SI().crlStep() );
-}
-
-
-SeisPacketInfo& SeisPacketInfo::operator=( const SeisPacketInfo& spi )
-{
-    stdinfo = spi.stdinfo;
-    usrinfo = spi.usrinfo;
-    nr = spi.nr;
-    binidsampling = spi.binidsampling;
-    return *this;
-}
-
-
-SeisPacketInfo::~SeisPacketInfo()
-{
-    delete &binidsampling;
+    inlrg.start = SI().range(false).start.inl;
+    inlrg.stop = SI().range(false).stop.inl;
+    inlrg.step = SI().inlStep();
+    crlrg.start = SI().range(false).start.crl;
+    crlrg.stop = SI().range(false).stop.crl;
+    crlrg.step = SI().crlStep();
+    assign( zrg, SI().zRange() );
 }
 
 
