@@ -4,26 +4,26 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.8 2002-04-17 13:44:35 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.9 2002-04-25 14:51:28 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibatchlaunch.h"
-
-#include "filegen.h"
+#include "uidistriblaunch.h"
+#include "uicombobox.h"
+#include "uifileinput.h"
+#include "uiseparator.h"
+#include "uibutton.h"
+#include "uimsg.h"
 #include "ioparlist.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "uicombobox.h"
-#include "uifileinput.h"
-#include "uimsg.h"
 #include "lic.h"
+#include "filegen.h"
 
-#include <fstream.h>
 
-
-uiGenBatchLaunch::uiGenBatchLaunch( uiParent* p, UserIDSet nms )
+uiGenBatchLaunch::uiGenBatchLaunch( uiParent* p, const UserIDSet& nms )
         : uiDialog(p,uiDialog::Setup("Run batch program",
 		   "Specify batch parameters","0.1.5"))
         , prognms(nms)
@@ -193,18 +193,19 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	{ comm += progname; comm += " -bg "; comm += StreamProvider::sStdIO; }
     else
     {
-	BufferString tfname = File_getFullPath( GetDataDir(), ".transfer." );
+	BufferString tfname = File_getFullPath( GetDataDir(), "Proc" );
+	tfname = File_getFullPath( tfname, ".transfer." );
 	if ( GetSoftwareUser() )
 	    tfname += GetSoftwareUser();
-	ofstream strm( tfname );
-	if ( !iopl.write(strm) )
+	StreamData sd = StreamProvider(tfname).makeOStream();
+	if ( !sd.usable() || !iopl.write(*sd.ostrm) )
 	{
 	    comm = "Cannot write to:\n";
 	    comm += tfname;
 	    uiMSG().error( comm );
 	    return false;
 	}
-	strm.close();
+	sd.close();
 
 	comm += GetSoftwareDir();
 	comm = File_getFullPath( comm, "bin" );
@@ -234,4 +235,126 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
     sd.close();
     return rv;
+}
+
+
+uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* ppn,
+					const char* t, const char* mpn )
+	: uiDialog(p,uiDialog::Setup(t,"X",0)
+			.oktext("")
+			.separator(false))
+    	, uppgrp(new uiGroup(this,"Upper group"))
+	, procprognm(ppn)
+	, multiprognm(mpn)
+{
+    finaliseStart.notify( mCB(this,uiFullBatchDialog,preFinalise) );
+}
+
+
+static int buttxtpresz = 10;
+
+void uiFullBatchDialog::preFinalise( CallBacker* )
+{
+    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    sep->attach( stretchedBelow, uppgrp );
+
+    uiGroup* dogrp = new uiGroup( this, "Start-work buttons" );
+    singmachbut = new uiPushButton( dogrp, "Single-machine" );
+    singmachbut->activated.notify( mCB(this,uiFullBatchDialog,doButPush) );
+    multimachbut = new uiPushButton( dogrp, "Multi-machine" );
+    multimachbut->activated.notify( mCB(this,uiFullBatchDialog,doButPush) );
+    multimachbut->attach( rightOf, singmachbut );
+
+    uiObject* prev = multimachbut;
+    for ( int idx=0; idx<uiDistributedLaunch::nrEnvironments(); idx++ )
+    {
+	BufferString txt( "Submit to " );
+	buttxtpresz = txt.size();
+	txt += uiDistributedLaunch::environmentName(idx);
+	uiPushButton* but = new uiPushButton( dogrp, txt );
+	but->attach( rightOf, prev );
+	but->activated.notify( mCB(this,uiFullBatchDialog,doButPush) );
+	prev = but;
+    }
+    dogrp->attach( centeredBelow, sep );
+}
+
+
+void uiFullBatchDialog::doButPush( CallBacker* cb )
+{
+    if ( !prepareProcessing() ) return;
+
+    IOPar* iopar = new IOPar( "Processing" );
+    IOParList iopl; iopl += iopar;
+    if ( !fillPar(*iopar) )
+	return;
+
+    BufferString tfname;
+    if ( cb != singmachbut )
+    {
+	tfname = File_getFullPath( GetDataDir(), "Proc" );
+	tfname = File_getFullPath( tfname, "cube_processing" );
+	if ( GetSoftwareUser() )
+	    { tfname += "_"; tfname += GetSoftwareUser(); }
+	tfname += ".par";
+	StreamData sdo = StreamProvider(tfname).makeOStream();
+	if ( !sdo.usable() )
+	    { uiMSG().error( "Cannot write to Proc/ directory" ); return; }
+	else if ( !iopl.write( *sdo.ostrm ) )
+	    { uiMSG().error( "Cannot write job description to file" ); return; }
+	sdo.close();
+    }
+
+    bool res = false;
+    if ( cb == singmachbut )
+	res = singLaunch(iopl);
+    else if ( cb == multimachbut )
+	res = multiLaunch( tfname );
+    else
+	res = distrLaunch( cb, tfname );
+
+    if ( res )
+	accept(this);
+}
+
+
+bool uiFullBatchDialog::singLaunch( const IOParList& iopl )
+{
+    BufferString dum;
+    uiBatchLaunch dlg( this, iopl, dum, procprognm, false );
+    return dlg.go();
+}
+
+
+bool uiFullBatchDialog::multiLaunch( const char* fnm )
+{
+    BufferString comm( "@" );
+    comm += multiprognm;	comm += " ";
+    comm += procprognm;		comm += " ";
+    comm += fnm;		comm += "&";
+    StreamData sd = StreamProvider( comm ).makeOStream();
+    if ( !sd.usable() )
+	{ uiMSG().error( "Cannot start multi-machine program" ); return false; }
+
+    sd.close();
+    return true;
+}
+
+
+bool uiFullBatchDialog::distrLaunch( CallBacker* cb, const char* fnm )
+{
+    mDynamicCastGet(uiPushButton*,but,cb);
+    if ( !but ) { pErrMsg("Huh"); return false; }
+
+    const char* envnm = but->text() + buttxtpresz;
+    int envid = 0;
+    for ( int idx=0; idx<uiDistributedLaunch::nrEnvironments(); idx++ )
+    {
+	if ( !strcmp(uiDistributedLaunch::environmentName(idx),envnm) )
+	    { envid = idx; break; }
+    }
+
+    //TODO set callback and do what's needed
+    uiDistributedLaunch dlg( this, procprognm, CallBack(0), envid );
+    return dlg.go();
 }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.h,v 1.1 2002-01-03 17:17:59 nanne Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.2 2002-04-25 14:51:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,11 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "uidset.h"
-
 class IOParList;
 class uiFileInput;
 class uiGenInput;
 class uiLabeledComboBox;
+class uiPushButton;
 
 
 
@@ -26,7 +26,7 @@ class uiGenBatchLaunch : public uiDialog
 {
 public:
 
-			uiGenBatchLaunch(uiParent*,UserIDSet);
+			uiGenBatchLaunch(uiParent*,const UserIDSet&);
 
     const char*		getProg();
     IOParList*		getParList()		{ return parlist; }
@@ -71,5 +71,31 @@ protected:
 
 };
 
+
+class uiFullBatchDialog : public uiDialog
+{
+protected:
+
+    			uiFullBatchDialog(uiParent*,const char* procprogname,
+					  const char* wintxt,const char* mpn);
+
+    BufferString	procprognm;
+    BufferString	multiprognm;
+    uiGroup*		uppgrp;
+
+    virtual bool	prepareProcessing()	= 0;
+    virtual bool	fillPar(IOPar&)		= 0;
+
+    void		doButPush(CallBacker*);
+    void		preFinalise(CallBacker*);
+
+    bool		singLaunch(const IOParList&);
+    bool		multiLaunch(const char*);
+    bool		distrLaunch(CallBacker*,const char*);
+
+    uiPushButton*	singmachbut;
+    uiPushButton*	multimachbut;
+
+};
 
 #endif
