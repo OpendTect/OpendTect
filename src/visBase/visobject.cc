@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.18 2002-05-02 11:30:46 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.19 2002-05-07 12:37:22 kristofer Exp $";
 
 #include "visobject.h"
 #include "vismaterial.h"
@@ -41,7 +41,7 @@ visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
 visBase::VisualObjectImpl::~VisualObjectImpl()
 {
     onoff->unref();
-    material->unRef();
+    if ( material ) material->unRef();
 }
 
 
