@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.56 2002-08-12 11:35:13 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.57 2002-08-12 15:26:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include <qstatusbar.h>
 #include <qapplication.h>
 #include <qdockwindow.h>
+#include <qpixmap.h>
 
 #ifdef SUPPORT_PERSISTENCE
 // for positions of dock area's
@@ -503,6 +504,8 @@ void uiMainWin::setIcon( const char* img[], const char* icntxt )
     {
 	QPixmap imgpm( img );
 	body_->setIcon( imgpm );
+	if ( menuBar() )
+	    menuBar()->setIcon( imgpm );
     }
 }
 
