@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.13 2003-03-07 14:26:29 bert Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.14 2003-03-10 15:49:05 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -35,13 +35,16 @@ const char* visBase::RandomTrack::draggersizestr = "DraggerSize";
 mCreateFactoryEntry( visBase::RandomTrack );
 
 visBase::RandomTrack::RandomTrack()
-    : VisualObjectImpl( false )
-    , dragger( 0 )
-    , draggerswitch( 0 )
+    : VisualObjectImpl(false)
+    , dragger(0)
+    , draggerswitch(0)
     , eventcatcher(visBase::EventCatcher::create())
-    , depthrg( 0, 1 )
-    , knotmovement( this )
-    , knotnrchange( this )
+    , depthrg(0,1)
+    , knotmovement(this)
+    , knotnrchange(this)
+    , rightclick(this)
+    , sectionidx(-1)
+    , selknotpos(0,0)
 {
     eventcatcher->ref();
     eventcatcher->setEventType(visBase::MouseClick);
@@ -405,18 +408,6 @@ void visBase::RandomTrack::createDragger()
 }
 
 
-int visBase::RandomTrack::getSectionIdx( const TriangleStripSet* tss ) const
-{
-    
-    for ( int idx=0; idx<sections.size(); idx++ )
-    {
-	if ( sections[idx]->id() == tss->id() )
-	    return idx;
-    }
-    return -1;
-}
-
-
 void visBase::RandomTrack::motionCB(void* data,
 				    SoRandomTrackLineDragger* dragger)
 {
@@ -491,45 +482,31 @@ void visBase::RandomTrack::eventCB(CallBacker* cb)
      mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
      if ( eventinfo.type != visBase::MouseClick ) return;
-     if ( !eventinfo.mousebutton ) return; // only accept right-click
+     if ( eventinfo.mousebutton != 1 ) return; // only accept right-click
      if ( eventinfo.pressed ) return; // only do stuff on mouse release
 
-     int eventid = -1;
-     int sectionidx = -1;
+     sectionidx = -1;
      for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
      {
 	 for ( int idy=0; idy<sections.size(); idy++ )
 	 {
 	     if ( eventinfo.pickedobjids[idx]==sections[idy]->id() )
 	     {
-		 sectionidx=idy;
+		 sectionidx = idy;
 		 break;
 	     }
 	 }
 	 
-	 if ( sectionidx!=-1 )
+	 if ( sectionidx != -1 )
 	     break;
      }
 
-     if ( sectionidx==-1 )
+     if ( sectionidx == -1 )
 	 return;
 
-     Coord knotpos( dragger->xyzSnap( 0, eventinfo.localpickedpos.x ),
-		    dragger->xyzSnap( 1, eventinfo.localpickedpos.y ));
+     selknotpos = Coord( dragger->xyzSnap( 0, eventinfo.localpickedpos.x ),
+			 dragger->xyzSnap( 1, eventinfo.localpickedpos.y ) );
 
-     if ( !eventinfo.shift && !eventinfo.alt )
-     {
-	 if ( !eventinfo.ctrl )
-	     insertKnot( sectionidx+1, knotpos );
-	 else
-	 {
-	     if ( knotpos.distance(knots[sectionidx]) <
-		  knotpos.distance(knots[sectionidx+1]) )
-		 removeKnot( sectionidx );
-	     else
-		 removeKnot( sectionidx+1 );
-	 }
-     }
-
+     rightclick.trigger();
      eventcatcher->eventIsHandled();
 }

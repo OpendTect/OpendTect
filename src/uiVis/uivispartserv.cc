@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.140 2003-03-07 13:18:06 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.141 2003-03-10 15:51:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ void uiVisPartServer::removeScene( int sceneid )
     visSurvey::Scene* scene = getScene( sceneid );
     if ( scene )
     {
-	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB));
+	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
 	scene->unRef();
 	scenes -= scene;
 	return;
@@ -401,7 +401,9 @@ void uiVisPartServer::setSelObjectId( int id )
 #define mInsertKnotStart	1246
 ////Leave 100 spaces for submnus
 #define mInsertKnotStop		1346
-#define mShiftHor		1347
+#define mAddNode		1347
+#define mRemoveNode		1348
+#define mShiftHor		1349
 
 
 void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
@@ -1134,7 +1136,7 @@ bool uiVisPartServer::deleteAllObjects()
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	scenes[idx]->mouseposchange.remove(
-	    			mCB( this, uiVisPartServer, mouseMoveCB ));
+	    			mCB(this,uiVisPartServer,mouseMoveCB) );
         scenes[idx]->unRef();
     }
 
@@ -1720,7 +1722,10 @@ void uiVisPartServer::setUpConnections( int id )
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
     if ( rtd )
+    {
 	rtd->knotmoving.notify( mCB(this,uiVisPartServer,interactionCB) );
+	rtd->rightclick.notify( mCB(this,uiVisPartServer,createPopupMenu) );
+    }
 
 }
 
@@ -1819,5 +1824,41 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 	inlcrlmousepos = scene->getMousePos(false);
 	mouseposval = scene->getMousePosValue();
 	sendEvent( evMouseMove );
+    }
+}
+
+
+void uiVisPartServer::createPopupMenu( CallBacker* cb )
+{
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,cb)
+
+    int objid;
+    uiPopupMenu mnu( appserv().parent(), "Popup" );    
+    if ( rtd )
+    {
+	mnu.insertItem( new uiMenuItem("Insert node"), mAddNode );
+	if ( rtd->nrKnots() > 2 )
+	    mnu.insertItem( new uiMenuItem("Remove nearest node"), mRemoveNode);
+	objid = rtd->id();
+    }
+
+    const int mnuid = mnu.nrItems() ? mnu.exec() : -1;
+    handlePopupMenu( mnuid, objid );
+}
+
+
+void uiVisPartServer::handlePopupMenu( int mnuid, int objid )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( objid );
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj)
+
+    if ( rtd )
+    {
+	int sectidx = rtd->getSectionIdx();
+	BinID pos = rtd->getClickedPos();
+	if ( mnuid == mAddNode )
+	    rtd->insertKnot( sectidx+1, pos );
+	else if ( mnuid == mRemoveNode )
+	    rtd->removeNearestKnot( sectidx, pos );
     }
 }

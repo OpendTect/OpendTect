@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.15 2003-03-07 13:17:42 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.16 2003-03-10 15:50:42 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -41,9 +41,9 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     , track(visBase::RandomTrack::create())
     , texturematerial(visBase::Material::create())
     , as(*new AttribSelSpec)
+    , rightclick(this)
     , knotmoving(this)
     , selknotidx(-1)
-    , ctrlpressed(false)
     , ismanip( true )
 {
     track->ref();
@@ -53,6 +53,7 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     texturematerial->setDiffIntensity( 0.8 );
     track->setMaterial( texturematerial );
 
+    track->rightclick.notify( mCB(this,RandomTrackDisplay,rightClicked) );
     track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
     track->knotnrchange.notify( mCB(this,RandomTrackDisplay,knotNrChanged) );
 
@@ -100,6 +101,7 @@ visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
 {
     track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
     track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged) );
+    track->rightclick.remove( mCB(this,RandomTrackDisplay,rightClicked) );
     track->unRef();
     texturematerial->unRef();
 }
@@ -317,7 +319,7 @@ float visSurvey::RandomTrackDisplay::getValue( const Coord3& pos ) const
 
 bool visSurvey::RandomTrackDisplay::isManipulated() const
 {
-    return ismanip;
+    return false; // return ismanip;
 }
 
  
@@ -351,6 +353,10 @@ visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab()
 { return track->getColorTab(); }
 
 
+void visSurvey::RandomTrackDisplay::rightClicked( CallBacker* )
+{ rightclick.trigger(); }
+
+
 void visSurvey::RandomTrackDisplay::knotMoved( CallBacker* cb )
 {
     ismanip = true;
@@ -361,7 +367,7 @@ void visSurvey::RandomTrackDisplay::knotMoved( CallBacker* cb )
 }
 
 
-void visSurvey::RandomTrackDisplay::knotNrChanged( CallBacker* cb )
+void visSurvey::RandomTrackDisplay::knotNrChanged( CallBacker* )
 {
     ismanip = true;
     if ( !cache.size() )
@@ -410,6 +416,29 @@ const char* visSurvey::RandomTrackDisplay::getResName( int res ) const
 int visSurvey::RandomTrackDisplay::getNrResolutions() const
 {
     return 3;
+}
+
+
+int visSurvey::RandomTrackDisplay::getSectionIdx() const
+{ return track->getSectionIdx(); }
+
+
+BinID visSurvey::RandomTrackDisplay::getClickedPos() const
+{ 
+    Coord crd = track->getClickedPos();
+    return BinID( (int)crd.x, (int)crd.y );
+}
+
+
+void visSurvey::RandomTrackDisplay::removeNearestKnot( int sectionidx, 
+						       const BinID& pos_ )
+{
+    Coord pos( pos_.inl, pos_.crl );
+    if ( pos.distance( track->getKnotPos(sectionidx) ) <
+	 pos.distance( track->getKnotPos(sectionidx+1) ) )
+	removeKnot( sectionidx );
+    else
+	removeKnot( sectionidx+1 );
 }
 
 
@@ -471,10 +500,14 @@ int visSurvey::RandomTrackDisplay::usePar( const IOPar& par )
     if ( !rt ) return -1;
 
     track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
+    track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged) );
+    track->rightclick.remove( mCB(this,RandomTrackDisplay,rightClicked) );
     track->unRef();
     track = rt;
     track->ref();
     track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
+    track->knotnrchange.notify( mCB(this,RandomTrackDisplay,knotNrChanged) );
+    track->rightclick.notify( mCB(this,RandomTrackDisplay,rightClicked) );
 
     Interval<float> intv(0,1);
     par.get( depthintvstr, intv.start, intv.stop );

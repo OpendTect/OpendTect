@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.82 2003-02-26 13:32:15 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.83 2003-03-10 15:51:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,6 +226,8 @@ protected:
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
     void			updatePlanePos(CallBacker*);
+    void			createPopupMenu(CallBacker*);
+    void			handlePopupMenu(int,int);
 
 
     static const char*		workareastr;

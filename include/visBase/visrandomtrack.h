@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.11 2003-03-07 13:13:03 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.12 2003-03-10 15:49:12 nanne Exp $
 ________________________________________________________________________
 
 
@@ -78,12 +78,13 @@ public:
     void			setMaterial( Material* );
     Material*			getMaterial();
 
-    int				getSectionIdx(const TriangleStripSet*) const;
-
+    int				getSectionIdx() const {return sectionidx;}
+    Coord			getClickedPos() const    { return selknotpos; }
 
     void			setData( int section, const Array2D<float>& );
     				/*!< section ranges from 0 to nrKnots-2 */
 
+    Notifier<RandomTrack>	rightclick;
     Notifier<RandomTrack>	knotnrchange;
     CNotifier<RandomTrack,int>	knotmovement;
     				/*!< Sends the index of the knot moving */
@@ -107,6 +108,8 @@ protected:
 
     Interval<float>		depthrg;
     TypeSet<Coord>		knots;
+    int				sectionidx;
+    Coord			selknotpos;
 
     ObjectSet<TriangleStripSet>	sections;
     SoRandomTrackLineDragger*	dragger;
