@@ -27,7 +27,7 @@ bool RawDataArray::isZero() const
 DataBuffer::DataBuffer( int n, int byts, bool doinit )
 	: RawDataArray(byts)
 {
-    if ( n )
+    if ( n > 0 )
     {
 	nelem_ = n;
 	data_ = new unsigned char [ nelem_ * bytes_ ];
@@ -66,10 +66,11 @@ DataBuffer& DataBuffer::operator=( const DataBuffer& tb )
 
 void DataBuffer::reSize( int n, bool copy )
 {
+    if ( n < 0 ) n = 0;
     if ( n == nelem_ )
 	return;
 
-    if ( !n || !copy )
+    if ( !n || !copy || nelem_ < 0 )
     {
 	delete [] data_;
 	data_ = n ? new unsigned char [ n * bytes_ ] : 0;
@@ -88,6 +89,7 @@ void DataBuffer::reSize( int n, bool copy )
 
 void DataBuffer::reByte( int n, bool copy )
 {
+    if ( n < 1 ) n = 1;
     if ( n == bytes_ ) return;
 
     bytes_ = n;
@@ -223,7 +225,7 @@ void TraceData::setComponent( const DataCharacteristics& dc, int icomp )
 
 void TraceData::zero( int icomp )
 {
-    if ( icomp >= nrcomp_ ) return;
+    if ( icomp < 0 || icomp >= nrcomp_ ) return;
 
     const int endidx = icomp < 0 ? nrcomp_-1 : icomp;
     for ( int idx=(icomp>=0?icomp:0); idx<=endidx; idx++ )
