@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.17 2001-10-02 11:47:52 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.18 2001-11-22 16:52:47 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -25,13 +25,14 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
 	, expldat(e)
 	, thrbytes_(0)
 	, finishing_inline(false)
-	, previnl(-999)
+	, prevbinid_(-999,-999)
 	, trcswritten(0)
 	, nrtrcsperposn(i.nrtrcsperposn)
 	, explinfo(i.explinfo)
 	, survgeom(i.geom)
 	, bytesperwrite(0)
 	, explicitbytes(0)
+	, nrtrcsperposn_known(false)
 {
     init( i );
 }
@@ -42,7 +43,7 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
 	, expldat(cw.expldat)
 	, thrbytes_(cw.thrbytes_)
 	, finishing_inline(false)
-	, previnl(-999)
+	, prevbinid_(-999,-999)
 	, trcswritten(0)
 	, nrtrcsperposn(cw.nrtrcsperposn)
 	, explinfo(cw.explinfo)
@@ -50,6 +51,7 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
 	, bytesperwrite(0)
 	, explicitbytes(0)
 	, newblockfo(0)
+	, nrtrcsperposn_known(cw.nrtrcsperposn_known)
 {
     init( ci );
 }
@@ -198,7 +200,7 @@ void CBVSWriter::writeGeom()
 
 void CBVSWriter::newSeg()
 {
-    if ( !trcswritten ) previnl = curbinid_.inl;
+    if ( !trcswritten ) prevbinid_ = curbinid_;
 
     inldata += new CBVSInfo::SurvGeom::InlineInfo( curbinid_.inl );
     inldata[inldata.size()-1]->segments +=
@@ -219,7 +221,7 @@ void CBVSWriter::getBinID()
     else if ( !(trcswritten % nrtrcsperposn) )
     {
 	curbinid_ = expldat->binid;
-	if ( !trcswritten || previnl != curbinid_.inl )
+	if ( !trcswritten || prevbinid_.inl != curbinid_.inl )
 	    newSeg();
 	else
 	{
@@ -249,7 +251,7 @@ void CBVSWriter::getBinID()
 int CBVSWriter::put( void** cdat )
 {
     getBinID();
-    if ( previnl != curbinid_.inl )
+    if ( prevbinid_.inl != curbinid_.inl )
     {
 	// getBinID() has added a new segment, so remove it from list ...
 	CBVSInfo::SurvGeom::InlineInfo* newinldat = inldata[inldata.size()-1];
@@ -281,7 +283,14 @@ int CBVSWriter::put( void** cdat )
     if ( thrbytes_ && strm_.tellp() >= thrbytes_ )
 	finishing_inline = true;
 
-    previnl = curbinid_.inl;
+    if ( !nrtrcsperposn_known && trcswritten )
+    {
+	if ( prevbinid_ == curbinid_ )
+	    nrtrcsperposn++;
+	else
+	    nrtrcsperposn_known = true;
+    }
+    prevbinid_ = curbinid_;
     trcswritten++;
     return 0;
 }
@@ -360,16 +369,16 @@ void CBVSWriter::getRealGeometry()
 	CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata[iinl];
 	if ( iinl == 0 )
 	{
-	    previnl = bids.start.inl = bids.stop.inl = inlinf.inl;
+	    prevbinid_.inl = bids.start.inl = bids.stop.inl = inlinf.inl;
 	    bids.start.crl = inlinf.segments[0].start;
 	    bids.stop.crl = inlinf.segments[0].stop;
 	    bids.step.crl = inlinf.segments[0].step;
 	}
 	else if ( iinl == 1 )
-	    bids.step.inl = inlinf.inl - previnl;
-	else if ( inlinf.inl - previnl != bids.step.inl )
+	    bids.step.inl = inlinf.inl - prevbinid_.inl;
+	else if ( inlinf.inl - prevbinid_.inl != bids.step.inl )
 	    survgeom.fullyrectandreg = false;
-	previnl = inlinf.inl;
+	prevbinid_.inl = inlinf.inl;
 
 	const int nrcrl = inlinf.segments.size();
 	if ( nrcrl != 1 )
