@@ -35,7 +35,10 @@ int main( int argc, char** argv )
 
     FileNameString fname( argv[2] );
     if ( !File_isAbsPath(argv[2]) )
-        fname = File_getFullPath( ".", argv[2] );
+    {
+	fname = File_getCurrentDir();
+	fname = File_getFullPath( fname, argv[2] );
+    }
     CBVSSeisTrcTranslator tri;
     StreamConn inconn( fname, Conn::Read );
     IOStream ioobj( "tmp" );
@@ -46,7 +49,10 @@ int main( int argc, char** argv )
 
     fname = argv[3];
     if ( !File_isAbsPath(argv[3]) )
-        fname = File_getFullPath( ".", argv[3] );
+    {
+	fname = File_getCurrentDir();
+	fname = File_getFullPath( fname, argv[3] );
+    }
     CBVSSeisTrcTranslator tro;
     StreamConn outconn( fname, Conn::Write );
     ioobj.setFileName( fname );

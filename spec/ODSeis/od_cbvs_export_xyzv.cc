@@ -33,7 +33,10 @@ int main( int argc, char** argv )
 
     FileNameString fname( argv[1] );
     if ( !File_isAbsPath(argv[1]) )
-        fname = File_getFullPath( ".", argv[1] );
+    {
+	fname = File_getCurrentDir();
+	fname = File_getFullPath( fname, argv[1] );
+    }
     CBVSSeisTrcTranslator tri;
     StreamConn inconn( fname, Conn::Read );
     IOStream ioobj( "tmp" );
