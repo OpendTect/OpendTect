@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.16 2003-11-10 16:55:43 arend Exp $
+ RCS:           $Id: uimsg.cc,v 1.17 2003-11-11 10:10:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,12 +43,6 @@ void uiMsg::handleMsg( CallBacker* cb )
     mDynamicCastGet(MsgClass*,mc,cb)
     if ( !mc ) return;
 
-#ifdef __win__
-
-    cerr << mc->msg << endl;
-
-#else
-// TODO : implement type() in Basic.dll
     switch ( mc->type() )
     {
     case MsgClass::ProgrammerError:
@@ -60,8 +54,6 @@ void uiMsg::handleMsg( CallBacker* cb )
 	    cerr << mc->msg << endl;
     break;
     }
-
-#endif
 }
 
 uiStatusBar* uiMsg::statusBar()
@@ -99,13 +91,11 @@ void uiMsg::toStatusbar( MsgClass* mc )
     }
 
     BufferString msg;
-#ifndef __win__
     if ( mc->type() > MsgClass::Message )
     {
 	msg = eString( MsgClass::Type, mc->type() );
 	msg += ": ";
     }
-#endif
     msg += mc->msg;
 
     if ( !statusBar() )
