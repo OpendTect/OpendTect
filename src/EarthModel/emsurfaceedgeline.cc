@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.14 2004-09-21 17:01:45 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.15 2004-09-28 08:47:17 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -954,8 +954,7 @@ int EdgeLine::computeArea() const
 
     TypeSet<RowCol> nodesinside;
     for ( int idx=0; idx<segments.size(); idx++ )
-	for ( int idy=0; idy<segments[idx]->size(); idy++ )
-	    nodesinside += (*segments[idx])[idy];
+	nodesinside.append( segments[idx]->getNodes() );
 
     int layer2start = nodesinside.size();
     int layer1start = 0;
@@ -1007,6 +1006,9 @@ int EdgeLine::computeArea() const
 	    {
 		for ( int col=-step.col; col<=step.col; col+=step.col )
 		{
+		    //Only add with 4-connectivity
+		    if ( col && row || (!row&&!col) ) continue;
+
 		    const RowCol rc(currc.row+row, currc.col+col );
 		    if ( nodesinside.indexOf(rc,false)!=-1 )
 			continue;
