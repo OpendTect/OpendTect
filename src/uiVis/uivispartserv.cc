@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.201 2004-05-04 09:50:29 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.202 2004-05-04 10:16:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -839,8 +839,6 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 	return true;
     }
 
-    if ( !so->isManipulated() )
-	return true;
     eventmutex.lock();
     eventobjid = id;
     res = sendEvent( evGetColorData );
@@ -870,25 +868,6 @@ bool uiVisPartServer::selectColorAttrib( int id )
     return true;
 }
 
-/*
-void uiVisPartServer::updatePlanePos( CallBacker* cb )
-{
-    int id = getSelObjectId();
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( !pdd ) return;
-    mDynamicCastGet(uiSliceSel*,dlg,cb)
-    if ( !dlg ) return;
-
-    CubeSampling cs = dlg->getCubeSampling();
-    pdd->setCubeSampling( cs );
-    calculateAttrib( id, false );
-    calculateColorAttrib( id, false );
-    sendEvent( evInteraction );
-}
-
-*/
-  
 
 bool uiVisPartServer::hasMaterial( int id ) const
 {
