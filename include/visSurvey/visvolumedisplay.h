@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.5 2002-10-23 09:42:07 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.6 2002-10-30 15:30:16 nanne Exp $
 ________________________________________________________________________
 
 
@@ -84,7 +84,7 @@ public:
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
 
-    virtual NotifierAccess*	getMovementNotification() { return &moving; }
+    Notifier<VolumeDisplay>	moved;
     Notifier<VolumeDisplay>	rectmoving;
 
 
@@ -105,8 +105,6 @@ protected:
     bool			selected_;
     bool			succeeded_;
     bool			manipulated;
-
-    Notifier<VolumeDisplay>	moving;
 
     static const char*		volumestr;
 };

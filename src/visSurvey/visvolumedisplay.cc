@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.5 2002-10-14 15:10:08 niclas Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.6 2002-10-30 15:30:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , selected_(false)
     , as(*new AttribSelSpec)
     , prevcs(*new CubeSampling)
-    , moving(this)
+    , moved(this)
     , manipulated(false)
     , rectmoving(this)
 {
@@ -139,7 +139,7 @@ float visSurvey::VolumeDisplay::getPlanePos( int dim )
 bool visSurvey::VolumeDisplay::updateAtNewPos()
 {
     succeeded_ = false;
-    moving.trigger();
+    moved.trigger();
     manipulated = false;
     return succeeded_;
 }
