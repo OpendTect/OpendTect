@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.21 2004-10-05 15:26:20 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.22 2004-10-06 14:00:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	    subsel->usePar( *ctio.iopar );
     }
 
-    if ( setup.pol2d_ != SeisSelSetup::No2D )
+    if ( setup.selattr_ && setup.pol2d_ != SeisSelSetup::No2D )
     {
 	if ( ctio.ctxt.forread )
 	    attrfld = new uiGenInput( this, "Attribute", StringListInpSpec() );
@@ -242,7 +242,7 @@ uiSeisSel::~uiSeisSel()
 void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
     ((uiSeisSelDlg*)dlg)->fillPar( iopar );
-    attrnm = iopar.find( Seis2DLineSet::sKeyAttrib );
+    setAttrNm( iopar.find( Seis2DLineSet::sKeyAttrib ) );
 }
 
 
@@ -261,6 +261,13 @@ const char* uiSeisSel::userNameFromKey( const char* txt ) const
     BufferString attnm = Seis2DLineSet::attrNameFromKey(txt);
     curusrnm = Seis2DLineSet::lineKey( curusrnm, attnm );
     return curusrnm.buf();
+}
+
+
+bool uiSeisSel::existingTyped() const
+{
+    return !is2D() ? uiIOObjSel::existingTyped()
+	 : existingUsrName( Seis2DLineSet::lineNameFromKey(getInput()) );
 }
 
 
@@ -295,7 +302,6 @@ void uiSeisSel::updateInput()
 void uiSeisSel::processInput()
 {
     obtainIOObj();
-    const char* ptr = strchr( getInput(), '|' );
     attrnm = Seis2DLineSet::attrNameFromKey( getInput() );
     if ( ctio.ioobj || ctio.ctxt.forread )
 	updateInput();

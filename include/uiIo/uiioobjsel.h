@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.36 2004-10-05 15:26:20 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.37 2004-10-06 14:00:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,8 @@ public:
     virtual void	updateInput();	//!< updates from CtxtIOObj
     virtual void	processInput(); //!< Match user typing with existing
 					//!< IOObjs, then set item accordingly
-    bool		existingTyped() const;
+    virtual bool	existingTyped() const
+					{ return existingUsrName(getInput()); }
 					//!< returns false is typed input is
 					//!< not an existing IOObj name
     CtxtIOObj&		ctxtIOObj()		{ return ctio; }
@@ -125,6 +126,7 @@ protected:
     virtual uiIOObjRetDlg* mkDlg();
     virtual IOObj*	createEntry(const char*);
     void		obtainIOObj();
+    bool		existingUsrName(const char*) const;
 
 };
 

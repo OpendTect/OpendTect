@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.18 2004-09-22 10:29:03 nanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.19 2004-10-06 14:00:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,11 +65,11 @@ void uiSeisPartServer::manageSeismics()
 }
 
 
-bool uiSeisPartServer::select2DSeis( MultiID& mid )
+bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
     SeisSelSetup setup;
-    setup.pol2d( SeisSelSetup::Only2D );
+    setup.pol2d( SeisSelSetup::Only2D ).selattr( with_attr );
     uiSeisSelDlg dlg( appserv().parent(), *ctio, setup );
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.12 2004-10-05 15:26:20 bert Exp $
+ RCS:           $Id: uiseissel.h,v 1.13 2004-10-06 14:00:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
     void		setAttrNm(const char*);
     const char*		attrNm() const		{ return attrnm.buf(); }
     virtual void	processInput();
+    virtual bool	existingTyped() const;
 
 protected:
 

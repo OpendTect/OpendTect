@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.68 2004-10-05 15:26:20 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.69 2004-10-06 14:00:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -360,11 +360,10 @@ void uiIOObjSel::processInput()
 }
 
 
-bool uiIOObjSel::existingTyped() const
+bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    const char* inp = getInput();
     IOM().to( ctio.ctxt.stdSelKey() );
-    return (*IOM().dirPtr())[inp];
+    return (*IOM().dirPtr())[nm];
 }
 
 
