@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.32 2003-10-17 14:19:02 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.33 2003-10-20 08:45:51 nanne Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -536,22 +536,22 @@ bool IOPar::getYN( const char* s, bool& i, char c ) const
 
 void IOPar::set( const char* keyw, const char* vals )
 {
-    BufferString* bs = ::find( keys_, keyw );
-    if ( !bs )
+    int idx = indexOf( keys_, keyw );
+    if ( idx < 0 )
 	add( keyw, vals );
     else
-	*bs = vals;
+	setValue( idx, vals );
 }
 
 
 void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 {
     FileMultiString fms( vals1 ); fms += vals2;
-    BufferString* bs = ::find( keys_, keyw );
-    if ( !bs )
+    int idx = indexOf( keys_, keyw );
+    if ( idx < 0 )
 	add( keyw, fms );
     else
-	*bs = fms;
+	setValue( idx, fms );
 }
 
 
