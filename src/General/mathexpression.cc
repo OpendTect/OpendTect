@@ -519,6 +519,154 @@ MathExpression* MathExpression::parse( const char* input )
     if ( endptr != str )
 	return new MathExpressionConstant( tres );
 
+
+    if ( !strncmp( str, "sqrt(", 5 ) && str[len-1] == ')' )
+    {
+	char arg0[len-5];
+	strcpy( arg0, str+5 );
+	arg0[len-6] = 0;
+
+	MathExpression* inp0 = parse( arg0 );
+	if ( !inp0 ) return 0;
+
+	MathExpression* inp1 = parse( "0.5" );
+
+	if ( !inp1 )
+	{
+	    delete inp0;
+	    return 0;
+	}
+    
+	MathExpression* res = new MathExpressionPower;
+
+	res->setInput( 0, inp0 );
+	res->setInput( 1, inp1 );
+
+	return res;
+	
+    }
+
+
+    // exp(x) -> e^x
+    if ( !strncmp( str, "exp(", 4 ) && str[len-1] == ')' )
+    {
+	MathExpression* inp0 = parse( "2.7182818284590452354" );
+
+	if ( !inp0 ) return 0;
+
+	char arg1[len+1];
+	strcpy( arg1, str+4 );
+	arg1[len-5] = 0;
+
+	MathExpression* inp1 = parse( arg1 );
+
+	if ( !inp1 )
+	{
+	    delete inp0;
+	    return 0;
+	}
+    
+	MathExpression* res = new MathExpressionPower;
+
+	res->setInput( 0, inp0 );
+	res->setInput( 1, inp1 );
+
+	return res;
+	
+    }
+
+
+    // ln (Natural log)  &  log (10log)
+    if ( !strncmp( str, "ln(", 3 ) && str[len-1] == ')' )
+    {
+	char arg0[len-3];
+	strcpy( arg0, str+3 );
+	arg0[len-4] = 0;
+
+	MathExpression* inp = parse( arg0 );
+
+	if ( !inp ) return false;
+
+	MathExpression* res = new MathExpressionNatLog;
+	res->setInput( 0, inp );
+
+	return res;
+    }
+
+
+    if ( !strncmp( str, "log(", 4 ) && str[len-1] == ')' )
+    {
+	char arg0[len-4];
+	strcpy( arg0, str+4 );
+	arg0[len-5] = 0;
+
+	MathExpression* inp = parse( arg0 );
+
+	if ( !inp ) return false;
+
+	MathExpression* res = new MathExpressionLog;
+	res->setInput( 0, inp );
+
+	return res;
+    }
+
+
+//  sin(), cos(), tan()
+    if ( !strncmp( str, "sin(", 4 ) && str[len-1] == ')' )
+    {
+	char arg0[len-4];
+	strcpy( arg0, str+4 );
+	arg0[len-5] = 0;
+
+	MathExpression* inp = parse( arg0 );
+
+	if ( !inp ) return false;
+
+	MathExpression* res = new MathExpressionSine;
+	res->setInput( 0, inp );
+
+	return res;
+    }
+
+
+    if ( !strncmp( str, "cos(", 4 ) && str[len-1] == ')' )
+    {
+	char arg0[len-4];
+	strcpy( arg0, str+4 );
+	arg0[len-5] = 0;
+
+	MathExpression* inp = parse( arg0 );
+
+	if ( !inp ) return false;
+
+	MathExpression* res = new MathExpressionCosine;
+	res->setInput( 0, inp );
+
+	return res;
+    }
+
+
+    if ( !strncmp( str, "tan(", 4 ) && str[len-1] == ')' )
+    {
+	char arg0[len-4];
+	strcpy( arg0, str+4 );
+	arg0[len-5] = 0;
+
+	MathExpression* inp = parse( arg0 );
+
+	if ( !inp ) return false;
+
+	MathExpression* res = new MathExpressionTangent;
+	res->setInput( 0, inp );
+
+	return res;
+    }
+
+
+    if ( !strcmp( input, "pi" ) )
+	return new MathExpressionConstant( M_PI );
+	
+
     bool isvariable = true;
 
     for ( int idx=0; idx<len; idx++ )
@@ -537,9 +685,6 @@ MathExpression* MathExpression::parse( const char* input )
 
 	
 
-    if ( !strcmp( input, "pi" ) )
-	return new MathExpressionConstant( M_PI );
-	
 
     return 0;	
 }

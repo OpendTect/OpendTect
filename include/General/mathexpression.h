@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.4 2001-01-19 11:34:40 bert Exp $
+ RCS:           $Id: mathexpression.h,v 1.5 2001-04-26 08:25:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,17 @@ ________________________________________________________________________
 
 /*!\brief parses a string with a mathematical expression.
 
-The expression can consist of constants, variables and operators.
+The expression can consist of constants, variables, operators and standard
+mathematical functions.
 A constant can be any number like 3, -5, 3e-5, or pi. Everything that does
 not start with a digit is treated as a variable. An operator can be either:
 
-+, -, *, /, ^, >, <, <=, >=, ==, !=, &&, ||, cond ? true stat : false stat,
++, -, *, /, ^,  >, <, <=, >=, ==, !=, &&, ||, cond ? true stat : false stat, 
 or |abs|
+
+A mathematical function can be either:
+
+sin(), cos(), tan(), ln(), log(), exp() or sqrt().
 
 If the parser returns null, it couldn't parse the expression.
 
@@ -48,8 +53,8 @@ public:
 
     virtual MathExpression*	clone() const = 0;
 
-				MathExpression(int);
-				~MathExpression();
+				MathExpression(int nrinputs);
+    virtual			~MathExpression();
 
 protected:
 
