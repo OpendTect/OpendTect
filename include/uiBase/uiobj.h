@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.10 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uiobj.h,v 1.11 2001-08-24 10:03:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ public:
     inline void		display( bool yn = true )
 			    { if ( yn ) show(); else hide(); }
     void		show();
-    void		hide();
+    void		hide(bool shrink=false);
     void		setFocus();
 
     Color               backgroundColor() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.9 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uigroup.cc,v 1.10 2001-08-24 10:03:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,7 +243,7 @@ uiGroup::uiGroup( uiParent* p, const char* nm, int border, int spacing,
 }
 
 void uiGroup::show()		{ uiObj()->show(); }
-void uiGroup::hide()		{ uiObj()->hide(); }
+void uiGroup::hide(bool shrink)		{ uiObj()->hide(shrink); }
 void uiGroup::setFocus()		{ uiObj()->setFocus(); }
 
 void uiGroup::setSensitive(bool yn)	{ uiObj()->setSensitive(yn); }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.8 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uiobj.cc,v 1.9 2001-08-24 10:03:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,7 +138,7 @@ bool uiObject::toolTipsEnabled()
 void uiObject::show()				{ mBody()->uiShow(); }
 
 
-void uiObject::hide()				{ mBody()->uiHide(); }
+void uiObject::hide(bool shrink)		{ mBody()->uiHide(shrink); }
 
 
 void uiObject::setFocus()			{ mBody()->uisetFocus();}
@@ -256,14 +256,22 @@ void uiObjectBody::uiShow()
 }
 
 
-void uiBody::uiHide()			{ qwidget()->hide(); }
+void uiBody::uiHide( bool )		{ qwidget()->hide(); }
 
-void uiObjectBody::uiHide()
+void uiObjectBody::uiHide(bool shrink)
 {
     if( !is_hidden )
     {
-	cached_pref_width  = preferredWidth();
-	cached_pref_height = preferredHeight();
+	if( shrink )
+	{
+	    cached_pref_width  = 0;
+	    cached_pref_height = 0;
+	}
+	else
+	{
+	    cached_pref_width  = preferredWidth();
+	    cached_pref_height = preferredHeight();
+	}
 	is_hidden = true; // not before call to preferredXX !!
     }
 

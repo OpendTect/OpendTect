@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.1 2001-08-23 15:02:41 windev Exp $
+ RCS:           $Id: uibody.h,v 1.2 2001-08-24 10:03:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ public:
     virtual void		finalise()				{}
     virtual void		clear()					{}
 
-    virtual void		uiHide();		// impl: uiobj.cc
-    virtual void		uiShow();		// impl: uiobj.cc
+    virtual void		uiHide(bool shrink=false ); // impl: uiobj.cc
+    virtual void		uiShow();		    // impl: uiobj.cc
 
 				//! can return 0
     inline const QWidget*       qwidget() const		{ return qwidget_();}

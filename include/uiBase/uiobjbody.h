@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.1 2001-08-23 15:02:41 windev Exp $
+ RCS:           $Id: uiobjbody.h,v 1.2 2001-08-24 10:03:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
     static bool			toolTipsEnabled();
 
     virtual void		uiShow();
-    virtual void		uiHide();
+    virtual void		uiHide(bool shrink);
     void			uisetFocus();
     bool			uiCloseOK()	{ return uiObjHandle().closeOK(); }
 
