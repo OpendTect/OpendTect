@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.2 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.3 2001-06-26 07:53:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ Thus:
  - foo.bar
 	file foo.bar in current directory
 
- A null string or the strings "stdin" and "stdout" will get std input/output.
+ A null string or StreamProvider::sStdIO will select std input and output.
 */
 
 class StreamProvider : public IDObject
@@ -74,7 +74,10 @@ public:
     StreamConn::Type	type()				{ return type_; }
     bool		isNormalFile() const;
 
+    static const char*	sStdIO;
+
 protected:
+
     FixedString<256>	fname;
     FixedString<32>	hostname;
 

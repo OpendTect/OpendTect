@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.4 2001-06-18 13:56:33 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.5 2001-06-26 07:53:13 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <cbvsio.h>
 #include <cbvsinfo.h>
+#include <iosfwd>
 class CBVSReader;
 class CBVSInfo;
 
@@ -61,6 +62,7 @@ protected:
     ObjectSet<BufferString> fnames_;
     CBVSInfo&		info_;
 
+    bool		addReader(istream*);
     bool		addReader(const char*);
     int			nextRdrNr(int) const;
     const char*		errMsg_() const;
