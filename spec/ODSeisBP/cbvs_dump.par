@@ -9,6 +9,6 @@ Output.Mode: Info
 -- Output.Type: Ascii
 -- Output.Selection.Inline: 100`300`2
 -- Output.Selection.Xline: 1200`1700`1
--- Output.Selection.Z: 1.5`3.5`0.004
+-- Output.Selection.Z: 1500`3500`4
 -- Output.Component: 0
 !

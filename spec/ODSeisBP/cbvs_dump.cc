@@ -74,6 +74,8 @@ bool BatchProgram::go( ostream& logstrm )
     ioobj.setGroup( mTranslGroupName(SeisTrc) );
     ioobj.setTranslator( mTranslKey(CBVSSeisTrc) );
     SeisTrcTranslator::getRanges( ioobj, bidsel, zrg );
+    if ( SI().zIsTime() )
+	{ zrg.start *= 1000; zrg.stop *= 1000; zrg.step *= 1000; }
 
     fname = StreamProvider::sStdIO;
     pars().get( "Output", fname );
@@ -166,8 +168,11 @@ bool BatchProgram::go( ostream& logstrm )
 	    if ( sz > 1 ) zrg.stop = atof( fms[1] );
 	    if ( sz > 2 ) zrg.step = atof( fms[2] );
 
-	    ci[compsel]->sd = SamplingData<float>( zrg.start, zrg.step );
-	    ci[compsel]->nrsamples = zrg.nrSteps() + 1;
+	    StepInterval<float> zrgs( zrg );
+	    if ( SI().zIsTime() )
+		{ zrgs.start *= 0.001; zrgs.stop *= 0.001; zrgs.step *= 0.001; }
+	    ci[compsel]->sd = SamplingData<float>( zrgs.start, zrgs.step );
+	    ci[compsel]->nrsamples = zrgs.nrSteps() + 1;
 	}
     }
 
