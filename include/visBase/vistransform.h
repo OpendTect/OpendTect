@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.4 2002-03-20 20:41:37 bert Exp $
+ RCS:		$Id: vistransform.h,v 1.5 2002-04-29 07:06:45 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vissceneobj.h"
+#include "geompos.h"
 
 class SoMatrixTransform;
 
@@ -46,14 +47,15 @@ public:
 			      float a31, float a32, float a33, float a34,
 			      float a41, float a42, float a43, float a44 );
 
-    //TODO:		More userfriendly interface
+    Geometry::Pos	transform( const Geometry::Pos& ) const;
+    Geometry::Pos	transformBack(  const Geometry::Pos& ) const;
     
     SoNode*		getData();
 private:
     virtual		~Transformation();
 
 
-    SoMatrixTransform*	transform;
+    SoMatrixTransform*	transform_;
 };
 
 };
