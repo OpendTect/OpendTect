@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.12 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.13 2004-04-14 09:42:03 nanne Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -16,7 +16,7 @@ visBase::SelectionManager::SelectionManager()
     , deselnotifer( this )
     , allowmultiple( false )
     , mutex( *new Threads::Mutex )
-{ }
+{}
 
 
 visBase::SelectionManager::~SelectionManager()
@@ -30,6 +30,14 @@ void visBase::SelectionManager::setAllowMultiple( bool yn )
     Threads::MutexLocker lock( mutex );
     while ( !yn && selectedids.size()>1 ) deSelect( selectedids[0], false );
     allowmultiple = yn;
+}
+
+
+void visBase::SelectionManager::rightClicked( int id )
+{
+    DataObject* dataobj = visBase::DM().getObj( id );
+    if ( !dataobj ) return;
+    dataobj->triggerRightClick();
 }
 
 

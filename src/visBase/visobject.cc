@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.25 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.26 2004-04-14 09:42:03 nanne Exp $";
 
 #include "visobject.h"
 
@@ -14,16 +14,17 @@ static const char* rcsID = "$Id: visobject.cc,v 1.25 2004-01-05 09:43:23 kristof
 #include "vismaterial.h"
 #include "vistransform.h"
 
-#include "Inventor/nodes/SoSeparator.h"
-#include "Inventor/nodes/SoSwitch.h"
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoSwitch.h>
 
 const char* visBase::VisualObjectImpl::materialidstr = "Material ID";
 const char* visBase::VisualObjectImpl::isonstr = "Is on";
 
 visBase::VisualObject::VisualObject( bool selectable_ )
-    : isselectable( selectable_ )
-    , deselnotifier( this )
-    , selnotifier( this )
+    : isselectable(selectable_)
+    , deselnotifier(this)
+    , selnotifier(this)
+    , rightClick(this)
 {}
 
 
@@ -32,10 +33,10 @@ visBase::VisualObject::~VisualObject()
 
 
 visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
-    : root( new SoSeparator )
-    , onoff( new SoSwitch )
-    , material( 0 )
-    , VisualObject( selectable_ )
+    : VisualObject(selectable_)
+    , root(new SoSeparator)
+    , onoff(new SoSwitch)
+    , material(0)
 {
     setMaterial( visBase::Material::create() );
     onoff->ref();
@@ -51,9 +52,9 @@ visBase::VisualObjectImpl::~VisualObjectImpl()
 }
 
 
-void visBase::VisualObjectImpl::turnOn(bool n)
+void visBase::VisualObjectImpl::turnOn( bool yn )
 {
-    onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
+    onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
@@ -93,33 +94,33 @@ void visBase::VisualObjectImpl::insertChild( int pos, SoNode* nn )
 { root->insertChild( nn, pos ); }
 
 
-void visBase::VisualObjectImpl::removeChild( SoNode* n )
-{ root->removeChild( n ); }
+void visBase::VisualObjectImpl::removeChild( SoNode* nn )
+{ root->removeChild( nn ); }
 
 
 int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
 {
-    int res = VisualObject::usePar(iopar);
+    int res = VisualObject::usePar( iopar );
     if ( res != 1 ) return res;
 
     int matid;
-    if ( iopar.get( materialidstr, matid ) )
+    if ( iopar.get(materialidstr,matid) )
     {
 	if ( matid==-1 ) setMaterial( 0 );
 	else
 	{
 	    DataObject* mat = visBase::DM().getObj( matid );
 	    if ( !mat ) return 0;
-	    if ( typeid(*mat)!=typeid(Material) ) return -1;
+	    if ( typeid(*mat) != typeid(Material) ) return -1;
 
-	    setMaterial( (Material*) mat );
+	    setMaterial( (Material*)mat );
 	}
     }
     else
 	setMaterial( 0 );
 
     bool isonsw;
-    if ( iopar.getYN( isonstr, isonsw ) )
+    if ( iopar.getYN(isonstr,isonsw) )
 	VisualObjectImpl::turnOn( isonsw );
 
     return 1;
@@ -130,11 +131,10 @@ void visBase::VisualObjectImpl::fillPar( IOPar& iopar,
 					 TypeSet<int>& saveids ) const
 {
     VisualObject::fillPar( iopar, saveids );
-    iopar.set( materialidstr, material ? material->id(): -1 );
+    iopar.set( materialidstr, material ? material->id() : -1 );
 
-    if ( material && saveids.indexOf( material->id() )==-1 )
+    if ( material && saveids.indexOf(material->id()) == -1 )
 	saveids += material->id();
 
     iopar.setYN( isonstr, isOn() );
 }
-    

@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.13 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.14 2004-04-14 09:42:03 nanne Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -30,14 +30,14 @@ visBase::Scene::Scene()
     selroot->addChild( DataObjectGroup::getInventorNode() );
     selroot->addChild( mouseevents.getInventorNode() );
     mouseevents.setEventType( visBase::MouseClick );
-    mouseevents.eventhappened.notify( mCB( this, visBase::Scene, mousePickCB ));
+    mouseevents.eventhappened.notify( mCB(this,visBase::Scene,mousePickCB) );
 }
 
 
 visBase::Scene::~Scene()
 {
     removeAll();
-    mouseevents.eventhappened.remove( mCB( this, visBase::Scene, mousePickCB ));
+    mouseevents.eventhappened.remove( mCB(this,visBase::Scene,mousePickCB) );
 
     selroot->unref();
 }
@@ -64,11 +64,11 @@ SoNode* visBase::Scene::getInventorNode()
 
 void visBase::Scene::mousePickCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( mouseevents.isEventHandled() ) return;
 
     if ( eventinfo.type != visBase::MouseClick ) return;
-    if ( eventinfo.mousebutton ) return;
+    if ( eventinfo.mousebutton > 1 ) return;
 
     if ( eventinfo.pressed )
     {
@@ -100,12 +100,15 @@ void visBase::Scene::mousePickCB( CallBacker* cb )
 	    const DataObject* dataobj =
 			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
 
-	    if ( dataobj->selectable() &&mousedownid==dataobj->id())
+	    if ( dataobj->selectable() && mousedownid==dataobj->id() )
 	    {
+		if ( eventinfo.mousebutton == 1 )
+		    visBase::DM().selMan().rightClicked( mousedownid );
+
 		if ( eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
-		    visBase::DM().selMan().select(mousedownid,true);
+		    visBase::DM().selMan().select( mousedownid, true );
 		else if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl)
-		    visBase::DM().selMan().select(mousedownid,false);
+		    visBase::DM().selMan().select( mousedownid, false );
 
 		break;
 	    }

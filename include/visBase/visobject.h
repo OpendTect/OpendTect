@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.25 2004-03-31 06:44:17 nanne Exp $
+ RCS:		$Id: visobject.h,v 1.26 2004-04-14 09:42:11 nanne Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ namespace visBase
 {
 class Material;
 class Transformation;
+class EventCatcher;
 
 /*!\brief Base class for all objects that are visual on the scene. */
 
@@ -36,10 +37,11 @@ public:
     virtual void		setMaterial( Material* )		= 0;
     virtual Material*		getMaterial()				= 0;
 
-    void			setSelectable( bool yn ) { isselectable=yn; }
-    bool			selectable() const { return isselectable; }
-    NotifierAccess*		selection() { return &selnotifier; }
-    NotifierAccess*		deSelection() { return &deselnotifier; }
+    void			setSelectable(bool yn)	{ isselectable=yn; }
+    bool			selectable() const 	{ return isselectable; }
+    NotifierAccess*		selection() 		{ return &selnotifier; }
+    NotifierAccess*		deSelection() 		{return &deselnotifier;}
+    virtual NotifierAccess*	rightClicked()		{ return &rightClick; }
 
     virtual int			usePar( const IOPar& iopar )
 				{ return DataObject::usePar(iopar); }
@@ -48,19 +50,21 @@ public:
 				{ DataObject::fillPar( iopar, saveids );}
 
 protected:
-    void		triggerSel()
-    			{ if (isselectable) selnotifier.trigger(); }
+    void			triggerSel()
+    				{ if (isselectable) selnotifier.trigger(); }
+    void			triggerDeSel()
+    				{ if (isselectable) deselnotifier.trigger(); }
+    void			triggerRightClick()
+				{ rightClick.trigger(); }
 
-    void		triggerDeSel()
-    			{ if (isselectable) deselnotifier.trigger(); }
-
-			VisualObject(bool selectable=false);
-			~VisualObject();
+				VisualObject(bool selectable=false);
+				~VisualObject();
 
 private:
     bool			isselectable;
     Notifier<VisualObject>	selnotifier;
     Notifier<VisualObject>	deselnotifier;
+    Notifier<VisualObject>	rightClick;
 };
 
 
@@ -70,18 +74,19 @@ public:
     void		turnOn(bool);
     bool		isOn() const;
 
-    void		setMaterial( Material* );
+    void		setMaterial(Material*);
     const Material*	getMaterial() const { return material; }
     Material*		getMaterial() { return material; }
 
     SoNode*		getInventorNode();
 
-    virtual int		usePar( const IOPar& iopar );
-    virtual void	fillPar( IOPar& iopar, TypeSet<int> & ) const;
+    virtual int		usePar(const IOPar&);
+    virtual void	fillPar(IOPar&,TypeSet<int>&) const;
+
 protected:
-    void		addChild( SoNode* );
-    void		insertChild( int pos, SoNode* );
-    void		removeChild( SoNode* );
+    void		addChild(SoNode*);
+    void		insertChild(int pos,SoNode*);
+    void		removeChild(SoNode*);
 
 
 			VisualObjectImpl(bool selectable=false);
@@ -91,7 +96,6 @@ protected:
     Material*		material;
 
 private:
-    
     SoSeparator*	root;
 
     static const char*	materialidstr;
@@ -102,13 +106,13 @@ private:
 };
 
 
-/*!\mainpage Visualistion - Open Inventor-based tools
+/*!\mainpage Visualisation - Open Inventor-based tools
 
   All 3D visualisation in OpendTect is COIN based. COIN is an implementation
   of the OpenInventor interface sepecification. As usual, the external package
   (i.e. COIN) is not visible to any object outside this module.
   This module can be seen as a layer on top of the COIN library. Compliant with
-  the DIF' principle (Don't implement the future), the layer only contains
+  the 'DIF' principle (Don't implement the future), the layer only contains
   those tools that are really used in OpendTect.
 
   The function visBase::initODInventorClasses() initialises our own 

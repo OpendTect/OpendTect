@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.28 2004-01-08 17:54:23 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.29 2004-04-14 09:42:11 nanne Exp $
 ________________________________________________________________________
 
 
@@ -29,8 +29,8 @@ class SelectionManager;
 class DataManager;
 
 /*!\brief
-DataObject is the base class off all objects that are used in Visualization and
-ought to be shared in visBase::DataManager. The Data Manager owns all the
+DataObject is the base class off all objects that are used in Visualisation and
+ought to be shared in visBase::DataManager. The DataManager owns all the
 objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
@@ -60,8 +60,10 @@ public:
     				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
     bool			isSelected() const;
-    virtual NotifierAccess*	selection() { return 0; }
-    virtual NotifierAccess*	deSelection() { return 0; }
+    virtual NotifierAccess*	selection() 		{ return 0; }
+    virtual NotifierAccess*	deSelection() 		{ return 0; }
+
+    virtual NotifierAccess*	rightClicked()		{ return 0; }
 
 
     virtual void		setTransformation( Transformation* );
@@ -99,8 +101,9 @@ public:
 
 protected:
     friend class		SelectionManager;
-    virtual void		triggerSel() {}
-    virtual void		triggerDeSel() {}
+    virtual void		triggerSel()		{}
+    virtual void		triggerDeSel()		{}
+    virtual void		triggerRightClick()	{}
     
 				DataObject();
     virtual			~DataObject();
