@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.98 2002-11-01 01:40:06 bert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.99 2002-11-01 16:18:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,7 +259,13 @@ void uiVisPartServer::turnOn( int id, bool yn )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visBase::VisualObject*,so,obj)
-    if ( so ) so->turnOn( yn );
+    if ( so ) 
+    {
+	so->turnOn( yn );
+	visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+	mDynamicCastGet(visSurvey::Scene*,scene,obj);
+	if ( scene ) scene->filterPicks();
+    }
 }
 
 
