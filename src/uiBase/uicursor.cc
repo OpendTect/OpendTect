@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.cc,v 1.1 2004-05-12 12:11:19 arend Exp $
+ RCS:           $Id: uicursor.cc,v 1.2 2004-05-17 13:56:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,15 +13,13 @@ ________________________________________________________________________
 #include "qcursor.h"
 #include "qapplication.h"
 
-void uiCursor::setOverrideCursor( CursorShape shape, bool replace )
+void uiCursor::setOverride( uiCursor::Shape shape, bool replace )
 {
-    QApplication::setOverrideCursor( QCursor((int) shape), replace );
+    QApplication::setOverrideCursor( QCursor((int)shape), replace );
 }
 
 
-void uiCursor::restoreOverrideCursor()
+void uiCursor::restoreOverride()
 {
     QApplication::restoreOverrideCursor();
 }
-
-

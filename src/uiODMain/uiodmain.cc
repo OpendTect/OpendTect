@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.18 2004-05-07 12:33:41 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.19 2004-05-17 13:56:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiattribpartserv.h"
 #include "uidockwin.h"
 #include "uisurvey.h"
+#include "uicursor.h"
 #include "uiioobjsel.h"
 #include "uisetdatadir.h"
 #include "uimsg.h"
@@ -233,6 +234,7 @@ bool uiODMain::updateSession()
 
 void uiODMain::doRestoreSession()
 {
+    uiCursor::setOverride( uiCursor::Wait );
     sceneMgr().cleanUp( false );
     applMgr().resetServers();
 
@@ -248,11 +250,14 @@ void uiODMain::doRestoreSession()
     }
     else
     {
+	uiCursor::restoreOverride();
 	uiMSG().error( "An error occurred while reading session file.\n"
 		       "A new scene will be launched" );	
+	uiCursor::setOverride( uiCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
     sessionRestore.trigger();
+    uiCursor::restoreOverride();
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.19 2004-05-06 13:03:30 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.20 2004-05-17 13:56:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,10 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 
     uiLabel* infolbl = new uiLabel( this, "Optional information:" );
     infolbl->attach( alignedBelow, horsep );
+    uiLabel* RTFMlbl = new uiLabel( this,
+	    			"[Logs and markers: use 'File-Manage-Wells']" );
+    RTFMlbl->attach( ensureBelow, horsep );
+    RTFMlbl->attach( rightBorder );
 
     idfld = new uiGenInput( this, "Well ID" );
     idfld->attach( alignedBelow, outfld );

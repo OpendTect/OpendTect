@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.57 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.58 2004-05-17 13:56:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uisurvey.h"
 #include "uimsg.h"
+#include "uicursor.h"
 #include "uimain.h"
 #include "uifiledlg.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
@@ -329,7 +330,9 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
 	uiMSG().error( msg );
 	return false;
     }
+    uiCursor::setOverride( uiCursor::Wait );
     File_copy( fnmin, fnmout, YES );
+    uiCursor::restoreOverride();
     if ( !File_exists(fnmout) )
     {
 	BufferString msg( "Copy " ); msg += fnmin;

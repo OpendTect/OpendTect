@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.58 2004-04-26 11:30:49 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.59 2004-05-17 13:56:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uisurvmap.h"
 #include "uisetdatadir.h"
 #include "uitextedit.h"
+#include "uicursor.h"
 #include "uimain.h"
 #include "uifont.h"
 #include "iodrawtool.h"
@@ -40,6 +41,7 @@ extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" const char* GetBaseDataDir();
 extern "C" void SetSurveyName(const char*);
+
 
 
 class TutHandling
@@ -63,6 +65,7 @@ static bool copy()
         return false;
     }
 
+    uiCursorChanger cc( uiCursor::Wait );
     if ( !File_copy( from, to, YES ) )
     {
         uiMSG().error( "Cannot create new survey directory for Tutorial" );
@@ -316,7 +319,11 @@ void uiSurvey::rmButPushed( CallBacker* )
     if ( !uiMSG().askGoOn( msg ) ) return;
 
     msg = FilePath( GetBaseDataDir() ).add( selnm ).fullPath();
-    if ( !File_remove( msg, YES ) )
+
+    uiCursor::setOverride( uiCursor::Wait );
+    bool rmres = File_remove( msg, YES );
+    uiCursor::restoreOverride();
+    if ( !rmres )
     {
         msg += "\nnot removed properly";
         return;

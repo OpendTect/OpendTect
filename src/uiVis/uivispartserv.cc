@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.215 2004-05-15 13:14:56 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.216 2004-05-17 13:56:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -289,7 +289,7 @@ bool uiVisPartServer::setCubeData( int id, bool color, AttribSliceSet* sliceset)
 	return false;
     }
 
-    uiCursorChanger cursorlock( uiCursor::WaitCursor );
+    uiCursorChanger cursorlock( uiCursor::Wait );
     return so->setDataVolume( color, sliceset );
 }
 
@@ -1059,7 +1059,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     else if ( firstresmnusel!=-1 && mnuid>=firstresmnusel &&
 	    mnuid-firstresmnusel<so->nrResolutions() )
     {
-	uiCursorChanger cursorlock( uiCursor::WaitCursor );
+	uiCursorChanger cursorlock( uiCursor::Wait );
 	so->setResolution(mnuid-firstresmnusel);
     }
     else if ( mnuid==trackmanmnuid )
