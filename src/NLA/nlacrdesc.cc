@@ -4,15 +4,12 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.6 2005-01-31 16:03:19 bert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.7 2005-02-08 16:57:12 bert Exp $";
 
 #include "nlacrdesc.h"
-#include "featset.h"
-#include "featsettr.h"
-#include "ioobj.h"
+#include "posvecdataset.h"
+#include "datacoldef.h"
 #include "ioman.h"
-#include "iodir.h"
-#include "iopar.h"
 #include "errh.h"
 #include "ptrman.h"
 #include "stats.h"
@@ -43,86 +40,82 @@ void NLACreationDesc::clear()
 }
 
 
-const char* NLACreationDesc::transferData( const ObjectSet<FeatureSet>& fss,
-	FeatureSet& fstrain, FeatureSet& fstest ) const
+const char* NLACreationDesc::prepareData( const ObjectSet<PosVecDataSet>& vdss,
+					  PosVecDataSet& trainvds,
+					  PosVecDataSet& testvds ) const
 {
-    fstrain.erase(); fstest.erase();
+    trainvds.empty(); testvds.empty();
     const char* res = 0;
-    const int nrout = fss.size();
+    const int nrout = vdss.size();
     if ( !nrout )
-	{ return "Internal: No input Feature Sets to transfer data from"; }
+	{ return "Internal: No input BinIDValueSets to transfer data from"; }
 
-    bool writevecs = doextraction && fsid != "";
-
-    // For direct prediction, the sets are ready. If not, add a FeatureDesc
+    // For direct prediction, the sets are ready. If not, add a ColumnDef
     // for each output node
-    fstrain.copyStructure( *fss[0] );
+    trainvds.data().copyStructureFrom( vdss[0]->data() );
     if ( doextraction && !isdirect )
     {
         for ( int iout=0; iout<nrout; iout++ )
-            fstrain.descs() += new FeatureDesc( *outids[iout] );
+	{
+	    BufferString psnm = IOM().nameOf( outids[iout]->buf() );
+	    DataColDef* newdcd = new DataColDef( psnm );
+	    newdcd->ref_ = *outids[iout];
+            trainvds.add( newdcd );
+	}
     }
-    fstest.copyStructure( fstrain );
+    testvds.data().copyStructureFrom( trainvds.data() );
 
     // Get the data into train and test set
-    for ( int idx=0; idx<fss.size(); idx++ )
+    for ( int idx=0; idx<vdss.size(); idx++ )
     {
-        if ( !addFeatData(fstrain,fstest,*fss[idx],nrout,idx) )
+        if ( !addBVSData(vdss[idx]->data(),trainvds.data(),idx) )
         {
             BufferString msg( "No values collected for '" );
             msg += IOM().nameOf( *outids[idx] );
             msg += "'";
             UsrMsg( msg );
         }
-	if ( !idx )
-	{
-	    fstrain.pars().clear();
-	    fstrain.pars().merge( fss[idx]->pars() );
-	}
-	 
     }
 
     if ( res && *res ) return res;
 
-    // Correct for shortcomings of random. Make sure ratio test/train is
-    // almost exactly as specified
-    const int nrtest = (int)((fstrain.size()+fstest.size()) * ratiotst + .5);
-    int nrdiff = nrtest - fstest.size();
-    FeatureSet& to = nrdiff < 0 ? fstrain : fstest;
-    FeatureSet& from = nrdiff > 0 ? fstrain : fstest;
-    while ( nrdiff && from.size() )
+    BinIDValueSet& trainbvs = trainvds.data();
+    BinIDValueSet& testbvs = testvds.data();
+    const int needednrtest = (int)(trainbvs.totalSize() * ratiotst + .5);
+    if ( needednrtest < 1  || needednrtest >= trainbvs.totalSize() )
+	return 0;
+
+    BinID bid; float vals[ trainbvs.nrVals() ];
+    while ( testbvs.totalSize() < needednrtest )
     {
-	int fsidx = Stat_getIndex( from.size() );
-	FeatureVec* fv = from[fsidx];
-	from -= fv;
-	to += fv;
-	nrdiff = nrtest - fstest.size();
+	const int randidx = Stat_getIndex( trainbvs.totalSize() );
+	BinIDValueSet::Pos pos = trainbvs.getPos( randidx );
+	trainbvs.get( pos, bid, vals );
+	trainbvs.remove( pos );
+	testbvs.add( bid, vals );
     }
 
     return res;
 }
 
 
-int NLACreationDesc::addFeatData( FeatureSet& fstrain,
-				FeatureSet& fstest, const FeatureSet& fs,
-				int nrout, int iout ) const
+int NLACreationDesc::addBVSData( const BinIDValueSet& bvs,
+				 BinIDValueSet& bvsout, int iout ) const
 {
-    FeatureVec fvin( FVPos(0,0) );
-    fs.startGet();
     int nradded = 0;
-    while ( 1 )
+    BinIDValueSet::Pos pos;
+    const int totnrvals = bvsout.nrVals();
+    const int outnrvals = totnrvals - bvs.nrVals();
+    BinID bid; float vals[ totnrvals ];
+    while ( bvs.next( pos ) )
     {
-	int res = fs.get( fvin );
-	if ( res < 0 ) break; if ( res == 0 ) continue;
-
-	FeatureVec* newfv = new FeatureVec( fvin );
+	bvs.get( pos, bid, vals );
 	if ( !isdirect )
 	{
-	    for ( int idx=0; idx<nrout; idx++ )
-		*newfv += idx == iout ? 1 : 0;
+	    for ( int idx=0; idx<outnrvals; idx++ )
+		vals[totnrvals-outnrvals+idx] = idx == iout ? 1 : 0;
 	}
-	FeatureSet& addset = Stat_getRandom() < ratiotst ? fstest : fstrain;
-	addset += newfv;
+	bvsout.add( bid, vals );
 	nradded++;
     }
     return nradded;

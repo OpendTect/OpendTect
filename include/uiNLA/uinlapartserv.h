@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.11 2005-01-31 16:03:19 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.12 2005-02-08 16:57:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "bufstringset.h"
 class IOPar;
 class UserIDSet;
-class FeatureSet;
 class BinIDValueSet;
+class PosVecDataSet;
 class NLACreationDesc;
 
 
@@ -76,24 +76,26 @@ public:
 
     			// Following should be filled on events
     BufferStringSet&	inputNames()			{ return inpnms; }
-    FeatureSet&		fsTrain()			{ return fstrain; }
-    FeatureSet&		fsTest()			{ return fstest; }
-    FeatureSet&		fsMCA()				{ return fsmc; }
+    PosVecDataSet&	vdsTrain()			{ return trainvds; }
+    PosVecDataSet&	vdsTest()			{ return testvds; }
+    PosVecDataSet&	vdsMCA()			{ return mcvds; }
+    IOPar&		storePars()			{ return storepars; }
 
     virtual bool	fillPar(IOPar&) const			= 0;
     virtual void	usePar(const IOPar&)			= 0;
 
     void		getBinIDValueSets(ObjectSet<BinIDValueSet>&) const;
-    const char*		transferData(const ObjectSet<FeatureSet>&,FeatureSet&);
+    const char*		prepareInputData(const ObjectSet<PosVecDataSet>&);
 
 protected:
 
-    FeatureSet&		fstrain;
-    FeatureSet&		fstest;
-    FeatureSet&		fsmc;
+    PosVecDataSet&	trainvds;
+    PosVecDataSet&	testvds;
+    PosVecDataSet&	mcvds;
     BufferStringSet	inpnms;
+    IOPar&		storepars;
 
-    void		writeToFS(FeatureSet&,const MultiID&);
+    void		writeSets(CallBacker*);
 };
 
 

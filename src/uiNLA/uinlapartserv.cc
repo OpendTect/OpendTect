@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.15 2005-02-04 16:16:40 duntao Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.16 2005-02-08 16:57:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,17 +14,19 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "welltransl.h"
 #include "wellextractdata.h"
-#include "featset.h"
-#include "featsettr.h"
+#include "posvecdataset.h"
+#include "datacoldef.h"
 #include "binidvalset.h"
 #include "uiexecutor.h"
+#include "uiposdataedit.h"
 #include "uimsg.h"
 #include "debug.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "uiposdataedit.h"
+#include "featset.h"
+#include "featsettr.h"
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
 const int uiNLAPartServer::evPrepareRead	= 1;
@@ -39,9 +41,10 @@ const int uiNLAPartServer::evIs2D		= 8;
 
 uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-	, fstrain(*new FeatureSet)
-	, fstest(*new FeatureSet)
-	, fsmc(*new FeatureSet)
+	, trainvds(*new PosVecDataSet("Training data"))
+	, testvds(*new PosVecDataSet("Test data"))
+	, mcvds(*new PosVecDataSet("Misclassified"))
+	, storepars(*new IOPar)
 {
 }
 
@@ -49,9 +52,10 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 uiNLAPartServer::~uiNLAPartServer()
 {
     deepErase( inpnms );
-    delete &fstrain;
-    delete &fstest;
-    delete &fsmc;
+    delete &trainvds;
+    delete &testvds;
+    delete &mcvds;
+    delete &storepars;
 }
 
 
@@ -122,34 +126,29 @@ static void putBivSetToFS( BinIDValueSet& bvs, FeatureSet& fs )
     }
 }
 
-const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
-					   FeatureSet& fswrite )
+const char* uiNLAPartServer::prepareInputData(
+		const ObjectSet<PosVecDataSet>& inpvdss )
 {
     const NLACreationDesc& crdesc = creationDesc();
-    ObjectSet<BinIDValueSet> bivsets;
 
     if ( crdesc.doextraction && crdesc.isdirect )
     {
 	// Direct prediction: we need to fetch the well data
-	if ( fss.size() != crdesc.outids.size() )
+	if ( inpvdss.size() != crdesc.outids.size() )
 	{
 	    if ( DBG::isOn() )
-		DBG::message( "uiNLAPartServer::transferData: "
-			      "Nr Feature Sets != Nr. well IDs" );
+		DBG::message( "uiNLAPartServer::prepareInputData: "
+			      "Nr BinIDValue Sets != Nr. well IDs" );
 	    return 0;
 	}
 
-	// Put the positions in BinIDValueSets
-	for ( int idx=0; idx<fss.size(); idx++ )
+	// Put the positions in new BinIDValueSets
+	ObjectSet<BinIDValueSet> bivsets;
+	for ( int idx=0; idx<inpvdss.size(); idx++ )
 	{
-	    FeatureSet& fs = *fss[idx];
-	    BinIDValueSet* bivset = new BinIDValueSet( 1, true );
-	    bivsets += bivset;
-	    for ( int ivec=0; ivec<fs.size(); ivec++ )
-	    {
-		const FVPos& fvp = fs[ivec]->fvPos();
-		bivset->add( BinID(fvp.inl,fvp.crl), fvp.ver );
-	    }
+	    BinIDValueSet* newbvs = new BinIDValueSet( 1, true );
+	    bivsets += newbvs;
+	    newbvs->append( inpvdss[idx]->data() );
 	}
 
 	// Fetch the well data
@@ -158,18 +157,27 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 	uiExecutor uiex( appserv().parent(), lde );
 	if ( uiex.go() )
 	{
+	    // Add a column to the input data
 	    const BufferString outnm = crdesc.design.outputs.get(0);
-	    for ( int idx=0; idx<fss.size(); idx++ )
+	    for ( int idx=0; idx<inpvdss.size(); idx++ )
 	    {
-		FeatureSet& fs = *fss[idx];
+		PosVecDataSet& vds = *inpvdss[idx];
+		DataColDef* newdcd = new DataColDef( outnm );
+		newdcd->ref_ = outnm;
+		vds.add( newdcd );
 		TypeSet<float>& res = *lde.results()[idx];
 		const int ressz = res.size();
-		fs.descs() += new FeatureDesc( outnm );
 
-		for ( int ivec=0; ivec<fs.size(); ivec++ )
+		BinIDValueSet::Pos pos;
+		const int lastidx = vds.data().nrVals() - 1;
+		BinID bid; float vals[lastidx+1];
+		int ivec = 0;
+		while ( vds.data().next(pos) )
 		{
-		    FeatureVec& fv = *fs[ivec];
-		    fv += ivec >= ressz ? mUndefValue : res[ivec];
+		    vds.data().get( pos, bid, vals );
+		    vals[lastidx] = ivec >= ressz ? mUndefValue : res[ivec];
+		    vds.data().set( pos, vals );
+		    ivec++;
 		}
 	    }
 	}
@@ -177,62 +185,34 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 	deepErase( bivsets );
     }
 
-    const char* res = crdesc.transferData( fss, fsTrain(), fsTest() );
+    const char* res = crdesc.prepareData( inpvdss, trainvds, testvds );
     if ( res ) return res;
 
-    FeatureSet& fstrain = fsTrain();
-    addFSToSets( bivsets, fstrain );
-    FeatureSet& fstest = fsTest();
-    addFSToSets( bivsets, fsTest() );
-
-    BufferStringSet colnames;
-    colnames.add( SI().getZUnit(false) );
-    for ( int idx=0; idx<fstrain.descs().size(); idx++ )
-	colnames.add( fstrain.descs()[idx]->desc );
-
-    BufferStringSet setnms;
-    setnms.add( "Training data" );
-    setnms.add( "Test data" );
-
-    //TODO allow user to view and edit data here
-    uiPosDataEdit dlg( appserv().parent(), bivsets, setnms, colnames );
-    if ( !dlg.go() )
-    {
-	deepErase( bivsets );
-	return "User cancel";
-    }
-
-    putBivSetToFS( *bivsets[0], fstrain );
-    putBivSetToFS( *bivsets[1], fstest );
-
-    if ( crdesc.doextraction && crdesc.fsid != "" )
-	writeToFS( fswrite, crdesc.fsid );
-
-    return 0;
+    // allow user to view and edit data
+    ObjectSet<PosVecDataSet> vdss;
+    vdss += &trainvds; vdss += &testvds;
+    uiPosDataEdit dlg( appserv().parent(), vdss );
+    return dlg.go() ? 0 : "User cancel";
 }
 
 
-#define mErrRet(s) { ErrMsg(s); return; }
+#define mErrRet(s) { return; }
 
-void uiNLAPartServer::writeToFS( FeatureSet& fswrite, const MultiID& fsid )
+void uiNLAPartServer::writeSets( CallBacker* )
 {
-    const FeatureSet& fstrain = fsTrain();
-    fswrite.copyStructure( fstrain );
+    uiMSG().error( "TODO: Write sets must be from pos data editor" );
+    /*
+    FeatureSet fswrite( trainvds );
+    fswrite.addData( testvds.data() );
+    fswrite.pars() = storepars;
 
     PtrMan<IOObj> ioobj = IOM().get( fsid );
     if ( !ioobj )
-	mErrRet( "Cannot initialise training set storage ..." );
+	return "Cannot initialise training set storage ...";
     ioobj->pars().setYN( FeatureSetTranslator::sKeyDoVert, true );
-    if ( !fswrite.startPut(ioobj) )
-	mErrRet( "Cannot open training set storage ..." );
-
-    FeatureVec fv( FVPos(0,0) );
-    for ( int idx=0; idx<fstrain.size(); idx++ )
-	{ fstrain.get( fv ); fswrite.put( fv ); }
-
-    const FeatureSet& fstest = fsTest();
-    for ( int idx=0; idx<fstest.size(); idx++ )
-	{ fstest.get( fv ); fswrite.put( fv ); }
+    if ( !fswrite.put(ioobj) )
+	return "Cannot put training set data ...";
 
     fswrite.close();
+    */
 }
