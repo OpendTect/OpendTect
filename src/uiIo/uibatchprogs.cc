@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.4 2003-05-04 13:11:53 dgb Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.5 2003-05-04 15:02:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,15 +236,24 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     const BatchProgInfo& bpi = *pil[selidx];
     if ( bpi.exampleinput == "" )
 	{ pErrMsg("In CB that shouldn't be called for entry"); return; }
-    BufferString fnm( GetDataFileName(bpi.exampleinput) );
-    if ( File_isEmpty(fnm) )
+    BufferString sourceex( GetDataFileName(bpi.exampleinput) );
+    if ( File_isEmpty(sourceex) )
 	{ pErrMsg("Installation problem"); return; }
 
+    BufferString targetex( GetDataDir() );
+    targetex = File_getFullPath( targetex, "Proc" );
+    targetex = File_getFullPath( targetex, bpi.exampleinput );
+    if ( !File_exists(targetex) )
+    {
+	File_copy( sourceex, targetex, NO );
+	File_makeWritable( targetex, NO, YES );
+    }
+
     if ( browser )
-	browser->setFileName( fnm );
+	browser->setFileName( targetex );
     else
     {
-	browser = new uiFileBrowser( this, uiFileBrowser::Setup(fnm)
+	browser = new uiFileBrowser( this, uiFileBrowser::Setup(targetex)
 							.readonly(false) );
 	browser->newfilenm.notify( mCB(this,uiBatchProgLaunch,filenmUpd) );
     }
