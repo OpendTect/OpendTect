@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.8 2005-01-25 16:10:46 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.9 2005-01-25 17:27:22 bert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -153,26 +153,28 @@ Strat::NodeUnitRef::~NodeUnitRef()
 }
 
 
-Strat::UnitRef* Strat::NodeUnitRef::fnd( const char* code ) const
+Strat::UnitRef* Strat::NodeUnitRef::fnd( const char* unitkey ) const
 {
-    if ( !code || !*code )
-	return const_cast<Strat::NodeUnitRef*>(this);
+    if ( !unitkey || !*unitkey )
+	return code() == "" ? (Strat::UnitRef*)this : 0;
 
-    CompoundKey ck( code );
+    CompoundKey ck( unitkey );
     const BufferString codelvl1( ck.key(0) );
     for ( int idx=0; idx<refs_.size(); idx++ )
     {
 	const Strat::UnitRef& un = ref( idx );
-	if ( codelvl1 == un.code() )
+	if ( codelvl1 != un.code() )
+	    continue;
+
+	unitkey += codelvl1.size();
+	if ( ! *unitkey )
+	    return const_cast<Strat::UnitRef*>(&un);
+	else if ( !un.isLeaf() )
 	{
-	    code += codelvl1.size();
-	    if ( un.isLeaf() )
-		return *code ? 0 : const_cast<Strat::UnitRef*>(&un);
-	    else if ( *code )
-		return ((Strat::NodeUnitRef&)un).fnd( code+1 );
-	    else
-		return 0;
+	    if ( *unitkey == '.' && *(unitkey+1) )
+		return ((Strat::NodeUnitRef&)un).fnd( unitkey+1 );
 	}
+	break;
     }
     return 0;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.6 2005-01-25 16:10:40 bert Exp $
+ RCS:		$Id: stratunitref.h,v 1.7 2005-01-25 17:27:22 bert Exp $
 ________________________________________________________________________
 
 
@@ -135,6 +135,7 @@ public:
     UnitRef*		find( const char* code )	{ return fnd(code); }
     const UnitRef*	find( const char* code ) const	{ return fnd(code); }
 
+    void		add( UnitRef* ur )		{ refs_ += ur; }
     void		remove( int uridx ) 
     			{ UnitRef* r = refs_[uridx]; refs_ -= r; delete r; }
 
