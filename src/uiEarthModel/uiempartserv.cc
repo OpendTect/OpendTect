@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.2 2002-09-19 14:56:32 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.3 2002-09-20 09:18:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "emhorizontransl.h"
 #include "emmanager.h"
 #include "emwelltransl.h"
+#include "emfaulttransl.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "surfaceinfo.h"
@@ -109,3 +110,25 @@ bool uiEMPartServer::selectWellTracks( ObjectSet<MultiID>& ids )
 
     return ids.size();
 }
+
+
+bool uiEMPartServer::selectFault( MultiID& id )
+{
+    CtxtIOObj ctio( EarthModelFaultTranslator::ioContext() );
+    ctio.ctxt.forread = true;
+    uiIOObjSelDlg dlg( appserv().parent(), ctio );
+    if ( !dlg.go() ) return false;
+
+    id = dlg.ioObj()->key();
+    if ( !EarthModel::EMM().isLoaded(id) )
+    {
+	PtrMan<Executor> exec = EarthModel::EMM().load( id );
+	uiExecutor dlg( appserv().parent(), *exec );
+	if ( dlg.go() <= 0 )
+	    return false;
+    }
+
+    return true;
+}
+
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.2 2002-09-19 14:59:07 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.3 2002-09-20 09:19:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,12 +29,12 @@ public:
     const char*		name() const			{ return "EarthModel"; }
 
 			// Services
-    bool		selectHorizon(MultiID&);
-    bool		selectWellTracks(ObjectSet<MultiID>&);
     bool		importHorizon();
+    bool		selectHorizon(MultiID&);
     bool		exportHorizon(const ObjectSet<SurfaceInfo>&);
-    bool		storePickSets();
     bool		importWellTrack();
+    bool		selectWellTracks(ObjectSet<MultiID>&);
+    bool		selectFault(MultiID&);
 
     static const int	evGetHorData;
 
