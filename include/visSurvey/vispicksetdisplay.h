@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.1 2002-02-27 14:42:09 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.2 2002-02-28 07:14:47 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-class BinIDValue;
 class Color;
 
 namespace visBase { class SceneObjectGroup; };
+namespace Geometry { class Pos; }
 
 namespace visSurvey
 {
@@ -30,13 +30,17 @@ class Scene;
 class PickSet
 {
 public:
-    		PickSet( Scene & );
+    		PickSet( Scene &, int system=2 );
+		/*!< system = 0: x, y, z
+		     system = 1: x, y, t
+		     system = 2: inl, crl, t
+		 */
     virtual	~PickSet();
 
     int		nrPicks();
     
-    BinIDValue	getPick( int ) const;
-    int		addPick( const BinIDValue& );
+    Geometry::Pos	getPick( int ) const;
+    int			addPick( const Geometry::Pos& );
 
     float	getInlSz() const { return inlsz; }
     float	getCrlSz() const { return inlsz; }

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.3 2002-02-27 09:54:09 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.4 2002-02-28 07:16:57 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "vistransform.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.3 2002-02-27 09:54:09 krist
 #include "survinfo.h"
 #include "linsolv.h"
 #include "visannot.h"
+#include "vislight.h"
 
 #include <limits.h>
 
@@ -113,6 +114,30 @@ visSurvey::Scene::Scene()
     annot->setText( 1, "Cross-line" );
     annot->setText( 2, "TWT");
     addInlCrlTObject( annot );
+
+    visBase::DirectionalLight* light = new visBase::DirectionalLight;
+    light->setDirection( 0, 0, 1 );
+    addXYZObject( light );
+
+    light = new visBase::DirectionalLight;
+    light->setDirection( 0, 0, -1 );
+    addXYZObject( light );
+
+    light = new visBase::DirectionalLight;
+    light->setDirection( 0, 1, 0 );
+    addXYZObject( light );
+
+    light = new visBase::DirectionalLight;
+    light->setDirection( 0,-1, 0 );
+    addXYZObject( light );
+
+    light = new visBase::DirectionalLight;
+    light->setDirection( 1, 0, 0 );
+    addXYZObject( light );
+
+    light = new visBase::DirectionalLight;
+    light->setDirection(-1, 0, 0 );
+    addXYZObject( light );
 }
 
 
