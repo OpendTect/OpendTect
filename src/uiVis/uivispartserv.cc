@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.75 2002-07-31 15:06:43 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.76 2002-08-01 10:15:38 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -761,7 +761,7 @@ void uiVisPartServer::removeWellDisplay( int id )
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( well );
-    if ( objidx>0 )
+    if ( objidx>-1 )
     {
 	scene->removeObject( objidx );
 	wells -= well;
@@ -897,7 +897,7 @@ void uiVisPartServer::removeHorizonDisplay( int id )
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( hor );
-    if ( objidx>0 )
+    if ( objidx>-1 )
     {
 	scene->removeObject( objidx );
 	horizons -= hor;
