@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.3 2004-03-18 10:13:33 nanne Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.4 2004-05-06 12:33:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,7 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd_,
     attribfld->setNLAModel( nlamodel );
     attribfld->selectiondone.notify( mCB(this,uiWellAttribSel,selDone) );
 
-    bool zinft = SI().zInFeet();
-    SI().pars().getYN( uiWellPartServer::unitstr, zinft );
+    const bool zinft = SI().depthsInFeetByDefault();
     BufferString lbl = "Depth range"; lbl += zinft ? "(ft)" : "(m)";
     rangefld = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     rangefld->attach( alignedBelow, attribfld );
@@ -115,8 +114,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     const Well::D2TModel* d2t = wd.d2TModel();
     if ( zistime && !d2t ) mErrRet( "No depth to time model defined" );
     
-    bool zinft = SI().zInFeet();
-    SI().pars().getYN( uiWellPartServer::unitstr, zinft );
+    const bool zinft = SI().depthsInFeetByDefault();
 
     const char* lognm = lognmfld->text();
     int logidx = getLogIdx( lognm );
