@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.5 2002-09-23 10:48:49 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.6 2003-01-03 15:51:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 const int uiEMPartServer::evGetHorData = 0;
 
-#define mErrRet(s) { BufferString msg( "Cannot find '" ); msg += s; msg += "'";\
+#define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
     			uiMSG().error( msg ); return false; }
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
@@ -61,9 +61,12 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
     {
 	PtrMan<Executor> exec = EarthModel::EMM().load( id );
 	if ( !exec ) mErrRet( dlg.ioObj()->name() );
-	uiExecutor dlg( appserv().parent(), *exec );
-	if ( dlg.go() <= 0 )
+	uiExecutor exdlg( appserv().parent(), *exec );
+	if ( exdlg.go() <= 0 )
+	{
+	    EarthModel::EMM().removeObject( id );
 	    return false;
+	}
     }
 
     return true;
@@ -105,8 +108,8 @@ bool uiEMPartServer::selectWellTracks( ObjectSet<MultiID>& ids )
 	{
 	    PtrMan<Executor> exec = EarthModel::EMM().load( wellid );
 	    if ( !exec ) mErrRet( dlg.ioObj()->name() );
-	    uiExecutor dlg( appserv().parent(), *exec );
-	    if ( dlg.go() <= 0 )
+	    uiExecutor exdlg( appserv().parent(), *exec );
+	    if ( exdlg.go() <= 0 )
 		wellid = MultiID("");
 	}
 	if ( wellid != "" )
@@ -129,9 +132,12 @@ bool uiEMPartServer::selectFault( MultiID& id )
     {
 	PtrMan<Executor> exec = EarthModel::EMM().load( id );
 	if ( !exec ) mErrRet( dlg.ioObj()->name() );
-	uiExecutor dlg( appserv().parent(), *exec );
-	if ( dlg.go() <= 0 )
+	uiExecutor exdlg( appserv().parent(), *exec );
+	if ( exdlg.go() <= 0 )
+	{
+	    EarthModel::EMM().removeObject( id );
 	    return false;
+	}
     }
 
     return true;
