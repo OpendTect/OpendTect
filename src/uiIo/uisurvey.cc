@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.30 2002-11-15 13:51:48 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.31 2002-12-09 11:19:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,72 +60,65 @@ uiSurvey::uiSurvey( uiParent* p )
         if ( uidobj ) dirlist->setCurrent( uidobj );
     }
 
-    uiGroup* selgrp = new uiGroup( this, "Survey selection" );
-    mapcanvas = new uiCanvas( selgrp, "Survey map" );
+    uiGroup* rightgrp = new uiGroup( this, "Survey selection right" );
+    mapcanvas = new uiCanvas( rightgrp, "Survey map" );
     mapcanvas->setPrefHeight( maphght );
     mapcanvas->setPrefWidth( mapwdth );
     mapcanvas->setStretch( 0, 0 );
     mapcanvas->preDraw.notify( mCB(this,uiSurvey,doCanvas) );
-    listbox = new uiListBox( selgrp, dirlist );
+
+    uiGroup* leftgrp = new uiGroup( this, "Survey selection left" );
+    listbox = new uiListBox( leftgrp, dirlist );
     listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
     listbox->doubleClicked.notify( mCB(this,uiSurvey,accept) );
-    listbox->attach( leftOf, mapcanvas );
     listbox->setPrefWidth( lbwidth );
-    listbox->attach( heightSameAs, mapcanvas );
-    listbox->setStretch( 1, 0 );
+    listbox->setStretch( 1, 2 );
+    leftgrp->attach( leftOf, rightgrp );
 
-    newbut = new uiPushButton( selgrp, "New ..." );
+    newbut = new uiPushButton( leftgrp, "New ..." );
     newbut->activated.notify( mCB(this,uiSurvey,newButPushed) );
     newbut->attach( alignedBelow, listbox );
-    rmbut = new uiPushButton( selgrp, "Remove ..." );
+    rmbut = new uiPushButton( leftgrp, "Remove ..." );
     rmbut->activated.notify( mCB(this,uiSurvey,rmButPushed) );
     rmbut->attach( rightAlignedBelow, listbox );
-    editbut = new uiPushButton( selgrp, "Edit ..." );
+
+    editbut = new uiPushButton( rightgrp, "Edit ..." );
     editbut->activated.notify( mCB(this,uiSurvey,editButPushed) );
     editbut->attach( alignedBelow, mapcanvas );
-    convbut = new uiPushButton( selgrp, "X/Y <-> I/C ..." );
+    convbut = new uiPushButton( rightgrp, "X/Y <-> I/C ..." );
     convbut->activated.notify( mCB(this,uiSurvey,convButPushed) );
     convbut->attach( rightAlignedBelow, mapcanvas );
     uiButton* tutbut = 0;
     if ( GetDgbApplicationCode() == mDgbApplCodeGDI )
     {
-	tutbut = new uiPushButton( selgrp, "Get Tutorial" );
+	tutbut = new uiPushButton( leftgrp, "Get Tutorial" );
 	tutbut->attach( centeredBelow, listbox );
 	tutbut->activated.notify( mCB(this,uiSurvey,tutButPushed) );
     }
 
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->setPrefWidth( totwdth );
-    horsep1->attach( stretchedBelow, selgrp, -2 );
+    horsep1->attach( stretchedBelow, rightgrp, -2 );
+    horsep1->attach( ensureBelow, leftgrp );
 
-    uiGroup* infogrp = new uiGroup( this, "Survey information" );
-    infogrp->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)) ); 
-    infogrp->attach( alignedBelow, selgrp );
-    infogrp->attach( ensureBelow, horsep1 );
-    infogrp->setPrefWidth( totwdth );
-    uiLabel* irange1 = new uiLabel( infogrp, "In-line range:" );
-    uiLabel* xrange1 = new uiLabel( infogrp, "Cross-line range:" );
-    uiLabel* zrange1 = new uiLabel( infogrp, "Time range (s):" );
-    uiLabel* binsize1 = new uiLabel( infogrp, "Bin size (m/line):" );
-    xrange1->attach( alignedBelow, irange1 );
-    zrange1->attach( rightOf, irange1, 225 );
-    binsize1->attach( alignedBelow, zrange1 );
+    uiGroup* infoleft = new uiGroup( this, "Survey info left" );
+    uiGroup* inforight = new uiGroup( this, "Survey info right" );
+    infoleft->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)) );
+    inforight->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)));
+    infoleft->attach( alignedBelow, leftgrp );
+    infoleft->attach( ensureBelow, horsep1 );
+    inforight->attach( alignedBelow, rightgrp );
+    inforight->attach( ensureBelow, horsep1 );
 
-    irange2 = new uiLabel( infogrp, "" );
-    irange2->setHSzPol( uiObject::medium );
-    xrange2 = new uiLabel( infogrp, "" );
-    xrange2->setHSzPol( uiObject::medium );
-    zrange2 = new uiLabel( infogrp, "" );
-    zrange2->setHSzPol( uiObject::medium );
-    binsize2 = new uiLabel( infogrp, "" );
-    binsize2->setHSzPol( uiObject::medium );
-    irange2->attach( rightOf, irange1 );
-    xrange2->attach( rightOf, xrange1 );
-    zrange2->attach( rightOf, zrange1 );
-    binsize2->attach( rightOf, binsize1 );
+    inllbl = new uiLabel( infoleft, "" );  inllbl->setHSzPol( uiObject::wide );
+    crllbl = new uiLabel( infoleft, "" );  crllbl->setHSzPol( uiObject::wide );
+    zlbl = new uiLabel( inforight, "" );   zlbl->setHSzPol( uiObject::wide );
+    binlbl = new uiLabel( inforight, "" ); binlbl->setHSzPol( uiObject::wide );
+    crllbl->attach( alignedBelow, inllbl );
+    binlbl->attach( alignedBelow, zlbl );
    
     uiSeparator* horsep2 = new uiSeparator( this );
-    horsep2->attach( stretchedBelow, infogrp, -2 );
+    horsep2->attach( stretchedBelow, infoleft, -2 );
     horsep2->setPrefWidth( totwdth );
 
     uiLabel* notelbl = new uiLabel( this, "Notes:" );
@@ -332,53 +325,51 @@ bool uiSurvey::writeSurveyName( const char* nm )
 
 void uiSurvey::mkInfo()
 {
+    BufferString inlinfo( "In-line range: " );
+    BufferString crlinfo( "Cross-line range: " );
+    BufferString zinfo( "Z range (s): " );
+    BufferString bininfo( "Bin size (m/line): " );
+
     if ( survinfo->rangeUsable() )
     {
-	BufferString inlinfo = survinfo->range().start.inl;
+	inlinfo += survinfo->range().start.inl;
 	inlinfo += " - "; inlinfo += survinfo->range().stop.inl;
 	inlinfo += "  step: "; inlinfo += survinfo->inlStep();
 	
-	BufferString crlinfo = survinfo->range().start.crl;
+	crlinfo += survinfo->range().start.crl;
 	crlinfo += " - "; crlinfo += survinfo->range().stop.crl;
 	crlinfo += "  step: "; crlinfo += survinfo->crlStep();
 
 	if ( survinfo->is3D() )
 	{
 	    const SurveyInfo3D& si = *(SurveyInfo3D*)survinfo;
-	    double xinl = si.b2c_.getTransform(true).b;
-	    double yinl = si.b2c_.getTransform(false).b;
-	    double xcrl = si.b2c_.getTransform(true).c;
-	    double ycrl = si.b2c_.getTransform(false).c;
+	    float inldist = si.transform( BinID(0,0) ).distance(
+		    si.transform( BinID(1,0) ) );
+	    float crldist = si.transform( BinID(0,0) ).distance(
+		    si.transform( BinID(0,1) ) );
 
-	    double ibsz = double( int( 100*sqrt(xinl*xinl + yinl*yinl)+.5 ) )
-			/ 100;
-	    double cbsz = double( int( 100*sqrt(xcrl*xcrl + ycrl*ycrl)+.5 ) )
-			/ 100;
-	    BufferString bininfo = "inline: "; bininfo += ibsz;
-	    bininfo += "  crossline: "; bininfo += cbsz;
+#define mkString(dist) \
+    nr = (int)(dist*100+.5); bininfo += nr/100; \
+    rest = nr%100; bininfo += rest < 10 ? ".0" : "."; bininfo += rest; \
 
-	    irange2->setText( inlinfo );
-	    xrange2->setText( crlinfo );
-	    binsize2->setText( bininfo );
+	    int nr, rest;    
+	    bininfo += "inl: "; mkString(inldist);
+	    bininfo += "  crl: "; mkString(crldist);
 	}
-    }
-    else
-    {
-	irange2->setText( "" );
-        xrange2->setText( "" );
-        binsize2->setText( "" );
     }
 
     if ( survinfo->zRangeUsable() )
     {
-	BufferString zinfo = survinfo->zRange().start;
+	zinfo += survinfo->zRange().start;
 	zinfo += " - "; zinfo += survinfo->zRange().stop;
 	zinfo += "  step: "; zinfo += survinfo->zRange().step;
-	zrange2->setText( zinfo );
     }
-    else
-	zrange2->setText( "" );
 
+
+    inllbl->setText( inlinfo );
+    crllbl->setText( crlinfo );
+    binlbl->setText( bininfo );
+    zlbl->setText( zinfo );
     notes->setText( survinfo->comment() );
 
     bool anysvy = dirlist->size();
