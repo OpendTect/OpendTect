@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.33 2003-08-12 14:36:00 nanne Exp $
+ RCS:		$Id: survinfo.h,v 1.34 2003-09-11 15:56:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     virtual SurveyInfo*	clone() const			= 0;
     virtual void	copyFrom(const SurveyInfo&);
     virtual bool	is3D() const		{ return true; }
+    bool		write(const char* basedir=0) const;
+    			//!< write to .survey file
 
     const BinIDRange&	range( bool work=true ) const
     			{ return work ? wrange_ : range_; }
@@ -144,7 +146,6 @@ protected:
     bool		valid_;
 
     static SurveyInfo*	read(const char*);
-    bool		write(const char*) const;
 
     BufferString	datadir;
     BufferString	dirname;

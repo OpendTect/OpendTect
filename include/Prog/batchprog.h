@@ -1,5 +1,5 @@
-#ifndef batchprog_H
-#define batchprog_H
+#ifndef batchprog_h
+#define batchprog_h
  
 /*
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.11 2003-08-15 13:08:21 arend Exp $
+ RCS:		$Id: batchprog.h,v 1.12 2003-09-11 15:56:00 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().

@@ -7,20 +7,20 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.6 2003-08-20 10:09:20 bert Exp $
+ RCS:		$Id: prog.h,v 1.7 2003-09-11 15:56:00 bert Exp $
 ________________________________________________________________________
 
 @$*/
 
-#include <plugins.h>
+#include "plugins.h"
 
 #ifdef __cpp__
 
-#include <transl.h>
+#include "transl.h"
 mDefTranslatorGroups
 
-#include <errh.h>
-#include <connfact.h>
+#include "errh.h"
+#include "connfact.h"
 
 #ifndef __nosighndl__
 #include <sighndl.h>

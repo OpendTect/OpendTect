@@ -6,8 +6,6 @@
 #_______________________________________________________________________________
 
 
-echo "$*"
-
 if ( $#argv < 3 ) then
 	echo "Usage: $0 Input_lib Output_sharedlib Linker_and_flags"
 	exit 1
