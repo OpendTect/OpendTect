@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.57 2004-04-07 15:13:54 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.58 2004-04-16 13:59:31 dgb Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -334,7 +334,8 @@ bool BatchProgram::initOutput()
 
 
 IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
-					const IOObjContext& ctxt ) const
+					const IOObjContext& ctxt,
+       					bool msgiffail ) const
 {
     const BufferString basekey( bsky );
     BufferString iopkey( basekey ); iopkey += ".";
@@ -348,7 +349,9 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 	    iopkey += ".Name"; res = pars().find( iopkey );
 	    if ( res == "" )
 	    {
-		*sdout_.ostrm << "Please specify '" << iopkey <<"'"<< std::endl;
+		if ( msgiffail )
+		    *sdout_.ostrm << "Please specify '" << iopkey
+				  << "'" << std::endl;
 		return 0;
 	    }
 	}
