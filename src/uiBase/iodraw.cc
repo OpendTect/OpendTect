@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.5 2002-01-17 16:13:19 nanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.6 2002-12-09 11:21:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,6 +159,15 @@ void ioDrawTool::clear( const uiRect* rect, const Color* col )
     if ( !col ) col = &c;
     setPenColor( *col ); setFillColor( *col );
     drawRect( r );
+}
+
+
+void ioDrawTool::drawBackgroundPixmap( const Color* col )
+{
+    setBackgroundColor( *col );
+    mQPainter->setBackgroundMode( Qt::OpaqueMode );
+    mQPainter->setBrush( Qt::DiagCrossPattern );
+    drawRect( uiRect( 0, 0, getDevWidth(), getDevHeight() ) );
 }
 
 

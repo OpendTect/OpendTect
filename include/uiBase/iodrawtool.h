@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.3 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: iodrawtool.h,v 1.4 2002-12-09 11:21:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ public:
     inline void 	drawEllipse( uiRect r )
                         { drawEllipse( r.left(), r.top(), 
                                        r.hNrPics(), r.vNrPics()); }
+
+    void		drawBackgroundPixmap(const Color* c=0);
 
     void 		drawPixmap( uiPoint destTopLeft,
 				     ioPixmap*, 
