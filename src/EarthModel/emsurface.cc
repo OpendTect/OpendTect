@@ -4,19 +4,22 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.34 2003-12-14 20:53:55 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.35 2003-12-17 15:46:20 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
 
 #include "arrayndimpl.h"
 #include "cubesampling.h"
+#include "emfault.h"
+#include "emhorizon.h"
 #include "emhistoryimpl.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "geommeshsurface.h"
 #include "grid.h"
 #include "ioman.h"
+#include "iopar.h"
 #include "ioobj.h"
 #include "linsolv.h"
 #include "pca.h"
@@ -100,6 +103,8 @@ void EM::Surface::cleanUp()
     patchids.erase();
     origos.erase();
 
+    deepErase( relations );
+
     delete rowinterval;
     delete colinterval;
     rowinterval = 0;
@@ -111,34 +116,43 @@ bool EM::Surface::findClosestNodes(TopList<float,EM::PosID>& toplist,
 				const Coord3& pos_,
 				const MathFunction<float>* time2depthfunc) const
 {
+    const int nrpatches = nrPatches();
+    for ( int patch=0; patch<nrpatches; patch++ )
+	findClosestNodes( patchID(patch), toplist, pos_, time2depthfunc );
+
+    return toplist.size();
+}
+
+
+bool EM::Surface::findClosestNodes(const PatchID& patchid,
+				TopList<float,EM::PosID>& toplist,
+				const Coord3& pos_,
+				const MathFunction<float>* time2depthfunc) const
+{
     //TODO Make faster impl
     Coord3 origpos = pos_;
     if ( time2depthfunc ) origpos.z = time2depthfunc->getValue( pos_.z );
     const int nrpatches = nrPatches();
 
-    for ( int patch=0; patch<nrpatches; patch++ )
+    StepInterval<int> rowrange; StepInterval<int> colrange;
+    getRange( rowrange, true ); getRange( colrange, false );
+
+    RowCol rc;
+    for ( rc.row=rowrange.start;rc.row<=rowrange.stop;rc.row+=rowrange.step)
     {
-	const EM::PatchID patchid = patchID(patch);
-	StepInterval<int> rowrange; StepInterval<int> colrange;
-	getRange( rowrange, true ); getRange( colrange, false );
-
-	RowCol rc;
-	for ( rc.row=rowrange.start;rc.row<=rowrange.stop;rc.row+=rowrange.step)
+	for ( rc.col=colrange.start; rc.col<=colrange.stop;
+						    rc.col+=colrange.step )
 	{
-	    for ( rc.col=colrange.start; rc.col<=colrange.stop;
-		    					rc.col+=colrange.step )
+	    if ( isDefined(patchid,rc) )
 	    {
-		if ( isDefined(patchid,rc) )
-		{
-		    Coord3 pos = getPos( patchid, rc );
-		    if ( time2depthfunc )
-			pos.z = time2depthfunc->getValue( pos.z );
+		Coord3 pos = getPos( patchid, rc );
+		if ( time2depthfunc )
+		    pos.z = time2depthfunc->getValue( pos.z );
 
-		    double dist = pos.distance( origpos );
-		    toplist.addValue( dist,
-				      EM::PosID(id_,patchid,rowCol2SubID(rc)));
-		
-		}
+		double dist = pos.distance( origpos );
+		toplist.addValue( dist,
+				  EM::PosID(id_,patchid,rowCol2SubID(rc)));
+	    
 	    }
 	}
     }
@@ -147,16 +161,18 @@ bool EM::Surface::findClosestNodes(TopList<float,EM::PosID>& toplist,
 }
 
 
-#define mGetNeigborCoord( coordname, rowdiff, coldiff ) \
+#define mGetNeigborCoord( coordname, defname, rowdiff, coldiff ) \
+defname = false; \
 for ( int idy=0; idy<nrnodealiases; idy++ ) \
 { \
     const EM::PosID& nodealias = nodealiases[idy]; \
     const EM::PatchID patchid = nodealias.patchID(); \
     const RowCol noderc = subID2RowCol(nodealias.subID()); \
     const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
-    if ( isDefined(patchid, neighborrc) ) \
+    coordname = getPos(patchid, neighborrc); \
+    defname = coordname.isDefined(); \
+    if ( defname ) \
     { \
-	coordname = getPos(patchid, neighborrc); \
 	if ( time2depthfunc ) \
 	    coordname.z = time2depthfunc->getValue(coordname.z); \
 	break; \
@@ -181,14 +197,16 @@ bool EM::Surface::findClosestMesh(EM::PosID& res, const Coord3& timepos,
     {
 	EM::PosID pid = closestnodes.getAssociatedValue(idx);
 	Coord3 c00, c10, c01, c11;
-	getMeshCoords( pid, c00, c10, c01, c11, time2depthfunc );
+	bool c00def, c10def, c01def, c11def;
+	getMeshCoords( pid, c00, c10, c01, c11,
+			c00def, c10def, c01def, c11def, time2depthfunc );
 
 	int nrvalidcoords = 0;
 	float totaldist = 0;
-	if ( c00.isDefined() ) { nrvalidcoords++; totaldist+=c00.distance(pos);}
-	if ( c10.isDefined() ) { nrvalidcoords++; totaldist+=c10.distance(pos);}
-	if ( c01.isDefined() ) { nrvalidcoords++; totaldist+=c01.distance(pos);}
-	if ( c11.isDefined() ) { nrvalidcoords++; totaldist+=c11.distance(pos);}
+	if ( c00def ) { nrvalidcoords++; totaldist+=c00.distance(pos);}
+	if ( c10def ) { nrvalidcoords++; totaldist+=c10.distance(pos);}
+	if ( c01def ) { nrvalidcoords++; totaldist+=c01.distance(pos);}
+	if ( c11def ) { nrvalidcoords++; totaldist+=c11.distance(pos);}
 
 	if ( nrvalidcoords<3 ) continue;
 
@@ -208,9 +226,10 @@ bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
 			     const MathFunction<float>* time2depthfunc ) const
 {
     Coord3 c00, c10, c01, c11;
-    getMeshCoords( pid, c00, c10, c01, c11, time2depthfunc );
-    const bool c00def = c00.isDefined(); const bool c10def = c10.isDefined();
-    const bool c01def = c01.isDefined(); const bool c11def = c11.isDefined();
+    bool c00def, c10def, c01def, c11def;
+    getMeshCoords( pid, c00, c10, c01, c11,
+	    	   c00def, c10def, c01def, c11def,
+		   time2depthfunc );
 
     TypeSet<Coord3> normals;
     if ( c00def && c10def && c01def )
@@ -265,35 +284,8 @@ bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
 	}
     }
 
-    const int nrnormals = normals.size();
-    if ( !nrnormals ) return false;
-    if ( nrnormals==1 )
-    {
-	res = normals[0];
-	return true;
-    }
-
-    Coord3 average(0,0,0);
-    for ( int idx=0; idx<nrnormals; idx++ )
-	average += normals[idx];
-
-    if ( average.abs() )
-    {
-	res = average.normalize();
-	return true;
-    }
-
-    //Note that the sign can be wrong with this method
-    PCA pca(3);
-    for ( int idx=0; idx<nrnormals; idx++ )
-	pca.addSample( normals[idx] );
-
-    if ( !pca.calculate() )
-	return false;
-
-    pca.getEigenVector(0, res );
-    res = res.normalize();
-    return true;
+    res = estimateAverageVector( normals, false, false );
+    return res.isDefined();
 }
 
 
@@ -330,85 +322,148 @@ bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
 }
 
 
+bool EM::Surface::computeNormal( Coord3& res, const EM::PosID& node,
+			    const MathFunction<float>* time2depthfunc) const
+{
+    TypeSet<EM::PosID> nodealiases;
+    getLinkedPos( node, nodealiases );
+    nodealiases += node;
+
+    const int nrnodealiases = nodealiases.size();
+
+    Coord3 nodecoord = getPos(node);
+    const bool nodecoorddef = nodecoord.isDefined();
+    if ( nodecoorddef && time2depthfunc )
+	nodecoord.z = time2depthfunc->getValue(nodecoord.z);
+
+    Coord3 prevrowcoord = nodecoord;
+    bool prevrowcoorddef;
+    mGetNeigborCoord( prevrowcoord, prevrowcoorddef, -step_.row, +0 );
+
+    Coord3 nextrowcoord = nodecoord;
+    bool nextrowcoorddef;
+    mGetNeigborCoord( nextrowcoord, nextrowcoorddef, +step_.row, +0 );
+
+    Coord3 prevcolcoord = nodecoord;
+    bool prevcolcoorddef;
+    mGetNeigborCoord( prevcolcoord, prevcolcoorddef, +0, -step_.col );
+
+    Coord3 nextcolcoord = nodecoord;
+    bool nextcolcoorddef;
+    mGetNeigborCoord( nextcolcoord, nextcolcoorddef, +0, +step_.col );
+
+    Coord3 rowvector;
+    bool rowvectorvalid = false;
+    if ( prevrowcoorddef&&nextrowcoorddef )
+    {
+	rowvector = nextrowcoord-prevrowcoord;
+	const double rowvectorlen = rowvector.abs();
+	rowvectorvalid = !mIS_ZERO(rowvectorlen);
+	if ( rowvectorvalid )
+	    rowvector/=rowvectorlen;
+    }
+
+    if ( !rowvectorvalid && nodecoorddef && prevrowcoorddef )
+    {
+	rowvector = nodecoord-prevrowcoord;
+	const double rowvectorlen = rowvector.abs();
+	rowvectorvalid = !mIS_ZERO(rowvectorlen);
+	if ( rowvectorvalid )
+	    rowvector/=rowvectorlen;
+    }
+
+    if ( !rowvectorvalid && nodecoorddef && nextrowcoorddef )
+    {
+	rowvector = nextrowcoord-nodecoord;
+	const double rowvectorlen = rowvector.abs();
+	rowvectorvalid = !mIS_ZERO(rowvectorlen);
+	if ( rowvectorvalid )
+	    rowvector/=rowvectorlen;
+    }
+
+
+    Coord3 colvector;
+    bool colvectorvalid = false;
+    if ( prevcolcoorddef&&nextcolcoorddef )
+    {
+	colvector = nextcolcoord-prevcolcoord;
+	const double colvectorlen = colvector.abs();
+	colvectorvalid = !mIS_ZERO(colvectorlen);
+	if ( colvectorvalid )
+	    colvector/=colvectorlen;
+    }
+
+    if ( !colvectorvalid && nodecoorddef && prevcolcoorddef )
+    {
+	colvector = nodecoord-prevcolcoord;
+	const double colvectorlen = colvector.abs();
+	colvectorvalid = !mIS_ZERO(colvectorlen);
+	if ( colvectorvalid )
+	    colvector/=colvectorlen;
+    }
+
+    if ( !colvectorvalid && nodecoorddef && nextcolcoorddef )
+    {
+	colvector = nextcolcoord-nodecoord;
+	const double colvectorlen = colvector.abs();
+	colvectorvalid = !mIS_ZERO(colvectorlen);
+	if ( colvectorvalid )
+	    colvector/=colvectorlen;
+    }
+
+    if ( rowvectorvalid && colvectorvalid )
+    {
+	res = rowvector.cross(colvector).normalize();
+	return true;
+    }
+
+    if ( !colvectorvalid && nodecoorddef && prevrowcoorddef && nextrowcoorddef )
+    {
+	const Coord3 prevvector = (prevrowcoord-nodecoord).normalize();
+	const Coord3 nextvector = (nextrowcoord-nodecoord).normalize();
+	const Coord3 average = prevvector+nextvector;
+	const double len = average.abs();
+	if ( !mIS_ZERO(len) )
+	{
+	    res = average.normalize();
+	    return true;
+	}
+    }
+    else if ( !rowvectorvalid && nodecoorddef && prevcolcoorddef &&
+	      nextcolcoorddef )
+    {
+	const Coord3 prevvector = (prevcolcoord-nodecoord).normalize();
+	const Coord3 nextvector = (nextcolcoord-nodecoord).normalize();
+	const Coord3 average = prevvector+nextvector;
+	const double len = average.abs();
+	if ( !mIS_ZERO(len) )
+	{
+	    res = average.normalize();
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
 			     const MathFunction<float>* time2depthfunc ) const
 {
-    PCA pca(3);
+    TypeSet<Coord3> normals;
     const int nrnodes = nodes.size();
     for ( int idx=0; idx<nrnodes; idx++ )
     {
 	const EM::PosID& node = nodes[idx];
-
-	TypeSet<EM::PosID> nodealiases;
-	getLinkedPos( node, nodealiases );
-	nodealiases += node;
-
-	const int nrnodealiases = nodealiases.size();
-
-	Coord3 nodecoord = getPos(node);
-	if ( time2depthfunc )
-	    nodecoord.z = time2depthfunc->getValue(nodecoord.z);
-
-	Coord3 prevrowcoord = nodecoord;
-	mGetNeigborCoord( prevrowcoord, -step_.row, +0 );
-
-	Coord3 nextrowcoord = nodecoord;
-	mGetNeigborCoord( nextrowcoord, +step_.row, +0 );
-
-	Coord3 prevcolcoord = nodecoord;
-	mGetNeigborCoord( prevcolcoord, +0, -step_.col );
-
-	Coord3 nextcolcoord = nodecoord;
-	mGetNeigborCoord( nextcolcoord, +0, +step_.col );
-
-	const Coord3 rowvector = nextrowcoord-prevrowcoord;
-	const Coord3 colvector = nextcolcoord-prevcolcoord;
-	const double rowvectorlen = rowvector.abs();
-	const double colvectorlen = colvector.abs();
-	const bool rowvectorvalid = !mIS_ZERO(rowvectorlen);
-	const bool colvectorvalid = !mIS_ZERO(colvectorlen);
-
-	if ( rowvectorvalid && colvectorvalid )
+	Coord3 normal;
+	if ( computeNormal( normal, nodes[idx], time2depthfunc ) )
 	{
-	    pca.addSample( rowvector.cross(colvector).normalize() );
-	    continue;
-	}
-
-	if ( rowvectorvalid && nextrowcoord!=nodecoord &&
-		prevrowcoord!=nodecoord )
-	{
-	    const Coord3 prevvector = (prevrowcoord-nodecoord).normalize();
-	    const Coord3 nextvector = (nextrowcoord-nodecoord).normalize();
-	    const Coord3 average = prevvector+nextvector;
-	    const double len = average.abs();
-	    if ( mIS_ZERO(len) )
-		continue;
-
-	    pca.addSample(average.normalize());
-	    continue;
-	}
-
-	if ( colvectorvalid && nextcolcoord!=nodecoord &&
-		prevcolcoord!=nodecoord )
-	{
-	    const Coord3 prevvector = (prevcolcoord-nodecoord).normalize();
-	    const Coord3 nextvector = (nextcolcoord-nodecoord).normalize();
-	    const Coord3 average = prevvector+nextvector;
-	    const double len = average.abs();
-	    if ( mIS_ZERO(len) )
-		continue;
-
-	    pca.addSample(average.normalize());
-	    continue;
+	    normal += normal;
 	}
     }
 
-    if ( !pca.calculate() )
-	return false;
-
-    pca.getEigenVector(0, res );
-    res = res.normalize();
-    return true;
+    res = estimateAverageVector( normals, false, false );
+    return res.isDefined();
 }
 
 
@@ -425,14 +480,17 @@ char EM::Surface::whichSide( const Coord3& timepos,
 	return -2;
 
     Coord3 c00, c10, c01, c11;
-    getMeshCoords( closestmesh, c00, c10, c01, c11, time2depthfunc );
+    bool c00def, c10def, c01def, c11def;
+    getMeshCoords( closestmesh, c00, c10, c01, c11,
+	    	   c00def, c10def, c01def, c11def,
+		   time2depthfunc );
 
     Coord3 center(0,0,0);
     int nrvals = 0;
-    const bool c00def = c00.isDefined(); if ( c00def ) {center+=c00; nrvals++;}
-    const bool c10def = c10.isDefined(); if ( c10def ) {center+=c10; nrvals++;}
-    const bool c01def = c01.isDefined(); if ( c01def ) {center+=c01; nrvals++;}
-    const bool c11def = c11.isDefined(); if ( c11def ) {center+=c11; nrvals++;}
+    if ( c00def ) {center+=c00; nrvals++;}
+    if ( c10def ) {center+=c10; nrvals++;}
+    if ( c01def ) {center+=c01; nrvals++;}
+    if ( c11def ) {center+=c11; nrvals++;}
     center /= nrvals;
 
     float maxdist = -1;
@@ -476,21 +534,21 @@ char EM::Surface::whichSide( const Coord3& timepos,
 
 void EM::Surface::getMeshCoords( const EM::PosID& pid,
 	Coord3& c00, Coord3& c10, Coord3& c01, Coord3& c11,
+	bool& c00def, bool& c10def, bool& c01def, bool& c11def,
 	const MathFunction<float>* time2depthfunc ) const
 {
-    static const Coord3 undefnode = Coord3(mUndefValue,mUndefValue,mUndefValue);
-
     TypeSet<EM::PosID> nodealiases;
     getLinkedPos( pid, nodealiases );
     nodealiases += pid;
     const int nrnodealiases = nodealiases.size();
 
     c00 = getPos(pid);
-    if ( time2depthfunc ) c00.z = time2depthfunc->getValue(c00.z);
+    c00def = c00.isDefined();
+    if ( c00def && time2depthfunc ) c00.z = time2depthfunc->getValue(c00.z);
 
-    c10 = undefnode; mGetNeigborCoord( c10, +step_.row, +0 );
-    c01 = undefnode; mGetNeigborCoord( c01, +0, +step_.col );
-    c11 = undefnode; mGetNeigborCoord( c11, +step_.row, +step_.col );
+    mGetNeigborCoord( c10, c10def, +step_.row, +0 );
+    mGetNeigborCoord( c01, c01def, +0, +step_.col );
+    mGetNeigborCoord( c11, c11def, +step_.row, +step_.col );
 }
 
 
@@ -519,6 +577,12 @@ const char* EM::Surface::patchName( const EM::PatchID& patchid ) const
     int idx = patchids.indexOf(patchid);
     const char* res = idx!=-1 ? patchnames[idx]->buf() : 0;
     return  res && *res ? res : 0;
+}
+
+
+bool EM::Surface::hasPatch( const EM::PatchID& patchid ) const
+{
+    return patchids.indexOf(patchid)!=-1;
 }
 
 
@@ -1203,3 +1267,59 @@ void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
 
     rg.step = rowdir ? loadedStep().row : loadedStep().col;
 }
+
+
+const char* EM::SurfaceRelation::cuttedsurfacestr = "Cutted surface";
+const char* EM::SurfaceRelation::cuttedpatchstr = "Cutted patch";
+const char* EM::SurfaceRelation::cuttingsurfacestr = "Cutting surface";
+const char* EM::SurfaceRelation::positivesidestr = "Positive side";
+
+void EM::SurfaceRelation::fillPar(IOPar& par) const
+{
+    par.set( cuttedsurfacestr, cuttedsurface );
+    par.set( cuttedpatchstr, cuttedpatch );
+    par.set( cuttingsurfacestr, cuttingsurface );
+    par.setYN( positivesidestr, positiveside );
+}
+
+
+bool EM::SurfaceRelation::usePar(const IOPar& par)
+{
+    int patchidproxy;
+    if (  par.get( cuttedsurfacestr, cuttedsurface ) &&
+	    par.get( cuttedpatchstr, patchidproxy ) &&
+	    par.get( cuttingsurfacestr, cuttingsurface ) &&
+	    par.getYN( positivesidestr, positiveside ) )
+    {
+	cuttedpatch = patchidproxy;
+	return true;
+    }
+
+    return false;
+}
+
+
+BufferString EM::SurfaceRelation::getUserString() const
+{
+    mDynamicCastGet(EM::Surface*,ownsurf,EM::EMM().getObject(cuttedsurface));
+
+    BufferString res = EM::EMM().name( cuttingsurface );
+    res += " terminates Patch ";
+    res += ownsurf->patchName(cuttedpatch);
+    res += " on the ";
+
+    if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Fault )
+    {
+	res += positiveside ? "positive" : "negative";
+	res += " side";
+    }
+    else if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Hor )
+    {
+	res += positiveside ? "bottom" : "top";
+    }
+
+    return res;
+}
+
+
+

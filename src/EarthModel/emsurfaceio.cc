@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.24 2003-12-15 16:02:45 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.25 2003-12-17 15:46:20 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -21,10 +21,13 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.24 2003-12-15 16:02:45 nanne
 #include "geommeshsurface.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "ptrman.h"
 #include "streamconn.h"
 
 
 const char* EM::dgbSurfaceReader::floatdatacharstr = "Data char";
+const char* EM::dgbSurfaceReader::nrrelationstr = "Nr relations";
+const char* EM::dgbSurfaceReader::relationprefixstr = "Relation ";
 const char* EM::dgbSurfaceReader::intdatacharstr = "Int Data char";
 const char* EM::dgbSurfaceReader::nrpatchstr = "Nr Patches";
 const char* EM::dgbSurfaceReader::patchidstr = "Patch ";
@@ -153,6 +156,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 	auxdatasel += idx;
 
     par->get( dbinfostr, dbinfo );
+
 
     error = false;
 }
@@ -353,7 +357,33 @@ int EM::dgbSurfaceReader::nextStep()
     }
 
     if ( patchindex>=patchids.size() )
+    {
+	deepErase( surface->relations );
+	int nrrelations = 0;
+	par->get( nrrelationstr, nrrelations );
+	for ( int idx=0; idx<nrrelations; idx++ )
+	{
+	    BufferString key = relationprefixstr; key += idx;
+	    PtrMan<IOPar> relpar = par->subselect(key);
+	    if ( !relpar )
+		return -1;
+
+	    EM::SurfaceRelation* relation = new EM::SurfaceRelation;
+	    if ( !relation->usePar( *relpar ) )
+	    {
+		delete relation;
+		return -1;
+	    }
+
+	    if ( relation->cuttedsurface==surface->id() &&
+		    surface->hasPatch(relation->cuttedpatch) )
+		surface->relations += relation;
+	    else
+		delete relation;
+	}
+
 	return ExecutorGroup::nextStep();
+    }
 
     istream& strm = conn->iStream();
 
@@ -525,6 +555,15 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
     {
 	if ( auxDataName(idx) )
 	    auxdatasel += idx;
+    }
+
+    par.set( EM::dgbSurfaceReader::nrrelationstr, surface.relations.size() );
+    for ( int idx=0; idx<surface.relations.size(); idx++ )
+    {
+	BufferString key = EM::dgbSurfaceReader::relationprefixstr; key += idx;
+	IOPar relpar;
+	surface.relations[idx]->fillPar(relpar);
+	par.mergeComp( relpar, key );
     }
 
     surface.getRange( *writerowrange, true );
