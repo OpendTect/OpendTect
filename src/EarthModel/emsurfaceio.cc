@@ -1,14 +1,13 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : June 2003
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          June 2003
+ RCS:           $Id: emsurfaceio.cc,v 1.43 2005-02-10 16:22:35 nanne Exp $
+________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.42 2004-12-17 13:31:02 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -66,6 +65,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , rcconv( 0 )
     , readfilltype( false )
 {
+    setNrDoneText( "Nr done" );
     auxdataexecs.allowNull(true);
     if ( !conn || !conn->forRead()  )
     {
@@ -531,17 +531,18 @@ int EM::dgbSurfaceReader::nextStep()
 
 	if ( !surface->geometry.getSurface(sectionid) )
 	{
+	    const int index = sectionids.indexOf(sectionid);
+	    surface->geometry.addSection( *sectionnames[index], sectionid, 
+		    			  false );
+
 	    const RowCol filestep = rcconv 
 			    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
 			    : RowCol(rowrange.step, colrange.step);
 
-	    surface->geometry.setTranslatorData( filestep, 
+	    surface->geometry.setTranslatorData( sectionid, filestep, 
 		    readrowrange ? RowCol(readrowrange->step,readcolrange->step)
 				 : filestep,
-		    rowcol, readrowrange, readcolrange );
-
-	    const int index = sectionids.indexOf(sectionid);
-	    surface->geometry.addSection( *sectionnames[index], sectionids[index], false );
+		    rowcol );
 	}
 
 	surface->geometry.setPos( sectionid, rowcol, pos, false, false );
@@ -613,6 +614,7 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
     , filetype( filetype_ )
     , binary( binary_ )
 {
+    setNrDoneText( "Nr done" );
     par.set( EM::dgbSurfaceReader::dbinfostr, surface.dbInfo() );
 
     if ( binary )

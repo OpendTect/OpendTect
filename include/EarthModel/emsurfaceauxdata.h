@@ -7,17 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.1 2004-08-09 14:09:31 kristofer Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.2 2005-02-10 16:22:42 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "bufstringset.h"
-
 #include "emposid.h"
 
 class Executor;
+class IOObj;
 class IOPar;
 
 namespace EM
@@ -65,6 +65,8 @@ public:
 
     bool		isChanged(int) const;
     void		resetChangedFlag();
+
+    static BufferString	getAuxDataFileName(const IOObj&,const char* attrnm);
 
     virtual bool	usePar( const IOPar& );
     virtual void	fillPar( IOPar& ) const;

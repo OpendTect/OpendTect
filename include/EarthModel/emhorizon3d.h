@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.36 2005-01-06 09:38:14 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.37 2005-02-10 16:22:42 nanne Exp $
 ________________________________________________________________________
 
 
@@ -42,7 +42,7 @@ the sections, the nodes are defined on both sections, with the same coordinate.
 In addition, they are also linked together. 
 */
 
-class Grid;
+class BinIDValueSet;
 
 namespace Geometry { class MeshSurface; };
 
@@ -58,40 +58,43 @@ the knots.
 class Horizon : public EM::Surface
 {
 public:
-    static const char*		typeStr();
-    static EMObject*		create(const ObjectID&, EMManager& );
-    static void			initClass(EMManager&);
+    static const char*	typeStr();
+    static EMObject*	create(const ObjectID&, EMManager& );
+    static void		initClass(EMManager&);
 
-    const char*			getTypeStr() const { return typeStr(); }
-    Executor*			importer(const Grid&,int idx,bool fixholes);
-    				/*!< Removes all data when idx=0 and creates 
-				  sections for every Grid imported.
+    const char*		getTypeStr() const { return typeStr(); }
+    Executor*		importer(const ObjectSet<BinIDValueSet>&,
+	    			 bool fixholes);
+    				/*!< Removes all data and creates 
+				  a section for every BinIDValueSet
 				*/
+    Executor*		auxDataImporter(const ObjectSet<BinIDValueSet>&);
 
 protected:
-	    			Horizon(EMManager&,const ObjectID&);
-    const IOObjContext&		getIOObjContext() const;
+	    		Horizon(EMManager&,const ObjectID&);
+    const IOObjContext&	getIOObjContext() const;
 
-    friend class		EMManager;
-    friend class		EMObject;
+    friend class	EMManager;
+    friend class	EMObject;
 };
 
 
 class HorizonGeometry : public SurfaceGeometry
 {
 public:
-    				HorizonGeometry( EM::Surface& );
+    			HorizonGeometry( EM::Surface& );
 
-    static BinID		getBinID(const EM::SubID&);
-    static BinID		getBinID(const RowCol&);
-    static EM::SubID		getSubID(const BinID&);
-    static RowCol		getRowCol(const BinID&);
+    static BinID	getBinID(const EM::SubID&);
+    static BinID	getBinID(const RowCol&);
+    static EM::SubID	getSubID(const BinID&);
+    static RowCol	getRowCol(const BinID&);
 
-    bool			createFromStick(const TypeSet<Coord3>&,
+    bool		createFromStick(const TypeSet<Coord3>&,
 	    					const SectionID&,float);
 
 protected:
     Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
+    void		setTransform(const SectionID&) const;
 };
 
 

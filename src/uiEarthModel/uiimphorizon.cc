@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.42 2005-01-06 09:53:22 kristofer Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.43 2005-02-10 16:22:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,15 +27,14 @@ ________________________________________________________________________
 #include "uiscaler.h"
 #include "uibutton.h"
 #include "uibinidsubsel.h"
-#include "grid.h"
 #include "scaler.h"
 #include "survinfo.h"
 #include "cubesampling.h"
 #include "binidselimpl.h"
 
-#include "gridread.h"
-#include "valgridtr.h"
 #include "streamconn.h"
+#include "binidvalset.h"
+#include "uicursor.h"
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p )
@@ -50,9 +49,13 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
 
+    uiPushButton* scanbut = new uiPushButton( this, "Scan file", 
+					mCB(this,uiImportHorizon,scanFile) );
+    scanbut->attach( alignedBelow, infld );
+
     xyfld = new uiGenInput( this, "Positions in:",
                             BoolInpSpec("X/Y","Inl/Crl") );
-    xyfld->attach( alignedBelow, infld );
+    xyfld->attach( alignedBelow, scanbut );
 
     subselfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
 	    			   .withz(false).withstep(true) );
@@ -87,79 +90,104 @@ uiImportHorizon::~uiImportHorizon()
 }
 
 
-#define mWarnRet(s) { uiMSG().warning(s); return false; }
+bool uiImportHorizon::doDisplay() const
+{
+    return displayfld->isChecked();
+}
+
+
+MultiID uiImportHorizon::getSelID() const
+{
+    if ( emobjid<0 ) return -1;
+
+    MultiID mid = IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id;
+    mid.add(emobjid);
+    return mid;
+}
+
+
+bool uiImportHorizon::acceptOK( CallBacker* )
+{
+    bool ret = checkInpFlds() && doWork();
+    return ret;
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 #define mErrRetUnRef(s) \
-{ conn->close(); horizon->unRef(); deepErase(filenames); mErrRet(s) }
+{ horizon->unRef(); mErrRet(s) }
 
-bool uiImportHorizon::handleAscii()
+
+bool uiImportHorizon::checkInpFlds()
 {
-    bool doxy = xyfld->getBoolValue();
-
-    const char* horizonnm = outfld->getInput();
-    EM::EMManager& em = EM::EMM();
-    emobjid = em.createObject( EM::Horizon::typeStr(), horizonnm );
-    mDynamicCastGet( EM::Horizon*, horizon, em.getObject(emobjid) );
-    if ( !horizon )
-	mErrRet( "Cannot create horizon" );
-    horizon->ref();
-
     BufferStringSet filenames;
+    if ( !getFileNames(filenames) ) return false;
+
+    if ( !outfld->commitInput( true ) )
+	mErrRet( "Please select the output" )
+
+    return true;
+}
+
+
+bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
+{
+    if ( !*infld->fileName() )
+	mErrRet( "Please select input file(s)" )
+
     infld->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
     {
-	const char* fname = filenames[idx]->buf();
-	StreamConn* conn = new StreamConn( fname, Conn::Read );
-	if ( conn->bad() )
-	    mErrRetUnRef( "Bad connection" );
-	    
-	ValGridTranslator* trans = 0;
-	if ( doxy )	trans = CoordGridTranslator::getInstance();
-	else		trans = BinIDGridTranslator::getInstance();
-	trans->setUdf( udffld->getfValue() );
-
-	GridReader reader( trans, conn );
-	BinIDSampler* bs = 0;
-	if ( !subselfld->isAll() )
+	const char* fnm = filenames[idx]->buf();
+	if ( !File_exists(fnm) )
 	{
-	    bs = new BinIDSampler;
-	    HorSampling hs; subselfld->getHorSampling( hs );
-	    bs->start = hs.start; bs->stop = hs.stop; bs->step = hs.step;
+	    BufferString errmsg( "Cannot find input file:\n" );
+	    errmsg += fnm;
+	    deepErase( filenames );
+	    mErrRet( errmsg );
 	}
-	reader.setRange( bs );
-	uiExecutor execdlg( this, reader );
-	if ( !execdlg.go() ) mErrRetUnRef( "Stopped reading" );
-
-	Grid* dskgrd = reader.grid();
-	PtrMan<Grid> grid = dskgrd->cloneTrimmed();
-	delete dskgrd;
-
-	if ( !grid )
-	    mErrRetUnRef( "No valid grid specified." );
-
-	grid->ensureContainsValidZValues();
-	const Scaler* scaler = scalefld->getScaler();
-	if ( scaler )
-	{
-	    GridIter* it = grid->gridIter();
-	    it->doUndef( false );
-	    while ( it->valid() )
-	    {
-		grid->setValue( it->node(),
-				scaler->scale( grid->getValue(it->node()) ) );
-		it->next();
-	    }
-	    delete it;
-	}
-
-	PtrMan<Executor> horimp = horizon->importer( *grid, idx,
-					       fillholesfld->getBoolValue() );
-	uiExecutor impdlg( this, *horimp );
-	if ( !impdlg.go() ) 
-	    mErrRetUnRef("Cannot import horizon")
-
-	conn->close();
     }
+
+    return true;
+}
+
+
+bool uiImportHorizon::doWork()
+{
+    const char* horizonnm = outfld->getInput();
+    EM::EMManager& em = EM::EMM();
+    emobjid = em.createObject( EM::Horizon::typeStr(), horizonnm );
+    mDynamicCastGet(EM::Horizon*,horizon,em.getObject(emobjid));
+    if ( !horizon )
+	mErrRet( "Cannot create horizon" );
+
+    bool isxy, doscale;
+    if ( !analyzeData(isxy,doscale) )
+	mErrRet("Cannot analyze data");
+
+    const bool doxy = xyfld->getBoolValue();
+    if ( doxy != isxy )
+    {
+	BufferString msg( "Coordinates in inputfile seem to be " );
+	msg += isxy ? "X/Y.\n" : "Inl/Crl.\n";
+	msg += "Continue importing as "; msg += doxy ? "X/Y?" : "Inl/Crl?";
+	if ( !uiMSG().askGoOn(msg) ) return false;
+    }
+
+    HorSampling hs; subselfld->getHorSampling( hs );
+    ObjectSet<BinIDValueSet> sections;
+    if ( !readFiles(sections,doscale,&hs) ) return false;
+    if ( !sections.size() )
+	mErrRet( "Nothing to import" );
+
+    horizon->ref();
+    ExecutorGroup exgrp( "Horizon importer" );
+    exgrp.setNrDoneText( "Nr inlines imported" );
+    exgrp.add( horizon->importer(sections,fillholesfld->getBoolValue()) );
+    exgrp.add( horizon->auxDataImporter(sections) );
+    uiExecutor impdlg( this, exgrp );
+    if ( !impdlg.go() ) 
+	mErrRetUnRef("Cannot import horizon")
 
     PtrMan<Executor> exec = horizon->geometry.saver();
     if ( !exec )
@@ -174,57 +202,183 @@ bool uiImportHorizon::handleAscii()
 	horizon->unRef();
     else
 	horizon->unRefNoDel();
-
-    deepErase( filenames );
     return rv;
 }
 
 
-bool uiImportHorizon::acceptOK( CallBacker* )
+bool uiImportHorizon::readFiles( ObjectSet<BinIDValueSet>& sections, bool doscale,
+				 const HorSampling* hs )
 {
-    bool ret = checkInpFlds() && handleAscii();
-    return ret;
-}
-
-
-bool uiImportHorizon::checkInpFlds()
-{
-    if ( ! *infld->fileName() )
-	mWarnRet( "Please select input file(s)" )
-
     BufferStringSet filenames;
-    infld->getFileNames( filenames );
+    if ( !getFileNames(filenames) ) return false;
     for ( int idx=0; idx<filenames.size(); idx++ )
     {
-	const char* fnm = filenames[idx]->buf();
-	if ( !File_exists(fnm) )
+	const char* fname = filenames.get( idx );
+	BinIDValueSet* bvs = getBidValSet( fname, doscale, hs );
+	if ( bvs && bvs->totalSize() )
+	    sections += bvs;
+	else
 	{
-	    BufferString errmsg( "Cannot find input file:\n" );
-	    errmsg += fnm;
-	    deepErase( filenames );
-	    mWarnRet( errmsg );
+	    delete bvs;
+	    BufferString msg( "Cannot read input file:\n" ); msg += fname;
+	    mErrRet( msg );
 	}
     }
-
-    deepErase( filenames );
-    if ( !outfld->commitInput( true ) )
-	mWarnRet( "Please select the output" )
 
     return true;
 }
 
 
-bool uiImportHorizon::doDisplay() const
+void uiImportHorizon::scanFile( CallBacker* )
 {
-    return displayfld->isChecked();
+    HorSampling hs( false );
+    BufferStringSet filenames;
+    if ( !getFileNames(filenames) ) return;
+
+    bool isxy, doscale;
+    if ( !analyzeData(isxy,doscale) ) return;
+    xyfld->setValue( isxy );
+
+    uiCursorChanger cursorlock( uiCursor::Wait );
+    for ( int idx=0; idx<filenames.size(); idx++ )
+    {
+	const char* fname = filenames.get( idx );
+	BinIDValueSet& bvs = *getBidValSet( fname, false, 0 );
+	Interval<int> inlrg = bvs.inlRange();
+	Interval<int> crlrg = bvs.crlRange();
+	if ( !idx )
+	    hs.set( inlrg, crlrg );
+	else
+	{
+	    hs.include( BinID(inlrg.start,crlrg.start) );
+	    hs.include( BinID(inlrg.stop,crlrg.stop) );
+	}
+
+	hs.step.inl = mNINT( (float)inlrg.width() / (bvs.nrInls()-1) );
+	int inl0 = inlrg.start;
+	hs.step.crl = mNINT( (float)bvs.crlRange(inl0).width() / 
+				(bvs.nrCrls(inl0)-1) );
+	delete &bvs;
+    }
+
+    subselfld->setInput( hs );
 }
 
 
-MultiID uiImportHorizon::getSelID() const
+bool uiImportHorizon::analyzeData( bool& isxy, bool& doscale )
 {
-    if ( emobjid<0 ) return -1;
+    uiCursorChanger cursorlock( uiCursor::Wait );
+    BufferStringSet filenames;
+    if ( !getFileNames(filenames) ) return false;
 
-    MultiID mid = IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id;
-    mid.add(emobjid);
-    return mid;
+    StreamProvider sp( filenames.get(0) );
+    StreamData sd = sp.makeIStream();
+    if ( !sd.usable() )
+	return false;
+
+    const float fac = SI().zIsTime() ? 0.001
+				     : (SI().zInMeter() ? .3048 : 3.28084);
+    Interval<float> validrg( SI().zRange(false) );
+    const float zwidth = validrg.width();
+    validrg.sort();
+    validrg.start -= zwidth;
+    validrg.stop += zwidth;
+
+    int maxcount = 100;
+    int count, nrxy, nrbid, nrscale, nrnoscale;
+    count = nrxy = nrbid = nrscale = nrnoscale = 0;
+    Coord crd;
+    BinID bid;
+    float val;
+    char buf[1024]; char valbuf[80];
+    while ( *sd.istrm )
+    {
+	if ( count > maxcount ) 
+	{
+	    if ( nrscale == nrnoscale ) maxcount *= 2;
+	    else break;
+	}
+
+	sd.istrm->getline( buf, 1024 );
+	const char* ptr = getNextWord( buf, valbuf );
+	if ( !ptr || !*ptr ) 
+	    continue;
+	crd.x = atof( valbuf );
+	ptr = getNextWord( ptr, valbuf );
+	crd.y = atof( valbuf );
+	BinID bid( mNINT(crd.x), mNINT(crd.y) );
+	if ( SI().isReasonable(crd) ) nrxy++;
+	if ( SI().isReasonable(bid) ) nrbid++;
+
+	ptr = getNextWord( ptr, valbuf );
+	val = atof( valbuf );
+	if ( mIsUndefined(val) ) continue;
+
+	if ( validrg.includes(val) ) nrnoscale++;
+	else if ( validrg.includes(val*fac) ) nrscale++;
+	count++;
+    }
+
+    isxy = nrxy > nrbid;
+    doscale = nrscale > nrnoscale;
+    return true;
+}
+
+
+BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
+					      const HorSampling* hs )
+{
+    StreamProvider sp( fnm );
+    StreamData sd = sp.makeIStream();
+    if ( !sd.usable() )
+	return 0;
+
+    BinIDValueSet* set = new BinIDValueSet(1,false);
+    const Scaler* scaler = scalefld->getScaler();
+    const float udfval = udffld->getfValue();
+    const bool doxy = xyfld->getBoolValue();
+    float factor = 1;
+    if ( doscale )
+	factor = SI().zIsTime() ? 0.001 : (SI().zInMeter() ? .3048 : 3.28084);
+
+    Coord crd;
+    BinID bid;
+    char buf[1024]; char valbuf[80];
+    while ( *sd.istrm )
+    {
+	sd.istrm->getline( buf, 1024 );
+	const char* ptr = getNextWord( buf, valbuf );
+	if ( !ptr || !*ptr ) 
+	    continue;
+	crd.x = atof( valbuf );
+	ptr = getNextWord( ptr, valbuf );
+	crd.y = atof( valbuf );
+	bid = doxy ? SI().transform( crd ) : BinID(mNINT(crd.x),mNINT(crd.y));
+	if ( hs && !hs->includes(bid) ) continue;
+
+	TypeSet<float> values;
+	while ( *ptr )
+	{
+	    ptr = getNextWord( ptr, valbuf );
+	    values += atof( valbuf );
+	}
+	
+	if ( !values.size() ) continue;
+	if ( set->nrVals() != values.size() )
+	    set->setNrVals( values.size() );
+
+	if ( mIsEqual(values[0],udfval,mDefEps) )
+	    values[0] = mUndefValue;
+
+	if ( doscale && !mIsUndefined(values[0]) )
+	    values[0] *= factor;
+
+	if ( scaler )
+	    values[0] = scaler->scale( values[0] );
+
+	set->add( bid, values );
+    }
+
+    sd.close();
+    return set;
 }

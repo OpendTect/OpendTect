@@ -1,36 +1,24 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.68 2005-01-06 09:39:57 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: emsurface.cc,v 1.69 2005-02-10 16:22:35 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
-#include "emsurfacetr.h"
-#include "emsurfauxdataio.h"
 #include "emsurfacerelations.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 
-#include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "emsurfaceedgeline.h"
-#include "emhistoryimpl.h"
 #include "emmanager.h"
-#include "geomgridsurface.h"
-#include "geommeshsurface.h"
-#include "grid.h"
-#include "ioman.h"
 #include "iopar.h"
-#include "ioobj.h"
-#include "linsolv.h"
-#include "pca.h"
-#include "toplist.h"
-#include "ptrman.h"
-#include "survinfo.h"
-#include "settings.h"
 
 
 static const char* sDbInfo = "DB Info";
@@ -145,14 +133,16 @@ void Surface::cleanUp()
 }
 
 
-int Surface::nrSections() const { return geometry.nrSections(); }
+int Surface::nrSections() const
+{ return geometry.nrSections(); }
 
 
-SectionID Surface::sectionID(int idx) const { return geometry.sectionID(idx); }
+SectionID Surface::sectionID( int idx ) const
+{ return geometry.sectionID(idx); }
 
 
 bool Surface::setPos( const PosID& posid, const Coord3& newpos,
-			  bool addtohistory )
+		      bool addtohistory )
 {
     if ( posid.objectID()!=id() ) return false;
 

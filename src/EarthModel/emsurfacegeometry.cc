@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.12 2005-01-28 16:14:55 nanne Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Nov 2002
+ RCS:           $Id: emsurfacegeometry.cc,v 1.13 2005-02-10 16:22:35 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "emsurfacegeometry.h"
 
@@ -37,8 +40,6 @@ static const char* sSections = "Patches";
 SurfaceGeometry::SurfaceGeometry( Surface& surf_ )
     : step_(SI().inlStep(),SI().crlStep())
     , loadedstep(SI().inlStep(),SI().crlStep())
-    , rowinterval(0)
-    , colinterval(0)
     , shift(0)
     , changed( 0 )
     , surface( surf_ )
@@ -53,12 +54,8 @@ SurfaceGeometry::~SurfaceGeometry()
 
 void SurfaceGeometry::removeAll()
 {
-    while ( nrSections() ) removeSection(sectionID(0), false);
-
-    delete rowinterval;
-    delete colinterval;
-    rowinterval = 0;
-    colinterval = 0;
+    while ( nrSections() )
+	removeSection( sectionID(0), false );
 }
 
 
@@ -602,6 +599,7 @@ bool SurfaceGeometry::addSection( const char* nm, SectionID sectionid,
 
     Geometry::MeshSurface* newsurf = createSectionSurface( sectionid );
     meshsurfaces += newsurf;
+    setTransform( sectionid );
 
     if ( addtohistory )
     {
@@ -705,8 +703,8 @@ SectionID SurfaceGeometry::cloneSection( SectionID sectionid )
 
 
 bool SurfaceGeometry::setPos( const SectionID& section, const RowCol& surfrc,
-			  const Coord3& pos, bool autoconnect,
-			  bool addtohistory)
+			      const Coord3& pos, bool autoconnect,
+			      bool addtohistory)
 {
     RowCol geomrowcol;
     if ( !getMeshRowCol( surfrc, geomrowcol, section ) )
@@ -1101,19 +1099,18 @@ RowCol SurfaceGeometry::step() const
 }
 
 
-void SurfaceGeometry::setTranslatorData( const RowCol& step__,
-				     const RowCol& loadedstep_,
-				     const RowCol& origo_,
-				     const Interval<int>* rowrange_,
-				     const Interval<int>* colrange_ )
+void SurfaceGeometry::setTranslatorData( const SectionID& sectionid, 
+					 const RowCol& step__,
+					 const RowCol& loadedstep_,
+					 const RowCol& origo_ )
 {
     step_ = step__;
     loadedstep = loadedstep_;
-    origos += origo_;
-    delete rowinterval;
-    delete colinterval;
-    rowinterval = rowrange_ ? new Interval<int>( *rowrange_ ) : 0;
-    colinterval = colrange_ ? new Interval<int>( *colrange_ ) : 0;
+    const int sectionnr = sectionNr( sectionid );
+    while ( sectionnr >= origos.size() )
+	origos += RowCol(mUndefIntVal,mUndefIntVal);
+    origos[sectionnr] = origo_;
+    setTransform( sectionid );
 }
 
 
@@ -1270,7 +1267,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 
 
 Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
-       			      const MultiID* key )
+       			          const MultiID* key )
 {
     const MultiID& mid = key && !(*key=="") ? *key : surface.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );

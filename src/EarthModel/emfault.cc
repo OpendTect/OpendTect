@@ -1,21 +1,19 @@
-/*
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : N. Fredman
- * DATE     : Sep 2002
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        N. Fredman
+ Date:          Sep 2002
+ RCS:           $Id: emfault.cc,v 1.26 2005-02-10 16:22:35 nanne Exp $
+________________________________________________________________________
+
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.25 2005-01-06 09:39:57 kristofer Exp $";
-
 #include "emfault.h"
-
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "errh.h"
 #include "geommeshsurfaceimpl.h"
-#include "ioman.h"
-#include "ioobj.h"
-#include "ptrman.h"
-#include "sortedlist.h"
 #include "survinfo.h"
 
 namespace EM {
@@ -192,7 +190,7 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
     if ( !nrSections() || !hasSection(sid) ) 
 	sectionid = addSection( "", true );
 
-    setTranslatorData( RowCol(1,1), RowCol(1,1), RowCol(0,0), 0, 0 );
+    setTranslatorData( sectionid, RowCol(1,1), RowCol(1,1), RowCol(0,0) );
     const float idealdistance = 25; // TODO set this in some intelligent way
     RowCol rowcol(0,0);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.23 2004-12-22 12:09:45 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.24 2005-02-10 16:22:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,8 +12,6 @@ ________________________________________________________________________
 
 #include "uisurfaceman.h"
 #include "ioobj.h"
-#include "iostrm.h"
-#include "strmprov.h"
 #include "ctxtioobj.h"
 #include "uilistbox.h"
 #include "uiioobjmanip.h"
@@ -24,7 +22,9 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
 #include "emsurfauxdataio.h"
+#include "emsurfaceauxdata.h"
 #include "uimsg.h"
+#include "uigeninputdlg.h"
 
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
@@ -40,8 +40,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
     attribfld->setToolTip( "Calculated attributes" );
 
     uiManipButGrp* butgrp = new uiManipButGrp( topgrp );
-    butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiSurfaceMan,remPush),
+    butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiSurfaceMan,removeCB),
 		       "Remove selected attribute(s)" );
+#ifdef __debug__
+    butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiSurfaceMan,renameCB),
+	    	       "Rename selected attribute" );
+#endif
     butgrp->attach( rightTo, attribfld );
 
     selChg( this ); 
@@ -53,7 +57,7 @@ uiSurfaceMan::~uiSurfaceMan()
 }
 
 
-void uiSurfaceMan::remPush( CallBacker* )
+void uiSurfaceMan::removeCB( CallBacker* )
 {
     BufferStringSet attribnms;
     attribfld->getSelectedItems( attribnms );
@@ -61,36 +65,36 @@ void uiSurfaceMan::remPush( CallBacker* )
 	    !uiMSG().askGoOn("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;
-   
-    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
-    if ( !iostrm ) return;
-    StreamProvider sp( iostrm->fileName() );
-    sp.addPathIfNecessary( iostrm->dirName() );
 
     for ( int ida=0; ida<attribnms.size(); ida++ )
     {
-	int gap = 0;
-	for ( int idx=0; ; idx++ )
-	{
-	    if ( gap > 100 ) return;
+	BufferString filenm = 
+	    EM::SurfaceAuxData::getAuxDataFileName( *ctio.ioobj, 
+		    				    attribnms.get(ida) );
+	if ( !*filenm ) continue;
 
-	    BufferString fnm(
-		    EM::dgbSurfDataWriter::createHovName(sp.fileName(),idx) );
-	    if ( File_isEmpty(fnm) )
-	    { gap++; continue; }
-
-	    EM::dgbSurfDataReader rdr( fnm );
-	    BufferString datanm = rdr.dataName();
-	    if ( datanm == attribnms.get(ida) )
-	    {
-		File_remove( (const char*)fnm, NO );
-		break;
-	    }
-	}
+	File_remove( filenm, NO );
     }
 
     selChg( this );
 }
+
+
+#define mErrRet(msg) { uiMSG().error(msg); return; }
+
+void uiSurfaceMan::renameCB( CallBacker* )
+{
+    BufferString attribnm = attribfld->getText();
+    BufferString titl( "Rename '" ); titl += attribnm; titl += "'";
+    uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(attribnm) );
+    if ( !dlg.go() ) return;
+
+    BufferString newnm = dlg.text();
+    if ( attribfld->isPresent(newnm) )
+	mErrRet("Name already in use")
+
+}
+
 
 
 void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )

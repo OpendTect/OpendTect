@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.4 2004-12-22 12:10:29 nanne Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.5 2005-02-10 16:22:35 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "emsurfaceauxdata.h"
 
@@ -16,6 +19,8 @@ static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.4 2004-12-22 12:10:29 n
 #include "ioman.h"
 #include "iopar.h"
 #include "ioobj.h"
+#include "iostrm.h"
+#include "strmprov.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "executor.h"
@@ -176,8 +181,6 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     PtrMan<IOObj> ioobj = IOM().get( surface.multiID() );
     if ( !ioobj )
 	{ surface.errmsg = "Cannot find surface"; return 0; }
-    StreamConn* conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
-    if ( !conn ) return 0;
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
@@ -193,24 +196,13 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     {
 	if ( selidx>=0 && selidx != validx ) continue;
 
-	const char* attrnm = sel.sd.valnames[validx]->buf();
-	int gap = 0;
-	for ( int idx=0; ; idx++ )
-	{
-	    if ( gap > 50 ) return 0;
-	    BufferString fnm = 
-		dgbSurfDataWriter::createHovName(conn->fileName(),idx);
-	    if ( File_isEmpty(fnm) ) { gap++; continue; }
-	    else gap = 0;
+	BufferString filenm = getAuxDataFileName( *ioobj, 
+					sel.sd.valnames[validx]->buf() );
+	if ( !*filenm ) continue;
 
-	    dgbSurfDataReader* rdr = new dgbSurfDataReader(fnm);
-	    if ( strcmp(attrnm,rdr->dataName()) )
-	    { delete rdr; continue; }
-
-	    rdr->setSurface( surface );
-	    grp->add( rdr );
-	    break;
-	}
+	dgbSurfDataReader* rdr = new dgbSurfDataReader(filenm);
+	rdr->setSurface( surface );
+	grp->add( rdr );
     }
 
     return grp;
@@ -269,6 +261,33 @@ void SurfaceAuxData::removeSection(const SectionID& sectionid)
 	delete (*auxdata[idy])[sectionidx];
 	auxdata[idy]->replace( 0, sectionidx );
     }
+}
+
+
+BufferString SurfaceAuxData::getAuxDataFileName( const IOObj& ioobj,
+						const char* attrnm )
+{
+    mDynamicCastGet(const IOStream*,iostrm,&ioobj)
+    if ( !iostrm ) return "";
+    StreamProvider sp( iostrm->fileName() );
+    sp.addPathIfNecessary( iostrm->dirName() );
+
+    BufferString filenm;
+    int gap = 0;
+    for ( int idx=0; ; idx++ )
+    {
+	if ( gap > 100 ) return "";
+
+	filenm = EM::dgbSurfDataWriter::createHovName(sp.fileName(),idx);
+	if ( File_isEmpty(filenm) )
+	{ gap++; continue; }
+
+	EM::dgbSurfDataReader rdr( filenm );
+	if ( !strcmp(rdr.dataName(),attrnm) )
+	    break;
+    }
+
+    return filenm;
 }
 
 

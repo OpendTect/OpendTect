@@ -7,17 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.46 2005-01-28 13:31:16 bert Exp $
+ RCS:		$Id: emsurface.h,v 1.47 2005-02-10 16:22:42 nanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "emposid.h"
 #include "emobject.h"
 #include "position.h"
-#include "bufstringset.h"
-#include "cubesampling.h"
 
 template <class T, class AT> class TopList;
 

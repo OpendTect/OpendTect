@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.8 2005-01-28 16:15:02 nanne Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.9 2005-02-10 16:22:42 nanne Exp $
 ________________________________________________________________________
 
 
@@ -108,25 +108,20 @@ public:
     const Geometry::MeshSurface* getSurface(SectionID) const;
     RowCol		loadedStep() const;
     RowCol		step() const;
-    void		setTranslatorData( const RowCol& step,
-	    				   const RowCol& loadedstep,
-					   const RowCol& origo,
-					   const Interval<int>* rowrange,
-					   const Interval<int>* colrange );
+    void		setTranslatorData(const SectionID&,
+					  const RowCol& step,
+					  const RowCol& loadedstep,
+					  const RowCol& origo);
     			/*!< Sets subselection data
 			    \param step		The step that the surface
 						is defined in
 			    \param loadedstep	The step that is loaded
 			    \param origo	The origo that is used with
 						step
-			    \param rowrange	Should be set if a subselection
-		       				is done
-			    \param colrange	Should be set if a subselection
-		       				is done
 			*/
 						
-    static RowCol	subID2RowCol( const EM::SubID& );
-    static EM::SubID	rowCol2SubID( const RowCol& );
+    static RowCol	subID2RowCol(const EM::SubID&);
+    static EM::SubID	rowCol2SubID(const RowCol&);
 
     void		getRange(StepInterval<int>&,bool rowdir) const;
     void		getRange(const EM::SectionID&,
@@ -236,7 +231,9 @@ public:
 
 protected:
 
-    virtual Geometry::MeshSurface*	createSectionSurface(const SectionID&) const =0;
+    virtual Geometry::MeshSurface*	
+				createSectionSurface(const SectionID&) const =0;
+    virtual void		setTransform(const SectionID&) const {}
 
     EM::SubID			getSurfSubID(const RowCol&,
 	    				     const SectionID&) const;
@@ -261,8 +258,6 @@ protected:
     RowCol				step_;
     TypeSet<RowCol>			origos;
 
-    Interval<int>*			rowinterval;
-    Interval<int>*			colinterval;
     float 				shift;
     bool				changed;
 };
