@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.11 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.12 2001-09-27 16:17:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,8 @@ public:
     void		deepRedraw( CallBacker* =0 )		{reDraw(true); }
     void		reDraw( bool deep );
 
+    //! inernal use only. Tells the layout manager it's a toplevel mngr.
+    void		setIsMain( bool ); 
 
 //
 protected:

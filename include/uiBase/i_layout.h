@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.15 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.16 2001-09-27 16:17:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,8 @@ public:
     int			verSpacing() const 
 			{ int s = spacing(); return s > 3 ? s-2 : 2; }
 
+    void		setIsMain( bool yn )	    { ismain = yn; }
+
 private:
 
     void 		setGeometry( const QRect& );
@@ -165,6 +167,7 @@ private:
     QRect		prevGeometry;
     bool		minimumDone;
     bool		preferredDone;
+    bool		ismain;
 
 };
 
