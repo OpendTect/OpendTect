@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.4 2001-12-05 15:10:45 arend Exp $
+ RCS:           $Id: uitoolbar.h,v 1.5 2002-03-21 14:27:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,9 @@ public:
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
+
+    void		addSeparator();
+    void		setStretchableWidget(uiObject*);
 
 protected:
 

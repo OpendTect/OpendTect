@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.9 2001-12-05 15:10:37 arend Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.10 2002-03-21 14:27:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,31 +56,8 @@ private:
 };
 
 
-uiToolBar* uiToolBar::getNew( QMainWindow& main, const char* nm, ToolBarDock d, 
-			      bool newline )
-{
-    QMainWindow::ToolBarDock d_ = uiToolBarBody::qdock(d);
-    QToolBar& bar = *new QToolBar( QString(nm), &main, d_, newline );
-
-    return new uiToolBar( nm, bar );
-}
-
-uiToolBar::uiToolBar( const char* nm, QToolBar& qtb )
-    : uiParent( nm, 0 )
-    { setBody( &mkbody(nm,qtb) ); }
-
-uiToolBarBody& uiToolBar::mkbody( const char* nm, QToolBar& qtb )
-{ 
-    body_=new uiToolBarBody( *this, qtb );
-    return *body_; 
-}
-
-
-void uiToolBar::addButton(const ioPixmap& pm, const CallBack& cb,const char* nm)
-    { body_->addButton(pm,cb,nm); }
-
-
-void uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,const char* nm)
+void uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
+			      const char* nm)
 {
 #if 0 
 
@@ -100,14 +77,6 @@ void uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,const char*
 }
 
 
-void uiToolBar::display( bool yn )
-{
-    if ( !body_->qthing() ) return;
-    if ( yn )	body_->qthing()->show();
-    else	body_->qthing()->hide();
-}
-
-
 QMainWindow::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
 {
     switch( d )
@@ -121,3 +90,49 @@ QMainWindow::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
     return (QMainWindow::ToolBarDock) 0;
 }
 
+uiToolBar::uiToolBar( const char* nm, QToolBar& qtb )
+    : uiParent( nm, 0 )
+    { setBody( &mkbody(nm,qtb) ); }
+
+
+uiToolBarBody& uiToolBar::mkbody( const char* nm, QToolBar& qtb )
+{ 
+    body_=new uiToolBarBody( *this, qtb );
+    return *body_; 
+}
+
+
+uiToolBar* uiToolBar::getNew( QMainWindow& main, const char* nm, ToolBarDock d, 
+			      bool newline )
+{
+    QMainWindow::ToolBarDock d_ = uiToolBarBody::qdock(d);
+    QToolBar& bar = *new QToolBar( QString(nm), &main, d_, newline );
+
+    return new uiToolBar( nm, bar );
+}
+
+
+void uiToolBar::addButton(const ioPixmap& pm, const CallBack& cb,const char* nm)
+    { body_->addButton(pm,cb,nm); }
+
+
+void uiToolBar::display( bool yn )
+{
+    if ( !body_->qthing() ) return;
+    if ( yn )	body_->qthing()->show();
+    else	body_->qthing()->hide();
+}
+
+
+void uiToolBar::addSeparator()
+{
+    if ( !body_->qthing() ) return;
+    body_->qthing()->addSeparator();
+}
+
+
+void uiToolBar::setStretchableWidget( uiObject* obj )
+{
+    if ( !body_->qthing() || !obj ) return;
+    body_->qthing()->setStretchableWidget( obj->body()->qwidget() );
+}
