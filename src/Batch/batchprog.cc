@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.45 2003-10-28 12:15:22 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.46 2003-10-30 15:22:57 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -23,6 +23,10 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.45 2003-10-28 12:15:22 arend E
 #include <stdlib.h>
 #endif
 #include <fstream>
+
+#ifndef __win__
+# include "_execbatch.h"
+#endif
 
 #define mErrStrm (sdout_.ostrm ? *sdout_.ostrm : cerr)
 
