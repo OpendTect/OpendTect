@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		12-4-1999
  Contents:	Simple numerical functions
- RCS:		$Id: simpnumer.h,v 1.1.1.2 1999-09-16 09:19:17 arend Exp $
+ RCS:		$Id: simpnumer.h,v 1.2 2000-01-13 15:15:52 bert Exp $
 ________________________________________________________________________
 
 */
@@ -106,6 +106,118 @@ inline T polyInterpolate( float x0, T y0, float x1, T y1, float x2, T y2,
 		y1 * xx0 * xx2 * xx3 / ((x1 - x0) * (x1 - x2) * (x1 - x3)) +
 		y2 * xx0 * xx1 * xx3 / ((x2 - x0) * (x2 - x1) * (x2 - x3)) +
 		y3 * xx0 * xx1 * xx2 / ((x3 - x0) * (x3 - x1) * (x3 - x2));
+}
+
+/*
+   polyInterpolate2D - interpolates a value inside a 4*4 grid. The notation
+   of the vaues are: "v"xy. I.e v00 is the value at (0,0), v13 is the value
+   at (1,3). Ideally, x and y should lie within the square defined by (1,1),
+   (1,2), (2,1) and (2,2).
+*/
+
+template <class T>
+inline T polyInterpolate2D( T v00, T v01, T v02, T v03,
+			    T v10, T v11, T v12, T v13,
+			    T v20, T y21, T v22, T v23,
+			    T v30, T v31, T v32, T v33, float x, float y)
+{
+    T v0 = polyInterpolate( v00, v01, v02, v03, y );
+    T v1 = polyInterpolate( v10, v11, v12, v13, y );
+    T v2 = polyInterpolate( v20, v21, v22, v23, y );
+    T v3 = polyInterpolate( v30, v31, v32, v33, y );
+
+    return polyInterpolate( v0, v1, v2, v3, x );
+}
+
+
+/*
+   linearInterpolate2D - interpolates a value inside a 1*1 grid. The notation
+   of the vaues are: "v"xy. I.e v00 is the value at (0,0), v13 is the value
+   at (1,3). Ideally, x and y should lie within the square defined by the
+   input square.
+*/
+
+
+template <class T>
+inline T linearInterpolate2D( T v00, T v01, T v10, T v11, float x, float y )
+{
+    const float xm = 1 - x;
+    const float ym = 1 - y;
+
+    return xm*ym*v00 + x*ym*v10 + x*y*v11 + xm*y*v01;
+}
+    
+/*
+   linearInterpolate3D - interpolates a value inside a 1*1*1 grid. The notation
+   of the vaues are: "v"xyz. I.e v000 is the value at (0,0,0), v132 is the value
+   at (1,3,2). Ideally, x and y should lie within the cube defined by the input
+   values.
+*/
+
+template <class T>
+inline T linearInterpolate3D( T v000, T v001, T v010, T v011,
+			      T v100, T v101, T v110, T v111,
+			      float x, float y, float z )
+{
+    const float xm = 1 - x;
+    const float ym = 1 - y;
+    const float zm = 1 - z;
+
+    return xm*ym*zm*v000 + xm*ym*z*v001 + xm*y*zm*v010 + xm*y*z*v011 +
+	   x*ym*zm*v100 + x*ym*z*v101 + x*y*zm*v110 + x*y*z*v111;
+}
+    
+/*
+   polyInterpolate3D - interpolates a value inside a 4*4*4 grid. The notation
+   of the vaues are: "v"xyz. I.e v000 is the value at (0,0,0), v132 is the value
+   at (1,3,2). Ideally, x and y should lie within the cube defined by (1,1,1),
+   (1,2,1), (2,1,1), (2,2,2), (1,1,2), (1,2,2), (2,1,2) and (2,2,2).
+*/
+
+template <class T>
+inline T polyInterpolate3D( T v000, T v001, T v002, T v003,
+			    T v010, T v011, T v012, T v013,
+			    T v020, T y021, T v022, T v023,
+			    T v030, T v031, T v032, T v033,
+
+			    T v100, T v101, T v102, T v103,
+			    T v110, T v111, T v112, T v113,
+			    T v120, T y121, T v122, T v123,
+			    T v130, T v131, T v132, T v133,
+
+			    T v200, T v201, T v202, T v203,
+			    T v210, T v211, T v212, T v213,
+			    T v220, T y221, T v222, T v223,
+			    T v230, T v231, T v232, T v233,
+
+			    T v300, T v301, T v302, T v303,
+			    T v310, T v311, T v312, T v313,
+			    T v320, T y321, T v322, T v323,
+			    T v330, T v331, T v332, T v333,
+			    float x, float y, float z )
+{
+    T val0 = polyInterpolate2D( v000, v001, v002, v003,
+				v010, v011, v012, v013,
+				v020, y021, v022, v023,
+				v030, v031, v032, v033, y, z );
+
+    T val1 = polyInterpolate2D(	v100, v101, v102, v103,
+				v110, v111, v112, v113,
+				v120, y121, v122, v123,
+				v130, v131, v132, v133, y, z );
+
+    T val2 = polyInterpolate2D(	v200, v201, v202, v203,
+				v210, v211, v212, v213,
+				v220, y221, v222, v223,
+				v230, v231, v232, v233, y, z );
+
+    T val3 = polyInterpolate2D(	v300, v301, v302, v303,
+				v310, v311, v312, v313,
+				v320, y321, v322, v323,
+				v330, v331, v332, v333, y, z );
+
+
+    return polyInterpolate( val0, val1, val2, val3, x );
 }
 
 
@@ -238,7 +350,6 @@ inline void interpolateSampled( const T& idxabl, int sz, float pos, RT& ret,
 			       (RT)idxabl[prevpos+2], pos - prevpos );
 }
 
-
 template <class T>
 inline float interpolateSampled( const T& idxabl, int sz, float pos,
 				 bool extrapolate=NO,
@@ -249,6 +360,114 @@ inline float interpolateSampled( const T& idxabl, int sz, float pos,
     return ret;
 }
 
+
+template <class T>
+inline T dePeriodize( T val, T period )
+{
+    const int n = (int) (val / period);
+
+    return n ? val - n * period : val; 
+} 
+
+template <class T, class RT>
+inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
+				RT& ret, RT period,
+				bool extrapolate=NO,
+				RT undefval=(RT)mUndefValue )
+{
+    const float halfperiod = period / 2;
+    int intpos = mNINT( pos );
+    float dist = pos - intpos;
+    if( mIsZero(dist) && intpos >= 0 && intpos < sz ) 
+	{ ret = idxabl[intpos]; return; }
+
+    int prevpos = dist > 0 ? intpos : intpos - 1;
+    if ( !extrapolate && (prevpos > sz-2 || prevpos < 0) )
+	ret = undefval;
+    else if ( prevpos < 1 )
+    {
+	const float val0 = idxabl[0];
+	RT val1 = idxabl[1];
+	while ( val1 - val0 > halfperiod ) val1 -= period; 
+	while ( val1 - val0 < -halfperiod ) val1 += period; 
+
+	ret = dePeriodize(linearInterpolate( val0, val1, pos ), period );
+    }
+    else if ( prevpos > sz-3 )
+    {
+	const RT val0 = idxabl[sz-2];
+	RT val1 = idxabl[sz-1];
+	while ( val1 - val0 > halfperiod ) val1 -= period; 
+	while ( val1 - val0 < -halfperiod ) val1 += period; 
+	ret = dePeriodize(linearInterpolate( val0, val1, pos-(sz-2) ), period );
+    }
+    else
+    {
+	const RT val0 = idxabl[prevpos-1];
+
+	RT val1 = idxabl[prevpos];
+	while ( val1 - val0 > halfperiod ) val1 -= period; 
+	while ( val1 - val0 < -halfperiod ) val1 += period; 
+
+	RT val2 = idxabl[prevpos+1];
+	while ( val2 - val1 > halfperiod ) val2 -= period; 
+	while ( val2 - val1 < -halfperiod ) val2 += period; 
+
+	RT val3 = idxabl[prevpos+2];
+	while ( val3 - val2 > halfperiod ) val3 -= period; 
+	while ( val3 - val2 < -halfperiod ) val3 += period; 
+
+	ret = dePeriodize(polyInterpolate( val0, val1, val2, val3,
+			  pos - prevpos ), period );
+    }
+}
+
+
+template <class T, class RT>
+inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
+					RT& ret)
+{
+    int intpos = mNINT( pos );
+    float dist = pos - intpos;
+    if( mIsZero(dist) && intpos >= 0 && intpos < sz ) 
+	{ ret = idxabl[intpos]; return; }
+
+    int prevpos = dist > 0 ? intpos : intpos - 1;
+    const float relpos = pos - prevpos;
+    prevpos = dePeriodize( prevpos, sz );
+
+    int prevpos2 = prevpos - 1; 
+    prevpos2 = dePeriodize( prevpos2, sz );
+
+    const int nextpos = prevpos + 1;
+    nextpos = dePeriodize( nextpos, sz );
+
+    const int nextpos2 = prevpos + 2;
+    nextpos2 = dePeriodize( nextpos2, sz );
+
+    const RT prevval2 = idxabl[prevpos2];
+    const RT prevval = idsabl[prevpos];
+    const RT nextval = idxabl[nextpos];
+    const RT nextval2 = idxabl[nextpos2];
+
+    ret = polyInterpolate( prevval2, 
+			   prevval, 
+			   nextval,
+			   nextval2, relpos );
+}
+
+
+
+template <class T>
+inline float interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
+				 float period, bool extrapolate=NO,
+				 float undefval=mUndefValue )
+{
+    float ret = undefval;
+    interpolateYPeriodicSampled( idxabl, sz, pos, ret,
+				 period, extrapolate, undefval );
+    return ret;
+}
 
 //
 // Taper an indexable array from 1 to taperfactor. If lowpos is less 
