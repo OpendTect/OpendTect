@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.15 2004-05-24 13:57:12 kristofer Exp $
+ RCS:		$Id: vismarker.h,v 1.16 2004-11-03 08:39:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ class SoGroup;
 class SoShapeScale;
 class SoRotation;
 class SoTranslation;
+class UTMPosition;
 
 namespace visBase
 {
@@ -89,6 +90,7 @@ protected:
     Transformation*	transformation;
 
     SoShapeScale*	markerscale;
+    UTMPosition*	xytranslation;
     SoTranslation*	translation;
     SoNode*		shape;
     SoRotation*		rotation;

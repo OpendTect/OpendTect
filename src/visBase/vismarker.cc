@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.15 2004-05-24 13:56:59 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.16 2004-11-03 08:39:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,13 @@ ________________________________________________________________________
 
 #include "SoShapeScale.h"
 #include "SoArrow.h"
+#include "UTMPosition.h"
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoCylinder.h>
-#include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/nodes/SoRotation.h>
+#include <Inventor/nodes/SoTranslation.h>
 
 #include <math.h>
 
@@ -33,15 +34,15 @@ const char* visBase::Marker::centerposstr = "Center Pos";
 visBase::Marker::Marker()
     : VisualObjectImpl(true)
     , transformation(0)
+    , xytranslation( 0 )
     , translation(new SoTranslation)
-    , rotation(new SoRotation)
+    , rotation(0)
     , markerscale(new SoShapeScale)
     , shape(0)
     , direction(0,0,0)
 {
     addChild( translation );
     addChild( markerscale );
-    addChild( rotation );
     setType( MarkerStyle3D::Cube );
 
     markerscale->restoreProportions = true;
@@ -60,6 +61,19 @@ void visBase::Marker::setCenterPos( const Coord3& pos_ )
     Coord3 pos( pos_ );
 
     if ( transformation ) pos = transformation->transform( pos );
+
+    if ( !xytranslation && (pos.x>1e5 || pos.y>1e5) )
+    {
+	xytranslation = new UTMPosition;
+	insertChild( childIndex( translation ), xytranslation );
+    }
+
+    if ( xytranslation )
+    {
+	xytranslation->utmposition.setValue( pos.x, pos.y, 0 );
+	pos.x = 0; pos.y = 0;
+    }
+
     translation->translation.setValue( pos.x, pos.y, pos.z );
 }
 
@@ -67,10 +81,20 @@ void visBase::Marker::setCenterPos( const Coord3& pos_ )
 Coord3 visBase::Marker::centerPos(bool displayspace) const
 {
     Coord3 res;
-    SbVec3f pos = translation->translation.getValue();
+    SbVec3d pos = translation->translation.getValue();
 
-    res.x = pos[0];
-    res.y = pos[1];
+
+    if ( xytranslation )
+    {
+	res.x = xytranslation->utmposition.getValue()[0];
+	res.y = xytranslation->utmposition.getValue()[1];
+    }
+    else
+    {
+	res.x = pos[0];
+	res.y = pos[1];
+    }
+
     res.z = pos[2];
 
     if ( !displayspace && transformation )
@@ -162,6 +186,12 @@ bool visBase::Marker::restoresProportions() const
 
 void visBase::Marker::setRotation( const Coord3& vec, float angle )
 {
+    if ( !rotation )
+    {
+	rotation = new SoRotation;
+	insertChild( childIndex( shape ), rotation );
+    }
+
     rotation->rotation.setValue( SbVec3f(vec[0],vec[1],vec[2]), angle );
 }
 
@@ -176,6 +206,12 @@ void visBase::Marker::setArrowDir( const ::Sphere& dir )
 
     SbVec3f orgvec(1,0,0);
     SbRotation newrot( orgvec, SbVec3f(newcrd.x,newcrd.y,-newcrd.z) );
+    if ( !rotation )
+    {
+	rotation = new SoRotation;
+	insertChild( childIndex( shape ), rotation );
+    }
+
     rotation->rotation.setValue( newrot );
     
     float length = dir.radius;
