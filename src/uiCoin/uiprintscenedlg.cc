@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.1 2002-10-16 07:34:21 kristofer Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.2 2002-10-17 06:00:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiprintscenedlg.h"
 #include "uifileinput.h"
-#include "uilistbox.h"
+#include "uicombobox.h"
 #include "ptrman.h"
 
 #include "Inventor/SoOffscreenRenderer.h"
@@ -21,7 +21,26 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 		    		      "Enter filename and fileformat"))
 	, scene(scene_)
 {
-    filetypesfld = new uiListBox(this, "Filetypes" );
+    IntInpSpec horwidthinpspec( 800  );
+    IntInpSpec vertwidthinpspec( 600 );
+    IntInpSpec resinpspec( 72 );
+    horwidthfld = new uiGenInput( this, "Size", horwidthinpspec );
+
+    vertwidthfld = new uiGenInput( this, "x", vertwidthinpspec );
+    vertwidthfld->attach( rightOf, horwidthfld );
+
+    widthunitfld = new uiComboBox( this, "Unit" );
+    widthunitfld->addItem("pixels");
+    widthunitfld->addItem("cm");
+    widthunitfld->addItem("inches");
+    widthunitfld->attach( rightOf, vertwidthfld );
+
+    resolutionfld = new uiGenInput( this, "Resolution (dpi)", resinpspec );
+    resolutionfld->attach( alignedBelow, horwidthfld );
+
+    filetypesfld = new uiComboBox(this, "Filetypes" );
+    filetypesfld->attach( alignedBelow, resolutionfld );
+
     PtrMan<SoOffscreenRenderer> r =
 	new SoOffscreenRenderer(*(new SbViewportRegion));
     int num = r->getNumWriteFiletypes();
@@ -45,8 +64,30 @@ void uiPrintSceneDlg::doFinalise( CallBacker* )
 
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
+    double horwidth = horwidthfld->getValue();
+    double vertwidth = vertwidthfld->getValue();
+    int widthunit = widthunitfld->currentItem();
+
+    double resolution = resolutionfld->getValue();
+
+    if ( widthunit==1 )
+    {
+	horwidth *= resolution/2.54;
+	vertwidth *= resolution/2.54;
+    }
+    else if ( widthunit==2 )
+    {
+	horwidth *= resolution;
+	vertwidth *= resolution;
+    }
+    
     SbViewportRegion viewport;
-    viewport.setWindowSize( SbVec2s( 3000, 4000 ));
+    SbVec2s maxres = SoOffscreenRenderer::getMaximumResolution();
+    if ( horwidth>maxres[0] ) horwidth = maxres[0];
+    if ( vertwidth>maxres[1] ) vertwidth = maxres[1];
+
+    viewport.setWindowSize( SbVec2s( mNINT(horwidth), mNINT(vertwidth) ));
+    viewport.setPixelsPerInch( resolution );
 
     PtrMan<SoOffscreenRenderer> r = new SoOffscreenRenderer(viewport);
 
