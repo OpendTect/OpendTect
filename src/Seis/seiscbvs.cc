@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.30 2002-12-18 10:16:42 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.31 2003-01-02 15:42:21 nanne Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -355,7 +355,7 @@ bool CBVSSeisTrcTranslator::goTo( const BinID& bid )
 
 bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
-    if ( !storinterps ) commitSelections();
+    if ( !storinterps && !commitSelections() ) return false;
     if ( headerdone ) return true;
 
     donext = donext ||   ( trcsel && trcsel->bidsel
