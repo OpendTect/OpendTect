@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.24 2002-10-14 14:24:39 niclas Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.25 2003-01-02 14:22:18 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -88,7 +88,9 @@ visBase::TextureRect::~TextureRect()
 
     if ( colortable )
     {
-	colortable->change.remove(
+	colortable->sequencechange.remove(
+				mCB( this,visBase::TextureRect, updateTexture));
+	colortable->rangechange.remove(
 				mCB( this,visBase::TextureRect, updateTexture));
 	colortable->unRef();
     }
@@ -193,14 +195,19 @@ void visBase::TextureRect::setColorTab( VisColorTab* nr )
 {
     if ( colortable )
     {
-	colortable->change.remove(
+	colortable->rangechange.remove(
+				mCB( this,visBase::TextureRect, updateTexture));
+	colortable->sequencechange.remove(
 				mCB( this,visBase::TextureRect, updateTexture));
 	colortable->unRef();
     }
 
     colortable = nr;
     colortable->ref();
-    colortable->change.notify(mCB( this,visBase::TextureRect, updateTexture));
+    colortable->rangechange.notify(
+	    		mCB( this,visBase::TextureRect, updateTexture));
+    colortable->sequencechange.notify(
+			mCB( this,visBase::TextureRect, updateTexture));
 
 
     updateTexture(0);

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.11 2002-05-24 11:45:24 kristofer Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.12 2003-01-02 14:22:18 kristofer Exp $";
 
 #include "viscolortab.h"
 #include "visdataman.h"
@@ -18,7 +18,8 @@ const char* visBase::VisColorTab::colorseqidstr = "ColorSeq ID";
 const char* visBase::VisColorTab::scalefactorstr = "Scale Factor";
 
 visBase::VisColorTab::VisColorTab()
-    : change( this )
+    : sequencechange( this )
+    , rangechange( this )
     , colseq( 0 )
     , scale( *new LinScaler )
 {
@@ -73,7 +74,7 @@ void visBase::VisColorTab::scaleTo( const Interval<float>& rg )
 	if ( rg.start > rg.stop ) scale.factor *= -1;
 	scale.constant = -rg.start*scale.factor;
 
-	change.trigger();
+	rangechange.trigger();
     }
 }
 
@@ -97,13 +98,13 @@ void visBase::VisColorTab::setColorSeq( ColorSequence* ns )
     colseq = ns;
     colseq->ref();
     colseq->change.notify( mCB( this, VisColorTab, colorseqchanged ));
-    change.trigger();
+    sequencechange.trigger();
 }
 
 
 void visBase::VisColorTab::colorseqchanged()
 {
-    change.trigger();
+    sequencechange.trigger();
 }
 
 

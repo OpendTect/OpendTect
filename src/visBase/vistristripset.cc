@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.8 2002-10-14 14:24:39 niclas Exp $";
+static const char* rcsID = "$Id: vistristripset.cc,v 1.9 2003-01-02 14:22:18 kristofer Exp $";
 
 #include "vistristripset.h"
 #include "geomposlist.h"
@@ -63,7 +63,9 @@ visBase::TriangleStripSet::~TriangleStripSet()
     if ( colortable )
     {
 	colortable->unRef();
-	colortable->change.remove(
+	colortable->rangechange.remove(
+		mCB( this,visBase::TriangleStripSet, updateTexture));
+	colortable->sequencechange.remove(
 		mCB( this,visBase::TriangleStripSet, updateTexture));
     }
 }
@@ -128,15 +130,19 @@ void visBase::TriangleStripSet::setColorTab( VisColorTab* nr )
 {
     if ( colortable )
     {
-	colortable->change.remove(
+	colortable->rangechange.remove(
+		mCB( this,visBase::TriangleStripSet, updateTexture));
+	colortable->sequencechange.remove(
 		mCB( this,visBase::TriangleStripSet, updateTexture));
 	colortable->unRef();
     }
 
     colortable = nr;
     colortable->ref();
-    colortable->change.notify(mCB( this,visBase::TriangleStripSet,
-		updateTexture));
+    colortable->rangechange.notify(
+	    mCB( this,visBase::TriangleStripSet, updateTexture));
+    colortable->sequencechange.notify(
+	    mCB( this,visBase::TriangleStripSet, updateTexture));
 
     updateTexture();
 }
@@ -170,7 +176,9 @@ void visBase::TriangleStripSet::clipData()
     {
 	colortable = visBase::VisColorTab::create();
 	colortable->ref();
-	colortable->change.notify(mCB( this,visBase::TriangleStripSet,
+	colortable->rangechange.notify(mCB( this,visBase::TriangleStripSet,
+		    updateTexture));
+	colortable->sequencechange.notify(mCB( this,visBase::TriangleStripSet,
 		    updateTexture));
     }
 
@@ -205,7 +213,9 @@ void visBase::TriangleStripSet::updateTexture()
     {
 	colortable = visBase::VisColorTab::create();
 	colortable->ref();
-	colortable->change.notify(mCB( this,visBase::TriangleStripSet,
+	colortable->rangechange.notify(mCB( this,visBase::TriangleStripSet,
+		    updateTexture));
+	colortable->sequencechange.notify(mCB( this,visBase::TriangleStripSet,
 		    updateTexture));
     }
 
