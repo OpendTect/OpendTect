@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.5 2003-12-04 17:15:34 kristofer Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.6 2003-12-23 11:25:09 kristofer Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
@@ -142,82 +142,81 @@ int ExtremeFinder1D::nrIter() const
 
 int ExtremeFinder1D::nextStep()
 {
-    const double xm = 0.5*(a+b);
-    const double tol1 = tol*fabs(x)*mEPSILON;   
-    const double tol2 = 2*tol1;
-    if ( fabs(x-xm)<= (tol2-0.5*(b-a)))
+    while ( true )
     {
-	return 0;
-    }
+	const double xm = 0.5*(a+b);
+	const double tol1 = tol*fabs(x)*mEPSILON;   
+	const double tol2 = 2*tol1;
+	if ( fabs(x-xm)<= (tol2-0.5*(b-a)))
+	    return 0;
 
-    if ( fabs(e)>tol1 )
-    {
-	const double r = (x-w)*(fx-fv);
-	double q = (x-v)*(fx-fw);
-	double p = (x-v)*q-(x-w)*r;
-	q = 2*(q-r);
-	if ( q>0 ) p = -p;
-	q = fabs( q );
-	const double etemp = e;
-	e = d;
+	if ( fabs(e)>tol1 )
+	{
+	    const double r = (x-w)*(fx-fv);
+	    double q = (x-v)*(fx-fw);
+	    double p = (x-v)*q-(x-w)*r;
+	    q = 2*(q-r);
+	    if ( q>0 ) p = -p;
+	    q = fabs( q );
+	    const double etemp = e;
+	    e = d;
 
-	if ( fabs(p)>fabs(0.5*q*etemp) || p<=q*(a-x) || p>=q*(b-x))
+	    if ( fabs(p)>fabs(0.5*q*etemp) || p<=q*(a-x) || p>=q*(b-x))
+	    {
+		e = x>=xm ? a-x : b-x;
+		d = CGOLD*e;
+	    }
+	    else
+	    {
+		d = p/q;
+		u = x+d;
+		if ( u-a < tol2 || b-u<tol2 )
+		    d = SIGN(tol1, xm-x );
+	    }
+	}
+	else
 	{
 	    e = x>=xm ? a-x : b-x;
 	    d = CGOLD*e;
 	}
+
+	u = fabs(d)>=tol1 ? x+d : x+SIGN(tol1,d);
+	const float fu = max ? -func.getValue( u ) : func.getValue( u );
+	if ( fu<fx )
+	{
+	    if ( u>=x )
+		a=x;
+	    else
+		b=x;
+	    SHIFT(v,w,x,u);
+	    SHIFT(fv,fw,fx,fu);
+	    return 1; //We have a new estimate - return
+	}
 	else
 	{
-	    d = p/q;
-	    u = x+d;
-	    if ( u-a < tol2 || b-u<tol2 )
-	        d = SIGN(tol1, xm-x );
+	    if ( u<x )
+		a=u;
+	    else
+		b=u;
+
+	    if ( fu<=fw || w==x )
+	    {
+		v = w;
+		w = u;
+		fv = fw;
+		fw = fu;
+	    }
+	    else if ( fu<=fv || v==x || v ==w )
+	    {
+		v = u;
+		fv = fu;
+	    }
 	}
-    }
-    else
-    {
-	e = x>=xm ? a-x : b-x;
-	d = CGOLD*e;
-    }
 
-    u = fabs(d)>=tol1 ? x+d : x+SIGN(tol1,d);
-    const float fu = max ? -func.getValue( u ) : func.getValue( u );
-    if ( fu<fx )
-    {
-	if ( u>=x )
-	    a=x;
-	else
-	    b=x;
-	SHIFT(v,w,x,u);
-	SHIFT(fv,fw,fx,fu);
+	if ( iter++>itermax )
+	    return -1;
     }
-    else
-    {
-	if ( u<x )
-	    a=u;
-	else
-	    b=u;
-
-	if ( fu<=fw || w==x )
-	{
-	    v = w;
-	    w = u;
-	    fv = fw;
-	    fw = fu;
-	}
-	else if ( fu<=fv || v==x || v ==w )
-	{
-	    v = u;
-	    fv = fu;
-	}
-    }
-
-    if ( iter++>itermax )
-	return -1;
-
-    return 1;
 }
-
 
    
 ExtremeFinderND::ExtremeFinderND( const MathFunctionND<float>& func_, bool max_,
