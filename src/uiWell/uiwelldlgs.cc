@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.24 2004-09-17 07:41:59 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.25 2004-10-22 14:37:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -316,9 +316,13 @@ uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
     unitlbl->attach( rightOf, intvfld );
     unitlbl->display( false );
 
+    istvdfld = new uiGenInput( this, "Depth values are",
+	    			BoolInpSpec("TVDSS","MD",false) );
+    istvdfld->attach( alignedBelow, intvfld );
+
     udffld = new uiGenInput( this, "Undefined value in logs",
                     FloatInpSpec(defundefval));
-    udffld->attach( alignedBelow, intvfld );
+    udffld->attach( alignedBelow, istvdfld );
 
     logsfld = new uiLabeledListBox( this, "Select logs", true );
     logsfld->attach( alignedBelow, udffld );
@@ -342,9 +346,9 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     BufferString lbl( "(" ); lbl += lfi.zunitstr.buf(); lbl += ")";
     unitlbl->setText( lbl );
     unitlbl->display( true );
-    intvunfld->display( false );
     bool isft = *lfi.zunitstr.buf() == 'f' || *lfi.zunitstr.buf() == 'F';
     intvunfld->setValue( !isft );
+    intvunfld->display( false );
 
     udffld->setValue( lfi.undefval );
     if ( isft )
@@ -389,7 +393,7 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 	{ uiMSG().error("Please select at least one log"); return false; }
     lfi.lognms = lognms;
 
-    const char* res = wdai.getLogs( lasfnm, lfi, false );
+    const char* res = wdai.getLogs( lasfnm, lfi, istvdfld->getBoolValue() );
     if ( res ) { uiMSG().error( res ); return false; }
 
     return true;

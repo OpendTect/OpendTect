@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.14 2004-05-24 16:37:40 bert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.15 2004-10-22 14:37:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ protected:
     uiFileInput*		lasfld;
     uiGenInput*			intvfld;
     uiGenInput*			intvunfld;
+    uiGenInput*			istvdfld;
     uiGenInput*			udffld;
     uiLabel*			unitlbl;
     uiLabeledListBox*		logsfld;
