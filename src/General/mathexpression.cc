@@ -48,7 +48,7 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
     if ( inp < getNrInputs() )
     {
 	if ( inputs[inp] ) return false;
-	inputs.replace( obj, inp );
+	delete inputs.replace( obj, inp );
 
 	for ( int idx=0; idx<obj->getNrVariables(); idx++ )
 	{
