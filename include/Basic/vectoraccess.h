@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.11 2001-09-20 08:24:44 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.12 2001-12-28 07:39:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,24 @@ void push_back( const T& t )
     if ( !elems )	erase();
     else		elems[ size()-1 ] = t;
 }
+
+
+void insert( int pos, const T& val )
+{
+    push_back( val );
+
+    const int sz = size();
+
+    if ( pos >= sz-1 )
+    {
+	return;
+    }
+
+    memmove( &elems[pos+1], &elems[pos], (sz-pos-1)*sizeof(T) );
+    elems[pos] = val;
+}
+
+
 
 void erase()
 {
