@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.12 2004-09-20 16:17:37 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.13 2004-09-21 11:12:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ protected:
     CallBack		proccb_;
     BufferString	msg_;
     BufferString	curmsg_;
+    BufferString	attrnm2d_;
     bool		skipcurtrc_;
     int			nrwr_;
     int			nrskipped_;

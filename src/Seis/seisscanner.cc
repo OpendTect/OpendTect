@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.19 2004-09-20 16:17:37 bert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.20 2004-09-21 11:12:46 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -139,11 +139,14 @@ void SeisScanner::report( IOPar& iopar ) const
     iopar.add( "->", "Global stats" );
     iopar.set( "Number of null traces", (int)nrnulltraces );
     geomdtector.report( iopar );
-    CubeSampling cs; Coord crd[3];
-    getSurvInfo(cs,crd);
-    iopar.set( "Z.start", cs.zrg.start );
-    iopar.set( "Z.stop", cs.zrg.stop );
-    iopar.set( "Z.step", cs.zrg.step );
+    if ( is3d )
+    {
+	CubeSampling cs; Coord crd[3];
+	getSurvInfo(cs,crd);
+	iopar.set( "Z.start", cs.zrg.start );
+	iopar.set( "Z.stop", cs.zrg.stop );
+	iopar.set( "Z.step", cs.zrg.step );
+    }
 
     if ( !mIsUndefined(valrg.start) )
     {

@@ -4,11 +4,12 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.21 2004-09-21 07:37:01 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.22 2004-09-21 11:12:46 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
 #include "seiswrite.h"
+#include "seis2dline.h"
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
@@ -45,6 +46,9 @@ SeisSingleTraceProc::SeisSingleTraceProc( const SeisSelection& in,
 {
     PtrMan<IOObj> inioobj = IOM().get( in.key_ );
     IOPar iop; in.fillPar( iop );
+
+    if ( in.seldata_.linekey_ != "" )
+	attrnm2d_ = Seis2DLineSet::attrNamefromKey( in.seldata_.linekey_ );
     setInput( inioobj, out, nm, &iop, msg );
 }
 
@@ -168,7 +172,8 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	is3d_ = is3d;
     }
 
-    if ( !allszsfound || totnr_ < 3 ) totnr_ = -1;
+    if ( !allszsfound || totnr_ < 3 )
+	totnr_ = -1;
 
     nextObj();
     return true;
@@ -179,8 +184,8 @@ void SeisSingleTraceProc::nextObj()
 {
     rdrset_[currentobj_]->prepareWork();
     if ( wrr_->is2D() )
-	wrr_->setLineKeyProvider( rdrset_[currentobj_]->lineKeyProvider() );
-    return;
+	wrr_->setLineKeyProvider(
+		    rdrset_[currentobj_]->lineKeyProvider(attrnm2d_.buf()) );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.16 2004-09-15 20:24:46 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.17 2004-09-21 11:12:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,11 +131,14 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 		      bool wclr )
-	: uiIOObjSel( p, c, (c.ctxt.forread?"Input Seismics":"Store as Line Set"),
+	: uiIOObjSel( p, c, (c.ctxt.forread?"Input Seismics":"Store in Line Set"),
 		      wclr )
 	, iopar(*new IOPar)
 	, setup(s)
 {
+    if ( !c.ctxt.forread )
+	inp_->label()->setPrefWidthInChar( 15 );
+
     set2DPol( setup.pol2d_ );
 }
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.14 2004-09-07 16:24:01 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.15 2004-09-21 11:12:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,15 +33,18 @@ public:
 
     Executor*		getTrcProc(const IOObj& from,const IOObj& to,
 	    			   const char* executor_txt,
-				   const char* work_txt) const;
+				   const char* work_txt,
+				   const char* attr2dnm) const;
 
     uiSeisSubSel*	selfld;
     uiSeisFmtScale*	scfmtfld;
     uiGenInput*		remnullfld;
 
     void		setInput(const IOObj&);
-    void		setSteering(bool);
+    bool		is2D() const		{ return is2d; }
     void		set2D(bool);
+    bool		isSteer() const		{ return issteer; }
+    void		setSteering(bool);
     void		getSelData(SeisSelData&) const;
     SeisResampler*	getResampler() const; //!< may return null
 
