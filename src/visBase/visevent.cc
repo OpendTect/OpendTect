@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.1 2002-04-08 07:52:12 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.2 2002-04-09 09:32:44 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdataman.h"
@@ -51,11 +51,27 @@ visBase::EventCatcher::~EventCatcher()
 }
 
 
+bool visBase::EventCatcher::isEventHandled() const
+{
+    return node->isHandled();
+}
+
+
+void visBase::EventCatcher::eventIsHandled()
+{
+    node->setHandled();
+}
+
+
+SoNode* visBase::EventCatcher::getData()
+{ return node; }
+
+
 void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* node )
 {
-    if ( node->isHandled() ) return;
-
     visBase::EventCatcher* eventcatcher = (visBase::EventCatcher*) userdata;
+    if ( eventcatcher->isEventHandled() ) return;
+
     const SoEvent* event = node->getEvent();
 
     visBase::EventInfo eventinfo;
@@ -74,7 +90,7 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* node )
 	const SoPath* path = pickedpoint->getPath();
 	if ( path )
 	{
-	    eventinfo.pickedobjid = visBase::DM().getId( path->getTail() );
+	    eventinfo.pickedobjid = visBase::DM().getId( path );
 	    if ( eventinfo.pickedobjid > -1 )
 	    {
 		SbVec3f pos3d = pickedpoint->getPoint();
@@ -115,7 +131,4 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* node )
     }
 
     eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
-    node->setHandled();
 }
-
-

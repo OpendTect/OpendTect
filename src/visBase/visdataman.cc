@@ -4,13 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.4 2002-04-08 07:23:04 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.5 2002-04-09 09:32:44 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
 #include "visselman.h"
 
-#include "Inventor/nodes/SoNode.h"
+#include "Inventor/SoPath.h"
 
 visBase::DataManager visBase::DataManager::manager;
 
@@ -168,16 +168,22 @@ int visBase::DataManager::getId( const DataObject* obj ) const
 }
 
 
-int visBase::DataManager::getId( const SoNode* node ) const
+int visBase::DataManager::getId( const SoPath* path ) const
 {
-    const int sz = objects.size();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const SoNode* objnode = objects[idx]->getData();
-	if ( !objnode ) continue;
+    const int nrobjs = objects.size();
 
-	if ( objnode==node )
-	    return ids[idx];
+    for ( int pathidx=path->getLength()-1; pathidx>=0; pathidx-- )
+    {
+	SoNode* node = path->getNode( pathidx );
+
+	for ( int idx=0; idx<nrobjs; idx++ )
+	{
+	    const SoNode* objnode = objects[idx]->getData();
+	    if ( !objnode ) continue;
+
+	    if ( objnode==node )
+		return ids[idx];
+	}
     }
 
     return -1;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.2 2002-04-08 07:23:32 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.3 2002-04-09 09:32:41 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "sets.h"
 
-class SoNode;
+class SoPath;
 
 namespace visBase
 {
@@ -46,7 +46,7 @@ public:
     void		unRef( const DataObject* );
 
     int			getId( const DataObject* ) const;
-    int			getId( const SoNode* ) const;
+    int			getId( const SoPath* ) const;
 
     DataObject*		getObj( int id );
     const DataObject*	getObj( int id ) const;
