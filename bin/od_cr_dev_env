@@ -1,48 +1,51 @@
-#!/bin/sh
+#!/bin/csh
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.18 2004-05-11 08:43:20 macman Exp $
+# $Id: od_cr_dev_env,v 1.19 2005-03-01 13:59:58 cvsarend Exp $
 #
 # Script copies sources and libs into a development directory
 #
 #_______________________________________________________________________________
 
-
-if [ "$#" -lt 2 ]; then
+if (  $#argv < 2 ) then
     echo "Usage : $0 OpendtTect_directory existing_target_directory [--installcygwin]"
     exit 1
-fi
+endif
 
-instcyg=0
-if [ "$HDIR" = "win" ]; then
-    inpdir=`cygpath -u "$1"` 
-    outdir=`cygpath -u "$2"`
-    soext=dll
-    if [ "$3" = "--installcygwin" ]; then
-	instcyg=1
-    fi
+set instcyg=0
+if ( "$HDIR" == "win" ) then
+    set inpdir=`cygpath -u "$1"` 
+    set outdir=`cygpath -u "$2"`
+    set soext=dll
+    if ( "$3" == "--installcygwin" ) then
+	set instcyg=1
+    endif
 else
-    inpdir=$1
-    outdir=$2
-    soext=so
-fi
+    set inpdir="$1"
+    set outdir="$2"
+    set soext=so
+endif
 
-cpcmd="cp -a"
-if [ "$HDIR" = "mac" ]; then
-    cpcmd="cp -r"
-    soext=dylib
-fi
+set cpcmd="cp -rp"
 
-if [ ! -d "$inpdir" ] || [ ! -e "$inpdir/.rel.od.doc" ]; then
-	echo "$0 : $inpdir does not have the doc package installed"
-	exit 1
-fi
+if ( "$HDIR" == "mac" ) then
+    set soext=dylib
+endif
 
-if [ ! -w "$outdir"  ]; then
-	echo "$0 : target directory $outdir not writable"
-	exit 1
-fi
+if ( "$HDIR" == "lux" ) then
+    set cpcmd="cp -a"
+endif
+
+if ( ! -d "$inpdir"  ||  ! -e "$inpdir/.rel.od.doc" ) then
+    echo "$0 : $inpdir does not have the doc package installed"
+    exit 1
+endif
+
+if ( ! -w "$outdir"  ) then
+    echo "$0 : target directory $outdir not writable"
+    exit 1
+endif
 
 
 # ----------------------------------------------------------------------------
@@ -51,21 +54,19 @@ fi
 
 cd "$outdir"
 
-for item in plugins src include Pmake
-do 
+foreach item ( plugins src include Pmake )
     $cpcmd "$inpdir/$item" .
+end
 
-done 
-
-if [ -d plugins ]; then
+if ( -d plugins ) then
     cd plugins
-    if [ -e Makefile.lnk ]; then
+    if ( -e Makefile.lnk ) then
 	\rm Makefile.lnk
-    fi
-    if [ ! -e Makefile ]; then
+    endif
+    if ( ! -e Makefile ) then
         ln -s Makefile.od Makefile
-    fi
-fi
+    endif
+endif
 
 cd "$outdir"
 
@@ -88,24 +89,23 @@ cd so
 
 
 $cpcmd "$inpdir/bin/$HDIR/so"/*.$soext .
-if [ "$HDIR" = "win" ]; then
+if ( "$HDIR" == "win" ) then
     $cpcmd "$inpdir/bin/$HDIR/so"/*.a .
-fi
+endif
 
 
 cd "$outdir"
 
-for fil in init.bash init.csh 
-do
+foreach fil ( init.bash init.csh )
     sed -e "s%__WORK__%$outdir%" \
         -e "s%__hdir__%$HDIR%" \
         -e "s%__DTECTAPPL__DIR__%$DTECT_APPL%" \
         "$inpdir/.$fil" > $fil
-done
+end
 
 cp "$inpdir/.rel.od.doc" .
 
-if [ $instcyg = 1 ]; then
+if ( $instcyg == 1 ) then
     cd "${inpdir}\\bin\\win"
     cmd /c start instcyg.bat
-fi
+endif
