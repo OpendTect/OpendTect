@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.20 2001-09-12 12:06:09 arend Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.21 2002-02-21 12:28:13 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -30,11 +30,11 @@ public:
     const T*	getData() const { return ptr; }
 
     void	setSize( int nsz )
-		{ ptr = ptr ? mREALLOC(ptr,nsz,T) : mMALLOC(nsz,T); }
+		{ ptr = ptr ? mREALLOC(ptr,nsz,T) : mMALLOC(nsz,T); sz = nsz; }
     int		size() const { return sz; }
 
 		ArrayNDMemStor( int nsz )
-		    : ptr ( 0 ), sz( nsz ) {ptr = mMALLOC(nsz,T);}
+		    : ptr ( 0 ), sz( nsz ) { if ( nsz ) ptr = mMALLOC(nsz,T);}
     inline	~ArrayNDMemStor() { mFREE(ptr);  ptr = 0; }
 
 protected:
