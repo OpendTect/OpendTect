@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.6 2001-09-03 19:31:00 bert Exp $
+ RCS:		$Id: ioman.h,v 1.7 2001-10-04 15:26:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ public:
 			     set the survey to 'name', thus bypassing the
 			     $HOME/.dgbSurvey file */
 
+    bool		setRootDir(const char*);
     static bool		validSurveySetup(BufferString& errmsg);
     MultiID		newKey() const;
 
@@ -102,7 +103,6 @@ private:
     			~IOMan();
     void		init();
     static void		stop();
-    bool		setRootDir(const char*);
 
     bool		setDir(const char*);
     bool		getAuxfname(const MultiID&,FileNameString&) const;
