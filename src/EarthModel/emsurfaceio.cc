@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.11 2003-07-14 15:00:07 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.12 2003-07-29 13:05:22 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -484,13 +484,6 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
     , filetype( filetype_ )
     , binary( binary_ )
 {
-    surface.getRange( rowrange, true );
-    surface.getRange( colrange, false );
-
-    par.set( EM::dgbSurfaceReader::rowrangestr,
-	     rowrange.start, rowrange.stop, rowrange.step );
-    par.set( EM::dgbSurfaceReader::colrangestr,
-	     colrange.start, colrange.stop, colrange.step );
     par.set( EM::dgbSurfaceReader::dbinfostr, surface.dbInfo() );
 
     if ( binary )
@@ -655,6 +648,11 @@ int EM::dgbSurfaceWriter::nextStep()
 	    // there is a subselection
 	}
 
+	par.set( EM::dgbSurfaceReader::rowrangestr,
+		 writerowrange->start,writerowrange->stop,writerowrange->step);
+	par.set( EM::dgbSurfaceReader::colrangestr,
+		 writecolrange->start,writecolrange->stop,writecolrange->step);
+
 	par.set( dgbSurfaceReader::nrpatchstr, patchsel.size() );
 	for ( int idx=0; idx<patchsel.size(); idx++ )
 	{
@@ -707,7 +705,7 @@ int EM::dgbSurfaceWriter::nextStep()
 		firstrow = writerowrange->snap( firstrow );
 		lastrow = writerowrange->snap( lastrow );
 
-		nrrows = (lastrow-firstrow)/rowrange.step+1;
+		nrrows = (lastrow-firstrow)/writerowrange->step+1;
 	    }
 
 	}
