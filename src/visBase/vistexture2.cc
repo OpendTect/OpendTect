@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.24 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.25 2003-12-23 07:11:59 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -60,6 +60,7 @@ visBase::Texture2::Texture2()
 
 visBase::Texture2::~Texture2()
 {
+    texturegrp->removeChild( texture );
 }
 
 
