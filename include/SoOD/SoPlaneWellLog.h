@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.6 2004-03-31 06:41:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 class SoBaseColor;
 class SoCoordinate3;
+class SoDrawStyle;
 class SoFieldSensor;
 class SoLineSet;
 class SoSensor;
@@ -43,6 +44,8 @@ public:
 
     void			setLineColor(const SbVec3f&,int);
     const SbVec3f&		lineColor(int) const;
+    void			setLineWidth(float,int);
+    float			lineWidth(int) const;
     void			showLog(bool,int);
     bool			logShown(int) const;
     void			clearLog(int);
@@ -60,11 +63,13 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(line1Switch);
     SO_KIT_CATALOG_ENTRY_HEADER(group1);
     SO_KIT_CATALOG_ENTRY_HEADER(col1);
+    SO_KIT_CATALOG_ENTRY_HEADER(drawstyle1);
     SO_KIT_CATALOG_ENTRY_HEADER(coords1);
     SO_KIT_CATALOG_ENTRY_HEADER(lineset1);
     SO_KIT_CATALOG_ENTRY_HEADER(line2Switch);
     SO_KIT_CATALOG_ENTRY_HEADER(group2);
     SO_KIT_CATALOG_ENTRY_HEADER(col2);
+    SO_KIT_CATALOG_ENTRY_HEADER(drawstyle2);
     SO_KIT_CATALOG_ENTRY_HEADER(coords2);
     SO_KIT_CATALOG_ENTRY_HEADER(lineset2);
 
@@ -77,6 +82,8 @@ protected:
     SoSwitch*			sw2ptr;
     SoBaseColor*		col1ptr;
     SoBaseColor*		col2ptr;
+    SoDrawStyle*		drawstyle1ptr;
+    SoDrawStyle*		drawstyle2ptr;
     SoCoordinate3*		coord1ptr;
     SoCoordinate3*		coord2ptr;
     SoLineSet*			line1ptr;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.7 2003-11-11 11:46:36 dgb Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.8 2004-03-31 06:41:36 nanne Exp $";
 
 
 #include "SoPlaneWellLog.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.7 2003-11-11 11:46:36 dgb
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoBaseColor.h>
+#include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoLineSet.h>
 
@@ -52,6 +53,8 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_CATALOG_ENTRY(group1,SoSeparator,false,
 	    		     line1Switch, ,false);
     SO_KIT_ADD_CATALOG_ENTRY(col1,SoBaseColor,false,
+	    		     group1,drawstyle1,false);
+    SO_KIT_ADD_CATALOG_ENTRY(drawstyle1,SoDrawStyle,false,
 	    		     group1,coords1,false);
     SO_KIT_ADD_CATALOG_ENTRY(coords1,SoCoordinate3,false,
 	    		     group1,lineset1,false);
@@ -61,6 +64,8 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_CATALOG_ENTRY(group2,SoSeparator,false,
 	    		     line2Switch, ,false);
     SO_KIT_ADD_CATALOG_ENTRY(col2,SoBaseColor,false,
+	    		     group2,drawstyle2,false);
+    SO_KIT_ADD_CATALOG_ENTRY(drawstyle2,SoDrawStyle,false,
 	    		     group2,coords2,false);
     SO_KIT_ADD_CATALOG_ENTRY(coords2,SoCoordinate3,false,
 	    		     group2,lineset2,false);
@@ -72,6 +77,8 @@ SoPlaneWellLog::SoPlaneWellLog()
     sw2ptr = (SoSwitch*)getAnyPart("line2Switch",true);
     col1ptr = (SoBaseColor*)getAnyPart("col1",true);
     col2ptr = (SoBaseColor*)getAnyPart("col2",true);
+    drawstyle1ptr = (SoDrawStyle*)getAnyPart("drawstyle1",true);
+    drawstyle2ptr = (SoDrawStyle*)getAnyPart("drawstyle2",true);
     coord1ptr = (SoCoordinate3*)getAnyPart("coords1",true);
     coord2ptr = (SoCoordinate3*)getAnyPart("coords2",true);
     line1ptr = (SoLineSet*)getAnyPart("lineset1",true);
@@ -116,6 +123,20 @@ const SbVec3f& SoPlaneWellLog::lineColor( int lognr ) const
 {
     SoBaseColor* color = lognr==1 ? col1ptr : col2ptr;
     return color->rgb[0];
+}
+
+
+void SoPlaneWellLog::setLineWidth( float width, int lognr )
+{
+    SoDrawStyle* ds = lognr==1 ? drawstyle1ptr : drawstyle2ptr;
+    ds->lineWidth.setValue( width );
+}
+
+
+float SoPlaneWellLog::lineWidth( int lognr ) const
+{
+    SoDrawStyle* ds = lognr==1 ? drawstyle1ptr : drawstyle2ptr;
+    return ds->lineWidth.getValue();
 }
 
 
