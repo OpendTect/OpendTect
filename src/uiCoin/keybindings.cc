@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2003
- RCS:           $Id: keybindings.cc,v 1.4 2003-11-12 12:57:04 bert Exp $
+ RCS:           $Id: keybindings.cc,v 1.5 2004-09-01 12:38:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,12 @@ KeyBindMan::KeyBindMan()
 
     mSettUse(get,"dTect.MouseControls","Default",curkeyb);
     setKeyBindings( curkeyb );
+}
+
+
+KeyBindMan::~KeyBindMan()
+{
+    deepErase( keyset );
 }
 
 
