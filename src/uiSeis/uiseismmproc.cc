@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.84 2004-12-10 15:26:19 dgb Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.85 2004-12-22 09:32:30 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -560,8 +560,10 @@ void uiSeisMMProc::pauseJobs()
 	const int t = getSecs( Time_getLocalString() );
 	const int t0 = getSecs( jrpstartfld->text() );
 	const int t1 = getSecs( jrpstopfld->text() );
-        pause = t1 > t0 ? t < t0 || t > t1
-			: t < t1 || t > t0;
+
+	bool run = t1 >= t0 ? t >= t0 && t <= t1
+			    : t >= t0 || t <= t1;
+        pause = !run;
     }
 
     const int nrhosts = jobrunner->hostInfo().size();
