@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.36 2003-02-20 11:40:25 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.37 2003-03-03 15:19:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     horsep1->attach( stretchedBelow, pathfld, -2 );
 
     uiButton* wsbut = 0;
-    if ( IdealConn::haveIdealServices() )
+    if ( IdealConn::haveIdealServices() || getenv( "dGB_DEMO" ) )
     {
 	BufferString txt( "Fetch setup from " );
 	txt += IdealConn::guessedType() == IdealConn::SW
@@ -419,7 +419,7 @@ bool acceptOK( CallBacker* )
 void uiSurveyInfoEditor::wsbutPush( CallBacker* )
 {
     uiIdealSurvSetup dlg( this, IdealConn::guessedType() );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() || !IdealConn::haveIdealServices() ) return;
 
     const IdealConn& conn = dlg.iddfld->conn();
     BinIDSampler bs; StepInterval<double> zrg; Coord crd[3];
