@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.27 2004-04-28 21:30:59 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.28 2004-07-14 15:26:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,18 +100,17 @@ static void initGF( std::ostream& strm, const char* hornm, bool inmeter,
 
 #define mGFUndefValue 3.4028235E+38
 
-static void writeGF( std::ostream& strm, const BinIDZValue& bizv,
+static void writeGF( std::ostream& strm, const BinID& bid, float z, float val,
 		     const Coord& crd, int segid )
 {
     static char buf[mDataGFLineLen+2];
-    const float crl = bizv.binid.crl;
-    const float val = mIsUndefined(bizv.value) ? mGFUndefValue : bizv.value;
+    const float crl = bid.crl;
+    const float gfval = mIsUndefined(val) ? mGFUndefValue : val;
     const float zfac = SI().zIsTime() ? 1000 : 1;
-    const float depth = mIsUndefined(bizv.z) ? mGFUndefValue
-					     : bizv.z * zfac;
+    const float depth = mIsUndefined(z) ? mGFUndefValue : z * zfac;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
-	     crd.x, crd.y, segid, 14, depth, crl, crl, bizv.binid.crl,
-	     val, bizv.binid.inl, "" );
+	     crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl, gfval, bid.inl,
+	     "" );
     buf[96] = buf[97] = 'X';
     strm << buf;
 }
@@ -188,8 +187,7 @@ bool uiExportHorizon::writeAscii()
 	    
 	    if ( dogf )
 	    {
-		BinIDZValue bzv( bid, crd.z, auxvalue );
-		writeGF( *sdo.ostrm, bzv, crd, idx );
+		writeGF( *sdo.ostrm, bid, crd.z, auxvalue, crd, idx );
 		continue;
 	    }
 
