@@ -4,12 +4,13 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.5 2004-12-02 14:25:09 bert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.6 2005-01-20 17:17:30 bert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
 #include "strmprov.h"
 #include "ascstream.h"
+#include "separstr.h"
 #include "filegen.h"
 #include "keystrs.h"
 #include "errh.h"
@@ -68,6 +69,45 @@ void Strat::RefTree::removeEmptyNodes()
 {
     //TODO implement
     pErrMsg("Not impl: Strat::RefTree::removeEmptyNodes");
+}
+
+
+const Strat::RefTree::Level* Strat::RefTree::getLevel( const char* nm ) const
+{
+    for ( int idx=0; idx<lvls_.size(); idx++ )
+    {
+	if ( lvls_[idx]->name_ == nm )
+	    return lvls_[idx];
+    }
+    return 0;
+}
+
+
+const Strat::RefTree::Level* Strat::RefTree::getLevel( const Strat::UnitRef* u,
+							bool top ) const
+{
+    for ( int idx=0; idx<lvls_.size(); idx++ )
+    {
+	if ( lvls_[idx]->unit_ == u && lvls_[idx]->top_ == top )
+	    return lvls_[idx];
+    }
+    return 0;
+}
+
+
+void Strat::RefTree::remove( const Strat::RefTree::Level*& lvl )
+{
+    for ( int idx=0; idx<lvls_.size(); idx++ )
+    {
+	Strat::RefTree::Level* curlvl = lvls_[idx];
+	if ( curlvl == lvl )
+	{
+	    lvls_ -= curlvl;
+	    delete curlvl;
+	    lvl = 0;
+	    return;
+	}
+    }
 }
 
 
@@ -144,6 +184,17 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp )
 	}
     }
     tree->removeEmptyNodes();
+
+    while ( !atEndOfSection( astrm.next() ) )
+    {
+	FileMultiString fms( astrm.value() );
+	const UnitRef* ur = tree->find( fms[0] );
+	if ( !ur || !*astrm.keyWord() )
+	    continue;
+
+	const bool isbot = *fms[1] == 'B'; 
+	tree->addLevel( new Strat::RefTree::Level(astrm.keyWord(),ur,!isbot) );
+    }
 
     sd.close();
     if ( tree->nrRefs() > 0 )

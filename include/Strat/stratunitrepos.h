@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.8 2004-12-02 14:25:09 bert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.9 2005-01-20 17:17:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,10 +41,29 @@ public:
     bool		addUnit(const char* fullcode,const char* unit_dump);
     void		removeEmptyNodes(); //!< recommended after add
 
+    struct Level
+    {
+			Level( const char* nm, const UnitRef* u, bool tp=true )
+			: name_(nm), unit_(u), top_(tp)	{}
+
+	BufferString	name_;
+	const UnitRef*	unit_;
+	bool		top_;
+    };
+
+    void		addLevel( Level* l )		{ lvls_ += l; }
+    int			nrLevels() const		{ return lvls_.size(); }
+    const Level*	level( int idx ) const		{ return lvls_[idx]; }
+    const Level*	getLevel(const char*) const;
+    const Level*	getLevel(const UnitRef*,bool top=true) const;
+    void		remove(const Level*&);
+    			//!< the pointer will be set to null if found
+
 protected:
 
     Repos::Source	src_;
     BufferString	treename_;
+    ObjectSet<Level>	lvls_;
 
 };
 

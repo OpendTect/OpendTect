@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.6 2004-12-02 14:25:09 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.7 2005-01-20 17:17:30 bert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -151,4 +151,3 @@ Strat::UnitRef* Strat::NodeUnitRef::fnd( const char* code ) const
     }
     return 0;
 }
-
