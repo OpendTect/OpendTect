@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.10 2002-11-22 16:54:27 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.11 2003-01-14 13:55:34 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,9 +21,12 @@ ________________________________________________________________________
 class AttribSelSpec;
 class CubeSampling;
 class AttribSliceSet;
-class ColorTable;
 
-namespace visBase { class CubeView; };
+namespace visBase
+{
+    class CubeView;
+    class VisColorTab;
+};
 
 namespace visSurvey
 {
@@ -54,32 +57,35 @@ public:
 
     bool			updateAtNewPos();
     AttribSelSpec&		getAttribSelSpec();
+    const AttribSelSpec&	getAttribSelSpec() const;
     void			setAttribSelSpec(AttribSelSpec&);
     CubeSampling&		getCubeSampling();
-    CubeSampling&		getPrevCubeSampling()	{ return prevcs; }
+    const CubeSampling&		getCubeSampling() const;
     void			setCubeSampling(const CubeSampling&);
     bool			putNewData( AttribSliceSet* );
-    AttribSliceSet*		getPrevData();
+    const AttribSliceSet*	getPrevData() const;
     void			operationSucceeded( bool yn=true )
 				{ succeeded_ = yn; }
 
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setColorTable(const ColorTable&);
-    const ColorTable&		getColorTable() const;
+    void			setColorTable(visBase::VisColorTab&);
+    visBase::VisColorTab&	getColorTable();
     void			setClipRate(float);
     float			clipRate() const;
     void			setAutoscale(bool);
     bool			autoScale() const;
-    void			setDataRange(const Interval<float>&);
-    Interval<float>		getDataRange() const;
 
     void                        setMaterial( visBase::Material* );
-    const visBase::Material*    getMaterial() const;
-    visBase::Material*          getMaterial();
+    				/*!< Does not affect the volren */
+    visBase::Material*		getMaterial();
+    				/*!< Does not affect the volren */
+    const visBase::Material*	getMaterial() const;
+    				/*!< Does not affect the volren */
 
-    int				addVolRen();
+    void			showVolRen( bool );
+    bool			isVolRenShown() const;
 
     SoNode*			getData();
 
@@ -101,9 +107,9 @@ protected:
     void			sliceMoving(CallBacker*);
 
     visBase::CubeView*		cube;
+    AttribSliceSet*		cache;
 
     AttribSelSpec&		as;
-    CubeSampling&		prevcs;
 
     bool			selected_;
     bool			succeeded_;
