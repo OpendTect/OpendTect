@@ -13,6 +13,7 @@
 #include <iostream>
 
 #ifdef __win__
+# include "winutils.h"
 # include <windows.h>
 # include <istream>
 
@@ -39,7 +40,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.59 2004-11-06 12:13:27 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.60 2005-02-01 09:40:22 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -432,8 +433,6 @@ bool StreamProvider::executeCommand( bool inbg ) const
 
 
 #ifdef __win__
-
-extern "C" { const char* getCygDir(); } // genc.c
 
 static const char* getCmd( const char* fnm )
 {
