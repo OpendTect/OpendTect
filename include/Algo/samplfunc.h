@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.2 2000-01-13 15:15:51 bert Exp $
+ RCS:           $Id: samplfunc.h,v 1.3 2000-07-13 07:36:03 dgb Exp $
 ________________________________________________________________________
 
 SampledFunction lets any sampled serie comply with MathFunction. If the
@@ -19,7 +19,7 @@ period() return the period ( i.e. 2*pi for phase ).
 #include <mathfunc.h>
 #include <simpnumer.h>
 
-class SampledFunction : public MathFunction
+class SampledFunction : public MathFunction<float>
 {
 public:
 				SampledFunction( bool periodic_= false )
