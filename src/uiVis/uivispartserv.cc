@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.193 2004-04-28 12:14:29 arend Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.194 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,7 +191,7 @@ void uiVisPartServer::shareObject( int sceneid, int id )
 }
 
 
-void uiVisPartServer::findObject( const type_info& ti, TypeSet<int>& res )
+void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<int>& res )
 {
     visBase::DM().getIds( ti, res );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.61 2004-04-01 13:39:51 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.62 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -739,34 +739,37 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	fp.add( "Proc" ).add( "mmbatch_dump.txt" );
 	BufferString dumpfname = fp.fullPath();
 	StreamData sd = StreamProvider( dumpfname ).makeOStream();
-	ostream* strm = &cerr;
+	std::ostream* strm = &std::cerr;
 	if ( !sd.usable() )
-	    cerr << "Cannot open dump file '" << dumpfname << "'" << endl;
+	    std::cerr << "Cannot open dump file '" << dumpfname
+		      << "'" << std::endl;
 	else
 	{
-	    cerr << "Writing to dump file '" << dumpfname << "'" << endl;
+	    std::cerr << "Writing to dump file '" << dumpfname
+		      << "'" << std::endl;
 	    strm = sd.ostrm;
 	}
 
-	*strm << "Multi-machine-batch dump at "<< Time_getLocalString() << endl;
+	*strm << "Multi-machine-batch dump at "
+	      << Time_getLocalString() << std::endl;
 	if ( !jm )
 	{
 	    *strm << "No Job Manager. Therefore, data transfer is busy, or "
-		      "should have already finished" << endl;
+		      "should have already finished" << std::endl;
 	    if ( !task )
-		{ *strm << "No task either. Huh?" << endl; return false; }
+		{ *strm << "No task either. Huh?" << std::endl; return false; }
 	    mDynamicCastGet(SeisSingleTraceProc*,stp,task)
 	    if ( !stp )
 		*strm << "Huh? task should really be a SeisSingleTraceProc!\n"; 
 	    else
 		*strm << "SeisSingleTraceProc:\n"
-		       << stp->nrDone() << "/" << stp->totalNr() << endl
-		       << stp->message() << endl;
+		       << stp->nrDone() << "/" << stp->totalNr() << std::endl
+		       << stp->message() << std::endl;
 	    return false;
 	}
 
 	if ( task != jm )
-	    *strm << "task != jm . Why?" << endl;
+	    *strm << "task != jm . Why?" << std::endl;
 
 	jm->dump( *strm );
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.27 2004-04-13 12:11:40 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.28 2004-04-28 21:30:59 bert Exp $";
 
 #include "emsurfaceio.h"
 
@@ -68,7 +68,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 	return;
     }
 
-    istream& strm = ((StreamConn*)conn)->iStream();
+    std::istream& strm = ((StreamConn*)conn)->iStream();
     ascistream astream( strm );
     if ( !astream.isOfFileType( filetype ))
     {
@@ -392,7 +392,7 @@ int EM::dgbSurfaceReader::nextStep()
 	return ExecutorGroup::nextStep();
     }
 
-    istream& strm = conn->iStream();
+    std::istream& strm = conn->iStream();
 
     static const char* readerrmsg = "Unexpected end of file";
 
@@ -500,7 +500,7 @@ const char* EM::dgbSurfaceReader::message() const
 }
 
 
-int EM::dgbSurfaceReader::readInt(istream& strm) const
+int EM::dgbSurfaceReader::readInt(std::istream& strm) const
 {
     if ( intinterpreter )
     {
@@ -516,7 +516,7 @@ int EM::dgbSurfaceReader::readInt(istream& strm) const
 }
 
 
-double EM::dgbSurfaceReader::readFloat(istream& strm) const
+double EM::dgbSurfaceReader::readFloat(std::istream& strm) const
 {
     if ( floatinterpreter )
     {
@@ -746,7 +746,7 @@ int EM::dgbSurfaceWriter::nextStep()
 	    par.set( key, surface.patchName(patchsel[idx]));
 	}
 
-	ostream& stream = conn->oStream();
+	std::ostream& stream = conn->oStream();
 	ascostream astream( stream );
 	astream.putHeader( filetype );
 	par.putTo( astream );
@@ -755,7 +755,7 @@ int EM::dgbSurfaceWriter::nextStep()
     if ( patchindex>=patchsel.size() )
 	return ExecutorGroup::nextStep();
 
-    ostream& stream = conn->oStream();
+    std::ostream& stream = conn->oStream();
 
     static const char* tab = "\t";
     static const char* eol = "\n";
@@ -907,7 +907,7 @@ const char* EM::dgbSurfaceWriter::message() const
 }
 
 
-bool EM::dgbSurfaceWriter::writeInt(ostream& strm, int val,
+bool EM::dgbSurfaceWriter::writeInt(std::ostream& strm, int val,
 				    const char* post) const
 {
     if ( binary )
@@ -919,7 +919,7 @@ bool EM::dgbSurfaceWriter::writeInt(ostream& strm, int val,
 }
 
 
-bool EM::dgbSurfaceWriter::writeFloat( ostream& strm, float val,
+bool EM::dgbSurfaceWriter::writeFloat( std::ostream& strm, float val,
 				       const char* post) const
 {
     if ( binary )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.22 2004-04-18 17:51:12 dgb Exp $
+ RCS:		$Id: batchprog.h,v 1.23 2004-04-28 21:30:58 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -55,7 +55,7 @@ public:
     const char*		progName() const;
 
 			//! This method must be defined by user
-    bool		go(ostream& log_stream);
+    bool		go(std::ostream& log_stream);
 
 			// For situations where you need the old-style stuff
     char**		argv()			{ return argv_; }

@@ -25,7 +25,7 @@ static const char* rcsID = "$Id";
 #include "prog.h"
 #include "seisfact.h"
 
-static void wrBinID( ostream& strm, const BinID& bid, bool doasc )
+static void wrBinID( std::ostream& strm, const BinID& bid, bool doasc )
 {
     if ( doasc )
 	strm << bid.inl << ' ' << bid.crl;
@@ -40,18 +40,19 @@ static bool provideInfo( CBVSSeisTrcTranslator& tr )
 }
 
 
-static void prBidCoord( ostream& strm, const BinID2Coord& b2c, const BinID& bid)
+static void prBidCoord( std::ostream& strm, const BinID2Coord& b2c,
+			const BinID& bid)
 {
     Coord coord = b2c.transform( bid );
     BufferString bs( getStringFromDouble("%lg",coord.x) );
     bs += " "; bs += getStringFromDouble("%lg",coord.y);
-    strm << "Coords." << bid.inl << "/" << bid.crl << ": " << bs << endl;
+    strm << "Coords." << bid.inl << "/" << bid.crl << ": " << bs << std::endl;
 }
 
 
 #define mErrStrm logstrm << progName() << ": "
 
-bool BatchProgram::go( ostream& logstrm )
+bool BatchProgram::go( std::ostream& logstrm )
 {
     BufferString fname( StreamProvider::sStdIO );
     pars().get( "Input", fname );
@@ -59,13 +60,13 @@ bool BatchProgram::go( ostream& logstrm )
     sp.addPathIfNecessary( File_getCurrentDir() );
     if ( !sp.exists(true) )
     {
-        mErrStrm << fname << " does not exist" << endl;
+        mErrStrm << fname << " does not exist" << std::endl;
         return false;
     }
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-        { mErrStrm << tri->errMsg() << endl;  return 1; }
+        { mErrStrm << tri->errMsg() << std::endl;  return 1; }
 
     StepInterval<float> zrg; assign( zrg, SI().zRange() );
     BinIDSampler bidsel;
@@ -82,24 +83,24 @@ bool BatchProgram::go( ostream& logstrm )
     sp.set( fname );
     sp.addPathIfNecessary( File_getCurrentDir() );
     if ( sp.bad() )
-        { mErrStrm << "Invalid output: " << fname << endl; return false; }
+        { mErrStrm << "Invalid output: " << fname << std::endl; return false; }
     StreamData sd = sp.makeOStream();
     if ( !sd.usable() )
-	{ mErrStrm << "Cannot open output " << fname << endl; return false; }
-    ostream& outstrm = *sd.ostrm;
+	{ mErrStrm << "Cannot open output " <<fname<< std::endl; return false; }
+    std::ostream& outstrm = *sd.ostrm;
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& ci = tri->componentInfo();
     const char* res = pars().find( "Output.Mode" );
     if ( res && *res == 'I' )
     {
 	outstrm << "Range.Inline: " << bidsel.start.inl << ' '
-		<< bidsel.stop.inl << ' ' << bidsel.step.inl << endl;
+		<< bidsel.stop.inl << ' ' << bidsel.step.inl << std::endl;
 	outstrm << "Range.Xline: " << bidsel.start.crl << ' '
-		<< bidsel.stop.crl << ' ' << bidsel.step.crl << endl;
+		<< bidsel.stop.crl << ' ' << bidsel.step.crl << std::endl;
 	outstrm << "Range.Z: " << zrg.start << ' ' << zrg.stop << ' '
-		<< zrg.step << endl;
+		<< zrg.step << std::endl;
 	if ( ci.size() > 1 )
-	    outstrm << "Components.Nr: " << ci.size() << endl;
+	    outstrm << "Components.Nr: " << ci.size() << std::endl;
 
 	BinID2Coord b2c( tri->getTransform() );
 	BinID bid;
@@ -112,7 +113,7 @@ bool BatchProgram::go( ostream& logstrm )
 
 	char buf[80]; ci[0]->datachar.toString(buf);
 	replaceCharacter( buf, '`', ' ' );
-	outstrm << "Storage.Internal: " << buf << endl;
+	outstrm << "Storage.Internal: " << buf << std::endl;
 	return true;
     }
 
@@ -180,7 +181,7 @@ bool BatchProgram::go( ostream& logstrm )
     const bool doasc = !res || (*res != 'b' && *res != 'B');
     const int nrsamples = zrg.nrSteps() + 1;
     if ( doasc )
-	outstrm << zrg.start << ' ' << zrg.step << ' ' << nrsamples << endl;
+	outstrm << zrg.start << ' ' << zrg.step << ' ' << nrsamples <<std::endl;
     else
     {
 	outstrm.write( (char*)&zrg.start, sizeof(float) );
@@ -210,6 +211,6 @@ bool BatchProgram::go( ostream& logstrm )
     wrBinID( outstrm, BinID(0,0), doasc );
     sd.close();
 
-    mErrStrm << nrwr << " traces written." << endl;
+    mErrStrm << nrwr << " traces written." << std::endl;
     return nrwr ? true : false;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.9 2004-01-21 13:46:25 bert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.10 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class uiProgressViewer : public uiMainWin
 {
 public:
 
-    		uiProgressViewer(uiParent*,istream&,int);
+    		uiProgressViewer(uiParent*,std::istream&,int);
     		~uiProgressViewer();
 
 protected:
@@ -39,7 +39,7 @@ protected:
     void	quitFn(CallBacker*);
     void	helpFn(CallBacker*);
 
-    istream&	strm;
+    std::istream& strm;
     uiTextEdit*	txtfld;
     uiMenuItem*	quitmi;
     Timer*	tim;
@@ -54,7 +54,7 @@ protected:
 };
 
 
-uiProgressViewer::uiProgressViewer( uiParent* p, istream& s, int i )
+uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
 	: uiMainWin(p,"Progress",1)
 	, tim(0)
 	, strm(s)
@@ -191,7 +191,7 @@ int main( int argc, char** argv )
 {
     uiMain app( argc, argv );
     int ppid = argc > 1 ? atoi(argv[1]) : 0;
-    uiProgressViewer* pv = new uiProgressViewer( 0, cin, ppid );
+    uiProgressViewer* pv = new uiProgressViewer( 0, std::cin, ppid );
 
     app.setTopLevel( pv );
     pv->show();

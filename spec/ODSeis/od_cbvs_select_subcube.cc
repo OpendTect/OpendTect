@@ -28,16 +28,17 @@ int main( int argc, char** argv )
 {
     if ( argc < 4 )
     {
-	cerr << "Usage: " << argv[0]
+	std::cerr << "Usage: " << argv[0]
 	     << " inl1,inl2,inlstep,crl1,crl2,crlstep[,startz,stepz,nrz]"
-	     << " inpfile outpfile [min_val,max_val]" << endl;
-	cerr << "Format: CBVS." << endl;
-	cerr << "Parameters between brackets [] are optional, do not type the brackets!" << endl;
+	     << " inpfile outpfile [min_val,max_val]" << std::endl;
+	std::cerr << "Format: CBVS." << std::endl;
+	std::cerr << "Parameters between brackets [] are optional,"
+	    	     " do not type the brackets!" << std::endl;
 	exitProgram( 1 );
     }
     else if ( !File_exists(argv[2]) )
     {
-        cerr << argv[2] << " does not exist" << endl;
+	std::cerr << argv[2] << " does not exist" << std::endl;
 	exitProgram( 1 );
     }
 
@@ -50,7 +51,7 @@ int main( int argc, char** argv )
     }
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
-        { cerr << tri->errMsg() << endl; exitProgram(1); }
+        { std::cerr << tri->errMsg() << std::endl; exitProgram(1); }
 
     fname = argv[3];
     fp.set( fname );
@@ -107,7 +108,8 @@ int main( int argc, char** argv )
 	{
 	    tro->packetInfo() = tri->packetInfo();
 	    if ( !tro->initWrite(new StreamConn(fname,Conn::Write),trc) )
-		{ cerr << "Cannot start write!" << endl; exitProgram(1); }
+		{ std::cerr << "Cannot start write!" << std::endl;
+		    exitProgram(1); }
 	    for ( int idx=0; idx<nrincomp; idx++ )
 		tro->componentInfo()[idx]->setName( ci[idx]->name() );
 	}
@@ -130,10 +132,10 @@ int main( int argc, char** argv )
 	}
 
 	if ( !tro->write(trc) )
-	    { cerr << "Cannot write!" << endl; exitProgram(1); }
+	    { std::cerr << "Cannot write!" << std::endl; exitProgram(1); }
 	nrwr++;
     }
 
-    cerr << nrwr << " traces written." << endl;
+    std::cerr << nrwr << " traces written." << std::endl;
     exitProgram( nrwr ? 0 : 1 ); return 0;
 }

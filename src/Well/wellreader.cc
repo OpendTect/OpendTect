@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.15 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.16 2004-04-28 21:30:59 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -90,7 +90,7 @@ Well::Reader::Reader( const char* f, Well::Data& w )
 }
 
 
-const char* Well::Reader::rdHdr( istream& strm, const char* fileky ) const
+const char* Well::Reader::rdHdr( std::istream& strm, const char* fileky ) const
 {
     ascistream astrm( strm, YES );
     if ( !astrm.isOfFileType(fileky) )
@@ -134,7 +134,7 @@ bool Well::Reader::getInfo() const
 }
 
 
-bool Well::Reader::getInfo( istream& strm ) const
+bool Well::Reader::getInfo( std::istream& strm ) const
 {
     const char* ver = rdHdr( strm, sKeyWell );
     if ( !ver || !*ver || !*(ver+1) )
@@ -163,7 +163,7 @@ bool Well::Reader::getInfo( istream& strm ) const
 }
 
 
-bool Well::Reader::getOldTimeWell( istream& strm ) const
+bool Well::Reader::getOldTimeWell( std::istream& strm ) const
 {
     ascistream astrm( strm, false );
     astrm.next();
@@ -202,7 +202,7 @@ bool Well::Reader::getOldTimeWell( istream& strm ) const
 }
 
 
-bool Well::Reader::getTrack( istream& strm ) const
+bool Well::Reader::getTrack( std::istream& strm ) const
 {
     Coord3 c, c0; float dah;
     while ( strm )
@@ -256,7 +256,7 @@ bool Well::Reader::getLogs() const
 }
 
 
-Well::Log* Well::Reader::rdLogHdr( istream& strm, int idx ) const
+Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int idx ) const
 {
     Well::Log* newlog = new Well::Log;
     ascistream astrm( strm, NO );
@@ -276,7 +276,7 @@ Well::Log* Well::Reader::rdLogHdr( istream& strm, int idx ) const
 }
 
 
-bool Well::Reader::addLog( istream& strm ) const
+bool Well::Reader::addLog( std::istream& strm ) const
 {
     const char* ver = rdHdr( strm, sKeyLog );
     if ( !ver ) return false;
@@ -324,7 +324,7 @@ bool Well::Reader::getMarkers() const
 }
 
 
-bool Well::Reader::getMarkers( istream& strm ) const
+bool Well::Reader::getMarkers( std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyMarkers) ) return false;
 
@@ -372,7 +372,7 @@ bool Well::Reader::getD2T() const
 }
 
 
-bool Well::Reader::getD2T( istream& strm ) const
+bool Well::Reader::getD2T( std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyD2T) ) return false;
 

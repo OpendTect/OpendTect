@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.3 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.4 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ int main( int argc, char ** argv )
 
     if ( !inpok )
     {
-	cerr << "Usage: " << argv[0] << " [--edit] filename\n"
-	     << "Note: filename must be with FULL path." << endl;
+	std::cerr << "Usage: " << argv[0] << " [--edit] filename\n"
+	     << "Note: filename must be with FULL path." << std::endl;
 	exitProgram( 1 );
     }
 
@@ -45,7 +45,8 @@ int main( int argc, char ** argv )
     switch ( fork() )
     {
     case -1:
-	cerr << argv[0] << ": cannot fork: " << errno_message() << endl;
+	std::cerr << argv[0] << ": cannot fork: " << errno_message()
+	    	  << std::endl;
 	exitProgram( 1 );
     case 0:	break;
     default:	return 0;

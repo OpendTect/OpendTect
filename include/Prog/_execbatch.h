@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.4 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: _execbatch.h,v 1.5 2004-04-28 21:30:58 bert Exp $
 ________________________________________________________________________
 
  The implementation fo Execute_batch should be in the executable on 
@@ -40,7 +40,8 @@ int Execute_batch( int* pargc, char** argv )
 	switch ( fork() )
 	{
 	case -1:
-	    cerr << argv[0] <<  "cannot fork:\n" << errno_message() << endl;
+	    std::cerr << argv[0] <<  "cannot fork:\n"
+		      << errno_message() << std::endl;
 	case 0: break;
 	default:
 	    Time_sleep( 0.1 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.10 2004-04-13 12:11:03 kristofer Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.11 2004-04-28 21:30:58 bert Exp $
 ________________________________________________________________________
 
 
@@ -133,9 +133,9 @@ public:
 
 protected:
 
-    double		readFloat(istream&) const;
-    int                 readInt(istream&) const;
-    StreamConn*		conn;
+    double			readFloat(std::istream&) const;
+    int				readInt(std::istream&) const;
+    StreamConn*			conn;
 
     BufferStringSet		patchnames;
     TypeSet<EM::PatchID>	patchids;
@@ -241,9 +241,9 @@ public:
 
 protected:
 
-    bool			writeFloat(ostream&,float,
-	    				   const char* eol) const;
-    bool                 	writeInt(ostream&,int,const char* eol) const;
+    bool			writeFloat(std::ostream&,float,
+	    				   const char*) const;
+    bool                 	writeInt(std::ostream&,int,const char*) const;
     StreamConn*			conn;
     const IOObj*		ioobj;
 

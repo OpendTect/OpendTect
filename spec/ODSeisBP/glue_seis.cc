@@ -4,7 +4,7 @@
  * DATE     : 25-9-1999
 -*/
 
-static const char* rcsID = "$Id: glue_seis.cc,v 1.1 2003-09-16 08:30:16 bert Exp $";
+static const char* rcsID = "$Id: glue_seis.cc,v 1.2 2004-04-28 21:30:58 bert Exp $";
 #include "prog.h"
 #include "batchprog.h"
 #include "seisfact.h"
@@ -29,14 +29,14 @@ static bool doinls = true;
 static int maxnrtrcsfill = 5;
 static int nrinlbufs = 1;
 static ObjectSet<SeisTrcBuf> fulltbufs;
-static ostream* streamptr = 0;
+static std::ostream* streamptr = 0;
 #define strm (*streamptr)
 
 #define mBid(tptr) tptr->info().binid
 #define mInl(tptr) tptr->info().binid.inl
 #define mCrl(tptr) tptr->info().binid.crl
 
-static ostream* dbgstrmptr = 0;
+static std::ostream* dbgstrmptr = 0;
 #define dbgstrm if ( dbgstrmptr ) *dbgstrmptr << "\tD: "
 
 
@@ -44,7 +44,7 @@ static bool fillBuf( SeisRequester& req, SeisTrcBuf& buf, bool& atend )
 {
     if ( atend )
     {
-	dbgstrm << "atend is true" << endl;
+	dbgstrm << "atend is true" << std::endl;
 	return false;
     }
 
@@ -52,7 +52,7 @@ static bool fillBuf( SeisRequester& req, SeisTrcBuf& buf, bool& atend )
     const SeisTrc* trc = req.get(0,0);
     if ( !trc )
     {
-	dbgstrm << "!trc on req.get(0,0) (first time)" << endl;
+	dbgstrm << "!trc on req.get(0,0) (first time)" << std::endl;
 	return false;
     }
     const int inl = mInl(trc);
@@ -68,13 +68,13 @@ static bool fillBuf( SeisRequester& req, SeisTrcBuf& buf, bool& atend )
 	    if ( res == 0 )
 	    {
 		atend = true;
-		dbgstrm << "atend = true (req)" << endl;
+		dbgstrm << "atend = true (req)" << std::endl;
 		return true;
 	    }
 	    if ( res < 0 )
 	    {
-		dbgstrm << "req error" << endl;
-		strm << req.errMsg() << endl;
+		dbgstrm << "req error" << std::endl;
+		strm << req.errMsg() << std::endl;
 		return false;
 	    }
 	    break;
@@ -83,7 +83,7 @@ static bool fillBuf( SeisRequester& req, SeisTrcBuf& buf, bool& atend )
 	if ( !trc )
     {
 	atend = true;
-	dbgstrm << "req(0,0) is null" << endl;
+	dbgstrm << "req(0,0) is null" << std::endl;
 	return true;
     }
 	nrnexts++;
@@ -118,7 +118,7 @@ static void insertTrace( SeisTrcBuf& tb, SeisTrc* trc )
 	SeisTrc* t = tb.get( idx );
 	if ( mCrl(t) == xl )
 	{
-	    strm << "Bad insert " << mInl(trc) << '/' << xl << endl;
+	    strm << "Bad insert " << mInl(trc) << '/' << xl << std::endl;
 	    delete trc; return;
 	}
 	else if ( mCrl(t) > xl )
@@ -272,7 +272,7 @@ static bool writeFirstBuf( SeisTrcWriter& trcwr )
 {
     if ( fulltbufs.size() < 1 )
     {
-	dbgstrm << "Not yet 1 buf in fulltbufs" << endl;
+	dbgstrm << "Not yet 1 buf in fulltbufs" << std::endl;
 	return false;
     }
     if ( maxnrtrcsfill > 0 )
@@ -289,7 +289,7 @@ static bool writeFirstBuf( SeisTrcWriter& trcwr )
     if ( tbuf.size())
 	{ strm << "Writing inl " << mInl(tbuf.get(0)) << " ..."; strm.flush(); }
     else
-	dbgstrm << "Empty first buf." << endl;
+	dbgstrm << "Empty first buf." << std::endl;
     bool rv = writeBuf( trcwr, tbuf );
     return rv;
 }
@@ -338,15 +338,15 @@ static void addBufs( ObjectSet<SeisTrcBuf>& bufs )
 	}
     }
 	dbgstrm << "Now have " << fulltbufs.size() << " bufs. Last size is: "
-		<< fulltbufs[ fulltbufs.size()-1 ]->size() << endl;
+		<< fulltbufs[ fulltbufs.size()-1 ]->size() << std::endl;
 }
 
 
-bool BatchProgram::go( ostream& strm_ )
+bool BatchProgram::go( std::ostream& strm_ )
 {
     streamptr = &strm_;
     if ( getenv("dGB_DEBUG") )
-	dbgstrmptr = &cerr;
+	dbgstrmptr = &std::cerr;
 
     xlinestep = SI().crlStep();
     pars().get( "Xline step", xlinestep );
@@ -382,27 +382,27 @@ bool BatchProgram::go( ostream& strm_ )
     int nrreqs = reqs.size();
     if ( nrreqs == 0 )
     {
-	strm << "No valid input seismic data found" << endl;
+	strm << "No valid input seismic data found" << std::endl;
 	return false;
     }
-	dbgstrm << "Nr requesters: " << nrreqs << endl;
+	dbgstrm << "Nr requesters: " << nrreqs << std::endl;
 
     const char* res = pars()["Output.ID"];
     IOObj* ioobj = IOM().get( res );
     if ( !ioobj )
     {
-	strm << "Cannot find seismic data with ID: " << res << endl;
+	strm << "Cannot find seismic data with ID: " << res << std::endl;
 	return false;
     }
-	dbgstrm << "Output to: " << ioobj->name() << endl;
+	dbgstrm << "Output to: " << ioobj->name() << std::endl;
 
     SeisTrcWriter trcwr( ioobj );
     if ( trcwr.errMsg() && *trcwr.errMsg() )
     {
-	strm << trcwr.errMsg() << endl;
+	strm << trcwr.errMsg() << std::endl;
 	return false;
     }
-	dbgstrm << "TrcWriter initialised" << endl;
+	dbgstrm << "TrcWriter initialised" << std::endl;
 
     bool atend[nrreqs];
     for ( int idx=0; idx<nrreqs; idx++ )
@@ -421,7 +421,7 @@ bool BatchProgram::go( ostream& strm_ )
 	    SeisRequester* req = reqs[reqnr];
 	    if ( !fillBuf(*req,*buf,atend[reqnr]) )
 	    {
-		dbgstrm << "fillBuf returned false" << endl;
+		dbgstrm << "fillBuf returned false" << std::endl;
 		delete req; buf->deepErase(); delete buf;
 		reqs -= req; bufs -= buf;
 		nrreqs--;
@@ -432,11 +432,11 @@ bool BatchProgram::go( ostream& strm_ )
 	addBufs(bufs);
 	if ( !writeFirstBuf(trcwr) )
 	{
-	    dbgstrm << "writeFirstBuf returned false" << endl;
-	    strm << trcwr.errMsg() << endl;
+	    dbgstrm << "writeFirstBuf returned false" << std::endl;
+	    strm << trcwr.errMsg() << std::endl;
 	    return false;
 	}
-	strm << endl;
+	strm << std::endl;
     }
 
     delete fulltbufs[0]; fulltbufs.remove( 0 );

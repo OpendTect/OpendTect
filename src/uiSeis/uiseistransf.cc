@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.14 2003-11-07 12:22:02 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.15 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,7 @@ bool uiSeisTransfer::provideUserInfo( const IOObj& ioobj )
 	return false;
     }
 
-    ostringstream strm;
+    std::ostringstream strm;
     tr->readMgr()->dumpInfo( strm, false );
     uiMSG().message( strm.str().c_str() );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.8 2003-12-15 16:02:51 nanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.9 2004-04-28 21:30:58 bert Exp $
 ________________________________________________________________________
 
 
@@ -79,7 +79,7 @@ protected:
     int				nrdone;
     int				totalnr;
 
-    ostream*			stream;
+    std::ostream*		stream;
     bool			binary;
 };
 
@@ -121,7 +121,7 @@ protected:
     int				nrdone;
     int				totalnr;
 
-    istream*			stream;
+    std::istream*		stream;
     DataInterpreter<int>*	intinterpreter;
     DataInterpreter<long long>*	longlonginterpreter;
     DataInterpreter<float>*	floatinterpreter;

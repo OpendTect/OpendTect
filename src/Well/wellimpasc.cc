@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.20 2004-03-31 11:12:21 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.21 2004-04-28 21:30:59 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -144,7 +144,7 @@ const char* Well::AscImporter::getLogInfo( const char* fnm,
 
 #define mIsKey(s) caseInsensitiveEqual(keyw,s,0)
 
-const char* Well::AscImporter::getLogInfo( istream& strm,
+const char* Well::AscImporter::getLogInfo( std::istream& strm,
 					   LasFileInfo& lfi ) const
 {
     convs.allowNull();
@@ -293,7 +293,7 @@ const char* Well::AscImporter::getLogs( const char* fnm, const LasFileInfo& lfi,
 }
 
 
-const char* Well::AscImporter::getLogs( istream& strm,
+const char* Well::AscImporter::getLogs( std::istream& strm,
 					const LasFileInfo& lfi, bool istvd )
 {
     LasFileInfo inplfi;

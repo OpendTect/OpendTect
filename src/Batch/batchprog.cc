@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.58 2004-04-16 13:59:31 dgb Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.59 2004-04-28 21:30:59 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -321,8 +321,8 @@ bool BatchProgram::initOutput()
 	if ( !sdout_.ostrm )
 	{
 	    std::cerr << name() << ": Cannot open log file" << std::endl;
-	    std::cerr << "Using std output instead" << std::endl;
-	    sdout_.ostrm = &cout;
+	    std::cerr << "Using stderror instead" << std::endl;
+	    sdout_.ostrm = &std::cerr;
 	}
     }
 

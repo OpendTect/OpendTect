@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.5 2004-02-12 15:49:34 bert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.6 2004-04-28 21:30:59 bert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -29,7 +29,7 @@ Well::Writer::Writer( const char* f, const Well::Data& w )
 }
 
 
-bool Well::Writer::wrHdr( ostream& strm, const char* fileky ) const
+bool Well::Writer::wrHdr( std::ostream& strm, const char* fileky ) const
 {
     ascostream astrm( strm );
     if ( !astrm.putHeader(fileky) )
@@ -64,7 +64,7 @@ bool Well::Writer::putInfo() const
 }
 
 
-bool Well::Writer::putInfo( ostream& strm ) const
+bool Well::Writer::putInfo( std::ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyWell) ) return false;
 
@@ -82,7 +82,7 @@ bool Well::Writer::putInfo( ostream& strm ) const
 }
 
 
-bool Well::Writer::putTrack( ostream& strm ) const
+bool Well::Writer::putTrack( std::ostream& strm ) const
 {
     for ( int idx=0; idx<wd.track().size(); idx++ )
     {
@@ -120,7 +120,7 @@ bool Well::Writer::putLogs() const
 }
 
 
-bool Well::Writer::putLog( ostream& strm, const Well::Log& wl ) const
+bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 {
     if ( !wrHdr(strm,sKeyLog) ) return false;
 
@@ -147,7 +147,7 @@ bool Well::Writer::putMarkers() const
 }
 
 
-bool Well::Writer::putMarkers( ostream& strm ) const
+bool Well::Writer::putMarkers( std::ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyMarkers) ) return false;
 
@@ -187,7 +187,7 @@ bool Well::Writer::putD2T() const
 }
 
 
-bool Well::Writer::putD2T( ostream& strm ) const
+bool Well::Writer::putD2T( std::ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyD2T) ) return false;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.6 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: wellreader.h,v 1.7 2004-04-28 21:30:58 bert Exp $
 ________________________________________________________________________
 
 
@@ -39,19 +39,19 @@ public:
     void		getLogInfo(BufferStringSet&) const;	
     						//!< Read logheaders only
 
-    bool		getInfo(istream&) const;	//!< Read from a stream
-    bool		addLog(istream&) const;		//!< Read from a stream
-    bool		getMarkers(istream&) const;	//!< Read from a stream
-    bool		getD2T(istream&) const;		//!< Read from a stream
+    bool		getInfo(std::istream&) const;
+    bool		addLog(std::istream&) const;
+    bool		getMarkers(std::istream&) const;
+    bool		getD2T(std::istream&) const;
 
 protected:
 
     Data&		wd;
 
-    const char*		rdHdr(istream&,const char*) const;
-    bool		getOldTimeWell(istream&) const;
-    Log*		rdLogHdr(istream&,int) const;
-    bool		getTrack(istream&) const;
+    const char*		rdHdr(std::istream&,const char*) const;
+    bool		getOldTimeWell(std::istream&) const;
+    Log*		rdLogHdr(std::istream&,int) const;
+    bool		getTrack(std::istream&) const;
 
 };
 

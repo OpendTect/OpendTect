@@ -27,22 +27,25 @@ static const char* rcsID = "$Id";
 
 static void putComps( const ObjectSet<BasicComponentInfo>& cinfo )
 {
-    cerr << "Data is written on a "
+    std::cerr << "Data is written on a "
 	 << (cinfo[0]->datachar.littleendian ? "little" : "big")
-	 << " endian machine." << endl;
+	 << " endian machine." << std::endl;
 
     for ( int idx=0; idx<cinfo.size(); idx++ )
     {
 	const BasicComponentInfo& bci = *cinfo[idx];
-	cerr << "\nComponent '" << (const char*)bci.name() << "':" << endl;
-	cerr << "Data Characteristics: "
-	     << (bci.datachar.isInteger() ? "Integer" : "Floating point") <<' ';
+	std::cerr << "\nComponent '" << (const char*)bci.name()
+	    	  << "':\n" << "Data Characteristics: "
+		  << (bci.datachar.isInteger() ? "Integer" : "Floating point")
+		  << ' ';
 	if ( bci.datachar.isInteger() )
-	     cerr << (bci.datachar.isSigned() ? "(Signed) " : "(Unsigned) ");
-	cerr << (int)bci.datachar.nrBytes() << " bytes" << endl;
-	cerr << "Z/T start: " << bci.sd.start
-	     << " step: " << bci.sd.step << endl;
-	cerr << "Number of samples: " << bci.nrsamples << '\n' << endl;
+	     std::cerr << (bci.datachar.isSigned() ? "(Signed) "
+		     				   : "(Unsigned) ");
+	std::cerr << (int)bci.datachar.nrBytes() << " bytes" << std::endl;
+	std::cerr << "Z/T start: " << bci.sd.start
+	     << " step: " << bci.sd.step << std::endl;
+	std::cerr << "Number of samples: " << bci.nrsamples << '\n'
+	    	  << std::endl;
     }
 }
 
@@ -55,7 +58,7 @@ static void getInt( int& i )
     do
     {
 	ptr = buf;
-	cin.getline( ptr, 80 );
+	std::cin.getline( ptr, 80 );
 	while ( *ptr && isspace(*ptr) ) ptr++;
     }
     while ( ! *ptr );
@@ -71,12 +74,12 @@ int main( int argc, char** argv )
 {
     if ( argc < 2 )
     {
-	cerr << "Usage: " << argv[0] << " cbvs_file" << endl;
+	std::cerr << "Usage: " << argv[0] << " cbvs_file" << std::endl;
 	exitProgram( 1 );
     }
     else if ( !File_exists(argv[1]) )
     {
-	cerr << argv[1] << " does not exist" << endl;
+	std::cerr << argv[1] << " does not exist" << std::endl;
 	exitProgram( 1 );
     }
 
@@ -90,11 +93,11 @@ int main( int argc, char** argv )
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ cerr << tri->errMsg() << endl;  exitProgram( 1 ); }
+	{ std::cerr << tri->errMsg() << std::endl;  exitProgram( 1 ); }
 
-    cerr << "\n";
+    std::cerr << "\n";
     const CBVSReadMgr& mgr = *tri->readMgr();
-    mgr.dumpInfo( cerr, true );
+    mgr.dumpInfo( std::cerr, true );
     const CBVSInfo& info = mgr.info();
 
     SeisTrc trc; BinID bid;
@@ -102,7 +105,7 @@ int main( int argc, char** argv )
     const int nrcomps = info.compinfo.size();
     while ( 1 )
     {
-	cerr << "\nExamine In-line ( 0 to stop ): "; getInt( bid.inl );
+	std::cerr << "\nExamine In-line ( 0 to stop ): "; getInt( bid.inl );
 	if ( !bid.inl ) exitProgram( 0 );
 
 	if ( info.geom.fullyrectandreg )
@@ -110,9 +113,9 @@ int main( int argc, char** argv )
 	    bid.crl = info.geom.start.crl;
 	    if ( !info.geom.includes(bid) )
 	    {
-		cerr << "The inline range is " << info.geom.start.inl
+		std::cerr << "The inline range is " << info.geom.start.inl
 		     << " - " << info.geom.stop.inl << " step "
-		     << info.geom.step.inl << endl;
+		     << info.geom.step.inl << std::endl;
 		continue;
 	    }
 	}
@@ -122,55 +125,58 @@ int main( int argc, char** argv )
 			= info.geom.getInfoFor( bid.inl );
 	    if ( !inlinf )
 	    {
-		cerr << "This inline is not present in the cube" << endl;
+		std::cerr << "This inline is not present in the cube"
+		    	  << std::endl;
 		continue;
 	    }
-	    cerr << "Xline range available: ";
+	    std::cerr << "Xline range available: ";
 	    for ( int idx=0; idx<inlinf->segments.size(); idx++ )
 	    {
-		cerr << inlinf->segments[idx].start << " - "
+		std::cerr << inlinf->segments[idx].start << " - "
 		     << inlinf->segments[idx].stop;
 		if ( idx < inlinf->segments.size()-1 )
-		    cerr << " and ";
+		    std::cerr << " and ";
 	    }
-	    cerr << endl;
+	    std::cerr << std::endl;
 	}
 
-	cerr << "X-line: "; getInt( bid.crl );
+	std::cerr << "X-line: "; getInt( bid.crl );
 
 	if ( !tri->goTo( bid ) )
-	    { cerr << "Position not in data" << endl; continue; }
+	    { std::cerr << "Position not in data" << std::endl; continue; }
 	if ( !tri->read(trc) )
-	    { cerr << "Cannot read trace!" << endl; continue; }
+	    { std::cerr << "Cannot read trace!" << std::endl; continue; }
 
 	if ( !mIS_ZERO(trc.info().pick) && !mIsUndefined(trc.info().pick) )
-	    cerr << "Pick position: " << trc.info().pick << endl;
+	    std::cerr << "Pick position: " << trc.info().pick << std::endl;
 	if ( !mIS_ZERO(trc.info().refpos) && !mIsUndefined(trc.info().refpos) )
-	    cerr << "Reference position: " << trc.info().refpos << endl;
+	    std::cerr << "Reference position: " << trc.info().refpos
+		      << std::endl;
 	if ( !mIS_ZERO(trc.info().offset) && !mIsUndefined(trc.info().offset) )
-	    cerr << "Offset: " << trc.info().offset << endl;
+	    std::cerr << "Offset: " << trc.info().offset << std::endl;
 
 	while ( 1 )
 	{
-	    cerr << "Print samples ( 1 - " << trc.size(0) << " )." << endl;
-	    cerr << "From ( 0 to stop ): ";
+	    std::cerr << "Print samples ( 1 - " << trc.size(0) << " )."
+		      << std::endl;
+	    std::cerr << "From ( 0 to stop ): ";
 	    getInt( samps.start );
 	    if ( samps.start < 1 ) break;
 
-	    cerr << "To: "; getInt( samps.stop );
-	    cerr << "Step: "; getInt( samps.step );
+	    std::cerr << "To: "; getInt( samps.stop );
+	    std::cerr << "Step: "; getInt( samps.step );
 	    if ( samps.step < 1 ) samps.step = 1;
 	    if ( samps.start < 1 ) samps.start = 1;
 	    if ( samps.stop > trc.size(0) ) samps.stop = trc.size(0);
-	    cerr << endl;
+	    std::cerr << std::endl;
 	    for ( int isamp=samps.start; isamp<=samps.stop; isamp+=samps.step )
 	    {
-		cerr << isamp << '\t';
+		std::cerr << isamp << '\t';
 		for ( int icomp=0; icomp<nrcomps; icomp++ )
-		    cout << trc.get( isamp-1, icomp )
-			 << (icomp == nrcomps-1 ? '\n' : '\t');
+		    std::cout << trc.get( isamp-1, icomp )
+			      << (icomp == nrcomps-1 ? '\n' : '\t');
 	    }
-	    cerr << endl;
+	    std::cerr << std::endl;
 	}
     }
 

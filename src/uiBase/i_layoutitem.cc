@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/02/2003
- RCS:           $Id: i_layoutitem.cc,v 1.3 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: i_layoutitem.cc,v 1.4 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,14 +85,15 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 #ifdef __extensive_debug__
     if ( arend_debug )
     {
-	cout << "setting Layout on: ";
+	std::cout << "setting Layout on: ";
 	if( objLayouted() ) 
-	    cout << objLayouted()->name() << endl;
+	    std::cout << objLayouted()->name() << std::endl;
 	else 
-	    cout << "Unknown" << endl;
+	    std::cout << "Unknown" << std::endl;
 
-	cout << "l: " << mPos.left() << " t: " << mPos.top();
-	cout << " hor: " << mPos.hNrPics() << " ver: " << mPos.vNrPics() << endl;
+	std::cout << "l: " << mPos.left() << " t: " << mPos.top();
+	std::cout << " hor: " << mPos.hNrPics() << " ver: "
+	    		 << mPos.vNrPics() << std::endl;
     }
 #endif
 
@@ -128,12 +129,12 @@ void i_LayoutItem::initLayout( layoutMode lom, int mngrTop, int mngrLeft )
     {
 	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name() : "";
 
-	cout << "Init layout on:" << blnm;
-	cout << ": prf hsz: " << pref_h_nr_pics;
-	cout <<",  prf vsz: " << pref_v_nr_pics;
-	cout <<", mngr top: " << mngrTop;
-	cout <<", mngr left: " << mngrLeft;
-	cout <<",  layout mode: " << (int) lom << endl;
+	std::cout << "Init layout on:" << blnm;
+	std::cout << ": prf hsz: " << pref_h_nr_pics;
+	std::cout <<",  prf vsz: " << pref_v_nr_pics;
+	std::cout <<", mngr top: " << mngrTop;
+	std::cout <<", mngr left: " << mngrLeft;
+	std::cout <<",  layout mode: " << (int) lom << std::endl;
     }
 #endif
 

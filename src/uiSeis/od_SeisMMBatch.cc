@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.13 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.14 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ int main( int argc, char ** argv )
 	
     if ( argc+bgadd < 3 )
     {
-	cerr << "Usage: " << argv[0] << " program parfile" << endl;
+	std::cerr << "Usage: " << argv[0] << " program parfile" << std::endl;
 	exitProgram( 1 );
     }
     const char* fnm = argv[ 2 + bgadd ];
@@ -40,13 +40,13 @@ int main( int argc, char ** argv )
     StreamData sdin = spin.makeIStream();
     if ( !sdin.usable() )
     {
-	cerr << argv[0] << ": Cannot open parameter file" << endl;
+	std::cerr << argv[0] << ": Cannot open parameter file" << std::endl;
 	exitProgram( 1 );
     }
     IOParList parlist( *sdin.istrm );
     if ( parlist.size() == 0 || parlist[0]->size() == 0 )
     {
-	cerr << argv[0] << ": Invalid parameter file" << endl;
+	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
 	exitProgram( 1 );
     }
     sdin.close();
@@ -58,8 +58,9 @@ int main( int argc, char ** argv )
 	switch ( fork() )
 	{
 	case -1:
-	    cerr << argv[0] << ": cannot fork: " << errno_message() << endl;
-		    exitProgram( 1 );
+	    std::cerr << argv[0] << ": cannot fork: "
+		      << errno_message() << std::endl;
+	    exitProgram( 1 );
 	case 0:		break;
 	default:	return 0;
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.11 2004-04-22 15:33:02 nanne Exp $
+ RCS:		$Id: wellimpasc.h,v 1.12 2004-04-28 21:30:58 bert Exp $
 ________________________________________________________________________
 
 
@@ -53,10 +53,10 @@ public:
     };
 
     const char*		getLogInfo(const char* lasfnm,LasFileInfo&) const;
-    const char*		getLogInfo(istream& lasstrm,LasFileInfo&) const;
+    const char*		getLogInfo(std::istream& lasstrm,LasFileInfo&) const;
     const char*		getLogs(const char* lasfnm,const LasFileInfo&,
 	    			bool istvd=true);
-    const char*		getLogs(istream& lasstrm,const LasFileInfo&,
+    const char*		getLogs(std::istream& lasstrm,const LasFileInfo&,
 	    			bool istvd=true);
 
     bool		willConvertToSI() const		{ return useconvs_; }

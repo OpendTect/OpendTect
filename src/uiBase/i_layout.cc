@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.68 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: i_layout.cc,v 1.69 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,7 @@ QSize i_LayoutMngr::minimumSize() const
 	    msg += vsz;
 	    msg += ").";
 
-	    cout << msg << endl;
+	    std::cout << msg << std::endl;
 	}
 #endif
 	return QSize( hsz, vsz );
@@ -521,10 +521,10 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 
 
 #ifdef __extensive_debug__
-    cout << "(Re)sizing:" << UserIDObject::name();
-    if ( isprefsz ) cout << " yes"; else 
-	{ cout << " no " << hgrow << " ," << vgrow; }
-    cout << endl;
+    std::cout << "(Re)sizing:" << UserIDObject::name();
+    if ( isprefsz ) std::cout << " yes"; else 
+	{ std::cout << " no " << hgrow << " ," << vgrow; }
+    std::cout << std::endl;
 #endif
 
     ObjectSet<resizeItem> resizeList;
@@ -561,12 +561,12 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 #ifdef __extensive_debug__
     if( arend_debug )
     {
-	cout << "setGeometry called on: ";
-	cout << UserIDObject::name() << endl;
+	std::cout << "setGeometry called on: ";
+	std::cout << UserIDObject::name() << std::endl;
 
-	cout << "l: " << extRect.left() << " t: " << extRect.top();
-	cout << " hor: " << extRect.width();
-	cout << " ver: " << extRect.height() << endl;
+	std::cout << "l: " << extRect.left() << " t: " << extRect.top();
+	std::cout << " hor: " << extRect.width();
+	std::cout << " ver: " << extRect.height() << std::endl;
 
     }
 #endif
@@ -587,13 +587,13 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 #ifdef __extensive_debug__
 	if( !store2prefpos )
 	{
-	    cout << "setGeometry called with wrong size on: ";
-	    cout << UserIDObject::name() << endl;
-	    cout << "Width should be " << mPos.hNrPics();
-	    cout << ", is " << extRect.width();
-	    cout << ". Height should be " << mPos.vNrPics();
-	    cout << ", is " << extRect.height();
-	    cout << endl;
+	    std::cout << "setGeometry called with wrong size on: ";
+	    std::cout << UserIDObject::name() << std::endl;
+	    std::cout << "Width should be " << mPos.hNrPics();
+	    std::cout << ", is " << extRect.width();
+	    std::cout << ". Height should be " << mPos.vNrPics();
+	    std::cout << ", is " << extRect.height();
+	    std::cout << std::endl;
 	}
 #endif
     }

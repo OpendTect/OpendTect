@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visdataman.h,v 1.13 2004-04-28 21:30:58 bert Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,7 @@ public:
     void		getIds( const SoPath*, TypeSet<int>& ) const;
     			/*!< Gets the ids from lowest level to highest
 			     (i.e. scene ) */
-    void		getIds( const type_info&, TypeSet<int>& ) const;
+    void		getIds( const std::type_info&, TypeSet<int>& ) const;
 
     DataObject*		getObj( int id );
     const DataObject*	getObj( int id ) const;

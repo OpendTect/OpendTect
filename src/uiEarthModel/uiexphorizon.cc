@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.26 2003-12-18 12:45:10 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.27 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ uiExportHorizon::~uiExportHorizon()
 #define mHdr1GFLineLen 102
 #define mDataGFLineLen 148
 
-static void initGF( ostream& strm, const char* hornm, bool inmeter, 
+static void initGF( std::ostream& strm, const char* hornm, bool inmeter, 
 		    const char* comment )
 {
     char gfbuf[mHdr1GFLineLen+2];
@@ -94,13 +94,13 @@ static void initGF( ostream& strm, const char* hornm, bool inmeter,
     hnm = comment;
     sz = hnm.size(); if ( sz > 45 ) sz = 45;
     memcpy( gfbuf+35, hnm.buf(), sz );
-    strm << gfbuf << "SNAPPING PARAMETERS 5     0 1" << endl;
+    strm << gfbuf << "SNAPPING PARAMETERS 5     0 1" << std::endl;
 }
 
 
 #define mGFUndefValue 3.4028235E+38
 
-static void writeGF( ostream& strm, const BinIDZValue& bizv,
+static void writeGF( std::ostream& strm, const BinIDZValue& bizv,
 		     const Coord& crd, int segid )
 {
     static char buf[mDataGFLineLen+2];

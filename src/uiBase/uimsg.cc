@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.18 2003-11-11 12:48:41 dgb Exp $
+ RCS:           $Id: uimsg.cc,v 1.19 2004-04-28 21:30:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,11 +47,11 @@ void uiMsg::handleMsg( CallBacker* cb )
     {
     case MsgClass::ProgrammerError:
 #ifdef __debug__
-	cerr << "(PE) " << mc->msg << endl;
+	std::cerr << "(PE) " << mc->msg << std::endl;
 #endif
     break;
     default:
-	    cerr << mc->msg << endl;
+	std::cerr << mc->msg << std::endl;
     break;
     }
 }
@@ -97,7 +97,7 @@ void uiMsg::toStatusbar( MsgClass* mc )
     msg += mc->msg;
 
     if ( !statusBar() )
-	cerr << msg << endl;
+	std::cerr << msg << std::endl;
     else
 	statusBar()->message( msg );
 }

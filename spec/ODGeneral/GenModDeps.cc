@@ -5,7 +5,7 @@
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id: GenModDeps.cc,v 1.10 2004-04-07 22:09:19 bert Exp $";
+static const char* rcsID = "$Id: GenModDeps.cc,v 1.11 2004-04-28 21:30:58 bert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -35,34 +35,34 @@ int main( int argc, char** argv )
 	{ html = true; arg1 = 2; }
     if ( argc-arg1+1 < 3 )
     {
-	cerr << "Usage: " << argv[0]
-	     << " [--html] input_ModDeps_file output_file" << endl;
+	std::cerr << "Usage: " << argv[0]
+	     << " [--html] input_ModDeps_file output_file" << std::endl;
 	exitProgram( 1 );
     }
     StreamProvider spin( argv[arg1] );
     StreamData sdin = spin.makeIStream();
     if ( !sdin.usable() )
     {
-	cerr << argv[0] << ": Cannot open input stream" << endl;
+	std::cerr << argv[0] << ": Cannot open input stream" << std::endl;
 	exitProgram( 1 );
     }
-    else if ( sdin.istrm == &cin )
-	cout << "Using standard input." << endl;
-    istream& instrm = *sdin.istrm;
+    else if ( sdin.istrm == &std::cin )
+	std::cout << "Using standard input." << std::endl;
+    std::istream& instrm = *sdin.istrm;
 
     if ( !instrm )
     {
-	cerr << "Bad ModDeps file" << endl;
+	std::cerr << "Bad ModDeps file" << std::endl;
 	exitProgram( 1 );
     }
     StreamProvider spout( argv[arg1+1] );
     StreamData sdout = spout.makeOStream();
     if ( !sdout.usable() )
     {
-	cerr << argv[0] << ": Cannot open output stream" << endl;
+	std::cerr << argv[0] << ": Cannot open output stream" << std::endl;
 	exitProgram( 1 );
     }
-    ostream& outstrm = *sdout.ostrm;
+    std::ostream& outstrm = *sdout.ostrm;
 
     char linebuf[1024];
     char wordbuf[256];
@@ -94,7 +94,7 @@ int main( int argc, char** argv )
 	    if ( !wordbuf[0] ) break;
 
 	    if ( wordbuf[1] != '.' || (wordbuf[0] != 'S' && wordbuf[0] != 'D') )
-		{ cerr << "Cannot handle dep=" << wordbuf << endl;
+		{ std::cerr << "Cannot handle dep=" << wordbuf << std::endl;
 		    exitProgram(1); }
 
 	    filedeps.add( wordbuf );
@@ -114,7 +114,8 @@ int main( int argc, char** argv )
 
 	    Dep* depdep = find( deps, modnm );
 	    if ( !depdep )
-		{ cerr << "Cannot find dep=" << modnm << endl; exitProgram(1); }
+		{ std::cerr << "Cannot find dep=" << modnm << std::endl;
+		    		exitProgram(1); }
 
 	    for ( int idep=depdep->mods.size()-1; idep>=0; idep-- )
 	    {
@@ -143,7 +144,7 @@ int main( int argc, char** argv )
 		<< " modules</h3></center>\n\n"
 		   "<TABLE align=\"center\" summary=\"Modules\""
 			   "WIDTH=\"75%\" BORDER=\"1\">"
-		<< endl;
+		<< std::endl;
 
 	BufferStringSet allmods;
 	for ( int idx=0; idx<deps.size(); idx++ )
@@ -162,7 +163,7 @@ int main( int argc, char** argv )
 	    << nm << "/annotated.html\">Compound List</a></TD>\n</TR>\n\n";
 	}
 
-	outstrm << "\n</TABLE>\n\n<body>\n<html>" << endl;
+	outstrm << "\n</TABLE>\n\n<body>\n<html>" << std::endl;
     }
 
     else
@@ -174,11 +175,11 @@ int main( int argc, char** argv )
 	    outstrm << 'L' << dep.name << " :=";
 	    for ( int idep=0; idep<dep.mods.size(); idep++ )
 		outstrm << " -l" << (const char*)(*dep.mods[idep]);
-	    outstrm << endl;
+	    outstrm << std::endl;
 	    outstrm << 'I' << dep.name << " :=";
 	    for ( int idep=0; idep<dep.mods.size(); idep++ )
 		outstrm << ' ' << (const char*)(*dep.mods[idep]);
-	    outstrm << endl;
+	    outstrm << std::endl;
 
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.115 2004-04-27 12:00:02 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.116 2004-04-28 21:30:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ public:
     void		addObject( visBase::DataObject*, int sceneid,
 				   bool saveinsessions  );
     void		shareObject( int sceneid, int id );
-    void		findObject( const type_info&, TypeSet<int>& );
+    void		findObject( const std::type_info&, TypeSet<int>& );
     void		removeObject( visBase::DataObject*,int sceneid);
     void		removeObject(int id,int sceneid);
     void		setObjectName(int,const char*);

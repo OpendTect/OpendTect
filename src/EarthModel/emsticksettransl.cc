@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.6 2003-11-12 12:57:04 bert Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.7 2004-04-28 21:30:59 bert Exp $";
 
 #include "emsticksettransl.h"
 
@@ -241,7 +241,7 @@ int lmkEMStickSetReader::nextStep()
 {
     if ( error ) return ErrorOccurred;
 
-    istream& strm = ((StreamConn*)conn)->iStream();
+    std::istream& strm = ((StreamConn*)conn)->iStream();
     
     char buf[] = " ";
     BufferString buffer;
@@ -402,7 +402,7 @@ lmkEMStickSetWriter::lmkEMStickSetWriter(const EM::StickSet& stickset_,
     if ( !formatsd.usable() )
 	return;
 
-    ostream& formatfile = *formatsd.ostrm;
+    std::ostream& formatfile = *formatsd.ostrm;
     formatfile  << lmkEMStickSetTranslator::xstr
 		<< '\t' << '\t' << '\t' << xinterval.start 
 		<< '\t' << xinterval.stop << '\n';
@@ -440,7 +440,7 @@ int lmkEMStickSetWriter::nextStep()
 	return Finished;
 
     const EM::StickID stickid = stickset.stickID(currentsticknr);
-    ostream& strm = ((StreamConn*)conn)->oStream();
+    std::ostream& strm = ((StreamConn*)conn)->oStream();
 
     if ( stickset.nrKnots(stickid)>1 )
     {
