@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: pickset.h,v 1.1 2001-05-14 13:22:26 bert Exp $
+ RCS:		$Id: pickset.h,v 1.2 2001-05-14 13:58:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ public:
 		{ return pos == pl.pos && mIS_ZERO(z-pl.z); }
     inline bool	operator !=( const PickLocation& pl ) const
 		{ return !(*this == pl); }
+
+    bool	fromString(const char*);
 
     Coord	pos;
     float	z;
