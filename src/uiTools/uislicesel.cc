@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.10 2002-11-22 16:03:03 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.11 2003-03-20 16:22:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,15 +75,19 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 					       : (uiGroup*) inlrgfld );
     }
 
-    Interval<int> zrg((int)(cs_.zrg.start*1000+.5),(int)(cs_.zrg.stop*1000+.5));
+    const float zfact( SI().zIsTime() ? 1000 : 1 );
+    Interval<int> zrg( mNINT(cs_.zrg.start*zfact), mNINT(cs_.zrg.stop*zfact) );
     if ( slctyp == 2 )
     {
-	zfld = new uiLabeledSpinBox( this, "Slice time (ms)" );
+	BufferString zstr( "Slice " );
+	zstr += SI().zIsTime() ? "time (" : "depth ("; 
+	zstr += SI().getZUnit(); zstr += ")";
+	zfld = new uiLabeledSpinBox( this, zstr );
 	zfld->attach( alignedBelow, crlfld ? (uiGroup*) crlfld
 					   : (uiGroup*) crlrgfld );
-	zfld->box()->setMinValue( (int)(SI().zRange().start*1000+.5) );
-	zfld->box()->setMaxValue( (int)(SI().zRange().stop*1000+.5) );
-	zfld->box()->setStep( (int)(SI().zRange().step*1000+.5) );
+	zfld->box()->setMinValue( mNINT(SI().zRange().start*zfact) );
+	zfld->box()->setMaxValue( mNINT(SI().zRange().stop*zfact) );
+	zfld->box()->setStep( mNINT(SI().zRange().step*zfact) );
 	zfld->box()->setValue( zrg.start );
 	zfld->box()->valueChanged.notify( mCB(this,uiSliceSel,csChanged) );
     }
@@ -94,6 +98,11 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 	zrgfld->attach( alignedBelow, crlfld ? (uiGroup*) crlfld 
 					     : (uiGroup*) crlrgfld );
     }
+
+    uiObj()->setTabOrder( inlfld ? (uiObject*)inlfld : (uiObject*)inlrgfld, 
+	    		  crlfld ? (uiObject*)crlfld : (uiObject*)crlrgfld );
+    uiObj()->setTabOrder( crlfld ? (uiObject*)crlfld : (uiObject*)crlrgfld, 
+	    		  zfld ? (uiObject*)zfld : (uiObject*)zrgfld );
 
     if ( slctyp < 3 )
     {
@@ -106,7 +115,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 	stepfld = new uiLabeledSpinBox( this, "Step" );
 	int step = !slctyp ? SI().inlWorkStep() : 
 		( slctyp == 1 ? SI().crlWorkStep()
-			      : (int)(SI().zRange().step*1000+.5) );
+			      : mNINT(SI().zRange().step*zfact) );
 	stepfld->box()->setMinValue( step );
 	stepfld->box()->setStep( step );
 	int width = !slctyp ? inlfld->box()->maxValue() :
@@ -115,6 +124,9 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 	stepfld->box()->setMaxValue( width );
 	stepfld->box()->valueChanged.notify( mCB(this,uiSliceSel,stepSel) );
 	stepfld->attach( rightOf, doupdfld );
+	uiObj()->setTabOrder( zfld ? (uiObject*)zfld : (uiObject*)zrgfld,
+			      (uiObject*)doupdfld );
+	uiObj()->setTabOrder( (uiObject*)doupdfld, (uiObject*)stepfld );
     }
 
     finaliseDone.notify( mCB(this,uiSliceSel,updateSel) );
