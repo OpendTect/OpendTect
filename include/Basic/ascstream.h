@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.7 2003-03-13 14:23:58 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.8 2003-09-29 11:18:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ public:
 
     ascistream&		next();
 
+    const char*		projName() const; //!< Usually 'dTect'
     bool		isOfFileType(const char*) const;
     const char*		fileType() const
 			{ return filetype; }
