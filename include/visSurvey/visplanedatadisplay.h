@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.25 2003-01-27 13:16:43 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.26 2003-02-07 16:40:13 nanne Exp $
 ________________________________________________________________________
 
 
@@ -46,9 +46,14 @@ public:
     void			setType(Type type);
     Type			getType() const { return type; }
 
-    void			setOrigo( const Coord3& );
-    void			setWidth( const Coord3& );
-    				//!< Will only use the two coords that are valid
+    void			setGeometry(bool manip=false,bool init_=false);
+    void			setRanges(const StepInterval<float>&,
+					  const StepInterval<float>&,
+					  const StepInterval<float>&,
+					  bool manip=false);
+
+    void			setOrigo(const Coord3&);
+    void			setWidth(const Coord3&);
 
     void			resetDraggerSizes( float appvel );
     				//!< Should be called when appvel has changed
@@ -71,11 +76,11 @@ public:
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setColorTab(visBase::VisColorTab*);
+    void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
     void			setClipRate(float);
     float			clipRate() const;
-    void			setAutoscale(bool);
+    void			setAutoScale(bool);
     bool			autoScale() const;
     void			setDataRange(const Interval<float>&);
     Interval<float>		getDataRange() const;

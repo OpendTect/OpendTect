@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.33 2002-10-14 14:24:39 niclas Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.34 2003-02-07 16:40:26 nanne Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -669,9 +669,9 @@ void visBase::Rectangle::setWidth( float x, float y )
 }
 
 
-float visBase::Rectangle::width( int n ) const
+float visBase::Rectangle::width( int n, bool manip ) const
 {
-    return getWidth( n, maniprectscale->scaleFactor.getValue()[n] );
+    return getWidth( n, manip ? maniprectscale->scaleFactor.getValue()[n] : 1 );
 }
 
 
@@ -691,6 +691,24 @@ void visBase::Rectangle::setOrientation( visBase::Rectangle::Orientation o )
     }
 
     orientation_ = o;
+}
+
+
+void visBase::Rectangle::setRanges( const StepInterval<float>& range0,
+				    const StepInterval<float>& range1,
+				    const StepInterval<float>& range2,
+       				    bool manip )
+{
+    if ( !manip )
+    {
+	setWidth( range0.width(), range1.width() );
+	setWidthRange( 0, Interval<float>( range0.width()*0.1, mUndefValue ));
+	setWidthRange( 1, Interval<float>( range1.width()*0.1, mUndefValue ));
+    }
+
+    setRange( 0, range0 );
+    setRange( 1, range1 );
+    setRange( 2, range2 );
 }
 
 

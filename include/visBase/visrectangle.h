@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.28 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.29 2003-02-07 16:40:32 nanne Exp $
 ________________________________________________________________________
 
 
@@ -101,9 +101,12 @@ public:
     Coord3		origo() const;
     Coord3		manipOrigo() const;
 
-    void		setWidth( float, float );
-    float		width( int ) const;
+    void		setWidth(float,float);
+    float		width(int,bool manip=true) const;
 
+    void		setRanges(const StepInterval<float>&,
+	    			  const StepInterval<float>&,
+				  const StepInterval<float>&,bool);
     void		setRange(int dim, const StepInterval<float>& );
     void		setWidthRange( int dim, const Interval<float>&);
     enum Orientation	{ XY, XZ, YZ };

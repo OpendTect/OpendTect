@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.10 2003-02-03 08:17:03 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.11 2003-02-07 16:40:26 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -42,7 +42,7 @@ visBase::Texture2::~Texture2()
 void visBase::Texture2::setTextureSize( int x0, int x1 )
 { 
     x0sz = x0; x1sz = x1;
-    texture->image.setValue( SbVec2s( x0sz, x1sz ), 
+    texture->image.setValue( SbVec2s( x1sz, x0sz ), 
 	    		     usesTransperancy() ? 4 : 3, 0 );
 }
 
@@ -65,10 +65,12 @@ void visBase::Texture2::setData( const Array2D<float>* newdata )
 	//TODO Change this to nearest bigger sz from data
     }
 
-    setTextureSize( x0sz, x1sz );
-
     const int datax0size = newdata->info().getSize(0);
     const int datax1size = newdata->info().getSize(1);
+
+    int newx0 = nextPower2( datax0size, 128, 2048 );
+    int newx1 = nextPower2( datax1size, 128, 2048 );
+    setTextureSize( newx0, newx1 );
 
     Array2DInfoImpl newsize(  x0sz, x1sz );
     const int cachesz = newsize.getTotalSz();

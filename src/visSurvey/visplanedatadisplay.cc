@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.37 2003-02-03 08:44:01 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.38 2003-02-07 16:40:08 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -54,75 +54,52 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
 }
 
 
-void visSurvey::PlaneDataDisplay::setType(Type nt)
+void visSurvey::PlaneDataDisplay::setType( Type nt )
 {
     type = nt;
+    setGeometry( false, true );
+}
 
+
+void visSurvey::PlaneDataDisplay::setGeometry( bool manip, bool init_ )
+{
     BinID startbid = SI().range().start;
     BinID stopbid = SI().range().stop;
     StepInterval<double> vrgd = SI().zRange();
 
-    StepInterval<float> inlrange( startbid.inl,stopbid.inl,SI().inlWorkStep() );
-    StepInterval<float> crlrange( startbid.crl,stopbid.crl,SI().crlWorkStep() );
+    StepInterval<float> inlrg( startbid.inl,stopbid.inl,SI().inlWorkStep() );
+    StepInterval<float> crlrg( startbid.crl,stopbid.crl,SI().crlWorkStep() );
     StepInterval<float> vrg( vrgd.start, vrgd.stop, vrgd.step );
-
-    float inlspacing = SI().transform(BinID(0,0)).distance(
-		       SI().transform( BinID(1,0)));
-    float crlspacing = SI().transform(BinID(0,0)).distance(
-		       SI().transform( BinID(0,1)));
-
-    if ( type==Inline )
-    {
-	trect->getRectangle().setOrientation( visBase::Rectangle::YZ );
-	trect->getRectangle().setOrigo(
-		Coord3(inlrange.start, crlrange.start, vrg.start ));
-	trect->getRectangle().setWidth( vrg.width(), crlrange.width() );
-
-	trect->getRectangle().setWidthRange( 0,
-		Interval<float>( vrg.width()*0.1, mUndefValue ));
-	trect->getRectangle().setWidthRange( 1,
-		Interval<float>( crlrange.width()*0.1, mUndefValue ));
-
-	trect->getRectangle().setRange( 0, vrg );
-	trect->getRectangle().setRange( 1, crlrange );
-	trect->getRectangle().setRange( 2, inlrange );
-    }
-    else if ( type==Crossline )
-    {
-	trect->getRectangle().setOrientation( visBase::Rectangle::XZ );
-	trect->getRectangle().setOrigo(
-		Coord3(inlrange.start, crlrange.start, vrg.start ));
-	trect->getRectangle().setWidth( inlrange.width(), vrg.width() );
-
-	trect->getRectangle().setWidthRange( 0,
-		Interval<float>( inlrange.width()*0.1, mUndefValue ));
-	trect->getRectangle().setWidthRange( 1,
-		Interval<float>( vrg.width()*0.1, mUndefValue ));
-
-	trect->getRectangle().setRange( 0, inlrange );
-	trect->getRectangle().setRange( 1, vrg );
-	trect->getRectangle().setRange( 2, crlrange );
-    }
-    else
-    {
-	trect->getRectangle().setOrientation( visBase::Rectangle::XY );
-	trect->getRectangle().setOrigo(
-		Coord3(inlrange.start, crlrange.start, vrg.start ));
-	trect->getRectangle().setWidth( inlrange.width(), crlrange.width() );
-
-	trect->getRectangle().setWidthRange( 0,
-		Interval<float>( inlrange.width()*0.1, mUndefValue ));
-	trect->getRectangle().setWidthRange( 1,
-		Interval<float>( crlrange.width()*0.1, mUndefValue ));
-
-	trect->getRectangle().setRange( 0, inlrange );
-	trect->getRectangle().setRange( 1, crlrange );
-	trect->getRectangle().setRange( 2, vrg );
-    }
+    if ( init_ )
+	trect->getRectangle().setOrigo( 
+				Coord3(inlrg.start,crlrg.start,vrg.start) );
+    setRanges( inlrg, crlrg, vrg, manip );
 
     resetDraggerSizes( SPM().getZScale() );
 }
 
+
+void visSurvey::PlaneDataDisplay::setRanges( const StepInterval<float>& irg,
+					     const StepInterval<float>& crg,
+					     const StepInterval<float>& zrg,
+       					     bool manip )
+{
+    if ( type==Inline )
+    {
+	trect->getRectangle().setOrientation( visBase::Rectangle::YZ );
+	trect->getRectangle().setRanges( zrg, crg, irg, manip );
+    }
+    else if ( type==Crossline )
+    {
+	trect->getRectangle().setOrientation( visBase::Rectangle::XZ );
+	trect->getRectangle().setRanges( irg, zrg, crg, manip );
+    }
+    else
+    {
+	trect->getRectangle().setOrientation( visBase::Rectangle::XY );
+	trect->getRectangle().setRanges( irg, crg, zrg, manip );
+    }
+}
 
 void visSurvey::PlaneDataDisplay::setOrigo( const Coord3& pos )
 {
@@ -141,7 +118,6 @@ void visSurvey::PlaneDataDisplay::setWidth( const Coord3& pos )
     else
 	trect->getRectangle().setWidth( pos.x, pos.y );
 }
-
 
 
 void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
@@ -388,18 +364,22 @@ CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
 
     if ( trect->getRectangle().orientation()==visBase::Rectangle::XY )
     {
-	cubesampl.hrg.stop.inl += mNINT(trect->getRectangle().width( 0 ));
-	cubesampl.hrg.stop.crl += mNINT(trect->getRectangle().width( 1 ));
+	cubesampl.hrg.stop.inl += 
+			mNINT(trect->getRectangle().width(0,manippos));
+	cubesampl.hrg.stop.crl += 
+	    		mNINT(trect->getRectangle().width(1,manippos));
     }
     else if ( trect->getRectangle().orientation()==visBase::Rectangle::XZ )
     {
-	cubesampl.hrg.stop.inl += mNINT(trect->getRectangle().width( 0 ));
-	cubesampl.zrg.stop += trect->getRectangle().width( 1 );
+	cubesampl.hrg.stop.inl += 
+	    		mNINT(trect->getRectangle().width(0,manippos));
+	cubesampl.zrg.stop += trect->getRectangle().width(1,manippos);
     }
     else
     {
-	cubesampl.hrg.stop.crl += mNINT(trect->getRectangle().width(1));
-	cubesampl.zrg.stop += trect->getRectangle().width(0);
+	cubesampl.hrg.stop.crl += 
+	    		mNINT(trect->getRectangle().width(1,manippos));
+	cubesampl.zrg.stop += trect->getRectangle().width(0,manippos);
     }
 
     return cubesampl;
@@ -409,8 +389,8 @@ CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
 void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 {
     Coord3 width( cs_.hrg.stop.inl - cs_.hrg.start.inl,
-			 cs_.hrg.stop.crl - cs_.hrg.start.crl, 
-			 cs_.zrg.stop - cs_.zrg.start );
+		  cs_.hrg.stop.crl - cs_.hrg.start.crl, 
+		  cs_.zrg.stop - cs_.zrg.start );
     setWidth( width );
     Coord3 origo(cs_.hrg.start.inl,cs_.hrg.start.crl,cs_.zrg.start);
     setOrigo( origo );
@@ -419,7 +399,31 @@ void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 
 bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
 {
-    trect->setData( *(*sliceset)[0] );
+    const int lsz = (*sliceset)[0]->info().getSize(0);
+    const int zsz = (*sliceset)[0]->info().getSize(1);
+    const int slicesize = (*sliceset)[0]->info().getTotalSz();
+
+    if ( sliceset->direction == AttribSlice::Inl )
+    {
+	Array2DImpl<float> datacube( zsz, lsz );
+	for ( int zidx=0; zidx<zsz; zidx++ )
+	{
+	    for ( int lidx=0; lidx<lsz; lidx++ )
+	    {
+		const float val = (*sliceset)[0]->get( lidx, zidx );
+		datacube.set( zidx, lidx, val );
+	    }
+	}
+	trect->setData( datacube );
+    }
+    else
+    {
+	Array2DImpl<float> datacube( lsz, zsz );
+	float* data = datacube.getData();
+	memcpy( data, (*sliceset)[0]->getData(), slicesize*sizeof(float) );
+	trect->setData( datacube );
+    }
+
     trect->useTexture( true );
 
     delete cache;
@@ -441,7 +445,7 @@ void visSurvey::PlaneDataDisplay::turnOn(bool n) { trect->turnOn(n); }
 bool visSurvey::PlaneDataDisplay::isOn() const { return trect->isOn(); }
 
 
-void visSurvey::PlaneDataDisplay::setColorTab( visBase::VisColorTab* ct )
+void visSurvey::PlaneDataDisplay::setColorTab( visBase::VisColorTab& ct )
 { trect->setColorTab( ct ); }
 
 
@@ -457,8 +461,8 @@ float visSurvey::PlaneDataDisplay::clipRate() const
 { return trect->clipRate(); }
 
 
-void visSurvey::PlaneDataDisplay::setAutoscale( bool yn )
-{ trect->setAutoscale( yn ); }
+void visSurvey::PlaneDataDisplay::setAutoScale( bool yn )
+{ trect->setAutoScale( yn ); }
 
 
 bool visSurvey::PlaneDataDisplay::autoScale() const
@@ -474,7 +478,54 @@ Interval<float> visSurvey::PlaneDataDisplay::getDataRange() const
 
 
 float visSurvey::PlaneDataDisplay::getValue( const Coord3& pos ) const
-{ return trect->getValue( pos ); }
+{
+    if ( !cache ) return mUndefValue;
+
+    Coord3 origo = trect->getRectangle().origo();
+    Coord localpos;
+
+    if ( type == Timeslice )
+    {
+	if ( fabs(pos.z-origo.z)> 1e-3 )
+	return mUndefValue;
+	// x=inl y=crl
+	localpos.x = pos.x-origo.x;
+	localpos.y = pos.y-origo.y;
+	localpos.x /= trect->getRectangle().width(0);
+	localpos.y /= trect->getRectangle().width(1);
+
+    }
+    else if ( type == Crossline )
+    {
+	if ( fabs(pos.y-origo.y)> 1e-3 )
+	return mUndefValue;
+	// x=inline y=depth
+	localpos.x = pos.x-origo.x;
+	localpos.y = pos.z-origo.z;
+
+	localpos.x /= trect->getRectangle().width(0);
+	localpos.y /= trect->getRectangle().width(1);
+    }
+    else
+    {
+	if ( fabs(pos.x-origo.x)> 1e-3 )
+	return mUndefValue;
+	// x=crossline y=depth
+	localpos.x = pos.y-origo.y;
+	localpos.y = pos.z-origo.z;
+
+	localpos.x /= trect->getRectangle().width(1);
+	localpos.y /= trect->getRectangle().width(0);
+    }
+
+    if ( localpos.x>1 || localpos.y>1 )
+    return mUndefValue;
+
+    localpos.x *= ((*cache)[0]->info().getSize(0)-1);
+    localpos.y *= ((*cache)[0]->info().getSize(1)-1);
+
+    return (*cache)[0]->get(mNINT(localpos.x), mNINT(localpos.y));
+}
 
 
 void visSurvey::PlaneDataDisplay::setMaterial( visBase::Material* nm)

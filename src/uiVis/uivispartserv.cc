@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.124 2003-02-04 12:30:47 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.125 2003-02-07 16:40:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1075,6 +1075,14 @@ bool uiVisPartServer::setWorkingArea()
 	visBase::DataObject* obj = visBase::DM().getObj( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
 	if ( scene ) scene->updateRange();
+	TypeSet<int> objids;
+	getChildIds( sceneid, objids );
+	for ( int ido=0; ido<objids.size(); ido++ )
+	{
+	    visBase::DataObject* dobj = visBase::DM().getObj( objids[ido] );
+	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj);
+	    if ( pdd ) pdd->setGeometry( true );
+	}
     }
 
     return true;
@@ -1377,6 +1385,9 @@ void uiVisPartServer::updatePlanePos( CallBacker* cb )
 bool uiVisPartServer::hasMaterial( int id ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObj( id );
+
+    mDynamicCastGet(const visSurvey::Scene*,scene,dobj);
+    if ( scene ) return false;
 
     mDynamicCastGet(const visSurvey::PickSetDisplay*,ps,dobj);
     if ( ps ) return false;
