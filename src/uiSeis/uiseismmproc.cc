@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.53 2003-08-06 12:56:51 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.54 2003-08-13 13:47:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,16 +181,28 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     uiGroup* jrppolgrp = new uiGroup( this, "Job run policy group" );
     jrppolselfld = new uiLabeledComboBox( jrppolgrp, "Assignment" );
     jrppolselfld->box()->addItem( "Work" );
-    jrppolselfld->box()->addItem( "Finish current jobs" );
+//    jrppolselfld->box()->addItem( "Finish current jobs" );
     jrppolselfld->box()->addItem( "Pause" );
     jrppolselfld->box()->addItem( "Go - Only between" );
     jrppolselfld->box()->setCurrentItem( ((int)0) );
-    jrpstartfld = new uiGenInput( jrppolgrp, "", "18:00" );
+
+    jrpstarttime = getenv("dGB_STOP_OFFICEHOURS")
+		 ? getenv("dGB_STOP_OFFICEHOURS") : "18:00";
+    jrpstoptime  = getenv("dGB_START_OFFICEHOURS")
+		 ? getenv("dGB_START_OFFICEHOURS"): "7:30";
+ 
+    jrpstartfld = new uiGenInput( jrppolgrp, "", jrpstarttime );
     jrpstartfld->attach( rightOf, jrppolselfld );
-    jrpstopfld = new uiGenInput( jrppolgrp, "and", "7:30" );
+    jrpstopfld = new uiGenInput( jrppolgrp, "and", jrpstoptime );
     jrpstopfld->attach( rightOf, jrpstartfld );
+
+    jrpstartfld->valuechanged.notify( mCB(this,uiSeisMMProc,startStopUpd) );
+    jrpstopfld->valuechanged.notify( mCB(this,uiSeisMMProc,startStopUpd) );
+
     jrppolselfld->box()->selectionChanged.notify(
 	    mCB(this,uiSeisMMProc,jrpSel) );
+
+
     finaliseDone.notify( mCB(this,uiSeisMMProc,jrpSel) );
     jrppolgrp->setHAlignObj( jrpstartfld );
     jrppolgrp->attach( alignedBelow, machgrp );
@@ -199,13 +211,27 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     sep->attach( stretchedBelow, jrppolgrp );
     autorembut = new uiCheckBox( this, "Auto-fill" );
     autorembut->attach( alignedBelow, sep );
+
+#ifdef DETECT_HUMAN_ACTIVITY
     detectbut = new uiCheckBox( this, "Detect human activity" );
     detectbut->attach( ensureBelow, sep );
     detectbut->attach( rightBorder );
+#else
+    detectbut = 0;
+#endif
+
     nicefld = new uiSlider( this, "Nice level" );
     nicefld->setMinValue( -0.5 ); nicefld->setMaxValue( 19.5 );
     nicefld->setValue( hdl.defNiceLevel() );
-    nicefld->attach( leftOf, detectbut );
+
+    if ( detectbut )
+	nicefld->attach( leftOf, detectbut );
+    else
+    {
+	nicefld->attach( ensureBelow, sep );
+	nicefld->attach( rightBorder );
+    }
+
     uiLabel* nicelbl = new uiLabel( this, "'Nice' level (0-19)", nicefld );
     progrfld = new uiTextEdit( this, "Processing progress", true );
     progrfld->attach( alignedBelow, autorembut );
@@ -281,29 +307,47 @@ void uiSeisMMProc::setDataTransferrer( SeisMMJobMan* newjm )
 }
 
 
-static int getMSecs( const char* txt )
+static int getSecs( const char* txt )
 {
     if ( !txt || !*txt ) return 0;
     BufferString bs( txt );
-    char* ptr = strchr( bs.buf(), ':' );
-    if ( ptr ) *ptr++ = '\0';
-    int msecs = atoi( bs.buf() ) * 3600000;
-    if ( ptr && *ptr )
-	msecs += atoi( ptr ) * 60000;
-    return msecs;
+    char* mid = strchr( bs.buf(), ':' );
+    if ( mid ) *mid++ = '\0';
+
+    int secs=-1;
+    if ( mid && *mid )
+    {
+	char* head = mid-1;
+	while ( *head != ' ' && head > bs.buf() ) head--;
+
+	char* tail = strchr( mid, ':' );
+	if ( tail ) *tail++ = '\0';
+
+	secs = atoi( head ) * 3600;
+	secs += atoi( mid ) * 60;
+
+	if( tail )
+	    secs += atoi( tail );
+    }   
+    return secs;
 }
 
 
-bool uiSeisMMProc::jobsActive() const
+bool uiSeisMMProc::pauseJobs() const
 {
     const char* txt = jrppolselfld->box()->text();
-    if ( *txt == 'W' || *txt == 'F' ) return true;
-    if ( *txt == 'P' ) return false;
+    if ( *txt == 'W' || *txt == 'F' ) return false; // Work / Finish current job
+    if ( *txt == 'P' ) return true;		    // Pause
 
-    const int t = Time_getMilliSeconds();
-    const int t0 = getMSecs( jrpstartfld->text() );
-    const int t1 = getMSecs( jrpstopfld->text() );
-    return t0 >= t1 ? t > t0 || t < t1 : t > t0 && t < t1;
+    // Only between
+
+    const int t = getSecs( Time_getLocalString() );
+    const int t0 = getSecs( jrpstarttime );
+    const int t1 = getSecs( jrpstoptime );
+
+    bool run = t1 >= t0 ? t >= t0 && t <= t1
+			: t >= t0 || t <= t1;
+    return !run;
 }
 
 
@@ -416,12 +460,13 @@ bool uiSeisMMProc::autoRemaining() const
 void uiSeisMMProc::doCycle( CallBacker* )
 {
     setNiceNess();
-    const bool act = jobsActive();
+    const bool pause = pauseJobs();
+    if ( jm ) jm->setPause( pause );
 
     const int status = task->doStep();
     switch ( status )
     {
-    case 0:	execFinished(true);						return;
+    case 0:	execFinished(true);					return;
     case -1:	uiMSG().error( task->message() );	done( -1 );	return;
     case 2:	uiMSG().warning( task->message() );			break;
     }
@@ -664,6 +709,13 @@ void uiSeisMMProc::jrpSel( CallBacker* )
 }
 
 
+void uiSeisMMProc::startStopUpd( CallBacker* )
+{
+    jrpstarttime = jrpstartfld->text();
+    jrpstoptime = jrpstopfld->text();
+}
+
+
 #include "seissingtrcproc.h"
 #include <fstream>
 
@@ -695,7 +747,7 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	    strm = &ostrm;
 	}
 
-	*strm << "Multi-machine-batch dump at " << Time_getLocalString() << endl;
+	*strm << "Multi-machine-batch dump at "<< Time_getLocalString() << endl;
 	if ( !jm )
 	{
 	    *strm << "No Job Manager. Therefore, data transfer is busy, or "
