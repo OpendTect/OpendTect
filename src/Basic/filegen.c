@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.3 2000-03-02 15:28:55 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.4 2000-03-07 08:37:06 bert Exp $";
 
 #include <stdio.h>
 #include <string.h>
@@ -229,4 +229,15 @@ const char* File_getTempFileName( const char* id, const char* ext, int full )
     }
 
     return pathbuf;
+}
+
+
+int File_makeWritable( const char* fname, int recursive, int yn )
+{
+    FileNameString cmd;
+    strcpy( cmd, "chmod " );
+    if ( recursive ) strcat( cmd, "-R ");
+    strcat( cmd, yn ? "ug+w " : "a-w " );
+    strcat( cmd, fname );
+    return system( cmd ) != -1 ? YES : NO;
 }
