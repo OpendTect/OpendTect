@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.40 2003-04-22 09:51:30 arend Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.41 2003-04-28 10:54:42 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -456,7 +456,7 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
     const IdealConn& conn = dlg.iddfld->conn();
     BinIDSampler bs; StepInterval<double> zrg; Coord crd[3];
     if ( !conn.getSurveySetup(bs,zrg,crd) )
-	{ uiMSG().error(conn.errMsg()); return; }
+	{ BufferString m; conn.fetchMsg(m); uiMSG().error(m); return; }
 
     survinfo->setRange(bs,true); survinfo->setRange(bs,false);
     survinfo->setStep(bs.step,true); survinfo->setStep(bs.step,false);

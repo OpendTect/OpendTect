@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.8 2003-01-23 16:15:24 bert Exp $
+ RCS:           $Id: uimsg.h,v 1.9 2003-04-28 10:53:50 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <callback.h>
+#include <msgh.h>
 class uiObject;
 class MsgClass;
 class uiMainWin;
@@ -20,7 +21,7 @@ class uiStatusBar;
 class QWidget;
 
 
-class uiMsg : public CallBacker
+class uiMsg : public UsrIoMsg
 {
     friend class uiMainWinBody;
     friend uiMsg& uiMSG();
@@ -61,7 +62,10 @@ private:
 inline uiMsg& uiMSG()
 {
     if ( !uiMsg::theinst_ )
+    {
 	uiMsg::theinst_ = new uiMsg;
+	UsrIoMsg::theUsrIoMsg_ = uiMsg::theinst_;
+    }
     return *uiMsg::theinst_;
 }
 

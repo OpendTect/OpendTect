@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.17 2003-04-15 15:09:09 kristofer Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.18 2003-04-28 10:54:04 arend Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -216,7 +216,7 @@ void SeisTrc::setStartPos( float pos, int icomp )
 
 #define mSockErrRet() \
     { \
-	if ( errbuf )	{ *errbuf=sock.errMsg(); } \
+	if ( errbuf )	{ sock.fetchMsg(*errbuf); } \
 	return false; \
     } 
 
