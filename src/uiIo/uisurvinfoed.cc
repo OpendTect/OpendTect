@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.15 2002-01-04 23:45:30 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.16 2002-01-05 00:12:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     BufferString txt( "Fetch setup from " );
     txt += IdealConn::guessedType() == IdealConn::SW
 	 ? "SeisWorks ..." : "GeoFrame ...";
-    uiButton* wsbut = new uiPushButton( this, txt );
-    wsbut->attach( alignedBelow, dirnmfld );
-    wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
+    uiButton* wsbut = 0;
+    if ( IdealConn::haveIdealServices() )
+    {
+	wsbut = new uiPushButton( this, txt );
+	wsbut->attach( alignedBelow, dirnmfld );
+	wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
+    }
 
     uiGroup* rangegrp = new uiGroup( this, "Survey ranges" );
     inlfld = new uiGenInput( rangegrp, "In-line range",
@@ -120,7 +124,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     labelrg->attach( leftBorder );
     labelrg->attach( ensureBelow, horsep1 );
     rangegrp->attach( alignedBelow, dirnmfld ); 
-    rangegrp->attach( ensureBelow, wsbut ); 
+    if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
     rangegrp->attach( ensureBelow, labelrg ); 
     horsep2->attach( stretchedBelow, rangegrp );
     coordset->attach( leftBorder );
