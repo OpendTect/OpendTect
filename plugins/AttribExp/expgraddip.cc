@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expgraddip.cc,v 1.3 2002-09-09 07:19:55 nanne Exp $";
+static const char* rcsID = "$Id: expgraddip.cc,v 1.4 2002-12-02 15:01:35 kristofer Exp $";
 
 
 #define mEPSILON 1E-9
@@ -103,7 +103,7 @@ int GradientDipAttrib::Task::nextStep()
     const int hsz = sz / 2;
 
     float curt = t1;
-    const float step = inp->trcs->get(0,0)->info().sampling.step;
+    const float inpstep = inp->trcs->get(0,0)->info().sampling.step;
     const int attribute = inp->attribute;
 
     TypeSet<float> timescale(sz,0);
@@ -112,7 +112,7 @@ int GradientDipAttrib::Task::nextStep()
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	timescale[idx] = idx*step*1e6;
+	timescale[idx] = idx*inpstep*1e6;
 	inlscale[idx] = idx*calculator.inldist;
 	crlscale[idx] = idx*calculator.crldist;
     }
