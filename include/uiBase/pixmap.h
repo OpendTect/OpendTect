@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: pixmap.h,v 1.7 2004-09-14 06:36:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "iodrawimpl.h"
 
 class QPixmap;
+class QBitmap;
 class QPaintDevice;
 
 class ArrayRGB;
@@ -61,6 +62,28 @@ protected:
     virtual QPaintDevice* mQPaintDevice();         
     QPixmap*		qpixmap; 
 
+};
+
+
+
+//!A pixmap with the depth of 2 (b/w)
+class ioBitmap : public ioPixmap
+{
+public:
+			/*! \brief Constructs a bitmap from the file fileName. 
+
+			If the file does not exist, or is of an unknown format,
+			the pixmap becomes a null pixmap. 
+
+			If format is specified, attempts to read the pixmap 
+			using the specified format. If format is not specified
+			(default), the loader reads a few bytes from the header
+			to guess the file format. 
+
+			*/
+			ioBitmap( const char* fileName, const char * format=0 ); 
+    QBitmap* 		Bitmap()		{ return (QBitmap*)qpixmap; }
+    const QBitmap*  	Bitmap() const		{ return (QBitmap*)qpixmap; }
 };
 
 

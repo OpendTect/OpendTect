@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.8 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: pixmap.cc,v 1.9 2004-09-14 06:36:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "arrayrgb.h"
 
 #include <qpixmap.h>
+#include <qbitmap.h>
 #include <qcolor.h>
 
 ioPixmap::ioPixmap( const ArrayRGB& anImage )
@@ -80,3 +81,9 @@ void ioPixmap::fill( const Color& col )
 {
     qpixmap->fill( QColor(col.r(),col.g(),col.b()) );
 }
+
+
+ioBitmap::ioBitmap( const char* fileName, const char * format )
+    { qpixmap = new QBitmap( fileName, format ); }
+
+
