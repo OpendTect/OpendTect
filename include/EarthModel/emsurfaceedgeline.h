@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.11 2004-09-21 16:01:33 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.12 2004-10-07 05:55:30 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -193,7 +193,8 @@ public:
     void		setSection( const EM::SectionID& );
 
     int			getSegment( const EM::PosID&, int* segpos=0 ) const;
-    int			getSegment( const RowCol&, int* segpos=0 ) const;
+    int			getSegment( const RowCol&, int* segpos=0,
+	    			    const EdgeLineSegment* ignoreseg=0 ) const;
     bool		isClosed() const;
     bool		isInside(const EM::PosID&, bool undefval ) const;
     bool		isInside(const RowCol&, bool undefval ) const;
