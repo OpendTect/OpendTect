@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.9 2004-11-11 11:35:57 bert Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.10 2004-11-11 16:04:07 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,12 +125,13 @@ public:
 
     virtual		~JobIOHandler()
 			    {
-				exitreq_ = true;
+				/* // TODO : exit gracefully
 				if ( thread )
 				{
 				    thread->stop();
 				}
 				threadmutex.unlock();
+				*/
 
 				delete &sockprov_; 
 			    }

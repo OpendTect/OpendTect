@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.12 2004-11-11 11:35:57 bert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.13 2004-11-11 16:04:07 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,7 +194,6 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 	ji.state_ = JobInfo::Failed;
 	iomgr().fetchMsg(ji.curmsg_);
 	jobFailed.trigger();
-	ji.hostdata_ = 0;
 	return false;
     }
 
@@ -227,7 +226,10 @@ void JobRunner::removeHost( int hnr )
 
     if ( ji )
     {
+	notifyji = ji;
+	ji->hostdata_ = &jhi->hostdata_;
 	ji->state_ = JobInfo::Failed;
+	jobFailed.trigger();
 
 	iomgr().reqModeForJob( *ji, JobIOMgr::Stop );
 
@@ -373,7 +375,6 @@ void JobRunner::updateJobInfo()
 	handleStatusInfo( *si );
 	delete si;
     }
-
     for ( int ijob=0; ijob<jobinfos_.size(); ijob++ )
     {
 	JobInfo& ji = *jobinfos_[ijob];
@@ -382,7 +383,7 @@ void JobRunner::updateJobInfo()
 
 	int elapsed = Time_getMilliSeconds() - ji.timestamp_; 
 
-	if ( elapsed > timeout_ )
+	if ( ji.state_ == JobInfo::Working && elapsed > timeout_ )
 	{
 	    ji.state_ = JobInfo::Failed;
 	    if ( ji.hostdata_ )
@@ -446,7 +447,9 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	    ji->curmsg_ = " active";
 	break;
 	case mSTAT_ERROR:
+	    notifyji = ji;
 	    ji->state_ = JobInfo::Failed;
+	    jobFailed.trigger();
 	break;
 	case mSTAT_PAUSED:
 	    ji->state_ = JobInfo::Paused;
