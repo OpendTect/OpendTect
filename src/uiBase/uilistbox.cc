@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.20 2001-09-17 21:25:01 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.21 2001-09-25 12:27:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include <uilistbox.h>
 #include <uifont.h>
 #include <uidobjset.h>
+#include <uilabel.h>
 #include <uiobjbody.h>
 
 #include <i_qlistbox.h>
@@ -274,4 +275,41 @@ uiSize uiListBoxBody::minimumSize() const
     int totWidth  = mFont->maxWidth() * fieldWdt;
 
     return uiSize ( totWidth , totHeight );
+}
+
+
+uiLabeledListBox::uiLabeledListBox( uiParent* p, const char* txt, bool multisel,
+				    uiLabeledListBox::LblPos pos )
+	: uiGroup(p,"Labeled listbox")
+{
+    lb = new uiListBox( this, txt, multisel );
+    mkRest( txt, pos );
+}
+
+
+uiLabeledListBox::uiLabeledListBox( uiParent* p, const PtrUserIDObjectSet& s,
+				    bool multisel, uiLabeledListBox::LblPos pos)
+	: uiGroup(p,"Labeled listbox")
+{
+    lb = new uiListBox( this, s, multisel );
+    mkRest( s->name(), pos );
+}
+
+
+void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
+{
+
+    labl = new uiLabel( this, txt );
+    switch ( pos )
+    {
+    case LeftTop:	lb->attach( rightOf, labl );		break;
+    case RightTop:	labl->attach( rightOf, lb );		break;
+    case AboveLeft:	lb->attach( alignedBelow, labl );	break;
+    case AboveMid:	lb->attach( centeredBelow, labl );	break;
+    case AboveRight:	lb->attach( rightAlignedBelow, labl );	break;
+    case BelowLeft:	labl->attach( alignedBelow, lb );	break;
+    case BelowMid:	labl->attach( centeredBelow, lb );	break;
+    case BelowRight:	labl->attach( rightAlignedBelow, lb );	break;
+    }
+    setHAlignObj( lb );
 }

@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.13 2001-09-17 21:25:44 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.14 2001-09-25 12:27:50 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-
+#include <uigroup.h>
 class PtrUserIDObjectSet;
-
+class uiLabel;
 class uiListBoxBody;
+
 
 class uiListBox : public uiObject
 {
@@ -83,5 +83,33 @@ private:
     uiListBoxBody&		mkbody(uiParent*, const char*, bool, int, int);
 
 };
+
+
+class uiLabeledListBox : public uiGroup
+{
+public:
+
+    enum LblPos	{ LeftTop, RightTop,
+		  AboveLeft, AboveMid, AboveRight,
+		  BelowLeft, BelowMid, BelowRight };
+
+		uiLabeledListBox( uiParent*,const char* txt,
+				  bool multisel=false,LblPos p=LeftTop);
+		uiLabeledListBox( uiParent*,const PtrUserIDObjectSet&,
+				  bool multisel=false,LblPos p=LeftTop);
+
+    uiListBox*	box()		{ return lb; }
+    uiLabel*	label()		{ return labl; }
+
+
+protected:
+
+    uiListBox*	lb;
+    uiLabel*	labl;
+
+    void	mkRest(const char*,LblPos);
+
+};
+
 
 #endif
