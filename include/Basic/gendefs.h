@@ -8,10 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.24 2004-01-21 15:19:02 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.25 2004-02-13 17:03:00 bert Exp $
 ________________________________________________________________________
 
+ This file contains general defines that are so basic they apply to each and
+ every source file.
+
 -*/
+
 
 /*! There are only #define lines, so there is no C-language constraint. */
 
@@ -28,7 +32,7 @@ ________________________________________________________________________
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
 
 #ifndef mEPSILON
-#define mEPSILON		(1e-10)
+# define mEPSILON		(1e-10)
 #endif
 #define mIS_ZERO(x)		( (x) < (mEPSILON) && (x) > (-mEPSILON) )
 
@@ -94,5 +98,64 @@ ________________________________________________________________________
 # define mDynamicCastGet(typ,out,in)	typ out = dynamic_cast< typ >( in );
 
 #endif
+
+
+/*!\mainpage
+  \section intro Introduction
+
+  This module handles all things that are so basic to all other modules that
+  they can be seen as a layer of common services to the entire system. One of
+  the tasks is to provide platform-independence of file, date&time, threads,
+  and more.
+
+  The difference with the 'General' module was, traditionally, that Basic
+  utilities could in principle be insteresting outside OpendTect. This
+  distinction is not enforced (see e.g. the survey info class). We place
+  things in Basic that feel more basic than General. Note that General depends
+  on Basic, not vice versa.
+
+  You'll find that many of these tools can be found in other packages in some
+  form or another. But, the problems of management of dependencies are usually
+  much bigger than having to maintain a bunch of lean-and-mean specially made
+  objects that do selected things in a way that fits our system.
+
+
+  \section cont Content
+
+  We'll just name a few groups of services. There are many more isolated
+  useful objects, defines, functions and so forth.
+
+  -# Sets/Lists
+  - sets.h : 'The' classes for sets of objects and pointers to objects
+  - sortedlist.h and sortedtable.h : sets that are sorted during build
+  - toplist.h : holds a "top N" list
+  -# Strings
+  - string2.h : things not in the standard <string.h>
+  - bufstring.h and bufstringset.h : Variable length strings commonly used in
+  	OpendTect with a guaranteed minimum buffer size. That makes them ideal
+	as bridge with C strings.
+  - compoundkey.h and multiid.h : dot-separated keys.
+  - fixstring.h: fixed length strings but with tools like '+=' .
+  -# System-wide service objects
+  - msgh.h, errh.h and debug.h : Message pushing without user interface
+  - settings.h : access to persistent user specific settings
+  - survinfo.h : access to the survey setup (names, positions, ranges)
+  -# Positions (coordinates, inlines/crosslines=BinIDs)
+  - position.h and posgeom.h : basic map position tools
+  - binidexcl.h, binidprov.h, binidsel.h, binidselimpl.h: 
+    BinID selection and iteration
+  -# File and stream handling
+  - filegen.h : basic file tools like existence, path operations, copy, etc.
+  - ascstream.h : read and write of the typical OpendTect standard Ascii data
+  - dirlist.h : list contents of a directory
+  - strmprov.h and strmdata.h : access files, pipes, or devices for read
+    or write and make sure they are closed correctly.
+  -# CallBacks
+  - callback.h : our (simple but powerful) event system
+  -# Template floating-point algorithms
+  - simpnumer.h, sorting.h, periodicvalue.h, genericnumer.h, extremefinder.h
+  
+
+*/
 
 #endif

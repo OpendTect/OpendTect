@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.17 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: ioman.h,v 1.18 2004-02-13 17:03:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,41 @@ inline IOMan& IOM()
 	{ IOMan::theinst_ = new IOMan; IOMan::theinst_->init(); }
     return *IOMan::theinst_;
 }
+
+
+/*!\mainpage
+  \section intro Introduction
+
+  This module uses the services from the Basic module and adds services that
+  are (in general) more or less OpendTect specific. Just like the Basic module
+  the services are used by all other modules.
+
+
+  \section cont Content
+  Some of the groups of services are:
+
+  -# I/O management system
+  - ioman.h : the IOM() object provides a lookup of objects in the data store
+  - iooobj.h : Subclasses of IOObj hold all data necessary to access a stored
+    object.
+  - iostrm.h : IOStream is the most common subclass of IOObj because files
+    are most commonly where data is stored.
+  -# Translators
+  - transl.h : Translators are the objects that know file and database formats.
+    All normal data will be put into and written from in-memory objects via
+    subclasses of Translator.
+  -# ArrayND
+  - arraynd.h and arrayndinfo.h : interface for multi-dimensional but flexible
+    arrays of any (simple) type.
+  - arrayndimpl.h : implementation with specific classed for 1, 2, and 3D.
+  - arrayndslice.h and arrayndutils.h : Slices and other utlities.
+  -# CBVS
+  - cbvsreadmgr.h : reads the 'Common Basic Volume Storage' format
+  - cbvswritemgr.h : writes CBSV format.
+  -# Transformations
+  - transform.h and transfact.h : Interface and factory for transforms
+  - costrans.h, fft.h, wavelettrans.h : transforms
+*/
 
 
 #endif
