@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.7 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uidialog.h,v 1.8 2001-08-24 08:32:56 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 
 
     int			go(); 
+    void		show(); 
 
     void		reject( CallBacker* cb =0);
     void		accept( CallBacker* cb =0);
@@ -40,6 +41,8 @@ public:
 
     void		setSpacing( int ); 
     void		setBorder( int ); 
+
+    void		setCaption( const char* txt );
 
 			//! OK button disabled when set to empty
     void		setOkText( const char* txt );

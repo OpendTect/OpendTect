@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.7 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uimainwin.cc,v 1.8 2001-08-24 08:33:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,6 +199,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 void uiMainWin::show()				{ body_->uiShow(); }
+void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 
 uiObject* uiMainWin::uiObj()
