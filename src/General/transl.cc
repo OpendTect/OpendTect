@@ -11,9 +11,10 @@
 #include "ioobj.h"
 #include "iopar.h"
 #include "errh.h"
+#include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.15 2003-11-10 09:17:58 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.16 2003-11-26 10:22:55 bert Exp $";
 
 
 int defaultSelector( const char* mytyp, const char* typ )
@@ -93,7 +94,22 @@ TranslatorGroup& TranslatorGroup::getGroup( const char* nm, bool user )
 
 TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 {
+    if ( DBG::isOn(DBG_IO) )
+    {
+	BufferString msg( "Translator group to be added: '" );
+	if ( !newgrp )
+	    msg += "(null)' . Major problem!";
+	else
+	{
+	    msg += newgrp->userName();
+	    msg += "' = class ";
+	    msg += newgrp->clssName();
+	}
+	DBG::message( msg );
+    }
+
     getGroups() += newgrp;
+
     return *newgrp;
 }
 
