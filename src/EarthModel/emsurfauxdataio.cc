@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.18 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.19 2004-08-09 14:09:31 kristofer Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.18 2004-07-29 16:52:30 b
 #include "datainterp.h"
 #include "datachar.h"
 #include "emsurface.h"
+#include "emsurfacegeometry.h"
+#include "emsurfaceauxdata.h"
 #include "geommeshsurface.h"
 #include "iopar.h"
 #include "survinfo.h"
@@ -46,8 +48,8 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
     , nrdone(0)
 {
     IOPar par( "Surface Data" );
-    par.set( attrnmstr, surf.auxDataName(dataidx) );
-    par.set( shiftstr, surf.getShift() );
+    par.set( attrnmstr, surf.auxdata.auxDataName(dataidx) );
+    par.set( shiftstr, surf.geometry.getShift() );
 
     if ( binary )
     {
@@ -76,10 +78,11 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
     par.putTo( astream );
 
     int nrnodes = 0;
-    for ( int idx=0; idx<surf.nrSections(); idx++ )
+    for ( int idx=0; idx<surf.geometry.nrSections(); idx++ )
     {
-	EM::SectionID sectionid = surf.sectionID(idx);
-	const Geometry::MeshSurface* meshsurf = surf.getSurface(sectionid);
+	EM::SectionID sectionid = surf.geometry.sectionID(idx);
+	const Geometry::MeshSurface* meshsurf =
+			surf.geometry.getSurface(sectionid);
 
 	nrnodes += meshsurf->size();
     }
@@ -110,18 +113,18 @@ int EM::dgbSurfDataWriter::nextStep()
 	    if ( nrdone )
 	    {
 		sectionindex++;
-		if ( sectionindex>=surf.nrSections() )
+		if ( sectionindex>=surf.geometry.nrSections() )
 		    return Finished;
 	    }
 	    else
 	    {
-		if ( !writeInt(surf.nrSections()))
+		if ( !writeInt(surf.geometry.nrSections()))
 		    return ErrorOccurred;
 	    }
 
 
-	    const EM::SectionID sectionid = surf.sectionID( sectionindex );
-	    const Geometry::MeshSurface* meshsurf = surf.getSurface(sectionid);
+	    const EM::SectionID sectionid = surf.geometry.sectionID( sectionindex );
+	    const Geometry::MeshSurface* meshsurf = surf.geometry.getSurface(sectionid);
 
 	    const int nrnodes = meshsurf->size();
 	    for ( int idy=0; idy<nrnodes; idy++ )
@@ -134,10 +137,10 @@ int EM::dgbSurfDataWriter::nextStep()
 		    continue;
 
 		const RowCol emrc( bid.inl, bid.crl );
-		const EM::SubID subid = surf.rowCol2SubID( emrc );
+		const EM::SubID subid = surf.geometry.rowCol2SubID( emrc );
 		posid.setSubID( subid );
 		posid.setSectionID( sectionid );
-		const float auxvalue = surf.getAuxDataVal(dataidx,posid);
+		const float auxvalue = surf.auxdata.getAuxDataVal(dataidx,posid);
 		if ( mIsUndefined( auxvalue ) )
 		    continue;
 
@@ -297,8 +300,8 @@ const char* EM::dgbSurfDataReader::dataInfo() const
 void EM::dgbSurfDataReader::setSurface( EM::Surface& surf_ )
 {
     surf = &surf_;
-    dataidx = surf->addAuxData( dataname );
-    surf->setShift( shift );
+    dataidx = surf->auxdata.addAuxData( dataname );
+    surf->geometry.setShift( shift );
 }
 
 
@@ -345,7 +348,7 @@ int EM::dgbSurfDataReader::nextStep()
 
 	posid.setSubID( subid );
 	posid.setSectionID( currentsection );
-	surf->setAuxDataVal( dataidx, posid, val );
+	surf->auxdata.setAuxDataVal( dataidx, posid, val );
 
 	valsleftonsection--;
     }

@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.18 2004-07-23 12:54:49 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.19 2004-08-09 14:09:31 kristofer Exp $";
 
 #include "emfault.h"
 #include "emsurfacetr.h"
@@ -14,29 +14,30 @@ static const char* rcsID = "$Id: emfault.cc,v 1.18 2004-07-23 12:54:49 kristofer
 #include "ptrman.h"
 #include "survinfo.h"
 
+namespace EM {
 
-EM::Fault::Fault( EM::EMManager& em_, const EM::ObjectID& mid_ )
-    : Surface(em_,mid_)
+
+Fault::Fault( EMManager& em_, const ObjectID& mid_ )
+    : Surface(em_,mid_, *new FaultGeometry(*this) )
 {}
 
 
-Geometry::MeshSurface* EM::Fault::createSectionSurface( const SectionID& pid ) const
-{
-    return new Geometry::MeshSurfaceImpl;
-}
-
-
-const IOObjContext& EM::Fault::getIOObjContext() const
+const IOObjContext& Fault::getIOObjContext() const
 { return EMFaultTranslatorGroup::ioContext(); }
 
 
-bool EM::Fault::createFromStick( const TypeSet<Coord3>& stick, float velocity )
+FaultGeometry::FaultGeometry(Fault& flt)
+    : SurfaceGeometry( flt )
+{}
+
+
+bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick, float velocity )
 {
     if ( stick.size() < 2 ) return false;
 
     if ( !nrSections() ) addSection( "", true );
     setTranslatorData( RowCol(1,1), RowCol(1,1), RowCol(0,0), 0, 0 );
-    const EM::SectionID sectionid = sectionID(0);
+    const SectionID sectionid = sectionID(0);
     const float idealdistance = 25; // TODO set this in some intelligent way
     RowCol rowcol(0,0);
 
@@ -79,3 +80,13 @@ bool EM::Fault::createFromStick( const TypeSet<Coord3>& stick, float velocity )
 
     return true;
 }
+
+
+Geometry::MeshSurface* EM::FaultGeometry::createSectionSurface( const SectionID& pid ) const
+{
+    return new Geometry::MeshSurfaceImpl;
+}
+
+
+
+}; //namespace

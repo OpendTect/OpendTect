@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.47 2004-07-23 12:54:49 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.48 2004-08-09 14:09:31 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -24,66 +24,18 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.47 2004-07-23 12:54:49 krist
 
 #include <math.h>
 
+namespace EM {
 
-EM::Horizon::Horizon( EMManager& man, const EM::ObjectID& id_ )
-    : Surface(man,id_)
+Horizon::Horizon( EMManager& man, const ObjectID& id_ )
+    : Surface(man,id_,*new HorizonGeometry(*this))
 {}
 
 
-BinID EM::Horizon::getBinID( const EM::SubID& subid )
-{
-    return getBinID( subID2RowCol(subid) );
-}
-
-
-BinID EM::Horizon::getBinID( const RowCol& rc )
-{
-    return BinID(rc.row, rc.col);
-}
-
-
-RowCol EM::Horizon::getRowCol( const BinID& bid )
-{
-    return RowCol( bid.inl, bid.crl );
-}
-
-
-EM::SubID EM::Horizon::getSubID( const BinID& bid )
-{
-    return rowCol2SubID(getRowCol(bid));
-}
-
-
-Geometry::MeshSurface* EM::Horizon::createSectionSurface( const SectionID& sectionid )
-    									   const
-{
-    Geometry::GridSurface* newsurf = new Geometry::GridSurface();
-    const RowCol rc00( 0, 0 );
-    const RowCol rc10( 1, 0 );
-    const RowCol rc11( 1, 1 );
-
-    const RowCol surfrc00 = subID2RowCol( getSurfSubID(rc00,sectionid) );
-    const RowCol surfrc10 = subID2RowCol( getSurfSubID(rc10,sectionid) );
-    const RowCol surfrc11 = subID2RowCol( getSurfSubID(rc11,sectionid) );
-
-    const Coord pos00 = SI().transform(BinID(surfrc00.row,surfrc00.col));
-    const Coord pos10 = SI().transform(BinID(surfrc10.row,surfrc10.col));
-    const Coord pos11 = SI().transform(BinID(surfrc11.row,surfrc11.col));
-    
-    newsurf->setTransform(  pos00.x, pos00.y, rc00.row, rc00.col,
-			    pos10.x, pos10.y, rc10.row, rc10.col,
-			    pos11.x, pos11.y, rc11.row, rc11.col );
-    return newsurf;
-}
-
-
-namespace EM
-{
 class HorizonImporter : public Executor
 {
 public:
 
-HorizonImporter( EM::Horizon& hor, const Grid& g, bool fixholes_ )
+HorizonImporter( Horizon& hor, const Grid& g, bool fixholes_ )
 	: Executor("Horizon Import")
 	, horizon( hor )
 	, grid( g )
@@ -126,8 +78,8 @@ HorizonImporter( EM::Horizon& hor, const Grid& g, bool fixholes_ )
 
     const RowCol step( inlrange.step, crlrange.step );
     const RowCol origo(bid00.inl,bid00.crl);
-    horizon.setTranslatorData( step, step, origo, 0, 0 );
-    section = hor.addSection( g.name(), true );
+    horizon.geometry.setTranslatorData( step, step, origo, 0, 0 );
+    section = hor.geometry.addSection( g.name(), true );
 
     inl = inlrange.start;
 }
@@ -145,8 +97,8 @@ int nextStep()
 	{
 	    bool changed = false;
 	    StepInterval<int> rowrange, colrange;
-	    horizon.getRange(rowrange,true);
-	    horizon.getRange(colrange,false);
+	    horizon.geometry.getRange(rowrange,true);
+	    horizon.geometry.getRange(colrange,false);
 
 	    for ( int currow=rowrange.start; rowrange.includes(currow);
 		  currow+=rowrange.step )
@@ -155,13 +107,14 @@ int nextStep()
 		      curcol+=colrange.step )
 		{
 		    const RowCol rc( currow, curcol );
-		    if ( horizon.isDefined(section,rc) )
+		    if ( horizon.geometry.isDefined(section,rc) )
 			continue;
 
-		    EM::PosID pid(horizon.id(),section,horizon.rowCol2SubID(rc));
+		    PosID pid(horizon.id(),section,
+			      horizon.geometry.rowCol2SubID(rc));
 
-		    TypeSet<EM::PosID> neighbors;
-		    horizon.getNeighbors( pid, &neighbors );
+		    TypeSet<PosID> neighbors;
+		    horizon.geometry.getNeighbors( pid, &neighbors );
 		    if ( neighbors.size()<6 )
 			continue;
 
@@ -173,7 +126,7 @@ int nextStep()
 		    if ( !plane.set(neighborcoords) )
 			continue;
 
-		    const BinID bid = horizon.getBinID(rc);
+		    const BinID bid = HorizonGeometry::getBinID(rc);
 		    const Coord coord = SI().transform(bid);
 		    const Line3 line( Coord3(coord,0), Vector3(0,0,1));
 
@@ -204,7 +157,7 @@ int nextStep()
 	    continue;
 
 	Coord3 pos(coord.x, coord.y, val );
-	horizon.setPos( section, horizon.getRowCol(bid), pos,
+	horizon.geometry.setPos( section, HorizonGeometry::getRowCol(bid), pos,
 			true, false );
     }
 
@@ -215,38 +168,40 @@ int nextStep()
 
 protected:
 
-    EM::Horizon&	horizon;
+    Horizon&	horizon;
     const Grid&		grid;
     StepInterval<int>	inlrange;
     StepInterval<int>	crlrange;
 
     int			inl;
     bool		fixholes;
-    EM::SectionID		section;
+    SectionID		section;
 };
 
-}; // namespace EM
 
-
-
-Executor* EM::Horizon::import( const Grid& grid, int idx, bool fixholes )
+Executor* Horizon::import( const Grid& grid, int idx, bool fixholes )
 {
     if ( !idx ) cleanUp();
 
-    return new EM::HorizonImporter( *this, grid, fixholes );
+    return new HorizonImporter( *this, grid, fixholes );
 }
 
 
-const IOObjContext& EM::Horizon::getIOObjContext() const
+const IOObjContext& Horizon::getIOObjContext() const
 { return EMHorizonTranslatorGroup::ioContext(); }
 
 
-bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick, 
+HorizonGeometry::HorizonGeometry( Surface& surf )
+    : SurfaceGeometry( surf ) 
+{}
+
+
+bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick, 
 				   float velocity )
 {
     if ( !nrSections() ) addSection( "", true );
 
-    const EM::SectionID sectionid = sectionID(0);
+    const SectionID sectionid = sectionID(0);
     
     const float idealdistance = 25; // TODO set this in some intelligent way
 
@@ -288,11 +243,11 @@ bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick,
 		    (startpos.z*distafter+stoppos.z*distbefore)/
 		    (distbefore+distafter)/(velocity/2));
 
-	    const EM::PosID posid( id(), sectionid,
+	    const PosID posid( surface.id(), sectionid,
 				   rowCol2SubID(rowcol) );
 	    setPos( posid, newpos, true );
 	    if ( rowcol == startrc )
-		setPosAttrib( posid, EM::EMObject::sPermanentControlNode, true);
+		surface.setPosAttrib( posid, EMObject::sPermanentControlNode, true);
 
 	    float distance = mUndefValue;
 	    RowCol nextstep;
@@ -320,13 +275,67 @@ bool EM::Horizon::createFromStick( const TypeSet<Coord3>& stick,
 
 	if ( idx==stick.size()-2 )
 	{
-	    const EM::PosID posid( id(), sectionid,
+	    const PosID posid( surface.id(), sectionid,
 				    rowCol2SubID(rowcol));
 	    setPos( posid, Coord3( stoppos, stoppos.z/(velocity/2)), true);
 
-	    setPosAttrib( posid, EM::EMObject::sPermanentControlNode, true );
+	    surface.setPosAttrib( posid, EMObject::sPermanentControlNode, true );
 	}
     }
 
     return true;
 }
+
+
+BinID HorizonGeometry::getBinID( const SubID& subid )
+{
+    return getBinID( SurfaceGeometry::subID2RowCol(subid) );
+}
+
+
+BinID HorizonGeometry::getBinID( const RowCol& rc )
+{
+    return BinID(rc.row, rc.col);
+}
+
+
+RowCol HorizonGeometry::getRowCol( const BinID& bid )
+{
+    return RowCol( bid.inl, bid.crl );
+}
+
+
+SubID HorizonGeometry::getSubID( const BinID& bid )
+{
+    return rowCol2SubID(getRowCol(bid));
+}
+
+
+Geometry::MeshSurface*
+HorizonGeometry::createSectionSurface( const SectionID& sectionid )
+    									   const
+{
+    Geometry::GridSurface* newsurf = new Geometry::GridSurface();
+    const RowCol rc00( 0, 0 );
+    const RowCol rc10( 1, 0 );
+    const RowCol rc11( 1, 1 );
+
+    const RowCol surfrc00 = subID2RowCol( getSurfSubID(rc00,sectionid) );
+    const RowCol surfrc10 = subID2RowCol( getSurfSubID(rc10,sectionid) );
+    const RowCol surfrc11 = subID2RowCol( getSurfSubID(rc11,sectionid) );
+
+    const Coord pos00 = SI().transform(BinID(surfrc00.row,surfrc00.col));
+    const Coord pos10 = SI().transform(BinID(surfrc10.row,surfrc10.col));
+    const Coord pos11 = SI().transform(BinID(surfrc11.row,surfrc11.col));
+    
+    newsurf->setTransform(  pos00.x, pos00.y, rc00.row, rc00.col,
+			    pos10.x, pos10.y, rc10.row, rc10.col,
+			    pos11.x, pos11.y, rc11.row, rc11.col );
+    return newsurf;
+}
+
+
+
+}; //namespace
+
+

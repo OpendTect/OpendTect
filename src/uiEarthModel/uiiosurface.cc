@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.22 2004-07-23 13:00:32 kristofer Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.23 2004-08-09 14:09:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
+#include "emsurfaceauxdata.h"
 #include "uimsg.h"
 
 
@@ -177,10 +178,10 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
     : uiIOSurface(p,ishor)
     , savefld(0)
 {
-    if ( surf_.nrAuxData() )
+    if ( surf_.auxdata.nrAuxData() )
     {
 	attrnmfld = new uiGenInput( this, "Attribute" );
-	attrnmfld->setText( surf_.auxDataName(0) );
+	attrnmfld->setText( surf_.auxdata.auxDataName(0) );
 
 	savefld = new uiGenInput( this, "Save", 
 	    		BoolInpSpec("Attribute only","Surface and attribute") );
@@ -188,7 +189,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 	savefld->valuechanged.notify( mCB(this,uiSurfaceWrite,savePush) );
     }
 
-    if ( surf_.nrSections() > 1 )
+    if ( surf_.geometry.nrSections() > 1 )
     {
 	mkSectionFld( false );
 	if ( savefld ) sectionfld->attach( alignedBelow, savefld );

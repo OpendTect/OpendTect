@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.30 2004-07-23 13:00:32 kristofer Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.31 2004-08-09 14:09:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "uiexecutor.h"
@@ -148,7 +149,7 @@ bool uiExportHorizon::writeAscii()
     if ( !dlg.go() ) return false;
 
     const float zfac = SI().zIsTime() ? 1000 : 1;
-    const int nrattribs = hor->nrAuxData();
+    const int nrattribs = hor->auxdata.nrAuxData();
     TypeSet<int>& sections = sels.selsections;
     for ( int idx=0; idx<sections.size(); idx++ )
     {
@@ -168,8 +169,9 @@ bool uiExportHorizon::writeAscii()
 	    initGF( *sdo.ostrm, gfnmfld->text(), gfunfld->getBoolValue(), 
 		    gfcommfld->text() );
 
-	const EM::SectionID sectionid = hor->sectionID( sectionidx );
-	const Geometry::MeshSurface* meshsurf = hor->getSurface( sectionid );
+	const EM::SectionID sectionid = hor->geometry.sectionID( sectionidx );
+	const Geometry::MeshSurface* meshsurf =
+	    				hor->geometry.getSurface( sectionid );
 	EM::PosID posid(
 		EM::EMManager::multiID2ObjectID(infld->selIOObj()->key()),
 		sectionid );
@@ -184,9 +186,9 @@ bool uiExportHorizon::writeAscii()
 	    if ( nrattribs )
 	    {
 		const RowCol emrc( bid.inl, bid.crl );
-		const EM::SubID subid = hor->rowCol2SubID( emrc );
+		const EM::SubID subid = hor->geometry.rowCol2SubID( emrc );
 		posid.setSubID( subid );
-		auxvalue = hor->getAuxDataVal(0,posid);
+		auxvalue = hor->auxdata.getAuxDataVal(0,posid);
 	    }
 	    
 	    if ( dogf )
@@ -214,7 +216,7 @@ bool uiExportHorizon::writeAscii()
 	    }
 
 	    for ( int idx=0; idx<nrattribs; idx++ )
-		*sdo.ostrm << '\t' << hor->getAuxDataVal(idx,posid);
+		*sdo.ostrm << '\t' << hor->auxdata.getAuxDataVal(idx,posid);
 
 	    *sdo.ostrm << '\n';
 	}

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.11 2003-12-18 12:45:10 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.12 2004-08-09 14:09:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiiosurface.h"
 
 #include "emsurfaceiodata.h"
+#include "emsurfaceauxdata.h"
 #include "uimsg.h"
 #include "ioobj.h"
 #include "emsurface.h"
@@ -46,8 +47,8 @@ bool uiWriteSurfaceDlg::acceptOK( CallBacker* )
     if ( rv && !uiMSG().askGoOn(msg) )
 	return false;
 
-    if ( attrnm != surf.auxDataName(0) )
-	const_cast<EM::Surface&>(surf).setAuxDataName( 0, attrnm.buf() );
+    if ( attrnm != surf.auxdata.auxDataName(0) )
+	const_cast<EM::Surface&>(surf).auxdata.setAuxDataName( 0, attrnm.buf());
 
     return true;
 }

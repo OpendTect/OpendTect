@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.4 2004-08-05 12:26:59 kristofer Exp $
+ RCS:           $Id: vishingeline.cc,v 1.5 2004-08-09 14:09:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "emhingeline.h"
 #include "emsurface.h"
+#include "emsurfacegeometry.h"
 #include "emmanager.h"
 #include "settings.h"
 #include "trackingedgeline.h"
@@ -220,7 +221,8 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 	    for ( int nodeidx=0; nodeidx<nrnodes; nodeidx++ )
 	    {
 		const RowCol& rc = (*edgelinesegment)[nodeidx];
-		if ( defprevrc && !rc.isNeighborTo(prevrc, surface.step()) &&
+		if ( defprevrc &&
+			!rc.isNeighborTo(prevrc, surface.geometry.step()) &&
 			coordindexindex &&
 			polyline->getCoordIndex(coordindexindex-1)!=-1 )
 		{
@@ -231,7 +233,7 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 		    continue;
 		}
 
-		const Coord3 pos = surface.getPos(section,rc);
+		const Coord3 pos = surface.geometry.getPos(section,rc);
 		if ( !pos.isDefined() )
 		{
 		    polyline->setCoordIndex( coordindexindex, -1 );
@@ -255,7 +257,7 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 	}
 
 	if ( connect && deffirstrc && defprevrc &&
-		firstrc.isNeighborTo(prevrc, surface.step()) )
+		firstrc.isNeighborTo(prevrc, surface.geometry.step()) )
 	{
 	    polyline->setCoordIndex( coordindexindex,
 		    		     polyline->getCoordIndex(0) );

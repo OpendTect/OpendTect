@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.32 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.33 2004-08-09 14:09:31 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "emsurface.h"
+#include "emsurfacegeometry.h"
 
 /*!
 Rules for horizons.
@@ -62,21 +63,29 @@ public:
 				  sections for every Grid imported.
 				*/
 
-    BinID			getBinID(const EM::SubID&);
-    BinID			getBinID(const RowCol&);
-    EM::SubID			getSubID(const BinID&);
-    RowCol			getRowCol(const BinID&);
-
-    bool			createFromStick(const TypeSet<Coord3>&,float);
-
 protected:
 	    			Horizon(EMManager&,const ObjectID&);
-
-    Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
     const IOObjContext&		getIOObjContext() const;
 
     friend class		EMManager;
     friend class		EMObject;
+};
+
+
+class HorizonGeometry : public SurfaceGeometry
+{
+public:
+    				HorizonGeometry( EM::Surface& );
+
+    static BinID		getBinID(const EM::SubID&);
+    static BinID		getBinID(const RowCol&);
+    static EM::SubID		getSubID(const BinID&);
+    static RowCol		getRowCol(const BinID&);
+
+    bool			createFromStick(const TypeSet<Coord3>&,float);
+
+protected:
+    Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
 };
 
 

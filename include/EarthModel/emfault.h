@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.18 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.19 2004-08-09 14:09:31 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 #include "emsurface.h"
+#include "emsurfacegeometry.h"
 
 namespace Geometry { class MeshSurface; };
 
@@ -24,13 +25,9 @@ namespace EM
 */
 class Fault : public EM::Surface
 {
-public:
-    bool			createFromStick(const TypeSet<Coord3>&,float);
-
 protected:
 				Fault(EMManager&,const ObjectID&);
 
-    Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
     const IOObjContext&		getIOObjContext() const;
 
 
@@ -38,6 +35,18 @@ protected:
     friend class		EMObject;
 
 };
+
+
+class FaultGeometry : public EM::SurfaceGeometry
+{
+public:
+    			FaultGeometry( EM::Fault& );
+
+protected:
+    bool			createFromStick(const TypeSet<Coord3>&,float);
+    Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
+};
+
 
 }; // Namespace
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.37 2004-07-23 12:54:49 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.38 2004-08-09 14:09:31 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.37 2004-07-23 12:54:49 krist
 #include "datachar.h"
 #include "datainterp.h"
 #include "emsurface.h"
+#include "emsurfacegeometry.h"
+#include "emsurfaceauxdata.h"
 #include "emhingeline.h"
 #include "emsurfauxdataio.h"
 #include "filegen.h"
@@ -524,22 +526,22 @@ int EM::dgbSurfaceReader::nextStep()
 		    ((surfrc.col-readcolrange->start)%readcolrange->step)))
 	    continue;
 
-	if ( !surface->getSurface(sectionid) )
+	if ( !surface->geometry.getSurface(sectionid) )
 	{
 	    const RowCol filestep = rcconv 
 			    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
 			    : RowCol(rowrange.step, colrange.step);
 
-	    surface->setTranslatorData( filestep, 
+	    surface->geometry.setTranslatorData( filestep, 
 		    readrowrange ? RowCol(readrowrange->step,readcolrange->step)
 				 : filestep,
 		    rowcol, readrowrange, readcolrange );
 
 	    const int index = sectionids.indexOf(sectionid);
-	    surface->addSection( *sectionnames[index], sectionids[index], false );
+	    surface->geometry.addSection( *sectionnames[index], sectionids[index], false );
 	}
 
-	surface->setPos( sectionid, rowcol, pos, false, false );
+	surface->geometry.setPos( sectionid, rowcol, pos, false, false );
     }
 
     rowindex++;
@@ -649,8 +651,8 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 
     surface.fillPar( par );
 
-    surface.getRange( *writerowrange, true );
-    surface.getRange( *writecolrange, false );
+    surface.geometry.getRange( *writerowrange, true );
+    surface.geometry.getRange( *writecolrange, false );
 }
 
 
@@ -666,19 +668,19 @@ EM::dgbSurfaceWriter::~dgbSurfaceWriter()
 
 int EM::dgbSurfaceWriter::nrSections() const
 {
-    return surface.nrSections();
+    return surface.geometry.nrSections();
 }
 
 
 EM::SectionID EM::dgbSurfaceWriter::sectionID( int idx ) const
 {
-    return surface.sectionID(idx);
+    return surface.geometry.sectionID(idx);
 }
 
 
 const char* EM::dgbSurfaceWriter::sectionName( int idx ) const
 {
-    return surface.sectionName(sectionID(idx));
+    return surface.geometry.sectionName(sectionID(idx));
 }
 
 
@@ -690,13 +692,13 @@ void EM::dgbSurfaceWriter::selSections(const TypeSet<EM::SectionID>& sel)
 
 int EM::dgbSurfaceWriter::nrAuxVals() const
 {
-    return surface.nrAuxData();
+    return surface.auxdata.nrAuxData();
 }
 
 
 const char* EM::dgbSurfaceWriter::auxDataName( int idx ) const
 {
-    return surface.auxDataName(idx);
+    return surface.auxdata.auxDataName(idx);
 }
 
 
@@ -786,7 +788,7 @@ int EM::dgbSurfaceWriter::nextStep()
 
 	for ( int idx=0; idx<auxdatasel.size(); idx++ )
 	{
-	    if ( auxdatasel[idx]>=surface.nrAuxData() )
+	    if ( auxdatasel[idx]>=surface.auxdata.nrAuxData() )
 		continue;
 
 	    BufferString fnm( dgbSurfDataWriter::createHovName( 
@@ -810,7 +812,7 @@ int EM::dgbSurfaceWriter::nextStep()
 
 	    key = dgbSurfaceReader::sectionnamestr;
 	    key += idx;
-	    par.set( key, surface.sectionName(sectionsel[idx]));
+	    par.set( key, surface.geometry.sectionName(sectionsel[idx]));
 	}
 
 	std::ostream& stream = conn->oStream();
@@ -835,9 +837,9 @@ int EM::dgbSurfaceWriter::nextStep()
     if ( sectionindex!=oldsectionindex )
     {
 	const Geometry::MeshSurface* gsurf =
-	    			surface.getSurface( sectionsel[sectionindex] );
+	    			surface.geometry.getSurface( sectionsel[sectionindex] );
 	StepInterval<int> sectionrange;
-       	surface.getRange( sectionsel[sectionindex], sectionrange, true );
+       	surface.geometry.getRange( sectionsel[sectionindex], sectionrange, true );
 	firstrow = sectionrange.start;
 	int lastrow = sectionrange.stop;
 
@@ -890,7 +892,7 @@ int EM::dgbSurfaceWriter::nextStep()
     const int row = firstrow+rowindex *
 		    (writerowrange?writerowrange->step:rowrange.step);
 
-    const EM::SectionID sectionid = surface.sectionID(sectionindex);
+    const EM::SectionID sectionid = surface.geometry.sectionID(sectionindex);
     TypeSet<Coord3> colcoords;
 
     int firstcol = -1;
@@ -902,7 +904,7 @@ int EM::dgbSurfaceWriter::nextStep()
 	    				colrange.atIndex(colindex);
 
 	const EM::PosID posid(  surface.id(), sectionid,
-				surface.rowCol2SubID(RowCol(row,col)));
+				surface.geometry.rowCol2SubID(RowCol(row,col)));
 	const Coord3 pos = surface.getPos(posid);
 
 	if ( !colcoords.size() && !pos.isDefined() )
