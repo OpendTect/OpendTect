@@ -5,16 +5,14 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.5 2001-05-31 14:30:30 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.6 2001-06-02 13:54:41 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
 #include "strmprov.h"
 #include "strmdata.h"
 #include "filegen.h"
-
-#ifndef __win__
-#include <stdiostream.h>
+#ifndef __msvc__
 #include <unistd.h>
 #endif
 
@@ -29,6 +27,7 @@ int Execute_batch( int* pargc, char** argv )
 
     if ( BP().inbg_ )
     {
+#ifdef __msvc__
 	switch ( fork() )
 	{
 	case -1:
@@ -38,6 +37,7 @@ int Execute_batch( int* pargc, char** argv )
 	    return 0;
 	break;
 	}
+#endif
     }
 
     int res = BatchProgram::inst_->go(
@@ -117,19 +117,15 @@ bool BatchProgram::initOutput()
 #ifndef __win__
     if ( res && !strcmp(res,"window") )
     {
-	FileNameString comm( "disp_text " );
+	FileNameString comm( "@disp_text " );
 	comm += name();
-	sdout_.fp = popen( (const char*)comm, "w" );
-	if ( !sdout_.fp )
+	StreamProvider sp( comm );
+	sdout_ = sp.makeOStream();
+	if ( !sdout_.usable() )
 	{
 	    cerr << name() << ": Cannot open window for output" << endl;
 	    cerr << "Using std output instead" << endl;
 	    res = 0;
-	}
-	else
-	{
-	    sdout_.sb = new stdiobuf( sdout_.fp );
-	    sdout_.ostrm = new ostream( sdout_.sb );
 	}
     }
 #endif
