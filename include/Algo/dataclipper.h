@@ -1,0 +1,61 @@
+#ifndef dataclipper_h
+#define dataclipper_h
+
+/*+
+________________________________________________________________________
+
+ CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
+ Author:	A.H. Bril
+ Date:		4-11-1995
+ RCS:		$Id: dataclipper.h,v 1.1 2002-02-07 15:20:58 kristofer Exp $
+________________________________________________________________________
+
+
+-*/
+
+/*!\brief
+
+A DataClipper gets a bunch of data and dtermines at what value to clip
+if a certain clippercentag is desired.
+
+*/
+
+#include "sets.h"
+#include "ranges.h"
+
+class DataClipper
+{
+public:
+    				DataClipper( float cliprate );
+				/*!< cliprate is between 0 and 0.5 */
+    void			setClipRate( float ncr ) { cliprate=ncr; }	
+				/*!< cliprate is between 0 and 0.5 */
+    float			clipRate() const { return cliprate; }
+				/*!< cliprate is between 0 and 0.5 */
+
+    void			setApproxNrValues(int nrsamples,
+						  int statsize=2000);
+    				/*!< Will make it faster if large amount
+				     (>10000 samples) of data is used. The
+				     Object will then randomly subselect
+				     on the input to get about statsize samples
+				     to do the stats on.
+				*/
+    void			putData(float);
+    void			putData(const float*, int );
+
+    void			calculateRange();
+
+    const Interval<float>&	getRange() const { return range; }
+
+
+protected:
+    float			sampleprob;
+    bool			subselect;
+    float			cliprate;
+    TypeSet<float>		samples;
+    Interval<float>		range;
+};
+
+
+#endif
