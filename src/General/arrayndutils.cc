@@ -92,7 +92,7 @@ bool ArrayNDWindow::buildWindow( )
     const int ndim = size.getNDim();
     ArrayNDIter position( size );
 
-    MathFunction* windowfunc = 0;
+    MathFunction<float>* windowfunc = 0;
 
     if ( type == ArrayNDWindow::Hamming )
 	windowfunc = new ArrayNDWindow::HammingWindow;

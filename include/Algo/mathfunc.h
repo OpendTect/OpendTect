@@ -30,25 +30,27 @@ and a correlation coefficient. There is no 2D variant yet.
 #include <position.h>
 
 
+template <class T>
 class MathFunction
 {
 public:
 
-    virtual float	getValue(double) const	= 0;
+    virtual T		getValue(double) const	= 0;
 
 };
 
 
+template <class T>
 class MathXYFunction
 {
 public:
 
-    virtual float	getValue(const Coord&) const	= 0;
+    virtual T		getValue(const Coord&) const	= 0;
 
 };
 
 
-class LinePars : public MathFunction
+class LinePars : public MathFunction<float>
 {
 public:
 		LinePars( double i0=0, double i1=0 )
@@ -61,7 +63,7 @@ public:
 };
 
 
-class PlanePars : public MathXYFunction
+class PlanePars : public MathXYFunction<float>
 {
 public:
 		PlanePars( double i0=0, double i1=0, double i2=0 )

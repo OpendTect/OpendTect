@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.6 2000-03-22 13:40:50 bert Exp $
+ RCS:           $Id: genericnumer.h,v 1.7 2000-06-29 10:20:13 bert Exp $
 ________________________________________________________________________
 
 
 */
 
 #include <ranges.h>
-class MathFunction;
+template <class T> class MathFunction;
 
 /*
 Compute z = x convolved with y; i.e.,
@@ -73,7 +73,7 @@ inline float similarity( const A& a, const B& b, int sz,
     return 1 - (sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2)));
 }
 
-float similarity(const MathFunction&,const MathFunction&, 
+float similarity(const MathFunction<float>&,const MathFunction<float>&, 
 		 float x1, float x2, float dist, int sz);
 
 /* 
@@ -90,10 +90,10 @@ found in an interval, a high precision search is started in that interval.
 */
 
 
-bool findValue(const MathFunction&,float x1,float x2,float& res,
+bool findValue(const MathFunction<float>&,float x1,float x2,float& res,
 	       float targetval = 0,float tol=1e-5);
 
-float findValueInAperture(const MathFunction&,float startx, 
+float findValueInAperture(const MathFunction<float>&,float startx, 
 	 	const TimeGate& aperture,float dx,float target=0,
 		float tol=1e-5);
 
@@ -104,7 +104,7 @@ f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,
 mUndefValue is returned;
 */
 
-float findExtreme( const MathFunction&, bool minima, float x1, float x2,
+float findExtreme( const MathFunction<float>&, bool minima, float x1, float x2,
 		   float tol = 1e-5);
 
 #endif

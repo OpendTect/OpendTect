@@ -10,7 +10,7 @@
 #define ITMAX 100
 #define EPS 3.0e-8
    
-bool findValue( const MathFunction& func, float x1, float x2, float& res,
+bool findValue( const MathFunction<float>& func, float x1, float x2, float& res,
 		   float targetval, float tol)
 { 
     int iter;
@@ -84,7 +84,7 @@ bool findValue( const MathFunction& func, float x1, float x2, float& res,
 #undef ITMAX
 #undef EPS
 
-float findValueInAperture( const MathFunction& func, float startx, 
+float findValueInAperture( const MathFunction<float>& func, float startx, 
 			   const TimeGate& aperture, float dx, float target,
 			   float tol)
 {
@@ -131,7 +131,7 @@ float findValueInAperture( const MathFunction& func, float startx,
 }
 
 
-float similarity( const MathFunction& a, const MathFunction& b, 
+float similarity( const MathFunction<float>& a, const MathFunction<float>& b, 
 			 float a1, float b1, float dist, int sz )
 {
     float val1, val2;
@@ -160,8 +160,8 @@ float similarity( const MathFunction& a, const MathFunction& b,
 #define SIGN(a,b) ((b) > 0.0 ? fabs(a) : -fabs(a))
 #define SHFT(a,b,c,d) (a)=(b);(b)=(c);(c)=(d);
 
-float findExtreme( const MathFunction& func, bool minimum, float x1, float x3,
-		   float tol)   
+float findExtreme( const MathFunction<float>& func, bool minimum, float x1,
+		   float x3, float tol)   
 {
     float x2 = (x1+x3)/2;
 

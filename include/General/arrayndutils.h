@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.2 2000-03-22 13:41:00 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.3 2000-06-29 10:20:23 bert Exp $
 ________________________________________________________________________
 
 
@@ -115,14 +115,14 @@ protected:
 
     bool			buildWindow( );
 
-    class BoxWindow : public MathFunction
+    class BoxWindow : public MathFunction<float>
     {
     public:
 	float	getValue( double x ) const
 		{ return fabs(x) > 1 ? 0 : 1; }
     };
 
-    class HammingWindow : public MathFunction
+    class HammingWindow : public MathFunction<float>
     {
     public:
 	float	getValue( double x ) const
