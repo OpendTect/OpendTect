@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.21 2004-05-19 07:11:57 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.22 2004-05-24 14:00:37 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -1022,21 +1022,26 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     markermnuid = menu->getFreeID();
     showmnu->insertItem( markeritem, markermnuid );
     markeritem->setChecked( wd->markersShown() );
+    markeritem->setEnabled( wd->canShowMarkers() );
 
     uiMenuItem* markernameitem = new uiMenuItem("Marker names");
     markernamemnuid = menu->getFreeID();
     showmnu->insertItem( markernameitem, markernamemnuid );
-    markernameitem->setChecked( wd->markerNameShown() );
+    markernameitem->setChecked( wd->canShowMarkers() && wd->markerNameShown() );
+    markernameitem->setEnabled( wd->canShowMarkers() );
 
     uiMenuItem* logsmnuitem = new uiMenuItem("Logs");
     showlogmnuid = menu->getFreeID();
     showmnu->insertItem( logsmnuitem, showlogmnuid );
     logsmnuitem->setChecked( wd->logsShown() );
+    logsmnuitem->setEnabled( applMgr()->wellServer()->hasLogs(wd->wellId()) );
 
     menu->addSubMenu( showmnu );
 
     selattrmnuid = menu->addItem(  new uiMenuItem("Select Attribute ...") );
-    sellogmnuid = menu->addItem(  new uiMenuItem("Select logs ...") );
+    uiMenuItem* sellogmnuitem = new uiMenuItem("Select logs ...");
+    sellogmnuid = menu->addItem( sellogmnuitem );
+    sellogmnuitem->setEnabled( applMgr()->wellServer()->hasLogs(wd->wellId()) );
 }
 
 
@@ -1059,7 +1064,7 @@ void uiODWellTreeItem::handleMenuCB(CallBacker* cb)
 				*applMgr()->attrServer()->curDescSet() );
 	applMgr()->wellAttribServer()->selectAttribute( wellid );
     }
-    else if ( mnuid == sellogmnuid )
+    else if ( mnuid==sellogmnuid )
     {
 	menu->setIsHandled(true);
 	int selidx = -1;
