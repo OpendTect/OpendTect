@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.1 2005-01-06 09:45:32 kristofer Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.2 2005-01-20 15:52:55 kristofer Exp $";
 
 #include "binidsurface.h"
 
@@ -85,7 +85,7 @@ Coord3 BinIDSurface::computeNormal( const Coord& ) const
 
 bool BinIDSurface::insertRow(int row) 
 {
-    mInsertStart( rowidx, Row, rowIndex(row) );
+    mInsertStart( rowidx, row, nrRows() );
     mCloneRowVariable( float, depths, computePosition(param).z, mUndefValue )
     return true;
 }
@@ -93,7 +93,7 @@ bool BinIDSurface::insertRow(int row)
 
 bool BinIDSurface::insertColumn(int col) 
 {
-    mInsertStart( colidx, Col, colIndex(col) );
+    mInsertStart( colidx, col, nrCols() );
     mCloneColVariable( float, depths, computePosition(param).z, mUndefValue )
     return true;
 }
