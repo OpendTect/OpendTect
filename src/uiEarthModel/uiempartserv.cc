@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.36 2003-11-24 08:54:54 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.37 2003-12-17 15:43:30 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,9 +88,7 @@ bool uiEMPartServer::exportHorizon() { return ioHorizon( false ); }
 BufferString uiEMPartServer::getName(const MultiID& mid) const
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::EMObject*,emobj,em.getObject(em.multiID2ObjectID(mid)));
-    if ( !emobj ) return 0;
-    return emobj->name();
+    return em.name(em.multiID2ObjectID(mid));
 }
 
 
