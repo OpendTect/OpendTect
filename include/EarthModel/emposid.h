@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.4 2003-05-05 11:59:10 kristofer Exp $
+ RCS:		$Id: emposid.h,v 1.5 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "geomposidholder.h"
 
-namespace EarthModel
+namespace EM
 {
 
 typedef MultiID ObjectID;

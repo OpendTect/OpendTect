@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.12 2003-05-26 14:52:14 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.13 2003-06-03 12:46:12 bert Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -52,23 +52,23 @@ visSurvey::WellDisplay::~WellDisplay()
     removeChild( drawstyle->getData() );
     drawstyle->unRef();
 
-    if ( EarthModel::EMM().getObject( wellid ) )
-	EarthModel::EMM().unRef( wellid );
+    if ( EM::EMM().getObject( wellid ) )
+	EM::EMM().unRef( wellid );
 }
 
 
 bool visSurvey::WellDisplay::setWellId( const MultiID& multiid )
 {
-    const EarthModel::EMManager& em = EarthModel::EMM();
+    const EM::EMManager& em = EM::EMM();
 
-    mDynamicCastGet( const EarthModel::Well*, well, em.getObject( multiid ) );
+    mDynamicCastGet( const EM::Well*, well, em.getObject( multiid ) );
     if ( !well ) return false;
 
     while ( line->size() ) line->removePoint( 0 );
     displayedattrib = -1;
 
-    if ( EarthModel::EMM().getObject( wellid ) )
-	EarthModel::EMM().unRef( wellid );
+    if ( EM::EMM().getObject( wellid ) )
+	EM::EMM().unRef( wellid );
 
     wellid = multiid;
     well->ref();
@@ -89,24 +89,24 @@ bool visSurvey::WellDisplay::setWellId( const MultiID& multiid )
 
 int  visSurvey::WellDisplay::nrAttribs() const
 {
-    const EarthModel::EMManager& em = EarthModel::EMM();
-    mDynamicCastGet( const EarthModel::Well*, well, em.getObject( wellid ) );
+    const EM::EMManager& em = EM::EMM();
+    mDynamicCastGet( const EM::Well*, well, em.getObject( wellid ) );
     return well ? well->nrValues() : -1;
 }
 
 
 const char* visSurvey::WellDisplay::getAttribName(int idx) const
 {
-    const EarthModel::EMManager& em = EarthModel::EMM();
-    mDynamicCastGet( const EarthModel::Well*, well, em.getObject( wellid ) );
+    const EM::EMManager& em = EM::EMM();
+    mDynamicCastGet( const EM::Well*, well, em.getObject( wellid ) );
     return well ? well->valueName(idx) : 0;
 }
 
 
 bool visSurvey::WellDisplay::depthIsT() const
 {
-    const EarthModel::EMManager& em = EarthModel::EMM();
-    mDynamicCastGet( const EarthModel::Well*, well, em.getObject( wellid ) );
+    const EM::EMManager& em = EM::EMM();
+    mDynamicCastGet( const EM::Well*, well, em.getObject( wellid ) );
     return well ? well->zIsTime() : true;
 }
 
@@ -161,7 +161,7 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
     if ( !par.get( earthmodelidstr, newwellid ))
 	return -1;
 
-    EarthModel::EMManager& em = EarthModel::EMM();
+    EM::EMManager& em = EM::EMM();
     if ( !em.isLoaded( newwellid ) )
     {
 	PtrMan<Executor> exec = em.load( newwellid );

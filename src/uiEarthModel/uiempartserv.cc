@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.13 2003-06-02 08:16:58 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.14 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ bool uiEMPartServer::importHorizon()
 
 bool uiEMPartServer::selectHorizon( MultiID& id )
 {
-    CtxtIOObj ctio( EarthModelHorizonTranslator::ioContext() );
+    CtxtIOObj ctio( EMHorizonTranslator::ioContext() );
     ctio.ctxt.forread = true;
     uiIOObjSelDlg dlg( appserv().parent(), ctio );
     if ( !dlg.go() ) return false;
@@ -85,7 +85,7 @@ bool uiEMPartServer::importWellTrack()
 
 bool uiEMPartServer::selectWellTracks( ObjectSet<MultiID>& ids )
 {
-    CtxtIOObj ctio( EarthModelWellTranslator::ioContext() );
+    CtxtIOObj ctio( EMWellTranslator::ioContext() );
     ctio.ctxt.forread = true;
     uiIOObjSelDlg dlg( appserv().parent(), ctio, 0, true );
     if ( !dlg.go() ) return false;
@@ -95,9 +95,9 @@ bool uiEMPartServer::selectWellTracks( ObjectSet<MultiID>& ids )
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	MultiID wellid = dlg.selected(idx)->key();
-	if ( !EarthModel::EMM().isLoaded( wellid ) )
+	if ( !EM::EMM().isLoaded( wellid ) )
 	{
-	    PtrMan<Executor> exec = EarthModel::EMM().load( wellid );
+	    PtrMan<Executor> exec = EM::EMM().load( wellid );
 	    if ( !exec ) mErrRet( dlg.ioObj()->name() );
 	    uiExecutor exdlg( appserv().parent(), *exec );
 	    if ( exdlg.go() <= 0 )
@@ -113,7 +113,7 @@ bool uiEMPartServer::selectWellTracks( ObjectSet<MultiID>& ids )
 
 bool uiEMPartServer::selectFault( MultiID& id )
 {
-    CtxtIOObj ctio( EarthModelFaultTranslator::ioContext() );
+    CtxtIOObj ctio( EMFaultTranslator::ioContext() );
     ctio.ctxt.forread = true;
     uiIOObjSelDlg dlg( appserv().parent(), ctio );
     if ( !dlg.go() ) return false;
@@ -125,20 +125,20 @@ bool uiEMPartServer::selectFault( MultiID& id )
 
 bool uiEMPartServer::loadSurface( const MultiID& id )
 {
-    if ( EarthModel::EMM().isLoaded(id) )
+    if ( EM::EMM().isLoaded(id) )
 	return true;
 
-    PtrMan<Executor> exec = EarthModel::EMM().load( id );
+    PtrMan<Executor> exec = EM::EMM().load( id );
     if ( !exec ) mErrRet( IOM().nameOf(id) );
-    EarthModel::EMM().ref( id );
+    EM::EMM().ref( id );
     uiExecutor exdlg( appserv().parent(), *exec );
     if ( exdlg.go() <= 0 )
     {
-	EarthModel::EMM().unRef( id );
+	EM::EMM().unRef( id );
 	return false;
     }
 
-    EarthModel::EMM().unRefNoDel( id );
+    EM::EMM().unRefNoDel( id );
     return true;
 }
 
@@ -152,11 +152,11 @@ bool uiEMPartServer::importLMKFault()
 
 void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 {
-    int nrobjects = EarthModel::EMM().nrObjects();
+    int nrobjects = EM::EMM().nrObjects();
     for ( int idx=0; idx<nrobjects; idx++ )
     {
-	EarthModel::EMManager& em = EarthModel::EMM();
-	mDynamicCastGet(EarthModel::Horizon*,hor,em.getEMObject(idx))
+	EM::EMManager& em = EM::EMM();
+	mDynamicCastGet(EM::Horizon*,hor,em.getEMObject(idx))
 	if ( hor )
 	    hinfos += new SurfaceInfo( hor->name(), hor->id() );
     }
@@ -167,8 +167,8 @@ void uiEMPartServer::getSurfaceDef( const MultiID& id,
 				    ObjectSet< TypeSet<BinIDValue> >& bidvset,
 				    const BinIDRange* br ) const
 {
-    EarthModel::EMManager& em = EarthModel::EMM();
-    mDynamicCastGet(EarthModel::Horizon*,hor,em.getObject(id))
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
     if ( !hor ) return;
     hor->ref();
 

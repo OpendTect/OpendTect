@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.23 2003-05-22 08:25:53 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.24 2003-06-03 12:46:12 bert Exp $";
 
 #include "emhorizon.h"
 
@@ -20,19 +20,19 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.23 2003-05-22 08:25:53 krist
 #include "linsolv.h"
 #include "ptrman.h"
 
-EarthModel::Horizon::Horizon(EMManager& man, const MultiID& id_)
+EM::Horizon::Horizon(EMManager& man, const MultiID& id_)
     : Surface( man, id_ )
     , a11( 1 ) , a12( 0 ) , a13( 0 ) , a21( 0 ) , a22( 1 ) , a23( 0 )
     , b11( 1 ) , b12( 0 ) , b13( 0 ) , b21( 0 ) , b22( 1 ) , b23( 0 )
 {}
 
 
-EarthModel::Horizon::~Horizon()
+EM::Horizon::~Horizon()
 { }
 
 
 
-Geometry::GridSurface* EarthModel::Horizon::createPatchSurface() const
+Geometry::GridSurface* EM::Horizon::createPatchSurface() const
 {
     Geometry::Snapped2DSurface* newsurf = new Geometry::Snapped2DSurface();
     RowCol rc00( 0, 0 );
@@ -50,37 +50,39 @@ Geometry::GridSurface* EarthModel::Horizon::createPatchSurface() const
 }
 
 
-Executor* EarthModel::Horizon::loader()
+Executor* EM::Horizon::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( id() );
+    if ( !ioobj )
+	{ errmsg = "Cannot find the horizon object"; return 0; }
 
-    Executor* exec = EarthModelHorizonTranslator::reader( *this, ioobj, errmsg);
-    if ( errmsg[0] )
-    {
-	delete exec;
-	exec = 0;
-    }
+    EMHorizonTranslator tr;
+    if ( !tr.startRead(*ioobj,*this) )
+	{ errmsg = tr.errMsg(); return 0; }
 
+    Executor* exec = tr.reader();
+    errmsg = tr.errMsg();
     return exec;
 }
 
 
-Executor* EarthModel::Horizon::saver()
+Executor* EM::Horizon::saver()
 {
+    EMHorizonTranslator tr;
+    if ( !tr.startWrite(*this) )
+	{ errmsg = tr.errMsg(); return 0; }
+
     PtrMan<IOObj> ioobj = IOM().get( id() );
+    if ( !ioobj )
+	{ errmsg = "Cannot find the horizon object"; return 0; }
 
-    Executor* exec = EarthModelHorizonTranslator::writer( *this, ioobj, errmsg);
-    if ( errmsg[0] )
-    {
-	delete exec;
-	exec = 0;
-    }
-
+    Executor* exec = tr.writer(*ioobj);
+    errmsg = tr.errMsg();
     return exec;
 }
 
 
-bool EarthModel::Horizon::import( const Grid& grid )
+bool EM::Horizon::import( const Grid& grid )
 {
     cleanUp();
 
@@ -99,7 +101,7 @@ bool EarthModel::Horizon::import( const Grid& grid )
 		  coord01.x, coord01.y, node01.row, node01.col,
 		  coord10.x, coord10.y, node10.row, node10.col );
 
-    const EarthModel::PatchID part = addPatch(true);
+    const EM::PatchID part = addPatch(true);
 
     for ( int row=0; row<nrrows; row++ )
     {
@@ -118,21 +120,21 @@ bool EarthModel::Horizon::import( const Grid& grid )
 }
 
 
-Coord EarthModel::Horizon::getCoord( const RowCol& node ) const
+Coord EM::Horizon::getCoord( const RowCol& node ) const
 {
     return Coord( a11*node.row+a12*node.col+a13,
 	    	  a21*node.row+a22*node.col+a23 );
 }
 
 
-RowCol EarthModel::Horizon::getClosestNode( const Coord& pos ) const
+RowCol EM::Horizon::getClosestNode( const Coord& pos ) const
 {
     return RowCol( mNINT(b11*pos.x+b12*pos.y + b13),
 	           mNINT(b21*pos.x+b22*pos.y + b23) );
 }
 
 
-void EarthModel::Horizon::setTransform(
+void EM::Horizon::setTransform(
     float x1, float y1, float i0_1, float i1_1,
     float x2, float y2, float i0_2, float i1_2,
     float x3, float y3, float i0_3, float i1_3 )

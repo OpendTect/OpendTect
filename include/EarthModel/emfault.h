@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.8 2003-05-05 12:02:15 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.9 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -15,18 +15,18 @@ ________________________________________________________________________
 #include "emsurface.h"
 
 
-class dgbEarthModelFaultReader;
+class dgbEMFaultReader;
 
-namespace EarthModel
+namespace EM
 {
 
 /*!\brief
 
 */
-class Fault : public EarthModel::Surface
+class Fault : public EM::Surface
 {
 public:
-			Fault( EarthModel::EMManager&, const MultiID &);
+			Fault( EM::EMManager&, const MultiID &);
 			~Fault();
 
     Executor*		loader();
@@ -34,7 +34,7 @@ public:
     Executor*		saver();
 
 protected:
-    friend			class ::dgbEarthModelFaultReader;
+    friend			class ::dgbEMFaultReader;
     Geometry::GridSurface*	createPatchSurface() const;
 };
 

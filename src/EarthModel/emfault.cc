@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.7 2003-05-05 11:59:55 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.8 2003-06-03 12:46:12 bert Exp $";
 
 #include "emfault.h"
 
@@ -15,21 +15,21 @@ static const char* rcsID = "$Id: emfault.cc,v 1.7 2003-05-05 11:59:55 kristofer 
 #include "ioobj.h"
 #include "ptrman.h"
 
-EarthModel::Fault::Fault(EarthModel::EMManager & emm_, const MultiID& mid_)
+EM::Fault::Fault(EM::EMManager & emm_, const MultiID& mid_)
     : Surface( emm_, mid_ )
 { }
 
 
-EarthModel::Fault::~Fault()
+EM::Fault::~Fault()
 { }
 
 
-Executor* EarthModel::Fault::loader()
+Executor* EM::Fault::loader()
 {
     if ( isLoaded() ) cleanUp();
 
     PtrMan<IOObj> ioobj = IOM().get( id() );
-    Executor* exec = EarthModelFaultTranslator::reader( *this, ioobj, errmsg);
+    Executor* exec = EMFaultTranslator::reader( *this, ioobj, errmsg);
     if ( errmsg[0] )
     {
 	delete exec;
@@ -40,10 +40,10 @@ Executor* EarthModel::Fault::loader()
 }
 
     
-Executor* EarthModel::Fault::saver()
+Executor* EM::Fault::saver()
 {
     PtrMan<IOObj> ioobj = IOM().get( id() );
-    Executor* exec = EarthModelFaultTranslator::writer( *this, ioobj, errmsg);
+    Executor* exec = EMFaultTranslator::writer( *this, ioobj, errmsg);
     if ( errmsg[0] )
     {
 	delete exec;
@@ -54,7 +54,7 @@ Executor* EarthModel::Fault::saver()
 }
 
 
-Geometry::GridSurface* EarthModel::Fault::createPatchSurface() const
+Geometry::GridSurface* EM::Fault::createPatchSurface() const
 {
     return new Geometry::GridSurfaceImpl;
 }

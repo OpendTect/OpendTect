@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.12 2003-05-26 09:16:58 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.13 2003-06-03 12:46:12 bert Exp $";
 
 #include "emmanager.h"
 
@@ -22,49 +22,47 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.12 2003-05-26 09:16:58 kristof
 #include "uidobjset.h"
 
 
-EarthModel::EMManager& EarthModel::EMM()
+EM::EMManager& EM::EMM()
 {
     static PtrMan<EMManager> emm = 0;
 
-    if ( !emm ) emm = new EarthModel::EMManager;
+    if ( !emm ) emm = new EM::EMManager;
     return *emm;
 }
 
-EarthModel::EMManager::EMManager()
-    : history_( *new EarthModel::History(*this) )
+EM::EMManager::EMManager()
+    : history_( *new EM::History(*this) )
 {
     init();
 }
 
 
-EarthModel::EMManager::~EMManager()
+EM::EMManager::~EMManager()
 {
     deepErase( objects );
     delete &history_;
 }
 
 
-const EarthModel::History& EarthModel::EMManager::history() const
+const EM::History& EM::EMManager::history() const
 { return history_; }
 
 
-EarthModel::History& EarthModel::EMManager::history()
+EM::History& EM::EMManager::history()
 { return history_; }
 
 
-void EarthModel::EMManager::init()
+void EM::EMManager::init()
 { } 
 
 
-MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
-				const char* name )
+MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Mdl)->id) );
 
-    if ( type==EarthModel::EMManager::Hor )
+    if ( type==EM::EMManager::Hor )
     {
-	CtxtIOObj* ctio =
-	    new CtxtIOObj(EarthModelHorizonTranslator::ioContext());
+	CtxtIOObj* ctio = new CtxtIOObj(EMHorizonTranslator::ioContext());
 	ctio->ctxt.forread = false;
 	ctio->ioobj = 0;
 	ctio->setName( name );
@@ -83,10 +81,10 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
     }
 
 
-    if ( type==EarthModel::EMManager::Fault )
+    if ( type==EM::EMManager::Fault )
     {
 	CtxtIOObj* ctio =
-	    new CtxtIOObj(EarthModelFaultTranslator::ioContext());
+	    new CtxtIOObj(EMFaultTranslator::ioContext());
 	ctio->ctxt.forread = false;
 	ctio->ioobj = 0;
 	ctio->setName( name );
@@ -95,7 +93,7 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 	if ( !ctio->ioobj ) return -1;
 	MultiID key = ctio->ioobj->key();
 
-	EarthModel::Fault* fault = new EarthModel::Fault( *this, key );
+	EM::Fault* fault = new EM::Fault( *this, key );
 	PtrMan<Executor> exec = fault->saver();
 	exec->execute();
 	objects += fault;
@@ -105,10 +103,10 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
     }
 
 
-    if ( type==EarthModel::EMManager::Well )
+    if ( type==EM::EMManager::Well )
     {
 	CtxtIOObj* ctio =
-	    new CtxtIOObj(EarthModelWellTranslator::ioContext());
+	    new CtxtIOObj(EMWellTranslator::ioContext());
 	ctio->ctxt.forread = false;
 	ctio->ioobj = 0;
 	ctio->setName( name );
@@ -117,7 +115,7 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 
 	MultiID key = ctio->ioobj->key();
 
-	EarthModel::Well* well = new EarthModel::Well( *this, key );
+	EM::Well* well = new EM::Well( *this, key );
 	PtrMan<Executor> exec = well->saver();
 	exec->execute();
 
@@ -131,7 +129,7 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 }
 
 
-EarthModel::EMObject* EarthModel::EMManager::getObject( const MultiID& id )
+EM::EMObject* EM::EMManager::getObject( const MultiID& id )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -143,7 +141,7 @@ EarthModel::EMObject* EarthModel::EMManager::getObject( const MultiID& id )
 }
 
 
-const EarthModel::EMObject* EarthModel::EMManager::getObject( const MultiID& id ) const
+const EM::EMObject* EM::EMManager::getObject( const MultiID& id ) const
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -155,7 +153,7 @@ const EarthModel::EMObject* EarthModel::EMManager::getObject( const MultiID& id 
 }
 
 
-const EarthModel::EMObject* EarthModel::EMManager::getEMObject( int idx ) const
+const EM::EMObject* EM::EMManager::getEMObject( int idx ) const
 {
     if ( objects.size() )
 	return objects[idx];
@@ -164,7 +162,7 @@ const EarthModel::EMObject* EarthModel::EMManager::getEMObject( int idx ) const
 }
 
 
-EarthModel::EMObject* EarthModel::EMManager::getEMObject( int idx )
+EM::EMObject* EM::EMManager::getEMObject( int idx )
 {
     if ( objects.size() )
 	return objects[idx];
@@ -173,7 +171,7 @@ EarthModel::EMObject* EarthModel::EMManager::getEMObject( int idx )
 }
 
 
-void EarthModel::EMManager::removeObject( const MultiID& id )
+void EM::EMManager::removeObject( const MultiID& id )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -188,7 +186,7 @@ void EarthModel::EMManager::removeObject( const MultiID& id )
 }
 
 
-void EarthModel::EMManager::ref( const MultiID& id )
+void EM::EMManager::ref( const MultiID& id )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -203,7 +201,7 @@ void EarthModel::EMManager::ref( const MultiID& id )
 }
 
 
-void EarthModel::EMManager::unRef( const MultiID& id )
+void EM::EMManager::unRef( const MultiID& id )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -224,7 +222,7 @@ void EarthModel::EMManager::unRef( const MultiID& id )
 }
 
 
-void EarthModel::EMManager::unRefNoDel( const MultiID& id )
+void EM::EMManager::unRefNoDel( const MultiID& id )
 {
     for ( int idx=0; idx<objects.size(); idx++ )
     {
@@ -242,7 +240,7 @@ void EarthModel::EMManager::unRefNoDel( const MultiID& id )
 }
 
 
-Executor* EarthModel::EMManager::load( const MultiID& id )
+Executor* EM::EMManager::load( const MultiID& id )
 {
     EMObject* obj = getObject( id );
     if ( obj ) return obj->loader();
@@ -251,26 +249,26 @@ Executor* EarthModel::EMManager::load( const MultiID& id )
     if ( !ioobj ) return 0;
 
     const char* grpname = ioobj->group();
-    if ( !strcmp( grpname, EarthModelWellTranslator::keyword ))
+    if ( !strcmp( grpname, EMWellTranslator::keyword ))
     {
-	EarthModel::Well* well = new EarthModel::Well( *this, id );
+	EM::Well* well = new EM::Well( *this, id );
 	objects += well;
 	refcounts += 0;
 	return well->loader();
     }
 
-    if ( !strcmp( grpname, EarthModelHorizonTranslator::keyword ))
+    if ( !strcmp( grpname, EMHorizonTranslator::keyword ))
     {
-	EarthModel::Horizon* hor = new EarthModel::Horizon( *this, id );
+	EM::Horizon* hor = new EM::Horizon( *this, id );
 	objects += hor;
 	refcounts += 0;
 	return hor->loader();
     }
 
 
-    if ( !strcmp( grpname, EarthModelFaultTranslator::keyword ))
+    if ( !strcmp( grpname, EMFaultTranslator::keyword ))
     {
-	EarthModel::Fault* fault = new EarthModel::Fault( *this, id );
+	EM::Fault* fault = new EM::Fault( *this, id );
 	objects += fault;
 	refcounts += 0;
 	return fault->loader();
@@ -280,7 +278,7 @@ Executor* EarthModel::EMManager::load( const MultiID& id )
 }
 
 
-bool EarthModel::EMManager::isLoaded(const MultiID& id ) const
+bool EM::EMManager::isLoaded(const MultiID& id ) const
 {
     const EMObject* obj = getObject( id );
     return obj ? obj->isLoaded() : false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.9 2003-05-26 09:17:01 kristofer Exp $
+ RCS:		$Id: emmanager.h,v 1.10 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class Executor;
 
-namespace EarthModel
+namespace EM
 {
 class EMObject;
 class History;

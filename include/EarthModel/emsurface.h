@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.4 2003-05-22 08:25:21 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.5 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ namespace Geometry
 };
 
 
-namespace EarthModel
+namespace EM
 {
 class EMManager;
 
@@ -73,19 +73,19 @@ public:
     bool		addPatch(PatchID, bool addtohistory);
     			/*!< Return false if the patchid allready exists */
     			
-    void		removePatch(EarthModel::PatchID, bool addtohistory);
+    void		removePatch(EM::PatchID, bool addtohistory);
 
     void		setPos( PatchID patch, const RowCol&, const Coord3&,
 	    			bool autoconnect, bool addtohistory );
-    Coord3		getPos(const EarthModel::PosID&) const;
-    bool		setPos(const EarthModel::PosID&, const Coord3&,
+    Coord3		getPos(const EM::PosID&) const;
+    bool		setPos(const EM::PosID&, const Coord3&,
 	    		       bool addtohistory);
     
     int			findPos( const CubeSampling&,
-	    			 TypeSet<EarthModel::PosID>* res ) const;
+	    			 TypeSet<EM::PosID>* res ) const;
 
-    int			getNeighbors( const EarthModel::PosID& posid, 
-	    			      TypeSet<EarthModel::PosID>* res,
+    int			getNeighbors( const EM::PosID& posid, 
+	    			      TypeSet<EM::PosID>* res,
 	   			      int size=1, bool circle=false ) const;
     			/*!<\param posid	The posid that we want the
 						neigbors to
@@ -100,8 +100,8 @@ public:
 			*/
 
 
-    void		getLinkedPos( const EarthModel::PosID& posid,
-	    			      TypeSet<EarthModel::PosID>& ) const;
+    void		getLinkedPos( const EM::PosID& posid,
+	    			      TypeSet<EM::PosID>& ) const;
 
    
     bool		isLoaded() const;

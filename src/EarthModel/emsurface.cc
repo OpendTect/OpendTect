@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.4 2003-05-22 08:27:02 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.5 2003-06-03 12:46:12 bert Exp $";
 
 #include "emsurface.h"
 
@@ -22,30 +22,30 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.4 2003-05-22 08:27:02 kristofe
 #include "ptrman.h"
 #include "survinfo.h"
 
-EarthModel::Surface::Surface(EMManager& man, const MultiID& id_)
+EM::Surface::Surface(EMManager& man, const MultiID& id_)
     : EMObject( man, id_ )
 {}
 
 
-EarthModel::Surface::~Surface()
+EM::Surface::~Surface()
 {
     cleanUp();
 }
 
 
-int EarthModel::Surface::nrPatches() const
+int EM::Surface::nrPatches() const
 {
     return patchids.size();
 }
 
 
-EarthModel::PatchID EarthModel::Surface::patchID(int idx) const
+EM::PatchID EM::Surface::patchID( int idx ) const
 {
     return patchids[idx];
 }
 
 
-EarthModel::PatchID EarthModel::Surface::addPatch(bool addtohistory)
+EM::PatchID EM::Surface::addPatch( bool addtohistory )
 {
     PatchID res = 0;
     while ( patchids.indexOf(res)!=-1 ) res++;
@@ -55,7 +55,7 @@ EarthModel::PatchID EarthModel::Surface::addPatch(bool addtohistory)
 }
 
 
-bool EarthModel::Surface::addPatch(PatchID patchid, bool addtohistory)
+bool EM::Surface::addPatch( PatchID patchid, bool addtohistory )
 {
     if ( patchids.indexOf(patchid) != -1 ) return false;
 
@@ -73,8 +73,7 @@ bool EarthModel::Surface::addPatch(PatchID patchid, bool addtohistory)
 }
 
 
-void EarthModel::Surface::removePatch(EarthModel::PatchID patchid,
-				     bool addtohistory)
+void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
 {
     int idx=patchids.indexOf(patchid);
     if ( idx==-1 ) return;
@@ -91,7 +90,7 @@ void EarthModel::Surface::removePatch(EarthModel::PatchID patchid,
 }
 
 
-void  EarthModel::Surface::setPos( PatchID patch, const RowCol& node,
+void EM::Surface::setPos( PatchID patch, const RowCol& node,
 				   const Coord3& pos, bool autoconnect,
 				   bool addtohistory)
 {
@@ -103,7 +102,7 @@ void  EarthModel::Surface::setPos( PatchID patch, const RowCol& node,
     const Coord3 oldpos = surface->getGridPos( node );
     if ( oldpos==pos ) return;
 
-    TypeSet<EarthModel::PosID> nodeonotherpatches;
+    TypeSet<EM::PosID> nodeonotherpatches;
 
     if ( autoconnect )
 	findPos( node, nodeonotherpatches );
@@ -114,7 +113,7 @@ void  EarthModel::Surface::setPos( PatchID patch, const RowCol& node,
     if ( addtohistory )
     {
 	HistoryEvent* history = new SetPosHistoryEvent( oldpos, pos,
-				    EarthModel::PosID(id(),patch,posid) );
+				    EM::PosID(id(),patch,posid) );
 	manager.history().addEvent( history, 0, 0 );
     }
 
@@ -138,8 +137,8 @@ void  EarthModel::Surface::setPos( PatchID patch, const RowCol& node,
 }
 
 
-bool EarthModel::Surface::setPos( const EarthModel::PosID& posid,
-				  const Coord3& newpos, bool addtohistory )
+bool EM::Surface::setPos( const EM::PosID& posid, const Coord3& newpos,
+			  bool addtohistory )
 {
     if ( posid.emObject()!=id() ) return false;
 
@@ -150,14 +149,14 @@ bool EarthModel::Surface::setPos( const EarthModel::PosID& posid,
 }
 
 
-Coord3 EarthModel::Surface::getPos(const EarthModel::PosID& posid) const
+Coord3 EM::Surface::getPos( const EM::PosID& posid ) const
 {
     const int surfidx = patchids.indexOf( posid.patchID() );
     return surfaces[surfidx]->getPos( posid.subID() );
 }
 
 
-int EarthModel::Surface::findPos( const RowCol& rowcol,
+int EM::Surface::findPos( const RowCol& rowcol,
 				  TypeSet<PosID>& res ) const
 {
     TypeSet<Coord3> respos;
@@ -169,7 +168,7 @@ int EarthModel::Surface::findPos( const RowCol& rowcol,
 	    continue;
 
 	Coord3 pos = gridsurf->getGridPos( rowcol );
-	EarthModel::SubID subid = Geometry::GridSurface::getPosID( rowcol );
+	EM::SubID subid = Geometry::GridSurface::getPosID( rowcol );
 
 	for ( int idx=0; idx<res.size(); idx++ )
 	{
@@ -187,8 +186,8 @@ int EarthModel::Surface::findPos( const RowCol& rowcol,
 }
 
 
-int EarthModel::Surface::findPos( const CubeSampling& cs,
-	                          TypeSet<EarthModel::PosID>* res ) const
+int EM::Surface::findPos( const CubeSampling& cs,
+			  TypeSet<EM::PosID>* res ) const
 {
     Coord xypos = SI().transform(cs.hrg.start);
     Interval<float> xinterval( xypos.x, xypos.x );
@@ -206,7 +205,7 @@ int EarthModel::Surface::findPos( const CubeSampling& cs,
     xinterval.include( xypos.x );
     yinterval.include( xypos.y );
 
-    TypeSet<EarthModel::PosID> posids;
+    TypeSet<EM::PosID> posids;
 
     const int nrpatches = nrPatches();
     for ( int idx=0; idx<nrpatches; idx++ )
@@ -227,9 +226,9 @@ int EarthModel::Surface::findPos( const CubeSampling& cs,
 		 nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
 		continue;
 
-	    EarthModel::PosID posid( id(), patchids[idx], nodes[idy] );
+	    EM::PosID posid( id(), patchids[idx], nodes[idy] );
 
-	    TypeSet<EarthModel::PosID> clones;
+	    TypeSet<EM::PosID> clones;
 	    getLinkedPos( posid, clones );
 	    clones += posid;
 
@@ -256,19 +255,18 @@ int EarthModel::Surface::findPos( const CubeSampling& cs,
 }
 
 
-int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
-					TypeSet<EarthModel::PosID>* res,
-       					int maxradius, bool circle ) const
+int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
+				int maxradius, bool circle ) const
 {
-    ObjectSet< TypeSet<EarthModel::PosID> > neigbors;
+    ObjectSet< TypeSet<EM::PosID> > neigbors;
     const RowCol start = Geometry::GridSurface::getGridNode(posid_.subID());
-    neigbors += new TypeSet<EarthModel::PosID>( 1, posid_ );
+    neigbors += new TypeSet<EM::PosID>( 1, posid_ );
 
     for ( int idx=0; idx<neigbors.size(); idx++ )
     {
 	for ( int idz=0; idz<neigbors[idx]->size(); idz++ )
 	{
-	    EarthModel::PosID currentposid = (*neigbors[idx])[idz];
+	    EM::PosID currentposid = (*neigbors[idx])[idz];
 	    const RowCol rowcol =
 		     Geometry::GridSurface::getGridNode(currentposid.subID());
 
@@ -297,14 +295,14 @@ int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
 			continue;
 
 		    bool found = false;
-		    const EarthModel::PosID
+		    const EM::PosID
 			    neighborposid(currentposid.emObject(),
 			    currentposid.patchID(),
 			    Geometry::GridSurface::getPosID(neighborrowcol) );
 
 		    for ( int idy=0; idy<neigbors.size(); idy++ )
 		    {
-			const TypeSet<EarthModel::PosID>& posids=*neigbors[idy];
+			const TypeSet<EM::PosID>& posids=*neigbors[idy];
 			if ( posids.indexOf(neighborposid)!=-1 )
 			{
 			    found = true;
@@ -315,8 +313,8 @@ int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
 		    if ( found )
 			continue;
 
-		    TypeSet<EarthModel::PosID>& posids =
-					    *new TypeSet<EarthModel::PosID>;
+		    TypeSet<EM::PosID>& posids =
+					    *new TypeSet<EM::PosID>;
 		    getLinkedPos( neighborposid, posids );
 		    posids.insert( 0, neighborposid );
 
@@ -345,13 +343,13 @@ int EarthModel::Surface::getNeighbors(	const EarthModel::PosID& posid_,
 }
 
 
-void EarthModel::Surface::getLinkedPos( const EarthModel::PosID& posid,
-					TypeSet<EarthModel::PosID>& res ) const
+void EM::Surface::getLinkedPos( const EM::PosID& posid,
+				TypeSet<EM::PosID>& res ) const
 {
     if ( posid.emObject()!=id() )
         return; //TODO: Implement handling for this case
 
-    const EarthModel::SubID subid = posid.subID();
+    const EM::SubID subid = posid.subID();
     const RowCol rowcol = Geometry::GridSurface::getGridNode(subid);
     const Geometry::GridSurface* owngridsurf = getSurface( posid.patchID() );
 
@@ -361,19 +359,19 @@ void EarthModel::Surface::getLinkedPos( const EarthModel::PosID& posid,
 	Geometry::GridSurface* gridsurf = surfaces[surface];
 	if ( owngridsurf->isLinked( subid, gridsurf, subid ) )
 	{
-	    res += EarthModel::PosID( id(),patchids[surface], subid );
+	    res += EM::PosID( id(),patchids[surface], subid );
 	}
     }
 }
 
 
-bool EarthModel::Surface::isLoaded() const
+bool EM::Surface::isLoaded() const
 {
     return nrPatches();
 }
 
 
-const Geometry::GridSurface* EarthModel::Surface::getSurface(PatchID patchid)const
+const Geometry::GridSurface* EM::Surface::getSurface( PatchID patchid )const
 {
     const int idx = patchids.indexOf( patchid );
     return idx==-1 ? 0 : surfaces[idx];
@@ -381,7 +379,7 @@ const Geometry::GridSurface* EarthModel::Surface::getSurface(PatchID patchid)con
 
 
 
-void EarthModel::Surface::cleanUp()
+void EM::Surface::cleanUp()
 {
     deepErase( surfaces );
     patchids.erase();

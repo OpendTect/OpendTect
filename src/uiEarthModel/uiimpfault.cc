@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.5 2003-05-26 09:21:54 kristofer Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.6 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ ________________________________________________________________________
 uiImportLMKFault::uiImportLMKFault( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Import Landmark Fault",
 				     "Specify fault parameters","104.1.2"))
-	, ctio(*new CtxtIOObj(EarthModelFaultTranslator::ioContext()))
+	, ctio(*new CtxtIOObj(EMFaultTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Landmark file");
     infld->setDefaultSelectionDir(
@@ -71,15 +71,15 @@ bool uiImportLMKFault::handleAscii()
 {
     const char* faultnm = outfld->getInput();
 
-    EarthModel::EMManager& em = EarthModel::EMM();
-    MultiID key = em.add( EarthModel::EMManager::Fault, faultnm );
-    mDynamicCastGet( EarthModel::Fault*, fault, em.getObject( key ) );
+    EM::EMManager& em = EM::EMM();
+    MultiID key = em.add( EM::EMManager::Fault, faultnm );
+    mDynamicCastGet( EM::Fault*, fault, em.getObject( key ) );
     if ( !fault )
 	mErrRet( "Cannot create fault" );
 
     fault->ref();
 
-    lmkEarthModelFaultTranslator translator;
+    lmkEMFaultTranslator translator;
     ifstream* stream = new ifstream( infld->fileName(), ios::in | ios::binary );
     Conn* conn = new StreamConn( stream );
 

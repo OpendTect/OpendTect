@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.16 2003-05-22 08:24:32 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.17 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -45,11 +45,11 @@ class BinID;
 class RowCol;
 
 
-class dgbEarthModelHorizonReader;
-class dgbEarthModelHorizonWriter;
+class dgbEMHorizonReader;
+class dgbEMHorizonWriter;
 class Grid;
 
-namespace EarthModel
+namespace EM
 {
 class EMManager;
 
@@ -59,7 +59,7 @@ The grids are defined by knot-points in a matrix and the fillstyle inbetween
 the knots.
 */
 
-class Horizon : public EarthModel::Surface
+class Horizon : public EM::Surface
 {
 public:
     Executor*		loader();
@@ -76,8 +76,8 @@ public:
 protected:
     friend class	EMManager;
     friend class	EMObject;
-    friend class	::dgbEarthModelHorizonReader;
-    friend class	::dgbEarthModelHorizonWriter;
+    friend class	::dgbEMHorizonReader;
+    friend class	::dgbEMHorizonWriter;
 
     Geometry::GridSurface*	createPatchSurface() const;
 

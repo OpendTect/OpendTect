@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.10 2003-05-26 09:17:01 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.11 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class IOObj;
 class Executor;
 struct CubeSampling;
 
-namespace EarthModel
+namespace EM
 {
 class EMManager;
 
@@ -47,22 +47,22 @@ public:
     const MultiID&		id() const { return id_; }
     BufferString		name() const;
 
-    virtual Coord3		getPos(const EarthModel::PosID&) const = 0;
-    virtual bool		setPos(const EarthModel::PosID&,
+    virtual Coord3		getPos(const EM::PosID&) const = 0;
+    virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,
 				       bool addtohistory ) = 0;
 
-    virtual void		getLinkedPos( const EarthModel::PosID& posid,
-					  TypeSet<EarthModel::PosID>& ) const
+    virtual void		getLinkedPos( const EM::PosID& posid,
+					  TypeSet<EM::PosID>& ) const
     					{ return; }
     				/*!< Gives positions on the object that are
 				     linked to the posid given
 				*/
     				
     				
-    virtual void		setPosAttrib( EarthModel::PosID&, int attr,
+    virtual void		setPosAttrib( EM::PosID&, int attr,
 	   				      bool yn );
-    virtual bool		isPosAttrib(EarthModel::PosID&, int attr) const;
+    virtual bool		isPosAttrib(EM::PosID&, int attr) const;
 
     CNotifier<EMObject, PosID>	poschnotifier;
 

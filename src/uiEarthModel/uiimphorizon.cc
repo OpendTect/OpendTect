@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.20 2003-05-26 09:21:54 kristofer Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.21 2003-06-03 12:46:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ ________________________________________________________________________
 uiImportHorizon::uiImportHorizon( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Import Horizon",
 				     "Specify horizon parameters","104.0.0"))
-	, ctio(*new CtxtIOObj(EarthModelHorizonTranslator::ioContext()))
+	, ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Ascii file");
     infld->setDefaultSelectionDir(
@@ -71,6 +71,7 @@ uiImportHorizon::~uiImportHorizon()
 
 #define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
 
 bool uiImportHorizon::handleAscii()
 {
@@ -121,34 +122,27 @@ bool uiImportHorizon::handleAscii()
     }
 
     const char* horizonnm = outfld->getInput();
-    EarthModel::EMManager& em = EarthModel::EMM();
+    EM::EMManager& em = EM::EMM();
 
-    MultiID key = em.add( EarthModel::EMManager::Hor, horizonnm );
-    mDynamicCastGet( EarthModel::Horizon*, horizon, em.getObject( key ) );
+    MultiID key = em.add( EM::EMManager::Hor, horizonnm );
+    mDynamicCastGet( EM::Horizon*, horizon, em.getObject( key ) );
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
 
     horizon->ref();
 
     if ( !horizon->import( *grid ) )
-    {
-	horizon->unRef();
-	mErrRet( "Cannot import horizon" );
-    }
+	mErrRetUnRef("Cannot import horizon")
 
-    BufferString msg;
-    PtrMan<Executor> exec =
-	EarthModelHorizonTranslator::writer( *horizon, ctio.ioobj, msg );
+    dgbEMHorizonTranslator tr;
+    if ( !tr.startWrite(*horizon) )
+	mErrRetUnRef(tr.errMsg())
+
+    PtrMan<Executor> exec = tr.writer( *ctio.ioobj );
     uiExecutor dlg( this, *exec );
-    dlg.go();
-    if ( msg && *msg )
-    {
-	horizon->unRef();
-	mErrRet( msg )
-    }
-
+    bool rv = dlg.execute();
     horizon->unRef();
-    return true;
+    return rv;
 }
 
 
