@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.17 2004-09-22 08:14:40 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.18 2004-09-22 09:18:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,19 +48,15 @@ struct HorSampling
 			  if ( crl > stop.crl ) stop.crl = crl; }
     void		limitTo(const HorSampling&);
 
-    inline int		nrInl() const
-			{ return step.inl ? (stop.inl-start.inl) / step.inl + 1
-			    		  : 0; }
-    inline int		nrCrl() const
-			{ return step.crl ? (stop.crl-start.crl) / step.crl + 1
-			    		  : 0; }
+    int			nrInl() const;
+    int			nrCrl() const;
     inline int		totalNr() const
 			{ return nrInl() * nrCrl(); }
     inline bool		isEmpty() const
 			{ return nrInl() < 1 || nrCrl() < 1; }
 
     void		init(bool settoSI=true);
-    			//!< Sets to survey values or zeros (step 1)
+    			//!< Sets to survey values or mUndefIntVal (but step 1)
     void		set2DDef();
     			//!< Sets ranges to 0-maxint
     void		normalise();
@@ -102,7 +98,8 @@ public:
 			: hrg(settoSI)		{ init(settoSI); }
 
     void		init(bool settoSI=true);
-    			//!< Sets to survey values or zeros (step 1)
+    			//!< Sets hrg.init and zrg to survey values or zeros
+    inline void		setEmpty()		{ init(false); }
     void		set2DDef();
     			//!< Sets to survey zrange and hrg.set2DDef
     void		normalise();
@@ -114,11 +111,9 @@ public:
     inline int		nrInl() const		{ return hrg.nrInl(); }
     inline int		nrCrl() const		{ return hrg.nrCrl(); }
     inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
-    // int totalNr() was removed because for large surveys, it doesn't
-    // fit into an int anymore!!
+			// No totalNr(): doesn't fit into int
     inline bool		isEmpty() const
-			{ return (hrg.start.crl == 0 && hrg.stop.crl == 0)
-			      || hrg.isEmpty() || nrZ() < 1; }
+			{ return hrg.isEmpty() || nrZ() < 1; }
     bool		getInterSection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
