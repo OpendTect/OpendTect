@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.22 2004-09-16 12:25:16 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.23 2004-11-09 10:26:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,13 +150,18 @@ QMainWindow::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
 uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
 		      bool newline )
     : uiParent(nm,0)
-    , qtoolbar(0)
 {
     QMainWindow::ToolBarDock tbdock = uiToolBarBody::qdock(d);
     QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
     qtoolbar = new QToolBar( QString(nm), (QMainWindow*)qwidget, 
 	    		     tbdock, newline );
     setBody( &mkbody(nm,*qtoolbar) );
+}
+
+
+uiToolBar::~uiToolBar()
+{
+    delete body_;
 }
 
 

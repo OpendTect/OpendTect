@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.50 2004-07-28 08:53:04 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.51 2004-11-09 10:27:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,6 +144,7 @@ public:
 			    : DataInpSpec( o ) 
 			    , limits_( o.limits_?new Interval<T>(*o.limits_):0 )
 			    , value_( o.value_ )		{}
+			~NumInpSpec()			{ delete limits_; }
 
     virtual NumInpSpec<T>* clone() const
 			    { return new NumInpSpec<T>( *this ); }

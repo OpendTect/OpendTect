@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.16 2004-09-16 12:25:10 nanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.17 2004-11-09 10:25:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiparent.h>
+#include "uiparent.h"
 
 class ioPixmap;
 class uiToolBarBody;
@@ -39,8 +39,7 @@ public:
 
     			uiToolBar(uiParent*,const char* nm,
 				  ToolBarDock d=Top,bool newline=false);
-
-public:
+			~uiToolBar();
 
     int 		addButton( const ioPixmap&, const CallBack& cb, 
 				   const char* nm="ToolBarButton",

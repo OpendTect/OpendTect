@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.h,v 1.3 2003-12-22 14:39:38 kristofer Exp $
+ RCS:           $Id: uigeninputdlg.h,v 1.4 2004-11-09 10:27:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,7 @@ public:
 			uiGenInputDlg(uiParent*,const char* dlgtitle,
 				      ObjectSet<uiGenInputDlgEntry>*);
 			    //!< the ObjectSet becomes mine.
+			~uiGenInputDlg()	{ delete group; }
 
     const char*		text(int i=0);
     int			getIntValue(int i=0);
