@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.6 2001-05-08 08:20:13 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.7 2001-05-18 13:36:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "transl.h"
 
 
-uiIOObjSelDlg::uiIOObjSelDlg( uiObject* p, const CtxtIOObj& c )
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c )
 	: uiDialog(p)
 	, ctio(c)
 	, nmfld(0)
@@ -99,7 +99,7 @@ bool uiIOObjSelDlg::acceptOK( CallBacker* )
 }
 
 
-uiIOObjSel::uiIOObjSel( uiObject* p, CtxtIOObj& c, const char* txt,
+uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
 			      bool wclr )
 	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
 		     txt ? txt : (const char*)c.ctxt.trgroup->name(), wclr )

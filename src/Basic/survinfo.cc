@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.6 2001-05-11 20:28:12 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.7 2001-05-18 13:36:33 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -333,4 +333,25 @@ void SurveyInfo::setStep( const BinID& bid )
     if ( !step_.inl ) step_.inl = 1; if ( !step_.crl ) step_.crl = 1;
     if ( step_.inl < 0 ) step_.inl = -step_.inl;
     if ( step_.crl < 0 ) step_.crl = -step_.crl;
+}
+
+
+#define mChkCoord(c) \
+    if ( c.x < minc.x ) minc.x = c.x; if ( c.y < minc.y ) minc.y = c.y;
+
+Coord SurveyInfo::minCoord() const
+{
+    Coord minc = transform( range_.start );
+    Coord c = transform( range_.stop );
+    mChkCoord(c);
+
+    BinID bid( range_.start.inl, range_.stop.crl );
+    c = transform( bid );
+    mChkCoord(c);
+
+    bid = BinID( range_.stop.inl, range_.start.crl );
+    c = transform( bid );
+    mChkCoord(c);
+
+    return minc;
 }

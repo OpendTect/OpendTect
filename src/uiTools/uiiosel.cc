@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.6 2001-05-11 20:28:31 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.7 2001-05-18 13:36:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "iopar.h"
 
 
-uiIOSelect::uiIOSelect( uiObject* p, const CallBack& butcb, const char* txt,
+uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
 			bool seled, bool withclear )
 	: uiGroup(p)
 	, withclear_(withclear)
@@ -181,7 +181,7 @@ void uiIOSelect::selDone( CallBacker* )
 }
 
 
-uiIOFileSelect::uiIOFileSelect( uiObject* p, const char* txt, bool frrd,
+uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
 				const char* inp, bool wclr )
 	: uiIOSelect(p,mCB(this,uiIOFileSelect,doFileSel),txt,!frrd,wclr)
 	, forread(frrd)
