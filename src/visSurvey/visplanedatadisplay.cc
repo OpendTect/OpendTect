@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.65 2004-04-29 16:59:39 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.66 2004-04-30 10:46:52 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -324,6 +324,10 @@ bool PlaneDataDisplay::isManipulatorShown() const
 }
 
 
+bool PlaneDataDisplay::isManipulated() const
+{ return getCubeSampling(true)!=getCubeSampling(false); }
+
+
 void PlaneDataDisplay::resetManipulation()
 {
     trect->getRectangle().resetManip();
@@ -333,6 +337,7 @@ void PlaneDataDisplay::resetManipulation()
 void PlaneDataDisplay::acceptManipulation()
 {
     setCubeSampling( getCubeSampling(true) );
+    resetManipulation();
 }
 
 
@@ -441,7 +446,7 @@ int PlaneDataDisplay::getColTabID() const
 
 CubeSampling PlaneDataDisplay::getCubeSampling() const
 {
-    return getCubeSampling(false);
+    return getCubeSampling(true);
 }
 
 
@@ -569,9 +574,13 @@ const AttribSliceSet* PlaneDataDisplay::getCacheVolume( bool colordata ) const
 }
 
 
-void PlaneDataDisplay::showTexture( int idx )
+int PlaneDataDisplay::nrTextures() const
+{ return cache ? cache->size() : 0; }
+
+
+void PlaneDataDisplay::selectTexture( int idx )
 {
-    if ( !cache || idx >= cache->size() ) return;
+    if ( idx>=nrTextures() ) return;
     trect->showTexture( idx );
 }
 
