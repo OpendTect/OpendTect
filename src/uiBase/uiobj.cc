@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.16 2001-12-06 10:57:16 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.17 2001-12-06 11:02:57 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,10 +28,6 @@ ________________________________________________________________________
 #define pbody()		dynamic_cast<uiParentBody*>( body() )
 //#define pbody()		static_cast<uiParentBody*>( body() )
 #define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
-
-#define mSetFnt() \
-    if( !font_ ) { const_cast<uiObjectBody*>(this)->\
-	    uisetFont( uiFontList::get(className(*this)) ); } 
 
 void uiObjHandle::finalise()
     { if (body()) body()->finalise(); }
@@ -255,7 +251,6 @@ uiObjectBody::~uiObjectBody()
 
 void uiObjectBody::display( bool yn, bool shrink )
 {
-    mSetFnt();
     display_ = yn;
 
     if( shrink )
@@ -344,7 +339,6 @@ void uiObjectBody::uisetBackgroundColor( const Color& c )
 int uiObjectBody::prefHNrPics() const
 {   // Also look at uiComboBox::prefHNrPics() when changing this method.
 
-    mSetFnt();
     mChkmLayout();
     if( pref_width >= 0 ) return pref_width;
     if( pref_char_width >= 0 ) 
@@ -372,7 +366,6 @@ int uiObjectBody::prefHNrPics() const
 
 int uiObjectBody::prefVNrPics() const
 { 
-    mSetFnt();
     mChkmLayout();
     if( pref_height >= 0 ) return pref_height;
     if( pref_char_height >= 0 ) 
@@ -396,7 +389,6 @@ int uiObjectBody::prefVNrPics() const
 
 uiSize uiObjectBody::actualSize( bool include_border ) const
 {
-    mSetFnt();
     mChkmLayout();
     return layoutItem_->actualSize( include_border );
 }
@@ -431,7 +423,6 @@ i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
 */
 void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin )
 {
-    mSetFnt();
 //    parent_->attachChild( tp, this, other, margin );
     parent_->attachChild( tp, &uiObjHandle(), other, margin );
 }
