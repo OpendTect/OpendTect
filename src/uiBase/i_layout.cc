@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.60 2003-02-26 13:02:26 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.61 2003-03-05 12:09:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,9 @@ ________________________________________________________________________
 #include "i_layout.h"
 #include "uiobjbody.h"
 #include "uimainwin.h"
-
-//#include <qmenubar.h>
+#include "timer.h"
 
 #include <stdio.h>
-//#include <iostream>
-//#include <limits.h>
 
 #ifdef __debug__
 #define MAX_ITER	2000
@@ -40,13 +37,17 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt,
 			    const char *name, uiObjectBody& mngbdy )
     : QLayout(parnt,0,0,name), UserIDObject(name)
     , minimumDone(false), preferredDone(false), ismain(false)
-    , prefposStorCnt( 2 )
+    , prefposStored( false )
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
-{}
+    , poptimer( *new Timer ), popped_up( false )
+{
+    poptimer.tick.notify(mCB(this,i_LayoutMngr,popTimTick));
+}
 
 
 i_LayoutMngr::~i_LayoutMngr()
 {
+    delete &poptimer;
 }
 
 
@@ -510,11 +511,8 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
     const int vdir = ( vgrow >= 0 ) ? 1 : -1;
 
     bool isprefsz = !hgrow && !vgrow;
-    if ( managedBody.uiObjHandle().mainwin()  )
-    {
-	bool popped = managedBody.uiObjHandle().mainwin()->poppedUp();
-	isprefsz |= !popped;
-    }
+    isprefsz |= !popped_up;
+
 
 #ifdef __extensive_debug__
     cout << "(Re)sizing:" << UserIDObject::name();
@@ -568,23 +566,15 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     resizeTo( extRect );
     layoutChildren( setGeom, true ); // move stuff that's attached to border
 
-    bool popped = managedBody.uiObjHandle().mainwin()  ?
-		  managedBody.uiObjHandle().mainwin()->poppedUp() : true;
-
     bool store2prefpos = false;
-    if( prefposStorCnt > 0 || ismain && !popped )
+    if( !prefposStored || !popped_up )
     {
 	uiRect mPos = curpos( preferred );
-
-//	store2prefpos = ( extRect.width() == mPos.hNrPics() 
-//			   && extRect.height() == mPos.vNrPics() );
 
 	int hdif = abs( extRect.width() - mPos.hNrPics() );
 	int vdif = abs( extRect.height() - mPos.vNrPics() );
 
-	if ( hdif < 0 || vdif < 0 ) { cout << "huh!" << endl; }
-
-	store2prefpos = prefposStorCnt > 0 || hdif < 10 && vdif < 10;
+	store2prefpos = !prefposStored || hdif < 10 && vdif < 10;
 
 #ifdef __debug__
 	if( !store2prefpos )
@@ -604,7 +594,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
     if( store2prefpos )
     {
 	prefGeometry = extRect;
-	if ( prefposStorCnt > 0 ) prefposStorCnt--;
+	prefposStored = true;
     }
 
     QLayout::setGeometry( extRect );
@@ -651,8 +641,7 @@ void i_LayoutMngr::doLayout( layoutMode lom, const QRect &externalRect )
 
 void i_LayoutMngr::layoutChildren( layoutMode lom, bool finalLoop )
 {
-    if ( managedBody.uiObjHandle().mainwin()  )
-	managedBody.uiObjHandle().mainwin()->touch();
+    touchPoptimer();
 
     int iternr;
 
@@ -773,5 +762,26 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
     pErrMsg( msg );
 
     return false;
+}
+
+
+void i_LayoutMngr::popTimTick(CallBacker*)
+{
+    if ( popped_up ) { pErrMsg( "huh?" ); }
+        popped_up = true;
+}
+
+
+void i_LayoutMngr::touchPoptimer()
+{
+    if ( popped_up ) return;
+
+    if ( managedBody.uiObjHandle().mainwin()  )
+	managedBody.uiObjHandle().mainwin()->touch();
+
+    if( poptimer.isActive() )
+	poptimer.stop();
+
+    poptimer.start( 100, true );
 }
 
