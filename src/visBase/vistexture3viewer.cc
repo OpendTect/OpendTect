@@ -4,11 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.3 2002-11-08 13:39:30 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.4 2002-11-11 08:12:24 kristofer Exp $";
 
 
 #include "vistexture3viewer.h"
 #include "Inventor/nodes/SoRotation.h"
+#include "Inventor/nodes/SoCoordinate3.h"
+#include "Inventor/nodes/SoFaceSet.h"
 #include "Inventor/nodes/SoTexture3.h"
 #include "Inventor/nodes/SoGroup.h"
 #include "Inventor/nodes/SoTextureCoordinate3.h"
@@ -46,34 +48,49 @@ int visBase::Texture3Viewer::addSlice( int dim, float origpos )
     if ( texture ) slice->setTexture( texture );
     textureobjects += slice;
     addChild( slice->getData() );
-    return textureobjects.size()-1;
+    return slice->id();
+} 
+
+void visBase::Texture3Viewer::removeSlice( int idnumber )
+{
+    for ( int idx=0; idx<textureobjects.size(); idx++ )
+    {
+	if ( !textureobjects[idx] ) continue;
+	if ( textureobjects[idx]->id()!=idnumber ) continue;
+
+	removeChild( textureobjects[idx]->getData() );
+	textureobjects[idx]->unRef();
+
+	textureobjects.replace( 0, idx );
+	return;
+    }
 }
 
 
-void visBase::Texture3Viewer::removeSlice( int idx )
+void visBase::Texture3Viewer::showSlice( int idnumber, bool yn )
 {
-    if ( !textureobjects[idx] ) return;
+    for ( int idx=0; idx<textureobjects.size(); idx++ )
+    {
+	if ( !textureobjects[idx] ) continue;
+	if ( textureobjects[idx]->id()!=idnumber ) continue;
 
-    removeChild( textureobjects[idx]->getData() );
-    textureobjects[idx]->unRef();
-
-    textureobjects.replace( 0, idx );
+	textureobjects[idx]->turnOn( yn );
+	return;
+    }
 }
 
 
-void visBase::Texture3Viewer::showSlice( int idx, bool yn )
+bool visBase::Texture3Viewer::isSliceShown( int idnumber ) const
 {
-    if ( !textureobjects[idx] ) return;
+    for ( int idx=0; idx<textureobjects.size(); idx++ )
+    {
+	if ( !textureobjects[idx] ) continue;
+	if ( textureobjects[idx]->id()!=idnumber ) continue;
 
-    textureobjects[idx]->turnOn( yn );
-}
+	return textureobjects[idx]->isOn();
+    }
 
-
-bool visBase::Texture3Viewer::isSliceShown( int idx ) const
-{
-    if ( !textureobjects[idx] ) return false;
-
-    return textureobjects[idx]->isOn();
+    return false;
 }
 
 
@@ -90,6 +107,103 @@ void visBase::Texture3Viewer::setTexture( SoTexture3* nt )
 	textureobjects[idx]->setTexture( nt );
     }
 }
+
+
+visBase::Texture3Slice::Texture3Slice()
+    : coords( new SoCoordinate3 )
+    , texturecoords( new SoTextureCoordinate3 )
+    , faces( new SoFaceSet )
+    , pos( 0 )
+    , texture( 0 )
+    , dim_( 0 )
+{
+    addChild( texturecoords );
+    addChild( coords );
+    setUpCoords();
+    addChild( faces );
+    faces->numVertices.setValue( 5 );
+}
+
+
+visBase::Texture3Slice::~Texture3Slice()
+{}
+
+
+int visBase::Texture3Slice::dim() const { return dim_; }
+
+
+void visBase::Texture3Slice::setDim( int nd )
+{
+    dim_ = nd;
+    setUpCoords();
+}
+
+float visBase::Texture3Slice::position() const { return pos; }
+
+
+void visBase::Texture3Slice::setPosition( float np )
+{
+    pos = np;
+    setUpCoords();
+}
+
+
+void visBase::Texture3Slice::setTexture( SoTexture3* nt )
+{
+    if ( texture ) removeChild( texture );
+    texture = nt;
+    insertChild( 0, texture );
+}
+
+void visBase::Texture3Slice::setUpCoords()
+{
+    if ( !dim_ )
+    {
+	coords->point.set1Value(0, SbVec3f(pos,-1,-1) );
+	coords->point.set1Value(1, SbVec3f(pos,-1, 1) );
+	coords->point.set1Value(2, SbVec3f(pos, 1, 1) );
+	coords->point.set1Value(3, SbVec3f(pos, 1,-1) );
+	coords->point.set1Value(4, SbVec3f(pos,-1,-1) );
+
+	const float tpos = (pos+1)/2;
+	texturecoords->point.set1Value(0, SbVec3f(tpos, 0, 0) );
+	texturecoords->point.set1Value(1, SbVec3f(tpos, 0, 1) );
+	texturecoords->point.set1Value(2, SbVec3f(tpos, 1, 1) );
+	texturecoords->point.set1Value(3, SbVec3f(tpos, 1, 0) );
+	texturecoords->point.set1Value(4, SbVec3f(tpos, 0, 0) );
+    }
+    else if ( dim_==1 )
+    {
+	coords->point.set1Value( 0, SbVec3f( 1, pos, 1 ));
+	coords->point.set1Value( 1, SbVec3f( 1, pos,-1 ));
+	coords->point.set1Value( 2, SbVec3f(-1, pos,-1 ));
+	coords->point.set1Value( 3, SbVec3f(-1, pos, 1 ));
+	coords->point.set1Value( 4, SbVec3f( 1, pos, 1 ));
+
+	const float tpos = (pos+1)/2;
+	texturecoords->point.set1Value( 0, SbVec3f( 1, tpos, 1 ));
+	texturecoords->point.set1Value( 1, SbVec3f( 1, tpos, 0 ));
+	texturecoords->point.set1Value( 2, SbVec3f( 0, tpos, 0 ));
+	texturecoords->point.set1Value( 3, SbVec3f( 0, tpos, 1 ));
+	texturecoords->point.set1Value( 4, SbVec3f( 1, tpos, 1 ));
+    }
+    else
+    {
+	coords->point.set1Value( 0, SbVec3f(-1,-1, pos ));
+	coords->point.set1Value( 1, SbVec3f( 1,-1, pos ));
+	coords->point.set1Value( 2, SbVec3f( 1, 1, pos ));
+	coords->point.set1Value( 3, SbVec3f(-1, 1, pos ));
+	coords->point.set1Value( 4, SbVec3f(-1,-1, pos ));
+
+	const float tpos = (pos+1)/2;
+	texturecoords->point.set1Value( 0, SbVec3f( 0, 0, tpos ));
+	texturecoords->point.set1Value( 1, SbVec3f( 1, 0, tpos ));
+	texturecoords->point.set1Value( 2, SbVec3f( 1, 1, tpos ));
+	texturecoords->point.set1Value( 3, SbVec3f( 0, 1, tpos ));
+	texturecoords->point.set1Value( 4, SbVec3f( 0, 0, tpos ));
+    }
+}
+
 
 
 visBase::MovableTextureSlice::MovableTextureSlice()

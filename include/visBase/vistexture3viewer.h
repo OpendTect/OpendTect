@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.2 2002-11-08 15:02:44 kristofer Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.3 2002-11-11 08:13:20 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 class SoRotation;
 class SoTexture2;
 class SoTexture3;
+class SoCoordinate3;
+class SoFaceSet;
 class SoTranslateRectangleDragger;
 class SoSensor;
 class SoFieldSensor;
@@ -61,6 +63,31 @@ protected:
     SoTexture3*         texture;
 
     ObjectSet<Texture3ViewerObject>	textureobjects;
+};
+
+
+class Texture3Slice : public Texture3ViewerObject
+{
+public:
+    static Texture3Slice*	create()
+			mCreateDataObj0arg(Texture3Slice);
+
+    int			dim() const;
+    void		setDim( int );
+    float 		position() const;
+    void		setPosition( float );
+
+    void		setTexture( SoTexture3* );
+protected:
+				~Texture3Slice();
+    void			setUpCoords();
+
+    SoCoordinate3*		coords;
+    SoTexture3*			texture;
+    SoTextureCoordinate3*	texturecoords;
+    SoFaceSet*			faces;
+    int				dim_;
+    float			pos;
 };
 
 
