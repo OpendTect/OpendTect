@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.19 2003-11-06 14:21:45 kristofer Exp $
+ RCS:		$Id: position.h,v 1.20 2003-11-06 14:34:42 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,8 +75,9 @@ public:
     bool	isDefined() const;
 
     double	distance( const Coord3& b ) const;
-    void	fill(char*, const char* start="(", const char* space=" ",
-	    		    const char* end=")") const;
+    void	fill(char* str) const { fill( str, "(", " ", ")"); }
+    void	fill(char*, const char* start, const char* space,
+	    		    const char* end) const;
     bool	use(const char*);
 
     double	z;
