@@ -24,7 +24,6 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const Seis2DLineKeyProvider* l)
     	, prepared(false)
     	, lkp(l)
     	, putter(0)
-    	, lineiopar(0)
     	, lineauxiopar(*new IOPar)
 {
     binids.start.inl = mUndefIntVal;
@@ -42,11 +41,6 @@ SeisTrcWriter::~SeisTrcWriter()
 void SeisTrcWriter::close()
 {
     delete putter; putter= 0;
-    if ( lineiopar )
-    {
-	lset->commitAdd( lineiopar );
-	lineiopar = 0;
-    }
     SeisStoreAccess::close();
 }
 
@@ -168,13 +162,11 @@ bool SeisTrcWriter::next2DLine()
     }
 
     delete putter;
-    if ( lineiopar )
-	lset->commitAdd( lineiopar );
 
-    lineiopar = new IOPar;
+    IOPar* lineiopar = new IOPar;
     Seis2DLineSet::setLineKey( *lineiopar, lk );
     lineiopar->merge( lineauxiopar );
-    putter = lset->lineAdder( lineiopar );
+    putter = lset->linePutter( lineiopar );
     if ( !putter )
     {
 	errmsg = "Cannot create 2D line writer";

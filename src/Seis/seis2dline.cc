@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.22 2004-09-22 16:04:02 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.23 2004-10-01 15:29:47 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.22 2004-09-22 16:04:02 bert E
 #include "keystrs.h"
 #include "iopar.h"
 #include "ioobj.h"
+#include "hostdata.h"
+#include "timefun.h"
 #include "errh.h"
 
 const char* Seis2DLineSet::sKeyAttrib = "Attribute";
@@ -97,7 +99,7 @@ void Seis2DLineSet::init( const char* fnm )
 {
     fname_ = fnm;
     BufferString type = "CBVS";
-    readFile( &type );
+    readFile( false, &type );
 
     liop_ = 0;
     const ObjectSet<Seis2DLineIOProvider>& liops = S2DLIOPs();
@@ -194,12 +196,48 @@ int Seis2DLineSet::indexOf( const char* key ) const
 }
 
 
+#define mMkLockNm(lockfnm) \
+    const BufferString lockfnm( fname_ ); \
+    const_cast<BufferString&>(lockfnm) += "_lock"
+
+bool Seis2DLineSet::waitForLock( bool mknew, bool failiflocked ) const
+{
+    mMkLockNm(lockfnm);
+
+    // Wait for max 5 seconds.
+    for ( int idx=0; idx<50; idx++ )
+    {
+	if ( !File_exists(lockfnm.buf()) )
+	    break;
+	else if ( failiflocked )
+	    return false;
+
+	Time_sleep( 0.1 );
+    }
+
+    if ( mknew )
+    {
+	StreamData sd = StreamProvider(lockfnm).makeOStream();
+	if ( sd.usable() )
+	{
+	    *sd.ostrm << HostData::localHostName() << ":" << getPID();
+	    const char* ptr = GetSoftwareUser();
+	    if ( ptr && *ptr )
+		*sd.ostrm << ' ' << ptr;
+	}
+	sd.close();
+    }
+    return true;
+}
+
+
 static const char* sKeyFileType = "2D Line Group Data";
 
-void Seis2DLineSet::readFile( BufferString* type )
+void Seis2DLineSet::readFile( bool mklock, BufferString* type )
 {
     deepErase( pars_ );
 
+    waitForLock( mklock, false );
     StreamData sd = StreamProvider( fname_ ).makeIStream();
     if ( !sd.usable() ) return;
 
@@ -269,6 +307,15 @@ void Seis2DLineSet::writeFile() const
     if ( File_exists(fname_) )
 	File_remove( fname_, 0 );
     File_rename( wrfnm, fname_ );
+
+    removeLock();
+}
+
+
+void Seis2DLineSet::removeLock() const
+{
+    mMkLockNm(lockfnm);
+    File_remove( lockfnm.buf(), 0 );
 }
 
 
@@ -290,24 +337,7 @@ Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf,
 }
 
 
-Seis2DLinePutter* Seis2DLineSet::lineReplacer( int nr ) const
-{
-    if ( nr < 0 || nr >= pars_.size() )
-    {
-	ErrMsg("Replace line number out of range");
-	return 0;
-    }
-    else if ( !liop_ )
-    {
-	ErrMsg("No suitable 2D line write object found");
-	return 0;
-    }
-
-    return liop_->getReplacer( *pars_[nr] );
-}
-
-
-Seis2DLinePutter* Seis2DLineSet::lineAdder( IOPar* newiop ) const
+Seis2DLinePutter* Seis2DLineSet::linePutter( IOPar* newiop )
 {
     if ( !newiop || !newiop->size() )
     {
@@ -320,31 +350,34 @@ Seis2DLinePutter* Seis2DLineSet::lineAdder( IOPar* newiop ) const
 	return 0;
     }
 
-    BufferString newlinekey = lineKey( *newiop );
-    int paridx = indexOf( lineKey(*newiop) );
+    const BufferString newlinekey = lineKey( *newiop );
+
+    // Critical concurrency section using file lock
+    readFile( true );
+
+    Seis2DLinePutter* res = 0;
+    int paridx = indexOf( newlinekey );
     if ( paridx >= 0 )
     {
 	pars_[paridx]->merge( *newiop );
 	*newiop = *pars_[paridx];
-	return lineReplacer( paridx );
+	delete pars_.replace( newiop, paridx );
+	res = liop_->getReplacer( *pars_[paridx] );
+    }
+    else
+    {
+	const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
+	pars_ += newiop;
+	res = liop_->getAdder( *newiop, previop, name() );
     }
 
-    const IOPar* previop = pars_.size() ? pars_[pars_.size()-1] : 0;
-    return liop_->getAdder( *newiop, previop, name() );
-}
-
-
-void Seis2DLineSet::commitAdd( IOPar* newiop )
-{
-    if ( !newiop ) return;
-
-    int paridx = indexOf( lineKey(*newiop) );
-    if ( paridx >= 0 )
-	delete pars_.replace( newiop, paridx );
+    if ( res )
+	writeFile();
     else
-	pars_ += newiop;
+	removeLock();
 
-    writeFile();
+    // Phew! Made it.
+    return res;
 }
 
 
@@ -354,9 +387,13 @@ bool Seis2DLineSet::isEmpty( int ipar ) const
 }
 
 
-void Seis2DLineSet::remove( int ipar )
+bool Seis2DLineSet::remove( int ipar )
 {
-    if ( ipar > pars_.size() ) return;
+    if ( ipar > pars_.size() )
+	return false;
+    if ( !waitForLock(true,true) )
+	return false;
+
     IOPar* iop = pars_[ipar];
     if ( liop_ )
 	liop_->removeImpl(*iop);
@@ -364,6 +401,7 @@ void Seis2DLineSet::remove( int ipar )
     pars_ -= iop;
     delete iop;
     writeFile();
+    return true;
 }
 
 

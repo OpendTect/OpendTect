@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.15 2004-09-17 14:28:06 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.16 2004-10-01 15:29:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,16 +77,12 @@ public:
     Executor*		lineFetcher(int,SeisTrcBuf&,
 	    			    const SeisSelData* sd=0) const;
     				//!< May return null
-    Seis2DLinePutter*	lineReplacer(int) const;
+    Seis2DLinePutter*	linePutter(IOPar*);
     				//!< May return null.
-    Seis2DLinePutter*	lineAdder(IOPar*) const;
-    				//!< May return null. When finished: commitAdd
     				//!< will return replacer if linekey exists
-    void		commitAdd(IOPar*);
-    				//!< Must be called after successful add
-    void		remove(int);
+    bool		remove(int);
     				//!< Also removes from disk
-
+    				//!< Fails if set is currently being written
 
     bool		getTxtInfo(int,BufferString& uinfo,
 	    			   BufferString& stdinfo) const;
@@ -114,8 +110,10 @@ protected:
     ObjectSet<IOPar>	pars_;
 
     void		init(const char*);
-    void		readFile(BufferString* typ=0);
+    void		readFile(bool mklock=false,BufferString* typ=0);
     void		writeFile() const;
+    bool		waitForLock(bool,bool) const;
+    void		removeLock() const;
 
 
 };
