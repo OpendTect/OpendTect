@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.12 2001-09-03 13:09:15 kristofer Exp $
+ RCS:		$Id: sets.h,v 1.13 2001-12-28 09:00:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,6 +168,12 @@ public:
 			    T* ptr = (T*)objs[idx];
 			    objs[idx] = (void*)newptr; return ptr;
 			}
+
+    virtual void	insertAt( T* newptr, int idx )
+			{
+			    objs.insert( idx, newptr );
+			}
+
     virtual void	insertAfter( T* newptr, int idx )
 			{
 			    *this += newptr;
