@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.4 2002-04-30 14:13:00 kristofer Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.5 2003-08-11 11:24:34 nanne Exp $";
 
 #include "vismaterial.h"
 #include "color.h"
@@ -25,7 +25,7 @@ const char* visBase::Material::transpstr = "Transparency";
 visBase::Material::Material()
     : material( new SoMaterial )
     , color( *new Color )
-    , ambience( 0.2 )
+    , ambience( 0.8 )
     , diffuseintencity( 0.8 )
     , specularintensity( 0 )
     , emmissiveintensity( 0 )
