@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.132 2003-02-27 16:46:17 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.133 2003-03-03 15:20:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -391,13 +391,13 @@ void uiVisPartServer::setSelObjectId( int id )
 #define mAnnotText		1236
 #define mAnnotScale		1237
 #define mSurveyBox		1238
-#define mDumpIV			1239
-#define mResetManip		1240
-#define mSetPickSz		1241
-#define mDuplicate		1242
-#define mEditKnots		1243
-#define mInsertKnot		1244
-#define mInsertKnotStart	1245
+#define mDumpIV			1240
+#define mResetManip		1241
+#define mSetPickSz		1242
+#define mDuplicate		1243
+#define mEditKnots		1244
+#define mInsertKnot		1245
+#define mInsertKnotStart	1246
 ////Leave 100 spaces for submnus
 #define mInsertKnotStop		1346
 #define mShiftHor		1347
@@ -423,7 +423,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
     if ( hasDuplicate( id ) )
 	mnu.insertItem( new uiMenuItem("Duplicate"), mDuplicate );
 
-    if ( sceneid==id )
+    if ( sceneid == id )
     {
 	const bool showcube = scene->isAnnotShown();
 
@@ -447,7 +447,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	    mnu.insertItem( new uiMenuItem("Dump OI ..."), mDumpIV );
     }
 
-    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj);
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
     if ( pdd )
     {
 	uiPopupMenu* resmnu = new uiPopupMenu( appserv().parent(),"Resolution");
@@ -462,7 +462,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	mnu.insertItem( resmnu );
     }
 
-    mDynamicCastGet(const visSurvey::PickSetDisplay*,pickset,dobj);
+    mDynamicCastGet(const visSurvey::PickSetDisplay*,pickset,dobj)
     if ( pickset )
     {
 	uiMenuItem* showitm = new uiMenuItem("Show all");
@@ -472,7 +472,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	mnu.insertItem( new uiMenuItem("Properties ..."), mSetPickSz );
     }
 
-    mDynamicCastGet(const visSurvey::SurfaceDisplay*, surf, dobj );
+    mDynamicCastGet(const visSurvey::SurfaceDisplay*, surf, dobj )
     if ( surf )
     {
 	uiMenuItem* colitm = new uiMenuItem("Use single color");
@@ -493,7 +493,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	mnu.insertItem( resmnu );
     }
 
-    mDynamicCastGet(const visSurvey::WellDisplay*, well, dobj );
+    mDynamicCastGet(const visSurvey::WellDisplay*, well, dobj )
     if ( well )
     {
 	mnu.insertItem( new uiMenuItem("Linestyle ..."), mLineStyle );
@@ -502,7 +502,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
 	welltxt->setChecked( well->isWellTextShown() );
     }
 
-    mDynamicCastGet(const visSurvey::RandomTrackDisplay*, rtd, dobj );
+    mDynamicCastGet(const visSurvey::RandomTrackDisplay*, rtd, dobj )
     if ( rtd )
     {
 	mnu.insertItem( new uiMenuItem("Edit nodes"), mEditKnots );
@@ -520,7 +520,7 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
     }
 
 #ifdef __debug__
-    if ( scenes.size()>1 )
+    if ( scenes.size() > 1 )
     {
 	uiPopupMenu* sharemnu = new uiPopupMenu( appserv().parent(),
 				    "Share with...");
@@ -537,62 +537,49 @@ void uiVisPartServer::makeSubMenu( uiPopupMenu& mnu, int sceneid, int id )
     }
 #endif
 
-    if ( scene->getFirstIdx(id)!=-1 )
+    if ( scene->getFirstIdx(id) != -1 )
 	mnu.insertItem( new uiMenuItem("Remove"), mRemove );
 
     return;
 }
 
 
-bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
+bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id )
 {
     visSurvey::Scene* scene = getScene( sceneid );
     if ( !scene ) return false;
 
-    if ( mnu==mAnnotText )
-    {
+    bool rv = true, mustreturn = true;
+    if ( mnu == mAnnotText )
 	scene->showAnnotText( !scene->isAnnotTextShown() );
-	return true;
-    }
-
-    if ( mnu==mAnnotScale )
-    {
+    else if ( mnu == mAnnotScale )
 	scene->showAnnotScale( !scene->isAnnotScaleShown() );
-	return true;
-    }
-
-    if ( mnu==mSurveyBox )
-    {
+    else if ( mnu == mSurveyBox )
 	scene->showAnnot( !scene->isAnnotShown() );
-	return true;
-    }
-
-    if ( mnu==mDumpIV )
-	return dumpOI( id );
-
-    if ( mnu==mDuplicate )
-	return duplicateObject( id, sceneid );
-	
-    if ( mnu==mSelAttrib )
-	 return calculateAttrib(id,true);  //Will both select and calculate
-
-    if ( mnu==mPosition )
-	return setPosition( id );
-
-    if ( mnu==mResetManip )
-	return resetManipulation( id );
-
-    if ( mnu==mProperties )
-	return setMaterial( id );
-
-    if ( mnu==mRemove )
-    {
+    else if ( mnu == mDumpIV )
+	rv = dumpOI( id );
+    else if ( mnu == mDuplicate )
+	rv = duplicateObject( id, sceneid );
+    else if ( mnu == mSelAttrib )
+	 rv = calculateAttrib(id,true);  //Will both select and calculate
+    else if ( mnu == mPosition )
+	rv = setPosition( id );
+    else if ( mnu == mResetManip )
+	rv = resetManipulation( id );
+    else if ( mnu == mProperties )
+	rv = setMaterial( id );
+    else if ( mnu == mRemove )
 	removeObject( id, sceneid );
-	return true;
-    }
+    else
+	mustreturn = false;
+
+    if ( mustreturn )
+	return rv;
 
     visBase::DataObject* dobj = visBase::DM().getObj( id );
-    if ( mnu==mShowAll )
+    rv = true;
+
+    if ( mnu == mShowAll )
     {
 	mDynamicCastGet(visSurvey::PickSetDisplay*,pickset,dobj);
 	bool showall = !pickset->allShown();
@@ -602,11 +589,9 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	    for ( int idx=0; idx<scenes.size(); idx++ )
 		scenes[idx]->filterPicks();
 	}
-	
-	return true;
     }
 
-    if ( mnu==mEditKnots )
+    else if ( mnu == mEditKnots )
     {
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
 	TypeSet<BinID> bidset;
@@ -630,11 +615,9 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	    setSelObjectId( rtd->id() );
 	    calculateAttrib( rtd->id(), false );
 	}
-
-	return true;
     }
 
-    if ( mnu>=mInsertKnotStart && mnu<=mInsertKnotStop )
+    else if ( mnu >= mInsertKnotStart && mnu <= mInsertKnotStop )
     {
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
 	int knotidx = mnu-mInsertKnotStart;
@@ -659,68 +642,59 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	setSelObjectId( rtd->id() );
     }
 
-    if ( mnu>=mResolutionStart && mnu<=mResolutionStop )
+    else if ( mnu >= mResolutionStart && mnu <= mResolutionStop )
     {
 	const int resolution = mnu-mResolutionStart;
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,surf,dobj);
 	if ( surf ) surf->setResolution( resolution );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj);
 	if ( pdd ) pdd->setResolution( resolution );
-	return true;
     }
 
-    if ( mnu==mSingleColor )
+    else if ( mnu == mSingleColor )
     {
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,surf,dobj);
 	surf->useTexture( !surf->usesTexture() );
-	return true;
     }
 
-    if ( mnu==mColor )
+    else if ( mnu == mColor )
     {
 	mDynamicCastGet(visBase::VisualObject*,vo,dobj)
 	Color col = vo->getMaterial()->getColor();
 	if ( select( col, appserv().parent(), "Color selection", false ) )
 	    vo->getMaterial()->setColor( col );
-	return true;
     }
 
-    if ( mnu==mLineStyle )
+    else if ( mnu == mLineStyle )
     {
 	mDynamicCastGet(visSurvey::WellDisplay*,wd,dobj);
 	LineStyleDlg dlg( appserv().parent(), wd->lineStyle(), 0, false, true );
 	if ( dlg.go() )
 	    wd->setLineStyle( dlg.getLineStyle() );
-
-	return true;
     }
 
-    if ( mnu==mShowWellName )
+    else if ( mnu == mShowWellName )
     {
 	mDynamicCastGet(visSurvey::WellDisplay*,wd,dobj);
 	wd->showWellText( !wd->isWellTextShown() );
-	return true;
     }
 
-    if ( mnu>=mShareStart && mnu<=mShareStop )
+    else if ( mnu >= mShareStart && mnu <= mShareStop )
     {
 	const int sceneidx = mnu-mShareStart;
 	mDynamicCastGet(visBase::SceneObject*,sceneobj,dobj);
-	if ( !sceneobj ) 
-	    pErrMsg( "oops" );
+	if ( !sceneobj ) { pErrMsg( "Huh" ); return false; }
 	shareObject( scenes[sceneidx]->id(), sceneobj->id() );
-	return true;
     }
 
-    if ( mnu==mSetPickSz )
+    else if ( mnu == mSetPickSz )
     {
 	mDynamicCastGet(visSurvey::PickSetDisplay*,ps,dobj);
 	uiPickSizeDlg dlg( appserv().parent(), ps );
 	dlg.go();
-	return true;
     }
 
-    if ( mnu==mShiftHor )
+    else if ( mnu == mShiftHor )
     {
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj);
 	float shift = sd->getTimeShift();
@@ -736,7 +710,7 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	sendEvent( evInteraction );
     }
 
-    return true;
+    return rv;
 }
 
 
