@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.4 2001-05-07 15:54:59 bert Exp $
+ RCS:		$Id: ioman.h,v 1.5 2001-08-22 22:34:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ through getParList().
 
 class IOMan : public UserIDObject
 {
-    friend class	dMain;
     friend class	IOObj;
     friend class	IODir;
     friend IOMan&	IOM();
@@ -86,6 +85,8 @@ public:
 			/*!< will remove a possible existing IO manager and
 			     set the survey to 'name', thus bypassing the
 			     $HOME/.dgbSurvey file */
+
+    static bool		validSurveySetup(BufferString& errmsg);
 
 private:
 
