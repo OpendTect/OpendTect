@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedlist.h,v 1.3 2002-02-22 11:21:00 kristofer Exp $
+ RCS:		$Id: sortedlist.h,v 1.4 2002-05-24 11:45:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ public:
     int 		size() const { return typs.size(); }
     const T&		operator[]( int idx ) const { return (T&)typs[idx]; }
     int			indexOf( const T& ) const;
-    			/*!< Returns -1 if not fount */
+    			/*!< Returns -1 if not found */
 
     SortedList<T>&	operator +=( const T& );
     SortedList<T>&	operator -=( const T& );
@@ -63,7 +63,8 @@ public:
 private:
     int			getPos( const T& ) const;
     			/*!< If not found, it will return position of the
-			     item just above
+			     item just above, and size() if val is higher than
+			     highest val
 			 */
 
     bool		allowmultiples;
@@ -87,7 +88,10 @@ int SortedList<T>::getPos( const T& typ ) const
 
     while ( stopval > startval )
     {
-	int middle = (start+stop)>>2;
+	if ( stop-start==1 )
+	    return typ>startval ? stop : start;
+
+	int middle = (start+stop)>>1;
 	T middleval = (*this)[middle];
 
 	if ( middleval > typ )
@@ -113,7 +117,7 @@ int SortedList<T>::indexOf( const T& typ ) const
 
     int pos = getPos( typ );
 
-    if ( (*this)[pos]!=typ )
+    if ( pos>=size() || pos<0 || (*this)[pos]!=typ )
         return -1;
 
     return pos;
