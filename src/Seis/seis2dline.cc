@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.33 2004-11-02 13:56:44 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.34 2004-11-10 10:44:00 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -565,4 +565,20 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
     cs.hrg.step.crl = trg.step;
     cs.zrg = zrg;
     return 0;
+}
+
+
+bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
+{
+    Line2DGeometry geom;
+    if ( getGeometry(ipar,geom) )
+    {
+	for ( int idx=0; idx<geom.posns.size(); idx++ )
+	{
+	    if ( bivs.includes( SI().transform(geom.posns[idx].coord) ) )
+		return true;
+	}
+    }
+
+    return false;
 }

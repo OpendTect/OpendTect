@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.16 2004-10-28 15:14:54 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.17 2004-11-10 10:44:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,12 +261,30 @@ void uiSeisIOObjInfo::getAttribKeys( BufferStringSet& bss, bool add ) const
 	return
 
 
-void uiSeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr ) const
+void uiSeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
+				const BinIDValueSet* bvs ) const
 {
     mGetLineSet;
 
+    BufferStringSet rejected;
     for ( int idx=0; idx<lset->nrLines(); idx++ )
-	bss.addIfNew( attr ? lset->attribute(idx) : lset->lineName(idx) );
+    {
+	const char* nm = attr ? lset->attribute(idx) : lset->lineName(idx);
+	if ( bss.indexOf(nm) >= 0 )
+	    continue;
+	else if ( bvs )
+	{
+	    if ( rejected.indexOf(nm) >= 0 )
+		continue;
+	    if ( !lset->haveMatch(idx,*bvs) )
+	    {
+		rejected.add( nm );
+		continue;
+	    }
+	}
+
+	bss.add( nm );
+    }
 }
 
 

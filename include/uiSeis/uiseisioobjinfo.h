@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.7 2004-10-28 15:14:46 bert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.8 2004-11-10 10:44:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ class IOObj;
 class MultiID;
 class CtxtIOObj;
 class CubeSampling;
+class BinIDValueSet;
 class BufferStringSet;
 template <class T> class StepInterval;
 
@@ -48,10 +49,12 @@ public:
     			//!< For 3D: IOObj ID, for 2D: list of ID|attrnm
 
     			// 2D only
-    void		getLineNames( BufferStringSet& b, bool add=true ) const
-				{ getNms(b,add,false); }
-    void		getAttribNames( BufferStringSet& b, bool add=true) const
-				{ getNms(b,add,true); }
+    void		getLineNames( BufferStringSet& b, bool add=true,
+	    				const BinIDValueSet* bvs=0) const
+				{ getNms(b,add,false,bvs); }
+    void		getAttribNames( BufferStringSet& b, bool add=true,
+	    				const BinIDValueSet* bvs=0) const
+				{ getNms(b,add,true,bvs); }
     void		getAttribNamesForLine( const char* nm,
 					BufferStringSet& b, bool add=true) const
 				{ getNmsSubSel(nm,b,add,false); }
@@ -68,7 +71,8 @@ protected:
     CtxtIOObj&		ctio;
     bool		doerrs;
 
-    void		getNms(BufferStringSet&,bool,bool) const;
+    void		getNms(BufferStringSet&,bool,bool,
+	    			const BinIDValueSet*) const;
     void		getNmsSubSel(const char*,BufferStringSet&,bool,
 	    			     bool) const;
 };

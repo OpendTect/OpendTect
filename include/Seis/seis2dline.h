@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.22 2004-10-21 12:35:25 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.23 2004-11-10 10:44:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class Executor;
 class SeisTrcBuf;
 class SeisSelData;
 class CubeSampling;
+class BinIDValueSet;
 class BufferStringSet;
 class Seis2DLineIOProvider;
 
@@ -120,6 +121,8 @@ public:
 	    			  StepInterval<float>& zrg) const;
     const char*		getCubeSampling(CubeSampling&,int linenr=-1) const;
     			//!< returns err msg, or null when OK
+    bool		haveMatch(int,const BinIDValueSet&) const;
+    			//!< Uses getGeometry
 
 protected:
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.47 2004-10-21 12:35:26 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.48 2004-11-10 10:44:00 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -344,7 +344,19 @@ bool SeisTrcReader::mkNextFetcher()
     const int maxline = islinesel ? 1 : nrlines;
 
     if ( !islinesel )
+    {
+	if ( seldata && seldata->type_ == SeisSelData::Table )
+	{
+	    // Chances are we do not need to go through this line at all
+	    while ( !lset->haveMatch(curlineidx,seldata->table_) )
+	    {
+	    	curlineidx++;
+		if ( curlineidx >= maxline )
+		    return false;
+	    }
+	}
 	curlinenr = curlineidx;
+    }
     else if ( curlineidx < maxline )
     {
 	bool found = false;
