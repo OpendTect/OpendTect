@@ -4,15 +4,17 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vispolyline.cc,v 1.5 2003-09-09 16:25:36 kristofer Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.6 2003-09-22 08:26:24 kristofer Exp $";
 
 #include "vispolyline.h"
 
 #include "viscoord.h"
 
 #include "Inventor/nodes/SoLineSet.h"
+#include "Inventor/nodes/SoIndexedLineSet.h"
 
 mCreateFactoryEntry( visBase::PolyLine );
+mCreateFactoryEntry( visBase::IndexedPolyLine );
 
 visBase::PolyLine::PolyLine()
     : VertexShape( new SoLineSet )
@@ -51,3 +53,9 @@ void visBase::PolyLine::removePoint( int idx )
 
     coords->removePos( size()-1 );
 }
+
+
+visBase::IndexedPolyLine::IndexedPolyLine()
+    : IndexedShape( new SoIndexedLineSet )
+{ }
+
