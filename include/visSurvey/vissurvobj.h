@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.26 2004-05-10 11:36:08 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.27 2004-05-10 14:17:39 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -97,6 +97,7 @@ public:
     virtual bool		canHaveMultipleTextures() const;
     virtual int			nrTextures() const;
     virtual void		selectTexture(int);
+    virtual float		getValue(const Coord3&) const;
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling() const;
