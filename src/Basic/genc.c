@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.7 2001-06-06 09:15:09 windev Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.8 2001-10-16 08:34:31 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: genc.c,v 1.7 2001-06-06 09:15:09 windev Exp $";
 #include <unistd.h>
 #endif
 
+int dgb_application_code = 1; // 1 = GDI, 2 = dTect
 int GetSurveyName_reRead = NO;
 static FileNameString filenamebuf;
 static FileNameString surveyname;
@@ -25,7 +26,9 @@ static int surveynameinited = NO;
 
 const char* GetSoftwareDir()
 {
-    return getenv( "dGB_APPL" );
+    const char* dir = dgb_application_code == 2 ? getenv( "dTECTAPPL" ) : 0;
+    if ( !dir ) dir = getenv( "dGB_APPL" );
+    return dir;
 }
 
 
@@ -36,6 +39,14 @@ const char* GetDataFileName( const char* fname )
     strcpy( filenamebuf, File_getFullPath( GetSoftwareDir(), "data" ) );
     strcpy( filenamebuf, File_getFullPath( filenamebuf, fname ) );
     return filenamebuf;
+}
+
+
+const char* GetSoftwareUser()
+{
+    const char* ptr = dgb_application_code == 2 ? getenv( "dTECTUSER" ) : 0;
+    if ( !ptr ) ptr = getenv( "dGB_USER" );
+    return ptr;
 }
 
 
@@ -50,7 +61,7 @@ const char* GetSurveyFileName()
 	ptr = getenv( "HOME" );
 	if ( !ptr ) return 0;
 	strcpy( sfname, File_getFullPath(ptr,".dgbSurvey") );
-	ptr = getenv( "dGB_USER" );
+	ptr = GetSoftwareUser();
 	if ( ptr )
 	{
 	    strcat( sfname, "." );
@@ -74,14 +85,14 @@ const char* GetSurveyName()
 {
     int len;
     FILE* fp;
-    const char* ptr;
+    const char* fnm;
 
     if ( GetSurveyName_reRead || !surveynameinited )
     {
-	ptr = GetSurveyFileName();
-	if ( !ptr ) return 0;
+	fnm = GetSurveyFileName();
+	if ( !fnm ) return 0;
 
-	fp = fopen( ptr, "r" );
+	fp = fopen( fnm, "r" );
 	if ( !fp ) return 0;
 
 	surveyname[0] = '\0';
@@ -99,12 +110,15 @@ const char* GetSurveyName()
 
 const char* GetDataDir()
 {
-    const char* ptr;
-    if ( !getenv( "dGB_DATA" ) ) return 0;
-    ptr = GetSurveyName();
-    if ( !ptr ) return getenv( "dGB_DATA" );
+    const char* survnm;
+    const char* datadir = dgb_application_code == 2 ? getenv( "dTECTDATA" ) : 0;
+    if ( !datadir ) datadir = getenv( "dGB_DATA" );
+    if ( !datadir ) return 0;
 
-    strcpy( filenamebuf, File_getFullPath(getenv("dGB_DATA"),ptr) );
+    survnm = GetSurveyName();
+    if ( !survnm ) return datadir;
+
+    strcpy( filenamebuf, File_getFullPath(datadir,survnm) );
     return filenamebuf;
 }
 
