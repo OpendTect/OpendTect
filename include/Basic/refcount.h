@@ -8,10 +8,12 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.1 2003-11-24 08:31:14 kristofer Exp $
+ RCS:		$Id: refcount.h,v 1.2 2004-08-23 16:22:18 kristofer Exp $
 ________________________________________________________________________
 
 -*/
+
+template <class T> class ObjectSet;
 
 /*!
 Macros to set up reference counting in a class. A refcount class is set up
@@ -36,6 +38,17 @@ A::A(params)
 }
 \endcode
 
+ObjectSets with ref-counted objects can be modified by either:
+\code
+ObjectSet<RefCountClass> set:
+
+deepRef( set );
+deepUnRefNoDelete(set);
+deepRef( set );
+deepUnRef(set);
+
+\code
+
 */
 
 #define mRefCountConstructor \
@@ -50,6 +63,8 @@ public: \
 		} \
     void	unRef() const \
 		{ \
+		    if ( !this ) \
+			return; \
 		    ClassName* obj = const_cast<ClassName*>(this); \
 		    if ( !--obj->__refcount ) \
 			delete obj; \
@@ -63,8 +78,23 @@ public: \
 private: \
     int		__refcount;	\
 protected: \
-    		~ClassName();	\
+    virtual	~ClassName();	\
 private:
 
-    
+
+#define mDeepRef(funcname,func,extra) \
+template <class T> inline void deep##funcname( ObjectSet<T>& set )\
+{\
+    for ( int idx=0; idx<set.size(); idx++ )\
+    {\
+	if ( set[idx] ) set[idx]->func();\
+    }\
+\
+   extra;\
+}
+
+mDeepRef(UnRef,unRef, set.erase() );
+mDeepRef(Ref,ref,);
+mDeepRef(UnRefNoDelete,unRefNoDelete,);
+
 #endif

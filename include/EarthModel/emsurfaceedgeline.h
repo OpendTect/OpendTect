@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.2 2004-08-23 09:44:56 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.3 2004-08-23 16:22:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 #include "callback.h"
+#include "refcount.h"
 
 template <class T> class MathFunction;
 
@@ -48,13 +49,12 @@ EM::EdgeLineSegmentFactory fact##clss( clss::sClassName(), \
 class EdgeLineSegmentFactory;
 
 class EdgeLineSegment : public CallBackClass
-{
+{ 
 public:
     				mEdgeLineSegmentClone(EdgeLineSegment,Default);
 
 			EdgeLineSegment( EM::Surface&, const EM::SectionID& );
 			EdgeLineSegment( const EdgeLineSegment& );
-    virtual		~EdgeLineSegment();
     void		setSection(const EM::SectionID& s) { section=s; }
 
     bool		haveIdenticalSettings( const EdgeLineSegment& ) const;
