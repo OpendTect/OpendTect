@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.2 2004-01-16 16:02:37 arend Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.3 2004-01-16 16:37:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,17 +30,12 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 	, workdirfld(0)
 {
     const char* titltxt =
-    "If you want to develop your own OpendTect plugins, you need a place\n"
-    "to store your work in progress: your WORK dir.\n"
-    "Please specify where the OpendTect Work should"
-    "be created."
-    ;
+    "For OpendTect development you'll need a $WORK dir\n"
+    "Please specify where this directory should be created.";
 
     setTitleText( titltxt );
 
-    const char* basetxt = "OpendTect Work Directory";
-
-    basedirfld = new uiFileInput( this, basetxt,
+    basedirfld = new uiFileInput( this, "Parent Directory",
 				  uiFileInput::Setup(basedirnm).directories() );
 
     workdirfld = new uiGenInput( this, "Directory name", workdirnm );
@@ -149,18 +144,15 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 		 "Please check if you have the required write permissions" )
 
     const char* aboutto =
-	"About to create your working directory. This can take a few minutes,\n"
-	"during which time the OpendTect application window will freeze\n\n"
-	"         This is normal behavior, so please be patient\n\n"
-	"Meanwhile, you can take a look at the developers documentation."
+	"The OpendTect window will FREEZE during this process\n"
+	"- for upto a few minutes.\n\n"
+	"Meanwhile, please take a look at the developers documentation."
     ;
     uiMSG().message(aboutto);
-
 
     BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
     getstarted = File_getFullPath( getstarted, "getstarted.html" );
     HelpViewer::doHelp( getstarted, "Get started with OpendTect development" );
-
 
     BufferString cmd( "@'" );
     cmd += GetSoftwareDir();
