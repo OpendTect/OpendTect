@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.2 2002-05-07 13:01:25 nanne Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.3 2002-06-19 15:42:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
 
     const char*		name() const			{ return "Seismics"; }
 
-    enum ExternalType	{ SegY, SeisWorks, GeoFrame };
+    enum ExternalType	{ SegY, SeisWorks, GeoFrame, CBVS };
     bool		isAvailable(ExternalType) const;
     bool		importSeis(ExternalType);
     bool		exportSeis(ExternalType);

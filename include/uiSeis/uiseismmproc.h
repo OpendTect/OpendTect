@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.10 2002-06-13 21:00:58 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.11 2002-06-19 15:42:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ protected:
     bool		jmfinished;
 
     bool		rejectOK(CallBacker*);
+    bool		acceptOK(CallBacker*);
     void		doFinalise();
     void		execFinished();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: synthseis.h,v 1.1.1.2 1999-09-16 09:22:19 arend Exp $
+ RCS:		$Id: synthseis.h,v 1.2 2002-06-19 15:42:02 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -30,7 +30,7 @@ public:
 			, outpty(0)
 			, issonic(YES)
 			, defsr(0.004)
-			, rpol(AAFilter)
+			, rpol(AAFilter), allowudfs(false)
 			{}
 
     int			nrsamples;
@@ -43,6 +43,7 @@ public:
     bool		issonic;
     float		defsr;
     ResamplePolicy	rpol;
+    bool		allowudfs;
 
 };
 
@@ -81,6 +82,7 @@ protected:
     float		reftime;
     float		defsr;
     SynthSeisPars::ResamplePolicy rpol;
+    bool		allowudfs;
 
     void		getQtyVals(IFRealUnit*,float&,float&);
     bool		generateValues(const IFRUnitList&,const IFRealUnit*);
