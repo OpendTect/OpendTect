@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.35 2003-01-27 13:16:36 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.36 2003-01-28 08:19:16 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -360,7 +360,13 @@ const AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec() const
 { return as; }
 
 void visSurvey::PlaneDataDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
-{ as = as_; }
+{
+    if ( as==as_ ) return;
+    as = as_;
+    delete cache;
+    cache = 0;
+    trect->useTexture( false );
+}
 
 
 CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
