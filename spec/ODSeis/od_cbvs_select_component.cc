@@ -28,12 +28,12 @@ int main( int argc, char** argv )
 	     << "Format: CBVS." << endl
 	     << "set component to -1 for polar dip, -2 for azimuth"
 	     << " (2 components required!)" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     else if ( !File_exists(argv[2]) )
     {
         cerr << argv[2] << " does not exist" << endl;
-        return 1;
+	exitProgram( 1 );
     }
 
     const int selcomp = atoi( argv[1] );
@@ -46,7 +46,7 @@ int main( int argc, char** argv )
     }
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
-        { cerr << tri->errMsg() << endl;  return 1; }
+        { cerr << tri->errMsg() << endl; exitProgram( 1 ); }
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
 	= tri->componentInfo();
@@ -88,14 +88,14 @@ int main( int argc, char** argv )
 
 	if ( !nrwr && !tro->initWrite(
 		    	new StreamConn(fname,Conn::Write),outtrc) )
-	    { cerr << "Cannot start write!" << endl;  return 1; }
+	    { cerr << "Cannot start write!" << endl; exitProgram( 1 ); }
 
 	if ( !tro->write(outtrc) )
-	    { cerr << "Cannot write!" << endl;  return 1; }
+	    { cerr << "Cannot write!" << endl; exitProgram( 1 ); }
 
 	nrwr++;
     }
 
     cerr << nrwr << " traces written.";
-    return nrwr ? 0 : 1;
+    exitProgram( nrwr ? 0 : 1 ); return 0;
 }

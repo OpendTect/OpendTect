@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.11 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.12 2004-01-21 13:46:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ int main( int argc, char ** argv )
     if ( argc+bgadd < 3 )
     {
 	cerr << "Usage: " << argv[0] << " program parfile" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     const char* fnm = argv[ 2 + bgadd ];
     StreamProvider spin( fnm );
@@ -41,13 +41,13 @@ int main( int argc, char ** argv )
     if ( !sdin.usable() )
     {
 	cerr << argv[0] << ": Cannot open parameter file" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     IOParList parlist( *sdin.istrm );
     if ( parlist.size() == 0 || parlist[0]->size() == 0 )
     {
 	cerr << argv[0] << ": Invalid parameter file" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     sdin.close();
     parlist.setFileName( fnm );
@@ -59,7 +59,7 @@ int main( int argc, char ** argv )
 	{
 	case -1:
 	    cerr << argv[0] << ": cannot fork: " << errno_message() << endl;
-		    return 1;
+		    exitProgram( 1 );
 	case 0:		break;
 	default:	return 0;
 	}
@@ -71,6 +71,6 @@ int main( int argc, char ** argv )
 
     app.setTopLevel( smmp );
     smmp->show();
-    PIM().loadAuto( true );
-    return app.exec();
+
+    exitProgram( app.exec() ); return 0;
 }

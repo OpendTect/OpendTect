@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.16 2003-11-07 12:21:57 bert Exp $
+ RCS:           $Id: sighndl.cc,v 1.17 2004-01-21 13:46:25 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.16 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.17 2004-01-21 13:46:25 bert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -220,7 +220,7 @@ void SignalHandling::doKill( int signalnr )
 	ErrMsg( msg );
     }
     killcbs.doCall( this );
-    exit( 1 );
+    exitProgram( 1 );
 }
 
 

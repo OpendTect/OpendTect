@@ -5,7 +5,7 @@
  * FUNCTION : Create extra picks from locations file
 -*/
 
-static const char* rcsID = "$Id: extend_locs.cc,v 1.3 2003-02-06 11:20:55 bert Exp $";
+static const char* rcsID = "$Id: extend_locs.cc,v 1.4 2004-01-21 13:46:25 bert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -20,14 +20,14 @@ int main( int argc, char** argv )
     if ( argc != 3 )
     {
 	cerr << "Usage: " << argv[0] << " input_locs output_locs" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     StreamProvider spin( argv[1] );
     StreamData sdin = spin.makeIStream();
     if ( !sdin.istrm )
     {
 	cerr << argv[0] << ": Cannot open input stream" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     else if ( sdin.istrm == &cin )
 	cout << "Using standard input." << endl;
@@ -38,14 +38,14 @@ int main( int argc, char** argv )
     if ( !instrm )
     {
 	cerr << "Bad locations file" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     StreamProvider spout( argv[2] );
     StreamData sdout = spout.makeOStream();
     if ( !sdout.ostrm )
     {
 	cerr << argv[0] << ": Cannot open output stream" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     ostream& outstrm = *sdout.ostrm;
 
@@ -74,5 +74,5 @@ int main( int argc, char** argv )
     }
 
     sdin.close(); sdout.close();
-    return 0;
+    exitProgram( 0 ); return 0;
 }

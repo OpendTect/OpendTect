@@ -29,12 +29,12 @@ int main( int argc, char** argv )
     {
 	cerr << "Usage: " << argv[0] << " inpfile outpfile"<< endl
 	     << "Format: CBVS." << endl << endl;
-	return 1;
+	exitProgram( 1 );
     }
     else if ( !File_exists(argv[1]) )
     {
         cerr << argv[1] << " does not exist" << endl;
-        return 1;
+	exitProgram( 1 );
     }
 
     FileNameString fname( argv[1] );
@@ -45,7 +45,7 @@ int main( int argc, char** argv )
     }
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
-        { cerr << tri->errMsg() << endl;  return 1; }
+        { cerr << tri->errMsg() << endl; exitProgram(1); }
 
     const CBVSReadMgr& rdmgr = *tri->readMgr();
     const CBVSInfo::SurvGeom& geom = rdmgr.info().geom;
@@ -74,21 +74,21 @@ int main( int argc, char** argv )
 
 	    else if ( !tri->read(trc) )
 		{ cerr << "Cannot read " << linenr << '/' << trcnr
-		       << endl; return 1; }
+		       << endl; exitProgram(1); }
 
 	    Swap( trc.info().binid.inl, trc.info().binid.crl );
 	    trc.info().coord = SI().transform( trc.info().binid );
 
 	    if ( !nrwr
 		    && !tro->initWrite(new StreamConn(fname,Conn::Write),trc) )
-		{ cerr << "Cannot start write!" << endl;  return 1; }
+		{ cerr << "Cannot start write!" << endl; exitProgram( 1 ); }
 
 	    if ( !tro->write(trc) )
-		{ cerr << "Cannot write!" << endl;  return 1; }
+		{ cerr << "Cannot write!" << endl; exitProgram( 1 ); }
 
 	    nrwr++;
 	}
     }
 
-    return nrwr ? 0 : 1;
+    exitProgram( nrwr ? 0 : 1 ); return 0;
 }

@@ -71,12 +71,12 @@ int main( int argc, char** argv )
     if ( argc < 2 )
     {
 	cerr << "Usage: " << argv[0] << " cbvs_file" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     else if ( !File_exists(argv[1]) )
     {
 	cerr << argv[1] << " does not exist" << endl;
-	return 1;
+	exitProgram( 1 );
     }
 
     FileNameString fname( argv[1] );
@@ -88,7 +88,7 @@ int main( int argc, char** argv )
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ cerr << tri->errMsg() << endl;  return 1; }
+	{ cerr << tri->errMsg() << endl;  exitProgram( 1 ); }
 
     cerr << "\n";
     const CBVSReadMgr& mgr = *tri->readMgr();
@@ -101,7 +101,7 @@ int main( int argc, char** argv )
     while ( 1 )
     {
 	cerr << "\nExamine In-line ( 0 to stop ): "; getInt( bid.inl );
-	if ( !bid.inl ) return 0;
+	if ( !bid.inl ) exitProgram( 0 );
 
 	if ( info.geom.fullyrectandreg )
 	{
@@ -171,4 +171,6 @@ int main( int argc, char** argv )
 	    cerr << endl;
 	}
     }
+
+    exitProgram( 0 ); return 0;
 }

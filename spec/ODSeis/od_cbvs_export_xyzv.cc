@@ -31,12 +31,12 @@ int main( int argc, char** argv )
 	     << " inpfile outpfile "
 	     << "[inl1,inl2,inlstep,crl1,crl2,crlstep[,startz,stepz,nrz]]\n";
 	cerr << "Format input: CBVS ; Format ouput: x y z v [v ...]" << endl;
-	return 1;
+	exitProgram( 1 );
     }
     else if ( !File_exists(argv[1]) )
     {
         cerr << argv[1] << " does not exist" << endl;
-        return 1;
+	exitProgram( 1 );
     }
 
     FileNameString fname( argv[1] );
@@ -47,12 +47,12 @@ int main( int argc, char** argv )
     }
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
-	{ cerr << tri->errMsg() << endl;  return 1; }
+	{ cerr << tri->errMsg() << endl;  exitProgram( 1 ); }
 
     fname = argv[2];
     StreamData outsd = StreamProvider( argv[2] ).makeOStream();
     if ( !outsd.usable() )
-        { cerr << "Cannot open output file" << endl;  return 1; }
+        { cerr << "Cannot open output file" << endl;  exitProgram( 1 ); }
 
     if ( argc > 3 )
     {
@@ -101,5 +101,5 @@ int main( int argc, char** argv )
     }
 
     cerr << nrwr << " traces written to " << nrlwr << " lines." << endl;
-    return nrwr ? 0 : 1;
+    exitProgram( nrwr ? 0 : 1 ); return 0;
 }
