@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.51 2003-11-13 16:41:20 arend Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.52 2003-12-10 09:59:14 arend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -15,9 +15,12 @@ static const char* rcsID = "$Id: filegen.c,v 1.51 2003-11-13 16:41:20 arend Exp 
 #include <malloc.h>
 #include <stdlib.h>
 
-#  include <sys/stat.h>
-#  include <dirent.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
+#ifdef __win__
+#include <getspec.h>
+#endif
 static struct stat statbuf;
 
 #ifdef __win__
@@ -413,11 +416,28 @@ const char* File_getSimpleTempFileName( const char* ext )
 
 #ifdef __win__
 
-    sprintf( pathbuf, "dgb%s", uniquestr );
+    if ( getenv("TMP") )
+	strcpy( pathbuf, getenv ("TMP") );
+    else if ( getenv("TEMP") )
+	strcpy( pathbuf, getenv ("TEMP") );
+    else // make sure we have at least write access...
+    {
+	strcpy( pathbuf, GetSpecialFolderLocation( CSIDL_PERSONAL ) );
+	static int warn=1;
+	if ( warn )
+	{
+	  printf("WARNING: You don't have the TEMP or TMP environment variable"
+	         " set.\nUsing '%s' for temporary files.", pathbuf );
+	  warn = 0;
+	}
+    }
+
+    strcpy( pathbuf, File_getFullPath(pathbuf, "od") );
+    strcat( pathbuf, uniquestr );
 
 #else
 
-    sprintf( pathbuf, "/tmp/dgb%s", uniquestr );
+    sprintf( pathbuf, "/tmp/od%s", uniquestr );
 
 #endif
 
