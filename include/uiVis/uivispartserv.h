@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.49 2002-07-25 15:27:55 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.50 2002-07-31 15:06:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
     			//General stuff
     bool		deleteAllObjects();
 
-    void		usePar( const IOPar& );
+    bool		usePar( const IOPar& );
     void		fillPar( IOPar& ) const;
 
     enum ElementType    { Inline, Crossline, Timeslice };
