@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.15 2003-07-29 13:09:34 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.16 2003-07-30 13:47:27 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -97,7 +97,7 @@ const char* EM::Surface::patchName( const EM::PatchID& patchid ) const
 {
     int idx = patchids.indexOf(patchid);
     const char* res = idx!=-1 ? patchnames[idx]->buf() : 0;
-    return  res && !*res ? res : 0;
+    return  res && *res ? res : 0;
 }
 
 
@@ -127,7 +127,7 @@ bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
 
     patchnames += new BufferString(name);
 
-    Geometry::GridSurface* newsurf = createPatchSurface();
+    Geometry::GridSurface* newsurf = createPatchSurface( patchid );
     surfaces += newsurf;
 
     for ( int idx=0; idx<nrAuxData(); idx++ )
@@ -185,7 +185,7 @@ bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
 				   bool addtohistory)
 {
     RowCol node;
-    if ( !getGridRowCol( subid, node ) )
+    if ( !getGridRowCol( subid, node, patch ) )
 	return false;
 
     int patchindex=patchids.indexOf(patch);
@@ -267,7 +267,7 @@ Coord3 EM::Surface::getPos( const PatchID& patch, const RowCol& rc) const
 {
     const int surfidx = patchids.indexOf( patch );
     RowCol geomnode;
-    if ( !getGridRowCol( rc, geomnode ) )
+    if ( !getGridRowCol( rc, geomnode, patch ) )
 	return Coord3( mUndefValue, mUndefValue, mUndefValue );
 
     return surfaces[surfidx]->getGridPos( geomnode );
@@ -284,7 +284,7 @@ bool EM::Surface::isDefined( const PatchID& patch, const RowCol& rc) const
 {
     const int surfidx = patchids.indexOf( patch );
     RowCol geomnode;
-    if ( !getGridRowCol( rc, geomnode ) )
+    if ( !getGridRowCol( rc, geomnode, patch ) )
 	return false;
 
     return surfaces[surfidx]->isDefined( geomnode );
@@ -361,7 +361,8 @@ int EM::Surface::findPos( const CubeSampling& cs,
 		 nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
 		continue;
 
-	    EM::PosID posid( id(), patchids[idx], getSurfSubID(nodes[idy]) );
+	    const PatchID patch = patchids[idx];
+	    EM::PosID posid( id(), patch, getSurfSubID(nodes[idy],patch) );
 
 	    TypeSet<EM::PosID> clones;
 	    getLinkedPos( posid, clones );
@@ -513,7 +514,7 @@ void EM::Surface::setTranslatorData( const RowCol& step_,
 {
     step = step_;
     loadedstep = loadedstep_;
-    origo = origo_;
+    origos += origo_;
     delete rowinterval;
     delete colinterval;
     rowinterval = rowrange_ ? new Interval<int>( *rowrange_ ) : 0;
@@ -610,7 +611,7 @@ float EM::Surface::getAuxDataVal( int dataidx, const EM::PosID& posid ) const
     if ( !patchauxdata ) return mUndefValue;
 
     RowCol geomrc;
-    getGridRowCol( posid.subID(), geomrc );
+    getGridRowCol( posid.subID(), geomrc, posid.patchID() );
     const int subidx = surfaces[patchidx]->indexOf( geomrc );
     if ( subidx==-1 ) return mUndefValue;
     return (*patchauxdata)[subidx];
@@ -625,7 +626,7 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
     if ( patchidx==-1 ) return;
 
     RowCol geomrc; 
-    getGridRowCol( posid.subID(), geomrc );
+    getGridRowCol( posid.subID(), geomrc, posid.patchID() );
     const int subidx = surfaces[patchidx]->indexOf( geomrc );
     if ( subidx==-1 ) return;
 
@@ -641,16 +642,18 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
 }
 
 
-bool EM::Surface::getGridRowCol( const EM::SubID& subid,
-			     RowCol& gridrowcol ) const
+bool EM::Surface::getGridRowCol( const EM::SubID& subid, RowCol& gridrowcol, 
+				 const PatchID& patchid ) const
 {
-    return getGridRowCol( subID2RowCol(subid),gridrowcol);
+    return getGridRowCol( subID2RowCol(subid), gridrowcol, patchid );
 }
 
 
-bool EM::Surface::getGridRowCol( const RowCol& emrowcol,
-			     RowCol& gridrowcol ) const
+bool EM::Surface::getGridRowCol( const RowCol& emrowcol, RowCol& gridrowcol,
+       				 const PatchID& patchid ) const
 {
+    const int idx = patchids.indexOf( patchid );
+    RowCol origo = origos.size() ? origos[idx] : RowCol(0,0);
     const RowCol relrowcol = emrowcol - origo;
     if ( relrowcol.row%loadedstep.row || relrowcol.col%loadedstep.col )
 	return false;
@@ -660,16 +663,20 @@ bool EM::Surface::getGridRowCol( const RowCol& emrowcol,
 }
 
 
-EM::SubID EM::Surface::getSurfSubID( const RowCol& nodeid ) const
+EM::SubID EM::Surface::getSurfSubID( const RowCol& nodeid, 
+				     const PatchID& patchid ) const
 {
+    const int idx = patchids.indexOf( patchid );
+    RowCol origo = origos.size() ? origos[idx] : RowCol(0,0);
     return rowCol2SubID( origo+nodeid*loadedstep );
 }
 
 
-EM::SubID EM::Surface::getSurfSubID( const Geometry::PosID& gposid ) const
+EM::SubID EM::Surface::getSurfSubID( const Geometry::PosID& gposid,
+       				     const PatchID& patchid ) const
 {
     const RowCol& nodeid = Geometry::GridSurface::getGridNode(gposid);
-    return getSurfSubID( nodeid );
+    return getSurfSubID( nodeid, patchid );
 }
 
 
@@ -697,6 +704,7 @@ void EM::Surface::cleanUp()
     deepErase( surfaces );
     deepErase( patchnames );
     patchids.erase();
+    origos.erase();
 
     delete rowinterval;
     delete colinterval;
@@ -734,8 +742,8 @@ void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
 	const RowCol firstrow(gsurf.firstRow(),0);
 	const RowCol lastrow(gsurf.lastRow(),0);
 
-	rg.start = subID2RowCol( getSurfSubID(firstrow)).row;
-	rg.stop = subID2RowCol( getSurfSubID(lastrow)).row;
+	rg.start = subID2RowCol( getSurfSubID(firstrow,patchid)).row;
+	rg.stop = subID2RowCol( getSurfSubID(lastrow,patchid)).row;
     }
     else
     {
@@ -743,8 +751,8 @@ void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
 	const RowCol firstrow(0,colrg.start);
 	const RowCol lastrow(0,colrg.stop);
 
-	rg.start = subID2RowCol( getSurfSubID(firstrow)).col;
-	rg.stop = subID2RowCol( getSurfSubID(lastrow)).col;
+	rg.start = subID2RowCol( getSurfSubID(firstrow,patchid)).col;
+	rg.stop = subID2RowCol( getSurfSubID(lastrow,patchid)).col;
     }
 
     rg.step = rowdir ? loadedStep().row : loadedStep().col;

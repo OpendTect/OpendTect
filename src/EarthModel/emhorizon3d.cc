@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.28 2003-07-29 13:13:16 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.29 2003-07-30 13:47:27 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -46,16 +46,17 @@ BinID EM::Horizon::getBinID( const RowCol& rc )
 
 
 
-Geometry::GridSurface* EM::Horizon::createPatchSurface() const
+Geometry::GridSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
+    									   const
 {
     Geometry::Snapped2DSurface* newsurf = new Geometry::Snapped2DSurface();
     const RowCol rc00( 0, 0 );
     const RowCol rc10( 1, 0 );
     const RowCol rc11( 1, 1 );
 
-    const RowCol surfrc00 = subID2RowCol(getSurfSubID( rc00 ));
-    const RowCol surfrc10 = subID2RowCol(getSurfSubID( rc10 ));
-    const RowCol surfrc11 = subID2RowCol(getSurfSubID( rc11 ));
+    const RowCol surfrc00 = subID2RowCol( getSurfSubID(rc00,patchid) );
+    const RowCol surfrc10 = subID2RowCol( getSurfSubID(rc10,patchid) );
+    const RowCol surfrc11 = subID2RowCol( getSurfSubID(rc11,patchid) );
 
     const Coord pos00 = SI().transform(BinID(surfrc00.row,surfrc00.col));
     const Coord pos10 = SI().transform(BinID(surfrc10.row,surfrc10.col));
@@ -259,9 +260,9 @@ protected:
 
 
 
-Executor* EM::Horizon::import( const Grid& grid )
+Executor* EM::Horizon::import( const Grid& grid, int idx )
 {
-    cleanUp();
+    if ( !idx ) cleanUp();
 
     return new EM::HorizonImporter( *this, grid );
 }

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.12 2003-07-29 13:05:22 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.13 2003-07-30 13:47:27 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -398,17 +398,14 @@ int EM::dgbSurfaceReader::nextStep()
 
 	if ( !surface->getSurface(patchid) )
 	{
-	    if ( !surface->nrPatches() )
-	    {
-		const RowCol filestep = rcconv
+	    const RowCol filestep = rcconv
 		    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
 		    : RowCol(rowrange.step, colrange.step);
 
-		surface->setTranslatorData( filestep, 
+	    surface->setTranslatorData( filestep, 
 		    readrowrange ? RowCol(readrowrange->step,readcolrange->step)
 				 : filestep,
 		    rowcol, readrowrange, readcolrange );
-	    }
 
 	    const int index = patchids.indexOf(patchid);
 	    surface->addPatch( *patchnames[index], patchids[index], false );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.21 2003-07-29 13:14:19 nanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.22 2003-07-30 13:47:33 nanne Exp $
 ________________________________________________________________________
 
 
@@ -68,9 +68,9 @@ public:
     Executor*		saver(const EM::SurfaceIODataSelection* s=0,
 	    		      bool auxdataonly=false);
 
-    Executor*		import( const Grid& );
-    			/*!< Removes all data and sets it to a single-
-			     sub-horizon.
+    Executor*		import(const Grid&,int idx);
+    			/*!< Removes all data when idx=0 and creates patches
+			     for every Grid imported.
 			*/
 
     static BinID	getBinID( const EM::SubID& );
@@ -82,14 +82,14 @@ protected:
     friend class	::dgbEMHorizonReader;
     friend class	::dgbEMHorizonWriter;
 
-    Geometry::GridSurface*	createPatchSurface() const;
+    Geometry::GridSurface* createPatchSurface(const PatchID&) const;
 
-	    			Horizon(EMManager&, const MultiID&);
-    				~Horizon();
+	    		Horizon(EMManager&, const MultiID&);
+    			~Horizon();
 
 
-    float	a11,a12,a13,a21,a22,a23; //Transformation coords
-    float	b11,b12,b13,b21,b22,b23; //Reverse transformation coords
+    float		a11,a12,a13,a21,a22,a23; //Transformation coords
+    float		b11,b12,b13,b21,b22,b23; //Reverse transformation coords
 };
 
 

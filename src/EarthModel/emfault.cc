@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.8 2003-06-03 12:46:12 bert Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.9 2003-07-30 13:47:27 nanne Exp $";
 
 #include "emfault.h"
 
@@ -54,7 +54,7 @@ Executor* EM::Fault::saver()
 }
 
 
-Geometry::GridSurface* EM::Fault::createPatchSurface() const
+Geometry::GridSurface* EM::Fault::createPatchSurface( const PatchID& id ) const
 {
     return new Geometry::GridSurfaceImpl;
 }

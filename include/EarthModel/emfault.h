@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.9 2003-06-03 12:46:12 bert Exp $
+ RCS:		$Id: emfault.h,v 1.10 2003-07-30 13:47:33 nanne Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ public:
 
 protected:
     friend			class ::dgbEMFaultReader;
-    Geometry::GridSurface*	createPatchSurface() const;
+    Geometry::GridSurface*	createPatchSurface(const PatchID&) const;
 };
 
 }; // Namespace
