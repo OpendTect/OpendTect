@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.38 2004-07-23 13:00:32 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.39 2004-08-10 12:25:50 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -899,8 +899,10 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	success = applMgr()->EMServer()->selectFault(mid);
     else if ( mnuid == 1 )
     {
-	applMgr()->trackServer()->setSceneID( sceneID() );
-	applMgr()->trackServer()->addFaultTracker( "", true );
+	uiTrackingPartServer* ts = applMgr()->trackServer();
+	ts->setSceneID( sceneID() );
+	ts->setAttribDescSet( applMgr()->attrServer()->curDescSet() );
+	ts->addFaultTracker( "", true );
 	return true;
     }
 
@@ -953,8 +955,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	success = applMgr()->EMServer()->selectHorizon(mid);
     else if ( mnuid == 1 )
     {
-	applMgr()->trackServer()->setSceneID( sceneID() );
-	applMgr()->trackServer()->addHorizonTracker( "", true );
+	uiTrackingPartServer* ts = applMgr()->trackServer();
+	ts->setSceneID( sceneID() );
+	ts->setAttribDescSet( applMgr()->attrServer()->curDescSet() );
+	ts->addHorizonTracker( "", true );
 	return true;
     }
 
