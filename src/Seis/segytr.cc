@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.7 2001-05-11 20:28:20 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.8 2001-07-06 11:40:39 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -20,6 +20,13 @@ static const char* rcsID = "$Id: segytr.cc,v 1.7 2001-05-11 20:28:20 bert Exp $"
 #include "scaler.h"
 #include <math.h>
 #include <ctype.h>
+#include <strstream>
+
+const char* SEGYSeisTrcTranslator::sExternalNrSamples = "Nr samples overrule";
+const char* SEGYSeisTrcTranslator::sExternalTimeShift = "Start time overrule";
+const char* SEGYSeisTrcTranslator::sExternalSampleRate = "Sample rate overrule";
+const char* SEGYSeisTrcTranslator::sExternalCoordScaling
+	= "Coordinate scaling overrule";
 
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm )
@@ -30,6 +37,12 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm )
 	, trhead(headerbuf,hdef)
 	, trcscale(0)
 	, curtrcscale(0)
+	, ext_nr_samples(-1)
+	, ext_coord_scaling(mUndefValue)
+	, ext_time_shift(mUndefValue)
+	, ext_sample_rate(mUndefValue)
+	, do_string_dump(false)
+	, dumpstr(0)
 {
 }
 
@@ -38,6 +51,7 @@ SEGYSeisTrcTranslator::~SEGYSeisTrcTranslator()
 {
     dumpsd.close();
     delete &dumpsd;
+    delete [] dumpstr;
 }
 
 
@@ -77,19 +91,29 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
     if ( itrc < 5 )
     {
-	const char* res = Settings::common()[ "SEG-Y.Header dump" ];
-	if ( !res || !*res )
-	    res = Settings::common()[ "Seg-Y headers" ];
-	if ( res && *res )
+	dumpsd.close();
+	if ( do_string_dump )
 	{
-	    dumpsd.close();
-	    StreamProvider sp( res );
-	    dumpsd = sp.makeOStream();
-	    if ( dumpsd.usable() )
+	    if ( !dumpstr ) dumpstr = new char [ 32768 ];
+	    dumpsd.ostrm = new ostrstream( dumpstr, 32768 );
+	}
+	else
+	{
+	    const char* res = Settings::common()[ "SEG-Y.Header dump" ];
+	    if ( !res || !*res )
+		res = Settings::common()[ "Seg-Y headers" ];
+	    if ( res && *res )
 	    {
-		txthead.print( *dumpsd.ostrm );
-		binhead.print( *dumpsd.ostrm );
+		StreamProvider sp( res );
+		dumpsd = sp.makeOStream();
 	    }
+	}
+	if ( dumpsd.usable() )
+	{
+	    *dumpsd.ostrm << "SEG-Y text header:\n\n";
+	    txthead.print( *dumpsd.ostrm );
+	    *dumpsd.ostrm << "\n\nInfo present in SEG-Y binary header:\n\n";
+	    binhead.print( *dumpsd.ostrm );
 	}
     }
 
@@ -100,12 +124,20 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
     SeisTrcInfo info;
-    trhead.fill( info );
+    trhead.fill( info, ext_coord_scaling );
     SamplingData<float> sd( info.sampling.start, info.sampling.step );
     if ( !sd.step ) sd.step = binhead_dpos;
+    if ( !mIsUndefined(ext_time_shift) )
+	info.sampling.start = ext_time_shift;
+    if ( !mIsUndefined(ext_sample_rate) )
+	info.sampling.step = ext_sample_rate;
 
-    int nrsamples = trhead.nrSamples();
-    if ( !nrsamples ) nrsamples = binhead_ns;
+    int nrsamples = ext_nr_samples;
+    if ( nrsamples <= 0 )
+    {
+	nrsamples = trhead.nrSamples();
+	if ( !nrsamples ) nrsamples = binhead_ns;
+    }
 
     addComp( getDataChar(numbfmt), sd, nrsamples );
     DataCharacteristics& dc = tarcds[0]->datachar;
@@ -128,14 +160,14 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     if ( itrc < 5 && dumpsd.usable() )
     {
 	if ( itrc == 1 )
-	    *dumpsd.ostrm << "\n\n\tField\tByte\tValue\n\n";
-	*dumpsd.ostrm << "\nTrc " << itrc << "\n";
+	    *dumpsd.ostrm << "\n\n\n\tField\tByte\tValue\n\n";
+	*dumpsd.ostrm << "\nTrace " << itrc << ":\n";
 	trhead.print( *dumpsd.ostrm );
 	if ( itrc == 4 ) dumpsd.close();
 	else		 *dumpsd.ostrm << endl;
     }
 
-    trhead.fill( ti );
+    trhead.fill( ti, ext_coord_scaling );
     float scfac = trhead.postScale( numbfmt );
     if ( mIS_ZERO(1-scfac) )
 	curtrcscale = 0;
@@ -144,6 +176,11 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	if ( !trcscale ) trcscale = new LinScaler( 0, scfac );
 	curtrcscale = trcscale;
     }
+
+    if ( !mIsUndefined(ext_time_shift) )
+	ti.sampling.start = ext_time_shift;
+    if ( !mIsUndefined(ext_sample_rate) )
+	ti.sampling.step = ext_sample_rate;
 }
 
 
@@ -192,6 +229,11 @@ void SEGYSeisTrcTranslator::usePar( const IOPar* iopar )
     const char* res = (*iopar)[ mSegyFmt ];
     if ( *res )
 	numbfmt = isdigit(*res) ? *res - '0' : 0;
+
+    iopar->get( sExternalNrSamples, ext_nr_samples );
+    iopar->get( sExternalCoordScaling, ext_coord_scaling );
+    iopar->get( sExternalTimeShift, ext_time_shift );
+    iopar->get( sExternalSampleRate, ext_sample_rate );
 }
 
 

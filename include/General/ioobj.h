@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.5 2001-02-13 17:15:57 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.6 2001-07-06 11:41:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ public:
 				bool initdefaults=true);
 
     Translator*		getTranslator() const;
+    void		acquireNewKey();
 
 protected:
 

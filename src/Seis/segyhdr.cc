@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.9 2001-06-28 11:32:49 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.10 2001-07-06 11:40:39 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -472,7 +472,7 @@ float SegyTraceheader::postScale( int numbfmt ) const
 }
 
 
-void SegyTraceheader::fill( SeisTrcInfo& ti ) const
+void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 {
     ti.nr = IbmFormat::asInt( buf+0 );
     ti.sampling.start = ((float)IbmFormat::asShort(buf+108)) * .001;
@@ -492,9 +492,10 @@ void SegyTraceheader::fill( SeisTrcInfo& ti ) const
     ti.offset = IbmFormat::asInt( buf+36 );
 
     short scalco = IbmFormat::asShort( buf+70 );
-    if ( scalco != 1 && scalco != 0 )
+    if ( !mIsUndefined(extcoordsc) || scalco != 1 && scalco != 0 )
     {
         double scale = scalco > 0 ? scalco : -1./scalco;
+	if ( !mIsUndefined(extcoordsc) ) scale = extcoordsc;
         ti.coord.x *= scale;
         ti.coord.y *= scale;
     }

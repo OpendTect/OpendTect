@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.4 2001-06-05 11:49:31 windev Exp $
+ RCS:		$Id: segyhdr.h,v 1.5 2001-07-06 11:41:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ public:
     void		putSampling(SamplingData<float>,unsigned short);
 
     void		use(const SeisTrcInfo&);
-    void		fill(SeisTrcInfo&) const;
+    void		fill(SeisTrcInfo&,float) const;
 
     float		postScale(int numbfmt) const;
 

@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.8 2001-05-31 12:55:19 windev Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.9 2001-07-06 11:40:33 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -82,7 +82,7 @@ BinID BinID2Coord::transform( const Coord& coord ) const
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
 {
-    b2c = si.b2c;
+    b2c_ = si.b2c_;
     dirname = si.dirname;
     range_ = si.range_;
     zrange_ = si.zrange_;
@@ -146,6 +146,9 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	    FileMultiString fms( astream.value() );
 	    zrange_.start = atof(fms[0]);
 	    zrange_.stop = atof(fms[1]);
+	    zrange_.step = atof(fms[2]);
+	    if ( mIsUndefined(zrange_.step) || mIS_ZERO(zrange_.step) )
+		zrange_.step = 0.004;
 	    zrange_.sort();
 	}
 	else if ( matchString("Set Point",astream.keyWord()) )
@@ -162,12 +165,19 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	}
     }
 
+    while ( !atEndOfSection( astream.next() ) )
+    {
+	if ( *((const char*)comment_) )
+	    comment_ += "\n";
+	comment_ += astream.keyWord();
+    }
+
     if ( set3binids[2].crl == 0 )
 	get3Pts( set3coords, set3binids, set3binids[2].crl );
 
     setRange( bir );
     setStep( bid );
-    b2c.setTransforms( xtr, ytr );
+    b2c_.setTransforms( xtr, ytr );
 }
 
 
@@ -181,8 +191,8 @@ int SurveyInfo::write( const char* basedir ) const
     if ( !astream.putHeader(sKey) ) return NO;
 
     astream.put( sNameKey, name() );
-    putTr( b2c.getTransform(true), astream, "Coord-X-BinID" );
-    putTr( b2c.getTransform(false), astream, "Coord-Y-BinID" );
+    putTr( b2c_.getTransform(true), astream, "Coord-X-BinID" );
+    putTr( b2c_.getTransform(false), astream, "Coord-Y-BinID" );
 
     FileMultiString fms;
     for ( int idx=0; idx<3; idx++ )
@@ -203,7 +213,25 @@ int SurveyInfo::write( const char* basedir ) const
     if ( !mIS_ZERO(zrange_.width()) )
     {
 	fms = ""; fms += zrange_.start; fms += zrange_.stop;
+	fms += zrange_.step;
 	astream.put( "Z range", fms );
+    }
+
+    astream.newParagraph();
+    const char* ptr = (const char*)comment_;
+    while ( 1 )
+    {
+	char* nlptr = const_cast<char*>( strchr( ptr, '\n' ) );
+	if ( !nlptr )
+	{
+	    if ( *ptr )
+		strm << ptr;
+	    break;
+	}
+	*nlptr = '\0';
+	strm << ptr << '\n';
+	*nlptr = '\n';
+	ptr = nlptr + 1;
     }
     return !strm.fail();
 }
@@ -227,7 +255,7 @@ void SurveyInfo::putTr( const BinID2Coord::BCTransform& tr, ascostream& astream,
 
 BinID SurveyInfo::transform( const Coord& c ) const
 {
-    BinID binid = b2c.transform( c );
+    BinID binid = b2c_.transform( c );
 
     if ( step_.inl > 1 )
     {
@@ -266,7 +294,7 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 
 const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2], int xline )
 {
-    const char* msg = b2c.set3Pts( c, b, xline );
+    const char* msg = b2c_.set3Pts( c, b, xline );
     if ( msg ) return msg;
 
     set3coords[0].x = c[0].x; set3coords[0].y = c[0].y;
@@ -320,9 +348,16 @@ void SurveyInfo::setRange( const BinIDRange& br )
 }
 
 
-void SurveyInfo::setZRange( const Interval<double>& zr )
+void SurveyInfo::setZRange( const StepInterval<double>& zr )
 {
     zrange_ = zr;
+    zrange_.sort();
+}
+
+
+void SurveyInfo::setZRange( const Interval<double>& zr )
+{
+    assign( zrange_, zr );
     zrange_.sort();
 }
 

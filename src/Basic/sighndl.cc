@@ -4,17 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: sighndl.cc,v 1.1 2001-04-27 16:46:22 bert Exp $
+ RCS:           $Id: sighndl.cc,v 1.2 2001-07-06 11:40:33 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.1 2001-04-27 16:46:22 bert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.2 2001-07-06 11:40:33 bert Exp $";
 
 #include "sighndl.h"
 #include "errh.h"
-
-SignalHandling SignalHandling::theinst_;
 
 
 void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
@@ -136,7 +134,7 @@ void SignalHandling::doKill( int signalnr )
     mReleaseSignal( signalnr );
     ErrMsg( "Stopped by Operating system" );
     killcbs.doCall( this );
-    kill( getPID(), signalnr );
+    exit( 1 );
 }
 
 
@@ -150,6 +148,7 @@ void SignalHandling::doStop( int signalnr )
 
 void SignalHandling::doCont()
 {
+    mCatchSignal( SIGSTOP );
     contcbs.doCall( this );
 }
 
