@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.39 2003-08-29 11:00:37 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.40 2003-09-15 10:59:52 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -30,7 +30,7 @@ BatchProgram* BatchProgram::inst_;
 
 int Execute_batch( int* pargc, char** argv )
 {
-    LoadAutoPlugins( pargc, argv, PI_AUTO_INIT_EARLY );
+    PIM().setArgs( *pargc, argv ); PIM().loadAuto( false );
 
     BatchProgram::inst_ = new BatchProgram( pargc, argv );
     if ( !BP().stillok_ )
@@ -340,7 +340,7 @@ bool BatchProgram::initOutput()
 
     stillok_ = sdout_.usable();
     if ( stillok_ )
-	LoadAutoPlugins( pargc_, argv_, PI_AUTO_INIT_LATE );
+	PIM().loadAuto( true );
 
     return stillok_;
 }
