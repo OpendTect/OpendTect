@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.21 2002-07-31 09:07:20 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.22 2002-07-31 11:09:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -84,6 +84,8 @@ protected:
     Geometry::Pos		xytmousepos;
     float			mouseposval;
 
+    static const char*		displobjprefixstr;
+    static const char*		nodisplobjstr;
     static const char*		xyzobjprefixstr;
     static const char*		noxyzobjstr;
     static const char*		xytobjprefixstr;
