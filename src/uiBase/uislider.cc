@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.18 2004-03-02 13:29:41 nanne Exp $
+ RCS:           $Id: uislider.cc,v 1.19 2004-05-07 16:41:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,6 +239,7 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 	editfld->setHSzPol( uiObject::small );
 	editfld->returnPressed.notify( mCB(this,uiSliderExtra,editRetPress) );
 	editfld->attach( rightOf, slider );
+	sliderMove(0);
     }
 
     setHAlignObj( slider );
