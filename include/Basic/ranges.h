@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.10 2001-05-02 13:49:57 windev Exp $
+ RCS:		$Id: ranges.h,v 1.11 2001-05-13 12:50:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,15 @@ public:
 
 };
 
+
+template <class T1,class T2>
+inline void assign( Interval<T1>& i1, const Interval<T2>& i2 )
+{ i1.start = (T1)i2.start; i1.stop = (T1)i2.stop; }
+
+
+template <class T1,class T2>
+inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
+{ i1.start = (T1)i2.start; i1.stop = (T1)i2.stop; i1.step = (T1)i2.step; }
 
 
 #endif
