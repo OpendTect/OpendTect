@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.13 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.14 2004-01-08 17:52:41 kristofer Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -122,6 +122,12 @@ void visBase::Transformation::setA( float a11, float a12, float a13, float a14,
 	    			a12, a22, a32, a42,
 				a13, a23, a33, a43,
 				a14, a24, a34, a44 );
+}
+
+
+void visBase::Transformation::setA( const SbMatrix& matrix )
+{
+    transform_->matrix.setValue(matrix);
 }
 
 
