@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.8 2002-04-29 09:24:26 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.9 2002-04-30 09:01:08 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -33,6 +33,7 @@ visBase::DataManager::DataManager()
     : freeid( 0 )
     , selman( *new SelectionManager )
     , fact( *new Factory )
+    , removeallnotify( this )
 {
     reInit();
 }
@@ -101,6 +102,8 @@ bool visBase::DataManager::usePar( const IOPar& par )
 
 bool visBase::DataManager::removeAll(int nriterations)
 {
+    removeallnotify.trigger();
+
     bool objectsleft = false;
     for ( int idx=0; idx<objects.size(); idx++ )
     {

@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.6 2002-04-29 09:25:00 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.7 2002-04-30 09:01:00 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "sets.h"
+#include "callback.h"
 
 class IOPar;
 
@@ -31,7 +32,7 @@ class Factory;
 
 */
 
-class DataManager
+class DataManager : public CallBacker
 {
 public:
     			DataManager();
@@ -61,6 +62,8 @@ public:
 
     SelectionManager&	selMan() { return selman; }
     Factory&		factory() { return fact; }
+
+    Notifier<DataManager>	removeallnotify;
 
 protected:
     bool		removeAll(int nriterations=1000);
