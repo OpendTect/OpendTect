@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.27 2004-09-21 11:12:46 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.28 2004-09-28 11:45:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "seiscbvs.h"
 #include "seistrcsel.h"
 #include "seisresampler.h"
+#include "seis2dline.h"
 #include "cubesampling.h"
 #include "survinfo.h"
 #include "ptrman.h"
@@ -140,7 +141,8 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     SeisSelection sel; sel.key_ = inobj.key();
     getSelData( sel.seldata_ );
     if ( attrnm2d && *attrnm2d )
-	{ sel.seldata_.linekey_ = "|"; sel.seldata_.linekey_ += attrnm2d; }
+	sel.seldata_.linekey_ = Seis2DLineSet::lineKey( sel.seldata_.linekey_,
+							attrnm2d );
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( sel, &outobj, extxt,
 	    						worktxt );
     stp->setScaler( scfmtfld->getScaler() );

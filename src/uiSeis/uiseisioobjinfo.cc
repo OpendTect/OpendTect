@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.9 2004-09-27 14:09:42 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.10 2004-09-28 11:45:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,9 +239,22 @@ void uiSeisIOObjInfo::getAttribKeys( BufferStringSet& bss, bool add ) const
     BufferStringSet attrnms;
     lset->getAvailableAttributes( attrnms );
     for ( int idx=0; idx<attrnms.size(); idx++ )
-    {
-	BufferString* newbs = new BufferString( key );
-	*newbs += " | "; *newbs += attrnms[idx]->buf();
-	bss += newbs;
-    }
+	bss.add( Seis2DLineSet::lineKey(key.buf(),attrnms[idx]->buf()) );
+}
+
+
+void uiSeisIOObjInfo::getLineNames( BufferStringSet& bss, bool add ) const
+{
+    if ( !add ) bss.erase();
+    if ( !isOK() ) return;
+    if ( !is2D() )
+	{ bss.add( "" ); return; }
+
+    PtrMan<Seis2DLineSet> lset
+	= new Seis2DLineSet( ctio.ioobj->fullUserExpr(true) );
+    if ( lset->nrLines() == 0 )
+	return;
+
+    for ( int idx=0; idx<lset->nrLines(); idx++ )
+	bss.add( lset->lineName(idx) );
 }

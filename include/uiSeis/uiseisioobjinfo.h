@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.3 2004-09-23 11:30:26 bert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.4 2004-09-28 11:45:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
     void		getAttribKeys(BufferStringSet&,bool add=true) const;
 			//!< list of entries like: "100010.6 | En 60"
 			//!< the attr is optional and is only filled for 2D
+    void		getLineNames(BufferStringSet&,bool add=true) const;
+			//!< For 3D, will add one empty string
 
     static const char*	sKeyEstMBs;
 
