@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.2 2001-05-02 13:50:08 windev Exp $
+ RCS:           $Id: transform.h,v 1.3 2001-05-31 15:09:10 windev Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,8 @@ ________________________________________________________________________
 
 class ArrayNDInfo;
 template <class T> class ArrayND;
+
+typedef complex<float> float_complex;
 
 /*!\brief A TransformND is an object that can perform an transform of any kind.
 \par
@@ -108,7 +110,7 @@ public:
 
 				GenericTransformND();
 				~GenericTransformND();
-protected:
+mProtected:
 
     class			Transform1D;
     virtual Transform1D*	createTransform() const		= 0;

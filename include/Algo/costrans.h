@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.1 2001-02-19 17:17:36 bert Exp $
+ RCS:           $Id: costrans.h,v 1.2 2001-05-31 15:09:09 windev Exp $
 ________________________________________________________________________
 
 
@@ -51,7 +51,7 @@ public:
 
 protected:
 
-    class CosineTransform1D : public Transform1D
+    class CosineTransform1D : public GenericTransformND::Transform1D
     {
     public:
 	void		setSize(int nsz) { size=nsz; }

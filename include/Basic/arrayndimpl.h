@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.13 2001-05-31 13:23:48 windev Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.14 2001-05-31 15:09:08 windev Exp $
 ________________________________________________________________________
 
 */
@@ -63,7 +63,7 @@ public:
 		    }
 
 		    T res;
-		    file->read( &res, sizeof(T));
+		    file->read( (char *)&res, sizeof(T));
 		    if ( file->fail() )
 		    {
 			((ArrayNDFileStor*) this)->close();
@@ -85,7 +85,7 @@ public:
 			return;
 		    }
 
-		    file->write( &val, sizeof(T));
+		    file->write( (const char *)&val, sizeof(T));
 		}
 
     const T*	getData() const { return 0; }
