@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.1 2005-01-26 16:40:27 bert Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.2 2005-01-26 22:54:34 bert Exp $";
 
 
 #include "linear.h"
@@ -71,8 +71,8 @@ static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
     double sumd2 = 0;
     for ( int idx=0; idx<nrpts; idx++ )
     {
-	    // difference between actual and predicted y value
-	const float yd = mArrVal(yvals) - mArrVal(xvals) * ls.lp.ax + ls.lp.a0;
+	const float ypred = ls.lp.a0 + ls.lp.ax * mArrVal(xvals);
+	const float yd = mArrVal(yvals) - ypred;
 	sumd2 = yd * yd;
     }
     ls.sd.ax = sqrt( sumd2 / ((nrpts-2) * sumx2) );
