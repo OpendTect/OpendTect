@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.9 2001-12-05 15:10:45 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.10 2001-12-07 12:47:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,8 @@ public:
     uiToolBar* 		toolBar();
 
     void		setCaption( const char* txt );
-
     void                show();
+    void		toStatusBar(const char*);
 
     uiObject*		uiObj();
     const uiObject*	uiObj() const;
