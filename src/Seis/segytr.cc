@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.5 2001-04-04 11:13:04 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.6 2001-05-09 16:16:35 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -26,7 +26,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm )
 	, numbfmt(0)
 	, dumpsd(*new StreamData)
 	, itrc(0)
-	, trhead((unsigned char*)(char*)headerbuf,hdef)
+	, trhead(headerbuf,hdef)
 {
 }
 
@@ -51,11 +51,11 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	{ errmsg = "Cannot read EBCDIC header"; return false; }
     txthead.setAscii();
 
-    unsigned char headerbuf[400];
-    if ( !sConn().doIO( headerbuf, SegyBinHeaderLength ) )
+    unsigned char binheaderbuf[400];
+    if ( !sConn().doIO( binheaderbuf, SegyBinHeaderLength ) )
 	{ errmsg = "Cannot read binary header"; return false; }
     SegyBinHeader binhead;
-    binhead.getFrom( headerbuf );
+    binhead.getFrom( binheaderbuf );
 
     if ( binhead.format == 4 )
     {
