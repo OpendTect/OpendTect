@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.1 2004-05-31 09:26:03 kristofer Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.2 2004-06-01 05:25:18 kristofer Exp $";
 
 #include "rowcol.h"
 #include "ptrman.h"
@@ -66,4 +66,13 @@ float RowCol::angleTo(const RowCol& rc) const
 }
 
 
+RowCol RowCol::getDirection() const
+{
+    RowCol res(0,0);
+    if ( row>0 ) res.row=1;
+    else if ( row<0 ) res.row=-1;
 
+    if ( col>0 ) res.col=1;
+    else if ( col<0 ) res.col=-1;
+    return res;
+}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.11 2004-05-31 09:25:43 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.12 2004-06-01 05:25:15 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,12 @@ public:
     		/*!<\returns the angle between the vector going from 0,0 to the
 		     object and the vector going from 0,0 to rc in the
 		     counterclockwise direction.*/
+
+    RowCol	getDirection() const;
+    		/*!\returns a rowcol where row/col are either -1, 0 or 1 where
+		    depending on if row/col of the object is negative, zero or
+		    positive. 
+		*/
 
     int		row;
     int		col;
