@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.62 2004-12-24 09:32:03 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.63 2004-12-27 14:54:17 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: genc.c,v 1.62 2004-12-24 09:32:03 bert Exp $";
 static FileNameString surveyname;
 static int surveynamedirty = YES;
 static const char* dirsep = sDirSep;
+static char dbgbuf[256];
 
 
 int SurveyNameDirty()
@@ -163,9 +164,8 @@ const char* GetSoftwareDir()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "GetSoftwareDir: %s\n", dir );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "GetSoftwareDir: '%s'", dir );
+	od_debug_message( dbgbuf );
     }
 
     cachedDir = mMALLOC( strlen(dir)+ 1, char );
@@ -226,10 +226,9 @@ const char* GetDataFileName( const char* fname )
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "GetDataFileName for %s: %s\n", fname ? fname : "(null)",
-			filenamebuf );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "GetDataFileName for '%s': '%s'",
+			fname ? fname : "(null)", filenamebuf );
+	od_debug_message( dbgbuf );
     }
 
     return filenamebuf;
@@ -265,10 +264,8 @@ const char* SearchODFile( const char* fname )
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "SearchODFile for %s: %s\n", fname ? fname : "(null)",
-			nm );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "SearchODFile for '%s': '%s'", nm ? nm : "(null)", nm);
+	od_debug_message( dbgbuf );
     }
 
     return nm;
@@ -290,9 +287,8 @@ const char* GetSoftwareUser()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "GetSoftwareUser: %s\n", ptr ? ptr : "Not set" );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "GetSoftwareUser: '%s'", ptr ? ptr : "<None>" );
+	od_debug_message( dbgbuf );
     }
 
     return ptr;
@@ -395,9 +391,8 @@ const char* GetSettingsDir(void)
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "GetSettingsDir: %s\n", ptr );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "GetSettingsDir: '%s'", ptr );
+	od_debug_message( dbgbuf );
     }
 
     return ptr;
@@ -440,9 +435,8 @@ const char* GetPersonalDir(void)
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "GetPersonalDir: %s\n", ptr );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "GetPersonalDir: '%s'", ptr );
+	od_debug_message( dbgbuf );
     }
 
     return ptr;
@@ -471,9 +465,8 @@ const char* GetSurveyFileName()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "GetSurveyFileName: %s\n", sfname );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "GetSurveyFileName: '%s'", sfname );
+	od_debug_message( dbgbuf );
     }
 
     return sfname;
@@ -500,10 +493,9 @@ const char* GetSurveyName()
 	{
 	    if ( od_debug_isOn(DBG_SETTINGS) )
 	    {
-		char buf[255];
-		sprintf(buf,
+		sprintf( dbgbuf,
 		    "GetSurveyName: GetSurveyFileName returned NULL\n" );
-		od_debug_message( buf );
+		od_debug_message( dbgbuf );
 	    }
 	    return 0;
 	}
@@ -513,10 +505,9 @@ const char* GetSurveyName()
 	{
 	    if ( od_debug_isOn(DBG_SETTINGS) )
 	    {
-		char buf[255];
-		sprintf(buf,
-		    "GetSurveyName: Could not open SurveyFile: \"%s\"\n", fnm );
-		od_debug_message( buf );
+		sprintf( dbgbuf,
+		    "GetSurveyName: Could not open SurveyFile: '%s'", fnm );
+		od_debug_message( dbgbuf );
 	    }
 	    return 0;
 	}
@@ -533,9 +524,8 @@ const char* GetSurveyName()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "GetSurveyName: %s\n", surveyname );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "GetSurveyName: %s", surveyname );
+	od_debug_message( dbgbuf );
     }
 
     return surveyname;
@@ -587,9 +577,8 @@ const char* GetDataDir()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	char buf[255];
-	sprintf(buf, "GetDataDir: %s\n", filenamebuf );
-	od_debug_message( buf );
+	sprintf( dbgbuf, "GetDataDir: '%s'", filenamebuf );
+	od_debug_message( dbgbuf );
     }
 
     return filenamebuf;
