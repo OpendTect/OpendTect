@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.56 2004-09-29 16:09:23 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.57 2004-10-04 16:25:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "vissurvsurf.h"
 #include "vissurvsurfeditor.h"
 #include "visinterpret.h"
+#include "uiattrsurfout.h"
 
 #include "attribdescset.h"
 #include "attribsel.h"
@@ -228,6 +229,17 @@ void uiODApplMgr::createVol()
     if ( nlaserv )
 	nlaid = nlaserv->modelId();
     attrserv->outputVol( nlaid );
+}
+
+
+void uiODApplMgr::createSurfOutput()
+{
+    MultiID nlaid;
+    if ( nlaserv )
+	nlaid = nlaserv->modelId();
+    uiAttrSurfaceOut dlg( &appl, *attrserv->curDescSet(), 
+	    		  &nlaserv->getModel(), nlaid );
+    dlg.go();
 }
 
 

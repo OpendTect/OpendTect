@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.7 2004-07-30 11:41:57 nanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.8 2004-10-04 16:25:48 nanne Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,8 @@ ________________________________________________________________________
 
 #define mManAttribsMnuItm	(mProcMnu + 10)
 #define mCreateVolMnuItm	(mProcMnu + 20)
-#define mReStartMnuItm		(mProcMnu + 30)
+#define mCreateSurfMnuItm	(mProcMnu + 30)
+#define mReStartMnuItm		(mProcMnu + 40)
 
 
 /* 'Windows' menu */

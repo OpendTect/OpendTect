@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.17 2004-09-22 14:31:04 nanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.18 2004-10-04 16:25:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.17 2004-09-22 14:31:04 nanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.18 2004-10-04 16:25:41 nanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -188,6 +188,7 @@ void uiODMenuMgr::fillProcMenu()
     mInsertItem( procmnu, "&Attributes ...", mManAttribsMnuItm );
     procmnu->insertSeparator();
     mInsertItem( procmnu, "Create &Volume ...", mCreateVolMnuItm );
+    mInsertItem( procmnu, "Create &Surface output ...", mCreateSurfMnuItm );
     mInsertItem( procmnu, "&Re-Start ...", mReStartMnuItm );
 }
 
@@ -307,13 +308,13 @@ void uiODMenuMgr::fillManTB()
 
 void uiODMenuMgr::fillCoinTB()
 {
-    viewid = mAddTB(cointb,"view.xpm","View mode",true,viewMode);
-    actid = mAddTB(cointb,"pick.xpm","Interact mode",true,actMode);
-    mAddTB(cointb,"home.xpm","To home position",false,toHomePos);
-    mAddTB(cointb,"set_home.xpm","Save home position",false,saveHomePos);
-    mAddTB(cointb,"view_all.xpm","View all",false,viewAll);
-    mAddTB(cointb,"align.xpm","Align",false,align);
-    axisid = mAddTB(cointb,"axis.xpm","Display rotation axis",true,showRotAxis);
+    viewid = mAddTB(cointb,"view.png","View mode",true,viewMode);
+    actid = mAddTB(cointb,"pick.png","Interact mode",true,actMode);
+    mAddTB(cointb,"home.png","To home position",false,toHomePos);
+    mAddTB(cointb,"set_home.png","Save home position",false,saveHomePos);
+    mAddTB(cointb,"view_all.png","View all",false,viewAll);
+    mAddTB(cointb,"align.png","Align",false,align);
+    axisid = mAddTB(cointb,"axis.png","Display rotation axis",true,showRotAxis);
 
     cointb->turnOn( actid, true );
 }
@@ -362,8 +363,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpPickMnuItm: 	applMgr().impexpPickSet(false); break;
     case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
     case mExitMnuItm: 		appl.exit(); break;
+
     case mManAttribsMnuItm: 	applMgr().manageAttributes(); break;
     case mCreateVolMnuItm: 	applMgr().createVol(); break;
+    case mCreateSurfMnuItm: 	applMgr().createSurfOutput(); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mAddSceneMnuItm: 		
 				sceneMgr().tile(); // otherwise crash ...!

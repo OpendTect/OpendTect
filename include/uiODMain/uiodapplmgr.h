@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.15 2004-09-07 08:25:05 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.16 2004-10-04 16:25:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ public:
     // Processing menu operations
     void			manageAttributes();
     void			createVol();
+    void			createSurfOutput();
     void			reStartProc();
 
     // View menu operations
