@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.4 2002-06-13 21:00:58 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.5 2002-06-20 08:49:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,34 +23,6 @@ const char* HostData::localHostName()
     static char ret[256];   
     gethostname( ret, 256 );
     return ret;
-}
-
-
-const char* HostData::shortestName() const
-{
-    if ( !realaliases_ ) return name_;
-
-    int len = name_.size();
-    int ishortest = -1;
-    for ( int idx=0; idx<aliases_.size(); idx++ )
-	if ( aliases_[idx]->size() < len )
-	    { len = aliases_[idx]->size(); ishortest = idx; }
-
-    return (const char*)(ishortest < 0 ? name_ : *aliases_[ishortest]);
-}
-
-
-const char* HostData::name() const
-{
-    if ( !realaliases_ ) return name_;
-
-    const char* shortnm = shortestName();
-    if ( *shortnm != 'l' ) return shortnm;
-
-    if ( strcmp(shortnm,"loghost") && strcmp(shortnm,"localhost") )
-	return shortnm;
-
-    return localHostName();
 }
 
 
@@ -140,10 +112,9 @@ bool HostDataList::readHostFile( const char* fname )
 
 void HostDataList::handleLocal()
 {
-    const int sz = size();
+    int sz = size();
     if ( !sz ) return;
 
-//WIN
     const char* localhoststd = "localhost";
 
     bool havelocalhost = false;
@@ -190,6 +161,7 @@ void HostDataList::handleLocal()
 	}
     }
 
+    sz = size();
     for ( int idx=1; idx<sz; idx++ )
     {
 	HostData* hd = (*this)[idx];

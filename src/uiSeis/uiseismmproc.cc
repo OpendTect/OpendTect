@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.22 2002-06-19 15:41:30 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.23 2002-06-20 08:49:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,14 +66,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 	const HostData& hd = *hdl[idx];
 	BufferString nm( hd.name() );
 	const int nraliases = hd.nrAliases();
-	for ( int idx=0; idx<=nraliases; idx++ )
-	{
-	    const char* alnm = idx < nraliases ? hd.alias(idx)
-					       : hd.officialName();
-	    if ( !strcmp(alnm,hd.name()) ) continue;
-	    nm += " / ";
-	    nm += alnm;
-	}
+	for ( int idx=0; idx<nraliases; idx++ )
+	    { nm += " / "; nm += hd.alias(idx); }
 	avmachfld->box()->addItem( nm );
     }
 
