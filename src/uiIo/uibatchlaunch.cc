@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.39 2004-09-27 08:20:25 dgb Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.40 2004-11-09 10:23:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "hostdata.h"
 #include "filepath.h"
+#include "ptrman.h"
 
 static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
@@ -277,7 +278,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 
     const bool issing = singmachfld->getBoolValue();
 
-    IOParList* iopl;
+    PtrMan<IOParList> iopl = 0;
     if ( redo_ )
     {
 	if ( issing )
