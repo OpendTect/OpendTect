@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.17 2003-09-10 12:48:16 kristofer Exp $
+ RCS:		$Id: position.h,v 1.18 2003-10-28 08:07:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,13 +83,13 @@ public:
 
 
 
-/*!\brief coordinate and a value. */
+/*!\brief 2D coordinate and a value. */
 
 class CoordValue
 {
 public:
 		CoordValue( double x=0, double y=0, float v=mUndefValue )
-		: coord(x,y), value(v)	{}
+		: coord(x,y), value(v)		{}
 		CoordValue( const Coord& c, float v=mUndefValue )
 		: coord(c), value(v)		{}
     bool	operator==( const CoordValue& cv ) const
@@ -98,6 +98,26 @@ public:
 		{ return cv.coord != coord; }
 
     Coord	coord;
+    float	value;
+};
+
+
+/*!\brief 3D coordinate and a value. */
+
+class Coord3Value
+{
+public:
+    		Coord3Value( double x=0, double y=0, double z=0, 
+			     float v=mUndefValue )
+		: coord(x,y,z), value(v) 	{}
+		Coord3Value( const Coord3& c, float v=mUndefValue )
+		: coord(c), value(v)		{}
+    bool	operator==( const Coord3Value& cv ) const
+		{ return cv.coord == coord; }
+    bool	operator!=( const Coord3Value& cv ) const
+		{ return cv.coord != coord; }
+
+    Coord3	coord;
     float	value;
 };
 
