@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.52 2003-04-23 15:07:23 nanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.53 2003-05-16 11:07:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -792,6 +792,7 @@ void uiGenInput::setSensitive( bool yn, int elemnr, int fldnr )
     if ( elemnr < 0 && fldnr < 0 )
     {
 	uiGroup::setSensitive( yn );
+	checkBoxSel(0);
 	return;
     }
 
@@ -801,6 +802,7 @@ void uiGenInput::setSensitive( bool yn, int elemnr, int fldnr )
 
 	flds[idx]->setSensitive( yn, elemnr );
     }
+
 }
 
 
@@ -901,12 +903,15 @@ bool uiGenInput::isChecked()
 
 void uiGenInput::checkBoxSel( CallBacker* cb )
 {
-    checked_ = cbox->isChecked();
+    const bool elemsens = cbox->sensitive() && cbox->isChecked();
 
-    setSensitive( isChecked() );
+    for ( int idx=0; idx<flds.size(); idx++ )
+    {
+	flds[idx]->setSensitive( elemsens );
+    }
 
-    if ( selbut ) selbut->setSensitive( isChecked() );
-    if ( clrbut ) clrbut->setSensitive( isChecked() );
+    if ( selbut ) selbut->setSensitive( elemsens );
+    if ( clrbut ) clrbut->setSensitive( elemsens );
 }
 
 void uiGenInput::doSelect_( CallBacker* cb )
