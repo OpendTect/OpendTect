@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.21 2004-11-09 12:58:11 arend Exp $
+# $Id: od_exec_rmt,v 1.22 2004-11-09 13:03:50 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -159,7 +159,7 @@ foreach var ( $transfvars )
     endif
 end
 
-set transf="$transf +-+-+ $datavars $*"
+set transf=" $datavars $transf +-+-+ $*"
 
 set do_exec=`echo "${dtectappl}/bin/od_do_rmt" | sed -e "s% %\\ %g"`
 

@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.11 2004-10-05 11:29:39 dgb Exp $
+# $Id: od_do_rmt,v 1.12 2004-11-09 13:03:50 arend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -10,10 +10,34 @@
 if ( $?DTECT_DEBUG ) set verbose=yes
 
 set comm=""
+set datahost=""
+set datadrive=""
+set datashare=""
+set datapass=""
 
 next_arg:
 
-if ( $1 == "+-+" ) then
+if ( $1 == "--remotepass" ) then
+        set remotepass="$2"
+        shift; shift
+        goto next_arg
+
+else if ( $1 == "--data-host" ) then
+        set datahost="$2"
+        shift; shift
+        goto next_arg
+
+else if ( $1 == "--data-drive" ) then
+        set datadrive="$2"
+        shift; shift
+        goto next_arg
+
+else if ( $1 == "--data-share" ) then
+        set datashare="$2"
+        shift; shift
+        goto next_arg
+
+else if ( $1 == "+-+" ) then
 
 	shift
 	set cmd=`echo $comm | sed "s%-=-%'%g"`
@@ -26,7 +50,7 @@ else if ( $1 == "+-+-+" ) then
 	shift
 	set cmd=`echo $comm | sed "s%-=-%'%g"`
 	eval $cmd
-	goto do_rest
+	goto do_res
 
 else
 
