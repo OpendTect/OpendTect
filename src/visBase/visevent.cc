@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.3 2002-04-10 08:51:38 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.4 2002-04-22 13:20:16 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdataman.h"
@@ -31,7 +31,7 @@ visBase::EventCatcher::EventCatcher( EventType type_ )
 	node->addEventCallback( SoKeyboardEvent::getClassTypeId(),
 				   internalCB, this );
     else
-	node->addEventCallback( SoKeyboardEvent::getClassTypeId(),
+	node->addEventCallback( SoLocation2Event::getClassTypeId(),
 				   internalCB, this );
 }
 
@@ -44,7 +44,7 @@ visBase::EventCatcher::~EventCatcher()
     else if ( type==Keyboard )
 	node->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
 				   internalCB, this );
-    else node->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
+    else node->removeEventCallback( SoLocation2Event::getClassTypeId(),
 				    internalCB, this );
 
     node->unref();
