@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.104 2002-11-22 16:54:42 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.105 2002-12-02 09:53:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 #include "visdataman.h"
+#include "visgridsurf.h"
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
 #include "vissurvwell.h"
@@ -1343,14 +1344,52 @@ CubeSampling uiVisPartServer::surfTrackerCubeSampling()
 }
 
 
-int uiVisPartServer::addSurfTracker( Geometry::GridSurface& surf )
+int uiVisPartServer::addSurfTracker( Geometry::GridSurface& gridsurf )
 {
-    visBase::DataObject* dobj =
-			visBase::DM().getObj( getSurfTrackerCube( false ) );
-    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,interpreter,dobj)
-    if ( !interpreter ) return -1;
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj);
 
-    return interpreter->addSurface( surf );
+    visBase::EditableGridSurface* surf = visBase::EditableGridSurface::create();
+    surf->ref();
+
+    PtrMan<Executor> executor = surf->setSurface( gridsurf );
+    if ( !executor )
+    {
+	surf->unRef();
+	return -1;
+    }
+
+    if ( executor->totalNr()>100 )
+    {
+	uiExecutor uiexec (appserv().parent(), *executor );
+	if ( !uiexec.execute() )
+	{
+	    surf->unRef();
+	    return -1;
+	}
+    }
+    else  if ( !executor->execute() )
+    {
+	surf->unRef();
+	return -1;
+    }
+
+
+    scene->addXYTObject( surf );
+    surf->unRef();
+
+    return surf->id();
+
+}
+
+
+void uiVisPartServer::removeSurfTracker( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj);
+
+    const int idx = scene->getFirstIdx( id );
+    if ( idx!=-1 ) scene->removeObject( idx );
 }
 
 
