@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.41 2002-07-25 14:09:59 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.42 2003-01-03 13:39:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <bufstring.h>
 #include <string2.h>
 #include <basictypes.h>
+#include <uidset.h>
 
 class BinID2Coord;
 
@@ -499,6 +500,15 @@ public:
 			{
 			    for ( int idx=0; idx<sl.size(); idx++ )
 				strings_ += new BufferString( sl[idx] );
+			}
+
+			StringListInpSpec( const UserIDSet& sl )
+			    : DataInpSpec( DataTypeImpl<const char*>
+							(DataType::list) )
+			    , cur_(0)
+			{
+			    for ( int idx=0; idx<sl.size(); idx++ )
+				strings_ += new BufferString( sl[idx]->name() );
 			}
 
 			StringListInpSpec( const StringListInpSpec& oth)
