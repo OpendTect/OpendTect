@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.18 2003-03-13 12:22:42 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.19 2003-03-21 15:45:40 nanne Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ namespace visBase
 {
     class CubeView;
     class VisColorTab;
+    class Material;
 };
 
 namespace visSurvey
