@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		12-4-1999
  Contents:	Simple numerical functions
- RCS:		$Id: simpnumer.h,v 1.2 2000-01-13 15:15:52 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.3 2000-01-20 15:36:10 bert Exp $
 ________________________________________________________________________
 
 */
@@ -329,17 +329,19 @@ inline float interpolatePositioned( const X& x, const Y& y, int sz, float pos,
 template <class T,class RT>
 inline void interpolateSampled( const T& idxabl, int sz, float pos, RT& ret,
 				bool extrapolate=NO,
-				RT undefval=(RT)mUndefValue )
+				RT undefval=(RT)mUndefValue,
+				float snapdist=mEPSILON )
 {
-    int intpos = mNINT( pos );
-    float dist = pos - intpos;
-    if( mIsZero(dist) && intpos >= 0 && intpos < sz ) 
+    if ( !extrapolate && pos < -snapdist || pos > sz - 1 + snapdist )
+	{ ret = undefval; return; }
+
+    const int intpos = mNINT( pos );
+    const float dist = pos - intpos;
+    if( dist > -snapdist && dist < snapdist && intpos > -1 && intpos < sz ) 
 	{ ret = idxabl[intpos]; return; }
 
-    int prevpos = dist > 0 ? intpos : intpos - 1;
-    if ( !extrapolate && (prevpos > sz-2 || prevpos < 0) )
-	ret = undefval;
-    else if ( prevpos < 1 )
+    const int prevpos = dist > 0 ? intpos : intpos - 1;
+    if ( prevpos < 1 )
 	ret = linearInterpolate( idxabl[0], idxabl[1], pos );
     else if ( prevpos > sz-3 )
 	ret = linearInterpolate( idxabl[sz-2], idxabl[sz-1], pos-(sz-2) );
@@ -350,13 +352,15 @@ inline void interpolateSampled( const T& idxabl, int sz, float pos, RT& ret,
 			       (RT)idxabl[prevpos+2], pos - prevpos );
 }
 
+
 template <class T>
 inline float interpolateSampled( const T& idxabl, int sz, float pos,
 				 bool extrapolate=NO,
-				 float undefval=mUndefValue )
+				 float undefval=mUndefValue,
+				 float snapdist=mEPSILON )
 {
     float ret = undefval;
-    interpolateSampled( idxabl, sz, pos, ret, extrapolate, undefval );
+    interpolateSampled( idxabl, sz, pos, ret, extrapolate, undefval, snapdist );
     return ret;
 }
 
