@@ -13,11 +13,9 @@
 
 #ifdef __msvc__
 # include <windows.h>
-//# include <stdiostr.h>   // can't use with namespaces
 # define popen _popen
 # define pclose _pclose
-#else
-# include <stdiostream.h>
+# define fileno(s) _fileno(s)
 #endif
 
 #include "strmprov.h"
@@ -27,7 +25,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.6 2001-05-31 12:55:18 windev Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.7 2001-06-02 14:29:06 windev Exp $";
 
 static FixedString<1024> oscommand;
 #define exeCmd(comm) system((const char*)comm) ? false : true
@@ -40,8 +38,6 @@ void StreamData::close()
 {
     if ( fp && fp != stdin && fp != stdout && fp != stderr )
 	{ if ( ispipe ) pclose(fp); else fclose(fp); }
-    if ( sb )
-	delete sb;
     if ( istrm && istrm != &cin )
 	delete istrm;
     if ( ostrm && ostrm != &cout && ostrm != &cerr )
@@ -53,7 +49,7 @@ void StreamData::close()
 
 void StreamData::init()
 {
-    fp = 0; sb = 0; istrm = 0; ostrm = 0; ispipe = false;
+    fp = 0; istrm = 0; ostrm = 0; ispipe = false;
 }
 
 
@@ -62,7 +58,7 @@ bool StreamData::usable() const
     return ( istrm || ostrm )
 	&& ( !istrm || !istrm->bad() )
 	&& ( !ostrm || (!ostrm->bad() && !ostrm->eof()) )
-	&& ( !ispipe || (sb && fp) );
+	&& ( !ispipe || fp );
 }
 
 
@@ -243,11 +239,10 @@ StreamData StreamProvider::makeIStream() const
 
 	sd.fp = popen( oscommand, "r" );
 	sd.ispipe = true;
+#ifndef __msvc__
 	if ( sd.fp )
-	{
-	    sd.sb = new stdiobuf( sd.fp );
-	    sd.istrm = new istream( sd.sb );
-	}
+	    sd.istrm = new ifstream( fileno(sd.fp) );
+#endif
     }
     else
     {
@@ -296,11 +291,10 @@ StreamData StreamProvider::makeOStream() const
 
 	sd.fp = popen( oscommand, "w" );
 	sd.ispipe = true;
+#ifndef __msvc__
 	if ( sd.fp )
-	{
-	    sd.sb = new stdiobuf( sd.fp );
-	    sd.ostrm = new ostream( sd.sb );
-	}
+	    sd.ostrm = new ofstream( fileno(sd.fp) );
+#endif
     }
     else
     {

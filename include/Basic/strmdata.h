@@ -8,15 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.4 2001-05-31 12:55:10 windev Exp $
+ RCS:		$Id: strmdata.h,v 1.5 2001-06-02 14:28:28 windev Exp $
 ________________________________________________________________________
 
 -*/
  
 #include <stdio.h>
 #include <iosfwd>
-
-class stdiobuf;
 
 
 /*!\brief holds data to use and close an iostream.
@@ -38,7 +36,6 @@ public:
     ostream*	ostrm;
 
     FILE*	fp;
-    stdiobuf*	sb;
     bool	ispipe;
 
 private:

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.2 2001-05-30 11:50:05 arend Exp $
+ RCS:           $Id: pixmap.cc,v 1.3 2001-06-02 14:32:52 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ ioPixmap::ioPixmap( const char* xpm[] )
     { qpixmap = new QPixmap( xpm ); }
 
 
-ioPixmap::ioPixmap( int w, int h, int depth = -1)
+ioPixmap::ioPixmap( int w, int h, int depth)
     { qpixmap = new QPixmap( w, h, depth ); }
 
 
