@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurfaceimpl.h,v 1.3 2005-01-14 13:10:10 kristofer Exp $
+RCS:           $Id: parametricsurfaceimpl.h,v 1.4 2005-01-20 07:08:48 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ if ( idxvar<-1 || idxvar>nr##type##s() ) \
     errmsg() = "Cannot insert row or column that is not connected to existing rows."; \
     return false; \
 } \
+if ( idxvar==-1 ) \
+    idxvar = 0; \
 const int curnrrows = nrRows(); \
 const int curnrcols = nrCols()
 
@@ -52,7 +54,7 @@ for ( int idx=0; new##variable && idx<=curnrrows; idx++ ) \
 	else \
 	{ \
 	    const int sourcerow = idx>rowidx ? idx-1 : idx; \
-	    new##variable->set(idx,idy,variable->get(sourcerow,idx)); \
+	    new##variable->set(idx,idy,variable->get(sourcerow,idy)); \
 	} \
     } \
 } \
