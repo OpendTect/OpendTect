@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.8 2001-02-19 17:17:36 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.9 2001-04-18 14:45:36 bert Exp $
 ________________________________________________________________________
 
 
@@ -88,6 +88,7 @@ public:
 			DeclareEnumUtils(WindowType);
 
 			ArrayNDWindow( const ArrayNDInfo&,
+					bool rectangular,
 					ArrayNDWindow::WindowType = Hamming );
 
 			~ArrayNDWindow();
@@ -102,9 +103,10 @@ public:
 
 protected:
 
-    DataBuffer*			window;
+    float*			window;
     ArrayNDInfoImpl		size;
     WindowType			type;
+    bool			rectangular;
 
     bool			buildWindow( );
 
@@ -205,27 +207,34 @@ inline bool ArrayNDWindow::apply( ArrayND<Type>* in, ArrayND<Type>* out_) const
     Type* indata = in->getData();
     Type* outdata = out->getData();
 
-    int bytesPerSample = window->bytesPerSample();
-
     if ( indata && outdata )
     {
-	for(unsigned long idx = 0; idx < totalSz; idx++)
-	    outdata[idx] = indata[idx] *
-		    *((float*)(window->data()+bytesPerSample*idx ));
+	for ( unsigned long idx = 0; idx < totalSz; idx++ )
+	    outdata[idx] = indata[idx] * window[idx];
     }
     else
     {
-	ArrayNDIter iter( size );
+	const ArrayND<Type>::LinearStorage* instorage = in->getStorage();
+	ArrayND<Type>::LinearStorage* outstorage = in->getStorage();
 
-	int idx = 0;
-	
-	do
+	if ( instorage && outstorage )
 	{
-	    out->set(iter.getPos(), in->get( iter.getPos() ) * 
-		    *((float*)(window->data()+bytesPerSample*idx )));
-	    idx++;
+	    for ( unsigned long idx = 0; idx < totalSz; idx++ )
+		outstorage->set(idx, instorage->get(idx) * window[idx] );
+	}
+	else
+	{
+	    ArrayNDIter iter( size );
 
-	} while ( iter.next() );
+	    int idx = 0;
+	    
+	    do
+	    {
+		out->set(iter.getPos(), in->get( iter.getPos() ) * window[idx]);
+		idx++;
+
+	    } while ( iter.next() );
+	}
     }
 
     return true;

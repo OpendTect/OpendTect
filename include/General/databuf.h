@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		1-9-95
- RCS:		$Id: databuf.h,v 1.3 2001-02-28 15:00:24 bert Exp $
+ RCS:		$Id: databuf.h,v 1.4 2001-04-18 14:45:36 bert Exp $
 ________________________________________________________________________
 
 */
@@ -28,8 +28,8 @@ public:
 
     inline bool		isOk() const		{ return data_ ? true : false; }
 
-    void		reSize(int);
-    void		reByte(int);
+    void		reSize(int,bool copydata=true);
+    void		reByte(int,bool copydata=true);
     void		zero();
 
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.9 2001-04-04 11:13:54 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.10 2001-04-18 14:45:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,8 +106,9 @@ public:
 			{ return info_.nearestSample(pos,sampleOffset(icomp)); }
     void		setStartPos(float,int icomp=0);
 
-    bool		reSize( int sz, int icomp )
-			{ data_.reSize( sz, icomp ); return data_.allOk(); }
+    bool		reSize( int sz, int icomp, bool copydata=false )
+			{ data_.reSize( sz, icomp, copydata );
+			  return data_.allOk(); }
     SampleGate		sampleGate(const Interval<float>&,bool check,
 				   int icomp) const;
 

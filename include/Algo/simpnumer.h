@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.9 2001-02-27 16:13:04 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.10 2001-04-18 14:45:29 bert Exp $
 ________________________________________________________________________
 
 */
@@ -403,6 +403,91 @@ inline T dePeriodize( T val, T period )
 
     return n ? val - n * period : val; 
 }
+
+/*!>
+  \brief
+  PeriodicValue handles periodic data through mathematical operations.
+*/
+
+
+template <class T,int P>
+class PeriodicValue
+{
+public:
+    T				val(bool positive=true) const
+				{
+				    T res = dePeriodize(val_,(T)P);
+				    if ( !positive && res > ((T)P)/2 )
+					return res-P;
+				    return res;
+				}
+				/*!< Returns the value between 0 and P if
+				     positive is true, or between -P/2 and P/2
+				     if positive is false;
+				*/
+
+    PeriodicValue<T,P>		operator+(T nv) const
+				{ return PeriodicValue<T,P>(val_+nv); }
+    PeriodicValue<T,P>		operator-(T nv) const
+				{ return PeriodicValue<T,P>(val_-nv); }
+    PeriodicValue<T,P>		operator*(T nv) const
+				{ return PeriodicValue<T,P>(val_*nv); }
+    PeriodicValue<T,P>		operator/(T nv) const
+				{ return PeriodicValue<T,P>(val_/nv); }
+    PeriodicValue<T,P>		operator+(const PeriodicValue<T,P>& nv) const
+				{ return PeriodicValue<T,P>(val_+nv.val()); }
+    PeriodicValue<T,P>		operator-(const PeriodicValue<T,P>& nv) const
+				{ return PeriodicValue<T,P>(val_-nv.val()); }
+    PeriodicValue<T,P>		operator*(const PeriodicValue<T,P>& nv) const
+				{ return PeriodicValue<T,P>(val_*nv.val()); }
+    PeriodicValue<T,P>		operator/(const PeriodicValue<T,P>& nv) const
+				{ return PeriodicValue<T,P>(val_/nv.val()); }
+
+    const PeriodicValue<T,P>&	operator=(T nv) const
+				{ val_ = nv; return this; }
+    const PeriodicValue<T,P>&	operator+=(T nv)
+				{ val_ += nv; return this; }
+    const PeriodicValue<T,P>&	operator-=(T nv)
+				{ val_ -= nv; return this; }
+    const PeriodicValue<T,P>&	operator*=(T nv)
+				{ val_ *= nv; return this; }
+    const PeriodicValue<T,P>&	operator/=(T nv)
+				{ val_ /= nv; return this; }
+    const PeriodicValue<T,P>&	operator=(const PeriodicValue<T,P>& nv) const
+				{ val_ = nv.val(); return this; }
+    const PeriodicValue<T,P>&	operator+=(const PeriodicValue<T,P>& nv)
+				{ val_ += nv.val(); return this; }
+    const PeriodicValue<T,P>&	operator-=(const PeriodicValue<T,P>& nv)
+				{ val_ -= nv.val(); return this; }
+    const PeriodicValue<T,P>&	operator*=(const PeriodicValue<T,P>& nv)
+				{ val_ *= nv.val(); return this; }
+    const PeriodicValue<T,P>&	operator/=(const PeriodicValue<T,P>& nv)
+				{ val_ /= nv.val(); return this; }
+
+    bool			operator<(const PeriodicValue<T,P>& b) const
+				{
+				    PeriodicValue<T,P> tmp = *this-b;
+				    if ( tmp.val(true)>P/2 ) return true;
+				    return false;
+				}
+    bool			operator>(const PeriodicValue<T,P>& b) const
+				{
+				    PeriodicValue<T,P> tmp = *this-b;
+				    if ( tmp.val(true)<=P/2 ) return true;
+				    return false;
+				}
+    bool			operator<(T b) const
+				{ return *this < PeriodicValue<T,P>(b); }
+    bool			operator>(T b) const
+				{ return *this > PeriodicValue<T,P>(b); }
+				
+
+				PeriodicValue(T nv) : val_( nv ) {}
+
+protected:
+    T				val_;
+};
+
 
 /*!>
  intpow returns the integer power of an arbitary value. Faster than

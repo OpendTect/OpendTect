@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.5 2001-04-05 16:21:35 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.6 2001-04-18 14:45:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,12 +71,17 @@ public:
 				CBVSInfo()
 				: seqnr(0), nrtrcsperposn(1)	{}
 				~CBVSInfo()	{ deepErase(compinfo); }
+				CBVSInfo(const CBVSInfo&);
+    inline CBVSInfo&		operator =(const CBVSInfo&);
 
     struct SurvGeom
     {
 				SurvGeom()
 				: fullyrectandreg(false)	{}
 				~SurvGeom()	{ deepErase(inldata); }
+				SurvGeom( const SurvGeom& sg )
+				{ *this = sg; }
+	inline SurvGeom&	operator =(const SurvGeom&);
 
 	struct InlineInfo
 	{
@@ -91,7 +96,8 @@ public:
 
 	bool			fullyrectandreg;
 	BinID			start, stop, step;
-				//!< If step < 0, the order is reversed in the file
+				//!< If step < 0, the order is reversed in
+				//!< the file
 	BinID2Coord		b2c;
 	ObjectSet<InlineInfo>	inldata;
 				//!< For write, inldata is ignored in favor
@@ -145,6 +151,38 @@ public:
 				  usertext = ""; }
 
 };
+
+
+inline CBVSInfo::SurvGeom& CBVSInfo::SurvGeom::operator =(
+	const CBVSInfo::SurvGeom::SurvGeom& sg )
+{
+    fullyrectandreg = sg.fullyrectandreg;
+    start = sg.start;
+    stop = sg.stop;
+    step = sg.step;
+    b2c = sg.b2c;
+
+    for ( int idx=0; idx<sg.inldata.size(); idx++ )
+	inldata += new CBVSInfo::SurvGeom::InlineInfo( *sg.inldata[idx] );
+
+    return *this;
+}
+
+
+inline CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
+{
+    seqnr = ci.seqnr;
+    nrtrcsperposn = ci.nrtrcsperposn;
+    explinfo = ci.explinfo;
+    geom = ci.geom;
+    stdtext = ci.stdtext;
+    usertext = ci.usertext;
+
+    for ( int idx=0; idx<ci.compinfo.size(); idx++ )
+	compinfo += new CBVSComponentInfo( *ci.compinfo[idx] );
+
+    return *this;
+}
 
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.2 2001-02-28 15:00:24 bert Exp $
+ RCS:		$Id: tracedata.h,v 1.3 2001-04-18 14:45:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ public:
 				     bool cleardata=false);
     void		delComponent(int);
     void		setComponent(const DataCharacteristics&,int icomp=0);
-    void		reSize(int,int icomp=0);
+    void		reSize(int,int icomp=0,bool copydata=false);
     void		zero(int icomp=-1);
 			//!< -1 = zero all data buffers
     void		handleDataSwapping();

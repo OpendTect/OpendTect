@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.10 2001-03-23 11:27:01 bert Exp $
+ RCS:		$Id: arraynd.h,v 1.11 2001-04-18 14:45:36 bert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -26,27 +26,65 @@ template <class T>
 class ArrayND 
 {
 public:
-				// Read specs
-    virtual T	                get( const int* ) const			= 0;
+    class					LinearStorage;
 
-    inline const T*		getData() const		{ return getData_(); }
-    virtual const T*		get1D(const int*) const;
-    virtual int			get1DDim() const;
+						// Read specs
+    virtual T	                		get( const int* ) const	= 0;
 
-				// Write specs
-    virtual bool		isSettable() const { return true; }
-    virtual void		set( const int*, T ) 			= 0;
+    inline const LinearStorage*			getStorage() const
+						{ return getStorage_(); }
 
-    inline T*			getData();
-    virtual T*			get1D( const int* i );
+    inline const T*				getData() const
+						{ return getData_(); }
+    virtual const T*				get1D(const int*) const;
+    virtual int					get1DDim() const;
 
-    virtual const ArrayNDInfo&	info() const				= 0;
+						// Write specs
+    virtual bool				isSettable() const
+						{ return true; }
+    virtual void				set( const int*, T )	= 0;
+
+    inline LinearStorage*			getStorage();
+    inline T*					getData();
+    virtual T*					get1D( const int* i );
+
+    virtual const ArrayNDInfo&			info() const		= 0;
+
+    class LinearStorage
+    {
+    public:
+
+	virtual bool		isOK() const			= 0;
+
+	virtual T		get( int ) const		= 0;
+	virtual void		set( int, T )			= 0;
+
+	virtual const T*	getData() const			= 0;
+	virtual T*		getData()
+				{
+				    return const_cast<T*>
+					(((const LinearStorage*)this)->
+					    getData());
+				};
+
+	virtual int		size() const			= 0;
+	virtual void		setSize( int )			= 0;
+	virtual			~LinearStorage() {}
+    };
+
 
 
 protected:
-
  
-    virtual const T*		getData_() const		{ return 0; }
+    virtual const LinearStorage*	getStorage_() const { return 0; }
+
+    const T*				getData_() const
+					{
+					    if ( getStorage_() )
+						return getStorage()->getData();
+					    return 0;
+					}
+
 
 };
 
@@ -119,6 +157,16 @@ template <class T> inline
 T* ArrayND<T>::getData()
 {
     return isSettable() ? const_cast<T*>(((const ArrayND*)this)->getData_()): 0;
+}
+
+
+template <class T> inline
+ArrayND<T>::LinearStorage* ArrayND<T>::getStorage()
+{
+    return isSettable()
+	? const_cast<ArrayND<T>::LinearStorage*>
+		(((const ArrayND*)this)->getStorage_())
+	: 0;
 }
 
 
