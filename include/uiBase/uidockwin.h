@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.5 2002-03-21 12:51:37 arend Exp $
+ RCS:           $Id: uidockwin.h,v 1.6 2002-05-14 15:18:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,13 @@ public:
     uiGroup* 		topGroup();
 
     void		setHorStretchable(bool);
+    bool		isHorStretchable() const;
+
     void		setVerStretchable(bool);
+    bool		isVerStretchable() const;
+
     void		setResizeEnabled(bool);
+    bool		isResizeEnabled() const;
 
     void		display( bool yn = true, bool shrink=false );
 

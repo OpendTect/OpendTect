@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.21 2002-02-13 16:33:37 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.22 2002-05-14 15:18:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,8 @@ public:
 
 // uiObject methods, delegated to uiObj():
 
-    void		display( bool yn = true, bool shrink=false );
+    void		display(bool yn=true,bool shrink=false,
+				bool maximize=false);
 
     void		setFocus();
 

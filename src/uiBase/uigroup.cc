@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.35 2002-03-19 12:11:24 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.36 2002-05-14 15:17:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -466,10 +466,10 @@ uiGroup::uiGroup( uiTabGroup* p, const char* nm )
     grpobj_->body_->setPrntBody( body_ );
 }
 
-void uiGroup::display( bool yn, bool shrink )
+void uiGroup::display( bool yn, bool shrink, bool maximize )
 { 
     finalise();
-    uiObj()->display(yn,shrink);
+    uiObj()->display( yn, shrink, maximize );
 }
 
 void uiGroup::setFocus()		{ uiObj()->setFocus(); }
