@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.61 2004-07-29 16:52:30 bert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.62 2004-07-30 14:03:38 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -186,7 +186,6 @@ bool EM::Surface::findClosestNodes( const SectionID& sectionid,
     //TODO Make faster impl
     Coord3 origpos = pos_;
     if ( t2dfunc ) origpos.z = t2dfunc->getValue( pos_.z );
-    const int nrsections = nrSections();
 
     StepInterval<int> rowrange; StepInterval<int> colrange;
     getRange( rowrange, true ); getRange( colrange, false );
