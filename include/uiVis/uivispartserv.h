@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.37 2002-05-23 14:51:10 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.38 2002-05-24 08:35:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "thread.h"
 #include "geompos.h"
+#include "position.h"
 
 class UserIDSet;
 class PickSet;
@@ -151,6 +152,9 @@ public:
     			// Horizon stuff
     int			addHorizonDisplay(const MultiID& emhorid);
     void		removeHorizonDisplay( int );
+    AttribSelSpec&	getHorAttrSelSpec(int);
+    void		setHorAttrSelSpec(int,AttribSelSpec&);
+    void		getHorAttribValues(int,TypeSet<BinIDValue>&);
     void		getHorizonIds(int,TypeSet<int>&);
 
 			//ColorSeqs

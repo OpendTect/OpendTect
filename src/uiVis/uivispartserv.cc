@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.55 2002-05-23 14:51:03 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.56 2002-05-24 08:35:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ uiVisPartServer::ObjectType uiVisPartServer::getObjectType( int id ) const
     mDynamicCastGet(const visSurvey::WellDisplay*, well, dobj );
     if ( well ) return WellDisplay;
     mDynamicCastGet(const visSurvey::HorizonDisplay*, hor, dobj );
-    if ( well ) return HorizonDisplay;
+    if ( hor ) return HorizonDisplay;
 
 
     return Unknown;
@@ -808,8 +808,8 @@ int uiVisPartServer::addHorizonDisplay( const MultiID& emhorid )
 
 void uiVisPartServer::removeHorizonDisplay( int id )
 {
-    visBase::DataObject* sdobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,sdobj)
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
     if ( !hor ) return;
 
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
@@ -822,6 +822,40 @@ void uiVisPartServer::removeHorizonDisplay( int id )
     }
 }
 
+
+AttribSelSpec& uiVisPartServer::getHorAttrSelSpec( int id )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
+    return hor->getAttribSelSpec();
+}
+
+
+void uiVisPartServer::setHorAttrSelSpec( int id, AttribSelSpec& as )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
+    if ( hor ) hor->setAttribSelSpec( as );
+}
+
+
+void uiVisPartServer::getHorAttribValues( int id, TypeSet<BinIDValue>& bidvset )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
+    if ( hor ) hor->getAttribValues( bidvset );
+}
+
+
+/*
+TODO: make this work
+void uiVisPartServer::putNewHorData( int id, )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
+    if ( hor ) hor->putNewData();
+}
+*/
 
 void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
 {
