@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.13 2001-07-19 22:15:47 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.14 2001-08-21 21:38:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ bool uiIOObjSelDlg::acceptOK( CallBacker* )
     }
 
     const char* seltxt = nmfld->text();
-    if ( ioobj->name() == seltxt ) return true;
+    if ( ioobj && ioobj->name() == seltxt ) return true;
 
     int selidx = entrylist->indexOf( seltxt );
     if ( selidx >= 0 )
