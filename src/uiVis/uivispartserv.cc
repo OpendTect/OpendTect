@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.127 2003-02-14 07:56:14 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.128 2003-02-14 18:20:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -954,6 +954,18 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 	res += ps->nrPicks();
     }
 
+    mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,dobj)
+    if ( rtd )
+    {
+	int knotidx = rtd->getSelKnotIdx();
+	if ( knotidx >= 0 )
+	{
+	    Coord crd = rtd->getManipKnotPos( knotidx );
+	    res = "Inl/Crl: ";
+	    res += crd.x; res += "/"; res += crd.y;
+	}
+    }
+
     return res;
 }
 
@@ -1565,6 +1577,10 @@ void uiVisPartServer::acceptManipulation( int id )
 	vd->setCubeSampling( vd->getCubeSampling(true) );
 	vd->resetManip();
     }
+
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj);
+    if ( rtd )
+	rtd->acceptManip();
 }
 
 
@@ -1573,19 +1589,19 @@ void uiVisPartServer::setUpConnections( int id )
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj);
     if ( vd )
-    {
 	vd->slicemoving.notify( mCB(this,uiVisPartServer,interactionCB) );
-    }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
     if ( pdd )
-    {
 	pdd->moving.notify( mCB(this,uiVisPartServer,interactionCB) );
-    }
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,pickset,obj);
     if ( pickset )
-	pickset->changed.notify( mCB( this, uiVisPartServer, interactionCB ));
+	pickset->changed.notify( mCB(this,uiVisPartServer,interactionCB) );
+
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
+    if ( rtd )
+	rtd->knotmoving.notify( mCB(this,uiVisPartServer,interactionCB) );
 
 }
 
