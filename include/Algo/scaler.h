@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.10 2002-05-31 07:45:56 bert Exp $
+ RCS:		$Id: scaler.h,v 1.11 2003-06-03 09:37:08 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ class LinScaler : public Scaler
 public:
 			LinScaler( double c=0, double f=1 )
 			: constant(c), factor(f)	{}
+			LinScaler( double x0, double y0, double x1, double y1 );
+    void		set( double x0, double y0, double x1, double y1 );
     virtual cloneTp*	duplicate() const
 			{ return new LinScaler(constant,factor); }
     inline bool		isEmpty() const;
