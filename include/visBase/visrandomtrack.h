@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.4 2003-01-21 16:10:00 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.5 2003-01-24 07:38:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,11 +43,13 @@ public:
     void			addKnot(const Coord& );
     void			insertKnot( int pos, const Coord& );
     Coord			getKnotPos(int) const;
+    Coord			getDraggerKnotPos(int) const;
     void			setKnotPos(int, const Coord& );
     void			removeKnot( int );
 
     void			setDepthInterval( const Interval<float>& );
-    const Interval<float>&	getDepthInterval() const;
+    const Interval<float>	getDepthInterval() const;
+    const Interval<float>	getDraggerDepthInterval() const;
 
     void			setXrange( const StepInterval<float>& );
     void			setYrange( const StepInterval<float>& );

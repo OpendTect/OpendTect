@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.2 2003-01-21 16:10:08 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.3 2003-01-24 07:39:15 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -104,6 +104,14 @@ Coord visBase::RandomTrack::getKnotPos( int pos ) const
 { return knots[pos]; }
 
 
+Coord visBase::RandomTrack::getDraggerKnotPos( int pos ) const
+{
+    if ( !dragger ) return getKnotPos( pos );
+    SbVec2f draggerpos = dragger->knots[pos];
+    return Coord( draggerpos[0], draggerpos[1] );
+}
+
+
 void visBase::RandomTrack::setKnotPos( int pos, const Coord& np )
 {
     knots[pos] = np;
@@ -131,8 +139,17 @@ void visBase::RandomTrack::setDepthInterval( const Interval<float>& drg )
 }
 
 
-const Interval<float>& visBase::RandomTrack::getDepthInterval() const
+const Interval<float> visBase::RandomTrack::getDepthInterval() const
 { return depthrg; }
+
+
+const Interval<float>
+visBase::RandomTrack::getDraggerDepthInterval() const
+{
+    if ( !dragger ) return getDepthInterval();
+    return Interval<float>( dragger->z0.getValue(), dragger->z1.getValue() );
+}
+
 
 #define mSetRange( dim )  \
     createDragger(); \
