@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.22 2002-06-28 12:57:29 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.23 2002-07-30 11:33:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
 			//!< Make sure range is inside
     void		checkZRange(Interval<double>&,bool work=true) const;
 			//!< Make sure range is inside
+    bool		includes(const BinID,const float,bool work=true) const;
+			//!< Returns true when pos is inside survey-range
 
     inline bool		rangeUsable() const
 			{ return range_.start.inl && range_.stop.inl

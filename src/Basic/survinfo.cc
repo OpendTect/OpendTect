@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.27 2002-07-03 14:16:57 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.28 2002-07-30 11:33:11 nanne Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -527,4 +527,16 @@ void SurveyInfo::checkZRange( Interval<double>& intv, bool work ) const
     intv.sort();
     if ( intv.start < rg.start ) intv.start = rg.start;
     if ( intv.stop > rg.stop )   intv.stop = rg.stop;
+}
+
+
+bool SurveyInfo::includes( const BinID bid, const float z, bool work ) const
+{
+    const BinIDRange& rg = work ? wrange_ : range_;
+    bool bidin = !rg.excludes( bid );
+
+    const StepInterval<double>& zrg = work ? wzrange_ : zrange_;
+    bool zin = zrg.includes( z );
+
+    return bidin && zin;
 }
