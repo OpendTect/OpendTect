@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.52 2004-05-04 15:33:29 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.53 2004-05-06 12:15:30 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -130,6 +130,14 @@ void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
 void visSurvey::PickSetDisplay::addPick( const Coord3& pos )
 {
     addPick( pos, Sphere(0,0,0) );
+}
+
+
+BufferString visSurvey::PickSetDisplay::getManipulationString() const
+{
+    BufferString str = "Nr. of picks: ";
+    str += nrPicks();
+    return str;
 }
 
 

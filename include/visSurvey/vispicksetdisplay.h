@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.31 2004-04-29 13:03:06 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.32 2004-05-06 12:15:36 nanne Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,8 @@ public:
 
     void			addPick(const Coord3&,const Sphere&);
     void			addPick(const Coord3&);
+    BufferString		getManipulationString() const;
+
     int				nrPicks() const;
     Coord3			getPick(int idx) const;
     Coord3			getDirection(int idx) const;
@@ -78,7 +80,7 @@ public:
     virtual void                fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int                 usePar( const IOPar& );
 
-    Notifier<PickSetDisplay>	changed;
+    NotifierAccess*		getManipulationNotifier() { return &changed; }
 
     void			setTransformation( visBase::Transformation* );
     visBase::Transformation*	getTransformation();
@@ -100,8 +102,9 @@ protected:
 
     visBase::DataObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
-
     visBase::Transformation*	transformation;
+
+    Notifier<PickSetDisplay>	changed;
 
     static const char*		nopickstr;
     static const char*		pickprefixstr;
