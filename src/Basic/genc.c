@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.6 2001-03-30 10:27:21 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.7 2001-06-06 09:15:09 windev Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -140,15 +140,14 @@ void put_platform( unsigned char* ptr )
 
 }
 
+#ifdef __msvc__
+#define getpid	_getpid
+#endif
 
 int getPID()
 {
     return
-#ifdef __win__
-	getpid_();
-#else
 	getpid();
-#endif
 }
 
 
@@ -183,6 +182,10 @@ double PowerOf( double x, double y )
 
 #ifdef sun5
 # include <ieeefp.h>
+#endif
+
+#ifdef __msvc__
+# define finite	_finite
 #endif
 
 int isFinite( double v )
