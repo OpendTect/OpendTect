@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.8 2003-10-09 11:59:34 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.9 2003-10-15 07:35:42 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -103,7 +103,7 @@ SoMeshSurfaceSquare::SoMeshSurfaceSquare()
     texturecoordptr = (SoTextureCoordinate2*) getAnyPart("texturecoords",true);
 
     for ( int idx=0; idx<9; idx++ )
-	neigbors.append(0);
+	neighbors.append(0);
 
     SO_KIT_ADD_FIELD( origo, (0) );
     SO_KIT_ADD_FIELD( sizepower, (6) );
@@ -190,8 +190,8 @@ void SoMeshSurfaceSquare::setPos( int row, int col, const SbVec3f& np )
 
     for ( int idx=0; idx<9; idx++ )
     {
-	if ( neigbors[idx] )
-	    neigbors[idx]->touch( row, col );
+	if ( neighbors[idx] )
+	    neighbors[idx]->touch( row, col );
     }
 
     touch( row, col );
@@ -253,7 +253,8 @@ bool SoMeshSurfaceSquare::setResolution( int nr )
 
     for ( int idx=nr; idx>0; idx-- )
     {
-	if ( getBrick(idx)->isValid() )
+	const int validstate = getBrick(idx)->getValidState();
+	if ( validstate!=2 )
 	{
 	    if ( idx!=currentres ||
 		    (triswitchptr->whichChild.getValue()==-1)==showtri ||
@@ -265,7 +266,7 @@ bool SoMeshSurfaceSquare::setResolution( int nr )
 		currentres = idx;
 	    }
 
-	    return idx==nr;
+	    return !validstate && idx==nr;
 	}
     }
 
@@ -344,15 +345,14 @@ bool SoMeshSurfaceSquare::hasResolutionChanged() const
 void SoMeshSurfaceSquare::touch( int row, int col )
 {
     const int startrow = origo[0];
-    const int size = get2Power( sizepower.getValue() );
-    const int halfsize = size/2;
-    const int lastrow = startrow + size;
+    const int halfsize = sidesize/2;
+    const int lastrow = startrow + sidesize;
 
     if ( row<startrow-halfsize || row>lastrow+halfsize )
 	return;
 
     const int startcol = origo[1];
-    const int lastcol = startcol+size;
+    const int lastcol = startcol+sidesize;
 
     if ( col<startcol-halfsize || col>lastcol+halfsize )
 	return;
@@ -366,16 +366,16 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 	const int index = getCoordIndex( row, col );
 	int neigborindex = -1;
 
-	if ( neigbors[8] && relrow==sidesize && relcol==sidesize )
+	if ( neighbors[8] && relrow==sidesize && relcol==sidesize )
 	    neigborindex = 8;
-	else if ( neigbors[5] && relcol==sidesize )
+	else if ( neighbors[5] && relcol==sidesize )
 	    neigborindex = 5;
-	else if ( neigbors[7] && relrow==sidesize )
+	else if ( neighbors[7] && relrow==sidesize )
 	    neigborindex = 7;
 
 	if ( neigborindex!=-1 )
 	{
-	    const SbVec3f np = neigbors[neigborindex]->getPos(row,col);
+	    const SbVec3f np = neighbors[neigborindex]->getPos(row,col);
 	    if ( SoMeshSurface::isUndefined(np) ||
 		    SoMeshSurface::isUndefined( coordptr->point[index]) )
 		updateglue = true;
@@ -394,7 +394,7 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 	if ( relrow%spacing || relcol%spacing )
 	    continue;
 
-	if ( relrow<0 || relrow>=size || relcol<0 || relcol>=size )
+	if ( relrow<0 || relrow>=sidesize || relcol<0 || relcol>=sidesize )
 	{
 	    for ( int rowidx=-1; rowidx<=1; rowidx++ )
 	    {
@@ -414,7 +414,7 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 	}
 	else
 	{
-	    brick->invalidate();
+	    brick->doUpdate();
 	    getWire(idx)->invalidate();
 	}
     }
@@ -431,12 +431,12 @@ void SoMeshSurfaceSquare::setNeighbor( int relrow, int relcol,
 				   SoMeshSurfaceSquare* part, bool callback )
 {
     const int index = getNeigborIndex(relrow,relcol);
-    neigbors[getNeigborIndex(relrow,relcol)] = part;
+    neighbors[getNeigborIndex(relrow,relcol)] = part;
 
     if ( relrow==1 )
     {
 	const int row = origo[0]+sidesize;
-	for ( int idx=0; idx<sidesize; idx++ )
+	for ( int idx=0; idx<=sidesize; idx++ )
 	{
 	    const int col = origo[1]+idx;
 	    touch( row, col );
@@ -445,7 +445,7 @@ void SoMeshSurfaceSquare::setNeighbor( int relrow, int relcol,
     else if ( relcol==1 )
     {
 	const int col = origo[1]+sidesize;
-	for ( int idx=0; idx<sidesize; idx++ )
+	for ( int idx=0; idx<=sidesize; idx++ )
 	{
 	    const int row = origo[0]+idx;
 	    touch( row, col );
@@ -493,19 +493,19 @@ void SoMeshSurfaceSquare::updateGlue()
     if ( ownres==-1 )
 	return;
 
-    if ( updateglue || (neigbors[5] && neigbors[5]->hasResolutionChanged()) ||
-	 (neigbors[7] && neigbors[7]->hasResolutionChanged()) ||
+    if ( updateglue || (neighbors[5] && neighbors[5]->hasResolutionChanged()) ||
+	 (neighbors[7] && neighbors[7]->hasResolutionChanged()) ||
 	 hasResolutionChanged() )
     {
 	updateglue = false;
 	int normalindex=0;
 	int coordindex = 0;
 
-	const int res5 = neigbors[5] ? neigbors[5]->getResolution() : ownres;
+	const int res5 = neighbors[5] ? neighbors[5]->getResolution() : ownres;
 	const int blocksize5 = getBlockSize(res5);
-	const int res7 = neigbors[7] ? neigbors[7]->getResolution() : ownres;
+	const int res7 = neighbors[7] ? neighbors[7]->getResolution() : ownres;
 	const int blocksize7 = getBlockSize(res7);
-	const int res8 = neigbors[8] ? neigbors[8]->getResolution() : res7;
+	const int res8 = neighbors[8] ? neighbors[8]->getResolution() : res7;
 
 	SbList<SbVec2s> rowgluecells;
 	const int rowglueblocksize = ownblocksize>blocksize7
@@ -562,7 +562,7 @@ void SoMeshSurfaceSquare::updateGlue()
 	}
 	else
 	{
-	    /*	The resolution on both neigbors are lower than our, so
+	    /*	The resolution on both neighbors are lower than our, so
 	     *	our corner will look like this:
 		2--3
 		|  |
@@ -739,29 +739,56 @@ void SoMeshSurfaceSquare::addGlueShape( int& coordindexidx, int& normalidx,
 }
 
 
+SbBool SoMeshSurfaceSquare::getNormal(int row, int col, int res, SbVec3f& norm )
+{
+    const int relrow=row-origo[0];
+    const int relcol=col-origo[1];
+
+    if ( relrow>=0 && relrow<sidesize && relcol>=0 && relcol<sidesize )
+    {
+	SoMeshSurfaceBrick* brick = getBrick(res);
+	const int normalindex = brick->getNormalIndex(relrow,relcol);
+	if ( brick->getNormal(normalindex,norm) )
+	    return true;
+    }
+    
+    return false;
+}
+
+
 SbVec3f SoMeshSurfaceSquare::getNormal(int row, int col, int res)
 {
     const int relrow=row-origo[0];
     const int relcol=col-origo[1];
 
-    if ( relrow==sidesize || relcol==sidesize )
-    {
-	SoMeshSurfaceSquare* neigbor = 0;
-	if ( relrow==sidesize )
-	    neigbor = neigbors[relcol==sidesize?8:7];
-	else 
-	    neigbor = neigbors[5];
+    const int ownblocksize = getBlockSize( res );
+    SbVec3f norm( 0, 0, 1 );
 
-	if ( neigbor ) return neigbor->getNormal( row, col, res );
-    }
+#define mReturnNormal(rowoff,coloff)\
+{\
+    SoMeshSurfaceSquare* square = 0;\
+    if ( relcol+rowoff<0 )\
+	square = neighbors[1];\
+    else if ( relcol+coloff<0 )\
+	square = neighbors[3];\
+    else if ( relrow+rowoff>=sidesize )\
+	square = relcol+coloff>=sidesize ? neighbors[8] : neighbors[7];\
+    else if ( relcol+coloff>=sidesize )\
+	square = neighbors[5];\
+    else \
+	square = this; \
+\
+    if ( square && square->getNormal(row+rowoff,col+coloff,res,norm) )\
+	return norm;\
+}
 
-    SoMeshSurfaceBrick* brick = getBrick(res);
+    mReturnNormal(0,0)
+    mReturnNormal(-ownblocksize,0)
+    mReturnNormal(ownblocksize,0)
+    mReturnNormal(0,-ownblocksize)
+    mReturnNormal(0,ownblocksize)
 
-    const int normalindex = brick->getNormalIndex(relrow,relcol);
-    if ( !brick->isNormalValid(normalindex) );
-	brick->computeNormal( normalindex );
-
-    return brick->normals[normalindex];
+    return norm;
 }
 
 

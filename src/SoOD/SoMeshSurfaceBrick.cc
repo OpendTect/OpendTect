@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.4 2003-10-13 09:03:03 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.5 2003-10-15 07:35:42 kristofer Exp $";
 
 
 #include "SoMeshSurfaceBrick.h"
@@ -22,8 +22,9 @@ static const char* rcsID = "$Id: SoMeshSurfaceBrick.cc,v 1.4 2003-10-13 09:03:03
 #include <Inventor/details/SoFaceDetail.h>
 #include <Inventor/details/SoPointDetail.h>
 
-
 #include <Inventor/elements/SoNormalElement.h>
+
+#include "Inventor/threads/SbMutex.h"
 
 SO_NODE_SOURCE(SoMeshSurfaceBrick);
 
@@ -36,7 +37,8 @@ void SoMeshSurfaceBrick::initClass(void)
 
 SoMeshSurfaceBrick::SoMeshSurfaceBrick()
     : coords( 0 )
-    , invalidFlag( true )
+    , validstate( 2 )
+    , buildmutex( new SbMutex )
 {
     SO_NODE_CONSTRUCTOR(SoMeshSurfaceBrick);
 
@@ -45,6 +47,12 @@ SoMeshSurfaceBrick::SoMeshSurfaceBrick()
     SO_NODE_ADD_FIELD(spacing,(1));
 
     textureCoordIndex.connectFrom( &coordIndex );
+}
+
+
+SoMeshSurfaceBrick::~SoMeshSurfaceBrick()
+{
+    delete buildmutex;
 }
 
 
@@ -61,9 +69,16 @@ void SoMeshSurfaceBrick::setCoordPtr( const SbVec3f* crds )
     nrcrds++; \
 }
 
-void SoMeshSurfaceBrick::build()
+void SoMeshSurfaceBrick::build(bool lock)
 {
-    if ( isValid() ) return;
+    if ( lock ) buildmutex->lock();
+    if ( !validstate )
+    {
+	if ( lock ) buildmutex->unlock();
+	return;
+    }
+
+    validstate = 0;
 
     coordIndex.enableNotify(false);
     normalIndex.enableNotify(false);
@@ -93,11 +108,11 @@ void SoMeshSurfaceBrick::build()
 	    mEndStrip()
     }
 
-    const int nrnormals = (nrcells+2)*(nrcells+2);
+    const int nrnormals = (nrcells+2)*(nrcells+1);
     for ( int idx=0; idx<nrnormals; idx++ )
 	computeNormal(idx);
 
-    invalidFlag = false;
+    if ( lock ) buildmutex->unlock();
 
     coordIndex.enableNotify(true);
     normalIndex.enableNotify(true);
@@ -349,13 +364,20 @@ int SoMeshSurfaceBrick::getValidIndex( int crdidx ) const
 
 void SoMeshSurfaceBrick::invalidate()
 {
-    invalidFlag = true;
+    validstate = 2;
 }
 
 
-SbBool SoMeshSurfaceBrick::isValid() const
+void SoMeshSurfaceBrick::doUpdate()
 {
-    return !invalidFlag;
+    if ( !validstate )
+	validstate = 1;
+}
+
+
+int SoMeshSurfaceBrick::getValidState() const
+{
+    return validstate;
 }
 
 
@@ -366,23 +388,37 @@ void SoMeshSurfaceBrick::invalidateNormal( int index )
 }
 
 
-SbBool SoMeshSurfaceBrick::isNormalValid( int index ) const
+SbBool SoMeshSurfaceBrick::getNormal( int index, SbVec3f& res )
 {
-    return !invalidFlag && invalidNormals.find(index)==-1;
+    buildmutex->lock();
+    if ( (validstate!=2 && invalidNormals.find(index)==-1 &&
+	   		           normals[index]!=SbVec3f(0,0,0)) ||
+         computeNormal(index) )
+    {
+	res = normals[index];
+        buildmutex->unlock();
+	return true;
+    }
+
+    buildmutex->unlock();
+    return false;
 }
 
 
 void SoMeshSurfaceBrick::GLRender(SoGLRenderAction* action)
 {
-    if ( !isValid() )
-	build();
-
-    if ( invalidNormals.getLength() )
+    buildmutex->lock();
+    if ( validstate==2 )
+	build(false);
+    else if ( !validstate )
     {
-	for ( int idx=invalidNormals.getLength()-1; idx>=0; idx-- )
+	if ( invalidNormals.getLength() )
 	{
-	    if ( computeNormal( invalidNormals[idx] ) )
-		invalidNormals.remove(idx);
+	    for ( int idx=invalidNormals.getLength()-1; idx>=0; idx-- )
+	    {
+		if ( computeNormal( invalidNormals[idx] ) )
+		    invalidNormals.remove(idx);
+	    }
 	}
     }
 
@@ -391,6 +427,7 @@ void SoMeshSurfaceBrick::GLRender(SoGLRenderAction* action)
 	    		 this, normals.getNum(), normals.getValues(0));
 
     inherited::GLRender(action);
+    buildmutex->unlock();
 }
 
 
@@ -401,6 +438,8 @@ SbBool SoMeshSurfaceBrick::computeNormal( int index )
     const int relcoordrow = index/nrnormalsperrow;
     const int relcoordcol = index%nrnormalsperrow;
     const int coordindex = getCoordIndex(relcoordrow,relcoordcol);
+
+    normals.set1Value( index, SbVec3f(0,0,0) );
 
     SbVec3f prevcolcoord;
     SbBool prevcolundef;

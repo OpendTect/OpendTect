@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.6 2003-10-09 14:12:58 nanne Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.7 2003-10-15 07:35:42 kristofer Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -550,7 +550,7 @@ void* SoMeshSurface::creationFunc( void* surf_ )
 
 	gridsurf->creatorqueMutex->unlock();
 	if ( brick )
-	    brick->build();
+	    brick->build(true);
     }
 
     return 0;
