@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.17 2002-01-15 10:20:12 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.18 2002-01-16 12:38:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ public:
     void		setSpacing( int s=0 )	
 			{ setHSpacing(s); setVSpacing(s); }
     void		setBorder( int ); 
+
+    void		setTabFrame( bool yn=true );
 
     uiObject*		hAlignObj();
     void		setHAlignObj( uiObject* o );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.27 2002-01-11 14:13:12 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.28 2002-01-16 12:38:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include <i_layout.h>
 #include <i_layoutitem.h>
 #include <qwidget.h>
+#include <qframe.h>
 
 #include <iostream>
 #include "errh.h"
@@ -45,7 +46,7 @@ protected:
 };
 
 
-class uiGroupObjBody  : public uiObjectBody, public QWidget
+class uiGroupObjBody  : public uiObjectBody, public QFrame
 { 	
     friend class 		uiMainWin;
     friend class 		uiDialog;
@@ -54,16 +55,18 @@ class uiGroupObjBody  : public uiObjectBody, public QWidget
 public:
 				uiGroupObjBody( uiGroupObj& handle, 
 						uiParent* parnt,
-						const char* nm)
+						const char* nm )
 				    : uiObjectBody( parnt )
-				    , QWidget( parnt && parnt->body() ?  
+				    , QFrame( parnt && parnt->body() ?  
 					parnt->body()->managewidg() : 0, nm )
 				    , handle_( handle )
-				    , prntbody_( 0 )			{}
+				    , prntbody_( 0 )			
+				{ 
+				}
 
 #define mHANDLE_OBJ     	uiGroupObj
-#define mQWIDGET_BASE		QWidget
-#define mQWIDGET_BODY   	QWidget
+#define mQWIDGET_BASE		QFrame
+#define mQWIDGET_BODY   	QFrame
 #include               		"i_uiobjqtbody.h"
 
 public:
@@ -355,7 +358,7 @@ int i_uiGroupLayoutItem::horCentre(layoutMode m) const
     return ( curpos(m).left() + curpos(m).right() ) / 2;
 }
 
-uiGroup::uiGroup( uiParent* p, const char* nm, bool manage)
+uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     : uiParent( nm, 0 )
     , grpobj_( 0 )
     , body_( 0 )
@@ -460,6 +463,13 @@ void uiGroup::setBorder( int b )
 uiObject* uiGroup::hAlignObj()
     { return body_->hAlignObj(); }
 
+void uiGroup::setTabFrame( bool yn )
+{
+    if( yn )
+	grpobj_->body_->setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
+    else
+	grpobj_->body_->setFrameStyle( QFrame::NoFrame );
+}
 
 void uiGroup::setHAlignObj( uiObject* o )
     { body_->setHAlignObj(o); }
@@ -476,7 +486,7 @@ void uiGroup::setHCentreObj( uiObject* o )
 uiGroupObj::uiGroupObj( uiParent* parnt , const char* nm, bool manage )
 : uiObject( parnt, nm )
 {
-    body_= new uiGroupObjBody( *this, parnt, nm);
+    body_= new uiGroupObjBody( *this, parnt, nm );
     setBody( body_ );
 }
 
