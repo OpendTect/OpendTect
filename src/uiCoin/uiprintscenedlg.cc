@@ -4,53 +4,60 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.12 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.13 2005-01-25 14:58:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "iopar.h"
 #include "uiprintscenedlg.h"
 #include "uifileinput.h"
-#include "uicombobox.h"
-#include "uimsg.h"
-#include "ptrman.h"
+#include "iopar.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "uiobj.h"
 #include "uibutton.h"
 #include "uilabel.h"
+#include "uispinbox.h"
 #include "uimsg.h"
+#include "uiobj.h"
+#include "ptrman.h"
 
-#include "Inventor/SoOffscreenRenderer.h"
+#include <Inventor/SoOffscreenRenderer.h>
 
 
-const char* uiPrintSceneDlg::horwidthfldstr = "Hor Width";
-const char* uiPrintSceneDlg::vertwidthfldstr = "Vert Width";
-const char* uiPrintSceneDlg::widthunitfldstr = "Width Unit";
-const char* uiPrintSceneDlg::resfldstr = "Resolution";
-const char* uiPrintSceneDlg::filetypefldstr = "File Type";
-const char* uiPrintSceneDlg::filenamefldstr = "File Name";
+const char* uiPrintSceneDlg::heightstr = "Height";
+const char* uiPrintSceneDlg::widthstr = "Width";
+const char* uiPrintSceneDlg::unitstr = "Unit";
+const char* uiPrintSceneDlg::resstr = "Resolution";
 
-uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
-	: uiDialog(p, uiDialog::Setup("Print Scene",
-		    		      "Enter filename and fileformat","50.0.1"))
-	, scene(scene_)
-    	, horwidthfld(0)
+const char* uiPrintSceneDlg::imageformats[] =
+{ "jpg", "png", "bmp", "eps", "xpm", "xbm", 0 };
+
+const char* uiPrintSceneDlg::filters[] = {
+    "JPEG (*.jpg *.jpeg)",
+    "PNG (*.png)",
+    "Bitmap (*.bmp)",
+    "EPS (*.ps *.eps)",
+    "XPM (*.xpm)",
+    "XBM (*.xbm)",
+    0 };
+
+
+const StepInterval<float> sizerange(0.5,100,0.1);
+StepInterval<float> pixelsizerange(1,9000,1);
+
+
+uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
+				  const SbVec2s& winsz_ )
+    : uiDialog(p,uiDialog::Setup("Print Scene",
+				 "Enter filename and fileformat","50.0.1"))
+    , scene(scene_)
+    , heightfld(0)
+    , dpi(SoOffscreenRenderer::getScreenPixelsPerInch())
+    , winsz(winsz_)
 {
-    PtrMan<SoOffscreenRenderer> r =
-	new SoOffscreenRenderer(*(new SbViewportRegion));
-    const int nrfiletypes = r->getNumWriteFiletypes();
-    BufferStringSet filetypes;
-    for ( int idx=0; idx<nrfiletypes; idx++ )
-    {
-	SbList<SbName> extlist;
-	SbString fullname, description;
-	r->getWriteFiletypeInfo( idx, extlist, fullname, description );
-	filetypes.addIfNew( fullname.getString() );
-    }
-
-    if ( filetypes.size() == 0 )
+    PtrMan<SoOffscreenRenderer> sor =
+			    new SoOffscreenRenderer(*(new SbViewportRegion));
+    if ( !sor->getNumWriteFiletypes() )
     {
 	new uiLabel( this,
 	    "No output file types found.\n"
@@ -58,142 +65,226 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 	return;
     }
 
-    horwidthfld = new uiGenInput( this, "Size", IntInpSpec(800) );
-    horwidthfld->setElemSzPol( uiObject::small );
+    SbVec2s maxres = SoOffscreenRenderer::getMaximumResolution();
+    pixelsizerange.stop = mMIN(maxres[0],maxres[1]);
 
-    vertwidthfld = new uiGenInput( this, "x", IntInpSpec(600) );
-    vertwidthfld->setElemSzPol( uiObject::small );
-    vertwidthfld->attach( rightOf, horwidthfld );
+    uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, "Width", 2 );
+    widthfld = wfld->box();
+    widthfld->valueChanged.notify( mCB(this,uiPrintSceneDlg,sizeChg) );
 
-    widthunitfld = new uiComboBox( this, "Unit" );
-    widthunitfld->addItem("pixels");
-    widthunitfld->addItem("cm");
-    widthunitfld->addItem("inches");
-    widthunitfld->attach( rightOf, vertwidthfld );
+    uiLabeledSpinBox* hfld = new uiLabeledSpinBox( this, "Height", 2 );
+    heightfld = hfld->box();
+    heightfld->valueChanged.notify( mCB(this,uiPrintSceneDlg,sizeChg) );
+    hfld->attach( alignedBelow, wfld );
 
-    resolutionfld = new uiGenInput( this, "Resolution (dpi)", IntInpSpec(300) );
-    resolutionfld->setElemSzPol( uiObject::small );
-    resolutionfld->attach( alignedBelow, horwidthfld );
+    const char* units[] = { "cm", "inches", "pixels", 0 };
+    unitfld = new uiGenInput( this, "", StringListInpSpec(units) );
+    unitfld->setElemSzPol( uiObject::small );
+    unitfld->valuechanged.notify( mCB(this,uiPrintSceneDlg,unitChg) );
+    unitfld->attach( rightTo, wfld );
 
-    filetypesfld = new uiComboBox(this, "Filetypes" );
-    filetypesfld->attach( alignedBelow, resolutionfld );
-    for ( int idx=0; idx<filetypes.size(); idx++ )
-	filetypesfld->addItem( filetypes.get(idx) );
+    lockfld = new uiCheckBox( this, "Lock aspect ratio" );
+    lockfld->setChecked( true );
+    lockfld->activated.notify( mCB(this,uiPrintSceneDlg,lockChg) );
+    lockfld->attach( alignedBelow, unitfld );
+
+//  TODO: Setting the dpi does not seem to work. Wait for bugfix
+/*
+    dpifld = new uiGenInput( this, "Resolution (dpi)", IntInpSpec(300) );
+    dpifld->setElemSzPol( uiObject::small );
+    dpifld->valuechanging.notify( mCB(this,uiPrintSceneDlg,dpiChg) );
+    dpifld->attach( alignedBelow, hfld );
+*/
+
+    BufferString filter;
+    int idx = 0;
+    while ( imageformats[idx] )
+    {
+	if ( idx ) filter += ";;";
+	if ( sor->isWriteSupported( imageformats[idx] ) )
+	    filter += filters[idx];
+
+	idx++;
+    }
 
     fileinputfld = new uiFileInput( this, "Select filename",
-				    uiFileInput::Setup().forread(false) );
+				    uiFileInput::Setup().forread(false)
+				    			.filter(filter) );
     BufferString dirnm = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld->setDefaultSelectionDir( dirnm );
-    fileinputfld->attach( alignedBelow, filetypesfld );
+    fileinputfld->attach( alignedBelow, hfld );
 
-    finaliseStart.notify( mCB(this,uiPrintSceneDlg,doFinalise) );
+    init();
+    unitChg(0);
 }
 
 
-void uiPrintSceneDlg::fillPar(IOPar& par) const
+void uiPrintSceneDlg::init()
 {
-    par.set( horwidthfldstr, horwidthfld->getValue() );
-    par.set( vertwidthfldstr, vertwidthfld->getValue() );
-    par.set( widthunitfldstr, widthunitfld->currentItem() );
-    par.set( filetypefldstr, filetypesfld->currentItem() );
-    par.set( resfldstr, resolutionfld->getValue() );
-    par.set( filenamefldstr, fileinputfld->fileName() );
+    aspectratio = (float)winsz[0] / winsz[1];
+    sizepix.setValue( winsz[0], winsz[1] );
+    pixels2Inch( sizepix, sizeinch );
+    sizecm  = sizeinch * 2.54;
 }
 
 
-bool  uiPrintSceneDlg::usePar( const IOPar& par )
+void uiPrintSceneDlg::pixels2Inch( const SbVec2f& from, SbVec2f& to )
 {
-    int ival;
-
-    if ( par.get( horwidthfldstr, ival ) )
-	horwidthfld->setValue(ival);
-
-    if ( par.get( vertwidthfldstr, ival ) )
-	vertwidthfld->setValue(ival);
-
-    if ( par.get( widthunitfldstr, ival ) )
-	widthunitfld->setCurrentItem(ival);
-
-    if ( par.get( filetypefldstr, ival ) )
-	filetypesfld->setCurrentItem(ival);
-
-    if ( par.get( resfldstr, ival ) )
-	resolutionfld->setValue(ival);
-
-    const char* fname = par[filenamefldstr];
-    if ( fname && *fname )
-	fileinputfld->setFileName(fname);
-
-    return true;
+    to = from / dpi;
 }
 
 
-void uiPrintSceneDlg::doFinalise( CallBacker* )
+void uiPrintSceneDlg::inch2Pixels( const SbVec2f& from, SbVec2f& to )
 {
-} 
+    to = from * dpi;
+}
 
 
-bool uiPrintSceneDlg::acceptOK( CallBacker* )
+void uiPrintSceneDlg::sizeChg( CallBacker* cb )
 {
-    if ( !horwidthfld ) return true;
+    mDynamicCastGet(uiSpinBox*,box,cb);
+    if ( !box ) return;
 
-    double horwidth = horwidthfld->getValue();
-    double vertwidth = vertwidthfld->getValue();
-    int widthunit = widthunitfld->currentItem();
-
-    double resolution = resolutionfld->getValue();
-
-    if ( widthunit==1 )
+    if ( lockfld->isChecked() )
     {
-	horwidth *= resolution/2.54;
-	vertwidth *= resolution/2.54;
+	if ( box == widthfld )
+	    heightfld->setValue( widthfld->getFValue()/aspectratio );
+	else
+	    widthfld->setValue( heightfld->getFValue()*aspectratio );
     }
-    else if ( widthunit==2 )
+
+    updateSizes();
+}
+
+
+void uiPrintSceneDlg::unitChg( CallBacker* )
+{
+    SbVec2f size;
+    int nrdec = 2;
+    StepInterval<float> range = sizerange;
+
+    const int sel = unitfld->getIntValue();
+    if ( !sel )
+	size = sizecm;
+    else if ( sel == 1 )
+	size = sizeinch;
+    else if ( sel == 2 )
     {
-	horwidth *= resolution;
-	vertwidth *= resolution;
+	size = sizepix;
+	nrdec = 0;
+	range = pixelsizerange;
     }
-    
-    SbViewportRegion viewport;
-    SbVec2s maxres = SoOffscreenRenderer::getMaximumResolution();
-    if ( horwidth>maxres[0] ) horwidth = maxres[0];
-    if ( vertwidth>maxres[1] ) vertwidth = maxres[1];
 
-    viewport.setWindowSize( SbVec2s( mNINT(horwidth), mNINT(vertwidth) ));
-    viewport.setPixelsPerInch( resolution );
+    widthfld->setNrDecimals( nrdec );
+    widthfld->setInterval( range );
+    widthfld->setValue( size[0] );
 
-    PtrMan<SoOffscreenRenderer> r = new SoOffscreenRenderer(viewport);
+    heightfld->setNrDecimals( nrdec );
+    heightfld->setInterval( range );
+    heightfld->setValue( size[1] );
+}
 
+
+void uiPrintSceneDlg::lockChg( CallBacker* )
+{
+    if ( !lockfld->isChecked() ) return;
+
+    const float width = widthfld->getFValue();
+    heightfld->setValue( width / aspectratio );
+    updateSizes();
+}
+
+
+void uiPrintSceneDlg::dpiChg( CallBacker* )
+{
+    updateSizes();
+}
+
+
+void uiPrintSceneDlg::updateSizes()
+{
+    const float width = widthfld->getFValue();
+    const float height = heightfld->getFValue();
+    const int sel = unitfld->getIntValue();
+    if ( !sel )
+    {
+	sizecm.setValue( width, height );
+	sizeinch = sizecm / 2.54;
+	inch2Pixels( sizeinch, sizepix );
+    }
+    else if ( sel == 1 )
+    {
+	sizeinch.setValue( width, height );
+	sizecm = sizeinch * 2.54;
+	inch2Pixels( sizeinch, sizepix );
+    }
+    else
+    {
+	sizepix.setValue( width, height );
+	pixels2Inch( sizepix, sizeinch );
+	sizecm = sizeinch * 2.54;
+    }
+}
+
+
+bool uiPrintSceneDlg::filenameOK() const
+{
     const char* filename = fileinputfld->fileName();
     if ( !filename || !filename[0] )
-    { return false; }
-
-    if ( !File_isWritable(filename) )
     {
-	BufferString msg = "The file ";
-	msg += filename; msg += " is not writable";
-	uiMSG().error(msg);
+	uiMSG().error( "Please select filename" );
 	return false;
     }
 
     if ( File_exists(filename) )
     {
-	BufferString msg = "The file ";
-	msg += filename; msg += " exists. Overwrite?";
-	if ( !uiMSG().askGoOn(msg, true) )
+	BufferString msg = "The file "; msg += filename; 
+	if ( !File_isWritable(filename) )
+	{
+	    msg += " is not writable";
+	    uiMSG().error(msg);
+	    return false;
+	}
+	
+	msg += " exists. Overwrite?";
+	if ( !uiMSG().askGoOn(msg,true) )
 	    return false;
     }
 
-    int filetypenr = filetypesfld->currentItem();
+    return true;
+}
 
-    SbList<SbName> extlist;
-    SbString fullname, description;
-    r->getWriteFiletypeInfo(filetypenr, extlist, fullname, description);
 
-    if ( !r->render( scene ) )
+bool uiPrintSceneDlg::acceptOK( CallBacker* )
+{
+    if ( !widthfld ) return true;
+    
+    if ( !filenameOK() ) return false;
+
+    SbViewportRegion viewport;
+    viewport.setWindowSize( mNINT(sizepix[0]), mNINT(sizepix[1]) );
+//  viewport.setPixelsPerInch( dpifld->getfValue() );
+
+    PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
+    if ( !sor->render( scene ) )
+    {
+	uiMSG().error( "Cannot render scene" );
 	return false;
+    }
 
-    if ( !r->writeToFile( filename, extlist[0].getString() ) )
+    const char* selectedfilter = fileinputfld->selectedFilter();
+    int idx = 0;
+    while ( filters[idx] )
+    {
+	if ( !strcmp(selectedfilter,filters[idx]) )
+	    break;
+	idx++;
+    }
+
+    const char* extension = imageformats[idx] ? imageformats[idx] 
+					      : imageformats[0];
+    const char* filename = fileinputfld->fileName();
+    if ( !sor->writeToFile(filename,extension) )
     {
 	uiMSG().error( "Couldn't write to specified file" );
 	return false;
@@ -201,3 +292,30 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     return true;
 }
+
+
+void uiPrintSceneDlg::fillPar( IOPar& par ) const
+{
+    if ( !heightfld ) return;
+    par.set( heightstr, heightfld->getValue() );
+    par.set( widthstr, widthfld->getValue() );
+    par.set( unitstr, unitfld->getIntValue() );
+}
+
+
+bool uiPrintSceneDlg::usePar( const IOPar& par )
+{
+    if ( !heightfld ) return false;
+/*
+    float val;
+    if ( par.get(heightstr,val) ) heightfld->setValue(val);
+    if ( par.get(widthstr,val) ) widthfld->setValue(val);
+
+    int ival;
+    if ( par.get(unitstr,ival) ) unitfld->setValue(ival);
+*/
+    return true;
+}
+
+
+
