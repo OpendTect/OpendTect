@@ -13,6 +13,7 @@
 
 #ifdef __win__
 # include <windows.h>
+# include <istream>
 # ifdef __msvc__
 #  define popen _popen
 #  define pclose _pclose
@@ -35,7 +36,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.47 2003-11-12 11:55:28 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.48 2003-12-10 09:56:55 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -48,7 +49,7 @@ bool ExecOSCmd( const char* comm, bool inbg )
 
 #ifdef __win__
 /*
-    if( !inbg )
+    if ( !inbg )
     {
 	int res = system(comm);
 	return !res;
@@ -210,8 +211,9 @@ void StreamProvider::set( const char* devname )
     {
 #ifdef __win__ // non-msvc compiler, like MinGw
 	// if only one char before the ':', it must be a drive letter.
-	if( ptr == fname.buf() + 1 ||
-			( *fname.buf()=='\"' && (ptr == fname.buf()+2) ) )
+	if ( ptr == fname.buf() + 1 
+		|| ( *fname.buf()=='\"' && (ptr == fname.buf()+2) ) 
+		|| ( *fname.buf()=='\'' && (ptr == fname.buf()+2) ) )
 	    ptr = fname.buf();
 	else
 #endif
@@ -311,7 +313,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
       || File_isAbsPath(fname) )
 	return;
 
-    FileNameString pth( path );
+    BufferString pth( path );
     fname = File_getFullPath( pth, fname );
 }
 
@@ -436,10 +438,107 @@ bool StreamProvider::executeCommand( bool inbg ) const
 }
 
 
+#ifdef __win__
+static const char* getCmd( const char* fnm )
+{
+    BufferString execnm( fnm );
+
+    char* ptr = strchr( execnm.buf() , ':' );
+
+    if ( !ptr )
+	return fnm;
+
+    char* args=0;
+
+    // if only one char before the ':', it must be a drive letter.
+    if ( ptr == execnm.buf() + 1 )
+    {
+	ptr = strchr( ptr , ' ' );
+	if ( ptr ) { *ptr = '\0'; args = ptr+1; }
+    }
+    else if ( ptr == execnm.buf()+2) 
+    {
+	char sep = *execnm.buf();
+	if ( sep == '\"' || sep == '\'' )
+	{
+	    execnm=fnm+1;
+	    ptr = strchr( execnm.buf() , sep );
+	    if ( ptr ) { *ptr = '\0'; args = ptr+1; }
+	}
+    }
+    else
+	return fnm;
+
+    if ( strstr(execnm,".exe") || strstr(execnm,".EXE") 
+       || strstr(execnm,".bat") || strstr(execnm,".BAT")
+       || strstr(execnm,".com") || strstr(execnm,".COM") )
+	return fnm;
+
+    const char* interp = 0;
+
+    if ( strstr(execnm,".csh") || strstr(execnm,".CSH") )
+	interp = "\\bin\\win\\sys\\csh.exe";
+    else if ( strstr(execnm,".sh") || strstr(execnm,".SH") ||
+	      strstr(execnm,".bash") || strstr(execnm,".BASH") )
+	interp = "\\bin\\win\\sys\\sh.exe";
+    else if ( strstr(execnm,".awk") || strstr(execnm,".AWK") )
+	interp = "\\bin\\win\\sys\\awk.exe";
+    else if ( strstr(execnm,".sed") || strstr(execnm,".SED") )
+	interp = "\\bin\\win\\sys\\sed.exe";
+    else if ( File_exists( execnm ) )
+    {
+	// We have a full path to a file with no known extension,
+	// but it exists. Let's peek inside.
+
+	StreamData sd = StreamProvider( execnm ).makeIStream();
+	if ( !sd.usable() )
+	    return fnm;
+
+	BufferString line;
+	sd.istrm->getline( line.buf(), 40 ); sd.close();
+
+	if ( !strstr(line,"#!") && !strstr(line,"# !") )
+	    return fnm;
+
+	if ( strstr(line,"csh") )
+	    interp = "\\bin\\win\\sys\\csh.exe";
+	else if ( strstr(line,"awk") )
+	    interp = "\\bin\\win\\sys\\awk.exe";
+	else if ( strstr(line,"sh") )
+	    interp = "\\bin\\win\\sys\\sh.exe";
+    }
+    
+    if ( interp )
+    {
+	static BufferString fullexec;
+
+	fullexec = "\"";
+	fullexec += File_getFullPath( GetSoftwareDir(), interp );
+	fullexec += "\" '";
+	fullexec += execnm;
+	fullexec += "'";
+
+	if ( args && *args )
+	{
+	    fullexec += " ";
+	    fullexec += args;
+	}
+
+	return fullexec;
+    }
+
+    return fnm;
+}
+#endif
+
 void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
 {
     if ( !hostname[0] )
+#ifdef __win__
+	oscommand = getCmd(fname);
+#else
 	oscommand = (const char*)fname;
+#endif
     else
     {
 	switch ( type_ )
@@ -469,11 +568,18 @@ void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
 	    }
 	break;
 	case StreamConn::Command:
+#ifdef __win__
+	    sprintf( oscommand.buf(), "%s %s %s",
+				      (const char*)rshcomm,
+				      (const char*)hostname,
+				      getCmd(fname) );
+#else
 	    sprintf( oscommand.buf(), "%s %s %s",
 				      (const char*)rshcomm,
 				      (const char*)hostname,
 				      (const char*)fname );
 	break;
+#endif
 	case StreamConn::File:
 	    if ( forread )
 		sprintf( oscommand.buf(), "%s %s cat %s",
