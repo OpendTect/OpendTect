@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.4 2002-02-12 12:16:37 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.5 2002-02-25 14:15:05 nanne Exp $";
 
 #include "visobject.h"
 #include "colortab.h"
@@ -92,8 +92,9 @@ bool  visBase::VisualObject::isColorTable() const
 
 void visBase::VisualObject::setColorTable( ColorTable* nct )
 {
-    delete colortable;
-    colortable = nct;
+    Interval<float> intv = nct->getInterval();
+    ColorTable::get( nct->name(), *colortable );
+    colortable->scaleTo( intv );
 }
 
 
