@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.19 2001-05-25 14:03:03 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.20 2001-06-07 21:24:06 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,7 +265,7 @@ uiBoolInpFld::uiBoolInpFld(uiGenInput* p, const DataInpSpec& spec, const char* n
     :uiIntInpField( p, spec )
     , butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true )
 {
-    const BoolInpSpec* spc = dynamic_cast< const BoolInpSpec* >(&spec);
+    mDynamicCastGet(const BoolInpSpec*,spc,&spec)
     if ( !spc ) { pErrMsg("huh?");butOrGrp = new uiGroup(p,nm); return; }
 
     yn=spc->checked(); initClear();
@@ -365,7 +365,7 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     , ofrmBut( 0 )
     , b2c(0)
 {
-    const BinIDCoordInpSpec*spc = dynamic_cast<const BinIDCoordInpSpec*>(&spec);
+    mDynamicCastGet(const BinIDCoordInpSpec*,spc,&spec)
     if ( !spc ){ pErrMsg("huh"); return; }
 
     inl_x.setText( spec.text(0) );
@@ -447,8 +447,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
     , stop( *new uiLineEdit(&intvalGrp,0,nm) )
     , step( 0 )
 {
-    const NumInpIntervalSpec<T>* spc = 
-			dynamic_cast< const NumInpIntervalSpec<T>* >(&spec);
+    mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&spec)
     if (!spc) { pErrMsg("huh"); return; }
 
     if ( spc->hasLimits() ) 
@@ -486,8 +485,7 @@ public:
 			    : uiIntInpField( p, spec )
 			    , cbb( *new uiComboBox(p,nm) ) 
 			{
-			    const StringListInpSpec* spc = 
-				dynamic_cast<const StringListInpSpec*>(&spec);
+			    mDynamicCastGet(const StringListInpSpec*,spc,&spec)
 			    if ( !spc ) { pErrMsg("Huh") ; return; }
 
 			    cbb.addItems( spc->strings() );

@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.5 2001-05-30 13:01:28 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.6 2001-06-07 21:24:03 windev Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -139,8 +139,8 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	BufferString nm( "Component " );
 	nm += idx+1;
-	addComp( dc, trc.samplingData(idx), trc.size(idx), nm,
-		 dynamic_cast<const LinScaler*>(trc.scaler(idx)) );
+	mDynamicCastGet(const LinScaler*,sc,trc.scaler(idx))
+	addComp( dc, trc.samplingData(idx), trc.size(idx), nm, sc );
 	if ( preseldatatype )
 	    tarcds[idx]->datachar = DataCharacteristics(
 			(DataCharacteristics::UserType)preseldatatype );

@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.6 2001-06-07 09:40:52 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.7 2001-06-07 21:23:59 windev Exp $";
 
 #include "conn.h"
 #include "strmprov.h"
@@ -156,13 +156,13 @@ void StreamConn::close()
     {
 	if ( state_ == Read && sd.istrm && sd.istrm != &cin )
 	{
-	    ifstream* s = dynamic_cast<ifstream*>( sd.istrm );
+	    mDynamicCastGet(ifstream*,s,sd.istrm)
 	    if ( s ) s->close();
 	}
 	else if ( state_ == Write && sd.ostrm
 	       && sd.ostrm != &cout && sd.ostrm != &cerr )
 	{
-	    ofstream* s = dynamic_cast<ofstream*>( sd.ostrm );
+	    mDynamicCastGet(ofstream*,s,sd.ostrm)
 	    if ( s ) s->close();
 	}
     }

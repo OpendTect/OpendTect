@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.7 2001-06-03 15:43:48 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.8 2001-06-07 21:24:01 windev Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -96,9 +96,9 @@ bool PickSetTranslator::retrieve( PickSet& ps, const IOObj* ioobj,
 				  BufferString& bs, const bool* selarr )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    PtrMan<PickSetTranslator> tr
-        = dynamic_cast<PickSetTranslator*>(ioobj->getTranslator());
-    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
+    mDynamicCastGet(PickSetTranslator*,t,ioobj->getTranslator())
+    if ( !t ) { bs = "Selected object is not a Pick Set"; return false; }
+    PtrMan<PickSetTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -111,9 +111,9 @@ bool PickSetTranslator::store( const PickSet& ps, const IOObj* ioobj,
 			       BufferString& bs, const bool* selarr )
 {
     if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    PtrMan<PickSetTranslator> tr
-        = dynamic_cast<PickSetTranslator*>(ioobj->getTranslator());
-    if ( !tr ) { bs = "Selected object is not a Pick Set"; return false; }
+    mDynamicCastGet(PickSetTranslator*,t,ioobj->getTranslator())
+    if ( !t ) { bs = "Selected object is not a Pick Set"; return false; }
+    PtrMan<PickSetTranslator> tr = t;
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
