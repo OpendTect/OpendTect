@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.46 2002-05-08 09:36:20 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.47 2002-05-08 12:10:18 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,7 +137,6 @@ void uiVisPartServer::usePar( const IOPar& par )
 	sd->getMovementNotification()->notify(
 				    mCB(this,uiVisPartServer,getDataCB) );
 
-	visBase::VisColorTab* coltab = visBase::VisColorTab::create();
 	sd->textureRect().manipChanges()->notify(
 			    mCB(this,uiVisPartServer,manipMoveCB));
 
