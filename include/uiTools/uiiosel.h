@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.4 2001-05-02 16:35:35 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.5 2001-05-02 20:25:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,6 @@ public:
 				   bool withclear=false);
 			~uiIOSelect();
 
-    void		notifySelection( const CallBack& cb )
-			{ seldonecb_ = cb; }
-
     const char*		getInput() const;
     const char*		getKey() const;
     void		setInput(const char* key);
@@ -51,10 +48,11 @@ public:
 
     void		clear()			{ setCurrentItem( 0 ); }
 
+    Notifier<uiIOSelect> selectiondone;
+
 protected:
 
     CallBack		doselcb_;
-    CallBack		seldonecb_;
     ObjectSet<BufferString>	entries_;
     bool		withclear_;
 
