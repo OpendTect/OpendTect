@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.10 2002-05-07 16:11:34 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.11 2002-05-22 11:01:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,7 @@ int uiBatchLaunch::selected()
 
 bool uiBatchLaunch::acceptOK( CallBacker* )
 {
-    BufferString fname;
+    const bool dormt = execRemote();
     if ( execRemote() )
     {
 	hostname = remhostfld->text();
@@ -159,7 +159,8 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     }
 
     const int sel = selected();
-    fname = sel == 0 ? "window" : (sel == 2 ? "stdout" : filefld->fileName());
+    BufferString fname = sel == 0 ? "window"
+		       : (sel == 2 ? "stdout" : filefld->fileName());
     if ( fname == "" ) fname = "/dev/null";
     IOPar* iop = const_cast<IOPar*>(iopl.size() ? iopl[0] : 0);
     if ( iop )
@@ -188,53 +189,40 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	return true;
     }
 
-    BufferString comm( "@" );
-    if ( !execRemote() )
-	{ comm += progname; comm += " -bg "; comm += StreamProvider::sStdIO; }
-    else
+    BufferString tfname = File_getFullPath( GetDataDir(), "Proc" );
+    tfname = File_getFullPath( tfname, "batch_processing" );
+    if ( GetSoftwareUser() )
+	tfname += GetSoftwareUser();
+    tfname += ".par";
+    StreamData sd = StreamProvider(tfname).makeOStream();
+    bool allok = sd.usable() && iopl.write(*sd.ostrm);
+    sd.close();
+    if ( !allok )
     {
-	BufferString tfname = File_getFullPath( GetDataDir(), "Proc" );
-	tfname = File_getFullPath( tfname, ".transfer." );
-	if ( GetSoftwareUser() )
-	    tfname += GetSoftwareUser();
-	StreamData sd = StreamProvider(tfname).makeOStream();
-	if ( !sd.usable() || !iopl.write(*sd.ostrm) )
-	{
-	    comm = "Cannot write to:\n";
-	    comm += tfname;
-	    uiMSG().error( comm );
-	    return false;
-	}
-	sd.close();
-
-	comm += GetSoftwareDir();
-	comm = File_getFullPath( comm, "bin" );
-	comm = File_getFullPath( comm, "dgb_exec_rmt" );
-	comm += " ";
-	comm += hostname; comm += " ";
-	comm += progname; comm += " -bg ";
-	comm += tfname;
+	BufferString msg = "Cannot write to:\n"; msg += tfname;
+	uiMSG().error( msg );
+	return false;
     }
+
+    BufferString comm( "@" );
+    comm += GetSoftwareDir();
+    comm = File_getFullPath( comm, "bin" );
+    comm = File_getFullPath( comm, "dgb_exec" );
+    if ( dormt )
+    {
+	comm += "_rmt ";
+	comm += hostname;
+    }
+    comm += " "; comm += progname;
+    comm += " -bg "; comm += tfname;
 
     bool rv = false;
-    StreamData sd = StreamProvider( comm ).makeOStream( execRemote() );
-    if ( !sd.usable() )
+    if ( !StreamProvider( comm ).executeCommand(dormt) )
     {
-	uiMSG().error( "Cannot create pipe to processing application" );
-	sd.close();
+	uiMSG().error( "Cannot start batch program" );
 	return false;
     }
-    else if ( !iopl.write( *sd.ostrm ) )
-    {
-	uiMSG().error( "Error during write to processing application" );
-	sd.close();
-	return false;
-    }
-    else
-	rv = true;
-
-    sd.close();
-    return rv;
+    return true;
 }
 
 
