@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.13 2003-07-30 13:47:33 nanne Exp $
+ RCS:		$Id: emsurface.h,v 1.14 2003-08-01 14:15:00 bert Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ class Surface : public EMObject
 public:
     int			nrPatches() const;
     PatchID		patchID(int idx) const;
+    PatchID		patchID(const char*) const;
     const char*		patchName(const PatchID&) const;
     PatchID		addPatch(const char* nm, bool addtohistory);
     bool		addPatch(const char* nm, PatchID, bool addtohistory);
@@ -126,12 +127,12 @@ public:
 			*/
     const char*		auxDataName(int dataidx) const;
     			/*!<\return The name of aux-data or 0 if the data
-				    is removed;
-			*/
+				    is removed; */
+    int			auxDataIndex(const char*) const;
+    			/*!<\return The dataidx of this aux data name, or -1 */
     int			addAuxData( const char* name );
     			/*!<\return The dataidx of the new data.
-				    The index is persistent in runtime.
-			*/
+				    The index is persistent in runtime.  */
 
     void		setAuxDataName(int,const char*);    
     void		removeAuxData( int dataidx);

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.17 2003-07-31 14:35:36 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.18 2003-08-01 14:15:00 bert Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -90,6 +90,14 @@ int EM::Surface::nrPatches() const
 EM::PatchID EM::Surface::patchID( int idx ) const
 {
     return patchids[idx];
+}
+
+
+EM::PatchID EM::Surface::patchID( const char* nm ) const
+{
+    for ( int idx=0; idx<patchnames.size(); idx++ )
+	if ( *patchnames[idx] == nm ) return patchids[idx];
+    return -1;
 }
 
 
@@ -293,7 +301,7 @@ int EM::Surface::findPos( const RowCol& rowcol,
 {
     TypeSet<Coord3> respos;
     const int nrsubsurf = nrPatches();
-    for ( unsigned short surface=0; surface<nrsubsurf; surface++ )
+    for ( PatchID surface=0; surface<nrsubsurf; surface++ )
     {
 	Geometry::GridSurface* gridsurf = surfaces[surface];
 	if ( !gridsurf->isDefined( rowcol ) )
@@ -556,6 +564,14 @@ void EM::Surface::setAuxDataName( int dataidx, const char* name )
 {
     if ( auxdatanames[dataidx] )
 	auxdatanames.replace( new BufferString(name), dataidx );
+}
+
+
+int EM::Surface::auxDataIndex( const char* nm ) const
+{
+    for ( int idx=0; idx<auxdatanames.size(); idx++ )
+	if ( *auxdatanames[idx] == nm ) return idx;
+    return -1;
 }
 
 
