@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.18 2002-04-15 15:35:01 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.19 2002-05-13 14:21:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 class QLayoutItem;
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-class i_LayoutItem : public uiBody
+class i_LayoutItem : public uiBody, public UserIDObject
 {   
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;
