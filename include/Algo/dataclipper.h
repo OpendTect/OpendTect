@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: dataclipper.h,v 1.1 2002-02-07 15:20:58 kristofer Exp $
+ RCS:		$Id: dataclipper.h,v 1.2 2002-02-08 07:01:14 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,8 +15,16 @@ ________________________________________________________________________
 
 /*!\brief
 
-A DataClipper gets a bunch of data and dtermines at what value to clip
+A DataClipper gets a bunch of data and determines at what value to clip
 if a certain clippercentag is desired.
+
+Usage:
+1. Create and set cliprate
+2. putData() untill you have put all your data.
+3. calculateRange
+4. get the cliprange with getRange
+
+Step 2-4 can be repeted any number of times.
 
 */
 
@@ -45,6 +53,9 @@ public:
     void			putData(const float*, int );
 
     void			calculateRange();
+    				/*!< Will also reset the stats so the
+				     object becomes ready for new data
+				*/
 
     const Interval<float>&	getRange() const { return range; }
 
