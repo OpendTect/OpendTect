@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.8 2001-10-10 13:24:34 bert Exp $
+ RCS:		$Id: transl.h,v 1.9 2001-10-18 09:37:13 windev Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -45,7 +45,7 @@ public:
     virtual const ClassDefList&	defs() const		= 0;
     virtual Translator*		make(const char*) const	= 0;
     virtual ObjectTypeSelectionFun getSelector() const	= 0;
-    virtual IOObjContext	getContext() const	= 0;
+    virtual const IOObjContext&	getContext() const	= 0;
 
     virtual int			implExists(const IOObj*,int forread) const;
     virtual int			implRemovable(const IOObj*) const;
@@ -76,7 +76,7 @@ hasFactoryUidConcrete( clss##Translator ); \
 Translator* make( const char* nm ) const { return trProd(nm); } \
 ObjectTypeSelectionFun getSelector() const \
 	{ return clss##Translator::selector; } \
-IOObjContext getContext() const \
+const IOObjContext& getContext() const \
 	{ return clss##Translator::ioContext(); } \
 void clearSelHist() { selhist.clear(); } \
 static int listid; \

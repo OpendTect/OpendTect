@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.2 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: wavelet.h,v 1.3 2001-10-18 09:37:13 windev Exp $
 ________________________________________________________________________
 
 @$*/
@@ -69,7 +69,7 @@ public:
     virtual int		write(const Wavelet*,Conn&)	{ return NO; }
 
     static int		selector(const char*);
-    static IOObjContext	ioContext();
+    static const IOObjContext&	ioContext();
 
 };
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.11 2001-10-15 16:02:11 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.12 2001-10-18 09:37:33 windev Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -86,16 +86,21 @@ void PickSetGroup::add( PickSet*& ps )
 }
 
 
-IOObjContext PickSetGroupTranslator::ioContext()
+const IOObjContext& PickSetGroupTranslator::ioContext()
 {
-    IOObjContext ctxt( Translator::groups()[listid] );
-    ctxt.crlink = false;
-    ctxt.newonlevel = 1;
-    ctxt.needparent = false;
-    ctxt.maychdir = false;
-    ctxt.stdseltype = IOObjContext::Misc;
+    static IOObjContext* ctxt = 0;
 
-    return ctxt;
+    if ( !ctxt )
+    {
+	ctxt = new IOObjContext( Translator::groups()[listid] );
+	ctxt->crlink = false;
+	ctxt->newonlevel = 1;
+	ctxt->needparent = false;
+	ctxt->maychdir = false;
+	ctxt->stdseltype = IOObjContext::Misc;
+    }
+
+    return *ctxt;
 }
 
 

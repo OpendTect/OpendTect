@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.6 2001-08-31 16:38:04 bert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.7 2001-10-18 09:37:33 windev Exp $";
 
 #include "wavelet.h"
 #include "ascstream.h"
@@ -142,16 +142,21 @@ void Wavelet::transform( float constant, float factor )
 }
 
 
-IOObjContext WaveletTranslator::ioContext()
+const IOObjContext& WaveletTranslator::ioContext()
 {
-    IOObjContext ctxt( Translator::groups()[listid] );
-    ctxt.crlink = NO;
-    ctxt.newonlevel = 1;
-    ctxt.needparent = NO;
-    ctxt.maychdir = NO;
-    ctxt.stdseltype = IOObjContext::Wvlt;
+    static IOObjContext* ctxt = 0;
 
-    return ctxt;
+    if ( !ctxt )
+    {
+	ctxt = new IOObjContext( Translator::groups()[listid] );
+	ctxt->crlink = NO;
+	ctxt->newonlevel = 1;
+	ctxt->needparent = NO;
+	ctxt->maychdir = NO;
+	ctxt->stdseltype = IOObjContext::Wvlt;
+    }
+
+    return *ctxt;
 }
 
 
