@@ -5,9 +5,10 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.4 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.5 2004-01-30 10:21:24 bert Exp $";
 
 #include "dateinfo.h"
+#include "timefun.h"
 #include <time.h>
 
 static int d0[] = { 31,59,90,120,151,181,212,243,273,304,334,365 };
@@ -328,4 +329,21 @@ void DateInfo::addDay() const
     case 0: buf += "st"; break; case 1: buf += "nd"; break;
     case 2: buf += "rd"; break; default: buf += "th"; break;
     }
+}
+
+
+void DateInfo::getFullDisp( BufferString& disp ) const
+{
+    disp = eString(DateInfo::Month,month());
+    *(disp.buf() + 3) = ' '; *(disp.buf() + 4) = '\0';
+    disp += day(); disp += " ";
+
+    const int cursecs = Time_getMilliSeconds() / 1000;
+    const int hrs = cursecs / 3600;
+    const int mins = (cursecs - hrs * 3600) / 60;
+    const int secs = cursecs - hrs * 3600 - mins * 60;
+
+    if ( hrs < 10 ) disp += "0";  disp += hrs; disp += ":";
+    if ( mins < 10 ) disp += "0"; disp += mins; disp += ":";
+    if ( secs < 10 ) disp += "0"; disp += secs;
 }

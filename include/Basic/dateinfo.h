@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-3-96
- RCS:		$Id: dateinfo.h,v 1.3 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: dateinfo.h,v 1.4 2004-01-30 10:21:14 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <enums.h>
+#include "enums.h"
+#include "bufstring.h"
 
 /*!\brief Clumsy date info class. Has nice 'relative' printouts.
 
@@ -60,6 +61,8 @@ public:
     const char*		whenRelative(const DateInfo* di=0) const;
     static int		daysInMonth(int yr,Month);
     static int		daysInYear( int yr )	{ return yr%4 ? 365 : 366; }
+
+    void		getFullDisp(BufferString&) const;
 
 private:
 
