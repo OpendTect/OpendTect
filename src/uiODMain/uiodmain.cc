@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.14 2004-03-04 17:27:42 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.15 2004-03-26 16:50:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "uisetdatadir.h"
 #include "uimsg.h"
 #include "ioman.h"
-#include "iodir.h"
+#include "ioobj.h"
 #include "ptrman.h"
 #include "ctxtioobj.h"
 #include "filegen.h"
@@ -56,6 +56,9 @@ int ODMain( int argc, char** argv )
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
     manODMainWin( odmain );
     PIM().loadAuto( true );
+    if ( !odmain->ensureGoodSurveySetup() )
+	return false;
+
     odmain->go();
     delete odmain;
     return 0;
@@ -83,9 +86,6 @@ uiODMain::uiODMain( uicMain& a )
 	::exit( 0 );
 
     applmgr = new uiODApplMgr( *this );
-
-    if ( !ensureGoodSurveySetup() )
-	::exit( 0 );
 
     if ( buildUI() )
 	failed = false;
@@ -120,7 +120,7 @@ bool uiODMain::ensureGoodSurveySetup()
 	uiMSG().error( errmsg );
 	return false;
     }
-    else if ( IOM().dirPtr()->key() == MultiID("-1") )
+    else if ( !IOM().isReady() )
     {
 	while ( !applmgr->manageSurvey() )
 	{

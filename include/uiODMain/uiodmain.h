@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.8 2004-02-17 10:58:52 bert Exp $
+ RCS:           $Id: uiodmain.h,v 1.9 2004-03-26 16:50:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ protected:
     virtual bool	closeOK();
 
 private:
+
+    friend int		::ODMain(int,char**);
 
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();

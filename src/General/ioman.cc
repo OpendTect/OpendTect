@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.43 2004-03-26 15:45:03 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.44 2004-03-26 16:50:45 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -143,6 +143,12 @@ void IOMan::init()
 IOMan::~IOMan()
 {
     delete dirptr;
+}
+
+
+bool IOMan::isReady() const
+{
+    return bad() || !dirptr ? false : dirptr->key() != MultiID("-1");
 }
 
 

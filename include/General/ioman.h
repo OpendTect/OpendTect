@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.20 2004-02-17 16:51:45 bert Exp $
+ RCS:		$Id: ioman.h,v 1.21 2004-03-26 16:50:45 bert Exp $
 ________________________________________________________________________
 
 -*/
  
 
-#include <uidobj.h>
-#include <multiid.h>
-#include <sets.h>
+#include "uidobj.h"
+#include "multiid.h"
+#include "sets.h"
 class IOLink;
 class IOParList;
 class IOPar;
@@ -45,9 +45,8 @@ class IOMan : public UserIDObject
 
 public:
 
-    enum State		{ Bad, NeedInit, Good };
     bool		bad() const		{ return state_ != Good; }
-    State		state() const		{ return state_; }
+    bool		isReady() const;
 
     bool		to(const IOLink*);	//!< NULL -> ".."
     bool		to(const MultiID&);
@@ -104,6 +103,7 @@ public:
 
 private:
 
+    enum State		{ Bad, NeedInit, Good };
     State		state_;
     IODir*		dirptr;
     int			curlvl;
