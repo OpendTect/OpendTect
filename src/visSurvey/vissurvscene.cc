@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.31 2002-05-02 14:18:57 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.32 2002-05-07 12:12:04 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.31 2002-05-02 14:18:57 kris
 #include "visevent.h"
 #include "vistransform.h"
 #include "position.h"
+#include "vissurvpickset.h"
 #include "survinfo.h"
 #include "linsolv.h"
 #include "visannot.h"
@@ -120,6 +121,46 @@ void visSurvey::Scene::addInlCrlTObject( SceneObject* obj )
 }
 
 
+void visSurvey::Scene::insertObject( int idx, SceneObject* obj )
+{
+    mDynamicCastGet( SurveyObject*, survobj, obj );
+    if ( survobj && survobj->getMovementNotification() )
+    {
+	survobj->getMovementNotification()->notify(
+		mCB( this,visSurvey::Scene,filterPicks ));
+    }
+
+    SceneObjectGroup::insertObject( idx, obj );
+}
+
+
+void visSurvey::Scene::addObject( SceneObject* obj )
+{
+    mDynamicCastGet( SurveyObject*, survobj, obj );
+    if ( survobj && survobj->getMovementNotification() )
+    {
+	survobj->getMovementNotification()->notify(
+		mCB( this,visSurvey::Scene,filterPicks ));
+    }
+
+    SceneObjectGroup::addObject( obj );
+}
+
+
+void visSurvey::Scene::removeObject( int idx )
+{
+    SceneObject* obj = getObject( idx );
+    mDynamicCastGet( SurveyObject*, survobj, obj );
+    if ( survobj && survobj->getMovementNotification() )
+    {
+	survobj->getMovementNotification()->remove(
+		mCB( this,visSurvey::Scene,filterPicks ));
+    }
+
+    SceneObjectGroup::removeObject( idx );
+}
+
+
 void visSurvey::Scene::showAnnotText( bool yn )
 {
     annot->showText( yn );
@@ -181,7 +222,8 @@ void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     while ( getObject(kid)!=timetransformation )
     {
 	if ( getObject(kid)==SPM().getDisplayTransform() ||
-		getObject(kid)==eventcatcher )
+		getObject(kid)==eventcatcher ||
+	        typeid(*getObject(kid))==typeid(visBase::DirectionalLight) )
 	{ kid++; continue; }
 
 	xyzkids += getObject(kid)->id();
@@ -210,6 +252,8 @@ void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     for ( ; kid<size(); kid++ )
     {
+	if ( getObject(kid)==annot ) continue;
+
 	inlcrltkids += getObject(kid)->id();
 	if ( saveids.indexOf( getObject(kid)->id()) ==-1 )
 	{
@@ -242,18 +286,67 @@ void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int visSurvey::Scene::usePar( const IOPar& par )
 {
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const visBase::SceneObject* obj = getObject(idx);
+    eventcatcher->eventhappened.remove( mCB( this, Scene, mouseMoveCB ));
+    removeAll();
 
-	if (    obj!=SPM().getDisplayTransform() &&
-		obj!=SPM().getAppvelTransform() && 
-		obj!=SPM().getInlCrlTransform() )
-	{
-	    removeObject( idx );
-	    idx--;
-	}
-    }
+    inlcrltransformation = SPM().getInlCrlTransform();
+    timetransformation = SPM().getAppvelTransform();
+    eventcatcher = visBase::EventCatcher::create();
+
+    addObject( const_cast<visBase::Transformation*>(
+						SPM().getDisplayTransform()));
+    addObject( eventcatcher );
+    eventcatcher->setEventType( visBase::MouseMovement );
+    eventcatcher->eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
+    addObject( const_cast<visBase::Transformation*>(timetransformation) );
+    addObject( const_cast<visBase::Transformation*>(inlcrltransformation) );
+
+    BinIDRange hrg = SI().range();
+    StepInterval<double> vrg = SI().zRange();
+
+    annot = visBase::Annotation::create();
+    BinID c0( hrg.start.inl, hrg.start.crl ); 
+    BinID c1( hrg.stop.inl, hrg.start.crl ); 
+    BinID c2( hrg.stop.inl, hrg.stop.crl ); 
+    BinID c3( hrg.start.inl, hrg.stop.crl );
+
+    annot->setCorner( 0, c0.inl, c0.crl, vrg.start );
+    annot->setCorner( 1, c1.inl, c1.crl, vrg.start );
+    annot->setCorner( 2, c2.inl, c2.crl, vrg.start );
+    annot->setCorner( 3, c3.inl, c3.crl, vrg.start );
+    annot->setCorner( 4, c0.inl, c0.crl, vrg.stop );
+    annot->setCorner( 5, c1.inl, c1.crl, vrg.stop );
+    annot->setCorner( 6, c2.inl, c2.crl, vrg.stop );
+    annot->setCorner( 7, c3.inl, c3.crl, vrg.stop );
+
+    annot->setText( 0, "In-line" );
+    annot->setText( 1, "Cross-line" );
+    annot->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
+    addInlCrlTObject( annot );
+
+    visBase::DirectionalLight* light = visBase::DirectionalLight::create();
+    light->setDirection( 0, 0, 1 );
+    addXYZObject( light );
+
+    light = visBase::DirectionalLight::create();
+    light->setDirection( 0, 0, -1 );
+    addXYZObject( light );
+
+    light = visBase::DirectionalLight::create();
+    light->setDirection( 0, 1, 0 );
+    addXYZObject( light );
+
+    light = visBase::DirectionalLight::create();
+    light->setDirection( 0,-1, 0 );
+    addXYZObject( light );
+
+    light = visBase::DirectionalLight::create();
+    light->setDirection( 1, 0, 0 );
+    addXYZObject( light );
+
+    light = visBase::DirectionalLight::create();
+    light->setDirection(-1, 0, 0 );
+    addXYZObject( light );
 
     int res = visBase::SceneObject::usePar( par );
 
@@ -284,7 +377,6 @@ int visSurvey::Scene::usePar( const IOPar& par )
 	if ( !par.get( key, xytobjids[idx] )) return -1;
 	if ( !visBase::DM().getObj( xytobjids[idx] ) ) return 0;
     }
-
 
     int noinlcrltobj;
     if ( !par.get( noinlcrltobjstr, noinlcrltobj )) return -1;
@@ -321,6 +413,30 @@ int visSurvey::Scene::usePar( const IOPar& par )
     }
 
     return 1;
+}
+
+
+void visSurvey::Scene::filterPicks(CallBacker* cb)
+{
+    ObjectSet<SurveyObject> objects;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet( SurveyObject*, survobj, getObject( idx ) );
+	if ( !survobj ) continue;
+	if ( !survobj->getMovementNotification() ) continue;
+
+	mDynamicCastGet( visBase::VisualObject*, visobj, getObject( idx ) );
+	if ( !visobj ) continue;
+	if ( !visobj->isOn() ) continue;
+
+	objects += survobj;
+    }
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet( PickSetDisplay*, pickset, getObject( idx ) );
+	if ( pickset ) pickset->filterPicks( objects, 10 );
+    }
 }
 
 
