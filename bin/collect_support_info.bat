@@ -1,10 +1,10 @@
-ECHO OFF
+@ECHO OFF
 ::______________________________________________________________________________
 ::
 :: This script collects information on the OpendTect installation setup,
 :: the data area and the system on which it is run.
 ::
-:: CVS: $Id: collect_support_info.bat,v 1.2 2004-10-08 14:52:47 dgb Exp $
+:: CVS: $Id: collect_support_info.bat,v 1.3 2004-11-18 11:11:31 dgb Exp $
 ::______________________________________________________________________________
 ::
 

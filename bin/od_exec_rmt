@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.29 2004-11-18 10:23:50 dgb Exp $
+# $Id: od_exec_rmt,v 1.30 2004-11-18 11:11:31 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -185,7 +185,7 @@ if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 
     if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt.bat+=+' \
-		     | sed -e "s% %\\ %g" -e 's%+=+%"%g'`
+		     | sed -e "s% %\\ %g" -e 's%+=+%""%g'`
 
 	set prescript=`"${DTECT_APPL}/bin/${HDIR}/SearchODFile" od_prepare.bat \
 	     | sed -e "s% %\\ %g" -e "s%\\%\\\\%g" `

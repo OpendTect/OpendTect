@@ -1,7 +1,7 @@
-echo off
+@echo off
 ::
 :: OpenTect remote startup script for window<->windows using rcmd
-:: $Id: od_dormt.bat,v 1.7 2004-11-15 15:08:40 arend Exp $
+:: $Id: od_dormt.bat,v 1.8 2004-11-18 11:11:31 dgb Exp $
 ::______________________________________________________________________________
 
 cd %DTECT_WINAPPL%
