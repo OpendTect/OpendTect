@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.10 2004-02-25 12:01:29 nanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.11 2004-04-05 12:19:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ uiImportPickSet::uiImportPickSet( uiParent* p )
 				     "Specify pickset parameters","105.0.1"))
 	, ctio(*mMkCtxtIOObj(PickSetGroup))
 {
-    infld = new uiFileInput( this, "Input Ascii file");
+    infld = new uiFileInput( this, "Input Ascii file",
+			     uiFileInput::Setup().withexamine() );
     infld->setDefaultSelectionDir( 
 	    IOObjContext::getDataDirName(IOObjContext::Loc) );
 
@@ -76,30 +77,14 @@ bool uiImportPickSet::handleAscii()
     while ( true )
     {
 	sdi.istrm->getline( buf, 1024 );
-	if ( !ploc.fromString(buf) )
+	if ( !ploc.fromString(buf,doxy) )
 	    break;
 
         if ( firstpos )
         {
             firstpos = false;
-
             doscale = ploc.z > 2 * SI().zRange(false).stop &&
                       SI().zRange(false).includes( ploc.z / zfactor );
-
-            BinID bid = doxy ? SI().transform(Coord(ploc.pos.x,ploc.pos.y))
-                             : BinID( mNINT(ploc.pos.x), mNINT(ploc.pos.y) );
-            bool reasonable = SI().isReasonable(bid);
-
-            if ( !reasonable
-	      && !uiMSG().askGoOn( "First position in file is not valid.\n"
-				   "Do you wish to continue?" ) )
-                return false;
-        }
-
-        if ( !doxy )
-        {
-            BinID bid( mNINT(ploc.pos.x), mNINT(ploc.pos.y) );
-            ploc.pos = SI().transform( bid );
         }
 
 	if ( doscale )
