@@ -4,12 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.4 2002-09-06 09:19:44 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.5 2002-09-10 07:35:25 kristofer Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
 #include "thread.h"
 #include "errh.h"
+#include "sighndl.h"
+#include <signal.h>
 
 
 Threads::WorkThread::WorkThread( ThreadWorkManager& man )
@@ -23,23 +25,40 @@ Threads::WorkThread::WorkThread( ThreadWorkManager& man )
     controlcond.lock();
     thread = new Thread( mCB( this, WorkThread, doWork));
     controlcond.unlock();
+
+    SignalHandling::startNotify( SignalHandling::Kill,
+	    			 mCB( this, WorkThread, cancelWork ));
 }
 
 
 Threads::WorkThread::~WorkThread()
 {
-    controlcond.lock();
-    exitflag = true;
-    controlcond.unlock();
-    controlcond.signal(false);
+    SignalHandling::stopNotify( SignalHandling::Kill,
+				 mCB( this, WorkThread, cancelWork ));
 
-    thread->stop();
-    delete &controlcond;
+    if ( thread )
+    {
+	controlcond.lock();
+	exitflag = true;
+	controlcond.unlock();
+	controlcond.signal(false);
+
+	thread->stop();
+	thread = 0;
+	delete &controlcond;
+    }
 }
 
 
 void Threads::WorkThread::doWork( CallBacker* )
 {
+    sigset_t newset;
+    sigemptyset(&newset);
+    sigaddset(&newset,SIGINT);
+    sigaddset(&newset,SIGQUIT);
+    sigaddset(&newset,SIGKILL);
+    pthread_sigmask(SIG_BLOCK, &newset, 0 );
+
     while ( true )
     {
 	controlcond.lock();
@@ -79,6 +98,18 @@ void Threads::WorkThread::doWork( CallBacker* )
 	else
 	    controlcond.unlock();
     }
+}
+
+
+void Threads::WorkThread::cancelWork(CallBacker*)
+{
+    controlcond.lock();
+    exitflag = true;
+    controlcond.unlock();
+    controlcond.signal( false );
+
+    thread->stop();
+    thread = 0;
 }
 
 
