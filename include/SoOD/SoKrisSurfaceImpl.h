@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoKrisSurfaceImpl.h,v 1.2 2004-11-16 10:07:44 kristofer Exp $
+ RCS:		$Id: SoKrisSurfaceImpl.h,v 1.3 2005-03-10 11:50:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -104,8 +104,6 @@ protected:
     int 	getSpacing( int res ) const;
     int		nrRows() const;
     int		nrCols() const;
-    int		start0, start1;
-    int		sidesize;
 
     SbVec3f	getNormal( int, int, int, bool );
     SbBool	getNormal( int, int, int, bool, SbVec3f& );
@@ -115,6 +113,8 @@ protected:
 			    const SbList<SbVec3f>&,
 			    SbBool dir );
 
+    int					start0, start1;
+    int					sidesize;
     int					resolution;
     bool				reshaschanged;
     SbList<MeshSurfacePartResolution*>	resolutions;
