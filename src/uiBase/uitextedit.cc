@@ -4,22 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.22 2003-08-28 08:16:00 nanne Exp $
+ RCS:           $Id: uitextedit.cc,v 1.23 2003-10-20 07:16:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include <uitextedit.h>
-#include <uiobjbody.h>
+#include "uitextedit.h"
+#include "uiobjbody.h"
+#include "i_qtxtbrowser.h"
+
+#include "strmprov.h"
+#include "strmdata.h"
+#include "ascstream.h"
+
 #include <qtextedit.h> 
-#include <i_qtxtbrowser.h>
-
-#include <qstringlist.h>
-
-#include <strmprov.h>
-#include <strmdata.h>
-#include <ascstream.h>
 
 int uiTextEditBase::defaultWidth_	= 600;
 int uiTextEditBase::defaultHeight_	= 400;
@@ -143,14 +142,14 @@ void uiTextEditBody::append( const char* txt)
 
 //-------------------------------------------------------
 
-uiTextEdit::uiTextEdit(uiParent* parnt, const char* nm, bool ro)
-: uiTextEditBase( parnt, nm, mkbody(parnt, nm, ro) )		{}
+uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
+    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,ro) )		
+{}
+
 
 uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 { 
-//    QStringList _path(".");
     body_= new uiTextEditBody( *this, parnt, nm, ro );
-//    body_->mimeSourceFactory()->setFilePath( _path );
     return *body_; 
 }
 
