@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.14 2002-06-20 15:59:45 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.15 2002-07-05 14:01:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,9 @@ public:
     inline bool		hasStdSelType() const	{ return stdseltype != None; }
     MultiID		stdSelKey() const
 			{ return MultiID(getStdDirData(stdseltype)->id); }
+    void		fillTrGroup();
+    			//!< Uses stdseltype to make a trgroup
+    			//!< SHould never be necessary
 
 private:
 
