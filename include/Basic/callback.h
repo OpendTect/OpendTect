@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.24 2002-02-22 10:11:08 bert Exp $
+ RCS:		$Id: callback.h,v 1.25 2002-02-22 11:21:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,6 +203,7 @@ public:
     virtual		~NotifierAccess()			{}
 
     virtual void	notify(const CallBack&)			=0;
+    virtual void	remove(const CallBack&)			=0;
 
 protected:
 
@@ -267,6 +268,7 @@ class i_Notifier : public NotifierAccess
 public:
 
     virtual void	notify( const CallBack& cb )	{ cbs += cb; }
+    virtual void	remove( const CallBack& cb )	{ cbs -= cb; }
 
 protected:
 
@@ -323,7 +325,6 @@ public:
     void		trigger( T& t )				{ trigger(&t); }
     void		enable( T& t )				{ enable(); }
     void		disable( T& t )				{ disable(); }
-    void		remove( const CallBack& cb )		{ cbs -= cb; }
 
 protected:
 
@@ -367,9 +368,6 @@ protected:
     NotifierAccess& 	thenotif;
 
 };
-
-
-
 
 
 /*! \brief Notifier with automatic capsule creation.

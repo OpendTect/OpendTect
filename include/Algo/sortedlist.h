@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedlist.h,v 1.2 2001-12-28 07:40:11 kristofer Exp $
+ RCS:		$Id: sortedlist.h,v 1.3 2002-02-22 11:21:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,9 +104,13 @@ int SortedList<T>::getPos( const T& typ ) const
 
     return start;
 }
+
+
 template <class T> inline
 int SortedList<T>::indexOf( const T& typ ) const
 {
+    if ( !typs.size() ) return -1;
+
     int pos = getPos( typ );
 
     if ( (*this)[pos]!=typ )
@@ -208,90 +212,6 @@ template <class T> inline
 void  SortedList<T>::remove( int pos )
 {
     typs.remove( pos );
-}
-
-
-
-
-
-/*!\brief
-A Sorted Table keeps track of ids and their corresponding values. Each id can
-only be present once.
-
-*/
-
-template <class T>
-class SortedTable
-{
-public:
-    			SortedTable();
-
-    int 		size() const { return vals.size(); }
-    void		set( int id, T val );
-    			/*<! If id is set twice, it the old value will
-			     be replaced by the new one 
-			*/
-    bool		get( int id, T& val ) const;
-    			/*!< If id is not found, val is unchanged and
-			     false is returned. If id is found, val is set
-			     and true is returned.
-			*/
-
-    bool		remove( int id );
-
-private:
-    TypeSet<T>		vals;
-    SortedList<int>	ids;
-};
-
-
-template <class T> inline
-SortedTable<T>::SortedTable()
-    : ids( false )
-{}
-
-
-template <class T> inline
-void	SortedTable<T>::set( int id, T val )
-{
-    int newpos = ids.indexOf( id );
-
-    if ( newpos==-1 )
-    {
-	ids += id;
-
-	newpos = ids.indexOf( id );
-	vals.insert( newpos, val );
-    }
-
-    vals[newpos] = val;
-}
-
-
-template <class T> inline
-bool	SortedTable<T>::get( int id, T& v ) const
-{
-    int pos = ids.indexOf( id );
-
-    if ( pos==-1 )
-	return false;
-
-    v = vals[newpos];
-    return true;
-}
-
-
-template <class T> inline
-bool  SortedTable<T>::remove(int id)
-{
-    int pos = ids.indexOf( id );
-
-    if ( pos==-1 ) return false;
-
-    vals.remove( pos );
-    ids.remove( pos );
-
-    return true;
 }
 
 #endif
