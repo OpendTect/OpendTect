@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.15 2004-09-13 07:52:16 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.16 2004-09-15 20:24:46 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,16 +45,15 @@ static void adaptCtxt( const IOObjContext& ctxt, SeisSelSetup::Pol2D pol )
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const SeisSelSetup& setup )
-	: uiIOObjSelDlg(p,getCtio(c,setup),"Seismic data selection")
+	: uiIOObjSelDlg(p,getCtio(c,setup),"")
 	, subsel(0)
 {
-    if ( ctio.ctxt.forread )
-	setTitleText( "Select input seismic data"  );
-    else
-	setTitleText( 
-	setup.pol2d_ == SeisSelSetup::Only2D ?	"Select output Line Set"
-      : (setup.pol2d_ == SeisSelSetup::No2D ?	"Select output Seismic Cube"
-				     :	"Output Seismics") );
+    const char* ttxt = setup.pol2d_ == SeisSelSetup::No2D ? "Select Cube"
+							  : "Select Line Set";
+    if ( setup.pol2d_ == SeisSelSetup::Both2DAnd3D )
+	ttxt = ctio.ctxt.forread ? "Select Input seismics"
+	    			 : "Select Output Seismics";
+    setTitleText( ttxt );
 
     if ( setup.subsel_ )
     {
