@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.8 2002-11-12 15:14:54 kristofer Exp $
+ RCS:           $Id: uislicesel.cc,v 1.9 2002-11-18 13:43:38 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,10 +142,36 @@ void uiSliceSel::csChanged( CallBacker* )
     if ( !updatemutex.tryLock() )
 	return;
 
+    bool inlfldsens = inlfld ? inlfld->sensitive() : false;
+    if ( inlfld ) inlfld->setSensitive(false);
+    bool crlfldsens = crlfld ? crlfld->sensitive() : false;
+    if ( crlfld ) crlfld->setSensitive(false);
+    bool zfldsens = zfld ? zfld->sensitive() : false;
+    if ( zfld ) zfld->setSensitive(false);
+    bool inlrgfldsens = inlrgfld ? inlrgfld->sensitive() : false;
+    if ( inlrgfld ) inlrgfld->setSensitive(false);
+    bool crlrgfldsens = crlrgfld ? crlrgfld->sensitive() : false;
+    if ( crlrgfld ) crlrgfld->setSensitive(false);
+    bool zrgfldsens = zrgfld ? zrgfld->sensitive() : false;
+    if ( zrgfld ) zrgfld->setSensitive(false);
+    bool doupdfldsens = doupdfld ? doupdfld->sensitive() : false;
+    if ( doupdfld ) doupdfld->setSensitive(false);
+    bool stepfldsens = stepfld ? stepfld->sensitive() : false;
+    if ( stepfld ) stepfld->setSensitive(false);
+
     if ( !doupdfld || !doupdfld->isChecked() ) return;
     readInput();
     cschanged.trigger();
     updatemutex.unlock();
+
+    if ( inlfld ) inlfld->setSensitive(inlfldsens);
+    if ( crlfld ) crlfld->setSensitive(crlfldsens);
+    if ( zfld ) zfld->setSensitive(zfldsens);
+    if ( inlrgfld ) inlrgfld->setSensitive(inlrgfldsens);
+    if ( crlrgfld ) crlrgfld->setSensitive(crlrgfldsens);
+    if ( zrgfld ) zrgfld->setSensitive(zrgfldsens);
+    if ( doupdfld ) doupdfld->setSensitive(doupdfldsens);
+    if ( stepfld ) stepfld->setSensitive(stepfldsens);
 }
 
 
