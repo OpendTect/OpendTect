@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.4 2004-11-29 13:21:55 bert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.5 2005-02-28 10:31:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "cubesampling.h"
 #include <iostream>
+
+const char* InlineSplitJobDescProv::sKeyMaxInlRg = "Maximum Inline Range";
+const char* InlineSplitJobDescProv::sKeyMaxCrlRg = "Maximum Crossline Range";
 
 
 JobDescProv::JobDescProv( const IOPar& iop )
@@ -109,6 +112,11 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
     if ( rg.step < 0 ) rg.step = -rg.step;
     if ( !rg.step ) rg.step = SI().inlStep();
     rg.sort();
+
+    Interval<int> maxrg; assign( maxrg, rg );
+    inpiopar_.get( sKeyMaxInlRg, maxrg.start, maxrg.stop );
+    if ( rg.start < maxrg.start ) rg.start = maxrg.start;
+    if ( rg.stop > maxrg.stop ) rg.stop = maxrg.stop;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.3 2004-11-11 11:35:57 bert Exp $
+ RCS:		$Id: jobdescprov.h,v 1.4 2005-02-28 10:31:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,8 @@ public:
     virtual void	dump(std::ostream&) const;
 
     void		getRange(StepInterval<int>&) const;
+    static const char*	sKeyMaxInlRg; //!< absolute limit - will override
+    static const char*	sKeyMaxCrlRg; //!< absolute limit - will override
 
 protected:
 
