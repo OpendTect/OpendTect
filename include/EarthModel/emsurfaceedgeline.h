@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.6 2004-09-03 08:21:49 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.7 2004-09-07 08:57:10 dgb Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,7 @@ public:
 			EdgeLineSegment( const EdgeLineSegment& );
 			~EdgeLineSegment();
     void		setSection(const EM::SectionID& s) { section=s; }
-    void		setTime2Depth( const MathFunction<float>* );
+    virtual void	setTime2Depth( const MathFunction<float>* ) {}
     bool		shouldTrack(int) const { return true; }
     bool		shouldExpand() const { return false; }
     			//The two above should be removed/renamed
