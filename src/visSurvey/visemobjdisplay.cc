@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.2 2005-01-07 11:40:52 kristofer Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.3 2005-01-10 10:57:01 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.2 2005-01-07 11:40:52 kristofer Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.3 2005-01-10 10:57:01 kristofer Exp $";
 
 
 #include "vissurvemobj.h"
@@ -42,6 +42,7 @@ EMObjectDisplay::EMObjectDisplay()
     , editor( 0 )
     , eventcatcher( 0 )
     , transformation( 0 )
+    , translation( 0 )
 {}
 
 
@@ -100,6 +101,12 @@ void EMObjectDisplay::removeAll()
     EM::EMObject* emobject = em.getObject(em.multiID2ObjectID(mid));
     if ( emobject ) emobject->unRef();
     if ( editor ) editor->unRef();
+    if ( translation )
+    {
+	removeChild( translation->getInventorNode() );
+	translation->unRef();
+	translation = 0;
+    }
 }
 
 
@@ -192,6 +199,40 @@ void EMObjectDisplay::setDepthAsAttrib()
 }
 
 
+bool EMObjectDisplay::hasStoredAttrib() const
+{
+    const char* ref = as.userRef();
+    return as.id() == AttribSelSpec::otherAttrib && ref && *ref;
+}
+
+
+Coord3 EMObjectDisplay::getTranslation() const
+{ return translation ? translation->getTranslation() : Coord3( 0, 0, 0 ); }
+
+
+void EMObjectDisplay::setTranslation( const Coord3& nt )
+{
+    if ( !translation )
+    {
+	translation = visBase::Transformation::create();
+	translation->ref();
+	insertChild( 0, translation->getInventorNode() );
+    }
+
+    translation->setTranslation( nt );
+}
+
+
+bool EMObjectDisplay::usesWireframe() const
+{ return false; }
+
+
+void EMObjectDisplay::useWireframe( bool yn )
+{
+    pErrMsg("Not impl");
+}
+
+
 MPEEditor* EMObjectDisplay::getEditor() { return editor; }
 
 
@@ -231,6 +272,17 @@ EM::SectionID EMObjectDisplay::getSectionID(int visid) const
     return -1;
 }
 
+
+EM::SectionID EMObjectDisplay::getSectionID(const TypeSet<int>* path) const
+{
+    for ( int idx=0; path && idx<path->size(); idx++ )
+    {
+	const EM::SectionID sectionid = getSectionID((*path)[idx]);
+	if ( sectionid!=-1 ) return sectionid;
+    }
+
+    return -1;
+}
 
 
 visBase::VisualObject*
