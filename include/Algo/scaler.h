@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.8 2001-05-31 12:55:09 windev Exp $
+ RCS:		$Id: scaler.h,v 1.9 2002-05-23 15:38:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     virtual		~Scaler()		{}
     void		put(char*) const;
 
+    virtual bool	isEmpty() const		{ return false; }
     virtual Scaler*	duplicate() const	= 0;
     virtual const char*	type() const		= 0;
 
@@ -61,6 +62,8 @@ public:
 			: constant(c), factor(f)	{}
     virtual cloneTp*	duplicate() const
 			{ return new LinScaler(constant,factor); }
+    inline bool		isEmpty() const;
+
 #ifdef __msvc__
     virtual LinScaler*	duplicate_() const
 			{ return new LinScaler(constant,factor); }
@@ -83,6 +86,11 @@ public:
 
 #undef cloneTp
 };
+
+inline bool LinScaler::isEmpty() const
+{
+    return mIS_ZERO(constant) && mIS_ZERO(factor-1);
+}
 
 
 /*!\brief Logarithmic scaling, base e or ten.
