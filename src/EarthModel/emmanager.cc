@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.14 2003-07-14 15:01:26 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.15 2003-07-29 13:12:22 nanne Exp $";
 
 #include "emmanager.h"
 
@@ -59,8 +59,6 @@ void EM::EMManager::init()
 
 MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Mdl)->id) );
-
     if ( type==EM::EMManager::Hor )
     {
 	CtxtIOObj* ctio = new CtxtIOObj(EMHorizonTranslator::ioContext());
@@ -238,6 +236,43 @@ void EM::EMManager::unRefNoDel( const MultiID& id )
     }
 
     pErrMsg("Reference of id does not exist");
+}
+
+
+bool EM::EMManager::createObject( const MultiID& id )
+{
+    EMObject* obj = getObject( id );
+    if ( obj ) return true;
+
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj ) return false;
+
+    const char* grpname = ioobj->group();
+    if ( !strcmp(grpname,EMWellTranslator::keyword) )
+    {
+	EM::Well* well = new EM::Well( *this, id );
+	objects += well;
+	refcounts += 0;
+	return true;
+    }
+
+    if ( !strcmp(grpname,EMHorizonTranslator::keyword) )
+    {
+	EM::Horizon* hor = new EM::Horizon( *this, id );
+	objects += hor;
+	refcounts += 0;
+	return true;
+    }
+
+    if ( !strcmp(grpname,EMFaultTranslator::keyword) )
+    {
+	EM::Fault* fault = new EM::Fault( *this, id );
+	objects += fault;
+	refcounts += 0;
+	return true;
+    }
+
+    return false;
 }
 
 
