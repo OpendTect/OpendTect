@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.85 2004-12-22 09:32:30 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.86 2004-12-23 15:56:35 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 
     const int nrhosts = hdl.size();
     const bool multihost = nrhosts > 1;
-    const int maxhostdisp =  nrhosts > 7 ? 8 : nrhosts;
+    int maxhostdisp = multihost ? (nrhosts>7 ? 8 : (nrhosts<3 ? 3 : nrhosts))	
+				: 1;
+    
     const int hostnmwdth = 30;
     is2d = outioobjinfo->is2D();
 
