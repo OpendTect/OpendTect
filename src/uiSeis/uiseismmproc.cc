@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.50 2003-05-27 13:17:43 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.51 2003-06-03 15:27:03 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseismmproc.h"
+#include "uiseistransf.h"
 #include "seismmjobman.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -293,6 +294,8 @@ void uiSeisMMProc::execFinished( bool userestart )
 	statusBar()->message( "", 3 );
 	finished = true;
 	setOkText( "Quit" ); setCancelText( "Quit" );
+	if ( targetioobj )
+	    uiSeisTransfer::provideUserInfo( *targetioobj );
     }
     else
     {

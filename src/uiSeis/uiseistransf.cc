@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.12 2003-05-27 13:17:43 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.13 2003-06-03 15:27:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,19 +105,19 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj* inobj, const IOObj* outobj,
 # include <sstream>
 
 
-bool uiSeisTransfer::provideUserInfo( const IOObj& ioobj ) const
+bool uiSeisTransfer::provideUserInfo( const IOObj& ioobj )
 {
-    Translator* t = ioobj.getTranslator();
+    PtrMan<Translator> t = ioobj.getTranslator();
     if ( !t )
-	{ pErrMsg("Cannot get Translator"); return false; }
-    mDynamicCastGet(CBVSSeisTrcTranslator*,tr,t);
+	{ pFreeFnErrMsg("No Translator","provideUserInfo"); return true; }
+    mDynamicCastGet(CBVSSeisTrcTranslator*,tr,t.ptr());
     if ( !tr )
-	{ pErrMsg("Non-CBVS entry"); return true; }
+	{ pFreeFnErrMsg("Non-CBVS entry","provideUserInfo"); return true; }
 
     Conn* conn = ioobj.getConn( Conn::Read );
     if ( !conn || !tr->initRead(conn) )
     {
-	uiMSG().error( "Cannot open imported seismic data files" );
+	uiMSG().error( "Cannot open created seismic data file(s)" );
 	delete conn;
 	return false;
     }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.5 2003-05-27 13:17:43 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.6 2003-06-03 15:27:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ public:
     uiSeisFmtScale*	scfmtfld;
     uiGenInput*		remnullfld;
 
-    bool		provideUserInfo(const IOObj&) const;
+    static bool		provideUserInfo(const IOObj&);
     void		setSteering(bool);
 
     int			expectedNrTraces() const;
