@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.5 2004-07-01 15:14:43 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.6 2004-07-02 15:30:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,9 +58,9 @@ const char* uiSeisSelDlg::standardTranslSel( int pol2d )
 {
     static FileMultiString fms;
     fms = "";
-    if ( pol2d < 1 )
+    if ( pol2d < mNo3DSeis )
 	fms += "CBVS";
-    if ( pol2d > -1 )
+    if ( pol2d > mNo2DSeis )
 	fms += "2D";
     return fms.buf();
 }
@@ -95,7 +95,6 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 
     if ( setup.subsel_ )
     {
-	BinIDSampler bs;
 	StepInterval<int> inlrg, crlrg; StepInterval<float> zrg;
 	if ( !uiSeisIOObjInfo(*ioobj,ctio.ctxt.forread)
 				.getRanges(inlrg,crlrg,zrg) )
@@ -103,12 +102,12 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 
 	if ( is2d )
 	{
-	    subsel2d->setInput( bs );
+	    subsel2d->setInput( crlrg );
 	    subsel2d->setInput( zrg );
 	}
 	else
 	{
-	    subsel->setInput( bs );
+	    subsel->setInput( inlrg, crlrg );
 	    subsel->setInput( zrg );
 	}
 	subsel2d->display( is2d );
@@ -142,15 +141,21 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const char* txt,
 	: uiIOObjSel( p, c,
 		txt ? txt : (c.ctxt.forread?"Input seismics":"Output seismics"),
 		wclr, s.seltxt_ )
+	, iopar(*new IOPar)
 	, setup(s)
 {
 }
 
 
+uiSeisSel::~uiSeisSel()
+{
+    delete &iopar;
+}
+
+
 void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
-    if ( !ctio.iopar ) ctio.iopar = new IOPar;
-    ((uiSeisSelDlg*)dlg)->fillPar( *ctio.iopar );
+    ((uiSeisSelDlg*)dlg)->fillPar( iopar );
 }
 
 
@@ -162,7 +167,7 @@ bool uiSeisSel::is2D() const
 
 bool uiSeisSel::fillPar( IOPar& iop ) const
 {
-    if ( ctio.iopar ) iop.merge( *ctio.iopar );
+    iop.merge( iopar );
     return uiIOObjSel::fillPar( iop );
 }
 
@@ -170,7 +175,7 @@ bool uiSeisSel::fillPar( IOPar& iop ) const
 void uiSeisSel::usePar( const IOPar& iop )
 {
     uiIOObjSel::usePar( iop );
-    if ( ctio.iopar ) ctio.iopar->merge( iop );
+    iopar.merge( iop );
 }
 
 
@@ -180,7 +185,7 @@ void uiSeisSel::set2DPol( int pol )
     if ( ctio.ioobj )
     {
 	bool curis2d = SeisTrcTranslator::is2D( *ctio.ioobj );
-	if ( (curis2d && pol < 0) || (!curis2d && pol > 0) )
+	if ( (curis2d && pol <= mNo2DSeis) || (!curis2d && pol >= mNo3DSeis) )
 	{
 	    ctio.setObj( 0 );
 	    updateInput();
@@ -191,5 +196,7 @@ void uiSeisSel::set2DPol( int pol )
 
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
-    return new uiSeisSelDlg( this, ctio, setup );
+    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio, setup );
+    dlg->usePar( iopar );
+    return dlg;
 }

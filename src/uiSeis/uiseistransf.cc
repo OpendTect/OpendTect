@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.17 2004-07-01 15:14:43 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.18 2004-07-02 15:30:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,12 @@ int uiSeisTransfer::maxBytesPerSample() const
 }
 
 
+bool uiSeisTransfer::removeNull() const
+{
+    return remnullfld->getBoolValue();
+}
+
+
 Executor* uiSeisTransfer::getTrcProc( const SeisSelData& insel,
 				      const IOObj* outobj,
 				      const char* extxt,
@@ -89,7 +95,7 @@ Executor* uiSeisTransfer::getTrcProc( const SeisSelData& insel,
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( insel, outobj, extxt,
 	    						worktxt );
     stp->setScaler( scfmtfld->getScaler() );
-    stp->skipNullTraces( !is2d && remnullfld->getBoolValue() );
+    stp->skipNullTraces( removeNull() );
 
     return stp;
 }

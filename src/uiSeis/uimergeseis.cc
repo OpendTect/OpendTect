@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.20 2004-07-01 15:14:43 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.21 2004-07-02 15:30:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 
     ctio.ctxt.forread = false;
     seisoutfld = new uiSeisSel( this, ctio, "Output to",
-	    			SeisSelSetup(false).pol2d(-1) );
+	    			SeisSelSetup(false).pol2d(mNo2DSeis) );
     seisoutfld->attach( alignedBelow, seisinpfld );
 
     remfld = new uiCheckBox( this, "Remove original files on succes" );

@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.13 2004-06-28 16:00:05 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.14 2004-07-02 15:30:54 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -259,17 +259,8 @@ int SeisSingleTraceProc::nextStep()
 	if ( !rdrset_[currentobj_]->get(*intrc_) )
 	    { curmsg_ = rdrset_[currentobj_]->errMsg(); return -1; }
 
-	if ( skipnull_ )
-	{
-	    const int nrcomps = intrc_->data().nrComponents();
-	    for ( int icomp=0; icomp<nrcomps; icomp++ )
-	    {
-		if ( !intrc_->isNull(icomp) )
-		    break;
-		if ( icomp == nrcomps-1 )
-		    skipcurtrc_ = true;
-	    }
-	}
+	if ( skipnull_ && intrc_->isNull() )
+	    skipcurtrc_ = true;
 
 	if ( !skipcurtrc_ )
 	    proccb_.doCall( this );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.20 2004-02-17 10:58:52 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.21 2004-07-02 15:30:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,8 +80,7 @@ public:
 			//!< Passed Interpolator1D becomes mine
 			//!< setData() will be called with appropriate args.
 
-    inline bool		isNull( int icomp ) const
-			{ return data_.isZero(icomp); }
+    bool		isNull(int icomp=-1) const;
     inline void		zero( int icomp=-1 )
 			{ data_.zero( icomp ); }
     inline bool		dataPresent( float t, int icomp ) const

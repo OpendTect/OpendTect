@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.9 2004-07-01 15:14:43 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.10 2004-07-02 15:30:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ public:
     void		set2D(bool);
 
     int			maxBytesPerSample() const;
+
+    bool		removeNull() const;
 
 protected:
 

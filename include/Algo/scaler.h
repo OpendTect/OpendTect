@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.13 2004-06-16 14:54:18 bert Exp $
+ RCS:		$Id: scaler.h,v 1.14 2004-07-02 15:30:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,6 @@ ________________________________________________________________________
 #define sExpScaler	"Exponential"
 #define sAsymptScaler	"Asymptotic"
 
-#ifdef __msvc__
-# define 	mDuplicate	duplicate_
-#else
-# define 	mDuplicate	duplicate
-#endif
 
 /*!\brief Scaling of floating point numbers.
 
@@ -41,7 +36,7 @@ public:
     void		put(char*) const;
 
     virtual bool	isEmpty() const		{ return false; }
-    virtual Scaler*	duplicate() const	= 0;
+    virtual Scaler*	clone() const		= 0;
     virtual const char*	type() const		= 0;
 
     virtual double	scale(double) const	= 0;
@@ -62,14 +57,10 @@ public:
 			: constant(c), factor(f)	{}
 			LinScaler( double x0, double y0, double x1, double y1 );
     void		set( double x0, double y0, double x1, double y1 );
-    virtual cloneTp*	duplicate() const
+    virtual cloneTp*	clone() const
 			{ return new LinScaler(constant,factor); }
     inline bool		isEmpty() const;
 
-#ifdef __msvc__
-    virtual LinScaler*	duplicate_() const
-			{ return new LinScaler(constant,factor); }
-#endif
     const char*		type() const			{ return sLinScaler; }
 
     double		scale(double) const;
@@ -105,12 +96,8 @@ public:
 			LogScaler( bool t = YES )
 			: ten(t)			{}
     const char*		type() const			{ return sLogScaler; }
-    virtual cloneTp*	duplicate() const
+    virtual cloneTp*	clone() const
 			{ return new LogScaler(ten); }
-#ifdef __msvc__
-    virtual LogScaler*	duplicate_() const
-			{ return new LogScaler(ten); }
-#endif
 
     double		scale(double) const;
     double		unScale(double) const;
@@ -134,12 +121,8 @@ public:
 			ExpScaler( bool t = YES )
 			: ten(t)			{}
     const char*		type() const			{ return sExpScaler; }
-    virtual cloneTp*	duplicate() const
+    virtual cloneTp*	clone() const
 			{ return new ExpScaler(ten); }
-#ifdef __msvc__
-    virtual ExpScaler*	duplicate_() const
-			{ return new ExpScaler(ten); }
-#endif
 
     double		scale(double) const;
     double		unScale(double) const;
@@ -174,12 +157,8 @@ public:
 			: center_(c), width_(w), linedge_(l), factor(1)
 						{ set(c,w,l); }
     const char*		type() const		{ return sAsymptScaler; }
-    virtual cloneTp*	duplicate() const
+    virtual cloneTp*	clone() const
 			{ return new AsymptScaler(center_,width_,linedge_); }
-#ifdef __msvc__
-    virtual AsymptScaler* duplicate_() const
-			{ return new AsymptScaler(center_,width_,linedge_); }
-#endif
 
     double		scale(double) const;
     double		unScale(double) const;
