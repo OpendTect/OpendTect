@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.19 2004-03-09 11:42:57 arend Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.20 2004-04-29 12:04:54 nanne Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -28,10 +28,11 @@ const char* Well::Log::sKeyUnitLbl	= "Unit of Measure";
 
 
 Well::Data::Data( const char* nm )
-    	: info_(nm)
-    	, track_(*new Well::Track)
-    	, logs_(*new Well::LogSet)
-    	, d2tmodel_(0)
+    : info_(nm)
+    , track_(*new Well::Track)
+    , logs_(*new Well::LogSet)
+    , d2tmodel_(0)
+    , markerschanged(this)
 {
 }
 

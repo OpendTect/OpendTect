@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.8 2004-03-09 11:13:06 arend Exp $
+ RCS:		$Id: welldata.h,v 1.9 2004-04-29 12:05:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "position.h"
 #include "uidobj.h"
+#include "callback.h"
 
 class IOPar;
 
@@ -64,7 +65,7 @@ public:
 
 */
 
-class Data
+class Data : public CallBacker
 {
 public:
 
@@ -83,6 +84,8 @@ public:
     const D2TModel*		d2TModel() const	{ return d2tmodel_; }
     D2TModel*			d2TModel()		{ return d2tmodel_; }
     void			setD2TModel(D2TModel*);	//!< becomes mine
+
+    Notifier<Well::Data>	markerschanged;
 
 protected:
 
