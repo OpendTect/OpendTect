@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.29 2003-03-04 16:59:34 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.30 2003-03-04 17:05:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,8 +125,8 @@ public:
     virtual void	setStep(const BinID&,bool)	{}
     static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
 
-    IOPar&		pars()				{ return pars_; }
-    const IOPar&	pars() const			{ return pars_; }
+    IOPar&		pars() const
+			{ return const_cast<SurveyInfo*>(this)->pars_; }
     void		savePars(const char* basedir=0) const;
 
 protected:
