@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.7 2004-08-02 08:54:40 kristofer Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.8 2004-08-02 11:41:21 kristofer Exp $";
 
 #include "rowcol.h"
 #include "ptrman.h"
@@ -99,16 +99,14 @@ void RowCol::makeLine( const RowCol& start, const RowCol& stop,
     const RowCol step( step_.row<0 ? -step_.row : step_.row,
 	    	       step_.col<0 ? -step_.col : step_.col );
     output.erase();
-    const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
-
     RowCol current = start;
     output += current;
 
     while ( current!=stop )
     {
-	const float angle = current.clockwiseAngleTo(stop);
-	const int diridx = mNINT(angle/M_PI_4);
-	current += dirs[diridx] * step;
+	const RowCol dir = stop-current;
+	const float length = sqrt(dir.row*dir.row+dir.col*dir.col);
+	current += RowCol(mNINT(dir.row/length),mNINT(dir.col/length)) * step;
 	output += current;
     }
 }
