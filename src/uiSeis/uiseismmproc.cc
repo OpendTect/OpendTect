@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.77 2004-11-11 15:38:42 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.78 2004-11-11 16:00:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	, jrpstartfld(0), jrpstopfld(0)
     	, jobprov(0), jobrunner(0)
     	, outioobjinfo(0), isrestart(false)
-	, timer(0)
+	, timer(0) , paused(false)
 {
     const IOPar& iopar = *iopl[0];
     MultiID outid = iopar.find( SeisJobExecProv::outputKey(iopar) );
@@ -346,6 +346,11 @@ void uiSeisMMProc::doCycle( CallBacker* )
     nrcyclesdone++;
 
     jobrunner->nextStep();
+
+    pauseJobs();
+    updateCurMachs();
+    updateAliveDisp();
+
     if ( jobrunner->jobsLeft() == 0 )
     {
 	if ( wrapUp(false) )
@@ -542,6 +547,38 @@ void uiSeisMMProc::jrpSel( CallBacker* )
     jrpstartfld->display( isgo );
     jrpstopfld->display( isgo );
     jrpworklbl->display( !isgo );
+}
+
+void uiSeisMMProc::pauseJobs()
+{
+    if ( !jobrunner ) return;
+
+    bool pause = false;
+
+    const char* txt = jrppolselfld->text();
+    if ( *txt == 'W' ) pause = false;
+    else if ( *txt == 'P' ) pause = true;
+    else
+    {
+    
+	const int t = getSecs( Time_getLocalString() );
+	const int t0 = getSecs( jrpstartfld->text() );
+	const int t1 = getSecs( jrpstopfld->text() );
+
+        bool run = t1 >= t0 ? t >= t0 && t <= t1
+			    : t >= t0 || t <= t1;
+	pause = !run;
+    }
+
+    if ( pause == paused ) return;
+    
+    const int nrhosts = jobrunner->hostInfo().size();
+
+    for ( int idx=0; idx < nrhosts ; idx++ )
+    {
+	jobrunner->pauseHost(idx, pause );
+    }
+    paused = pause;
 }
 
 

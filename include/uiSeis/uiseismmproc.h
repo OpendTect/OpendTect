@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.28 2004-11-11 11:35:57 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.29 2004-11-11 16:01:04 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ protected:
     uiSeisIOObjInfo*	outioobjinfo;
     bool		isrestart;
     bool		is2d;
+    bool 		paused;
 
     uiLabeledListBox*	avmachfld;
     uiLabeledListBox*	usedmachfld;
@@ -88,6 +89,7 @@ protected:
     int			runnerHostIdx(const char*) const;
 
     const char* 	curUsedMachName();
+    void		pauseJobs();
 };
 
 #endif
