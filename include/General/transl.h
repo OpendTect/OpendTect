@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.2 2001-02-13 17:15:57 bert Exp $
+ RCS:		$Id: transl.h,v 1.3 2001-04-13 11:52:28 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -57,8 +57,6 @@ public:
 
     static void			dumpGroups(ostream&);
     static Translator*		produce(const char* grp, const char*);
-    static const char*		sMiscKey;
-    static const char*		sMiscID;
 
 protected:
     const ClassDef*		conndef_;
