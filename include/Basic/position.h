@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.11 2003-01-30 14:51:36 niclas Exp $
+ RCS:		$Id: position.h,v 1.12 2003-01-30 15:07:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,9 @@ ________________________________________________________________________
 class Coord
 {
 public:
-		Coord()				{ x = y = 0; }
-		Coord( double cx, double cy )	{ x = cx; y = cy; }
+		Coord() : x(0), y(0)		{}
+		Coord( double cx, double cy )	
+		: x(cx), y(cy)			{}
 
     void	operator+=( double dist )	{ x += dist; y += dist; }
     void	operator+=( const Coord& crd )	{ x += crd.x; y += crd.y; }
@@ -48,22 +49,27 @@ public:
 class Coord3 : public Coord
 {
 public:
-    		Coord3 ( float x_, float y_, float z_ );
-		Coord3();
+		Coord3() : z(0)			{}
+    		Coord3( double x_, double y_, double z_ )
+		: Coord(x_,y_), z(z_)		{}
 
-    double&	operator[](int idx);
-    double	operator[](int idx) const;
+    double&	operator[]( int idx )
+		{ return idx ? (idx==1 ? y : z) : x; }
+    double	operator[]( int idx ) const
+		{ return idx ? (idx==1 ? y : z) : x; }
 
-    Coord3&	operator+=( const Coord3& );
-    Coord3&	operator-=( const Coord3& );
+    Coord3&	operator+=(const Coord3&);
+    Coord3&	operator-=(const Coord3&);
 
-    bool	operator==( const Coord3& b ) const;
-    bool	operator!=(const Coord3& b ) const;
+    bool	operator==(const Coord3&) const;
+    bool	operator!=(const Coord3&) const;
     bool	isDefined() const;
 
     double	dist( const Coord3& b ) const;
 
+
     double	z;
+
 };
 
 
