@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.h,v 1.4 2004-09-14 06:37:01 kristofer Exp $
+ RCS:           $Id: uicursor.h,v 1.5 2004-09-15 06:33:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,10 @@ class uiCursorChanger
 public:
 		uiCursorChanger(uiCursor::Shape cs)
 			{ uiCursor::setOverride(cs); }
+		uiCursorChanger( const ioBitmap* shape,
+				 const ioBitmap* mask = 0,
+				 int hotX=-1, int hotY=-1 )
+		{ uiCursor::setOverride( shape, mask, hotX, hotY ); }
 		~uiCursorChanger() { uiCursor::restoreOverride(); }
 };
 
