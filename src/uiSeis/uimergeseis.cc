@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.2 2002-02-06 14:07:44 nanne Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.3 2002-02-08 17:04:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,9 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     seisinpfld = new uiLabeledListBox( this, "Select Seismics to merge", true );
     seisinpfld->box()->addItems( ioobjnms );
 
+    ctio.ctxt.forread = false;
+    ctio.ctxt.trglobexpr = "CBVS";
+    ctio.ctxt.deftransl = "CBVS";
     seisoutfld = new uiIOObjSel( this, ctio, "Output to", false );
     seisoutfld->attach( alignedBelow, seisinpfld );
 
