@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.100 2002-11-13 10:43:33 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.101 2002-11-14 13:05:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "viscolortab.h"
 #include "visrectangle.h"
 #include "vistexturerect.h"
-#include "vistexture3viewer.h"
 #include "visobject.h"
 #include "uiexecutor.h"
 #include "emmanager.h"
@@ -563,9 +562,6 @@ float uiVisPartServer::getPlanePos( int id ) const
 	    pdd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y
 	    							   : geompos.z;
     }
-    mDynamicCastGet(visBase::MovableTextureSlice*,ts,obj)
-    if ( ts )
-	return ts->position();
 
     return 0;
 }
@@ -693,6 +689,8 @@ void uiVisPartServer::removeVolumeDisplay( int id )
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
     if ( !vd ) return;
 
+    vd->moved.remove( mCB(this,uiVisPartServer,getDataCB));
+    vd->slicemoving.remove( mCB(this,uiVisPartServer,manipMoveCB) );
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( vd );
