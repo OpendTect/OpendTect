@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.9 2002-08-05 11:11:23 bert Exp $
+ RCS:		$Id: filegen.h,v 1.10 2002-09-06 15:32:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,17 +33,20 @@ Only UNIX is currently fully implemented, most notably recursive copy/remove
 and links are lacking on windows.
 */
 
-/*! Functions returning YES/true on success */
+/*! Queries returning YES or NO */
 int	File_exists(const char*);
 int	File_isEmpty(const char*);
 int	File_isDirectory(const char*);
 int	File_isAbsPath(const char*);
+int	File_isLink(const char*);
+int	File_isRemote(const char*);
+
+/*! Functions returning YES/true on success */
 int	File_createDir(const char*,int mode /* 0755 when 0 passed */);
 int	File_rename(const char* oldname,const char* newname);
 int	File_copy(const char* from,const char* to,int recursive_downward);
 int	File_remove(const char*,int force,int recursive_downward);
 int	File_makeWritable(const char*,int recursive,int yesno);
-int	File_isLink(const char*);
 int	File_createLink(const char* from,const char* to);
 
 /*!
