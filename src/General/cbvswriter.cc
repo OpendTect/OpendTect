@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.1 2001-03-19 10:20:01 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.2 2001-03-21 17:32:27 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -78,12 +78,19 @@ void CBVSWriter::putExplicits( const CBVSInfo::ExplicitInfo& explinfo,
 
 void CBVSWriter::writeComps( const CBVSInfo& info )
 {
+    int sz = info.stdtext.size();
+    strm_.write( &sz, mIntSz );
+    strm_.write( (const char*)info.stdtext, sz );
+
     const int nrcomps = info.compinfo.size();
     strm_.write( &nrcomps, mIntSz );
 
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
 	BasicComponentInfo& cinf = *info.compinfo[icomp];
+	sz = cinf.name().size();
+	strm_.write( &sz, mIntSz );
+	strm_.write( (const char*)cinf.name(), sz );
 	unsigned short dcdump = cinf.datachar.dump();
 	strm_.write( &cinf.datatype, mIntSz );
 	strm_.write( &dcdump, sizeof(unsigned short) );
