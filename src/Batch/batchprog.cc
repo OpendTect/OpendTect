@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.29 2003-01-08 15:03:16 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.30 2003-02-21 15:51:59 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -70,14 +70,18 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, exitstat_( mSTAT_UNDEF )
 {
     const char* fn = argv_[1];
-    if ( fn && !strcmp(fn,"-bg") )
+    while ( fn && *fn == '-' )
     {
-	inbg_ = YES;
+	if ( !strcmp(fn,"-bg") )
+	    inbg_ = YES;
+	else if ( *(fn+1) )
+	    opts_ += new BufferString( fn+1 );
+
 	argshift_++;
-	fn = argv_[2];
+	fn = argv_[ argshift_ - 1 ];
     }
     
-    if ( *pargc_ < argshift_ )
+    if ( !fn || !*fn )
     {
         cerr << progName() << ": "
 	     << "No parameter file name specified" << endl;
@@ -133,6 +137,7 @@ BatchProgram::~BatchProgram()
 
     sdout_.close();
     delete &sdout_;
+    deepErase( opts_ );
 }
 
 
