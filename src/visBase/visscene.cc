@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.8 2002-04-11 06:40:11 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.9 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -15,6 +15,8 @@ static const char* rcsID = "$Id: visscene.cc,v 1.8 2002-04-11 06:40:11 kristofer
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoEnvironment.h"
+
+mCreateFactoryEntry( visBase::Scene );
 
 visBase::Scene::Scene()
     : SceneObjectGroup( true )

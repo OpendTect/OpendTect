@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.10 2002-04-12 06:28:48 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.11 2002-04-26 13:00:57 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,28 @@ private:
     BufferString*		name_;
 };
 
+
+typedef DataObject* (*FactPtr)(void);
+
+class FactoryEntry
+{
+public:
+    			FactoryEntry( FactPtr, const char*);
+
+    DataObject*		create(void) { return (*funcptr)(); }
+
+    			FactPtr funcptr;
+    const char*		name;
+};
+
+
+class Factory
+{
+public:
+    DataObject*			create( const char* );
+    ObjectSet<FactoryEntry>	entries;
+};
+
 };
 
 #define _mCreateDataObj(clss,args) 	\
@@ -91,7 +113,12 @@ private:
 private:				\
     clss(const clss&);			\
     clss& operator =(const clss&);	\
+    static visBase::FactoryEntry	__factoryentry; \
 protected:
+/*
+    visBase::FactoryEntry& _fe() const { return __factoryentry; }	\
+protected:
+*/
     
 #define _mDeclConstr(clss)	\
     clss();			\
@@ -124,5 +151,9 @@ public:
 #define mCreateDataObj3arg(clss,typ1,arg1,typ2,arg2,typ3,arg3)	\
     _mCreateDataObj(clss,(arg1,arg2,arg3))			\
     _mDeclConstr3Args(clss,typ1,arg1,typ2,arg2,typ3,arg3)
+
+#define mCreateFactoryEntry( clss )				\
+    visBase::FactoryEntry clss::__factoryentry(			\
+	    (FactPtr) clss::create, typeid( clss ).name())
 
 #endif

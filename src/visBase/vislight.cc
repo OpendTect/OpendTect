@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vislight.cc,v 1.1 2002-02-09 13:39:20 kristofer Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.2 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "vislight.h"
 
@@ -45,6 +45,7 @@ float visBase::Light::intensity() const
 SoNode* visBase::Light::getData()
 { return light; }
 
+mCreateFactoryEntry( visBase::PointLight );
 
 visBase::PointLight::PointLight()
     : Light( new SoPointLight )
@@ -62,7 +63,7 @@ float visBase::PointLight::position( int dim ) const
     return ((SoPointLight*) light)->location.getValue()[dim];
 }
 
-
+mCreateFactoryEntry( visBase::DirectionalLight );
 
 visBase::DirectionalLight::DirectionalLight()
     : Light( new SoDirectionalLight )
@@ -80,6 +81,7 @@ float visBase::DirectionalLight::direction( int dim ) const
     return ((SoDirectionalLight*) light)->direction.getValue()[dim];
 }
 
+mCreateFactoryEntry( visBase::SpotLight );
 
 visBase::SpotLight::SpotLight()
     : Light( new SoSpotLight )

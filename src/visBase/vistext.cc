@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.1 2002-04-22 13:38:03 kristofer Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.2 2002-04-26 13:00:09 kristofer Exp $";
 
 
 #include "vistext.h"
@@ -13,6 +13,8 @@ static const char* rcsID = "$Id: vistext.cc,v 1.1 2002-04-22 13:38:03 kristofer 
 #include "Inventor/nodes/SoText2.h"
 #include "Inventor/nodes/SoFont.h"
 #include "Inventor/nodes/SoTranslation.h"
+
+mCreateFactoryEntry( visBase::Text );
 
 visBase::Text::Text()
     : VisualObjectImpl(false)

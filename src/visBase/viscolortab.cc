@@ -4,13 +4,15 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.5 2002-04-26 08:11:06 kristofer Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.6 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "viscolortab.h"
 #include "visdataman.h"
 #include "scaler.h"
 #include "colortab.h"
 #include "iopar.h"
+
+mCreateFactoryEntry( visBase::VisColorTab );
 
 const char* visBase::VisColorTab::colorseqidstr = "ColorSeq ID";
 const char* visBase::VisColorTab::scalefactorstr = "Scale Factor";
@@ -96,6 +98,8 @@ int visBase::VisColorTab::usePar( const IOPar& par )
     setColorSeq( cs );
 
     const char* scalestr = par.find( scalefactorstr );
+    if ( !scalestr ) return -1;
+
     scale.fromString( scalestr );
     return 1;
 }

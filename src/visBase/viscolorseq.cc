@@ -4,10 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolorseq.cc,v 1.5 2002-04-26 07:40:09 kristofer Exp $";
+static const char* rcsID = "$Id: viscolorseq.cc,v 1.6 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "viscolorseq.h"
 #include "colortab.h"
+
+mCreateFactoryEntry( visBase::ColorSequence );
 
 
 visBase::ColorSequence::ColorSequence()

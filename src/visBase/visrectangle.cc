@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.25 2002-04-24 08:25:07 nanne Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.26 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: visrectangle.cc,v 1.25 2002-04-24 08:25:07 nann
 
 #include <math.h>
 
+mCreateFactoryEntry( visBase::RectangleDragger );
 
 visBase::RectangleDragger::RectangleDragger()
     : started( this )
@@ -409,6 +410,7 @@ void visBase::RectangleDragger::finishCB(void* obj, SoDragger* )
     ((visBase::RectangleDragger*) obj)->finished.trigger();
 }
 
+mCreateFactoryEntry( visBase::Rectangle );
 
 const char* visBase::Rectangle::orientationstr = "Orientation";
 const char* visBase::Rectangle::origostr = "Origo";
@@ -420,7 +422,7 @@ const char* visBase::Rectangle::xwidhtrange = "XWidth";
 const char* visBase::Rectangle::ywidhtrange = "YWidth";
 const char* visBase::Rectangle::snappingstr = "Snapping";
 
-visBase::Rectangle::Rectangle( bool usermanip)
+visBase::Rectangle::Rectangle()
     : origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
     , orientation_( visBase::Rectangle::XY )
@@ -430,7 +432,7 @@ visBase::Rectangle::Rectangle( bool usermanip)
     , plane( new SoFaceSet )
     , manipswitch( 0 )
     , maniprectswitch( 0 )
-    , dragger( usermanip ? RectangleDragger::create() : 0 )
+    , dragger( RectangleDragger::create() )
     , snap( false )
     , xrange( -mUndefValue, mUndefValue, mUndefValue )
     , yrange( -mUndefValue, mUndefValue, mUndefValue )
@@ -584,10 +586,7 @@ void visBase::Rectangle::fillPar( IOPar& iopar ) const
 
 void visBase::Rectangle::setOrigo( const Geometry::Pos& np )
 {
-    float x = snap ? xrange.atIndex( xrange.nearestIndex( np.x )) : np.x;
-    float y = snap ? yrange.atIndex( yrange.nearestIndex( np.y )) : np.y;
-    float z = snap ? zrange.atIndex( zrange.nearestIndex( np.z )) : np.z;
-    origotrans->translation.setValue( x, y, z );
+    origotrans->translation.setValue( np.x, np.y, np.z );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.3 2002-03-12 07:11:09 kristofer Exp $";
+static const char* rcsID = "$Id: vistristripset.cc,v 1.4 2002-04-26 13:00:09 kristofer Exp $";
 
 #include "vistristripset.h"
 #include "geomposlist.h"
@@ -13,6 +13,8 @@ static const char* rcsID = "$Id: vistristripset.cc,v 1.3 2002-03-12 07:11:09 kri
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoIndexedTriangleStripSet.h"
+
+mCreateFactoryEntry( visBase::TriangleStripSet );
 
 
 visBase::TriangleStripSet::TriangleStripSet()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.1 2002-04-25 13:42:23 kristofer Exp $
+ RCS:		$Id: vispolyline.h,v 1.2 2002-04-26 13:00:57 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,8 +30,8 @@ namespace visBase
 class PolyLine	: public VisualObjectImpl
 {
 public:
-    static PolyLine*	create(bool selectable)
-			mCreateDataObj1arg(PolyLine,bool,selectable);
+    static PolyLine*	create()
+			mCreateDataObj0arg(PolyLine);
 
     int 		size() const;
     void		addPoint( const Geometry::Pos& pos );

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.15 2002-04-24 15:04:42 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.16 2002-04-26 13:00:09 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -23,8 +23,10 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.15 2002-04-24 15:04:42 na
 #include "Inventor/nodes/SoComplexity.h"
 #include "Inventor/nodes/SoMaterial.h"
 
+mCreateFactoryEntry( visBase::TextureRect );
 
-visBase::TextureRect::TextureRect( bool usermanip )
+
+visBase::TextureRect::TextureRect()
     : texture( new SoTexture2 )
     , quality( new SoComplexity )
     , textureswitch( new SoSwitch )
@@ -51,7 +53,7 @@ visBase::TextureRect::TextureRect( bool usermanip )
 
     useTexture( true );
 
-    setRectangle( visBase::Rectangle::create( usermanip ) );
+    setRectangle( visBase::Rectangle::create() );
     setColorTab( visBase::VisColorTab::create() );
 }
 

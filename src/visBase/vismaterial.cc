@@ -4,13 +4,15 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.2 2002-03-18 15:27:01 kristofer Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.3 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "vismaterial.h"
 #include "color.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoMaterial.h"
+
+mCreateFactoryEntry( visBase::Material );
 
 const char* visBase::Material::colorstr = "Color";
 const char* visBase::Material::ambiencestr = "Ambient Intensity";

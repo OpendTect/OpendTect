@@ -4,11 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.4 2002-03-22 15:38:14 nanne Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.5 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "viscamera.h"
 #include "geompos.h"
 #include "iopar.h"
+
+mCreateFactoryEntry( visBase::Camera );
 
 const char* visBase::Camera::posstr = "Position";
 const char* visBase::Camera::orientationstr = "Orientation";

@@ -4,11 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.3 2002-04-22 09:08:01 kristofer Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.4 2002-04-26 13:00:09 kristofer Exp $";
 
 #include "vistransform.h"
 #include "Inventor/nodes/SoMatrixTransform.h"
 
+mCreateFactoryEntry( visBase::Transformation );
 
 visBase::Transformation::Transformation()
     : transform( new SoMatrixTransform )

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.7 2002-04-26 08:13:28 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.8 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "viscube.h"
 #include "geompos.h"
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: viscube.cc,v 1.7 2002-04-26 08:13:28 kristofer 
 
 #include "Inventor/nodes/SoCube.h"
 #include "Inventor/nodes/SoTranslation.h"
+
+mCreateFactoryEntry( visBase::Cube );
 
 const char* visBase::Cube::centerposstr = "Center Pos";
 const char* visBase::Cube::widthstr = "Width";

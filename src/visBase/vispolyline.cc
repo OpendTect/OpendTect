@@ -4,17 +4,19 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vispolyline.cc,v 1.1 2002-04-25 13:43:03 kristofer Exp $";
+static const char* rcsID = "$Id: vispolyline.cc,v 1.2 2002-04-26 13:00:08 kristofer Exp $";
 
 #include "vispolyline.h"
 
 #include "Inventor/nodes/SoLineSet.h"
 #include "Inventor/nodes/SoCoordinate3.h"
 
-visBase::PolyLine::PolyLine(bool selectable)
+mCreateFactoryEntry( visBase::PolyLine );
+
+visBase::PolyLine::PolyLine()
     : lineset( new SoLineSet )
     , coords( new SoCoordinate3 )
-    , VisualObjectImpl( selectable )
+    , VisualObjectImpl( true )
 {
     addChild( coords );
     addChild( lineset );
