@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.19 2003-01-28 17:28:16 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.20 2003-01-30 14:52:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,6 +287,8 @@ void uiFullBatchDialog::addStdFields()
 			    : "Store processing specification as";
     parfnamefld = new uiFileInput( dogrp, txt, singparfname, false, "*.par;;*");
     parfnamefld->attach( alignedBelow, singmachfld );
+
+    dogrp->setHAlignObj( singmachfld->uiObj() );
 }
 
 
