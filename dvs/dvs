@@ -51,7 +51,7 @@ endif
 
 set cvsremoteargs=""
 if ( `echo $cvsrtt | grep $DGB_CVS_HOST` == "" ) then
-    set cvsremoteargs="-z9"
+    set cvsremoteargs="-z3"
 endif
 
 if ( $#argv > 0 ) then
