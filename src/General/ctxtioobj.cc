@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.14 2002-09-17 13:26:13 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.15 2003-08-13 10:21:17 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -202,6 +202,19 @@ void IOObjContext::usePar( const IOPar& iopar )
 
 bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 {
+    if ( trgroup )
+    {
+	// check if the translator is present at all
+	const ClassDefList& defs = trgroup->defs();
+	for ( int idx=0; idx<defs.size(); idx++ )
+	{
+	    if ( defs[idx]->name() == ioobj.translator() )
+		break;
+	    else if ( idx == defs.size() - 1 )
+		return false;
+	}
+    }
+
     if ( *((const char*)trglobexpr) )
     {
 	GlobExpr ge( trglobexpr );
