@@ -1,7 +1,7 @@
 #!/bin/csh
 #__Pmake________________________________________________________________________
 #
-# This script returns a temporary file or directory name
+# This script creates a shared object lib from a number of input libraries
 # SCCS %Z%%M%   Version: %I%  Date: %G% - %U%
 #_______________________________________________________________________________
 
@@ -12,19 +12,32 @@ if ( $#argv < 3 ) then
 endif
 
 set tmpdir=`$PMAKE/bin/get_temp_file_name`
-set inplib=$1
+
+
+set inplibs=""
+foreach lib ( $* )
+
+    if ( "$lib" == "--output" ) goto inplibs_done
+
+    if ( ! -r "$lib" ) then
+	    echo "$0 : Input lib $lib cannot be accessed"
+	    exit 1
+    endif
+
+    set inplibs="$inplibs $lib"
+    shift
+
+end
+inplibs_done:
 shift
+
 set outlib=$1
 shift
+
 
 if ( $HDIR == "win" ) then
     set deffile=$1
     shift
-endif
-
-if ( ! -r "$inplib" ) then
-	echo "$0 : Input lib $inplib cannot be accessed"
-	exit 1
 endif
 
 if ( ! -d $tmpdir ) mkdir $tmpdir
@@ -34,33 +47,39 @@ if ( ! -d $tmpdir ) then
 endif
 
 cd $tmpdir
-ar x $inplib `ar t $inplib`
 
-if ( $HDIR == "win") then
-pwd
+foreach lib ( $inplibs )
+	ar x $lib `ar t $lib`
+end
 
-#echo "implib: " $inplib 
-#echo o2dll.sh $* -o $outlib *.o
-#o2dll.sh $* -o $outlib *.o
+if ( $HDIR != "win") then
 
-# o2dll.sh -o aap *.o -L/cygdrive/d/users/admin/work/bin/win/so -lmsvcrt -L/c/work/appman/fftw/lib -lfftw3f -lstdc++ -lpthreadGC -lshlwapi -lwsock32
+    #echo "Executing:" $* *.o -o $outlib
+    $* *.o -o $outlib
 
-#    echo "Generating def file"
+else
 
-    #/usr/local/bin/dlltool-wrap --add-indirect --export-all-symbols \
-#    dlltool --add-indirect --export-all-symbols \
-#	    --output-def $deffile *.o
+    pwd
+
+    #echo "implib: " $inplib 
+    #echo o2dll.sh $* -o $outlib *.o
+    #o2dll.sh $* -o $outlib *.o
+
+    # o2dll.sh -o aap *.o -L/cygdrive/d/users/admin/work/bin/win/so -lmsvcrt -L/c/work/appman/fftw/lib -lfftw3f -lstdc++ -lpthreadGC -lshlwapi -lwsock32
+
+    #    echo "Generating def file"
+
+	#/usr/local/bin/dlltool-wrap --add-indirect --export-all-symbols \
+    #    dlltool --add-indirect --export-all-symbols \
+    #	    --output-def $deffile *.o
 
 
     echo "Executing:" $* *.o -o $outlib
     $* *.o -o $outlib
 
-else
-    #echo "Executing:" $* *.o -o $outlib
-    $* *.o -o $outlib
 endif
 
-#rm -rf $tmpdir
+rm -rf $tmpdir
 
 
 exit 0
