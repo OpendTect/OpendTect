@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.2 2002-04-04 12:08:59 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.3 2002-04-05 15:15:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,9 @@ struct HorSampling
     void		normalise();
     			//!< Makes sure start<stop and steps are non-zero
 
+    bool		getInterSection(const HorSampling&,HorSampling&) const;
+    			//!< Returns false if intersection is empty
+
     BinID		start;
     BinID		stop;
     BinID		step;
@@ -86,6 +89,9 @@ public:
     inline int		nrCrl() const		{ return hrg.nrCrl(); }
     inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
     inline int		totalNr() const		{ return hrg.totalNr() * nrZ();}
+    bool		getInterSection(const CubeSampling&,
+	    				CubeSampling&) const;
+    			//!< Returns false if intersection is empty
 
 };
 
