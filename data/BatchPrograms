@@ -43,6 +43,13 @@ load_well: GDI
 	Comment: Batch variant of the Well-Load utility
 	ExampleInput: load_well_example.par
 !
+cutvol: GDI
+	Arg: M`File`Parameter file
+	Comment: Sets data to a value outside a zone.
+	Comment: The zone is defined by one or two grids with optional
+	Comment: time shifts.
+	ExampleInput: cutvol_example.par
+!
 lith2nodes: GDI
 	Arg: M`File`Parameter file
 	Comment: Convert lithology codes into lithology probabilities
