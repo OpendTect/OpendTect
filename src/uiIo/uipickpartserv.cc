@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.12 2002-10-09 10:28:39 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.13 2002-10-09 10:51:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,7 @@ void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
 	    {
 		BufferString msg( "Pickset: "); msg += newnm;
 		msg += "\nalready exists.";
-		uiMSG().message( msg );
+		uiMSG().error( msg );
 		newnm = oldnm;
 		return;
 	    }
