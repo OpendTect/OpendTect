@@ -1,17 +1,15 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahk
- * DATE     : Jun 2003
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jun 2003
+ RCS:           $Id: emsurfauxdataio.cc,v 1.23 2005-02-11 11:16:46 nanne Exp $
+________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.22 2005-01-17 16:27:02 nanne Exp $";
-
 #include "emsurfauxdataio.h"
-
 #include "ascstream.h"
 #include "datainterp.h"
 #include "datachar.h"
@@ -85,7 +83,6 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 	EM::SectionID sectionid = surf.geometry.sectionID(idx);
 	const Geometry::MeshSurface* meshsurf =
 			surf.geometry.getSurface(sectionid);
-
 	nrnodes += meshsurf->size();
     }
 
@@ -147,13 +144,12 @@ int EM::dgbSurfDataWriter::nextStep()
 		const EM::SubID subid = surf.geometry.rowCol2SubID( emrc );
 		posid.setSubID( subid );
 		posid.setSectionID( sectionid );
-		const float auxvalue = 
-		    		surf.auxdata.getAuxDataVal(dataidx,posid);
-		if ( mIsUndefined( auxvalue ) )
+		const float auxval = surf.auxdata.getAuxDataVal(dataidx,posid);
+		if ( mIsUndefined(auxval) )
 		    continue;
 
 		subids += subid;
-		values += auxvalue;
+		values += auxval;
 	    }
 
 	    if ( !subids.size() )
@@ -181,9 +177,9 @@ int EM::dgbSurfDataWriter::nextStep()
 
 BufferString EM::dgbSurfDataWriter::createHovName( const char* base, int idx )
 {
-        BufferString res( base );
-	res += "^"; res += idx; res += ".hov";
-	return res;
+    BufferString res( base );
+    res += "^"; res += idx; res += ".hov";
+    return res;
 }
 
 
@@ -236,15 +232,15 @@ const char* EM::dgbSurfDataWriter::message() const
 // Reader +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
-    : Executor( "Aux data reader" )
-    , intinterpreter( 0 )
-    , int64interpreter( 0 )
-    , floatinterpreter( 0 )
-    , chunksize( 100 )
-    , dataidx( -1 )
-    , surf( 0 )
-    , sectionindex( 0 )
-    , error( true )
+    : Executor("Aux data reader")
+    , intinterpreter(0)
+    , int64interpreter(0)
+    , floatinterpreter(0)
+    , chunksize(100)
+    , dataidx(-1)
+    , surf(0)
+    , sectionindex(0)
+    , error(true)
     , nrdone(0)
     , valsleftonsection(0)
     , shift(0)
@@ -346,7 +342,7 @@ int EM::dgbSurfDataReader::nextStep()
 	    if ( nrdone )
 	    {
 		sectionindex++;
-		if ( sectionindex>=nrsections )
+		if ( sectionindex >= nrsections )
 		    return Finished;
 	    }
 	    else
