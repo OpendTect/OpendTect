@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.3 2002-09-06 07:50:06 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.4 2002-09-06 09:19:44 kristofer Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -170,49 +170,37 @@ class ThreadWorkResultManager : public CallBacker
 {
 public:
 		    ThreadWorkResultManager( ObjectSet<BasicTask>&  tasks_ )
-			: tasks( tasks_ )
-			, results( tasks_.size(), 0 )
-			, finished( tasks_.size(), false )
+			: nrtasks( tasks_.size() )
+			, nrfinished( 0 )
+			, error( false )
 		    {}
 
     bool	    isFinished() const
-		    {
-			int nr = finished.size();
-			for ( int idx=0; idx<nr; idx++ )
-			    if ( !finished[idx] ) return false;
-			return true;
-		    }
+		    { return nrfinished==nrtasks; }
 
     bool	    hasErrors() const
-		    {
-			int nr = finished.size();
-			for ( int idx=0; idx<nr; idx++ )
-			    if ( results[idx]<0 ) return true;
-			return false;
-		    }
-				    
+		    { return error; }
 
     void	    imFinished(CallBacker* cb )
 		    {
 			Threads::WorkThread* worker =
 				    dynamic_cast<Threads::WorkThread*>( cb );
-			BasicTask* task = worker->getTask();
-			int idx = tasks.indexOf( task );
-
 			rescond.lock();
-			results[idx] = worker->getRetVal();
-			finished[idx] = true;
+			if ( error || worker->getRetVal()==-1 )
+			    error = true;
+
+			nrfinished++;
+			bool isfin = nrfinished==nrtasks;
 			rescond.unlock();
-			rescond.signal( true );
+			if ( isfin ) rescond.signal( false );
 		    }
 
     Threads::ConditionVar	rescond;
 
 protected:
-    TypeSet<int>		results;
-    BoolTypeSet 		finished;
-    ObjectSet<BasicTask>&	tasks;
-
+    int				nrtasks;
+    int				nrfinished;
+    bool			error;
 };
 
 
