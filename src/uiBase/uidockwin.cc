@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.12 2004-05-07 09:41:25 macman Exp $
+ RCS:           $Id: uidockwin.cc,v 1.13 2004-05-07 14:31:15 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,8 +47,16 @@ protected:
 
     virtual void        resizeEvent( QResizeEvent* ev )
     {
-	static int count=0;
 	QDockWindow::resizeEvent(ev);
+
+	if ( redrtimer.isActive() ) redrtimer.stop();
+	redrtimer.start( 300, true );
+    }
+
+// not at moves...
+    virtual void        moveEvent( QMoveEvent* ev )
+    {
+	QDockWindow::moveEvent(ev);
 
 	if ( redrtimer.isActive() ) redrtimer.stop();
 	redrtimer.start( 300, true );
