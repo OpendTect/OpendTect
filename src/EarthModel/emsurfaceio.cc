@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.33 2004-06-05 19:19:17 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.34 2004-06-07 11:06:54 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -435,7 +435,7 @@ int EM::dgbSurfaceReader::nextStep()
 
 	    for ( int idy=0; idy<attrpatches.size(); idy++ )
 	    {
-		const EM::PosID pid(surface->id(),attrpatches[idx],subids[idx]);
+		const EM::PosID pid(surface->id(),attrpatches[idy],subids[idy]);
 		surface->setPosAttrib( pid, attrib, true );
 	    }
 	}
