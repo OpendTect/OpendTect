@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.17 2002-11-27 09:38:59 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.18 2002-11-27 09:44:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,8 +256,6 @@ void uiSeisFileMan::relocatePush( CallBacker* )
     int curitm = listfld->currentItem();
     if ( IOM().dirPtr()->commitChanges( ioobj ) )
 	refreshList( curitm );
-
-    UsrMsg( "" );
 }
 
 
@@ -294,8 +292,8 @@ void uiSeisFileMan::handleMultiFiles( const char* fulloldname,
 	    UsrMsg( "" );
 	    break;
 	}
-	UsrMsg( "" );
     }
+    UsrMsg( "" );
 }
 
 
