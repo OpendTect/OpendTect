@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.23 2001-07-27 15:58:23 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.24 2001-08-14 13:22:53 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -94,12 +94,17 @@ bool CBVSReader::readInfo()
     lastbinid.crl  = info_.geom.step.crl > 0
 		   ? info_.geom.stop.crl : info_.geom.start.crl;
     curbinid_ = firstbinid;
-    if ( !info_.geom.fullyrectandreg )
+    if ( info_.geom.fullyrectandreg )
+	nrxlines_ = (lastbinid.crl - firstbinid.crl) / info_.geom.step.crl + 1;
+    else
     {
-	CBVSInfo::SurvGeom::InlineInfo& iinf =
-		*info_.geom.inldata[ info_.geom.inldata.size()-1 ];
-	lastbinid.inl = iinf.inl;
-	lastbinid.crl = iinf.segments[ iinf.segments.size()-1 ].stop;
+	CBVSInfo::SurvGeom::InlineInfo* iinf =
+		info_.geom.inldata[ info_.geom.inldata.size()-1 ];
+	lastbinid.inl = iinf->inl;
+	lastbinid.crl = iinf->segments[ iinf->segments.size()-1 ].stop;
+	iinf = info_.geom.inldata[0];
+	firstbinid.inl = iinf->inl;
+	firstbinid.crl = iinf->segments[0].start;
     }
 
     return true;
@@ -246,9 +251,6 @@ bool CBVSReader::readGeom()
 	info_.geom.b2c.setTransforms( xtr, ytr );
     else
 	info_.geom.b2c = SI().binID2Coord();
-
-    if ( info_.geom.fullyrectandreg )
-	nrxlines_ = (lastbinid.crl - firstbinid.crl) / info_.geom.step.crl + 1;
 
     bidrg.start = bidrg.stop
 		= BinID( info_.geom.start.inl, info_.geom.start.crl );
