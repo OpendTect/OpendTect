@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.1.1.2 1999-09-16 09:19:15 arend Exp $
+ RCS:		$Id: sets.h,v 1.2 1999-10-18 14:02:46 dgb Exp $
 ________________________________________________________________________
 
 The TypeSet is meant for simple types or small objects that have a copy
@@ -82,6 +82,23 @@ private:
     Vector<T>		typs;
 
 };
+
+
+template <class T>
+inline bool operator ==( const TypeSet<T>& a, const TypeSet<T>& b )
+{
+    if ( a.size() != b.size() ) return NO;
+
+    int sz = a.size();
+    for ( int idx=0; idx<sz; idx++ )
+	if ( !(a[idx] == b[idx]) ) return NO;
+
+    return YES;
+}
+
+template <class T>
+inline bool operator !=( const TypeSet<T>& a, const TypeSet<T>& b )
+{ return !(a == b); }
 
 
 template <class T>

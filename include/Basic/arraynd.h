@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.1.1.2 1999-09-16 09:19:45 arend Exp $
+ RCS:		$Id: arraynd.h,v 1.2 1999-10-18 14:03:02 dgb Exp $
 ________________________________________________________________________
 
 */
@@ -19,6 +19,7 @@ class ArrayNDSize
 {
 public:
 
+    virtual ArrayNDSize* clone() const		= 0;
     virtual		~ArrayNDSize()		{} 
 
     virtual int		getNDim() const		{ return 1; }
@@ -89,6 +90,8 @@ public:
 template <class Type> class ArrayND
 {
 public:
+
+    virtual			~ArrayND()	{}
 
     virtual Type		getValOff( unsigned long off ) const
 				{ return *(Type*)(getData()+off); }

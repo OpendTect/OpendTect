@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.1.1.2 1999-09-16 09:19:57 arend Exp $
+ RCS:		$Id: iodir.h,v 1.2 1999-10-18 14:03:07 dgb Exp $
 ________________________________________________________________________
 
 @$*/
@@ -87,6 +87,8 @@ private:
     void		operator -=( IOObj* obj )	{ objs_ -= obj; }
 
     UnitID		newId() const;
+
+    static IOObj*	readOmf(const char*,const char*,IODir*,int,bool&);
 };
 
 

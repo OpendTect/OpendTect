@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.1.1.2 1999-09-16 09:21:54 arend Exp $
+ RCS:		$Id: seisinfo.h,v 1.2 1999-10-18 14:03:29 dgb Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.
@@ -57,6 +57,7 @@ public:
 			, pick(mUndefValue), pick2(mUndefValue)
 			, new_packet(NO), stack_count(1)
 			, mute_time(mUndefValue), taper_length(0)
+			, offset(0)
 			{}
 
 	    // persistent

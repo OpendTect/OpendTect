@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.1.1.2 1999-09-16 09:32:31 arend Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.2 1999-10-18 14:05:49 dgb Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -156,22 +156,6 @@ bool IOPar::get( const char* s, int& i ) const
 }
 
 
-bool IOPar::get( const char* s, float& f ) const
-{
-    const char* ptr = (*this)[s];
-    if ( ptr && *ptr ) { f = atof(ptr); return YES; }
-    return NO;
-}
-
-
-bool IOPar::get( const char* s, double& d ) const
-{
-    const char* ptr = (*this)[s];
-    if ( ptr && *ptr ) { d = atof(ptr); return YES; }
-    return NO;
-}
-
-
 bool IOPar::get( const char* s, int& i1, int& i2 ) const
 {
     const char* ptr = (*this)[s];
@@ -188,16 +172,49 @@ bool IOPar::get( const char* s, int& i1, int& i2 ) const
 }
 
 
-bool IOPar::get( const char* s, float& f1, float& f2, float sc, bool udf ) const
+bool IOPar::getSc( const char* s, float& f, float sc, bool udf ) const
+{
+    const char* ptr = (*this)[s];
+    if ( ptr && *ptr )
+    {
+	f = atof( ptr );
+	if ( !mIsUndefined(f) ) f *= sc;
+	return YES;
+    }
+    else if ( udf )
+	f = mUndefValue;
+
+    return NO;
+}
+
+
+bool IOPar::getSc( const char* s, double& d, double sc, bool udf ) const
+{
+    const char* ptr = (*this)[s];
+    if ( ptr && *ptr )
+    {
+	d = atof( ptr );
+	if ( !mIsUndefined(d) ) d *= sc;
+	return YES;
+    }
+    else if ( udf )
+	d = mUndefValue;
+
+    return NO;
+}
+
+
+bool IOPar::getSc( const char* s, float& f1, float& f2, float sc,
+		   bool udf ) const
 {
     double d1=f1, d2=f2;
-    if ( get( s, d1, d2, sc, udf ) )
+    if ( getSc( s, d1, d2, sc, udf ) )
 	{ f1 = (float)d1; f2 = (float)d2; return YES; }
     return NO;
 }
 
 
-bool IOPar::get( const char* s, double& d1, double& d2, double sc,
+bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 		 bool udf ) const
 {
     const char* ptr = (*this)[s];
@@ -205,11 +222,23 @@ bool IOPar::get( const char* s, double& d1, double& d2, double sc,
     {
 	fms = ptr;
 	ptr = fms[0];
-	if ( *ptr ) d1 = atof( ptr ) * sc;
-	else if ( udf ) d1 = mUndefValue;
+	if ( *ptr )
+	{
+	    d1 = atof( ptr );
+	    if ( !mIsUndefined(d1) ) d1 *= sc;
+	}
+	else if ( udf )
+	    d1 = mUndefValue;
+
 	ptr = fms[1];
-	if ( *ptr ) d2 = atof( ptr ) * sc;
-	else if ( udf ) d2 = mUndefValue;
+	if ( *ptr )
+	{
+	    d2 = atof( ptr );
+	    if ( !mIsUndefined(d2) ) d2 *= sc;
+	}
+	else if ( udf )
+	    d2 = mUndefValue;
+
 	return YES;
     }
     return NO;

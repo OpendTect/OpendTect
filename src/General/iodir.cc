@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.1.1.2 1999-09-16 09:33:32 arend Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.2 1999-10-18 14:06:06 dgb Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -77,6 +77,29 @@ const IOObj* IODir::main() const
 IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 {
     FileNameString omfname = File_getFullPath(dirnm,".omf");
+    bool found1 = NO;
+    if ( !File_isEmpty(omfname) )
+    {
+	IOObj* ret = readOmf( omfname, dirnm, dirptr, needid, found1 );
+	if ( found1 )
+	    return ret;
+    }
+
+    // Looks like something went wrong. Read the backup OMF ...
+    omfname = File_getFullPath(dirnm,".omb");
+    if ( dirptr )
+    {
+	dirptr->setLinked(0);
+	dirptr->objs_.deepErase();
+    }
+    return readOmf( omfname, dirnm, dirptr, needid, found1 );
+}
+
+
+IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
+			IODir* dirptr, int needid, bool& found1 )
+{
+    found1 = NO;
     istream* streamptr = openInputStream( omfname );
     if ( !streamptr )
 	return 0;
@@ -98,8 +121,11 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
     {
 	IOObj* obj = IOObj::get(astream,dirnm,diruid);
 	if ( !obj || obj->bad() ) { delete obj; continue; }
+
+	found1 = YES;
 	UnitID uid( obj->unitID() );
 	int id = atoi( uid.code( uid.level() ) );
+
 	if ( dirptr )
 	{
 	    if ( (*dirptr)[uid] )
@@ -276,7 +302,17 @@ bool IODir::mkUniqueName( IOObj* ioobj )
 
 bool IODir::doWrite() const
 {
+    FileNameString ombname = File_getFullPath(dirname_,".omb");
     FileNameString omfname = File_getFullPath(dirname_,".omf");
+
+    if ( File_isEmpty(omfname) )
+    {
+	if ( !File_isEmpty(ombname) )
+	    File_copy( ombname, omfname, NO );
+    }
+    else
+	File_copy( omfname, ombname, NO );
+
     ostream* streamptr = openOutputStream( omfname );
     if ( !streamptr ) return NO;
 

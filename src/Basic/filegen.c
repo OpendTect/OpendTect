@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.1.1.2 1999-09-16 09:32:28 arend Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.2 1999-10-18 14:05:48 dgb Exp $";
 
 /*@+
 \section{File Functions}
@@ -23,19 +23,31 @@ This module contains functions concerning files.
 #include "filegen.h"
 #include "genc.h"
 
+static struct stat statbuf;
+
 
 /*--------------------------------------------------@+File_exists
- checks if a file exists.
+ checks whether a file exists.
 \list{{\b Input}}
         \list{fname}the file name
 \list{{\b Return}}YES or NO
 -----------------------------------------------------------------@-*/
 int File_exists( const char* fname )
 {
-    struct stat buf;
-    if ( !fname || !*fname ) return NO;
+    return !fname || stat(fname,&statbuf) < 0 ? NO : YES;
+}
 
-    return stat( fname, &buf ) < 0 ? NO : YES;
+
+/*--------------------------------------------------@+File_isEmpty
+ checks whether a file is empty.
+ If it doesn't exists, it is considered empty.
+\list{{\b Input}}
+        \list{fname}the file name
+\list{{\b Return}}YES or NO
+-----------------------------------------------------------------@-*/
+int File_isEmpty( const char* fname )
+{
+    return !fname || stat(fname,&statbuf) < 0 || statbuf.st_size < 1 ? YES : NO;
 }
 
 
@@ -56,12 +68,12 @@ int File_isDirectory( const char* dirname )
 	dirptr = opendir(dirname);
 	if ( dirptr )
 	{
-	    rv = YES;
 	    closedir(dirptr);
+	    return YES;
 	}
     }
 
-    return rv;
+    return NO;
 }
 
 
@@ -74,12 +86,10 @@ int File_isDirectory( const char* dirname )
 -----------------------------------------------------------------@-*/
 int File_createDir( const char* dirname, int mode )
 {
-    mode_t dirmode;
-    if ( mode == 0 ) mode = 0755;
-    dirmode = (mode_t)mode;
     if ( !dirname || !*dirname ) return NO;
 
-    return mkdir( dirname, dirmode ) < 0 ? NO : YES;
+    if ( mode == 0 ) mode = 0755;
+    return mkdir( dirname, (mode_t)mode ) < 0 ? NO : YES;
 }
 
 
@@ -94,12 +104,10 @@ int File_rename( const char* oldname, const char* newname )
 {
     if ( !oldname || !*oldname || !newname || !*newname ) return NO;
 
-    if ( rename( oldname, newname ) != 0 ) return NO;
+    if ( rename(oldname,newname) != 0 ) return NO;
     return YES;
 }
 
-
-static FileNameString pathbuf;
 
 /*--------------------------------------------------@+File_getFullPath
  constructs the full path name for path only and file name only.
@@ -110,6 +118,7 @@ static FileNameString pathbuf;
 -----------------------------------------------------------------@-*/
 const char* File_getFullPath( const char* path, const char* filename )
 {
+    static FileNameString pathbuf;
     int lastpos;
 
     if ( path != pathbuf ) strcpy( pathbuf, path && *path ? path : "." );
@@ -135,6 +144,7 @@ const char* File_getFullPath( const char* path, const char* filename )
 -----------------------------------------------------------------@-*/
 const char* File_getPathOnly( const char* fullpath )
 {
+    static FileNameString pathbuf;
     char* chptr;
 
     if ( fullpath != pathbuf ) strcpy( pathbuf, fullpath ? fullpath : "" );
@@ -162,6 +172,7 @@ const char* File_getPathOnly( const char* fullpath )
 -----------------------------------------------------------------@-*/
 const char* File_getFileName( const char* fullpath )
 {
+    static FileNameString pathbuf;
     const char* chptr;
     pathbuf[0] = '\0';
     if ( !fullpath ) return pathbuf;
@@ -184,6 +195,7 @@ const char* File_getFileName( const char* fullpath )
 -----------------------------------------------------------------@-*/
 const char* File_getBaseName( const char* fullpath )
 {
+    static FileNameString pathbuf;
     char* chptr;
     File_getFileName( fullpath );
 
@@ -205,6 +217,8 @@ const char* File_getBaseName( const char* fullpath )
 -----------------------------------------------------------------@-*/
 const char* File_getTempFileName( const char* id, const char* ext, int full )
 {
+    static FileNameString pathbuf;
+
     if ( id && *id )
 	sprintf( pathbuf, "%sdgb%s%d", full ? "/tmp/" : "", id, getpid() );
     else

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.1.1.2 1999-09-16 09:19:46 arend Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.2 1999-10-18 14:03:03 dgb Exp $
 ________________________________________________________________________
 
 */
@@ -18,6 +18,9 @@ ________________________________________________________________________
 class Array1DSizeImpl : public Array1DSize
 {
 public:
+
+    Array1DSizeImpl*	clone() const	{ return new Array1DSizeImpl(*this); }
+
 			Array1DSizeImpl(int nsz=0); 
 			Array1DSizeImpl(const Array1DSize&);
 
@@ -41,6 +44,9 @@ protected:
 class Array2DSizeImpl : public Array2DSize
 {
 public:
+
+    Array2DSizeImpl*	clone() const	{ return new Array2DSizeImpl(*this); }
+
                         Array2DSizeImpl(int sz0=0, int sz1=0);
 			Array2DSizeImpl(const Array2DSize&);
 
@@ -66,6 +72,9 @@ protected:
 class Array3DSizeImpl : public Array3DSize
 {
 public:
+
+    Array3DSizeImpl*	clone() const	{ return new Array3DSizeImpl(*this); }
+
                         Array3DSizeImpl(int sz0=0, int sz1=0, int sz2=0);
                         Array3DSizeImpl(const Array3DSize&);
 
@@ -90,6 +99,9 @@ protected:
 class ArrayNDSizeImpl : public ArrayNDSize
 {
 public:
+
+    ArrayNDSizeImpl*	clone() const	{ return new ArrayNDSizeImpl(*this); }
+
                         ArrayNDSizeImpl(int ndim);
 			ArrayNDSizeImpl(const ArrayNDSize&);
                         ArrayNDSizeImpl(const ArrayNDSizeImpl&);
@@ -124,6 +136,9 @@ public:
     const Array1DSize&  size() const
                             { return sz; }
 
+    void		setSize( int s )
+			{ sz.setSize(0,s); dbuf.reSize(sz.getTotalSz()); }
+
 protected:
 
     // Don't change the order of these attributes!
@@ -148,6 +163,9 @@ public:
     const Array2DSize&  size() const
                             { return sz; }
 
+    void		setSize( int d0, int d1 )
+			{ sz.setSize(0,d0); sz.setSize(1,d1);
+			  dbuf.reSize(sz.getTotalSz()); }
 
 protected:
 
@@ -172,6 +190,10 @@ public:
                             { return (Type*)dbuf.data; }
     const Array3DSize&	size() const
 			    { return sz; }
+
+    void		setSize( int d0, int d1, int d2 )
+			{ sz.setSize(0,d0); sz.setSize(1,d1); sz.setSize(2,d2);
+			  dbuf.reSize(sz.getTotalSz()); }
 protected:
 
     // Don't change the order of these attributes!
@@ -189,14 +211,22 @@ public:
                         , dbuf(sz.getTotalSz(),sizeof(Type),NO)    {}
 
     void                setVal( const TypeSet<int>& pos, Type val )
-			    { setValOff(size.getArrayPos(pos), val); }
+			    { setValOff(sz.getArrayPos(pos), val); }
     Type                getVal( const TypeSet<int>& pos ) const
-                            { return getValOff(size.getArrayPos(pos)); }
+                            { return getValOff(sz.getArrayPos(pos)); }
 
     Type*               getData() const
                             { return (Type*) dbuf.data; }
     const ArrayNDSize&	size() const
 			    { return sz; }
+
+    void		setSize( const TypeSet<int> d )
+			{
+			    int ndim = sz.getNDim();
+			    for ( int idx=0; idx<ndim; idx++ )
+				{ if ( idx<d.size() ) sz.setDim(idx,d[idx]); }
+			    dbuf.reSize(sz.getTotalSz());
+			}
 
 protected:
 

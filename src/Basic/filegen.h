@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.1.1.2 1999-09-16 09:18:58 arend Exp $
+ RCS:		$Id: filegen.h,v 1.2 1999-10-18 14:02:43 dgb Exp $
 ________________________________________________________________________
 
 These functions deliver services related to files. In principle, they shield
@@ -28,8 +28,9 @@ extern "C" {
 
 
 int		File_exists		Pargs( (const char*) );
-int		File_isAbsPath		Pargs( (const char*) );
+int		File_isEmpty		Pargs( (const char*) );
 int		File_isDirectory	Pargs( (const char*) );
+int		File_isAbsPath		Pargs( (const char*) );
 int		File_createDir		Pargs( (const char*,int) );
 int		File_rename		Pargs( (const char*,const char*) );
 int		File_copy		Pargs( (const char*,const char*,int) );
@@ -37,7 +38,7 @@ int		File_link		Pargs( (const char*,const char*) );
 int		File_remove		Pargs( (const char*,int,int) );
 
 /*$@
-The following functions return a pointer to {\bthe same} static buffer!
+The following functions return a pointer to a {\b static buffer}!
 @$*/
 const char*	File_getFullPath	Pargs( (const char*,const char*) );
 const char*	File_getPathOnly	Pargs( (const char*) );
