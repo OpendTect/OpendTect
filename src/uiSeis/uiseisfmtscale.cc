@@ -4,17 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.1 2002-05-24 14:39:14 bert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.2 2002-05-30 22:09:41 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseisfmtscale.h"
+#include "uiscaler.h"
 #include "datachar.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
-#include "scaler.h"
 
 #include "uigeninput.h"
 
@@ -24,8 +24,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p )
 {
     imptypefld = new uiGenInput( this, "Storage",
 		 StringListInpSpec(DataCharacteristics::UserTypeNames) );
-    scalefld = new uiGenInput( this, "Scaling: factor/shift",
-				FloatInpSpec(1), FloatInpSpec(0) );
+    scalefld = new uiScaler( this, 0, true );
     scalefld->attach( alignedBelow, imptypefld );
 
     setHAlignObj( imptypefld->uiObj() );
@@ -34,14 +33,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p )
 
 Scaler* uiSeisFmtScale::getScaler() const
 {
-    Scaler* sc = 0;
-    if ( !scalefld->isUndef(0) && !scalefld->isUndef(1) )
-    {
-	sc = new LinScaler( scalefld->getValue(1), scalefld->getValue(0) );
-	if ( sc->isEmpty() )
-	    { delete sc; sc = 0; }
-    }
-    return sc;
+    return scalefld->getScaler();
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.1 2002-05-30 15:03:13 nanne Exp $
+ RCS:           $Id: uiscaler.cc,v 1.2 2002-05-30 22:09:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
 	spec.addString( sExpScaler );
     }
 
-    typefld = new uiGenInput( this, lbl, spec );
+    typefld = new uiGenInput( this, lbl ? lbl : "Value scaling", spec );
     typefld->valuechanged.notify( mCB(this,uiScaler,typeSel) );
 
     linearfld = new uiGenInput( this, "Shift/Factor", DoubleInpSpec(), 
