@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.4 2003-10-16 14:35:17 nanne Exp $
+ RCS:		$Id: welllog.h,v 1.5 2003-10-17 15:04:08 nanne Exp $
 ________________________________________________________________________
 
 
@@ -28,9 +28,9 @@ public:
 			: ::UserIDObject(nm)
 			, range_(mUndefValue,-mUndefValue)	{}
 
-    int			size() const	{ return val_.size(); }
-    float		value(int idx) const	{ return val_[idx]; }
-    float		dah(int idx) const	{ return dah_[idx]; }
+    int			size() const			{ return val_.size(); }
+    float		value(int idx) const		{ return val_[idx]; }
+    float		dah(int idx) const		{ return dah_[idx]; }
 
     float		getValue(float) const;
     void		addValue(float z,float val);
@@ -38,7 +38,7 @@ public:
     void		removeValue(int idx)
 			{ dah_.remove(idx); val_.remove(idx); }
 
-    const Interval<float>& range()		{ return range_; }
+    const Interval<float>& range() const		{ return range_; }
 
 
 protected:
