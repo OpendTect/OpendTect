@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.40 2004-11-09 10:23:58 nanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.41 2004-12-01 17:28:22 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,6 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     filefld->attach( alignedBelow, optfld );
 }
 
-
 bool uiBatchLaunch::execRemote() const
 {
     return !remfld->getBoolValue();
@@ -196,7 +195,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 #ifdef __win__ 
 
     comm += " --inbg "; comm += progname;
-    BufferString _parfnm( parfname );
+    FilePath parfp( parfname );
+
+    BufferString _parfnm( parfp.fullPath(FilePath::Unix) );
     replaceCharacter(_parfnm.buf(),' ','%');
     comm += " \""; comm += _parfnm; comm += "\"";
 
@@ -320,10 +321,14 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
     if ( iop )
 	iop->set( "Log file", fname );
 
-    BufferString parfname = singparfname;
-    if ( parfname == "" )
-	getProcFilename( sSingBaseNm, parfname );
-    if ( !writeProcFile(iopl,parfname) )
+    FilePath parfp( singparfname );
+    if ( !parfp.nrLevels() )
+    {
+	BufferString prfnm;
+	getProcFilename( sSingBaseNm, prfnm );
+        parfp = prfnm;
+    }
+    if ( !writeProcFile(iopl,parfp.fullPath()) )
 	return false;
 
     const bool dormt = false;
@@ -333,14 +338,14 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
 #ifdef __win__ 
     comm += " --inxterm+askclose "; comm += procprognm;
 
-    BufferString _parfnm( parfname );
+    BufferString _parfnm( parfp.fullPath(FilePath::Unix) );
     replaceCharacter(_parfnm.buf(),' ','%');
 
     comm += " \""; comm += _parfnm; comm += "\"";
 
 #else
     comm += " "; comm += procprognm;
-    comm += " -bg "; comm += parfname;
+    comm += " -bg "; comm += parfp.fullPath();
 #endif
 
     const bool inbg=dormt;
