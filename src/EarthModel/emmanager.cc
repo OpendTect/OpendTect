@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.15 2003-07-29 13:12:22 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.16 2003-07-30 17:01:03 bert Exp $";
 
 #include "emmanager.h"
 
@@ -329,12 +329,10 @@ void EM::EMManager::getSurfaceData( const MultiID& id, EM::SurfaceIOData& sd )
     const char* grpname = ioobj->group();
     if ( !strcmp( grpname, EMHorizonTranslator::keyword ))
     {
-	EM::Horizon* hor = new EM::Horizon( *this, id );
 	dgbEMHorizonTranslator tr;
-	if ( !tr.startRead( *ioobj, *hor ) )
+	if ( !tr.startRead( *ioobj ) )
 	    return;
 
-	delete hor;
 	const EM::SurfaceIOData& newsd = tr.selections().sd;
 	sd.rg = newsd.rg;
 	deepCopy( sd.patches, newsd.patches );

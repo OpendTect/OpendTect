@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.13 2003-07-30 13:47:27 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.14 2003-07-30 17:01:03 bert Exp $";
 
 #include "emsurfaceio.h"
 
@@ -145,9 +145,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     for ( int idx=0; idx<nrAuxVals(); idx++ )
 	auxdatasel += idx;
 
-    BufferString dbinfo;
     par->get( dbinfostr, dbinfo );
-    surface->setDBInfo( dbinfo );
 
     error = false;
 }
@@ -304,8 +302,10 @@ int EM::dgbSurfaceReader::totalNr() const
 int EM::dgbSurfaceReader::nextStep()
 {
     if ( error || !surface ) return ErrorOccurred;
+
     if ( !nrdone )
     {
+	surface->setDBInfo( dbinfo );
 	for ( int idx=0; idx<auxdatasel.size(); idx++ )
 	{
 	    if ( auxdatasel[idx]>=auxdataexecs.size() )
@@ -624,6 +624,8 @@ int EM::dgbSurfaceWriter::totalNr() const
 
 int EM::dgbSurfaceWriter::nextStep()
 {
+    if ( !ioobj ) { msg = "No object info"; return -1; }
+
     if ( !nrdone )
     {
 	conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Write));

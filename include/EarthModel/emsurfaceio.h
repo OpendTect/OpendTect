@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.4 2003-07-02 06:17:16 kristofer Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.5 2003-07-30 17:01:03 bert Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,7 @@ public:
 			~dgbSurfaceReader();
 			/*!< Closes the stream */
 
+    void		setSurface( EM::Surface* s )	{ surface = s; }
     bool		isOK() const;
 
     int			nrPatches() const;
@@ -165,6 +166,8 @@ protected:
     SurfPosCalc*		surfposcalc;
     RowColConverter*		rcconv;
     bool			readfilltype;
+
+    BufferString		dbinfo;
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.29 2003-07-30 13:47:27 nanne Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.30 2003-07-30 17:01:03 bert Exp $";
 
 #include "emhorizon.h"
 
@@ -77,7 +77,7 @@ Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 
     dgbEMHorizonTranslator tr;
-    if ( !tr.startRead(*ioobj,*this) )
+    if ( !tr.startRead(*ioobj) )
 	{ errmsg = tr.errMsg(); return 0; }
 
     EM::SurfaceIODataSelection& sel = tr.selections();
@@ -107,7 +107,7 @@ Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
     }
     else
     {
-	Executor* exec = tr.reader();
+	Executor* exec = tr.reader( *this );
 	errmsg = tr.errMsg();
 	return exec;
     }
