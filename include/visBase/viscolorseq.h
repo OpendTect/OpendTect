@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolorseq.h,v 1.1 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: viscolorseq.h,v 1.2 2002-03-11 14:38:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,8 @@ class ColorSequence : public DataObject
 public:
     static ColorSequence*	create()
 				mCreateDataObj0arg(ColorSequence);
+
+    void			loadFromStorage( const char* nm );
 			
     ColorTable&		colors();
     const ColorTable&	colors() const;

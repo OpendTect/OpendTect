@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.1 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: viscolortab.h,v 1.2 2002-03-11 14:38:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -37,12 +37,10 @@ public:
     void		setColorSeq( ColorSequence* );
 
     const ColorSequence&	colorSeq() const { return *colseq; }
+    ColorSequence&		colorSeq() { return *colseq; }
 
     Notifier<VisColorTab>	change;
     void			triggerChange() { change.trigger(); }
-    				/*!< Use if yo have blocked change and need
-				     to trigger it from outside
-				 */
 protected:
     			VisColorTab();
     virtual		~VisColorTab();

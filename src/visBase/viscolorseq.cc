@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolorseq.cc,v 1.1 2002-03-11 10:46:03 kristofer Exp $";
+static const char* rcsID = "$Id: viscolorseq.cc,v 1.2 2002-03-11 14:37:30 kristofer Exp $";
 
 #include "viscolorseq.h"
 #include "colortab.h"
@@ -22,6 +22,15 @@ visBase::ColorSequence::ColorSequence()
 visBase::ColorSequence::~ColorSequence()
 {
     delete &coltab;
+}
+
+
+void visBase::ColorSequence::loadFromStorage( const char* newnm )
+{
+    ColorTable::get( newnm, coltab );
+    setName( newnm );
+
+    change.trigger();
 }
 
 
