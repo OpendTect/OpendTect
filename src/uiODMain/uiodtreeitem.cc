@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.72 2005-03-11 17:00:19 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.73 2005-03-15 16:55:12 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ ___________________________________________________________________
 #include "uiexecutor.h"
 #include "settings.h"
 #include "emhorizon.h"
+#include "emfault.h"
 
 
 const char* uiODTreeTop::sceneidkey = "Sceneid";
@@ -1117,12 +1118,9 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	success = applMgr()->EMServer()->selectFault(mid);
     else if ( mnuid == 1 )
     {
-	/*
-	uiTrackingPartServer* ts = applMgr()->mpeServer();
-	ts->setSceneID( sceneID() );
-	ts->setAttribDescSet( applMgr()->attrServer()->curDescSet() );
-	ts->addSurfaceTracker(false);
-	*/
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet() );
+	mps->startWizard( EM::Fault::typeStr(), 0 );
 	return true;
     }
 
