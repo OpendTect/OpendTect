@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.4 2002-02-28 07:16:57 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.5 2002-02-28 09:27:25 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "vistransform.h"
@@ -147,18 +147,27 @@ visSurvey::Scene::~Scene()
 
 int visSurvey::Scene::addXYZObject( SceneObject* obj )
 {
+    mDynamicCastGet(visBase::VisualObject*, visobj, obj );
+    if ( visobj ) visobj->regForSelection();
+
     return addObject( obj );
 }
 
 
 int visSurvey::Scene::addXYTObject( SceneObject* obj )
 {
+    mDynamicCastGet(visBase::VisualObject*, visobj, obj );
+    if ( visobj ) visobj->regForSelection();
+
     return xytidoffset + xytworld->addObject(obj);
 }
 
 
 int visSurvey::Scene::addInlCrlTObject( SceneObject* obj )
 {
+    mDynamicCastGet(visBase::VisualObject*, visobj, obj );
+    if ( visobj ) visobj->regForSelection();
+
     return inlcrloffset + inlcrlworld->addObject( obj );
 }
 
