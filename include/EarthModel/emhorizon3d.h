@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.5 2002-05-24 11:42:44 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.6 2002-05-28 17:15:11 dgb Exp $
 ________________________________________________________________________
 
 
@@ -75,7 +75,8 @@ public:
     static RowCol	getNode( const BinID& );
     static void		setTransformation( Geometry::Snapped2DSurface& );
 
-    void		getTriStrips( Geometry::TriangleStripSet* ) const;
+    void		getTriStrips(Geometry::TriangleStripSet*,
+					int res=1) const;
     const Geometry::CompositeGridSurface&	getSurfaces() const
     						{ return surfaces; }
     Geometry::CompositeGridSurface&		getSurfaces(){return surfaces;}
