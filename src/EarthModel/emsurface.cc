@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.39 2004-01-08 09:37:38 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.40 2004-01-08 17:50:20 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -501,30 +501,26 @@ char EM::Surface::whichSide( const Coord3& timepos,
     if ( c11def ) {center+=c11; nrvals++;}
     center /= nrvals;
 
+    const Plane3 plane( meshnormal, center, false );
+
+    //Check how far the mesh's own coords are from the plane
+    Interval<float> nodevariation(0,0);
+    if ( c00def ) { nodevariation.include(plane.distanceToPoint(c00)); }
+    if ( c10def ) { nodevariation.include(plane.distanceToPoint(c10)); }
+    if ( c01def ) { nodevariation.include(plane.distanceToPoint(c01)); }
+    if ( c11def ) { nodevariation.include(plane.distanceToPoint(c11)); }
+
     const Coord3 pos = time2depthfunc
 	? Coord3( timepos, time2depthfunc->getValue( timepos.z ) )
 	: timepos;
 
-    //Get the closest of the corners/center
-    Coord3 planepos = center;
-    float mindist = center.distance(pos);
-    if ( c00def && c00.distance(pos)<mindist )
-	{ mindist = c00.distance(pos); planepos = c00; }
-    if ( c01def && c01.distance(pos)<mindist )
-	{ mindist = c01.distance(pos); planepos = c01; }
-    if ( c10def && c10.distance(pos)<mindist )
-	{ mindist = c10.distance(pos); planepos = c10; }
-    if ( c11def && c11.distance(pos)<mindist )
-	{ mindist = c11.distance(pos); planepos = c11; }
-
-    const Plane3 plane( meshnormal, planepos, false );
     const Line3 line( pos, meshnormal );
     Coord3 intersection;
     plane.intersectWith( line, intersection );
     const Coord3 vector = pos-intersection;
     double factor = meshnormal.dot( vector );
-    if ( factor>fuzzy ) return 1;
-    if ( factor<-fuzzy ) return -1;
+    if ( factor>nodevariation.stop+fuzzy ) return 1;
+    if ( factor<nodevariation.start-fuzzy ) return -1;
     return 0;
 }
 
