@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.18 2002-01-29 09:55:23 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.19 2002-02-04 12:17:56 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uifont.h"
 //#include "i_layout.h"
 
-//#define USE_DISPLAY_TIMER
+#define USE_DISPLAY_TIMER
 
 class uiButtonGroup;
 class QWidget;
