@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.28 2004-05-10 11:57:28 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.29 2004-05-12 10:12:33 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -574,7 +574,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	TypeSet<Coord3> stick;
 	for ( int idx=0; idx<ssd->nrKnots(stickidx); idx++ )
 	    stick += ssd->getKnot( stickidx, idx );
-	trackserv->createSeedFromStickset( stick );
+	trackserv->createSeedFromStickset( stick, ssd->getColor() );
 	trackserv->calcInterpreterCube( stick );
     }
     else if ( evid == uiTrackingPartServer::evShowManager )
