@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.43 2004-04-27 11:59:36 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.44 2004-04-29 16:12:01 nanne Exp $
 ________________________________________________________________________
 
 
@@ -64,41 +64,51 @@ public:
 
     void			resetDraggerSizes( float appvel );
     				//!< Should be called when appvel has changed
-    
-    void			showDraggers(bool yn);
-    void			resetManip();
 
-    CubeSampling&		getCubeSampling(bool manippos=true);
-    const CubeSampling&		getCubeSampling(bool manippos=true) const
-				{ return const_cast<PlaneDataDisplay*>(this)->
-				    	getCubeSampling(manippos); }
-    void			setCubeSampling(const CubeSampling&);
-    AttribSelSpec&		getAttribSelSpec();
-    const AttribSelSpec&	getAttribSelSpec() const;
-    void			setAttribSelSpec(const AttribSelSpec&);
-    bool			putNewData(AttribSliceSet*,bool);
+    bool			canDuplicate() const		{ return true; }
+    SurveyObject*		duplicate() const;
+    
+    void			showManipulator(bool);
+    bool			isManipulatorShown() const;
+    bool			isManipulated() const;
+    bool			canResetManipulation() const	{ return true; }
+    void			resetManipulation();
+    void			acceptManipulation();
+    BufferString		getManipulationString() const;
+    NotifierAccess*		getManipulationNotifier()    { return &moving; }
+
+    bool			hasMaterial() const		{ return true; }
+    void			setMaterial(visBase::Material*);
+    const visBase::Material*	getMaterial() const;
+    visBase::Material*		getMaterial();
+
+    int				nrResolutions() const;
+    BufferString		getResolutionName(int) const;
+    int				getResolution() const;
+    void			setResolution(int);
+
+    int				getAttributeFormat() const 	{ return 0; }
+
+    bool			hasColorAttribute() const	{ return true; }
+    const AttribSelSpec*	getSelSpec() const;
+    void			setSelSpec(const AttribSelSpec&);
+    void			setColorSelSpec(const ColorAttribSel&);
+    const ColorAttribSel*	getColorSelSpec() const;
+    const TypeSet<float>*	getHistogram() const;
+    int				getColTabID() const;
+
+    CubeSampling		getCubeSampling() const;
+    void			setCubeSampling(CubeSampling);
+    bool			setDataVolume(bool color,AttribSliceSet*);
     				/*!< Becomes mine */
-    const AttribSliceSet*	getCachedData(bool colordata=false) const;
+    const AttribSliceSet*	getCacheVolume(bool color) const;
+    
     void			showTexture(int);
 
     void			turnOn(bool);
     bool			isOn() const;
 
-    void			setColorSelSpec(const ColorAttribSel&);
-    const ColorAttribSel*	getColorSelSpec() const;
-
-    void			setColorTab(visBase::VisColorTab&);
-    visBase::VisColorTab&	getColorTab();
-    const visBase::VisColorTab&	getColorTab() const;
-
     float			getValue( const Coord3& ) const;
-
-    void			setMaterial( visBase::Material* );
-    const visBase::Material*	getMaterial() const;
-    visBase::Material*		getMaterial();
-
-    const visBase::TextureRect&	textureRect() const { return *trect; }
-    visBase::TextureRect&	textureRect() { return *trect; }
 
     SoNode*			getInventorNode();
 
@@ -106,14 +116,6 @@ public:
     virtual int			usePar( const IOPar& );
 
     virtual float		calcDist( const Coord3& ) const;
-    virtual NotifierAccess*     getMovementNotification() { return &moving; }
-
-    const char*			getResName(int) const;
-    void			setResolution(int);
-    int				getResolution() const;
-    int				getNrResolutions() const;
-
-    const TypeSet<float>*	getHistogram() const;
 
 protected:
 				~PlaneDataDisplay();
@@ -122,6 +124,7 @@ protected:
     void			setData(const AttribSliceSet*,int datatype=0);
     void			appVelChCB(CallBacker*);
     void			manipChanged(CallBacker*);
+    CubeSampling		getCubeSampling(bool manippos) const;
 
     visBase::TextureRect*	trect;
 
@@ -131,8 +134,6 @@ protected:
 
     AttribSliceSet*             cache;
     AttribSliceSet*             colcache;
-    CubeSampling&		cs;
-    CubeSampling&		manipcs;
 
     static const char*		trectstr;
     Notifier<PlaneDataDisplay>	moving;
