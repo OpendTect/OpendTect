@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.16 2003-07-30 17:01:03 bert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.17 2003-07-31 14:37:36 nanne Exp $";
 
 #include "emmanager.h"
 
@@ -59,73 +59,30 @@ void EM::EMManager::init()
 
 MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 {
+    CtxtIOObj* ctio;
     if ( type==EM::EMManager::Hor )
-    {
-	CtxtIOObj* ctio = new CtxtIOObj(EMHorizonTranslator::ioContext());
-	ctio->ctxt.forread = false;
-	ctio->ioobj = 0;
-	ctio->setName( name );
-	ctio->fillObj();
+	ctio = new CtxtIOObj(EMHorizonTranslator::ioContext());
+    else if ( type==EM::EMManager::Fault )
+	ctio = new CtxtIOObj(EMFaultTranslator::ioContext());
+    else if ( type==EM::EMManager::Well )
+	ctio = new CtxtIOObj(EMWellTranslator::ioContext());
+    else
+	return -1;
 
-	if ( !ctio->ioobj ) return -1;
-	MultiID key = ctio->ioobj->key();
+    ctio->ctxt.forread = false;
+    ctio->ioobj = 0;
+    ctio->setName( name );
+    ctio->fillObj();
+    if ( !ctio->ioobj ) return -1;
 
-	Horizon* hor = new Horizon( *this, key );
-	PtrMan<Executor> exec = hor->saver();
-	exec->execute();
-	objects += hor;
-	refcounts += 0;
+    EMObject* obj = EM::EMObject::create( *ctio->ioobj, *this );
+    PtrMan<Executor> exec = obj->saver();
+    exec->execute();
+    objects += obj;
+    refcounts += 0;
 
-	return key;
-    }
-
-
-    if ( type==EM::EMManager::Fault )
-    {
-	CtxtIOObj* ctio =
-	    new CtxtIOObj(EMFaultTranslator::ioContext());
-	ctio->ctxt.forread = false;
-	ctio->ioobj = 0;
-	ctio->setName( name );
-	ctio->fillObj();
-
-	if ( !ctio->ioobj ) return -1;
-	MultiID key = ctio->ioobj->key();
-
-	EM::Fault* fault = new EM::Fault( *this, key );
-	PtrMan<Executor> exec = fault->saver();
-	exec->execute();
-	objects += fault;
-	refcounts += 0;
-
-	return key;
-    }
-
-
-    if ( type==EM::EMManager::Well )
-    {
-	CtxtIOObj* ctio =
-	    new CtxtIOObj(EMWellTranslator::ioContext());
-	ctio->ctxt.forread = false;
-	ctio->ioobj = 0;
-	ctio->setName( name );
-	ctio->fillObj();
-	if ( !ctio->ioobj ) return -1;
-
-	MultiID key = ctio->ioobj->key();
-
-	EM::Well* well = new EM::Well( *this, key );
-	PtrMan<Executor> exec = well->saver();
-	exec->execute();
-
-	objects += well;
-	refcounts += 0;
-
-	return key;
-    }
-
-    return -1;
-}
+    return obj ? obj->id() : -1;
+} 
 
 
 EM::EMObject* EM::EMManager::getObject( const MultiID& id )
@@ -239,40 +196,45 @@ void EM::EMManager::unRefNoDel( const MultiID& id )
 }
 
 
-bool EM::EMManager::createObject( const MultiID& id )
+void EM::EMManager::addObject( EM::EMObject* obj )
+{
+    if ( !obj ) return;
+    objects += obj;
+    refcounts += 0;
+}
+
+
+EM::EMObject* EM::EMManager::getTempObj( EM::EMManager::Type type )
+{
+    EMObject* res = 0;
+    if ( type==EM::EMManager::Hor )
+	res = new EM::Horizon( *this, -1 );
+    else if ( type==EM::EMManager::Fault )
+	res = new EM::Fault( *this, -1 );
+    else if ( type==EM::EMManager::Well )
+	res = new EM::Well( *this, -1 );
+
+    return res;
+}
+
+
+EM::EMObject* EM::EMManager::createObject( const MultiID& id, bool addtoman )
 {
     EMObject* obj = getObject( id );
-    if ( obj ) return true;
+    if ( obj && addtoman ) return obj;
 
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) return false;
 
-    const char* grpname = ioobj->group();
-    if ( !strcmp(grpname,EMWellTranslator::keyword) )
+    EMObject* newobj = EM::EMObject::create( *ioobj, *this );
+    if ( newobj && addtoman )
     {
-	EM::Well* well = new EM::Well( *this, id );
-	objects += well;
+	objects += newobj;
 	refcounts += 0;
-	return true;
+	return newobj;
     }
 
-    if ( !strcmp(grpname,EMHorizonTranslator::keyword) )
-    {
-	EM::Horizon* hor = new EM::Horizon( *this, id );
-	objects += hor;
-	refcounts += 0;
-	return true;
-    }
-
-    if ( !strcmp(grpname,EMFaultTranslator::keyword) )
-    {
-	EM::Fault* fault = new EM::Fault( *this, id );
-	objects += fault;
-	refcounts += 0;
-	return true;
-    }
-
-    return false;
+    return newobj;
 }
 
 
@@ -284,30 +246,12 @@ Executor* EM::EMManager::load( const MultiID& id )
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) return 0;
 
-    const char* grpname = ioobj->group();
-    if ( !strcmp( grpname, EMWellTranslator::keyword ))
+    EMObject* newobj = EM::EMObject::create( *ioobj, *this );
+    if ( newobj )
     {
-	EM::Well* well = new EM::Well( *this, id );
-	objects += well;
+	objects += newobj;
 	refcounts += 0;
-	return well->loader();
-    }
-
-    if ( !strcmp( grpname, EMHorizonTranslator::keyword ))
-    {
-	EM::Horizon* hor = new EM::Horizon( *this, id );
-	objects += hor;
-	refcounts += 0;
-	return hor->loader();
-    }
-
-
-    if ( !strcmp( grpname, EMFaultTranslator::keyword ))
-    {
-	EM::Fault* fault = new EM::Fault( *this, id );
-	objects += fault;
-	refcounts += 0;
-	return fault->loader();
+	return newobj->loader();
     }
 
     return 0;

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.8 2003-06-03 12:46:12 bert Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.9 2003-07-31 14:37:36 nanne Exp $";
 
 #include "emobject.h"
 
@@ -16,9 +16,7 @@ static const char* rcsID = "$Id: emobject.cc,v 1.8 2003-06-03 12:46:12 bert Exp 
 #include "ptrman.h"
 #include "ioman.h"
 
-EM::EMObject* EM::EMObject::create( const IOObj& ioobj,
-				    bool load, EM::EMManager& manager,
-				    BufferString& errmsg )
+EM::EMObject* EM::EMObject::create( const IOObj& ioobj, EM::EMManager& manager )
 {
     EM::EMObject* res = 0;
     const char* group = ioobj.group();

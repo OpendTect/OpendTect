@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.12 2003-07-29 13:12:28 nanne Exp $
+ RCS:		$Id: emmanager.h,v 1.13 2003-07-31 14:37:53 nanne Exp $
 ________________________________________________________________________
 
 
@@ -56,7 +56,10 @@ public:
 
     Executor*		load(const MultiID&);
     bool		isLoaded(const MultiID&) const;
-    bool		createObject(const MultiID&);
+    EMObject*		createObject(const MultiID&,bool addtoman=true);
+    EMObject*		getTempObj(EM::EMManager::Type);
+
+    void		addObject(EM::EMObject*);
 
     void		getSurfaceData(const MultiID&,EM::SurfaceIOData&);
 

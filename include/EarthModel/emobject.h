@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.12 2003-07-11 08:15:46 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.13 2003-07-31 14:37:53 nanne Exp $
 ________________________________________________________________________
 
 
@@ -34,9 +34,7 @@ class EMManager;
 class EMObject : public CallBacker
 {
 public:
-    static EMObject*		create( const IOObj&, bool load,
-	    				EMManager&,
-	    				BufferString& errmsg );
+    static EMObject*		create(const IOObj&,EMManager&);
 
     void			ref() const;
     void			unRef() const;
