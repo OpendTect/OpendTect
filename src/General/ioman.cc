@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.27 2002-09-17 13:26:13 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.28 2002-11-07 07:47:24 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -270,6 +270,9 @@ bool IOMan::to( const MultiID& ky )
 
 IOObj* IOMan::get( const MultiID& ky ) const
 {
+    if ( !IOObj::isKey(ky) )
+	return 0;
+
     if ( dirptr )
     {
 	const IOObj* ioobj = (*dirptr)[ky];
