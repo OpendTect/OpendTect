@@ -11,7 +11,93 @@
     
 #define ITMAX 100
 #define EPS 3.0e-8
-   
+
+
+template<class A, class B,class C>
+void GenericConvolve( int lx, int ifx, const A& x,
+		      int ly, int ify, const B& y,
+		      int lz, int ifz, C& z )
+{
+    int ilx=ifx+lx-1,ily=ify+ly-1,ilz=ifz+lz-1,i,j,jlow,jhigh;
+    float sum;
+
+    for ( i=ifz; i<=ilz; ++i )
+    {
+	jlow = i-ily;
+	if ( jlow < ifx ) jlow = ifx;
+
+	jhigh = i-ify;
+	if ( jhigh > ilx ) jhigh = ilx;
+
+	for ( j=jlow,sum=0.0; j<=jhigh; ++j )
+	    sum += x[j-ifx]*y[i-j-ify];
+
+	z[i-ifz] = sum;
+    }
+}
+
+
+template <class A, class B>
+float similarity( const A& a, const B& b, int sz, bool normalize=false,
+		  int firstposa=0, int firstposb=0 )
+{
+    float val1, val2;
+    double sqdist = 0, sq1 = 0, sq2 = 0;
+
+    double meana,stddeva,meanb,stddevb;
+    if ( normalize )
+    {
+	if ( sz==1 ) normalize = false;
+	else
+	{
+	    double asum=0,bsum=0;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		asum += a[firstposa+idx];
+		bsum += b[firstposb+idx];
+	    }
+
+	    meana = asum/sz;
+	    meanb = bsum/sz;
+
+	    asum = 0;
+	    bsum = 0;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		const double adiff = a[firstposa+idx]-meana;
+		const double bdiff = b[firstposb+idx]-meanb;
+		asum += adiff*adiff;
+		bsum += bdiff*bdiff;
+	    }
+
+	    stddeva = sqrt(asum/(sz-1));
+	    stddevb = sqrt(bsum/(sz-1));
+
+	    if ( mIsZero(stddeva,mDefEps) || mIsZero(stddevb,mDefEps) )
+		normalize=false;
+	}
+    }
+
+    int curposa = firstposa;
+    int curposb = firstposb;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	val1 = normalize ? (a[curposa]-meana)/stddeva : a[curposa];
+	val2 = normalize ? (b[curposb]-meanb)/stddevb : b[curposb];
+	sq1 += val1 * val1;
+	sq2 += val2 * val2;
+	sqdist += (val1-val2) * (val1-val2);
+
+	curposa ++;
+	curposb ++;
+    }
+
+    if ( sq1 + sq2 < 1e-10 ) return 0;
+    return 1 - (sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2)));
+}
+
+
 bool findValue( const MathFunction<float>& func, float x1, float x2, float& res,
 		   float targetval, float tol)
 { 

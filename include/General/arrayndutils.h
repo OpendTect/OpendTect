@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.19 2004-04-27 15:51:15 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.20 2004-07-21 11:39:31 nanne Exp $
 ________________________________________________________________________
 
 
@@ -583,7 +583,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
     const ArrayNDInfo& srcsz = src.info(); 
 
     const int ndim = destsz.getNDim();
-    if ( ndim != srcsz.getNDim() || ndim != pastepos.info() ) return false;
+    if ( ndim != srcsz.getNDim() || ndim != pastepos.size() ) return false;
 
     for ( int idx=0; idx<ndim; idx++ )
     {

@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.11 2004-06-16 14:54:18 bert Exp $
+ RCS:           $Id: genericnumer.h,v 1.12 2004-07-21 11:37:43 nanne Exp $
 ________________________________________________________________________
 
 
 */
 
-#include <ranges.h>
+#include "ranges.h"
 template <class T> class MathFunction;
 
 /*!>
@@ -25,91 +25,18 @@ Compute z = x convolved with y; i.e.,
 */
 
 template<class A, class B,class C>
-inline void GenericConvolve (int lx, int ifx, const A& x, 
-		      int ly, int ify, const B& y,
-               	      int lz, int ifz, C& z)
-{
-    int ilx=ifx+lx-1,ily=ify+ly-1,ilz=ifz+lz-1,i,j,jlow,jhigh;
-    float sum;
-
-    for ( i=ifz; i<=ilz; ++i ) 
-    {
-	jlow = i-ily;  
-	if ( jlow < ifx ) jlow = ifx;
-
-	jhigh = i-ify;  
-	if ( jhigh > ilx ) jhigh = ilx;
-
-	for ( j=jlow,sum=0.0; j<=jhigh; ++j )
-	    sum += x[j-ifx]*y[i-j-ify];
-
-	z[i-ifz] = sum;
-    }
-}
+void GenericConvolve(int lx, int ifx, const A& x, 
+		     int ly, int ify, const B& y,
+               	     int lz, int ifz, C& z);
 
 
 /*!> similarity is the hyperspace distance between two vectors divided by
 the sum of the lengths */
 
 template <class A, class B>
-inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
-			 int firstposa=0, int firstposb=0)
-{
-    float val1, val2;
-    double sqdist = 0, sq1 = 0, sq2 = 0;
+float similarity(const A& a, const B& b, int sz, bool normalize=false,
+		 int firstposa=0, int firstposb=0);
 
-    double meana,stddeva,meanb,stddevb;
-    if ( normalize )
-    {
-	if ( sz==1 ) normalize = false;
-	else
-	{
-	    double asum=0,bsum=0;
-	    for ( int idx=0; idx<sz; idx++ )
-	    {
-		asum += a[firstposa+idx];
-		bsum += b[firstposb+idx];
-	    }
-
-	    meana = asum/sz;
-	    meanb = bsum/sz;
-
-	    asum = 0;
-	    bsum = 0;
-	    for ( int idx=0; idx<sz; idx++ )
-	    {
-		const double adiff = a[firstposa+idx]-meana;
-		const double bdiff = b[firstposb+idx]-meanb;
-		asum += adiff*adiff;
-		bsum += bdiff*bdiff;
-	    }
-
-	    stddeva = sqrt(asum/(sz-1));
-	    stddevb = sqrt(bsum/(sz-1));
-
-	    if ( mIsZero(stddeva,mDefEps) || mIsZero(stddevb,mDefEps) )
-		normalize=false;
-	}
-    }
-
-    int curposa = firstposa;
-    int curposb = firstposb;
-
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	val1 = normalize ? (a[curposa]-meana)/stddeva : a[curposa];
-	val2 = normalize ? (b[curposb]-meanb)/stddevb : b[curposb];
-	sq1 += val1 * val1;
-	sq2 += val2 * val2;
-	sqdist += (val1-val2) * (val1-val2);
-
-	curposa ++;
-	curposb ++;
-    }
-
-    if ( sq1 + sq2 < 1e-10 ) return 0;
-    return 1 - (sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2)));
-}
 
 float similarity(const MathFunction<float>&,const MathFunction<float>&, 
 		 float x1, float x2, float dist, int sz, bool normalize );
