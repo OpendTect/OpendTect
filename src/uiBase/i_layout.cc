@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.63 2003-03-05 14:04:46 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.64 2003-03-24 15:33:57 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ static BufferString jaap;
 bool arend_debug=false;
 #endif
 
+#define mFinalised() ( managedBody.uiObjHandle().mainwin()  ? \
+		     managedBody.uiObjHandle().mainwin()->finalised() : false )
 
 i_LayoutMngr::i_LayoutMngr( QWidget* parnt, 
 			    const char *name, uiObjectBody& mngbdy )
@@ -87,7 +89,9 @@ void i_LayoutMngr::itemDel( CallBacker* cb )
 
 QSize i_LayoutMngr::minimumSize() const
 {
-    if ( !minimumDone ) 
+    if ( !mFinalised() ) return QSize(0, 0);
+
+    if ( !minimumDone )
     { 
 	doLayout( minimum, QRect() ); 
 	const_cast<i_LayoutMngr*>(this)->minimumDone=true; 
@@ -137,6 +141,8 @@ QSize i_LayoutMngr::minimumSize() const
 
 QSize i_LayoutMngr::sizeHint() const
 {
+    if ( !mFinalised() ) return QSize(0, 0);
+
     if ( !preferredDone )
     { 
 	doLayout( preferred, QRect() ); 
@@ -550,6 +556,8 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
+    if ( !mFinalised() ) return;
+
 #ifdef __extensive_debug__
     if( arend_debug )
     {
@@ -778,8 +786,9 @@ void i_LayoutMngr::startPoptimer()
 {
     if ( timer_running || popped_up ) return;
 
-    if ( managedBody.uiObjHandle().mainwin()  )
-	managedBody.uiObjHandle().mainwin()->touch();
+    if ( managedBody.uiObjHandle().mainwin()  
+	 && !managedBody.uiObjHandle().mainwin()->touch() )
+	return;
 
     if( poptimer.isActive() )
 	poptimer.stop();

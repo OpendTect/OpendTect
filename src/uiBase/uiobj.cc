@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.48 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.49 2003-03-24 15:33:57 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
 void uiParent::storePosition()
 {
     QWidget* widget = body()->qwidget();
-    if( !widget ) { pErrMsg("no qwidget!"); return; }
+    if ( !widget ) { pErrMsg("no qwidget!"); return; }
 
     QSettings settings;
 
@@ -114,7 +114,7 @@ void uiParent::storePosition()
 void uiParent::restorePosition()
 {
     QWidget* widget = body()->qwidget();
-    if( !widget ) { pErrMsg("no qwidget!"); return; }
+    if ( !widget ) { pErrMsg("no qwidget!"); return; }
 
     QSettings settings;
 
@@ -127,7 +127,7 @@ void uiParent::restorePosition()
     k = key; k += "height";
     int h = settings.readNumEntry( k, -1 );
 
-    if( w >= 0 && h >= 0 )
+    if ( w >= 0 && h >= 0 )
 	widget->resize( QSize(w,h) );
 
     k = key; k += "x";
@@ -136,7 +136,7 @@ void uiParent::restorePosition()
     k = key; k += "y";
     int y = settings.readNumEntry( k, -1 );
 
-    if( x >= 0 && y >= 0 )
+    if ( x >= 0 && y >= 0 )
 	widget->move( QPoint(x,y) );
 }
 
@@ -149,10 +149,10 @@ uiParentBody* uiParent::pbody()
 
 void uiParentBody::finaliseChildren()
 {
-    if(!finalised)
+    if ( !finalised_ )
     {
-	finalised= true;
-	for( int idx=0; idx<children.size(); idx++ )
+	finalised_= true;
+	for ( int idx=0; idx<children.size(); idx++ )
 	    children[idx]->finalise();
     }
 }
@@ -160,7 +160,7 @@ void uiParentBody::finaliseChildren()
 
 void uiParentBody::clearChildren()
 {
-    for( int idx=0; idx<children.size(); idx++ )
+    for ( int idx=0; idx<children.size(); idx++ )
 	children[idx]->clear();
 }
 
@@ -401,7 +401,7 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximised )
     display_ = yn;
     display_maximised = maximised;
 
-    if( !display_ && shrink )
+    if ( !display_ && shrink )
 
     {
 	pref_width_  = 0;
@@ -414,7 +414,7 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximised )
     else
     {
 #ifdef USE_DISPLAY_TIMER
-	if( displTim.isActive() ) displTim.stop();
+	if ( displTim.isActive() ) displTim.stop();
 	displTim.start( 1, true );
 #else
 	doDisplay(0);
@@ -424,19 +424,19 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximised )
 
 void uiObjectBody::doDisplay(CallBacker*)
 {
-    if( !finalised ) finalise();
+    if ( !finalised ) finalise();
 
 
-    if( display_ )
+    if ( display_ )
     {
 	is_hidden = false;
 
-	if( display_maximised )	qwidget()->showMaximized();
+	if ( display_maximised )	qwidget()->showMaximized();
 	else			qwidget()->show();
     }
     else
     {
-	if( !is_hidden )
+	if ( !is_hidden )
 	{
 	    int sz = prefHNrPics();
 	    sz = prefVNrPics();
@@ -506,15 +506,15 @@ void uiObjectBody::uisetBackgroundPixmap( const ioPixmap& pm )
 
 
 #ifdef __debug__ 
-#define mChkLayoutItm() if(!layoutItem_) { pErrMsg("No layoutItem"); return 0; }
+#define mChkLayoutItm() if (!layoutItem_) { pErrMsg("No layoutItem"); return 0; }
 #else
-#define mChkLayoutItm() if(!layoutItem_) { return 0; } 
+#define mChkLayoutItm() if (!layoutItem_) { return 0; } 
 #endif
 
 void uiObjectBody::getSzHint()
 {
-    if( pref_width_hint && pref_height_hint ) return;
-    if( pref_width_hint || pref_height_hint ) 
+    if ( pref_width_hint && pref_height_hint ) return;
+    if ( pref_width_hint || pref_height_hint ) 
 	{ pErrMsg("Only 1 defined size.."); }
 
     uiSize sh = layoutItem_->prefSize();
@@ -525,17 +525,17 @@ void uiObjectBody::getSzHint()
 
 int uiObjectBody::prefHNrPics() const
 {
-    if( pref_width_ <= 0 )
+    if ( pref_width_ <= 0 )
     {
-	if( is_hidden )		{ return pref_width_; }
+	if ( is_hidden )		{ return pref_width_; }
 	mChkLayoutItm();
 
-	if( pref_width_set >= 0 ) 
+	if ( pref_width_set >= 0 ) 
 	    { const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_set; }
-	else if( pref_char_width >= 0 ) 
+	else if ( pref_char_width >= 0 ) 
 	{
 	    int fw = fontWdt();
-	    if( !fw ){ pErrMsg("Font has 0 width."); return 0; }
+	    if ( !fw ){ pErrMsg("Font has 0 width."); return 0; }
 
 	    const_cast<uiObjectBody*>(this)->pref_width_ =
 					     mNINT( pref_char_width * fw ); 
@@ -564,12 +564,12 @@ int uiObjectBody::prefHNrPics() const
 		case uiObject::widevar:  pwc=4*baseFldSz+3; var=true; break;
 	    }
 
-	    if( !pwc )
+	    if ( !pwc )
 		const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_hint;
 	    else
 	    {
 		int fw = fontWdt();
-		if( !fw ){ pErrMsg("Font has 0 width."); }
+		if ( !fw ){ pErrMsg("Font has 0 width."); }
 
 		int pw = var ? mMAX(pref_width_hint, fw*pwc ) : fw*pwc ;
 		const_cast<uiObjectBody*>(this)->pref_width_ = pw;
@@ -582,17 +582,17 @@ int uiObjectBody::prefHNrPics() const
 
 int uiObjectBody::prefVNrPics() const
 {
-    if( pref_height_ <= 0 )
+    if ( pref_height_ <= 0 )
     {
-	if( is_hidden )		{ return pref_height_; }
+	if ( is_hidden )		{ return pref_height_; }
 	mChkLayoutItm();
 
-	if( pref_height_set >= 0 ) 
+	if ( pref_height_set >= 0 ) 
 	    { const_cast<uiObjectBody*>(this)->pref_height_= pref_height_set;}
-	else if( pref_char_height >= 0 ) 
+	else if ( pref_char_height >= 0 ) 
 	{
 	    int fh = fontHgt();
-	    if( !fh ){ pErrMsg("Font has 0 height."); return 0; }
+	    if ( !fh ){ pErrMsg("Font has 0 height."); return 0; }
 
 	    const_cast<uiObjectBody*>(this)->pref_height_ =
 					    mNINT( pref_char_height * fh ); 
@@ -601,16 +601,16 @@ int uiObjectBody::prefVNrPics() const
 	{ 
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 
-	    if( nrTxtLines() < 0 )
+	    if ( nrTxtLines() < 0 )
 		const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint;
 	    else 
 	    {
 		float lines = 1.51;
-		if( nrTxtLines() == 0 )		lines = 7;
-		else if( nrTxtLines() > 1 )	lines = nrTxtLines();
+		if ( nrTxtLines() == 0 )		lines = 7;
+		else if ( nrTxtLines() > 1 )	lines = nrTxtLines();
 
 		int fh = fontHgt();
-		if( !fh ){ pErrMsg("Font has 0 height."); return 0; }
+		if ( !fh ){ pErrMsg("Font has 0 height."); return 0; }
 
 		const_cast<uiObjectBody*>(this)->pref_height_= 
 							mNINT( lines * fh);
@@ -664,7 +664,7 @@ void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin,
 
 const uiFont* uiObjectBody::uifont() const
 {
-    if( !font_ )
+    if ( !font_ )
     { 
 // TODO: implement new font handling. uiParent should have a get/set font 
 //       and all children should use this font.
@@ -691,7 +691,7 @@ void uiObjectBody::uisetFont( const uiFont& f )
 int uiObjectBody::fontWdtFor( const char* str) const
 {
     gtFntWdtHgt();
-    if( !fm ) return 0;
+    if ( !fm ) return 0;
     return fm->width( QString( str ) );
 }
 
@@ -703,9 +703,9 @@ bool uiObjectBody::itemInited() const
 
 void uiObjectBody::gtFntWdtHgt() const
 {
-    if( !fnt_hgt || !fnt_wdt || !fnt_maxwdt || !fm )
+    if ( !fnt_hgt || !fnt_wdt || !fnt_maxwdt || !fm )
     {
-	if( fm )
+	if ( fm )
 	{
 	    pErrMsg("Already have a fontmetrics. Deleting..."); 
 	    delete fm;
@@ -728,17 +728,17 @@ void uiObjectBody::gtFntWdtHgt() const
 	const_cast<uiObjectBody*>(this)->fnt_maxwdt = fm->maxWidth();
     }
 
-    if( fnt_hgt<0 || fnt_hgt>100 )
+    if ( fnt_hgt<0 || fnt_hgt>100 )
     { 
 	pErrMsg("Font heigt no good. Taking 25."); 
 	const_cast<uiObjectBody*>(this)->fnt_hgt = 25;
     }
-    if( fnt_wdt<0 || fnt_wdt>100 )
+    if ( fnt_wdt<0 || fnt_wdt>100 )
     { 
 	pErrMsg("Font width no good. Taking 10."); 
 	const_cast<uiObjectBody*>(this)->fnt_wdt = 10;
     }
-    if( fnt_maxwdt<0 || fnt_maxwdt>100 )
+    if ( fnt_maxwdt<0 || fnt_maxwdt>100 )
     { 
 	pErrMsg("Font maxwidth no good. Taking 15."); 
 	const_cast<uiObjectBody*>(this)->fnt_maxwdt = 15;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.70 2003-03-06 16:39:09 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.71 2003-03-24 15:33:57 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,13 +152,15 @@ public:
     virtual void	hide();
 
     bool		poppedUp() const { return popped_up; }
-    void		touch()
+    bool		touch()
 			{
-			    if ( popped_up ) return;
+			    if ( popped_up || !finalised() ) return false;
 
 			    if( poptimer.isActive() )
 				poptimer.stop();
 			    poptimer.start( 100, true );
+
+			    return true;
 			}
 
     static Qt::Dock	qdock( uiMainWin::Dock );
@@ -469,7 +471,8 @@ void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
-void uiMainWin::touch() 			{ body_->touch(); }
+bool uiMainWin::touch() 			{ return body_->touch(); }
+bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d )
