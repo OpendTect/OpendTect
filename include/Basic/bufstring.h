@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.9 2001-04-26 08:38:00 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.10 2001-05-02 20:24:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,6 @@ inline BufferString& BufferString::operator=( const char* s )
     if ( buf_ != s )
     {
 	if ( !s ) s = "";
-	unsigned int newlen = (unsigned int)(strlen(s) + 1);
 	setBufSize( (unsigned int)(strlen(s) + 1) );
 	char* ptr = buf_;
 	while ( *s ) *ptr++ = *s++;
