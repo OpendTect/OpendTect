@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.8 2000-11-24 14:06:36 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.9 2000-11-27 15:25:27 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -35,7 +35,7 @@ IOPar::IOPar( const IOPar& iop )
 	, pars_(*new AliasObjectSet(this))
 {
     for ( int idx=0; idx<iop.pars_.size(); idx++ )
-	newPar( iop.pars_[idx]->name(), iop.pars_[idx]->obj->name() );
+	add( iop.pars_[idx]->name(), iop.pars_[idx]->obj->name() );
 }
 
 
@@ -46,7 +46,7 @@ IOPar& IOPar::operator=( const IOPar& iop )
 	clear();
 	setName( iop.name() );
 	for ( int idx=0; idx<iop.pars_.size(); idx++ )
-	    newPar( iop.pars_[idx]->name(), iop.pars_[idx]->obj->name() );
+	    add( iop.pars_[idx]->name(), iop.pars_[idx]->obj->name() );
     }
     return *this;
 }
@@ -65,9 +65,49 @@ int IOPar::size() const
 }
 
 
+const char* IOPar::getKey( int nr ) const
+{
+    if ( nr >= size() ) return "";
+    return pars_[nr]->name();
+}
+
+
+const char* IOPar::getValue( int nr ) const
+{
+    if ( nr >= size() ) return "";
+    return pars_[nr]->obj->name();
+}
+
+
+bool IOPar::setKey( int nr, const char* s )
+{
+    if ( nr >= size() || !s || !*s || pars_.indexOf(s) >= 0 )
+	return false;
+
+    pars_[nr]->setName( s );
+    return true;
+}
+
+
+void IOPar::setValue( int nr, const char* s )
+{
+    if ( nr < size() ) pars_[nr]->obj->setName( s );
+}
+
+
 void IOPar::clear()
 {
     pars_.deepEraseWithObjs();
+}
+
+
+void IOPar::remove( int idx )
+{
+    if ( idx >= size() ) return;
+    
+    AliasObject* aob = pars_[idx];
+    pars_ -= aob;
+    delete aob->obj; delete aob;
 }
 
 
@@ -80,17 +120,11 @@ void IOPar::merge( const IOPar& iopar )
 
 const char* IOPar::compKey( const char* key1, const char* key2 )
 {
-    static UserIDString ret;
+    static BufferString ret;
     ret = key1;
     if ( key1 && key2 && *key1 && *key2 ) ret += ".";
     ret += key2;
     return ret;
-}
-
-
-const char* IOPar::compFind( const char* key1, const char* key2 ) const
-{
-    return (*this)[compKey(key1,key2)];
 }
 
 
@@ -105,7 +139,7 @@ IOPar* IOPar::subselect( const char* key ) const
 	if ( !matchString(key,nm) ) continue;
 	nm += strlen(key);
 	if ( *nm == '.' && *(nm+1) )
-	    iopar->newPar( nm+1, pars_[idx]->obj->name() );
+	    iopar->add( nm+1, pars_[idx]->obj->name() );
     }
 
     if ( iopar->pars_.size() == 0 )
@@ -116,7 +150,7 @@ IOPar* IOPar::subselect( const char* key ) const
 
 void IOPar::mergeComp( const IOPar& iopar, const char* key )
 {
-    static UserIDString buf;
+    static BufferString buf;
 
     for ( int idx=0; idx<iopar.pars_.size(); idx++ )
     {
@@ -128,12 +162,17 @@ void IOPar::mergeComp( const IOPar& iopar, const char* key )
 }
 
 
-const char* IOPar::findKey( const char* s ) const
+const char* IOPar::findKeyFor( const char* s, int nr ) const
 {
+    if ( !s ) return 0;
+
     for ( int idx=0; idx<pars_.size(); idx++ )
     {
 	if ( pars_[idx]->obj->name() == s )
-	    return (const char*)pars_[idx]->name();
+	{
+	    if ( nr )	nr--;
+	    else	return (const char*)pars_[idx]->name();
+	}
     }
 
     return 0;
@@ -154,9 +193,22 @@ void IOPar::removeWithKey( const char* key )
 
 const char* IOPar::operator[]( const char* keyw ) const
 {
-    static const char* empty = "";
+    const char* res = find( keyw );
+    return res ? res : "";
+}
+
+
+const char* IOPar::find( const char* keyw ) const
+{
     AliasObject* aob = pars_[keyw];
-    return aob && aob->obj ? (const char*)aob->obj->name() : empty;
+    return aob && aob->obj ? (const char*)aob->obj->name() : 0;
+}
+
+
+void IOPar::add( const char* nm, const char* val )
+{
+    UserIDObject* valstr = new UserIDObject( val );
+    pars_ += new AliasObject( valstr, nm );
 }
 
 
@@ -290,10 +342,9 @@ void IOPar::set( const char* keyw, const char* vals )
 {
     AliasObject* par = pars_[keyw];
     if ( !par )
-	newPar( keyw, vals );
+	add( keyw, vals );
     else
 	par->obj->setName( vals );
-
 }
 
 
@@ -437,11 +488,4 @@ void IOPar::getFrom( const char* str )
 
 	ptrstart = ptr;
     }
-}
-
-
-void IOPar::newPar( const char* nm, const char* val )
-{
-    UserIDObject* valstr = new UserIDObject( val );
-    pars_ += new AliasObject( valstr, nm );
 }
