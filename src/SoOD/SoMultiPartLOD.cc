@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoMultiPartLOD.cc,v 1.1 2002-07-08 07:55:30 kristofer Exp $";
+static const char* rcsID = "$Id: SoMultiPartLOD.cc,v 1.2 2002-07-08 08:04:47 kristofer Exp $";
 
 #include "SoMultiPartLOD.h"
 #include <Inventor/misc/SoState.h>
@@ -81,8 +81,11 @@ void SoMultiPartLOD::initClass(void)
     SoNode::incNextActionMethodIndex();
     SoMultiPartLOD::parentFieldData = SoGroup::getFieldDataPtr();
 
+    /* Should be uncommented when we switch to Coin-2
     SoNode::setCompatibilityTypes( SoMultiPartLOD::getClassTypeId(),
-	    SoNode::COIN_2_0|SoNode::VRML1);
+				   SoNode::COIN_2_0|SoNode::VRML1);
+   */
+
 }
 
 
