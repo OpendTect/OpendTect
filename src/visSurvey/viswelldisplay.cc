@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.32 2004-03-31 06:45:01 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.33 2004-05-04 15:34:08 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -111,7 +111,8 @@ bool WellDisplay::setWellId( const MultiID& multiid )
 
     well->setTrack( track );
     well->setWellName( wd->name(), track.size() ? track[0] : Coord3(0,0,0) );
-    addMarkers();
+    updateMarkers(0);
+    wd->markerschanged.notify( mCB(this,WellDisplay,updateMarkers) );
 
     return true;
 }
@@ -129,7 +130,7 @@ void WellDisplay::setLineStyle( const LineStyle& lst )
 }
 
 
-void WellDisplay::addMarkers()
+void WellDisplay::updateMarkers( CallBacker* )
 {
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd ) return;
