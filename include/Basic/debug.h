@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.1 2003-06-10 13:42:53 arend Exp $
+ RCS:		$Id: debug.h,v 1.2 2003-06-10 13:47:17 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
     The isOn() is controlled by the environment variable dGB_DEBUG.
     If dGB_DEBUG starts with a "Y" or "y" then the mask is set to 0xffff.
-    isOn returns the bitwise "or" of the passed flag and the internal
+    isOn returns the bitwise "and" of the passed flag and the internal
     environment mask, converted to a boolean.
 
     The reserved/defined masks are defined in "debugmasks.h".
