@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.58 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.59 2003-12-22 15:26:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,6 +172,12 @@ public:
 				}
 
 				return false;
+			    }
+
+    virtual void	updateSpec()
+			    { 
+				for(int idx=0;idx<nElems()&&element(idx);idx++)
+				    spec_.setText( element(idx)->text(), idx );
 			    }
 
     void		valChangingNotify(CallBacker*)
@@ -723,6 +729,15 @@ bool uiGenInput::newSpec(const DataInpSpec& nw, int nr)
 	    ? flds[nr]->update(nw) : false; 
 }
 
+
+void uiGenInput::updateSpecs()
+{
+    if ( !finalised )
+	{ pErrMsg("Nothing to update. Not finalised yet.");return; }
+
+    for( int idx=0; idx < flds.size(); idx++ )
+	flds[idx]->updateSpec();
+}
 
 
 void uiGenInput::doFinalise()

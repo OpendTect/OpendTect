@@ -1,4 +1,5 @@
 #ifndef uigeninput_h
+    void		clear( int nr=-1 );
 #define uigeninput_h
 
 /*+
@@ -7,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.24 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uigeninput.h,v 1.25 2003-12-22 15:26:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +95,9 @@ Returns true, if changes are accepted.
 
 */
     bool		newSpec(const DataInpSpec& nw, int nr);
+
+    //! update spec() from current values on screen.
+    void		updateSpecs();
 
 //! checks if inputs are valid, f.e. within specified range
     bool		isValid( int nr=0 ) const;
