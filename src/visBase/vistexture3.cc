@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture3.cc,v 1.23 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: vistexture3.cc,v 1.24 2005-04-05 08:58:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,24 +174,24 @@ void Texture3::setData( const Array3D<float>* newdata, DataType sel )
 		if ( x0onedge && x1onedge && x2onedge )
 		    val = val000;
 		else if ( x0onedge && x1onedge )
-		    val = linearInterpolate( val000, val001, x2relpos );
+		    val = linearInterpolateWithUdf( val000, val001, x2relpos );
 		else if ( x0onedge && x2onedge )
-		    val = linearInterpolate( val000, val010, x1relpos );
+		    val = linearInterpolateWithUdf( val000, val010, x1relpos );
 		else if ( x1onedge && x2onedge )
-		    val = linearInterpolate( val000, val100, x0relpos );
+		    val = linearInterpolateWithUdf( val000, val100, x0relpos );
 		else if ( x0onedge )
-		    val = linearInterpolate2D( val000, val001, val010, val011,
-					       x1relpos, x2relpos );
+		    val = linearInterpolate2DWithUdf( val000, val001, val010,
+						val011, x1relpos, x2relpos );
 		else if ( x1onedge )
-		    val = linearInterpolate2D( val000, val001, val100, val101,
-					       x0relpos, x2relpos );
+		    val = linearInterpolate2DWithUdf( val000, val001, val100,
+						val101, x0relpos, x2relpos );
 		else if ( x2onedge )
-		    val = linearInterpolate2D( val000, val010, val100, val110,
-					       x0relpos, x1relpos );
+		    val = linearInterpolate2DWithUdf( val000, val010, val100,
+						val110, x0relpos, x1relpos );
 		else 
-		    val = linearInterpolate3D( val000, val001, val010, val011,
-					       val100, val101, val110, val111,
-					       x0relpos, x1relpos, x2relpos );
+		    val = linearInterpolate3DWithUdf( val000, val001, val010,
+					val011, val100, val101, val110,
+					val111, x0relpos, x1relpos, x2relpos );
 
 		resized[idx++] = val;
 		/*!< Note that this is the coin-ordering, not
