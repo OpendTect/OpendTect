@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.2 2002-03-14 14:44:34 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.3 2002-03-18 09:26:12 nanne Exp $
 ________________________________________________________________________
 
 
@@ -59,8 +59,8 @@ public:
     const VisColorTab&	getColorTab() const;
     VisColorTab&	getColorTab();
 
-    void		setAutoscale(bool n) {autoscale = n; clipData(); }
-    bool		autoScale() const { return autoscale; }
+    void		setAutoscale(bool n) 	{ autoscale = n; }
+    bool		autoScale() const 	{ return autoscale; }
 
     void		setClipRate( float n );
     			/*!< Should be between 0 and 0.5 */

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.3 2002-03-14 14:44:42 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.4 2002-03-18 09:26:18 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -136,6 +136,7 @@ void visBase::TextureRect::setClipRate(float n )
 {
     cliprate = n;
     clipData();
+    autoscale = true;
 }
 
 
