@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.37 2002-08-02 11:44:46 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.38 2002-08-22 14:32:04 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -44,6 +44,7 @@ visSurvey::Scene::Scene()
     , annot( 0 )
     , eventcatcher( visBase::EventCatcher::create())
     , mouseposchange( this )
+    , mouseposval(0)
 {
     setAmbientLight( 1 );
     addObject( const_cast<visBase::Transformation*>(displaytransformation));
@@ -483,16 +484,24 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;
     const visSurvey::PlaneDataDisplay* sd = 0;
+    const visSurvey::HorizonDisplay* hd =0;
 
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
 			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
 
-	if ( typeid(*pickedobj)==typeid(visSurvey::PlaneDataDisplay) )
+	if ( typeid(*pickedobj) == typeid(visSurvey::PlaneDataDisplay) )
 	{
 	    validpicksurface = true;
 	    sd = (const visSurvey::PlaneDataDisplay*) pickedobj;
+	    break;
+	}
+
+	if ( typeid(*pickedobj) == typeid(visSurvey::HorizonDisplay) )
+	{
+	    validpicksurface = true;
+	    hd = (const visSurvey::HorizonDisplay*) pickedobj;
 	    break;
 	}
     }
@@ -506,6 +515,9 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
     inlcrl.x = binid.inl;
     inlcrl.y = binid.crl;
 
-    mouseposval = sd->getValue( inlcrl );
+    if ( sd )
+	mouseposval = sd->getValue( inlcrl );
+    else if ( hd )
+	mouseposval = hd->getValue( inlcrl );
     mouseposchange.trigger();
 }
