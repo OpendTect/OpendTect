@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.17 2003-09-16 09:48:40 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.18 2003-10-23 12:15:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
 
     bool		selectHorizon(MultiID&);
     bool		loadAuxData(const MultiID&,int);
+    bool		loadAuxData(const MultiID&,const char*);
     int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&,
 	    				     bool);
 

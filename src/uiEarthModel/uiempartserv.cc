@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.31 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.32 2003-10-23 12:15:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,6 +189,28 @@ bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
 }
 
 
+bool uiEMPartServer::loadAuxData( const MultiID& id, const char* attrnm )
+{
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    if ( !hor ) return false;
+    
+    EM::SurfaceIOData sd;
+    em.getSurfaceData( id, sd );
+    const int nritems = sd.valnames.size();
+    int selidx = -1;
+    for ( int idx=0; idx<nritems; idx++ )
+    {
+	const BufferString& nm = *sd.valnames[idx];
+	if ( nm == attrnm )
+	{ selidx= idx; break; }
+    }
+
+    if ( selidx < 0 ) return false;
+    return loadAuxData( id, selidx );
+}
+
+
 int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx, 
 					  const MultiID& id, bool hasauxdata )
 {
@@ -200,14 +222,14 @@ int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx,
     EM::SurfaceIOData sd;
     em.getSurfaceData( id, sd );
 
-    int nritems = sd.valnames.size();
+    const int nritems = sd.valnames.size();
     uiPopupMenu* popmnu = new uiPopupMenu( appserv().parent(), "Surface data" );
     mnu.insertItem( popmnu );
     popmnu->setEnabled( nritems );
 
     for ( int idx=0; idx<nritems; idx++ )
     {
-	BufferString nm = *sd.valnames[idx];
+	const BufferString& nm = *sd.valnames[idx];
 	uiMenuItem* itm = new uiMenuItem( nm );
 	popmnu->insertItem( itm, startidx+idx );
 	bool docheck = hasauxdata && nm == curval;
