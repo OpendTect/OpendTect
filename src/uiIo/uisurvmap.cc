@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.3 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.4 2004-04-14 14:06:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,11 +69,10 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     uiSize sz( w, h, true );
     uiWorld2Ui w2ui( wr, sz );
     uiPoint cpt[4];
-    MarkerStyle ms = MarkerStyle::Square;
     for ( int idx=0; idx<4; idx++ )
     {
         cpt[idx] = w2ui.transform( uiWorldPoint(mapcnr[idx].x, mapcnr[idx].y) );
-        dt.drawMarker( cpt[idx], ms );
+        dt.drawMarker( cpt[idx], MarkerStyle2D::Square );
     }
 
     Color red( 255, 0, 0, 0);

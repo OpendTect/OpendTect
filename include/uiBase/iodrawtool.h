@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: iodrawtool.h,v 1.8 2004-04-14 14:04:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiFont;
 class Color;
 class Alignment;
 class LineStyle;
-class MarkerStyle;
+class MarkerStyle2D;
 
 
 //! Tool to draw on ioDrawArea's. Each ioDrawArea can give you a drawtool.
@@ -92,8 +92,8 @@ public:
                         { drawPixmap( uiPoint( left, top ), pm, 
                                       uiRect( sLeft, sTop, sRight, sBottom )); } 
 
-    void		drawMarker(uiPoint,const MarkerStyle&,const char* txt=0,
-				   bool below=true);
+    void		drawMarker(uiPoint,const MarkerStyle2D&,
+	    			   const char* txt=0,bool below=true);
 
     int 		getDevHeight() const;
     int 		getDevWidth() const;

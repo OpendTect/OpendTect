@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.35 2003-11-12 12:57:04 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.36 2004-04-14 14:04:18 nanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -25,8 +25,10 @@ The main chunk is color table related.
 
 // First some implementations for a couple of header files ...
 
-DefineEnumNames(MarkerStyle,Type,2,"Marker type")
+DefineEnumNames(MarkerStyle2D,Type,2,"Marker type")
     { "None", "Square", "Circle", "Cross", 0 };
+DefineEnumNames(MarkerStyle3D,Type,0,"Marker type")
+    { "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", 0 };
 DefineEnumNames(LineStyle,Type,0,"Line style")
     { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 DefineEnumNames(Alignment,Pos,3,"Alignment position")
@@ -35,46 +37,37 @@ DefineEnumNames(Alignment,Pos,3,"Alignment position")
 
 // The some draw.h stuff
 
-void MarkerStyle::toString( BufferString& bs ) const
-{
-    FileMultiString fms;
-    fms = eString(Type,type);
-    fms += size;
-    color.fill( bs.buf() );
-    fms += bs;
-    bs = fms;
+#define mToStringImpl( clss, par ) \
+void clss::toString( BufferString& bs ) const \
+{ \
+    FileMultiString fms; \
+    fms = eString(Type,type); \
+    fms += par; \
+    color.fill( bs.buf() ); \
+    fms += bs; \
+    bs = fms; \
 }
 
 
-void MarkerStyle::fromString( const char* s )
-{
-    FileMultiString fms( s );
-    type = eEnum(Type,fms[0]);
-    size = atoi(fms[1]);
-    FileMultiString colfms( fms.from(2) );
-    color.use( colfms );
+#define mFromStringImpl( clss, par ) \
+void clss::fromString( const char* s ) \
+{ \
+    FileMultiString fms( s ); \
+    type = eEnum(Type,fms[0]); \
+    par = atoi(fms[1]); \
+    FileMultiString colfms( fms.from(2) ); \
+    color.use( colfms ); \
 }
 
 
-void LineStyle::toString( BufferString& bs ) const
-{
-    FileMultiString fms;
-    fms = eString(Type,type);
-    fms += width;
-    color.fill( bs.buf() );
-    fms += bs;
-    bs = fms;
-}
+mToStringImpl( MarkerStyle2D, size )
+mToStringImpl( MarkerStyle3D, size )
+mToStringImpl( LineStyle, width )
 
+mFromStringImpl( MarkerStyle2D, size )
+mFromStringImpl( MarkerStyle3D, size )
+mFromStringImpl( LineStyle, width )
 
-void LineStyle::fromString( const char* s )
-{
-    FileMultiString fms( s );
-    type = eEnum(Type,fms[0]);
-    width = atoi(fms[1]);
-    FileMultiString colfms( fms.from(2) );
-    color.use( colfms );
-}
 
 // And the ColorTable stuff ...
 

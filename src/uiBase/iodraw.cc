@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.9 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: iodraw.cc,v 1.10 2004-04-14 14:04:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -260,21 +260,21 @@ int ioDrawTool::getDevWidth() const
 }
 
 
-void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle& mstyle,
+void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle2D& mstyle,
 			    const char* txt, bool below )
 {
     setPenColor( mstyle.color );
     switch ( mstyle.type )
     {
-    case MarkerStyle::Square:
+    case MarkerStyle2D::Square:
 	drawRect( pt.x()-mstyle.size, pt.y()-mstyle.size,
 		  2 * mstyle.size, 2 * mstyle.size );
         break;
-    case MarkerStyle::Circle:
+    case MarkerStyle2D::Circle:
 	drawEllipse( pt.x() - mstyle.size, pt.y() - mstyle.size,
 		     2*mstyle.size, 2*mstyle.size );
         break;
-    case MarkerStyle::Cross:
+    case MarkerStyle2D::Cross:
 	drawLine( pt.x()-mstyle.size, pt.y()-mstyle.size,
 		  pt.x()+mstyle.size, pt.y()+mstyle.size );
 	drawLine( pt.x()-mstyle.size, pt.y()+mstyle.size,
@@ -286,7 +286,7 @@ void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle& mstyle,
     {
 	Alignment al( Alignment::Middle, Alignment::Middle );
 	int yoffs = 0;
-	if ( mstyle.type != MarkerStyle::None )
+	if ( mstyle.type != MarkerStyle2D::None )
 	{
 	    al.ver = below ? Alignment::Start : Alignment::Stop;
 	    yoffs = below ? mstyle.size+1 : -mstyle.size-1;

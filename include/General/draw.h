@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.7 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: draw.h,v 1.8 2004-04-14 14:04:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,22 +30,43 @@ public:
 };
 
 
-class MarkerStyle
+class MarkerStyle2D
 {
 public:
 
     enum Type		{ None, Square, Circle, Cross };
 			DeclareEnumUtils(Type)
 
-			MarkerStyle( Type t=Square, int s=2,
-				     Color c=Color::Black,
-				     const char* fk=0 )
-			: type(t), size(s), color(c), fontkey(fk)	{}
+			MarkerStyle2D( Type tp=Square, int sz=2,
+				       Color col=Color::Black,
+				       const char* fk=0 )
+			: type(tp), size(sz), color(col), fontkey(fk)	{}
 
     Type		type;
     int			size;
     Color		color;
     BufferString	fontkey;
+
+    void		toString(BufferString&) const;
+    void		fromString(const char*);
+
+};
+
+
+class MarkerStyle3D
+{
+public:
+
+    enum Type		{ None, Cube, Cone, Cylinder, Sphere, Arrow };
+			DeclareEnumUtils(Type)
+
+			MarkerStyle3D( Type tp=Cube, int sz=3,
+				       Color col=Color::White )
+			: type(tp), size(sz), color(col)	{}
+
+    Type		type;
+    int			size;
+    Color		color;
 
     void		toString(BufferString&) const;
     void		fromString(const char*);
