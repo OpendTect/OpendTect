@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.4 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.5 2004-03-31 06:43:01 nanne Exp $
 ________________________________________________________________________
 
 
@@ -56,4 +56,12 @@ protected:
     virtual		~SoShapeScale();
 };
 
+
+/*!\mainpage Inventor classes
+
+  All classes in this module are in fact extensions of the COIN library. 
+  Before a So-class can be used, it needs to be initiated. This is done in
+  visBase::initODInventorClasses().
+
+*/
 #endif
