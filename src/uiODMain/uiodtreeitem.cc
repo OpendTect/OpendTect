@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.15 2004-05-06 10:13:02 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.16 2004-05-06 15:13:19 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 #include "settings.h"
 #include "visplanedatadisplay.h"
-#include "vissurvsurf.h"
+#include "uivissurface.h"
 #include "uiexecutor.h"
 
 
@@ -412,22 +412,35 @@ void uiODDisplayTreeItem::handleMenuCB(CallBacker* cb)
 uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 						const MultiID& mid_)
     : mid( mid_ )
+    , uivissurf( 0 )
 {}
+
+
+uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
+{ delete uivissurf; }
 
 
 bool uiODEarthModelSurfaceTreeItem::init()
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
-    if ( displayid==-1 )
+    if ( uivissurf ) delete uivissurf;
+    if ( displayid!=-1 )
     {
-	createSurfaceDisplay();
+	uivissurf = new uiVisSurface( getUiParent(), displayid,
+				      applMgr()->visServer() );
+	if ( !uivissurf->isOK() )
+	{
+	    delete uivissurf;
+	    uivissurf = 0;
+	    return false;
+	}
+
+	mid = *applMgr()->visServer()->getMultiID(displayid);
     }
     else
     {
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(displayid));
-	if ( !sd ) return false;
-	mid = *sd->getMultiID();
+	uivissurf = new uiVisSurface( getUiParent(), mid, sceneID(),
+				      applMgr()->visServer() );
+	displayid = uivissurf->id();
     }
 
     if ( !uiODDisplayTreeItem::init() )
@@ -461,23 +474,9 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
     mDynamicCastGet( uiVisMenu*, menu, cb );
 
     uiVisPartServer* visserv = applMgr()->visServer();
-    mDynamicCastGet( visSurvey::SurfaceDisplay*, sd,
-	    	     visserv->getObject(displayid));
 	
     storemnuid = menu->addItem( new uiMenuItem("Store ...") );
     trackmnuid = menu->addItem( new uiMenuItem("Start tracking ...") );
-
-    uiMenuItem* colitm = new uiMenuItem("Use single color");
-    singlecolmnuid = menu->addItem( colitm );
-    colitm->setChecked( !sd->usesTexture() );
-
-    uiMenuItem* wireframeitem = new uiMenuItem("Wireframe");
-    wireframemnuid = menu->addItem( wireframeitem );
-    wireframeitem->setChecked( sd->isWireFrameOn() );
-
-    uiMenuItem* edititem = new uiMenuItem("Edit");
-    editmnuid = menu->addItem( edititem );
-    edititem->setChecked( sd->editingEnabled() );
 
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
@@ -507,34 +506,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 }
 
 
-bool uiODEarthModelSurfaceTreeItem::createSurfaceDisplay()
-{
-    visSurvey::SurfaceDisplay* sd = visSurvey::SurfaceDisplay::create();
-    sd->setTransformation( visSurvey::SPM().getUTM2DisplayTransform() );
-    displayid = sd->id();
-
-    PtrMan<Executor> exec = sd->createSurface( mid );
-    if ( !exec )
-    {
-	sd->ref(); sd->unRef();
-	return false;
-    }
-
-    uiExecutor uiexec (getUiParent(), *exec );
-    if ( !uiexec.execute() )
-    {
-	sd->ref(); sd->unRef();
-	return false;
-    }
-
-    uiVisPartServer* visserv = applMgr()->visServer();
-    visserv->addObject( sd, sceneID(), true );
-    sd->setZValues();
-
-    return true;
-}
-
-
 void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
@@ -544,8 +515,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 	return;
 
     uiVisPartServer* visserv = applMgr()->visServer();
-    mDynamicCastGet( visSurvey::SurfaceDisplay*, sd,
-	    	     visserv->getObject(displayid));
 	
     if ( mnuid==storemnuid )
     {
@@ -560,22 +529,18 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
     else if ( mnuid==reloadmnuid )
     {
 	menu->setIsHandled(true);
-	const MultiID& emsurfid = *sd->getMultiID();
 	uiTreeItem* parent__ = parent;
 
 	applMgr()->visServer()->removeObject(displayid, sceneID());
+	delete uivissurf; uivissurf = 0;
 
-	if ( !applMgr()->EMServer()->loadSurface( emsurfid ) )
+	if ( !applMgr()->EMServer()->loadSurface( mid ) )
 	    return;
 
-	createSurfaceDisplay();
+	uivissurf = new uiVisSurface( getUiParent(), mid, sceneID(),
+				      applMgr()->visServer() );
+	displayid = uivissurf->id();
     }
-    else if ( mnuid==singlecolmnuid )
-	sd->useTexture( !sd->usesTexture() );
-    else if ( mnuid==wireframemnuid )
-	sd->turnOnWireFrame( !sd->isWireFrameOn() );
-    else if ( mnuid==editmnuid )
-	sd->enableEditing( !sd->editingEnabled() );
     else if ( mnuid>=attribstartmnuid && mnuid<=attribstopmnuid )
     {
 	menu->setIsHandled(true);
@@ -823,11 +788,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 
 uiTreeItem* uiODFaultFactory::create(int visid) const
 {
-    mDynamicCastGet( visSurvey::SurfaceDisplay*, so, 
-	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
-    if ( !so ) return 0;
-
-    return so && !so->isHorizon() ? new uiODFaultTreeItem(visid) : 0;
+    return uiVisSurface::isFault(visid) ? new uiODFaultTreeItem(visid) : 0;
 }
 
 
@@ -877,11 +838,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
 uiTreeItem* uiODHorizonFactory::create(int visid) const
 {
-    mDynamicCastGet( visSurvey::SurfaceDisplay*, so, 
-	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
-    if ( !so ) return 0;
-
-    return so && so->isHorizon() ? new uiODHorizonTreeItem(visid) : 0;
+    return uiVisSurface::isHorizon(visid) ? new uiODHorizonTreeItem(visid) : 0;
 }
 
 
@@ -899,63 +856,12 @@ void uiODHorizonTreeItem::updateColumnText(int col)
 {
     if ( col==1 )
     {
-	uiVisPartServer* visserv = applMgr()->visServer();
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(displayid));
-	if ( sd->isHorizon() )
-	{
-	    BufferString shift = sd->getShift();
-	    uilistviewitem->setText( shift, col );
-	    return;
-	}
+	BufferString shift = uivissurf->getShift();
+	uilistviewitem->setText( shift, col );
+	return;
     }
 
     return uiODDisplayTreeItem::updateColumnText(col);
-}
-
-
-void uiODHorizonTreeItem::createMenuCB(CallBacker* cb)
-{
-    uiODEarthModelSurfaceTreeItem::createMenuCB(cb);
-    mDynamicCastGet( uiVisMenu*, menu, cb );
-    shifthormnuid = menu->addItem( new uiMenuItem("Shift ..."), 100 );
-}
-
-
-void uiODHorizonTreeItem::handleMenuCB(CallBacker* cb)
-{
-    uiODEarthModelSurfaceTreeItem::handleMenuCB(cb);
-    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet( uiVisMenu*, menu, caller );
-    if ( mnuid==-1 || menu->isHandled() )
-	return;
-
-    if ( mnuid==shifthormnuid )
-    {
-	menu->setIsHandled(true);
-	uiVisPartServer* visserv = applMgr()->visServer();
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(displayid))
-	float shift = sd->getShift();
-	BufferString lbl( "Shift " ); lbl += SI().getZUnit();
-	DataInpSpec* inpspec = new FloatInpSpec( shift );
-	uiGenInputDlg dlg( getUiParent(),"Specify horizon shift", lbl, inpspec);
-	if ( !dlg.go() ) return;
-
-	float newshift = dlg.getfValue();
-	if ( shift == newshift ) return;
-
-	sd->setShift( dlg.getfValue() );
-	if ( sd->hasStoredAttrib() )
-	{
-	    uiMSG().error( "Cannot calculate this attribute on new location"
-			    "\nDepth will be displayed instead" );
-	    sd->setZValues();
-	    updateColumnText(0);
-	}
-	else
-	    visserv->calculateAttrib( displayid, false );
-    }
 }
 
 
