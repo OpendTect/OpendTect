@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.17 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uifont.cc,v 1.18 2003-04-23 12:11:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,7 +233,6 @@ uiFont& uiFontList::gtFont( const char* key, const FontData* fdat,
 	}
 	if( qf && fnt->qFont() == *qf )
 	{
-cout << ".";
 	    if ( fdat ) fnt->setFontData( *fdat );
 	    return *fnt; 
 	}
