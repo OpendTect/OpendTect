@@ -31,7 +31,7 @@ void uiProgressBar::setProgress( int progr )
 } 
 
 
-int uiProgressBar::Progress()
+int uiProgressBar::Progress() const
 {
     return mQtThing()->progress();
 }
@@ -43,7 +43,7 @@ void uiProgressBar::setTotalSteps( int tstp )
 } 
 
 
-int uiProgressBar::totalSteps()
+int uiProgressBar::totalSteps() const
 {
     return mQtThing()->totalSteps();
 }
