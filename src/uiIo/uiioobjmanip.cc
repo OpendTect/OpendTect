@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.6 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.7 2004-03-19 13:42:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,17 +162,32 @@ bool uiIOObjManipGroup::renameEntry( Translator* tr )
     ioobj->setName( newnm );
 
     mDynamicCastGet(IOStream*,iostrm,ioobj)
-    if ( iostrm && iostrm->implExists(true) )
+    if ( iostrm )
     {
-	IOStream chiostrm;
-	chiostrm.copyFrom( iostrm );
-	if ( tr )
-	    chiostrm.setExt( tr->defExtension() );
-	chiostrm.genDefaultImpl();
-	if ( !doReloc(tr,*iostrm,chiostrm) )
-	    return false;
+	if ( !iostrm->implExists(true) )
+	    iostrm->genDefaultImpl();
+	else
+	{
+	    IOStream chiostrm;
+	    chiostrm.copyFrom( iostrm );
+	    if ( tr )
+		chiostrm.setExt( tr->defExtension() );
+	    chiostrm.genDefaultImpl();
+	    if ( !doReloc(tr,*iostrm,chiostrm) )
+	    {
+		if ( strchr(newnm.buf(),'/') || strchr(newnm.buf(),'\\') )
+		{
+		    cleanupString(newnm.buf(),NO,NO,YES);
+		    chiostrm.setName( newnm );
+		    chiostrm.genDefaultImpl();
+		    chiostrm.setName( iostrm->name() );
+		    if ( !doReloc(tr,*iostrm,chiostrm) )
+			return false;
+		}
+	    }
 
-	iostrm->copyFrom( &chiostrm );
+	    iostrm->copyFrom( &chiostrm );
+	}
     }
 
     IOM().commitChanges( *ioobj );
