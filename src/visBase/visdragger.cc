@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.10 2004-11-16 09:28:33 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.11 2005-01-06 10:47:37 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include <Inventor/draggers/SoDragPointDragger.h>
 #include <Inventor/draggers/SoTranslate1Dragger.h>
+#include <Inventor/draggers/SoTranslate2Dragger.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>
 
@@ -42,7 +43,7 @@ Dragger::Dragger()
 
     positiontransform->ref();
     separator->addChild( positiontransform->getInventorNode() );
-    setDraggerType( Translate );
+    setDraggerType( Translate1D );
     setDefaultRotation();
 }
 
@@ -82,8 +83,10 @@ void Dragger::setDraggerType( Type tp )
 	separator->removeChild( dragger );
     }
     
-    if ( tp == DragPoint )
+    if ( tp == Translate3D )
 	dragger = new SoDragPointDragger;
+    else if ( tp==Translate2D )
+	dragger = new SoTranslate2Dragger;
     else
 	dragger = new SoTranslate1Dragger;
 
@@ -125,6 +128,12 @@ void Dragger::setOwnShape(visBase::DataObject* newshape, const char* partname )
     {
 	dragger->setPart(partname,newshape->getInventorNode());
     }
+}
+
+
+SoNode* Dragger::getShape( const char* name )
+{
+    return dragger->getPart(name,false);
 }
 
 
@@ -195,8 +204,10 @@ void Dragger::setPos( const Coord3& pos )
     positiontransform->setTranslation( newpos );
 
     mDynamicCastGet( SoTranslate1Dragger*, t1d, dragger )
+    mDynamicCastGet( SoTranslate2Dragger*, t2d, dragger )
     mDynamicCastGet( SoDragPointDragger*, dpd, dragger )
     if ( t1d ) t1d->translation.setValue( 0, 0, 0 );
+    else if ( t2d ) t2d->translation.setValue( 0, 0, 0 );
     else if ( dpd ) dpd->translation.setValue( 0, 0, 0 );
 }
 
@@ -205,8 +216,10 @@ Coord3 Dragger::getPos() const
 {
     SbVec3f pos_;
     mDynamicCastGet( SoTranslate1Dragger*, t1d, dragger )
+    mDynamicCastGet( SoTranslate2Dragger*, t2d, dragger )
     mDynamicCastGet( SoDragPointDragger*, dpd, dragger )
     if ( t1d ) pos_ = t1d->translation.getValue();
+    else if ( t2d ) pos_ = t2d->translation.getValue();
     else pos_ = dpd->translation.getValue();
 
 
