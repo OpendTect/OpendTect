@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.6 2002-03-12 16:02:46 bert Exp $
+ RCS:           $Id: progressmeter.h,v 1.7 2002-03-13 11:17:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,12 +37,13 @@ protected:
 
     ostream&		strm;
     unsigned short	rowlen;
-    short		idist;
+    unsigned char	idist;
     unsigned long	dist;
     unsigned long       progress;
-    unsigned long	zeropoint;
+    unsigned long	lastannotatedprogress;
     unsigned long	auxnr;
     int 		oldtime; 
+    int 		nrdotsonline; 
     bool		destrfin;
     bool		inited;
     bool		finished;
