@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.6 2005-03-02 18:38:15 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.7 2005-03-18 11:21:27 cvskris Exp $";
 
 #include "cubicbeziercurve.h"
 
@@ -82,7 +82,7 @@ Coord3 CubicBezierCurve::computePosition( float param) const
 }
 
 
-Coord3 CubicBezierCurve::computeDirection( float param ) const
+Coord3 CubicBezierCurve::computeTangent( float param ) const
 {
     pErrMsg("Not implemented");
     return Coord3::udf();
@@ -219,7 +219,7 @@ Coord3 CubicBezierCurve::getBezierVertex( GeomPosID pid, bool before ) const
     const Coord3 basepos = getPosition( pid );
     if ( !basepos.isDefined() ) return basepos;
 
-    const Coord3 dir = getDirection(pid,true);
+    const Coord3 dir = getTangent(pid,true);
     if ( !dir.isDefined() ) return dir;
     
     if ( before ) return basepos-dir.normalize()*directioninfluence;
@@ -227,7 +227,7 @@ Coord3 CubicBezierCurve::getBezierVertex( GeomPosID pid, bool before ) const
 }
 
 
-Coord3 CubicBezierCurve::getDirection(	GeomPosID param,
+Coord3 CubicBezierCurve::getTangent(	GeomPosID param,
 					bool computeifudf ) const
 {
     const int idx = getIndex(param);
@@ -236,13 +236,13 @@ Coord3 CubicBezierCurve::getDirection(	GeomPosID param,
 	return Coord3::udf();
 
     if ( !directions[idx].isDefined() && computeifudf )
-	return computeDirection( param );
+	return computeTangent( param );
 
     return directions[idx];
 }
 
 
-bool CubicBezierCurve::setDirection( GeomPosID param, const Coord3& np )
+bool CubicBezierCurve::setTangent( GeomPosID param, const Coord3& np )
 {
     const int idx = getIndex(param);
 
@@ -256,11 +256,11 @@ bool CubicBezierCurve::setDirection( GeomPosID param, const Coord3& np )
 }
 
 
-bool CubicBezierCurve::unsetDirection( GeomPosID param )
-{ return setDirection( param, Coord3::udf()); }
+bool CubicBezierCurve::unsetTangent( GeomPosID param )
+{ return setTangent( param, Coord3::udf()); }
 
 
-bool CubicBezierCurve::isDirectionDefined( GeomPosID param ) const
+bool CubicBezierCurve::isTangentDefined( GeomPosID param ) const
 {
     const int index = getIndex( param );
     return index>=0 && index<positions.size() && directions[index].isDefined();
@@ -270,7 +270,7 @@ bool CubicBezierCurve::isDirectionDefined( GeomPosID param ) const
 float CubicBezierCurve::directionInfluence() const { return directioninfluence;}
 
 
-void CubicBezierCurve::setDirectionInfluence( float ndi )
+void CubicBezierCurve::setTangentInfluence( float ndi )
 {
     directioninfluence=ndi;
     triggerMovement();
@@ -297,7 +297,7 @@ bool CubicBezierCurve::setCircular(bool yn)
 }
 
 
-Coord3 CubicBezierCurve::computeDirection( GeomPosID param ) const
+Coord3 CubicBezierCurve::computeTangent( GeomPosID param ) const
 {
     const int idx = getIndex( param );
     if ( idx<0||idx>=positions.size() )

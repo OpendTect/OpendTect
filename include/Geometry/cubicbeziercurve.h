@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: cubicbeziercurve.h,v 1.4 2005-03-02 18:38:18 cvskris Exp $
+RCS:           $Id: cubicbeziercurve.h,v 1.5 2005-03-18 11:21:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
     IntervalND<float>	boundingBox(bool) const;
 
     Coord3 		computePosition( float ) const;
-    Coord3 		computeDirection( float ) const;
+    Coord3 		computeTangent( float ) const;
 
     StepInterval<int>	parameterRange() const;
 
@@ -42,12 +42,12 @@ public:
 
     Coord3	getBezierVertex( GeomPosID, bool before ) const;
 
-    Coord3	getDirection( GeomPosID, bool computeifudf ) const;
-    bool	setDirection( GeomPosID, const Coord3& );
-    bool	unsetDirection( GeomPosID );
-    bool	isDirectionDefined( GeomPosID ) const;
+    Coord3	getTangent( GeomPosID, bool computeifudf ) const;
+    bool	setTangent( GeomPosID, const Coord3& );
+    bool	unsetTangent( GeomPosID );
+    bool	isTangentDefined( GeomPosID ) const;
     float	directionInfluence() const;
-    void	setDirectionInfluence(float);
+    void	setTangentInfluence(float);
 
     bool	isCircular() const;
     bool	setCircular(bool yn);
@@ -56,7 +56,7 @@ protected:
     int		getIndex( GeomPosID param ) const
     		{ return (param-firstparam)/paramstep; }
 
-    Coord3	computeDirection( GeomPosID ) const;
+    Coord3	computeTangent( GeomPosID ) const;
 
     int			firstparam;
     int			paramstep;
