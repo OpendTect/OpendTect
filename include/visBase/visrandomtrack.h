@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.3 2003-01-20 08:37:47 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.4 2003-01-21 16:10:00 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -54,6 +54,8 @@ public:
     void			setZrange( const StepInterval<float>& );
     				/*!< sets limits for dragging */
 
+    void			setDraggerSize( const Coord3& );
+
     void			setClipRate( float );
     float			clipRate() const;
 
@@ -69,6 +71,7 @@ public:
 protected:
     				~RandomTrack();
     void			rebuild();
+    void			createDragger();
 
     Interval<float>		depthrg;
     TypeSet<Coord>		knots;

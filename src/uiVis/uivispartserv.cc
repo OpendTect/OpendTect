@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.112 2003-01-21 08:30:38 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.113 2003-01-21 16:09:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -304,15 +304,8 @@ int uiVisPartServer::getSelObjectId() const
 void uiVisPartServer::setSelObjectId( int id )
 {
     visBase::DM().selMan().select( id );
-
     if ( !viewmode )
-    {
-	visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-	if ( pdd ) pdd->showDraggers(true);
-	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-	if ( vd ) vd->showBox( true );
-    }
+	toggleDraggers();
 }
 
 
@@ -528,6 +521,41 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	}
 	
 	return true;
+    }
+
+    if ( mnu==mAddKnot )
+    {
+	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
+	const int nrknots = rtd->nrKnots();
+	const Coord lastknot = rtd->getKnotPos( nrknots-1 );
+	const Coord secondlastknot = rtd->getKnotPos( nrknots-2 );
+	const Coord diff = lastknot-secondlastknot;
+	const Coord newknot = lastknot+diff;
+	rtd->addKnot( newknot );
+    }
+
+    if ( mnu>=mInsertKnotStart && mnu<=mInsertKnotStop )
+    {
+	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
+	int knotidx = mnu-mInsertKnotStart;
+
+	Coord newknot;
+	if ( !knotidx )
+	{
+	    const Coord lastknot = rtd->getKnotPos( 0 );
+	    const Coord secondlastknot = rtd->getKnotPos( 1 );
+	    const Coord diff = lastknot-secondlastknot;
+	    Coord newknot = lastknot+diff;
+	}
+	else
+	{
+	    const Coord previousknot = rtd->getKnotPos( knotidx-1 );
+	    const Coord nextknot = rtd->getKnotPos( knotidx );
+	    newknot = Coord((nextknot.x+previousknot.x)/2,
+		    	    (nextknot.y+previousknot.y)/2 );
+	}
+
+	rtd->insertKnot( knotidx, newknot );
     }
 
     if ( mnu>=mResolutionStart && mnu<=mResolutionStop )
@@ -1065,7 +1093,7 @@ const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
     if ( vd ) return &vd->getAttribSelSpec();
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj);
-    //if ( rtd ) return &rtd->getAttribSelSpec();
+    if ( rtd ) return &rtd->getAttribSelSpec();
 
     return 0;
 }
@@ -1092,6 +1120,13 @@ void uiVisPartServer::setViewMode(bool yn)
 {
     if ( yn==viewmode ) return;
     viewmode = yn;
+    toggleDraggers();
+}
+
+
+void uiVisPartServer::toggleDraggers()
+{
+    const TypeSet<int>& selected = visBase::DM().selMan().selected();
 
     for ( int sceneidx=0; sceneidx<scenes.size(); sceneidx++ )
     {
@@ -1100,14 +1135,18 @@ void uiVisPartServer::setViewMode(bool yn)
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
 	    visBase::SceneObject* obj = scene->getObject( objidx );
+	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && !viewmode;
 
 	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-	    if ( pdd ) pdd->showDraggers(!yn);
+	    if ( pdd ) pdd->showDraggers(isdraggeron);
 	    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-	    if ( vd ) vd->showBox( !yn );
+	    if ( vd ) vd->showBox(isdraggeron);
+	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj);
+	    if ( rtd ) rtd->showDragger(isdraggeron);
 	}
     }
 }
+    
 
 
 void uiVisPartServer::setZScale()
@@ -1280,11 +1319,9 @@ bool uiVisPartServer::hasAttrib( int id ) const
 bool uiVisPartServer::selectAttrib( int id )
 {
     eventmutex.lock();
-    sendEvent( evSelectAttrib );
+    if ( !sendEvent( evSelectAttrib ) ) return false;
     AttribSelSpec myattribspec( attribspec );
     eventmutex.unlock();
-
-    if ( !attrselected ) return false;
 
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj);
@@ -1294,7 +1331,8 @@ bool uiVisPartServer::selectAttrib( int id )
     }
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
-    if ( rtd ) return true;
+    if ( rtd ) 
+	rtd->setAttribSelSpec( myattribspec );
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj);
     if ( pdd )
@@ -1308,8 +1346,6 @@ bool uiVisPartServer::selectAttrib( int id )
 	surface->setAttribSelSpec( myattribspec );
     }
 
-    calculateAttrib( id );
-
     return true;
 }
 
@@ -1318,13 +1354,18 @@ bool uiVisPartServer::calculateAttrib( int id )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
 
+    const AttribSelSpec* as = getSelSpec( id );
+    bool res = true;
+    if ( as->id()<0 ) res = selectAttrib( id );
+    if ( !res ) return res;
+
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj);
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj);
     if ( vd || pdd )
     {
 	Threads::MutexLocker lock( eventmutex );
 	eventobjid = id;
-	sendEvent( evGetNewCubeData );
+	return sendEvent( evGetNewCubeData );
     }
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
@@ -1332,7 +1373,7 @@ bool uiVisPartServer::calculateAttrib( int id )
     {
 	Threads::MutexLocker lock( eventmutex );
 	eventobjid = id;
-	sendEvent( evGetRandomTracePosData );
+	return sendEvent( evGetRandomTracePosData );
     }
 
     mDynamicCastGet(visSurvey::SurfaceDisplay*,surface,dobj);
@@ -1340,10 +1381,10 @@ bool uiVisPartServer::calculateAttrib( int id )
     {
 	Threads::MutexLocker lock( eventmutex );
 	eventobjid = id;
-	sendEvent( evGetNewRandomPosData );
+	return sendEvent( evGetNewRandomPosData );
     }
 
-    return true;
+    return false;
 }
 
 
@@ -1382,14 +1423,12 @@ bool uiVisPartServer::setPosition( int id )
 	if ( pdd )
 	{
 	    pdd->setCubeSampling( cs );
-	    pdd->updateAtNewPos();
-	    sendEvent( evSelection );
+	    return calculateAttrib( id );
 	}
 	else if ( vd )
 	{
 	    vd->setCubeSampling( cs );
-	    vd->updateAtNewPos();
-	    sendEvent( evSelection );
+	    return calculateAttrib( id );
 	}
     }
 
@@ -1408,9 +1447,8 @@ void uiVisPartServer::updatePlanePos( CallBacker* cb )
 
     CubeSampling cs = dlg->getCubeSampling();
     pdd->setCubeSampling( cs );
-    pdd->updateAtNewPos();
+    calculateAttrib( id );
     sendEvent( evInteraction );
-    sendEvent( evSelection );
 }
   
 
@@ -1536,6 +1574,18 @@ bool uiVisPartServer::isManipulated( int id ) const
 }
 
 
+void uiVisPartServer::acceptManipulation( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
+    if ( pdd )
+    {
+	pdd->setCubeSampling( pdd->getCubeSampling(true));
+	pdd->resetManip();
+    }
+}
+
+
 void uiVisPartServer::setUpConnections( int id )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
@@ -1548,8 +1598,8 @@ void uiVisPartServer::setUpConnections( int id )
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
     if ( pdd )
     {
-        pdd->getMovementNotification()->notify(
-				mCB(this,uiVisPartServer,getDataCB) );
+        //pdd->getMovementNotification()->notify(
+				//mCB(this,uiVisPartServer,getDataCB) );
 	pdd->moving.notify( mCB(this,uiVisPartServer,interactionCB) );
     }
 
@@ -1586,13 +1636,7 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sel,cb);
     if ( !viewmode )
-    {
-	visBase::DataObject* obj = visBase::DM().getObj( sel );
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-	if ( pdd ) pdd->showDraggers( true );
-	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-	if ( vd ) vd->showBox( true );
-    }
+	toggleDraggers();
 
     Threads::MutexLocker lock( eventmutex );
     eventobjid = sel;
@@ -1603,14 +1647,17 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 void uiVisPartServer::deselectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,oldsel,cb);
-    if ( !viewmode )
+    if ( isManipulated( oldsel ) && hasAttrib(oldsel))
     {
-	visBase::DataObject* obj = visBase::DM().getObj( oldsel );
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-	if ( pdd ) pdd->showDraggers( false );
-	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-	if ( vd ) vd->showBox( false );
+	if ( calculateAttrib( oldsel ) )
+	{
+	    acceptManipulation( oldsel );
+	}
     }
+
+    if ( !viewmode )
+	toggleDraggers();
+
 
     Threads::MutexLocker lock( eventmutex );
     eventobjid = oldsel;
@@ -1643,16 +1690,4 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 	mouseposval = scene->getMousePosValue();
 	sendEvent( evMouseMove );
     }
-}
-
-
-void uiVisPartServer::getDataCB( CallBacker* )
-{
-//  int selid = getSelObjectId();
-    int selid = eventobjid;
-    const AttribSelSpec as = *getSelSpec( selid );
-    if ( as.id() < 0 )
-	selectAttrib( selid );
-    else
-	calculateAttrib( selid );
 }

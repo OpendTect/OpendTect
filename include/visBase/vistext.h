@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.7 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: vistext.h,v 1.8 2003-01-21 16:10:00 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -52,11 +52,15 @@ public:
     void		fillPar( IOPar&, TypeSet<int>& ) const;
     int			usePar( const IOPar& );
 
+    void		setTransformation( Transformation* );
+    Transformation*	getTransformation();
+
 protected:
 			~Text();
     SoTranslation*	textpos;
     SoFont*		font;
     SoText2*		text;
+    Transformation*	transformation;
 
     static const char*	stringstr;
     static const char*	fontsizestr;

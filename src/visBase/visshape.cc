@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.3 2003-01-20 08:33:11 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.4 2003-01-21 16:10:08 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -36,7 +36,9 @@ visBase::Shape::Shape( SoShape* shape_ )
 {
     onoff->ref();
     onoff->addChild( root );
+    onoff->whichChild = 0;
     addNode( shape );
+
 }
 
 

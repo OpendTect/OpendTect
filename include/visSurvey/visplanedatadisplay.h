@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.22 2003-01-17 16:23:16 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.23 2003-01-21 16:09:41 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,6 @@ public:
     void			showDraggers(bool yn);
     void			resetManip();
 
-    bool			updateAtNewPos();
     CubeSampling&		getCubeSampling(bool manippos=true);
     const CubeSampling&		getCubeSampling(bool manippos=true) const
 				{ return const_cast<PlaneDataDisplay*>(this)->
@@ -69,8 +68,6 @@ public:
     bool			putNewData( AttribSliceSet* );
     				/*!< Becomes mine */
     const AttribSliceSet*	getPrevData() const;
-    void			operationSucceeded( bool yn=true )
-				{ succeeded_ = yn; }
 
     void			turnOn(bool);
     bool			isOn() const;
@@ -100,7 +97,6 @@ public:
     virtual int			usePar( const IOPar& );
 
     virtual float		calcDist( const Coord3& ) const;
-    virtual NotifierAccess*	getMovementNotification() { return &newdata; }
     Notifier<PlaneDataDisplay>	moving;
 
     const char*			getResName(int);
@@ -113,20 +109,13 @@ protected:
     void			appVelChCB(CallBacker*);
     void			manipChanged(CallBacker*);
 
-    void			select();
-    void			deSelect();
-
     visBase::TextureRect*	trect;
 
     Type			type;
     AttribSelSpec&		as;
     AttribSliceSet*             cache;
     CubeSampling&		cs;
-
-    bool			selected_;
-    bool			succeeded_;
-
-    Notifier<PlaneDataDisplay>	newdata;
+    CubeSampling&		manipcs;
 
     static const char*		trectstr;
 };

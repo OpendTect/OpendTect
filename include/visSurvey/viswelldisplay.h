@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.5 2002-11-15 08:16:18 kristofer Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.6 2003-01-21 16:09:41 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,8 @@ public:
     virtual void                fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int                 usePar( const IOPar& );
 
+    void			setTransformation( visBase::Transformation* );
+    visBase::Transformation*	getTransformation();
 
 protected:
     virtual		~WellDisplay();

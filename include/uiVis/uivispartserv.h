@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.72 2003-01-21 08:30:45 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.73 2003-01-21 16:09:20 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,7 +144,6 @@ public:
     void			setSelSpec(const AttribSelSpec&);
     				/*!< Should only be called as a direct 
 				     reply to evSelectAttrib */
-    void			selectionOK(bool yn) { attrselected = yn; }
 
     static const int		evInteraction;
     				/*<! Get the id with getEventObjId() */
@@ -191,6 +190,7 @@ protected:
     bool			setPosition( int id );
 
     bool			isManipulated( int id ) const;
+    void			acceptManipulation( int id );
     bool			resetManipulation( int id );
 
     bool			hasMaterial( int id ) const;
@@ -202,6 +202,7 @@ protected:
     void			setUpConnections( int id );
     				/*!< Should set all cbs for the object */
     bool			dumpOI( int id ) const;
+    void			toggleDraggers();
 
     ObjectSet<visSurvey::Scene>	scenes;
     visSurvey::SurfaceInterpreterDisplay* interpreterdisplay;
@@ -217,14 +218,12 @@ protected:
     bool			viewmode;
     Threads::Mutex&		eventmutex;
     int				eventobjid;
-    bool			attrselected;
 
     void			selectObjCB(CallBacker*);
     void			deselectObjCB(CallBacker*);
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
     void			updatePlanePos(CallBacker*);
-    void			getDataCB(CallBacker*);
 
 
     static const char*		workareastr;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.10 2002-12-03 13:17:00 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.11 2003-01-21 16:09:48 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -184,3 +184,14 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
 
     return 1;
 }
+
+
+void visSurvey::WellDisplay::setTransformation( visBase::Transformation* nt )
+{
+    line->setTransformation( nt );
+    welltxt->setTransformation( nt );
+}
+
+
+visBase::Transformation* visSurvey::WellDisplay::getTransformation()
+{ return line->getTransformation(); }

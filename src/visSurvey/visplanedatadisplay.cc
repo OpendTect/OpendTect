@@ -4,11 +4,12 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.32 2003-01-21 12:34:26 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.33 2003-01-21 16:09:48 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
-#include "cubesampling.h"
+
 #include "attribsel.h"
+#include "cubesampling.h"
 #include "attribslice.h"
 #include "vistexturerect.h"
 #include "arrayndimpl.h"
@@ -32,16 +33,13 @@ const char* visSurvey::PlaneDataDisplay::trectstr = "Texture rectangle";
 visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     : VisualObject(true)
     , trect(visBase::TextureRect::create())
-    , selected_(false)
     , cache(0)
     , as(*new AttribSelSpec)
     , cs(*new CubeSampling)
-    , newdata(this)
+    , manipcs(*new CubeSampling)
     , moving(this)
 {
     trect->ref();
-    selection()->notify( mCB(this,PlaneDataDisplay,select) );
-    deSelection()->notify( mCB(this,PlaneDataDisplay,deSelect) );
 
     trect->getMaterial()->setAmbience( 0.8 );
     trect->getMaterial()->setDiffIntensity( 0.8 );
@@ -352,17 +350,9 @@ visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
 
     trect->unRef();
 
-    delete &cs;
     delete &as;
 }
 
-
-bool visSurvey::PlaneDataDisplay::updateAtNewPos()
-{
-    succeeded_ = false;
-    newdata.trigger();
-    return succeeded_;
-}
 
 AttribSelSpec& visSurvey::PlaneDataDisplay::getAttribSelSpec()
 { return as; }
@@ -376,38 +366,39 @@ void visSurvey::PlaneDataDisplay::setAttribSelSpec( AttribSelSpec& as_ )
 
 CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
 {
-    cs.hrg.start = BinID( mNINT(manippos
+    CubeSampling& cubesampl = manippos ? manipcs : cs;
+    cubesampl.hrg.start = BinID( mNINT(manippos
 				? trect->getRectangle().manipOrigo().x
 				: trect->getRectangle().origo().x),
 		  	  mNINT(manippos
 				? trect->getRectangle().manipOrigo().y
 				: trect->getRectangle().origo().y) );
 
-    cs.hrg.stop = cs.hrg.start;
-    cs.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+    cubesampl.hrg.stop = cubesampl.hrg.start;
+    cubesampl.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-    cs.zrg.start = (manippos
+    cubesampl.zrg.start = (manippos
 	    ? trect->getRectangle().manipOrigo().z
 	    : trect->getRectangle().origo().z);
-    cs.zrg.stop = cs.zrg.start;
+    cubesampl.zrg.stop = cubesampl.zrg.start;
 
     if ( trect->getRectangle().orientation()==visBase::Rectangle::XY )
     {
-	cs.hrg.stop.inl += mNINT(trect->getRectangle().width( 0 ));
-	cs.hrg.stop.crl += mNINT(trect->getRectangle().width( 1 ));
+	cubesampl.hrg.stop.inl += mNINT(trect->getRectangle().width( 0 ));
+	cubesampl.hrg.stop.crl += mNINT(trect->getRectangle().width( 1 ));
     }
     else if ( trect->getRectangle().orientation()==visBase::Rectangle::XZ )
     {
-	cs.hrg.stop.inl += mNINT(trect->getRectangle().width( 0 ));
-	cs.zrg.stop += trect->getRectangle().width( 1 );
+	cubesampl.hrg.stop.inl += mNINT(trect->getRectangle().width( 0 ));
+	cubesampl.zrg.stop += trect->getRectangle().width( 1 );
     }
     else
     {
-	cs.hrg.stop.crl += mNINT(trect->getRectangle().width(1));
-	cs.zrg.stop += trect->getRectangle().width(0);
+	cubesampl.hrg.stop.crl += mNINT(trect->getRectangle().width(1));
+	cubesampl.zrg.stop += trect->getRectangle().width(0);
     }
 
-    return cs;
+    return cubesampl;
 }
 
 
@@ -424,15 +415,6 @@ void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 
 bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
 {
-    if ( !sliceset )
-    {
-	trect->getRectangle().resetManip();
-	return false;
-    }
-
-    if ( !(trect->getRectangle().manipOrigo() == trect->getRectangle().origo()))
-	trect->getRectangle().moveObjectToManipRect();
-    
     trect->setData( *(*sliceset)[0] );
     trect->useTexture( true );
 
@@ -511,27 +493,6 @@ visBase::Material* visSurvey::PlaneDataDisplay::getMaterial()
 
 
 SoNode* visSurvey::PlaneDataDisplay::getData() { return trect->getData(); }
-
-
-void visSurvey::PlaneDataDisplay::select()
-{
-    if ( selected_ ) return;
-    selected_ = true;
-}
-
-
-void visSurvey::PlaneDataDisplay::deSelect()
-{
-    if ( !selected_ ) return;
-    selected_ = false;
-
-    if ( trect->getRectangle().isManipRectOnObject() ) return;
-
-    if ( updateAtNewPos() )
-	trect->getRectangle().moveObjectToManipRect();
-    else
-	trect->getRectangle().resetManip();
-}
 
 
 const char* visSurvey::PlaneDataDisplay::getResName( int res )

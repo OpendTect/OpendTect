@@ -4,11 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.7 2002-10-14 14:24:39 niclas Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.8 2003-01-21 16:10:08 kristofer Exp $";
 
 
 #include "vistext.h"
+
 #include "iopar.h"
+#include "vistransform.h"
 
 const char* visBase::Text::stringstr = "Text";
 const char* visBase::Text::fontsizestr = "Font size";
@@ -26,6 +28,7 @@ visBase::Text::Text()
     , text( new SoText2 )
     , font( new SoFont )
     , textpos( new SoTranslation )
+    , transformation( 0 )
 {
     addChild( textpos );
     addChild( font );
@@ -34,18 +37,23 @@ visBase::Text::Text()
 
 
 visBase::Text::~Text()
-{}
+{
+    if ( transformation ) transformation->unRef();
+}
 
 
 Coord3 visBase::Text::position() const
 {
     SbVec3f pos = textpos->translation.getValue();
-    return Coord3( pos[0], pos[1], pos[2] );
+    Coord3 res( pos[0], pos[1], pos[2] );
+    return transformation ? transformation->transformBack( res ) : res;
 }
 
 
-void visBase::Text::setPosition(const Coord3& pos )
+void visBase::Text::setPosition(const Coord3& pos_ )
 {
+    const Coord3 pos = transformation
+	? transformation->transform( pos_ ) : pos_;
     textpos->translation.setValue( pos.x, pos.y, pos.z );
 }
 
@@ -138,4 +146,21 @@ int visBase::Text::usePar( const IOPar& par )
     setJustification( (Justification) just );
 
     return 1;
+}
+
+
+void visBase::Text::setTransformation( Transformation* nt )
+{
+    const Coord3 pos = position();
+
+    if ( transformation ) transformation->unRef();
+    transformation = nt;
+    if ( transformation ) transformation->ref();
+    setPosition( pos );
+}	
+
+
+visBase::Transformation* visBase::Text::getTransformation()
+{
+    return transformation;
 }

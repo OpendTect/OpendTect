@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.1 2003-01-07 10:34:37 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.2 2003-01-21 16:10:08 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: visrandomtrack.cc,v 1.1 2003-01-07 10:34:37 kri
 #include "vistexturecoords.h"
 
 #include "Inventor/nodes/SoSwitch.h"
+#include "Inventor/nodes/SoScale.h"
 #include "Inventor/nodes/SoMaterial.h"
 
 
@@ -51,15 +52,7 @@ void visBase::RandomTrack::showDragger( bool yn )
     {
 	if ( !draggerswitch )
 	{
-	    dragger = new SoRandomTrackLineDragger;
-	    draggerswitch = new SoSwitch;
-	    insertChild( 0, draggerswitch );
-	    draggerswitch->addChild( dragger );
-
-	    SoMaterial* material = new SoMaterial;
-
-	    material->transparency.setValue( 0.9 );
-	    dragger->setPart( "feedbackMaterial", material );
+	    createDragger();
 	}
 
 	draggerswitch->whichChild = 0;
@@ -141,6 +134,44 @@ void visBase::RandomTrack::setDepthInterval( const Interval<float>& drg )
 const Interval<float>& visBase::RandomTrack::getDepthInterval() const
 { return depthrg; }
 
+#define mSetRange( dim )  \
+    createDragger(); \
+    SbVec3f xyzstart = dragger->xyzStart.getValue(); \
+    SbVec3f xyzstop = dragger->xyzStop.getValue(); \
+    SbVec3f xyzstep = dragger->xyzStep.getValue(); \
+ \
+    xyzstart[dim] = rg.start; \
+    xyzstop[dim] = rg.stop; \
+    xyzstep[dim] = rg.step; \
+ \
+    dragger->xyzStart.setValue( xyzstart ); \
+    dragger->xyzStop.setValue( xyzstop ); \
+    dragger->xyzStep.setValue( xyzstep )
+
+void visBase::RandomTrack::setXrange( const StepInterval<float>& rg )
+{
+    mSetRange( 0 );
+}
+
+void visBase::RandomTrack::setYrange( const StepInterval<float>& rg )
+{
+    mSetRange( 1 );
+}
+
+void visBase::RandomTrack::setZrange( const StepInterval<float>& rg )
+{
+    mSetRange( 2 );
+}
+
+
+void visBase::RandomTrack::setDraggerSize( const Coord3& nz )
+{
+    createDragger();
+    SoScale* size =
+	dynamic_cast<SoScale*>(dragger->getPart("subDraggerScale", true ));
+    size->scaleFactor.setValue( nz.x, nz.y, nz.z );
+}
+
 
 void visBase::RandomTrack::setClipRate( float nc )
 {
@@ -201,7 +232,7 @@ void visBase::RandomTrack::rebuild()
 	TriangleStripSet* strip = TriangleStripSet::create();
 	strip->ref();
 	if ( sections.size() )
-	    strip->setCoordinates( 0 );
+	    strip->setCoordinates( sections[0]->getCoordinates() );
 
 	TextureCoords* texturecoords = TextureCoords::create();
 	strip->setTextureCoords( texturecoords );
@@ -247,4 +278,19 @@ void visBase::RandomTrack::rebuild()
 	sections[idx-1]->setCoordIndex( 3, idx*2+1 );
 	sections[idx-1]->setCoordIndex( 4, -1 );
     }
+}
+
+void visBase::RandomTrack::createDragger()
+{
+    if ( draggerswitch ) return;
+
+    dragger = new SoRandomTrackLineDragger;
+    draggerswitch = new SoSwitch;
+    insertChild( 0, draggerswitch );
+    draggerswitch->addChild( dragger );
+
+    SoMaterial* material = new SoMaterial;
+
+    material->transparency.setValue( 0.9 );
+    dragger->setPart( "feedbackMaterial", material );
 }

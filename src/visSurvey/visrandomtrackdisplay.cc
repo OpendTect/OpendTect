@@ -4,24 +4,26 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.2 2003-01-21 09:16:52 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.3 2003-01-21 16:09:48 kristofer Exp $
  ________________________________________________________________________
 
 -*/
 
 
 #include "visrandomtrackdisplay.h"
-#include "visrandomtrack.h"
-#include "survinfo.h"
-#include "visdataman.h"
-#include "iopar.h"
-#include "colortab.h"
-#include "viscolortab.h"
-#include "vismaterial.h"
-#include "attribsel.h"
-#include "seistrc.h"
+
 #include "arrayndimpl.h"
+#include "attribsel.h"
+#include "binidselimpl.h"
+#include "colortab.h"
+#include "iopar.h"
+#include "seistrc.h"
 #include "simpnumer.h"
+#include "survinfo.h"
+#include "viscolortab.h"
+#include "visdataman.h"
+#include "vismaterial.h"
+#include "visrandomtrack.h"
 
 
 mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
@@ -35,11 +37,47 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     , succeeded_(false)
 {
     track->ref();
+    const StepInterval<double>& survinterval = SI().zRange(true);
+    const StepInterval<float> inlrange( SI().range(true).start.inl,
+	    				SI().range(true).stop.inl,
+					SI().inlWorkStep() );
+    const StepInterval<float> crlrange( SI().range(true).start.crl,
+	    				SI().range(true).stop.crl,
+	    				SI().crlWorkStep() );
+
+    track->setDepthInterval( Interval<float>( survinterval.start,
+					      survinterval.stop ));
+    BinID start( mNINT(inlrange.center()), mNINT(crlrange.start) );
+    BinID stop(start.inl, mNINT(crlrange.stop) );
+
+    SI().snap( start );
+    SI().snap( stop );
+
+    track->setKnotPos( 0, Coord( start.inl, start.crl ) );
+    track->setKnotPos( 1, Coord( stop.inl, stop.crl ) );
+
+    track->setXrange( StepInterval<float>( inlrange.start,
+		    			   inlrange.stop,
+					   inlrange.step ));
+
+    track->setYrange( StepInterval<float>( crlrange.start,
+	    				   crlrange.stop,
+					   crlrange.step ));
+
+    track->setZrange( StepInterval<float>( survinterval.start,
+					   survinterval.stop,
+					   survinterval.step ));
+
+    const int baselen = mNINT((inlrange.width()+crlrange.width())/2);
+    
+    track->setDraggerSize( Coord3( baselen/50, baselen/50,
+	    			   survinterval.width()/50 ));
 }
 
 
 visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
 {
+    track->unRef();
 }
 
 

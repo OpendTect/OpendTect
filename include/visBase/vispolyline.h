@@ -7,17 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.4 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: vispolyline.h,v 1.5 2003-01-21 16:10:00 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visobject.h"
+#include "visshape.h"
 #include "position.h"
 
 class SoLineSet;
-class SoCoordinate3;
 
 namespace visBase
 {
@@ -27,7 +26,7 @@ namespace visBase
 
 */
 
-class PolyLine	: public VisualObjectImpl
+class PolyLine	: public VertexShape
 {
 public:
     static PolyLine*	create()
@@ -35,12 +34,10 @@ public:
 
     int 		size() const;
     void		addPoint( const Coord3& pos );
-    void		insertPoint( int idx, const Coord3& );
     Coord3		getPoint( int ) const;
     void		removePoint( int );
 
 protected:
-    SoCoordinate3*	coords;
     SoLineSet*		lineset;
 };
 
