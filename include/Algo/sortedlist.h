@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedlist.h,v 1.1 2001-12-14 06:47:41 kristofer Exp $
+ RCS:		$Id: sortedlist.h,v 1.2 2001-12-28 07:40:11 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ public:
     int 		size() const { return typs.size(); }
     const T&		operator[]( int idx ) const { return (T&)typs[idx]; }
     int			indexOf( const T& ) const;
+    			/*!< Returns -1 if not fount */
+
     SortedList<T>&	operator +=( const T& );
     SortedList<T>&	operator -=( const T& );
 
@@ -59,13 +61,18 @@ public:
     void				remove( int idx );
 
 private:
+    int			getPos( const T& ) const;
+    			/*!< If not found, it will return position of the
+			     item just above
+			 */
+
     bool		allowmultiples;
     Vector<T>		typs;
 };
 
 
 template <class T> inline
-int SortedList<T>::indexOf( const T& typ ) const
+int SortedList<T>::getPos( const T& typ ) const
 {
     int sz = size();
     if ( !sz ) return 0;
@@ -97,12 +104,22 @@ int SortedList<T>::indexOf( const T& typ ) const
 
     return start;
 }
+template <class T> inline
+int SortedList<T>::indexOf( const T& typ ) const
+{
+    int pos = getPos( typ );
+
+    if ( (*this)[pos]!=typ )
+        return -1;
+
+    return pos;
+}
 
 
 template <class T> inline
 SortedList<T>&	SortedList<T>::operator +=( const T& nv )
 {
-    int newpos = indexOf( nv );
+    int newpos = getPos( nv );
 
     if ( newpos == size() )
     {
@@ -113,12 +130,7 @@ SortedList<T>&	SortedList<T>::operator +=( const T& nv )
     if ( !allowmultiples && (*this)[newpos] == nv )
 	return *this;
 
-    typs.push_back( nv );
-    for ( int idx=size()-1; idx>newpos; idx-- )
-	typs[idx] = typs[idx-1];
-
-    typs[newpos] = nv;
-
+    typs.insert( newpos, nv );
     return *this;
 }
 
@@ -131,10 +143,7 @@ SortedList<T>&	SortedList<T>::operator -=( const T& nv )
 
     int pos = indexOf( nv );
 
-    if ( !pos && nv < typs[0] ) return *this;
-    remove( pos );
-
-    if ( pos==sz ) return *this;
+    if ( pos == -1 ) return *this;
 
     typs.remove( pos );
     return *this;
@@ -204,5 +213,85 @@ void  SortedList<T>::remove( int pos )
 
 
 
+
+/*!\brief
+A Sorted Table keeps track of ids and their corresponding values. Each id can
+only be present once.
+
+*/
+
+template <class T>
+class SortedTable
+{
+public:
+    			SortedTable();
+
+    int 		size() const { return vals.size(); }
+    void		set( int id, T val );
+    			/*<! If id is set twice, it the old value will
+			     be replaced by the new one 
+			*/
+    bool		get( int id, T& val ) const;
+    			/*!< If id is not found, val is unchanged and
+			     false is returned. If id is found, val is set
+			     and true is returned.
+			*/
+
+    bool		remove( int id );
+
+private:
+    TypeSet<T>		vals;
+    SortedList<int>	ids;
+};
+
+
+template <class T> inline
+SortedTable<T>::SortedTable()
+    : ids( false )
+{}
+
+
+template <class T> inline
+void	SortedTable<T>::set( int id, T val )
+{
+    int newpos = ids.indexOf( id );
+
+    if ( newpos==-1 )
+    {
+	ids += id;
+
+	newpos = ids.indexOf( id );
+	vals.insert( newpos, val );
+    }
+
+    vals[newpos] = val;
+}
+
+
+template <class T> inline
+bool	SortedTable<T>::get( int id, T& v ) const
+{
+    int pos = ids.indexOf( id );
+
+    if ( pos==-1 )
+	return false;
+
+    v = vals[newpos];
+    return true;
+}
+
+
+template <class T> inline
+bool  SortedTable<T>::remove(int id)
+{
+    int pos = ids.indexOf( id );
+
+    if ( pos==-1 ) return false;
+
+    vals.remove( pos );
+    ids.remove( pos );
+
+    return true;
+}
 
 #endif
