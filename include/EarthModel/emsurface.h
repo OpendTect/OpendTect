@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.33 2004-01-09 10:20:55 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.34 2004-04-13 12:11:03 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,7 @@ namespace EM
 {
 class EMManager;
 class SurfaceIODataSelection;
-class SurfaceRelation;
+class HingeLine;
 
 /*!\brief
 The horizon is made up of one or more meshes (so they can overlap at faults).
@@ -275,7 +275,7 @@ public:
 		  \retval	-2	Side could not be determined
 		*/
 
-    ObjectSet<SurfaceRelation>	relations;
+    ObjectSet<HingeLine>	hingelines;
 
 protected:
     friend class		EMManager;
@@ -318,21 +318,30 @@ protected:
     float 			shift;
 };
 
-
+/*
 class SurfaceRelation
 {
 public:
-		SurfaceRelation()
-		    : cuttedsurface( -1 )
-		    , cuttedpatch( -1 )
-		    , cuttingsurface( -1 )
-		    , positiveside( true )
-		{}
+			SurfaceRelation();
 
+    EM::ObjectID	cuttedSurface() const;
+    EM::PatchID		cuttedSection() const;
+    void		setCuttedSection( const EM::ObjectID&,
+	    				  const EM::PatchID& );
 
+    EM::ObjectID	cuttingSurface() const;
+    EM::PatchID		cuttingSection() const;
+    void		setCuttingSurface( const EM::ObjectID&,
+	    				   const EM::PatchID& );
+
+    bool		positiveSide() const;
+    void		setPositiveSide(bool yn) const;
+
+protected:
     EM::ObjectID	cuttedsurface;
     EM::PatchID		cuttedpatch;
     EM::ObjectID	cuttingsurface;
+    EM::HingeLine*	hingeline;
 
     bool		positiveside;
 
@@ -348,6 +357,7 @@ protected:
     static const char*	cuttingsurfacestr;
     static const char*	positivesidestr;
 };
+*/
 
 }; // Namespace
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.9 2003-12-17 15:45:54 kristofer Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.10 2004-04-13 12:11:03 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -117,8 +117,8 @@ public:
     virtual const char*		message() const;
 
     static const char*		nrpatchstr;
-    static const char*		nrrelationstr;
-    static const char*		relationprefixstr;
+    static const char*		nrhingelinestr;
+    static const char*		hingelineprefixstr;
     static const char*		patchidstr;
     static const char*		patchnamestr;
     static const char*		rowrangestr;
