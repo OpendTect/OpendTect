@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.40 2004-09-08 14:58:35 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.41 2004-10-04 12:32:22 kristofer Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -154,22 +154,6 @@ bool BinID::use( const char* str )
     inl = atoi( buf );
     crl = atoi( ptr );
     return true;
-}
-
-
-BinID BinID::operator+( const BinID& bi ) const
-{
-    BinID res = *this; 
-    res.inl += bi.inl; res.crl += bi.crl;
-    return res; 
-}
-
-
-BinID BinID::operator-( const BinID& bi ) const
-{
-    BinID res = *this; 
-    res.inl -= bi.inl; res.crl -= bi.crl;
-    return res; 
 }
 
 
