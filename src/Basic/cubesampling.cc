@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.8 2004-07-29 14:19:36 bert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.9 2004-07-29 22:32:25 bert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -83,10 +83,10 @@ void HorSampling::limitTo( const HorSampling& c )
 
 bool HorSampling::usePar( const IOPar& pars )
 {
-    bool ret = pars.get( sKey::FirstInl, start.inl )
-	    || pars.get( sKey::FirstCrl, start.crl )
-	    || pars.get( sKey::LastInl, stop.inl )
-	    || pars.get( sKey::LastCrl, stop.crl );
+    bool ret = pars.get( sKey::FirstInl, start.inl );
+    ret = pars.get( sKey::FirstCrl, start.crl ) || ret;
+    ret = pars.get( sKey::LastInl, stop.inl ) || ret;
+    ret = pars.get( sKey::LastCrl, stop.crl ) || ret;
     pars.get( sKey::StepInl, step.inl );
     pars.get( sKey::StepCrl, step.crl );
     return ret;
