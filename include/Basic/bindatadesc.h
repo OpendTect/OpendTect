@@ -8,14 +8,10 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.1 2001-02-19 11:28:42 bert Exp $
+ RCS:		$Id: bindatadesc.h,v 1.2 2001-02-22 08:22:31 bert Exp $
 ________________________________________________________________________
 
 */
-
-
-#include <general.h>
-
 
 #define mDeclConstr(T,ii,is) \
 	BinDataDesc( const T* ) { set( ii, is, sizeof(T) ); } \
@@ -24,13 +20,17 @@ ________________________________________________________________________
 
 /*!\brief Description of binary data.
 
-Bnary data in 'blobs' can usually be described by only a few pieces of info. These are:
+Binary data in 'blobs' can usually be described by only a few pieces of info.
+These are:
 
 * Is the data of floating point type or integer?
 * Is the data signed or unsigned? Usually, floating point data cannot be
   unsigned.
 * How big is each number in terms of bytes? This can usually be 1, 2, 4 or 8
   bytes.
+
+The info from this class can be stringified (user readable string) or dumped
+binary into a short int (2 bytes).
 
 */
 
@@ -64,10 +64,13 @@ public:
     void		setNrBytes( int n )
 			{ nrbytes = nearestByteCount(isint,n); }
 
-    virtual unsigned short	dump() const;
-    virtual BufferString	toString() const;
-    virtual void		set(unsigned short);
-    virtual void		set(const char*);
+			// dump/restore
+    virtual int		maxStringifiedSize() const	{ return 18; }
+    virtual void	toString(char*) const;
+			//!< Into a buffer allocated by client!
+    virtual void	set(const char*);
+    virtual unsigned short dump() const;
+    virtual void	set(unsigned short);
 
 			mDeclConstr(signed char,true,true)
 			mDeclConstr(short,true,true)
