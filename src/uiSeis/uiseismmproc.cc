@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.48 2003-05-04 13:11:53 dgb Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.49 2003-05-07 09:40:55 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -532,7 +532,8 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
 	mErrRet("Cannot find log file")
 
     delete logvwer;
-    logvwer = new uiFileBrowser( this, fname );
+    logvwer = new uiFileBrowser( this, uiFileBrowser::Setup(fname)
+					.scroll2bottom(true) );
     logvwer->go();
 }
 
