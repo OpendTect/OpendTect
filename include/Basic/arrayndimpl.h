@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.22 2002-04-17 14:24:59 nanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.23 2002-04-30 14:17:01 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -35,7 +35,7 @@ public:
 
 		ArrayNDMemStor( int nsz )
 		    : ptr (0), sz(nsz)		{ alloc(); }
-    inline	~ArrayNDMemStor()		{ delete [] ptr; }
+    inline	~ArrayNDMemStor()		{ delete [] ptr; ptr = 0; }
 
 protected:
 
