@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.7 2002-02-28 07:51:08 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.8 2002-02-28 08:04:51 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "visscene.h"
@@ -380,7 +380,6 @@ visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
     root->addChild( planesep );
     planesep->addChild( planewrapper.getData() );
     ((SoFaceSet*)planewrapper.getData())->numVertices.set1Value(0, 5);
-    scene.selMan().regSelObject( *this, planewrapper );
 
     if ( dragger )
     {
@@ -515,6 +514,15 @@ void visBase::Rectangle::setWidthRange( int dim, const Interval<float>& range )
 void visBase::Rectangle::displayDraggers(bool on)
 {
     if ( manipswitch ) manipswitch->whichChild = on ? 0 : SO_SWITCH_NONE;
+}
+
+
+bool visBase::Rectangle::regForSelection(const VisualObject* assoc )
+{
+    if ( !assoc ) assoc=this;
+
+    scene.selMan().regSelObject( *assoc, planewrapper );
+    return true;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.8 2002-02-28 07:50:59 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.9 2002-02-28 08:04:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -112,6 +112,8 @@ public:
     void		moveObjectToManipRect(CallBacker* =0);
     void		resetManip();
     bool		isManipRectOnObject() const;
+
+    bool		regForSelection( const VisualObject* assoc=0 );
 
 protected:
 

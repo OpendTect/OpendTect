@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.6 2002-02-28 07:50:59 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.7 2002-02-28 08:04:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,23 +35,30 @@ class Scene;
 class VisualObject : public SceneObject
 {
 public:
-    virtual			~VisualObject() {}
-    virtual void		turnOn(bool)			= 0;
-    virtual bool		isOn() const			= 0;
+    virtual		~VisualObject() {}
+    virtual void	turnOn(bool)					= 0;
+    virtual bool	isOn() const					= 0;
 
-    virtual void		setColor(const Color& )		= 0;
+    virtual bool	regForSelection(const VisualObject* assoc=0)	= 0;
+    			/*! If it should be possible to select this
+			    object, you must register it. Some objects
+			    are not possible to select. They will return
+			    false;
+			*/
 
-    virtual void		switchColorMode( bool totable )	= 0;
-    virtual bool		isColorTable() const		= 0;
+    virtual void	setColor(const Color& )				= 0;
 
-    virtual const ColorTable&	colorTable() const		= 0;
-    virtual ColorTable&		colorTable()			= 0;
+    virtual void	switchColorMode( bool totable )			= 0;
+    virtual bool	isColorTable() const				= 0;
+
+    virtual const ColorTable&	colorTable() const			= 0;
+    virtual ColorTable&		colorTable()				= 0;
     				/*!< if you change the ct,
 				     you must notify the object
 				     with colorTableChanged()
 				*/
 
-    virtual void		colorTableChanged()		= 0;
+    virtual void		colorTableChanged()			= 0;
 };
 
 
@@ -62,6 +69,9 @@ public:
     virtual		~VisualObjectImpl();
     void		turnOn(bool);
     bool		isOn() const;
+
+    virtual bool	regForSelection(const VisualObject* assoc=0)
+			{ return false; }
 
     void		setColor(const Color& );
 
