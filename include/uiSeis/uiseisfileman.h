@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.3 2002-06-26 16:34:41 bert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.4 2002-11-21 08:57:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ protected:
     void		refreshList(int);
     void		mkFileInfo();
     void		handleMultiFiles(const char*,const char*);
+    BufferString	getFileSize(const char*);
 
 
 };

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.12 2002-10-08 11:50:22 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.13 2002-11-21 08:57:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
   
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( alignedBelow, topgrp );
-    infofld->setPrefHeightInChar( 7 );
+    infofld->setPrefHeightInChar( 8 );
     infofld->setPrefWidthInChar( 50 );
 
     selChg( this ); 
@@ -119,7 +119,7 @@ void uiSeisFileMan::mkFileInfo()
 
 	const char* optstr = "Optimized direction";
 	if ( ioobj->pars().hasKey(optstr) )
-	{ txt += "\nOptimized direction: "; txt +=ioobj->pars().find( optstr ); }
+	{ txt += "\nOptimized direction: "; txt += ioobj->pars().find(optstr); }
     }
 
     mDynamicCastGet(IOStream*,iostrm,ioobj)
@@ -132,9 +132,11 @@ void uiSeisFileMan::mkFileInfo()
 	    fname = File_getFullPath( fname, "Seismics" );
 	    fname = File_getFullPath( fname, iostrm->fileName() );
 	}
-	txt += "\nLocation: "; txt += File_getPathOnly(fname);
-	txt += "\nFile name: "; txt += File_getFileName(fname);
+	txt += "\nLocation: "; txt += File_getPathOnly( fname );
+	txt += "\nFile name: "; txt += File_getFileName( fname );
+	txt += "\nFile size: "; txt += getFileSize( fname );
     }
+
     
     infofld->setText( txt );
 }
@@ -288,6 +290,29 @@ void uiSeisFileMan::handleMultiFiles( const char* fulloldname,
 	}
 	UsrMsg( "" );
     }
+}
+
+
+BufferString uiSeisFileMan::getFileSize( const char* filenm )
+{
+    BufferString szstr;
+    double totalsz = 0;
+    for ( int inr=0; ; inr++ )
+    {
+	BufferString fullnm( CBVSIOMgr::getFileName(filenm,inr) );
+	if ( !File_exists(fullnm) ) break;
+	
+	totalsz += (double)File_getKbSize( fullnm );
+    }
+
+    if ( totalsz > 1048576 )
+    { szstr += (float)(int(totalsz/10485.76))/100; szstr += " (Gb)"; }
+    else if ( totalsz > 1024 )
+    { szstr += (float)(int(totalsz/10.24))/100; szstr += " (Mb)"; }
+    else
+    { szstr += totalsz; szstr += " (kB)"; }
+
+    return szstr;
 }
 
 
