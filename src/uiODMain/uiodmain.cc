@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.8 2004-01-07 14:32:01 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.9 2004-01-09 11:40:52 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,6 +133,18 @@ bool uiODMain::ensureGoodDataDir()
 	    else if ( !File_isDirectory(dirnm) )
 	    {
 		uiMSG().error( "Please select a directory" );
+		continue;
+	    }
+	    else if ( !strncasecmp("C:\\Program Files", dirnm, 16) )
+	    {
+		uiMSG().error( 
+		"Please choose either a new, empty directory to hold your data"
+		" or a directory that was previously created, for example by" 
+		" another user or on a network drive. \n"
+		"'C:\\Program Files' is for storing programs, not data.\n"
+		"Please select a directory somewhere else, for example "
+		"in 'My Documents'."
+		);
 		continue;
 	    }
 
