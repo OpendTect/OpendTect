@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.10 2004-01-09 11:41:50 arend Exp $
+ RCS:           $Id: uiodmain.cc,v 1.11 2004-01-12 15:02:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uidockwin.h"
 #include "uisurvey.h"
 #include "uiioobjsel.h"
-#include "uifiledlg.h"
+#include "uisetdatadir.h"
 #include "uimsg.h"
 #include "ioman.h"
 #include "iodir.h"
@@ -101,115 +101,10 @@ uiODMain::~uiODMain()
 
 bool uiODMain::ensureGoodDataDir()
 {
-    if ( !GetDataDir() )
+    if ( !uiSetDataDir::isOK() )
     {
-	uiMSG().message(
-	"OpendTect needs a place to store its data.\n"
-	"You have not yet specified a location for this datastore,\n"
-	"and there is no 'DTECT_DATA or dGB_DATA' set in your environment.\n\n"
-	"Please specify where the OpendTect Data Directory should\n"
-	"be created or select an existing OpendTect data directory."
-#ifndef __win__
-	"\n\nNote that you can still put surveys and "
-	"individual cubes on other disks;\nbut this is where the "
-	"'base' data store will be."
-#endif
-	);
-
-	BufferString dirnm = GetPersonalDir();
-	while ( true )
-	{
-	    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, dirnm, "*;*.*",
-			      "Specify the directory for the OpendTect data" );
-	    if ( !dlg.go() )
-		return false;
-	    dirnm = dlg.fileName();
-
-	    if ( !File_exists(dirnm) )
-	    {
-		uiMSG().error( "Selected directory does not exist" );
-		continue;
-	    }
-	    else if ( !File_isDirectory(dirnm) )
-	    {
-		uiMSG().error( "Please select a directory" );
-		continue;
-	    }
-#ifdef __win__
-	    else if ( !strncasecmp("C:\\Program Files", dirnm, 16) )
-	    {
-		uiMSG().error( 
-		"Please choose either a new, empty directory to hold your data"
-		" or a directory that was previously created, for example by" 
-		" another user or on a network drive. \n"
-		"'C:\\Program Files' is for storing programs, not data.\n"
-		"Please select a directory somewhere else, for example "
-		"in 'My Documents'."
-		);
-		continue;
-	    }
-#endif
-	    BufferString omfnm = File_getFullPath( dirnm, ".omf" );
-	    if ( File_exists(omfnm) ) break;
-
-	    BufferString oddatdir = File_getFullPath( dirnm, "OpendTectData" );
-	    if ( File_exists(oddatdir) )
-	    {
-		if ( !File_isDirectory( oddatdir ) )
-		{
-		    BufferString msg( "A file \"" );
-		    msg += oddatdir; 
-		    msg += "\" exists, but it is not a directory.";
-		    uiMSG().error( "" );
-		    continue;
-		}
-	    }
-	    else if ( !File_createDir( oddatdir, 0 ) )
-	    {
-		BufferString msg = "Could not create directory \"";
-		msg += oddatdir;
-		msg += "\"";
-		uiMSG().error( msg );
-		return false;
-	    }
-
-	    dirnm = oddatdir; 
-
-	    omfnm = File_getFullPath( dirnm, ".omf" );
-	    if ( File_exists(omfnm) ) break;
-
-	    BufferString datomf( GetDataFileName(".omf") );
-	    if ( !File_exists(datomf) )
-	    {
-		BufferString msg ( "Source .omf file \"" ); 
-		msg += datomf;
-		msg += "\" does not exist.";
-		msg += "\nCannot create OpendTect Data directory without it.";
-		uiMSG().error( msg );
-		continue;
-	    }
-
-	    if ( !File_exists(omfnm) )
-		File_copy( datomf, omfnm, NO );
-	    if ( !File_exists(omfnm) )
-	    {
-		uiMSG().error( "Couldn't write on selected directory" );
-		continue;
-	    }
-	    if ( !getenv( "DTECT_DEMO_SURVEY") ) break;
-
-	    const BufferString surveynm( getenv( "DTECT_DEMO_SURVEY" ) );
-	    const BufferString todir( File_getFullPath( dirnm,
-				      File_getFileName(surveynm) ) );
-
-	    if ( !File_isDirectory(surveynm) || File_exists(todir) ) break;
-
-	    File_copy( surveynm, todir, YES );
-
-	    break;
-	}
-
-	Settings::common().set( "Default DATA directory", dirnm );
+	uiSetDataDir dlg( this );
+	return dlg.go();
     }
 
     return true;
