@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.13 2002-05-15 14:54:13 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.14 2002-08-14 15:09:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,6 +133,7 @@ void uiToolBar::setLabel( const char* lbl )
 {
     if ( body_->qthing() ) 
 	body_->qthing()->setLabel( QString(lbl) );
+    setName( lbl );
 }
 
 
