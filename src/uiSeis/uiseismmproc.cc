@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.76 2004-11-11 11:35:57 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.77 2004-11-11 15:38:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -366,8 +366,9 @@ void uiSeisMMProc::doCycle( CallBacker* )
 
 void uiSeisMMProc::updateAliveDisp()
 {
-    static const int nrdispstrs = 4;
-    static const char* dispstrs[] = { "o..", ".o.", "..o", ".o." };
+    static const int nrdispstrs = 6;
+    static const char* dispstrs[]
+	= { ">..", ".>.", "..>", "..<", ".<.", "<.." };
     statusBar()->message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
 
     const int totsteps = jobrunner->totalNr();
@@ -561,12 +562,22 @@ bool uiSeisMMProc::readyForPostProcess()
     BufferString msg( "Failed " );
     msg += jobrunner->descProv()->objType();
     msg += nrfailed > 1 ? "s:\n" : ": ";
+    BufferString newpart;
+    bool needspace = false;
     for ( int idx=0; idx<nrfailed; idx++ )
     {
 	const JobInfo& ji = jobrunner->jobInfo( idx, true );
-	if ( idx ) msg += " ";
-	msg += jobrunner->descProv()->objName( ji.descnr_ );
+	if ( needspace ) newpart += " ";
+	newpart += jobrunner->descProv()->objName( ji.descnr_ );
+	if ( newpart.size() < 70 )
+	    needspace = true;
+	else
+	{
+	    msg += newpart;
+	    newpart = "\n"; needspace = false;
+	}
     }
+    msg += newpart;
     msg += "\n\nDo you want to re-try?";
     return !uiMSG().askGoOn(msg);
 }
