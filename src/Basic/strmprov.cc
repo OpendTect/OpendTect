@@ -39,7 +39,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.57 2004-09-27 08:09:28 dgb Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.58 2004-10-05 14:19:01 dgb Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -202,6 +202,7 @@ void StreamProvider::set( const char* devname )
 
     char* ptr = (char*)devname;
     if ( *ptr == '@' ) { type_ = StreamConn::Command; ptr++; }
+    skipLeadingBlanks( ptr );
     fname = ptr;
 
 #ifndef __msvc__
