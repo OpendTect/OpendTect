@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.10 2003-12-16 08:16:23 kristofer Exp $
+ RCS:           $Id: cubesampling.h,v 1.11 2004-03-15 07:40:30 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,9 +121,7 @@ public:
     			/*!< Checks if it is on valid bids. If not, it will
 			     expand until it is */
 
-    bool		operator==( const CubeSampling& cs ) const
-			{ return cs.hrg==hrg && cs.zrg==zrg; }
-
+    bool		operator==( const CubeSampling& cs ) const;
     bool		operator!=( const CubeSampling& cs ) const
 			{ return !(cs==*this); }
 
