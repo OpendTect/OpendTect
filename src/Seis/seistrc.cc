@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.7 2001-02-28 14:59:18 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.8 2001-04-04 11:13:04 bert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -14,10 +14,26 @@ static const char* rcsID = "$Id: seistrc.cc,v 1.7 2001-02-28 14:59:18 bert Exp $
 #include <float.h>
 
 
+SeisTrc::~SeisTrc()
+{
+    cleanUp();
+}
+
+
+void SeisTrc::cleanUp()
+{
+    delete soffs_; soffs_ = 0;
+    delete scalers_; scalers_ = 0;
+    if ( intpols_ )
+	{ deepErase( *intpols_ ); delete intpols_; intpols_ = 0; }
+}
+
+
 SeisTrc& SeisTrc::operator =( const SeisTrc& t )
 {
     if ( &t == this ) return *this;
 
+    cleanUp();
     info_ = t.info_;
     data_ = t.data_;
 
@@ -30,6 +46,15 @@ SeisTrc& SeisTrc::operator =( const SeisTrc& t )
 	intpols_->allowNull();
 	for ( int idx=0; idx<t.intpols_->size(); idx++ )
 	    *intpols_ += (*t.intpols_)[idx] ? (*t.intpols_)[idx]->clone() : 0;
+    }
+
+    if ( t.scalers_ )
+    {
+	scalers_ = new ObjectSet<const Scaler>;
+	scalers_->allowNull();
+	for ( int idx=0; idx<t.scalers_->size(); idx++ )
+	    *scalers_ += (*t.scalers_)[idx]
+			? (*t.scalers_)[idx]->duplicate() : 0;
     }
 
     return *this;
@@ -53,18 +78,51 @@ const Interpolator1D* SeisTrc::interpolator( int icomp ) const
 }
 
 
+const Scaler* SeisTrc::scaler( int icomp ) const
+{
+    return !scalers_ || icomp>=scalers_->size() ? 0 : (*scalers_)[icomp];
+}
+
+
 void SeisTrc::setInterpolator( Interpolator1D* intpol, int icomp )
 {
     if ( (!intpol && !intpols_) || icomp >= data().nrComponents() )
 	{ delete intpol; return; }
 
-    intpols_ = new ObjectSet<Interpolator1D>;
+    if ( !intpols_ ) intpols_ = new ObjectSet<Interpolator1D>;
     while ( intpols_->size() <= icomp )
 	(*intpols_) += 0;
 
-    intpols_->replace( intpol, icomp );
-    intpol->setData( *data().getComponent(icomp),
-		     *data().getInterpreter(icomp) );
+    delete intpols_->replace( intpol, icomp );
+    if ( intpol )
+	intpol->setData( *data().getComponent(icomp),
+			 *data().getInterpreter(icomp) );
+    else
+    {
+	for ( int idx=0; idx<intpols_->size(); idx++ )
+	    if ( (*intpols_)[idx] ) return;
+	deepErase( *intpols_ ); delete intpols_; intpols_ = 0;
+    }
+}
+
+
+void SeisTrc::setScaler( const Scaler* sc, int icomp )
+{
+    if ( (!sc && !scalers_) || icomp >= data().nrComponents() )
+	return;
+
+    if ( !scalers_ ) scalers_ = new ObjectSet<const Scaler>;
+    while ( scalers_->size() <= icomp )
+	(*scalers_) += 0;
+
+    scalers_->replace( sc, icomp );
+
+    if ( !sc )
+    {
+	for ( int idx=0; idx<scalers_->size(); idx++ )
+	    if ( (*scalers_)[idx] ) return;
+	delete scalers_; scalers_ = 0;
+    }
 }
 
 
@@ -89,7 +147,7 @@ float SeisTrc::getValue( float t, int icomp ) const
 	intpol = &polyintpol;
     }
 
-    return intpol->value( pos );
+    return scaled( intpol->value(pos), icomp );
 }
 
 

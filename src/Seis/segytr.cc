@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.4 2001-03-19 10:20:06 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.5 2001-04-04 11:13:04 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -133,7 +133,9 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     }
 
     trhead.fill( ti );
-    tracescale = trhead.postScale( numbfmt );
+    float scfac = trhead.postScale( numbfmt );
+    if ( !mIS_ZERO(1-scfac) )
+	tracescale = new LinScaler( 0, scfac );
 }
 
 
@@ -188,6 +190,12 @@ void SEGYSeisTrcTranslator::usePar( const IOPar* iopar )
 void SEGYSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
 {
     dc = getDataChar( nrFormatFor(dc) );
+}
+
+
+void SEGYSeisTrcTranslator::toPreSelected( DataCharacteristics& dc ) const
+{
+    if ( numbfmt > 0 ) dc = getDataChar( numbfmt );
 }
 
 
