@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.2 2003-05-20 12:42:12 bert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.3 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
     void		refreshList(const MultiID& selkey);
 
     Notifier<uiIOObjManipGroup>	preRelocation;
+    Notifier<uiIOObjManipGroup>	postRelocation;
     const char*		curRelocationMsg() const	{ return relocmsg; }
 
 protected:

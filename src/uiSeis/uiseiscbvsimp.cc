@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.14 2003-03-24 16:24:39 nanne Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.15 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	spec.addString( "Steering cube" );
 	typefld = new uiGenInput( this, "Cube type", spec );
 	typefld->attach( alignedBelow, finpfld );
+	typefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,typeChg) );
 
 	modefld = new uiGenInput( this, "Import mode",
 				  BoolInpSpec("Copy the data","Use in-place") );
@@ -118,10 +119,26 @@ void uiSeisImpCBVS::modeSel( CallBacker* )
 }
 
 
-void uiSeisImpCBVS::oinpSel( CallBacker* )
+void uiSeisImpCBVS::typeChg( CallBacker* )
+{
+    bool issteer = typefld ? typefld->getIntValue() == 2 : false;
+    if ( oinpfld )
+    {
+	oinpfld->commitInput(false);
+	if ( !inctio_.ioobj ) return;
+	const char* res = inctio_.ioobj->pars().find( "Type" );
+	issteer = res && *res == 'S';
+    }
+
+    transffld->setSteering( issteer );
+}
+
+
+void uiSeisImpCBVS::oinpSel( CallBacker* cb )
 {
     if ( inctio_.ioobj )
 	transffld->updateFrom( *inctio_.ioobj );
+    typeChg( cb );
 }
 
 

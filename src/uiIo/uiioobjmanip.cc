@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.2 2003-05-20 12:42:12 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.3 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiListBox* l, IODirEntryList& el,
 	, entries(el)
 	, defext(de)
     	, preRelocation(this)
+    	, postRelocation(this)
 {
     const ioPixmap locpm( GetDataFileName("filelocation.png") );
     const ioPixmap renpm( GetDataFileName("renameobj.png") );
@@ -284,6 +285,7 @@ bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
 	    tr->implRename( &iostrm, newfname, &cb );
 	else
 	    iostrm.implRename( newfname, &cb );
+	postRelocation.trigger();
     }
 
     iostrm.setFileName( newfname );

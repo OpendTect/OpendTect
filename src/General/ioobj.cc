@@ -4,11 +4,12 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.10 2002-08-02 12:48:17 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.11 2003-05-22 11:10:27 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
 #include "iolink.h"
+#include "iostrm.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "iox.h"
@@ -286,4 +287,34 @@ bool fullImplRemove( const IOObj& ioobj )
 {
     PtrMan<Translator> tr = ioobj.getTranslator();
     return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
+}
+
+
+int GetFreeMBOnDisk( const IOObj* ioobj )
+{
+    mDynamicCastGet(const IOStream*,iostrm,ioobj)
+
+    BufferString dir;
+    if ( iostrm && iostrm->type() == StreamConn::File )
+	dir = File_getPathOnly( iostrm->fullUserExpr(true) );
+    else
+	dir = GetDataDir();
+
+    return File_getFreeMBytes( dir );
+}
+
+
+void GetFreeMBOnDiskMsg( int mb, BufferString& bs )
+{
+    bs = "Free space on disk: ";
+    if ( mb < 1024 )
+	{ bs += mb; bs += " MB"; }
+    else
+    {
+	int gb = mb / 1024;
+	bs += gb; bs += ".";
+	float fmb = (mb % 1024) / 102.4;
+	int tenthsofgb = mNINT(fmb);
+	bs += tenthsofgb; bs += " GB";
+    }
 }

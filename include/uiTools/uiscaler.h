@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.h,v 1.4 2002-08-02 10:27:23 bert Exp $
+ RCS:           $Id: uiscaler.h,v 1.5 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ public:
 
     Scaler*		getScaler() const;
     void		setInput(const Scaler&);
+    void		setUnscaled();
 
 protected:
 

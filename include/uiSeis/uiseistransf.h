@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.3 2002-11-01 09:48:06 bert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.4 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
     uiGenInput*		remnullfld;
 
     bool		provideUserInfo(const IOObj&) const;
+    void		setSteering(bool);
 };
 
 

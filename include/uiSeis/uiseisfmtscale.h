@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.4 2002-07-26 15:33:59 bert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.5 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
     			//!< actually returns DataCharacteristics::UserType
     bool		horOptim() const;
     void		updateIOObj(IOObj*) const;
+
+    void		setSteering(bool);
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.7 2003-04-22 09:51:00 arend Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.8 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,18 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt )
     }
 
     setHAlignObj( scalefld );
+}
+
+
+void uiSeisFmtScale::setSteering( bool yn )
+{
+    if ( yn )
+    {
+	scalefld->setUnscaled();
+	if ( imptypefld ) imptypefld->setValue( 0 );
+    }
+    scalefld->setSensitive( !yn );
+    if ( imptypefld ) imptypefld->setSensitive( !yn );
 }
 
 

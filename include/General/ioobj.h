@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.13 2003-05-20 12:42:12 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.14 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,10 @@ private:
 bool equalIOObj(const MultiID&,const MultiID&);
 bool areEqual(const IOObj*,const IOObj*);
 bool fullImplRemove(const IOObj&);
+int GetFreeMBOnDisk(const IOObj*);
+//!< If null passed or otherwise impossible returns survey directory free space
+void GetFreeMBOnDiskMsg(int,BufferString&);
+//!< Shouldn't be here. But where?
 
 
 #endif

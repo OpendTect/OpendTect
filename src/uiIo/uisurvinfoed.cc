@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.41 2003-04-28 10:54:42 arend Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.42 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uiidealdata.h"
 #include "uimsg.h"
 #include "uifiledlg.h"
+#include "ioobj.h" // for GetFreeMBOnDiskMsg
 
 extern "C" const char* GetBaseDataDir();
 
@@ -495,9 +496,7 @@ void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 void uiSurveyInfoEditor::updStatusBar( const char* dirnm )
 {
     BufferString msg;
-    msg += "Free space on disk: ";
-    msg += File_getFreeMBytes( dirnm );
-    msg += " MB";
+    GetFreeMBOnDiskMsg( File_getFreeMBytes(dirnm), msg );
     toStatusBar( msg );
 }
 

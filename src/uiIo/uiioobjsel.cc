@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.54 2003-05-20 12:42:12 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.55 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
 #include "uigeninput.h"
+#include "uistatusbar.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "ctxtioobj.h"
@@ -36,12 +37,16 @@ static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 			      const char* seltxt, bool multisel )
-	: uiIOObjRetDlg(p,c.ctxt.forread?"Input selection":"Output selection")
+	: uiIOObjRetDlg(p,
+		Setup(c.ctxt.forread?"Input selection":"Output selection",
+		    	"","8.1.1")
+		.nrstatusflds(multisel&&ctio.ctxt.forread?0:1))
 	, ctio(c)
 	, nmfld(0)
 	, ioobj(0)
 	, ismultisel(multisel && ctio.ctxt.forread)
 {
+    statusBar()->setTxtAlign( 0, uiStatusBar::Right );
     BufferString nm( "Select " );
     nm += ctio.ctxt.forread ? "input " : "output ";
     nm += ctio.ctxt.trgroup->name();
@@ -77,6 +82,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	manipgrp = new uiIOObjManipGroup( listfld->box(), *entrylist,
 					  ctio.ctxt.trgroup->defExtension() );
 	manipgrp->preRelocation.notify( mCB(this,uiIOObjSelDlg,preReloc) );
+	manipgrp->postRelocation.notify( mCB(this,uiIOObjSelDlg,selChg) );
     }
     setOkText( "Select" );
     selChg( this );
@@ -136,6 +142,7 @@ void uiIOObjSelDlg::selChg( CallBacker* cb )
 	ioobj = entrylist->selected();
 	if ( cb && nmfld )
 	    nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
+	toStatusBar( ioobj->fullUserExpr(ctio.ctxt.forread) );
     }
 
     manipgrp->selChg( cb );
@@ -144,9 +151,7 @@ void uiIOObjSelDlg::selChg( CallBacker* cb )
 
 void uiIOObjSelDlg::preReloc( CallBacker* cb )
 {
-#ifdef __debug__
-    UsrMsg( manipgrp->curRelocationMsg() );
-#endif
+    toStatusBar( manipgrp->curRelocationMsg() );
 }
 
 

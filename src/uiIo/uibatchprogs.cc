@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.5 2003-05-04 15:02:37 bert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.6 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,13 +61,14 @@ class BatchProgInfo
 public:
 
 				BatchProgInfo( const char* nm )
-				: name(nm)		{}
-				~BatchProgInfo()	{ deepErase(args); }
+				: name(nm), issys(false) {}
+				~BatchProgInfo()	 { deepErase(args); }
 
     BufferString		name;
     ObjectSet<BatchProgPar>	args;
     BufferString		comments;
     BufferString		exampleinput;
+    bool			issys;
 
 };
 
@@ -96,9 +97,12 @@ BatchProgInfoList::BatchProgInfoList( const char* appnm )
 	if ( atEndOfSection(astrm.next()) )
 	    continue;
 
-	const bool useentry = astrm.type() != ascistream::KeyVal
+	const bool issys = astrm.hasValue("Sys");
+	const bool useentry = issys
+	    		   || astrm.type() != ascistream::KeyVal
 	    		   || astrm.hasValue(appnm);
 	BatchProgInfo* bpi = useentry ? new BatchProgInfo(astrm.keyWord()) : 0;
+	if ( issys ) bpi->issys = true;
 
 	while ( !atEndOfSection(astrm.next()) )
 	{
@@ -273,6 +277,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     comm = File_getFullPath( comm, "bin" );
     comm = File_getFullPath( comm, "dgb_exec" );
     comm += " --inxterm+askclose ";
+    if ( bpi.issys ) comm += "--sys ";
     comm += progfld->box()->text();
 
     ObjectSet<uiGenInput>& inplst = *inps[selidx];

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.4 2002-06-26 16:34:41 bert Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.5 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ protected:
     void		finpSel(CallBacker*);
     void		oinpSel(CallBacker*);
     void		modeSel(CallBacker*);
+    void		typeChg(CallBacker*);
 
     IOObj*		getfInpIOObj(const char*) const;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.7 2003-04-23 15:07:59 nanne Exp $
+ RCS:           $Id: uiscaler.cc,v 1.8 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,16 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
 
 void uiScaler::doFinalise( CallBacker* )
 {
+    typeSel(0);
+}
+
+
+void uiScaler::setUnscaled()
+{
+    if ( typefld ) typefld->setValue( 0 );
+    linearfld->setValue( 0, 0 );
+    linearfld->setValue( 1, 1 );
+    ynfld->setChecked( false );
     typeSel(0);
 }
 

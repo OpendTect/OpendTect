@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.26 2003-05-20 12:42:12 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.27 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "cbvs" );
     manipgrp->preRelocation.notify( mCB(this,uiSeisFileMan,relocMsg) );
+    manipgrp->postRelocation.notify( mCB(this,uiSeisFileMan,postReloc) );
 
     const ioPixmap copypm( GetDataFileName("copyobj.png") );
     copybut = new uiToolButton( manipgrp, "copy toolbut", copypm );
@@ -78,12 +79,22 @@ void uiSeisFileMan::selChg( CallBacker* cb )
     copybut->setSensitive( ioobj && ioobj->implExists(true) );
     mkFileInfo();
     manipgrp->selChg( cb );
+
+    BufferString msg;
+    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ioobj), msg );
+    toStatusBar( msg );
 }
 
 
 void uiSeisFileMan::relocMsg( CallBacker* cb )
 {
     toStatusBar( manipgrp->curRelocationMsg() );
+}
+
+
+void uiSeisFileMan::postReloc( CallBacker* cb )
+{
+    selChg( cb );
 }
 
 

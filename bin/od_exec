@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.17 2003-05-04 17:47:19 bert Exp $
+# $Id: od_exec,v 1.18 2003-05-22 11:10:27 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -31,25 +31,32 @@ if ( ! -d $dGB_APPL/bin/$binsubdir ) then
 endif
 
 set bindir="$dGB_APPL/bin/$binsubdir"
-set niceness=0
+set nicecmd=""
 set extrascript=""
 set extraargs=""
 set xtermcmd=""
+set issys=no
 
 next_arg:
 
-if ( "$1" == "--nice" ) then
+if ( "$1" == "--sys" ) then
+
+	set issys=yes
+	shift
+	goto next_arg
+
+else if ( "$1" == "--nice" ) then
 
 	set niceness=$2
 	set nicecmd=/usr/bin/nice
 	if ( -x /bin/nice ) set nicecmd=/bin/nice
 	if ( ! -x $nicecmd ) then
-		set niceness=0
+		set nicecmd=""
 	else
 		set nicecmd="$nicecmd -$2"
 	endif
-	shift ; shift
 
+	shift ; shift
 	goto next_arg
 
 else if ( "$1" == "--prescript" ) then
@@ -58,13 +65,12 @@ else if ( "$1" == "--prescript" ) then
 	if ( ! -e $extrascript ) then
 	    if ( -e $dGB_APPL/bin/$extrascript ) then
 		set extrascript="$dGB_APPL/bin/$extrascript"
-	    else if ( -e $dGB_APPL/bin/$binsubdir/$extrascript ) then
-		set extrascript="$dGB_APPL/bin/$binsubdir/$extrascript"
+	    else if ( -e $bindir/$extrascript ) then
+		set extrascript="$bindir/$extrascript"
 	    endif
 	endif
 
 	shift ; shift
-
 	goto next_arg
 
 else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
@@ -73,9 +79,10 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 	if ( "$1" == "--inxterm+askclose" ) then
 	    set xtermcmdarg = "--askclose"
 	endif
-	set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $dGB_APPL/bin/dgb_xterm_exec $xtermcmdarg"
-	shift
 
+	set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $dGB_APPL/bin/dgb_xterm_exec $xtermcmdarg"
+
+	shift
 	goto next_arg
 
 endif
@@ -102,11 +109,12 @@ if ( $extrascript != "" ) then
 	source $extrascript
 endif
 
-if ( $?dGB_DEBUG ) echo "Executing: $xtermcmd $bindir/$* $extraargs"
 
-if ( $niceness == 0 ) then
-	$xtermcmd $bindir/$* $extraargs
+if ( $issys == yes ) then
+	if ( $?dGB_DEBUG ) echo "$0 : $xtermcmd $nicecmd $* $extraargs"
+	$xtermcmd $nicecmd $* $extraargs
 else
+	if ( $?dGB_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$* $extraargs"
 	$xtermcmd $nicecmd $bindir/$* $extraargs
 endif
 

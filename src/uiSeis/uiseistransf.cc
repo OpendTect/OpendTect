@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.10 2003-04-22 09:51:00 arend Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.11 2003-05-22 11:10:27 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,12 @@ void uiSeisTransfer::updateFrom( const IOObj& ioobj )
 	subselfld->setInput( bs, zrg );
 
     scfmtfld->updateFrom( ioobj );
+}
+
+
+void uiSeisTransfer::setSteering( bool yn )
+{
+    scfmtfld->setSteering(yn);
 }
 
 

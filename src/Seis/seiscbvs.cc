@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.38 2003-05-20 12:42:12 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.39 2003-05-22 11:10:27 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -586,11 +586,11 @@ void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
     BufferString pathnm = iostrm->dirName(); \
     BufferString basenm = iostrm->fileName()
 
-#define mImplLoopStart(endop) \
+#define mImplLoopStart \
 	StreamProvider sp( CBVSIOMgr::getFileName(basenm,nr) ); \
 	sp.addPathIfNecessary( pathnm ); \
 	if ( !sp.exists(true) ) \
-	    { { endop; } return true; }
+	    return true;
 
 
 bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
@@ -599,7 +599,7 @@ bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 
     for ( int nr=0; ; nr++ )
     {
-	mImplLoopStart(;);
+	mImplLoopStart;
 
 	if ( !sp.remove(false) )
 	    return nr ? true : false;
@@ -615,7 +615,7 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
     bool rv = true;
     for ( int nr=0; ; nr++ )
     {
-	mImplLoopStart( if ( cb ) StreamProvider::sendCBMsg( cb, "" ) );
+	mImplLoopStart;
 
 	StreamProvider spnew( CBVSIOMgr::getFileName(newnm,nr) );
 	spnew.addPathIfNecessary( pathnm );
@@ -632,7 +632,7 @@ bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
     bool rv = true;
     for ( int nr=0; ; nr++ )
     {
-	mImplLoopStart(;);
+	mImplLoopStart;
 
 	if ( !sp.setReadOnly(yn) )
 	    rv = false;

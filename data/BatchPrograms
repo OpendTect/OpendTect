@@ -57,3 +57,7 @@ lith2nodes: GDI
 	Comment: >>'Lithology classification: Supervised Learning Approach'
 	ExampleInput: lith2nodes_example.par
 !
+df -k: Sys
+	Arg: O`Words`Program arguments
+	Comment: System utility indicating free space on your disks
+!

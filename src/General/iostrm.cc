@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.14 2003-05-20 12:42:12 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.15 2003-05-22 11:10:27 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -155,7 +155,6 @@ bool IOStream::implRename( const char* newnm, const CallBack* cb )
 
     bool rv = sp->rename( newnm, cb );
     delete sp;
-    if ( cb ) StreamProvider::sendCBMsg( cb, "" );
 
     if ( rv )
 	setFileName( newnm );
