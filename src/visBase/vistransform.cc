@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.10 2003-09-19 09:22:22 kristofer Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.11 2003-10-09 14:12:58 nanne Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
@@ -125,25 +125,28 @@ void visBase::Transformation::setA( float a11, float a12, float a13, float a14,
 }
 
 
-Coord3 visBase::Transformation::transform(const Coord3& pos) const
+Coord3 visBase::Transformation::transform( const Coord3& pos ) const
 {
     const SbVec3f src( pos.x, pos.y, pos.z );
     SbVec3f dst;
 
     transform_->matrix.getValue().multVecMatrix( src, dst );
+    if ( mIsUndefined(pos.z) )
+	dst[2] = mUndefValue;
 
     return Coord3( dst[0], dst[1], dst[2] );
 }
 
 
-Coord3 visBase::Transformation::transformBack(
-						const Coord3& pos) const
+Coord3 visBase::Transformation::transformBack( const Coord3& pos ) const
 {
     const SbVec3f src( pos.x, pos.y, pos.z );
     SbVec3f dst;
 
     SbMatrix inverse = transform_->matrix.getValue().inverse();
     inverse.multVecMatrix( src, dst );
+    if ( mIsUndefined(pos.z) )
+	dst[2] = mUndefValue;
 
     return Coord3( dst[0], dst[1], dst[2] );
 }

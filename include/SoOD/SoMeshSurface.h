@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurface.h,v 1.3 2003-10-09 11:59:59 kristofer Exp $
+ RCS:		$Id: SoMeshSurface.h,v 1.4 2003-10-09 14:13:08 nanne Exp $
 ________________________________________________________________________
 
 
@@ -63,11 +63,12 @@ public:
     				//!< -1 = auto
     SoSFShort			partSizePower;
 
-    void			setPos(int row,int col,const SbVec3f& );
+    SbVec3f			getPos(int,int);
+    void			setPos(int row,int col,const SbVec3f&);
     void			removePos(int row,int col);
 
-    void			setTextureRange(int firstrow, int firstcol,
-	    					int lastrow, int lastcol );
+    void			setTextureRange(int firstrow,int firstcol,
+	    					int lastrow,int lastcol);
 
     void			allocSpace(int rowstart,int rowstop,
 	    			    	   int colstart,int colstop);
@@ -77,29 +78,30 @@ public:
 
     void			addPickCB( SoMeshSurfaceCB*, void* data = 0 );
     void			removePickCB( SoMeshSurfaceCB*, void* data = 0);
-    void			getPickedRowCol(int& row, int& col ) const;
+    void			getPickedRowCol(int& row,int& col) const;
 
     static inline SbBool	isUndefined(float);
     static inline SbBool	isUndefined(const SbVec3f&);
     static inline float		undefVal();
 
     virtual void		GLRender(SoGLRenderAction*);
+
 protected:
     void			setUpObject();
 
-    int				getSquareIndex( int row, int col ) const;
+    int				getSquareIndex(int row,int col) const;
     				/*!< \note
 				     Lock the mutex before access and dont
 				     unlock until you are finished with the
 				     results (so it doesn't become invalid).
 				*/
 
-    SoMeshSurfaceSquare*	getSquare( int squareindex );
-    const SoMeshSurfaceSquare*	getSquare( int squareindex ) const;
+    SoMeshSurfaceSquare*	getSquare(int squareindex);
+    const SoMeshSurfaceSquare*	getSquare(int squareindex) const;
 
-    void			makeFirstSquare( int row, int col );
-    void			addSquareRow( bool start );
-    void			addSquareCol( bool start );
+    void			makeFirstSquare(int row,int col);
+    void			addSquareRow(bool start);
+    void			addSquareCol(bool start);
 
     SbMutex*			setupMutex;
     				//Protects firstrow, firstcol, nrcolsquares,
