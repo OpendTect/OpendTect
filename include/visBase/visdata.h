@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.14 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.15 2002-05-02 06:56:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,7 @@ public:
     virtual NotifierAccess*	selection() { return 0; }
     virtual NotifierAccess*	deSelection() { return 0; }
 
-    virtual int			usePar( const IOPar& ) { return 1; }
+    virtual int			usePar( const IOPar& );
     				/*!< Returns -1 on error and 1 on success.
 				     If it returns 0 it is missing something.
 				     Parse everything else and retry later.
@@ -85,6 +85,7 @@ private:
     BufferString*		name_;
 
     static const char*		typestr;
+    static const char*		namestr;
 };
 
 
