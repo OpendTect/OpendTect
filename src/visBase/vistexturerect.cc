@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.12 2002-04-22 15:44:24 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.13 2002-04-23 06:17:09 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -109,8 +109,8 @@ float visBase::TextureRect::getValue( const Geometry::Pos& pos ) const
     if ( localpos.x>1 || localpos.y>1 )
 	return mUndefValue;
 
-    localpos.x *= data->info().getSize(0);
-    localpos.y *= data->info().getSize(1);
+    localpos.x *= (data->info().getSize(0)-1);
+    localpos.y *= (data->info().getSize(1)-1);
 
     return data->get(mNINT(localpos.x), mNINT(localpos.y));
 }
