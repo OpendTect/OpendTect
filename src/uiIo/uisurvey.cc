@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.56 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.57 2004-04-20 08:27:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -543,7 +543,9 @@ void uiSurvey::updateViewsGlobal()
 {
     BufferString capt( "Open" );
     capt += GetProjectVersionName();
-    BufferString fnm = ".rel.od";
+
+    const char* swdir = GetSoftwareDir();
+    BufferString fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
 #ifdef __win__
     fnm += ".win";
 #else
@@ -552,11 +554,10 @@ void uiSurvey::updateViewsGlobal()
     if ( ptr ) { fnm += "."; fnm += ptr; }
 #endif
     if ( !File_exists(fnm) )
-	fnm = ".rel.od";
+	fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
     if ( !File_exists(fnm) )
-	fnm = ".rel";
+	fnm = FilePath( swdir ).add( ".rel" ).fullPath();
 
-    fnm = FilePath( GetSoftwareDir() ).add( fnm ).fullPath();
     if ( File_exists(fnm) )
     {
 	char* ptr = strrchr( capt.buf(), 'V' );
