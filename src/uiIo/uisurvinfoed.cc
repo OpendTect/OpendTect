@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.12 2002-01-04 00:08:19 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.13 2002-01-04 15:54:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ extern "C" const char* GetBaseDataDir();
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si, 
 					const CallBack& appcb )
-	: uiDialog(p,"Survey setup")
+	: uiDialog(p,"Survey setup",true,true,false,false,false,"0.3.2")
 	, rootdir( GetBaseDataDir() )
 	, dirnmch_(0)
 	, survinfo(si)
@@ -97,8 +97,11 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     xinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
     xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
     y0fld = new uiGenInput ( trgrp, "Y = ", DoubleInpSpec() );
+    y0fld->attach( widthSameAs, x0fld );
     yinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
+    yinlfld->attach( widthSameAs, xinlfld );
     ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
+    ycrlfld->attach( widthSameAs, xcrlfld );
     overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
     overrule->setChecked( false );
     xinlfld->attach( rightOf, x0fld );
@@ -175,7 +178,7 @@ bool uiSurveyInfoEditor::appButPushed()
 {
     if ( !setRanges() ) return false;
 
-    if ( !overrule->isChecked() )
+    if ( !overrule->isChecked() || coordset->getBoolValue() )
     {
 	if ( !setCoords() ) return false;
 
@@ -185,6 +188,7 @@ bool uiSurveyInfoEditor::appButPushed()
 	y0fld->setValue( survinfo->b2c_.getTransform(false).a );
 	yinlfld->setValue( survinfo->b2c_.getTransform(false).b );
 	ycrlfld->setValue( survinfo->b2c_.getTransform(false).c );
+	overrule->setChecked( false );
     }
     else
 	if ( !setRelation() ) return false;
@@ -327,7 +331,18 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
     if ( !conn.getSurveySetup(bs,zrg,coords,binids) )
 	{ uiMSG().error(conn.errMsg()); return; }
 
-    //TODO use the stuff
+    survinfo->setRange( bs );
+    survinfo->setZRange( zrg );
+    BinID bid[2]; Coord crd[3]; int xline;
+    int a, b, c;
+    if ( binids[0]->inl == binids[1]->inl ) { a=0; b=1; c=2; }
+    else if ( binids[1]->inl == binids[2]->inl ) { a=2; b=0; c=1; } 
+    else { a=0; b=2; c=1; }
+
+    bid[0] = *binids[a]; bid[1] = *binids[c]; xline = binids[b]->crl;
+    crd[0] = *coords[a]; crd[1] = *coords[b]; crd[2] = *coords[c]; 
+    survinfo->set3Pts( crd, bid, xline );
+    setValues();
 }
 
 
