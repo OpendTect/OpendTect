@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.26 2003-11-24 08:39:52 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.27 2003-12-17 15:44:06 kristofer Exp $";
 
 #include "emmanager.h"
 
@@ -50,6 +50,45 @@ const EM::History& EM::EMManager::history() const
 
 EM::History& EM::EMManager::history()
 { return history_; }
+
+
+BufferString EM::EMManager::name(const EM::ObjectID& oid) const
+{
+    if ( getObject(oid) ) return getObject(oid)->name();
+    MultiID mid = IOObjContext::getStdDirData(IOObjContext::Surf)->id;
+    mid.add(oid);
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    BufferString res;
+    if ( ioobj ) res = ioobj->name();
+    return res;
+}
+
+EM::EMManager::Type EM::EMManager::type(const EM::ObjectID& oid) const
+{
+    mDynamicCastGet( const EM::Horizon*, hor, getObject(oid) );
+    if ( hor ) return Hor;
+    mDynamicCastGet( const EM::Fault*, fault, getObject(oid) );
+    if ( fault ) return Fault;
+    mDynamicCastGet( const EM::StickSet*, stickset, getObject(oid) );
+    if ( stickset ) return StickSet;
+
+    MultiID mid = IOObjContext::getStdDirData(IOObjContext::Surf)->id;
+    mid.add(oid);
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) 
+	return Unknown;
+
+    if ( !strcmp(ioobj->group(), EMFaultTranslatorGroup::keyword) )
+	return Fault;
+    if ( !strcmp(ioobj->group(), EMHorizonTranslatorGroup::keyword) )
+	return Hor;
+    if ( !strcmp(ioobj->group(), EMStickSetTranslatorGroup::keyword) )
+	return StickSet;
+
+    return Unknown;
+}
 
 
 void EM::EMManager::init()

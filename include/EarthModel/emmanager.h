@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.18 2003-12-12 10:50:08 kristofer Exp $
+ RCS:		$Id: emmanager.h,v 1.19 2003-12-17 15:44:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -36,13 +36,18 @@ class SurfaceIODataSelection;
 class EMManager
 {
 public:
-    enum Type		{ Hor, Fault, StickSet };
+    enum Type		{ Unknown, Hor, Fault, StickSet };
 
 			EMManager();
 			~EMManager();
 
     History&		history();
     const History&	history() const;
+
+    BufferString	name(const EM::ObjectID&) const;
+    			/*!<\returns the name of the object */
+    Type		type(const EM::ObjectID&) const;
+    			/*!<\returns the type of the object */
 
     void		init();
 
