@@ -7,12 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.5 2001-05-01 09:29:50 bert Exp $
+ RCS:           $Id: uigeninput.h,v 1.6 2001-05-02 16:35:35 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uigroup.h>
+#include <ranges.h>
+#include <position.h>
 
 class uiLineEdit;
 class uiLabel;
@@ -81,11 +83,43 @@ Don't use when already finalised (i.e. popped up).
     float		getfValue(int nr=0) const;
     bool		getBoolValue(int nr=0) const;
 
+    inline Interval<int> getIInterval() const
+			{ return Interval<int>(getIntValue(0),getIntValue(1)); }
+    inline Interval<float> getFInterval() const
+			{ return Interval<float>(getfValue(0),getfValue(1)); }
+    inline Interval<double> getDInterval() const
+			{ return Interval<double>(getValue(0),getValue(1)); }
+    inline Coord	getCoord() const
+			{ return Coord(getValue(0),getValue(1)); }
+    inline BinID	getBinID() const
+			{ return BinID(getIntValue(0),getIntValue(1)); }
+
     void		setText(const char*,int nr=0);
     void		setValue(int,int nr=0);
     void		setValue(double,int nr=0);
     void		setValue(float,int nr=0);
     void		setValue(bool,int nr=0);
+
+    inline void		setTexts( const char* v1, const char* v2 )
+			{ setText(v1,0); setText(v2,1); }
+    inline void		setValues( int v1, int v2 )
+			{ setValue(v1,0); setValue(v2,1); }
+    inline void		setValues( double v1, double v2 )
+			{ setValue(v1,0); setValue(v2,1); }
+    inline void		setValues( float v1, float v2 )
+			{ setValue(v1,0); setValue(v2,1); }
+    inline void		setValues( bool v1, bool v2 )
+			{ setValue(v1,0); setValue(v2,1); }
+    inline void		setValue( const Coord& c )
+			{ setValue(c.x,0); setValue(c.y,1); }
+    inline void		setValue( const BinID& b )
+			{ setValue(b.inl,0); setValue(b.crl,1); }
+    inline void		setValue( const Interval<int>& i )
+			{ setValue(i.start,0); setValue(i.stop,1); }
+    inline void		setValue( const Interval<float>& i )
+			{ setValue(i.start,0); setValue(i.stop,1); }
+    inline void		setValue( const Interval<double>& i )
+			{ setValue(i.start,0); setValue(i.stop,1); }
 
     void		setReadOnly( bool yn=true, int nr=-1 );
     void		clear( int nr=-1 );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.3 2001-04-30 14:59:05 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.4 2001-05-02 16:35:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,10 @@ public:
     void		setCurrentItem(int);
     const char*		getItem( int idx ) const { return *entries_[idx]; }
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+
+    void		clear()			{ setCurrentItem( 0 ); }
 
 protected:
 
