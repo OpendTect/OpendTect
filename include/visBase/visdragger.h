@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.8 2004-08-05 07:03:57 kristofer Exp $
+ RCS:           $Id: visdragger.h,v 1.9 2004-08-30 12:56:16 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     Coord3			getSize() const;
 
     void			setRotation(const Coord3&,float);
+    void			setDefaultRotation();
     void			setColor(const Color&);
 
     void			turnOn(bool);
