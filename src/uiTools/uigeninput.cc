@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.35 2002-01-10 11:14:52 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.36 2002-01-14 14:24:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -412,7 +412,6 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     }
 
     b2c = spc->binID2Coord();
-    if ( !b2c ) b2c = &SI().binID2Coord();
 
     init();
 }
