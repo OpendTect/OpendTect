@@ -8,10 +8,12 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.3 2004-08-25 18:06:13 kristofer Exp $
+ RCS:		$Id: refcount.h,v 1.4 2005-02-03 09:11:50 kristofer Exp $
 ________________________________________________________________________
 
 -*/
+
+#include "ptrman.h"
 
 template <class T> class ObjectSet;
 
@@ -48,6 +50,9 @@ deepRef( set );
 deepUnRef(set);
 
 \code
+
+A pointer management is handled by the class RefMan, which has the same usage as
+PtrMan.
 
 */
 
@@ -97,5 +102,10 @@ template <class T> inline void deep##funcname( ObjectSet<T>& set )\
 mDeepRef(UnRef,unRef, set.erase() );
 mDeepRef(Ref,ref,);
 mDeepRef(UnRefNoDelete,unRefNoDelete,);
+
+mDefPtrMan1(RefMan, if ( ptr_ ) ptr_->ref(), if ( ptr_ ) ptr_->unRef() )
+mDefPtrMan2(RefMan, if ( ptr_ ) ptr_->ref(), if ( ptr_ ) ptr_->unRef() )
+mDefPtrMan3(RefMan, if ( ptr_ ) ptr_->ref(), if ( ptr_ ) ptr_->unRef() )
+
 
 #endif
