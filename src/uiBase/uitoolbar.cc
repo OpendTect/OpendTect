@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.14 2002-08-14 15:09:27 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.15 2002-09-25 12:58:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
 				   const char* nm="ToolBarButton",
 				   bool toggle=false );
     void		turnOn(int idx, bool yn );
+    void		setSensitive(int idx, bool yn );
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
@@ -86,6 +87,12 @@ int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
 void uiToolBarBody::turnOn( int idx, bool yn )
 {
     buttons[idx]->setOn( yn );
+}
+
+
+void uiToolBarBody::setSensitive( int idx, bool yn )
+{
+    buttons[idx]->setEnabled( yn );
 }
 
 
@@ -139,6 +146,10 @@ void uiToolBar::setLabel( const char* lbl )
 
 void uiToolBar::turnOn( int idx, bool yn )
 { body_->turnOn( idx, yn ); }
+
+
+void uiToolBar::setSensitive( int idx, bool yn )
+{ body_->setSensitive( idx, yn ); }
 
 
 void uiToolBar::display( bool yn )
