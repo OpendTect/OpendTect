@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.14 2002-03-18 15:48:51 arend Exp $
+ RCS:           $Id: uifont.cc,v 1.15 2002-03-20 09:16:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -317,6 +317,8 @@ uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
         but->activated.notify( mCB(this,uiSetFonts,butPushed) );
 	buttons += but;
     }
+
+    butgrp->attach( hCentered );
 }
 
 
