@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.20 2004-05-17 06:48:32 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.21 2004-05-19 07:11:57 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -474,10 +474,19 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
     mDynamicCastGet( uiVisMenu*, menu, cb );
 
     uiVisPartServer* visserv = applMgr()->visServer();
-	
-    storemnuid = menu->addItem( new uiMenuItem("Store ...") );
-    trackmnuid = menu->addItem( new uiMenuItem("Start tracking ...") );
-    tracksetupmnuid = menu->addItem( new uiMenuItem("Change setup ...") );
+
+    bool dotrack = false;
+    mGetTrackingBoolean(dotrack);    
+    if ( dotrack )
+    {
+	storemnuid = menu->addItem( new uiMenuItem("Store ...") );
+	trackmnuid = menu->addItem( new uiMenuItem("Start tracking ...") );
+	tracksetupmnuid = menu->addItem( new uiMenuItem("Change setup ...") );
+    }
+    else
+    {
+	storemnuid = trackmnuid = tracksetupmnuid = -1;
+    }
 
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
@@ -810,7 +819,11 @@ bool uiODFaultParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("New ..."), 1 );
+
+    bool dotrack = false;
+    mGetTrackingBoolean(dotrack);
+    if ( dotrack )
+	mnu.insertItem( new uiMenuItem("New ..."), 1 );
 
     const int mnuid = mnu.exec();
 
@@ -860,7 +873,11 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("New ..."), 1 );
+
+    bool dotrack = false;
+    Settings::common().getYN(IOPar::compKey("dTect","Enable Tracking"),dotrack);
+    if ( dotrack )
+	mnu.insertItem( new uiMenuItem("New ..."), 1 );
 
     const int mnuid = mnu.exec();
 

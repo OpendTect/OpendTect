@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.20 2004-05-19 06:56:57 kristofer Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.21 2004-05-19 07:11:57 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uithumbwheel.h"
 #include "uigeninputdlg.h"
 #include "uitreeitemmanager.h"
+#include "uivissurface.h"
 
 #include "ptrman.h"
 #include "survinfo.h"
@@ -61,9 +62,10 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs->addFactory( new uiODHorizonFactory, 6000);
 
     bool dotrack = false;
-    Settings::common().getYN(IOPar::compKey("dTect","Enable Tracking"),dotrack);
+    mGetTrackingBoolean(dotrack);
     if ( dotrack )
 	tifs->addFactory( new uiODFaultFactory, 7000 );
+
     tifs->addFactory( new uiODWellFactory, 8000 );
 
 
