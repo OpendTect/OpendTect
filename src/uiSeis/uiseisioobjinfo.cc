@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.8 2004-09-23 11:30:26 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.9 2004-09-27 14:09:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     if ( !conn || !tr->initRead(conn) )
     {
 	if ( doerrs )
-	    uiMSG().error( "Cannot open seismic data file(s)" );
+	    uiMSG().error( "No output cube produced" );
 	delete conn;
 	return false;
     }
