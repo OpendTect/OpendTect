@@ -4,15 +4,13 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.48 2004-01-12 08:18:41 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.49 2004-01-16 11:36:12 nanne Exp $";
 
 #include "vissurvpickset.h"
 
 #include "color.h"
 #include "iopar.h"
-#include "trigonometry.h"
 #include "survinfo.h"
-#include "viscube.h"
 #include "visevent.h"
 #include "visdataman.h"
 #include "vismarker.h"
@@ -24,6 +22,7 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.48 2004-01-12 08:18:41
 #include "vistransform.h"
 #include "visvolumedisplay.h"
 #include "separstr.h"
+#include "trigonometry.h"
 
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
@@ -77,20 +76,26 @@ visSurvey::PickSetDisplay::~PickSetDisplay()
 }
 
 
-void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Coord3& dir )
+void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
 {
     visBase::Marker* marker = visBase::Marker::create();
     group->addObject( marker );
 
     marker->setTransformation( transformation );
     marker->setCenterPos( pos );
-    marker->setDirection( Sphere(dir.x,dir.y,dir.z) );
+    marker->setDirection( dir );
     marker->setScale( Coord3(1, 1, 2/SPM().getZScale()) );
     marker->setSize( picksz );
     marker->setType( (visBase::Marker::Type)picktype );
     marker->setMaterial( 0 );
 
     changed.trigger();
+}
+
+
+void visSurvey::PickSetDisplay::addPick( const Coord3& pos )
+{
+    addPick( pos, Sphere(0,0,0) );
 }
 
 
@@ -402,17 +407,8 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
 
     group->removeAll();
 
-    bool usedoldpar = false;
-    int nopicks;
-    if ( !par.get( nopickstr, nopicks ) )
-    {
-	res = useOldPar( par );
-	if ( res < 1 ) return res;
-	usedoldpar = true;
-    }
-
-    if ( usedoldpar ) return 1;
-    
+    int nopicks = 0;
+    par.get( nopickstr, nopicks );
     for ( int idx=0; idx<nopicks; idx++ )
     {
 	BufferString str;
@@ -422,36 +418,11 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
 
 	FileMultiString fms( str );
 	Coord3 pos( atof(fms[0]), atof(fms[1]), atof(fms[2]) );
-	Coord3 dir;
+	Sphere dir;
 	if ( fms.size() > 3 )
-	    dir = Coord3( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
+	    dir = Sphere( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
 	    
 	addPick( pos, dir );
-    }
-
-    return 1;
-}
-
-
-int visSurvey::PickSetDisplay::useOldPar( const IOPar& par )
-{
-    int grpid;
-    const char* grpstr = "Group";
-    if ( !par.get( grpstr, grpid ) )
-	return -1;
-
-    visBase::DataObject* dataobj = visBase::DM().getObj( grpid );
-    if ( !dataobj ) return 0;
-
-    mDynamicCastGet( visBase::DataObjectGroup*, sogrp, dataobj );
-    if ( !sogrp ) return -1;
-
-    for ( int idx=0; idx<sogrp->size(); idx++ )
-    {
-        mDynamicCastGet(visBase::Cube*, cube, sogrp->getObject( idx ) );
-        if ( !cube ) continue;
-	Coord3 pos = cube->centerPos();
-	addPick( pos );
     }
 
     return 1;

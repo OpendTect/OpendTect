@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.29 2004-01-05 09:45:08 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.30 2004-01-16 11:36:17 nanne Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class Color;
 class IOPar;
+class Sphere;
 
 namespace visBase
 {
@@ -46,8 +47,8 @@ public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
 
-    void			addPick(const Coord3&,
-	    				const Coord3& dir=Coord3(0,0,0));
+    void			addPick(const Coord3&,const Sphere&);
+    void			addPick(const Coord3&);
     int				nrPicks() const;
     Coord3			getPick(int idx) const;
     Coord3			getDirection(int idx) const;
@@ -83,8 +84,6 @@ protected:
 
     void			pickCB( CallBacker* =0 );
     void			updatePickSz( CallBacker* = 0);
-
-    int				useOldPar(const IOPar&);
 
     int				picktype;
     float			picksz;

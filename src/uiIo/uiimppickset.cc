@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.8 2003-11-26 16:27:52 bert Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.9 2004-01-16 11:35:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,8 +89,6 @@ bool uiImportPickSet::handleAscii()
                              : BinID( mNINT(ploc.pos.x), mNINT(ploc.pos.y) );
             bool reasonable = SI().isReasonable(bid);
 
-            BufferString msg( "First position in file is not valid.\n"
-                              "Do you wish to continue?" );
             if ( !reasonable
 	      && !uiMSG().askGoOn( "First position in file is not valid.\n"
 				   "Do you wish to continue?" ) )
@@ -104,7 +102,13 @@ bool uiImportPickSet::handleAscii()
         }
 
 	if ( doscale )
-	    { ploc.z *= 0.001; ploc.dir.z *= 0.001; }
+	    ploc.z *= 0.001;
+	if ( ploc.hasDir() )
+	{
+	    ploc.dir.theta *= M_PI/180;
+	    ploc.dir.phi *= M_PI/180;
+	}
+
 	*ps += ploc;
     }
 
