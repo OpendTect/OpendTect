@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.18 2004-01-07 15:36:02 bert Exp $
+ RCS:		$Id: thread.h,v 1.19 2004-01-08 10:11:24 bert Exp $
 ________________________________________________________________________
 
 */
 
 #include "callback.h"
-#ifdef __win
+#ifdef __win__
 # include "pthreadwin.h"
 # undef small
 #else
