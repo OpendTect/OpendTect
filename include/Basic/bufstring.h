@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.8 2001-03-30 08:53:47 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.9 2001-04-26 08:38:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 /*!\brief String with variable length but guaranteed minimum buffer size.
 
 The minimum buffer size makes life easier in worlds where strcpy etc. rule.
-Overhead is 8 extra bytes for length and minimum length.
+Overhead is 4 extra bytes for variable length and 4 bytes for minimum length.
 
 */
 
@@ -69,8 +69,8 @@ public:
    inline char&		operator [](int idx)		{ return buf_[idx]; }
    inline const char&	operator [](int idx) const	{ return buf_[idx]; }
    inline unsigned int	size() const			{ return strlen(buf_); }
-   inline unsigned int	bufSize() const
-			{ return len; }
+   inline unsigned int	bufSize() const			{ return len; }
+   inline void		setBufSize(unsigned int);
    inline bool		operator==( const BufferString& s ) const
 			{ return operator ==( s.buf_ ); }
    inline bool		operator!=( const BufferString& s ) const
@@ -112,15 +112,24 @@ inline bool BufferString::operator==( const char* s ) const
 }
 
 
+inline void BufferString::setBufSize( unsigned int newlen )
+{
+    if ( newlen < minlen ) newlen = minlen;
+    if ( newlen != len )
+    {
+	len = newlen;
+	buf_ = mREALLOC(buf_,len,char);
+    }
+}
+
+
 inline BufferString& BufferString::operator=( const char* s )
 {
     if ( buf_ != s )
     {
 	if ( !s ) s = "";
 	unsigned int newlen = (unsigned int)(strlen(s) + 1);
-	if ( newlen < minlen ) newlen = minlen;
-	if ( newlen != len )
-	    { len = newlen; buf_ = mREALLOC(buf_,len,char); }
+	setBufSize( (unsigned int)(strlen(s) + 1) );
 	char* ptr = buf_;
 	while ( *s ) *ptr++ = *s++;
 	*ptr = '\0';
@@ -133,13 +142,7 @@ inline BufferString& BufferString::operator +=( const char* s )
 {
     if ( s && *s )
     {
-	unsigned int newlen = (unsigned int)(strlen(s) + strlen(buf_)) + 1;
-	if ( newlen < minlen ) newlen = minlen;
-	if ( newlen != len )
-	{
-	    len = newlen;
-	    buf_ = mREALLOC(buf_,len,char);
-	}
+	setBufSize( (unsigned int)(strlen(s) + strlen(buf_)) + 1 );
 
 	char* ptr = buf_;
 	while ( *ptr ) ptr++;
