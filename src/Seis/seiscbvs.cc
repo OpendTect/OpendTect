@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.58 2004-11-15 17:32:30 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.59 2004-11-29 13:18:28 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -59,22 +59,21 @@ CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
 
 void CBVSSeisTrcTranslator::cleanUp()
 {
+    const int nrcomps = nrSelComps();
     SeisTrcTranslator::cleanUp();
     headerdone = false;
     donext =false;
     nrdone = 0;
-    destroyVars();
+    destroyVars( nrcomps );
 }
 
 
-void CBVSSeisTrcTranslator::destroyVars()
+void CBVSSeisTrcTranslator::destroyVars( int nrcomps )
 {
     delete rdmgr; rdmgr = 0;
     delete wrmgr; wrmgr = 0;
-
     if ( !blockbufs ) return;
 
-    const int nrcomps = nrSelComps();
     for ( int idx=0; idx<nrcomps; idx++ )
     {
 	delete [] blockbufs[idx];
