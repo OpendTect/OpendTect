@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.14 2004-09-17 08:49:21 kristofer Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.15 2004-09-17 13:32:08 kristofer Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -131,12 +131,24 @@ void uiTreeItem::updateColumnText( int col )
 
 const uiTreeItem* uiTreeItem::findChild( const char* nm ) const
 {
+    return const_cast<uiTreeItem*>(this)->findChild(nm);
+}
+	
+
+const uiTreeItem* uiTreeItem::findChild( int selkey ) const
+{
+    return const_cast<uiTreeItem*>(this)->findChild(selkey);
+}
+
+
+uiTreeItem* uiTreeItem::findChild( const char* nm )
+{
     if ( !strcmp( nm, name_ ) )
 	return this;
 
     for ( int idx=0; idx<children.size(); idx++ )
     {
-	const uiTreeItem* res = children[idx]->findChild(nm);
+	uiTreeItem* res = children[idx]->findChild(nm);
 	if ( res )
 	    return res;
     }
@@ -145,20 +157,22 @@ const uiTreeItem* uiTreeItem::findChild( const char* nm ) const
 }
 	
 
-const uiTreeItem* uiTreeItem::findChild( int selkey ) const
+uiTreeItem* uiTreeItem::findChild( int selkey )
 {
     if ( selectionKey()==selkey )
 	return this;
 
     for ( int idx=0; idx<children.size(); idx++ )
     {
-	const uiTreeItem* res = children[idx]->findChild(selkey);
+	uiTreeItem* res = children[idx]->findChild(selkey);
 	if ( res )
 	    return res;
     }
 
     return 0;
 }
+	
+
 	
 
 int uiTreeItem::uiListViewItemType() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.11 2004-09-15 06:23:26 kristofer Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.12 2004-09-17 13:32:05 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,15 @@ public:
     				/*!<Finds a child in the tree below
 				    this item.
 				*/
+    virtual uiTreeItem*		findChild( const char* name );
+    				/*!<Finds a child in the tree below
+				    this item.
+				*/
+    virtual uiTreeItem*		findChild( int selkey );
+    				/*!<Finds a child in the tree below
+				    this item.
+				*/
+
 
     template<class T> inline void setProperty(const char* key, const T&);
     				/*!<Sets a keyed value that has been retrieved
