@@ -27,8 +27,8 @@ public:
 			{ 
 			    int nrl = 1;
 			    const char* txt = text();
-			    while( txt++ && *txt )
-				{ if( *txt == '\n' ) nrl++; }
+			    while( txt && *txt )
+				{ if( *txt == '\n' ) nrl++; txt++; }
 
 			    return nrl; 
 			}

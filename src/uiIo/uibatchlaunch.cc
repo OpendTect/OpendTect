@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.7 2002-03-18 15:48:51 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.8 2002-04-17 13:44:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uimsg.h"
+#include "lic.h"
 
 #include <fstream.h>
 
@@ -161,7 +162,11 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     fname = sel == 0 ? "window" : (sel == 2 ? "stdout" : filefld->fileName());
     if ( fname == "" ) fname = "/dev/null";
     IOPar* iop = const_cast<IOPar*>(iopl.size() ? iopl[0] : 0);
-    if ( iop ) iop->set( "Log file", fname );
+    if ( iop )
+    {
+	iop->set( "Log file", fname );
+    	LM().setCert( *iop );
+    }
 
     if ( selected() == 3 )
     {
