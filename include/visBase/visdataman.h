@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.4 2002-04-10 07:40:58 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.5 2002-04-25 13:49:39 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "sets.h"
+
+class IOPar;
 
 class SoPath;
 
@@ -39,6 +41,8 @@ public:
 			     and reinitialized.
 			*/
 
+    void		fillPar( IOPar& ) const;
+    void		usePar( const IOPar& );
 
     void		ref( int id );
     void		ref( const DataObject* );
