@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.13 2004-01-27 10:34:31 dgb Exp $
+  - RCS:        $Id: windows.html,v 1.14 2004-01-27 12:34:24 dgb Exp $
  -->
 
 <body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.1]</title>
@@ -170,7 +170,7 @@ Hello.lib*  libuiHello.dll.a*  uiHello.lib*
 $
 </pre>
 </p><p>
-If anything goes wrong during compile and/or link, the error messages are sent to a file 'lslux' in the source directory. If you want to see these immediately on the command line, set the environment variable OUTSTDOUT to yes, e.g. in your init.bash file:
+If anything goes wrong during compile and/or link, the error messages are sent to a file 'lswin' in the source directory. If you want to see these immediately on the command line, set the environment variable OUTSTDOUT to yes, e.g. in your init.bash file:
 <pre>export OUTSTDOUT=yes</pre>
 you can also add this for each make run, then type:
 <pre>make OUTSTDOUT=yes</pre>
