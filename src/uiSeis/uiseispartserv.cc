@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.26 2004-11-09 13:36:09 nanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.27 2004-11-18 12:03:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,15 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 {
     mGet2DLineSet(false)
     int lineidx = lineset.indexOf( linenm );
-    if ( lineidx < 0 ) return false;
+    if ( lineidx < 0 )
+    {
+	BufferStringSet attribs;
+	get2DStoredAttribs( mid, linenm, attribs );
+	if ( !attribs.size() ) return false;
+	lineidx = lineset.indexOf( LineKey(linenm,attribs.get(0)) );
+	if ( lineidx < 0 ) return false;
+    }
+
     return lineset.getGeometry( lineidx, geom );
 }
 
