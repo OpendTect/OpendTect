@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.20 2004-07-09 13:53:10 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.21 2004-12-15 13:28:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -334,36 +334,40 @@ const char* uiTable::text( const RowCol& rc ) const
 }
 
 
-void uiTable::setColumnReadOnly( int col, bool yn )
-    { body_->setColumnReadOnly( col, yn ); }
+#define mSetFunc(func) \
+    void uiTable::func( int rc, bool yn ) \
+    { body_->func( rc, yn ); }
+
+#define mIsFunc(func) \
+    bool uiTable::func( int rc ) const\
+    { return body_->func( rc ); }
+
+mSetFunc( setColumnReadOnly )
+mIsFunc( isColumnReadOnly )
+mSetFunc( setRowReadOnly )
+mIsFunc( isRowReadOnly )
 
 
-void uiTable::setRowReadOnly( int row, bool yn )
-    { body_->setRowReadOnly( row, yn ); }
+void uiTable::hideColumn( int col, bool yn )
+{
+    if ( yn ) body_->hideColumn( col ); 
+    else body_->showColumn( col );
+}
+
+void uiTable::hideRow( int col, bool yn )
+{
+    if ( yn ) body_->hideRow( col ); 
+    else body_->showRow( col );
+}
+
+mIsFunc( isColumnHidden )
+mIsFunc( isRowHidden )
 
 
-bool uiTable::isColumnReadOnly( int col ) const
-    { return body_->isColumnReadOnly(col); }
-
-
-bool uiTable::isRowReadOnly( int row ) const
-    { return body_->isRowReadOnly(row); }
-
-
-void uiTable::setColumnStretchable( int col, bool stretch )
-    { body_->setColumnStretchable( col, stretch ); }
-
-
-void uiTable::setRowStretchable( int row, bool stretch )
-    { body_->setRowStretchable( row, stretch ); }
-
-
-bool uiTable::isColumnStretchable( int col ) const
-    { return body_->isColumnStretchable(col); }
-
-
-bool uiTable::isRowStretchable( int row ) const
-    { return body_->isRowStretchable(row); }
+mSetFunc( setColumnStretchable )
+mIsFunc( isColumnStretchable )
+mSetFunc( setRowStretchable )
+mIsFunc( isRowStretchable )
 
 
 UserInputObj* uiTable::mkUsrInputObj( const RowCol& rc )

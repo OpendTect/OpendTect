@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.17 2004-06-23 11:17:49 nanne Exp $
+ RCS:           $Id: uitable.h,v 1.18 2004-12-15 13:28:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,6 +152,11 @@ public:
     bool		isColumnReadOnly(int) const;
     void		setRowReadOnly(int,bool);
     bool		isRowReadOnly(int) const;
+
+    void		hideColumn(int,bool);
+    void		hideRow(int,bool);
+    bool		isColumnHidden(int) const;
+    bool		isRowHidden(int) const;
 
     void		insertRows( int row, int count = 1 );
     void		insertRows( const RowCol& rc, int count = 1 )
