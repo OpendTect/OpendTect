@@ -20,9 +20,11 @@ int main( int argc, char** argv )
     if ( argc < 4 )
     {
 	cerr << "Usage: " << argv[0]
-	     << " inl1`inl2`inlstep`crl1`crl2`crlstep[`startz`stepz`nrz]"
-	     << " inpfile outpfile" << endl;
+	     << " \"inl1`inl2`inlstep`crl1`crl2`crlstep[`startz`stepz`nrz]\""
+	     << " inpfile outpfile [min_val`max_val]" << endl;
 	cerr << "Format: CBVS." << endl;
+	cerr << "Note the double quotes and back-quotes" << endl;
+	cerr << "Parameters between brackets [] are optional, do not type the brackets!" << endl;
 	return 1;
     }
     else if ( !File_exists(argv[2]) )
@@ -72,6 +74,19 @@ int main( int argc, char** argv )
 	}
     }
 
+    bool haverange = false;
+    Interval<float> rg( -mUndefValue, mUndefValue );
+    if ( argc > 4 )
+    {
+	fms = argv[4];
+	const int sz = fms.size();
+	if ( sz > 0 ) { haverange = true; rg.start = atof( fms[0] ); }
+	if ( sz > 1 ) { rg.stop = atof( fms[1] ); }
+	rg.sort();
+    }
+    const float replval = mIsUndefined(rg.stop) ? rg.start
+			: (rg.start + rg.stop) * .5;
+
     SeisTrc trc;
     int nrwr = 0;
     while ( tri.read(trc) )
@@ -83,6 +98,23 @@ int main( int argc, char** argv )
 		{ cerr << "Cannot start write!" << endl;  return 1; }
 	    for ( int idx=0; idx<nrincomp; idx++ )
 		tro.componentInfo()[idx]->setName( ci[idx]->name() );
+	}
+
+	if ( haverange )
+	{
+	    const int nrcomp = trc.data().nrComponents();
+	    for ( int icomp=0; icomp<nrcomp; icomp++ )
+	    {
+		const int sz = trc.size( icomp );
+		for ( int idx=0; idx<sz; idx++ )
+		{
+		    float v = trc.get( idx, icomp );
+		    if ( !isFinite(v) ) v = replval;
+		    if ( v < rg.start ) v = rg.start;
+		    if ( v > rg.stop ) v = rg.stop;
+		    trc.set( idx, v, icomp );
+		}
+	    }
 	}
 
 	if ( !tro.write(trc) )
