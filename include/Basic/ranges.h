@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.11 2001-05-13 12:50:42 bert Exp $
+ RCS:		$Id: ranges.h,v 1.12 2001-07-02 12:42:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,13 +115,13 @@ public:
     inline int	nearestIndex( const T& x ) const
 		{ return Interval<T>::nearestIndex( x, step ); }
 
-    int		nrSteps() const
+    inline int	nrSteps() const
 		{
 		    if ( !step ) return 0;
 		    double ns = ( (start > stop ? start : stop)
 				- (start > stop ? stop : start) )
 			      / (step > 0 ? step : -step);
-		    return (int)(ns * (1. + 1e-10)) + 1;
+		    return (int)(ns * (1. + 1e-10));
 		}
     virtual void sort( bool asc=true )
 		{
@@ -143,6 +143,22 @@ inline void assign( Interval<T1>& i1, const Interval<T2>& i2 )
 template <class T1,class T2>
 inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
 { i1.start = (T1)i2.start; i1.stop = (T1)i2.stop; i1.step = (T1)i2.step; }
+
+#define mDefIntNrSteps(typ) \
+inline int StepInterval<typ>::nrSteps() const \
+{ \
+    int ret = ((int)start - stop) / step; \
+    return ret < 0 ? -ret : ret; \
+}
+
+mDefIntNrSteps(int)
+mDefIntNrSteps(long)
+mDefIntNrSteps(short)
+mDefIntNrSteps(char)
+mDefIntNrSteps(unsigned int)
+mDefIntNrSteps(unsigned long)
+mDefIntNrSteps(unsigned short)
+mDefIntNrSteps(unsigned char)
 
 
 #endif
