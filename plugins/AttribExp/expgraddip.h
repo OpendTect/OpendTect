@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expgraddip.h,v 1.1 2002-01-04 14:05:40 kristofer Exp $
+ RCS:           $Id: expgraddip.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
 ________________________________________________________________________
 
 GradientDip size= 
@@ -112,12 +112,14 @@ protected:
 				, crldips( 0 )
 				, calculator( calculator_ ) {}
 	
+			    Task( const Task& );
+			    // Not impl. Only to give error if someone uses it
+	
 	void		    set( float , int , float ,
 				 const AttribCalc::Task::Input* ,
                                  const TypeSet<float*>& );
 
-	AttribCalc::Task*    clone() const 
-				{ return new GradientDipAttrib::Task(*this); }
+	AttribCalc::Task*    clone() const;
 
 	int		    getFastestSz() const { return 25; }
 

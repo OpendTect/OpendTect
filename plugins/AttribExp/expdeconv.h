@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expdeconv.h,v 1.1 2002-01-04 09:37:49 kristofer Exp $
+ RCS:           $Id: expdeconv.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
 ________________________________________________________________________
 
 DeConvolve wavelet=
@@ -151,6 +151,9 @@ protected:
 	};
 
 			    Task( const DeConvolveAttrib& calculator_ );
+			    Task( const Task& );
+			    // Not impl. Only to give error if someone uses it
+	
 			    ~Task();
 	
 	void		    set( float t1_, int nrtimes_, float step_, 
@@ -165,8 +168,7 @@ protected:
 				    out1 = outp_[1];
 				}
 
-	AttribCalc::Task*    clone() const 
-				{ return new DeConvolveAttrib::Task(*this); }
+	AttribCalc::Task*    clone() const;
 
 	int		    getFastestSz() const { return 25; }
 

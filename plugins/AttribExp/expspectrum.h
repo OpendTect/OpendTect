@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expspectrum.h,v 1.1 2002-01-04 10:14:11 kristofer Exp $
+ RCS:           $Id: expspectrum.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
 ________________________________________________________________________
 
 TraceSpectrum window=[Box]|Hamming|Hanning|Barlett|Blackman|CosTaper5
@@ -117,6 +117,9 @@ protected:
 				, calculator( calculator_ )
 			    { }
 
+			    Task( const Task& );
+			    // Not impl. Only to give error if someone uses it
+	
 			    ~Task();
 	
 	void		    set( float t1_, int nrtimes_, float step_, 
@@ -126,8 +129,7 @@ protected:
 				  step = step_; input = inp; power = outp_[0];
 				  realout = outp_[1]; imagout = outp_[2]; }
 
-	AttribCalc::Task*    clone() const 
-				{ return new TraceSpectrumAttrib::Task(*this); }
+	AttribCalc::Task*    clone() const;
 
 	int		    getFastestSz() const { return INT_MAX; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expdipview.h,v 1.1 2002-01-04 10:14:11 kristofer Exp $
+ RCS:           $Id: expdipview.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
 ________________________________________________________________________
 
 DipView [aspect=dip,azi]
@@ -95,14 +95,16 @@ protected:
 				: outp( 0 )
 				, calculator( calculator_ ) {}
 	
+			    Task( const Task& );
+			    // Not impl. Only to give error if someone uses it
+	
 	void		    set( float t1_, int nrtimes_, float step_, 
 					    const AttribCalc::Task::Input* inp,
                                             const TypeSet<float*>& outp_)
 				{ t1 = t1_; nrtimes = nrtimes_; 
 				  step = step_; input = inp; outp = outp_[0]; }
 
-	AttribCalc::Task*    clone() const 
-				{ return new DipViewAttrib::Task(*this); }
+	AttribCalc::Task*    clone() const;
 
 	int		    getFastestSz() const { return 25; }
 

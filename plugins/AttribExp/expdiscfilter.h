@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expdiscfilter.h,v 1.1 2002-01-04 11:25:47 nanne Exp $
+ RCS:           $Id: expdiscfilter.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
 ________________________________________________________________________
 
 DiscFilter radius= planefilter=true [constantvel=true] [velocity=] [fast=]
@@ -199,12 +199,14 @@ protected:
 				, indata( 0,0,0 )
 				, calculator( calculator_ ) {}
 
+			    Task( const Task& );
+			    // Not impl. Only to give error if someone uses it
+	
 	void		    set( float , int , float ,
 				 const AttribCalc::Task::Input* ,
                                  const TypeSet<float*>& );
 
-	AttribCalc::Task*    clone() const 
-			    { return new DiscFilterAttrib::Task(*this); }
+	AttribCalc::Task*    clone() const;
 
 	int		    getFastestSz() const { return 25; }
 

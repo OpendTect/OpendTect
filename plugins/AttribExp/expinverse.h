@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expinverse.h,v 1.1 2002-01-04 10:14:11 kristofer Exp $
+ RCS:           $Id: expinverse.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
 ________________________________________________________________________
 
 Inverse gate=[-64,64] steering=Yes window=[Box] neighbourhood=1,1 pos1=0,1
@@ -162,6 +162,9 @@ protected:
 	};
 
 			    Task( const InverseAttrib& calculator_ );
+			    Task( const Task& );
+			    // Not impl. Only to give error if someone uses it
+	
 			    ~Task();
 	
 	void		    set( float t1_, int nrtimes_, float step_, 
@@ -176,8 +179,7 @@ protected:
 				    out1 = outp_[1];
 				}
 
-	AttribCalc::Task*    clone() const 
-				{ return new InverseAttrib::Task(*this); }
+	AttribCalc::Task*    clone() const;
 
 	int		    getFastestSz() const { return 25; }
 
