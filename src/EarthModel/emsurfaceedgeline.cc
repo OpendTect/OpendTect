@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.10 2004-09-17 12:43:16 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.11 2004-09-20 07:37:11 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -380,6 +380,7 @@ RowCol EdgeLineSegment::last() const
 	stopper->restore(); \
 	if ( change ) notifier->trigger(); \
     } \
+    if ( change ) commitChanges(); \
     return retval; \
 }
 
