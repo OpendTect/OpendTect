@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.39 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.40 2002-08-13 15:13:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include <qpalette.h> 
 #include <qtooltip.h> 
 #include <qfontmetrics.h> 
+#include <qsettings.h> 
 
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
 #define mBody()		mBody_( body() )
@@ -268,6 +269,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , fm( 0 )
     , hszpol( uiObject::undef )
     , vszpol( uiObject::undef )
+    , restored_position( false )
 #ifdef USE_DISPLAY_TIMER
     , displTim( *new Timer("Display timer"))
 { 
@@ -322,6 +324,8 @@ void uiObjectBody::doDisplay(CallBacker*)
     {
 	is_hidden = false;
 
+	if( !restored_position ) { restorePosition(); restored_position=true; }
+
 	if( display_maximised )	qwidget()->showMaximized();
 	else			qwidget()->show();
     }
@@ -337,6 +341,57 @@ void uiObjectBody::doDisplay(CallBacker*)
 	}
     }
 }
+
+void uiObjectBody::storePosition()
+{
+    QSettings settings;
+
+    BufferString key( "/dTect/geometry/" );
+    key += uiObjHandle().name();
+
+    QPoint p = qwidget()->pos();
+
+    QString k(key); k += "x";
+    settings.writeEntry( k, p.x() );
+
+    k = key; k += "y";
+    settings.writeEntry( k, p.y() );
+
+    QSize s = qwidget()->size();
+
+    k = key; k += "width";
+    settings.writeEntry( k, s.width() );
+
+    k = key; k += "height";
+    settings.writeEntry( k, s.height() );
+}
+
+void uiObjectBody::restorePosition()
+{
+    QSettings settings;
+
+    BufferString key( "/dTect/geometry/" );
+    key += uiObjHandle().name();
+
+    QString k(key); k += "width";
+    int w = settings.readNumEntry( k, -1 );
+
+    k = key; k += "height";
+    int h = settings.readNumEntry( k, -1 );
+
+    if( w >= 0 && h >= 0 )
+	qwidget()->resize( QSize(w,h) );
+
+    k = key; k += "x";
+    int x = settings.readNumEntry( k, -1 );
+
+    k = key; k += "y";
+    int y = settings.readNumEntry( k, -1 );
+
+    if( x >= 0 && y >= 0 )
+	qwidget()->move( QPoint(x,y) );
+}
+
 
 void uiObjectBody::uisetFocus()
 { 
