@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.20 2002-05-08 08:11:41 kristofer Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.21 2002-05-08 10:00:56 kristofer Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -311,7 +311,7 @@ bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float& f4,
 		   float sc, bool udf ) const
 {
     double d1, d2, d3, d4;
-    if ( getSc( s, d1, d2, d3, sc, udf ) )
+    if ( getSc( s, d1, d2, d3, d4, sc, udf ) )
     {
 	f1 = (float)d1;
 	f2 = (float)d2;
