@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.13 2001-10-17 14:04:02 arend Exp $
+ RCS:           $Id: uisurvey.cc,v 1.14 2001-10-19 12:30:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ uiSurvey::uiSurvey( uiParent* p )
     horsep1->attach( stretchedBelow, selgrp, -2 );
 
     uiGroup* infogrp = new uiGroup( this, "Survey information" );
-    infogrp->setFont( uiFontList::get(FontData::defaultKeys()[2]) ); 
+    infogrp->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)) ); 
     infogrp->attach( alignedBelow, selgrp );
     infogrp->attach( ensureBelow, horsep1 );
     infogrp->setPrefWidth( totwdth );
