@@ -4,9 +4,10 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.6 2003-10-17 14:19:01 bert Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.7 2003-10-30 12:15:31 bert Exp $";
 
 #include "dirlist.h"
+#include "globexpr.h"
 #include "filegen.h"
 
 #ifdef __win__
@@ -18,10 +19,11 @@ static const char* rcsID = "$Id: dirlist.cc,v 1.6 2003-10-17 14:19:01 bert Exp $
 
 
 
-DirList::DirList( const char* dirname, int dirindic )
+DirList::DirList( const char* dirname, DirList::Type t, const char* msk )
 	: BufferStringSet(true)
-    	, dir(dirname?dirname:".")
-	, indic(dirindic)
+    	, dir_(dirname?dirname:".")
+	, type_(t)
+    	, mask_(msk)
 {
     update();
 }
@@ -30,12 +32,14 @@ DirList::DirList( const char* dirname, int dirindic )
 void DirList::update()
 {
     deepErase();
+    const bool havemask = mask_ != "";
+    GlobExpr ge( mask_.buf() );
 
 #ifdef __win__
     WIN32_FIND_DATA	dat;
     HANDLE		mhndl;
 
-    BufferString dirnm = dir.buf();
+    BufferString dirnm = dir_;
     dirnm += "\\*";
 
     mhndl = FindFirstFile( (const char*)dirnm, &dat );
@@ -46,20 +50,22 @@ void DirList::update()
         if ( (dat.cFileName)[0] == '.' && (dat.cFileName)[1] == '.'
 	  && (dat.cFileName)[2] == '\0' ) continue;
 
-	if ( indic )
+	if ( type_ != AllEntries )
 	{
-	    FileNameString fullnm( File_getFullPath(dir,dat.cFileName) );
-	    int isdir = File_isDirectory( fullnm );
-	    if ( (indic>0 && !isdir) || (indic<0 && isdir) )
+	    FileNameString fullnm( File_getFullPath(dir_.buf(),dat.cFileName) );
+	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fullnm) )
 		continue;
 	}
+
+	if ( havemask && !ge.matches(dat.cFileName) )
+	    continue;
 
 	add( dat.cFileName );
 
     } while ( FindNextFile(mhndl,&dat) );
 
 #else
-    DIR* dirp = opendir( dir );
+    DIR* dirp = opendir( dir_.buf() );
     if ( !dirp ) return;
 
     struct dirent* dp;
@@ -69,13 +75,15 @@ void DirList::update()
         if ( (dp->d_name)[0] == '.' && (dp->d_name)[1] == '.'
 	  && (dp->d_name)[2] == '\0' ) continue;
 
-	if ( indic )
+	if ( type_ != AllEntries )
 	{
-	    FileNameString fullnm( File_getFullPath(dir,dp->d_name) );
-	    int isdir = File_isDirectory( fullnm );
-	    if ( (indic>0 && !isdir) || (indic<0 && isdir) )
+	    FileNameString fullnm( File_getFullPath(dir_.buf(),dp->d_name) );
+	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fullnm) )
 		continue;
 	}
+
+	if ( havemask && !ge.matches(dp->d_name) )
+	    continue;
 
 	add( dp->d_name );
     }

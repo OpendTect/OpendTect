@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.44 2003-10-28 17:57:19 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.45 2003-10-30 12:15:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     const char* ptr = GetBaseDataDir();
     if ( !ptr ) return;
 
-    dirlist = new DirList( ptr, 1 );
+    dirlist = new DirList( ptr, DirList::DirsOnly );
     dirlist->sort();
 
     uiGroup* rightgrp = new uiGroup( this, "Survey selection right" );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		18-4-1996
- RCS:		$Id: dirlist.h,v 1.3 2003-10-17 14:19:00 bert Exp $
+ RCS:		$Id: dirlist.h,v 1.4 2003-10-30 12:15:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,17 +20,24 @@ ________________________________________________________________________
 class DirList : public BufferStringSet
 {
 public:
-			DirList(const char*,int dirindic=0);
-				/*!< dirindic > 0: only directories
-				     dirindic < 0: no directories */
+
+    enum Type		{ AllEntries, FilesOnly, DirsOnly };
+
+			DirList(const char*,Type t=AllEntries,
+				const char* msk=0);
+				/*!< msk can be a glob expression */
 
     void		update();
-    const char*		dirName() const		{ return dir; }
+
+    Type		type() const		{ return type_; }
+    const char*		dirName() const		{ return dir_; }
+    const char*		dirMask() const		{ return mask_; }
 
 private:
 
-    FileNameString	dir;
-    int			indic;
+    Type		type_;
+    BufferString	dir_;
+    BufferString	mask_;
 
 };
 
