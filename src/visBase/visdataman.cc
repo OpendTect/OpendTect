@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.10 2002-04-30 11:45:25 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.11 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -52,20 +52,22 @@ bool visBase::DataManager::reInit()
 }
 
 
-void visBase::DataManager::fillPar( IOPar& par ) const
+void visBase::DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
 {
     IOPar selmanpar;
-    selman.fillPar( selmanpar );
+    selman.fillPar( selmanpar, storids );
     par.mergeComp( selmanpar, selmanprefix );
 
     par.set(freeidstr, freeid );
 
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<storids.size(); idx++ )
     {
 	IOPar dataobjpar;
-	objects[idx]->fillPar( dataobjpar );
-	BufferString idstr = ids[idx];
+	const DataObject* dataobj = getObj( storids[idx] );
+	if ( !dataobj ) continue;
+	dataobj->fillPar( dataobjpar, storids );
 
+	BufferString idstr = storids[idx];
 	par.mergeComp( dataobjpar, idstr );
     }
 }

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.4 2002-04-30 11:45:05 kristofer Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.5 2002-04-30 14:13:00 kristofer Exp $";
 
 
 #include "vistext.h"
@@ -99,9 +99,9 @@ void visBase::Text::setJustification( Justification just )
 }
 
 
-void visBase::Text::fillPar( IOPar& par ) const
+void visBase::Text::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    VisualObjectImpl::fillPar( par );
+    VisualObjectImpl::fillPar( par, saveids );
 
     Geometry::Pos pos = position();
     par.set( positionstr, pos.x, pos.y, pos.z );

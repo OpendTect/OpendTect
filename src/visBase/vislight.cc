@@ -4,13 +4,17 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vislight.cc,v 1.2 2002-04-26 13:00:08 kristofer Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.3 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "vislight.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoPointLight.h"
 #include "Inventor/nodes/SoDirectionalLight.h"
 #include "Inventor/nodes/SoSpotLight.h"
+
+const char* visBase::Light::isonstr = "Is On";
+const char* visBase::Light::intensitystr = "Intensity";
 
 
 visBase::Light::Light( SoLight* light_ )
@@ -45,7 +49,39 @@ float visBase::Light::intensity() const
 SoNode* visBase::Light::getData()
 { return light; }
 
+
+void visBase::Light::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+{
+    SceneObject::fillPar( par, storeids );
+
+    par.setYN( isonstr, isOn() );
+    par.set( intensitystr, intensity() );
+}
+
+
+int visBase::Light::usePar( const IOPar& par )
+{
+    int res = SceneObject::usePar( par );
+    if ( res != 1 ) return res;
+
+    bool yn;
+    if ( !par.getYN( isonstr, yn ))
+	return -1;
+
+    turnOn( yn );
+
+    double intens;
+    if ( !par.get( intensitystr, intens ))
+	return -1;
+
+    setIntensity( intens );
+    return 1;
+}
+
+
 mCreateFactoryEntry( visBase::PointLight );
+
+const char* visBase::PointLight::positionstr = "Position";
 
 visBase::PointLight::PointLight()
     : Light( new SoPointLight )
@@ -63,7 +99,32 @@ float visBase::PointLight::position( int dim ) const
     return ((SoPointLight*) light)->location.getValue()[dim];
 }
 
+
+void visBase::PointLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+{
+    Light::fillPar( par, storeids );
+
+    par.set( positionstr, position(0), position(1), position(2) );
+}
+
+
+int visBase::PointLight::usePar( const IOPar& par )
+{
+    int res = Light::usePar( par );
+    if ( res != 1 ) return res;
+
+    double x, y, z;
+    if ( !par.get( positionstr, x, y, z ))
+	return -1;
+
+    setPosition( x, y, z );
+    return 1;
+}
+
+
 mCreateFactoryEntry( visBase::DirectionalLight );
+const char* visBase::DirectionalLight::directionstr = "Direction";
+
 
 visBase::DirectionalLight::DirectionalLight()
     : Light( new SoDirectionalLight )
@@ -81,11 +142,39 @@ float visBase::DirectionalLight::direction( int dim ) const
     return ((SoDirectionalLight*) light)->direction.getValue()[dim];
 }
 
+
+void visBase::DirectionalLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+{
+    Light::fillPar( par, storeids );
+
+    par.set( directionstr, direction(0), direction(1), direction(2) );
+}
+
+
+int visBase::DirectionalLight::usePar( const IOPar& par )
+{
+    int res = Light::usePar( par );
+    if ( res != 1 ) return res;
+
+    double x, y, z;
+    if ( !par.get( directionstr, x, y, z ))
+	return -1;
+
+    setDirection( x, y, z );
+    return 1;
+}
+
+
 mCreateFactoryEntry( visBase::SpotLight );
+
+const char* visBase::SpotLight::directionstr = "Direction";
+const char* visBase::SpotLight::positionstr = "Position";
+const char* visBase::SpotLight::coneanglestr = "Cone Angle";
+const char* visBase::SpotLight::dropoffratestr = "Drop Off Rate";
 
 visBase::SpotLight::SpotLight()
     : Light( new SoSpotLight )
-{ }
+{}
 
 
 void visBase::SpotLight::setDirection(float x, float y, float z )
@@ -133,4 +222,45 @@ void visBase::SpotLight::setDropOffRate(float n)
 float visBase::SpotLight::dropOffRate() const
 {
     return ((SoSpotLight*) light)->dropOffRate.getValue();
+}
+
+
+void visBase::SpotLight::fillPar( IOPar& par, TypeSet<int>& storeids ) const
+{
+    Light::fillPar( par, storeids );
+
+    par.set( directionstr, direction(0), direction(1), direction(2) );
+    par.set( positionstr, position(0), position(1), position(2) );
+    par.set( coneanglestr, coneAngle() );
+    par.set( dropoffratestr, dropOffRate() );
+}
+
+
+int visBase::SpotLight::usePar( const IOPar& par )
+{
+    int res = Light::usePar( par );
+    if ( res != 1 ) return res;
+
+    double x, y, z;
+    if ( !par.get( directionstr, x, y, z ))
+	return -1;
+
+    setDirection( x, y, z );
+
+    if ( !par.get( positionstr, x, y, z ))
+	return -1;
+
+    setPosition( x, y, z );
+
+    if ( !par.get( coneanglestr, x ))
+	return -1;
+
+    setConeAngle( x );
+
+    if ( !par.get( dropoffratestr, x ))
+	return -1;
+
+    setDropOffRate( x );
+
+    return 1;
 }

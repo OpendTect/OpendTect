@@ -4,16 +4,19 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.5 2002-04-29 09:00:52 kristofer Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.6 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdataman.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoEventCallback.h"
 #include "Inventor/events/SoMouseButtonEvent.h"
 #include "Inventor/events/SoKeyboardEvent.h"
 #include "Inventor/events/SoLocation2Event.h"
 #include "Inventor/SoPickedPoint.h"
+
+const char* visBase::EventCatcher::eventtypestr = "EventType";
 
 mCreateFactoryEntry( visBase::EventCatcher );
 
@@ -36,6 +39,29 @@ void visBase::EventCatcher::setEventType( EventType type_ )
 }
 
 
+void visBase::EventCatcher::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    SceneObject::fillPar( par, saveids );
+    par.set( eventtypestr, (int) type );
+}
+
+
+int visBase::EventCatcher::usePar( const IOPar& par )
+{
+    int res = SceneObject::usePar( par );
+    if ( res!= 1 ) return res;
+
+    int type;
+
+    if ( !par.get( eventtypestr, type ))
+	return -1;
+
+    setEventType( (EventType) type );
+
+    return 1;
+}
+	
+    
 void visBase::EventCatcher::setCBs()
 {
     if ( type==MouseClick || type==Any )

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.5 2002-04-26 13:00:08 kristofer Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.6 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "viscamera.h"
 #include "geompos.h"
@@ -169,9 +169,9 @@ int visBase::Camera::usePar( const IOPar& iopar )
 }
 
 
-void visBase::Camera::fillPar( IOPar& iopar ) const
+void visBase::Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
-    SceneObject::fillPar( iopar );
+    SceneObject::fillPar( iopar, saveids );
     Geometry::Pos pos = position();
     iopar.set( posstr, pos.x, pos.y, pos.z );
     

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolorseq.cc,v 1.6 2002-04-26 13:00:08 kristofer Exp $";
+static const char* rcsID = "$Id: viscolorseq.cc,v 1.7 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "viscolorseq.h"
 #include "colortab.h"
@@ -59,7 +59,7 @@ int visBase::ColorSequence::usePar( const IOPar& par )
 }
 
 
-void visBase::ColorSequence::fillPar( IOPar& par ) const
+void visBase::ColorSequence::fillPar( IOPar& par, TypeSet<int>& ) const
 {
     coltab.fillPar( par );
 }

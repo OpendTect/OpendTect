@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.8 2002-04-26 13:00:08 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.9 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "viscube.h"
 #include "geompos.h"
@@ -86,9 +86,9 @@ int visBase::Cube::usePar( const IOPar& iopar )
 }
 
 
-void visBase::Cube::fillPar( IOPar& iopar ) const
+void visBase::Cube::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
-    VisualObjectImpl::fillPar( iopar );
+    VisualObjectImpl::fillPar( iopar, saveids );
 
     Geometry::Pos pos = centerPos();
     iopar.set( centerposstr, pos.x, pos.y, pos.z );

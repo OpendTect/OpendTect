@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.8 2002-04-30 11:45:53 kristofer Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.9 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "visdata.h"
 #include "visdataman.h"
@@ -71,7 +71,7 @@ bool visBase::DataObject::isSelected() const
 { return selectable() && DM().selMan().selected().indexOf( id()) != -1; }
 
 
-void visBase::DataObject::fillPar( IOPar& par ) const
+void visBase::DataObject::fillPar( IOPar& par, TypeSet<int>& ) const
 {
     par.set( typestr, getClassName() );
 }

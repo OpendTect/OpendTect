@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.11 2002-04-29 14:23:02 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.12 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -12,12 +12,19 @@ static const char* rcsID = "$Id: visannot.cc,v 1.11 2002-04-29 14:23:02 kristofe
 #include "ranges.h"
 #include "samplingdata.h"
 #include "axisinfo.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoIndexedLineSet.h"
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoPickStyle.h"
+
+
+const char* visBase::Annotation::textprefixstr = "Text ";
+const char* visBase::Annotation::cornerprefixstr = "Corner ";
+const char* visBase::Annotation::showtextstr = "Show Text";
+const char* visBase::Annotation::showscalestr = "Show Scale";
 
 
 mCreateFactoryEntry( visBase::Annotation );
@@ -152,6 +159,15 @@ void visBase::Annotation::setCorner( int idx, float x, float y, float z )
 }
 
 
+Geometry::Pos  visBase::Annotation::getCorner( int idx ) const
+{
+    SbVec3f pos = coords->point[idx];
+    Geometry::Pos res( pos[0], pos[1], pos[2] );
+
+    return res;
+}
+
+
 void visBase::Annotation::setText( int dim, const char* string )
 {
     visBase::Text* text = (visBase::Text*) texts->getObject( dim );
@@ -247,4 +263,78 @@ visBase::Text* visBase::Annotation::getText( int dim, int textnr )
     return text;
 }
 
-    
+
+void visBase::Annotation::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    BufferString key;
+    for ( int idx=0; idx<6; idx++ )
+    {
+	key = cornerprefixstr;
+	key += idx;
+
+	Geometry::Pos pos = getCorner( idx );
+
+	par.set( key, pos.x, pos.y, pos.z );
+    }
+
+    for ( int idx=0; idx<3; idx++ )
+    {
+	key = textprefixstr;
+	key += idx;
+
+	visBase::Text* text = (visBase::Text*) texts->getObject( idx );
+	if ( !text ) continue;
+
+	par.set( key, (const char*) text->getText() );
+    }
+
+    par.setYN( showtextstr, isTextShown() );
+    par.setYN( showscalestr, isScaleShown() );
+}
+
+
+int visBase::Annotation::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res!= 1 ) return res;
+
+    BufferString key;
+    for ( int idx=0; idx<8; idx++ )
+    {
+	key = cornerprefixstr;
+	key += idx;
+
+	double x, y, z;
+	if ( !par.get( key, x, y, z ) )
+	    return -1;
+
+	setCorner( idx, x, y, z );
+    }
+
+    for ( int idx=0; idx<3; idx++ )
+    {
+	key = textprefixstr;
+	key += idx;
+
+	const char* text = par.find( key );
+	if ( !text ) return -1;
+
+	setText( idx, text );
+    }
+
+    bool yn;
+    if ( !par.getYN( showtextstr, yn ) )
+	return -1;
+
+    showText( yn );
+
+    if ( !par.getYN( showscalestr, yn ) )
+	return -1;
+
+    showScale( yn );
+    return 1;
+}
+
+

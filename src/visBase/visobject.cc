@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.16 2002-04-25 13:42:47 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.17 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "visobject.h"
 #include "vismaterial.h"
@@ -120,10 +120,15 @@ int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
 }
 
 
-void visBase::VisualObjectImpl::fillPar( IOPar& iopar ) const
+void visBase::VisualObjectImpl::fillPar( IOPar& iopar,
+					 TypeSet<int>& saveids ) const
 {
-    VisualObject::fillPar( iopar );
+    VisualObject::fillPar( iopar, saveids );
     iopar.set( materialidstr, material ? material->id(): -1 );
+
+    if ( material && saveids.indexOf( material->id() )==-1 )
+	saveids += material->id();
+
     iopar.set( isonstr, isOn() );
 }
     

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.2 2002-04-29 08:46:14 kristofer Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.3 2002-04-30 14:13:00 kristofer Exp $";
 
 #include "visdrawstyle.h"
 #include "iopar.h"
@@ -120,8 +120,10 @@ int visBase::DrawStyle::usePar( const IOPar& par )
 }
 
 
-void visBase::DrawStyle::fillPar( IOPar& par ) const
+void visBase::DrawStyle::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
+    SceneObject::fillPar( par, saveids );
+
     BufferString linestyleval;
     linestyle.toString( linestyleval );
     par.set( linestylestr, linestyleval );
