@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.33 2004-05-04 15:35:43 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.34 2004-05-05 14:21:09 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -446,6 +446,21 @@ void RandomTrackDisplay::showManipulator( bool yn )
 
 bool RandomTrackDisplay::isManipulatorShown() const
 { return track->isDraggerShown(); }
+
+
+BufferString RandomTrackDisplay::getManipulationString() const
+{
+    BufferString str;
+    int knotidx = getSelKnotIdx();
+    if ( knotidx >= 0 )
+    {
+	BinID binid  = getManipKnotPos( knotidx );
+	str = "Node "; str += knotidx;
+	str += " Inl/Crl: ";
+	str += binid.inl; str += "/"; str += binid.crl;
+    }
+    return str;
+}
  
 
 void RandomTrackDisplay::turnOn( bool yn )
