@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.4 2004-09-08 15:10:17 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.5 2004-09-16 09:39:31 kristofer Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -1209,18 +1209,10 @@ bool SurfaceGeometry::isAtEdge( const PosID& pid ) const
 {
     if ( !isDefined(pid) ) return false;
 
-    int nrneighbors = getNeighbors(pid,0,1,false);
-    if ( nrneighbors == 6 )
-    {
-	const int section = pid.sectionID();
-	RowCol center = subID2RowCol( pid.subID() );
-	return !( isDefined( section, center+step_*RowCol(0,1) ) &&
-		  isDefined( section, center+step_*RowCol(1,0) ) &&
-		  isDefined( section, center+step_*RowCol(0,-1) ) &&
-		  isDefined( section, center+step_*RowCol(-1,0) ) );
-    }
-
-   return nrneighbors != 8;
+    return !isDefined(getNeighbor(pid,RowCol(0,1))) ||
+	     !isDefined(getNeighbor(pid,RowCol(1,0))) ||
+	     !isDefined(getNeighbor(pid,RowCol(0,-1))) ||
+	     !isDefined(getNeighbor(pid,RowCol(-1,0)));
 }
 
 
