@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.176 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.177 2003-12-01 16:04:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "visdataman.h"
 #include "viscolortab.h"
-#include "visgridsurf.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
 #include "visselman.h"
