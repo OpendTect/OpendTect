@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.5 2004-11-02 16:56:39 arend Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.6 2004-11-06 12:13:27 arend Exp $";
 
 #include "filepath.h"
 #include <iostream>
@@ -265,7 +265,7 @@ static const char* drvstr="/cygdrive/";
 
 static BufferString getCleanUnxPath( const char* path )
 {
-    BufferString buf; buf =path;
+    BufferString buf; buf = path;
     char* ptr = buf.buf();
     skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
     replaceCharacter( ptr, '\\' , '/' );
@@ -275,13 +275,13 @@ static BufferString getCleanUnxPath( const char* path )
     if ( !drivesep ) return ptr;
     *drivesep = '\0';
 
-    static BufferString res;
+    BufferString res;
     res = drvstr;
     *ptr = tolower(*ptr);
     res += ptr;
     res += ++drivesep;
 
-    return buf;
+    return res;
 }
 
 static BufferString getCleanWinPath( const char* path )

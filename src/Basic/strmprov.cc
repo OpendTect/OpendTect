@@ -39,7 +39,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.58 2004-10-05 14:19:01 dgb Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.59 2004-11-06 12:13:27 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -205,13 +205,11 @@ void StreamProvider::set( const char* devname )
     skipLeadingBlanks( ptr );
     fname = ptr;
 
-#ifndef __msvc__
-
     // separate hostname from filename
     ptr = strchr( fname.buf(), ':' );
-    if ( ptr )
-    {
-#ifdef __win__ // non-msvc compiler, like MinGw
+    if ( ptr ) 
+    {   // check for win32 drive letters.
+
 	bool isdrive = false;
 	// if only one char before the ':', it must be a drive letter.
 	if ( ptr == fname.buf() + 1 
@@ -237,14 +235,12 @@ void StreamProvider::set( const char* devname )
 	if( isdrive )
 	    ptr = fname.buf();
 	else
-#endif
 	{
 	    *ptr++ = '\0';
 	    hostname = fname;
 	}
     }
     else
-#endif
 	ptr = fname.buf();
 
     if ( *ptr == '@' ) { type_ = StreamConn::Command; ptr++; }

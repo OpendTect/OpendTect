@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.20 2004-11-03 16:20:16 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.21 2004-11-06 12:12:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,7 +186,7 @@ bool HostDataList::readHostFile( const char* fname )
 	    sharedata_.drive_ = astrm.value();
 	if ( astrm.hasKeyword("Data share") )
 	    sharedata_.share_ = astrm.value();
-	if ( astrm.hasKeyword("Password") )
+	if ( astrm.hasKeyword("Data pass") )
 	    sharedata_.pass_ = astrm.value();
 
 	astrm.next();
@@ -222,6 +222,8 @@ bool HostDataList::readHostFile( const char* fname )
 		newhd->pass_ = (char*)val[4];
 	    else if ( newhd->iswin_ )
 		newhd->pass_ = sharedata_.pass_;
+
+	    newhd->setShareData( &sharedata_ ); 
 
 	}
 	*this += newhd;
