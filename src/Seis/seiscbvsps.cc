@@ -4,18 +4,20 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.4 2005-01-01 12:56:17 bert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.5 2005-01-05 15:06:57 bert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
 #include "seiscbvs.h"
+#include "cbvsreadmgr.h"
 #include "seisbuf.h"
 #include "filepath.h"
 #include "filegen.h"
 #include "survinfo.h"
-#include "sortedlist.h"
+#include "segposinfo.h"
 #include "dirlist.h"
 #include "iopar.h"
+#include "errh.h"
 
 class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
@@ -47,7 +49,9 @@ SeisCBVSPSIO::~SeisCBVSPSIO()
 
 SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm )
     	: SeisCBVSPSIO(dirnm)
-    	, inls_(*new SortedList<int>(false))
+    	, posdata_(*new PosInfo::CubeData)
+    	, curtr_(0)
+    	, curinl_(mUndefIntVal)
 {
     if ( !File_isDirectory(dirnm_) )
     {
@@ -65,51 +69,105 @@ SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm )
 	while ( *ptr && isdigit(*ptr) ) ptr++;
 	*ptr = '\0';
 	if ( fnm == "" ) continue;
-	inls_ += atoi( ptr );
+
+	addInl( atoi(ptr) );
     }
 
-    if ( inls_.size() < 1 )
+    if ( posdata_.size() < 1 )
     {
 	errmsg_ = "Directory '"; errmsg_ += dirnm_;
 	errmsg_ += "' contains no usable pre-stack data files";
 	return;
     }
+
+    posdata_.sort();
 }
 
 
 SeisCBVSPSReader::~SeisCBVSPSReader()
 {
-    delete &inls_;
+    delete &posdata_;
 }
 
 
-bool SeisCBVSPSReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
+void SeisCBVSPSReader::addInl( int inl )
 {
-    int inlidx = inls_.indexOf( bid.inl );
+    if ( !mkTr(inl) ) return;
+
+    PosInfo::InlData* newid = new PosInfo::InlData( inl );
+    const CBVSInfo::SurvGeom& sg = curtr_->readMgr()->info().geom;
+
+    if ( sg.fullyrectandreg )
+
+	newid->segments += PosInfo::InlData::Segment( sg.start.crl,
+					sg.stop.inl, sg.step.inl );
+    else
+    {
+	const PosInfo::CubeData& cd = sg.cubedata;
+	if ( cd.size() < 1 )
+	    { pErrMsg("Huh? should get error earlier"); delete newid; return; }
+
+	PosInfo::InlData::Segment seg( cd[0]->inl, cd[0]->inl, 1 );
+	if ( cd.size() > 1 )
+	{
+	    seg.stop = cd[1]->inl;
+	    seg.step = seg.stop - seg.start;
+	    for ( int idx=2; idx<cd.size(); idx++ )
+	    {
+		const PosInfo::InlData& id = *cd[idx];
+		if ( seg.stop == seg.start )
+		    { seg.stop = id.inl; seg.step = seg.stop - seg.start; }
+		else if ( id.inl != cd[idx-1]->inl + seg.step )
+		{
+		    newid->segments += seg;
+		    seg.start = seg.stop = id.inl;
+		}
+	    }
+	    newid->segments += seg;
+	}
+    }
+
+    posdata_ += newid;
+}
+
+
+bool SeisCBVSPSReader::mkTr( int inl ) const
+{
+    if ( curtr_ && curinl_ == inl )
+	return true;
+
+    delete curtr_; curtr_ = 0;
+    curinl_ = inl;
+
+    int inlidx = posdata_.indexOf( inl );
     if ( inlidx < 0 )
 	{ errmsg_ = "Inline not present"; return false; }
 
     FilePath fp( dirnm_ );
-    BufferString fnm = inls_[inlidx]; fnm += ext();
+    BufferString fnm = posdata_[inlidx]->inl; fnm += ext();
     fp.add( fnm );
 
     errmsg_ = "";
-    CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::make( fp.fullPath(),
-	    					false, false, &errmsg_ );
-    if ( !tr )
-	return false;
+    curtr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false, false,
+					  &errmsg_ );
+    return curtr_;
+}
 
-    if ( !tr->goTo( BinID(bid.crl,0) ) )
+
+bool SeisCBVSPSReader::getGather( int crl, SeisTrcBuf& gath ) const
+{
+    if ( !curtr_->goTo( BinID(crl,0) ) )
 	{ errmsg_ = "Crossline not present"; return false; }
 
+    const BinID bid( curinl_, crl );
     const Coord coord = SI().transform( bid );
     while ( true )
     {
 	SeisTrc* trc = new SeisTrc;
-	if ( !tr->read(*trc) )
+	if ( !curtr_->read(*trc) )
 	{
 	    delete trc;
-	    errmsg_ = tr->errMsg();
+	    errmsg_ = curtr_->errMsg();
 	    return errmsg_ == "";
 	}
 	else if ( trc->info().binid.inl != bid.crl )
@@ -122,6 +180,12 @@ bool SeisCBVSPSReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 
     // Not reached
     return true;
+}
+
+
+bool SeisCBVSPSReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
+{
+    return mkTr( bid.inl ) && getGather( bid.crl, gath );
 }
 
 

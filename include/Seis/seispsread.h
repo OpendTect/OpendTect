@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsread.h,v 1.2 2004-12-30 17:29:35 bert Exp $
+ RCS:		$Id: seispsread.h,v 1.3 2005-01-05 15:06:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class BinID;
 class IOPar;
 class SeisTrcBuf;
+namespace PosInfo { class CubeData; }
 
 
 /*!\brief reads from a pre-stack seismic data store.
@@ -34,6 +35,8 @@ public:
 
     virtual bool	getGather(const BinID&,SeisTrcBuf&) const	= 0;
     virtual const char*	errMsg() const					= 0;
+
+    virtual const PosInfo::CubeData&	posData() const		= 0;
 
 };
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.46 2004-11-17 12:46:54 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.47 2005-01-05 15:06:57 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -523,14 +523,13 @@ void CBVSReadMgr::getPositions( TypeSet<BinID>& posns ) const
     }
     else
     {
-	for ( int iinl=0; iinl<info_.geom.inldata.size(); iinl++ )
+	for ( int iinl=0; iinl<info_.geom.cubedata.size(); iinl++ )
 	{
-	    const CBVSInfo::SurvGeom::InlineInfo inlinf
-				= *info_.geom.inldata[iinl];
+	    const PosInfo::InlData& inlinf = *info_.geom.cubedata[iinl];
 	    bid.inl = inlinf.inl;
 	    for ( int iseg=0; iseg<inlinf.segments.size(); iseg++ )
 	    {
-		const StepInterval<int>& seg = inlinf.segments[iseg];
+		const PosInfo::InlData::Segment seg = inlinf.segments[iseg];
 		if ( seg.step > 0 )
 		    for ( bid.crl=seg.start; bid.crl<=seg.stop;
 			  bid.crl+=seg.step )
@@ -847,8 +846,7 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 	for ( int inl=info().geom.start.inl; inl<=info().geom.stop.inl;
 		inl += inlstep )
 	{
-	    const CBVSInfo::SurvGeom::InlineInfo* inlinf
-		    = info().geom.getInfoFor( inl );
+	    const PosInfo::InlData* inlinf = info().geom.getInfoFor( inl );
 	    if ( !inlinf )
 	    {
 		inlgaps = true;

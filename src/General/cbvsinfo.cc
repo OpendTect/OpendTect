@@ -5,29 +5,12 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.16 2004-07-16 15:35:25 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.17 2005-01-05 15:06:57 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
 #include "cubesampling.h"
 #include <iostream>
-
-
-CBVSInfo::SurvGeom& CBVSInfo::SurvGeom::operator =(
-			const CBVSInfo::SurvGeom& sg )
-{
-    fullyrectandreg = sg.fullyrectandreg;
-    start = sg.start;
-    stop = sg.stop;
-    step = sg.step;
-    b2c = sg.b2c;
-
-    deepErase( inldata );
-    for ( int idx=0; idx<sg.inldata.size(); idx++ )
-	inldata += new CBVSInfo::SurvGeom::InlineInfo( *sg.inldata[idx] );
-
-    return *this;
-}
 
 
 CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
@@ -69,7 +52,7 @@ int CBVSInfo::SurvGeom::getInfIdx( const BinID& bid, int& infidx ) const
     int res = outOfRange( bid );
     if ( fullyrectandreg || res % 256 ) return res;
 
-    infidx = getInfoIdxFor( bid.inl );
+    infidx = cubedata.indexOf( bid.inl );
     return infidx < 0 ? 2 : res;
 }
 
@@ -92,7 +75,7 @@ int CBVSInfo::SurvGeom::excludes( const BinID& bid ) const
     int res = getInfIdx( bid, infidx );
     if ( infidx < 0 ) return res;
 
-    InlineInfo inlinf = *inldata[infidx];
+    PosInfo::InlData inlinf = *cubedata[infidx];
     for ( int idx=0; idx<inlinf.segments.size(); idx++ )
     {
 	if ( inlinf.segments[idx].includes(bid.crl) )
@@ -108,14 +91,14 @@ bool CBVSInfo::SurvGeom::toNextInline( BinID& bid ) const
     int res = getInfIdx( bid, infidx );
     if ( infidx >= 0 )
     {
-	while ( inldata[infidx]->inl == bid.inl )
+	while ( cubedata[infidx]->inl == bid.inl )
 	{
 	    infidx++;
-	    if ( infidx >= inldata.size() ) return false;
+	    if ( infidx >= cubedata.size() ) return false;
 	}
 
-	bid.inl = inldata[infidx]->inl;
-	bid.crl = inldata[infidx]->segments[0].start;
+	bid.inl = cubedata[infidx]->inl;
+	bid.crl = cubedata[infidx]->segments[0].start;
 	return true;
     }
     else if ( fullyrectandreg )
@@ -142,14 +125,14 @@ bool CBVSInfo::SurvGeom::toNextBinID( BinID& bid ) const
     else if ( infidx < 0 )
 	return false;
 
-    const InlineInfo& inlinf = *inldata[infidx];
+    const PosInfo::InlData& inlinf = *cubedata[infidx];
     if ( inlinf.segments.size() == 1 )
 	return toNextInline( bid );
 
     int iseg = -1;
     for ( int idx=0; idx<inlinf.segments.size(); idx++ )
     {
-	CBVSInfo::SurvGeom::InlineInfo::Segment& seg = inlinf.segments[idx];
+	PosInfo::InlData::Segment& seg = inlinf.segments[idx];
 	if ( (seg.step > 0 && seg.start > bid.crl)
 	  || (seg.step < 0 && seg.start < bid.crl) )
 	    { iseg = idx; break; }
@@ -193,20 +176,19 @@ void CBVSInfo::SurvGeom::toIrreg()
 {
     if ( !fullyrectandreg ) return;
 
-    deepErase( inldata );
+    deepErase( cubedata );
     fullyrectandreg = false;
     const int nrinls = (stop.inl-start.inl)/ abs(step.inl) + 1;
     const int startinl = step.inl > 0 ? start.inl : stop.inl;
     for ( int idx=0; idx<nrinls; idx++ )
     {
 	int curinl = startinl + idx * step.inl;
-	CBVSInfo::SurvGeom::InlineInfo* newinf
-	    = new CBVSInfo::SurvGeom::InlineInfo( curinl );
-	newinf->segments += CBVSInfo::SurvGeom::InlineInfo::Segment(
+	PosInfo::InlData* newinf = new PosInfo::InlData( curinl );
+	newinf->segments += PosInfo::InlData::Segment(
 				step.crl > 0 ? start.crl : stop.crl,
 				step.crl > 0 ? stop.crl : start.crl,
 				step.crl );
-	inldata += newinf;
+	cubedata.add( newinf );
     }
 }
 
@@ -221,12 +203,12 @@ void CBVSInfo::SurvGeom::mergeIrreg( const CBVSInfo::SurvGeom& g )
     }
     toIrreg();
 
-    for ( int idx=0; idx<geom->inldata.size(); idx++ )
+    for ( int idx=0; idx<geom->cubedata.size(); idx++ )
     {
-	const CBVSInfo::SurvGeom::InlineInfo* gii = geom->inldata[idx];
-	CBVSInfo::SurvGeom::InlineInfo* ii = getInfoFor( gii->inl );
+	const PosInfo::InlData* gii = geom->cubedata[idx];
+	PosInfo::InlData* ii = getInfoFor( gii->inl );
 	if ( !ii )
-	    inldata += new CBVSInfo::SurvGeom::InlineInfo( *gii );
+	    cubedata.add( new PosInfo::InlData( *gii ) );
 	else
 	{
 	    //TODO make correct merging of segments in case of overlap
@@ -247,13 +229,12 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
     BinIDRange bidrg;
     bidrg.start = start; bidrg.stop = stop;
-    for ( int idx=0; idx<inldata.size(); idx++ )
+    for ( int idx=0; idx<cubedata.size(); idx++ )
     {
-	const CBVSInfo::SurvGeom::InlineInfo& ii = *inldata[idx];
+	const PosInfo::InlData& ii = *cubedata[idx];
 	for ( int iseg=0; iseg<ii.segments.size(); iseg++ )
 	{
-	    const CBVSInfo::SurvGeom::InlineInfo::Segment& seg
-				= ii.segments[iseg];
+	    const PosInfo::InlData::Segment& seg = ii.segments[iseg];
 	    if ( !seg.start && !seg.stop )
 	    {
 #ifdef __debug__
@@ -273,19 +254,10 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 }
 
 
-int CBVSInfo::SurvGeom::getInfoIdxFor( int inl ) const
+PosInfo::InlData* CBVSInfo::SurvGeom::gtInfFor( int inl ) const
 {
-    for ( int idx=0; idx<inldata.size(); idx++ )
-	if ( inldata[idx]->inl == inl ) return idx;
-    return -1;
-}
-
-
-CBVSInfo::SurvGeom::InlineInfo* CBVSInfo::SurvGeom::gtInfFor( int inl ) const
-{
-    int idx = getInfoIdxFor( inl );
-    return idx < 0 ? 0
-	 : const_cast<CBVSInfo::SurvGeom::InlineInfo*>(inldata[idx]);
+    const int idx = cubedata.indexOf( inl );
+    return idx < 0 ? 0 : const_cast<PosInfo::InlData*>(cubedata[idx]);
 }
 
 

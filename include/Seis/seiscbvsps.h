@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.4 2005-01-01 12:56:17 bert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.5 2005-01-05 15:06:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "seispswrite.h"
 class IOPar;
 class BinID;
-template <class T> class SortedList;
 class SeisTrcTranslator;
+class CBVSSeisTrcTranslator;
 
 
 /*!\brief Implementation class: I/O from a CBVS pre-stack seismic data store.
@@ -61,11 +61,18 @@ public:
     bool		getGather(const BinID&,SeisTrcBuf&) const;
     const char*		errMsg() const		{ return errmsg_.buf(); } 
 
-    const SortedList<int>& inlines() const		{ return inls_; }
+    const PosInfo::CubeData& posData() const	{ return posdata_; }
 
 protected:
 
-    SortedList<int>&	inls_;
+    PosInfo::CubeData&	posdata_;
+
+    void		addInl(int);
+    bool		mkTr(int) const;
+    bool		getGather(int,SeisTrcBuf&) const;
+
+    mutable CBVSSeisTrcTranslator* curtr_;
+    mutable int		curinl_;
 
 };
 

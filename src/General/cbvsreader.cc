@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.51 2004-11-11 13:49:48 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.52 2005-01-05 15:06:57 bert Exp $";
 
 /*!
 
@@ -121,11 +121,11 @@ bool CBVSReader::readInfo( bool wanttrailer )
 	nrxlines_ = (lastbinid.crl - firstbinid.crl) / info_.geom.step.crl + 1;
     else
     {
-	CBVSInfo::SurvGeom::InlineInfo* iinf =
-		info_.geom.inldata[ info_.geom.inldata.size()-1 ];
+	PosInfo::InlData* iinf =
+		info_.geom.cubedata[ info_.geom.cubedata.size()-1 ];
 	lastbinid.inl = iinf->inl;
 	lastbinid.crl = iinf->segments[ iinf->segments.size()-1 ].stop;
-	iinf = info_.geom.inldata[0];
+	iinf = info_.geom.cubedata[0];
 	firstbinid.inl = iinf->inl;
 	firstbinid.crl = iinf->segments[0].start;
     }
@@ -324,13 +324,13 @@ bool CBVSReader::readTrailer()
 	for ( int iinl=0; iinl<nrinl; iinl++ )
 	{
 	    strm_.read( buf, 2 * integersize );
-	    CBVSInfo::SurvGeom::InlineInfo* iinf
-		= new CBVSInfo::SurvGeom::InlineInfo( iinterp.get( buf, 0 ) );
+	    PosInfo::InlData* iinf
+		= new PosInfo::InlData( iinterp.get( buf, 0 ) );
 	    if ( !iinl )
 		bidrg.start.inl = bidrg.stop.inl = iinf->inl;
 
 	    const int nrseg = iinterp.get( buf, 1 );
-	    CBVSInfo::SurvGeom::InlineInfo::Segment crls;
+	    PosInfo::InlData::Segment crls;
 	    for ( int iseg=0; iseg<nrseg; iseg++ )
 	    {
 		strm_.read( buf, 3 * integersize );
@@ -346,15 +346,15 @@ bool CBVSReader::readTrailer()
 		    bidrg.include( BinID(iinf->inl,crls.start) );
 		bidrg.include( BinID(iinf->inl,crls.stop) );
 	    }
-	    info_.geom.inldata += iinf;
+	    info_.geom.cubedata.add( iinf );
 	}
 
 	info_.geom.start = bidrg.start;
 	info_.geom.stop = bidrg.stop;
 
 	curinlinfnr_ = cursegnr_ = 0;
-	curbinid_.inl = info_.geom.inldata[curinlinfnr_]->inl;
-	curbinid_.crl = info_.geom.inldata[curinlinfnr_]
+	curbinid_.inl = info_.geom.cubedata[curinlinfnr_]->inl;
+	curbinid_.crl = info_.geom.cubedata[curinlinfnr_]
 	    		->segments[cursegnr_].start;
     }
 
@@ -370,8 +370,8 @@ bool CBVSReader::toStart()
     if ( !info_.geom.fullyrectandreg )
     {
 	curinlinfnr_ = cursegnr_ = 0;
-	curbinid_.inl = info_.geom.inldata[0]->inl;
-	curbinid_.crl = info_.geom.inldata[0]->segments[0].start;
+	curbinid_.inl = info_.geom.cubedata[0]->inl;
+	curbinid_.crl = info_.geom.cubedata[0]->segments[0].start;
     }
     posidx = 0;
     toOffs( datastartfo );
@@ -446,19 +446,18 @@ int CBVSReader::getPosNr( const BinID& bid,
     }
     else
     {
-	const CBVSInfo::SurvGeom::InlineInfo* curiinf =
-		info_.geom.inldata[curinlinfnr];
-	const CBVSInfo::SurvGeom::InlineInfo::Segment* curseg =
+	const PosInfo::InlData* curiinf = info_.geom.cubedata[curinlinfnr];
+	const PosInfo::InlData::Segment* curseg =
 		&curiinf->segments[cursegnr];
 	posnr = posnrs[curinlinfnr];
 
 	if ( bid.inl != curiinf->inl || !curseg->includes(bid.crl) )
 	{
-	    const int sz = info_.geom.inldata.size();
+	    const int sz = info_.geom.cubedata.size();
 	    bool foundseg = false;
 	    for ( int iinl=0; iinl<sz; iinl++ )
 	    {
-		curiinf = info_.geom.inldata[iinl];
+		curiinf = info_.geom.cubedata[iinl];
 		if ( curiinf->inl != bid.inl ) continue;
 
 		posnr = posnrs[iinl];
@@ -494,12 +493,11 @@ void CBVSReader::mkPosNrs()
 {
     posnrs.erase(); posnrs += 0;
 
-    const int sz = info_.geom.inldata.size();
+    const int sz = info_.geom.cubedata.size();
     int posnr = 0;
     for ( int iinl=0; iinl<sz; iinl++ )
     {
-	const CBVSInfo::SurvGeom::InlineInfo& curiinf
-	    			= *info_.geom.inldata[iinl];
+	const PosInfo::InlData& curiinf = *info_.geom.cubedata[iinl];
 
 	for ( int iseg=0; iseg<curiinf.segments.size(); iseg++ )
 	    posnr += curiinf.segments[iseg].nrSteps() + 1;
@@ -582,9 +580,8 @@ bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
     }
     else
     {
-	const CBVSInfo::SurvGeom::InlineInfo* inlinf =
-		info_.geom.inldata[curinlinfnr];
-	const CBVSInfo::SurvGeom::InlineInfo::Segment* curseg =
+	const PosInfo::InlData* inlinf = info_.geom.cubedata[curinlinfnr];
+	const PosInfo::InlData::Segment* curseg =
 		&inlinf->segments[cursegnr];
 	bid.crl += curseg->step;
 	if ( !curseg->includes(bid.crl) )
@@ -602,9 +599,9 @@ bool CBVSReader::getNextBinID( BinID& bid, int& curinlinfnr, int& cursegnr )
 		{
 		    cursegnr = 0;
 		    curinlinfnr++;
-		    if ( curinlinfnr >= info_.geom.inldata.size() )
+		    if ( curinlinfnr >= info_.geom.cubedata.size() )
 			{ pErrMsg("Huh"); bid = BinID(0,0); return false; }
-		    inlinf = info_.geom.inldata[curinlinfnr];
+		    inlinf = info_.geom.cubedata[curinlinfnr];
 		    curseg = &inlinf->segments[cursegnr];
 		    bid.inl = inlinf->inl;
 		    bid.crl = curseg->start;
@@ -679,10 +676,9 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
     }
     else
     {
-	for ( int iinl=0; iinl<info_.geom.inldata.size(); iinl++ )
+	for ( int iinl=0; iinl<info_.geom.cubedata.size(); iinl++ )
 	{
-	    const CBVSInfo::SurvGeom::InlineInfo& inlinf
-				= *info_.geom.inldata[iinl];
+	    const PosInfo::InlData& inlinf = *info_.geom.cubedata[iinl];
 	    bool inlmatches = inlinf.inl == bid.inl;
 	    for ( int icrl=0; icrl<inlinf.segments.size(); icrl++ )
 	    {

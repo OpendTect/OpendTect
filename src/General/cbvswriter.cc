@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.42 2004-10-27 11:59:45 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.43 2005-01-05 15:06:57 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -229,14 +229,13 @@ void CBVSWriter::newSeg( bool newinl )
     {
 	if ( goodgeom && inldata_.size() )
 	    newstep = inldata_[inldata_.size()-1]->segments[0].step;
-	inldata_ += new CBVSInfo::SurvGeom::InlineInfo( curbinid_.inl );
+	inldata_ += new PosInfo::InlData( curbinid_.inl );
     }
     else if ( goodgeom )
 	newstep = inldata_[inldata_.size()-1]->segments[0].step;
 
     inldata_[inldata_.size()-1]->segments +=
-	CBVSInfo::SurvGeom::InlineInfo::Segment(curbinid_.crl,curbinid_.crl,
-						newstep);
+	PosInfo::InlData::Segment(curbinid_.crl,curbinid_.crl, newstep);
 }
 
 
@@ -258,9 +257,8 @@ void CBVSWriter::getBinID()
 	    newSeg( true );
 	else
 	{
-	    CBVSInfo::SurvGeom::InlineInfo& inlinf
-			= *inldata_[inldata_.size()-1];
-	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =
+	    PosInfo::InlData& inlinf = *inldata_[inldata_.size()-1];
+	    PosInfo::InlData::Segment& seg =
 				inlinf.segments[inlinf.segments.size()-1];
 	    if ( !forcedlinestep_.crl && seg.stop == seg.start )
 	    {
@@ -293,7 +291,7 @@ int CBVSWriter::put( void** cdat, int offs )
     if ( prevbinid_.inl != curbinid_.inl )
     {
 	// getBinID() has added a new segment, so remove it from list ...
-	CBVSInfo::SurvGeom::InlineInfo* newinldat = inldata_[inldata_.size()-1];
+	PosInfo::InlData* newinldat = inldata_[inldata_.size()-1];
 	inldata_.remove( inldata_.size()-1 );
 	if ( file_lastinl_ )
 	{
@@ -418,7 +416,7 @@ void CBVSWriter::getRealGeometry()
     bids.step.inl = 0;
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
-	CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata_[iinl];
+	PosInfo::InlData& inlinf = *inldata_[iinl];
 	int curinlstep = inlinf.inl - prevbinid_.inl;
 	if ( iinl == 0 )
 	{
@@ -443,7 +441,7 @@ void CBVSWriter::getRealGeometry()
 
 	for ( int iseg=0; iseg<nrseg; iseg++ )
 	{
-	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =inlinf.segments[iseg];
+	    PosInfo::InlData::Segment& seg =inlinf.segments[iseg];
 	    if ( !seg.step )
 		seg.step = bids.step.crl ? bids.step.crl : SI().crlStep();
 	    else if ( seg.step != bids.step.crl )
@@ -468,7 +466,7 @@ void CBVSWriter::getRealGeometry()
 	bids.step.crl = SI().crlStep();
 
     if ( survgeom_.fullyrectandreg )
-	deepErase( survgeom_.inldata );
+	deepErase( survgeom_.cubedata );
     else if ( forcedlinestep_.inl )
 	bids.step.inl = forcedlinestep_.inl;
 
@@ -500,15 +498,14 @@ bool CBVSWriter::writeTrailer()
 	strm_.write( (const char*)&nrinl, integersize );
 	for ( int iinl=0; iinl<nrinl; iinl++ )
 	{
-	    CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata_[iinl];
+	    PosInfo::InlData& inlinf = *inldata_[iinl];
 	    strm_.write( (const char*)&inlinf.inl, integersize );
 	    const int nrcrl = inlinf.segments.size();
 	    strm_.write( (const char*)&nrcrl, integersize );
 
 	    for ( int icrl=0; icrl<nrcrl; icrl++ )
 	    {
-		CBVSInfo::SurvGeom::InlineInfo::Segment& seg
-		    	= inlinf.segments[icrl];
+		PosInfo::InlData::Segment& seg = inlinf.segments[icrl];
 		strm_.write( (const char*)&seg.start, integersize );
 		strm_.write( (const char*)&seg.stop, integersize );
 		strm_.write( (const char*)&seg.step, integersize );
