@@ -7,27 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.13 2004-07-28 16:43:52 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.14 2004-07-29 14:19:53 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <ranges.h>
-#include <position.h>
-class BinIDRange;
-class BinIDSampler;
+#include "ranges.h"
+#include "position.h"
 class IOPar;
 
 
-/*\brief Horizontal sampling in 3D surveys */
+/*\brief Horizontal sampling (inline and crossline range and steps) */
 
 struct HorSampling
 {
-			HorSampling()			{ init(); }
-			HorSampling(const BinIDRange&);
-			HorSampling(const BinIDSampler&);
-    HorSampling&	set(const BinIDRange&);
-    HorSampling&	set(const BinIDSampler&);
+			HorSampling( bool settoSI=true ) { init(settoSI); }
     HorSampling&	set(const Interval<int>& inlrg,
 	    		    const Interval<int>& crlrg);
     			//!< steps copied if available
@@ -52,6 +46,7 @@ struct HorSampling
     inline void		includeCrl( int crl )
 			{ if ( crl < start.crl ) start.crl = crl;
 			  if ( crl > stop.crl ) stop.crl = crl; }
+    void		limitTo(const HorSampling&);
 
     inline int		nrInl() const
 			{ return step.inl ? (stop.inl-start.inl) / step.inl + 1
@@ -64,8 +59,8 @@ struct HorSampling
     inline bool		isEmpty() const
 			{ return nrInl() < 1 || nrCrl() < 1; }
 
-    void		init();
-    			//!< Sets to survey values
+    void		init(bool settoSI=true);
+    			//!< Sets to survey values or zeros (step 1)
     void		normalise();
     			//!< Makes sure start<stop and steps are non-zero
 
@@ -80,8 +75,8 @@ struct HorSampling
 			{ return hs.start==start && hs.stop==stop 
 			    			 && hs.step==step; }
 
-    bool		usePar( const IOPar& );
-    void		fillPar( IOPar& ) const;
+    bool		usePar( const IOPar& ); //!< Keys as in keystrs.h
+    void		fillPar( IOPar& ) const; //!< Keys as in keystrs.h
 
     BinID		start;
     BinID		stop;
@@ -100,10 +95,11 @@ struct CubeSampling
 {
 public:
 
-    			CubeSampling()		{ init(); }
+    			CubeSampling( bool settoSI=true )
+			: hrg(settoSI)		{ init(settoSI); }
 
-    void		init();
-    			//!< Sets to survey values
+    void		init(bool settoSI=true);
+    			//!< Sets to survey values or zeros (step 1)
     void		normalise();
     			//!< Makes sure start<stop and steps are non-zero
 
@@ -122,6 +118,7 @@ public:
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
     void		include(const CubeSampling&);
+    void		limitTo(const CubeSampling&);
 
     void		snapToSurvey(bool work=true);
     			/*!< Checks if it is on valid bids and sample positions.
