@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.26 2004-01-05 09:45:07 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.27 2004-02-02 15:13:18 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -136,7 +136,7 @@ void WellDisplay::addMarkers()
 	if ( !pos.x && !pos.y && !pos.z ) continue;
 
 	if ( zistime )
-	    pos.z = wd->d2TModel()->getTime( pos.z );
+	    pos.z = wd->d2TModel()->getTime( wellmarker->dah );
 
 	well->addMarker( pos, wellmarker->color, wellmarker->name() );
     }
