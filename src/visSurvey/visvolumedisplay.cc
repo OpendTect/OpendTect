@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.14 2002-12-03 13:17:00 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.15 2003-01-15 08:18:19 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , cube(visBase::CubeView::create())
     , selected_(false)
     , as(*new AttribSelSpec)
-    , prevcs(*new CubeSampling)
     , moved(this)
     , manipulated(false)
     , slicemoving(this)
@@ -52,15 +51,16 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     cube->dragger()->motion.notify( mCB(this,VolumeDisplay,manipInMotion) );
     cube->dragger()->finished.notify( mCB(this,VolumeDisplay,manipFinished) );
 
-    prevcs.hrg.start.inl = (5*SI().range().start.inl+3*SI().range().stop.inl)/8;
-    prevcs.hrg.start.crl = (5*SI().range().start.crl+3*SI().range().stop.crl)/8;
-    prevcs.hrg.stop.inl = (3*SI().range().start.inl+5*SI().range().stop.inl)/8;
-    prevcs.hrg.stop.crl = (3*SI().range().start.crl+5*SI().range().stop.crl)/8;
-    prevcs.zrg.start = ( 5*SI().zRange().start + 3*SI().zRange().stop ) / 8;
-    prevcs.zrg.stop = ( 3*SI().zRange().start + 5*SI().zRange().stop ) / 8;
-    SI().snap( prevcs.hrg.start, BinID(0,0) );
-    SI().snap( prevcs.hrg.stop, BinID(0,0) );
-    setCubeSampling( prevcs );
+    CubeSampling cs;
+    cs.hrg.start.inl = (5*SI().range().start.inl+3*SI().range().stop.inl)/8;
+    cs.hrg.start.crl = (5*SI().range().start.crl+3*SI().range().stop.crl)/8;
+    cs.hrg.stop.inl = (3*SI().range().start.inl+5*SI().range().stop.inl)/8;
+    cs.hrg.stop.crl = (3*SI().range().start.crl+5*SI().range().stop.crl)/8;
+    cs.zrg.start = ( 5*SI().zRange().start + 3*SI().zRange().stop ) / 8;
+    cs.zrg.stop = ( 3*SI().zRange().start + 5*SI().zRange().stop ) / 8;
+    SI().snap( cs.hrg.start, BinID(0,0) );
+    SI().snap( cs.hrg.stop, BinID(0,0) );
+    setCubeSampling( cs );
 
     inlid = cube->addSlice( 0 );
     initSlice( inlid );
@@ -81,7 +81,6 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
     cube->unRef();
 
     delete &as;
-    delete &prevcs;
 }
 
 
@@ -177,27 +176,84 @@ void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
 
 bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 {
-    prevcs = sliceset->sampling;
-    ObjectSet< const Array2D<float> > newset;
-    for ( int idx=0; idx<sliceset->size(); idx++ )
-	newset += (*sliceset)[idx];
+    if ( !sliceset->size() )
+    {
+	delete sliceset;
+	return false;
+    }
 
-    cube->setData( newset, (int)sliceset->direction );
+    if ( sliceset->direction==AttribSlice::Hor )
+    {
+	const int inlsz = (*sliceset)[0]->info().getSize(0);
+	const int crlsz = (*sliceset)[0]->info().getSize(1);
+	const int zsz = sliceset->size();
+	Array3DImpl<float> datacube( inlsz, crlsz, zsz );
+
+	for ( int zidx=0; zidx<zsz; zidx++ )
+	{
+	    for ( int inl=0; inl<inlsz; inl++ )
+	    {
+		for ( int crl=0; crl<crlsz; crl++ )
+		{
+		    const float val = (*sliceset)[zidx]->get( inl, crl );
+		    datacube.set( inl, crl, zidx, val );
+		}
+	    }
+	}
+
+	cube->setData( &datacube );
+    }
+    else if ( sliceset->direction==AttribSlice::Crl )
+    {
+	const int inlsz = (*sliceset)[0]->info().getSize(0);
+	const int crlsz = sliceset->size();
+	const int zsz = (*sliceset)[0]->info().getSize(1);
+	Array3DImpl<float> datacube( inlsz, crlsz, zsz );
+
+	for ( int zidx=0; zidx<zsz; zidx++ )
+	{
+	    for ( int inl=0; inl<inlsz; inl++ )
+	    {
+		for ( int crl=0; crl<crlsz; crl++ )
+		{
+		    const float val = (*sliceset)[crl]->get( inl, zidx );
+		    datacube.set( inl, crl, zidx, val );
+		}
+	    }
+	}
+
+	cube->setData( &datacube );
+    }
+    else if ( sliceset->direction==AttribSlice::Inl )
+    {
+	const int inlsz = sliceset->size();
+	const int crlsz = (*sliceset)[0]->info().getSize(0);
+	const int zsz = (*sliceset)[0]->info().getSize(1);
+
+	Array3DImpl<float> datacube( inlsz, crlsz, zsz );
+	float* targetptr = datacube.getData();
+
+	const int slicesize = (*sliceset)[0]->info().getTotalSz();
+	for ( int idx=0; idx<inlsz; idx++ )
+	{
+	    memcpy( targetptr, (*sliceset)[idx]->getData(),
+		    slicesize*sizeof(float));
+	    targetptr += slicesize;
+	}
+
+	cube->setData( &datacube );
+    }
+
+    delete cache;
+    cache = sliceset;
 
     return true;
 }
 
 
-AttribSliceSet* visSurvey::VolumeDisplay::getPrevData()
+const AttribSliceSet* visSurvey::VolumeDisplay::getPrevData() const
 {
-    ObjectSet< const Array2D<float> >& data = cube->get3DData();
-    AttribSliceSet* sliceset = new AttribSliceSet;
-    for ( int idx=0; idx<data.size(); idx++ )
-	(*sliceset) += (AttribSlice*)data[idx];
-
-    sliceset->direction = (AttribSlice::Dir)cube->dataDirection();
-    sliceset->sampling = prevcs;
-    return sliceset->size() ? sliceset : 0;
+    return cache;
 }
 
 
@@ -244,8 +300,6 @@ void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
     cs.zrg.start = (float)intv.start;
     cs.zrg.stop = (float)intv.stop;
 
-    manipulated = !(prevcs == cs);
-    
     setCubeSampling( cs );
     cube->resetDragger();
 }
@@ -274,47 +328,41 @@ void visSurvey::VolumeDisplay::sliceMoving( CallBacker* )
 }
 
 
-void visSurvey::VolumeDisplay::setColorTable( const ColorTable& ctab )
+void visSurvey::VolumeDisplay::setColorTable( visBase::VisColorTab& ctab )
 {
-    cube->getColorTab().colorSeq().colors() = ctab;
-    cube->getColorTab().colorSeq().colorsChanged();
+    cube->setVolRenColorTab( ctab );
+    cube->setViewerColorTab( ctab );
 }
 
 
-const ColorTable& visSurvey::VolumeDisplay::getColorTable() const
-{ return cube->getColorTab().colorSeq().colors(); }
+visBase::VisColorTab& visSurvey::VolumeDisplay::getColorTable()
+{ return cube->getVolRenColorTab(); }
 
 
 void visSurvey::VolumeDisplay::setClipRate( float rate )
-{ cube->setClipRate( rate ); }
+{
+    cube->setViewerClipRate( rate );
+    cube->setVolRenClipRate( rate );
+}
 
 
 float visSurvey::VolumeDisplay::clipRate() const
-{ return cube->clipRate(); }
+{ return cube->viewerClipRate(); }
 
 
 void visSurvey::VolumeDisplay::setAutoscale( bool yn )
-{ cube->setAutoscale( yn ); }
+{
+    cube->setVolRenAutoScale( yn );
+    cube->setViewerAutoScale( yn );
+}
 
 
 bool visSurvey::VolumeDisplay::autoScale() const
-{ return cube->autoScale(); }
-
-
-void visSurvey::VolumeDisplay::setDataRange( const Interval<float>& intv )
-{ cube->getColorTab().scaleTo( intv ); }
-
-
-Interval<float> visSurvey::VolumeDisplay::getDataRange() const
-{ return cube->getColorTab().getInterval(); }
+{ return cube->viewerAutoScale(); }
 
 
 void visSurvey::VolumeDisplay::setMaterial( visBase::Material* nm)
 { cube->setMaterial(nm); }
-
-
-const visBase::Material* visSurvey::VolumeDisplay::getMaterial() const
-{ return cube->getMaterial(); }
 
 
 visBase::Material* visSurvey::VolumeDisplay::getMaterial()
@@ -325,10 +373,18 @@ SoNode* visSurvey::VolumeDisplay::getData()
 { return cube->getData(); }
 
 
-int visSurvey::VolumeDisplay::addVolRen()
+void visSurvey::VolumeDisplay::showVolRen( bool yn )
 {
-    return cube->addVolRen();
+    cube->showVolRen( yn );
 }
+
+
+bool visSurvey::VolumeDisplay::isVolRenShown() const
+{
+    return cube->isVolRenShown();
+}
+
+
 
 
 void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const

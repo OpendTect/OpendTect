@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.18 2003-01-14 13:55:34 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.19 2003-01-15 08:22:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class AttribSelSpec;
-class AttribSlice;
+class AttribSliceSet;
 class ColorTable;
 class CubeSampling;
 
