@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.14 2005-01-25 15:04:10 nanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.15 2005-01-31 11:41:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ StepInterval<float> pixelsizerange(1,9000,1);
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_,
 				  const SbVec2s& winsz_ )
-    : uiDialog(p,uiDialog::Setup("Create snapshot"
+    : uiDialog(p,uiDialog::Setup("Create snapshot",
 				 "Enter image size and filename","50.0.1"))
     , scene(scene_)
     , heightfld(0)
