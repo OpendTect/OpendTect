@@ -4,12 +4,13 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.15 2003-08-22 16:40:34 bert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.16 2003-08-29 11:53:05 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
 #include "visdrawstyle.h"
 #include "vistext.h"
+#include "wellman.h"
 #include "welldata.h"
 #include "welltransl.h"
 #include "welltrack.h"
@@ -61,36 +62,29 @@ visSurvey::WellDisplay::~WellDisplay()
 
 bool visSurvey::WellDisplay::setWellId( const MultiID& multiid )
 {
-    Well::Data wd; //TODO
-    PtrMan<IOObj> ioobj = IOM().get( multiid );
-    if ( !ioobj ) mErrRet( "Cannot find object in objectmanager" );
-
-    PtrMan<Translator> t = ioobj->getTranslator();
-    mDynamicCastGet(WellTranslator*,wtr,t.ptr())
-    if ( !wtr ) mErrRet( "Object is not a well" );
-
-    if ( !wtr->read(wd,*ioobj) ) mErrRet( "Cannot read well" );
+    Well::Data* wd = Well::MGR().get( multiid );
+    if ( !wd ) return false;
     
-    const Well::D2TModel* d2t = wd.d2TModel();
+    const Well::D2TModel* d2t = wd->d2TModel();
     const bool zistime = SI().zIsTime();
     if ( zistime && !d2t ) mErrRet( "No depth to time model defined" );
 
     while ( line->size() ) line->removePoint( 0 );
     wellid = multiid;
-    setName( wd.name() );
+    setName( wd->name() );
 
-    if ( wd.track().size() < 1 ) return true;
+    if ( wd->track().size() < 1 ) return true;
     Coord3 pt;
-    for ( int idx=0; idx<wd.track().size(); idx++ )
+    for ( int idx=0; idx<wd->track().size(); idx++ )
     {
-	pt = wd.track().pos( idx );
+	pt = wd->track().pos( idx );
 	if ( zistime )
-	    pt.z = d2t->getTime( wd.track().dah(idx) );
+	    pt.z = d2t->getTime( wd->track().dah(idx) );
 	if ( !mIsUndefined(pt.z) )
 	    line->addPoint( pt );
     }
 
-    welltxt->setText( wd.name() );
+    welltxt->setText( wd->name() );
     welltxt->setPosition( line->getPoint(0) ); //TODO
     welltxt->setJustification( visBase::Text::Center );
 
