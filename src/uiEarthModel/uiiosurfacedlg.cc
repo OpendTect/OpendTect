@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.9 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.10 2003-11-24 08:54:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ IOObj* uiWriteSurfaceDlg::ioObj() const
 bool uiWriteSurfaceDlg::checkIfAlreadyPresent( const char* attrnm )
 {
     EM::SurfaceIOData sd;
-    EM::EMM().getSurfaceData( hor.id(), sd );
+    EM::EMM().getSurfaceData( hor.multiID(), sd );
 
     bool present = false;
     auxdataidx = -1;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.23 2003-11-12 13:21:26 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.24 2003-11-24 08:54:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,7 +162,9 @@ bool uiExportHorizon::writeAscii()
 
 	const EM::PatchID patchid = hor->patchID( patchidx );
 	const Geometry::MeshSurface* meshsurf = hor->getSurface( patchid );
-	EM::PosID posid( infld->selIOObj()->key(), patchid );
+	EM::PosID posid(
+		EM::EMManager::multiID2ObjectID(infld->selIOObj()->key()),
+		patchid );
 	const int nrnodes = meshsurf->size();
 	BufferString str;
 	for ( int idy=0; idy<nrnodes; idy++ )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.35 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.36 2003-11-24 08:54:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,15 @@ bool uiEMPartServer::importHorizon() { return ioHorizon( true ); }
 bool uiEMPartServer::exportHorizon() { return ioHorizon( false ); }
 
 
+BufferString uiEMPartServer::getName(const MultiID& mid) const
+{
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::EMObject*,emobj,em.getObject(em.multiID2ObjectID(mid)));
+    if ( !emobj ) return 0;
+    return emobj->name();
+}
+
+
 bool uiEMPartServer::selectHorizon( MultiID& id )
 {
     uiReadSurfaceDlg dlg( appserv().parent() );
@@ -102,40 +111,34 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
 }
 
 
-bool uiEMPartServer::selectStickSet( MultiID& id )
+bool uiEMPartServer::selectStickSet( MultiID& multiid )
 {
    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(EMStickSet);
    ctio->ctxt.forread = true;
    uiIOObjSelDlg dlg( appserv().parent(), *ctio );
    if ( !dlg.go() ) return false;
 
-    id = dlg.ioObj()->key();
+    multiid = dlg.ioObj()->key();
 
     EM::EMManager& em = EM::EMM();
-    if ( em.isLoaded(id) )
+    EM::ObjectID objid = em.multiID2ObjectID(multiid);
+    if ( em.getObject(objid) )
 	return true;
 
-    if ( !em.createObject(id) )
-	return false;
+    PtrMan<Executor> loadexec = em.load(multiid);
+    if ( !loadexec)
+	mErrRet( IOM().nameOf(multiid) );
 
-    mDynamicCastGet(EM::StickSet*,stickset,em.getObject(id))
-    if ( stickset )
+    EM::EMM().ref( objid );
+    uiExecutor exdlg( appserv().parent(), *loadexec );
+    if ( exdlg.go() <= 0 )
     {
-	PtrMan<Executor> exec = stickset->loader();
-	if ( !exec ) mErrRet( IOM().nameOf(id) );
-	EM::EMM().ref( id );
-	uiExecutor exdlg( appserv().parent(), *exec );
-	if ( exdlg.go() <= 0 )
-	{
-	    EM::EMM().unRef( id );
-	    return false;
-	}
-
-	EM::EMM().unRefNoDel( id );
-	return true;
+	EM::EMM().unRef( objid );
+	return false;
     }
 
-    return false;
+    EM::EMM().unRefNoDel( objid );
+    return true;
 }
 
 
@@ -162,7 +165,8 @@ bool uiEMPartServer::createStickSet( MultiID& id )
 bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    const EM::ObjectID objid = em.multiID2ObjectID(id);
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
     if ( !hor ) return false;
 
     hor->removeAllAuxdata();
@@ -175,7 +179,8 @@ bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
 bool uiEMPartServer::loadAuxData( const MultiID& id, const char* attrnm )
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    const EM::ObjectID objid = em.multiID2ObjectID(id);
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
     if ( !hor ) return false;
     
     EM::SurfaceIOData sd;
@@ -198,7 +203,8 @@ int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx,
 					  const MultiID& id, bool hasauxdata )
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    const EM::ObjectID objid = em.multiID2ObjectID(id);
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
     if ( !hor ) return 0;
 
     const char* curval = hor->auxDataName( 0 );
@@ -228,9 +234,10 @@ int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx,
 bool uiEMPartServer::storeObject( const MultiID& id )
 {
     EM::EMManager& em = EM::EMM();
+    const EM::ObjectID objid = em.multiID2ObjectID(id);
     PtrMan<Executor> exec = 0;
 
-    EM::EMObject* object = em.getObject(id);
+    EM::EMObject* object = em.getObject(objid);
     if ( !object )
 	return false;
 
@@ -262,11 +269,12 @@ bool uiEMPartServer::storeObject( const MultiID& id )
 }
 
 
-bool uiEMPartServer::getDataVal( const MultiID& emid, 
+bool uiEMPartServer::getDataVal( const MultiID& emid_, 
 				 ObjectSet< TypeSet<BinIDZValue> >& data, 
 				 BufferString& attrnm, float& shift )
 {
     EM::EMManager& em = EM::EMM();
+    EM::ObjectID emid = em.multiID2ObjectID(emid_);
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(emid))
     if ( !hor ) return false;
 
@@ -311,7 +319,8 @@ void uiEMPartServer::setDataVal( const MultiID& emid,
        				 const char* attrnm )
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(emid))
+    const EM::ObjectID objid = em.multiID2ObjectID(emid);
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
     if ( !hor ) return;
 
     hor->removeAllAuxdata();
@@ -322,7 +331,7 @@ void uiEMPartServer::setDataVal( const MultiID& emid,
 	const EM::PatchID patchid = hor->patchID( patchidx );
 	TypeSet<BinIDZValue>& bidzvals = *data[patchidx];
 
-	EM::PosID posid( emid, patchid );
+	EM::PosID posid( objid, patchid );
 	for ( int idx=0; idx<bidzvals.size(); idx++ )
 	{
 	    BinIDZValue bidzv = bidzvals[idx];
@@ -353,47 +362,22 @@ bool uiEMPartServer::loadSurface( const MultiID& id,
        				  const EM::SurfaceIODataSelection* newsel )
 {
     EM::EMManager& em = EM::EMM();
-    if ( em.isLoaded(id) )
+    const EM::ObjectID objid = em.multiID2ObjectID(id);
+    if ( em.getObject(objid) )
 	return true;
 
-    if ( !em.createObject(id) )
+    PtrMan<Executor> exec = em.load(id, newsel );
+    if ( !exec ) mErrRet( IOM().nameOf(id) );
+    EM::EMM().ref( objid );
+    uiExecutor exdlg( appserv().parent(), *exec );
+    if ( exdlg.go() <= 0 )
+    {
+	EM::EMM().unRef( objid );
 	return false;
-
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
-    if ( hor )
-    {
-	PtrMan<Executor> exec = hor->loader( newsel );
-	if ( !exec ) mErrRet( IOM().nameOf(id) );
-	EM::EMM().ref( id );
-	uiExecutor exdlg( appserv().parent(), *exec );
-	if ( exdlg.go() <= 0 )
-	{
-	    EM::EMM().unRef( id );
-	    return false;
-	}
-
-	EM::EMM().unRefNoDel( id );
-	return true;
     }
 
-    mDynamicCastGet(EM::Fault*,fault,em.getObject(id))
-    if ( fault )
-    {
-	PtrMan<Executor> exec = fault->loader( newsel );
-	if ( !exec ) mErrRet( IOM().nameOf(id) );
-	EM::EMM().ref( id );
-	uiExecutor exdlg( appserv().parent(), *exec );
-	if ( exdlg.go() <= 0 )
-	{
-	    EM::EMM().unRef( id );
-	    return false;
-	}
-
-	EM::EMM().unRefNoDel( id );
-	return true;
-    }
-
-    return false;
+    EM::EMM().unRefNoDel( objid );
+    return true;
 }
 
 
@@ -424,7 +408,7 @@ void uiEMPartServer::getSurfaceDef( const ObjectSet<MultiID>& selhorids,
 {
     if ( !selhorids.size() ) return;
     EM::EMManager& em = EM::EMM();
-    const MultiID& id = *selhorids[0]; 
+    const EM::ObjectID& id = em.multiID2ObjectID(*selhorids[0]); 
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
     if ( !hor ) return;
     hor->ref();
@@ -432,7 +416,7 @@ void uiEMPartServer::getSurfaceDef( const ObjectSet<MultiID>& selhorids,
     EM::Horizon* hor2 = 0;
     if ( selhorids.size() > 1 )
     {
-	hor2 = (EM::Horizon*)(em.getObject(*selhorids[1]));
+	hor2 = (EM::Horizon*)(em.getObject(em.multiID2ObjectID(*selhorids[1])));
 	hor2->ref();
     }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.12 2003-11-12 12:57:04 bert Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.13 2003-11-24 08:54:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ bool uiImportLMKFault::handleAscii()
     const char* faultnm = outfld->getInput();
 
     EM::EMManager& em = EM::EMM();
-    MultiID key = em.add( EM::EMManager::Fault, faultnm );
+    const EM::ObjectID key = em.add( EM::EMManager::Fault, faultnm );
     mDynamicCastGet( EM::Fault*, fault, em.getObject( key ) );
     if ( !fault )
 	mErrRet( "Cannot create fault" );
