@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.4 2003-11-24 10:45:45 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -162,6 +162,37 @@ protected:
 };
 
 
+class uiTreeItemFactory
+{
+public:
+    virtual		~uiTreeItemFactory()		{}
+    virtual const char*	name() const			= 0;
+    virtual uiTreeItem*	create() const			= 0;
+};
+
+
+class uiTreeFactorySet : public CallBacker
+{
+public:
+					uiTreeFactorySet();
+					~uiTreeFactorySet();
+    void				addFactory(uiTreeItemFactory* ptr);
+					/*!<\param ptr	pointer to new factory.
+							Object is managed by me.
+					*/
+    void				remove( const char* );
+
+    int					nrFactories() const;
+    const uiTreeItemFactory*		getFactory( int idx ) const;
+
+    CNotifier<uiTreeFactorySet,int>	addnotifier;
+    CNotifier<uiTreeFactorySet,int>	removenotifier;
+
+protected:
+    ObjectSet<uiTreeItemFactory>	factories;
+};
+
+
 template<class T>
 bool inline uiTreeItem::getProperty( const char* propertykey, T& res ) const
 {
@@ -201,7 +232,5 @@ void inline uiTreeItem::setPropertyPtr( const char* propertykey, const T& val )
 {
     properties.set( propertykey, (int) val );
 }
-
-
 
 #endif
