@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.30 2004-10-07 11:07:11 nanne Exp $
+ RCS:           $Id: mathexpression.cc,v 1.31 2004-11-09 10:21:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,9 +272,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    MathExpression* res = 0;	
 
 	    if ( str[idx] == '&' )
-	    {
 		res = new MathExpressionAND;
-	    }
 	    else 
 		res = new MathExpressionOR;
 
@@ -458,11 +456,11 @@ MathExpression* MathExpression::parse( const char* input )
     int funclen = funcstr.size(); \
     if ( !strncasecmp( str, funcstr.buf(), funclen ) && str[len-1] == ')' ) \
     { \
-	ArrPtrMan<char> arg0 = new char[len-funclen]; \
+	ArrPtrMan<char> arg0 = new char[len-funclen+1]; \
 	strcpy( arg0, str+funclen ); \
 	arg0[len-funclen-1] = 0; \
 	MathExpression* inp = parse( arg0 ); \
-	if ( !inp ) return false; \
+	if ( !inp ) return 0; \
 \
 	MathExpression* res = new MathExpression##clss; \
 	res->setInput( 0, inp ); \
@@ -530,7 +528,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( !inp )
 	    {
 		deepErase( inputs );
-		return false;
+		return 0;
 	    }
 
 	    inputs += inp;
