@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.12 2002-05-08 14:47:27 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.13 2002-05-09 17:50:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
-	: uiExecutor(p,getFirstJM(prognm,iop))
+	: uiExecutor(p,getFirstJM(prognm,iop),true)
     	, running(false)
     	, finished(false)
     	, jmfinished(false)
@@ -39,9 +39,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     delay = 500;
 
     const char* res = iop.find( "Target value" );
-    BufferString txt;
+    BufferString txt( "Manage processing" );
     if ( res && *res )
-	{ txt = "< "; txt += res; txt += " >"; }
+	{ txt += ": "; txt += res; }
     setTitleText( txt );
 
     tmpstordirfld = new uiIOFileSelect( this, "Temporary storage directory",
@@ -300,7 +300,7 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
 {
     BufferString mach;
     int occ = getCurMach( mach );
-    if ( occ < 0 ) { pErrMsg("Can't find machine"); return; }
+    if ( occ < 0 ) return;
 
     BufferString fname;
     if ( !jm->getLogFileName(mach,occ,fname) )
