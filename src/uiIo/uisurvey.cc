@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.3 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uisurvey.cc,v 1.4 2001-08-24 13:33:08 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 #include <fstream>
+#include <math.h>
 
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
