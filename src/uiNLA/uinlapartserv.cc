@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.4 2004-05-04 15:51:30 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.5 2004-05-05 20:54:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,9 @@ ________________________________________________________________________
 #include "uinlapartserv.h"
 #include "nlacrdesc.h"
 #include "picksettr.h"
+#include "welltransl.h"
 #include "featset.h"
+#include "uiexecutor.h"
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
 const int uiNLAPartServer::evPrepareRead	= 1;
@@ -46,10 +48,14 @@ void uiNLAPartServer::getBinIDValues( const NLACreationDesc& crdesc,
 			  ObjectSet< TypeSet<BinIDValue> >& bivsets ) const
 {
     if ( !crdesc.isdirect )
-    {
 	PickSetGroupTranslator::createBinIDValues( crdesc.outids, bivsets );
-	return;
+    else
+    {
+	Executor* ex = WellTranslator::createBinIDValues( crdesc.outids,
+							  crdesc.pars,
+							  bivsets );
+	if ( !ex ) return;
+	uiExecutor uiex( appserv().parent(), *ex );
+	uiex.go();
     }
-
-    //TODO create binidvalues along well track
 }

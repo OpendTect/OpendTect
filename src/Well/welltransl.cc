@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.7 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.8 2004-05-05 20:54:28 bert Exp $";
 
 
 #include "welltransl.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: welltransl.cc,v 1.7 2004-04-01 13:39:50 bert Ex
 #include "wellreader.h"
 #include "wellwriter.h"
 #include "welldata.h"
+#include "wellextractdata.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include "filepath.h"
@@ -108,6 +109,15 @@ bool WellTranslator::implSetReadOnly( const IOObj* ioobj, bool ro ) const
 {
     mImplStart(setReadOnly(ro));
     return true;
+}
+
+Executor* WellTranslator::createBinIDValues( const BufferStringSet& ids,
+					     const IOPar& pars,
+				    ObjectSet< TypeSet<BinIDValue> >& bivsets )
+{
+    Well::TrackSampler* ts = new Well::TrackSampler( ids, bivsets );
+    ts->usePar( pars );
+    return ts;
 }
 
 
