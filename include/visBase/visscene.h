@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.11 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visscene.h,v 1.12 2004-09-14 12:17:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,9 @@ public:
     static Scene*	create()
 			mCreateDataObj(Scene);
 
+    void		addObject( DataObject* );
+    void		insertObject( int idx, DataObject* );
+
     void		setAmbientLight( float );
     float		ambientLight() const;
 
@@ -43,9 +46,9 @@ public:
 
 protected:
     virtual		~Scene();
+    EventCatcher&	events;
 
 private:
-    EventCatcher&	mouseevents;
     int			mousedownid;
 
     void		mousePickCB( CallBacker* );
