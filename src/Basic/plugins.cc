@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.15 2003-10-20 15:17:56 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.16 2003-10-20 15:38:03 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -237,7 +237,7 @@ const char* PluginManager::userName( const char* libnm ) const
 
 const PluginInfo& PluginManager::getInfo( const char* nm ) const
 {
-    static PluginInfo notloadedinfo = { "Not loaded", "", "" };
+    static PluginInfo notloadedinfo = { "Unknown", "Not loaded", "", "" };
 
     const char* fullnm = getFullName( nm );
     if ( !fullnm ) return notloadedinfo;

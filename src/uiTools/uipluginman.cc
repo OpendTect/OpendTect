@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.1 2003-10-20 15:18:44 bert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.2 2003-10-20 15:38:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ void uiPluginMan::fillList()
     listfld->empty();
     const BufferStringSet& nms = PIM().loadedFileNames();
     for ( int idx=0; idx<nms.size(); idx++ )
-	listfld->addItem( PIM().userName( nms.get(idx) ) );
+	listfld->addItem( PIM().getInfo(nms.get(idx)).dispname );
     if ( nms.size() )
 	listfld->setCurrentItem( 0 );
 }

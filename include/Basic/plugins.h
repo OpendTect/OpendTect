@@ -14,6 +14,7 @@ extern "C" {
 
 typedef struct {
 
+    const char*	dispname;
     const char*	creator;
     const char*	version;
     const char*	text;
