@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.7 2003-01-23 07:31:03 kristofer Exp $
+ RCS:           $Id: cubesampling.h,v 1.8 2003-02-04 10:01:24 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <position.h>
 class BinIDRange;
 class BinIDSampler;
+class IOPar;
 
 
 /*\brief Horizontal sampling in 3D surveys */
@@ -70,9 +71,16 @@ struct HorSampling
 			{ return hs.start==start && hs.stop==stop 
 			    			 && hs.step==step; }
 
+    bool		usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
+
     BinID		start;
     BinID		stop;
     BinID		step;
+
+    static const char*	startstr;
+    static const char*	stopstr;
+    static const char*	stepstr;
 
 };
 
@@ -111,6 +119,11 @@ public:
     bool		operator!=( const CubeSampling& cs ) const
 			{ return !(cs==*this); }
 
+    bool		usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
+
+protected:
+    static const char*	zrangestr;
 };
 
 
