@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.20 2004-04-26 14:43:10 kristofer Exp $
+ RCS:           $Id: uimenu.h,v 1.21 2004-05-03 08:42:27 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,8 @@ private:
     i_MenuMessenger&            messenger_;
 
     int                         id_;
+    bool			checked;
+    bool			enabled;
 
 };
 

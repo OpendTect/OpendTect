@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.19 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uimenu.cc,v 1.20 2004-05-03 08:42:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
 
 			    it->setId( newid );
 			    it->setMenu( this );
+			    qthing()->setItemChecked( newid, it->checked );
+			    qthing()->setItemEnabled( newid, it->enabled );
 			    itms += it;
 
 			    return newid;
@@ -75,6 +77,8 @@ public:
 
 			    it->setId( newid );
 			    it->setMenu( this );
+			    qthing()->setItemChecked( newid, it->checked );
+			    qthing()->setItemEnabled( newid, it->enabled );
 			    itms += it;
 
 			    return newid;
@@ -88,6 +92,8 @@ public:
 			    int newid = insertItem( it, id, idx );
 			    it->setId( newid );
 			    it->setMenu( this );
+			    qthing()->setItemChecked( newid, it->checked );
+			    qthing()->setItemEnabled( newid, it->enabled );
 			    itms += it;
 
 			    return newid;
@@ -126,19 +132,24 @@ private:
 //-----------------------------------------------------------------------
 
 uiMenuItem::uiMenuItem( const char* nm )
-    : UserIDObject( nm )
-    , activated( this )
-    , messenger_( *new i_MenuMessenger( this ) ) 
-    , id_( 0 )
-    , menu_( 0 )
+    : UserIDObject(nm)
+    , activated(this)
+    , messenger_( *new i_MenuMessenger(this) ) 
+    , id_(-1)
+    , menu_(0)
+    , enabled(true)
+    , checked(false)
 {}
 
-uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb)
-    : UserIDObject( nm )
-    , activated( this )
-    , messenger_( *new i_MenuMessenger( this ) )
+
+uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
+    : UserIDObject(nm )
+    , activated(this)
+    , messenger_( *new i_MenuMessenger(this) )
     , id_(-1)
-    , menu_( 0 )
+    , menu_(0)
+    , enabled(true)
+    , checked(false)
 { 
     activated.notify( cb ); 
 }
@@ -151,22 +162,45 @@ uiMenuItem::~uiMenuItem()
 
 
 bool uiMenuItem::isEnabled () const
-    { return menu_->qthing()->isItemEnabled( id_ ); }
+{
+    return menu_ && menu_->qthing() ? menu_->qthing()->isItemEnabled( id_ )
+				    : enabled;
+}
 
 void uiMenuItem::setEnabled ( bool yn )
-    { menu_->qthing()->setItemEnabled( id_, yn ); }
+{
+    enabled = yn;
+    if ( menu_ && menu_->qthing() )
+	menu_->qthing()->setItemEnabled( id_, yn ); 
+}
+
 
 bool uiMenuItem::isChecked () const
-    { return menu_->qthing()->isItemChecked( id_ ); }
+{
+    return menu_ && menu_->qthing() ? menu_->qthing()->isItemChecked( id_ )
+				    : checked; 
+}
+
 
 void uiMenuItem::setChecked( bool yn )
-    { menu_->qthing()->setItemChecked( id_, yn ); }
+{
+    checked = yn;
+    if ( menu_ && menu_->qthing() )
+	menu_->qthing()->setItemChecked( id_, yn ); 
+}
+
 
 void uiMenuItem::setText( const char* txt )
-    { menu_->qthing()->changeItem ( id_, QString(txt) ); }
+{
+    if ( menu_ && menu_->qthing() )
+	menu_->qthing()->changeItem ( id_, QString(txt) ); 
+}
+
 
 int uiMenuItem::index() const
-    { return menu_->qthing()->indexOf( id_ ); }
+{
+    return menu_ && menu_->qthing() ? menu_->qthing()->indexOf( id_ ) : -1;
+}
 
 
 //-----------------------------------------------------------------------
