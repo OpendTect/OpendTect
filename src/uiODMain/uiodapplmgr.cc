@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.37 2004-06-16 12:38:12 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.38 2004-06-23 11:19:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,14 +199,19 @@ void uiODApplMgr::importPickSet() { pickserv->importPickSet(); }
 void uiODApplMgr::importLMKFault() { emserv->importLMKFault(); }
 
 
+void uiODApplMgr::enableSceneMenu( bool yn )
+{
+    sceneMgr().disabRightClick( !yn );
+    if ( !yn ) sceneMgr().setToViewMode();
+    menuMgr().dtectTB()->setSensitive( yn );
+    menuMgr().enableActButton( yn );
+    menuMgr().enableMenuBar( yn );
+}
+
+
 void uiODApplMgr::manageAttributes()
 {
-    sceneMgr().disabRightClick(true);
-    sceneMgr().setToViewMode();
-    menuMgr().dtectTB()->setSensitive( false );
-    menuMgr().enableActButton( false );
-    menuMgr().enableMenuBar( false );
-
+    enableSceneMenu( false );
     attrserv->editSet(); 
 }
 
@@ -849,10 +854,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {
-	sceneMgr().disabRightClick(false);
-	menuMgr().dtectTB()->setSensitive( true );
-	menuMgr().enableActButton( true );
-	menuMgr().enableMenuBar( true );
+	enableSceneMenu( true );
     }
     else if ( evid==uiAttribPartServer::evEvaluateAttr )
     {
