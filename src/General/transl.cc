@@ -10,9 +10,17 @@
 #include "iopar.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.9 2003-05-20 12:42:12 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.10 2003-09-25 11:05:45 bert Exp $";
 
 DefineAbstractClassDef(Translator,"Translator");
+
+UserIDObjectSet<Translator>& Translator::groups()
+{
+    static UserIDObjectSet<Translator>* grps = 0;
+    if ( !grps )
+	grps = new UserIDObjectSet<Translator>( "Object type" );
+    return *grps;
+}
 
 
 void Translator::dumpGroups( ostream& strm )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wvltfact.h,v 1.4 2003-09-16 11:40:51 bert Exp $
+ RCS:		$Id: wvltfact.h,v 1.5 2003-09-25 11:05:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,5 @@ ________________________________________________________________________
 defineTranslatorGroup(Wavelet,"Wavelet");
 defineTranslator(dgb,Wavelet,mDGBKey);
 
-//- Module dependencies
 
 #endif

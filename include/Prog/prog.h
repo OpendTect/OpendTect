@@ -1,23 +1,20 @@
 #ifndef prog_h
 #define prog_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.7 2003-09-11 15:56:00 bert Exp $
+ RCS:		$Id: prog.h,v 1.8 2003-09-25 11:05:45 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include "plugins.h"
 
 #ifdef __cpp__
-
-#include "transl.h"
-mDefTranslatorGroups
 
 #include "errh.h"
 #include "connfact.h"

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.13 2003-05-20 12:42:12 bert Exp $
+ RCS:		$Id: transl.h,v 1.14 2003-09-25 11:05:45 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -43,7 +43,7 @@ public:
 				: UserIDObject(nm)
 				, conndef_(cd)		{}
 
-    static const UserIDObjectSet<Translator>& groups()	{ return groups_; }
+    static UserIDObjectSet<Translator>& groups();
     virtual const ClassDefList&	defs() const		= 0;
     virtual Translator*		make(const char*) const	= 0;
     virtual ObjectTypeSelectionFun getSelector() const	= 0;
@@ -70,7 +70,6 @@ public:
 protected:
 
     const ClassDef*		conndef_;
-    static UserIDObjectSet<Translator>	groups_;
 
     Translator*			trProd(const char*) const;
     static IOPar&		mkSelHist(const char*);
@@ -97,15 +96,11 @@ isUidProducable(spec##clss##Translator)
 #define defineTranslatorGroup(clss,prnm) \
 defineConcreteFactory(clss##Translator,prnm); \
 int clss##Translator::listid = \
-	Translator::groups_ += (Translator*)new clss##Translator(prnm); \
+	Translator::groups() += (Translator*)new clss##Translator(prnm); \
 IOPar& clss##Translator::selhist = mkSelHist(prnm)
 
 #define defineTranslator(spec,clss,prnm) \
-defineProducable(spec##clss##Translator,clss##Translator,prnm); \
-
-
-#define mDefTranslatorGroups \
-	UserIDObjectSet<Translator> Translator::groups_( "Object type" );
+defineProducable(spec##clss##Translator,clss##Translator,prnm);
 
 
 #endif

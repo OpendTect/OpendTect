@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.6 2003-09-25 08:48:44 arend Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.7 2003-09-25 11:05:45 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -47,39 +47,40 @@ static const char* getFnName( const char* libnm, const char* fnend )
 }
 
 
+#ifdef __win__
+# define mNotLoadedRet(act) \
+	{ if ( handle ) FreeLibrary(handle); return false; }
+#else
+# define mNotLoadedRet(act) \
+	{ act; if ( handle ) dlclose(handle); return false; }
+#endif
+
 static bool loadPlugin( const char* libnm, int* pargc, char** argv,
 			int inittype )
 {
     if ( inittype == PI_AUTO_INIT_NONE ) return false;
 
 #ifdef __win__
-    HMODULE handle = LoadLibrary ( libnm );
+    HMODULE handle = LoadLibrary( libnm );
 #else
     void* handle = dlopen( libnm, RTLD_GLOBAL | RTLD_NOW );
-    if ( !handle )
-    {
-	cerr << dlerror() << endl;
-	return false;
-    }
 #endif
+
+    if ( !handle )
+	mNotLoadedRet( cerr << dlerror() << endl )
 
     const BufferString libnmonly = File_getFileName(libnm);
     if ( inittype > 0 )
     {
-
 #ifdef __win__
-    VoidIntRetFn fn = reinterpret_cast <VoidIntRetFn>
+	VoidIntRetFn fn = reinterpret_cast <VoidIntRetFn>
 	    (GetProcAddress (handle, getFnName(libnmonly,"GetPluginType")) );
-
-	if ( !fn || inittype != (*fn)() )
-	    { FreeLibrary(handle); return false; }
 #else
-
 	VoidIntRetFn fn = (VoidIntRetFn)dlsym( handle,
 				getFnName(libnmonly,"GetPluginType") );
-	if ( !fn || inittype != (*fn)() )
-	    { dlclose(handle); return false; }
 #endif
+	if ( !fn || inittype != (*fn)() )
+	    mNotLoadedRet(;); // not an error: just not the right time to load
     }
 
 #ifdef __win__
@@ -89,29 +90,20 @@ static bool loadPlugin( const char* libnm, int* pargc, char** argv,
     ArgcArgvCCRetFn fn2 = (ArgcArgvCCRetFn)dlsym( handle,
 				getFnName(libnmonly,"InitPlugin") );
 #endif
-    bool rv = false;
     if ( !fn2 )
-	cerr << "Cannot find InitPlugin() function in "
-	     << libnm << endl;
-    else
-    {
-	const char* ret = (*fn2)(pargc,argv);
-	if ( ret )
-	    cerr << libnm << ": " << ret << endl;
-	else
-	{
-	    PIM().addLoaded( libnm );
-	    cerr << "Successfully loaded plugin " << libnm << endl;
-	    rv = true;
-	}
-    }
+	mNotLoadedRet( cerr << "Cannot find "
+			    << getFnName(libnmonly,"InitPlugin")
+			    << " function in " << libnm << endl )
 
-#ifdef __win__
-    FreeLibrary(handle);
-#else
-    dlclose(handle);
-#endif
-    return rv;
+    const char* ret = (*fn2)(pargc,argv);
+    if ( ret )
+	mNotLoadedRet( cerr << libnm << ": " << ret << endl )
+
+    PIM().addLoaded( libnm );
+    if ( getenv( "OD_SHOW_PLUGIN_LOAD" ) )
+	cerr << "Successfully loaded plugin " << libnm << endl;
+
+    return true;
 }
 
 
