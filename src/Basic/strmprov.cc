@@ -15,6 +15,8 @@
 #ifdef __win__
 # include <windows.h>
 # include <istream>
+
+
 # ifdef __msvc__
 #  define popen _popen
 #  define pclose _pclose
@@ -37,7 +39,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.56 2004-07-19 15:10:57 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.57 2004-09-27 08:09:28 dgb Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -364,28 +366,6 @@ StreamData StreamProvider::makeIStream() const
 	return sd;
     }
 
-#ifdef __msvc__
-
-    pErrMsg("Pipes are not supported on windows platform");
-
-/*
-    MSVC chokes on the following lines:
-	sd.istrm = new std::ifstream( fileno(sd.fp) );
-	sd.ostrm = new std::ofstream( fileno(sd.fp) );
-
-    This means you can not open a fstream with just a file pointer. You would
-    need a 'filedesc' for that. You can't make that from a file pointer, 
-    however.
-    Fortunately, this behavior is only required for more advanced useage, so
-    we leave it out for now.
-
-    A possible solution might be using named pipes. 
-    See http://www.codeguru.com/console/dualmode.html
-
-*/
-
-#else
-
     mkOSCmd( true );
 
     sd.fp = popen( oscommand, "r" );
@@ -393,13 +373,12 @@ StreamData StreamProvider::makeIStream() const
 
     if ( sd.fp )
     {
-# if __GNUC__ > 2
+#if __GNUC__ > 2
 	//TODO change StreamData to include filebuf?
 	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, std::ios_base::in );
 	sd.istrm = new std::istream( stdiofb );
-# else
+#else
 	sd.istrm = new std::ifstream( fileno(sd.fp) );
-# endif
 #endif
     }
 
@@ -429,12 +408,6 @@ StreamData StreamProvider::makeOStream() const
 	return sd;
     }
 
-#ifdef __msvc__
-
-    pErrMsg("Pipes are not supported on windows platform");
-
-#else
-
     mkOSCmd( false );
 
     sd.fp = popen( oscommand, "w" );
@@ -442,12 +415,11 @@ StreamData StreamProvider::makeOStream() const
 
     if ( sd.fp )
     {
-# if __GNUC__ > 2
+#if __GNUC__ > 2
 	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, std::ios_base::out );
 	sd.ostrm = new std::ostream( stdiofb );
-# else
+#else
 	sd.ostrm = new std::ofstream( fileno(sd.fp) );
-# endif
 #endif
     }
 
@@ -463,6 +435,9 @@ bool StreamProvider::executeCommand( bool inbg ) const
 
 
 #ifdef __win__
+
+extern "C" { const char* getCygDir(); } // genc.c
+
 static const char* getCmd( const char* fnm )
 {
     BufferString execnm( fnm );
@@ -501,14 +476,14 @@ static const char* getCmd( const char* fnm )
     const char* interp = 0;
 
     if ( strstr(execnm,".csh") || strstr(execnm,".CSH") )
-	interp = "\\bin\\win\\sys\\csh.exe";
+	interp = "tcsh.exe";
     else if ( strstr(execnm,".sh") || strstr(execnm,".SH") ||
 	      strstr(execnm,".bash") || strstr(execnm,".BASH") )
-	interp = "\\bin\\win\\sys\\sh.exe";
+	interp = "sh.exe";
     else if ( strstr(execnm,".awk") || strstr(execnm,".AWK") )
-	interp = "\\bin\\win\\sys\\awk.exe";
+	interp = "awk.exe";
     else if ( strstr(execnm,".sed") || strstr(execnm,".SED") )
-	interp = "\\bin\\win\\sys\\sed.exe";
+	interp = "sed.exe";
     else if ( File_exists( execnm ) )
     {
 	// We have a full path to a file with no known extension,
@@ -525,11 +500,11 @@ static const char* getCmd( const char* fnm )
 	    return fnm;
 
 	if ( strstr(line,"csh") )
-	    interp = "\\bin\\win\\sys\\csh.exe";
+	    interp = "tcsh.exe";
 	else if ( strstr(line,"awk") )
-	    interp = "\\bin\\win\\sys\\awk.exe";
+	    interp = "awk.exe";
 	else if ( strstr(line,"sh") )
-	    interp = "\\bin\\win\\sys\\sh.exe";
+	    interp = "sh.exe";
     }
     
     if ( interp )
@@ -537,7 +512,13 @@ static const char* getCmd( const char* fnm )
 	static BufferString fullexec;
 
 	fullexec = "\"";
-	fullexec += FilePath(GetSoftwareDir()).add(interp).fullPath();
+	if ( getCygDir() )
+	    fullexec += FilePath(getCygDir()).add("bin").add(interp).fullPath();
+	else
+	    fullexec += FilePath(GetSoftwareDir())
+			.add("bin").add("win").add("sys")
+			.add(interp).fullPath();
+
 	fullexec += "\" '";
 	fullexec += execnm;
 	fullexec += "'";
