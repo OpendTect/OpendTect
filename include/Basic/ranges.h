@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.29 2004-06-16 14:54:18 bert Exp $
+ RCS:		$Id: ranges.h,v 1.30 2005-01-06 08:19:58 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "general.h"
+#include "errh.h"
 
 
 /*!\brief interval of values.
@@ -108,6 +109,95 @@ public:
      T				step;
 
 };
+
+
+template <class T> class IntervalND
+{
+public:
+    				IntervalND( int ndim_ )
+				    : ranges (new Interval<T>[ndim_] )
+				    , ndim( ndim_ )
+				    , isset( false ) {}
+
+    virtual			~IntervalND() { delete [] ranges; }
+
+    int				nDim() const { return ndim; }
+    bool			isSet() const { return isset; }
+
+    const Interval<T>&		getRange(int dim) const { return ranges[dim]; }
+    template <class TT> inline
+    void 			setRange( const TT& val );
+    template <class TT> inline
+    void			setRange( const TT& start, const TT& stop);
+    template <class TT> inline
+    void			include( const TT& val );
+    inline IntervalND<T>	intersection( const IntervalND<T>& bnd ) const;
+protected:
+    int			ndim;
+    Interval<T>*	ranges;
+    bool		isset;
+};
+
+
+template <class T> template <class TT> inline
+void IntervalND<T>::setRange( const TT& val )
+{
+    for ( int dim=0; dim<ndim; dim++ )
+	ranges[dim].start = ranges[dim].stop = val[dim];
+
+    isset = true;
+}
+
+
+
+template <class T> template <class TT> inline
+void IntervalND<T>::setRange( const TT& start, const TT& stop)
+{
+    for ( int dim=0; dim<ndim; dim++ )
+    {
+	ranges[dim].start = start[dim];
+	ranges[dim].stop = stop[dim];
+    }
+
+    isset = true;
+}
+
+
+template <class T> template <class TT> inline
+void IntervalND<T>::include( const TT& val )
+{
+#ifdef __debug__
+    if ( !isset )
+	pErrMsg("Doing include on undefined IntervalND");
+#endif
+
+    for ( int dim=0; dim<ndim; dim++ )
+	ranges[dim].include(val[dim]);
+
+    isset = true;
+}
+
+
+template <class T> inline
+IntervalND<T> IntervalND<T>::intersection( const IntervalND<T>& bnd ) const
+{
+    IntervalND<T> res( ndim );
+    for ( int dim=0; dim<ndim; dim++ )
+    {
+	const Interval<T>& a = getInterval(dim);
+	const Interval<T>& b = bnd.getInterval(dim);
+
+	Interval<T> intersect1d( mMAX(a.start,b.start), mMIN(a.stop,b.stop ));
+
+	if ( intersect1d.start>intersect1d.stop )
+	    return res;
+
+	*res.ranges[dim] = intersect1d;
+    }
+
+    res.isset = true;
+    return res;
+}
 
 
 template <class T1,class T2>
