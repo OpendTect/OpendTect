@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.10 2004-05-03 16:03:44 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.11 2004-05-03 19:01:30 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -311,13 +311,13 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     if ( visserv->hasAttrib(displayid) )
     {
 	uiPopupMenu* selattrmnu = new uiPopupMenu( menu->getParent(),
-						   attrselmnutxt );
-	firstsetattrmnuid = menu->getFreeIdx();
+						   attrselmnutxt);
+	firstsetattrmnuid = menu->getFreeID();
 	applMgr()->attrServer()->createAttribSubMenu( *selattrmnu,
 					  firstsetattrmnuid,
 					  *visserv->getSelSpec(displayid));
-	menu->addItem(selattrmnu,9999);
-	lastsetattrmnuid = menu->getCurrentIdx()-1;
+	menu->addItem(selattrmnu);
+	lastsetattrmnuid = menu->getCurrentID()-1;
     }
     else 
 	firstsetattrmnuid = -1;
@@ -330,7 +330,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     visserv->getChildIds(-1,sceneids);
     if ( sceneids.size()>1 )
     {
-	sharefirstmnusel = menu->getCurrentIdx();
+	sharefirstmnusel = menu->getCurrentID();
 	uiPopupMenu* sharemnu = new uiPopupMenu( menu->getParent(),
 						 "Share with...");
 	for ( int idx=0; idx<sceneids.size(); idx++ )
@@ -338,14 +338,14 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	    if ( sceneids[idx]!=sceneID() )
 	    {
 		uiMenuItem* itm =
-			new uiMenuItem(visserv->getObjectName(sceneids[idx]));
-		sharemnu->insertItem( itm, menu->getFreeIdx() );
+		    	new uiMenuItem(visserv->getObjectName(sceneids[idx]));
+		sharemnu->insertItem( itm, menu->getFreeID() );
 	    }
 	}
 
 	menu->addItem( sharemnu );
 
-	sharelastmnusel = menu->getCurrentIdx()-1;
+	sharelastmnusel = menu->getCurrentID()-1;
     }
     else
     {
@@ -484,16 +484,16 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
     {
-	attribstartmnusel = menu->getCurrentIdx();
+	attribstartmnusel = menu->getCurrentID();
 	const AttribSelSpec* as = visserv->getSelSpec(displayid);
 	const bool hasauxdata = as && as->id() == -1;
 	int nraddeditems = applMgr()->EMServer()->createAuxDataSubMenu(
 				*attrmnu, attribstartmnusel, mid, hasauxdata );
 
 	for ( int idx=0; idx<nraddeditems; idx++ )
-	    menu->getFreeIdx();
+	    menu->getFreeID();
 
-	attribstopmnusel = menu->getCurrentIdx()-1;
+	attribstopmnusel = menu->getCurrentID()-1;
     }
     else
     {
@@ -715,7 +715,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	    nodename += idx;
 	}
 
-	const int mnusel = menu->getFreeIdx();
+	const int mnusel = menu->getFreeID();
 	uiMenuItem* itm = new uiMenuItem(nodename);
 	insertnodemnu->insertItem( itm, mnusel );
 	itm->setEnabled(rtd->canAddKnot(idx));
@@ -1048,22 +1048,26 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     uiPopupMenu* showmnu = new uiPopupMenu( menu->getParent(), "Show" );
 
     uiMenuItem* wellnameitem = new uiMenuItem("Well name");
-    namemnusel = menu->getFreeIdx();
+    wellnameitem->setChecked( wd->wellNameShown() );
+    namemnusel = menu->getFreeID();
     showmnu->insertItem( wellnameitem );
     wellnameitem->setChecked( wd->wellNameShown() );
 
     uiMenuItem* markeritem = new uiMenuItem("Markers");
-    markermnusel = menu->getFreeIdx();
+    markeritem->setChecked( wd->markersShown() );
+    markermnusel = menu->getFreeID();
     showmnu->insertItem( markeritem );
     markeritem->setChecked( wd->markersShown() );
 
-    uiMenuItem* markernameitem = new uiMenuItem("Marker names");
-    markernamemnusel = menu->getFreeIdx();
+    uiMenuItem* markernameitem = new uiMenuItem("Markers");
+    markernameitem->setChecked( wd->markerNameShown() );
+    markernamemnusel = menu->getFreeID();
     showmnu->insertItem( markernameitem );
     markernameitem->setChecked( wd->markerNameShown() );
 
     uiMenuItem* showlogsmnuid = new uiMenuItem("Logs");
-    showlogmnusel = menu->getFreeIdx();
+    showlogsmnuid->setChecked( wd->logsShown() );
+    showlogmnusel = menu->getFreeID();
     showmnu->insertItem( showlogsmnuid );
     showlogsmnuid->setChecked( wd->logsShown() );
 
