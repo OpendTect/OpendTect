@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.22 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.23 2003-11-12 13:21:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,6 +164,7 @@ bool uiExportHorizon::writeAscii()
 	const Geometry::MeshSurface* meshsurf = hor->getSurface( patchid );
 	EM::PosID posid( infld->selIOObj()->key(), patchid );
 	const int nrnodes = meshsurf->size();
+	BufferString str;
 	for ( int idy=0; idy<nrnodes; idy++ )
 	{
 	    const Geometry::PosID geomposid = meshsurf->getPosID(idy);
@@ -185,10 +186,15 @@ bool uiExportHorizon::writeAscii()
 	    }
 	    else
 	    {
-		if ( doxy )
-		    *sdo.ostrm << crd.x << '\t' << crd.y;
-		else
+		if ( !doxy )
 		    *sdo.ostrm << bid.inl << '\t' << bid.crl;
+		else
+		{
+		    // ostreams print doubles awfully
+		    str = "";
+		    str += crd.x; str += "\t"; str += crd.y;
+		    *sdo.ostrm << str;
+		}
 
 		if ( addzpos )
 		{
