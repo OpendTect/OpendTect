@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.4 2005-02-17 10:25:47 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.5 2005-02-20 13:42:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
     			/*!<\returns wether support should be checked */
 protected:
     virtual void	_setKnot( int idx, const Coord3& ) 		= 0;
+    virtual bool	checkSelfIntersection( const RCol& ) const;
 
     int		rowIndex(int row) const { return (row-origo.row)/step.row; }
     int		colIndex(int col) const { return (col-origo.col)/step.col; }

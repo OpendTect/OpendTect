@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.3 2005-02-17 10:25:47 cvskris Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.4 2005-02-20 13:42:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,10 @@ public:
     float	directionInfluence() const;
     void	setDirectionInfluence(float);
 protected:
+
+    bool	checkSelfIntersection( const RCol& ) const;
+
+    IntervalND<float>	boundingBox(const RCol&, bool ownvertices ) const;
 
     Coord3	computeRowDirection(const RCol&) const;
     Coord3	computeColDirection(const RCol&) const;
