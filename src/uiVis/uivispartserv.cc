@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.11 2002-04-11 06:40:52 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.12 2002-04-11 14:34:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
 {
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
+    visBase::DM().selMan().deselnotifer.notify( 
+	mCB(this,uiVisPartServer,selectObjCB) );
 }
 
 
@@ -63,6 +65,22 @@ uiVisPartServer::~uiVisPartServer()
 bool uiVisPartServer::deleteAllObjects()
 {
     return visBase::DM().reInit();
+}
+
+
+void uiVisPartServer::setObjectName( const char* nm, int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    if ( !obj ) return;
+    obj->setName( nm );
+}
+
+
+const char* uiVisPartServer::getObjectName( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    if ( !obj ) return "";
+    return obj->name();
 }
 
 
@@ -231,9 +249,7 @@ void uiVisPartServer::getPickSetData( const char* nm, PickSet& pickset )
     for ( int idx=0; idx<visps->nrPicks(); idx++ )
     {
 	Geometry::Pos pos = visps->getPick( idx );
-	BinID bid( mNINT(pos.x), mNINT(pos.y) );
-	Coord crd = SI().transform( bid );
-	pickset += PickLocation( crd, pos.z );
+	pickset += PickLocation( pos.x, pos.y, pos.z );
     }
 }
 

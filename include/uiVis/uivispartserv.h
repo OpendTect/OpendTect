@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.8 2002-04-11 06:41:00 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.9 2002-04-11 14:36:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
     bool		isOn(int);
 
     ObjectType		getObjectType( int id ) const;
+    void		setObjectName(const char*,int);
+    const char*		getObjectName(int);
 
     bool		deleteAllObjects();
     int			addDataDisplay(uiVisPartServer::ElementType);
