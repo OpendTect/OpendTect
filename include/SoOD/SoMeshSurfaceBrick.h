@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceBrick.h,v 1.1 2003-09-30 13:00:57 kristofer Exp $
+ RCS:		$Id: SoMeshSurfaceBrick.h,v 1.2 2003-10-15 07:36:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "Inventor/lists/SbList.h"
 
 
+class SbMutex;
 class SbVec3f;
 class SbVec2s;
 class SoAction;
@@ -37,7 +38,6 @@ class SoMeshSurfaceBrick : public SoIndexedTriangleStripSet
     SO_NODE_HEADER(SoMeshSurfaceBrick);
 public:
     			SoMeshSurfaceBrick();
-    			~SoMeshSurfaceBrick()			{}
     static void		initClass(void);
 
     SoMFVec3f		normals;
@@ -47,20 +47,26 @@ public:
 
     void		setCoordPtr(const SbVec3f*);
 
-    void		build();
+    void		build(bool lock);
 
     void		invalidate();
-    SbBool		isValid() const;
+    void		doUpdate();
+    int			getValidState() const;
+    			/*<\retval 0 - Everything is OK
+			   \retval 1 - needs update, but is displayable
+			   \retval 2 - is not yet built - nothing to display
+			*/
 
     inline short	getNormalIndex(int relrow, int relcol) const;
     void		invalidateNormal(int);
-    SbBool		isNormalValid(int) const;
-    SbBool		computeNormal(int);
+    SbBool		getNormal(int, SbVec3f& );
     
 private:
+    			~SoMeshSurfaceBrick();
 
     const SbVec3f*	coords;
-    SbBool		invalidFlag;
+    int			validstate;
+    SbMutex*		buildmutex;
 
     void		GLRender(SoGLRenderAction*);
 
@@ -72,6 +78,7 @@ private:
 	    				int=-2,int=-1,int=-2,int=-1);
     int			getValidIndex(int) const;
     bool		getBestDiagonal(int,int,int,int,bool) const;
+    SbBool		computeNormal(int);
 
     SbList<short>	invalidNormals;
 

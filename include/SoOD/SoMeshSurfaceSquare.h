@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceSquare.h,v 1.5 2003-10-09 11:59:59 kristofer Exp $
+ RCS:		$Id: SoMeshSurfaceSquare.h,v 1.6 2003-10-15 07:36:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -121,6 +121,7 @@ private:
 
     int				getCoordIndex(int row,int col) const;
     int				getNeigborIndex(int relrow,int relcol) const;
+    SbBool			getNormal(int row,int col,int res, SbVec3f&);
 
     void			computeBBox();
     SbBool			cullTest(SoState*);
@@ -142,7 +143,7 @@ private:
     SoCoordinate3*		coordptr;
     SoTextureCoordinate2*	texturecoordptr;
 
-    SbList<SoMeshSurfaceSquare*> neigbors;
+    SbList<SoMeshSurfaceSquare*> neighbors;
 
     SbBox3f*			bboxcache;
 
