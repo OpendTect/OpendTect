@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.7 2002-04-25 21:18:39 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.8 2002-04-25 22:49:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,6 +179,8 @@ void uiSeisMMProc::updateCurMachs()
 bool uiSeisMMProc::rejectOK( CallBacker* )
 {
     BufferString msg;
+
+    if ( !running ) return true;
 
     if ( finished )
 	msg = "Do you want to discard log files?";
