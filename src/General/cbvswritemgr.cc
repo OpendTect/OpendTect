@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.14 2002-10-03 07:45:39 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.15 2002-11-27 17:05:10 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -44,6 +44,18 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 CBVSIOMgr::~CBVSIOMgr()
 {
     deepErase( fnames_ );
+}
+
+
+void VBrickSpec::setStd( bool yn )
+{
+    nrsamplesperslab = yn ? 75 : -1;
+    maxnrslabs = 20;
+    if ( yn && getenv("dGB_CBVS_SAMPLES_PER_SLAB") )
+    {
+	nrsamplesperslab = atoi(getenv("dGB_CBVS_SAMPLES_PER_SLAB"));
+	maxnrslabs = 256;
+    }
 }
 
 
