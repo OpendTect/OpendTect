@@ -5,10 +5,11 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.8 2001-12-05 14:44:49 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.9 2002-07-19 14:47:31 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
+#include "cubesampling.h"
 
 
 CBVSInfo::SurvGeom& CBVSInfo::SurvGeom::operator =(
@@ -265,4 +266,22 @@ CBVSInfo::SurvGeom::InlineInfo* CBVSInfo::SurvGeom::gtInfFor( int inl ) const
     int idx = getInfoIdxFor( inl );
     return idx < 0 ? 0
 	 : const_cast<CBVSInfo::SurvGeom::InlineInfo*>(inldata[idx]);
+}
+
+
+bool CBVSInfo::contributesTo( const CubeSampling& cs ) const
+{
+    if ( cs.hrg.start.inl > geom.stop.inl || cs.hrg.stop.inl < geom.start.inl
+      || cs.hrg.start.crl > geom.stop.crl || cs.hrg.stop.crl < geom.start.crl )
+	return false;
+
+    for ( int idx=0; idx<compinfo.size(); idx++ )
+    {
+	const BasicComponentInfo& ci = *compinfo[idx];
+	float stop = ci.sd.atIndex(ci.nrsamples-1);
+	if ( cs.zrg.start-1e-7 > stop || cs.zrg.stop < ci.sd.start-1e-7 )
+	    return false;
+    }
+
+    return true;
 }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.6 2001-06-28 15:05:01 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.7 2002-07-19 14:47:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include <iosfwd>
 class CBVSReader;
 class CBVSInfo;
+class CubeSampling;
 
 
 /*!\brief Manager for reading CBVS file-packs.
@@ -28,7 +29,7 @@ class CBVSReadMgr : public CBVSIOMgr
 {
 public:
 
-			CBVSReadMgr(const char*);
+			CBVSReadMgr(const char*,const CubeSampling* cs=0);
 			~CBVSReadMgr();
 
     const CBVSInfo&	info() const		{ return info_; }
@@ -67,9 +68,10 @@ protected:
     ObjectSet<CBVSReader> readers_;
     ObjectSet<BufferString> fnames_;
     CBVSInfo&		info_;
+    bool		vertical_;
 
-    bool		addReader(istream*);
-    bool		addReader(const char*);
+    bool		addReader(istream*,const CubeSampling*);
+    bool		addReader(const char*,const CubeSampling*);
     int			nextRdrNr(int) const;
     const char*		errMsg_() const;
 

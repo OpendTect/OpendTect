@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.14 2002-06-21 22:37:04 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.15 2002-07-19 14:47:31 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -21,32 +21,50 @@ static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 }
 
 
-CBVSReadMgr::CBVSReadMgr( const char* fnm )
+CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs )
 	: CBVSIOMgr(fnm)
 	, info_(*new CBVSInfo)
+	, vertical_(false)
 {
+    bool foundone = false;
+
     if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO) )
-	addReader( &cin );
-    else
     {
-	bool alreadyfailed = false;
-	while ( 1 )
+	addReader( &cin, cs );
+	if ( !readers_.size() )
+	    errmsg_ = "Standard input contains no relevant data";
+	else
+	    createInfo();
+	return;
+    }
+
+    bool alreadyfailed = false;
+    for ( int fnr=0; ; fnr++ )
+    {
+	BufferString fname = getFileName( fnr );
+	if ( !File_exists((const char*)fname) )
+	    break;
+
+	foundone = true;
+	if ( !addReader(fname,cs) )
 	{
-	    BufferString fname = getFileName( readers_.size() );
-	    if ( !File_exists((const char*)fname) )
-		break;
-
-	    if ( !addReader(fname) )
+	    if ( *(const char*)errmsg_ )
 		return;
-
-	    fnames_ += new BufferString( fname );
 	}
+	else
+	    fnames_ += new BufferString( fname );
     }
 
     if ( !readers_.size() )
-	mkErrMsg( errmsg_, basefname_, "cannot be opened" );
-    else
-	createInfo();
+    {
+	if ( foundone )
+	    mkErrMsg( errmsg_, basefname_, "contains no relevant data" );
+	else
+	    mkErrMsg( errmsg_, basefname_, "cannot be opened" );
+	return;
+    }
+
+    createInfo();
 }
 
 
@@ -71,7 +89,7 @@ const char* CBVSReadMgr::errMsg_() const
 }
 
 
-bool CBVSReadMgr::addReader( const char* fname )
+bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs )
 {
     StreamData sd = StreamProvider(fname).makeIStream();
     if ( !sd.usable() )
@@ -81,16 +99,22 @@ bool CBVSReadMgr::addReader( const char* fname )
 	return false;
     }
 
-    return addReader( sd.istrm );
+    return addReader( sd.istrm, cs );
 }
 
 
-bool CBVSReadMgr::addReader( istream* strm )
+bool CBVSReadMgr::addReader( istream* strm, const CubeSampling* cs )
 {
     CBVSReader* newrdr = new CBVSReader( strm );
     if ( newrdr->errMsg() )
     {
 	errmsg_ = newrdr->errMsg();
+	delete newrdr;
+	return false;
+    }
+
+    if ( cs && !newrdr->info().contributesTo(*cs) )
+    {
 	delete newrdr;
 	return false;
     }
@@ -125,16 +149,20 @@ void CBVSReadMgr::createInfo()
 }
 
 
-#define mErrRet(s) { \
+#define mErrMsgMk(s) \
     errmsg_ = s; \
-    errmsg_ += " for:\n"; \
-    errmsg_ += *fnames_[ireader]; \
+    errmsg_ += " found in:\n"; errmsg_ += *fnames_[ireader];
+
+#define mErrRet(s) { \
+    mErrMsgMk(s) \
     errmsg_ += "\ndiffers from first file"; \
     return false; \
 }
 
 bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 {
+    if ( !ireader ) return true;
+
     const CBVSInfo& ci = rdr->info();
     if ( ci.nrtrcsperposn != info_.nrtrcsperposn )
 	mErrRet("Number of traces per position")
@@ -148,11 +176,28 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
     for ( int icomp=0; icomp<ci.compinfo.size(); icomp++ )
     {
 	const BasicComponentInfo& cicompinf = *ci.compinfo[icomp];
-	const BasicComponentInfo& compinf = *info_.compinfo[icomp];
-	if ( cicompinf.nrsamples != compinf.nrsamples )
-	    mErrRet("Number of samples")
+	BasicComponentInfo& compinf = *info_.compinfo[icomp];
 	if ( !mIS_ZERO(cicompinf.sd.step-compinf.sd.step) )
 	    mErrRet("Sample interval")
+	if ( mIS_ZERO(cicompinf.sd.start-compinf.sd.start) )
+	{
+	    if ( cicompinf.nrsamples != compinf.nrsamples )
+		mErrRet("Number of samples")
+	}
+	else
+	{
+	    StepInterval<float> intv = compinf.sd.interval(compinf.nrsamples);
+	    intv.stop += compinf.sd.step;
+	    if ( !mIS_ZERO(cicompinf.sd.start-intv.stop) )
+	    {
+		mErrMsgMk("Time range")
+		errmsg_ += "\nis unexpected.\nExpected: ";
+		errmsg_ += intv.stop; errmsg_ += " s.\nFound: ";
+		errmsg_ += cicompinf.sd.start; errmsg_ += " s.";
+		return false;
+	    }
+	    vertical_ = true;
+	}
     }
 
     info_.geom.merge( ci.geom );
@@ -192,6 +237,16 @@ BinID CBVSReadMgr::nextBinID() const
 
 bool CBVSReadMgr::goTo( const BinID& bid )
 {
+    if ( vertical_ )
+    {
+	for ( int idx=0; idx<readers_.size(); idx++ )
+	{
+	    if ( !readers_[idx]->goTo(bid) )
+		return false;
+	}
+	return true;
+    }
+
     int rdrnr = curnr_;
 
     while ( !readers_[rdrnr]->goTo( bid ) )
@@ -207,6 +262,16 @@ bool CBVSReadMgr::goTo( const BinID& bid )
 
 bool CBVSReadMgr::toNext()
 {
+    if ( vertical_ )
+    {
+	for ( int idx=0; idx<readers_.size(); idx++ )
+	{
+	    if ( !readers_[idx]->toNext() )
+		return false;
+	}
+	return true;
+    }
+
     if ( !readers_[curnr_]->toNext() )
     {
 	if ( curnr_ == readers_.size()-1 ) return false;
@@ -220,6 +285,16 @@ bool CBVSReadMgr::toNext()
 
 bool CBVSReadMgr::toStart()
 {
+    if ( vertical_ )
+    {
+	for ( int idx=0; idx<readers_.size(); idx++ )
+	{
+	    if ( !readers_[idx]->toStart() )
+		return false;
+	}
+	return true;
+    }
+
     curnr_ = 0;
     return readers_[curnr_]->toStart();
 }
@@ -227,6 +302,16 @@ bool CBVSReadMgr::toStart()
 
 bool CBVSReadMgr::skip( bool fnp )
 {
+    if ( vertical_ )
+    {
+	for ( int idx=0; idx<readers_.size(); idx++ )
+	{
+	    if ( !readers_[idx]->skip(fnp) )
+		return false;
+	}
+	return true;
+    }
+
     if ( !readers_[curnr_]->skip(fnp) )
     {
 	if ( curnr_ == readers_.size()-1 ) return false;
@@ -244,9 +329,38 @@ bool CBVSReadMgr::getHInfo( CBVSInfo::ExplicitData& ed )
 }
 
 
-bool CBVSReadMgr::fetch( void** d, const bool* c, const Interval<int>* s )
+bool CBVSReadMgr::fetch( void** d, const bool* c,
+			 const Interval<int>* selsamps )
 {
-    return readers_[curnr_]->fetch( d, c, s );
+    if ( !vertical_ )
+	return readers_[curnr_]->fetch( d, c, selsamps );
+
+    const BasicComponentInfo& ci = *info_.compinfo[0];
+    int nb = (int)ci.datachar.nrBytes();
+    int ioffs = 0;
+    Interval<int> samps( 0, 0 );
+    int sampoffs = 0;
+    for ( int idx=0; idx<readers_.size(); idx++ )
+    {
+	int nrsampsavailable = readers_[idx]->info().compinfo[0]->nrsamples;
+	samps.stop += nrsampsavailable - 1;
+	/*
+	bool done = selsamps && samps.stop >= selsamps->stop;
+	if ( done ) samps.stop = selsamps->stop;
+
+	if ( !selsamps
+	  || selsamps->stop >= samps.start || selsamps->start <= samps.stop )
+	{
+	    if ( !readers_[idx]->fetch(fnp) )
+		return false;
+	}
+	if ( done ) break;
+	*/
+
+	samps.start = samps.stop + 1;
+    }
+
+    return true;
 }
 
 

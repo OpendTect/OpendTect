@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.12 2001-07-27 15:54:22 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.13 2002-07-19 14:47:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ public:
 
     bool		getHInfo(CBVSInfo::ExplicitData&);
     bool		fetch(void**,const bool* comps=0,
-				const Interval<int>* samps=0);
+				const Interval<int>* samps=0,
+				int offs=0);
 			//!< 'comps',if provided, selects the compnents
 			//!< If 'samps' is non-null, it should hold start
 			//!< and end sample for each component.

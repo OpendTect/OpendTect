@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.11 2001-12-11 14:24:12 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.12 2002-07-19 14:47:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include <basiccompinfo.h>
 #include <scaler.h>
 #include <sets.h>
+class CubeSampling;
 
 
 /*!\brief Data available in CBVS format header and trailer.
@@ -142,6 +143,7 @@ public:
     BufferString		stdtext;
     BufferString		usertext;
 
+    bool			contributesTo(const CubeSampling&) const;
     void			clean()
 				{ compinfo.erase(); geom.inldata.erase();
 				  usertext = ""; }

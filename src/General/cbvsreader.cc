@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.32 2001-12-21 15:05:33 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.33 2002-07-19 14:47:31 bert Exp $";
 
 /*!
 
@@ -570,7 +570,7 @@ bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
 
 
 bool CBVSReader::fetch( void** bufs, const bool* comps,
-			const Interval<int>* samps )
+			const Interval<int>* samps, int offs )
 {
     if ( !hinfofetched )
     {
@@ -595,7 +595,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	if ( samps[icomp].start )
 	    strm_.seekg( samps[icomp].start*bps, ios::cur );
 	strm_.read( (char*)bufs[iselc],
-		(samps[icomp].stop-samps[icomp].start+1) * bps );
+		(samps[icomp].stop-samps[icomp].start+1+offs) * bps );
 	if ( samps[icomp].stop < compinfo->nrsamples-1 )
 	    strm_.seekg( (compinfo->nrsamples-samps[icomp].stop-1)*bps,
 		ios::cur );
