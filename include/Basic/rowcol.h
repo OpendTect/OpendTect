@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.4 2003-05-13 13:39:54 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.5 2003-06-10 06:55:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,18 @@ public:
 		{ row += rc.row; col += rc.col; }
     void	operator-=( const RowCol& rc )
 		{ row -= rc.row; col -= rc.col; }
+    void	operator*=( const RowCol& rc )
+		{ row *= rc.row; col *= rc.col; }
+    void	operator/=( const RowCol& rc )
+		{ row /= rc.row; col /= rc.col; }
     RowCol	operator+( const RowCol& rc ) const
 		{ return RowCol( row+rc.row, col+rc.col ); }
     RowCol	operator-( const RowCol& rc ) const
 		{ return RowCol( row-rc.row, col-rc.col ); }
+    RowCol	operator*( const RowCol& rc ) const
+		{ return RowCol( row*rc.row, col*rc.col ); }
+    RowCol	operator/( const RowCol& rc ) const
+		{ return RowCol( row/rc.row, col/rc.col ); }
     int		operator==( const RowCol& rc ) const
 		{ return row == rc.row && col == rc.col; }
     int		operator!=( const RowCol& rc ) const
