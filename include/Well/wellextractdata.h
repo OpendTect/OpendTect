@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.8 2004-05-09 15:17:12 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.9 2004-05-10 11:14:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,8 +170,11 @@ protected:
     void		getData(const BinIDValueSet&,const Data&,const Track&,
 	    			TypeSet<float>&) const;
     void		getGenTrackData(const BinIDValueSet&,const Data&,
-	    				const Track&,TypeSet<float>&) const;
-    float		calcVal(const Well::Log&,float,float) const;
+	    				const Track&,const Log&,
+					TypeSet<float>&) const;
+    void		addValAtDah(float,const Log&,float,
+	    			    TypeSet<float>&) const;
+    float		calcVal(const Log&,float,float) const;
 };
 
 
