@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.11 2004-05-03 19:01:30 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.12 2004-05-04 07:16:47 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -172,36 +172,28 @@ void uiODTreeTop::removeFactoryCB(CallBacker* cb)
     return true; \
 
 
-bool uiODDisplayTreeItem::factory( uiTreeItem* treeitem, uiODApplMgr* applmgr,
+bool uiODDisplayTreeItem::factory( uiTreeItem* treeitem, uiODApplMgr* appl,
 				int displayid )
 {
-    /*
-    uiVisPartServer* visserv = applmgr->visServer();
-    uiTreeItem* res = 0;
-    if ( visserv->isInlCrlTsl( displayid, 0 ) )
-	res = new uiODInlineTreeItem(displayid);
-    else if ( visserv->isInlCrlTsl( displayid, 1 ) )
-	res = new uiODCrosslineTreeItem(displayid);
-    else if ( visserv->isInlCrlTsl( displayid, 2 ) )
-	res = new uiODTimesliceTreeItem(displayid);
-    else if ( visserv->isVolView(displayid) )
-	res = new uiODVolumeTreeItem(displayid);
-    else if ( visserv->isRandomLine(displayid) )
-	res = new uiODRandomLineTreeItem(displayid);
-    else if ( visserv->isHorizon(displayid) )
-	res = new uiODHorizonTreeItem(displayid);
-    else if ( visserv->isFault(displayid) )
-	res = new uiODFaultTreeItem(displayid);
-    else if ( visserv->isStickSet(displayid) )
-	res = new uiODFaultStickTreeItem(displayid);
-    else if ( visserv->isWell(displayid) )
-	res = new uiODWellTreeItem(displayid);
-    else if ( visserv->isPickSet(displayid) )
-	res = new uiODPickSetTreeItem(displayid);
+    const uiTreeFactorySet* tfs = ODMainWin()->sceneMgr().treeItemFactorySet();
+    if ( !tfs )
+	return false;
 
-    return res ? treeitem->addChild( res ) : 0;
-*/
-    return true;
+    for ( int idx=0; idx<tfs->nrFactories(); idx++ )
+    {
+	mDynamicCastGet( const uiODTreeItemFactory*, treefact,
+			 tfs->getFactory(idx));
+	if ( !treefact ) continue;
+
+	uiTreeItem* res = treefact->create(displayid);
+	if ( res )
+	{
+	    treeitem->addChild( res );
+	    return true;
+	}
+    }
+
+    return false;
 }
 
 	
