@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.8 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.9 2004-04-29 17:05:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.8 2004-04-01 13:39:51 bert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.9 2004-04-29 17:05:32 nanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -166,6 +166,7 @@ void uiODMenuMgr::fillFileMenu()
     manmnu = new uiPopupMenu( &appl, "&Manage");
     mInsertItem( manmnu, "&Seismics ...", mManSeisMnuItm );
     mInsertItem( manmnu, "&Horizons ...", mManHorMnuItm );
+    mInsertItem( manmnu, "&Faults ...", mManFaultMnuItm );
     mInsertItem( manmnu, "&Wells ...", mManWellMnuItm );
     filemnu->insertItem( manmnu );
 
@@ -173,9 +174,10 @@ void uiODMenuMgr::fillFileMenu()
     mInsertItem( filemnu, "E&xit", mExitMnuItm );
 
     impmnus.allowNull();
-    impmnus += impseis; impmnus += imphor; impmnus += impwell; impmnus+= 0;
+    impmnus += impseis; impmnus += imphor; impmnus += impfault; 
+    impmnus += impwell; impmnus+= 0;
     expmnus.allowNull();
-    expmnus += expseis; expmnus += exphor; expmnus+= 0; expmnus+= 0;
+    expmnus += expseis; expmnus += exphor; expmnus+=0; expmnus+=0; expmnus+=0;
 }
 
 
@@ -333,6 +335,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWellAsciiMnuItm: 	mDoOp(Imp,Wll,0); break;
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
     case mManHorMnuItm: 	mDoOp(Man,Hor,0); break;
+    case mManFaultMnuItm: 	mDoOp(Man,Flt,0); break;
     case mManWellMnuItm: 	mDoOp(Man,Wll,0); break;
     case mImpPickMnuItm: 	applMgr().importPickSet(); break;
     case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;

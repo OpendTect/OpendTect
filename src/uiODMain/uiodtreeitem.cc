@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.7 2004-04-29 14:52:13 kristofer Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.8 2004-04-29 17:05:32 nanne Exp $";
 
 
 #include "uiodtreeitemimpl.h"
@@ -35,6 +35,7 @@ static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.7 2004-04-29 14:52:13 krist
 #include "uipickpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiattribpartserv.h"
+#include "uitrackingpartserv.h"
 
 #include "visrandomtrackdisplay.h"
 #include "vissurvwell.h"
@@ -501,6 +502,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 	    	     visserv->getObject(displayid));
 	
     storemnusel = menu->addItem( new uiMenuItem("Store ...") );
+    trackmnusel = menu->addItem( new uiMenuItem("Start tracking ...") );
 
     uiMenuItem* colitm = new uiMenuItem("Use single color");
     colitm->setChecked( !sd->usesTexture() );
@@ -587,6 +589,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
     {
 	menu->setIsHandled(true);
 	applMgr()->storeSurface(displayid);
+    }
+    else if ( mnuid==trackmnusel )
+    {
+	const MultiID& emid = applMgr()->visServer()->getMultiID( displayid );
+	applMgr()->trackServer()->setSceneID( sceneID() );
+	applMgr()->trackServer()->trackHorizon( emid, false );
     }
     else if ( mnuid==reloadmnusel )
     {
@@ -820,7 +828,8 @@ uiODFaultParentTreeItem::uiODFaultParentTreeItem()
 bool uiODFaultParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Load"), 0 );
+    mnu.insertItem( new uiMenuItem("Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("New ..."), 1 );
 
     const int mnuid = mnu.exec();
 
@@ -829,6 +838,12 @@ bool uiODFaultParentTreeItem::showSubMenu()
     
     if ( mnuid == 0 )
 	success = applMgr()->EMServer()->selectFault(mid);
+    else if ( mnuid == 1 )
+    {
+	applMgr()->trackServer()->setSceneID( sceneID() );
+	applMgr()->trackServer()->trackFault( "", true );
+	return true;
+    }
 
     if ( !success )
 	return false;
@@ -867,7 +882,8 @@ uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
 bool uiODHorizonParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Add"), 0 );
+    mnu.insertItem( new uiMenuItem("Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("New ..."), 1 );
 
     const int mnuid = mnu.exec();
 
@@ -875,8 +891,12 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     bool success = false;
     
     if ( !mnuid )
-    {
 	success = applMgr()->EMServer()->selectHorizon(mid);
+    else if ( mnuid == 1 )
+    {
+	applMgr()->trackServer()->setSceneID( sceneID() );
+	applMgr()->trackServer()->trackHorizon( "", true );
+	return true;
     }
 
     if ( !success )
@@ -1374,24 +1394,7 @@ void uiODPlaneDataTreeItem::updateColumnText(int col)
 	uiVisPartServer* visserv = applMgr()->visServer();
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 			visserv->getObject(displayid));
-	CubeSampling cs =  pdd->getCubeSampling(true);
-	BufferString text;
-	switch ( dim )
-	{
-	    case 0:
-		text = cs.hrg.start.inl;
-		break;
-	    case 1:
-		text = cs.hrg.start.crl;
-		break;
-	    case 2:
-		{
-		    float val = cs.zrg.start;
-		    text = SI().zIsTime() ? mNINT(val * 1000) : val;
-		}
-	}
-
-
+	BufferString text = pdd->getManipulationPos();
 	uilistviewitem->setText( text, col );
 	return;
     }

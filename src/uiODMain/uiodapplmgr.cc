@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.17 2004-04-29 14:53:02 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.18 2004-04-29 17:05:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,12 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
+#include "uitrackingpartserv.h"
 #include "vissurvpickset.h"
 #include "vissurvsurf.h"
+#include "vissurvstickset.h"
+#include "visinterpret.h"
+#include "vishingeline.h"
 
 #include "attribdescset.h"
 #include "attribsel.h"
@@ -81,11 +85,13 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     emserv = new uiEMPartServer( applservice );
     wellserv = new uiWellPartServer( applservice );
     wellattrserv = new uiWellAttribPartServer( applservice );
+    trackserv = new uiTrackingPartServer( applservice );
 }
 
 
 uiODApplMgr::~uiODApplMgr()
 {
+    delete trackserv;
     delete pickserv;
     delete nlaserv;
     delete attrserv;
@@ -160,9 +166,14 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	{
 	case Imp:	emserv->importHorizon();	break;
 	case Exp:	emserv->exportHorizon();	break;
-	case Man:	emserv->manageSurfaces();	break;
+	case Man:	emserv->manageSurfaces(true);	break;
 	}
     break;
+    case Flt:
+        switch( at )
+	{
+	case Man:	emserv->manageSurfaces(false);	break;
+	}
     case Wll:
 	switch ( at )
 	{
@@ -333,41 +344,6 @@ void uiODApplMgr::renamePickset( int id )
 }
 
 
-/*
-bool uiODApplMgr::handleSubMenu( int mnuid, int visid, int type )
-{
-    bool selok = false;
-    switch ( type )
-    {
-    case 0:
-    {
-	const AttribSelSpec* as = visserv->getSelSpec( visid );
-	if ( !as ) return false;
-
-	AttribSelSpec myas( *as );
-	selok = attrserv->handleAttribSubMenu( mnuid, myas );
-	if ( selok )
-	{
-	    visserv->setSelSpec( visid, myas );
-	    visserv->resetColorDataType( visid );
-	    visserv->calculateAttrib( visid, false );
-	    sceneMgr().updateTrees();
-	}
-    } break;
-
-    case 1:
-    {
-	selok = emserv->loadAuxData( visserv->getMultiID(visid), mnuid );
-	if ( selok ) handleStoredSurfaceData( visid );
-    } break;
-
-    }
-
-    return selok;
-}
-*/
-
-
 bool uiODApplMgr::getNewData( int visid, bool colordata )
 {
     if ( visid<0 ) return false;
@@ -376,7 +352,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 					: visserv->getSelSpec(visid)));
     
     if ( as.id()!=-1 ) attrserv->updateSelSpec( as );
-    if ( as.id()<-1 && !colordata)
+    if ( as.id()<-1 && !colordata )
     {
 	uiMSG().error( "Cannot find selected attribute" );
 	return false;
@@ -451,6 +427,11 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
 	    return true;
 	}
+	case 3:
+	{
+	    CubeSampling cs = visserv->getCubeSampling( visid );
+	    res = trackserv->setWorkCube( cs );
+	}
     }
 
     setHistogram( visid );
@@ -487,30 +468,32 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 */
 
 
-bool uiODApplMgr::handleEvent( const uiApplPartServer* ps, int evid )
+bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
 {
-    if ( !ps ) return true;
+    if ( !aps ) return true;
 
-    if ( ps == pickserv )
+    if ( aps == pickserv )
 	return handlePickServEv(evid);
-    else if ( ps == visserv )
+    else if ( aps == visserv )
 	return handleVisServEv(evid);
-    else if ( ps == nlaserv )
+    else if ( aps == nlaserv )
 	return handleNLAServEv(evid);
-    else if ( ps == attrserv )
+    else if ( aps == attrserv )
 	return handleAttribServEv(evid);
-    else if ( ps == emserv )
+    else if ( aps == emserv )
 	return handleEMServEv(evid);
-    else if ( ps == wellserv )
+    else if ( aps == wellserv )
 	return handleWellServEv(evid);
+    else if ( aps == trackserv )
+	return handleTrackServEv(evid);
 
     return false;
 }
 
 
-void* uiODApplMgr::deliverObject( const uiApplPartServer* ps, int id )
+void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 {
-    if ( ps == attrserv )
+    if ( aps == attrserv )
     {
 	if ( id == uiAttribPartServer::objNLAModel )
 	    return nlaserv ? (void*)(&nlaserv->getModel()) : 0;
@@ -522,13 +505,104 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* ps, int id )
 }
 
 
+bool uiODApplMgr::handleTrackServEv( int evid )
+{
+    int sceneid = trackserv->sceneID();
+    if ( evid == uiTrackingPartServer::evAddInterpreter )
+    {
+	visSurvey::SurfaceInterpreterDisplay* sid = 
+	    	visSurvey::SurfaceInterpreterDisplay::create();
+	sid->setTrackMan( trackserv->trackManager() );
+	visserv->addObject( sid, sceneid, true );
+	trackserv->setInterpreterID( sceneid, sid->id() );
+    }
+    else if ( evid == uiTrackingPartServer::evAddSurface )
+    {
+	visSurvey::StickSetDisplay* ssd = visSurvey::StickSetDisplay::create();
+	visserv->addObject( ssd, sceneid, true );
+	trackserv->setStickSetID( ssd->id() );
+
+	bool addhorizon = trackserv->isHorizon();
+	const char* nm = trackserv->surfaceName();
+	MultiID mid;
+	bool success = addhorizon ? emserv->createHorizon( mid, nm )
+	    			  : emserv->createFault( mid, nm );
+	if ( !success ) return false;
+	trackserv->setNewSurfaceID( mid );
+	sceneMgr().addSurfaceItem( mid, sceneid, addhorizon );
+	sceneMgr().updateTrees();
+    }
+    else if ( evid == uiTrackingPartServer::evSelStickSet )
+    {
+	int selid = visserv->getSelObjectId();
+	int ssid = trackserv->stickSetID();
+	bool desel = selid == ssid;
+	visserv->setSelObjectId( desel ? -1 : ssid );
+	sceneMgr().disabTree( sceneid, !desel );
+	if ( !desel ) sceneMgr().actMode();
+	mDynamicCastGet(visSurvey::StickSetDisplay*,ssd,
+						visserv->getObject(ssid))
+	if ( ssd )
+	{
+	    ssd->setLineStyle( trackserv->lineStyle() );
+	    ssd->setMarkerStyle( trackserv->markerStyle() );
+	}
+    }
+    else if ( evid == uiTrackingPartServer::evChangeStickSet )
+    {
+	int ssid = trackserv->stickSetID();
+	mDynamicCastGet(visSurvey::StickSetDisplay*,ssd,
+						visserv->getObject(ssid))
+	if ( ssd )
+	{
+	    ssd->setLineStyle( trackserv->lineStyle() );
+	    ssd->setMarkerStyle( trackserv->markerStyle() );
+	}
+    }
+    else if ( evid == uiTrackingPartServer::evFinishInit )
+    {
+	int ssid = trackserv->stickSetID();
+	mDynamicCastGet(visSurvey::StickSetDisplay*,ssd,
+						visserv->getObject(ssid))
+	if ( !ssd ) return false;
+	int stickidx = 0;
+	TypeSet<Coord3> stick;
+	for ( int idx=0; idx<ssd->nrKnots(stickidx); idx++ )
+	    stick += ssd->getKnot( stickidx, idx );
+	trackserv->createSeedFromStickset( stick );
+	trackserv->calcInterpreterCube( stick );
+    }
+    else if ( evid == uiTrackingPartServer::evShowManager )
+    {
+	int interpreterid = trackserv->interpreterID( sceneid );
+//	visserv->launchTrackingManager( interpreterid, 
+//					trackserv->trackManager() );
+    }
+    else if ( evid == uiTrackingPartServer::evGetData )
+    {
+	const CubeSampling cs = trackserv->getAttribCube();
+	const AttribSelSpec* as = trackserv->getSelSpec();
+	if ( !as ) return false;
+	const AttribSliceSet* sliceset = trackserv->getCachedData( *as );
+	AttribSliceSet* newset = attrserv->createOutput( cs, *as, sliceset );
+	trackserv->setSliceSet( newset );
+    }
+    else if ( evid == uiTrackingPartServer::evAddHingeLine )
+    {
+	visSurvey::HingeLineDisplay* hld = 
+	    		visSurvey::HingeLineDisplay::create();
+	hld->setHingeLine( trackserv->hingeLine() );
+	visserv->addObject( hld, sceneid, true );
+    }
+    else
+	pErrMsg("Unknown event from trackserv");
+
+    return true;
+}
+
+
 bool uiODApplMgr::handleWellServEv( int evid )
 {
-    if ( evid == uiWellPartServer::evRefreshMarkers )
-    {} //visserv->refreshMarkers();
-    else
-	pErrMsg("Unknown event from emserv");
-
     return true;
 }
 
@@ -542,7 +616,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	if ( !sceneids.size() ) return false;
 
 	const MultiID& emid = emserv->selEMID();
-	sceneMgr().addHorizonItem( emid, sceneids[0] );
+	sceneMgr().addSurfaceItem( emid, sceneids[0], true );
 	sceneMgr().updateTrees();
 	return true;
     }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.15 2004-04-29 14:53:02 kristofer Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.16 2004-04-29 17:05:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,13 +51,13 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     	, lasthrot(0), lastvrot(0), lastdval(0)
     	, tifs(new uiTreeFactorySet)
 {
-    tifs->addFactory( new uiODRandomLineFactory );
     tifs->addFactory( new uiODInlineFactory );
     tifs->addFactory( new uiODCrosslineFactory );
     tifs->addFactory( new uiODTimesliceFactory );
-    tifs->addFactory( new uiODFaultFactory );
-    tifs->addFactory( new uiODHorizonFactory );
+    tifs->addFactory( new uiODRandomLineFactory );
     tifs->addFactory( new uiODPickSetFactory );
+    tifs->addFactory( new uiODHorizonFactory );
+    tifs->addFactory( new uiODFaultFactory );
     tifs->addFactory( new uiODWellFactory );
     wsp->setPrefWidth( cWSWidth );
     wsp->setPrefHeight( cWSHeight );
@@ -108,7 +108,8 @@ uiODSceneMgr::~uiODSceneMgr()
 
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
-    addScene();
+    if ( !scenes.size() )
+	addScene();
 }
 
 
@@ -453,6 +454,8 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 	//scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
     }
     //scn.itemmanager->addChild( new uiODWellFactoryTreeItem );
+    //scn.itemmanager->addChild( new uiODFaultParentTreeItem );
+    //scn.itemmanager->addChild( new uiODHorizonParentTreeItem );
     //scn.itemmanager->addChild( new uiODPickSetFactoryTreeItem );
     //scn.itemmanager->addChild( new uiODRandomLineFactoryTreeItem );
     //scn.itemmanager->addChild( new uiODVolumeFactoryTreeItem );
@@ -553,6 +556,17 @@ void uiODSceneMgr::disabRightClick( bool yn )
 }
 
 
+void uiODSceneMgr::disabTree( int sceneid, bool yn )
+{
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	Scene& scene = *scenes[idx];
+	if ( scene.sovwr->sceneId() == sceneid )
+	    scene.itemmanager->disabAnyClick( yn );
+    }
+}
+
+
 void uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
 {
     for ( int idx=0; idx<scenes.size(); idx++ )
@@ -565,16 +579,20 @@ void uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
 }
 
 
-void uiODSceneMgr::addHorizonItem( const MultiID& mid, int sceneid )
+void uiODSceneMgr::addSurfaceItem( const MultiID& mid, int sceneid, bool ishor )
 {
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
-	//scene.itemmanager->addChild( new uiODHorizonTreeItem(mid) );
+	uiTreeItem* itm;
+	if ( ishor ) itm = new uiODHorizonTreeItem(mid);
+	else itm = new uiODFaultTreeItem(mid);
+	scene.itemmanager->addChild( itm );
     }
 }
+
 
 
 
@@ -612,3 +630,4 @@ uiDockWin* uiODSceneMgr::Scene::treeWin()
 {
     return lv ? (uiDockWin*)lv->parent() : 0;
 }
+
