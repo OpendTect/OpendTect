@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.5 2001-08-29 15:42:30 bert Exp $
+ RCS:           $Id: uimsg.cc,v 1.6 2001-09-26 21:38:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,35 +92,36 @@ void uiMsg::toStatusbar( MsgClass* mc )
 
 void uiMsg::message( const char* text, const char* caption )
 {
-    QMessageBox::information( parent_ ? parent_ : mainwin_->body()->qwidget(),
+    QMessageBox::information( mainwin_ ? mainwin_->body()->qwidget() : parent_,
 			      QString(caption), QString(text), QString("Ok") );
 }
 
 
 void uiMsg::warning( const char* text, const char* caption )
 {
-    QMessageBox::warning( parent_ ? parent_ : mainwin_->body()->qwidget(),
+    QMessageBox::warning( mainwin_ ? mainwin_->body()->qwidget() : parent_,
 			  QString(caption), QString(text), QString("Ok") );
 }
 
 
 void uiMsg::error( const char* text, const char* caption )
 {
-    QMessageBox::critical( parent_ ? parent_ : mainwin_->body()->qwidget(),
+    QMessageBox::critical( mainwin_ ? mainwin_->body()->qwidget() : parent_,
 			   QString(caption), QString(text), QString("Ok") );
 }
 
 
 void uiMsg::about( const char* text, const char* caption )
 {
-    QMessageBox::about( parent_ ? parent_ : mainwin_->body()->qwidget(),
+    QMessageBox::about( mainwin_ ? mainwin_->body()->qwidget() : parent_,
 			QString(caption), QString(text) );
 }
 
 
 bool uiMsg::askGoOn( const char* text, const char* caption )
 {
-    return !QMessageBox::warning( parent_?parent_ : mainwin_->body()->qwidget(),
+    return !QMessageBox::warning( mainwin_ ? mainwin_->body()->qwidget()
+						: parent_,
 				  QString(caption), QString(text),
 				  QString("Yes"), QString("No"));
 }
