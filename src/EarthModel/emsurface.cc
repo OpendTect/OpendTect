@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.8 2003-06-17 13:33:48 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.9 2003-06-19 10:36:54 bert Exp $";
 
 #include "emsurface.h"
 
@@ -631,4 +631,35 @@ void EM::Surface::cleanUp()
     delete colinterval;
     rowinterval = 0;
     colinterval = 0;
+}
+
+
+void EM::Surface::getRange( StepInterval<int>& rg, bool rowdir ) const
+{
+    const int nrpatches = nrPatches();
+    for ( int idx=0; idx<nrpatches; idx++ )
+    {
+	const EM::PatchID patchid = patchID( idx );
+	const Geometry::GridSurface& gsurf = *getSurface( patchid );
+
+	const Interval<int> colint( gsurf.getColInterval() );
+	const RowCol firstrowcol =
+	    subID2RowCol( getSurfSubID( RowCol(gsurf.firstRow(),colint.start)));
+	const RowCol lastrowcol =
+	    subID2RowCol( getSurfSubID( RowCol(gsurf.lastRow(),colint.stop) ) );
+	if ( !idx )
+	{
+	    rg.start = rowdir ? firstrowcol.row : firstrowcol.col;
+	    rg.stop = rowdir ? lastrowcol.row : lastrowcol.col;
+	}
+	else
+	{
+	    if ( rowdir )
+		{ rg.include( firstrowcol.row ); rg.include( lastrowcol.row ); }
+	    else
+		{ rg.include( firstrowcol.col ); rg.include( lastrowcol.col ); }
+	}
+    }
+
+    rg.step = rowdir ? loadedStep().row : loadedStep().col;
 }

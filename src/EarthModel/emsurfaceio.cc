@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.1 2003-06-17 13:37:40 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.2 2003-06-19 10:36:54 bert Exp $";
 
 #include "emsurfaceio.h"
 
@@ -477,38 +477,8 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
     , filetype( filetype_ )
     , binary( binary_ )
 {
-    const int nrpatches = surface.nrPatches();
-    for ( int idx=0; idx<nrpatches; idx++ )
-    {
-	const EM::PatchID patchid = surface.patchID(idx);
-	const Geometry::GridSurface* gsurf = surface.getSurface(patchid);
-
-	const Interval<int> colint( gsurf->getColInterval() );
-	const RowCol firstrowcol =
-	    surface.subID2RowCol( surface.getSurfSubID(
-				  RowCol(gsurf->firstRow(),colint.start)));
-	const RowCol lastrowcol =
-	    surface.subID2RowCol( surface.getSurfSubID(
-				  RowCol(gsurf->lastRow(),colint.stop)));
-
-	if ( !idx )
-	{
-	    rowrange.start = firstrowcol.row;
-	    rowrange.stop = lastrowcol.row;
-	    colrange.start = firstrowcol.col;
-	    colrange.stop = lastrowcol.col;
-	}
-	else
-	{
-	    rowrange.include( firstrowcol.row );
-	    rowrange.include( lastrowcol.row );
-	    colrange.include( firstrowcol.col );
-	    colrange.include( lastrowcol.col );
-	}
-    }
-
-    rowrange.step = surface.loadedStep().row;
-    colrange.step = surface.loadedStep().col;
+    surface.getRange( rowrange, true );
+    surface.getRange( colrange, false );
 
     par.set( EM::dgbSurfaceReader::rowrangestr,
 	     rowrange.start, rowrange.stop, rowrange.step );
