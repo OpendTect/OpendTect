@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.13 2004-07-21 13:20:29 nanne Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.14 2004-07-30 11:40:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
 				 "Specify pickset parameters","105.0.1"))
     , ctio(*mMkCtxtIOObj(PickSetGroup))
     , import(imp)
+    , xyfld(0)
 {
     BufferString label( import ? "Input " : "Output " );
     label += "Ascii file";
@@ -40,25 +41,20 @@ uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
     filefld->setDefaultSelectionDir( 
 			    IOObjContext::getDataDirName(IOObjContext::Loc) );
 
-    xyfld = new uiGenInput( this, "Positions in:",
-			    BoolInpSpec("X/Y","Inl/Crl") );
-
     ctio.ctxt.forread = !import;
     ctio.ctxt.maychdir = false;
     label = import ? "Output " : "Input "; label += "PickSet";
     objfld = new uiIOObjSel( this, ctio, label );
 
-
     if ( import )
     {
+	xyfld = new uiGenInput( this, "Positions in:",
+				BoolInpSpec("X/Y","Inl/Crl") );
 	xyfld->attach( alignedBelow, filefld );
 	objfld->attach( alignedBelow, xyfld );
     }
     else
-    {
-	xyfld->attach( alignedBelow, objfld );
-	filefld->attach( alignedBelow, xyfld );
-    }
+	filefld->attach( alignedBelow, objfld );
 }
 
 
@@ -85,7 +81,7 @@ bool uiImpExpPickSet::doImport()
     PickSet* ps = new PickSet( psnm );
     ps->color = Color::DgbColor;
 
-    bool doxy = xyfld->getBoolValue();
+    bool doxy = xyfld ? xyfld->getBoolValue() : true;
     bool firstpos = true;
     bool doscale = false;
     PickLocation ploc;
@@ -118,11 +114,10 @@ bool uiImpExpPickSet::doImport()
     sdi.close();
 
     PickSetGroup psg;
-    psg.clear();
     psg.add( ps );
-    BufferString bs;
-    if ( !PickSetGroupTranslator::store( psg, ctio.ioobj, bs ) )
-	{ uiMSG().error(bs); return false; }
+    BufferString errmsg;
+    if ( !PickSetGroupTranslator::store(psg,ctio.ioobj,errmsg) )
+	mErrRet(errmsg);
 
     return true;
 }
@@ -130,6 +125,33 @@ bool uiImpExpPickSet::doImport()
 
 bool uiImpExpPickSet::doExport()
 {
+    PickSetGroup psg;
+    BufferString errmsg;
+    if ( !PickSetGroupTranslator::retrieve(psg,ctio.ioobj,errmsg) )
+	mErrRet(errmsg);
+
+    const char* fname = filefld->fileName();
+    StreamData sdo = StreamProvider( fname ).makeOStream();
+    if ( !sdo.usable() ) 
+    { 
+	sdo.close();
+	mErrRet( "Could not open output file" )
+    }
+
+    for ( int setidx=0; setidx<psg.nrSets(); setidx++ )
+    {
+	PickSet& ps = *psg.get( setidx );
+	char buf[80];
+	for ( int locidx=0; locidx<ps.size(); locidx++ )
+	{
+	    ps[locidx].toString( buf );
+	    *sdo.ostrm << buf << '\n';
+	}
+
+	*sdo.ostrm << '\n';
+    }
+   
+    sdo.close();
     return true;
 }
 
