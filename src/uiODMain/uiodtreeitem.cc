@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.35 2004-06-25 06:58:01 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.36 2004-07-14 15:42:38 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -493,39 +493,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiVisMenu*,menu,cb);
 
-    bool dotrack = false;
-    mGetTrackingBoolean(dotrack);    
-    if ( dotrack && uilistviewitem->isChecked() )
-    {
-	if ( applMgr()->EMServer()->isFullResolution(mid) && 
-	     applMgr()->trackServer()->getTrackerID(mid)==-1 )
-	{
-	    trackmnuid = menu->addItem( new uiMenuItem("Start tracking ...") );
-	    tracksetupmnuid = -1;
-	    toogletrackingmnuid = -1;
-	}
-	else
-	{
-	    trackmnuid = -1;
-	    tracksetupmnuid = menu->addItem(new uiMenuItem("Change setup ..."));
-	    uiMenuItem* tracktooglemnuitem = new uiMenuItem("Enable tracking");
-	    toogletrackingmnuid = menu->addItem(tracktooglemnuitem);
-	    tracktooglemnuitem->setChecked(
-		    applMgr()->trackServer()->isTrackingEnabled(mid));
-	}
-/*
-	uiMenuItem* storemenuitem =  new uiMenuItem("Store");
-	storemnuid = menu->addItem( storemenuitem );
-	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid) );
-*/
-    }
-    else
-    {
-	storemnuid = trackmnuid = tracksetupmnuid = -1;
-    }
-
-    storeasmnuid = menu->addItem( new uiMenuItem("Store as ...") );
-
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
     {
@@ -550,6 +517,46 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	attribstopmnuid = -1;
     }
 
+    uiPopupMenu* trackmnu = menu->getMenu( uiVisSurface::trackingmenutxt );
+    bool dotrack = false;
+    mGetTrackingBoolean(dotrack);    
+    if ( dotrack && uilistviewitem->isChecked() && trackmnu )
+    {
+	if ( applMgr()->EMServer()->isFullResolution(mid) && 
+	     applMgr()->trackServer()->getTrackerID(mid)==-1 )
+	{
+	    trackmnuid = menu->getFreeID();
+	    trackmnu->insertItem( new uiMenuItem("Start tracking ..."), 
+		    		  trackmnuid );
+	    tracksetupmnuid = -1;
+	    toogletrackingmnuid = -1;
+	}
+	else
+	{
+	    trackmnuid = -1;
+	    tracksetupmnuid = menu->getFreeID();
+	    trackmnu->insertItem( new uiMenuItem("Change setup ..."),
+		    		  tracksetupmnuid );
+
+	    uiMenuItem* tracktooglemnuitem = new uiMenuItem("Enable tracking");
+	    toogletrackingmnuid = menu->getFreeID();
+	    trackmnu->insertItem( tracktooglemnuitem, toogletrackingmnuid );
+	    tracktooglemnuitem->setChecked(
+		    applMgr()->trackServer()->isTrackingEnabled(mid) );
+	}
+	storemnuid = -1;
+/*
+	uiMenuItem* storemenuitem =  new uiMenuItem("Store");
+	storemnuid = menu->addItem( storemenuitem );
+	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid) );
+*/
+    }
+    else
+    {
+	storemnuid = trackmnuid = tracksetupmnuid = -1;
+    }
+
+
     EM::PatchID section = -1;
     if ( uivissurf->nrSections()==1 )
 	section = uivissurf->getSection(0);
@@ -562,7 +569,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	cutstopmnuid = cutstartmnuid;
 	uiPopupMenu* cutmenu = 
 	    applMgr()->trackServer()->createTrackerMenu( cutstopmnuid, mid,
-		    					 section, false );
+							 section, false );
 	if ( cutmenu && cutmenu->nrItems() )
 	{
 	    menu->addSubMenu( cutmenu );
@@ -574,7 +581,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	terminatestopmnuid = terminatestartmnuid;
 	uiPopupMenu* terminatemenu = 
 	    applMgr()->trackServer()->createTrackerMenu( terminatestopmnuid,
-		    					 mid, section, true );
+							 mid, section, 
+							 true );
 	if ( terminatemenu && terminatemenu->nrItems() )
 	{
 	    menu->addSubMenu( terminatemenu );
@@ -590,6 +598,8 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	terminatestartmnuid = -1;
 	terminatestopmnuid = -1;
     }
+
+    storeasmnuid = menu->addItem( new uiMenuItem("Store as ...") );
 
 #ifdef __debug__
     reloadmnuid = menu->addItem( new uiMenuItem("Reload") );
