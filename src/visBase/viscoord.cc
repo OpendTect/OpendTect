@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.17 2004-11-16 10:33:03 kristofer Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.18 2004-11-23 13:39:13 nanne Exp $";
 
 #include "viscoord.h"
 
@@ -75,6 +75,12 @@ Transformation*  Coordinates::getDisplayTransformation()
 void Coordinates::setLocalTranslation( const Coord& nc )
 {
     Threads::MutexLocker lock( mutex );
+    setLocalTranslationWithoutLock( nc );
+}
+
+
+void Coordinates::setLocalTranslationWithoutLock( const Coord& nc )
+{
     TypeSet<Coord3> worldpos;
     getPositions(worldpos);
 
@@ -184,7 +190,7 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
 
 	if ( !utmposition && !idx && !size(false) &&
 		(fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
-	    setLocalTranslation(pos);
+	    setLocalTranslationWithoutLock(postoset);
 
 	if ( utmposition )
 	{

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.11 2004-11-16 09:28:08 kristofer Exp $
+ RCS:		$Id: viscoord.h,v 1.12 2004-11-23 13:39:18 nanne Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
 			mCreateDataObj(Coordinates);
     friend		class CoordinatesBuilder;
 
-    void		setDisplayTransformation( Transformation* );
+    void		setDisplayTransformation(Transformation*);
     			/*!<\note All existing
 			     coords will be recalculated back from the old
 			     transformation and transformed by the new one.
@@ -54,15 +54,15 @@ public:
 
     Transformation*	getDisplayTransformation();
 
-    void		setLocalTranslation( const Coord& );
+    void		setLocalTranslation(const Coord&);
     Coord		getLocalTranslation() const;
 
     int			size(bool includedelete=false) const;
-    int			addPos( const Coord3& );
-    Coord3		getPos( int, bool scenespace=false ) const;
-    void		setPos( int,  const Coord3& );
-    void		removePos( int );
-    void		setAutoUpdate( bool );
+    int			addPos(const Coord3&);
+    Coord3		getPos(int,bool scenespace=false) const;
+    void		setPos(int,const Coord3&);
+    void		removePos(int);
+    void		setAutoUpdate(bool);
     bool		autoUpdate();
     void		update();
 
@@ -71,7 +71,9 @@ protected:
     void		getPositions(TypeSet<Coord3>&) const;
     void		setPositions(const TypeSet<Coord3>&);
 
-    void		setPosWithoutLock( int,  const Coord3& );
+    void		setPosWithoutLock(int, const Coord3&);
+    			/*!< Object should be locked when calling */
+    void		setLocalTranslationWithoutLock(const Coord&);
     			/*!< Object should be locked when calling */
 
     int			getFreeIdx();
