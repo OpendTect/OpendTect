@@ -7,21 +7,22 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.22 2004-05-10 13:26:04 nanne Exp $
+ RCS:		$Id: emobject.h,v 1.23 2004-05-12 08:38:34 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "emposid.h"
-#include "callback.h"
 #include "bufstring.h"
+#include "callback.h"
+#include "emposid.h"
 #include "multiid.h"
 
 class IOObj;
 class Executor;
 struct CubeSampling;
 class IOObjContext;
+class Color;
 
 namespace EM
 {
@@ -45,6 +46,10 @@ public:
 
     BufferString		name() const;
 
+    const Color&		preferredColor() const;
+    void			setPreferredColor(const Color&);
+    Notifier<EMObject>		prefColorChange;
+
     virtual Coord3		getPos(const EM::PosID&) const = 0;
     virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,
@@ -56,7 +61,7 @@ public:
     				/*!< Gives positions on the object that are
 				     linked to the posid given
 				*/
-    				
+
     virtual void		setPosAttrib( const EM::PosID&,
 	    					int attr, bool yn );
     virtual bool		isPosAttrib(const EM::PosID&, int attr) const;
@@ -90,6 +95,8 @@ protected:
     ObjectID			id_;
     class EMManager&		manager;
     BufferString		errmsg;
+
+    Color&			preferredcolor;
 
     ObjectSet<TypeSet<PosID> >	posattribs;
     TypeSet<int>		attribs;

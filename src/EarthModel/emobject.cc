@@ -4,10 +4,11 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.18 2004-05-10 13:25:59 nanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.19 2004-05-12 08:38:08 kristofer Exp $";
 
 #include "emobject.h"
 
+#include "color.h"
 #include "emhorizontransl.h"
 #include "emfaulttransl.h"
 #include "emsticksettransl.h"
@@ -61,6 +62,8 @@ EM::EMObject::EMObject( EMManager& emm_, const EM::ObjectID& id__ )
     : manager( emm_ )
     , poschnotifier( this )
     , id_( id__ )
+    , prefColorChange( this )
+    , preferredcolor( *new Color(255, 0, 0) )
 {
     posattrchnotifiers.allowNull();
 }
@@ -70,6 +73,7 @@ EM::EMObject::~EMObject()
 {
     deepErase( posattribs );
     deepErase( posattrchnotifiers );
+    delete &preferredcolor;
 }
 
 
@@ -77,6 +81,20 @@ BufferString EM::EMObject::name() const
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     return ioobj ? ioobj->name() : BufferString("");
+}
+
+
+const Color& EM::EMObject::preferredColor() const
+{ return preferredcolor; }
+
+
+void EM::EMObject::setPreferredColor(const Color& col)
+{
+    if ( col==preferredcolor )
+	return;
+
+    preferredcolor = col;
+    prefColorChange.trigger();
 }
 
 
