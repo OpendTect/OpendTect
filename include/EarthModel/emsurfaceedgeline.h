@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.7 2004-09-07 08:57:10 dgb Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.8 2004-09-07 09:20:57 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -194,6 +194,8 @@ public:
     bool		isInside(const RowCol&, bool undefval ) const;
     bool		isHole() const;
     int			computeArea() const;
+    bool		setRemoveZeroSegments(bool yn);
+    bool		getRemoveZeroSegments() const { return removezerosegs; }
 
     int			nrSegments() const { return segments.size(); }
     void		insertSegment( EdgeLineSegment*, int idx,
@@ -205,6 +207,11 @@ public:
 
     const EM::Surface&	getSurface() const { return surface; }
     EM::SectionID	getSection() const { return section; }
+
+    int			cutLineBy( const RowCol& start, const RowCol& stop,
+	   			   const EdgeLineSegment* dontremove = 0 );
+    			/*!<\returns the index of the segment just after
+			     	     the cuts begins */
 
     Notifier<EdgeLine>	changenotifier;	
 
@@ -225,6 +232,7 @@ protected:
     EM::SectionID		section;
 
     ObjectSet<EdgeLineSegment>	segments;
+    bool			removezerosegs;
 
     static const char*		segmentprefixstr;
     static const char*		nrsegmentsstr;
