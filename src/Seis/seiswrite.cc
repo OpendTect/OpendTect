@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.8 2001-06-18 13:57:50 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.9 2001-12-28 15:49:17 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
@@ -230,7 +230,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 
 void SeisTrcWriter::fillAuxPar( IOPar& iopar ) const
 {
-    if ( nrtrcs < 1 ) return;
+    if ( nrtrcs < 1 || !trl ) return;
 
     FileMultiString fms;
     fms += binids.start.inl; fms += binids.start.crl;
