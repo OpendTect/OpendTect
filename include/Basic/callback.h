@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.6 2000-07-07 13:57:41 dgb Exp $
+ RCS:		$Id: callback.h,v 1.7 2000-09-15 11:24:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,7 @@ protected:
 
 			Notifier( T* c )	{ cber = c; }
 
-    void		trigger()		{ cbs.doCall(cber); }
+    void		trigger(CallBacker* c=0){ cbs.doCall(c ? c : cber); }
 
 };
 
