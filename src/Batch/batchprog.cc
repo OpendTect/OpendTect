@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.36 2003-08-13 13:48:57 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.37 2003-08-15 13:08:42 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -212,7 +212,8 @@ void BatchProgram::killNotify( bool yn )
 
 
 
-bool BatchProgram::writeStatus_( char tag , int status, bool force )
+bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
+				 bool force )
 {
     // if ( !usesock_ ) return true;
 
@@ -223,7 +224,8 @@ bool BatchProgram::writeStatus_( char tag , int status, bool force )
 	force = true;
     }
 
-    if ( !force && elapsed < 1000 )
+    bool hasmessage = errmsg && *errmsg;
+    if ( !force && !hasmessage && elapsed < 1000 )
 	return true;
 
     timestamp_ = Time_getMilliSeconds();
@@ -236,6 +238,9 @@ bool BatchProgram::writeStatus_( char tag , int status, bool force )
 	mErrStrm << "sys: Cannot create socket!" << endl;
 	return false;
     }
+
+    if ( hasmessage )
+	sock->writeErrorMsg( errmsg );
 
     sock->writetag( tag, jobid_, status );
 

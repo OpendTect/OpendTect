@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.10 2003-08-14 13:02:36 arend Exp $
+ RCS:		$Id: batchprog.h,v 1.11 2003-08-15 13:08:21 arend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -42,10 +42,11 @@ public:
     int			realArgsStartAt() const	{ return argshift_; }
     ObjectSet<BufferString>& cmdLineOpts()	{ return opts_; }
 
-    inline bool		writeStatus( char tag, int stat )
-			    { return writeStatus_( tag, stat, true ); }
-    inline bool		updateStatus( char tag, int stat )
-			    { return writeStatus_( tag, stat, false ); }
+    inline bool		writeStatus( char tag, int stat, const char* errmsg=0 )
+			    { return writeStatus_( tag, stat, errmsg, true ); }
+    inline bool		updateStatus( char tag, int stat, const char* errmsg=0 )
+			    { return writeStatus_( tag, stat, errmsg, false ); }
+
 			//! write error msg over sock if sock avail.
     bool		writeErrorMsg( const char* msg );
     bool		pauseRequested()	{ return pausereq_; }
@@ -81,7 +82,7 @@ protected:
     void		progKilled(CallBacker*);
     void		killNotify( bool yn );
 
-    bool		writeStatus_( char tag, int, bool force );
+    bool		writeStatus_( char tag, int, const char*, bool force );
 
     int			exitstat_;
     int			timestamp_;
