@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.4 2004-11-29 10:57:25 bert Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.5 2004-12-07 13:00:51 dgb Exp $";
 
 
 #include "winutils.h"
@@ -35,6 +35,9 @@ extern "C" {
 #endif
 
 static const char* drvstr="/cygdrive/";
+static bool __do_debug_cleanpath = getenv( "DTECT_DEBUG_WINPATH" )
+				 ? true : false;
+
 
 const char* getCleanUnxPath( const char* path )
 {
@@ -61,7 +64,7 @@ const char* getCleanUnxPath( const char* path )
 }
 
 #define mRet(ret) \
-    if ( od_debug_isOn(DBG_SETTINGS) ) \
+    if ( __do_debug_cleanpath ) \
     { \
         BufferString msg("getCleanWinPath for:"); \
 	msg += path; \
