@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.5 2002-03-05 10:20:26 kristofer Exp $
+ RCS:		$Id: executor.h,v 1.6 2002-03-06 13:25:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,10 +61,11 @@ public:
 				bool isfirst=true,bool islast=true);
 };
 
-/*!\brief 
-ExecutorGroup is an Executor that consists of many other executors. Executors
-may be added on the fly while processing. The executors are executed in the
-order in which they where added
+/*!\brief Executor consisting of other executors.
+
+Executors may be added on the fly while processing. The executors are
+executed in the order in which they were added.
+
 */
 
 
@@ -79,13 +80,20 @@ public:
     virtual int		nextStep();
     virtual const char*	message() const;
     virtual int		totalNr() const;
-    virtual int		nrDone() const { return nrdone; }
+    virtual int		nrDone() const;
     virtual const char*	nrDoneText() const;
 
+    void		setNrDoneText( const char* txt )
+			{ nrdonetext = txt; }
+    			//!< If set, will use this and the counted nrdone
+
 protected:
+
     int			currentexec;
     int			nrdone;
+    BufferString	nrdonetext;
     ObjectSet<Executor>& executors;
+
 };
 
 #endif
