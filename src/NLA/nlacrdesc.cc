@@ -4,9 +4,9 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.1 2003-10-02 14:42:53 bert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.2 2003-10-02 14:49:44 bert Exp $";
 
-#include "nladesc.h"
+#include "nlacrdesc.h"
 #include "featset.h"
 #include "ioobj.h"
 #include "ioman.h"

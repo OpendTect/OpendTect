@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.1 2003-10-01 12:51:42 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.2 2003-10-02 14:49:44 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiapplserv.h>
-#include <multiid.h>
+#include "uiapplserv.h"
+#include "multiid.h"
+#include "nlamodel.h"
 class IOPar;
-class FeatureSet;
 class UserIDSet;
+class FeatureSet;
+class NLACreationDesc;
 
 
 /*! \brief Service provider for application level - Non-Linear Analysis
@@ -34,16 +36,20 @@ public:
 
     const char*		name() const			= 0;
     virtual MultiID	modelId() const			= 0;
-    virtual const char*	modelName() const		= 0;
-    virtual IOPar&	modelPars() const		= 0;
     virtual void	reset()				= 0;
     virtual bool	isClassification()		= 0;
     virtual void	getNeededStoredInputs(
 			      const UserIDSet& ioobjnms,
 			      TypeSet<int>&) const	= 0;
-
     virtual bool	go()				= 0;
     			//!< returns whether manageNN should be called again
+    virtual const NLAModel& getModel() const		= 0;
+    virtual const NLACreationDesc& creationDesc() const	= 0;
+
+    virtual const char*	modelName() const
+			{ return getModel().name(); }
+    virtual IOPar&	modelPars() const
+			{ return const_cast<NLAModel&>(getModel()).pars(); }
 
     static const int	evPrepareWrite;
     			//!< need to fill modelPars()
