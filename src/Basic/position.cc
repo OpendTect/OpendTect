@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.19 2002-12-28 12:27:42 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.20 2003-01-20 09:48:47 kristofer Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -897,7 +897,7 @@ bool Coord3::operator==( const Coord3& b ) const
     const float dx = x-b.x; 
     const float dy = y-b.y;
     const float dz = z-b.z;
-    return !mNINT(dx) && !mNINT(dy) && !mNINT(dz);
+    return mIS_ZERO(dx) && mIS_ZERO(dy) && mIS_ZERO(dz);
 }
 
 
