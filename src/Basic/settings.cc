@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.10 2001-05-31 12:55:16 windev Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.11 2001-09-19 12:09:33 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -37,8 +37,13 @@ Settings::Settings( const char* setupf )
     if ( !reRead() )
 	ErrMsg( "Cannot find valid dgbSettings file" );
 
-    const char* res = (*this)["Use new viewers"];
-    if ( !res || !*res ) set( "Use new viewers", "Yes" );
+    bool useold = false;
+    const char* res = find( "Use new viewers" );
+    if ( res )
+	{ useold = !yesNoFromString(res); removeWithKey("Use new viewers"); }
+    res = find( "Use old viewers" );
+    if ( !res )
+	setYN( "Use old viewers", useold );
 }
 
 
