@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.9 2004-10-06 10:08:01 nanne Exp $
+ RCS:		$Id: mathfunc.h,v 1.10 2004-10-06 17:35:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,6 +184,49 @@ public:
 };
 
 
+/*! A class for 2nd order polynomials on the form:
+
+    a x^2 + b x + c
+*/
+
+class SecondOrderPoly : public MathFunction<float>
+{
+public:
+    			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
+			    : a( a_ ), b( b_ ), c( c_ )
+			{}
+
+			/*!Fits the polynomial through the points. The points
+			   are considered to be sampled with y0 at x=-1 and
+			   y2 at x=1
+		        */
+    void		setFromSamples(float y0,float y1,float y2)
+			{
+			    c = y1;
+			    a = ( (y0+y2) / 2 ) - y1;
+			    b = ( y2-y0 ) / 2;
+			}
+
+    float		getValue( double pos ) const
+			{
+			    if ( mIsUndefined(pos) ) return mUndefValue;
+			    return pos *pos * a + pos * b + c;
+			}
+
+    float		getExtremePos() const
+			{
+			    if ( mIsZero(a,mDefEps) ) return mUndefValue;
+			    return -b / (2*a);
+			}
+
+    LinePars*		createDerivative() const
+			{ return new LinePars( b, a*2 ); }
+
+
+    float		a, b, c;
+};
+
+
 /*! A class for 3rd order polynomials on the form:
 
     a x^3 + b x^2 + c x + d
@@ -192,12 +235,21 @@ public:
 class ThirdOrderPoly : public MathFunction<float>
 {
 public:
-    			ThirdOrderPoly(float y0_,float y1_,float y2_,float y3_)
+    			ThirdOrderPoly( float a_=0, float b_=0,
+					float c_=0, float d_=0 )
+			    : a( a_ ), b( b_ ), c( c_ ), d( d_ )
+			{}
+
+			/*!Fits the polynomial through the points. The points
+			   are considered to be sampled with y0 at x=-1 and
+			   y3 at x=2
+		        */
+    void		setFromSamples(float y0,float y1,float y2,float y3)
 			{
-			    b = ( (y2_+y0_) / 2 ) - y1_;
-			    c = y2_ - ( ( 2*y0_ + 3*y1_ + y3_ ) / 6 );
-			    a = ( (y2_-y0_) / 2 ) - c;
-			    d = y1_;
+			    b = ( (y2+y0) / 2 ) - y1;
+			    c = y2 - ( ( 2*y0 + 3*y1 + y3 ) / 6 );
+			    a = ( (y2-y0) / 2 ) - c;
+			    d = y1;
 			}
 
     float		getValue( double pos ) const
@@ -206,6 +258,9 @@ public:
 			    const float possq = pos * pos;
 			    return possq * pos * a + possq * b + pos * c + d;
 			}
+
+    SecondOrderPoly*	createDerivative() const
+			{ return new SecondOrderPoly( a*3, b*2, c ); }
 
     void		getExtremePos( float& pos0, float& pos1 ) const
 			{
@@ -226,37 +281,6 @@ public:
 			}
 
     float		a, b, c, d;
-};
-
-
-/*! A class for 2nd order polynomials on the form:
-
-    a x^2 + b x + c
-*/
-
-class SecondOrderPoly : public MathFunction<float>
-{
-public:
-    			SecondOrderPoly(float y0_,float y1_,float y2_)
-			{
-			    c = y1_;
-			    a = ( (y0_+y2_) / 2 ) - y1_;
-			    b = ( y2_-y0_ ) / 2;
-			}
-
-    float		getValue( double pos ) const
-			{
-			    if ( mIsUndefined(pos) ) return mUndefValue;
-			    return pos *pos * a + pos * b + c;
-			}
-
-    float		getExtremePos() const
-			{
-			    if ( mIsZero(a,mDefEps) ) return mUndefValue;
-			    return -b / (2*a);
-			}
-
-    float		a, b, c;
 };
 
 
