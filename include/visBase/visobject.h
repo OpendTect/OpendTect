@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.2 2002-02-07 14:15:33 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.3 2002-02-08 09:57:29 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -22,11 +22,10 @@ class SoSwitch;
 class SoDrawStyle;
 class SoMaterial;
 
-namespace visBase
-{
-
 class ColorTable;
 
+namespace visBase
+{
 /*!\brief
     Base class for all objects that are visual on the scene.
 */
@@ -44,7 +43,12 @@ public:
 
     virtual void	switchColorMode( bool totable );
     bool		isColorTable() const;
-    ColorTable*		colorTable() { return colortable; }
+
+    virtual void	setColorTable( ColorTable* );
+    			/*!< I will take over you */
+    const ColorTable&	colorTable() const;
+    ColorTable&		colorTable();
+
     SoNode*		getData();
 
 protected:

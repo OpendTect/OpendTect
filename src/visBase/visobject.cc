@@ -5,10 +5,10 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.2 2002-02-07 14:15:22 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.3 2002-02-08 09:57:20 kristofer Exp $";
 
 #include "visobject.h"
-#include "viscolortable.h"
+#include "colortab.h"
 
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoSwitch.h"
@@ -93,6 +93,28 @@ void visBase::VisualObject::switchColorMode( bool totable )
 bool  visBase::VisualObject::isColorTable() const
 {
     return material->whichChild.getValue();
+}
+
+
+void visBase::VisualObject::setColorTable( ColorTable* nct )
+{
+    delete colortable;
+    colortable = nct;
+}
+
+
+const ColorTable& visBase::VisualObject::colorTable() const
+{
+    if ( !colortable )
+	const_cast<VisualObject*>(this)->colortable = new ColorTable;
+    return *colortable;
+}
+
+
+ColorTable& visBase::VisualObject::colorTable()
+{
+    if ( !colortable ) colortable = new ColorTable;
+    return *colortable;
 }
 
 
