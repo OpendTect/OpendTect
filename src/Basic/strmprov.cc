@@ -26,7 +26,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.21 2002-05-16 09:14:39 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.22 2002-05-16 09:33:10 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -40,7 +40,8 @@ bool ExecOSCmd( const char* comm )
     return false;
 #else
     if ( !comm || !*comm ) return false;
-    return system(comm) ? false : true;
+    int res = system(comm);
+    return !res;
 #endif
 }
 
