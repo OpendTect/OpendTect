@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uilayout.h,v 1.5 2002-12-04 09:20:37 arend Exp $
+ RCS:           $Id: uilayout.h,v 1.6 2003-02-17 15:15:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ enum constraintType
     leftTo, rightTo, //!< LeftTo/RightTo allow extra horizonal distance
     leftAlignedBelow, leftAlignedAbove,
     rightAlignedBelow, rightAlignedAbove,
-    alignedBelow, alignedAbove,		//!< Uses uiObject::horAlign()
+    alignedWith, alignedBelow, alignedAbove,	//!< Uses uiObject::horAlign()
     centeredBelow, centeredAbove,	//!< Uses i_LayoutItem::centre()
     centeredLeftOf, centeredRightOf,	//!< Uses i_LayoutItem::centre()
     ensureLeftOf, ensureRightOf,

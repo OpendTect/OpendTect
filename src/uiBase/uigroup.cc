@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.43 2002-12-04 09:27:03 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.44 2003-02-17 15:16:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ public:
 				    , handle_( handle )
 				    , prntbody_( 0 )			
 				{}
-
+/*
 				uiGroupObjBody( uiGroupObj& handle, 
 						uiTabGroup* parnt,
 						const char* nm )
@@ -83,7 +83,7 @@ public:
 				    , handle_( handle )
 				    , prntbody_( 0 )			
 				{}
-
+*/
 #define mHANDLE_OBJ     	uiGroupObj
 #define mQWIDGET_BASE		QFrame
 #define mQWIDGET_BODY   	QFrame
@@ -312,10 +312,12 @@ int uiGroupObjBody::stretch( bool hor, bool ) const
     if( prntbody_->loMngr )
     {
 	s = prntbody_->loMngr->childStretch( hor );
-	if( s )
+	if( s>=0 && s<=2  )
 	{
 	    if( hor )	const_cast<uiGroupObjBody*>(this)->hStretch = s; 
 	    else	const_cast<uiGroupObjBody*>(this)->vStretch = s;
+
+	    return s;
 	}
     }
     return 0;
@@ -464,12 +466,13 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     }
 }
 
-
+/*
 uiGroup::uiGroup( uiTabGroup* p, const char* nm )
     : uiParent( nm, 0 )
     , grpobj_( 0 )
     , body_( 0 )
 {
+
     grpobj_ =  new uiGroupObj( this,p,nm );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
 
@@ -485,7 +488,7 @@ uiGroup::uiGroup( uiTabGroup* p, const char* nm )
     body_->deleteNotify( mCB(this, uiGroup, bodyDel ) );
     grpobj_->deleteNotify( mCB(this, uiGroup, uiobjDel ) );
 }
-
+*/
 uiGroup::~uiGroup()
 {
     if( grpobj_ ) { grpobj_->uigrp_ = 0; delete grpobj_; } 
@@ -600,9 +603,14 @@ uiObject* uiGroup::hAlignObj()
 void uiGroup::setFrame( bool yn )
 {
     if( yn )
-	grpobj_->body_->setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
+	setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
     else
-	grpobj_->body_->setFrameStyle( QFrame::NoFrame );
+	setFrameStyle( QFrame::NoFrame );
+}
+
+void uiGroup::setFrameStyle( int fs )
+{
+    grpobj_->body_->setFrameStyle( fs ); 
 }
 
 void uiGroup::setHAlignObj( uiObject* o )
@@ -628,7 +636,7 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiParent* parnt , const char* nm,
     uigrp_->deleteNotify( mCB(this, uiGroupObj, grpDel ) );
     body_->deleteNotify( mCB(this, uiGroupObj, bodyDel ) );
 }
-
+/*
 uiGroupObj::uiGroupObj( uiGroup* bud, uiTabGroup* parnt , const char* nm )
     : uiObject( 0, nm )
     , uigrp_( bud )
@@ -639,7 +647,7 @@ uiGroupObj::uiGroupObj( uiGroup* bud, uiTabGroup* parnt , const char* nm )
     uigrp_->deleteNotify( mCB(this, uiGroupObj, grpDel ) );
     body_->deleteNotify( mCB(this, uiGroupObj, bodyDel ) );
 }
-
+*/
 
 uiGroupObj::~uiGroupObj()
     { if(uigrp_) { uigrp_->grpobj_ =0; delete uigrp_; }  }

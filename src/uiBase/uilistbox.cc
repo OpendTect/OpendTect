@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.44 2003-01-30 11:34:57 nanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.45 2003-02-17 15:16:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,17 +34,11 @@ public:
 				  int preferredFieldWidth=0);
 
     virtual 		~uiListBoxBody()		{ delete &messenger_; }
-#define __bigstretch
     void 		setLines( int prefNrLines )
 			{ 
 			    if(prefNrLines >= 0) prefnrlines=prefNrLines;
-#ifdef __bigstretch
-			    if( stretch(true) == 2  && stretch(false) != 1 )
-				setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
-#else
 			    if( stretch(true) == 1 && stretch(false) < 2 )
 				setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
-#endif
 			}
 
     virtual uiSize	minimumSize() const; //!< \reimp
@@ -71,11 +65,10 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 	, prefnrlines(preferredNrLines)
 {
     if( isMultiSelect ) setSelectionMode( QListBox::Extended );
-#ifdef __bigstretch
-    setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
-#else
-    setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
-#endif
+
+    int hs = stretch(true,true);
+    setStretch( hs, (nrTxtLines()== 1) ? 0 : 2 );
+
     setHSzPol( uiObject::medium);
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.7 2002-11-20 08:35:59 arend Exp $
+ RCS:           $Id: uitreeview.cc,v 1.8 2003-02-17 15:16:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,17 +32,12 @@ public:
 					const char* nm, int nrl);
 
     virtual 		~uiListViewBody()		{ delete &messenger_; }
-#define __bigstretch
     void 		setLines( int prefNrLines )
 			{ 
 			    if(prefNrLines >= 0) prefnrlines=prefNrLines;
-#ifdef __bigstretch
-			    if( stretch(true) == 2  && stretch(false) != 1 )
-				setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
-#else
-			    if( stretch(true) == 1 && stretch(false) < 2 )
-				setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
-#endif
+
+			    int hs = stretch(true,true);
+			    setStretch( hs, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
     virtual int 	nrTxtLines() const
@@ -70,12 +65,7 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
     , prefnrlines( nrl )
     , lvhandle_(handle)
 {
-#ifdef __bigstretch
-    setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
-#else
     setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
-#endif
-
     setHSzPol( uiObject::medvar ) ;
 
     setSorting( -1 );

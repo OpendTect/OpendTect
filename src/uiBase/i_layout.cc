@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.57 2002-12-04 11:21:38 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.58 2003-02-17 15:16:13 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,6 +326,20 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 
 	    break;
 	}
+
+	case alignedWith:
+	{ 
+	    int malign = horAlign( lom );
+	    int othalign = constr->other->horAlign( lom );
+
+	    if ( malign < 0 || othalign < 0 ) break;
+
+	    if ( mPos.leftToAtLeast( mCP(mPos.left() + othalign - malign)) ) 
+		mUpdated();
+
+	    break;
+	}
+
 	case alignedBelow:
 	{
 	    if ( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
@@ -341,6 +355,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 
 	    break;
 	}
+
 	case alignedAbove:
 	{ 
 	    int malign = horAlign( lom );
@@ -665,6 +680,11 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 			    new uiConstraint( rightAlignedBelow, this, margn ));
 	break;
 
+	case alignedWith:
+	    other-> constrList.append( 
+			    new uiConstraint( alignedWith, this, margn ));
+	break;
+
 	case alignedBelow:
 	    other-> constrList.append( 
 			    new uiConstraint( alignedAbove, this, margn ));
@@ -749,7 +769,7 @@ bool i_LayoutItem::isAligned() const
     for ( constraintIterator it(constrList); 
 				uiConstraint* constr = it.current(); ++it )
     {
-	if ( constr->type >= alignedBelow && constr->type <= centeredAbove )
+	if ( constr->type >= alignedWith && constr->type <= centeredAbove )
 	    return true; 
     }
 
@@ -1034,7 +1054,13 @@ int i_LayoutMngr::childStretch( bool hor ) const
 		    i_LayoutItem* curChld = childIter.current(); ++childIter )
     {
 	uiObjectBody* ccbl = curChld->bodyLayouted();
-	if ( ccbl ) sum = mMAX( sum, ccbl->stretch( hor ) );
+
+	if ( ccbl )
+	{
+	    int cs = ccbl->stretch( hor );
+	    if ( cs < 0 || cs > 2 ) { cout << "yo" << endl; cs = 0; }
+	    sum = mMAX( sum, cs );
+	}
     }
 
     return sum;

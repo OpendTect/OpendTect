@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.28 2002-12-04 15:19:24 nanne Exp $
+ RCS:           $Id: uiobjbody.h,v 1.29 2003-02-17 15:16:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,10 +197,9 @@ public:
 					    && 
 					    p <= uiObject::widemax )
 					{
-					    int hs = mMAX( 2, stretch(true) );
-					    int vs = stretch( false );
+					    int vs = stretch( false, true );
 
-					    setStretch( hs, vs);
+					    setStretch( 2, vs);
 					}
 				    }
 
@@ -211,10 +210,8 @@ public:
 					    &&
 					    p <= uiObject::widemax )
 					{
-					    int hs = stretch( true );
-					    int vs = mMAX( 2, stretch(false) );
-
-					    setStretch( hs, vs);
+					    int hs = stretch( true, true );
+					    setStretch( hs, 2 );
 					}
 
 				    }

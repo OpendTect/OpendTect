@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.26 2002-11-05 15:13:38 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.27 2003-02-17 15:15:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,16 +24,17 @@ class uiGroup;
 class uiGroupObjBody;
 class uiGroupParentBody;
 
-class uiTabGroup;
+//class uiTabGroup;
+//class uiTab;
 
 class QWidget;
+
 
 class uiGroupObj : public uiObject
 { 	
 friend class uiGroup;
 protected:
 			uiGroupObj( uiGroup*,uiParent*, const char*, bool );
-			uiGroupObj( uiGroup*,uiTabGroup*, const char* );
 public:
 
     virtual		~uiGroupObj();
@@ -54,10 +55,10 @@ friend class		uiGroupObjBody;
 friend class		uiGroupParentBody;
 friend class		uiGroupObj;
 friend class		uiMainWin;
+friend class		uiTabGroup;
 public:
 			uiGroup( uiParent* , const char* nm="uiGroup", 
 				 bool manage=true );
-			uiGroup( uiTabGroup* , const char* nm="uiGroup" );
     virtual		~uiGroup();
 
     inline uiGroupObj*	uiObj()				    { return grpobj_; }
@@ -130,7 +131,6 @@ public:
 
     static uiGroup*	gtDynamicCastToGrp( QWidget* );
 
-//
 protected:
 
     uiGroupObj*		grpobj_;
@@ -143,6 +143,9 @@ protected:
 
     void		bodyDel( CallBacker* );
     void		uiobjDel( CallBacker* );
+
+    void		setFrameStyle(int);
+
 };
 
 class NotifierAccess;
