@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: linsolv.h,v 1.2 2000-12-11 10:19:32 dgb Exp $
+ RCS:           $Id: linsolv.h,v 1.3 2001-05-04 16:12:16 bert Exp $
 ________________________________________________________________________
 
 LinSolver - Solves linear systems of equations on the form A*x=B. A is
@@ -56,7 +56,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 
     int imax;
 
-    TypeSet<T> vv( n );
+    TypeSet<T> vv( n, 0 );
 
     for ( int i=0; i<n; i++ )
     {

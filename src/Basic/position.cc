@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.7 2001-03-30 08:52:55 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.8 2001-05-04 16:11:54 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -237,10 +237,10 @@ int BinIDRange::extreme( bool inl, bool mini ) const
 
 int BinIDRange::excludes( const BinID& bid ) const
 {
-    int inlval = (!start.inl || bid.inl >= start.inl-stepout.inl)
-		 && (!stop.inl || bid.inl <= stop.inl+stepout.inl) ? 0 : 2;
-    int crlval = (!start.crl || bid.crl >= start.crl-stepout.crl)
-		 && (!stop.crl || bid.crl <= stop.crl+stepout.crl) ? 0 : 2;
+    int inlval = (!start.inl || bid.inl+stepout.inl >= start.inl)
+		 && (!stop.inl || bid.inl-stepout.inl <= stop.inl) ? 0 : 2;
+    int crlval = (!start.crl || bid.crl+stepout.crl >= start.crl)
+		 && (!stop.crl || bid.crl-stepout.crl <= stop.crl) ? 0 : 2;
     return inlval + crlval * 256;
 }
 
