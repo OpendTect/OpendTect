@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.15 2004-02-25 14:49:48 nanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.16 2004-04-14 09:56:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 
 #include <qvalidator.h>
+#include <math.h>
 
 
 class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QSpinBox>
