@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.15 2001-10-17 11:53:08 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.16 2001-12-13 21:58:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ class uiFont;
 class uiObjectBody;
 class uiParent;
 class uiGroup;
+class uiMainWin;
 class uiButtonGroup;
 class i_LayoutItem;
 
@@ -90,6 +91,7 @@ public:
     void		reDraw( bool deep );
 
     uiParent*		parent() { return parent_; }
+    uiMainWin*		mainwin();
 
 			/*! \brief 'post' constructor.
 			    Will be triggered before an object or its

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.17 2001-12-06 11:02:57 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.18 2001-12-13 21:58:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "uiobjbody.h"
 #include "uigroup.h"
+#include "uimainwin.h"
 #include "uibuttongroup.h"
 #include "i_layout.h"
 #include "i_layoutitem.h"
@@ -220,6 +221,29 @@ void uiObject::triggerSetGeometry( const i_LayoutItem* mylayout, uiRect& geom )
 
 void uiObject::reDraw( bool deep )
     { mBody()->reDraw( deep ); }
+
+uiMainWin* uiObject::mainwin()
+{
+    uiParent* par = parent();
+    if ( !par )
+    {
+	mDynamicCastGet(uiMainWin*,mw,this)
+	return mw;
+    }
+
+    while ( 1 )
+    {
+	mDynamicCastGet(uiMainWin*,mw,par)
+	if ( mw ) return mw;
+
+	mDynamicCastGet(uiObject*,uiobj,par);
+	if ( !uiobj ) return 0;
+
+	par = uiobj->parent();
+	if ( !par ) return 0;
+    }
+    return 0;
+}
 
 
 uiObjectBody::uiObjectBody( uiParent* parnt )
