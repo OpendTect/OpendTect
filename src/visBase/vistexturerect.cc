@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.16 2002-04-26 13:00:09 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.17 2002-04-29 09:03:33 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -134,7 +134,7 @@ void visBase::TextureRect::setRectangle( Rectangle* nr )
 				mCB( this, TextureRect, triggerDeSel ));
 
 	removeChild( rectangle->getData() );
-	visBase::DataManager::manager.unRef( rectangle );
+	rectangle->unRef();
     }
 
     rectangle = nr;
@@ -162,12 +162,13 @@ void visBase::TextureRect::setColorTab( VisColorTab* nr )
 {
     if ( colortable )
     {
-	colortable->change.remove(mCB( this,visBase::TextureRect, updateTexture));
-	visBase::DataManager::manager.unRef( colortable );
+	colortable->change.remove(
+				mCB( this,visBase::TextureRect, updateTexture));
+	colortable->unRef();
     }
 
     colortable = nr;
-    visBase::DataManager::manager.ref( colortable );
+    colortable->ref();
     colortable->change.notify(mCB( this,visBase::TextureRect, updateTexture));
 
 
