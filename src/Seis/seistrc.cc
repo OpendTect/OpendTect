@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.26 2004-08-25 12:27:06 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.27 2004-08-25 14:25:31 bert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -188,7 +188,7 @@ void SeisTrc::copyDataFrom( const SeisTrc& trc, int tarcomp, bool forcefloats )
     {
 	DataCharacteristics dc = forcefloats
 	    			? DataCharacteristics()
-				: data().getInterpreter(icomp)->dataChar();
+				: trc.data().getInterpreter(icomp)->dataChar();
 	const int sz = trc.size(icomp);
 
 	if ( data().nrComponents() <= icomp )
