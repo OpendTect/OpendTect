@@ -2,10 +2,12 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_xterm_exec,v 1.5 2004-03-23 16:33:12 bert Exp $
+# $Id: od_xterm_exec,v 1.6 2004-09-22 13:33:41 dgb Exp $
 #
 # script to run in xterm for od_exec
 #_______________________________________________________________________________
+
+if ( $?DTECT_DEBUG ) set verbose=yes
 
 set askclose=0
 

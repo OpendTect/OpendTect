@@ -2,10 +2,12 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.9 2004-02-12 15:50:49 bert Exp $
+# $Id: od_do_rmt,v 1.10 2004-09-22 13:33:41 dgb Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
+
+if ( $?DTECT_DEBUG ) set verbose=yes
 
 set comm=""
 
@@ -14,14 +16,16 @@ next_arg:
 if ( $1 == "+-+" ) then
 
 	shift
-	eval $comm
+	set cmd=`echo $comm | sed "s%-=-%'%g"`
+	eval $cmd
 	set comm=""
 	goto next_arg
 
 else if ( $1 == "+-+-+" ) then
 
 	shift
-	eval $comm
+	set cmd=`echo $comm | sed "s%-=-%'%g"`
+	eval $cmd
 	goto do_rest
 
 else
@@ -34,14 +38,15 @@ endif
 
 do_rest:
 
-if ( -e $DTECT_APPL/bin/init_dtect ) then
+if ( -e "$DTECT_APPL/bin/init_dtect" ) then
     if ( $?DTECT_DEBUG ) echo "$0 : sourcing $DTECT_APPL/bin/init_dtect"
-    source $DTECT_APPL/bin/init_dtect
+    source "$DTECT_APPL/bin/init_dtect"
 endif
 
 if ( $?DTECT_DEBUG ) then
 
     set logfile=/tmp/oddebug$$.log
+    echo "logging to $logfile"
     echo "$0 : DTECT_DATA = $DTECT_DATA" > $logfile
     echo "$0 : DTECT_APPL = $DTECT_APPL" >> $logfile
     if ( $?DTECT_USER ) then
@@ -66,11 +71,11 @@ if ( $?DTECT_DEBUG ) then
     endif
 
     echo "$0 : $DTECT_APPL/bin/od_exec $*" >> $logfile
-    $DTECT_APPL/bin/od_exec $* >> $logfile
+    "$DTECT_APPL/bin/od_exec" $* >> $logfile
 
 else
 
-    $DTECT_APPL/bin/od_exec $*
+    "$DTECT_APPL/bin/od_exec" $*
 
 endif
 
