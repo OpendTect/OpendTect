@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.9 2004-10-07 05:51:57 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.10 2004-10-07 19:11:45 kristofer Exp $";
 
 
 
@@ -92,10 +92,12 @@ bool SurfaceCutLine::shouldSurfaceTrack(int idx, const RowCol& dir) const
 	return true;
 
     //Dont track if we are tracking in the direction of the existing line
-    const RowCol backdir = ((idx
-		? (*this)[idx-1]-(*this)[idx]
-		: (*this)[0]-(*this)[1])).getDirection();
-    const float angle = backdir.counterClockwiseAngleTo(dir);
+    const RowCol backnode = idx ? (*this)[idx-1] : (*this)[1];
+    const RowCol& curnode = (*this)[idx];
+
+    const RowCol backdir = (backnode-curnode).getDirection();
+    const float angle = idx ? backdir.counterClockwiseAngleTo(dir)
+			    : backdir.clockwiseAngleTo(dir);
     static const float undredtwentydegrees = M_PI+M_PI/3;
     return angle<undredtwentydegrees;
 }
@@ -156,7 +158,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	return false;
     }
 
-    const RowCol& rc = (*this)[start];
+    const RowCol& sourcerc = (*this)[start];
 
     RowCol backnode;
     if ( !getNeighborNode(start, !forward, backnode, prev, next ) )
@@ -165,7 +167,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	    return false;
     }
 
-    const RowCol backnodedir = (backnode-rc).getDirection();
+    const RowCol backnodedir = (backnode-sourcerc).getDirection();
     const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
     const int nrdirs = dirs.size();
     int curdiridx = dirs.indexOf(backnodedir) + nrdirs;
@@ -179,6 +181,32 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
     bool changebestposition = false;
     Coord3 bestpos;
     float bestscore = mUndefValue;
+
+
+    const int backnodecacheidx = cacherc.indexOf(backnode,false);
+    float backnodedistance;
+    if ( backnodecacheidx==-1 )
+    {
+	const Coord3 pos = surface.geometry.getPos( section, backnode );
+	poscache += pos;
+	if (  pos.isDefined() )
+	{
+	    backnodedistance = cuttingsurface->geometry.normalDistance(pos,t2d);
+	    if ( cutonpositiveside ) backnodedistance = -backnodedistance;
+	}
+	else
+	    backnodedistance = mUndefValue;
+
+	distcache += backnodedistance;
+	cacherc += backnode;
+	ischanged += false;
+    }
+    else
+	backnodedistance = distcache[backnodecacheidx];
+
+    if ( !mIsUndefined(backnodedistance) && backnodedistance>meshdist/16 )
+	rightsidefound = true;
+
     for ( int idx=1; idx<nrdirs; idx++ )
     {
 	//Ignore the first, since that is the backnode
@@ -189,7 +217,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	if ( firstfound && !curdir.isNeighborTo(lastdefineddir,RowCol(1,1),true ) )
 	    break;
 
-	const RowCol currc = curdir*step+rc;
+	const RowCol currc = curdir*step+sourcerc;
 	const int cacheidx = cacherc.indexOf(currc,false);
 	float distance;
 	if ( cacheidx==-1 )
@@ -234,7 +262,8 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 		Coord3 curbestpos;
 		bool changecurbestpos;
 		const float curscore =
-		    computeScore( currc, changecurbestpos, curbestpos );
+		    computeScore( currc, changecurbestpos, curbestpos,
+			    	  &sourcerc );
 		if ( !mIsUndefined(curscore) &&
 			curscore<meshdist/2 && curscore<=bestscore )
 		{
@@ -254,7 +283,8 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 		Coord3 curbestpos;
 		bool changecurbestpos;
 		const float curscore =
-		    computeScore( currc, changecurbestpos, curbestpos );
+		    computeScore( currc, changecurbestpos, curbestpos,
+			          &sourcerc );
 		if ( !mIsUndefined( curscore ) &&
 			curscore<meshdist/16 && curscore<=bestscore  )
 		{
@@ -273,11 +303,12 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 		if ( bestidx!=-1 )
 		    break;
 
-		const RowCol prevrc = prevdir*step+rc;
+		const RowCol prevrc = prevdir*step+sourcerc;
 		Coord3 prevbestpos;
 		bool changeprevbestpos;
 		const float prevscore =
-		    computeScore( prevrc, changeprevbestpos, prevbestpos );
+		    computeScore( prevrc, changeprevbestpos, prevbestpos,
+			          &sourcerc );
 
 		if ( !mIsUndefined( prevscore ) && !changeprevbestpos )
 		{
@@ -289,7 +320,8 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 		Coord3 curbestpos;
 		bool changecurbestpos;
 		const float curscore =
-		    computeScore( currc, changecurbestpos, curbestpos );
+		    computeScore( currc, changecurbestpos, curbestpos,
+			          &sourcerc );
 
 		if ( mIsUndefined(prevscore)&&mIsUndefined(curscore) )
 		break;
@@ -314,11 +346,12 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
     {
 	if ( rightsidefound )
 	{
-	    const RowCol prevrc = lastdefineddir*step+rc;
+	    const RowCol prevrc = lastdefineddir*step+sourcerc;
 	    Coord3 prevbestpos;
 	    bool changeprevbestpos;
 	    const float prevscore =
-		computeScore( prevrc, changeprevbestpos, prevbestpos );
+		computeScore( prevrc, changeprevbestpos, prevbestpos,
+			      &sourcerc );
 
 	    if ( !mIsUndefined(prevscore) && prevscore<meshdist/2 )
 	    {
@@ -331,7 +364,7 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 	    return false;
     }
 
-    const RowCol newrc = rc+dirs[bestidx%nrdirs]*step;
+    const RowCol newrc = sourcerc+dirs[bestidx%nrdirs]*step;
     if ( forward )
 	(*this) += newrc;
     else insert( 0, newrc );
@@ -718,15 +751,15 @@ bool SurfaceCutLine::internalIdenticalSettings(
 }
 
 
-float SurfaceCutLine::computeScore( const RowCol& rc, bool& changescorepos,
-				    Coord3& scorepos )
+float SurfaceCutLine::computeScore( const RowCol& targetrc,
+	bool& changescorepos, Coord3& scorepos, const RowCol* sourcerc )
 {
-    const int cacheidx = cacherc.indexOf(rc,false);
+    const int cacheidx = cacherc.indexOf(targetrc,false);
     float distance;
     Coord3 pos;
     if ( cacheidx==-1 )
     {
-	poscache += pos = surface.geometry.getPos( section, rc );
+	poscache += pos = surface.geometry.getPos( section, targetrc );
 	if (  pos.isDefined() )
 	{
 	    distance = cuttingsurface->geometry.normalDistance(pos,t2d);
@@ -736,7 +769,7 @@ float SurfaceCutLine::computeScore( const RowCol& rc, bool& changescorepos,
 	    distance = mUndefValue;
 
 	distcache += distance;
-	cacherc += rc;
+	cacherc += targetrc;
 	ischanged += false;
     }
     else
@@ -748,17 +781,33 @@ float SurfaceCutLine::computeScore( const RowCol& rc, bool& changescorepos,
     if ( !pos.isDefined() )
 	return mUndefValue;
 
-    const Interval<float> xinterval( pos.x-10, pos.x+10 );
-    const Interval<float> yinterval( pos.y-10, pos.y+10 );
-    const StepInterval<float>& zrange = SI().zRange();
-    const Interval<float> zinterval( zrange.start, zrange.stop );
-
     TypeSet<PosID> cuttingnodes;
-    cuttingsurface->geometry.findPos( xinterval,yinterval,zinterval,
-				      &cuttingnodes );
-
-    if ( !cuttingnodes.size() )
+    if ( !getCuttingPositions( pos, cuttingnodes ) )
 	return mUndefValue;
+    
+    if ( !cuttingnodes.size() )
+    {
+	// If we don't find any cutting nodes, it might be that they are spaced
+	// with double spacing here (which is bad). If there is a cutting node
+	// in the continuation, we can give a score, since we are surrounded
+	// by the cutting surface
+	//
+	// Should perhaps be removed later
+	if ( !sourcerc )
+	    return mUndefValue;
+
+	const Coord backpos = surface.geometry.getPos( section, *sourcerc );
+	const Coord diff( pos.x-backpos.x, pos.y-backpos.y);
+	const Coord targetpos(pos.x+diff.x,pos.y+diff.y);
+
+	if ( getCuttingPositions(targetpos,cuttingnodes) && cuttingnodes.size())
+	{
+	    changescorepos = false;
+	    return distance;
+	}
+
+	return mUndefValue;
+    }
 
     scorepos = pos;
 
@@ -840,6 +889,21 @@ float SurfaceCutLine::computeScore( const RowCol& rc, bool& changescorepos,
 
     return score;
 }
+
+
+bool SurfaceCutLine::getCuttingPositions( const Coord& pos,
+					  TypeSet<EM::PosID>& cuttingnodes )
+{
+    const Interval<float> xinterval( pos.x-10, pos.x+10 );
+    const Interval<float> yinterval( pos.y-10, pos.y+10 );
+    const StepInterval<float>& zrange = SI().zRange();
+    const Interval<float> zinterval( zrange.start, zrange.stop );
+
+    cuttingsurface->geometry.findPos( xinterval,yinterval,zinterval,
+				      &cuttingnodes );
+    return true;
+}
+
 
 void SurfaceCutLine::fillPar(IOPar& par) const
 {

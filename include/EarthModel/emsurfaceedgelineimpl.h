@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.6 2004-09-21 16:01:33 kristofer Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.7 2004-10-07 19:12:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -121,7 +121,10 @@ protected:
 
     float		computeScore( const RowCol&,
 	    			      bool& changescorepos,
-				      Coord3& scorepos );
+				      Coord3& scorepos, const RowCol* source);
+
+    bool		getCuttingPositions( const Coord&,
+	    				     TypeSet<EM::PosID>& );
     
     TypeSet<RowCol>	cacherc;
     TypeSet<Coord3>	poscache;
