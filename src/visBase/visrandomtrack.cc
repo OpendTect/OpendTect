@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.9 2003-02-27 16:43:42 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.10 2003-03-04 14:47:05 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -363,7 +363,7 @@ void visBase::RandomTrack::motionCB(void* data,
 
 void visBase::RandomTrack::setResolution( int res )
 {
-    for ( int idx=0; sections.size(); idx++ )
+    for ( int idx=0; idx<sections.size(); idx++ )
 	sections[idx]->getTexture2()->setResolution( res );
 }
 
