@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.7 2001-09-26 14:58:33 dgb Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.8 2001-10-04 09:06:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,14 +72,14 @@ protected:
 					i_LayoutItem *other, int margin);
 
     virtual uiObject*		objLayouted()		{ return 0; }
-    inline uiObject*		objLayouted() const
+    inline const uiObject*	objLayouted() const
 				{ 
 				    return const_cast<i_LayoutItem*>
 							(this)->objLayouted(); 
 				}
 
     virtual uiObjectBody*	bodyLayouted()		{ return 0; }
-    inline uiObjectBody*	bodyLayouted() const
+    inline const uiObjectBody*	bodyLayouted() const
 				{ 
 				    return const_cast<i_LayoutItem*>
 							(this)->bodyLayouted(); 

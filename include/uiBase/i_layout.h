@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.17 2001-09-28 08:33:46 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.18 2001-10-04 09:06:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ public:
 
 			i_LayoutMngr( QWidget* prnt,
 				      int border, int space,
-				      const char* name=0 );
+				      const char* name );
 
     virtual		~i_LayoutMngr();
  

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.19 2001-09-27 16:17:04 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.20 2001-10-04 09:06:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,42 +39,43 @@ protected:
 };
 
 
-class uiGroupObjBody  : public uiObjectBody,
-			public QWidget
+class uiGroupObjBody  : public uiObjectBody, public QWidget
 { 	
-    friend class 	uiMainWin;
-    friend class 	uiDialog;
-    friend class 	i_LayoutMngr;
-    friend class	i_uiGroupLayoutItem;
+    friend class 		uiMainWin;
+    friend class 		uiDialog;
+    friend class 		i_LayoutMngr;
+    friend class		i_uiGroupLayoutItem;
 public:
-			uiGroupObjBody( uiGroupObj& handle, uiParent* parnt,
-					const char* nm)
-			    : uiObjectBody( parnt )
-                            , QWidget( parnt && parnt->body() ?  
+				uiGroupObjBody( uiGroupObj& handle, 
+						uiParent* parnt,
+						const char* nm)
+				    : uiObjectBody( parnt )
+				    , QWidget( parnt && parnt->body() ?  
 					parnt->body()->managewidg() : 0, nm )
-                            , handle_( handle )
-			    , prntbody_( 0 )			{}
+				    , handle_( handle )
+				    , prntbody_( 0 )			{}
 
-#define mHANDLE_OBJ     uiGroupObj
-#define mQWIDGET_BASE   QWidget
-#define mQWIDGET_BODY   QWidget
-#include                "i_uiobjqtbody.h"
+#define mHANDLE_OBJ     	uiGroupObj
+#define mQWIDGET_BASE		QWidget
+#define mQWIDGET_BODY   	QWidget
+#include               		"i_uiobjqtbody.h"
 
 public:
 
-    virtual void        reDraw( bool deep );
-    void		setPrntBody (uiGroupParentBody* pb)
-			    { prntbody_ = pb; }
+    virtual void        	reDraw( bool deep );
+    void			setPrntBody (uiGroupParentBody* pb)
+				    { prntbody_ = pb; }
 
-    virtual int		stretch( bool hor, bool ) const;
+    virtual int			stretch( bool hor, bool ) const;
 
 protected:
 
-    uiGroupParentBody*	prntbody_;
+    uiGroupParentBody*		prntbody_;
 
-    virtual i_LayoutItem* mkLayoutItem_( i_LayoutMngr& mngr );
+    virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mngr );
 
-    virtual void	finalise_();
+    virtual void		finalise_();
+
 };
 
 
@@ -176,12 +177,12 @@ i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
     if( !prntbody_ ) 
 	{ pErrMsg("Yo. No parentbody yet."); return 0; }
 #endif
-    i_uiGroupLayoutItem* itm = 
+    i_uiGroupLayoutItem* loitm = 
 			new i_uiGroupLayoutItem( mngr, *this, *prntbody_ );
 
 //    prntbody_->loMngr->setLayoutPosItm( itm );
 
-    return itm;
+    return loitm ;
 }
 
 void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
@@ -199,7 +200,21 @@ i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mngr,
 
 int i_uiGroupLayoutItem::horAlign(layoutMode m) const 
 {
+
     int	offs = mngr().pos(m).left() + pos(m).left();
+
+//    int shift = grpprntbody.loMngr->pos(preferred).left()
+//		- grpprntbody.loMngr->pos(m).left();
+    int shift = mngr().pos(preferred).left()
+		- mngr().pos(m).left();
+#ifdef __debug__
+    static bool print = true;
+    if( shift && shift != offs  && print)
+    {
+	print=false;
+	pErrMsg( "Arend Investigate: shift is not equal to offset." ); 
+    }
+#endif
 
     int border = grpprntbody.loMngr->borderSpace();
 
@@ -210,7 +225,7 @@ int i_uiGroupLayoutItem::horAlign(layoutMode m) const
 
 	if( halobjbody ) halignitm = halobjbody->layoutItem();
 
-	if( halignitm ) return halignitm->horAlign(m) + offs + border;
+	if( halignitm ) return halignitm->horAlign(m) + border + offs;
     }
 
     return offs;

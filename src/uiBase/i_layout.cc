@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.28 2001-09-28 09:01:56 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.29 2001-10-04 09:06:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,7 +252,7 @@ int i_LayoutItem::isPosOk( uiConstraint* c, int i )
 
 
 #define mCP(val)	isPosOk(constr,(val))
-#define mUpdated()	{ isPosOk(constr,MAX_ITER-iteridx); *chupd=true; }
+#define mUpdated()	{ isPosOk(constr,max_pos-iteridx); *chupd=true; }
 
 #else
 
@@ -266,9 +266,9 @@ void i_LayoutItem::layout( layoutMode m, const int iteridx, bool* chupd )
 //    if ( !constrList ) return;
 
 #define mHorSpacing \
-    (constr->margin >= 0 ? constr->margin+1 : mngr_.horSpacing()+1)
+    (constr->margin >= 0 ? constr->margin : mngr_.horSpacing())
 #define mVerSpacing \
-    (constr->margin >= 0 ? constr->margin+1 : mngr_.verSpacing()+1)
+    (constr->margin >= 0 ? constr->margin : mngr_.verSpacing())
 
 
     uiRect& mPos = pos(m);
@@ -280,7 +280,8 @@ void i_LayoutItem::layout( layoutMode m, const int iteridx, bool* chupd )
     {
 	++it;
 
-	uiRect otherPos = constr->other ? constr->other->pos(m) : uiRect();
+	const uiRect& otherPos 
+		= constr->other ? constr->other->pos(m) : pos(m);
 
 	switch ( constr->type )
 	{
@@ -478,8 +479,6 @@ void i_LayoutItem::layout( layoutMode m, const int iteridx, bool* chupd )
 		break;
 
 	}
-
-
     }
 }
 
@@ -629,7 +628,8 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt, int border, int space,
 			    , prevGeometry()
 			    , minimumDone( false )
 			    , preferredDone( false )
-			    , ismain( parnt ? parnt->isTopLevel() : false )
+			    , ismain( false )
+//			    , ismain( parnt ? parnt->isTopLevel() : false )
 {}
 
 
@@ -688,7 +688,22 @@ QSize i_LayoutMngr::sizeHint() const
 */
 
     if( ismain )
-	return QSize( mPos.hNrPics() + 2 + 10 , mPos.vNrPics() + 6 );
+    {
+	int hor = mPos.hNrPics() + 2;
+	int ver = mPos.vNrPics() + 6;
+#if 0
+	BufferString msg;
+	msg+="SizeHint on ";
+	msg += UserIDObject::name();
+	msg += ", returning : (";
+	msg +=hor;
+	msg +=" , ";
+	msg += ver;
+	msg += ").";
+	pErrMsg(msg);
+#endif
+	return QSize( hor , ver );
+    }
     else
 #endif
 	return QSize( mPos.hNrPics(), mPos.vNrPics() );
@@ -792,11 +807,6 @@ void i_LayoutMngr::fillResizeList( ObjectSet<resizeItem>& resizeList,
     {
         ++childIter;
 
-#ifdef __debug__
-    BufferString nm = curChld->objLayouted() ? 
-		    (const char*)curChld->objLayouted()->name() : "unknown" ;
-#endif
-
 	int hs = curChld->stretch(true);
 	int vs = curChld->stretch(false);
 
@@ -840,82 +850,80 @@ void i_LayoutMngr::moveChildrenTo(int rTop, int rLeft, layoutMode m )
     }
 }
 
-bool i_LayoutMngr::tryToGrowItem( resizeItem& cur, 
+bool i_LayoutMngr::tryToGrowItem( resizeItem& itm, 
 				  const int maxhdelt, const int maxvdelt,
 				  int hdir, int vdir,
 				  const QRect& targetRect )
 {
+/*
     BufferString msg;
-    msg+= cur.item && cur.item->objLayouted() ? 
-		    (const char*)cur.item->objLayouted()->name() : "UNKNOWN";
-
+    msg+= itm.item && itm.item->objLayouted() ? 
+		    (const char*)itm.item->objLayouted()->name() : "UNKNOWN";
+*/
 
     layoutChildren( setGeom );
     uiRect childrenBBox = childrenRect(setGeom);  
 
-#if 0
-// don't touch groups that have a horalignobj...
-    mDynamicCastGet(i_uiGroupLayoutItem*,gli,cur.item);
-    if( gli )
-	return false;
-#endif
-
     int tgtnrhpx = targetRect.width();
     int tgtnrvpx = targetRect.height();
 
-
-//    bool done_something = false;
-
-    uiRect& myGeomtry  = cur.item->pos( setGeom );
-    const uiRect& minGeom = cur.item->pos( minimum );
-    const uiRect& refGeom = cur.item->pos( preferred );
+    uiRect& myGeomtry  = itm.item->pos( setGeom );
+    const uiRect& minGeom = itm.item->pos( minimum );
+    const uiRect& refGeom = itm.item->pos( preferred );
 
     bool hdone = false;
     bool vdone = false;
 
-    if( cur.hStr>1 && 
-		( myGeomtry.right()+hdir+borderSpace() < targetRect.right()) ) 
+    if( itm.hStr>1 && 
+		( myGeomtry.right()+hdir < targetRect.right()) ) 
 	hdir = abs(hdir);
-    if( cur.vStr>1 && 
-		( myGeomtry.bottom()+vdir+borderSpace() < targetRect.bottom()) )
+    if( itm.vStr>1 && 
+		( myGeomtry.bottom()+vdir < targetRect.bottom()) )
 	vdir = abs(vdir);
 
-    //if( doh && cur.nhiter ) 
-    if( hdir && cur.nhiter>0
-        && ( (cur.hStr>1) || (abs(cur.hDelta+hdir) <= abs(maxhdelt)))
+    int oldrgt = myGeomtry.right();
+    int oldbtm = myGeomtry.bottom();
+
+    if( hdir && itm.nhiter>0
+        && ( (itm.hStr>1) || (abs(itm.hDelta+hdir) <= abs(maxhdelt)))
         &&!( (hdir>0) && 
-            (  ( myGeomtry.right() + hdir > targetRect.right() )
-            || ( childrenBBox.right() > targetRect.right() ) ))
+             (  ( childrenBBox.hNrPics() > tgtnrhpx)  
+	      ||( myGeomtry.right() + hdir > targetRect.right() )
+              ||( childrenBBox.right() > targetRect.right() ) 
+	     )
+	   )
         &&!( (hdir<0) && 
-            (  ( myGeomtry.right()+ hdir  < targetRect.right() )
-            || ( refGeom.width()+cur.hDelta+hdir <= minGeom.width()) ))
+             ( childrenBBox.right() <= targetRect.right() )
+	   )
       ) 
     { 
         hdone = true;
-        cur.hDelta += hdir;
-        myGeomtry.setWidth ( refGeom.width() + cur.hDelta );
+        itm.hDelta += hdir;
+        myGeomtry.setWidth ( refGeom.width() + itm.hDelta );
     }   
     
-    //if(  dov && cur.nviter )
-    if( vdir && cur.nviter>0 
-        && ( (cur.vStr>1) || abs(cur.vDelta) < abs(maxvdelt))
+    if( vdir && itm.nviter>0 
+        && ( (itm.vStr>1) || abs(itm.vDelta) < abs(maxvdelt))
         &&!( (vdir>0) && 
 	    (  ( myGeomtry.bottom()+ vdir > targetRect.bottom())
 	    || ( childrenBBox.bottom() > targetRect.bottom() )) )
         &&!( (vdir<0) && 
             (  ( myGeomtry.bottom() + vdir < targetRect.bottom())
-            || ( refGeom.height()+cur.vDelta+vdir <= minGeom.height()) ))
+            || ( refGeom.height()+itm.vDelta+vdir <= minGeom.height()) ))
       )
     {   
         vdone = true; 
-        cur.vDelta += vdir;
-        myGeomtry.setHeight( refGeom.height() + cur.vDelta );
+        itm.vDelta += vdir;
+        myGeomtry.setHeight( refGeom.height() + itm.vDelta );
     }
 
 
     if( !hdone && !vdone )
 	return false;
-   
+
+    int oldcbbrgt = childrenBBox.right();
+    int oldcbbbtm = childrenBBox.bottom();
+
     layoutChildren( setGeom );
     childrenBBox = childrenRect(setGeom);  
 
@@ -923,34 +931,46 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur,
 
     if( hdone )
     {
-	if(   ((hdir >0) && ( childrenBBox.hNrPics() > tgtnrhpx))  
-	   || ((hdir <0) && ( childrenBBox.hNrPics() < tgtnrhpx)) 
-	   || ((hdir >0) && ( myGeomtry.right() > targetRect.right() )) 
-	   || ((hdir >0) && ( childrenBBox.right() > targetRect.right() )) )
+	if( ((hdir >0)&&
+             (  ( childrenBBox.hNrPics() > tgtnrhpx )  
+	      ||( childrenBBox.right() > targetRect.right() )
+	     ) 
+	    )
+	    || ( (hdir <0) && 
+                !(  ( childrenBBox.right() < oldcbbrgt ) 
+		  ||(  ( myGeomtry.right() > targetRect.right())
+		     &&( myGeomtry.right() < oldrgt)
+		    )  
+                 )
+               )
+          )
 	{ 
-	    cur.nhiter--;
-	    cur.hDelta -= hdir;
+	    itm.nhiter--;
+	    itm.hDelta -= hdir;
 
-	    myGeomtry.setWidth( refGeom.width() + cur.hDelta );
+	    myGeomtry.setWidth( refGeom.width() + itm.hDelta );
 	    do_layout = true;
 	}
-//	else { done_something = true; }
     }
 
     if( vdone )
     {
-	if(    ((vdir >0) && ( childrenBBox.vNrPics() > tgtnrvpx ) )
-	    || ((vdir <0) && ( childrenBBox.vNrPics() < tgtnrvpx ) ) 
-	    || ((vdir >0) && ( myGeomtry.bottom() > targetRect.bottom()))
-	    || ((vdir >0) && ( childrenBBox.bottom() > targetRect.bottom() )) )
+	if(    ( (vdir >0) && ( childrenBBox.vNrPics() > tgtnrvpx ) )
+	    || ( (vdir <0) && 
+                !(  ( childrenBBox.bottom() < oldcbbbtm ) 
+		  ||(  ( myGeomtry.bottom() > targetRect.bottom())
+		     &&( myGeomtry.bottom() < oldbtm)
+		    )
+                 )
+               )
+	  )
 	{   
-	    cur.nviter--;
-	    cur.vDelta -= vdir;
+	    itm.nviter--;
+	    itm.vDelta -= vdir;
 
-	    myGeomtry.setHeight( refGeom.height() + cur.vDelta );
+	    myGeomtry.setHeight( refGeom.height() + itm.vDelta );
 	    do_layout = true;
 	}
-//	else { done_something = true; }
     }
 
     if( do_layout ) 
@@ -961,7 +981,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur,
 	childrenBBox = childrenRect(setGeom);  
     } 
 
-
+#if 0
     bool doInit=false;
 
     if( hdone && ((hdir>0)&&( childrenBBox.hNrPics() > tgtnrhpx ))
@@ -983,7 +1003,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur,
     if( vdone && ((vdir>0)&&(childrenBBox.vNrPics() > tgtnrvpx )) 
 	      || ((vdir<0)&&(childrenBBox.vNrPics() < tgtnrvpx)) )
 	{ msg+=" grown too tall"; pErrMsg(msg); return false; }
-
+#endif
 
  //   return done_something;
 return true;
@@ -992,6 +1012,11 @@ return true;
 
 void i_LayoutMngr::resizeTo( const QRect& targetRect )
 {
+#if 0
+    doLayout( preferred, QRect ( targetRect.left(), targetRect.top(), 
+			pos(preferred).hNrPics(), pos(preferred).vNrPics()));
+#endif
+
     doLayout( setGeom, targetRect );//init to prefer'd size and initial layout
     uiRect childrenBBox = childrenRect(setGeom);  
 
@@ -1007,8 +1032,12 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 
     if( ismain )
     {
+/*
 	hgrow = targetRect.width()  - refRect.hNrPics();
 	vgrow = targetRect.height() - refRect.vNrPics();
+*/
+	hgrow = targetRect.right()  - refRect.right();
+	vgrow = targetRect.bottom() - refRect.bottom();
     }
 #else
 
@@ -1083,7 +1112,33 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
     if( extRect == prevGeometry ) return;
+#if 0
+    if( ismain )
+    {
+	int hor = extRect.width();
+	int ver = extRect.height();
 
+	BufferString msg;
+	msg+="Geometry set on ";
+	msg += UserIDObject::name();
+
+	msg += ", geom  : tl(";
+	msg += extRect.top();
+	msg +=" , ";
+	msg += extRect.left();
+	msg += "), br(";
+	msg += extRect.bottom();
+	msg +=" , ";
+	msg += extRect.right();
+	msg += "). Size (";
+	msg +=hor;
+	msg +=" , ";
+	msg += ver;
+	msg += ").";
+
+	pErrMsg(msg);
+    }
+#endif
     QRect targetRect = extRect;
 
 #ifdef __debug__
@@ -1108,10 +1163,10 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 	int hextrapics = extRect.width() - phnp;
 	int vextrapics = extRect.height() - pvnp;
 
-	if( hextrapics > 0 && hextrapics <= 10 )
+	if( hextrapics > 0 && hextrapics <= 2 )
 	    targetRect.setWidth( phnp );
 
-	if( vextrapics > 0 && vextrapics <= 10 )
+	if( vextrapics > 0 && vextrapics <= 6 )
 	    targetRect.setHeight( pvnp );
 
 	if( targetRect == prevGeometry ) return;
@@ -1127,14 +1182,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
     prevGeometry = targetRect;
 
-#define do_resize
-#ifdef do_resize
-
     resizeTo( targetRect );
-
-#else
-    doLayout( setGeom, targetRect );//init to prefer'd size and initial layout
-#endif
 
     childrenCommitGeometrySet();
     QLayout::setGeometry( extRect );
@@ -1222,21 +1270,6 @@ void i_LayoutMngr::layoutChildren( layoutMode m )
       { pErrMsg("Stopped layout. Too many iterations "); }
 }
 
-#if 0
-/*! 
-
-Does a children layout for the case we are layouting a  group that
-has a hcentreobj or halignobj specified.
-
-*/
-void i_LayoutMngr::doLayoutChildren( layoutMode m, i_uiGroupLayoutItem& it )
-{
-    uiRect&  mPos = ((i_uiLayoutItem&)it).pos(m);
-    QRect geom (mPos.left(), mPos.top(), mPos.hNrPics(), mPos.vNrPics() );
-    doLayout(m,geom,true);
-}
-#endif
-
 uiRect i_LayoutMngr::childrenRect( layoutMode m )
 //!< returns rectangle wrapping around all children.
 {
@@ -1267,16 +1300,12 @@ uiRect i_LayoutMngr::childrenRect( layoutMode m )
 	}
     }
 
-    chldRect.setRight( chldRect.right() );
-    chldRect.setBottom( chldRect.bottom() );
-
     return chldRect;
 }
 
 
 void i_LayoutMngr::invalidate() 
 { 
-
     prevGeometry = QRect();
     minimumDone = false;
     preferredDone = false;
