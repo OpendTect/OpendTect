@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.3 2000-07-28 13:37:05 arend Exp $
+ RCS:           $Id: draw.h,v 1.4 2000-08-07 20:09:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,11 +38,13 @@ public:
     enum Type		{ None, Square, Circle, Cross };
 			DeclareEnumUtils(Type)
 
-			MarkerStyle( Type t=Square, Color c=Color::Black,
+			MarkerStyle( Type t=Square, int s=2,
+				     Color c=Color::Black,
 				     FontData fd=FontData() )
-			: type(t), color(c), fontdata(fd)	{}
+			: type(t), size(s), color(c), fontdata(fd)	{}
 
     Type		type;
+    int			size;
     Color		color;
     FontData		fontdata;
 
