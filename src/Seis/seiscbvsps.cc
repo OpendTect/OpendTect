@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.9 2005-01-09 19:31:05 bert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.10 2005-01-18 14:38:27 helene Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -148,6 +148,15 @@ bool SeisCBVSPSReader::mkTr( int inl ) const
     FilePath fp( dirnm_ );
     BufferString fnm = inl; fnm += ext();
     fp.add( fnm );
+
+    BufferString filep = fp.fullPath();
+
+    if( !File_exists( (const char*)filep ) )
+    {
+	errmsg_ = "No Pre Stack data available for that inline.\n";
+	errmsg_ += "Please choose another inline.";
+	return false;
+    }
 
     errmsg_ = "";
     curtr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false, false,
