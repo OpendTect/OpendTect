@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.7 2004-11-09 12:56:22 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.8 2004-11-11 09:46:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -432,7 +432,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 			     FilePath::Unix );
 
 	cmd.addFilePathFlag( "--with-dtect-data", 
-			     machine.convPath(HostData::Appl, GetBaseDataDir()),
+			     machine.convPath(HostData::Data, GetBaseDataDir()),
 			     FilePath::Unix );
 
 	cmd.addFilePathFlag( "--with-local-file-base", basefp, FilePath::Unix);
@@ -459,5 +459,8 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
    
     FilePath riopfp( remote ? machine.convPath( HostData::Data, iopfp )
 			     : iopfp );
-    cmd.addFilePath( riopfp, machine.pathStyle() );
+   
+    bool winstyle = machine.isWin() && rshcomm == "rcmd";
+    
+    cmd.addFilePath( riopfp, winstyle ? FilePath::Windows : FilePath::Unix );
 }
