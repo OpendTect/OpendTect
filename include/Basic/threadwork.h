@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.6 2002-09-11 14:39:08 bert Exp $
+ RCS:		$Id: threadwork.h,v 1.7 2002-12-30 08:01:28 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -24,47 +24,6 @@ class Thread;
 class ConditionVar;
 
 class WorkThread;
-class ThreadWorkManager;
-
-
-/*!\brief
-is the worker that actually does the job and is the link between the manager
-and the tasks to be performed.
-*/
-
-class WorkThread : public CallBacker
-{
-public:
-    enum		Status { Idle, Running, Finished, Stopped };
-
-    			WorkThread( ThreadWorkManager& );
-    			~WorkThread();
-
-    			//Interface from manager
-    bool		assignTask(BasicTask*, CallBack* cb = 0);
-    			/*!< becomes mine */
-
-    Status		getStatus();
-    int			getRetVal();
-    BasicTask*		getTask();
-
-protected:
-
-    void		doWork(CallBacker*);
-    void 		cancelWork(CallBacker*);
-    ThreadWorkManager&	manager;
-
-    ConditionVar&	controlcond;	//Dont change this order!
-    Status		status;		//These are protected by the condvar
-    int			retval;		//Lock before reading or writing
-
-    bool		exitflag;
-    BasicTask*		task;		
-    CallBack*		cb;
-
-    Thread*		thread;
-};
-
 
 /*!\brief
 is the top manager of everything. Give the tasks to it and it will be performed
@@ -83,8 +42,11 @@ public:
     				/*!< Managed by caller */
 
     bool			addWork( ObjectSet<BasicTask>& );
-
-
+    void			removeWork( const BasicTask* );	
+    				/*!< Removes the task from queue
+				     and stop it if allready running
+				*/
+    
 protected:
 
     friend class		WorkThread;

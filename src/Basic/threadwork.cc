@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.7 2002-11-11 09:20:54 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.8 2002-12-30 08:01:31 kristofer Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -14,11 +14,61 @@ static const char* rcsID = "$Id: threadwork.cc,v 1.7 2002-11-11 09:20:54 kristof
 #include <signal.h>
 
 
+namespace Threads
+{
+
+/*!\brief
+is the worker that actually does the job and is the link between the manager
+and the tasks to be performed.
+*/
+
+class WorkThread : public CallBacker
+{
+public:
+    enum		Status { Idle, Running, Finished, Stopped };
+
+    			WorkThread( ThreadWorkManager& );
+    			~WorkThread();
+
+    			//Interface from manager
+    bool		assignTask(BasicTask*, CallBack* cb = 0);
+    			/*!< becomes mine */
+
+    Status		getStatus();
+    int			getRetVal();
+    BasicTask*		getTask();
+    void		cancelWork( const BasicTask* );
+    			//!< If working on this task, cancel it and continue.
+    			//!< If a nullpointer is given, it will cancel
+    			//!< regardless of which task we are working on
+
+protected:
+
+    void		doWork(CallBacker*);
+    void 		exitWork(CallBacker*);
+    ThreadWorkManager&	manager;
+
+    ConditionVar&	controlcond;	//Dont change this order!
+    Status		status;		//These are protected by the condvar
+    int			retval;		//Lock before reading or writing
+
+    bool		exitflag;	//Set only from destructor
+    bool		cancelflag;	//Cancel current work and continue
+    BasicTask*		task;		
+    CallBack*		cb;
+
+    Thread*		thread;
+};
+
+}; // Namespace
+
+
 Threads::WorkThread::WorkThread( ThreadWorkManager& man )
     : manager( man )
     , controlcond( *new Threads::ConditionVar )
     , thread( 0 )
     , exitflag( false )
+    , cancelflag( false )
     , task( 0 )
     , status( Idle )
 {
@@ -27,14 +77,14 @@ Threads::WorkThread::WorkThread( ThreadWorkManager& man )
     controlcond.unlock();
 
     SignalHandling::startNotify( SignalHandling::Kill,
-	    			 mCB( this, WorkThread, cancelWork ));
+	    			 mCB( this, WorkThread, exitWork ));
 }
 
 
 Threads::WorkThread::~WorkThread()
 {
     SignalHandling::stopNotify( SignalHandling::Kill,
-				 mCB( this, WorkThread, cancelWork ));
+				 mCB( this, WorkThread, exitWork ));
 
     if ( thread )
     {
@@ -62,7 +112,7 @@ void Threads::WorkThread::doWork( CallBacker* )
     while ( true )
     {
 	controlcond.lock();
-	while ( !task && !exitflag )
+	while ( !task && !exitflag && !cancelflag )
 	{
 	    status = Idle;
 	    controlcond.wait();
@@ -78,11 +128,19 @@ void Threads::WorkThread::doWork( CallBacker* )
 	if ( task )
 	{
 	    status = Running;
-	    controlcond.unlock();
-	    int rval = task->doStep();
-	    controlcond.lock();
-	    retval = rval;
-	    if ( retval < 1 )
+	    if ( cancelflag )
+	    {
+		retval = 0;
+	    }
+	    else
+	    {
+		controlcond.unlock();
+		int rval = task->doStep();
+		controlcond.lock();
+		retval =rval;
+	    }
+
+	    if ( retval<1 )
 	    {
 		status = Finished;
 
@@ -103,7 +161,22 @@ void Threads::WorkThread::doWork( CallBacker* )
 }
 
 
-void Threads::WorkThread::cancelWork(CallBacker*)
+void Threads::WorkThread::cancelWork( const BasicTask* canceltask )
+{
+    controlcond.lock();
+    if ( !canceltask || canceltask==task )
+    {
+	cancelflag = true;
+	controlcond.unlock();
+	controlcond.signal( false );
+	return;
+    }
+
+    controlcond.unlock();
+}
+
+
+void Threads::WorkThread::exitWork(CallBacker*)
 {
     controlcond.lock();
     exitflag = true;
@@ -157,6 +230,7 @@ Threads::ThreadWorkManager::ThreadWorkManager( int nrthreads )
     : workloadcond( *new ConditionVar )
 {
     if ( !Threads::isThreadsImplemented() ) return;
+    callbacks.allowNull(true);
 
     for ( int idx=0; idx<nrthreads; idx++ )
 	threads += new WorkThread( *this );
@@ -197,6 +271,26 @@ void Threads::ThreadWorkManager::addWork( BasicTask* newtask, CallBack* cb )
     workload += newtask;
     callbacks += cb;
 }
+
+
+void Threads::ThreadWorkManager::removeWork( const BasicTask* task )
+{
+    workloadcond.lock();
+
+    const int idx = workload.indexOf( task );
+    if ( idx==-1 )
+    {
+	workloadcond.unlock();
+	for ( int idy=0; idy<threads.size(); idy++ )
+	    threads[idy]->cancelWork( task );
+	return;
+    }
+
+    workload.remove( idx );
+    callbacks.remove( idx );
+    workloadcond.unlock();
+}
+
 
 
 class ThreadWorkResultManager : public CallBacker
