@@ -37,7 +37,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.52 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.53 2004-05-12 12:33:03 dgb Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -330,7 +330,7 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
     {
 #ifdef __win__
 	if ( File_isLink( fname ) )
-	    sd.istrm = new ifstream( File_linkTarget(fname),
+	    sd.istrm = new std::ifstream( File_linkTarget(fname),
 			    std::ios_base::in | std::ios_base::binary );
 	else
 #endif
