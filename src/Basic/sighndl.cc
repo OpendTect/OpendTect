@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.6 2002-09-02 09:55:50 bert Exp $
+ RCS:           $Id: sighndl.cc,v 1.7 2002-09-09 13:26:50 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.6 2002-09-02 09:55:50 bert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.7 2002-09-09 13:26:50 arend Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -135,21 +135,63 @@ void SignalHandling::doKill( int signalnr )
 {
     mReleaseSignal( signalnr );
     if ( signalnr != SIGTERM )
-	ErrMsg(
+    { 
+	BufferString msg;
 #ifdef lux
-	    	"Stopped by Linux"
+ 	msg = "Stopped by Linux";
+# ifdef __debug__
+	msg += ", received signal: ";
+
+	#define SIGERRORMSG( x ) case x: msg += #x  ; break
+	switch ( signalnr )
+	{
+	    SIGERRORMSG( SIGHUP );
+	    SIGERRORMSG( SIGINT );
+	    SIGERRORMSG( SIGQUIT );
+	    SIGERRORMSG( SIGILL );
+	    SIGERRORMSG( SIGTRAP );
+	    SIGERRORMSG( SIGABRT );
+	    SIGERRORMSG( SIGBUS );
+	    SIGERRORMSG( SIGFPE );
+	    SIGERRORMSG( SIGKILL );
+	    SIGERRORMSG( SIGUSR1 );
+	    SIGERRORMSG( SIGSEGV );
+	    SIGERRORMSG( SIGUSR2 );
+	    SIGERRORMSG( SIGPIPE );
+	    SIGERRORMSG( SIGALRM );
+	    SIGERRORMSG( SIGTERM );
+	    SIGERRORMSG( SIGSTKFLT );
+	    SIGERRORMSG( SIGCHLD );
+	    SIGERRORMSG( SIGCONT );
+	    SIGERRORMSG( SIGSTOP );
+	    SIGERRORMSG( SIGTSTP );
+	    SIGERRORMSG( SIGTTIN );
+	    SIGERRORMSG( SIGTTOU );
+	    SIGERRORMSG( SIGURG );
+	    SIGERRORMSG( SIGXCPU );
+	    SIGERRORMSG( SIGXFSZ );
+	    SIGERRORMSG( SIGVTALRM );
+	    SIGERRORMSG( SIGPROF );
+	    SIGERRORMSG( SIGWINCH );
+	    SIGERRORMSG( SIGIO );
+	    SIGERRORMSG( SIGPWR );
+	    SIGERRORMSG( SIGSYS );
+	    default: msg += "unknown signal: "; msg += signalnr;
+	}
+# endif
 #else
 # ifdef __sun__
-	    	"Stopped by Solaris"
+	msg = "Stopped by Solaris";
 # else
 #  ifdef __win__
-	    	"Killed by Windows"
+	msg = "Killed by Windows";
 #  else
-	    	"Terminated by Operating System"
+	msg = "Terminated by Operating System";
 #  endif
 # endif
 #endif
-		);
+	ErrMsg( msg );
+    }
     killcbs.doCall( this );
     exit( 1 );
 }
