@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.3 2000-04-12 16:08:59 bert Exp $
+ RCS:		$Id: iopar.h,v 1.4 2000-08-08 14:16:18 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -28,8 +28,8 @@ class IOPar : public UserIDObject
 public:
 			IOPar(const char* nm=0);
 			IOPar(UserIDObject*);
-			IOPar(ascistream&);
-    void		putTo(ascostream&) const;
+			IOPar(ascistream&,bool withname=true);
+    void		putTo(ascostream&,bool withname=true) const;
 			~IOPar();
 			IOPar(const IOPar&);
     IOPar&		operator=(const IOPar&);

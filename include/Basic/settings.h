@@ -1,43 +1,45 @@
 #ifndef Settings_H
 #define Settings_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: settings.h,v 1.1.1.2 1999-09-16 09:19:16 arend Exp $
+ RCS:		$Id: settings.h,v 1.2 2000-08-08 14:16:20 bert Exp $
 ________________________________________________________________________
 
-Settings hold the user settings in a free format list.
 
-@$*/
+-*/
+
+/*! \brief Settings hold the user settings. It is an IOPar.
+
+The .dGBSettings or .dGBSettings.$dGB_USER in the user's HOME will be read.
+*/
 
 
-#include <uidobjset.h>
+#include <iopar.h>
 
 
-class Settings
+class Settings : public IOPar
 {
 public:
 
-			Settings(const char* strmopen);
+			Settings(const char* filename=0);
 			~Settings();
-    int			write() const;
 
-    const char*		get(const char* key) const;
-    void		set(const char* key,const char* val);
-    int			is(const char*,const char*) const;
-    int			isMajor(const char*) const;
-    PtrUserIDObjectSet	keys() const
-			{ return (PtrUserIDObjectSet)list_; }
+    bool		reRead();
+    bool		write() const;
 
-    static Settings&	common();
+    inline static Settings& common()
+			{
+			    if ( !common_ ) common_ = new Settings;
+			    return *common_;
+			}
 
 protected:
 
-    PtrUserIDObjectSet	list_;
     FileNameString	fname;
 
     static Settings*	common_;
