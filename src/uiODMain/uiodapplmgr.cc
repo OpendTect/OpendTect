@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.31 2004-05-24 14:28:36 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.32 2004-05-25 12:22:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "vissurvsurf.h"
 #include "vissurvstickset.h"
 #include "visinterpret.h"
-#include "vishingeline.h"
 
 #include "attribdescset.h"
 #include "attribsel.h"
@@ -525,10 +524,6 @@ bool uiODApplMgr::handleTrackServEv( int evid )
     }
     else if ( evid == uiTrackingPartServer::evAddSurface )
     {
-	visSurvey::StickSetDisplay* ssd = visSurvey::StickSetDisplay::create();
-	visserv->addObject( ssd, sceneid, true );
-	trackserv->setStickSetID( ssd->id() );
-
 	bool addhorizon = trackserv->isHorizon();
 	const char* nm = trackserv->surfaceName();
 	MultiID mid;
@@ -539,52 +534,45 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	int sdid = sceneMgr().addSurfaceItem( mid, sceneid, addhorizon );
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
 			visserv->getObject(sdid))
+	trackserv->setDisplayID( sdid );
 	sd->useTexture( false );
-	sd->setColor( ssd->getColor() );
 	sd->turnOnWireFrame(true);
 	sd->enableEditing(true);
+	sd->getEditor()->enableSeedStick(true);
 	sd->setResolution( sd->nrResolutions()-1 );
 	sceneMgr().updateTrees();
     }
     else if ( evid == uiTrackingPartServer::evSelStickSet )
     {
-	int selid = visserv->getSelObjectId();
-	int ssid = trackserv->stickSetID();
-	bool desel = selid == ssid;
-	visserv->setSelObjectId( desel ? -1 : ssid );
-	sceneMgr().disabTree( sceneid, !desel );
-	if ( !desel ) sceneMgr().actMode();
-	mDynamicCastGet(visSurvey::StickSetDisplay*,ssd,
-						visserv->getObject(ssid))
-	if ( ssd )
-	{
-	    ssd->setLineStyle( trackserv->lineStyle() );
-	    ssd->setMarkerStyle( trackserv->markerStyle() );
-	}
+	const int surfid = trackserv->displayID();
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
+			visserv->getObject(surfid));
+	sd->getEditor()->enableSeedStick(true);
+	sd->getEditor()->setSeedStickStyle( trackserv->lineStyle(),
+					    trackserv->markerStyle() );
     }
     else if ( evid == uiTrackingPartServer::evChangeStickSet )
     {
-	int ssid = trackserv->stickSetID();
-	mDynamicCastGet(visSurvey::StickSetDisplay*,ssd,
-						visserv->getObject(ssid))
-	if ( ssd )
-	{
-	    ssd->setLineStyle( trackserv->lineStyle() );
-	    ssd->setMarkerStyle( trackserv->markerStyle() );
-	}
+	const int surfid = trackserv->displayID();
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
+			visserv->getObject(surfid));
+	sd->getEditor()->setSeedStickStyle( trackserv->lineStyle(),
+					    trackserv->markerStyle() );
     }
     else if ( evid == uiTrackingPartServer::evFinishInit )
     {
-	int ssid = trackserv->stickSetID();
-	mDynamicCastGet(visSurvey::StickSetDisplay*,ssd,
-						visserv->getObject(ssid))
-	if ( !ssd ) return false;
-	int stickidx = 0;
+	const int surfid = trackserv->displayID();
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
+			visserv->getObject(surfid));
+	if ( !surfid ) return false;
+
 	TypeSet<Coord3> stick;
-	for ( int idx=0; idx<ssd->nrKnots(stickidx); idx++ )
-	    stick += ssd->getKnot( stickidx, idx );
-	    trackserv->createSeedFromStickset( stick, ssd->getColor() );
+	sd->getEditor()->getSeedStick( stick );
+	trackserv->createSeedFromStickset( stick,
+		sd->getEditor()->getSeedStickColor() );
 	trackserv->calcInterpreterCube( stick );
+	sd->setColor(sd->getEditor()->getSeedStickColor());
+	sd->getEditor()->enableSeedStick(false);
     }
     else if ( evid == uiTrackingPartServer::evShowManager )
     {
@@ -599,13 +587,6 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	const AttribSliceSet* sliceset = trackserv->getCachedData( *as );
 	AttribSliceSet* newset = attrserv->createOutput( cs, *as, sliceset );
 	trackserv->setSliceSet( newset );
-    }
-    else if ( evid == uiTrackingPartServer::evAddHingeLine )
-    {
-	visSurvey::HingeLineDisplay* hld = 
-	    		visSurvey::HingeLineDisplay::create();
-	hld->setHingeLine( trackserv->hingeLine() );
-	visserv->addObject( hld, sceneid, true );
     }
     else
 	pErrMsg("Unknown event from trackserv");
