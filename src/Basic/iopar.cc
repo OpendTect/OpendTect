@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.14 2001-04-27 16:46:22 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.15 2001-04-30 14:08:14 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: iopar.cc,v 1.14 2001-04-27 16:46:22 bert Exp $"
 #include "position.h"
 #include "separstr.h"
 #include "multiid.h"
+#include "globexpr.h"
+#include "bufstring.h"
 #include <ctype.h>
 
 static FileMultiString fms;
@@ -190,12 +192,16 @@ const char* IOPar::findKeyFor( const char* s, int nr ) const
 
 void IOPar::removeWithKey( const char* key )
 {
-    AliasObject* aob = pars_[key];
-    while ( aob )
+    GlobExpr ge( key );
+    for ( int idx=0; idx<pars_.size(); idx++ )
     {
-	pars_ -= aob;
-	delete aob->obj; delete aob;
-	aob = pars_[key];
+	AliasObject* aob = pars_[idx];
+	if ( ge.matches( aob->name() ) )
+	{
+	    pars_.remove( idx );
+	    delete aob->obj; delete aob;
+	    idx--;
+	}
     }
 }
 
@@ -424,6 +430,22 @@ bool IOPar::get( const char* s, BinID& binid ) const
 void IOPar::set( const char* s, const BinID& binid )
 { set( s, binid.inl, binid.crl ); }
 
+
+bool IOPar::get( const char* s, BufferString& bs ) const
+{
+    const char* res = find( s );
+    if ( !res ) return false;
+    bs = res;
+    return true;
+}
+
+
+void IOPar::set( const char* s, const BufferString& bs )
+{
+    set( s, (const char*)bs );
+}
+
+
 bool IOPar::get( const char* s, MultiID& mid ) const
 {
     const char* res = (*this)[s];
@@ -431,6 +453,7 @@ bool IOPar::get( const char* s, MultiID& mid ) const
     mid = res;
     return true;
 }
+
 
 void IOPar::set( const char* s, const MultiID& mid )
 {
