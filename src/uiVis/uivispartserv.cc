@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.110 2003-01-15 09:31:18 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.111 2003-01-20 11:32:12 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,7 +237,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
     float appvel;
     if ( par.get( appvelstr, appvel ) )
-	visSurvey::SPM().setAppVel( appvel );
+	visSurvey::SPM().setZScale( appvel/1000 );
 
     return true;
 }
@@ -250,7 +250,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     for ( int idx=0; idx<scenes.size(); idx++ )
 	storids += scenes[idx]->id();
 
-    par.set( appvelstr, visSurvey::SPM().getAppVel() );
+    par.set( appvelstr, visSurvey::SPM().getZScale()*1000 );
 
     BinIDRange hrg = SI().range();
     StepInterval<double> zrg = SI().zRange();
@@ -497,7 +497,7 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
     pdd->textureRect().manipChanges()->notify(
 	    				mCB(this,uiVisPartServer,manipMoveCB));
 
-    scene->addInlCrlTObject( pdd );
+    scene->addObject( pdd );
     setSelObjectId( pdd->id() );
     return getSelObjectId();
 }
@@ -734,7 +734,7 @@ int uiVisPartServer::addVolumeDisplay()
     vd->moved.notify( mCB(this,uiVisPartServer,getDataCB));
     vd->slicemoving.notify( mCB(this,uiVisPartServer,manipMoveCB) );
     volumes += vd;
-    scene->addInlCrlTObject( vd );
+    scene->addObject( vd );
     setSelObjectId( vd->id() );
 
     return vd->id();
@@ -816,7 +816,7 @@ int uiVisPartServer::addPickSetDisplay()
 
     visSurvey::PickSetDisplay* pickset = visSurvey::PickSetDisplay::create();
     picks += pickset;
-    scene->addXYTObject( pickset );
+    scene->addObject( pickset );
     pickset->changed.notify( mCB( this, uiVisPartServer, picksChangedCB ));
     if ( picks.size() > 1 && picks[0] )
 	pickset->setSize( picks[0]->getPickSize() ); 
@@ -997,9 +997,9 @@ int uiVisPartServer::addWellDisplay( const MultiID& emwellid )
     wells += wd; 
 
     if ( wd->depthIsT() )
-	scene->addXYTObject( wd );
+	scene->addObject( wd );
     else
-	scene->addXYZObject( wd );
+	scene->addObject( wd );
 
     setSelObjectId( wd->id() );
     return wd->id();
@@ -1135,7 +1135,7 @@ int uiVisPartServer::addSurfaceDisplay( const MultiID& emhorid )
     horizon->setZValues();
     surfaces += horizon; 
 
-    scene->addDisplayObject( horizon );
+    scene->addObject( horizon );
 
     setSelObjectId( horizon->id() );
     return horizon->id();
@@ -1318,7 +1318,7 @@ void  uiVisPartServer::showSurfTrackerCube(bool yn, int sceneid)
     if ( yn )
     {
 	if ( scene->getFirstIdx(surftracker) == -1 )
-	    scene->addInlCrlTObject( surftracker );
+	    scene->addObject( surftracker );
 	return;
     }
     else
@@ -1402,7 +1402,7 @@ int uiVisPartServer::addSurfTracker( Geometry::GridSurface& gridsurf )
     }
 
 
-    scene->addXYTObject( surf );
+    scene->addObject( surf );
     surf->unRef();
 
     return surf->id();
