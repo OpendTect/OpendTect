@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.11 2001-05-04 10:05:59 windev Exp $
+ RCS:		$Id: bufstring.h,v 1.12 2001-05-04 20:48:35 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include <string2.h>
 #include <iostream.h>
 #include <stdlib.h>
-#include <buffer.h>
 
 
 /*!\brief String with variable length but guaranteed minimum buffer size.
@@ -27,27 +26,27 @@ Overhead is 4 extra bytes for variable length and 4 bytes for minimum length.
 
 */
 
-class BufferString : public Buffer<char>
+class BufferString
 {
 public:
    			BufferString( const char* s=0,
 				      unsigned int ml=mMaxUserIDLength )
-				: Buffer<char>(ml)
+				: minlen(ml+1)
 			{ init(); if ( s ) *this = s; }
    			BufferString( int i,
 				      unsigned int ml=mMaxUserIDLength )
-				: Buffer<char>(ml)
+				: minlen(ml+1)
 			{ init(); *this += i; }
    			BufferString( double d,
 				      unsigned int ml=mMaxUserIDLength )
-				: Buffer<char>(ml)
+				: minlen(ml+1)
 			{ init(); *this += d; }
    			BufferString( float f,
 				      unsigned int ml=mMaxUserIDLength )
-				: Buffer<char>(ml)
+				: minlen(ml+1)
 			{ init(); *this += f; }
 			BufferString( const BufferString& bs )
-				: Buffer<char>(bs.minlen)
+				: minlen(bs.minlen)
 			{ init(); *this = bs; }
 			~BufferString()
 			{ free(buf_); }
@@ -65,7 +64,13 @@ public:
 			{ *this += getStringFromDouble("%lg",d); return *this; }
    inline BufferString&	operator+=( float f )
 			{ *this += getStringFromFloat("%g",f); return *this; }
-
+   inline		operator const char*() const	{ return buf_; }
+   inline char*		buf()				{ return buf_; }
+   inline char&		operator [](int idx)		{ return buf_[idx]; }
+   inline const char&	operator [](int idx) const	{ return buf_[idx]; }
+   inline unsigned int	size() const			{ return strlen(buf_); }
+   inline unsigned int	bufSize() const			{ return len; }
+   inline void		setBufSize(unsigned int);
    inline bool		operator==( const BufferString& s ) const
 			{ return operator ==( s.buf_ ); }
    inline bool		operator!=( const BufferString& s ) const
@@ -81,9 +86,16 @@ public:
    inline BufferString&	operator+=(const char*);
    inline bool		operator==(const char*) const;
 
+protected:
+
+    char*		buf_;
+    unsigned int	len;
+    const unsigned int	minlen;
+
 private:
 
-    inline void		init() { *buf_ ='\0'; }
+    inline void		init()
+			{ len = minlen; buf_ = mMALLOC(len,char); *buf_ ='\0'; }
 
 };
 
@@ -97,6 +109,17 @@ inline bool BufferString::operator==( const char* s ) const
 	if ( *ptr++ != *s++ ) return false;
 
     return *ptr == *s;
+}
+
+
+inline void BufferString::setBufSize( unsigned int newlen )
+{
+    if ( newlen < minlen ) newlen = minlen;
+    if ( newlen != len )
+    {
+	len = newlen;
+	buf_ = mREALLOC(buf_,len,char);
+    }
 }
 
 
