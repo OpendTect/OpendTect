@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.3 2002-02-08 09:57:20 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.4 2002-02-12 12:16:37 kristofer Exp $";
 
 #include "visobject.h"
 #include "colortab.h"
@@ -60,15 +60,9 @@ visBase::VisualObject::~VisualObject()
 }
 
 
-void visBase::VisualObject::on()
+void visBase::VisualObject::turnOn(bool n)
 {
-    onoff->whichChild = 0;
-}
-
-
-void visBase::VisualObject::off()
-{
-    onoff->whichChild = SO_SWITCH_NONE;
+    onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
 }
 
 

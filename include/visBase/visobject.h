@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.3 2002-02-08 09:57:29 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.4 2002-02-12 12:16:51 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,8 +35,7 @@ class VisualObject : public SceneObject
 public:
 			VisualObject();
     virtual		~VisualObject();
-    void		on();
-    void		off();
+    void		turnOn(bool);
     bool		isOn() const;
 
     void		setColor(const Color& );
