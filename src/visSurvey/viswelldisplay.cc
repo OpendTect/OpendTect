@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.9 2002-07-31 06:34:17 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.10 2002-12-03 13:17:00 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -54,16 +54,16 @@ visSurvey::WellDisplay::~WellDisplay()
 }
 
 
-bool visSurvey::WellDisplay::setWellId( const MultiID& id )
+bool visSurvey::WellDisplay::setWellId( const MultiID& multiid )
 {
     const EarthModel::EMManager& em = EarthModel::EMM();
-    mDynamicCastGet( const EarthModel::Well*, well, em.getObject( id ) );
+    mDynamicCastGet( const EarthModel::Well*, well, em.getObject( multiid ) );
     if ( !well ) return false;
 
     while ( line->size() ) line->removePoint( 0 );
     displayedattrib = -1;
 
-    wellid = id;
+    wellid = multiid;
 
     setName( well->name() );
 
@@ -149,20 +149,19 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
     int res = visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
-    MultiID wellid;
-    
-    if ( !par.get( earthmodelidstr, wellid ))
+    MultiID newwellid;
+    if ( !par.get( earthmodelidstr, newwellid ))
 	return -1;
 
     EarthModel::EMManager& em = EarthModel::EMM();
-    if ( !em.isLoaded( wellid ) )
+    if ( !em.isLoaded( newwellid ) )
     {
-	PtrMan<Executor> exec = em.load( wellid );
+	PtrMan<Executor> exec = em.load( newwellid );
 	if ( !exec ) return -1;
 	exec->execute();
     }
 	
-    if ( !setWellId( wellid ) )
+    if ( !setWellId( newwellid ) )
 	return -1;
 
     int var;

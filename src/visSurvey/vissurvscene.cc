@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.42 2002-10-23 09:43:17 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.43 2002-12-03 13:17:00 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -452,7 +452,7 @@ int visSurvey::Scene::usePar( const IOPar& par )
 
 void visSurvey::Scene::filterPicks(CallBacker* cb)
 {
-    ObjectSet<SurveyObject> objects;
+    ObjectSet<SurveyObject> activeobjects;
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet( SurveyObject*, survobj, getObject( idx ) );
@@ -463,13 +463,13 @@ void visSurvey::Scene::filterPicks(CallBacker* cb)
 	if ( !visobj ) continue;
 	if ( !visobj->isOn() ) continue;
 
-	objects += survobj;
+	activeobjects += survobj;
     }
 
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet( PickSetDisplay*, pickset, getObject( idx ) );
-	if ( pickset ) pickset->filterPicks( objects, 10 );
+	if ( pickset ) pickset->filterPicks( activeobjects, 10 );
     }
 }
 

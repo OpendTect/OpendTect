@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.13 2002-11-25 15:26:26 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.14 2002-12-03 13:17:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,9 +118,9 @@ void visSurvey::VolumeDisplay::getPlaneIds( int& id0, int& id1, int& id2 )
 }
 
 
-float visSurvey::VolumeDisplay::getPlanePos( int id )
+float visSurvey::VolumeDisplay::getPlanePos( int id__ )
 {
-    return cube->slicePosition( id );
+    return cube->slicePosition( id__ );
 }
 
 
@@ -162,16 +162,16 @@ CubeSampling& visSurvey::VolumeDisplay::getCubeSampling()
 }
 
 
-void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs )
+void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
 {
-    Coord3 width( cs.hrg.stop.inl - cs.hrg.start.inl,
-			 cs.hrg.stop.crl - cs.hrg.start.crl, 
-			 cs.zrg.stop - cs.zrg.start );
-    setWidth( width );
-    Coord3 center( (cs.hrg.stop.inl + cs.hrg.start.inl) / 2,
-			  (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
-			  (cs.zrg.stop + cs.zrg.start) / 2 );
-    setCenter( center );
+    Coord3 newwidth( cs_.hrg.stop.inl - cs_.hrg.start.inl,
+			 cs_.hrg.stop.crl - cs_.hrg.start.crl, 
+			 cs_.zrg.stop - cs_.zrg.start );
+    setWidth( newwidth );
+    Coord3 newcenter( (cs_.hrg.stop.inl + cs_.hrg.start.inl) / 2,
+			  (cs_.hrg.stop.crl + cs_.hrg.start.crl) / 2,
+			  (cs_.zrg.stop + cs_.zrg.start) / 2 );
+    setCenter( newcenter );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.2 2002-07-12 09:39:05 kristofer Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.3 2002-12-03 13:17:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,10 +34,11 @@ position in (0, 0, 0).
 
 class SoShapeScale : public SoBaseKit
 {
-    typedef SoBaseKit inherited;
+    typedef SoBaseKit	inherited;
 
 			SO_KIT_HEADER(SoShapeScale);
 			SO_KIT_CATALOG_ENTRY_HEADER(topSeparator);
+			SO_KIT_CATALOG_ENTRY_HEADER(rotation);
 			SO_KIT_CATALOG_ENTRY_HEADER(scale);
 			SO_KIT_CATALOG_ENTRY_HEADER(shape);
 
@@ -46,7 +47,8 @@ public:
     static void		initClass(void);
 
 
-    SoSFBool		active;
+    SoSFBool		doscale;
+    SoSFBool		dorotate;
     SoSFFloat		projectedSize;
 
 protected:

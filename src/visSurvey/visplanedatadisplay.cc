@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.26 2002-11-25 15:26:26 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.27 2002-12-03 13:17:00 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "cubesampling.h"
@@ -398,13 +398,13 @@ CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
 }
 
 
-void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs )
+void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 {
-    Coord3 width( cs.hrg.stop.inl - cs.hrg.start.inl,
-			 cs.hrg.stop.crl - cs.hrg.start.crl, 
-			 cs.zrg.stop - cs.zrg.start );
+    Coord3 width( cs_.hrg.stop.inl - cs_.hrg.start.inl,
+			 cs_.hrg.stop.crl - cs_.hrg.start.crl, 
+			 cs_.zrg.stop - cs_.zrg.start );
     setWidth( width );
-    Coord3 origo(cs.hrg.start.inl,cs.hrg.start.crl,cs.zrg.start);
+    Coord3 origo(cs_.hrg.start.inl,cs_.hrg.start.crl,cs_.zrg.start);
     setOrigo( origo );
 }
 
