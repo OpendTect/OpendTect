@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.19 2004-07-29 21:41:25 bert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.20 2004-10-22 14:38:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "ranges.h"
 class uiCheckBox;
+class uiComboBox;
 class uiGenInput;
 class uiPushButton;
 class uiRadioButton;
@@ -101,6 +102,7 @@ protected:
     uiGenInput*		coordset;
     uiGroup*		crdgrp;
     uiGroup*		trgrp;
+    uiComboBox*		sipfld;
     uiCheckBox*		overrule;
     uiPushButton*	applybut;
     ObjectSet<CallBacker> sipbuts;

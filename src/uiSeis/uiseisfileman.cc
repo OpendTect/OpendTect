@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.45 2004-10-18 15:11:34 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.46 2004-10-22 14:38:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,8 +94,8 @@ void uiSeisFileMan::selChg( CallBacker* cb )
     copybut->setSensitive( is2d || selioobj && ctio.ioobj->implExists(true) );
     mergebut->setSensitive( !is2d );
 
-    copybut->setPixmap( ioPixmap(GetDataFileName( is2d ? "info2d.png"
-		    					: "copyobj.png" )) );
+    copybut->setPixmap( ioPixmap(GetDataFileName( is2d ? "man2d.png"
+						: "copyobj.png" )) );
     const CallBack& cbcopy = mCB(this,uiSeisFileMan,copyPush);
     const CallBack& cb2d = mCB(this,uiSeisFileMan,rightClicked);
     const CallBack& oldcb = !is2d ? cb2d : cbcopy;
@@ -105,7 +105,7 @@ void uiSeisFileMan::selChg( CallBacker* cb )
     if ( copybut->activated.cbs.indexOf(newcb) < 0 )
 	copybut->activated.notify( newcb );
 
-    copybut->setToolTip( is2d ? "Show lineset info" : "Copy cube" );
+    copybut->setToolTip( is2d ? "Manage lines" : "Copy cube" );
 
     mkFileInfo();
     manipgrp->selChg( cb );

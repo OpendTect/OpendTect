@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.63 2004-10-07 08:36:55 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.64 2004-10-22 14:38:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "survinfo.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
@@ -53,6 +54,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 	, x0fld(0)
 	, dirnamechanged(false)
 	, globcurdirname(SI().dirname)
+	, sipfld(0)
 {
     if ( !survinfo ) return;
 
@@ -118,24 +120,54 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->attach( stretchedBelow, pathfld, -2 );
 
-    uiPushButton* prevbut = 0;
-    if ( survInfoProvs().size() )
+    const int nrprovs = survInfoProvs().size();
+    uiObject* sipobj = 0;
+    if ( nrprovs > 0 )
     {
-	for ( int idx=0; idx<survInfoProvs().size(); idx++ )
+	CallBack sipcb( mCB(this,uiSurveyInfoEditor,sipbutPush) );
+	int maxlen = 0;
+	for ( int idx=0; idx<nrprovs; idx++ )
 	{
-	    BufferString txt( survInfoProvs()[idx]->usrText() );
-	    txt += " ...";
-	    uiPushButton* newpb = new uiPushButton( this, txt );
-	    sipbuts += newpb;
-	    if ( prevbut )
-		newpb->attach( rightOf, prevbut );
-	    else
+	    int len = strlen( survInfoProvs()[idx]->usrText() );
+	    if ( len > maxlen ) maxlen = len;
+	}
+
+	if ( nrprovs > 2 )
+	{
+	    sipobj = sipfld = new uiComboBox( this, "SIPs" );
+	    sipfld->attach( alignedBelow, pathfld );
+	    sipfld->attach( ensureBelow, horsep1 );
+	    for ( int idx=0; idx<nrprovs; idx++ )
 	    {
-		newpb->attach( alignedBelow, pathfld );
-		newpb->attach( ensureBelow, horsep1 );
+		BufferString txt( survInfoProvs()[idx]->usrText() );
+		txt += " ->>";
+		sipfld->addItem( txt );
 	    }
-	    newpb->activated.notify( mCB(this,uiSurveyInfoEditor,sipbutPush) );
-	    prevbut = newpb;
+	    sipfld->setCurrentItem( nrprovs-1 );
+	    sipfld->setPrefWidthInChar( maxlen + 10 );
+	    uiPushButton* sipbut = new uiPushButton( this, "Go ...", sipcb );
+	    sipbut->attach( rightOf, sipfld );
+	}
+	else
+	{
+	    uiPushButton* prevbut = 0;
+	    for ( int idx=0; idx<nrprovs; idx++ )
+	    {
+		BufferString txt( survInfoProvs()[idx]->usrText() );
+		txt += " ...";
+		uiPushButton* newpb = new uiPushButton( this, txt, sipcb );
+		sipbuts += newpb;
+		if ( prevbut )
+		    newpb->attach( rightOf, prevbut );
+		else
+		{
+		    newpb->attach( alignedBelow, pathfld );
+		    newpb->attach( ensureBelow, horsep1 );
+		    sipobj = newpb;
+		}
+		newpb->setPrefWidthInChar( maxlen + 6 );
+		prevbut = newpb;
+	    }
 	}
     }
 
@@ -149,9 +181,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 			     IntInpIntervalSpec(true) );
     zfld = new uiGenInput( rangegrp, "Z range", DoubleInpIntervalSpec(true) );
     rangegrp->setHAlignObj( inlfld );
-    rangegrp->attach( alignedBelow, pathfld ); 
-    rangegrp->attach( ensureBelow, rglbl ); 
-    if ( prevbut ) rangegrp->attach( ensureBelow, prevbut ); 
+    if ( sipobj )
+	rangegrp->attach( alignedBelow, sipobj ); 
+    else
+    {
+	rangegrp->attach( alignedBelow, pathfld ); 
+	rangegrp->attach( ensureBelow, rglbl ); 
+    }
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
 
@@ -608,7 +644,7 @@ bool uiSurveyInfoEditor::setRelation()
 
 void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 {
-    int sipidx = sipbuts.indexOf( cb );
+    int sipidx = sipfld ? sipfld->currentItem() : sipbuts.indexOf( cb );
     if ( sipidx < 0 ) { pErrMsg("Huh?"); return; }
 
     survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );

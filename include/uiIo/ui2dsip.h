@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Oct 2004
- RCS:           $Id: ui2dsip.h,v 1.1 2004-10-06 16:18:41 bert Exp $
+ RCS:           $Id: ui2dsip.h,v 1.2 2004-10-22 14:38:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class ui2DSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
 
-    const char*		usrText() const		{ return "2D only"; }
+    const char*		usrText() const	{ return "Set for 2D only"; }
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
 
