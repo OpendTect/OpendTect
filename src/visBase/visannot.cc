@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.10 2002-04-29 09:26:23 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.11 2002-04-29 14:23:02 kristofer Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -78,7 +78,7 @@ visBase::Annotation::Annotation()
     texts->setSeparate(false);
     texts->ref();
     textswitch->addChild( texts->getData() );
-    scaleswitch->whichChild = 0;
+    textswitch->whichChild = 0;
     Text* text = Text::create(); texts->addObject( text );
     text = Text::create(); texts->addObject( text );
     text = Text::create(); texts->addObject( text );
