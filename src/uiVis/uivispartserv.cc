@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.5 2002-04-04 16:07:29 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.6 2002-04-09 13:26:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,10 @@ ________________________________________________________________________
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
 #include "visseisdisplay.h"
+#include "visselman.h"
 #include "vismaterial.h"
 #include "viscolortab.h"
+#include "visrectangle.h"
 #include "vistexturerect.h"
 #include "visobject.h"
 
@@ -32,10 +34,15 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "attribslice.h"
 
+const int uiVisPartServer::evShowPosition   = 0;
+const int uiVisPartServer::evSelectPlane    = 1;
+const int uiVisPartServer::evDeselectPlane  = 2;
 
-uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack& appcb_ )
+
+uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
 	: uiApplPartServer(a)
 	, appcb(appcb_)
+	, planepos(0)
 {
 }
 
@@ -71,16 +78,18 @@ visSurvey::Scene* uiVisPartServer::getSelScene()
 
 int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 {
-    visSurvey::SeisDisplay::Type type;
-    if ( etp==Inline ) type = visSurvey::SeisDisplay::Inline;
-    else if ( etp==Crossline ) type = visSurvey::SeisDisplay::Crossline;
-    else type = visSurvey::SeisDisplay::Timeslice;
+    visSurvey::SeisDisplay::Type type =
+	    etp == Inline ?	visSurvey::SeisDisplay::Inline
+	: ( etp == Crossline ?	visSurvey::SeisDisplay::Crossline
+			     :	visSurvey::SeisDisplay::Timeslice );
+
     visSurvey::SeisDisplay* sd = visSurvey::SeisDisplay::create( type, appcb );
-    seisdisps += sd;
-    sd->ref();
+    seisdisps += sd; sd->ref();
     visBase::VisColorTab* coltab = visBase::VisColorTab::create();
     coltab->colorSeq().loadFromStorage("Red-White-Black");
     sd->textureRect().setColorTab( coltab );
+    sd->textureRect().manipChanges()->notify(mCB(this,uiVisPartServer,showPos));
+    sd->selection()->notify( mCB(this,uiVisPartServer,selectObj) );
 
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -103,6 +112,27 @@ void uiVisPartServer::removeDataDisplay()
     scene->removeObject( objidx );
 }
 
+
+void uiVisPartServer::selectObj( CallBacker* )
+{
+    visBase::DataObject* dobj = const_cast<visBase::DataObject*>
+	(visBase::DM().selMan().getSelDataObject(0));
+    dobj = visBase::DM().getObj( dobj->id() + 4 );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,dobj)
+    if ( !sd ) return;
+    setSelObjectId( sd->id() );
+    sendEvent( evSelectPlane );
+}
+
+
+void uiVisPartServer::setSelObjectId( int id )
+{
+    selobjid = id;
+    visBase::DM().selMan().select( id );
+}
+
+
+//  ============ Pick management =========================
 
 int uiVisPartServer::addPickSetDisplay()
 {
@@ -229,24 +259,7 @@ visBase::Material* uiVisPartServer::getMaterial()
 }
 
 
-// ============= Various ================================
-
-
-void uiVisPartServer::turnOn( int id, bool yn )
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visBase::VisualObject*,so,obj)
-    so->turnOn( yn );
-}
-
-
-bool uiVisPartServer::isOn( int id )
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visBase::VisualObject*,so,obj)
-    return so->isOn();
-}
-
+// ============= DataRange management ================================
 
 float uiVisPartServer::getClipRate()
 {
@@ -280,11 +293,53 @@ void uiVisPartServer::setAutoscale( bool yn )
 }
 
 
+void uiVisPartServer::setDataRange( const Interval<float>& intv )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selobjid );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    sd->textureRect().getColorTab().scaleTo( intv );
+}
+
+
+Interval<float> uiVisPartServer::getDataRange()
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selobjid );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    return sd->textureRect().getColorTab().getInterval();
+}
+
+
+// ============= Various ================================
+
+void uiVisPartServer::turnOn( int id, bool yn )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visBase::VisualObject*,so,obj)
+    so->turnOn( yn );
+}
+
+
+bool uiVisPartServer::isOn( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visBase::VisualObject*,so,obj)
+    return so->isOn();
+}
+
+
 CubeSampling& uiVisPartServer::getCubeSampling( bool manippos )
 {
     visBase::DataObject* obj = visBase::DM().getObj( selobjid );
     mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
     return sd->getCubeSampling( manippos );
+}
+
+
+void uiVisPartServer::setAttribSelSpec( AttribSelSpec& as )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selobjid );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    sd->setAttribSelSpec( as );
 }
 
 
@@ -300,5 +355,24 @@ void uiVisPartServer::putNewData( AttribSlice* slice )
 {
     visBase::DataObject* obj = visBase::DM().getObj( selobjid );
     mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
-    sd->putNewData( slice );
+    sd->operationSucceeded( sd->putNewData(slice) );
+}
+
+
+void uiVisPartServer::showPos( CallBacker* )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selobjid );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    if ( !sd ) return;
+    Geometry::Pos geompos = sd->textureRect().getRectangle().manipOrigo();
+    planepos = sd->getType() == visSurvey::SeisDisplay::Inline ? geompos.x :
+	       sd->getType() == visSurvey::SeisDisplay::Crossline ? geompos.y :
+	       geompos.z;
+    sendEvent( evShowPosition );
+}
+
+
+float uiVisPartServer::getPlanePos()
+{
+    return planepos; 
 }
