@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.13 2004-10-07 11:27:25 bert Exp $
+ RCS:		$Id: uiseisioobjinfo.cc,v 1.14 2004-10-08 14:47:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,7 +124,7 @@ int uiSeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 	return -1;
     }
 
-    if ( si.expectednrtrcs < 0 )
+    if ( si.expectednrtrcs < 0 || mIsUndefInt(si.expectednrtrcs) )
 	return -1;
 
     int overhead = sttr->bytesOverheadPerTrace();
@@ -143,6 +143,8 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SpaceInfo& si ) const
     mChkIOObj(false)
 
     const int szmb = expectedMBs( si );
+    if ( szmb < 0 ) // Unknown, but probably small
+	return true;
     const int avszmb = GetFreeMBOnDisk( ctio.ioobj );
     if ( avszmb == 0 )
     {
