@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.63 2002-05-28 09:48:51 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.64 2002-05-31 07:19:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -1118,8 +1118,19 @@ void uiVisPartServer::setMaterial( int id )
     mDynamicCastGet(visBase::VisualObject*,vo,obj);
     if ( !vo ) return;
 
-    uiMaterialDlg dlg( appserv().parent(), vo->getMaterial() );
-    dlg.go();
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj);
+    if ( pdd || (hor&&hor->usesTexture()))
+    {
+	uiMaterialDlg dlg( appserv().parent(), vo->getMaterial(), false,
+	       		   false, false, false, true, true );
+	dlg.go();
+    }
+    else
+    {
+	uiMaterialDlg dlg( appserv().parent(), vo->getMaterial() );
+	dlg.go();
+    }
 }
 
 
