@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.14 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.15 2003-11-21 08:50:52 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -107,9 +107,9 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, int seisinf_attrnr )
     for ( int idx=1; idx<=size(); idx++ )
     {
 	SeisTrc* trc = idx==size() ? 0 : get(idx);
-	float val = trc ? trc->info().getAttr(seisinf_attrnr) : prevval-1;
+	float val = trc ? trc->info().getAttr(seisinf_attrnr) : 0;
 
-	if ( mIS_ZERO(prevval-val) )
+	if ( trc && mIS_ZERO(prevval-val) )
 	{
 	    nrwithprevval++;
 	    if ( nrwithprevval > nrrequired )
@@ -120,7 +120,7 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, int seisinf_attrnr )
 	}
 	else
 	{
-	    for ( int idx=nrwithprevval; idx<nrrequired; idx++ )
+	    for ( int inew=nrwithprevval; inew<nrrequired; inew++ )
 	    {
 		SeisTrc* newtrc = new SeisTrc(*prevtrc);
 		newtrc->data().zero();
