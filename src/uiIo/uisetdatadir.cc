@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.12 2004-11-17 10:43:07 dgb Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.13 2004-12-01 17:29:00 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,7 +144,8 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 #ifdef __win__
 	BufferString progfiles=GetSpecialFolderLocation(CSIDL_PROGRAM_FILES);
 
-	if ( !strncasecmp(progfiles, datadir, strlen(progfiles))
+	if ( ( progfiles.size() && 
+	       !strncasecmp(progfiles, datadir, strlen(progfiles)) )
 	  || strstr( datadir, "Program Files" )
 	  || strstr( datadir, "program files" )
 	  || strstr( datadir, "PROGRAM FILES" ) )
@@ -219,13 +220,17 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 
     // OK - we're (almost) certain that the directory exists and is valid
     const bool haveenv = getenv("DTECT_DATA") || getenv( "dGB_DATA" )
+		      || getenv("DTECT_WINDATA") || getenv( "dGB_WINDATA" )
 	;
     if ( haveenv )
     {
 #ifdef __win__
 	FilePath dtectdatafp( datadir.buf() );
 	
-	setEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
+	setEnvVar( "DTECT_WINDATA", dtectdatafp.fullPath(FilePath::Windows) );
+
+	if ( getenv( "DTECT_DATA" ) )
+	    setEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
 #else
 	setEnvVar( "DTECT_DATA", datadir.buf() );
 #endif
