@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.7 2004-05-11 12:44:31 kristofer Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.8 2004-09-22 10:07:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,8 @@ public:
 			     If screenSize is equal to zero, the equal-
 			     screen-size-scaling is turned off.
 			*/
-    			
+    SoSFFloat		minScale;
+    SoSFFloat		maxScale;
 
 protected:
 
@@ -60,6 +61,9 @@ protected:
     virtual void	getPrimitiveCount(SoGetPrimitiveCountAction * );
     virtual void	doAction(SoAction*);
     virtual		~SoShapeScale();
+
+    SbVec3f		scaleby;
+    bool		changescale;
 };
 
 #endif

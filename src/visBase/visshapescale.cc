@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visshapescale.cc,v 1.9 2004-08-30 14:37:51 kristofer Exp $";
+static const char* rcsID = "$Id: visshapescale.cc,v 1.10 2004-09-22 10:07:32 kristofer Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"
@@ -79,16 +79,42 @@ void visBase::ShapeScale::setShape( SoNode* newnode )
 }
 
 
-void visBase::ShapeScale::setSize( float nz )
+void visBase::ShapeScale::setScreenSize( float nz )
 {
     shapescalekit->screenSize.setValue( nz );
 }
 
 
-float visBase::ShapeScale::getSize() const
+float visBase::ShapeScale::getScreenSize() const
 {
     return shapescalekit->screenSize.getValue();
 }
+
+
+void visBase::ShapeScale::setMinScale( float nz )
+{
+    shapescalekit->minScale.setValue( nz );
+}
+
+
+float visBase::ShapeScale::getMinScale() const
+{
+    return shapescalekit->minScale.getValue();
+}
+
+
+void visBase::ShapeScale::setMaxScale( float nz )
+{
+    shapescalekit->maxScale.setValue( nz );
+}
+
+
+float visBase::ShapeScale::getMaxScale() const
+{
+    return shapescalekit->maxScale.getValue();
+}
+
+
 
 
 void visBase::ShapeScale::restoreProportions(bool yn)

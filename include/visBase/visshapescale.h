@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshapescale.h,v 1.7 2004-08-30 14:37:42 kristofer Exp $
+ RCS:		$Id: visshapescale.h,v 1.8 2004-09-22 10:07:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -37,9 +37,13 @@ public:
     void		setShape( DataObject* );
     DataObject*		getShape() { return shape; }
 
-    void		setSize( float );
+    void		setScreenSize( float );
     			/*!<If size is set to zero, the size won't be changed */
-    float		getSize() const;
+    float		getScreenSize() const;
+    void		setMinScale( float );
+    float		getMinScale() const;
+    void		setMaxScale( float );
+    float		getMaxScale() const;
 
     void		restoreProportions(bool yn);
     bool		restoresProportions() const;
