@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedlist.h,v 1.6 2003-12-24 11:59:21 bert Exp $
+ RCS:		$Id: sortedlist.h,v 1.7 2004-04-28 14:37:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,8 +54,8 @@ public:
     void		erase();
     void		remove( int idx );
 
-    vector<T>&		vec()		{ return tvec.vec(); }
-    const vector<T>&	vec() const	{ return tvec.vec(); }
+    std::vector<T>&	vec()		{ return tvec.vec(); }
+    const std::vector<T>& vec() const	{ return tvec.vec(); }
     T*			arr()		{ return size() ? &(*this)[0] : 0; }
     const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.26 2004-03-10 14:44:40 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.27 2004-04-28 14:37:18 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -100,7 +100,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     {
 	dumpsd.close();
 	if ( do_string_dump )
-	    dumpsd.ostrm = new ostringstream;
+	    dumpsd.ostrm = new std::ostringstream;
 	else
 	{
 	    const char* res = Settings::common()[ "SEG-Y.Header dump" ];
@@ -170,12 +170,12 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	*dumpsd.ostrm << "\nTrace " << itrc << ":\n";
 	trhead.print( *dumpsd.ostrm );
 	if ( itrc != nr_trc_headers_to_dump )
-	    *dumpsd.ostrm << endl;
+	    *dumpsd.ostrm << std::endl;
 	else
 	{
 	    if ( do_string_dump )
 	    {
-		mDynamicCastGet(ostringstream*,sstrm,dumpsd.ostrm)
+		mDynamicCastGet(std::ostringstream*,sstrm,dumpsd.ostrm)
 		dumpstr = sstrm->str();
 	    }
 	    dumpsd.close();

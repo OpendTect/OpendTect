@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.12 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: segytr.h,v 1.13 2004-04-28 14:37:18 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -60,7 +60,7 @@ protected:
     float		ext_time_shift;
     float		ext_sample_rate;
     bool		do_string_dump;
-    mutable string	dumpstr;
+    mutable std::string	dumpstr;
     bool		use_lino;
 
     bool		readTapeHeader();

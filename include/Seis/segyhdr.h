@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.8 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: segyhdr.h,v 1.9 2004-04-28 14:37:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
 
     void	putAt(int,int,int,const char*);
     void	getFrom(int,int,int,char*) const;
-    void	print(ostream&) const;
+    void	print(std::ostream&) const;
  
     void        setAscii();
     void        setEbcdic();
@@ -52,7 +52,7 @@ public:
 		SegyBinHeader();
     void	getFrom(const void*);
     void	putTo(void*) const;
-    void	print(ostream&) const;
+    void	print(std::ostream&) const;
     int		bytesPerSample() const
 		{ return formatBytes( format ); }
     static int	formatBytes( int frmt )
@@ -101,7 +101,7 @@ public:
 			, hdef(hd)
 			, needswap(false), seqnr(1)		{}
 
-    void		print(ostream&) const;
+    void		print(std::ostream&) const;
 
     unsigned short	nrSamples() const;
     void		putSampling(SamplingData<float>,unsigned short);

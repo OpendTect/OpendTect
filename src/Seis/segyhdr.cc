@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.19 2004-04-26 15:50:56 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.20 2004-04-28 14:37:18 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -193,7 +193,7 @@ void SegyTxtHeader::putAt( int line, int pos, int endpos, const char* str )
 }
 
 
-void SegyTxtHeader::print( ostream& stream ) const
+void SegyTxtHeader::print( std::ostream& stream ) const
 {
     char buf[81];
     buf[80] = '\0';
@@ -201,7 +201,7 @@ void SegyTxtHeader::print( ostream& stream ) const
     for ( int line=0; line<40; line++ )
     {
 	memcpy( buf, &txt[80*line], 80 );
-	stream << buf << endl;
+	stream << buf << std::endl;
     }
 }
 
@@ -357,9 +357,9 @@ static void Ascii2Ebcdic( unsigned char *chbuf, int len )
     for ( i=0; i<len; i++ ) chbuf[i] = a2e[chbuf[i]];
 }
 
-#define prmem(mem) if (mem) { stream << #mem << "\t= " << mem << endl; }
+#define prmem(mem) if (mem) { stream << #mem << "\t= " << mem << std::endl; }
 
-void SegyBinHeader::print( ostream& stream ) const
+void SegyBinHeader::print( std::ostream& stream ) const
 {
     prmem(jobid); prmem(lino); prmem(reno); prmem(ntrpr);
     prmem(nart); prmem(hdt); prmem(dto); prmem(hns); prmem(nso);
@@ -369,7 +369,7 @@ void SegyBinHeader::print( ostream& stream ) const
     prmem(mfeet); prmem(polyt); prmem(vpol);
     for ( int i=0; i<SegyBinHeaderUnassShorts; i++ )
 	if ( hunass[i] != 0 )
-	    stream << "hunass[" << i << "] = " << hunass[i] << endl;
+	    stream << "hunass[" << i << "] = " << hunass[i] << std::endl;
 }
 
 
@@ -377,7 +377,7 @@ void SegyBinHeader::print( ostream& stream ) const
 strm << '\t' << #mem << '\t' << byt+1 \
      << '\t' << IbmFormat::as##fun( buf+byt ) << '\n'
 
-void SegyTraceheader::print( ostream& strm ) const
+void SegyTraceheader::print( std::ostream& strm ) const
 {
     mPrHead(tracl,0,Int); mPrHead(tracr,4,Int);
     mPrHead(fldr,8,Int); mPrHead(tracf,12,Int);
