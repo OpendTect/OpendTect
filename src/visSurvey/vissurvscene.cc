@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.59 2004-09-14 12:19:48 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.60 2004-10-01 12:29:21 nanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -45,6 +45,7 @@ Scene::Scene()
     , annot(0)
     , mouseposchange(this)
     , mouseposval(0)
+    , mouseposstr("")
 {
     setAmbientLight( 1 );
     setup();
@@ -407,6 +408,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
 	SPM().getUTM2DisplayTransform()->transformBack(displayspacepos);
 
     mouseposval = mUndefValue;
+    mouseposstr = "";
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
@@ -419,10 +421,13 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
 	    if ( mIsUndefined(mouseposval) )
 	    {
-		const float newmouseposval = so->getValue( xytmousepos );
+		float newmouseposval;
+		BufferString newstr;
+		so->getMousePosInfo( xytmousepos, newmouseposval, newstr );
 		if ( !mIsUndefined(newmouseposval) )
 		{
 		    mouseposval = newmouseposval;
+		    mouseposstr = newstr;
 		}
 	    }
 	    else if ( validpicksurface )

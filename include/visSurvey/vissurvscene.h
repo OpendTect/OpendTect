@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.30 2004-09-14 12:19:48 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.31 2004-10-01 12:29:06 nanne Exp $
 ________________________________________________________________________
 
 
@@ -85,6 +85,7 @@ public:
     Coord3			getMousePos( bool xyt ) const;
     				/*! If not xyt it is inlcrlt */
     float			getMousePosValue() const { return mouseposval;}
+    BufferString		getMousePosString() const { return mouseposstr;}
 
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
@@ -108,6 +109,7 @@ protected:
 
     Coord3			xytmousepos;
     float			mouseposval;
+    BufferString		mouseposstr;
 
     static const char*		annottxtstr;
     static const char*		annotscalestr;

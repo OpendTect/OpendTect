@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.242 2004-09-30 15:47:22 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.243 2004-10-01 12:29:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , viewmode(false)
     , eventobjid(-1)
     , eventmutex(*new Threads::Mutex)
-    , mouseposval( mUndefValue )
+    , mouseposval(mUndefValue)
+    , mouseposstr("")
 {
     tracktools = new uiTrackingMan( appserv().parent() );
     tracktools->display( false );
@@ -1003,6 +1004,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     xytmousepos = scene->getMousePos(true);
     inlcrlmousepos = scene->getMousePos(false);
     mouseposval = scene->getMousePosValue();
+    mouseposstr = scene->getMousePosString();
     sendEvent( evMouseMove );
 }
 

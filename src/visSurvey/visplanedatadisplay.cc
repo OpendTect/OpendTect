@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.73 2004-09-17 15:13:39 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.74 2004-10-01 12:29:21 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -683,22 +683,25 @@ bool PlaneDataDisplay::isOn() const
 
 #define mIsValid(idx,sz) ( idx>=0 && idx<sz )
 
-float PlaneDataDisplay::getValue( const Coord3& pos_ ) const
+void PlaneDataDisplay::getMousePosInfo( const Coord3& pos_, float& val, 
+					BufferString& info ) const
 {
-    if ( !cache ) return mUndefValue;
+    info = "";
+    if ( !cache ) { val = mUndefValue; return; }
     const BinID bid = SI().transform(pos_);
 
     int idx0, idx1, idx2;
     cache->getIdxs( bid.inl, bid.crl, pos_.z, idx0, idx1, idx2 );
 
     const int sz0 = cache->size();
-    if ( !mIsValid(idx0,sz0) ) return mUndefValue;
+    if ( !mIsValid(idx0,sz0) ) { val = mUndefValue; return; }
     
     const int sz1 = (*cache)[idx0]->info().getSize(0);
     const int sz2 = (*cache)[idx0]->info().getSize(1);
-    if ( !mIsValid(idx1,sz1) || !mIsValid(idx2,sz2) ) return mUndefValue;
+    if ( !mIsValid(idx1,sz1) || !mIsValid(idx2,sz2) )
+    { val = mUndefValue; return; }
     
-    return (*cache)[idx0]->get( idx1, idx2 );
+    val = (*cache)[idx0]->get( idx1, idx2 );
 }
 
 

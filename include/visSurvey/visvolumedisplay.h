@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.32 2004-04-28 10:54:38 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.33 2004-10-01 12:29:06 nanne Exp $
 ________________________________________________________________________
 
 
@@ -75,7 +75,8 @@ public:
     void			setCubeSampling(const CubeSampling&);
     bool			putNewData(AttribSliceSet*,bool);
     const AttribSliceSet*	getCachedData(bool) const;
-    float			getValue(const Coord3&) const;
+    void			getMousePosInfo(const Coord3&,float& val,
+	    					BufferString& info) const;
 
     const ColorAttribSel*	getColorSelSpec() const;
     void			setColorSelSpec(const ColorAttribSel&);

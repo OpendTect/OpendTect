@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.46 2004-04-27 11:59:32 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.47 2004-10-01 12:29:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,9 +270,11 @@ const AttribSliceSet* VolumeDisplay::getCachedData( bool colordata ) const
 }
 
 
-float VolumeDisplay::getValue( const Coord3& pos ) const
+void VolumeDisplay::getMousePosInfo( const Coord3& pos, float& val,
+				      BufferString& info ) const
 {
-    if ( !cache ) return mUndefValue;
+    info = "";
+    if ( !cache ) { val = mUndefValue; return; }
 
     const CubeSampling& cs = getCubeSampling(false);
     Coord3 origo( cs.hrg.start.inl, cs.hrg.start.crl, cs.zrg.start );
@@ -297,7 +299,7 @@ float VolumeDisplay::getValue( const Coord3& pos ) const
 	break;
     }
 
-    if ( !sz0 || !sz1 ) return mUndefValue;
+    if ( !sz0 || !sz1 ) { val = mUndefValue; return; }
 
     double setidx, idx0, idx1;
     if ( cache->direction == AttribSlice::Inl )
@@ -321,10 +323,10 @@ float VolumeDisplay::getValue( const Coord3& pos ) const
 
     if ( setidx < 0 || setidx > setsz-1 || 
 	 idx0 < 0 || idx0 > sz0-1 || idx1 < 0 || idx1 > sz1-1 )
-	return mUndefValue;
+    { val = mUndefValue; return; }
 
     AttribSlice* curslice = (*cache)[(int)setidx];
-    return curslice ? curslice->get( (int)idx0, (int)idx1 ) : mUndefValue;
+    val = curslice ? curslice->get( (int)idx0, (int)idx1 ) : mUndefValue;
 }
 
 

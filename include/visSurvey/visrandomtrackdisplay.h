@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.33 2004-09-17 15:13:50 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.34 2004-10-01 12:29:06 nanne Exp $
 ________________________________________________________________________
 
 
@@ -100,7 +100,8 @@ public:
     void			removeKnot(int);
     void			removeAllKnots();
 
-    float			getValue(const Coord3&) const;
+    void			getMousePosInfo(const Coord3&,float& val,
+	    					BufferString& info) const;
 
     void			turnOn(bool);
     bool			isOn() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.29 2004-09-22 14:31:04 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.30 2004-10-01 12:30:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,6 +296,8 @@ void uiODSceneMgr::setMousePos()
     appl.statusBar()->message( msg, 0 );
     msg = "Value = "; msg += visServ().getMousePosVal();
     appl.statusBar()->message( msg, 1 );
+    msg = visServ().getMousePosString();
+    appl.statusBar()->message( msg, 2 );
 }
 
 
