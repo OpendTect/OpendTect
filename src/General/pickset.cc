@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.9 2001-09-18 14:49:19 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.10 2001-10-06 17:46:40 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -28,10 +28,12 @@ bool PickLocation::fromString( const char* s )
     *endptr++ = '\0';
     double x = atof( str );
 
-    str = endptr; endptr = strchr( str, ' ' );
+    str = endptr; skipLeadingBlanks(str);
+    endptr = strchr( str, ' ' );
     if ( !endptr ) endptr = strchr( str, '\t' );
     if ( !endptr ) return false;
     *endptr++ = '\0'; if ( !*endptr ) return false;
+    skipLeadingBlanks(endptr);
 
     pos.x = x;
     pos.y = atof( str );
@@ -150,11 +152,12 @@ const char* dgbPickSetTranslator::read( PickSet& ps, Conn& conn,
     float zfac = 1;
     if ( astrm.hasKeyword("Z Factor") )
     {
-	zfac = atof( astrm.keyWord() );
+	zfac = astrm.getValue();
+	if ( mIS_ZERO(zfac) || mIsUndefined(zfac) )
+	    zfac = 1;
 	astrm.next();
 	if ( atEndOfSection(astrm) ) astrm.next();
     }
-    if ( mIS_ZERO(zfac) ) zfac = 1;
 
     if ( atEndOfSection(astrm) )
 	return "Input file contains no pick groups";
