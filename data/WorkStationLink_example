@@ -1,8 +1,9 @@
-dGB-dTect V1.4
+dGB-dTect V1.5
 Remote Workstation Access Definitions
-Wed Feb 19 13:30:27 2003
+Mon Apr 28 13:06:18 2003
 !
-Workstation Access Par
+Workstation Access Specification
+
 Number of Hosts: 2
 
 Host.0.Name: dgb26
