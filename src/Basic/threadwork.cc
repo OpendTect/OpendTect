@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.5 2002-09-10 07:35:25 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.6 2002-09-12 05:30:25 kristofer Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -40,8 +40,8 @@ Threads::WorkThread::~WorkThread()
     {
 	controlcond.lock();
 	exitflag = true;
-	controlcond.unlock();
 	controlcond.signal(false);
+	controlcond.unlock();
 
 	thread->stop();
 	thread = 0;
@@ -105,8 +105,8 @@ void Threads::WorkThread::cancelWork(CallBacker*)
 {
     controlcond.lock();
     exitflag = true;
-    controlcond.unlock();
     controlcond.signal( false );
+    controlcond.unlock();
 
     thread->stop();
     thread = 0;
@@ -124,8 +124,8 @@ bool Threads::WorkThread::assignTask(BasicTask* newtask, CallBack* cb_ )
 
     task = newtask;
     cb = cb_;
-    controlcond.unlock();
     controlcond.signal(false);
+    controlcond.unlock();
     return true;
 }
 
@@ -222,8 +222,8 @@ public:
 
 			nrfinished++;
 			bool isfin = nrfinished==nrtasks;
-			rescond.unlock();
 			if ( isfin ) rescond.signal( false );
+			rescond.unlock();
 		    }
 
     Threads::ConditionVar	rescond;
