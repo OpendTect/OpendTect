@@ -5,7 +5,7 @@
  * FUNCTION : Data buffer implementation
 -*/
  
-static const char* rcsID = "$Id: databuf.cc,v 1.1.1.1 1999-09-03 10:11:27 dgb Exp $";
+static const char* rcsID = "$Id: databuf.cc,v 1.1.1.2 1999-09-16 09:33:25 arend Exp $";
  
 #include "databuf.h"
 #include <malloc.h>

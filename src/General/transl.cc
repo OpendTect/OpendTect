@@ -9,7 +9,7 @@
 #include "ioobj.h"
 #include <iostream.h>
 
-static const char* rcsID = "$Id: transl.cc,v 1.1.1.1 1999-09-03 10:11:27 dgb Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.1.1.2 1999-09-16 09:33:45 arend Exp $";
 
 DefineAbstractClassDef(Translator,"Translator");
 UserIDObjectSet<Translator> Translator::groups_( "Object type displayed" );

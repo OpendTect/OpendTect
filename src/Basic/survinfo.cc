@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.1.1.1 1999-09-03 10:11:27 dgb Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.1.1.2 1999-09-16 09:32:42 arend Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"

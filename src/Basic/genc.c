@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.1.1.1 1999-09-03 10:11:27 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.1.1.2 1999-09-16 09:32:30 arend Exp $";
 
 #include <string.h>
 #include <stdio.h>

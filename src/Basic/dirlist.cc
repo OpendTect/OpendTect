@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.1.1.1 1999-09-03 10:11:27 dgb Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.1.1.2 1999-09-16 09:32:23 arend Exp $";
 
 #include "dirlist.h"
 #include "filegen.h"

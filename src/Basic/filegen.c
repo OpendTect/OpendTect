@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.1.1.1 1999-09-03 10:11:27 dgb Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.1.1.2 1999-09-16 09:32:28 arend Exp $";
 
 /*@+
 \section{File Functions}
