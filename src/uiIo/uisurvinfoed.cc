@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.19 2002-01-07 14:44:51 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.20 2002-01-07 16:17:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -359,7 +359,7 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
     survinfo->setZRange( zrg );
     BinID bid[2];
     bid[0].inl = bs.start.inl; bid[0].crl = bs.start.crl;
-    bid[1].inl = bs.stop.inl; bid[1].crl = bs.start.crl;
+    bid[1].inl = bs.stop.inl; bid[1].crl = bs.stop.crl;
     survinfo->set3Pts( crd, bid, bs.stop.crl );
     setValues();
 
