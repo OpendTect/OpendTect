@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.3 2001-05-11 20:28:14 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.4 2001-06-01 22:31:59 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -71,10 +71,10 @@ int CBVSInfo::SurvGeom::outOfRange( const BinID& bid ) const
 int CBVSInfo::SurvGeom::getInfIdx( const BinID& bid, int& infidx ) const
 {
     int res = outOfRange( bid );
-    if ( res || fullyrectandreg ) return res;
+    if ( fullyrectandreg || res % 256 ) return res;
 
     infidx = getInfoIdxFor( bid.inl );
-    return infidx < 0 ? 2 : 0;
+    return infidx < 0 ? 2 : res;
 }
 
 
