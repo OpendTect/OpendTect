@@ -2,12 +2,14 @@
 #_______________________________________________________________________________
 #
 # (C) 1999,2002 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec_rmt,v 1.7 2003-04-03 15:16:24 arend Exp $
+# $Id: od_exec_rmt,v 1.8 2003-04-28 08:22:04 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
 
-echo "$*" > /tmp/xx
+if ( $?dGB_DEBUG ) then
+    echo "$*" > /tmp/dgbdebug.log
+endif
 
 if ( ! $?dGB_APPL ) then
 	echo "Error : dGB program not initialized."
@@ -82,7 +84,9 @@ end
 
 set transf="$transf +-+-+ $*"
 
-echo ${rshcomm} ${remotehost} ${dGB_APPL}/bin/dgb_do_rmt $transf >> /tmp/xx
+if ( $?dGB_DEBUG ) then
+    echo ${rshcomm} ${remotehost} ${dGB_APPL}/bin/dgb_do_rmt $transf >> /tmp/dgbdebug.log
+endif
 
 ${rshcomm} ${remoteuser} ${remotehost} ${dGB_APPL}/bin/dgb_do_rmt $transf
 exit 0
