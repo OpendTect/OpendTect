@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.2 2004-01-16 09:51:52 dgb Exp $
+  - RCS:        $Id: unix.html,v 1.3 2004-01-22 14:13:54 dgb Exp $
  -->
 
 <body background="../backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V1.1]</title>
@@ -23,33 +23,34 @@
 In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, we recommend contacting support opendtect.org first.
 </p><p>
 For both types of development you should have installed a fully functional OpendTect system before you start. Even when you build the entire OpendTect, you'll want to be able to use some of the libraries from the distribution.
-<p>
+</p><p>
+MS Windows-based developers should branch to the <a href="windows.html">windows development section</a> from here.
+</p>
 
 <a name=prereq><h2>Prerequisites</h2></a>
 <p>
 Before you can start developing, there are a few external programs that need
-to be installed. For Windows, see <a href="windows.html#external">external installations</a>.
+to be installed.
 </p><p>
 On Unix, the following programs should be available:
 </p>
 
 <ul>
-<li>GNU make</li>
-<li>GNU gcc, including g++</li>
-<li>tcsh</li>
-<li>perl</li>
-<li>GNU awk (gawk)</li>
+<li>GNU make
+<li>GNU gcc 3.2.x, including g++
+<li>perl
 </ul>
-<p>Also recommended are:</p>
+<p>Recommended but fully optional are:</p>
 <ul>
-<li>CVS</li>
-<li>GNU Binutils</li>
-<li>GNU Bison(*)</li>
-<li>GNU Flex (*)</li>
-<li>Doxygen</li>
+<li>CVS
+<li>tcsh
+<li>GNU Binutils
+<li>GNU Bison(*)
+<li>GNU Flex (*)
+<li>Doxygen
+<li>GNU awk (gawk)
 </ul>
-
-<p>(*) Bison and Flex are required to build OpendTect itself.</p>
+(*) Bison and Flex may be required to build the entire OpendTect itself.</p>
 
 
 <a name=setup><h2>Setting up the environment</h2></a>
@@ -80,7 +81,7 @@ home directory.
 <h3>Setup environment variables</h3>
 
 <p>
-The init.csh/init.bash scripts are making guesses about a few pieces of information that are essential to the work of Pmake:
+The init.csh/init.bash scripts (created by the 'Create Devel. Env.' utility) are making guesses about a few pieces of information that are essential to the work of Pmake:
 <ul>
 <li>HDIR defines the platform you're working on, which is eigther lux, sun5, sgi or win.
 <li>GNUMAKE is the gnu make executable, usually just make or gmake.
@@ -101,17 +102,17 @@ If the guessed values are not correct, you can overrule them by setting the vari
 After you setup your environment, open a new shell and go to your ODWork directory. If you have sourced your init script from .bashrc or .login, the alias 'cdw' should bring you directly to your ODWork directory. Then go to the plugins directory, subdirectory Hello and type 'make'. You should see something like this:
 </p>
 <pre>
-$ cd plugins/Hello
-$ make
+% cd plugins/Hello
+% make
 Making Hello / Linux (Jan 16 09:37:18) DEBUG=yes.
 Compiling hellopi.cc ...
 Ranlib on libHello.a ...
 Creating /users/bert/ODWork/lib/lux/G/libHello.so ...
   Done !
-$</pre>
+%</pre>
 If this doesn't give similar output but errors, try the command 'make -n', which shows what make will do without actually doing it:
 <pre>
-$ make -n
+% make -n
 rm -f lslux
 echo "  Making Hello / Linux (Jan 16 09:41:52) DEBUG=yes." | tee -a lslux
 echo "Compiling hellopi.cc ... " | tee -a lslux
@@ -124,12 +125,12 @@ echo "Creating /users/bert/ODWork/lib/lux/G/libHello.so ..." | tee -a lslux
 /users/bert/ODWork/Pmake/base/bin/mkshobjlib /users/bert/ODWork/lib/lux/G/libHello.a --output /users/bert/ODWork/lib/lux/G/libHello.so \
 g++ -L/users/bert/ODWork/lib/lux/G  -shared -ggdb3  -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DSYSV -D__debug__ -Dlux -D__shared__ -fsigned-char -Wconversion -Wimplicit -Wmissing-prototypes -Wparentheses -Wreturn-type -Werror -Wno-non-template-friend  -I/users/bert/ODWork/include   -I. 1&gt;&gt;lslux 2&gt;&amp;1
 echo "  Done !" | tee -a lslux
-$
+%
 </pre>
 Anyway, when you have the 'Hello world' thing going, try a more 'demanding' plugin. For example the simple file seismic import:
 <pre>
-$ cd ../uiSeisIOSimple
-$ make
+% cd ../uiSeisIOSimple
+% make
   Making uiSeisIOSimple / Linux (Jan 16 09:38:13) DEBUG=yes.
 Compiling seisiosimple.cc ...
 Compiling uiseisiosimple.cc ...
@@ -137,7 +138,7 @@ Compiling uiseisiosimplepi.cc ...
 Ranlib on libuiSeisIOSimple.a ...
 Creating /users/bert/ODWork/lib/lux/G/libuiSeisIOSimple.so ...
   Done !
-$</pre>
+%</pre>
 <p>The libraries should now be created in $WORK/lib/$HDIR (in the example case /users/bert/ODWork/lib/lux/G).
 
 <h4>Testing the newly compiled plugins</h4>
@@ -156,7 +157,7 @@ The distribution of plugins is basically the same for Unix and windows.
 Just copy the .alo files into the plugins/platform directory (<code>$DTECT_APPL/plugins/$HDIR</code>) and copy the actual plugins into the libs subdirectory.
 </p>
 <p>
-For distribution to the outside world, you'll need to package your plugins, documentation, etc. into .tar.gz files on Unix (and <a href="http://www.jrsoftware.org/isinfo.php">inno-setup</a> on windows). For all details on what exactly should be packaged and how we'd recommend contacting support at opendtect.org.
+For distribution to the outside world, you'll need to package your plugins, documentation, etc. into .tar.gz files on Unix (and <a href="http://www.jrsoftware.org/isinfo.php">inno-setup</a> on windows). For all details on what exactly should be packaged and how, we'd recommend contacting support at opendtect.org.
 </p>
 
 

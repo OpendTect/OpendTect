@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Overview of programmer doc
-  - RCS:	$Id: overview.html,v 1.10 2003-12-23 07:43:27 nanne Exp $
+  - RCS:	$Id: overview.html,v 1.11 2004-01-22 14:13:54 dgb Exp $
  -->
 
 <body background="../backg.png"><title>Overview [OpendTect Programmer's manual V1.0]</title>
@@ -105,7 +105,7 @@ For seismic attributes, a separation is made between the engine and the structur
 
 <a name=uimodules><h3>UI modules</h3></a>
 <p>
-For most of the RW-modules, there is a UI counterpart. This is made possible by the basic UI modules <code>uiBase</code>, <code>uiTools</code> and <code>uiIo</code>, the basic 3D visualisation module visBase and the basic combined stuff in <code>uiCoin</code>. On top of everything is the UI application logic in <code>uiApplMan</code>.
+For most of the RW-modules, there is a UI counterpart. This is made possible by the basic UI modules <code>uiBase</code>, <code>uiTools</code> and <code>uiIo</code>, the basic 3D visualisation module visBase and the basic combined stuff in <code>uiCoin</code>. On top of everything is the UI application logic in <code>uiODMain</code>.
 </p><p>
 The <code>uiBase</code> module is one of the two modules that access Qt services. Where <code>uiCoin</code> specifically handles the bridge bewteen Qt and COIN, <code>uiBase</code> is Qt only. These two are therefore <a href=#isolation>isolation layers</a>. <code>uiBase</code>'s main task is to provide access to Qt widgets and implement the dynamic layout concept. In short, the OpendTect user interface was not painted with a paint tool, but rather programmed by attaching elements to each other. See the <a href="Generated/uiBase/index.html">uiBase class documentation</a>.
 </p><p>
@@ -115,7 +115,7 @@ The <code>uiIo</code> module is intended mainly for object selection (in the dat
 </p><p>
 The COIN-based visualisation services are made available in the <code>visBase</code> layer. Based on that, <code>visSurvey</code> delivers OpendTect-specific functionality.
 </p><p>
-It all comes together in the <code>uiApplMan</code> module. Being the top level module it is dependent on all other modules. To keep the amount of knowledge contained in this module low, much of the functionality is obtained from the 'UI Part servers'. For example, the <code>uiSeisPartServer</code> is the isolation class for all seismic-related user interface work. The <code>ui3DApplMan</code> object is only coordinating the flow of information between the various part servers.
+It all comes together in the <code>uiODMain</code> module. Being the top level module it is dependent on all other modules. To keep the amount of knowledge contained in this module low, much of the functionality is obtained from the 'UI Part servers'. For example, the <code>uiSeisPartServer</code> is the isolation class for all seismic-related user interface work. The <code>uiODApplMgr</code> object is only coordinating the flow of information between the various part servers.
 </p>
 
 <br><br>
@@ -123,29 +123,12 @@ It all comes together in the <code>uiApplMan</code> module. Being the top level 
 
 <h3>Precondictions</h3>
 <p>
-To build things, you'll have to make sure about:
-<ul>
-<li>Install opendtect and the plugin packages you want
-<li>Set <code>$WORK</code> to the installation directory (full path including opendtect-1.x). You may want to use the init_dtect script for this (see <a href="pmake.html#invoking">the Pmake manual</a>).
-<li>execute the proper <code>$WORK/Pmake/base/PMinit</code> script (<code>source</code> it on UNIX) - again, see <a href="pmake.html#invoking">the Pmake manual</a>.
-</ul>
-Now you can build everything you want. A good idea is to set an environment variable <code>DEBUG</code> to yes before starting.
-</p>
-
-<h3>Quick start</h3>
-<p>
-It's always easy to pick an example to work from. The 'Hello World' or the Coherency examples could help in that respect. The <code>ArkCls</code> plugin is quite a bit more complex but it does show a lot of important details. Thus:
-<ul>
-<li>Go to the plugins directory, copy example directory
-<li>Change the sources and the Makefile and use <code>make</code> to produce the new plugin .so or .dll .
-<li>copy or link the new plugin to the plugins directory in the <code>.od</code> directory in your home (or <code>Application data</code> on windows).
-</ul>
-Actually, the last step (for auto-load of the plugin) is not necessary because you can load plugins 'manually' inside OpendTect.
+Before you start, get a good development environment by using the 'Utilities-Create Devel. Env.' menu. When that's finished, you must source a generated setup script (init.csh or init.bash). Then you should be able to start developing right away.
 </p>
 
 <h3>Making it happen</h3>
 <p>
-Along the way, you'll have to do some digging in the include directory or the class documentation to figure out what services are available. Another thing that will be useful is the ModDeps.od file in the Pmake directory. The <a href="pmake.html">Pmake documentation</a> is pretty useful and the <a href="plugins.html">plugin manual</a>, well, see for yourself. If all else fails, you may even consider sending an e-mail to support@opendtect.org .
+Along the way, you'll have to do some digging in the include directory or the class documentation to figure out what services are available. You probably won't want to miss the info from the <a href="unix.html">UNIX</a> or <a href="windows.html">windows</a> instruction documentation. The <a href="pmake.html">Pmake documentation</a> is pretty useful and the <a href="plugins.html">plugin manual</a>, well, see for yourself. If all else fails, you may even consider sending an e-mail to support@opendtect.org .
 </p>
 
 <br>
@@ -156,6 +139,7 @@ Along the way, you'll have to do some digging in the include directory or the cl
   <a href="index.html">Index</a>
 | <a href="plugins.html">Plugins</a>
 | <a href="pmake.html">Pmake</a>
+| <a href="unix.html">UNIX</a>
 | <a href="windows.html">MS Windows</a>
 | <a href="http://www.opendtect.org">opendtect.org</a>
 </center>
