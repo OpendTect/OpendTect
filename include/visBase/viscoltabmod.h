@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		June 2003
- RCS:		$Id: viscoltabmod.h,v 1.1 2003-06-06 14:03:50 nanne Exp $
+ RCS:		$Id: viscoltabmod.h,v 1.2 2003-10-06 10:45:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,9 +62,10 @@ protected:
     bool			useclip;
     bool			reverse;
 
-    static const char*		cliprate0str;
-    static const char*		cliprate1str;
+    static const char*		clipratestr;
     static const char*		rangestr;
+    static const char*		reversestr;
+    static const char*		useclipstr;
 };
 
 }; // Namespace

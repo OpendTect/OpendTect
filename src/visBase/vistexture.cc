@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.22 2003-09-24 07:15:59 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.23 2003-10-06 10:44:19 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -36,6 +36,8 @@ const char* visBase::Texture::colortabstr = "ColorTable ID";
 const char* visBase::Texture::usestexturestr = "Uses texture";
 const char* visBase::Texture::texturequalitystr = "Texture quality";
 const char* visBase::Texture::resolutionstr = "Resolution";
+const char* visBase::Texture::coltabmodstr = "ColorTableModifier ID";
+
 
 visBase::Texture::Texture()
     : indexcache( 0 )
@@ -431,7 +433,7 @@ protected:
 		    }
 		    if ( saturationdata )
 		    {
-			float ts = 255 * 
+			float ts = s * 
 			      ctm->getScale(visBase::Texture::Saturation)
 			      .scale(saturationdata[idx]);
 			if ( ts<0 ) ts=0;
@@ -441,7 +443,7 @@ protected:
 		    }
 		    if ( brightnessdata )
 		    {
-			float tv = 255 * 
+			float tv = v * 
 			      ctm->getScale(visBase::Texture::Brightness)
 			      .scale(brightnessdata[idx]);
 			if ( tv<0 ) tv=0;
@@ -565,6 +567,22 @@ visBase::VisColTabMod& visBase::Texture::getColTabMod()
 { return *coltabmod; }
 
 
+void visBase::Texture::setColorPars( bool rev, bool useclip,
+				     const Interval<float>& intv )
+{
+    coltabmod->doReverse( rev );
+    coltabmod->useClipping( useclip );
+    useclip ? coltabmod->setClipRate( intv.start, intv.stop )
+	    : coltabmod->setRange( intv );
+}
+
+
+const Interval<float>& visBase::Texture::getColorDataRange() const
+{
+    return coltabmod->getRange();
+}
+
+
 void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     SceneObject::fillPar( par, saveids );
@@ -576,7 +594,11 @@ void visBase::Texture::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( usestexturestr, isOn() );
     par.set( resolutionstr, resolution );
 
+    int ctmid = coltabmod->id();
+    par.set( coltabmodstr, ctmid );
+
     if ( saveids.indexOf(ctid) == -1 ) saveids += ctid;
+    if ( saveids.indexOf(ctmid) == -1 ) saveids += ctmid;
 }
 
 
@@ -589,11 +611,19 @@ int visBase::Texture::usePar( const IOPar& par )
     if ( !par.get( colortabstr, coltabid ) ) return -1;
     DataObject* dataobj = DM().getObj( coltabid );
     if ( !dataobj ) return 0;
-    
-    mDynamicCastGet(VisColorTab*,coltab,dataobj);
+    mDynamicCastGet(VisColorTab*,coltab,dataobj)
     if ( !coltab ) return -1;
-
     setColorTab( *coltab );
+
+    int ctmid = -1;
+    par.get( coltabmodstr, ctmid );
+    dataobj = DM().getObj( ctmid );
+    if ( !dataobj ) return 0;
+    mDynamicCastGet(VisColTabMod*,ctm,dataobj)
+    if ( !ctm ) return -1;
+    coltabmod->unRef();
+    coltabmod = ctm;
+    coltabmod->ref();
 
     int newres = 0;
     par.get( resolutionstr, newres );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.13 2003-06-06 14:09:14 nanne Exp $
+ RCS:		$Id: vistexture.h,v 1.14 2003-10-06 10:45:00 nanne Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ class SoComplexity;
 class SoGroup;
 class SoSwitch;
 class visBaseTextureColorIndexMaker;
+template <class T> class Interval;
 
 namespace visBase
 {
@@ -76,6 +77,8 @@ public:
     float		getTextureQuality() const;
 
     VisColTabMod&	getColTabMod();
+    void		setColorPars(bool,bool,const Interval<float>&);
+    const Interval<float>& getColorDataRange() const;
 
     SoNode*		getData();
 
@@ -139,6 +142,7 @@ private:
     static const char*	texturequalitystr;
     static const char*	usestexturestr;
     static const char*	resolutionstr;
+    static const char*	coltabmodstr;
 };
 
 };

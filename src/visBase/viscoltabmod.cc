@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.1 2003-06-06 14:03:56 nanne Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.2 2003-10-06 10:44:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,10 +20,10 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visBase::VisColTabMod );
 
-const char* visBase::VisColTabMod::cliprate0str = "Cliprate0";
-const char* visBase::VisColTabMod::cliprate1str = "Cliprate1";
-const char* visBase::VisColTabMod::rangestr = "Range";
-
+const char* visBase::VisColTabMod::clipratestr	= "Cliprate";
+const char* visBase::VisColTabMod::rangestr 	= "Range";
+const char* visBase::VisColTabMod::reversestr 	= "Reverse display";
+const char* visBase::VisColTabMod::useclipstr 	= "Use clipping";
 
 
 visBase::VisColTabMod::VisColTabMod()
@@ -95,6 +95,11 @@ int visBase::VisColTabMod::usePar( const IOPar& par )
     int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
 
+    par.get( clipratestr, cliprate0, cliprate1 );
+    par.get( rangestr, range.stop, range.start );
+    par.getYN( reversestr, reverse );
+    par.getYN( useclipstr, useclip );
+
     return 1;
 }
 
@@ -102,4 +107,8 @@ int visBase::VisColTabMod::usePar( const IOPar& par )
 void visBase::VisColTabMod::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
+    par.set( clipratestr, cliprate0, cliprate1 );
+    par.set( rangestr, range.start, range.stop );
+    par.setYN( reversestr, reverse );
+    par.setYN( useclipstr, useclip );
 }
