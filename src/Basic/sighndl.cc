@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.11 2003-03-03 12:16:32 arend Exp $
+ RCS:           $Id: sighndl.cc,v 1.12 2003-03-11 14:24:25 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.11 2003-03-03 12:16:32 arend Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.12 2003-03-11 14:24:25 arend Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -227,7 +227,7 @@ void SignalHandling::stopRemote( const char* mach, int pid, bool friendly,
     cmd += ":@kill ";
     cmd += friendly ? "-TERM " : "-9 ";
     cmd += pid;
-    cmd += " >& /dev/null";
+    cmd += " > /dev/null";
 
     StreamProvider strmp( cmd );
     if ( rshcomm && *rshcomm )
