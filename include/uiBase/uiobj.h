@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.30 2003-04-22 09:49:42 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.31 2003-04-23 15:04:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,8 @@ public:
 			    Will be triggered before an object or its
 			    children is/are shown by calling Qt's show().
 			*/
-    Notifier<uiObject>	finalising;
+    Notifier<uiObject>	finaliseStart;
+    Notifier<uiObject>	finaliseDone;
 
 			/*! \brief triggered when object closes.
 			*/

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.10 2003-03-24 15:10:47 arend Exp $
+ RCS:           $Id: uiparentbody.h,v 1.11 2003-04-23 15:04:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ public:
 					      bool reciprocal ) =0;
 
     bool			finalised() const	{ return finalised_; }
-    virtual void 		finalise(bool t=false)		
+    virtual void 		finalise()		
 				{ 
 				    finaliseChildren(); 
 				}
