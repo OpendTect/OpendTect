@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.23 2003-07-24 14:21:36 nanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.24 2003-07-30 13:14:53 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
     int			size() const;
     bool		isPresent(const char*) const;
     bool		isSelected(int) const;
+    int			nrSelected() const;
     void		setSelected(int,bool yn=true);
     void		selAll(bool yn=true);
     virtual void	clear();
