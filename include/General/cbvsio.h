@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.2 2001-04-04 15:06:52 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.3 2001-04-05 16:21:35 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <gendefs.h>
+#include <position.h>
 
 
 /*!\brief Base class for CBVS reader and writer */
@@ -23,20 +23,25 @@ class CBVSIO
 public:
 
 			CBVSIO()
-			: errmsg_(0)
-			, nrcomps(0), cnrbytes_(0)	{}
+			: errmsg_(0), strmclosed_(false), nrxlines_(1)
+			, nrcomps_(0), cnrbytes_(0)	{}
 			~CBVSIO()			{ delete [] cnrbytes_; }
 
     bool		failed() const			{ return errmsg_; }
     const char*		errMsg() const			{ return errmsg_; }
 
     virtual void	close() 			= 0;
+    int			nrComponents() const		{ return nrcomps_; }
+    const BinID&	binID() const			{ return curbinid_; }
 
 protected:
 
     const char*		errmsg_;
-    int			nrcomps;
     int*		cnrbytes_;
+    BinID		curbinid_;
+    int			nrcomps_;
+    bool		strmclosed_;
+    int			nrxlines_;
 
     static const int	integersize;
     static const int	version;

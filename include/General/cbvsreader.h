@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.3 2001-04-04 15:06:52 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.4 2001-04-05 16:21:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,6 @@ public:
     const CBVSInfo&	info() const	{ return info_; }
     void		close();
 
-    BinID		binID() const	{ return curbinid; }
     BinID		nextBinID() const;
 
     bool		goTo(const BinID&);
@@ -53,7 +52,7 @@ public:
 
     static const char*	check(istream&);
 			//!< Determines whether a file is a CBVS file
-			//!< returns an error message or null if OK.
+			//!< returns an error message, or null if OK.
 
 protected:
 
@@ -64,13 +63,12 @@ protected:
     bool		readComps();
     bool		readGeom();
     bool		readTrailer();
+    void		getText(int,BufferString&);
 
 private:
 
     bool		hinfofetched;
-    int			nrxlines;
     int			bytespertrace;
-    BinID		curbinid;
     BinID		lastbinid;
     int			curinlinfnr;
     int			cursegnr;
@@ -79,7 +77,6 @@ private:
     DataInterpreter<int> iinterp;
     DataInterpreter<float> finterp;
     DataInterpreter<double> dinterp;
-    bool		isclosed;
     BinIDRange&		bidrg;
     Interval<int>*	samprgs;
 

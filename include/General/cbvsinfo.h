@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.4 2001-04-04 11:13:26 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.5 2001-04-05 16:21:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,12 +31,18 @@ public:
 			: BasicComponentInfo(cci)
 			, scaler(cci.scaler?cci.scaler->duplicate():0)	{}
     virtual		~CBVSComponentInfo()		{ delete scaler; }
-    CBVSComponentInfo&	operator =( const CBVSComponentInfo& cci )
+    CBVSComponentInfo&	operator =( const BasicComponentInfo& cci )
 			{
 			    if ( this == &cci ) return *this;
 			    BasicComponentInfo::operator =( cci );
-			    delete scaler;
-			    scaler = cci.scaler ? cci.scaler->duplicate() : 0;
+			    const CBVSComponentInfo* cbcci =
+				dynamic_cast<const CBVSComponentInfo*>(&cci);
+			    if ( cbcci )
+			    {
+				delete scaler;
+				scaler = cbcci->scaler
+				       ? cbcci->scaler->duplicate() : 0;
+			    }
 			    return *this;
 			}
     bool		operator ==( const CBVSComponentInfo& cci ) const
@@ -123,13 +129,14 @@ public:
 	float	refpos;
     };
 
-    ExplicitInfo		explinfo;
-    ObjectSet<CBVSComponentInfo> compinfo;
-
-    int				nrtrcsperposn;
-    SurvGeom			geom;
 
     int				seqnr;
+    int				nrtrcsperposn;
+
+    ExplicitInfo		explinfo;
+    ObjectSet<CBVSComponentInfo> compinfo;
+    SurvGeom			geom;
+
     BufferString		stdtext;
     BufferString		usertext;
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.5 2001-04-04 15:06:52 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.6 2001-04-05 16:21:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,6 @@ public:
 			//!< filled before the first put() of any position
 			~CBVSWriter();
 
-    bool		failed() const		{ return errmsg_; }
-    const char*		errMsg() const		{ return errmsg_; }
     unsigned long	byteThreshold() const	{ return thrbytes_; }		
 			//!< The default is unlimited
     void		setByteThreshold( unsigned long n )
@@ -53,7 +51,6 @@ public:
 protected:
 
     ostream&		strm_;
-    const char*		errmsg_;
     unsigned long	thrbytes_;
 
     void		writeHdr(const CBVSInfo&);
@@ -70,10 +67,7 @@ private:
     streampos		geomfo; //!< file offset of geometry data
     bool		finishing_inline;
     int			trcswritten;
-    bool		strmclosed;
-    BinID		curbid;
     int			previnl;
-    int			nrxlines;
 
     int			nrtrcsperposn;
     CBVSInfo::ExplicitInfo explinfo;
