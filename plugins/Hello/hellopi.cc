@@ -8,7 +8,7 @@ static const char* rcsID = "$Id";
 
 #include <iostream>
 
-extern "C" const char* HelloInitPlugin( int*, char** )
+extern "C" const char* InitHelloPlugin( int*, char** )
 {
     std::cout << "Hello world" << std::endl;
     return 0; // All OK - no error messages

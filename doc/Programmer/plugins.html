@@ -3,22 +3,31 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.2 2003-10-29 16:24:20 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.3 2003-10-30 11:16:25 bert Exp $
  -->
 <html>
 
-<body bgcolor="#dddddd"><title>OpendTect Programmer's manual V1.0 - Plugins</title>
-
+<body bgcolor="#dddddd"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
+<center>
 <h1>OpendTect Plugins</h1>
+  <a href=#intro>Intro</a>
+| <a href=#concept>Concept</a>
+| <a href=#starting>Starting</a>
+</center>
+<br>
+<hr size=3>
 
-<h2>Introduction</h2>
+<a name=intro><h2>Intro</h2>
+<h3>Background</h3>
 <p>
-Making your own software within OpendTect is in principle pretty easy. You could change the software by modifying exiting and adding new classes. The advantage is total control. The problem with this approach, however, is that you have to keep the OpendTect sources in sync with new releases. Furthermore, if you cannot convince the opendtect.org people also make those changes, OpendTect users may not be happy with your work.
+Making your own software within OpendTect is in principle pretty easy. You <i>could</i> change the software by modifying existing classes and functions, and adding your own stuff to the libs. The advantage is total control. The problem with this approach, however, is that you have to keep the OpendTect sources in sync with new releases. Furthermore, if you cannot convince the opendtect.org people also make those changes, OpendTect users may not be happy with your work.
 </p><p>
 An easy way to overcome this is to make your own plugins. Plugins make use of all the facilities of OpendTect but are loaded at run-time and can therefore be developed in a completely independent way. If you then find things that can't be done without modifying the OpendTect environment, it should much easier to convince the opendtect.org people to take over or even implement those themselves.
 </p>
 
-<h2>The concept</h2>
+<br><br>
+<a name=concept><h2>The concept</h2>
+<h3>Dynamic loading</h3>
 <p>
 All modern Operating systems nowadays have ways to dynamically load libraries into a running program. The basic idea is:
 <ul>
@@ -35,25 +44,39 @@ fn( "Hello world" );
 </code></pre>
 </p><p>
 In this very simple case calling the function has no other effect than printing a string. In OpendTect, you'd want to add an attribute, create a menu item in the Opendtect menu, etc. etc.
-</p><p>
-In OpendTect, all of the dynamic lib querying etc. is already programmed. A plugin just needs to contain a few standard functions that will be called automatically when the dynamic library is loaded. There are three functions, of which only one is really required. Let's say the name of the plugin is MyPlugin, these functions will be:
-<pre><code>MyPluginGetPluginType
-MyPluginGetPluginInfo
-MyPluginInitPlugin
+</p>
+
+<h3>OpendTect plugins</h3>
+<p>
+In OpendTect, all of the dynamic lib querying etc. is already programmed. A plugin just needs to contain a few standard functions that will be called automatically when the dynamic library is loaded. There are three functions, of which only one is really required. Let's say the name of the plugin is MyMod, these functions will be:
+<pre><code>GetMyModPluginType
+GetMyModPluginInfo
+InitMyModPlugin
 </code></pre>
 Only the last one is required.
 </p><p>
 Note that these functions must be declared 'extern "C"', e.g.:
 <pre><code>#include <iostream>
-extern "C" const char* HelloInitPlugin( int, char** )
+extern "C" const char* InitHelloPlugin( int, char** )
 {
     std::cout << "Hello world" << std::endl;
     return 0; // All OK - no error messages
 }
 </code></pre>
-Those 6 lines make a plugin for OpendTect - albeit of low usefulness.
+Those 6 lines make a plugin for OpendTect - unfortunately the usefulness would be pretty low.
 </p><p>
+</p>
 
+
+<br><hr size=3>
+
+<p>
+<center>
+  <a href="index.html">Index</a>
+| <a href="overview.html">Overview</a>
+| <a href="pmake.html">Pmake</a>
+| <a href="http://www.opendtect.org">opendtect.org</a>
+</center>
 </p>
 
 </body>

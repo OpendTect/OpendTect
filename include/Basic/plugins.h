@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.8 2003-10-29 16:24:20 bert Exp $
+ RCS:		$Id: plugins.h,v 1.9 2003-10-30 11:16:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ extern "C" {
 #define PI_AUTO_INIT_NONE	0
 #define PI_AUTO_INIT_EARLY	1
 #define PI_AUTO_INIT_LATE	2
+
+/*!\brief Information about plugin for outside world */
 
 typedef struct {
 
@@ -43,12 +45,12 @@ bool LoadPlugin(const char* libnm,int argc,char** argv);
 #ifdef __cpp__
 }
 
-/*!\brief Plugin manager - loads from shared libs or DLLs.
+/*!\brief Plugin manager - loads plugins: shared libs or DLLs.
  
  For shared libs things to be in any way useful, an init function
  must be called. The name of that function should predictable.
  It is constructed as follows:
- xxxInitPlugin
+ InitxxxPlugin
  where xxx is the name of the plugin file, where:
  libxxx.so -> xxx 
  xxx.dll -> xxx 
@@ -57,7 +59,7 @@ bool LoadPlugin(const char* libnm,int argc,char** argv);
  The signature is:
 
  extern "C" {
- const char* xxxInitPlugin(int,char**);
+ const char* InitxxxPlugin(int,char**);
  }
 
  Optional extras.
@@ -65,7 +67,7 @@ bool LoadPlugin(const char* libnm,int argc,char** argv);
  1) If you want the plugin to be loaded automatically at
  startup define:
 
- extern "C" int xxxGetPluginType(void);
+ extern "C" int GetxxxPluginType(void);
 
  if not defined, PI_AUTO_INIT_NONE is assumed, which means it will not be loaded
  if not explicitly done so.
@@ -75,7 +77,7 @@ bool LoadPlugin(const char* libnm,int argc,char** argv);
 
  2) It may be a good idea to define a function:
 
- extern "C" PluginInfo* xxxGetPluginInfo(void);
+ extern "C" PluginInfo* GetxxxPluginInfo(void);
 
  Make sure it returns an object of type PluginManager::Info*. Make sure it
  points to an existing object (static or made with new/malloc);

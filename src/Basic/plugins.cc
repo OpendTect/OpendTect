@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.19 2003-10-28 12:15:22 arend Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.20 2003-10-30 11:16:26 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -39,18 +39,23 @@ static const char* getHDir()
 }
 
 
-static const char* getFnName( const char* libnm, const char* fnend )
+static const char* getFnName( const char* libnm, const char* fnbeg,
+			      const char* fnend )
 {
     static BufferString ret;
+
+    ret = fnbeg;
 
     if ( (*libnm     == 'l' || *libnm     == 'L')
       && (*(libnm+1) == 'i' || *(libnm+1) == 'I')
       && (*(libnm+2) == 'b' || *(libnm+2) == 'B') )
 	libnm += 3;
-    ret = libnm;
+    ret += libnm;
+
     char* ptr = strchr( ret.buf(), '.' );
     if ( ptr ) *ptr = '\0';
     ret += fnend;
+
     return ret.buf();
 }
 
@@ -65,8 +70,8 @@ static const char* getFnName( const char* libnm, const char* fnend )
 # define mFnGettter dlsym
 #endif
 
-#define mGetFn(typ,fn,nm) \
-	typ fn = (typ)mFnGettter( handle, getFnName(libnmonly,nm) )
+#define mGetFn(typ,fn,nm1,nm2) \
+	typ fn = (typ)mFnGettter( handle, getFnName(libnmonly,nm1,nm2) )
 
 
 static bool loadPlugin( const char* libnm, int argc, char** argv,
@@ -86,22 +91,22 @@ static bool loadPlugin( const char* libnm, int argc, char** argv,
     const BufferString libnmonly = File_getFileName(libnm);
     if ( inittype > 0 )
     {
-	mGetFn(VoidIntRetFn,fn,"GetPluginType");
+	mGetFn(VoidIntRetFn,fn,"Get","PluginType");
 	if ( !fn || inittype != (*fn)() )
 	    mNotLoadedRet(;); // not an error: just not auto or not now
     }
 
-    mGetFn(ArgcArgvCCRetFn,fn2,"InitPlugin");
+    mGetFn(ArgcArgvCCRetFn,fn2,"Init","Plugin");
     if ( !fn2 )
 	mNotLoadedRet( cerr << "Cannot find "
-			    << getFnName(libnmonly,"InitPlugin")
+			    << getFnName(libnmonly,"Init","Plugin")
 			    << " function in " << libnm << endl )
 
     const char* ret = (*fn2)(argc,argv);
     if ( ret )
 	mNotLoadedRet( cerr << libnm << ": " << ret << endl )
 
-    mGetFn(PluginInfoRetFn,fn3,"GetPluginInfo");
+    mGetFn(PluginInfoRetFn,fn3,"Get","PluginInfo");
     PluginInfo* piinf = 0;
     if ( fn3 )
 	piinf = (*fn3)();
@@ -194,7 +199,7 @@ PluginManager::PluginManager()
 void PluginManager::getUsrNm( const char* libnm, BufferString& nm ) const
 {
     const BufferString libnmonly = File_getFileName(libnm);
-    nm = getFnName( libnmonly, "" );
+    nm = getFnName( libnmonly, "", "" );
 }
 
 
