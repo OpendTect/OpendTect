@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expgraddip.cc,v 1.4 2002-12-02 15:01:35 kristofer Exp $";
+static const char* rcsID = "$Id: expgraddip.cc,v 1.5 2003-03-24 15:25:25 nanne Exp $";
 
 
 #define mEPSILON 1E-9
@@ -112,7 +112,7 @@ int GradientDipAttrib::Task::nextStep()
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	timescale[idx] = idx*inpstep*1e6;
+	timescale[idx] = idx*inpstep*calculator.dipFactor();
 	inlscale[idx] = idx*calculator.inldist;
 	crlscale[idx] = idx*calculator.crldist;
     }

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.8 2003-03-05 12:03:08 nanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.9 2003-03-24 15:26:28 nanne Exp $";
 
 #include "vissurvobj.h"
 #include "visdataman.h"
@@ -35,6 +35,7 @@ visSurvey::SurveyParamManager::SurveyParamManager()
     , zscaletransform( 0 )
     , inlcrl2displaytransform( 0 )
     , zscale( 0 )
+    , zfactor( SI().zIsTime() ? 1000 : 1 )
 {
     visBase::DM().removeallnotify.notify(
 	    mCB( this, SurveyParamManager, removeTransforms ));
@@ -124,7 +125,7 @@ void visSurvey::SurveyParamManager::createTransforms()
     utm2displaytransform->setA(
 			    1,      0,      0,      -startpos.x,
 			    0,      1,      0,      -startpos.y,
-			    0,      0,      -1000,  0,
+			    0,      0,      -zfactor,  0,
 			    0,      0,      0,      1 );
 
     Array2DImpl<double> A(3,3);
@@ -161,7 +162,7 @@ void visSurvey::SurveyParamManager::createTransforms()
     inlcrl2displaytransform->setA(
 	    transmatrix11,	transmatrix12,	0,	transmatrix14,
 	    transmatrix21,	transmatrix22,	0,	transmatrix24,
-	    0,			0,		-1000,	0,
+	    0,			0,		-zfactor,	0,
 	    0,			0,		0,	1 );
 
     
@@ -190,4 +191,10 @@ void visSurvey::SurveyParamManager::removeTransforms(CallBacker*)
     }
 
     zscale = 1;
+}
+
+
+float visSurvey::SurveyObject::zFactor() const
+{
+    return SI().zIsTime() ? 1000 : 1;
 }

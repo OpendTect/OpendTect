@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.11 2003-01-20 11:30:48 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.12 2003-03-24 15:26:33 nanne Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,8 @@ public:
     					{ return mUndefValue; }
 
     virtual NotifierAccess*	getMovementNotification() { return 0; }
+
+    float			zFactor() const;
 };
 
 
@@ -57,6 +59,7 @@ protected:
     void			removeTransforms(CallBacker*);
     
     float			zscale;
+    float			zfactor;
     visBase::Transformation*	utm2displaytransform;
     visBase::Transformation*	zscaletransform;
     visBase::Transformation*	inlcrl2displaytransform;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expnearsubtract.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
+static const char* rcsID = "$Id: expnearsubtract.cc,v 1.3 2003-03-24 15:25:26 nanne Exp $";
 
 #include "expnearsubtract.h"
 #include "attribprovider.h"
@@ -61,8 +61,8 @@ NearSubtractAttrib::~NearSubtractAttrib( )
 
 bool NearSubtractAttrib::init()
 {
-    inldist = common->inldist * common->stepoutstep.inl * 1e-6;
-    crldist = common->crldist * common->stepoutstep.crl * 1e-6;
+    inldist = common->inldist * common->stepoutstep.inl / dipFactor();
+    crldist = common->crldist * common->stepoutstep.crl / dipFactor();
 
     return AttribCalc::init();
 }

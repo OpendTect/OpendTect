@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdeconv.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
+static const char* rcsID = "$Id: expdeconv.cc,v 1.3 2003-03-24 15:25:25 nanne Exp $";
 
 #define mEPSILON 1E-9
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: expdeconv.cc,v 1.2 2002-09-05 15:50:46 kristofe
 
 DeConvolveAttrib::DeConvolveAttrib( Parameters* param )
     : steering( param->steering )
-    , gate( param->gate.start/1000, param->gate.stop/1000 )
+    , gate( param->gate.start/zFactor(), param->gate.stop/zFactor() )
     , windowtype( (ArrayNDWindow::WindowType ((int) param->window)) )
     , window( 0 )
     , neighbourhood( param->neighbourhood )

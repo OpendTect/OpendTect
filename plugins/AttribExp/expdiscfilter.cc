@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdiscfilter.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
+static const char* rcsID = "$Id: expdiscfilter.cc,v 1.3 2003-03-24 15:25:25 nanne Exp $";
 
 
 #define mEPSILON 1E-9
@@ -240,7 +240,8 @@ int DiscFilterAttrib::Task::nextStep()
 	float crldip = crldiptrc ? crldiptrc->getValue(curt,crldipattrib) : 0;
 
 	float angle0 = atan2( crldip, -inldip );
-	float angle1 = atan(sqrt(inldip*inldip+crldip*crldip)*1e-6*velocity);
+	float poldip = sqrt(inldip*inldip+crldip*crldip);
+	float angle1 = atan(poldip*velocity/calculator.dipFactor());
 
 	stat.clear();
 

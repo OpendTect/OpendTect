@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expvardip.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
+static const char* rcsID = "$Id: expvardip.cc,v 1.3 2003-03-24 15:25:26 nanne Exp $";
 
 
 #define mEPSILON 1E-9
@@ -255,8 +255,9 @@ int MinVarianceDipAttrib::Task::nextStep()
 	float ninl = (-vcrl*wz+wcrl*vz);
 	float nz = (vcrl*winl-wcrl*vinl); 
 
-	if ( inldips ) inldips[idx] = ninl/-nz/velocity*1e6;	
-	if ( crldips ) crldips[idx] = ncrl/-nz/velocity*1e6;
+	const float dipfact = calculator.dipFactor();
+	if ( inldips ) inldips[idx] = ninl/-nz/velocity*dipfact;	
+	if ( crldips ) crldips[idx] = ncrl/-nz/velocity*dipfact;
 
 	curt += step;
     }

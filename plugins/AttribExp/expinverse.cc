@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expinverse.cc,v 1.5 2002-09-09 07:19:55 nanne Exp $";
+static const char* rcsID = "$Id: expinverse.cc,v 1.6 2003-03-24 15:25:25 nanne Exp $";
 
 #define mEPSILON 1E-9
 
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: expinverse.cc,v 1.5 2002-09-09 07:19:55 nanne E
 
 InverseAttrib::InverseAttrib( Parameters* param )
     : steering( param->steering )
-    , gate( param->gate.start/1000, param->gate.stop/1000 )
+    , gate( param->gate.start/zFactor(), param->gate.stop/zFactor() )
     , windowtype( (ArrayNDWindow::WindowType ((int) param->window)) )
     , window( 0 )
     , neighbourhood( param->neighbourhood )

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.45 2003-03-05 12:01:56 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.46 2003-03-24 15:26:28 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -145,10 +145,11 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
 
     float draggerdiameter = 0.2 * baselength;
     float draggerlength =  baselength * 0.2;
+    const float zfact = zFactor();
 
     if ( type==Inline )
     {
-	float draggertimesize = draggerdiameter / (1000*happvel);
+	float draggertimesize = draggerdiameter / (zfact*happvel);
 	float draggercrlsize = draggerdiameter / crlspacing;
 	float draggerinlsize = draggerlength / inlspacing;
 
@@ -158,7 +159,7 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
     }
     else if ( type==Crossline )
     {
-	float draggertimesize = draggerdiameter / (1000*happvel);
+	float draggertimesize = draggerdiameter / (zfact*happvel);
 	float draggerinlsize = draggerdiameter / inlspacing;
 	float draggercrlsize = draggerlength / crlspacing;
 
@@ -170,7 +171,7 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
     {
 	float draggerinlsize = draggerdiameter/ inlspacing;
 	float draggercrlsize = draggerdiameter / crlspacing;
-	float draggertimesize = draggerlength / (1000*happvel);
+	float draggertimesize = draggerlength / (zfact*happvel);
 
 	trect->getRectangle().setDraggerSize( draggerinlsize,
 					      draggercrlsize,

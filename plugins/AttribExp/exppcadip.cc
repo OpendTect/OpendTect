@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: exppcadip.cc,v 1.3 2002-10-28 22:29:11 bert Exp $";
+static const char* rcsID = "$Id: exppcadip.cc,v 1.4 2003-03-24 15:25:26 nanne Exp $";
 
 
 #define mEPSILON 1E-9
@@ -299,10 +299,9 @@ int PCADipAttrib::Task::nextStep()
 	}
     }
 
-
-    const float inlfactor = ((float) inpstep*1e6) / calculator.inldist;
-    const float crlfactor = ((float) inpstep*1e6) / calculator.crldist;
-
+    const float dipfact = calculator.dipFactor();
+    const float inlfactor = inpstep * dipfact / calculator.inldist;
+    const float crlfactor = inpstep * dipfact / calculator.crldist;
 
     ArrPtrMan<float>	data =  new float[maxnrsamples];
     ArrPtrMan<int>	indexes = new int[maxnrsamples];
