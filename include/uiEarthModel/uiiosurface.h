@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.4 2003-08-05 15:10:52 nanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.5 2003-08-06 15:11:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,8 @@ protected:
 			uiIOSurface(uiParent*);
 
     void		fillFields(const MultiID&);
-    void		fillPatchFld(ObjectSet<BufferString>);
-    void		fillAttribFld(ObjectSet<BufferString>);
+    void		fillPatchFld(const ObjectSet<BufferString>&);
+    void		fillAttribFld(const ObjectSet<BufferString>&);
     void		fillRangeFld(const BinIDSampler&);
 
     void		mkAttribFld();
@@ -57,7 +57,7 @@ protected:
     void		objSel(CallBacker*);
 
     uiLabeledListBox*	patchfld;
-    uiLabeledListBox*	attrlistfld;
+    uiLabeledListBox*	attribfld;
     uiBinIDSubSel*	rgfld;
     uiIOObjSel*		objfld;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.5 2003-08-05 15:10:46 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.6 2003-08-06 15:11:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ uiIOSurface::uiIOSurface( uiParent* p )
     : uiGroup(p,"Surface selection")
     , ctio(*new CtxtIOObj(EMHorizonTranslator::ioContext()))
     , patchfld(0)
-    , attrlistfld(0)
+    , attribfld(0)
     , rgfld(0)
 {
 }
@@ -46,12 +46,12 @@ uiIOSurface::~uiIOSurface()
 
 void uiIOSurface::mkAttribFld()
 {
-    attrlistfld = new uiLabeledListBox( this, "Calculated attributes", false,
+    attribfld = new uiLabeledListBox( this, "Calculated attributes", false,
 					uiLabeledListBox::AboveMid );
-    attrlistfld->box()->rightButtonClicked.notify( 
+    attribfld->box()->rightButtonClicked.notify( 
 	    				mCB(this,uiIOSurface,deSelect) );
-    attrlistfld->setPrefHeightInChar( cListHeight );
-    attrlistfld->setStretch( 1, 1 );
+    attribfld->setPrefHeightInChar( cListHeight );
+    attribfld->setStretch( 1, 1 );
 }
 
 
@@ -89,18 +89,18 @@ void uiIOSurface::fillFields( const MultiID& id )
 }
 
 
-void uiIOSurface::fillAttribFld( ObjectSet<BufferString> valnames )
+void uiIOSurface::fillAttribFld( const ObjectSet<BufferString>& valnames )
 {
-    if ( !attrlistfld ) return;
+    if ( !attribfld ) return;
 
-    attrlistfld->box()->empty();
+    attribfld->box()->empty();
     for ( int idx=0; idx<valnames.size(); idx++)
-	attrlistfld->box()->addItem( valnames[idx]->buf() );
-    attrlistfld->box()->selAll( false );
+	attribfld->box()->addItem( valnames[idx]->buf() );
+    attribfld->box()->selAll( false );
 }
 
 
-void uiIOSurface::fillPatchFld( ObjectSet<BufferString> patches )
+void uiIOSurface::fillPatchFld( const ObjectSet<BufferString>& patches )
 {
     if ( !patchfld ) return;
 
@@ -138,7 +138,7 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
 
     sels.selvalues.erase();
 
-    int curitm = attrlistfld ? attrlistfld->box()->currentItem() : 0;
+    int curitm = attribfld ? attribfld->box()->currentItem() : 0;
     if ( curitm >= 0 )
 	sels.selvalues += curitm;
 }
@@ -146,13 +146,13 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
 
 IOObj* uiIOSurface::selIOObj() const
 {
-    return ctio.ioobj->clone();
+    return ctio.ioobj;
 }
 
 
 void uiIOSurface::deSelect( CallBacker* )
 {
-    attrlistfld->box()->clear();
+    attribfld->box()->clear();
 }
 
 
@@ -253,14 +253,14 @@ uiSurfaceSel::uiSurfaceSel( uiParent* p, bool showattribfld )
     if ( showattribfld )
     {
 	mkAttribFld();
-	attrlistfld->attach( alignedBelow, objfld );
-	patchfld->attach( rightTo, attrlistfld );
+	attribfld->attach( alignedBelow, objfld );
+	patchfld->attach( rightTo, attribfld );
     }
     else
 	patchfld->attach( alignedBelow, objfld );
 
     mkRangeFld();
-    rgfld->attach( alignedBelow, showattribfld ? (uiObject*)attrlistfld
+    rgfld->attach( alignedBelow, showattribfld ? (uiObject*)attribfld
 	    				       : (uiObject*)patchfld );
 
     setHAlignObj( rgfld );
