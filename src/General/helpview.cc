@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.10 2003-10-22 14:07:08 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.11 2003-10-31 12:21:38 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -206,7 +206,7 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 
     BufferString url( GetSoftwareDir() );
     url = File_getFullPath( url, "data" );
-    url = File_getFullPath( url, subdirNm() );
+    url = File_getFullPath( url, subdirNm(scope) );
     url = File_getFullPath( url, htmlfnm );
     if ( linknm != sMainIndex )
 	{ url += "#"; url += linknm; }
