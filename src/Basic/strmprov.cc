@@ -26,7 +26,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.15 2002-01-07 13:21:23 nanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.16 2002-03-04 09:10:17 bert Exp $";
 
 static FixedString<1024> oscommand;
 #ifdef __msvc__
@@ -312,6 +312,7 @@ CONCLUSION: use binary mode, and windows will read&write unix format ;))
 	}
     }
 
+    oscommand += "&";
     sd.fp = popen( oscommand, "r" );
     sd.ispipe = true;
     if ( sd.fp )
@@ -375,6 +376,7 @@ StreamData StreamProvider::makeOStream() const
 	}
     }
 
+    oscommand += "&";
     sd.fp = popen( oscommand, "w" );
     sd.ispipe = true;
     if ( sd.fp )
