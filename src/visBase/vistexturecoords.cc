@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.6 2004-09-09 12:44:34 nanne Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.7 2004-11-16 14:24:20 kristofer Exp $";
 
 #include "vistexturecoords.h"
 
@@ -35,6 +35,10 @@ visBase::TextureCoords::~TextureCoords()
     coords->unref();
     delete &mutex;
 }
+
+
+int visBase::TextureCoords::size(bool includedeleted) const
+{ return coords->point.getNum()-(includedeleted ? 0 : unusedcoords.size()); }
 
 
 void visBase::TextureCoords::setCoord( int idx, const Coord3& pos )

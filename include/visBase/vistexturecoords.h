@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexturecoords.h,v 1.3 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: vistexturecoords.h,v 1.4 2004-11-16 14:24:20 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,7 @@ public:
     static TextureCoords*	create()
 				mCreateDataObj(TextureCoords);
 
+    int				size(bool includedelete=false) const;
     void			setCoord( int,  const Coord3& );
     void			setCoord( int,  const Coord& );
     int				addCoord( const Coord3& );
