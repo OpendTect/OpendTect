@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.76 2003-01-24 11:22:50 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.77 2003-01-27 13:18:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,7 +140,6 @@ public:
 
 
     static const int		evSelectAttrib;
-    void			setAttribSelSpec(int,AttribSelSpec&);
     void			setSelSpec(const AttribSelSpec&);
     				/*!< Should only be called as a direct 
 				     reply to evSelectAttrib */
@@ -152,20 +151,13 @@ public:
 				     Nr positions in picksets */
 
     				// ColorTable stuff
-    bool			usesColTab(int) const;
-    void			modifyColorSeq(int,const ColorTable&);
-    const ColorTable&		getColorSeq(int) const;
+    int				getColTabId(int) const;
     void			setClipRate(int,float);
-    float			getClipRate(int) const;
-    void			setAutoscale(int,bool);
-    bool			getAutoscale(int) const;
-    void			setDataRange(int,const Interval<float>&);
-    Interval<float>		getDataRange(int) const;
-
 
 				//General stuff
     int				getEventObjId() const;
     const AttribSelSpec*	getSelSpec( int id ) const;
+    void			setSelSpec( int id, const AttribSelSpec& );
     bool			deleteAllObjects();
     void			setZScale();
     bool			setWorkingArea();
@@ -196,7 +188,7 @@ protected:
     bool			hasMaterial( int id ) const;
     bool			setMaterial( int id );
 
-    bool			hasColor(int) const;
+    bool			hasColor( int id ) const;
 
     bool			hasDuplicate(int) const;
     bool			duplicateObject(int,int);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.118 2003-01-24 15:01:46 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.119 2003-01-27 13:19:44 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -667,7 +667,6 @@ void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
 	return;
     }
 
-    //TODO Add voldisplay stuff if needed
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
     if ( vd )
@@ -677,6 +676,7 @@ void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
 	childids += inl;
 	childids += crl;
 	childids += tsl;
+	childids += vd->getVolRenId();
     }
 }
 
@@ -922,171 +922,31 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 }
 
 
-bool uiVisPartServer::usesColTab( int id ) const
+int uiVisPartServer::getColTabId( int id ) const
 {
-    const visBase::DataObject* dobj = visBase::DM().getObj( id );
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
 
-    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
-    if ( pdd ) return true;
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
+    if ( pdd ) return pdd->getColorTab().id();
 
-    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
-    if ( vd ) return true;
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
+    if ( vd ) return vd->getColorTab().id();
 
-    mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,dobj)
-    if ( rtd ) return true;
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj)
+    if ( rtd ) return rtd->getColorTab().id();
 
-    mDynamicCastGet(const visSurvey::SurfaceDisplay*,surface,dobj)
-    if ( surface && surface->usesTexture() ) return true;
+    mDynamicCastGet(visSurvey::SurfaceDisplay*,surface,dobj)
+    if ( surface ) return surface->getColorTab().id();
 
-    return false;
-}
-
-
-void uiVisPartServer::modifyColorSeq(int id, const ColorTable& ctab )
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-    if ( pdd ) pdd->setColorTable( ctab );
-
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
-    if ( sd ) sd->setColorTable( ctab );
-
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( vd ) 
-    {
-	vd->getColorTable().colorSeq().colors() = ctab;
-	vd->getColorTable().colorSeq().colorsChanged();
-    }
-
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-    if ( rtd ) rtd->setColorTable( ctab );
-}
-
-
-const ColorTable& uiVisPartServer::getColorSeq( int id ) const
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-    if ( pdd ) return pdd->getColorTable();
-
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
-    if ( sd ) return sd->getColorTable();
-
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( vd ) return vd->getColorTable().colorSeq().colors();
-
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-    if ( rtd ) return rtd->getColorTable();
-
-    return *new ColorTable("Red-White-Blue");
-}
-
-
-void uiVisPartServer::setAutoscale( int id, bool yn )
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) pdd->setAutoscale( yn );
-
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
-    if ( sd ) sd->setAutoscale( yn );
-
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( vd ) vd->setAutoscale( yn );
-
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-    if ( rtd ) rtd->setAutoscale( yn );
-}
-
-
-bool uiVisPartServer::getAutoscale( int id ) const
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) return pdd->autoScale();
-
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
-    if ( sd ) return sd->getAutoscale();
-
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( vd ) return vd->autoScale();
-
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-    if ( rtd ) return rtd->autoScale();
-
-    return false;
+    return -1;
 }
 
 
 void uiVisPartServer::setClipRate( int id, float cr )
 {
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) pdd->setClipRate( cr );
-
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
-    if ( sd ) sd->setClipRate( cr );
-    
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( vd ) vd->setClipRate( cr );
-    
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-    if ( rtd ) rtd->setClipRate( cr );
-}
-
-
-float uiVisPartServer::getClipRate( int id ) const
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) return pdd->clipRate();
-    
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
-    if ( sd ) return sd->getClipRate();
-    
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( vd ) return vd->clipRate();
-    
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-    if ( rtd ) return rtd->clipRate();
-    return 0;
-}
-
-
-void uiVisPartServer::setDataRange( int id, const Interval<float>& intv )
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) pdd->setDataRange( intv );
-
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
-    if ( sd ) sd->setDataRange( intv );
-
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( vd ) vd->getColorTable().scaleTo( intv );
-
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-    if ( rtd ) rtd->setDataRange( intv );
-}
-
-
-Interval<float> uiVisPartServer::getDataRange( int id ) const
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    if ( pdd ) return pdd->getDataRange();
-
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj)
-    if ( sd ) return sd->getDataRange();
-
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( vd ) return vd->getColorTable().getInterval();
-
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
-    if ( rtd ) return rtd->getDataRange();
-
-    return Interval<float>(0,1);
+    visBase::DataObject* obj = visBase::DM().getObj( getColTabId(id) );
+    mDynamicCastGet(visBase::VisColorTab*,coltab,obj)
+    if ( coltab ) coltab->setClipRate( cr );
 }
 
 
@@ -1095,17 +955,17 @@ int uiVisPartServer::getEventObjId() const { return eventobjid; }
 
 const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 {
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
+    const visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,obj);
     if ( pdd ) return &pdd->getAttribSelSpec();
 
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj);
+    mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,obj);
     if ( sd ) return &sd->getAttribSelSpec();
 
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj);
+    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,obj);
     if ( vd ) return &vd->getAttribSelSpec();
 
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj);
+    mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,obj);
     if ( rtd ) return &rtd->getAttribSelSpec();
 
     return 0;
@@ -1335,37 +1195,34 @@ bool uiVisPartServer::selectAttrib( int id )
 {
     eventmutex.lock();
     if ( !sendEvent( evSelectAttrib ) ) return false;
-    AttribSelSpec myattribspec( attribspec );
-    setAttribSelSpec( id, myattribspec );
+    const AttribSelSpec myattribspec( attribspec );
     eventmutex.unlock();
+
+    setSelSpec( id, myattribspec );
+    eventmutex.lock();
+    eventobjid = id;
+    sendEvent(evUpdateTree);
+    eventmutex.unlock();
+
     return true;
 }
 
 
-void uiVisPartServer::setAttribSelSpec( int id, AttribSelSpec& attrspec )
+void uiVisPartServer::setSelSpec( int id, const AttribSelSpec& myattribspec )
 {
+
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj);
-    if ( vd )
-    {
-	vd->setAttribSelSpec( attrspec );
-    }
+    if ( vd ) vd->setAttribSelSpec( myattribspec );
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,dobj);
-    if ( rtd ) 
-	rtd->setAttribSelSpec( attrspec );
+    if ( rtd ) rtd->setAttribSelSpec( myattribspec );
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj);
-    if ( pdd )
-    {
-	pdd->setAttribSelSpec( attrspec );
-    }
+    if ( pdd ) pdd->setAttribSelSpec( myattribspec );
 
     mDynamicCastGet(visSurvey::SurfaceDisplay*,surface,dobj);
-    if ( surface )
-    {
-	surface->setAttribSelSpec( attrspec );
-    }
+    if ( surface ) surface->setAttribSelSpec( myattribspec );
 }
 
 
@@ -1561,8 +1418,10 @@ bool uiVisPartServer::duplicateObject( int id, int sceneid )
 	newpdd->setType( tp );
 	CubeSampling& cs = pdd->getCubeSampling();
 	newpdd->setCubeSampling( cs );
-	const ColorTable& ctab = pdd->getColorTable();
-	newpdd->setColorTable( ctab );
+	IOPar coltabpar;
+	TypeSet<int> dummy;
+	pdd->getColorTab().fillPar( coltabpar, dummy );
+	newpdd->getColorTab().usePar(coltabpar);
     }
 
     eventobjid = newid;
