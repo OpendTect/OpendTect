@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.4 2005-03-24 07:30:46 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.5 2005-04-04 11:28:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "progressmeter.h"
 #include "hostdata.h"
 #include "separstr.h"
-#include "socket.h"
 #include "timefun.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -42,39 +41,6 @@ ________________________________________________________________________
 #include "attribfact.h"
 #define mDestroyWorkers \
 	{ delete exec; exec = 0; }
-
-
-class ExecMessenger : public CallBacker
-{
-public:
-			ExecMessenger( BatchProgram& bp,
-				       AttribOutputExecutor& ex,
-				       std::ostream& os  )
-			: bp_(bp), ex_( ex ), strm( os )
-			{
-			    ex_.moveonly.notify(
-				mCB(this, ExecMessenger,writestat) );
-			}
-
-
-    void		writestat( CallBacker* )
-			{
-			    if( !bp_.updateStatus( mCTRL_STATUS, mSTAT_WORKING))
-			    {
-				strm << "Lost connection with Master. Exiting";
-				strm << std::endl;
-
-				exitProgram( -1 );
-			    }
-			}
-
-protected:
-
-    BatchProgram&	bp_;
-    AttribOutputExecutor& ex_;
-    std::ostream&	strm;
-
-};
 
 
 #define mErrRet(s) \
@@ -223,7 +189,6 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 
 #define mRetErr(s) \
 	{ strm << '\n' << s << '\n' << std::endl; \
-	  writeStatus( mCTRL_STATUS, mSTAT_ERROR, s ); \
 	  mDestroyWorkers ; return false; }
 
 bool BatchProgram::go( std::ostream& strm )
@@ -240,9 +205,6 @@ bool BatchProgram::go( std::ostream& strm )
 
     AttribDescSetProcessor* proc = 0;
     AttribOutputExecutor* exec = 0;
-
-    if( !writeStatus( mCTRL_STATUS, mSTAT_INITING ) )
-	mErrRet("Cannot write status to master")
 
     BufferString errmsg;
     MultiID mid;
@@ -308,7 +270,6 @@ bool BatchProgram::go( std::ostream& strm )
     getPositions( strm, mid, bivs );
 
     exec = (AttribOutputExecutor*)aem.tableOutputCreator( errmsg, bivs );
-    ExecMessenger msngr( *this, *exec, strm );
 
     ProgressMeter progressmeter(strm);
     strm << std::endl;
@@ -319,9 +280,6 @@ bool BatchProgram::go( std::ostream& strm )
     bool cont = true;
     bool loading = true;
     bool oldcalc = false;
-
-    if( !writeStatus( mCTRL_STATUS, mSTAT_WORKING ) )
-	mErrRet("Cannot write status to master (2)")
 
     while ( 1 )
     {
@@ -342,13 +300,6 @@ bool BatchProgram::go( std::ostream& strm )
 	    {
 		progressmeter.resetDist();
 		oldcalc = newcalc;
-	    }
-
-	    if ( !updateStatus(mPROC_STATUS,exec->nrDone()) )
-	    {
-		strm << "\n["<<getPID();
-		strm <<"]: Lost connection with master." << std::endl;
-		mErrRet("Cannot write status to master (5)")
 	    }
 
 	    ++progressmeter;
@@ -377,17 +328,8 @@ bool BatchProgram::go( std::ostream& strm )
     PtrMan<Executor> saver = surface->auxdata.auxDataSaver( -1, -1 );
     if ( !saver || !saver->execute(&strm) ) mRetErr( "Cannot save data" );
 
-    strm << "\n["<<getPID()<<"]: Threads closed. Writing finish status"
+    strm << "\n["<<getPID()<<"]: Successfully saved data."
 	 << std::endl;
 
-    bool ret = writeStatus( mCTRL_STATUS, mSTAT_FINISHED );
-
-    if ( ret )
-	strm << "[" <<getPID()<< "]: Successfully wrote finish status."
-	     << std::endl;
-    else
-	strm << "[" <<getPID()<< "]: Could not write finish status."
-	     << std::endl;
-
-    return ret;
+    return true;
 }
