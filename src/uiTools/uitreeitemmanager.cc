@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.4 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.5 2003-11-24 10:46:11 kristofer Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -279,4 +279,56 @@ void uiTreeTopItem::updateColumnText(int col)
 uiParent* uiTreeTopItem::getUiParent()
 {
     return listview->parent();
+}
+
+
+uiTreeFactorySet::uiTreeFactorySet()
+    : addnotifier( this )
+    , removenotifier( this )
+{}
+
+
+uiTreeFactorySet::~uiTreeFactorySet()
+{
+    deepErase( factories );
+}
+
+
+void uiTreeFactorySet::addFactory(uiTreeItemFactory* ptr)
+{
+    factories += ptr;
+    addnotifier.trigger(factories.size()-1);
+}
+
+
+void uiTreeFactorySet::remove( const char* nm )
+{
+    int index = -1;
+    for ( int idx=0; idx<factories.size(); idx++ )
+    {
+	if ( !strcmp(nm,factories[idx]->name()) )
+	{
+	    index=idx;
+	    break;
+	}
+    }
+
+    if ( index<0 )
+	return;
+
+    removenotifier.trigger(index);
+    delete factories[index];
+    factories.remove(index);
+}
+
+
+int uiTreeFactorySet::nrFactories() const
+{
+    return factories.size();
+}
+
+
+const uiTreeItemFactory* uiTreeFactorySet::getFactory(int idx) const
+{
+    return idx<nrFactories() ? factories[idx] : 0;
 }
