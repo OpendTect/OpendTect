@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.5 2002-04-25 13:49:39 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.6 2002-04-29 09:25:00 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ namespace visBase
 {
 class DataObject;
 class SelectionManager;
+class Factory;
 
 
 /*!\brief
@@ -42,7 +43,7 @@ public:
 			*/
 
     void		fillPar( IOPar& ) const;
-    void		usePar( const IOPar& );
+    bool		usePar( const IOPar& );
 
     void		ref( int id );
     void		ref( const DataObject* );
@@ -59,8 +60,7 @@ public:
     const DataObject*	getObj( int id ) const;
 
     SelectionManager&	selMan() { return selman; }
-
-    static DataManager	manager;
+    Factory&		factory() { return fact; }
 
 protected:
     bool		removeAll(int nriterations=1000);
@@ -82,6 +82,11 @@ protected:
 
     int				freeid;
     SelectionManager&		selman;
+    Factory&			fact;
+
+    static const char*		freeidstr;
+    static const char*		selmanprefix;
+    static const char*		typestr;
 };
 
 DataManager& DM();
