@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.12 2003-11-12 12:57:04 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.13 2004-01-22 16:09:11 nanne Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -223,6 +223,7 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 	rdHdr( *sd.istrm, sKeyLog );
 	PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, idx-1 );
 	strs.add( log->name() );
+	sd.close();
     }
 }
 
@@ -246,6 +247,7 @@ bool Well::Reader::getLogs() const
 	}
 
 	rv = true;
+	sd.close();
     }
 
     return rv;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.11 2003-11-24 08:54:54 kristofer Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.12 2004-01-22 16:08:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "emhorizontransl.h"
 #include "emsurfaceiodata.h"
 #include "emsurfauxdataio.h"
-#include "streamconn.h"
 #include "uimsg.h"
 
 
@@ -99,9 +98,9 @@ void uiSurfaceMan::selChg( CallBacker* cb )
 void uiSurfaceMan::remPush( CallBacker* )
 {
     if ( !attribfld->size() || !attribfld->nrSelected() ) return;
-    
-    mDynamicCastGet(StreamConn*,conn,ctio.ioobj->getConn(Conn::Read))
-    if ( !conn ) return;
+   
+    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
+    if ( !iostrm ) return;
 
     const char* attrnm = attribfld->getText();
     int gap = 0;
@@ -110,7 +109,7 @@ void uiSurfaceMan::remPush( CallBacker* )
 	if ( gap > 100 ) return;
 
 	BufferString fnm(
-		EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx) );
+		EM::dgbSurfDataWriter::createHovName(iostrm->fileName(),idx) );
 	if ( File_isEmpty(fnm) )
 	{ gap++; continue; }
 
@@ -190,6 +189,7 @@ void uiSurfaceMan::mkFileInfo()
     }
 
     infofld->setText( txt );
+    conn->close();
 }
 
 

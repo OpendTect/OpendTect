@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.35 2004-01-19 16:38:51 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.36 2004-01-22 16:08:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,8 @@ uiImportHorizon::~uiImportHorizon()
 
 #define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
-#define mErrRetUnRef(s) { horizon->unRef(); deepErase(filenames); mErrRet(s) }
+#define mErrRetUnRef(s) \
+{ conn->close(); horizon->unRef(); deepErase(filenames); mErrRet(s) }
 
 bool uiImportHorizon::handleAscii()
 {
@@ -109,7 +110,7 @@ bool uiImportHorizon::handleAscii()
 	BinIDRange* bidrg = subselfld->isAll() ? 0 : subselfld->getRange();
 	reader.setRange( bidrg );
 	uiExecutor execdlg( this, reader );
-	if ( !execdlg.go() ) return false;
+	if ( !execdlg.go() ) mErrRetUnRef( "Stopped reading" );
 
 	Grid* dskgrd = reader.grid();
 	PtrMan<Grid> grid = dskgrd->cloneTrimmed();
@@ -140,6 +141,7 @@ bool uiImportHorizon::handleAscii()
 	if ( !impdlg.go() ) 
 	    mErrRetUnRef("Cannot import horizon")
 
+	conn->close();
     }
 
     PtrMan<Executor> exec = horizon->saver();
