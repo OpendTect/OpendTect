@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.3 2002-04-30 09:02:19 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.4 2002-07-30 08:05:25 kristofer Exp $";
 
 #include "vissurvobj.h"
 #include "visdataman.h"
@@ -74,8 +74,17 @@ Geometry::Pos visSurvey::SurveyParamManager::coordDispl2XYT(
     if ( !displaytransform )
 	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
 
-    Geometry::Pos xyz = displaytransform->transformBack( display );
-    return appveltransform->transformBack( xyz );
+    return appveltransform->transformBack( coordDispl2XYZ( display ) );
+}
+
+
+Geometry::Pos visSurvey::SurveyParamManager::coordDispl2XYZ(
+					const Geometry::Pos& display ) const
+{
+    if ( !displaytransform )
+	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
+
+    return displaytransform->transformBack( display );
 }
 
 
@@ -85,8 +94,17 @@ Geometry::Pos visSurvey::SurveyParamManager::coordXYT2Display(
     if ( !displaytransform )
 	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
 
-    Geometry::Pos xyz = appveltransform->transform( xyt );
-    return displaytransform->transform( xyz );
+    return displaytransform->transform( coordXYT2XYZ( xyt ) );
+}
+
+
+Geometry::Pos visSurvey::SurveyParamManager::coordXYT2XYZ(
+					const Geometry::Pos& xyt ) const
+{
+    if ( !displaytransform )
+	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
+
+    return appveltransform->transform( xyt );
 }
 
 
