@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.21 2004-06-21 15:34:10 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.22 2004-07-08 09:57:42 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -293,6 +293,7 @@ bool uiD2TModelDlg::acceptOK( CallBacker* )
 
 static const char* lasfilefilt = "*.las;;*.LAS;;*.txt;;*";
 static const float defundefval = -999.25;
+static const float feetfac = 0.3048;
 
 
 uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
@@ -347,6 +348,11 @@ void uiLoadLogsDlg::lasSel( CallBacker* )
     intvunfld->setValue( !isft );
 
     udffld->setValue( lfi.undefval );
+    if ( isft )
+    {
+	if ( !mIsUndefined(lfi.zrg.start) ) lfi.zrg.start /= feetfac;
+	if ( !mIsUndefined(lfi.zrg.stop) ) lfi.zrg.stop /= feetfac;
+    }
     intvfld->setValue( lfi.zrg );
 }
 
@@ -362,6 +368,11 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     lfi.zrg.stop = *intvfld->text(1) ? intvfld->getFInterval().stop
 				     : mUndefValue;
     const bool zinft = !intvunfld->getBoolValue();
+    if ( zinft )
+    {
+	if ( !mIsUndefined(lfi.zrg.start) ) lfi.zrg.start *= feetfac;
+	if ( !mIsUndefined(lfi.zrg.stop) ) lfi.zrg.stop *= feetfac;
+    }
     SI().pars().setYN( SurveyInfo::sKeyDpthInFt, zinft );
     SI().savePars();
 
