@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.11 2001-05-31 14:09:00 windev Exp $
+ RCS:		$Id: seistrc.h,v 1.12 2001-11-08 09:58:26 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,8 @@ public:
     float		getValue(float,int icomp) const;
 
     const Interpolator1D* interpolator( int icomp=0 ) const;
+			//!< May return null!
+    Interpolator1D*	interpolator( int icomp=0 );
 			//!< May return null!
     void		setInterpolator(Interpolator1D*,int icomp=0);
 			//!< Passed Interpolator1D becomes mine

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.9 2001-05-31 14:09:17 windev Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.10 2001-11-08 09:58:12 kristofer Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -75,6 +75,13 @@ void SeisTrc::setSampleOffset( int icomp, int so )
 const Interpolator1D* SeisTrc::interpolator( int icomp ) const
 {
     return !intpols_ || icomp>=intpols_->size() ? 0 : (*intpols_)[icomp];
+}
+
+
+Interpolator1D* SeisTrc::interpolator( int icomp )
+{
+    const Interpolator1D* i = ((const SeisTrc*) this)->interpolator( icomp );
+    return const_cast<Interpolator1D*>(i);
 }
 
 
