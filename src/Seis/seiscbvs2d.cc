@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.22 2004-10-21 12:35:26 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.23 2004-11-11 22:11:02 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -168,10 +168,10 @@ void addTrc( SeisTrc* trc )
     {
 	if ( seldata->type_ == SeisSelData::TrcNrs
 		&& !seldata->trcrg_.includes(curnr) )
-	    return;
+	    { delete trc; return; }
 	if ( seldata->type_ == SeisSelData::Range
 		&& !seldata->crlrg_.includes(tnr) )
-	    return;
+	    { delete trc; return; }
     }
 
     trc->info().nr = tnr;
