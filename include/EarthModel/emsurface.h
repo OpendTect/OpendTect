@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.41 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.42 2004-07-30 15:58:08 nanne Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "position.h"
 #include "bufstringset.h"
+#include "cubesampling.h"
 
 template <class T, class AT> class TopList;
 
@@ -48,24 +49,20 @@ In addition, they are also linked together.
 
 class BinID;
 class RowCol;
-class CubeSampling;
-template <class T> class MathFunction;
 template <class T> class Interval;
+template <class T> class MathFunction;
 template <class T> class StepInterval;
 
-namespace Geometry
-{
-    class MeshSurface;
-};
+namespace Geometry { class MeshSurface; };
 
 
 namespace EM
 {
-class EMManager;
-class SurfaceIODataSelection;
-class HingeLine;
-class EdgeLineManager;
 
+class EdgeLineManager;
+class EMManager;
+class HingeLine;
+class SurfaceIODataSelection;
 class SurfaceRelations;
 
 /*!\brief Base class for surfaces
@@ -76,10 +73,11 @@ class SurfaceRelations;
 class Surface : public EMObject
 {
 public:
-    virtual Executor*	loader(const EM::SurfaceIODataSelection* s=0,
-			       int attridx=-1);
-    virtual Executor*	saver(const EM::SurfaceIODataSelection* s=0,
-			      bool auxdataonly=false,const MultiID* key=0);
+    Executor*		loader(const EM::SurfaceIODataSelection* s=0);
+    Executor*		saver(const EM::SurfaceIODataSelection* s=0,
+			      const MultiID* key=0);
+    Executor*		auxDataLoader(int selidx=-1);
+    Executor*		auxDataSaver(int dataidx=0,int fileidx=-1);
 
     int			nrSections() const;
     SectionID		sectionID(int idx) const;
@@ -87,19 +85,19 @@ public:
     bool		hasSection(const SectionID&) const;
     int			sectionNr(const SectionID&) const;
     const char*		sectionName(const SectionID&) const;
-    SectionID		addSection(const char* nm, bool addtohistory);
-    bool		addSection(const char* nm, SectionID, bool addtohistory);
+    SectionID		addSection(const char* nm,bool addtohistory);
+    bool		addSection(const char* nm,SectionID,bool addtohistory);
     			/*!< Return false if the sectionid allready exists */
-    void		removeSection(EM::SectionID, bool addtohistory);
+    void		removeSection(EM::SectionID,bool addtohistory);
     SectionID		cloneSection(EM::SectionID);
     CNotifier<Surface,const SectionID&>	sectionchnotifier;
 
-    bool		setPos( const SectionID& section, const RowCol&,
-	    			const Coord3&, bool autoconnect, bool addtoh );
-    bool		setPos(const EM::PosID&, const Coord3&, bool addtohist);
+    bool		setPos(const SectionID&,const RowCol&,
+			       const Coord3&,bool autoconnect,bool addtoh);
+    bool		setPos(const EM::PosID&,const Coord3&,bool addtohist);
 
-    bool		isDefined( const SectionID& section, const RowCol&) const;
-    bool		isDefined( const EM::PosID& ) const;
+    bool		isDefined(const SectionID&,const RowCol&) const;
+    bool		isDefined(const EM::PosID&) const;
 
     Coord3		getPos(const EM::PosID&) const;
     Coord3		getPos(const SectionID& section, const RowCol&) const;
@@ -200,15 +198,13 @@ public:
 		/*!< Converts input RowCol(in surface domain)
 		     to a RowCol that is used on the Geometry::MeshSurface
 		*/
-    int		findPos( const EM::SectionID& sectionid,
-			 const Interval<float>& x, const Interval<float>& y,
-			 const Interval<float>& z,
-			 TypeSet<EM::PosID>* res ) const;
-    int		findPos( const Interval<float>& x, const Interval<float>& y,
-			 const Interval<float>& z,
-			 TypeSet<EM::PosID>* res ) const;
-    int		findPos( const CubeSampling&, TypeSet<EM::PosID>* res ) const;
-    int		findPos( const RowCol& rowcol, TypeSet<PosID>& res ) const;
+    int		findPos(const EM::SectionID&,const Interval<float>& x,
+	    		const Interval<float>& y,const Interval<float>& z,
+			TypeSet<EM::PosID>* res) const;
+    int		findPos(const Interval<float>& x,const Interval<float>& y,
+			const Interval<float>& z,TypeSet<EM::PosID>*) const;
+    int		findPos(const CubeSampling&,TypeSet<EM::PosID>*) const;
+    int		findPos(const RowCol&,TypeSet<PosID>&) const;
     bool	findClosestNodes(TopList<float,EM::PosID>& res,
 	    			const Coord3& pos,
 				const MathFunction<float>* depthconv=0) const;
@@ -329,11 +325,13 @@ protected:
     RowCol			step_;
     TypeSet<RowCol>		origos;
 
+    CubeSampling		cubesampling;
     Interval<int>*		rowinterval;
     Interval<int>*		colinterval;
     float 			shift;
 
     bool			changed;
+
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.50 2004-07-29 16:52:30 bert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.51 2004-07-30 15:58:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -260,7 +260,7 @@ bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
     if ( !hor ) return false;
 
     hor->removeAllAuxdata();
-    PtrMan<Executor> exec = hor->loader( 0, selidx );
+    PtrMan<Executor> exec = hor->auxDataLoader( selidx );
     uiExecutor exdlg( appserv().parent(), *exec );
     return exdlg.go();
 }
@@ -335,7 +335,8 @@ bool uiEMPartServer::storeObject( const MultiID& id )
 
 	bool auxdataonly = dlg.auxDataOnly();
 	const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
-	exec = surface->saver( &sel, auxdataonly, &key );
+	exec = auxdataonly ? surface->auxDataSaver( 0 ) 
+	    		   : surface->saver( &sel, &key );
     }
     else
 	exec = object->saver();

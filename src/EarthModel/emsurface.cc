@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.62 2004-07-30 14:03:38 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.63 2004-07-30 15:58:03 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -123,6 +123,8 @@ EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     auxdatanames.allowNull(true);
     auxdatainfo.allowNull(true);
     auxdata.allowNull(true);
+
+    cubesampling.init( false );
 }
 
 
@@ -847,6 +849,18 @@ bool EM::Surface::setPos( const SectionID& section, const RowCol& surfrc,
 
     poschnotifier.trigger( EM::PosID(id(),section,rowCol2SubID(surfrc)), this );
 
+    BinID bid = SI().transform( pos );
+    if ( cubesampling.isEmpty() )
+    {
+	cubesampling.hrg.start = cubesampling.hrg.stop = bid;
+	cubesampling.zrg.start = cubesampling.zrg.stop = pos.z;
+    }
+    else
+    {
+	cubesampling.hrg.include( bid );
+	cubesampling.zrg.include( pos.z );
+    }
+
     return true;
 }
 
@@ -857,7 +871,7 @@ bool EM::Surface::setPos( const EM::PosID& posid, const Coord3& newpos,
     if ( posid.objectID()!=id() ) return false;
 
     return setPos( posid.sectionID(), subID2RowCol(posid.subID()),
-	    	   newpos, false,addtohistory);
+	    	   newpos, false, addtohistory );
 }
 
 
@@ -1444,12 +1458,11 @@ bool EM::Surface::isAtEdge( const EM::PosID& pid ) const
 }
 
 
-Executor* EM::Surface::loader( const EM::SurfaceIODataSelection* newsel,
-       			       int attridx )
+Executor* EM::Surface::loader( const EM::SurfaceIODataSelection* newsel )
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     if ( !ioobj )
-	{ errmsg = "Cannot find the horizon object"; return 0; }
+	{ errmsg = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
@@ -1466,45 +1479,65 @@ Executor* EM::Surface::loader( const EM::SurfaceIODataSelection* newsel,
     else
 	sel.selvalues.erase();
 
-    if ( attridx < 0 )
-    {
-	Executor* exec = tr->reader( *this );
-	errmsg = tr->errMsg();
-	return exec;
-    }
+    Executor* exec = tr->reader( *this );
+    errmsg = tr->errMsg();
+    return exec;
+}
 
-    StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
+
+Executor* EM::Surface::auxDataLoader( int selidx )
+{
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    if ( !ioobj )
+	{ errmsg = "Cannot find surface"; return 0; }
+    StreamConn* conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
     if ( !conn ) return 0;
-    
-    const char* attrnm = sel.sd.valnames[attridx]->buf();
-    int gap = 0;
-    for ( int idx=0; ; idx++ )
+
+    PtrMan<EMSurfaceTranslator> tr = 
+			(EMSurfaceTranslator*)ioobj->getTranslator();
+    if ( !tr || !tr->startRead(*ioobj) )
+	{ errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
+
+    EM::SurfaceIODataSelection& sel = tr->selections();
+    int nrauxdata = sel.sd.valnames.size();
+    if ( !nrauxdata || selidx >= nrauxdata ) return 0;
+
+    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes reader" );
+    for ( int validx=0; validx<sel.sd.valnames.size(); validx++ )
     {
-	if ( gap > 50 ) return 0;
-	BufferString fnm = 
-	    EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
-	if ( File_isEmpty(fnm) ) { gap++; continue; }
-	else gap = 0;
+	if ( selidx>=0 && selidx != validx ) continue;
 
-	EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader(fnm);
-	if ( strcmp(attrnm,rdr->dataName()) )
-	{ delete rdr; continue; }
+	const char* attrnm = sel.sd.valnames[validx]->buf();
+	int gap = 0;
+	for ( int idx=0; ; idx++ )
+	{
+	    if ( gap > 50 ) return 0;
+	    BufferString fnm = 
+		EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
+	    if ( File_isEmpty(fnm) ) { gap++; continue; }
+	    else gap = 0;
 
-	rdr->setSurface( *this );
-	return rdr;
+	    EM::dgbSurfDataReader* rdr = new EM::dgbSurfDataReader(fnm);
+	    if ( strcmp(attrnm,rdr->dataName()) )
+	    { delete rdr; continue; }
+
+	    rdr->setSurface( *this );
+	    grp->add( rdr );
+	    break;
+	}
     }
 
-    return 0;
+    return grp;
 }
 
 
 Executor* EM::Surface::saver( const EM::SurfaceIODataSelection* newsel,
-       			      bool auxdata, const MultiID* key )
+       			      const MultiID* key )
 {
     const MultiID& mid = key && !(*key=="") ? *key : multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
-	{ errmsg = "Cannot find the horizon object"; return 0; }
+	{ errmsg = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
@@ -1519,39 +1552,47 @@ Executor* EM::Surface::saver( const EM::SurfaceIODataSelection* newsel,
 	sel.selsections = newsel->selsections;
     }
 
-    if ( auxdata )
-    {
-	StreamConn* conn =dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
-	if ( !conn ) return 0;
+    Executor* exec = tr->writer(*ioobj);
+    errmsg = tr->errMsg();
+    return exec;
+}
 
-	BufferString fnm;
-	int dataidx = sel.selvalues.size() ? sel.selvalues[0] : -1;
-	if ( dataidx >=0 )
+
+Executor* EM::Surface::auxDataSaver( int dataidx, int fileidx )
+{
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    if ( !ioobj )
+	{ errmsg = "Cannot find surface"; return 0; }
+    StreamConn* conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
+    if ( !conn ) return 0;
+
+    bool binary = true;
+    mSettUse(getYN,"dTect.Surface","Binary format",binary);
+
+    BufferString fnm;
+    if ( fileidx >= 0 )
+    {
+	if ( dataidx<0 ) dataidx = 0;
+	fnm = EM::dgbSurfDataWriter::createHovName( conn->fileName(), fileidx );
+	return new EM::dgbSurfDataWriter(*this,dataidx,0,binary,fnm);
+    }
+
+    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
+    for ( int selidx=0; selidx<nrAuxData(); selidx++ )
+    {
+	if ( dataidx >= 0 && dataidx != selidx ) continue;
+	for ( int idx=0; ; idx++ )
 	{
-	    fnm = EM::dgbSurfDataWriter::createHovName( conn->fileName(),
-		    					dataidx );
-	}
-	else
-	{
-	    for ( int idx=0; ; idx++ )
-	    {
-		fnm =EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx);
-		if ( !File_exists(fnm) )
-		    break;
-	    }
+	    fnm = EM::dgbSurfDataWriter::createHovName( conn->fileName(), idx );
+	    if ( !File_exists(fnm) )
+		break;
 	}
 
-	bool binary = true;
-	mSettUse(getYN,"dTect.Surface","Binary format",binary);
-	Executor* exec = new EM::dgbSurfDataWriter(*this,0,0,binary,fnm);
-	return exec;
+	Executor* exec = new EM::dgbSurfDataWriter(*this,selidx,0,binary,fnm);
+	grp->add( exec );
     }
-    else
-    {
-	Executor* exec = tr->writer(*ioobj);
-	errmsg = tr->errMsg();
-	return exec;
-    }
+
+    return grp;
 }
 
 
