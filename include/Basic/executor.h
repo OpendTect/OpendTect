@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.7 2002-03-21 14:03:25 bert Exp $
+ RCS:		$Id: executor.h,v 1.8 2002-04-19 16:09:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,8 +57,8 @@ public:
     virtual int		nrDone() const			{ return 0; }
     virtual const char*	nrDoneText() const		{ return "Nr done"; }
 
-    virtual bool	execute(ostream* log=0,
-				bool isfirst=true,bool islast=true);
+    virtual bool	execute(ostream* log=0,bool isfirst=true,
+	    			bool islast=true,int delaybetwnstepsinms=0);
 };
 
 
