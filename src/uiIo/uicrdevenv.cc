@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.16 2005-01-14 16:02:29 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.17 2005-01-17 13:03:57 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,64 +20,8 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "uimain.h"
 
-
-extern "C" { const char* GetBaseDataDir(); }
-
 #ifdef __win__
-
-#include <windows.h>
-#include <regstr.h>
-#include <ctype.h>
-#include <winreg.h>
-#include <iostream>
-
-
-const char* getRegKey( HKEY hKeyRoot, const char* subkey, const char* Value )
-{
-    static BufferString answer;
-
-    BYTE* Value_data = new BYTE[256];
-    DWORD Value_size = 256;
-
-    HKEY hKeyNew=0;
-    DWORD retcode=0;
-    DWORD Value_type=0;
-
-
-    retcode = RegOpenKeyEx ( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew);
-    if (retcode != ERROR_SUCCESS) return 0;
-
-
-    retcode = RegQueryValueEx( hKeyNew, Value, NULL, &Value_type, Value_data,
-                               &Value_size);
-    if (retcode != ERROR_SUCCESS) return 0;
-
-
-    answer = (const char*) Value_data;
-
-    return answer;
-}
-
-const char* getCygDir()
-{
-    const char* cygdir = getRegKey( HKEY_LOCAL_MACHINE, 
-			"SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/",
-			"native" );
-
-    if ( !File_isDirectory(cygdir) )
-    {
-	const char* cygdir = getRegKey( HKEY_CURRENT_USER, 
-			    "Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/",
-			    "native" );
-    }
-
-    if ( !File_isDirectory(cygdir)
-      || !File_isDirectory(FilePath(cygdir).add("bin").fullPath()) )
-	return 0;
-
-    return cygdir;
-}
-
+# include "winutils.h"
 #endif
 
 static void showProgrDoc()
