@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.6 2004-05-13 09:12:40 kristofer Exp $
+ RCS:           $Id: visdragger.h,v 1.7 2004-05-17 06:15:56 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,34 +54,43 @@ public:
     void			setTransformation( Transformation* );
     Transformation*		getTransformation();
 
-    void			setOwnShape(visBase::DataObject*);
+    void			setOwnShape(visBase::DataObject*,
+	    				    const char* partname );
+    				/*!< Sets a shape on the dragger.
+				    \note The object will not be reffed,
+					  so it's up to the caller to make sure
+					  it remains in memory */
     bool			selectable() const;
 
     Notifier<Dragger>		started;
     Notifier<Dragger>		motion;
     Notifier<Dragger>		finished;
     NotifierAccess*		rightClicked() { return &rightclicknotifier; }
+    const TypeSet<int>*		rightClickedPath() const{return rightclickpath;}
+
 
     SoNode*			getInventorNode();
 
 protected:
     				~Dragger();
-    void			triggerRightClick()
-    				{ rightclicknotifier.trigger(); }
+    void			triggerRightClick(const TypeSet<int>* path)
+    				{
+				    rightclickpath = path;
+				    rightclicknotifier.trigger();
+				}
 
     static void			startCB(void*,SoDragger*);
     static void			motionCB(void*,SoDragger*);
     static void			finishCB(void*,SoDragger*);
     
     Notifier<Dragger>		rightclicknotifier;
+    const TypeSet<int>*		rightclickpath;
 
     SoSwitch*			onoff;
     SoSeparator*		separator;
     Transformation*		positiontransform;
     SoDragger*			dragger;
     Transformation*		displaytrans;
-
-    visBase::DataObject*	ownshape;
 };
 
 } // namespace visBase
