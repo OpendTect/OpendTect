@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.23 2003-07-01 14:26:19 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.24 2003-08-28 11:14:02 bert Exp $
  ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@
 #include "binidselimpl.h"
 #include "iopar.h"
 #include "seistrc.h"
-#include "simpnumer.h"
+#include "interpol.h"
 #include "survinfo.h"
 #include "visdataman.h"
 #include "vismaterial.h"

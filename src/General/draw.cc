@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.31 2002-12-24 13:27:15 nanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.32 2003-08-28 11:14:02 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -19,7 +19,7 @@ The main chunk is color table related.
 #include "uidset.h"
 #include "ascstream.h"
 #include "ptrman.h"
-#include "simpnumer.h"
+#include "interpol.h"
 #include <fstream>
 
 // First some implementations for a couple of header files ...

@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.17 2003-05-28 09:46:38 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.18 2003-08-28 11:14:02 bert Exp $";
 
 #include "vistexture2.h"
 
 #include "arrayndimpl.h"
-#include "simpnumer.h"
+#include "interpol.h"
 
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoTexture2.h"

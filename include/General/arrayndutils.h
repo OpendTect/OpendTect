@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.16 2002-10-28 22:29:11 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.17 2003-08-28 11:14:01 bert Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "arrayndslice.h"
 #include "mathfunc.h"
-#include "simpnumer.h"
+#include "periodicvalue.h"
 
 #include <iostrm.h>
 #include <math.h>

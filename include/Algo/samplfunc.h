@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: samplfunc.h,v 1.5 2001-02-13 17:15:46 bert Exp $
+ RCS:           $Id: samplfunc.h,v 1.6 2003-08-28 11:14:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <mathfunc.h>
-#include <simpnumer.h>
+#include <periodicvalue.h>
 
 /*!\brief make any sampled series comply with MathFunction.
 If the sampled values are periodic (i.e. phase), set the periodic flag and let
