@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.10 2002-04-22 10:08:31 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.11 2002-04-22 14:42:02 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.10 2002-04-22 10:08:31 na
 #include "visdataman.h"
 #include "viscolortab.h"
 #include "ptrman.h"
+#include "position.h"
 
 #include "Inventor/nodes/SoTexture2.h"
 #include "Inventor/nodes/SoSeparator.h"
@@ -58,6 +59,45 @@ visBase::TextureRect::~TextureRect()
     rectangle->unRef();
     colortable->unRef();
     delete data;
+}
+
+
+float visBase::TextureRect::getValue( const Geometry::Pos& pos ) const
+{
+    if ( !data ) return mUndefValue;
+
+    visBase::Rectangle::Orientation orientation = rectangle->orientation();
+    Geometry::Pos origo = rectangle->origo();
+    Coord localpos;
+
+    if ( orientation==visBase::Rectangle::XY )
+    {
+	if ( !mIS_ZERO(pos.z-origo.z) ) return mUndefValue;
+	localpos.x = pos.x-origo.x;
+	localpos.y = pos.y-origo.y;
+    }
+    else if ( orientation==visBase::Rectangle::XZ )
+    {
+	if ( !mIS_ZERO(pos.y-origo.y) ) return mUndefValue;
+	localpos.x = pos.x-origo.x;
+	localpos.y = pos.z-origo.z;
+    }
+    else 
+    {
+	if ( !mIS_ZERO(pos.x-origo.x) ) return mUndefValue;
+	localpos.x = pos.y-origo.y;
+	localpos.y = pos.z-origo.z;
+    }
+
+    localpos.x /= rectangle->width(1);
+    localpos.y /= rectangle->width(0);
+
+    if ( localpos.x>1 || localpos.y>1 ) return mUndefValue;
+
+    localpos.x *= data->info().getSize(0);
+    localpos.y *= data->info().getSize(1);
+
+    return data->get(mNINT(localpos.x), mNINT(localpos.y));
 }
 
 
