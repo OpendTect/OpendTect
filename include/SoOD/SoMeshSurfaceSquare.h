@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceSquare.h,v 1.6 2003-10-15 07:36:12 kristofer Exp $
+ RCS:		$Id: SoMeshSurfaceSquare.h,v 1.7 2003-10-21 18:26:40 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class SoEventCallback;
 class SoTextureCoordinate2;
 class SoMeshSurfaceBrick;
 class SoMeshSurfaceBrickWire;
-class SoIndexedFaceSet;
+class SoIndexedTriangleFanSet;
 class SoSensor;
 class SoFieldSensor;
 class SoState;
@@ -129,16 +129,19 @@ private:
     int				getBlockSize(int res) const;
     static int			get2Power(int);
 
-    void			addGlueShape(int& coordindex,
+    void			addGlueFan(int& coordindex,
 	    				     int& normalindex,
 					     const SbList<int>&,
-	    				     const SbList<SbVec3f>& );
+	    				     const SbList<SbVec3f>&,
+					     const SbList<int>&,
+	    				     const SbList<SbVec3f>&,
+	   				     SbBool dir );
     bool			isUndefined(int,int) const;
 
     SoSwitch*			wireswitchptr;
     SoSwitch*			triswitchptr;
     SoSwitch*			glueswitchptr;
-    SoIndexedFaceSet*		glueptr;
+    SoIndexedTriangleFanSet*	glueptr;
     SoNormal*			gluenormalptr;
     SoCoordinate3*		coordptr;
     SoTextureCoordinate2*	texturecoordptr;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.10 2003-10-15 10:06:05 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.11 2003-10-21 18:27:07 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.10 2003-10-15 10:06:
 #include "SoMeshSurfaceBrick.h"
 #include "SoMeshSurfaceBrickWire.h"
 #include "SoForegroundTranslation.h"
+#include "SoIndexedTriangleFanSet.h"
 
 #include "SoCameraInfoElement.h"
 #include "SoCameraInfo.h"
@@ -39,7 +40,6 @@ static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.10 2003-10-15 10:06:
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoEventCallback.h>
 #include <Inventor/nodes/SoTextureCoordinate2.h>
-#include <Inventor/nodes/SoIndexedFaceSet.h>
 #include <Inventor/nodes/SoNormal.h>
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -91,14 +91,14 @@ SoMeshSurfaceSquare::SoMeshSurfaceSquare()
 
     SO_KIT_ADD_CATALOG_ENTRY(glueGroup,SoSeparator,false,glueSwitch, ,false);
     SO_KIT_ADD_CATALOG_ENTRY(glueNormals,SoNormal,false,glueGroup,glue,false);
-    SO_KIT_ADD_CATALOG_ENTRY(glue,SoIndexedFaceSet,false,glueGroup, ,false);
+    SO_KIT_ADD_CATALOG_ENTRY(glue,SoIndexedTriangleFanSet,false,glueGroup, ,false);
 
     SO_KIT_INIT_INSTANCE();
 
     triswitchptr = (SoSwitch*) getAnyPart("triResSwitch",true);
     wireswitchptr = (SoSwitch*) getAnyPart("wireResSwitch",true);
     glueswitchptr = (SoSwitch*) getAnyPart("glueSwitch",true);
-    glueptr = (SoIndexedFaceSet*) getAnyPart("glue",true);
+    glueptr = (SoIndexedTriangleFanSet*) getAnyPart("glue",true);
     coordptr = (SoCoordinate3*) getAnyPart("coords",true);
     gluenormalptr = (SoNormal*) getAnyPart("glueNormals",true);
     texturecoordptr = (SoTextureCoordinate2*) getAnyPart("texturecoords",true);
@@ -477,7 +477,7 @@ bool SoMeshSurfaceSquare::isUndefined( int row, int col ) const
 }
 
 
-#define mAddCoordToIndexes(row_,col_,res_) \
+#define mAddCoordToIndexes(row_,col_,res_, indexes, normals) \
 { \
     const int index_ = getCoordIndex( row_, col_ ); \
     if ( !SoMeshSurface::isUndefined(coordptr->point[index_])) \
@@ -572,30 +572,38 @@ void SoMeshSurfaceSquare::updateGlue()
 	     5-----4
 
 	    */
-	    SbList<int> indexes;
-	    SbList<SbVec3f> normals;
+	    SbList<int> brickindexes;
+	    SbList<SbVec3f> bricknormals;
 	    row = origo[0]+sidesize-ownblocksize;
 	    col = origo[1]+sidesize-ownblocksize;
-	    mAddCoordToIndexes( row, col, ownres );
+	    mAddCoordToIndexes( row, col, ownres, brickindexes, bricknormals );
+
+	    SbList<int> neighborindexes;
+	    SbList<SbVec3f> neighbornormals;
 
 	    const int minrow = origo[0]+sidesize-blocksize5;
 	    while ( row>minrow )
 	    {
 		row-=ownblocksize;
-		mAddCoordToIndexes( row, col, ownres );
+		mAddCoordToIndexes( row, col, ownres,
+					neighborindexes, neighbornormals );
 		const int cellindex = colgluecells.find(SbVec2s(row,col));
 		if ( cellindex!=-1 ) colgluecells.removeFast(cellindex);
 	    }
 
 	    col+=ownblocksize;
-	    mAddCoordToIndexes( row, col, res5 );
+	    mAddCoordToIndexes( row, col, res5,
+		    		neighborindexes, neighbornormals );
 	    row+=blocksize5;
-	    mAddCoordToIndexes( row, col, res8 );
+	    mAddCoordToIndexes( row, col, res8,
+		    		neighborindexes, neighbornormals );
 
 	    col-=blocksize7;
-	    mAddCoordToIndexes( row, col, res7 );
+	    mAddCoordToIndexes( row, col, res7,
+		    		neighborindexes, neighbornormals );
 	    row-=ownblocksize;
-	    mAddCoordToIndexes( row, col, ownres );
+	    mAddCoordToIndexes( row, col, ownres,
+		    		neighborindexes, neighbornormals );
 
 	    const int cellindex = rowgluecells.find(SbVec2s(row,col));
 	    if ( cellindex!=-1 ) rowgluecells.removeFast(cellindex);
@@ -604,12 +612,15 @@ void SoMeshSurfaceSquare::updateGlue()
 	    while ( col<maxcol )
 	    {
 		col += ownblocksize;
-		mAddCoordToIndexes( row, col, ownres );
+		mAddCoordToIndexes( row, col, ownres,
+				    neighborindexes, neighbornormals );
 		const int cellindex = rowgluecells.find(SbVec2s(row,col));
 		if ( cellindex!=-1 ) rowgluecells.removeFast(cellindex);
 	    }
 
-	    addGlueShape( coordindex, normalindex, indexes, normals );
+	    addGlueFan( coordindex, normalindex, brickindexes, bricknormals,
+			neighborindexes, neighbornormals, false );
+
 	}
 
 	while ( rowgluecells.getLength() )
@@ -618,43 +629,41 @@ void SoMeshSurfaceSquare::updateGlue()
 	    row = rc[0];
 	    const int startcol = col = rc[1];
 
-	    SbList<int> indexes;
-	    SbList<SbVec3f> normals;
+	    SbList<int> brickindexes;
+	    SbList<SbVec3f> bricknormals;
 	    const int maxcol = col+rowglueblocksize;
 	    const int bordercol = origo[1]+sidesize;
-	    mAddCoordToIndexes( row, col, ownres );
-	    while ( col<maxcol )
+	    while ( col<=maxcol )
 	    {
+		const int res = col==bordercol ? res5 : ownres;
+		mAddCoordToIndexes( row, col, res, brickindexes, bricknormals );
 		col += ownblocksize;
-		if ( col==bordercol )
-		{
-		    mAddCoordToIndexes( row, col, res5 );
-		}
-		else
-		{
-		    mAddCoordToIndexes( row, col, ownres );
-		}
 	    }
 
 	    row +=ownblocksize;
-	    if ( col==bordercol )
+	    col = startcol;
+	    SbList<int> neighborindexes;
+	    SbList<SbVec3f> neighbornormals;
+	    while ( col<=maxcol )
 	    {
-		mAddCoordToIndexes( row, col, res8 );
+		const int res = col==bordercol ? res8 : res7;
+		mAddCoordToIndexes( row, col, res, neighborindexes,
+				    neighbornormals );
+		col += blocksize7;
+	    }
+
+	    if ( ownblocksize>=blocksize7 )
+	    {
+		addGlueFan( coordindex, normalindex, brickindexes, bricknormals,
+			    neighborindexes, neighbornormals, true );
 	    }
 	    else
 	    {
-		mAddCoordToIndexes( row, col, res7 );
+		addGlueFan( coordindex, normalindex, neighborindexes,
+			   neighbornormals, brickindexes, bricknormals, false );
 	    }
-
-	    while ( col>startcol )
-	    {
-		col -= blocksize7;
-		mAddCoordToIndexes( row, col, res7 );
-	    }
-
-	    addGlueShape( coordindex, normalindex, indexes, normals );
+		
 	}
-
 
 	while ( colgluecells.getLength() )
 	{
@@ -662,46 +671,39 @@ void SoMeshSurfaceSquare::updateGlue()
 	    const int startrow = row = rc[0];
 	    col = rc[1];
 
-	    SbList<int> indexes;
-	    SbList<SbVec3f> normals;
-
-	    mAddCoordToIndexes( row, col, ownres );
-
-	    col +=ownblocksize;
-	    mAddCoordToIndexes( row, col, res5 );
-
+	    SbList<int> brickindexes;
+	    SbList<SbVec3f> bricknormals;
 	    const int maxrow = row+colglueblocksize;
-	    const int borderrow = origo[1]+sidesize;
-	    while ( row<maxrow )
+	    const int borderrow = origo[0]+sidesize;
+	    while ( row<=maxrow )
 	    {
-		row += blocksize5;
-		if ( row==borderrow )
-		{
-		    mAddCoordToIndexes( row, col, res8 );
-		}
-		else
-		{
-		    mAddCoordToIndexes( row, col, res5 );
-		}
+		const int res = row==borderrow ? res7 : ownres;
+		mAddCoordToIndexes( row, col, res, brickindexes, bricknormals );
+		row += ownblocksize;
 	    }
 
-	    col -=ownblocksize;
-	    if ( row==borderrow )
+	    row = startrow;
+	    col += ownblocksize;
+	    SbList<int> neighborindexes;
+	    SbList<SbVec3f> neighbornormals;
+	    while ( row<=maxrow )
 	    {
-		mAddCoordToIndexes( row, col, res7 );
+		const int res = row==borderrow ? res8 : res5;
+		mAddCoordToIndexes( row, col, res, neighborindexes,
+				    neighbornormals );
+		row += blocksize5;
+	    }
+
+	    if ( ownblocksize>=blocksize5 )
+	    {
+		addGlueFan( coordindex, normalindex, brickindexes, bricknormals,
+			    neighborindexes, neighbornormals, false );
 	    }
 	    else
 	    {
-		mAddCoordToIndexes( row, col, ownres );
+		addGlueFan( coordindex, normalindex, neighborindexes,
+			   neighbornormals, brickindexes, bricknormals, true );
 	    }
-
-	    while ( row-ownblocksize>startrow )
-	    {
-		row -= ownblocksize;
-		mAddCoordToIndexes( row, col, ownres );
-	    }
-
-	    addGlueShape( coordindex, normalindex, indexes, normals );
 	}
 
 	glueptr->coordIndex.setNum(coordindex);
@@ -712,31 +714,130 @@ void SoMeshSurfaceSquare::updateGlue()
 }
 
 
-void SoMeshSurfaceSquare::addGlueShape( int& coordindexidx, int& normalidx,
-					const SbList<int>& coordindexes,
-       					const SbList<SbVec3f>& normals )
+#define mAddFanNode( ci, n ) \
+{ \
+	gluenormalptr->vector.set1Value(normalidx, n); \
+ \
+	const int coordindex = ci; \
+	glueptr->coordIndex.set1Value( coordindexidx, coordindex ); \
+	glueptr->textureCoordIndex.set1Value( coordindexidx, coordindex ); \
+	glueptr->normalIndex.set1Value( coordindexidx, normalidx ); \
+ \
+	coordindexidx++; \
+	normalidx++; \
+}
+
+#define mStopFanStrip \
+    glueptr->coordIndex.set1Value( coordindexidx, -1 ); \
+    glueptr->textureCoordIndex.set1Value( coordindexidx, -1 ); \
+    glueptr->normalIndex.set1Value( coordindexidx, -1 ); \
+    coordindexidx++
+
+void SoMeshSurfaceSquare::addGlueFan( int& coordindexidx, int& normalidx,
+					const SbList<int>& lowresci,
+       					const SbList<SbVec3f>& lowresnorm,
+					const SbList<int>& highresci,
+       					const SbList<SbVec3f>& highresnorm,
+       					SbBool dir )
 {
-    const int nrindexes = coordindexes.getLength();
-    if ( nrindexes<3 ) return;
+    const int nrlowres = lowresci.getLength();
+    const int nrhighres = highresci.getLength();
 
-    for ( int idx=0; idx<nrindexes; idx++ )
+    if ( nrlowres+nrhighres<3 ) return;
+    if ( nrlowres==2 && nrhighres==2 )
     {
-	gluenormalptr->vector.set1Value(normalidx, normals[idx]);
+	const float d0 = (coordptr->point[lowresci[1]]-
+			   coordptr->point[highresci[0]]).length();
+	const float d1 = (coordptr->point[highresci[1]]-
+			   coordptr->point[lowresci[0]]).length();
 
-	const int coordindex = coordindexes[idx];
-	glueptr->coordIndex.set1Value( coordindexidx, coordindex );
-	glueptr->textureCoordIndex.set1Value( coordindexidx, coordindex );
-	glueptr->normalIndex.set1Value( coordindexidx, normalidx );
+	const bool splitlowres = (!dir && d1<d0) || (dir&&d1>d0);
+	if ( splitlowres )
+	{
+	    const int idx = dir?1:0;
+	    mAddFanNode( lowresci[idx], lowresnorm[idx] )
+	}
+	else
+	{
+	    int idx = dir?0:1;
+	    mAddFanNode( lowresci[idx], lowresnorm[idx] )
+	    idx = dir?1:0;
+	    mAddFanNode( lowresci[idx], lowresnorm[idx] )
+	}
 
-	coordindexidx++;
-	normalidx++;
+	int idx = dir?1:0;
+	mAddFanNode( highresci[idx], highresnorm[idx] );
+	idx = dir?0:1;
+	mAddFanNode( highresci[idx], highresnorm[idx] );
+
+	if ( splitlowres )
+	{
+	    idx = dir?0:1;
+	    mAddFanNode( lowresci[idx], lowresnorm[idx] )
+	}
+    }
+    else if ( nrlowres==1 )
+    {
+	mAddFanNode( lowresci[0], lowresnorm[0] )
+	if ( dir )
+	{
+	    for ( int idx=nrhighres-1; idx>=0; idx-- )
+		mAddFanNode( highresci[idx], highresnorm[idx] )
+	}
+	else
+	{
+	    for ( int idx=0; idx<nrhighres; idx++ )
+		mAddFanNode( highresci[idx], highresnorm[idx] )
+	}
+    }
+    else if ( nrhighres==1 )
+    {
+	if ( dir )
+	{
+	    mAddFanNode( lowresci[0], lowresnorm[0] );
+	    mAddFanNode( lowresci[1], lowresnorm[1] );
+	    mAddFanNode( highresci[0], highresnorm[0] );
+	}
+	else
+	{
+	    mAddFanNode( lowresci[0], lowresnorm[0] );
+	    mAddFanNode( highresci[0], highresnorm[0] );
+	    mAddFanNode( lowresci[1], lowresnorm[1] );
+	}
+    }
+    else
+    {
+	mAddFanNode( lowresci[0], lowresnorm[0] )
+	if ( dir )	
+	{
+	    mAddFanNode( lowresci[1], lowresnorm[1] );
+	    for ( int idx=nrhighres/2; idx>=0; idx-- )
+		mAddFanNode( highresci[idx], highresnorm[idx] )
+	}
+	else
+	{
+	    for ( int idx=0; idx<=nrhighres/2; idx++ )
+		mAddFanNode( highresci[idx], highresnorm[idx] )
+
+	    mAddFanNode( lowresci[1], lowresnorm[1] );
+	}
+
+	mStopFanStrip;
+
+	mAddFanNode( lowresci[1], lowresnorm[1] )
+	if ( dir )	
+	{
+	    for ( int idx=nrhighres-1; idx>=nrhighres/2; idx-- )
+		mAddFanNode( highresci[idx], highresnorm[idx] )
+	}
+	else
+	{
+	    for ( int idx=nrhighres/2; idx<nrhighres; idx++ )
+		mAddFanNode( highresci[idx], highresnorm[idx] )
+	}
     }
 
-    glueptr->coordIndex.set1Value( coordindexidx, -1 );
-    glueptr->textureCoordIndex.set1Value( coordindexidx, -1 );
-    glueptr->normalIndex.set1Value( coordindexidx, -1 );
-
-    coordindexidx++;
+    mStopFanStrip;
 }
 
 
