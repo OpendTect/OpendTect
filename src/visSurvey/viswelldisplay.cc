@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.36 2004-05-21 16:55:42 bert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.37 2004-05-24 08:13:42 kristofer Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -78,28 +78,12 @@ void WellDisplay::setWell( visBase::Well* well_ )
 void WellDisplay::fullRedraw( CallBacker* )
 {
     //TODO : Time to depth model or track has changed
-}
-
-
-#define mErrRet(s) { errmsg = s; return false; }
-
-bool WellDisplay::setWellId( const MultiID& multiid )
-{
-    Well::Data* wd = Well::MGR().get( multiid, true );
-    if ( !wd ) return false;
+    Well::Data* wd = Well::MGR().get( wellid, true );
     
     const Well::D2TModel* d2t = wd->d2TModel();
-    if ( zistime )
-    {
-	if ( !d2t )
-	    mErrRet( "No depth to time model defined" )
-	wd->d2tchanged.notify( mCB(this,WellDisplay,fullRedraw) );
-    }
-
-    wellid = multiid;
     setName( wd->name() );
 
-    if ( wd->track().size() < 1 ) return true;
+    if ( wd->track().size() < 1 ) return;
     PtrMan<Well::Track> ttrack = 0;
     if ( zistime )
     {
@@ -120,11 +104,33 @@ bool WellDisplay::setWellId( const MultiID& multiid )
 	    trackpos += pt;
     }
     if ( !trackpos.size() )
-	return true;
+	return;
 
     well->setTrack( trackpos );
     well->setWellName( wd->name(), trackpos[0] );
     updateMarkers(0);
+
+    return;
+}
+
+
+#define mErrRet(s) { errmsg = s; return false; }
+
+bool WellDisplay::setWellId( const MultiID& multiid )
+{
+    Well::Data* wd = Well::MGR().get( multiid, true );
+    if ( !wd ) return false;
+    
+    const Well::D2TModel* d2t = wd->d2TModel();
+    if ( zistime )
+    {
+	if ( !d2t )
+	    mErrRet( "No depth to time model defined" )
+	wd->d2tchanged.notify( mCB(this,WellDisplay,fullRedraw) );
+    }
+
+    wellid = multiid;
+    fullRedraw(0);
     wd->markerschanged.notify( mCB(this,WellDisplay,updateMarkers) );
 
     return true;
