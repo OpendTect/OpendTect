@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.3 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uitoolbar.h,v 1.4 2001-12-05 15:10:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class ioPixmap;
 class uiToolBarBody;
-class uiMainWin;
+class QMainWindow;
 class QToolBar;
 
 class uiToolBar : public uiParent
@@ -37,9 +37,8 @@ public:
 			     the menu bar. */
     };
 
-    static uiToolBar*	getNew( const char* nm="uiToolBar", ToolBarDock d=Top,
-			        bool newline=false, uiMainWin* main=0 );
-
+    static uiToolBar*	getNew( QMainWindow& main, const char* nm="uiToolBar",
+				ToolBarDock d=Top, bool newline=false );
 protected:
 			uiToolBar( const char* nm, QToolBar& );
 public:

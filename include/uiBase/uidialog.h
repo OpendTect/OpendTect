@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.14 2001-11-20 12:17:19 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.15 2001-12-05 15:10:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ friend class uiDialogBody;
 public:
 			uiDialog( uiParent* p =0, const char* nm="uiDialog", 
 				  bool modal=true, bool separator=true,
-				  bool wantMBar=false, bool wantSBar=false );
-//				  int border=7, int spacing=10);
+				  bool wantMBar=false, bool wantSBar=false,
+				  bool wantTBar=false );
 
 
     int			go(); 

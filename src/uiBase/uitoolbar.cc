@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.8 2001-11-22 08:38:07 arend Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.9 2001-12-05 15:10:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,23 +56,14 @@ private:
 };
 
 
-
-uiToolBar* uiToolBar::getNew( const char* nm, ToolBarDock d, bool newline,
-			      uiMainWin* main )
+uiToolBar* uiToolBar::getNew( QMainWindow& main, const char* nm, ToolBarDock d, 
+			      bool newline )
 {
-    if ( !main ) main = uiMain::theMain().topLevel();
-
-    QMainWindow* mw = ( main && main->uiObj() && main->uiObj()->body() ) ?
-	dynamic_cast<QMainWindow*> ( main->body()->qwidget() )  : 0;
-
-    if ( !mw ) return 0;
-
     QMainWindow::ToolBarDock d_ = uiToolBarBody::qdock(d);
-    QToolBar& bar = *new QToolBar( QString(nm), mw, d_, newline );
+    QToolBar& bar = *new QToolBar( QString(nm), &main, d_, newline );
 
     return new uiToolBar( nm, bar );
 }
-
 
 uiToolBar::uiToolBar( const char* nm, QToolBar& qtb )
     : uiParent( nm, 0 )

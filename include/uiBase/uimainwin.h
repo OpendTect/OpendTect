@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.8 2001-11-20 12:17:19 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.9 2001-12-05 15:10:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiMainWinBody;
 class uiStatusBar;
+class uiToolBar;
 class uiMenuBar;
 class uiObject;
 
@@ -28,12 +29,14 @@ public:
 				   const char* nm="uiMainWin",
 				   bool wantStatusBar = true, 
 				   bool wantMenuBar = true,
+				   bool wantToolBar = false,
 				   bool modal=false );
 
     virtual		~uiMainWin();
 
     uiStatusBar* 	statusBar();
     uiMenuBar* 		menuBar();
+    uiToolBar* 		toolBar();
 
     void		setCaption( const char* txt );
 

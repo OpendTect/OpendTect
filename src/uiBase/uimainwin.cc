@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.16 2001-11-22 15:34:41 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.17 2001-12-05 15:10:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uibutton.h"
 #include "uistatusbar.h"
+#include "uitoolbar.h"
 #include "uiseparator.h"
 #include "uimenu.h"
 #include "uilabel.h"
@@ -44,6 +45,8 @@ ________________________________________________________________________
 #include <qmenubar.h>
 #endif
 
+#include <qlayout.h>
+
 
 class uiMainWinBody : public uiParentBody, public UserIDObject
 		    , public QMainWindow
@@ -52,7 +55,8 @@ public:
 			uiMainWinBody( uiMainWin& handle, uiParent* parnt,
 				       const char* nm, bool modal );
 
-    void		construct( bool wantStatusBar, bool wantMenuBar );
+    void		construct( bool wantStatusBar, bool wantMenuBar, 
+				   bool wantToolBar );
 
     virtual		~uiMainWinBody();
 
@@ -64,9 +68,9 @@ public:
 
 public:
 
-
     uiStatusBar* 	uistatusbar();
     uiMenuBar* 		uimenubar();
+    uiToolBar*		uitoolbar();
 
     virtual void        polish()
                         {
@@ -80,6 +84,7 @@ public:
 			{ 
 			    if ( !initing && centralWidget_ ) 
 				centralWidget_->manageChld( o, b );
+
 			}
 
     virtual void  	attachChild ( constraintType tp,
@@ -134,6 +139,8 @@ protected:
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
+    uiToolBar* 		toolbar;
+
 
 protected:
 
@@ -147,7 +154,6 @@ protected:
 private:
 
     bool		modal_;
-
 int looplevel__;
 };
 
@@ -165,14 +171,15 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
-	, statusbar( 0 ) , menubar(0)  
+	, statusbar(0), menubar(0), toolbar(0)  
 	, modal_( modal )
 {
     if ( *nm ) setCaption( nm );
 }
 
-void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar )
-{ 
+void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar, 
+				bool wantToolBar )
+{
     centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget", 7 );
     setCentralWidget( centralWidget_->body()->qwidget() ); 
 
@@ -197,6 +204,11 @@ void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar )
 	else
 	    pErrMsg("No menubar returned from Qt");
     }
+    if( wantToolBar )
+    {
+	toolbar = uiToolBar::getNew( *this );
+    }
+
     initing = false;
 }
 
@@ -225,16 +237,20 @@ uiMenuBar* uiMainWinBody::uimenubar()
     return menubar;
 }
 
-
+uiToolBar* uiMainWinBody::uitoolbar()
+{
+    if ( !toolbar ) pErrMsg("No toolBar. See uiMainWinBody's constructor"); 
+    return toolbar;
+}
 
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
-		      bool wantSBar, bool wantMBar, bool modal )
+		      bool wantSBar, bool wantMBar, bool wantTBar, bool modal )
     : uiParent( nm, 0 )
     , body_( 0 )
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
-    body_->construct(wantSBar,wantMBar);
+    body_->construct(wantSBar,wantMBar,wantTBar);
 //    body_->uiCentralWidg()->setBorder(10);
 }
 
@@ -248,6 +264,7 @@ uiMainWin::~uiMainWin()
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
+uiToolBar* uiMainWin::toolBar()			{ return body_->uitoolbar(); }
 void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
@@ -272,7 +289,7 @@ class uiDialogBody : public uiMainWinBody
 { 	
 public:
 			uiDialogBody( uiDialog& handle, uiParent*, const char*, 
-				      bool, bool, bool);
+				      bool, bool, bool,bool);
 
     int			exec(); 
 
@@ -358,7 +375,8 @@ protected:
 
 
 uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm, 
-			    bool modal, bool separator, bool withmb )
+			    bool modal, bool separator, bool withmb, 
+			    bool withtb )
     : uiMainWinBody(handle,parnt,nm,modal)
     , dlgGroup( 0 )
     , okText("Ok"), cnclText("Cancel"), saveText(""), titleText("")
@@ -510,15 +528,15 @@ void uiDialogBody::finalise()
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
-		    bool wantMBar, bool wantSBar)//, int border, int spacing )
+		    bool wantMBar, bool wantSBar, bool wantTBar)
 : uiMainWin( nm )
 , finaliseStart( this )
 , finaliseDone( this )
 {
 
-    body_= new uiDialogBody( *this, parnt, nm, modal, sep, wantMBar ); 
+    body_= new uiDialogBody( *this, parnt, nm, modal, sep, wantMBar, wantTBar );
     setBody( body_ );
-    body_->construct( wantSBar, wantMBar );
+    body_->construct( wantSBar, wantMBar, wantTBar );
 
     uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.34 2001-11-20 15:02:33 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.35 2001-12-05 15:10:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -719,6 +719,7 @@ QSize i_LayoutMngr::minimumSize() const
 	const_cast<i_LayoutMngr*>(this)->minimumDone=true; 
     }
     uiRect mPos = pos(minimum);
+
     return QSize( mPos.hNrPics(), mPos.vNrPics() );
 }
 
@@ -755,6 +756,10 @@ QSize i_LayoutMngr::sizeHint() const
     }
     else
 #endif
+    if( ismain )
+	return QSize( mPos.hNrPics() + borderSpace() + horSpacing(),
+		      mPos.vNrPics() + verSpacing() + borderSpace() );
+    else
 	return QSize( mPos.hNrPics(), mPos.vNrPics() );
 }
 
