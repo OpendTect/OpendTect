@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.10 2004-09-17 16:13:28 bert Exp $
+ RCS:		$Id: seisbuf.h,v 1.11 2005-02-28 14:49:53 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -83,35 +83,6 @@ protected:
     bool		owner_;
 
     int			probableIdx(const BinID&,bool is2d) const;
-
-};
-
-
-class XFunction;
-
-/*!\brief SeisTrcBuf in which the traces are somehow related. */
-
-class SeisGather : public SeisTrcBuf
-{
-public:
-
-			SeisGather()		{}
-			SeisGather( const SeisTrcBuf& sb )
-			: SeisTrcBuf(sb)	{}
-			SeisGather( const SeisGather& sg )
-			: SeisTrcBuf(sg)	{}
-
-    virtual mPolyRet(SeisTrcBuf,SeisGather)* clone() const
-			{ return new SeisGather(*this);}
-
-    void		getStack(SeisTrc&,const StepInterval<int>&,
-				 int icomp=0) const;
-    XFunction*		getValues(float t,const StepInterval<int>&,
-				  int seisinfoattrnr,int icomp=0) const;
-
-protected:
-
-    StepInterval<int>	getSI(const StepInterval<int>&) const;
 
 };
 
