@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.14 2002-01-04 17:55:23 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.15 2002-01-04 23:45:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,16 +47,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     uiLabel* dirnm = new uiLabel( this, nm );
     dirnmfld->attach( alignedBelow, survnmfld );
     dirnm->attach( rightOf, dirnmfld );
-    uiButton* wsbut = 0;
-    if ( IdealConn::guessedType() == IdealConn::SW )
-    {
-	BufferString txt( "Fetch setup from " );
-	txt += IdealConn::guessedType() == IdealConn::SW
-	     ? "SeisWorks ..." : "GeoFrame ...";
-	wsbut = new uiPushButton( this, txt );
-	wsbut->attach( alignedBelow, dirnmfld );
-	wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
-    }
+    BufferString txt( "Fetch setup from " );
+    txt += IdealConn::guessedType() == IdealConn::SW
+	 ? "SeisWorks ..." : "GeoFrame ...";
+    uiButton* wsbut = new uiPushButton( this, txt );
+    wsbut->attach( alignedBelow, dirnmfld );
+    wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
 
     uiGroup* rangegrp = new uiGroup( this, "Survey ranges" );
     inlfld = new uiGenInput( rangegrp, "In-line range",
@@ -124,7 +120,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     labelrg->attach( leftBorder );
     labelrg->attach( ensureBelow, horsep1 );
     rangegrp->attach( alignedBelow, dirnmfld ); 
-    if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
+    rangegrp->attach( ensureBelow, wsbut ); 
     rangegrp->attach( ensureBelow, labelrg ); 
     horsep2->attach( stretchedBelow, rangegrp );
     coordset->attach( leftBorder );
@@ -328,13 +324,14 @@ class uiIdealSurvSetup : public uiDialog
 public:
 
 uiIdealSurvSetup( uiParent* p, IdealConn::Type t )
-    : uiDialog( p, uiDialog::Setup("Survey setup",
-				   "Select cube to retrieve survey setup",0) )
+    : uiDialog(p,uiDialog::Setup("Survey setup",
+				 "Select cube to retrieve survey setup",0)
+	    			.statusbar(true) )
 {
-    iddfld = new uiIdealData( p, t );
+    iddfld = new uiIdealData( this, t );
 }
 
-bool acceptOK()
+bool acceptOK( CallBacker* )
 {
     return iddfld->fetchInput();
 }
@@ -354,6 +351,11 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
     ObjectSet<Coord> coords; ObjectSet<BinID> binids;
     if ( !conn.getSurveySetup(bs,zrg,coords,binids) )
 	{ uiMSG().error(conn.errMsg()); return; }
+
+    survinfo->setWSProjName( SI().getWSProjName() );
+    survinfo->setWSPwd( SI().getWSPwd() );
+    if ( binids.size() == 0 )
+	{ uiMSG().error("Could not retrieve the information"); return; }
 
     survinfo->setRange( bs );
     survinfo->setZRange( zrg );

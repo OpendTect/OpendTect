@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.18 2002-01-03 23:45:53 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.19 2002-01-04 23:45:30 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -102,6 +102,8 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
 	set3binids[idx] = si.set3binids[idx];
 	set3coords[idx] = si.set3coords[idx];
     }
+    wsprojnm_ = si.wsprojnm_;
+    wspwd_ = si.wspwd_;
 }
 
 
