@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.10 2003-12-11 15:22:01 arend Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.11 2004-01-08 15:30:29 bert Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: iodir.cc,v 1.10 2003-12-11 15:22:01 arend Exp $
 #include "separstr.h"
 #include "strmoper.h"
 #include "errh.h"
+#include "timefun.h"
 
 
 IODir::IODir( const char* dirnm )
@@ -53,7 +54,7 @@ IODir::~IODir()
 
 bool IODir::build()
 {
-    return doRead( dirname_, this ) ? YES : NO;
+    return doRead( dirname_, this ) ? true : false;
 }
 
 
@@ -77,7 +78,7 @@ const IOObj* IODir::main() const
 IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 {
     FileNameString omfname = File_getFullPath(dirnm,".omf");
-    bool found1 = NO;
+    bool found1 = false;
     if ( !File_isEmpty(omfname) )
     {
 	IOObj* ret = readOmf( omfname, dirnm, dirptr, needid, found1 );
@@ -85,21 +86,28 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 	    return ret;
     }
 
-    // Looks like something went wrong. Read the backup OMF ...
+    // Looks like something went wrong. Try the .omb ...
     omfname = File_getFullPath(dirnm,".omb");
     if ( dirptr )
     {
 	dirptr->setLinked(0);
 	deepErase(dirptr->objs_);
     }
-    return readOmf( omfname, dirnm, dirptr, needid, found1 );
+    IOObj* ret = readOmf( omfname, dirnm, dirptr, needid, found1 );
+    if ( !found1 )
+    {
+	// Last chance: maybe there's a .omf.new
+	omfname = File_getFullPath(dirnm,".omf.new");
+	ret = readOmf( omfname, dirnm, dirptr, needid, found1 );
+    }
+    return ret;
 }
 
 
 IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 			IODir* dirptr, int needid, bool& found1 )
 {
-    found1 = NO;
+    found1 = false;
     istream* streamptr = openInputStream( omfname );
     if ( !streamptr )
 	return 0;
@@ -122,7 +130,7 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 	IOObj* obj = IOObj::get(astream,dirnm,dirky);
 	if ( !obj || obj->bad() ) { delete obj; continue; }
 
-	found1 = YES;
+	found1 = true;
 	MultiID ky( obj->key() );
 	int id = ky.ID( ky.nrKeys()-1 );
 
@@ -130,7 +138,7 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 	{
 	    retobj = obj;
 	    if ( id == 1 ) dirptr->setLinked( obj );
-	    dirptr->addObj( obj, NO );
+	    dirptr->addObj( obj, false );
 	    if ( id < 100000 && id > dirptr->curid_ ) dirptr->curid_ = id;
 	}
 	else
@@ -197,7 +205,7 @@ const IOObj* IODir::operator[]( const MultiID& ky ) const
 
 bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
 {
-    if ( !dirnm || !*dirnm || !mainobj ) return NO;
+    if ( !dirnm || !*dirnm || !mainobj ) return false;
     mainobj->key_ = ky;
     mainobj->key_ += getStringFromInt( 0, 1 );
     IODir dir;
@@ -224,7 +232,7 @@ void IODir::reRead()
 bool IODir::permRemove( const MultiID& ky )
 {
     reRead();
-    if ( bad() ) return NO;
+    if ( bad() ) return false;
 
     int sz = objs_.size();
     for ( int idx=0; idx<sz; idx++ )
@@ -252,17 +260,17 @@ bool IODir::commitChanges( const IOObj* ioobj )
 
     IOObj* clone = ioobj->clone();
     reRead();
-    if ( bad() ) { delete clone; return NO; }
+    if ( bad() ) { delete clone; return false; }
 
     int sz = objs_.size();
-    int found = NO;
+    bool found = false;
     for ( int idx=0; idx<sz; idx++ )
     {
 	IOObj* obj = objs_[idx];
 	if ( obj->key() == clone->key() )
 	{
 	    delete objs_.replace( clone, idx );
-	    found = YES;
+	    found = true;
 	    break;
 	}
     }
@@ -275,14 +283,14 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
     if ( persist )
     {
 	reRead();
-	if ( bad() ) return NO;
+	if ( bad() ) return false;
     }
     if ( (*this)[ioobj->key()] )
 	ioobj->setKey( newKey() );
 
     mkUniqueName( ioobj );
     objs_ += ioobj;
-    return persist ? doWrite() : YES;
+    return persist ? doWrite() : true;
 }
 
 
@@ -300,58 +308,130 @@ bool IODir::mkUniqueName( IOObj* ioobj )
 	} while ( (*this)[nm] );
 
 	ioobj->setName( nm );
-	return YES;
+	return true;
     }
-    return NO;
+    return false;
 }
 
-#define mCloseRetNo(strm) { delete streamptr; return NO; }
 
-bool IODir::doWrite() const
+#define mAddDirWarn(msg) \
+    msg += "\n-> Please check write permissions for directory:\n   "; \
+    msg += dirname_
+
+
+#define mCloseRetNo(strm) \
+{ \
+    BufferString msg( "\nError during write of Object Management info!" ); \
+    mAddDirWarn(msg); \
+    ErrMsg( msg ); \
+    delete streamptr; \
+    return false; \
+}
+
+
+bool IODir::wrOmf( const char* fnm ) const
 {
-    FileNameString ombname = File_getFullPath(dirname_,".omb");
-    FileNameString omfname = File_getFullPath(dirname_,".omf");
-
-    if ( File_isEmpty(omfname) )
-    {
-	if ( !File_isEmpty(ombname) )
-	    File_copy( ombname, omfname, NO );
-    }
-    else
-	File_copy( omfname, ombname, NO );
-
-    ostream* streamptr = openOutputStream( omfname );
+    ostream* streamptr = openOutputStream( fnm );
     if ( !streamptr )
     {
-	ErrMsg( "Cannot open the object management file for write!" );
+	BufferString msg( "Cannot open a new file for Object Management info!");
+	mAddDirWarn(msg);
+	ErrMsg( msg );
 	return false;
     }
 
     ascostream astream( *streamptr );
-    if ( !astream.putHeader( "Object Management file" ) ) mCloseRetNo(streamptr)
+    if ( !astream.putHeader( "Object Management file" ) )
+	mCloseRetNo(streamptr)
     FileMultiString fms( key_ == "" ? "0" : (const char*)key_ );
     fms += curid_;
     astream.put( "ID", fms );
     astream.newParagraph();
 
+    // First the main obj
     const IOObj* mymain = main();
-    if ( mymain && !mymain->put(astream) ) mCloseRetNo(streamptr)
+    if ( mymain && !mymain->put(astream) )
+	mCloseRetNo(streamptr)
 
+    // Then the links
     for ( int i=0; i<objs_.size(); i++ )
     {
 	IOObj* obj = objs_[i];
 	if ( obj == mymain ) continue;
-	if ( obj->isLink() && !obj->put(astream) ) mCloseRetNo(streamptr)
+	if ( obj->isLink() && !obj->put(astream) )
+	    mCloseRetNo(streamptr)
     }
+    // Then the normal objs
     for ( int i=0; i<objs_.size(); i++ )
     {
 	IOObj* obj = objs_[i];
 	if ( obj == mymain ) continue;
-	if ( !obj->isLink() && !obj->put(astream) ) mCloseRetNo(streamptr)
+	if ( !obj->isLink() && !obj->put(astream) )
+	    mCloseRetNo(streamptr)
     }
 
     delete streamptr;
-    return YES;
+    return true;
+}
+
+
+/*
+   .omf writing must be _very_ safe. Therefore:
+
+   1) Write the IODir data to file .omf.new
+
+   2) Remove .omb
+
+   3) Rename .omf to .omb
+
+   4) rename .omf.new to .omf
+*/
+
+bool IODir::doWrite() const
+{
+    const BufferString omfname( File_getFullPath(dirname_,".omf") );
+    const BufferString ombname( File_getFullPath(dirname_,".omb") );
+    const BufferString tmpomfname( File_getFullPath(dirname_,".omf.new") );
+
+    // Simple (but by no means secure) attempt to avoid concurrent update
+    // problems. I'm afraid that making this a forcing lock will introduce
+    // more pain than it solves.
+    if ( File_exists(tmpomfname) ) Time_sleep( 0.25 );
+    if ( File_exists(tmpomfname) ) Time_sleep( 0.25 );
+    if ( File_exists(tmpomfname) ) Time_sleep( 0.25 );
+    if ( File_exists(tmpomfname) ) Time_sleep( 0.25 );
+    // A full second should be enough nowadays.
+    // If there still is a .omf.new - we'll just assume it's a relict of
+    // some kind of failed attempt.
+
+    if ( !wrOmf(tmpomfname) )
+    {
+	File_remove( tmpomfname, NO );
+	return false;
+    }
+
+    if ( !File_remove(ombname,NO) )
+    {
+	BufferString msg( "\nCannot remove '.omb' file.");
+	mAddDirWarn(msg); ErrMsg( msg );
+    }
+    else if ( File_exists(omfname) && !File_rename(omfname,ombname) )
+    {
+	BufferString msg( "\nCannot rename '.omf' to '.omb'.");
+	mAddDirWarn(msg); ErrMsg( msg );
+    }
+
+    if ( !File_rename(tmpomfname,omfname) )
+    {
+	File_remove( tmpomfname, NO );
+	BufferString msg( "\nCannot rename '.omf.new' to '.omf'!\n"
+			  "This means your changes will not be saved!");
+	mAddDirWarn(msg); ErrMsg( msg );
+	return false;
+    }
+
+    // Pff - glad it worked.
+    return true;
 }
 
 
