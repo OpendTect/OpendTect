@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.4 2003-08-26 15:37:35 bert Exp $
+ RCS:		$Id: welllogset.h,v 1.5 2003-09-04 14:40:00 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,8 @@ ________________________________________________________________________
 
 namespace Well
 {
+
+class Log;
 
 class LogSet
 {
