@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.17 2001-08-30 16:16:06 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.18 2001-09-02 12:29:05 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
 
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 			      const char* trglobexpr )
-	: uiDialog(p,c.ctxt.forread?"Input":"Output")
+	: uiIOObjRetDlg(p,c.ctxt.forread?"Input":"Output")
 	, ctio(c)
 	, nmfld(0)
 	, ioobj(0)
@@ -313,7 +313,7 @@ bool uiIOObjSel::commitInput( bool mknew )
 void uiIOObjSel::doObjSel( CallBacker* )
 {
     ctio.ctxt.forread = forread;
-    uiIOObjSelDlg* dlg = mkDlg();
+    uiIOObjRetDlg* dlg = mkDlg();
     if ( dlg && dlg->go() && dlg->ioObj() )
     {
 	ctio.setObj( dlg->ioObj()->clone() );
@@ -334,7 +334,7 @@ void uiIOObjSel::objSel()
 }
 
 
-uiIOObjSelDlg* uiIOObjSel::mkDlg()
+uiIOObjRetDlg* uiIOObjSel::mkDlg()
 {
     return new uiIOObjSelDlg( this, ctio, trglobexpr );
 }
