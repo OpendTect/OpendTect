@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.31 2004-08-09 14:09:31 kristofer Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.32 2004-09-01 12:55:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,7 @@ bool uiExportHorizon::writeAscii()
     IOObj* ioobj = infld->selIOObj();
     PtrMan<EMSurfaceTranslator> tr =
 			(EMSurfaceTranslator*)ioobj->getTranslator();
-    if ( !tr || tr->startRead(*ioobj) )
+    if ( !tr || !tr->startRead(*ioobj) )
 	mErrRet( tr ? tr->errMsg() : "Cannot find translator" );
 
     EM::SurfaceIODataSelection& sels = tr->selections();
