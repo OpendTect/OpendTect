@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.8 2003-02-11 09:56:23 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.9 2003-04-22 11:04:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,14 +176,16 @@ void uiEMPartServer::getSurfaceDef( const MultiID& id,
     if ( !hor ) return;
 
     deepErase( bidvset );
-    const Geometry::CompositeGridSurface& grdsurf = hor->getSurfaces();
-    const int nrsubsurf = grdsurf.nrSubSurfaces();
+    const int nrsubsurf = hor->nrParts();
     for ( int idx=0; idx<nrsubsurf; idx++ )
     {
 	bidvset += new TypeSet<BinIDValue>;
 	TypeSet<BinIDValue>& res = *bidvset[idx];
 
-	const Geometry::Snapped2DSurface* surface = grdsurf.getSurfaces()[idx];
+	const Geometry::Snapped2DSurface* surface =
+	    dynamic_cast<const Geometry::Snapped2DSurface*>(
+		    			hor->getSurface(hor->partID(idx)));
+
 	const int nrrows = surface->nrRows();
 	for ( int row=0; row<nrrows; row++ )
 	{
