@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.7 2001-05-30 16:13:17 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.8 2001-06-26 07:53:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,9 @@ public:
     void		setCurrentItem(int);
     const char*		getItem( int idx ) const { return *entries_[idx]; }
 
+    void		addSpecialItem(const char* key,const char* value=0);
+			//!< If value is null, add value same as key
+
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
@@ -55,6 +58,7 @@ protected:
     CallBack		doselcb_;
     ObjectSet<BufferString>	entries_;
     bool		withclear_;
+    IOPar&		specialitems;
 
     uiLabeledComboBox*	inp_;
     uiPushButton*	selbut_;
