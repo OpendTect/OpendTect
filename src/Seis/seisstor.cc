@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.14 2004-09-13 16:18:52 bert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.15 2005-01-15 09:51:56 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: seisstor.cc,v 1.14 2004-09-13 16:18:52 bert Exp
 #include "ioobj.h"
 #include "iopar.h"
 #include "ioman.h"
+#include "keystrs.h"
 
 const char* SeisStoreAccess::sNrTrcs = "Nr of traces";
 
@@ -102,8 +103,27 @@ void SeisStoreAccess::fillPar( IOPar& iopar ) const
 
 void SeisStoreAccess::usePar( const IOPar& iopar )
 {
-    const char* res = iopar["ID"];
-    if ( *res )
+    const char* res = iopar.find( "ID" );
+    BufferString tmp;
+    if ( !res )
+    {
+	res = iopar.find( sKey::Name );
+	if ( res && *res )
+	{
+	    IOM().to( SeisTrcTranslatorGroup::ioContext().stdSelKey() );
+	    IOObj* tryioobj = IOM().getByName( res );
+	    if ( !tryioobj )
+		res = 0;
+	    else
+	    {
+		tmp = tryioobj->key();
+		res = tmp.buf();
+		delete tryioobj;
+	    }
+	}
+    }
+
+    if ( res && *res )
     {
 	IOObj* ioob = IOM().get( res );
 	if ( ioob && (!ioobj || ioobj->key() != ioob->key()) )
