@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.19 2004-05-24 16:37:40 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.20 2004-06-16 08:34:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -362,11 +362,6 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
     lfi.zrg.stop = *intvfld->text(1) ? intvfld->getFInterval().stop
 				     : mUndefValue;
     const bool zinft = !intvunfld->getBoolValue();
-    if ( zinft )
-    {
-	if ( !mIsUndefined(lfi.zrg.start) ) lfi.zrg.start *= mFromFeetFac;
-	if ( !mIsUndefined(lfi.zrg.stop) ) lfi.zrg.stop *= mFromFeetFac;
-    }
     SI().pars().setYN( SurveyInfo::sKeyDpthInFt, zinft );
     SI().savePars();
 
