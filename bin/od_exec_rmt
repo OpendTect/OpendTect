@@ -2,13 +2,13 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.10 2003-11-07 12:21:50 bert Exp $
+# $Id: od_exec_rmt,v 1.11 2004-02-04 15:12:07 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
 
 if ( $?DTECT_DEBUG ) then
-    echo "$*" > /tmp/oddebug.log
+    echo "$*"
 endif
 
 if ( ! $?DTECT_APPL ) then
@@ -85,7 +85,7 @@ end
 set transf="$transf +-+-+ $*"
 
 if ( $?DTECT_DEBUG ) then
-    echo ${rshcomm} ${remotehost} ${DTECT_APPL}/bin/od_do_rmt $transf >> /tmp/oddebug.log
+    echo ${rshcomm} ${remotehost} ${DTECT_APPL}/bin/od_do_rmt $transf
 endif
 
 ${rshcomm} ${remoteuser} ${remotehost} ${DTECT_APPL}/bin/od_do_rmt $transf
