@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceSquare.h,v 1.4 2003-10-08 12:41:15 nanne Exp $
+ RCS:		$Id: SoMeshSurfaceSquare.h,v 1.5 2003-10-09 11:59:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,10 @@ class SoMeshSurfaceSquare;
 typedef void SoMeshSurfaceSquareCB( void* data, SoMeshSurfaceSquare* );
 
 /*!\brief
-
+Is a part of a SoMeshSurface. A SoMeshSurfaceSquare has two parts - the
+brick and the glue. The brick is avaliable in different resolutions. The
+glue makes sure that the brick fits well with the neigbor one, that might
+have a different resolution.
 */
 
 
@@ -66,14 +69,12 @@ public:
     static void			initClass();
 
     SoMFInt32			origo;
-    SoMFInt32			end;
     SoSFShort			sizepower;
 
-    void			updateTextureCoords();
-    void			setTextureCoord(int row,int col,const SbVec2s&,
-	    					const SbVec2s&);
-    void			setPos(int row,int col,const SbVec3f&,
-	    			       const SbVec2s&,const SbVec2s&);
+    void			setTextureRange(int firstrow, int firstcol,
+						int lastrow, int lastcol );
+
+    void			setPos(int row,int col,const SbVec3f&);
     SbVec3f			getPos(int row,int col) const;
     void			removePos(int row,int col);
 
@@ -125,14 +126,12 @@ private:
     SbBool			cullTest(SoState*);
 
     int				getBlockSize(int res) const;
-    int				getNrBlocks(int res,int dir) const;
     static int			get2Power(int);
 
-    void			getOwn5CrdIdxs(int&,int&,int&);
-    void			getOwn7CrdIdxs(int&,int&,int&);
-    void			getNeighbour5CrdIdxs(int&,int&,int&);
-    void			getNeighbour7CrdIdxs(int&,int&,int&);
-    void			addGlueIndex(int,int,int,int&);
+    void			addGlueShape(int& coordindex,
+	    				     int& normalindex,
+					     const SbList<int>&,
+	    				     const SbList<SbVec3f>& );
     bool			isUndefined(int,int) const;
 
     SoSwitch*			wireswitchptr;

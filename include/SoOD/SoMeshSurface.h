@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurface.h,v 1.2 2003-10-03 09:54:56 kristofer Exp $
+ RCS:		$Id: SoMeshSurface.h,v 1.3 2003-10-09 11:59:59 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,19 @@ class SoMeshSurface;
 
 typedef void SoMeshSurfaceCB( void* data, SoMeshSurface* );
 
+/*!\brief
+Is a Mesh-based surface with multiple resolution. The surface is set up with
+setPos( row, col, SbVec3f ). Both negative and positive row and col are allowed. 
+The surface is separated into many squares, where the size of the squares
+are determined by 2^partSizePower.
+
+If textures are used, you must specify the range of row-col that the
+texture covers.
+
+It is possible to have holes int the surface and iregular borders. That
+is specified by setting the coord to undefValue.
+*/
+
 
 class SoMeshSurface : public SoGroup
 {
@@ -50,10 +63,11 @@ public:
     				//!< -1 = auto
     SoSFShort			partSizePower;
 
-    void			setPos(int row,int col,const SbVec3f&,
-	    				const SbVec2s&,const SbVec2s&);
+    void			setPos(int row,int col,const SbVec3f& );
     void			removePos(int row,int col);
-    void			updateTextureCoords();
+
+    void			setTextureRange(int firstrow, int firstcol,
+	    					int lastrow, int lastcol );
 
     void			allocSpace(int rowstart,int rowstop,
 	    			    	   int colstart,int colstop);
@@ -96,6 +110,12 @@ protected:
     int				nrcolsquares;
     int				squaresize;
     int				nrRows() const;
+
+    int				texturefirstrow;
+    int				texturefirstcol;
+    int				texturelastrow;
+    int				texturelastcol;
+    bool			texturerangeisset;
     
     SoFieldSensor*		partSizePowerSensor;
     static void			partSizePowerCB( void*, SoSensor* );
