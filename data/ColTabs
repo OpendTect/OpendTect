@@ -16,7 +16,7 @@ Standard color tables
 2.Value-Color.2: 0.25`255`200`0
 2.Value-Color.3: 0.5`255`255`255
 2.Value-Color.4: 1`0`0`0
-2.Undef color:	255`0`0
+2.Undef color:	150`200`150
 2.Marker color: 0`240`0
 
 3.Name       :	Grey scales
@@ -68,7 +68,7 @@ Standard color tables
 8.Value-Color.4: 0.5`255`0`0
 8.Value-Color.5: 0.95`255`255`0
 8.Value-Color.6: 1`255`255`0
-8.Undef color:	0`0`200
+8.Undef color:	150`200`150
 8.Marker color: 0`240`0
 
 9.Name       :	Blue Spirit
@@ -78,12 +78,12 @@ Standard color tables
 9.Undef color:	200`200`200
 9.Marker color: 0`240`0
 
-10.Name       :	Black&White
+10.Name       :	Black/White
 10.Value-Color.1: 0`0`0`0
 10.Value-Color.2: 0.49999`0`0`0
 10.Value-Color.3: 0.5`255`255`255
 10.Value-Color.4: 1`255`255`255
-10.Undef color:	255`255`255
+10.Undef color:	200`200`200
 10.Marker color: 0`0`0
 
 !
