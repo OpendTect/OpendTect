@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.8 2002-04-17 08:07:56 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.9 2002-04-17 08:23:44 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -186,7 +186,11 @@ void visBase::TextureRect::updateTexture()
     int ssize = data->info().getSize( isinl ? 0 : 1 );
     int tsize = data->info().getSize( isinl ? 1 : 0 );
 
-    ArrPtrMan<unsigned char> imagedata = new unsigned char[ssize*tsize*4];
+    const int nrofcomponents = 3;
+    // set to 4 if transperancy should be used
+
+    ArrPtrMan<unsigned char> imagedata =
+			new unsigned char[ssize*tsize*nrofcomponents];
 
     int idx=0;
     float val;
@@ -200,13 +204,13 @@ void visBase::TextureRect::updateTexture()
 	    imagedata[idx++] = color.r();
 	    imagedata[idx++] = color.g();
 	    imagedata[idx++] = color.b();
-	    imagedata[idx++] = 255 - color.t();
+	    if ( nrofcomponents==4 )
+	    	imagedata[idx++] = 255 - color.t();
 	}
     }
     
-	
     texture->image.setValue( SbVec2s(ssize, tsize ),
-			     4, imagedata );
+			     nrofcomponents, imagedata );
 }
 
 
