@@ -16,7 +16,7 @@
 #include "binidsel.h"
 #include "strmoper.h"
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.1 2000-03-02 15:29:00 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.2 2000-09-22 16:32:12 bert Exp $";
 
 static FixedString<1024> oscommand;
 #define exeCmd(comm) system((const char*)comm) ? NO : YES
@@ -79,16 +79,20 @@ void StreamProvider::set( const char* devname )
     type_ = StreamConn::File;
     isbad = NO;
     blocksize = 0;
+    hostname = "";
 
-    if ( !devname || !strcmp(devname,"stdin") || !strcmp(devname,"stdout") )
+    if ( !devname
+      || !strcmp(devname,"stdin")
+      || !strcmp(devname,"stdio")
+      || !strcmp(devname,"stdout") )
     {
 	type_ = StreamConn::File;
-	hostname = ""; fname = sStdIO;
+	fname = sStdIO;
 	return;
     }
     else if ( !*devname )
     {
-	isbad = YES;
+	isbad = YES; fname = "";
 	return;
     }
 
@@ -175,7 +179,7 @@ const char* StreamProvider::fullName() const
 	oscommand += hostname;
 	oscommand += ":";
     }
-    oscommand += fname;
+    oscommand += fname == sStdIO ? "stdio" : (const char*)fname;
 
     return oscommand;
 }
