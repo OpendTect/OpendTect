@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.4 2003-01-15 08:55:17 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.5 2003-01-17 16:25:52 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -32,6 +32,7 @@ visBase::Texture::Texture()
     , cachesize( 0 )
     , dataclipper( *new DataClipper( 0.05) )
     , threadworker( 0 )
+    , colortab(0)
     , red( new unsigned char[NRCOLORS] )
     , green( new unsigned char[NRCOLORS] )
     , blue( new unsigned char[NRCOLORS] )
@@ -40,7 +41,8 @@ visBase::Texture::Texture()
     , usetrans( true )
     , histogram( NRCOLORS, 0 )
 {
-    setColorTab( *visBase::VisColorTab::create());
+    setThreadWorker( visBase::ThreadWorker::create() );
+    setColorTab( *visBase::VisColorTab::create() );
 }
 
 
