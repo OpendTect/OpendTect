@@ -108,7 +108,7 @@ MathExpression* MathExpression::parse( const char* input )
 	if ( !removebracket )
 	    break;
 
-	char tmp[len];
+	char tmp[len+1];
 	strcpy( tmp, &str[1] );
 	tmp[len-2] = 0;
 	strcpy( str, tmp );
@@ -132,7 +132,7 @@ MathExpression* MathExpression::parse( const char* input )
 	{
 	    if ( !idx ) continue;
 
-	    char arg0[len];
+	    char arg0[len+1];
 	    strcpy( arg0, str );
 	    arg0[idx] = 0;
 
@@ -148,7 +148,7 @@ MathExpression* MathExpression::parse( const char* input )
 		    MathExpression* inp0 = parse( arg0 );
 		    if ( !inp0 ) return 0;
 
-		    char arg1[len];
+		    char arg1[len+1];
 		    strcpy( arg1, &str[idx+1] );
 		    arg1[idy-idx-1] = 0;
 
@@ -159,7 +159,7 @@ MathExpression* MathExpression::parse( const char* input )
 			return 0;
 		    }
 
-		    char arg2[len];
+		    char arg2[len+1];
 		    strcpy( arg2, &str[idy+1] );
 
 		    MathExpression* inp2 = parse( arg2 );
@@ -196,7 +196,7 @@ MathExpression* MathExpression::parse( const char* input )
 	{
 	    if ( !idx ) continue;
 
-	    char arg0[len];
+	    char arg0[len+1];
 	    strcpy( arg0, str );
 	    arg0[idx] = 0;
 
@@ -204,7 +204,7 @@ MathExpression* MathExpression::parse( const char* input )
 
 	    if ( !inp0 ) return 0;
 
-	    char arg1[len];
+	    char arg1[len+1];
 	    strcpy( arg1, &str[idx+2] );
 
 	    MathExpression* inp1 = parse( arg1 );
@@ -246,7 +246,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( (str[idx]=='=' || str[idx]=='!') && str[idx+1] != '=' )
 		continue;
 
-	    char arg0[len];
+	    char arg0[len+1];
 	    strcpy( arg0, str );
 	    arg0[idx] = 0;
 
@@ -255,7 +255,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( !inp0 ) return 0;
 
 	    bool twochars = str[idx+1] == '=' ? true : false;
-	    char arg1[len];
+	    char arg1[len+1];
 	    strcpy( arg1, &str[idx+1+twochars] );
 
 	    MathExpression* inp1 = parse( arg1 );
@@ -313,7 +313,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( str[idx-1]=='/' ) continue;
 	    if ( str[idx-1]=='^' ) continue;
 
-	    char arg0[len];
+	    char arg0[len+1];
 	    strcpy( arg0, str );
 	    arg0[idx] = 0;
 
@@ -321,7 +321,7 @@ MathExpression* MathExpression::parse( const char* input )
 
 	    if ( !inp0 ) return 0;
 
-	    char arg1[len];
+	    char arg1[len+1];
 	    strcpy( arg1, &str[idx+1] );
 
 	    MathExpression* inp1 = parse( arg1 );
@@ -354,7 +354,7 @@ MathExpression* MathExpression::parse( const char* input )
 	{
 	    if ( !idx ) continue;
 
-	    char arg0[len];
+	    char arg0[len+1];
 	    strcpy( arg0, str );
 	    arg0[idx] = 0;
 
@@ -362,7 +362,7 @@ MathExpression* MathExpression::parse( const char* input )
 
 	    if ( !inp0 ) return 0;
 
-	    char arg1[len];
+	    char arg1[len+1];
 	    strcpy( arg1, &str[idx+1] );
 
 	    MathExpression* inp1 = parse( arg1 );
@@ -396,7 +396,7 @@ MathExpression* MathExpression::parse( const char* input )
 	{
 	    if ( !idx ) continue;
 
-	    char arg0[len];
+	    char arg0[len+1];
 	    strcpy( arg0, str );
 	    arg0[idx] = 0;
 
@@ -404,7 +404,7 @@ MathExpression* MathExpression::parse( const char* input )
 
 	    if ( !inp0 ) return 0;
 
-	    char arg1[len];
+	    char arg1[len+1];
 	    strcpy( arg1, &str[idx+1] );
 
 	    MathExpression* inp1 = parse( arg1 );
