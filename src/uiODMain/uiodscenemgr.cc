@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.23 2004-06-23 15:19:15 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.24 2004-06-25 07:01:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,10 +194,9 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     visServ().removeScene( scenes[idxnr]->itemmanager->sceneID() );
     appl.removeDockWindow( scenes[idxnr]->treeWin() );
 
-
     scenes[idxnr]->vwrGroup()->mainObject()->closed.remove(mWSMCB(removeScene));
-    delete scenes[idxnr];
     scenes -= scenes[idxnr];
+    delete scenes[idxnr];
 }
 
 
@@ -645,6 +644,7 @@ uiODSceneMgr::Scene::~Scene()
 {
     delete sovwr;
     delete itemmanager;
+    delete treeWin();
 }
 
 
