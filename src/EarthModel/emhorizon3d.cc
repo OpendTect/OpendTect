@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.50 2004-12-17 12:31:09 bert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.51 2005-01-06 09:39:57 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -29,6 +29,21 @@ namespace EM {
 Horizon::Horizon( EMManager& man, const ObjectID& id_ )
     : Surface(man,id_,*new HorizonGeometry(*this))
 {}
+
+
+const char* Horizon::typeStr() { return EMHorizonTranslatorGroup::keyword; }
+
+void Horizon::initClass(EMManager& emm)
+{
+    emm.addFactory( new ObjectFactory( create,
+				       EMHorizonTranslatorGroup::ioContext(),
+				       typeStr()) );
+}
+
+
+EMObject* Horizon::create( const ObjectID& id, EMManager& emm )
+{ return new Horizon( emm, id ); }
+
 
 
 class HorizonImporter : public Executor
@@ -96,51 +111,55 @@ int nextStep()
 	if ( fixholes )
 	{
 	    bool changed = false;
-	    StepInterval<int> rowrange, colrange;
+	    StepInterval<int> rowrange;
 	    horizon.geometry.getRange(rowrange,true);
-	    horizon.geometry.getRange(colrange,false);
-
-	    for ( int currow=rowrange.start; rowrange.includes(currow);
-		  currow+=rowrange.step )
+	    if ( rowrange.width(false)>=0 )
 	    {
-		for ( int curcol=colrange.start; colrange.includes(curcol);
-		      curcol+=colrange.step )
+		StepInterval<int> colrange;
+		horizon.geometry.getRange(colrange,false);
+
+		for ( int currow=rowrange.start; rowrange.includes(currow);
+		      currow+=rowrange.step )
 		{
-		    const RowCol rc( currow, curcol );
-		    if ( horizon.geometry.isDefined(section,rc) )
-			continue;
+		    for ( int curcol=colrange.start; colrange.includes(curcol);
+			  curcol+=colrange.step )
+		    {
+			const RowCol rc( currow, curcol );
+			if ( horizon.geometry.isDefined(section,rc) )
+			    continue;
 
-		    PosID pid(horizon.id(),section,
-			      horizon.geometry.rowCol2SubID(rc));
+			PosID pid(horizon.id(),section,
+				  horizon.geometry.rowCol2SubID(rc));
 
-		    TypeSet<PosID> neighbors;
-		    horizon.geometry.getNeighbors( pid, &neighbors );
-		    if ( neighbors.size()<6 )
-			continue;
+			TypeSet<PosID> neighbors;
+			horizon.geometry.getNeighbors( pid, &neighbors );
+			if ( neighbors.size()<6 )
+			    continue;
 
-		    TypeSet<Coord3> neighborcoords;
-		    for ( int nidx=0; nidx<neighbors.size(); nidx++ )
-			neighborcoords += horizon.getPos(neighbors[nidx]);
+			TypeSet<Coord3> neighborcoords;
+			for ( int nidx=0; nidx<neighbors.size(); nidx++ )
+			    neighborcoords += horizon.getPos(neighbors[nidx]);
 
-		    Plane3 plane;
-		    if ( !plane.set(neighborcoords) )
-			continue;
+			Plane3 plane;
+			if ( !plane.set(neighborcoords) )
+			    continue;
 
-		    const BinID bid = HorizonGeometry::getBinID(rc);
-		    const Coord coord = SI().transform(bid);
-		    const Line3 line( Coord3(coord,0), Vector3(0,0,1));
+			const BinID bid = HorizonGeometry::getBinID(rc);
+			const Coord coord = SI().transform(bid);
+			const Line3 line( Coord3(coord,0), Vector3(0,0,1));
 
-		    Coord3 interpolcoord;
-		    if ( !plane.intersectWith(line,interpolcoord) )
-			continue;
+			Coord3 interpolcoord;
+			if ( !plane.intersectWith(line,interpolcoord) )
+			    continue;
 
-		    horizon.setPos(pid,interpolcoord,false);
-		    changed = true;
+			horizon.setPos(pid,interpolcoord,false);
+			changed = true;
+		    }
 		}
-	    }
 
-	    if ( changed )
-		return MoreToDo;
+		if ( changed )
+		    return MoreToDo;
+	    }
 	}
 
 	return Finished;

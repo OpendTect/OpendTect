@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.8 2004-12-17 13:31:02 nanne Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.9 2005-01-06 09:39:57 kristofer Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -87,7 +87,11 @@ bool SurfaceGeometry::findClosestNodes( const SectionID& sectionid,
     if ( t2dfunc ) origpos.z = t2dfunc->getValue( pos_.z );
 
     StepInterval<int> rowrange; StepInterval<int> colrange;
-    getRange( rowrange, true ); getRange( colrange, false );
+    getRange( rowrange, true );
+    if ( rowrange.width(false)<0 )
+	return false;
+    
+    getRange( colrange, false );
 
     RowCol rc;
     for ( rc.row=rowrange.start;rc.row<=rowrange.stop;rc.row+=rowrange.step)
@@ -237,6 +241,9 @@ bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
 	    const int nrsections = nrSections();
 
 	    StepInterval<int> rowrange; getRange( sectionid, rowrange, true );
+	    if ( rowrange.width(false)<0 )
+		continue;
+
 	    StepInterval<int> colrange; getRange( sectionid, colrange, false );
 
 	    RowCol idx( rowrange.start, colrange.start );
@@ -658,7 +665,7 @@ SectionID SurfaceGeometry::cloneSection( SectionID sectionid )
     StepInterval<int> rowrange;
     StepInterval<int> colrange;
     getRange( sectionid, rowrange, true );
-    if ( rowrange.width() )
+    if ( rowrange.width(false)>=0 )
 	getRange( sectionid, colrange, false );
 
     for ( int row=rowrange.start; row<=rowrange.stop; row+=step_.row )
@@ -744,7 +751,11 @@ bool SurfaceGeometry::setPos( const SectionID& section, const RowCol& surfrc,
 	}
     }
 
-    surface.poschnotifier.trigger( PosID(surface.id(),section,rowCol2SubID(surfrc)), &surface );
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PositionChange;
+    cbdata.pid0 = PosID(surface.id(),section,rowCol2SubID(surfrc));
+    surface.notifier.trigger( cbdata, &surface );
 
     return true;
 }
@@ -932,11 +943,12 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
 PosID SurfaceGeometry::getNeighbor( const PosID& posid,
 				    const RowCol& dir ) const
 {
-    RowCol diff;
+    RowCol diff(0,0);
     if ( dir.row>0 ) diff.row = step_.row;
-    if ( dir.row<0 ) diff.row = -step_.row;
+    else if ( dir.row<0 ) diff.row = -step_.row;
+
     if ( dir.col>0 ) diff.col = step_.col;
-    if ( dir.col<0 ) diff.col = -step_.col;
+    else if ( dir.col<0 ) diff.col = -step_.col;
     
     TypeSet<PosID> aliases;
     getLinkedPos( posid, aliases );

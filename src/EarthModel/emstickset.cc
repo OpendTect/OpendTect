@@ -9,15 +9,32 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.6 2004-09-08 15:10:17 kristofer Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.7 2005-01-06 09:39:57 kristofer Exp $";
 
 #include "emstickset.h"
 
+#include "emmanager.h"
 #include "emsticksettransl.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "survinfo.h"
+
+
+const char* EM::StickSet::typeStr()
+{ return  EMStickSetTranslatorGroup::keyword; }
+
+
+EM::EMObject* EM::StickSet::create(const ObjectID& id, EMManager& emm)
+{ return new EM::StickSet( emm, id); }
+
+
+void EM::StickSet::initClass(EMManager& emm)
+{
+    emm.addFactory( new ObjectFactory( create,
+			 EMStickSetTranslatorGroup::ioContext(),
+			 typeStr()) );
+}
 
 
 EM::StickSet::StickSet( EMManager& man, const EM::ObjectID& id_)

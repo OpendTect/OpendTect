@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.4 2004-09-28 09:59:37 kristofer Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.5 2005-01-06 09:36:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -67,15 +67,15 @@ public:
 			       const Coord3&,bool autoconnect,bool addtoh);
     bool		setPos(const EM::PosID&,const Coord3&,bool addtohist);
 
-    bool		isDefined(const SectionID&,const RowCol&) const;
-    bool		isDefined(const EM::PosID&) const;
+    virtual bool	isDefined(const SectionID&,const RowCol&) const;
+    virtual bool	isDefined(const EM::PosID&) const;
 
     Coord3		getPos(const EM::PosID&) const;
-    Coord3		getPos(const SectionID& section, const RowCol&) const;
+    virtual Coord3	getPos(const SectionID& section, const RowCol&) const;
     void		getPos(const RowCol&,TypeSet<Coord3>&) const;
     			//!< Returns positions from all sections on RowCol
    
-    EM::PosID		getNeighbor( const EM::PosID& posid,
+    virtual EM::PosID	getNeighbor( const EM::PosID& posid,
 	   			     const RowCol& dir ) const;
        			/*!<If the node has a neigbor in the given direction
 		  	    it is returned. If not, the PosID of the neighbor
@@ -141,7 +141,7 @@ public:
 		*/
 
 public:
-    int		findPos(const EM::SectionID&,const Interval<float>& x,
+    virtual int	findPos(const EM::SectionID&,const Interval<float>& x,
 	    		const Interval<float>& y,const Interval<float>& z,
 			TypeSet<EM::PosID>* res) const;
     int		findPos(const Interval<float>& x,const Interval<float>& y,

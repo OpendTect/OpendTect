@@ -4,19 +4,22 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.35 2004-12-17 13:31:02 nanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.36 2005-01-06 09:39:57 kristofer Exp $";
 
 #include "emobject.h"
 
 #include "color.h"
+#include "emhistoryimpl.h"
 #include "emsurfacetr.h"
 #include "emsticksettransl.h"
 #include "emmanager.h"
 #include "errh.h"
+#include "geomelement.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
+
 
 
 int EM::EMObject::sPermanentControlNode	= 0;
@@ -32,21 +35,37 @@ const char* EM::EMObject::posattrposidstr = " SubID";
 const char* EM::EMObject::nrposattrstr = "Nr Pos Attribs";
 
 
-EM::EMObject* EM::EMObject::create( const IOObj& ioobj, EM::EMManager& manager )
+EM::ObjectFactory::ObjectFactory( EMObjectCreationFunc cf, 
+				  const IOObjContext& ctx,
+				  const char* tstr )
+    : creationfunc( cf )
+    , context( ctx )
+    , typestr( tstr )
+{}
+
+
+EM::EMObject* EM::ObjectFactory::create( const char* name, bool tmpobj,
+					 EMManager& emm )
 {
-    EM::EMObject* res = 0;
-    const char* group = ioobj.group();
+    if ( tmpobj )
+	return creationfunc( -1, emm );
 
-    const EM::ObjectID id = EM::EMManager::multiID2ObjectID(ioobj.key());
+    if ( !IOM().to(IOObjContext::getStdDirData(context.stdseltype)->id) )
+	return 0;
 
-    if ( !strcmp( group, EMHorizonTranslatorGroup::keyword ))
-	res = new EM::Horizon( manager, id );
-    else if ( !strcmp( group, EMFaultTranslatorGroup::keyword ))
-	res = new EM::Fault( manager, id );
-    else if ( !strcmp( group, EMStickSetTranslatorGroup::keyword ))
-	res = new EM::StickSet( manager, id );
+    PtrMan<IOObj> ioobj = IOM().getLocal( name );
+    IOM().back();
+    if ( ioobj )
+	return creationfunc( emm.multiID2ObjectID(ioobj->key()), emm );
 
-    return res;
+     CtxtIOObj ctio(context);
+     ctio.ctxt.forread = false;
+     ctio.ioobj = 0;
+     ctio.setName( name );
+     ctio.fillObj();
+     if ( !ctio.ioobj ) return 0;
+
+     return creationfunc( emm.multiID2ObjectID(ctio.ioobj->key()), emm );
 }
 
 
@@ -70,21 +89,20 @@ void EM::EMObject::unRefNoDel() const
 
 EM::EMObject::EMObject( EMManager& emm_, const EM::ObjectID& id__ )
     : manager(emm_)
-    , poschnotifier(this)
-    , removenotifier(this)
+    , notifier(this)
     , id_(id__)
-    , prefColorChange(this)
     , preferredcolor( *new Color(255, 0, 0) )
 {
-    posattrchnotifiers.allowNull();
+    notifier.notify( mCB( this, EMObject, posIDChangeCB ) );
 }
 
 
 EM::EMObject::~EMObject()
 {
     deepErase( posattribs );
-    deepErase( posattrchnotifiers );
     delete &preferredcolor;
+
+    notifier.remove( mCB( this, EMObject, posIDChangeCB ) );
 }
 
 
@@ -92,6 +110,46 @@ BufferString EM::EMObject::name() const
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     return ioobj ? ioobj->name() : BufferString("");
+}
+
+
+const Geometry::Element* EM::EMObject::getElement( SectionID sec ) const
+{ return 0; }
+
+
+Coord3 EM::EMObject::getPos( const EM::PosID& pid ) const
+{
+    if ( pid.objectID()!=id() )
+	return  Coord3::udf();
+
+    const Geometry::Element* element = getElement( pid.sectionID() );
+    return element ? element->getPosition( pid.subID() ) : Coord3::udf();
+}
+
+#define mRetErr( msg ) { errmsg = msg; return false; }
+
+bool EM::EMObject::setPos( const EM::PosID& pid, const Coord3& newpos,
+			     bool addtohistory ) 
+{
+    if ( pid.objectID()!=id() )
+	mRetErr("");
+
+    Geometry::Element* element = getElement( pid.sectionID() );
+    if ( !element ) mRetErr( "" );
+
+    HistoryEvent* history =  addtohistory
+	? new SetPosHistoryEvent(element->getPosition(pid.subID()),pid)
+	: 0;
+
+     if ( !element->setPosition(pid.subID(), newpos ) )
+     {
+	 delete history;
+	 mRetErr(element->errMsg());
+     }
+
+     if ( history ) EM::EMM().history().addEvent( history, 0, 0 );
+
+     return true;
 }
 
 
@@ -105,7 +163,9 @@ void EM::EMObject::setPreferredColor(const Color& col)
 	return;
 
     preferredcolor = col;
-    prefColorChange.trigger();
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PrefColorChange;
+    notifier.trigger(cbdata);
 }
 
 
@@ -115,8 +175,39 @@ bool EM::EMObject::unSetPos(const EM::PosID& pid, bool addtohistory )
 }
 
 
+void EM::EMObject::changePosID( const EM::PosID& from, const EM::PosID& to,
+				bool addtohistory )
+{
+    if ( from.objectID()!=id() || to.objectID()!=id() )
+	return;
+
+    const Coord3 tosprevpos = getPos( to );
+    setPos( to, getPos( from ), false );
+    unSetPos( from, false );
+
+    if ( addtohistory )
+    {
+	SurfacePosIDChangeEvent* event = new SurfacePosIDChangeEvent( from, to,
+						    tosprevpos );
+	EM::EMM().history().addEvent( event, 0, 0 );
+    }
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::PosIDChange;
+    cbdata.pid0 = from;
+    cbdata.pid1 = to;
+    notifier.trigger(cbdata);
+}
+
+
 bool EM::EMObject::isDefined( const EM::PosID& pid ) const
-{ return getPos(pid).isDefined(); }
+{ 
+    if ( pid.objectID()!=id() )
+	return  false;
+
+    const Geometry::Element* element = getElement( pid.sectionID() );
+    return element && element->isDefined( pid.subID() );
+}
 
 
 MultiID EM::EMObject::multiID() const
@@ -139,7 +230,10 @@ void EM::EMObject:: removePosAttrib(int attr)
 
 void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 {
-    CNotifier<EMObject, PosID>* notifier = getPosAttribChNotifier(attr,false);
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::AttribChange;
+    cbdata.pid0 = pid;
+    cbdata.attrib = attr;
 
     const int idx=attribs.indexOf(attr);
     if ( idx==-1 )
@@ -148,7 +242,6 @@ void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 	{
 	    attribs += attr;
 	    posattribs += new TypeSet<EM::PosID>(1,pid);
-	    posattrchnotifiers += 0;
 	}
     }
     else
@@ -162,14 +255,11 @@ void EM::EMObject::setPosAttrib( const EM::PosID& pid, int attr, bool yn )
 	}
 	else if ( !yn )
 	{
-	    const EM::PosID pidcopy = pid;
 	    posids.removeFast(idy);
-	    if ( notifier ) notifier->trigger( pidcopy, this );
-	    return;
 	}
     }
 
-    if ( notifier ) notifier->trigger( pid, this );
+    notifier.trigger( cbdata );
 }
 
 
@@ -213,27 +303,6 @@ const TypeSet<EM::PosID>* EM::EMObject::getPosAttribList(int attr) const
 {
     const int idx=attribs.indexOf(attr);
     return idx!=-1 ? posattribs[idx] : 0;
-}
-
-
-CNotifier<EM::EMObject, EM::PosID>*
-EM::EMObject::getPosAttribChNotifier( int attr, bool create )
-{
-    int idx=attribs.indexOf(attr);
-    if ( idx==-1 )
-    {
-	if ( !create ) return 0;
-
-	idx = attribs.size();
-	attribs += attr;
-	posattribs += new TypeSet<EM::PosID>;
-	posattrchnotifiers += 0;
-    }
-
-    if ( !posattrchnotifiers[idx] && create )
-	posattrchnotifiers.replace( new CNotifier<EMObject, PosID>(this),idx );
-
-    return posattrchnotifiers[idx];
 }
 
 
@@ -315,4 +384,27 @@ void EM::EMObject::fillPar( IOPar& par ) const
     }
 
     par.set( nrposattrstr, keyid );
+}
+
+
+void EM::EMObject::posIDChangeCB(CallBacker* cb)
+{
+    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    if ( cbdata.event!=EMObjectCallbackData::PosIDChange )
+	return;
+
+    for ( int idx=0; idx<posattribs.size(); idx++ )
+    {
+	TypeSet<PosID>& nodes = *posattribs[idx];
+	if ( !&nodes ) continue;
+
+	while ( true )
+	{
+	    int idy = nodes.indexOf(cbdata.pid0);
+	    if ( idy==-1 )
+		break;
+
+	    nodes[idy] = cbdata.pid1;
+	}
+    }
 }

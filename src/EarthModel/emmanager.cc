@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.35 2004-09-14 14:54:37 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.36 2005-01-06 09:39:57 kristofer Exp $";
 
 #include "emmanager.h"
 
@@ -39,6 +39,7 @@ EM::EMManager::EMManager()
 EM::EMManager::~EMManager()
 {
     deepErase( objects );
+    deepErase( objectfactories );
     delete &history_;
 }
 
@@ -51,7 +52,7 @@ EM::History& EM::EMManager::history()
 { return history_; }
 
 
-BufferString EM::EMManager::name(const EM::ObjectID& oid) const
+BufferString EM::EMManager::objectName(const EM::ObjectID& oid) const
 {
     if ( getObject(oid) ) return getObject(oid)->name();
     MultiID mid = IOObjContext::getStdDirData(IOObjContext::Surf)->id;
@@ -64,8 +65,8 @@ BufferString EM::EMManager::name(const EM::ObjectID& oid) const
 }
 
 
-EM::ObjectID EM::EMManager::getID( EM::EMManager::Type type,
-				   const char* name ) const
+EM::ObjectID EM::EMManager::findObject( const char* type,
+					const char* name ) const
 {
     const IOObjContext* context = getContext(type);
     if ( IOM().to(IOObjContext::getStdDirData(context->stdseltype)->id) )
@@ -79,30 +80,19 @@ EM::ObjectID EM::EMManager::getID( EM::EMManager::Type type,
 }
 
 
-EM::EMManager::Type EM::EMManager::type(const EM::ObjectID& oid) const
+const char* EM::EMManager::objectType(const EM::ObjectID& oid) const
 {
-    mDynamicCastGet( const EM::Horizon*, hor, getObject(oid) );
-    if ( hor ) return Hor;
-    mDynamicCastGet( const EM::Fault*, fault, getObject(oid) );
-    if ( fault ) return Fault;
-    mDynamicCastGet( const EM::StickSet*, stickset, getObject(oid) );
-    if ( stickset ) return StickSet;
+    if ( getObject(oid) )
+	return getObject(oid)->getTypeStr();
 
     MultiID mid = IOObjContext::getStdDirData(IOObjContext::Surf)->id;
     mid.add(oid);
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) 
-	return Unknown;
+	return 0;
 
-    if ( !strcmp(ioobj->group(), EMFaultTranslatorGroup::keyword) )
-	return Fault;
-    if ( !strcmp(ioobj->group(), EMHorizonTranslatorGroup::keyword) )
-	return Hor;
-    if ( !strcmp(ioobj->group(), EMStickSetTranslatorGroup::keyword) )
-	return StickSet;
-
-    return Unknown;
+    return ioobj->group();
 }
 
 
@@ -110,40 +100,24 @@ void EM::EMManager::init()
 { } 
 
 
-EM::ObjectID EM::EMManager::add( EM::EMManager::Type type, const char* name )
+EM::ObjectID EM::EMManager::createObject( const char* type, const char* name )
 {
-    const IOObjContext* context = getContext( type );
-    PtrMan<CtxtIOObj> ctio = context ? new CtxtIOObj(*context) : 0;
-    if ( !ctio ) return -1;
     EM::EMObject* object = 0;
-
-    EM::ObjectID res = getID(type, name);
-    if ( res!=-1 )
+    for ( int idx=0; idx<objectfactories.size(); idx++ )
     {
-	MultiID mid = IOObjContext::getStdDirData(context->stdseltype)->id;
-	mid.add(res);
-	PtrMan<IOObj> ioobj = IOM().get( mid );
-	if ( !ioobj ) return 0;
-
-	object = EM::EMObject::create( *ioobj, *this );
-    }
-    else
-    {
-
-	ctio->ctxt.forread = false;
-	ctio->ioobj = 0;
-	ctio->setName( name );
-	ctio->fillObj();
-	if ( !ctio->ioobj ) return -1;
-
-	object = EM::EMObject::create( *ctio->ioobj, *this );
+	if ( !strcmp(type,objectfactories[idx]->typeStr()) )
+	{
+	    object = objectfactories[idx]->create( name, false, *this );
+	    break;
+	}
     }
 
-    if ( !object ) { delete ctio->ioobj; return -1; }
+    if ( !object )
+	return -1;
+
     objects += object;
     refcounts += 0;
 
-    delete ctio->ioobj;
     return object->id();
 } 
 
@@ -176,7 +150,9 @@ void EM::EMManager::removeObject( const EM::ObjectID& id )
     {
 	if ( objects[idx]->id() == objid )
 	{
-	    objects[idx]->removenotifier.trigger();
+	    EMObjectCallbackData cbdata;
+	    cbdata.event = EMObjectCallbackData::Removal;
+	    objects[idx]->notifier.trigger(cbdata);
 	    delete objects[idx];
 	    objects.remove( idx );
 	    refcounts.remove( idx );
@@ -252,20 +228,24 @@ void EM::EMManager::addObject( EM::EMObject* obj )
 */
 
 
-EM::EMObject* EM::EMManager::getTempObj( EM::EMManager::Type type )
+EM::EMObject* EM::EMManager::createTempObject( const char* type )
 {
-    EMObject* res = 0;
-    if ( type==EM::EMManager::Hor )
-	res = new EM::Horizon( *this, -1 );
-    else if ( type==EM::EMManager::Fault )
-	res = new EM::Fault( *this, -1 );
+    for ( int idx=0; idx<objectfactories.size(); idx++ )
+    {
+	if ( !strcmp(type,objectfactories[idx]->typeStr()) )
+	    return objectfactories[idx]->create( 0, true, *this );
+    }
 
-    return res;
+    return 0;
 }
 
 
-Executor* EM::EMManager::load( const MultiID& mid,
-			       const SurfaceIODataSelection* iosel )
+EM::ObjectID EM::EMManager::objectID(int idx) const
+{ return idx>=0 && idx<objects.size() ? objects[idx]->id() : -1; }
+
+
+Executor* EM::EMManager::loadObject( const MultiID& mid,
+				     const SurfaceIODataSelection* iosel )
 {
     EM::ObjectID id = multiID2ObjectID(mid);
     EMObject* obj = getObject( id );
@@ -275,7 +255,7 @@ Executor* EM::EMManager::load( const MultiID& mid,
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) return 0;
 
-	obj = EM::EMObject::create( *ioobj, *this );
+	obj = createTempObject( ioobj->group() );
 	if ( obj )
 	{
 	    objects += obj;
@@ -331,14 +311,29 @@ const char* EM::EMManager::getSurfaceData( const MultiID& id,
 }
 
 
-const IOObjContext* EM::EMManager::getContext( Type type ) const
+void EM::EMManager::addFactory( ObjectFactory* fact )
 {
-    if ( type==EM::EMManager::Hor )
-	return &EMHorizonTranslatorGroup::ioContext();
-    else if ( type==EM::EMManager::Fault )
-	return &EMFaultTranslatorGroup::ioContext();
-    else if ( type==EMManager::StickSet )
-	return &EMStickSetTranslatorGroup::ioContext();
+    for ( int idx=0; idx<objectfactories.size(); idx++ )
+    {
+	if ( !strcmp(fact->typeStr(),objectfactories[idx]->typeStr()) )
+	{
+	    delete fact;
+	    return;
+	}
+    }
+
+    objectfactories += fact;
+
+}
+
+
+const IOObjContext* EM::EMManager::getContext( const char* type ) const
+{
+    for ( int idx=0; idx<objectfactories.size(); idx++ )
+    {
+	if ( !strcmp(type,objectfactories[idx]->typeStr()) )
+	    return &objectfactories[idx]->ioContext();
+    }
 
     return 0;
 }

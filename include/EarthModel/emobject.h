@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.31 2004-09-14 14:54:10 nanne Exp $
+ RCS:		$Id: emobject.h,v 1.32 2005-01-06 09:40:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -24,17 +24,36 @@ struct CubeSampling;
 class IOObjContext;
 class Color;
 
+namespace Geometry { class Element; }
+
 namespace EM
 {
 class EMManager;
+
+class EMObjectCallbackData
+{
+public:
+    		EMObjectCallbackData() 
+		    : pid0( 0, 0, 0 )
+		    , pid1( 0, 0, 0 )
+		    , attrib( -1 )
+		    , event( EMObjectCallbackData::Undef )
+		{}
+
+    enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
+   		 AttribChange }	event;
+
+    EM::PosID	pid0;
+    EM::PosID	pid1;	//Only used in PosIDChange
+    int		attrib; //Used only with AttribChange
+};
+
 
 /*!\brief Earth Model Object */
 
 class EMObject : public CallBacker
 {
 public:
-    static EMObject*		create(const IOObj&,EMManager&);
-
     void			ref() const;
     void			unRef() const;
     void			unRefNoDel() const;
@@ -42,20 +61,29 @@ public:
     				EMObject( EMManager&, const EM::ObjectID&);
     virtual			~EMObject( );
     const ObjectID&		id() const { return id_; }
+    virtual const char*		getTypeStr() const			= 0;
     MultiID			multiID() const;
 
     BufferString		name() const;
 
+    virtual int			nrSections() const 			= 0;
+    virtual SectionID		sectionID( int ) const			= 0;
+
+    virtual const Geometry::Element*	getElement( SectionID ) const;
+
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&);
-    Notifier<EMObject>		prefColorChange;
 
-    virtual Coord3		getPos(const EM::PosID&) const = 0;
+    virtual Coord3		getPos(const EM::PosID&) const;
     virtual bool		isDefined( const EM::PosID& ) const;
     virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,
-				       bool addtohistory ) = 0;
+				       bool addtohistory );
     virtual bool		unSetPos(const EM::PosID&, bool addtohistory );
+
+    void			changePosID( const EM::PosID& from, 
+	    				     const EM::PosID& to,
+					     bool addtohistory );
 
     virtual void		getLinkedPos( const EM::PosID& posid,
 					  TypeSet<EM::PosID>& ) const
@@ -73,10 +101,8 @@ public:
     virtual const char*		posAttribName(int) const;
     virtual int			addPosAttribName(const char*);
     const TypeSet<PosID>*	getPosAttribList(int) const;
-    CNotifier<EMObject, PosID>*	getPosAttribChNotifier( int, bool create );
 
-    CNotifier<EMObject, PosID>	poschnotifier;
-    Notifier<EMObject>		removenotifier;
+    CNotifier<EMObject,const EMObjectCallbackData&>	notifier;
 
     virtual Executor*		loader() { return 0; }
     virtual bool		isLoaded() const {return false;}
@@ -101,6 +127,9 @@ public:
     static int			sTerminationNode;
 
 protected:
+    virtual Geometry::Element*	getElement( SectionID ) { return 0; }
+
+    void			posIDChangeCB(CallBacker*);
     virtual const IOObjContext&	getIOObjContext() const = 0;
     ObjectID			id_;
     class EMManager&		manager;
@@ -110,7 +139,6 @@ protected:
 
     ObjectSet<TypeSet<PosID> >	posattribs;
     TypeSet<int>		attribs;
-    ObjectSet<CNotifier<EMObject, PosID> >	posattrchnotifiers;
 
     static const char*		prefcolorstr;
     static const char*		nrposattrstr;
@@ -118,6 +146,27 @@ protected:
     static const char*		posattrsectionstr;
     static const char*		posattrposidstr;
 };
+
+
+typedef EMObject*(*EMObjectCreationFunc)(const ObjectID&, EMManager&);
+
+class ObjectFactory
+{
+public:
+    				ObjectFactory( EMObjectCreationFunc,
+				       	       const IOObjContext&,
+				       	       const char* );
+    EMObject*			create( const char* name, bool tmpobj,
+	    				EMManager& );
+    const char*			typeStr() const { return typestr; }
+    const IOObjContext&		ioContext() const { return context; }
+protected:
+    EMObjectCreationFunc	creationfunc;
+    const IOObjContext&		context;
+    const char*			typestr;
+};
+
+
 
 }; // Namespace
 

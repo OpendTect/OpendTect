@@ -1,0 +1,102 @@
+/*+
+ * COPYRIGHT: (C) dGB Beheer B.V.
+ * AUTHOR   : K. Tingdahl
+ * DATE     : Dec 2004
+-*/
+
+static const char* rcsID = "$Id: geomelement.cc,v 1.1 2005-01-06 09:45:32 kristofer Exp $";
+
+#include "geomelement.h"
+
+namespace Geometry
+{
+Element::Element()
+    : nrpositionnotifier( this )
+    , movementnotifier( this )
+    , ischanged( false )
+    , errmsg_( 0 )
+    , scaling_( 1, 1, 1 )
+{ }
+
+
+Element::~Element()
+{ delete errmsg_; }
+
+
+IntervalND<float> Element::boundingBox(bool) const
+{
+    TypeSet<GeomPosID> ids;
+    getPosIDs( ids );
+
+    IntervalND<float> bbox(3);
+    Coord3 pos;
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	pos = getPosition(ids[idx]);
+	//if ( !pos.isDefined() )
+	    //continue;
+
+	if ( !bbox.isSet() ) bbox.setRange(pos);
+	else bbox.include(pos);
+    }
+
+    return bbox;
+}
+
+
+
+const char* Element::errMsg() const
+{ return errmsg_ && errmsg_->size() ? (*errmsg_) : 0; }
+
+
+BufferString& Element::errmsg()
+{
+    if ( !errmsg_ ) errmsg_ = new BufferString;
+    return *errmsg_;
+}
+
+
+void Element::triggerMovement( const TypeSet<GeomPosID>& gpids )
+{
+    movementnotifier.trigger( &gpids, this );
+    ischanged = true;
+}
+
+
+void Element::triggerMovement( const GeomPosID& gpid )
+{
+    TypeSet<GeomPosID> gpids( 1, gpid );
+    movementnotifier.trigger( &gpids, this );
+    ischanged = true;
+}
+
+
+void Element::triggerMovement()
+{
+    movementnotifier.trigger( 0, this );
+    ischanged = true;
+}
+
+
+void Element::triggerNrPosCh( const TypeSet<GeomPosID>& gpids )
+{
+    nrpositionnotifier.trigger( &gpids, this );
+    ischanged = true;
+}
+
+
+void Element::triggerNrPosCh( const GeomPosID& gpid )
+{
+    TypeSet<GeomPosID> gpids( 1, gpid );
+    nrpositionnotifier.trigger( &gpids, this );
+    ischanged = true;
+}
+
+
+void Element::triggerNrPosCh()
+{
+    nrpositionnotifier.trigger( 0, this );
+    ischanged = true;
+}
+}; //Namespace
+

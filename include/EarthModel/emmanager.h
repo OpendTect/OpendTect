@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.21 2004-05-21 10:18:22 bert Exp $
+ RCS:		$Id: emmanager.h,v 1.22 2005-01-06 09:40:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ class Executor;
 
 namespace EM
 {
+class ObjectFactory;
 class EMObject;
 class History;
 class SurfaceIOData;
@@ -37,8 +38,6 @@ class SurfaceIODataSelection;
 class EMManager
 {
 public:
-    enum Type		{ Unknown, Hor, Fault, StickSet };
-
 			EMManager();
 			~EMManager();
 
@@ -47,28 +46,28 @@ public:
     History&		history();
     const History&	history() const;
 
-    BufferString	name(const EM::ObjectID&) const;
-    			/*!<\returns the name of the object */
-    Type		type(const EM::ObjectID&) const;
-    			/*!<\returns the type of the object */
-    EM::ObjectID	getID(Type,const char* name) const;
-    EM::ObjectID	add(Type,const char* name);
+    int			nrLoadedObjects() const	{ return objects.size(); }
+    EM::ObjectID	objectID(int idx) const;
+    Executor*		loadObject(const MultiID&,
+	    		     const EM::SurfaceIODataSelection* =0);
+    EM::ObjectID	createObject(const char* type,const char* name);
     			/*!< Creates a new object, saves it and loads it into
 			     mem
 			     \note If an object already exist with that name,
-			     it will be removed!! Check in advance with getID()
+			     it will be removed!! Check in advance with
+			     searchForObject()
 			*/
-
-    int			nrObjects() const	{ return objects.size(); }
-    const EMObject*	getEMObject(int index) const { return objects[index]; }
-    EMObject*		getEMObject(int index) { return objects[index]; }
+    BufferString	objectName(const EM::ObjectID&) const;
+    			/*!<\returns the name of the object */
+    const char*		objectType(const EM::ObjectID&) const;
+    			/*!<\returns the type of the object */
+    EM::ObjectID	findObject(const char* type, const char* name) const;
+    			/*!<\returns the objectid if found, -1 otherwise */
 
     EMObject*		getObject(const EM::ObjectID&);
     const EMObject*	getObject(const EM::ObjectID&) const;
 
-    Executor*		load(const MultiID&,
-	    		     const EM::SurfaceIODataSelection* =0);
-    EMObject*		getTempObj(EM::EMManager::Type);
+    EMObject*		createTempObject(const char* type);
 
     const char*		getSurfaceData(const MultiID&, EM::SurfaceIOData&);
     			// returns err msg or null if OK
@@ -79,8 +78,12 @@ public:
 
     static EM::ObjectID	multiID2ObjectID( const MultiID& );
 
+    void		addFactory( ObjectFactory* fact );
+
 protected:
-    const IOObjContext*	getContext( Type ) const;
+    ObjectSet<ObjectFactory>	objectfactories;
+
+    const IOObjContext*	getContext( const char* type ) const;
     void		removeObject(const EM::ObjectID&);
     History&		history_;
     ObjectSet<EMObject>	objects;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.44 2004-08-18 13:58:13 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.45 2005-01-06 09:40:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,8 @@ class SurfaceGeometry;
 class Surface : public EMObject
 {
 public:
+    int			nrSections() const;
+    EM::SectionID	sectionID(int) const;
     bool		setPos(const EM::PosID&,const Coord3&,bool addtohist);
     bool		isDefined(const EM::PosID&) const;
     Coord3		getPos(const EM::PosID&) const;

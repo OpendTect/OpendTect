@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.67 2004-09-29 10:58:21 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.68 2005-01-06 09:39:57 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -122,7 +122,8 @@ Surface::Surface( EMManager& man, const ObjectID& id_,
     , edgelinesets( *new EdgeLineManager(*this) )
     , geometry( geom )
     , auxdata( *new SurfaceAuxData(*this) )
-{ }
+{
+}
 
 
 Surface::~Surface()
@@ -142,6 +143,12 @@ void Surface::cleanUp()
     relations.removeAll();
     edgelinesets.removeAll();
 }
+
+
+int Surface::nrSections() const { return geometry.nrSections(); }
+
+
+SectionID Surface::sectionID(int idx) const { return geometry.sectionID(idx); }
 
 
 bool Surface::setPos( const PosID& posid, const Coord3& newpos,
