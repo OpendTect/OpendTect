@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.48 2004-09-08 08:38:18 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.49 2004-09-13 09:44:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ void uiODApplMgr::resetServers()
     if ( nlaserv ) nlaserv->reset();
     delete attrserv; attrserv = new uiAttribPartServer( applservice );
     trackserv->setAttribDescSet( attrserv->curDescSet() );
-    delete visserv; visserv = new uiVisPartServer( applservice );
+    visserv->deleteAllObjects();
 }
 
 
@@ -692,6 +692,8 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	sceneMgr().viewAll(0);
     else if ( evid == uiVisPartServer::evToHomePos )
 	sceneMgr().toHomePos(0);
+    else if (  evid == uiVisPartServer::evRemoveTrackTools )
+	appl.removeDockWindow( visserv->getTrackTB() );
     else
 	pErrMsg("Unknown event from visserv");
 
