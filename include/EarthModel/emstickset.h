@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emstickset.h,v 1.4 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emstickset.h,v 1.5 2005-01-06 09:38:14 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -39,6 +39,15 @@ class EMManager;
 class StickSet : public EMObject
 {
 public:
+    static const char*	typeStr();
+    static EMObject*	create(const ObjectID&, EMManager& );
+    static void		initClass(EMManager&);
+
+    const char*		getTypeStr() const { return typeStr(); }
+
+    int			nrSections() const { return nrSticks(); }
+    EM::SectionID	sectionID(int idx) const { return stickID(idx); }
+
     int			nrSticks() const;
     StickID		stickID(int idx) const;
     StickID		addStick( bool addtohistory );

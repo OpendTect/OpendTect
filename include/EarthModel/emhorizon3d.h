@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.35 2004-12-17 12:31:09 bert Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.36 2005-01-06 09:38:14 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,11 @@ the knots.
 class Horizon : public EM::Surface
 {
 public:
+    static const char*		typeStr();
+    static EMObject*		create(const ObjectID&, EMManager& );
+    static void			initClass(EMManager&);
+
+    const char*			getTypeStr() const { return typeStr(); }
     Executor*			importer(const Grid&,int idx,bool fixholes);
     				/*!< Removes all data when idx=0 and creates 
 				  sections for every Grid imported.
@@ -87,6 +92,11 @@ public:
 
 protected:
     Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
+};
+
+
+class HorizonFactory
+{
 };
 
 
