@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.13 2004-04-27 11:58:50 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.14 2004-04-28 10:52:17 nanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -110,6 +110,10 @@ CubeSampling visSurvey::SurveyObject::getCubeSampling() const
     CubeSampling cs;
     return cs;
 } 
+
+
+void visSurvey::SurveyObject::setCubeSampling( CubeSampling )
+{}
 
 
 bool visSurvey::SurveyObject::setDataVolume( bool, AttribSliceSet* slc)

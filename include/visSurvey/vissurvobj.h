@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.20 2004-04-27 11:56:42 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.21 2004-04-28 10:52:52 nanne Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ class CubeSampling;
 class SeisTrc;
 
 namespace visBase { class Transformation; };
+
 namespace visSurvey
 {
 
@@ -34,13 +35,14 @@ namespace visSurvey
 class SurveyObject 
 {
 public:
-    virtual float		calcDist( const Coord3& ) const
+    virtual float		calcDist(const Coord3&) const
     					{ return mUndefValue; }
 
     virtual NotifierAccess*	getMovementNotification()   { return 0; }
+    virtual NotifierAccess*	rightClickNotifier()	    { return 0; }
     virtual bool		isInlCrl() const	    { return false; }
 
-    const char*		errMsg() const		    { return errmsg; }
+    const char*			errMsg() const		    { return errmsg; }
 
     virtual void		getChildren( TypeSet<int>& ) const;
 
@@ -75,6 +77,7 @@ public:
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling() const;
+    virtual void		setCubeSampling(CubeSampling);
     virtual bool		setDataVolume( bool color, AttribSliceSet* slc);
 				/*!<\note slc becomes mine */
     virtual const AttribSliceSet* getCacheVolume( bool color ) const;
@@ -145,7 +148,7 @@ protected:
 
 SurveyParamManager& SPM();
 
-}; // Namespace
+}; // Namespace visSurvey
 
 
 /*! \mainpage 3D Visualisation - OpendTect specific
