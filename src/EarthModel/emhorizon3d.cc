@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.53 2005-02-16 10:49:44 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.54 2005-03-02 08:56:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,34 +132,25 @@ class HorizonImporter : public Executor
 {
 public:
 
-HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects_, bool fh )
+HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects, 
+		 const RowCol& step, bool fh )
     : Executor("Horizon Import")
     , horizon(hor)
-    , sections(sects_)
+    , sections(sects)
     , fixholes(fh)
-    , step(0,0)
     , totalnr(0)
     , nrdone(0)
 {
     for ( int idx=0; idx<sections.size(); idx++ )
     {
 	const BinIDValueSet& bvs = *sections[idx];
-	totalnr += bvs.nrInls();
-
-	BinID bid00, bid11;
-	bvs.get( BinIDValueSet::Pos(0,0), bid00 );
-	bvs.get( BinIDValueSet::Pos(1,1), bid11 );
-	RowCol step_( abs(bid00.inl-bid11.inl), abs(bid00.crl-bid11.crl) );
-	if ( !step_.row ) step_.row = 1;
-	if ( !step_.col ) step_.col = 1;
-	if ( !step.inl && !step.crl ) step = BinID(step_.row,step_.col);
-
-	SectionID sectionid =  hor.geometry.addSection( 0, false );
-	horizon.geometry.setTranslatorData( sectionid, step_, step_, 
-					    RowCol(bid00.inl,bid00.crl) );
+	totalnr += bvs.totalSize();
+	SectionID sectionid =  horizon.geometry.addSection( 0, false );
+	horizon.geometry.setTranslatorData( sectionid, step, step,
+			RowCol(bvs.inlRange().start,bvs.crlRange().start) );
     }
 
-    sectionidx = -1;
+    sectionidx = 0;
 }
 
 
@@ -170,33 +161,30 @@ const char*	nrDoneText() const { return "Nr inlines imported"; }
 
 int nextStep()
 {
-    if ( sectionidx == -1 || inl > inlrange.stop )
+    BinIDValueSet::Pos pos;
+    const BinIDValueSet& bvs = *sections[sectionidx];
+    bool haspos = bvs.next( pos );
+    if ( !haspos )
     {
 	sectionidx++;
-	if ( sectionidx >= horizon.geometry.nrSections() )
+	if ( sectionidx >= sections.size() )
 	    return fixholes ? fillHoles() : Finished;
 
-	inlrange = sections[sectionidx]->inlRange();
-	crlrange = sections[sectionidx]->crlRange();
-	inl = inlrange.start;
+	horizon.geometry.addSection( 0, false );
+	return MoreToDo;
     }
+
+    const int nrvals = bvs.nrVals();
+    TypeSet<float> vals( nrvals, mUndefValue );
+    BinID bid;
+    bvs.get( pos, bid, vals.arr() );
 
     PosID posid( horizon.id(), horizon.geometry.sectionID(sectionidx) );
-    const BinIDValueSet& bvs = *sections[sectionidx];
-    const int nrvals = bvs.nrVals();
-    for ( int crl=crlrange.start; crl<=crlrange.stop; crl+=step.crl )
-    {
-	const BinID bid(inl,crl);
-	BinIDValueSet::Pos pos = bvs.findFirst( bid );
-	const float* vals = bvs.getVals( pos );
-	if ( !vals ) continue;
-	Coord crd = SI().transform( bid );
-	RowCol rc( HorizonGeometry::getRowCol(bid) );
-	posid.setSubID( HorizonGeometry::rowCol2SubID(rc) );
-	horizon.geometry.setPos( posid, Coord3(crd.x,crd.y,vals[0]), false );
-    }
+    const Coord crd = SI().transform( bid );
+    RowCol rc( HorizonGeometry::getRowCol(bid) );
+    posid.setSubID( HorizonGeometry::rowCol2SubID(rc) );
+    horizon.geometry.setPos( posid, Coord3(crd.x,crd.y,vals[0]), false );
 
-    inl += step.inl;
     nrdone++;
     return MoreToDo;
 }
@@ -265,24 +253,21 @@ int fillHoles()
 protected:
 
     const ObjectSet<BinIDValueSet>&	sections;
-    Horizon&			horizon;
-    Interval<int>		inlrange;
-    Interval<int>		crlrange;
-    BinID			step;
+    Horizon&		horizon;
 
-    int				inl;
-    bool			fixholes;
-    int				sectionidx;
+    bool		fixholes;
+    int			sectionidx;
 
-    int				totalnr;
-    int				nrdone;
+    int			totalnr;
+    int			nrdone;
 };
 
 
-Executor* Horizon::importer( const ObjectSet<BinIDValueSet>& sections, bool fh )
+Executor* Horizon::importer( const ObjectSet<BinIDValueSet>& sections, 
+			     const RowCol& step, bool fh )
 {
     cleanUp();
-    return new HorizonImporter( *this, sections, fh );
+    return new HorizonImporter( *this, sections, step, fh );
 }
 
 

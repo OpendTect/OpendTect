@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.37 2005-02-10 16:22:42 nanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.38 2005-03-02 08:56:34 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,7 @@ public:
 
     const char*		getTypeStr() const { return typeStr(); }
     Executor*		importer(const ObjectSet<BinIDValueSet>&,
-	    			 bool fixholes);
+	    			 const RowCol& step,bool fixholes);
     				/*!< Removes all data and creates 
 				  a section for every BinIDValueSet
 				*/

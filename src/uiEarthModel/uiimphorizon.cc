@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.46 2005-02-18 18:21:10 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.47 2005-03-02 08:57:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
 
-    uiPushButton* scanbut = new uiPushButton( this, "Scan file", 
+    uiPushButton* scanbut = new uiPushButton( this, "Scan file ...", 
 					mCB(this,uiImportHorizon,scanFile) );
     scanbut->attach( alignedBelow, infld );
 
@@ -180,10 +180,11 @@ bool uiImportHorizon::doWork()
     if ( !sections.size() )
 	mErrRet( "Nothing to import" );
 
+    const RowCol step( hs.step.inl, hs.step.crl );
     horizon->ref();
     ExecutorGroup exgrp( "Horizon importer" );
     exgrp.setNrDoneText( "Nr inlines imported" );
-    exgrp.add( horizon->importer(sections,fillholesfld->getBoolValue()) );
+    exgrp.add( horizon->importer(sections,step,fillholesfld->getBoolValue()) );
     exgrp.add( horizon->auxDataImporter(sections) );
     uiExecutor impdlg( this, exgrp );
     if ( !impdlg.go() ) 
@@ -382,3 +383,145 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
     sd.close();
     return set;
 }
+
+/*
+class HorizonScanner
+{
+public:
+
+HorizonScanner(const char* fnm)
+    : posgeomdetect(new PosGeomDetector)
+{
+    filenames.add( fnm );
+}
+
+
+HorizonScanner(const BufferStringSet& fnms)
+    : posgeomdetect(new PosGeomDetector)
+{
+    filenames = fnms;
+}
+
+
+bool scan()
+{
+    if ( !examine() ) return false;
+
+    for ( int idx=0; idx<filenames.size(); idx++ )
+    {
+	const char* fname = filenames.get( idx );
+	StreamProvider sp( fname );
+	StreamData sd = sp.makeIStream();
+	if ( !sd.usable() ) continue;
+
+	const float udfval = udffld->getfValue();
+	const bool doxy = xyfld->getBoolValue();
+
+	Coord crd;
+	BinID bid;
+	char buf[1024]; char valbuf[80];
+	while ( *sd.istrm )
+	{
+	    sd.istrm->getline( buf, 1024 );
+	    const char* ptr = getNextWord( buf, valbuf );
+	    if ( !ptr || !*ptr ) 
+		continue;
+	    crd.x = atof( valbuf );
+	    ptr = getNextWord( ptr, valbuf );
+	    crd.y = atof( valbuf );
+	    bid = doxy ? SI().transform( crd ) 
+		       : BinID(mNINT(crd.x),mNINT(crd.y));
+	    if ( hs && !hs->isEmpty() && !hs->includes(bid) ) continue;
+
+	    TypeSet<float> values;
+	    while ( *ptr )
+	    {
+		ptr = getNextWord( ptr, valbuf );
+		values += atof( valbuf );
+	    }
+	    
+	    if ( !values.size() ) continue;
+	    if ( set->nrVals() != values.size() )
+		set->setNrVals( values.size() );
+
+	    if ( mIsEqual(values[0],udfval,mDefEps) )
+		values[0] = mUndefValue;
+
+	    if ( doscale && !mIsUndefined(values[0]) )
+		values[0] *= factor;
+
+	    if ( scaler )
+		values[0] = scaler->scale( values[0] );
+
+	    set->add( bid, values );
+	}
+
+	sd.close();
+    }
+
+    return true;
+}
+
+
+bool examine()
+{
+    StreamProvider sp( filenames.get(0) );
+    StreamData sd = sp.makeIStream();
+    if ( !sd.usable() )
+	return false;
+
+    const float fac = SI().zIsTime() ? 0.001
+				     : (SI().zInMeter() ? .3048 : 3.28084);
+    Interval<float> validrg( SI().zRange(false) );
+    const float zwidth = validrg.width();
+    validrg.sort();
+    validrg.start -= zwidth;
+    validrg.stop += zwidth;
+
+    int maxcount = 100;
+    int count, nrxy, nrbid, nrscale, nrnoscale;
+    count = nrxy = nrbid = nrscale = nrnoscale = 0;
+    Coord crd;
+    BinID bid;
+    float val;
+    char buf[1024]; char valbuf[80];
+    while ( *sd.istrm )
+    {
+	if ( count > maxcount ) 
+	{
+	    if ( nrscale == nrnoscale ) maxcount *= 2;
+	    else break;
+	}
+
+	sd.istrm->getline( buf, 1024 );
+	const char* ptr = getNextWord( buf, valbuf );
+	if ( !ptr || !*ptr ) 
+	    continue;
+	crd.x = atof( valbuf );
+	ptr = getNextWord( ptr, valbuf );
+	crd.y = atof( valbuf );
+	BinID bid( mNINT(crd.x), mNINT(crd.y) );
+	if ( SI().isReasonable(crd) ) nrxy++;
+	if ( SI().isReasonable(bid) ) nrbid++;
+
+	ptr = getNextWord( ptr, valbuf );
+	val = atof( valbuf );
+	if ( mIsUndefined(val) ) continue;
+
+	if ( validrg.includes(val) ) nrnoscale++;
+	else if ( validrg.includes(val*fac) ) nrscale++;
+	count++;
+    }
+
+    sd.close();
+    isxy = nrxy > nrbid;
+    doscale = nrscale > nrnoscale;
+    return true;
+}
+
+
+    bool	isxy;
+    bool	doscale;
+
+};
+*/
