@@ -4,11 +4,11 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.17 2004-06-02 10:50:55 arend Exp $
+  - RCS:        $Id: windows.html,v 1.18 2004-06-14 15:12:07 bert Exp $
   ------------------------------------------------------------------------------
  -->
 
-<body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.1]</title>
+<body background="../backg.png"><title>Windows development [OpendTect Programmer's manual V1.2]</title>
 <center>
 <h1>OpendTect development on MS Windows</h1>
   <a href=#external>External installations</a>
@@ -292,7 +292,7 @@ which can be obtained for free at:
 </p><p>
 Because we internally treat Windows as much like Unix as we can, we actually
 make a .tar.gz file for our windows plugins too, which is extracted to
-"d:\users\admin\rel\plugins\opendtect-1.1\", which forms the "Source" for
+"d:\users\admin\rel\plugins\opendtect-1.2\", which forms the "Source" for
 Inno-Setup.
 </p><p>
 As an example, here is the Inno-setup file "dgbsetup.iss" that we use for our
@@ -302,7 +302,7 @@ used as 'DefaultDirName':
 <pre>
 [Setup]
 AppName=OpendTect
-AppVerName=OpendTect 1.1
+AppVerName=OpendTect 1.2
 AppPublisher=De Groot-Bril Earth Sciences
 AppPublisherURL=http://www.opendtect.org
 AppSupportURL=http://www.opendtect.org
@@ -312,11 +312,11 @@ DisableDirPage=yes
 DefaultGroupName=OpendTect
 AllowNoIcons=yes
 OutputBaseFilename=dgb-opendtect-1_0_5
-LicenseFile=d:\users\admin\rel\opendtect-1.1\LICENSE.txt
+LicenseFile=d:\users\admin\rel\opendtect-1.2\LICENSE.txt
 
 
 [Files]
-Source: d:\users\admin\rel\plugins\opendtect-1.1\*; DestDir: {app}; Flags: recursesubdirs
+Source: d:\users\admin\rel\plugins\opendtect-1.2\*; DestDir: {app}; Flags: recursesubdirs
 </pre>
 </p>
 
