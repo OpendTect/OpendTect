@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.11 2001-04-20 15:42:10 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.12 2001-05-07 13:53:54 windev Exp $
 ________________________________________________________________________
 
 */
@@ -30,12 +30,12 @@ public:
     const T*	getData() const { return ptr; }
 
     void	setSize( int nsz )
-		{ delete ptr; ptr = new T[nsz]; }
+		{ delete [] ptr; ptr = new T[nsz]; }
     int		size() const { return sz; }
 
 		ArrayNDMemStor( int nsz )
 		    : ptr ( new T[nsz] ), sz( nsz ) {}
-    inline	~ArrayNDMemStor() { delete ptr; }
+    inline	~ArrayNDMemStor() { delete [] ptr; }
 
 protected:
     int		sz;
@@ -132,7 +132,7 @@ private:
 		    {
 			if ( (sz-idx)/1000 )
 			{
-			    file->write(&tmp, sizeof(T)*1000);
+			    file->write((const char*)&tmp, sizeof(T)*1000);
 			    if ( file->fail() )
 			    {
 				close();
@@ -143,7 +143,7 @@ private:
 			}
 			else
 			{
-			    file->write(&tmp, sizeof(T)*(sz-idx));
+			    file->write((char*)&tmp, sizeof(T)*(sz-idx));
 			    if ( file->fail() )
 			    {
 				close();
@@ -207,7 +207,7 @@ public:
     virtual void	set( int pos, T v ) { stor->set(pos,v); }
     virtual T		get( int pos ) const {return stor->get(pos); }
 			
-    const Array1DInfo&  info() const		{ return in; }
+    const mPolyArray1DInfoTp&  info() const		{ return in; }
 
     void		setSize( int s ) { in.setSize(0,s); stor->setSize(s); }
 protected:
@@ -265,7 +265,7 @@ public:
     virtual T		get( int p0, int p1 ) const
 			{ return stor->get(in.getMemPos(p0,p1)); }
 
-    const Array2DInfo&  info() const { return in; }
+    const mPolyArray2DInfoTp&  info() const { return in; }
 
     void		setSize( int d0, int d1 )
 			{
@@ -335,7 +335,7 @@ public:
 			{ return stor->get(in.getMemPos(p0,p1,p2)); }
 
 
-    const Array3DInfo&	info() const { return in; }
+    const mPolyArray3DInfoTp&	info() const { return in; }
 
     void		setSize( int d0, int d1, int d2 )
 			{

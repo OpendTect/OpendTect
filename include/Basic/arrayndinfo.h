@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.3 2001-05-02 13:50:03 windev Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.4 2001-05-07 13:53:55 windev Exp $
 ________________________________________________________________________
 
 An ArrayNDInfo contains the information about the size of ArrayND, and
@@ -15,6 +15,10 @@ in what order the data is stored (if accessable via a pointer).
 */
 
 #include <gendefs.h>
+
+#define mPolyArray1DInfoImplTp mPolyRet(ArrayNDInfo,Array1DInfoImpl)
+#define mPolyArray2DInfoImplTp mPolyRet(ArrayNDInfo,Array2DInfoImpl)
+#define mPolyArray3DInfoImplTp mPolyRet(ArrayNDInfo,Array3DInfoImpl)
 
 class ArrayNDInfo
 {
@@ -91,9 +95,8 @@ public:
 
 class Array1DInfoImpl : public Array1DInfo
 {
-#define cloneTp		mPolyRet(ArrayNDInfo,Array1DInfoImpl)
 public:
-    cloneTp*		clone() const
+    mPolyArray1DInfoImplTp* clone() const
 			{ return new Array1DInfoImpl(*this); }
 
 			Array1DInfoImpl(int nsz=0); 
@@ -113,16 +116,14 @@ protected:
 
     int			sz;
 
-#undef cloneTp
 };
 
 
 class Array2DInfoImpl : public Array2DInfo
 {
-#define cloneTp		mPolyRet(ArrayNDInfo,Array2DInfoImpl)
 public:
 
-    cloneTp*		clone() const	{ return new Array2DInfoImpl(*this); }
+    mPolyArray2DInfoImplTp* clone() const { return new Array2DInfoImpl(*this); }
 
 			Array2DInfoImpl(int sz0=0, int sz1=0);
 			Array2DInfoImpl(const Array2DInfo&);
@@ -143,16 +144,14 @@ protected:
 
     unsigned long       calcTotalSz() const;
 
-#undef cloneTp
 };
 
 
 class Array3DInfoImpl : public Array3DInfo
 {
-#define cloneTp		mPolyRet(ArrayNDInfo,Array3DInfoImpl)
 public:
 
-    cloneTp*		clone() const	{ return new Array3DInfoImpl(*this); }
+    mPolyArray3DInfoImplTp* clone() const { return new Array3DInfoImpl(*this); }
 
 			Array3DInfoImpl(int sz0=0, int sz1=0, int sz2=0);
 			Array3DInfoImpl(const Array3DInfo&);
@@ -172,7 +171,6 @@ protected:
 
     unsigned long       calcTotalSz() const;
 
-#undef cloneTp
 };  
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.12 2001-05-04 10:06:46 windev Exp $
+ RCS:		$Id: arraynd.h,v 1.13 2001-05-07 13:53:53 windev Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -21,7 +21,10 @@ to the constructor.
 
 #include <gendefs.h>
 #include <arrayndinfo.h>
-#include <buffer.h>
+
+#define mPolyArray1DInfoTp mPolyRet(ArrayNDInfo,Array1DInfo)
+#define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
+#define mPolyArray3DInfoTp mPolyRet(ArrayNDInfo,Array3DInfo)
 
 template <class T>
 class ArrayND 
@@ -99,7 +102,7 @@ public:
     void			set(const int* pos,T v) { set( pos[0], v ); }
     T	                	get(const int* pos) const {return get(pos[0]);}
 
-    virtual const mPolyRet(ArrayNDInfo,Array1DInfo)& info() const = 0;
+    virtual const mPolyArray1DInfoTp& info() const = 0;
 };
 
 
@@ -114,7 +117,7 @@ public:
     T		                get( const int* pos ) const
 				    { return get( pos[0], pos[1] ); }
 
-    virtual const mPolyRet(ArrayNDInfo,Array2DInfo)& info() const = 0;
+    virtual const mPolyArray2DInfoTp& info() const = 0;
 };
 
 
@@ -129,7 +132,7 @@ public:
     T		                get( const int* pos ) const
 				    { return get( pos[0], pos[1], pos[2] ); }
 
-    virtual const mPolyRet(ArrayNDInfo,Array3DInfo)& info() const = 0;
+    virtual const mPolyArray3DInfoTp& info() const = 0;
 };
 
 template <class T> inline
@@ -140,7 +143,7 @@ const T* ArrayND<T>::get1D( const int* i ) const
 
     int ndim = info().getNDim();
 
-    Buffer<int> pos(ndim);
+    ArrPtrMan<int> posi = new int[ndim];
     memcpy(pos.buf(),i,sizeof(int)*(ndim-1));
 
     pos[ndim-1] = 0;
