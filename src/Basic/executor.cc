@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.10 2002-04-21 15:06:56 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.11 2002-04-24 16:07:10 bert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -115,7 +115,7 @@ int Executor::doStep()
 {
     prestep.trigger();
     int res = nextStep();
-    if ( res == MoreToDo )
+    if ( res > 0 )
 	poststep.trigger();
     return res;
 }

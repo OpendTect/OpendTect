@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.4 2002-04-23 16:10:33 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.5 2002-04-24 16:07:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 	: uiExecutor(p,getFirstJM(prognm,iop))
     	, running(false)
     	, finished(false)
+	, logvwer(0)
 {
     setCancelText( "Quit" );
     setOkText( "" );
@@ -37,6 +38,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     tmpstordirfld = new uiIOFileSelect( this, "Temporary storage directory",
 	    				false, jm->tempStorageDir() );
     tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
+    tmpstordirfld->selectDirectory( true );
 
     machgrp = new uiGroup( this, "Machine handling" );
 
@@ -90,6 +92,7 @@ Executor& uiSeisMMProc::getFirstJM( const char* prognm, const IOPar& iopar )
 
 uiSeisMMProc::~uiSeisMMProc()
 {
+    delete logvwer;
     delete jm;
 }
 
@@ -194,9 +197,8 @@ void uiSeisMMProc::addPush( CallBacker* )
 	if ( avmachfld->box()->isSelected(idx) )
 	    jm->addHost( avmachfld->box()->textOfItem(idx) );
     }
-    updateCurMachs();
 
-    if ( !running && usedmachfld->box()->size() )
+    if ( !running && jm->nrHostsInQueue() )
     {
 	tmpstordirfld->setSensitive(false);
 	jm->setTempStorageDir( tmpstordirfld->getInput() );
@@ -240,6 +242,7 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
     if ( !jm->getLogFileName(mach,occ,fname) )
 	mErrRet("Cannot find log file")
 
-    uiFileBrowser dlg( this, fname );
-    dlg.go();
+    delete logvwer;
+    logvwer = new uiFileBrowser( this, fname );
+    logvwer->go();
 }
