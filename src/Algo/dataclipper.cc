@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.4 2002-04-16 14:07:05 kristofer Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.5 2002-04-24 08:22:35 kristofer Exp $";
 
 
 #include "dataclipper.h"
@@ -16,6 +16,7 @@ DataClipper::DataClipper( float ncr )
     : sampleprob( 1 )
     , subselect( false )
     , cliprate( ncr )
+    , approxstatsize( 2000 )
 {
     Stat_initRandom( 0 );
 } 
@@ -24,6 +25,7 @@ DataClipper::DataClipper( float ncr )
 void DataClipper::setApproxNrValues( int n, int statsz )
 {
     sampleprob = ((float) statsz) / n;
+    approxstatsize = statsz;
 
     sampleprob = mMIN( sampleprob, 1 );
     subselect = true;
@@ -48,14 +50,29 @@ void DataClipper::putData( const float* vals, int nrvals )
 {
     if ( subselect )
     {
-	for ( int idx=0; idx<nrvals; idx++ )
+	int nrsamples = approxstatsize-samples.size();
+	if ( nrsamples>nrvals )
 	{
-	    double rand = Stat_getRandom();
-	    if ( rand > sampleprob )
-		continue;
+	    for ( int idx=0; idx<nrvals; idx++ )
+	    {
+		double rand = Stat_getRandom();
+		if ( rand > sampleprob )
+		    continue;
 
-	    float val =  vals[idx];
-	    if ( !mIsUndefined( val ) ) samples += val;
+		float val =  vals[idx];
+		if ( !mIsUndefined( val ) ) samples += val;
+	    }
+	}
+	else
+	{
+	    for ( int idx=0; idx<nrsamples; idx++ )
+	    {
+		double rand = Stat_getRandom();
+		rand *= (nrvals-1);
+		float val =  vals[mNINT(rand)];
+		if ( !mIsUndefined( val ) )
+		    samples += val;
+	    }
 	}
     }
     else
