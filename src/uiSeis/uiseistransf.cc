@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.8 2003-02-18 16:32:21 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.9 2003-03-24 16:24:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,10 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj* inobj, const IOObj* outobj,
 				      const char* worktxt ) const
 {
     scfmtfld->updateIOObj( const_cast<IOObj*>(outobj) );
-    IOPar iop; subselfld->fillPar( iop );
+    IOPar iop; 
+    if ( !subselfld->fillPar(iop) )
+	return 0;
+
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( inobj, outobj, extxt,
 	    						&iop, worktxt );
     PtrMan<BinIDRange> brg = subselfld->getRange();
