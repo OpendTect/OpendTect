@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.50 2002-04-15 15:35:01 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.51 2002-05-01 15:36:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,16 +101,19 @@ void i_LayoutItem::commitGeometrySet( bool isPrefSz )
     if ( isPrefSz ) curpos( preferred ) = mPos;
 
     if ( objLayouted() ) objLayouted()->triggerSetGeometry( this, mPos );
-#if 0
-    cout << "setting Layout on: ";
-    if( objLayouted() ) 
-	cout << objLayouted()->name() << endl;
-    else 
-	cout << "Unknown" << endl;
+/*
+    if ( objLayouted() && !strcmp(objLayouted()->name(),"workspace"))
+    {
+	cout << "setting Layout on: ";
+	if( objLayouted() ) 
+	    cout << objLayouted()->name() << endl;
+	else 
+	    cout << "Unknown" << endl;
 
-    cout << "l: " << mPos.left() << " t: " << mPos.top();
-    cout << " hor: " << mPos.hNrPics() << " ver: " << mPos.vNrPics() << endl;
-#endif
+	cout << "l: " << mPos.left() << " t: " << mPos.top();
+	cout << " hor: " << mPos.hNrPics() << " ver: " << mPos.vNrPics() << endl;
+    }
+*/
     mQLayoutItem_.setGeometry ( QRect ( mPos.left(), mPos.top(), 
                                         mPos.hNrPics(), mPos.vNrPics() )); 
 }
@@ -1157,22 +1160,29 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
 
     if ( hdone )
     {
-	if ( ((hdir >0)&&
-             ( 
-		( itmGeometry.right() > targetRect.right() )
-	      ||(  ( childrenBBox.right() > targetRect.right() ) 
-		 &&( childrenBBox.right() > oldcbbrgt )
-	        )
-	     ) 
-	    )
-	    || ( (hdir <0) && 
-                !(  ( childrenBBox.right() < oldcbbrgt ) 
-		  ||(  ( itmGeometry.right() > targetRect.right())
-		     &&( itmGeometry.right() < oldrgt)
-		    )  
-                 )
-               )
-          )
+	bool revert = false;
+
+	if ( hdir > 0 )
+	{
+	    revert |= itmGeometry.right() > targetRect.right();
+
+	    bool tmp = childrenBBox.right() > targetRect.right();
+	    tmp &= childrenBBox.right() > oldcbbrgt;
+
+	    revert |= tmp;
+	}
+
+	if( hdir < 0 )
+	{
+	    bool tmp =  childrenBBox.right() <= oldcbbrgt ;
+/*
+	    bool tmp2 = itmGeometry.right() > targetRect.right();
+		tmp2 &= itmGeometry.right() < oldrgt;
+*/
+	    revert = !tmp;
+	}
+
+	if( revert )
 	{ 
 	    itm.nhiter--;
 	    itm.hDelta -= hdir;
@@ -1258,17 +1268,25 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect, bool isPrefSz )
 
 void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
-    if ( extRect == prevGeometry ) return;
+    //if ( extRect == prevGeometry ) return;
+
+/*
+    cout << "setting Layout on: ";
+    cout << UserIDObject::name() << endl;
+
+    cout << "l: " << extRect.left() << " t: " << extRect.top();
+    cout << " hor: " << extRect.width() << " ver: " << extRect.height() << endl;
+*/
 
     QRect targetRect = extRect;
-
+/*
     QSize minSz = minimumSize();
 
     if ( targetRect.width() < minSz.width()  )   
     { targetRect.setWidth( minSz.width()  ); }
     if ( targetRect.height() < minSz.height()  ) 
     { targetRect.setHeight( minSz.height()  ); }
-
+*/
     prevGeometry = targetRect;
 
     uiRect mPos = curpos( preferred );
