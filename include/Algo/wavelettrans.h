@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.10 2004-01-29 10:43:28 nanne Exp $
+ RCS:           $Id: wavelettrans.h,v 1.11 2004-02-12 14:33:49 nanne Exp $
 ________________________________________________________________________
 
 @$*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "transform.h"
 #include "enums.h"
 #include "arraynd.h"
+#include "fft.h"
 
 /*!\brief
 WaveletTransform is a ND wavelet transform.
@@ -39,7 +40,7 @@ public:
 
 			DeclareEnumUtils(WaveletType);
 
-    static void		getInfo(WaveletType tp,int& len,const float* coeff);
+    static void		getInfo(WaveletType tp,int& len,TypeSet<float>&);
 
     static const float 	haar[3];
 
@@ -75,10 +76,10 @@ public:
 };
 
 
-class DiscreteWaveletTransform : public GenericTransformND
+class DWT : public GenericTransformND
 {
 public:
-		    DiscreteWaveletTransform( WaveletTransform::WaveletType );
+		    DWT( WaveletTransform::WaveletType );
 
     bool		isReal() const;
     bool		isCplx() const { return true; }
@@ -141,102 +142,61 @@ protected:
 };
 
 
-class ContinuousWaveletTransform : public TransformND
+class CWT : public TransformND
 {
 public:
-		    ContinuousWaveletTransform( WaveletTransform::WaveletType );
-		    ~ContinuousWaveletTransform();
+			CWT();
+			~CWT();
 
+    enum		WaveletType { Morlet, Gaussian, MexicanHat };
+    			DeclareEnumUtils(WaveletType);
 
+    void		setWavelet(CWT::WaveletType t)
+			{ wt = t; }
+    void		setScale(int s)			{ scale_start = s; }
+    void		setNrVoices(int nv)		{ nrvoices = nv; }
+			
     bool		setInputInfo( const ArrayNDInfo& );
-    const ArrayNDInfo&	getInputInfo() const { return *inputinfo; }
-    const ArrayNDInfo&	getOutputInfo() const { return *outputinfo; }
+    const ArrayNDInfo&	getInputInfo() const { return *info; }
 
     bool		isReal() const;
     bool		isCplx() const { return true; }
 
     bool		bidirectional() const { return false; }
-    bool		setDir( bool forward ) { return forward; }
+    bool		setDir(bool forw);
     bool		getDir() const { return true; }
 
     bool		init();
 
     bool		transform(const ArrayND<float>&,
-				   ArrayND<float>& ) const;
+				   ArrayND<float>& ) const
+			{ return false; }
     bool		transform(const ArrayND<float_complex>&,
 				   ArrayND<float_complex>& ) const
 			{ return false; }
+    bool		transform(const ArrayND<float_complex>&,
+	    				ArrayND<float>& ) const;
 
 protected:
-    bool		isPossible( int sz) const { return sz & 1; }
+
+    bool		isPossible( int sz) const;
     bool		isFast( int ) const { return true; }
 
-    void		transform1D( const ArrayND<float>::LinearStorage&,
-				     ArrayND<float>::LinearStorage&,
-				     int insz, int inpoff, int inpspace,
-				     int outpoff, int outpspace ) const;
+    void		getMorletWavelet(int,float,TypeSet<float>&) const;
+    void		getMexhatWavelet(int,float,TypeSet<float>&) const;
+    void		getGaussWavelet(int,float,TypeSet<float>&) const;
 
-    void		transformOneDim( const ArrayND<float>&,
-	    			     ArrayND<float>&, int dim ) const;
+
+    FFT			fft;
+    FFT			ifft;
 	    			     
+    ArrayNDInfo*	info;
 
-
-    template <class T> class Wavelet
-    {
-    public:
-			Wavelet( WaveletTransform::WaveletType, float scale );
-			~Wavelet() {};
-	T		correlate( const ArrayND<float>::LinearStorage&,
-				    int size, int off, int space ) const;
-	float_complex	correlate(const ArrayND<float_complex>::LinearStorage&,
-				   int size, int off, int space ) const;
-
-    protected:
-	T*	data;
-	int	len;
-	int	firstpos;
-    };
-
-    ObjectSet< Wavelet<float> >		realwavelets;
-
-    ArrayNDInfo*			inputinfo;
-    ArrayNDInfo*			outputinfo;
-
-    WaveletTransform::WaveletType 	wt;
+    WaveletType 	wt;
+    int 		scale_start;
+    int			nrvoices;
+    bool		inited;
 };
-
-template <class T>
-ContinuousWaveletTransform::Wavelet<T>::Wavelet( 
-				WaveletTransform::WaveletType wt, float scale ) 
-{
-    WaveletTransform::getInfo( wt, len, data );
-}
-
-
-#define mWvltCorrelate(type)	\
-    type sum = 0;						\
-								\
-    int storpos = off + ((signalsize-len) >> 1) * space;		\
-    for ( int idx=0; idx<len; idx++ )				\
-    {								\
-	sum += stor.get( storpos ) * data[idx];			\
-	storpos += space;					\
-    }								\
-								\
-    return sum
-
-template <class T>
-float_complex ContinuousWaveletTransform::Wavelet<T>::
-correlate( const ArrayND<float_complex>::LinearStorage& stor,
-            int signalsize, int off, int space ) const
-{ mWvltCorrelate(float_complex); }
-
-
-template <class T>
-T ContinuousWaveletTransform::Wavelet<T>::
-correlate( const ArrayND<float>::LinearStorage& stor,
-            int signalsize, int off, int space ) const
-{ mWvltCorrelate(T); }
 
 
 #endif

@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.8 2004-01-29 10:42:26 nanne Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.9 2004-02-12 14:34:04 nanne Exp $";
 
 
 #include "wavelettrans.h"
@@ -256,8 +256,10 @@ const float WaveletTransform::vaidyanathan[25] =
 					 0.250184129505,  0.045799334111};
 
 
-void WaveletTransform::getInfo( WaveletType wt, int& len, const float* wc )
+void WaveletTransform::getInfo( WaveletType wt, int& len, 
+				TypeSet<float>& wavelet )
 {
+    const float* wc;
     switch ( wt )
     {
 	case WaveletTransform::Haar:
@@ -309,23 +311,26 @@ void WaveletTransform::getInfo( WaveletType wt, int& len, const float* wc )
 	case WaveletTransform::Vaidyanathan:
 		len = 24;	wc = WaveletTransform::vaidyanathan; 	break;
     }
+
+    for ( int idx=0; idx<len; idx++ )
+	wavelet += wc[idx];
 }
 
 
-DiscreteWaveletTransform::DiscreteWaveletTransform(
+DWT::DWT(
 					    WaveletTransform::WaveletType t )
     : wt( t )
 {}
 
 
-bool DiscreteWaveletTransform::isReal() const
+bool DWT::isReal() const
 {
     return !WaveletTransform::isCplx( wt );
     //Transform cannot be real if kernel is cplx
 }
 
 
-bool DiscreteWaveletTransform::init()
+bool DWT::init()
 {
     if ( !GenericTransformND::init() ) return false;
 
@@ -339,11 +344,11 @@ bool DiscreteWaveletTransform::init()
 }
 	
 
-bool DiscreteWaveletTransform::FilterWT1D::init()
+bool DWT::FilterWT1D::init()
 {
     if ( size < 0 ) return false;
 
-    const float* tcc;
+    TypeSet<float> tcc;
     WaveletTransform::getInfo( wt, filtersz, tcc );
 
     if ( cc ) delete cc;
@@ -373,7 +378,7 @@ bool DiscreteWaveletTransform::FilterWT1D::init()
 }
 
 
-void DiscreteWaveletTransform::FilterWT1D::transform1D( const float_complex* in,
+void DWT::FilterWT1D::transform1D( const float_complex* in,
 						  float_complex* out,
 						  int space ) const
 {
@@ -381,7 +386,7 @@ void DiscreteWaveletTransform::FilterWT1D::transform1D( const float_complex* in,
 }
 
 
-void DiscreteWaveletTransform::FilterWT1D::transform1D( const float* in,
+void DWT::FilterWT1D::transform1D( const float* in,
 						  float* out,
 						  int space ) const
 {
@@ -389,12 +394,12 @@ void DiscreteWaveletTransform::FilterWT1D::transform1D( const float* in,
 }
 
 
-void DiscreteWaveletTransform::FilterWT1D::setWaveletType(
+void DWT::FilterWT1D::setWaveletType(
 					WaveletTransform::WaveletType nt )
 { wt = nt; }
 
 
-bool DiscreteWaveletTransform::isPossible( int sz ) const
+bool DWT::isPossible( int sz ) const
 {
     if ( sz < 4 ) return false;
     return isPower( sz, 2 );
@@ -402,163 +407,178 @@ bool DiscreteWaveletTransform::isPossible( int sz ) const
 
 
 
-ContinuousWaveletTransform::ContinuousWaveletTransform(
-			    WaveletTransform::WaveletType nwt )
-    : wt( nwt )
-    , inputinfo( 0 )
-    , outputinfo( 0 )
+DefineEnumNames(CWT,WaveletType,0,"Wavelet Type")
+{ "Morlet", "Gaussian", "Mexican Hat", 0 };
+
+
+CWT::CWT()
+    : info(0)
+    , wt(WaveletType(0))
+    , scale_start(4)
+    , nrvoices(5)
+    , inited(false)
 {
-    wt = nwt;
 }
 
 
-ContinuousWaveletTransform::~ContinuousWaveletTransform()
+CWT::~CWT()
 {
-    deepErase(realwavelets);
-
-    delete inputinfo;
-    delete outputinfo;
+    delete info;
 }
 
 
-bool ContinuousWaveletTransform::setInputInfo( const ArrayNDInfo& ni )
+bool CWT::isPossible( int sz ) const
 {
-    const int ndim = ni.getNDim();
+    if ( sz < 4 ) return false;
+    return isPower( sz, 2 );
+}
 
-    for ( int idx=0; idx<ndim; idx++ )
+
+bool CWT::setDir( bool forward )
+{
+    if ( inited && forward == fft.getDir() ) return true;
+    if ( !forward ) return false;
+
+    fft.setDir( forward );
+    ifft.setDir( !forward );
+
+    inited = false;
+    return true;
+}
+
+
+bool CWT::setInputInfo( const ArrayNDInfo& ni )
+{
+    if ( info && info->getSize(0) == ni.getSize(0) ) return true;
+
+    if ( !TransformND::isPossible(ni) ) return false;
+
+    fft.setInputInfo( ni );
+    ifft.setInputInfo( ni );
+
+    delete info;
+    info = ni.clone();
+
+    inited = false;
+    return true;
+}
+
+
+bool CWT::isReal() const
+{ return true; }
+
+
+bool CWT::init()
+{
+    if ( inited ) return true;
+    const int ndim = info->getNDim();
+
+    fft.init();
+    ifft.init();
+
+    inited = true;
+    return true;
+}
+
+
+bool CWT::transform( const ArrayND<float_complex>& inp,
+					    ArrayND<float>& outp_ ) const
+{
+    const int ndim = inp.info().getNDim();
+    if ( ndim > 1 ) return false;
+
+    const int outdim = outp_.info().getNDim();
+    if ( outdim != 2 ) return false;
+
+    mDynamicCastGet(Array2DImpl<float>*,outp,&outp_)
+
+    const int nrsamples = inp.info().getSize( 0 );
+    Array1DImpl<float_complex> freqdom( nrsamples );
+    fft.transform( inp, freqdom );
+
+    int nroctaves = isPower( nrsamples, 2 ) - 1;
+    const int nrscales = nrvoices * nroctaves;
+
+    outp->setSize( nrsamples, nrscales );
+    int scale = scale_start;
+    int scaleidx = 0;
+    for ( int oct=0; oct<nroctaves; oct++ )
     {
-	if ( !isPossible( ni.getSize( idx ) ) )
-	    return false;
-    }
+        for ( int voice=0; voice<nrvoices; voice++ )
+        {
+            float curscale = scale * pow(2,(float)(voice+1)/nrvoices);
 
-    delete inputinfo; inputinfo = ni.clone();
-    delete outputinfo; outputinfo = ni.clone();
+            TypeSet<float> wavelet;
+	    if ( wt == Gaussian )
+		getGaussWavelet( nrsamples, curscale, wavelet );
+	    else if ( wt == Morlet )
+		getMorletWavelet( nrsamples, curscale, wavelet );
+	    else if ( wt == MexicanHat )
+		getMexhatWavelet( nrsamples, curscale, wavelet );
 
-    for ( int idx=0; idx<ndim; idx++ )
-    {
-	outputinfo->setSize(idx, (inputinfo->getSize(idx)+1)/2);
+            Array1DImpl<float_complex> filtered( nrsamples );
+            for ( int idx=0; idx<nrsamples; idx++ )
+            {
+                float_complex cval = freqdom.get(idx) *
+                                            wavelet[idx] / sqrt(curscale);
+                filtered.set( idx, cval );
+            }
+
+            Array1DImpl<float_complex> newsignal( nrsamples );
+            ifft.transform( filtered, newsignal );
+
+            for ( int idx=0; idx<nrsamples; idx++ )
+            {
+                float real = newsignal.get(idx).real();
+                float imag = newsignal.get(idx).imag();
+                float val = sqrt( real*real + imag*imag );
+                outp->set( idx, scaleidx, val );
+            }
+            scaleidx++;
+        }
+
+        scale *= 2;
     }
 
     return true;
 }
 
 
-bool ContinuousWaveletTransform::isReal() const
-{ return !WaveletTransform::isCplx( wt ); }
-
-
-bool ContinuousWaveletTransform::init()
+void CWT::getMorletWavelet( int nrsamples, float scale, 
+						TypeSet<float>& data ) const
 {
-    const int ndim = inputinfo->getNDim();
-    int maxsz = 0;
-
-    for ( int idx=0; idx<ndim; idx++ )
+    float omega0 = 5;
+    for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int sz = inputinfo->getSize(idx);
-
-	if ( sz > maxsz ) maxsz = sz;
-    }
-
-    for ( int sz=3; sz<=maxsz; sz+= 2 )
-	realwavelets += new Wavelet<float>( wt, sz );
-
-    return true;
-}
-
-
-void ContinuousWaveletTransform::transform1D(
-	const ArrayND<float>::LinearStorage& inp,
-	ArrayND<float>::LinearStorage& outp,
-	int inpsz, int inpoff, int inpspace,
-	int outpoff, int outpspace ) const
-{
-    const int outpsz = (1+inpsz)>>1;
-
-    int outidx=(outpsz-1)*outpspace+outpoff;
-    for ( int scaleid=0; scaleid<outpsz; scaleid++)
-    {
-	outp.set( outidx,
-	    realwavelets[scaleid]->correlate(inp,inpsz,inpoff,inpspace) );
-	outidx -= outpspace;
+	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
+	float omega = 2 * M_PI * omidx / scale;
+        float val = (omega-omega0) * (omega-omega0) / 2;
+	data += exp( -val );
     }
 }
 
 
-void ContinuousWaveletTransform::transformOneDim( const ArrayND<float>& inp,
-	ArrayND<float>& outp, int dim ) const
+void CWT::getMexhatWavelet( int nrsamples, float scale,
+                                               TypeSet<float>& data ) const
 {
-    const int ndim = inputinfo->getNDim();
-    const int inpdimsz = inp.info().getSize( dim );
-    const int outpdimsz = (inpdimsz+1)/2;
-
-    PtrMan<ArrayNDInfo> outsize = inp.info().clone();
-    outsize->setSize( dim, outpdimsz );
-    outp.setInfo( *outsize );
-    const ArrayND<float>::LinearStorage& inpstor = *inp.getStorage();
-    ArrayND<float>::LinearStorage& outpstor = *outp.getStorage();
-
-    if ( dim==ndim-1 )
+    for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int nrtransforms = inp.info().getTotalSz() / inpdimsz;
-	int inpoff = 0;
-	int outpoff = 0;
-	for ( int idx=0; idx<nrtransforms; idx++ )
-	{
-	    transform1D( inpstor, outpstor, inpdimsz, inpoff, 1, outpoff, 1 );
-	    inpoff += inpdimsz;
-	    outpoff += outpdimsz;
-	}
-    }
-    else
-    {
-	ArrayNDIter inpiter ( inp.info() );
-	ArrayNDIter outpiter ( *outsize );
-
-	int space = 1;
-	for ( int idx=ndim-1; idx>dim; idx++ )
-	    space *= inp.info().getSize(idx);
-
-	int inpos = 0;
-	int outpos = 0;
-
-	do
-	{
-	    if ( inpiter.getPos()[dim] ) continue;
-
-	    while ( outpiter.getPos()[dim] ) { outpiter.next(); outpos++; }
-
-	    transform1D( inpstor, outpstor, inpdimsz, inpos,
-		    	 space, outpos, space);
-	    
-	    outpiter.next();
-	    outpos ++;
-	    inpos ++;
-	} while ( inpiter.next() );
+	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
+	float omega = 2 * M_PI * omidx / scale;
+        float omega2 = omega*omega;
+        data += omega2 * exp( -omega2/2 );
     }
 }
 
 
-bool ContinuousWaveletTransform::transform( const ArrayND<float>& inp,
-					    ArrayND<float>& outp ) const
+void CWT::getGaussWavelet( int nrsamples, float scale,
+                                              TypeSet<float>& data ) const
 {
-    const int ndim = inputinfo->getNDim();
-
-    PtrMan<ArrayND<float> > temp0 = ArrayNDImpl<float>::create( inp.info() );
-    PtrMan<ArrayND<float> > temp1 = ArrayNDImpl<float>::create( inp.info() );
-    
-    const ArrayND<float>* tempinp = &inp;
-    ArrayND<float>* tempout = temp0;
-
-    for ( int dim=0; dim<ndim; dim ++ )
+    for ( int idx=0; idx<nrsamples; idx++ )
     {
-	transformOneDim( *tempinp, *tempout, dim );
-	tempinp = tempout;
-
-	if ( dim==ndim-1 )
-	    tempout = &outp;
-	else if ( !dim ) tempout = temp1;
-	else tempout = const_cast<ArrayND<float>*>(tempinp);
+	int omidx = idx<=nrsamples/2 ? idx : idx-nrsamples;
+	float omega = 2 * M_PI * omidx / scale;
+        float omega2 = omega*omega;
+        data += exp( -omega2/2 );
     }
-
-    return true;
 }
