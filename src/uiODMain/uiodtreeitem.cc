@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.43 2004-09-03 12:17:51 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.44 2004-09-03 13:34:32 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -592,7 +592,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(uiVisMenu*,menu,caller)
+    mDynamicCastGet(uiVisMenu*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -662,7 +662,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( section==-1 )
 	    return;
 
-	applMgr()->trackServer()->handleTrackerMenu( mid, section );
+	applMgr()->trackServer()->handleTrackerMenu( mid, section,
+						     menu->getPickedPos() );
     }
     else if ( mnuid==toggletrackingmnuid )
     {
