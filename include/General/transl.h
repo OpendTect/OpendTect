@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.15 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: transl.h,v 1.16 2003-10-15 21:58:41 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -171,7 +171,8 @@ public: \
 	Translator* tr = new spec##clss##Translator(typeName(),userName()); \
 	tr->setGroup( group_ ); return tr; \
     } \
-    static spec##clss##Translator* spec##clss##Translator::getInstance(); \
+    static spec##clss##Translator* getInstance(); \
+    static const char* translKey(); \
 private: \
     static int			listid_;
 
@@ -186,7 +187,8 @@ int spec##clss##Translator::listid_ \
     = TranslatorGroup::getGroup( #clss , false ).add( \
 	    new spec##clss##Translator( #spec, usrnm ) ); \
 spec##clss##Translator* spec##clss##Translator::getInstance() \
-{ return new spec##clss##Translator(#clss,usrnm); }
+{ return new spec##clss##Translator(#clss,usrnm); } \
+const char* spec##clss##Translator::translKey() { return usrnm; }
 
 
 // Convenience macros when creating Translator(Group)-related classes
@@ -216,7 +218,7 @@ spec##clss##Translator* spec##clss##Translator::getInstance() \
 	clss##TranslatorGroup::theInst().userName()
 
 #define mTranslKey(clss) \
-    	clss##TranslatorGroup::theInst().userName()
+    	clss##Translator::translKey()
 
 
 #endif
