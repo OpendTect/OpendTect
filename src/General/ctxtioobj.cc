@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.4 2001-05-04 20:16:29 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.5 2001-07-19 09:44:44 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -139,6 +139,21 @@ void CtxtIOObj::setObj( IOObj* obj )
 
     delete ioobj; ioobj = obj;
     if ( ioobj ) ctxt.parentkey = ioobj->parentKey();
+}
+
+
+void CtxtIOObj::setPar( IOPar* iop )
+{
+    if ( iop == iopar ) return;
+
+    delete iopar; iopar = iop;
+}
+
+
+void CtxtIOObj::destroyAll()
+{
+    delete ioobj;
+    delete iopar;
 }
 
 

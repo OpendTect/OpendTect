@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.5 2001-04-13 13:49:45 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.6 2001-07-19 09:45:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,13 @@ ________________________________________________________________________
 class Translator;
 class IOObj;
 class IOPar;
+
+/*!\brief Holds the context for selecting and/or creating IOObjs.
+
+Usually, this objects is obtained by calling the ioContext() method of
+a certain Translator group.
+
+*/
 
 
 class IOObjContext : public UserIDObject
@@ -77,22 +84,37 @@ private:
 };
 
 
+
+/*!\brief Holds an IOObjCtxt plus a pointer to an IOObj and/or an IOPar.
+
+Neither the IOObj nor the IOPar are managed by this object. But, when you
+use setObj or setPar, the old object pointed to will be deleted. If you
+don't want that, you'll have to just assign.
+
+*/
+
+
+
 class CtxtIOObj : public UserIDObject
 {
 public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
-			: UserIDObject(""), ctxt(ct), ioobj(o)
+			: UserIDObject(""), ctxt(ct), ioobj(o), iopar(0)
 			{ setLinked(&ctxt); }
 			CtxtIOObj( const CtxtIOObj& ct )
-			: UserIDObject(""), ctxt(ct.ctxt), ioobj(ct.ioobj)
+			: UserIDObject(""), ctxt(ct.ctxt)
+			, ioobj(ct.ioobj), iopar(ct.iopar)
 			{ setLinked(&ctxt); }
+    void		destroyAll();
 
-    void		setObj(IOObj*);
+    void		setObj(IOObj*); //!< destroys previous
+    void		setPar(IOPar*); //!< destroys previous
     int			fillObj(const MultiID& idofdir=MultiID(""));
 			//!< 0 = fail, 1=existing found, 2=new made
 
     IOObjContext	ctxt;
     IOObj*		ioobj;
+    IOPar*		iopar;
 
 };
 
