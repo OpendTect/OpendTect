@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.23 2003-08-18 08:07:09 arend Exp $
+ RCS:		$Id: sets.h,v 1.24 2003-08-25 15:10:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -298,7 +298,7 @@ inline void deepCopy( ObjectSet<T>& to, const ObjectSet<S>& from )
 
 //! Locate object in set
 template <class T,class S>
-inline int indexOf( ObjectSet<T>& os, const S& val )
+inline int indexOf( const ObjectSet<T>& os, const S& val )
 {
     for ( int idx=0; idx<os.size(); idx++ )
     {
