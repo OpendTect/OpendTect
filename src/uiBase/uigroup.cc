@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.25 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.26 2002-01-11 13:34:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,7 @@ public:
 
     void		layoutChildren(layoutMode m )
 			    { if( loMngr ) loMngr->layoutChildren(m); }
+
 protected:
 
     i_LayoutMngr* 	loMngr;
@@ -164,6 +165,20 @@ private:
 
 void uiGroupParentBody::setHCentreObj( uiObject* obj )
 { 
+#ifdef __debug__
+    if( objbody_.layoutItem() && objbody_.layoutItem()->isAligned() ) 
+    {
+	BufferString msg;
+	msg = "Set ";
+	msg += obj->name();
+	msg += "\nas hcentre for ";
+	msg += handle_.name();
+	msg += ", but attachments were already made!";
+
+	pErrMsg(msg);
+    }
+#endif
+
     if( !obj ||( loMngr && loMngr->isChild(obj)) ) { hcentreobj = obj; return; }
 
 /*
@@ -198,6 +213,20 @@ void uiGroupParentBody::setHCentreObj( uiObject* obj )
 
 void uiGroupParentBody::setHAlignObj( uiObject* obj )
 { 
+#ifdef __debug__
+    if( objbody_.layoutItem() && objbody_.layoutItem()->isAligned() ) 
+    {
+	BufferString msg;
+	msg = "Set ";
+	msg += obj->name();
+	msg += "\nas horalign for ";
+	msg += handle_.name();
+	msg += ", but attachments were already made!";
+
+	pErrMsg(msg);
+    }
+#endif
+
     if( !obj || (loMngr && loMngr->isChild(obj)) ) { halignobj = obj; return; }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.39 2002-01-11 12:20:25 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.40 2002-01-11 13:34:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -633,6 +633,25 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 	    break;
     }
 }
+
+
+#ifdef __debug__
+bool i_LayoutItem::isAligned() const
+{
+    constraintIterator it = const_cast<i_LayoutItem*>(this)->iterator();
+
+    uiConstraint* constr;
+    while ( (constr = it.current()) )
+    {
+	++it;
+
+	if( constr->type >= alignedBelow && constr->type <= centeredAbove )
+	    return true; 
+    }
+
+    return false;
+}
+#endif
 
 
 //------------------------------------------------------------------

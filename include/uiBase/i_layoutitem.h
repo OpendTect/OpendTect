@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.11 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.12 2002-01-11 13:34:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,9 @@ class i_LayoutItem : public uiBody
 {   
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;
+#ifdef __debug__
+    friend class		uiGroupParentBody;
+#endif
 
 public: 
 				i_LayoutItem( i_LayoutMngr& , QLayoutItem& );
@@ -111,6 +114,10 @@ protected:
 				    { return mQLayoutItem_.widget(); }
 
     inline i_LayoutMngr& 	mngr()			{ return mngr_; } 
+
+#ifdef __debug__
+    bool			isAligned() const;
+#endif
 
 private:
 
