@@ -4,10 +4,11 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.17 2004-09-16 16:13:37 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.18 2004-09-16 21:50:26 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
+#include "seistrcsel.h"
 #include "seisbuf.h"
 #include "survinfo.h"
 #include "strmprov.h"
@@ -50,24 +51,35 @@ bool TwoDSeisTrcTranslator::initRead_()
 	{ errmsg = "Cannot reconstruct 2D filename"; return false; }
     BufferString fnm( conn->ioobj->fullUserExpr(true) );
     if ( !File_exists(fnm) ) return false;
-    Seis2DLineSet lg( fnm );
-    lg.getTxtInfo( 0, pinfo->usrinfo, pinfo->stdinfo );
-    const int nrlines = lg.nrLines();
-    if ( nrlines < 1 )
+    Seis2DLineSet lset( fnm );
+    const char* linekey = seldata ? seldata->linekey_.buf() : 0;
+    int linenr = 0;
+    bool havelinesel = linekey && *linekey;
+    if ( havelinesel )
+	linenr = lset.indexOf( linekey );
+    if ( linenr < 0 ) linenr = 0;
+
+    lset.getTxtInfo( 0, pinfo->usrinfo, pinfo->stdinfo );
+    const int nrlines = lset.nrLines();
+    if ( linenr >= nrlines )
 	{ errmsg = "No lines"; return false; }
 
     StepInterval<int> trg; StepInterval<float> zrg;
-    if ( !lg.getRanges(0,trg,zrg) )
+    if ( !lset.getRanges(linenr,trg,zrg) )
 	{ errmsg = "No range info"; return false; }
-    StepInterval<int> newtrg; StepInterval<float> newzrg;
-    for ( int iln=1; iln<nrlines; iln++ )
+
+    if ( !havelinesel )
     {
-	if ( lg.getRanges(iln,newtrg,newzrg) )
+	StepInterval<int> newtrg; StepInterval<float> newzrg;
+	for ( int iln=1; iln<nrlines; iln++ )
 	{
-	    if ( newtrg.stop > trg.stop ) trg.stop = newtrg.stop;
-	    if ( newtrg.step < trg.step ) trg.step = newtrg.step;
-	    if ( newzrg.start < zrg.start ) zrg.start = newzrg.start;
-	    if ( newzrg.stop > zrg.stop ) zrg.stop = newzrg.stop;
+	    if ( lset.getRanges(iln,newtrg,newzrg) )
+	    {
+		if ( newtrg.stop > trg.stop ) trg.stop = newtrg.stop;
+		if ( newtrg.step < trg.step ) trg.step = newtrg.step;
+		if ( newzrg.start < zrg.start ) zrg.start = newzrg.start;
+		if ( newzrg.stop > zrg.stop ) zrg.stop = newzrg.stop;
+	    }
 	}
     }
 
@@ -77,6 +89,8 @@ bool TwoDSeisTrcTranslator::initRead_()
     pinfo->inlrg.start = pinfo->crlrg.start = 0;
     pinfo->inlrg.stop = nrlines - 1; pinfo->crlrg.stop = trg.stop;
     pinfo->inlrg.step = 1; pinfo->crlrg.step = trg.step;
+    if ( havelinesel )
+	pinfo->inlrg.start = pinfo->inlrg.stop = linenr;
     addComp( DataCharacteristics(), pinfo->stdinfo, Seis::UnknowData );
     return true;
 }
@@ -91,10 +105,10 @@ Seis2DLineSet::~Seis2DLineSet()
 }
 
 
-Seis2DLineSet& Seis2DLineSet::operator =( const Seis2DLineSet& lg )
+Seis2DLineSet& Seis2DLineSet::operator =( const Seis2DLineSet& lset )
 {
-    if ( &lg == this ) return *this;
-    fname_ = lg.fname_;
+    if ( &lset == this ) return *this;
+    fname_ = lset.fname_;
     readFile();
     return *this;
 }

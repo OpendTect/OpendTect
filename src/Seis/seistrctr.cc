@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.52 2004-09-07 16:24:01 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.53 2004-09-16 21:50:26 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -486,18 +486,27 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 }
 
 
-bool SeisTrcTranslator::getRanges( const MultiID& ky, CubeSampling& cs )
+bool SeisTrcTranslator::getRanges( const MultiID& ky, CubeSampling& cs,
+				   const char* lk )
 {
     PtrMan<IOObj> ioobj = IOM().get( ky );
-    return ioobj ? getRanges( *ioobj, cs ) : false;
+    return ioobj ? getRanges( *ioobj, cs, lk ) : false;
 }
 
 
-bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs )
+bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
+				   const char* lk )
 {
     PtrMan<Translator> transl = ioobj.getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
     if ( !tr ) return false;
+    PtrMan<SeisSelData> sd = 0;
+    if ( lk && *lk )
+    {
+	sd = new SeisSelData;
+	sd->linekey_ = lk;
+	tr->setSelData( sd );
+    }
     Conn* cnn = ioobj.getConn( Conn::Read );
     if ( !cnn || !tr->initRead(cnn) )
 	{ delete cnn; return false; }

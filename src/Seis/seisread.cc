@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.36 2004-09-16 16:13:37 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.37 2004-09-16 21:50:26 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -320,29 +320,26 @@ Seis2DLineKeyProvider* SeisTrcReader::lineKeyProvider() const
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++; tbuf->deepErase();
-    const bool islinesel = seldata && seldata->linekeys_.size();
+    const bool islinesel = seldata && seldata->linekey_ != "";
     const int nrlines = lset->nrLines();
-    const int maxline = islinesel ? seldata->linekeys_.size() : nrlines;
+    const int maxline = islinesel ? 1 : nrlines;
 
     if ( !islinesel )
 	curlinenr = curlineidx;
-    else
+    else if ( curlineidx < maxline )
     {
-	for ( ; curlineidx<maxline; curlineidx++ )
+	bool found = false;
+	for ( int idx=0; idx<nrlines; idx++ )
 	{
-	    bool found = false;
-	    const char* lkey = seldata->linekeys_.get( curlineidx );
-	    for ( int idx=0; idx<nrlines; idx++ )
-	    {
-		if ( lset->lineKey(idx) == lkey )
-		    { curlinenr = idx; found = true; break; }
-	    }
-	    if ( found )
-		break;
-
+	    if ( lset->lineKey(idx) == seldata->linekey_ )
+		{ curlinenr = idx; found = true; break; }
+	}
+	if ( !found )
+	{
 	    BufferString msg( "Line not found in line set: " );
-	    msg += lkey;
+	    msg += seldata->linekey_;
 	    ErrMsg( msg );
+	    curlineidx++;
 	}
     }
 

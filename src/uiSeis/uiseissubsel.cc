@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.14 2004-09-13 07:52:16 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.15 2004-09-16 21:50:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,13 +270,15 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
     const int sz = ls.nrLines();
     for ( int idx=0; idx<sz; idx++ )
     {
-	lnms.add( ls.lineKey(idx) );
-	lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
-	const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
-	lnmsfld->setChecked( prevok );
-	if ( prevok )
-	    lnmsfld->setText( prevlnm );
+	const char* lnm = ls.lineName( idx );
+	lnms.addIfNew( lnm );
     }
+
+    lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
+    const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
+    lnmsfld->setChecked( prevok );
+    if ( prevok )
+	lnmsfld->setText( prevlnm );
 }
 
 
@@ -292,9 +294,8 @@ void uiSeis2DSubSel::selChg( CallBacker* )
 
 void uiSeis2DSubSel::usePar( const IOPar& iopar )
 {
-    BufferStringSet lnms;
-    iopar.get( SeisSelData::sKeyLineKeys, lnms );
-    BufferString lnm( lnms.size() ? lnms.get(0) : "" );
+    BufferString lnm;
+    iopar.get( SeisSelData::sKeyLineKey, lnm );
     if ( lnmsfld )
     {
 	lnmsfld->setText( lnm );
@@ -348,9 +349,9 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	if ( lnmsfld && lnmsfld->isChecked() )
 	    lnm = lnmsfld->text();
 	if ( lnm == "" )
-	    iopar.removeWithKey( SeisSelData::sKeyLineKeys );
+	    iopar.removeWithKey( SeisSelData::sKeyLineKey );
 	else
-	    iopar.set( SeisSelData::sKeyLineKeys, lnm );
+	    iopar.set( SeisSelData::sKeyLineKey, lnm );
 
 	StepInterval<float> zrg;
 	if ( !getZRange( zrg ) )
