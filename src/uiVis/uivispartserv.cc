@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.8 2002-04-10 09:15:53 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.9 2002-04-11 05:54:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a, const CallBack appcb_ )
 
 uiVisPartServer::~uiVisPartServer()
 {
+    for ( int idx=0; idx<scenes.size(); idx++ )
+	scenes[idx]->unRef();
 }
 
 
@@ -86,7 +88,7 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 			     :	visSurvey::SeisDisplay::Timeslice );
 
     visSurvey::SeisDisplay* sd = visSurvey::SeisDisplay::create( type, appcb );
-    seisdisps += sd; sd->ref();
+    seisdisps += sd; 
     visBase::VisColorTab* coltab = visBase::VisColorTab::create();
     coltab->colorSeq().loadFromStorage("Red-White-Black");
     sd->textureRect().setColorTab( coltab );
@@ -136,7 +138,6 @@ int uiVisPartServer::addPickSetDisplay()
 {
     visSurvey::PickSetDisplay* pickset = visSurvey::PickSetDisplay::create();
     picks += pickset;
-    pickset->ref();
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     scene->addInlCrlTObject( pickset );
@@ -151,7 +152,6 @@ void uiVisPartServer::removePickSetDisplay()
     mDynamicCastGet(visSurvey::PickSetDisplay*,ps,psobj)
     if ( !ps ) return;
 
-    ps->unRef();
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( ps );
@@ -380,18 +380,18 @@ void uiVisPartServer::putNewData( AttribSlice* slice )
 
 void uiVisPartServer::showPos( CallBacker* )
 {
-    visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
-    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
-    if ( !sd ) return;
-    Geometry::Pos geompos = sd->textureRect().getRectangle().manipOrigo();
-    planepos = sd->getType() == visSurvey::SeisDisplay::Inline ? geompos.x :
-	       sd->getType() == visSurvey::SeisDisplay::Crossline ? geompos.y :
-	       geompos.z;
     sendEvent( evShowPosition );
 }
 
 
 float uiVisPartServer::getPlanePos()
 {
+    visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj)
+    if ( !sd ) return 0;
+    Geometry::Pos geompos = sd->textureRect().getRectangle().manipOrigo();
+    planepos = sd->getType() == visSurvey::SeisDisplay::Inline ? geompos.x :
+	       sd->getType() == visSurvey::SeisDisplay::Crossline ? geompos.y :
+	       geompos.z;
     return planepos; 
 }
