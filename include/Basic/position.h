@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.21 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: position.h,v 1.22 2003-11-24 08:21:03 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,42 +49,51 @@ public:
 class Coord3 : public Coord
 {
 public:
-		Coord3() : z(0)					{}
-		Coord3(const Coord& a, double z_ )
-		    : Coord(a), z(z_)				{}
-		Coord3(const Coord3& xyz )
-		    : Coord( xyz.x, xyz.y )
-		    , z( xyz.z )				{}
-    		Coord3( double x_, double y_, double z_ )
-		    : Coord(x_,y_), z(z_)			{}
+			Coord3() : z(0)					{}
+			Coord3(const Coord& a, double z_ )
+			    : Coord(a), z(z_)				{}
+			Coord3(const Coord3& xyz )
+			    : Coord( xyz.x, xyz.y )
+			    , z( xyz.z )				{}
+    			Coord3( double x_, double y_, double z_ )
+			    : Coord(x_,y_), z(z_)			{}
 
-    double&	operator[]( int idx )
-		{ return idx ? (idx==1 ? y : z) : x; }
-    double	operator[]( int idx ) const
-		{ return idx ? (idx==1 ? y : z) : x; }
+    double&		operator[]( int idx )
+			{ return idx ? (idx==1 ? y : z) : x; }
+    double		operator[]( int idx ) const
+			{ return idx ? (idx==1 ? y : z) : x; }
 
-    Coord3	operator+(const Coord3&) const;
-    Coord3	operator-(const Coord3&) const;
+    inline Coord3	operator+(const Coord3&) const;
+    inline Coord3	operator-(const Coord3&) const;
+    inline Coord3	operator*(double) const;
+    inline Coord3	operator/(double) const;
 
+    inline Coord3&	operator+=(const Coord3&);
+    inline Coord3&	operator-=(const Coord3&);
+    inline Coord3&	operator/=(double);
+    inline Coord3&	operator*=(double);
 
-    Coord3&	operator+=(const Coord3&);
-    Coord3&	operator-=(const Coord3&);
+    inline bool		operator==(const Coord3&) const;
+    inline bool		operator!=(const Coord3&) const;
+    inline bool		isDefined() const;
+    double		distance( const Coord3& b ) const;
 
-    bool	operator==(const Coord3&) const;
-    bool	operator!=(const Coord3&) const;
-    bool	isDefined() const;
+    inline double	dot( const Coord3& b ) const;
+    inline Coord3	cross( const Coord3& ) const;
+    double		abs() const;
+    inline Coord3	normalize() const;
 
-    double	distance( const Coord3& b ) const;
     void	fill(char* str) const { fill( str, "(", " ", ")"); }
     void	fill(char*, const char* start, const char* space,
 	    		    const char* end) const;
     bool	use(const char*);
 
     double	z;
-
-
 };
 
+
+inline Coord3 operator*( double f, const Coord3& b )
+{ return Coord3(b.x*f, b.y*f, b.z*f ); }
 
 
 /*!\brief 2D coordinate and a value. */
@@ -186,5 +195,84 @@ public:
     float	z;
 };
 
+inline bool Coord3::operator==( const Coord3& b ) const
+{
+    const float dx = x-b.x; const float dy = y-b.y; const float dz = z-b.z;
+    return mIS_ZERO(dx) && mIS_ZERO(dy) && mIS_ZERO(dz);
+}
+
+
+inline bool Coord3::operator!=( const Coord3& b ) const
+{
+    return !(b==*this);
+}
+
+inline bool Coord3::isDefined() const
+{
+    return !mIsUndefined(x) && !mIsUndefined(y) && !mIsUndefined(z);
+}
+
+
+inline Coord3 Coord3::operator+( const Coord3& p ) const
+{
+    return Coord3( x+p.x, y+p.y, z+p.z );
+}
+
+
+inline Coord3 Coord3::operator-( const Coord3& p ) const
+{
+    return Coord3( x-p.x, y-p.y, z-p.z );
+}
+
+
+inline Coord3 Coord3::operator*( double factor ) const
+{ return Coord3( x*factor, y*factor, z*factor ); }
+
+
+inline Coord3 Coord3::operator/( double denominator ) const
+{ return Coord3( x/denominator, y/denominator, z/denominator ); }
+
+
+inline Coord3& Coord3::operator+=( const Coord3& p )
+{
+    x += p.x; y += p.y; z += p.z;
+    return *this;
+}
+
+
+inline Coord3& Coord3::operator-=( const Coord3& p )
+{
+    x -= p.x; y -= p.y; z -= p.z;
+    return *this;
+}
+
+
+inline Coord3& Coord3::operator*=( double factor )
+{
+    x *= factor; y *= factor; z *= factor;
+    return *this;
+}
+
+
+inline Coord3& Coord3::operator/=( double denominator )
+{
+    x /= denominator; y /= denominator; z /= denominator;
+    return *this;
+}
+
+
+inline double Coord3::dot(const Coord3& b) const
+{ return x*b.x + y*b.y + z*b.z; }
+
+
+inline Coord3 Coord3::cross(const Coord3& b) const
+{ return Coord3( y*b.z-z*b.y, z*b.x-x*b.z, x*b.y-y*b.x ); }
+
+
+inline Coord3 Coord3::normalize() const
+{
+    const double absval = abs();
+    return *this/absval;
+}
 
 #endif
