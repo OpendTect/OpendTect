@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.20 2004-07-23 10:28:29 arend Exp $
+ RCS:		$Id: genc.h,v 1.21 2004-09-27 08:07:16 dgb Exp $
 ________________________________________________________________________
 
 
@@ -108,7 +108,10 @@ const char*	GetSoftwareUser(void);
 
     DTECT_WINHOME
     dGB_WINHOME
-    HOMEDRIVE+HOMEPATH if available and _not_ equal to "C:\"
+    DTECT_HOME	-> converted from unix to windows path (cygpath -w)
+    dGB_HOME 	-> ""
+    HOME	-> ""
+    HOMEDRIVE+HOMEPATH if exists and _not_ equal to "C:\"
 
     else returns 0;
 
@@ -148,6 +151,14 @@ const char*	GetPersonalDir(void);
 
 const char*	GetDataFileName(const char*);
 		/*!< Application data file in $dGB|DTECT_APPL/data */
+
+const char*	SearchConfigFile(const char*);
+		/*!< Search for a <configuration> file in:
+                    GetPersonalDir() + ".od"
+                    GetSettingsDir() + ".od"
+		    $dGB|DTECT_APPL/data
+		*/
+
 
 /*! Data directory
 
@@ -210,6 +221,9 @@ const char*     getWinPath( const char* path );
                 /*!< Converts unix style path to windows style */
 const char*     getUnixPath( const char* path );
                 /*!< Converts windows style path to unix style */
+#else
+# define	getWinPath(path) path
+# define	getUnixPath(path) path
 #endif
 
 
