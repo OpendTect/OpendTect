@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.3 2001-02-16 17:01:54 arend Exp $
+ RCS:           $Id: uifileinput.h,v 1.4 2001-07-13 22:04:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ public:
 			uiFileInput(uiObject*,const char* txt,const char* fnm=0
 			    , bool forread=true, const char* filtr=0 );
 
+    void		setFileName(const char*);
     const char*		fileName();
 
 protected:

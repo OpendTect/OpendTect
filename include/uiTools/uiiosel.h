@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.8 2001-06-26 07:53:23 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.9 2001-07-13 22:04:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
     virtual void	usePar(const IOPar&);
 
     void		clear()			{ setCurrentItem( 0 ); }
+    virtual void	processInput()		{}
 
     Notifier<uiIOSelect> selectiondone;
 
