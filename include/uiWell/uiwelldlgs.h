@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.11 2004-05-06 11:16:47 bert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.12 2004-05-21 16:55:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ class uiLabeledListBox;
 class StreamData;
 class uiTable;
 
-namespace Well { class Data; class LogSet; class Marker; };
+namespace Well { class Data; class LogSet; class Marker; class D2TModel; };
+
 
 /*! \brief Dialog for marker specifications */
 
@@ -42,6 +43,24 @@ protected:
     uiGenInput*			unitfld;
 
     void			mouseClick(CallBacker*);
+    bool			acceptOK(CallBacker*);
+};
+
+
+/*! \brief Dialog for D2T Model editing. */
+
+class uiD2TModelDlg : public uiDialog
+{
+public:
+				uiD2TModelDlg(uiParent*,Well::D2TModel&);
+
+protected:
+
+    Well::D2TModel&		d2t;
+
+    uiTable*			table;
+    uiGenInput*			unitfld;
+
     bool			acceptOK(CallBacker*);
 };
 

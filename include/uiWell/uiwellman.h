@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.7 2004-04-29 16:41:46 nanne Exp $
+ RCS:           $Id: uiwellman.h,v 1.8 2004-05-21 16:55:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,8 @@ protected:
     void			removeLogPush(CallBacker*);
     void			renameLogPush(CallBacker*);
 
-    void			addMarkers(CallBacker*);
+    void			edMarkers(CallBacker*);
+    void			edD2T(CallBacker*);
     void			addLogs(CallBacker*);
     void			exportLogs(CallBacker*);
 };

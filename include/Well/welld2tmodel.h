@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.8 2004-05-09 15:17:11 bert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.9 2004-05-21 16:55:42 bert Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,9 @@ public:
 
 			D2TModel( const char* nm= 0 )
 			: ::UserIDObject(nm)	{}
+			D2TModel( const D2TModel& d2t )
+			: ::UserIDObject("") 	{ *this = d2t; }
+    D2TModel&		operator =(const D2TModel&);
 
     float		getTime(float d_ah) const;
     float		getVelocity(float d_ah) const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.16 2004-05-14 14:10:39 bert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.17 2004-05-21 16:55:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,14 +33,13 @@ ________________________________________________________________________
 #include "strmprov.h"
 
 
-static const char* collbls[] =
-{
-    "Name", "Depth", "Color", 0
-};
+static const char* mrkrcollbls[] = { "Name", "Depth", "Color", 0 };
+static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
 
 static const int maxnrrows = 10;
 static const int initnrrows = 5;
 #define mFromFeetFac 0.3048
+
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Well Markers",
@@ -50,7 +49,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p )
     table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
 	    				       .rowcangrow() 
 					       .defrowlbl(), "Table" );
-    table->setColumnLabels( collbls );
+    table->setColumnLabels( mrkrcollbls );
     table->setColumnReadOnly( 2, true );
     table->setNrRows( initnrrows );
     table->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
@@ -114,6 +113,71 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
 {
     SI().pars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
     SI().savePars();
+    return true;
+}
+
+
+
+// ==================================================================
+
+
+uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::D2TModel& d )
+	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
+				     "Edit velocity model",
+				     "107.1.4"))
+    	, d2t(d)
+{
+    table = new uiTable( this, uiTable::Setup().rowdesc("Control Pt")
+	    				       .rowcangrow() 
+					       .defrowlbl(), "Table" );
+    table->setColumnLabels( t2dcollbls );
+    table->setNrRows( initnrrows );
+
+    BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
+    unitfld = new uiGenInput( this, "Depth unit", mft );
+    unitfld->attach( leftAlignedBelow, table );
+
+    const int sz = d2t.size();
+    if ( !sz ) return;
+
+    int nrrows = sz + initnrrows;
+    if ( nrrows > maxnrrows ) nrrows = maxnrrows;
+    table->setNrRows( nrrows );
+    const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	table->setValue( uiTable::RowCol(idx,0), d2t.dah(idx) * zfac );
+	table->setValue( uiTable::RowCol(idx,1), d2t.t(idx) * 1000 );
+    }
+}
+
+
+bool uiD2TModelDlg::acceptOK( CallBacker* )
+{
+    SI().pars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
+    SI().savePars();
+
+    Well::D2TModel newd2t( d2t );
+    newd2t.erase();
+    const float zfac = unitfld->getBoolValue() ? 1 : mFromFeetFac;
+    const int nrrows = table->nrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	const char* s1 = table->text( uiTable::RowCol(idx,0) );
+	const char* s2 = table->text( uiTable::RowCol(idx,1) );
+	if ( !s1 || !*s1 || !s2 || !*s2 ) continue;
+
+	float dah = atof(s1) * zfac; float tm = atof(s2) * 0.001;
+	newd2t.add( dah, tm );
+    }
+
+    if ( !newd2t.size() )
+    {
+	uiMSG().error( "Edited model seems to be empty." );
+	return false;
+    }
+
+    d2t = newd2t;
     return true;
 }
 

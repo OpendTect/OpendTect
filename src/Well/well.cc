@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.26 2004-05-11 13:08:41 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.27 2004-05-21 16:55:42 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -33,6 +33,7 @@ Well::Data::Data( const char* nm )
     , logs_(*new Well::LogSet)
     , d2tmodel_(0)
     , markerschanged(this)
+    , d2tchanged(this)
 {
 }
 
@@ -274,6 +275,18 @@ void Well::Track::toTime( const D2TModel& d2t )
 	Coord3& pt = pos_[idx];
 	pt.z = d2t.getTime( dah_[idx] );
     }
+}
+
+
+Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
+{
+    if ( &d2t != this )
+    {
+	setName( d2t.name() );
+	desc = d2t.desc; datasource = d2t.datasource;
+	dah_ = d2t.dah_; t_ = d2t.t_;
+    }
+    return *this;
 }
 
 

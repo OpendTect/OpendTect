@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.18 2004-05-14 14:10:39 bert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.19 2004-05-21 16:55:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,12 +92,22 @@ uiWellMan::uiWellMan( uiParent* p )
     expbut->setToolTip( "Export log" );
 
     uiPushButton* markerbut = new uiPushButton( this, "Edit markers ..." );
-    markerbut->activated.notify( mCB(this,uiWellMan,addMarkers) );
+    markerbut->activated.notify( mCB(this,uiWellMan,edMarkers) );
     markerbut->attach( ensureBelow, topgrp );
+
+    uiPushButton* d2tbut = 0;
+    if ( SI().zIsTime() )
+    {
+	d2tbut = new uiPushButton( this, "Edit Depth/Time Model ..." );
+	d2tbut->activated.notify( mCB(this,uiWellMan,edD2T) );
+	d2tbut->attach( rightOf, markerbut );
+    }
 
     uiPushButton* logsbut = new uiPushButton( this, "Add logs ..." );
     logsbut->activated.notify( mCB(this,uiWellMan,addLogs) );
     logsbut->attach( alignedBelow, topgrp );
+    if ( d2tbut )
+	logsbut->attach( ensureRightOf, d2tbut );
 
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( alignedBelow, markerbut );
@@ -169,7 +179,7 @@ void uiWellMan::fillLogsFld()
 { uiMSG().error(msg); return; }
 
 
-void uiWellMan::addMarkers( CallBacker* )
+void uiWellMan::edMarkers( CallBacker* )
 {
     if ( !welldata || !wellrdr ) return;
     if ( SI().zIsTime() && !wellrdr->getD2T() )
@@ -192,8 +202,32 @@ void uiWellMan::addMarkers( CallBacker* )
 
     dlg.getMarkerSet( wd->markers() );
     Well::Writer wtr( fname, *wd );
-    wtr.putMarkers();
+    if ( !wtr.putMarkers() )
+	uiMSG().error( "Cannot write new markers to disk" );
+
     wd->markerschanged.trigger();
+}
+
+
+void uiWellMan::edD2T( CallBacker* )
+{
+    if ( !welldata || !wellrdr ) return;
+    if ( !SI().zIsTime() || !wellrdr->getD2T() )
+	mErrRet( "No depth to time model" );
+
+    Well::Data* wd;
+    if ( Well::MGR().isLoaded( ctio.ioobj->key() ) )
+	wd = Well::MGR().get( ctio.ioobj->key() );
+    else
+	wd = welldata;
+
+
+    uiD2TModelDlg dlg( this, *wd->d2TModel() );
+    if ( !dlg.go() ) return;
+    Well::Writer wtr( fname, *wd );
+    if ( !wtr.putD2T() )
+	uiMSG().error( "Cannot write new model to disk" );
+    wd->d2tchanged.trigger();
 }
 
 

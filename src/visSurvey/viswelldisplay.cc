@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.35 2004-05-11 12:20:04 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.36 2004-05-21 16:55:42 bert Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -75,6 +75,12 @@ void WellDisplay::setWell( visBase::Well* well_ )
 }
 
 
+void WellDisplay::fullRedraw( CallBacker* )
+{
+    //TODO : Time to depth model or track has changed
+}
+
+
 #define mErrRet(s) { errmsg = s; return false; }
 
 bool WellDisplay::setWellId( const MultiID& multiid )
@@ -83,7 +89,12 @@ bool WellDisplay::setWellId( const MultiID& multiid )
     if ( !wd ) return false;
     
     const Well::D2TModel* d2t = wd->d2TModel();
-    if ( zistime && !d2t ) mErrRet( "No depth to time model defined" );
+    if ( zistime )
+    {
+	if ( !d2t )
+	    mErrRet( "No depth to time model defined" )
+	wd->d2tchanged.notify( mCB(this,WellDisplay,fullRedraw) );
+    }
 
     wellid = multiid;
     setName( wd->name() );

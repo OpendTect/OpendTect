@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.9 2004-04-29 12:05:01 nanne Exp $
+ RCS:		$Id: welldata.h,v 1.10 2004-05-21 16:55:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ public:
     void			setD2TModel(D2TModel*);	//!< becomes mine
 
     Notifier<Well::Data>	markerschanged;
+    Notifier<Well::Data>	d2tchanged;
 
 protected:
 

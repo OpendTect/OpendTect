@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.20 2004-05-17 13:56:38 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.21 2004-05-21 16:55:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 				 "Specify well parameters","107.0.0"))
     , ctio(*mMkCtxtIOObj(Well))
 {
-    infld = new uiFileInput( this, "Input Ascii file", 
+    infld = new uiFileInput( this, "Well Track file", 
 	    		     uiFileInput::Setup().withexamine() );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
@@ -42,13 +42,14 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     bool zistime = SI().zIsTime();
     if ( zistime )
     {
-	d2tfld = new uiFileInput( this, "Depth to Time model",
+	d2tfld = new uiFileInput( this, "Depth to Time model file",
 				  uiFileInput::Setup().withexamine() );
 	d2tfld->setDefaultSelectionDir(
 		IOObjContext::getDataDirName(IOObjContext::WllInf) );
 	d2tfld->attach( alignedBelow, infld );
 
-	tvdfld = new uiGenInput( this, "Model is", BoolInpSpec("TVDSS","MD") );
+	tvdfld = new uiGenInput( this, "Models are",
+				 BoolInpSpec("TVDSS","MD") );
 	tvdfld->setValue( false );
 	tvdfld->attach( alignedBelow, d2tfld );
     }
@@ -79,7 +80,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     RTFMlbl->attach( ensureBelow, horsep );
     RTFMlbl->attach( rightBorder );
 
-    idfld = new uiGenInput( this, "Well ID" );
+    idfld = new uiGenInput( this, "Well ID (UWI)" );
     idfld->attach( alignedBelow, outfld );
     idfld->attach( ensureBelow, infolbl );
     

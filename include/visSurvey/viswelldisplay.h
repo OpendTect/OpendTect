@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.17 2004-05-11 12:20:36 kristofer Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.18 2004-05-21 16:55:42 bert Exp $
 ________________________________________________________________________
 
 
@@ -80,9 +80,11 @@ public:
     visBase::Transformation*	getTransformation();
 
 protected:
+
     virtual			~WellDisplay();
     void			setWell(visBase::Well*);
     void			updateMarkers(CallBacker*);
+    void			fullRedraw(CallBacker*);
 
     visBase::Well*		well;
 
