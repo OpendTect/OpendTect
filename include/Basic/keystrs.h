@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.5 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: keystrs.h,v 1.6 2004-02-09 15:46:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ namespace sKey
     extern const char*	Desc		mImpl("Description");
     extern const char*	Factor		mImpl("Factor");
     extern const char*	FileName	mImpl("File name");
+    extern const char*	Geometry	mImpl("Geometry");
     extern const char*	IOSelection	mImpl("I/O Selection");
     extern const char*	Name		mImpl("Name");
     extern const char*	No		mImpl("No");
