@@ -32,9 +32,10 @@
 #include "strmoper.h"
 #include "callback.h"
 #include "uidobj.h"
+#include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.49 2003-12-24 15:18:38 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.50 2004-02-04 13:32:42 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -46,13 +47,7 @@ bool ExecOSCmd( const char* comm, bool inbg )
     if ( !comm || !*comm ) return false;
 
 #ifdef __win__
-/*
-    if ( !inbg )
-    {
-	int res = system(comm);
-	return !res;
-    }
-*/
+
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
@@ -90,7 +85,6 @@ bool ExecOSCmd( const char* comm, bool inbg )
 
 	fprintf(stderr, "\nError: %s\n", ptr);
 	LocalFree(ptr);
-
     }
 
     return res;
@@ -529,14 +523,17 @@ static const char* getCmd( const char* fnm )
 }
 #endif
 
+
+#ifdef __win__
+# define mGetCmd(fname) getCmd(fname)
+#else
+# define mGetCmd(fname) (const char*)(fname)
+#endif
+
 void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
 {
     if ( !hostname[0] )
-#ifdef __win__
-	oscommand = getCmd(fname);
-#else
-	oscommand = (const char*)fname;
-#endif
+	oscommand = mGetCmd(fname);
     else
     {
 	switch ( type_ )
@@ -566,18 +563,9 @@ void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
 	    }
 	break;
 	case StreamConn::Command:
-#ifdef __win__
-	    sprintf( oscommand.buf(), "%s %s %s",
-				      (const char*)rshcomm,
-				      (const char*)hostname,
-				      getCmd(fname) );
-#else
-	    sprintf( oscommand.buf(), "%s %s %s",
-				      (const char*)rshcomm,
-				      (const char*)hostname,
-				      (const char*)fname );
+	    sprintf( oscommand.buf(), "%s %s %s", (const char*)rshcomm,
+		     (const char*)hostname, mGetCmd(fname) );
 	break;
-#endif
 	case StreamConn::File:
 	    if ( forread )
 		sprintf( oscommand.buf(), "%s %s cat %s",
@@ -597,6 +585,14 @@ void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
 	oscommand += "&";
 
 #endif
+
+    if ( DBG::isOn(DBG_IO) )
+    {
+	BufferString msg( "Aboute to execute : '" );
+	msg += oscommand;
+	msg += "'";
+	DBG::message( msg );
+    }
 }
 
 #define mRemoteTest(act) \

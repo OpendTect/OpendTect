@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.34 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.35 2004-02-04 13:32:42 arend Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -760,7 +760,9 @@ void IOPar::putTo( ascostream& astream, bool withname ) const
 }
 
 
-static const char* sersep = "#-#";
+static const char* startsep	= " ## [";
+static const char* midsep	= "] ## [";
+static const char* endsep	= "] ## ";
 
 void IOPar::putTo( BufferString& str ) const
 {
@@ -768,14 +770,26 @@ void IOPar::putTo( BufferString& str ) const
     BufferString buf;
     for ( int idx=0; idx<size(); idx++ )
     {
-	buf = sersep;
+	buf = startsep;
 	buf += keys_.get(idx);
-	buf += sersep;
+	buf += midsep;
 	buf += vals_.get(idx);
+	buf += endsep;
 	str += buf;
     }
 }
 
+#define mAdvanceSep( ptr, sep ) \
+    while ( *ptr && ( *ptr!=*sep || strncmp(ptr,sep,strlen(sep)) ) ) \
+	{ ptr++; } \
+\
+    if( *ptr && !strncmp(ptr,sep,strlen(sep) ) ) \
+    { \
+	*ptr++ = '\0'; \
+\
+	for ( int idx=1; idx<strlen(sep); idx++ ) \
+	    { if( *ptr ) ptr++; } \
+    }
 
 void IOPar::getFrom( const char* str )
 {
@@ -785,27 +799,20 @@ void IOPar::getFrom( const char* str )
     char* ptrstart = buf.buf();
     char* ptr = ptrstart;
 
-    bool name_done = false;
+    mAdvanceSep( ptr, startsep )
+    setName( ptrstart );
+
     while ( *ptr )
     {
-	// advance to next separator or end of string
-	while ( *ptr && *ptr != *sersep )
-	    ptr++;
-	if ( *ptr && (*(ptr+1) != *(sersep+1) || *(ptr+2) != *(sersep+2)) )
-	    { ptr++; continue; }
+	ptrstart = ptr; mAdvanceSep( ptr, midsep )
 
-	// skip separator
-	if ( *ptr )
-	    { *ptr++ = '\0'; if ( *ptr ) ptr++; if ( *ptr ) ptr++; }
+	keys_.add( ptrstart );
 
-	if ( !name_done )
-	    { setName( ptrstart ); name_done = true; }
-	else if ( keys_.size() <= vals_.size() )
-	    keys_.add( ptrstart );
-	else
-	    vals_.add( ptrstart );
+	ptrstart = ptr; mAdvanceSep( ptr, endsep )
 
-	ptrstart = ptr;
+	vals_.add( ptrstart );
+
+	ptrstart = ptr; mAdvanceSep( ptr, startsep )
     }
 }
 
