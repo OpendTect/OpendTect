@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.16 2003-08-07 14:26:23 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.17 2003-08-15 13:17:44 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -407,6 +407,14 @@ int EM::dgbSurfaceReader::nextStep()
 	    const RowCol filestep = rcconv
 		    ? rcconv->get(RowCol(1,1))-rcconv->get(RowCol(0,0))
 		    : RowCol(rowrange.step, colrange.step);
+
+	    if ( readrowrange )
+	    {
+		if ( readrowrange->step < filestep.row ) 
+		    readrowrange->step = filestep.row;
+		if ( readcolrange->step < filestep.col )
+		    readcolrange->step = filestep.col;
+	    }
 
 	    surface->setTranslatorData( filestep, 
 		    readrowrange ? RowCol(readrowrange->step,readcolrange->step)
