@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.14 2003-05-19 10:41:38 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.15 2003-05-22 08:34:08 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -340,7 +340,8 @@ float Plane3::set( const TypeSet<Coord3>& pts )
     midpt.y /= nrpts;
     midpt.z /= nrpts;
 
-    pca.calculate();
+    if ( !pca.calculate() )
+	return -1;
 
     const float eigen0 = pca.getEigenValue(0);
     const float eigen1 = pca.getEigenValue(1);
