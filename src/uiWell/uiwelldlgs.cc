@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.11 2004-03-09 15:46:40 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.12 2004-03-18 08:46:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -331,7 +331,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_,
     }
     zunitgrp->selectButton( zinft );
 
-    outfld = new uiFileInput( this, "Output file" );
+    outfld = new uiFileInput( this, "Output file",
+	   			uiFileInput::Setup().forread(false) );
     outfld->setDefaultSelectionDir(
 			IOObjContext::getDataDirName(IOObjContext::WllInf) );
     outfld->attach( alignedBelow, zunitgrp );
