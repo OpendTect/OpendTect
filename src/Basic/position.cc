@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.9 2001-06-28 15:04:00 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.10 2001-06-29 15:49:28 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -509,16 +509,52 @@ public:
 		~BinIDTableImpl()	{ deepErase( *this ); }
 
     void	clear()			{ deepErase( *this ); }
-    int		findInl(int) const;
+    int		findInl(int,bool&) const;
 
 };
 
 
-int BinIDTableImpl::findInl( int inl ) const
+int BinIDTableImpl::findInl( int inl, bool& found ) const
 {
-    const int sz = size();
-    for ( int idx=0; idx<sz; idx++ )
-	if ( (*this)[idx]->inl == inl ) return idx;
+    found = false;
+    int hiidx = size() - 1;
+    int loidx = 0;
+
+    if ( loidx >= hiidx )
+    {
+	if ( hiidx == -1 ) return -1;
+	int i = (*this)[0]->inl;
+	found = i == inl;
+	return i <= inl ? 0 : -1;
+    }
+
+    int loinl = (*this)[loidx]->inl;
+    if ( inl <= loinl )
+	{ found = inl == loinl; return found ? loidx : loidx-1; }
+    int hiinl = (*this)[hiidx]->inl;
+    if ( inl >= hiinl )
+	{ found = inl == hiinl; return hiidx; }
+
+    while ( 1 )
+    {
+	int mididx = (hiidx + loidx) / 2;
+	int midinl = (*this)[mididx]->inl;
+	if ( midinl == inl )
+	    { found = true; return mididx; }
+	else if ( midinl > inl )
+	{
+	    if ( hiidx == mididx )
+		return loidx;
+	    hiidx = mididx; hiinl = midinl;
+	}
+	else
+	{
+	    if ( loidx == mididx )
+		return loidx;
+	    loidx = mididx; loinl = midinl;
+	}
+    }
+
     return -1;
 }
 
@@ -554,8 +590,9 @@ void BinIDTable::fillPar( IOPar& iopar ) const
 
 int BinIDTable::excludes( const BinID& bid ) const
 {
-    const int inlidx = binids.findInl( bid.inl );
-    if ( inlidx < 0 ) return 2;
+    bool found;
+    const int inlidx = binids.findInl( bid.inl, found );
+    if ( !found ) return 2;
 
     return binids[inlidx]->indexOf(bid.crl) < 0 ? 512 : 0;
 }
@@ -618,12 +655,13 @@ bool BinIDTable::includes( const BinID& bid ) const
 
 bool BinIDTable::include( const BinID& bid, const char* s )
 {
-    const int inlidx = binids.findInl( bid.inl );
-    if ( inlidx < 0 )
+    bool found;
+    const int inlidx = binids.findInl( bid.inl, found );
+    if ( !found )
     {
 	BinIDTableImplInlData* newinldat = new BinIDTableImplInlData( bid.inl );
-	binids += newinldat;
 	newinldat->set( 0 , bid.crl, s );
+	binids.insertAfter( newinldat, inlidx );
     }
     else
     {
@@ -650,8 +688,9 @@ bool BinIDTable::include( const BinIDTable& bidt )
 
 bool BinIDTable::exclude( const BinID& bid )
 {
-    const int inlidx = binids.findInl( bid.inl );
-    if ( inlidx < 0 ) return false;
+    bool found;
+    const int inlidx = binids.findInl( bid.inl, found );
+    if ( !found ) return false;
 
     return binids[inlidx]->remove( bid.crl );
 }
@@ -665,8 +704,9 @@ void BinIDTable::clear()
 
 const char* BinIDTable::annotFor( const BinID& bid ) const
 {
-    const int inlidx = binids.findInl( bid.inl );
-    if ( inlidx < 0 ) return 0;
+    bool found = false;
+    const int inlidx = binids.findInl( bid.inl, found );
+    if ( !found ) return 0;
     BinIDTableImplInlData& inldat = *binids[inlidx];
     int crlidx = inldat.indexOf( bid.crl );
     return crlidx < 0 ? 0 : inldat.data[crlidx]->annot;
