@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.17 2004-05-06 14:16:18 macman Exp $
+ RCS:		$Id: genc.h,v 1.18 2004-05-28 11:04:56 macman Exp $
 ________________________________________________________________________
 
 
@@ -172,9 +172,7 @@ const char*	GetDataFileName(const char*);
 
 */
 const char*	GetDataDir(void);
-
-
-
+const char*	GetBaseDataDir(void);
 
 
 int		isFinite(double);
