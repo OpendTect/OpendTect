@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.52 2002-04-25 14:47:38 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.53 2002-04-26 13:24:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ ________________________________________________________________________
 class uiMainWinBody : public uiParentBody, public UserIDObject
 		    , public QMainWindow
 {
+friend class		uiMainWin;
 public:
 			uiMainWinBody( uiMainWin& handle, uiParent* parnt,
 				       const char* nm, bool modal );
@@ -78,6 +79,7 @@ public:
 #include                "i_uiobjqtbody.h"
 
 public:
+
 
     uiStatusBar* 	uistatusbar();
     uiMenuBar* 		uimenubar();
@@ -133,8 +135,9 @@ public:
 			{
 			    QMainWindow::show();
 
-			    if( poptimer.isActive() ) poptimer.stop();
-				poptimer.start( 1, true );
+			    if( poptimer.isActive() )
+				poptimer.stop();
+			    poptimer.start( 1, true );
 
 			    if( modal_ )	
 				looplevel__ = qApp->enter_loop();
@@ -142,10 +145,14 @@ public:
 				looplevel__ = -1;
 			}
 
+    void		close()
+			{
+			    hide();
+			    if ( exitapponclose_ )	qApp->quit();
+			}
 
     virtual void	hide() 
 			{
-			int ll = qApp->loopLevel();
 			    if( modal_ )	qApp->exit_loop();
 			    QMainWindow::hide();
 			}
@@ -166,6 +173,7 @@ protected:
     virtual void	finalise();
 
     bool		initing;
+    bool		exitapponclose_;
 
     uiGroup*		centralWidget_;
 
@@ -174,7 +182,6 @@ protected:
     uiToolBar* 		toolbar;
 
 
-protected:
 
     virtual const QWidget* managewidg_() const 
 			{ 
@@ -182,6 +189,7 @@ protected:
 				return centralWidget_->body()->managewidg();
 			    return qwidget_();
 			}
+
 
 private:
 
@@ -207,16 +215,17 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 	, UserIDObject( nm )
 	, QMainWindow( parnt && parnt->body() ?  parnt->body()->qwidget() : 0, 
 		       nm, 
-		       parnt && modal ? 
+		       (parnt && modal) ? 
 				WType_TopLevel | WShowModal| WGroupLeader :
 				WType_TopLevel )
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
 	, statusbar(0), menubar(0), toolbar(0)  
-	, modal_( modal )
+	, modal_( parnt && modal )
 	, poptimer("Popup timer")
 	, popped_up( false )
+	, exitapponclose_( false )
 {
     if ( *nm ) setCaption( nm );
     poptimer.tick.notify(mCB(this,uiMainWinBody,popTimTick));
@@ -422,10 +431,11 @@ uiToolBar* uiMainWin::newToolBar( const char* nm )
     { return uiToolBar::getNew( *body_, nm ); }
 
 void uiMainWin::show()				{ body_->go(); }
-void uiMainWin::close()				{ body_->hide(); }
+void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
+void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d )
     { body_->uimoveDockWindow( dwin , d ); }
@@ -657,7 +667,7 @@ bool uiDialogBody::saveButtonChecked() const
 void uiDialogBody::done_( int v )
 {
     uiSetResult( v );
-    hide();
+    close();
 }
 
 

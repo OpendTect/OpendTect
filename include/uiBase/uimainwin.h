@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.22 2002-04-25 14:48:22 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.23 2002-04-26 13:23:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,9 @@ public:
 
     bool		poppedUp() const;
     virtual uiMainWin*	mainwin()				{ return this; }
+
+			//! automatically set by uiMain::setTopLevel
+    void		setExitAppOnClose( bool yn );
 
     void		moveDockWindow( uiDockWin&, Dock d=Top );
     void		removeDockWindow(uiDockWin*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.4 2002-02-07 16:15:27 arend Exp $
+ RCS:           $Id: uimain.h,v 1.5 2002-04-26 13:23:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,9 +56,6 @@ protected:
 
     static QApplication*  app;
     static const uiFont*  font_;
-
-    virtual void	init( QWidget* mainwidget )		{}
-
 };
 
 
