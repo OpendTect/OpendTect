@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.4 2002-07-31 14:59:38 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.5 2002-11-15 16:07:13 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,10 @@ struct HorSampling
     bool		getInterSection(const HorSampling&,HorSampling&) const;
     			//!< Returns false if intersection is empty
 
+    bool		operator==( const HorSampling& hs ) const
+			{ return hs.start==start && hs.stop==stop 
+			    			 && hs.step==step; }
+
     BinID		start;
     BinID		stop;
     BinID		step;
@@ -97,6 +101,9 @@ public:
     bool		getInterSection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty
+
+    bool		operator==( const CubeSampling& cs ) const
+			{ return cs.hrg==hrg && cs.zrg==zrg; }
 
 };
 
