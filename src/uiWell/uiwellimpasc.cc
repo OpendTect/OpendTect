@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.15 2004-01-20 10:50:33 nanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.16 2004-03-01 14:31:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "welltrack.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "iopar.h"
+#include "uiwellpartserv.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -61,6 +63,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 
     unitfld = new uiGenInput( this, "Depth unit", BoolInpSpec("Meter","Feet") );
     unitfld->attach( alignedBelow, elevfld );
+    unitfld->setValue( !SI().zInFeet() );
 
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Well" );
@@ -96,6 +99,9 @@ uiWellImportAsc::~uiWellImportAsc()
 bool uiWellImportAsc::acceptOK( CallBacker* )
 {
     bool ret = checkInpFlds() && doWork();
+
+    SI().pars().setYN( uiWellPartServer::unitstr, !unitfld->getBoolValue() );
+    SI().savePars();
     return ret;
 }
 
@@ -112,12 +118,13 @@ bool uiWellImportAsc::doWork()
     info.oper = operfld->text();
     info.state = statefld->text();
     info.county = countyfld->text();
-    info.surfacecoord = coordfld->getCoord();
-    info.surfaceelev = elevfld->getValue();
-    if ( zinfeet ) info.surfaceelev *= 0.3048;
+    info.surfacecoord = *coordfld->text(0) && *coordfld->text(1)
+		? coordfld->getCoord() : Coord(mUndefValue,mUndefValue);
+    info.surfaceelev = *elevfld->text() ? elevfld->getValue() : mUndefValue;
+    if ( zinfeet && !mIsUndefined(info.surfaceelev) ) 
+	info.surfaceelev *= 0.3048;
 
     Well::AscImporter ascimp( *well );
-
     const char* fname = infld->fileName();
     const char* errmsg = ascimp.getTrack( fname, true, zinfeet );
     if ( errmsg ) mErrRet( errmsg );
