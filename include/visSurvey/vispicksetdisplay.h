@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.14 2002-05-03 11:47:06 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.15 2002-05-03 13:38:26 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,8 +49,10 @@ public:
     float			getYSz() const { return ysz; }
     float			getZSz() const { return zsz; }
 
-    void			showAll(bool yn)	{ showall=yn; }
+    void			showAll(bool yn);
     bool			allShown()		{ return showall; }
+    void			filterPicks( ObjectSet<SurveyObject>&,
+	    				     float dist );
 
     void			setSize( float inl, float crl, float t );
     Notifier<PickSetDisplay>	changed;
