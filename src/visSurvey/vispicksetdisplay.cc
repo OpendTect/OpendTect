@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.33 2002-08-01 06:34:18 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.34 2002-08-02 11:49:35 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.33 2002-08-01 06:34:18
 #include "vismaterial.h"
 #include "position.h"
 #include "vismarker.h"
+#include "viscube.h"
 #include "geompos.h"
 #include "color.h"
 #include "iopar.h"
@@ -359,18 +360,29 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
-    int nopicks;
-    if ( !par.get( nopickstr, nopicks ) )
-	return -1;
-
-    group->removeAll();
-
     picktype = 0;
     par.get( shapestr, picktype );
 
     picksz = 5;
     par.get( sizestr, picksz );
 
+    bool shwallpicks = true;
+    par.getYN( showallstr, shwallpicks );
+    showAll( shwallpicks );
+
+    group->removeAll();
+
+    bool usedoldpar = false;
+    int nopicks;
+    if ( !par.get( nopickstr, nopicks ) )
+    {
+	res = useOldPar( par );
+	if ( res < 1 ) return res;
+	usedoldpar = true;
+    }
+
+    if ( usedoldpar ) return 1;
+    
     for ( int idx=0; idx<nopicks; idx++ )
     {
 	Geometry::Pos pos;
@@ -381,9 +393,30 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
 	addPick( pos );
     }
 
-    bool shwallpicks;
-    if ( !par.getYN( showallstr, shwallpicks ) ) return -1;
-    showAll( shwallpicks );
+    return 1;
+}
+
+
+int visSurvey::PickSetDisplay::useOldPar( const IOPar& par )
+{
+    int grpid;
+    const char* grpstr = "Group";
+    if ( !par.get( grpstr, grpid ) )
+	return -1;
+
+    visBase::DataObject* dataobj = visBase::DM().getObj( grpid );
+    if ( !dataobj ) return 0;
+
+    mDynamicCastGet( visBase::SceneObjectGroup*, sogrp, dataobj );
+    if ( !sogrp ) return -1;
+
+    for ( int idx=0; idx<sogrp->size(); idx++ )
+    {
+        mDynamicCastGet(visBase::Cube*, cube, sogrp->getObject( idx ) );
+        if ( !cube ) continue;
+	Geometry::Pos pos = cube->centerPos();
+	addPick( pos );
+    }
 
     return 1;
 }

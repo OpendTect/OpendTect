@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.19 2002-08-01 06:34:11 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.20 2002-08-02 11:49:50 nanne Exp $
 ________________________________________________________________________
 
 
@@ -72,6 +72,8 @@ protected:
 
     void			pickCB( CallBacker* =0 );
     void			updatePickSz( CallBacker* = 0);
+
+    int				useOldPar(const IOPar&);
 
     int				picktype;
     float			picksz;
