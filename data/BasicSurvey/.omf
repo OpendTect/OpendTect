@@ -6,9 +6,9 @@ ID: 0
 !
 @100010: Seismics
 !
-@100020: Grids
+@100020: Surfaces
 !
-@100030: Wavelets
+@100030: Locations
 !
 @100040: Features
 !
