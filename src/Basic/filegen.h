@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.11 2002-10-07 14:55:56 bert Exp $
+ RCS:		$Id: filegen.h,v 1.12 2002-10-08 09:46:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ int	File_isDirectory(const char*);
 int	File_isAbsPath(const char*);
 int	File_isLink(const char*);
 int	File_isRemote(const char*);
+int	File_isWritable(const char*);
 
 /*! Functions returning YES/true on success */
 int	File_createDir(const char*,int mode /* 0755 when 0 passed */);
