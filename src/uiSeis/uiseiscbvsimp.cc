@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.9 2002-12-06 14:46:29 nanne Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.10 2002-12-20 13:02:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 {
     if ( ioobj ) inctio_.ioobj = ioobj->clone();
     init( true );
+    oinpSel(0);
 }
 
 
@@ -116,7 +117,7 @@ void uiSeisImpCBVS::modeSel( CallBacker* )
 
 void uiSeisImpCBVS::oinpSel( CallBacker* )
 {
-    if ( outctio_.ioobj )
+    if ( inctio_.ioobj )
 	transffld->updateFrom( *inctio_.ioobj );
 }
 
