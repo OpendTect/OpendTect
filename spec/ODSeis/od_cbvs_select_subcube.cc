@@ -20,10 +20,10 @@ int main( int argc, char** argv )
     if ( argc < 4 )
     {
 	cerr << "Usage: " << argv[0]
-	     << " \"inl1`inl2`inlstep`crl1`crl2`crlstep[`startz`stepz`nrz]\""
+	     << " 'inl1`inl2`inlstep`crl1`crl2`crlstep[`startz`stepz`nrz]'"
 	     << " inpfile outpfile [min_val`max_val]" << endl;
 	cerr << "Format: CBVS." << endl;
-	cerr << "Note the double quotes and back-quotes" << endl;
+	cerr << "Note the difference between forward- and back-quotes" << endl;
 	cerr << "Parameters between brackets [] are optional, do not type the brackets!" << endl;
 	return 1;
     }
@@ -122,6 +122,6 @@ int main( int argc, char** argv )
 	nrwr++;
     }
 
-    cerr << nrwr << " traces written.";
+    cerr << nrwr << " traces written." << endl;
     return nrwr ? 0 : 1;
 }
