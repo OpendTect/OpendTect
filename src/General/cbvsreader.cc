@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.50 2004-10-21 12:35:26 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.51 2004-11-11 13:49:48 bert Exp $";
 
 /*!
 
@@ -270,7 +270,9 @@ bool CBVSReader::readGeom()
     info_.geom.stop.inl = iinterp.get( buf, 4 );
     info_.geom.stop.crl = iinterp.get( buf, 5 );
     info_.geom.step.inl = iinterp.get( buf, 6 );
+    if ( info_.geom.step.inl == 0 ) info_.geom.step.inl = 1;
     info_.geom.step.crl = iinterp.get( buf, 7 );
+    if ( info_.geom.step.crl == 0 ) info_.geom.step.crl = 1;
 
     strm_.read( buf, 6*sizeof(double) );
     BinID2Coord::BCTransform xtr, ytr;
