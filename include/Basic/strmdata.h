@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.1 2000-03-02 15:24:34 bert Exp $
+ RCS:		$Id: strmdata.h,v 1.2 2000-08-18 19:06:48 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -27,7 +27,7 @@ class stdiobuf;
 class StreamData
 {
 public:
-		StreamData() : ispipe(0)	{ init(); }
+		StreamData() : ispipe(false)	{ init(); }
 
     void	close();
     int		usable() const;
@@ -37,7 +37,7 @@ public:
 
     FILE*	fp;
     stdiobuf*	sb;
-    int		ispipe;
+    bool	ispipe;
 
 private:
 
