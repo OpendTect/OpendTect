@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.11 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uicolor.cc,v 1.12 2004-04-20 15:06:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ void uiColorInput::selCol( CallBacker* )
 }
 
 
-void uiColorInput::setColor( Color& col )
+void uiColorInput::setColor( const Color& col )
 {
     color_ = col;
     collbl->setBackgroundColor( color_ );

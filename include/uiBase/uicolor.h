@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.9 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uicolor.h,v 1.10 2004-04-20 15:06:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,29 +35,29 @@ class uiColorInput : public uiGroup
 {
 public:
 
-			uiColorInput(uiParent*,const Color&,
-				     const char* buttxt="Color ...",
-				     const char* lbltxt=0,
-				     const char* seltxt="Select color",
-				     bool withalpha=false);
-			//!< seltxt is the window caption for the Qt color
-			//!< selection dialog.
+				uiColorInput(uiParent*,const Color&,
+					     const char* buttxt="Color ...",
+					     const char* lbltxt=0,
+					     const char* seltxt="Select color",
+					     bool withalpha=false);
+				//!< seltxt is the window caption for the
+				//!< Qt color selection dialog.
 
-    const Color&	color() const	{ return color_; }
+    const Color&		color() const	{ return color_; }
 
-    void		setColor( Color& col_ );
+    void			setColor(const Color&);
 
-    Notifier<uiColorInput> colorchanged;
+    Notifier<uiColorInput> 	colorchanged;
 
 protected:
 
-    Color		color_;
-    BufferString	seltxt_;
-    bool		withalpha;
+    Color			color_;
+    BufferString		seltxt_;
+    bool			withalpha;
 
-    uiLabel*		collbl;
+    uiLabel*			collbl;
 
-    void		selCol(CallBacker*);
+    void			selCol(CallBacker*);
 };
 
 
