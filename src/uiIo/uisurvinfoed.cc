@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.18 2002-01-07 10:04:37 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.19 2002-01-07 14:44:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,8 @@ extern "C" const char* GetBaseDataDir();
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si, 
 					const CallBack& appcb )
-	: uiDialog(p,uiDialog::Setup("Survey setup","Specify survey parameters",
-		   "0.3.2"))
+	: uiDialog(p,uiDialog::Setup("Survey setup",
+		    		     "Specify survey parameters","0.3.2"))
 	, rootdir( GetBaseDataDir() )
 	, dirnmch_(0)
 	, survinfo(si)
@@ -328,7 +328,8 @@ public:
 
 uiIdealSurvSetup( uiParent* p, IdealConn::Type t )
     : uiDialog(p,uiDialog::Setup("Survey setup",
-				 "Select cube to retrieve survey setup",0)
+				 "Select cube to retrieve survey setup",
+				 "0.3.8")
 	    			.statusbar(true) )
 {
     iddfld = new uiIdealData( this, t );
