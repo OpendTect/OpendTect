@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.1 2005-01-17 08:36:09 kristofer Exp $
+ RCS:		$Id: uivisemobj.h,v 1.2 2005-02-17 10:50:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,10 +45,10 @@ public:
     void		setDepthAsAttrib();
     uiVisMenu&		getNodeMenu() { return nodemenu; }
 
-    //void		updateTexture();
-    //int			nrSections() const;
-    //EM::SectionID	getSectionID(int idx) const;
-    //EM::SectionID	getSectionID(const TypeSet<int>* pickedpath) const;
+    void		readAuxData();
+    int			nrSections() const;
+    EM::SectionID	getSectionID(int idx) const;
+    EM::SectionID	getSectionID(const TypeSet<int>* pickedpath) const;
 
     //static const char*	trackingmenutxt;
 

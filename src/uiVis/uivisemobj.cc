@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.2 2005-02-04 14:35:43 kristofer Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.3 2005-02-17 10:50:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,13 +233,13 @@ void uiVisEMObject::setDepthAsAttrib()
     emvis->setDepthAsAttrib();
 }
 
-/*
-void uiVisEMObject::updateTexture()
+void uiVisEMObject::readAuxData()
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
 	    	    visserv->getObject(displayid))
-    //emvis->updateTexture();
+    emvis->readAuxData();
 }
+
 
 int uiVisEMObject::nrSections() const
 {
@@ -250,36 +250,29 @@ int uiVisEMObject::nrSections() const
 
     return emobj->nrSections();
 }
-*/
 
-/*
-EM::SectionID uiVisEMObject::getSection(int idx) const
+EM::SectionID uiVisEMObject::getSectionID(int idx) const
 {
     const MultiID* mid = visserv->getMultiID( displayid );
     EM::ObjectID emid = EM::EMM().multiID2ObjectID( *mid );
     mDynamicCastGet(const EM::EMObject*,emobj,EM::EMM().getObject(emid))
     if ( !emobj ) return -1;
 
-    return emobj->geometry.sectionID(idx);
+    return emobj->sectionID(idx);
 }
 
 
-EM::SectionID uiVisEMObject::getSection(const TypeSet<int>* path) const
+EM::SectionID uiVisEMObject::getSectionID(const TypeSet<int>* path) const
 {
     if ( !path ) return -1;
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,
+	    	    visserv->getObject(displayid))
 
-    for ( int idx=0; idx<path->size(); idx++ )
-    {
-	const EM::SectionID section = emvis->getSectionID((*path)[idx]);
-	if ( section!=-1 )
-	    return section;
-    }
-
-    return -1;
+    return emvis->getSectionID(path);
 }
 
 
+/*
 NotifierAccess* uiVisEMObject::finishEditingNotifier()
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emvis,visserv->getObject(displayid))
