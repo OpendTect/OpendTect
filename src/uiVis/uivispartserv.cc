@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.178 2003-12-08 11:08:33 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.179 2003-12-11 09:41:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1315,6 +1315,16 @@ void uiVisPartServer::setColorSelSpec( int id, const ColorAttribSel& myas )
 void uiVisPartServer::setColorSelSpec( const ColorAttribSel& myas )
 {
     colorspec = myas;
+}
+
+
+void uiVisPartServer::resetColorDataType( int id )
+{
+    mDynamicCastAll();
+    if ( pdd ) pdd->getColorSelSpec().datatype = 0;
+    if ( rtd ) rtd->getColorSelSpec().datatype = 0;
+    if ( vd ) vd->getColorSelSpec().datatype = 0;
+    if ( sd ) sd->getColorSelSpec().datatype = 0;
 }
 
 

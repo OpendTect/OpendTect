@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.104 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.105 2003-12-11 09:41:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,6 +166,7 @@ public:
     void			setColorSelSpec(const ColorAttribSel&);
     void			setColorSelSpec(int,const ColorAttribSel&);
     void			setColorData(int,AttribSliceSet*);
+    void			resetColorDataType(int);
 
     static const int		evInteraction;
     				/*<! Get the id with getEventObjId() */
