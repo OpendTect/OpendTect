@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/09/2000
- RCS:           $Id: changetracker.h,v 1.3 2001-09-27 10:32:03 nanne Exp $
+ RCS:           $Id: changetracker.h,v 1.4 2001-10-16 15:12:33 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,20 @@ public:
 			ChangeTracker( bool& c )
 			: chgd(&c)			{}
 
+			//! returns wether this value is changed
     template <class T,class U>
-    inline bool		update(T& val,const U& newval);
-			//!< returns whterh this value is changed
+    inline bool		update(T& val,const U& newval)
+			{
+			    if ( !chgd ) return false;
+			    bool ret = !(newval == val);
+			    val = newval;
+			    if ( !*chgd ) *chgd = ret;
+			    return ret;
+			}
+
+
+			//! specialisation for C-strings
     inline bool		update(char*&,const char*&);
-			//!< specialisation for C-strings
 
     bool		isChanged() const	   { return chgd && *chgd;}
     void		setChanged( bool yn=true ) { if ( chgd ) *chgd = yn; }
@@ -68,15 +77,6 @@ newval = new value
     obj->setfn( newval ); }
 
 
-template <class T,class U>
-inline bool ChangeTracker::update( T& val, const U& newval )
-{
-    if ( !chgd ) return false;
-    bool ret = !(newval == val);
-    val = newval;
-    if ( !*chgd ) *chgd = ret;
-    return ret;
-}
 
 
 inline bool ChangeTracker::update( char*& val, const char*& newval )

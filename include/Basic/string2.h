@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.5 2001-05-25 14:03:25 arend Exp $
+ RCS:		$Id: string2.h,v 1.6 2001-10-16 15:12:33 windev Exp $
 ________________________________________________________________________
 -*/
 
@@ -80,11 +80,11 @@ inline const char* toString( bool b )	{ return getYesNoString( b ); }
 inline void getFromString( double& d, const char* s )
     { if ( s ) d = atof( s ); else d = mUndefValue; }
 inline void getFromString( float& f, const char* s )
-    { if ( s ) f = atof( s ); else f = mUndefValue; }
+    { if ( s ) f = (float)atof( s ); else f = (float) mUndefValue; }
 inline void getFromString( int& i, const char* s )
     { if ( s ) i = atoi( s ); else i = mUndefIntVal; }
 inline void getFromString( bool& b, const char* s )
-    { if ( s ) b = yesNoFromString( s );else s= false; }
+    { if ( s ) b = ( yesNoFromString( s ) ? true : false );else b = false; }
 
 #endif
 
