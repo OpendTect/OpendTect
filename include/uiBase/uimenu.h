@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.19 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uimenu.h,v 1.20 2004-04-26 14:43:10 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,9 +37,30 @@ public:
 
     int				nrItems() const;
     int				insertItem(uiMenuItem*,int id=-1,int idx=-1);
+    				/*!<\param id The id that is returned if the
+				  	      item is selected
+				    \param idx pecifies the position in the
+				    	       menu. The menu item is appended
+					       at the end of the list if
+					       negative.
+			        */
     int				insertItem(const char* text, const CallBack& cb,
 					   int id=-1,int idx=-1);
+    				/*!<\param id The id that is returned if the
+				  	      item is selected
+				    \param idx pecifies the position in the
+				    	       menu. The menu item is appended
+					       at the end of the list if
+					       negative.
+			        */
     int				insertItem(uiPopupMenu*,int id=-1,int idx=-1);
+    				/*!<\param id The id that is returned if the
+				  	      item is selected
+				    \param idx pecifies the position in the
+				    	       menu. The menu item is appended
+					       at the end of the list if
+					       negative.
+			        */
     void			insertSeparator(int idx=-1);
 
     int				idAt(int idx) const;
