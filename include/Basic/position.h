@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.25 2004-01-09 12:14:22 kristofer Exp $
+ RCS:		$Id: position.h,v 1.26 2004-01-29 10:12:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <gendefs.h>
+#include "gendefs.h"
+#include "sets.h"
 
 
 /*!\brief a cartesian coordinate in 2D space. */
@@ -165,7 +166,6 @@ public:
 
     int		inl;
     int		crl;
-
 };
 
 
@@ -202,6 +202,29 @@ public:
 
     float	z;
 };
+
+
+class BinIDZValues
+{
+public:
+    			BinIDZValues()
+			: binid(0,0), z(mUndefValue)		{}
+    			BinIDZValues( const BinID& b, float zz=0 )
+		    	: binid(b), z(zz)			{}
+			BinIDZValues( const BinIDZValue& bidv )
+			: binid(bidv.binid), z(bidv.z)
+			{ values += bidv.value; }
+
+    bool		operator==( const BinIDZValues& biv ) const
+			{ return biv.binid == binid; }
+    bool		operator!=( const BinIDZValues& biv ) const
+			{ return biv.binid != binid; }
+
+    BinID		binid;
+    float		z;
+    TypeSet<float>	values;
+};
+
 
 inline bool Coord3::operator==( const Coord3& b ) const
 {
