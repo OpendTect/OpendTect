@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.17 2004-01-09 16:26:18 nanne Exp $
+ RCS:		$Id: vistexture.h,v 1.18 2004-04-27 12:10:01 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -102,21 +102,22 @@ protected:
 
     int			resolution;
 
-private:
+protected:
     void		colorTabChCB(CallBacker*);
     void		colorSeqChCB(CallBacker*);
     void		autoscaleChCB(CallBacker*);
 
-    void		clipData();
-    void		makeColorIndexes();
-    void		makeTexture();
-    void		makeColorTables();
-    void		clearDataCache(bool);
+    virtual void	clipData();
+    virtual void	makeColorIndexes();
+    virtual void	makeTexture();
+    virtual void	makeColorTables();
+    virtual void	clearDataCache(bool);
 
     float*		datacache;
     float*		colordatacache;
     unsigned char*	indexcache;
     int			cachesize;
+    int			indexcachesize;
 
     TypeSet<LinScaler>	datascales;
 			/*!<\note The first entry is not used since
