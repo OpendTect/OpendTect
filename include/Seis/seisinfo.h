@@ -1,18 +1,16 @@
 #ifndef seisinfo_h
 #define seisinfo_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.13 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.14 2004-04-26 15:50:56 bert Exp $
 ________________________________________________________________________
 
-Seismic Packet and trace information. Simple, accessible information.
-
-@$*/
+-*/
  
 #include <samplingdata.h>
 #include <position.h>
@@ -56,7 +54,7 @@ class SeisTrcInfo
 {
 public:
 			SeisTrcInfo()
-			: sampling(0,.004), nr(0)
+			: sampling(0,defaultSampleInterval()), nr(0)
 			, pick(mUndefValue), refpos(mUndefValue)
 			, offset(0), azimuth(0)
 			, new_packet(NO), stack_count(1)
@@ -98,6 +96,7 @@ public:
 
     static const char*	sSamplingInfo;
     static const char*	sNrSamples;
+    static float	defaultSampleInterval(bool forcetime=false);
 
     void		putTo(PosAuxInfo&) const;
     void		getFrom(const PosAuxInfo&);

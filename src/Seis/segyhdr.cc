@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.18 2004-03-10 14:44:40 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.19 2004-04-26 15:50:56 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.18 2004-03-10 14:44:40 bert Exp 
 #include "survinfo.h"
 #include "ibmformat.h"
 #include "settings.h"
+#include "seisinfo.h"
 #include <string.h>
 #include <ctype.h>
 #include <iostream>
@@ -210,7 +211,10 @@ SegyBinHeader::SegyBinHeader()
 {
     memset( &jobid, 0, SegyBinHeaderLength );
     mfeet = format = 1;
-    hdt = 4000;
+    float fhdt = SeisTrcInfo::defaultSampleInterval() * 1000;
+    if ( SI().zIsTime() && fhdt < 32.768 )
+	fhdt *= 1000;
+    hdt = (short)fhdt;
 }
 
 

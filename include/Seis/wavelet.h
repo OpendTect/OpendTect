@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.8 2004-04-08 13:04:44 bert Exp $
+ RCS:		$Id: wavelet.h,v 1.9 2004-04-26 15:50:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,8 @@ class IOObj;
 class Wavelet : public UserIDObject
 {
 public:
-			Wavelet(const char* nm=0,int idxfsamp=0,float sr=0.004);
+			Wavelet(const char* nm=0,int idxfsamp=0,
+				float sr=mUndefValue);
 			Wavelet(bool ricker_else_sinc,float fpeak,
 				float sample_intv=mUndefValue,float scale=1);
 			Wavelet(const Wavelet&);

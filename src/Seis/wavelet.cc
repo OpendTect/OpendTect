@@ -5,9 +5,10 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.13 2004-04-08 13:04:44 bert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.14 2004-04-26 15:50:56 bert Exp $";
 
 #include "wavelet.h"
+#include "seisinfo.h"
 #include "wvltfact.h"
 #include "ascstream.h"
 #include "streamconn.h"
@@ -20,7 +21,7 @@ static const char* rcsID = "$Id: wavelet.cc,v 1.13 2004-04-08 13:04:44 bert Exp 
 Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
 	: UserIDObject(nm)
 	, iw(idxfsamp)
-	, dpos(sr)
+	, dpos(mIsUndefined(sr)?SeisTrcInfo::defaultSampleInterval(true):sr)
 	, sz(0)
 	, samps(0)
 {
@@ -33,23 +34,15 @@ Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
 	, samps(0)
 {
     if ( mIsUndefined(dpos) )
-	dpos = SI().zRange().step;
+	dpos = SeisTrcInfo::defaultSampleInterval(true);
     if ( mIsUndefined(scale) )
 	scale = 1;
     if ( mIsUndefined(fpeak) || fpeak <= 0 )
 	fpeak = 25;
     iw = (int)( -( 1 + 1. / (fpeak*dpos) ) );
 
-    const bool istime = SI().zIsTime();
     BufferString nm( isricker ? "Ricker " : "Sinc " );
-    nm += fpeak;
-    if ( istime )
-	nm += " Hz";
-    else
-    {
-	nm += SI().getZUnit(false);
-	nm += "^-1";
-    }
+    nm += fpeak; nm += " Hz";
     setName( nm );
 
     int lw = 1 - 2*iw;
@@ -211,7 +204,7 @@ int dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
     if ( !astream.isOfFileType(mTranslGroupName(Wavelet)) )
 	return NO;
 
-    const float scfac = SI().zFactor();
+    const float scfac = 1000;
     int iw = 0; float sr = scfac * SI().zRange().step;
     while ( !atEndOfSection( astream.next() ) )
     {
@@ -245,7 +238,7 @@ int dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     if ( *(const char*)wv->name() ) astream.put( sNameKey, wv->name() );
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
-    astream.put( sSampRate, wv->sampleRate() * SI().zFactor() );
+    astream.put( sSampRate, wv->sampleRate() * 1000 );
     astream.newParagraph();
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() << wv->samples()[idx] << '\n';
