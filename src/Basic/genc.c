@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.48 2004-10-25 11:07:49 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.49 2004-10-25 11:14:08 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -471,6 +471,7 @@ const char* SearchODFile( const char* fname )
     const char* nm = checkFile( getenv("OD_FILES"), "", fname );
     if ( !nm ) nm = checkFile( GetPersonalDir(), ".od", fname );
     if ( !nm ) nm = checkFile( GetSettingsDir(), ".od", fname );
+    if ( !nm ) nm = checkFile( getenv("ALLUSERSPROFILE"), ".od", fname );
     if ( !nm ) nm = checkFile( GetSoftwareDir(), "data", fname );
     if ( !nm ) nm = checkFile( GetSoftwareDir(), "bin", fname );
 
