@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.29 2003-11-12 12:57:04 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.30 2004-04-15 14:54:44 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -718,8 +718,10 @@ void CBVSReadMgr::dumpInfo( ostream& strm, bool inclcompinfo ) const
     {
 	strm << "Gaps: "; strm.flush();
 	bool inlgaps = false; bool crlgaps = false;
+	int inlstep = info().geom.step.inl;
+	if ( inlstep < 0 ) inlstep = -inlstep;
 	for ( int inl=info().geom.start.inl; inl<=info().geom.stop.inl;
-		inl += info().geom.step.inl )
+		inl += inlstep )
 	{
 	    const CBVSInfo::SurvGeom::InlineInfo* inlinf
 		    = info().geom.getInfoFor( inl );
