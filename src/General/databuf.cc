@@ -225,7 +225,7 @@ void TraceData::setComponent( const DataCharacteristics& dc, int icomp )
 
 void TraceData::zero( int icomp )
 {
-    if ( icomp < 0 || icomp >= nrcomp_ ) return;
+    if ( icomp < -1 || icomp >= nrcomp_ ) return;
 
     const int endidx = icomp < 0 ? nrcomp_-1 : icomp;
     for ( int idx=(icomp>=0?icomp:0); idx<=endidx; idx++ )
