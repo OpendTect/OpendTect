@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.4 2003-10-08 09:55:19 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurface.cc,v 1.5 2003-10-09 11:59:34 kristofer Exp $";
 
 #include "SoMeshSurface.h"
 
@@ -48,6 +48,7 @@ SoMeshSurface::SoMeshSurface()
     , squaresize( -1 ) 
     , weAreStopping( false )
     , pickcallbacks( 0 )
+    , texturerangeisset( false )
 {
     SO_NODE_CONSTRUCTOR(SoMeshSurface);
 
@@ -73,8 +74,7 @@ SoMeshSurface::~SoMeshSurface()
 }
 
 
-void SoMeshSurface::setPos( int row, int col, const SbVec3f& pos,
-       			    const SbVec2s& rowinfo, const SbVec2s& colinfo )
+void SoMeshSurface::setPos( int row, int col, const SbVec3f& pos )
 {
     SbThreadAutoLock lock( setupMutex );
     if ( !getNumChildren() )
@@ -92,7 +92,7 @@ void SoMeshSurface::setPos( int row, int col, const SbVec3f& pos,
 
     const int index = getSquareIndex( row, col );
     if ( index>=0 )
-	getSquare(index)->setPos( row, col, pos, rowinfo, colinfo );
+	getSquare(index)->setPos( row, col, pos );
 }
 
 
@@ -108,11 +108,25 @@ void SoMeshSurface::removePos( int row, int col )
 }
 
 
-void SoMeshSurface::updateTextureCoords()
+void SoMeshSurface::setTextureRange(int firstrow, int firstcol,
+				    int lastrow, int lastcol )
 {
+    if ( texturerangeisset &&
+	    firstrow==texturefirstrow &&
+	    firstcol==texturefirstcol &&
+	    lastrow==texturelastrow &&
+	    lastcol==texturelastcol )
+	return;
+    
     const int nrsquares = getNumChildren();
     for ( int idx=0; idx<nrsquares; idx++ )
-	getSquare( idx )->updateTextureCoords();
+	getSquare(idx)->setTextureRange(firstrow,firstcol,lastrow,lastcol);
+
+    texturerangeisset = true;
+    texturefirstrow = firstrow;
+    texturefirstcol = firstcol;
+    texturelastrow = lastrow;
+    texturelastcol = lastcol;
 }
 
 
@@ -342,6 +356,9 @@ void SoMeshSurface::makeFirstSquare( int row, int col )
     square->origo.set1Value(1, firstcol);
     square->sizepower = partSizePower.getValue();
     square->addPickCB( pickCB, this );
+    if ( texturerangeisset )
+	square->setTextureRange( texturefirstrow, texturefirstcol,
+				 texturelastrow, texturelastcol );
 
     addChild(square);
 }
@@ -361,6 +378,9 @@ void SoMeshSurface::addSquareRow( bool start )
 	square->origo.set1Value(1, col);
 	square->sizepower = partSizePower.getValue();
 	square->addPickCB( pickCB, this );
+	if ( texturerangeisset )
+	    square->setTextureRange( texturefirstrow, texturefirstcol,
+				     texturelastrow, texturelastcol );
 
 	insertChild( square, insertpoint+idx );
     }
@@ -406,6 +426,9 @@ void SoMeshSurface::addSquareCol( bool start )
 	square->origo.set1Value(1, col);
 	square->sizepower = partSizePower.getValue();
 	square->addPickCB( pickCB, this );
+	if ( texturerangeisset )
+	    square->setTextureRange( texturefirstrow, texturefirstcol,
+				     texturelastrow, texturelastcol );
 
 	insertChild( square, insertpoint+idx*(nrcolsquares+1) );
     }

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.7 2003-10-08 12:41:09 nanne Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.8 2003-10-09 11:59:34 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -107,12 +107,8 @@ SoMeshSurfaceSquare::SoMeshSurfaceSquare()
 
     SO_KIT_ADD_FIELD( origo, (0) );
     SO_KIT_ADD_FIELD( sizepower, (6) );
-    SO_KIT_ADD_FIELD( end, (0) );
 
     origo.set1Value(1,0);
-
-    end.set1Value(0,0);
-    end.set1Value(1,0);
 
     sizePowerSensor->attach( &sizepower );
     sizePowerSensor->trigger();
@@ -128,31 +124,47 @@ SoMeshSurfaceSquare::~SoMeshSurfaceSquare()
 }
 
 
-void SoMeshSurfaceSquare::updateTextureCoords()
+void SoMeshSurfaceSquare::setTextureRange( int firstrow, int firstcol,
+	                                   int lastrow, int lastcol )
 {
-    SbVec2s rowinfo( origo[0], end[0]-origo[0]+1 );
-    SbVec2s colinfo( origo[1], end[1]-origo[1]+1 );
-    texturecoordptr->point.deleteValues(0);
-    for ( int row=origo[0]; row<=end[0]; row++ )
-	for ( int col=origo[1]; col<=end[1]; col++ )
-	    setTextureCoord( row, col, rowinfo, colinfo );
+    const int nrrows = lastrow-firstrow+1;
+    const float rowinc = nrrows!=1 ? 1.0 / (nrrows-1) : 1;
+    const int nrcols = lastcol-firstcol+1;
+    const float colinc = nrcols!=1 ? 1.0 / (nrcols-1) : 1;
+
+    const float startrowval = rowinc*(origo[0]-firstrow);
+    const float startcolval = colinc*(origo[1]-firstcol);
+
+    SbList<float> colcoords(sidesize+1);
+
+    for ( int idy=0; idy<=sidesize; idy++ )
+    {
+	float colcoord = idy*colinc+startcolval;
+	if ( colcoord<0 ) colcoord=0;
+	else if ( colcoord>1 ) colcoord=1;
+	colcoords[idy] = colcoord;
+    }
+
+    SbVec2f* tcoords = texturecoordptr->point.startEditing();
+
+    for ( int idx=0; idx<=sidesize; idx++ )
+    {
+	float rowcoord = idx*rowinc+startrowval;
+	if ( rowcoord<0 ) rowcoord=0;
+	else if ( rowcoord>1 ) rowcoord=1;
+
+	for ( int idy=0; idy<=sidesize; idy++ )
+	{
+	    tcoords[idx*(sidesize+1)+idy] = SbVec2f( rowcoord, colcoords[idy] );
+	}
+    }
+
+    texturecoordptr->point.finishEditing();
 }
 
 
-void SoMeshSurfaceSquare::setTextureCoord( int row, int col,
-    				const SbVec2s& rowinfo, const SbVec2s& colinfo )
-{
-    int index = getCoordIndex( row, col );
-    if ( index==-1 ) return;
-    const float relrow = (float)(row-rowinfo[0]) / (rowinfo[1] - 1);
-    const float relcol = (float)(col-colinfo[0]) / (colinfo[1] - 1);
-    texturecoordptr->point.set1Value( index, SbVec2f(relcol,relrow) );
-    // swapped row,col for correct texture mapping.
-}
-
-
-void SoMeshSurfaceSquare::setPos( int row, int col, const SbVec3f& np,
-       				 const SbVec2s& rowinfo, const SbVec2s& colinfo)
+void SoMeshSurfaceSquare::setPos( int row, int col, const SbVec3f& np )
+       			
 {
     const int index = getCoordIndex( row, col );
     if ( index==-1 ) return;
@@ -182,10 +194,6 @@ void SoMeshSurfaceSquare::setPos( int row, int col, const SbVec3f& np,
 	    neigbors[idx]->touch( row, col );
     }
 
-    if ( row>end[0] ) end.set1Value(0,row);
-    if ( col>end[1] ) end.set1Value(1,col);
-
-    setTextureCoord( row, col, rowinfo, colinfo );
     touch( row, col );
 }
 
@@ -351,24 +359,23 @@ void SoMeshSurfaceSquare::touch( int row, int col )
 
     const int relrow = row-startrow;
     const int relcol = col-startcol;
-    if ( relrow>=0 && relrow<=sidesize &&
-	 relcol>=0 && relcol<=sidesize && 
-	 (relrow==sidesize || relcol==sidesize) )
+    if ( (relrow==sidesize || relcol==sidesize) &&
+	 relrow>=0 && relrow<=sidesize &&
+	 relcol>=0 && relcol<=sidesize )
     {
 	const int index = getCoordIndex( row, col );
+	int neigborindex = -1;
 
-	if ( neigbors[5] && relcol==sidesize )
-	{
-	    const SbVec3f np = neigbors[5]->getPos(row,col);
-	    if ( SoMeshSurface::isUndefined(np) ||
-		    SoMeshSurface::isUndefined( coordptr->point[index]) )
-		updateglue = true;
-
-	    coordptr->point.set1Value(index,np);
-	}
+	if ( neigbors[8] && relrow==sidesize && relcol==sidesize )
+	    neigborindex = 8;
+	else if ( neigbors[5] && relcol==sidesize )
+	    neigborindex = 5;
 	else if ( neigbors[7] && relrow==sidesize )
+	    neigborindex = 7;
+
+	if ( neigborindex!=-1 )
 	{
-	    const SbVec3f np = neigbors[7]->getPos(row,col);
+	    const SbVec3f np = neigbors[neigborindex]->getPos(row,col);
 	    if ( SoMeshSurface::isUndefined(np) ||
 		    SoMeshSurface::isUndefined( coordptr->point[index]) )
 		updateglue = true;
@@ -469,25 +476,15 @@ bool SoMeshSurfaceSquare::isUndefined( int row, int col ) const
 }
 
 
-void SoMeshSurfaceSquare::addGlueIndex( int row, int col, int res, int& idx )
-{
-    if ( isUndefined(row,col) )
-    {
-	if ( row > end[0] ) row = end[0];
-	if ( col > end[1] ) col = end[1];
-    }
-
-    int crdidx = getCoordIndex(row,col);
-    if ( crdidx==-1 || isUndefined(row,col) ) return;
-
-    if ( idx && crdidx == glueptr->coordIndex[idx-1] ) return;
-
-    glueptr->coordIndex.set1Value( idx, crdidx );
-    gluenormalptr->vector.set1Value( idx, getNormal(row,col,res) );
-    glueptr->normalIndex.set1Value( idx, idx );
-    idx++;
+#define mAddCoordToIndexes(row_,col_,res_) \
+{ \
+    const int index_ = getCoordIndex( row_, col_ ); \
+    if ( !SoMeshSurface::isUndefined(coordptr->point[index_])) \
+    { \
+	indexes.push(index_); \
+	normals.push(getNormal(row_,col_,res_)); \
+    } \
 }
-
 
 void SoMeshSurfaceSquare::updateGlue()
 {
@@ -496,111 +493,249 @@ void SoMeshSurfaceSquare::updateGlue()
     if ( ownres==-1 )
 	return;
 
-    if ( origo[0] == end[0] || origo[1] == end[1] )
-	return;
-
     if ( updateglue || (neigbors[5] && neigbors[5]->hasResolutionChanged()) ||
 	 (neigbors[7] && neigbors[7]->hasResolutionChanged()) ||
 	 hasResolutionChanged() )
     {
 	updateglue = false;
-	glueptr->coordIndex.deleteValues(0);
-	glueptr->normalIndex.deleteValues(0);
+	int normalindex=0;
+	int coordindex = 0;
 
-	const int row7 = origo[0] + ownblocksize * getNrBlocks(ownres,0);
-	const int col7 = origo[1];
-	bool glue7 = neigbors[7] || (end[0]-row7)%ownblocksize;
-	const int row5 = origo[0]; 
-	const int col5 = origo[1] + ownblocksize * getNrBlocks(ownres,1);
-	bool glue5 = neigbors[5] || (end[1]-col5)%ownblocksize;
+	const int res5 = neigbors[5] ? neigbors[5]->getResolution() : ownres;
+	const int blocksize5 = getBlockSize(res5);
+	const int res7 = neigbors[7] ? neigbors[7]->getResolution() : ownres;
+	const int blocksize7 = getBlockSize(res7);
+	const int res8 = neigbors[8] ? neigbors[8]->getResolution() : res7;
 
-	if ( !glue5 && !glue7 ) return;
-
-	int row = glue7 ? row7 : row7 - ownblocksize;
-	int col = glue7 ? col7 : col5 - ownblocksize;
-
-	int idx = 0;
-	if ( glue7 ) getOwn7CrdIdxs( row, col, idx );
-	if ( glue5 )
+	SbList<SbVec2s> rowgluecells;
+	const int rowglueblocksize = ownblocksize>blocksize7
+	    				? ownblocksize : blocksize7;
+	int row = origo[0]+sidesize-ownblocksize;
+	int col = origo[1];
+	for ( int idx=0; idx<sidesize-ownblocksize; idx+=rowglueblocksize )
 	{
-	    getOwn5CrdIdxs( row, col, idx );
-	    getNeighbour5CrdIdxs( row, col, idx );
+	    rowgluecells.push( SbVec2s(row,col+idx) );
+	}
+
+	SbList<SbVec2s> colgluecells;
+	const int colglueblocksize = ownblocksize>blocksize5
+					? ownblocksize : blocksize5;
+
+	row = origo[0];
+	col = origo[1]+sidesize-ownblocksize;
+	for ( int idx=0; idx<sidesize-ownblocksize; idx+=colglueblocksize )
+	{
+	    colgluecells.push( SbVec2s(row+idx,col) );
+	}
+
+	//Make corner.
+	if ( res5>=ownres || res7>=ownres )
+	{
+	    if ( res5<ownres )
+	    {
+		/*
+		    2--3
+		    |  |
+		   -1  |
+		    |  |
+		   -5--4
+		   Nothing needs to be done, since the cell (2) is present
+		   in colgluecells and will be made.
+		*/
+	    }
+	    else if ( res7<ownres )
+	    {
+		/*
+		       |  |
+		    5--1--2
+		    |     |
+		    4-----3
+		   Nothing needs to be done, since the cell (5) is present
+		   row rowgluecells and will be made.
+		*/
+	    }
+	    else
+	    {
+		rowgluecells.push(SbVec2s(origo[0]+sidesize-ownblocksize,
+					  origo[1]+sidesize-ownblocksize));
+	    }
 	}
 	else
-	    row += ownblocksize;
+	{
+	    /*	The resolution on both neigbors are lower than our, so
+	     *	our corner will look like this:
+		2--3
+		|  |
+	     6--1  |
+	     |     |
+	     5-----4
 
-	if ( glue7 ) getNeighbour7CrdIdxs( row, col, idx );
+	    */
+	    SbList<int> indexes;
+	    SbList<SbVec3f> normals;
+	    row = origo[0]+sidesize-ownblocksize;
+	    col = origo[1]+sidesize-ownblocksize;
+	    mAddCoordToIndexes( row, col, ownres );
 
-	glueptr->coordIndex.set1Value( idx, -1 );
+	    const int minrow = origo[0]+sidesize-blocksize5;
+	    while ( row>minrow )
+	    {
+		row-=ownblocksize;
+		mAddCoordToIndexes( row, col, ownres );
+		const int cellindex = colgluecells.find(SbVec2s(row,col));
+		if ( cellindex!=-1 ) colgluecells.removeFast(cellindex);
+	    }
+
+	    col+=ownblocksize;
+	    mAddCoordToIndexes( row, col, res5 );
+	    row+=blocksize5;
+	    mAddCoordToIndexes( row, col, res8 );
+
+	    col-=blocksize7;
+	    mAddCoordToIndexes( row, col, res7 );
+	    row-=ownblocksize;
+	    mAddCoordToIndexes( row, col, ownres );
+
+	    const int cellindex = rowgluecells.find(SbVec2s(row,col));
+	    if ( cellindex!=-1 ) rowgluecells.removeFast(cellindex);
+
+	    const int maxcol = origo[1]+sidesize-ownblocksize*2;
+	    while ( col<maxcol )
+	    {
+		col += ownblocksize;
+		mAddCoordToIndexes( row, col, ownres );
+		const int cellindex = rowgluecells.find(SbVec2s(row,col));
+		if ( cellindex!=-1 ) rowgluecells.removeFast(cellindex);
+	    }
+
+	    addGlueShape( coordindex, normalindex, indexes, normals );
+	}
+
+	while ( rowgluecells.getLength() )
+	{
+	    const SbVec2s rc = rowgluecells.pop();
+	    row = rc[0];
+	    const int startcol = col = rc[1];
+
+	    SbList<int> indexes;
+	    SbList<SbVec3f> normals;
+	    const int maxcol = col+rowglueblocksize;
+	    const int bordercol = origo[1]+sidesize;
+	    mAddCoordToIndexes( row, col, ownres );
+	    while ( col<maxcol )
+	    {
+		col += ownblocksize;
+		if ( col==bordercol )
+		{
+		    mAddCoordToIndexes( row, col, res5 );
+		}
+		else
+		{
+		    mAddCoordToIndexes( row, col, ownres );
+		}
+	    }
+
+	    row +=ownblocksize;
+	    if ( col==bordercol )
+	    {
+		mAddCoordToIndexes( row, col, res8 );
+	    }
+	    else
+	    {
+		mAddCoordToIndexes( row, col, res7 );
+	    }
+
+	    while ( col>startcol )
+	    {
+		col -= blocksize7;
+		mAddCoordToIndexes( row, col, res7 );
+	    }
+
+	    addGlueShape( coordindex, normalindex, indexes, normals );
+	}
+
+
+	while ( colgluecells.getLength() )
+	{
+	    const SbVec2s rc = colgluecells.pop();
+	    const int startrow = row = rc[0];
+	    col = rc[1];
+
+	    SbList<int> indexes;
+	    SbList<SbVec3f> normals;
+
+	    mAddCoordToIndexes( row, col, ownres );
+
+	    col +=ownblocksize;
+	    mAddCoordToIndexes( row, col, res5 );
+
+	    const int maxrow = row+colglueblocksize;
+	    const int borderrow = origo[1]+sidesize;
+	    while ( row<maxrow )
+	    {
+		row += blocksize5;
+		if ( row==borderrow )
+		{
+		    mAddCoordToIndexes( row, col, res8 );
+		}
+		else
+		{
+		    mAddCoordToIndexes( row, col, res5 );
+		}
+	    }
+
+	    col -=ownblocksize;
+	    if ( row==borderrow )
+	    {
+		mAddCoordToIndexes( row, col, res7 );
+	    }
+	    else
+	    {
+		mAddCoordToIndexes( row, col, ownres );
+	    }
+
+	    while ( row-ownblocksize>startrow )
+	    {
+		row -= ownblocksize;
+		mAddCoordToIndexes( row, col, ownres );
+	    }
+
+	    addGlueShape( coordindex, normalindex, indexes, normals );
+	}
+
+	glueptr->coordIndex.setNum(coordindex);
+	glueptr->normalIndex.setNum(coordindex);
+	glueptr->textureCoordIndex.setNum(coordindex);
+	gluenormalptr->vector.setNum(normalindex);
     }
 }
 
 
-void SoMeshSurfaceSquare::getOwn5CrdIdxs( int& row, int& col, int& idx )
+void SoMeshSurfaceSquare::addGlueShape( int& coordindexidx, int& normalidx,
+					const SbList<int>& coordindexes,
+       					const SbList<SbVec3f>& normals )
 {
-    const int ownres = getResolution();
-    const int ownblocksize = getBlockSize( ownres );
-    const int nrownblocks = getNrBlocks( ownres, 0 );
+    const int nrindexes = coordindexes.getLength();
+    if ( nrindexes<3 ) return;
 
-    for ( int idy=1; idy<nrownblocks; idy++ )
+    for ( int idx=0; idx<nrindexes; idx++ )
     {
-	row -= ownblocksize;
-	addGlueIndex( row, col, ownres, idx );
+	gluenormalptr->vector.set1Value(normalidx, normals[idx]);
+
+	const int coordindex = coordindexes[idx];
+	glueptr->coordIndex.set1Value( coordindexidx, coordindex );
+	glueptr->textureCoordIndex.set1Value( coordindexidx, coordindex );
+	glueptr->normalIndex.set1Value( coordindexidx, normalidx );
+
+	coordindexidx++;
+	normalidx++;
     }
 
-    col += ownblocksize;
-}
+    glueptr->coordIndex.set1Value( coordindexidx, -1 );
+    glueptr->textureCoordIndex.set1Value( coordindexidx, -1 );
+    glueptr->normalIndex.set1Value( coordindexidx, -1 );
 
-
-void SoMeshSurfaceSquare::getOwn7CrdIdxs( int& row, int& col, int& idx )
-{
-    const int ownres = getResolution();
-    const int ownblocksize = getBlockSize( ownres );
-    const int nrownblocks = getNrBlocks( ownres, 1 );
-
-    row -= ownblocksize;
-    addGlueIndex( row, col, ownres, idx );
-
-    for ( int idy=1; idy<nrownblocks; idy++ )
-    {
-	col += ownblocksize;
-	addGlueIndex( row, col, ownres, idx );
-    }
-}
-
-
-void SoMeshSurfaceSquare::getNeighbour5CrdIdxs( int& row, int& col, int& idx )
-{
-    SoMeshSurfaceSquare* square5 = neigbors[5];
-    const int res5 = square5 ? square5->getResolution() : getResolution();
-
-    addGlueIndex( row, col, res5, idx );
-
-    const int blocksize = getBlockSize( res5 );
-    const int nrblocks = getNrBlocks( res5, 0 );
-
-    for ( int idy=0; idy<nrblocks; idy++ )
-    {
-	row += blocksize;
-	addGlueIndex( row, col, res5, idx );
-    }
-}
-
-
-void SoMeshSurfaceSquare::getNeighbour7CrdIdxs( int& row, int& col, int& idx )
-{
-    SoMeshSurfaceSquare* square7 = neigbors[7];
-    const int res7 = square7 ? square7->getResolution() : getResolution();
-    const int blocksize = getBlockSize( res7 );
-    const int nrblocks = getNrBlocks( res7, 1 );
-
-    addGlueIndex( row, col, res7, idx );
-
-    for ( int idy=0; idy<nrblocks; idy++ )
-    {
-	col -= blocksize;
-	addGlueIndex( row, col, res7, idx );
-    }
+    coordindexidx++;
 }
 
 
@@ -787,17 +922,6 @@ void SoMeshSurfaceSquare::computeBBox()
 int SoMeshSurfaceSquare::getBlockSize( int resolution ) const
 {
     return get2Power(sizepower.getValue()-resolution-1);
-}
-
-
-int SoMeshSurfaceSquare::getNrBlocks( int resolution, int dir ) const
-{
-    int nrblocks = get2Power(resolution+1);
-    const int blocksz = getBlockSize( resolution );
-    while ( origo[dir]+(nrblocks-1)*blocksz > end[dir] )
-	nrblocks--;
-
-    return nrblocks;
 }
 
 
