@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.6 2004-07-28 12:06:52 kristofer Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.7 2004-08-02 08:54:40 kristofer Exp $";
 
 #include "rowcol.h"
 #include "ptrman.h"
@@ -92,3 +92,23 @@ bool RowCol::isNeighborTo( const RowCol& rc, const RowCol& step,
     return areeightconnected && (diff.row>0+diff.col>0)<2;
 }
 
+
+void RowCol::makeLine( const RowCol& start, const RowCol& stop,
+		       TypeSet<RowCol>& output, const RowCol& step_ )
+{
+    const RowCol step( step_.row<0 ? -step_.row : step_.row,
+	    	       step_.col<0 ? -step_.col : step_.col );
+    output.erase();
+    const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
+
+    RowCol current = start;
+    output += current;
+
+    while ( current!=stop )
+    {
+	const float angle = current.clockwiseAngleTo(stop);
+	const int diridx = mNINT(angle/M_PI_4);
+	current += dirs[diridx] * step;
+	output += current;
+    }
+}

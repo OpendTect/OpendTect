@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.14 2004-06-17 07:48:53 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.15 2004-08-02 08:54:21 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,10 @@ public:
     int		col;
 
     static const TypeSet<RowCol>&	clockWiseSequence();
+    static void				makeLine( const RowCol& start,
+					    const RowCol& stop,
+					    TypeSet<RowCol>& output,
+					    const RowCol& step=RowCol(1,1) );
 private:
 };
 
