@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.13 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.14 2002-05-23 13:30:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,9 @@ ________________________________________________________________________
 
 #include "qstyle.h"
 #include "qcdestyle.h"
+
+
+void myMessageOutput( QtMsgType type, const char *msg );
 
 
 const uiFont* 	uiMain::font_   = 0;
@@ -52,6 +55,8 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
     }
     else
 	themain = this;
+
+    qInstallMsgHandler( myMessageOutput );
 
     if(qap) 
 	app = qap;
@@ -181,4 +186,20 @@ uiSize uiMain::desktopSize()
 {
     QWidget *d = QApplication::desktop();
     return uiSize ( d->width(), d->height(), true ); 
+}
+
+
+void myMessageOutput( QtMsgType type, const char *msg )
+{
+    switch ( type ) {
+	case QtDebugMsg:
+	    ErrMsg( msg, true );
+	    break;
+	case QtWarningMsg:
+	    ErrMsg( msg, true );
+	    break;
+	case QtFatalMsg:
+	    ErrMsg( msg );
+	    break;
+    }
 }

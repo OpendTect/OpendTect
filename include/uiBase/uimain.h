@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.6 2002-04-29 13:24:48 arend Exp $
+ RCS:           $Id: uimain.h,v 1.7 2002-05-23 13:30:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,5 @@ protected:
 			//! necessary for uicMain coin inialisation
     virtual void	init( QWidget* mainwidget )             {}
 };
-
 
 #endif
