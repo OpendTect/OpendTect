@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.7 2002-11-15 08:14:32 kristofer Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.8 2002-11-15 11:40:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class SoSensor;
 class SoFieldSensor;
 class SoGroup;
 class SoTextureCoordinate3;
+class SoDragger;
 
 namespace visBase
 {
@@ -110,11 +111,16 @@ public:
     void		setPosition( float );
 
     void		setTexture( SoTexture3* );
+
+    Notifier<MovableTextureSlice> motion;
 protected:
 				~MovableTextureSlice();
 
     static void			fieldsensorCB( void*, SoSensor* );
     SoFieldSensor*		fieldsensor;
+
+    static void			startCB(void*,SoDragger*);
+    static void			motionCB(void*,SoDragger*);
 
     SoRotation*			rotation;
     SoGroup*			group;

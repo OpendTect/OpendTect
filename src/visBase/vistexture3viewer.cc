@@ -4,10 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.9 2002-11-13 10:38:24 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.10 2002-11-15 11:40:18 nanne Exp $";
 
 
 #include "vistexture3viewer.h"
+#include "visdataman.h"
+#include "visselman.h"
+
 #include "Inventor/nodes/SoRotation.h"
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoFaceSet.h"
@@ -238,6 +241,7 @@ visBase::MovableTextureSlice::MovableTextureSlice()
     , group( new SoGroup )
     , texturecoords( new SoTextureCoordinate3 )
     , dim_( 0 )
+    , motion(this)
 {
     addChild( rotation );
     addChild( dragger );
@@ -246,11 +250,18 @@ visBase::MovableTextureSlice::MovableTextureSlice()
     fieldsensor =
 	new SoFieldSensor( &visBase::MovableTextureSlice::fieldsensorCB, this );
     fieldsensor->attach( &dragger->translation );
+
+    dragger->addStartCallback( visBase::MovableTextureSlice::startCB, this );
+    dragger->addMotionCallback( visBase::MovableTextureSlice::motionCB, this );
 }
 
 
 visBase::MovableTextureSlice::~MovableTextureSlice()
 {
+    dragger->removeStartCallback(
+	    visBase::MovableTextureSlice::startCB, this );
+    dragger->removeMotionCallback( 
+	    visBase::MovableTextureSlice::motionCB, this );
     group->unref();
 }
 
@@ -329,4 +340,16 @@ void visBase::MovableTextureSlice::fieldsensorCB( void* inst, SoSensor* )
 
 }
 
+
+void visBase::MovableTextureSlice::startCB( void* obj, SoDragger* )
+{
+    MovableTextureSlice* myself = (MovableTextureSlice*)obj;
+    visBase::DM().selMan().select( myself->id() );
+}
+
+
+void visBase::MovableTextureSlice::motionCB( void* obj, SoDragger* )
+{
+    ( (visBase::MovableTextureSlice*)obj )->motion.trigger();
+}
 
