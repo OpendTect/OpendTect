@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.11 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.12 2003-12-12 14:47:48 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -22,6 +22,7 @@ DefineEnumNames(DataCharacteristics,UserType,1,"Data storage") {
         "6 - 32 bit unsigned",
         "7 - 32 bit floating point",
         "8 - 64 bit floating point",
+        "9 - 64 bit signed",
 	0 };
 
 // sys/types.h is a bit of a mess, so ...
@@ -32,14 +33,16 @@ typedef unsigned short TU2;
 typedef float TF;
 typedef double TD;
 
-// This may be a problem on windows and 64 bit machines. Fix when appropriate
+// This may be a problem on 64 bit machines. Fix when appropriate
 typedef signed int TS4;
 typedef unsigned int TU4;
+typedef long long TS8;
 
 // But this is fundamental mathematics
 const TS1 cMS1 = 127;
 const TS2 cMS2 = 32767;
 const TS4 cMS4 = 2147483647L;
+const TS8 cMS8 = 9223372036854775807LL;
 const TU1 cMU1 = 255;
 const TU2 cMU2 = 65535;
 const TU4 cMU4 = 4294967295UL;
@@ -79,7 +82,7 @@ void DataCharacteristics::set( const char* s )
 
 
 DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
-	: BinDataDesc( ut<F32, ut>UI32 || (int)ut % 2)
+	: BinDataDesc( ut!=F32 && ut!=F64, ut>UI32 || (int)ut % 2)
 	, fmt(Ieee)
 	, littleendian(__islittle__)
 {
@@ -136,10 +139,6 @@ static void doswap2( void* buf, int bufsz )
     }
 }
 
-void DataInterpreter<float>::swap2( void* b, int s ) const { doswap2(b,s); }
-void DataInterpreter<int>::swap2( void* b, int s ) const { doswap2(b,s); }
-void DataInterpreter<double>::swap2( void* b, int s ) const { doswap2(b,s); }
-
 
 #define mSwapChars2(b1,b2) \
 	c = *( p + idx2 + b1 ); \
@@ -159,10 +158,6 @@ static void doswap4( void* buf, int bufsz )
     }
 }
 
-void DataInterpreter<float>::swap4( void* b, int s ) const { doswap4(b,s); }
-void DataInterpreter<int>::swap4( void* b, int s ) const { doswap4(b,s); }
-void DataInterpreter<double>::swap4( void* b, int s ) const { doswap4(b,s); }
-
 
 static void doswap8( void* buf, int bufsz )
 {
@@ -178,9 +173,14 @@ static void doswap8( void* buf, int bufsz )
 	idx2 += 8;
     }
 }
-void DataInterpreter<float>::swap8( void* b, int s ) const { doswap8(b,s); }
-void DataInterpreter<int>::swap8( void* b, int s ) const { doswap8(b,s); }
-void DataInterpreter<double>::swap8( void* b, int s ) const { doswap8(b,s); }
+
+#define mDefSwapFn(typ,N) \
+void DataInterpreter<typ>::swap##N( void* b, int s ) const { doswap##N(b,s); }
+
+mDefSwapFn(float,2) mDefSwapFn(float,4) mDefSwapFn(float,8)
+mDefSwapFn(int,2) mDefSwapFn(int,4) mDefSwapFn(int,8)
+mDefSwapFn(double,2) mDefSwapFn(double,4) mDefSwapFn(double,8)
+mDefSwapFn(long long,2) mDefSwapFn(long long,4) mDefSwapFn(long long,8)
 
 
 #define mDefDIG(rettyp,typ) \
@@ -190,6 +190,7 @@ rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int nr ) const \
 mDefDIG(float,S1)
 mDefDIG(float,S2)
 mDefDIG(float,S4)
+mDefDIG(float,S8)
 mDefDIG(float,U1)
 mDefDIG(float,U2)
 mDefDIG(float,U4)
@@ -198,6 +199,7 @@ mDefDIG(float,D)
 mDefDIG(double,S1)
 mDefDIG(double,S2)
 mDefDIG(double,S4)
+mDefDIG(double,S8)
 mDefDIG(double,U1)
 mDefDIG(double,U2)
 mDefDIG(double,U4)
@@ -209,13 +211,22 @@ mDefDIG(int,S4)
 mDefDIG(int,U1)
 mDefDIG(int,U2)
 mDefDIG(int,U4)
+mDefDIG(long long,S1)
+mDefDIG(long long,S2)
+mDefDIG(long long,S4)
+mDefDIG(long long,S8)
+mDefDIG(long long,U1)
+mDefDIG(long long,U2)
+mDefDIG(long long,U4)
 
 #define mDefDIGF2I(rettyp,typ) \
 rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int nr ) const \
 { T##typ t = *(((T##typ*)buf) + nr); return (rettyp)(t > 0 ? t+.5:t-.5); }
 
-mDefDIG(int,F)
-mDefDIG(int,D)
+mDefDIGF2I(int,F)
+mDefDIGF2I(int,D)
+mDefDIGF2I(long long,F)
+mDefDIGF2I(long long,D)
 
 
 #define mDefDIGswp(rettyp,typ) \
@@ -228,12 +239,14 @@ rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
 
 mDefDIGswp(float,S2)
 mDefDIGswp(float,S4)
+mDefDIGswp(float,S8)
 mDefDIGswp(float,U2)
 mDefDIGswp(float,U4)
 mDefDIGswp(float,F)
 mDefDIGswp(float,D)
 mDefDIGswp(double,S2)
 mDefDIGswp(double,S4)
+mDefDIGswp(double,S8)
 mDefDIGswp(double,U2)
 mDefDIGswp(double,U4)
 mDefDIGswp(double,F)
@@ -253,6 +266,8 @@ rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
 }
 mDefDIGF2Iswp(int,F)
 mDefDIGF2Iswp(int,D)
+mDefDIGF2Iswp(long long,F)
+mDefDIGF2Iswp(long long,D)
 
 
 #define mDefDIPS(inptyp,typ) \
@@ -265,9 +280,11 @@ void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 mDefDIPS(float,S1)
 mDefDIPS(float,S2)
 mDefDIPS(float,S4)
+mDefDIPS(float,S8)
 mDefDIPS(double,S1)
 mDefDIPS(double,S2)
 mDefDIPS(double,S4)
+mDefDIPS(double,S8)
 
 #define mDefDIPIS(inptyp,typ) \
 void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
@@ -283,6 +300,11 @@ void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 mDefDIPISc(int,S1)
 mDefDIPISc(int,S2)
 mDefDIPIS(int,S4)
+mDefDIPIS(int,S8)
+mDefDIPISc(long long,S1)
+mDefDIPISc(long long,S2)
+mDefDIPISc(long long,S4)
+mDefDIPIS(long long,S8)
 
 
 #define mDefDIPU(inptyp,typ) \
@@ -311,6 +333,9 @@ void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 mDefDIPIUc(int,U1)
 mDefDIPIUc(int,U2)
 mDefDIPIU(int,U4)
+mDefDIPIUc(long long,U1)
+mDefDIPIUc(long long,U2)
+mDefDIPIUc(long long,U4)
 
 
 #define mDefDIPF(inptyp,typ) \
@@ -323,6 +348,8 @@ mDefDIPF(double,F)
 mDefDIPF(double,D)
 mDefDIPF(int,F)
 mDefDIPF(int,D)
+mDefDIPF(long long,F)
+mDefDIPF(long long,D)
 
 
 #define mDefDIPSswp(inptyp,typ) \
@@ -335,8 +362,10 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 
 mDefDIPSswp(float,S2)
 mDefDIPSswp(float,S4)
+mDefDIPSswp(float,S8)
 mDefDIPSswp(double,S2)
 mDefDIPSswp(double,S4)
+mDefDIPSswp(double,S8)
 
 #define mDefDIPISswp(inptyp,typ) \
 void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
@@ -355,6 +384,7 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 
 mDefDIPIScswp(int,S2)
 mDefDIPISswp(int,S4)
+mDefDIPISswp(int,S8)
 
 
 #define mDefDIPUswp(inptyp,typ) \
@@ -401,6 +431,8 @@ mDefDIPFswp(double,F)
 mDefDIPFswp(double,D)
 mDefDIPFswp(int,F)
 mDefDIPFswp(int,D)
+mDefDIPFswp(long long,F)
+mDefDIPFswp(long long,D)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
@@ -424,6 +456,9 @@ mDefDIGIbm(double,F,Float)
 mDefDIGIbm(int,S2,Short)
 mDefDIGIbm(int,S4,Int)
 mDefDIGIbm(int,F,Float)
+mDefDIGIbm(long long,S2,Short)
+mDefDIGIbm(long long,S4,Int)
+mDefDIGIbm(long long,F,Float)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
@@ -443,6 +478,9 @@ mDefDIGIbmswp(double,F,Float)
 mDefDIGIbmswp(int,S2,Short)
 mDefDIGIbmswp(int,S4,Int)
 mDefDIGIbmswp(int,F,Float)
+mDefDIGIbmswp(long long,S2,Short)
+mDefDIGIbmswp(long long,S4,Int)
+mDefDIGIbmswp(long long,F,Float)
 
 
 #define mDefDIPSIbm(inptyp,typ,fntyp) \
@@ -458,6 +496,8 @@ mDefDIPSIbm(double,S2,Short)
 mDefDIPSIbm(double,S4,Int)
 mDefDIPSIbm(int,S2,Short)
 mDefDIPSIbm(int,S4,Int)
+mDefDIPSIbm(long long,S2,Short)
+mDefDIPSIbm(long long,S4,Int)
 
 
 #define mDefDIPFIbm(inptyp,typ,fntyp) \
@@ -467,6 +507,7 @@ void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,int nr,inptyp f) const \
 mDefDIPFIbm(float,F,Float)
 mDefDIPFIbm(double,F,Float)
 mDefDIPFIbm(int,F,Float)
+mDefDIPFIbm(long long,F,Float)
 
 
 #define mDefDIPSIbmswp(inptyp,typ,fntyp) \
@@ -483,6 +524,8 @@ mDefDIPSIbmswp(double,S2,Short)
 mDefDIPSIbmswp(double,S4,Int)
 mDefDIPSIbmswp(int,S2,Short)
 mDefDIPSIbmswp(int,S4,Int)
+mDefDIPSIbmswp(long long,S2,Short)
+mDefDIPSIbmswp(long long,S4,Int)
 
 
 #define mDefDIPFIbmswp(inptyp,typ,fntyp) \
@@ -495,6 +538,7 @@ const { \
 mDefDIPFIbmswp(float,F,Float)
 mDefDIPFIbmswp(double,F,Float)
 mDefDIPFIbmswp(int,F,Float)
+mDefDIPFIbmswp(long long,F,Float)
 
 
 #define mTheType float

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.8 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: datachar.h,v 1.9 2003-12-12 14:47:48 bert Exp $
 ________________________________________________________________________
 
 */
@@ -73,6 +73,7 @@ public:
 			mDeclConstr(unsigned int,true,false)
 			mDeclConstr(float,false,true)
 			mDeclConstr(double,false,true)
+			mDeclConstr(long long,true,true)
 
     bool		operator ==( const DataCharacteristics& dc ) const
 			{ return isEqual(dc); }
@@ -85,7 +86,8 @@ public:
 			{ return (int)nrbytes > 1
 			      && littleendian != __islittle__; }
 
-    enum UserType	{ Auto=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64 };
+    enum UserType	{ Auto=0, SI8, UI8, SI16, UI16, SI32, UI32, F32,
+			  F64, SI64 };
 			DeclareEnumUtils(UserType)
 			DataCharacteristics(UserType);
 

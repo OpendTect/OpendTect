@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.6 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: datainterp.h,v 1.7 2003-12-12 14:47:48 bert Exp $
 ________________________________________________________________________
 
 */
@@ -22,8 +22,8 @@ class DataCharacteristics;
 
 Efficient (one function call overhead) get and set of data, usually in a data
 buffer. Facility to swap bytes in advance. The interpretation is into/from
-the template parameter. At present, only float, double and int are supported
-and instantiated.
+the template parameter. At present, float, double, int and long long
+are supported and instantiated.
 
 */
 
@@ -74,7 +74,6 @@ protected:
     T			getU1(const void*,int) const;
     T			getU2(const void*,int) const;
     T			getU4(const void*,int) const;
-    T			getU8(const void*,int) const;
     T			getF(const void*,int) const;
     T			getD(const void*,int) const;
 
@@ -87,7 +86,6 @@ protected:
     T			getS8swp(const void*,int) const;
     T			getU2swp(const void*,int) const;
     T			getU4swp(const void*,int) const;
-    T			getU8swp(const void*,int) const;
     T			getFswp(const void*,int) const;
     T			getDswp(const void*,int) const;
 
@@ -102,7 +100,6 @@ protected:
     void		putU1(void*,int,T) const;
     void		putU2(void*,int,T) const;
     void		putU4(void*,int,T) const;
-    void		putU8(void*,int,T) const;
     void		putF(void*,int,T) const;
     void		putD(void*,int,T) const;
 
@@ -115,7 +112,6 @@ protected:
     void		putS8swp(void*,int,T) const;
     void		putU2swp(void*,int,T) const;
     void		putU4swp(void*,int,T) const;
-    void		putU8swp(void*,int,T) const;
     void		putFswp(void*,int,T) const;
     void		putDswp(void*,int,T) const;
 
