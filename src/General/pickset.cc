@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.2 2001-05-14 13:57:54 bert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.3 2001-05-24 15:40:17 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -36,6 +36,14 @@ bool PickLocation::fromString( const char* s )
 }
 
 
+void PickLocation::toString( char* str )
+{
+			strcpy( str, getStringFromDouble(0,pos.x) );
+    strcat( str, " " ); strcat( str, getStringFromDouble(0,pos.y) );
+    strcat( str, " " ); strcat( str, getStringFromFloat(0,z) );
+}
+
+
 void PickSet::add( PickGroup*& grp )
 {
     if ( !grp ) return;
@@ -45,12 +53,13 @@ void PickSet::add( PickGroup*& grp )
     const int nrgrps = groups.size();
     int mrgnr = -1;
     for ( int idx=0; idx<nrgrps; idx++ )
-	if ( mIS_ZERO(grp->val - groups[idx]->val) )
+	if ( grp->userref == groups[idx]->userref )
 	    { mrgnr = idx; break; }
     if ( mrgnr < 0 ) { groups += grp; return; }
 
     PickGroup& mrggrp = *grp;
     grp = groups[mrgnr];
+    grp->val = mrggrp.val;
 
     for ( int idx=0; idx<grpsz; idx++ )
     {
@@ -104,6 +113,7 @@ const char* dgbPickSetTranslator::read( PickSet& ps, Conn& conn )
     do
     {
 	PickGroup* newpg = new PickGroup( astrm.getValue() );
+	astrm.next(); newpg->userref = astrm.value();
 	PickLocation loc;
 	while ( !atEndOfSection(astrm.next()) )
 	{
@@ -127,5 +137,30 @@ const char* dgbPickSetTranslator::write( const PickSet& ps, Conn& conn )
     if ( !conn.forWrite() || !conn.hasClass(StreamConn::classid) )
 	return "Internal error: bad connection";
 
-    return "Pick Set write not implemented yet";
+    ascostream astrm( ((StreamConn&)conn).oStream() );
+    astrm.putHeader( PickSetTranslator::classdef.name() );
+    ostream& strm = astrm.stream();
+    if ( !strm.good() )
+	return "Cannot write to output Pick Set file";
+
+    astrm.put( "Name", ps.name() );
+    astrm.newParagraph();
+
+    for ( int igrp=0; igrp<ps.nrGroups(); igrp++ )
+    {
+	const PickGroup& pg = *ps.get( igrp );
+	astrm.put( "Value", pg.val );
+	astrm.put( "Ref", pg.userref );
+	char buf[80];
+	for ( int iloc=0; iloc<pg.size(); iloc++ )
+	{
+	    pg[iloc].toString( buf );
+	    strm << buf << '\n';
+	}
+	astrm.newParagraph();
+	if ( !strm.good() )
+	    return "Error during write to output Pick Set file";
+    }
+
+    return 0;
 }
