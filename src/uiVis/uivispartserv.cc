@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.99 2002-11-01 16:18:26 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.100 2002-11-13 10:43:33 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "viscolortab.h"
 #include "visrectangle.h"
 #include "vistexturerect.h"
+#include "vistexture3viewer.h"
 #include "visobject.h"
 #include "uiexecutor.h"
 #include "emmanager.h"
@@ -183,6 +184,18 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	    sd->setZValues();
     }
 
+    TypeSet<int> volids;
+    visBase::DM().getIds( typeid(visSurvey::VolumeDisplay), volids );
+    for ( int idx=0; idx<volids.size(); idx++ )
+    {
+	visSurvey::VolumeDisplay* vd =
+	    (visSurvey::VolumeDisplay*)visBase::DM().getObj( volids[idx] );
+	volumes += vd;
+	vd->moved.notify( mCB(this,uiVisPartServer,getDataCB));
+	vd->slicemoving.notify( mCB(this,uiVisPartServer,manipMoveCB) );
+	getDataCB( vd );
+    }
+
     float appvel;
     if ( par.get( appvelstr, appvel ) )
 	visSurvey::SPM().setAppVel( appvel );
@@ -287,8 +300,6 @@ void uiVisPartServer::setViewMode(bool yn)
     if ( pdd ) pdd->showDraggers(!yn);
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
     if ( vd ) vd->showBox( !yn );
-    mDynamicCastGet(visBase::Rectangle*,rect,obj)
-    if ( rect ) rect->displayDraggers( !yn );
 }
 
 
@@ -371,6 +382,8 @@ void uiVisPartServer::setSelObjectId( int id )
 	visBase::DataObject* obj = visBase::DM().getObj( getSelObjectId() );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
 	if ( pdd ) pdd->showDraggers(true);
+	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
+	if ( vd ) vd->showBox( true );
     }
 }
 
@@ -550,17 +563,9 @@ float uiVisPartServer::getPlanePos( int id ) const
 	    pdd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y
 	    							   : geompos.z;
     }
-    mDynamicCastGet(visBase::Rectangle*,rect,obj)
-    if ( rect )
-    {
-	Coord3 geompos = rect->manipOrigo();
-	if ( rect->orientation() == visBase::Rectangle::XY )
-	    return (float)(int(1000*geompos.z)) / 1000;
-	else if ( rect->orientation() == visBase::Rectangle::XZ )
-	    return (float)(int(geompos.y));
-	else if ( rect->orientation() == visBase::Rectangle::YZ )
-	    return (float)(int(geompos.x));
-    }
+    mDynamicCastGet(visBase::MovableTextureSlice*,ts,obj)
+    if ( ts )
+	return ts->position();
 
     return 0;
 }
@@ -673,7 +678,7 @@ int uiVisPartServer::addVolumeDisplay()
 
     visSurvey::VolumeDisplay* vd = visSurvey::VolumeDisplay::create();
     vd->moved.notify( mCB(this,uiVisPartServer,getDataCB));
-    vd->rectmoving.notify( mCB(this,uiVisPartServer,manipMoveCB) );
+    vd->slicemoving.notify( mCB(this,uiVisPartServer,manipMoveCB) );
     volumes += vd;
     scene->addInlCrlTObject( vd );
     setSelObjectId( vd->id() );
@@ -738,12 +743,12 @@ void uiVisPartServer::getVolumePlaneIds( int id, int& inl, int& crl, int& tsl )
 }
 
 
-float uiVisPartServer::getVolumePlanePos( int id, int dim ) const
+float uiVisPartServer::getVolumePlanePos( int volid, int sliceid ) const
 {
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    visBase::DataObject* dobj = visBase::DM().getObj( volid );
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
-    if ( vd ) return vd->getPlanePos( dim );
-    return 0;
+    if ( vd ) return vd->getPlanePos( sliceid );
+    else return 0;
 }
 
 
@@ -1553,8 +1558,6 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 	visBase::DataObject* obj = visBase::DM().getObj( sel );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
 	if ( pdd ) pdd->showDraggers( true );
-	mDynamicCastGet(visBase::Rectangle*,rect,obj)
-	if ( rect ) rect->displayDraggers( true );
 	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
 	if ( vd ) vd->showBox( true );
     }
@@ -1573,8 +1576,6 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 	visBase::DataObject* obj = visBase::DM().getObj( oldsel );
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
 	if ( pdd ) pdd->showDraggers( false );
-	mDynamicCastGet(visBase::Rectangle*,rect,obj)
-	if ( rect ) rect->displayDraggers( false );
 	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
 	if ( vd ) vd->showBox( false );
     }

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.8 2002-11-12 12:31:05 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.9 2002-11-13 10:38:24 nanne Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -40,10 +40,6 @@ visBase::Texture3Viewer::~Texture3Viewer()
 }
 
 
-int visBase::Texture3Viewer::getNrObjects() const
-{ return textureobjects.size(); }
-
-
 int visBase::Texture3Viewer::addSlice( int dim, float origpos )
 {
     MovableTextureSlice* slice = MovableTextureSlice::create();
@@ -55,6 +51,25 @@ int visBase::Texture3Viewer::addSlice( int dim, float origpos )
     addChild( slice->getData() );
     return slice->id();
 } 
+
+
+float visBase::Texture3Viewer::slicePosition( int idnumber )
+{
+    for ( int idx=0; idx<textureobjects.size(); idx++ )
+    {
+	if ( !textureobjects[idx] ) continue;
+	if ( textureobjects[idx]->id()!=idnumber ) continue;
+
+	return textureobjects[idx]->position();
+    }
+
+    return 0;
+}
+
+
+int visBase::Texture3Viewer::getNrObjects() const
+{ return textureobjects.size(); }
+
 
 void visBase::Texture3Viewer::removeObject( int idnumber )
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.8 2002-11-08 16:37:19 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.9 2002-11-13 10:42:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
-const char* visSurvey::VolumeDisplay::volumestr = "Volume box";
+const char* visSurvey::VolumeDisplay::volumestr = "Volume dragger";
 
 visSurvey::VolumeDisplay::VolumeDisplay()
     : VisualObject(true)
@@ -39,7 +39,7 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     , prevcs(*new CubeSampling)
     , moved(this)
     , manipulated(false)
-    , rectmoving(this)
+    , slicemoving(this)
 {
     cube->ref();
     selection()->notify( mCB(this,VolumeDisplay,select));
@@ -59,9 +59,9 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     setCubeSampling( prevcs );
 
     cube->showBox( true );
-    int inlid = cube->addSlice( 0, prevcs.hrg.start.inl );
-    int crlid = cube->addSlice( 1, prevcs.hrg.start.crl );
-    int tslid = cube->addSlice( 2, prevcs.zrg.start );
+    inlid = cube->addSlice( 0 );
+    crlid = cube->addSlice( 1 );
+    tslid = cube->addSlice( 2 );
 }
 
 
@@ -104,15 +104,15 @@ void visSurvey::VolumeDisplay::resetManip()
 
 void visSurvey::VolumeDisplay::getPlaneIds( int& id0, int& id1, int& id2 )
 {
-    id0 = 0;
-    id1 = 1;
-    id2 = 2;
+    id0 = inlid;
+    id1 = crlid;
+    id2 = tslid;
 }
 
 
-float visSurvey::VolumeDisplay::getPlanePos( int dim )
+float visSurvey::VolumeDisplay::getPlanePos( int id )
 {
-    return 0; //cube->slicePos( dim );
+    return cube->slicePosition( id );
 }
 
 
@@ -135,8 +135,8 @@ void visSurvey::VolumeDisplay::setAttribSelSpec( AttribSelSpec& as_ )
 
 CubeSampling& visSurvey::VolumeDisplay::getCubeSampling()
 {
-    Coord3 center_ = center();
-    Coord3 width_ = width();
+    Coord3 center_ = cube->draggerCenter();
+    Coord3 width_ = cube->draggerWidth();
 
     CubeSampling* cs = new CubeSampling;
     cs->hrg.start = BinID( mNINT( center_.x - width_.x / 2 ),
@@ -164,11 +164,6 @@ void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 			  (cs.hrg.stop.crl + cs.hrg.start.crl) / 2,
 			  (cs.zrg.stop + cs.zrg.start) / 2 );
     setCenter( center );
-    /*
-    cube->setSlicePos( 0, cs.hrg.start.inl );
-    cube->setSlicePos( 1, cs.hrg.start.inl );
-    cube->setSlicePos( 2, cs.zrg.start );
-    */
 }
 
 
@@ -187,16 +182,23 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 
 AttribSliceSet* visSurvey::VolumeDisplay::getPrevData()
 {
-    return 0;
+    ObjectSet< const Array2D<float> >& data = cube->get3DData();
+    AttribSliceSet* sliceset = new AttribSliceSet;
+    for ( int idx=0; idx<data.size(); idx++ )
+	(*sliceset) += (AttribSlice*)data[idx];
+
+    sliceset->direction = (AttribSlice::Dir)cube->dataDirection();
+    sliceset->sampling = prevcs;
+    return sliceset->size() ? sliceset : 0;
 }
 
 
 void visSurvey::VolumeDisplay::turnOn( bool yn ) 
-{ cube->showBox( yn ); }
+{ cube->turnOn( yn ); }
 
 
 bool visSurvey::VolumeDisplay::isOn() const 
-{ return cube->isBoxShown(); }
+{ return cube->isOn(); }
 
 
 void visSurvey::VolumeDisplay::select()
@@ -213,13 +215,7 @@ void visSurvey::VolumeDisplay::deSelect()
 
     
     if ( manipulated )
-    {
-	Coord3 boxw = cube->draggerWidth();
-	Coord3 boxc = cube->draggerCenter();
-	cube->setWidth( boxw );
-	cube->setCenter( boxc );
 	updateAtNewPos();
-    }
 }
 
 
@@ -243,19 +239,12 @@ void visSurvey::VolumeDisplay::manipFinished( CallBacker* )
     cs.zrg.stop = (float)intv.stop;
     
     setCubeSampling( cs );
+    cube->resetDragger();
 }
 
 
 void visSurvey::VolumeDisplay::manipInMotion( CallBacker* )
 {
-    CubeSampling cs = getCubeSampling();
-//  cube->initPlanes( cs );    
-}
-
-
-void visSurvey::VolumeDisplay::rectInMotion( CallBacker* )
-{
-    rectmoving.trigger();
 }
 
 
@@ -345,6 +334,3 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
 
     return 1;
 }
-    
-
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.6 2002-10-30 15:30:16 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.7 2002-11-13 10:42:20 nanne Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,7 @@ public:
     virtual int			usePar( const IOPar& );
 
     Notifier<VolumeDisplay>	moved;
-    Notifier<VolumeDisplay>	rectmoving;
+    Notifier<VolumeDisplay>	slicemoving;
 
 
 protected:
@@ -95,7 +95,6 @@ protected:
     void			deSelect();
     void			manipFinished(CallBacker*);
     void			manipInMotion(CallBacker*);
-    void			rectInMotion(CallBacker*);
 
     visBase::CubeView*		cube;
 
@@ -105,6 +104,10 @@ protected:
     bool			selected_;
     bool			succeeded_;
     bool			manipulated;
+
+    int				inlid;
+    int				crlid;
+    int				tslid;
 
     static const char*		volumestr;
 };
