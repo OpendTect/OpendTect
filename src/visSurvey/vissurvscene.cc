@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.58 2004-09-13 08:07:41 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.59 2004-09-14 12:19:48 kristofer Exp $";
 
 #include "vissurvscene.h"
 
@@ -43,7 +43,6 @@ Scene::Scene()
     : inlcrl2displtransform( SPM().getInlCrl2DisplayTransform() )
     , zscaletransform( SPM().getZScaleTransform() )
     , annot(0)
-    , eventcatcher(0)
     , mouseposchange(this)
     , mouseposval(0)
 {
@@ -54,10 +53,9 @@ Scene::Scene()
 
 Scene::~Scene()
 {
-    eventcatcher->eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
+    events.eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
     removeObject( getFirstIdx(inlcrl2displtransform) );
     removeObject( getFirstIdx(zscaletransform) );
-    removeObject( getFirstIdx(eventcatcher) );
     removeObject( getFirstIdx(annot) );
 }
 
@@ -98,7 +96,7 @@ void Scene::addUTMObject( visBase::VisualObject* obj )
 
 void Scene::addInlCrlTObject( visBase::DataObject* obj )
 {
-    visBase::DataObjectGroup::addObject( obj );
+    visBase::Scene::addObject( obj );
 }
 
 
@@ -231,7 +229,6 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int Scene::usePar( const IOPar& par )
 {
-    eventcatcher->eventhappened.remove( mCB( this, Scene, mouseMoveCB ));
     removeAll();
     setup();
 
@@ -355,10 +352,7 @@ void Scene::setup()
 {
     setAmbientLight( 1 );
 
-    eventcatcher = visBase::EventCatcher::create();
-    visBase::DataObjectGroup::addObject( eventcatcher );
-    eventcatcher->setEventType( visBase::MouseMovement );
-    eventcatcher->eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
+    events.eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
 
     visBase::DataObjectGroup::addObject(
 	    	const_cast<visBase::Transformation*>(zscaletransform));

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.29 2004-01-05 09:45:08 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.30 2004-09-14 12:19:48 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -105,7 +105,6 @@ protected:
     const visBase::Transformation*	inlcrl2displtransform;
 
     visBase::Annotation*		annot;
-    visBase::EventCatcher*		eventcatcher;
 
     Coord3			xytmousepos;
     float			mouseposval;
