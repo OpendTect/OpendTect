@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.4 2002-04-24 08:23:01 kristofer Exp $
+ RCS:		$Id: dataclipper.h,v 1.5 2003-06-06 14:08:34 nanne Exp $
 ________________________________________________________________________
 
 
@@ -34,13 +34,17 @@ Step 2-4 can be repeted any number of times.
 class DataClipper
 {
 public:
-    				DataClipper( float cliprate );
-				/*!< cliprate is between 0 and 0.5 */
-    void			setClipRate( float ncr ) { cliprate=ncr; }	
-				/*!< cliprate is between 0 and 0.5 */
-    float			clipRate() const { return cliprate; }
-				/*!< cliprate is between 0 and 0.5 */
+    				DataClipper(float cliprate,float cliprate1=-1 );
+				/*!< cliprate is between 0 and 0.5,
+				     cliprate0 is the bottom cliprate,
+				     cliprate1 is the top cliprate, when
+				     cliprate1 is -1, it will get the value of
+				     cliprate0 */
 
+    void			setClipRate(float cr0,float cr1=-1);
+    float			clipRate(bool bottom=true) const
+				{ return bottom ? cliprate0 : cliprate1; }
+	
     void			setApproxNrValues(int nrsamples,
 						  int statsize=2000);
     				/*!< Will make it faster if large amount
@@ -64,7 +68,8 @@ protected:
     int				approxstatsize;
     float			sampleprob;
     bool			subselect;
-    float			cliprate;
+    float			cliprate0;
+    float			cliprate1;
     TypeSet<float>		samples;
     Interval<float>		range;
 };

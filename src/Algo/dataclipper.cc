@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.7 2002-08-27 19:40:47 nanne Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.8 2003-06-06 14:08:24 nanne Exp $";
 
 
 #include "dataclipper.h"
@@ -12,14 +12,25 @@ static const char* rcsID = "$Id: dataclipper.cc,v 1.7 2002-08-27 19:40:47 nanne 
 #include "sorting.h"
 
 
-DataClipper::DataClipper( float ncr )
+DataClipper::DataClipper( float cr0, float cr1 )
     : sampleprob( 1 )
     , subselect( false )
-    , cliprate( ncr )
+    , cliprate0( cr0 )
+    , cliprate1( cr1 )
     , approxstatsize( 2000 )
 {
+    if ( cliprate1 < 0 )
+	cliprate1 = cliprate0;
+
     Stat_initRandom( 0 );
 } 
+
+
+void DataClipper::setClipRate( float cr0, float cr1 )
+{
+    cliprate0 = cr0;
+    cliprate1 = cr1 < 0 ? cr0 : cr1;
+}
 
 
 void DataClipper::setApproxNrValues( int n, int statsz )
@@ -91,8 +102,9 @@ void DataClipper::calculateRange()
     int nrvals = samples.size();
     if ( !nrvals ) return;
 
-    int firstidx = mNINT(cliprate*nrvals);
-    int lastidx = nrvals-firstidx-1;
+    int firstidx = mNINT(cliprate0*nrvals);
+    int topnr = mNINT(cliprate1*nrvals);
+    int lastidx = nrvals-topnr-1;
 
     sortFor( samples.arr(), nrvals, firstidx );
     range.start = samples[firstidx];
