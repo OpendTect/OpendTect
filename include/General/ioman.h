@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.13 2003-03-02 14:23:05 bert Exp $
+ RCS:		$Id: ioman.h,v 1.14 2003-03-27 12:49:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ public:
     bool		hasAux(const MultiID&) const;
     bool		removeAux(const MultiID&) const;
 
+    const char*		surveyName() const;
     static bool		newSurvey();
 			/*!< if an external source has changed
 				the $HOME/.dgbSurvey, force re-read it. */

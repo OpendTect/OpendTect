@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.14 2002-11-27 16:21:04 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.15 2003-03-27 12:49:59 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -46,18 +46,16 @@ void SetSurveyNameDirty()
 
 void SetDgbApplicationCode( int newnr )
 {
-    if ( dgb_application_code == newnr ) return;
-
     dgb_application_code = newnr;
-    surveynamedirty = 1;
 }
 
 
 const char* GetSoftwareDir()
 {
-    const char* dir = dgb_application_code == mDgbApplCodeDTECT
-		    ? getenv( "dTECT_APPL" ) : 0;
-    if ( !dir ) dir = getenv( "dGB_APPL" );
+    const char* dir = getenv( "dGB_APPL" );
+    if ( !dir )
+	dir = dgb_application_code == mDgbApplCodeDTECT ?
+		    getenv( "dTECT_APPL" ) : getenv( "GDI_APPL" );
     return dir;
 }
 
@@ -73,9 +71,10 @@ const char* GetDataFileName( const char* fname )
 
 const char* GetSoftwareUser()
 {
-    const char* ptr = dgb_application_code == mDgbApplCodeDTECT
-		    ? getenv( "dTECT_USER" ) : 0;
-    if ( !ptr ) ptr = getenv( "dGB_USER" );
+    const char* ptr = getenv( "dGB_USER" );
+    if ( !ptr )
+	ptr = dgb_application_code == mDgbApplCodeDTECT ?
+	    	getenv( "dTECT_USER" ) : getenv( "GDI_USER" );
     return ptr;
 }
 
@@ -154,10 +153,11 @@ const char* GetSurveyName()
 
 const char* GetBaseDataDir()
 {
-    const char* ptr = dgb_application_code == mDgbApplCodeDTECT
-		    ? getenv( "dTECT_DATA" ) : 0;
-    if ( !ptr ) ptr = getenv( "dGB_DATA" );
-    return ptr;
+    const char* dir = getenv( "dGB_DATA" );
+    if ( !dir )
+	dir = dgb_application_code == mDgbApplCodeDTECT ?
+		    getenv( "dTECT_DATA" ) : getenv( "GDI_DATA" );
+    return dir;
 }
 
 

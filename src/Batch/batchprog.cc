@@ -5,10 +5,11 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.34 2003-03-06 15:06:31 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.35 2003-03-27 12:49:59 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
+#include "ioman.h"
 #include "strmprov.h"
 #include "strmdata.h"
 #include "filegen.h"
@@ -141,6 +142,17 @@ BatchProgram::BatchProgram( int* pac, char** av )
     const char* res = iopar_->find( "Log file" );
     if ( !res )
 	iopar_->set( "Log file", StreamProvider::sStdErr );
+    res = iopar_->find( "Survey" );
+    if ( !res || !strcmp(res,IOM().surveyName()) )
+	IOMan::newSurvey();
+    else
+    {
+#ifdef __debug__
+	std::cerr << "Using survey: " << res << " instead of "
+	    	  << IOM().surveyName() << endl;
+#endif
+	IOMan::setSurvey( res );
+    }
 
     killNotify( true );
 

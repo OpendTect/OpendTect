@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.31 2003-03-02 14:23:05 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.32 2003-03-27 12:49:59 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: ioman.cc,v 1.31 2003-03-02 14:23:05 bert Exp $"
 IOMan*	IOMan::theinst_	= 0;
 void	IOMan::stop()	{ delete theinst_; theinst_ = 0; }
 extern "C" void SetSurveyName(const char*);
+extern "C" const char* GetSurveyName();
 extern "C" void SetSurveyNameDirty();
 extern "C" const char* GetBaseDataDir();
 
@@ -51,6 +52,12 @@ void IOMan::setSurvey( const char* survname )
     IOMan::theinst_ = 0;
     clearSelHists();
     SetSurveyName( survname );
+}
+
+
+const char* IOMan::surveyName() const
+{
+    return GetSurveyName();
 }
 
 
