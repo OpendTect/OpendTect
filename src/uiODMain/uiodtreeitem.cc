@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.57 2004-11-09 10:06:08 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.58 2004-11-11 13:08:58 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1504,6 +1504,7 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
     if ( positiondlg->uiResult() && !samepos )
     {
 	pdd->setCubeSampling( newcs );
+	pdd->resetManipulation();
 	visserv->calculateAttrib( displayid, false );
 	visserv->calculateColorAttrib( displayid, false );
 	updateColumnText(0);
@@ -1522,6 +1523,7 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 
     CubeSampling cs = dlg->getCubeSampling();
     pdd->setCubeSampling( cs );
+    pdd->resetManipulation();
     visserv->calculateAttrib( displayid, false );
     visserv->calculateColorAttrib( displayid, false );
 }
