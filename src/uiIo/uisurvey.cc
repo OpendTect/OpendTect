@@ -4,18 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.38 2003-09-26 16:24:49 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.39 2003-10-03 11:01:31 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvey.h"
-#include "dirlist.h"
-#include "filegen.h"
-#include "genc.h"
-#include "ioman.h"
 #include "survinfoimpl.h"
-#include "tuthandle.h"
 #include "uibutton.h"
 #include "uicanvas.h"
 #include "uiconvpos.h"
@@ -31,6 +26,11 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "iodrawtool.h"
 #include "strmprov.h"
+#include "dirlist.h"
+#include "ioman.h"
+#include "ctxtioobj.h"
+#include "filegen.h"
+#include "iostrm.h"
 
 #include <math.h>
 #include <fstream>
@@ -39,6 +39,65 @@ extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" const char* GetBaseDataDir();
 extern "C" void SetSurveyName(const char*);
+
+
+class TutHandling
+{
+public:
+
+static bool copy()
+{
+    BufferString from = GetDataFileName( "Tutorial" );
+    if ( !File_exists(from) )
+    {
+        uiMSG().error( "Tutorial not installed" );
+        return false;
+    }
+
+    BufferString to( GetBaseDataDir() );
+    to = File_getFullPath( to, "Tutorial" );
+    if ( File_exists(to) )
+    {
+        uiMSG().error( "A survey 'Tutorial' already exists.\n"
+                        "Please rename or remove.");
+        return false;
+    }
+
+    if ( !File_copy( from, to, YES ) )
+    {
+        uiMSG().error( "Cannot create new survey directory for Tutorial" );
+        return false;
+    }
+
+    File_makeWritable( to, YES, YES );
+
+    return true;
+}
+
+
+static void fill()
+{
+    BufferString dirnm = File_getFullPath(GetBaseDataDir(),"Tutorial");
+    dirnm = File_getFullPath( dirnm, "Seismics" );
+    IOM().setRootDir( dirnm );
+    IOM().to( IOObjContext::StdSelTypeNames[0] );
+    IOObj* ioobj = IOM().get( "100010.2" );
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( !ioobj || !iostrm )
+    {
+	BufferString errmsg = "Original Tutorial survey is corrupt!";
+	uiMSG().error( errmsg );
+	return;
+    }
+
+    BufferString fname( iostrm->fileName() );
+    fname = GetDataFileName( fname );
+    iostrm->setFileName( fname );
+    IOM().commitChanges( *iostrm );
+}
+
+};
+
 
 uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 	: uiDialog(p,uiDialog::Setup("Survey selection",
@@ -273,11 +332,10 @@ void uiSurvey::convButPushed( CallBacker* )
 
 void uiSurvey::tutButPushed( CallBacker* )
 {
-    TutHandling tuthl;
-    if ( !tuthl.copyTut() ) return;
-
+    if ( !TutHandling::copy() )
+	return;
     updateSvyList();
-    tuthl.fillTut();
+    TutHandling::fill();
 
     rmbut->setSensitive(true);
     editbut->setSensitive(true);
