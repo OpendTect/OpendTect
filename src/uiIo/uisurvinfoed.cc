@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.62 2004-10-06 16:18:41 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.63 2004-10-07 08:36:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,6 +233,19 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
 }
 
 
+static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
+{
+    if ( mIsUndefined(val) )
+	{ zfld->setText( "", nr ); return; }
+
+    val *= fac; int ival = mNINT(val); float fival = ival;
+    if ( mIsEqual(val,fival,0.01) )
+	zfld->setValue( ival, nr );
+    else
+	zfld->setValue( val, nr );
+}
+
+
 void uiSurveyInfoEditor::setValues()
 {
     const SurveyInfo& si = *survinfo;
@@ -243,18 +256,13 @@ void uiSurveyInfoEditor::setValues()
     inlfld->setValue( inlrg );
     crlfld->setValue( crlrg );
 
-    bool zistime = si.zIsTime();
     const StepInterval<float>& zrg = si.zRange( false );
-    if ( zistime )
-    {
-	zfld->setValue( mNINT(zrg.start*1000), 0 );
-	zfld->setValue( mNINT(zrg.stop*1000), 1 );
-	zfld->setValue( mNINT(zrg.step*1000), 2 );
-    }
-    else
-	zfld->setValue( zrg );
+    const float zfac = si.zFactor();
+    setZValFld( zfld, 0, zrg.start, zfac );
+    setZValFld( zfld, 1, zrg.stop, zfac );
+    setZValFld( zfld, 2, zrg.step, zfac );
 
-    timefld->setChecked( zistime );
+    timefld->setChecked( si.zIsTime() );
     meterfld->setChecked( si.zInMeter() );
     feetfld->setChecked( si.zInFeet() );
 
@@ -524,6 +532,9 @@ const char* uiSurveyInfoEditor::dirName()
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
 bool uiSurveyInfoEditor::setRanges()
 {
     BufferString survnm( survnmfld->text() );
@@ -542,21 +553,20 @@ bool uiSurveyInfoEditor::setRanges()
 
     survinfo->setZUnit( timefld->isChecked(), meterfld->isChecked() );
     cs.zrg = zfld->getFStepInterval();
-    if ( survinfo->zIsTime() )
-	{ cs.zrg.start /= 1000; cs.zrg.stop /= 1000; cs.zrg.step /= 1000; }
+    if ( mIsUndefined(cs.zrg.start) || mIsUndefined(cs.zrg.stop)
+      || mIsUndefined(cs.zrg.step) )
+	mErrRet("Please enter the Z Range")
+    const float zfac = 1. / survinfo->zFactor();
+    if ( !mIsEqual(zfac,1,0.0001) )
+	{ cs.zrg.start *= zfac; cs.zrg.stop *= zfac; cs.zrg.step *= zfac; }
     if ( mIsZero(cs.zrg.step,1e-8) )
 	cs.zrg.step = survinfo->zIsTime() ? 0.004 : 1;
     cs.normalise();
     if ( !hs.totalNr() )
-    { 
-	uiMSG().error( "Please specify inline/crossline ranges" ); 
-        return false; 
-    }
+	mErrRet("Please specify inline/crossline ranges")
     if ( cs.zrg.nrSteps() == 0 )
-    {
-	uiMSG().error( "Please specify time range" );
-	return false;
-    }
+	mErrRet("Please specify a valid Z range")
+
     survinfo->setRange( cs, false );
     return true;
 }
