@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.17 2003-09-30 12:57:55 kristofer Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.18 2003-10-01 06:34:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,7 +175,7 @@ bool uiExportHorizon::writeAscii()
 	    if ( dogf )
 	    {
 		BinIDZValue bzv( bid, crd.z, auxvalue );
-		writeGF( *sdo.ostrm, bzv, crd, idy );
+		writeGF( *sdo.ostrm, bzv, crd, idx );
 	    }
 	    else
 	    {
