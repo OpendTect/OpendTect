@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.17 2002-01-08 14:35:47 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.18 2002-03-18 12:57:54 kristofer Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -15,9 +15,6 @@ static const char* rcsID = "$Id: iopar.cc,v 1.17 2002-01-08 14:35:47 bert Exp $"
 #include "globexpr.h"
 #include "bufstring.h"
 #include <ctype.h>
-
-static FileMultiString fms;
-
 
 IOPar::IOPar( const char* nm )
 	: UserIDObject(nm)
@@ -237,8 +234,8 @@ void IOPar::add( const char* nm, const char* val )
 bool IOPar::get( const char* s, int& i ) const
 {
     const char* ptr = (*this)[s];
-    if ( ptr && *ptr ) { i = atoi(ptr); return YES; }
-    return NO;
+    if ( ptr && *ptr ) { i = atoi(ptr); return true; }
+    return false;
 }
 
 
@@ -247,14 +244,14 @@ bool IOPar::get( const char* s, int& i1, int& i2 ) const
     const char* ptr = (*this)[s];
     if ( ptr && *ptr )
     {
-	fms = ptr;
+	FileMultiString fms = ptr;
 	ptr = fms[0];
 	if ( *ptr ) i1 = atoi( ptr );
 	ptr = fms[1];
 	if ( *ptr ) i2 = atoi( ptr );
-	return YES;
+	return true;
     }
-    return NO;
+    return false;
 }
 
 
@@ -265,12 +262,12 @@ bool IOPar::getSc( const char* s, float& f, float sc, bool udf ) const
     {
 	f = atof( ptr );
 	if ( !mIsUndefined(f) ) f *= sc;
-	return YES;
+	return true;
     }
     else if ( udf )
 	f = mUndefValue;
 
-    return NO;
+    return false;
 }
 
 
@@ -281,12 +278,12 @@ bool IOPar::getSc( const char* s, double& d, double sc, bool udf ) const
     {
 	d = atof( ptr );
 	if ( !mIsUndefined(d) ) d *= sc;
-	return YES;
+	return true;
     }
     else if ( udf )
 	d = mUndefValue;
 
-    return NO;
+    return false;
 }
 
 
@@ -295,8 +292,18 @@ bool IOPar::getSc( const char* s, float& f1, float& f2, float sc,
 {
     double d1=f1, d2=f2;
     if ( getSc( s, d1, d2, sc, udf ) )
-	{ f1 = (float)d1; f2 = (float)d2; return YES; }
-    return NO;
+	{ f1 = (float)d1; f2 = (float)d2; return true; }
+    return false;
+}
+
+
+bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float sc,
+		   bool udf ) const
+{
+    double d1=f1, d2=f2, d3=f3;
+    if ( getSc( s, d1, d2, d3, sc, udf ) )
+	{ f1 = (float)d1; f2 = (float)d2; f3 = (float)d3; return true; }
+    return false;
 }
 
 
@@ -306,7 +313,7 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
     const char* ptr = (*this)[s];
     if ( udf || *ptr )
     {
-	fms = ptr;
+	FileMultiString fms = ptr;
 	ptr = fms[0];
 	if ( *ptr )
 	{
@@ -325,9 +332,49 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
 	else if ( udf )
 	    d2 = mUndefValue;
 
-	return YES;
+	return true;
     }
-    return NO;
+    return false;
+}
+
+
+bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
+		 bool udf ) const
+{
+    const char* ptr = (*this)[s];
+    if ( udf || *ptr )
+    {
+	FileMultiString fms = ptr;
+	ptr = fms[0];
+	if ( *ptr )
+	{
+	    d1 = atof( ptr );
+	    if ( !mIsUndefined(d1) ) d1 *= sc;
+	}
+	else if ( udf )
+	    d1 = mUndefValue;
+
+	ptr = fms[1];
+	if ( *ptr )
+	{
+	    d2 = atof( ptr );
+	    if ( !mIsUndefined(d2) ) d2 *= sc;
+	}
+	else if ( udf )
+	    d2 = mUndefValue;
+
+	ptr = fms[2];
+	if ( *ptr )
+	{
+	    d3 = atof( ptr );
+	    if ( !mIsUndefined(d3) ) d3 *= sc;
+	}
+	else if ( udf )
+	    d3 = mUndefValue;
+
+	return true;
+    }
+    return false;
 }
 
 
@@ -336,27 +383,27 @@ bool IOPar::get( const char* s, int& i1, int& i2, int& i3 ) const
     const char* ptr = (*this)[s];
     if ( ptr && *ptr )
     {
-	fms = ptr;
+	FileMultiString fms = ptr;
 	ptr = fms[0];
 	if ( *ptr ) i1 = atoi( ptr );
 	ptr = fms[1];
 	if ( *ptr ) i2 = atoi( ptr );
 	ptr = fms[2];
 	if ( *ptr ) i3 = atoi( ptr );
-	return YES;
+	return true;
     }
-    return NO;
+    return false;
 }
 
 
 bool IOPar::getYN( const char* s, bool& i, char c ) const
 {
     const char* ptr = (*this)[s];
-    if ( !ptr || !*ptr ) return NO;
+    if ( !ptr || !*ptr ) return false;
 
     if ( !c )	i = yesNoFromString(ptr);
     else	i = toupper(*ptr) == toupper(c);
-    return YES;
+    return true;
 }
 
 
@@ -391,7 +438,7 @@ void IOPar::set( const char* keyw, double val )
 
 void IOPar::set( const char* s, int i1, int i2 )
 {
-    fms = getStringFromInt(0,i1);
+    FileMultiString fms = getStringFromInt(0,i1);
     fms.add( getStringFromInt(0,i2) );
     set( s, fms );
 }
@@ -399,23 +446,45 @@ void IOPar::set( const char* s, int i1, int i2 )
 
 void IOPar::set( const char* s, float f1, float f2 )
 {
-    fms = mIsUndefined(f1) ? sUndefValue : getStringFromFloat(0,f1);
+    FileMultiString fms =
+	     mIsUndefined(f1) ? sUndefValue : getStringFromFloat(0,f1);
     fms.add( mIsUndefined(f2) ? sUndefValue : getStringFromFloat(0,f2) );
+    set( s, fms );
+}
+
+
+void IOPar::set( const char* s, float f1, float f2, float f3 )
+{
+    FileMultiString fms =
+	     mIsUndefined(f1) ? sUndefValue : getStringFromFloat(0,f1);
+    fms.add( mIsUndefined(f2) ? sUndefValue : getStringFromFloat(0,f2) );
+    fms.add( mIsUndefined(f3) ? sUndefValue : getStringFromFloat(0,f3) );
     set( s, fms );
 }
 
 
 void IOPar::set( const char* s, double d1, double d2 )
 {
-    fms = mIsUndefined(d1) ? sUndefValue : getStringFromDouble(0,d1);
+    FileMultiString fms =
+	     mIsUndefined(d1) ? sUndefValue : getStringFromDouble(0,d1);
     fms.add( mIsUndefined(d2) ? sUndefValue : getStringFromDouble(0,d2) );
+    set( s, fms );
+}
+
+
+void IOPar::set( const char* s, double d1, double d2, double d3 )
+{
+    FileMultiString fms =
+	     mIsUndefined(d1) ? sUndefValue : getStringFromDouble(0,d1);
+    fms.add( mIsUndefined(d2) ? sUndefValue : getStringFromDouble(0,d2) );
+    fms.add( mIsUndefined(d3) ? sUndefValue : getStringFromDouble(0,d3) );
     set( s, fms );
 }
 
 
 void IOPar::set( const char* s, int i1, int i2, int i3 )
 {
-    fms = getStringFromInt(0,i1);
+    FileMultiString fms = getStringFromInt(0,i1);
     fms.add( getStringFromInt(0,i2) );
     fms.add( getStringFromInt(0,i3) );
     set( s, fms );
