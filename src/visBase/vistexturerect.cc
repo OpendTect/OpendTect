@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.22 2002-09-19 07:13:29 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.23 2002-10-11 15:01:25 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -203,7 +203,7 @@ void visBase::TextureRect::setColorTab( VisColorTab* nr )
     colortable->change.notify(mCB( this,visBase::TextureRect, updateTexture));
 
 
-    updateTexture();
+    updateTexture(0);
 }
 
 
@@ -317,7 +317,7 @@ void visBase::TextureRect::setData( const Array2D<float>& d )
 	return;
     }
 
-    updateTexture();
+    updateTexture(0);
 }
 
 
@@ -335,7 +335,7 @@ void visBase::TextureRect::clipData()
 }
 
 
-void visBase::TextureRect::updateTexture()
+void visBase::TextureRect::updateTexture( CallBacker* )
 {
     if ( !data ) return;
 
@@ -418,5 +418,5 @@ int visBase::TextureRect::getNrResolutions() const
 void visBase::TextureRect::setResolution( int res )
 {
     resolution = res;
-    updateTexture();
+    updateTexture(0);
 }

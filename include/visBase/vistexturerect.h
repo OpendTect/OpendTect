@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.13 2002-10-09 11:30:54 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.14 2002-10-11 15:01:31 nanne Exp $
 ________________________________________________________________________
 
 
@@ -90,7 +90,7 @@ public:
     static const char*	resolutionstr;
 
 protected:
-    void		updateTexture();
+    void		updateTexture(CallBacker*);
     void		clipData();
 
     void		triggerManipStarts() { manipstartnotifier.trigger(); }
