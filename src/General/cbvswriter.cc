@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.18 2001-11-22 16:52:47 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.19 2001-12-05 09:32:15 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: cbvswriter.cc,v 1.18 2001-11-22 16:52:47 bert E
 #include "errh.h"
 #include "binidselimpl.h"
 #include "databuf.h"
+#include "survinfo.h"
 
 const int CBVSIO::integersize = 4;
 const int CBVSIO::version = 1;
@@ -364,6 +365,7 @@ void CBVSWriter::getRealGeometry()
     survgeom.fullyrectandreg = true;
 
     const int nrinl = inldata.size();
+    bids.step.inl = 0;
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
 	CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata[iinl];
@@ -374,7 +376,7 @@ void CBVSWriter::getRealGeometry()
 	    bids.stop.crl = inlinf.segments[0].stop;
 	    bids.step.crl = inlinf.segments[0].step;
 	}
-	else if ( iinl == 1 )
+	else if ( !bids.step.inl )
 	    bids.step.inl = inlinf.inl - prevbinid_.inl;
 	else if ( inlinf.inl - prevbinid_.inl != bids.step.inl )
 	    survgeom.fullyrectandreg = false;
@@ -399,6 +401,7 @@ void CBVSWriter::getRealGeometry()
 	    bids.include( BinID(inlinf.inl,seg.stop) );
 	}
     }
+    if ( !bids.step.inl ) bids.step.inl = SI().step().inl;
 
     if ( survgeom.fullyrectandreg )
 	deepErase( survgeom.inldata );
