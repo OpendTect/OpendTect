@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.1 2005-01-06 09:25:55 kristofer Exp $
+ RCS:           $Id: sectiontracker.h,v 1.2 2005-01-18 13:14:20 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "basictask.h"
+#include "emposid.h"
 #include "geomelement.h"
 
 class BinIDValue;
@@ -37,6 +38,7 @@ public:
 						SectionExtender* = 0,
 						SectionAdjuster*  = 0);
     virtual			~SectionTracker();
+    EM::SectionID		sectionID() const;
     virtual bool		init();
 
     void			reset();

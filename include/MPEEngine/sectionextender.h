@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.1 2005-01-06 09:25:55 kristofer Exp $
+ RCS:           $Id: sectionextender.h,v 1.2 2005-01-18 13:14:20 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     			SectionExtender( EM::EMObject&,
 					 const EM::SectionID& si = -1 )
 			    : sectionid( si ) {}
+    EM::SectionID	sectionID() const { return sectionid; }
 
     virtual void	reset() { addedpos.erase(); }
     virtual void	setDirection( const BinIDValue& ) {}

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionadjuster.h,v 1.1 2005-01-06 09:25:55 kristofer Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.2 2005-01-18 13:14:20 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ public:
     			SectionAdjuster( EM::EMObject&,
 					 const EM::SectionID& sid = -1)
 			    : sectionid( sid )				{}
+
+    EM::SectionID	sectionID() const { return sectionid; }
 
     virtual void	reset() {}
     virtual void	setExtender( const SectionExtender* ) {}

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselector.h,v 1.2 2005-01-18 12:57:10 kristofer Exp $
+ RCS:           $Id: sectionselector.h,v 1.3 2005-01-18 13:14:20 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
     			SectionSourceSelector( const EM::EMObject&,
 					       const EM::SectionID& sid = -1 )
 			    : sectionid( sid ) {}
+
+    EM::SectionID	sectionID() const { return sectionid; }
 
     virtual void	reset() { selpos.erase(); }
 

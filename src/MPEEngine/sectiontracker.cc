@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.1 2005-01-06 09:25:21 kristofer Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.2 2005-01-18 13:14:17 kristofer Exp $";
 
 #include "sectiontracker.h"
 
@@ -36,6 +36,16 @@ SectionTracker::~SectionTracker()
     delete selector_;
     delete extender_;
     delete adjuster_;
+}
+
+
+EM::SectionID SectionTracker::sectionID() const
+{
+    if ( selector_&&selector_->sectionID()!=-1 ) return selector_->sectionID();
+    if ( extender_&&extender_->sectionID()!=-1 ) return extender_->sectionID();
+    if ( adjuster_&&adjuster_->sectionID()!=-1 ) return adjuster_->sectionID();
+
+    return -1;
 }
 
 
