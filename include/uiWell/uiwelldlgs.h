@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.9 2004-03-09 15:46:49 nanne Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.10 2004-03-19 14:28:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,6 @@ protected:
     uiTable*			table;
     uiGenInput*			unitfld;
 
-    void			markerAdded(CallBacker*);
     void			mouseClick(CallBacker*);
     bool			acceptOK(CallBacker*);
 };

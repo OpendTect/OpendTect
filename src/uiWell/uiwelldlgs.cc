@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.12 2004-03-18 08:46:33 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.13 2004-03-19 14:28:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,11 +47,11 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p )
 				 "107.1.1"))
 {
     table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
-	    				       .rowcangrow(), "Table" );
+	    				       .rowcangrow() 
+					       .defrowlbl(), "Table" );
     table->setColumnLabels( collbls );
     table->setColumnReadOnly( 2, true );
     table->setNrRows( initnrrows );
-    table->rowInserted.notify( mCB(this,uiMarkerDlg,markerAdded) );
     table->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
 
     bool zinft = SI().zInFeet();
@@ -59,20 +59,6 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p )
     unitfld = new uiGenInput( this, "Depth unit", BoolInpSpec("Meter","Feet") );
     unitfld->attach( leftAlignedBelow, table );
     unitfld->setValue( !zinft );
-
-    markerAdded(0);
-}
-
-
-void uiMarkerDlg::markerAdded( CallBacker* )
-{
-    const int nrrows = table->nrRows();
-    for ( int idx=0; idx<nrrows; idx++ )
-    {
-	BufferString labl( "Marker " );
-	labl += idx+1;
-	table->setRowLabel( idx, labl );
-    }
 }
 
 
@@ -103,8 +89,6 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
 	table->setValue( uiTable::RowCol(idx,1), marker->dah/zfac );
 	table->setColor( uiTable::RowCol(idx,2), marker->color );
     }
-
-    markerAdded(0);
 }
 
 
