@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.196 2004-04-29 16:13:37 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.197 2004-04-30 12:30:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,37 +12,20 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 #include "attribslice.h"
-#include "errh.h"
-#include "pickset.h"
-#include "ptrman.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "visdataman.h"
 #include "viscolortab.h"
+#include "visobject.h"
 #include "vismaterial.h"
-#include "visplanedatadisplay.h"
+#include "vissurvobj.h"
 #include "visselman.h"
-#include "vissurvpickset.h"
 #include "vissurvscene.h"
-#include "vissurvstickset.h"
-#include "vissurvsurf.h"
-#include "vissurvwell.h"
-#include "visvolumedisplay.h"
-#include "visvolrender.h"
-#include "vistexture3viewer.h"
-#include "visrandomtrackdisplay.h"
-#include "uiexecutor.h"
 #include "uifiledlg.h"
 #include "uimaterialdlg.h"
-#include "uislicesel.h"
 #include "uizscaledlg.h"
 #include "uiworkareadlg.h"
 #include "uimenu.h"
-#include "colortab.h"
-#include "bufstringset.h"
-#include "surfaceinfo.h"
-#include "ioobj.h"
-#include "ioman.h"
 #include "iopar.h"
 #include "uivismenu.h"
 
@@ -89,8 +72,8 @@ uiVisPartServer::~uiVisPartServer()
 	    mCB(this,uiVisPartServer,deselectObjCB) );
     delete &eventmutex;
 
-    for ( int idx=0; idx<menufactories.size(); idx++ )
-	menufactories[idx]->unRef();
+    for ( int idx=0; idx<menus.size(); idx++ )
+	menus[idx]->unRef();
 }
 
 
@@ -137,23 +120,23 @@ void uiVisPartServer::removeScene( int sceneid )
 
 bool uiVisPartServer::showMenu( int id )
 {
-    uiVisMenuFactory* menu = getMenuFactory( id, false );
+    uiVisMenu* menu = getMenu( id, false );
     return menu ? menu->executeMenu() : true;
 }
 
 
-uiVisMenuFactory* uiVisPartServer::getMenuFactory(int visid, bool create)
+uiVisMenu* uiVisPartServer::getMenu(int visid, bool create)
 {
-    for ( int idx=0; idx<menufactories.size(); idx++ )
+    for ( int idx=0; idx<menus.size(); idx++ )
     {
-	if ( menufactories[idx]->canHandle(visid) )
-	    return menufactories[idx];
+	if ( menus[idx]->canHandle(visid) )
+	    return menus[idx];
     }
     
     if ( !create ) return 0;
 
-    uiVisMenuFactory* res = new uiVisMenuFactory(appserv().parent(),visid);
-    menufactories += res;
+    uiVisMenu* res = new uiVisMenu(appserv().parent(),visid);
+    menus += res;
     res->ref();
     return res;
 }
@@ -168,6 +151,7 @@ void uiVisPartServer::shareObject( int sceneid, int id )
     if ( !so ) return;
 
     scene->addObject( so );
+    eventmutex.lock();
     sendEvent( evUpdateTree );
 }
 
@@ -192,10 +176,7 @@ void uiVisPartServer::addObject( visBase::DataObject* so, int sceneid,
     scene->addObject( so );
     //TODO: Handle saveinsessions
 
-
-    uiVisMenuFactory* menufact = getMenuFactory(so->id(),true);
-    menufact->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
-    menufact->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
+    setUpConnections( so->id() );
 }
 
 
@@ -237,16 +218,12 @@ void uiVisPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 */
 
 
-MultiID uiVisPartServer::getMultiID( int id ) const
+const MultiID* uiVisPartServer::getMultiID( int id ) const
 {
-    const visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,dobj)
-    if ( sd ) return sd->surfaceId();
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) return so->getMultiID();
 
-    mDynamicCastGet(const visSurvey::WellDisplay*,wd,dobj)
-    if ( wd ) return wd->wellId();
-
-    return MultiID();
+    return 0;
 }
 
 
@@ -330,13 +307,26 @@ bool uiVisPartServer::setCubeData( int id, bool color, AttribSliceSet* sliceset)
 }
 
 
-void uiVisPartServer::showTexture( int id, int textureidx )
+bool uiVisPartServer::canHaveMultipleTextures(int id) const
 {
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
-    if ( pdd ) pdd->showTexture( textureidx );
-    if ( sd ) sd->showTexture( textureidx );
+    mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
+    if ( so ) return so->canHaveMultipleTextures();
+    return false;
+}
+
+
+int uiVisPartServer::nrTextures(int id) const
+{
+    mDynamicCastGet( const visSurvey::SurveyObject*, so, getObject(id) );
+    if ( so ) return so->nrTextures();
+    return 0;
+}
+
+
+void uiVisPartServer::selectTexture( int id, int textureidx )
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( so ) so->selectTexture(textureidx);
 }
 
 
@@ -345,9 +335,8 @@ void uiVisPartServer::getRandomPosDataPos( int id,
 			   bool inclvals ) const
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
-    if ( sd )
-	sd->getAttribPositions( bidzvset, inclvals, 0 );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) so->getDataRandomPos( bidzvset );
 }
 
 
@@ -535,8 +524,6 @@ void uiVisPartServer::toggleDraggers()
 	    visBase::DataObject* obj = scene->getObject( objidx );
 	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && !viewmode;
 
-	    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-	    if ( vd ) vd->showBox(isdraggeron);
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
 	    if ( so ) so->showManipulator(isdraggeron);
 	}
@@ -572,6 +559,8 @@ bool uiVisPartServer::setWorkingArea()
 	visBase::DataObject* obj = visBase::DM().getObj( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
 	if ( scene ) scene->updateRange();
+
+	/*
 	TypeSet<int> objids;
 	getChildIds( sceneid, objids );
 	for ( int ido=0; ido<objids.size(); ido++ )
@@ -580,6 +569,7 @@ bool uiVisPartServer::setWorkingArea()
 	    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
 	    if ( pdd ) pdd->setGeometry( true );
 	}
+	*/
     }
 
     return true;
@@ -667,14 +657,6 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 void uiVisPartServer::turnOn( int id, bool yn )
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visBase::VolRender*,vr,obj)
-    if ( yn && vr && !vr->isInited() )
-    {
-	PtrMan<Executor> exec = vr->init();
-	uiExecutor uiexec(appserv().parent(), *exec );
-	uiexec.go();
-    }
-
     mDynamicCastGet(visBase::VisualObject*,so,obj)
     if ( so ) so->turnOn( yn );
 
@@ -740,13 +722,6 @@ mGetScene( const );
 
 void uiVisPartServer::removeObject( int id, int sceneid )
 {
-    uiVisMenuFactory* menufact = getMenuFactory(id,false);
-    int mnufactidx = menufactories.indexOf(menufact);
-    menufactories.remove(mnufactidx);
-    menufact->unRef();
-
-    menufact->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
-    menufact->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
     removeConnections( id );
 
     visSurvey::Scene* scene = getScene( sceneid );
@@ -903,48 +878,7 @@ bool uiVisPartServer::selectColorAttrib( int id )
     return true;
 }
 
-
-bool uiVisPartServer::isMovable( int id ) const
-{
-    const visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
-    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
-
-    return ( pdd || vd );
-}
-
-
-bool uiVisPartServer::setPosition( int id )
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj)
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj)
-    if ( !pdd && !vd ) return false;
-
-    const CubeSampling initcs = pdd ? pdd->getCubeSampling()
-				    : vd->getCubeSampling();
-    uiSliceSel dlg( appserv().parent(), initcs,
-		    mCB(this,uiVisPartServer,updatePlanePos), (bool)vd );
-    if ( dlg.go() )
-    {
-	bool res;
-	CubeSampling cs = dlg.getCubeSampling();
-	if ( pdd )
-	    pdd->setCubeSampling( cs );
-	else if ( vd )
-	    vd->setCubeSampling( cs );
-
-	res = calculateAttrib( id, false );
-	calculateColorAttrib( id, false );
-
-	sendEvent( evInteraction );
-	return res;
-    }
-
-    return true;
-}
-
-
+/*
 void uiVisPartServer::updatePlanePos( CallBacker* cb )
 {
     int id = getSelObjectId();
@@ -960,6 +894,8 @@ void uiVisPartServer::updatePlanePos( CallBacker* cb )
     calculateColorAttrib( id, false );
     sendEvent( evInteraction );
 }
+
+*/
   
 
 bool uiVisPartServer::hasMaterial( int id ) const
@@ -983,14 +919,6 @@ bool uiVisPartServer::setMaterial( int id )
 }
 
 
-bool uiVisPartServer::hasColor( int id ) const
-{
-    const visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,dobj)
-    return ( sd && !sd->usesTexture() ); 
-}
-
-
 bool uiVisPartServer::dumpOI( int id ) const
 {
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(), "*.iv",
@@ -1011,10 +939,11 @@ bool uiVisPartServer::resetManipulation( int id )
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( so ) so->resetManipulation();
 
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj)
-    if ( vd ) vd->resetManip();
-    return so || vd;
+    eventmutex.lock();
+    eventobjid = id;
+    sendEvent( evInteraction );
+
+    return so;
 }
 
 
@@ -1036,8 +965,11 @@ void uiVisPartServer::setUpConnections( int id )
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
-
     if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
+
+    uiVisMenu* menu = getMenu(id,true);
+    menu->createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
+    menu->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 }
 
 
@@ -1047,6 +979,13 @@ void uiVisPartServer::removeConnections( int id )
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
 
     if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
+
+    uiVisMenu* menu = getMenu(id,false);
+    int mnufactidx = menus.indexOf(menu);
+    menus.remove(mnufactidx);
+    menu->createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
+    menu->handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
+    menu->unRef();
 }
 
 
@@ -1095,41 +1034,32 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 
 void uiVisPartServer::interactionCB( CallBacker* cb )
 {
-    eventmutex.lock();
     mDynamicCastGet(visBase::DataObject*,dataobj,cb)
-    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dataobj)
-    if ( dataobj && !vd )
+    if ( dataobj )
+    {
+	eventmutex.lock();
 	eventobjid = dataobj->id();
-    else
-	eventobjid = getSelObjectId();
-
-    sendEvent( evInteraction );
+	sendEvent( evInteraction );
+    }
 }
 
 
 void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::Scene*,scene,cb)
-    if ( !cb ) return;
+    if ( !scene ) return;
 
-    int selid = getSelObjectId();
-    const visBase::DataObject* dobj = visBase::DM().getObj( selid );
-    mDynamicCastGet(const visSurvey::PickSetDisplay*,psd,dobj)
-
-    if ( selid==-1 || psd )
-    {
-	eventmutex.lock();
-	xytmousepos = scene->getMousePos(true);
-	inlcrlmousepos = scene->getMousePos(false);
-	mouseposval = scene->getMousePosValue();
-	sendEvent( evMouseMove );
-    }
+    eventmutex.lock();
+    xytmousepos = scene->getMousePos(true);
+    inlcrlmousepos = scene->getMousePos(false);
+    mouseposval = scene->getMousePosValue();
+    sendEvent( evMouseMove );
 }
 
 
 void uiVisPartServer::createMenuCB(CallBacker* cb)
 {
-    mDynamicCastGet( uiVisMenuFactory*, menu, cb );
+    mDynamicCastGet( uiVisMenu*, menu, cb );
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(menu->id()));
     mDynamicCastGet( visBase::VisualObject*, vo, getObject(menu->id()));
     if ( !so ) return;
@@ -1172,7 +1102,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     if ( mnuid==-1 ) return;
 
-    mDynamicCastGet( uiVisMenuFactory*, menu, caller );
+    mDynamicCastGet( uiVisMenu*, menu, caller );
     const int id = menu->id();
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
     mDynamicCastGet( visBase::VisualObject*, vo, getObject(id));
@@ -1181,7 +1111,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     if ( mnuid==selcolorattrmnusel )
 	calculateColorAttrib( id, true );
     else if ( mnuid==resetmanipmnusel )
-	so->resetManipulation();
+	resetManipulation(id);
     else if ( mnuid==changecolormnusel )
     {
 	Color col = vo->getMaterial()->getColor();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.117 2004-04-29 14:51:35 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.118 2004-04-30 12:30:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ class Scene;
 namespace Threads { class Mutex; };
 namespace Geometry { class GridSurface; };
 
-class uiVisMenuFactory;
+class uiVisMenu;
 
 
 /*! \brief The Visualisation Part Server */
@@ -117,9 +117,9 @@ public:
 			     getRandomPosDataPos */
 
     bool		showMenu( int id );
-    uiVisMenuFactory*	getMenuFactory(int id, bool create=true);
+    uiVisMenu*		getMenu(int id, bool create=true);
 
-    MultiID		getMultiID(int) const;
+    const MultiID*	getMultiID(int) const;
 	
     int			getSelObjectId() const;
     void		setSelObjectId(int);
@@ -146,7 +146,10 @@ public:
 
     bool		calculateAttrib(int id,bool newsel);
     bool		calculateColorAttrib(int,bool);
-    void		showTexture(int,int);
+
+    bool		canHaveMultipleTextures(int) const;
+    int			nrTextures(int) const;
+    void		selectTexture(int id,int texture);
 
     static const int	evMouseMove;
     Coord3		getMousePos(bool xyt) const;
@@ -205,9 +208,6 @@ protected:
     bool			selectColorAttrib(int);
     void			removeColorData(int);
 
-    bool			isMovable(int id) const;
-    bool			setPosition(int id);
-
     bool			isManipulated(int id) const;
     void			acceptManipulation(int id);
     bool			resetManipulation(int id);
@@ -225,7 +225,7 @@ protected:
 
     ObjectSet<visSurvey::Scene>	scenes;
 
-    ObjectSet<uiVisMenuFactory>	menufactories;
+    ObjectSet<uiVisMenu>	menus;
 
     uiVisMenu*			vismenu;
 
@@ -241,7 +241,7 @@ protected:
     void			deselectObjCB(CallBacker*);
     void			interactionCB(CallBacker*);
     void			mouseMoveCB(CallBacker*);
-    void			updatePlanePos(CallBacker*);
+    //void			updatePlanePos(CallBacker*);
     void			vwAll(CallBacker*);
     void			toHome(CallBacker*);
 

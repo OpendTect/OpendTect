@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.18 2004-04-29 17:05:32 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.19 2004-04-30 12:31:15 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -293,8 +293,8 @@ void uiODApplMgr::storeSurface( int visid )
     }
 
     if ( as && as->id() >= 0 )
-	emserv->setDataVal( visserv->getMultiID(visid), bidzvset, dispname );
-    emserv->storeObject( visserv->getMultiID(visid) );
+	emserv->setDataVal( *visserv->getMultiID(visid), bidzvset, dispname );
+    emserv->storeObject( *visserv->getMultiID(visid) );
 }
 
 
@@ -407,7 +407,7 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    if ( as.id() == -1 )
 	    {
 		bool selok = emserv->loadAuxData( 
-		    visserv->getMultiID(visid), as.userRef() );
+		    *visserv->getMultiID(visid), as.userRef() );
 		if ( selok ) handleStoredSurfaceData( visid );
 		else uiMSG().error( "Cannot find stored data" );
 		return selok;
@@ -860,7 +860,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evShowAttrSlice )
     {
 	int visid = visserv->getEventObjId();
-	visserv->showTexture( visid, attrserv->getSliceIdx() );
+	visserv->selectTexture( visid, attrserv->getSliceIdx() );
 	modifyColorTable( visid );
     }
     else
@@ -892,7 +892,7 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
     BufferString attrnm;
     float shift = 0;
     ObjectSet< TypeSet<BinIDZValues> > data;
-    if ( !emserv->getDataVal(visserv->getMultiID(visid),data,attrnm,shift) )
+    if ( !emserv->getDataVal(*visserv->getMultiID(visid),data,attrnm,shift) )
 	return;
 
     const ObjectSet< const TypeSet< const BinIDZValues > >& to_pass =
