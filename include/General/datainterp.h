@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.2 2001-02-28 15:00:24 bert Exp $
+ RCS:		$Id: datainterp.h,v 1.3 2001-03-19 10:17:57 bert Exp $
 ________________________________________________________________________
 
 */
@@ -22,7 +22,8 @@ class DataCharacteristics;
 
 Efficient (one function call overhead) get and set of data, usually in a data
 buffer. Facility to swap bytes in advance. The interpretation is into/from
-the template parameter. At present, only float is supported and instantiated.
+the template parameter. At present, only float, double and int are supported
+and instantiated.
 
 */
 
