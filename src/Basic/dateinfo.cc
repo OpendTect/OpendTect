@@ -5,7 +5,7 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.2 2002-03-26 17:01:23 bert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.3 2002-12-03 13:18:18 kristofer Exp $";
 
 #include "dateinfo.h"
 #include <time.h>
@@ -231,25 +231,25 @@ void DateInfo::getRel( const DateInfo& reld ) const
     if ( reld.month_ == month_ && reld.day_ == day_ )
     {
 	buf = "exactly ";
-	int diff = year_ - reld.year_;
-	buf += abs(diff);
+	int difference = year_ - reld.year_;
+	buf += abs(difference);
 	buf += " year";
-	if ( abs(diff) != 1 ) buf += "s";
-	buf += diff > 0 ? " later" : " earlier";
+	if ( abs(difference) != 1 ) buf += "s";
+	buf += difference > 0 ? " later" : " earlier";
 	return;
     }
 
     if ( reld.year_ == year_ )
     {
-	int diff = month_ - reld.month_;
-	if ( diff > -2 && diff < 2 )
+	int difference = month_ - reld.month_;
+	if ( difference > -2 && difference < 2 )
 	{
 	    if ( reld.day_ == day_ )
-		mRet(diff<0?"one month earlier":"one month later")
+		mRet(difference<0?"one month earlier":"one month later")
 	    buf = "the ";
 	    addDay();
 	    buf += " of ";
-	    buf += diff ? (diff > 0 ? "the following" : "the previous") :"that";
+	    buf += difference ? (difference > 0 ? "the following" : "the previous") :"that";
 	    buf += " month";
 	    return;
 	}
@@ -290,24 +290,24 @@ void DateInfo::getRelToday() const
     if ( today.month_ == month_ && today.day_ == day_ )
     {
 	buf = "exactly ";
-	int diff = year_ - today.year_;
-	buf += abs(diff);
+	int difference = year_ - today.year_;
+	buf += abs(difference);
 	buf += " years ";
-	buf += diff > 0 ? "from now" : "ago";
+	buf += difference > 0 ? "from now" : "ago";
 	return;
     }
 
     if ( today.year_ == year_ )
     {
-	int diff = month_ - today.month_;
-	if ( diff > -2 && diff < 2 )
+	int difference = month_ - today.month_;
+	if ( difference > -2 && difference < 2 )
 	{
 	    if ( today.day_ == day_ )
-		mRet(diff<0?"one month ago":"one month from now")
+		mRet(difference<0?"one month ago":"one month from now")
 	    buf = "the ";
 	    addDay();
 	    buf += " of ";
-	    buf += diff ? (diff > 0 ? "next" : "last") : "this";
+	    buf += difference ? (difference > 0 ? "next" : "last") : "this";
 	    buf += " month";
 	    return;
 	}
