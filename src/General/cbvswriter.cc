@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.41 2004-10-20 14:45:42 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.42 2004-10-27 11:59:45 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -411,7 +411,7 @@ void CBVSWriter::doClose( bool islast )
 
 void CBVSWriter::getRealGeometry()
 {
-    BinIDSampler bids;
+    BinIDSampler bids; bids.start = bids.stop = BinID(0,0);
     survgeom_.fullyrectandreg = true;
 
     const int nrinl = inldata_.size();

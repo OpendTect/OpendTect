@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.1 2004-10-26 12:36:57 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.2 2004-10-27 11:59:45 bert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.1 2004-10-26 12:36:57 be
 #include "ptrman.h"
 #include <iostream>
 
-const char* sTmpStorKey = "Temporary storage location";
+const char* SeisJobExecProv::sKeyTmpStor = "Temporary storage location";
 const char* SeisJobExecProv::sKeySeisOutIDKey = "Output Seismics Key";
 
 
@@ -75,22 +75,28 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 }
 
 
+bool SeisJobExecProv::isRestart() const
+{
+    const char* res = iopar_.find( sKeyTmpStor );
+    return res && File_isDirectory(res);
+}
+
+
 JobDescProv* SeisJobExecProv::mk3DJobProv()
 {
-    const char* res = iopar_.find( sTmpStorKey );
+    const char* res = iopar_.find( sKeyTmpStor );
     if ( !res )
     {
-	iopar_.set( sTmpStorKey, getDefTempStorDir() );
-	res = iopar_.find( sTmpStorKey );
+	iopar_.set( sKeyTmpStor, getDefTempStorDir() );
+	res = iopar_.find( sKeyTmpStor );
     }
-
-    bool isrestart = File_isDirectory(res);
+    const bool havetempdir = File_isDirectory(res);
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
     const char* rgkey = iopar_.find( "Inline Range Key" );
     if ( !rgkey ) rgkey = "Output.1.In-line range";
-    if ( File_exists(res) )
+    if ( havetempdir )
     {
 	getMissingLines( inlnrs, rgkey );
 	ptrnrs = &inlnrs;
@@ -121,19 +127,30 @@ JobRunner* SeisJobExecProv::getRunner()
 	delete jdp; jdp = 0;
 	errmsg_ = "No lines to process";
     }
-    return jdp ? new JobRunner( jdp, progname_ ) : 0;
+
+    if ( jdp )
+    {
+	nrrunners_++;
+	return new JobRunner( jdp, progname_ );
+    }
+
+    return 0;
 }
 
 
-BufferString SeisJobExecProv::getDefTempStorDir()
+BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
 {
+    const bool havepth = pth && *pth;
+    FilePath fp( havepth ? GetDataDir() : pth );
+    if ( havepth )
+	fp.add( "Seismics" );
+
     BufferString stordir = "Proc_";
     stordir += HostData::localHostName();
     stordir += "_";
     stordir += getPID();
 
-    FilePath fp( GetDataDir() );
-    fp.add( "Seismics" ).add( stordir );
+    fp.add( stordir );
     return fp.fullPath();
 }
 
@@ -141,7 +158,7 @@ BufferString SeisJobExecProv::getDefTempStorDir()
 void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 					 const char* rgkey ) const
 {
-    FilePath basefp( iopar_.find(sTmpStorKey) );
+    FilePath basefp( iopar_.find(sKeyTmpStor) );
 
     InlineSplitJobDescProv jdp( iopar_, rgkey );
     StepInterval<int> inls; jdp.getRange( inls );
@@ -168,7 +185,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 
 MultiID SeisJobExecProv::tempStorID() const
 {
-    FilePath fp( iopar_.find(sTmpStorKey) );
+    FilePath fp( iopar_.find(sKeyTmpStor) );
     fp.add( "i.*" );
 
     // Is there already an entry?

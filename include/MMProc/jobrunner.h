@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.2 2004-10-25 11:59:24 bert Exp $
+ RCS:		$Id: jobrunner.h,v 1.3 2004-10-27 11:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,11 +38,13 @@ class JobRunner : public Executor
 public:
 
     				JobRunner(JobDescProv*,const char* cmd);
-				//!< prov becomes mine
+				//!< JobDescProv becomes mine. Never pass null.
+				~JobRunner();
 
-    const ObjectSet<JobHostInfo>& hostInfo() const { return hostinfo_; }
+    const JobDescProv*		descProv() const	{ return descprov_; }
+
+    const ObjectSet<JobHostInfo>& hostInfo() const	{ return hostinfo_; }
     bool			addHost(const HostData&);
-
     void			removeHost(int);
     void			pauseHost(int,bool);
     bool			isFailed(int) const;
@@ -51,6 +53,8 @@ public:
 
     int				jobsDone() const;
     int				jobsInProgress() const;
+    int				jobsLeft() const
+				{ return jobinfos_.size() - jobsDone(); }
     int				totalJobs() const
 				{ return jobinfos_.size()+failedjobs_.size(); }
     int				jobsFailed() const

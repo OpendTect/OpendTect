@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.1 2004-10-26 12:37:18 bert Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.2 2004-10-27 11:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,13 +49,17 @@ public:
 
 			SeisJobExecProv(const char* prognm,const IOPar&);
 
+    bool		isRestart() const;
     const char*		errMsg() const		{ return errmsg_.buf(); }
-
     const IOPar&	pars() const		{ return iopar_; }
+
     JobRunner*		getRunner();
     Executor*		getPostProcessor();
 
-    static BufferString	getDefTempStorDir();
+    const MultiID&	outputID() const	{ return seisoutid_; }
+
+    static BufferString	getDefTempStorDir(const char* storpth=0);
+    static const char*	sKeyTmpStor;
     static const char*	sKeySeisOutIDKey;
 
 protected:

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.2 2004-10-25 11:58:59 bert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.3 2004-10-27 11:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,14 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 
     for ( int idx=0; idx<descprov_->nrJobs(); idx++ )
 	jobinfos_ += new JobInfo( idx );
+}
+
+
+JobRunner::~JobRunner()
+{
+    deepErase( jobinfos_ );
+    deepErase( hostinfo_ );
+    deepErase( failedjobs_ );
 }
 
 
