@@ -7,21 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.8 2004-05-21 16:55:42 bert Exp $
+ RCS:           $Id: uiwellman.h,v 1.9 2004-10-28 15:01:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
+#include "uiobjfileman.h"
 
-class CtxtIOObj;
-class IODirEntryList;
-class IOObj;
-class uiButtonGroup;
-class uiIOObjManipGroup;
 class uiListBox;
-class uiTextEdit;
-class uiToolButton;
 
 namespace Well { class Data; class Reader; };
 
@@ -30,7 +23,7 @@ namespace Well { class Data; class Reader; };
 Well manager
 */
 
-class uiWellMan : public uiDialog
+class uiWellMan : public uiObjFileMan
 {
 public:
     				uiWellMan(uiParent*);
@@ -38,23 +31,15 @@ public:
 
 protected:
 
-    IODirEntryList*		entrylist;
-    uiListBox*			listfld;
-    uiTextEdit*			infofld;
-    uiIOObjManipGroup*		manipgrp;
     uiListBox*			logsfld;
-    uiToolButton*		rembut;
-    uiButtonGroup*		butgrp;
 
-    CtxtIOObj&			ctio;
     Well::Data*			welldata;
     Well::Reader*		wellrdr;
     BufferString		fname;
 
-    void			selChg(CallBacker*);
+    void			ownSelChg();
     void			getCurrentWell();
     void			mkFileInfo();
-    BufferString		getFileSize(const char*);
     void			fillLogsFld();
     void			removeLogPush(CallBacker*);
     void			renameLogPush(CallBacker*);
@@ -64,6 +49,5 @@ protected:
     void			addLogs(CallBacker*);
     void			exportLogs(CallBacker*);
 };
-
 
 #endif

@@ -4,17 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.46 2004-10-22 14:38:05 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.47 2004-10-28 15:01:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiseisfileman.h"
-#include "iodirentry.h"
 #include "ioobj.h"
-#include "iodir.h"
-#include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"
 #include "cbvsio.h"
@@ -23,9 +20,8 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "uiseisioobjinfo.h"
-#include "uilistbox.h"
 #include "uibutton.h"
-#include "uimenu.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uigeninputdlg.h"
 #include "uimergeseis.h"
@@ -33,32 +29,23 @@ ________________________________________________________________________
 #include "uiioobjmanip.h"
 #include "uitextedit.h"
 #include "pixmap.h"
+#include "survinfo.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "survinfo.h"
+#include "keystrs.h"
+
+
+static const int cPrefWidth = 50;
 
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p )
-        : uiDialog(p,uiDialog::Setup("Seismic file management",
+    : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
                                      "Manage seismic cubes",
-                                     "103.1.0").nrstatusflds(1))
-	, ctio(*mMkCtxtIOObj(SeisTrc))
+                                     "103.1.0").nrstatusflds(1),
+	    	   *mMkCtxtIOObj(SeisTrc) )
 {
-    IOM().to( ctio.ctxt.stdSelKey() );
     ctio.ctxt.trglobexpr = "CBVS`2D";
-    entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
-
-    uiGroup* topgrp = new uiGroup( this, "Top things" );
-    listfld = new uiListBox( topgrp, "Seismic cubes/Line sets" );
-    listfld->setHSzPol( uiObject::medvar );
-    for ( int idx=0; idx<entrylist->size(); idx++ )
-	listfld->addItem( (*entrylist)[idx]->name() );
-    listfld->setCurrentItem(0);
-    listfld->selectionChanged.notify( mCB(this,uiSeisFileMan,selChg) );
-
-    manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "cbvs" );
-    manipgrp->preRelocation.notify( mCB(this,uiSeisFileMan,relocMsg) );
-    manipgrp->postRelocation.notify( mCB(this,uiSeisFileMan,postReloc) );
+    createDefaultUI( "cbvs" );
 
     const ioPixmap copypm( GetDataFileName("copyobj.png") );
     copybut = manipgrp->addButton( copypm, mCB(this,uiSeisFileMan,copyPush),
@@ -67,37 +54,28 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     mergebut = manipgrp->addButton( mergepm, mCB(this,uiSeisFileMan,mergePush),
 	    			    "Merge blocks of inlines into cube" );
 
-    infofld = new uiTextEdit( this, "File Info", true );
-    infofld->attach( centeredBelow, topgrp );
-    infofld->setPrefHeightInChar( 9 );
-    infofld->setPrefWidthInChar( 50 );
-    topgrp->setPrefWidthInChar( 50 );
-
-    selChg( this ); 
-    setCancelText( "" );
-    setOkText( "Dismiss" );
+    topgrp->setPrefWidthInChar( cPrefWidth );
+    infofld->setPrefWidthInChar( cPrefWidth );
+    selChg(0);
 }
 
 
 uiSeisFileMan::~uiSeisFileMan()
 {
-    delete ctio.ioobj; delete &ctio;
 }
 
 
-void uiSeisFileMan::selChg( CallBacker* cb )
+void uiSeisFileMan::ownSelChg()
 {
-    entrylist->setCurrent( listfld->currentItem() );
-    const IOObj* selioobj = entrylist->selected();
-    const bool is2d = selioobj && SeisTrcTranslator::is2D( *selioobj );
-    ctio.setObj( selioobj ? selioobj->clone() : 0 );
-    copybut->setSensitive( is2d || selioobj && ctio.ioobj->implExists(true) );
+    const bool is2d = ctio.ioobj && SeisTrcTranslator::is2D( *ctio.ioobj );
+    copybut->setSensitive( is2d || 
+	    		   (ctio.ioobj && ctio.ioobj->implExists(true)) );
     mergebut->setSensitive( !is2d );
 
     copybut->setPixmap( ioPixmap(GetDataFileName( is2d ? "man2d.png"
 						: "copyobj.png" )) );
     const CallBack& cbcopy = mCB(this,uiSeisFileMan,copyPush);
-    const CallBack& cb2d = mCB(this,uiSeisFileMan,rightClicked);
+    const CallBack& cb2d = mCB(this,uiSeisFileMan,man2DPush);
     const CallBack& oldcb = !is2d ? cb2d : cbcopy;
     const CallBack& newcb = is2d ? cb2d : cbcopy;
     if ( copybut->activated.cbs.indexOf(oldcb) >= 0 )
@@ -106,27 +84,6 @@ void uiSeisFileMan::selChg( CallBacker* cb )
 	copybut->activated.notify( newcb );
 
     copybut->setToolTip( is2d ? "Manage lines" : "Copy cube" );
-
-    mkFileInfo();
-    manipgrp->selChg( cb );
-
-    BufferString msg;
-    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ctio.ioobj), msg );
-    toStatusBar( msg );
-}
-
-
-void uiSeisFileMan::relocMsg( CallBacker* cb )
-{
-    toStatusBar( manipgrp->curRelocationMsg() );
-}
-
-
-void uiSeisFileMan::postReloc( CallBacker* cb )
-{
-    int curidx = 
-	entrylist->ObjectSet<IODirEntry>::indexOf( entrylist->current() );
-    listfld->setCurrentItem( curidx );
 }
 
 
@@ -153,7 +110,7 @@ void uiSeisFileMan::mkFileInfo()
     txt += " ["; txt += cs.hrg.step.line; txt += "]"
 
 #define mZRangeTxt(memb) \
-    txt += SI().zIsTime() ? mNINT(1000*cs.zrg.memb) : cs.zrg.memb
+    txt += SI().zIsTime() ? mNINT(1000*memb) : memb
 
     CubeSampling cs;
     uiSeisIOObjInfo oinf( *ctio.ioobj, false );
@@ -164,8 +121,9 @@ void uiSeisFileMan::mkFileInfo()
 	    { txt += "Inline range: "; mRangeTxt(inl); }
 	if ( !mIsUndefInt(cs.hrg.stop.crl) )
 	    { txt += "\nCrossline range: "; mRangeTxt(crl); }
-	txt += "\nZ-range: "; mZRangeTxt(start); txt += " - ";
-	mZRangeTxt(stop); txt += " ["; mZRangeTxt(step); txt += "]";
+	txt += "\nZ-range: "; 
+	mZRangeTxt(cs.zrg.start); txt += " - "; mZRangeTxt(cs.zrg.stop); 
+	txt += " ["; mZRangeTxt(cs.zrg.step); txt += "]";
     }
 
     if ( ctio.ioobj->pars().size() )
@@ -179,19 +137,7 @@ void uiSeisFileMan::mkFileInfo()
 	    txt += ctio.ioobj->pars().find(optstr); }
     }
 
-    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
-    if ( iostrm )
-    {
-	BufferString fname( iostrm->fileName() );
-	FilePath fp( fname );
-	if ( !fp.isAbsolute() )
-	    fp.set( GetDataDir() ).add( "Seismics" ).add( fname );
-	fname = fp.fullPath();
-	txt += "\nLocation: "; txt += fp.pathOnly();
-	txt += "\nFile name: "; txt += fp.fileName();
-	if ( !is2d )
-	{ txt += "\nFile size: "; txt += getFileSize( fname ); }
-    }
+    txt += getFileInfo();
 
     infofld->setText( txt );
 }
@@ -210,9 +156,10 @@ void uiSeisFileMan::copyPush( CallBacker* )
 }
 
 
-BufferString uiSeisFileMan::getFileSize( const char* filenm )
+double uiSeisFileMan::getFileSize( const char* filenm )
 {
-    BufferString szstr;
+    if ( File_isEmpty(filenm) ) return -1;
+
     double totalsz = 0;
     for ( int inr=0; ; inr++ )
     {
@@ -222,23 +169,7 @@ BufferString uiSeisFileMan::getFileSize( const char* filenm )
 	totalsz += (double)File_getKbSize( fullnm );
     }
 
-    if ( totalsz > 1024 )
-    {
-        bool doGb = totalsz > 1048576;
-	int nr = doGb ? (int)(totalsz/10485.76+.5) : (int)(totalsz/10.24+.5);
-	szstr += nr/100; 
-	int rest = nr%100; 
-	szstr += rest < 10 ? ".0" : "."; szstr += rest;
-	szstr += doGb ? " (Gb)" : " (Mb)";
-    }
-    else if ( !totalsz )
-    {
-	szstr += File_isEmpty(filenm) ? "-" : "< 1 (kB)";
-    }
-    else
-    { szstr += totalsz; szstr += " (kB)"; }
-
-    return szstr;
+    return totalsz;
 }
 
 
@@ -261,12 +192,13 @@ public:
 uiSeis2DMan( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,uiDialog::Setup("Seismic file management",
 				 "Manage 2D seismic lines",
-				 "103.1.0"))
+				 "103.1.3"))
 {
     objinfo = new uiSeisIOObjInfo( ioobj );
     lineset = new Seis2DLineSet( ioobj.fullUserExpr(true) );
 
-    linelist = new uiLabeledListBox( this, "2D lines", true,
+    uiGroup* topgrp = new uiGroup( this, "" );
+    linelist = new uiLabeledListBox( topgrp, "2D lines", true,
 	    			     uiLabeledListBox::AboveMid );
     linelist->box()->selectionChanged.notify( mCB(this,uiSeis2DMan,lineSel) );
 
@@ -275,8 +207,10 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
 	    		   mCB(this,uiSeis2DMan,renameLine), "Rename line" );
     linebutgrp->attach( rightTo, linelist->box() );
 
-    attriblist = new uiLabeledListBox( this, "Attributes", true,
+    attriblist = new uiLabeledListBox( topgrp, "Attributes", true,
 				       uiLabeledListBox::AboveMid );
+    attriblist->box()->selectionChanged.notify( 
+	    				mCB(this,uiSeis2DMan,attribSel) );
     attriblist->attach( rightTo, linelist );
 
     uiManipButGrp* butgrp = new uiManipButGrp( attriblist );
@@ -286,6 +220,12 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
 	    	       mCB(this,uiSeis2DMan,removeAttrib),
 		       "Remove selected attribute(s)" );
     butgrp->attach( rightTo, attriblist->box() );
+
+    infofld = new uiTextEdit( this, "File Info", true );
+    infofld->attach( alignedBelow, topgrp );
+    infofld->attach( widthSameAs, topgrp );
+    infofld->setPrefHeightInChar( 5 );
+    infofld->setPrefWidthInChar( 50 );
     
     fillLineBox();
     lineSel(0);
@@ -345,14 +285,52 @@ void lineSel( CallBacker* )
     attriblist->box()->empty();
     sharedattribs.sort();
     attriblist->box()->addItems( sharedattribs );
+    attriblist->box()->setSelected( 0, true );
+}
+
+
+void attribSel( CallBacker* )
+{
+    infofld->setText( "" );
+    BufferStringSet linenms, attribnms;
+    linelist->box()->getSelectedItems( linenms );
+    attriblist->box()->getSelectedItems( attribnms );
+    if ( !linenms.size() || !attribnms.size() )
+    { infofld->setText(""); return; }
+
+    const LineKey linekey( linenms.get(0), attribnms.get(0) );
+    const int lineidx = lineset->indexOf( linekey );
+    if ( lineidx < 0 ) return;
+
+
+    BufferString txt;
+    StepInterval<int> trcrg;
+    StepInterval<float> zrg;
+    lineset->getRanges( lineidx, trcrg, zrg );
+    txt += "Trace range: "; txt += trcrg.start; txt += " - "; txt += trcrg.stop;
+    txt += " ["; txt += trcrg.step; txt += "]";
+    txt += "\nZ-range: "; mZRangeTxt(zrg.start); txt += " - ";
+    mZRangeTxt(zrg.stop); txt += " ["; mZRangeTxt(zrg.step); txt += "]";
+
+    const IOPar& iopar = lineset->getInfo( lineidx );
+    BufferString fname = iopar.find( sKey::FileName );
+    FilePath fp( fname );
+    if ( !fp.isAbsolute() )
+	fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
+
+    txt += "\nLocation: "; txt += fp.pathOnly();
+    txt += "\nFile name: "; txt += fp.fileName();
+    txt += "\nFile size: "; 
+    txt += uiObjFileMan::getFileSizeString( File_getKbSize(fname) );
+    infofld->setText( txt );
 }
 
 
 void removeAttrib( CallBacker* )
 {
-    BufferStringSet attribs;
-    attriblist->box()->getSelectedItems( attribs );
-    if ( !attribs.size() || 
+    BufferStringSet attribnms;
+    attriblist->box()->getSelectedItems( attribnms );
+    if ( !attribnms.size() || 
 	    !uiMSG().askGoOn("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;
@@ -362,9 +340,9 @@ void removeAttrib( CallBacker* )
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linename = sellines.get(idx);
-	for ( int ida=0; ida<attribs.size(); ida++ )
+	for ( int ida=0; ida<attribnms.size(); ida++ )
 	{
-	    LineKey linekey( linename, attribs.get(ida) );
+	    LineKey linekey( linename, attribnms.get(ida) );
 	    if ( !lineset->remove(linekey) )
 		uiMSG().error( "Could not remove attribute" );
 	}
@@ -387,7 +365,11 @@ bool rename( const char* oldnm, BufferString& newnm )
 
 void renameLine( CallBacker* )
 {
-    const char* linenm = linelist->box()->getText();
+    BufferStringSet linenms;
+    linelist->box()->getSelectedItems( linenms );
+    if ( !linenms.size() ) return;
+
+    const char* linenm = linenms.get(0);
     BufferString newnm;
     if ( !rename(linenm,newnm) ) return;
     
@@ -409,7 +391,11 @@ void renameLine( CallBacker* )
 
 void renameAttrib( CallBacker* )
 {
-    const char* attribnm = attriblist->box()->getText();
+    BufferStringSet attribnms;
+    attriblist->box()->getSelectedItems( attribnms );
+    if ( !attribnms.size() ) return;
+
+    const char* attribnm = attribnms.get(0);
     BufferString newnm;
     if ( !rename(attribnm,newnm) ) return;
 
@@ -441,6 +427,7 @@ protected:
 
     uiLabeledListBox*	linelist;
     uiLabeledListBox*	attriblist;
+    uiTextEdit*		infofld;
 
     Seis2DLineSet*	lineset;
     uiSeisIOObjInfo*	objinfo;
@@ -448,7 +435,7 @@ protected:
 };
 
 
-void uiSeisFileMan::rightClicked( CallBacker* )
+void uiSeisFileMan::man2DPush( CallBacker* )
 {
     const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
     if ( !is2d ) return;
@@ -456,4 +443,3 @@ void uiSeisFileMan::rightClicked( CallBacker* )
     uiSeis2DMan dlg( this, *ctio.ioobj );
     dlg.go();
 }
-

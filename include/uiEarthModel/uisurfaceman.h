@@ -6,25 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.5 2004-03-31 11:13:51 nanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.6 2004-10-28 15:01:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
+#include "uiobjfileman.h"
 
-class CtxtIOObj;
-class IODirEntryList;
-class IOObj;
-class uiButtonGroup;
-class uiIOObjManipGroup;
-class uiListBox;
-class uiTextEdit;
-class uiToolButton;
 class BufferStringSet;
 
 
-class uiSurfaceMan : public uiDialog
+class uiSurfaceMan : public uiObjFileMan
 {
 public:
 			uiSurfaceMan(uiParent*,bool);
@@ -32,24 +24,11 @@ public:
 
 protected:
 
-    IODirEntryList*	entrylist;
-    uiListBox*		listfld;
-    uiTextEdit*		infofld;
-    uiIOObjManipGroup*	manipgrp;
     uiListBox*		attribfld;
-    uiToolButton*	rembut;
-    uiButtonGroup*	butgrp;
-
-    CtxtIOObj&		ctio;
 
     void		remPush(CallBacker*);
-    void		selChg(CallBacker*);
-    void		relocMsg(CallBacker*);
-    void		postReloc(CallBacker*);
     void		mkFileInfo();
-    BufferString	getFileSize(const char*);
     void		fillAttribList(const BufferStringSet&);
-
 };
 
 

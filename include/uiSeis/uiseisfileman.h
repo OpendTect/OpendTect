@@ -6,23 +6,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.9 2004-10-07 18:27:48 nanne Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.10 2004-10-28 15:01:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
+#include "uiobjfileman.h"
 
-class IOObj;
-class CtxtIOObj;
-class uiListBox;
-class uiTextEdit;
 class uiToolButton;
-class IODirEntryList;
-class uiIOObjManipGroup;
 
-
-class uiSeisFileMan : public uiDialog
+class uiSeisFileMan : public uiObjFileMan
 {
 public:
 			uiSeisFileMan(uiParent*);
@@ -30,25 +23,17 @@ public:
 
 protected:
 
-    IODirEntryList*	entrylist;
-    uiListBox*		listfld;
-    uiTextEdit*		infofld;
     uiToolButton*	mergebut;
     uiToolButton*	copybut;
-    uiIOObjManipGroup*	manipgrp;
 
-    CtxtIOObj&		ctio;
+    void		ownSelChg();
 
-    void		selChg(CallBacker*);
-    void		rightClicked(CallBacker*);
     void		mergePush(CallBacker*);
     void		copyPush(CallBacker*);
-    void		relocMsg(CallBacker*);
-    void		postReloc(CallBacker*);
+    void		man2DPush(CallBacker*);
+
     void		mkFileInfo();
-    BufferString	getFileSize(const char*);
-
-
+    double		getFileSize(const char*);
 };
 
 

@@ -4,16 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.22 2004-06-17 09:07:48 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.23 2004-10-28 15:01:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiwellman.h"
 #include "uiwelldlgs.h"
-#include "iodirentry.h"
 #include "ioobj.h"
-#include "ioman.h"
 #include "iostrm.h"
 #include "ctxtioobj.h"
 #include "wellman.h"
@@ -29,7 +27,6 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uitextedit.h"
 #include "uibutton.h"
-#include "uibuttongroup.h"
 #include "uigeninputdlg.h"
 #include "bufstringset.h"
 #include "pixmap.h"
@@ -41,107 +38,61 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
-static const int infoheight = 8;
-static const int infowidth = 50;
-static const int grpwidth = 75;
-
-
 uiWellMan::uiWellMan( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Well file management",
-				 "Manage wells",
-				 "107.1.0").nrstatusflds(1))
-    , ctio(*mMkCtxtIOObj(Well))
+    : uiObjFileMan(p,uiDialog::Setup("Well file management","Manage wells",
+				     "107.1.0").nrstatusflds(1),
+	           *mMkCtxtIOObj(Well))
     , welldata(0)
     , wellrdr(0)
     , fname("")
 {
-    IOM().to( ctio.ctxt.stdSelKey() );
-    entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
-
-    uiGroup* topgrp = new uiGroup( this, "Top things" );
-    listfld = new uiListBox( topgrp, "Well objects" );
-    listfld->setHSzPol( uiObject::medvar );
-    for ( int idx=0; idx<entrylist->size(); idx++ )
-	listfld->addItem( (*entrylist)[idx]->name() );
-    listfld->setCurrentItem(0);
-    listfld->selectionChanged.notify( mCB(this,uiWellMan,selChg) );
-
-    manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "well" );
+    createDefaultUI( "well" );
 
     logsfld = new uiListBox( topgrp, "Available logs", true );
     logsfld->attach( rightTo, manipgrp );
     logsfld->setToolTip( "Available logs" );
-    topgrp->setHAlignObj( logsfld );
 
-    butgrp = new uiButtonGroup( topgrp, "" );
+    uiManipButGrp* butgrp = new uiManipButGrp( topgrp );
+    butgrp->addButton( uiManipButGrp::Rename, mCB(this,uiWellMan,renameLogPush),
+	    	       "Rename selected log" );
+    butgrp->addButton( uiManipButGrp::Remove, mCB(this,uiWellMan,removeLogPush),
+	    	       "Remove selected log" );
+    butgrp->addButton( ioPixmap(GetDataFileName("export.png")),
+	    	       mCB(this,uiWellMan,exportLogs), "Export log" );
     butgrp->attach( rightTo, logsfld );
-    uiToolButton* renbut = new uiToolButton( butgrp, "Rename",
-				ioPixmap(GetDataFileName("renameobj.png")),
-				mCB(this,uiWellMan,renameLogPush) );
-    renbut->setToolTip( "Rename selected log" );
     
-    const ioPixmap rempm( GetDataFileName("trashcan.png") );
-    rembut = new uiToolButton( butgrp, "Remove", 
-	    			ioPixmap(GetDataFileName("trashcan.png")),
-				mCB(this,uiWellMan,removeLogPush) );
-    rembut->setToolTip( "Remove selected log" );
-
-    uiToolButton* expbut = new uiToolButton( butgrp, "Export", 
-				ioPixmap(GetDataFileName("export.png")),
-				mCB(this,uiWellMan,exportLogs) );
-    expbut->setToolTip( "Export log" );
-
-    uiPushButton* markerbut = new uiPushButton( this, "Edit markers ..." );
+    uiPushButton* markerbut = new uiPushButton( topgrp, "Edit markers ..." );
     markerbut->activated.notify( mCB(this,uiWellMan,edMarkers) );
-    markerbut->attach( ensureBelow, topgrp );
+    markerbut->attach( alignedBelow, listfld );
 
     uiPushButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	d2tbut = new uiPushButton( this, "Edit Depth/Time Model ..." );
+	d2tbut = new uiPushButton( topgrp, "Edit Depth/Time Model ..." );
 	d2tbut->activated.notify( mCB(this,uiWellMan,edD2T) );
 	d2tbut->attach( rightOf, markerbut );
     }
 
-    uiPushButton* logsbut = new uiPushButton( this, "Add logs ..." );
+    uiPushButton* logsbut = new uiPushButton( topgrp, "Add logs ..." );
     logsbut->activated.notify( mCB(this,uiWellMan,addLogs) );
-    logsbut->attach( alignedBelow, topgrp );
+    logsbut->attach( alignedBelow, logsfld );
     if ( d2tbut )
 	logsbut->attach( ensureRightOf, d2tbut );
 
-    infofld = new uiTextEdit( this, "File Info", true );
-    infofld->attach( alignedBelow, markerbut );
-    infofld->setPrefHeightInChar( infoheight );
-    infofld->setPrefWidthInChar( infowidth );
-    topgrp->setPrefWidthInChar( grpwidth );
-
     selChg( this );
-    setCancelText( "" );
-    setOkText( "Dismiss" );
 }
 
 
 uiWellMan::~uiWellMan()
 {
-    delete ctio.ioobj; delete &ctio;
     delete welldata, wellrdr;
 }
 
 
-void uiWellMan::selChg( CallBacker* cb )
+void uiWellMan::ownSelChg()
 {
-    entrylist->setCurrent( listfld->currentItem() );
-    const IOObj* selioobj = entrylist->selected();
-    ctio.setObj( selioobj ? selioobj->clone() : 0 );
-
     getCurrentWell();
-    mkFileInfo();
-    manipgrp->selChg( cb );
     fillLogsFld();
-
-    BufferString msg;
-    GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ctio.ioobj), msg );
-    toStatusBar( msg );
 }
 
 
@@ -369,11 +320,8 @@ void uiWellMan::mkFileInfo()
 	return;
     }
 
-    FilePath fp( fname );
     BufferString txt;
-    txt += "File location: "; txt += fp.pathOnly();
-    txt += "\nFile name: "; txt += fp.fileName();
-    txt += "\nFile size: "; txt += getFileSize( fname );
+    txt += getFileInfo();
 
 #define mAddWellInfo(key,str) \
     if ( str.size() ) \
@@ -391,29 +339,4 @@ void uiWellMan::mkFileInfo()
     mAddWellInfo(Well::Info::sKeycounty,info.county)
 
     infofld->setText( txt );
-}
-
-
-BufferString uiWellMan::getFileSize( const char* filenm )
-{
-    BufferString szstr;
-    double totalsz = (double)File_getKbSize( filenm );
-
-    if ( totalsz > 1024 )
-    {
-        bool doGb = totalsz > 1048576;
-        int nr = doGb ? mNINT(totalsz/10485.76) : mNINT(totalsz/10.24);
-        szstr += nr/100;
-        int rest = nr%100;
-        szstr += rest < 10 ? ".0" : "."; szstr += rest;
-        szstr += doGb ? " (Gb)" : " (Mb)";
-    }
-    else if ( !totalsz )
-    {
-        szstr += File_isEmpty(filenm) ? "-" : "< 1 (kB)";
-    }
-    else
-    { szstr += totalsz; szstr += " (kB)"; }
-
-    return szstr;
 }
