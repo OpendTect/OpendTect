@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoForegroundTranslation.h,v 1.1 2003-09-16 09:22:43 kristofer Exp $
+ RCS:		$Id: SoForegroundTranslation.h,v 1.2 2003-09-16 09:25:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -28,13 +28,13 @@ it represents.
 class SoForegroundTranslation : public SoNode
 {
     typedef SoNode		inherited;
-
     SO_NODE_HEADER(SoForegroundTranslation);
 public:
     				SoForegroundTranslation();
     static void			initClass();
 
     SoSFFloat			lift;
+    				//!<Distance that the object should be moved
     				
 
 protected:
