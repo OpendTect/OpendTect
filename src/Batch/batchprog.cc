@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.26 2003-01-06 14:42:37 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.27 2003-01-06 15:38:06 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -119,7 +119,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 BatchProgram::~BatchProgram()
 {
     if( exitstat_ == mSTAT_UNDEF ) 
-	exitstat_ = stillok_ ? mSTAT_FINISHED : mSTAT_ERROR;
+	exitstat_ = stillok_ ? mSTAT_DONE : mSTAT_ERROR;
 
     writeStatus( mEXIT_STATUS, exitstat_, true );
 
