@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.10 2003-04-03 15:16:24 arend Exp $
+ RCS:           $Id: uibutton.h,v 1.11 2003-05-12 10:03:20 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,10 @@ public:
 					     const ioPixmap&);
 				uiToolButton(uiParent*,const char*,
 					     const ioPixmap&,const CallBack&);
+
+    bool			isOn();
+    void			setOn( bool yn=true );
+
 private:
 
     uiToolButtonBody*		body_;

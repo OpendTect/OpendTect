@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.18 2003-03-03 15:30:37 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.19 2003-05-12 10:03:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,3 +272,7 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 
     return *body_;
 }
+
+bool uiToolButton::isOn()		{ return body_->isOn(); }
+void uiToolButton::setOn( bool yn)	{ body_->setOn(yn); }
+
