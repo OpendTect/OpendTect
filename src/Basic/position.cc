@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.8 2001-05-04 16:11:54 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.9 2001-06-28 15:04:00 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -405,26 +405,121 @@ BinID BinIDSamplerProv::operator[]( int idx ) const
 }
 
 
-class BinIDTableImpl : public TypeSet<BinID>
+class BinIDTableImplInlData
 {
 public:
-	BinIDTableImpl() : TypeSet<BinID>( 0, BinID(0,0) ) {}
-	BinIDTableImpl(const BinIDTableImpl&);
 
-	TypeSet<char*>	annots;
+    class CrlAnnot
+    {
+    public:
+			CrlAnnot( int c, const char* ann )
+			: crl(c), annot(0)	{ setAnnot( ann ); }
+			CrlAnnot( const CrlAnnot& ca )
+			: crl(ca.crl), annot(0)	{ setAnnot( ca.annot ); }
+			~CrlAnnot()		{ delete [] annot; }
+        CrlAnnot&	operator =( const CrlAnnot& ca )
+			{ crl = ca.crl; setAnnot( ca.annot ); return *this; }
+
+	void		setAnnot( const char* ann )
+			{
+			    if ( ann == annot ) return;
+			    delete [] annot; annot = 0;
+			    if ( ann && *ann )
+			    {
+				annot = new char [ strlen(ann)+1 ];
+				strcpy( annot, ann );
+			    }
+			}
+
+	int		crl;
+	char*		annot;
+    };
+
+			BinIDTableImplInlData( int i )
+				: inl(i)	{}
+			BinIDTableImplInlData( const BinIDTableImplInlData& b )
+			: inl(b.inl)	{ deepAppend( data, b.data ); }
+			~BinIDTableImplInlData();
+    BinIDTableImplInlData& operator =( const BinIDTableImplInlData& b )
+			{ inl = b.inl; deepCopy( data, b.data ); return *this; }
+
+    int			inl;
+    ObjectSet<CrlAnnot>	data;
+
+    int			indexOf( int crl )
+			{
+			    for ( int idx=0; idx<data.size(); idx++ )
+				if ( data[idx]->crl == crl ) return idx;
+			    return -1;
+			}
+
+    void		set( int idx, int crl, const char* ann )
+			{
+			    if ( idx < 0 || idx >= data.size() )
+				data += new CrlAnnot( crl, ann );
+			    else
+			    {
+				CrlAnnot& ca = *data[idx];
+				ca.crl = crl;
+				ca.setAnnot( ann );
+			    }
+			}
+    void		set( int crl, const char* ann )
+			{
+			    for ( int idx=0; idx<data.size(); idx++ )
+				if ( data[idx]->crl == crl )
+				    { data[idx]->setAnnot( ann ); return; }
+			    data += new CrlAnnot( crl, ann );
+			}
+    bool		remove( int crl )
+			{
+			    for ( int idx=0; idx<data.size(); idx++ )
+			    {
+				if ( data[idx]->crl == crl )
+				{
+				    delete data[idx];
+				    data.remove(idx);
+				    return true;
+				}
+			    }
+			    return false;
+			}
+    void		clear();
 };
 
 
-BinIDTableImpl::BinIDTableImpl( const BinIDTableImpl& b )
-	: TypeSet<BinID>(b)
+BinIDTableImplInlData::~BinIDTableImplInlData()
 {
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const char* s = b.annots[idx];
-	char* news = s ? new char [ strlen(s)+1 ] : 0;
-	if ( news ) strcpy( news, s );
-	annots += news;
-    }
+    clear();
+}
+
+
+void BinIDTableImplInlData::clear()
+{
+    deepErase( data );
+}
+
+
+class BinIDTableImpl : public ObjectSet< BinIDTableImplInlData >
+{
+public:
+		BinIDTableImpl()	{}
+		BinIDTableImpl( const BinIDTableImpl& b )
+					{ deepAppend( *this, b ); }
+		~BinIDTableImpl()	{ deepErase( *this ); }
+
+    void	clear()			{ deepErase( *this ); }
+    int		findInl(int) const;
+
+};
+
+
+int BinIDTableImpl::findInl( int inl ) const
+{
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+	if ( (*this)[idx]->inl == inl ) return idx;
+    return -1;
 }
 
 
@@ -459,37 +554,39 @@ void BinIDTable::fillPar( IOPar& iopar ) const
 
 int BinIDTable::excludes( const BinID& bid ) const
 {
-    bool foundinl = false; bool foundcrl = false;
-    for ( int idx=0; idx<binids.size(); idx++ )
-    {
-	const BinID& binid = binids[idx];
-	if ( binid == bid ) return 0;
+    const int inlidx = binids.findInl( bid.inl );
+    if ( inlidx < 0 ) return 2;
 
-	if ( binid.inl == bid.inl ) foundinl = true;
-	if ( binid.crl == bid.crl ) foundcrl = true;
-    }
-
-    int inlval = foundinl ? 1 : 2;   
-    int crlval = foundcrl ? 1 : 2;   
-    return inlval + crlval * 256;
+    return binids[inlidx]->indexOf(bid.crl) < 0 ? 512 : 0;
 }
 
 
 int BinIDTable::extreme( bool inl, bool mini ) const
 {
     if ( binids.size() == 0 ) return mini ? MAXINT : -MAXINT;
-    int extr = inl ? binids[0].inl : binids[0].crl;
-    for ( int idx=1; idx<binids.size(); idx++ )
+    int extr = inl ? binids[0]->inl : binids[0]->data[0]->crl;
+    const int sz = binids.size();
+    for ( int idx=0; idx<sz; idx++ )
     {
-	if ( mini )
+	const BinIDTableImplInlData& inldat = *binids[idx];
+	if ( inl )
 	{
-	    if ( inl ) { if ( extr > binids[idx].inl ) extr = binids[idx].inl; }
-	    else       { if ( extr > binids[idx].crl ) extr = binids[idx].crl; }
+	    if ( mini )
+		{ if ( inldat.inl < extr ) extr = inldat.inl; }
+	    else
+		{ if ( inldat.inl > extr ) extr = inldat.inl; }
 	}
 	else
 	{
-	    if ( inl ) { if ( extr < binids[idx].inl ) extr = binids[idx].inl; }
-	    else       { if ( extr < binids[idx].crl ) extr = binids[idx].crl; }
+	    for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
+	    {
+		if ( mini )
+		    { if ( inldat.data[icrl]->crl < extr )
+				extr = inldat.data[icrl]->crl;}
+		else
+		    { if ( inldat.data[icrl]->crl > extr )
+				extr = inldat.data[icrl]->crl;}
+	    }
 	}
     }
     return extr;
@@ -501,24 +598,39 @@ bool BinIDTable::isEqBidSel( const BinIDSelector& b ) const
     const BinIDTable& bt = (const BinIDTable&)b;
     if ( binids.size() != bt.binids.size() ) return false;
     for ( int idx=0; idx<binids.size(); idx++ )
-	if ( !bt.includes(binids[idx]) ) return false;
+    {
+	const BinIDTableImplInlData& inldat = *binids[idx];
+	if ( bt.binids[idx]->data.size() != inldat.data.size() )
+	    return false;
+	for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
+	    if ( bt.binids[idx]->indexOf( inldat.data[icrl]->crl ) < 0 )
+		return false; 
+    }
     return true;
 }
 
 
 bool BinIDTable::includes( const BinID& bid ) const
 {
-    return binids.indexOf(bid) < 0 ? false : true;
+    return !excludes( bid );
 }
 
 
 bool BinIDTable::include( const BinID& bid, const char* s )
 {
-    if ( !includes(bid) )
+    const int inlidx = binids.findInl( bid.inl );
+    if ( inlidx < 0 )
     {
-	binids += bid;
-	setAnnot( binids.size()-1, s );
+	BinIDTableImplInlData* newinldat = new BinIDTableImplInlData( bid.inl );
+	binids += newinldat;
+	newinldat->set( 0 , bid.crl, s );
     }
+    else
+    {
+	BinIDTableImplInlData& inldat = *binids[inlidx];
+	inldat.set( bid.crl, s );
+    }
+
     return true;
 }
 
@@ -527,10 +639,10 @@ bool BinIDTable::include( const BinIDTable& bidt )
 {
     for ( int idx=0; idx<bidt.binids.size(); idx++ )
     {
-	const BinID& bid = bidt.binids[idx];
-	exclude( bid );
-	binids += bid;
-	setAnnot( binids.size()-1, bidt.binids.annots[idx] );
+	BinIDTableImplInlData& inldat = *bidt.binids[idx];
+	for ( int icrl=0; icrl<inldat.data.size(); idx++ )
+	    include( BinID(inldat.inl,inldat.data[icrl]->crl),
+		     inldat.data[icrl]->annot );
     }
     return true;
 }
@@ -538,30 +650,26 @@ bool BinIDTable::include( const BinIDTable& bidt )
 
 bool BinIDTable::exclude( const BinID& bid )
 {
-    int idx = binids.indexOf( bid );
-    if ( idx < 0 ) return false;
-    binids.remove( idx ); binids.annots.remove( idx );
-    return true;
+    const int inlidx = binids.findInl( bid.inl );
+    if ( inlidx < 0 ) return false;
+
+    return binids[inlidx]->remove( bid.crl );
 }
 
 
 void BinIDTable::clear()
 {
-    for ( int idx=0; idx<binids.size(); idx++ )
-	delete [] binids.annots[idx];
-    binids.annots.erase();
-    binids.erase();
+    binids.clear();
 }
 
 
 const char* BinIDTable::annotFor( const BinID& bid ) const
 {
-    int sz = binids.size();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	if ( binids[idx] == bid ) return annot( idx );
-    }
-    return 0;
+    const int inlidx = binids.findInl( bid.inl );
+    if ( inlidx < 0 ) return 0;
+    BinIDTableImplInlData& inldat = *binids[inlidx];
+    int crlidx = inldat.indexOf( bid.crl );
+    return crlidx < 0 ? 0 : inldat.data[crlidx]->annot;
 }
 
 
@@ -572,9 +680,13 @@ void BinIDTable::setStepOut( const BinID& so, BinID step )
     stepout = so;
     BinID stepso( so.inl*step.inl, so.crl*step.crl );
 
-    BinIDTableImpl oldbids;
+    TypeSet<BinID> oldbids;
     for ( int idx=0; idx<binids.size(); idx++ )
-	oldbids += binids[idx];
+    {
+	BinIDTableImplInlData& inldat = *binids[idx];
+	for ( int icrl=0; icrl<inldat.data.size(); icrl++ )
+	    oldbids += BinID(inldat.inl,inldat.data[icrl]->crl);
+    }
 
     for ( int idx=0; idx<oldbids.size(); idx++ )
     {
@@ -593,46 +705,72 @@ void BinIDTable::setStepOut( const BinID& so, BinID step )
 
 int BinIDTable::size() const
 {
-    return binids.size();
+    int sz = 0;
+    for ( int idx=0; idx<binids.size(); idx++ )
+	sz += binids[idx]->data.size();
+    return sz;
 }
 
 
-BinID BinIDTable::operator[]( int idx ) const
+BinID BinIDTable::operator[]( int ifind ) const
 {
-    return binids[idx];
+    int sz = 0;
+    for ( int idx=0; idx<binids.size(); idx++ )
+    {
+	const BinIDTableImplInlData& inldat = *binids[idx];
+	sz += inldat.data.size();
+	if ( sz > ifind )
+	{
+	    sz -= inldat.data.size();
+	    return BinID( inldat.inl, inldat.data[ifind-sz]->crl );
+	}
+    }
+    return BinID(0,0);
 }
 
 
 void BinIDTable::shift( const BinID& bid )
 {
     for ( int idx=0; idx<binids.size(); idx++ )
-	binids[idx] += bid;
-}
-
-
-const char* BinIDTable::annot( int idx ) const
-{
-    return idx < binids.annots.size() ? binids.annots[idx] : 0;
-}
-
-
-bool BinIDTable::setAnnot( int idx, const char* s )
-{
-    int sz = binids.size();
-    if ( idx < 0 || idx >= sz ) return false;
-
-    char* charptrnull = 0;
-    while ( binids.annots.size() < sz )
-	binids.annots += charptrnull;
-
-    char*& mys = binids.annots[idx];
-    if ( s == mys ) return true;
-
-    delete [] mys; mys = 0;
-    if ( s )
     {
-	mys = new char [ strlen(s) + 1 ];
-	strcpy( mys, s );
+	BinIDTableImplInlData& inldat = *binids[idx];
+	inldat.inl += bid.inl;
+	for ( int icrl=0; icrl<inldat.data.size(); idx++ )
+	    inldat.data[icrl]->crl += bid.crl;
     }
-    return true;
+}
+
+
+const char* BinIDTable::annot( int ifind ) const
+{
+    int sz = 0;
+    for ( int idx=0; idx<binids.size(); idx++ )
+    {
+	const BinIDTableImplInlData& inldat = *binids[idx];
+	sz += inldat.data.size();
+	if ( sz > ifind )
+	{
+	    sz -= inldat.data.size();
+	    return inldat.data[ ifind - sz ]->annot;
+	}
+    }
+    return 0;
+}
+
+
+bool BinIDTable::setAnnot( int ifind, const char* s )
+{
+    int sz = 0;
+    for ( int idx=0; idx<binids.size(); idx++ )
+    {
+	BinIDTableImplInlData& inldat = *binids[idx];
+	sz += inldat.data.size();
+	if ( sz > ifind )
+	{
+	    sz -= inldat.data.size();
+	    inldat.set( ifind - sz, inldat.data[ifind-sz]->crl, s );
+	    return true;
+	}
+    }
+    return false;
 }
