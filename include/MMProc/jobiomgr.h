@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.6 2004-11-11 11:35:57 bert Exp $
+ RCS:		$Id: jobiomgr.h,v 1.7 2004-11-15 14:03:51 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ public:
     			JobIOMgr( int firstport=19345, int niceval=19 );
     virtual		~JobIOMgr();
 
+    const char*		peekMsg()  { if ( msg_.size() ) return msg_; return 0; }
     void		fetchMsg( BufferString& bs )	{ bs = msg_; msg_ = "";}
 
 
