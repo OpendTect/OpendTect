@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.9 2002-08-05 14:36:38 bert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.10 2002-08-05 15:38:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
     bool		storeSinglePickSet(PickSet*);
     void		renamePickset(const char*,BufferString&);
 
-    ObjectSet<BufferString> horNames()			{ return hornms; }
+    ObjectSet<BufferString>& horNames()			{ return hornms; }
     TypeSet<BinIDValue>& horDef()			{ return hordef; }
     const char*		selHor() const			{ return selhor; }
     const BinIDRange*	selBinIDRange() const		{ return selbr; }

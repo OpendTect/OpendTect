@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.50 2002-07-31 15:06:48 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.51 2002-08-05 15:38:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class AttribSelSpec;
 class AttribSlice;
 class IOPar;
 class MultiID;
+class BinIDRange;
 
 namespace visSurvey
 {
@@ -161,10 +162,13 @@ public:
     			// Horizon stuff
     int			addHorizonDisplay(const MultiID& emhorid);
     void		removeHorizonDisplay( int );
-    void		getHorAttribPos(int,ObjectSet<TypeSet<BinIDValue> >&);
+    void		getHorAttribPos(int,ObjectSet<TypeSet<BinIDValue> >&,
+					const BinIDRange* br=0);
     			//!< The data in the objset is managed by caller
     void		putNewHorData(int,const ObjectSet<const float>& );
     void		getHorizonIds(int,TypeSet<int>&);
+    void		getHorizonNames(ObjectSet<BufferString>&);
+    int			getHorizonID(const char*);
     void		setHorizonRes(int, int res );
     			//!< 0 is automatic.
     int			getHorizonRes(int) const;

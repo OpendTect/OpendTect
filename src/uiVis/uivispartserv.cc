@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.77 2002-08-01 15:30:48 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.78 2002-08-05 15:38:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -907,11 +907,12 @@ void uiVisPartServer::removeHorizonDisplay( int id )
 
 
 void uiVisPartServer::getHorAttribPos( int id,
-				       ObjectSet<TypeSet<BinIDValue> >& bidvset)
+				       ObjectSet<TypeSet<BinIDValue> >& bidvset,
+				       const BinIDRange* br )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
-    if ( hor ) hor->getAttribPos( bidvset );
+    if ( hor ) hor->getAttribPos( bidvset, br );
 }
 
 
@@ -937,6 +938,49 @@ void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
 	if ( hor )
 	    ids += hor->id();
     }
+}
+
+
+void uiVisPartServer::getHorizonNames( ObjectSet<BufferString>& nms )
+{
+    TypeSet<int> sceneids;
+    getSceneIds( sceneids );
+
+    for ( int ids=0; ids<sceneids.size(); ids++ )
+    {
+	int sceneid = sceneids[ids];
+	TypeSet<int> horids;
+	horids.erase();
+	getHorizonIds( sceneid, horids );
+	for ( int idh=0; idh<horids.size(); idh++ )
+	{
+	    int horid = horids[idh];
+	    nms += new BufferString( getObjectName(horid) );
+	}
+    }
+}
+
+
+int uiVisPartServer::getHorizonID( const char* horname )
+{
+    TypeSet<int> sceneids;
+    getSceneIds( sceneids );
+
+    for ( int ids=0; ids<sceneids.size(); ids++ )
+    {
+        int sceneid = sceneids[ids];
+        TypeSet<int> horids;
+        horids.erase();
+        getHorizonIds( sceneid, horids );
+        for ( int idh=0; idh<horids.size(); idh++ )
+        {
+            int horid = horids[idh];
+	    if ( !strcmp(horname,getObjectName(horid)) )
+		return horid;
+	}
+    }
+
+    return -1;
 }
 
 

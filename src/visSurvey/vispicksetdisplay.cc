@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.34 2002-08-02 11:49:35 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.35 2002-08-05 15:38:18 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.34 2002-08-02 11:49:35
 #include "geompos.h"
 #include "color.h"
 #include "iopar.h"
+#include "survinfo.h"
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
 
@@ -122,6 +123,8 @@ void visSurvey::PickSetDisplay::showAll(bool yn)
 void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
 					     float dist )
 {
+    dist = SI().zRange(false).step * SPM().getAppVel() / 2;
+
     if ( showall ) return;
     for ( int idx=0; idx<group->size(); idx++ )
     {
