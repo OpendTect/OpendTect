@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.3 2003-07-14 15:00:35 nanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.4 2003-09-29 10:50:48 nanne Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,7 @@ public:
 
 protected:
     bool			writeLong(long);
+    bool			writeLongLong(long long);
     bool			writeFloat(float);
     int				dataidx;
     const EM::Surface&		surf;
@@ -102,6 +103,7 @@ public:
 
 protected:
     bool			readLong(int&);
+    bool			readLongLong(long long&);
     bool			readFloat(float&);
     BufferString		dataname;
     BufferString		datainfo;

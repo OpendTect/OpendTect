@@ -20,7 +20,7 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.8 2003-08-01 12:28:33 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.9 2003-09-29 10:50:53 nanne Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
@@ -139,7 +139,7 @@ int EM::dgbSurfDataWriter::nextStep()
 	const EM::SubID subid = subids[subidindex];
 	const float auxvalue = values[subidindex];
 
-	if ( !writeLong(subid) || !writeFloat(auxvalue) )
+	if ( !writeLongLong(subid) || !writeFloat(auxvalue) )
 	    return ErrorOccurred;
 
 	subids.remove( subidindex );
@@ -171,7 +171,7 @@ BufferString EM::dgbSurfDataWriter::createHovName( const char* base, int idx )
 }
 
 
-bool EM::dgbSurfDataWriter::writeLong(long val)
+bool EM::dgbSurfDataWriter::writeLong( long val )
 {
     if ( binary )
 	stream->write((char*) &val, sizeof(val));
@@ -182,7 +182,18 @@ bool EM::dgbSurfDataWriter::writeLong(long val)
 }
 
 
-bool EM::dgbSurfDataWriter::writeFloat(float val)
+bool EM::dgbSurfDataWriter::writeLongLong( long long val )
+{
+    if ( binary )
+	stream->write((char*) &val, sizeof(val));
+    else
+	(*stream) << val << '\n' ;
+
+    return (*stream);
+}
+
+
+bool EM::dgbSurfDataWriter::writeFloat( float val )
 {
     if ( binary )
 	stream->write((char*) &val ,sizeof(val));
@@ -295,9 +306,9 @@ int EM::dgbSurfDataReader::nextStep()
 	    totalnr = valsleftonpatch/chunksize+1;
 	}
 
-	int subid;
+	EM::SubID subid;
 	float val;
-	if ( !readLong(subid) || !readFloat(val) )
+	if ( !readLongLong(subid) || !readFloat(val) )
 	    return ErrorOccurred;
 
 	posid.setSubID( subid );
@@ -325,6 +336,14 @@ int EM::dgbSurfDataReader::totalNr() const
 
 bool EM::dgbSurfDataReader::readLong(int& res)
 {
+    (*stream) >> res;
+
+    return (*stream);
+}
+
+
+bool EM::dgbSurfDataReader::readLongLong( long long& res)
+{
     if ( subidinterpreter )
     {
 	char buf[sizeof(res)];
@@ -332,9 +351,7 @@ bool EM::dgbSurfDataReader::readLong(int& res)
 	res = subidinterpreter->get(buf,0);
     }
     else
-    {
 	(*stream) >> res;
-    }
 
     return (*stream);
 }
@@ -349,9 +366,7 @@ bool EM::dgbSurfDataReader::readFloat(float& res)
 	res = datainterpreter->get(buf,0);
     }
     else
-    {
 	(*stream) >> res;
-    }
 
     return (*stream);
 }
