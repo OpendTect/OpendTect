@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.h,v 1.2 2004-04-13 08:12:49 nanne Exp $
+ RCS:           $Id: uiwizard.h,v 1.3 2004-08-17 11:20:58 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 
     int			firstPage() const;
     int			lastPage() const;
+    int			nrPages() const			{ return pages.size(); }
 
     Notifier<uiWizard>	next;
     Notifier<uiWizard>	back;
