@@ -57,8 +57,6 @@ void ProgressMeter::reset()
 
 void ProgressMeter::resetDist()
 {
-    if ( progress > 0 )
-	annotate( true );
     dist = 1;
     idist = 0;
 }
