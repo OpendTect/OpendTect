@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.4 2005-03-09 16:44:17 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.5 2005-03-17 16:21:58 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -23,10 +23,11 @@ template <class T> class Array3D;
 namespace visBase
 {
     class BoxDragger;
+    class DataObjectGroup;
     class DepthTabPlaneDragger;
     class FaceSet;
+    class Texture3;
     class Transformation;
-    class DataObjectGroup;
 };
 
 namespace MPE { class Plane; class Engine; };
@@ -59,7 +60,8 @@ public:
     void			showDragger(bool);
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
-    
+
+    int				getAttributeFormat() const { return 3; }
     CubeSampling		getCubeSampling() const;
     void			setCubeSampling(CubeSampling);
 
@@ -73,6 +75,9 @@ protected:
 
     bool			getPlanePosition(CubeSampling&) const;
     void			setPlanePosition(const CubeSampling&);
+
+    void			setTexture(visBase::Texture3*);
+    void			updateTextureCoords();
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
@@ -91,12 +96,13 @@ protected:
     void			updateDraggerPosition(CallBacker*);
     void			updateBoxPosition(CallBacker*);
 
-    MPE::Engine&		engine;
+    MPE::Engine&		engine_;
 
     visBase::DataObjectGroup*	draggerrect_;
     visBase::FaceSet*		rectangle_;
     visBase::DepthTabPlaneDragger* dragger_;
     visBase::BoxDragger*	boxdragger_;
+    visBase::Texture3*		texture_;
 
     visBase::EventCatcher*	sceneeventcatcher_;
 
