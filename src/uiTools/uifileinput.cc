@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.16 2003-07-29 08:24:18 nanne Exp $
+ RCS:           $Id: uifileinput.cc,v 1.17 2003-08-06 12:31:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ void uiFileInput::doSelect( CallBacker* )
 	dlg.getFileNames( filenames );
 	uiFileDialog::list2String( filenames, newfname );
 	setFileName( newfname );
+	deepErase( filenames );
     }
     else
     {
