@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: settings.h,v 1.4 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: settings.h,v 1.5 2003-10-21 09:54:31 bert Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,12 @@ ________________________________________________________________________
 
 /*!\brief Settings hold the user settings. It is an IOPar.
 
-The .dGBSettings or .dGBSettings.$dGB_USER in the user's HOME will be read.
+  The common() settings are for OpendTect itself. If a plugin needs some
+  stored defaults, just call fetch() with your own key, and a new Settings
+  instance will be made.
+
+  The data is stored in ~/.od/settings (common) and ~/.od/settings.xxx
+  for other keys.
 
 */
 
@@ -27,25 +32,27 @@ class Settings : public IOPar
 {
 public:
 
-			Settings(const char* filename=0);
-			~Settings();
+    inline static Settings&	common() { return fetch(0); }
 
-    bool		reRead();
-    bool		write(bool read_before=true) const;
-			//!< read_before should be true: this is the protection
-			//!< against another update being screwed by this one
+    static Settings&		fetch(const char* settings_name);
 
-    inline static Settings& common()
-			{
-			    if ( !common_ ) common_ = new Settings;
-			    return *common_;
-			}
+    bool			write(bool read_before=true) const;
+				//!< read_before should be true: this is the
+    				//!< protection against another update being
+    				//!< screwed by this one
+    bool			reRead()	{ return doReRead(false); }
+				//!< In case you know that the file has changed
+
 
 protected:
 
-    FileNameString	fname;
+				Settings( const char* fnm )
+				    : fname(fnm)	{}
+				~Settings()		{}
 
-    static Settings*	common_;
+    FileNameString		fname;
+
+    bool			doReRead(bool);
 
 };
 

@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.21 2003-10-20 09:49:39 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.22 2003-10-21 09:54:31 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -14,32 +14,61 @@ static const char* rcsID = "$Id: settings.cc,v 1.21 2003-10-20 09:49:39 bert Exp
 #include "strmprov.h"
 #include <filegen.h>
 
-Settings* Settings::common_ = 0;
 static const char* sKey = "Default settings";
 
-
-Settings::Settings( const char* setupf )
-	: IOPar("User Settings")
-	, fname(setupf)
+static ObjectSet<Settings>& getSetts()
 {
-    if ( !setupf || !*setupf )
-    {
-	fname = GetSettingsDir();
-	fname = File_getFullPath( fname, ".od" );
-	fname = File_getFullPath( fname, "settings" );
-	const char* ptr = GetSoftwareUser();
-	if ( ptr )
-	{
-	    fname += ".";
-	    fname += ptr;
-	}
-    }
-    if ( !reRead() )
-	ErrMsg( "Cannot find valid .od/settings file" );
+    static ObjectSet<Settings>* theinst_ = 0;
+    if ( !theinst_ )
+	theinst_ = new ObjectSet<Settings>;
+    return *theinst_;
 }
 
 
-bool Settings::reRead()
+static void getFnm( const char* key, BufferString& fname )
+{
+    fname = GetSettingsDir();
+    fname = File_getFullPath( fname, ".od" );
+    fname = File_getFullPath( fname, "settings" );
+    if ( key )
+	{ fname += "."; fname += key; }
+
+    const char* ptr = GetSoftwareUser();
+    if ( ptr )
+    {
+	fname += ".";
+	fname += ptr;
+    }
+}
+
+
+Settings& Settings::fetch( const char* key )
+{
+    BufferString settnm( key && *key ? key : "Common" );
+
+    ObjectSet<Settings>& settlist = getSetts();
+    for ( int idx=0; idx<settlist.size(); idx++ )
+	if ( settlist[idx]->name() == settnm )
+	    return *settlist[idx];
+
+    const bool iscommon = settnm == "Common";
+    if ( iscommon ) key = 0;
+    BufferString fname;
+    getFnm( key, fname );
+    Settings* newsett = new Settings( fname );
+    if ( !newsett->doReRead(iscommon) )
+    {
+	if ( iscommon )
+	    ErrMsg( "Cannot find valid .od/settings file" );
+    }
+
+    newsett->setName( settnm );
+    settlist += newsett;
+    return *newsett;
+}
+
+
+bool Settings::doReRead( bool cpodsetts )
 {
     StreamData sd = StreamProvider( fname ).makeIStream();
 
@@ -47,6 +76,7 @@ bool Settings::reRead()
     BufferString usedfname = (const char*)fname;
     if ( !sd.usable() )
     {
+	// Try using the '.old' file ...
 	do_write = true;
 	usedfname = (const char*)fname;
 	usedfname += ".old";
@@ -55,14 +85,18 @@ bool Settings::reRead()
 	sd = StreamProvider( usedfname ).makeIStream();
 	if ( !sd.usable() )
 	{
+	    if ( !cpodsetts )
+		return false;
+
 	    sd.close();
 	    usedfname = GetDataFileName("odSettings");
 	    sd = StreamProvider( usedfname ).makeIStream();
 	}
     }
+
     if ( !sd.usable() )
     {
-	ErrMsg( "Cannot find any valid user settings file" );
+	ErrMsg( "Cannot find any valid 'common' user settings file" );
 	sd.close(); return false;
     }
 
@@ -87,11 +121,6 @@ bool Settings::reRead()
 
     if ( do_write ) write( false );
     return true;
-}
-
-
-Settings::~Settings()
-{
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.7 2003-10-17 14:19:03 bert Exp $
+ RCS:           $Id: uisettings.cc,v 1.8 2003-10-21 09:54:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiSettings::uiSettings( uiParent* p, const char* nm )
+uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	: uiDialog(p,uiDialog::Setup(nm,"Specify GDI settings","0.2.1"))
-	, setts(*new Settings)
+	, setts(Settings::fetch(settskey))
 	, curidx(0)
 {
     for ( int idx=0; idx<setts.size(); idx++ )
@@ -48,7 +48,6 @@ uiSettings::uiSettings( uiParent* p, const char* nm )
 
 uiSettings::~uiSettings()
 {
-    delete &setts;
 }
 
 

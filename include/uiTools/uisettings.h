@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		November 2001
- RCS:		$Id: uisettings.h,v 1.3 2003-10-17 14:19:01 bert Exp $
+ RCS:		$Id: uisettings.h,v 1.4 2003-10-21 09:54:31 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,8 @@ class uiLabeledComboBox;
 class uiSettings : public uiDialog
 {
 public:
-			uiSettings(uiParent*,const char*);
+			uiSettings(uiParent*,const char* titl,
+				   const char* settskey=0);
     virtual		~uiSettings();
 
 protected:
