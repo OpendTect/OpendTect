@@ -10,7 +10,7 @@
 #include "iopar.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.6 2001-07-26 09:44:51 windev Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.7 2003-03-20 17:07:56 bert Exp $";
 
 DefineAbstractClassDef(Translator,"Translator");
 
@@ -84,31 +84,36 @@ IOPar& Translator::mkSelHist( const char* nm )
 }
 
 
-int Translator::implExists( const IOObj* ioobj, int forread ) const
+bool Translator::implExists( const IOObj* ioobj, int forread ) const
 {
-    if ( !ioobj ) return NO;
+    if ( !ioobj ) return false;
     return ioobj->implExists( forread );
 }
-int Translator::implRemovable( const IOObj* ioobj ) const
+bool Translator::implRemovable( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return NO;
+    if ( !ioobj ) return false;
     return ioobj->implRemovable();
 }
-int Translator::implRemove( const IOObj* ioobj ) const
+bool Translator::implRemove( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return NO;
+    if ( !ioobj ) return false;
     return ioobj->implRemove();
+}
+bool Translator::implRename( const IOObj* ioobj, const char* newnm ) const
+{
+    if ( !ioobj ) return false;
+    return const_cast<IOObj*>(ioobj)->implRename( newnm );
 }
 
 
-int Translator::hasConnDef( const ClassDef& cd ) const
+bool Translator::hasConnDef( const ClassDef& cd ) const
 {
     for ( int itr=0; itr<defs().size(); itr++ )
     {
 	const ClassDef* def = defs()[itr];
 	Translator* tr = (Translator*)def->getNew();
-	if ( tr->conndef_ == &cd ) { delete tr; return YES; }
+	if ( tr->conndef_ == &cd ) { delete tr; return true; }
 	delete tr;
     }
-    return NO;
+    return false;
 }

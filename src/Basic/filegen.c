@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.33 2003-03-13 12:10:33 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.34 2003-03-20 17:07:56 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -522,7 +522,11 @@ int File_remove( const char* fname, int force, int recursive )
 	return YES;
 
     if ( !recursive )
+    {
+	if ( !force && !File_isWritable(fname) )
+	    return NO;
 	return unlink((char*)fname) ? NO : YES;
+    }
 
     len = strlen( fname ) + 30;
     cmd = mMALLOC(len,char);

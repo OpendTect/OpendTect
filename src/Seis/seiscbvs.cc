@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.35 2003-03-19 16:21:59 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.36 2003-03-20 17:07:56 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -576,11 +576,11 @@ void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
 }
 
 
-int CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
-    if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return NO;
+    if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return false;
     mDynamicCastGet(const IOStream*,iostrm,ioobj)
-    if ( !iostrm ) return NO;
+    if ( !iostrm ) return false;
     if ( iostrm->isMulti() )
 	return iostrm->implRemove();
 
@@ -592,8 +592,36 @@ int CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 	StreamProvider sp( CBVSIOMgr::getFileName( basenm, nr ) );
 	sp.addPathIfNecessary( pathnm );
 	if ( !sp.exists(true) )
-	    return YES;
+	    return true;
 	if ( !sp.remove(false) )
-	    return nr ? YES : NO;
+	    return nr ? true : false;
+    }
+}
+
+
+bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj,
+					const char* newnm ) const
+{
+    if ( !ioobj || strcmp(ioobj->translator(),"CBVS") ) return false;
+    mDynamicCastGet(const IOStream*,iostrm,ioobj)
+    if ( !iostrm ) return false;
+    if ( iostrm->isMulti() )
+	return const_cast<IOStream*>(iostrm)->implRename( newnm );
+
+    const BufferString pathnm = iostrm->dirName();
+    const BufferString basenm = iostrm->fileName();
+
+    bool rv = true;
+    for ( int nr=0; ; nr++ )
+    {
+	StreamProvider sp( CBVSIOMgr::getFileName( basenm, nr ) );
+	sp.addPathIfNecessary( pathnm );
+	if ( !sp.exists(true) )
+	    return rv;
+
+	StreamProvider spnew( CBVSIOMgr::getFileName(newnm,nr) );
+	spnew.addPathIfNecessary( pathnm );
+	if ( !sp.rename(spnew.fileName()) )
+	    rv = false;
     }
 }

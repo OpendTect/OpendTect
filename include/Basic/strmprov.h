@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.9 2002-12-13 17:05:55 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.10 2003-03-20 17:07:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,8 @@ public:
 		StreamProvider(const char* nm=0);
 		StreamProvider(const char*,const char*,StreamConn::Type);
     void	set(const char*);
+    bool	rename(const char*);
+    		//!< renames if file. if successful, does a set()
 
     bool	skipFiles(int) const;
 		//!< Skips files if tape

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.46 2003-03-19 16:21:59 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.47 2003-03-20 17:07:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
 	if ( ret != -1 )
 	{
 	    if ( ret == rmit->id() )
-		chgd = rmEntry( tr, rmabl );
+		chgd = rmEntry( rmabl );
 	    else if ( ret == renit->id() )
 		chgd = renEntry();
 	    else if ( fnmit && ret == fnmit->id() )
@@ -198,7 +198,7 @@ bool uiIOObjSelDlg::renEntry()
 }
 
 
-bool uiIOObjSelDlg::rmImpl( Translator* tr, IOObj& ioob, bool askexist )
+bool uiRmIOObjImpl( IOObj& ioob, bool askexist )
 {
     BufferString mess = "Remove ";
     if ( askexist ) mess += " existing ";
@@ -214,20 +214,21 @@ bool uiIOObjSelDlg::rmImpl( Translator* tr, IOObj& ioob, bool askexist )
     if ( !uiMSG().askGoOn(mess) )
 	return false;
 
-    bool rmd = tr ? tr->implRemove(&ioob) : ioob.implRemove();
-    if ( !rmd )
+    if ( !fullImplRemove(ioob) )
     {
 	BufferString mess = "Could not remove '";
-	mess += ioob.fullUserExpr(true); mess += "'";
-	uiMSG().warning( mess );
+	mess += ioob.fullUserExpr(true);
+	mess += "'\nRemove entry from list anyway?";
+	if ( !uiMSG().askGoOn(mess) )
+	    return false;
     }
     return true;
 }
 
 
-bool uiIOObjSelDlg::rmEntry( Translator* tr, bool rmabl )
+bool uiIOObjSelDlg::rmEntry( bool rmabl )
 {
-    if ( rmabl && ! rmImpl( tr, *ioobj, false ) )
+    if ( rmabl && !uiRmIOObjImpl( *ioobj, false ) )
 	return false;
 
     entrylist->curRemoved();
@@ -250,17 +251,19 @@ bool uiIOObjSelDlg::chgEntry( Translator* tr )
     BufferString newfnm( dlg.fileName() );
     chiostrm.setFileName( newfnm );
 
-    bool implexist = tr ? tr->implExists(iostrm,true) :iostrm->implExists(true);
-    if ( implexist )
+    const bool oldimplexist = tr ? tr->implExists(iostrm,true)
+				 :iostrm->implExists(true);
+    if ( oldimplexist )
     {
-	bool oldimplexist = tr ? tr->implExists(&chiostrm,true)
-			       : chiostrm.implExists(true);
-	if ( oldimplexist )
-	{
-	    if ( !rmImpl( tr, chiostrm, true ) )
-		return false;
-	    File_rename( oldfnm, newfnm );
-	}
+	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
+				     : chiostrm.implExists(true);
+	if ( newimplexist && !uiRmIOObjImpl( chiostrm, true ) )
+	    return false;
+
+	if ( tr )
+	    tr->implRename( iostrm, newfnm );
+	else
+	    iostrm->implRename( newfnm );
     }
 
     iostrm->setFileName( newfnm );

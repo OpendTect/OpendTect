@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.10 2002-08-02 12:48:17 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.11 2003-03-20 17:07:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,8 +73,9 @@ public:
     virtual const char*	fullUserExpr(bool forread) const= 0;
 
     virtual bool	implExists(bool forread) const	= 0;
-    virtual bool	implRemovable() const		= 0;
-    virtual bool	implRemove() const		= 0;
+    virtual bool	implRemovable() const		{ return false; }
+    virtual bool	implRemove() const		{ return false; }
+    virtual bool	implRename(const char*)		{ return false; }
     virtual bool	removeQuery() const		{ return false; }
     virtual void	genDefaultImpl()		{}
 

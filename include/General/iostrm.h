@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.10 2003-02-21 11:51:26 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.11 2003-03-20 17:07:56 bert Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
     bool		implExists(bool forread) const;
     bool		implRemovable() const;
     bool		implRemove() const;
+    bool		implRename(const char*);
 
     bool		multiConn() const
 			{ return isMulti() && curfnr <= fnrs.stop; }

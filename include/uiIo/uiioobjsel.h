@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.25 2003-03-19 16:21:59 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.26 2003-03-20 17:07:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,13 +75,16 @@ protected:
 
     virtual bool	createEntry(const char*);
 
-    bool		rmEntry(Translator*,bool);
+    bool		rmEntry(bool);
     bool		renEntry();
     bool		chgEntry(Translator*);
 
-    bool		rmImpl(Translator*,IOObj&,bool);
 };
 
+
+//! Removes the underlying file(s) that an IOObj describes, with warnings
+//!< if exist_lbl set to true, " existing " is added to message.
+bool uiRmIOObjImpl(IOObj&,bool exist_lbl=false);
 
 /*! \brief UI element for selection of IOObjs
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.22 2003-03-18 16:04:44 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.23 2003-03-20 17:07:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uimergeseis.h"
 #include "uiseiscbvsimp.h"
+#include "uiioobjsel.h"
 #include "uifiledlg.h"
 #include "uitextedit.h"
 #include "seistrctr.h"
@@ -163,26 +164,8 @@ void uiSeisFileMan::removePush( CallBacker* )
 {
     if ( !ioobj ) return;
     int curitm = listfld->currentItem();
-    if ( ioobj->implRemovable() )
-    {
-	BufferString msg( "Remove '" );
-	if ( !ioobj->isLink() )
-	    { msg += ioobj->fullUserExpr(YES); msg += "'?"; }
-	else
-	{
-	    FileNameString fullexpr( ioobj->fullUserExpr(YES) );
-	    msg += File_getFileName(fullexpr);
-	    msg += "'\n- and everything in it! - ?";
-	}
-	if ( !uiMSG().askGoOn(msg) ) return;
-
-	if ( !fullImplRemove(*ioobj) )
-	{
-	    msg = "Could not remove '";
-	    msg += ioobj->fullUserExpr(YES); msg += "'";
-	    uiMSG().warning( msg );
-	}
-    }
+    if ( ioobj->implRemovable() && !uiRmIOObjImpl(*ioobj,false) )
+	return;
 
     entrylist->curRemoved();
     IOM().permRemove( ioobj->key() );
@@ -200,19 +183,19 @@ void uiSeisFileMan::renamePush( CallBacker* )
     skipLeadingBlanks( ptr );
     uiGenInputDlg dlg( this, "Rename seismic cube", "New name",
 	    		new StringInpSpec(ptr) );
-    if ( dlg.go() )
-    {
-	if ( listfld->isPresent( dlg.text() ) )
-	    if ( !uiMSG().askGoOn("Filename exists, overwrite?") )
-		return;
+    if ( !dlg.go() ) return;
 
-	MultiID key = ioobj->key();
-	if ( IOM().setFileName( key, dlg.text() ) )
-	{
-	    PtrMan<IOObj> locioobj = IOM().get( key );
-	    handleMultiFiles( fulloldname, locioobj->fullUserExpr(true) );
-	}
+    if ( listfld->isPresent( dlg.text() ) )
+	if ( !uiMSG().askGoOn("Cube name exists, overwrite?") )
+	    return;
+
+    MultiID key = ioobj->key();
+    if ( IOM().setFileName( key, dlg.text() ) )
+    {
+	PtrMan<IOObj> locioobj = IOM().get( key );
+	handleMultiFiles( fulloldname, locioobj->fullUserExpr(true) );
     }
+
     refreshList( curitm );
 }
 
@@ -226,12 +209,12 @@ void uiSeisFileMan::relocatePush( CallBacker* )
     const FileNameString fulloldname = ioobj->fullUserExpr(true);
     if ( !File_exists(fulloldname) )
     {
-	uiMSG().error( "File does not exist" );
+	uiMSG().error( "There are no files for this entry (yet)" );
         return;
     }
 
-    const char* dirpath = File_getPathOnly( fulloldname );
-    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, dirpath, 0,
+    BufferString olddirpath = File_getPathOnly( fulloldname );
+    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, olddirpath, 0,
 	   	      "Select destination directory" );
     if ( !dlg.go() ) return;
     BufferString newdirpath = dlg.fileName();
@@ -239,7 +222,7 @@ void uiSeisFileMan::relocatePush( CallBacker* )
     BufferString fullnewname = File_getFullPath(newdirpath,fname);
     if ( File_exists(fullnewname) )
     {
-	uiMSG().error( "New name exists at given location\n"
+	uiMSG().error( "A cube with this name exists at given location\n"
 		       "Please select another location" );
 	return;
     }

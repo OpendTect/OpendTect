@@ -31,7 +31,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.32 2003-03-19 16:21:59 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.33 2003-03-20 17:07:56 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -466,10 +466,10 @@ bool StreamProvider::remove( bool recursive ) const
 
     if ( !hostname[0] )
 	return fname == sStdIO || fname == sStdErr ? false :
-		File_remove( (const char*)fname, YES, recursive );
+		File_remove( (const char*)fname, NO, recursive );
     else
     {
-	sprintf( oscommand.buf(), "%s %s '/bin/rm -%sf %s && echo 1'",
+	sprintf( oscommand.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
 		  (const char*)rshcomm,
 		  (const char*)hostname, recursive ? "r" : "",
 		  (const char*)fname );
@@ -479,4 +479,32 @@ bool StreamProvider::remove( bool recursive ) const
 	pclose( fp );
 	return c == '1';
     }
+}
+
+
+bool StreamProvider::rename( const char* newnm )
+{
+    bool rv = true;
+
+    if ( newnm && *newnm && !isbad && type_ == StreamConn::File )
+    {
+	if ( !hostname[0] )
+	    rv = fname == sStdIO || fname == sStdErr ? true :
+		    File_rename( (const char*)fname, newnm );
+	else
+	{
+	    sprintf( oscommand.buf(), "%s %s '/bin/mv -f %s %s && echo 1'",
+		      (const char*)rshcomm, (const char*)hostname,
+		      (const char*)fname, newnm );
+	    FILE* fp = popen( oscommand, "r" );
+	    char c;
+	    fscanf( fp, "%c", &c );
+	    pclose( fp );
+	    rv = c == '1';
+	}
+    }
+
+    if ( rv )
+	set( newnm );
+    return rv;
 }
