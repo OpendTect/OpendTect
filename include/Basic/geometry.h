@@ -7,10 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.2 2000-07-14 14:59:53 arend Exp $
+ RCS:           $Id: geometry.h,v 1.3 2000-07-19 09:25:41 bert Exp $
 ________________________________________________________________________
 
 -*/
+
+#include <gendefs.h>
+
 
 template <class T>
 class Point

@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		12-4-1999
  Contents:	Simple numerical functions
- RCS:		$Id: simpnumer.h,v 1.5 2000-03-22 13:40:52 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.6 2000-07-19 09:25:43 bert Exp $
 ________________________________________________________________________
 
 */
 
 #include <general.h>
+#include <math.h>
 
 //
 // sort_array: sort quickly (algorithm taken from xv).
@@ -409,9 +410,9 @@ inline void interpolateSampled( const T& idxabl, int sz, float pos, RT& ret,
 
     const int prevpos = dist > 0 ? intpos : intpos - 1;
     if ( prevpos < 1 )
-	ret = linearInterpolate( idxabl[0], idxabl[1], pos );
+	ret = linearInterpolate( (RT)idxabl[0], (RT)idxabl[1], pos );
     else if ( prevpos > sz-3 )
-	ret = linearInterpolate( idxabl[sz-2], idxabl[sz-1], pos-(sz-2) );
+	ret = linearInterpolate( (RT)idxabl[sz-2], (RT)idxabl[sz-1],pos-(sz-2));
     else
 	ret = polyInterpolate( (RT)idxabl[prevpos-1], 
 			       (RT)idxabl[prevpos], 
@@ -651,5 +652,105 @@ inline T sampledGradient( T ym2, T ym1, T y0, T y1, T y2 )
     return mUndefValue;
 }
 
+template <class X, class Y, class RT>
+inline void getGradient( const X& x, const Y& y, int sz, int firstx, int firsty,
+		  RT* gradptr=0, RT* interceptptr=0 )
+{
+    RT xy_sum = 0, x_sum=0, y_sum=0, xx_sum=0;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	RT xval = x[idx+firstx];
+	RT yval = y[idx+firsty];
+
+	x_sum += xval;
+	y_sum += yval;
+	xx_sum += xval*xval;
+	xy_sum += xval*yval;
+    }
+
+    RT grad = ( sz*xy_sum - x_sum*y_sum ) / ( sz*xx_sum - x_sum*x_sum );
+    if ( gradptr ) *gradptr = grad;
+
+    if ( interceptptr ) *interceptptr = (y_sum - grad*x_sum)/sz;
+}
+
+template <class X>
+inline float variance( const X& x, int sz )
+{
+    if ( sz < 2 ) return mUndefValue;
+
+    float sum=0;
+    float sqsum=0;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	float val = x[idx];
+
+	sum += val;
+	sqsum += val*val;
+    }
+
+    return (sqsum - sum * sum / sz)/ (sz -1);
+}
+
+
+/*
+solve3DPoly - finds the roots of the equation 
+
+    z^3+a*z^2+b*z+c = 0
+
+solve3DPoly returns the number of real roots found.
+
+Algorithms taken from NR, page 185.
+
+*/
+
+inline int solve3DPoly( double a, double b, double c, 
+			 double& root0,
+			 double& root1,
+			 double& root2 )
+{
+    const double a2 = a*a;
+    const double q = (a2-3*b)/9;
+    const double r = (2*a2*a-9*a*b+27*c)/54;
+    const double q3 = q*q*q;
+    const double r2 = r*r;
+    
+
+    const double minus_a_through_3 = -a/3;
+
+    if ( r2<q3 )
+    {
+	const double minus_twosqrt_q = -2*sqrt(q);
+	const double theta = acos(r/sqrt(q3));
+	static const double twopi = 2*M_PI;
+
+
+	root0 = minus_twosqrt_q*cos(theta/3)+minus_a_through_3; 
+	root1=minus_twosqrt_q*cos((theta-twopi)/3)+minus_a_through_3;
+	root2=minus_twosqrt_q*cos((theta+twopi)/3)+minus_a_through_3;
+	return 3;
+    }
+
+    const double A=(r>0?-1:1)*pow(fabs(r)+sqrt(r2-q3),1/3);
+    const double B=mIS_ZERO(A)?0:q/A;
+
+    root0 = A+B+minus_a_through_3;
+
+    /* 
+    If the complex roots are wanted, uncomment these lines
+    static const double sqrt3_through_2 = sqrt(3)/2;
+
+    root1 = complex_double( 0.5*(A+B)+minus_a_through_3,
+			   sqrt3_through_2*(A-B));
+
+    root2 = complex_double( 0.5*(A+B)+minus_a_through_3,
+			   -sqrt3_through_2*(A-B));
+    */
+			     
+
+    return 1;
+}
 
 #endif
