@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.30 2004-11-18 11:11:31 dgb Exp $
+# $Id: od_exec_rmt,v 1.31 2004-12-05 00:09:30 bert Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -136,7 +136,9 @@ if ( $?DTECT_DEBUG ) then
     set transf="${transf} +-+ setenv DTECT_DEBUG $DTECT_DEBUG"
 endif
 
-if ( $?DISPLAY ) then
+if ( $?OD_REMOTE_DISPLAY ) then
+	set transf="${transf} +-+ setenv DISPLAY $OD_REMOTE_DISPLAY"
+else if ( $?DISPLAY ) then
 	set dnm=`echo $DISPLAY|sed 's/://'| awk '{print $1}'`
 	if ( $dnm == local || $dnm == unix || $dnm == 0 || $dnm == "0.0" ) then
 		set hona=`uname -a|awk '{print $2}'`
