@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.26 2003-06-19 09:21:27 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.27 2003-07-04 13:32:33 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -104,63 +104,102 @@ Executor* EM::Horizon::saver()
 }
 
 
-bool EM::Horizon::import( const Grid& grid )
+namespace EM
+{
+class HorizonImporter : public Executor
+{
+public:
+    HorizonImporter( EM::Horizon& hor, const Grid& g )
+	: Executor("Horizon Import")
+	, horizon( hor )
+	, grid( g )
+	, patch( hor.addPatch(0, true) )
+    {
+	const int nrrows = grid.nrRows();
+	const int nrcols = grid.nrCols();
+	for ( int row=0; row<nrrows; row++ )
+	{
+	    for ( int col=0; col<nrcols; col++ )
+	    {
+		GridNode gridnode( col, row );
+		const Coord coord = grid.getCoord( gridnode );
+		const BinID bid = SI().transform(coord);
+
+		if ( !row && !col )
+		{
+		    inlrange.start = bid.inl; inlrange.stop = bid.inl;
+		    crlrange.start = bid.crl; crlrange.stop = bid.crl;
+		}
+		else
+		{
+		    inlrange.include( bid.inl );
+		    crlrange.include( bid.crl );
+		}
+	    }
+	}
+
+
+	const GridNode node00( 0, 0 );
+	const GridNode node11( 1, 1 );
+
+	const BinID bid00 = SI().transform(grid.getCoord( node00 ));
+	const BinID bid11 = SI().transform(grid.getCoord( node11 ));
+
+	inlrange.step = abs(bid00.inl-bid11.inl);
+	crlrange.step = abs(bid00.crl-bid11.crl);
+
+	const RowCol step( inlrange.step, crlrange.step );
+	const RowCol origo(bid00.inl,bid00.crl);
+	horizon.setTranslatorData( step, step, origo, 0, 0 );
+
+	inl = inlrange.start;
+    }
+
+    int		totalNr() const { return inlrange.nrSteps()+1; }
+    int		nrDone() const { return inlrange.getIndex(inl); }
+    const char*	nrDoneText() const { return "Gridlines imported"; }
+    int		nextStep()
+		{
+		    if ( inl>inlrange.stop )
+			return Finished;
+
+		    for ( int crl=crlrange.start; crl<=crlrange.stop;
+			      crl+=crlrange.step )
+		    {
+			const Coord coord = SI().transform(BinID(inl,crl));
+			const GridNode gridnode = grid.getNode(coord);
+			const float val = grid.getValue( gridnode );
+			if ( mIsUndefined(val) )
+			    continue;
+
+			const EM::SubID subid =
+				    horizon.rowCol2SubID(RowCol(inl,crl));
+
+			Coord3 pos(coord.x, coord.y, val );
+			horizon.setPos( patch, subid, pos, true, false );
+		    }
+
+		    inl += inlrange.step;
+		    return MoreToDo;
+		}
+
+
+protected:
+    EM::Horizon&	horizon;
+    const Grid&		grid;
+    StepInterval<int>	inlrange;
+    StepInterval<int>	crlrange;
+
+    int			inl;
+    const EM::PatchID	patch;
+};
+};
+
+
+
+Executor* EM::Horizon::import( const Grid& grid )
 {
     cleanUp();
 
-    Interval<int> inlrange;
-    Interval<int> crlrange;
-    const int nrrows = grid.nrRows();
-    const int nrcols = grid.nrCols();
-    for ( int row=0; row<nrrows; row++ )
-    {
-	for ( int col=0; col<nrcols; col++ )
-	{
-	    GridNode gridnode( col, row );
-	    const Coord coord = grid.getCoord( gridnode );
-	    const BinID bid = SI().transform(coord);
-
-	    if ( !row && !col )
-	    {
-		inlrange.start = bid.inl; inlrange.stop = bid.inl;
-		crlrange.start = bid.crl; crlrange.stop = bid.crl;
-	    }
-	    else
-	    {
-		inlrange.include( bid.inl );
-		crlrange.include( bid.crl );
-	    }
-	}
-    }
-
-    const GridNode node00( 0, 0 );
-    const GridNode node11( 1, 1 );
-
-    const BinID bid00 = SI().transform(grid.getCoord( node00 ));
-    const BinID bid11 = SI().transform(grid.getCoord( node11 ));
-
-    step = RowCol( abs(bid00.inl-bid11.inl), abs(bid00.crl-bid11.crl));
-    loadedstep = step;
-    origo = RowCol(bid00.inl,bid00.crl);
-
-    const EM::PatchID part = addPatch(0, true);
-    for ( int inl=inlrange.start; inl<=inlrange.stop; inl+=step.row )
-    {
-	for ( int crl=crlrange.start; crl<=crlrange.stop; crl+=step.col )
-	{
-	    const Coord coord = SI().transform(BinID(inl,crl));
-	    const GridNode gridnode = grid.getNode(coord);
-	    const float val = grid.getValue( gridnode );
-	    if ( mIsUndefined(val) )
-		continue;
-
-	    const EM::SubID subid =
-			    Geometry::GridSurface::getPosID(RowCol(inl,crl));
-
-	    Coord3 pos(coord.x, coord.y, val );
-	    setPos( part, subid, pos, true, false );
-	}
-    }
-
-    return true;
+    return new EM::HorizonImporter( *this, grid );
 }

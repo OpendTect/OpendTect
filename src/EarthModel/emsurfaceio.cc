@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.7 2003-07-02 06:17:19 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.8 2003-07-04 13:32:33 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -694,14 +694,10 @@ int EM::dgbSurfaceWriter::nextStep()
 	const Geometry::GridSurface* gsurf =
 	    			surface.getSurface(patchsel[patchindex]);
 
-	firstrow =
-	    surface.subID2RowCol(
-		    surface.getSurfSubID(RowCol(gsurf->firstRow(),0))).row;
-
-	int lastrow =
-	    surface.subID2RowCol(
-		    surface.getSurfSubID(RowCol(gsurf->lastRow(),0))).row;
-
+	StepInterval<int> patchrange;
+       	surface.getRange( patchsel[patchindex], patchrange, true );
+	firstrow = patchrange.start;
+	int lastrow = patchrange.stop;
 
 	if ( writerowrange )
 	{

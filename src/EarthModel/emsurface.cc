@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.10 2003-06-19 13:38:32 bert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.11 2003-07-04 13:32:33 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -180,7 +180,7 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
 }
 
 
-bool EM::Surface::setPos( PatchID patch, const EM::SubID& subid,
+bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
 				   const Coord3& pos, bool autoconnect,
 				   bool addtohistory)
 {
@@ -259,12 +259,35 @@ bool EM::Surface::setPos( const EM::PosID& posid, const Coord3& newpos,
 
 Coord3 EM::Surface::getPos( const EM::PosID& posid ) const
 {
-    const int surfidx = patchids.indexOf( posid.patchID() );
+    return getPos( posid.patchID(), subID2RowCol(posid.subID()) );
+}
+
+
+Coord3 EM::Surface::getPos( const PatchID& patch, const RowCol& rc) const
+{
+    const int surfidx = patchids.indexOf( patch );
     RowCol geomnode;
-    if ( !getGridRowCol( posid.subID(), geomnode ) )
+    if ( !getGridRowCol( rc, geomnode ) )
 	return Coord3( mUndefValue, mUndefValue, mUndefValue );
 
     return surfaces[surfidx]->getGridPos( geomnode );
+}
+
+
+bool EM::Surface::isDefined( const EM::PosID& posid ) const
+{
+    return isDefined( posid.patchID(), subID2RowCol(posid.subID()) );
+}
+
+
+bool EM::Surface::isDefined( const PatchID& patch, const RowCol& rc) const
+{
+    const int surfidx = patchids.indexOf( patch );
+    RowCol geomnode;
+    if ( !getGridRowCol( rc, geomnode ) )
+	return false;
+
+    return surfaces[surfidx]->isDefined( geomnode );
 }
 
 
@@ -381,36 +404,31 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 	    EM::PosID currentposid = (*neigbors[idx])[idz];
 	    const RowCol rowcol = subID2RowCol(currentposid.subID());
 
-	    for ( int row=-1; row<=1; row++ )
+	    for ( int row=-step.row; row<=step.row; row+=step.row )
 	    {
-		for ( int col=-1; col<=1; col++ )
+		for ( int col=-step.col; col<=step.col; col+=step.col )
 		{
 		    if ( !row && !col ) continue;
 
 		    const RowCol neighborrowcol(rowcol.row+row,rowcol.col+col);
-		    const int drow = abs(neighborrowcol.row-start.row);
-		    const int dcol = abs(neighborrowcol.col-start.col);
+		    const int drow = abs(neighborrowcol.row-start.row)/step.row;
+		    const int dcol = abs(neighborrowcol.col-start.col)/step.col;
 
 		    if ( drow>maxradius || dcol>maxradius )
 			continue;
 
 		    if ( circle && (drow*drow+dcol*dcol)> maxradius*maxradius)
 			continue;
-		   
 
-		    
-		    const Geometry::GridSurface* surface =
-		    			getSurface(currentposid.patchID());
-
-		    if ( !surface->isDefined(neighborrowcol))
+		    if ( !isDefined(currentposid.patchID(),neighborrowcol) )
 			continue;
-
-		    bool found = false;
+		   
 		    const EM::PosID
 			    neighborposid(currentposid.emObject(),
 			    currentposid.patchID(),
 			    rowCol2SubID(neighborrowcol) );
 
+		    bool found = false;
 		    for ( int idy=0; idy<neigbors.size(); idy++ )
 		    {
 			const TypeSet<EM::PosID>& posids=*neigbors[idy];
@@ -424,8 +442,7 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 		    if ( found )
 			continue;
 
-		    TypeSet<EM::PosID>& posids =
-					    *new TypeSet<EM::PosID>;
+		    TypeSet<EM::PosID>& posids = *new TypeSet<EM::PosID>;
 		    getLinkedPos( neighborposid, posids );
 		    posids.insert( 0, neighborposid );
 
@@ -599,14 +616,21 @@ void EM::Surface::setAuxDataVal(int dataidx,const EM::PosID& posid, float val)
 }
 
 
-bool EM::Surface::getGridRowCol( const EM::SubID& posid,
-			     RowCol& nodeid ) const
+bool EM::Surface::getGridRowCol( const EM::SubID& subid,
+			     RowCol& gridrowcol ) const
 {
-    const RowCol emrowcol = subID2RowCol(posid) - origo;
-    if ( emrowcol.row%loadedstep.row || emrowcol.col%loadedstep.col )
+    return getGridRowCol( subID2RowCol(subid),gridrowcol);
+}
+
+
+bool EM::Surface::getGridRowCol( const RowCol& emrowcol,
+			     RowCol& gridrowcol ) const
+{
+    const RowCol relrowcol = emrowcol - origo;
+    if ( relrowcol.row%loadedstep.row || relrowcol.col%loadedstep.col )
 	return false;
 
-    nodeid = emrowcol/loadedstep;
+    gridrowcol = relrowcol/loadedstep;
     return true;
 }
 
@@ -662,25 +686,40 @@ void EM::Surface::getRange( StepInterval<int>& rg, bool rowdir ) const
     for ( int idx=0; idx<nrpatches; idx++ )
     {
 	const EM::PatchID patchid = patchID( idx );
-	const Geometry::GridSurface& gsurf = *getSurface( patchid );
-
-	const Interval<int> colint( gsurf.getColInterval() );
-	const RowCol firstrowcol =
-	    subID2RowCol( getSurfSubID( RowCol(gsurf.firstRow(),colint.start)));
-	const RowCol lastrowcol =
-	    subID2RowCol( getSurfSubID( RowCol(gsurf.lastRow(),colint.stop) ) );
+	StepInterval<int> patchrg;
+	getRange( patchID(idx), patchrg, rowdir );
+	
 	if ( !idx )
-	{
-	    rg.start = rowdir ? firstrowcol.row : firstrowcol.col;
-	    rg.stop = rowdir ? lastrowcol.row : lastrowcol.col;
-	}
+	    rg = patchrg;
 	else
 	{
-	    if ( rowdir )
-		{ rg.include( firstrowcol.row ); rg.include( lastrowcol.row ); }
-	    else
-		{ rg.include( firstrowcol.col ); rg.include( lastrowcol.col ); }
+	    rg.include( patchrg.start ); 
+	    rg.include( patchrg.stop );
 	}
+    }
+}
+
+
+void EM::Surface::getRange( const EM::PatchID& patchid, StepInterval<int>& rg,
+			    bool rowdir ) const
+{
+    const Geometry::GridSurface& gsurf = *getSurface( patchid );
+    if ( rowdir )
+    {
+	const RowCol firstrow(gsurf.firstRow(),0);
+	const RowCol lastrow(gsurf.lastRow(),0);
+
+	rg.start = subID2RowCol( getSurfSubID(firstrow)).row;
+	rg.stop = subID2RowCol( getSurfSubID(lastrow)).row;
+    }
+    else
+    {
+	const Interval<int> colrg = gsurf.getColInterval();
+	const RowCol firstrow(0,colrg.start);
+	const RowCol lastrow(0,colrg.stop);
+
+	rg.start = subID2RowCol( getSurfSubID(firstrow)).col;
+	rg.stop = subID2RowCol( getSurfSubID(lastrow)).col;
     }
 
     rg.step = rowdir ? loadedStep().row : loadedStep().col;

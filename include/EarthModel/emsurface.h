@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.9 2003-06-19 13:38:32 bert Exp $
+ RCS:		$Id: emsurface.h,v 1.10 2003-07-04 13:32:46 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -78,11 +78,15 @@ public:
     			
     void		removePatch(EM::PatchID, bool addtohistory);
 
-    bool		setPos( PatchID patch, const SubID&, const Coord3&,
-	    			bool autoconnect, bool addtohistory );
+    bool		setPos( const PatchID& patch, const SubID&,
+	    			const Coord3&, bool autoconnect, bool addtoh );
+    bool		setPos(const EM::PosID&, const Coord3&, bool addtohist);
+
+    bool		isDefined( const PatchID& patch, const RowCol&) const;
+    bool		isDefined( const EM::PosID& ) const;
+
     Coord3		getPos(const EM::PosID&) const;
-    bool		setPos(const EM::PosID&, const Coord3&,
-	    		       bool addtohistory);
+    Coord3		getPos(const PatchID& patch, const RowCol&) const;
     
     int			findPos( const CubeSampling&,
 	    			 TypeSet<EM::PosID>* res ) const;
@@ -138,10 +142,6 @@ public:
     void		setDBInfo( const char* s )	{ dbinfo = s; }
 
     const Geometry::GridSurface*		getSurface(PatchID) const;
-    bool		getGridRowCol( const EM::SubID&, RowCol& ) const;
-    EM::SubID		getSurfSubID( const RowCol& ) const;
-    EM::SubID		getSurfSubID( const Geometry::PosID& ) const;
-
     RowCol		loadedStep() const;
     void		setTranslatorData( const RowCol& step,
 	    				   const RowCol& loadedstep,
@@ -165,8 +165,20 @@ public:
     static EM::SubID	rowCol2SubID( const RowCol& );
 
     void		getRange(StepInterval<int>&,bool rowdir) const;
+    void		getRange(const EM::PatchID&,
+	    			 StepInterval<int>&,bool rowdir) const;
 
 protected:
+    bool		getGridRowCol( const EM::SubID&, RowCol& ) const;
+    			/*!< Converts EM::SubID to rowcol that is used
+			     on the Geometry::GridSurface */
+    bool		getGridRowCol( const RowCol&, RowCol& ) const;
+    			/*!< Converts input RowCol(in surface domain)
+			     to a RowCol that is used
+			     on the Geometry::GridSurface */
+    EM::SubID		getSurfSubID( const RowCol& ) const;
+    EM::SubID		getSurfSubID( const Geometry::PosID& ) const;
+
 
     virtual Geometry::GridSurface*		createPatchSurface() const = 0;
 

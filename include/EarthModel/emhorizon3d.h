@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.19 2003-06-19 09:21:34 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.20 2003-07-04 13:32:46 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -65,7 +65,7 @@ public:
     Executor*		loader();
     Executor*		saver();
 
-    bool		import( const Grid& );
+    Executor*		import( const Grid& );
     			/*!< Removes all data and sets it to a single-
 			     sub-horizon.
 			*/
