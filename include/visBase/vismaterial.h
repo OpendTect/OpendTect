@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.1 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: vismaterial.h,v 1.2 2002-03-18 15:27:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -54,6 +54,8 @@ public:
     float		getTransparency() const { return transparency; }
 
     SoNode*		getData();
+    int			usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
 
 protected:
 			Material();
@@ -70,6 +72,14 @@ protected:
     float               transparency;
 
     SoMaterial*		material;
+
+    static const char*	colorstr;
+    static const char*	ambiencestr;
+    static const char*	diffintensstr;
+    static const char*	specintensstr;
+    static const char*	emmintensstr;
+    static const char*	shininessstr;
+    static const char*	transpstr;
 };
 
 }; // Namespace

@@ -4,12 +4,21 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.1 2002-03-11 10:46:03 kristofer Exp $";
+static const char* rcsID = "$Id: vismaterial.cc,v 1.2 2002-03-18 15:27:01 kristofer Exp $";
 
 #include "vismaterial.h"
 #include "color.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoMaterial.h"
+
+const char* visBase::Material::colorstr = "Color";
+const char* visBase::Material::ambiencestr = "Ambient Intensity";
+const char* visBase::Material::diffintensstr = "Diffuse Intensity";
+const char* visBase::Material::specintensstr = "Specular Intensity";
+const char* visBase::Material::emmintensstr = "Emmissive Intensity";
+const char* visBase::Material::shininessstr = "Shininess";
+const char* visBase::Material::transpstr = "Transparency";
 
 visBase::Material::Material()
     : material( new SoMaterial )
@@ -105,3 +114,51 @@ void visBase::Material::updateMaterial()
 
 
 SoNode* visBase::Material::getData() { return material; }
+
+
+int visBase::Material::usePar( const IOPar& iopar )
+{
+    int res = SceneObject::usePar( iopar );
+    if ( res!=1 ) return res;
+
+    int r,g,b;
+
+    if ( iopar.get( colorstr, r, g, b ) )
+	setColor( Color( r,g,b ));
+
+    float val;
+    if ( iopar.get( ambiencestr, val ))
+	setAmbience( val );
+
+    if ( iopar.get( diffintensstr, val ))
+	setDiffIntensity( val );
+
+    if ( iopar.get( specintensstr, val ))
+	setSpecIntensity( val );
+
+    if ( iopar.get( emmintensstr, val ))
+	setEmmIntensity( val );
+
+    if ( iopar.get( shininessstr, val ))
+	setShininess( val );
+
+    if ( iopar.get( transpstr, val ))
+	setTransparency( val );
+
+    return 1;
+}
+
+
+void visBase::Material::fillPar( IOPar& iopar ) const
+{
+    SceneObject::fillPar( iopar );
+
+    Color color = getColor();
+    iopar.set( colorstr, color.r(), color.g(), color.b() ) ;
+    iopar.set( ambiencestr, getAmbience() );
+    iopar.set( diffintensstr, getDiffIntensity() );
+    iopar.set( specintensstr, getSpecIntensity() );
+    iopar.set( emmintensstr, getEmmIntensity() );
+    iopar.set( shininessstr, getShininess() );
+    iopar.set( transpstr, getTransparency() );
+}
