@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.11 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: vistransform.h,v 1.12 2004-01-08 17:53:05 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "position.h"
 
 class SoMatrixTransform;
+class SbMatrix;
 
 namespace visBase
 {
@@ -55,6 +56,7 @@ public:
 	    		      float a21, float a22, float a23, float a24,
 			      float a31, float a32, float a33, float a34,
 			      float a41, float a42, float a43, float a44 );
+    void		setA( const SbMatrix& );
 
     Coord3		transform( const Coord3& ) const;
     Coord3		transformBack(  const Coord3& ) const;
