@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.17 2003-11-24 08:39:49 kristofer Exp $
+ RCS:		$Id: emmanager.h,v 1.18 2003-12-12 10:50:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,6 @@ public:
     const History&	history() const;
 
     void		init();
-    const char*		getName(const EM::ObjectID&);
 
     EM::ObjectID	add(Type,const char* name);
     			/*!< Creates a new object, saves it and loads it into
