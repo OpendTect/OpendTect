@@ -4,13 +4,13 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.4 2004-05-14 14:10:39 bert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.5 2004-11-02 16:56:39 arend Exp $";
 
 #include "filepath.h"
 #include <iostream>
 
 #ifdef __win__
-# include "getspec.h"
+# include "wingetspec.h"
 #endif
 
 const char* FilePath::sPrefSep = ":";
@@ -161,6 +161,7 @@ void FilePath::setExtension( const char* ext, bool replace )
     }
 
     BufferString& fname = *lvls_[lvls_.size()-1];
+    // TODO: What if path contains a '.', like $HOME/.od ??
     char* ptr = strrchr( fname.buf(), '.' );
     if ( ptr && replace )
 	strcpy( *ext ? ptr+1 : ptr, ext );
@@ -259,3 +260,62 @@ BufferString FilePath::getTempName( const char* ext )
 
     return fname;
 }
+
+static const char* drvstr="/cygdrive/";
+
+static BufferString getCleanUnxPath( const char* path )
+{
+    BufferString buf; buf =path;
+    char* ptr = buf.buf();
+    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+    replaceCharacter( ptr, '\\' , '/' );
+    replaceCharacter( ptr, ';' , ':' );
+
+    char* drivesep = strstr( ptr, ":" );
+    if ( !drivesep ) return ptr;
+    *drivesep = '\0';
+
+    static BufferString res;
+    res = drvstr;
+    *ptr = tolower(*ptr);
+    res += ptr;
+    res += ++drivesep;
+
+    return buf;
+}
+
+static BufferString getCleanWinPath( const char* path )
+{
+    BufferString ret; ret = path;
+
+    BufferString buf(path);
+    char* ptr = buf.buf();
+
+    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+
+    char* cygdrv = strstr( ptr, drvstr );
+    if( cygdrv )
+    {
+	char* drv = cygdrv + strlen( drvstr );
+	char* buffer = ret.buf();
+
+	*buffer = *drv; *(buffer+1) = ':'; *(buffer+2) = '\0';
+	ret += ++drv;
+
+    }
+
+    replaceCharacter( ret.buf(), '/', '\\' );
+
+    return ret;
+}
+
+BufferString FilePath::mkCleanPath(const char* path, Style stl)
+{
+
+if( stl == Windows )
+    return getCleanWinPath( path ) ;
+else
+    return getCleanUnxPath( path ) ;
+}
+
+
