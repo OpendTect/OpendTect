@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.9 2005-03-01 13:19:57 cvshelene Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.10 2005-03-09 09:14:21 cvshelene Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -62,7 +62,7 @@ Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
     if ( evtype == Seis::Event::GateMax || evtype == Seis::Event::GateMin )
 	occ = 2;
     int iextr = sg.start;
-    float extr = prev;
+    float extr = 0;
 
     for ( int idx=sg.start+inc; idx!=sg.stop+inc; idx+=inc )
     {
@@ -78,11 +78,13 @@ Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
 	break;
 	case Seis::Event::Max:		if ( prev >= cur && upward ) occ--;
 	break;
-	case Seis::Event::GateMin: if ( prev <= cur && !upward && cur < extr )
-					    { extr = cur; iextr = idx; }
+	case Seis::Event::GateMin: if ( prev <= cur && !upward && prev < extr 
+					   && idx > sg.start+inc )
+					    { extr = prev; iextr = idx-inc; }
 	break;
-	case Seis::Event::GateMax: if ( prev >= cur && upward && cur > extr )
-				    { extr = cur; iextr = idx; }
+	case Seis::Event::GateMax: if ( prev >= cur && upward && prev > extr 
+					   && idx > sg.start+inc )
+				    { extr = prev; iextr = idx-inc; }
 	break;
 
 	case Seis::Event::ZC:		if ( ( cur >= 0 && prev < 0 )
