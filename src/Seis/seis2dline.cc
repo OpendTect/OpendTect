@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.16 2004-09-13 16:18:52 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.17 2004-09-16 16:13:37 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -68,7 +68,6 @@ bool TwoDSeisTrcTranslator::initRead_()
 	    if ( newtrg.step < trg.step ) trg.step = newtrg.step;
 	    if ( newzrg.start < zrg.start ) zrg.start = newzrg.start;
 	    if ( newzrg.stop > zrg.stop ) zrg.stop = newzrg.stop;
-	    if ( newzrg.step < zrg.step ) zrg.step = newzrg.step;
 	}
     }
 
@@ -286,6 +285,11 @@ Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf,
     if ( !liop_ )
     {
 	ErrMsg("No suitable 2D line extraction object found");
+	return 0;
+    }
+    else if ( ipar >= pars_.size() )
+    {
+	ErrMsg("Line number requested out of bounds");
 	return 0;
     }
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.35 2004-09-13 07:52:15 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.36 2004-09-16 16:13:37 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -321,17 +321,16 @@ bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++; tbuf->deepErase();
     const bool islinesel = seldata && seldata->linekeys_.size();
-    const int maxline = islinesel ? seldata->linekeys_.size() : mUndefIntVal;
-    if ( curlineidx >= maxline )
-	return false;
+    const int nrlines = lset->nrLines();
+    const int maxline = islinesel ? seldata->linekeys_.size() : nrlines;
 
-    curlinenr = curlineidx;
-    if ( islinesel )
+    if ( !islinesel )
+	curlinenr = curlineidx;
+    else
     {
-	bool found = false;
-	while ( !found )
+	for ( ; curlineidx<maxline; curlineidx++ )
 	{
-	    const int nrlines = lset->nrLines();
+	    bool found = false;
 	    const char* lkey = seldata->linekeys_.get( curlineidx );
 	    for ( int idx=0; idx<nrlines; idx++ )
 	    {
@@ -344,11 +343,12 @@ bool SeisTrcReader::mkNextFetcher()
 	    BufferString msg( "Line not found in line set: " );
 	    msg += lkey;
 	    ErrMsg( msg );
-	    if ( maxline == 0 )
-		{ errmsg = msg; return false; }
-	    found = false;
 	}
     }
+
+    if ( curlineidx >= maxline )
+	return false;
+
     fetcher = lset->lineFetcher( curlinenr, *tbuf, seldata );
     return fetcher;
 }
@@ -365,7 +365,14 @@ bool SeisTrcReader::readNext2D()
 	return false;
     }
     else if ( res == 0 )
-	{ delete fetcher; fetcher = 0; }
+    {
+	delete fetcher; fetcher = 0;
+	if ( tbuf->size() ) return true;
+
+	if ( !mkNextFetcher() )
+	    return false;
+	return readNext2D();
+    }
 
     return tbuf->size();
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.24 2004-09-07 16:24:01 bert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.25 2004-09-16 16:13:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,12 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, bool with_format, bool fne )
 
 
 void uiSeisTransfer::updateFrom( const IOObj& ioobj )
+{
+    setInput(ioobj);
+}
+
+
+void uiSeisTransfer::setInput( const IOObj& ioobj )
 {
     scfmtfld->updateFrom( ioobj );
     selfld->setInput( ioobj );

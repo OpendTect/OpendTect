@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.14 2004-09-13 07:52:15 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.15 2004-09-16 16:13:37 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -193,8 +193,9 @@ int nextStep()
 	if ( !tr->read(*trc) )
 	{
 	    delete trc;
-	    if ( tbuf.size() < 1 )
-		mErrRet("No traces read in 2D line")
+	    const char* emsg = tr->errMsg();
+	    if ( emsg && *emsg )
+		mErrRet(emsg)
 	    return 0;
 	}
 	addTrc( trc );

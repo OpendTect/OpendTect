@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.41 2004-09-03 09:11:39 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.42 2004-09-16 16:13:37 bert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -186,13 +186,21 @@ IOPar* IOPar::subselect( const char* key ) const
 }
 
 
-void IOPar::mergeComp( const IOPar& iopar, const char* key )
+void IOPar::mergeComp( const IOPar& iopar, const char* ky )
 {
-    static BufferString buf;
+    BufferString key( ky );
+    char* ptr = key.buf() + key.size()-1;
+    while ( ptr != key.buf() && *ptr == '.' )
+	*ptr = '\0';
 
+    const bool havekey = key != "";
+
+    BufferString buf;
     for ( int idx=0; idx<iopar.size(); idx++ )
     {
-	buf = key; buf += "."; buf += iopar.keys_.get(idx);
+	buf = key;
+	if ( havekey ) buf += ".";
+	buf += iopar.keys_.get(idx);
 	set( buf, iopar.vals_.get(idx) );
     }
 }

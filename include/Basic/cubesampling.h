@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.14 2004-07-29 14:19:53 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.15 2004-09-16 16:13:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,8 +75,9 @@ struct HorSampling
 			{ return hs.start==start && hs.stop==stop 
 			    			 && hs.step==step; }
 
-    bool		usePar( const IOPar& ); //!< Keys as in keystrs.h
-    void		fillPar( IOPar& ) const; //!< Keys as in keystrs.h
+    bool		usePar(const IOPar&);	//!< Keys as in keystrs.h
+    void		fillPar(IOPar&) const;	//!< Keys as in keystrs.h
+    static void		removeInfo(IOPar&);
 
     BinID		start;
     BinID		stop;
@@ -128,11 +129,14 @@ public:
     bool		operator!=( const CubeSampling& cs ) const
 			{ return !(cs==*this); }
 
-    bool		usePar( const IOPar& );
-    void		fillPar( IOPar& ) const;
+    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    static void		removeInfo(IOPar&);
 
 protected:
+
     static const char*	zrangestr;
+
 };
 
 
