@@ -8,13 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.6 2003-01-23 11:58:17 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.7 2003-01-28 08:00:06 kristofer Exp $";
 
 #include "vistexture3.h"
 
 #include "arrayndimpl.h"
-
-#include "Inventor/nodes/SoGroup.h"
+#include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoTexture3.h"
 
 mCreateFactoryEntry( visBase::Texture3 );
@@ -24,21 +23,19 @@ visBase::Texture3::Texture3()
     , x1sz( -1 )
     , x2sz( -1 )
     , texture( new SoTexture3 )
-    , root( new SoGroup )
 {
-    root->ref();
-    root->addChild( texture );
+    onoff->addChild( texture );
     texture->wrapR = SoTexture3::CLAMP;
     texture->wrapS = SoTexture3::CLAMP;
     texture->wrapT = SoTexture3::CLAMP;
-
     texture->model = SoTexture3::MODULATE;
+
+    turnOn( true );
 }
 
 
 visBase::Texture3::~Texture3()
 {
-    root->unref();
 }
 
 
@@ -72,10 +69,6 @@ void visBase::Texture3::setData( const Array3D<float>* newdata )
 
     setResizedData( datacopy, totalsz );
 }
-
-
-SoNode* visBase::Texture3::getData()
-{ return root; }
 
 
 unsigned char* visBase::Texture3::getTexturePtr()

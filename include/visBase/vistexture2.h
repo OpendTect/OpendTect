@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.3 2003-01-23 11:58:23 nanne Exp $
+ RCS:		$Id: vistexture2.h,v 1.4 2003-01-28 07:59:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -39,8 +39,6 @@ public:
 
     void		setData( const Array2D<float>* );
 
-    SoNode*		getData();
-
 protected:
     			~Texture2();
 
@@ -48,8 +46,6 @@ protected:
     void		finishEditing();
 
     SoTexture2*		texture;
-    SoGroup*		root;
-
     int			x0sz, x1sz;
 };
 

@@ -8,14 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.7 2003-01-23 11:58:17 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.8 2003-01-28 08:00:06 kristofer Exp $";
 
 #include "vistexture2.h"
 
 #include "arrayndimpl.h"
 #include "simpnumer.h"
 
-#include "Inventor/nodes/SoGroup.h"
+#include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoTexture2.h"
 
 
@@ -25,19 +25,17 @@ visBase::Texture2::Texture2()
     : x0sz( -1 )
     , x1sz( -1 )
     , texture( new SoTexture2 )
-    , root( new SoGroup )
 {
-    root->ref();
-    root->addChild( texture );
+    onoff->addChild( texture );
     texture->wrapS = SoTexture2::CLAMP;
     texture->wrapT = SoTexture2::CLAMP;
     texture->model = SoTexture2::MODULATE;
+    turnOn( true );
 }
 
 
 visBase::Texture2::~Texture2()
 {
-    root->unref();
 }
 
 
@@ -120,10 +118,6 @@ void visBase::Texture2::setData( const Array2D<float>* newdata )
 
     setResizedData( resized, cachesz );
 }
-
-
-SoNode* visBase::Texture2::getData()
-{ return root; }
 
 
 unsigned char* visBase::Texture2::getTexturePtr()

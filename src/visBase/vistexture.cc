@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.8 2003-01-27 13:13:15 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.9 2003-01-28 08:00:06 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -19,8 +19,7 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.8 2003-01-27 13:13:15 kristof
 #include "basictask.h"
 #include "thread.h"
 
-#include "Inventor/nodes/SoGroup.h"
-#include "Inventor/nodes/SoTexture3.h"
+#include "Inventor/nodes/SoSwitch.h"
 
 #define NRCOLORS 256
 
@@ -37,7 +36,9 @@ visBase::Texture::Texture()
     , trans( new unsigned char[NRCOLORS] )
     , usetrans( true )
     , histogram( NRCOLORS, 0 )
+    , onoff( new SoSwitch )
 {
+    onoff->ref();
     setColorTab( *visBase::VisColorTab::create() );
 }
 
@@ -51,7 +52,20 @@ visBase::Texture::~Texture()
     delete [] blue;
     setThreadWorker( 0 );
     colortab->unRef();
+    onoff->unref();
 }
+
+
+bool visBase::Texture::turnOn( bool yn )
+{
+    bool res = isOn();
+    onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
+    return res;
+}
+
+
+bool visBase::Texture::isOn() const
+{ return !onoff->whichChild.getValue(); }
 
 
 void visBase::Texture::setAutoScale( bool yn )
@@ -136,9 +150,11 @@ void visBase::Texture::setThreadWorker( ThreadWorker* nw )
 
 
 visBase::ThreadWorker* visBase::Texture::getThreadWorker()
-{
-    return threadworker;
-}
+{ return threadworker; }
+
+
+SoNode* visBase::Texture::getData()
+{ return onoff; }
 
 
 void visBase::Texture::setResizedData( float* newdata, int sz )

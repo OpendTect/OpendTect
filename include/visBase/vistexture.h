@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.4 2003-01-27 13:13:12 kristofer Exp $
+ RCS:		$Id: vistexture.h,v 1.5 2003-01-28 07:59:44 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class DataClipper;
 class BasicTask;
+class SoSwitch;
 class visBaseTextureColorIndexMaker;
 
 namespace visBase
@@ -38,6 +39,8 @@ If ThreadWorker is set, it utilizes mt processing.
 class Texture : public SceneObject
 {
 public:
+    bool		turnOn( bool yn );
+    bool		isOn()	const;
     			
     void		setAutoScale( bool yn );
     bool		autoScale() const;
@@ -58,6 +61,7 @@ public:
     void		setThreadWorker( ThreadWorker* );
     ThreadWorker*	getThreadWorker();
 
+    SoNode*		getData();
 
 protected:
     			Texture();
@@ -67,6 +71,8 @@ protected:
 
     virtual unsigned char* getTexturePtr()				= 0;
     virtual void	finishEditing()					= 0;
+
+    SoSwitch*		onoff;
 
 private:
     void		colorTabChCB( CallBacker* );
