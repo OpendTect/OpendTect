@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.33 2002-10-09 15:42:03 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.34 2002-10-14 07:00:33 niclas Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -164,7 +164,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     astream.next();
     BufferString keyw = astream.keyWord();
     SurveyInfo* si = keyw == sKey::Type && *astream.value() == '2'
-		   ? new SurveyInfo2D : new SurveyInfo3D;
+		   ? (SurveyInfo*) new SurveyInfo2D
+		   : (SurveyInfo*) new SurveyInfo3D;
 
     si->datadir = File_getPathOnly( survdir );
     si->dirname = File_getFileName( survdir );
