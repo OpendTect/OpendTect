@@ -7,25 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.2 2000-12-11 10:19:28 dgb Exp $
+ RCS:		$Id: thread.h,v 1.3 2000-12-11 12:29:21 dgb Exp $
 ________________________________________________________________________
 
 */
 
-#ifdef lux
-#define pthread
+#include <gendefs.h>
+
+#ifndef __win__
+#define __pthread__ 1
 #endif
 
-#ifdef ibm
-#define pthread
-#endif
-
-#ifdef sun5
-#define pthread
-#endif
-
-
-#ifdef pthread
+#ifdef __pthread__
 #include <pthread.h>
 #endif
 
@@ -54,7 +47,7 @@ public:
 
     protected:
 
-#ifdef pthread
+#ifdef __pthread__
         pthread_mutex_t 		mutex;
         pthread_mutexattr_t 		attr;
 #endif
@@ -73,7 +66,7 @@ public:
 	int 				signal(bool);
 
     protected:
-#ifdef pthread
+#ifdef __pthread__
 	pthread_cond_t			cond;
 	pthread_condattr_t		condattr;
 #endif
@@ -100,7 +93,7 @@ public:
 	ConditionVar			exitcond;
     private:
 	void*				func;
-#ifdef pthread
+#ifdef __pthread__
 	pthread_t			id;
 #endif
 
