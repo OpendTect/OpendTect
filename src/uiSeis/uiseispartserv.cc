@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.7 2002-06-19 15:41:30 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.8 2002-07-24 17:08:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,15 @@ ________________________________________________________________________
 #include "uiseiscbvsimp.h"
 #include "uiseisfileman.h"
 #include "uimsg.h"
+#include "seistrctr.h"
 #include "idealconn.h"
 #include "ptrman.h"
+
+
+uiSeisPartServer::uiSeisPartServer( uiApplService& a )
+    	: uiApplPartServer(a)
+{
+}
 
 
 bool uiSeisPartServer::isAvailable( uiSeisPartServer::ExternalType t ) const

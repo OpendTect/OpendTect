@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.34 2002-07-21 23:17:42 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.35 2002-07-24 17:08:12 bert Exp $";
 
 /*!
 
@@ -15,13 +15,13 @@ The CBVS header starts with the following bytes:
 2: 'B'
 3: platform indicator set by put_platform()
 4: version of CBVS.
-5: info on "explicit header data"
+5: info on "aux pos info"
 6: not used (yet)
 7: not used (yet)
 
 The next 8 bytes are reserved for 2 integers:
 8-11: total nr bytes in the CBVS header
-12-15: not used (yet)
+12-15: not used (yet) here, 12 is used for aux flags in aux file.
 
 */
 
@@ -42,6 +42,7 @@ CBVSReader::CBVSReader( istream* s )
 	, datastartfo(0)
 	, lastposfo(0)
 	, bidrg(*new BinIDRange)
+    	, needaux(true)
 {
     if ( readInfo() )
 	toOffs( datastartfo );
@@ -84,7 +85,7 @@ bool CBVSReader::readInfo()
     iinterp.set( dc );
 
     // const int version = (int)ptr[4];
-    getExplicits( ptr + 5 );
+    getAuxInfoSel( ptr + 5 );
     // const int nrbytesinheader = iinterp.get( ptr+8 );
 
     strm_.read( ptr, integersize );
@@ -141,7 +142,7 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
 
 
 #undef mErrRet
-#define mErrRet(s) { strm.seekg( 0, ios::beg ); return s; }
+#define mErrRet { strm.seekg( 0, ios::beg ); return msg; }
 
 const char* CBVSReader::check( istream& strm )
 {
@@ -151,39 +152,38 @@ const char* CBVSReader::check( istream& strm )
     strm.seekg( 0, ios::beg );
     char buf[4]; memset( buf, 0, 4 );
     strm.read( buf, 3 );
-    if ( !strm.good() ) mErrRet("Input stream cannot be used")
-    if ( strcmp(buf,"dGB") ) mErrRet("File is not in CBVS format")
+    const char* msg = "Input stream cannot be used";
+    if ( !strm.good() ) mErrRet;
+
+    msg = "File is not in CBVS format";
+    if ( strcmp(buf,"dGB") ) mErrRet;
 
     char plf; strm.read( &plf, 1 );
-    if ( plf > 2 ) mErrRet("File is not in CBVS format")
+    if ( plf > 2 ) mErrRet;
 
     strm.seekg( 0, ios::beg );
     return 0;
 }
 
 
-void CBVSReader::getExplicits( const unsigned char* ptr )
+void CBVSReader::getAuxInfoSel( const unsigned char* ptr )
 {
-    info_.explinfo.startpos =	*ptr & (unsigned char)1;
-    info_.explinfo.coord =	*ptr & (unsigned char)2;
-    info_.explinfo.offset =	*ptr & (unsigned char)4;
-    info_.explinfo.pick =	*ptr & (unsigned char)8;
-    info_.explinfo.refpos =	*ptr & (unsigned char)16;
-    info_.explinfo.azimuth =	*ptr & (unsigned char)32;
+    info_.auxinfosel.startpos =	mAuxSetting(ptr,1);
+    info_.auxinfosel.coord =	mAuxSetting(ptr,2);
+    info_.auxinfosel.offset =	mAuxSetting(ptr,4);
+    info_.auxinfosel.pick =	mAuxSetting(ptr,8);
+    info_.auxinfosel.refpos =	mAuxSetting(ptr,16);
+    info_.auxinfosel.azimuth =	mAuxSetting(ptr,32);
 
-    explicitnrbytes = 0;
-    if ( info_.explinfo.startpos )
-	explicitnrbytes += sizeof(float);
-    if ( info_.explinfo.coord )
-	explicitnrbytes += sizeof(Coord);
-    if ( info_.explinfo.offset )
-	explicitnrbytes += sizeof(float);
-    if ( info_.explinfo.azimuth )
-	explicitnrbytes += sizeof(float);
-    if ( info_.explinfo.pick )
-	explicitnrbytes += sizeof(float);
-    if ( info_.explinfo.refpos )
-	explicitnrbytes += sizeof(float);
+#define mAddBytes(memb,t) \
+    if ( info_.auxinfosel.memb ) auxnrbytes += sizeof(t)
+    auxnrbytes = 0;
+    mAddBytes(startpos,float);
+    mAddBytes(coord,double); mAddBytes(coord,double); // both x and y
+    mAddBytes(offset,float);
+    mAddBytes(pick,float);
+    mAddBytes(refpos,float);
+    mAddBytes(azimuth,float);
 }
 
 
@@ -290,7 +290,7 @@ bool CBVSReader::readTrailer()
     
     strm_.seekg( -4-integersize, ios::end );
     strm_.read( buf.buf(), integersize );
-    int nrbytes = iinterp.get( buf, 0 );
+    const int nrbytes = iinterp.get( buf, 0 );
 
     strm_.seekg( -4-integersize-nrbytes, ios::end );
     strm_.read( buf.buf(), integersize );
@@ -414,7 +414,7 @@ bool CBVSReader::goTo( const BinID& bid )
     }
 
     toOffs( datastartfo + (streampos)(nrposns * info_.nrtrcsperposn
-	      * (explicitnrbytes + bytespertrace)) );
+	      * (auxnrbytes + bytespertrace)) );
     hinfofetched = false;
     return true;
 }
@@ -440,7 +440,7 @@ bool CBVSReader::skip( bool tonextpos )
     else if ( !nextPosIdx() )
 	return false;
 
-    streampos onetrcoffs = explicitnrbytes + bytespertrace;
+    streampos onetrcoffs = auxnrbytes + bytespertrace;
     streampos posadd = onetrcoffs;
 
     if ( posidx && tonextpos )
@@ -527,39 +527,43 @@ bool CBVSReader::getNextBinID( BinID& bid, bool set_vars )
 }
 
 
-#define mGet(memb) \
-    if ( info_.explinfo.memb ) \
-    { \
-	strm_.read( buf, sizeof(expldat.memb) ); \
-	expldat.memb = finterp.get( buf, 0 ); \
-    }
-#define mGetCoord() \
-    if ( info_.explinfo.coord ) \
-    { \
-	strm_.read( buf, 2*sizeof(expldat.coord.x) ); \
-	expldat.coord.x = dinterp.get( buf, 0 ); \
-	expldat.coord.y = dinterp.get( buf, 1 ); \
-    }
+#define mCondGetAux(memb) \
+    if ( info_.auxinfosel.memb ) \
+	{ mGetAuxFromStrm(auxinf,buf,memb,strm_); }
+#define mCondGetCoordAux() \
+    if ( info_.auxinfosel.coord ) \
+	{ mGetCoordAuxFromStrm(auxinf,buf,strm_); }
 
-bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
+bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 {
-    if ( strmclosed_ ) return true;
-    if ( hinfofetched )
-	strm_.seekg( -explicitnrbytes, ios::cur );
+    if ( strmclosed_ )
+	return true;
 
-    expldat.binid = curbinid_;
-    expldat.coord = info_.geom.b2c.transform( curbinid_ );
-    expldat.startpos = info_.compinfo[0]->sd.start;
-    expldat.offset = expldat.azimuth = 0;
-    expldat.pick = expldat.refpos = mUndefValue;
+    auxinf.binid = curbinid_;
+    auxinf.coord = info_.geom.b2c.transform( curbinid_ );
+    auxinf.startpos = info_.compinfo[0]->sd.start;
+    auxinf.offset = auxinf.azimuth = 0;
+    auxinf.pick = auxinf.refpos = mUndefValue;
+
+    if ( !auxnrbytes )
+	return true;
+
+    if ( !needaux )
+    {
+	if ( !hinfofetched )
+	    strm_.seekg( auxnrbytes, ios::cur );
+	return true;
+    }
+    else if ( hinfofetched )
+	strm_.seekg( -auxnrbytes, ios::cur );
 
     char buf[2*sizeof(double)];
-    mGet(startpos)
-    mGetCoord()
-    mGet(offset)
-    mGet(pick)
-    mGet(refpos)
-    mGet(azimuth)
+    mCondGetAux(startpos)
+    mCondGetCoordAux()
+    mCondGetAux(offset)
+    mCondGetAux(pick)
+    mCondGetAux(refpos)
+    mCondGetAux(azimuth)
 
     hinfofetched = true;
     return strm_.good();
@@ -569,10 +573,10 @@ bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
 bool CBVSReader::fetch( void** bufs, const bool* comps,
 			const Interval<int>* samps, int offs )
 {
-    if ( !hinfofetched )
+    if ( !hinfofetched && auxnrbytes )
     {
-	CBVSInfo::ExplicitData dum;
-	if ( !getHInfo(dum) ) return false;
+	static PosAuxInfo dum;
+	if ( !getAuxInfo(dum) ) return false;
     }
 
     if ( !samps ) samps = &samprg;

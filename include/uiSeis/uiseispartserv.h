@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.3 2002-06-19 15:42:02 bert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.4 2002-07-24 17:08:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,9 +21,7 @@ ________________________________________________________________________
 class uiSeisPartServer : public uiApplPartServer
 {
 public:
-			uiSeisPartServer( uiApplService& a )
-			: uiApplPartServer(a)		{}
-
+			uiSeisPartServer(uiApplService&);
     const char*		name() const			{ return "Seismics"; }
 
     enum ExternalType	{ SegY, SeisWorks, GeoFrame, CBVS };

@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.4 2001-04-20 15:42:10 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.5 2002-07-24 17:08:12 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <position.h>
 #include <bufstring.h>
+#include <sets.h>
 
 
 /*!\brief Base class for CBVS reader and writer
@@ -40,6 +41,10 @@ public:
     int			nrComponents() const		{ return nrcomps_; }
     const BinID&	binID() const			{ return curbinid_; }
 
+    static const int	integersize;
+    static const int	version;
+    static const int	headstartbytes;
+
 protected:
 
     const char*		errmsg_;
@@ -48,10 +53,6 @@ protected:
     int			nrcomps_;
     bool		strmclosed_;
     int			nrxlines_;
-
-    static const int	integersize;
-    static const int	version;
-    static const int	headstartbytes;
 
 };
 
@@ -82,6 +83,7 @@ public:
     inline BufferString	getFileName( int nr ) const
 			{ return getFileName(basefname_,nr); }
     static BufferString	getFileName(const char*,int);
+    			//!< returns aux file name for negative nr
 
 protected:
 
@@ -91,7 +93,31 @@ protected:
 
     virtual const char*	errMsg_() const		= 0;
 
+    class AuxInlInf
+    {
+    public:
+			AuxInlInf( int i ) : inl(i), cumnrxlines(0)	{}
+
+	int		inl;
+	int		cumnrxlines;
+	TypeSet<int>	xlines;
+    };
+
 };
+
+//! Common implementation macro
+#define mGetAuxFromStrm(auxinf,buf,memb,strm) \
+    strm.read( buf, sizeof(auxinf.memb) ); \
+    auxinf.memb = finterp.get( buf, 0 )
+
+//! Common implementation macro
+#define mGetCoordAuxFromStrm(auxinf,buf,strm) \
+    strm.read( buf, 2*sizeof(auxinf.coord.x) ); \
+    auxinf.coord.x = dinterp.get( buf, 0 ); \
+    auxinf.coord.y = dinterp.get( buf, 1 )
+
+//! Common implementation macro
+#define mAuxSetting(ptr,n) (*ptr & (unsigned char)n)
 
 
 #endif

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.10 2002-07-22 15:52:43 bert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.11 2002-07-24 17:08:12 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -33,7 +33,7 @@ CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
 {
     seqnr = ci.seqnr;
     nrtrcsperposn = ci.nrtrcsperposn;
-    explinfo = ci.explinfo;
+    auxinfosel = ci.auxinfosel;
     geom = ci.geom;
     stdtext = ci.stdtext;
     usertext = ci.usertext;

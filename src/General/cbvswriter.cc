@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.24 2002-06-21 22:37:04 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.25 2002-07-24 17:08:12 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -20,19 +20,18 @@ const int CBVSIO::version = 1;
 const int CBVSIO::headstartbytes = 8 + 2 * CBVSIO::integersize;
 
 
-CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
-			const CBVSInfo::ExplicitData* e )
+CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i, const PosAuxInfo* e )
 	: strm_(*s)
-	, expldat(e)
+	, auxinfo(e)
 	, thrbytes_(0)
 	, finishing_inline(false)
 	, prevbinid_(-999,-999)
 	, trcswritten(0)
 	, nrtrcsperposn(i.nrtrcsperposn)
-	, explinfo(i.explinfo)
+	, auxinfosel(i.auxinfosel)
 	, survgeom(i.geom)
 	, bytesperwrite(0)
-	, explicitbytes(0)
+	, auxnrbytes(0)
 	, nrtrcsperposn_known(false)
 {
     init( i );
@@ -41,16 +40,16 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
 
 CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
 	: strm_(*s)
-	, expldat(cw.expldat)
+	, auxinfo(cw.auxinfo)
 	, thrbytes_(cw.thrbytes_)
 	, finishing_inline(false)
 	, prevbinid_(-999,-999)
 	, trcswritten(0)
 	, nrtrcsperposn(cw.nrtrcsperposn)
-	, explinfo(cw.explinfo)
+	, auxinfosel(cw.auxinfosel)
 	, survgeom(ci.geom)
 	, bytesperwrite(0)
-	, explicitbytes(0)
+	, auxnrbytes(0)
 	, newblockfo(0)
 	, nrtrcsperposn_known(cw.nrtrcsperposn_known)
 {
@@ -62,15 +61,15 @@ void CBVSWriter::init( const CBVSInfo& i )
 {
     if ( !strm_.good() )
 	{ errmsg_ = "Cannot open file for write"; return; }
-    if ( !survgeom.fullyrectandreg && !expldat )
+    if ( !survgeom.fullyrectandreg && !auxinfo )
 	{ pErrMsg("Survey not rectangular but no explicit inl/crl info");
 	  errmsg_ = "Internal error"; return; }
 
-    if ( expldat && survgeom.fullyrectandreg
-      && !explinfo.startpos && !explinfo.coord
-      && !explinfo.offset && !explinfo.azimuth
-      && !explinfo.pick && !explinfo.refpos )
-	expldat = 0;
+    if ( auxinfo && survgeom.fullyrectandreg
+      && !auxinfosel.startpos && !auxinfosel.coord
+      && !auxinfosel.offset && !auxinfosel.azimuth
+      && !auxinfosel.pick && !auxinfosel.refpos )
+	auxinfo = 0;
 
     rectnreg = survgeom.fullyrectandreg;
 
@@ -100,7 +99,7 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     ucbuf[0] = 'd'; ucbuf[1] = 'G'; ucbuf[2] = 'B';
     put_platform( ucbuf + 3 );
     ucbuf[4] = version;
-    putExplicits( ucbuf + 5 );
+    putAuxInfoSel( ucbuf + 5 );
     if ( !strm_.write((const char*)ucbuf,headstartbytes) )
 	mErrRet("Cannot start writing to file")
 
@@ -126,15 +125,15 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
 }
 
 
-void CBVSWriter::putExplicits( unsigned char* ptr ) const
+void CBVSWriter::putAuxInfoSel( unsigned char* ptr ) const
 {
     *ptr = 0;
 
 #define mDoMemb(memb,n) \
-    if ( explinfo.memb ) \
+    if ( auxinfosel.memb ) \
     { \
 	*ptr |= (unsigned char)n; \
-	const_cast<CBVSWriter*>(this)->explicitbytes += sizeof(expldat->memb); \
+	const_cast<CBVSWriter*>(this)->auxnrbytes += sizeof(auxinfo->memb); \
     }
 
     mDoMemb(startpos,1)
@@ -152,7 +151,7 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
     strm_.write( (const char*)&nrcomps_, integersize );
 
     cnrbytes_ = new int [nrcomps_];
-    bytesperwrite = explicitbytes;
+    bytesperwrite = auxnrbytes;
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
@@ -223,7 +222,7 @@ void CBVSWriter::newSeg( bool newinl )
 
 void CBVSWriter::getBinID()
 {
-    if ( rectnreg || !expldat )
+    if ( rectnreg || !auxinfo )
     {
 	int posidx = trcswritten / nrtrcsperposn;
 	curbinid_.inl = survgeom.start.inl
@@ -233,7 +232,7 @@ void CBVSWriter::getBinID()
     }
     else if ( !(trcswritten % nrtrcsperposn) )
     {
-	curbinid_ = expldat->binid;
+	curbinid_ = auxinfo->binid;
 	if ( !trcswritten || prevbinid_.inl != curbinid_.inl )
 	    newSeg( true );
 	else
@@ -282,11 +281,11 @@ int CBVSWriter::put( void** cdat )
 	if ( errmsg_ ) return -1;
     }
 
-    if ( !writeExplicits() )
+    if ( !writeAuxInfo() )
 	{ errmsg_ = "Cannot write Trace header data"; return -1; }
 
     DataBuffer* buf = dbufs[dbufs.size()-1];
-    unsigned char* ptr = buf->data() + explicitbytes;
+    unsigned char* ptr = buf->data() + auxnrbytes;
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	memcpy( ptr, cdat[icomp], cnrbytes_[icomp] );
@@ -309,9 +308,9 @@ int CBVSWriter::put( void** cdat )
 }
 
 
-bool CBVSWriter::writeExplicits()
+bool CBVSWriter::writeAuxInfo()
 {
-    if ( !expldat ) return true;
+    if ( !auxinfo ) return true;
 
     DataBuffer* buf = 0;
     unsigned char* ptr;
@@ -319,24 +318,24 @@ bool CBVSWriter::writeExplicits()
     dbufs += buf;
     ptr = buf->data();
 
-#define mDoWrExpl(memb)  \
-    if ( explinfo.memb ) \
+#define mDoWrAI(memb)  \
+    if ( auxinfosel.memb ) \
     { \
 	if ( !buf ) \
-	    strm_.write( (const char*)&expldat->memb, sizeof(expldat->memb) ); \
+	    strm_.write( (const char*)&auxinfo->memb, sizeof(auxinfo->memb) ); \
 	else \
 	{ \
-	    memcpy( ptr, &expldat->memb, sizeof(expldat->memb) ); \
-	    ptr += sizeof(expldat->memb); \
+	    memcpy( ptr, &auxinfo->memb, sizeof(auxinfo->memb) ); \
+	    ptr += sizeof(auxinfo->memb); \
 	} \
     }
 
-    mDoWrExpl(startpos)
-    mDoWrExpl(coord)
-    mDoWrExpl(offset)
-    mDoWrExpl(pick)
-    mDoWrExpl(refpos)
-    mDoWrExpl(azimuth)
+    mDoWrAI(startpos)
+    mDoWrAI(coord)
+    mDoWrAI(offset)
+    mDoWrAI(pick)
+    mDoWrAI(refpos)
+    mDoWrAI(azimuth)
 
     return buf || strm_.good();
 }

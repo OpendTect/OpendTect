@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.13 2002-01-14 07:08:46 nanne Exp $
+ RCS:		$Id: cbvswriter.h,v 1.14 2002-07-24 17:08:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ For the inline/xline info, you have two choices:
 1) if you know you have a fully rectangular and regular survey, you can
    set this in the SurvGeom.
 2) if this is not the case, or you don't know whether this will be the case,
-   you will have to provide the BinID in the ExplicitData.
+   you will have to provide the BinID in the PosAuxInfo.
 
 */
 
@@ -38,8 +38,8 @@ class CBVSWriter : public CBVSIO
 public:
 
 			CBVSWriter(ostream*,const CBVSInfo&,
-				   const CBVSInfo::ExplicitData* =0);
-			//!< If info.explinfo has a true, the ExplicitData
+				   const PosAuxInfo* =0);
+			//!< If info.posauxinfo has a true, the PosAuxInfo
 			//!< is mandatory. The relevant field(s) should then be
 			//!< filled before the first put() of any position
 			CBVSWriter(ostream*,const CBVSWriter&,const CBVSInfo&);
@@ -58,7 +58,7 @@ public:
     void		close()			{ doClose(true); }
 			//!< has no effect (but doesn't hurt) if put() returns 1
     const CBVSInfo::SurvGeom& survGeom() const	{ return survgeom; }
-    const CBVSInfo::ExplicitInfo& explInfo()	{ return explinfo; }
+    const PosAuxInfoSelection& auxInfoSel()	{ return auxinfosel; }
 
 protected:
 
@@ -66,11 +66,11 @@ protected:
     unsigned long	thrbytes_;
     ObjectSet<DataBuffer> dbufs;
     int			bytesperwrite;
-    int			explicitbytes;
+    int			auxnrbytes;
     bool		rectnreg;
 
     void		writeHdr(const CBVSInfo&);
-    void		putExplicits(unsigned char*) const;
+    void		putAuxInfoSel(unsigned char*) const;
     void		writeComps(const CBVSInfo&);
     void		writeGeom();
     void		doClose(bool);
@@ -89,16 +89,16 @@ private:
     bool		nrtrcsperposn_known;
 
     int			nrtrcsperposn;
-    CBVSInfo::ExplicitInfo explinfo;
+    PosAuxInfoSelection	auxinfosel;
     CBVSInfo::SurvGeom	survgeom;
 
-    const CBVSInfo::ExplicitData*		expldat;
+    const PosAuxInfo*	auxinfo;
     ObjectSet<CBVSInfo::SurvGeom::InlineInfo>	inldata;
 
     void		init(const CBVSInfo&);
     void		getBinID();
     void		newSeg(bool);
-    bool		writeExplicits();
+    bool		writeAuxInfo();
 
 };
 

@@ -8,11 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.13 2002-07-22 15:52:42 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.14 2002-07-24 17:08:12 bert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include <posauxinfo.h>
 #include <binid2coord.h>
 #include <basiccompinfo.h>
 #include <scaler.h>
@@ -22,8 +23,8 @@ class CubeSampling;
 
 /*!\brief Data available in CBVS format header and trailer.
 
-Some info per position is explicitly stored, other is implicit or not present. If
-the SurvGeom has full rectangularity, inldata can be ignored.
+Some info per position is explicitly stored, other is implicit or not present.
+If the SurvGeom has full rectangularity, inldata can be ignored.
 
 */
 
@@ -95,50 +96,10 @@ public:
 
     };
 
-    struct ExplicitInfo
-    {
-		ExplicitInfo()
-		: startpos(false), coord(false)
-		, offset(false), azimuth(false)
-		, pick(false), refpos(false)	{}
-
-	bool	startpos;
-	bool	coord;
-	bool	offset;
-	bool	azimuth;
-	bool	pick;
-	bool	refpos;
-    };
-
-    struct ExplicitData
-    {
-		ExplicitData()
-		: binid(0,0), startpos(0), coord(0,0)
-		, offset(0), pick(mUndefValue), refpos(mUndefValue)	{}
-
-	BinID	binid;
-		//!< For write: must be filled if SurvGeom::fullyrectandreg
-		//!< is false. For read will be filled always.
-
-/*
-    The size of the following data structures must be known in
-    CBVSReader::getExplicits. When changing the type of one of these attributes,
-    make sure to also change the corresponding parts in the __msvc__ part of 
-    CBVSReader::getExplicits.
-*/
-	float	startpos;
-	Coord	coord;
-	float	offset;
-	float	azimuth;
-	float	pick;
-	float	refpos;
-    };
-
-
     int				seqnr;
     int				nrtrcsperposn;
 
-    ExplicitInfo		explinfo;
+    PosAuxInfoSelection		auxinfosel;
     ObjectSet<BasicComponentInfo> compinfo;
     SurvGeom			geom;
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.9 2001-12-31 13:50:38 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.10 2002-07-24 17:08:12 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.9 2001-12-31 13:50:38 bert 
 
 BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 {
-    if ( curnr < 1 ) return basefname;
+    if ( curnr == 0 ) return basefname;
 
     BufferString fname( basefname );
     fname = File_getFileName( fname );
@@ -25,8 +25,15 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
     BufferString ext;
     if ( ptr )
 	{ ext = ptr; *ptr = '\0'; }
-    fname += curnr < 10 ? "^0" : "^";
-    fname += curnr;
+
+    if ( curnr < 0 )
+	fname += "^aux";
+    else
+    {
+	fname += curnr < 10 ? "^0" : "^";
+	fname += curnr;
+    }
+
     if ( ptr ) fname += ext;
 
     fname = File_getFullPath( pathname, fname );
@@ -35,7 +42,7 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 
 
 CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
-			    const CBVSInfo::ExplicitData* e )
+			    const PosAuxInfo* e )
 	: CBVSIOMgr(fnm)
 	, writer_(0)
 	, info_(i)

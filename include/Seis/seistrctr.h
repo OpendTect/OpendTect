@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.19 2002-07-21 23:17:42 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.20 2002-07-24 17:08:12 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -60,6 +60,11 @@ WRITE:
 
 
 6/7) Finally, close() finishes work (does not close connection).
+
+Note the existence of minimalHdrs(). If this is true, we have only
+inline/crossline. If you use setMinimalHdrs(), only inline/crossline and trace
+data are read & written. Of course, for rigid formats like SEG-Y, this has no
+advantage, so then the flag will be ignored.
 
 */
 
@@ -169,7 +174,8 @@ public:
 
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }
-    void		forceWriteIntegrity(bool)	{}
+    bool		minimalHdrs() const		{ return false; }
+    void		setMinimalHdrs()		{}
 
     static int		selector(const char*);
     static const IOObjContext&	ioContext();

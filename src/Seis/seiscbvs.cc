@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.21 2002-07-22 15:52:43 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.22 2002-07-24 17:08:12 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -42,6 +42,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	, rdmgr(0)
 	, wrmgr(0)
 	, nrdone(0)
+    	, minimalhdrs(false)
 {
 }
 
@@ -118,6 +119,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     if ( rdmgr->failed() )
 	{ errmsg = rdmgr->errMsg(); return false; }
 
+    minimalhdrs = !rdmgr->hasAuxInfo();
     const int nrcomp = rdmgr->nrComponents();
     const CBVSInfo& info = rdmgr->info();
     for ( int idx=0; idx<nrcomp; idx++ )
@@ -366,21 +368,20 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( donext && !toNext() ) return false;
     donext = true;
 
-    static CBVSInfo::ExplicitData expldat;
-    if ( !rdmgr->getHInfo(expldat) )
+    if ( !rdmgr->getAuxInfo(auxinf) )
 	return false;
 
     ti.nr = ++nrdone;
-    ti.binid = expldat.binid;
-    ti.sampling.start = useinpsd ? expldat.startpos : outcds[0]->sd.start;
+    ti.binid = auxinf.binid;
+    ti.sampling.start = useinpsd ? auxinf.startpos : outcds[0]->sd.start;
     ti.sampling.step = outcds[0]->sd.step;
-    ti.coord = expldat.coord;
-    ti.offset = expldat.offset;
-    ti.azimuth = expldat.azimuth;
-    ti.pick = expldat.pick;
-    ti.refpos = expldat.refpos;
+    ti.coord = auxinf.coord;
+    ti.offset = auxinf.offset;
+    ti.azimuth = auxinf.azimuth;
+    ti.pick = auxinf.pick;
+    ti.refpos = auxinf.refpos;
 
-    if ( !rdmgr->info().explinfo.coord )
+    if ( !rdmgr->info().auxinfosel.coord )
 	ti.coord = SI().transform( ti.binid );
     else if ( ti.binid.inl == 0 && ti.binid.crl == 0 )
 	ti.binid = SI().transform( ti.coord );
@@ -461,9 +462,9 @@ bool CBVSSeisTrcTranslator::startWrite()
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
     CBVSInfo info;
-    info.explinfo.startpos = info.explinfo.coord = 
-    info.explinfo.offset = info.explinfo.azimuth =
-    info.explinfo.pick = info.explinfo.refpos = true;
+    info.auxinfosel.startpos = info.auxinfosel.coord = 
+    info.auxinfosel.offset = info.auxinfosel.azimuth =
+    info.auxinfosel.pick = info.auxinfosel.refpos = !minimalhdrs;
     info.geom.fullyrectandreg = false;
     info.geom.b2c = SI().binID2Coord();
     info.stdtext = pinfo.stdinfo;
@@ -471,7 +472,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     for ( int idx=0; idx<nrSelComps(); idx++ )
 	info.compinfo += new BasicComponentInfo(*outcds[idx]);
 
-    wrmgr = new CBVSWriteMgr( fnm, info, &expldat );
+    wrmgr = new CBVSWriteMgr( fnm, info, &auxinf );
     if ( wrmgr->failed() )
 	{ errmsg = wrmgr->errMsg(); return false; }
 
@@ -483,13 +484,13 @@ bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
 {
     if ( !storinterps ) commitSelections( &trc );
 
-    expldat.binid = trc.info().binid;
-    expldat.startpos = trc.info().sampling.start;
-    expldat.coord = trc.info().coord;
-    expldat.offset = trc.info().offset;
-    expldat.azimuth = trc.info().azimuth;
-    expldat.pick = trc.info().pick;
-    expldat.refpos = trc.info().refpos;
+    auxinf.binid = trc.info().binid;
+    auxinf.startpos = trc.info().sampling.start;
+    auxinf.coord = trc.info().coord;
+    auxinf.offset = trc.info().offset;
+    auxinf.azimuth = trc.info().azimuth;
+    auxinf.pick = trc.info().pick;
+    auxinf.refpos = trc.info().refpos;
 
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {

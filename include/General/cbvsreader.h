@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.14 2002-07-21 23:17:42 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.15 2002-07-24 17:08:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
 			CBVSReader(istream*);
 			~CBVSReader();
 
-    const CBVSInfo&	info() const	{ return info_; }
+    const CBVSInfo&	info() const		{ return info_; }
     void		close();
 
     BinID		nextBinID() const;
@@ -47,8 +47,10 @@ public:
 			//!< if force_next_position, will skip all traces
 			//!< at current position.
 
-    bool		getHInfo(CBVSInfo::ExplicitData&);
-    			//!< Gets the explicit header info. Follow by
+    bool		hasAuxInfo() const		{ return auxnrbytes; }
+    void		fetchAuxInfo( bool yn=true )	{ needaux = yn; }
+    bool		getAuxInfo(PosAuxInfo&);
+    			//!< Gets the aux info. Follow by
 			//!< fetch() to get the sample data.
     bool		fetch(void** buffers,const bool* comps=0,
 				const Interval<int>* samps=0,
@@ -63,12 +65,14 @@ public:
 			//!< Determines whether a file is a CBVS file
 			//!< returns an error message, or null if OK.
 
+    int			trcNrAtPosition() const		{ return posidx; }
+
 protected:
 
     istream&		strm_;
     CBVSInfo		info_;
 
-    void		getExplicits(const unsigned char*);
+    void		getAuxInfoSel(const unsigned char*);
     bool		readComps();
     bool		readGeom();
     bool		readTrailer();
@@ -85,7 +89,8 @@ private:
     int			curinlinfnr;
     int			cursegnr;
     int			posidx;
-    int			explicitnrbytes;
+    int			auxnrbytes;
+    bool		needaux;
     DataInterpreter<int> iinterp;
     DataInterpreter<float> finterp;
     DataInterpreter<double> dinterp;
