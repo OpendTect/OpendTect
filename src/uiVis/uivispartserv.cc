@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.241 2004-09-29 08:42:01 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.242 2004-09-30 15:47:22 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -926,7 +926,10 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
     if ( vo && vo->rightClickedEventInfo() && vo->getTransformation() )
     {
-	pickedpos = vo->getTransformation()->transformBack(vo->rightClickedEventInfo()->pickedpos);
+	pickedpos = vo->getTransformation()->transformBack(
+					vo->rightClickedEventInfo()->pickedpos);
+	pickedpos = 
+	    visSurvey::SPM().getZScaleTransform()->transformBack( pickedpos );
     }
 
     showMenu( id, 1, dataobj ? dataobj->rightClickedPath() : 0, pickedpos );
