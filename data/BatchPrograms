@@ -42,7 +42,3 @@ mk_2d_vol
 	Comment: That cube can then be used to calculate a steering cube.
 	ExampleInput: mk_2d_vol_example.par
 !
-df -k: Sys
-	Arg: O`Words`Program arguments
-	Comment: System utility indicating free space on your disks
-!
