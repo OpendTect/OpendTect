@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.23 2003-04-25 14:03:47 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.24 2003-05-02 13:04:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -333,7 +333,7 @@ uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
     	: uiFullBatchDialog(p,"(Re-)Start processing",ppn,mpn)
 {
     redo_ = true;
-    setHelpID( "101.2.2" );
+    setHelpID( "101.2.1" );
     setTitleText( "Run a saved processing job" );
     setOkText( "Ok" );
     addStdFields();
