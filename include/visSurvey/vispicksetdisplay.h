@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.3 2002-03-04 14:20:49 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.4 2002-03-05 08:37:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,8 @@ public:
     ColorTable*		colorTable() { return 0; }
     const ColorTable*	colorTable() const { return 0; }
     void		colorTableChanged() {}
+
+    SoNode*		getData();
 
 protected:
     visBase::SceneObjectGroup*	group;

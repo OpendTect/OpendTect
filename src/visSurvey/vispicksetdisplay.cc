@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.4 2002-03-04 14:21:10 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.5 2002-03-05 08:37:14 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "vissceneobjgroup.h"
@@ -113,4 +113,9 @@ void visSurvey::PickSet::setColor( const Color& c )
 
 	cube->setColor( c );
     }
+}
+
+SoNode* visSurvey::PickSet::getData()
+{
+    return group->getData();
 }
