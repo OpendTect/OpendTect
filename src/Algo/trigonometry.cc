@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.17 2003-11-24 08:37:20 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.18 2003-12-18 06:38:46 kristofer Exp $";
 
 #include "trigonometry.h"
 
@@ -45,6 +45,68 @@ TypeSet<Vector3>* makeSphereVectorSet( double dradius )
     }
 
     return &vectors;
+}
+
+
+Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
+       		 	      bool checkforundefs )
+{
+    const int nrvectors = vectors.size();
+    TypeSet<Coord3> ownvectors;
+    if ( normalize || checkforundefs )
+    {
+	for ( int idx=0; idx<nrvectors; idx++ )
+	{
+	    const Coord3& vector = vectors[idx];
+	    if ( checkforundefs && !vector.isDefined() )
+		continue;
+
+	    const double len = vector.abs();
+	    if ( mIS_ZERO(len) )
+		continue;
+
+	    ownvectors += normalize ? vector/len : vector;
+	}
+    }
+
+    const TypeSet<Coord3>& usedvectors =  normalize || checkforundefs
+					 ? ownvectors : vectors;
+
+    const int nrusedvectors = usedvectors.size();
+    if ( !nrusedvectors )
+	return Coord3( mUndefValue, mUndefValue, mUndefValue );
+
+    if ( nrusedvectors==1 )
+	return usedvectors[0];
+
+    Coord3 average(0,0,0);
+    for ( int idx=0; idx<nrusedvectors; idx++ )
+	average += usedvectors[idx];
+
+    const double avglen = average.abs();
+    if ( !mIS_ZERO(avglen) )
+	return average/avglen;
+
+    PCA pca(3);
+    for ( int idx=0; idx<nrusedvectors; idx++ )
+	pca.addSample( usedvectors[idx] );
+    
+    if ( !pca.calculate() )
+	return Coord3( mUndefValue, mUndefValue, mUndefValue );
+
+    Coord3 res;
+    pca.getEigenVector(0, res );
+
+    int nrnegative = 0;
+    for ( int idx=0; idx<nrusedvectors; idx++ )
+    {
+	if ( res.dot(usedvectors[idx])<0 ) nrnegative++;
+    }
+
+    if ( nrnegative*2> nrusedvectors )
+	return -res;
+
+    return res;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.9 2003-11-24 08:35:18 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.10 2003-12-18 06:38:46 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -31,6 +31,15 @@ each other. dradius is given in radians
 */
 
 TypeSet<Vector3>* makeSphereVectorSet( double dangle );
+
+/*!\brief
+Computes an average of a number of vectors using:
+1. Summation
+2. PCA estimation
+*/
+
+Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
+			      bool checkforundefs );
 
 class Quarternion
 {
