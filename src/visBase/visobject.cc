@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.22 2003-01-20 08:31:45 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.23 2003-10-23 11:19:08 nanne Exp $";
 
 #include "visobject.h"
 
@@ -134,7 +134,7 @@ int visBase::VisualObjectImpl::usePar( const IOPar& iopar )
 
     bool isonsw;
     if ( iopar.getYN( isonstr, isonsw ) )
-	turnOn( isonsw );
+	VisualObjectImpl::turnOn( isonsw );
 
     return 1;
 }
