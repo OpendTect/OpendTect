@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.16 2004-02-25 14:52:31 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.17 2004-05-03 16:05:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,19 +18,19 @@ ________________________________________________________________________
 
 
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_, 
-			const CallBack& appcb, bool isvol_ )
-        : uiDialog(p,uiDialog::Setup("Slice creation",
-				     "Specify what you want to see",
-				     0))
-	, cs(*new CubeSampling)
-	, doupdfld(0)
-	, cschanged(this)
-        , updatemutex( *new Threads::Mutex )
+			const CallBack& appcb, int type )
+    : uiDialog(p,uiDialog::Setup("Slice creation",
+				 "Specify what you want to see",
+				 0))
+    , cs(*new CubeSampling)
+    , doupdfld(0)
+    , cschanged(this)
+    , updatemutex(*new Threads::Mutex)
 {
-    isinl = cs_.hrg.start.inl == cs_.hrg.stop.inl;
-    iscrl = cs_.hrg.start.crl == cs_.hrg.stop.crl;
-    istsl = cs_.zrg.start == cs_.zrg.stop;
-    isvol = isvol_;
+    isinl = !type;
+    iscrl = type == 1;
+    istsl = type == 2;
+    isvol = type == 3;
     
     Interval<int> inlrg( cs_.hrg.start.inl, cs_.hrg.stop.inl );
     inl0fld = new uiLabeledSpinBox( this, "Inline range" );

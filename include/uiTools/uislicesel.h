@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uislicesel.h,v 1.7 2004-05-03 16:05:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,9 @@ class uiSliceSel : public uiDialog
 {
 public:
 				uiSliceSel(uiParent*,const CubeSampling&,
-					   const CallBack&,bool isvol=false);
+					   const CallBack&,int type);
+    				/*!< type==0: inline, 1: crossline, 2: timeslice
+				     3: volume */
 				~uiSliceSel();
     const CubeSampling&		getCubeSampling()	{ return cs; }
 
@@ -52,7 +54,7 @@ protected:
 
     CubeSampling&		cs;
     Notifier<uiSliceSel>	cschanged;
-    bool			isinl,iscrl,istsl,isvol;
+    bool			isinl, iscrl, istsl, isvol;
 
     Threads::Mutex&		updatemutex;
 };
