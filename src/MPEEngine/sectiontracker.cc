@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.2 2005-01-18 13:14:17 kristofer Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.3 2005-01-20 08:50:09 kristofer Exp $";
 
 #include "sectiontracker.h"
 
@@ -68,7 +68,7 @@ void SectionTracker::reset()
 #define mAction(function, actionobj ) \
 bool SectionTracker::function() \
 { \
-    if ( !actionobj ) return false; \
+    if ( !actionobj ) return true; \
  \
     while ( int res = actionobj->nextStep() ) \
     { \
