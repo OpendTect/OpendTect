@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.5 2002-06-14 13:09:51 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.6 2002-06-20 10:56:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,10 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     mergebut = new uiPushButton( this, "Merge ..." );
     mergebut->activated.notify( mCB(this,uiSeisFileMan,mergePush) );
     mergebut->attach( alignedBelow, relocbut );
+
+    rembut->attach( widthSameAs, relocbut );
+    renamebut->attach( widthSameAs, relocbut );
+    mergebut->attach( widthSameAs, relocbut );
   
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( alignedBelow, listfld );
