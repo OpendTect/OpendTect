@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.3 2001-02-13 17:15:57 bert Exp $
+ RCS:		$Id: iodir.h,v 1.4 2001-05-31 13:23:53 windev Exp $
 ________________________________________________________________________
 
 @$*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
  
 #include <ioobj.h>
 #include <selector.h>
-class ostream;
 class AliasObjectSet;
 class AliasObject;
 

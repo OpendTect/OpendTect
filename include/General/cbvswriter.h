@@ -8,14 +8,15 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.7 2001-04-20 15:42:10 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.8 2001-05-31 13:23:52 windev Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <cbvsio.h>
 #include <cbvsinfo.h>
-#include <iostream.h>
+#include <iostream>
+
 template <class T> class DataInterpreter;
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.12 2001-05-07 13:53:54 windev Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.13 2001-05-31 13:23:48 windev Exp $
 ________________________________________________________________________
 
 */
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "bufstring.h"
 
-#include <fstream.h>
+#include <fstream>
 #include <stdio.h>
 
 template <class T>

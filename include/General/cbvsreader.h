@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.8 2001-05-25 18:24:51 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.9 2001-05-31 13:23:50 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include <cbvsio.h>
 #include <cbvsinfo.h>
 #include <datainterp.h>
-#include <iostream.h>
+#include <iostream>
+
 class BinIDRange;
 
 

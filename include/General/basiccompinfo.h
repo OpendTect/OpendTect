@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Component information
- RCS:		$Id: basiccompinfo.h,v 1.3 2001-05-25 18:24:51 bert Exp $
+ RCS:		$Id: basiccompinfo.h,v 1.4 2001-05-31 13:23:49 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
 			    datachar = ci.datachar;
 			    sd = ci.sd; nrsamples= ci.nrsamples;
 			    delete scaler;
-			    scaler = ci.scaler ? ci.scaler->duplicate() : 0;
+			    scaler = ci.scaler ? ci.scaler->mDuplicate() : 0;
 			    return *this;
 			}
 
