@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.105 2002-12-02 09:53:13 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.106 2002-12-03 07:44:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,6 +203,22 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	vd->moved.notify( mCB(this,uiVisPartServer,getDataCB));
 	vd->slicemoving.notify( mCB(this,uiVisPartServer,manipMoveCB) );
 	getDataCB( vd );
+    }
+
+    if ( surftracker )
+    {
+	surftracker->unRef();
+	surftracker = 0;
+    }
+
+    TypeSet<int> trackerids;
+    visBase::DM().getIds(
+	    typeid(visSurvey::SurfaceInterpreterDisplay), trackerids );
+    if ( trackerids.size() )
+    {
+	surftracker = reinterpret_cast<visSurvey::SurfaceInterpreterDisplay*>(
+					visBase::DM().getObj( trackerids[0] ));
+	surftracker->ref();
     }
 
     float appvel;
