@@ -4,9 +4,10 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.2 2002-04-29 13:43:02 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.3 2002-04-30 09:02:19 kristofer Exp $";
 
 #include "vissurvobj.h"
+#include "visdataman.h"
 #include "vistransform.h"
 #include "survinfo.h"
 #include "arrayndimpl.h"
@@ -33,7 +34,10 @@ visSurvey::SurveyParamManager::SurveyParamManager()
     , appveltransform( 0 )
     , inlcrltransform( 0 )
     , appvel( 0 )
-{ }
+{
+    visBase::DM().removeallnotify.notify(
+	    mCB( this, SurveyParamManager, removeTransforms ));
+}
 
 
 visSurvey::SurveyParamManager::~SurveyParamManager()
@@ -41,6 +45,9 @@ visSurvey::SurveyParamManager::~SurveyParamManager()
     if ( displaytransform ) displaytransform->unRef();
     if ( appveltransform ) appveltransform->unRef();
     if ( inlcrltransform ) inlcrltransform->unRef();
+
+    visBase::DM().removeallnotify.remove(
+	    mCB( this, SurveyParamManager, removeTransforms ));
 }
 
 
@@ -77,12 +84,14 @@ Geometry::Pos visSurvey::SurveyParamManager::coordXYT2Display(
 {
     if ( !displaytransform )
 	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
+
     Geometry::Pos xyz = appveltransform->transform( xyt );
     return displaytransform->transform( xyz );
 }
 
 
-const visBase::Transformation* visSurvey::SurveyParamManager::getDisplayTransform() const
+const visBase::Transformation*
+visSurvey::SurveyParamManager::getDisplayTransform() const
 {
     if ( !displaytransform )
 	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
@@ -91,7 +100,8 @@ const visBase::Transformation* visSurvey::SurveyParamManager::getDisplayTransfor
 }
 
 
-const visBase::Transformation* visSurvey::SurveyParamManager::getAppvelTransform() const
+const visBase::Transformation*
+visSurvey::SurveyParamManager::getAppvelTransform() const
 {
     if ( !displaytransform )
 	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
@@ -100,7 +110,8 @@ const visBase::Transformation* visSurvey::SurveyParamManager::getAppvelTransform
 }
 
 
-const visBase::Transformation* visSurvey::SurveyParamManager::getInlCrlTransform() const
+const visBase::Transformation*
+visSurvey::SurveyParamManager::getInlCrlTransform() const
 {
     if ( !displaytransform )
 	const_cast<visSurvey::SurveyParamManager*>(this)->createTransforms();
@@ -119,20 +130,19 @@ void visSurvey::SurveyParamManager::createTransforms()
     appveltransform->ref();
     inlcrltransform->ref();
 
-    displaytransform->setA(
-			    1,      0,      0,      0,
-			    0,      1,      0,      0,
-			    0,      0,      -1,     0,
-			    0,      0,      0,      1 );
-
     BinID startbid = SI().range().start;
     BinID stopbid = SI().range().stop;
+    BinID firstinlinestopbid( startbid.inl, stopbid.crl );
 
     Coord startpos = SI().transform( startbid );
     Coord stoppos = SI().transform( stopbid );
-
-    BinID firstinlinestopbid( startbid.inl, stopbid.crl );
     Coord firstinlinestoppos = SI().transform( firstinlinestopbid );
+
+    displaytransform->setA(
+			    1,      0,      0,      -startpos.x,
+			    0,      1,      0,      -startpos.y,
+			    0,      0,      -1,     0,
+			    0,      0,      0,      1 );
 
     Array2DImpl<double> A(3,3);
     A.set( 0, 0, startbid.inl );
@@ -174,3 +184,23 @@ void visSurvey::SurveyParamManager::createTransforms()
 }
 
 
+void visSurvey::SurveyParamManager::removeTransforms(CallBacker*)
+{
+    if ( displaytransform )
+    {
+	displaytransform->unRef();
+	displaytransform=0;
+    }
+    if ( appveltransform )
+    {
+	appveltransform->unRef();
+	appveltransform=0;
+    }
+    if ( inlcrltransform )
+    {
+	inlcrltransform->unRef();
+	inlcrltransform=0;
+    }
+
+    appvel = 1;
+}
