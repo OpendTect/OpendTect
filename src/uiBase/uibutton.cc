@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.21 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uibutton.cc,v 1.22 2004-02-25 14:48:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,6 +178,8 @@ const char* uiButton::text()
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
 {}
+
+
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm, const CallBack& cb)
     : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
 {}
@@ -201,14 +203,21 @@ uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
     return *body_; 
 }
 
-void uiPushButton::setDefault( bool yn)
+void uiPushButton::setDefault( bool yn )
     { body_->setDefault( yn ); setFocus(); }
 
 
 
-uiRadioButton::uiRadioButton(uiParent* parnt,const char* nm )
-    : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
+uiRadioButton::uiRadioButton( uiParent* p, const char* nm )
+    : uiButton(p,nm,0,mkbody(p,nm))
 {}
+
+
+uiRadioButton::uiRadioButton( uiParent* p, const char* nm, 
+			      const CallBack& cb )
+    : uiButton(p,nm,&cb,mkbody(p,nm))
+{}
+
 
 uiRadioButtonBody& uiRadioButton::mkbody(uiParent* parnt, const char* txt)
 { 
@@ -224,14 +233,21 @@ void uiRadioButton::setChecked( bool check )
 
 
 
-uiCheckBox::uiCheckBox( uiParent* parnt, const char* nm )
-    : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
+uiCheckBox::uiCheckBox( uiParent* p, const char* nm )
+    : uiButton(p,nm,0,mkbody(p,nm))
 {}
+
+
+uiCheckBox::uiCheckBox( uiParent* p, const char* nm, const CallBack& cb )
+    : uiButton(p,nm,&cb,mkbody(p,nm))
+{}
+
 
 void uiCheckBox::setText( const char* txt )
 { 
     mqbut()->setText( QString( txt ) ); 
 }
+
 
 uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const char* txt )
 { 

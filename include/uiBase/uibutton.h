@@ -1,5 +1,5 @@
-#ifndef uibutton_H
-#define uibutton_H
+#ifndef uibutton_h
+#define uibutton_h
 
 /*+
 ________________________________________________________________________
@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.13 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uibutton.h,v 1.14 2004-02-25 14:49:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
+#include "uiobj.h"
 class uiButtonGroup;
 class uiButtonBody;
 
@@ -27,8 +27,8 @@ class ioPixmap;
 class uiButton : public uiObject
 {
 public:
-			uiButton( uiParent*, const char*, const CallBack*,
-				  uiObjectBody&);
+			uiButton(uiParent*,const char*,const CallBack*,
+				 uiObjectBody&);
 
     virtual		~uiButton()		{}
 
@@ -41,13 +41,13 @@ public:
 class uiPushButton : public uiButton
 {
 public:
-				uiPushButton( uiParent*, const char* nm);
-				uiPushButton( uiParent*, const char* nm,
-					      const CallBack& cb); 
-				uiPushButton( uiParent*, const char* nm,
-					      const ioPixmap&);
-				uiPushButton( uiParent*, const char* nm,
-					      const ioPixmap&,const CallBack&);
+				uiPushButton(uiParent*,const char* nm);
+				uiPushButton(uiParent*,const char* nm,
+					     const CallBack&); 
+				uiPushButton(uiParent*,const char* nm,
+					     const ioPixmap&);
+				uiPushButton(uiParent*,const char* nm,
+					     const ioPixmap&,const CallBack&);
 
     void			setDefault( bool yn = true);
 
@@ -63,6 +63,8 @@ class uiRadioButton : public uiButton
 {                        
 public:
 				uiRadioButton(uiParent*,const char*);
+				uiRadioButton(uiParent*,const char*,
+					      const CallBack&);
 
     bool			isChecked() const;
     virtual void		setChecked( bool yn=true );
@@ -79,7 +81,9 @@ class uiCheckBox: public uiButton
 {
 public:
 
-				uiCheckBox(uiParent*,const char* nm);
+				uiCheckBox(uiParent*,const char*);
+				uiCheckBox(uiParent*,const char*,
+					   const CallBack&);
 
     bool			isChecked () const;
     void			setChecked ( bool yn=true ) ;
