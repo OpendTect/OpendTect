@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.45 2002-11-15 10:56:13 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.46 2003-01-13 08:37:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -485,7 +485,7 @@ public:
 					 const DataInpSpec& spec,
 					 const char* nm="uiStrLstInpFld" ) 
 			    : uiInputFld( p, spec )
-			    , cbb( *new uiComboBox(p,nm) ) 
+			    , cbb( *new uiComboBox(p,nm,false) ) 
 			{
 			    init();
 
