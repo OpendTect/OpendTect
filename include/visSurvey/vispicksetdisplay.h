@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.22 2002-10-23 09:42:06 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.23 2002-11-15 08:16:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ class PickSetDisplay :	public visBase::VisualObjectImpl,
 {
 public:
     static PickSetDisplay*	create()
-				mCreateDataObj0arg(PickSetDisplay);
+				mCreateDataObj(PickSetDisplay);
 
     int				nrPicks() const;
     Coord3			getPick( int idx ) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.8 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: viscube.h,v 1.9 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ class Cube : public VisualObjectImpl
 {
 public:
     static Cube*	create()
-			mCreateDataObj0arg(Cube);
+			mCreateDataObj(Cube);
 
     void		setCenterPos( const Coord3& );
     Coord3		centerPos() const;

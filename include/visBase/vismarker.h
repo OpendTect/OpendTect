@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.4 2002-10-23 09:41:55 nanne Exp $
+ RCS:		$Id: vismarker.h,v 1.5 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ class Marker : public VisualObjectImpl
 {
 public:
     static Marker*	create()
-			mCreateDataObj0arg(Marker);
+			mCreateDataObj(Marker);
 
 			~Marker();
 

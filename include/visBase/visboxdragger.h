@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.4 2002-11-08 15:02:44 kristofer Exp $
+ RCS:		$Id: visboxdragger.h,v 1.5 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ class BoxDragger : public SceneObject
 {
 public:
     static BoxDragger*		create()
-				mCreateDataObj0arg(BoxDragger);
+				mCreateDataObj(BoxDragger);
 
     void			setCenter(const Coord3&);
     Coord3			center() const;

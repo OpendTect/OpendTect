@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.4 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: vislight.h,v 1.5 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -59,7 +59,7 @@ A point that illuminates light
 class PointLight : public Light
 {
 public:
-    static PointLight*	create() mCreateDataObj0arg( PointLight );
+    static PointLight*	create() mCreateDataObj( PointLight );
 
     void		setPosition(float,float,float);
     float		position(int dim) const;
@@ -82,7 +82,7 @@ A light in a certain direction from a position at an infinite distance
 class DirectionalLight : public Light
 {
 public:
-    static DirectionalLight*	create() mCreateDataObj0arg( DirectionalLight );
+    static DirectionalLight*	create() mCreateDataObj( DirectionalLight );
 
     void		setDirection(float,float,float);
     float		direction(int dim) const;
@@ -104,7 +104,7 @@ protected:
 class SpotLight : public Light
 {
 public:
-    static SpotLight*	create() mCreateDataObj0arg( SpotLight );
+    static SpotLight*	create() mCreateDataObj( SpotLight );
 
     void		setDirection(float,float,float);
     float		direction(int dim) const;

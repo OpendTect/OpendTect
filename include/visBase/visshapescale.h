@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshapescale.h,v 1.2 2002-07-22 09:35:19 kristofer Exp $
+ RCS:		$Id: visshapescale.h,v 1.3 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class ShapeScale : public SceneObject
 {
 public:
     static ShapeScale*	create()
-			mCreateDataObj0arg(ShapeScale);
+			mCreateDataObj(ShapeScale);
 
     void		setShape( SoNode* );
     void		setShape( SceneObject* );

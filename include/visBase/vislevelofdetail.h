@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislevelofdetail.h,v 1.1 2002-06-24 13:19:57 kristofer Exp $
+ RCS:		$Id: vislevelofdetail.h,v 1.2 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class LevelOfDetail : public SceneObject
 {
 public:
     static LevelOfDetail*	create()
-				mCreateDataObj0arg(LevelOfDetail);
+				mCreateDataObj(LevelOfDetail);
 
     void			addChild( SceneObject*, float maxscreensize );
     				//!< maxscreensize is in pixels. The versions

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.7 2002-11-07 07:40:47 kristofer Exp $
+ RCS:		$Id: visevent.h,v 1.8 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,7 @@ class EventCatcher : public SceneObject
 {
 public:
     static EventCatcher*	create()
-				mCreateDataObj0arg(EventCatcher);
+				mCreateDataObj(EventCatcher);
 
     void			setEventType( EventType type );
     EventType			eventType() const { return type; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.6 2002-11-13 10:38:29 nanne Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.7 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ class Texture3Viewer : public VisualObjectImpl
 {
 public:
     static Texture3Viewer*	create()
-				mCreateDataObj0arg(Texture3Viewer);
+				mCreateDataObj(Texture3Viewer);
 
     int			addSlice(int dim,float origpos=0);
     float		slicePosition(int);
@@ -77,7 +77,7 @@ class Texture3Slice : public Texture3ViewerObject
 {
 public:
     static Texture3Slice*	create()
-			mCreateDataObj0arg(Texture3Slice);
+			mCreateDataObj(Texture3Slice);
 
     int			dim() const;
     void		setDim( int );
@@ -102,7 +102,7 @@ class MovableTextureSlice : public Texture3ViewerObject
 {
 public:
     static MovableTextureSlice*	create()
-			mCreateDataObj0arg(MovableTextureSlice);
+			mCreateDataObj(MovableTextureSlice);
 
     int			dim() const;
     void		setDim( int );
@@ -128,7 +128,7 @@ class MovableTexture2Slice : public Texture3ViewerObject
 {
 public:
     static MovableTexture2Slice*	create()
-			mCreateDataObj0arg(MovableTexture2Slice);
+			mCreateDataObj(MovableTexture2Slice);
 
     int			dim() const;
     void		setDim( int );

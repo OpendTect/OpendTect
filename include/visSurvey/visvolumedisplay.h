@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.7 2002-11-13 10:42:20 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.8 2002-11-15 08:16:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ class VolumeDisplay :  public visBase::VisualObject,
 public:
 
     static VolumeDisplay*	create()
-				mCreateDataObj0arg(VolumeDisplay);
+				mCreateDataObj(VolumeDisplay);
 
     void			setCenter( const Coord3& );
     Coord3			center() const;

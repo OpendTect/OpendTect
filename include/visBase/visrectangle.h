@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.27 2002-10-23 09:41:55 nanne Exp $
+ RCS:		$Id: visrectangle.h,v 1.28 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ class RectangleDragger : public SceneObject
 {
 public:
     static RectangleDragger*	create()
-				mCreateDataObj0arg(RectangleDragger);
+				mCreateDataObj(RectangleDragger);
 
     void			setCenter( const Coord3& );
     Coord3			center() const;
@@ -95,7 +95,7 @@ class Rectangle : public VisualObjectImpl
 {
 public:
     static Rectangle*	create()
-			mCreateDataObj0arg(Rectangle);
+			mCreateDataObj(Rectangle);
 
     void		setOrigo( const Coord3& );
     Coord3		origo() const;

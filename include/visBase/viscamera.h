@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.10 2002-10-23 09:41:55 nanne Exp $
+ RCS:		$Id: viscamera.h,v 1.11 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ class Camera : public SceneObject
 {
 public:
     static Camera*	create()
-			mCreateDataObj0arg( Camera );
+			mCreateDataObj( Camera );
 
     void		setPosition(const Coord3&);
     Coord3		position() const;

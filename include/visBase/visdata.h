@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.21 2002-10-28 22:05:35 bert Exp $
+ RCS:		$Id: visdata.h,v 1.22 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -147,24 +147,13 @@ public:
     clss(typ arg,typ2 arg2, typ3 arg3 );			\
 public:
 
-#define mCreateDataObj0arg(clss) \
+#define mCreateDataObj(clss) \
     _mCreateDataObj(clss,()) \
     _mDeclConstr(clss)
 
-#define mCreateDataObj1arg(clss,arg1t,arg1)	\
-    _mCreateDataObj(clss,(arg1))		\
-    _mDeclConstr1Arg(clss,arg1t,arg1)
-
-#define mCreateDataObj2arg(clss,typ1,arg1,typ2,arg2)	\
-    _mCreateDataObj(clss,(arg1,arg2))			\
-    _mDeclConstr2Args(clss,typ1,arg1,typ2,arg2)
-
-#define mCreateDataObj3arg(clss,typ1,arg1,typ2,arg2,typ3,arg3)	\
-    _mCreateDataObj(clss,(arg1,arg2,arg3))			\
-    _mDeclConstr3Args(clss,typ1,arg1,typ2,arg2,typ3,arg3)
-
 #define mCreateFactoryEntry( clss )				\
     visBase::FactoryEntry clss::__factoryentry(			\
-	    (FactPtr) clss::create, #clss)
+    (FactPtr) clss::create, #clss)
+
 
 #endif

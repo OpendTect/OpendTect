@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.3 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.4 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class DrawStyle : public SceneObject
 {
 public:
     static DrawStyle*	create()
-			mCreateDataObj0arg(DrawStyle);
+			mCreateDataObj(DrawStyle);
 
     enum Style		{ Filled, Lines, Points, Invisible };
     			DeclareEnumUtils(Style);

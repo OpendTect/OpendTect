@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.7 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: vistransform.h,v 1.8 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ class Transformation : public SceneObject
 {
 public:
     static Transformation*	create()
-				mCreateDataObj0arg(Transformation);
+				mCreateDataObj(Transformation);
 
     void		setA( float a11, float a12, float a13, float a14,
 	    		      float a21, float a22, float a23, float a24,

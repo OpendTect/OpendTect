@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.13 2002-10-23 09:41:55 nanne Exp $
+ RCS:		$Id: visannot.h,v 1.14 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ class Annotation : public VisualObjectImpl
 {
 public:
     static Annotation*		create()
-				mCreateDataObj0arg(Annotation);
+				mCreateDataObj(Annotation);
 
     void			showText( bool yn );
     bool			isTextShown() const;

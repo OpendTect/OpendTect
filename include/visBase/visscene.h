@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.8 2002-04-10 08:50:24 kristofer Exp $
+ RCS:		$Id: visscene.h,v 1.9 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ class Scene : public SceneObjectGroup
 {
 public:
     static Scene*	create()
-			mCreateDataObj0arg(Scene);
+			mCreateDataObj(Scene);
 
     void		setAmbientLight( float );
     float		ambientLight() const;

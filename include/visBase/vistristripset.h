@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistristripset.h,v 1.7 2002-10-23 09:41:55 nanne Exp $
+ RCS:		$Id: vistristripset.h,v 1.8 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ class TriangleStripSet : public VisualObjectImpl
 {
 public:
     static TriangleStripSet*	create()
-				mCreateDataObj0arg( TriangleStripSet );
+				mCreateDataObj( TriangleStripSet );
 
     void		setStrips( Geometry::TriangleStripSet*, bool connect );
     			/*!< If connect is true, the object will use the

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.4 2002-06-25 15:22:55 nanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.5 2002-11-15 08:16:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ class WellDisplay :	public visBase::VisualObjectImpl,
 {
 public:
     static WellDisplay*		create()
-				mCreateDataObj0arg(WellDisplay);
+				mCreateDataObj(WellDisplay);
 
     bool			setWellId( const MultiID& );
     const MultiID&		wellId() const { return wellid; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.5 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: vismaterial.h,v 1.6 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class Material : public SceneObject
 {
 public:
     static Material*	create()
-			mCreateDataObj0arg(Material);
+			mCreateDataObj(Material);
 
     void		setColor( const Color& nc );
     const Color&	getColor() const { return color; }

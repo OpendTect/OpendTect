@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.16 2002-10-23 09:42:06 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.17 2002-11-15 08:16:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -42,7 +42,7 @@ public:
     enum Type			{ Inline, Crossline, Timeslice };
 
     static PlaneDataDisplay*	create()
-				mCreateDataObj0arg(PlaneDataDisplay);
+				mCreateDataObj(PlaneDataDisplay);
 
     void			setType(Type type);
     Type			getType() const { return type; }

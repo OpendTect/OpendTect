@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.15 2002-10-14 14:25:26 niclas Exp $
+ RCS:		$Id: vistexturerect.h,v 1.16 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ class TextureRect : public VisualObjectImpl
 {
 public:
     static TextureRect*	create()
-			mCreateDataObj0arg( TextureRect );
+			mCreateDataObj( TextureRect );
 
     float		getValue( const Coord3& ) const;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.7 2002-05-24 11:45:44 kristofer Exp $
+ RCS:		$Id: viscolortab.h,v 1.8 2002-11-15 08:14:32 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class VisColorTab : public DataObject
 {
 public:
     static VisColorTab*	create()
-			mCreateDataObj0arg(VisColorTab);
+			mCreateDataObj(VisColorTab);
 
     Color		color( float val ) const;
 
