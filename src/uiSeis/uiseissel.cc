@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.19 2004-09-24 12:09:12 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.20 2004-09-29 08:01:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,7 +201,6 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 
 uiSeisSel::~uiSeisSel()
 {
-    resetKeyVals( ctio.ctxt, orgkeyvals );
     delete &iopar;
 }
 
