@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.19 2003-08-04 13:38:55 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.20 2003-08-06 15:10:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uiexphorizon.h"
 #include "uiiosurfacedlg.h"
 #include "uihoridealio.h"
+#include "uisurfaceman.h"
 #include "uiexecutor.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -50,6 +51,13 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
 
 uiEMPartServer::~uiEMPartServer()
 {
+}
+
+
+void uiEMPartServer::manageSurfaces()
+{
+    uiSurfaceMan dlg( appserv().parent() );
+    dlg.go();
 }
 
 
