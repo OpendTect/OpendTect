@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.13 2004-04-27 12:00:16 kristofer Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.14 2004-04-27 14:05:57 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,10 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     	, lasthrot(0), lastvrot(0), lastdval(0)
     	, tifs(new uiTreeFactorySet)
 {
+    tifs->addFactory( new uiODRandomLineFactory );
+    tifs->addFactory( new uiODInlineFactory );
+    tifs->addFactory( new uiODCrosslineFactory );
+    tifs->addFactory( new uiODTimesliceFactory );
     wsp->setPrefWidth( cWSWidth );
     wsp->setPrefHeight( cWSHeight );
 
@@ -443,18 +447,15 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     if ( getenv("DTECT_SHOW_TRACKINGITEMS") )
     {
 	//scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
-	scn.itemmanager->addChild( new uiODFaultFactoryTreeItem );
+	scn.itemmanager->addChild( new uiODFaultParentTreeItem );
     }
     //scn.itemmanager->addChild( new uiODWellFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODHorizonFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODHorizonParentTreeItem );
     //scn.itemmanager->addChild( new uiODPickSetFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODRandomLineFactoryTreeItem );
+    //scn.itemmanager->addChild( new uiODRandomLineFactoryTreeItem );
     //scn.itemmanager->addChild( new uiODVolumeFactoryTreeItem );
-    //scn.itemmanager->addChild( new uiODTimesliceFactoryTreeItem );
-    //scn.itemmanager->addChild( new uiODCrosslineFactoryTreeItem );
-    //scn.itemmanager->addChild( new uiODInlineFactoryTreeItem );
-    //scn.itemmanager->addChild( new uiODSceneTreeItem(scn.sovwr->getTitle(),
-						 //scn.sovwr->sceneId() ) );
+    scn.itemmanager->addChild( new uiODSceneTreeItem(scn.sovwr->getTitle(),
+						 scn.sovwr->sceneId() ) );
     scn.lv->display();
     scn.treeWin()->display();
 }

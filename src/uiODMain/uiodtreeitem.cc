@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.5 2004-04-27 12:00:16 kristofer Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.6 2004-04-27 14:05:57 kristofer Exp $";
 
 
 #include "uiodtreeitemimpl.h"
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.5 2004-04-27 12:00:16 krist
 #include "uiattribpartserv.h"
 
 #include "visrandomtrackdisplay.h"
+#include "visplanedatadisplay.h"
 #include "vissurvsurf.h"
 #include "uiexecutor.h"
 
@@ -174,7 +175,7 @@ void uiODTreeTop::removeFactoryCB(CallBacker* cb)
 	return false; 
 
 
-#define mFactoryShowSubMenu( creation ) \
+#define mParentShowSubMenu( creation ) \
     uiPopupMenu mnu( getUiParent(), "Action" ); \
     mnu.insertItem( new uiMenuItem("Add"), 0 ); \
     const int mnuid = mnu.exec(); \
@@ -492,12 +493,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
 
 
 /*
-uiODFaultStickFactoryTreeItem::uiODFaultStickFactoryTreeItem()
+uiODFaultStickParentTreeItem::uiODFaultStickParentTreeItem()
     : uiODTreeItem("FaultSticks" )
 {}
 
 
-bool uiODFaultStickFactoryTreeItem::showSubMenu()
+bool uiODFaultStickParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("New"), 0 );
@@ -543,14 +544,23 @@ bool uiODFaultStickTreeItem::showSubMenu()
 */
 
 
-uiODRandomLineFactoryTreeItem::uiODRandomLineFactoryTreeItem()
+uiTreeItem* uiODRandomLineFactory::create(int visid) const
+{
+    mDynamicCastGet( visSurvey::RandomTrackDisplay*, rtd, 
+	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    return rtd ? new uiODRandomLineTreeItem(visid) : 0;
+}
+
+
+
+uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
     : uiODTreeItem( "Random line" )
 {}
 
 
-bool uiODRandomLineFactoryTreeItem::showSubMenu()
+bool uiODRandomLineParentTreeItem::showSubMenu()
 {
-    mFactoryShowSubMenu( addChild(new uiODRandomLineTreeItem(-1)); );
+    mParentShowSubMenu( addChild(new uiODRandomLineTreeItem(-1)); );
 }
 
 
@@ -572,7 +582,7 @@ bool uiODRandomLineTreeItem::init()
     {
 	mDynamicCastGet( visSurvey::RandomTrackDisplay*, rtd,
 			  visserv->getObject(displayid));
-	if ( rtd ) return false;
+	if ( !rtd ) return false;
     }
 
     return uiODDisplayTreeItem::init();
@@ -672,12 +682,12 @@ void uiODRandomLineTreeItem::editNodes()
 
 }
 
-uiODFaultFactoryTreeItem::uiODFaultFactoryTreeItem()
+uiODFaultParentTreeItem::uiODFaultParentTreeItem()
    : uiODTreeItem( "Fault" )
 {}
 
 
-bool uiODFaultFactoryTreeItem::showSubMenu()
+bool uiODFaultParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load"), 0 );
@@ -709,12 +719,12 @@ uiODFaultTreeItem::uiODFaultTreeItem( int id )
 { displayid=id; }
 
 
-uiODHorizonFactoryTreeItem::uiODHorizonFactoryTreeItem()
+uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem( "Horizon" )
 {}
 
 
-bool uiODHorizonFactoryTreeItem::showSubMenu()
+bool uiODHorizonParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Add"), 0 );
@@ -794,13 +804,13 @@ void uiODHorizonTreeItem::handleMenuCB(CallBacker* cb)
 
 /*
 
-uiODWellFactoryTreeItem::uiODWellFactoryTreeItem()
+uiODWellParentTreeItem::uiODWellParentTreeItem()
     : uiODTreeItem( "Well" )
 {}
 
 
 
-bool uiODWellFactoryTreeItem::showSubMenu()
+bool uiODWellParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Add"), 0 );
@@ -864,12 +874,12 @@ bool uiODWellTreeItem::handleMenu( int mnuid )
 
 
 
-uiODPickSetFactoryTreeItem::uiODPickSetFactoryTreeItem()
+uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     : uiODTreeItem( "PickSet" )
 {}
 
 
-bool uiODPickSetFactoryTreeItem::showSubMenu()
+bool uiODPickSetParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
@@ -957,14 +967,14 @@ bool uiODPickSetTreeItem::showSubMenu()
 }
 
 
-uiODVolumeFactoryTreeItem::uiODVolumeFactoryTreeItem()
+uiODVolumeParentTreeItem::uiODVolumeParentTreeItem()
     : uiODTreeItem( "Volume" )
 {}
 
 
-bool uiODVolumeFactoryTreeItem::showSubMenu()
+bool uiODVolumeParentTreeItem::showSubMenu()
 {
-    mFactoryShowSubMenu( addChild(new uiODVolumeTreeItem); );
+    mParentShowSubMenu( addChild(new uiODVolumeTreeItem); );
 }
 
 
@@ -996,74 +1006,105 @@ bool uiODVolumePartTreeItem::init()
     return uiODDisplayTreeItem::init();
 }
 
+*/
 
-uiODInlineFactoryTreeItem::uiODInlineFactoryTreeItem()
+
+uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim_ )
+    : dim( dim_ )
+{ displayid = did; }
+
+
+bool uiODPlaneDataTreeItem::init()
+{
+    uiVisPartServer* visserv = applMgr()->visServer();
+    if ( displayid==-1 )
+    {
+	visSurvey::PlaneDataDisplay* pdd=visSurvey::PlaneDataDisplay::create();
+	displayid = pdd->id();
+	pdd->setType( (visSurvey::PlaneDataDisplay::Type) dim );
+	visserv->addObject( pdd, sceneID(), true );
+    }
+    else
+    {
+	mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
+			  visserv->getObject(displayid));
+	if ( !pdd ) return false;
+    }
+
+    return uiODDisplayTreeItem::init();
+}
+
+
+uiTreeItem* uiODInlineFactory::create(int visid) const
+{
+    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
+	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    return pdd && pdd->getType()==0 ? new uiODInlineTreeItem(visid) : 0;
+}
+
+
+uiODInlineParentTreeItem::uiODInlineParentTreeItem()
     : uiODTreeItem( "Inline" )
 { }
 
 
-bool uiODInlineFactoryTreeItem::showSubMenu()
+bool uiODInlineParentTreeItem::showSubMenu()
 {
-    mFactoryShowSubMenu( addChild( new uiODInlineTreeItem); );
+    mParentShowSubMenu( addChild( new uiODInlineTreeItem(-1)); );
 }
 
 
 uiODInlineTreeItem::uiODInlineTreeItem( int id )
-{ displayid = id; }
+    : uiODPlaneDataTreeItem( id, 0 )
+{}
 
 
-bool uiODInlineTreeItem::init()
+uiTreeItem* uiODCrosslineFactory::create(int visid) const
 {
-    mDisplayInit( uiODDisplayTreeItem, addInlCrlTsl(sceneID(),0),
-	     	  isInlCrlTsl(displayid,0) );
-    return true;
+    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
+	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    return pdd && pdd->getType()==1 ? new uiODCrosslineTreeItem(visid) : 0;
 }
 
 
-uiODCrosslineFactoryTreeItem::uiODCrosslineFactoryTreeItem()
+uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
     : uiODTreeItem( "Crossline" )
 { }
 
 
-bool uiODCrosslineFactoryTreeItem::showSubMenu()
+bool uiODCrosslineParentTreeItem::showSubMenu()
 {
-    mFactoryShowSubMenu( addChild(new uiODCrosslineTreeItem); );
+    mParentShowSubMenu( addChild( new uiODCrosslineTreeItem(-1)); );
 }
 
 
 uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id )
-{ displayid = id; }
+    : uiODPlaneDataTreeItem( id, 1 )
+{}
 
 
-bool uiODCrosslineTreeItem::init()
+uiTreeItem* uiODTimesliceFactory::create(int visid) const
 {
-    mDisplayInit( uiODDisplayTreeItem, addInlCrlTsl(sceneID(),1),
-	     	  isInlCrlTsl(displayid,1) );
-    return true;
+    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
+	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    return pdd && pdd->getType()==2 ? new uiODTimesliceTreeItem(visid) : 0;
 }
 
 
-uiODTimesliceFactoryTreeItem::uiODTimesliceFactoryTreeItem()
-    : uiODTreeItem( "Time" )
+uiODTimesliceParentTreeItem::uiODTimesliceParentTreeItem()
+    : uiODTreeItem( "Timeslice" )
 { }
 
 
-bool uiODTimesliceFactoryTreeItem::showSubMenu()
+bool uiODTimesliceParentTreeItem::showSubMenu()
 {
-    mFactoryShowSubMenu( addChild(new uiODTimesliceTreeItem); );
+    mParentShowSubMenu( addChild( new uiODTimesliceTreeItem(-1)); );
 }
 
 
 uiODTimesliceTreeItem::uiODTimesliceTreeItem( int id )
-{ displayid = id; }
-
-
-bool uiODTimesliceTreeItem::init()
-{
-    mDisplayInit( uiODDisplayTreeItem, addInlCrlTsl(sceneID(),2),
-	     	  isInlCrlTsl(displayid,2) );
-    return true;
-}
+    : uiODPlaneDataTreeItem( id, 2 )
+{}
 
 
 uiODSceneTreeItem::uiODSceneTreeItem( const char* name__, int displayid_)
@@ -1090,4 +1131,3 @@ bool uiODSceneTreeItem::showSubMenu()
     }
     return true;
 }
-*/
