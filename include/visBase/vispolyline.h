@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.6 2003-09-09 16:25:56 kristofer Exp $
+ RCS:		$Id: vispolyline.h,v 1.7 2003-09-22 08:29:52 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 
 class SoLineSet;
+class SoIndexedLineSet;
 
 namespace visBase
 {
@@ -40,6 +41,17 @@ public:
 
 protected:
     SoLineSet*		lineset;
+};
+
+
+class IndexedPolyLine	: public IndexedShape
+{
+public:
+    static IndexedPolyLine*	create()
+				mCreateDataObj(IndexedPolyLine);
+
+protected:
+    SoIndexedLineSet*	lineset;
 };
 
 }; // Namespace
