@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.21 2002-12-17 15:06:23 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.22 2002-12-18 12:22:17 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -66,6 +66,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, sdout_(*new StreamData)
     	, masterport_(0)
 	, usesock_( false )
+	, timestamp_( Time_getMilliSeconds() )
 {
     const char* fn = argv_[1];
     if ( fn && !strcmp(fn,"-bg") )
@@ -155,25 +156,32 @@ void BatchProgram::killNotify( bool yn )
 }
 
 
-bool BatchProgram::writeStatus( char tag , int status )
+bool BatchProgram::writeStatus( char tag , int status, bool force )
 {
     if( !usesock_ ) return true;
 
+    if( !force && (Time_getMilliSeconds() - timestamp_ < 1000 ) )
+	return true;
+
+    timestamp_ = Time_getMilliSeconds();
+
     if( Socket* sock = mkSocket() )
     {
-        sock->writetag( tag, jobid_, status );
+	sock->writetag( tag, jobid_, status );
 
-        bool ret = true;
+	bool ret = true;
 
 	char masterinfo;
-        ret = sock->readtag( masterinfo );
+	ret = sock->readtag( masterinfo );
 	if ( masterinfo != mRSP_ACK )
 	{
 	    // TODO : handle requests from master
+	    if( masterinfo == mRSP_REQ_STOP ) exit( 0 );
+
 	    ret = false;
 	}
 
-        delete sock;
+	delete sock;
 	return ret;
     }
 
