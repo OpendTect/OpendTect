@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.19 2004-09-10 07:21:50 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.20 2004-09-13 09:40:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,12 +27,15 @@ ________________________________________________________________________
 
 
 
-class uiToolBarBody : public uiBodyImpl<uiToolBar,QToolBar>
+//class uiToolBarBody : public uiBodyImpl<uiToolBar,QToolBar>
+class uiToolBarBody : public uiParentBody
 {
 public:
 
 			uiToolBarBody( uiToolBar& handle, QToolBar& bar )
-			    : uiBodyImpl<uiToolBar,QToolBar>( handle, 0, bar )
+//			    : uiBodyImpl<uiToolBar,QToolBar>( handle, 0, bar )
+			    : uiParentBody("ToolBar")
+			    , qbar(&bar)
 			    {}
 
 			~uiToolBarBody()	{ deepErase(receivers); }
@@ -44,6 +47,7 @@ public:
     void		turnOn(int idx, bool yn );
     void		setSensitive(int idx, bool yn );
     void		setSensitive(bool yn);
+    void		setToolTip(int,const char*);
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
@@ -54,7 +58,19 @@ public:
 			qdock(uiToolBar::ToolBarDock);
 
 protected:
-    virtual const QWidget*      managewidg_() const	{ return qwidget(); }
+//  virtual const QWidget*      managewidg_() const	{ return qwidget(); }
+    virtual const QWidget*      managewidg_() const	{ return qbar; }
+    virtual const QWidget*	qwidget_() const	{ return qbar; }
+    QToolBar*			qbar;
+    virtual void        attachChild ( constraintType tp,
+                                      uiObject* child,
+                                      uiObject* other, int margin,
+                                      bool reciprocal )
+			{
+			    pErrMsg("Cannot attach uiObjects in a uiToolBar");
+			    return;
+			}
+
 
 private:
     ObjectSet<i_QToolButReceiver> receivers; // for deleting
@@ -73,7 +89,7 @@ int uiToolBarBody::addButton(const ioPixmap& pm, const CallBack& cb,
 
     i_QToolButReceiver* br= new i_QToolButReceiver;
     QToolButton* but= new QToolButton( *pm.Pixmap(), QString(nm), QString::null,
-                           br,  SLOT(buttonPressed()),qthing(), nm );
+                           br,  SLOT(buttonPressed()),qbar, nm );
 
     if ( toggle ) but->setToggleButton( true );
 
@@ -95,6 +111,12 @@ void uiToolBarBody::turnOn( int idx, bool yn )
 void uiToolBarBody::setSensitive( int idx, bool yn )
 {
     buttons[idx]->setEnabled( yn );
+}
+
+
+void uiToolBarBody::setToolTip( int idx, const char* tip )
+{
+    buttons[idx]->setTextLabel( QString(tip) );
 }
 
 
@@ -162,6 +184,12 @@ void uiToolBar::setSensitive( bool yn )
 { body_->setSensitive( yn ); }
 
 
+void uiToolBar::setToolTip( int idx, const char* tip )
+{
+    body_->setToolTip( idx, tip );
+}
+
+
 void uiToolBar::display( bool yn, bool, bool )
 {
     if ( yn )
@@ -188,3 +216,14 @@ void uiToolBar::setMovingEnabled( bool yn )
 
 bool uiToolBar::isMovingEnabled()
 { return qtoolbar->isMovingEnabled(); }
+
+
+void uiToolBar::dock()
+{ qtoolbar->dock(); }
+
+void uiToolBar::undock()
+{ qtoolbar->undock(); }
+
+
+void uiToolBar::setNewLine( bool yn )
+{ qtoolbar->setNewLine( yn ); }

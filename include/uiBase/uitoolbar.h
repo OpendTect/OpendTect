@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.13 2004-09-10 07:21:38 nanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.14 2004-09-13 09:40:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
 
     void		setLabel(const char*);
 
+    void		setToolTip(int,const char*);
     void		turnOn( int idx, bool yn );
     			/*!< Does only work on toggle-buttons */
     void		setSensitive( int idx, bool yn );
@@ -64,6 +65,10 @@ public:
     void		setStretchableWidget(uiObject*);
     void		setMovingEnabled(bool);
     bool		isMovingEnabled();
+
+    void		dock();
+    void		undock();
+    void		setNewLine(bool yn=true);
 
 protected:
 
