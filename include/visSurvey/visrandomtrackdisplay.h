@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.11 2003-03-06 18:54:38 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.12 2003-03-07 13:17:43 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,7 @@ public:
     void			getAllKnotPos(TypeSet<BinID>&);
     void			removeKnot(int);
     void			removeAllKnots();
+    bool			isManipulated() const;
     void			acceptManip();
 
     void			getDataPositions(TypeSet<BinID>&);
@@ -88,7 +89,7 @@ public:
 
     Notifier<RandomTrackDisplay> knotmoving;
     void			knotMoved(CallBacker*);
-    void			knotSelected(CallBacker*);
+    void			knotNrChanged(CallBacker*);
     int				getSelKnotIdx() const	{ return selknotidx; }
 
     SoNode*			getData();
@@ -100,7 +101,6 @@ protected:
 				~RandomTrackDisplay();
 
     visBase::RandomTrack*	track;
-    visBase::EventCatcher*	eventcatcher;
     visBase::Material*		texturematerial;
     AttribSelSpec&		as;
     int				selknotidx;
@@ -110,10 +110,10 @@ protected:
     const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&)
 									const;
     void			checkPosition(BinID&);
-    void			pickCB(CallBacker*);
 
     ObjectSet< TypeSet<BinID> > bidsset;
     ObjectSet<SeisTrc>		cache;
+    bool			ismanip;
 
     static const char*		trackstr;
     static const char*		nrknotsstr;

@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.14 2003-03-06 18:54:32 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.15 2003-03-07 13:17:42 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@
 #include "seistrc.h"
 #include "simpnumer.h"
 #include "survinfo.h"
-#include "visevent.h"
 #include "visdataman.h"
 #include "vismaterial.h"
 #include "visrandomtrack.h"
@@ -39,19 +38,14 @@ mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
 
 visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     : VisualObject(true)
-    , eventcatcher(visBase::EventCatcher::create())
     , track(visBase::RandomTrack::create())
     , texturematerial(visBase::Material::create())
     , as(*new AttribSelSpec)
     , knotmoving(this)
     , selknotidx(-1)
     , ctrlpressed(false)
+    , ismanip( true )
 {
-    eventcatcher->ref();
-    eventcatcher->setEventType(visBase::MouseClick);
-    eventcatcher->eventhappened.notify(
-	    mCB(this,visSurvey::RandomTrackDisplay,pickCB) );
-
     track->ref();
 
     texturematerial->ref();
@@ -60,7 +54,7 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     track->setMaterial( texturematerial );
 
     track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
-    track->knotsel.notify( mCB(this,RandomTrackDisplay,knotSelected) );
+    track->knotnrchange.notify( mCB(this,RandomTrackDisplay,knotNrChanged) );
 
     const StepInterval<double>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().range(true).start.inl,
@@ -104,11 +98,8 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
 
 visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
 {
-    eventcatcher->eventhappened.remove(
-	                mCB(this,visSurvey::RandomTrackDisplay,pickCB) );
-    eventcatcher->unRef();
     track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
-    track->knotsel.remove( mCB(this,RandomTrackDisplay,knotSelected) );
+    track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged) );
     track->unRef();
     texturematerial->unRef();
 }
@@ -260,6 +251,7 @@ bool visSurvey::RandomTrackDisplay::putNewData(const ObjectSet<SeisTrc>& trcset)
     setData( trcset );
     deepErase( cache );
     cache = trcset;
+    ismanip = false;
     return true;
 }
 
@@ -322,13 +314,16 @@ float visSurvey::RandomTrackDisplay::getValue( const Coord3& pos ) const
     return trc->get( sampidx, 0 );
 }
 
+
+bool visSurvey::RandomTrackDisplay::isManipulated() const
+{
+    return ismanip;
+}
+
  
 void visSurvey::RandomTrackDisplay::acceptManip()
 {
-    const int nrknots = track->nrKnots();
-    setDepthInterval( getManipDepthInterval() );
-    for ( int idx=0; idx<nrknots; idx++ )
-	setKnotPos( idx, getManipKnotPos( idx ) );
+    track->moveObjectToDraggerPos();
 }
 
 
@@ -358,6 +353,7 @@ visBase::VisColorTab& visSurvey::RandomTrackDisplay::getColorTab()
 
 void visSurvey::RandomTrackDisplay::knotMoved( CallBacker* cb )
 {
+    ismanip = true;
     mCBCapsuleUnpack(int,sel,cb);
     
     selknotidx = sel;
@@ -365,12 +361,15 @@ void visSurvey::RandomTrackDisplay::knotMoved( CallBacker* cb )
 }
 
 
-void visSurvey::RandomTrackDisplay::knotSelected( CallBacker* cb )
+void visSurvey::RandomTrackDisplay::knotNrChanged( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,sel,cb);
-    selknotidx = sel;
-    knotmoving.trigger();
-//  if ( ctrlpressed ) removeKnot( selknotidx );    
+    ismanip = true;
+    if ( !cache.size() )
+	return;
+
+    TypeSet<BinID> bids;
+    getDataPositions( bids );
+    setData( cache );
 }
 
 
@@ -411,41 +410,6 @@ const char* visSurvey::RandomTrackDisplay::getResName( int res ) const
 int visSurvey::RandomTrackDisplay::getNrResolutions() const
 {
     return 3;
-}
-
-
-void visSurvey::RandomTrackDisplay::pickCB( CallBacker* cb )
-{
-    if ( !isSelected() ) return;
-
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
-
-    if ( eventinfo.type != visBase::MouseClick ) return;
-    if ( eventinfo.mousebutton ) return; // only accept left-click
-
-    int eventid = -1;
-    int sectionidx = -1;
-    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
-    {
-	visBase::DataObject* dataobj =
-			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
-	mDynamicCastGet(visBase::TriangleStripSet*,tss,dataobj)
-	if ( tss ) sectionidx = track->getSectionIdx( tss );
-    }
-
-    if ( sectionidx < 0 ) return;
-
-    Coord3 newpos = visSurvey::SPM().getZScaleTransform()->
-					transformBack(eventinfo.pickedpos);
-
-    if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
-    {
-	BinID bid( (int)newpos.x, (int)newpos.y );
-	SI().snap( bid );
-	insertKnot( sectionidx, bid );
-    }
-    else if ( eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
-	ctrlpressed = true;
 }
 
 
