@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.38 2005-01-11 10:17:09 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.39 2005-01-11 12:23:10 nanne Exp $";
 
 #include "emmanager.h"
 
@@ -93,7 +93,9 @@ const char* EM::EMManager::objectType(const EM::ObjectID& oid) const
     if ( !ioobj ) 
 	return 0;
 
-    return ioobj->group();
+    static BufferString objtype;
+    objtype = ioobj->group();
+    return objtype.buf();
 }
 
 
