@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.22 2003-08-18 08:01:15 arend Exp $
+ RCS:		$Id: sets.h,v 1.23 2003-08-18 08:07:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
 			TypeSet( int nr, T typ )
 			{
 			    for ( int idx=0; idx<nr; idx++ )
-				typs.push_back(typ);
+				tvec.push_back(typ);
 			}
 			TypeSet( const TypeSet<T>& t )
 				{ append( t ); }
@@ -50,22 +50,22 @@ public:
 				{ return copy(ts); }
 
     virtual int		size() const
-				{ return typs.size(); }
+				{ return tvec.size(); }
     virtual T&		operator[]( int idx ) const
-				{ return (T&)typs[idx]; }
+				{ return (T&)tvec[idx]; }
 
     virtual int		indexOf( const T& typ ) const
 			{
 			    const unsigned int sz = size();
 			    for ( unsigned int idx=0; idx<sz; idx++ )
-				if ( typs[idx] == typ ) return idx;
+				if ( tvec[idx] == typ ) return idx;
 			    return -1;
 			}
 
     TypeSet<T>&	operator +=( const T& typ )
-				{ typs.push_back(typ); return *this; }
+				{ tvec.push_back(typ); return *this; }
     TypeSet<T>&	operator -=( const T& typ )
-				{ typs.erase(typ); return *this; }
+				{ tvec.erase(typ); return *this; }
     virtual TypeSet<T>&	copy( const TypeSet<T>& ts )
 			{
 			    if ( &ts != this )
@@ -85,21 +85,22 @@ public:
 			    for ( unsigned int idx=0; idx<sz; idx++ )
 				*this += ts[idx];
 			}
+    virtual void	fill( const T& t )		{ tvec.fill(t); }
 
-    virtual void	erase()				{ typs.erase(); }
-    virtual void	remove( int idx )		{ typs.remove(idx); }
-    virtual void	remove( int i1, int i2 )	{ typs.remove(i1,i2); }
-    virtual void	insert( int idx, const T& typ )	{ typs.insert(idx,typ);}
+    virtual void	erase()				{ tvec.erase(); }
+    virtual void	remove( int idx )		{ tvec.remove(idx); }
+    virtual void	remove( int i1, int i2 )	{ tvec.remove(i1,i2); }
+    virtual void	insert( int idx, const T& typ )	{ tvec.insert(idx,typ);}
 
 			//! 3rd party access
-    vector<T>&		vec()		{ return typs.vec(); }
-    const vector<T>&	vec() const	{ return typs.vec(); }
+    vector<T>&		vec()		{ return tvec.vec(); }
+    const vector<T>&	vec() const	{ return tvec.vec(); }
     T*			arr()		{ return size() ? &(*this)[0] : 0; }
     const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 
 private:
 
-    Vector<T>		typs;
+    Vector<T>		tvec;
 
 };
 
@@ -186,9 +187,9 @@ public:
 				{ return allow0; }
 
     virtual int		size() const
-				{ return objs.size(); }
+				{ return ovec.size(); }
     virtual T*		operator[]( int idx ) const
-				{ return (T*)(objs[idx]); }
+				{ return (T*)(ovec[idx]); }
     virtual T*		operator[]( const T* t ) const
 			{
 			    int idx = indexOf(t);
@@ -198,37 +199,37 @@ public:
 			{
 
 			    for ( int idx=0; idx<size(); idx++ )
-				if ( (T*)objs[idx] == ptr ) return idx;
+				if ( (T*)ovec[idx] == ptr ) return idx;
 			    return -1;
 			}
     virtual ObjectSet<T>& operator +=( T* ptr )
 			{
-				if ( ptr || allow0 ) objs.push_back((void*)ptr);
+				if ( ptr || allow0 ) ovec.push_back((void*)ptr);
 				return *this;
 
 			}
     virtual ObjectSet<T>& operator -=( T* ptr )
 			{
-			    if ( ptr || allow0 ) objs.erase((void*)ptr);
+			    if ( ptr || allow0 ) ovec.erase((void*)ptr);
 			    return *this;
 			}
     virtual T*		replace( T* newptr, int idx )
 			{
 			    if (idx<0||idx>size()) return 0;
-			    T* ptr = (T*)objs[idx];
-			    objs[idx] = (void*)newptr; return ptr;
+			    T* ptr = (T*)ovec[idx];
+			    ovec[idx] = (void*)newptr; return ptr;
 			}
     virtual void	insertAt( T* newptr, int idx )
 			{
-			    objs.insert( idx, (void*) newptr );
+			    ovec.insert( idx, (void*) newptr );
 			}
     virtual void	insertAfter( T* newptr, int idx )
 			{
 			    *this += newptr;
 			    if ( idx < 0 )
-				objs.moveToStart( (void*)newptr );
+				ovec.moveToStart( (void*)newptr );
 			    else
-				objs.moveAfter( (void*)newptr, objs[idx] );
+				ovec.moveAfter( (void*)newptr, ovec[idx] );
 			}
     virtual void	copy( const ObjectSet<T>& os )
 			{
@@ -242,13 +243,13 @@ public:
 				*this += os[idx];
 			}
 
-    virtual void	erase()				{ objs.erase(); }
-    virtual void	remove( int idx )		{ objs.remove(idx); }
-    virtual void	remove( int i1, int i2 )	{ objs.remove(i1,i2); }
+    virtual void	erase()				{ ovec.erase(); }
+    virtual void	remove( int idx )		{ ovec.remove(idx); }
+    virtual void	remove( int i1, int i2 )	{ ovec.remove(i1,i2); }
 
 private:
 
-    Vector<void*>	objs;
+    Vector<void*>	ovec;
     bool		allow0;
 
 };

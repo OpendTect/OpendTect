@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.15 2003-08-13 13:46:38 arend Exp $
+ RCS:		$Id: vectoraccess.h,v 1.16 2003-08-18 08:07:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ public:
     inline const T&	operator[]( int idx ) const
     			{ return (*const_cast<Vector*>(this))[idx]; }
     inline unsigned int	size() const			{ return v.size(); }
-    inline void		resize( int sz )		{ v.resize(sz); }
 
     inline Vector&	operator =( const Vector& v2 )
 			{ v = v2.v; return *this; }
