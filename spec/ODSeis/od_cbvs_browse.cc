@@ -7,6 +7,7 @@
 #include "filegen.h"
 #include "datachar.h"
 #include "strmprov.h"
+#include "ptrman.h"
 #include <iostream>
 #include <math.h>
 #include <ctype.h>
@@ -56,6 +57,7 @@ static void getInt( int& i )
     i = atoi( ptr );
 }
 
+
 int main( int argc, char** argv )
 {
     if ( argc < 2 )
@@ -76,12 +78,12 @@ int main( int argc, char** argv )
 	fname = File_getFullPath( fname, argv[1] );
     }
 
-    CBVSSeisTrcTranslator tri;
-    if ( !tri.initRead( new StreamConn(fname,Conn::Read) ) )
-	{ cerr << tri.errMsg() << endl;  return 1; }
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
+	{ cerr << tri->errMsg() << endl;  return 1; }
 
     cerr << "\n";
-    const CBVSReadMgr& mgr = *tri.readMgr();
+    const CBVSReadMgr& mgr = *tri->readMgr();
     mgr.dumpInfo( cerr, true );
     const CBVSInfo& info = mgr.info();
 
@@ -126,9 +128,9 @@ int main( int argc, char** argv )
 
 	cerr << "X-line: "; getInt( bid.crl );
 
-	if ( !tri.goTo( bid ) )
+	if ( !tri->goTo( bid ) )
 	    { cerr << "Position not in data" << endl; continue; }
-	if ( !tri.read(trc) )
+	if ( !tri->read(trc) )
 	    { cerr << "Cannot read trace!" << endl; continue; }
 
 	if ( !mIS_ZERO(trc.info().pick) && !mIsUndefined(trc.info().pick) )

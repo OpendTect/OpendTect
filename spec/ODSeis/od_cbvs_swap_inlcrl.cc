@@ -6,6 +6,7 @@
 #include "strmprov.h"
 #include "progressmeter.h"
 #include "filegen.h"
+#include "ptrman.h"
 #include <iostream>
 #include <math.h>
 
@@ -33,11 +34,11 @@ int main( int argc, char** argv )
 	fname = File_getCurrentDir();
 	fname = File_getFullPath( fname, argv[1] );
     }
-    CBVSSeisTrcTranslator tri;
-    if ( !tri.initRead(new StreamConn(fname,Conn::Read)) )
-        { cerr << tri.errMsg() << endl;  return 1; }
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
+        { cerr << tri->errMsg() << endl;  return 1; }
 
-    const CBVSReadMgr& rdmgr = *tri.readMgr();
+    const CBVSReadMgr& rdmgr = *tri->readMgr();
     const CBVSInfo::SurvGeom& geom = rdmgr.info().geom;
 
     fname = argv[2];
@@ -48,7 +49,7 @@ int main( int argc, char** argv )
     }
 
     SeisTrc trc;
-    CBVSSeisTrcTranslator tro;
+    PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
     int nrwr = 0;
     ProgressMeter pm( cerr );
 
@@ -59,10 +60,10 @@ int main( int argc, char** argv )
 		trcnr += geom.step.inl ) 
 	{
 	    pm.update( nrwr );
-	    if ( !tri.goTo(BinID(trcnr,linenr)) )
+	    if ( !tri->goTo(BinID(trcnr,linenr)) )
 		continue;
 
-	    else if ( !tri.read(trc) )
+	    else if ( !tri->read(trc) )
 		{ cerr << "Cannot read " << linenr << '/' << trcnr
 		       << endl; return 1; }
 
@@ -70,10 +71,10 @@ int main( int argc, char** argv )
 	    trc.info().coord = SI().transform( trc.info().binid );
 
 	    if ( !nrwr
-		    && !tro.initWrite(new StreamConn(fname,Conn::Write),trc) )
+		    && !tro->initWrite(new StreamConn(fname,Conn::Write),trc) )
 		{ cerr << "Cannot start write!" << endl;  return 1; }
 
-	    if ( !tro.write(trc) )
+	    if ( !tro->write(trc) )
 		{ cerr << "Cannot write!" << endl;  return 1; }
 
 	    nrwr++;

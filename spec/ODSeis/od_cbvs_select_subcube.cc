@@ -7,6 +7,7 @@
 #include "separstr.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "ptrman.h"
 #include <iostream>
 #include <math.h>
 
@@ -37,9 +38,9 @@ int main( int argc, char** argv )
 	fname = File_getCurrentDir();
 	fname = File_getFullPath( fname, argv[2] );
     }
-    CBVSSeisTrcTranslator tri;
-    if ( !tri.initRead(new StreamConn(fname,Conn::Read)) )
-        { cerr << tri.errMsg() << endl;  return 1; }
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
+        { cerr << tri->errMsg() << endl;  return 1; }
 
     fname = argv[3];
     if ( !File_isAbsPath(argv[3]) )
@@ -47,7 +48,7 @@ int main( int argc, char** argv )
 	fname = File_getCurrentDir();
 	fname = File_getFullPath( fname, argv[3] );
     }
-    CBVSSeisTrcTranslator tro;
+    PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
 
     SeparString fms( argv[1], ',' );
     SeisTrcSel tsel;
@@ -56,9 +57,9 @@ int main( int argc, char** argv )
     bidsmpl->start = BinID( atoi(fms[0]), atoi(fms[3]) );
     bidsmpl->stop = BinID( atoi(fms[1]), atoi(fms[4]) );
     bidsmpl->step = BinID( atoi(fms[2]), atoi(fms[5]) );
-    // tri.setTrcSel( &tsel );
+    // tri->setTrcSel( &tsel );
     ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
-	    = tri.componentInfo();
+	    = tri->componentInfo();
     const int nrincomp = ci.size();
     if ( fms.size() > 6 )
     {
@@ -86,18 +87,18 @@ int main( int argc, char** argv )
 
     SeisTrc trc;
     int nrwr = 0;
-    while ( tri.read(trc) )
+    while ( tri->read(trc) )
     {
 	if ( bidsmpl->excludes(trc.info().binid) )
 	    continue;
 
 	if ( !nrwr )
 	{
-	    tro.packetInfo() = tri.packetInfo();
-	    if ( !tro.initWrite(new StreamConn(fname,Conn::Write),trc) )
+	    tro->packetInfo() = tri->packetInfo();
+	    if ( !tro->initWrite(new StreamConn(fname,Conn::Write),trc) )
 		{ cerr << "Cannot start write!" << endl;  return 1; }
 	    for ( int idx=0; idx<nrincomp; idx++ )
-		tro.componentInfo()[idx]->setName( ci[idx]->name() );
+		tro->componentInfo()[idx]->setName( ci[idx]->name() );
 	}
 
 	if ( haverange )
@@ -117,7 +118,7 @@ int main( int argc, char** argv )
 	    }
 	}
 
-	if ( !tro.write(trc) )
+	if ( !tro->write(trc) )
 	    { cerr << "Cannot write!" << endl;  return 1; }
 	nrwr++;
     }

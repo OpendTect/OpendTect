@@ -4,6 +4,7 @@
 #include "iostrm.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "ptrman.h"
 #include <iostream>
 #include <math.h>
 
@@ -35,11 +36,12 @@ int main( int argc, char** argv )
 	fname = File_getCurrentDir();
 	fname = File_getFullPath( fname, argv[2] );
     }
-    CBVSSeisTrcTranslator tri;
-    if ( !tri.initRead(new StreamConn(fname,Conn::Read)) )
-        { cerr << tri.errMsg() << endl;  return 1; }
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
+        { cerr << tri->errMsg() << endl;  return 1; }
 
-    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci = tri.componentInfo();
+    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
+	= tri->componentInfo();
     const int nrincomp = ci.size();
     if ( selcomp >= 0 )
 	for ( int idx=0; idx<nrincomp; idx++ )
@@ -52,11 +54,11 @@ int main( int argc, char** argv )
 	fname = File_getFullPath( fname, argv[3] );
     }
 
-    CBVSSeisTrcTranslator tro;
+    PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
     SeisTrc trc;
     SeisTrc& outtrc = selcomp < 0 ? *new SeisTrc : trc;
     int nrwr = 0;
-    while ( tri.read(trc) )
+    while ( tri->read(trc) )
     {
 	if ( selcomp < 0 )
 	{
@@ -76,10 +78,11 @@ int main( int argc, char** argv )
 	if ( selcomp < 0 )
 	    outtrc.info() = trc.info();
 
-	if ( !nrwr && !tro.initWrite(new StreamConn(fname,Conn::Write),outtrc) )
+	if ( !nrwr && !tro->initWrite(
+		    	new StreamConn(fname,Conn::Write),outtrc) )
 	    { cerr << "Cannot start write!" << endl;  return 1; }
 
-	if ( !tro.write(outtrc) )
+	if ( !tro->write(outtrc) )
 	    { cerr << "Cannot write!" << endl;  return 1; }
 
 	nrwr++;

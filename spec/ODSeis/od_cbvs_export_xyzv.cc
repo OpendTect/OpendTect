@@ -7,6 +7,7 @@
 #include "separstr.h"
 #include "strmprov.h"
 #include "filegen.h"
+#include "ptrman.h"
 #include <fstream>
 #include <math.h>
 
@@ -36,9 +37,9 @@ int main( int argc, char** argv )
 	fname = File_getCurrentDir();
 	fname = File_getFullPath( fname, argv[1] );
     }
-    CBVSSeisTrcTranslator tri;
-    if ( !tri.initRead( new StreamConn(fname,Conn::Read) ) )
-	{ cerr << tri.errMsg() << endl;  return 1; }
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
+	{ cerr << tri->errMsg() << endl;  return 1; }
 
     fname = argv[2];
     ofstream outstrm( argv[2] );
@@ -54,13 +55,13 @@ int main( int argc, char** argv )
 	bidsmpl->start = BinID( atoi(fms[0]), atoi(fms[3]) );
 	bidsmpl->stop = BinID( atoi(fms[1]), atoi(fms[4]) );
 	bidsmpl->step = BinID( atoi(fms[2]), atoi(fms[5]) );
-	tri.setTrcSel( &tsel );
+	tri->setTrcSel( &tsel );
 	if ( fms.size() > 6 )
 	{
 	    SamplingData<float> sd( atof(fms[6]), atof(fms[7]) );
 	    int nrz = atoi( fms[8] );
 	    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
-		    = tri.componentInfo();
+		    = tri->componentInfo();
 	    const int nrincomp = ci.size();
 	    for ( int idx=0; idx<nrincomp; idx++ )
 	    {
@@ -73,7 +74,7 @@ int main( int argc, char** argv )
     SeisTrc trc;
     int nrwr = 0;
     int nrlwr = 0;
-    while ( tri.read(trc) )
+    while ( tri->read(trc) )
     {
 	const int nrcomps = trc.data().nrComponents();
 	const int nrsamps = trc.size( 0 );
