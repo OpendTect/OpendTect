@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.10 2003-02-22 10:23:03 kristofer Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.11 2003-03-06 11:18:56 kristofer Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -122,17 +122,33 @@ void Threads::WorkThread::doWork( CallBacker* )
 	    thread->threadExit();
 	}
 
-	controlcond.unlock();
 	while ( task && !exitflag )
 	{
+	    controlcond.unlock(); //Allow someone to set the exitflag
 	    retval = cancelflag ? 0 : task->doStep();
+	    controlcond.lock();
+
 	    if ( retval<1 )
 	    {
 		if ( finishedcb ) finishedcb->doCall( this );
-		controlcond.lock();
-		task = 0;
-		controlcond.unlock();
-		manager.imFinished( this );
+		manager.workloadcond.lock();
+
+		if ( manager.workload.size() )
+		{
+		    task = manager.workload[0];
+		    finishedcb = manager.callbacks[0];
+		    manager.workload.remove( 0 );
+		    manager.callbacks.remove( 0 );
+		}
+		else
+		{
+		    task = 0;
+		    finishedcb = 0;
+		    manager.freethreads += this;
+		}
+
+		manager.workloadcond.unlock();
+		manager.isidle.trigger(&manager);
 	    }
 	}
     }
@@ -281,8 +297,7 @@ public:
 			    error = true;
 
 			nrfinished++;
-			bool isfin = nrfinished==nrtasks;
-			if ( isfin ) rescond.signal( false );
+			if ( nrfinished==nrtasks ) rescond.signal( false );
 			rescond.unlock();
 		    }
 
@@ -312,24 +327,4 @@ bool Threads::ThreadWorkManager::addWork( ObjectSet<BasicTask>& work )
     resultman.rescond.unlock();
 
     return !resultman.hasErrors();
-}
-
-
-void Threads::ThreadWorkManager::imFinished( WorkThread* workthread )
-{
-    workloadcond.lock();
-
-    if ( workload.size() )
-    {
-	workthread->assignTask( *workload[0], callbacks[0] );
-	workload.remove( 0 );
-	callbacks.remove( 0 );
-	workloadcond.unlock();
-	return;
-    }
-
-    freethreads += workthread;
-
-    workloadcond.unlock();
-    isidle.trigger(this);
 }
