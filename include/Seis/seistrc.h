@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.14 2003-01-24 15:57:55 arend Exp $
+ RCS:		$Id: seistrc.h,v 1.15 2003-02-20 22:33:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ protected:
     SeisTrcInfo		info_;
     TypeSet<int>*	soffs_;
     ObjectSet<Interpolator1D>* intpols_;
-    ObjectSet<const Scaler>*	scalers_;
+    ObjectSet<Scaler>*	scalers_;
 
     inline float	scaled( float v, int icomp ) const
 			{

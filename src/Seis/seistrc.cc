@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.13 2003-02-20 13:56:05 kristofer Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.14 2003-02-20 22:33:17 bert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -24,9 +24,10 @@ SeisTrc::~SeisTrc()
 void SeisTrc::cleanUp()
 {
     delete soffs_; soffs_ = 0;
-    delete scalers_; scalers_ = 0;
     if ( intpols_ )
 	{ deepErase( *intpols_ ); delete intpols_; intpols_ = 0; }
+    if ( scalers_ )
+	{ deepErase( *scalers_ ); delete scalers_; scalers_ = 0; }
 }
 
 
@@ -60,7 +61,7 @@ SeisTrc& SeisTrc::operator =( const SeisTrc& t )
 
     if ( t.scalers_ )
     {
-	scalers_ = new ObjectSet<const Scaler>;
+	scalers_ = new ObjectSet<Scaler>;
 	scalers_->allowNull();
 	for ( int idx=0; idx<t.scalers_->size(); idx++ )
 	    *scalers_ += (*t.scalers_)[idx]
@@ -133,17 +134,23 @@ void SeisTrc::setScaler( const Scaler* sc, int icomp )
     if ( (!sc && !scalers_) || icomp >= data().nrComponents() )
 	return;
 
-    if ( !scalers_ ) scalers_ = new ObjectSet<const Scaler>;
+    if ( !scalers_ )
+	scalers_ = new ObjectSet<Scaler>;
+    scalers_->allowNull(true);
     while ( scalers_->size() <= icomp )
 	(*scalers_) += 0;
 
-    scalers_->replace( sc, icomp );
+    Scaler* newsc = sc ? sc->duplicate() : 0;
+    delete scalers_->replace( newsc, icomp );
+
 
     if ( !sc )
     {
+	// See if we can just remove the lot again.
 	for ( int idx=0; idx<scalers_->size(); idx++ )
 	    if ( (*scalers_)[idx] ) return;
-	delete scalers_; scalers_ = 0;
+
+	deepErase( *scalers_ ); delete scalers_; scalers_ = 0;
     }
 }
 
