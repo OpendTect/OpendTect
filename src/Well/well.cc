@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.18 2004-03-09 11:13:21 arend Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.19 2004-03-09 11:42:57 arend Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -203,8 +203,12 @@ float Well::D2TModel::getTime( float dh ) const
     return (d1 * t_[idx2] + d2 * t_[idx1]) / (d1 + d2);
 }
 
+
+#define mName "Well name"
+
 void Well::Info::fillPar(IOPar& par) const
 {
+    par.set( mName, name() );
     par.set( sKeyuwid, uwid );
     par.set( sKeyoper, oper );
     par.set( sKeystate, state );
@@ -219,6 +223,7 @@ void Well::Info::fillPar(IOPar& par) const
 
 void Well::Info::usePar(const IOPar& par)
 {
+    setName( par[mName] );
     par.get( sKeyuwid, uwid );
     par.get( sKeyoper, oper );
     par.get( sKeystate, state );
