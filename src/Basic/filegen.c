@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.28 2002-10-07 14:56:03 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.29 2002-10-08 09:45:59 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -15,14 +15,28 @@ static const char* rcsID = "$Id: filegen.c,v 1.28 2002-10-07 14:56:03 bert Exp $
 #include <stdlib.h>
 
 #ifndef __win__
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
-static struct stat statbuf;
+
+# include <sys/stat.h>
+# include <unistd.h>
+# include <dirent.h>
+
+# ifdef sun5
+#  include <sys/statvfs.h>
+#  define mStatFS statvfs
+# else
+#  include <sys/statfs.h>
+#  define mStatFS statfs
+# endif
+
+ static struct stat statbuf;
+ static struct mStatFS fsstatbuf;
+
 #else
-#include <windows.h>
-#include <shlwapi.h>
-#include <time.h>
+
+# include <windows.h>
+# include <shlwapi.h>
+# include <time.h>
+
 #endif
 
 static const char* dirsep = sDirSep;
@@ -71,29 +85,11 @@ int File_isAbsPath( const char* fname )
 }
 
 
-#ifdef lux
-#include <sys/statfs.h>
-/* These header files don't compile!
-#include <linux/nfs_fs.h>
-#include <linux/smb.h>
-*/
-#else
-#include <sys/statvfs.h>
-#endif
-
 int File_isRemote( const char* fname )
 {
-#ifdef lux
-    static struct statfs fsstatbuf;
     if ( !File_exists(fname)
-      || statfs(fname,&fsstatbuf) )
-#else
-    static struct statvfs fsstatbuf;
-    if ( !File_exists(fname)
-      || statvfs(fname,&fsstatbuf) )
-#endif
+      || mStatFS(fname,&fsstatbuf) )
 	return NO;
-
 
 #ifdef lux
     /* return fsstatbuf.f_type == NFS_SUPER_MAGIC
@@ -102,6 +98,35 @@ int File_isRemote( const char* fname )
 #else
     return fsstatbuf.f_basetype[0] == 'n' && fsstatbuf.f_basetype[1] == 'f';
 #endif
+}
+
+
+int File_getFreeMBytes( const char* dirnm )
+{
+#ifdef __win__
+    return 0;
+#else
+
+    double res = 1.0 / 1024.0;
+
+    if ( !File_exists(dirnm)
+      || mStatFS(dirnm,&fsstatbuf) )
+	return 0;
+
+    res *= res * fsstatbuf.f_bavail * fsstatbuf.f_bsize;
+    return (int)(res + .5);
+
+#endif
+}
+
+
+int File_isWritable( const char* fnm )
+{
+    FileNameString cmd;
+    if ( !File_exists(fnm) ) return 0;
+
+    sprintf( cmd, "test -w %s", fnm );
+    return !system( cmd );
 }
 
 
@@ -544,7 +569,7 @@ int File_createLink( const char* from, const char* to )
 #ifdef __win__
     return NO;
 #else
-    FileNameString cmd;
+    char cmd[512];
     if ( !from || !to || !*from || !*to ) return NO;
 
     strcpy( cmd, "ln -s " );
@@ -570,27 +595,4 @@ const char* File_getCurrentDir()
     static FileNameString pathbuf;
     getcwd( pathbuf, PATH_LENGTH );
     return pathbuf;
-}
-
-
-int File_getFreeMBytes( const char* dirnm )
-{
-#ifdef __win__
-    return 0;
-#else
-    static char cmd[512];
-    int nrkbytes = 0;
-    FILE* pp;
-
-    if ( !File_exists(dirnm) ) return 0;
-
-    sprintf( cmd, "df -k %s | sed '/ilesystem/d' | awk '{print $4}'",
-	     dirnm );
-    pp = popen( cmd, "r" );
-    if ( !pp ) return 0;
-
-    fscanf( pp, "%d", &nrkbytes );
-    pclose( pp );
-    return nrkbytes / 1024;
-#endif
 }
