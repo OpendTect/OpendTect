@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.32 2003-10-21 12:05:27 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.33 2003-10-30 12:34:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,14 +77,15 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 
 uiSeisFileMan::~uiSeisFileMan()
 {
-    delete &ctio; // NOT ctio.ioobj
+    delete ctio.ioobj; delete &ctio;
 }
 
 
 void uiSeisFileMan::selChg( CallBacker* cb )
 {
     entrylist->setCurrent( listfld->currentItem() );
-    ctio.ioobj = entrylist->selected();
+    const IOObj* selioobj = entrylist->selected();
+    ctio.setObj( selioobj ? selioobj->clone() : 0 );
     copybut->setSensitive( ctio.ioobj && ctio.ioobj->implExists(true) );
     mkFileInfo();
     manipgrp->selChg( cb );
@@ -174,8 +175,8 @@ void uiSeisFileMan::copyPush( CallBacker* )
 
     MultiID key( iostrm->key() );
     uiSeisImpCBVS dlg( this, iostrm );
-    dlg.go();
-    manipgrp->refreshList( key );
+    if ( dlg.go() )
+	manipgrp->refreshList( key );
 }
 
 
@@ -217,6 +218,6 @@ void uiSeisFileMan::mergePush( CallBacker* )
 
     MultiID key( ctio.ioobj->key() );
     uiMergeSeis dlg( this );
-    dlg.go();
-    manipgrp->refreshList( key );
+    if ( dlg.go() )
+	manipgrp->refreshList( key );
 }
