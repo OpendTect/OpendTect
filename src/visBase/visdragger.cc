@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.5 2004-05-13 09:12:40 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.6 2004-05-17 06:15:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,6 @@ Dragger::Dragger()
     , positiontransform( visBase::Transformation::create() )
     , displaytrans( 0 )
     , rightclicknotifier(this)
-    , ownshape( 0 )
 {
     onoff->ref();
     onoff->addChild( separator );
@@ -60,7 +59,6 @@ Dragger::~Dragger()
     positiontransform->unRef();
     onoff->unref();
     if ( displaytrans ) displaytrans->unRef();
-    if ( ownshape ) ownshape->unRef();
 }
 
 
@@ -114,19 +112,12 @@ Transformation* Dragger::getTransformation()
 }
 
 
-void Dragger::setOwnShape(visBase::DataObject* newshape)
+void Dragger::setOwnShape(visBase::DataObject* newshape, const char* partname )
 {
-    if ( ownshape ) ownshape->unRef();
-    ownshape = newshape;
-
-    if ( ownshape && ownshape->getInventorNode() )
+    if ( newshape && newshape->getInventorNode() )
     {
-	dragger->setPart("translator",ownshape->getInventorNode());
-	dragger->setPart("translatorActive",ownshape->getInventorNode());
-	ownshape->ref();
+	dragger->setPart(partname,newshape->getInventorNode());
     }
-    else
-	ownshape=0;
 }
 
 
