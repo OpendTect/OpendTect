@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.9 2005-04-04 11:18:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.10 2005-04-05 15:32:45 cvsnanne Exp $";
 
 #include "vismpe.h"
 
@@ -449,6 +449,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	    MPE::TrackPlane ntp;
 	    getPlanePosition(ntp.boundingBox());
 	    engine_.setTrackPlane( ntp, false );
+	    updateTextureCoords();
 	}
 
 	sceneeventcatcher_->eventIsHandled();
