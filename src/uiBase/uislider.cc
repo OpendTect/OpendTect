@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.16 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uislider.cc,v 1.17 2004-01-30 14:39:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ uiSliderBody::uiSliderBody( uiSlider& handle,uiParent* parnt, const char* nm )
 {
     setStretch( 1, 0 );
     setHSzPol( uiObject::medium );
+    setFocusPolicy( QWidget::WheelFocus );
 }
 
 
