@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.30 2002-01-24 12:35:44 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.31 2002-01-25 13:33:34 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -419,8 +419,14 @@ int uiObjectBody::prefHNrPics() const
 		case SzPolicySpec::small:    pwc=baseFldSz;     break;
 		case SzPolicySpec::medium:   pwc=2*baseFldSz+1; break;
 		case SzPolicySpec::wide:     pwc=4*baseFldSz+3; break;
+
+		case SzPolicySpec::smallmax:
 		case SzPolicySpec::smallvar: pwc=baseFldSz;     var=true; break;
+
+		case SzPolicySpec::medmax:
 		case SzPolicySpec::medvar:   pwc=2*baseFldSz+1; var=true; break;
+
+		case SzPolicySpec::widemax:
 		case SzPolicySpec::widevar:  pwc=4*baseFldSz+3; var=true; break;
 	    }
 
@@ -547,6 +553,12 @@ int uiObjectBody::fontWdtFor( const char* str) const
     if( !fm ) return 0;
     return fm->width( QString( str ) );
 }
+
+bool uiObjectBody::itemInited() const
+{
+    return layoutItem_ ? layoutItem_->inited() : false;
+}
+
 
 void uiObjectBody::gtFntWdtHgt() const
 {

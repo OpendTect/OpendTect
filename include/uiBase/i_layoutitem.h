@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.14 2002-01-22 15:55:41 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.15 2002-01-25 13:32:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,12 @@ public:
     inline uiRect&		curpos(layoutMode m)	{ return layoutpos[m];}
 
     constraintIterator		iterator();
+
+    bool			inited() const 
+				{ 
+				    return minimum_pos_inited 
+					|| preferred_pos_inited; 
+				}
 
 protected:
 

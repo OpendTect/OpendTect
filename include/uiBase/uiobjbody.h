@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.16 2002-01-25 11:36:06 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.17 2002-01-25 13:32:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
     int				prefHNrPics() const;
     void			setPrefWidth( int w )      
 				{ 
-				    if( finalised )
+				    if( itemInited() )
 				    { 
 					if( pref_width_set != w )
 					 pErrMsg("Not allowed when finalized.");
@@ -68,10 +68,12 @@ public:
 				    }
 				    pref_char_width = -1;
 				    pref_width_set = w; 
+				    pref_width_  = 0;
+				    pref_height_ = 0;
 				}
     void			setPrefWidthInChar( float w )
 				{ 
-				    if( finalised )
+				    if( itemInited() )
 				    { 
 					if( pref_char_width != w )
 					 pErrMsg("Not allowed when finalized.");
@@ -79,12 +81,14 @@ public:
 				    }
 				    pref_width_set = -1;
 				    pref_char_width = w; 
+				    pref_width_  = 0;
+				    pref_height_ = 0;
 				}
 
     int				prefVNrPics() const;
     void			setPrefHeight( int h )     
 				{ 
-				    if( finalised )
+				    if( itemInited() )
 				    { 
 					if( pref_height_set != h )
 					 pErrMsg("Not allowed when finalized.");
@@ -92,10 +96,12 @@ public:
 				    }
 				    pref_char_height = -1;
 				    pref_height_set = h; 
+				    pref_width_  = 0;
+				    pref_height_ = 0;
 				}
     void			setPrefHeightInChar( float h )
 				{ 
-				    if( finalised )
+				    if( itemInited() )
 				    { 
 					if( pref_char_height != h )
 					 pErrMsg("Not allowed when finalized.");
@@ -103,11 +109,13 @@ public:
 				    }
 				    pref_height_set = -1;
 				    pref_char_height = h; 
+				    pref_width_  = 0;
+				    pref_height_ = 0;
 				}
 
     void               		setStretch( int hor, int ver ) 
 				{ 
-				    if( finalised )
+				    if( itemInited() )
 				    { 
 					if( hStretch != hor || vStretch != ver )
 					 pErrMsg("Not allowed when finalized.");
@@ -174,7 +182,27 @@ public:
 					return max ? fnt_maxwdt : fnt_wdt; 
 				    }
 
-    void			setSzPol( const SzPolicySpec& p ) { szpol = p; }
+    void			setSzPol( const SzPolicySpec& p ) 
+				{ 
+				    szpol = p; 
+				    if( p.hSzPol() >= SzPolicySpec::smallmax 
+					&& p.hSzPol() <= SzPolicySpec::widemax )
+				    {
+					int hs = mMAX( 2, stretch(true) );
+					int vs = stretch( false );
+
+					setStretch( hs, vs);
+				    }
+				    if( p.vSzPol() >= SzPolicySpec::smallmax 
+					&& p.vSzPol() <= SzPolicySpec::widemax )
+				    {
+					int hs = stretch( true );
+					int vs = mMAX( 2, stretch(false) );
+
+					setStretch( hs, vs);
+				    }
+
+				}
     SzPolicySpec		szPol() const		{ return szpol; }
 
     void			setShrinkAllowed( bool yn ) { allowshrnk = yn; }
@@ -198,6 +226,8 @@ protected:
 
     int				hStretch;
     int				vStretch;
+
+    bool			itemInited() const;
 
 private:
 
