@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: fontdata.h,v 1.7 2003-11-10 14:39:20 arend Exp $
+ RCS:           $Id: fontdata.h,v 1.8 2003-11-10 15:24:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,10 +58,10 @@ public:
     static Weight	defaultWeight();
     static bool		defaultItalic();
 
-    static void		setDefaultFamily( const char* f ) { defaultfamily = f; }
-    static void		setDefaultPointSize( int ps ) { defaultpointsize = ps; }
-    static void		setDefaultWeight( Weight w )      { defaultweight = w; }
-    static void		setDefaultItalic( bool yn )      { defaultitalic = yn; }
+    static void		setDefaultFamily( const char* f );
+    static void		setDefaultPointSize( int ps );
+    static void		setDefaultWeight( Weight w );
+    static void		setDefaultItalic( bool yn );
 
     static const char* const* universalFamilies();
 			//!< array of strings with null as last element
