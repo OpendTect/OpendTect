@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.11 2002-08-20 07:35:33 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.12 2002-09-19 07:13:39 nanne Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,7 @@ template <class T> class Array2D;
 class DataClipper;
 
 class SoTexture2;
+class SoImage;
 class SoSwitch;
 class SoComplexity;
 class SoGroup;
@@ -69,6 +70,9 @@ public:
     Array2D<float>*	get2DData()	{ return data; }
     void		setTextureQuality(float);
 			/*!< 0 - bad; 1=best */
+    void		setResolution(int);
+    int			getNrResolutions() const;
+    int			getResolution() const	{ return resolution; }
 
     void		useTexture(bool);
     bool		usesTexture() const;
@@ -83,10 +87,12 @@ public:
     static const char*	usestexturestr;
     static const char*	clipratestr;
     static const char*	autoscalestr;
+    static const char*	resolutionstr;
 
 protected:
     void		updateTexture();
     void		clipData();
+    int			nextPower2(float);
 
     void		triggerManipStarts() { manipstartnotifier.trigger(); }
     void		triggerManipChanges() { manipchnotifier.trigger(); }
@@ -103,6 +109,7 @@ protected:
     bool		autoscale;
     float		cliprate;
     Array2D<float>*	data;
+    int			resolution;
 private:
 			~TextureRect();
 
