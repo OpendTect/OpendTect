@@ -5,6 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.29 2001-11-21 12:46:26 bert Exp $";
 
 /*!
 
@@ -72,29 +73,31 @@ bool CBVSReader::readInfo()
     errmsg_ = check( strm_ );
     if ( errmsg_ ) return false;
 
-    strm_.read( buf.buf(), headstartbytes );
+    BufferString buf(headstartbytes);
+    unsigned char* ptr = (unsigned char*)buf.buf();
+    strm_.read( ptr, headstartbytes );
 
     DataCharacteristics dc;
-    dc.littleendian = buf[3] != 0;
+    dc.littleendian = ptr[3] != 0;
     finterp.set( dc );
     dc.setNrBytes( BinDataDesc::N8 );
     dinterp.set( dc );
     dc.BinDataDesc::set( true, true, BinDataDesc::N4 );
     iinterp.set( dc );
 
-    // const int version = (int)buf[4];
-    getExplicits( (const unsigned char *)buf.buf()+5 );
-    // const int nrbytesinheader = iinterp.get( buf+8 );
+    // const int version = (int)ptr[4];
+    getExplicits( ptr + 5 );
+    // const int nrbytesinheader = iinterp.get( ptr+8 );
 
-    strm_.read( buf.buf(), integersize );
-    getText( iinterp.get(buf,0), info_.stdtext );
+    strm_.read( ptr, integersize );
+    getText( iinterp.get(ptr,0), info_.stdtext );
 
     if ( !readComps() || !readGeom() )
 	return false;
 
-    strm_.read( buf.buf(), 2 * integersize );
-    info_.seqnr = iinterp.get( buf, 0 );
-    getText( iinterp.get(buf,1), info_.usertext );
+    strm_.read( ptr, 2 * integersize );
+    info_.seqnr = iinterp.get( ptr, 0 );
+    getText( iinterp.get(ptr,1), info_.usertext );
     removeTrailingBlanks( info_.usertext.buf() );
 
     datastartfo = strm_.tellg();
@@ -127,10 +130,12 @@ bool CBVSReader::readInfo()
 }
 
 
+void CBVSReader::getText( int nrchar, BufferString& txt )
 {
     if ( nrchar > 0 )
     {
-	txt.setBufSize(nrchar+1);
+	if ( txt.bufSize() <= nrchar )
+	    txt.setBufSize(nrchar+1);
 	strm_.read( txt.buf(), nrchar );
 	txt[nrchar] = '\0';
     }
@@ -188,7 +193,8 @@ void CBVSReader::getExplicits( const unsigned char* ptr )
 bool CBVSReader::readComps()
 {
 #ifdef __msvc__
-    #define ucbuf mscbuf.buf()
+    BufferString mscbuf(4*integersize);
+    unsigned char* ucbuf = (unsigned char*)mscbuf.buf();
 #else
     unsigned char ucbuf[4*integersize];
 #endif
@@ -204,6 +210,7 @@ bool CBVSReader::readComps()
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	strm_.read( ucbuf, integersize );
+	BufferString bs; getText( iinterp.get(ucbuf,0), bs );
 	BasicComponentInfo* newinf = new BasicComponentInfo( (const char*)bs );
 	
 	strm_.read( ucbuf, integersize );
@@ -276,6 +283,7 @@ bool CBVSReader::readGeom()
 bool CBVSReader::readTrailer()
 {
     strm_.seekg( -3, ios::end );
+    BufferString buf(3*integersize);
     strm_.read( buf.buf(), 3 ); buf[3] = '\0';
     if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
     
