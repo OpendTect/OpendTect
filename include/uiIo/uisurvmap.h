@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.1 2001-07-27 10:27:49 nanne Exp $
+ RCS:           $Id: uisurvmap.h,v 1.2 2001-08-13 07:00:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "uicanvas.h"
 #include "uifont.h"
 #include "uiworld2ui.h"
+
+#include "uidialog.h"
 
 
 class uiSurveyMap
@@ -28,8 +30,6 @@ void drawMap( SurveyInfo* survinfo )
 {
     ioDrawTool& dt = *mapcanvas->drawTool();
     dt.beginDraw();
-
-    int w = dt.getDevWidth(); int h = dt.getDevHeight();
     dt.clear();
     if ( !survinfo->rangeUsable() ) { dt.endDraw(); return; }
 
@@ -37,6 +37,7 @@ void drawMap( SurveyInfo* survinfo )
     dt.setFont( uiFontList::get(FontData::defaultKeys()[3]) ); // Graphics large
     Alignment al = Alignment(Alignment::Middle,Alignment::Stop);
     const char* txt = survinfo->name();
+    int w = dt.getDevWidth(); int h = dt.getDevHeight();
     dt.drawText( w/2, h/20, txt, al );
 
     BinIDRange br = survinfo->range();
@@ -108,3 +109,28 @@ void drawMap( SurveyInfo* survinfo )
 
 };
 
+
+class uiSurveyMapDlg : public uiDialog
+{
+public:
+
+uiSurveyMapDlg( uiParent* p )
+	: uiDialog(p,"Survey Map")
+{
+    cv = new uiCanvas( this, "survey map" );
+    cv->setPrefHeight( 400 );
+    cv->setPrefWidth( 400 );
+    cv->setStretch(0,0);
+    cv->preDraw.notify( mCB(this,uiSurveyMapDlg,doCanvas) );
+}
+
+void doCanvas( CallBacker* )
+{
+    SurveyInfo* survinfo = new SurveyInfo( SI() );
+    uiSurveyMap* survmap = new uiSurveyMap( cv, survinfo );
+    survmap->drawMap( survinfo );
+}
+
+uiCanvas*		cv;
+
+};		
