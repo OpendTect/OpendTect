@@ -1,0 +1,220 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        A.H. Lammertink
+ Date:          Jan 2004
+ RCS:           $Id: uicrdevenv.cc,v 1.1 2004-01-16 08:35:03 arend Exp $
+________________________________________________________________________
+
+-*/
+
+#include "uicrdevenv.h"
+#include "uifileinput.h"
+#include "helpview.h"
+#include "uimsg.h"
+#include "ioman.h"
+#include "settings.h"
+#include "filegen.h"
+#include "strmprov.h"
+
+
+extern "C" { const char* GetBaseDataDir(); }
+
+
+uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
+			const char* workdirnm  )
+	: uiDialog(p,uiDialog::Setup("Create Work Enviroment",
+		    		     "Specify a work directory",
+		    		     "8.0.1"))
+	, workdirfld(0)
+{
+    const char* titltxt =
+    "If you want to develop your own OpendTect plugins, you needs a place\n"
+    "to store your work in progress: your WORK dir.\n"
+    "Please specify where the OpendTect Work should"
+    "be created."
+    ;
+
+    setTitleText( titltxt );
+
+    const char* basetxt = "OpendTect Work Directory";
+
+    basedirfld = new uiFileInput( this, basetxt,
+				  uiFileInput::Setup(basedirnm).directories() );
+
+    workdirfld = new uiGenInput( this, "Directory name", workdirnm );
+    workdirfld->attach( alignedBelow, basedirfld );
+}
+
+
+bool uiCrDevEnv::isOK( const char* d )
+{
+    if ( !d || !*d ) return false; 
+
+    const BufferString datadir( (d && *d) ? d : getenv("WORK") );
+    const BufferString pmakedir( File_getFullPath( datadir, "Pmake" ) );
+    const BufferString incdir( File_getFullPath( datadir, "include" ) );
+    const BufferString srcdir( File_getFullPath( datadir, "src" ) );
+    const BufferString plugindir( File_getFullPath( datadir, "plugins" ) );
+    return File_isDirectory( datadir )
+        && File_isDirectory( pmakedir )
+        && File_isDirectory( incdir )
+        && File_isDirectory( srcdir )
+        && File_isDirectory( plugindir );
+}
+
+
+#undef mErrRet
+#define mErrRet(s) { uiMSG().error(s); return; }
+
+void uiCrDevEnv::crDevEnv( uiParent* appl )
+{
+
+    BufferString oldworkdir(getenv("WORK"));
+    const bool oldok = isOK( oldworkdir );
+
+    BufferString workdirnm;
+
+    if ( oldworkdir != "" )
+    {
+	BufferString msg;
+	msg = "Your current work directory (";
+	msg += oldworkdir;
+	msg += oldok ?  ") seems to be Ok.\n" :
+			") does not seem to be a valid work directory.\n";
+	msg += "Do you want to completely remove the existing directory\n"
+	       "and create a new work directory there?";
+
+	if ( uiMSG().askGoOn(msg) )
+	{
+	    File_remove( workdirnm, true );
+	    workdirnm = oldworkdir;
+	}
+
+    }
+
+    
+    if ( workdirnm == "" )
+    {
+	BufferString worksubdirm = "ODWork";
+	BufferString basedirnm = GetPersonalDir();
+
+	// pop dialog
+	uiCrDevEnv dlg( appl, basedirnm, worksubdirm );
+	if ( !dlg.go() ) return;
+
+	basedirnm = dlg.basedirfld->text();
+	worksubdirm = dlg.workdirfld->text();
+
+	if ( !File_isDirectory(basedirnm) )
+	    mErrRet( "Invalid directory selected" )
+
+	workdirnm = File_getFullPath( basedirnm, worksubdirm );
+    }
+
+    if ( workdirnm == "" ) return;
+	
+    if ( File_exists(workdirnm) )
+    {
+	BufferString msg;
+	const bool isdir= File_isDirectory( workdirnm );
+	const bool isok = isOK(workdirnm);
+
+	if ( isdir )
+	{
+	    msg = "The directory you selected(";
+	    msg += workdirnm;
+	    msg += isok ? ") seems to be a valid work directory.\n\n" :
+			  ") does not seem to be a valid work directory.\n\n";
+	}
+	else
+	{
+	    msg = "You selected a file.\n\n";
+	}
+
+	msg += "Do you want to completely remove the existing";
+	msg + isdir ?  "directory\n" : "file\n" ;
+	msg += "and create a new work directory there?";   
+
+	if ( !uiMSG().askGoOn(msg) )
+	    return;
+
+	File_remove( workdirnm, true );
+    }
+
+    if ( !File_createDir(workdirnm,0) )
+	mErrRet( "Cannot create new Work directory" )
+
+
+    const char* aboutto =
+	"About to create your working directory. This can take a few minutes, "
+	"during which time the OpendTect application window will freeze\n\n"
+	"This is normal behavior, so please be patient\n"
+	"Meanwhile, you can take a look at the developers documentation."
+    ;
+    uiMSG().message(aboutto);
+
+
+    BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
+    getstarted = File_getFullPath( getstarted, "getstarted.html" );
+    HelpViewer::doHelp( getstarted, "Get started with OpendTect development" );
+
+
+    BufferString cmd( "@'" );
+    cmd += GetSoftwareDir();
+    cmd = File_getFullPath( cmd, "bin" );
+    cmd = File_getFullPath( cmd, "od_cr_dev_env" );
+    cmd += "' '"; cmd += GetSoftwareDir();
+    cmd += "' '"; cmd += workdirnm; cmd += "'";
+    StreamProvider( cmd ).executeCommand( false );
+
+    BufferString relfile = File_getFullPath( workdirnm, ".rel.od.doc" );
+    if ( !File_exists(relfile) )
+	mErrRet( "Creation seems to have failed" )
+    else
+	uiMSG().message( "Creation seems to have succeeded.\n\n"
+			 "Source 'init.csh' or 'init.bash' before starting." );
+}
+
+
+
+#undef mErrRet
+#define mErrRet(msg) { uiMSG().error( msg ); return false; }
+
+bool uiCrDevEnv::acceptOK( CallBacker* )
+{
+    BufferString workdir = basedirfld->text();
+    if ( workdir == "" || !File_isDirectory(workdir) )
+	mErrRet( "Please enter a valid (existing) location" )
+
+    if ( workdirfld )
+    {
+	BufferString workdirnm = workdirfld->text();
+	if ( workdirnm == "" )
+	    mErrRet( "Please enter a (sub-)directory name" )
+
+	workdir = File_getFullPath( workdir, workdirnm );
+    }
+
+
+    const BufferString omffnm = File_getFullPath( workdir, ".omf" );
+    const BufferString stdomf( GetDataFileName("omf") );
+
+    if ( !File_exists(workdir) )
+    {
+#ifdef __win__
+	if ( !strncasecmp("C:\\Program Files", workdir, 16)
+	  || strstr( workdir, "Program Files" )
+	  || strstr( workdir, "program files" )
+	  || strstr( workdir, "PROGRAM FILES" ) )
+	    mErrRet( "Please do not try to use 'Program Files' for data.\n"
+		     "A directory like 'My Documents' would be good." )
+#endif
+	if ( !File_createDir( workdir, 0 ) )
+	    mErrRet( "Cannot create the new directory.\n"
+		     "Please check if you have the required write permissions" )
+    }
+
+    return true;
+}

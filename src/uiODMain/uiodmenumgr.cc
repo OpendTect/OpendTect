@@ -4,19 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.5 2004-01-05 14:59:54 nanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.6 2004-01-16 08:35:03 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.5 2004-01-05 14:59:54 nanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.6 2004-01-16 08:35:03 arend Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
+#include "uicrdevenv.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
+#include "helpview.h"
 #include "dirlist.h"
 #include "pixmap.h"
 #include "filegen.h"
@@ -346,15 +348,15 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mTileMnuItm: 		sceneMgr().tile(); break;
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm: 	applMgr().setZScale(); break;
-    case mAdminMnuItm: 		applMgr().doHelp(
+    case mAdminMnuItm: 		HelpViewer::doHelp(
 				    getHelpF("ApplMan","index.html"),
 				    "OpendTect System administrator"); break;
-    case mProgrammerMnuItm:	applMgr().doHelp(
+    case mProgrammerMnuItm:	HelpViewer::doHelp(
 					getHelpF("Programmer","index.html"),
 					"d-Tect" ); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
-    case mCrDevEnvMnuItm: 	applMgr().crDevEnv(); break;
+    case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
     case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
 
@@ -376,7 +378,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	const BufferString dddirnm = GetDataFileName("dTectDoc");
 	BufferString fnm = File_getFullPath( dddirnm, htmlfnm );
 	fnm = File_exists(fnm) ? getHelpF(0,htmlfnm) : htmlfnm;
-	applMgr().doHelp( fnm, "About OpendTect" );
+	HelpViewer::doHelp( fnm, "About OpendTect" );
     } break;
 
     default:
@@ -397,7 +399,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	if ( ptr )
 	    { itmnm += " - "; itmnm += docnm; itmnm += " part"; }
 
-	applMgr().doHelp( getHelpF(0,"index.html",dirnm.buf()), itmnm ); break;
+	HelpViewer::doHelp( getHelpF(0,"index.html",dirnm.buf()), itmnm );
+	break;
 
     } break;
 

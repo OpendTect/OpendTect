@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.5 2004-01-09 11:02:09 bert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.6 2004-01-16 08:35:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,6 @@ public:
     void		batchProgs();
     void		pluginMan();
     void		crDevEnv();
-    void		doHelp(const char*,const char*);
     void		setFonts();
 
     // Tree menu services

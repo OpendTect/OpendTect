@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.7 2004-01-13 14:16:44 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.8 2004-01-16 08:35:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "pickset.h"
 #include "survinfo.h"
-#include "strmprov.h"
 #include "errh.h"
 #include "iopar.h"
 #include "ioman.h"
@@ -202,54 +201,6 @@ void uiODApplMgr::createVol()
 void uiODApplMgr::reStartProc() { uiRestartBatchDialog dlg( &appl ); dlg.go(); }
 void uiODApplMgr::batchProgs() { uiBatchProgLaunch dlg( &appl ); dlg.go(); }
 void uiODApplMgr::pluginMan() { uiPluginMan dlg( &appl ); dlg.go(); }
-
-
-#undef mErrRet
-#define mErrRet(s) { uiMSG().error(s); return; }
-
-void uiODApplMgr::crDevEnv()
-{
-    uiFileDialog dlg( &appl, uiFileDialog::DirectoryOnly, GetPersonalDir(),
-	   		0, "Select directory for the new 'ODWork' directory" );
-    if ( !dlg.go() ) return;
-
-    BufferString dirnm( dlg.fileName() );
-    if ( !File_isDirectory(dirnm) )
-	mErrRet( "Invalid directory selected" )
-    
-    dirnm = File_getFullPath( dirnm, "ODWork" );
-    if ( File_exists(dirnm) )
-    {
-	if ( !uiMSG().askGoOn("Directory exists.\nAre you sure?") )
-	    return;
-    }
-    else if ( !File_createDir(dirnm,0) )
-	mErrRet( "Cannot create new 'ODWork' directory" )
-
-    BufferString cmd( "@'" );
-    cmd += GetSoftwareDir();
-    cmd = File_getFullPath( cmd, "bin" );
-    cmd = File_getFullPath( cmd, "od_cr_dev_env" );
-    cmd += "' '"; cmd += GetSoftwareDir();
-    cmd += "' '"; cmd += dirnm; cmd += "'";
-    StreamProvider( cmd ).executeCommand( false );
-
-    BufferString relfile = File_getFullPath( dirnm, ".rel.od.doc" );
-    if ( !File_exists(relfile) )
-	mErrRet( "Creation seems to have failed" )
-    else
-	uiMSG().message( "Creation seems to have succeeded.\n\n"
-			 "Source 'init.csh' or 'init.bash' before starting." );
-}
-
-
-void uiODApplMgr::doHelp( const char* relurl, const char* wt )
-{
-    BufferString docpath( GetDataFileName(relurl) );
-    BufferString wintitle( wt );
-    replaceCharacter( wintitle.buf(), ' ', '_' );
-    HelpViewer::use( docpath, wintitle );
-}
 
 
 void uiODApplMgr::setFonts()
