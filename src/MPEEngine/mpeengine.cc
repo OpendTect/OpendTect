@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.4 2005-01-11 09:56:11 kristofer Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.5 2005-01-11 13:42:49 kristofer Exp $";
 
 #include "mpeengine.h"
 
@@ -114,7 +114,7 @@ int Engine::addTracker( EM::EMObject* obj )
     if ( !obj )
 	mRetErr( "No valid object", -1 );
 
-    if ( getTrackerByObject(obj->id()) )
+    if ( getTrackerByObject(obj->id())!=-1 )
 	mRetErr( "Object is allready tracked", -1 );
 
     for ( int idx=0; idx<trackerfactories.size(); idx++ )
@@ -137,7 +137,7 @@ int Engine::addTracker( const char* objname, const char* trackername )
     if ( !interactionseeds.size() || !objname || !trackername )
 	mRetErr( "No seeds or no name specified", -1 );
 
-    if ( getTrackerByObject(objname) )
+    if ( getTrackerByObject(objname)!=-1 )
 	mRetErr( "Object with this name does already exist", -1 );
 
     for ( int idx=0; idx<trackerfactories.size(); idx++ )
