@@ -6,12 +6,13 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.1 2001-04-27 16:46:33 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.2 2001-07-18 16:15:43 bert Exp $";
 
 #include "iodirentry.h"
 #include "transl.h"
 #include "iodir.h"
 #include "ioman.h"
+#include "globexpr.h"
 
 
 IODirEntry::IODirEntry( IOObj* iob, int selres, bool maychgdir )
@@ -43,11 +44,13 @@ const UserIDString& IODirEntry::name() const
 }
 
 
-IODirEntryList::IODirEntryList( IODir* id, const Translator* tr, bool maycd )
+IODirEntryList::IODirEntryList( IODir* id, const Translator* tr, bool maycd,
+				const char* f )
 	: UserIDObjectSet<IODirEntry>(
 		id->main() ? (const char*)id->main()->name() : "Objects" )
 	, trsel(tr->getSelector())
 	, maychgdir(maycd)
+	, trfilt(f)
 {
     fill( id );
 }
@@ -71,6 +74,7 @@ void IODirEntryList::fill( IODir* iodir )
 	curset++;
     }
 
+    GlobExpr ge( trfilt );
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	IOObj* ioobj = ioobjs[idx];
@@ -80,6 +84,11 @@ void IODirEntryList::fill( IODir* iodir )
 	{
 	    selres = trsel( ioobj->group() );
 	    if ( !selres || (selres == 1 && !ioobj->isLink()) ) continue;
+	}
+	if ( *((const char*)trfilt) )
+	{
+	    if ( !ge.matches( ioobj->translator() ) )
+		continue;
 	}
 
         *this += new IODirEntry( ioobj, selres, maychgdir );
