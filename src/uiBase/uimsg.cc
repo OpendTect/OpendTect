@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.17 2003-11-11 10:10:03 arend Exp $
+ RCS:           $Id: uimsg.cc,v 1.18 2003-11-11 12:48:41 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,11 +91,9 @@ void uiMsg::toStatusbar( MsgClass* mc )
     }
 
     BufferString msg;
-    if ( mc->type() > MsgClass::Message )
-    {
-	msg = eString( MsgClass::Type, mc->type() );
-	msg += ": ";
-    }
+    if ( mc->type() > MsgClass::Message
+      && mc->type() < MsgClass::ProgrammerError )
+	msg = mc->type() == MsgClass::Warning ? "[Warning]: " : "Error: ";
     msg += mc->msg;
 
     if ( !statusBar() )
