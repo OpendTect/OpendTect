@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.1.1.2 1999-09-16 09:21:31 arend Exp $
+ RCS:		$Id: prog.h,v 1.2 2001-07-06 11:41:43 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -18,6 +18,11 @@ ________________________________________________________________________
 
 #include <errh.h>
 #include <connfact.h>
+#include <sighndl.h>
+
+SignalHandling SignalHandling::theinst_;
+
+
 extern "C" {
 
 #endif
