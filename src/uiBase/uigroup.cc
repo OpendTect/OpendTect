@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.32 2002-01-24 12:35:44 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.33 2002-01-25 11:36:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -518,13 +518,14 @@ void uiGroup::attach ( constraintType c, int margin )
 
 void uiGroup::attach ( constraintType c, uiObject *other, int margin )
 {
-/*
-    if( ( (c ==alignedBelow ) || (c == alignedAbove ) ) 
-	&& body_->hAlignObj() )
+    if( (c == heightSameAs ) || (c == widthSameAs ) ) 
     {
-	body_->hAlignObj()->attach(c,other,margin);
+	BufferString msg((c == heightSameAs ) ? "heightSameAs":"widthSameAs" );
+	msg += " not allowed for group ";
+	msg += uiObj()->name();
+	pErrMsg(msg); 
+	return;
     }
-*/
     uiObj()->attach(c,other,margin);
 
 }

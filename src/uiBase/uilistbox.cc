@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.35 2002-01-22 10:51:20 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.36 2002-01-25 11:36:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
 			{ 
 			    if(prefNrLines >= 0) prefnrlines=prefNrLines;
 #ifdef __bigstretch
+			    if( stretch(true) == 2  && stretch(false) != 1 )
 				setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
 #else
 			    if( stretch(true) == 1 && stretch(false) < 2 )
