@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          26/09/2000
- RCS:           $Id: changetracker.h,v 1.4 2001-10-16 15:12:33 windev Exp $
+ RCS:           $Id: changetracker.h,v 1.5 2001-10-18 11:28:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
     inline bool		update(T& val,const U& newval)
 			{
 			    if ( !chgd ) return false;
-			    bool ret = !(newval == val);
+			    bool ret = !(val == newval);
 			    val = newval;
 			    if ( !*chgd ) *chgd = ret;
 			    return ret;
