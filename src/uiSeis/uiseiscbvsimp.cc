@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.4 2002-06-26 16:34:41 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.5 2002-06-27 08:52:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,6 +173,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	    uiMSG().error( "Please select an input cube" );
 	    return false;
 	}
+	outctio_.ioobj->pars() = inctio_.ioobj->pars();
     }
     else
     {
