@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.5 2002-03-11 10:46:03 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.6 2002-03-20 20:40:20 bert Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -16,7 +16,8 @@ static const char* rcsID = "$Id: visscene.cc,v 1.5 2002-03-11 10:46:03 kristofer
 #include "Inventor/nodes/SoEnvironment.h"
 
 visBase::Scene::Scene()
-    : environment( new SoEnvironment )
+    : SceneObjectGroup( true )
+    , environment( new SoEnvironment )
     , selector( new SoSelection )
 {
     mDynamicCastGet( SoGroup*, rt, SceneObjectGroup::getData() );
