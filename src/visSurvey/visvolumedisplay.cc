@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.26 2003-02-06 15:43:32 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.27 2003-02-07 08:47:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,14 @@ ________________________________________________________________________
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
 const char* visSurvey::VolumeDisplay::volumestr = "Cube ID";
+const char* visSurvey::VolumeDisplay::volrenstr = "Volren";
+const char* visSurvey::VolumeDisplay::inlinestr = "Inline";
+const char* visSurvey::VolumeDisplay::crosslinestr = "Crossline";
+const char* visSurvey::VolumeDisplay::timestr = "Time";
+const char* visSurvey::VolumeDisplay::inlineposstr = "Inline position";
+const char* visSurvey::VolumeDisplay::crosslineposstr = "Crossline position";
+const char* visSurvey::VolumeDisplay::timeposstr = "Time position";
+
 
 visSurvey::VolumeDisplay::VolumeDisplay()
     : VisualObject(true)
@@ -58,20 +66,19 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     SI().snap( cs.hrg.stop, BinID(0,0) );
     setCubeSampling( cs );
 
-    inlid = cube->addSlice( 0 );
+    inlid = cube->addSlice( 0, (cs.hrg.start.inl+cs.hrg.stop.inl)/2 );
     initSlice( inlid );
-    crlid = cube->addSlice( 1 );
+    crlid = cube->addSlice( 1, (cs.hrg.start.crl+cs.hrg.stop.crl)/2 );
     initSlice( crlid );
-    tslid = cube->addSlice( 2 );
+    tslid = cube->addSlice( 2, cs.zrg.center()  );
     initSlice( tslid );
 
-    visBase::DM().getObj( inlid )->setName("inline");
-    visBase::DM().getObj( crlid )->setName("crossline");
-    visBase::DM().getObj( tslid )->setName("timeslice");
+    visBase::DM().getObj( inlid )->setName(inlinestr);
+    visBase::DM().getObj( crlid )->setName(crosslinestr);
+    visBase::DM().getObj( tslid )->setName(timestr);
 
     const int volrenid = cube->getVolRenId();
-    visBase::DM().getObj( volrenid )->setName("Volren");
-
+    visBase::DM().getObj( volrenid )->setName(volrenstr);
 
     setColorTab( getColorTab() );
 }
@@ -341,10 +348,14 @@ bool visSurvey::VolumeDisplay::isVolRenShown() const
 void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 {
     visBase::VisualObject::fillPar( par, saveids );
+
     int volid = cube->id();
     par.set( volumestr, volid );
-
     if ( saveids.indexOf( volid )==-1 ) saveids += volid;
+
+    par.set( inlineposstr, cube->slicePosition(inlid) );
+    par.set( crosslineposstr, cube->slicePosition(crlid) );
+    par.set( timeposstr, cube->slicePosition(tslid) );
 
     as.fillPar(par);
 }
@@ -371,15 +382,23 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     cube->ref();
     cube->getBoxManipEnd()->notify(mCB(this,VolumeDisplay,manipMotionFinishCB));
 
-    inlid = cube->addSlice( 0 );
-    visBase::DM().getObj( inlid )->setName("inline");
-    crlid = cube->addSlice( 1 );
-    visBase::DM().getObj( crlid )->setName("crossline");
-    tslid = cube->addSlice( 2 );
-    visBase::DM().getObj( tslid )->setName("timeslice");
+    float pos = 0;
+    par.get( inlineposstr, pos );
+    inlid = cube->addSlice( 0, pos );
+    visBase::DM().getObj( inlid )->setName(inlinestr);
+
+    pos = 0;
+    par.get( inlineposstr, pos );
+    crlid = cube->addSlice( 1, pos );
+    visBase::DM().getObj( crlid )->setName(crosslinestr);
+
+    pos = 0;
+    par.get( timeposstr, pos );
+    tslid = cube->addSlice( 2, pos );
+    visBase::DM().getObj( tslid )->setName(timestr);
 
     const int volrenid = cube->getVolRenId();
-    visBase::DM().getObj( volrenid )->setName("Volren");
+    visBase::DM().getObj( volrenid )->setName(volrenstr);
 
     if ( !as.usePar( par )) return -1;
 
