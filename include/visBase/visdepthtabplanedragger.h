@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.4 2004-05-19 10:14:56 kristofer Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.5 2004-10-01 12:31:09 nanne Exp $
 ________________________________________________________________________
 
 
@@ -18,8 +18,9 @@ ________________________________________________________________________
 template <class T> class Interval;
 
 class SoDepthTabPlaneDragger;
-class Coord3;
 class SoDragger;
+class Coord3;
+class IOPar;
 
 namespace visBase
 {
@@ -78,6 +79,9 @@ public:
 
     void			setOwnShape( SoNode* );
 
+    void			fillPar(IOPar&,TypeSet<int>&) const;
+    int				usePar(const IOPar&);
+
 
     Notifier<DepthTabPlaneDragger>  started;
     Notifier<DepthTabPlaneDragger>  motion;
@@ -105,6 +109,9 @@ private:
     static void			valueChangedCB(void*, SoDragger* );
     static void			finishCB( void*, SoDragger* );
 
+    static const char*		dimstr;
+    static const char*		sizestr;
+    static const char*		centerstr;
 };
 
 };

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.6 2004-05-19 10:14:59 kristofer Exp $";
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.7 2004-10-01 12:31:02 nanne Exp $";
 
 #include "visdepthtabplanedragger.h"
 
@@ -17,10 +17,19 @@ static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.6 2004-05-19 10:
 #include "vistransform.h"
 #include "position.h"
 #include "ranges.h"
+#include "iopar.h"
 
 mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
 
-visBase::DepthTabPlaneDragger::DepthTabPlaneDragger()
+namespace visBase
+{
+
+const char* DepthTabPlaneDragger::dimstr    = "Dimension";
+const char* DepthTabPlaneDragger::sizestr   = "Size.";
+const char* DepthTabPlaneDragger::centerstr = "Center.";
+
+
+DepthTabPlaneDragger::DepthTabPlaneDragger()
     : VisualObjectImpl( false )
     , ownshape( 0 )
     , dragger( new SoDepthTabPlaneDragger )
@@ -48,7 +57,7 @@ visBase::DepthTabPlaneDragger::DepthTabPlaneDragger()
 }
 
 
-visBase::DepthTabPlaneDragger::~DepthTabPlaneDragger()
+DepthTabPlaneDragger::~DepthTabPlaneDragger()
 {
     if ( rotation ) rotation->unRef();
     if ( transform ) transform->unRef();
@@ -61,8 +70,7 @@ visBase::DepthTabPlaneDragger::~DepthTabPlaneDragger()
 }
 
 
-void visBase::DepthTabPlaneDragger::setCenter( const Coord3& newcenter,
-					       bool alldims )
+void DepthTabPlaneDragger::setCenter( const Coord3& newcenter, bool alldims )
 {
     const Coord3 dcenter = world2Dragger( newcenter, true );
     dragger->translation.setValue( SbVec3f(dcenter.x,dcenter.y,dcenter.z) );
@@ -76,14 +84,14 @@ void visBase::DepthTabPlaneDragger::setCenter( const Coord3& newcenter,
 }
 
 
-Coord3 visBase::DepthTabPlaneDragger::center() const
+Coord3 DepthTabPlaneDragger::center() const
 {
     const SbVec3f res = dragger->translation.getValue();
     return dragger2World( Coord3(res[0],res[1],res[2]), true );
 }
 
 
-void visBase::DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
+void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 {
     const Coord3 dscale = world2Dragger(scale, false);
     dragger->scaleFactor.setValue(SbVec3f( dscale.x/2, dscale.y/2, dscale.z/2));
@@ -96,20 +104,20 @@ void visBase::DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
     }
 }
 
-void visBase::DepthTabPlaneDragger::removeScaleTabs()
+void DepthTabPlaneDragger::removeScaleTabs()
 {
     dragger->setPart("scaleTabs", 0 );
 }
 
 
-Coord3 visBase::DepthTabPlaneDragger::size() const
+Coord3 DepthTabPlaneDragger::size() const
 {
     const SbVec3f res = dragger->scaleFactor.getValue();
     return dragger2World( Coord3(res[0]*2,res[1]*2,res[2]*2), false );
 }
 
 
-void visBase::DepthTabPlaneDragger::setDim( int newdim )
+void DepthTabPlaneDragger::setDim( int newdim )
 {
     centers[dim] = center();
     sizes[dim] = size();
@@ -123,7 +131,7 @@ void visBase::DepthTabPlaneDragger::setDim( int newdim )
     {
 	if ( !rotation )
 	{
-	    rotation = visBase::Transformation::create();
+	    rotation = Transformation::create();
 	    rotation->ref();
 
 	    dragger->ref();
@@ -140,7 +148,7 @@ void visBase::DepthTabPlaneDragger::setDim( int newdim )
     {
 	if ( !rotation )
 	{
-	    rotation = visBase::Transformation::create();
+	    rotation = Transformation::create();
 	    rotation->ref();
 
 	    dragger->ref();
@@ -167,15 +175,15 @@ void visBase::DepthTabPlaneDragger::setDim( int newdim )
 }
 
 
-int visBase::DepthTabPlaneDragger::getDim() const
+int DepthTabPlaneDragger::getDim() const
 {
     return dim;
 }
 
 
-void visBase::DepthTabPlaneDragger::setSpaceLimits( const Interval<float>& x,
-						    const Interval<float>& y,
-						    const Interval<float>& z )
+void DepthTabPlaneDragger::setSpaceLimits( const Interval<float>& x,
+					   const Interval<float>& y,
+					   const Interval<float>& z )
 {
     const Coord3 start = world2Dragger( Coord3(x.start,y.start,z.start),true );
     const Coord3 stop = world2Dragger( Coord3(x.stop,y.stop,z.stop),true );
@@ -184,9 +192,9 @@ void visBase::DepthTabPlaneDragger::setSpaceLimits( const Interval<float>& x,
 }
 
 
-void visBase::DepthTabPlaneDragger::getSpaceLimits( Interval<float>& x,
-						    Interval<float>& y,
-						    Interval<float>& z ) const
+void DepthTabPlaneDragger::getSpaceLimits( Interval<float>& x,
+					   Interval<float>& y,
+					   Interval<float>& z ) const
 {
     const SbVec3f dstart = dragger->minPos.getValue();
     const SbVec3f dstop = dragger->maxPos.getValue();
@@ -200,9 +208,9 @@ void visBase::DepthTabPlaneDragger::getSpaceLimits( Interval<float>& x,
 }
 
 
-void visBase::DepthTabPlaneDragger::setWidthLimits( const Interval<float>& x,
-						    const Interval<float>& y,
-						    const Interval<float>& z )
+void DepthTabPlaneDragger::setWidthLimits( const Interval<float>& x,
+					   const Interval<float>& y,
+					   const Interval<float>& z )
 {
     const Coord3 start = world2Dragger( Coord3(x.start,y.start,z.start),true );
     const Coord3 stop = world2Dragger( Coord3(x.stop,y.stop,z.stop),true );
@@ -211,9 +219,9 @@ void visBase::DepthTabPlaneDragger::setWidthLimits( const Interval<float>& x,
 }
 
 
-void visBase::DepthTabPlaneDragger::getWidthLimits( Interval<float>& x,
-						    Interval<float>& y,
-						    Interval<float>& z ) const
+void DepthTabPlaneDragger::getWidthLimits( Interval<float>& x,
+					   Interval<float>& y,
+					   Interval<float>& z ) const
 {
     const SbVec3f dstart = dragger->minSize.getValue();
     const SbVec3f dstop = dragger->maxSize.getValue();
@@ -227,7 +235,7 @@ void visBase::DepthTabPlaneDragger::getWidthLimits( Interval<float>& x,
 }
 
 
-void visBase::DepthTabPlaneDragger::setTransformation( Transformation* nt )
+void DepthTabPlaneDragger::setTransformation( Transformation* nt )
 {
     if ( transform==nt ) return;
 
@@ -261,13 +269,13 @@ void visBase::DepthTabPlaneDragger::setTransformation( Transformation* nt )
 }
 
 
-visBase::Transformation* visBase::DepthTabPlaneDragger::getTransformation()
+Transformation* DepthTabPlaneDragger::getTransformation()
 {
     return transform;
 }
 
 
-void visBase::DepthTabPlaneDragger::setOwnShape(SoNode* newnode)
+void DepthTabPlaneDragger::setOwnShape( SoNode* newnode )
 {
     SoSeparator* newsep = dynamic_cast<SoSeparator*>(newnode);
     if ( !newsep )
@@ -280,8 +288,8 @@ void visBase::DepthTabPlaneDragger::setOwnShape(SoNode* newnode)
 }
 
 
-Coord3 visBase::DepthTabPlaneDragger::world2Dragger( const Coord3& world,
-						     bool ispos ) const
+Coord3 DepthTabPlaneDragger::world2Dragger( const Coord3& world,
+					    bool ispos ) const
 {
     const Coord3 tpos = transform&&ispos ? transform->transform(world) : world;
     if ( !dim )
@@ -293,8 +301,8 @@ Coord3 visBase::DepthTabPlaneDragger::world2Dragger( const Coord3& world,
 }
 
 
-Coord3 visBase::DepthTabPlaneDragger::dragger2World( const Coord3& drag,
-						     bool ispos ) const
+Coord3 DepthTabPlaneDragger::dragger2World( const Coord3& drag,
+					    bool ispos ) const
 {
     const Coord3 tpos = transform&&ispos ? transform->transformBack(drag) :drag;
     if ( !dim )
@@ -306,26 +314,77 @@ Coord3 visBase::DepthTabPlaneDragger::dragger2World( const Coord3& drag,
 }
 
 
-void visBase::DepthTabPlaneDragger::startCB(void* obj, SoDragger* )
+void DepthTabPlaneDragger::startCB( void* obj, SoDragger* )
 {
-    ((visBase::DepthTabPlaneDragger*) obj)->started.trigger();
+    ((DepthTabPlaneDragger*)obj)->started.trigger();
 }
 
 
-void visBase::DepthTabPlaneDragger::motionCB(void* obj, SoDragger* )
+void DepthTabPlaneDragger::motionCB( void* obj, SoDragger* )
 {
-    ((visBase::DepthTabPlaneDragger*) obj)->motion.trigger();
+    ((DepthTabPlaneDragger*)obj)->motion.trigger();
 }
 
 
-void visBase::DepthTabPlaneDragger::valueChangedCB(void* obj, SoDragger* d )
+void DepthTabPlaneDragger::valueChangedCB( void* obj, SoDragger* d )
 {
-    ((visBase::DepthTabPlaneDragger*) obj)->changed.trigger();
+    ((DepthTabPlaneDragger*)obj)->changed.trigger();
 }
 
 
-void visBase::DepthTabPlaneDragger::finishCB(void* obj, SoDragger* )
+void DepthTabPlaneDragger::finishCB( void* obj, SoDragger* )
 {
-    ((visBase::DepthTabPlaneDragger*) obj)->finished.trigger();
+    ((DepthTabPlaneDragger*)obj)->finished.trigger();
 }
 
+
+void DepthTabPlaneDragger::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    par.set( dimstr, getDim() );
+
+    centers[dim] = center();
+    for ( int idx=0; idx<3; idx++ )
+    {
+	BufferString str( centerstr );
+	str += idx;
+	par.set( str, centers[idx] );
+
+	str = sizestr;
+	str += idx;
+	par.set( str, sizes[idx] );
+    }
+}
+
+
+int DepthTabPlaneDragger::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    for ( int idx=0; idx<3; idx++ )
+    {
+	BufferString str( centerstr );
+	str += idx;
+	par.get( str, centers[idx] );
+
+	str = sizestr;
+	str += idx;
+	par.get( str, sizes[idx] );
+    }
+
+    setSize( sizes[dim], false );
+    setCenter( centers[dim], false );
+
+    int dim_ = 0;
+    par.get( dimstr, dim_ );
+    setDim( dim_ );
+
+    return 1;
+}
+
+
+
+
+}; // namespace visBase
