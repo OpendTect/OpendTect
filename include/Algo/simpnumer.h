@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.12 2001-09-03 13:09:15 kristofer Exp $
+ RCS:		$Id: simpnumer.h,v 1.13 2003-05-08 08:33:14 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -19,6 +19,11 @@ ________________________________________________________________________
 #ifndef M_PI
 # define M_PI           3.14159265358979323846  /* pi */
 #endif
+
+#ifndef M_PIl
+# define M_PIl          3.1415926535897932384626433832795029L
+#endif
+
 
 /*!
  linearInterpolate: regular sampling/generalised
@@ -822,6 +827,56 @@ inline int solve3DPoly( double a, double b, double c,
 
     return 1;
 }
+
+
+inline double deg2rad( int deg )
+{
+    static double deg2radconst = M_PI / 180;
+    return deg * deg2radconst;
+}
+
+
+inline float deg2rad( float deg )
+{
+    static float deg2radconst = M_PI / 180;
+    return deg * deg2radconst;
+}
+
+
+inline double deg2rad( double deg )
+{
+    static double deg2radconst = M_PI / 180;
+    return deg * deg2radconst;
+}
+
+
+inline long double deg2rad( long double deg )
+{
+    static long double deg2radconst = M_PIl / 180;
+    return deg * deg2radconst;
+}
+
+
+inline float rad2deg( float rad )
+{
+    static float rad2degconst = 180/M_PI;
+    return rad * rad2degconst;
+}
+
+
+inline double rad2deg( double rad )
+{
+    static double rad2degconst = 180/M_PI;
+    return rad * rad2degconst;
+}
+
+
+inline long double rad2deg( long double rad )
+{
+    static long double rad2degconst = 180/M_PIl;
+    return rad * rad2degconst;
+}
+
 
 
 #endif
