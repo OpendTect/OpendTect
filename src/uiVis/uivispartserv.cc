@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.245 2004-10-08 14:30:38 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.246 2004-10-21 10:10:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -333,6 +333,7 @@ void uiVisPartServer::selectTexture( int id, int textureidx )
 void uiVisPartServer::fetchSurfaceData( int id,
 				       ObjectSet<BinIDValueSet>& bivs ) const
 {
+    uiCursorChanger cursorlock( uiCursor::Wait );
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
@@ -343,7 +344,8 @@ void uiVisPartServer::fetchSurfaceData( int id,
 void uiVisPartServer::stuffSurfaceData( int id, bool color,
 					const ObjectSet<BinIDValueSet>* bp )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    uiCursorChanger cursorlock( uiCursor::Wait );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->stuffData( color, bp );
 }
@@ -351,7 +353,8 @@ void uiVisPartServer::stuffSurfaceData( int id, bool color,
 
 void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    uiCursorChanger cursorlock( uiCursor::Wait );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->getDataTraceBids( bids );
 }
@@ -366,6 +369,7 @@ Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 
 void uiVisPartServer::setTraceData( int id, bool color, SeisTrcBuf& data )
 {
+    uiCursorChanger cursorlock( uiCursor::Wait );
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( so )
 	so->setTraceData( color, data );
@@ -540,7 +544,6 @@ bool uiVisPartServer::usePar( const IOPar& par )
     visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
 
     TypeSet<int> hasconnections;
-
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
 	visSurvey::Scene* newscene =
