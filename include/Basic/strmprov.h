@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.6 2002-05-16 08:48:34 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.7 2002-06-07 10:22:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ public:
     void	setBlockSize( long bs )			{ blocksize = bs; }
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
+    void	setRemExec( const char* s )		{ rshcomm = s; }
 
     StreamConn::Type	type()				{ return type_; }
     bool		isNormalFile() const;
@@ -84,6 +85,7 @@ protected:
 
     FixedString<256>	fname;
     FixedString<32>	hostname;
+    FixedString<16>	rshcomm;
 
     long		blocksize;
     bool		isbad;

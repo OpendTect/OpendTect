@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.17 2002-06-05 14:24:45 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.18 2002-06-07 10:22:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,7 +192,8 @@ void uiSeisMMProc::execFinished()
 		setDataTransferrer( newjm );
 	    else
 	    {
-		progrfld->append( "Select hosts to calculate lines" );
+		uiMSG().message( "Please select the hosts to perform"
+				 " the remaining calculations" );
 		delete jm; jm = newjm;
 		task_ = newjm;
 		newJM();
