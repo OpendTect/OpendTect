@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.9 2001-10-25 14:19:49 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.10 2001-11-14 13:05:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -231,12 +231,21 @@ void uiCheckBox::setChecked ( bool check )
 
 
 uiToolButton::uiToolButton(uiParent* parnt,const char* nm, const CallBack* cb)
-    : uiButton( parnt, nm, cb, mkbody(parnt,nm) )
+    : uiButton( parnt, nm, cb, mkbody(parnt,0,nm) )
 {}
 
-uiToolButtonBody& uiToolButton::mkbody(uiParent* parnt, const char* txt)
-{ 
-    body_= new uiToolButtonBody(*this,parnt,txt);
-    return *body_; 
-}
+uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
+			    const ioPixmap& pm, const CallBack* cb)
+    : uiButton( parnt, nm, cb, mkbody(parnt,&pm,nm) )
+{}
 
+uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
+					const char* txt)
+{
+    body_= new uiToolButtonBody(*this,parnt,txt); 
+
+    if( pm )
+        body_->setIconSet( QIconSet(*pm->Pixmap()) );
+
+    return *body_;
+}

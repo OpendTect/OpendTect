@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.6 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uibutton.h,v 1.7 2001-11-14 13:06:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ public:
 private:
 
     uiToolButtonBody*		body_;
-    uiToolButtonBody&		mkbody(uiParent*, const char*);
+    uiToolButtonBody&		mkbody(uiParent*,const ioPixmap*, const char*); 
 
 };
 
