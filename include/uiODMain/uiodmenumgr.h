@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.8 2004-05-28 11:11:25 bert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.9 2004-11-09 10:25:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ public:
 protected:
 
 			uiODMenuMgr(uiODMain*);
+			~uiODMenuMgr();
     void		initSceneMgrDepObjs();
 
     uiODMain&		appl;
