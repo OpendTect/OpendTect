@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.6 2003-05-09 09:03:21 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.7 2003-09-17 10:09:12 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -32,7 +32,7 @@ const char* visBase::Shape::onoffstr = "Is on";
 const char* visBase::Shape::texturestr = "Texture";
 const char* visBase::Shape::materialstr = "Material";
 
-visBase::Shape::Shape( SoShape* shape_ )
+visBase::Shape::Shape( SoNode* shape_ )
     : shape( shape_ )
     , onoff( new SoSwitch )
     , texture2( 0 )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.4 2003-05-09 09:03:24 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.5 2003-09-17 10:09:14 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ class TextureCoords;
 class Shape : public VisualObject
 {
 public:
-				Shape( SoShape* );
+				Shape( SoNode* );
 
     void			turnOn(bool);
     bool			isOn() const;
@@ -79,7 +79,7 @@ protected:
     				/*!< Inserts the node _before_ the shape */
     void			removeNode( SoNode* );
 
-    SoShape*			shape;
+    SoNode*			shape;
     SoSwitch*			onoff;
 
     Texture2*			texture2;
