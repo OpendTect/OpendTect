@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.53 2004-11-16 15:01:00 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.54 2004-11-17 13:34:40 dgb Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -324,6 +324,8 @@ const char* _GetHomeDir()
 	    setEnvVar( "DTECT_WINHOME" , home );
 	return home;
     }
+
+    if ( !getenv("HOMEDRIVE") || !getenv("HOMEPATH") ) return 0;
 
     strcpy( home, getenv("HOMEDRIVE") );
     strcat( home, getenv("HOMEPATH") );
