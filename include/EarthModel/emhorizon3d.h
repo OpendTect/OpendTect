@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.9 2002-06-28 11:43:27 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.10 2002-07-29 11:24:53 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -73,9 +73,6 @@ public:
 
     Coord		getCoord( const RowCol& ) const;
     RowCol		getClosestNode( const Coord& ) const;
-
-    void		getTriStrips(ObjectSet<Geometry::TriangleStripSet>&,
-					int res=1) const;
 
     const Geometry::CompositeGridSurface&	getSurfaces() const
     						{ return surfaces; }

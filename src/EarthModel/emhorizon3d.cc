@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.15 2002-07-23 12:10:31 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.16 2002-07-29 11:24:56 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -176,14 +176,8 @@ bool EarthModel::Horizon::import( const Grid& grid )
 	    GridNode gn10( col+1, row );
 	    GridNode gn11( col+1, row+1 );
 
-	    if ( !mIsUndefined( grid.getValue( gn00 ) ) &&
-		    !mIsUndefined( grid.getValue( gn01 ) ) &&
-		    !mIsUndefined( grid.getValue( gn10 ) ) &&
-		    !mIsUndefined( grid.getValue( gn11 ) ) )
-	    {
-		surfaces.getSurfaces()[0]->setFillType( gn00,
+	    surfaces.getSurfaces()[0]->setFillType( gn00,
 					Geometry::GridSurface::Filled );
-	    }
 	}
     }
 
@@ -265,19 +259,3 @@ void EarthModel::Horizon::setTransform(
     linsolverB.apply( b, x );
     b21 = x[0]; b22 = x[1]; b23 = x[2];
 }
-
-
-void EarthModel::Horizon::getTriStrips(
-	    ObjectSet<Geometry::TriangleStripSet>& tristrips, int res ) const
-{
-    deepErase( tristrips );
-    for ( int idx=0; idx<surfaces.getSurfaces().size(); idx++ )
-    {
-	Geometry::TriangleStripSet* subhorstrip =
-	    					new Geometry::TriangleStripSet;
-	surfaces.getSurfaces()[idx]->fillTriStripSet( subhorstrip, 0,
-							0, 0, 0, res, res );
-	tristrips += subhorstrip;
-    }
-}
-
