@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.1 2004-12-30 17:29:35 bert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.2 2005-01-07 15:11:20 bert Exp $";
 
 #include "seispsioprov.h"
 #include "filegen.h"
@@ -36,7 +36,7 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj ) const
 {
     if ( !provs_.size() ) return 0;
-    const SeisPSIOProvider* prov = provider( ioobj.pars().find( sKey::Type ) );
+    const SeisPSIOProvider* prov = provider( ioobj.translator() );
     return prov ? prov->makeReader( ioobj.fullUserExpr(true) ) : 0;
 }
 
@@ -44,7 +44,7 @@ SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj ) const
 SeisPSWriter* SeisPSIOProviderFactory::getWriter( const IOObj& ioobj ) const
 {
     if ( !provs_.size() ) return 0;
-    const SeisPSIOProvider* prov = provider( ioobj.pars().find( sKey::Type ) );
+    const SeisPSIOProvider* prov = provider( ioobj.translator() );
     return prov ? prov->makeWriter( ioobj.fullUserExpr(false) ) : 0;
 }
 
