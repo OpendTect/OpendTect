@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.38 2003-02-07 16:40:08 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.39 2003-02-13 12:18:30 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -451,30 +451,6 @@ void visSurvey::PlaneDataDisplay::setColorTab( visBase::VisColorTab& ct )
 
 visBase::VisColorTab& visSurvey::PlaneDataDisplay::getColorTab()
 { return trect->getColorTab(); }
-
-
-void visSurvey::PlaneDataDisplay::setClipRate( float rate )
-{ trect->setClipRate( rate ); }
-
-
-float visSurvey::PlaneDataDisplay::clipRate() const
-{ return trect->clipRate(); }
-
-
-void visSurvey::PlaneDataDisplay::setAutoScale( bool yn )
-{ trect->setAutoScale( yn ); }
-
-
-bool visSurvey::PlaneDataDisplay::autoScale() const
-{ return trect->autoScale(); }
-
-
-void visSurvey::PlaneDataDisplay::setDataRange( const Interval<float>& intv )
-{ trect->getColorTab().scaleTo( intv ); }
-
-
-Interval<float> visSurvey::PlaneDataDisplay::getDataRange() const
-{ return trect->getColorTab().getInterval(); }
 
 
 float visSurvey::PlaneDataDisplay::getValue( const Coord3& pos ) const

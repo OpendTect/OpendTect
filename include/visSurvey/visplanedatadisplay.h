@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.26 2003-02-07 16:40:13 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.27 2003-02-13 12:18:46 nanne Exp $
 ________________________________________________________________________
 
 
@@ -78,12 +78,6 @@ public:
 
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
-    void			setClipRate(float);
-    float			clipRate() const;
-    void			setAutoScale(bool);
-    bool			autoScale() const;
-    void			setDataRange(const Interval<float>&);
-    Interval<float>		getDataRange() const;
 
     float			getValue( const Coord3& ) const;
 
