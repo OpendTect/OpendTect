@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.2 2003-08-16 13:14:44 bert Exp $
+ RCS:		$Id: welllog.h,v 1.3 2003-08-21 15:47:32 bert Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ public:
 			Log( const char* nm=0 )
 			: ::UserIDObject(nm)	{}
 
-    int			nrValues() const	{ return val_.size(); }
+    int			size() const	{ return val_.size(); }
     float		value( int idx ) const	{ return val_[idx]; }
     float		dah( int idx ) const	{ return dah_[idx]; }
 

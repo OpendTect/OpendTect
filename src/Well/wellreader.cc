@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.3 2003-08-18 16:37:23 bert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.4 2003-08-21 15:47:15 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -36,7 +36,7 @@ Well::IO::IO( const char* f, bool fr )
     	: basenm(f)
     	, isrdr(fr)
 {
-    BufferString fnm = File_getPathOnly( basenm.buf() );
+    BufferString fnm = File_getFileName( basenm.buf() );
     if ( strrchr(fnm.buf(),'.') )
     {
 	char* ptr = const_cast<char*>( strrchr( basenm.buf(), '.' ) );
@@ -58,7 +58,7 @@ const char* Well::IO::getFileName( const char* ext, int nr ) const
     fnm = basenm;
     if ( nr )
 	{ fnm += "^"; fnm += nr; }
-    fnm = File_getFullPath( fnm.buf(), ext );
+    fnm += ext;
     return fnm;
 }
 
@@ -156,14 +156,14 @@ bool Well::Reader::getOldTimeWell( istream& strm ) const
     while ( strm )
     {
 	strm >> c3.x >> c3.y >> c3.z;
-	if ( c3.distance(c0) < 1 ) break;
+	if ( !strm || c3.distance(c0) < 1 ) break;
 
 	wd.track().addPoint( c3, c3.z, dah );
-	if ( wd.track().nrPoints() > 1 )
+	if ( wd.track().size() > 1 )
 	    dah += c3.distance( prevc );
 	prevc = c3;
     }
-    if ( wd.track().nrPoints() < 1 )
+    if ( wd.track().size() < 1 )
 	return false;
 
     wd.info().surfacecoord = wd.track().pos(0);
@@ -172,11 +172,10 @@ bool Well::Reader::getOldTimeWell( istream& strm ) const
     // create T2D
     D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell );
     wd.setD2TModel( d2t );
-    for ( int idx=0; idx<wd.track().nrPoints(); idx++ )
+    for ( int idx=0; idx<wd.track().size(); idx++ )
     {
 	float dah = wd.track().dah(idx);
-	d2t->dah += dah;
-	d2t->t += dah;
+	d2t->add( wd.track().dah(idx), wd.track().pos(idx).z );
     }
 
     return true;
@@ -189,10 +188,10 @@ bool Well::Reader::getTrack( istream& strm ) const
     while ( strm )
     {
 	strm >> dah >> c.x >> c.y >> c.z;
-	if ( c == c0 ) break;
+	if ( !strm || c.distance(c0) < 1 ) break;
 	wd.track().addPoint( c, c.z, dah );
     }
-    return wd.track().nrPoints();
+    return wd.track().size();
 }
 
 
@@ -244,7 +243,7 @@ bool Well::Reader::addLog( istream& strm ) const
     const char* ver = rdHdr( strm, sKeyLog );
     if ( !ver ) return false;
 
-    Well::Log* newlog = rdLogHdr( strm, wd.logs().nrLogs() );
+    Well::Log* newlog = rdLogHdr( strm, wd.logs().size() );
 
     float dah, val;
     while ( strm )
@@ -356,10 +355,9 @@ bool Well::Reader::getD2T( istream& strm ) const
     {
 	strm >> dah >> val;
 	if ( !strm ) break;
-	d2t->t += val;
-	d2t->dah += dah;
+	d2t->add( dah, val );
     }
-    if ( d2t->t.size() < 2 )
+    if ( d2t->size() < 2 )
 	{ delete d2t; d2t = 0; }
 
     wd.setD2TModel( d2t );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.1 2003-08-15 11:12:15 bert Exp $
+ RCS:		$Id: welllogset.h,v 1.2 2003-08-21 15:47:32 bert Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ public:
 			LogSet()		{ init(); }
     virtual		~LogSet();
 
-    int			nrLogs() const		{ return logs.size(); }
+    int			size() const		{ return logs.size(); }
     Log&		getLog( int idx )	{ return *logs[idx]; }
     const Log&		getLog( int idx ) const	{ return *logs[idx]; }
 

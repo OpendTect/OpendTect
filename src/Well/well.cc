@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.4 2003-08-18 16:37:23 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.5 2003-08-21 15:47:15 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -52,9 +52,10 @@ void Well::LogSet::add( Well::Log* l )
     if ( !l ) return;
 
     logs += l;
-    if ( dahintv.start > l->dah(0) ) dahintv.start = l->dah(0);
-    if ( dahintv.stop < l->dah(l->nrValues()-1) )
-	dahintv.stop = l->dah(l->nrValues()-1);
+    if ( dahintv.start > l->dah(0) )
+	dahintv.start = l->dah(0);
+    if ( dahintv.stop < l->dah(l->size()-1) )
+	dahintv.stop = l->dah(l->size()-1);
 }
 
 
@@ -106,14 +107,14 @@ Coord3 Well::Track::getPos( float dh ) const
 float Well::D2TModel::getTime( float dh ) const
 {
     int idx1;
-    if ( findFPPos(dah,dah.size(),dh,-1,idx1) )
-	return t[idx1];
-    else if ( idx1 < 0 || idx1 == dah.size()-1 )
+    if ( findFPPos(dah_,dah_.size(),dh,-1,idx1) )
+	return t_[idx1];
+    else if ( idx1 < 0 || idx1 == dah_.size()-1 )
 	return mUndefValue;
 
     const int idx2 = idx1 + 1;
-    const float d1 = dh - dah[idx1];
-    const float d2 = dah[idx2] - dh;
+    const float d1 = dh - dah_[idx1];
+    const float d2 = dah_[idx2] - dh;
     //TODO not time-correct
-    return d1 * t[idx2] + d2 * t[idx1] / (d1 + d2);
+    return d1 * t_[idx2] + d2 * t_[idx1] / (d1 + d2);
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.3 2003-08-18 16:37:23 bert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.4 2003-08-21 15:47:32 bert Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,10 @@ public:
 
     float		getTime(float d_ah) const;
 
+    int			size() const		{ return t_.size(); }
+    float		t( int idx ) const	{ return t_[idx]; }
+    float		dah( int idx ) const	{ return dah_[idx]; }
+
     BufferString	desc;
     BufferString	datasource;
 
@@ -35,8 +39,13 @@ public:
     				      //!< known in time
     static const char*	sKeyDataSrc;
 
-    TypeSet<float>	t;
-    TypeSet<float>	dah;
+    void		add( float d_ah, float t )
+						{ dah_ += d_ah; t_ += t; }
+
+protected:
+
+    TypeSet<float>	dah_;
+    TypeSet<float>	t_;
 
 };
 

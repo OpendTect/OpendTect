@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.1 2003-08-15 11:12:15 bert Exp $
+ RCS:		$Id: welltrack.h,v 1.2 2003-08-21 15:47:32 bert Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ public:
 
 			Track()				{}
 
-    int			nrPoints() const		{ return pos_.size(); }
+    int			size() const		{ return pos_.size(); }
     Coord3		pos( int idx ) const		{ return pos_[idx]; }
     float		dah( int idx ) const		{ return dah_[idx]; }
 
