@@ -1,8 +1,12 @@
-dGB-dTect V1.5
+dGB-Software V3.1
 Remote Workstation Access Definitions
 Mon Apr 28 13:06:18 2003
 !
 Workstation Access Specification
+
+-- Note: set the environment variable dGB_WORKSTATIONLINK_HOST if you
+-- wish to select host 1 or higher.
+-- Example: setenv dGB_WORKSTATIONLINK_HOST 1
 
 Number of Hosts: 2
 
@@ -10,7 +14,7 @@ Host.0.Name: dgb26
 Host.0.Platform: Solaris 2.8
 Host.0.Available Databases: GeoFrame
 Host.0.Prefer direct Connection: Yes
-Host.0.TransferVariables: dGB_PRINT_SOCKETIO dGB_DEBUG YOUR_VAR
+Host.0.TransferVariables: dGB_PRINT_SOCKETIO dGB_DEBUG
 Host.0.Script: /users/appman/bin/set_geoframe_env.csh
 Host.0.Remote Shell Command: rsh
 Host.0.Remote User Name: gf
