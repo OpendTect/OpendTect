@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselectorimpl.h,v 1.2 2005-01-18 12:57:10 kristofer Exp $
+ RCS:           $Id: sectionselectorimpl.h,v 1.3 2005-03-02 18:40:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,11 +43,11 @@ protected:
 
 
 
-class TubeSurfaceSourceSelector : public SectionSourceSelector
+class SurfaceSourceSelector : public SectionSourceSelector
 {
 public:
-    		TubeSurfaceSourceSelector( const EM::EMObject&,
-					   const EM::SectionID& );
+    		SurfaceSourceSelector( const EM::EMObject&,
+				       const EM::SectionID& );
     void	setTrackPlane( const MPE::TrackPlane& );
     int		nextStep() { return 0; }
 

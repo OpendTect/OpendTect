@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.2 2005-01-18 12:57:13 kristofer Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.3 2005-03-02 18:41:03 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -43,7 +43,8 @@ void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
     while ( true )
     {
 	if ( surface.geometry.isDefined(sectionid, currentbid) &&
-	     surface.geometry.isDefined(sectionid, currentbid+plane.motion().binid) )
+	     surface.geometry.isDefined(sectionid,
+		 			currentbid+plane.motion().binid) )
 	{
 	    selpos += currentbid.getSerialized();
 	}
@@ -62,23 +63,23 @@ void BinIDSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 }
 
 
-TubeSurfaceSourceSelector::TubeSurfaceSourceSelector(
+SurfaceSourceSelector::SurfaceSourceSelector(
 	const EM::EMObject& obj_, const EM::SectionID& sid )
     : SectionSourceSelector( obj_, sid )
     , emobject( obj_ )
 {}
 
 
-void TubeSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
+void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 {
     if ( !plane.isVertical() )
 	return;
 
-    mDynamicCastGet( const Geometry::Tube*,geomtube,
+    mDynamicCastGet( const Geometry::ParametricSurface*,surface,
 		     emobject.getElement(sectionid));
 
     TypeSet<GeomPosID> allnodes;
-    geomtube->getPosIDs( allnodes );
+    surface->getPosIDs( allnodes );
 
     Interval<int> inlrange(plane.boundingBox().hrg.start.inl,
 	    		   plane.boundingBox().hrg.stop.inl );
@@ -93,12 +94,12 @@ void TubeSurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
     for ( int idx=0; idx<allnodes.size(); idx++ )
     {
 	const RowCol node(allnodes[idx]);
-	const Coord3 pos = geomtube->getKnot(node);
+	const Coord3 pos = surface->getKnot(node);
 	const BinID bid = SI().transform(pos);
 	if ( !inlrange.includes(bid.inl) || !crlrange.includes(bid.crl) )
 	    continue;
 
-	if ( !geomtube->isAtEdge(node) )
+	if ( !surface->isAtEdge(node) )
 	    continue;
 
 	selpos += allnodes[idx];
