@@ -5,13 +5,13 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.14 2001-10-25 13:26:39 windev Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.15 2001-11-09 15:18:01 windev Exp $";
 
 #include "settings.h"
 #include "filegen.h"
 #include "ascstream.h"
 #include "errh.h"
-#include <fstream>
+#include "strmprov.h"
 #include <filegen.h>
 
 Settings* Settings::common_ = 0;
@@ -60,36 +60,38 @@ Settings::Settings( const char* setupf )
 
 bool Settings::reRead()
 {
-    ifstream* strm = new ifstream( fname );
+    StreamData sd = StreamProvider( fname ).makeIStream();
+
     bool do_write = false;
     BufferString usedfname = (const char*)fname;
-    if ( !strm || !strm->good() )
+    if ( !sd.usable() )
     {
 	do_write = true;
 	usedfname = (const char*)fname;
 	usedfname += ".old";
-	delete strm;
-	strm = new ifstream( usedfname );
-	if ( !strm || !strm->good() )
+	sd.close();
+
+	sd = StreamProvider( usedfname ).makeIStream();
+	if ( !sd.usable() )
 	{
-	    delete strm;
+	    sd.close();
 	    usedfname = GetDataFileName("dgbSettings");
-	    strm = new ifstream( usedfname );
+	    sd = StreamProvider( usedfname ).makeIStream();
 	}
     }
-    if ( !strm || !strm->good() )
+    if ( !sd.usable() )
     {
 	ErrMsg( "Cannot find any valid user settings file" );
-	delete strm; return false;
+	sd.close(); return false;
     }
 
-    ascistream stream( *strm, true );
+    ascistream stream( *sd.istrm, true );
     if ( !stream.isOfFileType( sKey ) )
     {
 	BufferString emsg = "User settings file '";
 	emsg += usedfname;
 	emsg += "' seems to be corrupted.";
-	delete strm; return false;
+	sd.close(); return false;
     }
 
     clear();
@@ -100,7 +102,8 @@ bool Settings::reRead()
 	set( ptr, stream.value() );
     }
 
-    delete strm;
+    sd.close();
+
     if ( do_write ) write( false );
     return true;
 }
@@ -115,10 +118,12 @@ bool Settings::write( bool do_merge ) const
 {
     BufferString newfname = (const char*)fname;
     newfname += ".new";
-    ofstream strm( newfname );
-    if ( strm.fail() || strm.bad() )
+    StreamData sd = StreamProvider(newfname).makeOStream();
+
+    if ( !sd.usable() )
     {
 	ErrMsg( "Cannot open '.new' settings file" );
+	sd.close();
 	return false;
     }
 
@@ -130,7 +135,7 @@ bool Settings::write( bool do_merge ) const
 	me->merge( dup );
     }
 
-    ascostream stream( strm );
+    ascostream stream( sd.ostrm );
     stream.putHeader( sKey );
     putTo( stream, false );
 
@@ -139,17 +144,21 @@ bool Settings::write( bool do_merge ) const
     if ( File_exists(oldfname) && !File_remove(oldfname,NO,NO) )
     {
 	ErrMsg( "Cannot remove '.old' settings file" );
+	sd.close();
 	return false;
     }
     if ( File_exists(fname) && !File_rename(fname,oldfname) )
     {
 	ErrMsg( "Cannot rename settings file to '.old'" );
+	sd.close();
 	return false;
     }
     if ( !File_rename(newfname,fname) )
     {
 	ErrMsg( "Cannot rename new settings file" );
+	sd.close();
 	return false;
     }
+    sd.close();
     return true;
 }

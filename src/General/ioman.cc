@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.18 2001-11-07 17:15:27 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.19 2001-11-09 15:18:01 windev Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -15,8 +15,8 @@ static const char* rcsID = "$Id: ioman.cc,v 1.18 2001-11-07 17:15:27 bert Exp $"
 #include "ctxtioobj.h"
 #include "filegen.h"
 #include "errh.h"
+#include "strmprov.h"
 #include <stdlib.h>
-#include <fstream>
 
 IOMan*	IOMan::theinst_	= 0;
 void	IOMan::stop()	{ delete theinst_; theinst_ = 0; }
@@ -544,8 +544,12 @@ IOParList* IOMan::getAuxList( const MultiID& ky ) const
     FileNameString fn;
     if ( !getAuxfname(ky,fn) ) return 0;
 
-    ifstream strm( fn );
-    return new IOParList( strm );
+    StreamData sd = StreamProvider( fn ).makeIStream();
+
+    IOParList* iopl = new IOParList( *sd.istrm );
+
+    sd.close();
+    return iopl;
 }
 
 
@@ -555,8 +559,14 @@ bool IOMan::putAuxList( const MultiID& ky, const IOParList* iopl ) const
     FileNameString fn;
     if ( !getAuxfname(ky,fn) ) return false;
 
-    ofstream strm( fn ); if ( strm.fail() ) return false;
-    return iopl->write( strm );
+    StreamData sd = StreamProvider( fn ).makeOStream();
+
+    if( !sd.usable() ) { sd.close(); return false; }
+
+    bool ret = iopl->write( *sd.ostrm );
+
+    sd.close();
+    return ret;
 }
 
 
@@ -604,8 +614,9 @@ bool IOMan::removeAux( const MultiID& ky ) const
 	rv = File_remove( fn, YES, NO );
     else
     {
-	ofstream strm( fn );
-	rv = iopl->write( strm );
+	StreamData sd = StreamProvider( fn ).makeOStream();
+	rv = iopl->write( *sd.ostrm );
+	sd.close();
     }
 
     delete iopar;

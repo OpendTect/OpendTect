@@ -4,14 +4,14 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.16 2001-10-29 21:52:40 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.17 2001-11-09 15:18:01 windev Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
 #include "filegen.h"
 #include "separstr.h"
 #include "errh.h"
-#include <fstream>
+#include "strmprov.h"
 
 static const char* sKey = "Survey Info";
 const char* SurveyInfo::sKeyInlRange = "In-line range";
@@ -112,21 +112,24 @@ SurveyInfo::SurveyInfo( const char* rootdir )
     if ( !rootdir || dirname == "" ) return;
 
     FileNameString fname( File_getFullPath( rootdir, ".survey" ) );
-    ifstream strm( fname );
+    StreamData sd = StreamProvider( fname ).makeIStream();
+
     static bool errmsgdone = false;
-    if ( strm.fail() )
+    if ( !sd.istrm || sd.istrm->fail() )
     {
 	if ( !errmsgdone )
 	    ErrMsg( "Cannot read survey definition file (yet)." );
 	errmsgdone = true;
+	sd.close();
 	return;
     }
-    ascistream astream( strm );
+    ascistream astream( *sd.istrm );
     if ( !astream.isOfFileType(sKey) )
     {
 	if ( !errmsgdone )
 	    ErrMsg( "Survey definition file is corrupt!" );
 	errmsgdone = true;
+	sd.close();
 	return;
     }
     errmsgdone = false;
@@ -196,6 +199,7 @@ SurveyInfo::SurveyInfo( const char* rootdir )
     setStep( bid );
     b2c_.setTransforms( xtr, ytr );
     valid_ = true;
+    sd.close();
 }
 
 
@@ -205,10 +209,15 @@ int SurveyInfo::write( const char* basedir ) const
 
     FileNameString fname( File_getFullPath(basedir,dirname) );
     fname = File_getFullPath( fname, ".survey" );
-    ofstream strm( fname );
-    if ( strm.fail() ) return NO;
+
+    StreamData sd = StreamProvider( fname ).makeOStream();
+
+    if ( !sd.ostrm || !sd.usable() ) { sd.close(); return NO; }
+
+    ostream& strm = *sd.ostrm;
+
     ascostream astream( strm );
-    if ( !astream.putHeader(sKey) ) return NO;
+    if ( !astream.putHeader(sKey) ) { sd.close(); return NO; }
 
     astream.put( sNameKey, name() );
     putTr( b2c_.getTransform(true), astream, "Coord-X-BinID" );
@@ -258,7 +267,9 @@ int SurveyInfo::write( const char* basedir ) const
 	strm << '\n';
     }
 
-    return !strm.fail();
+    int retval = !strm.fail();
+    sd.close();
+    return retval;
 }
 
 

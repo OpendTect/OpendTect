@@ -5,14 +5,14 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.3 2001-05-31 13:25:43 windev Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.4 2001-11-09 15:18:01 windev Exp $";
 
 #include "helpview.h"
 #include "settings.h"
 #include "ascstream.h"
 #include "multiid.h"
 #include "errh.h"
-#include <fstream>
+#include "strmprov.h"
 #include <stdlib.h>
 
 
@@ -32,13 +32,17 @@ void HelpViewer::use( const char* url )
 BufferString HelpViewer::getURLForWinID( const char* winid )
 {
     FileNameString fname = GetDataFileName( "Help.htm" );
-    ifstream hstrm( fname );
-    if ( hstrm.fail() )
+
+    StreamData sd = StreamProvider( fname ).makeIStream();
+    istream& hstrm = *sd.istrm;
+
+    if ( !sd.usable() )
     {
 	FileNameString msg( "Help file '" );
 	msg += fname;
 	msg += "' not available";
 	ErrMsg( msg );
+	sd.close();
 	return BufferString("");
     }
 
@@ -99,5 +103,7 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
 	BufferString msg = winid; msg += " -> "; msg += ptr;
 	UsrMsg( msg );
     }
+
+    sd.close();
     return BufferString( ptr );
 }

@@ -5,12 +5,11 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.6 2001-10-02 11:47:52 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.7 2001-11-09 15:18:01 windev Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
 #include "strmprov.h"
-#include <fstream>
 
 BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 {
@@ -45,14 +44,14 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 ostream* CBVSWriteMgr::mkStrm()
 {
     fname_ = getFileName( curnr_ );
-    ostream* strm = fname_ == StreamProvider::sStdIO ? (ostream*)(&cout)
-		  : (ostream*)new ofstream( (const char*)fname_ );
-    if ( !strm || !*strm )
+    StreamData sd = StreamProvider(fname_).makeOStream();
+
+    if ( !sd.usable() )
     {
 	errmsg_ = "Cannot open '"; errmsg_ += fname_; errmsg_ += "' for write";
-	delete strm; strm = 0;
+	sd.close();
     }
-    return strm;
+    return sd.ostrm;
 }
 
 

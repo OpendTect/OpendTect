@@ -5,13 +5,12 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.10 2001-07-13 22:01:11 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.11 2001-11-09 15:18:01 windev Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
 #include "filegen.h"
 #include "strmprov.h"
-#include <fstream>
 
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 			     const char* msg )
@@ -70,15 +69,15 @@ const char* CBVSReadMgr::errMsg_() const
 
 bool CBVSReadMgr::addReader( const char* fname )
 {
-    istream* newstrm = new ifstream( fname );
-    if ( !newstrm || !*newstrm )
+    StreamData sd = StreamProvider(fname).makeIStream();
+    if ( !sd.usable() )
     {
 	mkErrMsg( errmsg_, fname, "cannot be opened" );
-	delete newstrm;
+	sd.close();
 	return false;
     }
 
-    return addReader( newstrm );
+    return addReader( sd.istrm );
 }
 
 
@@ -252,9 +251,8 @@ const char* CBVSReadMgr::check( const char* basefname )
 	BufferString fname = getFileName( basefname, curnr );
 	if ( !File_exists((const char*)fname) ) break;
 
-	istream* strm = new ifstream( (const char*)fname );
-	const char* res = CBVSReader::check( *strm );
-	delete strm;
+	StreamData sd = StreamProvider(fname).makeIStream();
+	const char* res = CBVSReader::check( *sd.istrm );
 
 	if ( res && *res )
 	{

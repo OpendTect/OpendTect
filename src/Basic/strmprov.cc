@@ -26,7 +26,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.13 2001-10-25 13:26:39 windev Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.14 2001-11-09 15:18:01 windev Exp $";
 
 static FixedString<1024> oscommand;
 #ifdef __msvc__
@@ -222,7 +222,41 @@ StreamData StreamProvider::makeIStream() const
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
 	if ( File_exists(fname) )
+#ifdef __msvc__
+/*
+
+"
+    From: Paul Lutus (nospam@nosite.com)
+    Subject: Re: Question of fstream 
+    Newsgroups: comp.lang.c++
+    Date: 2000/03/14 
+
+    Unix platforms end text file lines with a linefeed.
+
+    DOS/Windows platforms use a carriage return/linefeed to end each line in a
+    text file.
+
+    C and C++ automatically translate these different formats into the Unix
+    version as a text file is read, for the sake of uniformity (so two different
+    versions of each program don't have to be written). This is true *unless*
+    the file is opened in "binary mode". If binary mode is used, no translation
+    is done. On Unix, binary mode has no effect, because no translation is
+    performed anyway. On DOS/Windows, binary mode changes the behavior.
+
+    A similar transformation is made on write, using the same rules -- all
+    linefeeds are replaced by a carriage return/linefeed pair, if the platform
+    is DOS/Windows and binary mode is not specified.
+"
+
+CONCLUSION: use binary mode, and windows will read&write unix format ;))
+
+*/
+
+	    // should work the same on win & unix, but, you never know.
+	    sd.istrm = new ifstream( fname, ios_base::in | ios_base::binary );
+#else
 	    sd.istrm = new ifstream( fname );
+#endif
 	return sd;
     }
 
@@ -240,6 +274,9 @@ StreamData StreamProvider::makeIStream() const
     however.
     Fortunately, this behavior is only required for more advanced useage, so
     we leave it out for now.
+
+    A possible solution might be using named pipes. 
+    See http://www.codeguru.com/console/dualmode.html
 
 */
 
@@ -293,7 +330,12 @@ StreamData StreamProvider::makeOStream() const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
+#ifdef __msvc__
+        // should work the same on win & unix, but, you never know.
+	sd.ostrm = new ofstream( fname, ios_base::out|ios_base::binary );
+#else
 	sd.ostrm = new ofstream( fname );
+#endif
 	return sd;
     }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.17 2001-10-30 09:27:56 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.18 2001-11-09 15:18:01 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,8 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 #include "uisurvmap.h"
 #include "uitextedit.h"
+#include "strmprov.h"
 
-#include <fstream>
 #include <math.h>
 
 extern "C" const char* GetSurveyName();
@@ -283,16 +283,18 @@ bool uiSurvey::writeSurveyName( const char* nm )
         return false;
     }
 
-    ofstream strm( ptr );
-    if ( strm.fail() )
+    StreamData sd = StreamProvider( ptr ).makeOStream();
+    if ( !sd.usable() )
     {
         BufferString errmsg = "Cannot write to ";
         errmsg += ptr;
         ErrMsg( errmsg );
         return false;
     }
-    strm << nm;
 
+    *sd.ostrm << nm;
+
+    sd.close();
     return true;
 }
 

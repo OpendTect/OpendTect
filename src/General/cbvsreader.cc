@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.26 2001-10-12 16:26:12 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.27 2001-11-09 15:18:01 windev Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -532,7 +532,7 @@ bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
     expldat.offset = 0;
     expldat.pick = expldat.refpos = mUndefValue;
 
-    char buf[8];
+    char buf[2*sizeof(double)];
     mGet(startpos)
     mGetCoord()
     mGet(offset)
