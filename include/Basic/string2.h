@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.8 2003-06-23 12:44:54 kristofer Exp $
+ RCS:		$Id: string2.h,v 1.9 2003-07-21 10:34:14 dgb Exp $
 ________________________________________________________________________
 -*/
 
@@ -86,7 +86,7 @@ inline bool getFromString( type& i, const char* s ) \
     if ( s ) \
     { \
 	char* e; \
-	i = func; \
+	i = (type)func; \
 	if ( e==s ) \
 	{ \
 	    i = undef; \
@@ -102,7 +102,7 @@ inline bool getFromString( type& i, const char* s ) \
 // inline bool getFromString( double& d, const char* s );
 mImplGetFromStrFunc(double, strtod(s,&e), mUndefValue )
 // inline bool getFromString( float& d, const char* s );
-mImplGetFromStrFunc(float, strtof(s,&e), mUndefValue )
+mImplGetFromStrFunc(float, strtod(s,&e), mUndefValue )
 // inline bool getFromString( int& d, const char* s );
 mImplGetFromStrFunc(int, strtol(s,&e,10), mUndefIntVal)
 #undef mImplGetFromStrFunc
