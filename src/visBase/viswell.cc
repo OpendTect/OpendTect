@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.1 2003-10-17 14:58:07 nanne Exp $
+ RCS:           $Id: viswell.cc,v 1.2 2003-10-21 16:26:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 mCreateFactoryEntry( visBase::Well );
 
-static const int sMaxNrLogSamples = 500;
+static const int sMaxNrLogSamples = 2000;
 
 namespace visBase 
 {
@@ -192,6 +192,8 @@ void Well::setLog( const TypeSet<Coord3>& coords, const TypeSet<float>& vals,
 	float val = mIsUndefined(vals[index]) ? 0 : vals[index];
 	log->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
     }
+
+    showLogs( true );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.2 2003-10-17 14:58:44 nanne Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.3 2003-10-21 16:26:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,12 +20,13 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFShort.h>
 #include <Inventor/SbLinear.h>
 
+class SoBaseColor;
 class SoCoordinate3;
 class SoFieldSensor;
 class SoLineSet;
 class SoSensor;
+class SoState;
 class SoSwitch;
-class SoBaseColor;
 
 /*!\brief
 
@@ -82,12 +83,18 @@ protected:
     SoLineSet*			line1ptr;
     SoLineSet*			line2ptr;
 
+    bool			valchanged;
+    int				currentres;
+
     SoFieldSensor*		valuesensor;
     static void			valueChangedCB(void*,SoSensor*);
 
-    void			buildLog(int,const SbVec3f&);
+    void			buildLog(int,const SbVec3f&,int);
     SbVec3f			getNormal(const SbVec3f&,const SbVec3f&,
 	    				  const SbVec3f&);
+
+    bool			shouldGLRender(int);
+    int				getResolution(SoState*);
 };
 
 #endif

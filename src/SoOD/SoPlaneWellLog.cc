@@ -8,10 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.2 2003-10-17 14:58:39 nanne Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.3 2003-10-21 16:26:46 nanne Exp $";
 
 
 #include "SoPlaneWellLog.h"
+#include "SoCameraInfoElement.h"
+#include "SoCameraInfo.h"
 
 #include <Inventor/actions/SoGLRenderAction.h>
 
@@ -32,6 +34,7 @@ SO_KIT_SOURCE(SoPlaneWellLog);
 void SoPlaneWellLog::initClass()
 {
     SO_KIT_INIT_CLASS( SoPlaneWellLog, SoBaseKit, "BaseKit");
+    SO_ENABLE( SoGLRenderAction, SoCameraInfoElement );
 }
 
 
@@ -74,8 +77,8 @@ SoPlaneWellLog::SoPlaneWellLog()
     line1ptr = (SoLineSet*)getAnyPart("lineset1",true);
     line2ptr = (SoLineSet*)getAnyPart("lineset2",true);
 
-    sw1ptr->whichChild = -3;
-    sw2ptr->whichChild = -3;
+    sw1ptr->whichChild = -1;
+    sw2ptr->whichChild = -1;
 
     SO_KIT_ADD_FIELD( path1, (0,0,0) );
     SO_KIT_ADD_FIELD( path2, (0,0,0) );
@@ -91,6 +94,8 @@ SoPlaneWellLog::SoPlaneWellLog()
 
     clearLog(1);
     clearLog(2);
+    valchanged = true;
+    currentres = 1;
 }
 
 
@@ -124,6 +129,7 @@ void SoPlaneWellLog::showLog( bool yn, int lognr )
 {
     SoSwitch* sw = lognr==1 ? sw1ptr : sw2ptr;
     sw->whichChild = yn ? -3 : -1;
+    valuesensor->trigger();
 }
 
 
@@ -156,8 +162,9 @@ void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val,
     if ( val > maxval.getValue() ) maxval.setValue( val );
 }
 
+#define sMaxNrSamplesRot 250
 
-void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir )
+void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
 {
     SoCoordinate3* coords = lognr==1 ? coord1ptr : coord2ptr;
     coords->point.deleteValues(0);
@@ -166,38 +173,50 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir )
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
 
     const int pathsz = path.getNum();
-    for ( int idx=0; idx<pathsz; idx++ )
+    int nrsamp = pathsz;
+
+    float step = 1;
+    if ( !res && nrsamp > sMaxNrSamplesRot )
     {
+	step = (float)nrsamp / sMaxNrSamplesRot;
+	nrsamp = sMaxNrSamplesRot;
+    }
+
+    for ( int idx=0; idx<nrsamp; idx++ )
+    {
+	int index = int(idx*step+.5);
 	SbVec3f pt1, pt2;
-	if ( !idx )
+	if ( !index )
 	{
-	    pt1 = path[idx];
-	    pt2 = path[idx+1];
+	    pt1 = path[index];
+	    pt2 = path[index+1];
 	}
-	else if ( idx == pathsz-1 )
+	else if ( index == pathsz-1 )
 	{
-	    pt1 = path[idx-1];
-	    pt2 = path[idx];
+	    pt1 = path[index-1];
+	    pt2 = path[index];
 	}
 	else
 	{
-	    pt1 = path[idx-1];
-	    pt2 = path[idx+1];
+	    pt1 = path[index-1];
+	    pt2 = path[index+1];
 	}
 
 	SbVec3f normal = getNormal( pt1, pt2, projdir );
 	normal.normalize();
 
-	const float scaledval = log[idx]*width.getValue()/maxval.getValue();
+	const float scaledval = log[index]*width.getValue()/maxval.getValue();
 	const float fact = scaledval / normal.length();
 	normal *= lognr==1 ? -fact : fact;
-	SbVec3f newcrd = path[idx];
+	SbVec3f newcrd = path[index];
 	newcrd += normal;
 	coords->point.set1Value( idx, newcrd );
     }
 
-    lognr==1 ? line1ptr->numVertices.setValue( pathsz )
-	     : line2ptr->numVertices.setValue( pathsz );
+    const int nrcrds = coords->point.getNum();
+    lognr==1 ? line1ptr->numVertices.setValue( nrcrds )
+	     : line2ptr->numVertices.setValue( nrcrds );
+    currentres = res;
 }
 
 
@@ -213,25 +232,49 @@ SbVec3f SoPlaneWellLog::getNormal( const SbVec3f& pt1, const SbVec3f& pt2,
 void SoPlaneWellLog::valueChangedCB( void* data, SoSensor* )
 {
     SoPlaneWellLog* thisp = reinterpret_cast<SoPlaneWellLog*>( data );
+    thisp->valchanged = true;
     //TODO: Do sorting, clipping and compute each node's radius
+}
+
+
+bool SoPlaneWellLog::shouldGLRender( int newres )
+{
+    bool dorender = !newres || !(newres==currentres);
+    return ( valchanged || dorender );
+}
+
+
+int SoPlaneWellLog::getResolution( SoState* state )
+{
+    int32_t camerainfo = SoCameraInfoElement::get(state);
+    bool ismov = camerainfo&(SoCameraInfo::MOVING|SoCameraInfo::INTERACTIVE);
+    return ismov ? 0 : 1; 
 }
 
 
 void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 {
     SoState* state = action->getState();
+    state->push();
 
-    const SbViewVolume& vv = SoViewVolumeElement::get(state);
-    const SbMatrix& mat = SoModelMatrixElement::get(state);
+    int newres = getResolution( state );
+    if ( shouldGLRender(newres) )
+    {
+	const SbViewVolume& vv = SoViewVolumeElement::get(state);
+	const SbMatrix& mat = SoModelMatrixElement::get(state);
 
-    SbVec3f projectiondir = vv.getProjectionDirection();
-    if ( sw1ptr->whichChild.getValue() == -3 )
-	buildLog( 1, projectiondir );
-    if ( sw2ptr->whichChild.getValue() == -3 )
-	buildLog( 2, projectiondir );
-    //TODO Did not use mat, check!
-    // Use mat.multVecMatrix(localvec, worldvec);
-    // to convert a local-vector to a world-vector
- 
+	SbVec3f projectiondir = vv.getProjectionDirection();
+	if ( sw1ptr->whichChild.getValue() == -3 )
+	    buildLog( 1, projectiondir, newres );
+	if ( sw2ptr->whichChild.getValue() == -3 )
+	    buildLog( 2, projectiondir, newres );
+	//TODO Did not use mat, check!
+	// Use mat.multVecMatrix(localvec, worldvec);
+	// to convert a local-vector to a world-vector
+
+	valchanged = false;
+    }
+
+    state->pop();
     inherited::GLRender( action );
 }
