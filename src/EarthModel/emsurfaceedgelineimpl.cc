@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.7 2004-10-06 17:30:39 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.8 2004-10-06 17:34:36 kristofer Exp $";
 
 
 
@@ -235,64 +235,64 @@ bool SurfaceCutLine::trackWithCache( int start, bool forward, const
 		bool changecurbestpos;
 		const float curscore =
 		    computeScore( currc, changecurbestpos, curbestpos );
-		    if ( !mIsUndefined(curscore) &&
-			    curscore<meshdist/2 && curscore<=bestscore )
-		    {
-			bestidx = curdiridx;
-			changebestposition = changecurbestpos;
-			bestpos = curbestpos;
-			bestscore = curscore;
-		    }
+		if ( !mIsUndefined(curscore) &&
+			curscore<meshdist/2 && curscore<=bestscore )
+		{
+		    bestidx = curdiridx;
+		    changebestposition = changecurbestpos;
+		    bestpos = curbestpos;
+		    bestscore = curscore;
+		}
 
+		break;
+	    }
+
+	    /*If we are really close, check if we can get a match */
+
+	    if ( zerodist )
+	    {
+		Coord3 curbestpos;
+		bool changecurbestpos;
+		const float curscore =
+		    computeScore( currc, changecurbestpos, curbestpos );
+		if ( !mIsUndefined( curscore ) &&
+			curscore<meshdist/16 && curscore<=bestscore  )
+		{
+		    bestidx = curdiridx;
+		    changebestposition = changecurbestpos;
+		    bestpos = curbestpos;
+		    bestscore = curscore;
 		    break;
 		}
 
-		/*If we are really close, check if we can get a match */
+		continue;
+	    }
 
-		if ( zerodist )
-		{
-		    Coord3 curbestpos;
-		    bool changecurbestpos;
-		    const float curscore =
-			computeScore( currc, changecurbestpos, curbestpos );
-		    if ( !mIsUndefined( curscore ) &&
-			    curscore<meshdist/16 && curscore<=bestscore  )
-		    {
-			bestidx = curdiridx;
-			changebestposition = changecurbestpos;
-			bestpos = curbestpos;
-			bestscore = curscore;
-			break;
-		    }
-
-		    continue;
-		}
-
-		if ( distance<0 )
-		{
-		    if ( bestidx!=-1 )
-			break;
-
-		    const RowCol prevrc = prevdir*step+rc;
-		    Coord3 prevbestpos;
-		    bool changeprevbestpos;
-		    const float prevscore =
-			computeScore( prevrc, changeprevbestpos, prevbestpos );
-
-		    if ( !mIsUndefined( prevscore ) && !changeprevbestpos )
-		    {
-			changebestposition = false;
-			bestidx = dirs.indexOf(prevdir);
-			break;
-		    }
-		    
-		    Coord3 curbestpos;
-		    bool changecurbestpos;
-		    const float curscore =
-			computeScore( currc, changecurbestpos, curbestpos );
-
-		    if ( mIsUndefined(prevscore)&&mIsUndefined(curscore) )
+	    if ( distance<0 )
+	    {
+		if ( bestidx!=-1 )
 		    break;
+
+		const RowCol prevrc = prevdir*step+rc;
+		Coord3 prevbestpos;
+		bool changeprevbestpos;
+		const float prevscore =
+		    computeScore( prevrc, changeprevbestpos, prevbestpos );
+
+		if ( !mIsUndefined( prevscore ) && !changeprevbestpos )
+		{
+		    changebestposition = false;
+		    bestidx = dirs.indexOf(prevdir);
+		    break;
+		}
+		
+		Coord3 curbestpos;
+		bool changecurbestpos;
+		const float curscore =
+		    computeScore( currc, changecurbestpos, curbestpos );
+
+		if ( mIsUndefined(prevscore)&&mIsUndefined(curscore) )
+		break;
 
 		const bool usecur = curscore<prevscore;
 		changebestposition = usecur
