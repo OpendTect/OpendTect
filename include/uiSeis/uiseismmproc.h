@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.6 2002-04-26 15:01:43 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.7 2002-05-07 16:11:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class IOPar;
 class uiLabeledListBox;
 class uiGroup;
 class uiButton;
+class uiSlider;
 class uiIOFileSelect;
 class uiTextEdit;
 class uiFileBrowser;
@@ -41,6 +42,8 @@ protected:
     uiTextEdit*		progrfld;
     uiFileBrowser*	logvwer;
     uiGroup*		machgrp;
+    uiSlider*		nicefld;
+
     bool		running;
     bool		finished;
     bool		jmfinished;
@@ -56,6 +59,7 @@ protected:
     int			getCurMach(BufferString&) const;
 
     void		postStep(CallBacker*);
+    void		niceValChg(CallBacker*);
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);
     void		vwLogPush(CallBacker*);

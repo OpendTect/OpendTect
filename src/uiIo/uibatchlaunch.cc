@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.9 2002-04-25 14:51:28 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.10 2002-05-07 16:11:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,8 +241,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const char* ppn,
 					const char* t, const char* mpn )
 	: uiDialog(p,uiDialog::Setup(t,"X",0)
-			.oktext("")
-			.separator(false))
+			.oktext(""))
     	, uppgrp(new uiGroup(this,"Upper group"))
 	, procprognm(ppn)
 	, multiprognm(mpn)

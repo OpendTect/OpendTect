@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.9 2002-04-26 14:57:33 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.10 2002-05-07 16:11:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uiiosel.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
+#include "uislider.h"
 #include "hostdata.h"
 #include "iopar.h"
 #include <stdlib.h>
@@ -74,6 +75,12 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     sep->attach( stretchedBelow, machgrp );
     uiLabel* lbl = new uiLabel( this, "Progress" );
     lbl->attach( alignedBelow, sep );
+    nicefld = new uiSlider( this, "Nice level" );
+    nicefld->attach( ensureBelow, sep );
+    nicefld->attach( rightBorder );
+    nicefld->valueChanged.notify( mCB(this,uiSeisMMProc,niceValChg) );
+    nicefld->setMinValue( -0.5 ); nicefld->setMaxValue( 19.5 );
+    uiLabel* nicelbl = new uiLabel( this, "'Nice' level (0-19)", nicefld );
     progrfld = new uiTextEdit( this, "Processing progress", true );
     progrfld->attach( alignedBelow, lbl );
     progrfld->attach( widthSameAs, sep );
@@ -121,6 +128,16 @@ void uiSeisMMProc::postStep( CallBacker* )
     const char* txt = jm->progressMessage();
     if ( *txt ) progrfld->append( txt );
     updateCurMachs();
+}
+
+
+void uiSeisMMProc::niceValChg( CallBacker* )
+{
+    if ( !jm ) return;
+    int v = nicefld->getIntValue();
+    if ( v > 19 ) v = 19;
+    if ( v < 0 ) v = 0;
+    jm->setNiceNess( v );
 }
 
 
