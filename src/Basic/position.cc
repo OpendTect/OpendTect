@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.28 2003-09-25 08:48:44 arend Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.29 2003-11-06 14:22:19 kristofer Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -53,6 +53,8 @@ void Coord::fill( char* str ) const
 }
 
 
+
+
 static char buf[80];
 
 bool Coord::use( const char* str )
@@ -71,6 +73,47 @@ bool Coord::use( const char* str )
     y = atof( ptr );
     return true;
 }
+
+
+void Coord3::fill(char* str, const char* start,
+		     const char* space, const char* end) const
+{
+    strcpy( str, start );
+    strcat( str, getStringFromDouble(0,x) ); strcat(str,space);
+    strcat( str, getStringFromDouble(0,y) ); strcat(str,space);
+    strcat( str, getStringFromDouble(0,z) ); strcat(str,space);
+    strcat( str, end );
+}
+
+
+bool Coord3::use(const char* str)
+{
+    if ( !str ) return false;
+    const char* endptr=str+strlen(str);
+
+    while ( !isdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
+	str++;
+
+    char* numendptr;
+    x = strtod( str, &numendptr );
+    if ( str==numendptr ) return false;
+
+    str = numendptr;
+    while ( !isdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
+	str++;
+    y = strtod( str, &numendptr );
+    if ( str==numendptr ) return false;
+
+    str = numendptr;
+    while ( !isdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
+	str++;
+    z = strtod( str, &numendptr );
+    if ( str==numendptr ) return false;
+
+    return true;
+}
+
+
 
 
 void BinID::fill( char* str ) const
