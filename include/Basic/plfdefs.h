@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.5 2001-05-02 13:49:50 windev Exp $
+ RCS:		$Id: plfdefs.h,v 1.6 2001-10-25 13:17:30 windev Exp $
 ________________________________________________________________________
 
 */
@@ -118,6 +118,9 @@ Bytes:
 # define __ibm__ 2
 #endif
 #ifdef lux
+# define __pc__ 1
+#endif
+#ifdef __win__
 # define __pc__ 1
 #endif
 
