@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.29 2002-08-19 06:43:04 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.30 2002-09-19 07:14:42 nanne Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -508,9 +508,9 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
     const BinIDRange& rg = work ? wrange_ : range_;
     intv.sort();
     if ( intv.start < rg.start.crl ) intv.start = rg.start.crl;
-    if ( intv.start > rg.stop.inl )  intv.start = rg.stop.crl;
+    if ( intv.start > rg.stop.crl )  intv.start = rg.stop.crl;
     if ( intv.stop > rg.stop.crl )   intv.stop = rg.stop.crl;
-    if ( intv.stop < rg.start.inl )  intv.stop = rg.start.crl;
+    if ( intv.stop < rg.start.crl )  intv.stop = rg.start.crl;
 }
 
 void SurveyInfo::checkRange( BinIDRange& chk, bool work ) const
