@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.cc,v 1.10 2004-01-16 10:34:36 bert Exp $
+ RCS:           $Id: uicmain.cc,v 1.11 2004-01-16 11:39:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,9 +12,9 @@ ________________________________________________________________________
 #include "uicmain.h"
 #include "visinventorinit.h"
 #include "debug.h"
+#include "genc.h"
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/SoDB.h>
-#include <stdlib.h>
 
 uicMain::uicMain(int argc,char** argv)
 : uiMain( argc, argv )
