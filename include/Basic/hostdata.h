@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.10 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: hostdata.h,v 1.11 2004-06-30 13:01:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,10 @@ public:
     virtual			~HostData()	{ deepErase(aliases_); }
 
     const char*			name() const	{ return (const char*)name_; }
+    const char*			applPrefix() const
+				    { return (const char*)appl_prefix; }
+    const char*			dataPrefix() const
+				    { return (const char*)data_prefix; }
     int				nrAliases() const
 				{ return aliases_.size(); }
     const char*			alias( int idx ) const
@@ -46,6 +50,8 @@ protected:
 
     BufferString		name_;
     BufferStringSet		aliases_;
+    BufferString		appl_prefix;
+    BufferString		data_prefix;
     bool			realaliases_;
 
     friend class		HostDataList;
