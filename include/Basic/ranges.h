@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.19 2002-12-10 12:03:01 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.20 2002-12-15 16:47:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,8 +179,8 @@ inline int StepInterval<typ>::nrSteps() const \
     return (int)(ns * (1. + eps)); \
 }
 
-mDefFNrSteps(float,1e-6)
-mDefFNrSteps(double,1e-10)
+mDefFNrSteps(float,1e-4)
+mDefFNrSteps(double,1e-8)
 
 #define mDefIntisCompat(typ) \
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
