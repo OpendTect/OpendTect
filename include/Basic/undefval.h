@@ -6,10 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.1 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:           $Id: undefval.h,v 1.2 2005-04-06 12:01:39 cvsarend Exp $
 ________________________________________________________________________
 
 -*/
+
+
+
 
 #include "plftypes.h"
 
@@ -39,10 +42,28 @@ ________________________________________________________________________
 
 #define mUdf(type) Values::Undef<type>::val()
 
+
+/*!  \brief Templatized undefined and initialisation (i.e. null) values.  
+
+    Since these are all templates, they can be used much more generic
+    then the previous solution with macros.
+
+    The most used changes compared to the old macros are:
+
+    mIsUndefined(var)	-> Values::isUdf(var)
+    mUndefValue		-> mUdf(type) 
+
+    For the moment, the old macro's are still available. In order to
+    test for old style macro's, use 
+
+	make OWNC++FLAGS=-DFORCE_NEW_UNDEF
+ 
+*/
+
 namespace Values
 {
-/*! \brief Templatized undefined values.  */
 
+/*!  \brief Templatized undefined values.  */
 template<class T>
 class Undef
 {
