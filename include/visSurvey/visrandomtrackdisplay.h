@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.7 2003-02-25 16:15:34 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.8 2003-02-26 16:33:15 nanne Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,7 @@ public:
 
     void			getDataPositions(TypeSet<BinID>&);
     bool			putNewData(const ObjectSet<SeisTrc>&);
+    float			getValue(const Coord3&) const;
 
     void			showDragger(bool);
     bool			isDraggerShown() const;
@@ -100,7 +101,8 @@ protected:
     int				selknotidx;
 
     void			setData(const ObjectSet<SeisTrc>&);
-    const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&);
+    const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&)
+									const;
     void			checkPosition(BinID&);
 
     ObjectSet< TypeSet<BinID> > bidsset;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.28 2003-02-07 09:24:59 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.29 2003-02-26 16:33:08 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,16 +40,11 @@ const char* visSurvey::VolumeDisplay::timeposstr = "Time position";
 visSurvey::VolumeDisplay::VolumeDisplay()
     : VisualObject(true)
     , cube(visBase::CubeView::create())
-    , selected_(false)
     , as(*new AttribSelSpec)
     , cache(0)
     , moved(this)
-    , manipulated(false)
     , slicemoving(this)
 {
-    selection()->notify( mCB(this,VolumeDisplay,select));
-    deSelection()->notify( mCB(this,VolumeDisplay,deSelect));
-
     cube->ref();
     cube->getMaterial()->setAmbience( 0.8 );
 
@@ -86,9 +81,6 @@ visSurvey::VolumeDisplay::VolumeDisplay()
 
 visSurvey::VolumeDisplay::~VolumeDisplay()
 {
-    selection()->remove( mCB(this,VolumeDisplay,select));
-    deSelection()->remove( mCB(this,VolumeDisplay,deSelect));
-
     cube->getBoxManipEnd()->remove(mCB(this,VolumeDisplay,manipMotionFinishCB));
     cube->unRef();
 
@@ -141,15 +133,6 @@ void visSurvey::VolumeDisplay::getPlaneIds( int& id0, int& id1, int& id2 )
 float visSurvey::VolumeDisplay::getPlanePos( int id__ )
 {
     return cube->slicePosition( id__ );
-}
-
-
-bool visSurvey::VolumeDisplay::updateAtNewPos()
-{
-    succeeded_ = false;
-    moved.trigger();
-    manipulated = false;
-    return succeeded_;
 }
 
 
@@ -231,30 +214,58 @@ const AttribSliceSet* visSurvey::VolumeDisplay::getPrevData() const
 }
 
 
+float visSurvey::VolumeDisplay::getValue( const Coord3& pos ) const
+{
+    if ( !cache ) return mUndefValue;
+
+    const CubeSampling& cs = getCubeSampling(false);
+    Coord3 origo( cs.hrg.start.inl, cs.hrg.start.crl, cs.zrg.start );
+
+    Coord3 localpos;
+    localpos.x = pos.x - origo.x;
+    localpos.y = pos.y - origo.y;
+    localpos.z = pos.z - origo.z;
+
+    Coord3 cubewidth = width();
+
+    const int setsz = cache->size();
+    const int sz0 = (*cache)[0]->info().getSize(0);
+    const int sz1 = (*cache)[0]->info().getSize(1);
+
+    double setidx, idx0, idx1;
+    if ( cache->direction == AttribSlice::Inl )
+    {
+	setidx = localpos.x * (setsz-1) / cubewidth.x;
+	idx0 = localpos.y * (sz0-1) / cubewidth.y;
+	idx1 = localpos.z * (sz1-1) / cubewidth.z;
+    }
+    else if ( cache->direction == AttribSlice::Crl )
+    {
+	setidx = localpos.y * (setsz-1) / cubewidth.y;
+	idx0 = localpos.x * (sz0-1) / cubewidth.x;
+	idx1 = localpos.z * (sz1-1) / cubewidth.z;
+    }
+    else if ( cache->direction == AttribSlice::Hor )
+    {
+	setidx = localpos.z * (setsz-1) / cubewidth.z;
+	idx0 = localpos.x * (sz0-1) / cubewidth.x;
+	idx1 = localpos.y * (sz1-1) / cubewidth.y;
+    }
+
+    if ( setidx < 0 || setidx > setsz-1 || 
+	 idx0 < 0 || idx0 > sz0-1 || idx1 < 0 || idx1 > sz1-1 )
+	return mUndefValue;
+
+    return (*cache)[(int)setidx]->get( (int)idx0, (int)idx1 );
+}
+
+
 void visSurvey::VolumeDisplay::turnOn( bool yn ) 
 { cube->turnOn( yn ); }
 
 
 bool visSurvey::VolumeDisplay::isOn() const 
 { return cube->isOn(); }
-
-
-void visSurvey::VolumeDisplay::select()
-{
-    if ( selected_ ) return;
-    selected_ = true;
-}
-
-
-void visSurvey::VolumeDisplay::deSelect()
-{
-    if ( !selected_ ) return;
-    selected_ = false;
-
-    
-    if ( manipulated )
-	updateAtNewPos();
-}
 
 
 void visSurvey::VolumeDisplay::manipMotionFinishCB( CallBacker* )

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.49 2003-02-04 12:27:21 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.50 2003-02-26 16:33:08 nanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -440,8 +440,10 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;
-    const visSurvey::PlaneDataDisplay* sd = 0;
-    const visSurvey::SurfaceDisplay* hd =0;
+    const visSurvey::PlaneDataDisplay* pdd = 0;
+    const visSurvey::SurfaceDisplay* sd =0;
+    const visSurvey::VolumeDisplay* vd = 0;
+    const visSurvey::RandomTrackDisplay* rtd = 0;
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -451,14 +453,28 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 	if ( typeid(*pickedobj) == typeid(visSurvey::PlaneDataDisplay) )
 	{
 	    validpicksurface = true;
-	    sd = (const visSurvey::PlaneDataDisplay*) pickedobj;
+	    pdd = (const visSurvey::PlaneDataDisplay*) pickedobj;
 	    break;
 	}
 
 	if ( typeid(*pickedobj) == typeid(visSurvey::SurfaceDisplay) )
 	{
 	    validpicksurface = true;
-	    hd = (const visSurvey::SurfaceDisplay*) pickedobj;
+	    sd = (const visSurvey::SurfaceDisplay*) pickedobj;
+	    break;
+	}
+
+	if ( typeid(*pickedobj) == typeid(visSurvey::VolumeDisplay) )
+	{
+	    validpicksurface = true;
+	    vd = (const visSurvey::VolumeDisplay*) pickedobj;
+	    break;
+	}
+
+	if ( typeid(*pickedobj) == typeid(visSurvey::RandomTrackDisplay) )
+	{
+	    validpicksurface = true;
+	    rtd = (const visSurvey::RandomTrackDisplay*) pickedobj;
 	    break;
 	}
     }
@@ -477,9 +493,13 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
     inlcrl.x = binid.inl;
     inlcrl.y = binid.crl;
 
-    if ( sd )
-	mouseposval = sd->getValue( inlcrl );
-    else if ( hd )
-	mouseposval = hd->getValue( xytmousepos );
+    if ( pdd )
+	mouseposval = pdd->getValue( inlcrl );
+    else if ( sd )
+	mouseposval = sd->getValue( xytmousepos );
+    else if ( vd )
+	mouseposval = vd->getValue( inlcrl );
+    else if ( rtd )
+	mouseposval = rtd->getValue( inlcrl );
     mouseposchange.trigger();
 }

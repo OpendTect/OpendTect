@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.10 2003-02-25 16:15:28 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.11 2003-02-26 16:33:08 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -278,7 +278,7 @@ void visSurvey::RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset )
 
 
 const SeisTrc* visSurvey::RandomTrackDisplay::getTrc( const BinID& bid, 
-					const ObjectSet<SeisTrc>& trcset )
+					const ObjectSet<SeisTrc>& trcset ) const
 {
     const int nrtrcs = trcset.size();
     for ( int trcidx=0; trcidx<nrtrcs; trcidx++ )
@@ -288,6 +288,19 @@ const SeisTrc* visSurvey::RandomTrackDisplay::getTrc( const BinID& bid,
     }
 
     return 0;
+}
+
+
+float visSurvey::RandomTrackDisplay::getValue( const Coord3& pos ) const
+{
+    if ( !cache.size() ) return 0;
+
+    BinID bid( (int)pos.x, (int)pos.y );
+    const SeisTrc* trc = getTrc( bid, cache );
+    if ( !trc ) return 0;
+
+    int sampidx = trc->nearestSample( pos.z, 0 );
+    return trc->get( sampidx, 0 );
 }
 
  
@@ -407,5 +420,8 @@ int visSurvey::RandomTrackDisplay::usePar( const IOPar& par )
     track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
 
     if ( !as.usePar( par ) ) return -1;
+
+    showDragger(true);
+    showDragger(false);
     return 1;
 }

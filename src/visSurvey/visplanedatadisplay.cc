@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.42 2003-02-26 09:19:41 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.43 2003-02-26 16:33:08 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -275,11 +275,8 @@ void visSurvey::PlaneDataDisplay::resetManip()
 visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
 {
     SPM().zscalechange.remove( mCB(this,PlaneDataDisplay,appVelChCB));
-    trect->selection()->remove( mCB(this,PlaneDataDisplay,select));
-    trect->deSelection()->remove( mCB(this,PlaneDataDisplay,deSelect));
-
+    trect->manipChanges()->remove( mCB(this,PlaneDataDisplay,manipChanged) );
     trect->unRef();
-
     delete &as;
 }
 

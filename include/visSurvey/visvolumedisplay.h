@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.16 2003-02-07 09:29:17 kristofer Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.17 2003-02-26 16:33:15 nanne Exp $
 ________________________________________________________________________
 
 
@@ -68,8 +68,7 @@ public:
     void			setCubeSampling(const CubeSampling&);
     bool			putNewData( AttribSliceSet* );
     const AttribSliceSet*	getPrevData() const;
-    void			operationSucceeded( bool yn=true )
-				{ succeeded_ = yn; }
+    float			getValue(const Coord3&) const;
 
     void			turnOn(bool);
     bool			isOn() const;
@@ -98,8 +97,6 @@ public:
 protected:
 				~VolumeDisplay();
 
-    void			select();
-    void			deSelect();
     void			initSlice(int);
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
@@ -108,10 +105,6 @@ protected:
     AttribSliceSet*		cache;
 
     AttribSelSpec&		as;
-
-    bool			selected_;
-    bool			succeeded_;
-    bool			manipulated;
 
     int				inlid;
     int				crlid;
