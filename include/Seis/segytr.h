@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.4 2001-07-06 11:41:48 bert Exp $
+ RCS:		$Id: segytr.h,v 1.5 2001-07-18 16:13:53 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -41,6 +41,7 @@ public:
     static const char*	sExternalCoordScaling;
     static const char*	sExternalTimeShift;
     static const char*	sExternalSampleRate;
+    static const char*	sUseLiNo;
 
 protected:
 
@@ -57,6 +58,7 @@ protected:
     float		ext_time_shift;
     float		ext_sample_rate;
     bool		do_string_dump;
+    bool		use_lino;
     char*		dumpstr;
 
 
