@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.6 2004-11-15 15:48:46 bert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.7 2004-11-25 19:23:48 bert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -41,11 +41,10 @@ const UnitOfMeasure* UnitOfMeasure::getGuessed( const char* nm )
 
 UnitOfMeasureRepository::UnitOfMeasureRepository()
 {
-    FilePath fp( GetSettingsDir() ); fp.add( "unitsofmeasure" );
-    BufferString fnm = fp.fullPath();
-    addUnitsFromFile(fnm);
-    fnm = GetDataFileName( "UnitsOfMeasure" );
-    addUnitsFromFile(fnm);
+    Repos::FileProvider rfp( "UnitsOfMeasure" );
+    addUnitsFromFile( rfp.fileName() );
+    while ( rfp.next() )
+	addUnitsFromFile( rfp.fileName() );
 
 #define mAdd(nm,symb,fac,ptyp) \
     add( UnitOfMeasure( nm, symb, fac, PropertyRef::ptyp ) )
@@ -130,6 +129,7 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	   || caseInsensitiveEqual(nm,"FEET",0) )
 	return "ft";
     else if ( caseInsensitiveEqual(nm,"F/S",0)
+	   || caseInsensitiveEqual(nm,"FT/S",0)
 	   || caseInsensitiveEqual(nm,"FEET/S",0) )
 	return "ft/s";
     else if ( matchStringCI("USEC/F",nm) || matchStringCI("us/f",nm) )
