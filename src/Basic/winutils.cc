@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.6 2005-01-06 12:08:17 kristofer Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.7 2005-01-14 10:08:01 arend Exp $";
 
 
 #include "winutils.h"
@@ -147,7 +147,7 @@ const char* getCygDir()
     if (retcode != ERROR_SUCCESS)
     {
 	hKeyRoot = HKEY_CURRENT_USER;
-	subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2/";
+	subkey="Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/";
 
 	retcode = RegOpenKeyEx( hKeyRoot, subkey, 0, KEY_QUERY_VALUE, &hKeyNew);
 	if (retcode != ERROR_SUCCESS) return 0;
