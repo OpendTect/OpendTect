@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.33 2004-06-03 12:44:52 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.34 2004-06-04 05:42:55 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -539,6 +539,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	sd->turnOnWireFrame(true);
 	sd->enableEditing(true);
 	sd->getEditor()->enableSeedStick(true);
+	sd->getEditor()->setTrackManager( &trackserv->trackManager() );
 	sd->setResolution( sd->nrResolutions()-1 );
 	sceneMgr().updateTrees();
     }
