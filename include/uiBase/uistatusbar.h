@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.2 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uistatusbar.h,v 1.3 2002-01-18 14:27:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,11 @@ class uiStatusBar : public uiObjHandle
 friend class uiMainWinBody;
 public:
 
-    void 		message( const char* msg);
+    enum		txtAlign{ left, centre, right };
+
+    void 		message( const char* msg, int fldidx=0);
+    void		addMsgFld( const char* tooltip ="", 
+                                   txtAlign al=left, int stretch=1 );
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.39 2002-01-18 06:48:03 kristofer Exp $
+ RCS:           $Id: uimainwin.cc,v 1.40 2002-01-18 14:27:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -304,12 +304,12 @@ uiObject* uiMainWin::uiObj()
 const uiObject* uiMainWin::uiObj() const
     { return body_->uiCentralWidg()->uiObj(); }
 
-void uiMainWin::toStatusBar( const char* txt )
+void uiMainWin::toStatusBar( const char* txt, int fldidx )
 {
     if ( !txt ) txt = "";
     uiStatusBar* sb = statusBar();
     if ( sb )
-	sb->message( txt );
+	sb->message( txt, fldidx );
     else
     	UsrMsg(txt);
 }
