@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.3 2005-01-11 11:16:56 nanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.4 2005-03-24 07:30:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
-#include "geommeshsurface.h"
+#include "parametricsurface.h"
 #include "executor.h"
 #include "survinfo.h"
 #include "attribengman.h"
@@ -129,22 +129,22 @@ static void getPositions( std::ostream& strm, const MultiID& id,
     {
 	const EM::SectionID sectionid = 
 	    			surface->geometry.sectionID( sectionidx );
-	const Geometry::MeshSurface* meshsurf = 
+	const Geometry::ParametricSurface* psurf = 
 	    			surface->geometry.getSurface(sectionid);
 
 	BinIDValueSet& res = *new BinIDValueSet( 1, false );
 	data += &res;
 
-	EM::PosID posid( objid, sectionid );
-	const int nrnodes = meshsurf->size();
+	const int nrnodes = psurf->nrKnots();
 	for ( int idy=0; idy<nrnodes; idy++ )
 	{
-	    const Coord3 coord = meshsurf->getPos( meshsurf->getPosID(idy) );
-	    const BinID bid = SI().transform(coord);
-	    res.add( bid, coord.z );
+	    const Coord3 crd = psurf->getKnot( psurf->getKnotRowCol(idy) );
+	    const BinID bid = SI().transform(crd);
+	    res.add( bid, crd.z );
 	    ++pm;
 	}
     }
+
     pm.finish();
     strm << "Done!" << std::endl;
 }
