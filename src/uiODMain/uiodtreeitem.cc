@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.26 2004-05-27 15:38:34 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.27 2004-06-02 10:12:30 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -1343,6 +1343,8 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 			 visserv->getObject(displayid));
 	const bool showall = !psd->allShown();
 	psd->showAll( showall );
+	mDynamicCastGet( visSurvey::Scene*,scene,visserv->getObject(sceneID()));
+	scene->filterPicks(0);
     }
     else if ( mnuid==propertymnuid )
     {
