@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.117 2003-01-24 11:22:56 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.118 2003-01-24 15:01:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1229,7 +1229,9 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 	for ( int idy=0; idy<children.size(); idy++ )
 	{
-	    if ( hasconnections.indexOf( children[idy]==-1 ) ) continue;
+	    calculateAttrib( children[idy], false );
+
+	    if ( hasconnections.indexOf( children[idy] ) >= 0 ) continue;
 
 	    setUpConnections( children[idy] );
 	    hasconnections += children[idy];
@@ -1238,7 +1240,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
     float appvel;
     if ( par.get( appvelstr, appvel ) )
-	visSurvey::SPM().setZScale( appvel );
+	visSurvey::SPM().setZScale( appvel/1000 );
 
     return true;
 }
@@ -1251,7 +1253,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     for ( int idx=0; idx<scenes.size(); idx++ )
 	storids += scenes[idx]->id();
 
-    par.set( appvelstr, visSurvey::SPM().getZScale() );
+    par.set( appvelstr, visSurvey::SPM().getZScale()*1000 );
 
     BinIDRange hrg = SI().range();
     StepInterval<double> zrg = SI().zRange();
@@ -1372,6 +1374,7 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
     visBase::DataObject* dobj = visBase::DM().getObj( id );
 
     const AttribSelSpec* as = getSelSpec( id );
+    if ( !as ) return false;
     bool res = true;
     if ( newselect || as->id() < 0 ) 
 	res = selectAttrib( id );
