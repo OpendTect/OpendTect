@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.10 2004-10-28 15:01:35 nanne Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.11 2004-12-06 17:15:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,14 +23,13 @@ public:
 
 protected:
 
-    uiToolButton*	mergebut;
-    uiToolButton*	copybut;
+    uiToolButton*	mrgdmpbut;
+    uiToolButton*	cpym2dbut;
 
     void		ownSelChg();
 
-    void		mergePush(CallBacker*);
-    void		copyPush(CallBacker*);
-    void		man2DPush(CallBacker*);
+    void		mergeDump2DPush(CallBacker*);
+    void		copyMan2DPush(CallBacker*);
 
     void		mkFileInfo();
     double		getFileSize(const char*);

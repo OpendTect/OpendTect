@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.48 2004-11-02 13:56:44 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.49 2004-12-06 17:15:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,11 +48,19 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     createDefaultUI( "cbvs" );
 
     const ioPixmap copypm( GetDataFileName("copyobj.png") );
-    copybut = manipgrp->addButton( copypm, mCB(this,uiSeisFileMan,copyPush),
+    cpym2dbut = manipgrp->addButton( ioPixmap(GetDataFileName("copyobj.png")),
+	    			   mCB(this,uiSeisFileMan,copyMan2DPush),
 	    			   "Copy cube" );
+    manipgrp->setAlternative( cpym2dbut, ioPixmap(GetDataFileName("man2d.png")),
+			      "Manage lines" );
+
     const ioPixmap mergepm( GetDataFileName("mergeseis.png") );
-    mergebut = manipgrp->addButton( mergepm, mCB(this,uiSeisFileMan,mergePush),
+    mrgdmpbut = manipgrp->addButton( ioPixmap(GetDataFileName("mergeseis.png")),
+	    			    mCB(this,uiSeisFileMan,mergeDump2DPush),
 	    			    "Merge blocks of inlines into cube" );
+    manipgrp->setAlternative( mrgdmpbut,
+			      ioPixmap(GetDataFileName("dumpgeom.png")),
+			      "Dump geometry" );
 
     topgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
@@ -68,22 +76,10 @@ uiSeisFileMan::~uiSeisFileMan()
 void uiSeisFileMan::ownSelChg()
 {
     const bool is2d = ctio.ioobj && SeisTrcTranslator::is2D( *ctio.ioobj );
-    copybut->setSensitive( is2d || 
-	    		   (ctio.ioobj && ctio.ioobj->implExists(true)) );
-    mergebut->setSensitive( !is2d );
-
-    copybut->setPixmap( ioPixmap(GetDataFileName( is2d ? "man2d.png"
-						: "copyobj.png" )) );
-    const CallBack& cbcopy = mCB(this,uiSeisFileMan,copyPush);
-    const CallBack& cb2d = mCB(this,uiSeisFileMan,man2DPush);
-    const CallBack& oldcb = !is2d ? cb2d : cbcopy;
-    const CallBack& newcb = is2d ? cb2d : cbcopy;
-    if ( copybut->activated.cbs.indexOf(oldcb) >= 0 )
-	copybut->activated.remove( oldcb );
-    if ( copybut->activated.cbs.indexOf(newcb) < 0 )
-	copybut->activated.notify( newcb );
-
-    copybut->setToolTip( is2d ? "Manage lines" : "Copy cube" );
+    manipgrp->useAlternative( cpym2dbut, is2d );
+    manipgrp->useAlternative( mrgdmpbut, is2d );
+    cpym2dbut->setSensitive( is2d
+	    		|| (ctio.ioobj && ctio.ioobj->implExists(true)) );
 }
 
 
@@ -143,19 +139,6 @@ void uiSeisFileMan::mkFileInfo()
 }
 
 
-void uiSeisFileMan::copyPush( CallBacker* )
-{
-    if ( !ctio.ioobj ) return;
-    mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
-    if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
-
-    MultiID key( iostrm->key() );
-    uiSeisImpCBVS dlg( this, iostrm );
-    dlg.go();
-    manipgrp->refreshList( key );
-}
-
-
 double uiSeisFileMan::getFileSize( const char* filenm )
 {
     if ( File_isEmpty(filenm) ) return -1;
@@ -173,14 +156,24 @@ double uiSeisFileMan::getFileSize( const char* filenm )
 }
 
 
-void uiSeisFileMan::mergePush( CallBacker* )
+void uiSeisFileMan::mergeDump2DPush( CallBacker* )
 {
     if ( !ctio.ioobj ) return;
-
-    MultiID key( ctio.ioobj->key() );
-    uiMergeSeis dlg( this );
-    dlg.go();
-    manipgrp->refreshList( key );
+    const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
+    if ( is2d )
+    {
+	/*TODO
+	uiSeisDump2DGeom dlg( this, *ctio.ioobj );
+	dlg.go();
+	*/
+    }
+    else
+    {
+	const MultiID key( ctio.ioobj->key() );
+	uiMergeSeis dlg( this );
+	dlg.go();
+	manipgrp->refreshList( key );
+    }
 }
 
 
@@ -436,11 +429,26 @@ protected:
 };
 
 
-void uiSeisFileMan::man2DPush( CallBacker* )
+void uiSeisFileMan::copyMan2DPush( CallBacker* )
 {
-    const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
-    if ( !is2d ) return;
+    if ( !ctio.ioobj ) return;
 
-    uiSeis2DMan dlg( this, *ctio.ioobj );
-    dlg.go();
+    const bool is2d = SeisTrcTranslator::is2D( *ctio.ioobj );
+    const MultiID key( ctio.ioobj->key() );
+
+    if ( is2d )
+    {
+	uiSeis2DMan dlg( this, *ctio.ioobj );
+	dlg.go();
+    }
+    else
+    {
+	mDynamicCastGet(const IOStream*,iostrm,ctio.ioobj)
+	if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
+
+	uiSeisImpCBVS dlg( this, iostrm );
+	dlg.go();
+    }
+
+    manipgrp->refreshList( key );
 }
