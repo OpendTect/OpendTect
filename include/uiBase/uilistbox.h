@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.3 2001-04-24 10:52:48 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.4 2001-04-27 16:49:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,10 @@ public:
 
                         uiListBox(uiObject* parnt=0, 
 				  const char* nm="uiListBox",
+				  bool isMultiSelect=false,
+				  int preferredNrLines=0,
+				  int preferredFieldWidth=0);
+			uiListBox(uiObject*,const UserIDSet&,
 				  bool isMultiSelect=false,
 				  int preferredNrLines=0,
 				  int preferredFieldWidth=0);
