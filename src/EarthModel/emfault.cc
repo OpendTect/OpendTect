@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.21 2004-08-27 15:29:41 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.22 2004-08-31 12:18:54 kristofer Exp $";
 
 #include "emfault.h"
 #include "emsurfacetr.h"
@@ -46,10 +46,11 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
 
     bool istimestick = mIsEqual(stick[0].z,stick[stick.size()-1].z,1e-6); 
 
+    Coord3 stoppos;
     for ( int idx=0; idx<stick.size()-1; idx++ )
     {
 	const Coord3 startpos( stick[idx], stick[idx].z*velocity/2 );
-	const Coord3 stoppos( stick[idx+1], stick[idx+1].z*velocity/2 );
+	stoppos = Coord3( stick[idx+1], stick[idx+1].z*velocity/2 );
 
 	if ( !startpos.isDefined() || !stoppos.isDefined() )
 	    break;
@@ -62,7 +63,7 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
 	const int nrofsegments = mNINT(distance/idealdistance);
 	const float segmentlength = distance/nrofsegments;
 
-	for ( int idy=1; idy<nrofsegments; idy++ )
+	for ( int idy=0; idy<nrofsegments; idy++ )
 	{
 	    const Coord3 newrelpos( vector.x*segmentlength*idy,
 				    vector.y*segmentlength*idy,
@@ -73,22 +74,22 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
 	    const Coord3 newpos( SI().transform(newprojectedbid),
 				 newprojectedpos.z/(velocity/2) );
 	    setPos( sectionid, rowcol, newpos, false, true );
-	    if ( idy==1 )
+	    if ( !idy )
 	    {
 		surface.setPosAttrib(
 			PosID(surface.id(), sectionid, rowCol2SubID(rowcol)),
 			EMObject::sPermanentControlNode, true);
 	    }
-	    istimestick ? rowcol.row++ : rowcol.col++;
+	    istimestick ? rowcol.col++ : rowcol.row++;
 	}
-
-	Coord3 crd( SI().transform(stopbid), stoppos.z/(velocity/2) );
-	setPos( sectionid, rowcol, crd, false, true );
-	surface.setPosAttrib( PosID(surface.id(), sectionid,
-		    	      rowCol2SubID(rowcol)),
-			      EMObject::sPermanentControlNode, true);
-	istimestick ? rowcol.row++ : rowcol.col++;
     }
+
+    Coord3 crd( SI().transform(SI().transform(stoppos)),
+	    	stoppos.z/(velocity/2) );
+    setPos( sectionid, rowcol, crd, false, true );
+    surface.setPosAttrib( PosID(surface.id(), sectionid,
+			  rowCol2SubID(rowcol)),
+			  EMObject::sPermanentControlNode, true);
 
     return true;
 }
