@@ -69,7 +69,7 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/misc/SoState.h>
-#include <SmallChange/elements/UTMElement.h>
+#include <UTMElement.h>
 
 // *************************************************************************
 
