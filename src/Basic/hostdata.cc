@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.24 2004-12-16 10:34:22 bert Exp $
+ RCS:           $Id: hostdata.cc,v 1.25 2004-12-20 13:45:04 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,15 +133,6 @@ HostDataList::HostDataList( bool readhostfile )
 #endif
     }
     handleLocal();
-}
-
-
-HostDataList& TheHDL()
-{
-    static HostDataList* thedatalist = 0;
-    if ( !thedatalist ) thedatalist = new HostDataList();
-
-    return *thedatalist;
 }
 
 bool HostDataList::readHostFile( const char* fname )
