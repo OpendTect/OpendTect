@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.16 2003-04-03 13:11:41 arend Exp $
+ RCS:		$Id: seistrc.h,v 1.17 2003-04-03 15:11:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,11 @@ public:
     bool		putTo(Socket&,bool withinfo, BufferString* err=0) const;
     //! If !err, errors are handled trough the socket.
     bool		getFrom(Socket&, BufferString* err=0);
+
+
+    static const float	snapdist;
+    			//!< The relative distance from a sample below
+    			//!< which no interpolation is done.
 
 protected:
 
