@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.12 2003-11-03 13:18:24 nanne Exp $
+  - RCS:	$Id: plugins.html,v 1.13 2003-11-03 13:19:57 nanne Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -237,7 +237,7 @@ Most of the rest of the methods are there to comply with the <code>AttribCalc</c
 </p><p>
 On the implementation side of all that, we have some overhead and the actual attribute calculation. If you feel that the overhead is enormous, bear in mind that the Attribute engine will let the attribute work on any part of any input cube or on the output of another attribute, and that things are cut in pieces when multiple processors are available. And there's more but the idea is that all that requires some extra work when making the attributes.
 </p><p>
-When we want to look at the actual work, the place to be is the <code>nextStep()</code> method of the <code>CoherencyAttrib::Task</code> class. This class inherits the <code>MultiThreadBasicTask</code> class - see <a href="Generated/Basic/classMultiThreadBasicTask.html">MultiThreadBasicTask documentation</a> for more information. The reason for this task setup is that there can be many tasks for each attribute, and they can be run simultaneously.
+When we want to look at the actual work, the place to be is the <code>nextStep()</code> method of the <code>CoherencyAttrib::Task</code> class. This class inherits the <code>MultiThreadBasicTask</code> class - see <a href="Generated/Basic/classMultiThreadBasicTask.html">MultiThreadBasicTask documentation</a> for more information. The reason for this task setup is that there may be many tasks for each attribute calculation, and in this way they can be run simultaneously.
 </p><p>
 But before the work can be done, some input has to be given. The <code>CoherencyAttrib::Task::Input</code> class is designed for that. The <code>set</code> function is the keyfunction in this class, and is called for each trace to be calculated. It should select the necessary data from the input attributes, present in the set of <code>AttribProvider</code>s. For the Coherency this is the seismic data and the imaginairy data calculated by the <code>Hilbert</code> attribute. But it can also be Steering Data or any other attribute.</p>
 See example from <code>CoherencyAttrib</code>:
