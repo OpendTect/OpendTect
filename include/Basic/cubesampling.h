@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.6 2002-12-19 10:49:55 bert Exp $
+ RCS:           $Id: cubesampling.h,v 1.7 2003-01-23 07:31:03 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,9 @@ public:
 
     bool		operator==( const CubeSampling& cs ) const
 			{ return cs.hrg==hrg && cs.zrg==zrg; }
+
+    bool		operator!=( const CubeSampling& cs ) const
+			{ return !(cs==*this); }
 
 };
 
