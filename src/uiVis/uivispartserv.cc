@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.62 2002-05-28 07:57:01 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.63 2002-05-28 09:48:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1077,6 +1077,30 @@ void uiVisPartServer::shareColor(int toid, int fromid )
 
     visBase::Material* material = fromvo->getMaterial();
     tovo->setMaterial(material);
+}
+
+
+void uiVisPartServer::useTexture( int id, bool yn )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
+    if ( sd ) sd->textureRect().useTexture( yn );
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd, obj );
+    if ( hd ) hd->useTexture( yn );
+}
+
+
+bool uiVisPartServer::usesTexture( int id ) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,obj);
+    if ( sd ) return sd->textureRect().usesTexture();
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd, obj );
+    if ( hd ) return hd->usesTexture();
+
+    return false;
 }
 
 
