@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.75 2005-04-01 15:21:24 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.76 2005-04-05 15:31:47 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -1506,12 +1506,19 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==renamemnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->renamePickset( displayid );
+	BufferString newname;
+	const char* oldname = visserv->getObjectName( displayid );
+	applMgr()->pickServer()->renamePickset( oldname, newname );
+	visserv->setObjectName( displayid, newname );
     }
     else if ( mnuid==storemnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->storeSinglePickSet( displayid );
+	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+			visserv->getObject(displayid));
+	PickSet* ps = new PickSet( psd->name() );
+	psd->copyToPickSet( *ps );
+	applMgr()->pickServer()->storeSinglePickSet( ps );
     }
     else if ( mnuid==dirmnuid )
     {
@@ -1520,8 +1527,8 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==showallmnuid )
     {
-	mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
-			 visserv->getObject(displayid));
+	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+			visserv->getObject(displayid));
 	const bool showall = !psd->allShown();
 	psd->showAll( showall );
 	mDynamicCastGet( visSurvey::Scene*,scene,visserv->getObject(sceneID()));
