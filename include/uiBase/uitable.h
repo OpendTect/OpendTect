@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.18 2004-12-15 13:28:13 nanne Exp $
+ RCS:           $Id: uitable.h,v 1.19 2005-01-13 15:20:11 duntao Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,8 +95,8 @@ public:
 	Size		size_;
 	BufferString	rowdesc_;
 	BufferString	coldesc_;
-	bool		rowgrow_;
-	bool		colgrow_;
+	bool		rowgrow_; //!< can extra rows be added by user?
+	bool		colgrow_; //!< can extra columns be added by user?
 	bool		fillrow_; //!< grow cell heights to fill up avail space
 	bool		fillcol_; //!< grow cell widths to fill up avail space
 	float		minrowhgt_; //!< expressed in multiples of font height
