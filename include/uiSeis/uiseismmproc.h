@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.18 2003-08-06 12:56:51 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.19 2003-08-13 13:48:14 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ protected:
     uiGroup*		machgrp;
     uiGenInput*		jrpstartfld;
     uiGenInput*		jrpstopfld;
+    BufferString	jrpstarttime;
+    BufferString	jrpstoptime;
     uiSlider*		nicefld;
     uiProgressBar*	progbar;
 
@@ -92,9 +94,10 @@ protected:
     void		stopPush(CallBacker*);
     void		vwLogPush(CallBacker*);
     void		jrpSel(CallBacker*);
+    void		startStopUpd(CallBacker*);
 
     bool		autoRemaining() const;
-    bool		jobsActive() const;
+    bool		pauseJobs() const;
 };
 
 #endif

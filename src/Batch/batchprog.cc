@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.35 2003-03-27 12:49:59 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.36 2003-08-13 13:48:57 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -245,14 +245,19 @@ bool BatchProgram::writeStatus_( char tag , int status, bool force )
     ret = sock->readtag( masterinfo );
     if ( masterinfo != mRSP_ACK )
     {
-	// TODO : handle requests from master
 	if ( masterinfo == mRSP_REQ_STOP ) 
 	{
 	    mErrStrm << "Exiting on request of Master." << endl;
 	    exit( -1 );
 	}
 
-	ret = false;
+	else if ( masterinfo == mRSP_REQ_PAUSE )
+	    pausereq_ = true; 
+
+	else if ( masterinfo == mRSP_REQ_CONT )
+	    pausereq_ = false;  
+
+	else ret = false;
     }
 
     delete sock;
