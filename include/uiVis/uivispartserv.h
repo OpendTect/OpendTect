@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.32 2002-05-13 11:26:18 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.33 2002-05-16 14:01:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ namespace visSurvey
 {
 class Scene;
 class PickSetDisplay;
+class WellDisplay;
 class PlaneDataDisplay;
 };
 
@@ -71,7 +72,7 @@ public:
     void		fillPar( IOPar& ) const;
 
     enum ElementType    { Inline, Crossline, Timeslice };
-    enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay };
+    enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay, WellDisplay };
     ObjectType		getObjectType( int ) const;
     void		setObjectName(int,const char*);
     const char*		getObjectName(int);
@@ -132,6 +133,14 @@ public:
     void		showAllPicks(int,bool);
     bool		allPicksShown(int);
 
+    			//Well stuff
+    int			addWellDisplay(int emwellid);
+    void		removeWellDisplay(int);
+    int			getNrWellAttribs(int) const;
+    const char*		getWellAttribName(int, int idx) const;
+    void		displayWellAttrib(int, int idx);
+    int			displayedWellAttrib(int) const;
+
 			//ColorSeqs
     bool		canSetColorSeq(int) const;
     void		modifyColorSeq(int, const ColorTable&);
@@ -182,6 +191,7 @@ protected:
 
     ObjectSet<visSurvey::PickSetDisplay>	picks;
     ObjectSet<visSurvey::PlaneDataDisplay>	seisdisps;
+    ObjectSet<visSurvey::WellDisplay>         	wells;
     ObjectSet<visSurvey::Scene>         	scenes;
 
     static const char*	appvelstr;

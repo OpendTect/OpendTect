@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.26 2002-05-08 13:40:54 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.27 2002-05-16 14:00:12 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -278,10 +278,6 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
 
-    bool shwallpicks;
-    if ( !par.getYN( showallstr, shwallpicks ) ) return -1;
-    showAll( shwallpicks );
- 
     int grpid;
     if ( !par.get( grpstr, grpid ) )
 	return -1;
@@ -298,5 +294,9 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     group->ref();
     addChild( group->getData() );
     
+    bool shwallpicks;
+    if ( !par.getYN( showallstr, shwallpicks ) ) return -1;
+    showAll( shwallpicks );
+ 
     return 1;
 }

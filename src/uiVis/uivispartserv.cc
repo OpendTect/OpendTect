@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.49 2002-05-13 14:11:21 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.50 2002-05-16 14:01:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
+#include "vissurvwell.h"
 #include "visplanedatadisplay.h"
 #include "visselman.h"
 #include "vismaterial.h"
@@ -374,7 +375,6 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 
 void uiVisPartServer::removeDataDisplay( int id )
 {
-
     visBase::DataObject* sdobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,sd,sdobj)
     if ( !sd ) return;
@@ -656,6 +656,87 @@ bool uiVisPartServer::allPicksShown( int id )
     return ps ? ps->allShown() : false;
 }
 
+
+int uiVisPartServer::addWellDisplay( int emwellid )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+
+    visSurvey::WellDisplay* welldisplay = visSurvey::WellDisplay::create();
+    if ( !welldisplay->setWellId( emwellid ) )
+    {
+	welldisplay->ref(); welldisplay->unRef();
+	pErrMsg( "EarthModel em does not exist" );
+	return -1;
+    }
+
+    wells += welldisplay; 
+
+    if ( welldisplay->depthIsT() )
+	scene->addXYTObject( welldisplay );
+    else
+	scene->addXYZObject( welldisplay );
+
+    setSelObjectId( welldisplay->id() );
+    return welldisplay->id();
+}
+
+
+void uiVisPartServer::removeWellDisplay( int id )
+{
+    visBase::DataObject* sdobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::WellDisplay*,well,sdobj)
+    if ( !well ) return;
+
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    int objidx = scene->getFirstIdx( well );
+    if ( objidx>0 )
+    {
+	scene->removeObject( objidx );
+	wells -= well;
+    }
+}
+
+
+int uiVisPartServer::getNrWellAttribs( int id ) const 
+{
+    visBase::DataObject* sdobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::WellDisplay*,well,sdobj)
+    if ( !well ) return -1;
+
+    return well->nrAttribs();
+}
+
+
+const char* uiVisPartServer::getWellAttribName( int id, int attr ) const 
+{
+    visBase::DataObject* sdobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::WellDisplay*,well,sdobj)
+    if ( !well ) return 0;
+
+    return well->getAttribName( attr );
+}
+
+
+void uiVisPartServer::displayWellAttrib( int id, int attr )
+{
+    visBase::DataObject* sdobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::WellDisplay*,well,sdobj)
+    if ( !well ) return;
+
+    well->displayAttrib( attr );
+}
+
+
+int uiVisPartServer::displayedWellAttrib( int id ) const
+{
+    visBase::DataObject* sdobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::WellDisplay*,well,sdobj)
+    if ( !well ) return -1;
+
+    return well->displayedAttrib( );
+}
 
 
 bool uiVisPartServer::canSetColorSeq( int id ) const
