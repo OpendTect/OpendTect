@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: linsolv.h,v 1.3 2001-05-04 16:12:16 bert Exp $
+ RCS:           $Id: linsolv.h,v 1.4 2002-04-17 13:44:47 bert Exp $
 ________________________________________________________________________
 
 LinSolver - Solves linear systems of equations on the form A*x=B. A is
@@ -146,7 +146,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 template <class T> inline
 LinSolver<T>::~LinSolver( )
 {   
-    delete croutsidx;
+    delete [] croutsidx;
 }
 
 
