@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.56 2002-12-04 09:20:44 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.57 2002-12-04 11:21:38 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -683,6 +683,16 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 	case centeredAbove:
 	    other-> constrList.append( 
 			    new uiConstraint( centeredBelow, this, margn ));
+	break;
+
+	case centeredLeftOf:
+	    other-> constrList.append( 
+			    new uiConstraint( centeredRightOf, this, margn ));
+	break;
+
+	case centeredRightOf:
+	    other-> constrList.append( 
+			    new uiConstraint( centeredLeftOf, this, margn ));
 	break;
 
 	case heightSameAs:
