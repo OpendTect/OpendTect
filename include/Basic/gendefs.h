@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.25 2004-02-13 17:03:00 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.26 2004-02-13 17:04:09 bert Exp $
 ________________________________________________________________________
 
  This file contains general defines that are so basic they apply to each and
@@ -129,11 +129,13 @@ ________________________________________________________________________
   - sets.h : 'The' classes for sets of objects and pointers to objects
   - sortedlist.h and sortedtable.h : sets that are sorted during build
   - toplist.h : holds a "top N" list
+  - iopar.h : IOPar is a keyword-value lookup list that is used as 'generic'
+    parameter list throughout OpendTect.
   -# Strings
   - string2.h : things not in the standard <string.h>
   - bufstring.h and bufstringset.h : Variable length strings commonly used in
-  	OpendTect with a guaranteed minimum buffer size. That makes them ideal
-	as bridge with C strings.
+    OpendTect with a guaranteed minimum buffer size. That makes them ideal
+    as bridge with C strings.
   - compoundkey.h and multiid.h : dot-separated keys.
   - fixstring.h: fixed length strings but with tools like '+=' .
   -# System-wide service objects
