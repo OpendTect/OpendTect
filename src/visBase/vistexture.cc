@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.31 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.32 2004-04-27 12:07:25 kristofer Exp $";
 
 #include "vistexture.h"
 
@@ -72,6 +72,7 @@ const char* visBase::Texture::coltabmodstr = "ColorTableModifier ID";
 visBase::Texture::Texture()
     : indexcache( 0 )
     , cachesize( 0 )
+    , indexcachesize( 0 )
     , threadworker( 0 )
     , colortab(0)
     , colortabcolors( new ::Color[NRCOLORS] )
@@ -170,6 +171,9 @@ bool visBase::Texture::autoScale() const
 
 void visBase::Texture::setColorTab( VisColorTab& newct )
 {
+    if ( colortab==&newct )
+	return;
+
     if ( colortab )
     {
 	colortab->rangechange.remove(
@@ -187,10 +191,9 @@ void visBase::Texture::setColorTab( VisColorTab& newct )
     colortab->autoscalechange.notify(mCB( this,visBase::Texture,autoscaleChCB));
     colortab->ref();
     colortab->setNrSteps(NRCOLORS-1);
+
     makeColorTables();
-
     makeColorIndexes();
-
 }
 
 
@@ -324,9 +327,6 @@ void visBase::Texture::clipData()
 
 void visBase::Texture::makeColorIndexes()
 {
-    delete [] indexcache;
-    indexcache = 0;
-
     if ( !datacache ) return;
 
     if ( !colorindexers.size() )
@@ -337,7 +337,13 @@ void visBase::Texture::makeColorIndexes()
 	}
     }
 
-    indexcache = new unsigned char[cachesize];
+    if ( indexcachesize!=cachesize )
+    {
+	delete [] indexcache;
+	indexcache = new unsigned char[cachesize];
+	indexcachesize = cachesize;
+    }
+
 
     int border=0;
     for ( int idx=0; idx<colorindexers.size(); idx++ )
@@ -538,7 +544,9 @@ void visBase::Texture::makeTexture()
 void visBase::Texture::makeColorTables()
 {
     for ( int idx=0; idx<NRCOLORS; idx++ )
+    {
 	colortabcolors[idx] = colortab->tableColor( idx );
+    }
 }
 
 
