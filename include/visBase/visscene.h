@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.1 2002-02-26 13:32:46 kristofer Exp $
+ RCS:		$Id: visscene.h,v 1.2 2002-02-27 13:04:36 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 
 #include "sets.h"
-#include "vissceneobj.h"
+#include "vissceneobjgroup.h"
 
 class SoEnvironment;
 

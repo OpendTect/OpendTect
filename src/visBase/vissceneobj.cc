@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vissceneobj.cc,v 1.4 2002-02-27 09:54:35 kristofer Exp $";
+static const char* rcsID = "$Id: vissceneobj.cc,v 1.5 2002-02-27 13:03:56 kristofer Exp $";
 
 #include "vissceneobj.h"
 
@@ -23,36 +23,3 @@ visBase::SceneObjectWrapper::SceneObjectWrapper( SoNode* n )
 
 visBase::SceneObjectWrapper::~SceneObjectWrapper()
 { node->unref(); }
-
-
-visBase::SceneObjectGroup::SceneObjectGroup(bool separate, bool manage_)
-    : root ( separate ? (SoGroup*) new SoSeparator : new SoGroup )
-    , manage( manage_ )
-{
-    root->ref();
-    objects.allowNull();
-}
-
-
-visBase::SceneObjectGroup::~SceneObjectGroup()
-{
-    removeAll();
-    root->unref();
-}
-
-
-int visBase::SceneObjectGroup::addObject( SceneObject* no )
-{
-    objects += no;
-    root->addChild( no->getData() );
-    return objects.size()-1;
-}
-
-void visBase::SceneObjectGroup::removeAll()
-{
-    if ( manage ) deepErase( objects );
-    root->removeAllChildren();
-}
-
-SoNode*  visBase::SceneObjectGroup::getData()
-{ return root; }

@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.2 2002-02-26 17:54:21 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.3 2002-02-27 13:03:56 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -21,6 +21,7 @@ visBase::Scene::Scene()
     , environment( new SoEnvironment )
     , id_( visBase::SM().addScene( this ) )
 {
+    selman->setPolicy( visBase::SelectionManager::Single );
     mDynamicCastGet( SoGroup*, rt, SceneObjectGroup::getData() );
     rt->addChild( environment );
     selman->getNode()->addChild( rt );
