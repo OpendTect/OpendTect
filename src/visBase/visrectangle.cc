@@ -4,11 +4,9 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.10 2002-02-28 14:03:29 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.11 2002-03-11 10:46:03 kristofer Exp $";
 
 #include "visrectangle.h"
-#include "visscene.h"
-#include "visselman.h"
 #include "geompos.h"
 
 #include "Inventor/nodes/SoScale.h"
@@ -327,26 +325,29 @@ void visBase::RectangleDragger::finishCB(void* obj, SoDragger* )
 }
 
 
-visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
-    : VisualObjectImpl( scene_ )
-    , origotrans( new SoTranslation )
+visBase::Rectangle::Rectangle( bool usermanip)
+    : origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
     , orientation_( visBase::Rectangle::XY )
     , localorigotrans( new SoTranslation )
     , localscale( new SoScale )
     , widthscale( new SoScale )
     , planesep( new SoSeparator )
-    , planewrapper( new SoFaceSet )
+    , plane( new SoFaceSet )
     , manipswitch( 0 )
     , maniprectswitch( 0 )
-    , dragger( usermanip ? new RectangleDragger : 0 )
+    , dragger( usermanip ? RectangleDragger::create() : 0 )
     , snap( false )
     , xrange( -mUndefValue, mUndefValue, mUndefValue )
     , yrange( -mUndefValue, mUndefValue, mUndefValue )
     , zrange( -mUndefValue, mUndefValue, mUndefValue )
     , wxrange( 1, mUndefValue )
     , wyrange( 1, mUndefValue )
+    , selnotifier( this )
+    , deselnotifier( this )
 { 
+    if ( dragger ) dragger->ref();
+
     root->addChild( origotrans );
     root->addChild( orientationrot );
     root->addChild( widthscale );
@@ -383,8 +384,8 @@ visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
     nbind->value = SoNormalBinding::PER_FACE;
 
     root->addChild( planesep );
-    planesep->addChild( planewrapper.getData() );
-    ((SoFaceSet*)planewrapper.getData())->numVertices.set1Value(0, 5);
+    planesep->addChild( plane );
+    plane->numVertices.set1Value(0, 5);
 
     if ( dragger )
     {
@@ -413,7 +414,7 @@ visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
 	manipsep->addChild( maniprectmaterial );
 	maniprectmaterial->transparency.setValue( 0.5 );
 	maniprectswitch = new SoSwitch;
-	maniprectswitch->addChild( planewrapper.getData() );
+	maniprectswitch->addChild( plane );
 	maniprectswitch->whichChild = SO_SWITCH_NONE;
 	manipsep->addChild( maniprectswitch );
     }
@@ -422,8 +423,7 @@ visBase::Rectangle::Rectangle(Scene& scene_, bool usermanip)
 
 visBase::Rectangle::~Rectangle()
 {
-    scene.selMan().unRegSelObject( *this );
-    delete dragger;
+    if (dragger) dragger->unRef();
 }
 
 
@@ -519,15 +519,6 @@ void visBase::Rectangle::setWidthRange( int dim, const Interval<float>& range )
 void visBase::Rectangle::displayDraggers(bool on)
 {
     if ( manipswitch ) manipswitch->whichChild = on ? 0 : SO_SWITCH_NONE;
-}
-
-
-bool visBase::Rectangle::regForSelection(const VisualObject* assoc )
-{
-    if ( !assoc ) assoc=this;
-
-    scene.selMan().regSelObject( *assoc, planewrapper );
-    return true;
 }
 
 
@@ -659,6 +650,18 @@ bool visBase::Rectangle::isManipRectOnObject() const
 
     return res;
 }
+
+
+i_Notifier*  visBase::Rectangle::manipStarts()
+{ return dragger ? &dragger->started : 0; }
+
+
+i_Notifier*  visBase::Rectangle::manipChanges()
+{ return dragger ? &dragger->changed : 0; }
+
+
+i_Notifier*  visBase::Rectangle::manipEnds()
+{ return dragger ? &dragger->finished : 0; }
 
 
 void visBase::Rectangle::resetManip()

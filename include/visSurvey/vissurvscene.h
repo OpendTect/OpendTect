@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.5 2002-03-06 12:56:21 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.6 2002-03-11 10:46:22 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,31 +34,30 @@ at any time.
 class Scene : public visBase::Scene
 {
 public:
-    				Scene();
-    				~Scene();
+    static Scene*		create()
+				mCreateDataObj0arg(Scene);
 
-    int				addXYZObject( SceneObject* );
-    int				addXYTObject( SceneObject* );
-    int				addInlCrlTObject( SceneObject* );
+    void			addXYZObject( SceneObject* );
+    void			addXYTObject( SceneObject* );
+    void			addInlCrlTObject( SceneObject* );
+    int				getFirstIdx( int id ) const;
+    int				getFirstIdx(  const SceneObject* ) const;
+    void			removeObject( int idx );
 
     virtual int			size() const;
-    virtual int			getId(int idx) const;
-    virtual int			getId( const SceneObject* ) const;
-    virtual SceneObject*	getObject( int id );
-    virtual void		removeObject( int id );
 
     float			apparentVel() const;
     void			settApparentVel() const;
 
 protected:
+    				Scene();
+    				~Scene();
+
     visBase::SceneObjectGroup*	xytworld;
     visBase::SceneObjectGroup*	inlcrlworld;
     visBase::Transformation*	xytranslation;
     visBase::Transformation*	timetransformation;
     visBase::Transformation*	inlcrltransformation;
-
-    static int			xytidoffset;
-    static int			inlcrloffset;
 
 private:
     float			appvel;

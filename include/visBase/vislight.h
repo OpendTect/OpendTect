@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.1 2002-02-09 13:38:42 kristofer Exp $
+ RCS:		$Id: vislight.h,v 1.2 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,6 @@ Base class for all lights
 class Light : public SceneObject
 {
 public:
-    virtual		~Light();
 
     void		turnOn(bool);
     bool		isOn() const;
@@ -41,6 +40,8 @@ public:
     SoNode*		getData();
 protected:
     			Light(SoLight* light_);
+    virtual		~Light();
+
     SoLight*		light;	
 };
 
@@ -52,9 +53,13 @@ A point that illuminates light
 class PointLight : public Light
 {
 public:
-    			PointLight();
+    static PointLight*	create() mCreateDataObj0arg( PointLight );
+
     void		setPosition(float,float,float);
     float		position(int dim) const;
+protected:
+			~PointLight() {}
+    			PointLight();
 };
 
 
@@ -67,9 +72,13 @@ A light in a certain direction from a position at an infinite distance
 class DirectionalLight : public Light
 {
 public:
-    			DirectionalLight();
+    static DirectionalLight*	create() mCreateDataObj0arg( DirectionalLight );
+
     void		setDirection(float,float,float);
     float		direction(int dim) const;
+protected:
+			~DirectionalLight() {}
+    			DirectionalLight();
 };
 
 /*!\brief
@@ -81,7 +90,7 @@ public:
 class SpotLight : public Light
 {
 public:
-    			SpotLight();
+    static SpotLight*	create() mCreateDataObj0arg( SpotLight );
 
     void		setDirection(float,float,float);
     float		direction(int dim) const;
@@ -96,6 +105,9 @@ public:
     void		setDropOffRate(float);
     			// 0=smooth, 1=sharp
     float		dropOffRate() const;
+protected:
+    			SpotLight();
+			~SpotLight() {}
 };
 
 };

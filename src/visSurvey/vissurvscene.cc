@@ -4,9 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.8 2002-03-06 12:56:14 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.9 2002-03-11 10:46:28 kristofer Exp $";
 
 #include "vissurvscene.h"
+#include "visdataman.h"
 #include "vistransform.h"
 #include "position.h"
 #include "survinfo.h"
@@ -17,18 +18,20 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.8 2002-03-06 12:56:14 krist
 #include <limits.h>
 
 
-int visSurvey::Scene::xytidoffset = INT_MAX >> 2;
-int visSurvey::Scene::inlcrloffset = INT_MAX >> 1;
-// const float visSurvey::Scene::defvel = 1000;
-
 visSurvey::Scene::Scene()
-    : xytworld( new visBase::SceneObjectGroup(true) )
-    , inlcrlworld( new visBase::SceneObjectGroup(true) )
-    , inlcrltransformation( new visBase::Transformation )
-    , xytranslation( new visBase::Transformation )
-    , timetransformation( new visBase::Transformation )
+    : xytworld( visBase::SceneObjectGroup::create(true) )
+    , inlcrlworld( visBase::SceneObjectGroup::create(true) )
+    , inlcrltransformation( visBase::Transformation::create() )
+    , xytranslation( visBase::Transformation::create() )
+    , timetransformation( visBase::Transformation::create() )
     , appvel( 1000 )
 {
+    xytworld->ref();
+    inlcrlworld->ref();
+    inlcrltransformation->ref();
+    xytranslation->ref();
+    timetransformation->ref();
+
     addObject( xytranslation );
     addObject( xytworld );
     xytworld->addObject( timetransformation );
@@ -100,7 +103,7 @@ visSurvey::Scene::Scene()
     BinIDRange hrg = SI().range();
     StepInterval<double> vrg = SI().zRange();
 
-    visBase::Annotation* annot = new visBase::Annotation( *this );
+    visBase::Annotation* annot = visBase::Annotation::create();
     annot->setCorner( 0, hrg.start.inl, hrg.start.crl, vrg.start );
     annot->setCorner( 1, hrg.stop.inl, hrg.start.crl, vrg.start );
     annot->setCorner( 2, hrg.stop.inl, hrg.stop.crl, vrg.start );
@@ -115,60 +118,71 @@ visSurvey::Scene::Scene()
     annot->setText( 2, "TWT");
     addInlCrlTObject( annot );
 
-    visBase::DirectionalLight* light = new visBase::DirectionalLight;
+    visBase::DirectionalLight* light = visBase::DirectionalLight::create();
     light->setDirection( 0, 0, 1 );
     addInlCrlTObject( light );
 
-    light = new visBase::DirectionalLight;
+    light = visBase::DirectionalLight::create();
     light->setDirection( 0, 0, -1 );
     addInlCrlTObject( light );
 
-    light = new visBase::DirectionalLight;
+    light = visBase::DirectionalLight::create();
     light->setDirection( 0, 1, 0 );
     addInlCrlTObject( light );
 
-    light = new visBase::DirectionalLight;
+    light = visBase::DirectionalLight::create();
     light->setDirection( 0,-1, 0 );
     addInlCrlTObject( light );
 
-    light = new visBase::DirectionalLight;
+    light = visBase::DirectionalLight::create();
     light->setDirection( 1, 0, 0 );
     addInlCrlTObject( light );
 
-    light = new visBase::DirectionalLight;
+    light = visBase::DirectionalLight::create();
     light->setDirection(-1, 0, 0 );
     addInlCrlTObject( light );
 }
 
 
 visSurvey::Scene::~Scene()
-{}
-
-
-int visSurvey::Scene::addXYZObject( SceneObject* obj )
 {
-    mDynamicCastGet(visBase::VisualObject*, visobj, obj );
-    if ( visobj ) visobj->regForSelection();
-
-    return addObject( obj );
+    xytworld->unRef();
+    inlcrlworld->unRef();
+    inlcrltransformation->unRef();
+    xytranslation->unRef();
+    timetransformation->unRef();
 }
 
 
-int visSurvey::Scene::addXYTObject( SceneObject* obj )
-{
-    mDynamicCastGet(visBase::VisualObject*, visobj, obj );
-    if ( visobj ) visobj->regForSelection();
+void visSurvey::Scene::addXYZObject( SceneObject* obj )
+{ addObject( obj ); }
 
-    return xytidoffset + xytworld->addObject(obj);
+
+void visSurvey::Scene::addXYTObject( SceneObject* obj )
+{ xytworld->addObject(obj); }
+
+
+void visSurvey::Scene::addInlCrlTObject( SceneObject* obj )
+{ inlcrlworld->addObject( obj ); }
+
+
+int visSurvey::Scene::getFirstIdx( int nid ) const
+{
+    int res = visBase::SceneObjectGroup::getFirstIdx( nid );
+    if ( res>=0 ) return res;
+    res = xytworld->getFirstIdx( nid );
+    if ( res>=0 ) return res+visBase::SceneObjectGroup::size();
+    res = inlcrlworld->getFirstIdx( nid );
+    if ( res>=0 ) return res+visBase::SceneObjectGroup::size()+xytworld->size();
+
+    return res;
 }
 
 
-int visSurvey::Scene::addInlCrlTObject( SceneObject* obj )
+int visSurvey::Scene::getFirstIdx( const SceneObject* sceneobj ) const
 {
-    mDynamicCastGet(visBase::VisualObject*, visobj, obj );
-    if ( visobj ) visobj->regForSelection();
-
-    return inlcrloffset + inlcrlworld->addObject( obj );
+    int id = visBase::DataManager::manager.getId( sceneobj );
+    return getFirstIdx( id );
 }
 
 
@@ -179,62 +193,15 @@ int visSurvey::Scene::size() const
 }
 
 
-int visSurvey::Scene::getId(int target) const
+void visSurvey::Scene::removeObject( int idx )
 {
-    int res = SceneObjectGroup::getId( target );
-    if ( res<0 )
-    {
-	res = xytworld->getId( target-=visBase::SceneObjectGroup::size() );
-	if ( res>= 0 ) res += xytidoffset;
-    }
-    if ( res<0 )
-    {
-	res = inlcrlworld->getId( target-xytworld->size() );
-	if ( res>= 0 ) res += inlcrloffset;
-    }
+    if ( idx<visBase::SceneObjectGroup::size() )
+	return visBase::SceneObjectGroup::removeObject( idx );
+    idx -= visBase::SceneObjectGroup::size();
 
-    return res;
+    if ( idx<xytworld->size() )
+	return xytworld->removeObject( idx );
+
+    idx -= xytworld->size();
+    inlcrlworld->removeObject( idx );
 }
-
-
-int visSurvey::Scene::getId(const SceneObject* obj) const
-{
-    int res = SceneObjectGroup::getId( obj );
-    if ( res<0 )
-    {
-	res = xytworld->getId( obj );
-	if ( res>= 0 ) res += xytidoffset;
-    }
-    if ( res<0 )
-    {
-	res = inlcrlworld->getId( obj );
-	if ( res>= 0 ) res += inlcrloffset;
-    }
-
-    return res;
-}
-
-
-visBase::SceneObject* visSurvey::Scene::getObject( int id )
-{
-    if ( id >=inlcrloffset )
-	return inlcrlworld->getObject( id-inlcrloffset );
-    if ( id>=xytidoffset )
-	return xytworld->getObject( id-xytidoffset);
-
-    return visBase::SceneObjectGroup::getObject( id );
-}
-
-
-void visSurvey::Scene::removeObject( int id )
-{
-    if ( id >=inlcrloffset )
-	inlcrlworld->removeObject( id-inlcrloffset );
-    else if ( id>=xytidoffset )
-	xytworld->removeObject( id-xytidoffset);
-    else
-	 visBase::SceneObjectGroup::removeObject( id );
-}
-
-
-

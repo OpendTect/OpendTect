@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.4 2002-03-05 08:37:08 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.5 2002-03-11 10:46:22 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -30,16 +30,15 @@ class Scene;
 
 */
 
-class PickSet : public visBase::VisualObject
+class PickSet : public visBase::VisualObjectImpl
 {
 public:
-    		PickSet( Scene & );
-    virtual	~PickSet();
+    static PickSet*	create()
+			mCreateDataObj0arg(PickSet);
 
-    int		nrPicks();
-    
-    Geometry::Pos	getPick( int ) const;
-    int			addPick( const Geometry::Pos& );
+    int			nrPicks() const;
+    Geometry::Pos	getPick( int idx ) const;
+    void		addPick( const Geometry::Pos& );
 
     float	getInlSz() const { return inlsz; }
     float	getCrlSz() const { return inlsz; }
@@ -47,25 +46,11 @@ public:
 
     void	setSize( float inl, float crl, float t );
 
-    void	turnOn(bool);
-    bool	isOn() const;
-    bool	regForSelection( const VisualObject* assoc=0 ) { return false;}
-
-    void	setColor( const Color& );
-    void	switchColorMode( bool totable ) {}
-    bool	isColorTable() const { return false; }
-
-    ColorTable*		colorTable() { return 0; }
-    const ColorTable*	colorTable() const { return 0; }
-    void		colorTableChanged() {}
-
-    SoNode*		getData();
-
 protected:
-    visBase::SceneObjectGroup*	group;
+    		PickSet();
+    virtual	~PickSet();
 
-    Scene&	scene;
-    Color&	color;
+    visBase::SceneObjectGroup*	group;
 
     float	inlsz;
     float	crlsz;

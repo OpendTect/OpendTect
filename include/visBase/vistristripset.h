@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistristripset.h,v 1.1 2002-03-04 09:09:17 kristofer Exp $
+ RCS:		$Id: vistristripset.h,v 1.2 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -31,11 +31,11 @@ namespace visBase
 
 */
 
-class TriangleStripSet : public VisualObjectImpl, public CallBackClass
+class TriangleStripSet : public VisualObjectImpl
 {
 public:
-    			TriangleStripSet( Scene& );
-			~TriangleStripSet();
+    static TriangleStripSet*	create()
+				mCreateDataObj0arg( TriangleStripSet );
 
     void		setStrips( Geometry::TriangleStripSet*, bool connect );
     			/*!< If connect is true, the object will use the
@@ -44,6 +44,8 @@ public:
 			*/
 
 protected:
+    			TriangleStripSet();
+			~TriangleStripSet();
     void		updateCoords(CallBacker* =0);
     void		updateIndexes(CallBacker* =0);
 

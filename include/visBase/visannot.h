@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.4 2002-02-28 07:50:59 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.5 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -34,14 +34,19 @@ namespace visBase
 class Annotation : public VisualObjectImpl
 {
 public:
+    static Annotation*		create()
+				mCreateDataObj0arg(Annotation);
 
-				Annotation( Scene &);
     void			setCorner( int, float, float, float );
     void			setText( int dim, const char * );
     void			setLineStyle( const LineStyle& );
+    				/*!< Color in Linestyle is ignored, must be
+				     set separately 
+				*/
     const LineStyle&		lineStyle() const { return linestyle; }
 
 protected:
+				Annotation();
     LineStyle			linestyle;
     void			updateLineStyle();
 

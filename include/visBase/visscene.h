@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.3 2002-02-28 08:40:02 kristofer Exp $
+ RCS:		$Id: visscene.h,v 1.4 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,12 +18,10 @@ ________________________________________________________________________
 #include "vissceneobjgroup.h"
 
 class SoEnvironment;
+class SoSelection;
 
 namespace visBase
 {
-
-class SelectionManager;
-
 /*!\brief
     Scene manages all SceneObjects and has some managing
     functions such as the selection management and variables that should
@@ -33,24 +31,24 @@ class SelectionManager;
 class Scene : public SceneObjectGroup
 {
 public:
-			Scene();
-    virtual		~Scene();
-
-    virtual int		addObject( SceneObject* );
-
-    int 		id() const { return id_; }
+    static Scene*	create()
+			mCreateDataObj0arg(Scene);
 
     void		setAmbientLight( float );
     float		ambientLight() const;
 
-    SelectionManager&	selMan() { return *selman; }
+    void		deSelectAll();
 
     SoNode*		getData();
 
+protected:
+			Scene();
+    virtual		~Scene();
+
 private:
-    SelectionManager*	selman;
+
     SoEnvironment*	environment;
-    int			id_;
+    SoSelection*	selector;
 };
 
 };

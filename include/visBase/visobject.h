@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.9 2002-03-04 14:21:18 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.10 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,13 +20,10 @@ class SoSeparator;
 class SoNode;
 class SoSwitch;
 class SoDrawStyle;
-class SoMaterial;
-
-class ColorTable;
 
 namespace visBase
 {
-class Scene;
+class Material;
 
 /*!\brief
     Base class for all objects that are visual on the scene.
@@ -35,79 +32,35 @@ class Scene;
 class VisualObject : public SceneObject
 {
 public:
-    virtual		~VisualObject() {}
     virtual void	turnOn(bool)					= 0;
     virtual bool	isOn() const					= 0;
 
-    virtual bool	regForSelection(const VisualObject* assoc=0)	= 0;
-    			/*! If it should be possible to select this
-			    object, you must register it. Some objects
-			    are not possible to select. They will return
-			    false;
-			*/
-
-    virtual void	setColor(const Color& )				= 0;
-
-    virtual void	switchColorMode( bool totable )			= 0;
-    virtual bool	isColorTable() const				= 0;
-
-    virtual const ColorTable*	colorTable() const			= 0;
-    virtual ColorTable*		colorTable()				= 0;
-    				/*!< if you change the ct,
-				     you must notify the object
-				     with colorTableChanged()
-				*/
-
-    virtual void		colorTableChanged()			= 0;
+    virtual void		setMaterial( Material* )		= 0;
+    virtual const Material*	getMaterial() const			= 0;
+    virtual Material*		getMaterial()				= 0;
 };
 
 
 class VisualObjectImpl : public VisualObject
 {
 public:
-			VisualObjectImpl(Scene&);
-    virtual		~VisualObjectImpl();
     void		turnOn(bool);
     bool		isOn() const;
 
-    virtual bool	regForSelection(const VisualObject* assoc=0)
-			{ return false; }
-
-    void		setColor(const Color& );
-
-    virtual void	switchColorMode( bool totable );
-    bool		isColorTable() const;
-
-    const ColorTable*	colorTable() const;
-    ColorTable*		colorTable();
-    virtual void	colorTableChanged() {}
+    void		setMaterial( Material* );
+    const Material*	getMaterial() const { return material; }
+    Material*		getMaterial() { return material; }
 
     SoNode*		getData();
 
 protected:
-
-    void		updateMaterial();
-    Color		color;
-    float           	ambience;
-    float           	diffuseintencity;
-    float		specularintensity;
-    float		emmissiveintensity;
-    float		shininess;
-    float		transparency;
-
-    
+			VisualObjectImpl();
+    virtual		~VisualObjectImpl();
     SoSeparator*	root;
     SoSwitch*		onoff;
-    SoSwitch*		material;
     SoDrawStyle*	drawstyle;
 
-    SoMaterial*		defaultmaterial;
-
-    ColorTable*		colortable;
-    SoMaterial*		colortablematerial;
-    bool		usecolortable;
-
-    Scene&		scene;
+    Material*		material;
 };
 
 };

@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vissceneobj.h,v 1.6 2002-02-27 13:04:36 kristofer Exp $
+ RCS:		$Id: vissceneobj.h,v 1.7 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include "visdata.h"
 
 class SoNode;
 
@@ -24,28 +25,11 @@ namespace visBase
     scene.
 */
 
-class SceneObject
+class SceneObject : public DataObject
 {
 public:
-
-    virtual		~SceneObject()		{}
     virtual SoNode*	getData()		= 0;
     const SoNode*	getData() const;
-
-};
-
-
-class SceneObjectWrapper : public SceneObject
-{
-public:
-    			SceneObjectWrapper( SoNode* n );
-
-    virtual		~SceneObjectWrapper();
-
-    SoNode*		getData() { return node; }
-
-protected:
-    SoNode*		node;
 
 };
 

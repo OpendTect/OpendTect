@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.3 2002-02-28 07:51:08 kristofer Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.4 2002-03-11 10:46:03 kristofer Exp $";
 
 #include "viscube.h"
 #include "geompos.h"
@@ -15,9 +15,8 @@ static const char* rcsID = "$Id: viscube.cc,v 1.3 2002-02-28 07:51:08 kristofer 
 
 
 
-visBase::Cube::Cube( visBase::Scene& s )
-    : VisualObjectImpl( s )
-    , cube( new SoCube )
+visBase::Cube::Cube()
+    : cube( new SoCube )
     , position( new SoTranslation )
 {
     root->addChild( position );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.4 2002-03-01 10:12:19 kristofer Exp $
+ RCS:		$Id: visselman.h,v 1.5 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 
 #include "sets.h"
-#include "callback.h"
+#include "vissceneobj.h"
 
 class SoSelection;
 class SoNode;
@@ -25,10 +25,12 @@ namespace visBase
 {
 class Scene;
 class SceneObject;
-class VisualObject;
+class DataObject;
+class DataManager;
+class Selectable;
 
 /*!\brief
-SelectionManager handles VisualObject that can be selected. If an object can be
+SelectionManager handles DataObject that can be selected. If an object can be
 selected, it has to register himself with regSelObject. At registration it has
 to give two objects, first of all, he gives the object that outside users
 will associate him with when they want to add their CB to detect his selection.
@@ -36,60 +38,40 @@ will associate him with when they want to add their CB to detect his selection.
 Secondly it has to give the SceneObject that actually is selected.
 */
 
-class SelectionManager : public CallBacker
+class SelectionManager : public CallBackClass
 {
 public:
-		SelectionManager();
-    virtual	~SelectionManager();
+				SelectionManager();
+    virtual			~SelectionManager();
 
-    enum Policy { Shift, Toggle, Single };
-    Policy	policy() const;
-    void	setPolicy( Policy );
+    void			deSelectAll();
 
-    void	deSelectAll();
-
-    bool	isSelectable(  const VisualObject& assoc );
-    		/*!< Check if the object is selectable */
+    bool			isSelectable(  const DataObject& assoc );
+    				/*!< Check if the object is selectable */
    
-   		/*! Use to get selection event on specific objects */ 
-    void	notifySelection( const VisualObject& assoc, const CallBack& );
-    void	deNotifySelection( const VisualObject& assoc, const CallBack& );
-    void	notifyDeSelection( const VisualObject& assoc, const CallBack& );
-    void	deNotifyDeSelection( const VisualObject& assoc,const CallBack&);
-
-				
     Notifier<SelectionManager>	selnotifer;
     Notifier<SelectionManager>	deselnotifer;
-    				/*!< Use to get changes in selection */
+
     int				nrSelected() const;
-    				/*!< \note
-				     May return more than one even if Single
-				     is selected since many instances may have
-				     been registered with different assocs */
-    const VisualObject*		getSelected( int ) const;
+    const DataObject*		getSelDataObject( int ) const;
+    const Scene*		getSelScene( int ) const;
+    int				getSelNr( const DataObject*,
+	    				  const Scene* =0) const ;
 
-    void	regSelObject( const VisualObject& associated,
-	    		      const SceneObject& detected );
-    void	unRegSelObject( const VisualObject& associated,
-	    			const SceneObject* =0 );
-    		/*!< If second arg is zero, all objects connected to
-		     the ass obje will be will be unregistered.
-		*/
 protected:
-    int			indexOf( const VisualObject& ) const;
-    SoSelection*	getNode() { return node; }
-    friend		Scene;
+    void	select( Scene*, SoPath* );
+    void	deSelect( Scene*, SoPath* );
 
-    ObjectSet<const VisualObject>		assobjs;
-    ObjectSet<const SceneObject>		detobjs;
-    ObjectSet<Notifier<SelectionManager> >	selnotifiers;
-    ObjectSet<Notifier<SelectionManager> >	deselnotifiers;
+    friend	visBase::DataObject;
+    void	regSelObject( DataObject& );
+    void	unRegSelObject( DataObject& );
 
-    SoSelection*		node;
+    ObjectSet<const DataObject>		selected;
+    ObjectSet<Scene>			selscenes;
 
-    void		select( SoPath* );
-    void		deSelect( SoPath* );
+    ObjectSet<DataObject>		selobjs;
 
+    friend		visBase::Scene;
     static void		selectCB(void*, SoPath* );
     static void		deSelectCB(void*, SoPath* );
 };

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.4 2002-02-28 07:51:08 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.5 2002-03-11 10:46:03 kristofer Exp $";
 
 #include "visannot.h"
 
@@ -16,9 +16,8 @@ static const char* rcsID = "$Id: visannot.cc,v 1.4 2002-02-28 07:51:08 kristofer
 #include "Inventor/nodes/SoDrawStyle.h"
 
 
-visBase::Annotation::Annotation( Scene& s)
+visBase::Annotation::Annotation()
     : coords( new SoCoordinate3 )
-    , VisualObjectImpl( s )
 {
     root->addChild( coords );
 
@@ -116,9 +115,6 @@ void visBase::Annotation::setLineStyle( const LineStyle& nls )
 void visBase::Annotation::updateLineStyle()
 {
     drawstyle->lineWidth.setValue( linestyle.width );
-
-    color = linestyle.color;
-    updateMaterial();
 
     unsigned short pattern;
 

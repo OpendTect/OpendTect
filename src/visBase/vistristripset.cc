@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.1 2002-03-04 09:09:12 kristofer Exp $";
+static const char* rcsID = "$Id: vistristripset.cc,v 1.2 2002-03-11 10:46:03 kristofer Exp $";
 
 #include "vistristripset.h"
 #include "geomposlist.h"
@@ -15,9 +15,8 @@ static const char* rcsID = "$Id: vistristripset.cc,v 1.1 2002-03-04 09:09:12 kri
 #include "Inventor/nodes/SoIndexedTriangleStripSet.h"
 
 
-visBase::TriangleStripSet::TriangleStripSet( visBase::Scene& s )
-    : VisualObjectImpl( s )
-    , coords( new SoCoordinate3 )
+visBase::TriangleStripSet::TriangleStripSet()
+    : coords( new SoCoordinate3 )
     , strips( new SoIndexedTriangleStripSet )
 {
     root->addChild( coords );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.3 2002-02-28 07:50:59 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.4 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -33,8 +33,8 @@ Cube is a basic cube that is settable in size.
 class Cube : public VisualObjectImpl
 {
 public:
-
-    			Cube(Scene&);
+    static Cube*	create()
+			mCreateDataObj0arg(Cube);
 
     void		setCenterPos( const Geometry::Pos& );
     Geometry::Pos	centerPos() const;
@@ -43,6 +43,7 @@ public:
     Geometry::Pos	width() const;
 
 protected:
+    			Cube();
 
     SoCube*		cube;
     SoTranslation*	position;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.12 2002-02-28 14:03:44 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.13 2002-03-11 10:46:12 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "ranges.h"
-#include "callback.h"
 
 class SoScale;
 class SoTranslation;
@@ -32,11 +31,11 @@ namespace Geometry { class Pos; };
 namespace visBase
 {
 
-class RectangleDragger : public SceneObject, public CallBackClass
+class RectangleDragger : public SceneObject
 {
 public:
-    			RectangleDragger();
-			~RectangleDragger();
+    static RectangleDragger*	create()
+				mCreateDataObj0arg(RectangleDragger);
 
     void		setCenter( const Geometry::Pos& );
     Geometry::Pos	center() const;
@@ -54,6 +53,9 @@ public:
     SoNode*		getData();
 
 protected:
+    			RectangleDragger();
+			~RectangleDragger();
+
     void		syncronizeDraggers();
     void		draggerHasMoved( SoDragger* );
     
@@ -85,12 +87,12 @@ protected:
     be snapped.
 */
 
-class Rectangle : public VisualObjectImpl, public CallBackClass
+class Rectangle : public VisualObjectImpl
 {
 public:
+    static Rectangle*	create(bool manip)
+			mCreateDataObj1arg(Rectangle, manip );
 
-			Rectangle( Scene&, bool manip );
-			~Rectangle();
     void		setOrigo( const Geometry::Pos& );
     Geometry::Pos	origo() const;
     Geometry::Pos	manipOrigo() const;
@@ -115,16 +117,16 @@ public:
     void		resetManip();
     bool		isManipRectOnObject() const;
 
-    bool		regForSelection( const VisualObject* assoc=0 );
+    i_Notifier*		manipStarts();
+    i_Notifier*		manipChanges();
+    i_Notifier*		manipEnds();
 
-    i_Notifier*		draggerStartedNotifier()
-    			{ return dragger ? &dragger->started : 0; }
-    i_Notifier*		draggerChangedNotifier()
-    			{ return dragger ? &dragger->changed : 0; }
-    i_Notifier*		draggerFinishedNotifier()
-    			{ return dragger ? &dragger->finished : 0; }
+    i_Notifier*		selection() { return &selnotifier; }
+    i_Notifier*		deSelection() { return &deselnotifier; }
 
 protected:
+			Rectangle( bool manip );
+			~Rectangle();
     void		moveManipRectangletoDragger(CallBacker* =0);
     void		moveDraggertoManipRect();
 
@@ -134,6 +136,10 @@ protected:
     float		getStartPos(int dim,float centercrd,float scale) const;
     float		getStopPos(int dim,float centercoord,float scale) const;
     float		getCenterCoord(int dim,float startpos,float wdth) const;
+
+    const SoNode*	getSelObj() const { return (const SoNode*) plane; }
+    void		triggerSel() { selnotifier.trigger(); }
+    void		triggerDeSel() { deselnotifier.trigger(); }
 
     bool		snap;
     Orientation		orientation_;
@@ -152,7 +158,7 @@ protected:
     SoScale*		widthscale;
     SoSeparator*	planesep;
 
-    SceneObjectWrapper	planewrapper;
+    SoFaceSet*		plane;
 
     // Manip objects:
     SoSwitch*		manipswitch;
@@ -162,6 +168,9 @@ protected:
     SoSwitch*		maniprectswitch;
     SoTranslation*	maniprecttrans;
     SoScale*		maniprectscale;
+
+    Notifier<Rectangle>	selnotifier;
+    Notifier<Rectangle>	deselnotifier;
 
 };
 

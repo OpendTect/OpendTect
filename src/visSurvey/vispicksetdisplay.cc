@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.5 2002-03-05 08:37:14 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.6 2002-03-11 10:46:28 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "vissceneobjgroup.h"
@@ -14,21 +14,25 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.5 2002-03-05 08:37:14 
 #include "geompos.h"
 #include "color.h"
 
-visSurvey::PickSet::PickSet( visSurvey::Scene& scene_ )
-    : group( new visBase::SceneObjectGroup( true, true ) )
-    , scene( scene_ )
+visSurvey::PickSet::PickSet()
+    : group( visBase::SceneObjectGroup::create(true) )
     , inlsz( 5 )
     , crlsz( 5 )
     , tsz( 0.05 )
-    , color( *new Color )
 {
-    color.set( 0, 255, 0 );
+    group->ref();
 }
 
 
 visSurvey::PickSet::~PickSet()
 {
-    delete &color;
+    group->unRef();
+}
+
+
+int visSurvey::PickSet::nrPicks() const
+{
+    return group->size();
 }
 
 
@@ -41,20 +45,20 @@ Geometry::Pos visSurvey::PickSet::getPick( int idx ) const
 	return cube->centerPos();
     }
 
-    Geometry::Pos res;
+    Geometry::Pos res(mUndefValue,mUndefValue,mUndefValue);
 
     return res;
 }
 
 
-int visSurvey::PickSet::addPick( const Geometry::Pos& pos )
+void visSurvey::PickSet::addPick( const Geometry::Pos& pos )
 {
-    visBase::Cube* cube = new visBase::Cube( scene );
+    visBase::Cube* cube = visBase::Cube::create();
     cube->setCenterPos( pos );
     cube->setWidth( Geometry::Pos( inlsz, crlsz, tsz) );
-    cube->setColor( color );
+    cube->setMaterial( 0 );
 
-    return group->addObject( cube );
+    group->addObject( cube );
 }
 
 
@@ -66,56 +70,9 @@ void visSurvey::PickSet::setSize( float inl, float crl, float t )
 
     for ( int idx=0; idx<group->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Cube*, cube,
-			group->getObject( group->getId(idx) ) );
+	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
 	if ( !cube ) continue;
 
 	cube->setWidth( nsz );
     }
-}
-
-
-void visSurvey::PickSet::turnOn( bool ns )
-{
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Cube*, cube,
-			group->getObject( group->getId(idx) ) );
-	if ( !cube ) continue;
-
-	cube->turnOn( ns );
-    }
-}
-
-
-bool visSurvey::PickSet::isOn() const
-{
-    if ( group->size() )
-    {
-	mDynamicCastGet(visBase::Cube*, cube,
-		group->getObject(group->getId(0)));
-	return cube->isOn();
-    }
-
-    return true;
-}
-
-
-void visSurvey::PickSet::setColor( const Color& c )
-{
-    color = c;
-
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Cube*, cube,
-			group->getObject( group->getId(idx) ) );
-	if ( !cube ) continue;
-
-	cube->setColor( c );
-    }
-}
-
-SoNode* visSurvey::PickSet::getData()
-{
-    return group->getData();
 }
