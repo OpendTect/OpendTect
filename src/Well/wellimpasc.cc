@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.25 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.26 2004-07-08 09:58:10 dgb Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -284,7 +284,14 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	}
     }
 
-    if ( convs[0] ) lfi.zunitstr = convs[0]->symbol();
+    if ( convs[0] )
+    {
+	lfi.zunitstr = convs[0]->symbol();
+	if ( !mIsUndefined(lfi.zrg.start) )
+	    lfi.zrg.start = convs[0]->internalValue(lfi.zrg.start);
+	if ( !mIsUndefined(lfi.zrg.stop) )
+	    lfi.zrg.stop = convs[0]->internalValue(lfi.zrg.stop);
+    }
     const char* ret = strm.good() ? 0 : "Only header found; No data";
 
     if ( !lfi.lognms.size() )
@@ -370,11 +377,6 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
     assign( reqzrg, lfi.zrg );
     bool havestart = !mIsUndefined(reqzrg.start);
     bool havestop = !mIsUndefined(reqzrg.stop);
-    if ( convs[0] )
-    {
-	reqzrg.start = convs[0]->internalValue( reqzrg.start );
-	reqzrg.stop = convs[0]->internalValue( reqzrg.stop );
-    }
 
     TypeSet<float> vals;
     while ( 1 )
