@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.23 2002-11-01 09:48:06 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.24 2002-11-04 12:06:23 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -666,6 +666,19 @@ static void putComps( ostream& strm,
 }
 
 
+static void handleInlGap( ostream& strm, Interval<int>& inlgap )
+{
+    if ( inlgap.start == inlgap.stop )
+	strm << "\nInline " << inlgap.start << " not present.";
+    else
+	strm << "\nInlines " << inlgap.start
+	    	      << '-' << inlgap.stop << " not present.";
+
+    strm.flush();
+    inlgap.start = inlgap.stop = -999;
+}
+
+
 void CBVSReadMgr::dumpInfo( ostream& strm, bool inclcompinfo ) const
 {
     if ( nrReaders() > 1 )
@@ -687,24 +700,34 @@ void CBVSReadMgr::dumpInfo( ostream& strm, bool inclcompinfo ) const
 	 << info().geom.stop.crl << " (step " << info().geom.step.crl << ").\n";
     strm << endl;
 
+    Interval<int> inlgap( -999, -999 );
+
     if ( !info().geom.fullyrectandreg )
     {
 	strm << "Gaps: "; strm.flush();
 	bool inlgaps = false; bool crlgaps = false;
 	for ( int inl=info().geom.start.inl; inl<=info().geom.stop.inl;
-	inl += info().geom.step.inl )
+		inl += info().geom.step.inl )
 	{
 	    const CBVSInfo::SurvGeom::InlineInfo* inlinf
-	    = info().geom.getInfoFor( inl );
+		    = info().geom.getInfoFor( inl );
 	    if ( !inlinf )
 	    {
-		strm << "\nInline " << inl << " not present."; strm.flush();
 		inlgaps = true;
+		if ( inlgap.start == -999 )
+		    inlgap.start = inlgap.stop = inl;
+		else if ( inl == inlgap.stop + info().geom.step.inl )
+		    inlgap.stop = inl;
+		else
+		    handleInlGap( strm, inlgap );
 		continue;
 	    }
 	    if ( inlinf->segments.size() > 1 )
-	    crlgaps = true;
+		crlgaps = true;
 	}
+	if ( inlgap.start != -999 )
+	    handleInlGap( strm, inlgap );
+
 	if ( crlgaps )
 	{
 	    if ( inlgaps )
