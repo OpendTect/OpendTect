@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: trackplane.h,v 1.2 2005-01-28 13:31:16 bert Exp $
+ RCS:		$Id: trackplane.h,v 1.3 2005-03-02 18:40:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 #include "cubesampling.h"
 #include "mathfunc.h"
+
+class Plane3;
 
 
 namespace MPE
@@ -47,6 +49,8 @@ public:
     			/*!<\note does not check the plane's boundaries */
     const BinIDValue&	motion() const { return motion_; }
     void		setMotion( int inl, int crl, float z );
+
+    void		computePlane(Plane3&) const;
 
 protected:
 

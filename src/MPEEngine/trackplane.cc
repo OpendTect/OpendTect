@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: trackplane.cc,v 1.2 2005-01-28 13:31:16 bert Exp $";
+static const char* rcsID = "$Id: trackplane.cc,v 1.3 2005-03-02 18:40:19 cvskris Exp $";
    
 
 #include "trackplane.h"
@@ -87,6 +87,19 @@ void TrackPlane::setMotion( int inl, int crl, float z )
     motion_.binid.inl = inl;
     motion_.binid.crl = crl;
     motion_.value = z;
+}
+
+
+void TrackPlane::computePlane(Plane3& plane) const
+{
+    const Coord3 p0( SI().transform(cubesampling.hrg.start),
+	    	     cubesampling.zrg.start );
+    const Coord3 p1( SI().transform(cubesampling.hrg.start),
+	    	     cubesampling.zrg.stop );
+    const Coord3 p2( SI().transform(cubesampling.hrg.stop),
+	    	     cubesampling.zrg.start );
+
+    plane.set( p0, p1, p2 );
 }
 
 };  //namespace
