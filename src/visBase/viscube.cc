@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.11 2002-10-14 14:24:39 niclas Exp $";
+static const char* rcsID = "$Id: viscube.cc,v 1.12 2003-05-09 09:04:17 kristofer Exp $";
 
 #include "viscube.h"
 #include "iopar.h"
@@ -19,11 +19,10 @@ const char* visBase::Cube::widthstr = "Width";
 
 
 visBase::Cube::Cube()
-    : cube( new SoCube )
+    : Shape( new SoCube )
     , position( new SoTranslation )
 {
-    addChild( position );
-    addChild( cube );
+    addNode( position );
 }
 
 
@@ -48,6 +47,7 @@ Coord3 visBase::Cube::centerPos() const
 
 void visBase::Cube::setWidth( const Coord3& n )
 {
+    SoCube* cube = reinterpret_cast<SoCube*>( shape );
     cube->width.setValue(n.x);
     cube->height.setValue(n.y);
     cube->depth.setValue(n.z);
@@ -58,6 +58,7 @@ Coord3 visBase::Cube::width() const
 {
     Coord3 res;
     
+    SoCube* cube = reinterpret_cast<SoCube*>( shape );
     res.x = cube->width.getValue();
     res.y = cube->height.getValue();
     res.z = cube->depth.getValue();
@@ -68,7 +69,7 @@ Coord3 visBase::Cube::width() const
 
 int visBase::Cube::usePar( const IOPar& iopar )
 {
-    int res = VisualObjectImpl::usePar( iopar );
+    int res = Shape::usePar( iopar );
     if ( res != 1 ) return res;
 
     Coord3 pos;
@@ -88,7 +89,7 @@ int visBase::Cube::usePar( const IOPar& iopar )
 
 void visBase::Cube::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
-    VisualObjectImpl::fillPar( iopar, saveids );
+    Shape::fillPar( iopar, saveids );
 
     Coord3 pos = centerPos();
     iopar.set( centerposstr, pos.x, pos.y, pos.z );
