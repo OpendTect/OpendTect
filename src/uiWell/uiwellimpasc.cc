@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.18 2004-05-06 12:40:35 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.19 2004-05-06 13:03:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,6 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     BoolInpSpec mft( "Meter", "Feet", !SI().depthsInFeetByDefault() );
     unitfld = new uiGenInput( this, "Depth unit", mft );
     unitfld->attach( alignedBelow, elevfld );
-    unitfld->setValue( !SI().zInFeet() );
 
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Well" );
