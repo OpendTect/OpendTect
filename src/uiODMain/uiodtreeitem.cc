@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.47 2004-09-14 14:01:49 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.48 2004-09-15 06:44:41 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -389,6 +389,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removemnuid )
     {
 	menu->setIsHandled(true);
+	prepareForShutdown();
 	visserv->removeObject( displayid, sceneID() );
 	parent->removeChild( this );
     }
@@ -453,7 +454,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 { 
-    if (  uivissurf->finishEditingNotifier() )
+    if (  uivissurf && uivissurf->finishEditingNotifier() )
 	uivissurf->finishEditingNotifier()->remove(
 		mCB(this,uiODEarthModelSurfaceTreeItem,finishedEditingCB));
     delete uivissurf;
@@ -462,7 +463,7 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 
 bool uiODEarthModelSurfaceTreeItem::init()
 {
-    if ( uivissurf ) delete uivissurf;
+    delete uivissurf;
     if ( displayid!=-1 )
     {
 	uivissurf = new uiVisSurface( getUiParent(), displayid,
@@ -511,6 +512,12 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 	prevtrackstatus = applMgr()->trackServer()->isTrackingEnabled(mid);
 	applMgr()->trackServer()->enableTracking(mid,false);
     }
+}
+
+
+void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
+{
+    uivissurf->prepareForShutdown();
 }
 
 
