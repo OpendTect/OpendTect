@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.12 2003-12-12 14:47:48 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.13 2003-12-12 16:32:27 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -548,4 +548,7 @@ mDefDIPFIbmswp(long long,F,Float)
 #include "i_datainterp.h"
 #undef mTheType
 #define mTheType int
+#include "i_datainterp.h"
+#undef mTheType
+#define mTheType long long
 #include "i_datainterp.h"
