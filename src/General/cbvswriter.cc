@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.34 2003-06-17 12:30:28 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.35 2003-08-14 12:54:16 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -398,6 +398,7 @@ void CBVSWriter::getRealGeometry()
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
 	CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata_[iinl];
+	int curinlstep = inlinf.inl - prevbinid_.inl;
 	if ( iinl == 0 )
 	{
 	    prevbinid_.inl = bids.start.inl = bids.stop.inl = inlinf.inl;
@@ -405,23 +406,31 @@ void CBVSWriter::getRealGeometry()
 	    bids.stop.crl = inlinf.segments[0].stop;
 	    bids.step.crl = inlinf.segments[0].step;
 	}
-	else if ( iinl == 1 )
-	    bids.step.inl = inlinf.inl - inldata_[0]->inl;
-	else if ( !bids.step.inl )
-	    bids.step.inl = inlinf.inl - prevbinid_.inl;
-	else if ( inlinf.inl - prevbinid_.inl != bids.step.inl )
+	else if ( iinl == 1 || !bids.step.inl )
+	    bids.step.inl = curinlstep;
+	else if ( curinlstep != bids.step.inl )
+	{
 	    survgeom_.fullyrectandreg = false;
+	    if ( curinlstep && curinlstep < bids.step.inl )
+		bids.step.inl = curinlstep;
+	}
 	prevbinid_.inl = inlinf.inl;
 
-	const int nrcrl = inlinf.segments.size();
-	if ( nrcrl != 1 )
+	const int nrseg = inlinf.segments.size();
+	if ( nrseg != 1 )
 	    survgeom_.fullyrectandreg = false;
 
-	for ( int icrl=0; icrl<nrcrl; icrl++ )
+	for ( int iseg=0; iseg<nrseg; iseg++ )
 	{
-	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =inlinf.segments[icrl];
-	    if ( seg.step != bids.step.crl )
+	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =inlinf.segments[iseg];
+	    if ( !seg.step )
+		seg.step = bids.step.crl ? bids.step.crl : SI().crlStep();
+	    else if ( seg.step != bids.step.crl )
+	    {
 		survgeom_.fullyrectandreg = false;
+		if ( seg.step < bids.step.crl )
+		    bids.step.crl = seg.step;
+	    }
 	    else if ( iinl )
 	    {
 		Interval<int> intv( seg ); intv.sort();
@@ -434,6 +443,8 @@ void CBVSWriter::getRealGeometry()
     }
     if ( !bids.step.inl )
 	bids.step.inl = SI().inlStep();
+    if ( !bids.step.crl )
+	bids.step.crl = SI().crlStep();
 
     if ( survgeom_.fullyrectandreg )
 	deepErase( survgeom_.inldata );
