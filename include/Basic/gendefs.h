@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.31 2004-06-28 16:00:04 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.32 2004-11-08 13:38:22 nanne Exp $
 ________________________________________________________________________
 
  This file contains general defines that are so basic they can be used in
@@ -17,8 +17,8 @@ ________________________________________________________________________
 -*/
 
 
-#define mODMajorVersion		1
-#define mODMinorVersion		2
+#define mODMajorVersion		2
+#define mODMinorVersion		0
 
 #include "plfdefs.h"
 
