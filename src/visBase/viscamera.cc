@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.15 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.16 2004-11-02 10:46:58 kristofer Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
@@ -20,11 +20,11 @@ const char* visBase::Camera::fardistancestr = "Far Distance";
 const char* visBase::Camera::focaldistancestr = "Focal Distance";
 
 
-#include "Inventor/nodes/SoPerspectiveCamera.h"
+#include "UTMCamera.h"
 
 
 visBase::Camera::Camera()
-    : camera( new SoPerspectiveCamera )
+    : camera( new UTMCamera )
 {}
 
 
