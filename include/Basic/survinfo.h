@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.20 2002-06-21 16:02:41 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.21 2002-06-24 13:12:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,6 @@ Normally, you'll want to have the working area.
 class SurveyInfo : public UserIDObject
 {
 
-    friend class		EdSurvey;
-    friend class		EdSurveyInfo;
-    friend class		uiSurvey;
-    friend class		uiSurveyInfoEditor;
     friend const SurveyInfo&	SI();
 
 public:
@@ -91,7 +87,6 @@ public:
 			{ return b2c_.transform(b); }
     BinID		transform(const Coord&) const;
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
-
     const BinID2Coord&	binID2Coord() const	{ return b2c_; }
 
     Coord		minCoord(bool work=true) const;
@@ -151,6 +146,9 @@ private:
 			//!< returns error message or null on success
 
     bool		valid_;
+
+    friend class	uiSurvey;
+    friend class	uiSurveyInfoEditor;
 
 };
 
