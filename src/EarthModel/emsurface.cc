@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.28 2003-12-03 19:06:24 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.29 2003-12-06 11:09:08 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.28 2003-12-03 19:06:24 kristof
 #include "ioobj.h"
 #include "linsolv.h"
 #include "pca.h"
+#include "toplist.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
@@ -105,6 +106,47 @@ void EM::Surface::cleanUp()
     colinterval = 0;
 }
 
+
+bool EM::Surface::findClosestNodes(TopList<float,EM::PosID>& toplist,
+				const Coord3& pos_,
+				const MathFunction<float>* time2depthfunc) const
+{
+    //TODO Make faster impl
+    Coord3 origpos = pos_;
+    if ( time2depthfunc ) origpos.z = time2depthfunc->getValue( pos_.z );
+    const int nrpatches = nrPatches();
+
+    for ( int patch=0; patch<nrpatches; patch++ )
+    {
+	const EM::PatchID patchid = patchID(patch);
+	StepInterval<int> rowrange; StepInterval<int> colrange;
+	getRange( rowrange, true ); getRange( colrange, false );
+
+	RowCol rc;
+	for ( rc.row=rowrange.start;rc.row<=rowrange.stop;rc.row+=rowrange.step)
+	{
+	    for ( rc.col=colrange.start; rc.col<=colrange.stop;
+		    					rc.col+=colrange.step )
+	    {
+		if ( isDefined(patchid,rc) )
+		{
+		    Coord3 pos = getPos( patchid, rc );
+		    if ( time2depthfunc )
+			pos.z = time2depthfunc->getValue( pos.z );
+
+		    double dist = pos.distance( origpos );
+		    toplist.addValue( dist,
+				      EM::PosID(id_,patchid,rowCol2SubID(rc)));
+		
+		}
+	    }
+	}
+    }
+
+    return toplist.size();
+}
+
+
 #define mGetNeigborCoord( coordname, rowdiff, coldiff ) \
 for ( int idy=0; idy<nrnodealiases; idy++ ) \
 { \
@@ -120,6 +162,124 @@ for ( int idy=0; idy<nrnodealiases; idy++ ) \
 	break; \
     } \
 } \
+
+
+bool EM::Surface::findClosestMesh(EM::PosID& res, const Coord3& pos,
+			  const MathFunction<float>* time2depthfunc) const
+{
+    TopList<float, EM::PosID> closestnodes( 20, mUndefValue, false );
+    if ( !findClosestNodes(closestnodes,pos,time2depthfunc) )
+	return false;
+
+    float mindist;
+    const int nrnodes = closestnodes.size();
+    for ( int idx=0; idx<nrnodes; idx++ )
+    {
+	EM::PosID pid = closestnodes.getAssociatedValue(idx);
+	Coord3 c00, c10, c01, c11;
+	getMeshCoords( pid, c00, c10, c01, c11, time2depthfunc );
+
+	int nrvalidcoords = 0;
+	float totaldist = 0;
+	if ( c00.isDefined() ) { nrvalidcoords++; totaldist+=c00.distance(pos);}
+	if ( c10.isDefined() ) { nrvalidcoords++; totaldist+=c10.distance(pos);}
+	if ( c01.isDefined() ) { nrvalidcoords++; totaldist+=c01.distance(pos);}
+	if ( c11.isDefined() ) { nrvalidcoords++; totaldist+=c11.distance(pos);}
+
+	if ( nrvalidcoords<3 ) continue;
+
+	totaldist /=nrvalidcoords;
+	if ( !idx || totaldist<mindist )
+	{
+	    res = pid;
+	    mindist = totaldist;
+	}
+    }
+
+    return true;
+}
+
+
+bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
+			     const MathFunction<float>* time2depthfunc ) const
+{
+    Coord3 c00, c10, c01, c11;
+    getMeshCoords( pid, c00, c10, c01, c11, time2depthfunc );
+    const bool c00def = c00.isDefined(); const bool c10def = c10.isDefined();
+    const bool c01def = c01.isDefined(); const bool c11def = c11.isDefined();
+
+    TypeSet<Coord3> normals;
+    if ( c00def && c10def && c01def )
+    {
+	const Coord3 rowvec = c10-c00;
+	const double rowveclen = rowvec.abs();
+	if ( !mIS_ZERO(rowveclen) )
+	{
+	    const Coord3 colvec = c01-c00;
+	    const double colveclen = colvec.abs();
+	    if ( !mIS_ZERO(colveclen) )
+		normals += rowvec.cross(colvec).normalize();
+	}
+    }
+
+    if ( c10def && c00def && c11def )
+    {
+	const Coord3 rowvec = c10-c00;
+	const double rowveclen = rowvec.abs();
+	if ( !mIS_ZERO(rowveclen) )
+	{
+	    const Coord3 colvec = c11-c10;
+	    const double colveclen = colvec.abs();
+	    if ( !mIS_ZERO(colveclen) )
+		normals += rowvec.cross(colvec).normalize();
+	}
+    }
+
+    if ( c01def && c00def && c11def )
+    {
+	const Coord3 rowvec = c11-c01;
+	const double rowveclen = rowvec.abs();
+	if ( !mIS_ZERO(rowveclen) )
+	{
+	    const Coord3 colvec = c01-c00;
+	    const double colveclen = colvec.abs();
+	    if ( !mIS_ZERO(colveclen) )
+		normals += rowvec.cross(colvec).normalize();
+	}
+    }
+
+    if ( c11def && c10def && c01def )
+    {
+	const Coord3 rowvec = c11-c01;
+	const double rowveclen = rowvec.abs();
+	if ( !mIS_ZERO(rowveclen) )
+	{
+	    const Coord3 colvec = c11-c10;
+	    const double colveclen = colvec.abs();
+	    if ( !mIS_ZERO(colveclen) )
+		normals += rowvec.cross(colvec).normalize();
+	}
+    }
+
+    const int nrnormals = normals.size();
+    if ( !nrnormals ) return false;
+    if ( nrnormals==1 )
+    {
+	res = normals[0];
+	return true;
+    }
+
+    PCA pca(3);
+    for ( int idx=0; idx<nrnormals; idx++ )
+	pca.addSample( normals[idx] );
+
+    if ( !pca.calculate() )
+	return false;
+
+    pca.getEigenVector(0, res );
+    res = res.normalize();
+    return true;
+}
 
 
 bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
@@ -234,6 +394,66 @@ bool EM::Surface::computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
     pca.getEigenVector(0, res );
     res = res.normalize();
     return true;
+}
+
+
+char EM::Surface::whichSide( const Coord3& timepos,
+			     const MathFunction<float>* time2depthfunc,
+			     float fuzzy ) const
+{
+    EM::PosID closestmesh(0,0,0);
+    if ( !findClosestMesh(closestmesh,timepos,time2depthfunc) )
+	return -2;
+
+    Coord3 meshnormal;
+    if ( !computeMeshNormal(meshnormal,closestmesh,time2depthfunc) )
+	return -2;
+
+    Coord3 c00, c10, c01, c11;
+    getMeshCoords( closestmesh, c00, c10, c01, c11, time2depthfunc );
+
+    Coord3 average(0,0,0);
+    int nrvals = 0;
+    if ( c00.isDefined() ) { average += c00; nrvals++; }
+    if ( c10.isDefined() ) { average += c10; nrvals++; }
+    if ( c01.isDefined() ) { average += c01; nrvals++; }
+    if ( c11.isDefined() ) { average += c11; nrvals++; }
+
+    average /= nrvals;
+
+    const Coord3 pos = time2depthfunc
+	? Coord3( timepos, time2depthfunc->getValue( timepos.z ) )
+	: timepos;
+
+    const Plane3 plane( meshnormal, average, false );
+    const Line3 line( pos, meshnormal );
+    Coord3 intersection;
+    plane.intersectWith( line, intersection );
+    const Coord3 vector = pos-intersection;
+    double factor = meshnormal.dot( vector );
+    if ( factor>fuzzy ) return 1;
+    if ( factor<-fuzzy ) return -1;
+    return 0;
+}
+
+
+void EM::Surface::getMeshCoords( const EM::PosID& pid,
+	Coord3& c00, Coord3& c10, Coord3& c01, Coord3& c11,
+	const MathFunction<float>* time2depthfunc ) const
+{
+    static const Coord3 undefnode = Coord3(mUndefValue,mUndefValue,mUndefValue);
+
+    TypeSet<EM::PosID> nodealiases;
+    getLinkedPos( pid, nodealiases );
+    nodealiases += pid;
+    const int nrnodealiases = nodealiases.size();
+
+    c00 = getPos(pid);
+    if ( time2depthfunc ) c00.z = time2depthfunc->getValue(c00.z);
+
+    c10 = undefnode; mGetNeigborCoord( c10, +step_.row, +0 );
+    c01 = undefnode; mGetNeigborCoord( c01, +0, +step_.col );
+    c11 = undefnode; mGetNeigborCoord( c11, +step_.row, +step_.col );
 }
 
 
@@ -494,7 +714,59 @@ int EM::Surface::findPos( const RowCol& rowcol,
     return res.size();
 }
 
+int EM::Surface::findPos( const EM::PatchID& patchid,
+			  const Interval<float>& x, const Interval<float>& y,
+			  const Interval<float>& z,
+			  TypeSet<EM::PosID>* res ) const	
+{
+    int idx = patchids.indexOf(patchid);
+    if ( idx<0 ) return 0;
 
+    TypeSet<EM::PosID> posids;
+    TypeSet<Geometry::PosID> nodes;
+    surfaces[idx]->findPos( x.center(), y.center(), z.center(),
+			    x.width(), y.width(), z.width(), nodes );
+
+    const int nrnodes = nodes.size();
+    for ( int idy=0; idy<nrnodes; idy++ )
+    {
+	const PatchID patch = patchids[idx];
+	const EM::PosID posid( id(), patchid, getSurfSubID(nodes[idy],patchid));
+
+	TypeSet<EM::PosID> clones;
+	getLinkedPos( posid, clones );
+	clones += posid;
+
+	const int nrclones = clones.size();
+	bool found = false;
+	for ( int idz=0; idz<nrclones; idz++ )
+	{
+	    if ( posids.indexOf(clones[idz]) != -1 )
+	    { found = true; break; }
+	}
+
+	if ( !found )
+	    posids += posid;
+    }
+
+    if ( res ) res->append(posids);
+    return posids.size();
+}
+
+
+int EM::Surface::findPos( const Interval<float>& x, const Interval<float>& y,
+			  const Interval<float>& z,
+			  TypeSet<EM::PosID>* res ) const	
+{
+    int sum = 0;
+    const int nrpatches = nrPatches();
+    for ( int idx=0; idx<nrpatches; idx++ )
+	sum += findPos( patchID(idx), x, y, z, res );
+
+    return sum;
+}
+
+    
 int EM::Surface::findPos( const CubeSampling& cs,
 			  TypeSet<EM::PosID>* res ) const
 {
@@ -515,52 +787,40 @@ int EM::Surface::findPos( const CubeSampling& cs,
     yinterval.include( xypos.y );
 
     TypeSet<EM::PosID> posids;
+    findPos( xinterval, yinterval, cs.zrg, &posids );
 
-    const int nrpatches = nrPatches();
-    for ( int idx=0; idx<nrpatches; idx++ )
+    for ( int idx=0; idx<posids.size(); idx++ )
     {
-	TypeSet<Geometry::PosID> nodes;
-	surfaces[idx]->findPos( xinterval.center(), yinterval.center(),
-				cs.zrg.center(),
-				xinterval.width(), yinterval.width(),
-				cs.zrg.width(), nodes );
+	const EM::PosID& posid = posids[idx];
+	const BinID nodebid = SI().transform(getPos(posid));
 
-	const int nrnodes = nodes.size();
-	for ( int idy=0; idy<nrnodes; idy++ )
+	if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
+	     nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
 	{
-	    const BinID nodebid =
-		SI().transform(surfaces[idx]->getPos(nodes[idy]));
+	    posids.removeFast( idx-- );
+	    continue;
+	}
 
-	    if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
-		 nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
-		continue;
+	TypeSet<EM::PosID> clones;
+	getLinkedPos( posid, clones );
+	clones += posid;
 
-	    const PatchID patch = patchids[idx];
-	    EM::PosID posid( id(), patch, getSurfSubID(nodes[idy],patch) );
+	const int nrclones = clones.size();
+	bool found = false;
+	for ( int idz=0; idz<nrclones; idz++ )
+	{
+	    if ( posids.indexOf(clones[idz]) != -1 )
+	    { found = true; break; }
+	}
 
-	    TypeSet<EM::PosID> clones;
-	    getLinkedPos( posid, clones );
-	    clones += posid;
-
-	    const int nrclones = clones.size();
-	    bool found = false;
-	    for ( int idz=0; idz<nrclones; idz++ )
-	    {
-		if ( posids.indexOf(clones[idz]) != -1 )
-		{
-		    found = true;
-		    break;
-		}
-	    }
-
-	    if ( !found )
-	    {
-		posids += posid;
-	    }
+	if ( found )
+	{
+	    posids.removeFast( idx-- );
+	    continue;
 	}
     }
 
-    if ( res ) *res = posids;
+    if ( res ) res->append(posids);
     return posids.size();
 }
 

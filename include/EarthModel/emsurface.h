@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.26 2003-12-03 19:06:33 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.27 2003-12-06 11:08:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "position.h"
 #include "bufstringset.h"
+
+template <class T, class AT> class TopList;
 
 /*!
 Rules for surfaces.
@@ -99,9 +101,6 @@ public:
     void		getPos(const RowCol&,TypeSet<Coord3>&) const;
     			//!< Returns positions from all patches on RowCol
     
-    int			findPos( const CubeSampling&,
-	    			 TypeSet<EM::PosID>* res ) const;
-
     int			getNeighbors( const EM::PosID& posid, 
 	    			      TypeSet<EM::PosID>* res,
 	   			      int size=1, bool circle=false ) const;
@@ -150,8 +149,6 @@ public:
     float		getAuxDataVal(int dataidx,const EM::PosID& posid) const;
     void		setAuxDataVal(int dataidx, const EM::PosID& posid,
 				      float value );
-    int                 findPos( const RowCol& rowcol,
-                                 TypeSet<PosID>& res ) const;
     const char*		dbInfo() const			{ return dbinfo; }
     void		setDBInfo( const char* s )	{ dbinfo = s; }
 
@@ -182,51 +179,73 @@ public:
     static RowCol	subID2RowCol( const EM::SubID& );
     static EM::SubID	rowCol2SubID( const RowCol& );
 
-    void		getRange(StepInterval<int>&,bool rowdir) const;
-    void		getRange(const EM::PatchID&,
-	    			 StepInterval<int>&,bool rowdir) const;
+    void	getRange(StepInterval<int>&,bool rowdir) const;
+    void	getRange(const EM::PatchID&,
+	    		 StepInterval<int>&,bool rowdir) const;
 
-    bool		getMeshRowCol(const EM::SubID&,RowCol&,
-	    			      const PatchID&) const;
-    			/*!< Converts EM::SubID to rowcol that is used
-			     on the Geometry::MeshSurface */
-    bool		getMeshRowCol(const RowCol&,RowCol&,
-	    			      const PatchID&) const;
-    			/*!< Converts input RowCol(in surface domain)
-			     to a RowCol that is used
-			     on the Geometry::MeshSurface */
+    bool	getMeshRowCol(const EM::SubID&,RowCol&, const PatchID&) const;
+		/*!< Converts EM::SubID to rowcol that is used
+		     on the Geometry::MeshSurface */
+    bool	getMeshRowCol(const RowCol&,RowCol&, const PatchID&) const;
+		/*!< Converts input RowCol(in surface domain)
+		     to a RowCol that is used on the Geometry::MeshSurface
+		*/
+    int		findPos( const EM::PatchID& patchid,
+			 const Interval<float>& x, const Interval<float>& y,
+			 const Interval<float>& z,
+			 TypeSet<EM::PosID>* res ) const;
+    int		findPos( const Interval<float>& x, const Interval<float>& y,
+			 const Interval<float>& z,
+			 TypeSet<EM::PosID>* res ) const;
+    int		findPos( const CubeSampling&, TypeSet<EM::PosID>* res ) const;
+    int		findPos( const RowCol& rowcol, TypeSet<PosID>& res ) const;
+    bool	findClosestNodes(TopList<float,EM::PosID>& res,
+	    			const Coord3& pos,
+				const MathFunction<float>* depthconv=0) const;
+    bool	findClosestMesh(EM::PosID& res, const Coord3& pos,
+				const MathFunction<float>* depthconv=0) const;
 
-    bool		computeNormal( Coord3& res,
-	    				const TypeSet<EM::PosID>& nodes,
-					const MathFunction<float>* depthconv=0
-					) const;
-    			/*!< Computes an aproximation of the orientation of a
-			     part of a surface
-			     \param nodes	orientation is computed on the
-			     			connections surrounding these
-						nodes.
-			     \param depthconv	Convert the depth before
-			     			computing. This can be handy
-						if z is given in timedomain wich
-						will give problems in pca. If
-						ommitted, the z coords will not
-						be converted.
-			*/
-    bool		computeNormal( Coord3& res, const CubeSampling* cs=0,
-	    			       const MathFunction<float>* depthconv=0
-				       ) const;
-    			/*!< Computes an aproximation of the surface's
-			     orientation
-			     \param cs		Compute only within this cube.
-			     			If ommitted, the depth will be
-						computed on the entire surface.
-			     \param depthconv	Convert the depth before
-			     			computing. This can be handy
-						if z is given in timedomain wich
-						will give problems in pca. If
-						ommitted, the z coords will not
-						be converted.
-			*/
+    bool	computeMeshNormal( Coord3& res, const EM::PosID&, 
+	    			   const MathFunction<float>* dconv=0) const;
+
+    bool	computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
+				const MathFunction<float>* depthconv=0) const;
+		/*!< Computes an aproximation of the orientation of a
+		     part of a surface
+		     \param nodes	orientation is computed on the
+					connections surrounding these
+					nodes.
+		     \param depthconv	Convert the depth before
+					computing. This can be handy
+					if z is given in timedomain wich
+					will give problems in pca. If
+					ommitted, the z coords will not
+					be converted.
+		*/
+    bool	computeNormal( Coord3& res, const CubeSampling* cs=0,
+			       const MathFunction<float>* depthconv=0) const;
+		/*!< Computes an aproximation of the surface's
+		     orientation
+		     \param cs		Compute only within this cube.
+					If ommitted, the depth will be
+					computed on the entire surface.
+		     \param depthconv	Convert the depth before
+					computing. This can be handy
+					if z is given in timedomain wich
+					will give problems in pca. If
+					ommitted, the z coords will not
+					be converted.
+		*/
+
+    char	whichSide( const Coord3&,
+	    		   const MathFunction<float>* depthconv=0,
+			   float fuzzyness=0 ) const;
+		/*!< Determies wich side of the surface the position is.
+		  \retval	1	The positive side
+		  \retval	0	Is on (within precision) the surface
+		  \retval	-1	The negative side
+		  \retval	-2	Side could not be determined
+		*/
 protected:
     friend class		EMManager;
     friend class		EMObject;
@@ -239,6 +258,10 @@ protected:
 	    				     const PatchID&) const;
     EM::SubID			getSurfSubID(const Geometry::PosID&,
 					     const PatchID&) const;
+
+    void			getMeshCoords( const EM::PosID&, Coord3& c00,
+	    			    Coord3& c10, Coord3& c01, Coord3& c11,
+				   const MathFunction<float>* depthconv=0)const;
 
     virtual Geometry::MeshSurface*	createPatchSurface(const PatchID&) 
 								      const = 0;
@@ -257,7 +280,6 @@ protected:
 
     Interval<int>*		rowinterval;
     Interval<int>*		colinterval;
-
     float 			shift;
 };
 
