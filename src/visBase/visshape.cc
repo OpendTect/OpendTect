@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.12 2004-05-19 06:11:14 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.13 2004-07-23 12:57:43 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -370,6 +370,13 @@ int visBase::IndexedShape::nr##resourcename() const \
  \
 void visBase::IndexedShape::set##resourcename( int pos, int idx ) \
 { indexedshape->fieldname.set1Value( pos, idx ); } \
+ \
+ \
+void visBase::IndexedShape::remove##resourcename##After(int pos) \
+{  \
+    if ( indexedshape->fieldname.getNum()>pos+1 ) \
+	indexedshape->fieldname.deleteValues(pos+1); \
+} \
  \
  \
 int visBase::IndexedShape::get##resourcename( int pos ) const \
