@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.23 2004-01-30 10:16:52 arend Exp $
+# $Id: od_exec,v 1.24 2004-03-23 16:33:12 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -64,7 +64,7 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 	set xtermcmdarg = "--askclose"
     endif
 
-    set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $xtermcmdarg"
+    set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e $DTECT_APPL/bin/od_xterm_exec $DTECT_APPL $xtermcmdarg"
 
     shift
     goto next_arg
