@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.17 2003-10-22 12:37:10 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.18 2003-10-22 13:31:26 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -157,7 +157,7 @@ void IOObjContext::fillTrGroup()
 	mCase(Attr,"Attribute definitions");
 	mCase(Misc,"Session setup");
 	mCase(Mdl,"EarthModel");
-	case IOObjContext::NLA
+	case IOObjContext::NLA:
 	    trgroup = &TranslatorGroup::getGroup( "NonLinear Analysis", true );
 	    if ( trgroup->userName() == "" )
 	    trgroup = &TranslatorGroup::getGroup( "Neural network", true );
