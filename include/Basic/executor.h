@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.6 2002-03-06 13:25:58 bert Exp $
+ RCS:		$Id: executor.h,v 1.7 2002-03-21 14:03:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,49 @@ public:
     virtual bool	execute(ostream* log=0,
 				bool isfirst=true,bool islast=true);
 };
+
+
+class ExecutorRunner : public BasicTaskRunner
+{
+public:
+
+    			ExecutorRunner( Executor* ex )
+			: BasicTaskRunner(ex)	{}
+
+    virtual const char* lastMsg() const		= 0;
+
+};
+
+
+class ExecutorBatchTaskRunner : public ExecutorRunner
+{
+public:
+			ExecutorBatchTaskRunner( Executor* ex, ostream* strm=0,
+					bool isfirst=true, bool islast=true )
+			: ExecutorRunner(ex)
+			, logstrm_(strm)
+			, isfirst_(isfirst)
+			, islast_(islast)		{}
+
+    virtual bool	execute()
+    			{
+			    mDynamicCastGet(Executor*,ex,task_);
+			    if ( !ex )
+			    	{ lastmsg_ = "No Executor!"; return false; }
+			    bool res = ex->execute(logstrm_,isfirst_,islast_);
+			    lastmsg_ = ex->message();
+			    return res;
+			}
+    virtual const char*	lastMsg() const		{ return lastmsg_; }
+
+protected:
+
+    ostream*		logstrm_;
+    bool		isfirst_;
+    bool		islast_;
+    BufferString	lastmsg_;
+};
+
 
 /*!\brief Executor consisting of other executors.
 
