@@ -4,11 +4,12 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.26 2003-11-11 18:16:27 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.27 2003-11-17 14:38:28 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
 #include "dirlist.h"
+#include "strmprov.h"
 
 #ifdef __win__
 #include <Windows.h>
@@ -21,6 +22,14 @@ static const char* rcsID = "$Id: plugins.cc,v 1.26 2003-11-11 18:16:27 bert Exp 
 
 PluginManager* PluginManager::theinst_ = 0;
 static const char* plugindir = "plugins";
+
+#ifdef __win__
+#define mDefinePrognm(var) \
+    const BufferString var( File_removeExtension(File_getFileName(argv[0])));
+#else
+#define mDefinePrognm(var) \
+    const BufferString var( File_getFileName(argv[0]) );
+#endif
 
 
 extern "C" {
@@ -77,18 +86,36 @@ static const char* getFnName( const char* libnm, const char* fnbeg,
 	typ fn = (typ)mFnGettter( handle, getFnName(libnmonly,nm1,nm2) )
 
 
-static bool loadPlugin( const char* libnm, int argc, char** argv,
+static bool loadPlugin( const char* lnm, int argc, char** argv,
 			int inittype )
 {
-    if ( inittype == PI_AUTO_INIT_NONE ) return false;
+    if ( inittype == PI_AUTO_INIT_NONE )
+	return false;
+
+    const BufferString libnm( lnm );
+
+    if( dgb_debug_isOn(DBG_SETTINGS) )
+    {
+	BufferString msg( "Attempting to load plugin " );
+	msg += libnm;
+	dgb_debug_message( msg.buf() );
+    }
 
 #ifdef __win__
+
     BufferString targetlibnm( libnm );
     if ( File_isLink(libnm) )
 	targetlibnm = File_linkTarget(libnm);
+    if ( !File_exists(targetlibnm) )
+	return false;
     HMODULE handle = LoadLibrary( targetlibnm );
+
 #else
+
+    if ( !File_exists(libnm) )
+	return false;
     void* handle = dlopen( libnm, RTLD_GLOBAL | RTLD_NOW );
+
 #endif
 
     if ( !handle )
@@ -134,68 +161,96 @@ static bool loadPlugin( const char* libnm, int argc, char** argv,
 
 extern "C" bool LoadPlugin( const char* libnm, int argc, char** argv )
 {
-    return loadPlugin(libnm,argc,argv,-1);
+    return loadPlugin( libnm, argc, argv, -1 );
 }
 
 
-static void loadPlugins( const char* dirnm, int argc, char** argv,
+static void loadALOPlugins( const char* dnm, const char* fnm,
+			    int argc, char** argv, int inittype )
+{
+    StreamData sd = StreamProvider( File_getFullPath(dnm,fnm) ).makeIStream();
+    if ( !sd.usable() ) return;
+
+    char buf[128];
+    while ( *sd.istrm )
+    {
+	sd.istrm->getline( buf, 128 );
+	BufferString dirnm( File_getFullPath(dnm,"libs") );
+#ifdef __win__
+	BufferString libnm = buf; libnm += ".dll";
+#else
+	BufferString libnm = "lib"; libnm += buf; libnm += ".so";
+#endif
+	if ( !PIM().isLoaded(libnm) )
+	    loadPlugin( File_getFullPath(dirnm,libnm), argc, argv, inittype );
+    }
+
+    sd.close();
+}
+
+
+static bool isALO( const char* fnm )
+{
+    const char* extptr = strrchr( fnm, '.' );
+    if ( !extptr || !*extptr ) return false;
+    return caseInsensitiveEqual( extptr+1, "alo", 0 );
+}
+
+
+static void loadPluginDir( const char* dirnm, int argc, char** argv,
 			 int inittype )
 {
     DirList dl( dirnm, DirList::FilesOnly );
     dl.sort();
+    mDefinePrognm( prognm );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString libnm = dl.get(idx);
-
-	if ( PIM().isLoaded(libnm) )
-	    continue;
-
-	BufferString fulllibnm = File_getFullPath( dirnm, libnm );
-
-	if( dgb_debug_isOn(DBG_SETTINGS) )
+	if ( isALO(libnm) )
 	{
-	    char buf[255];
-	    sprintf(buf, "Attempting to load plugin %s, with full name: %s\n",
-					    libnm.buf(), fulllibnm.buf() );
-	    dgb_debug_message( buf );
+	    *strchr( libnm.buf(), '.' ) = '\0';
+	    if ( libnm == prognm )
+		loadALOPlugins( dirnm, dl.get(idx), argc, argv, inittype );
 	}
-
-	loadPlugin( fulllibnm, argc, argv, inittype );
+    }
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const BufferString& libnm = dl.get(idx);
+	if ( !isALO(libnm) && !PIM().isLoaded(libnm) )
+	    loadPlugin( File_getFullPath(dirnm,libnm), argc, argv, inittype );
     }
 }
 
 
-static void loadPIs( const char* dirnm, int argc, char** argv, int inittype )
+static void autoLoadPlugins( const char* dirnm,
+			     int argc, char** argv, int inittype )
 {
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if ( dgb_debug_isOn(DBG_SETTINGS) )
     {
         char buf[255];
         sprintf(buf, "Attempting to load plugins from: %s\n", dirnm );
         dgb_debug_message( buf );
     }
 
-    if ( !File_exists(dirnm) )
+    if ( !File_isDirectory(dirnm) )
 	return;
 
-    loadPlugins( dirnm, argc, argv, inittype );
+    loadPluginDir( dirnm, argc, argv, inittype );
 
-#ifdef __win__
-    const BufferString prognm( File_removeExtension(File_getFileName(argv[0])));
-#else
-    const BufferString prognm( File_getFileName(argv[0]) );
-#endif
-
+    mDefinePrognm( prognm );
     BufferString specdirnm = File_getFullPath( dirnm, prognm );
+    if ( !File_isDirectory(specdirnm) )
+	return;
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if ( dgb_debug_isOn(DBG_SETTINGS) )
     {
         char buf[255];
         sprintf(buf, "Attempting to load plugins from: %s\n", specdirnm.buf() );
         dgb_debug_message( buf );
     }
 
-    loadPlugins( specdirnm, argc, argv, inittype );
+    loadPluginDir( specdirnm, argc, argv, inittype );
 }
 
 
@@ -228,8 +283,8 @@ static const char* getDefDir( bool instdir )
 
 extern "C" void LoadAutoPlugins( int argc, char** argv, int inittype )
 {
-    loadPIs( getDefDir(false), argc, argv, inittype );
-    loadPIs( getDefDir(true), argc, argv, inittype );
+    autoLoadPlugins( getDefDir(false), argc, argv, inittype );
+    autoLoadPlugins( getDefDir(true), argc, argv, inittype );
 }
 
 
