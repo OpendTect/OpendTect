@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.37 2004-09-10 07:21:38 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.38 2004-09-13 09:40:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ public:
     void		setExitAppOnClose( bool yn );
 
     void		moveDockWindow(uiDockWin&,Dock d=Top,int index=-1);
-    void		removeDockWindow(uiDockWin*);
+    void		removeDockWindow(uiParent*);
     uiPopupMenu&	createDockWindowMenu();
 
     Notifier<uiMainWin>	finaliseStart;

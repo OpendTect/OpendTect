@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.87 2004-09-10 07:21:50 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.88 2004-09-13 09:39:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -452,10 +452,10 @@ bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
     { body_->uimoveDockWindow(dwin,d,index); }
 
-void uiMainWin::removeDockWindow( uiDockWin* dwin )
+void uiMainWin::removeDockWindow( uiParent* parnt )
 {
-    if ( !dwin ) return;
-    body_->removeDockWindow( dwin->qwidget() );
+    if ( !parnt || !parnt->pbody() ) return;
+    body_->removeDockWindow( (QDockWindow*)parnt->pbody()->managewidg() );
 }
 
 
