@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.2 2003-05-22 08:31:20 kristofer Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.3 2003-06-03 07:54:49 kristofer Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
@@ -36,69 +36,68 @@ ExtremeFinder1D::ExtremeFinder1D( const MathFunction<float>& func_, bool max_,
 {
     float fa = max ? -func.getValue( ax ) : func.getValue( ax );
     float fb = max ? -func.getValue( bx ) : func.getValue( bx );
-    float fc = max ? -func.getValue( cx ) : func.getValue( cx );
 
     if ( fb>fa )
     {
 	double ddummy;
 	mSWAP( ax, bx, ddummy );
 	float fdummy;
-	mSWAP(fb,fa,fdummy)
+	mSWAP(fb,fa,fdummy);
+    }
 
-	cx=bx+GOLD*(bx-ax);
-	fc = max ? -func.getValue( cx ) : func.getValue( cx );
-	while ( fb>fc )
+    cx=bx+GOLD*(bx-ax);
+    float fc = max ? -func.getValue( cx ) : func.getValue( cx );
+    while ( fb>fc )
+    {
+	const double r =(bx-ax)*(fb-fc);
+	const double s =(bx-cx)*(fb-fa);
+	double q = (bx)-((bx-cx)*s-(bx-ax)*r)/
+				    (2.0*SIGN(mMAX(fabs(s-r),TINY),s-r));
+	const double ulim = bx+GLIMIT*(cx-bx);
+	float fq;
+	if ( (bx-q)*(q-cx) > 0.0 )
 	{
-	    const double r =(bx-ax)*(fb-fc);
-	    const double s =(bx-cx)*(fb-fa);
-	    double q = (bx)-((bx-cx)*s-(bx-ax)*r)/
-					(2.0*SIGN(mMAX(fabs(s-r),TINY),s-r));
-	    const double ulim = bx+GLIMIT*(cx-bx);
-	    float fq;
-	    if ( (bx-q)*(q-cx) > 0.0 )
+	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	    if ( fq<fc )
 	    {
-		fq = max ? -func.getValue( q ) : func.getValue( q );
-		if ( fq<fc )
-		{
-		    ax = bx;
-		    bx = q;
-		    // fa=fb;
-		    // fb=fq;
-		    return;
-		}
-		else if ( fq>fb )
-		{
-		    cx = q;
-		    // fc = fq;
-		    return;
-		}
-
-		q = cx+GOLD*(cx-bx);
-		fq = max ? -func.getValue( q ) : func.getValue( q );
+		ax = bx;
+		bx = q;
+		fa=fb;
+		fb=fq;
+		return;
 	    }
-	    else if ( (cx-q)*(q-ulim) > 0.0 )
+	    else if ( fq>fb )
 	    {
-		fq = max ? -func.getValue( q ) : func.getValue( q );
-		if ( fq<fc)
-		{
-		    SHIFT(bx,cx,q,cx+GOLD*(cx-bx));
-		    SHIFT(fb,fc,fq,max ? -func.getValue(q):func.getValue(q) );
-		}
-	    }
-	    else if ( (q-ulim)*(ulim-cx)>=0.0 )
-	    {
-		q = ulim;
-		fq = max ? -func.getValue( q ) : func.getValue( q );
-	    }
-	    else
-	    {
-		q = cx+GOLD*(cx-bx);
-		fq = max ? -func.getValue( q ) : func.getValue( q );
+		cx = q;
+		fc = fq;
+		return;
 	    }
 
-	    SHIFT(ax,bx,cx,q);
-	    SHIFT(fa,fb,fc,fq);
+	    q = cx+GOLD*(cx-bx);
+	    fq = max ? -func.getValue( q ) : func.getValue( q );
 	}
+	else if ( (cx-q)*(q-ulim) > 0.0 )
+	{
+	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	    if ( fq<fc)
+	    {
+		SHIFT(bx,cx,q,cx+GOLD*(cx-bx));
+		SHIFT(fb,fc,fq,max ? -func.getValue(q):func.getValue(q) );
+	    }
+	}
+	else if ( (q-ulim)*(ulim-cx)>=0.0 )
+	{
+	    q = ulim;
+	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	}
+	else
+	{
+	    q = cx+GOLD*(cx-bx);
+	    fq = max ? -func.getValue( q ) : func.getValue( q );
+	}
+
+	SHIFT(ax,bx,cx,q);
+	SHIFT(fa,fb,fc,fq);
     }
 }
 
