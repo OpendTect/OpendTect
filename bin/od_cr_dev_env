@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.12 2004-01-07 14:42:30 arend Exp $
+# $Id: od_cr_dev_env,v 1.13 2004-01-07 14:51:47 arend Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -77,8 +77,10 @@ mkdir so
 cd so
 
 
-cp -af "$inpdir/bin/$HDIR/so"/*.$soext .
-cp -af "$inpdir/bin/$HDIR/so"/*.a .
+cp -a "$inpdir/bin/$HDIR/so"/*.$soext .
+if [ "$HDIR" = "win" ]; then
+    cp -a "$inpdir/bin/$HDIR/so"/*.a .
+fi
 
 
 cd "$outdir"
