@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.5 2004-08-30 14:45:04 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.6 2004-09-03 08:21:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -57,6 +57,10 @@ public:
 			EdgeLineSegment( const EdgeLineSegment& );
 			~EdgeLineSegment();
     void		setSection(const EM::SectionID& s) { section=s; }
+    void		setTime2Depth( const MathFunction<float>* );
+    bool		shouldTrack(int) const { return true; }
+    bool		shouldExpand() const { return false; }
+    			//The two above should be removed/renamed
 
     bool		haveIdenticalSettings( const EdgeLineSegment& ) const;
     			/*!<\returns true if the segments are of the same
@@ -69,6 +73,10 @@ public:
     void		removeAll();
     void		insert(int, const RowCol&);
     void		set(int, const RowCol&);
+    void		copyNodesFrom( const TypeSet<RowCol>&,
+	    			       bool reverse=false );
+    void		copyNodesFrom( const EdgeLineSegment*,
+	    			       bool reverse=false );
     const RowCol&	operator[](int idx) const;
     const EdgeLineSegment& operator+=(const RowCol&);
 
@@ -80,6 +88,8 @@ public:
 		
     bool		isByPassed( int idx, const EdgeLineSegment* prev,
 				    const EdgeLineSegment* next ) const;
+
+    virtual bool	canTrack() const { return true; }
     virtual bool	reTrack( const EdgeLineSegment* prev,
 	    			 const EdgeLineSegment* next );
     virtual bool	track( int idx, bool forward,
