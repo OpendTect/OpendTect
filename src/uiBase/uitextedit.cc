@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.18 2003-02-27 11:39:12 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.19 2003-03-05 12:59:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,8 +145,8 @@ uiTextBrowser::uiTextBrowser(uiParent* parnt, const char* nm, bool forcePTxt )
     , cangoforw_( false )
     , cangobackw_( false )
     , forceplaintxt_( forcePTxt )
-
-{}
+{
+}
 
 
 uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
@@ -184,10 +184,34 @@ void uiTextBrowser::setSource( const char* src )
 
 	thesrc = src;
 	BufferString contents;
+	BufferString newcontents;
 
-	char buf[1024]; int maxlines=65536;
-	while ( sd.istrm->getline(buf,1024) && maxlines-- >= 0 )
-	    { contents += buf; contents += "\n"; }
+	char buf[1024]; int lines_left = 131072;
+	int nrnewlines = 0;
+	while ( 1 )
+	{
+	    if ( !sd.istrm->getline(buf,1024) )
+		break;
+	    lines_left--;
+	    if ( lines_left < 0 )
+	    {
+		newcontents += "\n--------File exceeds 131072 lines -----";
+		break;
+	    }
+	    {
+		newcontents += buf;
+		newcontents += "\n";
+	    }
+	    nrnewlines++;
+	    if ( nrnewlines == 100 )
+	    {
+		contents += newcontents;
+		newcontents = "";
+		nrnewlines = 0;
+	    }
+	}
+	if ( newcontents != "" )
+	    contents += newcontents;
 
 	sd.close();
 
