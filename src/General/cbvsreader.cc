@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.29 2001-11-21 12:46:26 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.30 2001-12-09 09:29:30 bert Exp $";
 
 /*!
 
@@ -215,10 +215,9 @@ bool CBVSReader::readComps()
 	
 	strm_.read( ucbuf, integersize );
 	    newinf->datatype = iinterp.get( ucbuf, 0 );
-	strm_.read( ucbuf, sizeof(unsigned short) );
-	    newinf->datachar.set( *((unsigned short*)ucbuf) );
-	strm_.read( ucbuf, sizeof(unsigned short) );
-	    // reserved for compression type
+	strm_.read( ucbuf, 4 );
+	    newinf->datachar.set( ucbuf[0], ucbuf[1] );
+	    // extra 2 bytes reserved for compression type
 	strm_.read( ucbuf, sizeof(float) );
 	    newinf->sd.start = finterp.get( ucbuf, 0 );
 	strm_.read( ucbuf, sizeof(float) );

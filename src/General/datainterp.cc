@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.6 2001-05-02 13:50:26 windev Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.7 2001-12-09 09:29:30 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -46,10 +46,9 @@ const TU4 cMU4 = 4294967295UL;
 
 union _DC_union
 {
-    unsigned short c;
+    unsigned char c;
     struct bits {
 
-	unsigned char	bindesc:8;	// BinDataDesc part
 	unsigned char	little:1;	// little endian == 1
 	unsigned char	fmt:3;		// 0 == IEEE, 1 == IBM mainframe (SEG-Y)
 					// 2 == SGI
@@ -58,11 +57,11 @@ union _DC_union
 };
 
 
-void DataCharacteristics::set( unsigned short c )
+void DataCharacteristics::set( unsigned char c1, unsigned char c2 )
 {
-    _DC_union dc; dc.c = c;
-    BinDataDesc::set( c );
+    BinDataDesc::set( c1, c2 );
 
+    _DC_union dc; dc.c = c2;
     littleendian = dc.b.little;
     fmt = dc.b.fmt == 0 ? DataCharacteristics::Ieee : DataCharacteristics::Ibm;
 };
@@ -94,15 +93,15 @@ DataCharacteristics::DataCharacteristics( DataCharacteristics::UserType ut )
 }
 
 
-unsigned short DataCharacteristics::dump() const
+void DataCharacteristics::dump( unsigned char& c1, unsigned char& c2 ) const
 {
     _DC_union dc;
 
-    dc.c = BinDataDesc::dump();
+    BinDataDesc::dump( c1, c2 );
+    dc.c = 0;
     dc.b.fmt = isIeee() ? 0 : 1;
     dc.b.little = littleendian;
-
-    return dc.c;
+    c2 = dc.c;
 }
 
 

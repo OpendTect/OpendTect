@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.19 2001-12-05 09:32:15 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.20 2001-12-09 09:29:30 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -158,11 +158,11 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	int sz = cinf.name().size();
 	strm_.write( (const char*)&sz, integersize );
 	strm_.write( (const char*)cinf.name(), sz );
-	unsigned short dcdump = cinf.datachar.dump();
 	strm_.write( (const char*)&cinf.datatype, integersize );
-	strm_.write( (const char*)&dcdump, sizeof(unsigned short) );
-	dcdump = 0; // add space for compression type
-	strm_.write( (const char*)&dcdump, sizeof(unsigned short) );
+	unsigned char dcdump[4];
+       	cinf.datachar.dump( dcdump[0], dcdump[1] );
+	dcdump[2] = dcdump[3] = 0; // add space for compression type
+	strm_.write( dcdump, 4 );
 	strm_.write( (const char*)&cinf.sd.start, sizeof(float) );
 	strm_.write( (const char*)&cinf.sd.step, sizeof(float) );
 	strm_.write( (const char*)&cinf.nrsamples, integersize );

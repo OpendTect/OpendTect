@@ -5,7 +5,7 @@
  * FUNCTION : Binary data descritpion
 -*/
 
-static const char* rcsID = "$Id: bindatadesc.cc,v 1.2 2001-02-22 08:21:20 bert Exp $";
+static const char* rcsID = "$Id: bindatadesc.cc,v 1.3 2001-12-09 09:29:30 bert Exp $";
 
 #include "bindatadesc.h"
 #include <stdio.h>
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: bindatadesc.cc,v 1.2 2001-02-22 08:21:20 bert E
 
 union _BDD_union
 {
-    unsigned short c;
+    unsigned char c;
     struct bits {
 	unsigned char	bytepow:3;	// nrbytes_per_sample == 2^bytepow
 	unsigned char	isint:1;	// integer == 1
@@ -25,7 +25,7 @@ union _BDD_union
 };
 
 
-void BinDataDesc::set( unsigned short c )
+void BinDataDesc::set( unsigned char c, unsigned char )
 {
     _BDD_union bdd; bdd.c = c;
 
@@ -53,15 +53,16 @@ void BinDataDesc::set( const char* s )
 }
 
 
-unsigned short BinDataDesc::dump() const
+void BinDataDesc::dump( unsigned char& c, unsigned char& ) const
 {
     _BDD_union bdd;
+    bdd.c = 0;
     bdd.b.isint = isint ? 1 : 0;
     bdd.b.issigned = issigned ? 1 : 0;
     bdd.b.bytepow = 0; int nb = nrbytes;
     while ( nb > 1 ) { bdd.b.bytepow++; nb /= 2; }
 
-    return bdd.c;
+    c = bdd.c;
 }
 
 
