@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.60 2005-03-10 11:49:18 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.61 2005-03-14 12:14:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,7 +156,7 @@ bool uiEMPartServer::createSurface( MultiID& id, bool ishor, const char* name )
     const char* type = ishor ? EM::Horizon::typeStr() : EM::Fault::typeStr();
     if ( EM::EMM().findObject(type,name) != -1 )
     {
-	if ( !uiMSG().askGoOn( "An object with that name does allready exist."
+	if ( !uiMSG().askGoOn( "An object with that name does already exist."
 				" Overwrite?", true ) )
 	    return false;
     }
@@ -245,10 +245,10 @@ bool uiEMPartServer::createStickSet( MultiID& id )
 	if ( !dlg.go() )
 	    break;
 
-	if ( EM::EMM().findObject(EM::StickSet::typeStr(), dlg.text()) != -1 )
+	if ( EM::EMM().findObject(EM::StickSet::typeStr(),dlg.text()) != -1 )
 	{
 	    if ( !uiMSG().askGoOn(
-			"An object with that name does allready exist."
+			"An object with that name does already exist."
 			 " Overwrite?", true ) )
 		continue;
 	}
