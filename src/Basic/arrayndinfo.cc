@@ -3,7 +3,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.2 2001-02-19 17:17:02 bert Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.3 2002-02-22 10:10:19 bert Exp $";
 
 #include <arrayndinfo.h>
 
@@ -258,7 +258,7 @@ ArrayNDInfoImpl::ArrayNDInfoImpl( const ArrayNDInfo& nsz )
 
 ArrayNDInfoImpl::~ArrayNDInfoImpl()
 {
-    delete sizes;
+    delete [] sizes;
 }
 
 
@@ -331,7 +331,10 @@ ArrayNDIter::ArrayNDIter( const ArrayNDInfo& sz_ )
 
 
 ArrayNDIter::~ArrayNDIter()
-{ delete position; }
+{
+    delete [] position;
+}
+
 
 bool ArrayNDIter::next()
 {

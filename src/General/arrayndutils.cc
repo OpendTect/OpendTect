@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.9 2001-04-18 14:44:58 bert Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.10 2002-02-22 10:10:19 bert Exp $";
 
 #include <arrayndutils.h>
 
@@ -26,7 +26,9 @@ ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz_, bool rectangular_,
 
 
 ArrayNDWindow::~ArrayNDWindow()
-{ delete window; }
+{
+    delete [] window;
+}
 
 
 bool ArrayNDWindow::setType( ArrayNDWindow::WindowType newt )
@@ -53,7 +55,7 @@ bool ArrayNDWindow::setType( const char* t )
 }
 
 
-bool ArrayNDWindow::buildWindow( )
+bool ArrayNDWindow::buildWindow()
 {
     unsigned long totalsz = size.getTotalSz();
     window = new float[totalsz];  
