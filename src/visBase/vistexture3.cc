@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.5 2003-01-20 15:56:22 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.6 2003-01-23 11:58:17 nanne Exp $";
 
 #include "vistexture3.h"
 
@@ -43,7 +43,11 @@ visBase::Texture3::~Texture3()
 
 
 void visBase::Texture3::setTextureSize( int x0, int x1, int x2 )
-{ x0sz = x0; x1sz = x1; x2sz=x2; }
+{ 
+    x0sz = x0; x1sz = x1; x2sz=x2;
+    texture->images.setValue( SbVec3s( x2sz, x1sz, x0sz ),
+	    		      usesTransperancy() ? 4 : 3, 0 );
+}
 
 
 void visBase::Texture3::setData( const Array3D<float>* newdata )
@@ -54,11 +58,14 @@ void visBase::Texture3::setData( const Array3D<float>* newdata )
 	return;
     }
 
-    x0sz = newdata->info().getSize( 0 );
-    x1sz = newdata->info().getSize( 1 );
-    x2sz = newdata->info().getSize( 2 );
+    int x0 = newdata->info().getSize( 0 );
+    int x1 = newdata->info().getSize( 1 );
+    int x2 = newdata->info().getSize( 2 );
 
-    const int totalsz = x0sz*x1sz*x2sz;
+    // TODO resize data
+    setTextureSize( x0, x1, x2 );
+
+    const int totalsz = x0*x1*x2;
     float* datacopy = new float[totalsz];
 
     memcpy( datacopy, newdata->getData(), totalsz*sizeof(float) );
@@ -71,14 +78,14 @@ SoNode* visBase::Texture3::getData()
 { return root; }
 
 
-void visBase::Texture3::setTexture(const unsigned char* imagedata)
+unsigned char* visBase::Texture3::getTexturePtr()
 {
-    if ( !imagedata )
-    {
-	texture->images.setValue( SbVec3s( 0, 0, 0 ), 3, 0 );
-	return;
-    }
-
-    texture->images.setValue( SbVec3s( x2sz, x1sz, x0sz ),
-	    		     usesTransperancy() ? 4 : 3, imagedata );
+    SbVec3s dimensions;
+    int components;
+    return texture->images.startEditing( dimensions, components ); 
 }
+
+
+void visBase::Texture3::finishEditing()
+{ texture->images.finishEditing(); }
+

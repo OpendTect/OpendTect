@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.6 2003-01-21 16:10:08 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.7 2003-01-23 11:58:17 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -328,15 +328,11 @@ protected:
 void visBase::Texture::makeTexture()
 {
     if ( !indexcache )
-    {
-	setTexture( 0 );
 	return;
-    }
 
     const int nrcomponents = usetrans ? 4 : 3;
 
-    ArrPtrMan<unsigned char> texture =
-				new unsigned char[cachesize*nrcomponents];
+    unsigned char* texture = getTexturePtr();
 
     if ( !texturemakers.size() )
     {
@@ -383,7 +379,7 @@ void visBase::Texture::makeTexture()
 	}
     }
 
-    setTexture( texture );
+    finishEditing();
 }
 
 

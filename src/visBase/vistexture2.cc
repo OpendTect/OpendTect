@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.6 2003-01-16 15:29:20 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.7 2003-01-23 11:58:17 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -42,7 +42,11 @@ visBase::Texture2::~Texture2()
 
 
 void visBase::Texture2::setTextureSize( int x0, int x1 )
-{ x0sz = x0; x1sz = x1; }
+{ 
+    x0sz = x0; x1sz = x1;
+    texture->image.setValue( SbVec2s( x0sz, x1sz ), 
+	    		     usesTransperancy() ? 4 : 3, 0 );
+}
 
 
 void visBase::Texture2::setData( const Array2D<float>* newdata )
@@ -62,6 +66,8 @@ void visBase::Texture2::setData( const Array2D<float>* newdata )
 	x1sz = 128;
 	//TODO Change this to nearest bigger sz from data
     }
+
+    setTextureSize( x0sz, x1sz );
 
     const int datax0size = newdata->info().getSize(0);
     const int datax1size = newdata->info().getSize(1);
@@ -120,16 +126,13 @@ SoNode* visBase::Texture2::getData()
 { return root; }
 
 
-void visBase::Texture2::setTexture(const unsigned char* imagedata)
+unsigned char* visBase::Texture2::getTexturePtr()
 {
-    if ( !imagedata )
-    {
-	texture->image.setValue( SbVec2s( 0, 0 ), 3, 0 );
-	return;
-    }
-
-    texture->image.setValue( SbVec2s( x0sz, x1sz ), usesTransperancy() ? 4 : 3,
-	    		     imagedata );
+    SbVec2s dimensions;
+    int components;
+    return texture->image.startEditing( dimensions, components );
 }
 
 
+void visBase::Texture2::finishEditing()
+{ texture->image.finishEditing(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.2 2003-01-15 08:55:53 kristofer Exp $
+ RCS:		$Id: vistexture.h,v 1.3 2003-01-23 11:58:23 nanne Exp $
 ________________________________________________________________________
 
 
@@ -56,13 +56,15 @@ public:
     void		setThreadWorker( ThreadWorker* );
     ThreadWorker*	getThreadWorker();
 
+
 protected:
     			Texture();
     			~Texture();
     void		setResizedData( float*, int sz );
     			/*!< Is taken over by me */
 
-    virtual void	setTexture( const unsigned char* )		= 0;
+    virtual unsigned char* getTexturePtr()				= 0;
+    virtual void	finishEditing()					= 0;
 
 private:
     void		colorTabChCB( CallBacker* );
