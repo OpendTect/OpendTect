@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.1 2005-01-17 08:34:45 kristofer Exp $
+ RCS:           $Id: uimpeman.cc,v 1.2 2005-01-17 12:48:42 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ ________________________________________________________________________
 
 
 uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* partserv_ )
-    : uiToolBar(p,"MPE controls")
+    : uiToolBar(p,"Tracking controls")
     , mpedisplay(0)
     , seededitor(0)
     , partserver( partserv_ )
@@ -252,6 +252,7 @@ void uiMPEMan::updateAttribNames()
 void uiMPEMan::turnSeedPickingOn(bool yn)
 {
     turnOn( seedidx, yn);
+    seedMode(0);
 }
 
 
