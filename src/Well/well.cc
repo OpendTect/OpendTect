@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.17 2004-03-01 14:32:59 nanne Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.18 2004-03-09 11:13:21 arend Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: well.cc,v 1.17 2004-03-01 14:32:59 nanne Exp $"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 #include "finding.h"
+#include "iopar.h"
 
 const char* Well::Info::sKeyuwid	= "Unique Well ID";
 const char* Well::Info::sKeyoper	= "Operator";
@@ -201,3 +202,32 @@ float Well::D2TModel::getTime( float dh ) const
     //TODO not a time-correct average.
     return (d1 * t_[idx2] + d2 * t_[idx1]) / (d1 + d2);
 }
+
+void Well::Info::fillPar(IOPar& par) const
+{
+    par.set( sKeyuwid, uwid );
+    par.set( sKeyoper, oper );
+    par.set( sKeystate, state );
+    par.set( sKeycounty, county );
+
+    BufferString coord;
+    surfacecoord.fill( coord.buf() );
+    par.set( sKeycoord, coord );
+
+    par.set( sKeyelev, surfaceelev );
+}
+
+void Well::Info::usePar(const IOPar& par)
+{
+    par.get( sKeyuwid, uwid );
+    par.get( sKeyoper, oper );
+    par.get( sKeystate, state );
+    par.get( sKeycounty, county );
+
+    BufferString coord;
+    par.get( sKeycoord, coord );
+    surfacecoord.use( coord );
+
+    par.get( sKeyelev, surfaceelev );
+}
+

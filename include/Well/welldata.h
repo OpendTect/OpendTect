@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.7 2004-02-17 10:58:52 bert Exp $
+ RCS:		$Id: welldata.h,v 1.8 2004-03-09 11:13:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "sets.h"
 #include "position.h"
 #include "uidobj.h"
+
+class IOPar;
 
 namespace Well
 {
@@ -32,6 +34,9 @@ public:
 
 			Info( const char* nm )
 			    : ::UserIDObject(nm), surfaceelev(0)	{}
+
+    void                fillPar(IOPar&) const;
+    void                usePar(const IOPar&);
 
     BufferString	uwid;
     BufferString	oper;
