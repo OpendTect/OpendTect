@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.10 2004-01-26 13:01:36 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.11 2004-03-02 13:30:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
     hwheel->attach( leftAlignedBelow, wsp );
 
-    zoomslider = new uiLabeledSlider( &appl, "Zoom" );
+    zoomslider = new uiSliderExtra( &appl, "Zoom" );
     zoomslider->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
-    zoomslider->sldr()->setTickMarks( false );
     zoomslider->sldr()->setMinValue( cMinZoom );
     zoomslider->sldr()->setMaxValue( cMaxZoom );
     zoomslider->setStretch( 0, 0 );

@@ -6,13 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: uistereodlg.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uistereodlg.h,v 1.4 2004-03-02 13:31:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-class uiSlider;
+class uiSliderExtra;
 class uiSoViewer;
 
 class uiStereoDlg : public uiDialog
@@ -22,7 +22,7 @@ public:
 
 protected:
 
-    uiSlider*		sliderfld;
+    uiSliderExtra*	sliderfld;
     ObjectSet<uiSoViewer> vwrs;
 
     void		doFinalise(CallBacker*);

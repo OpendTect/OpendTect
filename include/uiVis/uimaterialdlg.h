@@ -6,13 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.4 2004-03-02 13:30:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-class uiLabeledSlider;
+class uiSlider;
 namespace visBase { class Material; };
 
 
@@ -31,12 +31,12 @@ protected:
 
     visBase::Material*	material;
 
-    uiLabeledSlider*	ambslider;
-    uiLabeledSlider*	diffslider;
-    uiLabeledSlider*	specslider;
-    uiLabeledSlider*	emisslider;
-    uiLabeledSlider*	shineslider;
-    uiLabeledSlider*	transslider;
+    uiSlider*		ambslider;
+    uiSlider*		diffslider;
+    uiSlider*		specslider;
+    uiSlider*		emisslider;
+    uiSlider*		shineslider;
+    uiSlider*		transslider;
 
     void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);

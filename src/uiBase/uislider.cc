@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.17 2004-01-30 14:39:46 nanne Exp $
+ RCS:           $Id: uislider.cc,v 1.18 2004-03-02 13:29:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,9 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "datainpspec.h"
+#include "ranges.h"
 
-#include <qsize.h> 
+#include <qstring.h> 
 #include <math.h>
 
 
@@ -29,8 +30,7 @@ class uiSliderBody : public uiObjBodyImpl<uiSlider,QSlider>
 {
 public:
 
-                        uiSliderBody( uiSlider& handle,
-				      uiParent* parnt, const char* nm);
+                        uiSliderBody(uiSlider&,uiParent*,const char*);
 
     virtual		~uiSliderBody()		{ delete &messenger_; }
 
@@ -42,9 +42,10 @@ private:
 
 };
 
-uiSliderBody::uiSliderBody( uiSlider& handle,uiParent* parnt, const char* nm )
-    : uiObjBodyImpl<uiSlider,QSlider>(handle, parnt, nm)
-    , messenger_ ( *new i_SliderMessenger( this, &handle ))
+
+uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiSlider,QSlider>(handle,p,nm)
+    , messenger_( *new i_SliderMessenger(this,&handle) )
 {
     setStretch( 1, 0 );
     setHSzPol( uiObject::medium );
@@ -54,147 +55,211 @@ uiSliderBody::uiSliderBody( uiSlider& handle,uiParent* parnt, const char* nm )
 
 //------------------------------------------------------------------------------
 
-uiSlider::uiSlider( uiParent* parnt, const char* nm, bool witheditfld,
-		    int fact_, bool log_ )
-    : uiObject( parnt, nm, mkbody(parnt, nm) )
+uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool log_ )
+    : uiObject(p,nm,mkbody(p,nm))
     , valueChanged(this)
     , sliderMoved(this)
-    , editfld(0)
-    , factor(fact_)
     , logscale(log_)
 {
     body_->setOrientation( QSlider::Horizontal );
-    setTickMarks( true );
-    if ( witheditfld )
-    {
-	valueChanged.notify( mCB(this,uiSlider,sliderMove) );
-	editfld = new uiLineEdit( parnt, FloatInpSpec() );
-	editfld->setHSzPol( uiObject::small );
-	editfld->attach( rightTo, this );
-	editfld->returnPressed.notify( mCB(this,uiSlider,editValue) );
-    }
+    if ( dec < 0 ) dec = 0;
+    factor = (int)pow(10,(float)dec);
 }
 
 
-uiSliderBody& uiSlider::mkbody(uiParent* parnt, const char* nm)
-{ 
-    body_= new uiSliderBody(*this,parnt,nm);
-    return *body_; 
+uiSliderBody& uiSlider::mkbody( uiParent* p, const char* nm )
+{
+    body_= new uiSliderBody( *this, p, nm );
+    return *body_;
 }
+
+
+int uiSlider::sliderValue( float fval ) const
+{
+    if ( fval <= 0 ) return 0;
+
+    float res = logscale ? log10(fval) : fval;
+    res *= factor;
+    return mNINT(res);
+}
+
+
+float uiSlider::userValue( int ival ) const
+{
+    float res = float(ival) / factor;
+    return logscale ? pow(10,res) : res;
+}
+
+
+void uiSlider::setText( const char* txt )
+{
+    float res = atof( txt );
+    int val = sliderValue( res );
+    body_->setValue( val );
+}
+
+
+void uiSlider::setValue( float fval  )
+{
+    int val = sliderValue( fval );
+    body_->setValue( val );
+}
+
 
 const char* uiSlider::text() const
 {
-//  TODO: use getRealValue()
-    result = body_->value();
+    result = userValue( body_->value() );
     return (const char*)result;
 }
 
 
 int uiSlider::getIntValue() const
+{ return mNINT( userValue(body_->value()) ); }
+
+
+float uiSlider::getValue() const
+{ return userValue( body_->value() ); }
+
+
+void uiSlider::setTickMarks( TickSetting ticks )
 {
-    return (int)getRealValue( body_->value() );
+    body_->setTickmarks( QSlider::TickSetting( (int)ticks ) );
 }
 
 
-double uiSlider::getValue() const
+uiSlider::TickSetting uiSlider::tickMarks() const
 {
-    return getRealValue( body_->value() );
+    return (uiSlider::TickSetting)( (int)body_->tickmarks() );
 }
 
 
-void uiSlider::setText( const char* t )
+void uiSlider::setOrientation( Orientation or_ )
 {
-    char* endptr;
-    double res = strtod( t, &endptr );
-    int val = getSliderValue( res );
-    body_->setValue( val );
+    body_->setOrientation( (QSlider::Orientation)( (int)or_ ) );
 }
 
 
-void uiSlider::setValue( int i )
+uiSlider::Orientation uiSlider::getOrientation() const
 {
-    int val = getSliderValue( (double)i );
-    body_->setValue( val );
-    if ( editfld ) editfld->setValue( i );
+    return (uiSlider::Orientation)( (int)body_->orientation() );
 }
 
 
-void uiSlider::setValue( double d )
+void uiSlider::setMinValue( float minval )
 {
-    int val = getSliderValue( d );
-    body_->setValue( val );
-    if ( editfld ) editfld->setValue( d );
+    body_->setMinValue( sliderValue(minval) );
 }
 
-void uiSlider::setTickMarks( bool yn )
-{
-    body_->setTickmarks ( yn ? QSlider::Above : QSlider::NoMarks );
-}
 
-void uiSlider::sliderMove( CallBacker* )
-{
-    if ( !editfld ) return;
-    editfld->setValue( getValue() );
-}
-
-void uiSlider::processInput()
-{
-    if ( editfld ) editValue(0);
-}
-
-void uiSlider::editValue( CallBacker* )
-{
-    if ( !editfld ) return;
-    setValue( editfld->getValue() );
-}
-
-double uiSlider::minValue() const		
+void uiSlider::setMaxValue( float maxval )
 { 
-    return getRealValue( body_->minValue() ); 
+    body_->setMaxValue( sliderValue(maxval) ); 
 }
 
-double uiSlider::maxValue() const
+
+float uiSlider::minValue() const
 {
-    return getRealValue( body_->maxValue() );
+    return userValue( body_->minValue() );
 }
 
-void uiSlider::setMinValue( double m )	
+
+float uiSlider::maxValue() const
 {
-    body_->setMinValue( getSliderValue(m) ); 
+    return userValue( body_->maxValue() );
 }
 
-void uiSlider::setMaxValue( double m )	
-{ 
-    body_->setMaxValue( getSliderValue(m) ); 
+
+void uiSlider::setStep( float step )
+{
+    int istep = sliderValue( step );
+    body_->setLineStep( istep );
 }
+
+
+float uiSlider::step() const
+{
+    return userValue( body_->lineStep() );
+}
+
+
+void uiSlider::setInterval( const StepInterval<float>& intv )
+{
+    setMinValue( intv.start );
+    setMaxValue( intv.stop );
+    setStep( intv.step );
+}
+
+
+void uiSlider::getInterval( StepInterval<float>& intv ) const
+{
+    intv.start = minValue();
+    intv.stop = maxValue();
+    intv.step = step();
+}
+
 
 int uiSlider::tickStep() const     	{ return body_->tickInterval() ; }
-void uiSlider::setTickStep ( int s )	{ body_->setTickInterval(s); }
+void uiSlider::setTickStep( int s )	{ body_->setTickInterval(s); }
 
 
-double uiSlider::getRealValue( int sliderval ) const
+
+
+
+
+uiSliderExtra::uiSliderExtra( uiParent* p, const Setup& s, const char* nm )
+    : uiGroup(p,nm)
+    , editfld(0)
+    , lbl(0)
 {
-    double val = (double)sliderval;
-    val /= factor;
-    return logscale ? pow(10,val) : val;
-}
-
-int uiSlider::getSliderValue( double realval ) const
-{
-    if ( realval <= 0 ) return 0;
-
-    double val;
-    val = logscale ? log10(realval) : realval;
-    val *= factor;
-    return (int)val;
+    init( s, nm );
 }
 
 
-uiLabeledSlider::uiLabeledSlider( uiParent* p, const char* txt,
-				  const char* nm, bool witheditfld )
-	: uiGroup(p,"Labeled slider")
+uiSliderExtra::uiSliderExtra( uiParent* p, const char* lbl, const char* nm )
+    : uiGroup(p,nm)
+    , editfld(0)
+    , lbl(0)
 {
-    slider = new uiSlider( this, nm, witheditfld );
-    lbl = new uiLabel( this, txt, slider );
+    init( uiSliderExtra::Setup(lbl), nm );
+}
+
+
+void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
+{
+    slider = new uiSlider( this, nm, setup.nrdec_, setup.logscale_ );
+    slider->setOrientation( uiSlider::Horizontal );
+
+    if ( setup.lbl_ )
+	lbl = new uiLabel( this, setup.lbl_, slider );
+
+    if ( setup.withedit_ )
+    {
+	slider->valueChanged.notify( mCB(this,uiSliderExtra,sliderMove) );
+	editfld = new uiLineEdit( this, FloatInpSpec() );
+	editfld->setHSzPol( uiObject::small );
+	editfld->returnPressed.notify( mCB(this,uiSliderExtra,editRetPress) );
+	editfld->attach( rightOf, slider );
+    }
+
     setHAlignObj( slider );
+}
+
+
+void uiSliderExtra::sliderMove( CallBacker* )
+{
+    float val = slider->getValue();
+    if ( editfld ) editfld->setValue( val );
+}
+
+
+void uiSliderExtra::processInput()
+{
+    if ( editfld )
+	slider->setValue( editfld->getValue() );
+}
+
+
+void uiSliderExtra::editRetPress( CallBacker* )
+{
+    processInput();
 }

@@ -7,47 +7,54 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.9 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uislider.h,v 1.10 2004-03-02 13:29:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-#include <uigroup.h>
+#include "uigroup.h"
+#include "uiobj.h"
 
 class uiSliderBody;
 class uiLabel;
 class uiLineEdit;
+template <class T> class StepInterval;
 
 class uiSlider : public uiObject
 {
 public:
 
-                        uiSlider(uiParent*, const char* nm="Slider",
-				 bool weditfld=false,int fact=1,bool log=false);
+                        uiSlider(uiParent*,const char* nm="Slider",
+				 int nrdec=0,bool log=false);
 
-    const char*		text() const;
-    int 		getIntValue() const;
-    double 		getValue() const;
+    enum 		TickSetting { NoMarks=0, Above=1, Left=Above, Below=2, 
+				      Right=Below, Both=3 };
+    enum		Orientation { Horizontal, Vertical };
 
     void		setText(const char*);
-    void		setValue(int);
-    void		setValue(double);
-    void		setTickMarks(bool yn=true);
+    const char*		text() const;
 
-    double		minValue() const;
-    double		maxValue() const;
-    void		setMinValue(double);
-    void		setMaxValue(double);
-    int			tickStep() const;
+    void		setValue(float);
+    int 		getIntValue() const;
+    float 		getValue() const;
+
+    void		setMinValue(float);
+    float		minValue() const;
+    void		setMaxValue(float);
+    float		maxValue() const;
+    void		setStep(float);
+    float		step() const;
+    void		setInterval(const StepInterval<float>&);
+    void		getInterval(StepInterval<float>&) const;
+
+    void		setTickMarks(TickSetting);
+    TickSetting		tickMarks() const;
     void		setTickStep(int);
+    int			tickStep() const;
+    void		setOrientation(Orientation);
+    uiSlider::Orientation getOrientation() const;
 
-    void		setScaleFactor(int fact) 	{ factor = fact; }
-    void		setLogScale(bool yn=true) 	{ logscale = yn; }
     bool		isLogScale()			{ return logscale; }
-    int			getScaleFactor()		{ return factor; }
-
-    void		processInput();
 
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
@@ -58,35 +65,60 @@ private:
     int			factor;
     bool		logscale;
 
-    uiLineEdit*		editfld;
-
     uiSliderBody*	body_;
-    uiSliderBody&	mkbody(uiParent*, const char*);
+    uiSliderBody&	mkbody(uiParent*,const char*);
 
-    void		editValue(CallBacker*);
     void		sliderMove(CallBacker*);
 
-    double		getRealValue(int) const;
-    int			getSliderValue(double) const;
-
+    float		userValue(int) const;
+    int			sliderValue(float) const;
 };
 
 
-class uiLabeledSlider : public uiGroup
+class uiSliderExtra : public uiGroup
 {
 public:
-                uiLabeledSlider( uiParent*,const char* txt,
-                                 const char* nm="Labeled Slider",
-				 bool weditfld=false);
+
+    class Setup
+    {
+    public:
+			Setup(const char* l=0)
+			    : lbl_(l)
+			    , withedit_(false)
+			    , nrdec_(0)
+			    , logscale_(false)
+			    {}
+				
+	#define mSetVar(var,val) var=val; return *this
+	Setup&		withedit(bool yn=true)	{ mSetVar(withedit_,yn); }
+	Setup&		nrdec(int dec)		{ mSetVar(nrdec_,dec); }
+	Setup&		logscale(bool yn=true)	{ mSetVar(logscale_,yn); }
+
+	const char*	lbl_;
+	bool		withedit_;
+	int		nrdec_;
+	bool		logscale_;
+    };
+
+                	uiSliderExtra(uiParent*,const Setup&,
+				      const char* nm="SliderImpl");
+			uiSliderExtra(uiParent*,const char* lbl=0,
+				      const char* nm="SliderImpl");
 
     uiSlider*		sldr()			{ return slider; }
     uiLabel*		label()			{ return lbl; }
+
+    void		processInput();
 
 protected:
 
     uiSlider*		slider;
     uiLabel*    	lbl;
+    uiLineEdit*		editfld;
 
+    void		init(const Setup&,const char*);
+    void		editRetPress(CallBacker*);
+    void		sliderMove(CallBacker*);
 };
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.8 2004-02-17 14:47:20 bert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.9 2004-03-02 13:30:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiSoViewer;
 class uiListView;
 class uiWorkSpace;
 class uiODTreeTop;
-class uiLabeledSlider;
+class uiSliderExtra;
 class uiVisPartServer;
 class uiTreeFactorySet;
 
@@ -110,7 +110,7 @@ protected:
     int			vwridx;
     float		lasthrot, lastvrot, lastdval;
     uiTreeFactorySet*	tifs;
-    uiLabeledSlider*	zoomslider;
+    uiSliderExtra*	zoomslider;
 
     void		wheelMoved(CallBacker*,int wh,float&);
 
