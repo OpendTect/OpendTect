@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.22 2003-12-10 14:09:09 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.23 2004-02-13 16:06:29 arend Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -194,9 +194,11 @@ bool SeisTrc::putTo(Socket& sock, bool withinfo, BufferString* errbuf) const
     for( int idx=0; idx< data_.nrComponents(); idx++ )
     {
 	DataCharacteristics dc = data_.getInterpreter(idx)->dataChar();
-	unsigned char c1,c2; dc.dump(c1,c2);
-	if ( !sock.writetags( c1, c2 ) ) mSockErrRet();
 
+	BufferString dcrep;
+	dc.toString( dcrep.buf() );
+
+	if ( !sock.write(dcrep) ) mSockErrRet();
 
 	const DataBuffer* buf = data_.getComponent( idx );
 	int nrbytes = buf->size() * buf->bytesPerSample();
@@ -234,10 +236,10 @@ bool SeisTrc::getFrom( Socket& sock, BufferString* errbuf )
 
     for ( int idx=0; idx<nrcomps; idx++ )
     {
-	unsigned char c1,c2;
-	if ( !sock.readtags( (char)c1, (char)c2 ) ) { mSockErrRet(); }
+	BufferString dcrep;
+	if ( !sock.read(dcrep) ) { mSockErrRet(); }
 
-	DataCharacteristics dc(c1,c2);
+	DataCharacteristics dc( dcrep );
 
 	int nrbytes;
 	if ( !sock.read( nrbytes ) ) { mSockErrRet(); }
