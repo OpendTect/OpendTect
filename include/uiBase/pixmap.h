@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.7 2004-09-14 06:36:43 kristofer Exp $
+ RCS:           $Id: pixmap.h,v 1.8 2004-12-06 17:13:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,10 +27,10 @@ class ioPixmap : public UserIDObject , public ioDrawAreaImpl
 {
 public:
 			ioPixmap() : qpixmap( 0 ) {}
-			ioPixmap( const ArrayRGB& );
-			ioPixmap( const char * xpm[] );
-			ioPixmap( int w, int h, int depth = -1);
-			ioPixmap( const QPixmap& );
+			ioPixmap(const ArrayRGB&);
+			ioPixmap(const char * xpm[]);
+			ioPixmap(int w, int h, int depth = -1);
+			ioPixmap(const QPixmap&);
 
 			/*! \brief Constructs a pixmap from the file fileName. 
 
@@ -43,7 +43,8 @@ public:
 			to guess the file format. 
 
 			*/
-			ioPixmap( const char* fileName, const char * format=0 ); 
+			ioPixmap(const char* fileName,const char* format=0);
+			ioPixmap(const ioPixmap&);
     virtual		~ioPixmap();
 
     bool		convertFromArrayRGB(const ArrayRGB&);
