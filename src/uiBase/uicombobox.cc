@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.24 2002-03-18 15:48:51 arend Exp $
+ RCS:           $Id: uicombobox.cc,v 1.25 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,7 @@ public:
 			    {
 				setEditable( ed );
 				setAutoCompletion( ed );
-				setSzPol( SzPolicySpec().setHSzP( 
-						    SzPolicySpec::medium) );
+				setHSzPol( uiObject::medium) ;
 			    }
 
     virtual int 	nrTxtLines() const		{ return 1; }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.12 2002-03-18 13:41:54 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.13 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
     , messenger_ ( *new i_lineEditMessenger( this, &handle ))
 { 
     setStretch( 1, 0 ); 
-    setSzPol( SzPolicySpec().setHSzP(SzPolicySpec::medium) );
+    setHSzPol(uiObject::medium);
 }
 
 //------------------------------------------------------------------------------

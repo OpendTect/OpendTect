@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.1 2002-05-07 16:04:18 nanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.2 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     ctio.ctxt.trglobexpr = "CBVS";
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
     listfld = new uiListBox( this, entrylist->Ptr() );
-    listfld->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medvar) );
+    listfld->setHSzPol( uiObject::medvar );
     listfld->selectionChanged.notify( mCB(this,uiSeisFileMan,selChg) );
 
     rembut = new uiPushButton( this, "Remove ..." );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.26 2002-05-16 07:40:29 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.27 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,13 +112,13 @@ uiSurvey::uiSurvey( uiParent* p )
     binsize1->attach( alignedBelow, zrange1 );
 
     irange2 = new uiLabel( infogrp, "" );
-    irange2->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium ) );
+    irange2->setHSzPol( uiObject::medium );
     xrange2 = new uiLabel( infogrp, "" );
-    xrange2->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium ) );
+    xrange2->setHSzPol( uiObject::medium );
     zrange2 = new uiLabel( infogrp, "" );
-    zrange2->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium ) );
+    zrange2->setHSzPol( uiObject::medium );
     binsize2 = new uiLabel( infogrp, "" );
-    binsize2->setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium ) );
+    binsize2->setHSzPol( uiObject::medium );
     irange2->attach( rightOf, irange1 );
     xrange2->attach( rightOf, xrange1 );
     zrange2->attach( rightOf, zrange1 );

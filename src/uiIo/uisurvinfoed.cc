@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.30 2002-05-16 07:40:29 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.31 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,14 +117,19 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     xy1fld->attach( rightOf, ic1fld );
     xy2fld->attach( rightOf, ic2fld );
 
-    DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
-    x0fld = new uiGenInput ( trgrp, "X = ", dis );
-    xinlfld = new uiGenInput ( trgrp, "+ in-line *", dis );
-    xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", dis );
-    y0fld = new uiGenInput ( trgrp, "Y = ", dis );
-    yinlfld = new uiGenInput ( trgrp, "+ in-line *", dis );
-    ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", dis );
+    x0fld = new uiGenInput ( trgrp, "X = ", DoubleInpSpec() );
+    x0fld->setElemSzPol( uiObject::small );
+    xinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
+    xinlfld->setElemSzPol( uiObject::small );
+    xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
+    xcrlfld->setElemSzPol( uiObject::small );
+    y0fld = new uiGenInput ( trgrp, "Y = ", DoubleInpSpec() );
+    y0fld->setElemSzPol( uiObject::small );
+    yinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
+    yinlfld->setElemSzPol( uiObject::small );
+    ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
+    ycrlfld->setElemSzPol( uiObject::small );
     overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
     overrule->setChecked( false );
     trgrp->setHAlignObj( xinlfld->uiObj() );

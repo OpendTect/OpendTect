@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.8 2002-03-21 16:06:28 nanne Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.9 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,12 +23,14 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
 
 {
     uiGroup* flds = new uiGroup( this );
-    IntInpSpec iis; iis.setHSzP(SzPolicySpec::small);
-    DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
-    inlfld = new uiGenInput( flds, "In-line", iis );
-    crlfld = new uiGenInput( flds, "Cross-line", iis );
-    xfld = new uiGenInput( flds, "X-coordinate", dis );
-    yfld = new uiGenInput( flds, "Y-coordinate", dis );
+    inlfld = new uiGenInput( flds, "In-line", IntInpSpec() );
+    inlfld->setElemSzPol( uiObject::small );
+    crlfld = new uiGenInput( flds, "Cross-line", IntInpSpec() );
+    crlfld->setElemSzPol( uiObject::small );
+    xfld = new uiGenInput( flds, "X-coordinate", DoubleInpSpec() );
+    xfld->setElemSzPol( uiObject::small );
+    yfld = new uiGenInput( flds, "Y-coordinate", DoubleInpSpec() );
+    yfld->setElemSzPol( uiObject::small );
     crlfld->attach( alignedBelow, inlfld );
     xfld->attach( rightTo, inlfld );
     yfld->attach( alignedBelow, xfld );

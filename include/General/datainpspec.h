@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.39 2002-03-22 10:20:56 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.40 2002-05-29 15:00:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include <ranges.h>
 #include <bufstring.h>
 #include <string2.h>
-#include <sizepolspec.h>
 #include <basictypes.h>
 
 class BinID2Coord;
@@ -74,16 +73,16 @@ A DataInpSpec is a conceptual specification of intrinsic properties of data.
 With it, user interface parts can be constructed (uiGenInput).
 
 */
-class DataInpSpec : public SzPolicySpec
+class DataInpSpec
 {
 public:
 
 
 			DataInpSpec( DataType t )
-			    : SzPolicySpec(), tp_(t), pfw_(-1) {}
+			    : tp_(t) {}
 
 			DataInpSpec( const DataInpSpec& o )
-			    : SzPolicySpec(o), tp_(o.tp_), pfw_(o.pfw_) {}
+			    : tp_(o.tp_) {}
 
     virtual		~DataInpSpec() {}
 
@@ -93,13 +92,6 @@ public:
     virtual int 	nElems() const			{ return 1; }
 
     virtual bool	isUndef( int idx=0 ) const	=0;
-
-    DataInpSpec&	setHSzP( SzPolicy p )		{ hor_=p; return *this;}
-    DataInpSpec&	setVSzP( SzPolicy p )		{ ver_=p; return *this;}
-
-			//! Preferred field width in characters
-    DataInpSpec&	forcePrefFldWidth( int w )	{ pfw_=w; return *this;}
-    int			prefFldWidth() const		{ return pfw_; }
 
     virtual bool	hasLimits() const		{ return false; }
 
@@ -129,8 +121,6 @@ protected:
 
     void		setType( DataType t )		{ tp_ = t; }
     DataType		tp_;
-    int			pfw_;
-
 };
 
 
@@ -386,7 +376,7 @@ public:
 			StringInpSpec( const char* s=0 )
 			    : DataInpSpec( DataTypeImpl<const char*>() )
 			    , isUndef_(s?false:true), str( s ) 
-			    { setHSzP(SzPolicySpec::medvar); }
+			    {}
 
     virtual bool	isUndef( int idx=0 ) const	{ return isUndef_; }
 
@@ -443,7 +433,7 @@ public:
 			    : DataInpSpec( DataTypeImpl<bool>() )
 			    , truetext( truetxt ), falsetext( falsetxt )
 			    , yn( yesno ) 
-			    { setHSzP( SzPolicySpec::smallvar ); }
+			    {}
 
 			BoolInpSpec( const BoolInpSpec& oth)
 			    : DataInpSpec( oth )
@@ -497,8 +487,6 @@ public:
 						    (DataType::list) )
 			    , cur_(0)
 			    {
-				setHSzP(SzPolicySpec::medvar); 
-
 				if ( !sl ) return;
 				while( *sl )
 				    strings_ += new BufferString( *sl++ );

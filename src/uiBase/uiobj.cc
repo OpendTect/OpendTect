@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.38 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.39 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,12 +118,15 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     if ( p ) p->manageChld( *this, b );  
 }
 
+void uiObject::setHSzPol( SzPolicy p )
+    { mBody()->setHSzPol(p); }
 
-void uiObject::setSzPol( const SzPolicySpec& p )
-    { mBody()->setSzPol(p); }
+void uiObject::setVSzPol( SzPolicy p )
+    { mBody()->setVSzPol(p); }
 
-SzPolicySpec uiObject::szPol() const
-    { return mConstBody()->szPol(); }
+
+uiObject::SzPolicy uiObject::szPol(bool hor) const
+    { return mConstBody()->szPol(hor); }
 
 void uiObject::setToolTip(const char* t)
     { mBody()->setToolTip(t); }
@@ -263,6 +266,8 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , fnt_wdt( 0 )
     , fnt_maxwdt( 0 )
     , fm( 0 )
+    , hszpol( uiObject::undef )
+    , vszpol( uiObject::undef )
 #ifdef USE_DISPLAY_TIMER
     , displTim( *new Timer("Display timer"))
 { 
@@ -423,20 +428,20 @@ int uiObjectBody::prefHNrPics() const
 
 	    int pwc=0;
 	    bool var=false; 
-	    switch( szPol().hSzPol() )
+	    switch( szPol(true) )
 	    {
-		case SzPolicySpec::small:    pwc=baseFldSz;     break;
-		case SzPolicySpec::medium:   pwc=2*baseFldSz+1; break;
-		case SzPolicySpec::wide:     pwc=4*baseFldSz+3; break;
+		case uiObject::small:    pwc=baseFldSz;     break;
+		case uiObject::medium:   pwc=2*baseFldSz+1; break;
+		case uiObject::wide:     pwc=4*baseFldSz+3; break;
 
-		case SzPolicySpec::smallmax:
-		case SzPolicySpec::smallvar: pwc=baseFldSz;     var=true; break;
+		case uiObject::smallmax:
+		case uiObject::smallvar: pwc=baseFldSz;     var=true; break;
 
-		case SzPolicySpec::medmax:
-		case SzPolicySpec::medvar:   pwc=2*baseFldSz+1; var=true; break;
+		case uiObject::medmax:
+		case uiObject::medvar:   pwc=2*baseFldSz+1; var=true; break;
 
-		case SzPolicySpec::widemax:
-		case SzPolicySpec::widevar:  pwc=4*baseFldSz+3; var=true; break;
+		case uiObject::widemax:
+		case uiObject::widevar:  pwc=4*baseFldSz+3; var=true; break;
 	    }
 
 	    if( !pwc )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.8 2002-01-10 11:14:52 arend Exp $
+ RCS:           $Id: uispinbox.cc,v 1.9 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ uiSpinBoxBody::uiSpinBoxBody(uiSpinBox& handle, uiParent* p, const char* nm)
     : uiObjBodyImpl<uiSpinBox,QSpinBox>( handle, p, nm )
     , messenger_( *new i_SpinBoxMessenger( this, &handle) )	
 {
-    setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::small) );
+    setHSzPol( uiObject::small );
 }
 
 

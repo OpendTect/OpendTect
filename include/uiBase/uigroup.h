@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.22 2002-05-14 15:18:03 nanne Exp $
+ RCS:           $Id: uigroup.h,v 1.23 2002-05-29 15:00:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,8 @@ public:
     int			prefVNrPics() const;
     void		setPrefHeight( int h );
     void		setPrefHeightInChar( float h );
+
+
     void                setStretch( int hor, int ver );
 
     void		attach( constraintType, int margin=-1);

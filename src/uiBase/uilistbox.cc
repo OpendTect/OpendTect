@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.40 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.41 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 #else
     setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
 #endif
-    setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medium) );
+    setHSzPol( uiObject::medium);
 }
 
 

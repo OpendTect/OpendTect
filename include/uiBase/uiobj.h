@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.22 2002-05-14 11:35:49 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.23 2002-05-29 15:00:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,6 @@ the ubiquitous uiDialog.
 #include "uilayout.h"
 #include "color.h"
 #include "errh.h"
-#include <sizepolspec.h>
 
 #include <stdlib.h>
 
@@ -113,8 +112,24 @@ public:
 			uiObject( uiParent* p, const char* nm, uiObjectBody& );
 			~uiObject()			{}
 
-    void		setSzPol( const SzPolicySpec& );
-    SzPolicySpec	szPol() const;
+/*! \brief How should the object's size behave? 
+    undef       : use default.
+    small       : 1 base sz.
+    medium      : 2* base sz + 1.
+    wide        : 4* base sz + 3.
+    The xxvar options specify that the element may have a bigger internal
+    preferred size. In that case, the maximum is taken.
+    The xxmax options specify that the element should take all available
+    space ( stretch = 2 )
+*/
+    enum		SzPolicy{ undef, small, medium, wide,
+				  smallvar, medvar, widevar,
+				  smallmax, medmax, widemax };
+
+
+    void		setHSzPol( SzPolicy );
+    void		setVSzPol( SzPolicy );
+    SzPolicy		szPol( bool hor=true) const;
 
     void		setToolTip(const char*);
     static void		enableToolTips(bool yn=true);

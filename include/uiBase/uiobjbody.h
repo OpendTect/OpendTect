@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.22 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.23 2002-05-29 15:00:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,21 +187,26 @@ public:
 					    return max ? fnt_maxwdt : fnt_wdt; 
 					}
 
-	void			setSzPol( const SzPolicySpec& p ) 
+	void			setHSzPol( uiObject::SzPolicy p )
 				    { 
-					szpol = p; 
-					if( p.hSzPol() >= SzPolicySpec::smallmax
+					hszpol = p; 
+					if( p >= uiObject::smallmax
 					    && 
-					    p.hSzPol() <= SzPolicySpec::widemax)
+					    p <= uiObject::widemax )
 					{
 					    int hs = mMAX( 2, stretch(true) );
 					    int vs = stretch( false );
 
 					    setStretch( hs, vs);
 					}
-					if( p.vSzPol() >= SzPolicySpec::smallmax
+				    }
+
+	void			setVSzPol( uiObject::SzPolicy p)
+				    { 
+					vszpol = p; 
+					if( p >= uiObject::smallmax
 					    &&
-					    p.vSzPol() <= SzPolicySpec::widemax)
+					    p <= uiObject::widemax )
 					{
 					    int hs = stretch( true );
 					    int vs = mMAX( 2, stretch(false) );
@@ -210,7 +215,10 @@ public:
 					}
 
 				    }
-	SzPolicySpec		szPol() const		{ return szpol; }
+
+
+	uiObject::SzPolicy	szPol( bool hor=true) const
+				    { return hor ? hszpol: vszpol ; }
 
 	void			setShrinkAllowed( bool yn ) { allowshrnk = yn; }
 	bool			shrinkAllowed()		{ return allowshrnk; }
@@ -266,7 +274,8 @@ public:
 	int			fnt_maxwdt;
 	QFontMetrics*		fm;
 
-	SzPolicySpec		szpol;
+	uiObject::SzPolicy	hszpol;
+	uiObject::SzPolicy	vszpol;
 
 	void                	gtFntWdtHgt() const;
 	void			getSzHint();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.4 2002-03-12 14:41:27 arend Exp $
+ RCS:           $Id: uitreeview.cc,v 1.5 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
     setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
 #endif
 
-    setSzPol( SzPolicySpec().setHSzP( SzPolicySpec::medvar ) );
+    setHSzPol( uiObject::medvar ) ;
 
     setSorting( -1 );
 }

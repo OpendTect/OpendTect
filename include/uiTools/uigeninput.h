@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.19 2002-03-12 12:11:40 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.20 2002-05-29 15:00:44 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,6 +166,10 @@ Returns true, if changes are accepted.
 
 			//! returns 0 if not finalised.
     UserInputObj*	element( int idx ); 
+    int			nElements() const; 
+    void		setElemSzPol( uiObject::SzPolicy p )	{ elemszpol=p; }
+    uiObject::SzPolicy	elemSzPol() const		{ return elemszpol; }
+
 
     virtual const char*	titleText();
     virtual void	setTitleText(const char*);
@@ -222,6 +226,8 @@ private:
     bool		checked_;
     bool		ro;
     ObjectSet<DataInpSpec> inputs;
+
+    uiObject::SzPolicy	elemszpol;
 
 };
 

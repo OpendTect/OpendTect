@@ -24,8 +24,7 @@ public:
 				( handle, parnt,nm)
 			    { 
 				setStretch( 1, 0 );
-				setSzPol( SzPolicySpec().setHSzP( 
-						    SzPolicySpec::medvar) );
+				setHSzPol( uiObject::medvar );
 				setCenterIndicator( true );
 			    }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.42 2002-03-18 15:48:51 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.43 2002-05-29 15:00:45 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ public:
 			: spec_( *spec.clone() ), p_( p ) {}
 
 
-    virtual int		nElems()			{ return 1; }
+    virtual int		nElems() const			{ return 1; }
 
     virtual UserInputObj* element( int idx=0 )		= 0;
 
@@ -195,28 +195,34 @@ protected:
 			    {
 				if( !update_( spec_ ) )
 				{
-				    pErrMsg("blah");
+				    pErrMsg("huh?");
 				    update_( spec_ );
 				}
 
-				int pw = spec_.prefFldWidth();
-				if (pw>=0) 
-				{
-				    for( int idx=0; idx<nElems() && elemObj(idx)
-						  ; idx++)
-					elemObj(idx)->setPrefWidthInChar( pw );
-				}
-				else
-				{
-				    if( spec_.hSzPol()==SzPolicySpec::undef )
-					spec_.setHSzP( nElems()>1 
-							? SzPolicySpec::small 
-							: SzPolicySpec::medium);
+				uiObject::SzPolicy hpol =
+					 p_ ? p_->elemSzPol() : uiObject::undef;
 
-				    for( int idx=0; idx<nElems() && elemObj(idx)
-						  ; idx++)
-					elemObj(idx)->setSzPol(spec_);
-				} 
+				if ( hpol == uiObject::undef )
+				{
+				    int nel = p_ ? p_->nElements() : nElems();
+
+				    if( nel > 1 ) hpol = uiObject::small;
+				    else switch( spec_.type().rep() )
+				    {
+				    case DataType::stringTp:
+					hpol = uiObject::medvar;
+				    break;
+				    default:
+					hpol = uiObject::medium;
+				    break;
+				    }
+				}
+
+				for( int idx=0; idx<nElems() && elemObj(idx)
+								      ; idx++)
+				{
+				    elemObj(idx)->setHSzPol( hpol );
+				}
 			    }
 };
 
@@ -276,7 +282,7 @@ public:
 
     virtual uiObject*	mainObj()	{ return binidGrp.uiObj(); }
 
-    virtual int		nElems()		{ return 2; }
+    virtual int		nElems() const		{ return 2; }
     virtual UserInputObj* element( int idx )	{ return idx ? &crl_y : &inl_x;}
 
     bool		notifyValueChanged(const CallBack& cb )
@@ -369,7 +375,7 @@ public:
 					 const DataInpSpec& spec,
 					 const char* nm="Interval Input Field");
 
-    virtual int		nElems()		{ return step ? 3 : 2; }
+    virtual int		nElems() const		{ return step ? 3 : 2; }
     virtual UserInputObj* element( int idx=0 )	{ return le(idx); }
 
     virtual uiObject*	mainObj()		{ return intvalGrp.uiObj(); }
@@ -585,6 +591,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), ro(false)
+    , elemszpol( uiObject::undef )
 { 
     inputs += new StringInpSpec( inputStr ); 
     uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
@@ -599,6 +606,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), ro(false)
+    , elemszpol( uiObject::undef )
 {
     inputs += inp1.clone();
     uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
@@ -614,6 +622,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), ro(false)
+    , elemszpol( uiObject::undef )
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
@@ -631,6 +640,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , labl(0), cbox(0), selbut(0), clrbut(0)
     , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), ro(false)
+    , elemszpol( uiObject::undef )
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
@@ -741,6 +751,23 @@ void uiGenInput::clear( int nr )
 
     for( int idx=0; idx < flds.size(); idx++ )
 	flds[idx]->clear();
+}
+
+int uiGenInput::nElements() const
+{
+    int nel=0;
+    if( finalised ) 
+    {
+	for( int idx=0; idx<flds.size(); idx++ )
+	    if ( flds[idx] ) nel += flds[idx]->nElems();
+    }
+    else
+    {
+	for( int idx=0; idx<inputs.size(); idx++ )
+	    if ( inputs[idx] ) nel += inputs[idx]->nElems();
+    }
+
+    return nel;
 }
 
 UserInputObj* uiGenInput::element( int nr )
