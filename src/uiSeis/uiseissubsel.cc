@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.1 2004-06-18 15:54:30 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.2 2004-06-28 09:35:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,23 +32,22 @@ ui2DSeisSubSel::ui2DSeisSubSel( uiParent* p, const BufferStringSet* lnms )
     StepInterval<double> zrg = SI().zRange(true);
     BufferString fldtxt = "Z range "; fldtxt += SI().getZUnit();
     zfld = new uiGenInput( this, fldtxt, FloatInpIntervalSpec(true) );
-    if ( SI().zIsTime() )
+    if ( !SI().zIsTime() )
+	zfld->setValue( zrg );
+    else
     {
 	zfld->setValue( mNINT(zrg.start*1000), 0 );
 	zfld->setValue( mNINT(zrg.stop*1000), 1 );
 	zfld->setValue( mNINT(zrg.step*1000), 2 );
     }
-    else
-	zfld->setValue( zrg );
     zfld->attach( alignedBelow, trcrgfld );
 
-    if ( lnms && lnms->size() > 1 )
-    {
-	lnmsfld = new uiGenInput( this, "One line only",
-				  StringListInpSpec(*lnms) );
-	lnmsfld->setWithCheck( true );
-	lnmsfld->attach( alignedBelow, zfld );
-    }
+    static const BufferStringSet emptylnms;
+    if ( !lnms ) lnms = &emptylnms;
+    lnmsfld = new uiGenInput( this, "One line only",
+			      StringListInpSpec(*lnms) );
+    lnmsfld->setWithCheck( true );
+    lnmsfld->attach( alignedBelow, zfld );
 
     setHAlignObj( selfld );
     setHCentreObj( selfld );
@@ -88,12 +87,19 @@ void ui2DSeisSubSel::setInput( const StepInterval<float>& rg )
 }
 
 
+void ui2DSeisSubSel::setInput( const BinIDSampler& bs )
+{
+    StepInterval<int> trg( 1, BinIDSamplerProv(bs).dirSize(false), 1 );
+    trcrgfld->setValue( trg );
+}
+
+
 void ui2DSeisSubSel::selChg( CallBacker* )
 {
     bool disp = !isAll();
     trcrgfld->display( disp );
     zfld->display( disp );
-    if ( lnmsfld ) lnmsfld->display( disp );
+    lnmsfld->display( disp );
 }
 
 
@@ -137,6 +143,16 @@ bool ui2DSeisSubSel::fillPar( IOPar& iopar ) const
 }
 
 
+void ui2DSeisSubSel::getRange( StepInterval<int>& trg )
+{
+    const char* res = trcrgfld->text( 1 );
+    if ( !res || !*res )
+	{ trg.stop = mUndefIntVal; return; }
+
+    trg = trcrgfld->getIStepInterval();
+}
+
+
 bool ui2DSeisSubSel::getZRange( StepInterval<float>& zrg ) const
 {
     const StepInterval<double> survzrg = SI().zRange(false);
@@ -164,6 +180,13 @@ bool ui2DSeisSubSel::getZRange( StepInterval<float>& zrg ) const
     }
 
     return true;
+}
+
+
+int ui2DSeisSubSel::expectedNrTraces() const
+{
+    StepInterval<int> trg; getRange( trg );
+    return mIsUndefInt(trg.stop) ? -1 : trg.nrSteps() + 1;
 }
 
 
