@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.30 2003-11-26 11:36:40 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.31 2003-11-26 13:02:18 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -148,10 +148,11 @@ const char* GetDataFileName( const char* fname )
     if ( fname && *fname )
 	strcpy( filenamebuf, File_getFullPath( filenamebuf, fname ) );
 
-    if( dgb_debug_isOn(DBG_SETTINGS) )
+    if ( dgb_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
-	sprintf(buf, "GetDataFileName for %s: %s\n", fname, filenamebuf );
+	sprintf(buf, "GetDataFileName for %s: %s\n", fname ? fname : "(null)",
+			filenamebuf );
 	dgb_debug_message( buf );
     }
 
