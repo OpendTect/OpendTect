@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.10 2003-07-04 13:32:46 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.11 2003-07-08 11:28:50 jeroen Exp $
 ________________________________________________________________________
 
 
@@ -137,7 +137,8 @@ public:
     float		getAuxDataVal(int dataidx,const EM::PosID& posid) const;
     void		setAuxDataVal(int dataidx, const EM::PosID& posid,
 				      float value );
-
+    int                 findPos( const RowCol& rowcol,
+                                 TypeSet<PosID>& res ) const;
     const char*		dbInfo() const			{ return dbinfo; }
     void		setDBInfo( const char* s )	{ dbinfo = s; }
 
@@ -182,8 +183,8 @@ protected:
 
     virtual Geometry::GridSurface*		createPatchSurface() const = 0;
 
-    int			findPos( const RowCol& rowcol,
-	    			 TypeSet<PosID>& res ) const;
+//   int			findPos( const RowCol& rowcol,
+//	    			 TypeSet<PosID>& res ) const;
     friend class	EMManager;
     friend class	EMObject;
 
