@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.12 2004-03-11 15:47:43 nanne Exp $
+ RCS:           $Id: wavelettrans.h,v 1.13 2004-12-23 17:11:58 nanne Exp $
 ________________________________________________________________________
 
 @$*/
@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "transform.h"
 #include "enums.h"
 #include "arraynd.h"
+#include "arrayndimpl.h"
 #include "fft.h"
+#include "ranges.h"
 
 /*!\brief
 WaveletTransform is a ND wavelet transform.
@@ -154,6 +156,10 @@ public:
     void		setWavelet(CWT::WaveletType);
     void		setScale(int s)			{ scale_start = s; }
     void		setNrVoices(int nv)		{ nrvoices = nv; }
+
+    void		setTransformRange(const StepInterval<float>& rg)
+			{ freqrg = rg; }
+    void		setDeltaT(float dt_)		{ dt = dt_; }
 			
     bool		setInputInfo( const ArrayNDInfo& );
     const ArrayNDInfo&	getInputInfo() const { return *info; }
@@ -178,6 +184,7 @@ public:
 
     float		getFrequency(int ns,float dt,int scaleidx) const;
     int			getNrScales(int ns) const;
+    float		getScale(int ns,float dt,float freq) const;
 
 protected:
 
@@ -188,6 +195,13 @@ protected:
     void		getMexhatWavelet(int,float,TypeSet<float>&) const;
     void		getGaussWavelet(int,float,TypeSet<float>&) const;
 
+    bool		transformRange(const ArrayND<float_complex>&,
+	    			       Array2DImpl<float>&) const;
+    bool		transformAll(const ArrayND<float_complex>&,
+	    			     Array2DImpl<float>&) const;
+    void		transform(int,float,int,
+	    			  const Array1DImpl<float_complex>&,
+				  Array2DImpl<float>&) const;
 
     FFT			fft;
     FFT			ifft;
@@ -198,6 +212,9 @@ protected:
     int 		scale_start;
     int			nrvoices;
     bool		inited;
+
+    float		dt;
+    StepInterval<float> freqrg;
 };
 
 

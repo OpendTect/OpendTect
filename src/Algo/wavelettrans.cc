@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.12 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.13 2004-12-23 17:11:52 nanne Exp $";
 
 
 #include "wavelettrans.h"
@@ -417,6 +417,7 @@ CWT::CWT()
     , scale_start(8)
     , nrvoices(5)
     , inited(false)
+    , freqrg(0,0,0)
 {
 }
 
@@ -498,8 +499,36 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
     const int outdim = outp_.info().getNDim();
     if ( outdim != 2 ) return false;
 
-    mDynamicCastGet(Array2DImpl<float>*,outp,&outp_)
+    mDynamicCastGet(Array2DImpl<float>&,outp,outp_)
 
+    return !freqrg.nrSteps() ? transformAll( inp, outp )
+			     : transformRange( inp, outp );
+}
+
+
+bool CWT::transformRange( const ArrayND<float_complex>& inp,
+			  Array2DImpl<float>& outp ) const
+{
+    const int nrsamples = inp.info().getSize( 0 );
+    Array1DImpl<float_complex> freqdom( nrsamples );
+    fft.transform( inp, freqdom );
+
+    const int nrsteps = freqrg.nrSteps()+1;
+    outp.setSize( nrsamples, nrsteps );
+    for ( int idx=0; idx<nrsteps; idx++ )
+    {
+	const float freq = freqrg.atIndex( idx );
+	const float curscale = getScale( nrsamples, dt, freq );
+	transform( nrsamples, curscale, idx, freqdom, outp );
+    }
+
+    return true;
+}
+
+
+bool CWT::transformAll( const ArrayND<float_complex>& inp,
+			Array2DImpl<float>& outp ) const
+{
     const int nrsamples = inp.info().getSize( 0 );
     Array1DImpl<float_complex> freqdom( nrsamples );
     fft.transform( inp, freqdom );
@@ -507,41 +536,15 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
     int nroctaves = isPower( nrsamples, 2 ) - 1;
     const int nrscales = nrvoices * nroctaves;
 
-    outp->setSize( nrsamples, nrscales );
+    outp.setSize( nrsamples, nrscales );
     int scale = scale_start;
     int scaleidx = 0;
     for ( int oct=0; oct<nroctaves; oct++ )
     {
         for ( int voice=0; voice<nrvoices; voice++ )
         {
-            float curscale = scale * pow(2,(float)(voice+1)/nrvoices);
-
-            TypeSet<float> wavelet;
-	    if ( wt == Gaussian )
-		getGaussWavelet( nrsamples, curscale, wavelet );
-	    else if ( wt == Morlet )
-		getMorletWavelet( nrsamples, curscale, wavelet );
-	    else if ( wt == MexicanHat )
-		getMexhatWavelet( nrsamples, curscale, wavelet );
-
-            Array1DImpl<float_complex> filtered( nrsamples );
-            for ( int idx=0; idx<nrsamples; idx++ )
-            {
-                float_complex cval = (freqdom.get(idx) * wavelet[idx])
-		    		   / (float)sqrt(curscale);
-                filtered.set( idx, cval );
-            }
-
-            Array1DImpl<float_complex> newsignal( nrsamples );
-            ifft.transform( filtered, newsignal );
-
-            for ( int idx=0; idx<nrsamples; idx++ )
-            {
-                float real = newsignal.get(idx).real();
-                float imag = newsignal.get(idx).imag();
-                float val = sqrt( real*real + imag*imag );
-                outp->set( idx, scaleidx, val );
-            }
+            const float curscale = scale * pow(2,(float)(voice+1)/nrvoices);
+	    transform( nrsamples, curscale, scaleidx, freqdom, outp );
             scaleidx++;
         }
 
@@ -549,6 +552,39 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
     }
 
     return true;
+}
+
+
+void CWT::transform( int nrsamples, float curscale, int scaleidx,
+		     const Array1DImpl<float_complex>& freqdom,
+		     Array2DImpl<float>& outp ) const
+{
+    TypeSet<float> wavelet;
+    if ( wt == Gaussian )
+	getGaussWavelet( nrsamples, curscale, wavelet );
+    else if ( wt == Morlet )
+	getMorletWavelet( nrsamples, curscale, wavelet );
+    else if ( wt == MexicanHat )
+	getMexhatWavelet( nrsamples, curscale, wavelet );
+
+    Array1DImpl<float_complex> filtered( nrsamples );
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	float_complex cval = (freqdom.get(idx) * wavelet[idx])
+			   / (float)sqrt(curscale);
+	filtered.set( idx, cval );
+    }
+
+    Array1DImpl<float_complex> newsignal( nrsamples );
+    ifft.transform( filtered, newsignal );
+
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	float real = newsignal.get(idx).real();
+	float imag = newsignal.get(idx).imag();
+	float val = sqrt( real*real + imag*imag );
+	outp.set( idx, scaleidx, val );
+    }
 }
 
 
@@ -601,16 +637,16 @@ int CWT::getNrScales( int nrsamples ) const
 }
 
 
-float CWT::getFrequency( int nrsamples, float dt, int scaleidx ) const
+float CWT::getFrequency( int nrsamples, float dt_, int scaleidx ) const
 {
-    if ( !nrsamples || mIsZero(dt,mDefEps) )
+    if ( !nrsamples || mIsZero(dt_,mDefEps) )
 	return mUndefValue;
 
-    float df = 1. / ( dt * nrsamples );
+    const float df = 1. / ( dt_ * nrsamples );
 
-    int curoctave = (int)( scaleidx / nrvoices );
-    int curvoice = scaleidx % nrvoices;
-    int scale = scale_start * (int)pow((float)2,curoctave);
+    const int curoctave = (int)( scaleidx / nrvoices );
+    const int curvoice = scaleidx % nrvoices;
+    const int scale = scale_start * (int)pow((float)2,curoctave);
     float curscale = scale * pow(2,(float)(curvoice+1)/nrvoices);
 
     float omega0 = 0;
@@ -621,6 +657,26 @@ float CWT::getFrequency( int nrsamples, float dt, int scaleidx ) const
     else if ( wt == MexicanHat )
 	omega0 = sqrt(2.);
 
-    float freqidx = curscale * omega0 / (2*M_PI);
+    const float freqidx = curscale * omega0 / (2*M_PI);
     return freqidx * df;
+}
+
+
+float CWT::getScale( int nrsamples, float dt_, float freq ) const
+{
+    if ( !nrsamples || mIsZero(dt_,mDefEps) )
+	return mUndefValue;
+
+    const float df = 1. / ( dt_ * nrsamples );
+    const float freqidx = freq / df;
+
+    float omega0 = 5;
+    if ( wt == Gaussian )
+	omega0 = sqrt(2.);
+    else if ( wt == Morlet )
+	omega0 = 5;
+    else if ( wt == MexicanHat )
+	omega0 = sqrt(2.);
+
+    return freqidx * (2*M_PI) / omega0;
 }
