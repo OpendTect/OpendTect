@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.1 2004-03-22 16:15:45 nanne Exp $
+ RCS:           $Id: uiwizard.cc,v 1.2 2004-04-13 08:12:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,18 @@ ________________________________________________________________________
 uiWizard::uiWizard( uiParent* p, uiDialog::Setup& s_ )
     : uiDialog(p,s_)
     , pageidx(0)
-    , nextpage(this)
-    , prevpage(this)
-    , finished(this)
-    , cancelled(this)
+    , approved(true)
+    , rotatemode(false)
+    , next(this)
+    , back(this)
+    , finish(this)
+    , cancel(this)
+{
+    finaliseDone.notify( mCB(this,uiWizard,doFinalise) );
+}
+
+
+void uiWizard::doFinalise( CallBacker* )
 {
     handleButtonText();
 }
@@ -47,42 +55,52 @@ void uiWizard::displayPage( int idx, bool yn )
 
 bool uiWizard::acceptOK( CallBacker* )
 {
+    approved = true;
+    bool firstpage = pageidx == firstPage();
+    if ( firstpage )
+    {
+	cancel.trigger();
+	return approved;
+    }
+
+    back.trigger();
+    if ( !approved )
+	return false;
+
     pageidx--;
     while ( !dodisplay[pageidx] && !pageidx )
 	pageidx--;
 
-    bool docancel = pageidx < 0;
-    if ( docancel )
-    {
-	cancelled.trigger();
-	return true;
-    }
-
     handleButtonText();
     displayCurrentPage();
-    prevpage.trigger();
-
     return false;
 }
 
 
 bool uiWizard::rejectOK( CallBacker* )
 {
-    pageidx++;
+    approved = true;
+    bool lastpage = pageidx == lastPage();
+    if ( lastpage && !rotatemode )
+    {
+	finish.trigger();
+	return approved;
+    }
+
+    next.trigger();
+    if ( !approved )
+	return false;
+
+    if ( lastpage && rotatemode ) 
+	pageidx = 0;
+    else
+	pageidx++;
+
     while ( !dodisplay[pageidx] && pageidx<pages.size() )
 	pageidx++;
 
-    bool dofinish = pageidx == pages.size();
-    if ( dofinish )
-    {
-	finished.trigger();
-	return true;
-    }
-
     handleButtonText();
     displayCurrentPage();
-    nextpage.trigger();
-
     return false;
 }
 
@@ -106,10 +124,17 @@ void uiWizard::handleButtonText()
     bool firstpage = pageidx == firstPage();
     bool lastpage = pageidx == lastPage();
     const char* oktxt = firstpage ? "Cancel" : "Back";
-    const char* canceltxt = lastpage ? "Finish" : "Next";
+    const char* canceltxt = lastpage && !rotatemode ? "Finish" : "Next";
 
     setButtonText( uiDialog::OK, oktxt );
     setButtonText( uiDialog::CANCEL, canceltxt );
+}
+
+
+void uiWizard::setRotateMode( bool yn )
+{
+    rotatemode=yn;
+    handleButtonText();
 }
 
 
