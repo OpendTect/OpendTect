@@ -5,7 +5,7 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.5 2001-03-30 08:52:55 bert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.6 2002-11-01 09:48:06 bert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
@@ -35,11 +35,12 @@ const char* SeparString::operator[]( unsigned int elemnr ) const
 
 	if ( *repptr == sep )
 	{
-	    if ( --elemnr == -1 || bufptr-buf_ == mMaxSepItem )
+	    if ( !elemnr || bufptr-buf_ == mMaxSepItem )
 	    {
 		*bufptr = '\0';
 		return buf_;
 	    }
+	    elemnr--;
 	}
 	else if ( !elemnr )
 	    bufptr++;

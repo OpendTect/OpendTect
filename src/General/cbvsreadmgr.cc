@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.22 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.23 2002-11-01 09:48:06 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -640,4 +640,85 @@ const char* CBVSReadMgr::check( const char* basefname )
     }
 
     return 0;
+}
+
+
+static void putComps( ostream& strm,
+		      const ObjectSet<BasicComponentInfo>& cinfo )
+{
+    strm << "Data is written on a "
+	 << (cinfo[0]->datachar.littleendian ? "little" : "big")
+	 << " endian machine.\n";
+
+    for ( int idx=0; idx<cinfo.size(); idx++ )
+    {
+	const BasicComponentInfo& bci = *cinfo[idx];
+	strm << "\nComponent '" << (const char*)bci.name() << "':\n";
+	strm << "Data Characteristics: "
+	     << (bci.datachar.isInteger() ? "Integer" : "Floating point") <<' ';
+	if ( bci.datachar.isInteger() )
+	     strm << (bci.datachar.isSigned() ? "(Signed) " : "(Unsigned) ");
+	strm << (int)bci.datachar.nrBytes() << " bytes\n";
+	strm << "Z/T start: " << bci.sd.start
+	     << " step: " << bci.sd.step << '\n';
+	strm << "Number of samples: " << bci.nrsamples << "\n\n";
+    }
+}
+
+
+void CBVSReadMgr::dumpInfo( ostream& strm, bool inclcompinfo ) const
+{
+    if ( nrReaders() > 1 )
+	strm << "Cube is stored in " << nrReaders() << " files\n";
+    strm << '\n';
+
+    if ( info().nrtrcsperposn > 1 )
+	strm << info().nrtrcsperposn << " traces per position" << endl;
+
+    if ( inclcompinfo )
+	putComps( strm, info().compinfo );
+
+    strm << "The cube is "
+	 << (info().geom.fullyrectandreg ? "100% rectangular." : "irregular.")
+	 << '\n';
+    strm << "In-line range: " << info().geom.start.inl << " - "
+	 << info().geom.stop.inl << " (step " << info().geom.step.inl << ").\n";
+    strm << "X-line range: " << info().geom.start.crl << " - "
+	 << info().geom.stop.crl << " (step " << info().geom.step.crl << ").\n";
+    strm << endl;
+
+    if ( !info().geom.fullyrectandreg )
+    {
+	strm << "Gaps: "; strm.flush();
+	bool inlgaps = false; bool crlgaps = false;
+	for ( int inl=info().geom.start.inl; inl<=info().geom.stop.inl;
+	inl += info().geom.step.inl )
+	{
+	    const CBVSInfo::SurvGeom::InlineInfo* inlinf
+	    = info().geom.getInfoFor( inl );
+	    if ( !inlinf )
+	    {
+		strm << "\nInline " << inl << " not present."; strm.flush();
+		inlgaps = true;
+		continue;
+	    }
+	    if ( inlinf->segments.size() > 1 )
+	    crlgaps = true;
+	}
+	if ( crlgaps )
+	{
+	    if ( inlgaps )
+		strm << "\nData holes (X-line gaps) also found.";
+	    else
+		strm << " Gaps present.";
+	}
+	else
+	{
+	    if ( inlgaps )
+		strm << "\nNo data holes (X-line gaps) found.";
+	    else
+		strm << " not present.";
+	}
+	strm << endl << endl;
+    }
 }

@@ -85,32 +85,14 @@ int main( int argc, char** argv )
     if ( !tri.initRead(inconn) )
 	{ cerr << tri.errMsg() << endl;  return 1; }
 
-    const CBVSReadMgr& mgr = *tri.readMgr();
-    const int nrreaders = mgr.nrReaders();
-    if ( nrreaders > 1 )
-	cerr << "\nCube is stored in " << nrreaders << " files" << endl;
     cerr << "\n";
+    const CBVSReadMgr& mgr = *tri.readMgr();
+    mgr.dumpInfo( cerr, true );
     const CBVSInfo& info = mgr.info();
-    if ( info.nrtrcsperposn > 1 )
-	cerr << info.nrtrcsperposn << " traces per position" << endl;
 
-    const ObjectSet<BasicComponentInfo>& cinfo = info.compinfo;
-    putComps( cinfo );
-
-    cerr << "The cube is " << (info.geom.fullyrectandreg ? "100% rectangular."
-				: "irregular.") << endl;
-    cerr << "In-line range: " << info.geom.start.inl << " - "
-	 << info.geom.stop.inl << " (step "
-	 << info.geom.step.inl << ")." << endl;
-    cerr << "X-line range: " << info.geom.start.crl << " - "
-	 << info.geom.stop.crl << " (step "
-	 << info.geom.step.crl << ")." << endl;
-    cerr << endl;
-
-    SeisTrc trc;
-    BinID bid;
+    SeisTrc trc; BinID bid;
     StepInterval<int> samps;
-    const int nrcomps = cinfo.size();
+    const int nrcomps = info.compinfo.size();
     while ( 1 )
     {
 	cerr << "\nExamine In-line ( 0 to stop ): "; getInt( bid.inl );
