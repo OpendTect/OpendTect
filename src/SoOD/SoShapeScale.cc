@@ -4,13 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoShapeScale.cc,v 1.3 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: SoShapeScale.cc,v 1.4 2004-01-09 08:15:32 nanne Exp $";
 
 
 #include "SoShapeScale.h"
-
-#include "gendefs.h"
-#include "trigonometry.h"
 
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/nodes/SoShape.h>
@@ -95,24 +92,21 @@ void SoShapeScale::GLRender(SoGLRenderAction * action)
 	update_scale(scalenode, SbVec3f(scalefactor, scalefactor, scalefactor));
     }
 
+#define mIsZero(x) ( x < 1e-10 && x > -1e-10 )
+
     if ( dorotate.getValue() )
     {
-	SbVec3f tovec = (vv.getProjectionPoint() - worldcenter);
+	SbVec3f worldto = (vv.getProjectionPoint() - worldcenter);
 	SbVec3f localfrom( 0, 1, 0 );
 	SbVec3f worldfrom;
 	mat.multVecMatrix(localfrom, worldfrom);
-	Vector3 worldfromvec( worldfrom[0], worldfrom[1],  worldfrom[2] );
-	Vector3 worldtovec( tovec[0], tovec[1],  tovec[2] );
-	Vector3 rotationaxis = worldfromvec.cross( worldtovec );
-	float angle = acos(worldfromvec.dot( worldtovec ));
+	SbVec3f rotationaxis = worldfrom.cross( worldto );
+	float angle = acos( worldfrom.dot(worldto) );
 
-	if ( mIS_ZERO( rotationaxis.abs() ) )
-	{
-	    rotationaxis.x = 1;
-	}
+	if ( mIsZero(rotationaxis.length()) )
+	    rotationaxis[0] = 1;
 
-	SbRotation rotation(
-		SbVec3f(rotationaxis.x,rotationaxis.y,rotationaxis.z), -angle );
+	SbRotation rotation( rotationaxis, -angle );
 
 	bool oldnotify = rotnode->enableNotify( false );
 	rotnode->rotation.setValue( rotation );
