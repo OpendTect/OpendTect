@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.21 2004-12-23 17:16:38 bert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.22 2005-03-25 15:50:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.21 2004-12-23 17:16:38 bert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.22 2005-03-25 15:50:23 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.21 2004-12-23 17:16:38 bert 
 #include "uisettings.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
+#include "uisoviewer.h"
 #include "helpview.h"
 #include "dirlist.h"
 #include "pixmap.h"
@@ -91,12 +92,14 @@ void uiODMenuMgr::storePositions()
 }
 
 
-void uiODMenuMgr::updateStereoMenu( bool stereo, bool quad )
+void uiODMenuMgr::updateStereoMenu()
 {
-    stereooffitm->setChecked( !stereo );
-    stereoredcyanitm->setChecked( stereo && !quad );
-    stereoquadbufitm->setChecked( stereo && quad );
-    stereooffsetitm->setEnabled( stereo );
+    uiSoViewer::StereoType type = 
+			(uiSoViewer::StereoType)sceneMgr().getStereoType();
+    stereooffitm->setChecked( type == uiSoViewer::None );
+    stereoredcyanitm->setChecked( type == uiSoViewer::RedCyan );
+    stereoquadbufitm->setChecked( type == uiSoViewer::QuadBuffer );
+    stereooffsetitm->setEnabled( type != uiSoViewer::None );
 }
 
 
@@ -323,7 +326,11 @@ void uiODMenuMgr::fillCoinTB()
     mAddTB(cointb,"home.png","To home position",false,toHomePos);
     mAddTB(cointb,"set_home.png","Save home position",false,saveHomePos);
     mAddTB(cointb,"view_all.png","View all",false,viewAll);
-    mAddTB(cointb,"align.png","Align",false,align);
+#ifdef __debug__
+    mAddTB(cointb,"i.xpm","view Inl",false,viewInl);
+    mAddTB(cointb,"c.xpm","view Crl",false,viewCrl);
+    mAddTB(cointb,"z.xpm","view Z",false,viewZ);
+#endif
     axisid = mAddTB(cointb,"axis.png","Display rotation axis",true,showRotAxis);
 
     cointb->turnOn( actid, true );
@@ -406,17 +413,14 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mStereoRCMnuItm : 
     case mStereoQuadMnuItm :
     {
-	int idx = itm->index();
-	bool stereo = (idx == 1 || idx == 2) && !itm->isChecked();
-	bool quad = idx == 2 && !itm->isChecked();
-	sceneMgr().setStereoViewing( stereo, quad );
-	updateStereoMenu( stereo, quad );
+	sceneMgr().setStereoType( itm->index() );
+	updateStereoMenu();
     } break;
 
     case mAboutMnuItm:
     {
 	const char* htmlfnm = "about.html";
-	const BufferString dddirnm = GetDataFileName("dTectDoc");
+	const BufferString dddirnm = GetDataFileName( "dTectDoc" );
 	BufferString fnm = FilePath(dddirnm).add(htmlfnm).fullPath();
 	fnm = File_exists(fnm) ? getHelpF(0,htmlfnm) : htmlfnm;
 	HelpViewer::doHelp( fnm, "About OpendTect" );

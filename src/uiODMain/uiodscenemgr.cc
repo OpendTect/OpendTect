@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.33 2005-03-07 10:58:25 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.34 2005-03-25 15:50:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uithumbwheel.h"
 #include "uigeninputdlg.h"
 #include "uitreeitemmanager.h"
+#include "uimsg.h"
 
 #include "ptrman.h"
 #include "survinfo.h"
@@ -160,13 +161,9 @@ void uiODSceneMgr::addScene()
 
     if ( scenes.size() > 1 && scenes[0] )
     {
-	scn.sovwr->setStereoViewing(
-		scenes[0]->sovwr->isStereoViewing() );
+	scn.sovwr->setStereoType( scenes[0]->sovwr->getStereoType() );
 	scn.sovwr->setStereoOffset(
 		scenes[0]->sovwr->getStereoOffset() );
-	scn.sovwr->setQuadBufferStereo( 
-		scenes[0]->sovwr->isQuadBufferStereo() );
-	
     }
 }
 
@@ -327,25 +324,28 @@ void uiODSceneMgr::setKeyBindings()
 }
 
 
-void uiODSceneMgr::setStereoViewing( bool& stereo, bool& quad )
+int uiODSceneMgr::getStereoType() const
+{
+    return scenes.size() ? (int)scenes[0]->sovwr->getStereoType() : 0;
+}
+
+
+void uiODSceneMgr::setStereoType( int type )
 {
     if ( !scenes.size() ) return;
 
+    uiSoViewer::StereoType stereotype = (uiSoViewer::StereoType)type;
     const float stereooffset = scenes[0]->sovwr->getStereoOffset();
     for ( int ids=0; ids<scenes.size(); ids++ )
     {
 	uiSoViewer& sovwr = *scenes[ids]->sovwr;
-	sovwr.setStereoViewing( stereo );
-	sovwr.setQuadBufferStereo( quad );
-	if ( stereo )
-	    sovwr.setStereoOffset( stereooffset );
-
-	if ( quad && !scenes[ids]->sovwr->isQuadBufferStereo() )
+	if ( !sovwr.setStereoType(stereotype) )
 	{
-	    sovwr.setStereoViewing( false );
-	    sovwr.setQuadBufferStereo( false );
-	    stereo = quad = false;
+	    uiMSG().error( "No support for this type of stereo rendering" );
+	    return;
 	}
+	if ( type )
+	    sovwr.setStereoOffset( stereooffset );
     }
 }
 
@@ -374,6 +374,17 @@ void uiODSceneMgr::viewAll( CallBacker* )
 { mDoAllScenes(sovwr,viewAll,); }
 void uiODSceneMgr::align( CallBacker* )
 { mDoAllScenes(sovwr,align,); }
+
+void uiODSceneMgr::viewX( CallBacker* )
+{ mDoAllScenes(sovwr,viewPlane,uiSoViewer::X); }
+void uiODSceneMgr::viewY( CallBacker* )
+{ mDoAllScenes(sovwr,viewPlane,uiSoViewer::Y); }
+void uiODSceneMgr::viewZ( CallBacker* )
+{ mDoAllScenes(sovwr,viewPlane,uiSoViewer::Z); }
+void uiODSceneMgr::viewInl( CallBacker* )
+{ mDoAllScenes(sovwr,viewPlane,uiSoViewer::Inl); }
+void uiODSceneMgr::viewCrl( CallBacker* )
+{ mDoAllScenes(sovwr,viewPlane,uiSoViewer::Crl); }
 
 
 void uiODSceneMgr::showRotAxis( CallBacker* )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.16 2005-03-07 10:58:26 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.17 2005-03-25 15:50:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,8 @@ public:
 
     void		setMousePos();
     void		setKeyBindings();
-    void		setStereoViewing(bool& stereo,bool& quad);
+    void		setStereoType(int);
+    int			getStereoType() const;
 
     void		tile();
     void		cascade();
@@ -63,6 +64,11 @@ public:
     void		viewAll(CallBacker*);
     void		align(CallBacker*);
     void		showRotAxis(CallBacker*);
+    void		viewX(CallBacker*);
+    void		viewY(CallBacker*);
+    void		viewZ(CallBacker*);
+    void		viewInl(CallBacker*);
+    void		viewCrl(CallBacker*);
 
     void		setZoomValue(float);
     void		zoomChanged(CallBacker*);
