@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.87 2003-06-02 08:14:09 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.88 2003-08-11 11:25:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,7 @@ public:
     bool			isFault(int) const;
     bool			isWell(int) const;
     bool			isPickSet(int) const;
+    bool			hasAttrib(int) const;
 
     static const int		evSelection;
     				/*<! Get the id with getEventObjId() */
@@ -188,7 +189,6 @@ protected:
     visSurvey::Scene*		getScene(int);
     const visSurvey::Scene*	getScene(int) const;
 
-    bool			hasAttrib(int id) const;
     bool			selectAttrib(int id);
     bool			calculateAttrib(int id,bool newsel);
 
