@@ -35,7 +35,7 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.45 2003-11-10 17:00:09 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.46 2003-11-12 11:09:46 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -329,16 +329,10 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
 	if ( File_exists(fname) )
-#ifdef __win__
-/*
-    comp.lang.c++ 2000/03/14 Re: Question of fstream 
-    conclusion: use binary mode, and windows will read&write unix format
-*/
-	    // should work the same on win & unix, but, you never know.
 	    sd.istrm = new ifstream( fname, ios_base::in | ios_base::binary );
-#else
-	    sd.istrm = new ifstream( fname );
-#endif
+	else if ( File_isLink( fname ) )
+	    sd.istrm = new ifstream( File_linkTarget(fname),
+					    ios_base::in | ios_base::binary );
 	return sd;
     }
 
@@ -402,12 +396,7 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-#ifdef __win__
-        // should work the same on win & unix, but, you never know.
 	sd.ostrm = new ofstream( fname, ios_base::out|ios_base::binary );
-#else
-	sd.ostrm = new ofstream( fname );
-#endif
 	return sd;
     }
 
