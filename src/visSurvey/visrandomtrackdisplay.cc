@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.8 2003-02-14 18:20:32 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.9 2003-02-19 16:10:39 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -80,6 +80,8 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     
     track->setDraggerSize( Coord3( baselen/50, baselen/50,
 	    			   survinterval.width()/50 ));
+    showDragger(true);
+    showDragger(false);
 }
 
 
@@ -122,41 +124,53 @@ int visSurvey::RandomTrackDisplay::nrKnots() const
 { return track->nrKnots(); }
 
 
-void visSurvey::RandomTrackDisplay::addKnot( const Coord& crd )
-{ track->addKnot( crd ); }
-
-
-void visSurvey::RandomTrackDisplay::addKnots( TypeSet<Coord> crdset )
+void visSurvey::RandomTrackDisplay::addKnot( const BinID& bid_ )
 {
-    for ( int idx=0; idx<crdset.size(); idx++ )
-    {
-	track->addKnot( crdset[idx] );
-    }
+    BinID bid( bid_ );
+    checkPosition( bid );
+    track->addKnot( Coord(bid.inl,bid.crl) );
 }
 
 
-void visSurvey::RandomTrackDisplay::insertKnot( int knotidx, const Coord& crd )
-{ track->insertKnot( knotidx, crd ); }
+void visSurvey::RandomTrackDisplay::addKnots( TypeSet<BinID> bidset )
+{
+    for ( int idx=0; idx<bidset.size(); idx++ )
+	addKnot( bidset[idx] );
+}
 
 
-Coord visSurvey::RandomTrackDisplay::getKnotPos( int knotidx ) const
-{ return track->getKnotPos( knotidx ); }
+void visSurvey::RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid_ )
+{
+    BinID bid( bid_ );
+    checkPosition( bid );
+    track->insertKnot( knotidx, Coord(bid.inl,bid.crl) ); 
+}
 
 
-Coord visSurvey::RandomTrackDisplay::getManipKnotPos( int knotidx ) const
-{ return track->getDraggerKnotPos( knotidx ); }
+BinID visSurvey::RandomTrackDisplay::getKnotPos( int knotidx ) const
+{
+    Coord crd = track->getKnotPos( knotidx );
+    return BinID( (int)crd.x, (int)crd.y ); 
+}
 
 
-void visSurvey::RandomTrackDisplay::getAllKnotPos( TypeSet<Coord>& crdset )
+BinID visSurvey::RandomTrackDisplay::getManipKnotPos( int knotidx ) const
+{
+    Coord crd = track->getDraggerKnotPos( knotidx );
+    return BinID( (int)crd.x, (int)crd.y );
+}
+
+
+void visSurvey::RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& bidset )
 {
     const int nrknots = track->nrKnots();
     for ( int idx=0; idx<nrknots; idx++ )
-	crdset += getManipKnotPos( idx );
+	bidset += getManipKnotPos( idx );
 }
 
 
-void visSurvey::RandomTrackDisplay::setKnotPos( int knotidx, const Coord& crd )
-{ track->setKnotPos( knotidx, crd ); }
+void visSurvey::RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid )
+{ track->setKnotPos( knotidx, Coord(bid.inl,bid.crl) ); }
 
 
 void visSurvey::RandomTrackDisplay::removeKnot( int knotidx )
@@ -178,7 +192,7 @@ void visSurvey::RandomTrackDisplay::removeAllKnots()
     for ( int idi=0; idi<nrlines; idi++ ) \
     { \
 	BinID bid; \
-	int bidx = (int)start.x + idi*step; \
+	int bidx = start.x + idi*step; \
 	float val = linearInterpolate( (float)start.x, (float)start.y, \
 				       (float)stop.x, (float)stop.y, \
 				       (float)bidx ); \
@@ -193,22 +207,22 @@ void visSurvey::RandomTrackDisplay::removeAllKnots()
 void visSurvey::RandomTrackDisplay::getDataPositions( TypeSet<BinID>& bids )
 {
     deepErase( bidsset );
-    TypeSet<Coord> crdset;
-    getAllKnotPos( crdset );
-    for ( int idx=1; idx<crdset.size(); idx++ )
+    TypeSet<BinID> bidset;
+    getAllKnotPos( bidset );
+    for ( int idx=1; idx<bidset.size(); idx++ )
     {
 	TypeSet<BinID>* bset = new TypeSet<BinID>;
 	bidsset += bset;
-	Coord start = crdset[idx-1];
-	Coord stop = crdset[idx];
-	const int nrinl = int(fabs(stop.x - start.x)/SI().inlWorkStep() + 1);
-	const int nrcrl = int(fabs(stop.y - start.y)/SI().crlWorkStep() + 1);
+	BinID start = bidset[idx-1];
+	BinID stop = bidset[idx];
+	const int nrinl = int(abs(stop.inl-start.inl) / SI().inlWorkStep() + 1);
+	const int nrcrl = int(abs(stop.crl-start.crl) / SI().crlWorkStep() + 1);
 	bool inlwise = nrinl > nrcrl;
 	int nrlines = inlwise ? nrinl : nrcrl;
 	if ( inlwise )
-	{ mGetBinIDs(x,y); }
+	{ mGetBinIDs(inl,crl); }
 	else 
-	{ mGetBinIDs(y,x); }
+	{ mGetBinIDs(crl,inl); }
     }
 }
 
@@ -302,6 +316,16 @@ void visSurvey::RandomTrackDisplay::knotMoved( CallBacker* cb )
     
     selknotidx = sel;
     knotmoving.trigger();
+}
+
+
+void visSurvey::RandomTrackDisplay::checkPosition( BinID& binid )
+{
+    const BinIDRange rg = SI().range();
+    if ( binid.inl < rg.start.inl ) binid.inl = rg.start.inl;
+    if ( binid.inl > rg.stop.inl ) binid.inl = rg.stop.inl;
+    if ( binid.crl < rg.start.crl ) binid.crl = rg.start.crl;
+    if ( binid.crl > rg.stop.crl ) binid.crl = rg.stop.crl;
 }
 
 

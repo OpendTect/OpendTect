@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.5 2003-02-14 18:20:39 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.6 2003-02-19 16:10:46 nanne Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class AttribSelSpec;
 class CubeSampling;
-class Coord;
+class BinID;
 class SeisTrc;
 class BinID;
 
@@ -53,13 +53,13 @@ public:
     
 
     int				nrKnots() const;
-    void			addKnot(const Coord&);
-    void			addKnots(TypeSet<Coord>);
-    void			insertKnot(int,const Coord&);
-    void			setKnotPos(int,const Coord&);
-    Coord			getKnotPos(int) const;
-    Coord			getManipKnotPos(int) const;
-    void			getAllKnotPos(TypeSet<Coord>&);
+    void			addKnot(const BinID&);
+    void			addKnots(TypeSet<BinID>);
+    void			insertKnot(int,const BinID&);
+    void			setKnotPos(int,const BinID&);
+    BinID			getKnotPos(int) const;
+    BinID			getManipKnotPos(int) const;
+    void			getAllKnotPos(TypeSet<BinID>&);
     void			removeKnot(int);
     void			removeAllKnots();
     void			acceptManip();
@@ -97,6 +97,7 @@ protected:
     int				selknotidx;
 
     const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&);
+    void			checkPosition(BinID&);
 
     ObjectSet< TypeSet<BinID> > bidsset;
 };
