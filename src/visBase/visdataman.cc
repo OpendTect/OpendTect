@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.2 2002-03-11 13:57:43 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.3 2002-03-12 06:34:48 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -55,7 +55,7 @@ bool visBase::DataManager::removeAll(int nriterations)
     if ( !nriterations )
     {
 #if DEBUG==yes
-	cerr << "Internal error in 'visBase::DataManager::removeAll()'"
+	cerr << "Internal error in 'visBase::DataManager::removeAll():\n'"
 		"All objects not unreferenced" << endl;
 #endif
 	while ( objects.size() ) remove( 0 );

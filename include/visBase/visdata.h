@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.2 2002-03-11 13:37:47 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.3 2002-03-12 06:34:58 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,10 +49,10 @@ public:
     virtual i_Notifier*	deSelection() { return 0; }
 			
 protected:
-    friend		SelectionManager;
-    const SoNode*	getSelObj() const { return 0; }
-    virtual void	triggerSel() {}
-    virtual void	triggerDeSel() {}
+    friend			SelectionManager;
+    virtual const SoNode*	getSelObj() const { return 0; }
+    virtual void		triggerSel() {}
+    virtual void		triggerDeSel() {}
     
 			DataObject();
     virtual		~DataObject();
