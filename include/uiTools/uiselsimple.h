@@ -1,5 +1,5 @@
-#ifndef uiexecutor_h
-#define uiexecutor_h
+#ifndef uiselsimple_h
+#define uiselsimple_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.1 2001-12-04 16:34:35 bert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.2 2002-05-28 08:40:58 bert Exp $
 ________________________________________________________________________
 
 -*/
