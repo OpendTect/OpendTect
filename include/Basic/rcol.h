@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.4 2004-10-04 09:45:55 kristofer Exp $
+ RCS:		$Id: rcol.h,v 1.5 2004-10-21 07:00:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 /*!\brief Object with row and col, which are accesable through r() and c(). */
 
 #include "gendefs.h"
+
+#include <math.h>
 
 template <class T> class TypeSet;
 
