@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.9 2002-11-05 15:13:38 arend Exp $
+ RCS:           $Id: uiparentbody.h,v 1.10 2003-03-24 15:10:47 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
 				//uiParentBody( const char* nm = "uiParentBody")
 				uiParentBody( const char* nm )
 				    : UserIDObject( nm )
-				    , finalised( false )
+				    , finalised_( false )
 				    , destructing( 0xdeadbeef )
 				{}
 
@@ -60,6 +60,7 @@ public:
 					      uiObject* other, int margin,
 					      bool reciprocal ) =0;
 
+    bool			finalised() const	{ return finalised_; }
     virtual void 		finalise(bool t=false)		
 				{ 
 				    finaliseChildren(); 
@@ -92,7 +93,7 @@ protected:
 
 private:
 
-    bool			finalised;
+    bool			finalised_;
     int				destructing;
 //    bool			restored_position;
 

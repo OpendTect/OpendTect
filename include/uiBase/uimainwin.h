@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.28 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.29 2003-03-24 15:10:47 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,8 @@ public:
 
 
     bool		poppedUp() const;
-    void		touch(); //!< resets pop-up timer if !poppedUp yet
+    bool		touch(); //!< resets pop-up timer if !poppedUp yet
+    bool		finalised() const;
     virtual uiMainWin*	mainwin()				{ return this; }
 
 protected:
