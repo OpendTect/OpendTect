@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.11 2002-08-02 12:48:17 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.12 2002-08-12 09:47:36 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
@@ -118,6 +118,9 @@ bool SeisTrcWriter::openConn()
 
 bool SeisTrcWriter::initWrite( const SeisTrc& trc )
 {
+    if ( wrinited ) return true;
+    wrinited = true; // make sure we don't do this again
+
     delete conn; conn = 0;
     if ( !trl )
     {
@@ -133,7 +136,6 @@ bool SeisTrcWriter::initWrite( const SeisTrc& trc )
 	    errmsg = "No information for output creation";
 	return false;
     }
-    wrinited = true;
     if ( !trl->initWrite( *conn, trc ) )
 	return false;
 
@@ -191,7 +193,7 @@ bool SeisTrcWriter::handleConn( const SeisTrc& trc, bool tonext )
 	return false;
     }
 
-    return initWrite( trc );
+    return wrinited ? true : initWrite(trc);
 }
 
 
