@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.h,v 1.1 2003-02-19 16:12:42 nanne Exp $
+ RCS:           $Id: uibinidtable.h,v 1.2 2003-03-12 16:23:30 arend Exp $
  ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ protected:
     uiTable*		table;
 			
     void		init(int);
+    void		nodeAdded(CallBacker* cb=0);
 
 };
 
