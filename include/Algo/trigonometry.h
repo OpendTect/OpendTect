@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.1 2002-12-28 12:33:42 kristofer Exp $
+ RCS:		$Id: trigonometry.h,v 1.2 2003-04-14 08:41:23 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 class Coord3;
 template <class T> class TypeSet;
+template <class T> class ObjectSet;
 
 /*!\brief
 
@@ -49,6 +50,13 @@ public:
 
 
 Vector3 operator*( float, const Vector3& b );
+
+/*! \brief
+Divides a sphere in a number of vectors, divided by approximately dangle from
+each other. dradius is given in radians
+*/
+
+ObjectSet<Vector3>* makeSphereVectorSet( double dangle );
 
 class Quarternion
 {
