@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.15 2002-03-18 14:45:41 kristofer Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.16 2002-04-09 06:02:52 kristofer Exp $";
 
 #include "visrectangle.h"
 #include "geompos.h"
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: visrectangle.cc,v 1.15 2002-03-18 14:45:41 kris
 #include "Inventor/nodes/SoDrawStyle.h"
 #include "Inventor/nodes/SoMaterial.h"
 #include "Inventor/nodes/SoShapeHints.h"
+#include "Inventor/nodes/SoTexture2.h"
+
 
 #include "Inventor/draggers/SoTabPlaneDragger.h"
 #include "Inventor/draggers/SoTranslate1Dragger.h"
@@ -148,6 +150,9 @@ visBase::RectangleDragger::~RectangleDragger()
 
 void visBase::RectangleDragger::setCenter( const Geometry::Pos& pos_ )
 {
+    bool allowcb_bak = allowcb;
+    allowcb = false;
+
     Geometry::Pos pos( pos_ );
 
     manipxydragger->translation.setValue( pos.x, pos.y, pos.z );
@@ -174,6 +179,7 @@ void visBase::RectangleDragger::setCenter( const Geometry::Pos& pos_ )
     manipzdraggerleft->translation.setValue( pos.z, yd, xd );
 
     syncronizeDraggers();
+    allowcb = allowcb_bak;
 }
 
 
@@ -187,7 +193,13 @@ Geometry::Pos visBase::RectangleDragger::center() const
 
 void visBase::RectangleDragger::setScale( float x, float y )
 {
+    bool allowcb_bak = allowcb;
+    allowcb = false;
+
     manipxydragger->scaleFactor.setValue( x, y, 1 );
+    syncronizeDraggers();
+
+    allowcb = allowcb_bak;
 }
 
 
@@ -200,8 +212,13 @@ float visBase::RectangleDragger::scale( int dim ) const
 
 void visBase::RectangleDragger::setDraggerSize( float w, float h, float d )
 {
+    bool allowcb_bak = allowcb;
+    allowcb = false;
+
     zdraggerscale->scaleFactor.setValue( w, h, d );
     syncronizeDraggers();
+
+    allowcb = allowcb_bak;
 }
 
 
@@ -315,6 +332,7 @@ void visBase::RectangleDragger::motionCB(void* obj, SoDragger* )
 
 void visBase::RectangleDragger::valueChangedCB(void* obj, SoDragger* d )
 {
+    if ( !((visBase::RectangleDragger*) obj)->allowcb ) return;
     ((visBase::RectangleDragger*) obj)->draggerHasMoved( d );
     ((visBase::RectangleDragger*) obj)->changed.trigger();
 }
@@ -343,7 +361,6 @@ visBase::Rectangle::Rectangle( bool usermanip)
     , localorigotrans( new SoTranslation )
     , localscale( new SoScale )
     , widthscale( new SoScale )
-    , planesep( new SoSeparator )
     , plane( new SoFaceSet )
     , manipswitch( 0 )
     , maniprectswitch( 0 )
@@ -394,8 +411,7 @@ visBase::Rectangle::Rectangle( bool usermanip)
     addChild( nbind );
     nbind->value = SoNormalBinding::PER_FACE;
 
-    addChild( planesep );
-    planesep->addChild( plane );
+    addChild( plane );
     plane->numVertices.set1Value(0, 5);
 
     if ( dragger )
@@ -424,6 +440,7 @@ visBase::Rectangle::Rectangle( bool usermanip)
 	SoMaterial* maniprectmaterial = new SoMaterial;
 	manipsep->addChild( maniprectmaterial );
 	maniprectmaterial->transparency.setValue( 0.5 );
+	manipsep->addChild( new SoTexture2 );
 	maniprectswitch = new SoSwitch;
 	maniprectswitch->addChild( plane );
 	maniprectswitch->whichChild = SO_SWITCH_NONE;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.16 2002-03-20 20:41:37 bert Exp $
+ RCS:		$Id: visrectangle.h,v 1.17 2002-04-09 06:02:55 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -157,7 +157,6 @@ protected:
     SoTranslation*	localorigotrans;
     SoScale*		localscale;
     SoScale*		widthscale;
-    SoSeparator*	planesep;
 
     SoFaceSet*		plane;
 
