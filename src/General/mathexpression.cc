@@ -635,10 +635,13 @@ MathExpression* MathExpression::parse( const char* input )
 	return res;
     }
 
-    if ( (!strncmp( str, "min(", 4 ) || !strncmp( str, "max(", 4 )) 
-	    && str[len-1] == ')' )
+    if ( (!strncmp( str, "min(", 4 ) || 
+	  !strncmp( str, "max(", 4 ) ||
+	  !strncmp( str, "sum(", 4 ) ||
+	  !strncmp( str, "med(", 4 ) ||
+	  !strncmp( str, "var(", 4 ) ||
+	  !strncmp( str, "avg(", 4 ) ) && str[len-1] == ')' )
     {
-	bool max = !strncmp( str, "max(", 4 );
 	TypeSet<int> argumentstop;
 
 	for ( int idx=4; idx<len; idx++ )
@@ -649,7 +652,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    parens(str, idx, parenslevel, len);
 	    if ( parenslevel ) continue;
 
-	    if ( str[idx] == ',' || str[idx] == ')')
+	    if ( str[idx] == ',' || str[idx] == ')' )
 	    {
 		if ( !idx ) return 0;
 
@@ -678,9 +681,22 @@ MathExpression* MathExpression::parse( const char* input )
 	    inputs += inp;
 	}
 
-	MathExpression* res = max
-	    ? (MathExpression*) new MathExpressionMax( inputs.size() ) 
-	    : (MathExpression*) new MathExpressionMin( inputs.size() );
+	MathExpression* res = 0;
+	if ( !strncmp( str, "max(", 4 ) )
+	    res = (MathExpression*) new MathExpressionMax( inputs.size() );
+	else if ( !strncmp( str, "min(", 4 ) )
+	    res = (MathExpression*) new MathExpressionMin( inputs.size() );
+	else if ( !strncmp( str, "sum(", 4 ) )
+	    res = (MathExpression*) new MathExpressionSum( inputs.size() );
+	else if ( !strncmp( str, "med(", 4 ) )
+	    res = (MathExpression*) new MathExpressionMedian( inputs.size() );
+	else if ( !strncmp( str, "avg(", 4 ) )
+	    res = (MathExpression*) new MathExpressionAverage( inputs.size() );
+	else if ( !strncmp( str, "var(", 4 ) )
+	    res = (MathExpression*) new MathExpressionVariance( inputs.size() );
+
+	if ( !res )
+	    return res;
 
 	for ( int idx=0; idx<inputs.size(); idx++ )
 	    res->setInput( idx, inputs[idx] );
