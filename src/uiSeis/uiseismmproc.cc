@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.35 2003-01-06 10:32:06 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.36 2003-01-07 11:59:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,11 @@ ________________________________________________________________________
 #include "uistatusbar.h"
 #include "uislider.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "hostdata.h"
 #include "ioparlist.h"
 #include "ioman.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "timer.h"
 #include "timefun.h"
 #include "filegen.h"
@@ -73,12 +74,31 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
     if ( res )
     {
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(res) );
-	isrestart = ioobj && ioobj->implExists(true);
+	mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
+	if ( !iostrm )
+	    isrestart = ioobj ? ioobj->implExists(true) : false;
+	else
+	{
+	    BufferString dir = File_getPathOnly(iostrm->fileName());
+	    isrestart = File_exists( dir );
+	}
     }
 
     uiSeparator* sep = 0;
+    uiObject* sepattach = 0;
+    bool attaligned = true;
     if ( isrestart )
+    {
 	jm->setRestartID( res );
+	finaliseDone.notify( mCB(this,uiSeisMMProc,doCycle) );
+	res = iopar.find( sTmpStorKey );
+	if ( res )
+	{
+	    BufferString msg( sTmpStorKey ); msg += ": "; msg += res;
+	    sepattach = new uiLabel( this, msg );
+	    attaligned = false;
+	}
+    }
     else
     {
 	tmpstordirfld = new uiIOFileSelect( this, sTmpStorKey, false,
@@ -87,10 +107,14 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 	res = iopar.find( sTmpStorKey );
 	if ( res && File_isDirectory(res) ) tmpstordirfld->setInput( res );
 	tmpstordirfld->selectDirectory( true );
-	sep = new uiSeparator( this, "Hor sep 1", true );
-	sep->attach( stretchedBelow, tmpstordirfld );
+	sepattach = tmpstordirfld->uiObj();
     }
 
+    if ( sepattach )
+    {
+	sep = new uiSeparator( this, "Hor sep 1", true );
+	sep->attach( stretchedBelow, sepattach );
+    }
     machgrp = new uiGroup( this, "Machine handling" );
 
     HostDataList hdl;
@@ -123,9 +147,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm,
 
     usedmachgrp->attach( ensureRightOf, addbut );
     machgrp->setHAlignObj( addbut );
-    if ( tmpstordirfld )
+    if ( sep )
     {
-	machgrp->attach( alignedBelow, tmpstordirfld );
+	if ( attaligned )
+	    machgrp->attach( alignedBelow, sepattach );
 	machgrp->attach( ensureBelow, sep );
     }
 
@@ -209,7 +234,7 @@ void uiSeisMMProc::setDataTransferrer( SeisMMJobMan* newjm )
 static int askRemaining( const SeisMMJobMan& jm )
 {
     const int nrlines = jm.totalNr();
-    if ( nrlines == 0 ) return 1;
+    if ( nrlines < 1 ) return 1;
     int linenr = jm.lineToDo(0);
     BufferString msg;
     if ( nrlines == 1 )
@@ -222,39 +247,8 @@ static int askRemaining( const SeisMMJobMan& jm )
     else
     {
 	msg = "The following inlines were not calculated.\n"
-		"This may be due to gaps or an unexpected error.\n";
-
-	int intvstep = mUndefIntVal;
-	int prevline = linenr;
-	for ( int idx=1; idx<nrlines; idx++ )
-	{
-	    linenr = jm.lineToDo(idx);
-	    if ( linenr - prevline < intvstep )
-		intvstep = linenr - prevline;
-	    prevline = linenr;
-	}
-
-	int intvstart = prevline = jm.lineToDo( 0 );
-	for ( int idx=1; idx<=nrlines; idx++ )
-	{
-	    linenr = idx == nrlines ? prevline + intvstep+1 : jm.lineToDo(idx);
-	    if ( linenr - prevline != intvstep )
-	    {
-		if ( prevline == intvstart )
-		    // Prev line is stand-alone
-		    msg += prevline;
-		else if ( prevline - intvstart == intvstep )
-		    // Prev line and cur are a pair only
-		    { msg += intvstart; msg += " "; msg += prevline; }
-		else
-		    // A real range of lines
-		    { msg += intvstart; msg += "-"; msg += prevline; }
-		msg += " ";
-		intvstart = linenr;
-	    }
-	    prevline = linenr;
-	}
-
+		"This may be due to gaps or unexpected errors.\n";
+	jm.getToDoList( msg );
 	msg += "\nDo you want to try to calculate these lines?";
     }
 
@@ -271,11 +265,13 @@ void uiSeisMMProc::execFinished()
 	    ErrMsg( "Could not remove all temporary seismics" );
 	progrfld->append( "Data transferred" );
 	statusBar()->message( "Finished", 0 );
+	statusBar()->message( "", 3 );
 	finished = true;
 	setOkText( "Quit" ); setCancelText( "Quit" );
     }
     else
     {
+	const bool isrestart = !tmpstordirfld;
 	stopRunningJobs();
 	updateCurMachs();
 	progrfld->append( "Checking integrity of processed data" );
@@ -285,7 +281,14 @@ void uiSeisMMProc::execFinished()
 	else
 	{
 	    bool start_again = true;
-	    if ( tmpstordirfld )
+	    if ( isrestart )
+	    {
+		BufferString msg( "Re-starting processing for inlines:\n" );
+		newjm->getToDoList( msg );
+		uiMSG().message( msg );
+		progrfld->append( "Ready to start remaining processing" );
+	    }
+	    else
 	    {
 		int res = askRemaining( *newjm );
 		if ( res == 2 )
@@ -461,8 +464,11 @@ void uiSeisMMProc::addPush( CallBacker* )
 
     if ( !running && jm->nrHostsInQueue() )
     {
-	tmpstordirfld->setSensitive(false);
-	jm->setTempStorageDir( tmpstordirfld->getInput() );
+	if ( tmpstordirfld )
+	{
+	    tmpstordirfld->setSensitive(false);
+	    jm->setTempStorageDir( tmpstordirfld->getInput() );
+	}
 	jm->setRemExec( rshcomm );
 	running = true;
 	prepareNextCycle(0);
