@@ -5,7 +5,7 @@
  * FUNCTION : Functions for time
 -*/
 
-static const char* rcsID = "$Id: timefun.cc,v 1.9 2004-04-15 13:12:24 macman Exp $";
+static const char* rcsID = "$Id: timefun.cc,v 1.10 2004-10-06 12:03:26 dgb Exp $";
 
 #include "timefun.h"
 #include <time.h>
@@ -106,7 +106,8 @@ void Time_sleep( double s )
 
 # ifdef __win__
 
-    Sleep( (DWORD)mNINT(s) );
+    double ss = s*1000;
+    Sleep( (DWORD)mNINT(ss) );
 
 # else
 
