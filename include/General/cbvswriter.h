@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.16 2002-09-20 11:00:51 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.17 2002-10-03 07:45:58 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
 			//!< The default is unlimited
     void		setByteThreshold( unsigned long n )
 						{ thrbytes_ = n; }		
+    void		forceXlineStep( int stp )
+						{ forcedxlinestep = stp; }
 
     int			put(void**,int offs=0);
 			//!< Expects a buffer for each component
@@ -69,6 +71,7 @@ protected:
     int			auxnrbytes;
     bool		input_rectnreg;
     int*		nrbytespersample_;
+    int			forcedxlinestep;
 
     void		writeHdr(const CBVSInfo&);
     void		putAuxInfoSel(unsigned char*) const;
