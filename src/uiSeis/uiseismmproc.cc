@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.70 2004-10-27 14:56:39 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.71 2004-10-28 15:15:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,8 +47,6 @@ ________________________________________________________________________
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	: uiDialog(p,uiDialog::Setup("Job management","","103.2.0")
 		.nrstatusflds(-1)
-		.oktext("Finish Now")
-		.canceltext("Abort")
 		.fixedsize())
 	, progname(prnm)
 	, hdl(*new HostDataList)
@@ -59,52 +57,68 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	, progrfld(0) , progbar(0)
 	, jrpstartfld(0), jrpstopfld(0)
     	, jobprov(0), jobrunner(0)
-    	, targetioobj(0)
+    	, outioobjinfo(0), isrestart(false)
 	, timer(0)
 {
     const IOPar& iopar = *iopl[0];
+    MultiID outid = iopar.find( SeisJobExecProv::outputKey(iopar) );
+    outioobjinfo = new uiSeisIOObjInfo( outid );
+    if ( !outioobjinfo->isOK() )
+	{ setOkText( "Quit" ); setCancelText( "" ); return; }
 
+    const int nrhosts = hdl.size();
+    const bool multihost = nrhosts > 1;
+    const int maxhostdisp =  nrhosts > 7 ? 8 : nrhosts;
+    const int hostnmwdth = 30;
+    is2d = outioobjinfo->is2D();
+
+    setOkText( "  Dismiss  " );
+    setTitleText( multihost ? "Multi-Machine Processing"
+		    : (is2d ? "Multi-line processing"
+			    : "Line-split processing") );
     const char* res = iopar.find( "Target value" );
     BufferString caption = "Processing";
     if ( res && *res )
 	{ caption += " '"; caption += res; caption += "'"; }
     setCaption( caption );
 
-    setTitleText( "Multi-Machine Processing" );
-
     statusBar()->addMsgFld( "Message", uiStatusBar::Left, 20 );
     statusBar()->addMsgFld( "DoneTxt", uiStatusBar::Right, 20 );
     statusBar()->addMsgFld( "NrDone", uiStatusBar::Left, 10 );
     statusBar()->addMsgFld( "Activity", uiStatusBar::Left, 1 );
 
-    BufferString tmpstordir = iopar.find( SeisJobExecProv::sKeyTmpStor );
-    const bool isrestart = tmpstordir != "";
-    if ( !isrestart )
-    {
-	tmpstordir = SeisJobExecProv::getDefTempStorDir();
-	FilePath fp( tmpstordir ); fp.setFileName( 0 );
-	tmpstordir = fp.fullPath();
-    }
-
     uiSeparator* sep = 0;
     uiObject* sepattach = 0;
     bool attaligned = true;
-    if ( isrestart )
+    if ( !is2d )
     {
-	BufferString msg( SeisJobExecProv::sKeyTmpStor ); msg += ": ";
-	msg += tmpstordir;
-	sepattach = new uiLabel( this, msg );
-	attaligned = false;
-    }
-    else
-    {
-	tmpstordirfld = new uiIOFileSelect( this, SeisJobExecProv::sKeyTmpStor,
-					    false, tmpstordir );
-	tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
-	if ( tmpstordir != "" && File_isDirectory(tmpstordir) )
-	    tmpstordirfld->setInput( tmpstordir );
-	tmpstordirfld->selectDirectory( true );
-	sepattach = tmpstordirfld->mainObject();
+	BufferString tmpstordir = iopar.find( SeisJobExecProv::sKeyTmpStor );
+	isrestart = tmpstordir != "";
+	if ( !isrestart )
+	{
+	    tmpstordir = SeisJobExecProv::getDefTempStorDir();
+	    FilePath fp( tmpstordir ); fp.setFileName( 0 );
+	    tmpstordir = fp.fullPath();
+	}
+
+	if ( isrestart )
+	{
+	    BufferString msg( SeisJobExecProv::sKeyTmpStor ); msg += ": ";
+	    msg += tmpstordir;
+	    sepattach = new uiLabel( this, msg );
+	    attaligned = false;
+	}
+	else
+	{
+	    tmpstordirfld = new uiIOFileSelect( this,
+			    SeisJobExecProv::sKeyTmpStor, false, tmpstordir );
+	    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
+	    if ( tmpstordir != "" && File_isDirectory(tmpstordir) )
+		tmpstordirfld->setInput( tmpstordir );
+	    tmpstordirfld->selectDirectory( true );
+	    tmpstordirfld->stretchHor( true );
+	    sepattach = tmpstordirfld->mainObject();
+	}
     }
 
     if ( sepattach )
@@ -114,8 +128,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     }
 
     uiGroup* machgrp = new uiGroup( this, "Machine handling" );
-    const bool multihost = hdl.size() > 1;
-    if ( multihost )
+    if ( !multihost )
+	attaligned = false;
+    else
     {
 	avmachfld = new uiLabeledListBox( machgrp, "Available hosts", true,
 					  uiLabeledListBox::AboveMid );
@@ -129,20 +144,16 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
 	    avmachfld->box()->addItem( nm );
 	}
 
-	avmachfld->setPrefWidthInChar( 30 );
-	machgrp->setHAlignObj( avmachfld );
-
+	avmachfld->setPrefWidthInChar( hostnmwdth );
+	avmachfld->setPrefHeightInChar( maxhostdisp );
     }
-    else
-	attaligned = false;
 
-
-    uiGroup* usedmachgrp = new uiGroup( machgrp, "Machine handling" );
+    uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
     usedmachfld = new uiLabeledListBox( usedmachgrp,
 				    multihost ? "Used hosts" : "", false,
 				    uiLabeledListBox::AboveMid );
-    usedmachfld->setPrefWidthInChar( 30 );
-
+    usedmachfld->setPrefWidthInChar( hostnmwdth );
+    usedmachfld->setPrefHeightInChar( maxhostdisp );
 
     uiButton* stopbut = new uiPushButton( usedmachgrp, "Stop" );
     stopbut->activated.notify( mCB(this,uiSeisMMProc,stopPush) );
@@ -151,75 +162,68 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
     uiButton* addbut;
-    if( multihost )
+    if ( multihost )
     {
 	stopbut->attach( alignedBelow, usedmachfld );
-
 	addbut = new uiPushButton( machgrp, ">> Add >>" );
-
 	if ( avmachfld ) addbut->attach( centeredRightOf, avmachfld );
-
 	usedmachgrp->attach( ensureRightOf, addbut );
-	machgrp->setHAlignObj( addbut );
-
+	machgrp->setHAlignObj( avmachfld );
     }
     else
     {
 	addbut = new uiPushButton( usedmachgrp, "Start" );
 	addbut->attach( alignedBelow, usedmachfld );
-	stopbut->attach( rightOf, addbut );
-
+	stopbut->attach( centeredBelow, usedmachfld );
     	machgrp->setHAlignObj( stopbut );
     }
-
     addbut->activated.notify( mCB(this,uiSeisMMProc,addPush) );
-
 
     if ( sep )
     {
-	if ( attaligned )
+	if ( false && attaligned )
 	    machgrp->attach( alignedBelow, sepattach );
 	machgrp->attach( ensureBelow, sep );
     }
 
     uiGroup* jrppolgrp = new uiGroup( this, "Job run policy group" );
-    jrppolselfld = new uiLabeledComboBox( jrppolgrp, "Assignment" );
-    jrppolselfld->box()->addItem( "Work" );
-    jrppolselfld->box()->addItem( "Pause" );
-    jrppolselfld->box()->addItem( "Go - Only between" );
-    jrppolselfld->box()->setCurrentItem( ((int)0) );
+
+    nicefld = new uiSlider( jrppolgrp, "Nice level" );
+    nicefld->setMinValue( -0.5 ); nicefld->setMaxValue( 19.5 );
+    nicefld->setValue( hdl.defNiceLevel() );
+    uiLabel* nicelbl = new uiLabel( jrppolgrp, "'Nice' level (0-19)" );
+    nicelbl->attach( rightOf, nicefld );
+    if ( avmachfld ) nicefld->setPrefWidthInChar( hostnmwdth );
+
+    jrppolselfld = new uiComboBox( jrppolgrp );
+    jrppolselfld->addItem( "Run" );
+    jrppolselfld->addItem( "Pause" );
+    jrppolselfld->addItem( "Go - Only between" );
+    jrppolselfld->setCurrentItem( ((int)0) );
+    jrppolselfld->selectionChanged.notify( mCB(this,uiSeisMMProc,jrpSel) );
+    jrppolselfld->attach( alignedBelow, nicefld );
+    if ( avmachfld ) jrppolselfld->setPrefWidthInChar( hostnmwdth );
+    jrpworklbl = new uiLabel( jrppolgrp, "Processes" );
+    jrpworklbl->attach( rightOf, jrppolselfld );
 
     BufferString tm = getenv("DTECT_STOP_OFFICEHOURS")
 		    ? getenv("DTECT_STOP_OFFICEHOURS") : "18:00";
     jrpstartfld = new uiGenInput( jrppolgrp, "", tm );
     jrpstartfld->attach( rightOf, jrppolselfld );
+
     tm  = getenv("DTECT_START_OFFICEHOURS")
 	? getenv("DTECT_START_OFFICEHOURS"): "7:30";
     jrpstopfld = new uiGenInput( jrppolgrp, "and", tm );
     jrpstopfld->attach( rightOf, jrpstartfld );
 
-    jrppolselfld->box()->selectionChanged.notify(
-	    mCB(this,uiSeisMMProc,jrpSel) );
-
-    if ( multihost )	jrppolgrp->setHAlignObj( jrpstartfld );
-    else		jrppolgrp->setHAlignObj( jrppolselfld );
-
-    jrppolgrp->attach( alignedBelow, machgrp );
+    jrppolgrp->setHAlignObj( nicefld );
+    jrppolgrp->attach( ensureBelow, machgrp );
 
     sep = new uiSeparator( this, "Hor sep 2", true );
     sep->attach( stretchedBelow, jrppolgrp );
-    autofillfld = new uiCheckBox( this, "Auto-fill" );
-    autofillfld->attach( alignedBelow, sep );
 
-    nicefld = new uiSlider( this, "Nice level" );
-    nicefld->setMinValue( -0.5 ); nicefld->setMaxValue( 19.5 );
-    nicefld->setValue( hdl.defNiceLevel() );
-    nicefld->attach( ensureBelow, sep );
-    nicefld->attach( rightBorder );
-
-    uiLabel* nicelbl = new uiLabel( this, "'Nice' level (0-19)", nicefld );
     progrfld = new uiTextEdit( this, "Processing progress", true );
-    progrfld->attach( alignedBelow, autofillfld );
+    progrfld->attach( ensureBelow, sep );
     progrfld->attach( widthSameAs, sep );
     progrfld->setPrefHeightInChar( 7 );
 
@@ -227,7 +231,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
     progbar->attach( widthSameAs, progrfld );
     progbar->attach( alignedBelow, progrfld );
 
-    finaliseDone.notify( mCB(this,uiSeisMMProc,jrpSel) );
+    finaliseDone.notify( mCB(this,uiSeisMMProc,initWin) );
 }
 
 
@@ -236,11 +240,19 @@ uiSeisMMProc::~uiSeisMMProc()
     delete logvwer;
     delete jobprov;
     delete jobrunner;
-    delete targetioobj;
+    delete outioobjinfo;
     delete timer;
 
     delete &hdl;
     delete &iopl;
+}
+
+
+void uiSeisMMProc::initWin( CallBacker* cb )
+{
+    jrpSel( cb );
+    if ( !avmachfld && (is2d || isrestart) )
+	addPush(cb);
 }
 
 
@@ -271,7 +283,6 @@ void uiSeisMMProc::startWork( CallBacker* )
     jobprov = new SeisJobExecProv( progname, inpiopar );
     if ( jobprov->errMsg() && *jobprov->errMsg() )
 	mErrRet(jobprov->errMsg())
-    targetioobj = IOM().get( jobprov->outputID() );
 
     jobrunner = jobprov->getRunner();
     if ( jobprov->errMsg() && *jobprov->errMsg() )
@@ -288,6 +299,9 @@ void uiSeisMMProc::startWork( CallBacker* )
     iopl += new IOPar( jobprov->pars() );
     iopl.write();
     iopl.deepErase();
+
+    setOkText( "Finish Now" );
+    setCancelText( "Abort" );
 
     timer = new Timer("uiSeisMMProc timer");
     timer->tick.notify( mCB(this,uiSeisMMProc,doCycle) );
@@ -337,12 +351,6 @@ void uiSeisMMProc::updateAliveDisp()
     static const int nrdispstrs = 4;
     static const char* dispstrs[] = { "o..", ".o.", "..o", ".o." };
     statusBar()->message( dispstrs[ nrcyclesdone % nrdispstrs ], 3 );
-}
-
-
-bool uiSeisMMProc::rejectOK( CallBacker* )
-{
-    return true;
 }
 
 
@@ -405,13 +413,24 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
 
 void uiSeisMMProc::jrpSel( CallBacker* )
 {
-    const bool doshw = *jrppolselfld->box()->text() == 'G';
-    jrpstartfld->display( doshw );
-    jrpstopfld->display( doshw );
+    const bool isgo = *jrppolselfld->text() == 'G';
+    jrpstartfld->display( isgo );
+    jrpstopfld->display( isgo );
+    jrpworklbl->display( !isgo );
+}
+
+
+bool uiSeisMMProc::rejectOK( CallBacker* )
+{
+    if ( !outioobjinfo->ioObj() ) return true;
+
+    return true;
 }
 
 
 bool uiSeisMMProc::acceptOK(CallBacker*)
 {
+    if ( !outioobjinfo->ioObj() ) return true;
+
     return true;
 }

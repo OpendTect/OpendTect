@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.23 2004-10-27 14:56:39 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.24 2004-10-28 15:15:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,20 +16,21 @@ ________________________________________________________________________
 class IOPar;
 class IOObj;
 class Timer;
+class uiLabel;
 class Executor;
 class uiSlider;
 class JobRunner;
 class IOParList;
 class uiTextEdit;
-class uiCheckBox;
 class uiGenInput;
+class uiComboBox;
 class HostDataList;
 class uiProgressBar;
 class uiFileBrowser;
 class uiIOFileSelect;
+class uiSeisIOObjInfo;
 class SeisJobExecProv;
 class uiLabeledListBox;
-class uiLabeledComboBox;
 
 
 class uiSeisMMProc : public uiDialog
@@ -47,25 +48,28 @@ protected:
     Executor*		task;
     Timer*		timer;
     IOParList&		iopl;
-    IOObj*		targetioobj;
     BufferString	progname;
     int			nrcyclesdone;
+    uiSeisIOObjInfo*	outioobjinfo;
+    bool		isrestart;
+    bool		is2d;
 
     uiLabeledListBox*	avmachfld;
     uiLabeledListBox*	usedmachfld;
-    uiLabeledComboBox*	jrppolselfld;
-    uiCheckBox*		autofillfld;
+    uiComboBox*		jrppolselfld;
     uiIOFileSelect*	tmpstordirfld;
     uiTextEdit*		progrfld;
     uiFileBrowser*	logvwer;
     uiGenInput*		jrpstartfld;
     uiGenInput*		jrpstopfld;
+    uiLabel*		jrpworklbl;
     uiSlider*		nicefld;
     uiProgressBar*	progbar;
 
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 
+    void		initWin(CallBacker*);
     void		doCycle(CallBacker*);
     void		addPush(CallBacker*);
     void		stopPush(CallBacker*);
