@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.15 2004-11-16 10:08:06 dgb Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.16 2004-12-16 09:39:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ ________________________________________________________________________
 
 int main( int argc, char ** argv )
 {
+    od_putProgInfo( argc, argv );
+
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
 
