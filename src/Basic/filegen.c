@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.15 2002-03-15 14:13:53 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.16 2002-03-15 16:07:09 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -147,9 +147,13 @@ const char* File_getPathOnly( const char* fullpath )
 #else
 
     /* search for last occurrence of directory separator in path */
-    chptr = strrchr( pathbuf, *dirsep );
-    if ( chptr ) *chptr = '\0';
-    else	 strcpy( pathbuf, "." );
+    chptr = pathbuf;
+    while ( *chptr ) chptr++;
+    chptr--;
+    while ( *chptr && *chptr == *dirsep ) *chptr-- = '\0';
+    while ( *chptr && *chptr != *dirsep ) *chptr-- = '\0';
+    while ( *chptr && *chptr == *dirsep ) *chptr-- = '\0';
+    if ( !*chptr ) strcpy( pathbuf, "." );
 
 #endif
 
