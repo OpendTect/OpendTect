@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.18 2001-12-07 12:47:01 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.19 2001-12-07 17:43:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,8 +307,8 @@ public:
     void		accept( CallBacker* s)	
 			    { if( mHandle.acceptOK(s) ) done_(1); }
                         //!< to be called by a 'ok' button
-    void		done( CallBacker* s )	
-			    { if( mHandle.doneOK(s) ) done_(2); }
+    void		done( int i )
+			    { if( mHandle.doneOK(i) ) done_(i); }
 
     void		uiSetResult( int v ) { reslt = v; }
     int			uiResult(){ return reslt; }
@@ -558,7 +558,7 @@ uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
 int uiDialog::go()				{ return mBody->exec(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
 void uiDialog::accept( CallBacker*cb)		{ mBody->accept( cb ); }
-void uiDialog::done( CallBacker*cb)		{ mBody->done( cb ); }
+void uiDialog::done( int i )			{ mBody->done( i ); }
 void uiDialog::setSpacing( int s )		{ mBody->setSpacing(s); }
 void uiDialog::setBorder( int b )		{ mBody->setBorder(b); }
 void uiDialog::setCaption( const char* txt )	{ mBody->setCaption(txt); }
