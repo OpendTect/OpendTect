@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.10 2003-01-09 12:57:46 kristofer Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.11 2003-03-13 12:21:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,11 +66,16 @@ public:
     void		setTexture( Texture3& );
     Texture3&		getTexture();
 
+    virtual void	fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int		usePar(const IOPar&);
+
 protected:
 			~Texture3Viewer();
     Texture3*		texture;
 
     ObjectSet<Texture3ViewerObject>	textureobjects;
+
+    static const char*	textureidstr;
 };
 
 

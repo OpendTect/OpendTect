@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.14 2003-03-04 15:51:32 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.15 2003-03-13 12:21:09 nanne Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.14 2003-03-04 15:51:32
 #include "visdataman.h"
 #include "vistexture3.h"
 #include "visselman.h"
+#include "iopar.h"
 
 #include "Inventor/nodes/SoRotation.h"
 #include "Inventor/nodes/SoCoordinate3.h"
@@ -20,6 +21,9 @@ static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.14 2003-03-04 15:51:32
 #include "Inventor/nodes/SoTextureCoordinate3.h"
 #include "Inventor/nodes/SoShapeHints.h"
 #include "SoTranslateRectangleDragger.h"
+
+
+const char* visBase::Texture3Viewer::textureidstr = "Texture ID";
 
 mCreateFactoryEntry( visBase::Texture3Viewer );
 mCreateFactoryEntry( visBase::MovableTextureSlice );
@@ -136,6 +140,36 @@ void visBase::Texture3Viewer::setTexture( Texture3& nt )
 
 visBase::Texture3& visBase::Texture3Viewer::getTexture()
 { return *texture; }
+
+
+void visBase::Texture3Viewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    int textureid = texture->id();
+    par.set( textureidstr, textureid );
+
+    if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
+}
+
+
+int visBase::Texture3Viewer::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res != 1 ) return res;
+
+    int textureid;
+    if ( !par.get( textureidstr, textureid ) ) return 1; // old session file
+    DataObject* dobj = DM().getObj( textureid );
+    if ( !dobj ) return 0;
+    mDynamicCastGet(Texture3*,texture_,dobj)
+    if ( !texture_ ) return -1;
+
+    setTexture( *texture_ );
+
+    return 1;
+}
+
 
 
 visBase::Texture3Slice::Texture3Slice()
