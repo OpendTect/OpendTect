@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.2 2001-07-31 09:53:53 nanne Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.3 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class uiGenInput;
 class uiPushButton;
 class SurveyInfo;
 class uiSurveyMap;
+class uiLabel;
 
 
 class uiSurveyInfoEditor : public uiDialog
@@ -70,7 +71,7 @@ protected:
     bool		appButPushed();
     void		chgSetMode( CallBacker* );
     bool		acceptOK(CallBacker*);
-    void		finalise_();
+    void		doFinalise();
     void		setInl1Fld( CallBacker* );
 };
 
