@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.38 2003-03-18 16:05:18 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.39 2003-03-19 09:14:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,15 +29,15 @@ extern "C" const char* GetBaseDataDir();
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_, 
 					const CallBack& appcb )
-	: uiDialog(p,uiDialog::Setup("Survey setup",
-		    		     "Specify survey parameters","0.3.2")
-				.nrstatusflds(1))
-	, rootdir( GetBaseDataDir() )
-	, dirnmch_(0)
-	, survinfo(si_)
-	, survparchanged(this)
-    	, x0fld(0)
-    	, orgdirname(si_ ? (const char*)si_->dirname : "")
+    : uiDialog(p,uiDialog::Setup("Survey setup",
+				 "Specify survey parameters","0.3.2")
+				 .nrstatusflds(1))
+    , rootdir( GetBaseDataDir() )
+    , dirnmch_(0)
+    , survinfo(si_)
+    , survparchanged(this)
+    , x0fld(0)
+    , orgdirname(si_ ? (const char*)si_->dirname : "")
 {
     if ( !si_ ) return;
 
@@ -87,15 +87,19 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_,
     if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
+
+    bool isdtect = GetDgbApplicationCode() == mDgbApplCodeDTECT;
     timefld = new uiRadioButton( rangegrp, "msec" );
     timefld->setChecked( true );
     timefld->attach( alignedBelow, zfld );
     timefld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
     meterfld = new uiRadioButton( rangegrp, "meter" );
     meterfld->attach( rightTo, timefld );
+    meterfld->setSensitive( isdtect );
     meterfld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
     feetfld = new uiRadioButton( rangegrp, "feet" );
     feetfld->attach( rightTo,meterfld );
+    feetfld->setSensitive( isdtect );
     feetfld->activated.notify( mCB(this,uiSurveyInfoEditor,unitPush) );
     uiLabel* unitlbl = new uiLabel( rangegrp, "Unit" );
     unitlbl->attach( leftOf, timefld );
