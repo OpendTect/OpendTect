@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.41 2003-11-07 12:22:03 bert Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.42 2003-12-08 10:05:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,8 +288,19 @@ float visSurvey::VolumeDisplay::getValue( const Coord3& pos ) const
     Coord3 cubewidth = width();
 
     const int setsz = cache->size();
-    const int sz0 = (*cache)[0]->info().getSize(0);
-    const int sz1 = (*cache)[0]->info().getSize(1);
+    int sz0, sz1, idx;
+    sz0 = sz1 = idx = 0;
+    while ( true )
+    {
+	AttribSlice* slice = (*cache)[idx];
+	if ( !slice ) { idx++; continue; }
+
+	sz0 = slice->info().getSize(0);
+	sz1 = slice->info().getSize(1);
+	break;
+    }
+
+    if ( !sz0 || !sz1 ) return mUndefValue;
 
     double setidx, idx0, idx1;
     if ( cache->direction == AttribSlice::Inl )
@@ -315,7 +326,8 @@ float visSurvey::VolumeDisplay::getValue( const Coord3& pos ) const
 	 idx0 < 0 || idx0 > sz0-1 || idx1 < 0 || idx1 > sz1-1 )
 	return mUndefValue;
 
-    return (*cache)[(int)setidx]->get( (int)idx0, (int)idx1 );
+    AttribSlice* curslice = (*cache)[(int)setidx];
+    return curslice ? curslice->get( (int)idx0, (int)idx1 ) : mUndefValue;
 }
 
 
