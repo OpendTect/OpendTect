@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.11 2001-07-21 16:35:47 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.12 2001-07-27 15:56:25 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -186,7 +186,8 @@ protected:
 
     void		addComp(const DataCharacteristics&,
 				const SamplingData<float>&,int,
-				const char* nm=0,const LinScaler* =0);
+				const char* nm=0,const LinScaler* =0,
+				int dtype=0);
 
     bool		initConn(Conn&,bool forread);
     void		setDataType( int icomp, int d )
