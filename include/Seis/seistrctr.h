@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.9 2001-04-24 10:52:27 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.10 2001-05-11 20:29:42 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -22,9 +22,11 @@ Translators for seismic traces.
 class Conn;
 class SeisTrc;
 class SeisTrcInfo;
+class BinID;
 class BinIDSelector;
 class SeisTrcSel;
 class SeisPacketInfo;
+class LinScaler;
 
 
 
@@ -75,6 +77,7 @@ public:
     class ComponentData : public BasicComponentInfo
     {
 	friend class	SeisTrcTranslator;
+
     protected:
 			ComponentData( const char* nm="Seismic Data" )
 			: BasicComponentInfo(nm)
@@ -101,7 +104,6 @@ public:
 	friend class	SeisTrcTranslator;
 
     public:
-			        ~TargetComponentData()			{}
 
 	int			destidx;
 	const ComponentData&	org;
@@ -125,10 +127,11 @@ public:
 			     Conn object must be always available */
     bool		initRead(Conn&);
 			/*!< After call, component and packet info will
-			   be available. */
+			   be available. Note that Conn MUST have IOObj* */
     bool		initWrite(Conn&,const SeisTrc&);
 			/*!< After call, default component and packet info
-			   will be generated according to the example trace. */
+			   will be generated according to the example trace.
+			   Note that Conn MUST have IOObj* */
 
     SeisPacketInfo&			packetInfo()	{ return pinfo; }
     const SeisTrcSel*			trcSel()	{ return trcsel; }
@@ -157,14 +160,17 @@ public:
 			//!< change the input to a supported characteristic
     virtual void	usePar(const IOPar*);
 
-    static int		selector(const char*);
-    static IOObjContext	ioContext();
-
     inline int		selComp( int nr=0 ) const	{ return inpfor_[nr]; }
     inline int		nrSelComps() const		{ return nrout_; }
     SeisTrc*		getEmpty();
 			/*!< Returns an empty trace with the target data
 				characteristics for component 0 */
+
+    virtual bool	supportsGoTo() const		{ return false; }
+    virtual bool	goTo(const BinID&)		{ return false; }
+
+    static int		selector(const char*);
+    static IOObjContext	ioContext();
 
 protected:
 
@@ -179,7 +185,7 @@ protected:
 
     void		addComp(const DataCharacteristics&,
 				const SamplingData<float>&,int,
-				const char* nm=0);
+				const char* nm=0,const LinScaler* =0);
 
     bool		initConn(Conn&,bool forread);
     void		setDataType( int icomp, int d )

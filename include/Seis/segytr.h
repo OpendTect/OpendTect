@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.2 2001-04-04 11:13:53 bert Exp $
+ RCS:		$Id: segytr.h,v 1.3 2001-05-11 20:29:40 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -16,6 +16,7 @@ Translators for SEGY files traces.
 
 #include <segylike.h>
 #include <segyhdr.h>
+class LinScaler;
 
 #define mSegyFmt "Number format"
 
@@ -32,7 +33,7 @@ public:
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar*);
 
-private:
+protected:
 
     SegyTraceheader	trhead;
     int			itrc;
@@ -40,6 +41,8 @@ private:
     StreamData&		dumpsd;
     short		binhead_ns;
     float		binhead_dpos;
+    LinScaler*		trcscale;
+    const LinScaler*	curtrcscale;
 
     bool		readTapeHeader();
     void		updateCDFromBuf();
@@ -48,6 +51,7 @@ private:
     bool		writeTapeHeader();
     void		fillHeaderBuf(const SeisTrc&);
     void		toPreSelected(DataCharacteristics&) const;
+    const LinScaler*	getTraceScaler() const		{ return curtrcscale; }
 
     DataCharacteristics	getDataChar(int) const;
     int			nrFormatFor(const DataCharacteristics&) const;

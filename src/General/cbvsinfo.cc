@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.2 2001-05-02 13:50:23 windev Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.3 2001-05-11 20:28:14 bert Exp $";
 
 #include "cbvsinfo.h"
 #include "binidselimpl.h"
@@ -37,9 +37,116 @@ CBVSInfo& CBVSInfo::operator =( const CBVSInfo& ci )
     usertext = ci.usertext;
 
     for ( int idx=0; idx<ci.compinfo.size(); idx++ )
-	compinfo += new CBVSComponentInfo( *ci.compinfo[idx] );
+	compinfo += new BasicComponentInfo( *ci.compinfo[idx] );
 
     return *this;
+}
+
+
+int CBVSInfo::SurvGeom::outOfRange( const BinID& bid ) const
+{
+    int res = 0;
+
+    if ( step.inl > 0 )
+	{ if ( bid.inl < start.inl || bid.inl > stop.inl
+	    || (bid.inl-start.inl)%step.inl )
+	    res = 2; }
+    else
+	{ if ( bid.inl > start.inl || bid.inl < stop.inl
+	    || (start.inl-bid.inl)%(-step.inl) )
+	    res = 2; }
+    if ( step.crl > 0 )
+	{ if ( bid.crl < start.crl || bid.crl > stop.crl
+	    || (bid.crl-start.crl)%step.crl )
+	    res += 2 * 256; }
+    else
+	{ if ( bid.crl > start.crl || bid.crl < stop.crl
+	    || (start.crl-bid.crl)%(-step.crl) )
+	    res += 2 * 256; }
+
+    return res;
+}
+
+
+int CBVSInfo::SurvGeom::getInfIdx( const BinID& bid, int& infidx ) const
+{
+    int res = outOfRange( bid );
+    if ( res || fullyrectandreg ) return res;
+
+    infidx = getInfoIdxFor( bid.inl );
+    return infidx < 0 ? 2 : 0;
+}
+
+
+int CBVSInfo::SurvGeom::excludes( const BinID& bid ) const
+{
+    int infidx = -1;
+    int res = getInfIdx( bid, infidx );
+    if ( infidx < 0 ) return res;
+
+    InlineInfo inlinf = *inldata[infidx];
+    for ( int idx=0; idx<inlinf.segments.size(); idx++ )
+    {
+	if ( inlinf.segments[idx].includes(bid.crl) )
+	    return 0;
+    }
+    return 1 + 256;
+}
+
+
+bool CBVSInfo::SurvGeom::toNextInline( BinID& bid ) const
+{
+    int infidx = -1;
+    int res = getInfIdx( bid, infidx );
+    if ( infidx >= 0 )
+    {
+	infidx++;
+	if ( infidx >= inldata.size() ) return false;
+	bid.inl = inldata[infidx]->inl;
+	bid.crl = inldata[infidx]->segments[0].start;
+	return true;
+    }
+    else if ( fullyrectandreg )
+    {
+	bid.crl = start.crl;
+	bid.inl += step.inl;
+	return !outOfRange( bid );
+    }
+
+    return false;
+}
+
+
+bool CBVSInfo::SurvGeom::toNextBinID( BinID& bid ) const
+{
+    bid.crl += step.crl;
+    int infidx = -1;
+    int res = getInfIdx( bid, infidx );
+    if ( !res )
+	return true;
+
+    if ( fullyrectandreg )
+	return toNextInline( bid );
+    else if ( infidx < 0 )
+	return false;
+
+    const InlineInfo& inlinf = *inldata[infidx];
+    if ( inlinf.segments.size() == 1 )
+	return toNextInline( bid );
+
+    int iseg = -1;
+    for ( int idx=0; idx<inlinf.segments.size(); idx++ )
+    {
+	CBVSInfo::SurvGeom::InlineInfo::Segment& seg = inlinf.segments[idx];
+	if ( (seg.step > 0 && seg.start > bid.crl)
+	  || (seg.step < 0 && seg.start < bid.crl) )
+	    { iseg = idx; break; }
+    }
+    if ( iseg < 0 || iseg == inlinf.segments.size()-1 )
+	return toNextInline( bid );
+
+    bid.crl = inlinf.segments[iseg+1].start;
+    return true;
 }
 
 
@@ -142,9 +249,16 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 }
 
 
-CBVSInfo::SurvGeom::InlineInfo* CBVSInfo::SurvGeom::getInfoFor( int inl )
+int CBVSInfo::SurvGeom::getInfoIdxFor( int inl ) const
 {
     for ( int idx=0; idx<inldata.size(); idx++ )
-	if ( inldata[idx]->inl == inl ) return inldata[idx];
-    return 0;
+	if ( inldata[idx]->inl == inl ) return idx;
+    return -1;
+}
+
+
+CBVSInfo::SurvGeom::InlineInfo* CBVSInfo::SurvGeom::getInfoFor( int inl )
+{
+    int idx = getInfoIdxFor( inl );
+    return idx < 0 ? 0 : inldata[idx];
 }

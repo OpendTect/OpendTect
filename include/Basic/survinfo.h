@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.6 2001-04-05 16:21:18 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.7 2001-05-11 20:29:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,11 +40,17 @@ public:
 
     const BinIDRange&	range() const		{ return range_; }
     void		setRange(const BinIDRange&);
+    const BinID&	step() const		{ return step_; }
+    void		setStep(const BinID&);
+    const Interval<double>& zRange() const	{ return zrange_; }
+    void		setZRange(const Interval<double>&);
+
     bool		rangeUsable() const
 			{ return range_.start.inl && range_.stop.inl
 			      && range_.start.crl && range_.stop.crl; }
-    const BinID&	step() const		{ return step_; }
-    void		setStep(const BinID&);
+    bool		zRangeUsable() const
+			{ return !mIS_ZERO(zrange_.width()); }
+
     void		snap(BinID&,const BinID& direction) const;
 			// 0 : auto; -1 round downward, 1 round upward
 
@@ -72,6 +78,7 @@ private:
     BinID2Coord		b2c;
     BinIDRange		range_;
     BinID		step_;
+    Interval<double>	zrange_;
 
     BinID		set3binids[3];
     Coord		set3coords[3];

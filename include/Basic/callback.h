@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.15 2001-05-10 13:57:43 arend Exp $
+ RCS:		$Id: callback.h,v 1.16 2001-05-11 20:29:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,8 +236,8 @@ mProtected:
 
 			Notifier( T* c ) : enabled( true )	{ cber = c; }
 
-    inline void		trigger(CallBacker* c=0)
-			{ if ( !enabled ) return; cbs.doCall(c ? c : cber); }
+    inline void		trigger( CallBacker* c=0 )
+			{ if ( enabled ) cbs.doCall(c ? c : cber); }
 
     bool		enabled;
     inline void		enable()				{enabled=true; }
@@ -248,24 +248,27 @@ mProtected:
 
 /* \brief temporarily disables a notifier
 
-The notifier is automatically enabled when NotifyStopper goes out of scope.
+Enabling the stopper disables the notifier. On construction, the notifier is disabled. The notifier is automatically enabled again when NotifyStopper goes
+out of scope.
 
 */
+
 template <class T>
 class NotifyStopper 
 {
 public:
-			NotifyStopper( Notifier<T>& theNotifier ) 
-			    : thenotif( theNotifier ) {}
+			NotifyStopper( Notifier<T>& n ) 
+			: thenotif(n)		{ enable(); }
 
-			~NotifyStopper()	{ thenotif.disable();}
+    inline		~NotifyStopper()	{ thenotif.enable();}
 
-    void		enable()		{ thenotif.enable(); }
-    void		disable()		{ thenotif.disable(); }
+    inline void		enable()		{ thenotif.disable(); }
+    inline void		disable()		{ thenotif.enable(); }
 
 protected:
 
     Notifier<T>& 	thenotif;
+
 };
 
 

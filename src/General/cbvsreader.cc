@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.10 2001-05-02 15:36:27 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.11 2001-05-11 20:28:16 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -184,7 +184,7 @@ bool CBVSReader::readComps()
     {
 	strm_.read( ucbuf, integersize );
 	BufferString bs; getText( iinterp.get(ucbuf,0), bs );
-	CBVSComponentInfo* newinf = new CBVSComponentInfo( (const char*)bs );
+	BasicComponentInfo* newinf = new BasicComponentInfo( (const char*)bs );
 	
 	strm_.read( ucbuf, integersize );
 	    newinf->datatype = iinterp.get( ucbuf, 0 );
@@ -527,7 +527,7 @@ bool CBVSReader::fetch( void** bufs, const Interval<int>* samps )
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
-	CBVSComponentInfo* compinfo = info_.compinfo[icomp];
+	BasicComponentInfo* compinfo = info_.compinfo[icomp];
 	if ( samps[icomp].start > samps[icomp].stop )
 	{
 	    strm_.seekg( cnrbytes_[icomp], ios::cur );

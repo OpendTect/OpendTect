@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.13 2001-05-10 16:12:59 arend Exp $
+ RCS:           $Id: uicombobox.cc,v 1.14 2001-05-11 20:28:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ uiComboBox::uiComboBox(  uiObject* parnt, const char* nm, bool ed )
 	: uiWrapObj<i_QComboBox>(new i_QComboBox(*this,nm,parnt,false),parnt,nm)
 						//false: no read/write
 	, _messenger ( *new i_comboMessenger( mQtThing(), this ))
-	, selChanged( this )
+	, selectionchanged( this )
 {
     mQtThing()->setEditable( ed );
     mQtThing()->setAutoCompletion( ed );
@@ -43,7 +43,7 @@ uiComboBox::uiComboBox(  uiObject* parnt, const PtrUserIDObjectSet& uids,
 		new i_QComboBox(*this,(const char*)uids->name(),parnt,false),
 				parnt, (const char*)uids->name() )
 	, _messenger ( *new i_comboMessenger( mQtThing(), this ))
-	, selChanged( this )
+	, selectionchanged( this )
 {
     mQtThing()->setEditable( ed );
     mQtThing()->setAutoCompletion( ed );
@@ -99,7 +99,7 @@ int uiComboBox::size() const
 
 void uiComboBox::setCurrentItem( const char* txt )
 {
-    NotifyStopper<uiComboBox> stopper(selChanged); stopper.disable();
+    NotifyStopper<uiComboBox> stopper(selectionchanged);
 
     const int sz = mQtThing()->count();
     for ( int idx=0; idx<sz; idx++ )
@@ -111,7 +111,7 @@ void uiComboBox::setCurrentItem( const char* txt )
 
 void uiComboBox::setCurrentItem( int idx )
 {
-    NotifyStopper<uiComboBox> stopper(selChanged); stopper.disable();
+    NotifyStopper<uiComboBox> stopper(selectionchanged);
 
     if ( idx >= 0 && idx < mQtThing()->count() )
 	mQtThing()->setCurrentItem( idx );

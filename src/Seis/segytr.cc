@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.6 2001-05-09 16:16:35 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.7 2001-05-11 20:28:20 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.6 2001-05-09 16:16:35 bert Exp $"
 #include "errh.h"
 #include "iopar.h"
 #include "timefun.h"
+#include "scaler.h"
 #include <math.h>
 #include <ctype.h>
 
@@ -27,6 +28,8 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm )
 	, dumpsd(*new StreamData)
 	, itrc(0)
 	, trhead(headerbuf,hdef)
+	, trcscale(0)
+	, curtrcscale(0)
 {
 }
 
@@ -134,8 +137,13 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 
     trhead.fill( ti );
     float scfac = trhead.postScale( numbfmt );
-    if ( !mIS_ZERO(1-scfac) )
-	tracescale = new LinScaler( 0, scfac );
+    if ( mIS_ZERO(1-scfac) )
+	curtrcscale = 0;
+    else
+    {
+	if ( !trcscale ) trcscale = new LinScaler( 0, scfac );
+	curtrcscale = trcscale;
+    }
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.10 2001-04-21 15:42:36 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.11 2001-05-11 20:28:22 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.10 2001-04-21 15:42:36 bert Ex
 #include "iopar.h"
 #include "sorting.h"
 #include "separstr.h"
+#include "scaler.h"
 
 
 int SeisTrcTranslator::selector( const char* key )
@@ -79,10 +80,15 @@ SeisTrcTranslator::~SeisTrcTranslator()
 void SeisTrcTranslator::cleanUp()
 {
     deepErase( cds );
-    deepErase( tarcds );
+    tarcds.erase();	//MEMLK should be deepErase( tarcds );
     delete [] inpfor_; inpfor_ = 0;
     delete [] inpcds; inpcds = 0;
     delete [] outcds; outcds = 0;
+    nrout_ = 0;
+    conn = 0;
+    errmsg = 0;
+    useinpsd = false;
+    pinfo = SeisPacketInfo();
 }
 
 
@@ -260,13 +266,14 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int* actualsz ) const
 
 void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 				 const SamplingData<float>& s,
-				 int ns, const char* nm )
+				 int ns, const char* nm, const LinScaler* sc )
 {
     ComponentData* newcd = new ComponentData( nm );
     newcd->sd = s;
     newcd->nrsamples = ns;
     newcd->datachar = dc;
     newcd->datachar.littleendian = __islittle__;
+    newcd->scaler = sc ? sc->duplicate() : 0;
     cds += newcd;
     tarcds += new TargetComponentData( *newcd, cds.size()-1 );
 }

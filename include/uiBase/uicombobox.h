@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.7 2001-05-10 16:04:52 arend Exp $
+ RCS:           $Id: uicombobox.h,v 1.8 2001-05-11 20:29:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,10 +59,7 @@ public:
     virtual bool        isSingleLine() const { return true; }
 
 			//! Triggered when selection has changed. 
-    Notifier<uiComboBox> selChanged;
-			//! obsolete
-    inline void		notify( const CallBack& cb ) 
-			{ selChanged.notify(cb); }
+    Notifier<uiComboBox> selectionchanged;
 
 protected:
 
@@ -70,7 +67,7 @@ protected:
 
 
     virtual void        notifyHandler() //!< Handler called from Qt.
-			{ selChanged.trigger(); }
+			{ selectionchanged.trigger(); }
 
 private:
 

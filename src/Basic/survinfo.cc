@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.5 2001-03-19 10:19:48 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.6 2001-05-11 20:28:12 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -85,6 +85,7 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     b2c = si.b2c;
     dirname = si.dirname;
     range_ = si.range_;
+    zrange_ = si.zrange_;
     step_ = si.step_;
     setName( si.name() );
     for ( int idx=0; idx<3; idx++ )
@@ -140,6 +141,13 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	    bir.stop.crl = atoi(fms[1]);
 	    bid.crl = atoi(fms[2]);
 	}
+	else if ( astream.hasKeyword("Z range") )
+	{
+	    FileMultiString fms( astream.value() );
+	    zrange_.start = atof(fms[0]);
+	    zrange_.stop = atof(fms[1]);
+	    zrange_.sort();
+	}
 	else if ( matchString("Set Point",astream.keyWord()) )
 	{
 	    const char* ptr = strchr( astream.keyWord(), '.' );
@@ -192,6 +200,11 @@ int SurveyInfo::write( const char* basedir ) const
     astream.put( "In-line range", fms );
     fms = ""; fms += range_.start.crl; fms += range_.stop.crl; fms += step_.crl;
     astream.put( "Cross-line range", fms );
+    if ( !mIS_ZERO(zrange_.width()) )
+    {
+	fms = ""; fms += zrange_.start; fms += zrange_.stop;
+	astream.put( "Z range", fms );
+    }
     return !strm.fail();
 }
 
@@ -304,6 +317,13 @@ void SurveyInfo::setRange( const BinIDRange& br )
 	range_.start.crl = br.stop.crl;
 	range_.stop.crl = br.start.crl;
     }
+}
+
+
+void SurveyInfo::setZRange( const Interval<double>& zr )
+{
+    zrange_ = zr;
+    zrange_.sort();
 }
 
 

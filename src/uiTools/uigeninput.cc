@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.16 2001-05-10 12:50:29 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.17 2001-05-11 20:28:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -530,7 +530,7 @@ public:
     virtual uiObject&	uiObj()				{ return cbb; }
 
     virtual void	changeNotify( const CallBack& cb ) 
-			    { cbb.selChanged.notify(cb); }
+			    { cbb.selectionchanged.notify(cb); }
 
 protected:
     uiComboBox&		cbb;

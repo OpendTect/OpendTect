@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.8 2001-05-02 13:50:04 windev Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.9 2001-05-11 20:29:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,49 +17,6 @@ ________________________________________________________________________
 #include <basiccompinfo.h>
 #include <scaler.h>
 #include <sets.h>
-
-
-/*!\brief CBVS component info is Basic + linear scaler. */
-
-class CBVSComponentInfo : public BasicComponentInfo
-{
-public:
-			CBVSComponentInfo( const char* nm=0 )
-			: BasicComponentInfo(nm)
-			, scaler(0)			{}
-			CBVSComponentInfo(const CBVSComponentInfo& cci )
-			: BasicComponentInfo(cci)
-			, scaler(cci.scaler
-			  ? mPolyRetDownCast(LinScaler*,cci.scaler->duplicate())
-			  : 0) 
-			{}
-
-    virtual		~CBVSComponentInfo()
-			{ delete scaler; scaler = 0; }
-    CBVSComponentInfo&	operator =( const BasicComponentInfo& cci )
-			{
-			    if ( this == &cci ) return *this;
-			    BasicComponentInfo::operator =( cci );
-			    const CBVSComponentInfo* cbcci =
-				dynamic_cast<const CBVSComponentInfo*>(&cci);
-			    if ( cbcci )
-			    {
-				delete scaler;
-				scaler = cbcci->scaler ? mPolyRetDownCast(
-				    LinScaler*, cbcci->scaler->duplicate()) : 0;
-			    }
-			    return *this;
-			}
-    bool		operator ==( const CBVSComponentInfo& cci ) const
-			{ return BasicComponentInfo::operator ==(cci)
-			      && ( (!scaler && !cci.scaler)
-				|| (scaler && cci.scaler
-				  && *scaler == *cci.scaler) );
-			}
-
-    LinScaler*		scaler;
-
-};
 
 
 /*!\brief Data available in CBVS format header and trailer.
@@ -115,10 +72,19 @@ public:
 				//!< returns 0 in case of regular
 	void			reCalcBounds();
 
+	int			excludes(const BinID&) const;
+	inline bool		includes( const BinID& bid ) const
+				{ return !excludes(bid); }
+	bool			toNextInline(BinID&) const;
+	bool			toNextBinID(BinID&) const;
+
     protected:
 
 	void			toIrreg();
 	void			mergeIrreg(const SurvGeom&);
+	int			outOfRange(const BinID&) const;
+	int			getInfIdx(const BinID&,int&) const;
+	int			getInfoIdxFor(int) const;
 
     };
 
@@ -163,7 +129,7 @@ public:
     int				nrtrcsperposn;
 
     ExplicitInfo		explinfo;
-    ObjectSet<CBVSComponentInfo> compinfo;
+    ObjectSet<BasicComponentInfo> compinfo;
     SurvGeom			geom;
 
     BufferString		stdtext;
