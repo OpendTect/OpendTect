@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.1 2003-09-16 16:21:10 kristofer Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.2 2003-09-22 13:16:29 kristofer Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -84,7 +84,6 @@ static const char DEPTHTABPLANEDRAGGER_draggergeometry[] =
 "   ShapeHints { vertexOrdering COUNTERCLOCKWISE\n}"
 "   Coordinate3 { point [ -1 -1 0, 1 -1 0, 1 1 0, -1 1 0 ] }\n"
 "   DrawStyle { style LINES }\n"
-"   SoForegroundTranslation { lift 0.005 }\n"
 "   IndexedFaceSet { coordIndex [ 0, 1, 2, 3, -1, 3, 2, 1, 0 ] }\n"
 "}\n";
 
@@ -102,6 +101,8 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
 {
     SO_KIT_CONSTRUCTOR( SoDepthTabPlaneDragger );
 
+    SO_KIT_ADD_CATALOG_ENTRY(planeForegroundLifter,SoForegroundTranslation,true,
+	    		    geomSeparator, planeSwitch, false );
     SO_KIT_ADD_CATALOG_ENTRY(planeSwitch, SoSwitch, true,
 	    			geomSeparator, "", false);
     SO_KIT_ADD_CATALOG_ENTRY(translator, SoSeparator, true,
@@ -154,8 +155,9 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
     SO_KIT_ADD_FIELD(scaleFactor, (1.0f, 1.0f, 1.0f));
 
     SO_KIT_ADD_FIELD( minSize, ( 0.1, 0.1, 0));
-    SO_KIT_ADD_FIELD( minZ, (-1));
-    SO_KIT_ADD_FIELD( maxZ, (1));
+    SO_KIT_ADD_FIELD( maxSize, ( 1e30, 1e30, 1e30));
+    SO_KIT_ADD_FIELD( minPos, (-1e30, -1e30, -1e30) );
+    SO_KIT_ADD_FIELD( maxPos, (1e30, 1e30, 1e30));
 
     SO_KIT_INIT_INSTANCE();
 
@@ -244,6 +246,17 @@ void SoDepthTabPlaneDragger::fieldSensorCB(void* d, SoSensor*)
     SbMatrix matrix = thisp->getMotionMatrix();
     thisp->workFieldsIntoTransform(matrix);
     thisp->setMotionMatrix(matrix);
+
+    const SbVec3f scale = thisp->scaleFactor.getValue();
+    float avgscale = (scale[0]+scale[1])/2;
+
+    SoForegroundTranslation* tablifter =
+	SO_GET_ANY_PART(thisp, "tabForegroundLifter",SoForegroundTranslation);
+    tablifter->lift.setValue(avgscale*0.02);
+
+    SoForegroundTranslation* planelifter =
+	SO_GET_ANY_PART(thisp, "planeForegroundLifter",SoForegroundTranslation);
+    planelifter->lift.setValue(avgscale*0.01);
 }
 
 
@@ -479,8 +492,20 @@ void SoDepthTabPlaneDragger::drag(void)
 	SbRotation rot, scaleorient;
 	motmat.getTransform(trans, rot, scalechange, scaleorient );
 
-	SbVec3f mov = scalechange.getValue();
-	if ( mov[0]>minSize.getValue()[0] && mov[1]>minSize.getValue()[1] )
+	const SbVec3f newscale = scalechange.getValue();
+	const SbVec3f newstart = trans-newscale;
+	const SbVec3f newstop = trans+newscale;
+	const SbVec3f minsize = minSize.getValue();
+	const SbVec3f maxsize = maxSize.getValue();
+	const SbVec3f minpos = minPos.getValue();
+	const SbVec3f maxpos = maxPos.getValue();
+
+	if (    newscale[0]>=minsize[0] && newscale[0]<=maxsize[0] &&
+		newscale[1]>=minsize[1] && newscale[1]<=maxsize[1] &&
+		newstart[0]>=minpos[0] && newstart[0]<=maxpos[0] &&
+		newstart[1]>=minpos[1] && newstart[1]<=maxpos[1] &&
+		newstop[0]>=minpos[0] && newstop[0]<=maxpos[0] &&
+		newstop[1]>=minpos[1] && newstop[1]<=maxpos[1] )
 	{
 	    setMotionMatrix(motmat);
 	}
@@ -502,7 +527,9 @@ void SoDepthTabPlaneDragger::drag(void)
 	motmat.getTransform(trans, rot, scale, scaleorient );
 
 	SbVec3f mov = trans.getValue();
-	if ( mov[2]<maxZ.getValue() && mov[2]>minZ.getValue() )
+	const SbVec3f minpos = minPos.getValue();
+	const SbVec3f maxpos = maxPos.getValue();
+	if ( mov[2]<=maxpos[2] && mov[2]>=minpos[2] )
 	{
 	    setMotionMatrix(motmat);
 	}

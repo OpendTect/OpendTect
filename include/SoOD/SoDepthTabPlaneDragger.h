@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.1 2003-09-16 16:20:49 kristofer Exp $
+ RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.2 2003-09-22 13:16:16 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include <Inventor/draggers/SoDragger.h>
-#include <Inventor/fields/SoSFFloat.h>
 
 
 class SbLineProjector;
@@ -60,8 +59,10 @@ public:
     SoSFVec3f		scaleFactor;
 
     SoSFVec3f		minSize;
-    SoSFFloat		minZ;
-    SoSFFloat		maxZ;
+    SoSFVec3f		maxSize;
+
+    SoSFVec3f		minPos;
+    SoSFVec3f		maxPos;
 
 protected:
     			~SoDepthTabPlaneDragger();
