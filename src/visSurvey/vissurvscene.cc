@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.5 2002-02-28 09:27:25 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.6 2002-02-28 13:09:43 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "vistransform.h"
@@ -117,27 +117,27 @@ visSurvey::Scene::Scene()
 
     visBase::DirectionalLight* light = new visBase::DirectionalLight;
     light->setDirection( 0, 0, 1 );
-    addXYZObject( light );
+    addInlCrlTObject( light );
 
     light = new visBase::DirectionalLight;
     light->setDirection( 0, 0, -1 );
-    addXYZObject( light );
+    addInlCrlTObject( light );
 
     light = new visBase::DirectionalLight;
     light->setDirection( 0, 1, 0 );
-    addXYZObject( light );
+    addInlCrlTObject( light );
 
     light = new visBase::DirectionalLight;
     light->setDirection( 0,-1, 0 );
-    addXYZObject( light );
+    addInlCrlTObject( light );
 
     light = new visBase::DirectionalLight;
     light->setDirection( 1, 0, 0 );
-    addXYZObject( light );
+    addInlCrlTObject( light );
 
     light = new visBase::DirectionalLight;
     light->setDirection(-1, 0, 0 );
-    addXYZObject( light );
+    addInlCrlTObject( light );
 }
 
 
