@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: mksethdir,v 1.9 2004-11-25 10:15:34 dgb Exp $
+# $Id: mksethdir,v 1.10 2004-12-09 17:02:31 dgb Exp $
 #
 # HDIR variable setup
 # usage from a csh-script:
@@ -38,18 +38,15 @@ endif
 
 set binsubdir=$HDIR
 if ( $binsubdir == sun5 ) then
-    if ( -d $ROOT_DIR/bin/sol26 || -d $ROOT_DIR/bin/sol28 ) then
+    set binsubdir=sol28
+    if ( -d $ROOT_DIR/bin/sol26 ) then
 	set v=`uname -r|sed 's/5\.//'`
-	if ( "$v" == "6" || "$v" == "7" ) then
-	    set binsubdir=sol26
-	else if ( -d $ROOT_DIR/bin/sol28 \
-		&& ( "$v" == "8" || "$v" == "9" ) ) then
-	    set binsubdir=sol28
-	endif
+	if ( `uname -r | sed 's/5\.//'` < 8 ) set binsubdir=sol26
     endif
 else if ( $binsubdir == lux ) then
-    if ( `uname -a | grep _64 | wc -w` > 0 ) then
-	set binsubdir=lux64
+    set binsubdir=lux32
+    if ( -d $ROOT_DIR/bin/lux64 ) then
+	if ( `uname -a | grep _64 | wc -w` == 1 ) set binsubdir=lux64
     endif
 endif
 
