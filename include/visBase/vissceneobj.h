@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vissceneobj.h,v 1.9 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: vissceneobj.h,v 1.10 2002-07-08 14:58:30 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,6 @@ class SceneObject : public DataObject
 {
 public:
     virtual SoNode*	getData()		= 0;
-    const SoNode*	getData() const;
 
     virtual int		usePar( const IOPar& iopar )
     			{ return DataObject::usePar(iopar); }

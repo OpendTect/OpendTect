@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.19 2002-07-08 14:51:19 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.20 2002-07-08 14:58:30 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
     void			setName( const char* );
 
     virtual SoNode*		getData() { return 0; }
+    virtual const SoNode*	getData() const;
 
     void			ref() const;
     void			unRef() const;
