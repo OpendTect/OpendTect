@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.11 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.12 2002-01-04 00:08:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,13 +12,16 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 #include "errh.h"
 #include "filegen.h"
+#include "survinfo.h"
+#include "idealconn.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uiseparator.h"
 #include "uisurvey.h"
-#include "survinfo.h"
+#include "uiidealsurvsetup.h"
+#include "uimsg.h"
 
 extern "C" const char* GetBaseDataDir();
 
@@ -44,6 +47,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     uiLabel* dirnm = new uiLabel( this, nm );
     dirnmfld->attach( alignedBelow, survnmfld );
     dirnm->attach( rightOf, dirnmfld );
+    uiButton* wsbut = 0;
+    if ( IdealConn::guessedType() == IdealConn::SW )
+    {
+	wsbut = new uiPushButton( this, "Fetch setup from SeisWorks ..." );
+	wsbut->attach( alignedBelow, dirnmfld );
+	wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );
+    }
 
     uiGroup* rangegrp = new uiGroup( this, "Survey ranges" );
     inlfld = new uiGenInput( rangegrp, "In-line range",
@@ -108,6 +118,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     labelrg->attach( leftBorder );
     labelrg->attach( ensureBelow, horsep1 );
     rangegrp->attach( alignedBelow, dirnmfld ); 
+    if ( wsbut ) rangegrp->attach( ensureBelow, wsbut ); 
     rangegrp->attach( ensureBelow, labelrg ); 
     horsep2->attach( stretchedBelow, rangegrp );
     coordset->attach( leftBorder );
@@ -302,6 +313,21 @@ bool uiSurveyInfoEditor::setRelation()
 
     survinfo->b2c_.setTransforms( xtr, ytr );
     return true;
+}
+
+
+void uiSurveyInfoEditor::wsbutPush( CallBacker* )
+{
+    uiIdealSurvSetup dlg( this );
+    if ( !dlg.go() ) return;
+
+    const IdealConn& conn = dlg.conn();
+    BinIDSampler bs; StepInterval<double> zrg;
+    ObjectSet<Coord> coords; ObjectSet<BinID> binids;
+    if ( !conn.getSurveySetup(bs,zrg,coords,binids) )
+	{ uiMSG().error(conn.errMsg()); return; }
+
+    //TODO use the stuff
 }
 
 
