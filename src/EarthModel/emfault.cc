@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.23 2004-09-17 12:43:16 kristofer Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.24 2004-10-04 09:46:33 kristofer Exp $";
 
 #include "emfault.h"
 #include "emsurfacetr.h"
@@ -47,7 +47,6 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
     bool istimestick = mIsEqual(stick[0].z,stick[stick.size()-1].z,1e-6); 
 
     Coord3 stoppos;
-    BinID prevbid(-1,-1);
     for ( int idx=0; idx<stick.size()-1; idx++ )
     {
 	const Coord3 startpos( SI().transform(SI().transform(stick[idx])),
@@ -61,33 +60,53 @@ bool FaultGeometry::createFromStick( const TypeSet<Coord3>& stick,
 	const BinID startbid = SI().transform( startpos );
 	const BinID stopbid = SI().transform( stoppos );
 
-	const float distance = startpos.distance(stoppos);
-	const Coord3 vector = (stoppos-startpos).normalize();
-	const int nrofsegments = mNINT(distance/idealdistance);
-	const float segmentlength = distance/nrofsegments;
+	TypeSet<BinID> bids;
+	TypeSet<float> times;
 
-	for ( int idy=0; idy<nrofsegments; idy++ )
+	if ( istimestick )
 	{
-	    const Coord3 newrelpos( vector.x*segmentlength*idy,
-				    vector.y*segmentlength*idy,
-				    vector.z*segmentlength*idy );
+	    if ( startbid==stopbid )
+		continue;
 
-	    const Coord3 newprojectedpos = startpos+newrelpos;
-	    const BinID newprojectedbid = SI().transform( newprojectedpos );
-	    if ( istimestick && newprojectedbid==prevbid )
-		continue; 
+	    RCol::makeLine( startbid, stopbid, bids,
+		    	    BinID(SI().inlStep(true),SI().crlStep(true)) );
+	    bids.remove( bids.size()-1 );
+	    times = TypeSet<float>( bids.size(), stick[0].z );
+	}
+	else
+	{
+	    const float distance = startpos.distance(stoppos);
+	    const Coord3 vector = (stoppos-startpos).normalize();
+	    const int nrofsegments = mNINT(distance/idealdistance);
+	    const float segmentlength = distance/nrofsegments;
 
-	    prevbid = newprojectedbid;
+	    for ( int idy=0; idy<nrofsegments; idy++ )
+	    {
+		const Coord3 newrelpos( vector.x*segmentlength*idy,
+					vector.y*segmentlength*idy,
+					vector.z*segmentlength*idy );
 
-	    const Coord3 newpos( SI().transform(newprojectedbid),
-				 newprojectedpos.z/(velocity/2) );
+		const Coord3 newprojectedpos = startpos+newrelpos;
+		const BinID newprojectedbid = SI().transform( newprojectedpos );
+
+		bids += newprojectedbid;
+		times += newprojectedpos.z/(velocity/2);
+
+	    }
+	}
+
+	for ( int idy=0; idy<bids.size(); idy++ )
+	{
+	    const Coord3 newpos( SI().transform(bids[idy]), times[idy] );
 	    setPos( sectionid, rowcol, newpos, false, true );
+
 	    if ( !idy )
 	    {
 		surface.setPosAttrib(
 			PosID(surface.id(), sectionid, rowCol2SubID(rowcol)),
 			EMObject::sPermanentControlNode, true);
 	    }
+
 	    istimestick ? rowcol.col++ : rowcol.row++;
 	}
     }
