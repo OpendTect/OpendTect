@@ -1,5 +1,5 @@
-#ifndef rowcol_H
-#define rowcol_H
+#ifndef rowcol_h
+#define rowcol_h
 
 /*+
 ________________________________________________________________________
@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.18 2004-10-04 09:45:55 kristofer Exp $
+ RCS:		$Id: rowcol.h,v 1.19 2004-12-17 13:31:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "rcol.h"
+#include "plftypes.h"
 
 
 /*!\brief Object with row and col. */
@@ -50,27 +51,27 @@ private:
 };
 
 
-inline long rc2long( const RowCol& rc )
+inline int rc2int( const RowCol& rc )
 {
-    return (((unsigned long) rc.row)<<16)+
-	    ((unsigned long) rc.col & 0xFFFF);
+    return (((unsigned int) rc.row)<<16)+
+	    ((unsigned int) rc.col & 0xFFFF);
 }
 
 
-inline long long rc2longlong( const RowCol& rc )
+inline int64 rc2int64( const RowCol& rc )
 {
-    return (((unsigned long long) rc.row)<<32)+
-	    ((unsigned long long) rc.col & 0xFFFFFFFF);
+    return (((uint64) rc.row)<<32)+
+	    ((uint64) rc.col & 0xFFFFFFFF);
 }
 
 
-inline RowCol longlong2rc( const long long& ll )
+inline RowCol int642rc( const int64& ll )
 {
-    return RowCol( ll>>32, ((long) (ll& 0xFFFFFFFF)) );
+    return RowCol( ll>>32, ((int) (ll& 0xFFFFFFFF)) );
 }
 
 
-inline RowCol long2rc( const long& ll )
+inline RowCol int2rc( const int& ll )
 {
     return RowCol( ll>>16, ((short)(ll&0xFFFF)) );
 }

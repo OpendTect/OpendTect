@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.34 2004-09-17 12:43:16 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.35 2004-12-17 13:31:02 nanne Exp $";
 
 #include "emobject.h"
 
@@ -261,7 +261,7 @@ bool EM::EMObject::usePar( const IOPar& par )
 	    continue;
 
 	TypeSet<int> sections;
-	TypeSet<long long> subids;
+	TypeSet<SubID> subids;
 
 	BufferString sectionkey = attribkey;
 	sectionkey += posattrsectionstr;
@@ -298,7 +298,7 @@ void EM::EMObject::fillPar( IOPar& par ) const
 	par.set( attribkey, attrib );
 
 	TypeSet<int> attrpatches;
-	TypeSet<long long> subids;
+	TypeSet<SubID> subids;
 	for ( int idy=0; idy<pids->size(); idy++ )
 	{
 	    attrpatches += (*pids)[idy].sectionID();

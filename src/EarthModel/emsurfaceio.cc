@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.41 2004-11-12 09:13:24 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.42 2004-12-17 13:31:02 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -427,7 +427,7 @@ int EM::dgbSurfaceReader::nextStep()
 		continue;
 
 	    TypeSet<int> attrsections;
-	    TypeSet<long long> subids;
+	    TypeSet<SubID> subids;
 
 	    BufferString sectionkey = attribkey;
 	    sectionkey += EM::dgbSurfaceReader::posattrsectionstr;

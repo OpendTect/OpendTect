@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.44 2004-11-26 19:25:19 dgb Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.45 2004-12-17 13:31:02 nanne Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: iopar.cc,v 1.44 2004-11-26 19:25:19 dgb Exp $";
 #include "separstr.h"
 #include "ascstream.h"
 #include "bufstringset.h"
-#include <ctype.h>
 
 
 IOPar::IOPar( const char* nm )
@@ -271,8 +270,8 @@ bool IOPar::get( const char* s, type& res ) const \
 }
 
 get1Val(int,strtol(ptr, &endptr, 0));
-get1Val(long long,strtoll(ptr, &endptr, 0));
-get1Val(unsigned long long,strtoull(ptr, &endptr, 0));
+get1Val(int64,strtoll(ptr, &endptr, 0));
+get1Val(uint64,strtoull(ptr, &endptr, 0));
 
 #define mGetMulti( type, function ) \
 bool IOPar::get( const char* s, TypeSet<type>& res ) const\
@@ -299,8 +298,8 @@ bool IOPar::get( const char* s, TypeSet<type>& res ) const\
 }
 
 mGetMulti( int, strtol(ptr, &endptr, 0) );
-mGetMulti( long long, strtoll(ptr, &endptr, 0) );
-mGetMulti( unsigned long long, strtoull(ptr, &endptr, 0) );
+mGetMulti( int64, strtoll(ptr, &endptr, 0) );
+mGetMulti( uint64, strtoull(ptr, &endptr, 0) );
 mGetMulti( double, strtod(ptr, &endptr ) );
 mGetMulti( float, strtod(ptr, &endptr ) );
 
@@ -610,10 +609,10 @@ void IOPar::set( const char* keyw, const TypeSet<type>& vals ) \
 
 
 mSetMulti( int, getStringFromInt(0,val) );
+mSetMulti( int64, getStringFromInt64(0,val) );
+mSetMulti( uint64, getStringFromUInt64(0,val) );
 mSetMulti( float, getStringFromFloat(0,val) );
 mSetMulti( double, getStringFromDouble(0,val) );
-mSetMulti( long long, getStringFromLongLong(0,val) );
-mSetMulti( unsigned long long, getStringFromUnsignedLongLong(0,val) );
 
 
 #define mSet1Val( type, tostringfunc ) \
@@ -623,8 +622,8 @@ void IOPar::set( const char* keyw, type val ) \
 }
 
 mSet1Val( int, getStringFromInt );
-mSet1Val( long long, getStringFromLongLong );
-mSet1Val( unsigned long long, getStringFromUnsignedLongLong );
+mSet1Val( int64, getStringFromInt64 );
+mSet1Val( uint64, getStringFromUInt64 );
 mSet1Val( float, mIsUndefined(val) ? sUndefValue : getStringFromFloat );
 mSet1Val( double, mIsUndefined(val) ? sUndefValue : getStringFromDouble);
 

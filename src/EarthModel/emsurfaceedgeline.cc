@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.17 2004-10-07 05:55:34 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.18 2004-12-17 13:31:02 nanne Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -285,10 +285,10 @@ bool EdgeLineSegment::areAllNodesOutsideBad(int idx,
 
 void EdgeLineSegment::fillPar( IOPar& par ) const
 {
-    TypeSet<long long> subids;
+    TypeSet<SubID> subids;
     for ( int idx=0; idx<size(); idx++ )
     {
-	subids += rc2longlong( nodes[idx] );
+	subids += rc2int64( nodes[idx] );
     }
 
     par.set( key, subids );
@@ -298,13 +298,13 @@ void EdgeLineSegment::fillPar( IOPar& par ) const
 
 bool EdgeLineSegment::usePar( const IOPar& par )
 {
-    TypeSet<long long> subids;
+    TypeSet<SubID> subids;
     if ( !par.get( key, subids ) )
 	return false;
 
     nodes.erase();
     for ( int idx=0; idx<subids.size(); idx++ )
-	nodes += longlong2rc(subids[idx]);
+	nodes += int642rc(subids[idx]);
 
     if ( notifier ) notifier->trigger();
     return true;

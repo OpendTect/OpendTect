@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.10 2004-07-23 12:54:54 kristofer Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.11 2004-12-17 13:31:02 nanne Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,7 @@ public:
     static const char*		attrnmstr;
     static const char*		infostr;
     static const char*		intdatacharstr;
-    static const char*		longlongdatacharstr;
+    static const char*		int64datacharstr;
     static const char*		floatdatacharstr;
     static const char*		filetypestr;
     static const char*		shiftstr;
@@ -65,7 +65,7 @@ public:
 
 protected:
     bool			writeInt(int);
-    bool			writeLongLong(long long);
+    bool			writeInt64(int64);
     bool			writeFloat(float);
     int				dataidx;
     const EM::Surface&		surf;
@@ -103,7 +103,7 @@ public:
 
 protected:
     bool			readInt(int&);
-    bool			readLongLong(long long&);
+    bool			readInt64(int64&);
     bool			readFloat(float&);
     BufferString		dataname;
     BufferString		datainfo;
@@ -123,7 +123,7 @@ protected:
 
     std::istream*		stream;
     DataInterpreter<int>*	intinterpreter;
-    DataInterpreter<long long>*	longlonginterpreter;
+    DataInterpreter<int64>*	int64interpreter;
     DataInterpreter<float>*	floatinterpreter;
     bool			error;
 };

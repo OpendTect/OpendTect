@@ -1,5 +1,5 @@
-#ifndef string2_H_
-#define string2_H_
+#ifndef string2_h
+#define string2_h
 
 /*@+
 ________________________________________________________________________
@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.12 2004-09-02 15:52:17 bert Exp $
+ RCS:		$Id: string2.h,v 1.13 2004-12-17 13:31:02 nanne Exp $
 ________________________________________________________________________
 -*/
 
 
 
-#include <ctype.h>
-#include <gendefs.h>
+#include "gendefs.h"
+#include "plftypes.h"
 
 #ifdef __cpp__
 extern "C" {
@@ -57,9 +57,8 @@ void		cleanupString(char*,int ,int,int);
 const char*	getStringFromInt(const char* fmt,int);
 /*!> is like getStringFromInt. Treats "%lg" special: it will do removal of
      trailing zeros and use %f in more cases than std. */
-const char*	getStringFromLongLong(const char* fmt,long long);
-const char*	getStringFromUnsignedLongLong(const char* fmt,
-					      unsigned long long);
+const char*	getStringFromInt64(const char* fmt,int64);
+const char*	getStringFromUInt64(const char* fmt,uint64);
 const char*	getStringFromDouble(const char* fmt,double);
 /*!> is like getStringFromDouble, with special %lf treatment. */
 const char*	getStringFromFloat(const char* fmt,float);

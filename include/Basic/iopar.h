@@ -1,5 +1,5 @@
-#ifndef iopar_H
-#define iopar_H
+#ifndef iopar_h
+#define iopar_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.31 2004-11-26 19:25:19 dgb Exp $
+ RCS:		$Id: iopar.h,v 1.32 2004-12-17 13:31:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,9 +88,9 @@ public:
     const char*		find(const char*) const;
 			//!< returns null if not found
 
-    bool		get(const char*, int&) const;
-    bool		get(const char*, long long& ) const;
-    bool		get(const char*, unsigned long long& ) const;
+    bool		get(const char*,int&) const;
+    bool		get(const char*,int64&) const;
+    bool		get(const char*,uint64&) const;
     bool		get(const char*,int&,int&) const;
     inline bool		get( const char* k, float& v ) const
 			{ return getSc(k,v,1,false); }
@@ -116,8 +116,8 @@ public:
     bool		get(const char*,int&,int&,float&) const;
 
     bool		get(const char*, TypeSet<int>& ) const;
-    bool		get(const char*, TypeSet<long long>& ) const;
-    bool		get(const char*, TypeSet<unsigned long long>& ) const;
+    bool		get(const char*, TypeSet<int64>& ) const;
+    bool		get(const char*, TypeSet<uint64>& ) const;
     bool		get(const char*, TypeSet<double>& ) const;
     bool		get(const char*, TypeSet<float>& ) const;
 
@@ -152,8 +152,8 @@ public:
 
     void		set(const char*,const char*);
     void		set(const char*,int);
-    void		set(const char*,long long);
-    void		set(const char*,unsigned long long);
+    void		set(const char*,int64);
+    void		set(const char*,uint64);
     void		set(const char*,float);
     void		set(const char*,double);
     void		set(const char*,const char*,const char*);
@@ -179,8 +179,8 @@ public:
     void		set(const char*,const BufferStringSet&);
 
     void		set(const char*, const TypeSet<int>& );
-    void		set(const char*, const TypeSet<long long>& );
-    void		set(const char*, const TypeSet<unsigned long long>& );
+    void		set(const char*, const TypeSet<int64>& );
+    void		set(const char*, const TypeSet<uint64>& );
     void		set(const char*, const TypeSet<double>& );
     void		set(const char*, const TypeSet<float>& );
 

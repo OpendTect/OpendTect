@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.7 2004-09-28 09:59:37 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.8 2004-12-17 13:31:02 nanne Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -1098,13 +1098,13 @@ void SurfaceGeometry::setTranslatorData( const RowCol& step__,
 
 RowCol SurfaceGeometry::subID2RowCol( const SubID& subid )
 {
-    return longlong2rc(subid);
+    return int642rc(subid);
 }
 
 
 SubID SurfaceGeometry::rowCol2SubID( const RowCol& rc )
 {
-    return rc2longlong(rc);
+    return rc2int64(rc);
 }
 
 

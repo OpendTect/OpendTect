@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.15 2003-12-15 15:54:58 nanne Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.16 2004-12-17 13:31:02 nanne Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -36,7 +36,7 @@ typedef double TD;
 // This may be a problem on 64 bit machines. Fix when appropriate
 typedef signed int TS4;
 typedef unsigned int TU4;
-typedef long long TS8;
+typedef int64 TS8;
 
 // But this is fundamental mathematics
 const TS1 cMS1 = 127;
@@ -180,7 +180,7 @@ void DataInterpreter<typ>::swap##N( void* b, int s ) const { doswap##N(b,s); }
 mDefSwapFn(float,2) mDefSwapFn(float,4) mDefSwapFn(float,8)
 mDefSwapFn(int,2) mDefSwapFn(int,4) mDefSwapFn(int,8)
 mDefSwapFn(double,2) mDefSwapFn(double,4) mDefSwapFn(double,8)
-mDefSwapFn(long long,2) mDefSwapFn(long long,4) mDefSwapFn(long long,8)
+mDefSwapFn(int64,2) mDefSwapFn(int64,4) mDefSwapFn(int64,8)
 
 
 #define mDefDIG(rettyp,typ) \
@@ -212,13 +212,13 @@ mDefDIG(int,S8)
 mDefDIG(int,U1)
 mDefDIG(int,U2)
 mDefDIG(int,U4)
-mDefDIG(long long,S1)
-mDefDIG(long long,S2)
-mDefDIG(long long,S4)
-mDefDIG(long long,S8)
-mDefDIG(long long,U1)
-mDefDIG(long long,U2)
-mDefDIG(long long,U4)
+mDefDIG(int64,S1)
+mDefDIG(int64,S2)
+mDefDIG(int64,S4)
+mDefDIG(int64,S8)
+mDefDIG(int64,U1)
+mDefDIG(int64,U2)
+mDefDIG(int64,U4)
 
 #define mDefDIGF2I(rettyp,typ) \
 rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int nr ) const \
@@ -226,8 +226,8 @@ rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int nr ) const \
 
 mDefDIGF2I(int,F)
 mDefDIGF2I(int,D)
-mDefDIGF2I(long long,F)
-mDefDIGF2I(long long,D)
+mDefDIGF2I(int64,F)
+mDefDIGF2I(int64,D)
 
 
 #define mDefDIGswp(rettyp,typ) \
@@ -257,11 +257,11 @@ mDefDIGswp(int,S4)
 mDefDIGswp(int,S8)
 mDefDIGswp(int,U2)
 mDefDIGswp(int,U4)
-mDefDIGswp(long long,S2)
-mDefDIGswp(long long,S4)
-mDefDIGswp(long long,S8)
-mDefDIGswp(long long,U2)
-mDefDIGswp(long long,U4)
+mDefDIGswp(int64,S2)
+mDefDIGswp(int64,S4)
+mDefDIGswp(int64,S8)
+mDefDIGswp(int64,U2)
+mDefDIGswp(int64,U4)
 
 
 #define mDefDIGF2Iswp(rettyp,typ) \
@@ -273,8 +273,8 @@ rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
 }
 mDefDIGF2Iswp(int,F)
 mDefDIGF2Iswp(int,D)
-mDefDIGF2Iswp(long long,F)
-mDefDIGF2Iswp(long long,D)
+mDefDIGF2Iswp(int64,F)
+mDefDIGF2Iswp(int64,D)
 
 
 #define mDefDIPS(inptyp,typ) \
@@ -308,10 +308,10 @@ mDefDIPISc(int,S1)
 mDefDIPISc(int,S2)
 mDefDIPIS(int,S4)
 mDefDIPIS(int,S8)
-mDefDIPISc(long long,S1)
-mDefDIPISc(long long,S2)
-mDefDIPISc(long long,S4)
-mDefDIPIS(long long,S8)
+mDefDIPISc(int64,S1)
+mDefDIPISc(int64,S2)
+mDefDIPISc(int64,S4)
+mDefDIPIS(int64,S8)
 
 
 #define mDefDIPU(inptyp,typ) \
@@ -340,9 +340,9 @@ void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 mDefDIPIUc(int,U1)
 mDefDIPIUc(int,U2)
 mDefDIPIU(int,U4)
-mDefDIPIUc(long long,U1)
-mDefDIPIUc(long long,U2)
-mDefDIPIUc(long long,U4)
+mDefDIPIUc(int64,U1)
+mDefDIPIUc(int64,U2)
+mDefDIPIUc(int64,U4)
 
 
 #define mDefDIPF(inptyp,typ) \
@@ -355,8 +355,8 @@ mDefDIPF(double,F)
 mDefDIPF(double,D)
 mDefDIPF(int,F)
 mDefDIPF(int,D)
-mDefDIPF(long long,F)
-mDefDIPF(long long,D)
+mDefDIPF(int64,F)
+mDefDIPF(int64,D)
 
 
 #define mDefDIPSswp(inptyp,typ) \
@@ -392,9 +392,9 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 mDefDIPIScswp(int,S2)
 mDefDIPISswp(int,S4)
 mDefDIPISswp(int,S8)
-mDefDIPIScswp(long long,S2)
-mDefDIPIScswp(long long,S4)
-mDefDIPISswp(long long,S8)
+mDefDIPIScswp(int64,S2)
+mDefDIPIScswp(int64,S4)
+mDefDIPISswp(int64,S8)
 
 
 #define mDefDIPUswp(inptyp,typ) \
@@ -426,8 +426,8 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 
 mDefDIPUIcswp(int,U2)
 mDefDIPUIswp(int,U4)
-mDefDIPUIcswp(long long,U2)
-mDefDIPUIcswp(long long,U4)
+mDefDIPUIcswp(int64,U2)
+mDefDIPUIcswp(int64,U4)
 
 
 #define mDefDIPFswp(inptyp,typ) \
@@ -443,8 +443,8 @@ mDefDIPFswp(double,F)
 mDefDIPFswp(double,D)
 mDefDIPFswp(int,F)
 mDefDIPFswp(int,D)
-mDefDIPFswp(long long,F)
-mDefDIPFswp(long long,D)
+mDefDIPFswp(int64,F)
+mDefDIPFswp(int64,D)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
@@ -468,9 +468,9 @@ mDefDIGIbm(double,F,Float)
 mDefDIGIbm(int,S2,Short)
 mDefDIGIbm(int,S4,Int)
 mDefDIGIbm(int,F,Float)
-mDefDIGIbm(long long,S2,Short)
-mDefDIGIbm(long long,S4,Int)
-mDefDIGIbm(long long,F,Float)
+mDefDIGIbm(int64,S2,Short)
+mDefDIGIbm(int64,S4,Int)
+mDefDIGIbm(int64,F,Float)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
@@ -490,9 +490,9 @@ mDefDIGIbmswp(double,F,Float)
 mDefDIGIbmswp(int,S2,Short)
 mDefDIGIbmswp(int,S4,Int)
 mDefDIGIbmswp(int,F,Float)
-mDefDIGIbmswp(long long,S2,Short)
-mDefDIGIbmswp(long long,S4,Int)
-mDefDIGIbmswp(long long,F,Float)
+mDefDIGIbmswp(int64,S2,Short)
+mDefDIGIbmswp(int64,S4,Int)
+mDefDIGIbmswp(int64,F,Float)
 
 
 #define mDefDIPSIbm(inptyp,typ,fntyp) \
@@ -508,8 +508,8 @@ mDefDIPSIbm(double,S2,Short)
 mDefDIPSIbm(double,S4,Int)
 mDefDIPSIbm(int,S2,Short)
 mDefDIPSIbm(int,S4,Int)
-mDefDIPSIbm(long long,S2,Short)
-mDefDIPSIbm(long long,S4,Int)
+mDefDIPSIbm(int64,S2,Short)
+mDefDIPSIbm(int64,S4,Int)
 
 
 #define mDefDIPFIbm(inptyp,typ,fntyp) \
@@ -519,7 +519,7 @@ void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,int nr,inptyp f) const \
 mDefDIPFIbm(float,F,Float)
 mDefDIPFIbm(double,F,Float)
 mDefDIPFIbm(int,F,Float)
-mDefDIPFIbm(long long,F,Float)
+mDefDIPFIbm(int64,F,Float)
 
 
 #define mDefDIPSIbmswp(inptyp,typ,fntyp) \
@@ -536,8 +536,8 @@ mDefDIPSIbmswp(double,S2,Short)
 mDefDIPSIbmswp(double,S4,Int)
 mDefDIPSIbmswp(int,S2,Short)
 mDefDIPSIbmswp(int,S4,Int)
-mDefDIPSIbmswp(long long,S2,Short)
-mDefDIPSIbmswp(long long,S4,Int)
+mDefDIPSIbmswp(int64,S2,Short)
+mDefDIPSIbmswp(int64,S4,Int)
 
 
 #define mDefDIPFIbmswp(inptyp,typ,fntyp) \
@@ -550,7 +550,7 @@ const { \
 mDefDIPFIbmswp(float,F,Float)
 mDefDIPFIbmswp(double,F,Float)
 mDefDIPFIbmswp(int,F,Float)
-mDefDIPFIbmswp(long long,F,Float)
+mDefDIPFIbmswp(int64,F,Float)
 
 
 #define mTheType float
@@ -562,5 +562,5 @@ mDefDIPFIbmswp(long long,F,Float)
 #define mTheType int
 #include "i_datainterp.h"
 #undef mTheType
-#define mTheType long long
+#define mTheType int64
 #include "i_datainterp.h"
