@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.19 2002-01-04 23:45:30 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.20 2002-03-22 15:06:18 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -375,11 +375,36 @@ static void doSnap( int& idx, int start, int step, int dir )
 }
 
 
-void SurveyInfo::snap( BinID& binid, const BinID& direction ) const
+void SurveyInfo::snap( BinID& binid, BinID rounding ) const
 {
     if ( step_.inl == 1 && step_.crl == 1 ) return;
-    doSnap( binid.inl, range_.start.inl, step_.inl, direction.inl );
-    doSnap( binid.crl, range_.start.crl, step_.crl, direction.crl );
+    doSnap( binid.inl, range_.start.inl, step_.inl, rounding.inl );
+    doSnap( binid.crl, range_.start.crl, step_.crl, rounding.crl );
+}
+
+
+void SurveyInfo::snapStep( BinID& stp, BinID rounding ) const
+{
+    if ( stp.inl < 0 ) stp.inl = -stp.inl;
+    if ( stp.crl < 0 ) stp.crl = -stp.crl;
+    if ( stp.inl < step_.inl ) stp.inl = step_.inl;
+    if ( stp.crl < step_.crl ) stp.crl = step_.crl;
+    if ( stp == step_ || (step_.inl == 1 && step_.crl == 1) )
+	return;
+
+    int rest;
+#define mSnapStep(ic) \
+    rest = stp.ic % step_.ic; \
+    if ( rest ) \
+    { \
+	int hstep = step_.ic / 2; \
+	bool upw = rounding.ic > 0 || (rounding.ic == 0 && rest > hstep); \
+	stp.ic -= rest; \
+	if ( upw ) stp.ic += step_.ic; \
+    }
+
+    mSnapStep(inl)
+    mSnapStep(crl)
 }
 
 

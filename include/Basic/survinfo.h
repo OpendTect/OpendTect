@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.15 2002-01-04 17:55:46 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.16 2002-03-22 15:06:07 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,8 +60,10 @@ public:
     void		setComment( const char* s )	{ comment_ = s; }
     const char*		comment() const			{ return comment_; }
 
-    void		snap(BinID&,const BinID& direction) const;
-			// 0 : auto; -1 round downward, 1 round upward
+    void		snap(BinID&,BinID rounding=BinID(0,0)) const;
+			//!< 0 : auto; -1 round downward, 1 round upward
+    void		snapStep(BinID&,BinID rounding=BinID(0,0)) const;
+			//!< see snap() for rounding
 
     inline bool		validTransform() const
 			{ return b2c_.isValid(); }
