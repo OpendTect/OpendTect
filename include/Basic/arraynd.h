@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.18 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: arraynd.h,v 1.19 2005-04-01 10:05:56 cvsbert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -19,9 +19,9 @@ to the constructor.
 
 */
 
-#include <gendefs.h>
-#include <arrayndinfo.h>
-#include <ptrman.h>
+#include "valseries.h"
+#include "arrayndinfo.h"
+#include "ptrman.h"
 
 #define mPolyArray1DInfoTp mPolyRet(ArrayNDInfo,Array1DInfo)
 #define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
@@ -107,6 +107,7 @@ protected:
 
 template <class T>
 class Array1D : public ArrayND<T>
+	      , public ValueSeries<T>
 {
 public: 
 
@@ -114,6 +115,11 @@ public:
     virtual T			get(int) const				= 0;
     void			set(const int* pos,T v) { set( pos[0], v ); }
     T	                	get(const int* pos) const {return get(pos[0]);}
+
+				// implement ValueSeries interface
+    T				value( int i ) const	{ return get(i); }
+    bool			writable() const	{ return true; }
+    void			setValue( int i, T t )	{ set(i,t); }
 
     virtual const mPolyArray1DInfoTp& info() const = 0;
 

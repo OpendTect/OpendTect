@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.30 2005-01-06 09:17:07 kristofer Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.31 2005-04-01 10:05:56 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -220,6 +220,10 @@ public:
 
 
     void		setSize( int s ) { in.setSize(0,s); stor->setSize(s); }
+
+			// ValueSeries interface
+    T*			arr()			{ return stor->getData(); }
+    const T*		arr() const		{ return stor->getData(); }
 
 protected:
 
