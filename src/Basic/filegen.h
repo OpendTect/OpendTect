@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.14 2003-08-25 10:31:12 bert Exp $
+ RCS:		$Id: filegen.h,v 1.15 2003-09-25 10:24:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,8 @@ const char*	File_getFileName(const char* fullpath);
 const char*	File_getTempFileName(const char* id_unique_for_process,
 				     const char* extension,int full_path);
 const char*	File_getSimpleTempFileName(const char* extension);
+const char*	File_removeExtension(const char* filename);
+		/* returns all extensions removed */
 const char*	File_getBaseName(const char* filename);
 		/* returns all extensions and path prefixes removed */
 const char*	File_linkTarget(const char* linkname);
