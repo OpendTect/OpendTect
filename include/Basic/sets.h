@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.19 2002-04-25 21:18:51 bert Exp $
+ RCS:		$Id: sets.h,v 1.20 2003-05-28 08:42:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,6 +257,16 @@ inline void deepErase( ObjectSet<T>& os )
 {
     for ( int sz=os.size(), idx=0; idx<sz; idx++ )
 	delete os[idx];
+    os.erase();
+}
+
+
+//! empty the ObjectSet deleting all objects pointed to.
+template <class T>
+inline void deepEraseArr( ObjectSet<T>& os )
+{
+    for ( int sz=os.size(), idx=0; idx<sz; idx++ )
+	delete [] os[idx];
     os.erase();
 }
 
