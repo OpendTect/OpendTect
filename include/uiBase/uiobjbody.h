@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.19 2002-02-04 12:17:56 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.20 2002-04-15 15:35:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ class uiObjectBody : public uiBody, public CallBacker
 {
 //friend class 		i_LayoutMngr;
 //friend class 		i_LayoutItem;
-//friend class 		i_uiLayoutItem; 
+friend class 		i_uiLayoutItem; 
 //friend class 		uiGroup;
 //friend class 		uiMainWin;
 
@@ -231,6 +231,8 @@ protected:
 
     int				hStretch;
     int				vStretch;
+
+    void			loitemDeleted()		{ layoutItem_ = 0; }
 
 private:
 

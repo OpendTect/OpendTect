@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.49 2002-03-19 12:11:24 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.50 2002-04-15 15:35:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,13 +41,36 @@ i_LayoutItem::i_LayoutItem( i_LayoutMngr& m, QLayoutItem& itm )
     constrList.setAutoDelete(true); 
 }
 
+/*
 
+    Layoutitems can be deleted in two ways:
+    1.  It's layout manager gets deleted (the normal way). In this case, 
+	the manager deletes all it's children.
+    2.  It's layouted body gets deleted. This happens when the user of 
+	the ui library deletes a specific widget, but not the parent.
+
+    Because the main widget has the ugly habbit of deleting it's layout
+    before it's children, we cannot just let the uiObjectBody delete it's
+    layoutitem and tell this to the manager, because that does not exist at
+    this point anymore.
+
+    TODO: We have to give this some further tought. For now, the manager
+    uses a magic number to detect that it's been deleted.
+    This is checked when removeItem is called.
+
+*/
 i_LayoutItem::~i_LayoutItem()
 {
+
+    mngr_.removeItem( this );
     delete &mQLayoutItem_;
-    constrList.clear();
 }
 
+
+i_uiLayoutItem::~i_uiLayoutItem()
+{
+    uiObjBody_.loitemDeleted();
+}
 
 void i_LayoutItem::invalidate() 
 { 
@@ -764,14 +787,16 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt,
     : QLayout(parnt,0,0,name), UserIDObject(name), prevGeometry()
     , minimumDone(false), preferredDone(false), ismain(false )
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
+    , magic_nr( 0xdeadbeef )
 { 
-    childrenList.setAutoDelete(true); 
+//    childrenList.setAutoDelete(true); 
 }
 
 
 i_LayoutMngr::~i_LayoutMngr()
 {
-    childrenList.clear();
+    childrenList.clear(); 
+    magic_nr=0;
 }
 
 
@@ -792,6 +817,20 @@ void i_LayoutMngr::addItem( QLayoutItem *qItem )
 {
     if ( !qItem ) return;
     childrenList.append( new i_LayoutItem( *this, *qItem) );
+}
+
+
+void i_LayoutMngr::removeItem( i_LayoutItem* itm )
+{
+    if( magic_nr != 0xdeadbeef )
+#ifdef XXDEBUG
+	{ pErrMsg("I am already deleted!"); return; }
+#else
+	return;
+#endif
+    if ( !itm ) return;
+    if ( !childrenList.removeRef( itm ) )
+	pErrMsg("Removal of layoutitem failed.");
 }
 
 

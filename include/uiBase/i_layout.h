@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.25 2002-03-19 12:11:24 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.26 2002-04-15 15:35:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ public:
  
     virtual void 	addItem( QLayoutItem*);
     void	 	addItem( i_LayoutItem* );
+    void	 	removeItem( i_LayoutItem* );
 
     virtual QSize 	sizeHint() const;
     virtual QSize 	minimumSize() const;
@@ -173,6 +174,7 @@ private:
     int 		borderspc;
 
     uiObjectBody& 	managedBody;
+    int			magic_nr;
 
 };
 

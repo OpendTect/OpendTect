@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.17 2002-02-15 11:44:01 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.18 2002-04-15 15:35:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,6 +150,8 @@ public:
 					*new QWidgetItem(obj.qwidget()) )
 			    , uiObjBody_( obj ) 
 			    {}
+
+    virtual		~i_uiLayoutItem();
 
     virtual QSize 	minimumSize() const
 			    { 

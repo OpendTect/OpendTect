@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.35 2002-04-15 14:34:26 bert Exp $
+ RCS:           $Id: uiobj.cc,v 1.36 2002-04-15 15:35:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,6 +277,7 @@ uiObjectBody::~uiObjectBody()
     delete &displTim;
 #endif
     delete fm;
+    delete layoutItem_;
 }
 
 
