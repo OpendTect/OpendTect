@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.9 2002-01-10 11:14:52 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.10 2002-02-21 17:42:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
 
 uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,deftxt,nm) )
-    , textChanged(this)
-    , returnPressed(this)
+    , returnPressed(this), textChanged(this)
+    , UserInputObjImpl<const char*>()
 {
     setText( deftxt ? deftxt : "" );
 }
@@ -63,54 +63,22 @@ uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* deftxt,
 }
 
 
-const char* uiLineEdit::text() const
+const char* uiLineEdit::getvalue_() const
 {
     const_cast<uiLineEdit*>(this)->result = (const char*)body_->text();
     return (const char*)result;
+
+    if ( *(const char*)result ) return (const char*)result;
+
+    return isEdited() ? (const char*)result : undefVal<const char*>();
 }
 
 
-int uiLineEdit::getIntValue() const
+void uiLineEdit::setvalue_( const char* t )
 {
-    const_cast<uiLineEdit*>(this)->result = (const char*)body_->text();
-    return *(const char*)result ? atoi(result) : 0;
-}
-
-
-double uiLineEdit::getValue() const
-{
-    const_cast<uiLineEdit*>(this)->result = (const char*)body_->text();
-    return *(const char*)result ? atof(result) : mUndefValue;
-}
-
-
-void uiLineEdit::setText( const char* t )
-{
-    body_->setText( QString( t ));
+    body_->setText( isUndefined(t) ? QString() : QString(t) );
     body_->setCursorPosition( 0 );
-}
-
-
-void uiLineEdit::setValue( int i )
-{
-    BufferString s=i;
-    setText( s );
-}
-
-
-void uiLineEdit::setValue( double d )
-{
-    BufferString s;
-    if ( !mIsUndefined(d) ) s += d;
-    setText( s );
-}
-
-
-void uiLineEdit::setValue( float f )
-{
-    BufferString s;
-    if ( !mIsUndefined(f) ) s += f;
-    setText( s );
+    setEdited( false );
 }
 
 

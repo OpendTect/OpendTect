@@ -7,40 +7,44 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.5 2001-09-23 22:22:45 bert Exp $
+ RCS:           $Id: uilineedit.h,v 1.6 2002-02-21 17:43:09 arend Exp $
 ________________________________________________________________________
 
 -*/
 
+#include <userinputobj.h>
 #include <uiobj.h>
 
 class uiLineEditBody;
 
-class uiLineEdit : public uiObject
+class uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
 {
 public:
 
                         uiLineEdit(uiParent*,const char* starttxt=0,
 				   const char* nm="Line Edit");
 
-    const char*		text() const;
-    int 		getIntValue() const;
-    double 		getValue() const;
-
-    void		setText( const char* );
-    void		setValue( int );
-    void		setValue( float );
-    void		setValue( double );
-
     void		setEdited( bool = true );
     bool		isEdited() const;
 
     void		setReadOnly( bool = true );
     bool		isReadOnly() const;
+
     void		setPasswordMode();
 
-    Notifier<uiLineEdit> textChanged;
-    Notifier<uiLineEdit> returnPressed;
+    virtual bool	notifyValueChanging( const CallBack& cb )
+			    { textChanged.notify(cb); return true;}
+    virtual bool	notifyValueChanged( const CallBack& cb ) 
+			    { returnPressed.notify(cb); return true;}
+
+    Notifier<uiLineEdit> returnPressed;	
+    Notifier<uiLineEdit> textChanged;	
+
+protected:
+
+    virtual void	clear_()			{ setvalue_(""); }
+    virtual const char*	getvalue_() const;
+    virtual void	setvalue_( const char* );
 
 private:
 
@@ -48,7 +52,5 @@ private:
     uiLineEditBody&	mkbody(uiParent*, const char*, const char*);
 
     BufferString	result;
-
 };
-
 #endif
