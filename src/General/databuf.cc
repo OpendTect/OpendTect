@@ -5,7 +5,7 @@
  * FUNCTION : Data buffer implementation
 -*/
  
-static const char* rcsID = "$Id: databuf.cc,v 1.1.1.2 1999-09-16 09:33:25 arend Exp $";
+static const char* rcsID = "$Id: databuf.cc,v 1.2 1999-12-10 11:33:07 bert Exp $";
  
 #include "databuf.h"
 #include <malloc.h>
@@ -34,9 +34,9 @@ DataBuffer& DataBuffer::operator=( const DataBuffer& tb )
 {
     if ( &tb != this )
     {
-	bytes = tb.bytes;
 	reSize( tb.size() );
-	memcpy( data, tb.data, nelem*bytes );
+	bytes = tb.bytes;
+	if ( data ) memcpy( data, tb.data, nelem*bytes );
     }
 
     return *this;
@@ -57,7 +57,7 @@ void DataBuffer::reSize( int n )
     else if ( n )
 	data = mMALLOC(n*bytes,unsigned char);
 
-    nelem = n;
+    nelem = data ? n : 0;
 }
 
 
@@ -74,5 +74,5 @@ void DataBuffer::reByte( int n )
 
 void DataBuffer::clear()
 {
-    memset( (char*)data, 0, nelem*bytes );
+    if ( data ) memset( (char*)data, 0, nelem*bytes );
 }
