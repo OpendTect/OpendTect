@@ -7,20 +7,24 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurfaceimpl.h,v 1.4 2005-01-20 07:08:48 kristofer Exp $
+RCS:           $Id: parametricsurfaceimpl.h,v 1.5 2005-01-20 15:45:10 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
-#define mInsertStart( idxvar, type, indexfunc ) \
-int idxvar = indexfunc; \
-if ( idxvar<-1 || idxvar>nr##type##s() ) \
+#define mInsertStart( idxvar, type, nrfunc ) \
+int idxvar = type##Index(type); \
+if ( idxvar<-1 || idxvar>nrfunc ) \
 { \
     errmsg() = "Cannot insert row or column that is not connected to existing rows."; \
     return false; \
 } \
 if ( idxvar==-1 ) \
+{ \
     idxvar = 0; \
+    origo.type -= step.type; \
+}\
+\
 const int curnrrows = nrRows(); \
 const int curnrcols = nrCols()
 
