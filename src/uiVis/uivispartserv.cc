@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.2 2002-03-28 16:02:47 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.3 2002-03-29 17:26:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
 #include "vismaterial.h"
+#include "visobject.h"
 
 #include "uimsg.h"
 
@@ -22,6 +23,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "geompos.h"
 #include "uidset.h"
+#include "color.h"
 
 
 
@@ -130,4 +132,50 @@ void uiVisPartServer::getPickSetData( const char* nm, PickSet& pickset )
 	Coord crd = SI().transform( bid );
 	pickset += PickLocation( crd, pos.z );
     }
+}
+
+
+int uiVisPartServer::nrPicks( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PickSet*,ps,obj)
+    return ps ? ps->nrPicks() : 0;
+}
+
+
+// =============== Material management ===================
+
+
+void uiVisPartServer::setColor( const Color& col )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selobjid );
+    mDynamicCastGet(visBase::VisualObject*,so,obj)
+    so->getMaterial()->setColor( col );
+}
+
+
+Color uiVisPartServer::getColor()
+{
+    visBase::DataObject* obj = visBase::DM().getObj( selobjid );
+    mDynamicCastGet(visBase::VisualObject*,so,obj)
+    return so->getMaterial()->getColor();
+}
+
+
+// ============= Various ================================
+
+
+void uiVisPartServer::turnOn( int id, bool yn )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visBase::VisualObject*,so,obj)
+    so->turnOn( yn );
+}
+
+
+bool uiVisPartServer::isOn( int id )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visBase::VisualObject*,so,obj)
+    return so->isOn();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.2 2002-03-28 16:02:55 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.3 2002-03-29 17:26:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 class UserIDSet;
 class PickSet;
 class PickSetGroup;
+class Color;
 
 namespace visSurvey
 {
@@ -35,15 +36,21 @@ public:
 
     int			addScene();
 
+    void		turnOn(int,bool);
+    bool		isOn(int);
+
     int                 addPickSetDisplay();
     void                removePickSetDisplay();
-
     bool		setPicks(const PickSet&);
     void		getPickSets(UserIDSet&);
     void		getPickSetData(const char*,PickSet&);
+    int 		nrPicks(int);
 
     void		setSelObjectId(int id)	{ selobjid = id; }
     void		setSelSceneId(int id)	{ selsceneid = id; }
+
+    void		setColor(const Color&);
+    Color		getColor();
 
 protected:
 

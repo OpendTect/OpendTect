@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.3 2002-03-28 15:52:54 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.4 2002-03-29 17:26:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ bool uiPickPartServer::storePickSets()
 
     selsets.erase();
     for ( int idx=0; idx<avsets.size(); idx++ )
-	if ( dlg.selectedSets()[idx] ) selsets += idx;
+	selsets += dlg.selectedSets()[idx] ? char(1) : char(0);
 
     psg.clear();
     sendEvent( evFetchPicks );
