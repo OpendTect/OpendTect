@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.14 2001-12-28 09:26:04 kristofer Exp $
+ RCS:		$Id: sets.h,v 1.15 2002-02-14 07:16:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,9 @@ public:
 				{ typs.remove(idx); }
     virtual void	remove( int i1, int i2 )
 				{ typs.remove(i1,i2); }
+    virtual void	insert( int idx, const T& typ )
+				{ typs.insert(idx,typ); }
+
 private:
 
     Vector<T>		typs;
