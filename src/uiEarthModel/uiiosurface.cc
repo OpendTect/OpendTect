@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.6 2003-08-06 15:11:26 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.7 2003-08-07 14:33:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,7 +138,7 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
 
     sels.selvalues.erase();
 
-    int curitm = attribfld ? attribfld->box()->currentItem() : 0;
+    int curitm = attribfld ? attribfld->box()->currentItem() : -1;
     if ( curitm >= 0 )
 	sels.selvalues += curitm;
 }
