@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.1 2003-12-20 13:24:05 bert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.2 2003-12-24 15:15:50 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,6 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 
     uiGroup* leftgrp = new uiGroup( &appl, "Left group" );
 
-    uiODApplMgr& applmgr = appl.applMgr();
     uiThumbWheel* dollywheel = new uiThumbWheel( leftgrp, "Dolly", false );
     dollywheel->wheelMoved.notify( mWSMCB(dWheelMoved) );
     dollywheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
@@ -95,6 +94,66 @@ void uiODSceneMgr::cleanUp( bool startnew )
 }
 
 
+void uiODSceneMgr::addScene()
+{
+    uiSceneGroup* scene = new uiSceneGroup( wsp );
+    scene->group()->mainObject()->closed.notify( mWSMCB(removeScene) );
+    scenes += scene;
+    vwridx++;
+
+    int sceneid = visserv->addScene();
+    scene->sovwr->setSceneGraph( sceneid );
+    BufferString title( scenestr );
+    title += vwridx;
+    scene->sovwr->setTitle( title );
+    visserv->setObjectName( sceneid, title );
+    scene->sovwr->display();
+    scene->sovwr->viewAll();
+    scene->sovwr->saveHomePos();
+    scene->sovwr->viewmodechanged.notify( mWSMCB(viewModeChg) );
+    scene->group()->display( true, false, true );
+    actMode(0);
+    appl.posCtrlMgr()->setZoomValue( scene->sovwr->getCameraZoom() );
+    initTree( scene, vwridx );
+
+    if ( scenes.size() > 1 && scenes[0] )
+    {
+	scene->sovwr->setStereoViewing(
+		scenes[0]->sovwr->isStereoViewing() );
+	scene->sovwr->setStereoOffset(
+		scenes[0]->sovwr->getStereoOffset() );
+	scene->sovwr->setQuadBufferStereo( 
+		scenes[0]->sovwr->isQuadBufferStereo() );
+	
+    }
+}
+
+
+void uiODSceneMgr::removeScene( CallBacker* cb )
+{
+    mDynamicCastGet(uiGroupObj*,grp,cb)
+    if ( !grp ) return;
+    int idxnr = -1;
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	if ( grp == scenes[idx]->group()->mainObject() )
+	{
+	    idxnr = idx;
+	    break;
+	}
+    }
+    if ( idxnr < 0 ) return;
+
+    visserv->removeScene( scenes[idxnr]->itemmanager->sceneID() );
+    appl.removeDockWindow( scenes[idxnr]->treewin );
+
+
+    scenes[idxnr]->group()->mainObject()->closed.remove( mWSMCB(removeScene) );
+    delete scenes[idxnr];
+    scenes -= scenes[idxnr];
+}
+
+
 void uiODSceneMgr::getScenePars( IOPar& iopar )
 {
     mDoAllScenes(sovwr,fillPar,iopar);
@@ -144,181 +203,35 @@ void uiODSceneMgr::mkScenesFrom( ODSession* session )
 }
 
 
-void uiODSceneMgr::addScene()
-{
-    uiSceneGroup* scene = new uiSceneGroup( wsp );
-    scene->group()->mainObject()->closed.notify( mWSMCB(removeScene) );
-    scenes += scene;
-    vwridx++;
-
-    int sceneid = visserv->addScene();
-    scene->sovwr->setSceneGraph( sceneid );
-    BufferString title( scenestr );
-    title += vwridx;
-    scene->sovwr->setTitle( title );
-    visserv->setObjectName( sceneid, title );
-    scene->sovwr->display();
-    scene->sovwr->viewAll();
-    scene->sovwr->saveHomePos();
-    scene->sovwr->viewmodechanged.notify( mWSMCB(setViewMode) );
-    scene->group()->display( true, false, true );
-    actMode(0);
-    appl.posCtrlMgr()->setZoomValue( scene->sovwr->getCameraZoom() );
-    initTree( scene, vwridx );
-
-    if ( scenes.size() && scenes[0] )
-    {
-	scene->sovwr->setStereoViewing(
-		scenes[0]->sovwr->isStereoViewing() );
-	scene->sovwr->setStereoOffset(
-		scenes[0]->sovwr->getStereoOffset() );
-	scene->sovwr->setQuadBufferStereo( 
-		scenes[0]->sovwr->isQuadBufferStereo() );
-	
-    }
-}
-
-
-void uiODSceneMgr::removeScene( CallBacker* cb )
-{
-    mDynamicCastGet(uiGroupObj*,grp,cb)
-    if ( !grp ) return;
-    int idxnr = -1;
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	if ( grp == scenes[idx]->group()->mainObject() )
-	{
-	    idxnr = idx;
-	    break;
-	}
-    }
-    if ( idxnr < 0 ) return;
-
-    const int sceneid = scenes[idxnr]->itemmanager->sceneID();
-
-    appl.applMgr().sceneRemoved( scenes[idxnr]->itemmanager->sceneID(),
-	    			 scenes[idxnr]->treewin );
-
-    scenes[idxnr]->group()->mainObject()->closed.remove( mWSMCB(removeScene) );
-    delete scenes[idxnr];
-    scenes -= scenes[idxnr];
-}
-
-
-void uiODSceneMgr::setKeyBindings()
+void uiODSceneMgr::viewModeChg( CallBacker* cb )
 {
     if ( !scenes.size() ) return;
 
-    BufferStringSet keyset;
-    scenes[0]->sovwr->getAllKeyBindings( keyset );
-
-    StringListInpSpec inpspec( keyset );
-    inpspec.setText( scenes[0]->sovwr->getCurrentKeyBindings() );
-    uiGenInputDlg dlg( appman, "Select Mouse Controls", "Select", &inpspec );
-    if ( dlg.go() )
-	mDoAllScenes(sovwr,setKeyBindings,dlg.text());
+    mDynamicCastGet(uiSoViewer*,sovwr,cb)
+    if ( sovwr ) setToViewMode( sovwr->isViewing() );
 }
 
 
-
-void uiODSceneMgr::initTree( uiSceneGroup* scene, int vwridx )
+void uiODSceneMgr::setToViewMode( bool yn )
 {
-    BufferString capt( "Tree scene " ); capt += vwridx;
-    scene->treewin = new uiDockWin( &appl, capt );
-    moveDockWindow( *scene->treewin, uiMainWin::Left );
-    scene->treewin->setResizeEnabled( true );
-
-    scene->lv = new uiListView( scene->treewin, "d-Tect Tree" );
-    scene->lv->addColumn( "Elements" );
-    scene->lv->addColumn( "Position" );
-    scene->lv->setColumnWidthMode( 0, uiListView::Manual );
-    scene->lv->setColumnWidth( 0, 90 );
-    scene->lv->setColumnWidthMode( 1, uiListView::Manual );
-    scene->lv->setColumnWidthMode( 1, uiListView::Manual);
-    scene->lv->setPrefWidth( 150 );
-    scene->lv->setStretch( 2, 2 );
-
-    scene->itemmanager = new uiODTreeTop( scene, this, tifs );
-
-    for ( int idx=0; idx<tifs->nrFactories(); idx++ )
-	scene->itemmanager->addChild( tifs->getFactory(idx)->create() );
-
-#ifdef __debug__
-    scene->itemmanager->addChild( new FaultStickFactoryTreeItem );
-    scene->itemmanager->addChild( new FaultFactoryTreeItem );
-#endif
-    scene->itemmanager->addChild( new WellFactoryTreeItem );
-    scene->itemmanager->addChild( new HorizonFactoryTreeItem );
-    scene->itemmanager->addChild( new PickSetFactoryTreeItem );
-    scene->itemmanager->addChild( new RandomLineFactoryTreeItem );
-    scene->itemmanager->addChild( new VolumeFactoryTreeItem );
-    scene->itemmanager->addChild( new TimesliceFactoryTreeItem );
-    scene->itemmanager->addChild( new CrosslineFactoryTreeItem );
-    scene->itemmanager->addChild( new InlineFactoryTreeItem );
-    scene->itemmanager->addChild( new SceneTreeItem(
-						scene->sovwr->getTitle(),
-						scene->sovwr->sceneId() ) );
-    scene->lv->display();
-    scene->treewin->display();
+    mDoAllScenes(sovwr,setViewing,yn);
+    visserv->setViewMode( yn );
+    menuMgr()->showViewMode( yn );
 }
 
 
-void uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
+void uiODSceneMgr::actMode( CallBacker* )
 {
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	Scene& scene = *scenes[idx];
-	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
-
-	scene.itemmanager->addChild( new PickSetTreeItem(ps) );
-    }
+    setToViewMode( false );
 }
 
 
-void uiODSceneMgr::addHorizonItem( const MultiID& mid, int sceneid )
+void uiODSceneMgr::viewMode( CallBacker* )
 {
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	Scene& scene = *scenes[idx];
-	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
-
-	scene.itemmanager->addChild( new HorizonTreeItem(mid) );
-    }
-}
-
-
-void uiODSceneMgr::updateTrees()
-{
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	Scene& scene = *scenes[idx];
-	scene.itemmanager->updateColumnText(0);
-	scene.itemmanager->updateColumnText(1);
-    }
-}
-
-
-void uiODSceneMgr::rebuildTrees()
-{
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	Scene& scene = *scenes[idx];
-	const int sceneid = scene.sovwr->sceneId();
-	TypeSet<int> visids; visserv->getChildIds( sceneid, visids );
-
-	for ( int idy=0; idy<visids.size(); idy++ )
-	    DisplayTreeItem::factory(scene.itemmanager,applMgr(),visids[idy]);
-    }
-    updateSelectedTreeItem();
-}
-
-
-void uiODSceneMgr::setItemInfo( int id )
-{
-    mDoAllScenes(itemmanager,updateColumnText,1);
+    setToViewMode( true );
     appl.statusBar()->message( "", 0 );
     appl.statusBar()->message( "", 1 );
-    appl.statusBar()->message( visserv->getInteractionMsg(id), 2 );
+    appl.statusBar()->message( "", 2 );
 }
 
 
@@ -342,70 +255,38 @@ void uiODSceneMgr::setMousePos()
 }
 
 
-void uiODSceneMgr::updateSelectedTreeItem()
-{
-    const int id = visserv->getSelObjectId();
-    const bool ispickset = visserv->isPickSet( id );
-    if ( ispickset && !applMgr().attrserv->attrSetEditorActive() )
-	actMode( 0 );
-
-    if ( id != -1 )
-    {
-	setItemInfo( id );
-	applMan().modifyColorTable( id );
-    }
-
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	Scene& scene = *scenes[idx];
-	scene.itemmanager->updateSelection( id );
-	scene.itemmanager->updateColumnText(0);
-	scene.itemmanager->updateColumnText(1);
-    }
-}
-
-
-int uiODSceneMgr::getIDFromName( const char* str ) const
-{
-    for ( int idx=0; idx<scenes.size(); idx++ )
-    {
-	const uiTreeItem* itm = scenes[idx]->itemmanager->findChild( str );
-	if ( itm ) return itm->selectionKey();
-    }
-
-    return -1;
-}
-
-
-void uiODSceneMgr::setToViewMode( bool yn )
-{
-    mDoAllScenes(sovwr,setViewing,yn);
-    visserv->setViewMode( yn );
-    menuMgr()->showViewMode( yn );
-}
-
-
-void uiODSceneMgr::setViewMode( CallBacker* cb )
+void uiODSceneMgr::setKeyBindings()
 {
     if ( !scenes.size() ) return;
 
-    mDynamicCastGet(uiSoViewer*,sovwr,cb)
-    if ( sovwr ) setToViewMode( sovwr->isViewing() );
+    BufferStringSet keyset;
+    scenes[0]->sovwr->getAllKeyBindings( keyset );
+
+    StringListInpSpec inpspec( keyset );
+    inpspec.setText( scenes[0]->sovwr->getCurrentKeyBindings() );
+    uiGenInputDlg dlg( appman, "Select Mouse Controls", "Select", &inpspec );
+    if ( dlg.go() )
+	mDoAllScenes(sovwr,setKeyBindings,dlg.text());
 }
 
 
-void uiODSceneMgr::actMode( CallBacker* )
+void uiODSceneMgr::setStereoViewing( bool& stereo, bool& quad )
 {
-    setToViewMode( false );
-}
+    for ( int ids=0; ids<scenes.size(); ids++ )
+    {
+	uiSoViewer& sovwr = *scenes[ids]->sovwr;
+	sovwr.setStereoViewing( stereo );
+	sovwr.setQuadBufferStereo( quad );
+	if ( stereo )
+	    sovwr.setStereoOffset( stereooffset );
 
-
-void uiODSceneMgr::viewMode( CallBacker* )
-{
-    setToViewMode( true );
-    appl.statusBar()->message( "", 0 );
-    appl.statusBar()->message( "", 1 );
-    appl.statusBar()->message( "", 2 );
+	if ( quad && !scenes[ids]->sovwr->isQuadBufferStereo() )
+	{
+	    sovwr.setStereoViewing( false );
+	    sovwr.QuadBufferStereo( false );
+	    stereo = quad = false;
+	}
+    }
 }
 
 
@@ -413,6 +294,17 @@ void uiODSceneMgr::tile()
 { wsp->tile(); }
 void uiODSceneMgr::cascade()
 { wsp->cascade(); }
+
+
+void uiODSceneMgr::layoutScenes()
+{
+    const int nrgrps = scenes.size();
+    if ( nrgrps == 1 && scenes[0] )
+	scenes[0]->grp()->display( true, false, true );
+    else if ( scenes[0] )
+	tile();
+}
+
 void uiODSceneMgr::toHomePos( CallBacker* )
 { mDoAllScenes(sovwr,toHomePos,); }
 void uiODSceneMgr::saveHomePos( CallBacker* )
@@ -430,6 +322,12 @@ void uiODSceneMgr::showRotAxis( CallBacker* )
 }
 
 
+void uiODSceneMgr::setZoomValue( float val )
+{
+    zoomslider->sldr()->setValue( val );
+}
+
+
 void uiODSceneMgr::zoomChanged( CallBacker* )
 {
     const float zmval = zoomslider->getValue();
@@ -437,8 +335,6 @@ void uiODSceneMgr::zoomChanged( CallBacker* )
 }
 
 
-void uiODSceneMgr::setZoomValue( float val )
-{ zoomslider->sldr()->setValue( val ); }
 void uiODSceneMgr::anyWheelStart( CallBacker* )
 { mDoAllScenes(sovwr,anyWheelStart,); }
 void uiODSceneMgr::anyWheelStop( CallBacker* )
@@ -478,33 +374,122 @@ void uiODSceneMgr::dWheelMoved( CallBacker* cb )
 { wheelMoved(cb,0,lastdval); }
 
 
-void uiODSceneMgr::setStereoViewing( bool& stereo, bool& quad )
+void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 {
-    for ( int ids=0; ids<scenes.size(); ids++ )
-    {
-	uiSoViewer& sovwr = *scenes[ids]->sovwr;
-	sovwr.setStereoViewing( stereo );
-	sovwr.setQuadBufferStereo( quad );
-	if ( stereo )
-	    sovwr.setStereoOffset( stereooffset );
+    vwrs.erase();
+    for ( int idx=0; idx<scenes.size(); idx++ )
+	vwrs += scenes[idx]->sovwr;
+}
 
-	if ( quad && !scenes[ids]->sovwr->isQuadBufferStereo() )
-	{
-	    sovwr.setStereoViewing( false );
-	    sovwr.QuadBufferStereo( false );
-	    stereo = quad = false;
-	}
+
+void uiODSceneMgr::initTree( uiSceneGroup* sg, int vwridx )
+{
+    BufferString capt( "Tree scene " ); capt += vwridx;
+    sg->treewin = new uiDockWin( &appl, capt );
+    moveDockWindow( *sg->treewin, uiMainWin::Left );
+    sg->treewin->setResizeEnabled( true );
+
+    sg->lv = new uiListView( sg->treewin, "d-Tect Tree" );
+    sg->lv->addColumn( "Elements" );
+    sg->lv->addColumn( "Position" );
+    sg->lv->setColumnWidthMode( 0, uiListView::Manual );
+    sg->lv->setColumnWidth( 0, 90 );
+    sg->lv->setColumnWidthMode( 1, uiListView::Manual );
+    sg->lv->setColumnWidthMode( 1, uiListView::Manual);
+    sg->lv->setPrefWidth( 150 );
+    sg->lv->setStretch( 2, 2 );
+
+    sg->itemmanager = new uiODTreeTop( sg, this, tifs );
+
+    for ( int idx=0; idx<tifs->nrFactories(); idx++ )
+	sg->itemmanager->addChild( tifs->getFactory(idx)->create() );
+
+#ifdef __debug__
+    sg->itemmanager->addChild( new FaultStickFactoryTreeItem );
+    sg->itemmanager->addChild( new FaultFactoryTreeItem );
+#endif
+    sg->itemmanager->addChild( new WellFactoryTreeItem );
+    sg->itemmanager->addChild( new HorizonFactoryTreeItem );
+    sg->itemmanager->addChild( new PickSetFactoryTreeItem );
+    sg->itemmanager->addChild( new RandomLineFactoryTreeItem );
+    sg->itemmanager->addChild( new VolumeFactoryTreeItem );
+    sg->itemmanager->addChild( new TimesliceFactoryTreeItem );
+    sg->itemmanager->addChild( new CrosslineFactoryTreeItem );
+    sg->itemmanager->addChild( new InlineFactoryTreeItem );
+    sg->itemmanager->addChild( new SceneTreeItem(sg->sovwr->getTitle(),
+						 sg->sovwr->sceneId() ) );
+    sg->lv->display();
+    sg->treewin->display();
+}
+
+
+void uiODSceneMgr::updateTrees()
+{
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	Scene& scene = *scenes[idx];
+	scene.itemmanager->updateColumnText(0);
+	scene.itemmanager->updateColumnText(1);
     }
 }
 
 
-void uiODSceneMgr::setStereoOffset()
+void uiODSceneMgr::rebuildTrees()
 {
-    ObjectSet<uiSoViewer> sovwrs;
     for ( int idx=0; idx<scenes.size(); idx++ )
-	sovwrs += scenes[idx]->sovwr;
-    if ( sovwrs.size() )
-	appl.applMgr().setStereoOffset( sovwrs );
+    {
+	Scene& scene = *scenes[idx];
+	const int sceneid = scene.sovwr->sceneId();
+	TypeSet<int> visids; visserv->getChildIds( sceneid, visids );
+
+	for ( int idy=0; idy<visids.size(); idy++ )
+	    DisplayTreeItem::factory(scene.itemmanager,applMgr(),visids[idy]);
+    }
+    updateSelectedTreeItem();
+}
+
+
+void uiODSceneMgr::setItemInfo( int id )
+{
+    mDoAllScenes(itemmanager,updateColumnText,1);
+    appl.statusBar()->message( "", 0 );
+    appl.statusBar()->message( "", 1 );
+    appl.statusBar()->message( visserv->getInteractionMsg(id), 2 );
+}
+
+
+void uiODSceneMgr::updateSelectedTreeItem()
+{
+    const int id = visserv->getSelObjectId();
+    const bool ispickset = visserv->isPickSet( id );
+    if ( ispickset && !applMgr().attrserv->attrSetEditorActive() )
+	actMode( 0 );
+
+    if ( id != -1 )
+    {
+	setItemInfo( id );
+	applMgr().modifyColorTable( id );
+    }
+
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	Scene& scene = *scenes[idx];
+	scene.itemmanager->updateSelection( id );
+	scene.itemmanager->updateColumnText(0);
+	scene.itemmanager->updateColumnText(1);
+    }
+}
+
+
+int uiODSceneMgr::getIDFromName( const char* str ) const
+{
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	const uiTreeItem* itm = scenes[idx]->itemmanager->findChild( str );
+	if ( itm ) return itm->selectionKey();
+    }
+
+    return -1;
 }
 
 
@@ -514,13 +499,27 @@ void uiODSceneMgr::disabRightClick( bool yn )
 }
 
 
-void uiODSceneMgr::layoutScenes()
+void uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
 {
-    const int nrgrps = scenes.size();
-    if ( nrgrps == 1 && scenes[0] )
-	scenes[0]->grp()->display( true, false, true );
-    else if ( scenes[0] )
-	tile();
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	Scene& scene = *scenes[idx];
+	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
+
+	scene.itemmanager->addChild( new PickSetTreeItem(ps) );
+    }
+}
+
+
+void uiODSceneMgr::addHorizonItem( const MultiID& mid, int sceneid )
+{
+    for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	Scene& scene = *scenes[idx];
+	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
+
+	scene.itemmanager->addChild( new HorizonTreeItem(mid) );
+    }
 }
 
 

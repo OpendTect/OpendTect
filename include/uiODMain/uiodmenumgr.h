@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.1 2003-12-20 13:24:05 bert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.2 2003-12-24 15:15:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,9 @@ protected:
     uiMenuItem*		stereoquadbufitm;
     uiMenuItem*		stereooffsetitm;
     int			axisid, actid, viewid;
+
+    inline uiODApplMgr&	applMgr()	{ return appl.applMgr(); }
+    inline uiODApplMgr&	sceneMgr()	{ return appl.sceneMgr(); }
 };
 
 

@@ -4,19 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.1 2003-12-20 13:24:05 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.2 2003-12-24 15:15:50 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
-#include "odsessionfact.h"
-#include "uiodapplmgr.h"
 #include "uicmain.h"
-#include "uimsg.h"
+#include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
+#include "uiodmenumgr.h"
 #include "uisurvey.h"
+#include "uimsg.h"
 #include "ioman.h"
 #include "iodir.h"
+#include "odsessionfact.h"
 
 static const int cCTHeight = 200;
 
@@ -36,6 +38,8 @@ uiODMain::uiODMain( int argc, char **argv )
 	, failed(true)
     	, ctabed(0)
     	, ctabwin(0)
+    	, lastsession(*new ODSession)
+    	, lastsession(0)
 {
     setIcon( dtect_xpm_data, "OpendTect" );
     uiMSG().setMainWin( this );
@@ -50,17 +54,15 @@ uiODMain::uiODMain( int argc, char **argv )
 	::exit( 0 );
 
     if ( buildUI() )
-    {
 	failed = false;
-	windowClosed.notify( mCB(&applman,uiODApplMgr,prepClose) );
-    }
 }
 
 
 uiODMain::~uiODMain()
 {
-    delete &uiapp;
     delete ctabed;
+    delete &uiapp;
+    delete &lastsession;
 }
 
 
@@ -212,18 +214,100 @@ void uiODMain::initCT()
 }
 
 
-void uiODMain::storePositions()
-{
-    menumgr->storePosition();
-    ctabwin->storePosition();
-}
-
-
 void uiODMain::enableColorTable( bool yn )
 {
     ctabwin->setSensitive( yn );
 }
 
+
+IOPar& uiODMain::sessionPars()
+{
+    return cursession->pluginpars();
+}
+
+
+CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
+{
+    CtxtIOObj* ctio = mMkCtxtIOObj(ODSession);
+    ctio->ctxt.forread = restore;
+    uiIOObjSelDlg dlg( &appl, *ctio );
+    if ( !dlg.go() )
+	{ delete ctio.ioobj; delete ctio; ctio = 0; }
+    return ctio;
+}
+
+
+void uiODMain::saveSession()
+{
+    PtrMan<CtxtIOObj> ctio = getUserSessionIOData( false );
+    ODSession sess; cursession = &sess;
+    if ( !ctio || !updateSession() ) return;
+    BufferString bs;
+    if ( !ODSessionTranslator::store(sess,ctio->ioobj,bs) )
+	{ uiMSG().error( bs ); return; }
+
+    lastsession = sess; cursession = &lastsession;
+}
+
+
+void uiODMain::restoreSession()
+{
+    PtrMan<CtxtIOObj> ctio = getUserSessionIOData( true );
+    if ( !ctio ) return;
+    ODSession sess; BufferString bs;
+    if ( !ODSessionTranslator::retrieve(sess,ctio->ioobj,bs) )
+	{ uiMSG().error( bs ); return; }
+
+    cursession = &sess;
+    restoreSession();
+    cursession = &lastsession; lastsession.clear();
+    updateSession();
+}
+
+
+bool uiODMain::hasSessionChanged()
+{
+    ODSession sess;
+    cursession = &sess;
+    updateSession();
+    cursession = &lastsession;
+    return !( sess == lastsession );
+}
+
+
+bool uiODMain::updateSession()
+{
+    cursession->clear();
+    visserv->fillPar( cursession->vispars() );
+    attrserv->fillPar( cursession->attrpars() );
+    sceneMgr().fillPar( cursession->scenepars() );
+    if ( nlaserv && !nlaserv->fillPar( cursession->nlapars() ) ) 
+	return false;
+    sessionSave.trigger();
+    return true;
+}
+
+
+void uiODMain::restoreSession()
+{
+    sceneMgr().cleanUp( false );
+    if ( nlaserv ) nlaserv->reset();
+    delete attrserv; attrserv = new uiAttribPartServer( applservice );
+
+    if ( nlaserv ) nlaserv->usePar( cursession->nlapars() );
+    attrserv->usePar( cursession->attrpars() );
+    bool visok = visserv->usePar( cursession->vispars() );
+
+    if ( visok ) 
+	sceneMgr().mkScenesFrom( cursession );
+    else
+    {
+	uiMSG().error( "An error occurred while reading session file.\n"
+		       "A new scene will be launched" );	
+	sceneMgr().cleanUp( true );
+    }
+    sessionRestore.trigger();
+}
 
 
 bool uiODMain::go()
@@ -238,7 +322,30 @@ bool uiODMain::go()
 }
 
 
+bool uiODApplMgr::closeOk( CallBacker* )
+{
+    if ( failed ) return true;
+
+    menumgr->storePositions();
+    scenemgr->storePositions();
+    ctabwin->storePosition();
+
+    int res = hasSessionChanged()
+	    ? uiMSG().askGoOnAfter( "Do you want to save this session?" );
+            : (int)!uiMSG().askGoOn( "Do you want to quit?" ) + 1;
+
+    if ( res == 0 )
+	saverestoreSession( false );
+    else if ( res == 2 )
+	return false;
+
+    return true;
+}
+
+
 void uiODMain::exit()
 {
+    if ( !closeOk(0) ) return;
+
     uiapp.exit(0);
 }

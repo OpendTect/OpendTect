@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.1 2003-12-20 13:24:05 bert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.2 2003-12-24 15:15:50 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.1 2003-12-20 13:24:05 bert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.2 2003-12-24 15:15:50 bert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
@@ -59,6 +59,54 @@ uiPopupMenu* uiODMenuMgr::getMnu( bool imp, ObjType ot )
 }
 
 
+void uiODMenuMgr::storePositions()
+{
+    dtecttb->storePosition();
+    cointb->storePosition();
+}
+
+
+void uiODMenuMgr::updateStereoMenu( bool stereo, bool quad )
+{
+    stereooffitm->setChecked( !stereo );
+    stereoredcyanitm->setChecked( stereo && !quad );
+    stereoquadbufitm->setChecked( stereo && quad );
+    stereooffsetitm->setEnabled( stereo );
+}
+
+
+void uiODMenuMgr::updateViewMode( bool isview )
+{
+    cointb->turnOn( viewid, isview );
+    cointb->turnOn( actid, !isview );
+    cointb->setSensitive( axisid, isview );
+}
+
+
+void uiODMenuMgr::updateAxisMode( bool shwaxis )
+{
+    cointb->turnOn( axisid, shwaxis );
+}
+
+
+void uiODMenuMgr::enableToolbar( bool yn )
+{
+    dtecttb->setSensitive( yn );
+}
+
+
+void uiODMenuMgr::enableMenubar( bool yn )
+{
+    appl.menuBar()->setSensitive( yn );
+}
+
+
+void uiODMenuMgr::enableActButton( bool yn )
+{
+    cointb->setSensitive( actbuttonid, yn );
+}
+
+
 #define mInsertItem(menu,txt,id) \
     menu->insertItem( \
 	new uiMenuItem(txt,mCB(this,uiODMenuMgr,mnuClicked)), id )
@@ -69,8 +117,6 @@ uiPopupMenu* uiODMenuMgr::getMnu( bool imp, ObjType ot )
 		    new uiMenuItem(txt,mCB(this,uiODMenuMgr,mnuClicked)); \
 	menu->insertItem( subitm, id ); subitm->setEnabled( doenable ); \
     }
-
-
 
 void uiODMenuMgr::fillFileMenu()
 {
@@ -258,8 +304,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return; // Huh?
 
-    ui3DApplWorkSpaceMgr& wspmgr = appl.wspMgr();
-
     const int id = itm->id();
     switch( id )
     {
@@ -286,11 +330,11 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 #ifdef __win__
 				applMgr().tile(); // otherwise crash ...!
 #endif
-				wspmgr.addScene(); break;
-    case mCascadeMnuItm: 	wspmgr.cascade(); break;
-    case mTileMnuItm: 		wspmgr.tile(); break;
+				sceneMgr().addScene(); break;
+    case mCascadeMnuItm: 	sceneMgr().cascade(); break;
+    case mTileMnuItm: 		sceneMgr().tile(); break;
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
-    case mZScaleMnuItm: 	wspmgr.setZScale(); break;
+    case mZScaleMnuItm: 	sceneMgr().setZScale(); break;
     case mAdminMnuItm: 		applMgr().doHelp(
 				    getHelpF("ApplMan","index.html"),
 				    "OpendTect System administrator"); break;
@@ -303,7 +347,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
     case mSettMouseMnuItm: 	applMgr().setKeyBindings(); break;
 
-    case mStereoOffsetMnuItm: 	wspmgr.setStereoOffset(); break;
+    case mStereoOffsetMnuItm: 	sceneMgr().setStereoOffset(); break;
     case mStereoOffMnuItm: 
     case mStereoRCMnuItm : 
     case mStereoQuadMnuItm :
@@ -311,7 +355,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	int idx = itm->index();
 	bool stereo = (idx == 1 || idx == 2) && !itm->isChecked();
 	bool quad = idx == 2 && !itm->isChecked();
-	wspmgr.setStereoViewing( stereo, quad );
+	sceneMgr().setStereoViewing( stereo, quad );
 	updateStereoMenu( stereo, quad );
     } break;
 
@@ -347,54 +391,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
 
     }
-}
-
-
-void uiODMenuMgr::storePositions()
-{
-    dtecttb->storePosition();
-    cointb->storePosition();
-}
-
-
-void uiODMenuMgr::updateStereoMenu( bool stereo, bool quad )
-{
-    stereooffitm->setChecked( !stereo );
-    stereoredcyanitm->setChecked( stereo && !quad );
-    stereoquadbufitm->setChecked( stereo && quad );
-    stereooffsetitm->setEnabled( stereo );
-}
-
-
-void uiODMenuMgr::updateViewMode( bool isview )
-{
-    cointb->turnOn( viewid, isview );
-    cointb->turnOn( actid, !isview );
-    cointb->setSensitive( axisid, isview );
-}
-
-
-void uiODMenuMgr::updateAxisMode( bool shwaxis )
-{
-    cointb->turnOn( axisid, shwaxis );
-}
-
-
-void uiODMenuMgr::enableToolbar( bool yn )
-{
-    dtecttb->setSensitive( yn );
-}
-
-
-void uiODMenuMgr::enableActButton( bool yn )
-{
-    cointb->setSensitive( actbuttonid, yn );
-}
-
-
-void uiODMenuMgr::enableMenubar( bool yn )
-{
-    appl.menuBar()->setSensitive( yn );
 }
 
 

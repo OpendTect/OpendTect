@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.1 2003-12-20 13:24:05 bert Exp $
+ RCS:		$Id: odsession.h,v 1.2 2003-12-24 15:15:42 bert Exp $
 ________________________________________________________________________
 
 
@@ -31,6 +31,8 @@ public:
     IOPar&		scenepars() 		{ return scenepars_; }
     IOPar&		pluginpars() 		{ return pluginpars_; }
 
+    void		clear();
+    ODSession&		operator =(const ODSession&);
     bool		operator ==(const ODSession&) const;
 
     bool		usePar(const IOPar&);

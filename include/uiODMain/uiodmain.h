@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.1 2003-12-20 13:24:05 bert Exp $
+ RCS:           $Id: uiodmain.h,v 1.2 2003-12-24 15:15:42 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
+class IOPar;
 class uicMain;
 class uiODMain;
 class uiODApplMgr;
@@ -42,12 +43,19 @@ public:
     enum ObjType	{ Seis, Hor, Wll, Attr };
     enum ActType	{ Imp, Exp, Man };
 
+    Notifier<uiODMain>	sessionSave;
+    Notifier<uiODMain>	sessionRestore;
+    IOPar&		sessionPars();	//!< For stuff that plugins want to
+    					//!< store in session.
+
 protected:
 
     uiODApplMgr*	applmgr;
     uiODMenuMgr*	menumgr;
     uiODSceneMgr*	scenemgr;
     uicMain&		uiapp;
+    ODSession*		cursession;
+    ODSession&		lastsession;
 
     bool		failed;
 

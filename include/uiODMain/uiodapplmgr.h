@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.1 2003-12-20 13:24:05 bert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.2 2003-12-24 15:15:42 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,64 +48,53 @@ public:
     uiNLAPartServer*	nlaServer()			{ return nlaserv; }
     void		setNlaServer( uiNLAPartServer* s ) { nlaserv = s; }
 
-    void		doOperation(uiODMain::ObjType,
-	    			    uiODMain::ActType,int opt=0);
-    			//!< Not all combinations are available ...!
 
     // File menu operations
     int			manageSurvey();
     bool		manageNLA();
+    void		doOperation(uiODMain::ObjType,
+	    			    uiODMain::ActType,int opt=0);
+    			//!< Not all combinations are available ...!
     void		importPickSet();
     void		importLMKFault();
 
     // Processing menu operations
+    void		manageAttributes();
     void		createVol();
     void		reStartProc();
 
-    // Processing menu operations
+    // Utility menu operations
     void		batchProgs();
     void		pluginMan();
     void		crDevEnv();
     void		doHelp(const char*,const char*);
     void		setFonts();
+    void		setStereoOffset();
 
+    // Tree menu services
+	// Selections
+    void		selectWells(ObjectSet<MultiID>&);
+    void		selectHorizon(MultiID&);
+    void		selectFault(MultiID&);
+    void		selectStickSet(MultiID&);
+    bool		selectAttrib(int);
+    bool		selectColorAttrib(int);
+	// Surfaces
+    void		storeSurface(int);
+	// PickSets
+    const Color&	getPickColor();
+    void		getPickSetGroup(PickSetGroup& psg);
     bool		storePickSets();
     bool		storeSinglePickSet(int);
     bool		setPickSetDirs(int);
-    void		getPickSetGroup(PickSetGroup& psg);
-    const Color&	getPickColor();
     void		renamePickset(int);
-
-    bool		selectAttrib(int);
-    bool		getNewData(int visid,bool);
-    bool		evaluateAttribute(int visid);
-
-    bool		selectColorAttrib(int);
-
-    void		saverestoreSession(bool);
-    bool		hasSessionChanged();
-    bool		saveSession(ODSession*);
-    void		restoreSession(ODSession*);
-
-    void		selectWells(ObjectSet<MultiID>&);
-
-    void		selectHorizon(MultiID&);
-    void		selectStickSet(MultiID&);
-    void		selectFault(MultiID&);
-    void		storeSurface(int);
-
+	// Menu
     bool		createSubMenu(uiPopupMenu&,int mnuid,int visid,int tp);
     bool		handleSubMenu(int mnuid,int visid,int tp);
 
-    uiApplService&	applService();
-
-    Notifier<uiODApplMgr> sessionSave;
-    Notifier<uiODApplMgr> sessionRestore;
-    IOPar&		sessionPar()		{ return *pluginsessionpars; }
-
-    void		prepClose(CallBacker*);
-    void		sceneRemoved(int,uiDockWin*);
-    void		setStereoOffset(ObjectSet<uiSoViewer>&);
+    // Work
+    bool		getNewData(int visid,bool);
+    bool		evaluateAttribute(int visid);
 
 protected:
 
@@ -119,29 +108,29 @@ protected:
     uiSeisPartServer*	seisserv;
     uiEMPartServer*	emserv;
     uiWellPartServer*	wellserv;
-    ODSession*		cursession;
-
-    IOPar*		pluginsessionpars;
-
-    void		handleStoredSurfaceData(int);
 
     bool		handleEvent(const uiApplPartServer*,int);
     void*		deliverObject(const uiApplPartServer*,int);
 
-    bool		getNewCubeData(int visid,bool);
-    bool		getNewRandomLineData(int,bool);
-    bool		getNewSurfData(int,bool);
-
+    bool		handleWellServEv(int);
+    bool		handleEMServEv(int);
     bool		handlePickServEv(int);
     bool		handleVisServEv(int);
     bool		handleNLAServEv(int);
     bool		handleAttribServEv(int);
-    bool		handleEMServEv(int);
-    bool		handleWellServEv(int);
 
-    bool		attrdlgisup;
+    bool		getNewCubeData(int visid,bool);
+    bool		getNewSurfData(int,bool);
+    bool		getNewRandomLineData(int,bool);
+    void		handleStoredSurfaceData(int);
+
+    void		modifyColorTable(int);
+    void		setHistogram(int);
 
     friend class	uiODApplService;
+
+    inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }
+    inline uiODMenuMgr&	menuMgr()	{ return appl.menuMgr(); }
 };
 
 
