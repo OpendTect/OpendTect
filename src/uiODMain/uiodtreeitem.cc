@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.70 2005-03-07 10:58:25 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.71 2005-03-11 12:53:26 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -46,7 +46,6 @@ ___________________________________________________________________
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
-#include "uivissurface.h"
 #include "uiexecutor.h"
 #include "settings.h"
 
@@ -454,37 +453,37 @@ void uiODDisplayTreeItem::handleAttribSubMenu( int mnuid, int type )
 uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 						const MultiID& mid_ )
     : mid(mid_)
-    , uivissurf(0)
+    , uivisemobj(0)
 {}
 
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 { 
-    delete uivissurf;
+    delete uivisemobj;
 }
 
 
-#define mDelRet { delete uivissurf; uivissurf = 0; return false; }
+#define mDelRet { delete uivisemobj; uivisemobj = 0; return false; }
 
 
 bool uiODEarthModelSurfaceTreeItem::init()
 {
-    delete uivissurf;
+    delete uivisemobj;
     if ( displayid!=-1 )
     {
-	uivissurf = new uiVisEMObject( getUiParent(), displayid,
+	uivisemobj = new uiVisEMObject( getUiParent(), displayid,
 				      applMgr()->visServer() );
-	if ( !uivissurf->isOK() )
+	if ( !uivisemobj->isOK() )
 	    mDelRet;
 
 	mid = *applMgr()->visServer()->getMultiID(displayid);
     }
     else
     {
-	uivissurf = new uiVisEMObject( getUiParent(), mid, sceneID(),
+	uivisemobj = new uiVisEMObject( getUiParent(), mid, sceneID(),
 				      applMgr()->visServer() );
-	displayid = uivissurf->id();
-	if ( !uivissurf->isOK() )
+	displayid = uivisemobj->id();
+	if ( !uivisemobj->isOK() )
 	    mDelRet;
     }
 
@@ -518,7 +517,7 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 
 void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 {
-    uivissurf->prepareForShutdown();
+    uivisemobj->prepareForShutdown();
 }
 
 
@@ -583,10 +582,10 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	ts->setDisplayID( displayid );
 
 	EM::SectionID section = -1;
-	if ( uivissurf->nrSections()==1 )
-	    section = uivissurf->getSection(0);
+	if ( uivisemobj->nrSections()==1 )
+	    section = uivisemobj->getSection(0);
 	else if ( menu->getPath() )
-	    section = uivissurf->getSection( menu->getPath() );
+	    section = uivisemobj->getSection( menu->getPath() );
 
 	const Coord3& pickedpos = menu->getPickedPos();
 	const bool hastracker = applMgr()->mpeServer()->getTrackerID(mid)>=0;
@@ -601,7 +600,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	else if ( hastracker && section != -1 )
 	{
 
-	    if ( uivissurf->isHorizon(displayid) )
+	    if ( uivisemobj->isHorizon(displayid) )
 	    {
 		addsectionmnuid = menu->getFreeID();
 		trackmnu->insertItem( new uiMenuItem("Add section ..."),
@@ -624,7 +623,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    tracktogglemnuitem->setChecked(
 		    applMgr()->mpeServer()->isTrackingEnabled(mid) );
 
-	    if ( uivissurf->isHorizon(displayid) )
+	    if ( uivisemobj->isHorizon(displayid) )
 	    {
 		relmnuid = menu->getFreeID();
 		trackmnu->insertItem( new uiMenuItem("Relations ..."), 
@@ -660,10 +659,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     EM::SectionID sectionid = -1;
-    if ( uivissurf->nrSections()==1 )
-	sectionid = uivissurf->getSectionID(0);
+    if ( uivisemobj->nrSections()==1 )
+	sectionid = uivisemobj->getSectionID(0);
     else if ( menu->getPath() )
-	sectionid = uivissurf->getSectionID( menu->getPath() );
+	sectionid = uivisemobj->getSectionID( menu->getPath() );
 
     if ( mnuid==saveattrmnuid )
     {
@@ -681,7 +680,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	if ( sectionid < 0 ) return;
 
-	if ( !uivissurf->isHorizon(displayid) && !uivissurf->isFault(displayid))
+	if ( !uivisemobj->isHorizon(displayid) && !uivisemobj->isFault(displayid))
 	    return;
 
 	applMgr()->mpeServer()->trackExistingSurface( mid, sectionid, 
@@ -700,19 +699,19 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	uiTreeItem* parent__ = parent;
 
 	applMgr()->visServer()->removeObject( displayid, sceneID() );
-	delete uivissurf; uivissurf = 0;
+	delete uivisemobj; uivisemobj = 0;
 
 	if ( !applMgr()->EMServer()->loadSurface(mid) )
 	    return;
 
-	uivissurf = new uiVisEMObject( getUiParent(), mid, sceneID(),
+	uivisemobj = new uiVisEMObject( getUiParent(), mid, sceneID(),
 				      applMgr()->visServer() );
-	displayid = uivissurf->id();
+	displayid = uivisemobj->id();
     }
     else if ( mnuid==depthvalmnuid )
     {
 	menu->setIsHandled(true);
-	uivissurf->setDepthAsAttrib();
+	uivisemobj->setDepthAsAttrib();
 	updateColumnText(0);
     }
     else if ( mnuid>=attribstartmnuid && mnuid<=attribstopmnuid )
@@ -752,7 +751,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	applMgr()->EMServer()->loadAuxData(mid);
-	uivissurf->readAuxData();
+	uivisemobj->readAuxData();
 	ODMainWin()->sceneMgr().updateTrees();
     }
 }
@@ -1219,7 +1218,7 @@ void uiODHorizonTreeItem::updateColumnText( int col )
     if ( col==1 )
     {
 	//TODO:
-	//BufferString shift = uivissurf->getShift();
+	//BufferString shift = uivisemobj->getShift();
 	//uilistviewitem->setText( shift, col );
 	return;
     }
