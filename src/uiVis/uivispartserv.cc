@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.141 2003-03-10 15:51:47 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.142 2003-03-13 13:43:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1229,10 +1229,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
     }
 
     if ( !visBase::DM().usePar( par ) )
-    {	
-	pErrMsg( "Could not parse session");
 	return false;
-    }
 
     TypeSet<int> sceneids;
     visBase::DM().getIds( typeid(visSurvey::Scene), sceneids );
