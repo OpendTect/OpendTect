@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.32 2004-10-29 14:23:10 kristofer Exp $
+ RCS:		$Id: position.h,v 1.33 2004-11-16 09:55:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,16 @@ public:
     void	operator+=( double dist )	{ x += dist; y += dist; }
     void	operator+=( const Coord& crd )	{ x += crd.x; y += crd.y; }
     void	operator-=( const Coord& crd )	{ x -= crd.x; y -= crd.y; }
+    void	operator/=( const double& den )	{ x /= den; y /= den; }
+    void	operator*=( const double& fact ){ x *= fact; y *= fact; }
     Coord	operator+( const Coord& crd ) const
-		{ Coord res = *this; res.x+=crd.x; res.y+=crd.y; return res; }
+    		{ return Coord(x+crd.x,y+crd.y); }
     Coord	operator-( const Coord& crd ) const
-		{ Coord res = *this; res.x-=crd.x; res.y-=crd.y; return res; }
+    		{ return Coord(x-crd.x,y-crd.y); }
+    Coord	operator/( const double& den ) const
+    		{ return Coord(x/den,y/den); }
+    Coord	operator*( const double& fact ) const
+		{ return Coord(x*fact,y*fact); }
     bool	operator==( const Coord& crd ) const
 		{ return mIsEqual(x,crd.x,mDefEps)
 		      && mIsEqual(y,crd.y,mDefEps); }
