@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.32 2004-08-04 12:08:14 kristofer Exp $
+ RCS:		$Id: callback.h,v 1.33 2004-08-13 08:01:44 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,13 +119,23 @@ class CallBackSet : public TypeSet<CallBack>
 {
 public:
 
-    void	doCall(CallBacker*);
-
+    void	doCall(CallBacker*,  const bool* enabledflag);
+    		/*!<\param enabledflag	If enabledflag points to a bool
+		  			(i.e. is non-zero) that bool will
+					be checked between each call. If the
+					bool is false, the traverse will stop
+					and the remaining cbs won't be called.
+					This makes it possible to terminate
+					a traverse during the traversal.
+		*/
 };
 
-inline void CallBackSet::doCall( CallBacker* obj )
+inline void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag )
 {
-    for ( int idx=0; idx<size(); idx++ )
+    const bool enabled_ = true;
+    const bool& enabled = enabledflag ? *enabledflag : enabled_;
+
+    for ( int idx=0; enabled && idx<size(); idx++ )
 	(*this)[idx].doCall( obj );
 }
 
@@ -331,7 +341,7 @@ public:
 			Notifier( T* c ) 			{ cber = c; }
 
     inline void		trigger( CallBacker* c=0 )
-			{ if ( enabled ) cbs.doCall(c ? c : cber); }
+			{ cbs.doCall(c ? c : cber, &enabled); }
 
 };
 
@@ -408,7 +418,7 @@ public:
 			{
 			    if( !enabled ) return; 
 			    CBCapsule<C> caps( c, cb ? cb : cber );
-			    cbs.doCall( &caps );
+			    cbs.doCall( &caps, &enabled );
 			}
 };
 
