@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.203 2004-05-04 15:37:05 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.204 2004-05-05 15:48:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -655,9 +655,9 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 
 void uiVisPartServer::turnOn( int id, bool yn )
 {
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet(visBase::VisualObject*,so,obj)
-    if ( so ) so->turnOn( yn );
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visBase::VisualObject*,vo,dobj)
+    if ( vo ) vo->turnOn( yn );
 
     TypeSet<int> sceneids;
     getChildIds( -1, sceneids );
@@ -672,9 +672,9 @@ void uiVisPartServer::turnOn( int id, bool yn )
 
 bool uiVisPartServer::isOn( int id ) const
 {
-    const visBase::DataObject* obj = visBase::DM().getObj( id );
-    mDynamicCastGet( const visBase::VisualObject*,so,obj)
-    return so ? so->isOn() : false;
+    const visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet( const visBase::VisualObject*,vo,dobj)
+    return vo ? vo->isOn() : false;
 }
 
 
@@ -934,7 +934,7 @@ void uiVisPartServer::acceptManipulation( int id )
 
 void uiVisPartServer::setUpConnections( int id )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
     if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
 
@@ -943,12 +943,16 @@ void uiVisPartServer::setUpConnections( int id )
     menu->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
     if ( so && so->rightClickNotifier() )
        so->rightClickNotifier()->notify(mCB(this,uiVisPartServer,rightClickCB));
+
+    mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
+    if ( vo && vo->rightClicked() )
+	vo->rightClicked()->notify(mCB(this,uiVisPartServer,rightClickCB));
 }
 
 
 void uiVisPartServer::removeConnections( int id )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id));
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
 
     if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
@@ -960,6 +964,10 @@ void uiVisPartServer::removeConnections( int id )
     menu->handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
     if ( so && so->rightClickNotifier() )
        so->rightClickNotifier()->remove(mCB(this,uiVisPartServer,rightClickCB));
+
+    mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
+    if ( vo && vo->rightClicked() )
+	vo->rightClicked()->remove(mCB(this,uiVisPartServer,rightClickCB));
     menu->unRef();
 }
 
