@@ -2,24 +2,33 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_xterm_exec,v 1.3 2003-11-07 12:21:50 bert Exp $
+# $Id: od_xterm_exec,v 1.4 2004-02-06 12:15:42 arend Exp $
 #
 # script to run in xterm for od_exec
 #_______________________________________________________________________________
 
 set askclose=0
+
+if ( $?DTECT_DEBUG ) then
+    set askclose=1
+endif
+
+if ( $?DTECT_ALWAYS_ASKCLOSE ) then
+    set askclose=1
+endif
+
 if ( "$1" == "--askclose" ) then
-	set askclose=1
-	shift
+    set askclose=1
+    shift
 endif
 
 eval $*
 set st=$status
 
 if ( $askclose == 1 ) then
-	echo ""
-	echo -n "Press enter to close xterm ..."
-	set inp=$<
+    echo ""
+    echo -n "Press enter to close xterm ..."
+    set inp=$<
 endif
 
 exit $st
