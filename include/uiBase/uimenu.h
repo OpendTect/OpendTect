@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.15 2003-01-30 10:06:12 kristofer Exp $
+ RCS:           $Id: uimenu.h,v 1.16 2003-03-12 16:23:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,10 +37,10 @@ public:
 				~uiMenuData();
 
     int				nrItems() const;
-    void			insertItem(uiMenuItem*,int idx=-1);
-    void			insertItem(const char* text, const CallBack& cb,
+    int				insertItem(uiMenuItem*,int idx=-1);
+    int				insertItem(const char* text, const CallBack& cb,
 					   int idx=-1);
-    void			insertItem(uiPopupMenu*,int idx=-1);
+    int				insertItem(uiPopupMenu*,int idx=-1);
     void			insertSeparator(int idx=-1);
 
 protected:

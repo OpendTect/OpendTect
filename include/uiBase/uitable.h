@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.1 2003-02-14 15:34:49 arend Exp $
+ RCS:           $Id: uitable.h,v 1.2 2003-03-12 16:23:19 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uigroup.h>
+#include <uimouse.h>
 class PtrUserIDObjectSet;
 class uiLabel;
 class uiTableBody;
@@ -26,22 +27,53 @@ class uiTable : public uiObject
 friend class		i_tableMessenger;
 public:
 
-                        uiTable(uiParent* parnt=0, 
-				  const char* nm="uiTable",
-				  int nrows=0, int ncols=0);
+    typedef Point<int>	Pos;
+    typedef Size2D<int>	Size;
 
+    class Setup
+    {
+    public:
+
+			Setup()
+			    : rowgrow_(false)
+			    , colgrow_(false)
+			    , rowdesc_("Row")
+			    , coldesc_("Column")	{}
+
+	Setup& size( const Size& s )		{ size_ = s; return *this; }
+	Setup& rowdesc( const char* s )		{ rowdesc_ = s; return *this; }
+	Setup& coldesc( const char* s )		{ coldesc_ = s; return *this; }
+	Setup& rowcangrow( bool s=true )	{ rowgrow_ = s; return *this; }
+	Setup& colcangrow( bool s=true )	{ colgrow_ = s; return *this; }
+
+	Size		size_;
+	BufferString	rowdesc_;
+	BufferString	coldesc_;
+	bool		rowgrow_;
+	bool		colgrow_;
+    };
+
+                        uiTable(uiParent*, const Setup&,const char* nm="Table");
     virtual 		~uiTable();
 
 
-    void		setText( int row, int col, const char* );
-    void		clearCell( int row, int col );
+    const char*		text(const Pos&) const;
+    void		setText(const Pos&,const char*);
+    void		clearCell(const Pos&);
+    void		setCurrentCell( const Pos& );
 
-    const char*		text( int row, int col ) const;
+    int			nrRows() const;
+    void		setNrRows( int nr);
+    int			nrCols() const;
+    void		setNrCols( int nr);
 
-    void		setNumRows(int);
-    void		setNumCols(int);
-    int			numRows() const;
-    int			numCols() const;
+    Size		size() const	{ return Size( nrCols(), nrRows() ); }
+    void		setSize( const Size& s)
+			{
+			    setNrCols( s.width() );
+			    setNrRows( s.height() );
+			}
+
 
     void		setColumnWidth( int col, int w );
     void		setRowHeight( int row, int h );
@@ -52,29 +84,52 @@ public:
     bool		isRowStretchable( int row ) const;
 
     void		insertRows( int row, int count = 1 );
+    void		insertRows( const Pos& p, int count = 1 )
+			    { insertRows( p.y(), count ); }
     void		insertColumns( int col, int count = 1 );
+    void		insertColumns( const Pos& p, int count = 1 )
+			    { insertColumns( p.x(), count ); }
     void		removeRow( int row );
+    void		removeRow( const Pos& p )
+			    { removeRow( p.y() ); }
     void		removeColumn( int col );
+    void		removeColumn( const Pos& p )
+			    { removeColumn( p.x() ); }
 
+    void		setRowLabel( int row, const char* label );
     void		setRowLabels( const char** labels );
-    void		setColumnLabels( const char** labels );
-
     void		setRowLabels( const ObjectSet<BufferString>& labels );
+    void		setRowLabel( const Pos& p, const char* label )
+			    { setRowLabel( p.y(), label ); }
+
+    void		setColumnLabel( int col, const char* label );
+    void		setColumnLabels( const char** labels );
     void		setColumnLabels( const ObjectSet<BufferString>& labels);
+    void		setColumnLabel( const Pos& p, const char* label )
+			    { setColumnLabel( p.x(), label ); }
 
-    int			lastRow() const { return lastrow_; }
-    int			lastCol() const { return lastcol_; }
+    Setup&		setup() 		{ return setup_; }
+    const Setup&	setup() const		{ return setup_; }
 
+    Pos			notifiedPos() const	{ return notifpos_; }
     Notifier<uiTable>	valueChanged;
-    Notifier<uiTable>	clicked;
+    CNotifier<uiTable,const uiMouseEvent&>	clicked;
     Notifier<uiTable>	doubleClicked;
+
+    Pos			newPos() const		{ return newpos_; }
+    Notifier<uiTable>	rowInserted;
+    Notifier<uiTable>	colInserted;
 
 protected:
 
-    int			lastrow_;
-    int			lastcol_;
+    Pos			notifpos_;
+    Pos			newpos_;
 
+    mutable Setup	setup_;
     mutable BufferString rettxt_;
+
+    void		clicked_(CallBacker*);
+    void		rightClk();
 
 private:
 
@@ -82,7 +137,5 @@ private:
     uiTableBody&	mkbody(uiParent*, const char*, int, int);
 
 };
-
-
 
 #endif
