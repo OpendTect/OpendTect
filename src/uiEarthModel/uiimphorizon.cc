@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.44 2005-02-16 10:49:56 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.45 2005-02-16 14:53:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,7 +201,7 @@ bool uiImportHorizon::doWork()
     if ( !doDisplay() )
 	horizon->unRef();
     else
-	horizon->unRefNoDel();
+	horizon->unRefNoDelete();
     return rv;
 }
 
