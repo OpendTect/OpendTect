@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: pickset.h,v 1.7 2002-02-08 22:00:56 bert Exp $
+ RCS:		$Id: pickset.h,v 1.8 2002-03-26 10:01:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <uidobj.h>
 #include <sets.h>
 #include <position.h>
+#include <color.h>
 
 
 /*!\brief Pick location in space */
@@ -49,8 +50,9 @@ class PickSet : public UserIDObject
 {
 public:
 
-			PickSet( const char* nm )
-			: UserIDObject(nm)	{}
+			PickSet(const char* nm);
+
+    Color		color;
 
 };
 
