@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.7 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: transform.h,v 1.8 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class ArrayNDInfo;
 template <class T> class ArrayND;
 
-typedef complex<float> float_complex;
+typedef std::complex<float> float_complex;
 
 /*!\brief A TransformND is an object that can perform an transform of any kind.
 \par

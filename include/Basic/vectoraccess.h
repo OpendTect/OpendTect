@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.19 2004-04-01 13:39:50 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.20 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,8 +43,8 @@ public:
 				: v(n,t)		{}
     inline		VectorAccess( const VectorAccess& v2 )
 				: v(v2.v)		{}
-    inline vector<T>&	vec()				{ return v; }
-    inline const vector<T>& vec() const			{ return v; }
+    inline std::vector<T>&	 vec()				{ return v; }
+    inline const std::vector<T>& vec() const			{ return v; }
 
     inline T&		operator[]( int idx )		{ return v[idx]; }
     inline const T&	operator[]( int idx ) const
@@ -119,7 +119,7 @@ public:
 
 protected:
 
-    vector<T>		v;
+    std::vector<T>	v;
 
 };
 

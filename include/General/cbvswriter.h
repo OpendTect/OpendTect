@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.20 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.21 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,12 +36,13 @@ class CBVSWriter : public CBVSIO
 {
 public:
 
-			CBVSWriter(ostream*,const CBVSInfo&,
+			CBVSWriter(std::ostream*,const CBVSInfo&,
 				   const PosAuxInfo* =0);
 			//!< If info.posauxinfo has a true, the PosAuxInfo
 			//!< is mandatory. The relevant field(s) should then be
 			//!< filled before the first put() of any position
-			CBVSWriter(ostream*,const CBVSWriter&,const CBVSInfo&);
+			CBVSWriter(std::ostream*,const CBVSWriter&,
+				   const CBVSInfo&);
 			//!< For usage in CBVS pack
 			~CBVSWriter();
 
@@ -65,7 +66,7 @@ public:
 
 protected:
 
-    ostream&		strm_;
+    std::ostream&	strm_;
     unsigned long	thrbytes_;
     int			auxnrbytes_;
     bool		input_rectnreg_;
@@ -84,7 +85,7 @@ protected:
 
 private:
 
-    streampos		geomsp_; //!< file offset of geometry data
+    std::streampos	geomsp_; //!< file offset of geometry data
     int			trcswritten_;
     BinID		prevbinid_;
     bool		file_lastinl_;

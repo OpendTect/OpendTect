@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.9 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: strmdata.h,v 1.10 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,8 +43,8 @@ public:
     const char*	fileName() const		{ return fnm; }
     						//!< Beware: may be NULL
 
-    istream*	istrm;
-    ostream*	ostrm;
+    std::istream* istrm;
+    std::ostream* ostrm;
     FILE*	fp;
     bool	ispipe;
 

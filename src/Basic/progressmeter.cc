@@ -15,7 +15,7 @@ static const char* rcsID = "$Id";
 static const char dispchars[] = ".:=|*#>}ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
-ProgressMeter::ProgressMeter( ostream& out, unsigned long dist_,
+ProgressMeter::ProgressMeter( std::ostream& out, unsigned long dist_,
 			      unsigned short rowlen_,
 			      bool df )
 	: strm(out)
@@ -108,7 +108,7 @@ void ProgressMeter::annotate( bool withrate )
 	int permsec = (int)(1.e6 * nrdone / tdiff + .5);
 	strm << " (" << permsec * .001 << "/s)";
     }
-    strm << endl;
+    strm << std::endl;
 
     lastannotatedprogress = progress;
     oldtime = newtime; 

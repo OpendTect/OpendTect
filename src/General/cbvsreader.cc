@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.45 2003-12-10 14:09:09 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.46 2004-04-27 15:51:15 bert Exp $";
 
 /*!
 
@@ -31,7 +31,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "survinfoimpl.h"
 
 
-CBVSReader::CBVSReader( istream* s )
+CBVSReader::CBVSReader( std::istream* s )
 	: strm_(*s)
 	, iinterp(DataCharacteristics())
 	, finterp(DataCharacteristics())
@@ -58,7 +58,7 @@ CBVSReader::~CBVSReader()
 
 void CBVSReader::close()
 {
-    if ( !strmclosed_ && &strm_ != &cin )
+    if ( !strmclosed_ && &strm_ != &std::cin )
 	delete &strm_;
     strmclosed_ = true;
 }
@@ -143,14 +143,14 @@ void CBVSReader::getText( int nrchar, BufferString& txt )
 
 
 #undef mErrRet
-#define mErrRet { strm.seekg( 0, ios::beg ); return msg; }
+#define mErrRet { strm.seekg( 0, std::ios::beg ); return msg; }
 
-const char* CBVSReader::check( istream& strm )
+const char* CBVSReader::check( std::istream& strm )
 {
     if ( strm.bad() ) return "Input stream cannot be used";
     if ( strm.fail() ) strm.clear();
 
-    strm.seekg( 0, ios::beg );
+    strm.seekg( 0, std::ios::beg );
     char buf[4]; memset( buf, 0, 4 );
     strm.read( buf, 3 );
     const char* msg = "Input stream cannot be used";
@@ -162,7 +162,7 @@ const char* CBVSReader::check( istream& strm )
     char plf; strm.read( &plf, 1 );
     if ( plf > 2 ) mErrRet;
 
-    strm.seekg( 0, ios::beg );
+    strm.seekg( 0, std::ios::beg );
     return 0;
 }
 
@@ -281,16 +281,16 @@ bool CBVSReader::readGeom()
 
 bool CBVSReader::readTrailer()
 {
-    strm_.seekg( -3, ios::end );
+    strm_.seekg( -3, std::ios::end );
     BufferString buf(3*integersize);
     strm_.read( buf.buf(), 3 ); buf[3] = '\0';
     if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
     
-    strm_.seekg( -4-integersize, ios::end );
+    strm_.seekg( -4-integersize, std::ios::end );
     strm_.read( buf.buf(), integersize );
     const int nrbytes = iinterp.get( buf, 0 );
 
-    strm_.seekg( -4-integersize-nrbytes, ios::end );
+    strm_.seekg( -4-integersize-nrbytes, std::ios::end );
     strm_.read( buf.buf(), integersize );
     const int nrinl = iinterp.get( buf, 0 );
     if ( nrinl == 0 ) mErrRet("No traces in file")
@@ -352,10 +352,10 @@ bool CBVSReader::toStart()
 }
 
 
-void CBVSReader::toOffs( streampos sp )
+void CBVSReader::toOffs( std::streampos sp )
 {
     lastposfo = sp;
-    strm_.seekg( lastposfo, ios::beg );
+    strm_.seekg( lastposfo, std::ios::beg );
 }
 
 
@@ -372,10 +372,11 @@ bool CBVSReader::goTo( const BinID& bid )
 bool CBVSReader::goTo( int posnr, const BinID& bid, int ci, int cs )
 {
     // Be careful: offsets can be larger than what fits in an int!
-    streamoff so = posnr * (info_.nrtrcsperposn < 2 ? 1 : info_.nrtrcsperposn);
+    std::streamoff so = posnr * (info_.nrtrcsperposn < 2
+	    	      ? 1 : info_.nrtrcsperposn);
     so *= auxnrbytes + bytespertrace;
 
-    toOffs( datastartfo + streampos(so) );
+    toOffs( datastartfo + std::streampos(so) );
     hinfofetched = false;
     curbinid_ = bid;
     curinlinfnr_ = ci; cursegnr_ = cs;
@@ -507,8 +508,8 @@ bool CBVSReader::skip( bool tonextpos )
     else if ( !nextPosIdx() )
 	return false;
 
-    streampos onetrcoffs = auxnrbytes + bytespertrace;
-    streampos posadd = onetrcoffs;
+    std::streampos onetrcoffs = auxnrbytes + bytespertrace;
+    std::streampos posadd = onetrcoffs;
 
     if ( posidx && tonextpos )
     {
@@ -614,11 +615,11 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
     if ( !needaux )
     {
 	if ( !hinfofetched )
-	    strm_.seekg( auxnrbytes, ios::cur );
+	    strm_.seekg( auxnrbytes, std::ios::cur );
 	return true;
     }
     else if ( hinfofetched )
-	strm_.seekg( -auxnrbytes, ios::cur );
+	strm_.seekg( -auxnrbytes, std::ios::cur );
 
     char buf[2*sizeof(double)];
     mCondGetAux(startpos)
@@ -649,7 +650,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
     {
 	if ( comps && !comps[icomp] )
 	{
-	    strm_.seekg( cnrbytes_[icomp], ios::cur );
+	    strm_.seekg( cnrbytes_[icomp], std::ios::cur );
 	    continue;
 	}
 	iselc++;
@@ -657,12 +658,12 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	BasicComponentInfo* compinfo = info_.compinfo[icomp];
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps->start )
-	    strm_.seekg( samps->start*bps, ios::cur );
+	    strm_.seekg( samps->start*bps, std::ios::cur );
 	strm_.read( (char*)bufs[iselc] + offs * bps,
 		(samps->stop-samps->start+1) * bps );
 	if ( samps->stop < compinfo->nrsamples-1 )
 	    strm_.seekg( (compinfo->nrsamples-samps->stop-1)*bps,
-		ios::cur );
+		    std::ios::cur );
     }
 
     hinfofetched = false;

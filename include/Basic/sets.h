@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.28 2003-12-24 11:59:21 bert Exp $
+ RCS:		$Id: sets.h,v 1.29 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,8 +99,8 @@ public:
     virtual void	insert( int idx, const T& typ )	{ tvec.insert(idx,typ);}
 
 			//! 3rd party access
-    vector<T>&		vec()		{ return tvec.vec(); }
-    const vector<T>&	vec() const	{ return tvec.vec(); }
+    std::vector<T>&	  vec()		{ return tvec.vec(); }
+    const std::vector<T>& vec() const	{ return tvec.vec(); }
     T*			arr()		{ return size() ? &(*this)[0] : 0; }
     const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 

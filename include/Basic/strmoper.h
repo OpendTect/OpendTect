@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.7 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: strmoper.h,v 1.8 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 */
@@ -16,16 +16,16 @@ ________________________________________________________________________
 #include <gendefs.h>
 #include <iosfwd>
 
-ostream*	openOutputStream(const char*);
-istream*	openInputStream(const char*);
-void		closeIOStream(ostream*&);
-void		closeIOStream(istream*&);
-bool		readWithRetry(istream&,void*,unsigned int nrbytes,
+std::ostream*	openOutputStream(const char*);
+std::istream*	openInputStream(const char*);
+void		closeIOStream(std::ostream*&);
+void		closeIOStream(std::istream*&);
+bool		readWithRetry(std::istream&,void*,unsigned int nrbytes,
 			      unsigned int nrretries,unsigned int delay);
-bool		writeWithRetry(ostream&,const void*,unsigned int nrbytes,
+bool		writeWithRetry(std::ostream&,const void*,unsigned int nrbytes,
 			       unsigned int nrretries,unsigned int delay);
-bool		wordFromLine(istream&,char*,int maxnrchars);
-bool		ignoreToEOL(istream&);
+bool		wordFromLine(std::istream&,char*,int maxnrchars);
+bool		ignoreToEOL(std::istream&);
 
 
 #endif

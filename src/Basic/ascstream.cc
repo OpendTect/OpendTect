@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.13 2004-02-19 16:22:26 bert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.14 2004-04-27 15:51:15 bert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -53,7 +53,7 @@ ascostream::~ascostream()
 
 void ascostream::newParagraph()
 {
-    stream() << mParagraphMarker << endl;
+    stream() << mParagraphMarker << std::endl;
 }
 
 
@@ -127,7 +127,7 @@ ascistream::~ascistream()
 }
 
 
-void ascistream::init( istream* strm, int rdhead )
+void ascistream::init( std::istream* strm, int rdhead )
 {
     streamptr = strm;
     filetype[0] = header[0] = timestamp[0] = curword[0] = '\0';

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.12 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.13 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ public:
     int			pruneReaders(const CubeSampling&);
     			//!< returns number of readers left.
 
-    void		dumpInfo(ostream&,bool include_compinfo) const;
+    void		dumpInfo(std::ostream&,bool include_compinfo) const;
 
 protected:
 
@@ -79,13 +79,13 @@ protected:
     DataInterpreter<float> finterp;
     DataInterpreter<double> dinterp;
 
-    bool		addReader(istream*,const CubeSampling*);
+    bool		addReader(std::istream*,const CubeSampling*);
     bool		addReader(const char*,const CubeSampling*);
     int			nextRdrNr(int) const;
     const char*		errMsg_() const;
 
     bool		haveaux_;
-    istream*		auxstrm_;
+    std::istream*	auxstrm_;
     int			auxinlidx_;
     int			auxcrlidx_;
     ObjectSet<AuxInlInf> auxinlinfs_;

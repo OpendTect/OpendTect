@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.22 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.23 2004-04-27 15:51:15 bert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -157,7 +157,7 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid )
     StreamData sd = openHFile( "WindowLinkTable.txt", scope );
     if ( !sd.usable() )
 	return BufferString("");
-    istream& strm = *sd.istrm;
+    std::istream& strm = *sd.istrm;
 
     ascistream astream( strm );
     MultiID code[3];
@@ -234,12 +234,12 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 	StreamData sd = openHFile( "LinkFileTable.txt", scope );
 	if ( sd.usable() )
 	{
-	    string lnk, fnm;
-	    istream& strm = *sd.istrm;
+	    std::string lnk, fnm;
+	    std::istream& strm = *sd.istrm;
 	    while ( strm.good() )
 	    {
 		strm >> lnk >> fnm;
-		if ( caseInsensitiveEqual(lnk.c_str(),(const char*)linknm,0) )
+		if ( caseInsensitiveEqual(lnk.c_str(),linknm.buf(),0) )
 		{
 		    htmlfnm = fnm.c_str();
 		    linknm = lnk.c_str();

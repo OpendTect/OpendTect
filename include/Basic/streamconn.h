@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.6 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: streamconn.h,v 1.7 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,23 +29,23 @@ public:
 			StreamConn();
 			StreamConn(StreamData&);
 				//!< MY stream: Input StreamData will be zero-ed
-			StreamConn(istream*);
-				//!< MY stream: this will delete on destruct
-			StreamConn(ostream*);
-				//!< MY stream: this will delete on destruct
+			StreamConn(std::istream*);
+				//!< MY stream: I will delete on destruct
+			StreamConn(std::ostream*);
+				//!< MY stream: I will delete on destruct
 			StreamConn(const char*,State);
-				//!< MY stream: this will delete on destruct
-			StreamConn(istream&,bool close_on_delete=false);
-				//!< YOUR stream: this may close only
-			StreamConn(ostream&,bool close_on_delete=false);
-				//!< YOUR stream: this may close only
+				//!< MY stream: I will delete on destruct
+			StreamConn(std::istream&,bool close_on_delete=false);
+				//!< YOUR stream: I may close only
+			StreamConn(std::ostream&,bool close_on_delete=false);
+				//!< YOUR stream: I may close only
 
     virtual		~StreamConn();
 
-    istream&		iStream() const
-    				{ return *const_cast<istream*>(sd.istrm); }
-    ostream&		oStream() const
-    				{ return *const_cast<ostream*>(sd.ostrm); }
+    std::istream&	iStream() const
+    				{ return *const_cast<std::istream*>(sd.istrm); }
+    std::ostream&	oStream() const
+    				{ return *const_cast<std::ostream*>(sd.ostrm); }
     FILE*		fp() const
     				{ return const_cast<FILE*>(sd.fp); }
     StreamData&		streamData() const

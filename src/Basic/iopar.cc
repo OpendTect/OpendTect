@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.37 2004-02-27 12:50:14 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.38 2004-04-27 15:51:15 bert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -857,7 +857,7 @@ bool IOPar::dump( const char* fnm, const char* typ ) const
 }
 
 
-void IOPar::dumpPretty( ostream& strm ) const
+void IOPar::dumpPretty( std::ostream& strm ) const
 {
     if ( name() != "" )
 	strm << "> " << name() << " <\n";

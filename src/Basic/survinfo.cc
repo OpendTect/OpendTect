@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.52 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.53 2004-04-27 15:51:15 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -299,7 +299,7 @@ bool SurveyInfo::write( const char* basedir ) const
     StreamData sd = StreamProvider( fp.fullPath() ).makeOStream();
     if ( !sd.ostrm || !sd.usable() ) { sd.close(); return false; }
 
-    ostream& strm = *sd.ostrm;
+    std::ostream& strm = *sd.ostrm;
     ascostream astream( strm );
     if ( !astream.putHeader(sKeySI) ) { sd.close(); return false; }
 

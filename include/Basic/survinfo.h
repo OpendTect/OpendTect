@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.40 2004-04-07 15:13:11 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.41 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,8 @@ protected:
     virtual void	handleLineRead(const BufferString&,const char*)	{}
     virtual bool	wrapUpRead()				{ return true; }
     virtual void	writeSpecLines(ascostream&) const	{}
-    virtual bool	wrapUpWrite(ostream&,const char*) const	{ return true; }
+    virtual bool	wrapUpWrite(std::ostream&,const char*) const
+    								{ return true; }
 
 #define mAddSurvInfoFriends \
     friend class	uiSurvey; \

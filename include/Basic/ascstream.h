@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.10 2004-02-19 16:22:26 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.11 2004-04-27 15:51:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,9 +38,9 @@ class ascostream
 {
 
 public:
-		ascostream(ostream& strm,char kvsep=mDefKeyValSep)
+		ascostream(std::ostream& strm,char kvsep=mDefKeyValSep)
 			: mystrm(NO), keyvalsep(kvsep)	{ init(&strm); }
-		ascostream(ostream* strm,char kvsep=mDefKeyValSep)
+		ascostream(std::ostream* strm,char kvsep=mDefKeyValSep)
 			: mystrm(YES), keyvalsep(kvsep)	{ init(strm); }
 		~ascostream();
 
@@ -56,19 +56,19 @@ public:
 
     void	newParagraph();
     void	putKeyword(const char*);
-    ostream&	stream() const		{ return *streamptr; }
-		operator ostream&()	{ return *streamptr; }
+    std::ostream& stream() const		{ return *streamptr; }
+		operator std::ostream&()	{ return *streamptr; }
 
 protected:
 
-    ostream*	streamptr;
+    std::ostream* streamptr;
     bool	mystrm;
     bool	tabs;
     char	keyvalsep;
 
 private:
 
-    void	init( ostream* strmptr )
+    void	init( std::ostream* strmptr )
 		{ streamptr = strmptr; tabs = NO; }
 
 };
@@ -88,14 +88,14 @@ USHRT_MAX-1, i.e. 65534. If word parsing is used, the limit is 1023 per word.
 class ascistream
 {
 public:
-			ascistream(istream& strm,int rdhead=YES,
+			ascistream(std::istream& strm,int rdhead=YES,
 				   char kvsep=mDefKeyValSep)
 				: mystrm(NO)
 				, keybuf("",mMaxWordLength)
 				, valbuf("",mMaxWordLength)
 				, keyvalsep(kvsep)
 				{ init(&strm,rdhead); }
-			ascistream(istream* strm,int rdhead=YES,
+			ascistream(std::istream* strm,int rdhead=YES,
 				   char kvsep=mDefKeyValSep)
 				: mystrm(YES)
 				, keybuf("",mMaxWordLength)
@@ -131,7 +131,7 @@ public:
     double		getValue() const;
     bool		getYN() const;
 
-    inline istream&	stream() const		{ return *streamptr; }
+    inline std::istream& stream() const		{ return *streamptr; }
 
     const char*		keyWord() const		{ return keybuf; }
     const char*		value() const		{ return valbuf; }
@@ -143,7 +143,7 @@ public:
 
 protected:
 
-    istream*		streamptr;
+    std::istream*	streamptr;
     bool		mystrm;
     bool		tabbed;
     BufferString	keybuf;
@@ -159,7 +159,7 @@ protected:
 
 private:
 
-    void		init(istream*,int);
+    void		init(std::istream*,int);
 
 };
 

@@ -37,7 +37,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.51 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.52 2004-04-27 15:51:15 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -110,7 +110,7 @@ StreamData& StreamData::operator =( const StreamData& sd )
 
 void StreamData::close()
 {
-    if ( istrm && istrm != &cin )
+    if ( istrm && istrm != &std::cin )
 	delete istrm;
     if ( ostrm )
     {
@@ -323,7 +323,7 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
 	return sd;
     if ( fname == sStdIO || fname == sStdErr )
     {
-	sd.istrm = &cin;
+	sd.istrm = &std::cin;
 	return sd;
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
@@ -331,11 +331,12 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
 #ifdef __win__
 	if ( File_isLink( fname ) )
 	    sd.istrm = new ifstream( File_linkTarget(fname),
-					    ios_base::in | ios_base::binary );
+			    std::ios_base::in | std::ios_base::binary );
 	else
 #endif
 	if ( File_exists(fname) )
-	    sd.istrm = new ifstream( fname, ios_base::in | ios_base::binary );
+	    sd.istrm = new std::ifstream( fname, std::ios_base::in
+		    				| std::ios_base::binary );
 	return sd;
     }
 
@@ -345,8 +346,8 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
 
 /*
     MSVC chokes on the following lines:
-	sd.istrm = new ifstream( fileno(sd.fp) );
-	sd.ostrm = new ofstream( fileno(sd.fp) );
+	sd.istrm = new std::ifstream( fileno(sd.fp) );
+	sd.ostrm = new std::ofstream( fileno(sd.fp) );
 
     This means you can not open a fstream with just a file pointer. You would
     need a 'filedesc' for that. You can't make that from a file pointer, 
@@ -370,10 +371,10 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
     {
 # if __GNUC__ > 2
 	//TODO change StreamData to include filebuf?
-	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, ios_base::in );
-	sd.istrm = new istream( stdiofb );
+	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, std::ios_base::in );
+	sd.istrm = new std::istream( stdiofb );
 # else
-	sd.istrm = new ifstream( fileno(sd.fp) );
+	sd.istrm = new std::ifstream( fileno(sd.fp) );
 # endif
 #endif
     }
@@ -399,7 +400,8 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-	sd.ostrm = new ofstream( fname, ios_base::out|ios_base::binary );
+	sd.ostrm = new std::ofstream( fname, std::ios_base::out
+					| std::ios_base::binary );
 	return sd;
     }
 
@@ -417,10 +419,10 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
     if ( sd.fp )
     {
 # if __GNUC__ > 2
-	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, ios_base::out );
-	sd.ostrm = new ostream( stdiofb );
+	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, std::ios_base::out );
+	sd.ostrm = new std::ostream( stdiofb );
 # else
-	sd.ostrm = new ofstream( fileno(sd.fp) );
+	sd.ostrm = new std::ofstream( fileno(sd.fp) );
 # endif
 #endif
     }

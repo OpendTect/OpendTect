@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.27 2004-04-01 13:39:50 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.28 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 */
@@ -68,7 +68,7 @@ public:
 		    if ( !strm ) const_cast<ArrayNDFileStor*>(this)->open();
 		    if ( !strm ) return T(0);
 
-		    strm->seekg(pos*sizeof(T), ios::beg );
+		    strm->seekg(pos*sizeof(T), std::ios::beg );
 		    mChckStrm
 
 		    T res;
@@ -87,7 +87,7 @@ public:
 		    if ( !strm ) open();
 		    if ( !strm ) return;
 
-		    strm->seekp( pos*sizeof(T), ios::beg );
+		    strm->seekp( pos*sizeof(T), std::ios::beg );
 		    mChckStrm
 
 		    strm->write( (const char *)&val, sizeof(T));
@@ -130,10 +130,10 @@ private:
 		    if ( strm ) close();
 		    else if ( open_failed || stream_fail ) return;
 
-		    strm = new fstream( name, fstream::binary
-					    | fstream::out
-					    | fstream::app
-					    | fstream::trunc );
+		    strm = new std::fstream( name, std::fstream::binary
+						 | std::fstream::out
+						 | std::fstream::app
+						 | std::fstream::trunc );
 		    mChckStrm
 
 		    char tmp[mChunkSz*sizeof(T)];
@@ -149,9 +149,9 @@ private:
 		    }
 
 		    strm->close();
-		    strm->open( name, fstream::binary
-				    | fstream::out
-				    | fstream::in );
+		    strm->open( name, std::fstream::binary
+				    | std::fstream::out
+				    | std::fstream::in );
 		    mChckStrm
 		}
 #undef mChckStrm
@@ -163,7 +163,7 @@ private:
 
 protected:
 
-    fstream*	strm;
+    std::fstream* strm;
     BufferString name;
     int		sz;
     bool	open_failed;

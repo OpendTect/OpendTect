@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.20 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.21 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class CBVSReader : public CBVSIO
 {
 public:
 
-			CBVSReader(istream*);
+			CBVSReader(std::istream*);
 			~CBVSReader();
 
     const CBVSInfo&	info() const		{ return info_; }
@@ -61,7 +61,7 @@ public:
 			//!< and end sample to read. offs is an offset
 			//!< in the buffers.
 
-    static const char*	check(istream&);
+    static const char*	check(std::istream&);
 			//!< Determines whether a file is a CBVS file
 			//!< returns an error message, or null if OK.
 
@@ -70,7 +70,7 @@ public:
 
 protected:
 
-    istream&		strm_;
+    std::istream&	strm_;
     CBVSInfo		info_;
 
     void		getAuxInfoSel(const char*);
@@ -78,7 +78,7 @@ protected:
     bool		readGeom();
     bool		readTrailer();
     void		getText(int,BufferString&);
-    void		toOffs(streampos);
+    void		toOffs(std::streampos);
     bool		getNextBinID(BinID&,int&,int&);
     int			getPosNr(const BinID&,int&,int&) const;
     bool		goTo(int posnr,const BinID&,int,int);
@@ -105,8 +105,8 @@ private:
     bool		readInfo();
     bool		nextPosIdx();
 
-    streampos		lastposfo;
-    streampos		datastartfo;
+    std::streampos	lastposfo;
+    std::streampos	datastartfo;
 
     friend class	CBVSReadMgr;
     void		setCurBinID( const BinID& b )

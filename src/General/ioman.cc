@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.45 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.46 2004-04-27 15:51:15 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -214,12 +214,12 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	else
 	{
 	    if ( nosurv && noomf )
-		cerr << "Warning: Essential data files not found in ";
+		std::cerr << "Warning: Essential data files not found in ";
 	    else if ( nosurv )
-		cerr << "Warning: Invalid or no '.survey' found in ";
+		std::cerr << "Warning: Invalid or no '.survey' found in ";
 	    else if ( noomf )
-		cerr << "Warning: Invalid or no '.omf' found in ";
-	    cerr << projdir << ".\nThis survey is corrupt." << endl;
+		std::cerr << "Warning: Invalid or no '.omf' found in ";
+	    std::cerr << projdir << ".\nThis survey is corrupt." << std::endl;
 	}
     }
 

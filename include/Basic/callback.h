@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.30 2003-12-01 09:37:48 kristofer Exp $
+ RCS:		$Id: callback.h,v 1.31 2004-04-27 15:51:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,13 +246,13 @@ public:
 				{ deepErase( names ); }
 
     void			add( const char* nm, NotifierAccess& na )
-				{ names += new string(nm); notifs += &na;}
+				{ names += new std::string(nm); notifs += &na;}
     NotifierAccess*		find(const char*) const;
 
 protected:
 
     ObjectSet<NotifierAccess>	notifs;
-    ObjectSet<string>		names;
+    ObjectSet<std::string>	names;
 
 };
 

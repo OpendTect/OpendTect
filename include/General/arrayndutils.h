@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.18 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.19 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ ________________________________________________________________________
 #endif
 
 template <class T>
-inline void operator<<( ostream& strm, const ArrayND<T>& array )
+inline void operator<<( std::ostream& strm, const ArrayND<T>& array )
 { 
     ArrayNDIter iter( array.info() );
     const int ndim = array.info().getNDim();

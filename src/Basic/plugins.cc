@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.30 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.31 2004-04-27 15:51:15 bert Exp $";
 
 #include "plugins.h"
 #include "filepath.h"
@@ -121,7 +121,7 @@ static bool loadPlugin( const char* lnm, int argc, char** argv,
 #endif
 
     if ( !handle )
-	mNotLoadedRet( cerr << dlerror() << endl )
+	mNotLoadedRet( std::cerr << dlerror() << std::endl )
 
     const BufferString libnmonly = FilePath(libnm).fileName();
     if ( inittype > 0 )
@@ -133,13 +133,13 @@ static bool loadPlugin( const char* lnm, int argc, char** argv,
 
     mGetFn(ArgcArgvCCRetFn,fn2,"Init","Plugin");
     if ( !fn2 )
-	mNotLoadedRet( cerr << "Cannot find "
+	mNotLoadedRet( std::cerr << "Cannot find "
 			    << getFnName(libnmonly,"Init","Plugin")
-			    << " function in " << libnm << endl )
+			    << " function in " << libnm << std::endl )
 
     const char* ret = (*fn2)(argc,argv);
     if ( ret )
-	mNotLoadedRet( cerr << libnm << ": " << ret << endl )
+	mNotLoadedRet( std::cerr << libnm << ": " << ret << std::endl )
 
     mGetFn(PluginInfoRetFn,fn3,"Get","PluginInfo");
     PluginInfo* piinf = 0;
@@ -155,7 +155,7 @@ static bool loadPlugin( const char* lnm, int argc, char** argv,
     PIM().addLoaded( libnm, piinf );
 
     if ( getenv( "OD_SHOW_PLUGIN_LOAD" ) )
-	cerr << "Successfully loaded plugin " << libnm << endl;
+	std::cerr << "Successfully loaded plugin " << libnm << std::endl;
 
     return true;
 }

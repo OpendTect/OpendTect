@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.21 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.22 2004-04-27 15:51:15 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -90,7 +90,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
       || spec.nrsamplesperslab >= totsamps
       || spec.maxnrslabs < 2 )
     {
-	ostream* strm = mkStrm();
+	std::ostream* strm = mkStrm();
 	if ( !strm ) return;
 	CBVSWriter* wr = new CBVSWriter( strm, info_, pai );
 	wr->setByteThreshold( 1900000000 );
@@ -126,7 +126,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	    inf.compinfo[idx]->nrsamples = endsamp - startsamp + 1;
 	}
 
-	ostream* strm = mkStrm();
+	std::ostream* strm = mkStrm();
 	if ( !strm )
 	    { cleanup(); return; }
 	CBVSWriter* wr = new CBVSWriter( strm, inf, pai );
@@ -140,7 +140,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 }
 
 
-ostream* CBVSWriteMgr::mkStrm()
+std::ostream* CBVSWriteMgr::mkStrm()
 {
     BufferString* fname = new BufferString( getFileName(curnr_) );
     curnr_++;
@@ -237,7 +237,7 @@ bool CBVSWriteMgr::put( void** data )
 	ret = writer->put( data );
 	if ( ret == 1 )
 	{
-	    ostream* strm = mkStrm();
+	    std::ostream* strm = mkStrm();
 	    if ( !strm ) return false;
 
 	    if ( info_.geom.fullyrectandreg )

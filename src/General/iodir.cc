@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.13 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.14 2004-04-27 15:51:15 bert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -111,7 +111,7 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 			IODir* dirptr, int needid, bool& found1 )
 {
     found1 = false;
-    istream* streamptr = openInputStream( omfname );
+    std::istream* streamptr = openInputStream( omfname );
     if ( !streamptr )
 	return 0;
 
@@ -341,7 +341,7 @@ bool IODir::mkUniqueName( IOObj* ioobj )
 
 bool IODir::wrOmf( const char* fnm ) const
 {
-    ostream* streamptr = openOutputStream( fnm );
+    std::ostream* streamptr = openOutputStream( fnm );
     if ( !streamptr )
     {
 	BufferString msg( "Cannot open a new file for Object Management info!");

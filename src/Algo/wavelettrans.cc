@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.10 2004-03-11 15:47:48 nanne Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.11 2004-04-27 15:51:15 bert Exp $";
 
 
 #include "wavelettrans.h"
@@ -527,8 +527,8 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
             Array1DImpl<float_complex> filtered( nrsamples );
             for ( int idx=0; idx<nrsamples; idx++ )
             {
-                float_complex cval = freqdom.get(idx) *
-                                            wavelet[idx] / sqrt(curscale);
+                float_complex cval = (freqdom.get(idx) * wavelet[idx])
+		    		   / (float)sqrt(curscale);
                 filtered.set( idx, cval );
             }
 

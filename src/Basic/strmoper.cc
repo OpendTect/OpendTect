@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.12 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.13 2004-04-27 15:51:15 bert Exp $";
 
 #include "strmoper.h"
 #include "strmprov.h"
@@ -14,38 +14,38 @@ static const char* rcsID = "$Id: strmoper.cc,v 1.12 2003-11-07 12:21:57 bert Exp
 #include <iostream>
 
 
-istream* openInputStream( const char* fname )
+std::istream* openInputStream( const char* fname )
 {
-    if ( !fname ) return &cin;
+    if ( !fname ) return &std::cin;
 
     StreamProvider sp( fname );
     return sp.makeIStream().istrm;
 }
 
 
-ostream* openOutputStream( const char* fname )
+std::ostream* openOutputStream( const char* fname )
 {
-    if ( !fname ) return &cout;
+    if ( !fname ) return &std::cout;
     StreamProvider sp( fname );
     return sp.makeOStream().ostrm;
 }
 
 
-void closeIOStream( ostream*& streamptr )
+void closeIOStream( std::ostream*& streamptr )
 {
-    if ( streamptr != &cout && streamptr != &cerr ) delete streamptr;
+    if ( streamptr != &std::cout && streamptr != &std::cerr ) delete streamptr;
     streamptr = 0;
 }
 
 
-void closeIOStream( istream*& streamptr )
+void closeIOStream( std::istream*& streamptr )
 {
-    if ( streamptr != &cin ) delete streamptr;
+    if ( streamptr != &std::cin ) delete streamptr;
     streamptr = 0;
 }
 
 
-bool writeWithRetry( ostream& strm, const void* ptr, unsigned int nrbytes,
+bool writeWithRetry( std::ostream& strm, const void* ptr, unsigned int nrbytes,
 		     unsigned int nrretries, unsigned int delay )
 {
     if ( strm.bad() || !ptr ) return false;
@@ -75,7 +75,7 @@ bool writeWithRetry( ostream& strm, const void* ptr, unsigned int nrbytes,
 }
 
 
-bool readWithRetry( istream& strm, void* ptr, unsigned int nrbytes,
+bool readWithRetry( std::istream& strm, void* ptr, unsigned int nrbytes,
 		    unsigned int nrretries, unsigned int delay )
 {
     if ( strm.bad() || strm.eof() || !ptr ) return false;
@@ -114,7 +114,7 @@ bool readWithRetry( istream& strm, void* ptr, unsigned int nrbytes,
 }
 
 
-bool wordFromLine( istream& strm, char* ptr, int maxnrchars )
+bool wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
 {
     if ( !ptr ) return NO;
     *ptr = '\0';
@@ -138,7 +138,7 @@ bool wordFromLine( istream& strm, char* ptr, int maxnrchars )
 }
 
 
-bool ignoreToEOL( istream& strm )
+bool ignoreToEOL( std::istream& strm )
 {
     int c;
     while ( 1 )

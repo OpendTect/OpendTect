@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.10 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: executor.h,v 1.11 2004-04-27 15:51:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ public:
     virtual int		nrDone() const			{ return 0; }
     virtual const char*	nrDoneText() const		{ return "Nr done"; }
 
-    virtual bool	execute(ostream* log=0,bool isfirst=true,
+    virtual bool	execute(std::ostream* log=0,bool isfirst=true,
 	    			bool islast=true,int delaybetwnstepsinms=0);
 
     Notifier<Executor>	prestep;
@@ -82,7 +82,8 @@ public:
 class ExecutorBatchTaskRunner : public ExecutorRunner
 {
 public:
-			ExecutorBatchTaskRunner( Executor* ex, ostream* strm=0,
+			ExecutorBatchTaskRunner( Executor* ex,
+					std::ostream* strm=0,
 					bool isfirst=true, bool islast=true )
 			: ExecutorRunner(ex)
 			, logstrm_(strm)
@@ -102,7 +103,7 @@ public:
 
 protected:
 
-    ostream*		logstrm_;
+    std::ostream*	logstrm_;
     bool		isfirst_;
     bool		islast_;
     BufferString	lastmsg_;

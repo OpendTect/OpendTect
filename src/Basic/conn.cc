@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.17 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.18 2004-04-27 15:51:15 bert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -27,7 +27,7 @@ DefineEnumNames(MsgClass,Type,1,"Message type")
 void UsrMsg( const char* msg, MsgClass::Type t )
 {
     if ( !MsgClass::theCB().willCall() )
-	std::cerr << msg << endl;
+	std::cerr << msg << std::endl;
     else
     {
 	MsgClass obj( msg, t );
@@ -41,7 +41,7 @@ void ErrMsg( const char* msg, bool progr )
     if ( !ErrMsgClass::printProgrammerErrs && progr ) return;
 
     if ( !MsgClass::theCB().willCall() )
-	cerr << (progr?"(PE) ":"") << msg << endl;
+	std::cerr << (progr?"(PE) ":"") << msg << std::endl;
     else
     {
 	ErrMsgClass obj( msg, progr );
@@ -75,7 +75,7 @@ StreamConn::StreamConn()
 }
 
 
-StreamConn::StreamConn( istream* s )
+StreamConn::StreamConn( std::istream* s )
 	: mine(true)
 	, nrretries(0)
 	, retrydelay(0)
@@ -87,7 +87,7 @@ StreamConn::StreamConn( istream* s )
 }
 
 
-StreamConn::StreamConn( ostream* s )
+StreamConn::StreamConn( std::ostream* s )
 	: mine(true)
 	, nrretries(0)
 	, retrydelay(0)
@@ -113,7 +113,7 @@ StreamConn::StreamConn( StreamData& strmdta )
 }
 
 
-StreamConn::StreamConn( istream& s, bool cod )
+StreamConn::StreamConn( std::istream& s, bool cod )
 	: mine(false)
 	, nrretries(0)
 	, retrydelay(0)
@@ -125,7 +125,7 @@ StreamConn::StreamConn( istream& s, bool cod )
 }
 
 
-StreamConn::StreamConn( ostream& s, bool cod )
+StreamConn::StreamConn( std::ostream& s, bool cod )
 	: mine(false)
 	, nrretries(0)
 	, retrydelay(0)
@@ -147,7 +147,7 @@ StreamConn::StreamConn( const char* nm, State s )
     switch ( state_ )
     {
     case Read:
-	if ( !nm || !*nm ) sd.istrm = &cin;
+	if ( !nm || !*nm ) sd.istrm = &std::cin;
 	else
 	{
 	    StreamProvider sp( nm );
@@ -155,7 +155,7 @@ StreamConn::StreamConn( const char* nm, State s )
 	}
     break;
     case Write:
-	if ( !nm || !*nm ) sd.ostrm = &cout;
+	if ( !nm || !*nm ) sd.ostrm = &std::cout;
 	else
 	{
 	    StreamProvider sp( nm );
@@ -199,15 +199,15 @@ void StreamConn::close()
 	sd.close();
     else if ( closeondel )
     {
-	if ( state_ == Read && sd.istrm && sd.istrm != &cin )
+	if ( state_ == Read && sd.istrm && sd.istrm != &std::cin )
 	{
-	    mDynamicCastGet(ifstream*,s,sd.istrm)
+	    mDynamicCastGet(std::ifstream*,s,sd.istrm)
 	    if ( s ) s->close();
 	}
 	else if ( state_ == Write && sd.ostrm
-	       && sd.ostrm != &cout && sd.ostrm != &cerr )
+	       && sd.ostrm != &std::cout && sd.ostrm != &std::cerr )
 	{
-	    mDynamicCastGet(ofstream*,s,sd.ostrm)
+	    mDynamicCastGet(std::ofstream*,s,sd.ostrm)
 	    if ( s ) s->close();
 	}
     }

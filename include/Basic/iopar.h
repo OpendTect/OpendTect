@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.25 2004-02-27 11:36:31 bert Exp $
+ RCS:		$Id: iopar.h,v 1.26 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,7 +184,7 @@ public:
     			//!< uses set(). no clear() done
     bool		dump(const char* filename,const char* filetyp=0) const;
     			//!< If filetype is set to "_pretty", calls dumpPretty.
-    void		dumpPretty(ostream&) const;
+    void		dumpPretty(std::ostream&) const;
 
 protected:
 

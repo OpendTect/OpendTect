@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.30 2004-04-15 14:54:44 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.31 2004-04-27 15:51:15 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -43,7 +43,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs )
 
     if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO) )
     {
-	addReader( &cin, cs );
+	addReader( &std::cin, cs );
 	if ( !readers_.size() )
 	    errmsg_ = "Standard input contains no relevant data";
 	else
@@ -102,7 +102,7 @@ void CBVSReadMgr::handleAuxFile()
     const char* res = CBVSReader::check( *auxstrm_ );
     if ( res ) mErrRet(res)
 
-    auxstrm_->seekg( 3, ios::beg );
+    auxstrm_->seekg( 3, std::ios::beg );
     char plf; auxstrm_->read( &plf, 1 );
     DataCharacteristics dc;
     dc.littleendian = plf != 0;
@@ -112,7 +112,7 @@ void CBVSReadMgr::handleAuxFile()
     dc.BinDataDesc::set( true, true, BinDataDesc::N4 );
     iinterp.set( dc );
 
-    auxstrm_->seekg( 12, ios::beg );
+    auxstrm_->seekg( 12, std::ios::beg );
     unsigned char* ptr = &auxflgs_;
     auxstrm_->read( (char*)ptr, 1 );
 #define mBytes(n,t) (mAuxSetting(ptr,n) ? sizeof(t) : 0)
@@ -123,7 +123,7 @@ void CBVSReadMgr::handleAuxFile()
 		+ mBytes(16,float)
 		+ mBytes(32,float);
 
-    auxstrm_->seekg( -3, ios::end );
+    auxstrm_->seekg( -3, std::ios::end );
     char buf[4];
     auxstrm_->read( buf, 3 ); buf[3] = '\0';
     if ( strcmp(buf,"BGd") ) mErrRet("Missing required file trailer")
@@ -135,11 +135,11 @@ void CBVSReadMgr::handleAuxFile()
 void CBVSReadMgr::handleAuxTrailer()
 {
     char buf[20];
-    auxstrm_->seekg( -4-CBVSIO::integersize, ios::end );
+    auxstrm_->seekg( -4-CBVSIO::integersize, std::ios::end );
     auxstrm_->read( buf, CBVSIO::integersize );
     const int nrbytes = iinterp.get( buf, 0 );
 
-    auxstrm_->seekg( -4-CBVSIO::integersize-nrbytes, ios::end );
+    auxstrm_->seekg( -4-CBVSIO::integersize-nrbytes, std::ios::end );
     auxstrm_->read( buf, CBVSIO::integersize );
     const int nrinl = iinterp.get( buf, 0 );
     if ( nrinl == 0 ) mErrRet("No traces in file")
@@ -213,7 +213,7 @@ bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs )
 }
 
 
-bool CBVSReadMgr::addReader( istream* strm, const CubeSampling* cs )
+bool CBVSReadMgr::addReader( std::istream* strm, const CubeSampling* cs )
 {
     CBVSReader* newrdr = new CBVSReader( strm );
     if ( newrdr->errMsg() )
@@ -548,11 +548,11 @@ void CBVSReadMgr::getAuxFromFile( PosAuxInfo& pad )
     const AuxInlInf* aii = auxinlinfs_[auxinlidx_];
     int posnr = aii->cumnrxlines - aii->xlines.size() + auxcrlidx_;
 
-    streampos pos = CBVSIO::headstartbytes; // start of data
+    std::streampos pos = CBVSIO::headstartbytes; // start of data
     pos += auxnrbytes_ * info_.nrtrcsperposn * posnr; // start of position
     pos += auxnrbytes_ * readers_[0]->trcNrAtPosition(); // n-th trc on position
 
-    if ( !auxstrm_->seekg(pos,ios::beg) )
+    if ( !auxstrm_->seekg(pos,std::ios::beg) )
 	return;
 
     char buf[2*sizeof(double)];
@@ -655,7 +655,7 @@ const char* CBVSReadMgr::check( const char* basefname )
 }
 
 
-static void putComps( ostream& strm,
+static void putComps( std::ostream& strm,
 		      const ObjectSet<BasicComponentInfo>& cinfo )
 {
     strm << "Data is written on a "
@@ -678,7 +678,7 @@ static void putComps( ostream& strm,
 }
 
 
-static void handleInlGap( ostream& strm, Interval<int>& inlgap )
+static void handleInlGap( std::ostream& strm, Interval<int>& inlgap )
 {
     if ( inlgap.start == inlgap.stop )
 	strm << "\nInline " << inlgap.start << " not present.";
@@ -691,14 +691,14 @@ static void handleInlGap( ostream& strm, Interval<int>& inlgap )
 }
 
 
-void CBVSReadMgr::dumpInfo( ostream& strm, bool inclcompinfo ) const
+void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 {
     if ( nrReaders() > 1 )
 	strm << "Cube is stored in " << nrReaders() << " files\n";
     strm << '\n';
 
     if ( info().nrtrcsperposn > 1 )
-	strm << info().nrtrcsperposn << " traces per position" << endl;
+	strm << info().nrtrcsperposn << " traces per position" << std::endl;
 
     if ( inclcompinfo )
 	putComps( strm, info().compinfo );
@@ -710,7 +710,7 @@ void CBVSReadMgr::dumpInfo( ostream& strm, bool inclcompinfo ) const
 	 << info().geom.stop.inl << " (step " << info().geom.step.inl << ").\n";
     strm << "X-line range: " << info().geom.start.crl << " - "
 	 << info().geom.stop.crl << " (step " << info().geom.step.crl << ").\n";
-    strm << endl;
+    strm << std::endl;
 
     Interval<int> inlgap( -999, -999 );
 
@@ -756,6 +756,6 @@ void CBVSReadMgr::dumpInfo( ostream& strm, bool inclcompinfo ) const
 	    else
 		strm << " not present.";
 	}
-	strm << endl << endl;
+	strm << std::endl << std::endl;
     }
 }

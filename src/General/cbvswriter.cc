@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.37 2003-12-10 14:09:09 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.38 2004-04-27 15:51:15 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -19,7 +19,8 @@ const int CBVSIO::version = 1;
 const int CBVSIO::headstartbytes = 8 + 2 * CBVSIO::integersize;
 
 
-CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i, const PosAuxInfo* e )
+CBVSWriter::CBVSWriter( std::ostream* s, const CBVSInfo& i,
+			const PosAuxInfo* e )
 	: strm_(*s)
 	, auxinfo_(e)
 	, thrbytes_(0)
@@ -39,7 +40,8 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i, const PosAuxInfo* e )
 }
 
 
-CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
+CBVSWriter::CBVSWriter( std::ostream* s, const CBVSWriter& cw,
+			const CBVSInfo& ci )
 	: strm_(*s)
 	, auxinfo_(cw.auxinfo_)
 	, thrbytes_(cw.thrbytes_)
@@ -77,7 +79,7 @@ void CBVSWriter::init( const CBVSInfo& i )
 
     input_rectnreg_ = survgeom_.fullyrectandreg;
 
-    streampos cursp = strm_.tellp();
+    std::streampos cursp = strm_.tellp();
     strm_.seekp( 8 );
     int nrbytes = (int)cursp;
     strm_.write( (const char*)&nrbytes, integersize );
@@ -88,7 +90,7 @@ void CBVSWriter::init( const CBVSInfo& i )
 CBVSWriter::~CBVSWriter()
 {
     close();
-    if ( &strm_ != &cout ) delete &strm_;
+    if ( &strm_ != &std::cout && &strm_ != &std::cerr ) delete &strm_;
     delete [] nrbytespersample_;
 }
 
@@ -115,7 +117,7 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     strm_.write( (const char*)&info.seqnr, integersize );
     BufferString bs( info.usertext );
 
-    streampos fo = strm_.tellp();
+    std::streampos fo = strm_.tellp();
     int len = bs.size();
     int endpos = (int)fo + len + 4;
     while ( endpos % 4 )
@@ -366,7 +368,7 @@ void CBVSWriter::doClose( bool islast )
     if ( strmclosed_ ) return;
 
     getRealGeometry();
-    streampos kp = strm_.tellp();
+    std::streampos kp = strm_.tellp();
     strm_.seekp( geomsp_ );
     writeGeom();
     strm_.seekp( kp );
@@ -458,7 +460,7 @@ void CBVSWriter::getRealGeometry()
 bool CBVSWriter::writeTrailer()
 {
     const int nrinl = inldata_.size();
-    streampos trailerstart = strm_.tellp();
+    std::streampos trailerstart = strm_.tellp();
     strm_.write( (const char*)&nrinl, integersize );
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {

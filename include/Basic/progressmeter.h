@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.9 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: progressmeter.h,v 1.10 2004-04-27 15:51:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 class ProgressMeter
 {
 public:
-			ProgressMeter(ostream&,unsigned long dist=1,
+			ProgressMeter(std::ostream&,unsigned long dist=1,
 				      unsigned short rowlen=50,
 				      bool finishondestruct=true);
     virtual		~ProgressMeter();
@@ -37,7 +37,7 @@ public:
 
 protected:
 
-    ostream&		strm;
+    std::ostream&	strm;
     unsigned short	rowlen;
     unsigned char	idist;
     unsigned long	dist;

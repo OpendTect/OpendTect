@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.12 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.13 2004-04-27 15:51:15 bert Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -17,7 +17,7 @@ const int Executor::MoreToDo		= 1;
 const int Executor::WarningAvailable	= 2;
 
 
-bool Executor::execute( ostream* strm, bool isfirst, bool islast,
+bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 		        int delaybetwnsteps )
 {
     if ( !strm )
@@ -38,18 +38,18 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast,
 	return true;
     }
 
-    ostream& stream = *strm;
+    std::ostream& stream = *strm;
     if ( isfirst )
-	stream << GetProjectVersionName() << endl << endl;
+	stream << GetProjectVersionName() << "\n\n";
 
-    stream << "Process: '" << name() << "'" << endl;
-    stream << "Started: " << Time_getLocalString() << endl << endl;
+    stream << "Process: '" << name() << "'\n";
+    stream << "Started: " << Time_getLocalString() << "\n\n";
 
     BufferString curmsg, prevmsg;
     prevmsg = message();
 
     if ( strm )
-	stream << '\t' << prevmsg << endl;
+	stream << '\t' << prevmsg << '\n';
 
     bool go_on = true;
     bool newmsg = true;
@@ -66,18 +66,18 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast,
 	switch( rv )
 	{
 	case ErrorOccurred:
-	    stream << "Error: " << curmsg << endl;
+	    stream << "Error: " << curmsg << std::endl;
 	break;
 	case Finished:
-	    stream << "\nFinished: " << Time_getLocalString() << endl;
+	    stream << "\nFinished: " << Time_getLocalString() << std::endl;
 	break;
 	default:
 	    go_on = true;
 	    if ( curmsg != prevmsg )
 	    {
-		if ( needendl ) stream << endl;
+		if ( needendl ) stream << std::endl;
 		needendl = false;
-		stream << '\t' << curmsg << endl;
+		stream << '\t' << curmsg << std::endl;
 		newmsg = true;
 	    }
 	    else if ( newmsg && newnrdone )
@@ -106,7 +106,7 @@ bool Executor::execute( ostream* strm, bool isfirst, bool islast,
     }
 
     if ( islast )
-	stream << endl << endl << "End of processing" << endl;
+	stream << "\n\nEnd of processing" << std::endl;
     return rv < 0 ? false : true;
 }
 
