@@ -18,6 +18,13 @@ else if ( "$1" == "--gdi" ) then
     set mods=.mods.gdi
 else if ( "$1" == "--nodep" ) then
     set dodeps=no
+else if ( "$1" == "--help" ) then
+    echo "Usage: make_all [option]"
+    echo " --shallow, Do not remove libs"
+    echo " --nodep, Do not create deps"
+    echo " --dtect, Only make dTect"
+    echo " --gdi, Only make GDI"
+    exit 0
 else
     goto do_it
 endif
