@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolorseq.h,v 1.2 2002-03-11 14:38:02 kristofer Exp $
+ RCS:		$Id: viscolorseq.h,v 1.3 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,6 @@ public:
 
     Notifier<ColorSequence>	change;
 protected:
-			ColorSequence();
     virtual		~ColorSequence();
 
 

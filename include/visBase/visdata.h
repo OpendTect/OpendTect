@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.5 2002-03-18 14:45:35 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.6 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,7 @@ class BufferString;
 namespace visBase
 {
 class SelectionManager;
+class DataManager;
 
 /*!\brief
 DataObject is the base class off all objects that are used in Visualization and
@@ -38,8 +39,6 @@ public:
     const char*		name() const;
     void		setName( const char* );
 
-    void		remove() { delete this; }
-    			/* Should only be called by DataManager */
     virtual SoNode*	getData() { return 0; }
     			/*!< May return null if object isn't OpenInventor */
 
@@ -67,6 +66,9 @@ protected:
     virtual		~DataObject();
     void		init();
 
+    friend		DataManager;
+    void		remove() { delete this; }
+    			/* Should only be called by DataManager */
 private:
     int			id_;
     BufferString*	name_;
@@ -74,30 +76,39 @@ private:
 
 };
 
-#define mCreateDataObj0arg(clss) 	\
+#define _mCreateDataObj(clss,args) 	\
 {					\
-    clss* res = new clss;		\
+    clss* res = new clss args;		\
     res->init();			\
     return res;				\
-}					
+}					\
+private:				\
+    clss(const clss&);			\
+    clss& operator =(const clss&);	\
+protected:
+    
+#define _mDeclConstr(clss)	\
+    clss();			\
+public:
 
+#define _mDeclConstr1Arg(clss,typ,arg)	\
+    clss(typ arg);			\
+public:
 
-#define mCreateDataObj1arg(clss, arg1 ) \
-{					\
-    clss* res = new clss( arg1 );	\
-    res->init();			\
-    return res;				\
-}
+#define _mDeclConstr2Args(clss,typ,arg,typ2,arg2)	\
+    clss(typ arg,typ2 arg2);			\
+public:
 
-   
-#define mCreateDataObj2arg(clss, arg1, arg2 ) \
-{					\
-    clss* res = new clss( arg1, arg2 );	\
-    res->init();			\
-    return res;				\
-}
+#define mCreateDataObj0arg(clss) \
+    _mCreateDataObj(clss,()) \
+    _mDeclConstr(clss)
 
-   
+#define mCreateDataObj1arg(clss,arg1t,arg1)	\
+    _mCreateDataObj(clss,(arg1))		\
+    _mDeclConstr1Arg(clss,arg1t,arg1)
 
+#define mCreateDataObj2arg(clss,typ1,arg1,typ2,arg2)	\
+    _mCreateDataObj(clss,(arg1,arg2))			\
+    _mDeclConstr2Args(clss,typ1,arg1,typ2,arg2)
 
 #endif

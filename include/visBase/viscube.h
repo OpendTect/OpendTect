@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.5 2002-03-18 14:59:54 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.6 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -46,8 +46,6 @@ public:
     void		fillPar( IOPar& ) const;
 
 protected:
-    			Cube();
-
     SoCube*		cube;
     SoTranslation*	position;
     static const char*	centerposstr;

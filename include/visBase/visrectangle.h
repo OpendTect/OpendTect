@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.15 2002-03-18 14:45:35 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.16 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,6 @@ public:
     SoNode*		getData();
 
 protected:
-    			RectangleDragger();
 			~RectangleDragger();
 
     void		syncronizeDraggers();
@@ -91,7 +90,7 @@ class Rectangle : public VisualObjectImpl
 {
 public:
     static Rectangle*	create(bool manip)
-			mCreateDataObj1arg(Rectangle, manip );
+			mCreateDataObj1arg(Rectangle, bool, manip );
 
     void		setOrigo( const Geometry::Pos& );
     Geometry::Pos	origo() const;
@@ -128,7 +127,6 @@ public:
     void		fillPar( IOPar& ) const;
 
 protected:
-			Rectangle( bool manip );
 			~Rectangle();
     void		moveManipRectangletoDragger(CallBacker* =0);
     void		moveDraggertoManipRect();

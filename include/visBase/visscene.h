@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.6 2002-03-20 08:21:45 nanne Exp $
+ RCS:		$Id: visscene.h,v 1.7 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,6 @@ protected:
     friend		SelectionManager;
     virtual void	deSelectAll();
 
-			Scene();
     virtual		~Scene();
 
 private:

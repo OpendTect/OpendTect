@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.5 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.6 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,6 @@ public:
     const LineStyle&		lineStyle() const { return linestyle; }
 
 protected:
-				Annotation();
     LineStyle			linestyle;
     void			updateLineStyle();
 

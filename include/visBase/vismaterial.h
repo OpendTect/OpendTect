@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.3 2002-03-20 08:16:44 nanne Exp $
+ RCS:		$Id: vismaterial.h,v 1.4 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,6 @@ public:
     void		fillPar( IOPar& ) const;
 
 protected:
-			Material();
 			~Material();
 
     void		updateMaterial();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.3 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: vistransform.h,v 1.4 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ public:
     
     SoNode*		getData();
 private:
-			Transformation();
     virtual		~Transformation();
 
 

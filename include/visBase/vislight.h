@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.2 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: vislight.h,v 1.3 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -57,9 +57,6 @@ public:
 
     void		setPosition(float,float,float);
     float		position(int dim) const;
-protected:
-			~PointLight() {}
-    			PointLight();
 };
 
 
@@ -76,9 +73,6 @@ public:
 
     void		setDirection(float,float,float);
     float		direction(int dim) const;
-protected:
-			~DirectionalLight() {}
-    			DirectionalLight();
 };
 
 /*!\brief
@@ -105,9 +99,6 @@ public:
     void		setDropOffRate(float);
     			// 0=smooth, 1=sharp
     float		dropOffRate() const;
-protected:
-    			SpotLight();
-			~SpotLight() {}
 };
 
 };

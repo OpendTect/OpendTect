@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.3 2002-03-18 09:26:12 nanne Exp $
+ RCS:		$Id: vistexturerect.h,v 1.4 2002-03-20 20:41:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -42,7 +42,7 @@ class TextureRect : public VisualObjectImpl
 {
 public:
     static TextureRect*	create( bool usermanip )
-			mCreateDataObj1arg( TextureRect, usermanip );
+			mCreateDataObj1arg( TextureRect, bool, usermanip );
 
     i_Notifier*		manipStarts() { return &manipstartnotifier; }
     i_Notifier*		manipChanges() { return &manipchnotifier; }
@@ -96,7 +96,6 @@ protected:
     float		cliprate;
     Array2D<float>*	data;
 private:
-			TextureRect( bool usermanip );
 			~TextureRect();
 
     Notifier<TextureRect>	selnotifier;
