@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.13 2001-05-30 09:01:41 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.14 2001-05-30 13:00:39 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -382,7 +382,7 @@ bool CBVSReader::goTo( const BinID& bid )
 	curbinid_.crl = curseg->atIndex( segposn );
     }
 
-    toOffs( ((streampos)nrposns) * info_.nrtrcsperposn
+    toOffs( datastartfo + ((streampos)nrposns) * info_.nrtrcsperposn
 	      * (explicitnrbytes + bytespertrace) );
     hinfofetched = false;
     return true;
