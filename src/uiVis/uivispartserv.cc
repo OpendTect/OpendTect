@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.179 2003-12-11 09:41:46 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.180 2003-12-11 16:29:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -383,8 +383,8 @@ void uiVisPartServer::setPickSetData( int id, const PickSet& pickset )
     int nrpicks = pickset.size();
     for ( int idx=0; idx<nrpicks; idx++ )
     {
-	Coord crd( pickset[idx].pos );
-	psd->addPick( Coord3(crd.x,crd.y,pickset[idx].z) );
+	Coord3 pos( pickset[idx].pos, pickset[idx].z );
+	psd->addPick( pos, pickset[idx].dir );
     }
 }
 

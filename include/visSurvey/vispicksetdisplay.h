@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.27 2003-11-07 12:21:55 bert Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.28 2003-12-11 16:30:00 nanne Exp $
 ________________________________________________________________________
 
 
@@ -37,8 +37,6 @@ class Scene;
   Picks are positions in 3d (x,y,z) selected by the user by mouseclicks,
   or generated at random. Picks have a constant size in pixels, and can be
   visualized by a number of shapes.
-
-
 */
 
 class PickSetDisplay :	public visBase::VisualObjectImpl,
@@ -48,10 +46,12 @@ public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
 
+    void			addPick(const Coord3&,
+	    				const Coord3& dir=Coord3(0,0,0));
     int				nrPicks() const;
-    Coord3			getPick( int idx ) const;
-    void			addPick( const Coord3& );
-    void			removePick( const Coord3& );
+    Coord3			getPick(int idx) const;
+    Coord3			getDirection(int idx) const;
+    void			removePick(const Coord3&);
     void			removeAll();
 
     float			getInitSize() const	{ return initsz; }

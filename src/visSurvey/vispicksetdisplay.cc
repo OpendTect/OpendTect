@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.45 2003-11-28 15:41:59 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.46 2003-12-11 16:29:55 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.45 2003-11-28 15:41:59
 #include "visrandomtrackdisplay.h"
 #include "vistransform.h"
 #include "visvolumedisplay.h"
+#include "separstr.h"
 
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
@@ -76,6 +77,23 @@ visSurvey::PickSetDisplay::~PickSetDisplay()
 }
 
 
+void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Coord3& dir )
+{
+    visBase::Marker* marker = visBase::Marker::create();
+    group->addObject( marker );
+
+    marker->setTransformation( transformation );
+    marker->setCenterPos( pos );
+    marker->setDirection( dir );
+    marker->setScale( Coord3(1, 1, 2/SPM().getZScale()) );
+    marker->setSize( picksz );
+    marker->setType( (visBase::Marker::Type)picktype );
+    marker->setMaterial( 0 );
+
+    changed.trigger();
+}
+
+
 int visSurvey::PickSetDisplay::nrPicks() const
 {
     return group->size();
@@ -84,32 +102,39 @@ int visSurvey::PickSetDisplay::nrPicks() const
 
 Coord3 visSurvey::PickSetDisplay::getPick( int idx ) const
 {
-
-    mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
-    if ( marker )
-    {
-	return marker->centerPos();
-    }
-
-    Coord3 res(mUndefValue,mUndefValue,mUndefValue);
-
-    return res;
+    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
+    return marker ? marker->centerPos() 
+    		  : Coord3(mUndefValue,mUndefValue,mUndefValue);
 }
 
 
-void visSurvey::PickSetDisplay::addPick( const Coord3& pos )
+Coord3 visSurvey::PickSetDisplay::getDirection( int idx ) const
 {
-    visBase::Marker* marker = visBase::Marker::create();
-    group->addObject( marker );
+    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
+    return marker ? marker->getDirection() : Coord3(0,0,0);
+}
 
-    marker->setTransformation( transformation );
-    marker->setCenterPos( pos );
-    marker->setScale( Coord3(1, 1, 2/SPM().getZScale()) );
-    marker->setSize( picksz );
-    marker->setType( (visBase::Marker::Type)picktype );
-    marker->setMaterial( 0 );
 
-    changed.trigger();
+void visSurvey::PickSetDisplay::removePick( const Coord3& pos )
+{
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	if ( !marker ) continue;
+
+	if ( marker->centerPos() == pos )
+	{
+	    group->removeObject( idx );
+	    changed.trigger();
+	    return;
+	}
+    }
+}
+
+
+void visSurvey::PickSetDisplay::removeAll()
+{
+    group->removeAll();
 }
 
 
@@ -209,29 +234,6 @@ void visSurvey::PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
 	strs += (char*)tp;
 	idx++;
     }
-}
-
-
-void visSurvey::PickSetDisplay::removePick( const Coord3& pos )
-{
-    for ( int idx=0; idx<group->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
-	if ( !marker ) continue;
-
-	if ( marker->centerPos() == pos )
-	{
-	    group->removeObject( idx );
-	    changed.trigger();
-	    return;
-	}
-    }
-}
-
-
-void visSurvey::PickSetDisplay::removeAll()
-{
-    group->removeAll();
 }
 
 
@@ -365,9 +367,13 @@ void visSurvey::PickSetDisplay::fillPar( IOPar& par,
     {
 	const SceneObject* so = group->getObject( idx );
         mDynamicCastGet(const visBase::Marker*, marker, so );
-	Coord3 pos = marker->centerPos();
 	BufferString key = pickprefixstr; key += idx;
-	par.set( key, pos.x, pos.y, pos.z );
+	Coord3 pos = marker->centerPos();
+	Coord3 dir = marker->getDirection();
+	FileMultiString str; str += pos.x; str += pos.y; str += pos.z;
+	if ( dir.x || dir.y || dir.z )
+	    { str += dir.x; str += dir.y; str += dir.z; }
+	par.set( key, str.buf() );
     }
 
     par.setYN( showallstr, showall );
@@ -408,12 +414,18 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     
     for ( int idx=0; idx<nopicks; idx++ )
     {
-	Coord3 pos;
+	BufferString str;
 	BufferString key = pickprefixstr; key += idx;
-	if ( !par.get( key, pos.x, pos.y, pos.z ) )
+	if ( !par.get(key,str) )
 	    return -1;
 
-	addPick( pos );
+	FileMultiString fms( str );
+	Coord3 pos( atof(fms[0]), atof(fms[1]), atof(fms[2]) );
+	Coord3 dir;
+	if ( fms.size() > 3 )
+	    dir = Coord3( atof(fms[3]), atof(fms[4]), atof(fms[5]) );
+	    
+	addPick( pos, dir );
     }
 
     return 1;
