@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.13 2002-03-12 16:02:46 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.14 2002-09-11 14:39:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
 			{ v = v2.v; return *this; }
     inline void		push_back( const T& t )		{ v.push_back(t); }
     inline void		insert( int pos, const T& val )
-    			{ v.insert(&v[pos],val); }
+					    { v.insert(v.begin() + pos,val); }
     inline void		erase()
     			{ v.erase( v.begin(), v.end() ); }
     inline void		erase( const T& t )
@@ -70,10 +70,10 @@ public:
 			    if ( i1 >= sz ) return;
 
 			    if ( i2 >= sz-1 ) i2 = sz-1;
-			    v.erase( &v[i1], &v[i2] );
+			    v.erase( v.begin()+i1, v.begin()+i2 );
 			}
     inline void		swap( unsigned int i, unsigned int j )
-			{ ::swap( v[i], v[j] ); }
+			{ std::swap( v[i], v[j] ); }
 
 
     void moveAfter( const T& t, const T& aft )

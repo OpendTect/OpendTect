@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.12 2002-09-09 13:10:40 bert Exp $
+ RCS:		$Id: thread.h,v 1.13 2002-09-11 14:39:08 bert Exp $
 ________________________________________________________________________
 
 */
@@ -188,7 +188,7 @@ protected:
 
 private:
 
-    friend			Threads::Mutex;
+    friend class		Threads::Mutex;
     				//< Only to avoid a stupid compiler msg
     
     virtual			~Thread()	{}

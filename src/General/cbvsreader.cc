@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.36 2002-07-25 12:56:24 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.37 2002-09-11 14:39:08 bert Exp $";
 
 /*!
 
@@ -73,7 +73,7 @@ bool CBVSReader::readInfo()
     if ( errmsg_ ) return false;
 
     BufferString buf(headstartbytes);
-    unsigned char* ptr = (unsigned char*)buf.buf();
+    char* ptr = buf.buf();
     strm_.read( ptr, headstartbytes );
 
     DataCharacteristics dc;
@@ -166,7 +166,7 @@ const char* CBVSReader::check( istream& strm )
 }
 
 
-void CBVSReader::getAuxInfoSel( const unsigned char* ptr )
+void CBVSReader::getAuxInfoSel( const char* ptr )
 {
     info_.auxinfosel.startpos =	mAuxSetting(ptr,1);
     info_.auxinfosel.coord =	mAuxSetting(ptr,2);
@@ -195,9 +195,9 @@ bool CBVSReader::readComps()
 {
 #ifdef __msvc__
     BufferString mscbuf(4*integersize);
-    unsigned char* ucbuf = (unsigned char*)mscbuf.buf();
+    char* ucbuf = (char*)mscbuf.buf();
 #else
-    unsigned char ucbuf[4*integersize];
+    char ucbuf[4*integersize];
 #endif
 
     strm_.read( ucbuf, integersize );
@@ -358,10 +358,10 @@ bool CBVSReader::goTo( const BinID& bid )
 bool CBVSReader::goTo( int posnr, const BinID& bid, int ci, int cs )
 {
     // Be careful: offsets can be larger than what fits in an int!
-    streampos sp = posnr * info_.nrtrcsperposn;
-    sp *= auxnrbytes + bytespertrace;
+    streamoff so = posnr * info_.nrtrcsperposn;
+    so *= auxnrbytes + bytespertrace;
 
-    toOffs( datastartfo + sp );
+    toOffs( datastartfo + streampos(so) );
     hinfofetched = false;
     curbinid_ = bid;
     curinlinfnr_ = ci; cursegnr_ = cs;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.5 2002-09-11 06:16:24 kristofer Exp $
+ RCS:		$Id: threadwork.h,v 1.6 2002-09-11 14:39:08 bert Exp $
 ________________________________________________________________________
 
 
@@ -86,7 +86,8 @@ public:
 
 
 protected:
-    friend			WorkThread;
+
+    friend class		WorkThread;
     				/* Interface from threads */
     void			imFinished( WorkThread* );
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.26 2002-03-12 16:02:46 bert Exp $
+ RCS:		$Id: callback.h,v 1.27 2002-09-11 14:39:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,7 +195,7 @@ would result in the availability of:
 class NotifierAccess
 {
 
-friend class		NotifyStopper;
+    friend class	NotifyStopper;
 
 public:
 
@@ -271,8 +271,6 @@ public:
     virtual void	notify( const CallBack& cb )	{ cbs += cb; }
     virtual void	remove( const CallBack& cb )	{ cbs -= cb; }
 
-protected:
-
     CallBackList	cbs;
     CallBacker*		cber;
 
@@ -319,15 +317,13 @@ when going out of scope.
 template <class T>
 class Notifier : public i_Notifier
 {
-    friend		T;
-
 public:
 
     void		trigger( T& t )				{ trigger(&t); }
     void		enable( T& t )				{ enable(); }
     void		disable( T& t )				{ disable(); }
 
-protected:
+// protected: (should be used by T class only)
 
 			Notifier( T* c ) 			{ cber = c; }
 
@@ -386,13 +382,11 @@ CNotifier<MyClass,const uiMouseEvent&>	mousepress;
 template <class T,class C>
 class CNotifier : public i_Notifier
 {
-    friend		T;
-
 public:
 
     void		trigger( C c, T& t )		{ trigger(c,&t); }
 
-protected:
+// almost protected (as above):
 
 			CNotifier( T* cb )	{ cber = cb; }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.27 2002-08-28 13:42:10 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.28 2002-09-11 14:39:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -405,7 +405,7 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
 
 
 #include "seissingtrcproc.h"
-#include <fstream.h>
+#include <fstream>
 
 bool uiSeisMMProc::acceptOK(CallBacker*)
 {

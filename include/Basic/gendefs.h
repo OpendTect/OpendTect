@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.18 2002-03-26 17:02:30 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.19 2002-09-11 14:39:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,15 @@ ________________________________________________________________________
 #ifdef PATH_LENGTH
 # undef PATH_LENGTH
 #endif
+
+
+#ifdef __cpp__
+
+     namespace		std {}
+     using namespace	std;
+
+#endif
+
 
 #ifdef __msvc__
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.27 2002-07-25 21:50:11 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.28 2002-09-11 14:39:08 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -157,6 +157,9 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
     nrbytespersample_ = new int [nrcomps_];
     bytesperwrite = auxnrbytes;
 
+    unsigned char dcdump[4];
+    dcdump[2] = dcdump[3] = 0; // added space for compression type
+
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	BasicComponentInfo& cinf = *info.compinfo[icomp];
@@ -164,10 +167,8 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	strm_.write( (const char*)&sz, integersize );
 	strm_.write( (const char*)cinf.name(), sz );
 	strm_.write( (const char*)&cinf.datatype, integersize );
-	unsigned char dcdump[4];
        	cinf.datachar.dump( dcdump[0], dcdump[1] );
-	dcdump[2] = dcdump[3] = 0; // add space for compression type
-	strm_.write( dcdump, 4 );
+	strm_.write( (const char*)dcdump, 4 );
 	strm_.write( (const char*)&cinf.sd.start, sizeof(float) );
 	strm_.write( (const char*)&cinf.sd.step, sizeof(float) );
 	strm_.write( (const char*)&cinf.nrsamples, integersize );

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.20 2002-08-01 13:31:30 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.21 2002-09-11 14:39:08 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.20 2002-08-01 13:31:30 bert 
 #include "survinfo.h"
 #include "datachar.h"
 #include "errh.h"
-#include <fstream.h>
+#include <fstream>
 
 static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 			     const char* msg )
@@ -106,7 +106,7 @@ void CBVSReadMgr::handleAuxFile()
 
     auxstrm_->seekg( 12, ios::beg );
     unsigned char* ptr = &auxflgs_;
-    auxstrm_->read( ptr, 1 );
+    auxstrm_->read( (char*)ptr, 1 );
 #define mBytes(n,t) (mAuxSetting(ptr,n) ? sizeof(t) : 0)
     auxnrbytes_ = mBytes(1,float)
 		+ mBytes(2,double) + mBytes(2,double) // x and y

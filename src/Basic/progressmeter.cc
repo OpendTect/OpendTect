@@ -95,7 +95,7 @@ void ProgressMeter::annotate( bool withrate )
 {
     // Show numbers
     strm << ' ';
-    if ( auxnr != ULONG_MAX && abs(progress-auxnr) > 1 )
+    if ( auxnr != ULONG_MAX )
 	strm << auxnr << '/';
     strm << progress;
 
