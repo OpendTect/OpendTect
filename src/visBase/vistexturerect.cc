@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.6 2002-04-11 06:40:11 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.7 2002-04-12 06:31:29 kristofer Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -25,7 +25,6 @@ visBase::TextureRect::TextureRect( bool usermanip )
     , quality( new SoComplexity )
     , textureswitch( new SoSwitch )
     , texturegrp( new SoGroup )
-    , modcolor( new SoMaterial )
     , autoscale( true )
     , cliprate( 0.025 )
     , data( 0 )
@@ -37,10 +36,6 @@ visBase::TextureRect::TextureRect( bool usermanip )
 {
     addChild( textureswitch );
     textureswitch->addChild( texturegrp );
-
-    texturegrp->addChild( modcolor );
-    modcolor->ambientColor.setValue( 1, 1, 1 );
-    modcolor->diffuseColor.setValue( 1, 1, 1 );
 
     texturegrp->insertChild( quality, 0 );
     quality->textureQuality.setValue( 1 );

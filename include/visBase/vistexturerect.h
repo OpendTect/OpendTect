@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.5 2002-04-11 06:40:05 kristofer Exp $
+ RCS:		$Id: vistexturerect.h,v 1.6 2002-04-12 06:31:30 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,6 @@ protected:
     SoSwitch*		textureswitch;
     SoComplexity*	quality;
     SoGroup*		texturegrp;
-    SoMaterial*		modcolor;
 
     bool		autoscale;
     float		cliprate;
