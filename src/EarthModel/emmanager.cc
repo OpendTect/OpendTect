@@ -4,13 +4,14 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.37 2005-01-10 09:57:04 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.38 2005-01-11 10:17:09 kristofer Exp $";
 
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
 #include "emhistory.h"
 #include "emsurfacetr.h"
+#include "emhorizontaltube.h"
 #include "emsticksettransl.h"
 #include "emobject.h"
 #include "emsurfaceiodata.h"
@@ -97,7 +98,12 @@ const char* EM::EMManager::objectType(const EM::ObjectID& oid) const
 
 
 void EM::EMManager::init()
-{ } 
+{
+    Horizon::initClass(*this);
+    Fault::initClass(*this);
+    HorizontalTube::initClass(*this);
+    StickSet::initClass(*this);
+} 
 
 
 EM::ObjectID EM::EMManager::createObject( const char* type, const char* name )
