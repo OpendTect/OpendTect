@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.8 2005-03-10 15:11:15 cvskris Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.9 2005-03-11 12:21:23 cvskris Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -347,6 +347,9 @@ void MeshSurfaceTesselationCache::GLRender(SoGLRenderAction* action)
     buildmutex->readLock();
     const int nrci = ci.getLength();
     bool isopen = false;
+    float texturecoord[2];
+    const int nrrows = meshsurface.nrRows();
+    const int nrcols = meshsurface.nrColumns.getValue();
     for ( int idx=0; idx<nrci; idx++ )
     {
 	const int index = ci[idx];
@@ -374,8 +377,12 @@ void MeshSurfaceTesselationCache::GLRender(SoGLRenderAction* action)
 	    SoDebugError::postWarning("MeshSurfaceTesselationCache::GLRender",
 				      "Index is too large");
 #endif
+	const int row = index/nrcols;
+	const int col = index%nrcols;
+	texturecoord[0] = nrrows>1 ? (float) row/(nrrows-1) : 0;
+	texturecoord[1] = nrcols>1 ? (float) col/(nrcols-1) : 0;
+	glTexCoord2fv(texturecoord);
 	glVertex3fv(cptr[index].getValue());
-	//Add textureCoordIndex
     }
     
     if ( isopen )
@@ -541,12 +548,12 @@ int MeshSurfacePart::computeResolution( SoState* state, bool ownv)
     const int numres = resolutions.getLength();
     int minres = numres-1;
     const int minsize = nrrows<nrcols?nrrows:nrcols;
-    int spacing = sidesize/2;
+    int spacing = 1;
     for ( ; minres>0; minres-- )
     {
-	if ( spacing<=minsize )
+	if ( spacing>=minsize )
 	    break;
-	spacing /=2;
+	spacing *=2;
     }
 	
     const int32_t camerainfo = SoCameraInfoElement::get(state);
