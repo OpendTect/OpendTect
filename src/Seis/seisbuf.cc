@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.11 2002-11-21 17:10:09 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.12 2002-11-24 22:19:29 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -76,7 +76,7 @@ void SeisTrcBuf::sort( int seisinf_attrnr, bool ascending )
 
 void SeisTrcBuf::removeDuplicates( int seisinf_attrnr, bool destroy )
 {
-    const int sz = size();
+    int sz = size();
     if ( sz < 2 ) return;
 
     float prevval = get(0)->info().getAttr(seisinf_attrnr);
@@ -85,7 +85,7 @@ void SeisTrcBuf::removeDuplicates( int seisinf_attrnr, bool destroy )
 	SeisTrc* trc = get(idx);
 	float val = trc->info().getAttr(seisinf_attrnr);
 	if ( mIS_ZERO(prevval-val) )
-	    { remove(trc); idx--; if ( destroy ) delete trc; }
+	    { remove(trc); idx--; sz--; if ( destroy ) delete trc; }
 	else
 	    prevval = val;
     }
