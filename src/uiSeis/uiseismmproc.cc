@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.40 2003-02-05 12:53:31 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.41 2003-02-17 12:50:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "hostdata.h"
 #include "ioparlist.h"
 #include "ioman.h"
@@ -288,6 +289,7 @@ void uiSeisMMProc::execFinished()
 	stopRunningJobs();
 	updateCurMachs();
 	progrfld->append( "Checking integrity of processed data" );
+	uiMain::processEvents( 100 );
 	SeisMMJobMan* newjm = new SeisMMJobMan( *jm );
 	if ( newjm->totalNr() < 1 )
 	    setDataTransferrer( newjm );
