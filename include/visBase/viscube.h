@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.4 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.5 2002-03-18 14:59:54 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -42,11 +42,16 @@ public:
     void		setWidth( const Geometry::Pos& );
     Geometry::Pos	width() const;
 
+    int			usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
+
 protected:
     			Cube();
 
     SoCube*		cube;
     SoTranslation*	position;
+    static const char*	centerposstr;
+    static const char*	widthstr;
 };
 
 };
