@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.3 2003-04-23 10:43:21 arend Exp $
+ RCS:           $Id: uitabstack.cc,v 1.4 2003-04-23 11:00:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ void uiTabStack::tabSel( CallBacker* cb )
     }
 }
 
+
 void uiTabStack::addTab( uiGroup* grp, const char* txt )
 {
     if ( !grp ) return;
@@ -58,17 +59,10 @@ void uiTabStack::addTab( uiGroup* grp, const char* txt )
     uiTab* tab = new uiTab( *grp );
     tabbar_->addTab( tab );
 
-//    grp->setStretch(2,2);
-
     if ( !hAlignObj() )
-{
-#ifdef __debug__
-cout << "Setting align group: " << grp->name() << endl;
-#endif
-
 	setHAlignObj( grp );
 }
-}
+
 
 void uiTabStack::insertTab( uiGroup* grp, const char* txt, int index )
 {
