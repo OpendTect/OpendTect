@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.28 2002-07-21 23:17:42 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.29 2002-08-01 13:31:11 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -369,13 +369,11 @@ bool SeisTrcTranslator::initConn( Conn& c, bool forread )
 SeisTrc* SeisTrcTranslator::getEmpty()
 {
     DataCharacteristics dc;
-    if ( tarcds.size() )
-    {
-	if ( !inpfor_ ) commitSelections();
+    if ( tarcds.size() && inpfor_ )
 	dc = tarcds[selComp()]->datachar;
-    }
     else
 	toSupported( dc );
+
     return new SeisTrc( 0, dc );
 }
 
