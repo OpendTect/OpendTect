@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.10 2004-09-03 09:12:04 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.11 2004-09-03 15:13:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,33 @@ class Executor;
 class SeisTrcBuf;
 class SeisSelData;
 class Seis2DLineIOProvider;
+
+
+/*!\brief interface for object that provides a current 2D line key */
+
+class Seis2DLineKeyProvider
+{
+public:
+
+    virtual		~Seis2DLineKeyProvider()	{}
+    virtual BufferString lineKey() const		= 0;
+
+};
+
+
+/*!\brief interface for object that writes 2D seismic data */
+
+class Seis2DLinePutter
+{
+public:
+    virtual		~Seis2DLinePutter()	{}
+
+    virtual bool	put(const SeisTrc&)	= 0;
+    //!< Return null on success, err msg on failure
+    virtual const char* errMsg() const		= 0;
+    //!< Only when put returns false
+    virtual int	nrWritten() const		= 0;
+};
 
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
@@ -44,23 +71,12 @@ public:
     			{ return lineKey( lineName(idx), attribute(idx) ); }
     int			indexOf(const char* linekey) const;
 
-    struct		Putter
-    {
-	virtual		~Putter()			{}
-
-	virtual bool	put(const SeisTrc&)		= 0;
-	//!< Return null on success, err msg on failure
-	virtual const char* errMsg() const		= 0;
-	//!< Only when put returns false
-	virtual int	nrWritten() const		= 0;
-    };
-
     Executor*		lineFetcher(int,SeisTrcBuf&,
 	    			    const SeisSelData* sd=0) const;
     				//!< May return null
-    Putter*		lineReplacer(int) const;
+    Seis2DLinePutter*	lineReplacer(int) const;
     				//!< May return null.
-    Putter*		lineAdder(IOPar*) const;
+    Seis2DLinePutter*	lineAdder(IOPar*) const;
     				//!< May return null. When finished: commitAdd
     				//!< will return replacer if linekey exists
     void		commitAdd(IOPar*);
@@ -84,6 +100,7 @@ public:
 			//!< "line_name|attribute"
     static BufferString	lineNamefromKey(const char*);
     static BufferString	attrNamefromKey(const char*);
+    static void		setLineKey(IOPar&,const char*);
 
 protected:
 
@@ -113,8 +130,8 @@ public:
     virtual bool	isEmpty(const IOPar&) const		= 0;
     virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,
 	    			   const SeisSelData* sd=0)	= 0;
-    virtual Seis2DLineGroup::Putter* getReplacer(const IOPar&)	= 0;
-    virtual Seis2DLineGroup::Putter* getAdder(IOPar&,const IOPar* prev) = 0;
+    virtual Seis2DLinePutter* getReplacer(const IOPar&)	= 0;
+    virtual Seis2DLinePutter* getAdder(IOPar&,const IOPar* prev) = 0;
 
     virtual bool	getTxtInfo(const IOPar&,BufferString&,
 	    			   BufferString&) const		{ return false;}

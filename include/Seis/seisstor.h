@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.10 2004-08-25 12:27:06 bert Exp $
+ RCS:		$Id: seisstor.h,v 1.11 2004-09-03 15:13:14 bert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -31,7 +31,7 @@ class SeisStoreAccess
 public:
 
     virtual		~SeisStoreAccess();
-    void		close();
+    virtual void	close();
 
     bool		is2D() const		{ return is2d; }
     const char*		errMsg() const

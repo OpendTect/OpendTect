@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.11 2004-09-03 09:12:04 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.12 2004-09-03 15:13:14 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -155,6 +155,13 @@ BufferString Seis2DLineGroup::lineKey( const IOPar& iop )
 }
 
 
+void Seis2DLineGroup::setLineKey( IOPar& iop, const char* lk )
+{
+    iop.setName( lineNamefromKey(lk) );
+    iop.set( sKeyAttrib, attrNamefromKey(lk) );
+}
+
+
 BufferString Seis2DLineGroup::lineKey( const char* lnm, const char* attrnm )
 {
     BufferString ret( lnm );
@@ -280,7 +287,7 @@ Executor* Seis2DLineGroup::lineFetcher( int ipar, SeisTrcBuf& tbuf,
 }
 
 
-Seis2DLineGroup::Putter* Seis2DLineGroup::lineReplacer( int nr ) const
+Seis2DLinePutter* Seis2DLineGroup::lineReplacer( int nr ) const
 {
     if ( nr < 0 || nr >= pars_.size() )
     {
@@ -297,7 +304,7 @@ Seis2DLineGroup::Putter* Seis2DLineGroup::lineReplacer( int nr ) const
 }
 
 
-Seis2DLineGroup::Putter* Seis2DLineGroup::lineAdder( IOPar* newiop ) const
+Seis2DLinePutter* Seis2DLineGroup::lineAdder( IOPar* newiop ) const
 {
     if ( !newiop || !newiop->size() )
     {

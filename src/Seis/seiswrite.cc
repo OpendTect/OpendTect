@@ -9,18 +9,22 @@
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
+#include "seis2dline.h"
 #include "executor.h"
 #include "iostrm.h"
 #include "separstr.h"
 #include "binidselimpl.h"
 #include "iopar.h"
 
-SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
+SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const Seis2DLineKeyProvider* l)
 	: SeisStoreAccess(ioob)
 	, binids(*new BinIDRange)
     	, nrtrcs(0)
     	, nrwritten(0)
     	, prepared(false)
+    	, lkp(l)
+    	, putter(0)
+    	, lineiopar(0)
 {
     binids.start.inl = mUndefIntVal;
 }
@@ -28,7 +32,20 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob )
 
 SeisTrcWriter::~SeisTrcWriter()
 {
+    close();
     delete &binids;
+}
+
+
+void SeisTrcWriter::close()
+{
+    delete putter; putter= 0;
+    if ( lineiopar )
+    {
+	lgrp->commitAdd( lineiopar );
+	lineiopar = 0;
+    }
+    SeisStoreAccess::close();
 }
 
 
@@ -39,14 +56,24 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg = "Info for output seismic data not found in Object Manager";
 	return false;
     }
-    if ( !(is2d && !lgrp) || (!is2d && !trl) )
+    if ( (is2d && !lgrp) || (!is2d && !trl) )
     {
 	errmsg = "No data storer available for '";
 	errmsg += ioobj->name(); errmsg += "'";
 	return false;
     }
+    if ( is2d && !lkp )
+    {
+	errmsg = "Internal: 2D seismic can only be stored if line key known";
+	return false;
+    }
 
-    if ( !is2d )
+    if ( is2d )
+    {
+	if ( !next2DLine() )
+	    return false;
+    }
+    else
     {
 	mDynamicCastGet(const IOStream*,strm,ioobj)
 	if ( !strm || !strm->isMulti() )
@@ -78,18 +105,8 @@ Conn* SeisTrcWriter::crConn( int inl, bool first )
 }
 
 
-bool SeisTrcWriter::startWrite( Conn* conn, const SeisTrc& trc )
+bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 {
-    if ( is2d )
-    {
-	if ( !conn->ioobj )
-	{
-	    errmsg = "Cannot write to ";
-	    errmsg += ioobj->fullUserExpr(false);
-	    delete conn;
-	    return false;
-	}
-    }
     trl->cleanUp();
     if ( !conn || conn->bad() )
     {
@@ -125,12 +142,64 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     if ( neednewconn )
     {
 	Conn* conn = crConn( trc.info().binid.inl, first );
-	if ( !conn || !startWrite(conn,trc) )
+	if ( !conn || !start3DWrite(conn,trc) )
 	    return false;
     }
 
     return true;
 }
+
+
+bool SeisTrcWriter::next2DLine()
+{
+    prevlk = lkp->lineKey();
+    BufferString lk = prevlk;
+    if ( attrib != "" )
+    {
+	BufferString lnm = Seis2DLineGroup::lineNamefromKey( lk );
+	if ( lnm == "" )
+	{
+	    errmsg = "Cannot write to empty line name";
+	    return false;
+	}
+	lk = Seis2DLineGroup::lineKey( lnm, attrib );
+    }
+
+    delete putter;
+    if ( lineiopar )
+	lgrp->commitAdd( lineiopar );
+
+    lineiopar = new IOPar;
+    Seis2DLineGroup::setLineKey( *lineiopar, lk );
+    putter = lgrp->lineAdder( lineiopar );
+    if ( !putter )
+    {
+	errmsg = "Cannot create 2D line writer";
+	return false;
+    }
+
+    return true;
+}
+
+
+bool SeisTrcWriter::put2D( const SeisTrc& trc )
+{
+    if ( !putter ) return false;
+
+    BufferString lk = lkp->lineKey();
+    if ( lk != prevlk )
+    {
+	if ( !next2DLine() )
+	    return false;
+	prevlk = lk;
+    }
+
+    bool res = putter->put( trc );
+    if ( !res )
+	errmsg = putter->errMsg();
+    return res;
+}
+
 
 
 bool SeisTrcWriter::put( const SeisTrc& trc )
@@ -155,13 +224,21 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	    return true;
     }
 
-    if ( !ensureRightConn(trc,false) )
-	return false;
-    else if ( !trl->write(trc) )
+    if ( is2d )
     {
-	errmsg = trl->errMsg();
-	trl->close(); delete trl; trl = 0;
-	return false;
+	if ( !put2D(trc) )
+	    return false;
+    }
+    else
+    {
+	if ( !ensureRightConn(trc,false) )
+	    return false;
+	else if ( !trl->write(trc) )
+	{
+	    errmsg = trl->errMsg();
+	    trl->close(); delete trl; trl = 0;
+	    return false;
+	}
     }
 
     nrwritten++;

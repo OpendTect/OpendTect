@@ -7,15 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.13 2004-09-03 09:12:04 bert Exp $
+ RCS:		$Id: seisread.h,v 1.14 2004-09-03 15:13:14 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seisstor.h"
+#include "seis2dline.h"
 class Executor;
 class BinIDRange;
 class SeisTrcBuf;
+class Seis2DLineKeyProvider;
 
 
 /*!\brief reads from a seismic data store.
@@ -60,8 +62,8 @@ public:
 
     bool		isPrepared() const		{ return prepared; }
     int			curLineNumber() const		{ return curlinenr; }
-    BufferString	curLineKey() const;
-    							//!< 2D only
+    BufferString	lineKey() const;		//!< 2D only
+    Seis2DLineKeyProvider* lineKeyProvider() const;
 
 protected:
 

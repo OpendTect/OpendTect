@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.11 2004-09-02 15:52:47 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.12 2004-09-03 15:13:14 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -247,7 +247,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 }
 
 
-class SeisCBVS2DLinePutter : public Seis2DLineGroup::Putter
+class SeisCBVS2DLinePutter : public Seis2DLinePutter
 {
 public:
 
@@ -316,7 +316,7 @@ bool put( const SeisTrc& trc )
 #undef mErrRet
 #define mErrRet(s) { pErrMsg( s ); return 0; }
 
-Seis2DLineGroup::Putter* SeisCBVS2DLineIOProvider::getReplacer(
+Seis2DLinePutter* SeisCBVS2DLineIOProvider::getReplacer(
 				const IOPar& iop )
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
@@ -329,7 +329,7 @@ Seis2DLineGroup::Putter* SeisCBVS2DLineIOProvider::getReplacer(
 }
 
 
-Seis2DLineGroup::Putter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
+Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 						   const IOPar* previop )
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
