@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.7 2004-05-04 15:51:29 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.8 2004-05-06 22:03:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,8 @@ public:
 			{ return getModel().name(); }
     virtual IOPar&	modelPars() const
 			{ return const_cast<NLAModel&>(getModel()).pars(); }
+    bool		willDoExtraction() const;
+    const BufferStringSet& modelInputs() const;
 
     static const int	evPrepareWrite;
     			//!< need to fill modelPars()
@@ -79,8 +81,8 @@ public:
     virtual bool	fillPar(IOPar&) const			= 0;
     virtual void	usePar(const IOPar&)			= 0;
 
-    void		getBinIDValues(const NLACreationDesc&,
-	    			       ObjectSet< TypeSet<BinIDValue> >&) const;
+    void		getBinIDValues(ObjectSet< TypeSet<BinIDValue> >&) const;
+    const char*		transferData(const ObjectSet<FeatureSet>&,FeatureSet&);
 
 protected:
 

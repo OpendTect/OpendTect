@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.25 2004-05-06 18:56:44 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.26 2004-05-06 22:03:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "featset.h"
 #include "helpview.h"
-#include "nlacrdesc.h"
 #include "filegen.h"
 #include "ptrman.h"
 
@@ -770,26 +769,26 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Put data in the training and test feature sets
 
 	if ( !attrserv->curDescSet() ) { pErrMsg("Huh"); return true; }
-	const NLACreationDesc& crdesc = nlaserv->creationDesc();
 	ObjectSet< TypeSet<BinIDValue> > bivsets;
-	if ( crdesc.doextraction )
+	if ( nlaserv->willDoExtraction() )
 	{
-	    nlaserv->getBinIDValues( crdesc, bivsets );
+	    nlaserv->getBinIDValues( bivsets );
 	    if ( !bivsets.size() )
 		{ uiMSG().error("No valid data locations found"); return true; }
 	}
 	ObjectSet<FeatureSet> fss;
-	bool bres = !attrserv->extractFeatures(crdesc,bivsets,fss);
+	bool extrres = attrserv->extractFeatures( nlaserv->creationDesc(),
+						  bivsets, fss );
 	deepErase( bivsets );
-	if ( !bres )
-	    return true;
-
-	FeatureSet& fstr = nlaserv->fsTrain();
-	FeatureSet fswrite; attrserv->curDescSet()->fillPar( fswrite.pars() );
-	const char* res = crdesc.transferData( fss, fstr, nlaserv->fsTest(),
-					     &fswrite );
-	if ( res && *res )
-	    uiMSG().warning( res );
+	if ( extrres )
+	{
+	    FeatureSet fswrite;
+	    attrserv->curDescSet()->fillPar( fswrite.pars() );
+	    const char* res = nlaserv->transferData( fss, fswrite );
+	    if ( res && *res )
+		uiMSG().warning( res );
+	}
+	deepErase(fss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass )
     {
@@ -825,14 +824,11 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     }
     else if ( evid == uiNLAPartServer::evCreateAttrSet )
     {
-	const NLADesign& design = nlaserv->getModel().design();
-	AttribDescSet* attrset = new AttribDescSet;
-	if ( !attrserv->createAttributeSet( design.inputs, attrset ) )
+	AttribDescSet attrset;
+	if ( !attrserv->createAttributeSet(nlaserv->modelInputs(),&attrset) )
 	    return false;
-
-	attrset->fillPar( nlaserv->modelPars() );
+	attrset.fillPar( nlaserv->modelPars() );
 	attrserv->replaceSet( nlaserv->modelPars() );
-	delete attrset;
     }
     else
 

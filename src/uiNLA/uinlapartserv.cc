@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.5 2004-05-05 20:54:28 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.6 2004-05-06 22:03:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,9 +44,23 @@ uiNLAPartServer::~uiNLAPartServer()
 }
 
 
-void uiNLAPartServer::getBinIDValues( const NLACreationDesc& crdesc,
+bool uiNLAPartServer::willDoExtraction() const
+{
+    return creationDesc().doextraction;
+}
+
+
+const BufferStringSet& uiNLAPartServer::modelInputs() const
+{
+    return getModel().design().inputs;
+}
+
+
+void uiNLAPartServer::getBinIDValues(
 			  ObjectSet< TypeSet<BinIDValue> >& bivsets ) const
 {
+    const NLACreationDesc& crdesc = creationDesc();
+
     if ( !crdesc.isdirect )
 	PickSetGroupTranslator::createBinIDValues( crdesc.outids, bivsets );
     else
@@ -58,4 +72,12 @@ void uiNLAPartServer::getBinIDValues( const NLACreationDesc& crdesc,
 	uiExecutor uiex( appserv().parent(), *ex );
 	uiex.go();
     }
+}
+
+
+const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
+					   FeatureSet& fswrite )
+{
+    //TODO not OK for direct prediction
+    return creationDesc().transferData( fss, fsTrain(), fsTest(), &fswrite );
 }
