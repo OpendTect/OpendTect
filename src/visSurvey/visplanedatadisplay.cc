@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.13 2002-05-07 12:10:17 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.14 2002-05-08 09:13:27 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -275,6 +275,8 @@ void visSurvey::PlaneDataDisplay::fillPar( IOPar& par,
     par.set( trectstr, trectid );
 
     if ( saveids.indexOf( trectid )==-1 ) saveids += trectid;
+
+    as.fillPar(par);
 }
 
 
@@ -301,6 +303,8 @@ int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
     trect->getRectangle().setSnapping( true );
     trect->useTexture( false );
 
+    if ( !as.usePar( par )) return -1;
+
     return 1;
 }
     
@@ -324,6 +328,9 @@ visSurvey::PlaneDataDisplay::~PlaneDataDisplay()
     trect->deSelection()->remove( mCB(this,PlaneDataDisplay,deSelect));
 
     trect->unRef();
+
+    delete &cs;
+    delete &as;
 }
 
 
