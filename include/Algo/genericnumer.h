@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.1 1999-11-16 16:05:41 kristofer Exp $
+ RCS:           $Id: genericnumer.h,v 1.2 1999-11-17 15:48:09 bert Exp $
 ________________________________________________________________________
 
 
@@ -66,5 +66,32 @@ inline float similarity( const A& a, const B& b, int sz, int firstpos=0)
     if ( sq1 + sq2 < 1e-10 ) return 0;
     return 1 - (sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2)));
 }
+
+class MathXFunction;
+
+float similarity( const MathXFunction& a, const MathXFunction& b, 
+			 float x1, float x2, float dist, int sz );
+
+/* 
+findValue - uses parabolic search for the position where a function gets
+a specific value. The target value must be in the interval f(x1) and f(x2).
+There is no use to have a tolerance lower than the square root of the system's
+float-precision.
+
+findValueInAperture is similar to findValue, with the difference that
+findValueInAperture searches the solution that is closest to the startx. If no
+solution is found, startx is returned. The parameter dx specifies how big
+intervals should be used when searching for a solution. When a solution is
+found in an interval, a high precision search is started in that interval.
+*/
+
+class MathXFunction;
+
+bool findValue( const MathXFunction& func, float x1, float x2, float& res,
+		float targetval = 0, float tol = 1e-5);
+
+float findValueInAperture( const MathXFunction& func, float startx, 
+	 	float aperture, float dx, float target=0, float tol = 1e-5);
+
 
 #endif
