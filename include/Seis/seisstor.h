@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.3 2000-03-02 15:25:33 bert Exp $
+ RCS:		$Id: seisstor.h,v 1.4 2000-11-09 15:52:28 bert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -59,7 +59,7 @@ protected:
     IOObj*		ioobj;
     Conn*		conn;
     SeisTrcTranslator*	trl;
-    const char*		errmsg;
+    BufferString	errmsg;
 
     const StorageLayout& storageLayout() const;
 
