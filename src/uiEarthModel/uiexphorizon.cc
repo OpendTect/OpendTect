@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.6 2002-10-03 13:32:23 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.7 2002-10-17 13:16:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uibinidsubsel.h"
 #include "uilistbox.h"
 #include "survinfo.h"
-#include "geompos.h"
 #include "surfaceinfo.h"
 #include "ctxtioobj.h"
 #include <stdio.h>
