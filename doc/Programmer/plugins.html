@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.26 2004-11-22 09:06:08 dgb Exp $
+  - RCS:	$Id: plugins.html,v 1.27 2005-01-11 13:01:16 arend Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V2.0]</title>
@@ -21,46 +21,84 @@
 
 <a name=intro><h2>Intro</h2>
 <h3>Background</h3>
-<p>
-Making your own software within OpendTect is in principle pretty easy. You <i>could</i> change the software by modifying existing classes and functions, and adding your own stuff to the libs. The advantage is total control. The problem with this approach, however, is that you have to keep the OpendTect sources in sync with new releases. Furthermore, if you cannot convince the opendtect.org people to also make those changes, OpendTect users may not be happy with your work.
-</p><p>
-An easy way to overcome this is to make your own plugins. Plugins make use of all the facilities of OpendTect but are loaded at run-time and can therefore be developed in a completely independent way. If you then find things that can't be done without modifying the OpendTect environment, it should be much easier to convince the opendtect.org people to take over or even implement those things themselves.
-</p><p>
-One thing you <i>cannot</i> do, is use another compiler than <b>gcc/g++</b>. OpendTect is built with it, if you want to use another compiler (why?) you'll have to make all libs and supporting libs (Qt, COIN, fftw) yourself. The make itself should be pretty easy to get started, but there will probably be some porting to do, too.
-</p>
+
+<p> Making your own software within OpendTect is in principle pretty
+easy. You <i>could</i> change the software by modifying existing
+classes and functions, and adding your own stuff to the libs. The
+advantage is total control. The problem with this approach, however,
+is that you have to keep the OpendTect sources in sync with new
+releases. Furthermore, if you cannot convince the opendtect.org people
+to also make those changes, OpendTect users may not be happy with your
+work. </p>
+
+<p> An easy way to overcome this is to make your own plugins. Plugins
+make use of all the facilities of OpendTect but are loaded at run-time
+and can therefore be developed in a completely independent way. If you
+then find things that can't be done without modifying the OpendTect
+environment, it should be much easier to convince the opendtect.org
+people to take over or even implement those things themselves. </p>
+
+<p> One thing you <i>cannot</i> do, is use another compiler than
+<b>gcc/g++</b>. OpendTect is built with it, if you want to use another
+compiler (why?) you'll have to make all libs and supporting libs (Qt,
+COIN, fftw) yourself. The make itself should be pretty easy to get
+started, but there will probably be some porting to do, too. </p>
 
 <br><br>
 <a name=concept><h2>The concept</h2>
 <h3>Dynamic loading</h3>
-<p>
-All modern Operating systems nowadays have ways to dynamically load libraries into a running program. The basic idea is:
+
+<p> All modern Operating systems nowadays have ways to dynamically
+load libraries into a running program. The basic idea is:</p>
+
 <ul>
 <li>Open the library
 <li>Query the contents for a certain routine using a string key
 <li>Call the routine returned
 <li>The routine then does the things needed to make itself useful.
 </ul>
-</p><p>
-As an example, a 'hello world' program could conceptually look like this:
-<pre><code>dynlib = OpenDynamicLib( "libc.so" );
+
+
+<p> As an example, a 'hello world' program could conceptually look
+like this:
+
+<pre><code>
+
+dynlib = OpenDynamicLib( "libc.so" );
 PrintfTypeFunction fn = (PrintfTypeFunction)GetDynLibFn( dynlib, "printf" );
 fn( "Hello world\n" );
+
 </code></pre>
-</p><p>
-In this very simple case calling the function has no other effect than printing a string. In OpendTect, you'd want to add an attribute, create a menu item in the Opendtect menu, etc. etc.
 </p>
 
+<p> In this very simple case calling the function has no other effect
+than printing a string. In OpendTect, you'd want to add an attribute,
+create a menu item in the Opendtect menu, etc. etc. </p>
+
 <h3>OpendTect plugins</h3>
-<p>
-In OpendTect, all of the dynamic lib querying etc. is already programmed. A plugin just needs to contain a few standard functions that will be called automatically when the dynamic library is loaded. There are three functions, of which only one is really required. Let's say the name of the plugin is MyMod, these functions will be:
+
+<p> In OpendTect, all of the dynamic lib querying etc. is already
+programmed. A plugin just needs to contain a few standard functions
+that will be called automatically when the dynamic library is loaded.
+There are three functions, of which only one is really required. Let's
+say the name of the plugin is MyMod, these functions will be: </p>
+
 <pre><code>GetMyModPluginType
 GetMyModPluginInfo
 InitMyModPlugin
 </code></pre>
-</p><p>
-Only the last one is required. The first one, <code>Get...PluginType</code> determines whether the plugin can be used for the <a href=#autoload>auto-load</a>, and if so, when. 'When' means: before or after the program has created the OpendTect GUI objects (and always after the static objects are initialised). The second function simply provides info for the users of your plugin.
-</p><p>
-Note that these functions must be declared 'extern "C"', as you can see in the first example plugin "Hello":
+
+<p> Only the last one is required. The first one,
+<code>Get...PluginType</code> determines whether the plugin can be
+used for the <a href=#autoload>auto-load</a>, and if so, when. 'When'
+means: before or after the program has created the OpendTect GUI
+objects (and always after the static objects are initialised). The
+second function simply provides info for the users of your plugin.
+</p>
+
+<p> Note that these functions must be declared 'extern "C"', as you
+can see in the first example plugin "Hello": </p>
+
 <pre><code>#include &lt;iostream&gt;
 extern "C" const char* InitHelloPlugin( int, char** )
 {
@@ -68,18 +106,33 @@ extern "C" const char* InitHelloPlugin( int, char** )
     return 0; // All OK - no error messages
 }
 </code></pre>
-</p><p>
-You'll find this example plugin in the plugins directory of your work environment. Those 6 lines are enough to constitute a plugin for OpendTect. The Makefile to build the plugin looks like this:
-</p><p>
+
+<p> You'll find this example plugin in the plugins directory of your
+work environment. Those 6 lines are enough to constitute a plugin for
+OpendTect. The Makefile to build the plugin looks like this: </p>
+
+<p>
 <pre><code>SRC.cc := hellopi.cc
 PLUGIN := yes
 include make.od.Defaults
 include make.Targets
 </code></pre>
-</p><p>
-First try <code>make -n</code> (make sure you have <a href="pmake.html">Pmake</a> initialised!). Notice that Pmake makes an awful lot of commands with a small specification. Anyway, after typing <code>make</code> the plugin should be generated. The new plugin can be loaded from within OpendTect (Menu Utilities-Plugins; press the 'Load new' button). At that point in time, the message 'Hello world' should appear on stdout (on Windows, stdout messages appear on the OpendTect console window).
-</p><p>
-To make this a UI - based program we'll need to use functionality from the <code>uiBase</code> module. In this case, we use the <code>uiMSG()</code> utility:
+</p>
+
+<p> First try <code>make -n</code> (make sure you have <a
+href="pmake.html">Pmake</a> initialised!). Notice that Pmake makes an
+awful lot of commands with a small specification. Anyway, after typing
+<code>make</code> the plugin should be generated. The new plugin can
+be loaded from within OpendTect (Menu Utilities-Plugins; press the
+'Load new' button). At that point in time, the message 'Hello world'
+should appear on stdout (on Windows, stdout messages appear on the
+OpendTect console window). </p>
+
+<p> To make this a UI - based program we'll need to use functionality
+from the <code>uiBase</code> module. In this case, we use the
+<code>uiMSG()</code> utility: </p>
+
+
 <pre><code>#include "uimsg.h"
 extern "C" const char* InituiHelloPlugin( int*, char** )
 {
@@ -87,14 +140,19 @@ extern "C" const char* InituiHelloPlugin( int*, char** )
     return 0; // All OK - no error messages
 }
 </code></pre>
-</p><p>
-Again 6 lines, but now, when you load it, you'll get a popup message with an OK button.
-</p>
-In this case we actually use stuff from OpendTect libraries, so the Makefile needs to change. We need to add the line:
-<pre><code>MODDEP := uiBase
-</code></pre>
-Notice that this is added <i>before</i> the inclusions: It's a directive to establish all kinds of variables in the make includes. By typing <code>make -n</code> again you'll see that Pmake added some directives for the compiler.
-</p>
+
+<p> Again 6 lines, but now, when you load it, you'll get a popup
+message with an OK button. </p>
+
+<p>In this case we actually use stuff from OpendTect libraries, so the
+Makefile needs to change. We need to add the line:
+
+<pre><code>MODDEP := uiBase </code></pre>
+
+Notice that this is added <i>before</i> the
+inclusions: It's a directive to establish all kinds of variables in
+the make includes. By typing <code>make -n</code> again you'll see
+that Pmake added some directives for the compiler. </p>
 
 <br>
 <a name=real><h2>Realistic examples</h2>
@@ -102,10 +160,19 @@ Notice that this is added <i>before</i> the inclusions: It's a directive to esta
 <a name=mnudlg><h3>Menu and Dialog</h3>
 
 <h4>Intro</h4>
-<p>
-Adding menu items popping up your own dialogs is pretty easy once you get the hang of it. The uiArkCls plugin is a good example: it shows how to get hold of the parent menus, and what to do to get the CallBacks. You don't need to download the doc.arkcls however because the uiHello plugin code contains some example code to make things clear. Although we fear that you might be scared by this code when you first see it, we hope that after the explanations below you will see some beauty in it and start to like it.
-</p><p>
-Look in uihellopi.cc - the PLAN_B part. First of all, we nicely define the other standard plugin functions:
+
+<p> Adding menu items popping up your own dialogs is pretty easy once
+you get the hang of it. The uiArkCls plugin is a good example: it
+shows how to get hold of the parent menus, and what to do to get the
+CallBacks. You don't need to download the doc.arkcls however because
+the uiHello plugin code contains some example code to make things
+clear. Although we fear that you might be scared by this code when you
+first see it, we hope that after the explanations below you will see
+some beauty in it and start to like it. </p>
+
+<p> Look in uihellopi.cc - the PLAN_B part. First of all, we nicely
+define the other standard plugin functions:
+
 <pre><code>extern "C" int GetuiHelloPluginType()
 {
     return PI_AUTO_INIT_LATE;
@@ -122,110 +189,197 @@ extern "C" PluginInfo* GetuiHelloPluginInfo()
     return &retpi;
 }
 </pre></code>
-The plugin will now <a href=#autoload>auto-load</a> when put in the correct plugins directory.
-</p><p>
-The idea is to add a menu item 'Display Hello Message ...' to the 'Utilities' menu of OpendTect. The Makefile and the example code are already prepared for this, you only need to define 'PLAN_B', for example on the command line:
+
+The plugin will now <a href=#autoload>auto-load</a> when put in the
+correct plugins directory. </p>
+
+<p> The idea is to add a menu item 'Display Hello Message ...' to the
+'Utilities' menu of OpendTect. The Makefile and the example code are
+already prepared for this, you only need to define 'PLAN_B', for
+example on the command line:
+
 <code><pre>make PLAN_B=yes</code></pre>
-Apart from adding a flag so we can check for PLAN_B in the code, the <code>MODDEP := uiODMain</code> tells Pmake that the <code>uiODMain</code> headers, and the headers <code>uiODMain</code> depends on will be used. That is much more than the original <code>uiBase</code> dependencies. uiODMain is the top level of OpendTect.
-</p><p>
-If <code>"make PLAN_B=yes"</code> does not compile anything (because a uiHello.so already exists), you can try "<code>make uihellopi.rmlib</code>" first.
-</p><p>
+
+ Apart from adding a flag so we can check for PLAN_B in the code, the
+<code>MODDEP := uiODMain</code> tells Pmake that the
+<code>uiODMain</code> headers, and the headers <code>uiODMain</code>
+depends on will be used. That is much more than the original
+<code>uiBase</code> dependencies. uiODMain is the top level of
+OpendTect.
+
+</p>
+
+<p> If <code>"make PLAN_B=yes"</code> does not compile anything
+(because a uiHello.so already exists), you can try "<code>make
+uihellopi.rmlib</code>" first. </p>
+
 <h4>Problems</h4>
+
 The two problems we are faced with are:
+
 <ol>
 <li>How to add a new menu item
 <li>How to create a dialog
 </ol>
-The real problem behind the first is not so much how to make the item itself, but how to get hold of the parent menu it must be inserted into. This is a threshold that needs to be conquered for every new system: you'll need an entry point, a seed to get you going. In OpendTect, the entry point is the global instance of the uiODMain class that can be accessed through the <code>uiODMain* ODMainWin()</code> global function. Once you have that, you can reach any object you need. 
-</p><p>
-To see where things start, go to the PLAN_B InituiHelloPlugin function at the bottom of uihellopi.cc to find:
-</p><p>
+
+<p> The real problem behind the first is not so much how to make the
+item itself, but how to get hold of the parent menu it must be
+inserted into. This is a threshold that needs to be conquered for
+every new system: you'll need an entry point, a seed to get you going.
+In OpendTect, the entry point is the global instance of the uiODMain
+class that can be accessed through the <code>uiODMain*
+ODMainWin()</code> global function. Once you have that, you can reach
+any object you need.</p>
+
+<p> To see where things start, go to the PLAN_B InituiHelloPlugin
+function at the bottom of uihellopi.cc to find: </p>
+
 <pre><code>extern "C" const char* InituiHelloPlugin( int, char** )
 {
     (void)new uiHelloMgr( ODMainWin() );
     return 0; // All OK - no error messages
 }
 </pre></code>
-As you can see, the ODMainWin() instance is passed to a new instance of <code>uiHelloMgr</code> which is programmed in the lines above it. This Manager object is needed as you will find that any non-trivial GUI plugin will need some kind of top-level 'application management' object to drive it.
-</p><p>
-</p>
+
+<p> As you can see, the ODMainWin() instance is passed to a new
+instance of <code>uiHelloMgr</code> which is programmed in the lines
+above it. This Manager object is needed as you will find that any
+non-trivial GUI plugin will need some kind of top-level 'application
+management' object to drive it. </p>
+
 <h4>The <code>uiHelloMgr</code></h4>
-<p>
-An important part of any GUI system is callback handling. In OpendTect, callbacks are basic objects used throughout the system, not only in the User Interface. In any case, because callbacks can only be sent to objects that are <code>CallBacker</code>s, we have made <code>uiHelloMgr</code> a descendent of <code>CallBacker</code>, so it can receive the callback from the menu.
-When the uiHelloMgr is constructed, it will add a menu item to the OpendTect menu:
-</p><p>
+
+<p> An important part of any GUI system is callback handling. In
+OpendTect, callbacks are basic objects used throughout the system, not
+only in the User Interface. In any case, because callbacks can only be
+sent to objects that are <code>CallBacker</code>s, we have made
+<code>uiHelloMgr</code> a descendent of <code>CallBacker</code>, so it
+can receive the callback from the menu. When the uiHelloMgr is
+constructed, it will add a menu item to the OpendTect menu: </p>
+
 <code><pre>
     uiMenuItem* newitem = new uiMenuItem( "&amp;Diplay Hello Message ...",
                                           mCB(this,uiHelloMgr,dispMsg) );
     appl.menuMgr().utilMnu()->insertItem( newitem );
 </code></pre>
-</p><p>
-The new menu item is defined by the display text (the '&amp;' makes the 'D' the shortcut key) and the CallBack that needs to be called when the item is activated (by the user). Note the <code>mCB</code> which is a macro that makes the rather difficult C++ notation easy to understand. See callback.h in the <code>Basic</code> include directory if you're really interested.
-</p><p>
-The next line inserts the item into the 'Utilities' menu. You'll find a bunch of methods in the <code>uiODMenuMgr</code> class to access all menus and toolbars.
-</p>
+
+<p> The new menu item is defined by the display text (the '&amp;'
+makes the 'D' the shortcut key) and the CallBack that needs to be
+called when the item is activated (by the user). Note the
+<code>mCB</code> which is a macro that makes the rather difficult C++
+notation easy to understand. See callback.h in the <code>Basic</code>
+include directory if you're really interested. </p>
+
+<p> The next line inserts the item into the 'Utilities' menu. You'll
+find a bunch of methods in the <code>uiODMenuMgr</code> class to
+access all menus and toolbars. </p>
+
 <h4>The <code>uiHelloMsgBringer</code></h4>
-<p>
-All dialog windows in OpendTect are objects of type <code>uiDialog</code> (in a few cases like the OpendTect main window itself they descend from <code>uiMainWin</code>). The <code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code> which means it has (by default) Ok and Cancel buttons, a window title, and so forth. The class contains a field for user input of the string to display as message. To make the example a bit lively, we added a field whether the message should be, eh, just a message, or a warning. You can see the <code>uiGenInput</code> class will serve both input fields nicely, you just need to define another <code>InpSpec</code> instance:
+
+<p> All dialog windows in OpendTect are objects of type
+<code>uiDialog</code> (in a few cases like the OpendTect main window
+itself they descend from <code>uiMainWin</code>). The
+<code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code>
+which means it has (by default) Ok and Cancel buttons, a window title,
+and so forth. The class contains a field for user input of the string
+to display as message. To make the example a bit lively, we added a
+field whether the message should be, eh, just a message, or a warning.
+You can see the <code>uiGenInput</code> class will serve both input
+fields nicely, you just need to define another <code>InpSpec</code>
+instance: </p>
+
 <code><pre>txtfld = new uiGenInput( this, "Hello message",
                          StringInpSpec("Hello world") );
 typfld = new uiGenInput( this, "Message type",
                          BoolInpSpec("Info","Warning") );
 typfld->attach( alignedBelow, txtfld );
 </code></pre>
-</p><p>
-Note that "Hello world" is the inital string displayed in <code>txtfld</code>. Another feature of the OpendTect UI is the automatic layout: we program the positions of the various fields by attaching them in certain ways - most commonly <code>alignedBelow</code>.
-</p><p>
-The actual message is displayed when the user presses Ok on the dialog that pops up. When nothing is filled in, we give the user the finger with the "Please type a text" message, and we do not accept the Ok, i.e. the dialog remains on the screen and the user can either be a good girl (or boy) and fill in something or press cancel.
+
+<p> Note that "Hello world" is the inital string displayed in
+<code>txtfld</code>. Another feature of the OpendTect UI is the
+automatic layout: we program the positions of the various fields by
+attaching them in certain ways - most commonly
+<code>alignedBelow</code>. </p>
+
+<p> The actual message is displayed when the user presses Ok on the
+dialog that pops up. When nothing is filled in, we give the user the
+finger with the "Please type a text" message, and we do not accept the
+Ok, i.e. the dialog remains on the screen and the user can either be a
+good girl (or boy) and fill in something or press cancel.</p>
+
 <code><pre>if ( ! *typedtxt )
 {
     uiMSG().error( "Please type a message text" );
     return false;
 }
 </code></pre>
-</p><p>
-When a message is present, we do as we're told:
-</p><p>
+
+<p> When a message is present, we do as we're told: </p>
+
+
 <code><pre>if ( typfld->getBoolValue() )
     uiMSG().message( typedtxt );
 else
     uiMSG().warning( typedtxt );
 return true;
 </code></pre>
-</p><p>
-and the dialog disappears immediately after the message appears on the screen.
 
-</p>
+
+<p> and the dialog disappears immediately after the message appears on
+the screen. </p>
 
 <br>
 <br>
 <a name=coh><h3>Attributes: Coherency</h3>
 
 <a name=cohintro><h4>Intro</h4>
-<p>
-Anyone vaguely familiar with interpretation by now knows about Coherency and Coherency cubes. We have always used the 'Similarity' attribute instead because of patent restrictions. Similarity is just as good for object detection en better suited in combination with the dip/steering concept. Coherency beats Similarity when used for single-attribute display.
-</p><p>
-The Coherency attributes were implemented some time ago by Kristofer for his research work, and it seemed a good idea to show how to make your own attribute plugins by looking at the <code>Coh</code> and <code>uiCoh</code> plugin code.
-</p>
+
+<p> Anyone vaguely familiar with interpretation by now knows about
+Coherency and Coherency cubes. We have always used the 'Similarity'
+attribute instead because of patent restrictions. Similarity is just
+as good for object detection en better suited in combination with the
+dip/steering concept. Coherency beats Similarity when used for
+single-attribute display. </p>
+
+<p> The Coherency attributes were implemented some time ago by
+Kristofer for his research work, and it seemed a good idea to show how
+to make your own attribute plugins by looking at the <code>Coh</code>
+and <code>uiCoh</code> plugin code. </p>
 
 <a name=cohrw><h4>The <code>Coh</code> plugin</h4>
-<p>
-The <code>Coh</code> plugin handles the 'Real Work' part. If we start with the plugin 'main' file, <code>uicohpi.cc</code>, we see that it's not that much more complex than the <code>hellopi.cc</code> from the <code>Hello</code> plugin. There are three includes:
-<code>#include "coh.h"</code> gets the Coherency attribute object classes;
-<code>#include "attribfact.h"</code> gets the attribute factory to which the Coherency attributes must be added;
-<code>#include "plugins.h"</code> is needed for the PluginInfo structure and the PI_AUTO_INIT_EARLY define:
+
+<p> The <code>Coh</code> plugin handles the 'Real Work' part. If we
+start with the plugin 'main' file, <code>uicohpi.cc</code>, we see
+that it's not that much more complex than the <code>hellopi.cc</code>
+from the <code>Hello</code> plugin. There are three includes:
+<code>#include "coh.h"</code> gets the Coherency attribute object
+classes; <code>#include "attribfact.h"</code> gets the attribute
+factory to which the Coherency attributes must be added;
+<code>#include "plugins.h"</code> is needed for the PluginInfo
+structure and the PI_AUTO_INIT_EARLY define: </p>
 
 <pre><code>extern "C" int GetCohPluginType()
 {
     return PI_AUTO_INIT_EARLY;
 }</code></pre>
-</p><p>
-The above is one of the three 'special' plugin functions that determine how OpendTect will deal with the plugin. The GetxxxxPluginType() function is used for determining whether and when to <a href=#autoload>auto-load</a> the plugin.
-</p><p>
-This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is default so in that case a GetxxxxPluginType() need not be defined) and LATE, which is typical for UI plugins that want to start working when all objects have already been created.
-</p><p>
-A few lines further we get:
-<pre><code>extern "C" PluginInfo* GetCohPluginInfo()
+
+<p> The above is one of the three 'special' plugin functions that
+determine how OpendTect will deal with the plugin. The
+GetxxxxPluginType() function is used for determining whether and when
+to <a href=#autoload>auto-load</a> the plugin. </p>
+
+<p> This particular plugin tells OpendTect's application manager that
+it wants to be loaded early - i.e. before any build of tables, data
+structures or user interfaces are made. That is typical of 'Real Work'
+plugins. The alternatives are NONE (which is default so in that case a
+GetxxxxPluginType() need not be defined) and LATE, which is typical
+for UI plugins that want to start working when all objects have
+already been created. </p>
+
+<p> A few lines further we get:</p>
+
+<pre><code>
+extern "C" PluginInfo* GetCohPluginInfo()
 {
     static PluginInfo retpii = {
         "Coherency",
@@ -234,23 +388,48 @@ A few lines further we get:
         "Coherency attribute plugin.\n\n"
         "Usage of Coherency may be subject to patent laws!" };
     return &retpii;
-}</code></pre>
-If you look at the definition of PluginInfo, this should be easy to grasp. It allows the plugin manager to make this info about the plugin available to the world.
-</p><p>
-The actual work is done, like in the Hello world plugin, in:
-<pre><code>extern "C" const char* InitCohPlugin( int, char** )
+}
+</code></pre>
+
+<p> If you look at the definition of PluginInfo, this should be easy
+to grasp. It allows the plugin manager to make this info about the
+plugin available to the world. </p>
+
+<p> The actual work is done, like in the Hello world plugin, in:</p>
+
+
+<pre><code>
+extern "C" const char* InitCohPlugin( int, char** )
 {
     AF().add( new CoherencyAttrib::Parameters, false );
     return 0; // All OK - no error messages
-}</code></pre>
-This function gets passed argc and argv from the main function. It should return null on success, and an error message if the initialisation failed. In this case, the Coherency attribute is added to AF() (the <a href="Generated/AttribEng/classAttribFactory.html">AttribFactory</a> singleton access function) using the macro defined in attribfact.h .
+}
+</code></pre>
+
+<p> This function gets passed argc and argv from the main function. It
+should return null on success, and an error message if the
+initialisation failed. In this case, the Coherency attribute is added
+to AF() (the <a
+href="Generated/AttribEng/classAttribFactory.html">AttribFactory</a>
+singleton access function) using the macro defined in attribfact.h .
 </p>
 
 <a name=cohrw><h4>Making attributes</h4>
-<p>
-Although cohpi.cc looks pretty simple, underneath the simple <code>AF().add</code> there is of course some real programming of the attribute. For that, we need to switch to coh.h . We see an attribute <code>CoherencyAttrib</code> inheriting the <a href="Generated/AttribEng/classAttribCalc.html">AttribCalc</a> class. Then immediately an enormous macro (in OpendTect macros can often be recognised by the leading 'm') <code>mAttrib5Param</code> which defines the parameters of the attribute. Compare this to what you see in Opendtect in the attribute definition window after loading the uiCoh plugin.
-</p><p>
-If you look at the parts of the definition carefully, you'll see that each parameter is built up with:
+
+<p> Although cohpi.cc looks pretty simple, underneath the simple
+<code>AF().add</code> there is of course some real programming of the
+attribute. For that, we need to switch to coh.h . We see an attribute
+<code>CoherencyAttrib</code> inheriting the <a
+href="Generated/AttribEng/classAttribCalc.html">AttribCalc</a> class.
+Then immediately an enormous macro (in OpendTect macros can often be
+recognised by the leading 'm') <code>mAttrib5Param</code> which
+defines the parameters of the attribute. Compare this to what you see
+in Opendtect in the attribute definition window after loading the
+uiCoh plugin. </p>
+
+<p> If you look at the parts of the definition carefully, you'll see
+that each parameter is built up with: </p>
+
 <ul>
 <li>xxxxAttribParameter - the type of the parameter
 <li>the name of the parameter
@@ -258,15 +437,47 @@ If you look at the parts of the definition carefully, you'll see that each param
 <li>The default value
 <li>The allowed values
 </ul>
-</p><p>
-Most of the rest of the methods are there to comply with the <code>AttribCalc</code> interface - see the <a href="Generated/AttribEng/classAttribCalc.html">AttribCalc documentation</a>. The basic idea is that for each sample of each trace one or more attribute values can be calculated. The number of attribute values (or outputs) is defined by the <code>nrAttribs()</code> function. The name of each out is set in <code>attribName(int)</code>. If your input requires additional samples (timegate) or neighbouring traces (stepout), you will have to define <code>reqInterval</code> and <code>reqStepout</code> respectively.
-</p><p>
-On the implementation side of all that, we have some overhead and the actual attribute calculation. If you feel that the overhead is enormous, bear in mind that the Attribute engine will let the attribute work on any part of any input cube or on the output of another attribute, and that things are cut in pieces when multiple processors are available. And there's more but the idea is that all that requires some extra work when making the attributes.
-</p><p>
-When we want to look at the actual work, the place to be is the <code>nextStep()</code> method of the <code>CoherencyAttrib::Task</code> class. This class inherits the <code>MultiThreadBasicTask</code> class - see <a href="Generated/Basic/classMultiThreadBasicTask.html">MultiThreadBasicTask documentation</a> for more information. The reason for this task setup is that there may be many tasks for each attribute calculation, and in this way they can be run simultaneously.
-</p><p>
-But before the work can be done, some input has to be given. The <code>CoherencyAttrib::Task::Input</code> class is designed for that. The <code>set</code> function is the keyfunction in this class, and is called for each trace to be calculated. It should select the necessary data from the input attributes, present in the set of <code>AttribProvider</code>s. For the Coherency this is the seismic data and the imaginairy data calculated by the <code>Hilbert</code> attribute. But it can also be Steering Data or any other attribute.</p>
-See example from <code>CoherencyAttrib</code>:
+
+<p> Most of the rest of the methods are there to comply with the
+<code>AttribCalc</code> interface - see the <a
+href="Generated/AttribEng/classAttribCalc.html">AttribCalc
+documentation</a>. The basic idea is that for each sample of each
+trace one or more attribute values can be calculated. The number of
+attribute values (or outputs) is defined by the
+<code>nrAttribs()</code> function. The name of each out is set in
+<code>attribName(int)</code>. If your input requires additional
+samples (timegate) or neighbouring traces (stepout), you will have to
+define <code>reqInterval</code> and <code>reqStepout</code>
+respectively. </p>
+
+<p> On the implementation side of all that, we have some overhead and
+the actual attribute calculation. If you feel that the overhead is
+enormous, bear in mind that the Attribute engine will let the
+attribute work on any part of any input cube or on the output of
+another attribute, and that things are cut in pieces when multiple
+processors are available. And there's more but the idea is that all
+that requires some extra work when making the attributes. </p>
+
+<p> When we want to look at the actual work, the place to be is the
+<code>nextStep()</code> method of the
+<code>CoherencyAttrib::Task</code> class. This class inherits the
+<code>MultiThreadBasicTask</code> class - see <a
+href="Generated/Basic/classMultiThreadBasicTask.html">MultiThreadBasicTask
+documentation</a> for more information. The reason for this task setup
+is that there may be many tasks for each attribute calculation, and in
+this way they can be run simultaneously. </p>
+
+<p> But before the work can be done, some input has to be given. The
+<code>CoherencyAttrib::Task::Input</code> class is designed for that.
+The <code>set</code> function is the keyfunction in this class, and is
+called for each trace to be calculated. It should select the necessary
+data from the input attributes, present in the set of
+<code>AttribProvider</code>s. For the Coherency this is the seismic
+data and the imaginairy data calculated by the <code>Hilbert</code>
+attribute. But it can also be Steering Data or any other
+attribute.</p> See example from <code>CoherencyAttrib</code>: </p>
+
+
 <pre><code>
 xxxxAttrib::Task::Input::set( const BinID& pos,
                      const ObjectSet<AttribProvider>& inputproviders,
@@ -298,9 +509,16 @@ xxxxAttrib::Task::Input::set( const BinID& pos,
 }
 </code></pre>
 
-<p>
-The <code>CoherencyAttrib::Task</code> class also has a <code>set</code> function. This function is used to transfer some specific information about the trace to be processed, like the starttime, the number of samples you wish to calculate, the timestep, a pointer to the input and a pointer to the output. The output is a set containing pointers to all ouputs defined in <code>CoherencyAttrib</code>.</p>
-Example:
+<p> The <code>CoherencyAttrib::Task</code> class also has a
+<code>set</code> function. This function is used to transfer some
+specific information about the trace to be processed, like the
+starttime, the number of samples you wish to calculate, the timestep,
+a pointer to the input and a pointer to the output. The output is a
+set containing pointers to all ouputs defined in
+<code>CoherencyAttrib</code>.</p> 
+
+<p> Example: </p>
+
 <pre><code>  
 xxxxAttrib::Task::set( float start, int nrsamples, float step_, 
      		       const AttribCalc::Task::Input* input_, 
@@ -316,143 +534,224 @@ xxxxAttrib::Task::set( float start, int nrsamples, float step_,
 }
 </code></pre>
 
-<p> 
-When your machine has multiple processors, the <code>getFastestSz()</code> function can be of importance. E.g. on a two processor machine, there will be two tasks, one for the lower part of the trace and one for the higher part of the trace. The more porcessors you have the smaller the number of samples per part will be. A minimum number of samples per part can be specified by <code>getFastestSz()</code>, the default value is 25 samples. 
-</p><p>
-Now it's time for the <code>nextStep()</code> function to do it's work. This is the place where you define the mathematics for calculating the attribute. This function is called for each trace of your output cube.
-</p>
+<p>  When your machine has multiple processors, the
+<code>getFastestSz()</code> function can be of importance. E.g. on a
+two processor machine, there will be two tasks, one for the lower part
+of the trace and one for the higher part of the trace. The more
+porcessors you have the smaller the number of samples per part will
+be. A minimum number of samples per part can be specified by
+<code>getFastestSz()</code>, the default value is 25 samples.</p>
+
+<p> Now it's time for the <code>nextStep()</code> function to do it's
+work. This is the place where you define the mathematics for
+calculating the attribute. This function is called for each trace of
+your output cube. </p>
 
 <a name=cohui><h4>The <code>uiCoh</code> plugin</h4>
-<p>
-There are special classes for the attribute parameters user interfaces. This is because they:
+
+<p> There are special classes for the attribute parameters user
+interfaces. This is because they: </p>
+
+
 <ul>
 <li>have a lot in common
 <li>have to be displayed in the Attribute Set Editor window
 <li>need to be able to do the right things at the right moment
 </ul>
-In uicoh.h you can see that <code>uiCoherencyAttrDescEd</code> inherits from <code>uiAttrDescEd</code> - the base class for all attribute parameter UI groups.
-<p></p>
-The <code>uiAttrDescEd</code> class delivers services to its children, but it also sets a couple of requirements:
+
+<p>In uicoh.h you can see that <code>uiCoherencyAttrDescEd</code>
+inherits from <code>uiAttrDescEd</code> - the base class for all
+attribute parameter UI groups.</p>
+
+<p> The <code>uiAttrDescEd</code> class delivers services to its
+children, but it also sets a couple of requirements:</p>
+
 <ul>
 <li>fillParsFromScreen (can be omitted but rarely)
 <li>fillDescFromScreen (required)
 <li>putStuffToScreen (required)
 </ul>
-These methods must be defined by subclasses. To implement these methods there are services like fillInp and putInp.
-<p></p>
-In the uicoh.cc file we see that although <code>uiAttrDescEd</code> is not a <code>uiDialog</code> like the the uiHello example, it still is a valid parent (being a <code>uiGroup</code>) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the <code>inpfld</code> is a special Attribute UI class which is handled just like any pre-defined uiBase or <code>uiTools</code> class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.
-<p></p>
-Further on the specific uiAttrdescEd methods, we take the example of <code>uiCoherencyAttrDescEd::putStuffToScreen</code>. Using the <code>mGetMyForm</code> macro, we get access to the <code>AttribParameterForm</code> that is currently being edited. In this case, the attribute set editor wants us to take the values from the form and put them on the screen. Thus, we have to check whether there is something in the first place (macro <code>mIfHaveValFor</code>), and if so, put the value into the corresponding UI element. For inputs to this attribute (input cubes or other attributes), there is a special 'putInp' method. A special feature is the attrparset - if something is added to this set, the set editor knows that attribute evaluations can be done with this parameter. In this case, the user can evaluate the effect of time gate differences by using the special button.
-<p></p>
-The <code>fillParsFromScreen</code> method's implementation follows similar patterns. Noteworthy is the use of the change tracker to update the pars - this allows the set editor to figure out whether the attribute set was changed (and subsequently warn the user when no save has beeen done). Note that for getting the data from the screen, there are two methods: <code>fillParsFromScreen</code> and <code>fillDescFromScreen</code>. Where <code>fillParsFromScreen</code> only retrieves the data for the <code>AttribParameterForm</code>, <code>fillDescFromScreen</code> fills the rest of the <code>AttribDesc</code>, which are the input and output selections.
-<p></p>
-The funny thing is that uicoh.cc stops without 'doing' anything. That's because the attribute set editor object is 'doing' everything. Some people will want to call this an example of the <i>Hollywood principle</i> - 'Don't call us - we'll call you'.
-<p></p>
-Anyway, lastly, the uicohpi.cc is dead simple. It's a LATE plugin because you'd want the rest of the UI already in place. The only interesting part is the part where the new <code>AttrDescEd</code> is added to the <code>uiAttribFactory</code>. Of course first a new helper class (<code>uiCoherencyAttrDescEdCreater</code>) must be created using the <code>mDeclAttrDescEd</code> macro.
+
+<p> These methods must be defined by subclasses. To implement these
+methods there are services like fillInp and putInp. </p>
+
+<p> In the uicoh.cc file we see that although
+<code>uiAttrDescEd</code> is not a <code>uiDialog</code> like the the
+uiHello example, it still is a valid parent (being a
+<code>uiGroup</code>) for the various UI elements. A nice feature of
+OpendTect is clear from the first line in the constructor: the
+<code>inpfld</code> is a special Attribute UI class which is handled
+just like any pre-defined uiBase or <code>uiTools</code> class. This
+illustrates that in the OpendTect GUI system, not only pre-made GUI
+elements are 'first class' - new objects with different shape and
+behavior attached will be usable transparently by any other GUI class.
 </p>
+
+<p> Further on the specific uiAttrdescEd methods, we take the example
+of <code>uiCoherencyAttrDescEd::putStuffToScreen</code>. Using the
+<code>mGetMyForm</code> macro, we get access to the
+<code>AttribParameterForm</code> that is currently being edited. In
+this case, the attribute set editor wants us to take the values from
+the form and put them on the screen. Thus, we have to check whether
+there is something in the first place (macro
+<code>mIfHaveValFor</code>), and if so, put the value into the
+corresponding UI element. For inputs to this attribute (input cubes or
+other attributes), there is a special 'putInp' method. A special
+feature is the attrparset - if something is added to this set, the set
+editor knows that attribute evaluations can be done with this
+parameter. In this case, the user can evaluate the effect of time gate
+differences by using the special button. </p>
+
+<p> The <code>fillParsFromScreen</code> method's implementation
+follows similar patterns. Noteworthy is the use of the change tracker
+to update the pars - this allows the set editor to figure out whether
+the attribute set was changed (and subsequently warn the user when no
+save has beeen done). Note that for getting the data from the screen,
+there are two methods: <code>fillParsFromScreen</code> and
+<code>fillDescFromScreen</code>. Where <code>fillParsFromScreen</code>
+only retrieves the data for the <code>AttribParameterForm</code>,
+<code>fillDescFromScreen</code> fills the rest of the
+<code>AttribDesc</code>, which are the input and output selections.
+</p>
+
+<p> The funny thing is that uicoh.cc stops without 'doing' anything.
+That's because the attribute set editor object is 'doing' everything.
+Some people will want to call this an example of the <i>Hollywood
+principle</i> - 'Don't call us - we'll call you'. </p>
+
+<p> Anyway, lastly, the uicohpi.cc is dead simple. It's a LATE plugin
+because you'd want the rest of the UI already in place. The only
+interesting part is the part where the new <code>AttrDescEd</code> is
+added to the <code>uiAttribFactory</code>. Of course first a new
+helper class (<code>uiCoherencyAttrDescEdCreater</code>) must be
+created using the <code>mDeclAttrDescEd</code> macro. </p>
 
 
 <br>
 <a name=autoload><h2>Installation and auto-loading</h2>
 
-<p>
-Once you have made your own plugin, you probably would like it to be loaded automatically whenever OpendTect is started. 
-OpendTect provides some facilities that do just that.
-</p>
+<p> Once you have made your own plugin, you probably would like it to
+be loaded automatically whenever OpendTect is started. OpendTect
+provides some facilities that do just that. </p>
 
 <h3>Preparing a plugin for auto-load</h3>
-If you want to prepare your plugin for auto-loading at startup, you basically just have to define when it should be loaded. This is done by implementing the GetxxxxPluginType() function, for example:
-</p><p>
 
-<pre><code>
+<p>If you want to prepare your plugin for auto-loading at startup, you
+basically just have to define when it should be loaded. This is done
+by implementing the GetxxxxPluginType() function, for example: </p>
+
+<p><pre><code>
 #include "plugins.h"
 
 extern "C" int GetCohPluginType()
 {
     return PI_AUTO_INIT_EARLY;
 }
-</code></pre>
+</code></pre></p>
 
-</p><p>
-<code>#include "plugins.h"</code> is needed for the PluginInfo structure and the PI_AUTO_INIT_xxx defines.
-</p><p>
+<p><code>#include "plugins.h"</code> is needed for the PluginInfo
+structure and the PI_AUTO_INIT_xxx defines. </p>
+
+<p>
 
 The GetxxxxPluginType() specifies when a plugin is loaded: 
-<li>PI_AUTO_INIT_EARLY : Plugin is loaded before construction of main window</li>
-<li>PI_AUTO_INIT_LATE : Plugin is loaded after construction of main window</li>
 
+<li>PI_AUTO_INIT_EARLY : Plugin is loaded before construction of main
+window</li>
+
+<li>PI_AUTO_INIT_LATE : Plugin is loaded after construction of main
+window</li>
+
+</p>
 
 <h3>Installing plugins for auto-load</h3>
 
-<p>
-The auto-load tool of OpendTect looks for plugins to load in two places:
-</p>
+<p> The auto-load tool of OpendTect looks for plugins to load in two
+places: </p>
 
-<li>The plugins/platform_dir of the installation directory (<code>$DTECT_APPL/plugins/$HDIR</code>)</li>
-<li>The '.od' directory in your 'Personal directory' <code>($HOME/.od/plugins/$HDIR</code> on Unix)</li>
+<li>The plugins/platform_dir of the installation directory
+(<code>$DTECT_APPL/plugins/$HDIR</code>)</li>
 
-<p>
-On Windows, your 'Personal directory' is located at $HOMEDRIVE/$HOMEPATH if this is defined and not "C:\".
-Otherwise, the location of the special windows folder "Application Data" is used. Also see the specific notes in the <a href="windows.html#installplugins">windows</a> documentation.
+<li>The '.od' directory in your 'Personal directory'
+<code>($HOME/.od/plugins/$HDIR</code> on Unix)</li>
+
+<p> On Windows, your 'Personal directory' is located at $HOME if this
+is defined. Otherwise, $USERPROFILE is used. Also see the specific
+notes in the <a href="windows.html#installplugins"> windows</a>
+documentation. </p>
 
 <h4>Sub-directories</h4>
-<p>
-Once you have located (and/or made) the directory where the plugins should be stored, you have 3 options of installing the plugins:
-</p>
+
+<p>Once you have located (and/or made) the directory where the
+plugins should be stored, you have 3 options of installing the
+plugins:</p>
+
 <li>Just install them in the $HDIR subdir.</li>
-<li>Make a subdir 'libs' to contain the plugins and use .alo files.</li>
-<li>Make a subdir '&lt;program name&gt;' for each program that uses the plugin and install the plugins there.</li>
-</p><p>
-The first option causes the plugins to be loaded in all programs that support OpendTect plugins, 
-while the last option requires managing multiple copies of the plugins under Windows, because Windows does not support symbolic linking. Therefore, the preferred method is to make use of .alo files.
-</p>
+
+<li>Make a subdir 'libs' to contain the plugins and use .alo
+files.</li>
+
+<li>Make a subdir '&lt;program name&gt;' for each program that uses
+the plugin and install the plugins there.</li>
+
+<p>The first option causes the plugins to be loaded in all programs
+that support OpendTect plugins,  while the last option requires
+managing multiple copies of the plugins under Windows, because Windows
+does not support symbolic linking. Therefore, the preferred method is
+to make use of .alo files. </p>
 
 <h4>Using .alo files</h4>
 
-<p>
-Auto LOad files are simple text files that tell a program which plugins it is supposed to load from the 'libs' directory.
-Since OpendTect contains multiple programs, each program has its own set of .alo files '&lt;program name&gt;.*.alo', while the plugins can be shared between multiple programs. OpendTect will scan for any file with this naming convention. So odmain.john.alo is perfectly OK.
+<p>Auto LOad files are simple text files that tell a program which
+plugins it is supposed to load from the 'libs' directory. Since
+OpendTect contains multiple programs, each program has its own set of
+.alo files '&lt;program name&gt;.*.alo', while the plugins can be
+shared between multiple programs. OpendTect will scan for any file
+with this naming convention. So odmain.john.alo is perfectly OK.</p>
 
-</p><p>
+<p>Since there are multiple vendors and/or plugin sets, each vendor
+can make his own .alo files. DtectMain, for example, will look at any
+file named odmain.*.alo. For this example, the default plugins are
+specified by odmain.base.alo, while dgb's plugins are specified by
+odmain.dgb.alo. This way, each vendor can make his own .alo files,
+without interfering with others.</p>
 
-Since there are multiple vendors and/or plugin sets, each vendor can make his own .alo files. DtectMain, for example, will look at any file named odmain.*.alo. For this example, the default plugins are specified by odmain.base.alo, while dgb's plugins are specified by odmain.dgb.alo. This way, each vendor can make his own .alo files, without interfering with others.
-
-</p><p>
-An .alo file is nothing more then a simple list of plugins, without extensions. For example, this is what odmain.base.alo files look like:
+<p>An .alo file is nothing more then a simple list of plugins, without
+extensions. For example, this is what odmain.base.alo files look like:
 </p>
 
 <pre><code>
 uiSeisIOSimple
 </code></pre>
 
-<p>
-Note that for each platform, a specific .alo file must be created. Usually, they will be the same, but some plugins might not (yet) be supported on all platforms.
-
-</p>
+<p> Note that for each platform, a specific .alo file must be created.
+Usually, they will be the same, but some plugins might not (yet) be
+supported on all platforms. </p>
 
 <h4>Order of loading</h4>
 
-<p>
-
-The non-alo plugins will be loaded in alphabetical order. For .alo files the
-order is as specified in the file. The alo files themselves are handled in
-alphabetical order.
-
-</p>
+<p>The non-alo plugins will be loaded in alphabetical order. For .alo
+files the order is as specified in the file. The alo files themselves
+are handled in alphabetical order. </p>
 
 
 <br>
 <a name=dist><h2>Distributing your plugins:</h2>
 
-<p>
-The publishing and distribution of OpendTect plugins is pretty straightforward, especially if you use .alo files. The .alo files can be installed in the plugins/platform (<code>$DTECT_APPL/plugins/$HDIR</code>) directory, while the actual plugins come in the 'libs' sub-directory.
-</p>
-<p>
-On Unix, this means that you can make a .tar.gz file containing the plugins in a directory structure as described above, which can be extracted into the existing OpendTect installation directory.
-</p><p>
-On Windows this is also possible, but it is more common to use an auto-extracting installer to do this.
-For more info on this, see the <a href="windows.html#dist">windows</a> documentation.
-</p>
+<p> The publishing and distribution of OpendTect plugins is pretty
+straightforward, especially if you use .alo files. The .alo files can
+be installed in the plugins/platform
+(<code>$DTECT_APPL/plugins/$HDIR</code>) directory, while the actual
+plugins come in the 'libs' sub-directory. </p>
+
+<p> On Unix, this means that you can make a .tar.gz file containing
+the plugins in a directory structure as described above, which can be
+extracted into the existing OpendTect installation directory. </p>
+
+<p> On Windows this is also possible, but it is more common to use an
+auto-extracting installer to do this. For more info on this, see the
+<a href="windows.html#dist">windows</a> documentation. </p>
+
 <br>
 <img src="../hr.png" border=0>
 
