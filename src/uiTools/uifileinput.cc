@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.21 2004-01-12 15:02:03 bert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.22 2004-03-01 14:46:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
 
 uiFileInput::~uiFileInput()
 {
-    if ( browser ) browser->reject(0);
+    if ( browser ) browser->close();
 }
 
 
