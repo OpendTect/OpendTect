@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.22 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.23 2003-02-14 08:41:39 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -82,7 +82,7 @@ protected:
     
 				DataObject();
     virtual			~DataObject();
-    void			init();
+    void			_init();
 
     friend class		DataManager;
     void			remove() { delete this; }
@@ -119,7 +119,7 @@ public:
 #define _mCreateDataObj(clss,args) 				\
 {								\
     clss* res = new clss args;					\
-    res->init();						\
+    res->_init();						\
     return res;							\
 }								\
 private:							\
