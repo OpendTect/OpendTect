@@ -1,0 +1,57 @@
+#!/bin/csh
+
+if ( ! $?OD_CVS_ROOT_PTH ) then
+    if ( ! $?DGB_CVS_DIR ) then
+	setenv DGB_CVS_DIR /users/appman/dvs
+	if ( $?WORK ) then
+	    if ( -e $WORK/dvs ) setenv DGB_CVS_DIR $WORK/dvs
+	endif
+    endif
+    source $DGB_CVS_DIR/set_dvs_env.csh
+endif
+
+if ( $#argv < 1 ) then
+    echo "Usage: $0 [-r <revision>] <file> "
+    exit 1
+endif
+
+
+if ( "$1" == "-r" ) then
+    shift
+    set rev="-r $1"
+    shift
+else
+    set rev=""
+endif
+
+set fil=`pwd`
+
+#set moduledir=$fil:t 
+#if (-e $WORK/include/$moduledir/$1 ) then
+#    set cvsfil=include/$moduledir/$1
+#else if (-e $WORK/src/$moduledir/$1 ) then
+#    set cvsfil=src/$moduledir/$1
+#else if (-e $WORK/tsrc/$moduledir/$1 ) then
+#    set cvsfil=tsrc/$moduledir/$1
+#else if (-e $WORK/spec/$moduledir/$1 ) then
+#    set cvsfil=spec/$moduledir/$1
+#else if (-e $WORK/data/$1 ) then
+#    set cvsfil=data/$1
+#else if (-e $WORK/bin/$1 ) then
+#    set cvsfil=bin/$1
+#else if ( -e $WORK/plugins/$moduledir/$1 ) then
+#    set cvsfil=plugins/$moduledir/$1
+#else
+#   set cvsfil=""
+#endif
+
+set old=$PWD
+set workdir=`cd $WORK; pwd; cd $old`
+
+set rep="s%^${workdir}%%"
+set cvsfil=`echo "$fil/$1" | sed $rep`
+
+cvs co -p $rev $cvsfil > /tmp/mdiff.$$
+
+tkdiff /tmp/mdiff.$$ $*
+\rm /tmp/mdiff.$$

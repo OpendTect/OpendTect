@@ -1,0 +1,14 @@
+#!/bin/csh
+
+if ( ! $?OD_CVS_ROOT_PTH ) then
+    if ( ! $?DGB_CVS_DIR ) then
+	setenv DGB_CVS_DIR /users/appman/dvs
+	if ( $?WORK ) then
+	    if ( -e $WORK/dvs ) setenv DGB_CVS_DIR $WORK/dvs
+	endif
+    endif
+    source $DGB_CVS_DIR/set_dvs_env.csh
+endif
+
+dvs unedit $*
+

@@ -1,0 +1,109 @@
+#!/bin/csh -f
+#
+# AL 15/9/99
+#
+# Wrapper around cvs.
+
+if ( "$1" == ed ) then
+    shift
+    dvs_ed $*
+    exit $status
+endif
+
+set get_answer='echo -n ">> ";set answer=$<;echo ""'
+
+if ( ! $?OD_CVS_ROOT_PTH ) then
+    if ( ! $?DGB_CVS_DIR ) then
+	setenv DGB_CVS_DIR /users/appman/dvs
+	if ( $?WORK ) then
+	    if ( -e $WORK/dvs ) setenv DGB_CVS_DIR $WORK/dvs
+	endif
+    endif
+    source $DGB_CVS_DIR/set_dvs_env.csh
+endif
+
+if ( ! $?DGB_CVS_ODRELREP ) then
+    echo "DVS installation problem: DGB_CVS_ODRELREP not set."
+    exit 1
+endif
+
+set cvsrtt=`echo $CVSROOT`
+if ( $1 == "--dgb" ) then
+    shift;
+    set cvsrtt=`echo $DGB_CVS_ROOT`
+    setenv CVSROOT $DGB_CVS_ROOT
+endif
+
+if ( -e ./CVS/Repository ) then
+    set cvsrt2=`cat ./CVS/Root`
+    if ( $cvsrtt != $cvsrt2 ) then
+	if ( `echo $cvsrt2 | grep "$DGB_CVS_GDIRELREP"` != "" || \
+	     `echo $cvsrt2 | grep "$DGB_CVS_ODRELREP"` != ""  ) then
+	    echo "CVSROOT differs from repository in ./CVS/Root"
+	    echo " and you are working in a STABLE directory.."
+	    echo " CVSROOT : $CVSROOT"
+	    echo " CVS/Root: $cvsrt2"
+	    exit 1
+	endif
+	set cvsrtt=$cvsrt2
+    endif
+endif
+
+set cvsremoteargs=""
+if ( `echo $cvsrtt | grep $DGB_CVS_HOST` == "" ) then
+    set cvsremoteargs="-z9"
+endif
+
+if ( $#argv > 0 ) then
+    if ( "$1" == add ) then
+	shift
+	set addsilent="no"
+	if ( "$1" == "--addsilent" ) then
+	    set addsilent="yes"
+	    shift
+	endif
+	foreach fil ( $* )
+	    set type = `file $fil | awk '{print $2,$3,$4,$5,$6,$7,$8}'`
+
+	    set text="no"
+	    if( `echo $type |grep text` != "" )  set text="yes"
+	    if( `echo $type |grep "(Ascii)"` != "" )  set text="yes"
+	    if( `echo $type |grep directory` != "" )  set text="yes"
+
+	    set cvsargs=""
+	    if ( $text == "no" ) then
+		if( $addsilent == "no" ) then
+		    echo $fil "seems to be a binary file"
+		    echo "Use dvs add --addsilent to automatigally add binaries"
+		    echo "Do you want to add it as a binary file? (Y/n)"
+
+		    eval $get_answer
+		else
+		    echo $fil "seems to be a binary file"
+		    set answer="Y"
+		endif
+		if ( $answer != "n" && $answer != "N" ) then
+		    echo "adding as binary"
+		    set cvsargs="-kb"
+		else
+		    echo "adding as text"
+		    if ( $cvsremoteargs != "" ) then
+			# no keyword substitution
+			set cvsargs="-ko"
+		    endif
+		endif
+	    endif
+	    cvs add $cvsargs $fil
+	end
+
+	exit $status
+    endif
+
+    if ( "$1" == update ) then
+	shift
+	cvs $cvsremoteargs update -d -P $*
+	exit $status
+    endif
+
+endif
+cvs $cvsremoteargs $*

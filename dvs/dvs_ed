@@ -1,0 +1,42 @@
+#!/bin/csh
+
+set exit_status=0
+onintr goto finish_off
+set editfil=/tmp/dvs_ed.$$
+
+if ( ! $?OD_CVS_ROOT_PTH ) then
+    if ( ! $?DGB_CVS_DIR ) then
+	setenv DGB_CVS_DIR /users/appman/dvs
+	if ( $?WORK ) then
+	    if ( -e $WORK/dvs ) setenv DGB_CVS_DIR $WORK/dvs
+	endif
+    endif
+    source $DGB_CVS_DIR/set_dvs_env.csh
+endif
+
+cvs editors $* > $editfil 
+
+set edit_size = `ls -l $editfil | awk '{print $5}'`
+if ( $edit_size != 0 ) then
+    echo "file(s) already edited: "
+    cat $editfil
+
+    echo "Continue? (y/n, default=n)"
+    set answer = $<
+
+    if ( $answer != "y" ) then
+
+	echo "exiting."
+	set exit_status=1
+	goto finish_off
+
+    endif
+
+endif
+
+
+dvs edit $*
+
+finish_off:
+rm -f $editfil
+exit $exit_status
