@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.5 2001-05-05 14:10:17 bert Exp $
+ RCS:           $Id: uicombobox.h,v 1.6 2001-05-08 14:32:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,10 @@ class PtrUserIDObjectSet;
 class uiLabel;
 
 template <class T> class i_QObjWrapper;
-mTemplTypeDefT(i_QObjWrapper, QComboBox, i_QComboBox)
+mTemplTypeDefT(i_QObjWrapper, QComboBox, i_QComboBox);
+
+class BufferString;
+template <class T> class ObjectSet;
 
 class uiComboBox : public uiWrapObj<i_QComboBox>
 {
@@ -36,9 +39,10 @@ public:
 			//!< Triggered when selection has changed. 
 
     const char*		getText() const;
-			//!< This is the text that is actually in the current
-			//!< item. This text may differ from
-			//!< textOfItem(currentItem()) when the box is editable.
+			/*!< This is the text that is actually in the current
+			     item. This text may differ from
+			     textOfItem(currentItem()) when the box is editable.
+			*/
 
     bool		isPresent(const char*) const;
 
@@ -48,6 +52,7 @@ public:
     void		addItem(const char*); 
     void		addItems(const char**); 
     void		addItems(const PtrUserIDObjectSet&);
+    void		addItems(const ObjectSet<BufferString>&);
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
