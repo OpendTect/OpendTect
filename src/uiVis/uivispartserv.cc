@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.248 2004-11-16 11:28:41 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.249 2005-01-28 16:18:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1036,6 +1036,7 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
 	? menu->addItem( new uiMenuItem("Properties ..."), 6000 )
 	: -1;
 
+    firstresmnusel = -1;
     if ( so->nrResolutions()>1 )
     {
 	uiPopupMenu* resmnu = new uiPopupMenu( menu->getParent(),"Resolution");
