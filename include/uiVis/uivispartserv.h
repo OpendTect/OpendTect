@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.79 2003-02-03 14:13:38 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.80 2003-02-04 12:30:45 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ public:
     int				addScene();
     void			removeScene(int id);
 
+    void			shareObject( int sceneid, int id );
+
     int				addInlCrlTsl(int scene,int type);
     int				addRandomLine(int scene);
     int				addVolView(int scene);
@@ -62,7 +64,9 @@ public:
     int				addSurfTrackerCube( int scene );
     				/*!< Get position with getCubeSampling */
     int				getSurfTrackerCubeId();
-    int				addSurfTrackProposal(Geometry::GridSurface&);
+    int				addSurfEditor(int scid, Geometry::GridSurface&);
+
+    void			removeObject( int id, int sceneid );
 
     int				addPickSet(int scene, const PickSet& pickset );
     void			getAllPickSets(UserIDSet&);
@@ -174,7 +178,6 @@ protected:
 
     visSurvey::Scene*		getScene( int id );
     const visSurvey::Scene*	getScene( int id ) const;
-    void			removeObject( int id, int sceneid );
 
     bool			hasAttrib( int id ) const;
     bool			selectAttrib( int id );

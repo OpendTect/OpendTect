@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.123 2003-02-03 14:13:32 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.124 2003-02-04 12:30:47 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "visdataman.h"
 #include "viscolortab.h"
+#include "visgridsurf.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
 #include "visselman.h"
@@ -116,12 +117,24 @@ void uiVisPartServer::removeScene( int sceneid )
     visSurvey::Scene* scene = getScene( sceneid );
     if ( scene )
     {
-	scene->mouseposchange.remove(
-				    mCB(this,uiVisPartServer,mouseMoveCB));
+	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB));
 	scene->unRef();
 	scenes -= scene;
 	return;
     }
+}
+
+
+void uiVisPartServer::shareObject( int sceneid, int id )
+{
+    visSurvey::Scene* scene = getScene( sceneid );
+    if ( !scene ) return;
+
+    mDynamicCastGet(visBase::SceneObject*, so, visBase::DM().getObj( id ) );
+    if ( !so ) return;
+
+    scene->addObject( so );
+    sendEvent( evUpdateTree );
 }
 
 
@@ -644,8 +657,7 @@ bool uiVisPartServer::handleSubMenuSel( int mnu, int sceneid, int id)
 	mDynamicCastGet(visBase::SceneObject*,sceneobj,dobj);
 	if ( !sceneobj ) 
 	    pErrMsg( "oops" );
-	scenes[sceneidx]->addObject( sceneobj );
-	sendEvent( evUpdateTree );
+	shareObject( scenes[sceneidx]->id(), sceneobj->id() );
 	return true;
     }
 
@@ -807,13 +819,16 @@ bool uiVisPartServer::isFault( int id ) const
 
 const CubeSampling* uiVisPartServer::getCubeSampling( int id ) const
 {
-    const visBase::DataObject* dobj = visBase::DM().getObj( id );
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
 
-    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj);
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj);
     if ( pdd ) return &pdd->getCubeSampling(true);
 
-    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj);
+    mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dobj);
     if ( vd ) return &vd->getCubeSampling();
+
+    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,si,dobj);
+    if ( si ) return &si->getCubeSampling();
 
     return 0;
 }
@@ -1114,6 +1129,16 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	    hasconnections += children[idy];
 	}
     }
+
+    TypeSet<int> interpreters;
+    visBase::DM().getIds(
+	    typeid(visSurvey::SurfaceInterpreterDisplay), interpreters );
+    interpreterdisplay = interpreters.size()
+		?  dynamic_cast<visSurvey::SurfaceInterpreterDisplay*>(
+		    visBase::DM().getObj( interpreters[0] ))
+		: 0;
+
+    if ( interpreterdisplay ) interpreterdisplay->ref();
 
     float appvel;
     if ( par.get( appvelstr, appvel ) )
@@ -1564,9 +1589,23 @@ int uiVisPartServer::getSurfTrackerCubeId()
 }
 
 
-int uiVisPartServer::addSurfTrackProposal( Geometry::GridSurface& surf )
+int uiVisPartServer::addSurfEditor( int sceneid, Geometry::GridSurface& surf )
 {
-    return -1;
+    visSurvey::Scene* scene = getScene( sceneid );
+    if ( !scene ) return -1;
+
+
+    visBase::EditableGridSurface* surfed=visBase::EditableGridSurface::create();
+    surfed->setTransformation( visSurvey::SPM().getUTM2DisplayTransform() );
+    PtrMan<Executor> exec = surfed->setSurface( surf );
+    uiExecutor uiexec(appserv().parent(), *exec );
+    if ( !uiexec.execute() )
+	return -1;
+
+    scene->addObject( surfed );
+
+    setUpConnections( surfed->id() );
+    return surfed->id();
 }
 
 
