@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.9 2002-04-11 05:54:53 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.10 2002-04-11 06:04:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,13 +136,15 @@ int uiVisPartServer::getSelObjectId() const
 
 int uiVisPartServer::addPickSetDisplay()
 {
-    visSurvey::PickSetDisplay* pickset = visSurvey::PickSetDisplay::create();
-    picks += pickset;
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
-    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    mDynamicCastGet(visSurvey::Scene*,scene,obj);
+
+    visSurvey::PickSetDisplay* pickset =
+				visSurvey::PickSetDisplay::create( *scene );
+    picks += pickset;
     scene->addInlCrlTObject( pickset );
     setSelObjectId( pickset->id() );
-    return pickset->id();;
+    return pickset->id();
 }
 
 
