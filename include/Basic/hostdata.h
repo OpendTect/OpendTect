@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.4 2002-06-13 21:00:58 bert Exp $
+ RCS:           $Id: hostdata.h,v 1.5 2002-06-20 08:50:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,11 +24,7 @@ public:
 				: name_(nm), realaliases_(ra)	{}
     virtual			~HostData()	{ deepErase(aliases_); }
 
-    const char*			name() const;
-    const char*			officialName() const
-				{ return (const char*)name_; }
-    const char*			shortestName() const;
-
+    const char*			name() const	{ return (const char*)name_; }
     int				nrAliases() const
 				{ return aliases_.size(); }
     const char*			alias( int idx ) const
@@ -53,7 +49,7 @@ protected:
 
 /*\brief List of host names in the system
 
-  The first entry should be the local host.
+  The first entry will be the local host.
  
  */
 
@@ -63,10 +59,6 @@ public:
 			HostDataList();
     virtual		~HostDataList()	{ deepErase(*this); }
 
-    const char*		optimumName( int idx )
-			{ return idx ? (*this)[idx]->shortestName()
-			    	     : (*this)[idx]->officialName(); }
-
     int			defNiceLevel() const	{ return defnicelvl_; }
     const char*		rshComm() const		{ return rshcomm_; }
 
@@ -75,8 +67,8 @@ protected:
     bool		realaliases_;
     BufferString	rshcomm_;
     int			defnicelvl_;
-    void		handleLocal();
 
+    void		handleLocal();
     bool		readHostFile(const char*);
 
 };
