@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.14 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uiiosel.h,v 1.15 2001-10-18 23:30:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ public:
     void		clear()			{ setCurrentItem( 0 ); }
     virtual void	processInput()		{}
 
+    void		doSel(CallBacker*);
+    			//!< Called by 'Select ...' button push.
     Notifier<uiIOSelect> selectiondone;
 
 protected:
@@ -61,7 +63,6 @@ protected:
     uiLabeledComboBox*	inp_;
     uiPushButton*	selbut_;
 
-    void		doSel(CallBacker*);
     void		selDone(CallBacker*);
 			//!< Subclass must call it - base class can't
 			//!< determine whether a selection was successful.
