@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.8 2001-11-07 17:15:53 bert Exp $
+ RCS:		$Id: ioman.h,v 1.9 2002-01-05 21:55:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ public:
     int			curLevel() const	{ return curlvl; }
     const char*		rootDir() const		{ return rootdir; }
     int			levelOf(const char* dirnm) const;
-    const char*		nameOf(const char* keystr,bool with_parents=true) const;
+    const char*		nameOf(const char* keystr,bool inc_parents=false) const;
 
     void		getEntry(CtxtIOObj&,MultiID parentid="");
 			//!< will create a new entry if necessary
