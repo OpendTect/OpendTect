@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.13 2004-09-07 16:24:01 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.14 2004-09-12 09:36:42 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -77,6 +77,7 @@ bool TwoDSeisTrcTranslator::initRead_()
     pinfo->inlrg.start = pinfo->crlrg.start = 0;
     pinfo->inlrg.stop = nrlines - 1; pinfo->crlrg.stop = trg.stop;
     pinfo->inlrg.step = 1; pinfo->crlrg.step = trg.step;
+    addComp( DataCharacteristics(), pinfo->stdinfo, Seis::UnknowData );
     return true;
 }
 
