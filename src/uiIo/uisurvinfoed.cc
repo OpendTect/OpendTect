@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.8 2001-10-16 08:58:02 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.9 2001-10-17 11:52:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     rangegrp->setHAlignObj( inlfld->uiObj() );
     coordgrp->setHAlignObj( ic0fld->uiObj() );
     trgrp->setHAlignObj( xinlfld->uiObj() );
-    horsep1->attach( stretchedBelow, dirnmfld );
+    horsep1->attach( stretchedBelow, dirnmfld, -2 );
     labelrg->attach( leftBorder );
     labelrg->attach( ensureBelow, horsep1 );
     rangegrp->attach( alignedBelow, dirnmfld ); 

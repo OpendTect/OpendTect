@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.21 2001-10-05 13:20:15 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.22 2001-10-17 11:52:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,7 +215,6 @@ int i_uiGroupLayoutItem::horAlign(layoutMode m) const
     }
 #endif
 
-    int border = grpprntbody.loMngr->borderSpace();
 
     if( grpprntbody.halignobj )
     {
@@ -224,7 +223,7 @@ int i_uiGroupLayoutItem::horAlign(layoutMode m) const
 
 	if( halobjbody ) halignitm = halobjbody->layoutItem();
 
-	if( halignitm ) return halignitm->horAlign(m) + border + offs;
+	if( halignitm ) return halignitm->horAlign(m) + offs;
     }
 
     return offs;
@@ -234,7 +233,6 @@ int i_uiGroupLayoutItem::horAlign(layoutMode m) const
 int i_uiGroupLayoutItem::horCentre(layoutMode m) const 
 { 
     int	offs = mngr().pos(m).left() + pos(m).left();
-    int border = grpprntbody.loMngr->borderSpace();
 
     if( grpprntbody.hcentreobj )
     {
@@ -243,7 +241,7 @@ int i_uiGroupLayoutItem::horCentre(layoutMode m) const
 
 	if( hcobjbody ) hcentreitm = hcobjbody->layoutItem();
 
-	if( hcentreitm ) return hcentreitm->horCentre(m) + offs + border;
+	if( hcentreitm ) return hcentreitm->horCentre(m) + offs;
     }
 
     return ( mngr().pos(m).left() + mngr().pos(m).right() ) / 2;
