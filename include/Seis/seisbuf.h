@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.9 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: seisbuf.h,v 1.10 2004-09-17 16:13:28 bert Exp $
 ________________________________________________________________________
 
 */
@@ -55,8 +55,8 @@ public:
     void		add( SeisTrc* t )	{ trcs += t; }
     void		add(SeisTrcBuf&);	//!< shallow copy if not owner
 
-    int			find(const BinID&) const;
-    int			find(SeisTrc*) const;
+    int			find(const BinID&,bool is2d=false) const;
+    int			find(SeisTrc*,bool is2d=false) const;
     SeisTrc*		get( int idx )		{ return trcs[idx]; }
     const SeisTrc*	get( int idx ) const	{ return trcs[idx]; }
     void		remove( SeisTrc* t )	{ if ( t ) trcs -= t;  }
@@ -82,7 +82,7 @@ protected:
     ObjectSet<SeisTrc>	trcs;
     bool		owner_;
 
-    int			probableIdx(const BinID&) const;
+    int			probableIdx(const BinID&,bool is2d) const;
 
 };
 

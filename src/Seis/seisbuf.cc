@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.19 2004-07-19 11:30:10 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.20 2004-09-17 16:13:35 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -188,14 +188,16 @@ void SeisTrcBuf::revert()
 }
 
 
-int SeisTrcBuf::find( const BinID& binid ) const
+int SeisTrcBuf::find( const BinID& binid, bool is2d ) const
 {
     int sz = size();
-    int startidx = probableIdx( binid );
+    int startidx = probableIdx( binid, is2d );
     int idx = startidx, pos = 0;
     while ( idx<sz && idx>=0 )
     {
-	if ( ((SeisTrcBuf*)this)->get(idx)->info().binid == binid )
+	if ( !is2d && ((SeisTrcBuf*)this)->get(idx)->info().binid == binid )
+	    return idx;
+	else if ( is2d && ((SeisTrcBuf*)this)->get(idx)->info().nr == binid.crl)
 	    return idx;
 	if ( pos < 0 ) pos = -pos;
 	else	       pos = -pos-1;
@@ -207,13 +209,14 @@ int SeisTrcBuf::find( const BinID& binid ) const
 }
 
 
-int SeisTrcBuf::find( SeisTrc* trc ) const
+int SeisTrcBuf::find( SeisTrc* trc, bool is2d ) const
 {
     if ( !trc ) return -1;
 
-    int tryidx = probableIdx( trc->info().binid );
+    int tryidx = probableIdx( trc->info().binid, is2d );
     if ( trcs[tryidx] == trc ) return tryidx;
 
+    // Bugger. brute force then
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( ((SeisTrcBuf*)this)->get(idx) == trc )
@@ -224,11 +227,17 @@ int SeisTrcBuf::find( SeisTrc* trc ) const
 }
 
 
-int SeisTrcBuf::probableIdx( const BinID& bid ) const
+int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
 {
     int sz = size(); if ( sz < 2 ) return 0;
-    const BinID& start = trcs[0]->info().binid;
-    const BinID& stop = trcs[sz-1]->info().binid;
+    BinID start = trcs[0]->info().binid;
+    BinID stop = trcs[sz-1]->info().binid;
+    if ( is2d )
+    {
+	start.inl = stop.inl = 0;
+	start.crl = trcs[0]->info().nr;
+	stop.crl = trcs[sz-1]->info().nr;
+    }
 
     BinID dist( start.inl - stop.inl, start.crl - stop.crl );
     if ( !dist.inl && !dist.crl )
