@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.14 2003-01-03 17:51:26 bert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.15 2003-02-27 10:57:40 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ protected:
     void		setDataTransferrer(SeisMMJobMan*);
     bool		getCurMach(BufferString&) const;
     void		stopRunningJobs();
-    void		execFinished();
+    void		execFinished(bool);
     void		setNiceNess();
 
     void		doCycle(CallBacker*);

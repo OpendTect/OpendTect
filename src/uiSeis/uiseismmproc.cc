@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.42 2003-02-26 14:38:58 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.43 2003-02-27 10:57:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,7 +274,7 @@ static int askRemaining( const SeisMMJobMan& jm )
 }
 
 
-void uiSeisMMProc::execFinished()
+void uiSeisMMProc::execFinished( bool userestart )
 {
     if ( jmfinished )
     {
@@ -289,7 +289,7 @@ void uiSeisMMProc::execFinished()
     }
     else
     {
-	const bool isrestart = !tmpstordirfld;
+	const bool isrestart = userestart && !tmpstordirfld;
 	stopRunningJobs();
 	updateCurMachs();
 	progrfld->append( "Checking integrity of processed data" );
@@ -340,7 +340,7 @@ void uiSeisMMProc::doCycle( CallBacker* )
     const int status = task->doStep();
     switch ( status )
     {
-    case 0:	execFinished();						return;
+    case 0:	execFinished(true);						return;
     case -1:	uiMSG().error( task->message() );	done( -1 );	return;
     case 2:	uiMSG().warning( task->message() );			break;
     }
@@ -545,10 +545,9 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	    "This will stop further processing and start data transfer",false) )
 	return false;
 
-    bool mkdump = true;
+    bool mkdump = getenv("dGB_MMBATCH_DUMP");
     if ( mkdump )
     {
-
 	// Stop during operation. Create a dump
 	BufferString dumpfname( GetDataDir() );
 	dumpfname = File_getFullPath( dumpfname, "Proc" );
@@ -586,6 +585,6 @@ bool uiSeisMMProc::acceptOK(CallBacker*)
 	jm->dump( *strm );
     }
 
-    execFinished();
+    execFinished( false );
     return false;
 }
