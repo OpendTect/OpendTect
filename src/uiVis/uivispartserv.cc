@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.209 2004-05-07 16:38:47 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.210 2004-05-09 20:08:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -937,6 +937,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     {    
 	if ( so->getAttributeFormat() == 3 )
 	{
+	    if ( !so->isManipulated() ) return;
 	    eventmutex.lock();
 	    eventobjid = oldsel;
 	    sendEvent( evGetNewData );
