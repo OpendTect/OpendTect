@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.5 2004-08-09 14:09:31 kristofer Exp $
+ RCS:           $Id: vishingeline.cc,v 1.6 2004-08-12 15:38:37 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ EdgeLineSetDisplay::EdgeLineSetDisplay()
     getMaterial()->setColor( Color(255,255,0), 0 );
     getMaterial()->setAmbience(0, 0);
     getMaterial()->setDiffIntensity(1,0);
-    getMaterial()->setColor( Color(255,128,0), mCutColor );
+    getMaterial()->setColor( Color(0,0,255), mCutColor );
     getMaterial()->setAmbience(0, mCutColor);
     getMaterial()->setDiffIntensity(1,mCutColor);
     getMaterial()->setColor( Color(255,0,0), mStopColor );
