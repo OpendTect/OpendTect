@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.60 2004-07-29 21:41:26 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.61 2004-08-19 10:26:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -558,7 +558,6 @@ bool uiSurveyInfoEditor::setRanges()
 	return false;
     }
     survinfo->setRange( cs, false );
-    setValues();
     return true;
 }
 
