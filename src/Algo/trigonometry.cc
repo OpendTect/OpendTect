@@ -4,20 +4,21 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.12 2003-05-12 11:00:00 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.13 2003-05-13 15:04:07 kristofer Exp $";
 
 #include "trigonometry.h"
 
+#include "errh.h"
 #include "pca.h"
 #include "position.h"
 #include "sets.h"
 
 #include <math.h>
 
-Vector3::Vector3( Coord3 origin, Coord3 direction )
-    : x( origin.x - direction.x )
-    , y( origin.y - direction.y )
-    , z( origin.z - direction.z )
+Vector3::Vector3( const Coord3& origin, const Coord3& target )
+    : x( target.x - origin.x )
+    , y( target.y - origin.y )
+    , z( target.z - origin.z )
 {}
 
 
@@ -372,18 +373,51 @@ float Plane3::set( const TypeSet<Coord3>& pts )
 }
 
 
+bool Plane3::operator==(const Plane3& b ) const
+{
+    Vector3 a_vec = normal();
+    Vector3 b_vec = normal();
+
+    const double a_len = a_vec.abs();
+    const double b_len = b_vec.abs();
+
+    const bool a_iszero = mIS_ZERO( a_len );
+    const bool b_iszero = mIS_ZERO( b_len );
+
+    if ( a_iszero||b_iszero) 
+    {
+	if ( a_iszero&&b_iszero ) return true;
+	pErrMsg("Zero-length Vector");
+	return false;
+    }
+
+    float cross = 1-a_vec.dot(b_vec);
+
+    if ( !mIS_ZERO(cross) ) return false;
+
+    const double ddiff = D/a_len - b.D/b_len;
+
+    return mIS_ZERO(ddiff);
+}
+
+
+bool Plane3::operator!=(const Plane3& b ) const
+{
+    return !((*this)==b);
+}
+
+
+
+
 float Plane3::distanceToPoint( const Coord3& point ) const
 {
     Vector3 norm( normal() );
-    Line3 const linetoplane( point.x, point.y, point.z, norm.x, 
-	    		     norm.y, norm.z );
+    const Line3 linetoplane( point, norm );
 
     Coord3 p0;
     if ( intersectWith( linetoplane, p0 ) ) 
     {
-    	return sqrt( (point.x-p0.x)*(point.x-p0.x) + 
-		     (point.y-p0.y)*(point.y-p0.y) +			
-	             (point.z-p0.z)*(point.z-p0.z) );
+    	return point.dist(p0);
     }
     else 
         return 0;	
