@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.57 2004-06-23 10:36:15 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.58 2004-06-30 15:11:40 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -346,7 +346,7 @@ void PickSetDisplay::pickCB( CallBacker* cb )
 		    const DataObject* pickedobj =
 			visBase::DM().getObj(eventinfo.pickedobjids[idx]);
 		    mDynamicCastGet(const SurveyObject*,so,pickedobj)
-		    if ( so->allowPicks() )
+		    if ( so && so->allowPicks() )
 		    {
 			validpicksurface = true;
 			break;
