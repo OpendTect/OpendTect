@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.2 2002-09-17 12:13:01 kristofer Exp $
+ RCS:		$Id: emfault.h,v 1.3 2002-09-20 06:38:58 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,11 +49,15 @@ public:
     void		insertRow( int row, bool moveup );
 			/*!< If moveup==true, shifting up. */
 
-    Geometry::GridSurfaceImpl&		getSurface() { return surface; }
-    const Geometry::GridSurfaceImpl&	getSurface() const { return surface; }
+    Executor*		loader();
+    bool		isLoaded() const { return surface; }
+    Executor*		saver();
+
+    Geometry::GridSurfaceImpl*		getSurface() { return surface; }
+    const Geometry::GridSurfaceImpl*	getSurface() const { return surface; }
     
 protected:
-    Geometry::GridSurfaceImpl&	surface;
+    Geometry::GridSurfaceImpl*	surface;
 };
 
 }; // Namespace
