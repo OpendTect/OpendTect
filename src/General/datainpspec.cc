@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.5 2004-01-12 14:40:59 kristofer Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.6 2004-02-03 18:49:34 kristofer Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -58,7 +58,7 @@ void DataInpSpec::fillPar(IOPar& par) const
 
 bool DataInpSpec::usePar(const IOPar& par)
 {
-    ObjectSet<const char>	values;
+    ObjectSet<BufferString>	values;
     for ( int idx=0; idx<nElems(); idx++ )
     {
 	const BufferString key(idx);
@@ -69,11 +69,13 @@ bool DataInpSpec::usePar(const IOPar& par)
 	if ( !valptr || !*valptr )
 	    return false;
 
-	values += valptr;
+	values += new BufferString(valptr);
     }
 
     for ( int idx=0; idx<nElems(); idx++ )
-	setText( values[idx], idx );
+	setText( *values[idx], idx );
+
+    deepErase( values );
 
     return true;
 }
