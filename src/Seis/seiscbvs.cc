@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.2 2001-05-24 13:18:50 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.3 2001-05-24 14:39:29 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -311,7 +311,7 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
     {
 	const BasicComponentInfo& ci = *info.compinfo[ selComp(icomp) ];
 	trc.setScaler( ci.scaler, icomp );
-	tdptrs[icomp] = trc.data().getComponent(icomp)->data();
+	tdptrs[icomp] = trc.data().getComponent(selComp(icomp))->data();
 	stptrs[icomp] = userawdata[icomp] ? tdptrs[icomp] : blockbufs[icomp];
     }
 
@@ -391,7 +391,52 @@ bool CBVSSeisTrcTranslator::startWrite()
 bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
 {
     if ( !storinterps ) commitSelections();
-    return false;
+
+    expldat.binid = trc.info().binid;
+    expldat.startpos = trc.info().sampling.start;
+    expldat.coord = trc.info().coord;
+    expldat.offset = trc.info().offset;
+    expldat.pick = trc.info().pick;
+    expldat.refpos = trc.info().refpos;
+
+    for ( int icomp=0; icomp<nrSelComps(); icomp++ )
+    {
+	tdptrs[icomp] = const_cast<unsigned char*>(
+			trc.data().getComponent(selComp(icomp))->data() );
+	stptrs[icomp] = userawdata[icomp] ? tdptrs[icomp] : blockbufs[icomp];
+	if ( !userawdata[icomp] )
+	{
+	    if ( samedatachar[icomp] )
+	    {
+		for ( int outsmp=0; outsmp<outcds[icomp]->nrsamples; outsmp++ )
+		memcpy( stptrs[icomp], tdptrs[icomp],
+			(int)inpcds[icomp]->datachar.nrBytes() );
+		tdptrs[icomp] += (int)inpcds[icomp]->datachar.nrBytes()
+				* samps[icomp].step;
+		stptrs[icomp] += (int)inpcds[icomp]->datachar.nrBytes();
+	    }
+	    else
+	    {
+		const TraceDataInterpreter* inpinterp
+			= trc.data().getInterpreter(selComp(icomp));
+		for ( int outsmp=0,inp_samp=0; outsmp<outcds[icomp]->nrsamples;
+		  outsmp++ )
+		{
+		    storinterps[icomp]->put( stptrs[icomp], outsmp,
+			inpinterp->get( tdptrs[icomp], inp_samp ) );
+		    inp_samp += samps[icomp].step;
+		}
+	    }
+	}
+    }
+
+    if ( !wrmgr->put( (void**)stptrs ) )
+    {
+	errmsg = wrmgr->errMsg();
+	return false;
+    }
+
+    return true;
 }
 
 
