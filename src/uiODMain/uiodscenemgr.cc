@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.14 2004-04-27 14:05:57 kristofer Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.15 2004-04-29 14:53:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,10 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs->addFactory( new uiODInlineFactory );
     tifs->addFactory( new uiODCrosslineFactory );
     tifs->addFactory( new uiODTimesliceFactory );
+    tifs->addFactory( new uiODFaultFactory );
+    tifs->addFactory( new uiODHorizonFactory );
+    tifs->addFactory( new uiODPickSetFactory );
+    tifs->addFactory( new uiODWellFactory );
     wsp->setPrefWidth( cWSWidth );
     wsp->setPrefHeight( cWSHeight );
 
@@ -447,10 +451,8 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     if ( getenv("DTECT_SHOW_TRACKINGITEMS") )
     {
 	//scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
-	scn.itemmanager->addChild( new uiODFaultParentTreeItem );
     }
     //scn.itemmanager->addChild( new uiODWellFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODHorizonParentTreeItem );
     //scn.itemmanager->addChild( new uiODPickSetFactoryTreeItem );
     //scn.itemmanager->addChild( new uiODRandomLineFactoryTreeItem );
     //scn.itemmanager->addChild( new uiODVolumeFactoryTreeItem );
@@ -500,9 +502,6 @@ void uiODSceneMgr::setItemInfo( int id )
 void uiODSceneMgr::updateSelectedTreeItem()
 {
     const int id = visServ().getSelObjectId();
-    const bool ispickset = visServ().isPickSet( id );
-    if ( ispickset && !applMgr().attrServer()->attrSetEditorActive() )
-	actMode( 0 );
 
     if ( id != -1 )
     {
@@ -510,13 +509,29 @@ void uiODSceneMgr::updateSelectedTreeItem()
 	applMgr().modifyColorTable( id );
     }
 
+    bool found = applMgr().attrServer()->attrSetEditorActive();
+    bool gotoact = false;
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	Scene& scene = *scenes[idx];
+	if ( !found )
+	{
+	    mDynamicCastGet( const uiODDisplayTreeItem*, treeitem,
+		    	     scene.itemmanager->findChild(id) );
+	    if ( treeitem )
+	    {
+		gotoact = treeitem->actModeWhenSelected();
+		found = true;
+	    }
+	}
+
 	scene.itemmanager->updateSelection( id );
 	scene.itemmanager->updateColumnText(0);
 	scene.itemmanager->updateColumnText(1);
     }
+
+    if ( gotoact && !applMgr().attrServer()->attrSetEditorActive() )
+	actMode( 0 );
 }
 
 

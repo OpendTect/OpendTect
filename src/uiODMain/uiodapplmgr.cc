@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.16 2004-04-27 12:00:16 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.17 2004-04-29 14:53:02 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
+#include "vissurvpickset.h"
+#include "vissurvsurf.h"
 
 #include "attribdescset.h"
 #include "attribsel.h"
@@ -258,7 +260,7 @@ bool uiODApplMgr::selectColorAttrib( int id )
     ColorAttribSel myas( *as );
     bool selok = attrserv->selectColorAttrib( myas );
     if ( selok )
-	visserv->setColorSelSpec( myas );
+	visserv->setColorSelSpec( id, myas );
 
     return selok;
 }
@@ -302,22 +304,22 @@ bool uiODApplMgr::storePickSets() { return pickserv->storePickSets(); }
 
 bool uiODApplMgr::storeSinglePickSet( int id )
 {
-    const char* psnm = visserv->getObjectName(id);
-    PickSet* ps = new PickSet( psnm );
-    visserv->getPickSetData( id, *ps );
+    mDynamicCastGet( visSurvey::PickSetDisplay*, psd, visserv->getObject(id) );
+    PickSet* ps = new PickSet( psd->name() );
+    psd->copyToPickSet(*ps);
     return pickserv->storeSinglePickSet( ps );
 }
 
 
 bool uiODApplMgr::setPickSetDirs( int id )
 {
-    const char* psnm = visserv->getObjectName(id);
-    PickSet ps( psnm );
-    visserv->getPickSetData( id, ps );
+    mDynamicCastGet( visSurvey::PickSetDisplay*, psd, visserv->getObject(id) );
+    PickSet ps( psd->name());
+    psd->copyToPickSet(ps);
     if ( !attrserv->setPickSetDirs(ps,nlaserv?&nlaserv->getModel():0) )
 	return false;
 
-    visserv->setPickSetData( id, ps );
+    psd->copyFromPickSet( ps );
     return true;
 }
 
@@ -523,7 +525,7 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* ps, int id )
 bool uiODApplMgr::handleWellServEv( int evid )
 {
     if ( evid == uiWellPartServer::evRefreshMarkers )
-	visserv->refreshMarkers();
+    {} //visserv->refreshMarkers();
     else
 	pErrMsg("Unknown event from emserv");
 
@@ -556,7 +558,10 @@ bool uiODApplMgr::handlePickServEv( int evid )
 {
     if ( evid == uiPickPartServer::evGetAvailableSets )
     {
-	visserv->getAllPickSets( pickserv->availableSets() );
+	TypeSet<int> ids;
+	visserv->findObject( typeid(visSurvey::PickSetDisplay), ids );
+	for ( int idx=0; idx<ids.size(); idx++ )
+	    pickserv->availableSets().add( visserv->getObjectName(ids[idx]));
     }
     else if ( evid == uiPickPartServer::evFetchPicks )
     {
@@ -566,7 +571,9 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	    if ( !pickserv->selectedSets()[idx] ) continue;
 	    const char* nm = pickserv->availableSets().get(idx).buf();
 	    PickSet* ps = new PickSet( nm );
-	    visserv->getPickSetData( sceneMgr().getIDFromName(nm), *ps ); 
+	    mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
+		    	     visserv->getObject(sceneMgr().getIDFromName(nm)) );
+	    psd->copyToPickSet( *ps );
 	    pickserv->group().add( ps );
 	}
     }
@@ -719,7 +726,11 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( psid < 0 )
 	    sceneMgr().addPickSetItem( haspicks ? psg.get(0) : &pset, -1 );
 	else
-	    visserv->setPickSetData( psid, haspicks ? *psg.get(0) : pset );
+	{
+	    mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
+		    	     visserv->getObject(psid));
+	    psd->copyFromPickSet( haspicks ? *psg.get(0) : pset );
+	}
 
 	sceneMgr().updateTrees();
     }
@@ -816,7 +827,8 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
     visserv->setRandomPosData( visid, false, &to_pass );
 
     deepErase( data );
-    visserv->shiftHorizon( visid, shift );
+    mDynamicCastGet( visSurvey::SurfaceDisplay*, sd, visserv->getObject(visid));
+    sd->setShift( shift );
 
     AttribSelSpec myas( attrnm, -1 );
     visserv->setSelSpec( visid, myas );
