@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.17 2003-03-12 15:43:56 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.18 2003-03-13 12:26:07 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -187,8 +187,12 @@ void visSurvey::RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& bidset )
 }
 
 
-void visSurvey::RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid )
-{ track->setKnotPos( knotidx, Coord(bid.inl,bid.crl) ); }
+void visSurvey::RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid_ )
+{
+    BinID bid( bid_ );
+    checkPosition( bid );
+    track->setKnotPos( knotidx, Coord(bid.inl,bid.crl) ); 
+}
 
 
 void visSurvey::RandomTrackDisplay::removeKnot( int knotidx )
