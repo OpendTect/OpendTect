@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.22 2003-06-20 12:43:37 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.23 2003-07-07 11:12:13 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,7 +120,9 @@ bool uiImportHorizon::handleAscii()
 
     horizon->ref();
 
-    if ( !horizon->import( *grid ) )
+    PtrMan<Executor> horimp = horizon->import( *grid );
+    uiExecutor impdlg( this, *horimp );
+    if ( !impdlg.go() ) 
 	mErrRetUnRef("Cannot import horizon")
 
     dgbEMHorizonTranslator tr;
