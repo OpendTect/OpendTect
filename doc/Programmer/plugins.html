@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.8 2003-11-02 10:17:06 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.9 2003-11-02 22:37:59 bert Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -12,8 +12,8 @@
 <h1>OpendTect Plugins</h1>
   <a href=#intro>Intro</a>
 | <a href=#concept>Concept</a>
-| <a href=#coh>Coherency example</a>
-| <a href=#addmnu>Adding menu items</a>
+| <a href=#mnudlg>Menu and Dialog</a>
+| <a href=#coh>Coherency</a>
 </center>
 <br>
 <img src="../hr.png" border=0>
@@ -56,7 +56,7 @@ In OpendTect, all of the dynamic lib querying etc. is already programmed. A plug
 GetMyModPluginInfo
 InitMyModPlugin
 </code></pre>
-Only the last one is required.
+Only the last one is required. The first one, <code>Get...PluginType</code> determines whether the plugin can be used for the auto-load, and if so, when. 'When' means: before or after the program has created its own objects (but always after the static objects are initialised). The second function simply provides info for the users of your plugin.
 </p><p>
 Note that these functions must be declared 'extern "C"', as you can see in the first example plugin "Hello":
 <pre><code>#include &lt;iostream&gt;
@@ -90,15 +90,91 @@ In this case we actually use stuff from OpendTect libraries, so the Makefile nee
 Notice that this is added <i>before</i> the inclusions: It's a directive to establish all kinds of variables in the make includes. By typing <code>make -n</code> again you'll see that Pmake added some directives for the compiler.
 </p>
 
-<a name=real><h2>Real examples</h2>
+<br>
+<a name=real><h2>Realistic examples</h2>
 
-<a name=addmnu><h3>Adding menus</h3>
+<a name=mnudlg><h3>Menu and Dialog</h3>
+
+<h4>Intro</h4>
 <p>
-Adding menu items popping up your own dialogs is pretty easy once you get the hang of it. The uiArkCls plugin is a good example: it shows how to get hold of the parent menus, and what to do to get the CallBacks.
+Adding menu items popping up your own dialogs is pretty easy once you get the hang of it. The uiArkCls plugin is a good example: it shows how to get hold of the parent menus, and what to do to get the CallBacks. You don't need to download the doc.arkcls however because the uiHello plugin code contains some example code to make things clear. Although we fear that you mmight be scared by this code when you first see it, we hope that after the explanations below you will see some beauty in it and start to like it.
 </p><p>
+Look in uihellopi.cc - the PLAN_B part. First of all, we nicely define the other standard plugin functions:
+<pre><code>extern "C" int GetuiHelloPluginType()
+{
+    return PI_AUTO_INIT_LATE;
+}
+
+extern "C" PluginInfo* GetuiHelloPluginInfo()
+{
+    static PluginInfo retpi = {
+        "uiHello plugin - plan B",
+        "Bert",
+        "1.0.1",
+        "This is the more extensive variant of the uiHello example.\n"
+        "See the plugin manual for details." };
+    return &retpi;
+}
+</pre></code>
+ The plugin will now load automatically when put in the <code>plugins/$HDIR</code> directory in the installation, or the <code>.od</code> subdirectory of your home dir.
+</p><p>
+The idea is to add a menu item 'Display Hello Message ...' to the 'Utilities' menu of OpendTect. The Makefile and the example code are already prepared for this, you only need to define 'PLAN_B', for example on the command line:
+<code><pre>make PLAN_B=yes</code></pre>
+Apart from adding a flag so we can check for PLAN_B in the code, the <code>MODDEP := uiApplMan</code> tells Pmake that the <code>uiApplMan</code> headers, and the headers <code>uiApplMan</code> depends on will be used. That is much more than the original <code>uiBase</code> dependencies.
+</p><p>
+<h4>Problems</h4>
+The two problems we are faced with are:
+<ol>
+<li>How to create a new menu item
+<li>How does one make a new dialog
+</ol>
+The real problem behind the first is not so much how to make the item itself, but how to get hold of the parent menu it must be inserted into. The problem with that is that at the time of the plugin initialisation, the menu itself may not yet exist. That is why, in that case, we have to ask the OpendTect UI Manager object (The uidTectMan instance) whether it is already finalised, and if not, to give us a callback when it does. Otherwise, we can simply insert the item:
+<pre><code>if ( mgr->applman->uidMan()->isFinalised() )
+    mgr->init( mgr->applman->uidMan() );
+else
+    mgr->applman->uidMan()->finalised.notify(mCB(mgr,uiHelloMgr,init));
+</pre></code>
+Because callbacks can only be sent to objects that are <code>CallBacker</code>s, we have made an object <code>uiHelloMgr</code> that can receive the callback from the menu.
+</p>
+<h4>The <code>uiHelloMgr</code></h4>
+<p>
+The uiHelloMgr will receive a callback when the ui manager is finalised: the <code>init(CallBacker*)</code> method is then called. In that method the ui hello manager inserts the menu item into the menu. It tells the menu item to call the dispMsg method when triggered:
+<code><pre>applman->utilMnu()->insertItem(
+      new uiMenuItem( "&amp;Diplay Hello Message ...",
+                      mCB(this,uiHelloMgr,dispMsg) );
+</code></pre>
+The <code>uiHelloMgr::dispMsg</code> method does nothing more than make an instantiation of the dialog class we made for showing the message: <code>uiHelloMsgBringer</code>.
+</p>
+<h4>The <code>uiHelloMsgBringer</code></h4>
+<p>
+The <code>uiHelloMsgBringer</code> class is a <code>uiDialog<code> which means it has (by default) Ok and Cancel buttons, a window title, and so forth. The class contains a field for user input of the string to display as message. To make the example a bit lively, we added a field whether the message should be, eh, just a message, or a warning. You can see the <code>uiGenInput</code> class will serve both input fields nicely, you just need to define another <code>InpSpec</code> instance:
+<code><pre>txtfld = new uiGenInput( this, "Hello message",
+                                    StringInpSpec("Hello world") );
+    typfld = new uiGenInput( this, "Message type",
+                             BoolInpSpec("Info","Warning") );
+    typfld->attach( alignedBelow, txtfld );
+</code></pre>
+Note that "Hello world" is the inital string displayed in <code>txtfld</code>. Another feature of the OpendTect UI is the automatic layout: we program the positions of the various fields by attaching them in certain ways - most commonly <code>alignedBelow</code>.
+</p><p>
+The actual message is displayed when the user presses Ok on the dialog that pops up. When nothing is filled in, we give the user the finger with the "Please type a text" message, and we do not accept the Ok, i.e. the dialog remains on the screen and the user can either be a good girl (or boy) and fill in something or press cancel.
+<code><pre>if ( ! *typedtxt )
+{
+    uiMSG().error( "Please type a text" );
+    return false;
+}
+</code></pre>
+When a message is present, we do as we're told:
+<code><pre>if ( typfld->getBoolValue() )
+    uiMSG().message( typedtxt );
+else
+    uiMSG().warning( typedtxt );
+return true;
+</code></pre>
+and the dialog disappears immediately after the message appears on the screen.
 
 </p>
 
+<br>
 <a name=coh><h3>Attributes: Coherency</h3>
 
 <a name=cohintro><h4>Intro</h4>
@@ -107,6 +183,7 @@ Anyone vaguely familiar with interpretation should by now know about Coherency a
 </p><p>
 The Coherency attributes were implemented some time ago by Kristofer for his research work, and it seemed a good idea to show how to make your own attribute plugins by looking at the <code>Coh</code> and <code>uiCoh</code> plugin code.
 </p>
+
 <a name=cohrw><h4>The <code>Coh</code> plugin</h4>
 <p>
 The <code>Coh</code> plugin handles the 'Real Work' part. If we start with the plugin 'main' file, <code>uicohpi.cc</code>, we see that it's not that much more complex than the <code>hellopi.cc</code> from the <code>Hello</code> plugin. There are three includes:

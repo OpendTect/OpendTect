@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.3 2003-11-02 18:02:39 bert Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.4 2003-11-02 22:37:59 bert Exp $";
 
 #include "uimsg.h"
 
@@ -17,13 +17,16 @@ extern "C" const char* InituiHelloPlugin( int, char** )
 }
 
 
-#else /* that is, PLAN_B is defined */
+#else /* PLAN_B is defined */
 
 
 #include "ui3dapplication.h"
 #include "ui3dapplman.h"
 #include "uidtectman.h"
+#include "uiapplserv.h"
 #include "uimenu.h"
+#include "uidialog.h"
+#include "uigeninput.h"
 #include "plugins.h"
 
 extern "C" int GetuiHelloPluginType()
@@ -59,7 +62,7 @@ public:
     ui3DApplMan*	applman;
     bool		initdone;
 
-    void		sayHello(CallBacker*);
+    void		dispMsg(CallBacker*);
 };
 
 
@@ -68,15 +71,52 @@ void uiHelloMgr::init( CallBacker* )
     if ( initdone ) return;
 
     applman->utilMnu()->insertItem(
-	    new uiMenuItem("&Say hello",mCB(this,uiHelloMgr,sayHello) ) );
+	new uiMenuItem("&Diplay Hello Message ...",mCB(this,uiHelloMgr,dispMsg) ) );
 
     initdone = true;
 }
 
 
-void uiHelloMgr::sayHello( CallBacker* )
+class uiHelloMsgBringer : public uiDialog
 {
-    uiMSG().message( "Hello world" );
+public:
+
+uiHelloMsgBringer( uiParent* p )
+    : uiDialog(p,Setup("Hello Message Window",
+			"Specify hello message"))
+{
+    txtfld = new uiGenInput( this, "Hello message",
+	    			StringInpSpec("Hello world") );
+    typfld = new uiGenInput( this, "Message type",
+	    			BoolInpSpec("Info","Warning") );
+    typfld->attach( alignedBelow, txtfld );
+}
+
+bool acceptOK( CallBacker* )
+{
+    const char* typedtxt = txtfld->text();
+    if ( ! *typedtxt )
+    {
+	uiMSG().error( "Please type a text" );
+	return false;
+    }
+    if ( typfld->getBoolValue() )
+	uiMSG().message( typedtxt );
+    else
+	uiMSG().warning( typedtxt );
+    return true;
+}
+
+    uiGenInput*	txtfld;
+    uiGenInput*	typfld;
+
+};
+
+
+void uiHelloMgr::dispMsg( CallBacker* )
+{
+    uiHelloMsgBringer dlg( applman->applService().parent() );
+    dlg.go();
 }
 
 
