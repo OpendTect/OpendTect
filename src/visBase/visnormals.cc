@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visnormals.cc,v 1.2 2003-01-07 10:26:30 kristofer Exp $";
+static const char* rcsID = "$Id: visnormals.cc,v 1.3 2003-01-09 09:12:39 kristofer Exp $";
 
 #include "visnormals.h"
 
@@ -25,6 +25,8 @@ visBase::Normals::Normals()
     , mutex( *new Threads::Mutex )
 {
     normals->ref();
+    unusednormals += 0;
+    //!<To compensate for that the first coord is set by default by coin
 }
 
 
@@ -38,8 +40,9 @@ visBase::Normals::~Normals()
 void visBase::Normals::setNormal( int idx, const Vector3& normal )
 {
     Threads::MutexLocker lock( mutex );
-    if ( idx>=normals->vector.getNum() )
-	return;
+
+    for ( int idy=normals->vector.getNum(); idy<idx; idy++ )
+	unusednormals += idy;
 
     normals->vector.set1Value( idx, SbVec3f( normal.x, normal.y, normal.z ));
 }

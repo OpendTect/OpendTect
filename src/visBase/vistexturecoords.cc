@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.2 2003-01-08 15:17:32 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturecoords.cc,v 1.3 2003-01-09 09:12:39 kristofer Exp $";
 
 #include "vistexturecoords.h"
 
@@ -25,6 +25,8 @@ visBase::TextureCoords::TextureCoords()
     , mutex( *new Threads::Mutex )
 {
     coords->ref();
+    unusedcoords += 0;
+    //!<To compensate for that the first coord is set by default by coin
 }
 
 
@@ -38,8 +40,9 @@ visBase::TextureCoords::~TextureCoords()
 void visBase::TextureCoords::setCoord( int idx,  const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex );
-    if ( idx>=coords->point.getNum() )
-	return;
+
+    for ( int idy=coords->point.getNum(); idy<idx; idy++ )
+	unusedcoords += idy;
 
     coords->point.set1Value( idx, SbVec3f( pos.x, pos.y, pos.z ));
 }
