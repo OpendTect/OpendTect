@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.7 2005-01-07 16:47:59 bert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.8 2005-01-08 14:04:44 bert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -103,7 +103,7 @@ void SeisCBVSPSReader::addInl( int inl )
 
     if ( sg.fullyrectandreg )
 
-	newid->segments += PosInfo::InlData::Segment( sg.start.crl,
+	newid->segments += PosInfo::InlData::Segment( sg.start.inl,
 					sg.stop.inl, sg.step.inl );
     else
     {
@@ -158,7 +158,7 @@ bool SeisCBVSPSReader::mkTr( int inl ) const
 
 bool SeisCBVSPSReader::getGather( int crl, SeisTrcBuf& gath ) const
 {
-    if ( !curtr_->goTo( BinID(crl,0) ) )
+    if ( !curtr_->goTo( BinID(crl,1) ) )
 	{ errmsg_ = "Crossline not present"; return false; }
 
     const BinID bid( curinl_, crl );
