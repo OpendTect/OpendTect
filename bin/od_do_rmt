@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.20 2004-11-10 13:46:01 arend Exp $
+# $Id: od_do_rmt,v 1.21 2004-11-10 14:55:34 dgb Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -81,13 +81,15 @@ if ( "$HDIR" == "win" ) then
     set precmd=""
     if ( -x "$DTECT_APPL/bin/$HDIR/SearchODFile" ) then
 	set prescript=`"${DTECT_APPL}/bin/$HDIR/SearchODFile" od_prepare.bat \
-	     | sed -e "s% %\\ %g" -e "s%\\%\\\\%g" -e 's%^%""%' -e 's%$%""%'`
+	     | sed -e 's% %\ %g' -e 's%\\%\\\\%g'`
+# -e 's%^%""%' -e 's%$%""%'`
     endif
 
     set precmd="cmd /c $prescript $datahost $datadrive $datashare $usernm $remotepass"
 
-    if ( -e "$prescript" ) then
-	cmd /c "$prescript $datahost $datadrive $datashare $usernm $remotepass"
+    if ( "$prescript" != "" ) then
+	echo cmd /c "$prescript $datahost $datadrive $datashare $usernm $remotepass"
+	cmd /c "$prescript" $datahost $datadrive $datashare $usernm $remotepass
     endif
     
 endif
@@ -132,14 +134,16 @@ if ( $?DTECT_DEBUG ) then
     endif
 
     if ( $?prescript ) then
-	echo "$0 : prescript = $prescript" >> $logfile
-	echo "$0 : precmd = $precmd" >> $logfile
+	echo "prescript = $prescript" >> $logfile
+	echo "precmd = $precmd" >> $logfile
     else
-	echo "$0 : prescript = <empty>" >> $logfile
+	echo "prescript = <empty>" >> $logfile
     endif
+
 
     echo "$0 : $DTECT_APPL/bin/od_exec $*" >> $logfile
     "$DTECT_APPL/bin/od_exec" $* >> $logfile
+
 
 else
 
