@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.4 2000-07-15 15:24:49 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.5 2000-08-07 20:13:19 bert Exp $";
 
 #include "seistrc.h"
 #include "susegy.h"
@@ -103,29 +103,10 @@ float SeisTrc::getValue( double t ) const
     static const float trcundef = 0;
     static const float snapdist = 1e-4;
 
-    t -= info_.starttime;
-    float pos = t / (info_.dt * 1e-6);
+    float pos = (t - info_.starttime) / (info_.dt * 1e-6);
     interpolateSampled( *this, size(), pos, pos, false, trcundef, snapdist );
 
     return pos;
-}
-
-
-int SeisTrc::getIndex( double val ) const
-{
-    return info_.nearestSample( val );
-}
-
-
-double SeisTrc::getX( int idx ) const
-{
-    return info_.starttime + idx * 1e-6 * info_.dt;
-}
-
-
-SamplingData SeisTrc::samplingData() const
-{
-    return SamplingData( info_.starttime, info_.dt * 1e-6 );
 }
 
 
