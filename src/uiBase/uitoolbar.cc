@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.6 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.7 2001-11-21 15:42:09 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uimain.h"
 #include "uimainwin.h"
+#include "uiobj.h"
 #include "pixmap.h"
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
@@ -61,7 +62,9 @@ uiToolBar* uiToolBar::getNew( const char* nm, ToolBarDock d, bool newline,
 {
     if ( !main ) main = uiMain::theMain().topLevel();
 
-    QMainWindow* mw = static_cast<QMainWindow*>( qApp->mainWidget() );
+    QMainWindow* mw = ( main && main->uiObj() && main->uiObj()->body() ) ?
+	dynamic_cast<QMainWindow*> ( main->uiObj()->body()->qwidget() )  : 0;
+
     if ( !mw ) return 0;
 
     QMainWindow::ToolBarDock d_ = uiToolBarBody::qdock(d);
