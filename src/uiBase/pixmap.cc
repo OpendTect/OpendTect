@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.9 2004-09-14 06:36:43 kristofer Exp $
+ RCS:           $Id: pixmap.cc,v 1.10 2004-12-06 17:13:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,13 @@ ________________________________________________________________________
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qcolor.h>
+
+
+ioPixmap::ioPixmap( const ioPixmap& pm )
+{
+    qpixmap = new QPixmap( *pm.qpixmap );
+}
+
 
 ioPixmap::ioPixmap( const ArrayRGB& anImage )
 {
