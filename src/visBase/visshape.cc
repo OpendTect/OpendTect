@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.15 2004-08-05 12:28:24 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.16 2004-09-09 12:45:53 nanne Exp $";
 
 #include "visshape.h"
 
@@ -316,14 +316,16 @@ bool visBase::VertexShape::getNormalPerFaceBinding() const
 }
 
 
-void visBase::VertexShape::setVertexOrdering( int nv )
-{
-    if ( !shapehints )
-    {
-	shapehints = new SoShapeHints;
-	insertNode( shapehints );
+#define mCheckCreateShapeHints() \
+    if ( !shapehints ) \
+    { \
+	shapehints = new SoShapeHints; \
+	insertNode( shapehints ); \
     }
 
+void visBase::VertexShape::setVertexOrdering( int nv )
+{
+    mCheckCreateShapeHints()
     if ( !nv )
 	shapehints->vertexOrdering = SoShapeHints::CLOCKWISE;
     else if ( nv==1 )
@@ -346,22 +348,33 @@ int visBase::VertexShape::getVertexOrdering() const
 }
 
 
-void visBase::VertexShape::setConvexFlag(bool yn)
+void visBase::VertexShape::setFaceType( int ft )
 {
-    if ( !shapehints )
-    {
-	shapehints = new SoShapeHints;
-	insertNode( shapehints );
-    }
-
-    shapehints->faceType = yn ? SoShapeHints::CONVEX 
-			      : SoShapeHints::UNKNOWN_FACE_TYPE;
+    mCheckCreateShapeHints()
+    shapehints->faceType = !ft ? SoShapeHints::UNKNOWN_FACE_TYPE
+			       : SoShapeHints::CONVEX;
 }
 
 
-bool visBase::VertexShape::getConvexFlag() const
+int visBase::VertexShape::getFaceType() const
 {
-    return shapehints&&shapehints->faceType.getValue()==SoShapeHints::CONVEX;
+    return shapehints && 
+	shapehints->faceType.getValue() == SoShapeHints::CONVEX ? 1 : 0;
+}
+
+
+void visBase::VertexShape::setShapeType( int st )
+{
+    mCheckCreateShapeHints()
+    shapehints->shapeType = !st ? SoShapeHints::UNKNOWN_SHAPE_TYPE
+			        : SoShapeHints::SOLID;
+}
+
+
+int visBase::VertexShape::getShapeType() const
+{
+    return shapehints && 
+	shapehints->shapeType.getValue() == SoShapeHints::SOLID ? 1 : 0;
 }
 
 

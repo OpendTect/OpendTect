@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.12 2004-08-05 12:28:31 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.13 2004-09-09 12:46:01 nanne Exp $
 ________________________________________________________________________
 
 
@@ -135,8 +135,14 @@ public:
 		        */
     int			getVertexOrdering() const;
 
-    void		setConvexFlag(bool=true);
-    bool		getConvexFlag() const;
+    void		setFaceType(int);
+    			/*!< 0: unknown; 1: convex */
+    int			getFaceType() const;
+    			/*!< 0: unknown; 1: convex */
+    void		setShapeType(int);
+    			/*!< 0: unknown; 1: solid */
+    int			getShapeType() const;
+    			/*!< 0: unknown; 1: solid */
 
 protected:
     			~VertexShape();
