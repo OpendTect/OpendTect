@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.26 2001-10-18 16:21:33 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.27 2001-11-08 16:39:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -282,6 +282,7 @@ void uiIOObjSel::processInput()
 	if ( !strcmp(inp,itemusrnm) ) return;
     }
 
+    IOM().to( ctio.ctxt.stdSelKey() );
     const IOObj* ioobj = (*IOM().dirPtr())[inp];
     ctio.setObj( ioobj ? ioobj->clone() : 0 );
     updateInput();
