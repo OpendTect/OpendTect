@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.1 2001-05-23 07:55:00 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.2 2001-05-24 13:18:50 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -28,16 +28,18 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	: SeisTrcTranslator(nm)
 	, headerdone(false)
 	, donext(false)
+	, forread(true)
 	, storinterps(0)
 	, samps(0)
 	, userawdata(0)
 	, samedatachar(0)
 	, actualsz(0)
 	, blockbufs(0)
-	, preseldatatype(0)
 	, stptrs(0)
 	, tdptrs(0)
-	, forread(true)
+	, preseldatatype(0)
+	, rdmgr(0)
+	, wrmgr(0)
 {
 }
 
@@ -62,14 +64,47 @@ void CBVSSeisTrcTranslator::cleanUp()
 }
 
 
-bool CBVSSeisTrcTranslator::initRead_()
+void CBVSSeisTrcTranslator::destroyVars()
+{
+    if ( !blockbufs ) return;
+
+    const int nrcomps = nrSelComps();
+    for ( int idx=0; idx<nrcomps; idx++ )
+    {
+	delete [] blockbufs[idx];
+	delete storinterps[idx];
+    }
+
+    delete [] blockbufs; blockbufs = 0;
+    delete [] storinterps; storinterps = 0;
+    delete [] samps; samps = 0;
+    delete [] userawdata; userawdata = 0;
+    delete [] samedatachar; samedatachar = 0;
+    delete [] actualsz; actualsz = 0;
+    delete [] stptrs; stptrs = 0;
+    delete [] tdptrs; tdptrs = 0;
+
+    delete rdmgr;
+    delete wrmgr;
+}
+
+
+bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 {
     if ( !conn || !conn->ioobj )
 	{ errmsg = "Cannot reconstruct file name"; return false; }
-    forread = true;
 
-    BufferString fnm = conn->ioobj->fullUserExpr(true);
+    fnm = conn->ioobj->fullUserExpr(true);
     conn->close();
+    return true;
+}
+
+
+bool CBVSSeisTrcTranslator::initRead_()
+{
+    forread = true;
+    BufferString fnm; if ( !getFileName(fnm) ) return false;
+
     rdmgr = new CBVSReadMgr( fnm );
     if ( rdmgr->failed() )
 	{ errmsg = rdmgr->errMsg(); return false; }
@@ -148,28 +183,6 @@ void CBVSSeisTrcTranslator::calcSamps()
 	samps[idx].stop = samps[idx].start + outcds[idx]->nrsamples - 1;
     }
 
-}
-
-
-void CBVSSeisTrcTranslator::destroyVars()
-{
-    if ( !blockbufs ) return;
-
-    const int nrcomps = nrSelComps();
-    for ( int idx=0; idx<nrcomps; idx++ )
-    {
-	delete [] blockbufs[idx];
-	delete storinterps[idx];
-    }
-
-    delete [] blockbufs; blockbufs = 0;
-    delete [] storinterps; storinterps = 0;
-    delete [] samps; samps = 0;
-    delete [] userawdata; userawdata = 0;
-    delete [] samedatachar; samedatachar = 0;
-    delete [] actualsz; actualsz = 0;
-    delete [] stptrs; stptrs = 0;
-    delete [] tdptrs; tdptrs = 0;
 }
 
 
@@ -353,11 +366,27 @@ bool CBVSSeisTrcTranslator::skip( int )
 }
 
 
-
 bool CBVSSeisTrcTranslator::startWrite()
 {
-    return false;
+    BufferString fnm; if ( !getFileName(fnm) ) return false;
+
+    CBVSInfo info;
+    info.explinfo.startpos = info.explinfo.coord = 
+    info.explinfo.offset = info.explinfo.pick = 
+    info.explinfo.refpos = true;
+    info.geom.fullyrectandreg = false;
+    info.stdtext = pinfo.stdinfo;
+    info.usertext = pinfo.usrinfo;
+    for ( int idx=0; idx<nrSelComps(); idx++ )
+	info.compinfo += new BasicComponentInfo(*tarcds[idx]);
+
+    wrmgr = new CBVSWriteMgr( fnm, info, &expldat );
+    if ( wrmgr->failed() )
+	{ errmsg = wrmgr->errMsg(); return false; }
+
+    return true;
 }
+
 
 bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
 {
