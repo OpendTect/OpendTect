@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.cc,v 1.8 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uistatusbar.cc,v 1.9 2004-04-29 10:32:27 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,10 @@ public:
 				    msgs[idx]->setText(msg); 
 				else msgs[0]->setText(msg);
 			    }
-			    else
+			    else if ( msg && *msg )
 				qthing()->message(msg);
+			    else
+				qthing()->clear();
 			}
 
 
