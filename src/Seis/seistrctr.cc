@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.15 2001-06-28 15:04:15 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.16 2001-07-02 12:42:56 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -232,7 +232,7 @@ void SeisTrcTranslator::useStoredPar()
 	    }
 	    tcd->sd.start = posns.start;
 	    tcd->sd.step = posns.step;
-	    tcd->nrsamples = posns.nrSteps();
+	    tcd->nrsamples = posns.nrSteps() + 1;
 	}
 
 	keystr = "Index"; keystr += nrstr;

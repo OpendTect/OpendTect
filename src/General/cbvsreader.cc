@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.21 2001-06-26 15:00:47 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.22 2001-07-02 12:42:53 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
@@ -366,7 +366,7 @@ bool CBVSReader::goTo( const BinID& bid )
 		{
 		    curseg = &curiinf->segments[iseg];
 		    if ( curiinf->inl != bid.inl || !curseg->includes(bid.crl) )
-			nrposns += curseg->nrSteps();
+			nrposns += curseg->nrSteps() + 1;
 		    else
 		    {
 			curinlinfnr = iinl; cursegnr = iseg;
