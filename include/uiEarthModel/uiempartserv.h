@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.21 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.22 2003-11-24 08:54:06 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ public:
 			// Services
     bool		importHorizon();
     bool		exportHorizon();
+
+    BufferString	getName(const MultiID&) const;
 
     bool		selectHorizon(MultiID&);
     bool		loadAuxData(const MultiID&,int);
