@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.54 2004-10-06 15:33:12 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.55 2004-10-06 20:10:27 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -600,12 +600,21 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	{
 	    trackmnuid = -1;
 
-	    addsectionmnuid = menu->getFreeID();
-	    trackmnu->insertItem( new uiMenuItem("Add section ..."),
-		    		  addsectionmnuid );
+	    if ( uivissurf->isHorizon(displayid) )
+	    {
+		addsectionmnuid = menu->getFreeID();
+		trackmnu->insertItem( new uiMenuItem("Add section ..."),
+				      addsectionmnuid );
+	    }
+	    else
+		addsectionmnuid = -1;
+#ifdef __debug__
 	    extendsectionmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Extend section ..."),
 		    		  extendsectionmnuid );
+#else
+	    extendsectionmnuid = -1;
+#endif
 
 	    tracksetupmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Change setup ..."),
