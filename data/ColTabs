@@ -9,7 +9,7 @@ Standard color tables
 1.Value-Color.2: 0.5`255`255`255
 1.Value-Color.3: 1`0`0`255
 1.Undef color:	200`200`200
-1.Marker color: 0`0`0
+1.Marker color: 0`240`0
 
 2.Name       :	Red-White-Black
 2.Value-Color.1: 0`255`0`0
@@ -84,6 +84,6 @@ Standard color tables
 10.Value-Color.3: 0.5`255`255`255
 10.Value-Color.4: 1`255`255`255
 10.Undef color:	200`200`200
-10.Marker color: 0`0`0
+10.Marker color: 0`240`0
 
 !
