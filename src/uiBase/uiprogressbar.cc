@@ -61,7 +61,7 @@ int uiProgressBar::Progress() const
 
 void uiProgressBar::setTotalSteps( int tstp )
 { 
-    body_->setTotalSteps( tstp );
+    body_->setTotalSteps( tstp > 2 ? tstp : 2 );
 } 
 
 

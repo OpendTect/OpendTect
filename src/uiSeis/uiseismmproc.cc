@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.15 2002-05-14 21:30:18 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.16 2002-05-22 16:20:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uislider.h"
 #include "hostdata.h"
 #include "iopar.h"
+#include "timefun.h"
 #include <stdlib.h>
 
 
@@ -159,6 +160,7 @@ void uiSeisMMProc::execFinished()
 {
     if ( jmfinished )
     {
+	Time_sleep( 2 );
 	if ( !jm->removeTempSeis() )
 	    uiMSG().warning( "Could not remove temporary seismics" );
 	statusBar()->message( "Finished", 0 );

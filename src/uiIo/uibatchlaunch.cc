@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.11 2002-05-22 11:01:21 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.12 2002-05-22 16:20:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,27 @@ const char* uiGenBatchLaunch::getProg()
     return progfld->box()->text();
 }
 
+
+static bool writeProcFile( const IOParList& iopl, const char* basnm,
+			   BufferString& tfname )
+{
+    tfname = File_getFullPath( GetDataDir(), "Proc" );
+    tfname = File_getFullPath( tfname, basnm );
+    if ( GetSoftwareUser() )
+	{ tfname += "_"; tfname += GetSoftwareUser(); }
+    tfname += ".par";
+    StreamData sd = StreamProvider(tfname).makeOStream();
+    bool allok = sd.usable() && iopl.write(*sd.ostrm);
+    sd.close();
+    if ( !allok )
+    {
+	BufferString msg = "Cannot write to:\n"; msg += tfname;
+	uiMSG().error( msg );
+	return false;
+    }
+
+    return true;
+}
 
 
 uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
@@ -189,20 +210,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	return true;
     }
 
-    BufferString tfname = File_getFullPath( GetDataDir(), "Proc" );
-    tfname = File_getFullPath( tfname, "batch_processing" );
-    if ( GetSoftwareUser() )
-	tfname += GetSoftwareUser();
-    tfname += ".par";
-    StreamData sd = StreamProvider(tfname).makeOStream();
-    bool allok = sd.usable() && iopl.write(*sd.ostrm);
-    sd.close();
-    if ( !allok )
-    {
-	BufferString msg = "Cannot write to:\n"; msg += tfname;
-	uiMSG().error( msg );
+    BufferString tfname;
+    if ( !writeProcFile(iopl,"batch_processing",tfname) )
 	return false;
-    }
 
     BufferString comm( "@" );
     comm += GetSoftwareDir();
@@ -279,17 +289,8 @@ void uiFullBatchDialog::doButPush( CallBacker* cb )
     BufferString tfname;
     if ( cb != singmachbut )
     {
-	tfname = File_getFullPath( GetDataDir(), "Proc" );
-	tfname = File_getFullPath( tfname, "cube_processing" );
-	if ( GetSoftwareUser() )
-	    { tfname += "_"; tfname += GetSoftwareUser(); }
-	tfname += ".par";
-	StreamData sdo = StreamProvider(tfname).makeOStream();
-	if ( !sdo.usable() )
-	    { uiMSG().error( "Cannot write to Proc/ directory" ); return; }
-	else if ( !iopl.write( *sdo.ostrm ) )
-	    { uiMSG().error( "Cannot write job description to file" ); return; }
-	sdo.close();
+	if ( !writeProcFile(iopl,"cube_processing",tfname) )
+	    return;
     }
 
     bool res = false;
