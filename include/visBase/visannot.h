@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.1 2002-02-06 22:30:19 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.2 2002-02-07 14:15:33 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,10 +16,12 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "sets.h"
+#include "draw.h"
 
 class SoCoordinate3;
 class SoText2;
 class SoTranslation;
+class SoDrawStyle;
 
 namespace visBase
 {
@@ -36,8 +38,12 @@ public:
 				Annotation();
     void			setCorner( int, float, float, float );
     void			setText( int dim, const char * );
+    void			setLineStyle( const LineStyle& );
+    const LineStyle&		lineStyle() const { return linestyle; }
 
 protected:
+    LineStyle			linestyle;
+    void			updateLineStyle();
 
     void			updateTextPos();
     SoCoordinate3*		coords;

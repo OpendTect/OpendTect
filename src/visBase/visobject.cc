@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.1 2002-02-06 22:29:14 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.2 2002-02-07 14:15:22 kristofer Exp $";
 
 #include "visobject.h"
 #include "viscolortable.h"
@@ -33,8 +33,6 @@ visBase::VisualObject::VisualObject()
     , transparency( 0 )
     , colortable( 0 )
 {
-    color[0] = 1; color[1] = 0; color[2] = 0;
-
     onoff->ref();
     onoff->addChild( root );
     onoff->whichChild = 0;
@@ -80,12 +78,8 @@ bool visBase::VisualObject::isOn() const
 }
 
 
-void visBase::VisualObject::setColor( float r, float g, float b )
-{
-    color[0] = r;
-    color[1] = g;
-    color[2] = b;
-}
+void visBase::VisualObject::setColor( const Color& nc )
+{ color = nc; }
     
 
 
@@ -107,21 +101,21 @@ SoNode* visBase::VisualObject::getData() { return onoff; }
 
 void visBase::VisualObject::updateMaterial()
 {
-    defaultmaterial->ambientColor.setValue( color[0] * ambience,
-					    color[1] * ambience,
-					    color[2] * ambience );
+    defaultmaterial->ambientColor.setValue( color.r() * ambience/255,
+					    color.g() * ambience/255,
+					    color.b() * ambience/255 );
 
-    defaultmaterial->diffuseColor.setValue( color[0] * diffuseintencity,
-					    color[1] * diffuseintencity,
-					    color[2] * diffuseintencity );
+    defaultmaterial->diffuseColor.setValue( color.r() * diffuseintencity/255,
+					    color.g() * diffuseintencity/255,
+					    color.b() * diffuseintencity/255 );
 
-    defaultmaterial->specularColor.setValue( color[0] * specularintensity,
-					    color[1] * specularintensity,
-					    color[2] * specularintensity );
+    defaultmaterial->specularColor.setValue( color.r() * specularintensity/255,
+					    color.g() * specularintensity/255,
+					    color.b() * specularintensity/255 );
 
-    defaultmaterial->emissiveColor.setValue( color[0] * emmissiveintensity,
-					    color[1] * emmissiveintensity,
-					    color[2] * emmissiveintensity );
+    defaultmaterial->emissiveColor.setValue( color.r() * emmissiveintensity/255,
+					    color.g() * emmissiveintensity/255,
+					    color.b() * emmissiveintensity/255);
 
     defaultmaterial->shininess = shininess;
     defaultmaterial->transparency = transparency;

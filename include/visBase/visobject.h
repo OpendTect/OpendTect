@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.1 2002-02-06 22:30:19 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.2 2002-02-07 14:15:33 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "vissceneobj.h"
+#include "color.h"
 
 class SoSeparator;
 class SoNode;
@@ -39,7 +40,7 @@ public:
     void		off();
     bool		isOn() const;
 
-    void		setColor(float, float, float);
+    void		setColor(const Color& );
 
     virtual void	switchColorMode( bool totable );
     bool		isColorTable() const;
@@ -49,7 +50,7 @@ public:
 protected:
 
     void		updateMaterial();
-    float		color[3];
+    Color		color;
     float           	ambience;
     float           	diffuseintencity;
     float		specularintensity;
@@ -67,7 +68,7 @@ protected:
 
     ColorTable*		colortable;
     SoMaterial*		colortablematerial;
-    bool			usecolortable;
+    bool		usecolortable;
 
 };
 

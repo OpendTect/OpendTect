@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.1 2002-02-06 22:29:14 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.2 2002-02-07 14:15:22 kristofer Exp $";
 
 #include "visannot.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: visannot.cc,v 1.1 2002-02-06 22:29:14 kristofer
 #include "Inventor/nodes/SoCoordinate3.h"
 #include "Inventor/nodes/SoText2.h"
 #include "Inventor/nodes/SoTranslation.h"
+#include "Inventor/nodes/SoDrawStyle.h"
 
 
 visBase::Annotation::Annotation()
@@ -102,7 +103,33 @@ void visBase::Annotation::setText( int dim, const char* text )
 {
     texts[dim]->string = text;
 }
-    
+
+
+void visBase::Annotation::setLineStyle( const LineStyle& nls )
+{
+    linestyle = nls;
+    updateLineStyle();
+}
+
+
+void visBase::Annotation::updateLineStyle()
+{
+    drawstyle->lineWidth.setValue( linestyle.width );
+
+    color = linestyle.color;
+    updateMaterial();
+
+    unsigned short pattern;
+
+    if ( linestyle.type==LineStyle::None )	pattern = 0;
+    else if ( linestyle.type==LineStyle::Solid )pattern = 0xFFFF;
+    else if ( linestyle.type==LineStyle::Dash )	pattern = 0xF0F0;
+    else if ( linestyle.type==LineStyle::Dot )	pattern = 0xAAAA;
+    else if ( linestyle.type==LineStyle::DashDot ) pattern = 0xF6F6;
+    else pattern = 0xEAEA;
+
+    drawstyle->linePattern.setValue( pattern );
+}
 
 
 void visBase::Annotation::updateTextPos()
