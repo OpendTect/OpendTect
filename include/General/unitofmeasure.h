@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.1 2004-02-19 14:02:53 bert Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.2 2004-02-19 16:22:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,13 @@ protected:
 };
 
 
-/*!\brief Unit of Measure
+/*!\brief Repository of all Units of Measure in the system.
  
- Only linear transformations to SI units supported.
+ At first usage of the singleton instance of this class (accessible through
+ the global UoMR() function), the following sources of units are used:
+ * <user_home>/.od/unitsofmeasure if it exists
+ * <application_directory>/data/UnitsOfMeasure if it exists
+ * The standard ones like 'feet', hard-coded
 
  */
 

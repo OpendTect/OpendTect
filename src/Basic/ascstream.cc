@@ -4,10 +4,9 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.12 2003-11-26 10:05:32 bert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.13 2004-02-19 16:22:26 bert Exp $";
 
 #include "ascstream.h"
-#include "unitscale.h"
 #include "string2.h"
 #include "general.h"
 #include "timefun.h"
@@ -99,25 +98,17 @@ bool ascostream::put( const char* keyword, int value )
 }
 
 
-bool ascostream::put( const char* keyword, float value, const MeasureUnit* mu )
+bool ascostream::put( const char* keyword, float value )
 {
-    if ( !mIsUndefined(value) )
-    {
-	if ( mu ) value = mu->fromSI( value );
-	return put( keyword, getStringFromFloat(0,value) );
-    }
-    return stream().good();
+    return mIsUndefined(value) ? stream().good()
+	 : put( keyword, getStringFromFloat(0,value) );
 }
 
 
-bool ascostream::put( const char* keyword, double value, const MeasureUnit* mu )
+bool ascostream::put( const char* keyword, double value )
 {
-    if ( !mIsUndefined(value) )
-    {
-	if ( mu ) value = mu->fromSI( value );
-	return put( keyword, getStringFromDouble(0,value) );
-    }
-    return stream().good();
+    return mIsUndefined(value) ? stream().good()
+	 : put( keyword, getStringFromDouble(0,value) );
 }
 
 
@@ -299,10 +290,10 @@ int ascistream::getVal() const
 }
 
 
-double ascistream::getValue( const MeasureUnit* mu ) const
+double ascistream::getValue() const
 {
     double res = atof( valbuf );
-    if ( mu && !mIsUndefined(res) )
-	res = mu->toSI( res );
+    if ( mIsUndefined(res) )
+	res = mUndefValue;
     return res;
 }

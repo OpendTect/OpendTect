@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.2 2004-02-19 14:02:53 bert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.3 2004-02-19 16:22:26 bert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: property.cc,v 1.2 2004-02-19 14:02:53 bert Exp 
 DefineEnumNames(PropertyRef,StdType,0,"Standard Property")
 {
 	"Other",
+	"Time",
 	"Distance/Depth",
 	"Density",
 	"Velocity",
@@ -103,4 +104,10 @@ float MathProperty::value() const
     }
 
     return expr_->getValue();
+}
+
+
+PropertyRefRepository::PropertyRefRepository()
+{
+
 }

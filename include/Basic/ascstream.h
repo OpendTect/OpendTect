@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.9 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: ascstream.h,v 1.10 2004-02-19 16:22:26 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include <bufstring.h>
 #include <limits.h>
 #include <iosfwd>
-
-class MeasureUnit;
 
 #define mParagraphMarker	"!"
 #define mDefKeyValSep		':'
@@ -48,8 +46,8 @@ public:
 
     bool	put(const char*,const char* val=0);
     bool	put(const char*,int);
-    bool	put(const char*,float,const MeasureUnit* mu=0);
-    bool	put(const char*,double,const MeasureUnit* mu=0);
+    bool	put(const char*,float);
+    bool	put(const char*,double);
     bool	putYN(const char*,bool);
     bool	putHeader(const char*,const char* pspec=0);
 
@@ -130,7 +128,7 @@ public:
     bool		hasKeyword(const char*) const;
     bool		hasValue(const char*) const;
     int			getVal() const;
-    double		getValue(const MeasureUnit* mu=0) const;
+    double		getValue() const;
     bool		getYN() const;
 
     inline istream&	stream() const		{ return *streamptr; }

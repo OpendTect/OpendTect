@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.1 2004-02-19 14:02:53 bert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.2 2004-02-19 16:22:26 bert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -49,6 +49,8 @@ UnitOfMeasureRepository::UnitOfMeasureRepository()
 #define mAdd(nm,symb,fac,ptyp) \
     add( UnitOfMeasure( nm, symb, fac, PropertyRef::ptyp ) )
 
+    mAdd( "Milliseconds", "msec", 0.001, Time );
+    mAdd( "Microseconds", "usec", 1e-6, Time );
     mAdd( "Feet", "ft", 0.3048, Dist );
     mAdd( "Inches", "in", 0.0254, Dist );
     mAdd( "Gram/cm3", "g/cc", 1000, Den );
