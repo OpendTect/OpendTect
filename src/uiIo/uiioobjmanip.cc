@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.1 2003-05-16 15:33:43 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.2 2003-05-20 12:42:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiListBox* l, IODirEntryList& el,
 	, box(l)
 	, entries(el)
 	, defext(de)
+    	, preRelocation(this)
 {
     const ioPixmap locpm( GetDataFileName("filelocation.png") );
     const ioPixmap renpm( GetDataFileName("renameobj.png") );
@@ -59,11 +60,12 @@ void uiIOObjManipGroup::selChg( CallBacker* c )
 {
     ioobj = entries.selected();
     mDynamicCastGet(IOStream*,iostrm,ioobj)
-    const bool ischangable = ioobj && !ioobj->implReadOnly();
-    locbut->setSensitive( iostrm && ischangable );
-    robut->setOn( !ischangable );
+    const bool isexisting = ioobj && ioobj->implExists(true);
+    const bool isreadonly = isexisting && ioobj->implReadOnly();
+    locbut->setSensitive( iostrm && !isreadonly );
+    robut->setOn( isreadonly );
     renbut->setSensitive( ioobj );
-    rembut->setSensitive( ischangable );
+    rembut->setSensitive( ioobj && !isreadonly );
 }
 
 
@@ -80,11 +82,11 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 
     bool chgd = false;
     if ( tb == locbut )
-	chgd = chgEntry( tr );
+	chgd = relocEntry( tr );
     else if ( tb == robut )
-	chgd = roEntry( tr );
+	chgd = readonlyEntry( tr );
     else if ( tb == renbut )
-	chgd = renEntry( tr );
+	chgd = renameEntry( tr );
     else if ( tb == rembut )
     {
 	bool exists = tr ? tr->implExists(ioobj,true) : ioobj->implExists(true);
@@ -124,32 +126,7 @@ void uiIOObjManipGroup::refreshList( const MultiID& key )
 }
 
 
-bool uiIOObjManipGroup::renImpl( Translator* tr, IOStream& iostrm,
-				 IOStream& chiostrm )
-{
-    const bool oldimplexist = tr ? tr->implExists(&iostrm,true)
-				 : iostrm.implExists(true);
-    BufferString newfname( chiostrm.fullUserExpr(true) );
-
-    if ( oldimplexist )
-    {
-	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
-				     : chiostrm.implExists(true);
-	if ( newimplexist && !uiRmIOObjImpl( chiostrm, true ) )
-	    return false;
-
-	if ( tr )
-	    tr->implRename( &iostrm, newfname );
-	else
-	    iostrm.implRename( newfname );
-    }
-
-    iostrm.setFileName( newfname );
-    return true;
-}
-
-
-bool uiIOObjManipGroup::renEntry( Translator* tr )
+bool uiIOObjManipGroup::renameEntry( Translator* tr )
 {
     BufferString titl( "Rename '" );
     titl += ioobj->name(); titl += "'";
@@ -188,7 +165,7 @@ bool uiIOObjManipGroup::renEntry( Translator* tr )
 	if ( tr )
 	    chiostrm.setExt( tr->defExtension() );
 	chiostrm.genDefaultImpl();
-	if ( !renImpl(tr,*iostrm,chiostrm) )
+	if ( !doReloc(tr,*iostrm,chiostrm) )
 	    return false;
 
 	iostrm->copyFrom( &chiostrm );
@@ -238,7 +215,7 @@ bool uiIOObjManipGroup::rmEntry( bool rmabl )
 }
 
 
-bool uiIOObjManipGroup::chgEntry( Translator* tr )
+bool uiIOObjManipGroup::relocEntry( Translator* tr )
 {
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     BufferString caption( "New file/location for '" );
@@ -257,7 +234,7 @@ bool uiIOObjManipGroup::chgEntry( Translator* tr )
     chiostrm.copyFrom( iostrm );
     BufferString newfnm( dlg.fileName() );
     chiostrm.setFileName( newfnm );
-    if ( !renImpl(tr,*iostrm,chiostrm) )
+    if ( !doReloc(tr,*iostrm,chiostrm) )
 	return false;
 
     IOM().commitChanges( *iostrm );
@@ -265,7 +242,7 @@ bool uiIOObjManipGroup::chgEntry( Translator* tr )
 }
 
 
-bool uiIOObjManipGroup::roEntry( Translator* tr )
+bool uiIOObjManipGroup::readonlyEntry( Translator* tr )
 {
     if ( !ioobj ) { pErrMsg("Huh"); return false; }
 
@@ -285,4 +262,38 @@ bool uiIOObjManipGroup::roEntry( Translator* tr )
 
     selChg(0);
     return false;
+}
+
+
+bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
+				 IOStream& chiostrm )
+{
+    const bool oldimplexist = tr ? tr->implExists(&iostrm,true)
+				 : iostrm.implExists(true);
+    BufferString newfname( chiostrm.fullUserExpr(true) );
+
+    if ( oldimplexist )
+    {
+	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
+				     : chiostrm.implExists(true);
+	if ( newimplexist && !uiRmIOObjImpl( chiostrm, true ) )
+	    return false;
+
+	CallBack cb( mCB(this,uiIOObjManipGroup,relocCB) );
+	if ( tr )
+	    tr->implRename( &iostrm, newfname, &cb );
+	else
+	    iostrm.implRename( newfname, &cb );
+    }
+
+    iostrm.setFileName( newfname );
+    return true;
+}
+
+
+void uiIOObjManipGroup::relocCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const char*,msg,cb);
+    relocmsg = msg;
+    preRelocation.trigger();
 }

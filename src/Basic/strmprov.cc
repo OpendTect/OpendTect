@@ -29,9 +29,11 @@
 #include "string2.h"
 #include "binidsel.h"
 #include "strmoper.h"
+#include "callback.h"
+#include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.35 2003-05-14 14:08:53 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.36 2003-05-20 12:42:12 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -513,11 +515,46 @@ bool StreamProvider::isReadOnly() const
 }
 
 
-bool StreamProvider::rename( const char* newnm )
+static void mkRelocMsg( const char* oldnm, const char* newnm,BufferString& msg )
 {
-    bool rv = true;
+    msg = "Relocating <";
+    while ( *oldnm && *newnm && *oldnm == *newnm )
+	{ oldnm++; newnm++; }
+    msg += oldnm; msg += "> to <"; msg += newnm; msg += "> ...";
+}
 
-    if ( newnm && *newnm && !isbad && type_ == StreamConn::File )
+
+void StreamProvider::sendCBMsg( const CallBack* cb, const char* msg )
+{
+    UserIDObject uidobj( msg );
+    CBCapsule<const char*> caps( ((const char*)msg), &uidobj );
+    CallBack(*cb).doCall( &caps );
+}
+
+
+bool StreamProvider::rename( const char* newnm, const CallBack* cb )
+{
+    bool rv = false;
+    const bool issane = newnm && *newnm && !isbad && type_ == StreamConn::File;
+
+    if ( cb && cb->willCall() )
+    {
+	BufferString msg;
+	if ( issane )
+	    mkRelocMsg( fname, newnm, msg );
+	else if ( type_ != StreamConn::File )
+	    msg = "Cannot rename commands or devices";
+	else
+	{
+	    if ( isbad )
+		msg = "Cannot rename invalid filename";
+	    else
+		msg = "No filename provided for rename";
+	}
+	sendCBMsg( cb, msg );
+    }
+
+    if ( issane )
     {
 	if ( !hostname[0] )
 	    rv = fname == sStdIO || fname == sStdErr ? true :

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.1 2003-05-16 15:33:43 bert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.2 2003-05-20 12:42:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,11 +34,15 @@ public:
     void		selChg(CallBacker*);
     void		refreshList(const MultiID& selkey);
 
+    Notifier<uiIOObjManipGroup>	preRelocation;
+    const char*		curRelocationMsg() const	{ return relocmsg; }
+
 protected:
 
     IODirEntryList&	entries;
     IOObj*		ioobj;
     BufferString	defext;
+    BufferString	relocmsg;
 
     uiListBox*		box;
     uiToolButton*	locbut;
@@ -47,12 +51,14 @@ protected:
     uiToolButton*	rembut;
 
     void		tbPush(CallBacker*);
+    void		relocCB(CallBacker*);
 
     bool		rmEntry(bool);
-    bool		renEntry(Translator*);
-    bool		chgEntry(Translator*);
-    bool		roEntry(Translator*);
-    bool		renImpl(Translator*,IOStream&,IOStream&);
+    bool		renameEntry(Translator*);
+    bool		relocEntry(Translator*);
+    bool		readonlyEntry(Translator*);
+
+    bool		doReloc(Translator*,IOStream&,IOStream&);
 
 };
 

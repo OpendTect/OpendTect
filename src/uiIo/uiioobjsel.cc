@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.53 2003-05-16 15:33:43 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.54 2003-05-20 12:42:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,8 +73,11 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
     listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
     if ( !ismultisel && ctio.ctxt.maydooper )
+    {
 	manipgrp = new uiIOObjManipGroup( listfld->box(), *entrylist,
 					  ctio.ctxt.trgroup->defExtension() );
+	manipgrp->preRelocation.notify( mCB(this,uiIOObjSelDlg,preReloc) );
+    }
     setOkText( "Select" );
     selChg( this );
     finaliseDone.notify( mCB(this,uiIOObjSelDlg,selChg) );
@@ -136,6 +139,14 @@ void uiIOObjSelDlg::selChg( CallBacker* cb )
     }
 
     manipgrp->selChg( cb );
+}
+
+
+void uiIOObjSelDlg::preReloc( CallBacker* cb )
+{
+#ifdef __debug__
+    UsrMsg( manipgrp->curRelocationMsg() );
+#endif
 }
 
 

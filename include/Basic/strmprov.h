@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.11 2003-05-13 15:27:56 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.12 2003-05-20 12:42:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <idobj.h>
 #include <fixstring.h>
 #include <streamconn.h>
+class CallBack;
 
 
 /*!\brief provides I/O stream for disk or tape file or system command.
@@ -43,8 +44,9 @@ public:
 		StreamProvider(const char* nm=0);
 		StreamProvider(const char*,const char*,StreamConn::Type);
     void	set(const char*);
-    bool	rename(const char*);
+    bool	rename(const char*,const CallBack* cb=0);
     		//!< renames if file. if successful, does a set()
+    		//!< Uses sendCBMsg if cb provided
 
     bool	skipFiles(int) const;
 		//!< Skips files if tape
@@ -85,6 +87,9 @@ public:
 
     static const char*	sStdIO;
     static const char*	sStdErr;
+
+    static void	sendCBMsg(const CallBack*,const char*);
+    		//!< The callback will be called with a const char* capsule
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.25 2003-05-19 07:52:35 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.26 2003-05-20 12:42:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,25 +21,21 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uimsg.h"
-#include "uigeninput.h"
-#include "uigeninputdlg.h"
 #include "uimergeseis.h"
 #include "uiseiscbvsimp.h"
-#include "uiioobjsel.h"
-#include "uifiledlg.h"
+#include "uiioobjmanip.h"
 #include "uitextedit.h"
+#include "pixmap.h"
 #include "seistrctr.h"
 #include "filegen.h"
 #include "binidselimpl.h"
-#include "ptrman.h"
-#include "transl.h"
 #include "survinfo.h"
 
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p )
         : uiDialog(p,uiDialog::Setup("Seismic file management",
                                      "Manage seismic cubes",
-                                     "103.1.0"))
+                                     "103.1.0").nrstatusflds(1))
 	, ctio(*new CtxtIOObj(SeisTrcTranslator::ioContext()))
 	, ioobj(0)
 {
@@ -52,44 +48,42 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     listfld->setHSzPol( uiObject::medvar );
     listfld->selectionChanged.notify( mCB(this,uiSeisFileMan,selChg) );
 
-    uiGroup* butgrp = new uiGroup( topgrp, "Action buttons" );
-    butgrp->attach( rightOf, listfld );
-    rembut = new uiPushButton( butgrp, "Remove ..." );
-    rembut->activated.notify( mCB(this,uiSeisFileMan,removePush) );
-    renamebut = new uiPushButton( butgrp, "Rename ..." );
-    renamebut->activated.notify( mCB(this,uiSeisFileMan,renamePush) );
-    renamebut->attach( alignedBelow, rembut );
-    relocbut = new uiPushButton( butgrp, "Move ..." );
-    relocbut->activated.notify( mCB(this,uiSeisFileMan,relocatePush) );
-    relocbut->attach( alignedBelow, renamebut );
-    copybut = new uiPushButton( butgrp, "Copy ..." );
-    copybut->activated.notify( mCB(this,uiSeisFileMan,copyPush) );
-    copybut->attach( alignedBelow, relocbut );
-    mergebut = new uiPushButton( butgrp, "Merge ..." );
-    mergebut->activated.notify( mCB(this,uiSeisFileMan,mergePush) );
-    mergebut->attach( alignedBelow, copybut );
+    manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "cbvs" );
+    manipgrp->preRelocation.notify( mCB(this,uiSeisFileMan,relocMsg) );
 
-    renamebut->attach( widthSameAs, rembut );
-    relocbut->attach( widthSameAs, rembut );
-    copybut->attach( widthSameAs, rembut );
-    mergebut->attach( widthSameAs, rembut );
-    listfld->attach( heightSameAs, butgrp );
-  
+    const ioPixmap copypm( GetDataFileName("copyobj.png") );
+    copybut = new uiToolButton( manipgrp, "copy toolbut", copypm );
+    copybut->activated.notify( mCB(this,uiSeisFileMan,copyPush) );
+    copybut->setToolTip( "Copy cube" );
+    const ioPixmap mergepm( GetDataFileName("mergeseis.png") );
+    mergebut = new uiToolButton( manipgrp, "merge toolbut", mergepm );
+    mergebut->activated.notify( mCB(this,uiSeisFileMan,mergePush) );
+    mergebut->setToolTip( "Merge blocks of inlines into cube" );
+
     infofld = new uiTextEdit( this, "File Info", true );
-    infofld->attach( alignedBelow, topgrp );
-    infofld->setPrefHeightInChar( 8 );
+    infofld->attach( centeredBelow, topgrp );
+    infofld->setPrefHeightInChar( 9 );
     infofld->setPrefWidthInChar( 50 );
+    topgrp->setPrefWidthInChar( 50 );
 
     selChg( this ); 
     setCancelText( "" );
 }
 
 
-void uiSeisFileMan::selChg( CallBacker* )
+void uiSeisFileMan::selChg( CallBacker* cb )
 {
     entrylist->setCurrent( listfld->currentItem() );
     ioobj = entrylist->selected();
+    copybut->setSensitive( ioobj && ioobj->implExists(true) );
     mkFileInfo();
+    manipgrp->selChg( cb );
+}
+
+
+void uiSeisFileMan::relocMsg( CallBacker* cb )
+{
+    toStatusBar( manipgrp->curRelocationMsg() );
 }
 
 
@@ -149,137 +143,16 @@ void uiSeisFileMan::mkFileInfo()
 }
 
 
-void uiSeisFileMan::refreshList( int curitm )
-{
-    entrylist->fill( IOM().dirPtr() );
-    if ( curitm >= entrylist->size() ) curitm--;
-    entrylist->setCurrent( curitm );
-    ioobj = entrylist->selected();
-    listfld->empty();
-    listfld->addItems( entrylist->Ptr() );
-}
-
-
-bool uiRmIOObjImpl(IOObj&,bool);
-
-void uiSeisFileMan::removePush( CallBacker* )
-{
-    if ( !ioobj ) return;
-    int curitm = listfld->currentItem();
-    if ( !ioobj->implReadOnly() && !uiRmIOObjImpl(*ioobj,false) )
-	return;
-
-    entrylist->curRemoved();
-    IOM().permRemove( ioobj->key() );
-    refreshList( curitm );
-}
-
-
-void uiSeisFileMan::renamePush( CallBacker* )
-{
-    if ( !ioobj ) return;
-    BufferString fulloldname = ioobj->fullUserExpr(true);
-    int curitm = listfld->currentItem();
-    BufferString entrynm = listfld->getText();
-    char* ptr = entrynm.buf();
-    skipLeadingBlanks( ptr );
-    uiGenInputDlg dlg( this, "Rename seismic cube", "New name",
-	    		new StringInpSpec(ptr) );
-    if ( !dlg.go() ) return;
-
-    if ( listfld->isPresent( dlg.text() ) )
-	if ( !uiMSG().askGoOn("Cube name exists, overwrite?") )
-	    return;
-
-    MultiID key = ioobj->key();
-    if ( IOM().setFileName( key, dlg.text() ) )
-    {
-	PtrMan<IOObj> locioobj = IOM().get( key );
-	handleMultiFiles( fulloldname, locioobj->fullUserExpr(true) );
-    }
-
-    refreshList( curitm );
-}
-
-
-void uiSeisFileMan::relocatePush( CallBacker* )
-{
-    if ( !ioobj ) return;
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
-
-    const FileNameString fulloldname = ioobj->fullUserExpr(true);
-    if ( !File_exists(fulloldname) )
-    {
-	uiMSG().error( "There are no files for this entry (yet)" );
-        return;
-    }
-
-    BufferString olddirpath = File_getPathOnly( fulloldname );
-    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, olddirpath, 0,
-	   	      "Select destination directory" );
-    if ( !dlg.go() ) return;
-    BufferString newdirpath = dlg.fileName();
-    BufferString fname = File_getFileName( fulloldname );
-    BufferString fullnewname = File_getFullPath(newdirpath,fname);
-    if ( File_exists(fullnewname) )
-    {
-	uiMSG().error( "A cube with this name exists at given location\n"
-		       "Please select another location" );
-	return;
-    }
-
-    toStatusBar( "Moving cube ..." );
-    if ( !File_rename(fulloldname,fullnewname) )
-    {
-	uiMSG().error( "Could not move cube to new location" );
-	toStatusBar( "" );
-	return;
-    }
-
-    iostrm->setFileName( fullnewname );
-    handleMultiFiles( fulloldname, fullnewname );
-
-    int curitm = listfld->currentItem();
-    if ( IOM().commitChanges( *ioobj ) )
-	refreshList( curitm );
-}
-
-
 void uiSeisFileMan::copyPush( CallBacker* )
 {
     if ( !ioobj ) return;
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
 
-    const int curitm = listfld->currentItem();
+    MultiID key( iostrm->key() );
     uiSeisImpCBVS dlg( this, iostrm );
     dlg.go();
-    refreshList( curitm );
-}
-
-
-void uiSeisFileMan::handleMultiFiles( const char* fulloldname,
-					const char* fullnewname )
-{
-    for ( int inr=1; ; inr++ )
-    {
-	BufferString fnm( CBVSIOMgr::getFileName(fulloldname,inr) );
-	if ( File_isEmpty(fnm) ) break;
-
-	BufferString newfn( CBVSIOMgr::getFileName(fullnewname,inr) );
-	BufferString msg = "Moving part "; msg += inr+1; msg += " ...";
-	toStatusBar( msg );
-	if ( !File_rename(fnm,newfn) )
-	{
-	    msg = "Move aborted: could not move part "; msg += inr+1;
-	    msg += "\nThe cube data is now partly moved.";
-	    msg += "\nPlease contact system administration to fix the problem";
-	    uiMSG().error( msg );
-	    break;
-	}
-    }
-    toStatusBar( "" );
+    manipgrp->refreshList( key );
 }
 
 
@@ -317,8 +190,10 @@ BufferString uiSeisFileMan::getFileSize( const char* filenm )
 
 void uiSeisFileMan::mergePush( CallBacker* )
 {
-    int curitm = listfld->currentItem();
+    if ( !ioobj ) return;
+
+    MultiID key( ioobj->key() );
     uiMergeSeis dlg( this );
     dlg.go();
-    refreshList( curitm );
+    manipgrp->refreshList( key );
 }

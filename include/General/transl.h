@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.12 2003-05-13 15:27:56 bert Exp $
+ RCS:		$Id: transl.h,v 1.13 2003-05-20 12:42:12 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -27,9 +27,11 @@ description of IOObj context.
 #include <iosfwd>
 
 class IOPar;
+class CallBack;
 class UserIDSet;
 
 #define mDGBKey "dGB"
+
 
 class Translator : public UserIDObject
 		 , public DefObject
@@ -50,7 +52,8 @@ public:
     virtual bool		implExists(const IOObj*,int forread) const;
     virtual bool		implReadOnly(const IOObj*) const;
     virtual bool		implRemove(const IOObj*) const;
-    virtual bool		implRename(const IOObj*,const char*) const;
+    virtual bool		implRename(const IOObj*,const char*,
+	    					const CallBack* cb=0) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
     virtual void		usePar(const IOPar*)	{}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.12 2003-05-13 15:27:56 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.13 2003-05-20 12:42:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,11 @@ ________________________________________________________________________
  
 #include <conn.h>
 #include <multiid.h>
+class IOPar;
+class CallBack;
 class ascistream;
 class ascostream;
 class Translator;
-class IOPar;
 
 /*\brief object describing how to do I/O for objects
 
@@ -75,7 +76,8 @@ public:
     virtual bool	implExists(bool forread) const	= 0;
     virtual bool	implReadOnly() const		{ return true; }
     virtual bool	implRemove() const		{ return false; }
-    virtual bool	implRename(const char*)		{ return false; }
+    virtual bool	implRename(const char*,const CallBack* cb=0)
+    							{ return false; }
     virtual bool	implSetReadOnly(bool) const	{ return false; }
     virtual bool	removeQuery() const		{ return false; }
     virtual void	genDefaultImpl()		{}
