@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.27 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: iopar.h,v 1.28 2004-07-21 10:33:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,7 @@ inline void use( const TypeSet<T>& ts, IOPar& iopar, const char* basekey=0 )
 {
     const int sz = ts.size();
     for ( int idx=0; idx<sz; idx++ )
-	iopar.set( compKey(basekey,idx+1), ts[idx] );
+	iopar.set( IOPar::compKey(basekey,idx+1), ts[idx] );
 }
 
 
