@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.10 2005-03-17 16:28:54 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.11 2005-03-23 14:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.10 2005-03-17 16:28:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.11 2005-03-23 14:08:44 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -175,7 +175,7 @@ void EMObjectDisplay::useTexture( bool yn )
 
     for ( int idx=0; idx<sections.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
 	if ( psurf )
 	{
 	    if ( psurf->nrTextures() )
@@ -318,11 +318,11 @@ bool EMObjectDisplay::usesWireframe() const
     if ( !sections.size() )
 	return false;
 
-    mDynamicCastGet( const visBase::CubicBezierSurface*, cbs, sections[0] );
+    mDynamicCastGet(const visBase::CubicBezierSurface*,cbs,sections[0]);
     if ( cbs ) return cbs->usesWireframe();
 
-    mDynamicCastGet( const visBase::ParametricSurface*, ks, sections[0] );
-    if ( ks ) return ks->usesWireframe();
+    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
+    if ( ps ) return ps->usesWireframe();
 
     return false;
 }
@@ -335,8 +335,8 @@ void EMObjectDisplay::useWireframe( bool yn )
 	mDynamicCastGet(visBase::CubicBezierSurface*,cbs,sections[idx]);
 	if ( cbs ) cbs->useWireframe(yn);
 
-	mDynamicCastGet( visBase::ParametricSurface*, ks, sections[0] );
-	if ( ks ) return ks->useWireframe(yn);
+	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[0]);
+	if ( ps ) return ps->useWireframe(yn);
     }
 }
 
@@ -422,5 +422,56 @@ void EMObjectDisplay::removeAttribCache()
     deepEraseArr( attribcache );
     attribcachesz.erase();
 }
+
+
+int EMObjectDisplay::nrResolutions() const
+{
+    if ( !sections.size() ) return 1;
+
+    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
+    return ps ? ps->nrResolutions() : 1;
+}
+
+
+BufferString EMObjectDisplay::getResolutionName( int res ) const
+{
+    BufferString str;
+    if ( !res ) str = "Automatic";
+    else
+    {
+	res = nrResolutions() - res;
+	res--;
+	int val = 1;
+	for ( int idx=0; idx<res; idx++ )
+	    val *= 2;
+
+	if ( val==2 ) 		str = "Half";
+	else if ( val==1 ) 	str = "Full";
+	else 			{ str = "1 / "; str += val; }
+    }
+
+    return str;
+}
+
+
+int EMObjectDisplay::getResolution() const
+{
+    if ( !sections.size() ) return 1;
+
+    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
+    return ps ? ps->currentResolution()+1 : 1;
+}
+
+
+void EMObjectDisplay::setResolution( int res )
+{
+    for ( int idx=0; idx<sections.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[0]);
+	if ( ps ) ps->setResolution( res-1 );
+    }
+}
+
+
 
 }; // namespace visSurvey

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.5 2005-03-11 12:25:01 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.6 2005-03-23 14:08:53 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -51,7 +51,8 @@ public:
     bool			usesTexture() const;
 
     void			readAuxData();
-    
+
+    int				getAttributeFormat() const	{ return 2; }
     bool			hasColorAttribute() const; 
     const AttribSelSpec*	getSelSpec() const;
     const ColorAttribSel*	getColorSelSpec() const;
@@ -64,6 +65,12 @@ public:
 					   const ObjectSet<BinIDValueSet>*);
 
     bool			hasStoredAttrib() const;
+
+    int				nrResolutions() const;
+    BufferString		getResolutionName(int) const;
+    int				getResolution() const;
+    void			setResolution(int);
+    				/*!< 0 is automatic */
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
