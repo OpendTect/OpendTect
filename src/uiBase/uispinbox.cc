@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.9 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uispinbox.cc,v 1.10 2002-07-01 13:16:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ void uiSpinBox::setValue( int i )	{ body_->setValue( i ); }
 void uiSpinBox::setValue( double d )	{ body_->setValue( mNINT(d) ); }
 
 int uiSpinBox::minValue() const		{ return body_->minValue() ; }
-int uiSpinBox::maxValue() const		{ return body_->minValue() ; }
+int uiSpinBox::maxValue() const		{ return body_->maxValue() ; }
 void uiSpinBox::setMinValue( int m )	{ body_->setMinValue(m); }
 void uiSpinBox::setMaxValue( int m )	{ body_->setMaxValue(m); }
 int uiSpinBox::step() const		{ return body_->lineStep() ; }
