@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.64 2004-11-05 13:20:42 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.65 2004-11-09 12:42:09 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -38,12 +38,6 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.64 2004-11-05 13:20:42 arend E
 #define mErrStrm (sdout_.ostrm ? *sdout_.ostrm : std::cerr)
 
 BatchProgram* BatchProgram::inst_;
-
-#ifdef __win__
-# define mGetPath(path)  getWinPath(path)
-#else
-# define mGetPath(path)  path
-#endif
 
 BatchProgram::BatchProgram( int* pac, char** av )
 	: UserIDObject("")
@@ -103,9 +97,11 @@ BatchProgram::BatchProgram( int* pac, char** av )
     }
 
 
-    static BufferString parfilnm; parfilnm = fn;
+    FilePath parfp( fn );
+    
+    static BufferString parfilnm; parfilnm = parfp.fullPath();
     replaceCharacter(parfilnm.buf(),'%',' ');
-    fn = mGetPath( parfilnm );
+    fn = parfilnm;
 
     setName( fn );
 
