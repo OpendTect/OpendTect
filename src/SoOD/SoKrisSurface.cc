@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.4 2005-03-10 11:38:19 cvskris Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.5 2005-03-10 13:24:02 cvskris Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -26,6 +26,8 @@ static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.4 2005-03-10 11:38:19 cvsk
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/threads/SbRWMutex.h>
 #include <Inventor/system/gl.h>
+
+#include <Inventor/errors/SoDebugError.h>
 
 #define mIsCoordDefined( coord ) (coord[0]<1e29)
 
@@ -335,7 +337,9 @@ void MeshSurfaceTesselationCache::GLRender(SoGLRenderAction* action)
 {
     SoMaterialBundle mb(action);
     const SbVec3f* cptr = meshsurface.coordinates.getValues(0);
+    const int nc = meshsurface.coordinates.getNum();
     const int32_t* miptr = meshsurface.materialIndex.getValues(0);
+    const int nmi = meshsurface.materialIndex.getNum();
 
     mb.sendFirst();
 
@@ -362,8 +366,13 @@ void MeshSurfaceTesselationCache::GLRender(SoGLRenderAction* action)
 	    isopen = true;
 	}
 
-	mb.send(miptr?miptr[index]:0,true);
+	mb.send(miptr&&index<nmi?miptr[index]:0,true);
 	glNormal3fv(normals[ni[idx]].getValue());
+#if __debug__
+	if ( index>=nc )
+	    SoDebugError::postWarning("MeshSurfaceTesselationCache::GLRender",
+				      "Index is too large");
+#endif
 	glVertex3fv(cptr[index].getValue());
 	//Add textureCoordIndex
     }
