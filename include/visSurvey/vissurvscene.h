@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.24 2002-11-15 08:16:18 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.25 2003-01-20 11:30:48 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,23 +18,36 @@ ________________________________________________________________________
 
 namespace visBase
 {
-    class Transformation;
     class Annotation;
     class EventCatcher;
+    class Transformation;
+    class VisualObject;
 };
 
 namespace visSurvey
 {
 
-/*!\brief
-The global coordinate system is given in xyz in metres. It is however
-convenient to enter horizons in xyt or slices in inl/crl/t. SurveyScene
-facilitates objects to be represented in any of the three coordinate system.
+/*!
+The display coordinate system is given in [m/m/ms] if the survey's depth is
+given in time. If the survey's depth is given in meters, the display coordinate
+system is given as [m/m/m]. The display coordinate system is _righthand_
+oriented!
 
-Normally, a survey can be thouthands of meters long & wide, but only a few
-secs long. In order not to squeeze the display, the time is converted to
-metres with a velocity. This velocity is unique for each scene, and can be set
-at any time.
+OpenInventor has hard to handle real-world coordinates (like xy UTM).
+Therefore the coordinates given to OI must be transformed from the UTM system
+to the display coordinate system. This is done by the display transform, which
+is given to all objects in the UTM system. These object are responsible to
+transform their coords themselves before giving them to OI.
+
+The visSurvey::Scene has two domains:
+1) the UTM coordinate system. It is adviced that most objects are here.
+The objects added to this domain will have their transforms set to the
+displaytransform which transforms their coords from UTM lefthand
+(x, y, time[s] or depth[m] ) to display coords (righthand).
+
+2) the InlCrl domain. Here, OI takes care of the transformation between
+inl/crl/t to display coords, so the objects does not need any own transform.
+
 */
 
 class Scene : public visBase::Scene
@@ -43,14 +56,7 @@ public:
     static Scene*		create()
 				mCreateDataObj(Scene);
 
-    void			updateRange()	{ setCube(); }
-    void			addDisplayObject( SceneObject* );
-    void			addXYZObject( SceneObject* );
-    void			addXYTObject( SceneObject* );
-    void			addInlCrlTObject( SceneObject* );
-
-    virtual void		insertObject( int idx, SceneObject* );
-    virtual void		addObject( SceneObject* );
+    virtual void		addObject( visBase::SceneObject* );
     virtual void		removeObject( int idx );
 
     void			showAnnotText(bool);
@@ -69,21 +75,34 @@ public:
     virtual int			usePar( const IOPar& );
 
     void			filterPicks( CallBacker* = 0 );
+    void			updateRange();
 
 protected:
     				~Scene();
     void			setCube();
+    void			setup();
+
+    virtual int			useOldPar( const IOPar& );
+
+    void			addUTMObject( visBase::VisualObject* );
+    void			addInlCrlTObject( visBase::VisualObject* );
+
     void			mouseMoveCB( CallBacker* = 0 );
     
-    const visBase::Transformation*	displaytransformation;
-    const visBase::Transformation*	timetransformation;
-    const visBase::Transformation*	inlcrltransformation;
+    const visBase::Transformation*	zscaletransform;
+    const visBase::Transformation*	inlcrl2displtransform;
+
     visBase::Annotation*		annot;
     visBase::EventCatcher*		eventcatcher;
 
     Coord3			xytmousepos;
     float			mouseposval;
 
+    static const char*		annottxtstr;
+    static const char*		annotscalestr;
+    static const char*		annotcubestr;
+
+				/* Only to be compatible with old par format */
     static const char*		displobjprefixstr;
     static const char*		nodisplobjstr;
     static const char*		xyzobjprefixstr;
@@ -92,9 +111,7 @@ protected:
     static const char*		noxytobjstr;
     static const char*		inlcrltobjprefixstr;
     static const char*		noinlcrltobjstr;
-    static const char*		annottxtstr;
-    static const char*		annotscalestr;
-    static const char*		annotcubestr;
+
 };
 
 };

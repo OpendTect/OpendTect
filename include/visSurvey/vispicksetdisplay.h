@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.24 2003-01-11 13:33:05 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.25 2003-01-20 11:30:48 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,13 @@ ________________________________________________________________________
 class Color;
 class IOPar;
 
-namespace visBase { class SceneObjectGroup; class EventCatcher; };
+namespace visBase
+{
+    class SceneObjectGroup;
+    class EventCatcher;
+    class Transformation;
+};
+
 
 namespace visSurvey
 {
@@ -65,6 +71,9 @@ public:
 
     Notifier<PickSetDisplay>	changed;
 
+    void			setTransformation( visBase::Transformation* );
+    visBase::Transformation*	getTransformation();
+
 protected:
     virtual			~PickSetDisplay();
 
@@ -84,6 +93,8 @@ protected:
 
     visBase::SceneObjectGroup*	group;
     visBase::EventCatcher*	eventcatcher;
+
+    visBase::Transformation*	transformation;
 
     static const char*		nopickstr;
     static const char*		pickprefixstr;

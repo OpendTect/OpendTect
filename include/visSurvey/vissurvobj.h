@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.10 2002-10-23 09:42:06 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.11 2003-01-20 11:30:48 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,31 +41,25 @@ class SurveyParamManager : public CallBackClass
 public:
     				SurveyParamManager();
 				~SurveyParamManager();
-    void			setAppVel( float );
-    float			getAppVel() const
-				{ return displaytransform ? appvel : defappvel;}
+    void			setZScale( float );
+    float			getZScale() const;
 
-    Coord3			coordDispl2XYT( const Coord3& ) const;
-    Coord3			coordDispl2XYZ( const Coord3& ) const;
-    Coord3			coordXYT2Display( const Coord3& ) const;
-    Coord3			coordXYT2XYZ( const Coord3& ) const;
+    visBase::Transformation*	getUTM2DisplayTransform();
+    visBase::Transformation*	getZScaleTransform();
+    visBase::Transformation*	getInlCrl2DisplayTransform();
 
-    const visBase::Transformation*	getDisplayTransform() const;
-    const visBase::Transformation*	getAppvelTransform() const;
-    const visBase::Transformation*	getInlCrlTransform() const;
-
-    Notifier<SurveyParamManager>	appvelchange;
+    Notifier<SurveyParamManager>	zscalechange;
 
 protected:
     void			createTransforms();
-    static float		defappvel;
+    static float		defzscale;
 
     void			removeTransforms(CallBacker*);
     
-    float			appvel;
-    visBase::Transformation*	displaytransform;
-    visBase::Transformation*	appveltransform;
-    visBase::Transformation*	inlcrltransform;
+    float			zscale;
+    visBase::Transformation*	utm2displaytransform;
+    visBase::Transformation*	zscaletransform;
+    visBase::Transformation*	inlcrl2displaytransform;
 };
 
 SurveyParamManager& SPM();
