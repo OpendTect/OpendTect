@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.7 2003-12-15 16:04:30 nanne Exp $
+ RCS:		$Id: bindatadesc.h,v 1.8 2003-12-24 11:07:22 bert Exp $
 ________________________________________________________________________
 
 */
 
-#include <Pmacros.h>
+#include <gendefs.h>
 
 #define mDeclConstr(T,ii,is) \
 	BinDataDesc( const T* ) { set( ii, is, sizeof(T) ); } \

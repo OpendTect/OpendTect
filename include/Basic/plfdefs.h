@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Macros that can be system or language dependent
- RCS:		$Id: plfdefs.h,v 1.8 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: plfdefs.h,v 1.9 2003-12-24 11:07:22 bert Exp $
 ________________________________________________________________________
 
 */
@@ -180,18 +180,6 @@ Bytes:
 #endif
 #ifndef _ANSI_C_SOURCE
 # define _ANSI_C_SOURCE 1
-#endif
-
-
-#define Pquote(token) #token
-#define Ppaste(a,b) a##b
-#define Ppaste3(a,b,c) a##b##c
-
-		/* For calling C functions from FORTRAN */
-#if defined(__sun__)
-#	define Pfordecl(fun) Ppaste(fun,_)
-#else
-#	define Pfordecl(fun) fun
 #endif
 
 

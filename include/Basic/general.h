@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.6 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: general.h,v 1.7 2003-12-24 11:07:22 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 typedef BufferString			UserIDString;
-typedef FixedString<mMaxUnitIDLength>	UnitIDString;
 typedef FixedString<PATH_LENGTH>	FileNameString;
 
 template <class T>

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.13 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: genc.h,v 1.14 2003-12-24 11:07:22 bert Exp $
 ________________________________________________________________________
 
 
@@ -197,7 +197,6 @@ int		getPID();
 
 typedef char	FileNameString[PATH_LENGTH+1];
 typedef char	UserIDString[mMaxUserIDLength+1];
-typedef char	UnitIDString[mMaxUnitIDLength+1];
 
 #endif
 
