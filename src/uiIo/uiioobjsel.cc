@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.62 2003-10-17 14:19:03 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.63 2003-10-27 09:12:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,11 +63,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     IOM().to( MultiID(IOObjContext::getStdDirData(ctio.ctxt.stdseltype)->id) );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
-    if ( ctio.ioobj )
-        entrylist->setSelected( ctio.ioobj->key() );
 
     topgrp = new uiGroup( this, "Top group" );
-    entrylist->setName( seltxt );
     BufferStringSet nms; getIOObjNames( *entrylist, nms );
     listfld = new uiLabeledListBox( topgrp, nms, seltxt );
     if ( ismultisel )
@@ -75,6 +72,9 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     listfld->box()->setPrefWidthInChar( 
 		listfld->box()->optimumFieldWidth(25,60) );
     listfld->box()->setPrefHeightInChar( 8 );
+
+    if ( ctio.ioobj )
+        listfld->box()->setCurrentItem( ctio.ioobj->name() );
 
     if ( !ctio.ctxt.forread )
     {
