@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.4 2002-05-22 11:20:13 kristofer Exp $
+ RCS:		$Id: emmanager.h,v 1.5 2002-09-20 08:48:56 nanne Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ class EMObject;
 class EMManager
 {
 public:
-    enum Type		{ Hor, Well };
+    enum Type		{ Hor, Well, Fault };
 
 
 			EMManager();

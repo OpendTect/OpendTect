@@ -4,11 +4,12 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.4 2002-05-22 10:59:36 nanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.5 2002-09-20 08:48:51 nanne Exp $";
 
 #include "emobject.h"
 #include "emhorizontransl.h"
 #include "emwelltransl.h"
+#include "emfaulttransl.h"
 #include "ioobj.h"
 #include "ptrman.h"
 #include "ioman.h"
@@ -26,6 +27,8 @@ EarthModel::EMObject* EarthModel::EMObject::create( const IOObj& ioobj,
 	res = new EarthModel::Well( manager, id );
     else if ( !strcmp( group, EarthModelHorizonTranslator::keyword ))
 	res = new EarthModel::Horizon( manager, id );
+    else if ( !strcmp( group, EarthModelFaultTranslator::keyword ))
+	res = new EarthModel::Fault( manager, id );
 
     return res;
 }

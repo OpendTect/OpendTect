@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.6 2002-05-23 07:24:47 kristofer Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.7 2002-09-20 08:48:51 nanne Exp $";
 
 #include "emmanager.h"
 #include "emobject.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.6 2002-05-23 07:24:47 kristofe
 #include "ctxtioobj.h"
 #include "emhorizontransl.h"
 #include "emwelltransl.h"
+#include "emfaulttransl.h"
 #include "executor.h"
 
 
@@ -64,6 +65,28 @@ MultiID EarthModel::EMManager::add( EarthModel::EMManager::Type type,
 
 	return key;
     }
+
+
+    if ( type==EarthModel::EMManager::Fault )
+    {
+	CtxtIOObj* ctio =
+	    new CtxtIOObj(EarthModelFaultTranslator::ioContext());
+	ctio->ctxt.forread = false;
+	ctio->ioobj = 0;
+	ctio->setName( name );
+	ctio->fillObj();
+
+	if ( !ctio->ioobj ) return -1;
+	MultiID key = ctio->ioobj->key();
+
+	EarthModel::Fault* fault = new EarthModel::Fault( *this, key );
+	PtrMan<Executor> exec = fault->saver();
+	exec->execute();
+	objects += fault;
+
+	return key;
+    }
+
 
     if ( type==EarthModel::EMManager::Well )
     {
