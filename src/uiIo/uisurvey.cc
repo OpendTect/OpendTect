@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.41 2003-10-20 10:37:02 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.42 2003-10-20 13:13:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -524,7 +524,8 @@ bool uiSurvey::acceptOK( CallBacker* )
 
 void uiSurvey::updateViewsGlobal()
 {
-    BufferString capt( GetProjectVersionName() );
+    BufferString capt( "Open" );
+    capt += GetProjectVersionName();
     BufferString fnm( GetSoftwareDir() );
     fnm = File_getFullPath( fnm, ".rel.od" );
     if ( File_exists(fnm) )
