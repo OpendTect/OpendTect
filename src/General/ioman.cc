@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.49 2004-09-28 12:32:45 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.50 2004-12-03 13:38:28 nanne Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -445,7 +445,7 @@ const char* IOMan::nameOf( const char* id, bool full ) const
     {
 	do { 
 	    ret += ioobj->name();
-	    if ( !full ) break;
+	    if ( !full ) { delete ioobj; break; }
 	    IOObj* parioobj = ioobj->getParent();
 	    delete ioobj;
 	    ioobj = parioobj;
