@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.6 2001-05-31 21:23:05 bert Exp $
+ RCS:		$Id: datachar.h,v 1.7 2001-12-09 09:29:53 bert Exp $
 ________________________________________________________________________
 
 */
@@ -55,14 +55,15 @@ public:
 
     inline bool		isIeee() const		{ return fmt == Ieee; }
 
-			DataCharacteristics( unsigned short c )	{ set(c); }
+			DataCharacteristics( unsigned char c1,unsigned char c2 )
+						{ set(c1,c2); }
 			DataCharacteristics( const char* s )	{ set(s); }
 
     virtual int         maxStringifiedSize() const      { return 50; }
     virtual void	toString(char*) const;
     virtual void	set(const char*);
-    virtual unsigned short dump() const;
-    virtual void	set(unsigned short);
+    virtual void	dump(unsigned char&,unsigned char&) const;
+    virtual void	set(unsigned char,unsigned char);
 
 			mDeclConstr(signed char,true,true)
 			mDeclConstr(short,true,true)

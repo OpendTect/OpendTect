@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.3 2001-05-02 13:49:51 windev Exp $
+ RCS:		$Id: bindatadesc.h,v 1.4 2001-12-09 09:29:53 bert Exp $
 ________________________________________________________________________
 
 */
@@ -32,7 +32,7 @@ These are:
   bytes.
 
 The info from this class can be stringified (user readable string) or dumped
-binary into a short int (2 bytes).
+binary into two unsigned chars.
 
 */
 
@@ -48,7 +48,8 @@ public:
 			BinDataDesc( bool ii, bool is, int b )
 			: isint(ii), issigned(is),
 			  nrbytes(nearestByteCount(ii,b))	{}
-			BinDataDesc( unsigned short c )		{ set(c); }
+			BinDataDesc( unsigned char c1, unsigned char c2 )
+			    					{ set(c1,c2); }
 			BinDataDesc( const char* s )		{ set(s); }
     virtual		~BinDataDesc()				{}
 
@@ -71,8 +72,8 @@ public:
     virtual void	toString(char*) const;
 			//!< Into a buffer allocated by client!
     virtual void	set(const char*);
-    virtual unsigned short dump() const;
-    virtual void	set(unsigned short);
+    virtual void	dump(unsigned char&,unsigned char&) const;
+    virtual void	set(unsigned char,unsigned char);
 
 			mDeclConstr(signed char,true,true)
 			mDeclConstr(short,true,true)
@@ -88,7 +89,11 @@ public:
     inline bool		operator !=( const BinDataDesc& dc ) const
 			{ return !isEqual(dc); }
     inline bool		isEqual( const BinDataDesc& dc ) const
-			{ return dump() == dc.dump(); }
+			{
+			    unsigned char c11, c12, c21, c22;
+			    dump(c11,c12); dc.dump(c21,c22);
+			    return c11 == c21 && c12 == c22;
+			}
 
     int			sizeFor( int n ) const		{ return nrbytes * n; }
     virtual bool	convertsWellTo(const BinDataDesc&) const;
