@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: globexpr.cc,v 1.1 2001-02-13 17:48:37 bert Exp $";
+static const char* rcsID = "$Id: globexpr.cc,v 1.2 2001-03-26 09:00:11 bert Exp $";
 
 #include "globexpr.h"
 
@@ -160,7 +160,7 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg )
 	return true;
 
     /* get the next character to match which must be a literal or '[' */
-    bool nextp = *p;
+    register char nextp = *p;
     if ( nextp == '\\' )
         nextp = p[1];
 

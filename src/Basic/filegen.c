@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.7 2001-03-19 10:33:40 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.8 2001-03-26 09:00:11 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -249,9 +249,17 @@ const char* File_getTempFileName( const char* id, const char* ext, int full )
 int File_createDir( const char* dirname, int mode )
 {
     if ( !dirname || !*dirname ) return NO;
-
     if ( mode == 0 ) mode = 0755;
+
+#ifdef __win__
+
+    return CreateDirectory( dirname, 0 );
+
+#else
+
     return mkdir( dirname, (mode_t)mode ) < 0 ? NO : YES;
+
+#endif
 }
 
 
@@ -259,16 +267,33 @@ int File_rename( const char* oldname, const char* newname )
 {
     if ( !oldname || !*oldname || !newname || !*newname ) return NO;
 
-    if ( rename(oldname,newname) != 0 ) return NO;
-    return YES;
+#ifdef __win__
+
+    return MoveFile( oldname, newname );
+
+#else
+
+    return rename(oldname,newname) ? NO : YES;
+
+#endif
 }
 
 
 int File_copy( const char* from, const char* to, int recursive )
 {
+#ifdef __win__
+
+    if ( !File_exists(from) ) return YES;
+    if ( recursive )
+	{ fprintf(stderr,"File_copy recursive not impl\n"); return NO; }
+    return CopyFile( from, to, false );
+
+#else
+
     char* cmd;
     int len, retval;
-    if ( !from || !to ) return NO;
+    if ( !from || !*from || !to || !*to ) return NO;
+    if ( !File_exists(from) ) return YES;
 
     len = strlen( from ) + strlen( to ) + 25;
     cmd = mMALLOC(len,char);
@@ -284,14 +309,29 @@ int File_copy( const char* from, const char* to, int recursive )
     if ( retval ) retval = File_exists( to );
     mFREE(cmd);
     return retval;
+
+#endif
 }
 
 
 int File_remove( const char* fname, int force, int recursive )
 {
+
+#ifdef __win__
+
+    if ( !File_exists(fname) ) return YES;
+
+    if ( recursive )
+	{ fprintf(stderr,"File_remove recursive not impl\n"); return NO; }
+
+    return DeleteFile( fname );
+
+#else
+
     char* cmd;
     int len, retval;
     if ( !fname ) return NO;
+    if ( !File_exists(fname) ) return YES;
 
     len = strlen( fname ) + 30;
     cmd = mMALLOC(len,char);
@@ -309,15 +349,26 @@ int File_remove( const char* fname, int force, int recursive )
     if ( retval && File_exists( fname ) ) retval = NO;
     mFREE(cmd);
     return retval;
+
+#endif
 }
 
 
 int File_makeWritable( const char* fname, int recursive, int yn )
 {
+
+#ifdef __win__
+
+    return YES;
+
+#else
+
     FileNameString cmd;
     strcpy( cmd, "chmod " );
     if ( recursive ) strcat( cmd, "-R ");
     strcat( cmd, yn ? "ug+w " : "a-w " );
     strcat( cmd, fname );
     return system( cmd ) != -1 ? YES : NO;
+
+#endif
 }
