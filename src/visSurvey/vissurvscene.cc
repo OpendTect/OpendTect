@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.20 2002-04-19 09:58:53 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.21 2002-04-19 13:12:52 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -77,10 +77,10 @@ visSurvey::Scene::Scene()
     double transmatrix24 = x[2];
 
     inlcrltransformation->setA(
-	transmatrix11,	transmatrix12,	0,	0, //transmatrix14,
-	transmatrix21,	transmatrix22,	0,	0, //transmatrix24,
+	transmatrix11,	transmatrix21,	0,	0, //transmatrix14,
+	transmatrix12,	transmatrix22,	0,	0, //transmatrix24,
 	0,		0,		1,	0,
-	0,		0,		0,	1 );
+	transmatrix14,	transmatrix24,	0,	1 );
 
     xoffset = transmatrix14;
     yoffset = transmatrix24;
@@ -92,19 +92,24 @@ visSurvey::Scene::Scene()
     StepInterval<double> vrg = SI().zRange();
 
     annot = visBase::Annotation::create();
-    annot->setCorner( 0, hrg.start.inl, hrg.start.crl, vrg.start );
-    annot->setCorner( 1, hrg.stop.inl, hrg.start.crl, vrg.start );
-    annot->setCorner( 2, hrg.stop.inl, hrg.stop.crl, vrg.start );
-    annot->setCorner( 3, hrg.start.inl, hrg.stop.crl, vrg.start );
-    annot->setCorner( 4, hrg.start.inl, hrg.start.crl, vrg.stop );
-    annot->setCorner( 5, hrg.stop.inl, hrg.start.crl, vrg.stop );
-    annot->setCorner( 6, hrg.stop.inl, hrg.stop.crl, vrg.stop );
-    annot->setCorner( 7, hrg.start.inl, hrg.stop.crl, vrg.stop );
+    BinID c0( hrg.start.inl, hrg.start.crl ); Coord coord0=SI().transform( c0 );
+    BinID c1( hrg.stop.inl, hrg.start.crl ); Coord coord1=SI().transform( c1 );
+    BinID c2( hrg.stop.inl, hrg.stop.crl ); Coord coord2=SI().transform( c2 );
+    BinID c3( hrg.start.inl, hrg.stop.crl ); Coord coord3=SI().transform( c3 );
+
+    annot->setCorner( 0, coord0.x, coord0.y, vrg.start );
+    annot->setCorner( 1, coord1.x, coord1.y, vrg.start );
+    annot->setCorner( 2, coord2.x, coord2.y, vrg.start );
+    annot->setCorner( 3, coord3.x, coord3.y, vrg.start );
+    annot->setCorner( 4, coord0.x, coord0.y, vrg.stop );
+    annot->setCorner( 5, coord1.x, coord1.y, vrg.stop );
+    annot->setCorner( 6, coord2.x, coord2.y, vrg.stop );
+    annot->setCorner( 7, coord3.x, coord3.y, vrg.stop );
 
     annot->setText( 0, "In-line" );
     annot->setText( 1, "Cross-line" );
     annot->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
-    addInlCrlTObject( annot );
+    addXYTObject( annot );
 
     visBase::DirectionalLight* light = visBase::DirectionalLight::create();
     light->setDirection( 0, 0, 1 );
@@ -139,16 +144,14 @@ visSurvey::Scene::~Scene()
 void visSurvey::Scene::addXYZObject( SceneObject* obj )
 {
     int insertpos = getFirstIdx( timetransformation );
-    if ( insertpos==size()-1) addObject(obj);
-    else insertObject( insertpos, obj );
+    insertObject( insertpos, obj );
 }
 
 
 void visSurvey::Scene::addXYTObject( SceneObject* obj )
 {
     int insertpos = getFirstIdx( inlcrltransformation );
-    if ( insertpos==size()-1) addObject(obj);
-    else insertObject( insertpos, obj );
+    insertObject( insertpos, obj );
 }
 
 
