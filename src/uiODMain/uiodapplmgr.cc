@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.57 2004-10-04 16:25:41 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.58 2004-10-05 15:47:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -309,21 +309,25 @@ bool uiODApplMgr::selectColorAttrib( int id )
 
 void uiODApplMgr::storeSurface( int visid, bool storeas )
 {
-    ObjectSet<BinIDValueSet> bivs;
-    visserv->fetchSurfaceData( visid, bivs );
-    const AttribSelSpec* as = visserv->getSelSpec( visid );
-    BufferString dispname( as ? as->userRef() : 0 );
-    if ( as && as->isNLA() )
+    if ( storeas )
     {
-	dispname = as->objectRef();
-	const char* nodenm = as->userRef();
-	if ( IOObj::isKey(as->userRef()) )
-	    nodenm = IOM().nameOf( as->userRef(), false );
-	dispname += " ("; dispname += nodenm; dispname += ")";
+	ObjectSet<BinIDValueSet> bivs;
+	visserv->fetchSurfaceData( visid, bivs );
+	const AttribSelSpec* as = visserv->getSelSpec( visid );
+	BufferString dispname( as ? as->userRef() : 0 );
+	if ( as && as->isNLA() )
+	{
+	    dispname = as->objectRef();
+	    const char* nodenm = as->userRef();
+	    if ( IOObj::isKey(as->userRef()) )
+		nodenm = IOM().nameOf( as->userRef(), false );
+	    dispname += " ("; dispname += nodenm; dispname += ")";
+	}
+
+	if ( as && as->id() >= 0 )
+	    emserv->setDataVal( *visserv->getMultiID(visid), bivs, dispname );
     }
 
-    if ( as && as->id() >= 0 )
-	emserv->setDataVal( *visserv->getMultiID(visid), bivs, dispname );
     emserv->storeObject( *visserv->getMultiID(visid), storeas );
 }
 
@@ -565,7 +569,7 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	const bool issel = trackserv->stickSetSelected();
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
 			visserv->getObject(trackserv->displayID()));
-	sd->getEditor()->enableSeedStick( true );
+	sd->getEditor()->selectSeedStick( issel );
 	sd->getEditor()->setSeedStickStyle( trackserv->lineStyle(),
 					    trackserv->markerStyle() );
 	sceneMgr().disabTree( sceneid, issel );
