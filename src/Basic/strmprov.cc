@@ -26,17 +26,27 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.19 2002-05-15 22:23:12 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.20 2002-05-16 08:48:34 bert Exp $";
 
 static FixedString<1024> oscommand;
 #ifdef __msvc__
-#define exeCmd(comm) false
+#define ExecOSCmd(comm) false
 #else
-#define exeCmd(comm) system((const char*)comm) ? false : true
+#define mExecCmd(comm) (system((const char*)comm) ? false : true)
 #endif
 
 DefineClassID(StreamProvider);
 const char* StreamProvider::sStdIO = "Std-IO";
+
+
+bool ExecOSCmd( const char* comm )
+{
+#ifdef __msvc__
+    return false;
+#else
+    return !comm || !*comm || system(comm) ? false : true;
+#endif
+}
 
 
 void StreamData::close()
@@ -147,7 +157,7 @@ bool StreamProvider::rewind() const
 		 (const char*)hostname, (const char*)fname );
     else
 	sprintf( oscommand.buf(), "mt -f %s rewind", (const char*)fname );
-    return exeCmd(oscommand);
+    return ExecOSCmd(oscommand);
 }
 
 
@@ -161,7 +171,7 @@ bool StreamProvider::offline() const
 			    (const char*)hostname, (const char*)fname );
     else
 	sprintf( oscommand.buf(), "mt -f %s offline", (const char*)fname );
-    return exeCmd(oscommand);
+    return ExecOSCmd(oscommand);
 }
 
 
@@ -175,7 +185,7 @@ bool StreamProvider::skipFiles( int nr ) const
 			(const char*)hostname, (const char*)fname, nr );
     else
 	sprintf( oscommand.buf(), "mt -f %s fsf %d", (const char*)fname, nr );
-    return exeCmd(oscommand);
+    return ExecOSCmd(oscommand);
 }
 
 
@@ -283,34 +293,7 @@ CONCLUSION: use binary mode, and windows will read&write unix format ;))
 
 #else
 
-    if ( !hostname[0] )
-	oscommand = (const char*)fname;
-    else
-    {
-	switch ( type_ )
-	{
-	case StreamConn::Device:
-	    if ( blocksize )
-		sprintf( oscommand.buf(), "rsh %s dd if=%s ibs=%ld",
-			    (const char*)hostname, (const char*)fname,
-			    blocksize );
-	    else
-		sprintf( oscommand.buf(), "rsh %s dd if=%s",
-			    (const char*)hostname, (const char*)fname );
-	break;
-	case StreamConn::Command:
-	    sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
-				    (const char*)fname );
-	break;
-	case StreamConn::File:
-	    sprintf( oscommand.buf(), "rsh %s cat %s",
-			    (const char*)hostname, (const char*)fname );
-	break;
-	}
-    }
-
-    if ( inbg ) 
-	oscommand += "&";
+    mkOSCmd( true, inbg );
 
     sd.fp = popen( oscommand, "r" );
     sd.ispipe = true;
@@ -349,34 +332,7 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
 
 #else
 
-    if ( !hostname[0] )
-	oscommand = (const char*)fname;
-    else
-    {
-	switch ( type_ )
-	{
-	case StreamConn::Device:
-	    if ( blocksize )
-		sprintf( oscommand.buf(), "rsh %s dd of=%s obs=%ld",
-				  (const char*)hostname, (const char*)fname,
-				    blocksize );
-	    else
-		sprintf( oscommand.buf(), "rsh %s dd of=%s",
-				(const char*)hostname, (const char*)fname );
-	break;
-	case StreamConn::Command:
-	    sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
-				    (const char*)fname );
-	break;
-	case StreamConn::File:
-	    sprintf( oscommand.buf(), "rsh %s tee %s > /dev/null",
-			      (const char*)hostname, (const char*)fname );
-	break;
-	}
-    }
-
-    if ( inbg ) 
-	oscommand += "&";
+    mkOSCmd( false, inbg );
 
     sd.fp = popen( oscommand, "w" );
     sd.ispipe = true;
@@ -385,6 +341,63 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
 #endif
 
     return sd;
+}
+
+
+bool StreamProvider::executeCommand( bool inbg ) const
+{
+    mkOSCmd( true, inbg );
+    return ExecOSCmd( oscommand );
+}
+
+
+void StreamProvider::mkOSCmd( bool forread, bool inbg ) const
+{
+    if ( !hostname[0] )
+	oscommand = (const char*)fname;
+    else
+    {
+	switch ( type_ )
+	{
+	case StreamConn::Device:
+	    if ( forread )
+	    {
+		if ( blocksize )
+		    sprintf( oscommand.buf(), "rsh %s dd if=%s ibs=%ld",
+				(const char*)hostname, (const char*)fname,
+				blocksize );
+		else
+		    sprintf( oscommand.buf(), "rsh %s dd if=%s",
+				(const char*)hostname, (const char*)fname );
+	    }
+	    else
+	    {
+		if ( blocksize )
+		    sprintf( oscommand.buf(), "rsh %s dd of=%s obs=%ld",
+				      (const char*)hostname, (const char*)fname,
+					blocksize );
+		else
+		    sprintf( oscommand.buf(), "rsh %s dd of=%s",
+				    (const char*)hostname, (const char*)fname );
+	    }
+	break;
+	case StreamConn::Command:
+	    sprintf( oscommand.buf(), "rsh %s %s", (const char*)hostname,
+				    (const char*)fname );
+	break;
+	case StreamConn::File:
+	    if ( forread )
+		sprintf( oscommand.buf(), "rsh %s cat %s",
+				(const char*)hostname, (const char*)fname );
+	    else
+		sprintf( oscommand.buf(), "rsh %s tee %s > /dev/null",
+				  (const char*)hostname, (const char*)fname );
+	break;
+	}
+    }
+
+    if ( inbg ) 
+	oscommand += "&";
 }
 
 
