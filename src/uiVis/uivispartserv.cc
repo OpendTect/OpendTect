@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.13 2002-04-11 16:33:20 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.14 2002-04-12 06:27:16 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,12 +104,16 @@ visSurvey::Scene* uiVisPartServer::getSelScene()
 
 int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 {
+    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+
     visSurvey::SeisDisplay::Type type =
 	    etp == Inline ?	visSurvey::SeisDisplay::Inline
 	: ( etp == Crossline ?	visSurvey::SeisDisplay::Crossline
 			     :	visSurvey::SeisDisplay::Timeslice );
 
-    visSurvey::SeisDisplay* sd = visSurvey::SeisDisplay::create( type, appcb );
+    visSurvey::SeisDisplay* sd = visSurvey::SeisDisplay::create( type, *scene,
+	    							 appcb );
     seisdisps += sd; 
     visBase::VisColorTab* coltab = visBase::VisColorTab::create();
     coltab->colorSeq().loadFromStorage("Red-White-Black");
@@ -117,8 +121,6 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
     sd->textureRect().manipChanges()->notify(
 	    				mCB(this,uiVisPartServer,showPosCB));
 
-    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
-    mDynamicCastGet(visSurvey::Scene*,scene,obj)
     scene->addInlCrlTObject( sd );
     setSelObjectId( sd->id() );
     return getSelObjectId();
