@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.77 2003-01-27 13:18:47 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.78 2003-01-30 12:53:38 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
 
     int				addSurfTrackerCube( int scene );
     				/*!< Get position with getCubeSampling */
+    int				getSurfTrackerCubeId();
     int				addSurfTrackProposal(Geometry::GridSurface&);
 
     int				addPickSet(int scene, const PickSet& pickset );

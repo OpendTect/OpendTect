@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.120 2003-01-27 15:34:00 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.121 2003-01-30 12:53:16 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -1541,6 +1541,12 @@ int uiVisPartServer::addSurfTrackerCube( int sceneid )
 	scene->addObject( interpreterdisplay );
 
     return interpreterdisplay->id();
+}
+
+
+int uiVisPartServer::getSurfTrackerCubeId()
+{
+    return interpreterdisplay ? interpreterdisplay->id() : 0;
 }
 
 
