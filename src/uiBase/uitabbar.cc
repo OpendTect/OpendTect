@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.6 2004-10-04 15:33:39 nanne Exp $
+ RCS:           $Id: uitabbar.cc,v 1.7 2004-10-04 15:51:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,7 @@ int uiTabBar::insertTab( uiTab* tab, int index )
 {
     if ( !tab ) return -1;
     tabs_ += tab;
+    tab->group().display( true );
     return body_->insertTab( &tab->body_, index ); 
 }
 
@@ -113,6 +114,7 @@ void uiTabBar::removeTab( int index )
     uiTab* tab = tabs_[index];
     if ( !tab ) return;
 
+    tab->group().display( false );
     tabs_ -= tab;
     body_->removeTab( &tab->body_ );
     delete tab;
