@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.21 2004-03-10 16:30:28 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.22 2004-04-18 17:51:12 dgb Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -65,7 +65,8 @@ public:
     BufferStringSet&	cmdLineOpts()	{ return opts_; }
 
     IOObj*		getIOObjFromPars(const char* keybase,bool mknew,
-					 const IOObjContext& ctxt) const;
+					 const IOObjContext& ctxt,
+					 bool msgiffail=true) const;
 
     			// Socket stuff.
 
