@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.8 2000-11-16 08:53:13 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.9 2001-02-27 16:13:04 bert Exp $
 ________________________________________________________________________
 
 */
@@ -414,6 +414,28 @@ T intpow( T x, char y)
 {
     T res = 1; while ( y ) { res *= x; y--; }
     return res;
+}
+
+
+/*!>
+ isPower determines whether a value is a power of a base, i.e. if
+val=base^pow.
+ If that is the case, isPower returns pow, if not, it returns zero.
+*/
+
+
+inline
+int isPower( int val, int base )
+{
+    if ( val==base ) return 1;
+
+    if ( val%base )
+	return 0;
+
+    int res = isPower( val/base, base );
+    if ( res ) return 1 + res;
+
+    return 0;
 }
 
 
