@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.7 2003-01-20 15:35:59 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.8 2003-03-05 12:03:08 nanne Exp $";
 
 #include "vissurvobj.h"
 #include "visdataman.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: vissurvobj.cc,v 1.7 2003-01-20 15:35:59 kristof
 #include "survinfo.h"
 #include "arrayndimpl.h"
 #include "linsolv.h"
+#include "iopar.h"
 
 
 float visSurvey::SurveyParamManager::defzscale = 2;
@@ -164,7 +165,9 @@ void visSurvey::SurveyParamManager::createTransforms()
 	    0,			0,		0,	1 );
 
     
-    setZScale( defzscale );
+    float zsc = defzscale;
+    SI().pars().get( "Z Scale", zsc );
+    setZScale( zsc );
 }
 
 
