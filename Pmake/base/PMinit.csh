@@ -2,7 +2,7 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id: PMinit.csh,v 1.3 2003-09-26 16:24:47 bert Exp $
+# $Id: PMinit.csh,v 1.4 2003-10-08 15:18:12 bert Exp $
 #---------------------------------------------------------
 
 if ( ! $?PMAKE ) then
@@ -17,7 +17,7 @@ if ( ! $?GNUMAKE ) then
     setenv GNUMAKE	"gmake"
 endif
 
-setenv PMAKECOMMAND	'$GNUMAKE -I$WORK/Pmake -I$PMAKE MKSHAREDLIB=yes'
+setenv PMAKECOMMAND	'$GNUMAKE -I$WORK/Pmake -I$PMAKE'
 alias make		$PMAKECOMMAND
 
 alias wdir		'setenv WORK `pwd`'
