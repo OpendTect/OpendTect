@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsticksettransl.h,v 1.1 2003-09-09 16:06:22 kristofer Exp $
+ RCS:		$Id: emsticksettransl.h,v 1.2 2003-09-15 12:43:31 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -136,18 +136,19 @@ public:
 			~lmkEMStickSetWriter();
     virtual int         nextStep();
 
-    virtual const char* message() const;
+    virtual const char* message() const { return "Writing knots"; }
     static const char*  streamerrmsg;
 
 protected:
+    void		fillBuffer( BufferString&, const Coord3&, int pt );
 
     const EM::StickSet&	stickset;
 
     Conn*               conn;
     BufferString        msg;
-    bool                error;
 
-    RowCol		lastnode;
+    int			currentsticknr;
+
 
     Interval<int>	pointtypeinterval;
     Interval<int>	xinterval;
@@ -155,7 +156,7 @@ protected:
     Interval<int>	zinterval;
     Interval<int>	domaininterval;
     Interval<int>	domainunitinterval;
-    Interval<int>	distancuniteinterval;
+    Interval<int>	distanceunitinterval;
 };
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.1 2003-09-09 16:06:12 kristofer Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.2 2003-09-15 12:42:10 kristofer Exp $";
 
 #include "emsticksettransl.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: emsticksettransl.cc,v 1.1 2003-09-09 16:06:12 k
 #include "position.h"
 #include "survinfo.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "geomgridsurfaceimpl.h"
 #include "ascstream.h"
 
@@ -44,7 +45,7 @@ const IOObjContext& EMStickSetTranslator::ioContext()
 	ctxt->newonlevel = 1;
 	ctxt->needparent = false;
 	ctxt->maychdir = false;
-	ctxt->stdseltype = IOObjContext::StickSet;
+	ctxt->stdseltype = IOObjContext::Surf;
     }
 
     return *ctxt;
@@ -116,9 +117,27 @@ Executor* EMStickSetTranslator::writer( const EM::StickSet& hor, const IOObj* io
 	return false;
     }
 
-    const char* formatfilename = ioobj->pars()["Format file"];
+    PtrMan<BufferString> formatfilename
+			= new BufferString( ioobj->pars()["Format file"] );
+    if ( !(*formatfilename)[0] )
+    {
+	const char* deffilename = ((StreamConn*) conn)->fileName();
+	*formatfilename = deffilename;
+	for ( int idx=strlen(deffilename)-1; idx>=0; idx-- )
+	{
+	    if ( deffilename[idx]=='.' )
+	    {
+		(*formatfilename)[idx] = 0;
+		break;
+	    }
+	}
 
-    return tr->writer( hor, conn, formatfilename );
+	(*formatfilename) += ".fault_fmt";
+	ioobj->pars().set( "Format file", *formatfilename );
+	IOM().commitChanges( *ioobj );
+    }
+
+    return tr->writer( hor, conn, formatfilename->buf() );
 }
 
 
@@ -132,7 +151,7 @@ lmkEMStickSetReader::lmkEMStickSetReader( EM::StickSet& stickset_, Conn* conn_,
     : Executor("Reading stickset ..." )
     , stickset( stickset_ )
     , conn( conn_ )
-    , lastpt( -1 )
+    , lastpt( mLMK_END_PT )
     , useinlcrl(false)
     , xinterval(-1,-1)
     , yinterval(-1,-1)
@@ -253,7 +272,7 @@ int lmkEMStickSetReader::nextStep()
     reqlen = mMAX(reqlen, domainunitinterval.stop );
     reqlen = mMAX(reqlen, distancuniteinterval.stop );
 
-    if ( buffer.size()<reqlen ) { return ErrorOccurred; }
+    if ( buffer.size()-1<reqlen ) { return ErrorOccurred; }
 
     Coord3 pos;
 
@@ -295,6 +314,8 @@ int lmkEMStickSetReader::nextStep()
     {
 	str = &buffer[domainunitinterval.start-1];
 	str[domainunitinterval.width()+1] = 0;
+	removeTrailingBlanks( str.buf() );
+	
 	if ( str=="ms" )
 	    pos.z /= 1000;
 	else
@@ -312,6 +333,7 @@ int lmkEMStickSetReader::nextStep()
     {
 	str = &buffer[domaininterval.start-1];
 	str[domaininterval.width()+1] = 0;
+	removeTrailingBlanks( str.buf() );
 	if ( str != "TIME" && SI().zIsTime() 
 		|| str=="TIME" && !SI().zIsTime() )
 	{
@@ -353,8 +375,147 @@ Executor* lmkEMStickSetTranslator::reader( EM::StickSet& hor, Conn* conn,
 }
 
 
-Executor* lmkEMStickSetTranslator::writer( const EM::StickSet& hor, Conn* conn,
+Executor* lmkEMStickSetTranslator::writer( const EM::StickSet& stickset,
+					Conn* conn,
 					const char* formatfilename )
 {
-    return 0;
+    return new lmkEMStickSetWriter( stickset, conn, formatfilename );
 }
+
+
+lmkEMStickSetWriter::lmkEMStickSetWriter(const EM::StickSet& stickset_,
+				     Conn* conn_, const char* formatfilename )
+    : Executor("StickReader")
+    , conn( conn_ )
+    , stickset( stickset_ )
+    , currentsticknr( 0 )
+    , xinterval( 1, 10 )
+    , yinterval( 11, 20 )
+    , zinterval( 21, 30 )
+    , domaininterval( 31, 40 )
+    , domainunitinterval( 41, 45 )
+    , distanceunitinterval( 46, 50 )
+    , pointtypeinterval( 51, 51 )
+{
+    ofstream formatfile( formatfilename );
+    formatfile  << lmkEMStickSetTranslator::xstr
+		<< '\t' << '\t' << '\t' << xinterval.start 
+		<< '\t' << xinterval.stop << '\n';
+    formatfile  << lmkEMStickSetTranslator::ystr
+		<< '\t' << '\t' << '\t' << yinterval.start 
+		<< '\t' << yinterval.stop << '\n';
+    formatfile  << lmkEMStickSetTranslator::zstr
+		<< '\t' << '\t' << '\t' << zinterval.start 
+		<< '\t' << zinterval.stop << '\n';
+    formatfile  << lmkEMStickSetTranslator::pointtypestr
+		<< '\t' << '\t' << pointtypeinterval.start 
+		<< '\t' << pointtypeinterval.stop << '\n';
+    formatfile  << lmkEMStickSetTranslator::domainstr
+		<< '\t' << '\t' << domaininterval.start 
+		<< '\t' << domaininterval.stop << '\n';
+    formatfile  << lmkEMStickSetTranslator::domainunitstr
+		<< '\t' << domainunitinterval.start 
+		<< '\t' << domainunitinterval.stop << '\n';
+    formatfile  << lmkEMStickSetTranslator::distancunitestr
+		<< '\t' << distanceunitinterval.start 
+		<< '\t' << distanceunitinterval.stop << '\n';
+
+    formatfile.close();
+}
+
+
+lmkEMStickSetWriter::~lmkEMStickSetWriter()
+{ delete conn; }
+
+
+
+int lmkEMStickSetWriter::nextStep()
+{
+    if ( !stickset.nrSticks() )
+	return Finished;
+
+    const EM::StickID stickid = stickset.stickID(currentsticknr);
+    ostream& strm = ((StreamConn*)conn)->oStream();
+
+    if ( stickset.nrKnots(stickid)>1 )
+    {
+	const EM::KnotID firstknot = stickset.firstKnot(stickid);
+	BufferString buffer;
+
+	Coord3 pos = stickset.getPos( stickid, firstknot );
+	fillBuffer( buffer, pos, mLMK_START_PT );
+	strm << buffer << '\n';
+
+	for ( int idx=1; idx<stickset.nrKnots(stickid)-1; idx++ )
+	{
+	    pos = stickset.getPos( stickid, firstknot+idx );
+	    fillBuffer( buffer, pos, mLMK_INTERMED_PT );
+	    strm << buffer << '\n';
+	}
+
+	pos = stickset.getPos( stickid, firstknot+stickset.nrKnots(stickid)-1);
+	fillBuffer( buffer, pos, mLMK_END_PT );
+	strm << buffer << '\n';
+    }
+
+    currentsticknr++;
+    if ( currentsticknr>=stickset.nrSticks() )
+	return Finished;
+
+    return MoreToDo;
+}
+
+
+void lmkEMStickSetWriter::fillBuffer( BufferString& buffer, const Coord3& pos,
+				      int pt )
+{
+    int maxlen = 1;
+    maxlen = mMAX(maxlen, xinterval.stop );
+    maxlen = mMAX(maxlen, yinterval.stop );
+    maxlen = mMAX(maxlen, zinterval.stop );
+    maxlen = mMAX(maxlen, domaininterval.stop );
+    maxlen = mMAX(maxlen, domainunitinterval.stop );
+    maxlen = mMAX(maxlen, distanceunitinterval.stop );
+    maxlen = mMAX(maxlen, pointtypeinterval.stop );
+
+    buffer.setBufSize( maxlen+1 );
+
+    for ( int idx=0; idx<buffer.bufSize(); idx++ )
+    {
+	buffer[idx] = (idx==buffer.bufSize()-1) ? 0 : ' ';
+    }
+
+    BufferString tmp = pos.x;
+    memcpy( &buffer[xinterval.start-1], &tmp[0],
+	    mMIN(tmp.size(),xinterval.width()+1));
+
+    tmp = pos.y;
+    memcpy( &buffer[yinterval.start-1], &tmp[0],
+	    mMIN(tmp.size(),yinterval.width()+1));
+
+    tmp = pos.z*1000;
+    memcpy( &buffer[zinterval.start-1], &tmp[0],
+	    mMIN(tmp.size(),zinterval.width()+1));
+
+    tmp = pt;
+    memcpy( &buffer[pointtypeinterval.start-1], &tmp[0],
+	    mMIN(tmp.size(),pointtypeinterval.width()+1));
+
+    tmp = "TIME";
+    memcpy( &buffer[domaininterval.start-1], &tmp[0],
+	    mMIN(tmp.size(),domaininterval.width()+1));
+
+    tmp = "ms";
+    memcpy( &buffer[domainunitinterval.start-1], &tmp[0],
+	    mMIN(tmp.size(),domainunitinterval.width()+1));
+
+    tmp = "m";
+    memcpy( &buffer[distanceunitinterval.start-1], &tmp[0],
+	    mMIN(tmp.size(),distanceunitinterval.width()+1));
+
+    removeTrailingBlanks( buffer.buf() );
+}
+
+
+
+
