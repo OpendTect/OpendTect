@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.19 2001-09-10 20:46:31 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.20 2001-09-10 21:10:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ void uiIOObjSelDlg::rightClk( CallBacker* c )
     if ( ioobj )
     {
 	uiPopupMenu* mnu = new uiPopupMenu( this, "Action" );
-	uiMenuItem* rmit = new uiMenuItem( "Remove" );
+	uiMenuItem* rmit = new uiMenuItem( "Remove ..." );
 	mnu->insertItem( rmit );
 
 	int ret = mnu->exec();
@@ -145,9 +145,7 @@ bool uiIOObjSelDlg::rmEntry()
     entrylist->curRemoved();
     IOM().removeAux( ioobj->key() );
     IOM().dirPtr()->permRemove( ioobj->key() );
-    ioobj = entrylist->selected();
-    if ( ioobj )
-	listfld->setCurrentItem( (const char*)ioobj->name() );
+    entrylist->fill( IOM().dirPtr() );
     return true;
 }
 
