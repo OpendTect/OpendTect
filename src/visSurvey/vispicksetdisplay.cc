@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.56 2004-05-24 13:59:30 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.57 2004-06-23 10:36:15 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -17,24 +17,22 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.56 2004-05-24 13:59:30
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "visdatagroup.h"
-#include "vissurvsurf.h"
-#include "visplanedatadisplay.h"
-#include "visrandomtrackdisplay.h"
 #include "vistransform.h"
-#include "visvolumedisplay.h"
 #include "separstr.h"
 #include "trigonometry.h"
 
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
 
-const char* visSurvey::PickSetDisplay::nopickstr = "No Picks";
-const char* visSurvey::PickSetDisplay::pickprefixstr = "Pick ";
-const char* visSurvey::PickSetDisplay::showallstr = "Show all";
-const char* visSurvey::PickSetDisplay::shapestr = "Shape";
-const char* visSurvey::PickSetDisplay::sizestr = "Size";
+namespace visSurvey {
 
-visSurvey::PickSetDisplay::PickSetDisplay()
+const char* PickSetDisplay::nopickstr = "No Picks";
+const char* PickSetDisplay::pickprefixstr = "Pick ";
+const char* PickSetDisplay::showallstr = "Show all";
+const char* PickSetDisplay::shapestr = "Shape";
+const char* PickSetDisplay::sizestr = "Size";
+
+PickSetDisplay::PickSetDisplay()
     : group( visBase::DataObjectGroup::create() )
     , eventcatcher( visBase::EventCatcher::create() )
     , initsz(3)
@@ -48,8 +46,7 @@ visSurvey::PickSetDisplay::PickSetDisplay()
     eventcatcher->setEventType(visBase::MouseClick);
     addChild( eventcatcher->getInventorNode() );
 
-    eventcatcher->eventhappened.notify(
-	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
+    eventcatcher->eventhappened.notify( mCB(this,PickSetDisplay,pickCB) );
 
     group->ref();
     addChild( group->getInventorNode() );
@@ -57,7 +54,7 @@ visSurvey::PickSetDisplay::PickSetDisplay()
 }
 
 
-void visSurvey::PickSetDisplay::copyFromPickSet( const PickSet& pickset )
+void PickSetDisplay::copyFromPickSet( const PickSet& pickset )
 {
     setColor( pickset.color );
     setName( pickset.name() );
@@ -79,7 +76,7 @@ void visSurvey::PickSetDisplay::copyFromPickSet( const PickSet& pickset )
 }
 
 
-void visSurvey::PickSetDisplay::copyToPickSet( PickSet& pickset ) const
+void PickSetDisplay::copyToPickSet( PickSet& pickset ) const
 {
     pickset.setName( name() );
     pickset.color = getMaterial()->getColor();
@@ -90,11 +87,9 @@ void visSurvey::PickSetDisplay::copyToPickSet( PickSet& pickset ) const
     
 
 
-visSurvey::PickSetDisplay::~PickSetDisplay()
+PickSetDisplay::~PickSetDisplay()
 {
-
-    eventcatcher->eventhappened.remove(
-	    mCB(this,visSurvey::PickSetDisplay,pickCB ));
+    eventcatcher->eventhappened.remove( mCB(this,PickSetDisplay,pickCB) );
     removeChild( eventcatcher->getInventorNode() );
     eventcatcher->unRef();
     removeChild( group->getInventorNode() );
@@ -104,7 +99,7 @@ visSurvey::PickSetDisplay::~PickSetDisplay()
 }
 
 
-void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
+void PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
 {
     visBase::Marker* marker = visBase::Marker::create();
     group->addObject( marker );
@@ -120,13 +115,13 @@ void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Sphere& dir )
 }
 
 
-void visSurvey::PickSetDisplay::addPick( const Coord3& pos )
+void PickSetDisplay::addPick( const Coord3& pos )
 {
     addPick( pos, Sphere(0,0,0) );
 }
 
 
-BufferString visSurvey::PickSetDisplay::getManipulationString() const
+BufferString PickSetDisplay::getManipulationString() const
 {
     BufferString str = "Nr. of picks: ";
     str += nrPicks();
@@ -134,13 +129,13 @@ BufferString visSurvey::PickSetDisplay::getManipulationString() const
 }
 
 
-int visSurvey::PickSetDisplay::nrPicks() const
+int PickSetDisplay::nrPicks() const
 {
     return group->size();
 }
 
 
-Coord3 visSurvey::PickSetDisplay::getPick( int idx ) const
+Coord3 PickSetDisplay::getPick( int idx ) const
 {
     mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
     return marker ? marker->centerPos() 
@@ -148,7 +143,7 @@ Coord3 visSurvey::PickSetDisplay::getPick( int idx ) const
 }
 
 
-Coord3 visSurvey::PickSetDisplay::getDirection( int idx ) const
+Coord3 PickSetDisplay::getDirection( int idx ) const
 {
     mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
     Sphere dir = marker ? marker->getDirection() : Sphere(0,0,0);
@@ -156,7 +151,7 @@ Coord3 visSurvey::PickSetDisplay::getDirection( int idx ) const
 }
 
 
-void visSurvey::PickSetDisplay::removePick( const Coord3& pos )
+void PickSetDisplay::removePick( const Coord3& pos )
 {
     for ( int idx=0; idx<group->size(); idx++ )
     {
@@ -173,13 +168,13 @@ void visSurvey::PickSetDisplay::removePick( const Coord3& pos )
 }
 
 
-void visSurvey::PickSetDisplay::removeAll()
+void PickSetDisplay::removeAll()
 {
     group->removeAll();
 }
 
 
-void visSurvey::PickSetDisplay::showAll(bool yn)
+void PickSetDisplay::showAll( bool yn )
 {
     showall = yn;
     if ( !showall ) return;
@@ -194,22 +189,20 @@ void visSurvey::PickSetDisplay::showAll(bool yn)
 }
 
 
-void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
-					     float dist )
+void PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs )
 {
-    dist = SI().zRange(false).step * SPM().getZScale() * 1000 / 2;
-
     if ( showall ) return;
     for ( int idx=0; idx<group->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Marker*, marker, group->getObject( idx ) );
+	mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
 	if ( !marker ) continue;
 
 	Coord3 pos = marker->centerPos(true);
 	marker->turnOn( false );
 	for ( int idy=0; idy<objs.size(); idy++ )
 	{
-	    if ( objs[idy]->calcDist( pos )< dist )
+	    float dist = objs[idy]->calcDist(pos);
+	    if ( objs[idy]->calcDist(pos) < objs[idy]->maxDist() )
 	    {
 		marker->turnOn(true);
 		break;
@@ -219,7 +212,7 @@ void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
 }
 
 
-void visSurvey::PickSetDisplay::setScreenSize( float newsize )
+void PickSetDisplay::setScreenSize( float newsize )
 {
     picksz = newsize;
     for ( int idx=0; idx<group->size(); idx++ )
@@ -232,19 +225,19 @@ void visSurvey::PickSetDisplay::setScreenSize( float newsize )
 }
 
 
-void visSurvey::PickSetDisplay::setColor( Color col )
+void PickSetDisplay::setColor( Color col )
 {
     (this)->getMaterial()->setColor( col );
 }
 
 
-Color visSurvey::PickSetDisplay::getColor() const
+Color PickSetDisplay::getColor() const
 {
     return (this)->getMaterial()->getColor();
 }
 
 
-void visSurvey::PickSetDisplay::setType( int tp )
+void PickSetDisplay::setType( int tp )
 {
     if ( tp < 0 ) tp = 0;
     for ( int idx=0; idx<group->size(); idx++ )
@@ -258,7 +251,7 @@ void visSurvey::PickSetDisplay::setType( int tp )
 }
 
 
-int visSurvey::PickSetDisplay::getType() const
+int PickSetDisplay::getType() const
 {
     for ( int idx=0; idx<group->size(); idx++ )
     {
@@ -271,7 +264,7 @@ int visSurvey::PickSetDisplay::getType() const
 }
 
 
-void visSurvey::PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
+void PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
 {
     int idx = 0;
     const char** names = MarkerStyle3D::TypeNames;
@@ -285,7 +278,7 @@ void visSurvey::PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
 }
 
 
-void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
+void PickSetDisplay::pickCB( CallBacker* cb )
 {
     if ( !isSelected() ) return;
 
@@ -352,21 +345,8 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 		{
 		    const DataObject* pickedobj =
 			visBase::DM().getObj(eventinfo.pickedobjids[idx]);
-
-		    if ( typeid(*pickedobj) ==
-				typeid(visSurvey::PlaneDataDisplay) ||
-		         typeid(*pickedobj) ==
-				typeid(visSurvey::SurfaceDisplay) ||
-			 typeid(*pickedobj) == 
-			 	typeid(visSurvey::RandomTrackDisplay) )
-		    {
-			validpicksurface = true;
-			break;
-		    }
-
-		    mDynamicCastGet( const visSurvey::VolumeDisplay*,
-			    					vd, pickedobj );
-		    if ( vd && !vd->isVolRenShown() )
+		    mDynamicCastGet(const SurveyObject*,so,pickedobj)
+		    if ( so->allowPicks() )
 		    {
 			validpicksurface = true;
 			break;
@@ -375,9 +355,8 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 
 		if ( validpicksurface )
 		{
-		    Coord3 newpos =
-			visSurvey::SPM().getZScaleTransform()->
-				transformBack(eventinfo.pickedpos);
+		    Coord3 newpos = SPM().getZScaleTransform()->
+					    transformBack(eventinfo.pickedpos);
 		    if ( transformation )
 			newpos = transformation->transformBack(newpos);
 		    addPick( newpos );
@@ -390,8 +369,7 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 }
 
 
-void visSurvey::PickSetDisplay::fillPar( IOPar& par, 
-	TypeSet<int>& saveids ) const
+void PickSetDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
@@ -419,7 +397,7 @@ void visSurvey::PickSetDisplay::fillPar( IOPar& par,
 }
 
 
-int visSurvey::PickSetDisplay::usePar( const IOPar& par )
+int PickSetDisplay::usePar( const IOPar& par )
 {
     int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res != 1 ) return res;
@@ -458,8 +436,7 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
 }
 
 
-void visSurvey::PickSetDisplay::setTransformation(
-					visBase::Transformation* newtr )
+void PickSetDisplay::setTransformation( visBase::Transformation* newtr )
 {
     if ( transformation==newtr )
 	return;
@@ -480,9 +457,9 @@ void visSurvey::PickSetDisplay::setTransformation(
 }
 
 
-visBase::Transformation* visSurvey::PickSetDisplay::getTransformation()
+visBase::Transformation* PickSetDisplay::getTransformation()
 {
     return transformation;
 }
 
-
+}; // namespace visSurvey

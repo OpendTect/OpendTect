@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.35 2004-05-24 14:33:10 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.36 2004-06-23 10:36:21 nanne Exp $
 ________________________________________________________________________
 
 
@@ -48,8 +48,8 @@ public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
 
-    void			copyFromPickSet( const PickSet& );
-    void			copyToPickSet( PickSet& ) const;
+    void			copyFromPickSet(const PickSet&);
+    void			copyToPickSet(PickSet&) const;
 
     void			addPick(const Coord3&,const Sphere&);
     void			addPick(const Coord3&);
@@ -74,15 +74,14 @@ public:
 
     void			showAll(bool yn);
     bool			allShown() const	{ return showall; }
-    void			filterPicks( ObjectSet<SurveyObject>&,
-	    				     float dist );
+    void			filterPicks(ObjectSet<SurveyObject>&);
 
-    virtual void                fillPar( IOPar&, TypeSet<int>& ) const;
-    virtual int                 usePar( const IOPar& );
+    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int                 usePar(const IOPar&);
 
     NotifierAccess*		getManipulationNotifier() { return &changed; }
 
-    void			setTransformation( visBase::Transformation* );
+    void			setTransformation(visBase::Transformation*);
     visBase::Transformation*	getTransformation();
 
 protected:

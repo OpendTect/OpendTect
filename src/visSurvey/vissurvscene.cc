@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.55 2004-05-11 12:20:04 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.56 2004-06-23 10:39:52 nanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -18,31 +18,33 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.55 2004-05-11 12:20:04 kris
 #include "vislight.h"
 #include "vissurvpickset.h"
 #include "vistransform.h"
-#include "visvolumedisplay.h"
 
 #include <limits.h>
 
 mCreateFactoryEntry( visSurvey::Scene );
 
-const char* visSurvey::Scene::annottxtstr = "Show text";
-const char* visSurvey::Scene::annotscalestr = "Show scale";
-const char* visSurvey::Scene::annotcubestr = "Show cube";
 
-const char* visSurvey::Scene::displobjprefixstr = "Displ Object ";
-const char* visSurvey::Scene::nodisplobjstr = "No Displ Objects";
-const char* visSurvey::Scene::xyzobjprefixstr = "XYZ Object ";
-const char* visSurvey::Scene::noxyzobjstr = "No XYZ Objects";
-const char* visSurvey::Scene::xytobjprefixstr = "XYT Object ";
-const char* visSurvey::Scene::noxytobjstr = "No XYT Objects";
-const char* visSurvey::Scene::inlcrltobjprefixstr = "InlCrl Object ";
-const char* visSurvey::Scene::noinlcrltobjstr = "No InlCrl Objects";
+namespace visSurvey {
 
-visSurvey::Scene::Scene()
+const char* Scene::annottxtstr = "Show text";
+const char* Scene::annotscalestr = "Show scale";
+const char* Scene::annotcubestr = "Show cube";
+
+const char* Scene::displobjprefixstr = "Displ Object ";
+const char* Scene::nodisplobjstr = "No Displ Objects";
+const char* Scene::xyzobjprefixstr = "XYZ Object ";
+const char* Scene::noxyzobjstr = "No XYZ Objects";
+const char* Scene::xytobjprefixstr = "XYT Object ";
+const char* Scene::noxytobjstr = "No XYT Objects";
+const char* Scene::inlcrltobjprefixstr = "InlCrl Object ";
+const char* Scene::noinlcrltobjstr = "No InlCrl Objects";
+
+Scene::Scene()
     : inlcrl2displtransform( SPM().getInlCrl2DisplayTransform() )
     , zscaletransform( SPM().getZScaleTransform() )
-    , annot( 0 )
-    , eventcatcher( 0 )
-    , mouseposchange( this )
+    , annot(0)
+    , eventcatcher(0)
+    , mouseposchange(this)
     , mouseposval(0)
 {
     setAmbientLight( 1 );
@@ -50,17 +52,17 @@ visSurvey::Scene::Scene()
 }
 
 
-visSurvey::Scene::~Scene()
+Scene::~Scene()
 {
-    eventcatcher->eventhappened.remove( mCB( this, Scene, mouseMoveCB ));
+    eventcatcher->eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
 }
 
 
-void visSurvey::Scene::updateRange()
+void Scene::updateRange()
 { setCube(); }
 
 
-void visSurvey::Scene::setCube()
+void Scene::setCube()
 {
     if ( !annot ) return;
     BinIDRange hrg = SI().range();
@@ -82,7 +84,7 @@ void visSurvey::Scene::setCube()
 }
 
 
-void visSurvey::Scene::addUTMObject( visBase::VisualObject* obj )
+void Scene::addUTMObject( visBase::VisualObject* obj )
 {
     obj->setTransformation( SPM().getUTM2DisplayTransform() );
     int insertpos = getFirstIdx( inlcrl2displtransform );
@@ -90,87 +92,87 @@ void visSurvey::Scene::addUTMObject( visBase::VisualObject* obj )
 }
 
 
-void visSurvey::Scene::addInlCrlTObject( visBase::DataObject* obj )
+void Scene::addInlCrlTObject( visBase::DataObject* obj )
 {
     visBase::DataObjectGroup::addObject( obj );
 }
 
 
-void  visSurvey::Scene::addObject( visBase::DataObject* sobj )
+void Scene::addObject( visBase::DataObject* obj )
 {
-    mDynamicCastGet( SurveyObject*, survobj, sobj );
-    if ( survobj && survobj->getMovementNotification() )
+    mDynamicCastGet(SurveyObject*,so,obj)
+    if ( so && so->getMovementNotification() )
     {
-	survobj->getMovementNotification()->notify(
-		mCB( this,visSurvey::Scene,filterPicks ));
+	so->getMovementNotification()->notify(
+		mCB(this,Scene,filterPicks) );
     }
 
-    if ( survobj && survobj->isInlCrl() )
+    if ( so && so->isInlCrl() )
     {
-	addInlCrlTObject( sobj );
+	addInlCrlTObject( obj );
 	return;
     }
 
-    mDynamicCastGet( visBase::VisualObject*, visobj, sobj );
-    if ( visobj )
+    mDynamicCastGet(visBase::VisualObject*,vo,obj)
+    if ( vo )
     {
-	addUTMObject(visobj);
+	addUTMObject( vo );
 	return;
     }
 }
 
 
-void visSurvey::Scene::removeObject( int idx )
+void Scene::removeObject( int idx )
 {
     DataObject* obj = getObject( idx );
-    mDynamicCastGet( SurveyObject*, survobj, obj );
-    if ( survobj && survobj->getMovementNotification() )
+    mDynamicCastGet(SurveyObject*,so,obj)
+    if ( so && so->getMovementNotification() )
     {
-	survobj->getMovementNotification()->remove(
-		mCB( this,visSurvey::Scene,filterPicks ));
+	so->getMovementNotification()->remove(
+		mCB(this,Scene,filterPicks) );
     }
 
     DataObjectGroup::removeObject( idx );
 }
 
 
-void visSurvey::Scene::showAnnotText( bool yn )
+void Scene::showAnnotText( bool yn )
 {
     annot->showText( yn );
 }
 
 
-bool  visSurvey::Scene::isAnnotTextShown() const
+bool Scene::isAnnotTextShown() const
 {
     return annot->isTextShown();
 }
 
 
-void visSurvey::Scene::showAnnotScale( bool yn )
+void Scene::showAnnotScale( bool yn )
 {
     annot->showScale( yn );
 }
 
 
-bool visSurvey::Scene::isAnnotScaleShown() const
+bool Scene::isAnnotScaleShown() const
 {
     return annot->isScaleShown();
 }
 
 
-void visSurvey::Scene::showAnnot( bool yn )
+void Scene::showAnnot( bool yn )
 {
     annot->turnOn( yn );
 }
 
 
-bool visSurvey::Scene::isAnnotShown() const
+bool Scene::isAnnotShown() const
 {
     return annot->isOn();
 }
 
 
-Coord3 visSurvey::Scene::getMousePos( bool xyt ) const
+Coord3 Scene::getMousePos( bool xyt ) const
 {
    if ( xyt ) return xytmousepos;
    
@@ -183,7 +185,7 @@ Coord3 visSurvey::Scene::getMousePos( bool xyt ) const
 }
 
 
-void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::DataObject::fillPar( par, saveids );
 
@@ -223,7 +225,7 @@ void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 }
 
 
-int visSurvey::Scene::usePar( const IOPar& par )
+int Scene::usePar( const IOPar& par )
 {
     eventcatcher->eventhappened.remove( mCB( this, Scene, mouseMoveCB ));
     removeAll();
@@ -255,7 +257,7 @@ int visSurvey::Scene::usePar( const IOPar& par )
 }
 
 
-int visSurvey::Scene::useOldPar( const IOPar& par )
+int Scene::useOldPar( const IOPar& par )
 {
     int nrdisplobj = 0;
     if ( !par.get( nodisplobjstr, nrdisplobj ))
@@ -345,7 +347,7 @@ int visSurvey::Scene::useOldPar( const IOPar& par )
 }
 
 
-void visSurvey::Scene::setup()
+void Scene::setup()
 {
     setAmbientLight( 1 );
 
@@ -368,31 +370,31 @@ void visSurvey::Scene::setup()
 }
 
 
-void visSurvey::Scene::filterPicks(CallBacker* cb)
+void Scene::filterPicks( CallBacker* cb )
 {
     ObjectSet<SurveyObject> activeobjects;
     for ( int idx=0; idx<size(); idx++ )
     {
-	mDynamicCastGet( SurveyObject*, survobj, getObject( idx ) );
-	if ( !survobj ) continue;
-	if ( !survobj->getMovementNotification() ) continue;
+	mDynamicCastGet(SurveyObject*,so,getObject(idx))
+	if ( !so ) continue;
+	if ( !so->getMovementNotification() ) continue;
 
-	mDynamicCastGet( visBase::VisualObject*, visobj, getObject( idx ) );
-	if ( !visobj ) continue;
-	if ( !visobj->isOn() ) continue;
+	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx))
+	if ( !vo ) continue;
+	if ( !vo->isOn() ) continue;
 
-	activeobjects += survobj;
+	activeobjects += so;
     }
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	mDynamicCastGet( PickSetDisplay*, pickset, getObject( idx ) );
-	if ( pickset ) pickset->filterPicks( activeobjects, 10 );
+	mDynamicCastGet(PickSetDisplay*,pickset,getObject(idx))
+	if ( pickset ) pickset->filterPicks( activeobjects );
     }
 }
 
 
-void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
+void Scene::mouseMoveCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
@@ -411,7 +413,7 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
     {
 	const DataObject* pickedobj =
 			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
-	mDynamicCastGet( const SurveyObject*, so, pickedobj );
+	mDynamicCastGet(const SurveyObject*,so,pickedobj)
 	if ( so )
 	{
 	    if ( !validpicksurface )
@@ -433,3 +435,5 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
     if ( validpicksurface )
 	mouseposchange.trigger();
 }
+
+}; // namespace visSurvey
