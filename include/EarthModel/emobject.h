@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.3 2002-05-22 06:17:42 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.4 2002-05-22 07:00:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ public:
     CNotifier<EMObject, PosID>	poschnotifier;
 
     virtual Executor*		loader() { return 0; }
-    virtual bool		isloaded() const {return false;}
+    virtual bool		isLoaded() const {return false;}
     virtual Executor*		saver() { return 0; }
 
     const char*			errMsg() const
