@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.112 2004-03-01 13:27:06 bert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.113 2004-03-11 15:31:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,13 @@ class uiVisPartServer : public uiApplPartServer
 public:
 				uiVisPartServer(uiApplService&);
 				~uiVisPartServer();
+
+    void			unlockEvent();
+    				/*!< This function _must_ be called after
+				     the object has sent an event to unlock
+				     the object. */
+    int				getEventObjId() const;
+
     const char*			name() const;
     void			setObjectName(int,const char*);
     const char*			getObjectName(int) const;
@@ -191,7 +198,6 @@ public:
     const TypeSet<float>*	getHistogram(int) const;
 
 				//General stuff
-    int				getEventObjId() const;
     const AttribSelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const AttribSelSpec&);
     bool			deleteAllObjects();

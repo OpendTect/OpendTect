@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.189 2004-03-01 13:27:06 bert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.190 2004-03-11 15:31:20 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,10 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     visBase::DM().selMan().deselnotifer.notify( 
   	mCB(this,uiVisPartServer,deselectObjCB) );
 }
+
+
+void uiVisPartServer::unlockEvent()
+{ eventmutex.unlock(); }
 
 
 uiVisPartServer::~uiVisPartServer()
@@ -1221,7 +1225,7 @@ void uiVisPartServer::removeObject( int id, int sceneid )
     int idx = scene->getFirstIdx( id );
     scene->removeObject( idx );
 
-    Threads::MutexLocker lock( eventmutex );
+    eventmutex.lock();
     sendEvent( evUpdateTree );
 }
 
@@ -1237,7 +1241,6 @@ bool uiVisPartServer::selectAttrib( int id )
 {
     eventmutex.lock();
     bool selected = sendEvent( evSelectAttrib );
-    eventmutex.unlock();
 
     if ( !selected ) return false;
 
@@ -1246,7 +1249,6 @@ bool uiVisPartServer::selectAttrib( int id )
     eventmutex.lock();
     eventobjid = id;
     sendEvent( evUpdateTree );
-    eventmutex.unlock();
 
     return true;
 }
@@ -1286,7 +1288,7 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
     res = false;
     if ( vd || pdd || rtd || sd )
     {
-	Threads::MutexLocker lock( eventmutex );
+	eventmutex.lock();
 	eventobjid = id;
 	res = sendEvent( evGetNewData );
     }
@@ -1364,7 +1366,7 @@ bool uiVisPartServer::calculateColorAttrib( int id, bool newselect )
 	return true;
     }
 
-    Threads::MutexLocker lock( eventmutex );
+    eventmutex.lock();
     eventobjid = id;
     res = sendEvent( evGetColorData );
     return res;
@@ -1385,7 +1387,6 @@ bool uiVisPartServer::selectColorAttrib( int id )
 {
     eventmutex.lock();
     bool selected = sendEvent( evSelectColorAttrib );
-    eventmutex.unlock();
 
     if ( !selected ) return false;
 
@@ -1593,7 +1594,7 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
     if ( !viewmode )
 	toggleDraggers();
 
-    Threads::MutexLocker lock( eventmutex );
+    eventmutex.lock();
     eventobjid = sel;
     sendEvent( evSelection );
 }
@@ -1614,7 +1615,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 	toggleDraggers();
 
 
-    Threads::MutexLocker lock( eventmutex );
+    eventmutex.lock();
     eventobjid = oldsel;
     sendEvent( evDeSelection );
 }
@@ -1622,7 +1623,7 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 
 void uiVisPartServer::interactionCB( CallBacker* cb )
 {
-    Threads::MutexLocker lock( eventmutex );
+    eventmutex.lock();
     mDynamicCastGet(visBase::DataObject*,dataobj,cb)
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,dataobj)
     if ( dataobj && !vd )
@@ -1645,7 +1646,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 
     if ( selid==-1 || psd )
     {
-	Threads::MutexLocker lock( eventmutex );
+	eventmutex.lock();
 	xytmousepos = scene->getMousePos(true);
 	inlcrlmousepos = scene->getMousePos(false);
 	mouseposval = scene->getMousePosValue();
