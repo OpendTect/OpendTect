@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.40 2003-01-20 11:30:35 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.41 2003-01-24 14:56:42 kristofer Exp $";
 
 #include "vissurvpickset.h"
 
@@ -317,7 +317,9 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 
 		if ( validpicksurface )
 		{
-		    Coord3 newpos = eventinfo.pickedpos;
+		    Coord3 newpos =
+			visSurvey::SPM().getZScaleTransform()->
+				transformBack(eventinfo.pickedpos);
 		    if ( transformation )
 			newpos = transformation->transformBack(newpos);
 		    addPick( newpos );
