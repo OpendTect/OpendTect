@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: unitofmeasure.cc,v 1.2 2004-02-19 16:22:26 bert Exp $";
+static const char* rcsID = "$Id: unitofmeasure.cc,v 1.3 2004-02-20 16:10:07 bert Exp $";
 
 #include "unitofmeasure.h"
 #include "ascstream.h"
@@ -93,6 +93,8 @@ void UnitOfMeasureRepository::addUnitsFromFile( const char* fnm )
 	}
 	add( un );
     }
+
+    sd.close();
 }
 
 

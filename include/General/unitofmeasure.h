@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.2 2004-02-19 16:22:26 bert Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.3 2004-02-20 16:10:06 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,9 @@ UnitOfMeasureRepository& UoMR();
 /*!\brief Unit of Measure
  
  Only linear transformations to SI units supported.
+
+ All units of measure in OpendTect are available through the UoMR() instance
+ accessor of the singleton UnitOfMeasureRepository instance.
 
  */
 
