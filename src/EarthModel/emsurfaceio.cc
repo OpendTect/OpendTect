@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.14 2003-07-30 17:01:03 bert Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.15 2003-07-31 14:35:37 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -96,6 +96,9 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 	key += idx;
 	BufferString patchname;
 	par->get(key,patchname);
+	if ( !patchname.size() )
+	{ patchname = "["; patchname += idx+1; patchname += "]"; }
+		
 	patchnames += new BufferString(patchname);
     }
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.16 2003-07-30 13:47:27 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.17 2003-07-31 14:35:36 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -120,10 +120,7 @@ bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
     if ( nm && *nm )
 	name = nm;
     else
-    {
-	name = "Patch ";
-	name += patchid;
-    }
+	{ name = "["; name += patchid; name += "]"; }
 
     patchnames += new BufferString(name);
 
