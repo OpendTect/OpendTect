@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.46 2003-04-22 09:49:48 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.47 2003-04-23 10:43:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -401,6 +401,8 @@ int i_uiGroupLayoutItem::centre(layoutMode m, bool hor) const
 }
 
 
+static bool showgrps__ = getenv("dGB_SHOW_GROUP_FRAMES");
+
 uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     : uiParent( nm, 0 )
     , grpobj_( 0 )
@@ -408,6 +410,8 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
 {
     grpobj_ =  new uiGroupObj( this,p,nm,manage );
     uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
+
+    if( showgrps__ ) grpbdy->setFrameStyle( QFrame::Box | QFrame::Plain );
 
 #ifdef __debug__
     if( !grpbdy ) { pErrMsg("Huh") ; return; }

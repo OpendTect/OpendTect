@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.2 2003-04-22 14:58:00 arend Exp $
+ RCS:           $Id: uitabstack.cc,v 1.3 2003-04-23 10:43:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,8 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     tabgrp_->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
     tabgrp_->setBorder(10);
 
-    tabgrp_->attach( ensureBelow, tabbar_, 0 );
-    tabgrp_->setStretch( 2, 2 );
+    tabgrp_->attach( stretchedBelow, tabbar_, 0 );
+//    tabgrp_->setStretch( 2, 2 );
 
     tabbar_->selected.notify( mCB( this, uiTabStack, tabSel ) );
 }
@@ -61,7 +61,13 @@ void uiTabStack::addTab( uiGroup* grp, const char* txt )
 //    grp->setStretch(2,2);
 
     if ( !hAlignObj() )
+{
+#ifdef __debug__
+cout << "Setting align group: " << grp->name() << endl;
+#endif
+
 	setHAlignObj( grp );
+}
 }
 
 void uiTabStack::insertTab( uiGroup* grp, const char* txt, int index )

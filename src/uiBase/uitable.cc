@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.8 2003-04-22 09:49:49 arend Exp $
+ RCS:           $Id: uitable.cc,v 1.9 2003-04-23 10:43:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,10 +152,10 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     clicked.notify( mCB(this,uiTable,clicked_) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
-    setHSzPol( uiObject::smallvar );
+    setHSzPol( uiObject::medvar );
     setVSzPol( uiObject::smallvar );
 
-    setStretch( s.colgrow_ ? 2 : 1, s.rowgrow_ ? 2 : 1 );
+//    setStretch( s.colgrow_ ? 2 : 1, s.rowgrow_ ? 2 : 1 );
 }
 
 
@@ -445,8 +445,10 @@ void uiTable::updateCellSizes( uiSize* size )
 	int colwdt = availwdt / nc;
 
 	const int minwdt = uiObject::baseFldSize() * font()->avgWidth();
+	const int maxwdt = 2 * minwdt;
 
 	if ( colwdt < minwdt ) colwdt = minwdt;
+	if ( colwdt > maxwdt ) colwdt = maxwdt;
 
 	for ( int idx=0; idx < nc; idx ++ )
 	{
@@ -455,7 +457,8 @@ void uiTable::updateCellSizes( uiSize* size )
 	    else 
 	    {
 		int wdt = availwdt;
-		if ( wdt < minwdt ) wdt = minwdt;
+		if ( wdt < minwdt )	wdt = minwdt;
+		if ( wdt > maxwdt )	wdt = maxwdt;
 
 		setColumnWidth( idx, wdt );
 	    }
