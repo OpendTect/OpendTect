@@ -18,18 +18,7 @@
 #include <Inventor/misc/SoState.h>
 #include <Inventor/misc/SoChildList.h>
 #include <stdlib.h>
-#include "ptrman.h"
 
-static PtrMan<SoGetBoundingBoxAction> bboxAction(0);
-
-/*
-static void
-SoManLevelOfDetail(void)
-{
-  delete bboxAction;
-  bboxAction = NULL;
-}
-*/
 
 SO_NODE_SOURCE(SoManLevelOfDetail);
 
@@ -103,10 +92,8 @@ void SoManLevelOfDetail::initClass(void)
 
     SoNode::incNextActionMethodIndex();
     SoManLevelOfDetail::parentFieldData = SoGroup::getFieldDataPtr();
-    /* Should be uncommented when we switch to Coin-2
-     SoNode::setCompatibilityTypes( SoManLevelOfDetail::getClassTypeId(),
-				    SoNode::COIN_2_0|SoNode::VRML1);
-    */
+    SoNode::setCompatibilityTypes( SoManLevelOfDetail::getClassTypeId(),
+				   SoNode::COIN_2_0|SoNode::VRML1);
 }
 
 
@@ -164,7 +151,8 @@ void SoManLevelOfDetail::doAction(SoAction *action)
 
     if (!this->bboxcache || !this->bboxcache->isValid(state))
     {
-	if (!bboxAction)
+	static SoGetBoundingBoxAction* bboxAction = 0;
+	if ( !bboxAction )
 	{
 	    bboxAction = new SoGetBoundingBoxAction(SbViewportRegion());
 	}
