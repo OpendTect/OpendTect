@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.56 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.57 2004-04-07 15:13:54 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -352,7 +352,7 @@ IOObj* BatchProgram::getIOObjFromPars(	const char* bsky, bool mknew,
 		return 0;
 	    }
 	}
-	else if ( !IOObj::isKey(res.buf()) )
+	if ( !IOObj::isKey(res.buf()) )
 	{
 	    CtxtIOObj ctio( ctxt );
 	    IOM().to( ctio.ctxt.stdSelKey() );
