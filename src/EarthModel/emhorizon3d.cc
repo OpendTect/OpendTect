@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.45 2004-07-20 08:29:50 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.46 2004-07-21 12:06:05 nanne Exp $";
 
 #include "emhorizon.h"
 
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.45 2004-07-20 08:29:50 krist
 #include "settings.h"
 #include "trigonometry.h"
 #include "filegen.h"
+
+#include <math.h>
 
 
 EM::Horizon::Horizon( EMManager& man, const EM::ObjectID& id_ )
