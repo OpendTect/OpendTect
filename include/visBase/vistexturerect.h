@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.8 2002-04-26 12:42:03 kristofer Exp $
+ RCS:		$Id: vistexturerect.h,v 1.9 2002-05-06 12:15:30 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,15 @@ public:
 
     void		useTexture(bool);
     bool		usesTexture() const;
+
+    virtual void	fillPar( IOPar&, TypeSet<int>& ) const;
+    virtual int		usePar( const IOPar& );
+
+
+    static const char*	texturequalitystr;
+    static const char*	rectangleidstr;
+    static const char*	colortabidstr;
+    static const char*	usestexturestr;
 
 protected:
     void		updateTexture();
