@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.27 2003-09-16 09:41:17 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.28 2003-09-16 09:48:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -227,22 +227,38 @@ int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx,
 }
 
 
-bool uiEMPartServer::storeSurface( const MultiID& id )
+bool uiEMPartServer::storeObject( const MultiID& id )
 {
     EM::EMManager& em = EM::EMM();
-    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
-    if ( !hor ) return false;
+    PtrMan<Executor> exec = 0;
 
-    uiWriteSurfaceDlg dlg( appserv().parent(), *hor );
-    if ( !dlg.go() ) return false;
+    EM::EMObject* object = em.getObject(id);
+    if ( !object )
+	return false;
 
-    EM::SurfaceIOData sd;
-    EM::SurfaceIODataSelection sel( sd );
-    dlg.getSelection( sel );
+    mDynamicCastGet(EM::Horizon*,hor,object);
+    if ( hor )
+    {
+	uiWriteSurfaceDlg dlg( appserv().parent(), *hor );
+	if ( !dlg.go() ) return false;
 
-    bool auxdataonly = dlg.auxDataOnly();
-    const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
-    PtrMan<Executor> exec = hor->saver( &sel, auxdataonly, &key );
+	EM::SurfaceIOData sd;
+	EM::SurfaceIODataSelection sel( sd );
+	dlg.getSelection( sel );
+
+	bool auxdataonly = dlg.auxDataOnly();
+	const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
+	exec = hor->saver( &sel, auxdataonly, &key );
+    }
+    else
+    {
+	mDynamicCastGet(EM::Fault*,fault,object);
+	exec = fault ? fault->saver() : object->saver();
+    }
+
+    if ( !exec )
+	return false;
+
     uiExecutor exdlg( appserv().parent(), *exec );
     return exdlg.go();
 }

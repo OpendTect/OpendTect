@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.16 2003-09-09 16:05:15 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.17 2003-09-16 09:48:40 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ public:
 				      TypeSet<Interval<float> >&,
 				      const BinIDRange* br=0) const;
 
-    bool		storeSurface(const MultiID&);
+    bool		storeObject(const MultiID&);
     void		setDataVal(const MultiID&,
 	    			   ObjectSet< TypeSet<BinIDZValue> >&,
 				   const char*);
