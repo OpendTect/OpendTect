@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.18 2002-04-23 13:13:21 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.19 2002-04-24 16:07:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ public:
 					bool withclear=false);
 
     void		setFilter( const char* f )	{ filter = f; }
+    void		selectDirectory( bool yn=true )	{ seldir = yn; }
 
     bool		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -108,6 +109,7 @@ protected:
     void		doFileSel(CallBacker*);
     bool		forread;
     BufferString	filter;
+    bool		seldir;
 
 };
 
