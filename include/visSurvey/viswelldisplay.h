@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.3 2002-05-27 15:53:30 nanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.4 2002-06-25 15:22:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -73,6 +73,7 @@ protected:
     static const char*	displayattribstr;
     static const char*	colortableidstr;
     static const char*	linestylestr;
+    static const char*	showwellnmstr;
 };
 
 };

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.6 2002-05-27 15:53:23 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.7 2002-06-25 15:22:39 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "vispolyline.h"
@@ -23,6 +23,7 @@ const char* visSurvey::WellDisplay::earthmodelidstr = "EarthModel ID";
 const char* visSurvey::WellDisplay::displayattribstr = "Attrib";
 const char* visSurvey::WellDisplay::colortableidstr = "ColorTable";
 const char* visSurvey::WellDisplay::linestylestr = "Line style";
+const char* visSurvey::WellDisplay::showwellnmstr = "Show name";
 
 
 visSurvey::WellDisplay::WellDisplay()
@@ -137,6 +138,9 @@ void visSurvey::WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     BufferString linestyle;
     drawstyle->lineStyle().toString( linestyle );
     par.set( linestylestr, linestyle );
+
+    bool welltxtshown = welltxt->isOn();
+    par.setYN( showwellnmstr, welltxtshown );
 }
 
 
@@ -173,6 +177,10 @@ int visSurvey::WellDisplay::usePar( const IOPar& par )
 	lst.fromString( linestyle );
 	drawstyle->setLineStyle( lst );
     }
+
+    bool welltxtshown;
+    if ( !par.getYN( showwellnmstr, welltxtshown ) ) return -1;
+    showWellText( welltxtshown );
 
     return 1;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.19 2002-05-07 12:12:25 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.20 2002-06-25 15:22:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,7 @@ public:
     static Scene*		create()
 				mCreateDataObj0arg(Scene);
 
+    void			updateRange()	{ setCube(); }
     void			addXYZObject( SceneObject* );
     void			addXYTObject( SceneObject* );
     void			addInlCrlTObject( SceneObject* );
@@ -67,8 +68,10 @@ public:
     virtual int			usePar( const IOPar& );
 
     void			filterPicks( CallBacker* = 0 );
+
 protected:
     				~Scene();
+    void			setCube();
     void			mouseMoveCB( CallBacker* = 0 );
 
     const visBase::Transformation*	timetransformation;
@@ -85,6 +88,9 @@ protected:
     static const char*		noxytobjstr;
     static const char*		inlcrltobjprefixstr;
     static const char*		noinlcrltobjstr;
+    static const char*		annottxtstr;
+    static const char*		annotscalestr;
+    static const char*		annotcubestr;
 };
 
 };

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.32 2002-05-07 12:12:04 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.33 2002-06-25 15:22:39 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -29,6 +29,9 @@ const char* visSurvey::Scene::xytobjprefixstr = "XYT Object ";
 const char* visSurvey::Scene::noxytobjstr = "No XYT Objects";
 const char* visSurvey::Scene::inlcrltobjprefixstr = "InlCrl Object ";
 const char* visSurvey::Scene::noinlcrltobjstr = "No InlCrl Objects";
+const char* visSurvey::Scene::annottxtstr = "Show text";
+const char* visSurvey::Scene::annotscalestr = "Show scale";
+const char* visSurvey::Scene::annotcubestr = "Show cube";
 
 
 visSurvey::Scene::Scene()
@@ -46,24 +49,8 @@ visSurvey::Scene::Scene()
     addObject( const_cast<visBase::Transformation*>(timetransformation) );
     addObject( const_cast<visBase::Transformation*>(inlcrltransformation) );
 
-    BinIDRange hrg = SI().range();
-    StepInterval<double> vrg = SI().zRange();
-
     annot = visBase::Annotation::create();
-    BinID c0( hrg.start.inl, hrg.start.crl ); 
-    BinID c1( hrg.stop.inl, hrg.start.crl ); 
-    BinID c2( hrg.stop.inl, hrg.stop.crl ); 
-    BinID c3( hrg.start.inl, hrg.stop.crl );
-
-    annot->setCorner( 0, c0.inl, c0.crl, vrg.start );
-    annot->setCorner( 1, c1.inl, c1.crl, vrg.start );
-    annot->setCorner( 2, c2.inl, c2.crl, vrg.start );
-    annot->setCorner( 3, c3.inl, c3.crl, vrg.start );
-    annot->setCorner( 4, c0.inl, c0.crl, vrg.stop );
-    annot->setCorner( 5, c1.inl, c1.crl, vrg.stop );
-    annot->setCorner( 6, c2.inl, c2.crl, vrg.stop );
-    annot->setCorner( 7, c3.inl, c3.crl, vrg.stop );
-
+    setCube();
     annot->setText( 0, "In-line" );
     annot->setText( 1, "Cross-line" );
     annot->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
@@ -98,6 +85,28 @@ visSurvey::Scene::Scene()
 visSurvey::Scene::~Scene()
 {
     eventcatcher->eventhappened.remove( mCB( this, Scene, mouseMoveCB ));
+}
+
+
+void visSurvey::Scene::setCube()
+{
+    if ( !annot ) return;
+    BinIDRange hrg = SI().range();
+    StepInterval<double> vrg = SI().zRange();
+
+    BinID c0( hrg.start.inl, hrg.start.crl ); 
+    BinID c1( hrg.stop.inl, hrg.start.crl ); 
+    BinID c2( hrg.stop.inl, hrg.stop.crl ); 
+    BinID c3( hrg.start.inl, hrg.stop.crl );
+
+    annot->setCorner( 0, c0.inl, c0.crl, vrg.start );
+    annot->setCorner( 1, c1.inl, c1.crl, vrg.start );
+    annot->setCorner( 2, c2.inl, c2.crl, vrg.start );
+    annot->setCorner( 3, c3.inl, c3.crl, vrg.start );
+    annot->setCorner( 4, c0.inl, c0.crl, vrg.stop );
+    annot->setCorner( 5, c1.inl, c1.crl, vrg.stop );
+    annot->setCorner( 6, c2.inl, c2.crl, vrg.stop );
+    annot->setCorner( 7, c3.inl, c3.crl, vrg.stop );
 }
 
 
@@ -281,6 +290,13 @@ void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	BufferString key = inlcrltobjprefixstr; key += idx;
 	par.set( key, inlcrltkids[idx] );
     }
+
+    bool txtshown = isAnnotTextShown();
+    par.setYN( annottxtstr, txtshown );
+    bool scaleshown = isAnnotScaleShown();
+    par.setYN( annotscalestr, scaleshown );
+    bool cubeshown = isAnnotShown();
+    par.setYN( annotcubestr, cubeshown );
 }
 
 
@@ -411,6 +427,16 @@ int visSurvey::Scene::usePar( const IOPar& par )
 			visBase::DM().getObj( inlcrlobjids[idx] ));
 	if ( so ) addInlCrlTObject( so );
     }
+
+    bool txtshown;
+    if ( !par.getYN( annottxtstr, txtshown ) ) return -1;
+    showAnnotText( txtshown );
+    bool scaleshown;
+    if ( !par.getYN( annotscalestr, scaleshown ) ) return -1;
+    showAnnotScale( scaleshown );
+    bool cubeshown;
+    if ( !par.getYN( annotcubestr, cubeshown ) ) return -1;
+    showAnnot( cubeshown );
 
     return 1;
 }
