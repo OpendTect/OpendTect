@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.1 2001-05-23 07:52:38 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.2 2001-05-24 13:19:37 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -16,6 +16,7 @@ CBVS-based seimic translator.
 
 #include <seistrctr.h>
 #include <tracedata.h>
+#include <cbvsinfo.h>
 class CBVSReadMgr;
 class CBVSWriteMgr;
 
@@ -59,6 +60,7 @@ protected:
 
     CBVSReadMgr*	rdmgr;
     CBVSWriteMgr*	wrmgr;
+    CBVSInfo::ExplicitData expldat;
 
     virtual void	cleanUp();
     virtual bool	initRead_();
@@ -66,6 +68,7 @@ protected:
     virtual bool	commitSelections_();
     bool		startWrite();
     bool		toNext();
+    bool		getFileName(BufferString&);
 
 private:
 
