@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.18 2004-05-24 21:04:12 bert Exp $
+ RCS:           $Id: viswell.cc,v 1.19 2004-06-18 08:02:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "iopar.h"
 #include "ranges.h"
+#include "scaler.h"
 
 #include "SoPlaneWellLog.h"
 
@@ -254,10 +255,12 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	nrsamp = sMaxNrLogSamples;
     }
 
+    float prevval = 0;
     const bool rev = range.start > range.stop;
     log->setRevScale( rev, lognr );
     log->clearLog( lognr );
     Interval<float> rg = range; rg.sort();
+    LinScaler scaler( rg.start, 0, rg.stop, 100 );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	int index = mNINT(idx*step);
@@ -267,17 +270,21 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	    pos = transformation->transform( pos );
 	if ( mIsUndefined(pos.z) ) continue;
 
-	float val = mIsUndefined(cv.value) ? 0 : cv.value;
-	val -= rg.start;
-	if ( val < 0 ) val = 0;
-	else if ( !val > rg.stop )
-	    val = rg.stop;
+	float val = scaler.scale( cv.value );
+	if ( mIsUndefined(val) )
+	    val = prevval;
+	else if ( val < 0 )
+	    val = 0;
+	else if ( val > 100 )
+	    val = 100;
+
 	if ( sclog )
 	{
 	    val += 1;
 	    val = ::log( val );
 	}
 	log->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
+	prevval = val;
     }
 
     showLogs( true );
