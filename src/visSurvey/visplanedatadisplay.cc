@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.31 2003-01-20 11:30:35 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.32 2003-01-21 12:34:26 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "cubesampling.h"
@@ -171,7 +171,7 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
 
     if ( type==Inline )
     {
-	float draggertimesize = draggerdiameter/happvel;
+	float draggertimesize = draggerdiameter / (1000*happvel);
 	float draggercrlsize = draggerdiameter / crlspacing;
 	float draggerinlsize = draggerlength / inlspacing;
 
@@ -181,7 +181,7 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
     }
     else if ( type==Crossline )
     {
-	float draggertimesize = draggerdiameter/happvel;
+	float draggertimesize = draggerdiameter / (1000*happvel);
 	float draggerinlsize = draggerdiameter / inlspacing;
 	float draggercrlsize = draggerlength / crlspacing;
 
@@ -193,7 +193,7 @@ void visSurvey::PlaneDataDisplay::resetDraggerSizes( float appvel )
     {
 	float draggerinlsize = draggerdiameter/ inlspacing;
 	float draggercrlsize = draggerdiameter / crlspacing;
-	float draggertimesize = draggerlength / happvel;
+	float draggertimesize = draggerlength / (1000*happvel);
 
 	trect->getRectangle().setDraggerSize( draggerinlsize,
 					      draggercrlsize,
