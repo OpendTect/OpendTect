@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.6 2002-10-31 13:35:55 dgb Exp $
+# $Id: od_exec,v 1.7 2002-10-31 13:40:35 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -16,7 +16,7 @@ endif
 
 set binsubdir=$HDIR
 if ( $binsubdir == sun5 ) then
-    if ( -d $dGB_APPL/bin/sol26 || $dGB_APPL/bin/sol28 ) then
+    if ( -d $dGB_APPL/bin/sol26 || -d $dGB_APPL/bin/sol28 ) then
 	set v=`uname -r|sed 's/5\.//'`
 	if ( "$v" == "6" || "$v" == "7" ) then
 	    set binsubdir=sol26
@@ -26,8 +26,17 @@ if ( $binsubdir == sun5 ) then
 	endif
     endif
 endif
+if ( ! -d $dGB_APPL/bin/$binsubdir ) then
+    set binsubdir=$HDIR
+endif
 
 set bindir="$dGB_APPL/bin/$binsubdir"
+if ( ! -d $bindir ) then
+	echo "Fatal error: Cannot start program because directory:"
+	echo "$bindir"
+	echo "Does not exist."
+	exit 1
+endif
 
 setenv XAPPLRESDIR	$dGB_APPL/data
 setenv PATH		"${bindir}:${PATH}"
