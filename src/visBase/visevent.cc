@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.15 2004-05-07 14:32:05 dgb Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.16 2004-08-05 08:53:26 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -27,11 +27,15 @@ const char* visBase::EventCatcher::eventtypestr = "EventType";
 
 visBase::EventInfo::EventInfo()
     : objecttoworldtrans( visBase::Transformation::create() )
+    , detail(0)
 { objecttoworldtrans->ref(); }
 
 
 visBase::EventInfo::~EventInfo()
-{ objecttoworldtrans->unRef(); }
+{
+    objecttoworldtrans->unRef();
+    delete detail;
+}
 
 
 mCreateFactoryEntry( visBase::EventCatcher );

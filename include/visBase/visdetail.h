@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-06-2003
- RCS:		$Id: visdetail.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visdetail.h,v 1.3 2004-08-05 08:52:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ public:
     	: detailtype( dt )
     {};
     
-    DetailType		getDetailType();
+    virtual DetailType	getDetailType();
     
 protected:
 
@@ -56,7 +56,7 @@ public:
 	, facedetail( d )
     {};
 
-    int			getClosestIdx( Coordinates*, Coord3 );
+    int			getClosestIdx( const Coordinates*, const Coord3& );
 
 protected:
     SoFaceDetail*	facedetail;

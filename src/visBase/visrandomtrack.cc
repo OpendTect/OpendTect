@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.27 2004-08-05 07:04:00 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.28 2004-08-05 08:53:26 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -515,9 +515,9 @@ int visBase::RandomTrack::usePar( const IOPar& par )
 }
 
 
-void visBase::RandomTrack::triggerRightClick(const EventInfo* eventinfo)
+void visBase::RandomTrack::triggerRightClick(const EventInfo* ei)
 {
-    const TypeSet<int>* path = &eventinfo->pickedobjids;
+    const TypeSet<int>* path = &ei->pickedobjids;
      sectionidx = -1;
      for ( int idx=0; idx<path->size(); idx++ )
      {
@@ -537,5 +537,5 @@ void visBase::RandomTrack::triggerRightClick(const EventInfo* eventinfo)
      if ( sectionidx == -1 )
 	 return;
 
-     VisualObject::triggerRightClick(eventinfo);
+     VisualObject::triggerRightClick(ei);
 }

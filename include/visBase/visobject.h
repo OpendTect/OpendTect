@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.30 2004-08-05 07:03:57 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.31 2004-08-05 08:53:43 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -42,7 +42,7 @@ public:
     NotifierAccess*		selection() 		{ return &selnotifier; }
     NotifierAccess*		deSelection() 		{return &deselnotifier;}
     virtual NotifierAccess*	rightClicked()		{ return &rightClick; }
-    const TypeSet<int>*		rightClickedPath() const{return rightclickpath;}
+    const EventInfo*		rightClickedEventInfo() const{return eventinfo;}
 
     virtual int			usePar( const IOPar& iopar )
 				{ return DataObject::usePar(iopar); }
@@ -64,7 +64,7 @@ private:
     Notifier<VisualObject>				selnotifier;
     Notifier<VisualObject>				deselnotifier;
     Notifier<VisualObject>				rightClick;
-    const TypeSet<int>*					rightclickpath;
+    const EventInfo*					eventinfo;
 };
 
 
