@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.cc,v 1.2 2004-03-18 10:13:33 nanne Exp $
+ RCS:           $Id: uiwellattribpartserv.cc,v 1.3 2004-04-21 14:14:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
+#include "uimsg.h"
 
 
 
@@ -55,23 +56,23 @@ void uiWellAttribPartServer::setNLAModel( const NLAModel* mdl )
     nlamodel = mdl;
 }
 
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
 
 bool uiWellAttribPartServer::selectAttribute( const MultiID& wellid )
 {
-    // TODO: error messages
     Well::Data* wd = Well::MGR().get( wellid );
-    if ( !wd ) return false;
+    if ( !wd ) mErrRet("Cannot read well data")
 
     uiWellAttribSel dlg( appserv().parent(), *wd, *attrset, nlamodel );
-    bool ret = dlg.go();
-    if ( !ret ) return false;
+    if ( !dlg.go() )
+	return false;
 
     PtrMan<IOObj> ioobj = IOM().get( wellid );
-    if ( !ioobj ) return false;
-    Translator* tr = ioobj->getTranslator();
+    if ( !ioobj ) mErrRet("Cannot find well in object manager")
 
     mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
-    if ( !iostrm ) return false;
+    if ( !iostrm ) mErrRet("Cannot create stream for this well")
+
     StreamProvider sp( iostrm->fileName() );
     sp.addPathIfNecessary( iostrm->dirName() );
     BufferString fname( sp.fileName() );
