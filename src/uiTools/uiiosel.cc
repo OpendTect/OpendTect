@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.1 2001-04-25 12:04:25 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.2 2001-04-27 16:48:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,33 +45,39 @@ uiIOSelect::~uiIOSelect()
 }
 
 
-void uiIOSelect::fillPar( IOPar& iopar )
+void uiIOSelect::fillPar( IOPar& iopar ) const
 {
     int curidx = getItem();
-    const int sz = nrItems();
+    iopar.set( "Current", curidx );
+
     inpsels_.deepErase();
+    const int sz = nrItems();
     for ( int idx=0; idx<sz; idx++ )
     {
 	const char* res = idx == curidx ? getInput() : getItemText(idx);
 	if ( *res ) inpsels_.add( res );
     }
-    iopar.set( "Current", curidx );
-    use( inpsels_, iopar );
+    use( inpsels_, iopar, "Text" );
 }
 
 
 void uiIOSelect::usePar( const IOPar& iopar )
 {
     UserIDSet newinps;
-    use( iopar, newinps );
+    use( iopar, newinps, "Text" );
     setItems( newinps );
     newinps.deepErase();
+    setCurrentFromIOPar( iopar );
+}
 
+
+void uiIOSelect::setCurrentFromIOPar( const IOPar& iopar )
+{
     if ( nrItems() )
     {
-	int curidx = 0;
-	iopar.get( "Current", curidx );
-	setCurrentItem( curidx );
+        int curidx = 0;
+        iopar.get( "Current", curidx );
+        setCurrentItem( curidx );
     }
 }
 
