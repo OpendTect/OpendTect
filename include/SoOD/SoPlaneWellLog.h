@@ -7,19 +7,25 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.1 2003-09-29 10:18:18 kristofer Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.2 2003-10-17 14:58:44 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "Inventor/nodekits/SoBaseKit.h"
+#include <Inventor/nodekits/SoBaseKit.h>
 
-#include "Inventor/fields/SoMFVec3f.h"
-#include "Inventor/fields/SoMFVec2f.h"
-#include "Inventor/fields/SoSFFloat.h"
+#include <Inventor/fields/SoMFVec3f.h>
+#include <Inventor/fields/SoMFFloat.h>
+#include <Inventor/fields/SoSFFloat.h>
+#include <Inventor/fields/SoSFShort.h>
+#include <Inventor/SbLinear.h>
 
+class SoCoordinate3;
 class SoFieldSensor;
+class SoLineSet;
 class SoSensor;
+class SoSwitch;
+class SoBaseColor;
 
 /*!\brief
 
@@ -27,33 +33,61 @@ class SoSensor;
 
 class SoPlaneWellLog : public SoBaseKit
 {
-			SO_KIT_HEADER(SoPlaneWellLog);
-public:
-    SoMFVec3f		wellpath;
-    SoMFVec2f		values;
-    SoSFFloat		maxRadius;
-    SoSFFloat		clipRate;
+    typedef SoBaseKit inherited;
+    SO_KIT_HEADER(SoPlaneWellLog);
 
-    static void		initClass();
-    			SoPlaneWellLog();
+public:
+    				SoPlaneWellLog();
+    static void			initClass();
+
+    void			setWidth(float);
+    void			setLineColor(const SbVec3f&,int);
+    const SbVec3f&		lineColor(int) const;
+    void			showLog(bool,int);
+    bool			logShown(int) const;
+    void			clearLog(int);
+    void			setLogValue(int,const SbVec3f&,float,int);
+
+    SoMFVec3f			path1;
+    SoMFVec3f			path2;
+    SoMFFloat			log1;
+    SoMFFloat			log2;
+    SoSFFloat			maxval1;
+    SoSFFloat			maxval2;
+    SoSFFloat			width;
 
     SO_KIT_CATALOG_ENTRY_HEADER(topSeparator);
-    SO_KIT_CATALOG_ENTRY_HEADER(coords);
-    SO_KIT_CATALOG_ENTRY_HEADER(materials);
-    SO_KIT_CATALOG_ENTRY_HEADER(faceset1);
-    SO_KIT_CATALOG_ENTRY_HEADER(faceset2);
+    SO_KIT_CATALOG_ENTRY_HEADER(line1Switch);
+    SO_KIT_CATALOG_ENTRY_HEADER(group1);
+    SO_KIT_CATALOG_ENTRY_HEADER(col1);
+    SO_KIT_CATALOG_ENTRY_HEADER(coords1);
+    SO_KIT_CATALOG_ENTRY_HEADER(lineset1);
+    SO_KIT_CATALOG_ENTRY_HEADER(line2Switch);
+    SO_KIT_CATALOG_ENTRY_HEADER(group2);
+    SO_KIT_CATALOG_ENTRY_HEADER(col2);
+    SO_KIT_CATALOG_ENTRY_HEADER(coords2);
+    SO_KIT_CATALOG_ENTRY_HEADER(lineset2);
 
-    void		GLRender(SoGLRenderAction*);
+    void			GLRender(SoGLRenderAction*);
 
 protected:
-    			~SoPlaneWellLog();
+    				~SoPlaneWellLog();
 
-    SoFieldSensor*	valuesensor;
-    static void		valueChangedCB( void*, SoSensor* );
+    SoSwitch*			sw1ptr;
+    SoSwitch*			sw2ptr;
+    SoBaseColor*		col1ptr;
+    SoBaseColor*		col2ptr;
+    SoCoordinate3*		coord1ptr;
+    SoCoordinate3*		coord2ptr;
+    SoLineSet*			line1ptr;
+    SoLineSet*			line2ptr;
 
-    SbList<float>	radius1;
-    SbList<float>	radius2;
+    SoFieldSensor*		valuesensor;
+    static void			valueChangedCB(void*,SoSensor*);
 
+    void			buildLog(int,const SbVec3f&);
+    SbVec3f			getNormal(const SbVec3f&,const SbVec3f&,
+	    				  const SbVec3f&);
 };
 
 #endif
