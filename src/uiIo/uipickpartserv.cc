@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.2 2002-03-25 16:01:44 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.3 2002-03-28 15:52:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ bool uiPickPartServer::fetchPickSets()
 
 bool uiPickPartServer::storePickSets()
 {
+    avsets.erase();
     sendEvent( evGetAvailableSets );
     if ( !avsets.size() )
 	{ uiMSG().error( "No pick sets defined yet" ); return false; }
