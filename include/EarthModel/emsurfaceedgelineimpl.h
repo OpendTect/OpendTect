@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.1 2004-09-03 09:23:22 kristofer Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.2 2004-09-03 13:18:46 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -29,9 +29,6 @@ public:
 			: EdgeLineSegment( surf, sect ) {}
 
     virtual bool    shouldTrack(int) const { return false; }
-
-protected:
-    bool	    internalIdenticalSettings(const EM::EdgeLineSegment&) const;
 };
 
 
