@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.22 2004-02-25 14:48:39 nanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.23 2004-07-22 09:28:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
 			    { 
-				setText(txt); 
+				this->setText(txt); 
 				setHSzPol( uiObject::smallvar );
 			    }
 
@@ -55,7 +55,7 @@ public:
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
 			    { 
-				setText(txt); 
+				this->setText(txt); 
 				setHSzPol( uiObject::smallvar );
 			    }
 

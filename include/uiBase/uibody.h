@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uibody.h,v 1.8 2004-07-22 09:28:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,9 +112,10 @@ template <class C, class T>
 class uiBodyIsaQthingImpl : public uiBody, public T
 {
 public:
-                        uiBodyIsaQthingImpl( C& handle, uiParent* parnt ) 
+                        uiBodyIsaQthingImpl( C& handle, uiParent* p ) 
 			    : uiBody()
-			    , T( parnt ?  parnt->qwidget() : 0, handle.name() )
+			    , T( p && p->pbody() ? p->pbody()->qwidget() : 0, 
+				 handle.name() )
 			    , handle_( handle )
 			    {}
 
