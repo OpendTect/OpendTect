@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.31 2003-04-22 09:51:07 arend Exp $
+ RCS:           $Id: uiiosel.cc,v 1.32 2003-04-23 15:07:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
     setHAlignObj( inp_->box() );
     setHCentreObj( inp_->box() );
 
-    mainObject()->finalising.notify( mCB(this,uiIOSelect,doFinalise) );
+    mainObject()->finaliseStart.notify( mCB(this,uiIOSelect,doFinalise) );
 
 }
 
