@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.13 2003-11-13 16:43:05 arend Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.14 2003-11-14 16:18:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,7 +278,11 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     if ( bpi.issys ) comm += "--sys ";
 #ifdef __win__ // TODO: check if this hurts on *nix
     comm += "\"";
-    comm += progfld->box()->text();
+
+    BufferString prognm = progfld->box()->text();
+    replaceCharacter(prognm.buf(),' ','%');
+    comm += prognm;
+
     comm += "\"";
 #else
     comm += progfld->box()->text();
@@ -294,7 +298,9 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	{
 #ifdef __win__ // TODO: check if this hurts on *nix
 	    val = "\"";
-	    val += finp->fileName();
+	    BufferString prognm = finp->fileName();
+	    replaceCharacter(prognm.buf(),' ','%');
+	    val += prognm;
 	    val += "\"";
 #else
 	    val = finp->fileName();
