@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.240 2004-09-17 15:14:55 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.241 2004-09-29 08:42:01 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,7 @@ uiVisPartServer::~uiVisPartServer()
 	    mCB(this,uiVisPartServer,deselectObjCB) );
     delete &eventmutex;
 
+    eventmutex.lock();
     sendEvent( evRemoveTrackTools );
     deleteAllObjects();
 }
@@ -478,8 +479,11 @@ void uiVisPartServer::setZScale()
 }
 
 
-void uiVisPartServer::vwAll( CallBacker* ) { sendEvent( evViewAll ); }
-void uiVisPartServer::toHome( CallBacker* ) { sendEvent( evToHomePos ); }
+void uiVisPartServer::vwAll( CallBacker* )
+{ eventmutex.lock(); sendEvent( evViewAll ); }
+
+void uiVisPartServer::toHome( CallBacker* )
+{ eventmutex.lock(); sendEvent( evToHomePos ); }
 
 
 bool uiVisPartServer::setWorkingArea()
