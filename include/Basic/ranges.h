@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.1.1.2 1999-09-16 09:19:08 arend Exp $
+ RCS:		$Id: ranges.h,v 1.2 2000-02-24 13:44:21 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -85,13 +85,11 @@ public:
 		{ return Interval<T>::atIndex(idx,step); }
     int		nrSteps() const
 		{
-		    if ( step == 0 ) return 0;
-		    T cur = start > stop ? stop : start;
-		    T last = start > stop ? start : stop;
-		    T stp = step > 0 ? step : -step;
-		    int nr = 0;
-		    while ( cur-last < mEPSILON ) { cur += stp; nr++; }
-		    return nr;
+		    if ( !step ) return 0;
+		    T tnr = ( (start > stop ? start : stop)
+			    - (start > stop ? stop : start) )
+			    / (step > 0 ? step : -step);
+		    return (int)(tnr + mEPSILON) + 1;
 		}
     virtual void sort( bool asc=YES )
 		{
