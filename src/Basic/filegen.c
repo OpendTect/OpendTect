@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.13 2001-11-15 14:03:23 windev Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.14 2001-11-15 15:37:02 windev Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -329,6 +329,7 @@ int File_copy( const char* from, const char* to, int recursive )
 	int len, retval;
 	if ( !from || !*from || !to || !*to ) return NO;
 	if ( !File_exists(from) ) return YES;
+	if ( File_exists(to) ) return NO;
 
 	len = strlen( from ) + strlen( to ) + 25;
 	cmd = mMALLOC(len,char);
@@ -377,26 +378,23 @@ int File_remove( const char* fname, int force, int recursive )
 {
 
 #ifdef __win__
-//  use system() with XCOPY & ATTRIB 
 	
-	if ( !File_exists(fname) ) return YES;
+    if ( !fname ) return NO;
+    if ( !File_exists(fname) ) return YES;
 
     if ( recursive )
     { 
 	char* cmd;
 	int len, retval;
-	if ( !fname ) return NO;
-	if ( !File_exists(fname) ) return YES;
 
 	len = strlen( fname ) + 30;
 	cmd = mMALLOC(len,char);
 
-	if ( !recursive )
-	    return unlink((char*)fname) ? NO : YES;
-
 	strcpy( cmd, "rd /S /Q " );
+	strcat( cmd, fname );
 
 	retval = system( cmd ) ? NO : YES;
+
 	if ( retval && File_exists( fname ) ) retval = NO;
 	mFREE(cmd);
 	return retval;
@@ -441,7 +439,7 @@ int File_makeWritable( const char* fname, int recursive, int yn )
     strcpy( cmd, "attrib " );
     strcat( cmd, yn ? " -R " : " +R " );
     strcat( cmd, fname );
-    if ( recursive ) strcat( cmd, " /S ");
+    if ( recursive && File_isDirectory(fname) ) strcat( cmd, "\\*.* /S ");
     return system( cmd ) != -1 ? YES : NO;
 
 #else
