@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.36 2004-11-22 09:55:36 arend Exp $
+# $Id: od_exec,v 1.37 2004-12-06 10:35:10 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -183,9 +183,9 @@ if ( $indosbox == yes ) then
     endif
 
     if ( -e "${execfile}.exe" ) then
-	setenv executable `cygpath -ws "${execfile}.exe" | sed -e's%\\%\\\\%g'`
+	setenv executable `cygpath -w "${execfile}.exe" | sed -e's%\\%\\\\%g'`
     else
-	setenv executable `cygpath -ws "$execfile" | sed -e's%\\%\\\\%g'`
+	setenv executable `cygpath -w "$execfile" | sed -e's%\\%\\\\%g'`
     endif
 
     setenv args "$nicecmd @$executable@ "
