@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.18 2003-08-05 15:09:48 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.19 2003-08-13 10:13:49 nanne Exp $";
 
 #include "emmanager.h"
 
@@ -239,18 +239,25 @@ EM::EMObject* EM::EMManager::createObject( const MultiID& id, bool addtoman )
 Executor* EM::EMManager::load( const MultiID& id )
 {
     EMObject* obj = getObject( id );
-    if ( obj ) return obj->loader();
-    
-    PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj ) return 0;
-
-    EMObject* newobj = EM::EMObject::create( *ioobj, *this );
-    if ( newobj )
+   
+    if ( !obj )
     {
-	objects += newobj;
-	refcounts += 0;
-	return newobj->loader();
+	PtrMan<IOObj> ioobj = IOM().get( id );
+	if ( !ioobj ) return 0;
+
+	obj = EM::EMObject::create( *ioobj, *this );
+	if ( obj )
+	{
+	    objects += obj;
+	    refcounts += 0;
+	}
     }
+
+    mDynamicCastGet(EM::Surface*,surface,obj)
+    if ( surface )
+	return surface->loader();
+    else if ( obj )
+	return obj->loader();
 
     return 0;
 }

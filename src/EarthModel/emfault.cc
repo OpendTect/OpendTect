@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.9 2003-07-30 13:47:27 nanne Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.10 2003-08-13 10:13:49 nanne Exp $";
 
 #include "emfault.h"
 
@@ -24,7 +24,8 @@ EM::Fault::~Fault()
 { }
 
 
-Executor* EM::Fault::loader()
+Executor* EM::Fault::loader( const EM::SurfaceIODataSelection* newsel,
+			     bool auxdata )
 {
     if ( isLoaded() ) cleanUp();
 
@@ -40,7 +41,8 @@ Executor* EM::Fault::loader()
 }
 
     
-Executor* EM::Fault::saver()
+Executor* EM::Fault::saver( const EM::SurfaceIODataSelection* newsel,
+			    bool auxdata )
 {
     PtrMan<IOObj> ioobj = IOM().get( id() );
     Executor* exec = EMFaultTranslator::writer( *this, ioobj, errmsg);

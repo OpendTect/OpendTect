@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.14 2003-08-01 14:15:00 bert Exp $
+ RCS:		$Id: emsurface.h,v 1.15 2003-08-13 10:13:55 nanne Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,7 @@ namespace Geometry
 namespace EM
 {
 class EMManager;
+class SurfaceIODataSelection;
 
 /*!\brief
 The horizon is made up of one or more grids (so they can overlap at faults).
@@ -69,6 +70,11 @@ the knots.
 class Surface : public EMObject
 {
 public:
+    virtual Executor*	loader(const EM::SurfaceIODataSelection* s=0,
+			       bool auxdataonly=false)		{return 0;}
+    virtual Executor*	saver(const EM::SurfaceIODataSelection* s=0,
+			      bool auxdataonly=false)		{return 0;}
+
     int			nrPatches() const;
     PatchID		patchID(int idx) const;
     PatchID		patchID(const char*) const;
