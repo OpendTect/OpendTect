@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.8 2005-03-25 15:39:06 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.9 2005-03-31 15:17:34 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ class Executor;
 
 namespace EM { class EMManager; }
 namespace Geometry { class Element; }
+namespace visBase { class VisColorTab; }
 
 namespace visSurvey
 {
@@ -60,6 +61,7 @@ public:
     void			setColorSelSpec(const ColorAttribSel&);
     void			setDepthAsAttrib();
 
+    bool			allowMaterialEdit() const	{ return true; }
     bool			hasColor() const;
     void			setColor(Color);
     Color			getColor() const;
@@ -76,6 +78,8 @@ public:
     void			setResolution(int);
     				/*!< 0 is automatic */
 
+    int				getColTabID() const;
+
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
 
@@ -89,6 +93,10 @@ public:
     EM::SectionID		getSectionID(int visid) const;
     EM::SectionID		getSectionID(const TypeSet<int>* path) const;
 
+    static visBase::FactoryEntry oldnameentry;
+    void			fillPar(IOPar&,TypeSet<int>&) const;
+    int				usePar(const IOPar&);
+
 protected:
     					~EMObjectDisplay();
     static visBase::VisualObject*	createSection(Geometry::Element*);
@@ -97,6 +105,7 @@ protected:
     mVisTrans*				transformation;
     mVisTrans*				translation;
     visBase::EventCatcher*		eventcatcher;
+    visBase::VisColorTab*		coltab_;
 
     ObjectSet<visBase::VisualObject>	sections;
     TypeSet<EM::SectionID>		sectionids;

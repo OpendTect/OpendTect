@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.13 2005-03-25 15:38:59 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.14 2005-03-31 15:14:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.13 2005-03-25 15:38:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.14 2005-03-31 15:14:25 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -26,9 +26,19 @@ static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.13 2005-03-25 15:38:59 c
 #include "vismaterial.h"
 #include "vismpeeditor.h"
 #include "vistransform.h"
+#include "viscolortab.h"
+
+#include "emsurface.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfacegeometry.h"
+
 
 
 mCreateFactoryEntry( visSurvey::EMObjectDisplay );
+
+visBase::FactoryEntry visSurvey::EMObjectDisplay::oldnameentry(
+	(FactPtr) visSurvey::EMObjectDisplay::create,
+	"visSurvey::SurfaceDisplay");
 
 namespace visSurvey
 {
@@ -39,12 +49,15 @@ EMObjectDisplay::EMObjectDisplay()
     , mid(-1)
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
-    , usestexture(false)
+    , usestexture(true)
     , editor(0)
     , eventcatcher(0)
     , transformation(0)
     , translation(0)
-{}
+    , coltab_(visBase::VisColorTab::create())
+{
+    coltab_->ref();
+}
 
 
 EMObjectDisplay::~EMObjectDisplay()
@@ -55,6 +68,7 @@ EMObjectDisplay::~EMObjectDisplay()
     delete &colas;
     if ( transformation ) transformation->unRef();
     if ( eventcatcher ) eventcatcher->unRef();
+    if ( coltab_ ) coltab_->unRef();
 }
 
 
@@ -149,11 +163,22 @@ bool EMObjectDisplay::updateFromEM()
 
 	sections += vo;
 	sectionids += sectionid;
+
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,vo)
+	if ( psurf )
+	    psurf->setColorTab( *coltab_ );
     }
 
     const EM::ObjectID objid = em.multiID2ObjectID(mid);
     if ( MPE::engine().getEditor(objid,false) )
 	enableEditing(true);
+
+    if ( MPE::engine().getTrackerByObject(objid) >= 0 )
+    {
+	useWireframe( true );
+	useTexture( false );
+	setResolution( nrResolutions()-1 );
+    }
 
     getMaterial()->setColor( emobject->preferredColor() );
 
@@ -217,7 +242,39 @@ Color EMObjectDisplay::getColor() const
 
 void EMObjectDisplay::readAuxData()
 {
-    //TODO
+    EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
+    mDynamicCastGet(EM::Surface*,emsurface,emobject)
+    if ( !emsurface ) return;
+
+    ObjectSet<BinIDValueSet> auxdata;
+    for ( int idx=0; idx<emsurface->nrSections(); idx++ )
+    {
+	const EM::SectionID sectionid = emsurface->sectionID(idx);
+	const Geometry::ParametricSurface* psurf = 
+	    		emsurface->geometry.getSurface( sectionid );
+	if ( !psurf ) continue;
+
+	EM::PosID posid( emsurface->id(), sectionid );
+	const int nrattribs = emsurface->auxdata.nrAuxData()+1;
+	BinIDValueSet* res = new BinIDValueSet( nrattribs, false );
+	auxdata += res;
+	float auxvalues[nrattribs];
+
+	const int nrnodes = psurf->nrKnots();
+	for ( int idy=0; idy<nrnodes; idy++ )
+	{
+	    const RowCol rc = psurf->getKnotRowCol( idy );
+	    posid.setSubID( rc.getSerialized() );
+	    auxvalues[0] = 0;
+	    for ( int ida=1; ida<nrattribs; ida++ )
+		auxvalues[ida] = emsurface->auxdata.getAuxDataVal(ida-1,posid);
+
+	    res->add( rc, auxvalues ); 
+	}
+    }
+
+    stuffData( false, &auxdata );
+    deepErase( auxdata );
 }
 
 
@@ -302,18 +359,18 @@ void EMObjectDisplay::stuffData( bool forcolordata,
     {
 	if ( idx>=sections.size() ) break;
 
-	mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
 	psurf->setTextureData( (*data)[idx], forcolordata ? colas.datatype : 0);
     }
 
     for ( ; idx<sections.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*, psurf, sections[idx] );
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections[idx]);
 	psurf->setTextureData( 0 );
     }
 }
 
-	
+
 bool EMObjectDisplay::hasStoredAttrib() const
 {
     const char* ref = as.userRef();
@@ -454,7 +511,7 @@ int EMObjectDisplay::nrResolutions() const
     if ( !sections.size() ) return 1;
 
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
-    return ps ? ps->nrResolutions() : 1;
+    return ps ? ps->nrResolutions()+1 : 1;
 }
 
 
@@ -484,7 +541,7 @@ int EMObjectDisplay::getResolution() const
     if ( !sections.size() ) return 1;
 
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections[0]);
-    return ps ? ps->currentResolution()+1 : 1;
+    return ps ? ps->currentResolution()+1 : 0;
 }
 
 
@@ -492,11 +549,37 @@ void EMObjectDisplay::setResolution( int res )
 {
     for ( int idx=0; idx<sections.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[0]);
+	mDynamicCastGet(visBase::ParametricSurface*,ps,sections[idx]);
 	if ( ps ) ps->setResolution( res-1 );
     }
 }
 
+
+int EMObjectDisplay::getColTabID() const
+{
+    return coltab_->id();
+}
+
+
+void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    visBase::VisualObjectImpl::fillPar( par, saveids );
+
+    as.fillPar( par );
+    colas.fillPar( par );
+}
+
+
+int EMObjectDisplay::usePar( const IOPar& par )
+{
+    int res = visBase::VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    as.usePar( par );
+    colas.usePar( par );
+
+    return 1;
+}
 
 
 }; // namespace visSurvey
