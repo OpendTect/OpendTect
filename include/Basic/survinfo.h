@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.32 2003-05-27 13:17:43 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.33 2003-08-12 14:36:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,8 @@ public:
 
     const BinIDRange&	range( bool work=true ) const
     			{ return work ? wrange_ : range_; }
+    StepInterval<int>	inlRange(bool work=true) const;
+    StepInterval<int>	crlRange(bool work=true) const;
     const StepInterval<double>& zRange( bool work=true ) const
     			{ return work ? wzrange_ : zrange_; }
     virtual bool	haveStep() const		{ return false; }
