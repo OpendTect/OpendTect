@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.12 2002-07-26 10:03:08 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.13 2002-07-26 15:33:59 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -47,16 +47,8 @@ CBVSIOMgr::~CBVSIOMgr()
 }
 
 
-CBVSWriteMgr::BrickSpec::BrickSpec()
-{
-    bool dobrick = GetDgbApplicationCode() == mDgbApplCodeDTECT;
-    nrsamplesperslab = dobrick ? 80 : -1;
-    maxnrslabs = 20;
-}
-
-
 CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
-			    const PosAuxInfo* pai, CBVSWriteMgr::BrickSpec* bs )
+			    const PosAuxInfo* pai, VBrickSpec* bs )
 	: CBVSIOMgr(fnm)
 	, info_(i)
 {
@@ -64,7 +56,7 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
     const int totsamps = cinf0.nrsamples;
     if ( totsamps < 1 ) return;
 
-    BrickSpec spec; if ( bs ) spec = *bs;
+    VBrickSpec spec; if ( bs ) spec = *bs;
     if ( spec.nrsamplesperslab < 0
       || spec.nrsamplesperslab >= totsamps
       || spec.maxnrslabs < 2 )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.3 2002-06-26 16:34:41 bert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.4 2002-07-26 15:33:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,11 +28,13 @@ public:
     Scaler*		getScaler() const;
     int			getFormat() const;
     			//!< actually returns DataCharacteristics::UserType
+    bool		horOptim() const;
     void		updateIOObj(IOObj*) const;
 
 protected:
 
     uiGenInput*		imptypefld;
+    uiGenInput*		optimfld;
     uiScaler*		scalefld;
 
 };

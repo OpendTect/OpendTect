@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.23 2002-07-25 21:48:44 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.24 2002-07-26 15:33:59 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -43,6 +43,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	, wrmgr(0)
 	, nrdone(0)
     	, minimalhdrs(false)
+    	, brickspec(*new VBrickSpec)
 {
 }
 
@@ -50,6 +51,7 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
 {
     cleanUp();
+    delete &brickspec;
 }
 
 
@@ -470,7 +472,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     for ( int idx=0; idx<nrSelComps(); idx++ )
 	info.compinfo += new BasicComponentInfo(*outcds[idx]);
 
-    wrmgr = new CBVSWriteMgr( fnm, info, &auxinf );
+    wrmgr = new CBVSWriteMgr( fnm, info, &auxinf, &brickspec );
     if ( wrmgr->failed() )
 	{ errmsg = wrmgr->errMsg(); return false; }
 
@@ -536,9 +538,13 @@ void CBVSSeisTrcTranslator::usePar( const IOPar* iopar )
     SeisTrcTranslator::usePar( iopar );
     if ( !iopar ) return;
 
-    const char* res = (*iopar)[ (const char*)datatypeparspec.name() ];
-    if ( *res )
+    const char* res = iopar->find( (const char*)datatypeparspec.name() );
+    if ( res && *res )
 	preseldatatype = (DataCharacteristics::UserType)(*res-'0');
+
+    res = iopar->find( "Optimized direction" );
+    if ( res && *res )
+	brickspec.setStd( *res == 'H' );
 }
 
 
