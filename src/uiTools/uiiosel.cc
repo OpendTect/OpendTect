@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.16 2001-07-20 16:17:05 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.17 2001-07-25 09:34:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,6 +247,7 @@ void uiIOSelect::doSel( CallBacker* )
     processInput();
     doselcb_.doCall( this );
     updateFromEntries();
+    selectiondone.trigger();
 }
 
 
