@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.3 2002-03-22 15:08:43 bert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.4 2002-03-25 16:00:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,11 @@ class PickSetGroup;
 
 /*! \brief Service provider for application level - seismics */
 
-class uiPickPartServ : public uiApplPartServer
+class uiPickPartServer : public uiApplPartServer
 {
 public:
-			uiPickPartServ(uiApplService&);
-			~uiPickPartServ();
+			uiPickPartServer(uiApplService&);
+			~uiPickPartServer();
 
     const char*		name() const			{ return "Picks"; }
 

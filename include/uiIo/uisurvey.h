@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.8 2002-01-21 14:58:23 bert Exp $
+ RCS:           $Id: uisurvey.h,v 1.9 2002-03-25 16:00:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ public:
 			uiSurvey(uiParent*);
 			~uiSurvey();
 
-    static void		updateViewsGlobal(CallBacker* cb=0);
+    static void		updateViewsGlobal();
+    			//!< updates caption on main window
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.4 2002-03-21 14:01:59 bert Exp $
+ RCS:		$Id: uiapplserv.h,v 1.5 2002-03-25 16:00:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
 
     			uiApplPartServer( uiApplService& a )
 			: uias_(a)		{}
-    virtual const char*	name()			= 0;
+    virtual const char*	name() const		= 0;
 
     uiApplService&	appserv()		{ return uias_; }
     const uiApplService& appserv() const	{ return uias_; }
