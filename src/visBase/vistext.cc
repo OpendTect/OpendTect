@@ -4,11 +4,16 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vistext.cc,v 1.2 2002-04-26 13:00:09 kristofer Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.3 2002-04-30 11:38:50 kristofer Exp $";
 
 
 #include "vistext.h"
+#include "iopar.h"
 
+const char* visBase::Text::stringstr = "Text";
+const char* visBase::Text::fontsizestr = "Font size";
+const char* visBase::Text::justificationstr = "Justification";
+const char* visBase::Text::positionstr = "Position";
 
 #include "Inventor/nodes/SoText2.h"
 #include "Inventor/nodes/SoFont.h"
@@ -92,3 +97,44 @@ void visBase::Text::setJustification( Justification just )
 	text->justification.setValue( SoText2::RIGHT );
 }
 
+
+void visBase::Text::fillPar( IOPar& par ) const
+{
+    VisualObjectImpl::fillPar( par );
+
+    Geometry::Pos pos = position();
+    par.set( positionstr, pos.x, pos.y, pos.z );
+
+    par.set( justificationstr, (int) justification() );
+    par.set( fontsizestr, size() );
+    par.set( stringstr, (const char* ) getText() );
+}
+
+
+int visBase::Text::usePar( const IOPar& par )
+{
+    int res = VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    Geometry::Pos pos;
+    if ( !par.get( positionstr, pos.x, pos.y, pos.z ) )
+	return -1;
+
+    int just;
+    if ( !par.get( justificationstr, just ))
+	return -1;
+
+    float fontsz;
+    if ( !par.get( fontsizestr, fontsz ))
+	return -1;
+
+    const char* str = par.find( stringstr );
+    if ( !str ) return -1;
+
+    setText( str );
+    setPosition( pos );
+    setSize( fontsz );
+    setJustification( (Justification) just );
+
+    return 1;
+}
