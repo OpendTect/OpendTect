@@ -2,10 +2,11 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.33 2004-10-21 11:42:04 arend Exp $
+# $Id: od_exec,v 1.34 2004-11-10 12:25:22 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
+
 
 if ( $?DTECT_DEBUG ) set verbose=yes
 
@@ -84,8 +85,10 @@ else if ( "$1" == "--inxterm" || "$1" == "--inxterm+askclose" ) then
 	    set xtermcmdarg = "--askclose"
 	endif
 
-	set xtermpath=`which xterm` >&! /dev/null
+	set xtermpath=xterm
+	which xterm >&! /dev/null
 	set result=$status
+	if ( $result == 0 ) set xtermpath=`which xterm` >&! /dev/null
 
 	if ( ! -x $xtermpath ) set result=1
 	
