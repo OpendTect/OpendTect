@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.232 2004-09-03 12:07:38 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.233 2004-09-03 13:33:09 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ ________________________________________________________________________
 #include "uicolor.h"
 #include "uitrackingman.h"
 #include "visinterpret.h"
+#include "vistransform.h"
+#include "visevent.h"
 #include "seisbuf.h"
 
 
@@ -126,9 +128,11 @@ void uiVisPartServer::removeScene( int sceneid )
 }
 
 
-bool uiVisPartServer::showMenu( int id, int menutype, const TypeSet<int>* path)
+bool uiVisPartServer::showMenu( int id, int menutype, const TypeSet<int>* path,
+				const Coord3& pickedpos )
 {
     uiVisMenu* menu = getMenu( id, false );
+    menu->setPickedPos(pickedpos);
     return menu ? menu->executeMenu(menutype,path) : true;
 }
 
@@ -896,7 +900,7 @@ void uiVisPartServer::removeConnections( int id )
     menu->createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
     menu->handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
 
-    mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
+    mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
     if ( vo && vo->rightClicked() )
 	vo->rightClicked()->remove(mCB(this,uiVisPartServer,rightClickCB));
     menu->unRef();
@@ -910,7 +914,14 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
     if ( id==-1 )
 	return;
 
-    showMenu( id, 1, dataobj ? dataobj->rightClickedPath() : 0 );
+    Coord3 pickedpos = Coord3::udf;
+    mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
+    if ( vo && vo->rightClickedEventInfo() && vo->getTransformation() )
+    {
+	pickedpos = vo->getTransformation()->transformBack(vo->rightClickedEventInfo()->pickedpos);
+    }
+
+    showMenu( id, 1, dataobj ? dataobj->rightClickedPath() : 0, pickedpos );
 }
 
 

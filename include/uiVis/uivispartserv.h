@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.127 2004-07-16 15:35:25 bert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.128 2004-09-03 13:33:09 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,8 @@ public:
     void		stuffSurfaceData(int,bool forcolordata,
 					 const ObjectSet<BinIDValueSet>*);
 
-    bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0);
+    bool		showMenu(int id,int menutype=0,const TypeSet<int>* =0,
+	    			 const Coord3& = Coord3::udf);
     			/*!<\param menutype Please refer to \ref
 					uiVisMenu::executeMenu for a detailed
 					description.
