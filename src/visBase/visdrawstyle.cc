@@ -1,24 +1,26 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: visdrawstyle.cc,v 1.7 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "visdrawstyle.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoDrawStyle.h"
+#include <Inventor/nodes/SoDrawStyle.h>
+
+mCreateFactoryEntry( visBase::DrawStyle );
 
 namespace visBase
 {
 
 DefineEnumNames( DrawStyle, Style, 1, "Style" )
 { "Filled", "Lines", "Points", "Invisible", 0 };
-
-mCreateFactoryEntry( DrawStyle );
-
 
 const char* DrawStyle::linestylestr = "Line Style";
 const char* DrawStyle::drawstylestr = "Draw Style";

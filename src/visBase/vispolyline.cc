@@ -1,26 +1,28 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Apr 2002
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Apr 2002
+ RCS:           $Id: vispolyline.cc,v 1.11 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
 -*/
 
-static const char* rcsID = "$Id: vispolyline.cc,v 1.10 2005-02-04 14:31:34 kristofer Exp $";
-
 #include "vispolyline.h"
-
 #include "viscoord.h"
 
 #include "SoIndexedLineSet3D.h"
 
-#include "Inventor/nodes/SoLineSet.h"
-#include "Inventor/nodes/SoIndexedLineSet.h"
+#include <Inventor/nodes/SoLineSet.h>
+#include <Inventor/nodes/SoIndexedLineSet.h>
+
+mCreateFactoryEntry( visBase::PolyLine );
+mCreateFactoryEntry( visBase::IndexedPolyLine );
+mCreateFactoryEntry( visBase::IndexedPolyLine3D );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( PolyLine );
-mCreateFactoryEntry( IndexedPolyLine );
-mCreateFactoryEntry( IndexedPolyLine3D );
 
 PolyLine::PolyLine()
     : VertexShape( new SoLineSet )

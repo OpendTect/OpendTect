@@ -1,25 +1,27 @@
-
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jan 2002
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.4 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jan 2002
+ RCS:           $Id: visdatagroup.cc,v 1.5 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "visdatagroup.h"
 #include "visdataman.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoSeparator.h"
+#include <Inventor/nodes/SoSeparator.h>
+
+mCreateFactoryEntry( visBase::DataObjectGroup );
 
 namespace visBase
 {
 
 const char* DataObjectGroup::nokidsstr = "Number of Children";
 const char* DataObjectGroup::kidprefix = "Child ";
-
-mCreateFactoryEntry( DataObjectGroup );
 
 DataObjectGroup::DataObjectGroup()
     : group ( new SoGroup )

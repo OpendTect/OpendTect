@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.12 2005-02-04 14:31:34 kristofer Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.13 2005-02-07 12:45:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,11 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoShapeHints.h>
 
+mCreateFactoryEntry( visBase::BoxDragger );
 
 namespace visBase
 {
 
-mCreateFactoryEntry( BoxDragger );
 BoxDragger::BoxDragger()
     : started( this )
     , motion( this )

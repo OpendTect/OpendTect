@@ -1,17 +1,24 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: vislight.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: vislight.cc,v 1.7 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "vislight.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoPointLight.h"
-#include "Inventor/nodes/SoDirectionalLight.h"
-#include "Inventor/nodes/SoSpotLight.h"
+#include <Inventor/nodes/SoPointLight.h>
+#include <Inventor/nodes/SoDirectionalLight.h>
+#include <Inventor/nodes/SoSpotLight.h>
+
+mCreateFactoryEntry( visBase::PointLight );
+mCreateFactoryEntry( visBase::DirectionalLight );
+mCreateFactoryEntry( visBase::SpotLight );
 
 namespace visBase
 {
@@ -82,8 +89,6 @@ int Light::usePar( const IOPar& par )
 }
 
 
-mCreateFactoryEntry( PointLight );
-
 const char* PointLight::positionstr = "Position";
 
 PointLight::PointLight()
@@ -125,7 +130,6 @@ int PointLight::usePar( const IOPar& par )
 }
 
 
-mCreateFactoryEntry( DirectionalLight );
 const char* DirectionalLight::directionstr = "Direction";
 
 
@@ -167,8 +171,6 @@ int DirectionalLight::usePar( const IOPar& par )
     return 1;
 }
 
-
-mCreateFactoryEntry( SpotLight );
 
 const char* SpotLight::directionstr = "Direction";
 const char* SpotLight::positionstr = "Position";

@@ -1,35 +1,34 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jan 2003
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jan 2003
+ RCS:           $Id: vistexture2.cc,v 1.32 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.31 2005-02-04 14:31:34 kristofer Exp $";
-
 #include "vistexture2.h"
 #include "viscolortab.h"
-
 #include "arrayndimpl.h"
 #include "interpol.h"
 #include "simpnumer.h"
+
 #include <limits.h>
 
-#include "Inventor/nodes/SoSwitch.h"
-#include "Inventor/nodes/SoTexture2.h"
+#include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoTexture2.h>
+
+mCreateFactoryEntry( visBase::Texture2 );
+mCreateFactoryEntry( visBase::Texture2Set );
 
 namespace visBase
 {
 
-mCreateFactoryEntry( Texture2 );
-
 //TODO make these class members and get them from COIN
 static const int minpix2d = 128;
 static const int maxpix2d = 1024;
-
 
 inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
 		      int maxsz=INT_MAX )
@@ -268,7 +267,7 @@ void Texture2::finishEditing()
 }
 
 
-mCreateFactoryEntry( Texture2Set );
+// Texture2Set ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Texture2Set::Texture2Set()
     : textureswitch(new SoSwitch)

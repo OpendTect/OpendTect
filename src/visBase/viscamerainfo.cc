@@ -1,21 +1,21 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jul 2003
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jul 2003
+ RCS:           $Id: viscamerainfo.cc,v 1.5 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: viscamerainfo.cc,v 1.4 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "viscamerainfo.h"
 #include "SoCameraInfo.h"
 
+mCreateFactoryEntry( visBase::CameraInfo );
+
 namespace visBase
 {
-mCreateFactoryEntry( CameraInfo );
 
 CameraInfo::CameraInfo()
     : camerainfo( new SoCameraInfo )

@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: visevent.cc,v 1.18 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: visevent.cc,v 1.19 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -12,16 +15,18 @@ static const char* rcsID = "$Id: visevent.cc,v 1.18 2005-02-04 14:31:34 kristofe
 #include "vistransform.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoEventCallback.h"
-#include "Inventor/elements/SoModelMatrixElement.h"
-#include "Inventor/elements/SoViewVolumeElement.h"
-#include "Inventor/events/SoMouseButtonEvent.h"
-#include "Inventor/events/SoKeyboardEvent.h"
-#include "Inventor/events/SoLocation2Event.h"
-#include "Inventor/details/SoFaceDetail.h"
-#include "Inventor/SoPickedPoint.h"
-#include "Inventor/SbViewportRegion.h"
-#include "Inventor/SbLinear.h"
+#include <Inventor/nodes/SoEventCallback.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/events/SoMouseButtonEvent.h>
+#include <Inventor/events/SoKeyboardEvent.h>
+#include <Inventor/events/SoLocation2Event.h>
+#include <Inventor/details/SoFaceDetail.h>
+#include <Inventor/SoPickedPoint.h>
+#include <Inventor/SbViewportRegion.h>
+#include <Inventor/SbLinear.h>
+
+mCreateFactoryEntry( visBase::EventCatcher );
 
 namespace visBase
 {
@@ -40,8 +45,6 @@ EventInfo::~EventInfo()
     delete detail;
 }
 
-
-mCreateFactoryEntry( EventCatcher );
 
 EventCatcher::EventCatcher()
     : node( new SoEventCallback )

@@ -4,24 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.7 2005-02-07 12:45:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-
-
 #include "viscoltabmod.h"
-
 #include "dataclipper.h"
 #include "visdataman.h"
 #include "scaler.h"
 #include "iopar.h"
 
+mCreateFactoryEntry( visBase::VisColTabMod );
+
 namespace visBase
 {
-
-mCreateFactoryEntry( VisColTabMod );
 
 const char* VisColTabMod::clipratestr	= "Cliprate";
 const char* VisColTabMod::rangestr 	= "Range";

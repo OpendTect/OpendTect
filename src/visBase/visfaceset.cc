@@ -1,23 +1,25 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : May 2002
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: visfaceset.cc,v 1.3 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: visfaceset.cc,v 1.4 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "visfaceset.h"
 
-#include "Inventor/nodes/SoIndexedFaceSet.h"
+#include <Inventor/nodes/SoIndexedFaceSet.h>
+
+mCreateFactoryEntry( visBase::FaceSet );
 
 namespace visBase
 {
 
-mCreateFactoryEntry( FaceSet );
-
-
 FaceSet::FaceSet()
-    : IndexedShape( new SoIndexedFaceSet )
-{ }
+    : IndexedShape(new SoIndexedFaceSet)
+{}
 
 }; // namespace visBase

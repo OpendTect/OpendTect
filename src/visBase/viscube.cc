@@ -1,23 +1,25 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Feb 2002
+ RCS:           $Id: viscube.cc,v 1.18 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
 -*/
 
-static const char* rcsID = "$Id: viscube.cc,v 1.17 2005-02-04 14:31:34 kristofer Exp $";
-
 #include "viscube.h"
-
 #include "vistransform.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoCube.h"
-#include "Inventor/nodes/SoTranslation.h"
+#include <Inventor/nodes/SoCube.h>
+#include <Inventor/nodes/SoTranslation.h>
+
+mCreateFactoryEntry( visBase::Cube );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( Cube );
 
 const char* Cube::centerposstr = "Center Pos";
 const char* Cube::widthstr = "Width";

@@ -1,27 +1,24 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Dec 2002
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Dec 2002
+ RCS:           $Id: vistexturecoords.cc,v 1.9 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturecoords.cc,v 1.8 2005-02-04 14:31:34 kristofer Exp $";
-
 #include "vistexturecoords.h"
-
 #include "position.h"
 #include "thread.h"
 
-#include "Inventor/nodes/SoTextureCoordinate3.h"
+#include <Inventor/nodes/SoTextureCoordinate3.h>
+
+mCreateFactoryEntry( visBase::TextureCoords );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( TextureCoords );
-
 
 TextureCoords::TextureCoords()
     : coords( new SoTextureCoordinate3 )

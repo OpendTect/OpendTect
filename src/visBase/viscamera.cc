@@ -1,20 +1,23 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: viscamera.cc,v 1.17 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Feb 2002
+ RCS:           $Id: viscamera.cc,v 1.18 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "viscamera.h"
 #include "iopar.h"
 
 #include "UTMCamera.h"
 
+mCreateFactoryEntry( visBase::Camera );
+
 namespace visBase
 {
-
-mCreateFactoryEntry( Camera );
 
 const char* Camera::posstr = "Position";
 const char* Camera::orientationstr = "Orientation";
@@ -64,28 +67,27 @@ void Camera::setOrientation( const Coord3& dir, float angle )
 void Camera::getOrientation( Coord3& dir, float& angle )
 {
     SbVec3f axis;
-    camera->orientation.getValue( axis, angle);
+    camera->orientation.getValue( axis, angle );
     dir.x = axis[0];
     dir.y = axis[1];
     dir.z = axis[2];
 }
 
 
-void Camera::pointAt(const Coord3& pos)
+void Camera::pointAt( const Coord3& pos )
 {
-    camera->pointAt( SbVec3f( pos.x, pos.y, pos.z ));
+    camera->pointAt( SbVec3f(pos.x,pos.y,pos.z) );
 }
 
 
-void Camera::pointAt(const Coord3& pos,
-			      const Coord3& upvector)
+void Camera::pointAt(const Coord3& pos, const Coord3& upvector )
 {
     camera->pointAt( SbVec3f( pos.x, pos.y, pos.z ),
 	    	     SbVec3f( upvector.x, upvector.y, upvector.z ));
 }
 
 
-void Camera::setAspectRatio(float n)
+void Camera::setAspectRatio( float n )
 {
     camera->aspectRatio.setValue(n);
 }
@@ -97,7 +99,7 @@ float Camera::aspectRatio() const
 }
 
 
-void Camera::setHeightAngle(float n)
+void Camera::setHeightAngle( float n )
 {
     camera->heightAngle.setValue(n);
 }
@@ -109,7 +111,7 @@ float Camera::heightAngle() const
 }
 
 
-void Camera::setNearDistance(float n)
+void Camera::setNearDistance( float n )
 {
     camera->nearDistance.setValue(n);
 }
@@ -121,7 +123,7 @@ float Camera::nearDistance() const
 }
 
 
-void Camera::setFarDistance(float n)
+void Camera::setFarDistance( float n )
 {
     camera->farDistance.setValue(n);
 }
@@ -171,35 +173,35 @@ int Camera::usePar( const IOPar& iopar )
     if ( res != 1 ) return res;
 
     Coord3 pos;
-    if ( iopar.get( posstr, pos.x, pos.y, pos.z ) )
+    if ( iopar.get(posstr,pos) )
 	setPosition( pos );
 
     double angle;
     if ( iopar.get( orientationstr, pos.x, pos.y, pos.z, angle ) )
-	camera->orientation.setValue( SbVec3f( pos.x, pos.y, pos.z ), angle );
+	camera->orientation.setValue( SbVec3f(pos.x,pos.y,pos.z), angle );
 
     float val;
-    if ( iopar.get( aspectratiostr, val ))
+    if ( iopar.get(aspectratiostr,val) )
 	setAspectRatio( val );
 
-    if ( iopar.get( heightanglestr, val ))
+    if ( iopar.get(heightanglestr,val) )
 	setHeightAngle( val );
 
-    if ( iopar.get( neardistancestr, val ))
+    if ( iopar.get(neardistancestr,val) )
 	setNearDistance( val );
 
-    if ( iopar.get( fardistancestr, val ))
+    if ( iopar.get(fardistancestr,val) )
 	setFarDistance( val );
 
-    if ( iopar.get( focaldistancestr, val ))
+    if ( iopar.get(focaldistancestr,val) )
 	setFocalDistance( val );
 
     return 1;
 }
 
+
 Coord3 Camera::centerFrustrum()
 {
-   
     float distancetopoint = ((( farDistance() - nearDistance() ) / 2) +
                                  nearDistance() );
     Coord3 orientation;
@@ -217,7 +219,6 @@ Coord3 Camera::centerFrustrum()
                      ((( distancetopoint / vectorlength ) * orientation.z ) +
                          currentposition.z ));
     return pos;
-
 }
 
 float Camera::frustrumRadius()
@@ -237,11 +238,12 @@ float Camera::frustrumRadius()
     return radius;		
 }
 
+
 void Camera::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( iopar, saveids );
-    Coord3 pos = position();
-    iopar.set( posstr, pos.x, pos.y, pos.z );
+
+    iopar.set( posstr, position() );
     
     SbVec3f axis;
     float angle;

@@ -1,28 +1,26 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Dec 2002
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Dec 2002
+ RCS:           $Id: viscoord.cc,v 1.20 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.19 2005-02-04 14:31:34 kristofer Exp $";
-
 #include "viscoord.h"
-
 #include "thread.h"
 #include "vistransform.h"
-
-#include "Inventor/nodes/SoCoordinate3.h"
-#include "Inventor/nodes/SoGroup.h"
 #include "UTMPosition.h"
+
+#include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoGroup.h>
+
+mCreateFactoryEntry( visBase::Coordinates );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( Coordinates );
 
 Coordinates::Coordinates()
     : coords( new SoCoordinate3 )

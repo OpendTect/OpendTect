@@ -1,25 +1,25 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: vislevelofdetail.cc,v 1.7 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
 -*/
-
-static const char* rcsID = "$Id: vislevelofdetail.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $";
-
 
 #include "vislevelofdetail.h"
 
+#include <Inventor/nodes/SoLevelOfDetail.h>
 
-#include "Inventor/nodes/SoLevelOfDetail.h"
+mCreateFactoryEntry( visBase::LevelOfDetail );
 
 namespace visBase
 {
 
-mCreateFactoryEntry( LevelOfDetail );
-
-
 LevelOfDetail::LevelOfDetail()
-    : lod( new SoLevelOfDetail )
+    : lod(new SoLevelOfDetail)
 {
     lod->ref();
 }

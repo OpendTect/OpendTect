@@ -1,24 +1,27 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.15 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Feb 2002
+ RCS:           $Id: vistransform.cc,v 1.16 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "vistransform.h"
 #include "iopar.h"
 #include "trigonometry.h"
 
-#include "Inventor/nodes/SoMatrixTransform.h"
-#include "Inventor/SbLinear.h" 
+#include <Inventor/nodes/SoMatrixTransform.h>
+#include <Inventor/SbLinear.h>
+
+mCreateFactoryEntry( visBase::Transformation );
 
 namespace visBase
 {
 
 const char* Transformation::matrixstr = "Matrix Row ";
-
-mCreateFactoryEntry( Transformation );
 
 Transformation::Transformation()
     : transform_( new SoMatrixTransform )

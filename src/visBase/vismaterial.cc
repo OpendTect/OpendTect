@@ -1,21 +1,24 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: vismaterial.cc,v 1.10 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: vismaterial.cc,v 1.11 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "vismaterial.h"
 #include "color.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoMaterial.h"
+#include <Inventor/nodes/SoMaterial.h>
+
+mCreateFactoryEntry( visBase::Material );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( Material );
 
 const char* Material::colorstr = "Color";
 const char* Material::ambiencestr = "Ambient Intensity";

@@ -1,27 +1,25 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Dec 2002
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Dec 2002
+ RCS:           $Id: visnormals.cc,v 1.7 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: visnormals.cc,v 1.6 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visnormals.h"
 
 #include "trigonometry.h"
 #include "thread.h"
 
-#include "Inventor/nodes/SoNormal.h"
+#include <Inventor/nodes/SoNormal.h>
+
+mCreateFactoryEntry( visBase::Normals );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( Normals );
-
 
 Normals::Normals()
     : normals( new SoNormal )

@@ -1,23 +1,25 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : May 2002
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: vistristripset.cc,v 1.12 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          May 2002
+ RCS:           $Id: vistristripset.cc,v 1.13 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "vistristripset.h"
 
-#include "Inventor/nodes/SoIndexedTriangleStripSet.h"
+#include <Inventor/nodes/SoIndexedTriangleStripSet.h>
+
+mCreateFactoryEntry( visBase::TriangleStripSet );
 
 namespace visBase
 {
 
-mCreateFactoryEntry( TriangleStripSet );
-
-
 TriangleStripSet::TriangleStripSet()
     : IndexedShape( new SoIndexedTriangleStripSet )
-{ }
+{}
 
 }; // namespace visBase

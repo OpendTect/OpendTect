@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jan 2002
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.43 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jan 2002
+ RCS:           $Id: visrectangle.cc,v 1.44 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -30,10 +33,11 @@ static const char* rcsID = "$Id: visrectangle.cc,v 1.43 2005-02-04 14:31:34 kris
 
 #include <math.h>
 
+mCreateFactoryEntry( visBase::RectangleDragger );
+mCreateFactoryEntry( visBase::Rectangle );
+
 namespace visBase
 {
-
-mCreateFactoryEntry( RectangleDragger );
 
 RectangleDragger::RectangleDragger()
     : started( this )
@@ -451,8 +455,6 @@ bool RectangleDragger::tabsShown() const
     return tabswitch->whichChild.getValue()==0;
 }
 
-
-mCreateFactoryEntry( Rectangle );
 
 const char* Rectangle::orientationstr = "Orientation";
 const char* Rectangle::origostr = "Origo";

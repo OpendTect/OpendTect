@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.12 2005-02-04 14:31:34 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.13 2005-02-07 12:45:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,10 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>
 
+mCreateFactoryEntry( visBase::Dragger );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( Dragger );
 
 Dragger::Dragger()
     : dragger(0)

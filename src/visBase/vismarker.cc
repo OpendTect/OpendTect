@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.19 2005-02-04 14:31:34 kristofer Exp $
+ RCS:           $Id: vismarker.cc,v 1.20 2005-02-07 12:45:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,10 +13,10 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "vistransform.h"
 
-
 #include "SoShapeScale.h"
 #include "SoArrow.h"
 #include "UTMPosition.h"
+
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoCylinder.h>
@@ -26,13 +26,12 @@ ________________________________________________________________________
 
 #include <math.h>
 
+mCreateFactoryEntry( visBase::Marker );
+
 namespace visBase
 {
 
-mCreateFactoryEntry( Marker );
-
 const char* Marker::centerposstr = "Center Pos";
-
 
 Marker::Marker()
     : VisualObjectImpl(true)

@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jan 2002
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.43 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jan 2002
+ RCS:           $Id: vistexturerect.cc,v 1.44 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -15,12 +18,10 @@ static const char* rcsID = "$Id: vistexturerect.cc,v 1.43 2005-02-04 14:31:34 kr
 #include "vistexture2.h"
 #include "viscoltabmod.h"
 
+mCreateFactoryEntry( visBase::TextureRect );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( TextureRect );
-
 
 const char* TextureRect::rectangleidstr = "Rectangle ID";
 const char* TextureRect::textureidstr = "Texture ID";

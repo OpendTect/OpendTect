@@ -1,14 +1,13 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jan 2003
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jan 2003
+ RCS:           $Id: visrandomtrack.cc,v 1.32 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.31 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -29,15 +28,13 @@ static const char* rcsID = "$Id: visrandomtrack.cc,v 1.31 2005-02-04 14:31:34 kr
 #include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoMaterial.h>
 
+mCreateFactoryEntry( visBase::RandomTrack );
 
 namespace visBase
 {
 
 const char* RandomTrack::textureidstr = "Texture ID";
 const char* RandomTrack::draggersizestr = "DraggerSize";
-
-
-mCreateFactoryEntry( RandomTrack );
 
 RandomTrack::RandomTrack()
     : VisualObjectImpl(false)

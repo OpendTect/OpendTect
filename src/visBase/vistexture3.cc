@@ -1,27 +1,25 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jan 2003
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jan 2003
+ RCS:           $Id: vistexture3.cc,v 1.23 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: vistexture3.cc,v 1.22 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
 #include "interpol.h"
 
-#include "Inventor/nodes/SoSwitch.h"
-#include "Inventor/nodes/SoTexture3.h"
+#include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoTexture3.h>
 
+mCreateFactoryEntry( visBase::Texture3 );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( Texture3 );
 
 Texture3::Texture3()
     : x0sz( -1 )

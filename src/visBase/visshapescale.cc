@@ -1,26 +1,28 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: visshapescale.cc,v 1.11 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          July 2002
+ RCS:           $Id: visshapescale.cc,v 1.12 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "visshapescale.h"
 #include "iopar.h"
 #include "visdataman.h"
 
 #include "SoShapeScale.h"
-#include "Inventor/nodes/SoSeparator.h"
 
+#include <Inventor/nodes/SoSeparator.h>
+
+mCreateFactoryEntry( visBase::ShapeScale );
 
 namespace visBase
 {
 
-mCreateFactoryEntry( ShapeScale );
-
 const char* ShapeScale::shapeidstr = "Shape ID";
-
 
 ShapeScale::ShapeScale()
     : root( new SoSeparator )

@@ -1,18 +1,21 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: viscolorseq.cc,v 1.11 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Nov 2003
+ RCS:           $Id: viscolorseq.cc,v 1.12 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "viscolorseq.h"
 #include "colortab.h"
 
+mCreateFactoryEntry( visBase::ColorSequence );
+
 namespace visBase
 {
-mCreateFactoryEntry( ColorSequence );
-
 
 ColorSequence::ColorSequence()
     : coltab( *new ColorTable )

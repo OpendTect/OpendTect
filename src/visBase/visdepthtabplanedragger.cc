@@ -1,34 +1,32 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jul 2003
-___________________________________________________________________
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jul 2003
+ RCS:           $Id: visdepthtabplanedragger.cc,v 1.10 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.9 2005-02-04 14:31:34 kristofer Exp $";
 
 #include "visdepthtabplanedragger.h"
 
 #include "SoDepthTabPlaneDragger.h"
-#include "Inventor/nodes/SoSeparator.h"
 #include "vistransform.h"
 #include "position.h"
 #include "ranges.h"
 #include "iopar.h"
 
+#include <Inventor/nodes/SoSeparator.h>
+
+mCreateFactoryEntry( visBase::DepthTabPlaneDragger );
+
 namespace visBase
 {
-
-mCreateFactoryEntry( DepthTabPlaneDragger );
-
 
 const char* DepthTabPlaneDragger::dimstr    = "Dimension";
 const char* DepthTabPlaneDragger::sizestr   = "Size.";
 const char* DepthTabPlaneDragger::centerstr = "Center.";
-
 
 DepthTabPlaneDragger::DepthTabPlaneDragger()
     : VisualObjectImpl( false )
@@ -63,9 +61,9 @@ DepthTabPlaneDragger::~DepthTabPlaneDragger()
     if ( rotation ) rotation->unRef();
     if ( transform ) transform->unRef();
 
-    dragger->removeStartCallback(DepthTabPlaneDragger::startCB, this );
-    dragger->removeMotionCallback(DepthTabPlaneDragger::motionCB,this);
-    dragger->removeFinishCallback(DepthTabPlaneDragger::finishCB,this);
+    dragger->removeStartCallback( DepthTabPlaneDragger::startCB, this );
+    dragger->removeMotionCallback( DepthTabPlaneDragger::motionCB, this );
+    dragger->removeFinishCallback( DepthTabPlaneDragger::finishCB, this );
     dragger->removeValueChangedCallback(
 	    		DepthTabPlaneDragger::valueChangedCB, this );
 }
@@ -104,6 +102,7 @@ void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 	sizes[0] = scale; sizes[1] = scale; sizes[2] = scale;
     }
 }
+
 
 void DepthTabPlaneDragger::removeScaleTabs()
 {
@@ -384,8 +383,6 @@ int DepthTabPlaneDragger::usePar( const IOPar& par )
 
     return 1;
 }
-
-
 
 
 }; // namespace visBase

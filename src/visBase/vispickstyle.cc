@@ -1,20 +1,23 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: vispickstyle.cc,v 1.2 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Oct 1999
+ RCS:           $Id: vispickstyle.cc,v 1.3 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "vispickstyle.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoPickStyle.h"
+#include <Inventor/nodes/SoPickStyle.h>
+
+mCreateFactoryEntry( visBase::PickStyle );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( PickStyle );
 
 const char* PickStyle::stylestr = "Style";
 

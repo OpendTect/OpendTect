@@ -1,11 +1,13 @@
-
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Jan 2002
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: visscene.cc,v 1.22 2005-02-04 14:31:34 kristofer Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Jan 2002
+ RCS:           $Id: visscene.cc,v 1.23 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "visscene.h"
 #include "visobject.h"
@@ -13,13 +15,13 @@ static const char* rcsID = "$Id: visscene.cc,v 1.22 2005-02-04 14:31:34 kristofe
 #include "visselman.h"
 #include "visevent.h"
 
-#include "Inventor/nodes/SoSeparator.h"
-#include "Inventor/nodes/SoEnvironment.h"
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoEnvironment.h>
+
+mCreateFactoryEntry( visBase::Scene );
 
 namespace visBase
 {
-
-mCreateFactoryEntry( Scene );
 
 Scene::Scene()
     : selroot( new SoGroup )

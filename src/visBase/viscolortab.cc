@@ -1,23 +1,25 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Mar 2002
+ RCS:           $Id: viscolortab.cc,v 1.22 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.21 2005-02-04 14:31:34 kristofer Exp $";
-
 #include "viscolortab.h"
-
 #include "dataclipper.h"
 #include "visdataman.h"
 #include "scaler.h"
 #include "colortab.h"
 #include "iopar.h"
 
+mCreateFactoryEntry( visBase::VisColorTab );
+
 namespace visBase
 {
-
-mCreateFactoryEntry( VisColorTab );
 
 const char* VisColorTab::colorseqidstr = "ColorSeq ID";
 const char* VisColorTab::scalefactorstr = "Scale Factor";

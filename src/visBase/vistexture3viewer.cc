@@ -1,11 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          Nov 2002
+ RCS:           $Id: vistexture3viewer.cc,v 1.19 2005-02-07 12:45:40 nanne Exp $
+________________________________________________________________________
+
 -*/
-
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.18 2005-02-04 14:31:34 kristofer Exp $";
-
 
 #include "vistexture3viewer.h"
 
@@ -14,23 +16,23 @@ static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.18 2005-02-04 14:31:34
 #include "visselman.h"
 #include "iopar.h"
 
-#include "Inventor/nodes/SoRotation.h"
-#include "Inventor/nodes/SoCoordinate3.h"
-#include "Inventor/nodes/SoFaceSet.h"
-#include "Inventor/nodes/SoGroup.h"
-#include "Inventor/nodes/SoTextureCoordinate3.h"
-#include "Inventor/nodes/SoShapeHints.h"
 #include "SoTranslateRectangleDragger.h"
+#include <Inventor/nodes/SoRotation.h>
+#include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoFaceSet.h>
+#include <Inventor/nodes/SoGroup.h>
+#include <Inventor/nodes/SoTextureCoordinate3.h>
+#include <Inventor/nodes/SoShapeHints.h>
 
+
+mCreateFactoryEntry( visBase::Texture3Viewer );
+mCreateFactoryEntry( visBase::MovableTextureSlice );
+mCreateFactoryEntry( visBase::Texture3Slice );
 
 namespace visBase
 {
 
 const char* Texture3Viewer::textureidstr = "Texture ID";
-
-mCreateFactoryEntry( Texture3Viewer );
-mCreateFactoryEntry( MovableTextureSlice );
-mCreateFactoryEntry( Texture3Slice );
 
 Texture3Viewer::Texture3Viewer()
     : texture( 0 )
