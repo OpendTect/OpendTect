@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.21 2002-06-13 21:00:58 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.22 2002-06-19 15:41:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "hostdata.h"
 #include "iopar.h"
 #include "timefun.h"
+#include "filegen.h"
 #include <stdlib.h>
 
 
@@ -37,7 +38,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 	, logvwer(0)
 {
     setCancelText( "Quit" );
-    setOkText( "" );
+    setOkText( getenv("dGB_JMDUMP") ? "Push for JM file dump": "" );
     delay = 500;
 
     const char* res = iop.find( "Target value" );
@@ -229,10 +230,23 @@ void uiSeisMMProc::updateCurMachs()
     ObjectSet<BufferString> machs;
     jm->getActiveMachines( machs );
     sort( machs );
-    int curit = usedmachfld->box()->currentItem();
+    const int oldsz = usedmachfld->box()->size();
+
+    const int newsz = machs.size();
+    bool chgd = newsz != oldsz;
+    if ( !chgd )
+    {
+	// Check in detail
+	for ( int idx=0; idx<oldsz; idx++ )
+	    if ( *machs[idx] != usedmachfld->box()->textOfItem(idx) )
+		{ chgd = true; break; }
+    }
+
+    if ( !chgd ) return;
+
+    int curit = oldsz ? usedmachfld->box()->currentItem() : -1;
     usedmachfld->box()->empty();
-    bool havemachs = machs.size();
-    if ( havemachs )
+    if ( newsz )
     {
 	usedmachfld->box()->addItems( machs );
 	deepErase( machs );
@@ -240,8 +254,8 @@ void uiSeisMMProc::updateCurMachs()
 	    curit = usedmachfld->box()->size() - 1;
 	usedmachfld->box()->setCurrentItem(curit);
     }
-    stopbut->setSensitive( havemachs );
-    vwlogbut->setSensitive( havemachs );
+    stopbut->setSensitive( newsz );
+    vwlogbut->setSensitive( newsz );
 }
 
 
@@ -346,4 +360,51 @@ void uiSeisMMProc::vwLogPush( CallBacker* )
     delete logvwer;
     logvwer = new uiFileBrowser( this, fname );
     logvwer->go();
+}
+
+
+//DEBUG only
+#include "seissingtrcproc.h"
+#include <fstream.h>
+
+bool uiSeisMMProc::acceptOK(CallBacker*)
+{
+    BufferString dumpfname( GetDataDir() );
+    dumpfname = File_getFullPath( dumpfname, "Proc" );
+    dumpfname = File_getFullPath( dumpfname, "mmbatch_dump.txt" );
+    ofstream ostrm( dumpfname );
+    ostream* strm = &cerr;
+    if ( ostrm.fail() )
+	cerr << "Cannot open dump file '" << dumpfname << "'" << endl;
+    else
+    {
+	cerr << "Writing to dump file '" << dumpfname << "'" << endl;
+	strm = &ostrm;
+    }
+
+    *strm << "Multi-machine-batch dump at " << Time_getLocalString() << endl;
+    if ( !jm )
+    {
+	*strm << "No Job Manager. Therefore, data transfer is busy, or "
+		  "should have already finished" << endl;
+	if ( !task_ )
+	    { *strm << "No task_ either. Huh?" << endl; return false; }
+	mDynamicCastGet(SeisSingleTraceProc*,stp,task_)
+	if ( !stp )
+	    *strm << "Huh? task_ should really be a SeisSingleTraceProc!\n"; 
+	else
+	    *strm << "SeisSingleTraceProc:\n"
+		   << stp->nrDone() << "/" << stp->totalNr() << endl
+		   << stp->message() << endl;
+	return false;
+    }
+
+    if ( task_ != jm )
+	*strm << "task_ != jm . Why?" << endl;
+
+    jm->dump( *strm );
+
+    timerTick( 0 );
+    cerr << "Re-started, just in case ..." << endl;
+    return false;
 }

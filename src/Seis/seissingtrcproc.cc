@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.5 2002-04-24 22:18:56 bert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.6 2002-06-19 15:41:29 bert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -149,6 +149,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& os, ObjectSet<IOPar>& is )
 	rdrset_ += rdr_;
     }
 
+    if ( totnr_ < 3 ) totnr_ = -1;
     return true;
 }
 
