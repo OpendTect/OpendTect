@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.10 2001-07-27 10:30:35 nanne Exp $
+ RCS:		$Id: survinfo.h,v 1.11 2001-09-02 21:47:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,10 @@ public:
     const BinID2Coord&	binID2Coord() const	{ return b2c_; }
 
     Coord		minCoord() const;
+
+    static const char*	sKeyInlRange;
+    static const char*	sKeyCrlRange;
+    static const char*	sKeyZRange;
 
 private:
 
