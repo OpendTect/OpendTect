@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.6 2004-05-19 10:15:38 kristofer Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.7 2004-08-06 07:56:58 kristofer Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -147,7 +147,7 @@ SoDepthTabPlaneDragger::SoDepthTabPlaneDragger()
     {
 	SoInteractionKit::readDefaultParts("tabPlaneDragger.iv",
 			    DEPTHTABPLANEDRAGGER_draggergeometry,
-			    sizeof(DEPTHTABPLANEDRAGGER_draggergeometry));
+			    strlen(DEPTHTABPLANEDRAGGER_draggergeometry));
     }
 
 
