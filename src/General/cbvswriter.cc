@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.30 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.31 2002-10-03 07:45:39 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -35,6 +35,7 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i, const PosAuxInfo* e )
 	, bytesperwrite(0)
 	, auxnrbytes(0)
 	, input_rectnreg(false)
+    	, forcedxlinestep(0)
 {
     init( i );
 }
@@ -54,6 +55,7 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
 	, bytesperwrite(0)
 	, auxnrbytes(0)
 	, newblockfo(0)
+    	, forcedxlinestep(cw.forcedxlinestep)
 {
     init( ci );
 }
@@ -219,7 +221,7 @@ void CBVSWriter::newSeg( bool newinl )
 
     if ( !trcswritten ) prevbinid_ = curbinid_;
 
-    int newstep = SI().crlStep();
+    int newstep = forcedxlinestep ? forcedxlinestep : SI().crlStep();
     if ( newinl )
     {
 	if ( goodgeom && inldata.size() )
@@ -256,7 +258,7 @@ void CBVSWriter::getBinID()
 	    CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata[inldata.size()-1];
 	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =
 				inlinf.segments[inlinf.segments.size()-1];
-	    if ( seg.stop == seg.start )
+	    if ( !forcedxlinestep && seg.stop == seg.start )
 	    {
 		if ( seg.stop != curbinid_.crl )
 		{
