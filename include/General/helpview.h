@@ -13,10 +13,17 @@ class HelpViewer
 {
 public:
 
-    static void		use(const char* url);
+    static BufferString	getLinkNameForWinID(const char*);
+    static BufferString	getURLForLinkName(const char*);
+
     static BufferString	getURLForWinID(const char*);
+    			//!< Combines Link -> WinID -> URL
+
+    static void		use(const char* url=0);
+    			//!< Pops up help viewer for URL.
+    			//!< Jan 2003: no real internet-URLs yet, just filenames
+    			//!< Pass null for main help index for app.
 
 };
-
 
 #endif
