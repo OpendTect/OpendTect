@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.9 2002-05-23 15:38:54 bert Exp $
+ RCS:		$Id: scaler.h,v 1.10 2002-05-31 07:45:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ public:
 
 inline bool LinScaler::isEmpty() const
 {
-    return mIS_ZERO(constant) && mIS_ZERO(factor-1);
+    return constant > -1e-15 && constant < 1e-15 && mIS_ZERO(factor-1);
 }
 
 
