@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.32 2003-03-06 13:00:06 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.33 2003-03-13 12:22:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,9 @@ const char* visSurvey::VolumeDisplay::timestr = "Time";
 const char* visSurvey::VolumeDisplay::inlineposstr = "Inline position";
 const char* visSurvey::VolumeDisplay::crosslineposstr = "Crossline position";
 const char* visSurvey::VolumeDisplay::timeposstr = "Time position";
+const char* visSurvey::VolumeDisplay::inlineshowstr = "Inline shown";
+const char* visSurvey::VolumeDisplay::crosslineshowstr = "Crossline shown";
+const char* visSurvey::VolumeDisplay::timeshowstr = "Time shown";
 
 
 visSurvey::VolumeDisplay::VolumeDisplay()
@@ -372,6 +375,9 @@ void visSurvey::VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
     par.set( inlineposstr, cube->slicePosition(inlid) );
     par.set( crosslineposstr, cube->slicePosition(crlid) );
     par.set( timeposstr, cube->slicePosition(tslid) );
+    par.setYN( inlineshowstr, cube->isSliceShown(inlid) );
+    par.setYN( crosslineshowstr, cube->isSliceShown(crlid) );
+    par.setYN( timeshowstr, cube->isSliceShown(tslid) );
 
     as.fillPar(par);
 }
@@ -404,16 +410,25 @@ int visSurvey::VolumeDisplay::usePar( const IOPar& par )
     float pos = origo.x;
     par.get( inlineposstr, pos );
     inlid = cube->addSlice( 0, pos );
+    bool show = true;
+    par.getYN( inlineshowstr, show );
+    cube->showSlice( inlid, show );
     visBase::DM().getObj( inlid )->setName(inlinestr);
 
     pos = origo.y;
     par.get( crosslineposstr, pos );
     crlid = cube->addSlice( 1, pos );
+    show = true;
+    par.getYN( crosslineshowstr, show );
+    cube->showSlice( crlid, show );
     visBase::DM().getObj( crlid )->setName(crosslinestr);
 
     pos = origo.z;
     par.get( timeposstr, pos );
     tslid = cube->addSlice( 2, pos );
+    show = true;
+    par.getYN( timeshowstr, show );
+    cube->showSlice( tslid, show );
     visBase::DM().getObj( tslid )->setName(timestr);
 
     const int volrenid = cube->getVolRenId();
