@@ -85,7 +85,7 @@ static void parens( const char* str, int& idx, int& parenslevel, int len)
     do
     {
 	if ( str[idx]=='(' ) parenslevel++;
-	if ( str[idx]==')' ) parenslevel--;
+	if ( parenslevel && str[idx]==')' ) parenslevel--;
 	if ( parenslevel ) idx++;
     } while ( parenslevel && idx<len );
 }
@@ -619,7 +619,6 @@ MathExpression* MathExpression::parse( const char* input )
 	return res;
     }
 
-
     if ( !strncmp( str, "tan(", 4 ) && str[len-1] == ')' )
     {
 	ArrPtrMan<char> arg0 = new char[len-4];
@@ -636,7 +635,59 @@ MathExpression* MathExpression::parse( const char* input )
 	return res;
     }
 
+    if ( (!strncmp( str, "min(", 4 ) || !strncmp( str, "max(", 4 )) 
+	    && str[len-1] == ')' )
+    {
+	bool max = !strncmp( str, "max(", 4 );
+	TypeSet<int> argumentstop;
 
+	for ( int idx=4; idx<len; idx++ )
+	{
+	    absolute( str, idx, inabs)
+	    if ( inabs ) continue;
+
+	    parens(str, idx, parenslevel, len);
+	    if ( parenslevel ) continue;
+
+	    if ( str[idx] == ',' || str[idx] == ')')
+	    {
+		if ( !idx ) return 0;
+
+		argumentstop += idx;
+		if ( str[idx] == ')' ) break;
+	    }
+	}
+
+	ObjectSet<MathExpression> inputs;
+
+	int prevstop = 3;	
+	for ( int idx=0; idx<argumentstop.size(); idx++ )
+	{
+	    ArrPtrMan<char> arg = new char[len+1];
+	    strncpy( arg, &str[prevstop+1], argumentstop[idx]-prevstop-1);
+	    arg[argumentstop[idx]-prevstop-1] = 0;
+	    prevstop = argumentstop[idx];
+	    
+	    MathExpression* inp = parse( arg );
+	    if ( !inp )
+	    {
+		deepErase( inputs );
+		return false;
+	    }
+
+	    inputs += inp;
+	}
+
+	MathExpression* res = max
+	    ? new MathExpressionMax( inputs.size() ) 
+	    : new MathExpressionMin( inputs.size() );
+
+	for ( int idx=0; idx<inputs.size(); idx++ )
+	    res->setInput( idx, inputs[idx] );
+
+	return res;
+    }
+	
     // negative variables
     if ( str[0]== '-' )
     {
