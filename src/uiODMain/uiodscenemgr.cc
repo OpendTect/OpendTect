@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.11 2004-03-02 13:30:45 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.12 2004-03-05 07:48:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -440,10 +440,11 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     for ( int idx=0; idx<tifs->nrFactories(); idx++ )
 	scn.itemmanager->addChild( tifs->getFactory(idx)->create() );
 
-#ifdef __debug__
-    scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
-    scn.itemmanager->addChild( new uiODFaultFactoryTreeItem );
-#endif
+    if ( getenv("DTECT_SHOW_TRACKINGITEMS") )
+    {
+	scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
+	scn.itemmanager->addChild( new uiODFaultFactoryTreeItem );
+    }
     scn.itemmanager->addChild( new uiODWellFactoryTreeItem );
     scn.itemmanager->addChild( new uiODHorizonFactoryTreeItem );
     scn.itemmanager->addChild( new uiODPickSetFactoryTreeItem );
