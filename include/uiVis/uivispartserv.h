@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.90 2003-09-09 15:58:50 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.91 2003-09-19 07:49:51 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,7 @@ public:
     bool			isRandomLine(int) const;
     bool			isHorizon(int) const;
     bool			isFault(int) const;
+    bool			isStickSet(int) const;
     bool			isWell(int) const;
     bool			isPickSet(int) const;
     bool			hasAttrib(int) const;
@@ -183,6 +184,10 @@ public:
     void			turnOn(int,bool);
     bool			isOn(int) const;
 
+    bool			canDuplicate(int) const;
+    int				duplicateObject(int id,int sceneid);
+    				/*!< \returns id of new object */
+    
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
@@ -209,9 +214,6 @@ protected:
 
     bool			hasColor(int id) const;
 
-    bool			hasDuplicate(int) const;
-    bool			duplicateObject(int,int);
-    
     void			setUpConnections(int id);
     				/*!< Should set all cbs for the object */
     void			removeConnections(int id);

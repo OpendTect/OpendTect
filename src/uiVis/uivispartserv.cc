@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.155 2003-09-09 15:59:04 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.156 2003-09-19 07:50:22 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -601,6 +601,14 @@ bool uiVisPartServer::isFault( int id ) const
 }
 
 
+bool uiVisPartServer::isStickSet( int id ) const
+{
+    const visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(const visSurvey::StickSetDisplay*,sd,dobj)
+    return sd;
+}
+
+
 const CubeSampling* uiVisPartServer::getCubeSampling( int id ) const
 {
     mDynamicCastAllConst();
@@ -1015,6 +1023,51 @@ bool uiVisPartServer::isOn( int id ) const
     return so ? so->isOn() : false;
 }
 
+
+bool uiVisPartServer::canDuplicate( int id ) const
+{
+    const visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
+
+    return ( vd || pdd );
+}    
+
+
+int uiVisPartServer::duplicateObject( int id, int sceneid )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
+    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
+
+    int newid = -1;
+    if ( pdd )
+    {
+	newid = addInlCrlTsl( sceneid, 0 );
+	visBase::DataObject* newobj = visBase::DM().getObj( newid );
+	mDynamicCastGet(visSurvey::PlaneDataDisplay*,newpdd,newobj)
+
+	newpdd->setType( pdd->getType() );
+	newpdd->setCubeSampling( pdd->getCubeSampling() );
+	newpdd->setResolution( pdd->getResolution() );
+	const char* ctnm = pdd->getColorTab().colorSeq().colors().name();
+	newpdd->getColorTab().colorSeq().loadFromStorage( ctnm );
+    }
+    else if ( vd )
+    {
+	newid = addVolView( sceneid );
+	visBase::DataObject* newobj = visBase::DM().getObj( newid );
+	mDynamicCastGet(visSurvey::VolumeDisplay*,newvd,newobj)
+
+	newvd->setCubeSampling( vd->getCubeSampling() );
+	const char* ctnm = vd->getColorTab().colorSeq().colors().name();
+	newvd->getColorTab().colorSeq().loadFromStorage( ctnm );
+    }
+
+    return newid;
+}
+
+
 #define mGetScene( prepostfix ) \
 prepostfix visSurvey::Scene* \
 uiVisPartServer::getScene( int sceneid ) prepostfix \
@@ -1273,53 +1326,6 @@ bool uiVisPartServer::hasColor( int id ) const
     mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,dobj)
 
     return ( wd || (sd && !sd->usesTexture()) ); 
-}
-
-
-bool uiVisPartServer::hasDuplicate( int id ) const
-{
-    const visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
-    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
-
-    return ( vd || pdd );
-}    
-
-
-bool uiVisPartServer::duplicateObject( int id, int sceneid )
-{
-    visBase::DataObject* dobj = visBase::DM().getObj( id );
-    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj)
-    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj)
-
-    int newid = -1;
-    if ( pdd )
-    {
-	newid = addInlCrlTsl( sceneid, 0 );
-	visBase::DataObject* newobj = visBase::DM().getObj( newid );
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,newpdd,newobj)
-
-	newpdd->setType( pdd->getType() );
-	newpdd->setCubeSampling( pdd->getCubeSampling() );
-	newpdd->setResolution( pdd->getResolution() );
-	const char* ctnm = pdd->getColorTab().colorSeq().colors().name();
-	newpdd->getColorTab().colorSeq().loadFromStorage( ctnm );
-    }
-    else if ( vd )
-    {
-	newid = addVolView( sceneid );
-	visBase::DataObject* newobj = visBase::DM().getObj( newid );
-	mDynamicCastGet(visSurvey::VolumeDisplay*,newvd,newobj)
-
-	newvd->setCubeSampling( vd->getCubeSampling() );
-	const char* ctnm = vd->getColorTab().colorSeq().colors().name();
-	newvd->getColorTab().colorSeq().loadFromStorage( ctnm );
-    }
-
-    eventobjid = newid;
-    setSelObjectId( newid );
-    sendEvent( evUpdateTree );
-    return true;
 }
 
 
