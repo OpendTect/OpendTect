@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.9 2001-07-21 16:36:22 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.10 2001-07-27 15:58:50 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -130,7 +130,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     {
 	BasicComponentInfo& cinf = *info.compinfo[idx];
 	addComp( cinf.datachar, cinf.sd, cinf.nrsamples, cinf.name(),
-		 cinf.scaler );
+		 cinf.scaler, cinf.datatype );
     }
     pinfo.usrinfo = info.usertext;
     pinfo.stdinfo = info.stdtext;
@@ -299,6 +299,9 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
     if ( !storinterps ) commitSelections();
     if ( headerdone ) return true;
+
+    donext = donext ||   ( trcsel && trcsel->bidsel
+			&& !trcsel->bidsel->includes(rdmgr->binID()) );
 
     if ( donext && !toNext() ) return false;
     donext = true;
