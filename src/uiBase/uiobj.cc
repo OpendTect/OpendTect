@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.49 2003-03-24 15:33:57 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.50 2003-04-01 10:08:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -601,19 +601,43 @@ int uiObjectBody::prefVNrPics() const
 	{ 
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 
-	    if ( nrTxtLines() < 0 )
+	    if ( nrTxtLines() < 0 && szPol(false) == uiObject::undef  )
 		const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint;
 	    else 
 	    {
 		float lines = 1.51;
-		if ( nrTxtLines() == 0 )		lines = 7;
+		if ( nrTxtLines() == 0 )	lines = 7;
 		else if ( nrTxtLines() > 1 )	lines = nrTxtLines();
+
+		const int baseFldSz = 1;
+
+		bool var=false; 
+		switch( szPol(false) )
+		{
+		    case uiObject::small:    lines=baseFldSz;     break;
+		    case uiObject::medium:   lines=2*baseFldSz+1; break;
+		    case uiObject::wide:     lines=4*baseFldSz+3; break;
+
+		    case uiObject::smallmax:
+		    case uiObject::smallvar:
+			    lines=baseFldSz; var=true; break;
+
+		    case uiObject::medmax:
+		    case uiObject::medvar: 
+			    lines=2*baseFldSz+1; var=true; break;
+
+		    case uiObject::widemax:
+		    case uiObject::widevar:
+			    lines=4*baseFldSz+3; var=true; break;
+		}
+
 
 		int fh = fontHgt();
 		if ( !fh ){ pErrMsg("Font has 0 height."); return 0; }
 
-		const_cast<uiObjectBody*>(this)->pref_height_= 
-							mNINT( lines * fh);
+		int phc = mNINT( lines * fh);
+		const_cast<uiObjectBody*>(this)->pref_height_=
+				var ? mMAX(pref_height_hint, phc ) : phc ;
 	    }
 	}
     }

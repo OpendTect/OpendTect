@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.3 2003-03-31 16:26:26 bert Exp $
+ RCS:           $Id: uitable.h,v 1.4 2003-04-01 10:08:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class PtrUserIDObjectSet;
 class uiLabel;
 class uiTableBody;
+class UserInputObj;
 
 template <class T> class ObjectSet;
 class BufferString;
@@ -61,6 +62,7 @@ public:
     void		setText(const Pos&,const char*);
     void		clearCell(const Pos&);
     void		setCurrentCell( const Pos& );
+
 
     int			nrRows() const;
     void		setNrRows( int nr);
@@ -126,6 +128,15 @@ public:
     Notifier<uiTable>	rowInserted;
     Notifier<uiTable>	colInserted;
 
+    UserInputObj*	mkUsrInputObj(const Pos&);
+    void		delUsrInputObj(const Pos&);
+    UserInputObj*	usrInputObj(const Pos&);
+    const UserInputObj*	usrInputObj(const Pos& p ) const
+			  { return const_cast<uiTable*>(this)->usrInputObj(p); }
+
+    int			getIntValue( const Pos& p ) const;
+    void		setValue( const Pos& p, int i );
+
 protected:
 
     Pos			notifpos_;
@@ -136,6 +147,7 @@ protected:
 
     void		clicked_(CallBacker*);
     void		rightClk();
+
 
 private:
 

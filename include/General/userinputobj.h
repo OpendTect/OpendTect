@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.3 2002-03-18 13:41:54 arend Exp $
+ RCS:           $Id: userinputobj.h,v 1.4 2003-04-01 10:08:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,14 +15,17 @@ ________________________________________________________________________
 #include <basictypes.h>
 
 class CallBack;
-class uiObject;
 class DataInpSpec;
+class PtrUserIDObjectSet;
+class BufferString;
+template <class T> class ObjectSet;
 
 class UserInputObj
 {
 public:
 
                         UserInputObj()			{}
+    virtual		~UserInputObj()			{}
 
     virtual const char* text() const			= 0;
     virtual int         getIntValue()  const		= 0;
@@ -42,6 +45,13 @@ public:
 			//! sets current value as clear value
     virtual void	initClearValue()		= 0;
     virtual void	clear()				= 0;
+
+    virtual bool	hasItems()			{ return false; }
+    virtual void        addItem( const char* txt )	{ setText( txt ); }
+    void		addItems(const char**);
+    void		addItems(const PtrUserIDObjectSet&);
+    void		addItems(const ObjectSet<BufferString>&);
+
 
 		        /*! \brief intermediate value available
 			    \return true if this notification is supported

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.5 2003-03-31 16:26:26 bert Exp $
+ RCS:           $Id: uitable.cc,v 1.6 2003-04-01 10:08:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,20 @@ ________________________________________________________________________
 #include <qsize.h> 
 #include <sets.h> 
 #include <i_qtable.h>
+
+#include <basictypes.h>
+#include <uicombobox.h>
+
+
+class Input
+{
+public:
+			Input( UserInputObj* o, QWidget* w )
+			    : obj( o ), widg( w ) {}
+
+    UserInputObj*	obj;
+    QWidget*		widg;
+}; 
 
 
 class uiTableBody : public uiObjBodyImpl<uiTable,QTable>
@@ -38,8 +52,6 @@ public:
 	setLines( nrows + 1 );
 	setNumCols(ncols);
 
-	setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
-	setHSzPol( uiObject::medvar );
     }
 
     virtual 		~uiTableBody()		{ delete &messenger_; }
@@ -54,24 +66,74 @@ public:
 				setPrefHeight( mMIN(prefh,200) );
 			    }
 
-			    if( stretch(true) == 2  && stretch(false) != 1 )
-				setStretch( 2, ( nrTxtLines()== 1) ? 0 : 2 );
+			    int hs = stretch(true);
+			    if( stretch(false) != 1 )
+				setStretch( hs, ( nrTxtLines()== 1) ? 0 : 2 );
 			}
 
 //    virtual uiSize	minimumsize() const; //!< \reimp
     virtual int 	nrTxtLines() const
 			    { return numRows() ? numRows()+1 : 7; }
 
-void setRowLabels( const QStringList &labels )
-{
+    void		setRowLabels( const QStringList &labels )
+			{
 
-    QHeader* leftHeader = verticalHeader();
+			    QHeader* leftHeader = verticalHeader();
 
-    int i = 0;
-    for ( QStringList::ConstIterator it = labels.begin();
-          it != labels.end() && i < numRows(); ++i, ++it )
-        leftHeader->setLabel( i, *it );
-}
+			    int i = 0;
+			    for( QStringList::ConstIterator it = labels.begin();
+				  it != labels.end() && i < numRows(); ++i,++it
+			       )
+				leftHeader->setLabel( i, *it );
+			}
+
+    UserInputObj*	mkUsrInputObj( const uiTable::Pos& pos )
+			{
+
+			    uiComboBox* cbb = new uiComboBox(0);
+			    QWidget* widg = cbb->body()->qwidget();
+
+			    setCellWidget( pos.y(), pos.x(), widg );
+
+			    inputs += new Input( cbb, widg );
+
+			    return cbb;
+			}
+
+
+    UserInputObj*	usrInputObj( const uiTable::Pos& pos )
+			{
+			    QWidget* w = cellWidget( pos.y(), pos.x() );
+			    if ( !w ) return 0;
+
+			    for ( int idx=0; idx < inputs.size(); idx ++ )
+			    {
+				if ( inputs[idx]->widg == w )
+				    return inputs[idx]->obj;
+			    }
+			    return 0;
+			}
+
+    void		delUsrInputObj( const uiTable::Pos& pos )
+			{
+			    QWidget* w = cellWidget( pos.y(), pos.x() );
+			    if ( !w ) return;
+
+			    Input* inp=0;
+			    for ( int idx=0; idx < inputs.size(); idx ++ )
+			    {
+				if ( inputs[idx]->widg == w )
+				    { inp = inputs[idx]; break; }
+			    }
+
+			    clearCellWidget( pos.y(), pos.x() );
+			    if( inp ) 
+				{ inputs -= inp; delete inp->obj; delete inp; }
+			}
+
+protected:
+
+    ObjectSet<Input>	inputs;
 
 
 private:
@@ -91,6 +153,11 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , colInserted( this )
 {
     clicked.notify( mCB(this,uiTable,clicked_) );
+
+    setHSzPol( uiObject::smallvar );
+    setVSzPol( uiObject::smallvar );
+
+    setStretch( s.colgrow_ ? 2 : 1, s.rowgrow_ ? 2 : 1 );
 }
 
 
@@ -114,7 +181,13 @@ void uiTable::setCurrentCell( const Pos& pos )
     { body_->setCurrentCell( pos.y(), pos.x() ); }
 
 const char* uiTable::text( const Pos& pos ) const
-    { rettxt_ = body_->text( pos.y(), pos.x() ); return rettxt_; }
+{
+    if ( usrInputObj(pos) )
+	rettxt_ = usrInputObj(pos)->text();
+    else
+	rettxt_ = body_->text( pos.y(), pos.x() );
+    return rettxt_;
+}
 
 int uiTable::nrRows() const
     { return  body_->numRows(); }
@@ -150,6 +223,12 @@ void uiTable::removeRow( int row )
 void uiTable::removeColumn( int col )
     { body_->removeColumn( col ); }
 
+UserInputObj* uiTable::mkUsrInputObj( const Pos& pos )
+    { return body_->mkUsrInputObj(pos); }
+void uiTable::delUsrInputObj( const Pos& pos )
+    { body_->delUsrInputObj(pos); }
+UserInputObj* uiTable::usrInputObj(const Pos& pos)
+    { return body_->usrInputObj(pos); }
 
 const char* uiTable::rowLabel( int nr ) const
 {
@@ -229,6 +308,25 @@ void uiTable::setColumnLabels( const ObjectSet<BufferString>& labels )
     for ( int i=0; i<labels.size(); i++ )
         setColumnLabel( i, *labels[i] );
 }
+
+
+int uiTable::getIntValue( const Pos& p ) const
+{
+    if ( usrInputObj(p) )
+	return usrInputObj(p)->getIntValue();
+
+    return convertTo<int>( text(p) );
+}
+
+void uiTable::setValue( const Pos& p, int i )
+{
+    if ( usrInputObj(p) )
+	usrInputObj(p)->setValue(i);
+
+    setText(p, convertTo<const char*>(i) );
+}
+
+
 
 
 void uiTable::clicked_( CallBacker* cb )
