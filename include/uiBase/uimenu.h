@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.10 2001-10-24 15:20:40 arend Exp $
+ RCS:           $Id: uimenu.h,v 1.11 2002-01-29 11:13:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
 				~uiMenuItem();
 
 				//! sets a new text 2b displayed
-    void			set( const char* txt );
+    void			setText(const char*);
 
     bool			isEnabled()			const;
     void			setEnabled( bool yn );

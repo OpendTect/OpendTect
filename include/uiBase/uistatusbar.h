@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.3 2002-01-18 14:27:39 arend Exp $
+ RCS:           $Id: uistatusbar.h,v 1.4 2002-01-29 11:13:20 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,26 +18,28 @@ class uiStatusBarBody;
 class QStatusBar;
 class uiMainWin;
 
+
 class uiStatusBar : public uiObjHandle
 {
-//friend class i_QStatusBar;
-friend class uiMainWinBody;
+
+    friend class	uiMainWinBody;
+
 public:
 
-    enum		txtAlign{ left, centre, right };
+    enum		TxtAlign{ Left, Centre, Right };
 
-    void 		message( const char* msg, int fldidx=0);
-    void		addMsgFld( const char* tooltip ="", 
-                                   txtAlign al=left, int stretch=1 );
+    void 		message(const char*,int fldidx=0);
+    void		addMsgFld(const char* tooltip ="",TxtAlign al=Left,
+	    			  int stretch=1);
 
 protected:
 
-                        uiStatusBar( uiMainWin* parnt, const char* nm,  
-                                     QStatusBar& ); 
+                        uiStatusBar(uiMainWin*,const char*,QStatusBar&); 
 private:
 
     uiStatusBarBody*	body_;
     uiStatusBarBody&	mkbody(uiMainWin*, const char*, QStatusBar&);
 };
 
-#endif // uiStatusBar
+
+#endif
