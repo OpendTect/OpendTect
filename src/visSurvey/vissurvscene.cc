@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.60 2004-10-01 12:29:21 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.61 2004-10-22 14:52:56 nanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -424,11 +424,10 @@ void Scene::mouseMoveCB( CallBacker* cb )
 		float newmouseposval;
 		BufferString newstr;
 		so->getMousePosInfo( xytmousepos, newmouseposval, newstr );
-		if ( !mIsUndefined(newmouseposval) )
-		{
-		    mouseposval = newmouseposval;
+		if ( newstr != "" )
 		    mouseposstr = newstr;
-		}
+		if ( !mIsUndefined(newmouseposval) )
+		    mouseposval = newmouseposval;
 	    }
 	    else if ( validpicksurface )
 		break;
