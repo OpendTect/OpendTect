@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.32 2004-06-21 10:59:07 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.33 2004-06-23 11:21:43 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -199,15 +199,15 @@ bool uiODDisplayTreeItem::factory( uiTreeItem* treeitem, uiODApplMgr* appl,
 	
 
 uiODDisplayTreeItem::uiODDisplayTreeItem( )
-    : uiODTreeItem( 0 )
-    , displayid( -1 )
+    : uiODTreeItem(0)
+    , displayid(-1)
+    , visserv(ODMainWin()->applMgr().visServer())
 {
 }
 
 
 uiODDisplayTreeItem::~uiODDisplayTreeItem( )
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
     uiVisMenu* menu = visserv->getMenu( displayid, false );
     if ( menu )
     {
@@ -223,8 +223,6 @@ int uiODDisplayTreeItem::selectionKey() const { return displayid; }
 bool uiODDisplayTreeItem::init()
 {
     if ( !uiTreeItem::init() ) return false;
-
-    uiVisPartServer* visserv = applMgr()->visServer();
 
     visserv->setSelObjectId( displayid );
     uilistviewitem->setChecked( visserv->isOn(displayid) );
@@ -269,9 +267,9 @@ int uiODDisplayTreeItem::uiListViewItemType() const
 
 BufferString uiODDisplayTreeItem::createDisplayName() const
 {
-    const uiVisPartServer* visserv = const_cast<uiODDisplayTreeItem*>(this)->
+    const uiVisPartServer* cvisserv = const_cast<uiODDisplayTreeItem*>(this)->
 							applMgr()->visServer();
-    const AttribSelSpec* as = visserv->getSelSpec( displayid );
+    const AttribSelSpec* as = cvisserv->getSelSpec( displayid );
     BufferString dispname( as ? as->userRef() : 0 );
     if ( as && as->isNLA() )
     {
@@ -285,7 +283,7 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
     if ( as && as->id()==AttribSelSpec::attribNotSel )
 	dispname = "<right-click>";
     else if ( !as )
-	dispname = visserv->getObjectName(displayid);
+	dispname = cvisserv->getObjectName(displayid);
     else if ( as->id()==AttribSelSpec::noAttrib )
 	dispname="";
 
@@ -300,7 +298,6 @@ const char* uiODDisplayTreeItem::attrselmnutxt = "Select Attribute ...";
 void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiVisMenu*,menu,cb)
-    uiVisPartServer* visserv = applMgr()->visServer();
     if ( visserv->hasAttrib(displayid) )
     {
 	uiPopupMenu* selattrmnu = new uiPopupMenu( menu->getParent(),
@@ -357,7 +354,6 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiVisMenu*,menu,caller);
-    uiVisPartServer* visserv = applMgr()->visServer();
     if ( mnuid==-1 || menu->isHandled() ) return;
     if ( mnuid==duplicatemnuid )
     {
@@ -476,9 +472,9 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 
 BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
 {
-    const uiVisPartServer* visserv =
+    const uiVisPartServer* cvisserv =
        const_cast<uiODEarthModelSurfaceTreeItem*>(this)->applMgr()->visServer();
-    const AttribSelSpec* as = visserv->getSelSpec( displayid );
+    const AttribSelSpec* as = cvisserv->getSelSpec( displayid );
     bool hasattr = as && as->id() > -2;
     BufferString dispname;
     if ( hasattr )
@@ -486,7 +482,7 @@ BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
 	dispname = uiODDisplayTreeItem::createDisplayName();
 	dispname += " (";
     }
-    dispname += visserv->getObjectName( displayid );
+    dispname += cvisserv->getObjectName( displayid );
     if ( hasattr ) dispname += ")";
     return dispname;
 }
@@ -496,8 +492,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiVisMenu*,menu,cb);
-
-    uiVisPartServer* visserv = applMgr()->visServer();
 
     bool dotrack = false;
     mGetTrackingBoolean(dotrack);    
@@ -612,8 +606,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    uiVisPartServer* visserv = applMgr()->visServer();
-	
     if ( mnuid==storeasmnuid )
     {
 	menu->setIsHandled(true);
@@ -786,7 +778,6 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
 
 bool uiODRandomLineTreeItem::init()
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
     if ( displayid==-1 )
     {
 	visSurvey::RandomTrackDisplay* rtd =
@@ -809,7 +800,6 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiVisMenu*,menu,cb)
-    uiVisPartServer* visserv = applMgr()->visServer();
     editnodesmnuid = menu->addItem( new uiMenuItem("Edit nodes ...") );
 
     uiPopupMenu* insertnodemnu = new uiPopupMenu( menu->getParent(),
@@ -851,7 +841,6 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 	
-    uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    	    visserv->getObject(displayid));
 
@@ -871,7 +860,6 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODRandomLineTreeItem::editNodes()
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    	    visserv->getObject(displayid));
 
@@ -1077,7 +1065,6 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid_ )
 
 bool uiODWellTreeItem::init()
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
     if ( displayid==-1 )
     {
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
@@ -1105,8 +1092,6 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiVisMenu*,menu,cb);
-
-    uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid))
 
     propertiesmnuid = menu->addItem( new uiMenuItem("Properties ...") );
@@ -1153,7 +1138,6 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid))
     const MultiID& wellid = wd->wellId();
     if ( mnuid == selattrmnuid )
@@ -1266,7 +1250,6 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int id )
 
 bool uiODPickSetTreeItem::init()
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
     if ( displayid==-1 )
     {
 	visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
@@ -1290,7 +1273,6 @@ void uiODPickSetTreeItem::updateColumnText( int col )
 {
     if ( col==1 )
     {
-	uiVisPartServer* visserv = applMgr()->visServer();
 	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 			visserv->getObject(displayid));
 	BufferString text = psd->nrPicks();
@@ -1313,7 +1295,6 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     storemnuid = menu->addItem( new uiMenuItem("Store ...") );
     dirmnuid = menu->addItem( new uiMenuItem("Set directions ...") );
 
-    uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
 	    	     visserv->getObject(displayid));
     uiMenuItem* showallitem = new uiMenuItem("Show all");
@@ -1349,7 +1330,6 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==showallmnuid )
     {
-	uiVisPartServer* visserv = applMgr()->visServer();
 	mDynamicCastGet( visSurvey::PickSetDisplay*, psd,
 			 visserv->getObject(displayid));
 	const bool showall = !psd->allShown();
@@ -1372,13 +1352,19 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 
 
 uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim_ )
-    : dim( dim_ )
+    : dim(dim_)
+    , positiondlg(0)
 { displayid = did; }
+
+
+uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
+{
+    delete positiondlg;
+}
 
 
 bool uiODPlaneDataTreeItem::init()
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
     if ( displayid==-1 )
     {
 	visSurvey::PlaneDataDisplay* pdd=visSurvey::PlaneDataDisplay::create();
@@ -1401,7 +1387,6 @@ void uiODPlaneDataTreeItem::updateColumnText( int col )
 {
     if ( col==1 )
     {
-	uiVisPartServer* visserv = applMgr()->visServer();
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 			visserv->getObject(displayid))
 	BufferString text = pdd->getManipulationPos();
@@ -1433,23 +1418,42 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid == positionmnuid )
     {
 	menu->setIsHandled(true);
-	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 			visserv->getObject(displayid))
-	uiSliceSel dlg( getUiParent(), pdd->getCubeSampling(), 
-			mCB(this,uiODPlaneDataTreeItem,updatePlanePos), dim );
-	if ( !dlg.go() ) return;
-	CubeSampling cs = dlg.getCubeSampling();
-	pdd->setCubeSampling( cs );
+	delete positiondlg;
+	positiondlg = new uiSliceSel( getUiParent(), pdd->getCubeSampling(),
+		mCB(this,uiODPlaneDataTreeItem,updatePlanePos), 
+		(uiSliceSel::Type)dim );
+	positiondlg->windowClosed.notify( 
+		mCB(this,uiODPlaneDataTreeItem,posDlgClosed) );
+	positiondlg->go();
+	applMgr()->enableSceneMenu( false );
+    }
+}
+
+
+void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
+{
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+	    	    visserv->getObject(displayid))
+    CubeSampling newcs = positiondlg->getCubeSampling();
+    bool samepos = newcs == pdd->getCubeSampling();
+    if ( positiondlg->uiResult() && !samepos )
+    {
+	pdd->setCubeSampling( newcs );
 	visserv->calculateAttrib( displayid, false );
 	visserv->calculateColorAttrib( displayid, false );
+	updateColumnText(0);
     }
+
+    delete positiondlg;
+    positiondlg = 0;
+    applMgr()->enableSceneMenu( true );
 }
 
 
 void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 {
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 	    	    visserv->getObject(displayid))
     mDynamicCastGet(uiSliceSel*,dlg,cb)
@@ -1464,8 +1468,8 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 
 uiTreeItem* uiODInlineFactory::create( int visid ) const
 {
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
-	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd, 
+	    	    ODMainWin()->applMgr().visServer()->getObject(visid))
     return pdd && pdd->getType()==0 ? new uiODInlineTreeItem(visid) : 0;
 }
 
