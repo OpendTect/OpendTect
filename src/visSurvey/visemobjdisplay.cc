@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.14 2005-03-31 15:14:25 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.15 2005-04-01 15:05:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.14 2005-03-31 15:14:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.15 2005-04-01 15:05:56 cvsnanne Exp $";
 
 
 #include "vissurvemobj.h"
@@ -69,6 +69,11 @@ EMObjectDisplay::~EMObjectDisplay()
     if ( transformation ) transformation->unRef();
     if ( eventcatcher ) eventcatcher->unRef();
     if ( coltab_ ) coltab_->unRef();
+
+    const EM::ObjectID objid = em.multiID2ObjectID(mid);
+    const int trackeridx = MPE::engine().getTrackerByObject(objid);
+    if ( trackeridx >= 0 )
+	MPE::engine().removeTracker( trackeridx );
 }
 
 
@@ -173,14 +178,13 @@ bool EMObjectDisplay::updateFromEM()
     if ( MPE::engine().getEditor(objid,false) )
 	enableEditing(true);
 
-    if ( MPE::engine().getTrackerByObject(objid) >= 0 )
-    {
-	useWireframe( true );
-	useTexture( false );
-	setResolution( nrResolutions()-1 );
-    }
+    nontexturecol = emobject->preferredColor();
+    getMaterial()->setColor( nontexturecol );
 
-    getMaterial()->setColor( emobject->preferredColor() );
+    const bool hastracker = MPE::engine().getTrackerByObject(objid) >= 0;
+    useWireframe( hastracker );
+    useTexture( !hastracker );
+    setResolution( hastracker ? nrResolutions()-1 : 0 );
 
     return true;
 }
@@ -188,9 +192,6 @@ bool EMObjectDisplay::updateFromEM()
 
 void EMObjectDisplay::useTexture( bool yn )
 {
-    if ( usesTexture()==yn )
-	return;
-
     usestexture = yn;
 
     if ( yn ) nontexturecol = getMaterial()->getColor();
@@ -222,7 +223,6 @@ void EMObjectDisplay::setColor( Color col )
 {
     nontexturecol = col;
     getMaterial()->setColor( col );
-    useTexture(false);
 
     EM::EMObject* emobject = em.getObject( em.multiID2ObjectID(mid) );
     if ( emobject )
@@ -321,6 +321,7 @@ void EMObjectDisplay::setDepthAsAttrib()
     }
 
     stuffData( false, &positions );
+    useTexture( usestexture );
 }
 
 
