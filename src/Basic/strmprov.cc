@@ -40,7 +40,7 @@
 #include "debugmasks.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.60 2005-02-01 09:40:22 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.61 2005-02-23 12:21:23 cvsarend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -340,7 +340,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
 }
 
 
-StreamData StreamProvider::makeIStream() const
+StreamData StreamProvider::makeIStream( bool binary ) const
 {
     StreamData sd; sd.setFileName( fname );
     if ( isbad || !*(const char*)fname )
@@ -352,15 +352,12 @@ StreamData StreamProvider::makeIStream() const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-#ifdef __win__
-	if ( File_isLink( fname ) )
-	    sd.istrm = new std::ifstream( File_linkTarget(fname),
-			    std::ios_base::in | std::ios_base::binary );
-	else
-#endif
-	if ( File_exists(fname) )
-	    sd.istrm = new std::ifstream( fname, std::ios_base::in
-		    				| std::ios_base::binary );
+	FilePath fp( fname );
+
+	if ( File_exists( fp.fullPath() ) )
+	    sd.istrm = new std::ifstream( fp.fullPath(),
+			  binary ? std::ios_base::in | std::ios_base::binary 
+				 : std::ios_base::in );
 	return sd;
     }
 
@@ -384,7 +381,7 @@ StreamData StreamProvider::makeIStream() const
 }
 
 
-StreamData StreamProvider::makeOStream() const
+StreamData StreamProvider::makeOStream( bool binary ) const
 {
     StreamData sd; sd.setFileName( fname );
     if ( isbad ||  !*(const char*)fname )
@@ -401,8 +398,9 @@ StreamData StreamProvider::makeOStream() const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-	sd.ostrm = new std::ofstream( fname, std::ios_base::out
-					| std::ios_base::binary );
+	sd.ostrm = new std::ofstream( fname,
+			  binary ? std::ios_base::out | std::ios_base::binary 
+				 : std::ios_base::out );
 	return sd;
     }
 
