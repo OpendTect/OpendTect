@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.12 2003-01-09 16:23:22 arend Exp $
+ RCS:           $Id: uimsg.cc,v 1.13 2003-01-16 16:07:36 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,22 +51,13 @@ void uiMsg::handleMsg( CallBacker* cb )
 
     switch ( mc->type() )
     {
-    case MsgClass::Warning:
-	warning( mc->msg );
-    break;
-    case MsgClass::Error:
-	error( mc->msg );
-    break;
     case MsgClass::ProgrammerError:
 #ifdef __debug__
 	cerr << "(PE) " << mc->msg << endl;
 #endif
     break;
     default:
-	if ( getenv("dGB_NO_STATUS_BAR_MESSAGES") )
 	    cerr << mc->msg << endl;
-	else
-	    toStatusbar( mc );
     break;
     }
 }
