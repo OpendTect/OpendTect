@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.1.1.2 1999-09-16 09:32:42 arend Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.2 2000-04-17 14:56:43 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -67,21 +67,21 @@ SurveyInfo::SurveyInfo( const char* rootdir )
     while ( !atEndOfSection( astream.next() ) )
     {
 	if ( astream.hasKeyword(sNameKey) )
-	    setName( astream.valstr );
+	    setName( astream.value() );
 	else if ( astream.hasKeyword("Coord-X-BinID") )
-	    setTr( xtr, astream.valstr );
+	    setTr( xtr, astream.value() );
 	else if ( astream.hasKeyword("Coord-Y-BinID") )
-	    setTr( ytr, astream.valstr );
+	    setTr( ytr, astream.value() );
 	else if ( astream.hasKeyword("In-line range") )
 	{
-	    FileMultiString fms( astream.valstr );
+	    FileMultiString fms( astream.value() );
 	    bir.start.inl = atoi(fms[0]);
 	    bir.stop.inl = atoi(fms[1]);
 	    bid.inl = atoi(fms[2]);
 	}
 	else if ( astream.hasKeyword("Cross-line range") )
 	{
-	    FileMultiString fms( astream.valstr );
+	    FileMultiString fms( astream.value() );
 	    bir.start.crl = atoi(fms[0]);
 	    bir.stop.crl = atoi(fms[1]);
 	    bid.crl = atoi(fms[2]);

@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.2 2000-03-16 14:36:43 bert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.3 2000-04-17 14:56:42 bert Exp $";
 
 #include "strmoper.h"
 #include "strmprov.h"
@@ -103,7 +103,7 @@ bool readWithRetry( istream& strm, void* ptr, unsigned int nrbytes,
 }
 
 
-int wordFromLine( istream& strm, char* ptr )
+bool wordFromLine( istream& strm, char* ptr, int maxnrchars )
 {
     if ( !ptr ) return NO;
     *ptr = '\0';
@@ -113,9 +113,12 @@ int wordFromLine( istream& strm, char* ptr )
     while ( strm )
     {
 	c = strm.peek();
-	if ( !isspace(c) ) *ptr++ = c;
+	if ( !isspace(c) )
+	    *ptr++ = c;
 	else if ( c == '\n' || *start )
 	    break;
+
+	maxnrchars--; if ( maxnrchars == 0 ) break;
 	strm.ignore( 1 );
     }
 

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.3 2000-04-12 16:06:07 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.4 2000-04-17 14:56:40 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -340,7 +340,7 @@ void IOPar::set( const char* s, const BinID& binid )
 
 
 IOPar::IOPar( ascistream& astream )
-	: UserIDObject(astream.keyword)
+	: UserIDObject(astream.keyWord())
 	, pars_(*new AliasObjectSet(this))
 {
     astream.next();

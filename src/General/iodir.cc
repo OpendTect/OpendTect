@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.2 1999-10-18 14:06:06 dgb Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.3 2000-04-17 14:57:04 bert Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -106,7 +106,7 @@ IOObj* IODir::readOmf( const char* omfname, const char* dirnm,
 
     ascistream astream( *streamptr );
     astream.next();
-    FileMultiString fms( astream.valstr );
+    FileMultiString fms( astream.value() );
     UnitID diruid( fms[0] );
     if ( diruid == "0" ) diruid = "";
     if ( dirptr )

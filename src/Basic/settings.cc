@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.1.1.2 1999-09-16 09:32:37 arend Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.2 2000-04-17 14:56:41 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -81,11 +81,11 @@ Settings::Settings( const char* strmopen )
 
     while ( !atEndOfSection( stream.next() ) )
     {
-	const char* ptr = stream.keyword;
+	const char* ptr = stream.keyWord();
 	int ismajor = NO;
 	if ( *ptr == '#' ) continue;
 	else if ( *ptr == '*' ) { ismajor = YES; ptr++; }
-	list() += new SettItem( ptr, stream.valstr, ismajor );
+	list() += new SettItem( ptr, stream.value(), ismajor );
     }
 
     delete strm;

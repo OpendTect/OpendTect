@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.1.1.2 1999-09-16 09:33:35 arend Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.2 2000-04-17 14:57:07 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -100,7 +100,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* diruid )
     if ( atEndOfSection(astream) )
 	return 0;
     UnitID myid( diruid );
-    if ( astream.keyword[0] == '@' )
+    if ( *astream.keyWord() == '@' )
     {
 	IOLink* ln = IOLink::get( astream, dirnm );
 	if ( !ln ) return 0;
@@ -109,13 +109,13 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* diruid )
 	return ln;
     }
 
-    UserIDString _name( astream.keyword );
-    fms = astream.valstr;
+    UserIDString _name( astream.keyWord() );
+    fms = astream.value();
     myid += fms[0];
     UnitID parid( fms[1] );
     astream.next();
-    UserIDString _group( astream.keyword );
-    fms = astream.valstr;
+    UserIDString _group( astream.keyWord() );
+    fms = astream.value();
     UserIDString _trl( fms[0] );
     UserIDString _typ( fms[1] );
     if ( ! *(const char*)_typ )
@@ -134,17 +134,17 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* diruid )
     objptr->setTranslator( _trl );
 
     astream.next();
-    if ( astream.keyword[0] != '$' )	{ delete objptr; objptr = 0; }
+    if ( *astream.keyWord() != '$' )	{ delete objptr; objptr = 0; }
     else
     {
 	if ( !objptr->getFrom(astream) || objptr->bad() )
 	    { delete objptr; objptr = 0; }
 	else
 	{
-	    while ( astream.keyword[0] == '#' )
+	    while ( *astream.keyWord() == '#' )
 	    {
 		if ( !objptr->opts ) objptr->opts = new IOPar( objptr );
-		objptr->opts->set( astream.keyword+1, astream.valstr );
+		objptr->opts->set( astream.keyWord()+1, astream.value() );
 		astream.next();
 	    }
 	}

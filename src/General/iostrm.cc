@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.3 2000-03-02 15:29:28 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.4 2000-04-17 14:57:09 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -215,27 +215,27 @@ void IOStream::setDevName( const char* str )
 
 int IOStream::getFrom( ascistream& stream )
 {
-    const char* kw = &stream.keyword[1];
+    const char* kw = stream.keyWord() + 1;
     if ( !strcmp(kw,"Hostname") )
     {
-	hostname = stream.valstr;
+	hostname = stream.value();
 	stream.next();
     }
     if ( !strcmp(kw,"Extension") )
     {
-	extension = stream.valstr;
+	extension = stream.value();
 	stream.next();
     }
     if ( !strcmp(kw,"Retry") )
     {
-	FileMultiString fms( stream.valstr );
+	FileMultiString fms( stream.value() );
 	nrretries = atoi(fms[0]);
 	retrydelay = atoi(fms[1]);
 	stream.next();
     }
     if ( !strcmp(kw,"Multi") )
     {
-	FileMultiString fms( stream.valstr );
+	FileMultiString fms( stream.value() );
 	fnrs.start = atoi(fms[0]);
 	fnrs.stop = atoi(fms[1]);
 	fnrs.step = atoi(fms[2]); if ( fnrs.step == 0 ) fnrs.step = 1;
@@ -247,15 +247,15 @@ int IOStream::getFrom( ascistream& stream )
 	stream.next();
     }
 
-    fname = stream.valstr;
+    fname = stream.value();
     if ( !strcmp(kw,"Name") )
 	type_ = StreamConn::File;
     else if ( !strcmp(kw,"Reader") )
     {
 	type_ = StreamConn::Command;
 	stream.next();
-	if ( !writecmd ) writecmd = new FileNameString( stream.valstr );
-	else *writecmd = stream.valstr;
+	if ( !writecmd ) writecmd = new FileNameString( stream.value() );
+	else *writecmd = stream.value();
     }
     else if ( !strcmp("Device", kw) )
 	return getDev(stream);
@@ -276,17 +276,17 @@ bool IOStream::isStarConn() const
 
 bool IOStream::getDev( ascistream& stream )
 {
-    const char* kw = &stream.keyword[1];
+    const char* kw = stream.keyWord() + 1;
     type_ = StreamConn::Device;
     while ( !atEndOfSection(stream.next()) )
     {
-	if ( stream.keyword[0] == '#' ) break;
+	if ( *stream.keyWord() == '#' ) break;
 	if ( !strcmp(kw,"Blocksize") )
-	    blocksize = atoi(stream.valstr);
+	    blocksize = atoi(stream.value());
 	else if ( !strcmp(kw,"Fileskips") )
-	    skipfiles = atoi(stream.valstr);
+	    skipfiles = atoi(stream.value());
 	else if ( !strcmp(kw,"Rewind") )
-	    rew = yesNoFromString(stream.valstr);
+	    rew = yesNoFromString(stream.value());
     }
     return YES;
 }

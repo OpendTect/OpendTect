@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.3 2000-02-10 13:08:37 bert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.4 2000-04-17 14:57:10 bert Exp $";
 
 #include "iox.h"
 #include "iolink.h"
@@ -128,7 +128,7 @@ IOObj* IOX::getIOObj() const
 
 int IOX::getFrom( ascistream& stream )
 {
-    uid = stream.valstr;
+    uid = stream.value();
     stream.next();
     return YES;
 }

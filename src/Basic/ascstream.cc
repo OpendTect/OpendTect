@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.1.1.2 1999-09-16 09:32:21 arend Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.2 2000-04-17 14:56:39 bert Exp $";
 
 #include "ascstream.h"
 #include "unitscale.h"
@@ -14,6 +14,8 @@ static const char* rcsID = "$Id: ascstream.cc,v 1.1.1.2 1999-09-16 09:32:21 aren
 #include <string.h>
 #include <stdlib.h>
 #include <iostream.h>
+
+static char linebuf[mMaxLineLength+1];
 
 
 ascostream::~ascostream()
@@ -67,7 +69,7 @@ bool ascostream::put( const char* keyword, const char* value )
 	stream() << value;
     }
     stream() << '\n';
-    return stream().fail() ? NO : YES;
+    return stream().good();
 }
 
 
@@ -75,7 +77,7 @@ bool ascostream::putYN( const char* keyword, bool yn )
 {
     putKeyword( keyword );
     stream() << getYesNoString(yn) << '\n';
-    return stream().fail() ? NO : YES;
+    return stream().good();
 }
 
 
@@ -83,7 +85,7 @@ bool ascostream::put( const char* keyword, int value )
 {
     putKeyword( keyword );
     stream() << value << '\n';
-    return stream().fail() ? NO : YES;
+    return stream().good();
 }
 
 
@@ -96,7 +98,7 @@ bool ascostream::put( const char* keyword, float value, const MeasureUnit* mu )
 	stream() << value;
 	stream() << '\n';
     }
-    return stream().fail() ? NO : YES;
+    return stream().good();
 }
 
 
@@ -107,7 +109,7 @@ bool ascostream::put( const char* keyword, double value, const MeasureUnit* mu )
 	if ( mu ) value = mu->fromSI( value );
 	return put( keyword, getStringFromDouble("%lg",value) );
     }
-    return stream().fail() ? NO : YES;
+    return stream().good();
 }
 
 
@@ -129,10 +131,10 @@ ascistream::~ascistream()
 void ascistream::init( istream* strm, int rdhead )
 {
     streamptr = strm;
-    filetype[0] = header[0] = timestamp[0] =
-    keyword[0] = valstr[0] = curword[0] =
-    tabbed = NO;
-    nextwordptr = valstr;
+    filetype[0] = header[0] = timestamp[0] = curword[0] = '\0';
+    keybuf = ""; valbuf = "";
+    tabbed = false;
+    nextwordptr = valbuf;
     if ( !streamptr ) return;
 
     if ( rdhead )
@@ -140,7 +142,7 @@ void ascistream::init( istream* strm, int rdhead )
 	stream().getline( header, mMaxFileHeadLength );
 	stream().getline( filetype, mMaxFileHeadLength );
 	stream().getline( timestamp, mMaxFileHeadLength );
-	stream().getline( keyword, mMaxFileEntryLength );
+	stream().getline( linebuf, mMaxWordLength );
 
 	removeTrailingBlanks(filetype);
 	char* ptr = filetype + strlen(filetype) - 4;
@@ -150,27 +152,30 @@ void ascistream::init( istream* strm, int rdhead )
 }
 
 
-void ascistream::resetCurrent()
+void ascistream::resetPtrs( bool mkempty )
 {
-    keyword[0] = valstr[0] = curword[0] = '\0';
-    nextwordptr = valstr;
+    if ( mkempty )
+	{ keybuf = ""; valbuf = ""; curword[0] = '\0'; }
+
+    nextwordptr = valbuf;
 }
 
 
-static char linebuf[1024];
-
 ascistream& ascistream::next()
 {
-    resetCurrent();
-    if ( !streamptr || stream().fail() || stream().eof() )
+    resetPtrs( true );
+    if ( !streamptr || !streamptr->good() )
 	return *this;
 
-    nextLine( linebuf, 1024 );
+    if ( !stream().getline(linebuf,mMaxLineLength) )
+	return *this;
+
     if ( linebuf[0] == '\0' || ( linebuf[0]=='-' && linebuf[1]=='-' ) )
 	return next();
+
     else if ( linebuf[0] == mParagraphMarker[0] )
     {
-	strcpy( keyword, mParagraphMarker );
+	keybuf = mParagraphMarker;
 	return *this;
     }
     tabbed = linebuf[0] == '\t';
@@ -181,22 +186,16 @@ ascistream& ascistream::next()
     {
 	skipLeadingBlanks(startptr);
 	removeTrailingBlanks(startptr);
-	strcpy( valstr, startptr );
+	valbuf = startptr;
 	*separptr = '\0';
     }
 
     startptr = linebuf;
     skipLeadingBlanks(startptr);
     removeTrailingBlanks(startptr);
-    strcpy( keyword, startptr );
+    keybuf = startptr;
 
-    return *this;
-}
-
-
-ascistream& ascistream::nextLine( char* buf, int maxlen )
-{
-    stream().getline( buf, maxlen );
+    resetPtrs( false );
     return *this;
 }
 
@@ -223,13 +222,13 @@ const char* ascistream::nextWord()
 
 ascistream::EntryType ascistream::type() const
 {
-    if ( !streamptr || stream().fail() || stream().eof() )
+    if ( !streamptr || !stream().good() )
 	return EndOfFile;
-    if ( !keyword[0] )
+    if ( keybuf == "" )
 	return Empty;
-    if ( keyword[0] == mParagraphMarker[0] )
+    if ( *(const char*)keybuf == *mParagraphMarker )
 	return ParagraphMark;
-    if ( !valstr[0] )
+    if ( valbuf == "" )
 	return Keyword;
 
     return KeyVal;
@@ -238,35 +237,35 @@ ascistream::EntryType ascistream::type() const
 
 bool ascistream::hasKeyword( const char* keyw ) const
 {
-    if ( !keyw ) return keyword[0] ? NO : YES;
+    if ( !keyw ) return keybuf == "";
     skipLeadingBlanks(keyw);
-    return !strcmp( keyword, keyw );
+    return keybuf == keyw;
 }
 
 
 bool ascistream::hasValue( const char* val ) const
 {
-    if ( !val ) return valstr[0] ? NO : YES;
+    if ( !val ) return valbuf == "";
     skipLeadingBlanks(val);
-    return !strcmp( valstr, val );
+    return valbuf == val;
 }
 
 
 bool ascistream::getYN() const
 {
-    return yesNoFromString( valstr );
+    return yesNoFromString( valbuf );
 }
 
 
 int ascistream::getVal() const
 {
-    return atoi( valstr );
+    return atoi( valbuf );
 }
 
 
 double ascistream::getValue( const MeasureUnit* mu ) const
 {
-    double res = atof( valstr );
+    double res = atof( valbuf );
     if ( mu && !mIsUndefined(res) )
 	res = mu->toSI( res );
     return res;
