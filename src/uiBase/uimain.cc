@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.14 2002-05-23 13:30:43 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.15 2002-10-17 11:10:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
 	themain = this;
 
     qInstallMsgHandler( myMessageOutput );
+    QApplication::setColorSpec( QApplication::ManyColor );
 
     if(qap) 
 	app = qap;
