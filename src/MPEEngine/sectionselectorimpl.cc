@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.5 2005-04-01 14:58:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.6 2005-04-05 14:00:53 cvsnanne Exp $";
 
 #include "sectionselectorimpl.h"
 
@@ -72,31 +72,32 @@ SurfaceSourceSelector::SurfaceSourceSelector(
 
 void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 {
-    if ( !plane.isVertical() )
-	return;
-
     mDynamicCastGet( const Geometry::ParametricSurface*,surface,
 		     emobject.getElement(sectionid));
 
     TypeSet<GeomPosID> allnodes;
     surface->getPosIDs( allnodes );
 
-    Interval<int> inlrange(plane.boundingBox().hrg.start.inl,
-	    		   plane.boundingBox().hrg.stop.inl );
-    Interval<int> crlrange(plane.boundingBox().hrg.start.crl,
-	    		   plane.boundingBox().hrg.stop.crl );
+    Interval<int> inlrange( plane.boundingBox().hrg.start.inl,
+	    		    plane.boundingBox().hrg.stop.inl );
+    Interval<int> crlrange( plane.boundingBox().hrg.start.crl,
+	    		    plane.boundingBox().hrg.stop.crl );
+    Interval<float> zrange( plane.boundingBox().zrg.start,
+	    		    plane.boundingBox().zrg.stop );
 
-    inlrange.include( plane.boundingBox().hrg.start.inl+
-	    	      plane.motion().binid.inl);
-    crlrange.include( plane.boundingBox().hrg.start.crl+
-	    	      plane.motion().binid.crl);
+    inlrange.include( plane.boundingBox().hrg.start.inl-
+	    	      plane.motion().binid.inl );
+    crlrange.include( plane.boundingBox().hrg.start.crl-
+	    	      plane.motion().binid.crl );
+    zrange.include( plane.boundingBox().zrg.start-plane.motion().value );
 
     for ( int idx=0; idx<allnodes.size(); idx++ )
     {
 	const RowCol node(allnodes[idx]);
 	const Coord3 pos = surface->getKnot(node);
 	const BinID bid = SI().transform(pos);
-	if ( !inlrange.includes(bid.inl) || !crlrange.includes(bid.crl) )
+	if ( !inlrange.includes(bid.inl) || !crlrange.includes(bid.crl) ||
+	     !zrange.includes(pos.z) )
 	    continue;
 
 	if ( !surface->isAtEdge(node) )
