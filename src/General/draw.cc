@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.15 2002-02-14 10:54:40 nanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.16 2002-02-21 09:31:54 nanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -258,7 +258,7 @@ void ColorTable::initTabs()
 }
 
 
-void ColorTable::getNames( UserIDSet& names )
+void ColorTable::getNames( UserIDSet& names, bool usrct_only )
 {
     names.deepErase();
     names.setName( "Color table" );
@@ -266,6 +266,12 @@ void ColorTable::getNames( UserIDSet& names )
     PtrMan<IOPar> iopar = Settings::common().subselect( names.name() );
     if ( iopar && iopar->size() )
 	add( *iopar, &names, 0 );
+
+    if ( usrct_only )
+    {
+	names.setCurrent(0);
+	return;
+    }
 
     if ( !tabparsinited ) initTabs();
     for ( int idx=0; idx<tabpars.size(); idx++ )
@@ -364,6 +370,7 @@ void ColorTable::fillPar( IOPar& iopar ) const
 	fms += cvs[idx].color.r();
 	fms += cvs[idx].color.g();
 	fms += cvs[idx].color.b();
+	fms += cvs[idx].color.t();
 	BufferString str( ColorVal::sKey );
 	str += "."; str += idx;
 	iopar.set( str, fms );
