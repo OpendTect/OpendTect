@@ -4,9 +4,10 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.10 2002-03-21 10:27:39 bert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.11 2002-04-10 07:49:49 kristofer Exp $";
 
 #include "vissurvpickset.h"
+#include "visevent.h"
 #include "vissceneobjgroup.h"
 #include "vissurvscene.h"
 #include "position.h"
@@ -14,33 +15,43 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.10 2002-03-21 10:27:39
 #include "geompos.h"
 #include "color.h"
 
-visSurvey::PickSet::PickSet()
+visSurvey::PickSetDisplay::PickSetDisplay()
     : group( visBase::SceneObjectGroup::create(true) )
+    , eventcatcher( visBase::EventCatcher::create(visBase::MouseClick) )
     , inlsz( 5 )
     , crlsz( 5 )
     , tsz( 0.05 )
     , addedpoint( this )
     , removedpoint( this )
+    , selected( false )
 {
+    eventcatcher->ref();
+    addChild( eventcatcher->getData() );
+
+    eventcatcher->eventhappened.notify( mCB(this,visSurvey::PickSetDisplay,pickCB ));
+
     group->ref();
     addChild( group->getData() );
 }
 
 
-visSurvey::PickSet::~PickSet()
+visSurvey::PickSetDisplay::~PickSetDisplay()
 {
+    eventcatcher->eventhappened.remove( mCB(this,visSurvey::PickSetDisplay,pickCB ));
+    removeChild( eventcatcher->getData() );
+    eventcatcher->unRef();
     removeChild( group->getData() );
     group->unRef();
 }
 
 
-int visSurvey::PickSet::nrPicks() const
+int visSurvey::PickSetDisplay::nrPicks() const
 {
     return group->size();
 }
 
 
-Geometry::Pos visSurvey::PickSet::getPick( int idx ) const
+Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
 {
 
     mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
@@ -55,7 +66,7 @@ Geometry::Pos visSurvey::PickSet::getPick( int idx ) const
 }
 
 
-void visSurvey::PickSet::addPick( const Geometry::Pos& pos )
+void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
 {
     visBase::Cube* cube = visBase::Cube::create();
     cube->setCenterPos( pos );
@@ -66,7 +77,7 @@ void visSurvey::PickSet::addPick( const Geometry::Pos& pos )
 }
 
 
-void visSurvey::PickSet::setSize( float inl, float crl, float t )
+void visSurvey::PickSetDisplay::setSize( float inl, float crl, float t )
 {
     inlsz = inl; crlsz = crl; tsz = t;
 
@@ -82,7 +93,7 @@ void visSurvey::PickSet::setSize( float inl, float crl, float t )
 }
 
 
-void visSurvey::PickSet::removePick( const Geometry::Pos& pos )
+void visSurvey::PickSetDisplay::removePick( const Geometry::Pos& pos )
 {
     for ( int idx=0; idx<group->size(); idx++ )
     {
@@ -96,11 +107,84 @@ void visSurvey::PickSet::removePick( const Geometry::Pos& pos )
 	    return;
 	}
     }
-
 }
 
 
-void visSurvey::PickSet::removeAll()
+void visSurvey::PickSetDisplay::removeAll()
 {
     group->removeAll();
 }
+
+
+void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
+{
+    if ( !selected ) return;
+
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
+
+    if ( eventinfo.type != visBase::MouseClick ) return;
+    if ( eventinfo.mousebutton ) return;
+
+    if ( eventinfo.pressed )
+    {
+	mousepressid = -1;
+	mousepressposition.x = mUndefValue;
+	mousepressposition.y = mUndefValue;
+	mousepressposition.z = mUndefValue;
+
+	if ( eventinfo.ctrl )
+	{
+	    mousepressid = eventinfo.pickedobjid;
+	    if ( mousepressid!=-1 )
+	    {
+		if ( group->getFirstIdx( mousepressid ) == -1 )
+		    mousepressid = -1;
+	    }
+
+	    eventcatcher->eventIsHandled();
+	}
+	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
+	{
+	    if ( eventinfo.pickedobjid>0 )
+	    {
+		mousepressposition = eventinfo.pickedpos;
+	    }
+	    
+	    eventcatcher->eventIsHandled();
+	}
+    }
+    else 
+    {
+	if ( eventinfo.ctrl )
+	{
+	    if ( mousepressid==eventinfo.pickedobjid )
+	    if ( mousepressid!=-1 )
+	    {
+		int removeidx = group->getFirstIdx(mousepressid);
+		if ( removeidx != -1 )
+		{
+		    group->removeObject( removeidx );
+		}
+	    }
+
+	    eventcatcher->eventIsHandled();
+	}
+	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
+	{
+	    if ( eventinfo.pickedobjid==mousepressid )
+	    {
+		Geometry::Pos newpos = eventinfo.pickedpos;
+
+		if ( mIS_ZERO( newpos.x-mousepressposition.x ) &&
+		     mIS_ZERO( newpos.y-mousepressposition.y ) &&
+		     mIS_ZERO( newpos.z-mousepressposition.z ) )
+		{
+		    addPick( newpos );
+		}
+	    }
+
+	    eventcatcher->eventIsHandled();
+	}
+    }
+}
+	    

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.9 2002-04-10 07:46:29 kristofer Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.10 2002-04-10 07:49:39 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -49,8 +49,8 @@ public:
 
     void			setSize( float inl, float crl, float t );
 
-    Notifier<PickSet>		addedpoint;
-    Notifier<PickSet>		removedpoint;
+    Notifier<PickSetDisplay>	addedpoint;
+    Notifier<PickSetDisplay>	removedpoint;
 
 protected:
     virtual	~PickSetDisplay();
