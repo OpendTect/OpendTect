@@ -13,10 +13,10 @@ static const char* rcsID = "$Id";
 #include "conn.h"
 #include "iostrm.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "filegen.h"
 #include "ptrman.h"
-#include <fstream>
+#include "strmprov.h"
+#include <iostream.h>
 #include <math.h>
 
 #include "prog.h"
@@ -50,8 +50,8 @@ int main( int argc, char** argv )
 	{ cerr << tri->errMsg() << endl;  return 1; }
 
     fname = argv[2];
-    ofstream outstrm( argv[2] );
-    if ( !outstrm )
+    StreamData outsd = StreamProvider( argv[2] ).makeOStream();
+    if ( !outsd.usable() )
         { cerr << "Cannot open output file" << endl;  return 1; }
 
     if ( argc > 3 )
@@ -91,9 +91,9 @@ int main( int argc, char** argv )
 	{
 	    for ( int icomp=0; icomp<nrcomps; icomp++ )
 	    {
-		outstrm << coord.x << ' ' << coord.y << ' '
-		        << trc.samplePos(isamp,icomp) << ' '
-			<< trc.get(isamp,icomp) << '\n';
+		*outsd.ostrm << coord.x << ' ' << coord.y << ' '
+			     << trc.samplePos(isamp,icomp) << ' '
+			     << trc.get(isamp,icomp) << '\n';
 		nrlwr++;
 	    }
 	}

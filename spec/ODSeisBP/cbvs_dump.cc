@@ -13,12 +13,12 @@ static const char* rcsID = "$Id";
 #include "conn.h"
 #include "iostrm.h"
 #include "separstr.h"
-#include "strmprov.h"
 #include "filegen.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "iopar.h"
-#include <fstream>
+#include "strmprov.h"
+#include <iostream.h>
 #include <math.h>
 
 #include "batchprog.h"
