@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.23 2003-01-28 08:18:26 kristofer Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.24 2003-01-28 08:27:19 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,7 +214,7 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 	const int inlsz = (*sliceset)[0]->info().getSize(0);
 	const int crlsz = (*sliceset)[0]->info().getSize(1);
 	const int zsz = sliceset->size();
-	Array3DImpl<float> datacube( inlsz, crlsz, zsz );
+	Array3DImpl<float> datacube( zsz, inlsz, crlsz );
 
 	for ( int zidx=0; zidx<zsz; zidx++ )
 	{
@@ -223,7 +223,7 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 		for ( int crl=0; crl<crlsz; crl++ )
 		{
 		    const float val = (*sliceset)[zidx]->get( inl, crl );
-		    datacube.set( inl, crl, zidx, val );
+		    datacube.set( zidx, inl, crl, val );
 		}
 	    }
 	}
@@ -235,7 +235,7 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 	const int inlsz = (*sliceset)[0]->info().getSize(0);
 	const int crlsz = sliceset->size();
 	const int zsz = (*sliceset)[0]->info().getSize(1);
-	Array3DImpl<float> datacube( inlsz, crlsz, zsz );
+	Array3DImpl<float> datacube( zsz, inlsz, crlsz );
 
 	for ( int zidx=0; zidx<zsz; zidx++ )
 	{
@@ -244,7 +244,7 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 		for ( int crl=0; crl<crlsz; crl++ )
 		{
 		    const float val = (*sliceset)[crl]->get( inl, zidx );
-		    datacube.set( inl, crl, zidx, val );
+		    datacube.set( zidx, inl, crl, val );
 		}
 	    }
 	}
@@ -257,15 +257,17 @@ bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
 	const int crlsz = (*sliceset)[0]->info().getSize(0);
 	const int zsz = (*sliceset)[0]->info().getSize(1);
 
-	Array3DImpl<float> datacube( inlsz, crlsz, zsz );
-	float* targetptr = datacube.getData();
-
-	const int slicesize = (*sliceset)[0]->info().getTotalSz();
-	for ( int idx=0; idx<inlsz; idx++ )
+	Array3DImpl<float> datacube( zsz, inlsz, crlsz );
+	for ( int zidx=0; zidx<zsz; zidx++ )
 	{
-	    memcpy( targetptr, (*sliceset)[idx]->getData(),
-		    slicesize*sizeof(float));
-	    targetptr += slicesize;
+	    for ( int inl=0; inl<inlsz; inl++ )
+	    {
+		for ( int crl=0; crl<crlsz; crl++ )
+		{
+		    const float val = (*sliceset)[inl]->get( crl, zidx );
+		    datacube.set( zidx, inl, crl, val );
+		}
+	    }
 	}
 
 	cube->setData( &datacube );
