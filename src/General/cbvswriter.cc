@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.25 2002-07-24 17:08:12 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.26 2002-07-25 21:48:44 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -59,6 +59,8 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSWriter& cw, const CBVSInfo& ci )
 
 void CBVSWriter::init( const CBVSInfo& i )
 {
+    nrbytespersample_ = 0;
+
     if ( !strm_.good() )
 	{ errmsg_ = "Cannot open file for write"; return; }
     if ( !survgeom.fullyrectandreg && !auxinfo )
@@ -88,6 +90,7 @@ CBVSWriter::~CBVSWriter()
     close();
     if ( &strm_ != &cout ) delete &strm_;
     deepErase(dbufs);
+    delete [] nrbytespersample_;
 }
 
 
@@ -151,6 +154,7 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
     strm_.write( (const char*)&nrcomps_, integersize );
 
     cnrbytes_ = new int [nrcomps_];
+    nrbytespersample_ = new int [nrcomps_];
     bytesperwrite = auxnrbytes;
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
@@ -173,7 +177,8 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	strm_.write( (const char*)&a, sizeof(float) );
 	strm_.write( (const char*)&b, sizeof(float) );
 
-	cnrbytes_[icomp] = cinf.nrsamples * cinf.datachar.nrBytes();
+	nrbytespersample_[icomp] = cinf.datachar.nrBytes();
+	cnrbytes_[icomp] = cinf.nrsamples * nrbytespersample_[icomp];
 	bytesperwrite += cnrbytes_[icomp];
     }
 }
@@ -260,7 +265,7 @@ void CBVSWriter::getBinID()
 }
 
 
-int CBVSWriter::put( void** cdat )
+int CBVSWriter::put( void** cdat, int offs )
 {
     getBinID();
     if ( prevbinid_.inl != curbinid_.inl )
@@ -288,7 +293,8 @@ int CBVSWriter::put( void** cdat )
     unsigned char* ptr = buf->data() + auxnrbytes;
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
-	memcpy( ptr, cdat[icomp], cnrbytes_[icomp] );
+	memcpy( ptr, ((char*)cdat[icomp]) + offs * nrbytespersample_[icomp],
+		cnrbytes_[icomp] );
 	ptr += cnrbytes_[icomp];
     }
 
@@ -313,10 +319,12 @@ bool CBVSWriter::writeAuxInfo()
     if ( !auxinfo ) return true;
 
     DataBuffer* buf = 0;
-    unsigned char* ptr;
     buf = new DataBuffer( bytesperwrite, 1 );
     dbufs += buf;
-    ptr = buf->data();
+
+    if ( buf && auxnrbytes )
+    {
+	unsigned char* ptr = buf->data();
 
 #define mDoWrAI(memb)  \
     if ( auxinfosel.memb ) \
@@ -330,14 +338,15 @@ bool CBVSWriter::writeAuxInfo()
 	} \
     }
 
-    mDoWrAI(startpos)
-    mDoWrAI(coord)
-    mDoWrAI(offset)
-    mDoWrAI(pick)
-    mDoWrAI(refpos)
-    mDoWrAI(azimuth)
+	mDoWrAI(startpos)
+	mDoWrAI(coord)
+	mDoWrAI(offset)
+	mDoWrAI(pick)
+	mDoWrAI(refpos)
+	mDoWrAI(azimuth)
+    }
 
-    return buf || strm_.good();
+    return buf && strm_.good();
 }
 
 

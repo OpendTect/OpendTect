@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.22 2002-07-24 17:08:12 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.23 2002-07-25 21:48:44 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -462,9 +462,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     BufferString fnm; if ( !getFileName(fnm) ) return false;
 
     CBVSInfo info;
-    info.auxinfosel.startpos = info.auxinfosel.coord = 
-    info.auxinfosel.offset = info.auxinfosel.azimuth =
-    info.auxinfosel.pick = info.auxinfosel.refpos = !minimalhdrs;
+    info.auxinfosel.setAll( !minimalhdrs );
     info.geom.fullyrectandreg = false;
     info.geom.b2c = SI().binID2Coord();
     info.stdtext = pinfo.stdinfo;

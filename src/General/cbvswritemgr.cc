@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.10 2002-07-24 17:08:12 bert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.11 2002-07-25 21:48:44 bert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -41,30 +41,84 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 }
 
 
+CBVSIOMgr::~CBVSIOMgr()
+{
+    deepErase( fnames_ );
+}
+
+
 CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
-			    const PosAuxInfo* e )
+			    const PosAuxInfo* pai, int nspb )
 	: CBVSIOMgr(fnm)
-	, writer_(0)
 	, info_(i)
 {
-    ostream* strm = mkStrm();
-    if ( !strm ) return;
+    const BasicComponentInfo& cinf0 = *info_.compinfo[0];
+    const int totsamps = cinf0.nrsamples;
+    if ( totsamps < 1 ) return;
 
-    writer_ = new CBVSWriter( strm, info_, e );
-    writer_->setByteThreshold( 1900000000 );
+    if ( nspb < 0 || nspb >= totsamps )
+    {
+	ostream* strm = mkStrm();
+	if ( !strm ) return;
+	CBVSWriter* wr = new CBVSWriter( strm, info_, pai );
+	wr->setByteThreshold( 1900000000 );
+	writers_ += wr;
+	endsamps_ += totsamps-1;
+	return;
+    }
+
+    int nrwrs = totsamps / nspb;
+    int extrasamps = totsamps % nspb;
+    if ( extrasamps ) nrwrs++;
+    nspb = totsamps / nrwrs;
+    extrasamps = totsamps - nrwrs * nspb;
+
+    CBVSInfo inf( info_ );
+    for ( int endsamp = -1, startsamp=0;
+	    startsamp<totsamps;
+	    startsamp=endsamp+1 )
+    {
+	endsamp = startsamp + nspb - 1;
+	if ( extrasamps )
+	    { endsamp++; extrasamps--; }
+	if ( endsamp >= totsamps ) endsamp = totsamps-1;
+
+	for ( int idx=0; idx<inf.compinfo.size(); idx++ )
+	{
+	    inf.compinfo[idx]->sd.start = cinf0.sd.start
+					+ startsamp * cinf0.sd.step;
+	    inf.compinfo[idx]->nrsamples = endsamp - startsamp + 1;
+	}
+
+	ostream* strm = mkStrm();
+	if ( !strm )
+	    { cleanup(); return; }
+	CBVSWriter* wr = new CBVSWriter( strm, inf, pai );
+	writers_ += wr;
+
+	if ( writers_.size() == 1 )
+	    inf.auxinfosel.setAll( false );
+
+	endsamps_ += endsamp;
+    }
 }
 
 
 ostream* CBVSWriteMgr::mkStrm()
 {
-    fname_ = getFileName( curnr_ );
-    StreamData sd = StreamProvider(fname_).makeOStream();
+    BufferString* fname = new BufferString( getFileName(curnr_) );
+    curnr_++;
+    StreamData sd = StreamProvider((const char*)*fname).makeOStream();
 
-    if ( !sd.usable() )
+    if ( sd.usable() )
+	fnames_ += fname;
+    else
     {
-	errmsg_ = "Cannot open '"; errmsg_ += fname_; errmsg_ += "' for write";
+	errmsg_ = "Cannot open '"; errmsg_ += *fname; errmsg_ += "' for write";
 	sd.close();
+	delete fname;
     }
+
     return sd.ostrm;
 }
 
@@ -72,66 +126,96 @@ ostream* CBVSWriteMgr::mkStrm()
 CBVSWriteMgr::~CBVSWriteMgr()
 {
     close();
-    delete writer_;
+    cleanup();
+}
+
+
+void CBVSWriteMgr::cleanup()
+{
+    deepErase( writers_ );
 }
 
 
 void CBVSWriteMgr::close()
 {
-    if ( writer_ ) writer_->close();
+    for ( int idx=0; idx<writers_.size(); idx++ )
+	writers_[idx]->close();
 }
 
 
 const char* CBVSWriteMgr::errMsg_() const
 {
-    return writer_ ? writer_->errMsg() : 0;
+    for ( int idx=0; idx<writers_.size(); idx++ )
+    {
+	const char* s = writers_[idx]->errMsg();
+	if ( s && *s ) return s;
+    }
+    return 0;
 }
 
 
 int CBVSWriteMgr::nrComponents() const
 {
-    return writer_ ? writer_->nrComponents() : 0;
+    return writers_.size() ? writers_[0]->nrComponents() : 0;
 }
 
 
 const BinID& CBVSWriteMgr::binID() const
 {
     static BinID binid00(0,0);
-    return writer_ ? writer_->binID() : binid00;
+    return writers_.size() ? writers_[0]->binID() : binid00;
 }
 
 
 unsigned long CBVSWriteMgr::bytesPerFile() const
 {
-    return writer_ ? writer_->byteThreshold() : 0;
+    return writers_.size() ? writers_[0]->byteThreshold() : 0;
 }
 
 
 void CBVSWriteMgr::setBytesPerFile( unsigned long b )
 {
-    if ( writer_ ) writer_->setByteThreshold( b );
+    if ( writers_.size() == 1 )
+	writers_[0]->setByteThreshold( b );
 }
 
 
 bool CBVSWriteMgr::put( void** data )
 {
-    if ( !writer_ ) return false;
+    if ( !writers_.size() ) return false;
 
-    int ret = writer_->put( data );
-    if ( ret == 1 )
+    int ret = 0;
+    if ( writers_.size() > 1 )
     {
-	curnr_++;
-	ostream* strm = mkStrm();
-	if ( !strm ) return false;
+	for ( int idx=0; idx<writers_.size(); idx++ )
+	{
+	    ret = writers_[idx]->put( data, idx ? endsamps_[idx-1]+1 : 0 );
+	    if ( ret < 0 )
+		break;
+	}
+	if ( ret > 0 ) ret = 0;
+    }
+    else
+    {
+	CBVSWriter* writer = writers_[0];
+	ret = writer->put( data );
+	if ( ret == 1 )
+	{
+	    ostream* strm = mkStrm();
+	    if ( !strm ) return false;
 
-	if ( info_.geom.fullyrectandreg )
-	    info_.geom.start.inl = writer_->survGeom().stop.inl
-				 + info_.geom.step.inl;
-	CBVSWriter* oldwriter = writer_;
-	writer_ = new CBVSWriter( strm, *oldwriter, info_ );
-	delete oldwriter;
+	    if ( info_.geom.fullyrectandreg )
+		info_.geom.start.inl = writer->survGeom().stop.inl
+				     + info_.geom.step.inl;
 
-	ret = writer_->put( data );
+	    CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );
+	    writers_ += newwriter;
+	    writers_ -= writer;
+	    delete writer;
+	    writer = newwriter;
+
+	    ret = writer->put( data );
+	}
     }
 
     return ret == -1 ? false : true;

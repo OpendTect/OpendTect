@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.5 2002-07-24 17:08:12 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.6 2002-07-25 21:48:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,9 +66,9 @@ class CBVSIOMgr
 public:
 
 			CBVSIOMgr( const char* basefname )
-			: basefname_(basefname)
-			, curnr_(0)		{}
-    virtual		~CBVSIOMgr()		{}
+			: curnr_(0)
+			, basefname_(basefname)	{}
+    virtual		~CBVSIOMgr();
 
     inline bool		failed() const		{ return errMsg(); }
     inline const char*	errMsg() const
@@ -89,6 +89,7 @@ protected:
 
     BufferString	basefname_;
     BufferString	errmsg_;
+    ObjectSet<BufferString> fnames_;
     int			curnr_;
 
     virtual const char*	errMsg_() const		= 0;

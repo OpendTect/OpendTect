@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jul 2002
  Contents:	PAuxiliary info on position
- RCS:		$Id: posauxinfo.h,v 1.1 2002-07-24 17:08:12 bert Exp $
+ RCS:		$Id: posauxinfo.h,v 1.2 2002-07-25 21:48:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,17 +26,22 @@ class PosAuxInfo
 {
 public:
 
-		PosAuxInfo()
-		: binid(0,0), startpos(0), coord(0,0)
-		, offset(0), pick(mUndefValue), refpos(mUndefValue)	{}
+		PosAuxInfo()		{ clear(); }
 
-	BinID	binid;
-	Coord	coord;
-	float	startpos;
-	float	offset;
-	float	azimuth;
-	float	pick;
-	float	refpos;
+    void	clear()
+		{
+		    binid.inl = binid.crl = 0; coord.x = coord.y = 0;
+		    startpos = offset = azimuth = 0;
+		    pick = refpos = mUndefValue;
+		}
+
+    BinID	binid;
+    Coord	coord;
+    float	startpos;
+    float	offset;
+    float	azimuth;
+    float	pick;
+    float	refpos;
 
 };
 
@@ -51,6 +56,9 @@ public:
 		: startpos(false), coord(false)
 		, offset(false), azimuth(false)
 		, pick(false), refpos(false)	{}
+
+		void setAll( bool yn )
+		{ startpos = coord = offset = azimuth = pick = refpos = yn; }
 
     bool	startpos;
     bool	coord;

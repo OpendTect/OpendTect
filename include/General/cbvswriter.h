@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.14 2002-07-24 17:08:12 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.15 2002-07-25 21:48:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     void		setByteThreshold( unsigned long n )
 						{ thrbytes_ = n; }		
 
-    int			put(void**);
+    int			put(void**,int offs=0);
 			//!< Expects a buffer for each component
 			//!< returns -1 = error, 0 = OK,
 			//!< 1=not written (threshold reached)
@@ -68,6 +68,7 @@ protected:
     int			bytesperwrite;
     int			auxnrbytes;
     bool		rectnreg;
+    int*		nrbytespersample_;
 
     void		writeHdr(const CBVSInfo&);
     void		putAuxInfoSel(unsigned char*) const;

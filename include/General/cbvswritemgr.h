@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswritemgr.h,v 1.5 2002-07-24 17:08:12 bert Exp $
+ RCS:		$Id: cbvswritemgr.h,v 1.6 2002-07-25 21:48:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,15 +27,18 @@ class CBVSWriteMgr : public CBVSIOMgr
 public:
 
 			CBVSWriteMgr(const char* basefname,const CBVSInfo&,
-					const PosAuxInfo* =0);
-			//!< See CBVSWriter for last two parameters
+					const PosAuxInfo* =0,
+					int nrsamplesperbrick=-1);
+			//!< See CBVSWriter for parameters 2 and 3
 			~CBVSWriteMgr();
 
     unsigned long	bytesPerFile() const;
 			//!< After this amount of bytes, a new file will
 			//!< be created for the next inline.
 			//!< The default is 1.8 GB, 0 = unlimited
+    			//!< Only active without vertical bricking
     void		setBytesPerFile(unsigned long);
+    			//!< Only works without vertical bricking
 
     bool		put(void**);
 			//!< See CBVSWriter::put, only now succeeds or fails
@@ -47,13 +50,14 @@ public:
 
 protected:
 
-    CBVSWriter*		writer_;
+    ObjectSet<CBVSWriter> writers_;
+    TypeSet<int>	endsamps_;
     CBVSInfo		info_;
-    BufferString	fname_;
 
     const char*		errMsg_() const;
 
     ostream*		mkStrm();
+    void		cleanup();
 
 };
 
