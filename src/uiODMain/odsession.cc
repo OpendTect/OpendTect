@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.1 2003-12-20 13:24:05 bert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.2 2003-12-20 21:50:32 bert Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -18,16 +18,6 @@ const char* ODSession::sceneprefix = "Scene";
 const char* ODSession::attrprefix = "Attribs";
 const char* ODSession::nlaprefix = "NLA";
 const char* ODSession::pluginprefix = "Plugins";
-
-
-ODSession::ODSession()
-{
-}
-
-
-ODSession::~ODSession()
-{
-}
 
 
 bool ODSession::operator==( const ODSession& sess ) const
