@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.11 2002-12-12 17:00:09 bert Exp $
+ RCS:           $Id: uimsg.cc,v 1.12 2003-01-09 16:23:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,10 +76,10 @@ uiStatusBar* uiMsg::statusBar()
     uiMainWin* mw = uimainwin_ ? uimainwin_ 
 			       : uiMainWin::gtUiWinIfIsBdy( parent_ );
 
-    if( !mw || !mw->statusBar() )
+    if ( !mw || !mw->statusBar() )
 	mw = uiMainWin::activeWindow();
 
-    if( !mw || !mw->statusBar() )
+    if ( !mw || !mw->statusBar() )
 	mw = uiMain::theMain().topLevel();
 
     return mw ? mw->statusBar() : 0;
@@ -88,13 +88,13 @@ uiStatusBar* uiMsg::statusBar()
 
 QWidget* uiMsg::popParnt()
 {
-    if( parent_ )	return parent_;
-    if( uimainwin_ )	return uimainwin_->body()->qwidget();
+    if ( parent_ )	return parent_;
 
     uiMainWin* mw = uiMainWin::activeWindow();
-    if( !mw  ) mw = uiMain::theMain().topLevel();
+    if ( !mw ) mw = uimainwin_;
+    if ( !mw ) mw = uiMain::theMain().topLevel();
 
-    if( !mw  )		return 0;
+    if ( !mw  )		return 0;
     return mw->body()->qwidget();
 }
 
