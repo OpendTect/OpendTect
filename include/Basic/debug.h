@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.9 2004-12-15 16:45:45 bert Exp $
+ RCS:		$Id: debug.h,v 1.10 2005-01-05 15:27:27 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ namespace DBG
 {
     bool 		isOn( int flag=0xffff );
 
-    void		message( const char* ); // default: to stdout
+    void		message( const char* ); // default: to stderr
     void		message( int flag, const char* msg );
 			   // { if ( isOn(flag) ) message(msg); }
     void		putProgInfo(int,char**); //!< one line; more if isOn()
