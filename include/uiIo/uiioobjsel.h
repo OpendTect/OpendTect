@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.18 2001-12-06 11:27:29 arend Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.19 2001-12-06 14:14:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class CtxtIOObj;
 class IODirEntryList;
 class uiLabeledListBox;
 class uiGenInput;
+class Translator;
 
 
 /*! \brief dialog returning an IOObj* after successful go(). */
@@ -72,7 +73,7 @@ protected:
     void		rightClk(CallBacker*);
 
     virtual bool	createEntry(const char*);
-    bool		rmEntry();
+    bool		rmEntry(Translator*,bool);
 };
 
 
