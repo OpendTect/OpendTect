@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.25 2002-12-03 13:18:18 kristofer Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.26 2002-12-19 10:49:55 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.25 2002-12-03 13:18:18 krist
 #include "strmprov.h"
 #include "survinfo.h"
 #include "datachar.h"
+#include "cubesampling.h"
 #include "errh.h"
 #include <fstream>
 
@@ -233,13 +234,17 @@ bool CBVSReadMgr::addReader( istream* strm, const CubeSampling* cs )
 
 int CBVSReadMgr::pruneReaders( const CubeSampling& cs )
 {
+    if ( cs.isEmpty() )
+	return readers_.size();
+
     for ( int idx=0; idx<readers_.size(); idx++ )
     {
 	CBVSReader* rdr = readers_[idx];
 	const CBVSInfo& localinfo = rdr->info();
 	if ( localinfo.contributesTo(cs) ) continue;
 
-	if ( !localinfo.geom.includesInline(-1) && !localinfo.geom.includesInline(-2) )
+	if ( !localinfo.geom.includesInline(-1)
+	  && !localinfo.geom.includesInline(-2) )
 	{
 	    BufferString* fname = fnames_[idx];
 	    readers_ -= rdr; fnames_ -= fname;
