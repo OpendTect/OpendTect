@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.2 2005-01-07 12:18:29 kristofer Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.3 2005-01-10 12:14:06 kristofer Exp $";
 
 #include "emeditor.h"
 
@@ -129,7 +129,10 @@ Geometry::ElementEditor* ObjectEditor::getEditor( const EM::SectionID& sid )
 	    return geeditors[idx];
     }
 
-    return 0;
+    Geometry::ElementEditor* geeditor = createEditor( sid );
+    if ( geeditor ) geeditors += geeditor;
+
+    return geeditor;
 }
 
 
@@ -143,7 +146,7 @@ const Geometry::ElementEditor* ObjectEditor::getEditor(
 const char* EditorFactory::emObjectType() const { return type; }
 
 
-ObjectEditor* EditorFactory::create( EM::EMObject* emobj ) const
+ObjectEditor* EditorFactory::create( EM::EMObject& emobj ) const
 { return createfunc( emobj ); }
 
 

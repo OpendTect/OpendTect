@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.2 2005-01-07 12:18:25 kristofer Exp $
+ RCS:           $Id: emeditor.h,v 1.3 2005-01-10 12:13:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,14 +55,17 @@ protected:
 
     Geometry::ElementEditor*		getEditor( const EM::SectionID& );
     const Geometry::ElementEditor*	getEditor( const EM::SectionID& ) const;
+    virtual Geometry::ElementEditor*	createEditor( const EM::SectionID& )=0;
 
-    ObjectSet<Geometry::ElementEditor>	geeditors;
     EM::EMObject&			emobject;
     TypeSet<EM::PosID>			changedpids;
+
+private:
+    ObjectSet<Geometry::ElementEditor>	geeditors;
 };
 
 
-typedef ObjectEditor*(*EMEditorCreationFunc)(EM::EMObject*);
+typedef ObjectEditor*(*EMEditorCreationFunc)(EM::EMObject&);
 
 
 class EditorFactory
@@ -71,7 +74,7 @@ public:
 			EditorFactory( const char* emtype,
 				       EMEditorCreationFunc );
     const char*		emObjectType() const;
-    ObjectEditor*	create( EM::EMObject* emobj = 0 ) const;
+    ObjectEditor*	create( EM::EMObject& ) const;
 
 protected:
     EMEditorCreationFunc	createfunc;
