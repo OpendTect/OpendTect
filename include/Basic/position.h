@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.36 2005-02-16 11:51:05 cvskris Exp $
+ RCS:		$Id: position.h,v 1.37 2005-02-23 10:07:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ public:
     inline double	dot( const Coord3& b ) const;
     inline Coord3	cross( const Coord3& ) const;
     double		abs() const;
+    double		sqAbs() const;
     inline Coord3	normalize() const;
 
     void	fill(char* str) const { fill( str, "(", " ", ")"); }
