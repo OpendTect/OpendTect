@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.2 2003-10-02 10:02:45 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.3 2003-10-02 14:26:41 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -139,11 +139,21 @@ void SoMeshSurfaceSquare::setTextureCoord( int row, int col,
 void SoMeshSurfaceSquare::setPos( int row, int col, const SbVec3f& np,
        				 const SbVec2s& rowinfo, const SbVec2s& colinfo)
 {
-    if ( bboxcache && !SoMeshSurface::isUndefined(np) )
-	bboxcache->extendBy(np);
-
     const int index = getCoordIndex( row, col );
     if ( index==-1 ) return;
+
+    if ( bboxcache )
+    {
+	if ( SoMeshSurface::isUndefined(np) )
+	{
+	    delete bboxcache;
+	    bboxcache = 0;
+	}
+	else
+	{
+	    bboxcache->extendBy(np);
+	}
+    }
 
     coordptr->point.set1Value(index,np);
 
@@ -323,7 +333,8 @@ void SoMeshSurfaceSquare::touch( int row, int col )
     const int relrow = row-startrow;
     const int relcol = col-startcol;
 
-    for ( int idx=sizepower.getValue()-1; idx<=0; idx-- )
+    const int nrres = sizepower.getValue();
+    for ( int idx=0; idx<nrres; idx++ )
     {
 	SoMeshSurfaceBrick* brick = getBrick(idx);
 	const int spacing = brick->spacing.getValue();
