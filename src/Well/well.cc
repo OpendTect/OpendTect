@@ -4,22 +4,25 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.3 2003-08-16 13:14:44 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.4 2003-08-18 16:37:23 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
+#include "wellmarker.h"
 #include "finding.h"
 
-const char* Well::Info::sKeyuwid;
-const char* Well::Info::sKeyoper;
-const char* Well::Info::sKeystate;
-const char* Well::Info::sKeycounty;
-const char* Well::Info::sKeycoord;
-const char* Well::Info::sKeyelev;
+const char* Well::Info::sKeyuwid	= "Unique Well ID";
+const char* Well::Info::sKeyoper	= "Operator";
+const char* Well::Info::sKeystate	= "State";
+const char* Well::Info::sKeycounty	= "County";
+const char* Well::Info::sKeycoord	= "Surface coordinate";
+const char* Well::Info::sKeyelev	= "Surface elevation";
 const char* Well::D2TModel::sKeyTimeWell = "=Time";
+const char* Well::D2TModel::sKeyDataSrc	= "Data source";
+const char* Well::Marker::sKeyDah	= "Depth along hole";
 
 
 Well::Data::Data( const char* nm )

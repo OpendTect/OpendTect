@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.3 2002-03-28 16:52:52 bert Exp $
+ RCS:		$Id: keystrs.h,v 1.4 2003-08-18 16:37:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,24 +34,27 @@ to this namespace.
 namespace sKey
 {
 
-    extern const char*	Yes		mImpl("Yes");
-    extern const char*	No		mImpl("No");
-    extern const char*	Type		mImpl("Type");
-    extern const char*	Undef		mImpl("Undefined");
+    extern const char*	Color		mImpl("Color");
+    extern const char*	Depth		mImpl("Depth");
+    extern const char*	Desc		mImpl("Description");
     extern const char*	Factor		mImpl("Factor");
-    extern const char*	Name		mImpl("Name");
-    extern const char*	Title		mImpl("Title");
-    extern const char*	Value		mImpl("Value");
     extern const char*	FileName	mImpl("File name");
     extern const char*	IOSelection	mImpl("I/O Selection");
+    extern const char*	Name		mImpl("Name");
+    extern const char*	No		mImpl("No");
     extern const char*	Pars		mImpl("Parameters");
+    extern const char*	Type		mImpl("Type");
+    extern const char*	Title		mImpl("Title");
+    extern const char*	Undef		mImpl("Undefined");
+    extern const char*	Value		mImpl("Value");
+    extern const char*	Yes		mImpl("Yes");
 
-    extern const char*	Minimum		mImpl("Minimum");
-    extern const char*	Maximum		mImpl("Maximum");
     extern const char*	Average		mImpl("Average");
+    extern const char*	Maximum		mImpl("Maximum");
     extern const char*	Median		mImpl("Median");
-    extern const char*	Sum		mImpl("Sum");
+    extern const char*	Minimum		mImpl("Minimum");
     extern const char*	StdDev		mImpl("StdDev");
+    extern const char*	Sum		mImpl("Sum");
 
 };
 

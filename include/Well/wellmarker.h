@@ -1,5 +1,5 @@
-#ifndef wellfmtop_h
-#define wellfmtop_h
+#ifndef wellmarker_h
+#define wellmarker_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.1 2003-08-15 11:12:15 bert Exp $
+ RCS:		$Id: wellmarker.h,v 1.2 2003-08-18 16:37:23 bert Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ public:
     bool		istop;
     Color		color;
 
+    static const char*	sKeyDah;
 };
 
 

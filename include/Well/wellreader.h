@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.2 2003-08-16 13:14:44 bert Exp $
+ RCS:		$Id: wellreader.h,v 1.3 2003-08-18 16:37:23 bert Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ protected:
     const char*		rdHdr(istream&,const char*) const;
     bool		getOldTimeWell(istream&) const;
     Log*		rdLogHdr(istream&,int) const;
+    bool		getTrack(istream&) const;
 
 };
 
