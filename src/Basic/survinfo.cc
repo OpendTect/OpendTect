@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.11 2001-09-02 21:48:13 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.12 2001-09-18 14:49:19 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -274,6 +274,14 @@ BinID SurveyInfo::transform( const Coord& c ) const
     }
 
     return binid;
+}
+
+
+bool SurveyInfo::isReasonable( const BinID& b ) const
+{
+    BinID w( range_.stop.inl - range_.start.inl,
+             range_.stop.crl - range_.start.crl );
+    return b.inl > range_.start.inl - w.inl && b.crl < range_.stop.crl + w.crl;
 }
 
 

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.8 2001-06-07 21:24:01 windev Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.9 2001-09-18 14:49:19 bert Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: pickset.cc,v 1.8 2001-06-07 21:24:01 windev Exp
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "survinfo.h"
 
 
 bool PickLocation::fromString( const char* s )
@@ -35,6 +36,16 @@ bool PickLocation::fromString( const char* s )
     pos.x = x;
     pos.y = atof( str );
     z = atof( endptr );
+
+    // Check if data is in inl/crl rather than X and Y
+    if ( !SI().isReasonable(pos) )
+    {
+	BinID bid( mNINT(pos.x), mNINT(pos.y) );
+	SI().snap( bid, BinID(0,0) );
+	Coord newpos = SI().transform( bid );
+	if ( SI().isReasonable(newpos) )
+	    pos = newpos;
+    }
     return true;
 }
 
@@ -135,6 +146,16 @@ const char* dgbPickSetTranslator::read( PickSet& ps, Conn& conn,
     if ( !astrm.isOfFileType(PickSetTranslator::classdef.name()) )
 	return "Input file is not a Pick Set";
     if ( atEndOfSection(astrm) ) astrm.next();
+
+    float zfac = 1;
+    if ( astrm.hasKeyword("Z Factor") )
+    {
+	zfac = atof( astrm.keyWord() );
+	astrm.next();
+	if ( atEndOfSection(astrm) ) astrm.next();
+    }
+    if ( mIS_ZERO(zfac) ) zfac = 1;
+
     if ( atEndOfSection(astrm) )
 	return "Input file contains no pick groups";
 
@@ -149,6 +170,7 @@ const char* dgbPickSetTranslator::read( PickSet& ps, Conn& conn,
 	{
 	    if ( !loc.fromString( astrm.keyWord() ) )
 		break;
+	    loc.z *= zfac;
 	    if ( newpg ) *newpg += loc;
 	}
 	while ( !atEndOfSection(astrm) ) astrm.next();
