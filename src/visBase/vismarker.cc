@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.2 2002-07-29 07:30:10 nanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.3 2002-08-01 13:20:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vismarker.h"
 #include "visshapescale.h"
+#include "viscube.h"
 #include "geompos.h"
 #include "iopar.h"
 
@@ -48,6 +49,9 @@ visBase::Marker::Marker()
     group->addChild( rot );
     group->addChild( shapescale->getData() );
     setType( markertype );
+
+//  Creation only used for being able to read old session files with Cubes
+    visBase::Cube* cube = visBase::Cube::create();
 }
 
 
@@ -136,7 +140,6 @@ int visBase::Marker::usePar( const IOPar& iopar )
         return -1;
     setCenterPos( pos );
 
-    shapescale->usePar( iopar );
     return 1;
 }
 
@@ -147,7 +150,5 @@ void visBase::Marker::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
 
     Geometry::Pos pos = centerPos();
     iopar.set( centerposstr, pos.x, pos.y, pos.z );
-
-    shapescale->fillPar( iopar, saveids );
 }
 
