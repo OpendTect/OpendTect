@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.44 2004-10-21 12:35:26 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.45 2004-11-12 11:37:24 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -531,7 +531,8 @@ void CBVSReadMgr::getPositions( TypeSet<BinID>& posns ) const
 	    for ( int iseg=0; iseg<inlinf.segments.size(); iseg++ )
 	    {
 		const StepInterval<int>& seg = inlinf.segments[iseg];
-		for ( bid.crl=seg.start; bid.crl<=seg.stop; bid.crl+=seg.step )
+		int afterlast = seg.stop + seg.step;
+		for ( bid.crl=seg.start; bid.crl!=afterlast; bid.crl+=seg.step )
 		    posns += bid;
 	    }
 	}

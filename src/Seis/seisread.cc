@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.48 2004-11-10 10:44:00 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.49 2004-11-12 11:37:24 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -31,9 +31,10 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
     	, outer(mUndefPtr(BinIDRange))
     	, fetcher(0)
     	, tbuf(0)
-    	, onlyforinfo(false)
 {
     init();
+    if ( ioobj )
+	entryis2d = SeisTrcTranslator::is2D( *ioob, false );
 }
 
 #define mDelOuter if ( outer != mUndefPtr(BinIDRange) ) delete outer
@@ -48,7 +49,7 @@ SeisTrcReader::~SeisTrcReader()
 
 void SeisTrcReader::init()
 {
-    foundvalidinl = foundvalidcrl =
+    foundvalidinl = foundvalidcrl = entryis2d = onlyforinfo =
     new_packet = inforead = needskip = prepared = forcefloats = false;
     prev_inl = mUndefIntVal;
     if ( tbuf ) tbuf->deepErase();
@@ -123,7 +124,8 @@ void SeisTrcReader::startWork()
 
 bool SeisTrcReader::isMultiConn() const
 {
-    return !is2d && ioobj && ioobj->hasConnType(StreamConn::sType)
+    return !is2d && !entryis2d
+	&& ioobj && ioobj->hasConnType(StreamConn::sType)
 	&& ((IOStream*)ioobj)->multiConn();
 }
 
@@ -222,10 +224,22 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     {
 	foundvalidcrl = false;
 	prev_inl = ti.binid.inl;
-	ti.new_packet = true;
+	if ( !entryis2d )
+	    ti.new_packet = true;
     }
 
-    const int selres = seldata ? seldata->selRes(ti.binid) : 0;
+    int selres = 0;
+    if ( seldata )
+    {
+	if ( !entryis2d )
+	    selres = seldata->selRes(ti.binid);
+	else
+	{
+	    BinID bid( seldata->inlrg_.start, ti.nr );
+	    selres = seldata->selRes( bid );
+	}
+    }
+
     if ( selres / 256 == 0 )
 	foundvalidcrl = true;
     if ( selres % 256 == 0 )
@@ -233,7 +247,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 
     if ( selres )
     {
-	if ( trl->inlCrlSorted() )
+	if ( !entryis2d && trl->inlCrlSorted() )
 	{
 	    int outerres = outer ? outer->excludes(ti.binid) : 0;
 	    if ( foundvalidinl && outerres % 256 == 2 )

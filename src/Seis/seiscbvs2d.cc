@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.23 2004-11-11 22:11:02 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.24 2004-11-12 11:37:24 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -303,7 +303,6 @@ SeisCBVS2DLinePutter( const char* fnm, const IOPar& iop )
 	, preseldt(DataCharacteristics::Auto)
 {
     tr->setSingleFile( true );
-    tr->enforceRegularWrite( false );
     tr->setCoordPol( true, true );
     bid.inl = CBVSIOMgr::getFileNr( fnm );
     const char* fmt = iop.find( "Data storage" );

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.54 2004-10-21 12:35:26 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.55 2004-11-12 11:37:24 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -317,15 +317,14 @@ bool SeisTrcTranslator::writeBlock()
 {
     int sz = trcblock_.size();
     SeisTrc* firsttrc = sz ? trcblock_.get(0) : 0;
-    const int firstcrl = sz ? firsttrc->info().binid.crl : -1;
-    bool upwrd = sz < 2 || firstcrl < trcblock_.get(sz-1)->info().binid.crl;
-
     if ( firsttrc )
 	lastinlwritten = firsttrc->info().binid.inl;
 
     if ( sz && enforce_regular_write )
     {
-	trcblock_.sort( upwrd );
+	trcblock_.sort( true );
+	firsttrc = trcblock_.get( 0 );
+	const int firstcrl = firsttrc->info().binid.crl;
 	int nrperpos = 1;
 	for ( int idx=1; idx<sz; idx++ )
 	{
@@ -342,18 +341,15 @@ bool SeisTrcTranslator::writeBlock()
 
     StepInterval<int> inlrg, crlrg;
     SI().sampling(true).hrg.get( inlrg, crlrg );
-    const int firstafter = upwrd ? crlrg.stop + crlrg.step
-				 : crlrg.start + crlrg.step;
-    int stp = upwrd ? crlrg.step : -crlrg.step;
+    const int firstafter = crlrg.stop + crlrg.step;
+    int stp = crlrg.step;
     int bufidx = 0;
     SeisTrc* trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
-    BinID binid( lastinlwritten, upwrd ? crlrg.start : crlrg.stop );
+    BinID binid( lastinlwritten, crlrg.start );
     SeisTrc* filltrc = 0;
     for ( binid.crl; binid.crl != firstafter; binid.crl += stp )
     {
-	while ( trc
-	     && ( (upwrd && trc->info().binid.crl < binid.crl)
-	       || (!upwrd && trc->info().binid.crl > binid.crl) ) )
+	while ( trc && trc->info().binid.crl < binid.crl )
 	{
 	    bufidx++;
 	    trc = bufidx < sz ? trcblock_.get(bufidx) : 0;

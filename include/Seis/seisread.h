@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.19 2004-10-21 12:35:26 bert Exp $
+ RCS:		$Id: seisread.h,v 1.20 2004-11-12 11:37:24 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,7 @@ protected:
     SeisTrcBuf*		tbuf;
     Executor*		fetcher;
     bool		onlyforinfo;
+    bool		entryis2d;
 
     void		init();
     Conn*		openFirst();
