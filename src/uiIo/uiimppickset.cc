@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.3 2003-01-16 11:26:25 bert Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.4 2003-07-24 11:56:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,14 +30,17 @@ uiImportPickSet::uiImportPickSet( uiParent* p )
 	, ctio(*new CtxtIOObj(PickSetGroupTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Ascii file");
-    BufferString dirnm( GetDataDir() );
-    dirnm = File_getFullPath( dirnm, "Locations" );
-    infld->setDefaultSelectionDir( dirnm );
+    infld->setDefaultSelectionDir( 
+	    IOObjContext::getDataDirName(IOObjContext::Loc) );
+
+    xyfld = new uiGenInput( this, "Positions in:",
+			    BoolInpSpec("X/Y","Inl/Crl") );
+    xyfld->attach( alignedBelow, infld );
 
     ctio.ctxt.forread = false;
     ctio.ctxt.maychdir = false;
     outfld = new uiIOObjSel( this, ctio, "Output PickSet" );
-    outfld->attach( alignedBelow, infld );
+    outfld->attach( alignedBelow, xyfld );
 }
 
 
@@ -63,28 +66,43 @@ bool uiImportPickSet::handleAscii()
     const char* psnm = outfld->getInput();
     PickSet* ps = new PickSet( psnm );
     ps->color = Color::DgbColor;
- 
-    float x, y, z;
+
+    bool doxy = xyfld->getBoolValue();
+    bool firstpos = true;
+    bool doscale = false;
+    Coord3 pos;
     while ( true )
     {
-	*sdi.istrm >> x >> y >> z;
+	*sdi.istrm >> pos.x >> pos.y >> pos.z;
 	if ( !(*sdi.istrm) ) break;
 
-	BinID bid( SI().transform(Coord(x,y)) );
-	if ( !SI().isReasonable(bid) )
-	{
-	    // It may be a BinID
-	    bid.inl = mNINT(x); bid.crl = mNINT(y);
-	    if ( SI().isReasonable(bid) )
-	    {
-		Coord c = SI().transform( bid );
-		x = c.x; y = c.y;
-	    }
-	}
+        if ( firstpos )
+        {
+            doscale = pos.z > 2 * SI().zRange(false).stop &&
+                      SI().zRange(false).includes( pos.z * .001 );
 
-	if ( z > 2 * SI().zRange(false).stop )
-	    z *= 0.001;
-	*ps += PickLocation( x, y, z );
+            BinID bid = doxy ? SI().transform(Coord(pos.x,pos.y))
+                             : BinID( mNINT(pos.x), mNINT(pos.y) );
+            bool reasonable = SI().isReasonable(bid);
+
+            BufferString msg( "First position in file is not valid.\n"
+                              "Do you wish to continue?" );
+            if ( !reasonable && !uiMSG().askGoOn( msg ) )
+                return false;
+
+            firstpos = false;
+        }
+
+        if ( !doxy )
+        {
+            BinID bid( mNINT(pos.x), mNINT(pos.y) );
+            Coord crd  = SI().transform( bid );
+            pos.x = crd.x; pos.y = crd.y;
+        }
+
+	if ( doscale )
+	    pos.z *= 0.001;
+	*ps += PickLocation( pos );
     }
 
     sdi.close();
