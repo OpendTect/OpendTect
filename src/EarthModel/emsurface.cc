@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.35 2003-12-17 15:46:20 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.36 2003-12-17 16:07:43 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -1299,6 +1299,31 @@ bool EM::SurfaceRelation::usePar(const IOPar& par)
 }
 
 
+
+BufferString EM::SurfaceRelation::getPositiveText() const
+{
+    BufferString res = " on the ";
+    if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Fault )
+	res += "positive side";
+    else if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Hor )
+	res += "bottom";
+
+    return res;
+}
+
+
+BufferString EM::SurfaceRelation::getNegativeText() const
+{
+    BufferString res = " on the ";
+    if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Fault )
+	res += "negative side";
+    else if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Hor )
+	res += "top";
+
+    return res;
+}
+
+
 BufferString EM::SurfaceRelation::getUserString() const
 {
     mDynamicCastGet(EM::Surface*,ownsurf,EM::EMM().getObject(cuttedsurface));
@@ -1306,18 +1331,7 @@ BufferString EM::SurfaceRelation::getUserString() const
     BufferString res = EM::EMM().name( cuttingsurface );
     res += " terminates Patch ";
     res += ownsurf->patchName(cuttedpatch);
-    res += " on the ";
-
-    if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Fault )
-    {
-	res += positiveside ? "positive" : "negative";
-	res += " side";
-    }
-    else if ( EM::EMM().type(cuttingsurface)==EM::EMManager::Hor )
-    {
-	res += positiveside ? "bottom" : "top";
-    }
-
+    res += positiveside ? getPositiveText() : getNegativeText();
     return res;
 }
 

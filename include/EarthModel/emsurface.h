@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.29 2003-12-17 15:45:54 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.30 2003-12-17 16:07:38 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -316,6 +316,8 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     BufferString	getUserString() const;
+    BufferString	getPositiveText() const;
+    BufferString	getNegativeText() const;
 
 protected:
     static const char*	cuttedsurfacestr;
