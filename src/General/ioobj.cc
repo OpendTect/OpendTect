@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.9 2001-10-12 10:41:49 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.10 2002-08-02 12:48:17 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.9 2001-10-12 10:41:49 bert Exp $";
 #include "ascstream.h"
 #include "separstr.h"
 #include "filegen.h"
+#include "ptrman.h"
 #include <stdlib.h>
 
 DefineAbstractClassDef(IOObj,"IO Object");
@@ -278,4 +279,11 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
     MultiID k1( ky1 ); MultiID k2( ky2 );
     mkStd( k1 ); mkStd( k2 );
     return k1 == k2;
+}
+
+
+bool fullImplRemove( const IOObj& ioobj )
+{
+    PtrMan<Translator> tr = ioobj.getTranslator();
+    return tr ? tr->implRemove( &ioobj ) : ioobj.implRemove();
 }

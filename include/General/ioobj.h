@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.9 2001-10-12 10:43:06 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.10 2002-08-02 12:48:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,6 +127,7 @@ private:
 
 bool equalIOObj(const MultiID&,const MultiID&);
 bool areEqual(const IOObj*,const IOObj*);
+bool fullImplRemove(const IOObj&);
 
 
 #endif

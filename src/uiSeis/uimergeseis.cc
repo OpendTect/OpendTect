@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.7 2002-06-20 15:59:45 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.8 2002-08-02 12:48:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,7 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 	for ( int idx=0; idx<inpsz; idx++ )
 	{
 	    IOObj* ioobj = selobjs[idx];
-	    if ( !ioobj->implRemove() ) 
+	    if ( !fullImplRemove(*ioobj) ) 
 	    {
 		BufferString msg( "Could not remove\n" );
 		msg += ioobj->fullUserExpr(YES);

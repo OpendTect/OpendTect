@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seiswrite.cc,v 1.10 2002-04-15 13:34:19 bert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.11 2002-08-02 12:48:17 bert Exp $";
 
 #include "seiswrite.h"
 #include "seistrctr.h"
@@ -118,12 +118,13 @@ bool SeisTrcWriter::openConn()
 
 bool SeisTrcWriter::initWrite( const SeisTrc& trc )
 {
+    delete conn; conn = 0;
     if ( !trl )
     {
-	delete conn; conn = 0;
 	if ( errmsg == "" ) errmsg = "Error initialising data store";
 	return false;
     }
+    fullImplRemove( *ioobj );
 
     if ( !handleConn(trc,false) ) return false;
     if ( !conn && !openConn() )
@@ -166,7 +167,7 @@ bool SeisTrcWriter::handleConn( const SeisTrc& trc, bool tonext )
     if ( !neednewpacket ) return true;
 
     if ( conn && nrwrconn == 0 )
-	(void)iostrm->implRemove(); // What if it fails? Can't stop.
+	(void)fullImplRemove(*iostrm); // What if it fails? Can't stop.
     delete conn; conn = 0;
     nrwrconn = 0;
     if ( tonext && !iostrm->toNextConnNr() ) return false;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.9 2002-06-28 12:57:29 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.10 2002-08-02 12:48:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,9 +164,7 @@ void uiSeisFileMan::removePush( CallBacker* )
 	}
 	if ( !uiMSG().askGoOn(msg) ) return;
 
-	PtrMan<Translator> tr = ioobj->getTranslator();
-	bool rmd = tr ? tr->implRemove(ioobj) : ioobj->implRemove();
-	if ( !rmd )
+	if ( !fullImplRemove(*ioobj) )
 	{
 	    msg = "Could not remove '";
 	    msg += ioobj->fullUserExpr(YES); msg += "'";
