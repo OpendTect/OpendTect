@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.28 2003-11-26 09:53:05 bert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.29 2004-01-15 15:31:00 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -89,11 +89,10 @@ static const char* getFnName( const char* libnm, const char* fnbeg,
 static bool loadPlugin( const char* lnm, int argc, char** argv,
 			int inittype )
 {
-    if ( inittype == PI_AUTO_INIT_NONE )
+    if ( !lnm || !*lnm  || inittype == PI_AUTO_INIT_NONE )
 	return false;
 
     const BufferString libnm( lnm );
-
     if( DBG::isOn(DBG_SETTINGS) )
     {
 	BufferString msg( "Attempting to load plugin " );

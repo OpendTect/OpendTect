@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.20 2004-01-15 15:03:46 bert Exp $
+ RCS:           $Id: uimain.cc,v 1.21 2004-01-15 15:31:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,6 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
     else
 	themain = this;
 
-    qInstallMsgHandler( myMessageOutput );
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setDesktopSettingsAware( FALSE );
 
@@ -70,6 +69,8 @@ void uiMain::init(QApplication* qap, int argc, char **argv )
 
     if ( DBG::isOn() && !qap )
 	DBG::message( "... done." );
+
+    qInstallMsgHandler( myMessageOutput );
 
     app->setStyle( new QCDEStyle() );
 
