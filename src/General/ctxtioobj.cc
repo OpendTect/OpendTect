@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.8 2001-10-15 16:02:11 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.9 2002-05-17 10:05:31 nanne Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -18,7 +18,7 @@ DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 	"Gridded data",
 	"Wavelets",
 	"Feature Sets",
-	"Log data",
+	"Well Info",
 	"Neural Networks",
 	"Miscellaneous data",
 	"Attribute definitions",
@@ -33,7 +33,7 @@ static const IOObjContext::StdDirData stddirdata[] = {
 	{ "100020", "Grids", IOObjContext::StdSelTypeNames[1] },
 	{ "100030", "Wavelets", IOObjContext::StdSelTypeNames[2] },
 	{ "100040", "Features", IOObjContext::StdSelTypeNames[3] },
-	{ "100050", "Logs", IOObjContext::StdSelTypeNames[4] },
+	{ "100050", "WellInfo", IOObjContext::StdSelTypeNames[4] },
 	{ "100060", "NNs", IOObjContext::StdSelTypeNames[5] },
 	{ "100070", "Misc", IOObjContext::StdSelTypeNames[6] },
 	{ "100080", "Attribs", IOObjContext::StdSelTypeNames[7] },
