@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.21 2002-04-16 13:32:47 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.22 2002-04-17 10:24:53 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,6 +246,19 @@ float uiVisPartServer::getPlanePos(int id) const
     return	sd->getType()==visSurvey::SeisDisplay::Inline ? geompos.x :
 		sd->getType()==visSurvey::SeisDisplay::Crossline ? geompos.y:
 		geompos.z;
+}
+
+
+bool uiVisPartServer::isPlaneManipulated( int id ) const
+{
+    visBase::DataObject* obj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::SeisDisplay*,sd,obj);
+    if ( !sd ) return false;
+
+    Geometry::Pos manippos = sd->textureRect().getRectangle().manipOrigo();
+    Geometry::Pos rectpos = sd->textureRect().getRectangle().origo();
+    if ( manippos!=rectpos ) return true;
+    return false;
 }
 
 
