@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.10 2004-07-29 16:52:30 bert Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.11 2005-01-18 07:25:15 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,10 @@ SoNode* BoxDragger::getInventorNode()
 
 void BoxDragger::startCB( void* obj, SoDragger* )
 {
-    ( (BoxDragger*)obj )->started.trigger();
+    BoxDragger* thisp = (BoxDragger*)obj;
+    thisp->prevcenter = thisp->center();
+    thisp->prevwidth = thisp->width();
+    thisp->started.trigger();
 }
 
 
@@ -159,33 +162,46 @@ void BoxDragger::motionCB( void* obj, SoDragger* )
     ( (BoxDragger*)obj )->motion.trigger();
 }
 
+#define mCheckDim(dim)\
+if ( thisp->dim##interval )\
+{\
+    if ( !thisp->dim##interval->includes(center.dim-width.dim/2) || \
+	 !thisp->dim##interval->includes(center.dim+width.dim/2))\
+    {\
+	if ( constantwidth ) center.dim = thisp->prevcenter.dim; \
+	else \
+	{ \
+	    width.dim = thisp->prevwidth.dim; \
+	    center.dim = thisp->prevcenter.dim; \
+	} \
+	change = true; \
+    }\
+}
 
 void BoxDragger::valueChangedCB( void* obj, SoDragger* )
 {
     BoxDragger* thisp = (BoxDragger*)obj;
-    const Coord3 center = thisp->center();
-    const Coord3 width = thisp->width();
 
-    bool reverse = false;
-    if ( thisp->xinterval
-	    && (!thisp->xinterval->includes( center.x-width.x/2 ) ||
-		!thisp->xinterval->includes( center.x+width.x/2 )) )
-	reverse = true;
-    else if ( thisp->yinterval
-	    && (!thisp->yinterval->includes( center.y-width.y/2 ) ||
-		!thisp->yinterval->includes( center.y+width.y/2 )) )
-	reverse = true;
-    else if ( thisp->zinterval
-	    && (!thisp->zinterval->includes( center.z-width.z/2 ) ||
-		!thisp->zinterval->includes( center.z+width.z/2 )) )
-	reverse = true;
+    Coord3 center = thisp->center();
+    Coord3 width = thisp->width();
 
-    if ( reverse && thisp->prevwidth.isDefined() &&
-	    	    thisp->prevcenter.isDefined() )
-    {
-	thisp->setCenter( thisp->prevcenter );
-	thisp->setWidth( thisp->prevwidth );
+    const bool constantwidth =
+	mIsEqualRel(width.x,thisp->prevwidth.x,1e-6) &&
+	mIsEqualRel(width.y,thisp->prevwidth.y,1e-6) &&
+	mIsEqualRel(width.z,thisp->prevwidth.z,1e-6);
+
+    if  ( constantwidth && center==thisp->prevcenter )
 	return;
+
+    bool change = false;
+    mCheckDim(x);
+    mCheckDim(y);
+    mCheckDim(z);
+
+    if ( change )
+    {
+	thisp->setCenter( center );
+	thisp->setWidth(  width );
     }
 
     thisp->prevcenter = center;
