@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.46 2004-04-13 12:11:40 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.47 2004-05-17 06:17:13 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -110,6 +110,7 @@ EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     , loadedstep( SI().getStep(true,false), SI().getStep(false,false) )
     , rowinterval(0)
     , colinterval(0)
+    , patchchnotifier( this )
     , shift(0)
 {
     auxdatanames.allowNull(true);
@@ -674,6 +675,7 @@ bool EM::Surface::addPatch( const char* nm, PatchID patchid, bool addtohistory )
 	manager.history().addEvent( history, 0, 0 );
     }
 
+    patchchnotifier.trigger(patchid,this);
     return true;
 }
 
@@ -706,6 +708,8 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
 							patchid, name );
 	manager.history().addEvent( history, 0, 0 );
     }
+
+    patchchnotifier.trigger(patchid,this);
 }
 
 
@@ -951,12 +955,13 @@ EM::PosID EM::Surface::getNeighbor( const EM::PosID& posid,
 {
     RowCol diff;
     if ( dir.row>0 ) diff.row = step_.row;
-    if ( dir.row<0 ) diff.row = step_.row;
+    if ( dir.row<0 ) diff.row = -step_.row;
     if ( dir.col>0 ) diff.col = step_.col;
-    if ( dir.col<0 ) diff.col = step_.col;
+    if ( dir.col<0 ) diff.col = -step_.col;
     
     TypeSet<EM::PosID> aliases;
     getLinkedPos( posid, aliases );
+    aliases += posid;
 
     const int nraliases = aliases.size();
     for ( int idx=0; idx<nraliases; idx++ )
