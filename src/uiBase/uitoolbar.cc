@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.23 2004-11-09 10:26:18 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.24 2004-11-11 16:12:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -262,3 +262,4 @@ mGetFunc(isVerticallyStretchable,bool)
 mSetFunc(setResizeEnabled,bool)
 mGetFunc(isResizeEnabled,bool)
 
+mGetFunc(isShown,bool)

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.17 2004-11-09 10:25:59 nanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.18 2004-11-11 16:12:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,7 @@ public:
 
     void		dock();
     void		undock();
+    bool		isShown() const;
     void		setNewLine(bool yn=true);
 
 protected:
