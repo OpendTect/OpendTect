@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.17 2004-10-21 14:53:24 dgb Exp $
+ RCS:           $Id: hostdata.cc,v 1.18 2004-10-25 10:39:04 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ HostDataList::HostDataList()
     if ( getenv("DTECT_BATCH_HOSTS_FILENAME") )
 	bhfnm = getenv("DTECT_BATCH_HOSTS_FILENAME");
 
-    BufferString fname( SearchConfigFile(bhfnm) );
+    BufferString fname( SearchODFile(bhfnm) );
 
     if ( getenv("DTECT_BATCH_HOSTS_FILEPATH") )
 	fname = getenv("DTECT_BATCH_HOSTS_FILEPATH");
