@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.h,v 1.2 2004-01-22 15:19:06 dgb Exp $
+ RCS:           $Id: uicrdevenv.h,v 1.3 2004-01-23 09:39:41 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ protected:
 
     uiGenInput*		workdirfld;
     uiFileInput*	basedirfld;
-    uiGenInput*		cyginstfld;
 
     bool		acceptOK(CallBacker*);
 };

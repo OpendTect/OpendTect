@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.6 2004-01-22 16:25:59 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.7 2004-01-23 09:39:41 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,6 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 		    		     "8.0.1"))
 	, workdirfld(0)
 	, basedirfld(0)
-	, cyginstfld(0)
 {
     const char* titltxt =
     "For OpendTect development you'll need a $WORK dir\n"
@@ -89,12 +88,6 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
     workdirfld = new uiGenInput( this, "Directory name", workdirnm );
     workdirfld->attach( alignedBelow, basedirfld );
 
-#ifdef __win__
-    cyginstfld = new uiGenInput( this, "Start Cygwin Installer",
-			     BoolInpSpec( "Yes", "No", !(cygwin && *cygwin) ) );
-
-    cyginstfld->attach( alignedBelow, workdirfld );
-#endif
 }
 
 
@@ -123,10 +116,45 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     BufferString oldworkdir(getenv("WORK"));
     const bool oldok = isOK( oldworkdir );
+
+
+
     const char* cygwin = 0;
 
 #ifdef __win__
+
     cygwin = getCygDir();
+
+    if( !cygwin )
+    {
+	BufferString msg;
+	msg = "You do not seem to have cygwin installed.\n";
+	msg += "Do you want to start the cygwin installer now to install it?";
+
+	if ( uiMSG().askGoOn(msg) )
+	{
+	    BufferString cmd( "@" );
+	    cmd += getenv ("COMSPEC");
+	    cmd += " /c start \"Install Cygwin\" /D\"";
+
+	    BufferString path = GetSoftwareDir();
+	    path = File_getFullPath( path, "bin" );
+	    path = File_getFullPath( path, "win" );
+	    cmd += path;
+	    cmd +=  "\" /MIN instcyg.bat";
+
+	    StreamProvider( cmd ).executeCommand( true );
+
+	    const char* restart =
+		"Please restart 'Create Dev env' after you finished "
+                "installing cygwin";
+
+	    uiMSG().message(restart);
+
+	    return;
+	}
+    }
+
 #endif
 
     BufferString workdirnm;
@@ -148,8 +176,6 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	}
     }
 
-    bool installcyg = false;
-    
     if ( workdirnm == "" )
     {
 	BufferString worksubdirm = "ODWork";
@@ -158,10 +184,14 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	if ( cygwin )
 	{
-	    basedirnm = File_getFullPath(cygwin, "home") ;
-	    basedirnm = File_getFullPath( basedirnm, getenv("USER"));
+	    basedirnm = File_getFullPath( cygwin, "home" );
 
-	    if ( !File_isDirectory( basedirnm ) )
+	    if ( getenv("USERNAME") )
+		basedirnm = File_getFullPath( basedirnm, getenv("USERNAME") );
+	    else if ( getenv("USER") )
+		basedirnm = File_getFullPath( basedirnm, getenv("USER") );
+
+	    if ( !File_isDirectory(basedirnm) )
 		basedirnm = GetPersonalDir();
 	}
 
@@ -171,8 +201,6 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	basedirnm = dlg.basedirfld->text();
 	worksubdirm = dlg.workdirfld->text();
-
-	installcyg = dlg.cyginstfld ? dlg.cyginstfld->getBoolValue() : false;
 
 	if ( !File_isDirectory(basedirnm) )
 	    mErrRet( "Invalid directory selected" )
@@ -221,8 +249,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	"Meanwhile, please take a look at the developers documentation."
     ;
 
-
     uiMSG().message(aboutto);
+
 
     BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
 
@@ -236,15 +264,13 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     HelpViewer::doHelp( getstarted, "Get started with OpendTect development" );
 
+
     BufferString cmd( "@'" );
     cmd += GetSoftwareDir();
     cmd = File_getFullPath( cmd, "bin" );
     cmd = File_getFullPath( cmd, "od_cr_dev_env" );
     cmd += "' '"; cmd += GetSoftwareDir();
     cmd += "' '"; cmd += workdirnm; cmd += "'";
-
-    if ( installcyg )
-	cmd += " --installcygwin";
 
     StreamProvider( cmd ).executeCommand( false );
 
