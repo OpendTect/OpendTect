@@ -58,13 +58,13 @@ int main( int argc, char** argv )
     bidsmpl->stop = BinID( atoi(fms[1]), atoi(fms[4]) );
     bidsmpl->step = BinID( atoi(fms[2]), atoi(fms[5]) );
     tri.setTrcSel( &tsel );
+    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
+	    = tri.componentInfo();
+    const int nrincomp = ci.size();
     if ( fms.size() > 6 )
     {
 	SamplingData<float> sd( atof(fms[6]), atof(fms[7]) );
 	int nrz = atoi( fms[8] );
-	ObjectSet<SeisTrcTranslator::TargetComponentData>& ci
-		= tri.componentInfo();
-	const int nrincomp = ci.size();
 	for ( int idx=0; idx<nrincomp; idx++ )
 	{
 	    ci[idx]->sd = sd;
@@ -76,8 +76,14 @@ int main( int argc, char** argv )
     int nrwr = 0;
     while ( tri.read(trc) )
     {
-	if ( !nrwr && !tro.initWrite( outconn, trc ) )
-	    { cerr << "Cannot start write!" << endl;  return 1; }
+	if ( !nrwr )
+	{
+	    tro.packetInfo() = tri.packetInfo();
+	    if ( !tro.initWrite( outconn, trc ) )
+		{ cerr << "Cannot start write!" << endl;  return 1; }
+	    for ( int idx=0; idx<nrincomp; idx++ )
+		tro.componentInfo()[idx]->setName( ci[idx]->name() );
+	}
 
 	if ( !tro.write(trc) )
 	    { cerr << "Cannot write!" << endl;  return 1; }
