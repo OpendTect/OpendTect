@@ -4,10 +4,12 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.7 2002-08-28 12:09:18 bert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.8 2002-09-06 07:49:00 kristofer Exp $";
 
 #include "thread.h"
 #include "callback.h"
+
+#include "settings.h"		// Only for getNrProcessors
 
 Threads::Mutex::Mutex()
 {
@@ -127,4 +129,11 @@ void Threads::Thread::threadExit()
 #ifdef __pthread__
     pthread_exit( 0 );
 #endif
+}
+
+int Threads::getNrProcessors()
+{
+    int res = 2;
+    Settings::common().get("Nr Processors", res );
+    return res;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.10 2002-08-28 12:09:18 bert Exp $
+ RCS:		$Id: thread.h,v 1.11 2002-09-06 07:49:22 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -194,6 +194,8 @@ private:
     
     virtual			~Thread()	{}
 };
+
+int getNrProcessors();
 
 
 #define mThreadDeclaredMutexedVar(T,var) \
