@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.18 2002-04-21 15:06:56 bert Exp $
+ RCS:		$Id: sets.h,v 1.19 2002-04-25 21:18:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include <Vector.h>
 #endif
 
-/*!\brief Set of objects
+/*!\brief Set of (small) copyable elements
 
 The TypeSet is meant for simple types or small objects that have a copy
 constructor. The `-=' function will only remove the first occurrence that
@@ -145,6 +145,18 @@ inline void copy( TypeSet<T>& to, const TypeSet<S>& from )
     if ( &to == &from ) return;
     to.erase();
     append( to, from );
+}
+
+
+//! Sort TypeSet. Must have operator > defined for elements
+template <class T>
+inline void sort( TypeSet<T>& ts )
+{
+    T tmp; const int sz = ts.size();
+    for ( int d=sz/2; d>0; d=d/2 )
+	for ( int i=d; i<sz; i++ )
+	    for ( int j=i-d; j>=0 && ts[j]>ts[j+d]; j-=d )
+		{ tmp = ts[j]; ts[j] = ts[j+d]; ts[j+d] = tmp; }
 }
 
 
@@ -291,6 +303,20 @@ inline T* find( ObjectSet<T>& os, const S& val )
     return idx == -1 ? 0 : os[idx];
 }
 
+
+//! Sort ObjectSet. Must have operator > defined for elements
+template <class T>
+inline void sort( ObjectSet<T>& os )
+{
+    T* tmp; const int sz = os.size();
+    for ( int d=sz/2; d>0; d=d/2 )
+	for ( int i=d; i<sz; i++ )
+	    for ( int j=i-d; j>=0 && *os[j]>*os[j+d]; j-=d )
+	    {
+		tmp = os.replace( os[j+d], j );
+		os.replace( tmp, j+d );
+	    }
+}
 
 
 #endif
