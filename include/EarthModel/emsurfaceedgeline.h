@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.4 2004-08-24 06:49:45 kristofer Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.5 2004-08-30 14:45:04 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -106,6 +106,17 @@ public:
     EM::SectionID	getSection() const { return section; }
 
     const TypeSet<RowCol>&	getNodes() const { return nodes; }
+    virtual void		commitChanges() {}
+    				/*!< During tracking, the line might want to
+				     move the surface slightly to get a perfect
+				     match between surfaces. These changes are
+				     stored since we don't want to change the
+				     surface if not neccessary. These changes
+				     will be applied to the surface when this
+				     function is called. This function is
+				     normally only called from
+				     EM::EdgeLine::insertSegments.
+				*/
 protected:
     virtual bool	internalIdenticalSettings(const EdgeLineSegment&) const;
     			/*!<\returns true if the segments are of the same

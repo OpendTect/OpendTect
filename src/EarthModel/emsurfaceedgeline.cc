@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.2 2004-08-25 18:06:13 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.3 2004-08-30 14:45:04 kristofer Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -1058,6 +1058,7 @@ void EdgeLine::insertSegments( ObjectSet<EM::EdgeLineSegment>& ns, int idx,
 
     for ( int idy=0; idy<ns.size(); idy++ )
     {
+	ns[idy]->commitChanges();
 	const int newidx = idx+idy;
 	if ( newidx>=segments.size() )
 	    segments += ns[idy];
