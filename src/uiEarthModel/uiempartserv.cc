@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.57 2005-01-06 09:54:17 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.58 2005-01-10 10:58:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,13 @@ BufferString uiEMPartServer::getName(const MultiID& mid) const
 {
     EM::EMManager& em = EM::EMM();
     return em.objectName(em.multiID2ObjectID(mid));
+}
+
+
+const char* uiEMPartServer::getType(const MultiID& mid) const
+{
+    EM::EMManager& em = EM::EMM();
+    return em.objectType(em.multiID2ObjectID(mid));
 }
 
 
