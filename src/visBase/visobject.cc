@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.31 2004-08-19 15:35:31 nanne Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.32 2004-11-03 09:53:42 kristofer Exp $";
 
 #include "visobject.h"
 
@@ -113,8 +113,8 @@ void visBase::VisualObjectImpl::removeChild( SoNode* nn )
 { root->removeChild( nn ); }
 
 
-bool visBase::VisualObjectImpl::isChild( const SoNode* nn ) const
-{ return root->findChild(nn)!=-1; }
+int visBase::VisualObjectImpl::childIndex( const SoNode* nn ) const
+{ return root->findChild(nn); }
 
 
 int visBase::VisualObjectImpl::usePar( const IOPar& iopar )

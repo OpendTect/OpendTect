@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.33 2004-09-14 12:17:53 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.34 2004-11-03 09:53:37 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -94,7 +94,7 @@ protected:
     void		addChild(SoNode*);
     void		insertChild(int pos,SoNode*);
     void		removeChild(SoNode*);
-    bool		isChild(const SoNode*) const;
+    int			childIndex(const SoNode*) const;
 
 
 			VisualObjectImpl(bool selectable=false);
