@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.14 2002-09-12 05:30:04 kristofer Exp $
+ RCS:		$Id: thread.h,v 1.15 2002-11-12 15:13:57 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -54,6 +54,13 @@ public:
 
     int			lock();
     int			unlock();
+
+    bool		tryLock();
+    			/*!< Returns true if mutex is locked.
+			     If it is locked, it you must unlock it when
+			     you are finished. If it returns false, 
+			     carry on with your life.
+			 */
 
 protected:
 

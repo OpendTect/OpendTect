@@ -4,10 +4,11 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.12 2002-09-27 12:28:40 dgb Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.13 2002-11-12 15:13:53 kristofer Exp $";
 
 #include "thread.h"
 #include "callback.h"
+#include "errno.h"
 
 #include "settings.h"		// Only for getNrProcessors
 
@@ -35,12 +36,22 @@ int Threads::Mutex::lock()
     return 0;
 }
 
+
 int Threads::Mutex::unlock()
 {
 #ifdef __pthread__
     return pthread_mutex_unlock( &mutex );
 #endif
     return 0;
+}
+
+
+bool Threads::Mutex::tryLock()
+{
+#ifdef __pthread__
+    return pthread_mutex_trylock( &mutex ) != EBUSY;
+#endif
+    return false;
 }
 
 
