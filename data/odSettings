@@ -1,51 +1,17 @@
-dGB-GDI V2.9
+dTect V1.0
 Default settings
-Mon Feb 19 15:23:27 2001
+Mon Oct 20 11:27:51 2003
 !
-Help viewer              :	netscapeview
 Printer                  :	lpr
-Font face                :	helvetica
-Bold font                :	Yes
-Dialog font size         :	120
-Graphics large font size :	120
-Graphics small font size :	100
-Query before remove      :	Yes
-Show modifiers           :	Yes
 Seg-Y headers            :	/tmp/sgy_dump.txt
-Hor field offset         :	6
-Vert field offset        :	4
 Company                  :	
-Display UnitID           :	Yes
-Display Table style      :	No
-Default display quantity :	Density
 In-line byte             :	5
 Cross-line byte          :	21
 X-coord byte             :	73
 Y-coord byte             :	77
-SU pick file             :	/tmp/picks.txt
-Use new viewers          :	Yes
 Font.def.Control         :	helvetica`12`Bold`No
 Font.def.Graphics small  :	helvetica`10`Bold`No
 Font.def.Graphics medium :	helvetica`12`Bold`No
 Font.def.Graphics large  :	helvetica`14`Bold`No
 Ui.ToolTips.enable       :	Yes
-SeisView.Display.WVA.Reverse polarity: No
-SeisView.Display.WVA.Reverse order: No
-SeisView.Display.WVA.Interpolate: Yes
-SeisView.Display.WVA.Show reftime: Yes
-SeisView.Display.WVA.Clipping: 10
-SeisView.Display.WVA.Reftime color: 0`200`0
-SeisView.Display.WVA.Overlap: 1
-SeisView.Display.WVA.Min Pix/Trace: 6
-SeisView.Display.WVA.Draw wiggles: Yes
-SeisView.Display.WVA.Var Area: Both
-SeisView.Display.WVA.Left color: 200`0`0
-SeisView.Display.WVA.Right color: 0`0`200
-SeisView.Display.VD.Reverse polarity: No
-SeisView.Display.VD.Reverse order: No
-SeisView.Display.VD.Interpolate: Yes
-SeisView.Display.VD.Show reftime: Yes
-SeisView.Display.VD.Clipping: 0
-SeisView.Display.VD.Reftime color: 0`0`0
-SeisView.Display.VD.Color table: Blue-Green-Magenta
 !

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.15 2003-05-14 14:44:46 bert Exp $
+ RCS:		$Id: ioman.h,v 1.16 2003-10-20 09:49:39 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,11 +90,11 @@ public:
     const char*		surveyName() const;
     static bool		newSurvey();
 			/*!< if an external source has changed
-				the $HOME/.dgbSurvey, force re-read it. */
+				the .od/survey, force re-read it. */
     static void		setSurvey(const char*);
 			/*!< will remove a possible existing IO manager and
 			     set the survey to 'name', thus bypassing the
-			     $HOME/.dgbSurvey file */
+			     .od/survey file */
 
     bool		setRootDir(const char*);
     bool		setFileName(MultiID,const char*);

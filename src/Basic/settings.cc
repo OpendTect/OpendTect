@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.20 2003-10-15 09:12:57 arend Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.21 2003-10-20 09:49:39 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -25,7 +25,8 @@ Settings::Settings( const char* setupf )
     if ( !setupf || !*setupf )
     {
 	fname = GetSettingsDir();
-	fname = File_getFullPath( fname, ".dgbSettings" );
+	fname = File_getFullPath( fname, ".od" );
+	fname = File_getFullPath( fname, "settings" );
 	const char* ptr = GetSoftwareUser();
 	if ( ptr )
 	{
@@ -34,10 +35,7 @@ Settings::Settings( const char* setupf )
 	}
     }
     if ( !reRead() )
-	ErrMsg( "Cannot find valid dgbSettings file" );
-
-    removeWithKey("Use new viewers");
-    removeWithKey("Use old viewers");
+	ErrMsg( "Cannot find valid .od/settings file" );
 }
 
 
@@ -58,7 +56,7 @@ bool Settings::reRead()
 	if ( !sd.usable() )
 	{
 	    sd.close();
-	    usedfname = GetDataFileName("dgbSettings");
+	    usedfname = GetDataFileName("odSettings");
 	    sd = StreamProvider( usedfname ).makeIStream();
 	}
     }

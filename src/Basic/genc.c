@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.19 2003-10-15 09:12:57 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.20 2003-10-20 09:49:39 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -204,12 +204,14 @@ const char* GetSurveyFileName()
 {
     static FileNameString sfname;
     static int inited = NO;
+    const char* ptr;
 
     if ( !inited )
     {
-	const char* ptr = GetSettingsDir();
+	ptr = GetSettingsDir();
 	if ( !ptr ) return 0;
-	strcpy( sfname, File_getFullPath(ptr,".dgbSurvey") );
+	strcpy( sfname, File_getFullPath(ptr,".od") );
+	strcpy( sfname, File_getFullPath(sfname,"survey") );
 	ptr = GetSoftwareUser();
 	if ( ptr )
 	{
@@ -281,12 +283,12 @@ const char* GetBaseDataDir()
 #ifdef __win__
     dir = getenv( "DTECT_WINDATA" );
     if ( !dir ) dir = getenv( "dGB_WINDATA" );
-#else
-    dir = getenv( "DTECT_DATA" );
-    if ( !dir ) dir = getenv( "dGB_DATA" );
 #endif
+    if ( !dir ) dir = getenv( "DTECT_DATA" );
+    if ( !dir ) dir = getenv( "dGB_DATA" );
 
     if ( !dir ) dir = GetSettingsDataDir();
+
     return dir;
 }
 
