@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.44 2005-03-10 11:48:21 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.45 2005-03-31 15:32:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -377,7 +377,10 @@ int EM::dgbSurfaceReader::nextStep()
     if ( sectionindex>=sectionids.size() )
     {
 	if ( !surface->usePar(*par) )
-	    return -1;
+	{
+	    msg = "Could not parse header";
+	    return ErrorOccurred;
+	}
 /*
 	int col;
 	if ( par->get( prefcolofstr, col ) )
