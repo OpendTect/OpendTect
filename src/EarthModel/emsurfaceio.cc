@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.8 2003-07-04 13:32:33 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.9 2003-07-09 11:40:08 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -102,7 +102,7 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     par->get( rowrangestr, rowrange.start, rowrange.stop, rowrange.step );
     par->get( colrangestr, colrange.start, colrange.stop, colrange.step );
 
-    for ( int idx=1; ; idx++ )
+    for ( int idx=0; ; idx++ )
     {
 	BufferString
 	    hovfnm( EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx));
@@ -195,7 +195,7 @@ EM::PatchID EM::dgbSurfaceReader::patchID( int idx ) const
 const char* EM::dgbSurfaceReader::patchName( int idx ) const
 {
     const char* res = patchnames[idx]->buf();
-    return res && !*res ? res : 0;
+    return res && *res ? res : 0;
 }
 
 
@@ -636,14 +636,21 @@ int EM::dgbSurfaceWriter::nextStep()
 {
     if ( !nrdone )
     {
+	conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Write));
+	if ( !conn )
+	{
+	    msg = "Cannot open output horizon file";
+	    return ErrorOccurred;
+	}
+
 	for ( int idx=0; idx<auxdatasel.size(); idx++ )
 	{
 	    if ( auxdatasel[idx]>=surface.nrAuxData() )
 		continue;
 
-	    add( new dgbSurfDataWriter( surface, auxdatasel[idx], 0, binary,
-		dgbSurfDataWriter::createHovName(
-		    conn->fileName(),auxdatasel[idx])));
+	    const char* fnm = dgbSurfDataWriter::createHovName( 
+		    			conn->fileName(),auxdatasel[idx]);
+	    add( new dgbSurfDataWriter(surface,auxdatasel[idx],0,binary,fnm) ); 
 	}
 
 	par.set( dgbSurfaceReader::nrpatchstr, patchsel.size() );
@@ -658,18 +665,12 @@ int EM::dgbSurfaceWriter::nextStep()
 	    par.set( key, surface.patchName(patchsel[idx]));
 	}
 
-	conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Write));
-	if ( !conn )
-	{
-	    msg = "Cannot open output horizon file";
-	    return ErrorOccurred;
-	}
-
 	ostream& stream = conn->oStream();
 	ascostream astream( stream );
 	astream.putHeader( filetype );
 	par.putTo( astream );
 
+/*	
 	for ( int idx=0; idx<auxdatasel.size(); idx++ )
 	{
 	    add( new EM::dgbSurfDataWriter(surface, idx, 0, binary, 
@@ -678,6 +679,7 @@ int EM::dgbSurfaceWriter::nextStep()
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
 	}
+*/	
     }
 
     if ( patchindex>=patchsel.size() )
