@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.5 2004-01-29 10:26:13 nanne Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.6 2004-04-28 08:23:32 nanne Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -17,6 +17,7 @@ const char* ODSession::visprefix = "Vis";
 const char* ODSession::sceneprefix = "Scene";
 const char* ODSession::attrprefix = "Attribs";
 const char* ODSession::nlaprefix = "NLA";
+const char* ODSession::trackprefix = "Tracking";
 const char* ODSession::pluginprefix = "Plugins";
 
 
@@ -26,6 +27,7 @@ void ODSession::clear()
     scenepars_.clear();
     attrpars_.clear();
     nlapars_.clear();
+    trackpars_.clear();
     pluginpars_.clear();
 }
 
@@ -38,6 +40,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 	scenepars_ == sess.scenepars_;
 	attrpars_ == sess.attrpars_;
 	nlapars_ == sess.nlapars_;
+	trackpars_ == sess.trackpars_;
 	pluginpars_ == sess.pluginpars_;
     }
     return *this;
@@ -50,6 +53,7 @@ bool ODSession::operator==( const ODSession& sess ) const
 	&& scenepars_ == sess.scenepars_
 	&& attrpars_ == sess.attrpars_
 	&& nlapars_ == sess.nlapars_
+	&& trackpars_ == sess.trackpars_
 	&& pluginpars_ == sess.pluginpars_;
 }
     
@@ -74,6 +78,10 @@ bool ODSession::usePar( const IOPar& par )
     if ( nlasubpars )
 	nlapars_ = *nlasubpars;
 
+    PtrMan<IOPar> tracksubpars = par.subselect(trackprefix);
+    if ( tracksubpars )
+	trackpars_ = *tracksubpars;
+
     PtrMan<IOPar> pluginsubpars = par.subselect(pluginprefix);
     if ( pluginsubpars )
         pluginpars_ = *pluginsubpars;
@@ -88,6 +96,7 @@ void ODSession::fillPar( IOPar& par ) const
     par.mergeComp( scenepars_, sceneprefix );
     par.mergeComp( attrpars_, attrprefix );
     par.mergeComp( nlapars_, nlaprefix );
+    par.mergeComp( trackpars_, trackprefix );
     par.mergeComp( pluginpars_, pluginprefix );
 }
 
