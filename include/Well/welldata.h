@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.5 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: welldata.h,v 1.6 2004-01-26 12:25:58 nanne Exp $
 ________________________________________________________________________
 
 
@@ -55,6 +55,7 @@ class Data
 public:
 
 				Data(const char* nm=0);
+				~Data();
 
     const char*			name() const		{ return info_.name(); }
     const Info&			info() const		{ return info_; }

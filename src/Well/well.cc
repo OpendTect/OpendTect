@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.14 2003-11-10 10:31:57 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.15 2004-01-26 12:25:52 nanne Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -31,6 +31,14 @@ Well::Data::Data( const char* nm )
     	, logs_(*new Well::LogSet)
     	, d2tmodel_(0)
 {
+}
+
+
+Well::Data::~Data()
+{
+    delete &track_;
+    delete &logs_;
+    delete d2tmodel_;
 }
 
 
