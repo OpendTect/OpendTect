@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.3 2005-01-17 08:02:42 kristofer Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.4 2005-04-05 07:03:10 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,7 @@ public:
     const ObjectSet<visBase::Marker>&	markerNodes() const { return markers; }
     EM::PosID				markerId(const visBase::Marker*) const;
     bool				isDraggerShown() const;
+    void				setMarkerSize(float);
 
     CNotifier<MPEEditor, int>	noderightclick;
     				/*!<\ the clicked position can be retrieved
@@ -79,6 +80,7 @@ protected:
 
     ObjectSet<visBase::Marker>	markers;
     TypeSet<EM::PosID>		posids;
+    float			markersize;
 
     visBase::EventCatcher*	eventcatcher;
     visBase::Transformation*	transformation;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.7 2005-03-24 16:26:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.8 2005-04-05 07:03:10 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -33,6 +33,7 @@ MPEEditor::MPEEditor()
     , transformation( 0 )
     , activenode( -1, -1, -1 )
     , issettingpos( 0 )
+    , markersize( 5 )
 { }
 
 
@@ -158,6 +159,14 @@ bool MPEEditor::isDraggerShown() const
 }
 
 
+void MPEEditor::setMarkerSize(float nsz)
+{
+    markersize = nsz;
+    for ( int idx=0; idx<markers.size(); idx++ )
+	markers[idx]->setScreenSize(markersize);
+}
+
+
 EM::PosID MPEEditor::getNodePosID(int visid) const
 {
     for ( int idx=0; idx<markers.size(); idx++ )
@@ -195,6 +204,7 @@ void MPEEditor::changeNumNodes(CallBacker*)
 	addChild( node->getInventorNode() );
 	node->setDisplayTransformation( transformation );
 	node->setMaterial( 0 );
+	node->setScreenSize( markersize );
 	markers += node;
     }
 	
