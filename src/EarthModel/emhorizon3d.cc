@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.11 2002-05-28 12:48:54 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.12 2002-05-29 06:28:54 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -225,12 +225,15 @@ void EarthModel::Horizon::setTransformation( Geometry::Snapped2DSurface& surf )
 
 
 void EarthModel::Horizon::getTriStrips(
-		    Geometry::TriangleStripSet* tristrips, int res ) const
+	    ObjectSet<Geometry::TriangleStripSet>& tristrips, int res ) const
 {
-    tristrips->removeAll();
+    deepErase( tristrips );
     for ( int idx=0; idx<surfaces.getSurfaces().size(); idx++ )
     {
-	surfaces.getSurfaces()[idx]->fillTriStripSet( tristrips,
+	Geometry::TriangleStripSet* subhorstrip =
+	    					new Geometry::TriangleStripSet;
+	surfaces.getSurfaces()[idx]->fillTriStripSet( subhorstrip, 0,
 							0, 0, 0, res, res );
+	tristrips += subhorstrip;
     }
 }
