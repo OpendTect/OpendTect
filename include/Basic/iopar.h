@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.7 2000-11-24 14:06:24 bert Exp $
+ RCS:		$Id: iopar.h,v 1.8 2000-11-27 15:25:02 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -34,24 +34,41 @@ public:
 			IOPar(const IOPar&);
     IOPar&		operator=(const IOPar&);
 
-			// serialise
+			// serialisation
     void		getFrom(const char*);
     void		putTo(BufferString&) const;
 
-    AliasObjectSet&	getPars() const	      { return (AliasObjectSet&)pars_; }
-
     int			size() const;
+    const char*		getKey(int) const;
+    const char*		getValue(int) const;
+    bool		setKey(int,const char*);
+			// Will fail if key is empty or already present
+    void		setValue(int,const char*);
+    void		remove(int);
+
     void		clear();
+			//!< remove all entries
     void		merge(const IOPar&);
+			//!< merge entries using the set() command
     static const char*	compKey(const char*,const char*);
-    const char*		compFind(const char*,const char*) const;
+			//!< The composite key
     IOPar*		subselect(const char*) const;
+			//!< returns iopar with key that start with <str>.
     void		mergeComp(const IOPar&,const char*);
-    const char*		findKey(const char*) const;
-			// First matching, null if none
+			//!< merge entries, where IOPar's entries get a prefix
+
+    bool		hasKey( const char* s ) const
+			{ return find(s) ? true : false; }
+    const char*		findKeyFor(const char*,int nr=0) const;
+				//!< returns null if value not found
     void		removeWithKey(const char*);
+				//!< removes all entries with this key
 
     const char*		operator[](const char*) const;
+			//!< returns empty string if not found
+    const char*		find(const char*) const;
+			//!< returns null if not found
+
     bool		get(const char*,int&) const;
     bool		get(const char*,int&,int&) const;
     inline bool		get( const char* k, float& v ) const
@@ -64,6 +81,7 @@ public:
 			{ return getSc(k,v1,v2,1,false); }
     bool		getSc(const char*,float&,float sc,
 			      bool set_undef_if_not_found) const;
+			//!< get with a scale applied
     bool		getSc(const char*,double&,double sc,
 			      bool set_undef_if_not_found) const;
     bool		getSc(const char*,float&,float&,float sc,
@@ -72,6 +90,7 @@ public:
 			      bool set_undef_if_not_found) const;
     bool		get(const char*,int&,int&,int&) const;
     bool		getYN(const char*,bool&,char c=0) const;
+
     void		set(const char*,const char*);
     void		set(const char*,int);
     void		set(const char*,float);
@@ -87,11 +106,13 @@ public:
     bool		get(const char*,BinID&) const;
     bool		get(const char*,Coord&) const;
 
-private:
-    UserIDString	type_;
-    AliasObjectSet&	pars_;
+    void		add(const char*,const char*);
+			//!< Only to save performance: responsibility for
+			//!< caller to avoid duplicate keys!
 
-    void		newPar(const char*,const char*);
+protected:
+
+    AliasObjectSet&	pars_;
 
 };
 
