@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.2 2005-01-10 12:32:15 kristofer Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.3 2005-01-13 09:51:18 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 //#include "uitrackingwizard.h"
 //#include "uitrackingsetupdlg.h"
-//#include "uimsg.h"
+#include "uimsg.h"
 #include "uicursor.h"
 //#include "uidialog.h"
 //#include "uimenu.h"
@@ -129,7 +129,41 @@ int uiMPEPartServer::addTracker(const MultiID&)
 
 int uiMPEPartServer::addTracker( const char* trackertype )
 {
-    return MPE::engine().addTracker("New object", trackertype );
+    activetrackerid = MPE::engine().addTracker("New object", trackertype );
+    if ( activetrackerid==-1 )
+	uiMSG().error( MPE::engine().errMsg() );
+    else
+    {
+	//Create Editor
+	const EM::ObjectID objid =
+	    MPE::engine().getTracker(activetrackerid)->objectID();
+	if ( !MPE::engine().getEditor(objid,false) )
+	    MPE::engine().getEditor(objid,true);
+
+	if ( !sendEvent( evAddTreeObject ) )
+	{
+	    pErrMsg("Could not add treeitem");
+	    MPE::engine().removeTracker( activetrackerid );
+	    activetrackerid = -1;
+	    //TODO? Remove new object?
+	    //TODO? Remove new editor?
+	}
+    }
+
+    return activetrackerid;
+}
+
+
+MultiID uiMPEPartServer::getTrackerMultiID( int trackerid ) const
+{
+    const MPE::EMTracker* emt = MPE::engine().getTracker(trackerid);
+    if ( emt )
+    {
+	const EM::EMObject* emo = EM::EMM().getObject(emt->objectID());
+	if ( emo ) return emo->multiID();
+    }
+
+   return MultiID(-1);
 }
 
 
