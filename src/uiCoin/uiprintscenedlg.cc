@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.4 2002-10-23 13:59:47 bert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.5 2002-10-30 15:32:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "ptrman.h"
 #include "filegen.h"
+#include "uiobj.h"
 
 #include "Inventor/SoOffscreenRenderer.h"
 
@@ -23,12 +24,11 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
 		    		      "Enter filename and fileformat"))
 	, scene(scene_)
 {
-    IntInpSpec horwidthinpspec( 800  );
-    IntInpSpec vertwidthinpspec( 600 );
-    IntInpSpec resinpspec( 72 );
-    horwidthfld = new uiGenInput( this, "Size", horwidthinpspec );
+    horwidthfld = new uiGenInput( this, "Size", IntInpSpec(800) );
+    horwidthfld->setElemSzPol( uiObject::small );
 
-    vertwidthfld = new uiGenInput( this, "x", vertwidthinpspec );
+    vertwidthfld = new uiGenInput( this, "x", IntInpSpec(600) );
+    vertwidthfld->setElemSzPol( uiObject::small );
     vertwidthfld->attach( rightOf, horwidthfld );
 
     widthunitfld = new uiComboBox( this, "Unit" );
@@ -37,7 +37,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
     widthunitfld->addItem("inches");
     widthunitfld->attach( rightOf, vertwidthfld );
 
-    resolutionfld = new uiGenInput( this, "Resolution (dpi)", resinpspec );
+    resolutionfld = new uiGenInput( this, "Resolution (dpi)", IntInpSpec(300) );
+    resolutionfld->setElemSzPol( uiObject::small );
     resolutionfld->attach( alignedBelow, horwidthfld );
 
     filetypesfld = new uiComboBox(this, "Filetypes" );
@@ -56,7 +57,11 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p, SoNode* scene_ )
     }
 
     fileinputfld = new uiFileInput( this, "Select filename", 0, false,0 );
+    BufferString datadirnm( GetDataDir() );
+    BufferString dirnm = File_getFullPath( datadirnm, "Misc" );
+    fileinputfld->setDefaultSelectionDir( dirnm );
     fileinputfld->attach( alignedBelow, filetypesfld );
+
     finaliseStart.notify( mCB(this,uiPrintSceneDlg,doFinalise) );
 }
 
