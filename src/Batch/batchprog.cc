@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.54 2004-03-10 16:30:28 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.55 2004-03-17 14:48:53 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -237,34 +237,28 @@ bool BatchProgram::writeStatus_( char tag , int status, const char* errmsg,
     BufferString errbuf;
 
     ret = sock->readtag( masterinfo );
+
     if ( !ret )
     {
 	sock->fetchMsg( errbuf );
-    }
-    else if ( masterinfo != mRSP_ACK )
-    {
-	if ( masterinfo == mRSP_REQ_STOP ) 
-	{
-	    mErrStrm << "Exiting on request of Master." << endl;
-	    exit( -1 );
-	}
-
-	else if ( masterinfo == mRSP_REQ_PAUSE )
-	    pausereq_ = true; 
-
-	else if ( masterinfo == mRSP_REQ_CONT )
-	    pausereq_ = false;  
-
-	else
-	{
-	    errbuf = "Master sent an unkown response code.";
-	    ret = false;
-	}
-    }
-
-    if ( !ret )
-    {
 	mErrStrm << "Error writing status to Master: " << errbuf << endl;
+    }
+
+    else if ( masterinfo == mRSP_WORK )
+	pausereq_ = false;  
+
+    else if ( masterinfo == mRSP_PAUSE )
+	pausereq_ = true; 
+
+    else if ( masterinfo == mRSP_STOP ) 
+    {
+	mErrStrm << "Exiting on request of Master." << endl;
+	exit( -1 );
+    }
+    else
+    {
+	errbuf = "Master sent an unkown response code.";
+	ret = false;
     }
 
     delete sock;

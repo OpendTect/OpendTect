@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		Dec 2002
- RCS:		$Id: mmdefs.h,v 1.5 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: mmdefs.h,v 1.6 2004-03-17 14:48:25 arend Exp $
 ________________________________________________________________________
 
 Defines for multimachine status tags and codes
@@ -37,9 +37,8 @@ Defines for multimachine status tags and codes
 
 
 // Master Control tag
-#define mRSP_ACK	'A'
-#define mRSP_REQ_STOP	'S'
-#define mRSP_REQ_PAUSE	'P'
-#define mRSP_REQ_CONT	'R'
+#define mRSP_WORK	'W'
+#define mRSP_STOP	'S'
+#define mRSP_PAUSE	'P'
 
 #endif
