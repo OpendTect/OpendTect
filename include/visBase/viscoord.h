@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.6 2003-05-02 07:25:21 marc Exp $
+ RCS:		$Id: viscoord.h,v 1.7 2003-08-18 08:07:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -74,7 +74,6 @@ protected:
      Transformation*	transformation;
 };
 
-/*
 class CoordinateMessage
 {
 public:
@@ -82,7 +81,6 @@ public:
     unsigned long	coordnr;
     unsigned long	newnr; //Only set when NrChanged
 };
-*/
 
 
 };
