@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.29 2002-03-18 11:56:43 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.30 2002-05-16 07:40:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,12 +58,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->attach( stretchedBelow, pathfld, -2 );
 
-    BufferString txt( "Fetch setup from " );
-    txt += IdealConn::guessedType() == IdealConn::SW
-	 ? "SeisWorks ..." : "GeoFrame ...";
     uiButton* wsbut = 0;
     if ( IdealConn::haveIdealServices() )
     {
+	BufferString txt( "Fetch setup from " );
+	txt += IdealConn::guessedType() == IdealConn::SW
+	     ? "SeisWorks ..." : "GeoFrame ...";
 	wsbut = new uiPushButton( this, txt );
 	wsbut->attach( alignedBelow, pathfld );
 	wsbut->activated.notify( mCB(this,uiSurveyInfoEditor,wsbutPush) );

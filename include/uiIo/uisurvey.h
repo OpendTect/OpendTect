@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.9 2002-03-25 16:00:24 bert Exp $
+ RCS:           $Id: uisurvey.h,v 1.10 2002-05-16 07:40:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ protected:
     uiTextEdit*		notes;
 
     bool		acceptOK(CallBacker*);  
+    bool		rejectOK(CallBacker*);  
     void		newButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);

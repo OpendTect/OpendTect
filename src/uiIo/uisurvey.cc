@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.25 2002-03-25 16:01:44 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.26 2002-05-16 07:40:29 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ uiSurvey::uiSurvey( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Survey selection",
 		   "Select and setup survey","0.3.1"))
 {
+    SurveyInfo::produceWarnings( false );
     const int lbwidth = 250;
     const int mapwdth = 300;
     const int maphght = 300;
@@ -420,11 +421,22 @@ void uiSurvey::doCanvas( CallBacker* c )
 }
 
 
+bool uiSurvey::rejectOK( CallBacker* )
+{
+    SurveyInfo::produceWarnings( true );
+    return true;
+}
+
+
 bool uiSurvey::acceptOK( CallBacker* )
 {
     writeComments();
+    SurveyInfo::produceWarnings( true );
     if ( !updateSvyFile() || !IOMan::newSurvey() )
+    {
+	SurveyInfo::produceWarnings( false );
 	return false;
+    }
 
     updateViewsGlobal();
     return true;

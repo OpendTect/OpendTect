@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.18 2002-04-24 15:11:49 nanne Exp $
+ RCS:		$Id: survinfo.h,v 1.19 2002-05-16 07:40:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,6 +129,8 @@ private:
     Coord		set3coords[3];
 
     static SurveyInfo*	theinst_;
+    static bool		dowarnings_;
+    static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
 
 };
 

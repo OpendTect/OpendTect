@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.23 2002-04-24 15:11:49 nanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.24 2002-05-16 07:40:29 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -20,6 +20,8 @@ const char* SurveyInfo::sKeyZRange = "Z range";
 const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
 
 SurveyInfo* SurveyInfo::theinst_;
+bool SurveyInfo::dowarnings_ = true;
+
 const SurveyInfo& SI()
 {
     if ( !SurveyInfo::theinst_ || !SurveyInfo::theinst_->valid_ )
@@ -122,8 +124,8 @@ SurveyInfo::SurveyInfo( const char* rootdir )
     static bool errmsgdone = false;
     if ( !sd.istrm || sd.istrm->fail() )
     {
-	if ( !errmsgdone )
-	    ErrMsg( "Cannot read survey definition file (yet)." );
+	if ( !errmsgdone && dowarnings_ )
+	    ErrMsg( "No available survey definition." );
 	errmsgdone = true;
 	sd.close();
 	return;
@@ -131,8 +133,7 @@ SurveyInfo::SurveyInfo( const char* rootdir )
     ascistream astream( *sd.istrm );
     if ( !astream.isOfFileType(sKey) )
     {
-	if ( !errmsgdone )
-	    ErrMsg( "Survey definition file is corrupt!" );
+	ErrMsg( "Survey definition file is corrupt!" );
 	errmsgdone = true;
 	sd.close();
 	return;

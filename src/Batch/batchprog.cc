@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.14 2002-04-26 14:57:33 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.15 2002-05-16 07:40:29 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.14 2002-04-26 14:57:33 bert Ex
 #ifndef __msvc__
 #include <unistd.h>
 #endif
+#include <fstream.h>
 
 
 BatchProgram* BatchProgram::inst_;
@@ -78,21 +79,20 @@ BatchProgram::BatchProgram( int* pac, char** av )
     }
 
     setName( fn );
-    StreamProvider spin( fn );
-    StreamData sdin = spin.makeIStream();
-    if ( !sdin.istrm )
+    ifstream strm( fn );
+    if ( !strm.good() )
     {
         cerr << name() << ": Cannot open parameter file" << endl;
         return;
     }
  
-    IOParList parlist( *sdin.istrm );
+    IOParList parlist( strm );
+    strm.close();
     if ( parlist.size() == 0 )
     {
         cerr << argv_[0] << ": Invalid input file" << endl;
         return;
     }
-    sdin.close();
 
     iopar_ = new IOPar( *parlist[0] );
     stillok_ = true;
