@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.8 2004-05-10 16:00:23 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.9 2004-05-12 15:03:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ const char* uiNLAPartServer::transferData( const ObjectSet<FeatureSet>& fss,
 {
     const NLACreationDesc& crdesc = creationDesc();
 
-    if ( crdesc.isdirect )
+    if ( crdesc.doextraction && crdesc.isdirect )
     {
 	// Direct prediction: we need to fetch the well data
 	if ( fss.size() != crdesc.outids.size() )
