@@ -2,10 +2,10 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id: PMinit.csh,v 1.1 2003-09-08 15:25:00 bert Exp $
+# $Id: PMinit.csh,v 1.2 2003-09-16 12:38:53 arend Exp $
 #---------------------------------------------------------
 
-if ( $?PMAKE ) then
+if ( ! $?PMAKE ) then
     if ( $?WORK ) then
 	setenv PMAKE $WORK/Pmake/base
     else
