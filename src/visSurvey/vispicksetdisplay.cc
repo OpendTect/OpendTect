@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.44 2003-11-07 12:22:03 bert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.45 2003-11-28 15:41:59 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -200,10 +200,15 @@ int visSurvey::PickSetDisplay::getType() const
 
 void visSurvey::PickSetDisplay::getTypeNames( TypeSet<char*>& strs )
 {
-    strs += "Cube";
-    strs += "Cone";
-    strs += "Cylinder";
-    strs += "Sphere";
+    int idx = 0;
+    const char** names = visBase::Marker::TypeNames;
+    while ( true )
+    {
+	const char* tp = names[idx];
+	if ( !tp ) break;
+	strs += (char*)tp;
+	idx++;
+    }
 }
 
 
