@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.2 2004-11-04 16:47:23 arend Exp $
+ RCS:		$Id: jobiomgr.h,v 1.3 2004-11-05 12:19:20 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "general.h"
 #include "callback.h"
-#include "queue.h"
+//#include "queue.h"
 
 class HostData;
 class CommandString;
@@ -23,7 +23,7 @@ class IOPar;
 class HostDataList;
 class FilePath;
 class JobIOHandler;
-
+template <class T> class ObjQueue;
 
 class StatusInfo
 {
@@ -43,8 +43,11 @@ public:
 };
 
 
-/*!\brief Sets up a thread that waits for clients to connect. */
+/*!\brief Handles starting&stopping of jobs on client machines
+ 
+  sets up a separate thread to maintain contact with client.
 
+*/
 class JobIOMgr : public CallBacker
 {
 public:
@@ -62,6 +65,7 @@ public:
 
     void		setNiceNess( int n )		{ niceval_ = n; }
     void		reqModeForJob( const JobInfo&, Mode );
+    void		jobDone( const BufferString& hostnm, int descnr );
 
     ObjQueue<StatusInfo>& statusQueue(); 
 

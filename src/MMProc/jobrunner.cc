@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.5 2004-11-04 16:47:13 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.6 2004-11-05 12:18:55 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "iopar.h"
 #include "jobiomgr.h"
+#include "queue.h"
 #include "mmdefs.h"
 #include <iostream>
 
@@ -406,6 +407,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	    ji->state_ = JobInfo::Failed;
 	break;
 	}
+	iomgr().jobDone( si.hostnm , si.descnr );
     break;
     }
 /*

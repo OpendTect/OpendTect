@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.3 2004-11-04 16:47:13 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.4 2004-11-05 12:18:55 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,12 @@ ________________________________________________________________________
 #include "hostdata.h"
 #include "ioman.h"
 #include "jobinfo.h"
-#include "jobiohdlr.h"
+#include "mmdefs.h"
+#include "queue.h"
+#include "socket.h"
+#include "errh.h"
+#include "separstr.h"
+#include "timefun.h"
 
 
 #define sTmpStor	"Temporary storage directory"
@@ -74,6 +79,228 @@ protected:
 };
 
 
+class JobHostRespInfo
+{
+public:
+			JobHostRespInfo( const HostData& hd, int descnr,
+					 char resp = mRSP_WORK )
+			: hostdata_(hd)
+			, descnr_(descnr)
+			, response_( resp ) {} 
+
+    HostData		hostdata_;
+    int			descnr_;
+    char		response_;
+};
+
+
+/*!\brief Sets up a thread that waits for clients to connect.
+
+  The task of the JobIOHandler is to maintain contact with clients.
+  Most of the fuctionality could be implemented in the JobIOMgr,
+  but we want to be absolutely sure the listening thread
+  does not interfear with the normal exection thread's data.
+
+  Therefore, all requests to and from the JobIOHandler are
+  made mutex protected.
+ 
+*/
+class JobIOHandler : public CallBacker
+{
+public:
+    			JobIOHandler( int firstport )
+			    : sockprov_ ( *new SocketProvider( firstport ) )
+			    , thread( 0 )
+			    , exitreq_( false )
+			    {
+				threadmutex.lock();
+
+				thread = new Threads::Thread(
+					mCB(this,JobIOHandler,doDispatch) );
+
+				threadmutex.unlock();
+			    }
+
+    virtual		~JobIOHandler()
+			    {
+				exitreq_ = true;
+				if ( thread )
+				{
+				    thread->stop();
+				}
+				threadmutex.unlock();
+
+				delete &sockprov_; 
+			    }
+
+    int			port()	{ return sockprov_.port(); }
+
+    void		addJobDesc( const HostData& hd, int descnr )
+			    {
+				jhrespmutex_.lock();
+
+				jobhostresps_ +=
+				    new JobHostRespInfo( hd, descnr );
+
+				jhrespmutex_.unlock();
+			    }
+
+    void		jobDone( const BufferString& hostnm, int descnr )
+			    {
+				jhrespmutex_.lock();
+
+				JobHostRespInfo* jhri =
+						getJHRFor( descnr, hostnm );
+
+				if ( jhri )
+				    { jobhostresps_ -= jhri; delete jhri; }
+				    
+				jhrespmutex_.unlock();
+			    }
+
+    void		reqModeForJob( const JobInfo&, JobIOMgr::Mode );
+
+    ObjQueue<StatusInfo>& statusQueue() { return statusqueue_; }
+
+protected:
+
+    bool			exitreq_;
+    SocketProvider& 		sockprov_;
+    ObjQueue<StatusInfo>	statusqueue_;
+
+    Threads::Mutex		jhrespmutex_;
+    ObjectSet<JobHostRespInfo>	jobhostresps_;
+    
+    char			getRespFor(int desc,const BufferString& hostnm);
+    JobHostRespInfo*		getJHRFor(int desc, const BufferString& hostnm);
+
+    void			stopDispatching()
+				{
+				    if ( thread ) thread->threadExit();
+				}
+
+    void 			doDispatch( CallBacker* ); //!< work thread
+
+    mThreadDeclaredMutexedVar(Threads::Thread*,thread);
+};
+
+
+JobHostRespInfo* JobIOHandler::getJHRFor(int descnr, const BufferString& hostnm)
+{
+    JobHostRespInfo* jhri = 0;
+
+    bool unlock = jhrespmutex_.tryLock();
+
+    int sz = jobhostresps_.size();
+    for ( int idx=0; idx < sz; idx++ )
+    {
+	JobHostRespInfo* jhri_ = jobhostresps_[idx];
+	if ( jhri_->descnr_ == descnr )
+	{
+	    if ( !hostnm.size() )  { jhri = jhri_; break; }		
+
+	    if ( jhri_->hostdata_.isKnownAs(hostnm) )
+		{ jhri = jhri_; break; }		
+	}
+    }
+
+    if ( unlock ) jhrespmutex_.unlock();
+
+    return jhri;
+}
+
+
+char JobIOHandler::getRespFor( int descnr , const BufferString& hostnm )
+{
+    char resp = mRSP_STOP;
+
+    jhrespmutex_.lock();
+
+    JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
+    if ( jhri ) resp = jhri->response_;
+
+    jhrespmutex_.unlock();
+
+    return resp;
+}
+
+
+void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
+{
+    char resp = mRSP_STOP;
+
+    switch( mode )
+    {
+    case JobIOMgr::Work		: resp = mRSP_WORK; break;
+    case JobIOMgr::Pause	: resp = mRSP_PAUSE; break;
+    case JobIOMgr::Stop		: resp = mRSP_STOP; break;
+    }
+
+    int descnr = ji.descnr_;
+    BufferString hostnm;
+    if ( ji.hostdata_ ) hostnm = ji.hostdata_->name();
+
+    jhrespmutex_.lock();
+
+    JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
+    if ( jhri ) jhri->response_ = resp;
+
+    jhrespmutex_.unlock();
+}
+
+
+void JobIOHandler::doDispatch( CallBacker* )
+{
+    while( 1 ) 
+    {
+	Socket* sock_ = sockprov_.makeConnection(1); // 1 sec timeout
+
+	if ( exitreq_ ) stopDispatching();
+
+	char tag=mCTRL_STATUS;
+	int jobid=-1;
+	int status=mSTAT_UNDEF;
+	BufferString hostnm;
+	BufferString errmsg;
+
+	if ( sock_ && sock_->ok() )
+	{
+	    SeparString statstr;
+	    bool ok = sock_->readtag( tag, statstr );
+
+	    if ( !ok )
+	    {
+		sock_->fetchMsg( errmsg );
+		ok = sock_->readtag( tag, statstr );
+	    } 
+
+	    if ( ok )
+	    {
+		getFromString( jobid, statstr[0] );
+		getFromString(status, statstr[1] );
+		hostnm = statstr[2];
+		errmsg = statstr[3];
+
+		char response = getRespFor( jobid, hostnm );
+
+		statusqueue_.add( new StatusInfo( tag, jobid, status, errmsg,
+					    hostnm, Time_getMilliSeconds()) );
+
+		sock_->writetag( response );
+	    }
+	    else
+	    {
+		pErrMsg( "Error in socket communication." );
+	    }
+
+	    delete sock_; sock_ =0;
+	}
+    }
+}
+
+
+
+
 JobIOMgr::JobIOMgr( int firstport, int niceval )
     : iohdlr_( *new JobIOHandler(firstport) )
     , niceval_( niceval )
@@ -86,7 +313,14 @@ JobIOMgr::~JobIOMgr()
 void JobIOMgr::reqModeForJob( const JobInfo& ji, Mode m )
     { iohdlr_.reqModeForJob(ji,m); } 
 
-ObjQueue<StatusInfo>& JobIOMgr::statusQueue() { return iohdlr_.statusQueue(); }
+
+void JobIOMgr::jobDone( const BufferString& hostnm, int descnr )
+    { iohdlr_.jobDone(hostnm,descnr); } 
+
+
+ObjQueue<StatusInfo>& JobIOMgr::statusQueue()
+    { return iohdlr_.statusQueue(); }
+
 
 bool JobIOMgr::startProg( const char* progname, const HostData& machine,
 	IOPar& iop, const FilePath& basefp, const JobInfo& ji,
@@ -115,9 +349,10 @@ bool JobIOMgr::startProg( const char* progname, const HostData& machine,
     {
 	BufferString s( "Failed to submit command '" );
 	s += strmprov.command(); s += "'";
+
+	iohdlr_.jobDone( machine.name(), ji.descnr_ );
 	mErrRet(s);
     }
-
     
     return true;
 }
