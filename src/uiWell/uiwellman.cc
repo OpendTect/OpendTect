@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.1 2003-09-08 13:07:54 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.2 2003-09-10 15:23:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iostrm.h"
 #include "ctxtioobj.h"
+#include "wellimpasc.h"
 #include "welltransl.h"
 #include "welldata.h"
 #include "welllogset.h"
@@ -36,6 +37,14 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "uimsg.h"
 
+#include "uilistbox.h"
+#include "uifileinput.h"
+#include "uilabel.h"
+
+
+static const int infoheight = 8;
+static const int infowidth = 50;
+static const int grpwidth = 75;
 
 
 uiWellMan::uiWellMan( uiParent* p )
@@ -76,9 +85,9 @@ uiWellMan::uiWellMan( uiParent* p )
 
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( alignedBelow, markerbut );
-    infofld->setPrefHeightInChar( 8 );
-    infofld->setPrefWidthInChar( 50 );
-    topgrp->setPrefWidthInChar( 75 );
+    infofld->setPrefHeightInChar( infoheight );
+    infofld->setPrefWidthInChar( infowidth );
+    topgrp->setPrefWidthInChar( grpwidth );
 
     selChg( this );
     setCancelText( "" );
@@ -195,6 +204,20 @@ void uiWellMan::addMarkers( CallBacker* )
 
 void uiWellMan::addLogs( CallBacker* )
 {
+    if ( !ioobj ) return;
+
+    mDynamicCastGet(StreamConn*,conn,ioobj->getConn(Conn::Read))
+    if ( !conn ) return;
+    PtrMan<Well::Data> well = new Well::Data;
+    Well::Reader rdr( conn->fileName(), *well );
+    rdr.getLogs();
+
+    uiLoadLogsDlg dlg( this, *well );
+    if ( dlg.go() )
+    {
+	Well::Writer wtr( conn->fileName(), *well );
+	wtr.putLogs();
+    }
 }
 
 
@@ -206,6 +229,9 @@ static const char* collbls[] =
     "Name", "Depth", "Color", 0
 };
 
+static const int maxnrrows = 10;
+static const int initnrrows = 5;
+
 uiMarkerDlg::uiMarkerDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Well Markers","Define marker properties"))
 {
@@ -213,7 +239,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p )
 	    				       .rowcangrow(), "Table" );
     table->setColumnLabels( collbls );
     table->setColumnReadOnly( 2, true );
-    table->setNrRows( 1 );
+    table->setNrRows( initnrrows );
     markerAdded(0);
 
     table->rowInserted.notify( mCB(this,uiMarkerDlg,markerAdded) );
@@ -250,7 +276,9 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
     const int nrmarkers = markers.size();
     if ( !nrmarkers ) return;
 
-    table->setNrRows( nrmarkers );
+    int nrrows = nrmarkers + initnrrows < maxnrrows ? nrmarkers + initnrrows 
+						    : nrmarkers;
+    table->setNrRows( nrrows );
     for ( int idx=0; idx<nrmarkers; idx++ )
     {
 	const Well::Marker* marker = markers[idx];
@@ -259,6 +287,7 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers )
 	table->setColor( uiTable::RowCol(idx,2), marker->color );
     }
 
+    markerAdded(0);
 }
 
 
@@ -278,3 +307,76 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
     }
 }
 
+
+// ==================================================================
+
+static const char* lasfilefilt = "*.las;;*.LAS;;*.txt;;*";
+static const char* ftlbltxt = "(ft)";
+static const char* mlbltxt = "(m)";
+static const float defundefval = -999.25;
+
+
+uiLoadLogsDlg::uiLoadLogsDlg( uiParent* p, Well::Data& wd_ )
+    : uiDialog(p,uiDialog::Setup("Logs","Define log parameters",""))
+    , wd(wd_)
+{
+    lasfld = new uiFileInput( this, "Input (pseudo-)LAS logs file",
+			      uiFileInput::Setup().filter(lasfilefilt)
+			      			  .withexamine() );
+    lasfld->setDefaultSelectionDir( GetDataDir() );
+    lasfld->valuechanged.notify( mCB(this,uiLoadLogsDlg,lasSel) );
+
+    intvfld = new uiGenInput( this, "Depth interval to load",
+			      FloatInpIntervalSpec(false) );
+    intvfld->attach( alignedBelow, lasfld );
+    unitlbl = new uiLabel( this, mlbltxt );
+    unitlbl->attach( rightOf, intvfld );
+
+    udffld = new uiGenInput( this, "Undefined value in logs",
+                    FloatInpSpec(defundefval));
+    udffld->attach( alignedBelow, intvfld );
+
+    logsfld = new uiLabeledListBox( this, "Select logs", true );
+    logsfld->attach( alignedBelow, udffld );
+}
+
+
+void uiLoadLogsDlg::lasSel( CallBacker* )
+{
+    const char* lasfnm = lasfld->text();
+    if ( !lasfnm || !*lasfnm ) return;
+
+    Well::Data wd_; Well::AscImporter wdai( wd_ );
+    Well::AscImporter::LasFileInfo lfi;
+    const char* res = wdai.getLogInfo( lasfnm, lfi );
+    if ( res ) { uiMSG().error( res ); return; }
+
+    logsfld->box()->empty();
+    logsfld->box()->addItems( lfi.lognms );
+
+    udffld->setValue( lfi.undefval );
+    intvfld->setValue( lfi.zrg );
+}
+
+
+bool uiLoadLogsDlg::acceptOK( CallBacker* )
+{
+    Well::AscImporter wdai( wd );
+    Well::AscImporter::LasFileInfo lfi;
+    lfi.undefval = udffld->getValue();
+    assign( lfi.zrg, intvfld->getFInterval() );
+    for ( int idx=0; idx<logsfld->box()->size(); idx++ )
+    {
+	if ( logsfld->box()->isSelected(idx) )
+	    lfi.lognms += new BufferString( logsfld->box()->textOfItem(idx) );
+    }
+
+    const char* lasfnm = lasfld->text();
+    if ( !lasfnm || !*lasfnm ) 
+    { uiMSG().error("Enter valid filename"); return false; }
+
+    const char* res = wdai.getLogs( lasfnm, lfi, false );
+    if ( res ) { uiMSG().error( res ); return false; }
+
+    return true;
+}
