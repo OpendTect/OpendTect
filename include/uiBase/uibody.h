@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.4 2001-12-19 11:37:01 arend Exp $
+ RCS:           $Id: uibody.h,v 1.5 2002-08-14 10:30:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ public:
 				uiBody()				{}
     virtual			~uiBody()				{}
 
-    virtual void		finalise()				{}
+    virtual void		finalise(bool t=false)			{}
     virtual void		clear()					{}
     virtual void		fontchanged()				{}
 
@@ -35,14 +35,9 @@ public:
     inline QWidget*             qwidget()
                                    {return const_cast<QWidget*>(qwidget_());}
 
-    inline const QWidget*	managewidg() const	{ return managewidg_();}
-				//! can return 0
-    inline QWidget*		managewidg()
-                                   {return const_cast<QWidget*>(managewidg_());}
 protected:
 
     virtual const QWidget*	qwidget_() const		=0;
-    virtual const QWidget*	managewidg_() const		=0;
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.15 2002-03-20 09:16:32 nanne Exp $
+ RCS:           $Id: uifont.cc,v 1.16 2002-08-14 10:30:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicombobox.h"
+#include "uiparentbody.h"
 #include "uilabel.h"
 
 #include "errh.h"
@@ -148,7 +149,7 @@ bool select( uiFont& fnt, uiParent* parnt, const char* nm )
   
     QFont fontNew;
     fontNew = QFontDialog::getFont( &ok, fnt.qFont(), 
-				    parnt ? parnt->body()->qwidget() : 0, nm );
+				    parnt ? parnt->pbody()->qwidget() : 0, nm );
     if( ok ) 
     { 
 	*fnt.mQtThing = fontNew;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.5 2002-05-14 15:17:56 nanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.6 2002-08-14 10:30:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ protected:
     virtual const QWidget* managewidg_() const 
 			{ 
 			    if ( !initing ) 
-				return centralWidget_->body()->managewidg();
+				return centralWidget_->pbody()->managewidg();
 			    return qwidget_();
 			}
 };
@@ -86,8 +86,8 @@ uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt,
 			      const char* nm )
 	: uiParentBody()
 	, UserIDObject( nm )
-	, QDockWindow( InDock, parnt && parnt->body() ?  
-					parnt->body()->qwidget() : 0, nm ) 
+	, QDockWindow( InDock, parnt && parnt->pbody() ?  
+					parnt->pbody()->qwidget() : 0, nm ) 
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )

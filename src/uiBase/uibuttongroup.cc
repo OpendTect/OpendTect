@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.2 2001-08-27 12:58:50 windev Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.3 2002-08-14 10:30:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ public:
 // Qt seems to have a different notion of "Horizontal" then I have....
 
 					vertical ? Horizontal : Vertical, txt,
-					parnt && parnt->body() ?
-					  parnt->body()->managewidg() : 0, txt )
+					parnt && parnt->pbody() ?
+					  parnt->pbody()->managewidg() : 0, txt )
 			, handle_( handle )
 			{}
 
@@ -82,7 +82,7 @@ protected:
     uiButtonGroup&		handle_;
 
     virtual const QWidget* qwidget_() const    { return objbody_.qwidget(); }
-    virtual const QWidget* managewidg_() const { return objbody_.managewidg();}
+    virtual const QWidget* managewidg_() const { return objbody_.qwidget();}
 
 private:
 

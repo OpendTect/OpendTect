@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.24 2002-08-13 15:13:43 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.25 2002-08-14 10:30:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,12 +181,6 @@ public:
     void		shallowRedraw( CallBacker* =0 )		{reDraw(false);}
     void		deepRedraw( CallBacker* =0 )		{reDraw(true); }
     void		reDraw( bool deep );
-
-			/*! persists current widget position
-			    Only use for main windows, toolbars, etc.
-			*/
-    void		storePosition(CallBacker* cb=0);
-
 
     uiParent*		parent() { return parent_; }
     uiMainWin*		mainwin();

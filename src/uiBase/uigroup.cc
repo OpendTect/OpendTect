@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.36 2002-05-14 15:17:56 nanne Exp $
+ RCS:           $Id: uigroup.cc,v 1.37 2002-08-14 10:30:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,8 @@ public:
 						uiParent* parnt,
 						const char* nm )
 				    : uiObjectBody( parnt )
-				    , QFrame( parnt && parnt->body() ?  
-					parnt->body()->managewidg() : 0, nm )
+				    , QFrame( parnt && parnt->pbody() ?  
+					parnt->pbody()->managewidg() : 0, nm )
 				    , handle_( handle )
 				    , prntbody_( 0 )			
 				{}
@@ -79,7 +79,7 @@ public:
 						const char* nm )
 				    : uiObjectBody( 0 )
 				    , QFrame( parnt && parnt->body() ?  
-					parnt->body()->managewidg() : 0, nm )
+					parnt->body()->qwidget() : 0, nm )
 				    , handle_( handle )
 				    , prntbody_( 0 )			
 				{}
@@ -180,7 +180,7 @@ protected:
 			}
 
     virtual const QWidget* qwidget_() const    { return objbody_.qwidget(); }
-    virtual const QWidget* managewidg_() const { return objbody_.managewidg();}
+    virtual const QWidget* managewidg_() const { return objbody_.qwidget();}
 
 private:
 

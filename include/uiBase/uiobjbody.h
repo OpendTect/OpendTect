@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.24 2002-08-13 15:13:43 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.25 2002-08-14 10:30:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,7 +166,7 @@ public:
 					return layoutItem_;
 				    }
 
-	virtual void		finalise() 
+	virtual void		finalise(bool t=false) 
 				    { 
 					if( finalised )	return;
 
@@ -227,9 +227,6 @@ public:
 	bool			isHidden()		{ return is_hidden; }
 	bool			itemInited() const;
 
-	void			storePosition();
-	void			restorePosition();
-
     protected:
 
 	int			hStretch;
@@ -262,7 +259,6 @@ public:
 	bool			finalised;
 	bool			display_;
 	bool			display_maximised;
-	bool			restored_position;
 
 	int			pref_width_;
 	int			pref_height_;
@@ -342,8 +338,8 @@ public:
                         uiObjBodyImpl( C& handle, uiParent* parnt, 
 				       const char* nm )
 			    : uiObjectBody( parnt )
-			    , T( parnt && parnt->body() ? 
-				     parnt->body()->managewidg() : 0 , nm )
+			    , T( parnt && parnt->pbody() ? 
+				     parnt->pbody()->managewidg() : 0 , nm )
 			    , handle_( handle )
 			    {}
 

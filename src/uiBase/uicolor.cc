@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.9 2002-08-02 13:09:47 nanne Exp $
+ RCS:           $Id: uicolor.cc,v 1.10 2002-08-14 10:30:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uibody.h"
 #include "uilabel.h"
 #include "qcolordialog.h"
+#include "uiparentbody.h"
 
 bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
@@ -24,12 +25,12 @@ bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
     if ( withtransp )
     {
 	rgb = QColorDialog::getRgba( (QRgb) col.rgb(), &ok, 
-		      parnt ? parnt->body()->qwidget() : 0, nm );
+		      parnt ? parnt->pbody()->qwidget() : 0, nm );
     }
     else
     {
 	QColor newcol = QColorDialog::getColor( QColor((QRgb) col.rgb()) , 
-		      parnt ? parnt->body()->qwidget() : 0, nm );
+		      parnt ? parnt->pbody()->qwidget() : 0, nm );
 
 	ok = newcol.isValid();
 	rgb = newcol.rgb(); 
