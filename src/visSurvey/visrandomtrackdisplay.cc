@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.41 2004-07-29 21:41:26 bert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.42 2004-09-17 15:13:39 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -553,20 +553,6 @@ void RandomTrackDisplay::setResolution( int res )
 int RandomTrackDisplay::getResolution() const
 {
     return track->getResolution();
-}
-
-
-BufferString RandomTrackDisplay::getResolutionName( int res ) const
-{
-    const char* name;
-    if ( res == 1 ) 
-	name = "Moderate";
-    else if ( res == 2 ) 
-	name = "High";
-    else 
-	name = "Default";
-
-    return BufferString(name);
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.72 2004-07-29 21:41:26 bert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.73 2004-09-17 15:13:39 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -408,14 +408,6 @@ BufferString PlaneDataDisplay::getManipulationPos() const
 int PlaneDataDisplay::nrResolutions() const
 {
     return trect->getNrResolutions();
-}
-
-
-BufferString PlaneDataDisplay::getResolutionName( int res ) const
-{
-    if ( res == 1 ) return "Moderate";
-    if ( res == 2 ) return "High";
-    else return "Default";
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.32 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.33 2004-09-17 15:13:50 nanne Exp $
 ________________________________________________________________________
 
 
@@ -58,7 +58,6 @@ public:
     BufferString		getManipulationString() const;
 
     int                		nrResolutions() const; 
-    BufferString		getResolutionName(int) const;
     int				getResolution() const;
     void			setResolution(int);
 

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.24 2004-07-29 21:41:26 bert Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.25 2004-09-17 15:13:39 nanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -36,6 +36,15 @@ void SurveyObject::setTraceData( bool color, SeisTrcBuf& trcs )
 {
     trcs.deepErase();
 }
+
+
+BufferString SurveyObject::getResolutionName( int res ) const
+{
+    if ( res == 1 ) return "Moderate";
+    if ( res == 2 ) return "High";
+    else return "Default";
+}
+
 
 
 SurveyParamManager& SPM()

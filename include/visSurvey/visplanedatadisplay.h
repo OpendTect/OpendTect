@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.51 2004-07-26 15:25:00 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.52 2004-09-17 15:13:50 nanne Exp $
 ________________________________________________________________________
 
 
@@ -86,7 +86,6 @@ public:
     visBase::Material*		getMaterial();
 
     int				nrResolutions() const;
-    BufferString		getResolutionName(int) const;
     int				getResolution() const;
     void			setResolution(int);
 
