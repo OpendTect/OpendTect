@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.13 2003-12-01 13:32:02 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.14 2004-02-03 16:35:57 nanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -73,9 +73,11 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
 	    prevc = tosurf ? surfcoord : c;
 	}
 
-	ptr = getNextWord( ptr, valbuf );
 	if ( *ptr )
-	    dah = atof( ptr );
+	{
+	    getNextWord( ptr, valbuf );
+	    dah = atof(valbuf) * zfac;
+	}
 	else
 	    dah += c.distance( prevc );
 
