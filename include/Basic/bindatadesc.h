@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.6 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: bindatadesc.h,v 1.7 2003-12-15 16:04:30 nanne Exp $
 ________________________________________________________________________
 
 */
@@ -101,16 +101,18 @@ public:
     static ByteCount	nearestByteCount( bool is_int, int s )
 			{
 			    if ( !is_int ) return s > 6 ? N8 : N4;
-			    if ( s < 2 ) s = 1;
+			    if ( s > 6 ) s = 8;
 			    else if ( s > 2 ) s = 4;
+			    else if ( s < 2 ) s = 1;
 			    return (ByteCount)s;
 			}
+
     static int		nextSize( bool is_int, int s )
 			{
-			    if ( s < 0 || s > 4 ) return -1;
+			    if ( s < 0 || s > 8 ) return -1;
 			    if ( s == 0 )	  return is_int ? 1 : 4;
 			    if ( !is_int )	  return s == 4 ? 8 : -1;
-			    return s == 1 ? 2 : 4;
+			    return s == 1 ? 2 : ( s == 2 ? 4 : 8 );
 			}
 
 protected:
