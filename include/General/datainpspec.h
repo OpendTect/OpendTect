@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.42 2003-01-03 13:39:27 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.43 2003-02-07 16:11:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -580,13 +580,13 @@ protected:
 class BinIDCoordInpSpec : public DataInpSpec
 {
 public:
-			BinIDCoordInpSpec( bool doCoord=false
-					 , bool isRelative=false
-					 , double inline_x = undefVal<double>()
-					 , double crossline_y =
-							     undefVal<double>()
-					 , bool withOtherBut=false
-					 , const BinID2Coord* b2c=0 )
+			BinIDCoordInpSpec( bool doCoord,
+					   bool isRelative=false,
+					   bool withOtherBut=false,
+					   double inline_x = undefVal<double>(),
+					   double crossline_y =
+							     undefVal<double>(),
+					   const BinID2Coord* b2c=0 )
 			    : DataInpSpec( DataTypeImpl<int>(DataType::binID) )
 			    , withOtherBut_( withOtherBut )
 			    , inl_x( inline_x )

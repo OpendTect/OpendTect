@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.11 2002-09-17 13:26:12 bert Exp $
+ RCS:		$Id: ioman.h,v 1.12 2003-02-07 16:11:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,10 @@ public:
 
     //! The following functions return a cloned IOObj (=mem man by caller)
     IOObj*		get(const MultiID&) const;
-    IOObj*		getIfOnlyOne(const char* trgroupname) const;
+    IOObj*		getOfGroup(const char* tgname,bool first=true,
+	    			   bool onlyifsingle=false) const;
+    IOObj*		getIfOnlyOne( const char* trgroupname )
+			{ return getOfGroup(trgroupname,true,true); }
     IOObj*		getByName(const char* objname,
 			      const char* partrgname=0,const char* parname=0);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.8 2002-01-07 13:17:01 arend Exp $
+ RCS:           $Id: uibutton.h,v 1.9 2003-02-07 16:11:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,11 +41,13 @@ public:
 class uiPushButton : public uiButton
 {
 public:
+				uiPushButton( uiParent*, const char* nm);
 				uiPushButton( uiParent*, const char* nm,
-					      const CallBack* cb =0); 
+					      const CallBack& cb); 
 				uiPushButton( uiParent*, const char* nm,
-					      const ioPixmap&,
-					      const CallBack* cb =0); 
+					      const ioPixmap&);
+				uiPushButton( uiParent*, const char* nm,
+					      const ioPixmap&,const CallBack&);
 
     void			setDefault( bool yn = true);
 
@@ -60,8 +62,7 @@ private:
 class uiRadioButton : public uiButton
 {                        
 public:
-				uiRadioButton( uiParent*, const char* nm,
-					       const CallBack* cb =0);
+				uiRadioButton(uiParent*,const char*);
 
     bool			isChecked() const;
     virtual void		setChecked( bool check );
@@ -78,8 +79,7 @@ class uiCheckBox: public uiButton
 {
 public:
 
-				uiCheckBox( uiParent*, const char* nm,
-					    const CallBack* cb =0);
+				uiCheckBox(uiParent*,const char* nm);
 
     bool			isChecked () const;
     void			setChecked ( bool check ) ;
@@ -97,11 +97,13 @@ private:
 class uiToolButton : public uiButton
 {
 public:
-				uiToolButton( uiParent*, const char* nm,
-                                              const CallBack* cb =0);
-				uiToolButton( uiParent*, const char* nm,
-					      const ioPixmap&,
-					      const CallBack* cb =0); 
+				uiToolButton(uiParent*,const char*);
+				uiToolButton(uiParent*,const char*,
+					     const CallBack&);
+				uiToolButton(uiParent*,const char*,
+					     const ioPixmap&);
+				uiToolButton(uiParent*,const char*,
+					     const ioPixmap&,const CallBack&);
 private:
 
     uiToolButtonBody*		body_;

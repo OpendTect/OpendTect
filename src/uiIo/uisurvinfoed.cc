@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.34 2002-10-08 11:50:22 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.35 2003-02-07 16:11:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,13 +103,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 
 	crdgrp = new uiGroup( this, "Coordinate settings" );
 	ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
-				 BinIDCoordInpSpec() ); 
+				 BinIDCoordInpSpec(false) ); 
 	ic0fld->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
 	ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line",
-				 BinIDCoordInpSpec()  );
+				 BinIDCoordInpSpec(false)  );
 	ic2fld = new uiGenInput( crdgrp,
 			"In-line/Cross-line not on above in-line",
-			 BinIDCoordInpSpec() );
+			 BinIDCoordInpSpec(false) );
 	xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
 	xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
 	xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.16 2002-11-05 15:13:46 arend Exp $
+ RCS:           $Id: uibutton.cc,v 1.17 2003-02-07 16:11:37 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,14 +175,21 @@ const char* uiButton::text()
     { return mqbut()->text(); }
 
 
-uiPushButton::uiPushButton(uiParent* parnt,const char* nm, const CallBack* cb)
-    : uiButton( parnt, nm, cb, mkbody(parnt,0,nm) )
+uiPushButton::uiPushButton( uiParent* parnt, const char* nm )
+    : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
+{}
+uiPushButton::uiPushButton( uiParent* parnt, const char* nm, const CallBack& cb)
+    : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
 {}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
-			    const ioPixmap& pm, const CallBack* cb)
-    : uiButton( parnt, nm, cb, mkbody(parnt,&pm,nm) )
+			    const ioPixmap& pm )
+    : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
+{}
+uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
+			    const ioPixmap& pm, const CallBack& cb )
+    : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
 {}
 
 uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
@@ -199,8 +206,8 @@ void uiPushButton::setDefault( bool yn)
 
 
 
-uiRadioButton::uiRadioButton(uiParent* parnt,const char* nm, const CallBack* cb)
-    : uiButton( parnt, nm, cb, mkbody(parnt,nm) )
+uiRadioButton::uiRadioButton(uiParent* parnt,const char* nm )
+    : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
 {}
 
 uiRadioButtonBody& uiRadioButton::mkbody(uiParent* parnt, const char* txt)
@@ -217,8 +224,8 @@ void uiRadioButton::setChecked( bool check )
 
 
 
-uiCheckBox::uiCheckBox(uiParent* parnt,const char* nm, const CallBack* cb )
-    : uiButton( parnt, nm, cb, mkbody(parnt,nm) )
+uiCheckBox::uiCheckBox( uiParent* parnt, const char* nm )
+    : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
 {
     setPrefWidthInChar( strlen(nm) + 3.5 );
 }
@@ -229,7 +236,7 @@ void uiCheckBox::setText( const char* txt )
     setPrefWidthInChar( strlen(txt) + 3.5 );
 }
 
-uiCheckBoxBody& uiCheckBox::mkbody(uiParent* parnt,const char* txt)
+uiCheckBoxBody& uiCheckBox::mkbody( uiParent* parnt, const char* txt )
 { 
     body_= new uiCheckBoxBody(*this,parnt,txt);
     return *body_; 
@@ -242,13 +249,20 @@ void uiCheckBox::setChecked ( bool check )
     { body_->setChecked( check ); }
 
 
-uiToolButton::uiToolButton(uiParent* parnt,const char* nm, const CallBack* cb)
-    : uiButton( parnt, nm, cb, mkbody(parnt,0,nm) )
+uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
+    : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
+{}
+uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
+    : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
 {}
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
-			    const ioPixmap& pm, const CallBack* cb)
-    : uiButton( parnt, nm, cb, mkbody(parnt,&pm,nm) )
+			    const ioPixmap& pm )
+    : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
+{}
+uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
+			    const ioPixmap& pm, const CallBack& cb )
+    : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
 {}
 
 uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
