@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.3 2003-01-16 11:26:25 bert Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.4 2003-04-10 11:26:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,12 +47,12 @@ uiImportLMKFault::uiImportLMKFault( uiParent* p )
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
 
     formatfilefld = new uiFileInput( this, "Input Landmark formatfile",0,
-	    			     true, "*.fault_fmt");
+	    			     true, "*.fault_fmt;*");
     formatfilefld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     formatfilefld->attach( alignedBelow, infld );
 
-    ctio.ctxt.forread = true;
+    ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Fault" );
     outfld->attach( alignedBelow, formatfilefld );
 }
