@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.25 2004-10-15 15:31:59 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.26 2004-10-20 14:44:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,9 +211,11 @@ static const char* gtSelTxt( const char** sts, Pol2D p2d, bool forread )
     };
 
     if ( !sts ) sts = stdseltxts;
+
     if ( !sts[1] ) return sts[0];
-    if ( !sts[3] ) return sts[(int)p2d];
-    return sts[ 3 * (forread ? 0 : 1) + (int)p2d ];
+
+    const int offs = (int)p2d - (int)No2D;
+    return sts[3] ? sts[ 3 * (forread ? 0 : 1) + offs ] : sts[offs];
 }
 
 
