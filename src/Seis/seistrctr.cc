@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.18 2001-09-02 22:05:57 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.19 2001-10-08 09:46:11 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -166,17 +166,21 @@ void SeisTrcTranslator::usePar( const IOPar* iopar )
 {
     if ( !iopar ) return;
 
-    int nr = 1;
+    int nr = 0;
     BufferString nrstr;
     while ( 1 )
     {
-	nrstr = "."; nrstr += nr;
+	if ( !nr )	nrstr = "";
+	else		{ nrstr = "."; nrstr += nr; }
+	nr++;
 
 	BufferString keystr = SurveyInfo::sKeyZRange; keystr += nrstr;
 	const char* res = iopar->find( (const char*)keystr );
-	if ( !res && nr == 0 )
-	     res = iopar->find( SurveyInfo::sKeyZRange );
-	if ( !res ) break;
+	if ( !res )
+	{
+	    if ( nr > 1 )	break;
+	    else		continue;
+	}
 	storediopar.set( keystr, res );
 
 	keystr = "Name"; keystr += nrstr;
@@ -187,20 +191,25 @@ void SeisTrcTranslator::usePar( const IOPar* iopar )
 	storediopar.set( keystr, iopar->find( (const char*)keystr ) );
 	keystr = "Data characteristics"; keystr += nrstr;
 	storediopar.set( keystr, iopar->find( (const char*)keystr ) );
-	nr++;
     }
 }
 
 
 void SeisTrcTranslator::useStoredPar()
 {
-    int nr = 1;
+    if ( cds.size() < 1 ) return;
+
+    int nr = 0;
     BufferString nrstr;
     while ( 1 )
     {
 	if ( cds.size() < nr ) break;
-	TargetComponentData* tcd = tarcds[nr-1];
-	nrstr = "."; nrstr += nr;
+	if ( !nr )
+	    nrstr = "";
+	else
+	    { nrstr = "."; nrstr += nr; }
+	TargetComponentData* tcd = tarcds[nr ? nr-1 : 0];
+	nr++;
 
 	BufferString keystr( "Name" ); keystr += nrstr;
 	const char* nm = storediopar.find( (const char*)keystr );
@@ -245,8 +254,6 @@ void SeisTrcTranslator::useStoredPar()
 	res = storediopar.find( (const char*)keystr );
 	if ( res && *res )
 	    tcd->datachar.set( res );
-
-	nr++;
     }
 }
 
