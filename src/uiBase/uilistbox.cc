@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.24 2001-09-27 16:17:04 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.25 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,13 +38,14 @@ public:
     void 		setLines( int prefNrLines )
 			{ 
 			    if(prefNrLines >= 0) nLines=prefNrLines;
-			    setStretch( 1, isSingleLine() ? 0 : 2 );
+//			    setStretch( 1, isSingleLine() ? 0 : 2 );
+			    setStretch( 1, isSingleLine() ? 0 : 1 );
 			}
 
     virtual uiSize	minimumSize() const; //!< \reimp
     virtual bool	isSingleLine() const		 { return nLines==1; }
 
-    QSize 		sizeHint() const;
+//    QSize 		sizeHint() const;
 
 protected:
 
@@ -70,7 +71,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
     if( isMultiSelect ) setSelectionMode( QListBox::Extended );
     setStretch( 1, isSingleLine() ? 0 : 2 );
 }
-
+#if 0
 
 /* TODO: over-ride uiObjectBody::prefHNrPics() 
 and uiObjectBody::prefVNrPics() instead of sizeHint.
@@ -114,7 +115,7 @@ QSize uiListBoxBody::sizeHint() const
     const int pixheight = mFont->height() * nrlines;
     return QSize ( pixwidth+extrasz, pixheight+extrasz );
 }
-
+#endif
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw)
     : uiObject( p, nm, mkbody(p,nm,ms,nl,pfw) )
     , selectionChanged( this )
@@ -267,13 +268,17 @@ void uiListBox::setItemText( int idx, const char* txt )
 
 
 uiSize uiListBoxBody::minimumSize() const
-{  
+{ 
+#if 0 
     const uiFont* mFont = const_cast<uiListBoxBody*>(this)->uiObjHandle().font();
     if( !mFont ) { pErrMsg("uiObjHandle has no font!"); return uiSize(); }
 
     int totHeight = mFont->height() * nLines;
     int totWidth  = mFont->maxWidth() * fieldWdt;
-
+#else
+    int totHeight = fontHgt() * nLines;
+    int totWidth  = fontWdt( true ) * fieldWdt;
+#endif
     return uiSize ( totWidth , totHeight );
 }
 

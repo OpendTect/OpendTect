@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.9 2001-10-17 11:53:08 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.10 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,28 +31,60 @@ public:
     virtual			~i_LayoutItem();
 
 
-
-    virtual int			horAlign(layoutMode m) const 
-				    { return pos(m).left(); }
+    virtual int			horAlign(layoutMode m ) const
+				    { return relpos(m).left(); }
     virtual int			horCentre(layoutMode m) const 
-				    { return ( pos(m).left() 
-					     + pos(m).right() ) / 2; 
+				    { return ( relpos(m).left() 
+					     + relpos(m).right() ) / 2; 
 				    }
 
     virtual QSize 		minimumSize() const 
 				    { return qwidget()->minimumSize(); }
 
-    QSize			sizeHint() const
-				    { return mQLayoutItem().sizeHint(); }
+    uiSize			prefSize() const
+				{ 
+				    if( prefSzDone ) 
+				       { pErrMsg("PrefSize already done.");}
+				    else
+				    {
+					i_LayoutItem* self =
+					    const_cast<i_LayoutItem*>(this);
+					self->prefSzDone = true;
+					QSize ps( mQLayoutItem().sizeHint() );
+					self->prefSz = 
+					    uiSize( ps.width(), ps.height() );	
+				    }
+
+				    return prefSz;
+				}
 
     virtual void       		invalidate();
+    virtual void       		updatedAlignment(layoutMode)	{}
 
     uiSize			actualSize( bool include_border = true) const;
 
     inline const i_LayoutMngr& 	mngr() const 		{ return mngr_; } 
 
-    inline const uiRect& 	pos(layoutMode m) const	{ return layoutpos[m];}
-    inline uiRect&		pos(layoutMode m)	{ return layoutpos[m];}
+    inline const uiRect& 	relpos(layoutMode m) const
+				    { return layoutpos[m];}
+    inline uiRect&		relpos(layoutMode m)	{ return layoutpos[m];}
+
+#define ABS_POS_ONLY	
+
+    uiRect			abspos(layoutMode m)
+				{ 
+#ifdef ABS_POS_ONLY	
+				    return layoutpos[m];
+#else
+				    const uiRect& mr = mngr().abspos(m);
+				    const uiRect& r = relpos(m); 
+
+				    return uiRect( mr.left()+r.left(), 
+						   mr.top()+r.top(),
+						   mr.right()+r.right(), 
+						   mr.bottom()+r.bottom() );
+#endif
+				}
 
     constraintIterator		iterator();
 
@@ -60,6 +92,8 @@ protected:
 
     bool			preferred_pos_inited;
     bool			minimum_pos_inited;
+
+    uiRect			layoutpos[ nLayoutMode ];
 
     int 			stretch( bool hor ) const;
     void			commitGeometrySet();
@@ -93,8 +127,6 @@ protected:
     virtual const QWidget*	managewidg_() const 
 				    { return mQLayoutItem_.widget(); }
 
-    uiRect			layoutpos[ nLayoutMode ];
-
     inline i_LayoutMngr& 	mngr()			{ return mngr_; } 
 
 private:
@@ -105,8 +137,10 @@ private:
     constraintList		constrList;
 
 #ifdef __debug__
-    int 			isPosOk( uiConstraint*, int );
+    int 			isPosOk( uiConstraint*, int, bool );
 #endif
+    bool			prefSzDone;
+    uiSize			prefSz;
 };
 
 

@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.19 2001-10-17 11:53:08 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.20 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uilayout.h"
-//#include "i_layoutitem.h"
 #include "uigeom.h"
 #include "uiobj.h"
 
@@ -97,13 +96,14 @@ widget already present).
 class i_LayoutMngr : public QLayout, public UserIDObject
 {
     friend class	i_LayoutItem;
+    friend class	uiGroupParentBody;
  //   friend class	i_uiGroupLayoutItem;
 
 public:
 
 			i_LayoutMngr( QWidget* prnt,
 				      int border, int space,
-				      const char* name );
+				      const char* name, uiObjectBody& mngbdy );
 
     virtual		~i_LayoutMngr();
  
@@ -117,15 +117,18 @@ public:
     virtual QSizePolicy::ExpandData expanding() const;
 
     virtual void       	invalidate();
+    virtual void       	updatedAlignment(layoutMode);
 	
     bool 		attach ( constraintType, QWidget&, QWidget*, int);
 
+    const uiRect&	relpos(layoutMode m) const;
+    uiRect&		relpos(layoutMode m);
 
-    const uiRect&	pos(layoutMode m) const	{ return layoutpos[m]; }
-    uiRect&		pos(layoutMode m)	{ return layoutpos[m]; }
+    uiRect		abspos(layoutMode m);
 
     void		forceChildrenRedraw( uiObjectBody*, bool deep );
     void		childrenClear( uiObject* );
+    bool		isChild( uiObject* );
     void		setMinTxtWidgHgt( int h )   { mintxtwidgethgt=h; }
     int			minTxtWidgHgt() const       { return mintxtwidgethgt; }
 
@@ -137,6 +140,7 @@ public:
 			{ int s = spacing(); return s > 3 ? s-2 : 2; }
 
     void		setIsMain( bool yn )	    { ismain = yn; }
+    void 		layoutChildren( layoutMode m, bool finalLoop=false );
 
 private:
 
@@ -146,12 +150,11 @@ private:
                         { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
     void 		doLayout( layoutMode m, const QRect& );
 
-    void 		layoutChildren( layoutMode m, bool finalLoop=false );
     void 		moveChildrenTo( int , int, layoutMode );
     void 		fillResizeList( ObjectSet<resizeItem>&, 
 					int&, int&, int&, int& );
     bool		tryToGrowItem( resizeItem&, const int, const int, 
-				       int, int, const QRect&);
+				       int, int, const QRect&, int);
     void		resizeTo( const QRect& );
     void		childrenCommitGeometrySet();
 
@@ -167,6 +170,8 @@ private:
     bool		minimumDone;
     bool		preferredDone;
     bool		ismain;
+
+    uiObjectBody& 	managedBody;
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.3 2001-10-05 13:20:15 arend Exp $
+ RCS:           $Id: uibody.h,v 1.4 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ public:
 
     virtual void		finalise()				{}
     virtual void		clear()					{}
+    virtual void		fontchanged()				{}
 
 
 				//! can return 0

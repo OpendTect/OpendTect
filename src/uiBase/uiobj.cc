@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.18 2001-12-13 21:58:43 bert Exp $
+ RCS:           $Id: uiobj.cc,v 1.19 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 #include <qpalette.h> 
 #include <qtooltip.h> 
+#include <qfontmetrics.h> 
 
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
 #define mBody()		mBody_( body() )
@@ -248,39 +249,53 @@ uiMainWin* uiObject::mainwin()
 
 uiObjectBody::uiObjectBody( uiParent* parnt )
     : uiBody()
-    , hStretch( mUndefIntVal  )
-    , vStretch(  mUndefIntVal )
     , layoutItem_( 0 )
-    , is_hidden( false )
-    , display_( true )
-    , finalised( false )
-    , pref_width( - 1 )
-    , pref_char_width( -1 )
-    , pref_height( -1 )
-    , pref_char_height( -1 )
-    , cached_pref_width( 0 )
-    , cached_pref_height( 0 )
     , parent_( parnt ? mParntBody(parnt) : 0  )
     , font_( 0 )
+    , hStretch( mUndefIntVal  )
+    , vStretch(  mUndefIntVal )
+    , is_hidden( false )
+    , finalised( false )
+    , display_( true )
+    , popped_up_( false )
+    , pref_width_( 0 )
+    , pref_height_( 0 )
+    , pref_width_set( - 1 )
+    , pref_char_width( -1 )
+    , pref_height_set( -1 )
+    , pref_char_height( -1 )
+    , pref_width_hint( 0 )
+    , pref_height_hint( 0 )
+    , fnt_hgt( 0 )
+    , fnt_wdt( 0 )
+    , fnt_maxwdt( 0 )
+#ifdef USE_DISPLAY_TIMER
     , displTim( *new Timer("Display timer"))
 { 
     displTim.tick.notify(mCB(this,uiObjectBody,doDisplay));
 }
+#else
+{}
+#endif
 
 uiObjectBody::~uiObjectBody() 
-{ 
+{
+#ifdef USE_DISPLAY_TIMER
     delete &displTim;
+#endif
 }
 
 
 void uiObjectBody::display( bool yn, bool shrink )
 {
+    popped_up_ = true;
+
     display_ = yn;
 
     if( shrink )
     {
-	cached_pref_width  = 0;
-	cached_pref_height = 0;
+	pref_width_  = 0;
+	pref_height_ = 0;
 
 	is_hidden = true;
 
@@ -288,8 +303,12 @@ void uiObjectBody::display( bool yn, bool shrink )
     }
     else
     {
+#ifdef USE_DISPLAY_TIMER
 	if( displTim.isActive() ) displTim.stop();
 	displTim.start( 1, true );
+#else
+	doDisplay(0);
+#endif
     }
 }
 
@@ -306,8 +325,8 @@ void uiObjectBody::doDisplay(CallBacker*)
 	{
 	    if( !is_hidden )
 	    {
-		cached_pref_width  = prefHNrPics();
-		cached_pref_height = prefVNrPics();
+		int sz = prefHNrPics();
+		sz = prefVNrPics();
 
 		is_hidden = true;
 
@@ -354,66 +373,106 @@ void uiObjectBody::uisetBackgroundColor( const Color& c )
 
 
 #ifdef __debug__ 
-#define mChkmLayout()   if(!layoutItem_) { pErrMsg("No layoutItem"); return 0; }
+#define mChkLayoutItm() if(!layoutItem_) { pErrMsg("No layoutItem"); return 0; }
 #else
-#define mChkmLayout()   if(!layoutItem_) { return 0; } 
+#define mChkLayoutItm() if(!layoutItem_) { return 0; } 
 #endif
 
+void uiObjectBody::getSzHint()
+{
+    if( pref_width_hint && pref_height_hint ) return;
+    if( pref_width_hint || pref_height_hint ) 
+	{ pErrMsg("Only 1 defined size.."); }
+
+    uiSize sh = layoutItem_->prefSize();
+
+    pref_width_hint = sh.width();
+    pref_height_hint = sh.height();
+}
 
 int uiObjectBody::prefHNrPics() const
-{   // Also look at uiComboBox::prefHNrPics() when changing this method.
+{
+/*
+    if( !popped_up_ ) 
+	{ pErrMsg("Huh? asked for prefHNrPics but not popped."); }
+*/
+    const_cast<uiObjectBody*>(this)->popped_up_ = true;
 
-    mChkmLayout();
-    if( pref_width >= 0 ) return pref_width;
-    if( pref_char_width >= 0 ) 
+    if( pref_width_ <= 0 )
     {
-	if( !uifont() ){ pErrMsg("uiObjectBody has no uifont!"); return 0; }
- 
-#ifdef EXTENSIVE_DEBUG
-	int ret_val = pref_char_width * uifont()->avgWidth();
-	BufferString msg;
-	msg += "Preferred width of";
-	msg += name();
-	msg += " = ";
-	msg+= ret_val;
-	pErrMsg(msg);
-	return ret_val;
-#else
-	return mNINT( pref_char_width * (float)uifont()->avgWidth() ); 
-#endif
-    }
+	if( is_hidden ) 
+	    { pErrMsg("Cannot calculate preferred size when hidden"); return 0;}
+	mChkLayoutItm();
+	if( pref_width_set >= 0 ) 
+	    { const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_set; }
+	else if( pref_char_width >= 0 ) 
+	{
+	    int fw = fontWdt();
+	    if( !fw ){ pErrMsg("Font has 0 width."); return 0; }
 
-    if( is_hidden ) return cached_pref_width;
-    return layoutItem_->sizeHint().width(); 
+	    const_cast<uiObjectBody*>(this)->pref_width_ =
+					     mNINT( pref_char_width * fw ); 
+	}
+	else
+	{ 
+	    const_cast<uiObjectBody*>(this)->getSzHint();
+	    const_cast<uiObjectBody*>(this)->pref_width_ =
+		    pref_width_hint;
+	}
+    }
+    return pref_width_;
 }
 
 
 int uiObjectBody::prefVNrPics() const
-{ 
-    mChkmLayout();
-    if( pref_height >= 0 ) return pref_height;
-    if( pref_char_height >= 0 ) 
-	{ return mNINT( pref_char_height * (float)uifont()->height() ); }
+{
+/* 
+    if( !popped_up_ ) 
+	{ pErrMsg("Huh? asked for prefVNrPics but not popped."); }
+*/
+    const_cast<uiObjectBody*>(this)->popped_up_ = true;
 
-    int prfvnp = is_hidden ? cached_pref_height 
-			   : layoutItem_->sizeHint().height(); 
-
-    if( isSingleLine() && parent_ )
+    if( pref_height_ <= 0 )
     {
-	int min_height =  parent_->minTextWidgetHeight();
-	if( min_height >= 0  && prfvnp <= min_height ) 
-	    return min_height;
+	if( is_hidden ) 
+	    { pErrMsg("Cannot calculate preferred size when hidden"); return 0;}
+
+	mChkLayoutItm();
+	if( pref_height_set >= 0 ) 
+	    { const_cast<uiObjectBody*>(this)->pref_height_= pref_height_set;}
+	else if( pref_char_height >= 0 ) 
+	{
+	    int fh = fontHgt();
+	    if( !fh ){ pErrMsg("Font has 0 height."); return 0; }
+
+	    const_cast<uiObjectBody*>(this)->pref_height_ =
+					    mNINT( pref_char_height * fh ); 
+	}
+	else
+	{ 
+	    const_cast<uiObjectBody*>(this)->getSzHint();
+	    const_cast<uiObjectBody*>(this)->pref_height_ = pref_height_hint;
+
+	    if( isSingleLine() && parent_ )
+	    {
+		int min_height =  parent_->minTextWidgetHeight();
+		if( min_height >= 0  && pref_height_ <= min_height ) 
+		    const_cast<uiObjectBody*>(this)->pref_height_ =
+								    min_height;
+	    }
+	}
     }
 
-    return prfvnp;
-
+    return pref_height_;
 }
 
 
 
 uiSize uiObjectBody::actualSize( bool include_border ) const
 {
-    mChkmLayout();
+    if( !popped_up_ ) 
+	{ pErrMsg("Huh? asked for actualSize but not popped."); }
+    mChkLayoutItm();
     return layoutItem_->actualSize( include_border );
 }
 
@@ -448,6 +507,8 @@ i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
 void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin )
 {
 //    parent_->attachChild( tp, this, other, margin );
+    if( popped_up_ ) 
+	{ pErrMsg("Cannot attach when already popped up."); }
     parent_->attachChild( tp, &uiObjHandle(), other, margin );
 }
 
@@ -457,6 +518,7 @@ const uiFont* uiObjectBody::uifont() const
     { 
 	const_cast<uiObjectBody*>(this)->font_ = 
 					&uiFontList::get(className(*this)); 
+	//const_cast<uiObjectBody*>(this)->qwidget()->setFont( font_->qFont() );
     }
 
     return font_;
@@ -468,4 +530,35 @@ void uiObjectBody::uisetFont( const uiFont& f )
     font_ = &f;
     qwidget()->setFont( font_->qFont() );
     parent_->setMinTextWidgetHeight();
+}
+
+void uiObjectBody::gtFntWdtHgt() const
+{
+    if( !fnt_hgt || !fnt_wdt || !fnt_maxwdt )
+    {
+	QFontMetrics fm( qwidget()->font() );
+	const_cast<uiObjectBody*>(this)->fnt_hgt = fm.lineSpacing() + 2;
+	const_cast<uiObjectBody*>(this)->fnt_wdt = fm.width(QChar('x'));
+	const_cast<uiObjectBody*>(this)->fnt_maxwdt = fm.maxWidth();
+    }
+
+#ifdef __debug__
+
+    if( fnt_hgt<0 || fnt_hgt>100 )
+    { 
+	pErrMsg("Font heigt no good. Taking 25."); 
+	const_cast<uiObjectBody*>(this)->fnt_hgt = 25;
+    }
+    if( fnt_wdt<0 || fnt_wdt>100 )
+    { 
+	pErrMsg("Font width no good. Taking 10."); 
+	const_cast<uiObjectBody*>(this)->fnt_wdt = 10;
+    }
+    if( fnt_maxwdt<0 || fnt_maxwdt>100 )
+    { 
+	pErrMsg("Font maxwidth no good. Taking 15."); 
+	const_cast<uiObjectBody*>(this)->fnt_maxwdt = 15;
+    }
+
+#endif
 }

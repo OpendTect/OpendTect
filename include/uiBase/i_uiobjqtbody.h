@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: i_uiobjqtbody.h,v 1.1 2001-08-23 15:02:41 windev Exp $
+ RCS:           $Id: i_uiobjqtbody.h,v 1.2 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,9 +36,14 @@ public:
     virtual void 	setFont( const QFont &font )
 			{
 			    if ( !uifont() ) { pErrMsg("no uifont!"); return; }
-			    mQWIDGET_BODY::setFont( uifont()->qFont() );
+			    mQWIDGET_BASE::setFont( uifont()->qFont() );
 			}
 
+    virtual void	fontChange( const QFont& oldFont )
+			{
+			    uiBody::fontchanged();
+			    mQWIDGET_BASE::fontChange( oldFont );
+			}
 
 			//! over-ride Qt
     virtual void	closeEvent( QCloseEvent *e )
@@ -57,8 +62,6 @@ protected:
 protected:
 
     mHANDLE_OBJ&       	handle_;
-
-
 
 
 #undef mHANDLE_OBJ 

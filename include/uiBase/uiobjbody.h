@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.7 2001-10-05 13:20:15 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.8 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uifont.h"
 //#include "i_layout.h"
 
+//#define USE_DISPLAY_TIMER
 
 class uiButtonGroup;
 class QWidget;
@@ -48,38 +49,51 @@ public:
     void 			display( bool yn = true, bool shrink=false );
     void			uisetFocus();
     bool			uiCloseOK() { return uiObjHandle().closeOK(); }
+    bool			isDisplayed() const { return display_; }
 
     Color              		uibackgroundColor() const;
     void              		uisetBackgroundColor(const Color&);
     void			uisetSensitive(bool yn=true);
     bool			uisensitive() const;
 
-    virtual int			prefHNrPics() const;
+    int				prefHNrPics() const;
     void			setPrefWidth( int w )      
 				{ 
+				    if( popped_up_ ) 
+					{ pErrMsg("Only use before pop-up");}
 				    pref_char_width = -1;
-				    pref_width = w; 
+				    pref_width_set = w; 
 				}
     void			setPrefWidthInChar( float w )
 				{ 
-				    pref_width = -1;
+				    if( popped_up_ ) 
+					{ pErrMsg("Only use before pop-up");}
+				    pref_width_set = -1;
 				    pref_char_width = w; 
 				}
 
-    virtual int			prefVNrPics() const;
+    int				prefVNrPics() const;
     void			setPrefHeight( int h )     
 				{ 
+				    if( popped_up_ ) 
+					{ pErrMsg("Only use before pop-up");}
 				    pref_char_height = -1;
-				    pref_height = h; 
+				    pref_height_set = h; 
 				}
     void			setPrefHeightInChar( float h )
 				{ 
-				    pref_height = -1;
+				    if( popped_up_ ) 
+					{ pErrMsg("Only use before pop-up");}
+				    pref_height_set = -1;
 				    pref_char_height = h; 
 				}
 
     void               		setStretch( int hor, int ver ) 
-				    { hStretch = hor; vStretch = ver; }
+				{ 
+				    if( popped_up_ ) 
+					{ pErrMsg("Only use before pop-up");}
+				    hStretch = hor; vStretch = ver; 
+				}
 
     virtual int			stretch( bool hor, bool retUndef=false ) const
 				{ 
@@ -124,8 +138,14 @@ public:
 								uiObjHandle()); 
 				    finalise_();
 				    finalised = true;
-				    display( display_ );
+				    if( !display_ ) display( display_ );
 				}
+
+    virtual void		fontchanged() 
+{ 
+pErrMsg("Font changed..");
+fnt_hgt=0;  fnt_wdt=0; fnt_maxwdt=0;
+}
 
 protected:
 
@@ -134,7 +154,17 @@ protected:
     virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mngr );
 
     virtual void                finalise_()             {}
+
     void 			doDisplay(CallBacker*);
+
+    int				fontHgt() const 
+				    { gtFntWdtHgt(); return fnt_hgt; }
+    int				fontWdt(bool max=false) const
+				    { 
+					gtFntWdtHgt(); 
+					return max ? fnt_maxwdt : fnt_wdt; 
+				    }
+
 
 private:
 
@@ -142,7 +172,6 @@ private:
     uiParentBody*      		parent_;
     const uiFont*		font_;
 
-    Timer&			displTim;
 
     int				hStretch;
     int				vStretch;
@@ -150,13 +179,28 @@ private:
     bool			is_hidden;
     bool			finalised;
     bool			display_;
-    int				pref_width;
-    float			pref_char_width;
-    int				pref_height;
-    float			pref_char_height;
-    int				cached_pref_width;
-    int				cached_pref_height;
+    bool			popped_up_;
 
+    int				pref_width_;
+    int				pref_height_;
+
+    int				pref_width_set;
+    float			pref_char_width;
+    int				pref_height_set;
+    float			pref_char_height;
+    int				pref_width_hint;
+    int				pref_height_hint;
+
+    int				fnt_hgt;
+    int				fnt_wdt;
+    int				fnt_maxwdt;
+
+    void                	gtFntWdtHgt() const;
+    void			getSzHint();
+
+#ifdef USE_DISPLAY_TIMER
+    Timer&			displTim;
+#endif
 };
 
 /*! \brief Default (Template) implementation of uiObjectBody.

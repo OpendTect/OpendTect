@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.13 2001-10-05 13:20:15 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.14 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ protected:
 			uiGroupObj( uiParent*, const char* nm, bool manage );
 private:
 
-//    uiGroupObjBody*	mkbody(uiParent*,const char*);
     uiGroupObjBody*	body_;
 };
 
@@ -61,8 +60,6 @@ public:
 
 // uiObject methods, delegated to uiObj():
 
-    inline void		show()			{ display( true ); }
-    inline void		hide(bool shrink=false)	{ display( false,shrink ); }
     void		display( bool yn = true, bool shrink=false );
 
     void		setFocus();

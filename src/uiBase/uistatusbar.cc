@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.cc,v 1.2 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uistatusbar.cc,v 1.3 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,10 @@ uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm,
 				      QStatusBar& sb)	
 {
     body_= new uiStatusBarBody( *this, parnt, nm, sb );
+
+    sb.setBackgroundMode( Qt::PaletteMidlight );
+    sb.setSizeGripEnabled( false ); 
+
     return *body_; 
 }
 

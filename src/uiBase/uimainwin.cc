@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.20 2001-12-17 10:48:30 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.21 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,7 @@ protected:
 private:
 
     bool		modal_;
-int looplevel__;
+    int			looplevel__;
 };
 
 

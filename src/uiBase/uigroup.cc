@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.22 2001-10-17 11:52:54 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.23 2001-12-19 11:37:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,15 @@ public:
     virtual int		horAlign(layoutMode) const;
     virtual int		horCentre(layoutMode) const;
 
+    virtual void	invalidate();
+    virtual void	updatedAlignment(layoutMode);
+
 protected:
 
     uiGroupParentBody&	grpprntbody;
+
+    int			horalign[ nLayoutMode ];
+
 };
 
 
@@ -99,7 +105,7 @@ public:
 			    , objbody_( objbdy )
 			{ 
 			    loMngr = new i_LayoutMngr( objbdy.qwidget(), 
-						       border, spacing, nm ); 
+			       border, spacing, nm, objbdy );
 			}
 public:
 
@@ -112,9 +118,10 @@ public:
 			    { loMngr->setMargin( b ); }
 
     uiObject*		hAlignObj()			{ return halignobj; }
-    void		setHAlignObj( uiObject* o ) 	{ halignobj = o;}
+    void		setHAlignObj( uiObject* o );
     uiObject*		hCentreObj()			{ return hcentreobj; }
-    void		setHCentreObj( uiObject* o ) 	{ hcentreobj = o;}
+    void		setHCentreObj( uiObject* o );
+
 
     virtual int		minTextWidgetHeight() const
 			{
@@ -123,8 +130,13 @@ public:
 			}
 
     void		setIsMain( bool yn ) 
-			    { if(loMngr)loMngr->setIsMain( yn ); }
+			    { if( loMngr ) loMngr->setIsMain( yn ); }
 
+    void		updatedAlignment(layoutMode m )
+			    { if( loMngr ) loMngr->updatedAlignment(m); }
+
+    void		layoutChildren(layoutMode m )
+			    { if( loMngr ) loMngr->layoutChildren(m); }
 protected:
 
     i_LayoutMngr* 	loMngr;
@@ -141,6 +153,7 @@ protected:
 				      uiObject* other, int margin )
 			{ 
 			    if ( !child  ) return;
+
 			    loMngr->attach( tp, *child->body()->qwidget(),
 				other ? other->body()->qwidget() : 0, margin );
 			}
@@ -154,6 +167,67 @@ private:
 
 };
 
+void uiGroupParentBody::setHCentreObj( uiObject* obj )
+{ 
+    if( !obj ||( loMngr && loMngr->isChild(obj)) ) { hcentreobj = obj; return; }
+
+/*
+    Ok. So, someone is trying to set an object as HCentreObj, which is not
+    a child of this group.
+    Let's try to see if the parent of the object is a child and solve the 
+    problem.
+*/
+
+    uiGroup* objpar = dynamic_cast<uiGroup*>(obj->parent());
+    if( objpar && loMngr && loMngr->isChild(objpar->uiObj()) )
+    { // good. the object's parent is a child of this group ;-))
+	if( !objpar->hCentreObj() )
+	    objpar->setHCentreObj(obj);
+
+	if( obj == objpar->hCentreObj() )
+	{
+	    hcentreobj = objpar->uiObj();
+	    return;
+	}
+    }
+
+    BufferString msg;
+    msg = "Cannot set ";
+    msg += obj->name();
+    msg += " as hcentre for ";
+    msg += handle_.name();
+    msg += ". Must be child or child-of-child.";
+
+    pErrMsg(msg);
+}
+
+void uiGroupParentBody::setHAlignObj( uiObject* obj )
+{ 
+    if( !obj || (loMngr && loMngr->isChild(obj)) ) { halignobj = obj; return; }
+
+
+    uiGroup* objpar = dynamic_cast<uiGroup*>(obj->parent());
+    if( objpar && loMngr && loMngr->isChild(objpar->uiObj()) )
+    { // good. the object's parent is a child of this group ;-))
+	if( !objpar->hAlignObj() )
+	    objpar->setHAlignObj(obj);
+
+	if( obj == objpar->hAlignObj() )
+	{
+	    halignobj = objpar->uiObj();
+	    return;
+	}
+    }
+
+    BufferString msg;
+    msg = "Cannot set ";
+    msg += obj->name();
+    msg += " as horalign for ";
+    msg += handle_.name();
+    msg += ". Must be child or child-of-child.";
+
+    pErrMsg(msg);
+}
 
 
 void uiGroupObjBody::reDraw( bool deep )
@@ -193,28 +267,28 @@ i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mngr,
 					  uiGroupParentBody& par )
     : i_uiLayoutItem( mngr, obj )
     , grpprntbody( par ) 
-    {}
-
-
-
-int i_uiGroupLayoutItem::horAlign(layoutMode m) const 
 {
+    for( int idx=0; idx<nLayoutMode; idx++ )
+	horalign[idx]=-1;
+}
 
-    int	offs = mngr().pos(m).left() + pos(m).left();
+void i_uiGroupLayoutItem::invalidate()
+{ 
+    i_uiLayoutItem::invalidate(); 
+    for( int idx=0; idx<nLayoutMode; idx++ )
+        horalign[idx]=-1;
+}
 
-#ifdef __wanna_debug
-//    int shift = grpprntbody.loMngr->pos(preferred).left()
-//		- grpprntbody.loMngr->pos(m).left();
-    int shift = mngr().pos(preferred).left()
-		- mngr().pos(m).left();
-    static bool print = true;
-    if( shift && shift != offs  && print)
-    {
-	print=false;
-	pErrMsg( "Arend Investigate: shift is not equal to offset." ); 
-    }
-#endif
+void i_uiGroupLayoutItem::updatedAlignment( layoutMode m )
+{ 
+    horalign[m]=-1;
+    grpprntbody.updatedAlignment(m);
+}
 
+
+int i_uiGroupLayoutItem::horAlign( layoutMode m ) const 
+{
+    int myleft = relpos(m).left();
 
     if( grpprntbody.halignobj )
     {
@@ -223,17 +297,28 @@ int i_uiGroupLayoutItem::horAlign(layoutMode m) const
 
 	if( halobjbody ) halignitm = halobjbody->layoutItem();
 
-	if( halignitm ) return halignitm->horAlign(m) + offs;
+	if( halignitm )
+	{
+	    int hal = halignitm->horAlign( m );
+	    if( hal != horalign[m] )
+	    {
+		const_cast<i_uiGroupLayoutItem*>(this)->updatedAlignment(m);
+		grpprntbody.layoutChildren(m);
+
+		const_cast<i_uiGroupLayoutItem*>(this)->horalign[m] =
+						halignitm->horAlign( m );
+		hal = horalign[m];
+	    }
+	    return hal + myleft;
+	}
     }
 
-    return offs;
+    return myleft;
 }
 
 
 int i_uiGroupLayoutItem::horCentre(layoutMode m) const 
 { 
-    int	offs = mngr().pos(m).left() + pos(m).left();
-
     if( grpprntbody.hcentreobj )
     {
 	const i_LayoutItem* hcentreitm = 0;
@@ -241,10 +326,10 @@ int i_uiGroupLayoutItem::horCentre(layoutMode m) const
 
 	if( hcobjbody ) hcentreitm = hcobjbody->layoutItem();
 
-	if( hcentreitm ) return hcentreitm->horCentre(m) + offs;
+	if( hcentreitm ) return hcentreitm->horCentre(m);
     }
 
-    return ( mngr().pos(m).left() + mngr().pos(m).right() ) / 2;
+    return ( relpos(m).left() + relpos(m).right() ) / 2;
 }
 
 uiGroup::uiGroup( uiParent* p, const char* nm, int border, int spacing, 
@@ -307,7 +392,18 @@ void uiGroup::attach ( constraintType c, int margin )
     { uiObj()->attach(c,margin); }
 
 void uiGroup::attach ( constraintType c, uiObject *other, int margin )
-    { uiObj()->attach(c,other,margin); }
+{
+/*
+    if( ( (c ==alignedBelow ) || (c == alignedAbove ) ) 
+	&& body_->hAlignObj() )
+    {
+	body_->hAlignObj()->attach(c,other,margin);
+    }
+*/
+    uiObj()->attach(c,other,margin);
+
+}
+
 
 uiSize uiGroup::actualSize( bool include_border) const	
     { return uiObj()->actualSize(include_border); }
