@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.18 2004-05-04 15:47:27 bert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.19 2004-10-05 15:15:40 dgb Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -118,6 +118,9 @@ void Threads::Thread::threadExit()
 int Threads::getNrProcessors()
 {
     int res = 1;
+
+    if ( !getenv("DTECT_USE_MULTIPROC") && !getenv("DTECT_DEBUG") )
+	return res;
 
     if ( !Settings::common().get("Nr Processors", res ) )
     {
