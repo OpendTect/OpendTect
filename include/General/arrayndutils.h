@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.9 2001-04-18 14:45:36 bert Exp $
+ RCS:           $Id: arrayndutils.h,v 1.10 2001-04-23 14:36:43 bert Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,27 @@ ________________________________________________________________________
 #include <arraynd.h>
 #include <mathfunc.h>
 #include <math.h>
+#include <iostrm.h>
+
+
+template <class T>
+inline void operator<<( ostream& strm, const ArrayND<T>& array )
+{ 
+    ArrayNDIter iter( array.info() );
+    const int ndim = array.info().getNDim();
+
+    do 
+    {
+	for ( int idx=0; idx<ndim; idx++ )
+	    strm << iter[idx] << '\t';
+
+	strm << array.get( iter.getPos() );
+
+	strm << '\n';
+    } while ( iter.next() );
+}
+
+
 
 /*
 removeBias( ) - removes the DC component from an ArrayND. If no output is
