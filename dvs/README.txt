@@ -39,7 +39,10 @@ Setting up dvs from csh:
 Setting up dvs with read/write access from csh:
 
     just add a "setenv OD_I_AM_A_DEVELOPER yes" to your .login, before
-    sourcing set_dvs_env.csh.
+    sourcing set_dvs_env.csh. If your username on cvs server is 
+    something else then cvs<local username> then also set the 
+    environment variable OD_CVS_USER to the username to be used on
+    the cvs server.
 
 
 ========================================================================
