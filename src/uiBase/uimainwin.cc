@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.34 2002-01-09 15:42:28 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.35 2002-01-09 16:27:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -531,8 +531,10 @@ void uiDialogBody::finalise()
 	if ( withsavebut && saveText != "" )
 	    saveBut = new uiCheckBox( centralWidget_, saveText );
 	if ( helpId != "" && GetDgbApplicationCode() == mDgbApplCodeGDI )
+	{
 	    helpBut = new uiPushButton( centralWidget_, "?" );
-
+	    helpBut->setPrefWidthInChar( 3 );
+	}
         if ( !withmenubar )
 	{
 	    title = new uiLabel( centralWidget_, titleText );
