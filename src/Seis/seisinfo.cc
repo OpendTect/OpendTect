@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.14 2003-03-28 12:20:03 nanne Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.15 2003-04-16 09:00:31 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -216,7 +216,7 @@ int SeisTrcInfo::nearestSample( float t, int soffs ) const
 
 SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg, int soffs ) const
 {
-    static SampleGate sg;
+    SampleGate sg;
 
     sg.start = sg.stop = 0;
     if ( mIsUndefined(tg.start) && mIsUndefined(tg.stop) )
