@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.35 2005-02-16 14:39:02 cvskris Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.36 2005-03-10 11:49:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "uiexecutor.h"
 #include "ptrman.h"
-#include "geommeshsurface.h"
+#include "parametricsurface.h"
 
 #include <stdio.h>
 
@@ -178,24 +178,22 @@ bool uiExportHorizon::writeAscii()
 		    gfcommfld->text() );
 
 	const EM::SectionID sectionid = hor->geometry.sectionID( sectionidx );
-	const Geometry::MeshSurface* meshsurf =
+	const Geometry::ParametricSurface* meshsurf =
 	    				hor->geometry.getSurface( sectionid );
 	EM::PosID posid(
 		EM::EMManager::multiID2ObjectID(infld->selIOObj()->key()),
 		sectionid );
-	const int nrnodes = meshsurf->size();
+	const int nrnodes = meshsurf->nrKnots();
 	BufferString str;
 	for ( int idy=0; idy<nrnodes; idy++ )
 	{
-	    const Geometry::PosID geomposid = meshsurf->getPosID(idy);
-	    const Coord3 crd = meshsurf->getPos( geomposid );
+	    const RowCol rc = meshsurf->getKnotRowCol(idy);
+	    const Coord3 crd = meshsurf->getKnot( rc );
 	    const BinID bid = SI().transform(crd);
 	    float auxvalue = mUndefValue;
 	    if ( nrattribs )
 	    {
-		const RowCol emrc( bid.inl, bid.crl );
-		const EM::SubID subid = hor->geometry.rowCol2SubID( emrc );
-		posid.setSubID( subid );
+		posid.setSubID( rc.getSerialized() );
 		auxvalue = hor->auxdata.getAuxDataVal(0,posid);
 	    }
 	    

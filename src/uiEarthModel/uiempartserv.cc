@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.59 2005-02-16 14:39:02 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.60 2005-03-10 11:49:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "emfault.h"
 
 #include "datainpspec.h"
-#include "geommeshsurface.h"
+#include "parametricsurface.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -416,22 +416,20 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
     for ( int sidx=0; sidx<surface->geometry.nrSections(); sidx++ )
     {
 	const EM::SectionID sectionid = surface->geometry.sectionID( sidx );
-	const Geometry::MeshSurface* meshsurf =
+	const Geometry::ParametricSurface* meshsurf =
 				    surface->geometry.getSurface( sectionid );
 
 	BinIDValueSet& res = *new BinIDValueSet( 1+1, false );
 	data += &res;
 
 	EM::PosID posid( objid, sectionid );
-	const int nrnodes = meshsurf->size();
+	const int nrnodes = meshsurf->nrKnots();
 	for ( int idy=0; idy<nrnodes; idy++ )
 	{
-	    const Geometry::PosID geomposid = meshsurf->getPosID(idy);
-	    const Coord3 coord = meshsurf->getPos( geomposid );
+	    const RowCol rc = meshsurf->getKnotRowCol(idy);
+	    const Coord3 coord = meshsurf->getKnot( rc, false );
 	    const BinID bid = SI().transform(coord);
-	    const RowCol emrc( bid.inl, bid.crl );
-	    const EM::SubID subid = surface->geometry.rowCol2SubID( emrc );
-	    posid.setSubID( subid );
+	    posid.setSubID( rc.getSerialized() );
 	    const float auxval = surface->auxdata.getAuxDataVal(dataidx,posid);
 
 	    res.add( bid, coord.z, auxval );
