@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.19 2004-07-23 13:00:32 kristofer Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.20 2004-10-07 13:51:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,9 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, bool hor )
                                      "104.2.0").nrstatusflds(1))
 	, ctio(hor ? *mMkCtxtIOObj(EMHorizon) : *mMkCtxtIOObj(EMFault) )
 {
+    BufferString title( "Manage " ); title += hor ? "horizons" : "faults";
+    setTitleText( title );
+
     IOM().to( ctio.ctxt.stdSelKey() );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
 
