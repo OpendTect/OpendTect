@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.7 2002-04-29 14:05:01 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.8 2002-05-02 14:20:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,9 @@ public:
 
     SoNode*			getData();
 
+    virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
+    virtual int			usePar( const IOPar& );
+
 protected:
 				~PlaneDataDisplay();
     void			appVelChCB( CallBacker* );
@@ -96,6 +99,8 @@ protected:
 
     bool			selected_;
     bool			succeeded_;
+
+    static const char*		trectstr;
 };
 
 };

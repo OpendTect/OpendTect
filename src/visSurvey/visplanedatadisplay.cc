@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.11 2002-04-29 14:05:23 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.12 2002-05-02 14:20:33 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -20,8 +20,11 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.11 2002-04-29 14:05:
 #include "visdataman.h"
 #include "visrectangle.h"
 #include "sorting.h"
+#include "iopar.h"
 
 mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
+
+const char* visSurvey::PlaneDataDisplay::trectstr = "Texture rectangle";
 
 visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     : VisualObject( true )
@@ -200,6 +203,44 @@ void visSurvey::PlaneDataDisplay::appVelChCB( CallBacker* cb )
     resetDraggerSizes( SPM().getAppVel() );
 }
 
+
+void visSurvey::PlaneDataDisplay::fillPar( IOPar& par,
+	TypeSet<int>& saveids ) const
+{
+    visBase::VisualObject::fillPar( par, saveids );
+    int trectid = trect->id();
+    par.set( trectstr, trectid );
+
+    if ( saveids.indexOf( trectid )==-1 ) saveids += trectid;
+}
+
+
+int visSurvey::PlaneDataDisplay::usePar( const IOPar& par )
+{
+    int res =  visBase::VisualObject::usePar( par );
+    if ( res!=1 ) return res;
+
+    int trectid;
+
+    if ( !par.get( trectstr, trectid ))
+	return -1;
+
+    visBase::DataObject* dataobj = visBase::DM().getObj( trectid );
+    if ( !dataobj ) return 0;
+
+    mDynamicCastGet( visBase::TextureRect*, tr, dataobj );
+    if ( !tr ) return -1;
+
+    trect->unRef();
+    trect = tr;
+    trect->ref();
+
+    trect->getRectangle().setSnapping( true );
+    trect->useTexture( false );
+
+    return 1;
+}
+    
 
 void visSurvey::PlaneDataDisplay::showDraggers(bool yn)
 {

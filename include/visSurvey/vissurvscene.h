@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.17 2002-04-29 10:35:06 nanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.18 2002-05-02 14:19:39 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,9 @@ public:
     				/*! If ont xyt it is inlcrlt */
     float			getMousePosValue() const { return mouseposval;}
 
+    virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
+    virtual int			usePar( const IOPar& );
+
 protected:
     				~Scene();
     void			mouseMoveCB( CallBacker* = 0 );
@@ -70,6 +73,13 @@ protected:
 
     Geometry::Pos		xytmousepos;
     float			mouseposval;
+
+    static const char*		xyzobjprefixstr;
+    static const char*		noxyzobjstr;
+    static const char*		xytobjprefixstr;
+    static const char*		noxytobjstr;
+    static const char*		inlcrltobjprefixstr;
+    static const char*		noinlcrltobjstr;
 };
 
 };
