@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.53 2002-05-17 11:34:54 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.54 2002-10-08 09:46:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -587,112 +587,115 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 
 
 void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other, 
-			    int margn )
+			    int margn, bool reciprocal )
 {
     if ( type != ensureLeftOf)
 	constrList.append( new uiConstraint( type, other, margn ) );
 
-    switch ( type )
+    if( reciprocal )
     {
-    case leftOf:
-	other-> constrList.append(new uiConstraint( rightOf, this, margn ));
-    break;
+	switch ( type )
+	{
+	case leftOf:
+	    other-> constrList.append(new uiConstraint( rightOf, this, margn ));
+	break;
 
-    case rightOf:
-	other-> constrList.append(new uiConstraint( leftOf, this, margn ));
-    break;
+	case rightOf:
+	    other-> constrList.append(new uiConstraint( leftOf, this, margn ));
+	break;
 
-    case leftTo:
-	other-> constrList.append(new uiConstraint( rightTo, this, margn));
-    break;
+	case leftTo:
+	    other-> constrList.append(new uiConstraint( rightTo, this, margn));
+	break;
 
-    case rightTo:
-	other-> constrList.append(new uiConstraint( leftTo, this, margn ));
-    break;
+	case rightTo:
+	    other-> constrList.append(new uiConstraint( leftTo, this, margn ));
+	break;
 
-    case leftAlignedBelow:
-	other-> constrList.append( 
-			new uiConstraint( leftAlignedAbove, this, margn ));
-    break;
+	case leftAlignedBelow:
+	    other-> constrList.append( 
+			    new uiConstraint( leftAlignedAbove, this, margn ));
+	break;
 
-    case leftAlignedAbove:
-	other-> constrList.append( 
-			new uiConstraint( leftAlignedBelow, this, margn ));
-    break;
+	case leftAlignedAbove:
+	    other-> constrList.append( 
+			    new uiConstraint( leftAlignedBelow, this, margn ));
+	break;
 
-    case rightAlignedBelow:
-	other-> constrList.append( 
-			new uiConstraint( rightAlignedAbove, this, margn ));
-    break;
+	case rightAlignedBelow:
+	    other-> constrList.append( 
+			    new uiConstraint( rightAlignedAbove, this, margn ));
+	break;
 
-    case rightAlignedAbove:
-	other-> constrList.append( 
-			new uiConstraint( rightAlignedBelow, this, margn ));
-    break;
+	case rightAlignedAbove:
+	    other-> constrList.append( 
+			    new uiConstraint( rightAlignedBelow, this, margn ));
+	break;
 
-    case alignedBelow:
-	other-> constrList.append( 
-			new uiConstraint( alignedAbove, this, margn ));
-    break;
+	case alignedBelow:
+	    other-> constrList.append( 
+			    new uiConstraint( alignedAbove, this, margn ));
+	break;
 
-    case alignedAbove:
-	other-> constrList.append( 
-			new uiConstraint( alignedBelow, this, margn ));
-    break;
+	case alignedAbove:
+	    other-> constrList.append( 
+			    new uiConstraint( alignedBelow, this, margn ));
+	break;
 
-    case centeredBelow:
-	other-> constrList.append( 
-			new uiConstraint( centeredAbove, this, margn ));
-    break;
+	case centeredBelow:
+	    other-> constrList.append( 
+			    new uiConstraint( centeredAbove, this, margn ));
+	break;
 
-    case centeredAbove:
-	other-> constrList.append( 
-			new uiConstraint( centeredBelow, this, margn ));
-    break;
+	case centeredAbove:
+	    other-> constrList.append( 
+			    new uiConstraint( centeredBelow, this, margn ));
+	break;
 
-    case heightSameAs:
-	vsameas=true;
-    break;
+	case heightSameAs:
+	    vsameas=true;
+	break;
 
-    case widthSameAs:
-	hsameas=true;
-    break;
+	case widthSameAs:
+	    hsameas=true;
+	break;
 
-    case ensureLeftOf:
-	other-> constrList.append( 
-			new uiConstraint( ensureRightOf, this, margn ));
-    break;
+	case ensureLeftOf:
+	    other-> constrList.append( 
+			    new uiConstraint( ensureRightOf, this, margn ));
+	break;
 
-    case stretchedBelow:
-    break;
+	case stretchedBelow:
+	break;
 
-    case stretchedAbove:
-	other-> constrList.append( 
-			new uiConstraint( ensureBelow, this, margn ));
-    break;
+	case stretchedAbove:
+	    other-> constrList.append( 
+			    new uiConstraint( ensureBelow, this, margn ));
+	break;
 
-    case stretchedLeftTo:
-	other-> constrList.append( 
-			new uiConstraint( stretchedRightTo, this, margn ));
-    break;
+	case stretchedLeftTo:
+	    other-> constrList.append( 
+			    new uiConstraint( stretchedRightTo, this, margn ));
+	break;
 
-    case stretchedRightTo:
-	other-> constrList.append( 
-			new uiConstraint( stretchedLeftTo, this, margn ));
-    break;
+	case stretchedRightTo:
+	    other-> constrList.append( 
+			    new uiConstraint( stretchedLeftTo, this, margn ));
+	break;
 
-    case leftBorder:
-    case rightBorder:
-    case topBorder:
-    case bottomBorder:
-    case ensureRightOf:
-    case ensureBelow:
-    case hCentered:
-    break;
+	case leftBorder:
+	case rightBorder:
+	case topBorder:
+	case bottomBorder:
+	case ensureRightOf:
+	case ensureBelow:
+	case hCentered:
+	break;
 
-    default:
-	pErrMsg("Unknown constraint type");
-    break;
+	default:
+	    pErrMsg("Unknown constraint type");
+	break;
+	}
     }
 }
 
@@ -1420,7 +1423,7 @@ void i_LayoutMngr::initChildLayout(layoutMode lom)
 
 //! return true if successful
 bool i_LayoutMngr::attach ( constraintType type, QWidget& current, 
-			    QWidget* other, int margin) 
+			    QWidget* other, int margin, bool reciprocal) 
 {
     if (&current == other)
 	{ pErrMsg("Cannot attach an object to itself"); return false; }
@@ -1436,7 +1439,7 @@ bool i_LayoutMngr::attach ( constraintType type, QWidget& current,
 
     if (cur && ((!oth && !other) || (other && oth && (oth->qwidget()==other)) ))
     {
-	cur->attach( type, oth, margin );
+	cur->attach( type, oth, margin, reciprocal );
 	return true;
     }
 

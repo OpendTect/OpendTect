@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.25 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.26 2002-10-08 09:46:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,9 +164,12 @@ public:
     with separators.
 */
     void		attach( constraintType, int margin=-1);
-    void		attach( constraintType, uiObject* oth, int margin=-1);
-    void		attach( constraintType, uiGroup* oth, int margin=-1);
-    void		attach( constraintType, uiButtonGroup* oth, int mrg=-1);
+    void		attach( constraintType, uiObject* oth, int margin=-1,
+				bool reciprocal=true);
+    void		attach( constraintType, uiGroup* oth, int margin=-1,
+				bool reciprocal=true);
+    void		attach( constraintType, uiButtonGroup* oth, int mrg=-1,
+				bool reciprocal=true);
 
     void 		setFont( const uiFont& );
     const uiFont*	font() const;

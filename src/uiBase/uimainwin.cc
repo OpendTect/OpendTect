@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.59 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.60 2002-10-08 09:46:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,12 +112,13 @@ public:
 
     virtual void  	attachChild ( constraintType tp,
                                               uiObject* child,
-                                              uiObject* other, int margin )
+                                              uiObject* other, int margin,
+					      bool reciprocal )
                         {
                             if ( !child || initing ) return;
 
 			    centralWidget_->attachChild( tp, child, other,
-							margin); 
+							 margin, reciprocal); 
                         }
 
     void		reDraw( bool deep )
@@ -630,10 +631,12 @@ public:
 
     virtual void  	attachChild ( constraintType tp,
                                               uiObject* child,
-                                              uiObject* other, int margin )
+                                              uiObject* other, int margin,
+					      bool reciprocal )
                         {
                             if ( !child || initing ) return;
-			    dlgGroup->attachChild( tp, child, other, margin); 
+			    dlgGroup->attachChild( tp, child, other, margin,
+						   reciprocal ); 
                         }
     void		provideHelp(CallBacker*);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.20 2002-05-17 11:34:53 arend Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.21 2002-10-08 09:46:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,8 @@ protected:
     bool			layout( layoutMode m, const int, bool );
 
     void			attach( constraintType, 
-					i_LayoutItem *other, int margin);
+					i_LayoutItem *other, int margin,
+					bool reciprocal=true);
 
     virtual uiObject*		objLayouted()		{ return 0; }
     inline const uiObject*	objLayouted() const

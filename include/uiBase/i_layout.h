@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.27 2002-05-13 14:21:33 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.28 2002-10-08 09:46:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,8 @@ public:
     virtual void       	updatedAlignment(layoutMode);
     virtual void       	initChildLayout(layoutMode);
 	
-    bool 		attach ( constraintType, QWidget&, QWidget*, int);
+    bool 		attach ( constraintType, QWidget&, QWidget*, int,
+				 bool reciprocal=true );
 
     const uiRect&	curpos(layoutMode m) const;
     uiRect&		curpos(layoutMode m);

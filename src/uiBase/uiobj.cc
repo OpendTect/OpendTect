@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.42 2002-08-14 14:00:31 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.43 2002-10-08 09:46:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ void uiParent::manageChld( uiObjHandle& child, uiObjectBody& bdy )
 
 
 void uiParent::attachChild ( constraintType tp, uiObject* child,
-			     uiObject* other, int margin )
+			     uiObject* other, int margin, bool reciprocal )
 {
     if ( child == static_cast<uiObjHandle*>(this) ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
@@ -78,7 +78,7 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
     if ( !b )			
 	{ pErrMsg("uiParent has a body, but it's no uiParentBody"); return; } 
 
-    b->attachChild ( tp, child, other, margin );
+    b->attachChild ( tp, child, other, margin, reciprocal );
 }
 
 
@@ -262,14 +262,17 @@ void uiObject::setStretch( int hor, int ver )
 void uiObject::attach ( constraintType tp, int margin )
     { mBody()->attach(tp, 0, margin); }
 
-void uiObject::attach ( constraintType tp, uiObject* other, int margin )
-    { mBody()->attach(tp, other, margin); }
+void uiObject::attach ( constraintType tp, uiObject* other, int margin,
+			bool reciprocal )
+    { mBody()->attach(tp, other, margin, reciprocal); }
 
-void uiObject::attach ( constraintType tp, uiGroup* other, int margin )
-    { mBody()->attach(tp, other->uiObj(), margin); }
+void uiObject::attach ( constraintType tp, uiGroup* other, int margin,
+			bool reciprocal )
+    { mBody()->attach(tp, other->uiObj(), margin, reciprocal); }
 
-void uiObject::attach ( constraintType tp, uiButtonGroup* other, int margin )
-    { mBody()->attach(tp, other->uiObj(), margin); }
+void uiObject::attach ( constraintType tp, uiButtonGroup* other, int margin,
+			bool reciprocal )
+    { mBody()->attach(tp, other->uiObj(), margin, reciprocal); }
 
 
 void uiObject::setFont( const uiFont& f )
@@ -602,10 +605,11 @@ i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
 /*!
     attaches to parent if other=0
 */
-void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin )
+void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin,
+			    bool reciprocal )
 {
 //    parent_->attachChild( tp, this, other, margin );
-    parent_->attachChild( tp, &uiObjHandle(), other, margin );
+    parent_->attachChild( tp, &uiObjHandle(), other, margin, reciprocal );
 }
 
 const uiFont* uiObjectBody::uifont() const

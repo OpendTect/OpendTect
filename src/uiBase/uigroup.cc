@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.37 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.38 2002-10-08 09:46:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,12 +171,14 @@ protected:
 
     virtual void	attachChild ( constraintType tp,
 				      uiObject* child,
-				      uiObject* other, int margin )
+				      uiObject* other, int margin,
+				      bool reciprocal )
 			{ 
 			    if ( !child  ) return;
 
 			    loMngr->attach( tp, *child->body()->qwidget(),
-				other ? other->body()->qwidget() : 0, margin );
+				other ? other->body()->qwidget() : 0, margin,
+				reciprocal );
 			}
 
     virtual const QWidget* qwidget_() const    { return objbody_.qwidget(); }
@@ -517,7 +519,8 @@ void uiGroup::setBackgroundColor(const Color& c)
 void uiGroup::attach ( constraintType c, int margin )
     { uiObj()->attach(c,margin); }
 
-void uiGroup::attach ( constraintType c, uiObject *other, int margin )
+void uiGroup::attach ( constraintType c, uiObject *other, int margin,
+		       bool reciprocal )
 {
     if( (c == heightSameAs ) || (c == widthSameAs ) ) 
     {
@@ -527,7 +530,7 @@ void uiGroup::attach ( constraintType c, uiObject *other, int margin )
 	pErrMsg(msg); 
 	return;
     }
-    uiObj()->attach(c,other,margin);
+    uiObj()->attach(c,other,margin,reciprocal);
 
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.23 2002-05-29 15:00:44 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.24 2002-10-08 09:46:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,9 +93,11 @@ public:
     void                setStretch( int hor, int ver );
 
     void		attach( constraintType, int margin=-1);
-    void		attach( constraintType, uiObject *oth, int margin=-1);
-    void		attach( constraintType t, uiGroup *o, int margin=-1)
-			    { attach(t, o->uiObj(), margin); } 
+    void		attach( constraintType, uiObject *oth, int margin=-1,
+				bool reciprocal=true);
+    void		attach( constraintType t, uiGroup *o, int margin=-1,
+				bool reciprocal=true)
+			    { attach(t, o->uiObj(), margin, reciprocal); } 
 
     void 		setFont( const uiFont& );
     const uiFont*	font() const;

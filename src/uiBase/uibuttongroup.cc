@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.3 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.4 2002-10-08 09:46:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,8 @@ public:
 
 virtual void            attachChild ( constraintType tp,
                                               uiObject* child,
-                                              uiObject* other, int margin )
+                                              uiObject* other, int margin,
+					      bool reciprocal )
 			{ pErrMsg("Cannot do attachments in uiButtonGroups "); }
 
 protected:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.7 2002-08-14 14:00:31 arend Exp $
+ RCS:           $Id: uiparentbody.h,v 1.8 2002-10-08 09:46:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ public:
 
     virtual void		attachChild ( constraintType tp, 
 					      uiObject* child, 
-					      uiObject* other, int margin ) =0;
+					      uiObject* other, int margin,
+					      bool reciprocal ) =0;
 
     virtual void 		finalise(bool t=false)		
 				{ 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.6 2002-08-14 10:30:02 arend Exp $
+ RCS:           $Id: uidockwin.cc,v 1.7 2002-10-08 09:46:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,12 +55,13 @@ public:
 
     virtual void  	attachChild ( constraintType tp,
                                               uiObject* child,
-                                              uiObject* other, int margin )
+                                              uiObject* other, int margin,
+					      bool reciprocal )
                         {
                             if ( !child || initing ) return;
 
 			    centralWidget_->attachChild( tp, child, other,
-							margin); 
+							margin, reciprocal); 
                         }
 protected:
 
