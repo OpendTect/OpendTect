@@ -4,20 +4,38 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.3 2003-12-25 19:42:23 bert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.4 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodscenemgr.h"
-#include "uiodmain.h"
 #include "uiodapplmgr.h"
+#include "uiodmenumgr.h"
+#include "uiodtreeitemimpl.h"
+#include "uivispartserv.h"
+#include "uiattribpartserv.h"
+
+#include "uilabel.h"
+#include "uislider.h"
+#include "uidockwin.h"
+#include "uisoviewer.h"
+#include "uilistview.h"
+#include "uiworkspace.h"
+#include "uistatusbar.h"
+#include "uithumbwheel.h"
+#include "uigeninputdlg.h"
+#include "uitreeitemmanager.h"
+
+#include "ptrman.h"
+#include "survinfo.h"
 #include "scene.xpm"
 
 static const int cWSWidth = 600;
 static const int cWSHeight = 300;
 static const int cMinZoom = 1;
 static const int cMaxZoom = 150;
+static const char* scenestr = "Scene ";
 
 #define mWSMCB(fn) mCB(this,uiODSceneMgr,fn)
 #define mDoAllScenes(memb,fn,arg) \
@@ -28,10 +46,9 @@ static const int cMaxZoom = 150;
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     	: appl(*a)
-    	, wsp(new uiWorkSpace( this, "OpendTect work space" ))
+    	, wsp(new uiWorkSpace(a,"OpendTect work space"))
 	, vwridx(0)
     	, lasthrot(0), lastvrot(0), lastdval(0)
-    	, visserv(a->applMgr().visServer())
     	, tifs(new uiTreeFactorySet)
 {
     wsp->setPrefWidth( cWSWidth );
@@ -55,24 +72,24 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     vwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
     vwheel->attach( centeredBelow, dummylbl );
 
-    uiLabel* rotlbl = new uiLabel( this, "ROT" );
+    uiLabel* rotlbl = new uiLabel( &appl, "ROT" );
     rotlbl->attach( centeredBelow, leftgrp );
 
-    uiThumbWheel* hwheel = new uiThumbWheel( this, "hRotate", true );
+    uiThumbWheel* hwheel = new uiThumbWheel( &appl, "hRotate", true );
     hwheel->wheelMoved.notify( mWSMCB(hWheelMoved) );
     hwheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
     hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-    hwheel->attach( leftAlignedBelow, &appl.workSpace() );
+    hwheel->attach( leftAlignedBelow, wsp );
 
-    zoomslider = new uiLabeledSlider( this, "ZOOM" );
+    zoomslider = new uiLabeledSlider( &appl, "ZOOM" );
     zoomslider->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
     zoomslider->sldr()->setTickMarks( false );
     zoomslider->sldr()->setMinValue( cMinZoom );
     zoomslider->sldr()->setMaxValue( cMaxZoom );
     zoomslider->setStretch( 0, 0 );
-    zoomslider->attach( rightAlignedBelow, &appl.workSpace() );
+    zoomslider->attach( rightAlignedBelow, wsp );
 
-    leftgrp->attach( leftOf, &appl.workSpace() );
+    leftgrp->attach( leftOf, wsp );
 }
 
 
@@ -85,41 +102,42 @@ uiODSceneMgr::~uiODSceneMgr()
 void uiODSceneMgr::cleanUp( bool startnew )
 {
     while ( scenes.size() )
-	scenes[0]->group()->mainObject()->close();
+	scenes[0]->vwrGroup()->mainObject()->close();
     	// close() cascades callbacks which remove the scene from set
 
-    visserv->deleteAllObjects();
+    visServ().deleteAllObjects();
     vwridx = 0;
     if ( startnew ) addScene();
 }
 
 
-Scene& uiODSceneMgr::mkNewScene()
+uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 {
-    Scene& scn = *new Scene( wsp );
-    scn.group()->mainObject()->closed.notify( mWSMCB(removeScene) );
+    uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( wsp );
+    scn.vwrGroup()->mainObject()->closed.notify( mWSMCB(removeScene) );
     scenes += &scn;
     vwridx++;
+    return scn;
 }
 
 
 void uiODSceneMgr::addScene()
 {
     Scene& scn = mkNewScene();
-    int sceneid = visserv->addScene();
+    int sceneid = visServ().addScene();
     scn.sovwr->setSceneGraph( sceneid );
     BufferString title( scenestr );
     title += vwridx;
     scn.sovwr->setTitle( title );
-    visserv->setObjectName( sceneid, title );
+    visServ().setObjectName( sceneid, title );
     scn.sovwr->display();
     scn.sovwr->viewAll();
     scn.sovwr->saveHomePos();
     scn.sovwr->viewmodechanged.notify( mWSMCB(viewModeChg) );
-    scn.group()->display( true, false, true );
+    scn.vwrGroup()->display( true, false, true );
     actMode(0);
-    appl.posCtrlMgr()->setZoomValue( scn.sovwr->getCameraZoom() );
-    initTree( scene, vwridx );
+    setZoomValue( scn.sovwr->getCameraZoom() );
+    initTree( scn, vwridx );
 
     if ( scenes.size() > 1 && scenes[0] )
     {
@@ -141,7 +159,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     int idxnr = -1;
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
-	if ( grp == scenes[idx]->group()->mainObject() )
+	if ( grp == scenes[idx]->vwrGroup()->mainObject() )
 	{
 	    idxnr = idx;
 	    break;
@@ -149,13 +167,20 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     }
     if ( idxnr < 0 ) return;
 
-    visserv->removeScene( scenes[idxnr]->itemmanager->sceneID() );
-    appl.removeDockWindow( scenes[idxnr]->treewin );
+    visServ().removeScene( scenes[idxnr]->itemmanager->sceneID() );
+    appl.removeDockWindow( scenes[idxnr]->treeWin() );
 
 
-    scenes[idxnr]->group()->mainObject()->closed.remove( mWSMCB(removeScene) );
+    scenes[idxnr]->vwrGroup()->mainObject()->closed.remove(mWSMCB(removeScene));
     delete scenes[idxnr];
     scenes -= scenes[idxnr];
+}
+
+
+void uiODSceneMgr::storePositions()
+{
+    //TODO remember the scene's positions
+    // mDoAllScenes(sovwr,storePosition,);
 }
 
 
@@ -186,14 +211,17 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 
 	Scene& scn = mkNewScene();
   	if ( !scn.sovwr->usePar( *scenepar ) )
-	    return false;
+	{
+	    removeScene( scn.vwrGroup() );
+	    continue;
+	}
     
 	int sceneid = scn.sovwr->sceneId();
 	BufferString title( scenestr );
 	title += vwridx;
   	scn.sovwr->setTitle( title );
 	scn.sovwr->display();
-	scn.group()->display( true, false );
+	scn.vwrGroup()->display( true, false );
 	setZoomValue( scn.sovwr->getCameraZoom() );
 	initTree( scn, vwridx );
     }
@@ -214,8 +242,8 @@ void uiODSceneMgr::viewModeChg( CallBacker* cb )
 void uiODSceneMgr::setToViewMode( bool yn )
 {
     mDoAllScenes(sovwr,setViewing,yn);
-    visserv->setViewMode( yn );
-    menuMgr()->showViewMode( yn );
+    visServ().setViewMode( yn );
+    menuMgr().updateViewMode( yn );
 }
 
 
@@ -236,7 +264,7 @@ void uiODSceneMgr::viewMode( CallBacker* )
 
 void uiODSceneMgr::setMousePos()
 {
-    Coord3 xytpos = visserv->getMousePos(true);
+    Coord3 xytpos = visServ().getMousePos(true);
     BufferString msg;
     if ( !mIsUndefined( xytpos.x ) )
     {
@@ -249,7 +277,7 @@ void uiODSceneMgr::setMousePos()
     }
 
     appl.statusBar()->message( msg, 0 );
-    msg = "Value = "; msg += visserv->getMousePosVal();
+    msg = "Value = "; msg += visServ().getMousePosVal();
     appl.statusBar()->message( msg, 1 );
 }
 
@@ -262,8 +290,8 @@ void uiODSceneMgr::setKeyBindings()
     scenes[0]->sovwr->getAllKeyBindings( keyset );
 
     StringListInpSpec inpspec( keyset );
-    inpspec.setText( scenes[0]->sovwr->getCurrentKeyBindings() );
-    uiGenInputDlg dlg( appman, "Select Mouse Controls", "Select", &inpspec );
+    inpspec.setText( scenes[0]->sovwr->getCurrentKeyBindings(), 0 );
+    uiGenInputDlg dlg( &appl, "Select Mouse Controls", "Select", &inpspec );
     if ( dlg.go() )
 	mDoAllScenes(sovwr,setKeyBindings,dlg.text());
 }
@@ -271,6 +299,9 @@ void uiODSceneMgr::setKeyBindings()
 
 void uiODSceneMgr::setStereoViewing( bool& stereo, bool& quad )
 {
+    if ( !scenes.size() ) return;
+
+    const float stereooffset = scenes[0]->sovwr->getStereoOffset();
     for ( int ids=0; ids<scenes.size(); ids++ )
     {
 	uiSoViewer& sovwr = *scenes[ids]->sovwr;
@@ -282,7 +313,7 @@ void uiODSceneMgr::setStereoViewing( bool& stereo, bool& quad )
 	if ( quad && !scenes[ids]->sovwr->isQuadBufferStereo() )
 	{
 	    sovwr.setStereoViewing( false );
-	    sovwr.QuadBufferStereo( false );
+	    sovwr.setQuadBufferStereo( false );
 	    stereo = quad = false;
 	}
     }
@@ -299,7 +330,7 @@ void uiODSceneMgr::layoutScenes()
 {
     const int nrgrps = scenes.size();
     if ( nrgrps == 1 && scenes[0] )
-	scenes[0]->grp()->display( true, false, true );
+	scenes[0]->vwrGroup()->display( true, false, true );
     else if ( scenes[0] )
 	tile();
 }
@@ -317,7 +348,8 @@ void uiODSceneMgr::align( CallBacker* )
 void uiODSceneMgr::showRotAxis( CallBacker* )
 {
     mDoAllScenes(sovwr,showRotAxis,);
-    menuMgr()->showAxisMode( scenes.size() && scenes[0]->sovwr->rotAxisShown());
+    if ( scenes.size() )
+	menuMgr().updateAxisMode( scenes[0]->sovwr->rotAxisShown() );
 }
 
 
@@ -329,7 +361,7 @@ void uiODSceneMgr::setZoomValue( float val )
 
 void uiODSceneMgr::zoomChanged( CallBacker* )
 {
-    const float zmval = zoomslider->getValue();
+    const float zmval = zoomslider->sldr()->getValue();
     mDoAllScenes(sovwr,setCameraZoom,zmval);
 }
 
@@ -381,14 +413,14 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 }
 
 
-void uiODSceneMgr::initTree( const Scene& scn, int vwridx )
+void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 {
     BufferString capt( "Tree scene " ); capt += vwridx;
-    scn.treewin = new uiDockWin( &appl, capt );
-    moveDockWindow( *scn.treewin, uiMainWin::Left );
-    scn.treewin->setResizeEnabled( true );
+    uiDockWin* dw = new uiDockWin( &appl, capt );
+    appl.moveDockWindow( *dw, uiMainWin::Left );
+    dw->setResizeEnabled( true );
 
-    scn.lv = new uiListView( scn.treewin, "d-Tect Tree" );
+    scn.lv = new uiListView( dw, "d-Tect Tree" );
     scn.lv->addColumn( "Elements" );
     scn.lv->addColumn( "Position" );
     scn.lv->setColumnWidthMode( 0, uiListView::Manual );
@@ -398,27 +430,27 @@ void uiODSceneMgr::initTree( const Scene& scn, int vwridx )
     scn.lv->setPrefWidth( 150 );
     scn.lv->setStretch( 2, 2 );
 
-    scn.itemmanager = new uiODTreeTop( &scn, this, tifs );
+    scn.itemmanager = new uiODTreeTop( scn.sovwr, scn.lv, &applMgr(), tifs );
 
     for ( int idx=0; idx<tifs->nrFactories(); idx++ )
 	scn.itemmanager->addChild( tifs->getFactory(idx)->create() );
 
 #ifdef __debug__
-    scn.itemmanager->addChild( new FaultStickFactoryTreeItem );
-    scn.itemmanager->addChild( new FaultFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODFaultStickFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODFaultFactoryTreeItem );
 #endif
-    scn.itemmanager->addChild( new WellFactoryTreeItem );
-    scn.itemmanager->addChild( new HorizonFactoryTreeItem );
-    scn.itemmanager->addChild( new PickSetFactoryTreeItem );
-    scn.itemmanager->addChild( new RandomLineFactoryTreeItem );
-    scn.itemmanager->addChild( new VolumeFactoryTreeItem );
-    scn.itemmanager->addChild( new TimesliceFactoryTreeItem );
-    scn.itemmanager->addChild( new CrosslineFactoryTreeItem );
-    scn.itemmanager->addChild( new InlineFactoryTreeItem );
-    scn.itemmanager->addChild( new SceneTreeItem(scn.sovwr->getTitle(),
+    scn.itemmanager->addChild( new uiODWellFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODHorizonFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODPickSetFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODRandomLineFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODVolumeFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODTimesliceFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODCrosslineFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODInlineFactoryTreeItem );
+    scn.itemmanager->addChild( new uiODSceneTreeItem(scn.sovwr->getTitle(),
 						 scn.sovwr->sceneId() ) );
     scn.lv->display();
-    scn.treewin->display();
+    scn.treeWin()->display();
 }
 
 
@@ -439,10 +471,11 @@ void uiODSceneMgr::rebuildTrees()
     {
 	Scene& scene = *scenes[idx];
 	const int sceneid = scene.sovwr->sceneId();
-	TypeSet<int> visids; visserv->getChildIds( sceneid, visids );
+	TypeSet<int> visids; visServ().getChildIds( sceneid, visids );
 
 	for ( int idy=0; idy<visids.size(); idy++ )
-	    DisplayTreeItem::factory(scene.itemmanager,applMgr(),visids[idy]);
+	    uiODDisplayTreeItem::factory(scene.itemmanager,&applMgr(),
+		    			 visids[idy]);
     }
     updateSelectedTreeItem();
 }
@@ -453,15 +486,15 @@ void uiODSceneMgr::setItemInfo( int id )
     mDoAllScenes(itemmanager,updateColumnText,1);
     appl.statusBar()->message( "", 0 );
     appl.statusBar()->message( "", 1 );
-    appl.statusBar()->message( visserv->getInteractionMsg(id), 2 );
+    appl.statusBar()->message( visServ().getInteractionMsg(id), 2 );
 }
 
 
 void uiODSceneMgr::updateSelectedTreeItem()
 {
-    const int id = visserv->getSelObjectId();
-    const bool ispickset = visserv->isPickSet( id );
-    if ( ispickset && !applMgr().attrserv->attrSetEditorActive() )
+    const int id = visServ().getSelObjectId();
+    const bool ispickset = visServ().isPickSet( id );
+    if ( ispickset && !applMgr().attrServer()->attrSetEditorActive() )
 	actMode( 0 );
 
     if ( id != -1 )
@@ -505,7 +538,7 @@ void uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
-	scene.itemmanager->addChild( new PickSetTreeItem(ps) );
+	scene.itemmanager->addChild( new uiODPickSetTreeItem(ps) );
     }
 }
 
@@ -517,7 +550,7 @@ void uiODSceneMgr::addHorizonItem( const MultiID& mid, int sceneid )
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
-	scene.itemmanager->addChild( new HorizonTreeItem(mid) );
+	scene.itemmanager->addChild( new uiODHorizonTreeItem(mid) );
     }
 }
 
@@ -525,7 +558,6 @@ void uiODSceneMgr::addHorizonItem( const MultiID& mid, int sceneid )
 
 uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
         : lv(0)
-        , treewin(0)
         , sovwr(0)
     	, itemmanager( 0 )
 {
@@ -543,13 +575,19 @@ uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
 
 uiODSceneMgr::Scene::~Scene()
 {
-    delete sovwr;
     delete lv;
-    delete treewin;
+    delete sovwr;
+    delete itemmanager;
 }
 
 
-uiGroup* uiODSceneMgr::Scene::grp()
+uiGroup* uiODSceneMgr::Scene::vwrGroup()
 {
     return sovwr ? (uiGroup*)sovwr->parent() : 0;
+}
+
+
+uiDockWin* uiODSceneMgr::Scene::treeWin()
+{
+    return lv ? (uiDockWin*)lv->parent() : 0;
 }

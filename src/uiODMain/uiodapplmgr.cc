@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.2 2003-12-24 15:15:50 bert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.3 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodapplmgr.h"
-#include "uisurvey.h"
-#include "uimain.h"
+#include "uiodscenemgr.h"
+#include "uiodmenumgr.h"
 
 #include "uipickpartserv.h"
 #include "uivispartserv.h"
@@ -23,31 +23,28 @@ ________________________________________________________________________
 
 #include "attribdescset.h"
 #include "attribsel.h"
-//#include "attribslice.h"
 #include "pickset.h"
 #include "survinfo.h"
-//#include "cubesampling.h"
-//#include "surfaceinfo.h"
 #include "strmprov.h"
 #include "errh.h"
 #include "iopar.h"
 #include "ioman.h"
-// #include "ioobj.h"
-#include "uimsg.h"
+#include "featset.h"
 #include "helpview.h"
 #include "nlacrdesc.h"
 #include "filegen.h"
 #include "ptrman.h"
 
-#include "odsession.h"
-#include "ctxtioobj.h"
-#include "uiioobjsel.h"
-#include "uiexecutor.h"
+#include "uimsg.h"
+#include "uifontsel.h"
+#include "uitoolbar.h"
 #include "uibatchlaunch.h"
 #include "uipluginman.h"
 #include "uibatchprogs.h"
+#include "uiviscoltabed.h"
 #include "uifiledlg.h"
-#include "welltransl.h"
+#include "uisurvey.h"
+#include "uistereodlg.h"
 
 static BufferString retstr;
 
@@ -59,25 +56,22 @@ class uiODApplService : public uiApplService
 public:
     			uiODApplService( uiParent* p, uiODApplMgr& am )
 			: par_(p), applman(am)	{}
-    uiParent*		parent() const		{ return p; }
+    uiParent*		parent() const		{ return par_; }
     bool		eventOccurred( const uiApplPartServer* ps, int evid )
 			{ return applman.handleEvent( ps, evid ); }
     void*		getObject( const uiApplPartServer* ps, int evid )
 			{ return applman.deliverObject( ps, evid ); }
 
     uiODApplMgr&	applman;
+    uiParent*		par_;
 
 };
 
 
-uiODApplMgr::uiODApplMgr( uiODMain* a )
-	: appl(*a)
-	, applservice(*new uiODApplService(a,this))
+uiODApplMgr::uiODApplMgr( uiODMain& a )
+	: appl(a)
+	, applservice(*new uiODApplService(&a,*this))
     	, nlaserv(0)
-	, cursession(0)
-	, sessionSave(this)
-        , sessionRestore(this)
-    	, pluginsessionpars(0)
 {
     pickserv = new uiPickPartServer( applservice );
     visserv = new uiVisPartServer( applservice );
@@ -98,7 +92,12 @@ uiODApplMgr::~uiODApplMgr()
     delete emserv;
     delete wellserv;
     delete &applservice;
-    delete &sessionpar;
+}
+
+void uiODApplMgr::resetServers()
+{
+    if ( nlaserv ) nlaserv->reset();
+    delete attrserv; attrserv = new uiAttribPartServer( applservice );
 }
 
 
@@ -181,7 +180,7 @@ void uiODApplMgr::importLMKFault() { emserv->importLMKFault(); }
 void uiODApplMgr::manageAttributes()
 {
     sceneMgr().disabRightClick(true);
-    menuMgr().viewMode(0);
+    sceneMgr().setToViewMode();
     menuMgr().dtectTB()->setSensitive( false );
     menuMgr().enableActButton( false );
     menuMgr().enableMenuBar( false );
@@ -261,7 +260,7 @@ void uiODApplMgr::setFonts()
 
 void uiODApplMgr::setStereoOffset()
 {
-    ObjectSet<uiSoViewer>& vwrs;
+    ObjectSet<uiSoViewer> vwrs;
     sceneMgr().getSoViewers( vwrs );
     uiStereoDlg dlg( &appl, vwrs );
     dlg.go();
@@ -450,10 +449,7 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 	return false;
     }
 
-    const AttribDescSet* attrset = attrserv->curDescSet();
-    AttribSliceSet* slices = new AttribSliceSet;
-    attrserv->createOutput( *cs, attrset, slices );
-    visserv->setCubeData( visid, slices );
+    visserv->setCubeData( visid, attrserv->createSliceSet(*cs) );
     return true;
 }
 
@@ -539,8 +535,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	    if ( !pickserv->selectedSets()[idx] ) continue;
 	    const char* nm = pickserv->availableSets().get(idx).buf();
 	    PickSet* ps = new PickSet( nm );
-	    int picksetid = sceneMgr().getIDFromName( nm );
-	    visserv->getPickSetData( picksetid, *ps ); 
+	    visserv->getPickSetData( sceneMgr().getIDFromName(nm), *ps ); 
 	    pickserv->group().add( ps );
 	}
     }
@@ -685,7 +680,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	PickSet pset( psg.name() );
 	pset.color.set(255,0,0);
 	if ( psid < 0 )
-	    sceneMgr().addPickSetItem( haspicks ? psg.get(0) : &pset );
+	    sceneMgr().addPickSetItem( haspicks ? psg.get(0) : &pset, -1 );
 	else
 	    visserv->setPickSetData( psid, haspicks ? *psg.get(0) : pset );
 
@@ -726,7 +721,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {
-	disabRightClick(false);
+	sceneMgr().disabRightClick(false);
 	menuMgr().dtectTB()->setSensitive( true );
 	menuMgr().enableActButton( true );
 	menuMgr().enableMenuBar( true );
@@ -862,12 +857,12 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
 
 void uiODApplMgr::modifyColorTable( int visid )
 {
-    appl.ctabEd()->setColTab( visserv->getColTabId(visid) );
+    appl.colTabEd().setColTab( visserv->getColTabId(visid) );
     setHistogram( visid );
 }
 
 
 void uiODApplMgr::setHistogram( int visid )
 {
-    appl.ctabEd()->setHistogram( visserv->getHistogram(visid) );
+    appl.colTabEd().setHistogram( visserv->getHistogram(visid) );
 }

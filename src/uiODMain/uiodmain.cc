@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.3 2003-12-25 19:42:23 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.4 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,32 +14,66 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodmenumgr.h"
+#include "uiviscoltabed.h"
+#include "uivispartserv.h"
+#include "uinlapartserv.h"
+#include "uiattribpartserv.h"
+#include "uidockwin.h"
 #include "uisurvey.h"
+#include "uiioobjsel.h"
+#include "uifiledlg.h"
 #include "uimsg.h"
 #include "ioman.h"
 #include "iodir.h"
+#include "ptrman.h"
+#include "ctxtioobj.h"
+#include "filegen.h"
+#include "settings.h"
+#include "plugins.h"
 #include "odsessionfact.h"
+#include "dtect.xpm"
 
 static const int cCTHeight = 200;
 
 
-uiODMain* ODMainWin()
+static uiODMain* manODMainWin( uiODMain* i )
 {
     static uiODMain* theinst = 0;
-    if ( !theinst )
-	theinst = new uiODMain(0);
+    if ( i ) theinst = i;
     return theinst;
 }
 
 
-uiODMain::uiODMain( int argc, char **argv )
+uiODMain* ODMainWin()
+{
+    return manODMainWin(0);
+}
+
+
+int ODMain( int argc, char** argv )
+{
+    PIM().setArgs( argc, argv );
+    PIM().loadAuto( false );
+    uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
+    manODMainWin( odmain );
+    PIM().loadAuto( true );
+    odmain->go();
+    delete odmain;
+    return 0;
+}
+
+
+
+uiODMain::uiODMain( uicMain& a )
 	: uiMainWin(0,"OpendTect Main Window",3,true,true)
-    	, uiapp(*new uicMain(argc,argv))
+    	, uiapp(a)
 	, failed(true)
     	, ctabed(0)
     	, ctabwin(0)
     	, lastsession(*new ODSession)
-    	, lastsession(0)
+    	, cursession(0)
+    	, sessionSave(this)
+    	, sessionRestore(this)
 {
     setIcon( dtect_xpm_data, "OpendTect" );
     uiMSG().setMainWin( this );
@@ -48,7 +82,7 @@ uiODMain::uiODMain( int argc, char **argv )
     if ( !ensureGoodDataDir() )
 	::exit( 0 );
 
-    applman = new uiODApplMgr( this );
+    applmgr = new uiODApplMgr( *this );
 
     if ( !ensureGoodSurveySetup() )
 	::exit( 0 );
@@ -61,7 +95,6 @@ uiODMain::uiODMain( int argc, char **argv )
 uiODMain::~uiODMain()
 {
     delete ctabed;
-    delete &uiapp;
     delete &lastsession;
 }
 
@@ -86,7 +119,7 @@ bool uiODMain::ensureGoodDataDir()
 	BufferString dirnm = GetPersonalDir();
 	while ( true )
 	{
-	    uiFileDialog dlg( p, uiFileDialog::DirectoryOnly, dirnm, "*;*.*",
+	    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, dirnm, "*;*.*",
 			      "Specify the directory for the OpendTect data" );
 	    if ( !dlg.go() )
 		return false;
@@ -181,7 +214,7 @@ bool uiODMain::ensureGoodSurveySetup()
     }
     else if ( IOM().dirPtr()->key() == MultiID("-1") )
     {
-	while ( !applman->manageSurvey() )
+	while ( !applmgr->manageSurvey() )
 	{
 	    if ( uiMSG().askGoOn( "No survey selected. Do you wish to quit?" ) )
 		return false;
@@ -196,27 +229,16 @@ bool uiODMain::buildUI()
 {
     menumgr = new uiODMenuMgr( this );
     scenemgr = new uiODSceneMgr( this );
-    posctrl = new ui3DApplPosCtrl( this );
-    initCT();
-    return true;
-}
 
-
-void uiODMain::initCT()
-{
     ctabwin = new uiDockWin( this, "Color Table" );
     moveDockWindow( *ctabwin, uiMainWin::Left );
     ctabwin->setResizeEnabled( true );
-   
+							    
     ctabed = new uiVisColTabEd( ctabwin );
     ctabed->setPrefHeight( cCTHeight );
     ctabed->attach(hCentered);
-}
 
-
-void uiODMain::enableColorTable( bool yn )
-{
-    ctabwin->setSensitive( yn );
+    return true;
 }
 
 
@@ -230,18 +252,29 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(ODSession);
     ctio->ctxt.forread = restore;
-    uiIOObjSelDlg dlg( &appl, *ctio );
+    uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() )
-	{ delete ctio.ioobj; delete ctio; ctio = 0; }
+	{ delete ctio->ioobj; delete ctio; ctio = 0; }
     return ctio;
+}
+
+
+bool uiODMain::hasSessionChanged()
+{
+    ODSession sess;
+    cursession = &sess;
+    updateSession();
+    cursession = &lastsession;
+    return !( sess == lastsession );
 }
 
 
 void uiODMain::saveSession()
 {
     PtrMan<CtxtIOObj> ctio = getUserSessionIOData( false );
+    if ( !ctio ) return;
     ODSession sess; cursession = &sess;
-    if ( !ctio || !updateSession() ) return;
+    if ( !updateSession() ) return;
     BufferString bs;
     if ( !ODSessionTranslator::store(sess,ctio->ioobj,bs) )
 	{ uiMSG().error( bs ); return; }
@@ -259,47 +292,39 @@ void uiODMain::restoreSession()
 	{ uiMSG().error( bs ); return; }
 
     cursession = &sess;
-    restoreSession();
+    doRestoreSession();
     cursession = &lastsession; lastsession.clear();
     updateSession();
-}
-
-
-bool uiODMain::hasSessionChanged()
-{
-    ODSession sess;
-    cursession = &sess;
-    updateSession();
-    cursession = &lastsession;
-    return !( sess == lastsession );
 }
 
 
 bool uiODMain::updateSession()
 {
     cursession->clear();
-    visserv->fillPar( cursession->vispars() );
-    attrserv->fillPar( cursession->attrpars() );
-    sceneMgr().fillPar( cursession->scenepars() );
-    if ( nlaserv && !nlaserv->fillPar( cursession->nlapars() ) ) 
+    applMgr().visServer()->fillPar( cursession->vispars() );
+    applMgr().attrServer()->fillPar( cursession->attrpars() );
+    sceneMgr().getScenePars( cursession->scenepars() );
+    if ( applMgr().nlaServer()
+      && !applMgr().nlaServer()->fillPar( cursession->nlapars() ) ) 
 	return false;
+
     sessionSave.trigger();
     return true;
 }
 
 
-void uiODMain::restoreSession()
+void uiODMain::doRestoreSession()
 {
     sceneMgr().cleanUp( false );
-    if ( nlaserv ) nlaserv->reset();
-    delete attrserv; attrserv = new uiAttribPartServer( applservice );
+    applMgr().resetServers();
 
-    if ( nlaserv ) nlaserv->usePar( cursession->nlapars() );
-    attrserv->usePar( cursession->attrpars() );
-    bool visok = visserv->usePar( cursession->vispars() );
+    if ( applMgr().nlaServer() )
+	applMgr().nlaServer()->usePar( cursession->nlapars() );
+    applMgr().attrServer()->usePar( cursession->attrpars() );
+    bool visok = applMgr().visServer()->usePar( cursession->vispars() );
 
     if ( visok ) 
-	sceneMgr().useScenePars( cursession.scenepars() );
+	sceneMgr().useScenePars( cursession->scenepars() );
     else
     {
 	uiMSG().error( "An error occurred while reading session file.\n"
@@ -317,12 +342,12 @@ bool uiODMain::go()
     show();
     uiSurvey::updateViewsGlobal();
     int rv = uiapp.exec();
-    delete applman; applman = 0;
+    delete applmgr; applmgr = 0;
     return rv ? false : true;
 }
 
 
-bool uiODApplMgr::closeOk( CallBacker* )
+bool uiODMain::closeOk( CallBacker* )
 {
     if ( failed ) return true;
 
@@ -331,11 +356,11 @@ bool uiODApplMgr::closeOk( CallBacker* )
     ctabwin->storePosition();
 
     int res = hasSessionChanged()
-	    ? uiMSG().askGoOnAfter( "Do you want to save this session?" );
+	    ? uiMSG().askGoOnAfter( "Do you want to save this session?" )
             : (int)!uiMSG().askGoOn( "Do you want to quit?" ) + 1;
 
     if ( res == 0 )
-	saverestoreSession( false );
+	saveSession();
     else if ( res == 2 )
 	return false;
 

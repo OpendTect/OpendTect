@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.2 2003-12-25 19:42:23 bert Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.3 2003-12-28 16:10:23 bert Exp $";
 
 
 #include "uiodtreeitemimpl.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.2 2003-12-25 19:42:23 bert 
 #include "uiempartserv.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
+#include "uipickpartserv.h"
 
 
 const char* uiODTreeTop::sceneidkey = "Sceneid";
@@ -30,25 +31,25 @@ const char* uiODTreeTop::viewerptr = "Viewer";
 const char* uiODTreeTop::applmgrstr = "Applmgr";
 const char* uiODTreeTop::scenestr = "Scene";
 
-uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiODApplMgr* uip,
+uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
 			    uiTreeFactorySet* tfs_ )
-    : uiTreeTopItem( sc->lv )
-    , tfs( tfs_ )
+    : uiTreeTopItem(lv)
+    , tfs(tfs_)
 {
     setProperty<int>( sceneidkey, sovwr->sceneId() );
     setPropertyPtr<uiSoViewer*>( viewerptr, sovwr );
-    setPropertyPtr<uiODApplMgr*>( applmgrstr, uip );
+    setPropertyPtr<uiODApplMgr*>( applmgrstr, am );
     // setPropertyPtr<uiODSceneMgr::Scene*>( scenestr, sc );
 
-    tfs->addnotifier.notify( mCB(this,uiODTreeTop, addFactoryCB) );
-    tfs->removenotifier.notify( mCB(this,uiODTreeTop, removeFactoryCB) );
+    tfs->addnotifier.notify( mCB(this,uiODTreeTop,addFactoryCB) );
+    tfs->removenotifier.notify( mCB(this,uiODTreeTop,removeFactoryCB) );
 }
 
 
 uiODTreeTop::~uiODTreeTop()
 {
-    tfs->addnotifier.remove( mCB(this,uiODTreeTop, addFactoryCB) );
-    tfs->removenotifier.remove( mCB(this,uiODTreeTop, removeFactoryCB) );
+    tfs->addnotifier.remove( mCB(this,uiODTreeTop,addFactoryCB) );
+    tfs->removenotifier.remove( mCB(this,uiODTreeTop,removeFactoryCB) );
 }
 
 
@@ -206,25 +207,25 @@ bool uiODDisplayTreeItem::factory( uiTreeItem* treeitem, uiODApplMgr* applmgr,
     uiVisPartServer* visserv = applmgr->visServer();
     uiTreeItem* res = 0;
     if ( visserv->isInlCrlTsl( displayid, 0 ) )
-	res = new InlineTreeItem(displayid);
+	res = new uiODInlineTreeItem(displayid);
     else if ( visserv->isInlCrlTsl( displayid, 1 ) )
-	res = new CrosslineTreeItem(displayid);
+	res = new uiODCrosslineTreeItem(displayid);
     else if ( visserv->isInlCrlTsl( displayid, 2 ) )
-	res = new TimesliceTreeItem(displayid);
+	res = new uiODTimesliceTreeItem(displayid);
     else if ( visserv->isVolView(displayid) )
-	res = new VolumeTreeItem(displayid);
+	res = new uiODVolumeTreeItem(displayid);
     else if ( visserv->isRandomLine(displayid) )
-	res = new RandomLineTreeItem(displayid);
+	res = new uiODRandomLineTreeItem(displayid);
     else if ( visserv->isHorizon(displayid) )
-	res = new HorizonTreeItem(displayid);
+	res = new uiODHorizonTreeItem(displayid);
     else if ( visserv->isFault(displayid) )
-	res = new FaultTreeItem(displayid);
+	res = new uiODFaultTreeItem(displayid);
     else if ( visserv->isStickSet(displayid) )
-	res = new FaultStickTreeItem(displayid);
+	res = new uiODFaultStickTreeItem(displayid);
     else if ( visserv->isWell(displayid) )
-	res = new WellTreeItem(displayid);
+	res = new uiODWellTreeItem(displayid);
     else if ( visserv->isPickSet(displayid) )
-	res = new PickSetTreeItem(displayid);
+	res = new uiODPickSetTreeItem(displayid);
 
     return res ? treeitem->addChild( res ) : 0;
 }
@@ -304,7 +305,8 @@ uiPopupMenu* uiODDisplayTreeItem::createMenu( uiPopupMenu** attrsel )
 
     if ( visserv->hasAttrib(displayid) )
     {
-	uiPopupMenu* selattrmnu = new uiPopupMenu(applMgr(),"Select Attribute");
+	uiPopupMenu* selattrmnu = new uiPopupMenu(getUiParent(),
+						  "Select Attribute");
 	mnu->insertItem( selattrmnu, -1, 0 );
 	applMgr()->createSubMenu( *selattrmnu, mSelAttributeStart, displayid,0);
 	if ( attrsel ) (*attrsel)=selattrmnu;
@@ -398,13 +400,13 @@ bool uiODFaultStickFactoryTreeItem::showSubMenu()
     if ( !success )
 	return false;
 
-    addChild( new FaultStickTreeItem(mid) );
+    addChild( new uiODFaultStickTreeItem(mid) );
 
     return true;
 }
 
 
-mMultiIDDisplayConstructor( FaultStick );
+mMultiIDDisplayConstructor( FaultStick )
 
 bool uiODFaultStickTreeItem::init()
 {
@@ -469,7 +471,7 @@ bool uiODFaultFactoryTreeItem::showSubMenu()
 }
 
 
-mMultiIDDisplayConstructor( Fault );
+mMultiIDDisplayConstructor( Fault )
 
 
 bool uiODFaultTreeItem::init()
@@ -553,7 +555,7 @@ bool uiODHorizonFactoryTreeItem::showSubMenu()
 }
 
 
-mMultiIDDisplayConstructor( Horizon );
+mMultiIDDisplayConstructor( Horizon )
 
 
 bool uiODHorizonTreeItem::init()
@@ -628,16 +630,14 @@ bool uiODWellFactoryTreeItem::showSubMenu()
 	return false;
 
     for ( int idx=0; idx<emwellids.size(); idx++ )
-    {
-	addChild( new WellTreeItem(*emwellids[idx]) );
-    }
+	addChild( new uiODWellTreeItem(*emwellids[idx]) );
 
     deepErase( emwellids );
     return true;
 }
 
 
-mMultiIDDisplayConstructor( Well );
+mMultiIDDisplayConstructor( Well )
 
 
 bool uiODWellTreeItem::init()
@@ -691,7 +691,7 @@ bool uiODPickSetFactoryTreeItem::showSubMenu()
 
     if ( mnuid==0 )
     {
-	if ( !applMgr()->pickServ()->fetchPickSets() ) return -1;
+	if ( !applMgr()->pickServer()->fetchPickSets() ) return -1;
 	PickSetGroup* psg = new PickSetGroup;
 	applMgr()->getPickSetGroup( *psg );
 	if ( psg->nrSets() )
@@ -699,14 +699,14 @@ bool uiODPickSetFactoryTreeItem::showSubMenu()
 	    for ( int idx=0; idx<psg->nrSets(); idx++ )
 	    {
 		//TODO make sure it's not in list already
-		addChild( new PickSetTreeItem(psg->get(idx)) );
+		addChild( new uiODPickSetTreeItem(psg->get(idx)) );
 	    }
 	}
 	else
 	{
 	    PickSet pset( psg->name() );
 	    pset.color = applMgr()->getPickColor();
-	    addChild( new PickSetTreeItem(&pset) );
+	    addChild( new uiODPickSetTreeItem(&pset) );
 	    //TODO create pickset
 	}
     }
@@ -773,7 +773,7 @@ uiODVolumeFactoryTreeItem::uiODVolumeFactoryTreeItem()
 
 bool uiODVolumeFactoryTreeItem::showSubMenu()
 {
-    mFactoryShowSubMenu( addChild(new VolumeTreeItem); );
+    mFactoryShowSubMenu( addChild(new uiODVolumeTreeItem); );
 }
 
 

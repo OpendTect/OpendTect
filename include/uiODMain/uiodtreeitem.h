@@ -7,20 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.2 2003-12-25 19:42:23 bert Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.3 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uitreeitemmanager.h"
-#include "uiodscenemgr.h"
-
-class uiPopUpMenu;
-class uiListViewItem;
 class uiParent;
-class uiODApplMgr;
 class uiSoViewer;
+class uiListView;
+class uiPopUpMenu;
+class uiODApplMgr;
+class uiListViewItem;
 
 class uiODTreeItem : public uiTreeItem
 {
@@ -40,8 +39,8 @@ protected:
 class uiODTreeTop : public uiTreeTopItem
 {
 public:
-			uiODTreeTop(uiODSceneMgr::Scene*,uiODApplMgr*,
-				    uiTreeFactorySet*);
+			uiODTreeTop(uiSoViewer*,uiListView*,
+				    uiODApplMgr*,uiTreeFactorySet*);
 			~uiODTreeTop();
 
     static const char*	sceneidkey;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.2 2003-12-24 15:15:42 bert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.3 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class uiSoViewer;
 
 /*!\brief Application level manager - ties part servers together */
 
-class uiODApplMgr
+class uiODApplMgr : public CallBacker
 {
 public:
 
@@ -52,8 +52,9 @@ public:
     // File menu operations
     int			manageSurvey();
     bool		manageNLA();
-    void		doOperation(uiODMain::ObjType,
-	    			    uiODMain::ActType,int opt=0);
+    enum ObjType	{ Seis, Hor, Wll, Attr };
+    enum ActType	{ Imp, Exp, Man };
+    void		doOperation(ObjType,ActType,int opt=0);
     			//!< Not all combinations are available ...!
     void		importPickSet();
     void		importLMKFault();
@@ -63,13 +64,17 @@ public:
     void		createVol();
     void		reStartProc();
 
+    // View menu operations
+    void		setWorkingArea();
+    void		setZScale();
+    void		setStereoOffset();
+
     // Utility menu operations
     void		batchProgs();
     void		pluginMan();
     void		crDevEnv();
     void		doHelp(const char*,const char*);
     void		setFonts();
-    void		setStereoOffset();
 
     // Tree menu services
 	// Selections
@@ -92,9 +97,14 @@ public:
     bool		createSubMenu(uiPopupMenu&,int mnuid,int visid,int tp);
     bool		handleSubMenu(int mnuid,int visid,int tp);
 
-    // Work
+
+    // Work. Don't use unless expert.
     bool		getNewData(int visid,bool);
     bool		evaluateAttribute(int visid);
+    void		resetServers();
+    void		modifyColorTable(int);
+    void		manSurvCB( CallBacker* )	{ manageSurvey(); }
+    void		manAttrCB( CallBacker* )	{ manageAttributes(); }
 
 protected:
 
@@ -124,7 +134,6 @@ protected:
     bool		getNewRandomLineData(int,bool);
     void		handleStoredSurfaceData(int);
 
-    void		modifyColorTable(int);
     void		setHistogram(int);
 
     friend class	uiODApplService;

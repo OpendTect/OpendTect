@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.182 2003-12-18 14:58:44 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.183 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -735,6 +735,8 @@ const AttribSliceSet* uiVisPartServer::getCachedData( int id ) const
 bool uiVisPartServer::setCubeData( int id, AttribSliceSet* sliceset,
        				   bool colordata )
 {
+    if ( !sliceset ) return false;
+
     mDynamicCastAll();
     if ( pdd ) return pdd->putNewData( sliceset, colordata );
     if ( vd ) return vd->putNewData( sliceset, colordata );

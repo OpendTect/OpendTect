@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.3 2003-12-25 19:42:23 bert Exp $
+ RCS:           $Id: uiodmain.h,v 1.4 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,12 @@ class IOPar;
 class uicMain;
 class uiODMain;
 class ODSession;
+class CtxtIOObj;
+class uiDockWin;
 class uiODApplMgr;
 class uiODMenuMgr;
 class uiODSceneMgr;
+class uiVisColTabEd;
 
 
 uiODMain* ODMainWin();
@@ -31,7 +34,7 @@ class uiODMain : public uiMainWin
 {
 public:
 
-			uiODMain(int,char**);
+			uiODMain(uicMain&);
 			~uiODMain();
 
     bool		go();
@@ -40,23 +43,26 @@ public:
     uiODApplMgr&	applMgr()	{ return *applmgr; }
     uiODMenuMgr&	menuMgr()	{ return *menumgr; } //!< + toolbar
     uiODSceneMgr&	sceneMgr()	{ return *scenemgr; }
+    uiVisColTabEd&	colTabEd()	{ return *ctabed; }
 
-    enum ObjType	{ Seis, Hor, Wll, Attr };
-    enum ActType	{ Imp, Exp, Man };
+    Notifier<uiODMain>	sessionSave;	//!< When triggered, put data in pars
+    Notifier<uiODMain>	sessionRestore;	//!< When triggered, get data from pars
+    IOPar&		sessionPars();	//!< On session save or restore
+    					//!< notification, to get/put data
 
-    Notifier<uiODMain>	sessionSave;
-    Notifier<uiODMain>	sessionRestore;
-    IOPar&		sessionPars();	//!< For stuff that plugins want to
-    					//!< store in session.
+    void		saveSession();	//!< pops up the save session dialog
+    void		restoreSession(); //!< pops up the restore session dlg
 
 protected:
 
     uiODApplMgr*	applmgr;
     uiODMenuMgr*	menumgr;
     uiODSceneMgr*	scenemgr;
+    uiVisColTabEd*	ctabed;
     uicMain&		uiapp;
     ODSession*		cursession;
     ODSession&		lastsession;
+    uiDockWin*		ctabwin;
 
     bool		failed;
 
@@ -65,7 +71,12 @@ private:
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();
     bool		buildUI();
-    void		initCT();
+    bool		closeOk(CallBacker*);
+
+    CtxtIOObj*		getUserSessionIOData(bool);
+    bool		hasSessionChanged();
+    bool		updateSession();
+    void		doRestoreSession();
 
 };
 

@@ -6,25 +6,28 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.3 2003-12-25 19:42:23 bert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.4 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiodmain.h"
-class uiGroup;
+#include "uiodapplmgr.h"
+class MultiID;
 class PickSet;
+class uiGroup;
 class uiDockWin;
 class uiSoViewer;
 class uiListView;
 class uiWorkSpace;
 class uiODTreeTop;
+class uiLabeledSlider;
+class uiVisPartServer;
 class uiTreeFactorySet;
 
 
 /*!\brief Position control elements at application top level */
 
-class uiODSceneMgr
+class uiODSceneMgr : public CallBacker
 {
 public:
 
@@ -37,11 +40,12 @@ public:
 
     void		getScenePars(IOPar&);
     void		useScenePars(const IOPar&);
+    void		storePositions();
 
-    void		viewModeChg();
-    void		setToViewMode();
-    void		actMode();
-    void		viewMode();
+    void		setToViewMode(bool yn=true);
+    void		viewModeChg(CallBacker* cb=0);
+    void		actMode(CallBacker* cb=0);
+    void		viewMode(CallBacker* cb=0);
 
     void		setMousePos();
     void		setKeyBindings();
@@ -70,8 +74,8 @@ public:
     void		updateTrees();
     void		rebuildTrees();
     void		setItemInfo(int);
-    void		updateSelectedTreeItem(int);
-    void		getIDFromName(const char*);
+    void		updateSelectedTreeItem();
+    int			getIDFromName(const char*) const;
     void		disabRightClick(bool);
 
     void		addPickSetItem(const PickSet*,int);
@@ -86,27 +90,29 @@ protected:
 			~Scene();
        
 	uiListView*	lv;
-	uiDockWin*	treewin;
 	uiSoViewer*	sovwr;
 	uiODTreeTop*	itemmanager;
 
-	uiGroup*	grp();
+	uiGroup*	vwrGroup();
+	uiDockWin*	treeWin();
     };
 
     uiODMain&		appl;
     uiWorkSpace*	wsp;
     ObjectSet<Scene>	scenes;
     int			vwridx;
-    int			lasthrot, lastvrot, lastdval;
+    float		lasthrot, lastvrot, lastdval;
     uiTreeFactorySet*	tifs;
+    uiLabeledSlider*	zoomslider;
 
     void		wheelMoved(CallBacker*,int wh,float&);
 
     inline uiODApplMgr& applMgr()	{ return appl.applMgr(); }
     inline uiODMenuMgr&	menuMgr()	{ return appl.menuMgr(); }
+    inline uiVisPartServer& visServ()	{ return *applMgr().visServer(); }
 
     Scene&		mkNewScene();
-    void		initTree(const Scene&,int);
+    void		initTree(Scene&,int);
 
 };
 

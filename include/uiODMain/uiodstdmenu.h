@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.1 2003-12-20 13:24:05 bert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.2 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 
@@ -80,18 +80,19 @@ ________________________________________________________________________
 
 /* 'Utilities' menu */
 
-#define mUtilsSettingMnu	(mUtilsMnu + 100)
+#define mUtilSettingMnu		(mUtilMnu + 100)
 
-#define mBatchProgMnuItm	(mUtilsMnu + 10)
-#define mPluginsMnuItm		(mUtilsMnu + 20)
-#define mCrDevEnvMnuItm		(mUtilsMnu + 30)
-#define mSettFontsMnuItm	(mUtilsSettingMnu + 10)
-#define mSettMouseMnuItm	(mUtilsSettingMnu + 20)
+#define mBatchProgMnuItm	(mUtilMnu + 10)
+#define mPluginsMnuItm		(mUtilMnu + 20)
+#define mCrDevEnvMnuItm		(mUtilMnu + 30)
+#define mSettFontsMnuItm	(mUtilSettingMnu + 10)
+#define mSettMouseMnuItm	(mUtilSettingMnu + 20)
 
 
 /* 'Help' menu */
 
 #define mStdHelpMnuBase		(mHelpMnu + 90)
+#define mODIndexMnuItm		(mStdHelpMnuBase + 0)
 #define mAdminMnuItm		(mStdHelpMnuBase + 1)
 #define mProgrammerMnuItm	(mStdHelpMnuBase + 2)
 #define mAboutMnuItm		(mStdHelpMnuBase + 3)

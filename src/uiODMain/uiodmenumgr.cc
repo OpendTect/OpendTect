@@ -4,17 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.2 2003-12-24 15:15:50 bert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.3 2003-12-28 16:10:23 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.2 2003-12-24 15:15:50 bert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.3 2003-12-28 16:10:23 bert Exp $";
 
 #include "uiodmenumgr.h"
 #include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
 #include "uimenu.h"
+#include "uitoolbar.h"
+#include "dirlist.h"
+#include "pixmap.h"
+#include "filegen.h"
 #include "timer.h"
 
 
@@ -38,22 +43,23 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     fillHelpMenu();	menu->insertItem( helpmnu );
 
     dtecttb = appl.toolBar();
-    dtecttb.setLabel( "OpendTect tools" );
+    dtecttb->setLabel( "OpendTect tools" );
     fillDtectTB();
-    dtecttb = appl.newToolBar( "Graphical tools" );
+    cointb = appl.newToolBar( "Graphical tools" );
     fillCoinTB();
 
     timer.tick.notify( mCB(this,uiODMenuMgr,timerCB) );
 }
 
 
-uiPopupMenu* uiODMenuMgr::getBaseMnu( ActType at )
+uiPopupMenu* uiODMenuMgr::getBaseMnu( uiODApplMgr::ActType at )
 {
-    return at == Imp ? impmnu : (at == Exp ? expmnu : manmnu);
+    return at == uiODApplMgr::Imp ? impmnu :
+	  (at == uiODApplMgr::Exp ? expmnu : manmnu);
 }
 
 
-uiPopupMenu* uiODMenuMgr::getMnu( bool imp, ObjType ot )
+uiPopupMenu* uiODMenuMgr::getMnu( bool imp, uiODApplMgr::ObjType ot )
 {
     return imp ? impmnus[(int)ot] : expmnus[(int)ot];
 }
@@ -89,13 +95,7 @@ void uiODMenuMgr::updateAxisMode( bool shwaxis )
 }
 
 
-void uiODMenuMgr::enableToolbar( bool yn )
-{
-    dtecttb->setSensitive( yn );
-}
-
-
-void uiODMenuMgr::enableMenubar( bool yn )
+void uiODMenuMgr::enableMenuBar( bool yn )
 {
     appl.menuBar()->setSensitive( yn );
 }
@@ -103,24 +103,24 @@ void uiODMenuMgr::enableMenubar( bool yn )
 
 void uiODMenuMgr::enableActButton( bool yn )
 {
-    cointb->setSensitive( actbuttonid, yn );
+    cointb->setSensitive( actid, yn );
 }
 
 
 #define mInsertItem(menu,txt,id) \
     menu->insertItem( \
-	new uiMenuItem(txt,mCB(this,uiODMenuMgr,mnuClicked)), id )
+	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)), id )
 
 #define mInsertIdealItem(menu,txt,id) \
     { \
 	uiMenuItem* subitm = \
-		    new uiMenuItem(txt,mCB(this,uiODMenuMgr,mnuClicked)); \
+		    new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)); \
 	menu->insertItem( subitm, id ); subitm->setEnabled( doenable ); \
     }
 
 void uiODMenuMgr::fillFileMenu()
 {
-    mInsertItem( filemnu, "&Survey ...", mManSurvey );
+    mInsertItem( filemnu, "&Survey ...", mManSurveyMnuItm );
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl, "S&ession");
     mInsertItem( sessionitm, "&Save ...", mSessSaveMnuItm );
@@ -196,7 +196,7 @@ void uiODMenuMgr::fillViewMenu()
     viewmnu->insertItem( stereoitm );
 
 #define mInsertStereoItem(itm,txt,docheck,id,idx) \
-    itm = new uiMenuItem( txt, mCB(this,uiODMenuMgr,mnuClicked) ); \
+    itm = new uiMenuItem( txt, mCB(this,uiODMenuMgr,handleClick) ); \
     stereoitm->insertItem( itm, id, idx ); \
     itm->setChecked( docheck );
 
@@ -207,7 +207,7 @@ void uiODMenuMgr::fillViewMenu()
 	    		mStereoQuadMnuItm, 2 )
 
     stereooffsetitm = new uiMenuItem( "&Stereo offset ...",
-				mCB(this,uiODMenuMgr,mnuClicked) );
+				mCB(this,uiODMenuMgr,handleClick) );
     stereoitm->insertItem( stereooffsetitm, mStereoOffsetMnuItm, 3 );
     stereooffsetitm->setEnabled( false );
 }
@@ -230,13 +230,13 @@ void uiODMenuMgr::fillHelpMenu()
 {
     DirList dl( GetDataFileName(0), DirList::DirsOnly, "*Doc" );
     bool havedtectdoc = false;
-    for ( int idx=0; idx<dl.size(); idx++ )
+    for ( int hidx=0, idx=0; idx<dl.size(); idx++ )
     {
 	BufferString dirnm = dl.get( idx );
 	if ( dirnm == "dTectDoc" )
 	{
 	    havedtectdoc = true;
-	    mInsertItem( helpmnu, "&Index ...", mHelpMnuItm );
+	    mInsertItem( helpmnu, "&Index ...", mODIndexMnuItm );
 	}
 	else
 	{
@@ -247,7 +247,8 @@ void uiODMenuMgr::fillHelpMenu()
 
 	    BufferString itmnm = "&"; // hope there's no duplication
 	    itmnm += dirnm; itmnm += "-"; itmnm += "Index ...";
-	    mInsertItem( helpmnu, itmnm, mHelpMnuItm + idx + 1 );
+	    mInsertItem( helpmnu, itmnm, mStdHelpMnuBase + hidx + 1 );
+	    hidx++;
 	}
     }
     if ( havedtectdoc )
@@ -261,26 +262,31 @@ void uiODMenuMgr::fillHelpMenu()
 
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( ioPixmap( GetDataFileName(fnm) ), \
-		   mCB(&applMgr(),uiODApplMgr,fn), txt, togg )
+	    	   mCB(&applMgr(),uiODApplMgr,fn), txt, togg )
 
 void uiODMenuMgr::fillDtectTB()
 {
-    mAddTB(dtecttb,"survey.png","Survey setup",false,manageSurvey);
-    mAddTB(dtecttb,"attributes.png","Edit attributes",false,manageAttributes);
+    mAddTB(dtecttb,"survey.png","Survey setup",false,manSurvCB);
+    mAddTB(dtecttb,"attributes.png","Edit attributes",false,manAttrCB);
 }
 
+
+#undef mAddTB
+#define mAddTB(tb,fnm,txt,togg,fn) \
+    tb->addButton( ioPixmap( GetDataFileName(fnm) ), \
+	    	   mCB(&sceneMgr(),uiODSceneMgr,fn), txt, togg )
 
 void uiODMenuMgr::fillCoinTB()
 {
     viewid = mAddTB(cointb,"view.xpm","View mode",true,viewMode);
     actid = mAddTB(cointb,"pick.xpm","Interact mode",true,actMode);
-    cointb->turnOn( actid );
     mAddTB(cointb,"home.xpm","To home position",false,toHomePos);
     mAddTB(cointb,"set_home.xpm","Save home position",false,saveHomePos);
     mAddTB(cointb,"view_all.xpm","View all",false,viewAll);
     mAddTB(cointb,"align.xpm","Align",false,align);
-    axisid = mAddTB(cointb,"axis.xpm","Show/hide rotation axis",true,
-	    		showRotAxis);
+    axisid = mAddTB(cointb,"axis.xpm","Display rotation axis",true,showRotAxis);
+
+    cointb->turnOn( actid, true );
 }
 
 
@@ -297,7 +303,7 @@ static const char* getHelpF( const char* subdir, const char* infnm,
 
 
 #define mDoOp(ot,at,op) \
-	applMgr().doOperation(uiODMain::at,uiODMain::ot,op)
+	applMgr().doOperation(uiODApplMgr::at,uiODApplMgr::ot,op)
 
 void uiODMenuMgr::handleClick( CallBacker* cb )
 {
@@ -308,8 +314,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     switch( id )
     {
     case mManSurveyMnuItm: 	applMgr().manageSurvey(); break;
-    case mSessSaveMnuItm: 	applMgr().saverestoreSession(false); break;
-    case mSessRestMnuItm: 	{ applMgr().saverestoreSession(true); 
+    case mSessSaveMnuItm: 	appl.saveSession(); break;
+    case mSessRestMnuItm: 	{ appl.restoreSession(); 
 				  timer.start(200,true);  break; }
     case mImpSeisSEGYMnuItm:	mDoOp(Imp,Seis,0); break;
     case mImpSeisCBVSMnuItm: 	mDoOp(Imp,Seis,1); break;
@@ -323,7 +329,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpPickMnuItm: 	applMgr().importPickSet(); break;
     case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
     case mExitMnuItm: 		appl.exit(); break;
-    case mManAttribsMnuItm: 	applMgr().manageAttributes(0); break;
+    case mManAttribsMnuItm: 	applMgr().manageAttributes(); break;
     case mCreateVolMnuItm: 	applMgr().createVol(); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mAddSceneMnuItm: 		
@@ -334,7 +340,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCascadeMnuItm: 	sceneMgr().cascade(); break;
     case mTileMnuItm: 		sceneMgr().tile(); break;
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
-    case mZScaleMnuItm: 	sceneMgr().setZScale(); break;
+    case mZScaleMnuItm: 	applMgr().setZScale(); break;
     case mAdminMnuItm: 		applMgr().doHelp(
 				    getHelpF("ApplMan","index.html"),
 				    "OpendTect System administrator"); break;
@@ -345,9 +351,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
     case mCrDevEnvMnuItm: 	applMgr().crDevEnv(); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;
-    case mSettMouseMnuItm: 	applMgr().setKeyBindings(); break;
+    case mSettMouseMnuItm: 	sceneMgr().setKeyBindings(); break;
 
-    case mStereoOffsetMnuItm: 	sceneMgr().setStereoOffset(); break;
+    case mStereoOffsetMnuItm: 	applMgr().setStereoOffset(); break;
     case mStereoOffMnuItm: 
     case mStereoRCMnuItm : 
     case mStereoQuadMnuItm :
@@ -370,7 +376,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     default:
     {
-	if ( id < mHelpMnuItm || id > mHelpMnuItm + 90 ) return;
+	if ( id < mStdHelpMnuBase || id > mStdHelpMnuBase + 90 ) return;
 
 	BufferString itmnm = itm->name();
 	BufferString docnm = "dTect";
@@ -396,5 +402,5 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
 void uiODMenuMgr::timerCB( CallBacker* )
 {
-    applMgr().layoutScene();
+    sceneMgr().layoutScenes();
 }
