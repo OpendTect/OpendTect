@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.30 2002-08-02 13:06:40 nanne Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.31 2002-12-24 13:27:15 nanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -19,6 +19,7 @@ The main chunk is color table related.
 #include "uidset.h"
 #include "ascstream.h"
 #include "ptrman.h"
+#include "simpnumer.h"
 #include <fstream>
 
 // First some implementations for a couple of header files ...
@@ -80,6 +81,7 @@ const char* ColorVal::sKey = "Value-Color";
 const char* ColorTable::sKeyName = "Color table name";
 const char* ColorTable::sKeyMarkColor = "Marker color";
 const char* ColorTable::sKeyUdfColor = "Undef color";
+const char* ColorTable::sKeyTransparency = "Transparency";
 bool ColorTable::tabparsinited = false;
 ObjectSet<IOPar> ColorTable::tabpars;
 
@@ -94,6 +96,7 @@ ColorTable& ColorTable::operator=(const ColorTable& n )
 
     collist = n.collist;
     uselist = n.uselist;
+    translist = n.translist;
 
     return *this;
 }
@@ -115,6 +118,14 @@ bool ColorTable::operator==( const ColorTable& ct ) const
 	    if ( cvs[idx].value != ct.cvs[idx].value ||
 		 cvs[idx].color != ct.cvs[idx].color )		return false;
 	}
+    }
+
+    if ( ct.translist.size() != translist.size() ) return false;
+    else
+    {
+	for ( int idx=0; idx<translist.size(); idx++ )
+	    if ( translist[idx] != ct.translist[idx] )
+		 return false;
     }
 
     return true;
@@ -164,7 +175,10 @@ Color ColorTable::color( float v, bool use_undefcol ) const
     if ( sz == 0 ) return undefcolor;
 
     ColorVal cv( cvs[0] );
-    if ( sz == 1 || mIS_ZERO(v-cv.value) ) return cv.color;
+    if ( sz == 1 || mIS_ZERO(v-cv.value) )
+	return Color( cv.color.r(), cv.color.g(), cv.color.b(),
+		(int)(getTransparency( v ) + .5) );
+
     bool isrev = cvs[0].value > cvs[1].value;
     if ( (isrev && v>cv.value) || (!isrev && v<cv.value) ) 
 	if ( use_undefcol )	
@@ -197,18 +211,38 @@ Color ColorTable::color( float v, bool use_undefcol ) const
 	cv2 = cvs[idx];
 	if ( (isrev && v >= cv2.value) || (!isrev && v <= cv2.value) )
 	{
-	    if ( mIS_ZERO(v-cv2.value) ) return cv2.color;
+	    if ( mIS_ZERO(v-cv2.value) )
+		return Color( cv2.color.r(), cv2.color.g(), cv2.color.b(),
+			      (int)(getTransparency( v ) + .5) );
 
 	    float dist = cv2.value - cv.value;
 	    return Color( Color::getUChar( mColRGBVal(r) / dist ),
 			  Color::getUChar( mColRGBVal(g) / dist ),
 			  Color::getUChar( mColRGBVal(b) / dist ),
-			  Color::getUChar( mColRGBVal(t) / dist ) );
+			  (int)(getTransparency( v ) + .5) );
 	}
 	cv = cv2;
     }
 
     return undefcolor;
+}
+
+
+float ColorTable::getTransparency( float val ) const
+{
+    const int sz = cvs.size();
+    float valnorm = (val - cvs[0].value) / (cvs[sz-1].value - cvs[0].value);
+    for ( int idx=1; idx<translist.size(); idx ++)
+    {
+	float x0 = translist[idx-1].x();
+	float y0 = translist[idx-1].y();
+	float x1 = translist[idx].x();
+	float y1 = translist[idx].y();
+	if ( valnorm >= x0 && valnorm <= x1 )
+	    return linearInterpolate( x0, y0, x1, y1, valnorm );
+    }
+
+    return 0;
 }
 
 
@@ -307,6 +341,7 @@ void ColorTable::usePar( const IOPar& iopar )
     getfromPar( iopar, undefcolor, sKeyUdfColor );
 
     cvs.erase();
+    translist.erase();
     for ( int idx=0; ; idx++ )
     {
 	BufferString key( ColorVal::sKey );
@@ -320,6 +355,22 @@ void ColorTable::usePar( const IOPar& iopar )
 	}
 
 	cvs += ColorVal( col, val );
+    }
+
+    for ( int idx=0; ; idx++ )
+    {
+	BufferString key( sKeyTransparency );
+	key += "."; key += idx;
+	float val;
+	float alpha;
+	if ( !iopar.get( key, val, alpha ) ) break;
+	translist += Point<float>(val,alpha);
+    }
+
+    if ( !translist.size() )
+    {
+	for ( int idx=0; idx<cvs.size(); idx++ )
+	    translist += Point<float>(cvs[idx].value,cvs[idx].color.t());
     }
 
     if ( uselist )
@@ -391,7 +442,7 @@ void ColorTable::add( const IOPar& iopar, UserIDSet* names,
 }
 
 
-void ColorTable::get( const char* nm, ColorTable& ct )
+bool ColorTable::get( const char* nm, ColorTable& ct )
 {
     BufferString ctname = "Rainbow";
     if ( !nm || !*nm )
@@ -415,7 +466,7 @@ void ColorTable::get( const char* nm, ColorTable& ct )
 	    if ( !strcmp(res,ctname) )
 	    {
 		ct.usePar( *ctiopar );
-		return;
+		return true;
 	    }
 	}
     }
@@ -427,22 +478,21 @@ void ColorTable::get( const char* nm, ColorTable& ct )
 	if ( !strcmp(ctname,iop[sNameKey]) )
 	{
 	    ct.usePar( iop );
-    	    return;
+    	    return true;
 	}
     }
 
     //NEXT version remove
     if ( !strcmp(ctname,"Blue-Green-Magenta") )
-	get( "Rainbow", ct );
+    { get( "Rainbow", ct ); return true; }
     else if ( !strcmp(ctname,"White-Yellow-Red") )
-	get( "SunRise", ct );
+    { get( "SunRise", ct ); return true; }
     else if ( !strcmp(ctname,"Blue-Cyan-WYR") )
-	get( "Pastel", ct );
+    { get( "Pastel", ct ); return true; }
     else if ( !strcmp(ctname,"Blue-White-Blue") )
-	get( "Blue Spirit", ct );
+    { get( "Blue Spirit", ct ); return true; }
 
-    if ( !ct.name() || !(*ct.name()) )
-	get( "Red-White-Black", ct );
+    return false;
 }
 
 
@@ -468,5 +518,12 @@ void ColorTable::fillPar( IOPar& iopar ) const
 	BufferString str( ColorVal::sKey );
 	str += "."; str += idx;
 	iopar.set( str, fms );
+    }
+
+    for ( int idx=0; idx<translist.size(); idx++ )
+    {
+	BufferString key( sKeyTransparency );
+	key += "."; key += idx;
+	iopar.set( key, translist[idx].x(), translist[idx].y() );
     }
 }
