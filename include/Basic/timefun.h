@@ -8,10 +8,10 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	Time functions
- RCS:		$Id: timefun.h,v 1.1.1.2 1999-09-16 09:19:22 arend Exp $
+ RCS:		$Id: timefun.h,v 1.2 2000-03-02 15:24:35 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include <gendefs.h>
 
@@ -19,15 +19,13 @@ ________________________________________________________________________
 extern "C" {
 #endif
 
-int		Time_getMilliSeconds	Pargs( (void) ) ;
-const char*	Time_getLocalString	Pargs( (void) ) ;
-int		Time_get4Digits		Pargs( (void) ) ;
-int		Time_get6Digits		Pargs( (void) ) ;
+int		Time_getMilliSeconds(void);	/* From day start */
+const char*	Time_getLocalString(void);
+void		Time_sleep(double);
 
 #ifdef __cpp__
 }
 #endif
 
 
-/*$-*/
 #endif

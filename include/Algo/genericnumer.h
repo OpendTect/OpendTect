@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.4 1999-12-09 14:21:35 bert Exp $
+ RCS:           $Id: genericnumer.h,v 1.5 2000-03-02 15:24:30 bert Exp $
 ________________________________________________________________________
 
 
@@ -48,22 +48,25 @@ inline void GenericConvolve (int lx, int ifx, const A& x,
 }
 
 template <class A, class B>
-inline float similarity( const A& a, const B& b, int sz, int firstpos=0)
+inline float similarity( const A& a, const B& b, int sz,
+			 int firstposa=0, int firstposb=0)
 {
     float val1, val2;
     double sqdist = 0, sq1 = 0, sq2 = 0;
 
-    int curpos = firstpos;
+    int curposa = firstposa;
+    int curposb = firstposb;
 
     for ( int idx=0; idx<sz; idx++ )
     {
-	val1 = a[curpos];
-	val2 = b[curpos];
+	val1 = a[curposa];
+	val2 = b[curposb];
 	sq1 += val1 * val1;
 	sq2 += val2 * val2;
 	sqdist += (val1-val2) * (val1-val2);
 
-	curpos ++;
+	curposa ++;
+	curposb ++;
     }
 
     if ( sq1 + sq2 < 1e-10 ) return 0;

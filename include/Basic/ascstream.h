@@ -1,18 +1,18 @@
 #ifndef ascstream_H
 #define ascstream_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.1.1.2 1999-09-16 09:18:49 arend Exp $
+ RCS:		$Id: ascstream.h,v 1.2 2000-03-02 15:24:25 bert Exp $
 ________________________________________________________________________
 
  An asc stream gets/puts data in/from a standard ascii format file.
 
-@$*/
+-*/
 
 #include <gendefs.h>
 class MeasureUnit;
@@ -128,5 +128,4 @@ inline bool atEndOfSection( const ascistream& strm )
 { return strm.atEOS(); }
 
 
-/*$-*/
 #endif

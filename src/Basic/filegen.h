@@ -1,25 +1,29 @@
 #ifndef filegen_H
 #define filegen_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.2 1999-10-18 14:02:43 dgb Exp $
+ RCS:		$Id: filegen.h,v 1.3 2000-03-02 15:24:28 bert Exp $
 ________________________________________________________________________
 
 These functions deliver services related to files. In principle, they shield
 from knowledge of the OS, and could so also be used on non-UNIX platforms.
 Only UNIX is currently implemented, though.
 
-@$*/
+-*/
 
 #include <gendefs.h>
 
-#define sDirSep		"/"
+#ifdef __win__
+# define sDirSep	"\\"
+#else
+# define sDirSep	"/"
+#endif
 
 
 #ifdef __cpp__
@@ -27,24 +31,28 @@ extern "C" {
 #endif
 
 
-int		File_exists		Pargs( (const char*) );
-int		File_isEmpty		Pargs( (const char*) );
-int		File_isDirectory	Pargs( (const char*) );
-int		File_isAbsPath		Pargs( (const char*) );
-int		File_createDir		Pargs( (const char*,int) );
-int		File_rename		Pargs( (const char*,const char*) );
-int		File_copy		Pargs( (const char*,const char*,int) );
-int		File_link		Pargs( (const char*,const char*) );
-int		File_remove		Pargs( (const char*,int,int) );
+/* Functions returning YES/true on success */
+int	File_exists(const char*);
+int	File_isEmpty(const char*);
+int	File_isDirectory(const char*);
+int	File_isAbsPath(const char*);
+int	File_createDir(const char*,int mode /* 0755 when 0 passed */);
+int	File_rename(const char* oldname,const char* newname);
+int	File_copy(const char* from,const char* to,int recursive_downward);
+int	File_link(const char* from,const char* to);
+int	File_remove(const char*,int force,int recursive_downward);
 
-/*$@
-The following functions return a pointer to a {\b static buffer}!
-@$*/
-const char*	File_getFullPath	Pargs( (const char*,const char*) );
-const char*	File_getPathOnly	Pargs( (const char*) );
-const char*	File_getFileName	Pargs( (const char*) );
-const char*	File_getBaseName	Pargs( (const char*) );
-const char*	File_getTempFileName	Pargs( (const char*,const char*,int) );
+/*
+The following functions return a pointer to the same static buffer, meaning you
+cannot mix them directly!
+*/
+const char*	File_getFullPath(const char* pathname,const char* filename);
+const char*	File_getPathOnly(const char* fullpath);
+const char*	File_getFileName(const char* fullpath);
+const char*	File_getTempFileName(const char* id_unique_for_process,
+				     const char* extension,int full_path);
+const char*	File_getBaseName(const char* filename);
+		/* returns all extensions and path prefixes removed */
 
 
 #ifdef __cpp__
@@ -52,5 +60,4 @@ const char*	File_getTempFileName	Pargs( (const char*,const char*,int) );
 #endif
 
 
-/*$-*/
 #endif

@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.3 2000-02-10 13:01:44 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.4 2000-03-02 15:24:54 bert Exp $
 ________________________________________________________________________
 
-@$*/
- 
-/*@+
-@$*/
+ An IOStream is a file (default), device or command entry in the omf.
+
+-*/
  
 #include <ioobject.h>
 #include <conn.h>
@@ -21,9 +20,6 @@ ________________________________________________________________________
 class StreamProvider;
 
 
-/*$@ IOStream
- is a file (default), device or command entry in the omf.
-@$*/
 class IOStream : public IOObject
 {		 isUidConcreteDefObject(IOStream)
 
@@ -86,6 +82,10 @@ public:
     int			zeroPadding() const		{ return padzeros; }
     void		setZeroPadding( int zp )	{ padzeros = zp; }
     StepInterval<int>&	fileNumbers()			{ return fnrs; }
+    int			nrRetries() const		{ return nrretries; }
+    int			retryDelay() const		{ return retrydelay; }
+    void		setNrRetries( int n )		{ nrretries = n; }
+    void		setRetryDelay( int n )		{ retrydelay = n; }
 
 protected:
 
@@ -107,6 +107,8 @@ protected:
     int			padzeros;
     StepInterval<int>	fnrs;
     int			curfnr;
+    int			nrretries;
+    int			retrydelay;
 
     StreamConn::Type	type_;
 

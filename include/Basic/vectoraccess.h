@@ -1,17 +1,17 @@
 #ifndef Vector_H
 #define Vector_H
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.2 2000-02-25 10:29:13 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.3 2000-03-02 15:24:23 bert Exp $
 ________________________________________________________________________
 
-@$*/
+-*/
 
 #include <stdlib.h>
 #include <general.h>
@@ -178,5 +178,4 @@ private:
 };
 
 
-/*$-*/
 #endif
