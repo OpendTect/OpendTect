@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.5 2000-12-11 10:19:31 dgb Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.6 2000-12-14 14:06:40 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -62,7 +62,7 @@ public:
 			Array2DImpl( const Array2DInfo& nsz )
 			    : in( nsz )
 			    , dbuf(in.getTotalSz(),sizeof(T),false)    {} 
-			Array2DImpl( const Array2D& templ )
+			Array2DImpl( const Array2D<T>& templ )
 			    : in( templ.info() )
 			    , dbuf(in.getTotalSz(),sizeof(T),false)
 			{
@@ -117,7 +117,7 @@ public:
 			Array3DImpl( const Array3DInfo& nsz )
 			    : in(nsz)
 			    , dbuf(in.getTotalSz(),sizeof(T),false)    {}
-			Array3DImpl( const Array3D& templ )
+			Array3DImpl( const Array3D<T>& templ )
 			    : in( templ.info() )
 			    , dbuf(in.getTotalSz(),sizeof(T),false)
 			{
