@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.19 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uilineedit.cc,v 1.20 2004-11-26 09:52:46 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,19 +49,20 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
 
 //------------------------------------------------------------------------------
 
-uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm )
+uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm, 
+	                bool prefempty)
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , returnPressed(this), textChanged(this)
-    , UserInputObjImpl<const char*>()
+    , UserInputObjImpl<const char*>(prefempty)
 {
     setText( deftxt ? deftxt : "" );
 }
 
 uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
-			const char* nm )
+			const char* nm, bool prefempty )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , returnPressed(this), textChanged(this)
-    , UserInputObjImpl<const char*>()
+    , UserInputObjImpl<const char*>(prefempty)
 {
     setText( spec.text() ? spec.text() : "" );
 }

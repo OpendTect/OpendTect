@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uilineedit.h,v 1.13 2004-11-26 09:52:57 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,12 +20,15 @@ class uiLineEditBody;
 class uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
 {
 public:
-
+			//! pref_empty : return empty string/ null value
+			//  insted of undefined value, when line edit is empty.
                         uiLineEdit(uiParent*,const char* starttxt=0,
-				   const char* nm="Line Edit");
+				   const char* nm="Line Edit",
+				   bool prefempty = true);
 
                         uiLineEdit(uiParent*,const DataInpSpec&,
-				   const char* nm="Line Edit");
+				   const char* nm="Line Edit",
+				   bool prefempty = true);
 
     void		setEdited( bool = true );
     bool		isEdited() const;
