@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visscene.cc,v 1.23 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visscene.cc,v 1.24 2005-04-05 12:30:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "visselman.h"
 #include "visevent.h"
 
-#include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoEnvironment.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoPolygonOffset.h>
 
 mCreateFactoryEntry( visBase::Scene );
 
@@ -26,10 +27,17 @@ namespace visBase
 Scene::Scene()
     : selroot( new SoGroup )
     , environment( new SoEnvironment )
+    , polygonoffset( new SoPolygonOffset )
     , events( *EventCatcher::create() )
     , mousedownid( -1 )
 {
     selroot->ref();
+
+    polygonoffset->styles = SoPolygonOffset::FILLED;
+    polygonoffset->factor.setValue(1);
+    polygonoffset->units.setValue(2);
+    selroot->addChild( polygonoffset );
+
     selroot->addChild( environment );
     events.ref();
     selroot->addChild( events.getInventorNode() );

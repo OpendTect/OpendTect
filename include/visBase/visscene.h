@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.12 2004-09-14 12:17:36 kristofer Exp $
+ RCS:		$Id: visscene.h,v 1.13 2005-04-05 12:30:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "visdatagroup.h"
 
 class SoEnvironment;
+class SoPolygonOffset;
 
 namespace visBase
 {
@@ -54,6 +55,7 @@ private:
     void		mousePickCB( CallBacker* );
 
     SoEnvironment*	environment;
+    SoPolygonOffset*	polygonoffset;
     SoGroup*		selroot;
 };
 
