@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.3 2004-12-23 10:33:23 bert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.4 2005-02-25 17:51:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "msgh.h"
 #include "seistrc.h"
 #include "segytr.h"
+#include "iopar.h"
 
 #include "uidialog.h"
 #include "uitextedit.h"
@@ -32,12 +33,14 @@ class uiSeisSEGYExamine : public uiDialog
 {
 public:
 
-uiSeisSEGYExamine( uiParent* p, const char* fname, bool mult )
+uiSeisSEGYExamine( uiParent* p, const char* fname, bool mult, int n, int f )
 	: uiDialog(p,
 		uiDialog::Setup("Examine SEG-Y","",0)
 		.modal(false)
 		.oktext("")
 		.canceltext("Dismiss"))
+	, ns(n)
+	, fmt(f)
 {
     txtfld = new uiTextEdit( this, "", true );
     updateInput( fname, mult );
@@ -74,6 +77,16 @@ void updateInp( const char* fn, bool mult )
 
     outInfo( "Reading SEG-Y header" );
     PtrMan<SEGYSeisTrcTranslator> tr = SEGYSeisTrcTranslator::getInstance();
+
+    if ( ns || fmt )
+    {
+	outInfo( "ns and/or fmt overruled" );
+	IOPar iop;
+	if ( ns ) iop.set( SEGYSeisTrcTranslator::sExternalNrSamples, ns );
+	if ( fmt ) iop.set( SEGYSeisTrcTranslator::sNumberFormat, fmt );
+	tr->usePar( iop );
+    }
+
     tr->dumpToString( true );
     if ( !tr->initRead( conn ) )
     {
@@ -123,25 +136,34 @@ void outInfo( const char* txt )
 
     BufferString	info;
     uiTextEdit*		txtfld;
+    int			ns;
+    int			fmt;
 };
 
 
 int main( int argc, char ** argv )
 {
-    bool inpok = argc > 1;
-
     int argidx = 1;
-    bool multi = false;
-    if ( inpok && !strcmp(argv[argidx],"--multi") )
+    bool multi = false; int ns = 0; int fmt = 0;
+    while ( argc > argidx
+	 && *argv[argidx] == '-' && *(argv[argidx]+1) == '-' )
     {
-	multi = true;
+	if ( !strcmp(argv[argidx],"--multi") )
+	    multi = true;
+	else if ( !strcmp(argv[argidx],"--ns") )
+	    { argidx++; ns = atoi( argv[argidx] ); }
+	else if ( !strcmp(argv[argidx],"--fmt") )
+	    { argidx++; fmt = atoi( argv[argidx] ); }
+	else
+	    { std::cerr << "Ignoring option: " << argv[argidx] << std::endl; }
 	argidx++;
-	inpok = argc > 2;
     }
 
-    if ( !inpok )
+    if ( argc <= argidx )
     {
-	std::cerr << "Usage: " << argv[0] << " [--multi] filename\n"
+	std::cerr << "Usage: " << argv[0]
+	    	  << " [--multi] [--ns #samples] [--fmt segy_format_number]"
+		     " filename\n"
 	     << "Note: filename must be with FULL path." << std::endl;
 	exitProgram( 1 );
     }
@@ -170,9 +192,8 @@ int main( int argc, char ** argv )
 	fnm = const_cast<char*>(File_linkTarget(fnm));
 #endif
 
-    uiSeisSEGYExamine* sqyex = new uiSeisSEGYExamine( 0, fnm, multi );
-    app.setTopLevel( sqyex );
-    sqyex->show();
+    uiSeisSEGYExamine* sgyex = new uiSeisSEGYExamine( 0, fnm, multi, ns, fmt );
+    app.setTopLevel( sgyex );
+    sgyex->show();
     exitProgram( app.exec() ); return 0;
 }
-
