@@ -638,6 +638,21 @@ MathExpression* MathExpression::parse( const char* input )
 	return res;
     }
 
+    if ( !strncmp( str, "random(", 7  ) && str[len-1] == ')' )
+    {
+	ArrPtrMan<char> arg0 = new char[len-4];
+	strcpy( arg0, str+4 );
+	arg0[len-5] = 0;
+
+	MathExpression* inp = parse( arg0 );
+
+	if ( !inp ) return false;
+
+	MathExpression* res = new MathExpressionRandom;
+	res->setInput( 0, inp );
+
+	return res;
+    }
     if ( (!strncmp( str, "min(", 4 ) || 
 	  !strncmp( str, "max(", 4 ) ||
 	  !strncmp( str, "sum(", 4 ) ||
