@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.13 2004-09-13 07:52:15 bert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.14 2004-09-13 16:18:52 bert Exp $";
 
 #include "seisstor.h"
 #include "seistrctr.h"
@@ -44,6 +44,7 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
     ioobj = ioob->clone();
     is2d = SeisTrcTranslator::is2D( *ioobj, true );
 
+    trl = (SeisTrcTranslator*)ioobj->getTranslator();
     if ( is2d )
     {
 	lset = new Seis2DLineSet( ioobj->fullUserExpr(true) );
@@ -52,7 +53,6 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
     }
     else
     {
-	trl = (SeisTrcTranslator*)ioobj->getTranslator();
 	if ( !trl )
 	    { delete ioobj; ioobj = 0; }
 	else
@@ -62,9 +62,9 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
 
 
 const Conn* SeisStoreAccess::curConn() const
-{ return trl ? trl->curConn() : 0; }
+{ return !is2d && trl ? trl->curConn() : 0; }
 Conn* SeisStoreAccess::curConn()
-{ return trl ? trl->curConn() : 0; }
+{ return !is2d && trl ? trl->curConn() : 0; }
 
 
 void SeisStoreAccess::setSelData( SeisSelData* tsel )

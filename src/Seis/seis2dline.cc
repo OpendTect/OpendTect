@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.15 2004-09-13 07:52:15 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.16 2004-09-13 16:18:52 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.15 2004-09-13 07:52:15 bert E
 #include "survinfo.h"
 #include "strmprov.h"
 #include "ascstream.h"
+#include "bufstringset.h"
 #include "filegen.h"
 #include "keystrs.h"
 #include "iopar.h"
@@ -372,4 +373,13 @@ bool Seis2DLineSet::getRanges( int ipar, StepInterval<int>& sii,
 				 StepInterval<float>& sif ) const
 {
     return liop_ ? liop_->getRanges(*pars_[ipar],sii,sif) : false;
+}
+
+
+void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms ) const
+{
+    nms.erase();
+    const int sz = nrLines();
+    for ( int idx=0; idx<sz; idx++ )
+	nms.addIfNew( attribute(idx) );
 }

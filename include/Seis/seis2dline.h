@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.13 2004-09-13 07:52:15 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.14 2004-09-13 16:18:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class IOPar;
 class Executor;
 class SeisTrcBuf;
 class SeisSelData;
+class BufferStringSet;
 class Seis2DLineIOProvider;
 
 
@@ -70,6 +71,7 @@ public:
     BufferString	lineKey( int idx ) const
     			{ return lineKey( lineName(idx), attribute(idx) ); }
     int			indexOf(const char* linekey) const;
+    void		getAvailableAttributes(BufferStringSet&) const;
 
     Executor*		lineFetcher(int,SeisTrcBuf&,
 	    			    const SeisSelData* sd=0) const;
