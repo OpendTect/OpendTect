@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.139 2003-03-06 18:55:43 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.140 2003-03-07 13:18:06 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -1673,15 +1673,7 @@ bool uiVisPartServer::isManipulated( int id ) const
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
     if ( rtd )
-    {
-	for ( int idx=0; idx<rtd->nrKnots(); idx++ )
-	{
-	    if ( rtd->getKnotPos(idx)!=rtd->getManipKnotPos(idx) )
-		return true;
-	}
-
-	return rtd->getDepthInterval()!=rtd->getManipDepthInterval();
-    }
+	return rtd->isManipulated();
 
     return false;
 }
