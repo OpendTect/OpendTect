@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.39 2004-10-21 12:35:26 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.40 2005-02-03 15:43:49 kristofer Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -152,7 +152,7 @@ public:
     Conn*		curConn()			{ return conn; }
 
     SeisPacketInfo&		packetInfo();
-    const SeisSelData*		selData()		{ return seldata; }
+    const SeisSelData*		selData() const		{ return seldata; }
     ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds; }
     const SamplingData<float>&	inpSD() const		{ return insd; }
     int				inpNrSamples() const	{ return innrsamples; }
