@@ -8,9 +8,10 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.25 2003-12-23 07:11:59 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.26 2004-01-29 10:11:04 nanne Exp $";
 
 #include "vistexture2.h"
+#include "viscolortab.h"
 
 #include "arrayndimpl.h"
 #include "interpol.h"
@@ -257,4 +258,108 @@ void visBase::Texture2::finishEditing()
 { 
     texture->image.finishEditing();
     texture->touch();
+}
+
+
+mCreateFactoryEntry( visBase::Texture2Set );
+
+visBase::Texture2Set::Texture2Set()
+    : textureswitch(new SoSwitch)
+    , shareres(true)
+    , sharecoltab(false)
+    , sharecolseq(true)
+{
+    textureswitch->ref();
+}
+
+
+visBase::Texture2Set::~Texture2Set()
+{
+    removeAll(false);
+    textureswitch->unref();
+}
+
+
+void visBase::Texture2Set::addTexture( Texture2* text )
+{
+    if ( !text ) return;
+    if ( textureset.size() )
+    {
+	if ( shareres )
+	    text->setResolution( textureset[0]->getResolution() );
+	if ( sharecoltab )
+	    text->setColorTab( textureset[0]->getColorTab() );
+	if ( sharecolseq )
+	    text->getColorTab().setColorSeq( 
+		    		&textureset[0]->getColorTab().colorSeq() );
+    }
+	
+    textureset += text;
+    text->ref();
+    textureswitch->addChild( text->getInventorNode() );
+}
+
+
+void visBase::Texture2Set::removeTexture( Texture2* text )
+{
+    if ( !text ) return;
+    textureswitch->removeChild( text->getInventorNode() );
+    textureset -= text;
+    text->unRef();
+}
+
+
+void visBase::Texture2Set::removeTexture( int idx )
+{
+    visBase::Texture2* text = idx>=0 || idx<textureset.size() ? textureset[idx]
+							      : 0;
+    removeTexture( text );
+}
+
+
+void visBase::Texture2Set::removeAll( bool keepfirst )
+{
+    int minsz = keepfirst ? 1 : 0;
+    while ( textureset.size() > minsz )
+    {
+        const int idx = textureset.size()-1;
+        visBase::Texture2* text = textureset[idx];
+        textureswitch->removeChild( text->getInventorNode() );
+        text->unRef();
+        textureset.remove( idx );
+    }
+
+    if ( keepfirst )
+	setActiveTexture( 0 );
+}
+
+
+int visBase::Texture2Set::nrTextures() const
+{
+    return textureset.size();
+}
+
+
+visBase::Texture2* visBase::Texture2Set::getTexture( int idx ) const
+{
+    return idx>=0 || idx<textureset.size() ? textureset[idx] : 0;
+}
+
+
+void visBase::Texture2Set::setActiveTexture( int idx )
+{
+    textureswitch->whichChild = idx < 0 ? SO_SWITCH_NONE : idx;
+}
+
+
+visBase::Texture2* visBase::Texture2Set::activeTexture() const
+{
+    int idx = textureswitch->whichChild.getValue();
+    return getTexture(idx);
+}
+
+
+SoNode* visBase::Texture2Set::getInventorNode()
+{
+    return textureswitch;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vistexture2.h,v 1.9 2004-01-29 10:10:58 nanne Exp $
 ________________________________________________________________________
 
 
@@ -67,6 +67,54 @@ protected:
 
     SoTexture2*		texture;
     int			x0sz, x1sz;
+};
+
+
+
+/*!\brief Set of 2D Textures
+Class for managing a set of 2D textures (visBase::Texture2). All textures are
+added to a SoSwitch node, which means that only one child (a Texture2 node) 
+will be visited during rendering.
+To let the children share the same properties by default, use the 
+share## functions.
+*/
+
+class Texture2Set : public DataObject
+{
+public:
+    static Texture2Set*	create()
+			mCreateDataObj( Texture2Set );
+
+    void		addTexture(Texture2*);
+    void		removeTexture(Texture2*);
+    void		removeTexture(int);
+    void		removeAll(bool keepfirst); 
+    			/*!< First texture will not be removed when keepfirst 
+    				is true. */
+    int			nrTextures() const;
+
+    Texture2*		getTexture(int) const;
+    void		setActiveTexture(int); 
+    Texture2*		activeTexture() const;
+
+    void		shareResolution(bool yn)	{ shareres = yn; }
+    void		shareColorTable(bool yn)	{ sharecoltab = yn; }
+    void		shareColorSequence(bool yn)	{ sharecolseq = yn; }
+    bool		resolutionShared() const	{ return shareres; }
+    bool		colorTableShared() const	{ return sharecoltab; }
+    bool		colorSequenceShared() const	{ return sharecolseq; }
+
+    SoNode*		getInventorNode();
+
+protected:
+    			~Texture2Set();
+
+    SoSwitch*		textureswitch;
+    ObjectSet<Texture2>	textureset;
+
+    bool		shareres; 	//!< default is true;
+    bool		sharecoltab;	//!< default is false;
+    bool		sharecolseq;	//!< default is true;
 };
 
 };

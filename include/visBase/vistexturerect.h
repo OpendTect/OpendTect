@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.28 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vistexturerect.h,v 1.29 2004-01-29 10:10:58 nanne Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace visBase
 {
 class VisColorTab;
 class Rectangle;
-class Texture2;
+class Texture2Set;
 
 /*!\brief
     A TextureRect is a Rectangle with a datatexture. 
@@ -42,11 +42,11 @@ public:
     NotifierAccess*		manipChanges() 	{ return &manipchnotifier; }
     NotifierAccess*		manipEnds() 	{ return &manipendsnotifier; }
 
-    void			setTexture(Texture2&,int idx=0);
-    Texture2&			getTexture(int idx=0);
-
+    void			addTexture();
     void			useTexture(bool);
     bool			usesTexture() const;
+    void			showTexture(int);
+    void			removeAllTextures(bool);
 
     void			setRectangle(Rectangle*);
     const Rectangle&		getRectangle() const;
@@ -63,10 +63,8 @@ public:
     				/*!< Should be between 0 and 0.5 */
     float			clipRate() const;
 
-    void			setData(const Array2D<float>*,int,
+    void			setData(const Array2D<float>*,int idx=0,
 	    				int colorsel=0);
-    void			showTexture(int);
-    void			clear();
 
     void			setTextureQuality(float);
 				/*!< 0 - bad; 1=best */
@@ -95,12 +93,8 @@ protected:
     void			triggerManipEnds() 
     				{ manipendsnotifier.trigger(); }
 
-    SoSwitch*			textureswitch;
-    ObjectSet<Texture2> 	textureset;
+    Texture2Set*	 	textureset;
     Rectangle*			rectangle;
-    int				curidx;
-
-    int				useOldPar( const IOPar& );
 
 private:
 				~TextureRect();
