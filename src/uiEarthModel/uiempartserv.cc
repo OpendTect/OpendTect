@@ -4,20 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.45 2004-05-27 08:06:26 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.46 2004-07-13 14:28:32 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiempartserv.h"
-
-#include "datainpspec.h"
-#include "emhorizontransl.h"
 #include "emmanager.h"
-#include "emfaulttransl.h"
 #include "emsurfaceiodata.h"
 #include "emsticksettransl.h"
 #include "emposid.h"
+#include "emhorizon.h"
+#include "emfault.h"
+
+#include "datainpspec.h"
 #include "geommeshsurface.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
