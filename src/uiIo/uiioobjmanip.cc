@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.14 2004-12-24 10:35:57 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.15 2005-01-14 11:02:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,7 +209,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 	    prevkey = "";
 	    const int newcur = curitm >= entries.size()
 			     ? entries.size() - 1 : curitm;
-	    if ( newcur >= 0 )
+	    if ( newcur >= 0 && entries[newcur]->ioobj )
 		prevkey = entries[newcur]->ioobj->key();
 	}
     }
