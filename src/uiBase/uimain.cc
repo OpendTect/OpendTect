@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.15 2002-10-17 11:10:03 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.16 2003-01-08 12:48:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ uiMain::uiMain( QApplication* qapp )
     : mainobj( 0 )
 { 
     QApplication::setColorSpec( QApplication::ManyColor );
+    QApplication::setLibraryPaths( QStringList() );
 
 #ifdef NO_MORE_DTECT
     init(qapp,0,0); 
