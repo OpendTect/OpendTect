@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.7 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: ptrman.h,v 1.8 2004-02-04 09:39:25 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,10 +27,12 @@ public: \
     inline Clss<T>&		operator=( T* p ) \
 				{ erase(); ptr_ = p; return *this; } \
 \
-    inline T*			ptr()		{ return ptr_; } \
-    inline			operator T*()	{ return ptr_; } \
-    inline T*			operator ->()	{ return ptr_; } \
-    inline T&			operator *()	{ return *ptr_; } \
+    inline T*			ptr()			{ return ptr_; } \
+    inline			operator T*()		{ return ptr_; } \
+    inline			operator const T*() const { return ptr_; } \
+    inline T*			operator ->()		{ return ptr_; } \
+    inline const T*		operator ->() const	{ return ptr_; } \
+    inline T&			operator *()		{ return *ptr_; } \
 
 #define mDefPtrMan2(Clss,ArrBrIfNec) \
     inline bool			operator ==( const Clss& p ) const \
