@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlith.h,v 1.3 2004-12-01 16:42:48 bert Exp $
+ RCS:		$Id: stratlith.h,v 1.4 2004-12-02 14:25:09 bert Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ public:
 			, porous_(false)
 			, src_(Repos::Temp)		{}
 
-     int		Id() const			{ return id_; }
+     int		id() const			{ return id_; }
      void		setId( int i )			{ id_ = i; }
      bool		isPorous() const		{ return porous_; }
      void		setIsPorous( bool yn )		{ porous_ = yn; }

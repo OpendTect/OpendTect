@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.4 2004-12-01 16:42:48 bert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.5 2004-12-02 14:25:09 bert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -31,8 +31,8 @@ Strat::UnitRepository& Strat::UnR()
 	if ( DBG::isOn() )
 	{
 	    BufferString msg( "Total strat trees found: " );
-	    msg += unrepo->nrTops();
-	    if ( unrepo->nrTops() > 0 )
+	    msg += unrepo->nrTrees();
+	    if ( unrepo->nrTrees() > 0 )
 	    {
 		msg += "; first tree name: ";
 		msg += unrepo->tree(0)->treeName();
@@ -44,20 +44,68 @@ Strat::UnitRepository& Strat::UnR()
 }
 
 
-Strat::UnitRepository::UnitRepository()
+bool Strat::RefTree::addUnit( const char* code, const char* dumpstr )
 {
-    Repos::FileProvider rfp( filenamebase );
-    addTreeFromFile( rfp );
-    while ( rfp.next() )
-	addTreeFromFile( rfp );
+    if ( !code || !*code )
+	use( dumpstr );
+
+    CompoundKey ck( code );
+    UnitRef* par = find( ck.upLevel().buf() );
+    if ( !par )
+	return false;
+
+    const bool isleaf = strchr( dumpstr, '`' ); // a bit of a hack, really
+    const BufferString ky( ck.key( ck.nrKeys()-1 ) );
+    UnitRef* newun = isleaf ? (UnitRef*)new LeafUnitRef( par, ky )
+			    : (UnitRef*)new NodeUnitRef( par, ky );
+    if ( !newun->use(dumpstr) )
+	{ delete newun; return false; }
+    return true;
+}
+
+
+void Strat::RefTree::removeEmptyNodes()
+{
+    //TODO implement
+    pErrMsg("Not impl: Strat::RefTree::removeEmptyNodes");
+}
+
+
+Strat::UnitRepository::UnitRepository()
+    	: curtreeidx_(-1)
+{
+    reRead();
 }
 
 
 Strat::UnitRepository::~UnitRepository()
 {
-    deepErase( tops_ );
+    deepErase( trees_ );
     deepErase( liths_ );
     deepErase( unusedliths_ );
+}
+
+
+void Strat::UnitRepository::reRead()
+{
+    deepErase( trees_ );
+    deepErase( liths_ );
+
+    Repos::FileProvider rfp( filenamebase );
+    addTreeFromFile( rfp );
+    while ( rfp.next() )
+	addTreeFromFile( rfp );
+
+    if ( curtreeidx_ < 0 || curtreeidx_ > trees_.size() )
+	curtreeidx_ = -1;
+}
+
+
+bool Strat::UnitRepository::write( Repos::Source )
+{
+    //TODO implement
+    pErrMsg("Not impl: Strat::UnitRepository::write");
+    return true;
 }
 
 
@@ -70,11 +118,11 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp )
 
     const Repos::Source src = rfp.source();
     ascistream astrm( *sd.istrm, true );
-    TopUnitRef* tree = 0;
+    Strat::RefTree* tree = 0;
     while ( !atEndOfSection( astrm.next() ) )
     {
 	if ( astrm.hasKeyword(sKey::Name) )
-	    tree = new Strat::TopUnitRef( astrm.value() );
+	    tree = new Strat::RefTree( astrm.value(), src );
 	else if ( astrm.hasKeyword(sKeyLith) )
 	    addLith( astrm.value(), src );
     }
@@ -85,16 +133,21 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp )
 	sd.close(); delete tree; return;
     }
 
-    NodeUnitRef* lastnode = tree;
     while ( !atEndOfSection( astrm.next() ) )
     {
-	//TODO get the units
+	if ( !tree->addUnit(astrm.keyWord(),astrm.value()) )
+	{
+	    BufferString msg( fnm );
+	    msg += ": Invalid unit: '";
+	    msg += astrm.keyWord(); msg += "'";
+	    ErrMsg( msg );
+	}
     }
-    //TODO get rid of empty nodes
+    tree->removeEmptyNodes();
 
     sd.close();
     if ( tree->nrRefs() > 0 )
-	tops_ += tree;
+	trees_ += tree;
     else
     {
 	BufferString msg( "No valid layers found in:\n" );
@@ -132,9 +185,9 @@ void Strat::UnitRepository::addLith( const char* str, Repos::Source src )
 
 int Strat::UnitRepository::indexOf( const char* tnm ) const
 {
-    for ( int idx=0; idx<tops_.size(); idx++ )
+    for ( int idx=0; idx<trees_.size(); idx++ )
     {
-	if ( tops_[idx]->treeName() == tnm )
+	if ( trees_[idx]->treeName() == tnm )
 	    return idx;
     }
     return -1;
@@ -143,8 +196,8 @@ int Strat::UnitRepository::indexOf( const char* tnm ) const
 
 Strat::UnitRef* Strat::UnitRepository::fnd( const char* code ) const
 {
-    return curtopidx_ < 0 ? 0
-	 : const_cast<Strat::UnitRef*>( tops_[curtopidx_]->find( code ) );
+    return curtreeidx_ < 0 ? 0
+	 : const_cast<Strat::UnitRef*>( trees_[curtreeidx_]->find( code ) );
 }
 
 
@@ -153,10 +206,10 @@ Strat::UnitRef* Strat::UnitRepository::fndAny( const char* code ) const
     const Strat::UnitRef* ref = find( code );
     if ( !ref )
     {
-	for ( int idx=0; idx<tops_.size(); idx++ )
+	for ( int idx=0; idx<trees_.size(); idx++ )
 	{
-	    if ( idx == curtopidx_ ) continue;
-	    const Strat::UnitRef* r = tops_[idx]->find( code );
+	    if ( idx == curtreeidx_ ) continue;
+	    const Strat::UnitRef* r = trees_[idx]->find( code );
 	    if ( r )
 		{ ref = r; break; }
 	}
@@ -169,20 +222,20 @@ Strat::UnitRef* Strat::UnitRepository::fndAny( const char* code ) const
 Strat::UnitRef* Strat::UnitRepository::fnd( const char* code, int idx ) const
 {
     if ( idx < 0 )			return fnd(code);
-    else if ( idx >= tops_.size() )	return 0;
+    else if ( idx >= trees_.size() )	return 0;
 
-    return const_cast<Strat::UnitRef*>( tops_[idx]->find( code ) );
+    return const_cast<Strat::UnitRef*>( trees_[idx]->find( code ) );
 }
 
 
 int Strat::UnitRepository::treeOf( const char* code ) const
 {
-    if ( fnd(code,curtopidx_) )
-	return curtopidx_;
+    if ( fnd(code,curtreeidx_) )
+	return curtreeidx_;
 
-    for ( int idx=0; idx<tops_.size(); idx++ )
+    for ( int idx=0; idx<trees_.size(); idx++ )
     {
-	if ( idx == curtopidx_ ) continue;
+	if ( idx == curtreeidx_ ) continue;
 	else if ( fnd(code,idx) )
 	    return idx;
     }

@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.5 2004-12-01 16:42:48 bert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.6 2004-12-02 14:25:09 bert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -27,7 +27,8 @@ const Strat::LeafUnitRef& Strat::LeafUnitRef::undef()
 {
     static Strat::LeafUnitRef* udf = 0;
     if ( !udf )
-	udf = new Strat::LeafUnitRef( 0, "undef", Strat::Lithology::undef(),
+	udf = new Strat::LeafUnitRef( 0, "undef",
+				      Strat::Lithology::undef().id(),
 				      "Undefined" );
     return *udf;
 }
@@ -62,6 +63,39 @@ bool Strat::Lithology::use( const char* str )
     id_ = atoi( fms[1] );
     porous_ = sz > 2 ? *fms[2] == 'P' : false;
 
+    return true;
+}
+
+
+void Strat::UnitRef::fill( BufferString& str ) const
+{
+    str = desc_;
+}
+
+
+bool Strat::UnitRef::use( const char* str )
+{
+    desc_ = str;
+    return true;
+}
+
+
+void Strat::LeafUnitRef::fill( BufferString& str ) const
+{
+    FileMultiString fms;
+    fms += lith_; fms += desc_;
+    str = fms;
+}
+
+
+bool Strat::LeafUnitRef::use( const char* str )
+{
+    FileMultiString fms( str );
+    const int sz = fms.size();
+    if ( sz < 2 ) return false;
+
+    lith_ = atoi( fms[0] );
+    desc_ = fms[1];
     return true;
 }
 

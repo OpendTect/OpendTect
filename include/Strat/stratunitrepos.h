@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.7 2004-12-01 16:42:48 bert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.8 2004-12-02 14:25:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,25 +23,28 @@ class Lithology;
 class UnitRepository;
 UnitRepository& UnR();
 
-/*!\brief Top node of a framework */
+/*!\brief Tree of UnitRef's  */
 
-class TopUnitRef : public NodeUnitRef
+class RefTree : public NodeUnitRef
 {
 public:
 
-    			TopUnitRef( const char* nm )
-			: NodeUnitRef(0,"","Top Node"), treename_(nm)	{}
+    			RefTree( const char* nm, Repos::Source src )
+			: NodeUnitRef(0,"","Top Node")
+			, treename_(nm)
+			, src_(src)			{}
 
     const BufferString&	treeName() const		{ return treename_; }
     void		setTreeName( const char* nm )	{ treename_ = nm; }
+    Repos::Source	source() const			{ return src_; }
 
-    UnitRef*		find( const char* code )	{ return fnd(code); }
-    const UnitRef*	find( const char* code ) const	{ return fnd(code); }
+    bool		addUnit(const char* fullcode,const char* unit_dump);
+    void		removeEmptyNodes(); //!< recommended after add
 
 protected:
 
+    Repos::Source	src_;
     BufferString	treename_;
-    UnitRef*		fnd( const char* code ) const;
 
 };
 
@@ -53,12 +56,12 @@ class UnitRepository
 {
 public:
 
-    int			nrTops() const		{ return tops_.size(); }
-    const TopUnitRef*	tree(int idx=0) const	{ return tops_[idx]; }
-    TopUnitRef*		tree(int idx=0)		{ return tops_[idx]; }
+    int			nrTrees() const		{ return trees_.size(); }
+    const RefTree*	tree(int idx=0) const	{ return trees_[idx]; }
+    RefTree*		tree(int idx=0)		{ return trees_[idx]; }
     int			indexOf(const char* treename) const;
-    void		setCurrentTop( int idx ) { curtopidx_ = idx; }
-    int			currentTop() const	{ return curtopidx_; }
+    void		setCurrentTree( int idx ) { curtreeidx_ = idx; }
+    int			currentTree() const	{ return curtreeidx_; }
 
     UnitRef*		find( const char* code )	{ return fnd(code); }
     const UnitRef*	find( const char* code ) const	{ return fnd(code); }
@@ -74,14 +77,17 @@ public:
     int			findLith(const char*) const;
     static const char*	sKeyLith;
 
+    bool		write(Repos::Source);
+    void		reRead();
+
 protected:
 
     			UnitRepository();
     virtual		~UnitRepository();
 
-    ObjectSet<TopUnitRef>	tops_;
-    ObjectSet<Lithology>	liths_;
-    int				curtopidx_;
+    ObjectSet<RefTree>	trees_;
+    ObjectSet<Lithology> liths_;
+    int			curtreeidx_;
 
     UnitRef*		fnd(const char*) const;
     UnitRef*		fnd(const char*,int) const;

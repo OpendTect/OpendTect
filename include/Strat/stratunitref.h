@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.4 2004-11-29 17:17:52 bert Exp $
+ RCS:		$Id: stratunitref.h,v 1.5 2004-12-02 14:25:09 bert Exp $
 ________________________________________________________________________
 
 
@@ -18,9 +18,6 @@ ________________________________________________________________________
 
 namespace Strat
 {
-
-class Lithology;
-
 
 /*!\brief Reference data for a stratigraphic unit */
 
@@ -54,6 +51,9 @@ public:
 			{ return upnode_ ? upnode_->level() + 1 : 0; }
     bool		isBelow(const UnitRef*) const;
     			//!< Any number of levels
+
+    virtual void	fill(BufferString&) const; //!< Without Unit code
+    virtual bool	use(const char*); //!< a string produced by fill()
 
 protected:
 
@@ -100,19 +100,21 @@ class LeafUnitRef : public UnitRef
 public:
 
 			LeafUnitRef( UnitRef* up, const char* c,
-				     const Lithology& l, const char* d=0 )
+				     int lithidx=-1, const char* d=0 )
 			: UnitRef(up,c,d)
-			, lith_(l)	{}
+			, lith_(lithidx)	{}
 
     virtual bool	isLeaf() const		{ return true; }
-
-    const Lithology&	lithology() const	{ return lith_; }
+    int			lithology() const	{ return lith_; }
 
     static const LeafUnitRef& undef();
 
+    virtual void	fill(BufferString&) const;
+    virtual bool	use(const char*);
+
 protected:
 
-    const Lithology&	lith_;
+    int			lith_;
 
 };
 
