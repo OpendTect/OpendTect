@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.12 2002-06-20 15:59:45 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.13 2002-07-05 13:48:16 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -115,6 +115,32 @@ void IOObjContext::fillPar( IOPar& iopar ) const
 }
 
 
+void IOObjContext::fillTrGroup()
+{
+    if ( trgroup ) return;
+
+#define mCase(typ,str) \
+    case IOObjContext::typ: \
+	trgroup = Translator::groups()[str]; \
+    break
+
+    switch ( stdseltype )
+    {
+	mCase(Surf,"Horizon");
+	mCase(Loc,"PickSet Group");
+	mCase(Feat,"Feature set");
+	mCase(WllInf,"Well");
+	mCase(NN,"Neural network");
+	mCase(Misc,"Session setup");
+	mCase(Attr,"Attribute definitions");
+	mCase(Mdl,"EarthModel");
+	default:
+	    trgroup = Translator::groups()["Seismic Data"];
+	break;
+    }
+}
+
+
 void IOObjContext::usePar( const IOPar& iopar )
 {
     const char* res = iopar.find( "Name" );
@@ -123,6 +149,7 @@ void IOObjContext::usePar( const IOPar& iopar )
     if ( res ) trgroup = Translator::groups()[res];
     res = iopar.find( "Data type" );
     if ( res ) stdseltype = eEnum(IOObjContext::StdSelType,res);
+    fillTrGroup();
 
     iopar.get( "Level for new objects", newonlevel );
     iopar.getYN( "Create new directory", crlink );
