@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.8 2001-08-27 12:58:50 windev Exp $
+ RCS:           $Id: uicanvas.cc,v 1.9 2001-09-20 10:41:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,10 +120,12 @@ protected:
     virtual void        drawContents ( QPainter * p, int clipx,
                             int clipy, int clipw, int cliph );
     virtual void        resizeEvent( QResizeEvent * );
-/*
+
+
+    //! over-ride DrawableObjBody impl, because we want to use drawContents()
     virtual void        paintEvent( QPaintEvent* ev )
                         { QScrollView::paintEvent(ev); }
-*/
+
     virtual void        contentsMousePressEvent( QMouseEvent * e );
     virtual void        contentsMouseMoveEvent ( QMouseEvent * e );
     virtual void        contentsMouseReleaseEvent ( QMouseEvent * e );
