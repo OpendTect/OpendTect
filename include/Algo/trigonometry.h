@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.8 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: trigonometry.h,v 1.9 2003-11-24 08:35:18 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-class Coord3;
+#include "position.h"
+
 template <class T> class TypeSet;
 template <class T> class ObjectSet;
 
@@ -22,35 +23,7 @@ template <class T> class ObjectSet;
 
 */
 
-class Vector3 
-{
-public:
-    			Vector3();
-    			Vector3( float x, float y, float z );
-    			Vector3( const Coord3& origin, const Coord3& target );
-
-    Vector3		operator+(const Vector3&) const;
-    Vector3&		operator+=(const Vector3&);
-    Vector3		operator-(const Vector3&) const;
-    Vector3&		operator-=(const Vector3&);
-    Vector3		operator*(float) const;
-    Vector3&		operator*=(float);
-    Vector3		operator/(float) const;
-    Vector3&		operator/=(float);
-    bool		operator==(const Vector3&) const;
-
-    float		dot( const Vector3& ) const;
-    Vector3		cross( const Vector3& ) const;
-    double		abs() const;
-    Vector3&		normalize();
-
-    float		x;
-    float		y;
-    float		z;
-};
-
-
-Vector3 operator*( float, const Vector3& b );
+typedef Coord3 Vector3;
 
 /*! \brief
 Divides a sphere in a number of vectors, divided by approximately dangle from
@@ -129,13 +102,19 @@ class Plane3
 public:
 			Plane3();
 			Plane3(float, float, float, float);
-			Plane3( const Vector3& normal, const Coord3& );
-			Plane3( const Vector3&, const Vector3& );
+			Plane3( const Coord3& vectors, const Coord3&,
+				bool twovectors );
+			/*!<\param twovectors	Specifies if the second argument
+			  			is a vector or a position
+			*/
 			Plane3( const Coord3&, const Coord3&, const Coord3& );
 			Plane3( const TypeSet<Coord3>& );
 
-    void		set( const Vector3& normal, const Coord3& );
-    void		set( const Vector3&, const Vector3& );
+    void		set( const Coord3& vector, const Coord3&,
+	    		     bool twovectors );
+			/*!<\param twovectors	Specifies if the second argument
+			  			is a vector or a position
+			*/
     void		set( const Coord3&, const Coord3&, const Coord3& );
     float		set( const TypeSet<Coord3>& );
     			/*!< \returns	a value between 0-1 that indicates how
@@ -146,7 +125,7 @@ public:
     bool		operator==(const Plane3&) const;
     bool		operator!=(const Plane3&) const;
 
-    Vector3		normal() const { return Vector3( A, B, C ); }
+    Coord3		normal() const { return Coord3( A, B, C ); }
  
     float               distanceToPoint( const Coord3& ) const;
     bool		intersectWith( const Line3&, Coord3& ) const;
