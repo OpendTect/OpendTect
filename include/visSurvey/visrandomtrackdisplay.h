@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.18 2003-10-06 10:54:29 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.19 2003-10-31 16:22:09 nanne Exp $
 ________________________________________________________________________
 
 
@@ -101,6 +101,9 @@ public:
     Notifier<RandomTrackDisplay> knotmoving;
     int				getSelKnotIdx() const	{ return selknotidx; }
 
+    virtual float               calcDist(const Coord3&) const;
+    virtual NotifierAccess*	getMovementNotification() { return &moving; }
+
     SoNode*			getData();
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
@@ -136,6 +139,7 @@ protected:
     static const char*		knotprefix;
     static const char*		depthintvstr;
 
+    Notifier<RandomTrackDisplay>  moving;
 };
 
 };

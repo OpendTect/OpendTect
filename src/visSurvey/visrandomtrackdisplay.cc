@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.25 2003-10-06 10:54:23 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.26 2003-10-31 16:22:05 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     , colas(*new ColorAttribSel)
     , rightclick(this)
     , knotmoving(this)
+    , moving(this)
     , selknotidx(-1)
     , ismanip( true )
 {
@@ -160,7 +161,10 @@ void visSurvey::RandomTrackDisplay::setColorSelSpec( const ColorAttribSel& as_ )
 
 void visSurvey::RandomTrackDisplay::setDepthInterval( 
 						const Interval<float>& intv )
-{ track->setDepthInterval( intv ); }
+{ 
+    track->setDepthInterval( intv );
+    moving.trigger();
+}
 
 
 const Interval<float> visSurvey::RandomTrackDisplay::getDepthInterval() const
@@ -183,6 +187,7 @@ void visSurvey::RandomTrackDisplay::addKnot( const BinID& bid_ )
     BinID bid( bid_ );
     checkPosition( bid );
     track->addKnot( Coord(bid.inl,bid.crl) );
+    moving.trigger();
 }
 
 
@@ -190,6 +195,7 @@ void visSurvey::RandomTrackDisplay::addKnots( TypeSet<BinID> bidset )
 {
     for ( int idx=0; idx<bidset.size(); idx++ )
 	addKnot( bidset[idx] );
+    moving.trigger();
 }
 
 
@@ -198,6 +204,7 @@ void visSurvey::RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid_ )
     BinID bid( bid_ );
     checkPosition( bid );
     track->insertKnot( knotidx, Coord(bid.inl,bid.crl) ); 
+    moving.trigger();
 }
 
 
@@ -227,7 +234,8 @@ void visSurvey::RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid_ )
 {
     BinID bid( bid_ );
     checkPosition( bid );
-    track->setKnotPos( knotidx, Coord(bid.inl,bid.crl) ); 
+    track->setKnotPos( knotidx, Coord(bid.inl,bid.crl) );
+    moving.trigger();
 }
 
 
@@ -437,6 +445,7 @@ void visSurvey::RandomTrackDisplay::knotMoved( CallBacker* cb )
     
     selknotidx = sel;
     knotmoving.trigger();
+    moving.trigger();
 }
 
 
@@ -513,6 +522,24 @@ void visSurvey::RandomTrackDisplay::removeNearestKnot( int sectionidx,
 	removeKnot( sectionidx );
     else
 	removeKnot( sectionidx+1 );
+}
+
+
+float visSurvey::RandomTrackDisplay::calcDist( const Coord3& pos ) const
+{
+    const visBase::Transformation* utm2display= SPM().getUTM2DisplayTransform();
+    Coord3 xytpos = utm2display->transformBack( pos );
+    BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
+    if ( !getTrc(binid,cache) ) return mUndefValue;
+
+    float zdiff = 0;
+    const Interval<float>& intv = track->getDepthInterval();
+    if ( xytpos.z < intv.start )
+	zdiff = intv.start - xytpos.z;
+    else if ( xytpos.z > intv.stop )
+	zdiff = xytpos.z - intv.stop;
+
+    return zdiff;
 }
 
 
