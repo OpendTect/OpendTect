@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.25 2001-09-27 16:17:04 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.26 2001-09-28 08:09:24 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -877,10 +877,10 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur,
     if( hdir && cur.nhiter>0
         && ( (cur.hStr>1) || (abs(cur.hDelta+hdir) <= abs(maxhdelt)))
         &&!( (hdir>0) && 
-            (  ( myGeomtry.right() + hdir + borderSpace() > targetRect.right() )
+            (  ( myGeomtry.right() + hdir > targetRect.right() )
             || ( childrenBBox.right() > targetRect.right() ) ))
         &&!( (hdir<0) && 
-            (  ( myGeomtry.right()+borderSpace() + hdir  < targetRect.right() )
+            (  ( myGeomtry.right()+ hdir  < targetRect.right() )
             || ( refGeom.width()+cur.hDelta+hdir <= minGeom.width()) ))
       ) 
     { 
@@ -893,10 +893,10 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur,
     if( vdir && cur.nviter>0 
         && ( (cur.vStr>1) || abs(cur.vDelta) < abs(maxvdelt))
         &&!( (vdir>0) && 
-	    (  ( myGeomtry.bottom()+ vdir+ borderSpace() > targetRect.bottom())
+	    (  ( myGeomtry.bottom()+ vdir > targetRect.bottom())
 	    || ( childrenBBox.bottom() > targetRect.bottom() )) )
         &&!( (vdir<0) && 
-            (  ( myGeomtry.bottom()+borderSpace() + vdir < targetRect.bottom())
+            (  ( myGeomtry.bottom() + vdir < targetRect.bottom())
             || ( refGeom.height()+cur.vDelta+vdir <= minGeom.height()) ))
       )
     {   
@@ -948,8 +948,7 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& cur,
 
     if( do_layout ) 
     {   // move all items to top-left corner first 
-	moveChildrenTo( targetRect.top()+borderSpace(),
-			targetRect.left()+borderSpace(),setGeom);
+	moveChildrenTo( targetRect.top(), targetRect.left(),setGeom);
 
 	layoutChildren( setGeom );
 	childrenBBox = childrenRect(setGeom);  
@@ -1180,8 +1179,8 @@ void i_LayoutMngr::doLayout( layoutMode m, const QRect &externalRect )
 	}
     }
 
-    int mngrTop  = externalRect.top() + borderSpace();
-    int mngrLeft = externalRect.left() + borderSpace();
+    int mngrTop  = externalRect.top();
+    int mngrLeft = externalRect.left();
 
     childIter.toFirst(); 
     while ( (curChld = childIter.current()) ) 
@@ -1254,12 +1253,10 @@ uiRect i_LayoutMngr::childrenRect( layoutMode m )
 	    childPos = &curChld->pos(m);
 
 
-	    if ( (childPos->top()+borderSpace()) < chldRect.top() 
-						|| chldRect.top() < 0 ) 
-			    chldRect.setTop( childPos->top()-borderSpace() );
-	    if ( (childPos->left()+borderSpace()) < chldRect.left() 
-						    || chldRect.left() < 0 ) 
-			    chldRect.setLeft( childPos->left()-borderSpace() );
+	    if ( (childPos->top() ) < chldRect.top() || chldRect.top() < 0 ) 
+			    chldRect.setTop( childPos->top() );
+	    if ( (childPos->left()) < chldRect.left() || chldRect.left() < 0 ) 
+			    chldRect.setLeft( childPos->left() );
 	    if ( childPos->right() > chldRect.right() || chldRect.right() < 0)
 					chldRect.setRight( childPos->right() );
 	    if ( childPos->bottom()> chldRect.bottom() || chldRect.bottom()< 0)
@@ -1267,8 +1264,8 @@ uiRect i_LayoutMngr::childrenRect( layoutMode m )
 	}
     }
 
-    chldRect.setRight( chldRect.right() + borderSpace() );
-    chldRect.setBottom( chldRect.bottom() + borderSpace() );
+    chldRect.setRight( chldRect.right() );
+    chldRect.setBottom( chldRect.bottom() );
 
     return chldRect;
 }
