@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.10 2004-04-20 15:06:16 nanne Exp $
+ RCS:           $Id: uicolor.h,v 1.11 2004-09-17 07:41:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,8 @@ class uiLabel;
 /*! \brief pops a selector box to select a new color 
      \return true if new color selected
 */
-bool  	select(Color&,uiParent* parnt=0,const char* seltxt=0,
-		bool withtransp=false); 
+bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
+		    bool withtransp=false); 
 
 
 /*! \brief small element for color selection. Has no text label.

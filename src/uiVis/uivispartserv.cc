@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.238 2004-09-15 09:05:28 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.239 2004-09-17 07:41:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1055,7 +1055,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     else if ( mnuid==changecolormnusel )
     {
 	Color col = so->getColor();
-	if ( select( col, appserv().parent(), "Color selection", false ) )
+	if ( selectColor(col,appserv().parent(),"Color selection",false) )
 	    so->setColor( col );
     }
     else if ( mnuid==changematerialmnusel )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.23 2004-07-12 06:46:53 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.24 2004-09-17 07:41:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,7 @@ void uiMarkerDlg::mouseClick( CallBacker* )
     if ( rc.col != 2 ) return;
 
     Color newcol = table->getColor( rc );
-    if ( select(newcol,this,"Marker color") )
+    if ( selectColor(newcol,this,"Marker color") )
 	table->setColor( rc, newcol );
 }
 

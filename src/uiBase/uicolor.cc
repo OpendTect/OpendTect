@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.13 2004-05-11 14:26:10 macman Exp $
+ RCS:           $Id: uicolor.cc,v 1.14 2004-09-17 07:41:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ static QRgb mygetRgba( QRgb initial, bool *ok,
 
 #endif
 
-bool select( Color& col, uiParent* parnt, const char* nm, bool withtransp )
+bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 {
   
     bool ok;
@@ -109,7 +109,7 @@ uiColorInput::uiColorInput( uiParent* p, const Color& c, const char* txt,
 void uiColorInput::selCol( CallBacker* )
 {
     const Color oldcol = color_;
-    select( color_, this, seltxt_, withalpha );
+    selectColor( color_, this, seltxt_, withalpha );
     collbl->setBackgroundColor( color_ );
     if ( oldcol != color_ )
 	colorchanged.trigger();
