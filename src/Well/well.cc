@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.24 2004-05-09 15:17:12 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.25 2004-05-10 11:12:58 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -231,7 +231,7 @@ void Well::Track::toTime( const D2TModel& d2t )
     float curdah = dah_[0];
     while ( d2tidx < d2t.size() && d2t.dah(d2tidx) < curdah + mEPSILON )
 	d2tidx++; // don't need those points: before well track
-    dah_ += curdah;
+    newdah += curdah;
     newpos += pos_[0];
 
     // Now collect the rest of the track points and the d2t control points

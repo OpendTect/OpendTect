@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.10 2004-05-09 22:37:13 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.11 2004-05-10 11:12:58 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -333,15 +333,17 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 				      const Well::Track& track,
 				      TypeSet<float>& res ) const
 {
-    if ( !track.alwaysDownward() )
-    {
-	getGenTrackData( bivset, wd, track, res );
-	return;
-    }
     int wlidx = wd.logs().indexOf( lognm );
     if ( wlidx < 0 )
 	return;
     const Well::Log& wl = wd.logs().getLog( wlidx );
+
+    if ( !track.alwaysDownward() )
+    {
+	// Slower, less precise
+	getGenTrackData( bivset, wd, track, wl, res );
+	return;
+    }
 
     int bividx = 0; int trackidx = 0;
     const float tol = 0.001;
@@ -374,26 +376,66 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivset,
 	float dah = ( (biv.value-z2) * track.dah(trackidx-1)
 		    + (z1-biv.value) * track.dah(trackidx) )
 		  / (z2 - z1);
-	float val = mUndefValue;
-	if ( samppol == Nearest )
-	    res += wl.getValue( dah );
-	else
-	{
-	    float winsz = SI().zRange().step;
-	    if ( SI().zIsTime() )
-		winsz *= wd.d2TModel()->getVelocity( dah );
-	    res += calcVal( wl, dah, winsz );
-	}
+	float vel = timesurv ? wd.d2TModel()->getVelocity(dah) : 1;
+	addValAtDah( dah, wl, vel, res );
     }
 }
+
 
 void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 					      const Well::Data& wd,
 					      const Well::Track& track,
+					      const Well::Log& wl,
 					      TypeSet<float>& res ) const
 {
-    //TODO Anyone care to tackle this?
-    ErrMsg("Cannot extract data from horizontal tracks (or worse) yet");
+    int bividx = 0; int trackidx = 0;
+    const float tol = 0.001;
+    while ( bividx<bivset.size() && mIsUndefined(bivset[bividx].value) )
+	bividx++;
+    if ( bividx >= bivset.size() || !track.size() )
+	return;
+
+    BinIDValue biv( bivset[bividx] );
+    const float dahstep = SI().zRange().step / 2;
+    const float extratol = 1.01; // Allow 1% extra tolerance
+    const float ztolbase = extratol * dahstep;
+    BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );
+    const float dtol = SI().transform(biv.binid).distance( SI().transform(b) )
+		     * extratol;
+
+    float dah = track.dah(0);
+    const float lastdah = track.dah( track.size() - 1 );
+    for ( ; bividx<bivset.size(); bividx++ )
+    {
+	biv = bivset[bividx];
+	Coord coord = SI().transform( biv.binid );
+	float vel = 1;
+	while ( dah <= lastdah )
+	{
+	    Coord3 pos = track.getPos( dah );
+	    if ( timesurv ) vel = wd.d2TModel()->getVelocity(dah);
+	    float ztol = ztolbase * vel;
+	    if ( coord.distance(pos) < dtol && fabs(pos.z-biv.value) < ztol )
+		break;
+	    dah += dahstep;
+	}
+	if ( dah > lastdah ) return;
+	addValAtDah( dah, wl, vel, res );
+    }
+}
+
+
+void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
+					  float vel, TypeSet<float>& res ) const
+{
+    float val;
+    if ( samppol == Nearest )
+	val = wl.getValue( dah );
+    else
+	val = calcVal( wl, dah, SI().zRange().step * vel );
+
+    if ( !mIsUndefined(val) )
+	res += val;
 }
 
 
