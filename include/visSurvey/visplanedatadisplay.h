@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.49 2004-06-17 10:55:51 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.50 2004-06-23 10:34:23 nanne Exp $
 ________________________________________________________________________
 
 
@@ -105,7 +105,7 @@ public:
     				/*!< Becomes mine */
     const AttribSliceSet*	getCacheVolume(bool color) const;
    
-    bool			canHaveMultipleTextures() const {return true;}
+    bool			canHaveMultipleTextures() const { return true; }
     int				nrTextures() const;
     void			selectTexture(int);
 
@@ -120,6 +120,8 @@ public:
     virtual int			usePar( const IOPar& );
 
     virtual float		calcDist( const Coord3& ) const;
+    virtual float		maxDist() const;
+    virtual bool		allowPicks() const		{ return true; }
 
 protected:
 				~PlaneDataDisplay();
