@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurface.h,v 1.1 2003-09-30 13:00:57 kristofer Exp $
+ RCS:		$Id: SoMeshSurface.h,v 1.2 2003-10-03 09:54:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "Inventor/lists/SbList.h"
 #include "Inventor/nodes/SoSubNode.h"
 
+class SoCallbackList;
 class SbCondVar;
 class SoFieldSensor;
 class SoMeshSurfaceSquare;
@@ -31,6 +32,10 @@ class SoFieldSensor;
 class SbThread;
 class SbVec3f;
 class SbVec2s;
+
+class SoMeshSurface;
+
+typedef void SoMeshSurfaceCB( void* data, SoMeshSurface* );
 
 
 class SoMeshSurface : public SoGroup
@@ -55,7 +60,10 @@ public:
 
     void			turnOnWireFrame(bool yn);
     bool			isWireFrameOn() const;
-    
+
+    void			addPickCB( SoMeshSurfaceCB*, void* data = 0 );
+    void			removePickCB( SoMeshSurfaceCB*, void* data = 0);
+    void			getPickedRowCol(int& row, int& col ) const;
 
     static inline SbBool	isUndefined(float);
     static inline SbBool	isUndefined(const SbVec3f&);
@@ -91,6 +99,10 @@ protected:
     
     SoFieldSensor*		partSizePowerSensor;
     static void			partSizePowerCB( void*, SoSensor* );
+
+    SoCallbackList*		pickcallbacks;
+    int				pickedrow, pickedcol;
+    static void			pickCB( void*, SoMeshSurfaceSquare* );
 
     
     void				stopThreads();

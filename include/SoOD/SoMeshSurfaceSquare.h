@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceSquare.h,v 1.1 2003-09-30 13:00:57 kristofer Exp $
+ RCS:		$Id: SoMeshSurfaceSquare.h,v 1.2 2003-10-03 09:54:56 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,9 @@ ________________________________________________________________________
 
 
 class SbBox3f;
+class SoCallbackList;
 class SoCoordinate3;
+class SoEventCallback;
 class SoTextureCoordinate2;
 class SoMeshSurfaceBrick;
 class SoMeshSurfaceBrickWire;
@@ -33,6 +35,10 @@ class SoMeshSurface;
 class SbVec3f;
 class SbVec2s;
 
+class SoMeshSurfaceSquare;
+
+typedef void SoMeshSurfaceSquareCB( void* data, SoMeshSurfaceSquare* );
+
 /*!\brief
 
 */
@@ -42,6 +48,7 @@ class SoMeshSurfaceSquare : public SoBaseKit
 {
     SO_KIT_HEADER(SoMeshSurfaceSquare);
     SO_KIT_CATALOG_ENTRY_HEADER(topSeparator);
+    SO_KIT_CATALOG_ENTRY_HEADER(eventCatcher);
     SO_KIT_CATALOG_ENTRY_HEADER(coords);
     SO_KIT_CATALOG_ENTRY_HEADER(texturecoords);
     SO_KIT_CATALOG_ENTRY_HEADER(triResSwitch);
@@ -101,6 +108,10 @@ public:
     SoMeshSurfaceBrickWire*	getWire(int resolution);
     const SoMeshSurfaceBrickWire* getWire(int resolution) const;
 
+    void			addPickCB( SoMeshSurfaceSquareCB*, void* = 0 );
+    void			removePickCB( SoMeshSurfaceSquareCB*, void* =0);
+    void			getPickedRowCol( int& row, int& col ) const;
+
     void			GLRender(SoGLRenderAction*);
     void			getBoundingBox(SoGetBoundingBoxAction*);
 
@@ -141,6 +152,10 @@ private:
     bool			showwire;
 
     int				currentres;
+
+    SoCallbackList*		pickcallbacks;
+    int				pickedrow, pickedcol;
+    static void			pickCB( void*, SoEventCallback* );
 
     SoFieldSensor*		sizePowerSensor;
     static void			sizePowerCB( void*, SoSensor* );
