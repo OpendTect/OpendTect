@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.5 2002-09-20 08:48:51 nanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.6 2003-05-15 09:59:06 kristofer Exp $";
 
 #include "emobject.h"
 #include "emhorizontransl.h"
@@ -41,8 +41,64 @@ EarthModel::EMObject::EMObject( EMManager& emm_, const MultiID& id__ )
 {}
 
 
+EarthModel::EMObject::~EMObject()
+{
+    deepErase( posattribs );
+}
+
+
 BufferString EarthModel::EMObject::name() const
 {
     PtrMan<IOObj> ioobj = IOM().get( id_ );
     return ioobj ? ioobj->name() : BufferString("");
+}
+
+
+void EarthModel::EMObject::setPosAttrib( EarthModel::PosID& pid, int attr,
+					 bool yn )
+{
+    const int idx=attribs.indexOf(attr);
+    if ( idx==-1 )
+    {
+	if ( !yn ) return;
+	attribs += attr;
+	posattribs += new TypeSet<EarthModel::PosID>(1,pid);
+    }
+    else
+    {
+	TypeSet<EarthModel::PosID>& posids = *posattribs[idx];
+	const int idy=posids.indexOf(pid);
+
+	if ( idy==-1 )
+	{
+	    if ( !yn ) return;
+	    posids += pid;
+	}
+	else if ( !yn )
+	{
+	    posids.remove(idy);
+	    if ( !posids.size() )
+	    {
+		delete posattribs[idx];
+		posattribs.remove( idx );
+		attribs.remove( idx );
+	    }
+	}
+    }
+}
+
+
+bool EarthModel::EMObject::isPosAttrib( EarthModel::PosID& pid, int attr) const
+{
+    const int idx=attribs.indexOf(attr);
+    if ( idx==-1 )
+	return false;
+
+    TypeSet<EarthModel::PosID>& posids = *posattribs[idx];
+    const int idy=posids.indexOf(pid);
+
+    if ( idy==-1 )
+	return false;
+
+    return true;
 }
