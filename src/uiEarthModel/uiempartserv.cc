@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.3 2002-09-20 09:18:50 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.4 2002-09-23 07:10:03 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiempartserv.h"
 #include "uiimphorizon.h"
+#include "uiimpfault.h"
 #include "uiimpwelltrack.h"
 #include "uiexphorizon.h"
 #include "uiexecutor.h"
@@ -129,6 +130,13 @@ bool uiEMPartServer::selectFault( MultiID& id )
     }
 
     return true;
+}
+
+
+bool uiEMPartServer::importLMKFault()
+{
+    uiImportLMKFault dlg( appserv().parent() );
+    return dlg.go();
 }
 
 

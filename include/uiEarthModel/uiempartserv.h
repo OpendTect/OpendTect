@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.3 2002-09-20 09:19:01 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.4 2002-09-23 07:10:05 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     bool		exportHorizon(const ObjectSet<SurfaceInfo>&);
     bool		importWellTrack();
     bool		selectWellTracks(ObjectSet<MultiID>&);
+    bool		importLMKFault();
     bool		selectFault(MultiID&);
 
     static const int	evGetHorData;
