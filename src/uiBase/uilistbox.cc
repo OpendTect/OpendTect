@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.43 2002-12-13 15:19:36 nanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.44 2003-01-30 11:34:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,7 +263,9 @@ void uiListBox::setCurrentItem( const char* txt )
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( body_->text(idx) == txt )
+	const char* ptr = body_->text(idx);
+	skipLeadingBlanks(ptr);
+	if ( !strcmp(ptr,txt) )
 	    { setCurrentItem( idx ); return; }
     }
 }
