@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.13 2004-01-27 13:47:27 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.14 2004-01-28 15:26:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,28 +80,24 @@ const char* getCygDir()
 
 #endif
 
+#ifdef __win__
+# define mHelpFile "windows.html"
+#else
+# define mHelpFile "unix.html"
+#endif
+
 static void showProgrDoc()
 {
 
-
-#ifdef __win__
-
     BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
-    getstarted = File_getFullPath( getstarted, "windows.html");
 
-    BufferString docpath( GetDataFileName(getstarted) );
+    getstarted = File_getFullPath( getstarted, mHelpFile );
 
-    ShellExecute(NULL,"open",docpath,NULL,NULL,SW_NORMAL);
-
-#else
-
-    BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
-    getstarted = File_getFullPath( getstarted, "unix.html");
     HelpViewer::doHelp( getstarted, 
 		    "Get started with OpendTect development" );
-#endif
 }
 
+#undef mHelpFile
 
 
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,

@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.19 2004-01-14 13:38:29 arend Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.20 2004-01-28 15:26:02 arend Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -16,6 +16,9 @@ static const char* rcsID = "$Id: helpview.cc,v 1.19 2004-01-14 13:38:29 arend Ex
 #include "string2.h"
 #include <stdlib.h>
 
+#ifdef __win__
+# include <windows.h>
+#endif
 
 static const char* sMainIndex = "MainIndex";
 static const char* sNotInstHtml = "docnotinst.html";
@@ -43,11 +46,14 @@ void HelpViewer::use( const char* url, const char* wintitl )
     replaceCharacter(_url.buf(),' ','%');
     url = (const char*)_url;
 
+#ifdef __win__
+
+    ShellExecute(NULL,"open",url,NULL,NULL,SW_NORMAL);
+
+#else
+
     BufferString cmd( "@" );
     cmd += mGetExecScript();
-#ifdef __win__
-    cmd += " --inbg ";
-#endif
 
     cmd += " HtmlViewer \"";
     cmd += url; cmd += "\" ";
@@ -62,6 +68,8 @@ void HelpViewer::use( const char* url, const char* wintitl )
 	s += strmprov.command(); s += "'";
 	ErrMsg( s );
     }
+
+#endif
 }
 
 
