@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.16 2004-05-06 15:13:19 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.17 2004-05-06 19:41:45 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -477,6 +477,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 	
     storemnuid = menu->addItem( new uiMenuItem("Store ...") );
     trackmnuid = menu->addItem( new uiMenuItem("Start tracking ...") );
+    tracksetupmnuid = menu->addItem( new uiMenuItem("Change setup ...") );
 
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
@@ -524,7 +525,14 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB(CallBacker* cb)
     else if ( mnuid==trackmnuid )
     {
 	applMgr()->trackServer()->setSceneID( sceneID() );
-	applMgr()->trackServer()->trackHorizon( mid, false );
+	if ( uivissurf->isHorizon(displayid) )
+	    applMgr()->trackServer()->trackHorizon( mid, false );
+	else if ( uivissurf->isFault(displayid) )
+	    applMgr()->trackServer()->trackFault( mid, false );
+    }
+    else if ( mnuid==tracksetupmnuid )
+    {
+	applMgr()->trackServer()->showSetup( mid );
     }
     else if ( mnuid==reloadmnuid )
     {
