@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.8 2004-08-27 10:07:32 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.9 2004-08-31 10:31:33 dgb Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -28,24 +28,6 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
     if ( !theinst ) theinst = new ObjectSet<Seis2DLineIOProvider>;
     return *theinst;
 }
-
-
-//------
-// Translator mechanism is only used for selection etc.
-
-class TwoDSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(TwoD,SeisTrc) public:
-			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
-			: SeisTrcTranslator(s1,s2)	{}
-
-    const char*		defExtension() const            { return "2ds"; }
-    bool		implRemove(const IOObj*) const;
-    bool		initRead_(); // supporting getRanges()
-    bool		initWrite_(const SeisTrc&)	{ return false; }
-
-};
-
-defineTranslator(TwoD,SeisTrc,"2D");
 
 
 bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const

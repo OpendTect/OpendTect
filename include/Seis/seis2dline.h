@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.7 2004-08-27 10:07:32 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.8 2004-08-31 10:31:21 dgb Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "ranges.h"
 #include "uidobj.h"
+#include "seistrctr.h"
 class IOPar;
 class Executor;
 class SeisTrcBuf;
@@ -117,6 +118,22 @@ protected:
 
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //!< Sort of factory. Add a new type via this function.
+
+
+//------
+//! Translator mechanism is only used for selection etc.
+
+class TwoDSeisTrcTranslator : public SeisTrcTranslator
+{			isTranslator(TwoD,SeisTrc) public:
+			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
+			: SeisTrcTranslator(s1,s2)      {}
+
+    const char*		defExtension() const		{ return "2ds"; }
+    bool		implRemove(const IOObj*) const;
+    bool		initRead_(); // supporting getRanges()
+    bool		initWrite_(const SeisTrc&)	{ return false; }
+
+};
 
 
 #endif
