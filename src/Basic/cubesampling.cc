@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.3 2003-12-16 08:16:23 kristofer Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.4 2004-03-17 08:32:21 kristofer Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -197,6 +197,27 @@ void CubeSampling::snapToSurvey(bool work)
     hrg.snapToSurvey(work);
     zrg.start = SI().zRange(work).snap( zrg.start-SI().zRange(work).step/2 );
     zrg.stop = SI().zRange(work).snap( zrg.stop+SI().zRange(work).step/2 );
+}
+
+
+bool CubeSampling::operator==(const CubeSampling& cs) const
+{
+   if ( cs.hrg==this->hrg )
+   {
+       float diff = fabs(cs.zrg.start-this->zrg.start);
+       const float eps = SI().zIsTime() ? 1e-6 : 1e-3;
+       if ( diff>eps ) return false;
+
+       diff = fabs(cs.zrg.stop-this->zrg.stop);
+       if ( diff>eps ) return false;
+
+       diff = fabs(cs.zrg.step-this->zrg.step);
+       if ( diff>eps ) return false;
+
+       return true;
+   }
+   
+   return false;
 }
 
 
