@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.9 2005-01-06 09:39:57 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.10 2005-01-13 11:49:58 kristofer Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -39,7 +39,6 @@ SurfaceGeometry::SurfaceGeometry( Surface& surf_ )
     , loadedstep(SI().inlStep(),SI().crlStep())
     , rowinterval(0)
     , colinterval(0)
-    , sectionchnotifier( this )
     , shift(0)
     , changed( 0 )
     , surface( surf_ )
@@ -611,7 +610,11 @@ bool SurfaceGeometry::addSection( const char* nm, SectionID sectionid,
 	EM::EMM().history().addEvent( history, 0, 0 );
     }
 
-    sectionchnotifier.trigger(sectionid,this);
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::SectionChange;
+    cbdata.pid0 = PosID( surface.id(), sectionid, 0 );
+    surface.notifier.trigger(cbdata);
+
     changed = true;
     return true;
 }
@@ -651,7 +654,11 @@ void SurfaceGeometry::removeSection( SectionID sectionid, bool addtohistory )
 	EM::EMM().history().addEvent( history, 0, 0 );
     }
 
-    sectionchnotifier.trigger(sectionid,this);
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::SectionChange;
+    cbdata.pid0 = PosID( surface.id(), sectionid, 0 );
+    surface.notifier.trigger(cbdata);
+
     changed = true;
 }
 
