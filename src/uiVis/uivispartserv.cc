@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.244 2004-10-08 09:49:28 dgb Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.245 2004-10-08 14:30:38 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -687,7 +687,7 @@ void uiVisPartServer::removeObject( int id, int sceneid )
 bool uiVisPartServer::hasAttrib( int id ) const
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    return so && so->getAttributeFormat()!=-1;
+    return so && so->getAttributeFormat() >= 0;
 }
     
 
