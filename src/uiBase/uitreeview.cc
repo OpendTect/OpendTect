@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.6 2002-10-28 22:29:11 bert Exp $
+ RCS:           $Id: uitreeview.cc,v 1.7 2002-11-20 08:35:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -475,6 +475,10 @@ public:
     uiListViewItem&		uiItem() 	{ return item_; }
     const uiListViewItem&	uiItem() const 	{ return item_; }
 
+    virtual void 		stateChange ( bool )
+				    { item_.stateChanged.trigger(&item_); }
+
+
 #define mBaseItemClsss		QCheckListItem
 #include			"i_uilistview.h"
 
@@ -559,6 +563,7 @@ QListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
 
 uiListViewItem::uiListViewItem( uiListView*  parent, const char* txt )
 : uiHandle<uiListViewItemBody>( txt, &mkbody( parent, 0, Setup(txt) ) )
+, stateChanged( this )
 { 
     init(Setup(txt)); 
 }
@@ -566,6 +571,7 @@ uiListViewItem::uiListViewItem( uiListView*  parent, const char* txt )
 
 uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
 : uiHandle<uiListViewItemBody>( txt, &mkbody( 0, parent, Setup(txt) ) )
+, stateChanged( this )
 { 
     init(Setup(txt)); 
 }
@@ -573,6 +579,7 @@ uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
 
 uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
 : uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( parent, 0, setup ) )
+, stateChanged( this )
 { 
     init(setup); 
 }
@@ -580,6 +587,7 @@ uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
 
 uiListViewItem::uiListViewItem( uiListViewItem*  parent, const Setup& setup )
 : uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( 0, parent, setup ) )
+, stateChanged( this )
 { 
     init(setup); 
 }

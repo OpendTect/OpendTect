@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.5 2002-03-22 12:42:59 nanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.6 2002-11-20 08:35:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -277,6 +277,8 @@ public:
 
     void		setMultiLinesEnabled( bool yn=true );
     bool		multiLinesEnabled() const;
+
+    Notifier<uiListViewItem> stateChanged; //!< only works for CheckBox type
 
     static QListViewItem*	 qitemFor( uiListViewItem* );
     static const QListViewItem*  qitemFor( const uiListViewItem* );
