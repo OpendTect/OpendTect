@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.4 2002-07-26 15:33:59 bert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.5 2002-11-22 16:09:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,16 +26,19 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, bool wfmt )
 	, optimfld(0)
 {
     if ( wfmt )
-    {
 	imptypefld = new uiGenInput( this, "Storage",
 		     StringListInpSpec(DataCharacteristics::UserTypeNames) );
+
+    scalefld = new uiScaler( this, 0, true );
+    if ( imptypefld )
+	scalefld->attach( alignedBelow, imptypefld );
+
+    if ( wfmt )
+    {
 	optimfld = new uiGenInput( this, "Optimize horizontal slice access",
 				   BoolInpSpec() );
-	optimfld->attach( alignedBelow, imptypefld );
+	optimfld->attach( alignedBelow, scalefld );
     }
-    scalefld = new uiScaler( this, 0, true );
-    if ( optimfld )
-	scalefld->attach( alignedBelow, optimfld );
 
     setHAlignObj( scalefld->uiObj() );
 }
