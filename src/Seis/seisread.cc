@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.20 2003-02-26 17:35:03 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.21 2003-03-12 09:41:23 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -131,18 +131,23 @@ bool SeisTrcReader::multiConn() const
 
 Conn* SeisTrcReader::openFirst()
 {
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( iostrm )
+	iostrm->setConnNr( iostrm->fileNumbers().start );
+
     trySkipConns();
 
     Conn* conn = ioobj->getConn( Conn::Read );
     if ( !conn || conn->bad() )
     {
 	delete conn; conn = 0;
-	if ( multiConn() )
+	if ( iostrm && multiConn() )
 	{
 	    while ( !conn || conn->bad() )
 	    {
 		delete conn; conn = 0;
-		if ( !((IOStream*)ioobj)->toNextConnNr() ) break;
+		if ( !iostrm->toNextConnNr() ) break;
+
 		conn = ioobj->getConn( Conn::Read );
 	    }
 	}
