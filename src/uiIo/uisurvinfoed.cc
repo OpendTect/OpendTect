@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.28 2002-03-15 16:27:58 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.29 2002-03-18 11:56:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
 			       StringInpSpec( orgdirname ) );
     dirnmfld->attach( alignedBelow, survnmfld );
 
-    pathfld = new uiGenInput( this, "Path", StringInpSpec( rootdir ) );
+    pathfld = new uiGenInput( this, "Location", StringInpSpec( rootdir ) );
     pathfld->attach( alignedBelow, dirnmfld );
     uiButton* pathbut;
     if ( !orgdirname.size() )
@@ -406,7 +406,7 @@ void uiSurveyInfoEditor::wsbutPush( CallBacker* )
 
 void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 {
-    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, rootdir );
+    uiFileDialog dlg( this, uiFileDialog::DirectoryOnly, pathfld->text() );
     if ( dlg.go() )
 	pathfld->setText( dlg.fileName() );
 }
