@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.5 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: seisinfo.h,v 1.6 2001-03-19 10:18:26 bert Exp $
 ________________________________________________________________________
 
 Seismic Packet and trace information. Simple, accessible information.
@@ -32,9 +32,7 @@ public:
     SeisPacketInfo&	operator=(const SeisPacketInfo&);
     virtual		~SeisPacketInfo();
 
-    FixedString<32>	client;
-    FixedString<32>	company;
-    FixedString<180>	auxinfo;
+    BufferString	usrinfo;
     int			nr;
     BinIDRange&		range;
 
@@ -42,9 +40,7 @@ public:
 
     static const char*	sBinIDs;
 
-    static FixedString<32>	defaultclient;
-    static FixedString<32>	defaultcompany;
-    static FixedString<180>	defaultauxinfo;
+    static BufferString	defaultusrinfo;
 
 };
 

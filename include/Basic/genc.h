@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.4 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: genc.h,v 1.5 2001-03-19 10:17:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,9 +58,10 @@ double		PowerOf(double,double);
 /* Misc stuff */
 const char*	errno_message();
 
-		/* Platform for binary data. 0 = Sun/IBM, 1 = Linux, 2 = SGI */
-int		get_platform(int);
-void		put_platform(int*);
+		/* Platform for binary data. 0 = SunSparc, 1 = Win/Linux,
+		   2 = SGI(Irix) */
+
+void		put_platform(unsigned char*);
 void		swap_bytes(void*,int);
 
 

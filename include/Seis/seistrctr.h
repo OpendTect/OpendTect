@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.5 2001-02-28 15:00:56 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.6 2001-03-19 10:18:26 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -46,7 +46,7 @@ READ:
 5) By checking readInfo(), client may determine whether space selection
    was satisfied. Space selection is just a hint. This is done to protect
    client against (possible) freeze during (possible) search.
-6) readData() reads actual trace components, or skip() skips trace.
+6) readData() reads actual trace components, or skip() skips trace(s).
 
 WRITE:
 
@@ -164,7 +164,7 @@ public:
 
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&)			{ return false; }
-    virtual bool	skip()				{ return false; }
+    virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	write(const SeisTrc&)		{ return false; }
 
     virtual void	close()				{ conn = 0; }

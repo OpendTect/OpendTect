@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.2 2001-02-28 15:00:55 bert Exp $
+ RCS:		$Id: segyhdr.h,v 1.3 2001-03-19 10:18:25 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include <seisinfo.h>
 #include <segythdef.h>
 class ostream;
+class BufferString;
 
 #define SegyTxtHeaderLength		3200
 #define SegyBinHeaderLength		400
@@ -27,12 +28,9 @@ class SegyTxtHeader
 public:
     		SegyTxtHeader();
  
-    const char* getClient() const;
-    const char* getCompany() const;
-    void	setClient(const char*);
-    void	setCompany(const char*);
-    void	setAuxInfo(const char*);
+    void	setUserInfo(const char*);
     void	setPosInfo(int,int,int,int);
+    void	getText(BufferString&);
 
     void	putAt(int,int,int,const char*);
     void	getFrom(int,int,int,char*) const;

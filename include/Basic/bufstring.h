@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.6 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.7 2001-03-19 10:17:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
 			~BufferString()
 			{ free(buf); }
    inline BufferString&	operator=( const BufferString& bs )
-			{ *this = (char*)bs; return *this; }
+			{ if ( &bs != this ) *this = bs.buf; return *this; }
    inline BufferString&	operator=( int i )
 			{ *buf = '\0'; *this += i; return *this; }
    inline BufferString&	operator=( double d )
