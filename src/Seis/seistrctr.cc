@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.19 2001-10-08 09:46:11 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.20 2001-10-18 08:01:46 windev Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -33,16 +33,20 @@ int SeisTrcTranslator::selector( const char* key )
 }
 
 
-IOObjContext SeisTrcTranslator::ioContext()
+const IOObjContext& SeisTrcTranslator::ioContext()
 {
-    IOObjContext ctxt( Translator::groups()[listid] );
-    ctxt.crlink = false;
-    ctxt.newonlevel = 2;
-    ctxt.needparent = false;
-    ctxt.stdseltype = IOObjContext::Seis;
-    ctxt.multi = true;
+    static IOObjContext* ctxt = 0;
+    if ( !ctxt )
+    {
+	ctxt = new IOObjContext( Translator::groups()[listid] );
+	ctxt->crlink = false;
+	ctxt->newonlevel = 2;
+	ctxt->needparent = false;
+	ctxt->stdseltype = IOObjContext::Seis;
+	ctxt->multi = true;
+    }
 
-    return ctxt;
+    return *ctxt;
 }
 
 
