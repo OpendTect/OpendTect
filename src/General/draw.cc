@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.17 2002-02-28 07:32:13 kristofer Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.18 2002-03-06 14:17:42 nanne Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -86,6 +86,8 @@ ObjectSet<IOPar> ColorTable::tabpars;
 
 ColorTable& ColorTable::operator=(const ColorTable& n )
 {
+    setName( n.name() );
+
     cvs = n.cvs;
     undefcolor = n.undefcolor;
     markcolor = n.markcolor;
