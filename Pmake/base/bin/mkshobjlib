@@ -11,8 +11,6 @@ if ( $#argv < 3 ) then
 	exit 1
 endif
 
-
-
 set inplibs=""
 foreach lib ( $* )
 
@@ -33,7 +31,6 @@ shift
 set outlib=$1
 shift
 
-
 if ( $HDIR == "win") then
 
     $* -o $outlib
@@ -52,9 +49,14 @@ else
     cd $tmpdir
 
     foreach lib ( $inplibs )
-	    ar x $lib `ar t $lib`
+	if ( $HDIR == "mac") then
+		ar x $lib `ar t $lib | grep -v __.SYMDEF `
+	else
+		ar x $lib `ar t $lib `
+	endif
     end
 
+#    echo $* *.o -o $outlib
     $* *.o -o $outlib
     set exitstat=$status
     cd /tmp
