@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoKrisSurface.h,v 1.2 2004-11-16 10:07:44 kristofer Exp $
+ RCS:		$Id: SoKrisSurface.h,v 1.3 2005-03-10 11:38:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -132,6 +132,8 @@ public:
     static void		initClass();
 
     int			nrRows() const;
+
+    int			getSideLength() const;
 
 protected:
     void		notify( SoNotList* );

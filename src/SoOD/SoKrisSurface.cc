@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.3 2005-01-28 16:02:23 nanne Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.4 2005-03-10 11:38:19 cvskris Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -34,6 +34,7 @@ MeshSurfacePartPart::MeshSurfacePartPart(SoKrisSurface& m, int s0, int s1 )
     , rowstart( s0 )
     , colstart( s1 )
     , cache( 0 )
+    , ownvalidation( false )
 { }
 
 
@@ -138,18 +139,21 @@ if ( (dist = (intersection-c##idx2).sqrLength())<shortestdist ) \
 } \
 \
 SoPickedPoint* pickedpoint = action->addIntersection(intersection); \
-SoFaceDetail* facedetail = new SoFaceDetail; \
-facedetail->setFaceIndex(closestrow); \
-facedetail->setPartIndex(closestcol); \
-facedetail->setNumPoints(3); \
-SoPointDetail pointdetail; \
-pointdetail.setMaterialIndex(mi##idx0); \
-facedetail->setPoint(0,&pointdetail); \
-pointdetail.setMaterialIndex(mi##idx1); \
-facedetail->setPoint(1,&pointdetail); \
-pointdetail.setMaterialIndex(mi##idx2); \
-facedetail->setPoint(2,&pointdetail); \
-pickedpoint->setDetail(facedetail, const_cast<SoKrisSurface*>(&meshsurface));
+if ( pickedpoint ) \
+{ \
+    SoFaceDetail* facedetail = new SoFaceDetail; \
+    facedetail->setFaceIndex(closestrow); \
+    facedetail->setPartIndex(closestcol); \
+    facedetail->setNumPoints(3); \
+    SoPointDetail pointdetail; \
+    pointdetail.setMaterialIndex(mi##idx0); \
+    facedetail->setPoint(0,&pointdetail); \
+    pointdetail.setMaterialIndex(mi##idx1); \
+    facedetail->setPoint(1,&pointdetail); \
+    pointdetail.setMaterialIndex(mi##idx2); \
+    facedetail->setPoint(2,&pointdetail); \
+    pickedpoint->setDetail(facedetail, const_cast<SoKrisSurface*>(&meshsurface)); \
+}
 
 void MeshSurfacePartPart::rayPick( SoRayPickAction* action,
 				   bool useownvalidation )
@@ -380,6 +384,7 @@ MeshSurfacePart::MeshSurfacePart( SoKrisSurface& m, int s0, int s1, int ssz )
     , reshaschanged( true )
     , bboxcache( 0 )
     , bboxvalidation( false )
+    , gluevalidation( false )
     , gluecache( 0 )
 {
     int spacing = sidesize/2;
@@ -1690,11 +1695,14 @@ SoKrisSurface::SoKrisSurface()
     , nrcolparts( 0 )
 {
     SO_NODE_CONSTRUCTOR(SoKrisSurface);
+    SO_NODE_ADD_FIELD( coordinates, (0,0,0) );
+    SO_NODE_ADD_FIELD( materialIndex, (0) );
     SO_NODE_ADD_FIELD( meshStyle, (0) );
     SO_NODE_ADD_FIELD( brickSize, (6) );
     SO_NODE_ADD_FIELD( resolution, (-1) );
     SO_NODE_ADD_FIELD( wireframe, (false) );
-    SO_NODE_ADD_FIELD( nrColumns, (1) );
+    SO_NODE_ADD_FIELD( nrColumns, (64) );
+    coordinates.deleteValues(0,-1);
 }
 
 
@@ -1705,6 +1713,7 @@ void SoKrisSurface::insertColumns(bool before)
     const int nrrows = nrRows();
     const int nrcols = nrColumns.getValue();
 
+/*
     if ( coordinates.getNum()<nrcols*nrrows )
 	coordinates.insertSpace( coordinates.getNum(),
 				nrcols*nrrows-coordinates.getNum() );
@@ -1716,15 +1725,21 @@ void SoKrisSurface::insertColumns(bool before)
     if ( meshStyle.getNum()<nrcols*nrrows )
 	meshStyle.insertSpace( meshStyle.getNum(),
 				nrcols*nrrows-meshStyle.getNum() );
+				*/
 
 
-    for ( int idx=nrrows-1; idx>=0; idx-- )
+    for ( int idx= before?nrrows-1:nrrows-2; idx>=0; idx-- )
     {
 	const int insertpos = (idx+(before?0:1))*nrcols;
 	coordinates.insertSpace( insertpos, sidesize );
+	for ( int idy=0; idy<sidesize; idy++ )
+	    coordinates.set1Value( insertpos+idy, SbVec3f(1e30,1e30,1e30) );
+
 	materialIndex.insertSpace( insertpos, sidesize );
 	meshStyle.insertSpace( insertpos, sidesize );
     }
+
+    nrColumns.setValue( nrcols+getSideLength() );
 }
 
 
@@ -1859,11 +1874,18 @@ int SoKrisSurface::getIndex( int i0, int i1 ) const
 
 int SoKrisSurface::nrRows() const
 {
-    int totalnrrows = coordinates.getNum()/nrColumns.getValue();
-    if ( coordinates.getNum()%nrColumns.getValue() )
-	totalnrrows++;
-    return totalnrrows;
+    const int numcoords = coordinates.getNum();
+    if ( !numcoords ) return 0;
+    return (numcoords-1)/nrColumns.getValue()+1;
 }
+
+
+int SoKrisSurface::getSideLength() const
+{
+    const int power = brickSize.getValue();
+    return 1<<power;
+}
+
 
 
 void SoKrisSurface::notify( SoNotList* nl )
