@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.2 2001-02-13 17:16:09 bert Exp $
+ RCS:		$Id: seistype.h,v 1.3 2003-03-28 12:20:08 nanne Exp $
 ________________________________________________________________________
 
 */
@@ -20,7 +20,8 @@ public:
 
     enum WaveType       { P, Sh, Sv, UnknowWave };
 			DeclareEnumUtils(WaveType);
-    enum DataType       { Ampl, Dip, Frequency, Phase, AVOGradient, UnknowData};
+    enum DataType       { Ampl, Dip, Frequency, Phase, AVOGradient, 
+			  Azimuth, UnknowData };
 			DeclareEnumUtils(DataType);
 
     class Event

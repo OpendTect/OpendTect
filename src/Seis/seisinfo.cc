@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.13 2003-01-24 15:57:55 arend Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.14 2003-03-28 12:20:03 nanne Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -64,6 +64,7 @@ DefineEnumNames(Seis,DataType,0,"Data type")
 	"Frequency",
 	"Phase",
 	"AVO Gradient",
+	"Azimuth",
 	"Other",
 	0
 };
