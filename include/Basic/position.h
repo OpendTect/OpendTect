@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.10 2003-01-23 16:14:48 bert Exp $
+ RCS:		$Id: position.h,v 1.11 2003-01-30 14:51:36 niclas Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,14 +45,14 @@ public:
 
 
 /*!\brief a cartesian coordinate in 3D space. */
-class Coord3
+class Coord3 : public Coord
 {
 public:
     		Coord3 ( float x_, float y_, float z_ );
 		Coord3();
 
-    float&	operator[](int idx);
-    float	operator[](int idx) const;
+    double&	operator[](int idx);
+    double	operator[](int idx) const;
 
     Coord3&	operator+=( const Coord3& );
     Coord3&	operator-=( const Coord3& );
@@ -61,9 +61,9 @@ public:
     bool	operator!=(const Coord3& b ) const;
     bool	isDefined() const;
 
-    float	dist( const Coord3& b ) const;
+    double	dist( const Coord3& b ) const;
 
-    float	x, y, z;
+    double	z;
 };
 
 
