@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.5 2000-05-25 15:58:00 bert Exp $
+ RCS:		$Id: arraynd.h,v 1.6 2000-05-25 16:08:14 bert Exp $
 ________________________________________________________________________
 
 */
@@ -117,43 +117,43 @@ public:
 
     virtual const ArrayNDSize&	size() const			= 0;
 
-    template<class Type> class Proxy
+    class Proxy
     {
     public:
-			Proxy( ArrayND<Type>& array_, unsigned long off_ )
+			Proxy( ArrayND<T>& array_, unsigned long off_ )
 			    : array( array_ )
 			    , off( off_ )				{}	
 
 	Proxy&		operator=( const Proxy& n )
 			{ array.setValOff( off, n ); return *this; }
-	Proxy&		operator=( Type n  )
+	Proxy&		operator=( T n  )
 			{ array.setValOff( off, n ); return *this; }
-	Proxy&		operator+=( Type n )
+	Proxy&		operator+=( T n )
 			{
 			    array.setValOff( off, array.getValOff(off)+n);
 			    return *this;
 			}
-	Proxy&		operator-=( Type n )
+	Proxy&		operator-=( T n )
 			{
 			    array.setValOff( off, array.getValOff(off)-n);
 			    return *this;
 			}
-	Proxy&		operator*=( Type n )
+	Proxy&		operator*=( T n )
 			{
 			    array.setValOff( off, array.getValOff(off)*n);
 			    return *this;
 			}
-	Proxy&		operator/=( Type n )
+	Proxy&		operator/=( T n )
 			{
 			    array.setValOff( off, array.getValOff(off)/n);
 			    return *this;
 			}
 
-			operator Type() const
+			operator T() const
 			{ return array.getValOff( off ); }
     private:
 
-	ArrayND<Type>&	array;
+	ArrayND<T>&	array;
 	unsigned long	off;
 
     };			
@@ -171,8 +171,8 @@ public:
 
     Type		operator() (int pos) const
 			{ return getVal( pos ); }
-    ArrayND::Proxy<Type>operator() (int pos)
-			{ return Proxy<Type>( *this, pos ); }
+    ArrayND<Type>::Proxy operator() (int pos)
+			{ return ArrayND<Type>::Proxy( *this, pos ); }
 
     virtual const Array1DSize& size() const = 0;
 };
@@ -190,9 +190,9 @@ public:
 
     Type		operator() (int p0, int p1) const
 			{ return getValOff(size().getArrayPos(p0,p1)); }
-    ArrayND::Proxy<Type>operator() (int p0, int p1)
+    ArrayND<Type>::Proxy operator() (int p0, int p1)
 			{
-			    return ArrayND::Proxy<Type>(*this,
+			    return ArrayND<Type>::Proxy(*this,
 						size().getArrayPos(p0,p1));
 			}
 
@@ -212,9 +212,9 @@ public:
 
     Type		operator() (int p0, int p1, int p2) const
 			{ return getValOff(size().getArrayPos(p0,p1,p2)); }
-    ArrayND::Proxy<Type>operator() (int p0, int p1, int p2)
+    ArrayND<Type>::Proxy operator() (int p0, int p1, int p2)
 			{
-			    return ArrayND::Proxy<Type>(*this,
+			    return ArrayND<Type>::Proxy(*this,
 						size().getArrayPos(p0,p1,p2));
 			}
 
