@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.24 2004-10-25 10:38:09 arend Exp $
+ RCS:		$Id: genc.h,v 1.25 2004-11-09 12:32:32 arend Exp $
 ________________________________________________________________________
 
 
@@ -239,17 +239,6 @@ int		exitProgram( int ret );
 		     Unix: uses exit(ret). return value is there to keep
 		     compiler satisfied, like: return exitProgram( retval );
                 */
-
-#ifdef __win__
-const char*     getWinPath( const char* path );
-                /*!< Converts unix style path to windows style */
-const char*     getUnixPath( const char* path );
-                /*!< Converts windows style path to unix style */
-#else
-# define	getWinPath(path) path
-# define	getUnixPath(path) path
-#endif
-
 
 #ifdef __cpp__
 }
