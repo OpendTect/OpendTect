@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.50 2004-12-03 13:38:28 nanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.51 2004-12-24 10:35:57 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -66,6 +66,7 @@ IOMan::IOMan( const char* rd )
 	: UserIDObject("IO Manager")
 	, dirptr(0)
 	, state_(IOMan::NeedInit)
+    	, newIODir(this)
 {
     rootdir = rd && *rd ? rd : GetDataDir();
     if ( !File_isDirectory(rootdir) )
@@ -280,6 +281,7 @@ bool IOMan::to( const MultiID& ky )
     IODir* newdir = key == "" ? new IODir( rootdir ) : new IODir( key );
     if ( !newdir || newdir->bad() ) return false;
 
+    bool needtrigger = dirptr;
     if ( dirptr )
     {
 	prevkey = dirptr->key();
@@ -287,6 +289,9 @@ bool IOMan::to( const MultiID& ky )
     }
     dirptr = newdir;
     curlvl = levelOf( curDir() );
+    if ( needtrigger )
+	newIODir.trigger();
+
     return true;
 }
 
@@ -490,9 +495,12 @@ bool IOMan::setDir( const char* dirname )
     }
 
     prevkey = key();
+    bool needtrigger = dirptr;
     delete dirptr;
     dirptr = newdirptr;
     curlvl = levelOf( curDir() );
+    if ( needtrigger )
+	newIODir.trigger();
     return true;
 }
 
@@ -646,8 +654,11 @@ bool IOMan::haveEntries( const MultiID& id,
 
 bool IOMan::commitChanges( const IOObj& ioobj )
 {
-    to( ioobj.key() );
-    return dirPtr() ? dirPtr()->commitChanges( &ioobj ) : false;
+    IOObj* clone = ioobj.clone();
+    to( clone->key() );
+    bool rv = dirPtr() ? dirPtr()->commitChanges( clone ) : false;
+    delete clone;
+    return rv;
 }
 
 

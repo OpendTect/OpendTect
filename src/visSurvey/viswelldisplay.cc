@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.41 2004-11-16 09:26:44 kristofer Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.42 2004-12-24 10:35:58 bert Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -17,8 +17,6 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.41 2004-11-16 09:26:44 kr
 #include "wellmarker.h"
 #include "welld2tmodel.h"
 #include "iopar.h"
-#include "ioman.h"
-#include "ioobj.h"
 #include "executor.h"
 #include "ptrman.h"
 #include "survinfo.h"

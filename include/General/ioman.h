@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.22 2004-06-03 14:51:59 bert Exp $
+ RCS:		$Id: ioman.h,v 1.23 2004-12-24 10:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,8 @@ public:
     const char*		generateFileName(Translator*,const char*);
     static bool		validSurveySetup(BufferString& errmsg);
     MultiID		newKey() const;
+
+    Notifier<IOMan>	newIODir;
 
 private:
 

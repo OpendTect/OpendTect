@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.1 2004-10-28 15:01:14 nanne Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.2 2004-12-24 10:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ protected:
     virtual void		mkFileInfo()			=0;
     virtual double		getFileSize(const char*);
 
+    void			postIomChg(CallBacker*);
     void			selChg(CallBacker*);
     virtual void		ownSelChg()			{}
     virtual void		rightClicked(CallBacker*)	{}

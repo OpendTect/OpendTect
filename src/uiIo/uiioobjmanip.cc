@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.13 2004-12-06 17:14:33 bert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.14 2004-12-24 10:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,16 @@ bool uiIOObjManipGroup::gtIOObj()
 }
 
 
+void uiIOObjManipGroup::commitChgs()
+{
+    MultiID key = ioobj->key();
+    IOM().commitChanges( *ioobj );
+    entries.fill( IOM().dirPtr() );
+    entries.setSelected( key );
+    gtIOObj();
+}
+
+
 void uiIOObjManipGroup::selChg( CallBacker* c )
 {
     if ( !gtIOObj() ) return;
@@ -291,7 +301,7 @@ bool uiIOObjManipGroup::renameEntry( Translator* tr )
 	}
     }
 
-    IOM().commitChanges( *ioobj );
+    commitChgs();
     return true;
 }
 
@@ -364,7 +374,7 @@ bool uiIOObjManipGroup::relocEntry( Translator* tr )
     if ( !doReloc(tr,*iostrm,chiostrm) )
 	return false;
 
-    IOM().commitChanges( *iostrm );
+    commitChgs();
     return true;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.2 2004-11-09 10:23:35 nanne Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.3 2004-12-24 10:35:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 
 uiObjFileMan::~uiObjFileMan()
 {
+    IOM().newIODir.remove( mCB(this,uiObjFileMan,postIomChg) );
     delete ctio.ioobj; delete &ctio;
 }
 
@@ -48,6 +49,7 @@ void uiObjFileMan::createDefaultUI( const char* ext )
 {
     IOM().to( ctio.ctxt.stdSelKey() );
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
+    IOM().newIODir.notify( mCB(this,uiObjFileMan,postIomChg) );
 
     topgrp = new uiGroup( this, "Top things" );
     listfld = new uiListBox( topgrp, "Objects" );
@@ -67,6 +69,29 @@ void uiObjFileMan::createDefaultUI( const char* ext )
     infofld->setPrefHeightInChar( cPrefHeight );
     infofld->setPrefWidthInChar( cPrefWidth );
     topgrp->setPrefWidthInChar( cPrefWidth );
+}
+
+
+void uiObjFileMan::postIomChg( CallBacker* cb )
+{
+    MultiID selkey;
+    if ( ctio.ioobj ) selkey = ctio.ioobj->key();
+    entrylist->fill( IOM().dirPtr() );
+    listfld->empty();
+    int selidx = -1;
+    for ( int idx=0; idx<entrylist->size(); idx++ )
+    {
+	const IODirEntry& de = *(*entrylist)[idx];
+	if ( de.ioobj && selkey == de.ioobj->key() )
+	    selidx = idx;
+	listfld->addItem( (*entrylist)[idx]->name() );
+    }
+    if ( selidx >= 0 )
+	listfld->setCurrentItem( selidx );
+    else if ( entrylist->size() > 0 )
+	listfld->setCurrentItem( 0 );
+
+    selChg(cb);
 }
 
 
