@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.1.1.2 1999-09-16 09:35:20 arend Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.2 2000-01-20 15:35:53 bert Exp $";
 
 #include "seistrc.h"
 #include "susegy.h"
@@ -100,9 +100,14 @@ void SeisTrc::removeDC()
 
 float SeisTrc::getValue( double t ) const
 {
+    static const float trcundef = 0;
+    static const float snapdist = 1e-4;
+
     t -= info_.starttime;
     float pos = t / (info_.dt * 1e-6);
-    return interpolateSampled( *this, size(), pos, NO, 0 );
+    interpolateSampled( *this, size(), pos, pos, false, trcundef, snapdist );
+
+    return pos;
 }
 
 
