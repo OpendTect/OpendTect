@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.33 2004-05-04 15:34:08 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.34 2004-05-10 08:22:09 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -95,22 +95,30 @@ bool WellDisplay::setWellId( const MultiID& multiid )
     setName( wd->name() );
 
     if ( wd->track().size() < 1 ) return true;
-    TypeSet<Coord3> track;
-    Coord3 pt;
-    for ( int idx=0; idx<wd->track().size(); idx++ )
+    PtrMan<Well::Track> ttrack = 0;
+    if ( zistime )
     {
-	pt = wd->track().pos( idx );
-	if ( zistime )
-	    pt.z = d2t->getTime( wd->track().dah(idx) );
-	else if ( zinfeet )
+	ttrack = new Well::Track( wd->track() );
+	ttrack->toTime( *d2t );
+    }
+    Well::Track& track = zistime ? *ttrack : wd->track();
+
+    TypeSet<Coord3> trackpos;
+    Coord3 pt;
+    for ( int idx=0; idx<track.size(); idx++ )
+    {
+	pt = track.pos( idx );
+	if ( zinfeet )
 	    mMeter2Feet(pt.z);
 
 	if ( !mIsUndefined(pt.z) )
-	    track += pt;
+	    trackpos += pt;
     }
+    if ( !trackpos.size() )
+	return true;
 
-    well->setTrack( track );
-    well->setWellName( wd->name(), track.size() ? track[0] : Coord3(0,0,0) );
+    well->setTrack( trackpos );
+    well->setWellName( wd->name(), trackpos[0] );
     updateMarkers(0);
     wd->markerschanged.notify( mCB(this,WellDisplay,updateMarkers) );
 
