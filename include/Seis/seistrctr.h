@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.33 2004-07-22 16:14:07 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.34 2004-07-23 11:53:00 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -212,6 +212,7 @@ protected:
     const SeisSelData*			seldata;
     SamplingData<float>			outsd;
     int					outnrsamples;
+    Interval<int>			samps;
 
     void		addComp(const DataCharacteristics&,
 				const char* nm=0,int dtype=0);

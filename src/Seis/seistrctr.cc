@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.46 2004-07-22 16:14:07 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.47 2004-07-23 11:53:00 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -176,7 +176,7 @@ bool SeisTrcTranslator::commitSelections()
     if ( sz < 1 ) return false;
 
     outsd = insd; outnrsamples = innrsamples;
-    if ( seldata )
+    if ( !isEmpty(seldata) && seldata->isPositioned() )
     {
 	Interval<float> zrg( seldata->zRange() );
 	outsd.start = zrg.start;
@@ -223,6 +223,11 @@ bool SeisTrcTranslator::commitSelections()
     if ( !pinfo ) pinfo = new SeisPacketInfo;
 
     enforceBounds();
+
+    float fsampnr = (outsd.start - insd.start) / insd.step;
+    samps.start = mNINT( fsampnr );
+    samps.stop = samps.start + outnrsamples - 1;
+
     return commitSelections_();
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.23 2004-07-22 16:14:07 bert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.24 2004-07-23 11:53:00 bert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -61,7 +61,6 @@ protected:
     int			nrdone;
 
     // Following variables are inited by commitSelections_
-    Interval<int>	samps;
     bool*		compsel;
     bool*		userawdata;
     unsigned char**	blockbufs;

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.50 2004-07-22 16:14:07 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.51 2004-07-23 11:53:00 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -169,18 +169,13 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    float fsampnr = (outsd.start - insd.start) / insd.step;
-    samps.start = mNINT( fsampnr );
-    samps.stop = samps.start + outnrsamples - 1;
-
-    if ( forread )
+    if ( forread && seldata && seldata->isPositioned() )
     {
 	CubeSampling cs;
-	if ( seldata && seldata->type_ == SeisSelData::Range )
-	{
-	    cs.hrg.start = BinID(seldata->inlrg_.start,seldata->crlrg_.start);
-	    cs.hrg.stop = BinID(seldata->inlrg_.stop,seldata->crlrg_.stop);
-	}
+	Interval<int> inlrg = seldata->inlRange();
+	Interval<int> crlrg = seldata->crlRange();
+	cs.hrg.start.inl = inlrg.start; cs.hrg.start.crl = crlrg.start;
+	cs.hrg.stop.inl = inlrg.stop; cs.hrg.stop.crl = crlrg.stop;
 	cs.zrg.start = outsd.start; cs.zrg.step = outsd.step;
 	cs.zrg.stop = outsd.start + (outnrsamples-1) * outsd.step;
 
@@ -225,7 +220,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
 bool CBVSSeisTrcTranslator::toNext()
 {
-    if ( !seldata )
+    if ( isEmpty(seldata) )
 	return rdmgr->toNext();
 
     const CBVSInfo& info = rdmgr->info();

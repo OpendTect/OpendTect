@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.26 2004-07-16 15:35:26 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.27 2004-07-23 11:53:00 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -85,8 +85,7 @@ void SeisTrcReader::startWork()
     }
 
     trl->setSelData( seldata );
-    if ( trl->inlCrlSorted() && seldata
-      && seldata->type_ != SeisSelData::TrcNrs )
+    if ( trl->inlCrlSorted() && seldata && seldata->isPositioned() )
 	outer = seldata->binidRange();
     else
 	outer = 0;
@@ -219,7 +218,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     }
 
     nrtrcs++;
-    if ( seldata )
+    if ( !isEmpty(seldata) )
     {
 	int selres = seldata->selRes( nrtrcs );
 	if ( selres > 1 )
@@ -287,7 +286,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     int rv = get(ti);
     if ( rv < 1 ) return rv;
 
-    if ( seldata && seldata->type_ != SeisSelData::TrcNrs
+    if ( seldata && seldata->isPositioned()
 	         && iostrm->directNumberMultiConn() )
     {
 	if ( !binidInConn(seldata->selRes(ti.binid)) )
@@ -303,12 +302,13 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
 void SeisTrcReader::trySkipConns()
 {
-    if ( !isMultiConn() || !seldata || seldata->type_ == SeisSelData::TrcNrs )
+    if ( !isMultiConn() || !seldata || !seldata->isPositioned() )
 	return;
     mDynamicCastGet(IOStream*,iostrm,ioobj)
     if ( !iostrm || !iostrm->directNumberMultiConn() ) return;
 
     BinID binid;
+
     if ( seldata->type_ == SeisSelData::Range )
 	binid.crl = seldata->crlrg_.start;
     else if ( seldata->table_.totalSize() == 0 )
