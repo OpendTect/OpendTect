@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.9 2002-03-11 10:46:28 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.10 2002-03-18 11:01:16 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -93,12 +93,7 @@ visSurvey::Scene::Scene()
 	0,		0,		0,	1 );
 
     // Set time trans
-
-    timetransformation->setA(
-	1,	0,	0,		0,
-	0,	1,	0,		0,
-	0,	0,	appvel,		0,
-	0,	0,	0,		1 );
+    setApparentVel( appvel );
 
     BinIDRange hrg = SI().range();
     StepInterval<double> vrg = SI().zRange();
@@ -205,3 +200,20 @@ void visSurvey::Scene::removeObject( int idx )
     idx -= xytworld->size();
     inlcrlworld->removeObject( idx );
 }
+
+
+float visSurvey::Scene::apparentVel() const { return appvel; }
+
+
+void visSurvey::Scene::setApparentVel( float a )
+{
+    appvel = a;
+
+    timetransformation->setA(
+	1,	0,	0,		0,
+	0,	1,	0,		0,
+	0,	0,	appvel,		0,
+	0,	0,	0,		1 );
+}
+
+
