@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.38 2003-08-20 10:20:55 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.39 2003-08-29 11:00:37 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -74,6 +74,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, jobid_( 0 )
 	, timestamp_( Time_getMilliSeconds() )
 	, exitstat_( mSTAT_UNDEF )
+	, pausereq_( false )
 {
     const char* fn = argv_[1];
     while ( fn && *fn == '-' )
