@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.218 2004-05-26 07:46:43 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.219 2004-05-27 11:54:16 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -415,6 +415,10 @@ bool uiVisPartServer::deleteAllObjects()
 	removeScene( scenes[0]->id() );
 
     scenes.erase();
+    for ( int idx=0; idx<menus.size(); idx++ )
+	menus[idx]->unRef();
+
+    menus.erase();
 
     return visBase::DM().reInit();
 }
@@ -692,21 +696,13 @@ bool uiVisPartServer::calculateAttrib( int id, bool newselect )
 
     const AttribSelSpec* as = so->getSelSpec();
     if ( !as ) return false;
-    if ( newselect || ( as->id() < 0 ) )
+    if ( as->id()==AttribSelSpec::noAttrib )
+	return true;
+
+    if ( newselect || ( as->id()==AttribSelSpec::attribNotSel ) )
     {
 	if ( !selectAttrib( id ) ) return false;
     }
-    /*
-    else if ( sd && as->id() < 0 )
-    {
-	const char* usrref = as->userRef();
-	if ( !usrref || !(*usrref) )
-	{
-	    sd->setZValues();
-	    return true;
-	}
-    }
-    */
 
     bool res = false;
     eventmutex.lock();
@@ -942,7 +938,9 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
 	    return;
 	}
 
-	if ( so->isManipulated() )
+	if ( so->isManipulated() ||
+	    (so->getSelSpec() &&
+	     so->getSelSpec()->id()==AttribSelSpec::attribNotSel ) )
 	{
 	    calculateAttrib( oldsel, false );
 	    calculateColorAttrib( oldsel, false );
