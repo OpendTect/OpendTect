@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.15 2003-07-31 14:35:37 nanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.16 2003-08-07 14:26:23 nanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -105,12 +105,15 @@ EM::dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     par->get( rowrangestr, rowrange.start, rowrange.stop, rowrange.step );
     par->get( colrangestr, colrange.start, colrange.stop, colrange.step );
 
+    int gap = 0;
     for ( int idx=0; ; idx++ )
     {
-	BufferString
-	    hovfnm( EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx));
+	if ( gap > 50 ) break;
+
+	BufferString hovfnm( 
+		EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx) );
 	if ( File_isEmpty(hovfnm) )
-	    break;
+	{ gap++; continue; }
 
 	EM::dgbSurfDataReader* dreader = new EM::dgbSurfDataReader( hovfnm );
 	if ( dreader->dataName() )
