@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.8 2000-10-18 08:01:25 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.9 2000-12-13 15:25:39 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -125,7 +125,7 @@ bool Settings::write( bool do_merge ) const
 	ErrMsg( "Cannot remove '.old' settings file" );
 	return false;
     }
-    if ( !File_rename(fname,oldfname) )
+    if ( File_exists(fname) && !File_rename(fname,oldfname) )
     {
 	ErrMsg( "Cannot rename settings file to '.old'" );
 	return false;
