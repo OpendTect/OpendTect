@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.1.1.2 1999-09-16 09:19:12 arend Exp $
+ RCS:		$Id: scaler.h,v 1.2 2000-11-21 13:37:21 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -49,6 +49,12 @@ public:
     double		unScale(double) const;
     const char*		toString() const;
     void		fromString(const char*);
+
+    bool		operator==( const LinScaler& b ) const
+			{
+			    return mIS_ZERO(constant-b.constant) &&
+				   mIS_ZERO(factor-b.factor);
+			}
     
     double		constant;
     double		factor;
@@ -67,6 +73,8 @@ public:
     double		scale(double) const;
     const char*		toString() const;
     void		fromString(const char*);
+    bool		operator==( const LogScaler& b ) const
+			{ return ten==b.ten; }
     
     bool		ten;
 };
@@ -84,6 +92,9 @@ public:
     double		scale(double) const;
     const char*		toString() const;
     void		fromString(const char*);
+
+    bool		operator==( const ExpScaler& b ) const
+			{ return ten==b.ten; }
     
     bool		ten;
 };

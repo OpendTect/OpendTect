@@ -76,7 +76,7 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 MathExpression* MathExpression::parse( const char* input )
 {
     int len = strlen( input );
-    char str[len];
+    char str[len+1];
 
     int pos = 0;
     for ( int idx=0; idx<len; idx++ )
@@ -119,6 +119,183 @@ MathExpression* MathExpression::parse( const char* input )
 
     int bracketlevel = 0;
 
+
+    // ? :
+    for ( int idx=0; idx<len; idx++ )
+    {
+	if ( str[idx]=='(' ) bracketlevel++;
+	if ( str[idx]==')' ) bracketlevel--;
+
+	if ( bracketlevel ) continue;
+
+	if ( str[idx] == '?' )
+	{
+	    if ( !idx ) continue;
+
+	    char arg0[len];
+	    strcpy( arg0, str );
+	    arg0[idx] = 0;
+
+	    for ( int idy=idx; idy<len; idy++ )
+	    {
+		if ( str[idy]=='(' ) bracketlevel++;
+		if ( str[idy]==')' ) bracketlevel--;
+
+		if ( bracketlevel ) continue;
+
+		if ( str[idy] == ':' )
+		{
+		    MathExpression* inp0 = parse( arg0 );
+		    if ( !inp0 ) return 0;
+
+		    char arg1[len];
+		    strcpy( arg1, &str[idx+1] );
+		    arg1[idy-idx-1] = 0;
+
+		    MathExpression* inp1 = parse( arg1 );
+		    if ( !inp1 )
+		    {
+			delete inp0;
+			return 0;
+		    }
+
+		    char arg2[len];
+		    strcpy( arg2, &str[idy+1] );
+
+		    MathExpression* inp2 = parse( arg2 );
+		    if ( !inp2 )
+		    {
+			delete inp0;
+			delete inp1;
+			return 0;
+		    }
+		
+	
+		    MathExpression* res = new MathExpressionCondition;
+
+		    res->setInput( 0, inp0 );
+		    res->setInput( 1, inp1 );
+		    res->setInput( 2, inp2 );
+
+		    return res;
+		}
+	    }
+	}
+    }
+
+
+    // && ||
+    for ( int idx=0; idx<len; idx++ )
+    {
+	if ( str[idx]=='(' ) bracketlevel++;
+	if ( str[idx]==')' ) bracketlevel--;
+
+	if ( bracketlevel ) continue;
+
+	if ( (str[idx]=='&'&&str[idx]=='&') || (str[idx]=='|'&&str[idx]=='|'))
+	{
+	    if ( !idx ) continue;
+
+	    char arg0[len];
+	    strcpy( arg0, str );
+	    arg0[idx] = 0;
+
+	    MathExpression* inp0 = parse( arg0 );
+
+	    if ( !inp0 ) return 0;
+
+	    char arg1[len];
+	    strcpy( arg1, &str[idx+2] );
+
+	    MathExpression* inp1 = parse( arg1 );
+
+	    if ( !inp1 )
+	    {
+		delete inp0;
+		return 0;
+	    }
+
+	    MathExpression* res = 0;	
+
+	    if ( str[idx] == '&' )
+	    {
+		res = new MathExpressionAND;
+	    }
+	    else 
+		res = new MathExpressionOR;
+
+	    res->setInput( 0, inp0 );
+	    res->setInput( 1, inp1 );
+
+	    return res;
+	}
+    }
+
+
+    // <, >, <=, >=, ==
+    for ( int idx=0; idx<len; idx++ )
+    {
+	if ( str[idx]=='(' ) bracketlevel++;
+	if ( str[idx]==')' ) bracketlevel--;
+
+	if ( bracketlevel ) continue;
+
+	if ( str[idx]=='<' ||  str[idx]=='>' || str[idx]=='=' || str[idx]=='!')
+	{
+	    if ( !idx ) continue;
+	    if ( (str[idx]=='=' || str[idx]=='!') && str[idx+1] != '=' )
+		continue;
+
+	    char arg0[len];
+	    strcpy( arg0, str );
+	    arg0[idx] = 0;
+
+	    MathExpression* inp0 = parse( arg0 );
+
+	    if ( !inp0 ) return 0;
+
+	    bool twochars = str[idx+1] == '=' ? true : false;
+	    char arg1[len];
+	    strcpy( arg1, &str[idx+1+twochars] );
+
+	    MathExpression* inp1 = parse( arg1 );
+
+	    if ( !inp1 )
+	    {
+		delete inp0;
+		return 0;
+	    }
+
+	    MathExpression* res = 0;	
+
+	    if ( str[idx] == '<' )
+	    {
+		if ( str[idx+1] == '=' )
+		    res = new MathExpressionLessOrEqual;
+		else
+		    res = new MathExpressionLess;
+	    }
+	    else if ( str[idx] == '>' )
+	    {
+		if ( str[idx+1] == '=' )
+		    res = new MathExpressionMoreOrEqual;
+		else
+		    res = new MathExpressionMore;
+	    }
+	    else if ( str[idx] == '=' )
+		res = new MathExpressionEqual;
+	    else
+		res = new MathExpressionNotEqual;
+
+	    res->setInput( 0, inp0 );
+	    res->setInput( 1, inp1 );
+
+	    return res;
+	}
+    }
+
+
+    // + -
     for ( int idx=0; idx<len; idx++ )
     {
 	if ( str[idx]=='(' ) bracketlevel++;
@@ -207,7 +384,6 @@ MathExpression* MathExpression::parse( const char* input )
 	    return res;
 	}
     }
-
 
     for ( int idx=0; idx<len; idx++ )
     {

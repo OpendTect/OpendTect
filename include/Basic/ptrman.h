@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.1 2000-03-22 13:40:51 bert Exp $
+ RCS:           $Id: ptrman.h,v 1.2 2000-11-21 13:37:21 bert Exp $
 ________________________________________________________________________
 
 PtrMan is a simple autopointer. It is assigned to a pointer, and takes over
@@ -28,9 +28,9 @@ public:
 				~PtrMan()
 				{ erase(); }
 
-    const T*			getPtr() const { return ptr; }
+    T*				getPtr() const { return ptr; }
 
-    const T*			operator=( T* ptr_ )
+    T*				operator=( T* ptr_ )
 				{ erase(); ptr = ptr_; return ptr; }
 
 
