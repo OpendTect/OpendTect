@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.15 2004-04-01 13:39:51 bert Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.16 2005-01-14 16:02:29 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,23 +117,23 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 
 bool uiCrDevEnv::isOK( const char* datadir )
 {
-    if ( !datadir || !*datadir )
-	datadir = getenv("WORK");
-    if ( !datadir || !*datadir || !File_isDirectory(datadir) )
+    FilePath datafp( datadir );
+
+    if ( !datafp.nrLevels() ) return false;
+
+    if ( !datafp.nrLevels() || !File_isDirectory( datafp.fullPath() ) )
 	return false;
 
-    FilePath fp( datadir );
-
-    fp.add( "Pmake" );
-    if ( !File_isDirectory(fp.fullPath()) )
+    datafp.add( "Pmake" );
+    if ( !File_isDirectory(datafp.fullPath()) )
 	return false;
 
-    fp.set( "include" );
-    if ( !File_isDirectory(fp.fullPath()) )
+    datafp.set( "include" );
+    if ( !File_isDirectory(datafp.fullPath()) )
 	return false;
 
-    fp.set( "plugins" );
-    if ( !File_isDirectory(fp.fullPath()) )
+    datafp.set( "plugins" );
+    if ( !File_isDirectory(datafp.fullPath()) )
 	return false;
 
     return true;
@@ -145,9 +145,8 @@ bool uiCrDevEnv::isOK( const char* datadir )
 
 void uiCrDevEnv::crDevEnv( uiParent* appl )
 {
-
-    BufferString oldworkdir(getenv("WORK"));
-    const bool oldok = isOK( oldworkdir );
+    FilePath oldworkdir(getenv("WORK"));
+    const bool oldok = isOK( oldworkdir.fullPath() );
 
     const char* cygwin = 0;
 
@@ -198,11 +197,11 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     BufferString workdirnm;
 
-    if ( oldworkdir != "" )
+    if ( File_exists(oldworkdir.fullPath()) )
     {
 	BufferString msg = "Your current work directory (";
-	msg += oldworkdir;
-	msg += oldok ?  ") seems to be Ok.\n" :
+	msg += oldworkdir.fullPath();
+	msg += oldok ?  ") seems to already be a work directory.\n" :
 			") does not seem to be a valid work directory.\n";
 	msg += "Do you want to completely remove the existing directory\n"
 	       "and create a new work directory there?";
@@ -210,7 +209,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	if ( uiMSG().askGoOn(msg) )
 	{
 	    File_remove( workdirnm, true );
-	    workdirnm = oldworkdir;
+	    workdirnm = oldworkdir.fullPath();
 	}
     }
 
@@ -232,7 +231,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    if ( !File_isDirectory(basedirnm) )
 	    {
 		const char* msg =
-		"You have installed Cygwin but you have never used it.\n"
+		"You have installed Cygwin but seem to have never used it.\n"
 		"Unfortunately, this means you have no Cygwin home directory.\n"
 		"\nWe advise to close OpendTect and start a Cygwin shell.\n"
 		"Then use this utility again.\n"
@@ -241,7 +240,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 		if ( !uiMSG().askGoOn(msg) )
 		    return;
 
-		basedirnm = "C:\\";
+		basedirnm = GetPersonalDir();
 	    }
 	}
 
@@ -270,7 +269,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	{
 	    msg = "The directory you selected(";
 	    msg += workdirnm;
-	    msg += isok ? ") seems to be a valid work directory.\n\n" :
+	    msg += isok ? ") seems to already be a work directory.\n\n" :
 			  ") does not seem to be a valid work directory.\n\n";
 	}
 	else
