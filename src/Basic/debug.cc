@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.14 2004-12-27 14:54:17 bert Exp $
+ RCS:           $Id: debug.cc,v 1.15 2005-01-07 13:26:15 dgb Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.14 2004-12-27 14:54:17 bert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.15 2005-01-07 13:26:15 dgb Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -77,6 +77,8 @@ bool isOn( int flag )
 
 void message( const char* msg )
 {
+    if ( !isOn() ) return;
+
     if ( dbglogstrm )
 	*dbglogstrm << msg << std::endl;
     else
