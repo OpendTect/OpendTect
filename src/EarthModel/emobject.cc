@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.21 2004-05-12 18:20:50 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.22 2004-05-13 07:37:15 kristofer Exp $";
 
 #include "emobject.h"
 
@@ -191,10 +191,10 @@ EM::EMObject::getPosAttribChNotifier( int attr, bool create )
     {
 	if ( !create ) return 0;
 
+	idx = attribs.size();
 	attribs += attr;
 	posattribs += new TypeSet<EM::PosID>;
 	posattrchnotifiers += 0;
-	idx = 0;
     }
 
     if ( !posattrchnotifiers[idx] && create )
