@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.2 2004-10-06 19:20:14 nanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.3 2005-01-11 11:16:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,7 +250,7 @@ bool BatchProgram::go( std::ostream& strm )
 	mErrRet( errmsg );
 
     strm << "Loading: " << mid.buf() << "\n\n";
-    PtrMan<Executor> loader = EM::EMM().load( mid, 0 );
+    PtrMan<Executor> loader = EM::EMM().loadObject( mid, 0 );
     if ( !loader || !loader->execute(&strm) ) mRetErr( "Cannot load surface" );
 
     AttribDescSet attribset;
