@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.27 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.28 2004-01-08 17:54:23 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -104,7 +104,7 @@ protected:
     
 				DataObject();
     virtual			~DataObject();
-    void			_init();
+    virtual void		_init();
 
     friend class		DataManager;
     void			remove() { delete this; }
