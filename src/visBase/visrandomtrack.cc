@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.12 2003-03-07 13:12:20 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.13 2003-03-07 14:26:29 bert Exp $";
 
 #include "visrandomtrack.h"
 
@@ -491,7 +491,7 @@ void visBase::RandomTrack::eventCB(CallBacker* cb)
      mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
 
      if ( eventinfo.type != visBase::MouseClick ) return;
-     if ( eventinfo.mousebutton ) return; // only accept left-click
+     if ( !eventinfo.mousebutton ) return; // only accept right-click
      if ( eventinfo.pressed ) return; // only do stuff on mouse release
 
      int eventid = -1;
@@ -517,21 +517,18 @@ void visBase::RandomTrack::eventCB(CallBacker* cb)
      Coord knotpos( dragger->xyzSnap( 0, eventinfo.localpickedpos.x ),
 		    dragger->xyzSnap( 1, eventinfo.localpickedpos.y ));
 
-     if ( eventinfo.ctrl && !eventinfo.shift && !eventinfo.alt )
+     if ( !eventinfo.shift && !eventinfo.alt )
      {
-	 if ( knotpos.distance(knots[sectionidx]) <
-	      knotpos.distance(knots[sectionidx+1]) )
-	 {
-	     removeKnot( sectionidx );
-	 }
+	 if ( !eventinfo.ctrl )
+	     insertKnot( sectionidx+1, knotpos );
 	 else
 	 {
-	     removeKnot( sectionidx+1 );
+	     if ( knotpos.distance(knots[sectionidx]) <
+		  knotpos.distance(knots[sectionidx+1]) )
+		 removeKnot( sectionidx );
+	     else
+		 removeKnot( sectionidx+1 );
 	 }
-     }
-     else
-     {
-	 insertKnot( sectionidx+1, knotpos );
      }
 
      eventcatcher->eventIsHandled();
