@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.2 2000-05-01 10:43:20 bert Exp $
+ RCS:		$Id: separstr.h,v 1.3 2000-09-27 15:22:16 bert Exp $
 ________________________________________________________________________
 
 SeparString is a list encoded in a string where the items are separated by
@@ -39,8 +39,9 @@ public:
     const char*		from(unsigned int) const;
     void		add(const char*); // will also add empty strs
     SeparString&	operator +=(const char*);
-    SeparString&	operator +=(double);
     SeparString&	operator +=(int);
+    SeparString&	operator +=(float);
+    SeparString&	operator +=(double);
     			operator const char*() const	{ return rep; }
     			operator char*()		{ return rep; }
     unsigned int	size() const;

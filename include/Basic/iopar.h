@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.5 2000-08-08 18:25:06 bert Exp $
+ RCS:		$Id: iopar.h,v 1.6 2000-09-27 15:22:15 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -51,13 +51,13 @@ public:
     bool		get(const char*,int&) const;
     bool		get(const char*,int&,int&) const;
     inline bool		get( const char* k, float& v ) const
-			{ return getSc(k,v,1,NO); }
+			{ return getSc(k,v,1,false); }
     inline bool		get( const char* k, double& v ) const
-			{ return getSc(k,v,1,NO); }
+			{ return getSc(k,v,1,false); }
     inline bool		get( const char* k, float& v1, float& v2 ) const
-			{ return getSc(k,v1,v2,1,NO); }
+			{ return getSc(k,v1,v2,1,false); }
     inline bool		get( const char* k, double& v1, double& v2 ) const
-			{ return getSc(k,v1,v2,1,NO); }
+			{ return getSc(k,v1,v2,1,false); }
     bool		getSc(const char*,float&,float sc,
 			      bool set_undef_if_not_found) const;
     bool		getSc(const char*,double&,double sc,
@@ -70,8 +70,10 @@ public:
     bool		getYN(const char*,bool&,char c=0) const;
     void		set(const char*,const char*);
     void		set(const char*,int);
+    void		set(const char*,float);
     void		set(const char*,double);
     void		set(const char*,int,int);
+    void		set(const char*,float,float);
     void		set(const char*,double,double);
     void		set(const char*,int,int,int);
     void		setYN(const char*,bool);

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.2 2000-03-02 15:24:33 bert Exp $
+ RCS:		$Id: string2.h,v 1.3 2000-09-27 15:22:17 bert Exp $
 ________________________________________________________________________
 
 String functions just outside the standard:. Some remarks:
@@ -57,8 +57,9 @@ void		replaceCharacter(char*,char,char);
 void		cleanupString(char*,int ,int,int);
 
 const char*	getStringFromInt(const char* fmt,int);
+const char*	getStringFromFloat(const char* fmt,float);
 const char*	getStringFromDouble(const char* fmt,double);
-void		prettyNumber(char*);
+void		prettyNumber(char*,int is_float);
 
 const char*	getYesNoString(int);
 int		yesNoFromString(const char*);

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.4 2000-06-23 14:09:08 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.5 2000-09-27 15:22:13 bert Exp $
 ________________________________________________________________________
 
 Overhead is 4 extra bytes for length and minimum length. Maximum size (no
@@ -36,6 +36,10 @@ public:
 				      unsigned short ml=mMaxUserIDLength )
 				: minlen(ml+1)
 			{ init(); *this += d; }
+   			BufferString( float f,
+				      unsigned short ml=mMaxUserIDLength )
+				: minlen(ml+1)
+			{ init(); *this += f; }
 			BufferString( const BufferString& bs )
 				: minlen(bs.minlen)
 			{ init(); *this = bs; }
@@ -47,10 +51,14 @@ public:
 			{ *buf = '\0'; *this += i; return *this; }
    inline BufferString&	operator=( double d )
 			{ *buf = '\0'; *this += d; return *this; }
+   inline BufferString&	operator=( float f )
+			{ *buf = '\0'; *this += f; return *this; }
    inline BufferString&	operator+=( int i )
 			{ *this += getStringFromInt("%d",i); return *this; }
    inline BufferString&	operator+=( double d )
 			{ *this += getStringFromDouble("%lg",d); return *this; }
+   inline BufferString&	operator+=( float f )
+			{ *this += getStringFromFloat("%g",f); return *this; }
    inline		operator char*() const		{ return (char*)buf; }
    inline char&		operator [](int idx)		{ return buf[idx]; }
    inline const char&	operator [](int idx) const	{ return buf[idx]; }
