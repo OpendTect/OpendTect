@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		19-4-2000
  Contents:	Array sorting
- RCS:		$Id: sortedlist.h,v 1.7 2004-04-28 14:37:18 bert Exp $
+ RCS:		$Id: sortedlist.h,v 1.8 2004-07-21 11:13:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,7 +186,7 @@ SortedList<T>& SortedList<T>::copy( const U& array )
 
 template <class T> template <class U> inline
 SortedList<T>&	SortedList<T>::operator =( const U& array )
-{ return copy(ts); }
+{ return copy(array); }
 
 
 template <class T> template <class U> inline

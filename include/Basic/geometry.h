@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.16 2004-04-15 13:12:24 macman Exp $
+ RCS:           $Id: geometry.h,v 1.17 2004-07-21 11:13:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ public:
     inline bool		operator ==( const Rect<T>& r ) const
 			{ return   r.topLeft_ == topLeft_
 				&& r.bottomRight_ == bottomRight_; }
-    inline bool		operator !=( const Rect<T>& p ) const
+    inline bool		operator !=( const Rect<T>& r ) const
 			{ return   r.topLeft_ != topLeft_
 				|| r.bottomRight_ != bottomRight_; }
 

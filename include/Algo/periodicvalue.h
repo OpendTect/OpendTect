@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Kris Tingdahl
  Date:		12-4-1999
  Contents:	Periodic value interpolation and so forth
- RCS:		$Id: periodicvalue.h,v 1.3 2004-06-16 14:54:18 bert Exp $
+ RCS:		$Id: periodicvalue.h,v 1.4 2004-07-21 11:13:17 nanne Exp $
 ________________________________________________________________________
 
 */
@@ -216,7 +216,7 @@ inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
     nextpos2 = dePeriodize( nextpos2, sz );
 
     const RT prevval2 = idxabl[prevpos2];
-    const RT prevval = idsabl[prevpos];
+    const RT prevval = idxabl[prevpos];
     const RT nextval = idxabl[nextpos];
     const RT nextval2 = idxabl[nextpos2];
 
