@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.8 2001-08-24 08:32:56 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.9 2001-09-20 09:17:18 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
     void		setCancelText( const char* txt );
 			//! Save button enabled when set to non-empty
     void		enableSaveButton( const char* txt="Save defaults" );
+			//! title text. Default equal to name
+    void		setTitleText( const char* txt );
     bool		saveButtonChecked();
 
 			//! Separator between central dialog and Ok/Cancel bar?
