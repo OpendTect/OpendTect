@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.27 2001-07-19 22:15:53 bert Exp $
+ RCS:           $Id: uigeninput.cc,v 1.28 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,11 +127,11 @@ public:
 			: uiDataInpFld( p, spec ) {}
 
     virtual int         getIntValue( int idx ) const
-			    { return text(idx) ? atoi( text(idx) ) : 0; }
+			    { return text(idx) ? atoi(text(idx)): mUndefIntVal;}
     virtual double      getValue( int idx ) const
-			    { return text(idx) ? atof( text(idx) ) : 0; }
+			    { return text(idx) ? atof(text(idx)): mUndefValue; }
     virtual float       getfValue( int idx ) const
-			    { return text(idx) ? atof( text(idx) ) : 0; }
+			    { return text(idx) ? atof(text(idx)): mUndefValue; }
     virtual bool        getBoolValue( int idx ) const
 			    { return yesNoFromString( text(idx) ); }
 
@@ -274,7 +274,13 @@ uiBoolInpFld::uiBoolInpFld(uiGenInput* p, const DataInpSpec& spec, const char* n
     , butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true )
 {
     mDynamicCastGet(const BoolInpSpec*,spc,&spec)
-    if ( !spc ) { pErrMsg("huh?");butOrGrp = new uiGroup(p,nm); return; }
+    if ( !spc )
+    { 
+	pErrMsg("huh?");
+	uiGroup* grp = new uiGroup(p,nm);
+	butOrGrp = grp->uiObj(); 
+	return;
+    }
 
     yn=spc->checked(); initClear();
 
@@ -284,7 +290,7 @@ uiBoolInpFld::uiBoolInpFld(uiGenInput* p, const DataInpSpec& spec, const char* n
     if ( truetxt == ""  || falsetxt == "" )
     { 
 	cb = new uiCheckBox( p, (truetxt == "") ? nm : (const char*)truetxt ); 
-	cb->notify( mCB(this,uiBoolInpFld,selected) );
+	cb->activated.notify( mCB(this,uiBoolInpFld,selected) );
 	butOrGrp = cb;
 	setValue( yn );
 	return; 
@@ -292,12 +298,12 @@ uiBoolInpFld::uiBoolInpFld(uiGenInput* p, const DataInpSpec& spec, const char* n
 
     // we have two labelTxt()'s, so we'll make radio buttons
     uiGroup* grp_ = new uiGroup( p, nm ); 
-    butOrGrp = grp_;
+    butOrGrp = grp_->uiObj();
 
-    rb1 = new uiRadioButton( butOrGrp, truetxt );
-    rb1->notify( mCB(this,uiBoolInpFld,selected) );
-    rb2 = new uiRadioButton( butOrGrp, falsetxt );
-    rb2->notify( mCB(this,uiBoolInpFld,selected) );
+    rb1 = new uiRadioButton( grp_, truetxt );
+    rb1->activated.notify( mCB(this,uiBoolInpFld,selected) );
+    rb2 = new uiRadioButton( grp_, falsetxt );
+    rb2->activated.notify( mCB(this,uiBoolInpFld,selected) );
 
     rb2->attach( rightTo, rb1 );
     grp_->setHAlignObj( rb1 );
@@ -388,7 +394,7 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     if ( spc->otherTxt() )
     {
 	ofrmBut = new uiPushButton( &binidGrp, spc->otherTxt() );
-	ofrmBut->notify( mCB(this,uiBinIDInpFld,otherFormSel) );
+	ofrmBut->activated.notify( mCB(this,uiBinIDInpFld,otherFormSel) );
 
 	ofrmBut->attach( rightTo, &crl_y );
     }
@@ -508,7 +514,7 @@ public:
 				cbb.setCurrentItem( cursel );
 			    init();
 
-			    cbb.selectionchanged.notify( 
+			    cbb.selectionChanged.notify( 
 				mCB(this,uiDataInpFld,changeNotify) );
 			}
 
@@ -612,8 +618,9 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 //-----------------------------------------------------------------------------
 
 
-uiGenInput::uiGenInput( uiObject* p, const char* disptxt, const char* inputStr)
+uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     : uiGroup( p, disptxt )
+    , finalised( false )
     , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
@@ -621,11 +628,13 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt, const char* inputStr)
     , checked_(false), ro(false)
 { 
     inputs += new StringInpSpec( inputStr ); 
+    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
-uiGenInput::uiGenInput( uiObject* p, const char* disptxt
+uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 	    , const DataInpSpec& inp1 )
     : uiGroup( p, disptxt )
+    , finalised( false )
     , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
@@ -633,12 +642,14 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
     , checked_(false), ro(false)
 {
     inputs += inp1.clone();
+    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
-uiGenInput::uiGenInput( uiObject* p, const char* disptxt
+uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 	    , const DataInpSpec& inp1 , const DataInpSpec& inp2 )
     : uiGroup( p, disptxt )
+    , finalised( false )
     , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
@@ -647,13 +658,15 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
 {
     inputs += inp1.clone();
     inputs += inp2.clone();
+    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
-uiGenInput::uiGenInput( uiObject* p, const char* disptxt
+uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 	    , const DataInpSpec& inp1, const DataInpSpec& inp2 
 	    , const DataInpSpec& inp3 )
     : uiGroup( p, disptxt )
+    , finalised( false )
     , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
@@ -663,12 +676,14 @@ uiGenInput::uiGenInput( uiObject* p, const char* disptxt
     inputs += inp1.clone();
     inputs += inp2.clone();
     inputs += inp3.clone();
+    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
 void uiGenInput::addInput( const DataInpSpec& inp )
 {
     inputs += inp.clone();
+    uiObj()->finalising.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
@@ -687,9 +702,9 @@ bool uiGenInput::newSpec(DataInpSpec* nw, int nr)
 
 
 
-void uiGenInput::finalise_()
+void uiGenInput::doFinalise()
 {
-    uiGroup::finalise_();
+    if ( finalised )		return;
     if ( !inputs.size() )	{ pErrMsg("No inputs specified :("); return; }
 
     uiObject* lastElem = &createInpFld( *inputs[0] ).uiObj();
@@ -699,7 +714,7 @@ void uiGenInput::finalise_()
     {
 	cbox = new uiCheckBox( this, name() );
 	cbox->attach( leftTo, lastElem );
-	cbox->notify( mCB(this,uiGenInput,checkBoxSel) );
+	cbox->activated.notify( mCB(this,uiGenInput,checkBoxSel) );
 	setChecked( checked_ );
     }
     else if ( *name() ) 
@@ -714,7 +729,7 @@ void uiGenInput::finalise_()
     if ( selText != "" )
     {
 	selbut = new uiPushButton( this, selText );
-	selbut->notify( mCB(this,uiGenInput,doSelect_) );
+	selbut->activated.notify( mCB(this,uiGenInput,doSelect_) );
 	selbut->attach( rightOf, lastElem );
     }
 
@@ -722,11 +737,13 @@ void uiGenInput::finalise_()
     {
 	clrbut = new uiPushButton( this, "Clear ..." );
 	clrbut->attach( rightOf, selbut ? selbut : lastElem );
-	clrbut->notify( mCB(this,uiGenInput,doClear) );
+	clrbut->activated.notify( mCB(this,uiGenInput,doClear) );
     }
 
     setReadOnly( ro );
     deepErase( inputs ); // have been copied to fields.
+
+    finalised = true;
 }
 
 
