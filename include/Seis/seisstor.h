@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.11 2004-09-03 15:13:14 bert Exp $
+ RCS:		$Id: seisstor.h,v 1.12 2004-09-13 07:52:15 bert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -20,7 +20,7 @@ class Conn;
 class IOObj;
 class SeisTrcBuf;
 class SeisSelData;
-class Seis2DLineGroup;
+class Seis2DLineSet;
 class SeisTrcTranslator;
 
 
@@ -67,10 +67,10 @@ public:
     const SeisTrcTranslator* translator() const
 			{ return trl; }
     // 2D only
-    Seis2DLineGroup*	lineGroup()
-			{ return lgrp; }
-    const Seis2DLineGroup* lineGroup() const
-			{ return lgrp; }
+    Seis2DLineSet*	lineSet()
+			{ return lset; }
+    const Seis2DLineSet* lineSet() const
+			{ return lset; }
 
 protected:
 
@@ -83,7 +83,7 @@ protected:
     int			nrtrcs;
     int			selcomp;
     SeisTrcTranslator*	trl;
-    Seis2DLineGroup*	lgrp;
+    Seis2DLineSet*	lset;
     SeisSelData*	seldata;
     BufferString	errmsg;
 

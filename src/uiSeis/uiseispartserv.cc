@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.14 2004-09-08 07:45:46 bert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.15 2004-09-13 07:52:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid )
     PtrMan<IOObj> ioobj = IOM().get( mid ); \
     if ( !ioobj ) return retval; \
     BufferString fnm = ioobj->fullUserExpr(true); \
-    Seis2DLineGroup grp( fnm );
+    Seis2DLineSet grp( fnm );
 
 void uiSeisPartServer::get2DLineInfo( const MultiID& mid, BufferString& setname,
 				      BufferStringSet& linenames )
@@ -115,7 +115,7 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linenm,
 {
     mGet2DLineGroup(false)
     int lineidx = -1;
-    BufferString linekey = Seis2DLineGroup::lineKey(linenm,attribnm);
+    BufferString linekey = Seis2DLineSet::lineKey(linenm,attribnm);
     for ( int idx=0; idx<grp.nrLines(); idx++ )
     {
 	if ( linekey != grp.lineKey(idx) ) continue;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.12 2004-09-07 16:24:01 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.13 2004-09-13 07:52:15 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,15 +51,15 @@ public:
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
-class Seis2DLineGroup : public UserIDObject
+class Seis2DLineSet : public UserIDObject
 {
 public:
-			Seis2DLineGroup( const char* fnm )
+			Seis2DLineSet( const char* fnm )
 			    	: UserIDObject("")	{ init( fnm ); }
-			Seis2DLineGroup( const Seis2DLineGroup& lg )
+			Seis2DLineSet( const Seis2DLineSet& lg )
 			    	: UserIDObject(lg.name()) { init(lg.fname_); }
-    Seis2DLineGroup&	operator=(const Seis2DLineGroup&);
-    virtual		~Seis2DLineGroup();
+    Seis2DLineSet&	operator=(const Seis2DLineSet&);
+    virtual		~Seis2DLineSet();
 
     const char*		type() const;
     int			nrLines() const			{ return pars_.size(); }

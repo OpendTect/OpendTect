@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.34 2004-09-07 16:24:01 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.35 2004-09-13 07:52:15 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -62,7 +62,7 @@ bool SeisTrcReader::prepareWork()
 	errmsg = "Info for input seismic data not found in Object Manager";
 	return false;
     }
-    if ( (is2d && !lgrp) || (!is2d && !trl) )
+    if ( (is2d && !lset) || (!is2d && !trl) )
     {
 	errmsg = "No data interpreter available for '";
 	errmsg += ioobj->name(); errmsg += "'";
@@ -290,10 +290,10 @@ bool SeisTrcReader::get( SeisTrc& trc )
 
 BufferString SeisTrcReader::lineKey() const
 {
-    if ( lgrp )
+    if ( lset )
     {
-	if ( curlinenr >= 0 && lgrp->nrLines() > curlinenr )
-	    return lgrp->lineKey( curlinenr );
+	if ( curlinenr >= 0 && lset->nrLines() > curlinenr )
+	    return lset->lineKey( curlinenr );
     }
     else if ( ioobj )
 	return ioobj->name();
@@ -331,11 +331,11 @@ bool SeisTrcReader::mkNextFetcher()
 	bool found = false;
 	while ( !found )
 	{
-	    const int nrlines = lgrp->nrLines();
+	    const int nrlines = lset->nrLines();
 	    const char* lkey = seldata->linekeys_.get( curlineidx );
 	    for ( int idx=0; idx<nrlines; idx++ )
 	    {
-		if ( lgrp->lineKey(idx) == lkey )
+		if ( lset->lineKey(idx) == lkey )
 		    { curlinenr = idx; found = true; break; }
 	    }
 	    if ( found )
@@ -349,7 +349,7 @@ bool SeisTrcReader::mkNextFetcher()
 	    found = false;
 	}
     }
-    fetcher = lgrp->lineFetcher( curlinenr, *tbuf, seldata );
+    fetcher = lset->lineFetcher( curlinenr, *tbuf, seldata );
     return fetcher;
 }
 

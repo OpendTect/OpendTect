@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.13 2004-09-07 16:24:01 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.14 2004-09-13 07:52:15 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -332,7 +332,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getReplacer(
 
 Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 						      const IOPar* previop,
-						      const char* lgrpnm )
+						      const char* lsetnm )
 {
     if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
 
@@ -343,8 +343,8 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 	    fnm = CBVSIOMgr::baseFileName(previop->find(sKey::FileName));
 	else
 	{
-	    if ( lgrpnm && *lgrpnm )
-		fnm = lgrpnm;
+	    if ( lsetnm && *lsetnm )
+		fnm = lsetnm;
 	    else
 		fnm = iop.name();
 	    fnm += ".cbvs";

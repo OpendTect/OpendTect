@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.14 2004-09-08 07:45:46 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.15 2004-09-13 07:52:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,19 @@ ________________________________________________________________________
 
 static void adaptCtxt( const IOObjContext& ctxt, SeisSelSetup::Pol2D pol )
 {
-    BufferString deftr( ctxt.trglobexpr );
-    char* ptr = strchr( deftr.buf(), '`' );
-    if ( ptr ) *ptr = '\0';
-    const_cast<IOObjContext*>(&ctxt)->deftransl
-		    = (deftr == "") ? "CBVS" : deftr;
+    BufferString& deftr = const_cast<IOObjContext*>(&ctxt)->deftransl;
+    if ( pol == SeisSelSetup::Only2D )
+	deftr = "2D";
+    else if ( deftr == "2D" )
+    {
+	BufferString dt( ctxt.trglobexpr );
+	char* ptr = strchr( deftr.buf(), '`' );
+	if ( ptr ) *ptr = '\0';
+	if ( dt == "2D" )
+	    deftr = "CBVS";
+	else
+	    deftr = dt;
+    }
 }
 
 
@@ -124,7 +132,7 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 		      bool wclr )
-	: uiIOObjSel( p, c, (c.ctxt.forread?"Input Seismics":"Store as Cube"),
+	: uiIOObjSel( p, c, (c.ctxt.forread?"Input Seismics":"Store as Line Set"),
 		      wclr )
 	, iopar(*new IOPar)
 	, setup(s)

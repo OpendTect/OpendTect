@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.13 2004-09-07 16:24:01 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.14 2004-09-13 07:52:16 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,12 +265,12 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 				? lnmsfld->text() : "" );
 
     BufferString fnm( ioobj.fullUserExpr(true) );
-    Seis2DLineGroup lg( fnm );
+    Seis2DLineSet ls( fnm );
     BufferStringSet lnms;
-    const int sz = lg.nrLines();
+    const int sz = ls.nrLines();
     for ( int idx=0; idx<sz; idx++ )
     {
-	lnms.add( lg.lineKey(idx) );
+	lnms.add( ls.lineKey(idx) );
 	lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
 	const bool prevok = prevlnm != "" && lnms.indexOf(prevlnm) >= 0;
 	lnmsfld->setChecked( prevok );

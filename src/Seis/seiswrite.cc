@@ -42,7 +42,7 @@ void SeisTrcWriter::close()
     delete putter; putter= 0;
     if ( lineiopar )
     {
-	lgrp->commitAdd( lineiopar );
+	lset->commitAdd( lineiopar );
 	lineiopar = 0;
     }
     SeisStoreAccess::close();
@@ -56,7 +56,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg = "Info for output seismic data not found in Object Manager";
 	return false;
     }
-    if ( (is2d && !lgrp) || (!is2d && !trl) )
+    if ( (is2d && !lset) || (!is2d && !trl) )
     {
 	errmsg = "No data storer available for '";
 	errmsg += ioobj->name(); errmsg += "'";
@@ -156,22 +156,22 @@ bool SeisTrcWriter::next2DLine()
     BufferString lk = prevlk;
     if ( attrib != "" )
     {
-	BufferString lnm = Seis2DLineGroup::lineNamefromKey( lk );
+	BufferString lnm = Seis2DLineSet::lineNamefromKey( lk );
 	if ( lnm == "" )
 	{
 	    errmsg = "Cannot write to empty line name";
 	    return false;
 	}
-	lk = Seis2DLineGroup::lineKey( lnm, attrib );
+	lk = Seis2DLineSet::lineKey( lnm, attrib );
     }
 
     delete putter;
     if ( lineiopar )
-	lgrp->commitAdd( lineiopar );
+	lset->commitAdd( lineiopar );
 
     lineiopar = new IOPar;
-    Seis2DLineGroup::setLineKey( *lineiopar, lk );
-    putter = lgrp->lineAdder( lineiopar );
+    Seis2DLineSet::setLineKey( *lineiopar, lk );
+    putter = lset->lineAdder( lineiopar );
     if ( !putter )
     {
 	errmsg = "Cannot create 2D line writer";
