@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.26 2002-11-06 12:58:05 arend Exp $
+ RCS:           $Id: uicombobox.cc,v 1.27 2002-11-21 13:29:59 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,7 +186,7 @@ bool uiComboBox::update( const DataInpSpec& spec )
 
 void uiComboBox::setReadOnly( bool yn )
 { 
-    body_->setEditable(yn);
+    body_->setEditable( !yn );
 }
 
 
