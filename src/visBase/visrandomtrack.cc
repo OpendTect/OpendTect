@@ -8,11 +8,10 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.17 2003-06-02 08:08:26 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.18 2003-07-01 14:25:39 nanne Exp $";
 
 #include "visrandomtrack.h"
 
-#include "errh.h"
 #include "SoRandomTrackLineDragger.h"
 #include "vistexture2.h"
 #include "vistristripset.h"
@@ -20,12 +19,14 @@ static const char* rcsID = "$Id: visrandomtrack.cc,v 1.17 2003-06-02 08:08:26 na
 #include "visevent.h"
 #include "vistexturecoords.h"
 #include "visdataman.h"
+#include "viscoltabmod.h"
 #include "iopar.h"
+#include "errh.h"
 
-#include "Inventor/nodes/SoSwitch.h"
-#include "Inventor/nodes/SoShapeHints.h"
-#include "Inventor/nodes/SoScale.h"
-#include "Inventor/nodes/SoMaterial.h"
+#include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoShapeHints.h>
+#include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoMaterial.h>
 
 
 const char* visBase::RandomTrack::textureidstr = "Texture ID";
@@ -339,6 +340,27 @@ void visBase::RandomTrack::setData( int section, const Array2D<float>& data,
 {
     Texture2* texture = sections[section]->getTexture2();
     texture->setData( &data, (Texture::DataType)type );
+}
+
+
+void visBase::RandomTrack::setColorPars( bool rev, bool useclip,
+                                         const Interval<float>& intv )
+{
+    const int nrsections = sections.size();
+    for ( int idx=0; idx<nrsections; idx++ )
+    {
+	Texture2* texture = sections[idx]->getTexture2();
+	VisColTabMod& ctm = texture->getColTabMod();
+	ctm.doReverse( rev );
+	ctm.useClipping( useclip );
+	useclip ? ctm.setClipRate(intv.start,intv.stop) : ctm.setRange(intv);
+    }
+}
+
+
+const Interval<float>& visBase::RandomTrack::getColorDataRange() const
+{
+    return sections[0]->getTexture2()->getColTabMod().getRange();
 }
 
 
