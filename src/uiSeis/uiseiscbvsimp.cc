@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.28 2004-10-15 15:31:59 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.29 2004-10-20 14:44:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     {
 	inctio_.ctxt.forread = true;
 	inctio_.ctxt.trglobexpr = "CBVS";
-	oinpfld = new uiSeisSel( this, inctio_, SeisSelSetup() );
+	oinpfld = new uiSeisSel( this, inctio_, SeisSelSetup().pol2d(No2D) );
 	oinpfld->selectiondone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
     }
     else
@@ -97,7 +97,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( outctio_.ctxt.stdSelKey() );
-    outfld = new uiSeisSel( this, outctio_, SeisSelSetup() );
+    outfld = new uiSeisSel( this, outctio_, SeisSelSetup().pol2d(No2D) );
     outfld->attach( alignedBelow, transffld );
 }
 
@@ -239,9 +239,10 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
     const char* titl = oinpfld ? "Copying seismic data"
 				: "Importing CBVS seismic cube";
+    const char* attrnm = oinpfld ? oinpfld->attrNm() : "";
     PtrMan<Executor> stp = transffld->getTrcProc( *inctio_.ioobj,
 	    			*outctio_.ioobj, titl, "Loading data",
-				oinpfld->attrNm() );
+				attrnm );
     if ( !stp )
 	return false;
 
