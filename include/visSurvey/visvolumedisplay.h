@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.23 2003-07-01 14:26:25 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.24 2003-10-01 08:12:15 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -98,7 +98,6 @@ public:
     virtual void		fillPar( IOPar&, TypeSet<int>& ) const;
     virtual int			usePar( const IOPar& );
 
-    Notifier<VolumeDisplay>	moved;
     Notifier<VolumeDisplay>	slicemoving;
 
 
