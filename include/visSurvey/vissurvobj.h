@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.19 2004-02-23 12:15:45 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.20 2004-04-27 11:56:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,13 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "callback.h"
 #include "position.h"
+#include "ranges.h"
+
+class AttribSelSpec;
+class ColorAttribSel;
+class AttribSliceSet;
+class CubeSampling;
+class SeisTrc;
 
 namespace visBase { class Transformation; };
 namespace visSurvey
@@ -33,7 +40,64 @@ public:
     virtual NotifierAccess*	getMovementNotification()   { return 0; }
     virtual bool		isInlCrl() const	    { return false; }
 
-    const char*			errMsg() const		    { return errmsg; }
+    const char*		errMsg() const		    { return errmsg; }
+
+    virtual void		getChildren( TypeSet<int>& ) const;
+
+    virtual void		showManipulator(bool yn);
+    virtual bool		isManipulatorShown() const;
+    virtual bool		isManipulated() const;
+    virtual bool		canResetManipulation() const;
+    virtual void		resetManipulation();
+    virtual void		acceptManipulation();
+
+    virtual bool		hasColor() const;
+    virtual bool		hasMaterial() const;
+
+    virtual int			nrResolutions() const;
+    virtual BufferString	getResolutionName(int) const;
+    virtual int			getResolution() const;
+    virtual void		setResolution(int);
+    
+    virtual int			getAttributeFormat() const;
+    				/*<\retval 0	volume
+				   \retval 1	traces
+				   \retval 2	random pos
+				*/
+    virtual bool		hasColorAttribute() const;
+    virtual const AttribSelSpec* getSelSpec() const;
+    virtual const ColorAttribSel* getColorSelSpec() const;
+    virtual const TypeSet<float>* getHistogram() const;
+    virtual int			getColTabID() const;
+
+    virtual void		setSelSpec( const AttribSelSpec& );
+    virtual void		setColorSelSpec(const ColorAttribSel&);
+   
+   				//Volume data 
+    virtual CubeSampling	getCubeSampling() const;
+    virtual bool		setDataVolume( bool color, AttribSliceSet* slc);
+				/*!<\note slc becomes mine */
+    virtual const AttribSliceSet* getCacheVolume( bool color ) const;
+
+    				//Trace-data
+    virtual void		getDataTraceBids(TypeSet<BinID>&) const;
+    virtual Interval<float>	getDataTraceRange() const;
+    virtual void		setTraceData( bool color,
+	    					      ObjectSet<SeisTrc>* trcs);
+    				/*!< trcs becomes mine */
+
+				//Random access
+    virtual void		getDataRandomPos( ObjectSet<
+			    			TypeSet<BinIDZValues> >&) const;
+				/*!< Content of objectset becomes
+				     callers */
+    virtual void		setRandomPosData(bool color,
+	    			    const ObjectSet<const TypeSet<const BinIDZValues> >*);
+    				/*!< The data should have exactly the
+				     same structure as the positions
+				     given in setRandomPosData
+				*/
+
 
 protected:
     BufferString		errmsg;
