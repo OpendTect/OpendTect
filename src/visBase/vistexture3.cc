@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.4 2003-01-10 10:18:23 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.5 2003-01-20 15:56:22 kristofer Exp $";
 
 #include "vistexture3.h"
 
@@ -79,6 +79,6 @@ void visBase::Texture3::setTexture(const unsigned char* imagedata)
 	return;
     }
 
-    texture->images.setValue( SbVec3s( x0sz, x1sz, x2sz ),
+    texture->images.setValue( SbVec3s( x2sz, x1sz, x0sz ),
 	    		     usesTransperancy() ? 4 : 3, imagedata );
 }
