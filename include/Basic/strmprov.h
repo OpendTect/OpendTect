@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.17 2003-12-24 11:07:22 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.18 2004-05-24 11:57:26 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ public:
 
 protected:
 
-    FileNameString	fname;
+    BufferString	fname;
     BufferString	hostname;
     BufferString	rshcomm;
 
