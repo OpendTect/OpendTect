@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.23 2002-04-24 15:11:49 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.24 2002-04-25 13:31:58 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ class CallBack;
 class CubeSampling;
 class AttribSelSpec;
 class AttribSlice;
+class IOPar;
 
 namespace visSurvey
 {
@@ -65,6 +66,9 @@ public:
 
     			//General stuff
     bool		deleteAllObjects();
+
+    void		usePar( const IOPar& );
+    void		fillPar( IOPar& ) const;
 
     enum ElementType    { Inline, Crossline, Timeslice };
     enum ObjectType	{ Unknown, DataDisplay, PickSetDisplay };
