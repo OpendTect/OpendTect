@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.7 2005-01-25 17:27:22 bert Exp $
+ RCS:		$Id: stratunitref.h,v 1.8 2005-01-26 11:54:37 bert Exp $
 ________________________________________________________________________
 
 
@@ -74,8 +74,8 @@ public:
     const Property*	property( const PropertyRef* p ) const
     			{ return gtProp(p); }
 
-    //! Iterator. When constructed, returns unit itself. with next() goes
-    //! to first unit.
+    //! Iterator. When constructed, returns unit itself (regardless of Pol).
+    //!< First next() goes to first (valid) unit.
     class Iter
     {
     public:
