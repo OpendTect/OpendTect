@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.7 2001-10-16 10:04:35 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.8 2002-01-25 17:58:45 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -115,9 +115,10 @@ bool BatchProgram::initOutput()
     if ( !*res || !strcmp(res,"stdout") ) res = 0;
  
 #ifndef __win__
-    if ( res && !strcmp(res,"window") )
+    if ( res && (!strcmp(res,"window") || !strcmp(res,"window +D")) )
     {
 	FileNameString comm( "@disp_text " );
+	if ( *(res+6) == ' ' ) comm += "+D ";
 	comm += name();
 	StreamProvider sp( comm );
 	sdout_ = sp.makeOStream();
