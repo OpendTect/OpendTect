@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.8 2004-08-27 10:14:12 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.9 2004-08-27 12:12:33 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -260,11 +260,10 @@ SeisCBVS2DLinePutter( const char* fnm, const SeisTrcBuf& b, int linenr )
 	, curnr(0)
 	, fname(fnm)
 	, tr(CBVSSeisTrcTranslator::getInstance())
-	, crlrg(SI().crlRange(false))
 	, msg("Writing traces")
 {
     tr->setSingleFile( true );
-    bid.inl = SI().inlRange(false).start + linenr * SI().inlRange(false).step;
+    bid.inl = linenr;
 }
 
 
@@ -277,7 +276,7 @@ SeisCBVS2DLinePutter( const char* fnm, const SeisTrcBuf& b, int linenr )
 void updTrc()
 {
     if ( curnr >= tbuf.size() ) return;
-    bid.crl = crlrg.start + curnr * crlrg.step;
+    bid.crl = curnr;
     trc = const_cast<SeisTrc*>( tbuf.get( curnr ) );
     oldbid = trc->info().binid;
     trc->info().binid = bid;
@@ -319,7 +318,6 @@ int			totalNr() const		{ return tbuf.size(); }
 
     int			curnr;
     int			inl;
-    StepInterval<int>	crlrg;
     const SeisTrcBuf&	tbuf;
     BufferString	fname;
     BufferString	msg;
