@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.10 2004-01-23 12:51:11 dgb Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.11 2004-01-23 13:29:37 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,18 +70,23 @@ const char* getCygDir()
 static void showProgrDoc()
 {
 
-    BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
 
-    getstarted = File_getFullPath( getstarted,
 #ifdef __win__
-						"windows.html"
-#else
-						"unix.html"
-#endif
-    );
 
+    BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
+    getstarted = File_getFullPath( getstarted, "windows.html");
+
+    BufferString docpath( GetDataFileName(getstarted) );
+
+    ShellExecute(NULL,"open",docpath,NULL,NULL,SW_NORMAL);
+
+#else
+
+    BufferString getstarted = File_getFullPath( "dTectDoc", "Programmer" );
+    getstarted = File_getFullPath( getstarted, "unix.html");
     HelpViewer::doHelp( getstarted, 
 		    "Get started with OpendTect development" );
+#endif
 }
 
 
@@ -153,7 +158,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	if ( ! uiMSG().askGoOn(msg) )
 	{
-	    uiMSG().message( "Please run the Cygwin (bash) shell"
+	    uiMSG().message( "Please run the Cygwin (bash) shell "
 			     "at least once after the installation.\n\n"
 			     "This will make sure you have a Cygwin home "
 			     "directory for your work environment.\n\n"
