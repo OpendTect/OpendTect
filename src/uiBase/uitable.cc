@@ -4,25 +4,24 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.12 2003-06-27 16:04:32 bert Exp $
+ RCS:           $Id: uitable.cc,v 1.13 2003-09-08 13:03:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uitable.h>
-#include <uifont.h>
-#include <uidobjset.h>
-#include <uilabel.h>
-#include <uiobjbody.h>
-#include <uimenu.h>
+#include "uitable.h"
+#include "i_qtable.h"
 
+#include "uifont.h"
+#include "uidobjset.h"
+#include "uilabel.h"
+#include "uiobjbody.h"
+#include "uimenu.h"
+#include "uicombobox.h"
+#include "basictypes.h"
+#include "pixmap.h"
 
-#include <qsize.h> 
-#include <sets.h> 
-#include <i_qtable.h>
-
-#include <basictypes.h>
-#include <uicombobox.h>
+#include <qcolor.h>
 
 
 class Input
@@ -84,13 +83,13 @@ public:
 			}
 
 
-    UserInputObj*	mkUsrInputObj( const uiTable::Pos& pos )
+    UserInputObj*	mkUsrInputObj( const uiTable::RowCol& rc )
 			{
 
 			    uiComboBox* cbb = new uiComboBox(0);
 			    QWidget* widg = cbb->body()->qwidget();
 
-			    setCellWidget( pos.y(), pos.x(), widg );
+			    setCellWidget( rc.row, rc.col, widg );
 
 			    inputs += new Input( cbb, widg );
 
@@ -98,9 +97,9 @@ public:
 			}
 
 
-    UserInputObj*	usrInputObj( const uiTable::Pos& pos )
+    UserInputObj*	usrInputObj( const uiTable::RowCol& rc )
 			{
-			    QWidget* w = cellWidget( pos.y(), pos.x() );
+			    QWidget* w = cellWidget( rc.row, rc.col );
 			    if ( !w ) return 0;
 
 			    for ( int idx=0; idx < inputs.size(); idx ++ )
@@ -112,9 +111,9 @@ public:
 			}
 
 
-    void		delUsrInputObj( const uiTable::Pos& pos )
+    void		delUsrInputObj( const uiTable::RowCol& rc )
 			{
-			    QWidget* w = cellWidget( pos.y(), pos.x() );
+			    QWidget* w = cellWidget( rc.row, rc.col );
 			    if ( !w ) return;
 
 			    Input* inp=0;
@@ -124,7 +123,7 @@ public:
 				    { inp = inputs[idx]; break; }
 			    }
 
-			    clearCellWidget( pos.y(), pos.x() );
+			    clearCellWidget( rc.row, rc.col );
 			    if ( inp )	{ inputs -= inp; delete inp; }
 			}
 
@@ -145,6 +144,8 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , setup_( s )
     , valueChanged( this )
     , clicked( this )
+    , rightClicked( this )
+    , leftClicked( this )
     , doubleClicked( this )
     , rowInserted( this )
     , colInserted( this )
@@ -188,26 +189,42 @@ void uiTable::setNrRows( int nr )		{ body_->setLines( nr + 1 ); }
 void uiTable::setNrCols( int nr )		{ body_->setNumCols( nr ); }
 
 
-void uiTable::setText( const Pos& pos, const char* txt )
-    { body_->setText( pos.y(), pos.x(), txt ); }
+void uiTable::setText( const RowCol& rc, const char* txt )
+    { body_->setText( rc.row, rc.col, txt ); }
 
 
-void uiTable::clearCell( const Pos& pos )
-    { body_->clearCell( pos.y(), pos.x() ); }
+void uiTable::clearCell( const RowCol& rc )
+    { body_->clearCell( rc.row, rc.col ); }
 
 
-void uiTable::setCurrentCell( const Pos& pos )
-    { body_->setCurrentCell( pos.y(), pos.x() ); }
+void uiTable::setCurrentCell( const RowCol& rc )
+    { body_->setCurrentCell( rc.row, rc.col ); }
 
 
-const char* uiTable::text( const Pos& pos ) const
+const char* uiTable::text( const RowCol& rc ) const
 {
-    if ( usrInputObj(pos) )
-	rettxt_ = usrInputObj(pos)->text();
+    if ( usrInputObj(rc) )
+	rettxt_ = usrInputObj(rc)->text();
     else
-	rettxt_ = body_->text( pos.y(), pos.x() );
+	rettxt_ = body_->text( rc.row, rc.col );
     return rettxt_;
 }
+
+
+void uiTable::setColumnReadOnly( int col, bool yn )
+    { body_->setColumnReadOnly( col, yn ); }
+
+
+void uiTable::setRowReadOnly( int row, bool yn )
+    { body_->setRowReadOnly( row, yn ); }
+
+
+bool uiTable::isColumnReadOnly( int col ) const
+    { return body_->isColumnReadOnly(col); }
+
+
+bool uiTable::isRowReadOnly( int row ) const
+    { return body_->isRowReadOnly(row); }
 
 
 void uiTable::setColumnStretchable( int col, bool stretch )
@@ -226,16 +243,41 @@ bool uiTable::isRowStretchable( int row ) const
     { return body_->isRowStretchable(row); }
 
 
-UserInputObj* uiTable::mkUsrInputObj( const Pos& pos )
-    { return body_->mkUsrInputObj(pos); }
+UserInputObj* uiTable::mkUsrInputObj( const RowCol& rc )
+    { return body_->mkUsrInputObj(rc); }
 
 
-void uiTable::delUsrInputObj( const Pos& pos )
-    { body_->delUsrInputObj(pos); }
+void uiTable::delUsrInputObj( const RowCol& rc )
+    { body_->delUsrInputObj(rc); }
 
 
-UserInputObj* uiTable::usrInputObj(const Pos& pos)
-    { return body_->usrInputObj(pos); }
+UserInputObj* uiTable::usrInputObj( const RowCol& rc )
+    { return body_->usrInputObj(rc); }
+
+
+void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
+{
+    body_->setPixmap( rc.row, rc.col, *pm.Pixmap() );
+}
+
+
+void uiTable::setColor( const RowCol& rc, const Color& col )
+{
+    QRect rect = body_->cellRect( rc.row, rc.col );
+    QPixmap pix( rect.width(), rect.height() );
+    QColor qcol( col.r(), col.g(), col.b() );
+    pix.fill( qcol );
+    body_->setPixmap( rc.row, rc.col, pix );
+    body_->setFocus();
+    body_->setText( rc.row, rc.col, qcol.name() );
+}
+
+
+const Color uiTable::getColor( const RowCol& rc ) const
+{
+    QColor qcol( text(rc) );
+    return Color( qcol.red(), qcol.green(), qcol.blue() );
+}
 
 
 const char* uiTable::rowLabel( int nr ) const
@@ -258,16 +300,13 @@ void uiTable::setRowLabel( int row, const char* label )
 
 void uiTable::setRowLabels( const char** labels )
 {
-    const char* pt_cur = *labels;
-
     int nlabels=0;
-    while ( pt_cur ) { nlabels++; pt_cur++; }
-    body_->setLines( nlabels + 1 );
+    while ( labels[nlabels] )
+	nlabels++;
 
-    pt_cur = *labels;
-    int idx=0;
-    while ( pt_cur ) 
-	setRowLabel( idx++, pt_cur++ );
+    body_->setLines( nlabels + 1 );
+    for ( int idx=0; idx<nlabels; idx++ )
+	setRowLabel( idx, labels[idx] );
 }
 
 
@@ -300,16 +339,13 @@ void uiTable::setColumnLabel( int col, const char* label )
 
 void uiTable::setColumnLabels( const char** labels )
 {
-    const char* pt_cur = *labels;
-
     int nlabels=0;
-    while ( pt_cur ) { nlabels++; pt_cur++; }
-    body_->setNumCols( nlabels );
+    while ( labels[nlabels] )
+	nlabels++;
 
-    pt_cur = *labels;
-    int idx=0;
-    while ( pt_cur ) 
-	setColumnLabel( idx++, pt_cur++ );
+    body_->setNumCols( nlabels );
+    for ( int idx=0; idx<nlabels; idx++ )
+	setColumnLabel( idx, labels[idx] );
 }
 
 
@@ -322,57 +358,57 @@ void uiTable::setColumnLabels( const ObjectSet<BufferString>& labels )
 }
 
 
-int uiTable::getIntValue( const Pos& p ) const
+int uiTable::getIntValue( const RowCol& rc ) const
 {
-    if ( usrInputObj(p) )
-	return usrInputObj(p)->getIntValue();
+    if ( usrInputObj(rc) )
+	return usrInputObj(rc)->getIntValue();
 
-    return convertTo<int>( text(p) );
+    return convertTo<int>( text(rc) );
 }
 
 
-double uiTable::getValue( const Pos& p ) const
+double uiTable::getValue( const RowCol& rc ) const
 {
-    if ( usrInputObj(p) )
-	return usrInputObj(p)->getValue();
+    if ( usrInputObj(rc) )
+	return usrInputObj(rc)->getValue();
 
-    return convertTo<double>( text(p) );
+    return convertTo<double>( text(rc) );
 }
 
 
-float uiTable::getfValue( const Pos& p ) const
+float uiTable::getfValue( const RowCol& rc ) const
 {
-    if ( usrInputObj(p) )
-	return usrInputObj(p)->getfValue();
+    if ( usrInputObj(rc) )
+	return usrInputObj(rc)->getfValue();
 
-    return convertTo<float>( text(p) );
+    return convertTo<float>( text(rc) );
 }
 
 
-void uiTable::setValue( const Pos& p, int i )
+void uiTable::setValue( const RowCol& rc, int i )
 {
-    if ( usrInputObj(p) )
-	usrInputObj(p)->setValue(i);
+    if ( usrInputObj(rc) )
+	usrInputObj(rc)->setValue(i);
 
-    setText(p, convertTo<const char*>(i) );
+    setText( rc, convertTo<const char*>(i) );
 }
 
 
-void uiTable::setValue( const Pos& p, float f )
+void uiTable::setValue( const RowCol& rc, float f )
 {
-    if ( usrInputObj(p) )
-	usrInputObj(p)->setValue(f);
+    if ( usrInputObj(rc) )
+	usrInputObj(rc)->setValue(f);
 
-    setText( p, convertTo<const char*>(f) );
+    setText( rc, convertTo<const char*>(f) );
 }
 
 
-void uiTable::setValue( const Pos& p, double d )
+void uiTable::setValue( const RowCol& rc, double d )
 {
-    if ( usrInputObj(p) )
-	usrInputObj(p)->setValue(d);
+    if ( usrInputObj(rc) )
+	usrInputObj(rc)->setValue(d);
 
-    setText( p, convertTo<const char*>(d) );
+    setText( rc, convertTo<const char*>(d) );
 }
 
 
@@ -395,16 +431,19 @@ void uiTable::clicked_( CallBacker* cb )
     mCBCapsuleUnpack(const uiMouseEvent&,ev,cb);
 
     if ( ev.buttonState() & uiMouseEvent::RightButton )
-	{ rightClk(); return; }
+	{ rightClk(); rightClicked.trigger(); return; }
+
+    if ( ev.buttonState() & uiMouseEvent::LeftButton )
+	leftClicked.trigger();
 
     if ( setup_.snglclkedit_ )
-	editCell( notifpos_, false );
+	editCell( notifcell_, false );
 }
 
 
-void uiTable::editCell( const Pos& p, bool replace )
+void uiTable::editCell( const RowCol& rc, bool replace )
 {
-    body_->editCell( p.y(), p.x(), replace );
+    body_->editCell( rc.row, rc.col, replace );
 }
 
 
@@ -445,40 +484,40 @@ void uiTable::rightClk()
     int ret = mnu->exec();
     if ( !ret ) return;
 
-    Pos cur = notifiedPos();
+    RowCol cur = notifiedCell();
 
     if ( ret == inscolbef || ret == inscolaft )
     {
 	const int offset = (ret == inscolbef) ? 0 : 1;
-	newpos_ = Pos( cur.x() + offset, cur.y() );
-	insertColumns( newpos_ );
+	newcell_ = RowCol( cur.row, cur.col + offset );
+	insertColumns( newcell_ );
 
-	BufferString label( newpos_.x() );
-	setColumnLabel( newpos_, label );
+	BufferString label( newcell_.col );
+	setColumnLabel( newcell_, label );
 
 	colInserted.trigger();
     }
     else if ( ret == delcol )
     {
-	removeColumn( cur.x() );
+	removeColumn( cur.col );
     }
     else if ( ret == insrowbef || ret == insrowaft  )
     {
 	const int offset = (ret == insrowbef) ? 0 : 1;
-	newpos_ = Pos( cur.x(), cur.y() + offset );
-	insertRows( newpos_ );
+	newcell_ = RowCol( cur.row + offset, cur.col );
+	insertRows( newcell_ );
 
-	BufferString label( newpos_.y() );
-	setRowLabel( newpos_, label );
+	BufferString label( newcell_.row );
+	setRowLabel( newcell_, label );
 
 	rowInserted.trigger();
     }
     else if ( ret == delrow )
     {
-	removeRow( cur.y() );
+	removeRow( cur.row );
     }
 
-    setCurrentCell( newpos_ );
+    setCurrentCell( newcell_ );
     updateCellSizes();
 }
 

@@ -1,5 +1,5 @@
-#ifndef uiTable_H
-#define uiTable_H
+#ifndef uitable_h
+#define uitable_h
 
 /*+
 ________________________________________________________________________
@@ -7,20 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.9 2003-06-27 16:04:23 bert Exp $
+ RCS:           $Id: uitable.h,v 1.10 2003-09-08 13:03:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uigroup.h>
-#include <uimouse.h>
+#include "uigroup.h"
+#include "color.h"
+
 class PtrUserIDObjectSet;
 class uiLabel;
 class uiTableBody;
 class UserInputObj;
-
-template <class T> class ObjectSet;
+class ioPixmap;
 class BufferString;
+class uiMouseEvent;
 
 
 class uiTable : public uiObject
@@ -28,7 +29,16 @@ class uiTable : public uiObject
 friend class		i_tableMessenger;
 public:
 
-    typedef Point<int>	Pos;
+    class RowCol
+    {
+    public:
+			RowCol(int r=0,int c=0)
+			    : row(r), col(c) {}
+
+	int		row;
+	int		col;
+    };
+
     typedef Size2D<int>	Size;
 
     enum SelectionMode
@@ -92,10 +102,10 @@ public:
     virtual 		~uiTable();
 
 
-    const char*		text(const Pos&) const;
-    void		setText(const Pos&,const char*);
-    void		clearCell(const Pos&);
-    void		setCurrentCell( const Pos& );
+    const char*		text(const RowCol&) const;
+    void		setText(const RowCol&,const char*);
+    void		clearCell(const RowCol&);
+    void		setCurrentCell( const RowCol& );
 
 
     int			nrRows() const;
@@ -120,73 +130,84 @@ public:
     bool		isColumnStretchable( int col ) const;
     bool		isRowStretchable( int row ) const;
 
+    void		setColumnReadOnly(int,bool);
+    bool		isColumnReadOnly(int) const;
+    void		setRowReadOnly(int,bool);
+    bool		isRowReadOnly(int) const;
+
     void		insertRows( int row, int count = 1 );
-    void		insertRows( const Pos& p, int count = 1 )
-			    { insertRows( p.y(), count ); }
+    void		insertRows( const RowCol& rc, int count = 1 )
+			    { insertRows( rc.row, count ); }
     void		insertColumns( int col, int count = 1 );
-    void		insertColumns( const Pos& p, int count = 1 )
-			    { insertColumns( p.x(), count ); }
+    void		insertColumns( const RowCol& rc, int count = 1 )
+			    { insertColumns( rc.col, count ); }
     void		removeRow( int row );
-    void		removeRow( const Pos& p )
-			    { removeRow( p.y() ); }
+    void		removeRow( const RowCol& rc )
+			    { removeRow( rc.row ); }
     void		removeColumn( int col );
-    void		removeColumn( const Pos& p )
-			    { removeColumn( p.x() ); }
+    void		removeColumn( const RowCol& rc )
+			    { removeColumn( rc.col ); }
 
     const char*		rowLabel(int) const;
-    const char*		rowLabel( const Pos& p ) const
-			    { return rowLabel(p.y()); }
+    const char*		rowLabel( const RowCol& rc ) const
+			    { return rowLabel(rc.row); }
     void		setRowLabel( int row, const char* label );
     void		setRowLabels( const char** labels );
     void		setRowLabels( const ObjectSet<BufferString>& labels );
-    void		setRowLabel( const Pos& p, const char* label )
-			    { setRowLabel( p.y(), label ); }
+    void		setRowLabel( const RowCol& rc, const char* label )
+			    { setRowLabel( rc.row, label ); }
 
     const char*		columnLabel(int) const;
-    const char*		columnLabel( const Pos& p ) const
-			    { return columnLabel(p.x()); }
+    const char*		columnLabel( const RowCol& rc ) const
+			    { return columnLabel(rc.col); }
     void		setColumnLabel( int col, const char* label );
     void		setColumnLabels( const char** labels );
     void		setColumnLabels( const ObjectSet<BufferString>& labels);
-    void		setColumnLabel( const Pos& p, const char* label )
-			    { setColumnLabel( p.x(), label ); }
+    void		setColumnLabel( const RowCol& rc, const char* label )
+			    { setColumnLabel( rc.col, label ); }
 
     Setup&		setup() 		{ return setup_; }
     const Setup&	setup() const		{ return setup_; }
 
-    Pos			notifiedPos() const	{ return notifpos_; }
+    RowCol		notifiedCell() const	{ return notifcell_; }
     Notifier<uiTable>	valueChanged;
-    CNotifier<uiTable,const uiMouseEvent&>	clicked;
+    Notifier<uiTable>	leftClicked;
+    Notifier<uiTable>	rightClicked;
     Notifier<uiTable>	doubleClicked;
 
-    Pos			newPos() const		{ return newpos_; }
+    RowCol		newCell() const		{ return newcell_; }
     Notifier<uiTable>	rowInserted;
     Notifier<uiTable>	colInserted;
 
-    UserInputObj*	mkUsrInputObj(const Pos&);
-    void		delUsrInputObj(const Pos&);
-    UserInputObj*	usrInputObj(const Pos&);
-    const UserInputObj*	usrInputObj(const Pos& p ) const
+    UserInputObj*	mkUsrInputObj(const RowCol&);
+    void		delUsrInputObj(const RowCol&);
+    UserInputObj*	usrInputObj(const RowCol&);
+    const UserInputObj*	usrInputObj(const RowCol& p ) const
 			  { return const_cast<uiTable*>(this)->usrInputObj(p); }
 
-    int			getIntValue(const Pos&) const;
-    double		getValue(const Pos&) const;
-    float		getfValue(const Pos&) const;
-    void		setValue(const Pos&,int);
-    void		setValue(const Pos&,float);
-    void		setValue(const Pos&,double);
+    void		setPixmap(const RowCol&,const ioPixmap&);
+    void		setColor(const RowCol&,const Color&);
+    const Color		getColor(const RowCol&) const;
+
+    int			getIntValue(const RowCol&) const;
+    double		getValue(const RowCol&) const;
+    float		getfValue(const RowCol&) const;
+    void		setValue(const RowCol&,int);
+    void		setValue(const RowCol&,float);
+    void		setValue(const RowCol&,double);
 
     void		setSelectionMode( SelectionMode );
-    void		editCell( const Pos& p, bool replace=false );
+    void		editCell(const RowCol&,bool replace=false);
 
 protected:
 
-    Pos			notifpos_;
-    Pos			newpos_;
+    RowCol		notifcell_;
+    RowCol		newcell_;
 
     mutable Setup	setup_;
     mutable BufferString rettxt_;
 
+    CNotifier<uiTable,const uiMouseEvent&>	clicked;
     void		clicked_(CallBacker*);
     void		rightClk();
 
