@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.38 2004-02-23 12:13:12 nanne Exp $
+ RCS:		$Id: survinfo.h,v 1.39 2004-03-01 14:44:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,8 +111,8 @@ public:
     virtual Coord	maxCoord(bool work=true) const;
     bool		isReasonable(const BinID&) const;
 			//!< Checks if in or near survey
-    inline bool		isReasonable( const Coord& c ) const
-			{ return isReasonable( transform(c) ); }
+    bool		isReasonable(const Coord&) const;
+			//!< Checks if in or near survey
 
     			// Project name will be stored
     const char*		getWSProjName() const
