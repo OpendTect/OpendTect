@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.4 2005-02-03 09:11:50 kristofer Exp $
+ RCS:		$Id: refcount.h,v 1.5 2005-02-04 09:29:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,20 @@ public:
     //Your class stuff
 };
 \endcode
+
+If you don't want a destructor on your class use the mRefCountImplNoDestructor
+instead:
+
+\code
+class A
+{
+    mRefCountImplNoDestructor(A);
+public:
+        //Your class stuff
+};
+\endcode
+
+
 
 The macro will define a protected destructor, so you have to implement one
 (even if it's a dummy {}). In your constructor, you have to put the mRefCountConstructor macro:
@@ -59,7 +73,7 @@ PtrMan.
 #define mRefCountConstructor \
 __refcount = 0
 
-#define mRefCountImpl(ClassName) \
+#define mRefCountImplWithDestructor(ClassName, DestructorImpl ) \
 public: \
     void	ref() const \
 		{ \
@@ -84,7 +98,7 @@ public: \
 private: \
     int		__refcount;	\
 protected: \
-    virtual	~ClassName();	\
+    		DestructorImpl; \
 private:
 
 
@@ -98,6 +112,14 @@ template <class T> inline void deep##funcname( ObjectSet<T>& set )\
 \
    extra;\
 }
+
+
+#define mRefCountImpl(ClassName) \
+mRefCountImplWithDestructor(ClassName, virtual ~ClassName() );
+
+#define mRefCountImplNoDestructor(ClassName) \
+mRefCountImplWithDestructor(ClassName,  );
+
 
 mDeepRef(UnRef,unRef, set.erase() );
 mDeepRef(Ref,ref,);
