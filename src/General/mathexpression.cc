@@ -96,6 +96,7 @@ MathExpression* MathExpression::parse( const char* input )
     int len = strlen( input );
 
     ArrPtrMan<char> str = new char[len+1];
+    str[0]=0;
 
     int pos = 0;
     for ( int idx=0; idx<len; idx++ )
