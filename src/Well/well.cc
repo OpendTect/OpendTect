@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.8 2003-08-26 15:37:35 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.9 2003-09-04 14:50:29 nanne Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -146,7 +146,7 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
     float z2 = pos_[idx2].z;
     float dah1 = dah_[idx1];
     float dah2 = dah_[idx2];
-    return ((z-z1) * dah2 + (z2-z) * dah1) / (dah2 + dah1);
+    return ((z-z1) * dah2 + (z2-z) * dah1) / (z2-z1);
 }
 
 
