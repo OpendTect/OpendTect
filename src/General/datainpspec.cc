@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.9 2005-01-12 16:13:43 arend Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.10 2005-01-27 10:22:31 kristofer Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -26,6 +26,15 @@ DataInpSpec::DataInpSpec( const DataInpSpec& o )
 
 DataType DataInpSpec::type() const
 { return tp_; }
+
+
+bool DataInpSpec::isInsideLimits(int idx) const
+{
+    if ( hasLimits() )
+	pErrMsg("function must be defined on inheriting class");
+
+    return !isUndef(idx);
+}
 
 
 void DataInpSpec::fillPar(IOPar& par) const
@@ -57,7 +66,10 @@ bool DataInpSpec::usePar(const IOPar& par)
     }
 
     for ( int idx=0; idx<nElems(); idx++ )
-	setText( values.get(idx), idx );
+    {
+	if ( !setText( values.get(idx), idx ) )
+	    return false;
+    }
 
     return true;
 }
@@ -131,9 +143,10 @@ const char* StringInpSpec::text() const
     return (const char*) str;
 }
 
-void StringInpSpec::setText( const char* s, int idx )
+bool StringInpSpec::setText( const char* s, int idx )
 {
     str = s; isUndef_ = s ? false : true;
+    return true;
 }
 
 
@@ -201,9 +214,10 @@ const char* BoolInpSpec::text( int idx ) const
 }
 
 
-void BoolInpSpec::setText( const char* s, int idx )
+bool BoolInpSpec::setText( const char* s, int idx )
 {
     yn = s && strcmp(s,falsetext);
+    return true;
 }
 
 
@@ -269,12 +283,16 @@ void StringListInpSpec::setItemText( int idx, const char* s )
 { *strings_[cur_] = s; }
 
 
-void StringListInpSpec::setText( const char* s, int nr )
+bool StringListInpSpec::setText( const char* s, int nr )
 {
     for ( int idx=0; idx<strings_.size(); idx++ )
-	if ( *strings_[idx] == s )
-    { cur_ = idx; return; }
+    {
+	if ( *strings_[idx] == s ) { cur_ = idx; return true; }
+    }
+
+    return false;
 }
+
 
 int StringListInpSpec::getIntValue( int idx ) const
 { return cur_; }
@@ -346,8 +364,8 @@ const char* BinIDCoordInpSpec::text( int idx ) const
 }
 
 
-void BinIDCoordInpSpec::setText( const char* s, int idx ) 
-{ getFromString( (idx ? crl_y : inl_x), s); }
+bool BinIDCoordInpSpec::setText( const char* s, int idx ) 
+{ return getFromString( (idx ? crl_y : inl_x), s); }
 
 
 const char* BinIDCoordInpSpec::otherTxt() const

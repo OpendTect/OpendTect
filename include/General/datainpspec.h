@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.52 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.53 2005-01-27 10:22:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,9 +91,10 @@ public:
     virtual bool	isUndef( int idx=0 ) const	=0;
 
     virtual bool	hasLimits() const		{ return false; }
+    virtual bool	isInsideLimits(int idx=0) const;
 
     virtual const char*	text( int idx=0 ) const		=0;
-    virtual void	setText( const char*, int idx=0)=0;
+    virtual bool	setText( const char*, int idx=0)=0;
 
     void		fillPar(IOPar&) const;
     			/*!\Saves the _values_ (from text()) */
@@ -150,8 +151,8 @@ public:
     virtual bool	isUndef( int idx=0 ) const	
 			    { return isUndefined(value_); }
 
-    virtual void	setText( const char* s, int idx=0 )
-			    { getFromString( value_, s ); }
+    virtual bool	setText( const char* s, int idx=0 )
+			    { return getFromString( value_, s ); }
 
     T			value() const	
 			{
@@ -166,7 +167,15 @@ public:
 			}
 
     virtual bool	hasLimits() const		{ return limits_; }
-    const Interval<T>*	limits()			{ return limits_; }
+    virtual bool	isInsideLimits(int idx=0) const
+			{
+			    if ( isUndef(idx) ) return false;
+			    if ( !limits_ ) return true;
+
+			    return limits_->includes( value() );
+			}
+
+    const Interval<T>*	limits() const			{ return limits_; }
     NumInpSpec<T>&	setLimits( const Interval<T>& r)
 			{
 			    delete limits_;
@@ -249,10 +258,11 @@ public:
 				interval_ = intval.clone();
 			    }
 
-    virtual void	setText( const char* s, int idx=0 )
+    virtual bool	setText( const char* s, int idx=0 )
 			    { 
 				if ( pt_value_(idx) ) 
-				    getFromString( *pt_value_(idx), s ); 
+				    return getFromString( *pt_value_(idx), s ); 
+				return false;
 			    }
 
     T			value( int idx=0 ) const
@@ -269,6 +279,13 @@ public:
 
     virtual bool	hasLimits() const	
 			    { return startlimits_||stoplimits_||steplimits_; }
+    virtual bool	isInsideLimits(int idx=0) const
+			    {
+				if ( isUndef(idx) ) return false;
+				const Interval<T>* limits_ = limits(idx);
+				if ( !limits_ ) return true;
+				return limits_->includes( value(idx) );
+			    }
 
 
 			/*! \brief gets limits for interval components.
@@ -277,7 +294,7 @@ public:
 			    idx =  1: returns stop limits
 			    idx =  2: returns step limits
 			*/
-    const Interval<T>*	limits( int idx=0 )
+    const Interval<T>*	limits( int idx=0 ) const
 			    {
 				switch( idx )
 				{
@@ -378,7 +395,7 @@ public:
     virtual DataInpSpec* clone() const;
     const char*		text() const;
 
-    virtual void	setText( const char* s, int idx=0 ) ;
+    virtual bool	setText( const char* s, int idx=0 ) ;
     virtual const char*	text( int idx ) const;
 protected:
 
@@ -425,7 +442,7 @@ public:
     void		setChecked( bool yesno );
     virtual const char*	text( int idx=0 ) const;
 
-    virtual void	setText( const char* s, int idx=0 );
+    virtual bool	setText( const char* s, int idx=0 );
     virtual bool	getBoolValue( int idx=0 ) const;
     virtual void	setValue( bool b, int idx=0 );
 
@@ -459,7 +476,7 @@ public:
     void		addString( const char* txt );
     virtual const char*	text( int idx=0 ) const;
     void		setItemText( int idx, const char* s );
-    virtual void	setText( const char* s, int nr );
+    virtual bool	setText( const char* s, int nr );
 
     virtual int		getIntValue( int idx=0 ) const;
     virtual double	getValue( int idx=0 ) const;
@@ -495,7 +512,7 @@ public:
     double		value( int idx=0 ) const;
     virtual bool	isUndef( int idx=0 ) const;
     virtual const char*	text( int idx=0 ) const;
-    virtual void	setText( const char* s, int idx=0 );
+    virtual bool	setText( const char* s, int idx=0 );
 
     const char*		otherTxt() const;
     const BinID2Coord*	binID2Coord() const;
