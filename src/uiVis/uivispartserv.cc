@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.115 2003-01-22 12:08:14 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.116 2003-01-23 13:13:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,8 +176,12 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
     if ( !scene ) return -1;
 
     visSurvey::SurfaceDisplay* horizon = visSurvey::SurfaceDisplay::create();
-    PtrMan<Executor> exec = horizon->setSurfaceId( emhorid );
+    horizon->turnOn( false );
+    scene->addObject( horizon ); //Must be done before loading surface
+    				 //Otherwise the transform won't be set
 
+
+    PtrMan<Executor> exec = horizon->setSurfaceId( emhorid );
     if ( !exec )
     {
 	horizon->ref(); horizon->unRef();
@@ -193,7 +197,7 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
     }
 
     horizon->setZValues();
-    scene->addObject( horizon );
+    horizon->turnOn( true );
 
     setUpConnections( horizon->id() );
     return horizon->id();
@@ -689,15 +693,13 @@ BufferString uiVisPartServer::getAttribName( int id ) const
 
     BufferString res;
     mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj);
-    if ( vd )
-	res = vd->getAttribSelSpec().userRef();
+    if ( vd ) res = vd->getAttribSelSpec().userRef();
 
     mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,dobj);
-    if ( rtd ) return true;
+    if ( rtd ) rtd->getAttribSelSpec().userRef();
 
     mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj);
-    if ( pdd )
-	res = pdd->getAttribSelSpec().userRef();
+    if ( pdd ) res = pdd->getAttribSelSpec().userRef();
 
     mDynamicCastGet(const visSurvey::SurfaceDisplay*,surface,dobj);
     if ( surface ) 
@@ -1559,11 +1561,26 @@ bool uiVisPartServer::isManipulated( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,obj);
-    if ( !pdd ) return false;
+    if ( pdd ) 
+	return pdd->getCubeSampling( true )!=pdd->getCubeSampling( false );
 
-    const CubeSampling& manippos = pdd->getCubeSampling( true );
-    const CubeSampling& rectpos = pdd->getCubeSampling( false );
-    return !(manippos == rectpos);
+    mDynamicCastGet(visSurvey::VolumeDisplay*, vd, obj );
+    if ( vd )
+	return vd->manipCenter()!=vd->center() || vd->manipWidth()!=vd->width();
+
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*, rtd, obj );
+    if ( rtd )
+    {
+	for ( int idx=0; idx<rtd->nrKnots(); idx++ )
+	{
+	    if ( rtd->getKnotPos(idx)!=rtd->getManipKnotPos(idx) )
+		return true;
+	}
+
+	return rtd->getDepthInterval()!=rtd->getManipDepthInterval();
+    }
+
+    return false;
 }
 
 
@@ -1575,6 +1592,13 @@ void uiVisPartServer::acceptManipulation( int id )
     {
 	pdd->setCubeSampling( pdd->getCubeSampling(true));
 	pdd->resetManip();
+    }
+
+    mDynamicCastGet(visSurvey::VolumeDisplay*, vd, obj );
+    if ( vd )
+    {
+	vd->setCubeSampling( vd->getCubeSampling(true) );
+	vd->resetManip();
     }
 }
 
