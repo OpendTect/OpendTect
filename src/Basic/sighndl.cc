@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.5 2002-06-26 16:34:41 bert Exp $
+ RCS:           $Id: sighndl.cc,v 1.6 2002-09-02 09:55:50 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.5 2002-06-26 16:34:41 bert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.6 2002-09-02 09:55:50 bert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -62,7 +62,6 @@ SignalHandling::SignalHandling()
 #define mCatchSignal(nr) (void)signal( nr, &SignalHandling::handle )
 
     // Fatal stuff
-    mCatchSignal( SIGHUP );	/* Hangup */
     mCatchSignal( SIGINT );	/* Interrupt */
     mCatchSignal( SIGQUIT );	/* Quit */
     mCatchSignal( SIGILL );	/* Illegal instruction */
@@ -99,6 +98,7 @@ SignalHandling::SignalHandling()
     mCatchSignal( SIGTSTP );	/* Software stop process (e.g. ) */
     mCatchSignal( SIGCONT );	/* Continue after stop */
     mCatchSignal( SIGPIPE );	/* Write on a pipe, no one listening */
+    mCatchSignal( SIGHUP );	/* Hangup */
     mCatchSignal( SIGCLD );	/* Child status changed */
 
     }
@@ -204,10 +204,7 @@ void SignalHandling::handleChld()
 
 void SignalHandling::handleReInit()
 {
-    if ( reinitcbs.size() )
-	reinitcbs.doCall( this );
-    else
-	doKill( SIGHUP );
+    reinitcbs.doCall( this );
 }
 
 #endif
