@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.16 2003-05-07 13:05:40 nanne Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.17 2003-07-25 12:51:57 nanne Exp $";
 
 #include "viscolortab.h"
 
@@ -76,6 +76,7 @@ void visBase::VisColorTab::setClipRate( float ncr )
 void visBase::VisColorTab::scaleTo( float* values, int nrvalues )
 {
     DataClipper clipper( cliprate );
+    clipper.setApproxNrValues( nrvalues, 5000 );
     clipper.putData( values, nrvalues );
     clipper.calculateRange();
     scaleTo( clipper.getRange() );
