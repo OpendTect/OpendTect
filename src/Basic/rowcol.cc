@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.4 2004-06-16 13:38:48 kristofer Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.5 2004-06-17 07:48:07 kristofer Exp $";
 
 #include "rowcol.h"
 #include "ptrman.h"
@@ -37,9 +37,9 @@ float RowCol::clockwiseAngleTo(const RowCol& rc) const
 {
     const TypeSet<RowCol> clockwisedirs = clockWiseSequence();
     const int selfidx = clockwisedirs.indexOf(*this);
-    const float selfangle = selfidx!=-1 ? selfidx * M_PI_4 : atan2( col, row );
+    const float selfangle = selfidx!=-1 ? selfidx * M_PI_4 : atan2( col, -row );
     const int rcidx =  clockwisedirs.indexOf(rc);
-    const float rcangle = rcidx!=-1 ? rcidx * M_PI_4 : atan2( rc.col, rc.row );
+    const float rcangle = rcidx!=-1 ? rcidx * M_PI_4 : atan2( rc.col, -rc.row );
 
     static double twopi = M_PI*2;
     float anglediff = rcangle-selfangle;
