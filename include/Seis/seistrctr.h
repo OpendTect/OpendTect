@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.2 2000-03-02 15:25:37 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.3 2000-03-22 13:41:41 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -56,6 +56,7 @@ public:
     virtual bool	skip(unsigned short ns=0)	{ return NO; }
     virtual bool	write(const SeisTrc&)		{ return NO; }
     const char*		errMsg() const			{ return errmsg; }
+    void		clearErr()			{ errmsg = 0; }
     virtual void	prepareRetry()			{}
 
     SeisKeyData&	keyData()			{ return keys; }
