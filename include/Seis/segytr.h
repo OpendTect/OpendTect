@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.9 2003-02-26 17:35:03 bert Exp $
+ RCS:		$Id: segytr.h,v 1.10 2003-07-25 07:09:56 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -44,11 +44,12 @@ public:
     static const char*	sExternalSampleRate;
     static const char*	sUseLiNo;
 
+    int			numbfmt;
+
 protected:
 
     SegyTraceheader	trhead;
     int			itrc;
-    int			numbfmt;
     StreamData&		dumpsd;
     short		binhead_ns;
     float		binhead_dpos;
