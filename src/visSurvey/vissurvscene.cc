@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.26 2002-04-22 14:41:27 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.27 2002-04-25 10:36:05 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -98,24 +98,24 @@ visSurvey::Scene::Scene()
     StepInterval<double> vrg = SI().zRange();
 
     annot = visBase::Annotation::create();
-    BinID c0( hrg.start.inl, hrg.start.crl ); Coord coord0=SI().transform( c0 );
-    BinID c1( hrg.stop.inl, hrg.start.crl ); Coord coord1=SI().transform( c1 );
-    BinID c2( hrg.stop.inl, hrg.stop.crl ); Coord coord2=SI().transform( c2 );
-    BinID c3( hrg.start.inl, hrg.stop.crl ); Coord coord3=SI().transform( c3 );
+    BinID c0( hrg.start.inl, hrg.start.crl ); 
+    BinID c1( hrg.stop.inl, hrg.start.crl ); 
+    BinID c2( hrg.stop.inl, hrg.stop.crl ); 
+    BinID c3( hrg.start.inl, hrg.stop.crl );
 
-    annot->setCorner( 0, coord0.x, coord0.y, vrg.start );
-    annot->setCorner( 1, coord1.x, coord1.y, vrg.start );
-    annot->setCorner( 2, coord2.x, coord2.y, vrg.start );
-    annot->setCorner( 3, coord3.x, coord3.y, vrg.start );
-    annot->setCorner( 4, coord0.x, coord0.y, vrg.stop );
-    annot->setCorner( 5, coord1.x, coord1.y, vrg.stop );
-    annot->setCorner( 6, coord2.x, coord2.y, vrg.stop );
-    annot->setCorner( 7, coord3.x, coord3.y, vrg.stop );
+    annot->setCorner( 0, c0.inl, c0.crl, vrg.start );
+    annot->setCorner( 1, c1.inl, c1.crl, vrg.start );
+    annot->setCorner( 2, c2.inl, c2.crl, vrg.start );
+    annot->setCorner( 3, c3.inl, c3.crl, vrg.start );
+    annot->setCorner( 4, c0.inl, c0.crl, vrg.stop );
+    annot->setCorner( 5, c1.inl, c1.crl, vrg.stop );
+    annot->setCorner( 6, c2.inl, c2.crl, vrg.stop );
+    annot->setCorner( 7, c3.inl, c3.crl, vrg.stop );
 
     annot->setText( 0, "In-line" );
     annot->setText( 1, "Cross-line" );
     annot->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
-    addXYTObject( annot );
+    addInlCrlTObject( annot );
 
     visBase::DirectionalLight* light = visBase::DirectionalLight::create();
     light->setDirection( 0, 0, 1 );
