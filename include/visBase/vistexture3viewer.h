@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.4 2002-11-11 10:34:34 kristofer Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.5 2002-11-12 12:31:09 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,9 @@ namespace visBase
 class Texture3ViewerObject : public VisualObjectImpl
 {
 public:
+    				Texture3ViewerObject( bool selectable=true )
+				    : VisualObjectImpl( selectable ) {}
+
     virtual void		setTexture( SoTexture3* ) = 0;
 };
 

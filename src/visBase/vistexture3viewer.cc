@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.7 2002-11-12 09:06:32 nanne Exp $";
+static const char* rcsID = "$Id: vistexture3viewer.cc,v 1.8 2002-11-12 12:31:05 kristofer Exp $";
 
 
 #include "vistexture3viewer.h"
@@ -116,6 +116,7 @@ void visBase::Texture3Viewer::setTexture( SoTexture3* nt )
 
 visBase::Texture3Slice::Texture3Slice()
     : coords( new SoCoordinate3 )
+    , Texture3ViewerObject( true )
     , texturecoords( new SoTextureCoordinate3 )
     , faces( new SoFaceSet )
     , pos( 0 )
@@ -217,6 +218,7 @@ void visBase::Texture3Slice::setUpCoords()
 
 visBase::MovableTextureSlice::MovableTextureSlice()
     : rotation( new SoRotation )
+    , Texture3ViewerObject( true )
     , dragger( new SoTranslateRectangleDragger )
     , group( new SoGroup )
     , texturecoords( new SoTextureCoordinate3 )
