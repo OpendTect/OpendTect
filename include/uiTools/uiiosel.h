@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.16 2001-11-06 07:16:29 nanne Exp $
+ RCS:           $Id: uiiosel.h,v 1.17 2001-11-30 16:32:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
 
     void		doSel(CallBacker*);
     			//!< Called by 'Select ...' button push.
+    			//!< Make sure selok_ is true if that is the case!
     Notifier<uiIOSelect> selectiondone;
 
 protected:
@@ -59,6 +60,7 @@ protected:
     CallBack		doselcb_;
     ObjectSet<BufferString>	entries_;
     IOPar&		specialitems;
+    bool		selok_;
 
     uiLabeledComboBox*	inp_;
     uiPushButton*	selbut_;
