@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.18 2003-05-28 15:16:20 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.19 2003-06-02 08:08:26 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -198,13 +198,28 @@ SoNode* visBase::Texture::getData()
 { return onoff; }
 
 
+void visBase::Texture::clearDataCache( bool onlycolor )
+{
+    int start = onlycolor ? 1 : 0;
+    for ( int idx=start; idx<5; idx++ )
+    {
+	if ( datacache[idx] )
+	{
+	    delete [] datacache[idx];
+	    datacache.replace( 0, idx );
+	}
+    }
+}
+
+
 void visBase::Texture::setResizedData( float* newdata, int sz, DataType dt_ )
 {
-    const int dt = (int) dt_;
-    delete [] datacache[dt];
+    const int dt = (int)dt_;
+    if ( !newdata || dt )
+	clearDataCache( true );
+
     if ( !newdata )
     {
-	datacache.replace(0, dt);
 	makeColorIndexes();
 	makeTexture();
 	return;

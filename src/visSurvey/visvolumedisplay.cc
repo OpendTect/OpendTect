@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.36 2003-05-15 09:35:55 nanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.37 2003-06-02 08:09:51 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ visSurvey::VolumeDisplay::VolumeDisplay()
     : VisualObject(true)
     , cube(visBase::CubeView::create())
     , as(*new AttribSelSpec)
+    , colas(*new ColorAttribSel)
     , cache(0)
     , moved(this)
     , slicemoving(this)
@@ -93,6 +94,7 @@ visSurvey::VolumeDisplay::~VolumeDisplay()
     cube->unRef();
 
     delete &as;
+    delete &colas;
 }
 
 
@@ -162,6 +164,18 @@ void visSurvey::VolumeDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
 }
 
 
+ColorAttribSel& visSurvey::VolumeDisplay::getColorSelSpec()
+{ return colas; }
+
+
+const ColorAttribSel& visSurvey::VolumeDisplay::getColorSelSpec() const
+{ return colas; }
+
+
+void visSurvey::VolumeDisplay::setColorSelSpec( const ColorAttribSel& as_ )
+{ colas = as_; }
+
+
 CubeSampling& visSurvey::VolumeDisplay::getCubeSampling(bool manippos)
 {
     Coord3 center_ = manippos ? cube->draggerCenter() : cube->center();
@@ -197,22 +211,34 @@ void visSurvey::VolumeDisplay::setCubeSampling( const CubeSampling& cs_ )
 }
 
 
-bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset )
+bool visSurvey::VolumeDisplay::putNewData( AttribSliceSet* sliceset, 
+					   bool colordata )
 {
-    if ( !sliceset->size() )
+    if ( !sliceset )
     {
 	delete sliceset;
 	return false;
     }
 
-    PtrMan<Array3D<float> > datacube = sliceset->createArray( 0, 1, 2 );
-    cube->setData( datacube );
+    setData( sliceset, colordata ? colas.datatype : 0 );
+    if ( colordata )
+    {
+	delete sliceset;
+	return true;
+    }
 
     delete cache;
     cache = sliceset;
-
-    cube->useTexture( true );
     return true;
+}
+
+
+void visSurvey::VolumeDisplay::setData( const AttribSliceSet* sliceset,
+					int datatype )
+{
+    PtrMan<Array3D<float> > datacube = sliceset->createArray( 0, 1, 2 );
+    cube->setData( datacube, datatype );
+    cube->useTexture( true );
 }
 
 

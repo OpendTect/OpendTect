@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.21 2003-05-15 09:36:02 nanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.22 2003-06-02 08:09:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class AttribSelSpec;
+class ColorAttribSel;
 class CubeSampling;
 class AttribSliceSet;
 
@@ -67,9 +68,13 @@ public:
 				{ return const_cast<VolumeDisplay*>(this)->
 				    	getCubeSampling(manippos); }
     void			setCubeSampling(const CubeSampling&);
-    bool			putNewData( AttribSliceSet* );
+    bool			putNewData(AttribSliceSet*,bool);
     const AttribSliceSet*	getPrevData() const;
     float			getValue(const Coord3&) const;
+
+    ColorAttribSel&		getColorSelSpec();
+    const ColorAttribSel&	getColorSelSpec() const;
+    void			setColorSelSpec(const ColorAttribSel&);
 
     void			turnOn(bool);
     bool			isOn() const;
@@ -103,11 +108,13 @@ protected:
     void			initSlice(int);
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
+    void			setData(const AttribSliceSet*,int datatype=0);
 
     visBase::CubeView*		cube;
     AttribSliceSet*		cache;
 
     AttribSelSpec&		as;
+    ColorAttribSel&		colas;
 
     int				inlid;
     int				crlid;

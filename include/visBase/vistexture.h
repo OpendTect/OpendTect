@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.11 2003-05-28 09:46:40 kristofer Exp $
+ RCS:		$Id: vistexture.h,v 1.12 2003-06-02 08:08:36 nanne Exp $
 ________________________________________________________________________
 
 
@@ -46,13 +46,13 @@ class Texture : public SceneObject
 public:
     enum		DataType { Color, Transparency,
 				   Hue, Saturation, Brightness };
-    bool		turnOn( bool yn );
+    bool		turnOn(bool yn);
     bool		isOn()	const;
     			
-    void		setAutoScale( bool yn );
+    void		setAutoScale(bool yn);
     bool		autoScale() const;
 
-    void		setColorTab( VisColorTab& );
+    void		setColorTab(VisColorTab&);
     VisColorTab&	getColorTab();
 
     void		setClipRate( float );
@@ -82,7 +82,7 @@ public:
 protected:
     			Texture();
     			~Texture();
-    void		setResizedData( float*, int sz, DataType );
+    void		setResizedData(float*,int sz,DataType);
     			/*!< Is taken over by me */
     int			nextPower2(int,int,int) const;
 
@@ -96,14 +96,15 @@ protected:
     int			resolution;
 
 private:
-    void		colorTabChCB( CallBacker* );
-    void		colorSeqChCB( CallBacker* );
-    void		autoscaleChCB( CallBacker* );
+    void		colorTabChCB(CallBacker*);
+    void		colorSeqChCB(CallBacker*);
+    void		autoscaleChCB(CallBacker*);
 
     void		clipData();
     void		makeColorIndexes();
     void		makeTexture();
     void		makeColorTables();
+    void		clearDataCache(bool);
 
     ObjectSet<float>	datacache;
     unsigned char*	indexcache;

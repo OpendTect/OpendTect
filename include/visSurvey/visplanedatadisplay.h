@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.33 2003-05-27 15:26:32 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.34 2003-06-02 08:09:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -70,7 +70,7 @@ public:
     AttribSelSpec&		getAttribSelSpec();
     const AttribSelSpec&	getAttribSelSpec() const;
     void			setAttribSelSpec(const AttribSelSpec&);
-    bool			putNewData(AttribSliceSet*);
+    bool			putNewData(AttribSliceSet*,bool);
     				/*!< Becomes mine */
     const AttribSliceSet*	getPrevData() const;
     void			setSliceIdx(int);
@@ -81,7 +81,6 @@ public:
     void			setColorSelSpec(const ColorAttribSel&);
     ColorAttribSel&		getColorSelSpec();
     const ColorAttribSel&	getColorSelSpec() const;
-    void			setColorData(AttribSliceSet*);
 
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
@@ -115,19 +114,17 @@ protected:
 				~PlaneDataDisplay();
     void			appVelChCB(CallBacker*);
     void			manipChanged(CallBacker*);
-    void			setData(const AttribSliceSet*,int colorsel=-1);
+    void			setData(const AttribSliceSet*,int datatype=0);
 
     visBase::TextureRect*	trect;
 
     Type			type;
     AttribSelSpec&		as;
+    ColorAttribSel&		colas;
 
     AttribSliceSet*             cache;
     CubeSampling&		cs;
     CubeSampling&		manipcs;
-
-    ColorAttribSel&		colas;
-    int				colsel;
 
     static const char*		trectstr;
     Notifier<PlaneDataDisplay>	moving;

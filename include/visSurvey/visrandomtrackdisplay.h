@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.15 2003-05-15 09:36:02 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.16 2003-06-02 08:09:57 nanne Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "ranges.h"
 
+class ColorAttribSel;
 class AttribSelSpec;
 class CubeSampling;
 class BinID;
@@ -48,11 +49,14 @@ public:
     AttribSelSpec&		getAttribSelSpec();
     const AttribSelSpec&	getAttribSelSpec() const;
 
+    ColorAttribSel&             getColorSelSpec();
+    const ColorAttribSel&       getColorSelSpec() const;
+    void                        setColorSelSpec(const ColorAttribSel&);
+
     void			setDepthInterval(const Interval<float>&);
     const Interval<float>	getDepthInterval() const;
     const Interval<float>	getManipDepthInterval() const;
     
-
     int				nrKnots() const;
     void			addKnot(const BinID&);
     void			addKnots(TypeSet<BinID>);
@@ -67,7 +71,7 @@ public:
     void			acceptManip();
 
     void			getDataPositions(TypeSet<BinID>&);
-    bool			putNewData(const ObjectSet<SeisTrc>&);
+    bool			putNewData(ObjectSet<SeisTrc>&,bool);
     float			getValue(const Coord3&) const;
 
     void			showDragger(bool);
@@ -108,9 +112,10 @@ protected:
     visBase::RandomTrack*	track;
     visBase::Material*		texturematerial;
     AttribSelSpec&		as;
+    ColorAttribSel&		colas;
     int				selknotidx;
 
-    void			setData(const ObjectSet<SeisTrc>&);
+    void			setData(const ObjectSet<SeisTrc>&,int datatp=0);
     const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&)
 									const;
     void			checkPosition(BinID&);

@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.21 2003-05-15 09:35:55 nanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.22 2003-06-02 08:09:51 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     , track(visBase::RandomTrack::create())
     , texturematerial(visBase::Material::create())
     , as(*new AttribSelSpec)
+    , colas(*new ColorAttribSel)
     , rightclick(this)
     , knotmoving(this)
     , selknotidx(-1)
@@ -104,6 +105,9 @@ visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
     track->rightclick.remove( mCB(this,RandomTrackDisplay,rightClicked) );
     track->unRef();
     texturematerial->unRef();
+
+    delete &as;
+    delete &colas;
 }
 
 
@@ -121,6 +125,18 @@ void visSurvey::RandomTrackDisplay::setAttribSelSpec( const AttribSelSpec& as_ )
     track->useTexture( false );
     setName( as.userRef() );
 }
+
+
+ColorAttribSel& visSurvey::RandomTrackDisplay::getColorSelSpec()
+{ return colas; }
+
+
+const ColorAttribSel& visSurvey::RandomTrackDisplay::getColorSelSpec() const
+{ return colas; }
+
+
+void visSurvey::RandomTrackDisplay::setColorSelSpec( const ColorAttribSel& as_ )
+{ colas = as_; }
 
 
 void visSurvey::RandomTrackDisplay::setDepthInterval( 
@@ -250,12 +266,19 @@ void visSurvey::RandomTrackDisplay::getDataPositions( TypeSet<BinID>& bids )
 }
 
 
-bool visSurvey::RandomTrackDisplay::putNewData(const ObjectSet<SeisTrc>& trcset)
+bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>& trcset,
+					        bool colordata )
 {
     const int nrtrcs = trcset.size();
     if ( !nrtrcs ) return false;
     
-    setData( trcset );
+    setData( trcset, colordata ? colas.datatype : 0 );
+    if ( colordata )
+    {
+	deepErase( trcset );
+	return true;
+    }
+
     deepErase( cache );
     cache = trcset;
     ismanip = false;
@@ -263,7 +286,8 @@ bool visSurvey::RandomTrackDisplay::putNewData(const ObjectSet<SeisTrc>& trcset)
 }
 
 
-void visSurvey::RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset )
+void visSurvey::RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset,
+					     int datatype )
 {
     const Interval<float> zrg = getManipDepthInterval();
     const float step = trcset[0]->info().sampling.step;
@@ -289,7 +313,7 @@ void visSurvey::RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset )
 	    }
 	}
 	
-	track->setData( snr, arr );
+	track->setData( snr, arr, datatype );
     }
 
     track->useTexture( true );

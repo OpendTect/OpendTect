@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.16 2003-05-15 09:34:31 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.17 2003-06-02 08:08:26 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -334,10 +334,11 @@ bool visBase::RandomTrack::usesTexture() const
 }
 
 
-void visBase::RandomTrack::setData( int section, const Array2D<float>& data )
+void visBase::RandomTrack::setData( int section, const Array2D<float>& data,
+       				    int type )
 {
     Texture2* texture = sections[section]->getTexture2();
-    texture->setData( &data );
+    texture->setData( &data, (Texture::DataType)type );
 }
 
 

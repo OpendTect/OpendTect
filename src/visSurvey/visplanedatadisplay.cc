@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.50 2003-05-27 15:26:26 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.51 2003-06-02 08:09:51 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -37,7 +37,6 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay()
     , colas(*new ColorAttribSel)
     , cs(*new CubeSampling)
     , manipcs(*new CubeSampling)
-    , colsel(-1)
     , moving(this)
 {
     trect->ref();
@@ -311,12 +310,6 @@ void visSurvey::PlaneDataDisplay::setColorSelSpec( const ColorAttribSel& as_ )
 { colas = as_; }
 
 
-void visSurvey::PlaneDataDisplay::setColorData( AttribSliceSet* sliceset )
-{
-    setData( sliceset, colas.colsel );
-}
-
-
 CubeSampling& visSurvey::PlaneDataDisplay::getCubeSampling( bool manippos )
 {
     CubeSampling& cubesampl = manippos ? manipcs : cs;
@@ -379,9 +372,16 @@ void visSurvey::PlaneDataDisplay::setSliceIdx( int idx )
 }
 
 
-bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
+bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset, 
+					      bool colordata )
 {
-    setData( sliceset );
+    setData( sliceset, colordata ? colas.datatype : 0 );
+    if ( colordata )
+    {
+	delete sliceset;
+	return true;
+    }
+
     delete cache;
     cache = sliceset;
     return true;
@@ -389,11 +389,16 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
 
     
 void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset,
-       					   int colorsel	) 
+       					   int datatype	) 
 {
-    if ( !sliceset ) return;
-
     trect->clear();
+
+    if ( !sliceset )
+    {
+	trect->setData( 0, 0, 0 );
+	return;
+    }
+
     const int nrslices = sliceset->size();
     for ( int slcidx=0; slcidx<nrslices; slcidx++ )
     {
@@ -412,7 +417,7 @@ void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset,
 		    datacube->set( zidx, lidx, val );
 		}
 	    }
-	    trect->setData( *datacube, slcidx, colorsel );
+	    trect->setData( datacube, slcidx, datatype );
 	}
 	else
 	{
@@ -420,7 +425,7 @@ void visSurvey::PlaneDataDisplay::setData( const AttribSliceSet* sliceset,
 	    float* data = datacube->getData();
 	    memcpy( data, (*sliceset)[slcidx]->getData(), 
 		    				slicesize*sizeof(float) );
-	    trect->setData( *datacube, slcidx, colorsel );
+	    trect->setData( datacube, slcidx, datatype );
 	}
 
     }
