@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.7 2002-02-28 08:04:59 kristofer Exp $
+ RCS:		$Id: visobject.h,v 1.8 2002-02-28 08:25:48 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -80,7 +80,7 @@ public:
 
     const ColorTable&	colorTable() const;
     ColorTable&		colorTable();
-    virtual void	colorTableChanged();
+    virtual void	colorTableChanged() {}
 
     SoNode*		getData();
 
