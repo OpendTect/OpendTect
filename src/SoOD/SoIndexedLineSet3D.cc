@@ -14,13 +14,7 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/elements/SoViewingMatrixElement.h>
-
-#ifdef mac
-# include "OpenGL/gl.h"
-#else
-# include "GL/gl.h"
-#endif
-
+#include <Inventor/system/gl.h>
 
 
 SO_NODE_SOURCE(SoIndexedLineSet3D);

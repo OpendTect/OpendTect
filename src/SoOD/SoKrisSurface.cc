@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.2 2004-11-16 10:07:23 kristofer Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.3 2005-01-28 16:02:23 nanne Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -25,12 +25,7 @@ static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.2 2004-11-16 10:07:23 kris
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/threads/SbRWMutex.h>
-
-#ifdef mac
-# include "OpenGL/gl.h"
-#else
-# include "GL/gl.h"
-#endif
+#include <Inventor/system/gl.h>
 
 #define mIsCoordDefined( coord ) (coord[0]<1e29)
 
