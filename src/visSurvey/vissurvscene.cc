@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.36 2002-08-01 13:27:38 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.37 2002-08-02 11:44:46 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.36 2002-08-01 13:27:38 nann
 #include "vistransform.h"
 #include "position.h"
 #include "vissurvpickset.h"
+#include "vissurvhorizon.h"
 #include "survinfo.h"
 #include "linsolv.h"
 #include "visannot.h"
@@ -409,21 +410,27 @@ int visSurvey::Scene::usePar( const IOPar& par )
     for ( int idx=0; idx<xyzobjids.size(); idx++ )
     {
 	mDynamicCastGet( visBase::SceneObject*, so,
-				    visBase::DM().getObj( xyzobjids[idx] ));
-	if ( so ) addXYZObject( so );
+				visBase::DM().getObj( xyzobjids[idx] ));
+	mDynamicCastGet( visSurvey::HorizonDisplay*, hor,
+				visBase::DM().getObj( xyzobjids[idx] ));
+	if ( so && hor) addDisplayObject( so );
+	else		addXYZObject( so );
     }
 
     for ( int idx=0; idx<xytobjids.size(); idx++ )
     {
 	mDynamicCastGet( visBase::SceneObject*, so,
 				visBase::DM().getObj( xytobjids[idx] ));
-	if ( so ) addXYTObject( so );
+	mDynamicCastGet( visSurvey::HorizonDisplay*, hor,
+				visBase::DM().getObj( xytobjids[idx] ));
+	if ( so && hor ) addDisplayObject( so );
+	else		 addXYTObject( so );
     }
 
     for ( int idx=0; idx<inlcrlobjids.size(); idx++ )
     {
 	mDynamicCastGet( visBase::SceneObject*, so,
-			visBase::DM().getObj( inlcrlobjids[idx] ));
+				visBase::DM().getObj( inlcrlobjids[idx] ));
 	if ( so ) addInlCrlTObject( so );
     }
 
