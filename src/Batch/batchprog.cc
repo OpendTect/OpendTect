@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.20 2002-12-13 17:05:55 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.21 2002-12-17 15:06:23 arend Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.20 2002-12-13 17:05:55 bert Ex
 #include "timefun.h"
 #include "sighndl.h"
 #include "socket.h"
+#include "mmdefs.h"
 #ifndef __msvc__
 #include <unistd.h>
 #include <stdlib.h>
@@ -63,7 +64,8 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, fullpath_(av[0])
 	, inbg_(NO)
 	, sdout_(*new StreamData)
-    	, sockprov_(0)
+    	, masterport_(0)
+	, usesock_( false )
 {
     const char* fn = argv_[1];
     if ( fn && !strcmp(fn,"-bg") )
@@ -98,17 +100,15 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
     iopar_ = new IOPar( *parlist[0] );
 
-    if ( iopar_->isTrue("OpenSocket") )
-    {
-	sockprov_ = new SocketProvider;
-	if ( sockprov_->port() < 0 )
-	    { delete sockprov_; sockprov_ = 0; }
-	cout << "P" << (sockprov_ ? sockprov_->port() : -1) << endl;
-    }
+    usesock_ =  iopar_->get( "Master host", masterhost_ ); 
+    usesock_ &= iopar_->get( "Master port", masterport_ ); 
+    iopar_->get( "Job ID", jobid_ ); 
 
     const char* res = iopar_->find( "Log file" );
     if ( !res )
 	iopar_->set( "Log file", StreamProvider::sStdErr );
+
+    killNotify( true );
 
     stillok_ = true;
 }
@@ -116,7 +116,13 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
 BatchProgram::~BatchProgram()
 {
-    writePid( -1 );
+    if( exitstat_ == mSTAT_UNDEF ) 
+	exitstat_ = stillok_ ? mSTAT_FINISHED : mSTAT_ERROR;
+
+    writeStatus( mCTRL_STATUS, exitstat_ );
+
+    killNotify( false );
+
     sdout_.close();
     delete &sdout_;
 }
@@ -132,38 +138,61 @@ const char* BatchProgram::progName() const
 
 void BatchProgram::progKilled( CallBacker* )
 {
-    writePid( -2 );
+    exitstat_ = mSTAT_KILLED;
+    writeStatus( mCTRL_STATUS, exitstat_ );
+    killNotify( false );
 }
 
 
-bool BatchProgram::writePid( int pid )
+void BatchProgram::killNotify( bool yn )
 {
-    const char* res = pars()[ "Process info file" ];
-    if ( *res )
-    {
-	StreamData sd = StreamProvider(res).makeOStream();
-	if ( !sd.usable() )
-	{
-	    cerr << name() << ": Cannot write process ID file:\n"
-		 << res << endl;
-	    return false;
-	}
-	*sd.ostrm << pid << endl;
-	sd.close();
-	CallBack cb( mCB(this,BatchProgram,progKilled) );
-	if ( pid > 0 )
-	    SignalHandling::startNotify( SignalHandling::Kill, cb );
-	else
-	    SignalHandling::stopNotify( SignalHandling::Kill, cb );
-    }
-    return true;
+    CallBack cb( mCB(this,BatchProgram,progKilled) );
+
+    if ( yn )
+	SignalHandling::startNotify( SignalHandling::Kill, cb );
+    else
+	SignalHandling::stopNotify( SignalHandling::Kill, cb );
 }
 
+
+bool BatchProgram::writeStatus( char tag , int status )
+{
+    if( !usesock_ ) return true;
+
+    if( Socket* sock = mkSocket() )
+    {
+        sock->writetag( tag, jobid_, status );
+
+        bool ret = true;
+
+	char masterinfo;
+        ret = sock->readtag( masterinfo );
+	if ( masterinfo != mRSP_ACK )
+	{
+	    // TODO : handle requests from master
+	    ret = false;
+	}
+
+        delete sock;
+	return ret;
+    }
+
+    return false;
+
+}
+
+
+Socket* BatchProgram::mkSocket()
+{
+    if( !usesock_ ) return 0;
+
+    return new Socket( masterhost_, masterport_ );
+}
 
 bool BatchProgram::initOutput()
 {
     stillok_ = false;
-    if ( !writePid(getPID()) )
+    if ( !writeStatus( mPID_TAG, getPID() ) )
 	exit( 0 );
 
     const char* res = pars()["Log file"];
