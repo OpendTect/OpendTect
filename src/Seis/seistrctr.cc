@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.20 2001-10-18 08:01:46 windev Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.21 2001-10-18 16:21:33 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -119,7 +119,7 @@ bool SeisTrcTranslator::initWrite( Conn& c, const SeisTrc& trc )
 }
 
 
-bool SeisTrcTranslator::commitSelections()
+bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
 {
     errmsg = "No selected components found";
     const int sz = tarcds.size();
@@ -159,6 +159,41 @@ bool SeisTrcTranslator::commitSelections()
     {
 	inpcds[idx] = cds[ selComp(idx) ];
 	outcds[idx] = tarcds[ selComp(idx) ];
+	if ( trc )
+	{
+	    //!< Need to make sure we write what is available
+	    const float eps = 1e-7;
+
+	    const float reqstop = outcds[idx]->sd.start
+				+ outcds[idx]->sd.step * outcds[idx]->nrsamples;
+	    const float avstop = trc->samplePos( trc->size(idx)-1, idx );
+	    bool neednewnrsamples = avstop+eps > reqstop;
+
+	    const float startpos = trc->startPos(idx);
+	    if ( outcds[idx]->sd.start+eps < startpos )
+	    {
+		outcds[idx]->sd.start = startpos;
+	        neednewnrsamples = true;
+	    }
+	    else if ( mIS_ZERO(outcds[idx]->sd.start-startpos) )
+		outcds[idx]->sd.start = startpos;
+
+	    const float step = trc->info().sampling.step;
+	    if ( outcds[idx]->sd.step+eps < step )
+	    {
+		outcds[idx]->sd.step = step;
+	        neednewnrsamples = true;
+	    }
+	    else if ( mIS_ZERO(outcds[idx]->sd.step-step) )
+		outcds[idx]->sd.step = step;
+
+	    if ( neednewnrsamples )
+	    {
+		float fnrsamps = (avstop - outcds[idx]->sd.start)
+				 / outcds[idx]->sd.step + 1 + eps;
+		outcds[idx]->nrsamples = (int)fnrsamps;
+	    }
+	}
     }
 
     errmsg = 0;

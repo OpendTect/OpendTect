@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.14 2001-10-18 08:01:58 windev Exp $
+ RCS:		$Id: seistrctr.h,v 1.15 2001-10-18 16:21:45 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -141,7 +141,7 @@ public:
 
     void		setTrcSel( const SeisTrcSel* t ) { trcsel = t; }
 			/*!< This SeisTrcSel is seen as a hint ... */
-    bool		commitSelections();
+    bool		commitSelections(const SeisTrc* trc=0);
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
 

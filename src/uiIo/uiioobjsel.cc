@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.25 2001-10-18 08:42:10 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.26 2001-10-18 16:21:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     }
 
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
-    listfld->box()->doubleClicked.notify( mCB(this,uiDialog,acceptOK) );
+    listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
     listfld->box()->rightButtonClicked.notify(mCB(this,uiIOObjSelDlg,rightClk));
 
     setOkText( "Select" );
