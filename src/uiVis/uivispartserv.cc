@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.217 2004-05-19 14:59:05 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.218 2004-05-26 07:46:43 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -654,6 +654,8 @@ void uiVisPartServer::removeObject( int id, int sceneid )
     removeConnections( id );
 
     visSurvey::Scene* scene = getScene( sceneid );
+    if ( !scene ) return;
+
     const int idx = scene->getFirstIdx( id );
     if ( idx!=-1 ) 
 	scene->removeObject( idx );
