@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.27 2002-01-24 21:41:56 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.28 2002-07-21 23:17:42 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -313,18 +313,17 @@ void SeisTrcTranslator::useStoredPar()
 }
 
 
-void SeisTrcTranslator::prepareComponents( SeisTrc& trc,
-					   const int* actualsz ) const
+void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 {
     for ( int idx=0; idx<nrout_; idx++ )
     {
         TraceData& td = trc.data();
         if ( td.nrComponents() <= idx )
-            td.addComponent( actualsz[idx], tarcds[ inpfor_[idx] ]->datachar );
+            td.addComponent( actualsz, tarcds[ inpfor_[idx] ]->datachar );
         else
         {
             td.setComponent( tarcds[ inpfor_[idx] ]->datachar, idx );
-            td.reSize( actualsz[idx], idx );
+            td.reSize( actualsz, idx );
         }
     }
 }

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.15 2002-07-19 14:47:31 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.16 2002-07-21 23:17:42 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -188,7 +188,9 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 	{
 	    StepInterval<float> intv = compinf.sd.interval(compinf.nrsamples);
 	    intv.stop += compinf.sd.step;
-	    if ( !mIS_ZERO(cicompinf.sd.start-intv.stop) )
+	    float diff = cicompinf.sd.start - intv.stop;
+	    if ( diff < 0 ) diff = -diff;
+	    if ( diff > compinf.sd.step / 10  )
 	    {
 		mErrMsgMk("Time range")
 		errmsg_ += "\nis unexpected.\nExpected: ";
@@ -197,10 +199,15 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 		return false;
 	    }
 	    vertical_ = true;
+	    compinf.nrsamples += cicompinf.nrsamples;
 	}
     }
 
-    info_.geom.merge( ci.geom );
+    if ( !vertical_ )
+	info_.geom.merge( ci.geom );
+    // We'll just assume that in vertical situation the files have exactly
+    // the same geometry ...
+
     return true;
 }
 
@@ -330,34 +337,38 @@ bool CBVSReadMgr::getHInfo( CBVSInfo::ExplicitData& ed )
 
 
 bool CBVSReadMgr::fetch( void** d, const bool* c,
-			 const Interval<int>* selsamps )
+			 const Interval<int>* ss )
 {
     if ( !vertical_ )
-	return readers_[curnr_]->fetch( d, c, selsamps );
+	return readers_[curnr_]->fetch( d, c, ss );
 
-    const BasicComponentInfo& ci = *info_.compinfo[0];
-    int nb = (int)ci.datachar.nrBytes();
-    int ioffs = 0;
-    Interval<int> samps( 0, 0 );
-    int sampoffs = 0;
+    // Need to glue the parts into the buffer.
+    // The code looks simple, but that's how it got after many cycles
+    // of compression.
+
+    Interval<int> selsamps( ss ? ss->start : 0, ss ? ss->stop : 2000000000 );
+    selsamps.sort();
+
+    Interval<int> avsamps( 0, -1 );
+
     for ( int idx=0; idx<readers_.size(); idx++ )
     {
-	int nrsampsavailable = readers_[idx]->info().compinfo[0]->nrsamples;
-	samps.stop += nrsampsavailable - 1;
-	/*
-	bool done = selsamps && samps.stop >= selsamps->stop;
-	if ( done ) samps.stop = selsamps->stop;
+	avsamps.stop += readers_[idx]->info().compinfo[0]->nrsamples;
 
-	if ( !selsamps
-	  || selsamps->stop >= samps.start || selsamps->start <= samps.stop )
+	const bool islast = avsamps.stop >= selsamps.stop;
+	if ( islast ) avsamps.stop = selsamps.stop;
+	if ( avsamps.stop >= selsamps.start )
 	{
-	    if ( !readers_[idx]->fetch(fnp) )
+	    const int sampoffs = selsamps.start - avsamps.start;
+	    Interval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
+		    		   avsamps.stop - avsamps.start );
+	    if ( !readers_[idx]->fetch( d, c, &rdrsamps,
+					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;
 	}
-	if ( done ) break;
-	*/
 
-	samps.start = samps.stop + 1;
+	if ( islast ) break;
+	avsamps.start = avsamps.stop + 1;
     }
 
     return true;

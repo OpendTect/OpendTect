@@ -5,7 +5,7 @@
  * FUNCTION : Segy-like trace translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.19 2002-07-05 09:06:01 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.20 2002-07-21 23:17:42 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -32,12 +32,8 @@ CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm )
 	, donext(false)
 	, forread(true)
 	, storinterps(0)
-	, samps(0)
-	, cbvssamps(0)
-	, comps(0)
 	, userawdata(0)
 	, samedatachar(0)
-	, actualsz(0)
 	, blockbufs(0)
 	, stptrs(0)
 	, tdptrs(0)
@@ -88,12 +84,9 @@ void CBVSSeisTrcTranslator::destroyVars()
 
     delete [] blockbufs; blockbufs = 0;
     delete [] storinterps; storinterps = 0;
-    delete [] samps; samps = 0;
-    delete [] cbvssamps; cbvssamps = 0;
     delete [] comps; comps = 0;
     delete [] userawdata; userawdata = 0;
     delete [] samedatachar; samedatachar = 0;
-    delete [] actualsz; actualsz = 0;
     delete [] stptrs; stptrs = 0;
     delete [] tdptrs; tdptrs = 0;
 }
@@ -166,8 +159,6 @@ void CBVSSeisTrcTranslator::calcSamps()
 {
     const int nrcomps = tarcds.size();
     const int nrselcomps = nrSelComps();
-    samps = new StepInterval<int> [nrselcomps];
-    cbvssamps = new Interval<int> [nrcomps];
     userawdata = new bool [nrselcomps];
 
     useinpsd = true;
@@ -179,48 +170,55 @@ void CBVSSeisTrcTranslator::calcSamps()
 
 	userawdata[iselc] = true;
 	// snap outcds[iselc]->sd.step
-	float stepratio = outcds[iselc]->sd.step / inpcds[iselc]->sd.step;
-	samps[iselc].step = mNINT(stepratio);
-	if ( samps[iselc].step < 1 ) samps[iselc].step = 1;
-	float outstep = samps[iselc].step * inpcds[iselc]->sd.step;
-	if ( samps[iselc].step != 1 ) { useinpsd = userawdata[iselc] = false; }
+	if ( !iselc )
+	{
+	    float stepratio = outcds[iselc]->sd.step / inpcds[iselc]->sd.step;
+	    samps.step = mNINT(stepratio);
+	    if ( samps.step < 1 ) samps.step = 1;
+	}
+	if ( samps.step != 1 )
+	    { useinpsd = userawdata[iselc] = false; }
 
-	// snap outcds[iselc]->sd.start
-	float diff = outcds[iselc]->sd.start - inpcds[iselc]->sd.start;
-	diff /= inpcds[iselc]->sd.step;
+	TargetComponentData& outcd = *outcds[iselc];
+	const ComponentData& inpcd = *inpcds[iselc];
+	if ( iselc )
+	{
+	    outcd.sd.start = outcds[0]->sd.start;
+	    outcd.sd.step = outcds[0]->sd.step;
+	    outcd.nrsamples = outcds[0]->nrsamples;
+	    continue;
+	}
+
+	// snap outcd.sd.start
+	float diff = outcd.sd.start - inpcd.sd.start;
+	diff /= inpcd.sd.step;
 	int idiff = mNINT(diff);
 	if ( idiff ) useinpsd = false;
-	float outstart = inpcds[iselc]->sd.start
-		       + idiff * inpcds[iselc]->sd.step;
+	const float outstart = inpcd.sd.start + idiff * inpcd.sd.step;
 
-	float outstop = outcds[iselc]->sd.start
-			 + outcds[iselc]->sd.step * outcds[iselc]->nrsamples;
-	const float instop = inpcds[iselc]->sd.start
-			   + inpcds[iselc]->sd.step * inpcds[iselc]->nrsamples;
+	float outstop = outcd.sd.start + outcd.sd.step * outcd.nrsamples;
+	const float instop = inpcd.sd.start + inpcd.sd.step * inpcd.nrsamples;
 	if ( outstop > instop ) outstop = instop;
+	const float outstep = samps.step * inpcd.sd.step;
 	float fnrsamps = (outstop - outstart) / outstep;
 
-	outcds[iselc]->sd.start = outstart;
-	outcds[iselc]->sd.step = outstep;
-	outcds[iselc]->nrsamples = mNINT(fnrsamps);
+	outcd.sd.start = outstart;
+	outcd.sd.step = outstep;
+	outcd.nrsamples = mNINT(fnrsamps);
 
-	float fsampnr = (outstart - inpcds[iselc]->sd.start)
-	    		/ inpcds[iselc]->sd.step;
-	samps[iselc].start = mNINT(fsampnr);
-	samps[iselc].stop = samps[iselc].start
-	    		  + (outcds[iselc]->nrsamples-1) * samps[iselc].step;
-	if ( samps[iselc].start < 0 ) samps[iselc].start = 0;
-	if ( samps[iselc].stop < 0 ) samps[iselc].stop = 0;
-	if ( samps[iselc].start >= inpcds[iselc]->nrsamples )
-	    samps[iselc].start = inpcds[iselc]->nrsamples - 1;
-	if ( samps[iselc].stop >= inpcds[iselc]->nrsamples )
-	    samps[iselc].stop = inpcds[iselc]->nrsamples - 1;
-	assign( cbvssamps[ic], samps[iselc] );
+	float fsampnr = (outstart - inpcd.sd.start) / inpcd.sd.step;
+	samps.start = mNINT(fsampnr);
+	samps.stop = samps.start + (outcd.nrsamples-1) * samps.step;
+	if ( samps.start < 0 ) samps.start = 0;
+	if ( samps.stop < 0 ) samps.stop = 0;
+	if ( samps.start >= inpcd.nrsamples )
+	    samps.start = inpcd.nrsamples - 1;
+	if ( samps.stop >= inpcd.nrsamples )
+	    samps.stop = inpcd.nrsamples - 1;
+	assign( cbvssamps, samps );
 
-	outcds[iselc]->nrsamples = (samps[iselc].stop - samps[iselc].start)
-	    			 / samps[iselc].step + 1;
-	outcds[iselc]->sd.start = inpcds[iselc]->sd.start
-	    			+ samps[iselc].start * inpcds[iselc]->sd.step;
+	outcd.nrsamples = (samps.stop - samps.start) / samps.step + 1;
+	outcd.sd.start = inpcd.sd.start + samps.start * inpcd.sd.step;
     }
 }
 
@@ -231,7 +229,6 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
     calcSamps();
     samedatachar = new bool [nrcomps];
-    actualsz = new int [nrcomps];
     storinterps = new TraceDataInterpreter* [nrcomps];
     stptrs = new unsigned char* [nrcomps];
     tdptrs = new unsigned char* [nrcomps];
@@ -239,7 +236,10 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     {
 	samedatachar[idx] = inpcds[idx]->datachar == outcds[idx]->datachar;
 	userawdata[idx] = samedatachar[idx] && userawdata[idx];
-	actualsz[idx] = outcds[idx]->nrsamples;
+	if ( idx )
+	    outcds[idx]->nrsamples = actualsz;
+	else
+	    actualsz = outcds[idx]->nrsamples;
 	storinterps[idx] = new TraceDataInterpreter(
                   forread ? inpcds[idx]->datachar : outcds[idx]->datachar );
     }
@@ -372,7 +372,8 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 
     prepareComponents( trc, actualsz );
     const CBVSInfo& info = rdmgr->info();
-    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
+    const int nselc = nrSelComps();
+    for ( int iselc=0; iselc<nselc; iselc++ )
     {
 	const BasicComponentInfo& ci = *info.compinfo[ selComp(iselc) ];
 	trc.setScaler( ci.scaler, iselc );
@@ -380,13 +381,13 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 	stptrs[iselc] = userawdata[iselc] ? tdptrs[iselc] : blockbufs[iselc];
     }
 
-    if ( !rdmgr->fetch( (void**)stptrs, comps, cbvssamps ) )
+    if ( !rdmgr->fetch( (void**)stptrs, comps, &cbvssamps ) )
     {
 	errmsg = rdmgr->errMsg();
 	return false;
     }
 
-    for ( int iselc=0; iselc<nrSelComps(); iselc++ )
+    for ( int iselc=0; iselc<nselc; iselc++ )
     {
 	if ( userawdata[iselc] ) continue;
 
@@ -398,7 +399,7 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 		memcpy( tdptrs[iselc], stptrs[iselc],
 			(int)inpcds[iselc]->datachar.nrBytes() );
 		stptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes()
-				* samps[iselc].step;
+				* samps.step;
 		tdptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes();
 	    }
 	}
@@ -411,7 +412,7 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
 		trc.set( outsmp,
 			 storinterps[iselc]->get( stptrs[iselc], inp_samp ),
 			 iselc);
-		inp_samp += samps[iselc].step;
+		inp_samp += samps.step;
 	    }
 	}
 
@@ -479,7 +480,7 @@ bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
 		memcpy( stptrs[iselc], tdptrs[iselc],
 			(int)inpcds[iselc]->datachar.nrBytes() );
 		tdptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes()
-				* samps[iselc].step;
+				* samps.step;
 		stptrs[iselc] += (int)inpcds[iselc]->datachar.nrBytes();
 	    }
 	    else
@@ -491,7 +492,7 @@ bool CBVSSeisTrcTranslator::write( const SeisTrc& trc )
 		{
 		    storinterps[iselc]->put( stptrs[iselc], outsmp,
 			inpinterp->get( tdptrs[iselc], inp_samp ) );
-		    inp_samp += samps[iselc].step;
+		    inp_samp += samps.step;
 		}
 	    }
 	}

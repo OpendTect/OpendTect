@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.33 2002-07-19 14:47:31 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.34 2002-07-21 23:17:42 bert Exp $";
 
 /*!
 
@@ -42,7 +42,6 @@ CBVSReader::CBVSReader( istream* s )
 	, datastartfo(0)
 	, lastposfo(0)
 	, bidrg(*new BinIDRange)
-	, samprgs(0)
 {
     if ( readInfo() )
 	toOffs( datastartfo );
@@ -52,7 +51,6 @@ CBVSReader::CBVSReader( istream* s )
 CBVSReader::~CBVSReader()
 {
     close();
-    delete [] samprgs;
     delete &bidrg;
 }
 
@@ -207,7 +205,6 @@ bool CBVSReader::readComps()
     if ( nrcomps_ < 1 ) mErrRet("Corrupt CBVS format: No components defined")
 
     cnrbytes_ = new int [nrcomps_];
-    samprgs = new Interval<int> [nrcomps_];
     bytespertrace = 0;
 
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
@@ -247,7 +244,7 @@ bool CBVSReader::readComps()
 
 	cnrbytes_[icomp] = newinf->nrsamples * newinf->datachar.nrBytes();
 	bytespertrace += cnrbytes_[icomp];
-	samprgs[icomp] = Interval<int>( 0, newinf->nrsamples-1 );
+	samprg = Interval<int>( 0, newinf->nrsamples-1 );
     }
 
     return true;
@@ -578,7 +575,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	if ( !getHInfo(dum) ) return false;
     }
 
-    if ( !samps ) samps = samprgs;
+    if ( !samps ) samps = &samprg;
 
     int iselc = -1;
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
@@ -592,12 +589,12 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 
 	BasicComponentInfo* compinfo = info_.compinfo[icomp];
 	int bps = compinfo->datachar.nrBytes();
-	if ( samps[icomp].start )
-	    strm_.seekg( samps[icomp].start*bps, ios::cur );
-	strm_.read( (char*)bufs[iselc],
-		(samps[icomp].stop-samps[icomp].start+1+offs) * bps );
-	if ( samps[icomp].stop < compinfo->nrsamples-1 )
-	    strm_.seekg( (compinfo->nrsamples-samps[icomp].stop-1)*bps,
+	if ( samps->start )
+	    strm_.seekg( samps->start*bps, ios::cur );
+	strm_.read( (char*)bufs[iselc] + offs * bps,
+		(samps->stop-samps->start+1) * bps );
+	if ( samps->stop < compinfo->nrsamples-1 )
+	    strm_.seekg( (compinfo->nrsamples-samps->stop-1)*bps,
 		ios::cur );
     }
 

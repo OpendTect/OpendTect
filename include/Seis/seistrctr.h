@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.18 2002-01-24 21:42:07 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.19 2002-07-21 23:17:42 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -205,7 +205,7 @@ protected:
     IOPar&		storediopar;
     virtual void	useStoredPar();
 
-    void		prepareComponents(SeisTrc&,const int* actualszs) const;
+    void		prepareComponents(SeisTrc&,int actualsz) const;
 
 			// Quick access to selected, like selComp() etc.
     ComponentData**	inpcds;
