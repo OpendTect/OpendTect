@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.14 2002-03-18 14:07:00 kristofer Exp $
+ RCS:		$Id: iopar.h,v 1.15 2002-03-18 14:17:21 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,9 @@ public:
     inline bool		get( const char* k, float& v1,
 	    		     float& v2, float& v3 ) const
 			{ return getSc(k,v1,v2,v3,1,false); }
+    inline bool		get( const char* k, float& v1,
+	    		     float& v2, float& v3, float& v4 ) const
+			{ return getSc(k,v1,v2,v3,v4,1,false); }
     inline bool		get( const char* k, double& v1, double& v2 ) const
 			{ return getSc(k,v1,v2,1,false); }
     inline bool		get( const char* k, double& v1,
