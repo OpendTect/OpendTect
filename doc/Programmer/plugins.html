@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.9 2003-11-02 22:37:59 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.10 2003-11-03 11:37:30 nanne Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -233,13 +233,68 @@ If you look at the parts of the definition carefully, you'll see that each param
 <li>The allowed values
 </ul>
 </p><p>
-Most of the rest of the methods are there to comply with the <code>AttribCalc</code> interface - see the <a href="Generated/AttribEng/classAttribCalc.html">AttribCalc documentation</a>.
-MORE
+Most of the rest of the methods are there to comply with the <code>AttribCalc</code> interface - see the <a href="Generated/AttribEng/classAttribCalc.html">AttribCalc documentation</a>.<br>
+Perhaps the most important function in this class is <code>nrAttribs()</code>, where you have to specify how many outputs your attribute has. The name of each out is set in <code>attribName(int)</code>.<br>
+If your attribute needs a timegate or stepout, you will have to define <code>reqInterval</code> and <code>reqStepout</code> respectively.<br>
 </p><p>
-On the implementation side of all that, we have some overhead and the actual attribute calculation. If you feel that the overhead is enormous, bear in mind that the Attribute engine will let the attribute work on any part of any input cude or on the output of another attribute, and that things are cut in pieces when multiple processors are available. And there's more but the idea is that all that requires some extra work when making the attributes.
+On the implementation side of all that, we have some overhead and the actual attribute calculation. If you feel that the overhead is enormous, bear in mind that the Attribute engine will let the attribute work on any part of any input cube or on the output of another attribute, and that things are cut in pieces when multiple processors are available. And there's more but the idea is that all that requires some extra work when making the attributes.
 </p><p>
-When we want to look at the actual work, the place to be is the <code>nextStep()</code> method of the <code>CoherencyAttrib::Task</code> class.
-MORE
+When we want to look at the actual work, the place to be is the <code>nextStep()</code> method of the <code>CoherencyAttrib::Task</code> class.<br>
+But before this work can be done, some input has to be given. The <code>CoherencyAttrib::Task::Input</code> class is designed for that. The <code>set</code> function is the keyfunction in this class, and is called for each trace to be calculated. It should select the necessary data from the input attributes, present in ObjectSet<AttribProvider>. For the Coherency this is the seismic data and the imaginairy data calculated by the <code>Hilbert</code> attribute. But it can also be Steering Data or any other attribute.<br>
+See example from <code>CoherencyAttrib</code>:
+<pre><code>
+xxxxAttrib::Task::Input::set( const BinID& pos,
+                     const ObjectSet<AttribProvider>& inputproviders,
+                     const TypeSet<int>& inputattribs,
+                     const TypeSet<float*>&)
+{
+    const BinID& stepout = calculator.stepout;
+
+    for ( int idx=-stepout.inl; idx<=stepout.inl; idx++ )
+    {
+        for ( int idy=-stepout.crl; idy<=stepout.crl; idy++ )
+        {
+            SeisTrc* trc = inputproviders[0]->getTrc(   pos.inl + idx,
+                                                        pos.crl + idy);
+            if ( !trc ) return false;
+            retrcs->set(idx+stepout.inl,idy+stepout.crl, trc);
+
+            trc = inputproviders[1]->getTrc(    pos.inl + idx,
+                                                pos.crl + idy);
+            if ( !trc ) return false;
+            imtrcs->set(idx+stepout.inl,idy+stepout.crl, trc);
+        }
+    }
+
+    attribute = inputproviders[0]->attrib2component( inputattribs[0] );
+    imattribute = inputproviders[1]->attrib2component( inputattribs[1] );
+
+    return true;
+}
+</code></pre><br>
+
+
+The <code>CoherencyAttrib::Task</code> class also has a <code>set</code> function. This function is used to transfer some specific information about the trace to be processed, like the starttime, the number of samples you wish to calculate, the timestep, a pointer to the input and a pointer to the output. The output is a set containing pointers to all ouputs defined in <code>CoherencyAttrib</code>.<br>
+Example:
+<pre><code>  
+xxxxAttrib::Task::set( float start, int nrsamples, float step_, 
+     		       const AttribCalc::Task::Input* input_, 
+		       const TypeSet<float*>& output )
+{
+    t1 = start;
+    nrtimes = nrsamples;
+    step = step_;
+    input = input_;
+    cohptr = output[0];
+    inldipptr = output[1];
+    crldipptr = output[2];
+}
+</code></pre>
+<br> 
+When your machine has multiple processors, the <code>getFastestSz()</code> can be of importance. The default value is 25, and means that a trace is split and calculated in parts of 25 samples. If you want that a complete trace is calculated on the same processor, you have to make sure that <code>getFastestSz()</code> returns the number of samples per trace or higher.<br>
+Now it's time for the <code>nextStep()</code> function to do it's work. This is the place where you define the mathematics for calculating the attribute. This function is called for each trace of your output cube.
+
+
 </p>
 
 
