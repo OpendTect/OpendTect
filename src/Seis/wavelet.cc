@@ -5,12 +5,13 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.12 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.13 2004-04-08 13:04:44 bert Exp $";
 
 #include "wavelet.h"
 #include "wvltfact.h"
 #include "ascstream.h"
 #include "streamconn.h"
+#include "survinfo.h"
 #include "ioobj.h"
 #include "errh.h"
 #include "ptrman.h"
@@ -23,6 +24,49 @@ Wavelet::Wavelet( const char* nm, int idxfsamp, float sr )
 	, sz(0)
 	, samps(0)
 {
+}
+
+
+Wavelet::Wavelet( bool isricker, float fpeak, float sr, float scale )
+    	: dpos(sr)
+    	, sz(0)
+	, samps(0)
+{
+    if ( mIsUndefined(dpos) )
+	dpos = SI().zRange().step;
+    if ( mIsUndefined(scale) )
+	scale = 1;
+    if ( mIsUndefined(fpeak) || fpeak <= 0 )
+	fpeak = 25;
+    iw = (int)( -( 1 + 1. / (fpeak*dpos) ) );
+
+    const bool istime = SI().zIsTime();
+    BufferString nm( isricker ? "Ricker " : "Sinc " );
+    nm += fpeak;
+    if ( istime )
+	nm += " Hz";
+    else
+    {
+	nm += SI().getZUnit(false);
+	nm += "^-1";
+    }
+    setName( nm );
+
+    int lw = 1 - 2*iw;
+    reSize( lw );
+    float pos = iw * dpos;
+    for ( int idx=0; idx<lw; idx++ )
+    {
+	float x = M_PI * fpeak * pos;
+	float x2 = x * x;
+	if ( idx == -iw )
+	    samps[idx] = scale;
+	else if ( isricker )
+	    samps[idx] = scale * exp(-x2) * (1-2*x2);
+	else
+	    samps[idx] = scale * exp(-x2) * sin(x)/x;
+	pos += dpos;
+    }
 }
 
 
@@ -167,19 +211,20 @@ int dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
     if ( !astream.isOfFileType(mTranslGroupName(Wavelet)) )
 	return NO;
 
-    int iw = 0; float sr = 0.004;
+    const float scfac = SI().zFactor();
+    int iw = 0; float sr = scfac * SI().zRange().step;
     while ( !atEndOfSection( astream.next() ) )
     {
         if ( astream.hasKeyword( sLength ) )
 	    wv->reSize( astream.getVal() );
         else if ( astream.hasKeyword( sIndex ) )
 	    iw = astream.getVal();
-        else if ( astream.hasKeyword( sSampRate ) )
-	    sr = astream.getValue();
         else if ( astream.hasKeyword(sNameKey) )
 	    wv->setName( astream.value() );
+        else if ( astream.hasKeyword( sSampRate ) )
+	    sr = astream.getValue();
     }
-    wv->set( -iw, sr/1000 );
+    wv->set( -iw, sr / scfac );
 
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() >> wv->samples()[idx];
@@ -200,7 +245,7 @@ int dgbWaveletTranslator::write( const Wavelet* wv, Conn& conn )
     if ( *(const char*)wv->name() ) astream.put( sNameKey, wv->name() );
     astream.put( sLength, wv->size() );
     astream.put( sIndex, -wv->centerSample() );
-    astream.put( sSampRate, wv->sampleRate()*1000 );
+    astream.put( sSampRate, wv->sampleRate() * SI().zFactor() );
     astream.newParagraph();
     for ( int idx=0; idx<wv->size(); idx++ )
 	astream.stream() << wv->samples()[idx] << '\n';
