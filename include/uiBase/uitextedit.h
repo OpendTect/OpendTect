@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.4 2002-03-18 13:41:54 arend Exp $
+ RCS:           $Id: uitextedit.h,v 1.5 2003-01-08 12:48:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,9 @@ public:
     void		forward();
     void		home();
     void		reload();
+
+    int			nrLines();
+    void		scrollToBottom();
 
 
     bool		canGoForward()		{ return cangoforw_; }

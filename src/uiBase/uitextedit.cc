@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.12 2002-11-06 12:58:05 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.13 2003-01-08 12:48:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,3 +170,10 @@ void uiTextBrowser::home()
 void uiTextBrowser::reload()
 { body_->reload(); }
 
+
+int uiTextBrowser::nrLines()
+{ return body_->lines(); }
+
+
+void uiTextBrowser::scrollToBottom()
+{ body_->scrollToBottom(); }
