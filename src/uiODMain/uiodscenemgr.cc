@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.30 2004-10-01 12:30:16 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.31 2004-12-23 15:12:08 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,6 +150,7 @@ void uiODSceneMgr::addScene()
     scn.sovwr->viewAll();
     scn.sovwr->saveHomePos();
     scn.sovwr->viewmodechanged.notify( mWSMCB(viewModeChg) );
+    scn.sovwr->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.vwrGroup()->display( true, false, true );
     actMode(0);
     setZoomValue( scn.sovwr->getCameraZoom() );
@@ -238,6 +239,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
   	scn.sovwr->setTitle( title );
 	scn.sovwr->display();
 	scn.sovwr->viewmodechanged.notify( mWSMCB(viewModeChg) );
+	scn.sovwr->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed));
 	scn.vwrGroup()->display( true, false );
 	setZoomValue( scn.sovwr->getCameraZoom() );
 	initTree( scn, vwridx );
@@ -276,6 +278,13 @@ void uiODSceneMgr::viewMode( CallBacker* )
     appl.statusBar()->message( "", 0 );
     appl.statusBar()->message( "", 1 );
     appl.statusBar()->message( "", 2 );
+}
+
+
+void uiODSceneMgr::pageUpDownPressed( CallBacker* cb )
+{
+    mCBCapsuleUnpack(bool,up,cb);
+    applMgr().pageUpDownPressed( up );
 }
 
 

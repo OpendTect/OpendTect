@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.13 2004-09-17 15:20:56 nanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.14 2004-12-23 15:12:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
     void		viewModeChg(CallBacker* cb=0);
     void		actMode(CallBacker* cb=0);
     void		viewMode(CallBacker* cb=0);
+
+    void		pageUpDownPressed(CallBacker*);
 
     void		setMousePos();
     void		setKeyBindings();
