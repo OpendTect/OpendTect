@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.6 2001-05-18 13:37:16 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.7 2001-05-30 16:13:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,10 @@ protected:
 			//!< that entry is not entered in the entries_.
 
     void		updateFromEntries();
+    bool		haveEntry(const char*) const;
 
+    virtual void	objSel()		{}
+			//!< notification when user selects from combo
 
 };
 
