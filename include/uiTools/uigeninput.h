@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.22 2003-01-14 13:45:10 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.23 2003-04-23 15:07:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ Returns true, if changes are accepted.
 			  setValue(i.step,2); }
 
     void		setReadOnly( bool yn=true, int nr=-1 );
-    void		setFldsSensible( bool yn=true, int nr=-1 );
+    void		setSensitive(bool yn=true, int elemnr=-1, int fldnr=-1);
     void		clear( int nr=-1 );
 
 			//! returns 0 if not finalised.
