@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.10 2001-12-07 12:47:16 bert Exp $
+ RCS:           $Id: uimainwin.h,v 1.11 2001-12-17 10:47:55 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiStatusBar;
 class uiToolBar;
 class uiMenuBar;
 class uiObject;
+class QWidget;
 
 class uiMainWin : public uiParent
 {
@@ -37,6 +38,11 @@ public:
     uiStatusBar* 	statusBar();
     uiMenuBar* 		menuBar();
     uiToolBar* 		toolBar();
+
+    static uiMainWin*	activeWindow();
+
+			//! get uiMainWin for mwimpl if it is a uiMainWinBody
+    static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
 
     void		setCaption( const char* txt );
     void                show();

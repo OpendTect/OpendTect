@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.19 2001-12-07 17:43:33 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.20 2001-12-17 10:48:30 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,7 +226,6 @@ void uiMainWinBody::finalise()
 
 uiStatusBar* uiMainWinBody::uistatusbar()
 {
-    if ( !statusbar) pErrMsg("No statusbar. See uiMainWinBody's constructor"); 
     return statusbar;
 }
 
@@ -285,6 +284,27 @@ void uiMainWin::toStatusBar( const char* txt )
     	UsrMsg(txt);
 }
 
+uiMainWin* uiMainWin::activeWindow()
+{
+    QWidget* _aw = qApp->activeWindow();
+    if( !_aw )		return 0;
+
+    uiMainWinBody* _awb = dynamic_cast<uiMainWinBody*>(_aw);
+    if( !_awb )		return 0;
+
+    return &_awb->handle();
+
+}
+
+uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
+{
+    if( !mwimpl )	return 0;
+
+    uiMainWinBody* _mwb = dynamic_cast<uiMainWinBody*>( mwimpl );
+    if( !_mwb )		return 0;
+
+    return &_mwb->handle();
+}
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
