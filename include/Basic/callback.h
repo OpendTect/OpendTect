@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.21 2001-08-20 07:17:54 windev Exp $
+ RCS:		$Id: callback.h,v 1.22 2002-02-08 11:51:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,19 +45,23 @@ interested in).
 
 
 typedef void (CallBacker::*CallBackFunction)(CallBacker*);
+/*!> Macro casting a to CallBacker::function */
 #define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
+/*!> Macro to simply define a callback from an instance pointer and a method */
 #define mCB(obj,clss,fn) CallBack(obj,mCBFn(clss,fn))
 
 
 /*!\brief CallBacks object-oriented.
 
-If you want a specific class to be the 'callback base class', you must define
-the CallBacker before including this header file. This can
-be done on the compiler command line ( ... -DCallBacker=MyClass ... ) or
-simply by defining it with #define .
+CallBack is simply a function pointer + object to call it on. It may be
+empty, in which case doCall() will simply do nothing. If you want to be
+able to send a CallBack, you must be a CallBacker.
 
-If you don't define it yourself, you'll get the dGB CallBackClass which
-is (almost) empty.
+\NOTE: If you want a specific class to be the 'callback base class', you must
+define the CallBacker before including this header file. This can
+be done on the compiler command line ( ... -DCallBacker=MyClass ... ) or
+simply by defining it with #define. If you don't define it yourself, you'll
+get the dGB CallBackClass which is (almost) empty.
 
 */
 
@@ -91,7 +95,7 @@ protected:
 /*!\brief List of CallBacks.
 
 A simple list of CallBacks is required. Again, define CallBackList if
-needed. In this case, you'll need to support:
+needed. In that case, you'll need to support:
 
 1) An 'operator +=' to add a callback to the list
 2) An 'operator -=' to remove a callback from the list
@@ -131,8 +135,11 @@ inline void CallBackSet::doCall( CallBacker* obj )
 
 /*!\brief Capsule class to wrap any class into a CallBacker.
 
-for convenience, a CallBacker* is included, so the 'caller' will still be
-available.
+Because callback functions are defined as:
+void xxx( CallBacker* )
+you can also pass other info. For this reason, you can use the Capsule
+class, which isA CallBacker, but contains T data. For convenience, the
+originating CallBacker* is included, so the 'caller' will still be available.
 
 */
 
@@ -273,6 +280,17 @@ protected:
 
 /*!\brief class to help setup a callback handling.
 
+What we have discovered is that the two things:
+- providing a notification of an event to the outside world
+- asking a notification of a certain object
+are strongly coupled. Qt has its Signal/Slot pair, but we found that too
+inflexible. Enter Notifier. You declare a Notifier to announce to the
+world that they can be notified of something. The 'receiving' object can
+then call the notify() method to 'register' the event notification. The
+sending object just calls trigger(). Note that it is most used in the
+UI, but it is equally usable in batch stuff. In general, it provides a
+rigorous uncoupling.
+
 Simply declare a Notifier<T> in the interface, like:
 \code
 Notifier<MyClass>	buttonclicked;
@@ -318,9 +336,17 @@ protected:
 
 /* \brief temporarily disables a notifier
 
-Enabling the stopper disables the notifier. On construction, the notifier
-is disabled. The notifier is automatically enabled again when
-NotifyStopper goes out of scope.
+CallBacks can be disabled. To do that temporarily, use NotifyStopper.
+If the Stopper goes out of scope, the callback is re-enabled. like:
+
+void xxx:doSomething()
+{
+    NotifyStopper stopper( a_notifier );
+
+    // doing things that would otherwise trigger notifier
+
+    // On exit, notifier gets re-enabled automatically
+}
 
 */
 
