@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.4 2002-05-07 13:01:19 nanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.5 2002-05-07 16:04:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uimergeseis.h"
 #include "uiseisimpexp.h"
 #include "uiseisidealimpexp.h"
+#include "uiseisfileman.h"
 #include "uimsg.h"
 #include "idealconn.h"
 #include "ptrman.h"
@@ -60,10 +61,6 @@ bool uiSeisPartServer::mergeSeis()
 
 void uiSeisPartServer::manageSeismics()
 {
-/*
-TODO: restore this
-#include "uiseisfileman.h"
     uiSeisFileMan dlg( appserv().parent() );
     dlg.go();
-*/
 }

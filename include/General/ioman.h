@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.9 2002-01-05 21:55:51 bert Exp $
+ RCS:		$Id: ioman.h,v 1.10 2002-05-07 16:04:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class IOLink;
 class IOParList;
 class IOPar;
 class CtxtIOObj;
+class Translator;
 
 
 /*!> Class IOMan manages the Meta-data store for the IOObj's. This info
@@ -87,6 +88,8 @@ public:
 			     $HOME/.dgbSurvey file */
 
     bool		setRootDir(const char*);
+    bool		setFileName(MultiID,const char*);
+    const char*		generateFileName(Translator*,const char*);
     static bool		validSurveySetup(BufferString& errmsg);
     MultiID		newKey() const;
 

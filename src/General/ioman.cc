@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.23 2002-04-16 15:46:16 nanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.24 2002-05-07 16:04:18 nanne Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -468,19 +468,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 
 	// Generate the right filename
 	Translator* tr = ctio.ctxt.trgroup->make( trnm );
-	int subnr = 0;
-	BufferString cleanname( ctio.ctxt.name() );
-	char* ptr = cleanname.buf();
-	cleanupString( ptr, NO, *ptr == *sDirSep, YES );
-	BufferString fnm;
-	for ( int subnr=0; ; subnr++ )
-	{
-	    fnm = cleanname;
-	    if ( subnr ) fnm += subnr;
-	    if ( tr && tr->defExtension() )
-		{ fnm += "."; fnm += tr->defExtension(); }
-	    if ( !File_exists(fnm) ) break;
-	}
+	const char* fnm = generateFileName( tr, ctio.ctxt.name() );
 	iostrm->setFileName( fnm );
 	delete tr;
 
@@ -495,6 +483,48 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
     }
 
     ctio.setObj( ioobj->clone() );
+}
+
+
+const char* IOMan::generateFileName( Translator* tr, const char* fname )
+{
+    int subnr = 0;
+    BufferString cleanname( fname );
+    char* ptr = cleanname.buf();
+    cleanupString( ptr, NO, *ptr == *sDirSep, YES );
+    static BufferString fnm;
+    for ( int subnr=0; ; subnr++ )
+    {
+	fnm = cleanname;
+	if ( subnr ) fnm += subnr;
+	if ( tr && tr->defExtension() )
+	    { fnm += "."; fnm += tr->defExtension(); }
+	if ( !File_exists(fnm) ) break;
+    }
+
+    return fnm;
+}
+
+
+bool IOMan::setFileName( MultiID key, const char* fname )
+{
+    IOObj* ioobj = get( key );
+    if ( !ioobj ) return false;
+    const FileNameString fulloldname = ioobj->fullUserExpr( true );
+    ioobj->setName( fname );
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( !iostrm ) return false;
+
+    Translator* tr = ioobj->getTranslator();
+    const char* fnm = generateFileName( tr, fname );
+    iostrm->setFileName( fnm );
+  
+    const FileNameString fullnewname = ioobj->fullUserExpr(true); 
+    int ret = File_rename( fulloldname, fullnewname );
+    if ( !ret || !dirPtr()->commitChanges( ioobj ) )
+	return false;
+
+    return true;
 }
 
 

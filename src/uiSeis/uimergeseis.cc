@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.4 2002-05-07 13:01:19 nanne Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.5 2002-05-07 16:04:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 	, rev(false)
 	, proc(0)
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    IOM().to( ctio.ctxt.stdSelKey() );
     const UserIDObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
     UserIDSet ioobjnms("Stored seismic data");
     for ( int idx=0; idx<ioobjs.size(); idx++ )
@@ -52,7 +52,10 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     }
 
     if ( ioobjnms.size() )
+    {
+	ioobjnms.sort();
 	ioobjnms.setCurrent(0);
+    }
     seisinpfld = new uiLabeledListBox( this, "Select Seismics to merge", true );
     seisinpfld->box()->addItems( ioobjnms );
 
@@ -140,11 +143,20 @@ bool uiMergeSeis::handleInput()
     BinIDSampler bs;
     StepInterval<float> zrg;
     StepInterval<float> zrgprev;
+    BufferString type = "";
     for ( int idx=0; idx<inpsz; idx++ )
     {
 	IOObj* ioobj = selobjs[idx];
 	if ( ioobj->pars().size() && ioobj->pars().hasKey("Type") )
-	    ctio.ioobj->pars().set( "Type", ioobj->pars().find("Type") );
+	{    
+	    if ( !idx ) 
+		type = ioobj->pars().find("Type");
+	    else if ( type != ioobj->pars().find("Type") )
+	    {
+		uiMSG().error( "Different file types selected" );
+		return false;
+	    }
+	}
 
         if ( !SeisTrcTranslator::getRanges( *ioobj, bs, zrg ) )
 	{
@@ -179,6 +191,9 @@ bool uiMergeSeis::handleInput()
 	    return false;
 	}
     }
+
+    ctio.ioobj->pars().set( "Type", type );
+    IOM().dirPtr()->commitChanges( ctio.ioobj );
 
     sort_coupled( inlstart, order, inpsz );
 
