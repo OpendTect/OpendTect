@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.13 2004-05-06 11:16:47 bert Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.14 2004-05-24 12:18:06 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,13 @@ void uiWellPartServer::selectLogs( const MultiID& wellid, int& selidx,
 
     selidx = dlg.selectedLog();
     lognr = dlg.logNumber();
+}
+
+
+bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
+{
+    const Well::Data* wd = Well::MGR().get( wellid );
+    return wd && wd->logs().size();
 }
 
 
