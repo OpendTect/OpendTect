@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.55 2004-07-30 15:51:05 nanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.56 2004-08-25 10:38:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,10 +172,9 @@ void uiListBox::createQString( QString& qs, const char* str, bool embed )
 
 void uiListBox::createQPixmap( QPixmap& qpm, int index )
 {
-    QListBoxItem* itm = body_->item( index );
-    if ( !itm ) return;
-    QRect rect = body_->itemRect( itm );
-    qpm.resize( rect.height()-2, rect.height()-2 );
+    if ( !size() ) return;
+    const int height = body_->itemHeight( 0 );
+    qpm.resize( height-2, height-2 );
 }
 
 
