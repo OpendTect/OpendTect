@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.29 2004-08-27 10:49:32 dgb Exp $
+# $Id: od_exec,v 1.30 2004-09-03 15:35:19 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -127,7 +127,7 @@ if ( $issys == yes ) then
     $xtermcmd $nicecmd $* $extraargs
 else
     if ( $?DTECT_DEBUG ) echo "$0 : $xtermcmd $nicecmd $bindir/$* $extraargs"
-    $xtermcmd $nicecmd "$bindir/$*" $extraargs
+    $xtermcmd $nicecmd "$bindir"/$* $extraargs
 endif
 
 exit $status
