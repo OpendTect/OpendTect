@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.21 2002-11-06 12:57:42 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.22 2003-01-14 13:45:10 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,7 +226,10 @@ protected:
 private:
 
     bool		checked_;
-    bool		ro;
+
+    bool		rdonly_;
+    bool		rdonlyset_;
+
     ObjectSet<DataInpSpec> inputs;
 
     uiObject::SzPolicy	elemszpol;
