@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.91 2003-09-19 07:49:51 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.92 2003-09-22 13:13:35 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,9 +65,7 @@ public:
     void			getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     int				addWell(int scene,const MultiID&);
 
-    int				addSurfTrackerCube( int scene );
-    				/*!< Get position with getCubeSampling */
-    int				getSurfTrackerCubeId();
+    int				addInterpreter( int scene );
     int				addSurfEditor(int scid, Geometry::GridSurface&);
 
     void			removeObject(int id,int sceneid);
@@ -107,6 +105,7 @@ public:
     bool			isStickSet(int) const;
     bool			isWell(int) const;
     bool			isPickSet(int) const;
+    bool			isInterpreter(int) const;
     bool			hasAttrib(int) const;
 
     static const int		evSelection;
