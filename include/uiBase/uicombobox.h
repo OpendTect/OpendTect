@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.10 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uicombobox.h,v 1.11 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
 #include <uigroup.h>
+#include <userinputobj.h>
 
 class PtrUserIDObjectSet;
 class uiLabel;
@@ -20,7 +21,7 @@ class uiComboBoxBody;
 class BufferString;
 template <class T> class ObjectSet;
 
-class uiComboBox : public uiObject
+class uiComboBox : public uiObject, public UserInputObjImpl<const char*>
 {
 public:
 
@@ -41,7 +42,6 @@ public:
 
     bool		isPresent(const char*) const;
 
-    virtual void	clear()			{ setCurrentItem(0); }
     void		empty();
     int			size() const;
     void		addItem(const char*); 
@@ -56,6 +56,21 @@ public:
 
 			//! Triggered when selection has changed.
     Notifier<uiComboBox> selectionChanged;
+
+    virtual void        setReadOnly( bool = true );
+    virtual bool        isReadOnly() const;
+
+    virtual bool	update( const DataInpSpec& spec );
+
+protected:
+
+    virtual void        setvalue_( const char* txt )	{ setCurrentItem(txt); }
+    virtual const char* getvalue_() const		{ return getText(); }
+    virtual void	clear_()			{ setCurrentItem(0); }
+
+    virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
+    virtual bool	notifyValueChanged_( const CallBack& cb )   
+			    { selectionChanged.notify(cb); return true; }
 
 private:
 

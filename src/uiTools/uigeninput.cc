@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.39 2002-02-21 17:52:21 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.40 2002-03-12 12:11:41 arend Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "basictypes.h"
 #include "uigeninput.h"
 #include "uilineedit.h"
+#include "uiboolinp.h"
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -43,323 +45,224 @@ programmer to decide.
 
 */
 
-class uiDataInpFld : public CallBacker
+class uiInputFld : public CallBacker
 {
 public:
-                        uiDataInpFld( uiGenInput* p, const DataInpSpec& spec ) 
+                        uiInputFld( uiGenInput* p, const DataInpSpec& spec ) 
 			: spec_( *spec.clone() ), p_( p ) {}
 
-    virtual const char* text( int idx ) const =0;
 
     virtual int		nElems()			{ return 1; }
-    virtual uiObject&	element( int  )			{ return uiObj(); }
-    virtual bool	isValid(int idx)
+
+    virtual UserInputObj* element( int idx=0 )		= 0;
+
+    const UserInputObj*	  element( int idx=0 ) const
+			   {return const_cast<uiInputFld*>(this)->element(idx);}
+
+    virtual uiObject*	mainObj()			= 0;
+
+                        // can be a uiGroup, i.e. for radio button group
+    virtual uiObject*	elemObj( int idx=0 )
+			{
+			    UserInputObj* elem = element(idx);
+			    if( !elem )	return 0;
+
+			    uiObject* ob = dynamic_cast<uiObject*>(elem);
+			    if( ob )	return ob;
+
+			    uiGroup* grp = dynamic_cast<uiGroup*>(elem);
+			    if( grp )	return grp->uiObj(); 
+
+			    return 0;
+			}
+
+virtual bool	isValid(int idx)
 			{ 
 			    if ( isUndef(idx) ) return false;
 			    if ( !spec_.hasLimits() ) return true;
 			    pErrMsg("Sorry, not implemented..");
 			    return true;
 			} // TODO implement
-    virtual bool	isUndef(int idx) const
-			    { return !*text(idx); } 
+virtual bool	isUndef(int idx) const
+			{ return !*text(idx); } 
 
-    virtual int         getIntValue( int idx )	const	=0;
-    virtual double      getValue( int idx )	const	=0;
-    virtual float       getfValue( int idx )	const	=0;
-    virtual bool        getBoolValue( int idx )	const	=0;
+const char*		text( int idx ) const
+			{ 
+			    return element(idx) ? element(idx)->text() 
+						: undefVal<const char*>();
+			}
+    int			getIntValue( int idx )	const
+			    { 
+				return element(idx) 
+						? element(idx)->getIntValue() 
+						: undefVal<int>();
+			    }
+    double		getValue( int idx )
+			    { 
+				return element(idx) ? element(idx)->getValue() 
+						    : undefVal<double>();
+			    }
+    float		getfValue( int idx )	const
+			    { 
+				return element(idx) ? element(idx)->getfValue() 
+						    : undefVal<float>();
+			    }
+    bool		getBoolValue( int idx )	const
+			    { 
+				return element(idx) 
+						? element(idx)->getBoolValue() 
+						: undefVal<bool>();
+			    }
 
-    virtual void        setText( const char*, int idx ) =0;
-    virtual void        setValue( int i, int idx )	=0;
-    virtual void        setValue( double d, int idx )	=0;
-    virtual void        setValue( float f, int idx )	=0;
-    virtual void        setValue( bool b, int idx )	=0;
+    void		setText( const char* s, int idx )
+			    { if( element(idx) ) element(idx)->setText(s); }
+    void		setValue( int i, int idx )
+			    { if( element(idx) ) element(idx)->setValue(i); }
+    void		setValue( double d, int idx )
+			    { if( element(idx) ) element(idx)->setValue(d); }
+    void		setValue( float f, int idx )
+			    { if( element(idx) ) element(idx)->setValue(f); }
+    void		setValue( bool b, int idx )
+			    { if( element(idx) ) element(idx)->setValue(b); }
 
-    virtual void        clear()				=0;
+			//! stores current value as clear state.
+    void		initClearValue()
+			    { 
+				for(int idx=0;idx<nElems()&&element(idx);idx++)
+				    element(idx)->initClearValue();
+			    }
+    void		clear()
+			    { 
+				for(int idx=0;idx<nElems()&&element(idx);idx++)
+				    element(idx)->clear();
+			    }
 
-    virtual void        setReadOnly( bool = true )	{}
-    virtual bool        isReadOnly() const		{ return false; }
+    void		setReadOnly( bool yn = true, int idx=0 )
+			    { if(element(idx)) element(idx)->setReadOnly(yn);}
 
-    virtual void	setSensitive(bool yn)		
-			    { uiObj().setSensitive(yn); }
+    bool		isReadOnly( int idx=0 ) const
+			    { 
+				return element(idx) ? element(idx)->isReadOnly()
+						    : undefVal<bool>();
+			    }
 
-                        // can be a uiGroup, i.e. for radio button group
-    virtual uiObject&	uiObj() =0;
+    void		setSensitive(bool yn, int idx=-1)		
+			    { 
+				if( idx >= 0 ) 
+				{ 
+				    if(elemObj(idx) )
+					elemObj(idx)->setSensitive(yn); 
+				}
+				else
+				    for(int ix=0;ix<nElems()&&elemObj(ix);ix++)
+					elemObj(ix)->setSensitive(yn); 
+			    }
 
+    DataInpSpec&	spec()				{ return spec_; }
 
-    DataInpSpec&	spec() { return spec_; }
+    bool                update( const DataInpSpec& nw )
+			    {
+				if( spec_.type() != nw.type() ) return false;
 
-    bool                update( const DataInpSpec* nw )
-                        {
-                            if (spec_.type() != nw->type()) return false;
-                            return update_(nw);
-                        }
+				if( update_(nw) )
+				{
+				    spec_ = nw;
+				    return true;
+				}
+
+				return false;
+			    }
 protected:
 
-    virtual bool        update_( const DataInpSpec* )
-			    { return false; } // TODO: implement
+    virtual bool        update_( const DataInpSpec& nw )
+			    { 
+				return nElems() == 1 && element()
+						    ? element()->update(nw)
+						    : false; 
+			    } 
 
-    void		changeNotify()	{ p_->changed.trigger( *p_ ); }
-    void		checkNotify()	{ p_->checked.trigger( *p_ ); }
+    void		valChangingNotify(CallBacker*)
+			    { p_->valuechanging.trigger( *p_ ); }
+
+    void		valChangedNotify(CallBacker*)
+			    { p_->valuechanged.trigger( *p_ ); }
+
 
     DataInpSpec&	spec_;
     uiGenInput*		p_;
 
     void		init()
-			{
-			    int pw = spec_.prefFldWidth();
-			    if (pw>=0) 
 			    {
-				for( int idx=0; idx<nElems(); idx++ )
-				    element(idx).setPrefWidthInChar( pw );
-			    }
-			    else
-			    {
-				if( spec_.hSzPol()==SzPolicySpec::undef )
-				    spec_.setHSzP( nElems()>1 
+				update_( spec_ );
+
+				int pw = spec_.prefFldWidth();
+				if (pw>=0) 
+				{
+				    for( int idx=0; idx<nElems() && elemObj(idx)
+						  ; idx++)
+					elemObj(idx)->setPrefWidthInChar( pw );
+				}
+				else
+				{
+				    if( spec_.hSzPol()==SzPolicySpec::undef )
+					spec_.setHSzP( nElems()>1 
 							? SzPolicySpec::small 
 							: SzPolicySpec::medium);
 
-				for( int idx=0; idx<nElems(); idx++ )
-				    element(idx).setSzPol(spec_);
-			    } 
-			}
+				    for( int idx=0; idx<nElems() && elemObj(idx)
+						  ; idx++)
+					elemObj(idx)->setSzPol(spec_);
+				} 
+			    }
 };
 
-/*! \brief Text oriented data input field.
-
-Provides a text-oriented implementation for uiDataInpFld. 
-Converts everything to and from a string.
-
-*/
-
-class uiTextInpFld : public uiDataInpFld
+template <class T>
+class uiSimpleInputFld : public uiInputFld
 {
 public:
-                        uiTextInpFld( uiGenInput* p, const DataInpSpec& spec )
-			: uiDataInpFld( p, spec ) {}
-
-    virtual int         getIntValue( int idx ) const
-			    { return text(idx) ? atoi(text(idx)): mUndefIntVal;}
-    virtual double      getValue( int idx ) const
-			    { return text(idx) ? atof(text(idx)): mUndefValue; }
-    virtual float       getfValue( int idx ) const
-			    { return text(idx) ? atof(text(idx)): mUndefValue; }
-    virtual bool        getBoolValue( int idx ) const
-			    { return yesNoFromString( text(idx) ); }
-
-    virtual void        setValue( int i, int idx )
-			    { setText( getStringFromInt(0, i ),idx); }
-    virtual void        setValue( double d, int idx )
-			    { setText( getStringFromDouble(0, d ),idx); }
-    virtual void        setValue( float f, int idx )
-			    { setText( getStringFromFloat(0, f ),idx); }
-    virtual void        setValue( bool b, int idx )
-			    { setText( getYesNoString( b ),idx); }
-
-    virtual void        clear()				
-			{ 
-			    for( int idx=0; idx<nElems(); idx++ ) 
-				setText("",idx); 
-			}
-};
-
-/*! \brief Int oriented general data input field.
-
-converts everything formats to and from int
-
-*/
-class uiIntInpField : public uiDataInpFld
-{
-public:
-                        uiIntInpField( uiGenInput* p, const DataInpSpec& spec, 
-				       int clearValue=0)
-                        : uiDataInpFld( p, spec )
-			, clear_(clearValue) {}
-
-    virtual const char* text( int idx ) const
-			    { return getStringFromInt(0, getIntValue(idx)); }
-    virtual double      getValue( int idx ) const
-			    { return (double) getIntValue( idx ); }
-    virtual float       getfValue( int idx ) const
-			    { return (float) getIntValue( idx ); }
-    virtual bool        getBoolValue( int idx ) const
-			    { return getIntValue( idx ) ? true : false ; }
-
-    virtual void	setIntValue( int i, int idx )	=0;
-    virtual void        setValue( int i, int idx )
-			    { setIntValue( i , idx); }
-    virtual void        setText( const char* s, int idx )
-			    { setIntValue( atoi(s), idx); }
-    virtual void        setValue( double d, int idx )
-			    { setIntValue( mNINT(d), idx); }
-    virtual void        setValue( float f, int idx )
-			    { setIntValue( mNINT(f), idx); }
-    virtual void        setValue( bool b, int idx )
-			    { setIntValue( b ? 1 : 0, idx); }
-
-    virtual void        clear()				
-			{ 
-			    for( int idx=0; idx<nElems(); idx++ ) 
-				setIntValue( clear_, idx);
-			}
-
-protected:
-			//! value used to clear field.
-    int			clear_;
-
-			//! stores current value as clear state.
-    void		initClear() { clear_ = getIntValue(0); }
-};
-
-class uiLineInpFld : public uiTextInpFld
-{
-public:
-			uiLineInpFld( uiGenInput* p, 
+			uiSimpleInputFld( uiGenInput* p, 
 					 const DataInpSpec& spec,
 					 const char* nm="Line Edit Field" ) 
-			    : uiTextInpFld( p, spec )
-			    , li( *new uiLineEdit(p,0,nm) ) 
-			{
-			    li.setText( spec.text() );
-			    init();
-			    li.textChanged.notify( 
-				mCB(this,uiDataInpFld,changeNotify) );
-			}
+			    : uiInputFld( p, spec )
+			    , usrinpobj( *new T(p) ) 
+			    {
+				init();
 
-    virtual const char*	text(int idx) const		{ return li.text(); }
-    virtual void        setText( const char* t,int idx)	{ li.setText(t);}
-    virtual uiObject&	uiObj()				{ return li; }
+				usrinpobj.notifyValueChanging( 
+				   mCB(this,uiInputFld,valChangingNotify) );
 
-    virtual void        setReadOnly( bool yn )	{ li.setReadOnly(yn); }
-    virtual bool        isReadOnly() const	{ return li.isReadOnly(); }
+				usrinpobj.notifyValueChanged( 
+				   mCB(this,uiInputFld,valChangedNotify) );
+			    }
 
+    virtual UserInputObj* element( int idx=0 )
+			    { return idx==0 ? &usrinpobj : 0; }
+
+    virtual uiObject*	mainObj()
+			    { return dynamic_cast<uiObject*>(&usrinpobj); }
 
 protected:
-    uiLineEdit&	li;
+
+    T&			usrinpobj;
 };
 
+typedef uiSimpleInputFld<uiLineEdit>	uiTextInputFld;
 
-class uiBoolInpFld : public uiIntInpField
+
+class uiBoolInpFld : public uiSimpleInputFld<uiBoolInput>
 {
 public:
-
 			uiBoolInpFld( uiGenInput* p, 
-				      const DataInpSpec& spec,
-				      const char* nm="Bool Input Field" );
+					 const DataInpSpec& spec,
+					 const char* nm="Bool Input Field" ) 
+			    : uiSimpleInputFld<uiBoolInput>( p, spec, nm )
+			    {}
 
-    virtual const char*	text(int idx) const{ return yn ? truetxt : falsetxt; }
-    virtual void        setText( const char* t, int idx)	
-			{  
-			    if ( t == truetxt ) yn = true;
-			    else if ( t == falsetxt ) yn = false;
-			    else yn = yesNoFromString(t);
-
-			    setValue(yn);
-			}
-
-    virtual int		nElems()		{ return cb ? 1 : 2; }
-    virtual uiObject&	element( int idx  )	
-			{ 
-			    if( cb ) return *cb;
-			    return idx ? *rb2 : *rb1; 
-			}
-
-    virtual bool	isUndef(int) const		{ return false; }
-
-    virtual bool        getBoolValue() const		{ return yn; }
-    virtual void        setValue( bool b, int idx=0 );
-
-    virtual int         getIntValue( int idx ) const	{ return yn ? 1 : 0; }
-    virtual void        setIntValue( int i, int idx )
-			    { setValue( i ? true : false, idx ); }
-
-    virtual uiObject&	uiObj()				{ return *butOrGrp; }
-
-protected:
-
-    void		selected(CallBacker*);
-
-    BufferString        truetxt;
-    BufferString        falsetxt;
-    bool                yn;
-    uiObject*		butOrGrp; //! either uiButton or uiButtonGroup
-    uiCheckBox*		cb;
-    uiRadioButton*	rb1;
-    uiRadioButton*	rb2;
+    virtual uiObject*	mainObj()	{ return usrinpobj.uiGroup::uiObj(); }
 };
 
-uiBoolInpFld::uiBoolInpFld(uiGenInput* p, const DataInpSpec& spec, const char* nm)
-    :uiIntInpField( p, spec )
-    , butOrGrp( 0 ) , cb( 0 ), rb1( 0 ), rb2( 0 ), yn( true )
-{
-    mDynamicCastGet(const BoolInpSpec*,spc,&spec)
-    if ( !spc )
-    { 
-	pErrMsg("huh?");
-	uiGroup* grp = new uiGroup(p,nm);
-	butOrGrp = grp->uiObj(); 
-	return;
-    }
 
-    yn=spc->checked(); initClear();
-
-    truetxt = spc->trueFalseTxt(true);
-    falsetxt = spc->trueFalseTxt(false);
-
-    if ( truetxt == ""  || falsetxt == "" )
-    { 
-	cb = new uiCheckBox( p, (truetxt == "") ? nm : (const char*)truetxt ); 
-	cb->activated.notify( mCB(this,uiBoolInpFld,selected) );
-	butOrGrp = cb;
-	setValue( yn );
-	return; 
-    }
-
-    // we have two labelTxt()'s, so we'll make radio buttons
-    uiGroup* grp_ = new uiGroup( p, nm ); 
-    butOrGrp = grp_->uiObj();
-
-    rb1 = new uiRadioButton( grp_, truetxt );
-    rb1->activated.notify( mCB(this,uiBoolInpFld,selected) );
-    rb2 = new uiRadioButton( grp_, falsetxt );
-    rb2->activated.notify( mCB(this,uiBoolInpFld,selected) );
-
-    rb2->attach( rightTo, rb1 );
-    grp_->setHAlignObj( rb1 );
-
-    setValue( yn );
-
-    init();
-}
-
-
-void uiBoolInpFld::selected(CallBacker* cber)
-{
-    bool yn_ = yn;
-    if ( cber == rb1 )		{ yn = rb1->isChecked(); }
-    else if ( cber == rb2 )	{ yn = !rb2->isChecked(); }
-    else if( cber == cb)	{ yn = cb->isChecked(); }
-    else return;
-
-    if ( yn != yn_ )		changeNotify();
-    setValue( yn );
-}
-
-
-void uiBoolInpFld::setValue( bool b, int idx )
-{
-    yn = b; 
-
-    if ( cb ) { cb->setChecked( yn ); return; }
-
-    if ( !rb1 || !rb2 ) { pErrMsg("Huh?"); return; }
-
-    rb1->setChecked(yn); 
-    rb2->setChecked(!yn); 
-}
-
-
-class uiBinIDInpFld : public uiTextInpFld
+class uiBinIDInpFld : public uiInputFld
 {
 public:
 
@@ -367,17 +270,18 @@ public:
 					 const DataInpSpec& spec,
 					 const char* nm="BinID Input Field" );
 
-    virtual uiObject&	uiObj()			{ return binidGrp; }
+    virtual uiObject*	mainObj()	{ return binidGrp; }
 
     virtual int		nElems()		{ return 2; }
-    virtual uiObject&	element( int idx  )	{ return idx ? crl_y : inl_x; }
+    virtual UserInputObj* element( int idx )	{ return idx ? &crl_y : &inl_x;}
 
-    virtual const char*	text(int idx) const		
-			    { return idx ? crl_y.text() : inl_x.text(); }
-    virtual void        setText( const char* t,int idx)
-			    { if (idx) crl_y.setText(t); else inl_x.setText(t);}
+    bool		notifyValueChanged(const CallBack& cb )
+                            { valueChanged.notify(cb); return true; }
+
+    Notifier<uiBinIDInpFld> valueChanged;
 
 protected:
+
     // don't change order of these 3 attributes!
     uiGroup&		binidGrp;
     uiLineEdit&		inl_x; // inline or x-coordinate
@@ -387,16 +291,23 @@ protected:
     uiPushButton*	ofrmBut; // other format: BinId / Coordinates 
     void		otherFormSel(CallBacker*);
 
+
+    virtual const char*	getvalue_(int idx) const		
+			    { return idx ? crl_y.text() : inl_x.text(); }
+    virtual void        setvalue_( const char* t,int idx)
+			    { if (idx) crl_y.setText(t); else inl_x.setText(t);}
+
 };
 
 uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
 			      const char* nm ) 
-    : uiTextInpFld( p, spec )
+    : uiInputFld( p, spec )
     , binidGrp( *new uiGroup(p,nm) )
     , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
     , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
     , ofrmBut( 0 )
     , b2c(0)
+    , valueChanged(this)
 {
     mDynamicCastGet(const BinIDCoordInpSpec*,spc,&spec)
     if ( !spc ){ pErrMsg("huh"); return; }
@@ -407,8 +318,11 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& spec,
     binidGrp.setHAlignObj( &inl_x );
     crl_y.attach( rightTo, &inl_x );
 
-    inl_x.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
-    crl_y.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
+    inl_x.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
+    crl_y.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
+
+    inl_x.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+    crl_y.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
 
     if ( spc->otherTxt() )
     {
@@ -433,7 +347,7 @@ void uiBinIDInpFld::otherFormSel(CallBacker* cb)
 }
 
 template<class T>
-class uiIntervalInpFld : public uiTextInpFld
+class uiIntervalInpFld : public uiInputFld
 {
 public:
 
@@ -442,14 +356,9 @@ public:
 					 const char* nm="Bool Input Field" );
 
     virtual int		nElems()		{ return step ? 3 : 2; }
-    virtual uiObject&	element( int idx  )	{ return *le(idx); }
+    virtual UserInputObj* element( int idx=0 )	{ return le(idx); }
 
-    virtual uiObject&	uiObj()			{ return intvalGrp; }
-
-    virtual const char*	text(int idx) const		
-			    { return  le(idx) ? le(idx)->text() : 0; }
-    virtual void        setText( const char* t,int idx)	
-			    { if (le(idx)) le(idx)->setText(t); }
+    virtual uiObject*	mainObj()		{ return intvalGrp.uiObj(); }
 
 protected:
     uiGroup&		intvalGrp;
@@ -459,22 +368,37 @@ protected:
     uiLineEdit*		step;
     uiLabel*		lbl;
 
+    virtual T		getvalue_(int idx) const		
+			    { 
+				return le(idx) ? 
+					  convertTo<T>(le(idx)->text()) 
+					: undefVal<T>(); 
+			    }
+
+    virtual void        setvalue_( T t, int idx)	
+			    { 
+				if ( le(idx) ) 
+				    le(idx)->setText(convertTo<const char*>(t));
+			    }
+
+
     inline const uiLineEdit* le( int idx ) const 
-			{ 
-			    return const_cast<uiLineEdit*>
-				(const_cast<uiIntervalInpFld*>(this)->le(idx));
-			}
+			    { 
+				return const_cast<uiIntervalInpFld*>(this)->
+									le(idx);
+			    }
+
     uiLineEdit*		le( int idx ) 
-			{ 
-			    if ( idx>1 ) return step;
-			    return idx ? &stop : &start;
-			}
+			    { 
+				if ( idx>1 ) return step;
+				return idx ? &stop : &start;
+			    }
 };
 
 template<class T>
 uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
 				    const char* nm) 
-    : uiTextInpFld( p, spec )
+    : uiInputFld( p, spec )
     , intvalGrp( *new uiGroup(p,nm) ) 
     , start( *new uiLineEdit(&intvalGrp,0,nm) )
     , stop( *new uiLineEdit(&intvalGrp,0,nm) )
@@ -488,15 +412,21 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
 	// TODO: implement check for limits
     }
 
-    start.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
-    stop.textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
+    start.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
+    stop.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
+
+    start.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+    stop.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
 
     start.setText( spec.text(0) );
     stop.setText( spec.text(1) );
     if ( spc->hasStep() )
     {
 	step = new uiLineEdit(&intvalGrp,"",nm);
-	step->textChanged.notify( mCB(this,uiDataInpFld,changeNotify) );
+
+	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
+	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+
 	step->setText( spec.text(2) );
 	lbl = new uiLabel(&intvalGrp, "Step" );
     }
@@ -514,26 +444,19 @@ uiIntervalInpFld<T>::uiIntervalInpFld<T>(uiGenInput* p, const DataInpSpec& spec,
 }
 
 
-class uiStrLstInpFld : public uiIntInpField
+class uiStrLstInpFld : public uiInputFld
 {
 public:
 			uiStrLstInpFld( uiGenInput* p, 
 					 const DataInpSpec& spec,
 					 const char* nm="uiStrLstInpFld" ) 
-			    : uiIntInpField( p, spec )
+			    : uiInputFld( p, spec )
 			    , cbb( *new uiComboBox(p,nm) ) 
 			{
-			    mDynamicCastGet(const StringListInpSpec*,spc,&spec)
-			    if ( !spc ) { pErrMsg("Huh") ; return; }
-
-			    cbb.addItems( spc->strings() );
-			    int cursel = spc->getIntValue(0);
-			    if ( cursel >= 0 && cursel < spc->strings().size() )
-				cbb.setCurrentItem( cursel );
 			    init();
 
 			    cbb.selectionChanged.notify( 
-				mCB(this,uiDataInpFld,changeNotify) );
+				mCB(this,uiInputFld,valChangedNotify) );
 			}
 
     virtual bool	isUndef(int) const		{ return false; }
@@ -542,15 +465,16 @@ public:
     virtual void        setText( const char* t,int idx)	
 			    { cbb.setCurrentItem(t); }
 
-    virtual void	setIntValue( int i, int idx )	
-			    { cbb.setCurrentItem(i); }
-    virtual int		getIntValue( int idx )	const
-			    { return cbb.currentItem(); }
-
-    virtual uiObject&	uiObj()				{ return cbb; }
-
+    virtual UserInputObj* element( int idx=0 )		{ return &cbb; }
+    virtual uiObject*	mainObj()			{ return &cbb; }
 
 protected:
+
+    virtual void	setvalue_( int i, int idx )
+			    { cbb.setCurrentItem(i); }
+    virtual int		getvalue_( int idx )	const
+			    { return cbb.currentItem(); }
+
     uiComboBox&		cbb;
 };
 
@@ -560,9 +484,9 @@ creates a new InpFld and attaches it rightTo the last one
 already present in 'flds'.
 
 */
-uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
+uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 {
-    uiDataInpFld* fld=0;
+    uiInputFld* fld=0;
 
     switch( desc.type().rep() )
     {
@@ -577,7 +501,7 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	if( desc.type().form() == DataType::list )
 	    fld = new uiStrLstInpFld( this, desc ); 
 	else
-	    fld = new uiLineInpFld( this, desc ); 
+	    fld = new uiTextInputFld( this, desc ); 
     }
     break;
 
@@ -604,17 +528,17 @@ uiDataInpFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	else if( desc.type().form() == DataType::binID )
 	    fld = new uiBinIDInpFld( this, desc ); 
 	else
-	    fld = new uiLineInpFld( this, desc ); 
+	    fld = new uiTextInputFld( this, desc ); 
     }
     break;
     }
 
-    if( ! fld ) { pErrMsg("huh"); fld = new uiLineInpFld( this, desc ); }
+    if( ! fld ) { pErrMsg("huh"); fld = new uiTextInputFld( this, desc ); }
 
 
-    uiObject* other= flds.size() ? &flds[ flds.size()-1 ]->uiObj() : 0;
+    uiObject* other= flds.size() ? flds[ flds.size()-1 ]->mainObj() : 0;
     if ( other )
-	fld->uiObj().attach( rightTo, other );
+	fld->mainObj()->attach( rightTo, other );
 
     flds += fld;
 
@@ -634,7 +558,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked( this ), changed( this )
+    , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), ro(false)
 { 
     inputs += new StringInpSpec( inputStr ); 
@@ -648,7 +572,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked( this ), changed( this )
+    , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), ro(false)
 {
     inputs += inp1.clone();
@@ -663,7 +587,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked( this ), changed( this )
+    , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), ro(false)
 {
     inputs += inp1.clone();
@@ -680,7 +604,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , idxes( *new TypeSet<FieldIdx> )
     , selText("") , withchk(false) , withclr(false)
     , labl(0), cbox(0), selbut(0), clrbut(0)
-    , checked( this ), changed( this )
+    , checked( this ), valuechanging( this ), valuechanged( this )
     , checked_(false), ro(false)
 {
     inputs += inp1.clone();
@@ -704,7 +628,7 @@ const DataInpSpec* uiGenInput::spec( int nr ) const
     return ( nr<inputs.size() && inputs[nr] ) ? inputs[nr] : 0;
 }
 
-bool uiGenInput::newSpec(DataInpSpec* nw, int nr)
+bool uiGenInput::newSpec(const DataInpSpec& nw, int nr)
 {
     return ( nr >= 0 && nr<flds.size() && flds[nr] ) 
 	    ? flds[nr]->update(nw) : false; 
@@ -717,7 +641,7 @@ void uiGenInput::doFinalise()
     if ( finalised )		return;
     if ( !inputs.size() )	{ pErrMsg("No inputs specified :("); return; }
 
-    uiObject* lastElem = &createInpFld( *inputs[0] ).uiObj();
+    uiObject* lastElem = createInpFld( *inputs[0] ).mainObj();
     setHAlignObj( lastElem );
 
     if ( withchk )
@@ -734,7 +658,7 @@ void uiGenInput::doFinalise()
     }
 
     for( int i=1; i<inputs.size(); i++ )
-	lastElem = &createInpFld( *inputs[i] ).uiObj();
+	lastElem = createInpFld( *inputs[i] ).mainObj();
 
     if ( selText != "" )
     {
@@ -794,11 +718,11 @@ void uiGenInput::clear( int nr )
 	flds[idx]->clear();
 }
 
-uiObject* uiGenInput::element( int nr )
+UserInputObj* uiGenInput::element( int nr )
 { 
     if ( !finalised ) return 0; 
     return nr<idxes.size() && flds[idxes[nr].fldidx]
-	    ? &flds[idxes[nr].fldidx]->element(idxes[nr].subidx) : 0; 
+	    ? flds[idxes[nr].fldidx]->element(idxes[nr].subidx) : 0; 
 }
 
 #define mFromLE_o(fn,var,undefval) \

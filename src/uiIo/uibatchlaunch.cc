@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.5 2002-03-04 12:29:22 nanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.6 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 
     remfld = new uiGenInput( this, "Execute",
 			     BoolInpSpec( "Local", "Remote (using rsh)" ) );
-    remfld->changed.notify( mCB(this,uiBatchLaunch,remSel) );
+    remfld->valuechanged.notify( mCB(this,uiBatchLaunch,remSel) );
 
     opts.add( "Output window" );
     opts.add( "Log file" );

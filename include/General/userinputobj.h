@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.1 2002-02-21 17:42:08 arend Exp $
+ RCS:           $Id: userinputobj.h,v 1.2 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class CallBack;
 class uiObject;
+class DataInpSpec;
 
 class UserInputObj
 {
@@ -43,15 +44,38 @@ public:
     virtual void	clear()				= 0;
 
 		        /*! \brief intermediate value available
-			    \return true if available
+			    \return true if this notification is supported
 			*/
-    virtual bool	notifyValueChanging( const CallBack& )	{ return false;}
+    bool		notifyValueChanging( const CallBack& cb )
+			    { return notifyValueChanging_( cb ); }
 
 		        /*! \brief value change complete cq. commited
-			    \return true if available
+			    \return true if this notification is supported
 			*/
-    virtual bool	notifyValueChanged( const CallBack& )	{ return false;}
+    bool		notifyValueChanged( const CallBack& cb )
+			    { return notifyValueChanged_( cb ); }
 
+
+//TODO : replace pure virtual functions with default impl....
+#define DEBUG_VIRTUAL
+#ifdef DEBUG_VIRTUAL
+    virtual bool	update( const DataInpSpec& )		=0;
+
+protected:
+
+    virtual bool	notifyValueChanging_( const CallBack& )	=0;
+    virtual bool	notifyValueChanged_( const CallBack& )	=0;
+
+#else
+			//! returns true if successful
+    virtual bool	update( const DataInpSpec& )		{ return false;}
+
+protected:
+
+    virtual bool	notifyValueChanging_( const CallBack& )	{ return false;}
+    virtual bool	notifyValueChanged_( const CallBack& )	{ return false;}
+
+#endif
 };
 
 
@@ -84,9 +108,9 @@ public:
     virtual void	setValue( bool b )
 			    { setvalue_( convertTo<T>(b) ); }
 
-    virtual void	initClearValue()
+    void		initClearValue()
 			    { setClearValue( getvalue_() ); }
-    virtual void	clear()
+    void		clear()
 			    {
 				if ( clearvalset_ ) setvalue_(clearval_);
 				else clear_();

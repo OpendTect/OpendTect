@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.10 2002-02-21 17:42:25 arend Exp $
+ RCS:           $Id: uilineedit.cc,v 1.11 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uibody.h"
 #include "i_qlineedit.h"
 #include "uiobjbody.h"
+#include <datainpspec.h>
 
 #include <qsize.h> 
 
@@ -128,5 +129,11 @@ void uiLineEdit::setReadOnly( bool yn )
 bool uiLineEdit::isReadOnly() const
 {
     return body_->isReadOnly();
+}
+
+bool uiLineEdit::update( const DataInpSpec& spec )
+{
+    setText( spec.text() );
+    return true;
 }
 

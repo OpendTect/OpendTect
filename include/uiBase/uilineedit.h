@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.6 2002-02-21 17:43:09 arend Exp $
+ RCS:           $Id: uilineedit.h,v 1.7 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <userinputobj.h>
 #include <uiobj.h>
+#include <userinputobj.h>
 
 class uiLineEditBody;
 
@@ -27,15 +27,11 @@ public:
     void		setEdited( bool = true );
     bool		isEdited() const;
 
-    void		setReadOnly( bool = true );
-    bool		isReadOnly() const;
+    virtual void	setReadOnly( bool = true );
+    virtual bool	isReadOnly() const;
+    virtual bool	update( const DataInpSpec& spec );
 
     void		setPasswordMode();
-
-    virtual bool	notifyValueChanging( const CallBack& cb )
-			    { textChanged.notify(cb); return true;}
-    virtual bool	notifyValueChanged( const CallBack& cb ) 
-			    { returnPressed.notify(cb); return true;}
 
     Notifier<uiLineEdit> returnPressed;	
     Notifier<uiLineEdit> textChanged;	
@@ -45,6 +41,11 @@ protected:
     virtual void	clear_()			{ setvalue_(""); }
     virtual const char*	getvalue_() const;
     virtual void	setvalue_( const char* );
+
+    virtual bool	notifyValueChanging_( const CallBack& cb )
+			    { textChanged.notify(cb); return true;}
+    virtual bool	notifyValueChanged_( const CallBack& cb ) 
+			    { returnPressed.notify(cb); return true;}
 
 private:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.37 2002-02-22 15:05:23 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.38 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,42 +16,9 @@ ________________________________________________________________________
 #include <bufstring.h>
 #include <string2.h>
 #include <sizepolspec.h>
+#include <basictypes.h>
 
 class BinID2Coord;
-
-/*! \brief handles undefined-ness of variables
-
-This is my first attempt to catch the concept of undefinedness.
-I would prefer an implementation based on template specialisation,
-such as in ~arend/work/include/NLA/mlimits.h, but I'm pretty
-sure M$ vc++ will choke on that.
-
-TODO: check if we can make a real template specialisation based
-implementation for both gcc and msvc:(, without the need to instantiate
-the Undef class for each class it's used in.
-
-*/
-template<class T>
-class Undef
-{
-public:
-			Undef() : value_( value__( (T)0 ) ) {}
-
-    inline T		value() const		{ return value_;     }
-    inline bool		check( T t ) const	{ return isUndef_( t ); }
-
-private:
-
-    const T		value_;
-
-    inline bool		isUndef_( int i )    const { return i==mUndefIntVal; }
-    inline bool		isUndef_( float f )  const { return mIsUndefined(f); }
-    inline bool		isUndef_( double d ) const { return mIsUndefined(d); }
-
-    inline int		value__( int i ) 	   { return mUndefIntVal; }
-    inline float	value__( float f )	   { return mUndefValue; }
-    inline double	value__( double d )	   { return mUndefValue; }
-};
 
 class DataType
 {
@@ -139,22 +106,22 @@ public:
     virtual const char*	text( int idx=0 ) const		=0;
     virtual void	setText( const char*, int idx=0)=0;
 
-    virtual int		getIntValue( int idx ) const
+    virtual int		getIntValue( int idx=0 ) const
 			    { return text(idx) ? atoi( text(idx) ) : 0; }
-    virtual double	getValue( int idx ) const
+    virtual double	getValue( int idx=0 ) const
 			    { return text(idx) ? atof( text(idx) ) : 0; }
-    virtual float	getfValue( int idx ) const
+    virtual float	getfValue( int idx=0 ) const
 			    { return text(idx) ? atof( text(idx) ) : 0; }
-    virtual bool	getBoolValue( int idx ) const
+    virtual bool	getBoolValue( int idx=0 ) const
 			    { return (bool)getIntValue(idx); }
 
-    virtual void	setValue( int i, int idx )
+    virtual void	setValue( int i, int idx=0 )
 			    { setText( toString( i ),idx); }
-    virtual void	setValue( double d, int idx )
+    virtual void	setValue( double d, int idx=0 )
 			    { setText( toString( d ),idx); }
-    virtual void	setValue( float f, int idx )
+    virtual void	setValue( float f, int idx=0 )
 			    { setText( toString( f ),idx); }
-    virtual void	setValue( bool b, int idx )
+    virtual void	setValue( bool b, int idx=0 )
 			    { setValue( ((int)b), idx ); }
 
 
@@ -179,7 +146,7 @@ class NumInpSpec : public DataInpSpec
 public:
 			NumInpSpec() 
 			    : DataInpSpec( DataTypeImpl<T>() ) , limits_(0)
-			    { value_=undef.value(); }
+			    { value_ = undefVal<T>(); }
 			NumInpSpec( T val ) 
 			    : DataInpSpec( DataTypeImpl<T>() ) , limits_(0)
 			    , value_( val )			{}
@@ -192,18 +159,18 @@ public:
 			    { return new NumInpSpec<T>( *this ); }
 
     virtual bool	isUndef( int idx=0 ) const	
-			    { return undef.check(value_); }
+			    { return isUndefined(value_); }
 
-    virtual void	setText( const char* s, int idx )
+    virtual void	setText( const char* s, int idx=0 )
 			    { getFromString( value_, s ); }
 
     T			value() const	
 			{
-			    if ( undef.check(value_) ) return undef.value();
+			    if ( isUndefined(value_) ) return undefVal<T>();
 			    return value_;
 			}
 
-    virtual const char*	text( int idx ) const
+    virtual const char*	text( int idx=0 ) const
 			{
 			    if ( isUndef() )	return "";
 			    else		return toString( value() );
@@ -222,9 +189,7 @@ protected:
 
     T			value_;
 
-    const Undef<T>	undef;
     Interval<T>*	limits_;
-
 }; 
 
 
@@ -250,12 +215,12 @@ public:
 			    : DataInpSpec( DataTypeImpl<T>(DataType::interval) )
 			    , startlimits_(0), stoplimits_(0), steplimits_(0)
 			    , interval_( withstep ?  new StepInterval<T>( 
-							undef.value(), 
-							undef.value(), 
-							undef.value() ) 
+							undefVal<T>(), 
+							undefVal<T>(), 
+							undefVal<T>() ) 
 						  : new Interval<T>(
-							undef.value(), 
-							undef.value() ) )
+							undefVal<T>(), 
+							undefVal<T>() ) )
 			    {}
 
 			NumInpIntervalSpec( const Interval<T>& interval ) 
@@ -286,7 +251,7 @@ public:
     virtual bool	isUndef( int idx=0 ) const
 			    {	
 				if ( !interval_ ) return true;
-				return undef.check( value_(idx) ); 
+				return isUndefined( value_(idx) ); 
 			    }
 
     virtual void	setValue( const Interval<T>& intval )
@@ -295,7 +260,7 @@ public:
 				interval_ = intval.clone();
 			    }
 
-    virtual void	setText( const char* s, int idx )
+    virtual void	setText( const char* s, int idx=0 )
 			    { 
 				if ( pt_value_(idx) ) 
 				    getFromString( *pt_value_(idx), s ); 
@@ -303,15 +268,14 @@ public:
 
     T			value( int idx=0 ) const
 			    {
-				T retval = value_(idx);
-				if ( undef.check(retval) ) return undef.value();
-				return retval;
+				if ( isUndef(idx) ) return undefVal<T>();
+				return value_(idx);
 			    }
 
-    virtual const char*	text( int idx ) const
+    virtual const char*	text( int idx=0 ) const
 			    {
 				if ( isUndef(idx) )	return "";
-				else		return toString( value(idx) );
+				return toString( value(idx) );
 			    }
 
     virtual bool	hasLimits() const	
@@ -324,7 +288,7 @@ public:
 			    idx =  1: returns stop limits
 			    idx =  2: returns step limits
 			*/
-    const Interval<T>*	limits( int idx )
+    const Interval<T>*	limits( int idx=0 )
 			    {
 				switch( idx )
 				{
@@ -381,8 +345,6 @@ public:
 
 protected:
 
-    const Undef<T>	undef;
-
     Interval<T>*	interval_;
 
     Interval<T>*	startlimits_;
@@ -392,7 +354,7 @@ protected:
     T			value_( int idx=0 ) const
 			{
 			    if ( pt_value_(idx) ) return *pt_value_(idx);
-			    return undef.value();
+			    return undefVal<T>();
 			}
 
     T*			pt_value_( int idx=0 ) const
@@ -431,9 +393,9 @@ public:
     virtual DataInpSpec* clone() const	{ return new StringInpSpec( *this ); }
     const char*		text() const			{ return str; }
 
-    virtual void	setText( const char* s, int idx ) 
+    virtual void	setText( const char* s, int idx=0 ) 
 			    { str = s; isUndef_ = s ? false : true; }
-    virtual const char*	text( int idx ) const
+    virtual const char*	text( int idx=0 ) const
 			    {
 				if ( isUndef() )	return "";
 				else		return (const char*) str;
@@ -562,7 +524,7 @@ public:
     void		addString( const char* txt )
 			    { strings_ += new BufferString( txt ); }
 
-    virtual const char*	text( int idx ) const
+    virtual const char*	text( int idx=0 ) const
 			    {
 				if ( isUndef() ) return "";
 				else return (const char*)*strings_[cur_];
@@ -578,21 +540,21 @@ public:
 					{ cur_ = idx; return; }
 			    }
 
-    virtual int		getIntValue( int idx ) const
+    virtual int		getIntValue( int idx=0 ) const
 			    { return cur_; }
-    virtual double	getValue( int idx ) const
+    virtual double	getValue( int idx=0 ) const
 			    { return cur_; }
-    virtual float	getfValue( int idx ) const
+    virtual float	getfValue( int idx=0 ) const
 			    { return cur_; }
 
-    virtual void	setValue( int i, int idx )
+    virtual void	setValue( int i, int idx=0 )
 			    { if ( i < strings_.size() ) cur_ = i; }
-    virtual void	setValue( double d, int idx )
+    virtual void	setValue( double d, int idx=0 )
 			    { 
 				if ( (int)(d+.5) < strings_.size() )
 				    cur_ = (int)(d+.5); 
 			    }
-    virtual void	setValue( float f, int idx )
+    virtual void	setValue( float f, int idx=0 )
 			    { 
 				if ( (int)(f+.5) < strings_.size() )
 				    cur_ = (int)(f+.5); 
@@ -613,8 +575,9 @@ class BinIDCoordInpSpec : public DataInpSpec
 public:
 			BinIDCoordInpSpec( bool doCoord=false
 					 , bool isRelative=false
-					 , double inline_x = mUndefValue
-					 , double crossline_y = mUndefValue
+					 , double inline_x = undefVal<double>()
+					 , double crossline_y =
+							     undefVal<double>()
 					 , bool withOtherBut=false
 					 , const BinID2Coord* b2c=0 )
 			    : DataInpSpec( DataTypeImpl<int>(DataType::binID) )
@@ -630,19 +593,19 @@ public:
 
     virtual int 	nElems()  const	{ return 2; }
 
-    double		value( int idx ) const	{ return idx ? crl_y : inl_x; }
+    double		value( int idx=0 ) const { return idx ? crl_y : inl_x; }
     virtual bool	isUndef( int idx=0 ) const		
 			    { 
 				if ( idx<0 || idx>1 ) return true;
-				return idx ? mIsUndefined( crl_y )
-					   : mIsUndefined( inl_x );
+				return idx ? isUndefined( crl_y )
+					   : isUndefined( inl_x );
 			    }
-    virtual const char*	text( int idx ) const
+    virtual const char*	text( int idx=0 ) const
 			    {
 				if ( isUndef() )	return "";
 				else		return toString( value(idx) );
 			    }
-    virtual void	setText( const char* s, int idx ) 
+    virtual void	setText( const char* s, int idx=0 ) 
 			    { getFromString( (idx ? crl_y : inl_x), s); }
 
     const char*		otherTxt() const

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.22 2002-01-10 11:14:52 arend Exp $
+ RCS:           $Id: uicombobox.cc,v 1.23 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include <uilabel.h>
 #include <uidobjset.h>
 #include <uiobjbody.h>
+#include <datainpspec.h>
 
 #include <i_qcombobox.h>
 
@@ -163,6 +164,34 @@ void uiComboBox::setItemText( int idx, const char* txt )
 	body_->changeItem( QString(txt), idx );
 }
 
+
+bool uiComboBox::update( const DataInpSpec& spec )
+{
+    mDynamicCastGet(const StringListInpSpec*,spc,&spec)
+    if ( !spc ) { return false; }
+
+    int cursel = spc->getIntValue();
+    if ( cursel >= 0 && cursel < spc->strings().size() )
+    {
+	empty();
+	addItems( spc->strings() );
+	setCurrentItem( cursel );
+	return true;
+    }
+    return false;
+}
+
+
+void uiComboBox::setReadOnly( bool yn )
+{ 
+    body_->setEditable(yn);
+}
+
+
+bool uiComboBox::isReadOnly() const
+{
+    return body_->editable();
+}
 
 void uiComboBox::addItem( const char* text ) 
 { 

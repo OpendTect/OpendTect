@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.47 2002-02-27 15:42:56 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.48 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uimenu.h"
 #include "uilabel.h"
+#include "uidockwin.h"
 
 #include "timer.h"
 
@@ -38,6 +39,7 @@ ________________________________________________________________________
 #include <qwidget.h>
 #include <qstatusbar.h>
 #include <qapplication.h>
+#include <qdockwindow.h>
 
 #ifdef __msvc__
 #include <qpopupmenu.h>
@@ -143,6 +145,8 @@ public:
 			}
 
     bool		poppedUp() const { return popped_up; }
+
+    static Qt::Dock	qdock( uiMainWin::Dock );
 
 protected:
 
@@ -276,6 +280,22 @@ uiToolBar* uiMainWinBody::uitoolbar()
     return toolbar;
 }
 
+Qt::Dock uiMainWinBody::qdock( uiMainWin::Dock d )
+{
+    switch( d )
+    {
+        case uiMainWin::Top:            return Qt::DockTop;
+        case uiMainWin::Bottom:         return Qt::DockBottom;
+        case uiMainWin::Right:          return Qt::DockRight;
+        case uiMainWin::Left:           return Qt::DockLeft;
+        case uiMainWin::Minimized:      return Qt::DockMinimized;
+        case uiMainWin::TornOff:  	return Qt::DockTornOff;
+        case uiMainWin::Unmanaged:      return Qt::DockUnmanaged;
+    }
+    return (Qt::Dock) 0;
+}
+
+
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 		  int nrstatusflds, bool wantMBar, bool wantTBar, bool modal )
     : uiParent( nm, 0 )
@@ -305,6 +325,12 @@ void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
+
+void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d )
+{
+    body_->moveDockWindow( dwin.qwidget() , uiMainWinBody::qdock(d) );
+}
+
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 

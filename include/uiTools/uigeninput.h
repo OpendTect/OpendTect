@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.18 2002-01-16 15:26:59 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.19 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,10 +21,11 @@ class uiLabel;
 class uiCheckBox;
 class uiPushButton;
 
-class uiDataInpFld;
+class uiInputFld;
 class DataInpSpec;
 
 class FieldIdx;
+class UserInputObj;
 
 /*! \brief General Input Element
 
@@ -90,7 +91,7 @@ For example, limits might have been set/changed.
 Returns true, if changes are accepted.
 
 */
-    bool		newSpec(DataInpSpec* nw, int nr);
+    bool		newSpec(const DataInpSpec& nw, int nr);
 
 //! checks if inputs are valid, f.e. within specified range
     bool		isValid( int nr=0 ) const;
@@ -164,7 +165,7 @@ Returns true, if changes are accepted.
     void		clear( int nr=-1 );
 
 			//! returns 0 if not finalised.
-    uiObject*		element( int idx ); 
+    UserInputObj*	element( int idx ); 
 
     virtual const char*	titleText();
     virtual void	setTitleText(const char*);
@@ -180,11 +181,12 @@ Returns true, if changes are accepted.
 			    { selText = yn ? "Select ..." : "" ; }
 
     Notifier<uiGenInput> checked;
-    Notifier<uiGenInput> changed;
+    Notifier<uiGenInput> valuechanging;
+    Notifier<uiGenInput> valuechanged;
 
 protected:
 
-    ObjectSet<uiDataInpFld>	flds;
+    ObjectSet<uiInputFld>	flds;
     TypeSet<FieldIdx>&		idxes;
 
     bool		finalised;
@@ -207,7 +209,7 @@ protected:
     void 		checkBoxSel(CallBacker*);
 
 			//! DataInpField factory
-    uiDataInpFld& 	createInpFld(const DataInpSpec&);
+    uiInputFld& 	createInpFld(const DataInpSpec&);
     void		doFinalise();
     inline DataInpSpec*	spec( int nr )
 			{

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.2 2002-02-26 09:01:26 nanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.3 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,3 +167,7 @@ void uiDockWin::setResizeEnabled( bool yn )
 {
     body_->setResizeEnabled( yn );
 }
+
+
+QDockWindow* uiDockWin::qwidget()
+    { return body_; }

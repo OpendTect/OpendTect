@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.26 2002-01-31 07:21:39 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.27 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,12 +87,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     coordset = new uiGenInput( this, "", BoolInpSpec( "Easy", "Advanced" ) );
     coordset->attach( alignedBelow, rangegrp );
     coordset->attach( rightTo, crdlbl );
-    coordset->changed.notify( mCB(this,uiSurveyInfoEditor,chgSetMode) );
+    coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode) );
 
     crdgrp = new uiGroup( this, "Coordinate settings" );
     ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
 			     BinIDCoordInpSpec() ); 
-    ic0fld->changed.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
+    ic0fld->valuechanged.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
     ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line",
 			     BinIDCoordInpSpec()  );
     ic2fld = new uiGenInput( crdgrp, "In-line/Cross-line not on above in-line",
@@ -203,7 +203,7 @@ void uiSurveyInfoEditor::doFinalise()
     if ( survinfo->rangeUsable() ) setValues();
 
     chgSetMode(0);
-    if( ic1fld->element(0) ) ic1fld->element(0)->setSensitive( false );
+    if( ic1fld->uiObj() ) ic1fld->uiObj()->setSensitive( false );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.17 2002-02-27 15:43:02 nanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.18 2002-03-12 12:11:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiMenuBar;
 class uiObject;
 class uiGroup;
 class QWidget;
+class uiDockWin;
 
 class uiMainWin : public uiParent
 {
@@ -35,6 +36,21 @@ public:
 				   bool modal=false );
 
     virtual		~uiMainWin();
+
+    //! Dock Selector
+    enum Dock
+    {
+            Top,        /*!< above the central uiGroup, below the menubar. */
+            Bottom,     /*!< below the central uiGroup, above the status bar.*/
+            Right,      /*!< to the right of the central uiGroup. */
+            Left,       /*!< to the left of the central uiGroup.  */
+            Minimized,  /*!< the toolbar is not shown - all handles of
+                             minimized toolbars are drawn in one row below
+                             the menu bar. */
+	    TornOff,	/*!< the dock window floats as its own top level window
+			     which always stays on top of the main window. */
+	    Unmanaged	/*!< not managed by a uiMainWin */
+    };
 
     uiStatusBar* 	statusBar();
     uiMenuBar* 		menuBar();
@@ -63,6 +79,8 @@ public:
 
     bool		poppedUp() const;
     virtual uiMainWin*	mainwin()				{ return this; }
+
+    void		moveDockWindow( uiDockWin&, Dock d=Top );
 
 protected:
 
