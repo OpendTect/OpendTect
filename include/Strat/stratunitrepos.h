@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.4 2004-03-04 17:27:42 bert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.5 2004-11-29 17:04:26 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "stratunitref.h"
+#include "repos.h"
 class PropertyRef;
 
 namespace Strat
@@ -29,14 +30,18 @@ class TopUnitRef : public NodeUnitRef
 public:
 
     			TopUnitRef( const char* nm )
-			: NodeUnitRef(0,"","Top Node"), usrname_(nm)	{}
+			: NodeUnitRef(0,"","Top Node"), treename_(nm)	{}
 
     const BufferString&	treeName() const		{ return treename_; }
     void		setTreeName( const char* nm )	{ treename_ = nm; }
 
+    UnitRef*		find( const char* code )	{ return fnd(code); }
+    const UnitRef*	find( const char* code ) const	{ return fnd(code); }
+
 protected:
 
     BufferString	treename_;
+    UnitRef*		fnd( const char* code ) const;
 
 };
 
@@ -48,17 +53,22 @@ class UnitRepository
 {
 public:
 
-    const TopUnitRef*		top(int idx=0) const	{ return tops_[idx]; }
-    TopUnitRef*			top(int idx=0)		{ return tops_[idx]; }
-    void			setCurrentTop(int);
-    ObjectSet<TopUnitRef>&	tops()			{ return tops_; }
+    int			nrTops() const		{ return tops_.size(); }
+    const TopUnitRef*	tree(int idx=0) const	{ return tops_[idx]; }
+    TopUnitRef*		tree(int idx=0)		{ return tops_[idx]; }
+    int			indexOf(const char* treename) const;
+    void		setCurrentTop( int idx ) { curtopidx_ = idx; }
+    int			currentTop() const	{ return curtopidx_; }
 
-    UnitRef*			getUnit( const char* code, int idx=0 )
-    							{ return gtUn(code); }
-    const UnitRef*		getUnit( const char* code, int idx=0 ) const
-    							{ return gtUn(code); }
+    UnitRef*		find( const char* code )	{ return fnd(code); }
+    const UnitRef*	find( const char* code ) const	{ return fnd(code); }
+    UnitRef*		find( const char* c, int idx )	{ return fnd(c,idx);}
+    const UnitRef*	find( const char* c, int i ) const { return fnd(c,i);}
+    UnitRef*		findAny( const char* code )	{ return fndAny(code); }
+    const UnitRef*	findAny( const char* c ) const	{ return fndAny(c); }
+    int			treeOf(const char* code) const;
 
-    const NodeUnitRef&		undefUnit() const	{ return udfunit_; }
+    const LeafUnitRef&	undefUnit() const		{ return udfunit_; }
 
     ObjectSet<Lithology>	liths_;
     ObjectSet<PropertyRef>	props_;
@@ -71,10 +81,13 @@ protected:
     LeafUnitRef		udfunit_;
     int			curtopidx_;
 
-    UnitRef*		gtUn(const char*) const;
+    UnitRef*		fnd(const char*) const;
+    UnitRef*		fnd(const char*,int) const;
+    UnitRef*		fndAny(const char*) const;
 
     friend UnitRepository& UnR();
 
+    void		addTreeFromFile(const Repos::FileProvider&);
 };
 
 

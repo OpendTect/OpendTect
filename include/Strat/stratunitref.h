@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.2 2004-01-06 17:12:02 bert Exp $
+ RCS:		$Id: stratunitref.h,v 1.3 2004-11-29 17:04:26 bert Exp $
 ________________________________________________________________________
 
 
@@ -70,18 +70,24 @@ class NodeUnitRef : public UnitRef
 {
 public:
 
-				NodeUnitRef( UnitRef* up, const char* c,
-					     const char* d=0 )
-				: UnitRef(up,c,d)		{}
+			NodeUnitRef( UnitRef* up, const char* c,
+				     const char* d=0 )
+			: UnitRef(up,c,d)		{}
 
-    virtual bool		isLeaf() const		{ return false; }
+    virtual bool	isLeaf() const			{ return false; }
 
-    ObjectSet<UnitRef>&		refs()			{ return refs_; }
-    const ObjectSet<UnitRef>&	refs() const		{ return refs_; }
+    int			nrRefs() const			{ return refs_.size(); }
+    UnitRef&		ref( int idx )			{ return *refs_[idx]; }
+    const UnitRef&	ref( int idx ) const		{ return *refs_[idx]; }
+
+    UnitRef*		find( const char* code )	{ return fnd(code); }
+    const UnitRef*	find( const char* code ) const	{ return fnd(code); }
 
 protected:
 
-    ObjectSet<UnitRef>		refs_;
+    ObjectSet<UnitRef>	refs_;
+
+    UnitRef*		fnd(const char*) const;
 
 };
 

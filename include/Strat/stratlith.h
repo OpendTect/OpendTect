@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlith.h,v 1.1 2003-12-15 17:29:43 bert Exp $
+ RCS:		$Id: stratlith.h,v 1.2 2004-11-29 17:04:26 bert Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,8 @@ public:
 
      int		Id() const		{ return id_; }
      void		setId( int i )		{ id_ = i; }
+
+     static const Lithology& undef();
 
 protected:
 
