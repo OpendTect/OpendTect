@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.28 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.29 2004-07-22 09:37:24 nanne Exp $
 ________________________________________________________________________
 
 */
@@ -198,7 +198,8 @@ public:
 			    int nr = in.getTotalSz();
 
 			    if ( templ.getData() )
-				memcpy( getData(),templ.getData(),sizeof(T)*nr);
+				memcpy( this->getData(),
+					templ.getData(),sizeof(T)*nr );
 			    else
 				for ( int idx=0; idx<nr; idx++ )
 				    set(idx, templ.get(idx));
@@ -251,7 +252,8 @@ public:
 			    if ( templ.getData() )
 			    {
 				int nr = in.getTotalSz();
-				memcpy( getData(),templ.getData(),sizeof(T)*nr);
+				memcpy( this->getData(),
+					templ.getData(),sizeof(T)*nr );
 			    }
 			    else
 			    {
@@ -321,7 +323,8 @@ public:
 			    if ( templ.getData() )
 			    {
 				int nr = in.getTotalSz();
-				memcpy( getData(),templ.getData(),sizeof(T)*nr);
+				memcpy( this->getData(),
+					templ.getData(),sizeof(T)*nr );
 			    }
 			    else
 			    {
@@ -376,16 +379,16 @@ protected:
 template <class T> class ArrayNDImpl : public ArrayND<T>
 {
 public:
-static ArrayND<T>*	create( const ArrayNDInfo& nsz, bool file=false );
+static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 
-			ArrayNDImpl( const ArrayNDInfo& nsz, bool file=false)
+			ArrayNDImpl(const ArrayNDInfo& nsz,bool file=false)
 			    : in(nsz.clone())
 			    , stor(file ? (ArrayNDLinearStorage*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
 				    : (ArrayNDLinearStorage*)
 				     new ArrayNDMemStor<T>(in->getTotalSz()))
 			    {}
-			ArrayNDImpl( const ArrayND<T>& templ)
+			ArrayNDImpl(const ArrayND<T>& templ,bool file=false)
 			    : in(templ.info().clone())
 			    , stor(file ? (ArrayNDLinearStorage*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
@@ -394,8 +397,9 @@ static ArrayND<T>*	create( const ArrayNDInfo& nsz, bool file=false );
 			{
 			    if ( templ.getData() )
 			    {
-				int nr = in.getTotalSz();
-				memcpy( getData(),templ.getData(),sizeof(T)*nr);
+				int nr = in->getTotalSz();
+				memcpy( this->getData(),
+					templ.getData(),sizeof(T)*nr );
 			    }
 			    else
 			    {
@@ -404,7 +408,7 @@ static ArrayND<T>*	create( const ArrayNDInfo& nsz, bool file=false );
 				do
 				{
 				    set(iter.getPos(), templ.get(iter.getPos));
-				} while ( next() );
+				} while ( this->next() );
 			    }
 			}
 
@@ -424,8 +428,8 @@ static ArrayND<T>*	create( const ArrayNDInfo& nsz, bool file=false );
 			{
 			    int ndim = in->getNDim();
 			    for ( int idx=0; idx<ndim; idx++ )
-			    { in->setSize(idx,ni->getSize(idx)); }
-			    stor->setSize(in->getTotalSz());
+			    { in->setSize( idx, ni.getSize(idx) ); }
+			    stor->setSize( in->getTotalSz() );
 			    return true;
 			}
  
