@@ -7,13 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.1 2003-10-30 15:22:32 arend Exp $
+ RCS:		$Id: _execbatch.h,v 1.2 2003-10-30 15:27:02 arend Exp $
 ________________________________________________________________________
 
- Batch programs should include this header, and define a BatchProgram::go().
- If program args are needed outside this method, BP() can be accessed.
+ The implementation fo Execute_batch should be in the executable on 
+ windows, but can be in a .so on *nix.
+ In order not to pullute batchprog.h, I've placed the implementation
+ into a separate file, which is included trough batchprog.h on win32
+ and included in batchprog.cc on *nix.
  
 */
+
 
 int Execute_batch( int* pargc, char** argv )
 {
