@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.61 2004-11-16 15:01:00 dgb Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.62 2005-03-18 11:22:38 cvsarend Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -33,9 +33,11 @@ static struct stat statbuf;
 # include <shlwapi.h>
 # include <time.h>
 # include <largeint.h>
+# include <io.h>
 
 # define stat _stat
 # define fstat _fstat
+# define access _access
 
 #else
 
@@ -191,8 +193,7 @@ int File_isWritable( const char* fnm )
     FileNameString cmd;
     if ( !File_exists(fnm) ) return 0;
 
-    sprintf( cmd, "test -w '%s'", fnm );
-    return !system( cmd );
+    return access( fnm, W_OK );
 }
 
 
