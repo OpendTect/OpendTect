@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.6 2002-01-07 14:17:13 nanne Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.7 2002-01-14 07:06:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,12 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
 	, survinfo(si)
 
 {
-    inlfld = new uiGenInput( this, "In-line", IntInpSpec() );
-    crlfld = new uiGenInput( this, "Cross-line", IntInpSpec() );
-    xfld = new uiGenInput( this, "X-coordinate", DoubleInpSpec() );
-    yfld = new uiGenInput( this, "Y-coordinate", DoubleInpSpec() );
+    IntInpSpec iis; iis.setHSzP(SzPolicySpec::small);
+    DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
+    inlfld = new uiGenInput( this, "In-line", iis );
+    crlfld = new uiGenInput( this, "Cross-line", iis );
+    xfld = new uiGenInput( this, "X-coordinate", dis );
+    yfld = new uiGenInput( this, "Y-coordinate", dis );
 
     const ioPixmap right( GetDataFileName("rightarrow.png") );
     const ioPixmap left( GetDataFileName("leftarrow.png") );
