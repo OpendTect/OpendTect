@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.57 2004-07-29 21:41:26 bert Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.58 2004-09-13 08:07:41 nanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -55,6 +55,10 @@ Scene::Scene()
 Scene::~Scene()
 {
     eventcatcher->eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
+    removeObject( getFirstIdx(inlcrl2displtransform) );
+    removeObject( getFirstIdx(zscaletransform) );
+    removeObject( getFirstIdx(eventcatcher) );
+    removeObject( getFirstIdx(annot) );
 }
 
 
