@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.7 2001-02-28 15:00:56 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.8 2001-03-19 15:42:32 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,12 +117,17 @@ class SeisDataTrc : public DataTrace
 public:
 
 			SeisDataTrc( SeisTrc& t, int comp=0 )
-			: trc(t), curcomp(comp)		{}
+			: trc(t), ismutable(true), curcomp(comp)
+							{}
+			SeisDataTrc( const SeisTrc& t, int comp=0 )
+			: trc(const_cast<SeisTrc&>(t)), ismutable(false)
+			, curcomp(comp)			{}
     void		setComponent( int c )		{ curcomp = c; }
     int			component() const		{ return curcomp; }
 
     inline bool		set( int idx, float v )
-			{ trc.data().setValue( idx, v, curcomp ); return true; }
+			{ if ( ismutable ) trc.data().setValue( idx, v, curcomp );
+			  return ismutable; }
     inline float	operator[]( int i ) const
 			{ return trc.get( i, curcomp ); }
     int			getIndex( double val ) const
@@ -132,14 +137,17 @@ public:
     float		getValue( float v ) const
 			{ return trc.getValue( v, curcomp ); }
 
-    inline int		size() const	{ return trc.size( curcomp ); }
-    inline double	step() const	{ return trc.info().sampling.step; }
-    double		start() const	{ return trc.startPos(curcomp); }
+    inline int		size() const		{ return trc.size( curcomp ); }
+    inline double	step() const		{ return trc.info().sampling.step; }
+    double		start() const		{ return trc.startPos(curcomp); }
+
+    bool		isMutable() const	{ return ismutable; }
 
 protected:
 
     SeisTrc&		trc;
     int			curcomp;
+    bool		ismutable;
 
     XFunctionIter*	mkIter(bool, bool) const;
 
