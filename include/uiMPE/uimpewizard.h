@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.2 2005-03-14 16:50:18 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.h,v 1.3 2005-03-17 14:59:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiwizard.h"
-#include "multiid.h"
 
 class uiColorInput;
 class uiGenInput;
@@ -78,7 +77,7 @@ protected:
     uiMPEPartServer*		mpeserv;
     static int			defcolnr;
     bool			currentfinished;
-    MultiID			curmid;
+    int				curtrackid;
     BufferString		trackertype;
 };
 

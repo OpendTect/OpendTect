@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.2 2005-03-14 16:50:10 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.3 2005-03-17 14:59:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
 				.modal(false))
     , mpeserv(mps)
     , currentfinished(false)
-    , curmid("")
+    , curtrackid(-1)
 {
     setHelpID( "108.0.0" );
 
@@ -156,7 +156,7 @@ uiGroup* Wizard::createPage4()
     anotherfld->valuechanged.notify( mCB(this,Wizard,anotherSel) );
 
     BufferStringSet trackernames;
-    MPE::engine().getAvaliableTrackerTypes( trackernames );
+    engine().getAvaliableTrackerTypes( trackernames );
     typefld = new uiGenInput( grp, "Type", StringListInpSpec(trackernames) );
     typefld->attach( alignedBelow, anotherfld );
     anotherSel(0);
@@ -175,7 +175,7 @@ bool Wizard::processPage4()
 	displayPage(2,true);
     }
 
-//  mpeserv->sendEvent( uiMPEPartServer::evFinishInit );
+    mpeserv->updateVolumeFromSeeds();
     return true;
 }
 
@@ -214,21 +214,21 @@ void Wizard::nextPage( CallBacker* )
 
 void Wizard::cancelWizard( CallBacker* )
 {
-    if ( !*curmid ) return;
+    if ( curtrackid < 0 ) return;
 
-/*
     if ( !currentfinished )
-	mpeserv->removeObject( curmid );
+	engine().removeTracker( curtrackid );
 
-    mpeserv->finishAll();
-*/
+    mpeserv->createActiveVolume();
+    mpeserv->loadAttribData();
 }
 
 
 void Wizard::finishWizard( CallBacker* )
 {
     nextPage(0);
-//  mpeserv->finishAll();
+    mpeserv->createActiveVolume();
+    mpeserv->loadAttribData();
 }
 
 
@@ -242,13 +242,12 @@ bool Wizard::newObjectPresent( const char* objnm ) const
 
 bool Wizard::addTracker( const char* objnm )
 {
-    const int trackid = mpeserv->addTracker( trackertype, objnm );
-    if ( trackid < 0 ) return false;
+    curtrackid = mpeserv->addTracker( trackertype, objnm );
+    if ( curtrackid < 0 ) return false;
 
-    MultiID mid = mpeserv->getTrackerMultiID( trackid );
+    const MultiID& mid = mpeserv->getTrackerMultiID( curtrackid );
     EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
     setupgrp->setType( objid, 0 );
-    curmid = mid;
     currentfinished = false;
     return true;
 }
