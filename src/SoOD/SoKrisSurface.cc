@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.6 2005-03-10 14:14:49 cvskris Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.7 2005-03-10 15:10:39 cvskris Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -1191,7 +1191,15 @@ bool MeshSurfacePartResolution::getNormal( int relrow,
     if ( cache && useownvalidation && cachestatus!=2 )
     {
 	const int normalsperrow = nrCols();
-	const int normalindex = mGetNormalIndex(relrow,relcol);
+	int normalindex = mGetNormalIndex(relrow,relcol);
+#if __debug__
+	if ( normalindex<0 )
+	{
+	    SoDebugError::postWarning("MeshSurfacePartResolution::getNormal",
+				      "normalindex is negative");
+	    normalindex = 0;
+	}
+#endif
 	res = cache->normals[normalindex];
 	return true;
     }
@@ -1303,8 +1311,11 @@ void MeshSurfacePartResolution::tesselate()
 	computeNormal( idx0, nrcols-1 );
     }
 
-    for ( int idx1=0; idx1<nrcols; idx1++ )
-	computeNormal( nrrows-1, idx1 );
+    if ( nrrows )
+    {
+	for ( int idx1=0; idx1<nrcols; idx1++ )
+	    computeNormal( nrrows-1, idx1 );
+    }
 
     cache->setValid(true);
     cache->buildmutex->writeUnlock();
@@ -1678,7 +1689,16 @@ bool MeshSurfacePartResolution::computeNormal(
     if ( cache )
     {
 	const int normalsperrow = nrCols();
-	const int normalindex = mGetNormalIndex(rel0,rel1);
+	int normalindex = mGetNormalIndex(rel0,rel1);
+#if __debug__
+	if ( normalindex<0 )
+	{
+	    SoDebugError::postWarning(
+		    "MeshSurfacePartResolution::computeNormal",
+		    "normalindex is negative");
+	    normalindex = 0;
+	}
+#endif
 	while ( cache->normals.getLength()<=normalindex )
 	    cache->normals.push( SbVec3f(0,0,1) );
 
