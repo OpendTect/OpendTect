@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.52 2004-06-03 10:41:23 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.53 2004-06-05 19:19:17 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -130,12 +130,9 @@ EM::Surface::~Surface()
 
 void EM::Surface::cleanUp()
 {
-    deepErase( surfaces );
-    deepErase( patchnames );
-    patchids.erase();
-    origos.erase();
-
-    deepErase( hingelines );
+    while ( nrPatches() ) removePatch(patchID(0), false);
+    for ( int idx=0; idx<nrHingeLines(); idx++ )
+	removeHingeLine(idx,false);
 
     delete rowinterval;
     delete colinterval;
@@ -721,7 +718,6 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
     delete surfaces[idx];
     surfaces.remove( idx );
     patchids.remove( idx );
-    delete patchnames[idx];
     patchnames.remove( idx );
 
     for ( int idy=0; idy<nrAuxData(); idy++ )
@@ -1394,6 +1390,14 @@ void EM::Surface::removeHingeLine(int idx, bool addtohistory)
     hingelines.replace(0,idx);
     delete hl;
     changed = true;
+    for ( int idy=hingelines.size()-1; idy>=0; idy-- )
+    {
+	if ( hingelines[idy] )
+	    break;
+
+	hingelines.remove(idy);
+    }
+
     hingelinechange.trigger(idx);
 }
 

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.30 2004-05-21 10:18:40 bert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.31 2004-06-05 19:19:17 kristofer Exp $";
 
 #include "emmanager.h"
 
@@ -123,24 +123,26 @@ EM::ObjectID EM::EMManager::add( EM::EMManager::Type type, const char* name )
     {
 	MultiID mid = IOObjContext::getStdDirData(context->stdseltype)->id;
 	mid.add(res);
-	if ( !IOM().permRemove(mid) )
-	    return -1;
+	PtrMan<IOObj> ioobj = IOM().get( mid );
+	if ( !ioobj ) return 0;
+
+	object = EM::EMObject::create( *ioobj, *this );
     }
+    else
+    {
 
-    ctio->ctxt.forread = false;
-    ctio->ioobj = 0;
-    ctio->setName( name );
-    ctio->fillObj();
-    if ( !ctio->ioobj ) return -1;
+	ctio->ctxt.forread = false;
+	ctio->ioobj = 0;
+	ctio->setName( name );
+	ctio->fillObj();
+	if ( !ctio->ioobj ) return -1;
 
-    object = EM::EMObject::create( *ctio->ioobj, *this );
+	object = EM::EMObject::create( *ctio->ioobj, *this );
+    }
 
     if ( !object ) { delete ctio->ioobj; return -1; }
     objects += object;
     refcounts += 0;
-
-    PtrMan<Executor> saver = object->saver();
-    if ( saver ) saver->execute();
 
     delete ctio->ioobj;
     return object->id();

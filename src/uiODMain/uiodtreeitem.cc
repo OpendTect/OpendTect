@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.28 2004-06-04 13:14:29 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.29 2004-06-05 19:19:17 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -282,10 +282,13 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 	dispname += " ("; dispname += nodenm; dispname += ")";
     }
 
-    if ( as && !dispname[0] )
+    if ( as && as->id()==AttribSelSpec::attribNotSel )
 	dispname = "<right-click>";
     else if ( !as )
 	dispname = visserv->getObjectName(displayid);
+    else if ( as->id()==AttribSelSpec::otherAttrib ||
+	      as->id()==AttribSelSpec::noAttrib )
+	dispname="";
 
     return dispname;
 }

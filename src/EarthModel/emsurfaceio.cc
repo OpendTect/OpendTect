@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.32 2004-05-28 15:00:37 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.33 2004-06-05 19:19:17 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -381,7 +381,9 @@ int EM::dgbSurfaceReader::nextStep()
 	    surface->setPreferredColor(newcol);
 	}
 
-	while ( surface->nrHingeLines() ) surface->removeHingeLine(0,false);
+	for ( int idx=0; idx<surface->nrHingeLines(); idx++ )
+	    surface->removeHingeLine(idx,false);
+
 	int nrhingelines = 0;
 	par->get( nrhingelinestr, nrhingelines );
 	for ( int idx=0; idx<nrhingelines; idx++ )
