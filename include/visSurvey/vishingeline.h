@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.3 2004-07-23 13:01:36 kristofer Exp $
+ RCS:           $Id: vishingeline.h,v 1.4 2004-07-28 06:48:46 kristofer Exp $
 ________________________________________________________________________
 
           
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "visobject.h"
 
-namespace visBase { class IndexedPolyLine3D; class DrawStyle; class Transformation; };
+namespace visBase { class IndexedPolyLine3D; class Transformation; };
 namespace EM { class EdgeLineSet; };
 
 namespace visSurvey
@@ -39,7 +39,6 @@ protected:
     const EM::EdgeLineSet*	edgelineset;
     ObjectSet<visBase::IndexedPolyLine3D> polylines;
     visBase::Transformation*	transformation;
-    visBase::DrawStyle*		drawstyle;
 };
 
 
