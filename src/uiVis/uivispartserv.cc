@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.180 2003-12-11 16:29:19 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.181 2003-12-17 11:05:04 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ ________________________________________________________________________
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
 #include "visselman.h"
-#include "vissurvinterpret.h"
 #include "vissurvpickset.h"
 #include "vissurvscene.h"
 #include "vissurvstickset.h"
@@ -69,7 +68,6 @@ const char* uiVisPartServer::workareastr = "Work Area";
     mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,obj) \
     mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,obj) \
     mDynamicCastGet(const visSurvey::PickSetDisplay*,psd,obj) \
-    mDynamicCastGet(const visSurvey::SurfaceInterpreterDisplay*,tracker,obj)
 
 #define mDynamicCastAll() \
     visBase::DataObject* obj = visBase::DM().getObj( id ); \
@@ -78,7 +76,6 @@ const char* uiVisPartServer::workareastr = "Work Area";
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj) \
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj) \
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,obj) \
-    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,tracker,obj)
 
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
@@ -87,7 +84,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , eventobjid(-1)
     , eventmutex(*new Threads::Mutex)
     , mouseposval( mUndefValue )
-    , interpreterdisplay( 0 )
 {
     vismenu = new uiVisMenu( appserv().parent(), this );
 
@@ -159,6 +155,40 @@ void uiVisPartServer::shareObject( int sceneid, int id )
 
     scene->addObject( so );
     sendEvent( evUpdateTree );
+}
+
+
+void uiVisPartServer::findObject( const type_info& ti, TypeSet<int>& res )
+{
+    visBase::DM().getIds( ti, res );
+}
+
+
+visBase::SceneObject* uiVisPartServer::getObject( int id )
+{
+    mDynamicCastGet(visBase::SceneObject*, so, visBase::DM().getObj(id) );
+    return so;
+}
+
+
+void uiVisPartServer::addObject( visBase::SceneObject* so, int sceneid,
+			         bool saveinsessions  )
+{
+    mDynamicCastGet(visSurvey::Scene*, scene, visBase::DM().getObj(sceneid) );
+    scene->addObject( so );
+    //TODO: Handle saveinsessions
+}
+
+
+void uiVisPartServer::removeObject( visBase::SceneObject* so, int sceneid )
+{
+    removeObject( so->id(), sceneid );
+}
+
+
+NotifierAccess& uiVisPartServer::removeAllNotifier()
+{
+    return visBase::DM().removeallnotify;
 }
 
 
@@ -578,21 +608,6 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
 	    }
 	}
     }
-    else if ( tracker )
-    {
-	const int dim = tracker->getDim();
-	float val;
-	if ( dim==2 )
-	{
-	    val = tracker->planeCenter()[dim];
-	    if ( SI().zIsTime() )
-		val *= 1000;
-	}
-	else
-	    val = tracker->planeCenter()[dim];
-
-	res = mNINT(val);
-    }
 		
     return res;
 }
@@ -703,7 +718,6 @@ const CubeSampling* uiVisPartServer::getCubeSampling( int id ) const
     mDynamicCastAllConst();
     if ( pdd ) return &pdd->getCubeSampling(true);
     if ( vd ) return &vd->getCubeSampling();
-    if ( tracker ) return &tracker->getCubeSampling();
 
     return 0;
 }
@@ -861,21 +875,6 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 	res += getTreeInfo( id );
     }
 
-    if ( tracker )
-    {
-	const int dim = tracker->getDim();
-	if ( !dim )
-	    res = "Inline";
-	else if ( dim==1 )
-	    res = "Crossline";
-	else
-	    res = SI().zIsTime() ? "Time" : "Depth";
-
-	res += ": ";
-	res += getTreeInfo( id );
-    }
-
-
     return res;
 }
 
@@ -929,7 +928,6 @@ const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 
 bool uiVisPartServer::deleteAllObjects()
 {
-    if ( interpreterdisplay ) interpreterdisplay->unRef();
 
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
@@ -971,8 +969,6 @@ void uiVisPartServer::toggleDraggers()
 	    if ( vd ) vd->showBox(isdraggeron);
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj)
 	    if ( rtd ) rtd->showDragger(isdraggeron);
-	    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,obj)
-	    if ( sid ) sid->showBox(isdraggeron);
 	}
     }
 }
@@ -1066,15 +1062,6 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	}
     }
 
-    TypeSet<int> interpreters;
-    visBase::DM().getIds(
-	    typeid(visSurvey::SurfaceInterpreterDisplay), interpreters );
-    interpreterdisplay = interpreters.size()
-		?  dynamic_cast<visSurvey::SurfaceInterpreterDisplay*>(
-		    visBase::DM().getObj( interpreters[0] ))
-		: 0;
-
-    if ( interpreterdisplay ) interpreterdisplay->ref();
 
     float appvel;
     if ( par.get( appvelstr, appvel ) )
@@ -1535,8 +1522,6 @@ void uiVisPartServer::setUpConnections( int id )
 	rtd->knotmoving.notify( cb );
 	rtd->rightclick.notify( mCB(vismenu,uiVisMenu,createPopupMenu) );
     }
-    else if ( tracker )
-        tracker->depthMoveNotifier.notify( cb );
 }
 
 
@@ -1557,53 +1542,6 @@ void uiVisPartServer::removeConnections( int id )
 	rtd->knotmoving.remove( cb );
 	rtd->rightclick.remove( mCB(this,uiVisMenu,createPopupMenu) );
     }
-    else if ( tracker )
-        tracker->depthMoveNotifier.remove( cb );
-}
-
-
-int uiVisPartServer::addInterpreter( int sceneid )
-{
-    if ( !interpreterdisplay )
-    {
-	interpreterdisplay = visSurvey::SurfaceInterpreterDisplay::create();
-	interpreterdisplay->ref();
-    }
-
-    visSurvey::Scene* scene = getScene( sceneid );
-    if ( scene->getFirstIdx(interpreterdisplay) == -1 )
-	scene->addObject( interpreterdisplay );
-
-    setUpConnections( interpreterdisplay->id() );
-
-    return interpreterdisplay->id();
-}
-
-
-void uiVisPartServer::toogleDirection(int id)
-{
-    if ( !interpreterdisplay || interpreterdisplay->id()!=id ) return;
-
-    int dim = interpreterdisplay->getDim();
-    if ( ++dim>=3 )
-	dim = 0;
-
-    interpreterdisplay->setDim(dim);
-}
-
-
-const CubeSampling& uiVisPartServer::getInterpreterPlane( int id ) const
-{
-    return interpreterdisplay->getPlane();
-}
-
-
-
-bool uiVisPartServer::isInterpreter(int id) const
-{
-    if ( !interpreterdisplay ) return false;
-
-    return interpreterdisplay->id()==id;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.105 2003-12-11 09:41:58 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.106 2003-12-17 11:05:42 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,10 +29,14 @@ class SurfaceInfo;
 class AttribSliceSet;
 class BufferStringSet;
 
+namespace visBase
+{
+    class SceneObject;
+};
+
 namespace visSurvey
 {
 class Scene;
-class SurfaceInterpreterDisplay;
 };
 
 namespace Threads { class Mutex; };
@@ -57,6 +61,16 @@ public:
 
     void			shareObject(int sceneid,int id);
 
+    void			findObject( const type_info&, TypeSet<int>& );
+    visBase::SceneObject*	getObject( int id );
+    void			addObject( visBase::SceneObject*, int sceneid,
+					   bool saveinsessions  );
+    void			removeObject( visBase::SceneObject*,
+	    				      int sceneid );
+    void			removeObject(int id,int sceneid);
+
+    NotifierAccess&		removeAllNotifier();
+
     int				addInlCrlTsl(int scene,int type);
     int				addRandomLine(int scene);
     int				addVolView(int scene);
@@ -66,12 +80,6 @@ public:
     int				addWell(int scene,const MultiID&);
     void			displayLog(int id,int,int);
     void			refreshMarkers();
-
-    int				addInterpreter(int scene);
-    void			toogleDirection(int obj);
-    const CubeSampling&		getInterpreterPlane(int obj) const;
-
-    void			removeObject(int id,int sceneid);
 
     int				addPickSet(int scene,const PickSet&);
     void			getAllPickSets(BufferStringSet&);
@@ -110,7 +118,6 @@ public:
     bool			isStickSet(int) const;
     bool			isWell(int) const;
     bool			isPickSet(int) const;
-    bool			isInterpreter(int) const;
     bool			hasAttrib(int) const;
 
     static const int		evSelection;
@@ -229,7 +236,6 @@ protected:
     bool			loadcreateSurface(int);
 
     ObjectSet<visSurvey::Scene>	scenes;
-    visSurvey::SurfaceInterpreterDisplay* interpreterdisplay;
 
     ColorAttribSel		colorspec;
     AttribSelSpec		attribspec;
