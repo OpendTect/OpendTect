@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.20 2004-11-05 15:06:20 arend Exp $
+# $Id: od_exec_rmt,v 1.21 2004-11-09 12:58:11 arend Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -54,6 +54,7 @@ set datahost=""
 set datadrive=""
 set datashare=""
 set datapass=""
+set datavars=""
 set iswin=0
 
 next_arg:
@@ -68,18 +69,22 @@ else if ( $1 == "--remoteuser" ) then
         goto next_arg
 else if ( $1 == "--remotepass" ) then
         set remotepass="$2"
+	set datavars="${datavars} --remotepass $2"
         shift; shift
         goto next_arg
 else if ( $1 == "--data-host" ) then
         set datahost="$2"
+	set datavars="${datavars} --data-host $2"
         shift; shift
         goto next_arg
 else if ( $1 == "--data-drive" ) then
         set datadrive="$2"
+	set datavars="${datavars} --data-drive $2"
         shift; shift
         goto next_arg
 else if ( $1 == "--data-share" ) then
         set datashare="$2"
+	set datavars="${datavars} --data-share $2"
         shift; shift
         goto next_arg
 else if ( $1 == "--iswin" ) then
@@ -154,12 +159,13 @@ foreach var ( $transfvars )
     endif
 end
 
-set transf="$transf +-+-+ $*"
+set transf="$transf +-+-+ $datavars $*"
 
 set do_exec=`echo "${dtectappl}/bin/od_do_rmt" | sed -e "s% %\\ %g"`
 
 
-if ( $iswin == 1 ) then
+#if ( $iswin == 1 ) then
+if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
 
     set loctransffile="${locfilebase}.vars"
     set remtransffile="${remfilebase}.vars"
@@ -179,7 +185,7 @@ if ( $iswin == 1 ) then
     set transf="$transf $datahost $datadrive $datashare $usernm $remotepass"
 
     if ( ${rshcomm} == "rcmd" && $HDIR == "win" ) then
-	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt+=+' \
+	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt.bat+=+' \
 		     | sed -e "s% %\\ %g" -e 's%+=+%""%g'`
 
 	if ( $?DTECT_DEBUG) then
@@ -205,7 +211,7 @@ if ( $iswin == 1 ) then
 	endif
 
     else
-	set do_exec=`echo "${dtectappl}/bin/od_dormt" | sed -e "s% %\\ %g"`
+	set do_exec=`echo "${dtectappl}/bin/od_dormt.bat" | sed -e "s% %\\ %g"`
     endif
 endif
 
