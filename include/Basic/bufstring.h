@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.3 2000-04-14 07:27:39 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.4 2000-06-23 14:09:08 bert Exp $
 ________________________________________________________________________
 
 Overhead is 4 extra bytes for length and minimum length. Maximum size (no
@@ -55,6 +55,8 @@ public:
    inline char&		operator [](int idx)		{ return buf[idx]; }
    inline const char&	operator [](int idx) const	{ return buf[idx]; }
    inline unsigned short size() const			{ return strlen(buf); }
+   inline unsigned short bufSize() const
+			{ return len; }
    inline bool		operator==( const BufferString& s ) const
 			{ return operator ==( s.buf ); }
    inline bool		operator!=( const BufferString& s ) const

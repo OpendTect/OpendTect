@@ -1,73 +1,79 @@
 #ifndef errh_H
 #define errh_H
 
-/*@+
+/*
 ________________________________________________________________________
 
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.1.1.2 1999-09-16 09:18:56 arend Exp $
+ RCS:		$Id: errh.h,v 1.2 2000-06-23 14:09:11 bert Exp $
 ________________________________________________________________________
 
-@$*/
+*/
+
+#include <callback.h>
+#include <bufstring.h>
 
 
-#include <Vector.h>
-#include <fixstring.h>
-
-
-#define mMaxErrorMsgLength 160
-typedef FixedString<mMaxErrorMsgLength+1> ErrMsgString;
-
-class ErrH
+class ErrMsgClass : public CallBacker
 {
 public:
-			ErrH()	{ curmsg = -1; }
-    const char*		msg() const
-			{ return curmsg >= 0 ? (const char*)errs[curmsg]
-						     : (const char*)empty; }
-    const char*		prevMsg()
-			{
-			    ((ErrH*)this)->curmsg--;
-			    return curmsg > -1  ? (const char*)errs[curmsg]
-						: (const char*)empty;
-			}
 
-    void		addMsg( const char* s )
-			{
-			    if ( s ) errs.push_back( ErrMsgString(s) );
-			    curmsg = errs.size() - 1;
-			}
-    void		clear()
-			{ errs.erase(); }
+			ErrMsgClass( const char* s, bool p )
+			: msg(s), prog(p)	{}
 
-    static ErrH*	  curErrH;
-    static FixedString<2> empty;
+    const char*		msg;
+    bool		prog;
 
-private:
-    Vector<ErrMsgString>  errs;
-    int			  curmsg;
+    static CallBack	TheCB;
+    static bool		PrintProgrammerErrs;
+
 };
 
-inline void ErrMsg( const char* msg )
+
+inline void ErrMsg( const char* msg, bool progr = false )
 {
-    if ( ErrH::curErrH ) ErrH::curErrH->addMsg( msg );
-    else		 cerr << msg << endl;
+    if ( !ErrMsgClass::TheCB.willCall() )
+    {
+	if ( !progr || ErrMsgClass::PrintProgrammerErrs )
+	    cerr << (progr?"(PE) ":"") << msg << endl;
+    }
+    else
+    {
+	ErrMsgClass obj( msg, progr );
+	ErrMsgClass::TheCB.doCall( &obj );
+    }
 }
 
-inline const char* getErrMsg()
+
+inline void programmerErrMsg( const char* msg, const char* fname, int linenr )
 {
-    return ErrH::curErrH ? (const char*)ErrH::curErrH->msg()
-			 : (const char*)ErrH::empty;
+    BufferString str( fname );
+    str += "/";
+    str += linenr;
+    str += ": ";
+    str += msg;
+
+    ErrMsg( str, true );
 }
+
+#define pErrMsg(msg) programmerErrMsg( msg, __FILE__, __LINE__ )
+
 
 #ifdef __prog__
-    ErrH*		ErrH::curErrH = 0;
-    FixedString<2>	ErrH::empty;
+
+CallBack ErrMsgClass::TheCB;
+
+bool ErrMsgClass::PrintProgrammerErrs =
+# ifdef __debug__
+	true;
+# else
+	false;
+# endif
+
 #endif
 
 
-/*$-*/
 #endif
