@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.3 2001-04-24 10:53:28 bert Exp $
+ RCS:           $Id: uisellinest.cc,v 1.4 2001-08-23 14:59:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uidset.h"
 
 
-uiSelLineStyle::uiSelLineStyle( uiObject* p, const LineStyle& l,
+uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& l,
 				const char* txt )
 	: uiGroup( p, "Line style selector" )
 	, ls( l )
