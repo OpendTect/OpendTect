@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.16 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.17 2003-12-03 15:46:55 dgb Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -533,7 +533,7 @@ void SoMeshSurfaceSquare::updateGlue()
 	int col = origo[1];
 	for ( int idx=0; idx<sidesize-ownblocksize; idx+=rowglueblocksize )
 	{
-	    rowgluecells.push( SbVec2s(row,col+idx) );
+	    rowgluecells.append( SbVec2s(row,col+idx) );
 	}
 
 	SbList<SbVec2s> colgluecells;
@@ -544,7 +544,7 @@ void SoMeshSurfaceSquare::updateGlue()
 	col = origo[1]+sidesize-ownblocksize;
 	for ( int idx=0; idx<sidesize-ownblocksize; idx+=colglueblocksize )
 	{
-	    colgluecells.push( SbVec2s(row+idx,col) );
+	    colgluecells.append( SbVec2s(row+idx,col) );
 	}
 
 	//Make corner.
@@ -575,7 +575,7 @@ void SoMeshSurfaceSquare::updateGlue()
 		*/
 		row = origo[0]+sidesize-ownblocksize;
 		col = origo[1]+sidesize-ownblocksize;
-		colgluecells.push( SbVec2s(row,col) );
+		colgluecells.append( SbVec2s(row,col) );
 	    }
 	    else if ( res7<ownres )
 	    {
@@ -598,8 +598,8 @@ void SoMeshSurfaceSquare::updateGlue()
 		    |   |
 		   -5-4-3
 	       */
-		rowgluecells.push(SbVec2s(origo[0]+sidesize-ownblocksize,
-					  origo[1]+sidesize-ownblocksize));
+		rowgluecells.append(SbVec2s(origo[0]+sidesize-ownblocksize,
+					    origo[1]+sidesize-ownblocksize));
 	    }
 	    else
 	    {
