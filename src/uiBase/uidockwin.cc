@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.15 2004-05-10 14:19:56 macman Exp $
+ RCS:           $Id: uidockwin.cc,v 1.16 2004-05-10 14:44:43 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ uiDockWinBody::~uiDockWinBody( )
 #ifdef _machack_
     redrtimer.tick.remove( mycallback_ );
 #endif
-    //delete centralWidget_;
+    delete centralWidget_; centralWidget_ = 0;
 }
 
 void uiDockWinBody::finalise()
