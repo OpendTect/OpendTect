@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.8 2002-11-26 13:04:51 dgb Exp $
+# $Id: od_exec,v 1.9 2002-11-26 13:29:17 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -45,6 +45,7 @@ if ( $?LD_LIBRARY_PATH ) then
 else
 	setenv LD_LIBRARY_PATH	"${bindir}/so:/lib:/usr/lib"
 endif
+unsetenv QTDIR
 
 set niceness=0
 if ( $1 == --nice ) then
