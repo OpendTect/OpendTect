@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.6 2002-06-05 14:24:45 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.7 2002-06-20 15:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,10 +94,12 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 	return false;
 
     if ( !handleInput() ) return false;
-    if ( !checkRanges() ) return false;
+    const int estnrtrcs = checkRanges();
+    if ( !estnrtrcs ) return false;
 
     const char* txt = "File merger";
     proc = new SeisSingleTraceProc( selobjs, ctio.ioobj, txt, &seliops );
+    proc->setTotalNrIfUnknown( estnrtrcs );
     uiExecutor dlg( this, *proc );
     dlg.go();
 
@@ -214,23 +216,51 @@ bool uiMergeSeis::handleInput()
 }
 
 
-bool uiMergeSeis::checkRanges()
+int uiMergeSeis::checkRanges()
 {
-    int inlstop; int inlstart; int step;
-    int a = rev ? 1 : 0; int b = rev ? 0 : 1;
-    for ( int idx=1; idx<inpsz; idx++ )
+    StepInterval<int> inlrg, crlrg;
+    StepInterval<int> previnlrg, prevcrlrg;
+    int estnrtrcs = 0;
+    for ( int idx=0; idx<inpsz; idx++ )
     {
-	seliops[idx-a]->get( BinIDSelector::sKeystepinl, step );
-	seliops[idx-a]->get( BinIDSelector::sKeyfinl, inlstart );
-	seliops[idx-b]->get( BinIDSelector::sKeylinl, inlstop );
-	if ( inlstop >= inlstart )
-        {
-	   BufferString msg( "Overlap found in data\n" );
-	   msg += "Do you wish to continue?";
-	   if ( !uiMSG().askGoOn( msg ) ) return false;
-	   seliops[idx-a]->set( BinIDSelector::sKeyfinl, inlstop + step );
+	IOPar& iop = *seliops[idx];
+	iop.get( BinIDSelector::sKeyfinl, inlrg.start );
+	iop.get( BinIDSelector::sKeylinl, inlrg.stop );
+	iop.get( BinIDSelector::sKeystepinl, inlrg.step );
+	iop.get( BinIDSelector::sKeyfcrl, crlrg.start );
+	iop.get( BinIDSelector::sKeylcrl, crlrg.stop );
+	iop.get( BinIDSelector::sKeystepcrl, crlrg.step );
+	if ( idx )
+	{
+	    if ( (rev && previnlrg.stop <= inlrg.start)
+	     || (!rev && previnlrg.stop >= inlrg.start) )
+	    {
+	       BufferString msg( "Overlap found in data\n" );
+	       msg += "Do you wish to continue?";
+	       if ( !uiMSG().askGoOn( msg ) ) return 0;
+
+	       if ( rev )
+	       {
+		   inlrg.stop = previnlrg.start - inlrg.step;
+		   iop.set( BinIDSelector::sKeylinl, inlrg.stop );
+	       }
+	       else
+	       {
+		   inlrg.start = previnlrg.stop + inlrg.step;
+		   iop.set( BinIDSelector::sKeyfinl, inlrg.start );
+	       }
+	    }
 	}
+
+	estnrtrcs += (inlrg.nrSteps()+1) * (crlrg.nrSteps()+1);
+	previnlrg = inlrg;
+	prevcrlrg = crlrg;
     }
  
-    return true;
+    if ( estnrtrcs < 1 )
+    {
+	estnrtrcs = 0;
+	uiMSG().error( "No traces in selected files" );
+    }
+    return estnrtrcs;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.3 2002-02-05 15:44:52 nanne Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.4 2002-06-20 15:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
 
     int			nrSkipped() const	{ return nrskipped_; }
     int			nrWritten() const	{ return nrwr_; }
+    void		setTotalNrIfUnknown( int nr )
+			{ if ( totnr_ < 0 ) totnr_ = nr; }
 
 protected:
 

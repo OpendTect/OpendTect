@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uimergeseis.h,v 1.2 2002-02-06 14:07:53 nanne Exp $
+ RCS:           $Id: uimergeseis.h,v 1.3 2002-06-20 15:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ protected:
 
     virtual bool	acceptOK(CallBacker*);
     bool		handleInput();
-    bool		checkRanges();
+    int			checkRanges();
 };
 
 #endif

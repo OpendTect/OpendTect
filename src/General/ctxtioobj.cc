@@ -4,13 +4,14 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.11 2002-05-19 15:50:14 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.12 2002-06-20 15:59:45 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "transl.h"
+#include "globexpr.h"
 
 DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 
@@ -147,6 +148,29 @@ void IOObjContext::usePar( const IOPar& iopar )
     res = iopar.find( "Selection.Property selection value" );
     if ( res ) ioparkeyval[1] = res;
     iopar.getYN( "Selection.Include property", includekeyval );
+}
+
+
+bool IOObjContext::validIOObj( const IOObj& ioobj ) const
+{
+    if ( *((const char*)trglobexpr) )
+    {
+	GlobExpr ge( trglobexpr );
+	if ( !ge.matches( ioobj.translator() ) )
+	    return false;
+    }
+
+    const char* iopkey = ioparkeyval[0];
+    if ( *iopkey )
+    {
+	const char* res = ioobj.pars().find( iopkey );
+	if ( !res && includekeyval )
+	    return false;
+	if ( res && includekeyval == (ioparkeyval[1] != res) )
+	    return false;
+    }
+
+    return true;
 }
 
 

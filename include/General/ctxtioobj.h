@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.13 2002-05-19 15:50:14 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.14 2002-06-20 15:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ public:
     BufferString	trglobexpr;	//!< Only display when matches globexpr
     BufferString	ioparkeyval[2];	//!< Allow only/not with this key-value
     bool		includekeyval;	//!< Is keyval only or not allowed
+
+    bool		validIOObj(const IOObj&) const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);

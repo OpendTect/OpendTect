@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.5 2001-10-12 10:41:49 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.6 2002-06-20 15:59:45 bert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -52,23 +52,20 @@ IODirEntryList::IODirEntryList( IODir* id, const Translator* tr, bool maycd,
 	: UserIDObjectSet<IODirEntry>(
 		id && id->main() ? (const char*)id->main()->name() : "Objects" )
 	, trsel(tr->getSelector())
-	, maychgdir(maycd)
-	, trfilt(f)
-	, inciopkey(false)
+	, ctxt(*new IOObjContext(tr))
 {
+    ctxt.maychdir = maycd;
+    ctxt.trglobexpr = f;
+    ctxt.includekeyval = false;
     fill( id );
 }
 
 
-IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ctxt )
+IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ct )
 	: UserIDObjectSet<IODirEntry>(
 		id && id->main() ? (const char*)id->main()->name() : "Objects" )
-	, trsel(ctxt.trgroup->getSelector())
-	, maychgdir(ctxt.maychdir)
-	, trfilt(ctxt.trglobexpr)
-	, iopkey(ctxt.ioparkeyval[0])
-	, iopval(ctxt.ioparkeyval[1])
-	, inciopkey(ctxt.includekeyval)
+	, trsel(ct.trgroup->getSelector())
+	, ctxt(*new IOObjContext(ct))
 {
     fill( id );
 }
@@ -77,6 +74,7 @@ IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ctxt )
 IODirEntryList::~IODirEntryList()
 {
     deepErase();
+    delete &ctxt;
 }
 
 
@@ -87,13 +85,12 @@ void IODirEntryList::fill( IODir* iodir )
     setName( iodir->main() ? (const char*)iodir->main()->name() : "Objects" );
     const UserIDObjectSet<IOObj>& ioobjs = iodir->getObjs();
     int curset = 0;
-    if ( maychgdir && strcmp(iodir->dirName(),IOM().rootDir()) )
+    if ( ctxt.maychdir && strcmp(iodir->dirName(),IOM().rootDir()) )
     {
         *this += new IODirEntry( 0, 0, false );
 	curset++;
     }
 
-    GlobExpr ge( trfilt );
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	IOObj* ioobj = ioobjs[idx];
@@ -102,25 +99,13 @@ void IODirEntryList::fill( IODir* iodir )
 	if ( trsel )
 	{
 	    selres = trsel( ioobj->group() );
-	    if ( !selres || (selres == 1 && !ioobj->isLink()) ) continue;
-	}
-	if ( *((const char*)trfilt) )
-	{
-	    if ( !ge.matches( ioobj->translator() ) )
+	    if ( !selres || (selres == 1 && !ioobj->isLink()) )
 		continue;
 	}
-	if ( *((const char*)iopkey) )
-	{
-	    IOPar& iop = ioobj->pars();
-	    const char* res = iop.find( (const char*)iopkey );
-	    if ( !res && inciopkey )
-		continue;
-	    if ( res && inciopkey == (iopval != res) )
-		continue;
-	}
-
-        *this += new IODirEntry( ioobj, selres, maychgdir );
+	if ( ctxt.validIOObj(*ioobj) )
+	    *this += new IODirEntry( ioobj, selres, ctxt.maychdir );
     }
+
     sort();
     if ( lastiokey == "" )
 	{ if ( size() > curset ) setCurrent( curset ); }

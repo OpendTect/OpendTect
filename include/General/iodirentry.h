@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.3 2001-10-08 16:12:21 bert Exp $
+ RCS:           $Id: iodirentry.h,v 1.4 2002-06-20 15:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,11 +54,7 @@ public:
 
     MultiID			lastiokey;
     ObjectTypeSelectionFun	trsel;
-    bool			maychgdir;
-    BufferString		trfilt;
-    BufferString		iopkey;
-    BufferString		iopval;
-    bool			inciopkey;
+    IOObjContext&		ctxt;
 
 };
 

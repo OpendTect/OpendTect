@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.36 2002-06-05 14:24:45 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.37 2002-06-20 15:59:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,7 +346,7 @@ void uiIOObjSel::processInput()
 
     IOM().to( ctio.ctxt.stdSelKey() );
     const IOObj* ioobj = (*IOM().dirPtr())[inp];
-    ctio.setObj( ioobj ? ioobj->clone() : 0 );
+    ctio.setObj( ioobj && ctio.ctxt.validIOObj(*ioobj) ? ioobj->clone() : 0 );
     updateInput();
 }
 
@@ -369,7 +369,14 @@ bool uiIOObjSel::commitInput( bool mknew )
     }
 
     processInput();
-    if ( existingTyped() ) return true;
+    if ( existingTyped() )
+    {
+       if ( ctio.ioobj ) return true;
+       BufferString msg( getInput() );
+       msg += ": Please enter another name.";
+       uiMSG().error( msg );
+       return false;
+    }
     if ( !mknew ) return false;
 
     ctio.setObj( createEntry( getInput() ) );
