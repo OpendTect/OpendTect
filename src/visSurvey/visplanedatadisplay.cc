@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.70 2004-07-26 15:24:53 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.71 2004-07-27 15:41:30 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -572,6 +572,8 @@ void PlaneDataDisplay::setData( const AttribSliceSet* sliceset, int datatype )
 #define mCrlIdx ((curcrl-datacs.hrg.start.crl) / datacs.hrg.step.crl)
 #define mZIdx (datacs.zrg.nearestIndex(curz))
 
+#define mInZrg() (curz>=datacs.zrg.start-1e-4 && curz<=datacs.zrg.stop+1e-4)
+
 Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset, 
 					       int slcidx ) const
 {
@@ -619,8 +621,7 @@ Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset,
 	    for ( int zidx=0; zidx<nrz; zidx++ )
 	    {
 		curz = cs.zrg.atIndex( zidx );
-		if ( !datacs.hrg.inlOK(curinl) || 
-		     !datacs.zrg.includes(curz) )
+		if ( !datacs.hrg.inlOK(curinl) || !mInZrg() )
 		    val = mUndefValue;
 		else
 		{
@@ -645,8 +646,7 @@ Array2D<float>* PlaneDataDisplay::createArray( const AttribSliceSet* sliceset,
 	    for ( int zidx=0; zidx<nrz; zidx++ )
 	    {
 		curz = cs.zrg.atIndex( zidx );
-		if ( !datacs.hrg.crlOK(curcrl) || 
-		     !datacs.zrg.includes(curz) )
+		if ( !datacs.hrg.crlOK(curcrl) || !mInZrg() )
 		    val = mUndefValue;
 		else
 		{
@@ -689,56 +689,24 @@ bool PlaneDataDisplay::isOn() const
 { return trect->isOn(); }
 
 
+#define mIsValid(idx,sz) ( idx>=0 && idx<sz )
+
 float PlaneDataDisplay::getValue( const Coord3& pos_ ) const
 {
     if ( !cache ) return mUndefValue;
     const BinID bid = SI().transform(pos_);
-    const Coord3 pos( bid.inl, bid.crl, pos_.z );
 
-    Coord3 origo = trect->getRectangle().origo();
-    Coord localpos;
+    int idx0, idx1, idx2;
+    cache->getIdxs( bid.inl, bid.crl, pos_.z, idx0, idx1, idx2 );
 
-    if ( type == Timeslice )
-    {
-	if ( fabs(pos.z-origo.z)> 1e-3 )
-	    return mUndefValue;
-	// x=inl y=crl
-	localpos.x = pos.x-origo.x;
-	localpos.y = pos.y-origo.y;
-	localpos.x /= trect->getRectangle().width(0);
-	localpos.y /= trect->getRectangle().width(1);
-
-    }
-    else if ( type == Crossline )
-    {
-	if ( fabs(pos.y-origo.y)> 1e-3 )
-	    return mUndefValue;
-	// x=inline y=depth
-	localpos.x = pos.x-origo.x;
-	localpos.y = pos.z-origo.z;
-
-	localpos.x /= trect->getRectangle().width(0);
-	localpos.y /= trect->getRectangle().width(1);
-    }
-    else
-    {
-	if ( fabs(pos.x-origo.x)> 1e-3 )
-	    return mUndefValue;
-	// x=crossline y=depth
-	localpos.x = pos.y-origo.y;
-	localpos.y = pos.z-origo.z;
-
-	localpos.x /= trect->getRectangle().width(1);
-	localpos.y /= trect->getRectangle().width(0);
-    }
-
-    if ( localpos.x > 1 || localpos.y > 1 || localpos.x < 0 || localpos.y < 0 )
-	return mUndefValue;
-
-    localpos.x *= ((*cache)[0]->info().getSize(0)-1);
-    localpos.y *= ((*cache)[0]->info().getSize(1)-1);
-
-    return (*cache)[0]->get(mNINT(localpos.x), mNINT(localpos.y));
+    const int sz0 = cache->size();
+    if ( !mIsValid(idx0,sz0) ) return mUndefValue;
+    
+    const int sz1 = (*cache)[idx0]->info().getSize(0);
+    const int sz2 = (*cache)[idx0]->info().getSize(1);
+    if ( !mIsValid(idx1,sz1) || !mIsValid(idx2,sz2) ) return mUndefValue;
+    
+    return (*cache)[idx0]->get( idx1, idx2 );
 }
 
 
