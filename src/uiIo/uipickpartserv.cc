@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.19 2003-02-28 09:01:48 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.20 2003-05-16 15:19:07 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,8 +204,8 @@ bool uiPickPartServer::storeSinglePickSet( PickSet* ps )
     CtxtIOObj ctio = PickSetGroupTranslator::ioContext();
     ctio.ctxt.forread = false;
     ctio.ctxt.maychdir = false;
+    ctio.setName( ps->name() );
     uiIOObjSelDlg dlg( appserv().parent(), ctio );
-    dlg.setInitOutputName( ps->name() );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
 
