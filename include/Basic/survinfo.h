@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Features for sets of data
- RCS:		$Id: survinfo.h,v 1.12 2001-09-18 14:49:05 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.13 2001-10-29 17:36:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,7 @@ private:
     BinID		step_;
     StepInterval<double> zrange_;
     BufferString	comment_;
+    bool		valid_;
 
     BinID		set3binids[3];
     Coord		set3coords[3];

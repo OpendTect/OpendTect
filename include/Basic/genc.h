@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of gendefs.h to C generalities
- RCS:		$Id: genc.h,v 1.8 2001-10-25 13:26:39 windev Exp $
+ RCS:		$Id: genc.h,v 1.9 2001-10-29 17:36:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,11 @@ extern "C" {
 
 const char*	GetProjectVersionName(void);
 		/*!< usually dGB-GDI Vx.x or dGB-dTect Vx.x */
+
+#define		mDgbApplCodeGDI 1
+#define		mDgbApplCodeDTECT 2
+int		GetDgbApplicationCode(void);
+
 
 /*
 
