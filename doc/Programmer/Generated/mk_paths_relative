@@ -14,7 +14,7 @@ foreach tf ( $tagfils )
 	foreach fil ( *.html )
 		echo -n "."
 
-		sed 's/\/dsk\/d33\/dgb\/data\/dTectDoc\/Programmer\/Generated/../g' $fil > $fil.tmp
+		sed 's/\/dsk\/d3\/dgb\/data\/dTectDoc\/Programmer\/Generated/../g' $fil > $fil.tmp
 		\mv -f $fil.tmp $fil
 
 	end
