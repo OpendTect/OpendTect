@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.1 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: binidvalset.h,v 1.2 2004-07-19 14:56:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ public:
     inline int		nrInls() const		{ return inls.size(); }
     inline bool		isEmpty() const		{ return !nrInls(); }
     inline bool		includes( const BinID& b ) const
-    						{ return findFirst(b).j < 0; }
+    						{ return findFirst(b).j > -1; }
     int			nrPos(int inlidx) const;
     int			totalSize() const;
     bool		hasInl(int) const;
