@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.9 2003-07-29 08:24:24 nanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.10 2003-08-28 08:17:08 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,19 +15,45 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uifiledlg.h"
 
+class uiFileBrowser;
+class uiPushButton;
+
 /*! \brief A file-name input. 
 
 Displays a uiLineEdit field showing the current selected file. The user can
 edit the filename by hand, or pop up a file selector trough the included
-"Select..." push button.
+"Select..." push button. Optional is an Examine button for browsing the file.
 
 */
 
 class uiFileInput : public uiGenInput
 { 	
 public:
-			uiFileInput(uiParent*,const char* txt,const char* fnm=0,
-			    	    bool forread=true,const char* filtr=0);
+
+    class Setup
+    {
+    public:
+			Setup(const char* filenm=0)
+			    : fnm(filenm)
+			    , filter_("")
+			    , forread_(true)
+			    , withexamine_(false)
+			    {}
+	BufferString	fnm;
+	BufferString	filter_;
+	bool		forread_;
+	bool		withexamine_;
+	
+	#define mSetVar(var,val) var=val; return *this;
+	Setup&		filter(const char* s)	  { mSetVar(filter_,s) }
+	Setup&		forread(bool yn=true)	  { mSetVar(forread_,yn) }
+	Setup&		withexamine(bool yn=true) { mSetVar(withexamine_,yn) }
+    };
+
+    			uiFileInput(uiParent*,const char* seltxt,
+				    const char* fnm=0);
+			uiFileInput(uiParent*,const char* seltxt,const Setup&);
+			~uiFileInput();
 
     void		setFileName(const char*);
     void		setDefaultSelectionDir( const char* nm )
@@ -58,8 +84,12 @@ protected:
     bool		selmodset;
     uiFileDialog::Mode  selmode;
 
-    virtual void	doSelect(CallBacker*);
+    uiPushButton*	examinebut;
+    uiFileBrowser*	browser;
 
+    virtual void	doSelect(CallBacker*);
+    void		examineFile(CallBacker*);
+    void		isFinalised(CallBacker*);
 };
 
 

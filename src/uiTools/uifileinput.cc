@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.17 2003-08-06 12:31:23 nanne Exp $
+ RCS:           $Id: uifileinput.cc,v 1.18 2003-08-28 08:17:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,19 +15,54 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "filegen.h"
+#include "uifilebrowser.h"
 
 
-uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm,
-			  bool fr, const char* filt )
-    : uiGenInput( p, txt, FileNameInpSpec(fnm) )
-    , forread(fr)
-    , fname( fnm )
-    , filter(filt)
+uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
+    : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
+    , forread(setup.forread_)
+    , fname(setup.fnm)
+    , filter(setup.filter_)
     , newfltr(false)
     , selmodset(false)
     , selmode(uiFileDialog::AnyFile)
+    , browser(0)
+    , examinebut(0)
 {
     setWithSelect( true );
+    if ( setup.withexamine_ )
+	examinebut = new uiPushButton( this, "Examine ...", 
+					mCB(this,uiFileInput,examineFile) );
+
+    mainObject()->finaliseDone.notify( mCB(this,uiFileInput,isFinalised) );
+}
+
+
+uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
+    : uiGenInput( p, txt, FileNameInpSpec(fnm) )
+    , forread(true)
+    , fname(fnm)
+    , filter("")
+    , newfltr(false)
+    , selmodset(false)
+    , selmode(uiFileDialog::AnyFile)
+    , browser(0)
+    , examinebut(0)
+{
+    setWithSelect( true );
+}
+
+
+uiFileInput::~uiFileInput()
+{
+    if ( browser ) browser->reject(0);
+}
+
+
+void uiFileInput::isFinalised( CallBacker* )
+{
+    if ( examinebut )
+	examinebut->attach( rightOf, selbut );
 }
 
 
@@ -69,6 +104,9 @@ void uiFileInput::doSelect( CallBacker* )
 
     if ( newfname != oldfname )
 	valuechanged.trigger( *this );
+
+    if ( examinebut && browser )
+	browser->setFileName( fileName() );
 }
 
 
@@ -87,3 +125,14 @@ void uiFileInput::getFileNames( ObjectSet<BufferString>& list ) const
     uiFileDialog::string2List( string, list );
 }
 
+
+void uiFileInput::examineFile( CallBacker* )
+{
+    const char* fnm = fileName();
+    if ( browser )
+	browser->setFileName( fnm );
+    else
+	browser = new uiFileBrowser( this, fnm );
+
+    browser->show();
+}
