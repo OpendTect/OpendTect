@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.23 2003-01-21 10:56:49 niclas Exp $
+ RCS:		$Id: ranges.h,v 1.24 2003-06-02 12:06:11 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,16 @@ public:
     template <class X>
     inline int	getIndex( const X& t, const T& step ) const
 		{ return (int)(( t  - start ) / step); }
+
+    template <class X>
+    inline X	limitValue( const X& t ) const
+    		{
+		    const bool isrev = isRev();
+		    if ( (!isrev&&t>stop) || (isrev&&t<stop) ) return stop;
+		    if ( (!isrev&&t<start) || (isrev&&t>start) ) return start;
+		    return t;
+		}
+		
 
     template <class X>
     inline int	nearestIndex( const X& x, const T& step ) const
