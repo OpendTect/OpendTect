@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.16 2004-04-14 09:56:28 kristofer Exp $
+ RCS:           $Id: uispinbox.cc,v 1.17 2005-01-25 13:30:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,9 +44,9 @@ private:
 };
 
 
-uiSpinBoxBody::uiSpinBoxBody(uiSpinBox& handle, uiParent* p, const char* nm)
-    : uiObjBodyImpl<uiSpinBox,QSpinBox>( handle, p, nm )
-    , messenger_( *new i_SpinBoxMessenger( this, &handle) )
+uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiSpinBox,QSpinBox>(handle,p,nm)
+    , messenger_(*new i_SpinBoxMessenger(this,&handle))
     , dval(new QDoubleValidator(this,"Validator"))
 {
     setHSzPol( uiObject::small );
@@ -88,10 +88,7 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     , dosnap(false)
     , factor(1)
 {
-    if ( dec < 0 ) dec = 0;
-    factor = (int)pow(10,(float)dec);
-    body_->setNrDecimals( dec );
-
+    setNrDecimals( dec );
     valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
 }
 
@@ -99,6 +96,21 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
 uiSpinBox::~uiSpinBox()
 {
     valueChanged.remove( mCB(this,uiSpinBox,snapToStep) );
+}
+
+
+uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
+{ 
+    body_= new uiSpinBoxBody(*this,parnt, nm);
+    return *body_; 
+}
+
+
+void uiSpinBox::setNrDecimals( int dec )
+{
+    if ( dec < 0 ) dec = 0;
+    factor = (int)pow(10,(float)dec);
+    body_->setNrDecimals( dec );
 }
 
 
@@ -113,13 +125,6 @@ void uiSpinBox::snapToStep( CallBacker* )
 	const int newval = body_->minValue() + mNINT(ratio)*step_;
 	body_->setValue( newval );
     }
-}
-
-
-uiSpinBoxBody& uiSpinBox::mkbody(uiParent* parnt, const char* nm )
-{ 
-    body_= new uiSpinBoxBody(*this,parnt, nm);
-    return *body_; 
 }
 
 
@@ -206,6 +211,20 @@ void uiSpinBox::setStep( float step_, bool dosnap_ )
     body_->setLineStep( mNINT(step_*factor) );
     dosnap = dosnap_;
     snapToStep(0);
+}
+
+
+void uiSpinBox::setSuffix( const char* suffix )
+{
+    body_->setSuffix( suffix );
+}
+
+
+const char* uiSpinBox::suffix() const
+{
+    static BufferString res;
+    res = body_->suffix();
+    return res;
 }
 
 //------------------------------------------------------------------------------

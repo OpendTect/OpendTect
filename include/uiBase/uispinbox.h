@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.8 2004-02-25 14:49:55 nanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.9 2005-01-25 13:30:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ public:
                         uiSpinBox(uiParent*, int nrdecimals=0,
 				  const char* nm="SpinBox");
 			~uiSpinBox();
+
+    void		setNrDecimals(int);
 
     void		setValue(int);
     void		setValue(float);
@@ -60,6 +62,9 @@ public:
     				snapped to a value equal to N*step */
     float		fstep() const;
     int			step() const;
+
+    void		setSuffix(const char*);
+    const char*		suffix() const;
 
     void		doSnap(bool yn)			{ dosnap = yn; }
 
