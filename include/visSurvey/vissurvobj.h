@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.2 2002-04-29 11:08:05 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.3 2002-04-29 11:10:08 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,9 +47,9 @@ public:
 
     const visBase::Transformation*	getDisplayTransform() const
 					{ return displaytransform; }
-    const visBase::Transformation*	getAppvelTransform() const;
+    const visBase::Transformation*	getAppvelTransform() const
 					{ return appveltransform; }
-    const visBase::Transformation*	getInlCrlTransform() const;
+    const visBase::Transformation*	getInlCrlTransform() const
 					{ return inlcrltransform; }
 
     Notifier<SurveyParamManager>	appvelchange;
