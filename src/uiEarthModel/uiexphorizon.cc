@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.2 2002-08-12 14:20:50 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.3 2002-09-17 13:26:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,43 +22,41 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "survinfo.h"
 #include "geompos.h"
+#include "horizoninfo.h"
+#include "ctxtioobj.h"
 
 
 uiExportHorizon::uiExportHorizon( uiParent* p, 
-				  const ObjectSet<BufferString>& strs,
-				  const TypeSet<int>& horids_, 
-				  const ObjectSet<BufferString>& attribs_ )
+				  const ObjectSet<HorizonInfo>& hinfos )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format",0))
-	, selhorid(-1)
-	, horids(horids_)
-	, attribs(attribs_)
-
+	, hinfos_(hinfos)
+	, selinfo_(-1)
 {
     inbox = new uiLabeledListBox( this, "Available horizons" );
-    inbox->box()->addItems( strs );
+    for ( int idx=0; idx<hinfos_.size(); idx++ )
+	inbox->box()->addItem( hinfos_[idx]->name );
     inbox->box()->selectionChanged.notify( mCB(this,uiExportHorizon,selChg) );
 
     attrlbl = new uiLabel( this, "" );
     attrlbl->setHSzPol( uiObject::medium );
     attrlbl->attach( alignedBelow, inbox );
-    uiLabel* lbltxt = new uiLabel( this, "Calculated attribute: " );
-    lbltxt->attach( leftOf, attrlbl );
+    uiLabel* lbl = new uiLabel( this, "Attached values: " );
+    lbl->attach( leftOf, attrlbl );
 
     xyfld = new uiGenInput( this, "Positions in:",
                             BoolInpSpec("X/Y","Inl/Crl") );
     xyfld->attach( alignedBelow, attrlbl );
 
-    zfld = new uiGenInput( this, "Include depth", BoolInpSpec() );
+    BufferString lbltxt( "Include Z (" );
+    lbltxt += SI().zIsTime() ? "Time)" : "Depth)";
+    zfld = new uiGenInput( this, lbltxt, BoolInpSpec() );
     zfld->setValue( false );
     zfld->attach( alignedBelow, xyfld );
 
     outfld = new uiFileInput( this, "Output Ascii file", "", false );
-    BufferString datadirnm( GetDataDir() );
-    BufferString dirnm = File_getFullPath( datadirnm, "Surfaces" );
-    if ( !File_exists( dirnm ) )
-	dirnm = File_getFullPath( datadirnm, "Grids" );
-    outfld->setDefaultSelectionDir( dirnm );
+    outfld->setDefaultSelectionDir(
+	    IOObjContext::getDataDirName(IOObjContext::Surf) );
     outfld->attach( alignedBelow, zfld );
 
     selChg( 0 );
@@ -70,14 +68,20 @@ uiExportHorizon::~uiExportHorizon()
 }
 
 
+int uiExportHorizon::selHorID() const
+{
+    return selinfo_ < 0 ? -1 : hinfos_[selinfo_]->id;
+}
+
+
 #define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiExportHorizon::writeAscii( const TypeSet<BinIDValue>& bids,
-				  const TypeSet<float>& values )
+bool uiExportHorizon::writeAscii( const ObjectSet<
+				  TypeSet<BinIDZValue> >& bizvset )
 {
-    bool doxy = xyfld->getBoolValue();
-    bool addzpos = zfld->getBoolValue();
+    const bool doxy = xyfld->getBoolValue();
+    const bool addzpos = zfld->getBoolValue();
 
     const char* fname = outfld->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();
@@ -87,24 +91,28 @@ bool uiExportHorizon::writeAscii( const TypeSet<BinIDValue>& bids,
 	mErrRet( "Cannot open output file" );
     }
 
-    for ( int idx=0; idx< bids.size(); idx++ )
+    for ( int iset=0; iset<bizvset.size(); iset++ )
     {
-	Geometry::Pos pos;
-	pos.z = bids[idx].value;
-	BinID bid = bids[idx].binid;
-	if ( doxy )
+	const TypeSet<BinIDZValue>& bizvs = *bizvset[iset];
+
+	for ( int idx=0; idx<bizvs.size(); idx++ )
 	{
-	    Coord crd = SI().transform( bid );
-	    pos.x = crd.x; pos.y = crd.y;
-	}
-	else
-	{
-	    pos.x = bid.inl; pos.y = bid.crl;
+	    const BinIDZValue& bizv = bizvs[idx];
+	    if ( doxy )
+	    {
+		Coord crd = SI().transform( bizv.binid );
+		*sdo.ostrm << crd.x << '\t' << crd.y << '\t';
+	    }
+	    else
+		*sdo.ostrm << bizv.binid.inl << '\t' << bizv.binid.crl << '\t';
+
+	    if ( addzpos ) *sdo.ostrm << bizvs[idx].z << '\t';
+	    *sdo.ostrm << bizvs[idx].value << '\n';
 	}
 
-	*sdo.ostrm << pos.x << '\t' << pos.y << '\t';
-	if ( addzpos ) *sdo.ostrm << pos.z << '\t';
-	*sdo.ostrm << values[idx] << '\n';
+	if ( iset < bizvset.size() - 1 )
+	    // Should we write some kind of marker when more than 1 set?
+	    ;
     }
 
     sdo.close();
@@ -133,7 +141,6 @@ const char* uiExportHorizon::selectedItem()
 
 void uiExportHorizon::selChg( CallBacker* )
 {
-    int selitmnr = inbox->box()->currentItem();
-    selhorid = horids[selitmnr];
-    attrlbl->setText( *attribs[selitmnr] );
+    selinfo_ = inbox->box()->currentItem();
+    attrlbl->setText( hinfos_[selinfo_]->attrnm );
 }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.5 2001-12-24 15:02:53 nanne Exp $
+ RCS:		$Id: position.h,v 1.6 2002-09-17 13:26:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,21 @@ public:
 
     BinID	binid;
     float	value;
+};
+
+
+/*!\brief BinID, Z and value. */
+
+class BinIDZValue : public BinIDValue
+{
+public:
+		BinIDZValue( int inl=0, int crl=0, float zz=0,
+			     float v=mUndefValue )
+		: BinIDValue(inl,crl,v), z(zz)		{}
+		BinIDZValue( const BinID& b, float zz=0, float v=mUndefValue )
+		: BinIDValue(b,v), z(zz)		{}
+
+    float	z;
 };
 
 

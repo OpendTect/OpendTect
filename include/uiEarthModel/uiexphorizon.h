@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.2 2002-08-12 14:20:55 nanne Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.3 2002-09-17 13:26:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ class uiFileInput;
 class uiGenInput;
 class uiLabel;
 class uiLabeledListBox;
-class BinIDValue;
+class BinIDZValue;
+class HorizonInfo;
 
 
 /*! \brief Dialog for horizon export */
@@ -27,15 +28,12 @@ class uiExportHorizon : public uiDialog
 {
 public:
 			uiExportHorizon(uiParent*,
-					const ObjectSet<BufferString>&,
-					const TypeSet<int>&,
-					const ObjectSet<BufferString>&);
+					const ObjectSet<HorizonInfo>&);
 			~uiExportHorizon();
 
     const char*		selectedItem();
-    int			selHorID()		{ return selhorid; }
-    bool		writeAscii(const TypeSet<BinIDValue>&,
-				   const TypeSet<float>&);
+    int			selHorID()const;
+    bool		writeAscii(const ObjectSet< TypeSet<BinIDZValue> >&);
 
 protected:
 
@@ -48,9 +46,8 @@ protected:
     virtual bool	acceptOK(CallBacker*);
     void		selChg(CallBacker*);
 
-    int			selhorid;
-    const TypeSet<int>& horids;
-    const ObjectSet<BufferString>&	attribs;
+    const ObjectSet<HorizonInfo>&	hinfos_;
+    int					selinfo_;
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.84 2002-08-22 14:27:50 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.85 2002-09-17 13:26:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,12 +24,16 @@ ________________________________________________________________________
 #include "visrectangle.h"
 #include "vistexturerect.h"
 #include "visobject.h"
-#include "errh.h"
 #include "uiexecutor.h"
 
 #include "uimsg.h"
 
 #include "pickset.h"
+#include "cubesampling.h"
+#include "attribsel.h"
+#include "attribslice.h"
+#include "horizoninfo.h"
+#include "thread.h"
 #include "survinfo.h"
 #include "geompos.h"
 #include "uidset.h"
@@ -37,6 +41,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "colortab.h"
 #include "settings.h"
+#include "errh.h"
 
 #include "uizscaledlg.h"
 #include "uiworkareadlg.h"
@@ -44,11 +49,6 @@ ________________________________________________________________________
 #include "uipickszdlg.h"
 #include "uislicesel.h"
 #include "uisellinest.h"
-
-#include "cubesampling.h"
-#include "attribsel.h"
-#include "attribslice.h"
-#include "thread.h"
 
 const int uiVisPartServer::evManipulatorMove   	= 0;
 const int uiVisPartServer::evSelection		= 1;
@@ -224,7 +224,7 @@ void uiVisPartServer::setObjectName( int id, const char* nm )
 }
 
 
-const char* uiVisPartServer::getObjectName( int id )
+const char* uiVisPartServer::getObjectName( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( id );
     if ( !obj ) return 0;
@@ -382,7 +382,7 @@ void uiVisPartServer::removeScene( int sceneid )
 }
 
 
-void uiVisPartServer::getSceneIds( TypeSet<int>& sceneids )
+void uiVisPartServer::getSceneIds( TypeSet<int>& sceneids ) const
 {
     sceneids.erase();
     for ( int idx=0; idx<scenes.size(); idx++ )
@@ -1007,7 +1007,6 @@ int uiVisPartServer::addHorizonDisplay( const MultiID& emhorid )
     }
 
     uiExecutor uiexec (appserv().parent(), *exec );
-    uiexec.retEach( 100 );
     if ( !uiexec.execute() )
     {
 	horizon->ref(); horizon->unRef();
@@ -1041,34 +1040,37 @@ void uiVisPartServer::removeHorizonDisplay( int id )
 }
 
 
-void uiVisPartServer::getHorAttribPos( int id,
-				       ObjectSet<TypeSet<BinIDValue> >& bidvset,
-				       const BinIDRange* br ) const
+void uiVisPartServer::getHorAttribData( int id,
+				   ObjectSet< TypeSet<BinIDZValue> >& bidzvset,
+				   bool posonly,
+				   const BinIDRange* br ) const
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
-    if ( hor ) hor->getAttribPos( bidvset, br );
+    if ( hor )
+	hor->getAttribData( bidzvset, !posonly, br );
 }
 
 
-void uiVisPartServer::getHorData( int id, TypeSet<float>& vals ) const
+void uiVisPartServer::getHorAttribValues( int id, TypeSet<float>& vals ) const
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
-    if ( hor ) hor->getDataValues( vals );
+    if ( hor )
+	hor->getDataValues( vals );
 }
 
 
 void uiVisPartServer::putNewHorData( int id,
-				     const ObjectSet<const float>& newdata )
+			     const ObjectSet< TypeSet<BinIDZValue> >& nd )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hor,dobj)
-    if ( hor ) hor->putNewData( newdata );
+    if ( hor ) hor->putNewData( nd );
 }
 
 
-void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
+void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids ) const
 {
     visBase::DataObject* obj = visBase::DM().getObj( sceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -1084,44 +1086,51 @@ void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
 }
 
 
-void uiVisPartServer::getHorizonNames( ObjectSet<BufferString>& nms,
-					TypeSet<int>* allids )
+void uiVisPartServer::getHorizonInfo( ObjectSet<HorizonInfo>& hinfos ) const
 {
-    TypeSet<int> sceneids;
-    getSceneIds( sceneids );
-
+    TypeSet<int> sceneids; getSceneIds( sceneids );
     for ( int ids=0; ids<sceneids.size(); ids++ )
     {
-	int sceneid = sceneids[ids];
-	TypeSet<int> horids;
-	horids.erase();
-	getHorizonIds( sceneid, horids );
+	const int sceneid = sceneids[ids];
+	TypeSet<int> horids; getHorizonIds( sceneid, horids );
 	for ( int idh=0; idh<horids.size(); idh++ )
 	{
-	    int horid = horids[idh];
-	    nms += new BufferString( getObjectName(horid) );
-	    if ( allids ) (*allids) += horid;
+	    const int horid = horids[idh];
+	    hinfos += new HorizonInfo( horid, getObjectName(horid) );
 	}
     }
 }
 
 
-int uiVisPartServer::getHorizonID( const char* horname )
+void uiVisPartServer::getHorizonNames( ObjectSet<BufferString>& nms ) const
+{
+    deepErase( nms );
+    ObjectSet<HorizonInfo> hinfos;
+    getHorizonInfo( hinfos );
+    for ( int idx=0; idx<hinfos.size(); idx++ )
+	nms += new BufferString( hinfos[idx]->name );
+}
+
+
+int uiVisPartServer::getHorizonID( const char* horname, int nr ) const
 {
     TypeSet<int> sceneids;
     getSceneIds( sceneids );
 
     for ( int ids=0; ids<sceneids.size(); ids++ )
     {
-        int sceneid = sceneids[ids];
+        const int sceneid = sceneids[ids];
         TypeSet<int> horids;
-        horids.erase();
         getHorizonIds( sceneid, horids );
         for ( int idh=0; idh<horids.size(); idh++ )
         {
-            int horid = horids[idh];
+            const int horid = horids[idh];
 	    if ( !strcmp(horname,getObjectName(horid)) )
-		return horid;
+	    {
+		nr--;
+		if ( nr < 0 )
+		    return horid;
+	    }
 	}
     }
 

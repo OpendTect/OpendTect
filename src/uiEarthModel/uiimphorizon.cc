@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.16 2002-07-22 10:26:15 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.17 2002-09-17 13:26:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,11 +41,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 	, ctio(*new CtxtIOObj(EarthModelHorizonTranslator::ioContext()))
 {
     infld = new uiFileInput( this, "Input Ascii file");
-    BufferString datadirnm( GetDataDir() );
-    BufferString dirnm = File_getFullPath( datadirnm, "Surfaces" );
-    if ( !File_exists( dirnm ) )
-	dirnm = File_getFullPath( datadirnm, "Grids" );
-    infld->setDefaultSelectionDir( dirnm );
+    infld->setDefaultSelectionDir(
+	    IOObjContext::getDataDirName(IOObjContext::Surf) );
 
     xyfld = new uiGenInput( this, "Positions in:",
                              BoolInpSpec("X/Y","Inl/Crl") );
@@ -153,11 +150,13 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 
 bool uiImportHorizon::checkInpFlds()
 {
-    if ( !File_exists(infld->fileName()) )
-	mWarnRet( "Please select input,\nor file does not exist" );
+    if ( ! *infld->fileName() )
+	mWarnRet( "Please select the input file" )
+    else if ( !File_exists(infld->fileName()) )
+	mWarnRet( "Input file does not exist" )
 
     if ( !outfld->commitInput( true ) )
-	mWarnRet( "Please select output" );
+	mWarnRet( "Please select the output" )
 
     return true;
 }

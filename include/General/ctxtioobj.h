@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.15 2002-07-05 14:01:28 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.16 2002-09-17 13:26:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,8 @@ public:
 
     static int			totalNrStdDirs();
     static const StdDirData*	getStdDirData(StdSelType);
+    static BufferString		getDataDirName(StdSelType);
+    				//!< Including legacy names - smart
 
     inline bool		hasStdSelType() const	{ return stdseltype != None; }
     MultiID		stdSelKey() const

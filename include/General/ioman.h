@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.10 2002-05-07 16:04:18 nanne Exp $
+ RCS:		$Id: ioman.h,v 1.11 2002-09-17 13:26:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,8 @@ public:
 
     void		getEntry(CtxtIOObj&,MultiID parentid="");
 			//!< will create a new entry if necessary
+    bool		haveEntries(const MultiID& dirid,const char* trgrpnm=0,
+				     const char* trnm=0) const;
     IOParList*		getParList(const char* typ=0) const;
 			//!< Reads the file on the root of the survey
 

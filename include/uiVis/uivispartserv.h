@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.55 2002-08-22 11:07:34 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.56 2002-09-17 13:26:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ class AttribSliceSet;
 class IOPar;
 class MultiID;
 class BinIDRange;
+class HorizonInfo;
 
 namespace visSurvey
 {
@@ -83,7 +84,7 @@ public:
     			  HorizonDisplay, VolumeDisplay };
     ObjectType		getObjectType( int ) const;
     void		setObjectName(int,const char*);
-    const char*		getObjectName(int);
+    const char*		getObjectName(int) const;
 
     bool		dumpOI( int id, const char* filename ) const;
     			/*!< Writes out all display data to a file. This is
@@ -119,7 +120,7 @@ public:
     void		removeScene(int);
     void		setSelSceneId(int id)	{ selsceneid = id; }
     int			getSelSceneId()		{ return selsceneid; }
-    void		getSceneIds(TypeSet<int>&);
+    void		getSceneIds(TypeSet<int>&) const;
 
 			//DataDisplay stuff
     int			addDataDisplay(uiVisPartServer::ElementType);
@@ -177,15 +178,17 @@ public:
     			// Horizon stuff
     int			addHorizonDisplay(const MultiID& emhorid);
     void		removeHorizonDisplay( int );
-    void		getHorAttribPos(int,ObjectSet<TypeSet<BinIDValue> >&,
-					const BinIDRange* br=0) const;
-    			//!< The data in the objset is managed by caller
-    void		getHorData(int,TypeSet<float>&) const;
-    void		putNewHorData(int,const ObjectSet<const float>& );
-    void		getHorizonIds(int,TypeSet<int>&);
-    void		getHorizonNames(ObjectSet<BufferString>&,
-					TypeSet<int>* set=0);
-    int			getHorizonID(const char*);
+    void		getHorAttribData(int,ObjectSet< TypeSet<BinIDZValue> >&,
+	    				 bool posonly,
+					 const BinIDRange* br=0) const;
+    			//!< The data in the objset will be managed by caller
+    void		getHorAttribValues(int,TypeSet<float>&) const;
+    void		putNewHorData(int,
+	    			      const ObjectSet< TypeSet<BinIDZValue> >&);
+    void		getHorizonIds(int,TypeSet<int>&) const;
+    void		getHorizonInfo(ObjectSet<HorizonInfo>&) const;
+    void		getHorizonNames(ObjectSet<BufferString>&) const;
+    int			getHorizonID(const char*,int nr) const;
     void		setHorizonRes(int, int res );
     			//!< 0 is automatic.
     int			getHorizonRes(int) const;

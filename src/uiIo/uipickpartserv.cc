@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.8 2002-08-05 14:36:38 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.9 2002-09-17 13:26:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uipickpartserv.h"
 #include "uifetchpicks.h"
 #include "uistorepicks.h"
+#include "uiimppickset.h"
 #include "uimsg.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
@@ -43,6 +44,13 @@ uiPickPartServer::~uiPickPartServer()
 {
     delete &psg;
     avsets.deepErase();
+}
+
+
+void uiPickPartServer::importPickSet()
+{
+    uiImportPickSet dlg( appserv().parent() );
+    dlg.go();
 }
 
 
@@ -95,11 +103,11 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     {
 	BinID bid( rp.bidrg.start );
 	const BinID& stp = SI().step();
-	for ( int inl=rp.bidrg.start.inl; inl<=rp.bidrg.stop.inl; inl += stp.inl)
+	for ( int inl=rp.bidrg.start.inl; inl<=rp.bidrg.stop.inl; inl +=stp.inl)
 	{
 	    for ( int crl=rp.bidrg.start.crl; crl<=rp.bidrg.stop.crl;
 		    	crl += stp.crl )
-		hordef += BinIDValue( inl, crl, mUndefValue );
+		hordef += BinIDZValue( inl, crl, mUndefValue );
 	}
     }
 
@@ -111,12 +119,12 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     for ( int ipt=0; ipt<rp.nr; ipt++ )
     {
 	int idx = Stat_getIndex( nrpts );
-	BinIDValue bv = hordef[idx];
+	BinIDZValue bv = hordef[idx];
 	if ( rp.isvol )
-	    bv.value = rp.zrg.start + Stat_getRandom() * zwidth;
+	    bv.z = rp.zrg.start + Stat_getRandom() * zwidth;
 	c = SI().transform( bv.binid );
 
-	ps += PickLocation( c, bv.value );
+	ps += PickLocation( c, bv.z );
     }
     hordef.erase();
     return true;

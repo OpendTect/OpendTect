@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.13 2002-07-05 13:48:16 bert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.14 2002-09-17 13:26:13 bert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: ctxtioobj.cc,v 1.13 2002-07-05 13:48:16 bert Ex
 #include "iopar.h"
 #include "transl.h"
 #include "globexpr.h"
+#include "filegen.h"
 
 DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 
@@ -88,6 +89,27 @@ IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
 	includekeyval = ct.includekeyval;
     }
     return *this;
+}
+
+
+BufferString IOObjContext::getDataDirName( StdSelType sst )
+{
+    const IOObjContext::StdDirData* sdd = getStdDirData( sst );
+    BufferString datadirnm( GetDataDir() );
+    BufferString dirnm = File_getFullPath( datadirnm, sdd->dirnm );
+    if ( !File_exists(dirnm) )
+    {
+	if ( sst == IOObjContext::Surf )
+	    dirnm = File_getFullPath( datadirnm, "Grids" );
+	else if ( sst == IOObjContext::Loc )
+	    dirnm = File_getFullPath( datadirnm, "Wavelets" );
+	else if ( sst == IOObjContext::WllInf )
+	    dirnm = File_getFullPath( datadirnm, "Logs" );
+
+	if ( !File_exists(dirnm) )
+	    dirnm = File_getFullPath( datadirnm, sdd->dirnm );
+    }
+    return dirnm;
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.26 2002-07-05 13:48:16 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.27 2002-09-17 13:26:13 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -188,8 +188,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 	fname = File_getFullPath( GetDataDir(), ".omf" );
 	bool hasomf = !File_isEmpty(fname);
 
-	if ( hassurv && hasomf )
-	    // Why the heck did it fail?
+	if ( hassurv && hasomf ) // Huh?
 	    mErrRet("Cannot start Object Management. Please contact support")
 	if ( !hassurv && !hasomf )
 	    cerr << "Warning: Essential data files not found in ";
@@ -550,6 +549,26 @@ int IOMan::levelOf( const char* dirnm ) const
 	ptr = strchr( ptr, *sDirSep );
     }
     return lvl;
+}
+
+
+bool IOMan::haveEntries( const MultiID& id,
+			 const char* trgrpnm, const char* trnm ) const
+{
+    IODir iodir( id );
+    const bool chkgrp = trgrpnm && *trgrpnm;
+    const bool chktr = trnm && *trnm;
+    const int sz = iodir.size();
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	const IOObj& ioobj = *iodir[idx];
+	if ( chkgrp && strcmp(ioobj.group(),trgrpnm) )
+	    continue;
+	if ( chktr && strcmp(ioobj.translator(),trnm) )
+	    continue;
+	return true;
+    }
+    return false;
 }
 
 
