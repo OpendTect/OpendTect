@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.9 2002-11-15 08:14:32 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.10 2003-05-09 09:04:01 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visobject.h"
+#include "visshape.h"
 #include "position.h"
 
 class SoCube;
@@ -31,7 +31,7 @@ Cube is a basic cube that is settable in size.
 
 */
 
-class Cube : public VisualObjectImpl
+class Cube : public Shape
 {
 public:
     static Cube*	create()
@@ -47,7 +47,6 @@ public:
     void		fillPar( IOPar&, TypeSet<int>& ) const;
 
 protected:
-    SoCube*		cube;
     SoTranslation*	position;
     static const char*	centerposstr;
     static const char*	widthstr;
