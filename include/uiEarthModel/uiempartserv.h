@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.12 2003-08-07 14:35:42 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.13 2003-08-11 11:23:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ public:
     void		manageSurfaces();
     bool		selectHorizon(MultiID&);
     bool		loadAuxData(const MultiID&,int);
-    int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&);
+    int			createAuxDataSubMenu(uiPopupMenu&,int,const MultiID&,
+	    				     bool);
     bool		importWellTrack();
     bool		selectWellTracks(ObjectSet<MultiID>&);
     bool		importLMKFault();

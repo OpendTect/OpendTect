@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.21 2003-08-07 14:35:54 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.22 2003-08-11 11:23:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ bool uiEMPartServer::loadAuxData( const MultiID& id, int selidx )
 
 
 int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx, 
-					   const MultiID& id )
+					  const MultiID& id, bool hasauxdata )
 {
     EM::EMManager& em = EM::EMM();
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
@@ -148,15 +148,24 @@ int uiEMPartServer::createAuxDataSubMenu( uiPopupMenu& mnu, int startidx,
     const char* curval = hor->auxDataName( 0 );
     EM::SurfaceIOData sd;
     em.getSurfaceData( id, sd );
-    for ( int idx=0; idx<sd.valnames.size(); idx++ )
+
+    int nritems = sd.valnames.size();
+    uiPopupMenu* popmnu = new uiPopupMenu( appserv().parent(), "Surface data" );
+    mnu.insertItem( popmnu );
+    popmnu->setEnabled( nritems );
+
+    for ( int idx=0; idx<nritems; idx++ )
     {
 	BufferString nm = *sd.valnames[idx];
 	uiMenuItem* itm = new uiMenuItem( nm );
-	mnu.insertItem( itm, startidx+idx );
-	itm->setChecked( nm == curval );
+	popmnu->insertItem( itm, startidx+idx );
+	bool docheck = hasauxdata && nm == curval;
+	itm->setChecked( docheck );
+	if ( docheck )
+	    popmnu->setChecked( true );
     }
 
-    return sd.valnames.size();
+    return nritems;
 }
 
 
