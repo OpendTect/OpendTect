@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.4 2001-10-10 15:26:43 arend Exp $
+ RCS:           $Id: uicanvas.h,v 1.5 2002-03-26 07:33:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,8 @@ public:
 
     virtual void		setPrefWidth( int w );
     virtual void		setPrefHeight( int h );
+    virtual void		setMaximumWidth( int w );
+    virtual void		setMaximumHeight( int h );
 
     void			setRubberBandingOn(uiMouseEvent::ButtonState);
     uiMouseEvent::ButtonState	rubberBandingOn() const;

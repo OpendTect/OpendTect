@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.14 2001-10-17 14:39:42 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.15 2002-03-26 07:33:55 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -380,6 +380,14 @@ void uiScrollView::setPrefWidth( int w )
 
 void uiScrollView::setPrefHeight( int h )        
     { body_->setPrefHeight( h + 2*frameWidth() ); }
+
+
+void uiScrollView::setMaximumWidth( int w )
+    { body_->setMaximumWidth( w ); }
+
+
+void uiScrollView::setMaximumHeight( int h )
+    { body_->setMaximumHeight( h ); }
 
 
 int  uiScrollView::frameWidth() const
