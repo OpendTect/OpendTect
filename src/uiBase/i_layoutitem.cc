@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/02/2003
- RCS:           $Id: i_layoutitem.cc,v 1.1 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: i_layoutitem.cc,v 1.2 2003-08-13 13:41:27 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -659,7 +659,7 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
     if ( type != ensureLeftOf)
 	constrList.append( new uiConstraint( type, other, margn ) );
 
-    if( reciprocal )
+    if( reciprocal && other )
     {
 	switch ( type )
 	{
