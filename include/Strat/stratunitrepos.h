@@ -7,32 +7,30 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.1 2003-12-15 17:29:43 bert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.2 2004-01-06 17:12:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "sets.h"
+#include "stratunitref.h"
+class PropertyRef;
 
 namespace Strat
 {
 
-class Unit;
 class Lithology;
-class Property;
 
 /*!\brief Stratigraphic framework defining the stratigraphic building blocks
          of subsurface descriptions */
 
-class FW
+class FW : public NodeUnitRef
 {
 public:
 
-				FW() : topunit(0)		{}
+				FW() : NodeUnitRef(0,"","All")	{}
 
     ObjectSet<Lithology>	liths_;
-    ObjectSet<Property>		props_;
-    Unit*			topunit_;
+    ObjectSet<PropertyRef>	props_;
 
 };
 

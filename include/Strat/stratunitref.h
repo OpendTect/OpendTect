@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.1 2004-01-05 15:40:20 bert Exp $
+ RCS:		$Id: stratunitref.h,v 1.2 2004-01-06 17:12:02 bert Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ class UnitRef
 {
 public:
 
-			UnitRef( UnitRef* up, const char* code=0,
+			UnitRef( UnitRef* up, const char* code,
 			      const char* descr=0 )
 			: code_(code)
 			, upnode_(up)
@@ -93,17 +93,17 @@ class LeafUnitRef : public UnitRef
 public:
 
 			LeafUnitRef( UnitRef* up, const char* c,
-				     const Lithology* l, const char* d=0 )
+				     const Lithology& l, const char* d=0 )
 			: UnitRef(up,c,d)
 			, lith_(l)	{}
 
     virtual bool	isLeaf() const		{ return true; }
 
-    const Lithology*	lithology() const	{ return lith_; }
+    const Lithology&	lithology() const	{ return lith_; }
 
 protected:
 
-    const Lithology*	lith_;
+    const Lithology&	lith_;
 
 };
 
