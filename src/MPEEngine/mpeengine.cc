@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.3 2005-01-10 12:30:53 kristofer Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.4 2005-01-11 09:56:11 kristofer Exp $";
 
 #include "mpeengine.h"
 
@@ -290,7 +290,8 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 }
 
 
-const char* Engine::errMsg() const { return errmsg[0] ? errmsg : 0 ; }
+const char* Engine::errMsg() const
+{ return errmsg[0] ? (const char*) errmsg : 0 ; }
 
 
 void Engine::addTrackerFactory( TrackerFactory* ntf )
