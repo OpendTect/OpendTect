@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.15 2002-09-25 12:58:59 nanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.16 2002-12-16 14:46:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
 				   bool toggle=false );
     void		turnOn(int idx, bool yn );
     void		setSensitive(int idx, bool yn );
+    void		setSensitive(bool yn);
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
@@ -93,6 +94,12 @@ void uiToolBarBody::turnOn( int idx, bool yn )
 void uiToolBarBody::setSensitive( int idx, bool yn )
 {
     buttons[idx]->setEnabled( yn );
+}
+
+
+void uiToolBarBody::setSensitive( bool yn )
+{
+    if ( qwidget() ) qwidget()->setEnabled( yn );
 }
 
 
@@ -150,6 +157,10 @@ void uiToolBar::turnOn( int idx, bool yn )
 
 void uiToolBar::setSensitive( int idx, bool yn )
 { body_->setSensitive( idx, yn ); }
+
+
+void uiToolBar::setSensitive( bool yn )
+{ body_->setSensitive( yn ); }
 
 
 void uiToolBar::display( bool yn )

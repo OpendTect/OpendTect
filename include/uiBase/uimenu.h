@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.13 2002-08-12 15:26:48 bert Exp $
+ RCS:           $Id: uimenu.h,v 1.14 2002-12-16 14:46:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,8 @@ class uiMenuBar : public uiMenuData
 public:
 
     void			setIcon(const QPixmap&);
+    void			setSensitive(bool yn);
+    				/*!< Works on complete menubar */
 
 protected:
 				uiMenuBar( uiParent* parnt, const char* nm );

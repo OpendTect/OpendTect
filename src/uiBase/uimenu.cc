@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.13 2002-08-12 15:26:48 bert Exp $
+ RCS:           $Id: uimenu.cc,v 1.14 2002-12-16 14:46:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,11 @@ public:
 			{
     			    if ( bar_ ) bar_->setIcon( pm );
     			    if ( popup_ ) popup_->setIcon( pm );
+			}
+
+    void		setSensitive( bool yn )
+			{
+			    if ( bar_ ) bar_->setEnabled( yn );
 			}
 
 private:
@@ -220,6 +225,10 @@ void uiMenuBar::setIcon( const QPixmap& pm )
 }
 
 
+void uiMenuBar::setSensitive( bool yn )
+{
+    body_->setSensitive( yn );
+}
 
 
 uiPopupItem::uiPopupItem( uiPopupMenu& menu, const char* nm )
