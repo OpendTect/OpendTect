@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.12 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.13 2001-10-10 15:26:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,10 @@ public:
                             , aspectrat( 0.0 ), rbidx( 0 ) 
 			    {
 				setStretch( 2, 2 );
-				setPrefWidth( uiCanvasDefaults::defaultWidth );
-				setPrefHeight( uiCanvasDefaults::defaultHeight);
+				setPrefContentsWidth(
+					    uiCanvasDefaults::defaultWidth );
+				setPrefContentsHeight( 
+					    uiCanvasDefaults::defaultHeight);
 			    }
 
 //    void                update();
@@ -112,8 +114,10 @@ public:
 
     virtual void        reDraw( bool deep )
 			    { 
-				uiObjectBody::reDraw( deep ); 
-				viewport()->update();
+				//uiObjectBody::reDraw( deep ); 
+				//viewport()->update();
+				//updateContents();
+				repaintContents(true);
 			    }
 protected:
 
@@ -367,6 +371,14 @@ void uiScrollView::setContentsPos( uiPoint topLeft )
 
 uiRect uiScrollView::visibleArea() const
     { return body_->visibleArea(); }
+
+
+void uiScrollView::setPrefWidth( int w )        
+    { body_->setPrefWidth( w + 2*frameWidth() ); }
+
+
+void uiScrollView::setPrefHeight( int h )        
+    { body_->setPrefHeight( h + 2*frameWidth() ); }
 
 
 int  uiScrollView::frameWidth() const

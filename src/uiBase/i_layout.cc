@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.30 2001-10-05 13:20:15 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.31 2001-10-10 15:26:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ constraintIterator i_LayoutItem::iterator()
 
 uiSize i_LayoutItem::actualSize( bool include_border ) const
 { 
-    return pos(setGeom).size(); 
+    return pos(setGeom).pixelSize(); 
 }
 
 

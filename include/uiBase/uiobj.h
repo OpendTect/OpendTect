@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.13 2001-10-05 13:20:15 arend Exp $
+ RCS:           $Id: uiobj.h,v 1.14 2001-10-10 15:26:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,10 +56,10 @@ public:
     bool		sensitive() const;
 
     int			prefHNrPics() const;
-    void                setPrefWidth( int w );
+    virtual void	setPrefWidth( int w );
     void                setPrefWidthInChar( float w );
     int			prefVNrPics() const;
-    void		setPrefHeight( int h );
+    virtual void	setPrefHeight( int h );
     void		setPrefHeightInChar( float h );
     void                setStretch( int hor, int ver );
 

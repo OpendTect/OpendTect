@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.3 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uicanvas.h,v 1.4 2001-10-10 15:26:43 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,12 +71,11 @@ public:
     uiRect			visibleArea() const;
 
     int				frameWidth() const;
-    void			setPrefContentsWidth( int w )      
-				    { setPrefWidth( w + 2*frameWidth() ); }
-    void			setPrefContentsHeight( int h )     
-				    { setPrefHeight( h + 2*frameWidth() ); }
 
     virtual void		rubberBandHandler(uiRect)	{}
+
+    virtual void		setPrefWidth( int w );
+    virtual void		setPrefHeight( int h );
 
     void			setRubberBandingOn(uiMouseEvent::ButtonState);
     uiMouseEvent::ButtonState	rubberBandingOn() const;
