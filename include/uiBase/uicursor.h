@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.h,v 1.1 2004-05-12 12:11:27 arend Exp $
+ RCS:           $Id: uicursor.h,v 1.2 2004-05-12 12:31:11 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,19 @@ public:
 */
     static void		setOverrideCursor( CursorShape, bool replace=false );
     static void		restoreOverrideCursor();
+};
+
+
+/*! Class to automaticly change cursor, and change it back automaticly when
+    class is running out of scope.
+*/
+
+class uiCursorChanger
+{
+public:
+		uiCursorChanger(uiCursor::CursorShape cs)
+			{ uiCursor::setOverrideCursor(cs); }
+		~uiCursorChanger() { uiCursor::restoreOverrideCursor(); }
 };
 
 #endif
