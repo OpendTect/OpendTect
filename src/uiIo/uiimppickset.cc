@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.7 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.8 2003-11-26 16:27:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,39 +70,42 @@ bool uiImportPickSet::handleAscii()
     bool doxy = xyfld->getBoolValue();
     bool firstpos = true;
     bool doscale = false;
-    Coord3 pos;
+    PickLocation ploc;
+    char buf[1024];
     while ( true )
     {
-	*sdi.istrm >> pos.x >> pos.y >> pos.z;
-	if ( !(*sdi.istrm) ) break;
+	sdi.istrm->getline( buf, 1024 );
+	if ( !ploc.fromString(buf) )
+	    break;
 
         if ( firstpos )
         {
-            doscale = pos.z > 2 * SI().zRange(false).stop &&
-                      SI().zRange(false).includes( pos.z * .001 );
+            firstpos = false;
 
-            BinID bid = doxy ? SI().transform(Coord(pos.x,pos.y))
-                             : BinID( mNINT(pos.x), mNINT(pos.y) );
+            doscale = ploc.z > 2 * SI().zRange(false).stop &&
+                      SI().zRange(false).includes( ploc.z * .001 );
+
+            BinID bid = doxy ? SI().transform(Coord(ploc.pos.x,ploc.pos.y))
+                             : BinID( mNINT(ploc.pos.x), mNINT(ploc.pos.y) );
             bool reasonable = SI().isReasonable(bid);
 
             BufferString msg( "First position in file is not valid.\n"
                               "Do you wish to continue?" );
-            if ( !reasonable && !uiMSG().askGoOn( msg ) )
+            if ( !reasonable
+	      && !uiMSG().askGoOn( "First position in file is not valid.\n"
+				   "Do you wish to continue?" ) )
                 return false;
-
-            firstpos = false;
         }
 
         if ( !doxy )
         {
-            BinID bid( mNINT(pos.x), mNINT(pos.y) );
-            Coord crd  = SI().transform( bid );
-            pos.x = crd.x; pos.y = crd.y;
+            BinID bid( mNINT(ploc.pos.x), mNINT(ploc.pos.y) );
+            ploc.pos = SI().transform( bid );
         }
 
 	if ( doscale )
-	    pos.z *= 0.001;
-	*ps += PickLocation( pos );
+	    { ploc.z *= 0.001; ploc.dir.z *= 0.001; }
+	*ps += ploc;
     }
 
     sdi.close();
