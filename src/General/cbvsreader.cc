@@ -5,11 +5,12 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.15 2001-05-30 13:04:29 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.16 2001-05-30 13:05:34 dgb Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
 #include "binidselimpl.h"
+#include "survinfo.h"
 
 
 CBVSReader::CBVSReader( istream* s )
