@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.14 2004-01-07 15:35:27 bert Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.15 2004-09-20 09:40:21 nanne Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -96,8 +96,9 @@ Threads::WorkThread::~WorkThread()
 
 	thread->stop();
 	thread = 0;
-	delete &controlcond;
     }
+
+    delete &controlcond;
 }
 
 
