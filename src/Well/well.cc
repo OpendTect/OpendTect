@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.22 2004-05-08 17:47:32 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.23 2004-05-08 21:18:11 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -189,6 +189,49 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 
 void Well::Track::toTime( const D2TModel& d2t )
 {
+    TypeSet<float> newdah;
+    TypeSet<Coord3> newpos;
+
+    // We need to collect control points from both the track and the d2t model
+    // because both will be 'bend' points in time
+
+    // First, get the dahs + positions from both - in depth.
+    // We'll start with the first track point
+    int d2tidx = 0;
+    float curdah = dah_[0];
+    while ( d2tidx < d2t.size() && d2t.dah(d2tidx) < curdah + mEPSILON )
+	d2tidx++; // don't need those points: before well track
+    dah_ += curdah;
+    newpos += pos_[0];
+
+    // Now collect the rest of the track points and the d2t control points
+    // Make sure no phony double points: allow a tolerance
+    const float tol = 0.001;
+    for ( int trckidx=1; trckidx<dah_.size(); trckidx++ )
+    {
+	curdah = dah_[trckidx];
+	while ( d2tidx < d2t.size() )
+	{
+	    const float d2tdah = d2t.dah( d2tidx );
+	    const float diff = d2tdah - curdah;
+	    if ( diff > tol ) // d2t dah is further down track; handle later
+		break;
+	    else if ( diff <= -tol ) // therfore a dah not on the track
+	    {
+		newdah += d2tdah;
+		newpos += getPos( d2tdah );
+	    }
+	    d2tidx++;
+	}
+	newdah += curdah;
+	newpos += pos_[trckidx];
+    }
+
+    // Copy the extended set into the new track definition
+    dah_ = newdah;
+    pos_ = newpos;
+
+    // Now, convert to time
     for ( int idx=0; idx<dah_.size(); idx++ )
     {
 	Coord3& pt = pos_[idx];
@@ -206,7 +249,7 @@ float Well::D2TModel::getTime( float dh ) const
 	return mUndefValue;
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
     {
-	// Extrapolate. Not very correct I guess.
+	// Extrapolate. Is this correct?
 	int idx0 = idx1 < 0 ? 1 : idx1;
 	const float v = (dah_[idx0] - dah_[idx0-1]) / (t_[idx0] - t_[idx0-1]);
 	idx0 = idx1 < 0 ? 0 : idx1;
@@ -216,7 +259,6 @@ float Well::D2TModel::getTime( float dh ) const
     const int idx2 = idx1 + 1;
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
-    //TODO not a time-correct average.
     return (d1 * t_[idx2] + d2 * t_[idx1]) / (d1 + d2);
 }
 
