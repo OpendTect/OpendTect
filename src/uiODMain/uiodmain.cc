@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.25 2004-09-29 16:09:23 nanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.26 2004-10-06 16:18:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "uitrackingpartserv.h"
 #include "uidockwin.h"
 #include "uisurvey.h"
+#include "uisurvinfoed.h"
+#include "ui2dsip.h"
 #include "uicursor.h"
 #include "uiioobjsel.h"
 #include "uisetdatadir.h"
@@ -87,6 +89,8 @@ uiODMain::uiODMain( uicMain& a )
 
     if ( !ensureGoodDataDir() )
 	::exit( 0 );
+
+    uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
 
     applmgr = new uiODApplMgr( *this );
 

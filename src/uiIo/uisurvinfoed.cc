@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.61 2004-08-19 10:26:31 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.62 2004-10-06 16:18:41 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si_ )
     }
     newSurvey( orgdirname );
 
-    dirnmfld = new uiGenInput( this, "Survey short name (directory name)", 
+    dirnmfld = new uiGenInput( this, "Survey directory name", 
 			       StringInpSpec( isnew ? "" : orgdirname.buf()) );
     survnmfld = new uiGenInput( this, "Full Survey name",
 	    			StringInpSpec(survinfo->name()) );
