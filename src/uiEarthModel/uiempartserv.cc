@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.43 2004-03-31 11:14:04 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.44 2004-04-14 08:22:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,53 +120,31 @@ bool uiEMPartServer::createFault(MultiID& id, const char* nm )
 
 
 
-bool uiEMPartServer::createSurface(MultiID& id, bool ishor,
-				   const char* proposedname)
+bool uiEMPartServer::createSurface( MultiID& id, bool ishor, const char* name )
 {
-    BufferString instruction = "Enter new ";
-    instruction += ishor ? "horizon" : "fault";
-    instruction += "name";
-    DataInpSpec* inpspec = new StringInpSpec;
-    uiGenInputDlg dlg( appserv().parent(), instruction, "Name", inpspec );
-
-    EM::ObjectID objid;
-    bool success = false;
-    while ( !success )
+    EM::EMManager::Type tp = ishor ? EM::EMManager::Hor : EM::EMManager::Fault;
+    if ( EM::EMM().getID(tp,name) != -1 )
     {
-	if ( !dlg.go() )
-	    break;
-
-	if ( EM::EMM().getID(ishor?EM::EMManager::Hor
-		    : EM::EMManager::Fault, dlg.text()) != -1 )
-	{
-	    if ( !uiMSG().askGoOn(
-			"An object with that name does allready exist."
-			 " Overwrite?", true ) )
-		continue;
-	}
-
-	objid = EM::EMM().add( ishor
-		? EM::EMManager::Hor : EM::EMManager::Fault, dlg.text() );
-	if ( objid==-1 )
-	{
-	    uiMSG().error("Could not create object with that name");
-	    continue;
-	}
-
-	success = true;
+	if ( !uiMSG().askGoOn( "An object with that name does allready exist."
+				" Overwrite?", true ) )
+	    return false;
+    }
+	
+    EM::ObjectID objid = EM::EMM().add( tp, name );
+    if ( objid==-1 )
+    {
+	uiMSG().error("Could not create object with that name");
+	return false;
     }
 
-    if ( success )
-    {
-	mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(objid) );
-	emsurf->ref();
-	id = emsurf->multiID();
+    mDynamicCastGet( EM::Surface*, emsurf, EM::EMM().getObject(objid) );
+    emsurf->ref();
+    id = emsurf->multiID();
 
-	if ( !emsurf->nrPatches() )
-	    emsurf->addPatch(0,true);
+    if ( !emsurf->nrPatches() )
+	emsurf->addPatch(0,true);
 
-	emsurf->unRefNoDel();
-    }
+    emsurf->unRefNoDel();
 
     return true;
 }
