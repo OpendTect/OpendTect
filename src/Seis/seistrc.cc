@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.2 2000-01-20 15:35:53 bert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.3 2000-03-03 15:42:40 bert Exp $";
 
 #include "seistrc.h"
 #include "susegy.h"
@@ -189,6 +189,7 @@ void SeisTrc::getPacketInfo( SeisPacketInfo& spi ) const
     spi.ns = size();
     spi.dt = info_.dt;
     spi.starttime = info_.starttime;
+    spi.nr = info_.binid.inl;
 }
 
 
