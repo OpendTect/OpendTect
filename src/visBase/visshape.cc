@@ -8,11 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.5 2003-04-15 12:30:12 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.6 2003-05-09 09:03:21 kristofer Exp $";
 
 #include "visshape.h"
 
+#include "iopar.h"
 #include "viscoord.h"
+#include "visdataman.h"
 #include "vismaterial.h"
 #include "visnormals.h"
 #include "vistexture2.h"
@@ -24,6 +26,11 @@ static const char* rcsID = "$Id: visshape.cc,v 1.5 2003-04-15 12:30:12 kristofer
 #include "Inventor/nodes/SoNormalBinding.h"
 #include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoSwitch.h"
+
+
+const char* visBase::Shape::onoffstr = "Is on";
+const char* visBase::Shape::texturestr = "Texture";
+const char* visBase::Shape::materialstr = "Material";
 
 visBase::Shape::Shape( SoShape* shape_ )
     : shape( shape_ )
@@ -38,7 +45,6 @@ visBase::Shape::Shape( SoShape* shape_ )
     onoff->addChild( root );
     onoff->whichChild = 0;
     addNode( shape );
-
 }
 
 
@@ -153,6 +159,58 @@ int visBase::Shape::getMaterialBinding() const
 }
 
 
+
+void visBase::Shape::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+{
+    VisualObject::fillPar( iopar, saveids );
+
+    if ( material )
+	iopar.set( materialstr, material->id() );
+
+    int textureindex = -1;
+    if ( texture2 )
+	textureindex = texture2->id();
+    else if ( texture3 )
+	textureindex = texture3->id();
+
+    if ( textureindex!=-1 )
+    {
+	iopar.set( texturestr, textureindex );
+	if ( saveids.indexOf( textureindex ) != -1 )
+	    saveids += textureindex;
+    }
+
+    iopar.setYN( onoffstr, isOn() );
+}
+
+
+int visBase::Shape::usePar( const IOPar& par )
+{
+    int res = VisualObject::usePar( par );
+    if ( res!=1 ) return res;
+
+    bool ison;
+    if ( par.getYN( onoffstr, ison ) )
+	turnOn( ison );
+
+    int textureindex;
+    if ( par.get( texturestr, textureindex ) && textureindex!=-1 )
+    {
+	if ( !DM().getObj( textureindex ) )
+	    return 0;
+
+	Texture2* t2 = dynamic_cast<Texture2*>(DM().getObj(textureindex));
+	Texture3* t3 = dynamic_cast<Texture3*>(DM().getObj(textureindex));
+
+	if ( t2 ) setTexture2( t2 );
+	else if ( t3 ) setTexture3( t3 );
+	else return -1;
+    }
+
+    return 1;
+}
+
+	
 SoNode* visBase::Shape::getData()
 { return onoff; }
 
