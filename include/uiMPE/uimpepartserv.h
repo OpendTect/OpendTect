@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.3 2005-03-17 14:59:27 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.4 2005-03-23 16:02:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,6 @@ class BufferStringSet;
 //class CubeSampling;
 //class IOObj;
 //class IOPar;
-//class LineStyle;
-//class MarkerStyle3D;
 //class uiPopupMenu;
 
 //template <class T> class Array3D;
@@ -61,7 +59,7 @@ public:
     int				addTracker(const char* trackertype,
 	    				   const char* name);
 				/*!<\note Eventual seeds become mine */
-    int				addTracker(const MultiID&);
+    int				addTracker(const MultiID&,const Coord3&);
 
     MultiID			getTrackerMultiID(int trackerid) const;
 
@@ -80,6 +78,7 @@ public:
     				/*!< returns the trackerid of the last event */
 
     static const int		evGetAttribData;
+    void			loadAttribData();
     const AttribSelSpec*	getAttribSelSpec() const;
     CubeSampling		getAttribCube(const AttribSelSpec&) const;
     const AttribSliceSet*	getAttribCache(const AttribSelSpec&) const;
@@ -100,7 +99,6 @@ public:
     bool			usePar(const IOPar&);
 
 protected:
-    void			loadAttribData();
     void			createActiveVolume();
     void			updateVolumeFromSeeds();
 

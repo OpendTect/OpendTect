@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.5 2005-03-17 14:59:17 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.6 2005-03-23 16:02:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,25 +102,23 @@ void uiMPEPartServer::getTrackerTypes( BufferStringSet& res ) const
 { MPE::engine().getAvaliableTrackerTypes(res); }
 
 
-int uiMPEPartServer::addTracker(const MultiID&)
+int uiMPEPartServer::addTracker( const MultiID& mid, const Coord3& pickedpos )
 {
-   /* 
-    curemid = mid;
-    cursectionid = section;
-    setObjectType( mid );
-    startWizard( 2 );
-    wizard->setTracker( addTracker(mid) );
+    const EM::ObjectID objid = EM::EMM().multiID2ObjectID( mid );
+    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    if ( !emobj ) return -1;
 
-    csfromsticks.zrg.start = csfromsticks.zrg.stop = pickedpos.z;
-    HorSampling& hrg = csfromsticks.hrg;
-    const BinID bid = SI().transform(pickedpos);
+    activetrackerid = MPE::engine().addTracker( emobj );
+    startWizard( emobj->getTypeStr(), 2 );
+
+    csfromseeds.zrg.start = csfromseeds.zrg.stop = pickedpos.z;
+    HorSampling& hrg = csfromseeds.hrg;
+    const BinID bid = SI().transform( pickedpos );
     hrg.start.inl = bid.inl - 10 * hrg.step.inl;
     hrg.stop.inl = bid.inl + 10 * hrg.step.inl;
     hrg.start.crl = bid.crl - 10 * hrg.step.crl;
     hrg.stop.crl = bid.crl + 10 * hrg.step.crl;
-    */
-    pErrMsg("Not impl");
-    return -1;
+    return activetrackerid;
 }
 
 
@@ -214,9 +212,9 @@ const AttribSelSpec* uiMPEPartServer::getAttribSelSpec() const
 
 bool uiMPEPartServer::startWizard( const char* typestr, int startidx )
 {
-//  csfromsticks.init( false );
-//  csfromsticks.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-//  csfromsticks.zrg.step = SI().zRange(false).step;
+//  csfromseeds.init( false );
+//  csfromseeds.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+//  csfromseeds.zrg.step = SI().zRange(false).step;
 
     delete wizard;
     wizard = new MPE::Wizard( appserv().parent(), this );
