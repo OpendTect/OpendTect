@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.10 2002-02-14 10:57:57 nanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.11 2002-02-22 12:39:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ public:
 			    QMenuData* theqthng__ = qthing();
 
 			    int id__ = theqthng__->insertItem(
-				     nm, msgr__, SLOT( activated() ),0,-1,idx);
+				     nm, msgr__, SLOT( activated() ),0,idx,-1);
 
 			    it->setId( id__ );
 			    it->setMenu( this );
