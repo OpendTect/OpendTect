@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.9 2003-02-19 16:47:49 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.10 2003-02-21 11:51:26 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -78,14 +78,20 @@ void IOStream::copyFrom( const IOObj* obj )
 }
 
 
-const char* IOStream::fullUserExpr( bool forread ) const
+const char* IOStream::getExpandedName( bool forread ) const
 {
+    static BufferString ret;
     StreamProvider* sp = streamProvider( forread );
     if ( !sp ) return "<bad>";
-    static BufferString ret;
-    ret = isMulti() ? (const char*)fname : sp->fullName();
+    ret = sp->fullName();
     delete sp;
     return ret;
+}
+
+
+const char* IOStream::fullUserExpr( bool forread ) const
+{
+    return isMulti() ? (const char*)fname : getExpandedName(forread);
 }
 
 

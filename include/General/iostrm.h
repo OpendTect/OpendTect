@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.9 2003-02-18 16:32:20 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.10 2003-02-21 11:51:26 bert Exp $
 ________________________________________________________________________
 
 
@@ -34,6 +34,8 @@ public:
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
+    const char*		getExpandedName(bool forread) const;
+    			//!< Will fill in '*' or '%'
     void		genDefaultImpl()		{ genFileName(); }
 
     const ClassDef&	connType() const;
