@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.8 2004-08-30 12:55:48 kristofer Exp $
+ RCS:           $Id: visdragger.cc,v 1.9 2004-08-30 14:37:03 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,13 +209,10 @@ Coord3 Dragger::getPos() const
     if ( t1d ) pos_ = t1d->translation.getValue();
     else pos_ = dpd->translation.getValue();
 
-    Coord3 pos( pos_[1], pos_[2], pos_[0] );
-    pos.x *= positiontransform->getScale()[0];
-    pos.y *= positiontransform->getScale()[1];
-    pos.z *= positiontransform->getScale()[2];
 
-    Coord3 newpos = positiontransform->getTranslation();
-    pos += newpos;
+    const Coord3 pos = positiontransform->transform(
+	    Coord3(pos_[0],pos_[1],pos_[2]) );
+
     return displaytrans ? displaytrans->transformBack( pos ) : pos;
 }
 
