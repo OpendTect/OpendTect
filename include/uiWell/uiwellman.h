@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.1 2003-09-08 13:08:02 nanne Exp $
+ RCS:           $Id: uiwellman.h,v 1.2 2003-09-10 15:23:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,12 @@ class uiTextEdit;
 class uiToolButton;
 class uiTable;
 
-namespace Well { class LogSet; class Marker; };
+class uiFileInput;
+class uiGenInput;
+class uiLabeledListBox;
+class uiLabel;
+
+namespace Well { class Data; class LogSet; class Marker; };
 
 /*! \brief
 Well manager
@@ -76,5 +81,24 @@ protected:
     void			mouseClick(CallBacker*);
 };
 
+
+class uiLoadLogsDlg : public uiDialog
+{
+public:
+    				uiLoadLogsDlg(uiParent*,Well::Data&);
+
+protected:
+
+    uiFileInput*		lasfld;
+    uiGenInput*			intvfld;
+    uiLabel*			unitlbl;
+    uiGenInput*			udffld;
+    uiLabeledListBox*		logsfld;
+
+    Well::Data&			wd;
+
+    bool			acceptOK(CallBacker*);
+    void			lasSel(CallBacker*);
+};
 
 #endif
