@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.14 2004-08-05 08:53:07 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.15 2004-08-05 12:28:24 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -279,6 +279,12 @@ setGetItem( VertexShape, Normals, normals );
 setGetItem( VertexShape, TextureCoords, texturecoords );
 
 
+const visBase::Coordinates* visBase::VertexShape::getCoordinates() const
+{
+    return const_cast<VertexShape*>(this)->getCoordinates();
+}
+
+
 void visBase::VertexShape::setNormalPerFaceBinding( bool nv )
 {
     bool isindexed = dynamic_cast<IndexedShape*>( this );
@@ -391,14 +397,10 @@ setGetIndex( NormalIndex, normalIndex );
 setGetIndex( MaterialIndex, materialIndex );
 
 
-void visBase::IndexedShape::triggerRightClick(const EventInfo* ei)
+int visBase::IndexedShape::getClosestCoordIndex(const EventInfo& ei) const
 {
-    if ( ei )
-    {
-	mDynamicCastGet(  FaceDetail * const, facedetail, ei->detail );
-	rightclickidx = facedetail->getClosestIdx(getCoordinates(),
-						  ei->localpickedpos );
-    }
+    mDynamicCastGet(  FaceDetail * const, facedetail, ei.detail );
+    if ( !facedetail ) return -1;
 
-    VisualObject::triggerRightClick(ei);
+    return facedetail->getClosestIdx( getCoordinates(), ei.localpickedpos );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.11 2004-08-05 08:53:30 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.12 2004-08-05 12:28:31 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -108,6 +108,7 @@ public:
     			VertexShape( SoVertexShape* );
     void		setCoordinates( Coordinates* );
     Coordinates*	getCoordinates();
+    const Coordinates*	getCoordinates() const;
 
     void		setTransformation( Transformation* );
     			/*!<\note The transformation is forwarded to the
@@ -176,13 +177,11 @@ public:
     int			getMaterialIndex(int) const;
 
 
-    int			rightClickClosestCoordIndex() { return rightclickidx; }
+    int			getClosestCoordIndex(const EventInfo&) const;
 
 private:
 
-    void		triggerRightClick(const EventInfo*);
     SoIndexedShape*	indexedshape;
-    int			rightclickidx;
 };
 
 };
