@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.24 2004-08-17 09:46:30 bert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.25 2004-10-27 15:22:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ void uiIOSurface::mkAttribFld()
 {
     attribfld = new uiLabeledListBox( this, "Calculated attributes", true,
 					uiLabeledListBox::AboveMid );
-    attribfld->setPrefHeightInChar( cListHeight );
+//  attribfld->setPrefHeightInChar( cListHeight );
     attribfld->setStretch( 1, 1 );
 }
 
@@ -60,7 +60,7 @@ void uiIOSurface::mkSectionFld( bool labelabove )
     sectionfld = new uiLabeledListBox( this, "Available patches", true,
 				     labelabove ? uiLabeledListBox::AboveMid 
 				     		: uiLabeledListBox::LeftTop );
-    sectionfld->setPrefHeightInChar( cListHeight );
+//  sectionfld->setPrefHeightInChar( cListHeight );
     sectionfld->setStretch( 1, 1 );
 }
 
