@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.31 2004-04-27 12:29:41 kristofer Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.32 2004-04-30 11:46:42 kristofer Exp $
  ________________________________________________________________________
 
 -*/
@@ -70,11 +70,8 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     BinID start( mNINT(inlrange.center()), mNINT(crlrange.start) );
     BinID stop(start.inl, mNINT(crlrange.stop) );
 
-    SI().snap( start );
-    SI().snap( stop );
-
-    track->setKnotPos( 0, Coord( start.inl, start.crl ) );
-    track->setKnotPos( 1, Coord( stop.inl, stop.crl ) );
+    setKnotPos( 0, start );
+    setKnotPos( 1, stop );
 
     track->setXrange( StepInterval<float>( inlrange.start,
 		    			   inlrange.stop,
@@ -161,27 +158,23 @@ int visSurvey::RandomTrackDisplay::nrKnots() const
 
 void visSurvey::RandomTrackDisplay::addKnot( const BinID& bid_ )
 {
-    BinID bid( bid_ );
-    checkPosition( bid );
-    track->addKnot( Coord(bid.inl,bid.crl) );
-    moving.trigger();
-}
-
-
-void visSurvey::RandomTrackDisplay::addKnots( TypeSet<BinID> bidset )
-{
-    for ( int idx=0; idx<bidset.size(); idx++ )
-	addKnot( bidset[idx] );
-    moving.trigger();
+    const BinID bid = snapPosition( bid_ );
+    if ( checkPosition(bid) )
+    {
+	track->addKnot( Coord(bid.inl,bid.crl) );
+	moving.trigger();
+    }
 }
 
 
 void visSurvey::RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid_ )
 {
-    BinID bid( bid_ );
-    checkPosition( bid );
-    track->insertKnot( knotidx, Coord(bid.inl,bid.crl) ); 
-    moving.trigger();
+    const BinID bid = snapPosition(bid_);
+    if ( checkPosition(bid) )
+    {
+	track->insertKnot( knotidx, Coord(bid.inl,bid.crl) ); 
+	moving.trigger();
+    }
 }
 
 
@@ -209,10 +202,12 @@ void visSurvey::RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& bidset ) cons
 
 void visSurvey::RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid_ )
 {
-    BinID bid( bid_ );
-    checkPosition( bid );
-    track->setKnotPos( knotidx, Coord(bid.inl,bid.crl) );
-    moving.trigger();
+    const BinID bid = snapPosition(bid_);
+    if ( checkPosition(bid) )
+    {
+	track->setKnotPos( knotidx, Coord(bid.inl,bid.crl) );
+	moving.trigger();
+    }
 }
 
 
@@ -366,6 +361,58 @@ float visSurvey::RandomTrackDisplay::getValue( const Coord3& pos ) const
     return trc->get( sampidx, 0 );
 }
 
+bool visSurvey::RandomTrackDisplay::canAddKnot(int knotnr) const
+{
+    if ( knotnr<0 ) knotnr=0;
+    if ( knotnr>nrKnots() ) knotnr=nrKnots();
+
+    const BinID newpos = proposeNewPos(knotnr);
+    return checkPosition(newpos);
+}
+
+
+void visSurvey::RandomTrackDisplay::addKnot(int knotnr)
+{
+    if ( knotnr<0 ) knotnr=0;
+    if ( knotnr>nrKnots() ) knotnr=nrKnots();
+
+    if ( !canAddKnot(knotnr) ) return;
+
+    const BinID newpos = proposeNewPos(knotnr);
+    if ( knotnr==nrKnots() )
+	addKnot(newpos);
+    else insertKnot(knotnr, newpos );
+}
+    
+
+BinID visSurvey::RandomTrackDisplay::proposeNewPos(int knotnr ) const
+{
+    BinID res;
+    if ( !knotnr )
+	res = getKnotPos(0)-(getKnotPos(1)-getKnotPos(0));
+    else if ( knotnr>=nrKnots() )
+	res = getKnotPos(nrKnots()-1) +
+	      (getKnotPos(nrKnots()-1)-getKnotPos(nrKnots()-2));
+    else
+    {
+	res = getKnotPos(knotnr)+getKnotPos(knotnr-1);
+	res.inl /= 2;
+	res.crl /= 2;
+    }
+
+    res.inl = mMIN( SI().inlRange(true).stop, res.inl );
+    res.inl = mMAX( SI().inlRange(true).start, res.inl );
+    res.crl = mMIN( SI().crlRange(true).stop, res.crl );
+    res.crl = mMAX( SI().crlRange(true).start, res.crl );
+
+    SI().snap(res, BinID(0,0), true );
+
+    return res;
+}
+
+
+
+
 
 bool visSurvey::RandomTrackDisplay::isManipulated() const
 {
@@ -437,13 +484,38 @@ void visSurvey::RandomTrackDisplay::knotNrChanged( CallBacker* )
 }
 
 
-void visSurvey::RandomTrackDisplay::checkPosition( BinID& binid )
+bool visSurvey::RandomTrackDisplay::checkPosition( const BinID& binid ) const
 {
+    const BinIDRange rg = SI().range();
+    if ( binid.inl < rg.start.inl ) return false;
+    if ( binid.inl > rg.stop.inl ) return false;
+    if ( binid.crl < rg.start.crl ) return false;
+    if ( binid.crl > rg.stop.crl ) return false;
+
+    BinID snapped( binid );
+    SI().snap(snapped, BinID(0,0), true );
+    if ( snapped!=binid )
+	return false;
+
+    for ( int idx=0; idx<nrKnots(); idx++ )
+	if ( getKnotPos(idx)==binid )
+	    return false;
+
+    return true;
+}
+
+
+BinID visSurvey::RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
+{
+    BinID binid( binid_ );
     const BinIDRange rg = SI().range();
     if ( binid.inl < rg.start.inl ) binid.inl = rg.start.inl;
     if ( binid.inl > rg.stop.inl ) binid.inl = rg.stop.inl;
     if ( binid.crl < rg.start.crl ) binid.crl = rg.start.crl;
     if ( binid.crl > rg.stop.crl ) binid.crl = rg.stop.crl;
+
+    SI().snap(binid, BinID(0,0), true );
+    return binid;
 }
 
 
