@@ -8,13 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.1 2005-01-17 16:35:02 bert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.2 2005-01-20 17:17:15 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "binidvalset.h"
-class UnitOfMeasure;
+class DataColDef;
 
 
 
@@ -41,32 +41,8 @@ public:
 			    } return *this;
 			}
 
-    /*!\brief Column definition in PosVecDataSet
-
-      The ref_ is intended for whatever references that are important in the
-      software but which should probably not be displayed to the user.
-
-    */
-
-    class ColumnDef
-    {
-    public:
-				ColumnDef( const char* nm,
-					   const UnitOfMeasure* un=0 )
-				: name_(nm), unit_(un)		{}
-
-	BufferString		name_;
-	BufferString		ref_;
-	const UnitOfMeasure*	unit_;
-
-	enum MatchLevel		{ Exact, Start, None };
-	MatchLevel		compare(const ColumnDef&,bool use_name) const;
-				//!< if !use_name, matches ref_ .
-
-    };
-
     void		empty();
-    void		add(ColumnDef*);
+    void		add(DataColDef*);
     void		removeColumn(int); //!< "Z" col (idx=0) can't be removed
     enum OvwPolicy	{ Keep, OvwIfUdf, Ovw };
     			//!< During merge, which set is dominant?
@@ -79,13 +55,13 @@ public:
     const BinIDValueSet& data() const		{ return data_; }
 
     int			nrCols() const		{ return coldefs_.size(); }
-    ColumnDef&		colDef( int idx )	{ return *coldefs_[idx]; }
-    const ColumnDef&	colDef( int idx ) const	{ return *coldefs_[idx]; }
+    DataColDef&		colDef( int idx )	{ return *coldefs_[idx]; }
+    const DataColDef&	colDef( int idx ) const	{ return *coldefs_[idx]; }
 
 protected:
 
     BinIDValueSet	data_;
-    ObjectSet<ColumnDef> coldefs_;
+    ObjectSet<DataColDef> coldefs_;
 
     void		mergeColDefs(const PosVecDataSet&,ColMatchPol,int*);
 

@@ -4,24 +4,34 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.1 2005-01-17 16:35:02 bert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.2 2005-01-20 17:17:15 bert Exp $";
 
 #include "posvecdataset.h"
+#include "datacoldef.h"
 
 
-PosVecDataSet::ColumnDef::MatchLevel PosVecDataSet::ColumnDef::compare(
-		const PosVecDataSet::ColumnDef& cd, bool usenm ) const
+const DataColDef& DataColDef::unknown()
+{
+    static DataColDef* def = 0;
+    if ( !def )
+	def = new DataColDef( "Unknown", 0 );
+    return *def;
+}
+
+
+DataColDef::MatchLevel DataColDef::compare( const DataColDef& cd,
+					    bool usenm ) const
 {
     const BufferString& mystr = usenm ? name_ : ref_;
     const BufferString& cdstr = usenm ? cd.name_ : cd.ref_;
     if ( mystr == cdstr )
-	return PosVecDataSet::ColumnDef::Exact;
+	return DataColDef::Exact;
 
     if ( matchString(mystr.buf(),cdstr.buf())
       || matchString(cdstr.buf(),mystr.buf()) )
-	return PosVecDataSet::ColumnDef::Start;
+	return DataColDef::Start;
 
-    return PosVecDataSet::ColumnDef::None;
+    return DataColDef::None;
 }
 
 
@@ -35,12 +45,12 @@ PosVecDataSet::PosVecDataSet()
 void PosVecDataSet::empty()
 {
     deepErase(coldefs_);
-    coldefs_ += new ColumnDef( "Z" );
+    coldefs_ += new DataColDef( "Z" );
     data_.setNrVals( 1 );
 }
 
 
-void PosVecDataSet::add( ColumnDef* cd )
+void PosVecDataSet::add( DataColDef* cd )
 {
     coldefs_ += cd;
     data_.setNrVals( data_.nrVals() + 1 );
@@ -51,7 +61,7 @@ void PosVecDataSet::removeColumn( int colidx )
 {
     if ( colidx > 0 && colidx < coldefs_.size() )
     {
-	ColumnDef* cd = coldefs_[colidx];
+	DataColDef* cd = coldefs_[colidx];
 	coldefs_.remove( colidx );
 	delete cd;
 	data_.removeVal( colidx );
@@ -68,20 +78,20 @@ void PosVecDataSet::mergeColDefs( const PosVecDataSet& vds, ColMatchPol cmpol,
     colidxs[0] = 0;
     for ( int idxvds=1; idxvds<vds.coldefs_.size(); idxvds++ )
     {
-	const ColumnDef& cdvds = *vds.coldefs_[idxvds];
+	const DataColDef& cdvds = *vds.coldefs_[idxvds];
 	int matchidx = -1;
 	for ( int idx=1; idx<orgcdsz; idx++ )
 	{
-	    ColumnDef::MatchLevel ml = cdvds.compare(*coldefs_[idx],use_name);
-	    if ( ml == ColumnDef::Exact
-	      || (ml == ColumnDef::Start && match_start) )
+	    DataColDef::MatchLevel ml = cdvds.compare(*coldefs_[idx],use_name);
+	    if ( ml == DataColDef::Exact
+	      || (ml == DataColDef::Start && match_start) )
 		{ matchidx = idx; break; }
 	}
 	if ( matchidx >= 0 )
 	    colidxs[idxvds] = matchidx;
 	else
 	{
-	    add( new ColumnDef(cdvds) );
+	    add( new DataColDef(cdvds) );
 	    colidxs[idxvds] = coldefs_.size() - 1;
 	}
     }
@@ -91,7 +101,7 @@ void PosVecDataSet::mergeColDefs( const PosVecDataSet& vds, ColMatchPol cmpol,
 void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 			   ColMatchPol cmpol )
 {
-    int colidxs[vds.coldefs_.size()];
+    int colidxs[ vds.coldefs_.size() ];
     const int orgnrcds = coldefs_.size();
     mergeColDefs( vds, cmpol, colidxs );
 
