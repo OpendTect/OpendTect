@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.40 2003-05-27 13:17:43 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.41 2003-07-21 10:03:06 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -460,7 +460,7 @@ Coord SurveyInfo::minCoord( bool work ) const
 
 #undef mChkCoord
 #define mChkCoord(c) \
-    if ( c.x < maxc.x ) maxc.x = c.x; if ( c.y < maxc.y ) maxc.y = c.y;
+    if ( c.x > maxc.x ) maxc.x = c.x; if ( c.y > maxc.y ) maxc.y = c.y;
 
 Coord SurveyInfo::maxCoord( bool work ) const
 {
