@@ -7,57 +7,71 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		8-11-1995
- Contents:	Callbacks for any user ID object
- RCS:		$Id: callback.h,v 1.2 2000-05-26 10:37:03 bert Exp $
+ Contents:	Callbacks for any CallBackClass
+ RCS:		$Id: callback.h,v 1.3 2000-05-27 16:22:48 bert Exp $
 ________________________________________________________________________
+
+You must define the CallBackClass before including this header file. This can
+be done on the compiler command line ( ... -DCallBackClass=MyClass ... ) or
+simply by defining it with #define .
+
+If you don't define it yourself, you'll get the dGB CallBackClass which is the
+infamous UserIDObject.
 
 -*/
 
 #include <sets.h>
-class UserIDObject;
+
+#ifndef CallBackClass
+
+# define CallBackClass UserIDObject
+
+#endif
 
 
-typedef void (UserIDObject::*InformFunction)(UserIDObject*);
-#define mCBFn(clss,fn) ((InformFunction)(&clss::fn))
+class CallBackClass;
+
+
+typedef void (CallBackClass::*CallBackFunction)(CallBackClass*);
+#define mCBFn(clss,fn) ((CallBackFunction)(&clss::fn))
 #define mCB(obj,clss,fn) CallBack(obj,mCBFn(clss,fn))
 
 
 class CallBack
 {
-    friend class	UserIDObject;
+    friend class	CallBackClass;
 
 public:
-			CallBack( UserIDObject* o=0, InformFunction f=0 )
+			CallBack( CallBackClass* o=0, CallBackFunction f=0 )
 			{ obj = o; fn = f; }
     int			operator==( const CallBack& cb ) const
 			{ return obj == cb.obj && fn == cb.fn; }
     int			operator!=( const CallBack& cb ) const
 			{ return obj != cb.obj || fn != cb.fn; }
 
-    void		doCall( UserIDObject* o )
+    void		doCall( CallBackClass* o )
 			{ if ( obj && fn ) (obj->*fn)( o ); }
-    int			willCall() const
+    bool		willCall() const
 			{ return obj && fn ? YES : NO; }
 
 protected:
 
-    UserIDObject*	obj;
-    InformFunction	fn;
+    CallBackClass*	obj;
+    CallBackFunction	fn;
 
 };
 
 class CallBackList : public TypeSet<CallBack>
 {
 public:
-    void	doCall(UserIDObject*);
+    void	doCall(CallBackClass*);
 };
 
-inline void CallBackList::doCall( UserIDObject* obj )
+inline void CallBackList::doCall( CallBackClass* obj )
 {
     for ( int idx=0; idx<size(); idx++ )
 	(*this)[idx].doCall( obj );
 }
 
 
-/*$-*/
 #endif
