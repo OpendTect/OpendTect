@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Jan 2004
   - Contents:   Getting started developping your own plugins.
-  - RCS:        $Id: unix.html,v 1.7 2004-11-22 09:06:08 dgb Exp $
+  - RCS:        $Id: unix.html,v 1.8 2004-12-20 10:57:05 bert Exp $
  -->
 
 <body background="../backg.png"><title>Getting started with OpendTect development [OpendTect Programmer's manual V2.0]</title>
@@ -20,7 +20,7 @@
 
 <a name=intro><h2>Intro</h2></a>
 <p>
-In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, we recommend contacting support opendtect.org first.
+In principle, anyone can build the full OpendTect system from source. Fortunately, OpendTect has a <a href="plugins.html">plugin</a> architecture which makes it much easier to start developing. Therefore, this manual will focus on plugin development rather than building the entire OpendTect from scratch. If for some reason you are interested in building the entire OpendTect, follow the instructions for plugin development before going <a href=#buildod">here</a>). Even if you want to build for a completely new platform, the first step would still be to get your environment ready for plugin development because the same environment is used for making the entire Opendtect.
 </p><p>
 For both types of development you should have installed a fully functional OpendTect system before you start. Even when you build the entire OpendTect, you'll want to be able to use some of the libraries from the distribution.
 </p><p>
@@ -36,8 +36,8 @@ The following programs should be available:
 </p>
 <ul>
 <li>GNU make
-<li>GNU gcc 3.2.x, including g++
-<li>perl
+<li>GNU gcc 3.4.x, including g++
+<li>perl (for header file dependencies)
 </ul>
 <p>Recommended but fully optional are:</p>
 <ul>
@@ -55,9 +55,7 @@ The following programs should be available:
 <a name=setup><h2>Setting up the environment</h2></a>
 
 <p>
-<a href="pmake.html">Pmake</a> is used to build both the system and to
-build plugins.
-It requires a few environment variables to be setup and it expects a
+<a href="pmake.html">Pmake</a> is used to build both the entire system aswell as plugins. It requires a few environment variables to be setup and it expects a
 certain directory structure in your OpendTect Work directory.
 </p>
 
@@ -65,8 +63,7 @@ certain directory structure in your OpendTect Work directory.
 <h3>Setup ODWork dir</h3>
 
 <p>
-Before you can build anything, you should let OpendTect setup a new ODWork directory.
-The easiest way to do this is from within OpendTect, menu 'Utilities-Create Devel. Env.'. This function will make sure you get a full environment that is 'ready to go'. Note that the OpendTect application window will freeze while the development environment is created.
+Before you can build anything, you should let OpendTect setup a new ODWork directory. The easiest way to do this is from within OpendTect, menu 'Utilities-Create Devel. Env.'. This function will make sure you get a full environment that is 'ready to go'. Note that the OpendTect application window will freeze while the development environment is created.
 </p><p>
 When OpendTect is finished, you will find a fresh ODWork directory with all sources, libs, Makefile and so forth, aswell as init scripts 'init.bash' and 'init.csh'. One of these must be sourced in order to setup the environment in such a way that Pmake and other tools should work immediately.
 </p>
@@ -82,7 +79,7 @@ home directory.
 <p>
 The init.csh/init.bash scripts (created by the 'Create Devel. Env.' utility) are making guesses about a few pieces of information that are essential to the work of Pmake:
 <ul>
-<li>HDIR defines the platform you're working on, which is eigther lux, sun5, sgi or win.
+<li>HDIR defines the platform you're working on, which is eigther lux, sun5, mac, sgi or win.
 <li>GNUMAKE is the gnu make executable, usually just make or gmake.
 <li>WORK defines where your ODWork directory is.
 <li>DEBUG defines whether optimisation is switched on and symbols are added to the libraries and executables. Default is 'yes'.
@@ -156,7 +153,7 @@ There is no way to un-load a plugin. That means you have to exit OpendTect to te
 <p> Installing a plugin means: making it auto-loaded. This removes the nuisance of having to load the plugin each time you start OpendTect. On the other hand, when you're still developing you may not want the plugin to be loaded all the time. Anyway, the plugins are installed by linking or copying them to the correct plugin subdirectory in either your personal '.od' settings directory, or in the program installation directory and making a configuration ".alo" file. 
 This is the same on Unix and Windows, so please consult the plugins <a href="plugins.html#autoload">auto-load and installation</a> documentation for more details.
 
-<a name=dist><h2>Distributing your plugins:</h2>
+<a name=dist><h2>Distributing your plugins</h2>
 
 <p>
 The distribution of plugins is basically the same for Unix and windows. 
@@ -165,6 +162,33 @@ Just copy the .alo files into the plugins/platform directory (<code>$DTECT_APPL/
 <p>
 For distribution to the outside world, you'll need to package your plugins, documentation, etc. into .tar.gz files on Unix. For all details on what exactly should be packaged and how, we'd recommend contacting support at opendtect.org.
 </p>
+
+
+<a name=buildod><h2>Building from source</h2>
+<p>
+If you're really into it, you can build the entire OpendTect from source after you've installed OpendTect and built a plugin. For that, you will have to get hold of a Qt and a COIN source distribution. This is because you'll need the correct header files to go with the libraries.
+
+<h4>Qt = http://www.trolltech.no</h4>
+Any recent Qt distribution will do. We configure with:
+<code>
+./configure -shared -release -no-gif -enable-opengl -thread -no-g++-exceptions -disable-xml -disable-sql -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -qt-libpng -qt-libjpeg -qt-libmng -qt-imgfmt-jpeg -qt-imgfmt-mng -qt-imgfmt-png
+</code>
+
+<h4>COIN = http://www.sim.no</h4>
+You need the main COIN library ('Coin-2') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:
+<code>
+./configure --disable-debug --disable-symbols --enable-shared --disable-static --enable-vrml97 --enable-threadsafe --enable-rtti --disable-warnings --disable-dependency-tracking --enable-html CFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" CPPFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" LDFLAGS="-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -lstdc++"
+</code>
+</p>
+Once this is done, you have to make sure:
+<ul>
+<li>your shared libs are used, not the distribution's. Replace libqt-mt.so.3, libCoin.so.xx, libSoQt.so.xx etc. in $WORK/bin/$HDIR/so.
+<li>the header files can be found by Pmake. Look in $WORK/Pmake/make.od.Dirs. You can either edit this file, or create an 'APPMANROOT' directory with links to your COIN and Qt installations - then set APPMANROOT_OVERRULE to that directory.
+</ul>
+Now, you can make all directories. This can be a lot of work going in and out of all source directories, so you may want a Makefile in your $WORK. You may even want to use our root make file, e.g. by linking our 'RootMakefile', as in
+<code>cd $WORK; ln -s Pmake/RootMakefile ./Makefile</code>
+Similarly, in the plugins directory use Makefile.od . But in this case you'd probably rather want to include that file in your own Makefile, see comments in Makefile.od for details.
+<p>
 
 
 <br>
