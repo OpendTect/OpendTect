@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.96 2002-10-17 05:38:31 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.97 2002-10-30 15:31:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -438,6 +438,27 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 }
 
 
+int uiVisPartServer::duplicateDisplay( int id )
+{
+    visBase::DataObject* dobj = visBase::DM().getObj( id );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,dobj)
+    if ( !pdd ) return -1;
+
+    int newid = addDataDisplay( uiVisPartServer::Inline );
+    visBase::DataObject* newobj = visBase::DM().getObj( newid );
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,newpdd,newobj);
+
+    visSurvey::PlaneDataDisplay::Type tp = pdd->getType();
+    newpdd->setType( tp );
+    CubeSampling& cs = pdd->getCubeSampling();
+    newpdd->setCubeSampling( cs );
+    const ColorTable& ctab = pdd->getColorTable();
+    newpdd->setColorTable( ctab );
+
+    return newid;
+}
+
+
 void uiVisPartServer::removeDataDisplay( int id )
 {
     visBase::DataObject* dobj = visBase::DM().getObj( id );
@@ -520,15 +541,15 @@ float uiVisPartServer::getPlanePos( int id ) const
     {	
         Coord3 geompos = pdd->textureRect().getRectangle().manipOrigo();
         return pdd->getType()==visSurvey::PlaneDataDisplay::Inline ? geompos.x :
-	     pdd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y
-	    							    : geompos.z;
+	    pdd->getType()==visSurvey::PlaneDataDisplay::Crossline ? geompos.y
+	    							   : geompos.z;
     }
     mDynamicCastGet(visBase::Rectangle*,rect,obj)
     if ( rect )
     {
 	Coord3 geompos = rect->manipOrigo();
 	if ( rect->orientation() == visBase::Rectangle::XY )
-	    return (float)(int(geompos.z));
+	    return (float)(int(1000*geompos.z)) / 1000;
 	else if ( rect->orientation() == visBase::Rectangle::XZ )
 	    return (float)(int(geompos.y));
 	else if ( rect->orientation() == visBase::Rectangle::YZ )
@@ -646,7 +667,7 @@ int uiVisPartServer::addVolumeDisplay()
     mDynamicCastGet(visSurvey::Scene*,scene,obj);
 
     visSurvey::VolumeDisplay* vd = visSurvey::VolumeDisplay::create();
-    vd->getMovementNotification()->notify( mCB(this,uiVisPartServer,getDataCB));
+    vd->moved.notify( mCB(this,uiVisPartServer,getDataCB));
     vd->rectmoving.notify( mCB(this,uiVisPartServer,manipMoveCB) );
     volumes += vd;
     scene->addInlCrlTObject( vd );
