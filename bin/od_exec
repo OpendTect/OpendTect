@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.34 2004-11-10 12:25:22 bert Exp $
+# $Id: od_exec,v 1.35 2004-11-18 16:00:28 dgb Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -157,31 +157,48 @@ endif
 # win32 only
 if ( $indosbox == yes ) then
 
+    if ( $issys == yes ) then
+	set execfile=`which $1`
+    else
+	set execfile="$bindir/$1"
+    endif
+
+    shift
+
+    set tempbatfile="/tmp/odexec$$.bat"
+
     if ( $?TEMP ) then
         set tempbatfile=`cygpath -u "$TEMP\odexec$$.bat"`
     else if ( $?TMP ) then
         set tempbatfile=`cygpath -u "$TMP\odexec$$.bat"`
-    else if ( $?DTECT_MYDOCUMENTS_DIR )
+    else if ( $?DTECT_MYDOCUMENTS_DIR ) then
         set tempbatfile=`cygpath -u "$DTECT_MYDOCUMENTS_DIR\odexec$$.bat"`
+    else if ( $?USERPROFILE ) then
+        set tempbatfile=`cygpath -u "$USERPROFILE\odexec$$.bat"`
     endif
 
+    if ( -e "${execfile}.exe" ) then
+	setenv executable `cygpath -ws "${execfile}.exe" | sed -e's%\\%\\\\%g'`
+    else
+	setenv executable `cygpath -ws "$execfile" | sed -e's%\\%\\\\%g'`
+    endif
 
-    setenv executable `cygpath -w "$execfile"`
     setenv args "$nicecmd @$executable@ "
     foreach arg( $* )
         setenv args "$args @$arg@"
     end
     setenv args "$args $extraargs"
 
-    echo "$args" | sed -e's/@/"/g' -e's/%/ /g' > $tempbatfile
+    echo "$args" | sed -e's/@/"/g' -e's/%/ /g' > "$tempbatfile"
     if ( $askclosebox == yes ) then
-        echo "pause" >> $tempbatfile
+        echo "pause" >> "$tempbatfile"
     endif
 
-    echo "exit" >> $tempbatfile
+    echo "exit" >> "$tempbatfile"
 
-    setenv batfile `cygpath -w "${tempbatfile}"`
+    setenv batfile `cygpath -ws "${tempbatfile}"`
 
+    echo cmd /E:off /c start "$batfile"
     cmd /E:off /c start "$batfile"
 
     ## TODO : remove temporary .bat file
