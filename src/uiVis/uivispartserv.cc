@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.136 2003-03-04 16:40:44 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.137 2003-03-05 08:18:11 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -367,8 +367,6 @@ int uiVisPartServer::getSelObjectId() const
 void uiVisPartServer::setSelObjectId( int id )
 {
     visBase::DM().selMan().select( id );
-    if ( !viewmode )
-	toggleDraggers();
 }
 
 
