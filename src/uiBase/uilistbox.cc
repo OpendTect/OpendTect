@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.14 2001-05-29 11:45:29 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.15 2001-05-30 13:51:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ const QWidget* 	uiListBox::qWidget_() const 	{ return mQtThing(); }
 
 int uiListBox::size() const
 {
-    return mQtThing()->numRows();
+    return mQtThing()->count();
 }
 
 
