@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.21 2003-07-01 14:25:39 nanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.22 2003-09-24 07:15:59 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -24,9 +24,10 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.21 2003-07-01 14:25:39 nanne 
 #include "visdataman.h"
 #include "visthread.h"
 
-#include "Inventor/nodes/SoSwitch.h"
-#include "Inventor/nodes/SoGroup.h"
-#include "Inventor/nodes/SoComplexity.h"
+#include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoGroup.h>
+#include <Inventor/nodes/SoComplexity.h>
+#include <Inventor/nodes/SoTextureScalePolicy.h>
 
 #define NRCOLORS 256
 
@@ -57,6 +58,17 @@ visBase::Texture::Texture()
     onoff->addChild( texturegrp );
     texturegrp->insertChild( quality, 0 );
     quality->textureQuality.setValue( 1 );
+
+
+//  TODO: Evaluate this. Can most probably be removed.
+    if ( getenv("dGB_USE_SCALE_POLICY") )
+    {
+	SoTextureScalePolicy* scalepolicy = new SoTextureScalePolicy;
+	texturegrp->insertChild( scalepolicy, 1 );
+	scalepolicy->policy = SoTextureScalePolicy::FRACTURE;
+	float quality = 1;
+	scalepolicy->quality.setValue( quality );
+    }
 
     setColorTab( *visBase::VisColorTab::create() );
 
