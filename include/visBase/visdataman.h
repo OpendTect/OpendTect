@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.8 2002-04-30 14:13:28 kristofer Exp $
+ RCS:		$Id: visdataman.h,v 1.9 2002-05-02 14:15:16 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,7 @@ public:
 			     and reinitialized.
 			*/
 
+
     void		fillPar( IOPar&, TypeSet<int> & ) const;
     bool		usePar( const IOPar& );
 
@@ -54,8 +55,9 @@ public:
     int			getId( const DataObject* ) const;
     int			getId( const SoPath* ) const;
     void		getIds( const SoPath*, TypeSet<int>& ) const;
-    			/*!< Gets the ids from lowest level to hightest
+    			/*!< Gets the ids from lowest level to highest
 			     (i.e. scene ) */
+    void		getIds( const type_info&, TypeSet<int>& ) const;
 
     DataObject*		getObj( int id );
     const DataObject*	getObj( int id ) const;
