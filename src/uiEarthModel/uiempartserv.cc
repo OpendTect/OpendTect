@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.40 2004-01-07 08:14:47 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.41 2004-01-29 10:50:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -352,7 +352,7 @@ bool uiEMPartServer::storeObject( const MultiID& id )
 
 
 bool uiEMPartServer::getDataVal( const MultiID& id, 
-				 ObjectSet< TypeSet<BinIDZValue> >& data, 
+				 ObjectSet< TypeSet<BinIDZValues> >& data, 
 				 BufferString& attrnm, float& shift )
 {
     mDynamicCastAll()
@@ -371,8 +371,8 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 	const EM::PatchID patchid = hor->patchID( patchidx );
 	const Geometry::MeshSurface* meshsurf = hor->getSurface( patchid );
 
-	data += new TypeSet<BinIDZValue>;
-	TypeSet<BinIDZValue>& res = *data[patchidx];
+	data += new TypeSet<BinIDZValues>;
+	TypeSet<BinIDZValues>& res = *data[patchidx];
 
 	EM::PosID posid( objid, patchid );
 	const int nrnodes = meshsurf->size();
@@ -386,7 +386,7 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 	    posid.setSubID( subid );
 	    const float auxvalue = hor->getAuxDataVal(dataidx,posid);
 
-	    res += BinIDZValue(bid,auxvalue,auxvalue);
+	    res += BinIDZValues( BinIDZValue(bid,auxvalue,auxvalue) );
 	}
     }
 
@@ -395,7 +395,7 @@ bool uiEMPartServer::getDataVal( const MultiID& id,
 
 
 void uiEMPartServer::setDataVal( const MultiID& id, 
-				 ObjectSet< TypeSet<BinIDZValue> >& data,
+				 ObjectSet< TypeSet<BinIDZValues> >& data,
        				 const char* attrnm )
 {
     mDynamicCastAll()
@@ -407,16 +407,16 @@ void uiEMPartServer::setDataVal( const MultiID& id,
     for ( int patchidx=0; patchidx<data.size(); patchidx++ )
     {
 	const EM::PatchID patchid = hor->patchID( patchidx );
-	TypeSet<BinIDZValue>& bidzvals = *data[patchidx];
+	TypeSet<BinIDZValues>& bidzvals = *data[patchidx];
 
 	EM::PosID posid( objid, patchid );
 	for ( int idx=0; idx<bidzvals.size(); idx++ )
 	{
-	    BinIDZValue bidzv = bidzvals[idx];
+	    BinIDZValues bidzv = bidzvals[idx];
 	    RowCol rc( bidzv.binid.inl, bidzv.binid.crl );
 	    EM::SubID subid = hor->rowCol2SubID( rc );
 	    posid.setSubID( subid );
-	    hor->setAuxDataVal( dataidx, posid, bidzv.value );
+	    hor->setAuxDataVal( dataidx, posid, bidzv.values[0] );
 	}
     }
 }

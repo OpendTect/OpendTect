@@ -7,21 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.24 2004-01-05 10:14:45 kristofer Exp $
+ RCS:           $Id: uiempartserv.h,v 1.25 2004-01-29 10:50:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
-#include "ranges.h"
 class BinIDRange;
 class BinIDValue;
-class BinIDZValue;
+class BinIDZValues;
 class BufferString;
 class MultiID;
 class uiPopupMenu;
 class SurfaceInfo;
 class BinID;
+template <class T> class Interval;
 
 namespace EM { class SurfaceIODataSelection; };
 
@@ -66,10 +66,10 @@ public:
 
     bool		storeObject(const MultiID&);
     void		setDataVal(const MultiID&,
-	    			   ObjectSet< TypeSet<BinIDZValue> >&,
+	    			   ObjectSet< TypeSet<BinIDZValues> >&,
 				   const char*);
     bool		getDataVal(const MultiID&,
-	    			   ObjectSet< TypeSet<BinIDZValue> >&,
+	    			   ObjectSet< TypeSet<BinIDZValues> >&,
 				   BufferString&,float&);
 
     static const int	evDisplayHorizon;
