@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.13 2002-09-19 07:11:52 nanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.14 2002-10-09 11:29:32 nanne Exp $
 ________________________________________________________________________
 
 
@@ -16,13 +16,15 @@ ________________________________________________________________________
 
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "ranges.h"
 
 class AttribSelSpec;
-class CubeSampling;
 class AttribSlice;
+class ColorTable;
+class CubeSampling;
 
 namespace Geometry { class Pos; }
-namespace visBase { class TextureRect; };
+namespace visBase { class TextureRect; class VisColorTab; };
 
 namespace visSurvey
 {
@@ -69,6 +71,16 @@ public:
 
     void			turnOn(bool);
     bool			isOn() const;
+
+    void			setColorTable(const ColorTable&);
+    void			setColorTable(visBase::VisColorTab*);
+    const ColorTable&		getColorTable() const;
+    void			setClipRate(float);
+    float			clipRate() const;
+    void			setAutoscale(bool);
+    bool			autoScale() const;
+    void			setDataRange(const Interval<float>&);
+    Interval<float>		getDataRange() const;
 
     float			getValue( const Geometry::Pos& ) const;
 

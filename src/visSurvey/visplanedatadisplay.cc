@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.22 2002-09-30 15:39:49 bert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.23 2002-10-09 11:29:25 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.22 2002-09-30 15:39:
 #include "visdataman.h"
 #include "visrectangle.h"
 #include "vismaterial.h"
+#include "viscolortab.h"
+#include "colortab.h"
 #include "sorting.h"
 #include "iopar.h"
 
@@ -437,6 +439,45 @@ void visSurvey::PlaneDataDisplay::turnOn(bool n) { trect->turnOn(n); }
 
 
 bool visSurvey::PlaneDataDisplay::isOn() const { return trect->isOn(); }
+
+
+void visSurvey::PlaneDataDisplay::setColorTable( const ColorTable& ctab )
+{
+    trect->getColorTab().colorSeq().colors() = ctab;
+    trect->getColorTab().colorSeq().colorsChanged();
+}
+
+
+void visSurvey::PlaneDataDisplay::setColorTable( visBase::VisColorTab* ct )
+{ trect->setColorTab( ct ); }
+
+
+const ColorTable& visSurvey::PlaneDataDisplay::getColorTable() const
+{ return trect->getColorTab().colorSeq().colors(); }
+
+
+void visSurvey::PlaneDataDisplay::setClipRate( float rate )
+{ trect->setClipRate( rate ); }
+
+
+float visSurvey::PlaneDataDisplay::clipRate() const
+{ return trect->clipRate(); }
+
+
+void visSurvey::PlaneDataDisplay::setAutoscale( bool yn )
+{ trect->setAutoscale( yn ); }
+
+
+bool visSurvey::PlaneDataDisplay::autoScale() const
+{ return trect->autoScale(); }
+
+
+void visSurvey::PlaneDataDisplay::setDataRange( const Interval<float>& intv )
+{ trect->getColorTab().scaleTo( intv ); }
+
+
+Interval<float> visSurvey::PlaneDataDisplay::getDataRange() const
+{ return trect->getColorTab().getInterval(); }
 
 
 float visSurvey::PlaneDataDisplay::getValue( const Geometry::Pos& pos ) const
