@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.12 2004-11-09 13:03:50 arend Exp $
+# $Id: od_do_rmt,v 1.13 2004-11-09 16:40:25 arend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -10,10 +10,10 @@
 if ( $?DTECT_DEBUG ) set verbose=yes
 
 set comm=""
-set datahost=""
-set datadrive=""
-set datashare=""
-set datapass=""
+set datahost="_none_"
+set datadrive="_none_"
+set datashare="_none_"
+set datapass="_none_"
 
 next_arg:
 
@@ -65,6 +65,21 @@ do_rest:
 if ( -e "$DTECT_APPL/bin/init_dtect" ) then
     if ( $?DTECT_DEBUG ) echo "$0 : sourcing $DTECT_APPL/bin/init_dtect"
     source "$DTECT_APPL/bin/init_dtect"
+endif
+
+if ( "$HDIR" == "win" ) then
+    set prescript=""
+    if ( -x "$DTECT_APPL/bin/$HDIR/SearchODFile" ) then
+	set prescript=`"$DTECT_APPL/bin/$HDIR/SearchODFile" od_prepare.bat`
+    endif
+
+    if ( -e "$prescript" ) then
+        set prescr=`cygpath -w "$prescript"`
+	cmd /c "$prescr" $datahost $datadrive $datashare $username $userpass
+    endif
+endif
+
+
 endif
 
 if ( $?DTECT_DEBUG ) then
