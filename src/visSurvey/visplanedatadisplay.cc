@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.6 2002-04-23 11:54:00 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.7 2002-04-24 09:58:39 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
@@ -113,27 +113,20 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay(
 
 void visSurvey::PlaneDataDisplay::setOrigo( const Geometry::Pos& pos )
 {
+    trect->getRectangle().setSnapping( false );
     trect->getRectangle().setOrigo( pos );
+    trect->getRectangle().setSnapping( true );
 }
 
 
 void visSurvey::PlaneDataDisplay::setWidth( const Geometry::Pos& pos )
 {
     if ( type==Inline )
-    {
-	trect->getRectangle().setWidth( 0, pos.x );
-	trect->getRectangle().setWidth( 1, pos.z );
-    }
+	trect->getRectangle().setWidth( pos.z, pos.y );
     else if ( type==Crossline )
-    {
-	trect->getRectangle().setWidth( 0, pos.z );
-	trect->getRectangle().setWidth( 1, pos.y );
-    }
+	trect->getRectangle().setWidth( pos.x, pos.z );
     else
-    {
-	trect->getRectangle().setWidth( 0, pos.x );
-	trect->getRectangle().setWidth( 1, pos.y );
-    }
+	trect->getRectangle().setWidth( pos.x, pos.y );
 }
 
 
