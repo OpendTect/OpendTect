@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.23 2004-09-22 13:55:09 nanne Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.24 2004-12-28 16:17:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,9 +125,8 @@ bool uiWellImportAsc::doWork()
     info.oper = operfld->text();
     info.state = statefld->text();
     info.county = countyfld->text();
-    info.surfacecoord = *coordfld->text(0) && *coordfld->text(1)
-		? coordfld->getCoord() : Coord(mUndefValue,mUndefValue);
-    info.surfaceelev = *elevfld->text() ? elevfld->getValue() : mUndefValue;
+    info.surfacecoord = coordfld->getCoord();
+    info.surfaceelev = elevfld->getValue();
     if ( zinfeet && !mIsUndefined(info.surfaceelev) ) 
 	info.surfaceelev *= 0.3048;
 
