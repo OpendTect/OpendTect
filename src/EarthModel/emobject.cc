@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.20 2004-05-12 13:14:03 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.21 2004-05-12 18:20:50 kristofer Exp $";
 
 #include "emobject.h"
 
@@ -96,6 +96,10 @@ void EM::EMObject::setPreferredColor(const Color& col)
     preferredcolor = col;
     prefColorChange.trigger();
 }
+
+
+bool EM::EMObject::isDefined( const EM::PosID& pid ) const
+{ return getPos(pid).isDefined(); }
 
 
 MultiID EM::EMObject::multiID() const

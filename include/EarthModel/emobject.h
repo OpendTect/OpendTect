@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.24 2004-05-12 13:14:06 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.25 2004-05-12 18:20:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,7 @@ public:
     Notifier<EMObject>		prefColorChange;
 
     virtual Coord3		getPos(const EM::PosID&) const = 0;
+    virtual bool		isDefined( const EM::PosID& ) const;
     virtual bool		setPos(const EM::PosID&,
 	    			       const Coord3&,
 				       bool addtohistory ) = 0;
