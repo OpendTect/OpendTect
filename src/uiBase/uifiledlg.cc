@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.15 2003-10-17 14:19:02 bert Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.16 2003-10-27 13:22:16 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,13 @@ int uiFileDialog::go()
 
     QStringList list = fd->selectedFiles();
     fn = list.size() ? list[0] : fd->selectedFile();
+
+#ifdef __win__
+    const char* dirsep = sDirSep;
+    char* chptr = fn.buf();
+    while ( chptr && *chptr++ )
+	if ( *chptr == '/' ) *chptr = *dirsep;
+#endif
 
     for ( int idx=0; idx<list.size(); idx++ )
 	filenames += new BufferString( list[idx] );
