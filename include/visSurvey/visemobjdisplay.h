@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.6 2005-03-23 14:08:53 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.7 2005-03-24 16:28:13 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,7 @@ public:
     const ColorAttribSel*	getColorSelSpec() const;
     void			setSelSpec(const AttribSelSpec&);
     void			setColorSelSpec(const ColorAttribSel&);
+    bool			hasColor() const;
     void			setDepthAsAttrib();
 
     void			fetchData( ObjectSet<BinIDValueSet>&) const;
