@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.2 2000-01-24 16:35:51 bert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.3 2000-02-10 13:08:37 bert Exp $";
 
 #include "iox.h"
 #include "iolink.h"
@@ -68,17 +68,27 @@ void IOX::copyFrom( const IOObj* obj )
 const char* IOX::fullUserExpr( bool i ) const
 {
     IOObj* ioobj = IOM().get( uid );
-    if ( !ioobj ) return NO;
+    if ( !ioobj ) return "<invalid>";
     const char* s = ioobj->fullUserExpr(i);
     delete ioobj;
     return s;
 }
 
 
+bool IOX::slowOpen() const
+{
+    IOObj* ioobj = IOM().get( uid );
+    if ( !ioobj ) return false;
+    bool ret = ioobj->slowOpen();
+    delete ioobj;
+    return ret;
+}
+
+
 bool IOX::implExists( bool i ) const
 {
     IOObj* ioobj = IOM().get( uid );
-    if ( !ioobj ) return NO;
+    if ( !ioobj ) return false;
     bool yn = ioobj->implExists(i);
     delete ioobj;
     return yn;
@@ -87,13 +97,13 @@ bool IOX::implExists( bool i ) const
 
 bool IOX::implRemovable() const
 {
-    return NO;
+    return false;
 }
 
 
 bool IOX::implRemove() const
 {
-    return NO;
+    return false;
 }
 
 
