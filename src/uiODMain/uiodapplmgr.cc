@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.59 2004-10-06 13:54:29 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.60 2004-10-08 15:03:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl(a)
 	, applservice(*new uiODApplService(&a,*this))
     	, nlaserv(0)
+	, getnewdata(this)
 {
     pickserv = new uiPickPartServer( applservice );
     visserv = new uiVisPartServer( applservice );
@@ -460,6 +461,11 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
 	    visserv->stuffSurfaceData( visid, colordata, &data );
 	    deepErase( data );
+	    return true;
+	}
+	case -2:
+	{
+	    getnewdata.trigger(visid);
 	    return true;
 	}
     }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.16 2004-10-04 16:25:48 nanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.17 2004-10-08 15:03:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,8 @@ public:
     void			outVolCB(CallBacker*)	{ createVol(); }
 
     void			enableSceneMenu(bool);
+
+    CNotifier<uiODApplMgr,int>	getnewdata;
 
 protected:
 
