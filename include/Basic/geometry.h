@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.4 2000-08-04 16:49:30 bert Exp $
+ RCS:           $Id: geometry.h,v 1.5 2000-08-07 14:33:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,27 +79,16 @@ public:
     inline void		setTopLeft( Point<T> tl )	{ topLeft_ = tl; }
     inline void		setBottomRight( Point<T> br )	{ bottomRight_ = br; }
 
-    inline bool		contains( const Point<T>& pt ) const
-			{
-			    return (left()-pt.x())*(pt.x()-right()) >= 0
-				&& (top()-pt.y())*(pt.y()-bottom()) >= 0;
-			}
+    inline bool		contains(const Point<T>&) const;
     inline bool		isInside( const Rect<T>& other ) const
-			{
-			    return other.contains(topLeft())
-				&& other.contains(bottomRight());
+			{ return other.contains(topLeft())
+			      && other.contains(bottomRight());
 			}
 
     inline T 		width() const
-			{
-			    return (right() > left()) ? right() - left() 
-				    : left() - right(); 
-			}
+			{ return right() - left(); }
     inline T 		height() const
-			{
-			    return (bottom() > top()) ? bottom() - top()
-				    : top() - bottom(); 
-			}
+			{ return revZ() ? bottom()-top() : top()-bottom(); }
 
     inline T 		left() const 		{ return topLeft_.x(); }
     inline T 		top() const 		{ return topLeft_.y(); }
@@ -118,7 +107,20 @@ protected:
     Point<T> 	topLeft_;
     Point<T>	bottomRight_;
 
+    inline bool	revZ() const		{ return bottom() > top(); }
+
 };
+
+
+template <class T>
+inline bool Rect<T>::contains( const Point<T>& pt ) const
+{
+    return revZ()
+	 ? ( pt.y() >= top()    && pt.y() <= bottom()
+	  && pt.x() >= left()   && pt.x() <= right() )
+	 : ( pt.y() >= bottom() && pt.y() <= top()
+	  && pt.x() >= left()   && pt.x() <= right() );
+}
 
 
 #endif
