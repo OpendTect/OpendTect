@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.36 2002-01-25 11:36:06 arend Exp $
+ RCS:           $Id: uilistbox.cc,v 1.37 2002-02-05 14:02:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,11 @@ uiListBox::~uiListBox()
 {
 }
 
-
+/*! preferred number of lines. 
+    If set to 0, then it is determined by the number of items in list.
+    If set to 1, then the list has a fixed height of 1 textline and 
+    therefore can not grow/shrink vertically.
+*/
 void uiListBox::setLines( int prefNrLines )
     { body_->setLines(prefNrLines); }
 

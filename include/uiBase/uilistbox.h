@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.17 2002-01-01 23:05:45 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.18 2002-02-05 14:02:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,11 +36,7 @@ public:
 
     virtual 		~uiListBox();
 
-			/*! preferred number of lines. if set to 0, then 
-                            it is determined by the number of items in list.
-			    If set to 1, then the list can not 
-			    grow/shrink vertically.
-			*/
+			// 0: use nr itms in list
     void 		setLines( int prefNrLines );
     void		setNotSelectable();
     void		setMultiSelect(bool yn=true);
