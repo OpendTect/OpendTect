@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.43 2005-02-10 16:22:57 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.44 2005-02-16 10:49:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -354,7 +354,7 @@ BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
 	ptr = getNextWord( ptr, valbuf );
 	crd.y = atof( valbuf );
 	bid = doxy ? SI().transform( crd ) : BinID(mNINT(crd.x),mNINT(crd.y));
-	if ( hs && !hs->includes(bid) ) continue;
+	if ( hs && !hs->isEmpty() && !hs->includes(bid) ) continue;
 
 	TypeSet<float> values;
 	while ( *ptr )

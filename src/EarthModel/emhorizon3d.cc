@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.52 2005-02-10 16:22:35 nanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.53 2005-02-16 10:49:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ int nextStep()
 	const BinID bid(inl,crl);
 	BinIDValueSet::Pos pos = bvs.findFirst( bid );
 	const float* vals = bvs.getVals( pos );
+	if ( !vals ) continue;
 	RowCol rc( HorizonGeometry::getRowCol(bid) );
 	posid.setSubID( HorizonGeometry::rowCol2SubID(rc) );
 	for ( int validx=1; validx<nrvals; validx++ )
@@ -188,6 +189,7 @@ int nextStep()
 	const BinID bid(inl,crl);
 	BinIDValueSet::Pos pos = bvs.findFirst( bid );
 	const float* vals = bvs.getVals( pos );
+	if ( !vals ) continue;
 	Coord crd = SI().transform( bid );
 	RowCol rc( HorizonGeometry::getRowCol(bid) );
 	posid.setSubID( HorizonGeometry::rowCol2SubID(rc) );
