@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.20 2003-08-29 15:46:48 bert Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.21 2003-10-01 07:17:57 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -113,8 +113,8 @@ void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
 	const int x0idx = (int)x0pos;
 	const float x0relpos = x0pos-x0idx;
 	const bool x0m1udf = x0idx == 0;
-	const bool x0p2udf = x0idx >= x0sz-2;
-	const bool x0p1udf = x0idx == x0sz-1;
+	const bool x0p2udf = x0idx >= datax0size-2;
+	const bool x0p1udf = x0idx == datax0size-1;
 
 	for ( int x1=0; x1<x1sz; x1++ )
 	{
@@ -122,8 +122,8 @@ void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
 	    const int x1idx = (int)x1pos;
 	    const float x1relpos = x1pos-x1idx;
 	    const bool x1m1udf = x1idx == 0;
-	    const bool x1p2udf = x1idx >= x1sz-2;
-	    const bool x1p1udf = x1idx == x1sz-1;
+	    const bool x1p2udf = x1idx >= datax1size-2;
+	    const bool x1p1udf = x1idx == datax1size-1;
 
 	    const float v01 = x0m1udf ? udf
 		: newdata->get( x0idx-1, x1idx );
