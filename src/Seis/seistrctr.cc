@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.24 2001-10-29 17:36:21 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.25 2001-11-23 15:13:06 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -175,7 +175,7 @@ bool SeisTrcTranslator::commitSelections( const SeisTrc* trc )
 
 void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 {
-    const float eps = 1e-7;
+    const float eps = 1e-6;
 
     for ( int idx=0; idx<nrout_; idx++ )
     {
@@ -185,7 +185,7 @@ void SeisTrcTranslator::enforceBounds( const SeisTrc* trc )
 	int sz = trc ? trc->size( idx ) : inpcds[idx]->nrsamples;
 
 	const float reqstop = outcds[idx]->sd.start
-			    + outcds[idx]->sd.step * outcds[idx]->nrsamples;
+			    + outcds[idx]->sd.step * (outcds[idx]->nrsamples-1);
 	const float avstop = sd.start + sd.step * (sz-1);
 	bool neednewnrsamples = avstop+eps < reqstop;
 
