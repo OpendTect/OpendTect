@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.34 2002-07-08 05:54:24 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.35 2002-07-31 11:06:26 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -23,6 +23,8 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.34 2002-07-08 05:54:24 kris
 
 mCreateFactoryEntry( visSurvey::Scene );
 
+const char* visSurvey::Scene::displobjprefixstr = "Displ Object ";
+const char* visSurvey::Scene::nodisplobjstr = "No Displ Objects";
 const char* visSurvey::Scene::xyzobjprefixstr = "XYZ Object ";
 const char* visSurvey::Scene::noxyzobjstr = "No XYZ Objects";
 const char* visSurvey::Scene::xytobjprefixstr = "XYT Object ";
@@ -37,13 +39,13 @@ const char* visSurvey::Scene::annotcubestr = "Show cube";
 visSurvey::Scene::Scene()
     : inlcrltransformation( SPM().getInlCrlTransform() )
     , timetransformation( SPM().getAppvelTransform() )
+    , displaytransformation( SPM().getDisplayTransform() )
     , annot( 0 )
     , eventcatcher( visBase::EventCatcher::create())
     , mouseposchange( this )
 {
     setAmbientLight( 1 );
-    addObject( const_cast<visBase::Transformation*>(
-						SPM().getDisplayTransform()));
+    addObject( const_cast<visBase::Transformation*>(displaytransformation));
     addObject( eventcatcher );
     eventcatcher->setEventType( visBase::MouseMovement );
     eventcatcher->eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
@@ -84,6 +86,13 @@ void visSurvey::Scene::setCube()
     annot->setCorner( 5, c1.inl, c1.crl, vrg.stop );
     annot->setCorner( 6, c2.inl, c2.crl, vrg.stop );
     annot->setCorner( 7, c3.inl, c3.crl, vrg.stop );
+}
+
+
+void visSurvey::Scene::addDisplayObject( SceneObject* obj )
+{
+    int insertpos = getFirstIdx( displaytransformation );
+    insertObject( insertpos, obj );
 }
 
 
@@ -200,11 +209,21 @@ void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::SceneObject::fillPar( par, saveids );
 
+    TypeSet<int> displkids;
     TypeSet<int> xyzkids;
     TypeSet<int> xytkids;
     TypeSet<int> inlcrltkids;
 
     int kid = 0;
+    while ( getObject(kid)!=displaytransformation )
+    {
+	displkids += getObject(kid)->id();
+	if ( saveids.indexOf( getObject(kid)->id()) ==-1 )
+	{ saveids += getObject(kid)->id(); }
+
+	kid++;
+    }
+
     while ( getObject(kid)!=timetransformation )
     {
 	if ( getObject(kid)==SPM().getDisplayTransform() ||
@@ -245,6 +264,13 @@ void visSurvey::Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	{
 	    saveids += getObject(kid)->id();
 	}
+    }
+    
+    par.set( nodisplobjstr, displkids.size() );
+    for ( int idx=0; idx<displkids.size(); idx++ )
+    {
+	BufferString key = displobjprefixstr; key += idx;
+	par.set( key, displkids[idx] );
     }
 
     par.set( noxyzobjstr, xyzkids.size() );
@@ -321,6 +347,19 @@ int visSurvey::Scene::usePar( const IOPar& par )
 
     if ( res!= 1 ) return res;
 
+    int nrdisplobj;
+    if ( !par.get( nodisplobjstr, nrdisplobj )) return -1;
+
+    TypeSet<int> displobjids( nrdisplobj, -1 );
+    for ( int idx=0; idx<displobjids.size(); idx++ )
+    {
+	BufferString key = displobjprefixstr;
+	key += idx;
+
+	if ( !par.get( key, displobjids[idx] )) return -1;
+	if ( !visBase::DM().getObj( displobjids[idx] ) ) return 0;
+    }
+
     int nrxyzobj;
     if ( !par.get( noxyzobjstr, nrxyzobj )) return -1;
 
@@ -358,6 +397,13 @@ int visSurvey::Scene::usePar( const IOPar& par )
 
 	if ( !par.get( key, inlcrlobjids[idx] )) return -1;
 	if ( !visBase::DM().getObj( inlcrlobjids[idx] ) ) return 0;
+    }
+
+    for ( int idx=0; idx<displobjids.size(); idx++ )
+    {
+	mDynamicCastGet( visBase::SceneObject*, so,
+				    visBase::DM().getObj( displobjids[idx] ));
+	if ( so ) addDisplayObject( so );
     }
 
     for ( int idx=0; idx<xyzobjids.size(); idx++ )
