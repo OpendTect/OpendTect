@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.6 2003-02-03 14:10:17 nanne Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.7 2003-02-11 09:56:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "multiid.h"
 
 class uiFileInput;
 class uiGenInput;
@@ -33,7 +32,7 @@ public:
 			~uiExportHorizon();
 
     const char*		selectedItem();
-    MultiID		selHorID() const;
+    int			selVisID() const;
     bool		writeAscii(const ObjectSet< TypeSet<BinIDZValue> >&);
 
 protected:

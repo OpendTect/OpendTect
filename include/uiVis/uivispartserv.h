@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.80 2003-02-04 12:30:45 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.81 2003-02-11 09:57:31 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class PickSet;
 class uiPopupMenu;
 class ColorTable;
 class UserIDSet;
+class SurfaceInfo;
 
 namespace visSurvey
 {
@@ -59,6 +60,7 @@ public:
     int				addRandomLine(int scene);
     int				addVolView(int scene);
     int				addSurface(int scene, const MultiID& );
+    void			getSurfaceInfo( ObjectSet<SurfaceInfo>& );
     int				addWell(int scene, const MultiID& emwellid );
 
     int				addSurfTrackerCube( int scene );
@@ -89,7 +91,6 @@ public:
 				     If id==-1, it will give the ids of the
 				     scenes */
     BufferString		getTreeInfo(int id) const;
-    BufferString		getAttribName(int id) const;
     bool			isInlCrlTsl(int,int dim) const;
     				/*!< dim==0 : inline
 				     dim==1 : crossline

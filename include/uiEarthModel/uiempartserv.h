@@ -7,17 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.5 2003-02-03 14:10:17 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.6 2003-02-11 09:56:30 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
-#include "multiid.h"
 class SurfaceInfo;
 class BinIDValue;
 class BinIDRange;
 class BinIDZValue;
+class MultiID;
 
 
 /*! \brief Service provider for application level - seismics */
@@ -46,14 +46,14 @@ public:
     static const int	evGetHorData;
 
 			// Interaction stuff
-    const MultiID&	selHorID() const		{ return selhorid_; }
+    int			selVisID() const		{ return selvisid_; }
     ObjectSet< TypeSet<BinIDZValue> >& horData()	{ return horbidzvs_; }
 
 
 protected:
 
     ObjectSet< TypeSet<BinIDZValue> >	horbidzvs_;
-    MultiID		selhorid_;
+    int			selvisid_;
     
 };
 

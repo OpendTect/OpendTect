@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.125 2003-02-07 16:40:41 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.126 2003-02-11 09:57:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ ________________________________________________________________________
 #include "uicolor.h"
 #include "uidset.h"
 #include "colortab.h"
+#include "surfaceinfo.h"
+
 
 const int uiVisPartServer::evUpdateTree = 0;
 const int uiVisPartServer::evSelection = 1;
@@ -215,6 +217,29 @@ int uiVisPartServer::addSurface( int sceneid, const MultiID& emhorid )
     return horizon->id();
 }
 
+
+void uiVisPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
+{
+    TypeSet<int> sceneids;
+    getChildIds( -1, sceneids );
+    for ( int ids=0; ids<sceneids.size(); ids++ )
+    {
+	TypeSet<int> visids;
+	getChildIds( sceneids[ids], visids );
+	for ( int idv=0; idv<visids.size(); idv++ )
+	{
+	    int visid = visids[idv];
+	    if ( isHorizon( visid ) )
+	    {
+		BufferString attrnm( "" );
+		const AttribSelSpec* as = getSelSpec( visid );
+		if ( as ) attrnm = as->userRef();
+		hinfos += new SurfaceInfo( getObjectName(visid), "", visid,
+		       attrnm );
+	    }
+	}
+    }
+}
 
 
 int uiVisPartServer::addWell( int sceneid, const MultiID& emwellid )
@@ -735,28 +760,6 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
 }
 
 
-BufferString uiVisPartServer::getAttribName( int id ) const
-{
-    const visBase::DataObject* dobj = visBase::DM().getObj( id );
-
-    BufferString res;
-    mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,dobj);
-    if ( vd ) res = vd->getAttribSelSpec().userRef();
-
-    mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,dobj);
-    if ( rtd ) rtd->getAttribSelSpec().userRef();
-
-    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,dobj);
-    if ( pdd ) res = pdd->getAttribSelSpec().userRef();
-
-    mDynamicCastGet(const visSurvey::SurfaceDisplay*,surface,dobj);
-    if ( surface ) 
-	res = surface->getAttribSelSpec().userRef();
-
-    return res;
-}
-
-
 bool uiVisPartServer::isInlCrlTsl( int id, int type ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObj( id );
@@ -864,7 +867,7 @@ void uiVisPartServer::getRandomPosDataPos( int id,
     visBase::DataObject* dobj = visBase::DM().getObj( id );
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,dobj)
     if ( sd )
-	sd->getAttribPositions( bidzvset, false, 0 );
+	sd->getAttribPositions( bidzvset, true, 0 );
 }
 
 

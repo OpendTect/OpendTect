@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.9 2003-02-03 14:10:11 nanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.10 2003-02-11 09:56:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,9 @@ uiExportHorizon::~uiExportHorizon()
 }
 
 
-MultiID uiExportHorizon::selHorID() const
+int uiExportHorizon::selVisID() const
 {
-    return selinfo_ < 0 ? -1 : hinfos_[selinfo_]->id;
+    return selinfo_ < 0 ? -1 : hinfos_[selinfo_]->visid;
 }
 
 

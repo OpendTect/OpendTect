@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.7 2003-02-03 14:10:11 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.8 2003-02-11 09:56:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ const int uiEMPartServer::evGetHorData = 0;
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-    	, selhorid_("")
+    	, selvisid_(-1)
 {
 }
 
@@ -81,7 +81,7 @@ bool uiEMPartServer::exportHorizon( const ObjectSet<SurfaceInfo>& his )
     uiExportHorizon dlg( appserv().parent(), his );
     if ( !dlg.go() ) return false;
 
-//    selhorid_ = dlg.selHorID();
+    selvisid_ = dlg.selVisID();
     deepErase( horbidzvs_ );
     sendEvent( evGetHorData );
     return dlg.writeAscii( horbidzvs_ );
@@ -162,7 +162,7 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 	EarthModel::EMManager& em = EarthModel::EMM();
 	mDynamicCastGet(EarthModel::Horizon*,hor,em.getEMObject(idx))
 	if ( hor )
-	    hinfos += new SurfaceInfo( hor->id(), hor->name() );
+	    hinfos += new SurfaceInfo( hor->name(), hor->id() );
     }
 }
 
