@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.24 2004-07-22 16:14:07 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.25 2004-11-15 12:58:56 nanne Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -49,6 +49,8 @@ class BatchProgram : public UserIDObject
 public:
 
     const IOPar&	pars() const		{ return *iopar_; }
+    IOPar&		pars()			{ return *iopar_; }
+
     int			nrArgs() const		{ return *pargc_ - argshift_; }
     const char*		arg( int idx ) const	{ return argv_[idx+argshift_]; }
     const char*		fullPath() const	{ return fullpath_; }
