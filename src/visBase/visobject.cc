@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.6 2002-02-26 17:54:21 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.7 2002-02-27 14:42:35 kristofer Exp $";
 
 #include "visobject.h"
 #include "colortab.h"
@@ -74,7 +74,10 @@ bool visBase::VisualObject::isOn() const
 
 
 void visBase::VisualObject::setColor( const Color& nc )
-{ color = nc; }
+{
+    color = nc;
+    updateMaterial();
+}
     
 
 
