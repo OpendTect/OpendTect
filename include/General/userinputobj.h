@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.7 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: userinputobj.h,v 1.8 2004-07-21 12:15:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <basictypes.h>
+#include "basictypes.h"
+#include "datainpspec.h"
 
 class CallBack;
-class DataInpSpec;
 class PtrUserIDObjectSet;
 class BufferString;
 class BufferStringSet;
@@ -136,8 +136,8 @@ protected:
     virtual void	setvalue_( T v )		= 0;
     virtual T		getvalue_() const		= 0;
 
-    virtual void	update_pref( const DataInpSpec& s)
-			    { prefempty_=s.preferEmpty(); }
+    virtual void	update_pref(const DataInpSpec& s)
+			    { prefempty_ = s.preferEmpty(); }
 };
 
 
