@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.3 2003-10-21 16:26:52 nanne Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.4 2003-10-22 15:07:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,6 @@ public:
     				SoPlaneWellLog();
     static void			initClass();
 
-    void			setWidth(float);
     void			setLineColor(const SbVec3f&,int);
     const SbVec3f&		lineColor(int) const;
     void			showLog(bool,int);
@@ -55,7 +54,7 @@ public:
     SoMFFloat			log2;
     SoSFFloat			maxval1;
     SoSFFloat			maxval2;
-    SoSFFloat			width;
+    SoSFFloat			screenWidth;
 
     SO_KIT_CATALOG_ENTRY_HEADER(topSeparator);
     SO_KIT_CATALOG_ENTRY_HEADER(line1Switch);
@@ -85,6 +84,7 @@ protected:
 
     bool			valchanged;
     int				currentres;
+    float			worldwidth;
 
     SoFieldSensor*		valuesensor;
     static void			valueChangedCB(void*,SoSensor*);

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.3 2003-10-21 16:26:46 nanne Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.4 2003-10-22 15:07:34 nanne Exp $";
 
 
 #include "SoPlaneWellLog.h"
@@ -17,8 +17,8 @@ static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.3 2003-10-21 16:26:46 nan
 
 #include <Inventor/actions/SoGLRenderAction.h>
 
-#include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/elements/SoViewportRegionElement.h>
 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -86,11 +86,11 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( log2, (0) );
     SO_KIT_ADD_FIELD( maxval1, (0) );
     SO_KIT_ADD_FIELD( maxval2, (0) );
-    SO_KIT_ADD_FIELD( width, (400) );
+    SO_KIT_ADD_FIELD( screenWidth, (40) );
 
     valuesensor->attach( &log1 );
     valuesensor->attach( &log2 );
-    valuesensor->attach( &width );
+    valuesensor->attach( &screenWidth );
 
     clearLog(1);
     clearLog(2);
@@ -102,12 +102,6 @@ SoPlaneWellLog::SoPlaneWellLog()
 SoPlaneWellLog::~SoPlaneWellLog()
 {
     delete valuesensor;
-}
-
-
-void SoPlaneWellLog::setWidth( float wdth_ )
-{
-    width.setValue( wdth_ );
 }
 
 
@@ -205,7 +199,7 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
 	SbVec3f normal = getNormal( pt1, pt2, projdir );
 	normal.normalize();
 
-	const float scaledval = log[index]*width.getValue()/maxval.getValue();
+	const float scaledval = log[index]*worldwidth/maxval.getValue();
 	const float fact = scaledval / normal.length();
 	normal *= lognr==1 ? -fact : fact;
 	SbVec3f newcrd = path[index];
@@ -239,6 +233,8 @@ void SoPlaneWellLog::valueChangedCB( void* data, SoSensor* )
 
 bool SoPlaneWellLog::shouldGLRender( int newres )
 {
+    if ( !path1.getNum() && !path2.getNum() ) return false;
+
     bool dorender = !newres || !(newres==currentres);
     return ( valchanged || dorender );
 }
@@ -261,16 +257,21 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
     if ( shouldGLRender(newres) )
     {
 	const SbViewVolume& vv = SoViewVolumeElement::get(state);
-	const SbMatrix& mat = SoModelMatrixElement::get(state);
+	const SbViewportRegion& vp = SoViewportRegionElement::get(state);
+	float nsize = screenWidth.getValue() / 
+	    				float(vp.getViewportSizePixels()[1]);
 
 	SbVec3f projectiondir = vv.getProjectionDirection();
-	if ( sw1ptr->whichChild.getValue() == -3 )
+	if ( path1.getNum() && sw1ptr->whichChild.getValue() == -3  )
+	{
+	    worldwidth = vv.getWorldToScreenScale( path1[0], nsize );
 	    buildLog( 1, projectiondir, newres );
-	if ( sw2ptr->whichChild.getValue() == -3 )
+	}
+	if ( path2.getNum() && sw2ptr->whichChild.getValue() == -3 )
+	{
+	    worldwidth = vv.getWorldToScreenScale( path2[0], nsize );
 	    buildLog( 2, projectiondir, newres );
-	//TODO Did not use mat, check!
-	// Use mat.multVecMatrix(localvec, worldvec);
-	// to convert a local-vector to a world-vector
+	}
 
 	valchanged = false;
     }
