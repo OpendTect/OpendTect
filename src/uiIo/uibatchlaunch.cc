@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.31 2003-11-06 11:51:40 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.32 2003-11-07 09:18:59 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,18 +189,19 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	comm += rshcomm;
     }
 
-#ifdef __win__ 
-    const bool inbg=true;
-
-    comm += " "; comm += progname;
-    comm += " "; comm += parfname;
-#else
     const bool inbg=dormt;
+#ifdef __win__ 
+
+    comm += " --inbg "; comm += progname;
+    comm += " "; comm += parfname;
+
+#else
 
     if ( nicelvl != 0 )
 	{ comm += " --nice "; comm += nicelvl; }
     comm += " "; comm += progname;
     comm += " -bg "; comm += parfname;
+
 #endif
 
     if ( !StreamProvider( comm ).executeCommand(inbg) )
@@ -337,19 +338,14 @@ bool uiFullBatchDialog::singLaunch( const IOParList& iopl, const char* fnm )
     comm += GetExecScript( dormt );
 
 #ifdef __win__ 
-    const bool inbg=true;
-
-    comm += " "; comm += procprognm;
+    comm += " --inbg "; comm += procprognm;
     comm += " "; comm += parfname;
 #else
-    const bool inbg=dormt;
-
-    if ( nicelvl != 0 )
-	{ comm += " --nice "; comm += nicelvl; }
     comm += " "; comm += procprognm;
     comm += " -bg "; comm += parfname;
 #endif
 
+    const bool inbg=dormt;
     if ( !StreamProvider( comm ).executeCommand(inbg) )
     {
 	uiMSG().error( "Cannot start batch program" );
