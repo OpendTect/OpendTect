@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.17 2004-11-16 12:56:01 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.18 2004-11-23 13:07:47 bert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -350,6 +350,12 @@ bool IODir::wrOmf( const char* fnm ) const
     if ( !astream.putHeader( "Object Management file" ) )
 	mCloseRetNo(streamptr)
     FileMultiString fms( key_ == "" ? "0" : (const char*)key_ );
+    for ( int idx=0; idx<objs_.size(); idx++ )
+    {
+	MultiID key = objs_[idx]->key();
+	if ( key.leafID() > curid_ )
+	    const_cast<IODir*>(this)->curid_ = key.leafID();
+    }
     fms += curid_;
     astream.put( "ID", fms );
     astream.newParagraph();
@@ -360,17 +366,17 @@ bool IODir::wrOmf( const char* fnm ) const
 	mCloseRetNo(streamptr)
 
     // Then the links
-    for ( int i=0; i<objs_.size(); i++ )
+    for ( int idx=0; idx<objs_.size(); idx++ )
     {
-	IOObj* obj = objs_[i];
+	IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
 	if ( obj->isLink() && !obj->put(astream) )
 	    mCloseRetNo(streamptr)
     }
     // Then the normal objs
-    for ( int i=0; i<objs_.size(); i++ )
+    for ( int idx=0; idx<objs_.size(); idx++ )
     {
-	IOObj* obj = objs_[i];
+	IOObj* obj = objs_[idx];
 	if ( obj == mymain ) continue;
 	if ( !obj->isLink() && !obj->put(astream) )
 	    mCloseRetNo(streamptr)
