@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.4 2005-01-17 13:25:52 kristofer Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.5 2005-02-17 10:25:59 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -64,7 +64,7 @@ StepInterval<int> ParametricSurface::colRange() const
 bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 {
     if ( !np.isDefined() ) 
-	return unSetKnot( rc );
+	return unsetKnot( rc );
 
     bool wasundef = !getKnot(rc).isDefined();
 
@@ -102,7 +102,7 @@ bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 }
 
 
-bool ParametricSurface::unSetKnot( const RCol& rc )
+bool ParametricSurface::unsetKnot( const RCol& rc )
 {
     if ( !getKnot(rc).isDefined() )
 	return true;

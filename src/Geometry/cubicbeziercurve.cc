@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.3 2005-01-11 08:36:43 kristofer Exp $";
+static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.4 2005-02-17 10:25:59 cvskris Exp $";
 
 #include "cubicbeziercurve.h"
 
@@ -54,34 +54,31 @@ IntervalND<float> CubicBezierCurve::boundingBox(bool approx) const
 }
 
 
-/*! Implementation of deCastaleau's algoritm. For more info, refer to
- *  "The NURBS book", figure 1.17. */
-
-Coord3 CubicBezierCurve::computePosition( float param ) const
+Coord3 CubicBezierCurve::computePosition( float param) const
 {
-    const float relparam = param - firstparam;
-    const int previdx = (int) relparam;
-	if ( previdx<0 || previdx>positions.size()-2 )
+    const StepInterval<int> range = parameterRange();
+    int previdx = range.getIndex(param);
+
+    if ( previdx<0 || previdx>positions.size()-1 )
 	return Coord3::udf();
+    else if ( previdx==positions.size()-1 )
+    {
+	if ( range.atIndex(previdx)<=param )
+	    previdx--;
+	else
+	    return Coord3::udf();
+    }
 
-    const float u = relparam - previdx;
-    const float one_minus_u = 1-u;
+    const GeomPosID prevparam = range.atIndex(previdx);
 
-    const Coord3& prevpos = positions[previdx];
-    const Coord3 prevdir =
-	getDirection(previdx+firstparam,true).normalize()*directioninfluence;
-    const Coord3& nextpos = positions[previdx+1];
-    const Coord3 nextdir =
-	getDirection(previdx+firstparam+1,true).normalize()*directioninfluence;
+    const int nextidx = previdx+1;
+    const GeomPosID nextparam = range.atIndex(nextidx);
 
-    Coord3 interpolpos0 = prevpos + prevdir*u;
-    Coord3 interpolpos1 = (prevpos+prevdir)*u+(nextpos-nextdir)*one_minus_u;
-    Coord3 interpolpos2 = nextpos-nextdir*one_minus_u;
-
-    interpolpos0 = interpolpos0*u+interpolpos1*one_minus_u;
-    interpolpos1 = interpolpos1*u+interpolpos2*one_minus_u;
-
-    return interpolpos0*u+interpolpos1*one_minus_u;
+    const float u = (param-prevparam)/range.step;
+    return cubicDeCasteljau( positions[previdx],
+	    		     getBezierVertex(prevparam,false),
+			     getBezierVertex(nextparam,true),
+			     positions[previdx+1], u);
 }
 
 
@@ -113,7 +110,7 @@ Coord3 CubicBezierCurve::getPosition( GeomPosID param ) const
 
 bool CubicBezierCurve::setPosition( GeomPosID param, const Coord3& np )
 {
-    if ( !np.isDefined() ) return unSetPosition( param );
+    if ( !np.isDefined() ) return unsetPosition( param );
 
     const int idx = getIndex(param);
 
@@ -173,7 +170,7 @@ bool CubicBezierCurve::removePosition( GeomPosID param )
 	mRetErr("Cannot remove non-existing position", false );
 
     if ( idx==0 || idx==positions.size()-1 )
-	return unSetPosition(param);
+	return unsetPosition(param);
 
     positions.remove( idx );
     directions.remove( idx );
@@ -188,7 +185,7 @@ bool CubicBezierCurve::removePosition( GeomPosID param )
 }
 
 
-bool CubicBezierCurve::unSetPosition( GeomPosID param )
+bool CubicBezierCurve::unsetPosition( GeomPosID param )
 {
     const int idx = getIndex( param );
 
@@ -217,7 +214,21 @@ bool CubicBezierCurve::isDefined( GeomPosID param ) const
 }
 
 
-Coord3 CubicBezierCurve::getDirection( GeomPosID param, bool computeifudf ) const
+Coord3 CubicBezierCurve::getBezierVertex( GeomPosID pid, bool before ) const
+{
+    const Coord3 basepos = getPosition( pid );
+    if ( !basepos.isDefined() ) return basepos;
+
+    const Coord3 dir = getDirection(pid,true);
+    if ( !dir.isDefined() ) return dir;
+    
+    if ( before ) return basepos-dir.normalize()*directioninfluence;
+    return basepos+dir.normalize()*directioninfluence;
+}
+
+
+Coord3 CubicBezierCurve::getDirection(	GeomPosID param,
+					bool computeifudf ) const
 {
     const int idx = getIndex(param);
 
@@ -245,8 +256,8 @@ bool CubicBezierCurve::setDirection( GeomPosID param, const Coord3& np )
 }
 
 
-bool CubicBezierCurve::unSetDirection( GeomPosID param )
-{ return setDirection( param, Coord3::udf() ); }
+bool CubicBezierCurve::unsetDirection( GeomPosID param )
+{ return setDirection( param, Coord3::udf()); }
 
 
 bool CubicBezierCurve::isDirectionDefined( GeomPosID param ) const
@@ -317,6 +328,25 @@ Coord3 CubicBezierCurve::computeDirection( GeomPosID param ) const
     return (c1-c0)/(diff)*directioninfluence;
 }
 
+
+/*! Implementation of deCastaleau's algoritm. For more info, refer to
+ *  "The NURBS book", figure 1.17. */
+
+
+Coord3 cubicDeCasteljau( const Coord3& p0, const Coord3& p1,
+			 const Coord3& p2, const Coord3& p3, float u )
+{
+    const float one_minus_u = 1-u;
+    Coord3 interpolpos1 = 	p1*u+p2*one_minus_u;
+
+    const Coord3 interpolpos0 = (p0*u+p1*one_minus_u)	* u +
+				interpolpos1		* one_minus_u;
+
+    interpolpos1 =		interpolpos1		* u +
+				(p2*u+p3*one_minus_u) 	* one_minus_u;
+
+    return interpolpos0*u+interpolpos1*one_minus_u;
+}
 
 }; //Namespace
 

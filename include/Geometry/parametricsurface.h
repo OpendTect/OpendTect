@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.3 2005-01-13 11:59:40 nanne Exp $
+RCS:           $Id: parametricsurface.h,v 1.4 2005-02-17 10:25:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,34 +23,34 @@ namespace Geometry
 class ParametricSurface : public Element
 {
 public:
-    				ParametricSurface(
+    			ParametricSurface(
 					const RCol& origo=RowCol(0,0),
 					const RCol& step=RowCol(1,1) );
-    				~ParametricSurface();
-    void			getPosIDs( TypeSet<GeomPosID>& ) const;
+    			~ParametricSurface();
+    void		getPosIDs( TypeSet<GeomPosID>& ) const;
 
-    virtual Coord3 		computePosition( const Coord& )	const	= 0;
-    virtual Coord3 		computeNormal( const Coord& ) const	= 0;
+    virtual Coord3 	computePosition(const Coord&) const	= 0;
+    virtual Coord3 	computeNormal(const Coord&) const	= 0;
 
-    virtual bool		insertRow(int row) 			= 0;
-    virtual bool		insertColumn(int col) 			= 0;
-    virtual bool		removeRow(int row) 			= 0;
-    virtual bool		removeColumn(int col) 			= 0;
+    virtual bool	insertRow(int row) 			= 0;
+    virtual bool	insertColumn(int col) 			= 0;
+    virtual bool	removeRow(int row) 			= 0;
+    virtual bool	removeColumn(int col) 			= 0;
 
-    StepInterval<int>		rowRange() const;
-    StepInterval<int>		colRange() const;
+    StepInterval<int>	rowRange() const;
+    StepInterval<int>	colRange() const;
 
-    virtual bool		circularRows() const { return false; }
-    virtual bool		circularCols() const { return false; }
+    virtual bool	circularRows() const { return false; }
+    virtual bool	circularCols() const { return false; }
 
-    virtual bool		setKnot( const RCol&, const Coord3& );
-    virtual bool		unSetKnot( const RCol& );
-    virtual Coord3		getKnot( const RCol& ) const		= 0;
-    virtual bool		isKnotDefined( const RCol& ) const;
-    bool			hasSupport(const RCol&) const;
+    virtual bool	setKnot( const RCol&, const Coord3& );
+    virtual bool	unsetKnot( const RCol& );
+    virtual Coord3	getKnot( const RCol&, bool estifundef=false ) const = 0;
+    virtual bool	isKnotDefined( const RCol& ) const;
+    bool		hasSupport(const RCol&) const;
 
     Coord3		getPosition( int64 pid ) const;
-    bool		setPosition( int64 pid, const Coord3& pos );
+    bool		setPosition( int64 pid, const Coord3&);
     bool		isDefined( int64 pid ) const;
 
     bool		isAtEdge( const RCol& ) const;

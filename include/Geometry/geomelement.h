@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.2 2005-01-13 12:01:45 nanne Exp $
+RCS:           $Id: geomelement.h,v 1.3 2005-02-17 10:25:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "ranges.h"
 
 typedef int64 GeomPosID;
-
 namespace Geometry
 {
 
@@ -26,19 +25,16 @@ public:
     				Element();
     virtual			~Element();
     virtual void		getPosIDs( TypeSet<GeomPosID>& ) const	= 0;
-    virtual IntervalND<float>	boundingBox(bool approx=true) const;
+    virtual IntervalND<float>	boundingBox(bool approx) const;
     virtual Element*		clone() const				= 0;
     virtual const char*		errMsg() const;
 
-    virtual Coord3		getPosition( GeomPosID ) const		= 0;
-    virtual bool		setPosition( GeomPosID, const Coord3& )	= 0;
-    virtual bool		isDefined( GeomPosID ) const 		= 0;
+    virtual Coord3	getPosition( GeomPosID ) const	= 0;
+    virtual bool	setPosition( GeomPosID,const Coord3&)= 0;
+    virtual bool	isDefined( GeomPosID ) const 			= 0;
 
-    virtual bool		isChanged() const { return ischanged; }
-    virtual void		resetChangedFlag() { ischanged=false; }
-
-    const Coord&		scaling() const { return scaling_; }
-    void			setScaling(const Coord3& ns) { scaling_ = ns; }
+    virtual bool	isChanged() const { return ischanged; }
+    virtual void	resetChangedFlag() { ischanged=false; }
 
     CNotifier<Element, const TypeSet<GeomPosID>*>	movementnotifier;
     CNotifier<Element, const TypeSet<GeomPosID>*>	nrpositionnotifier;
@@ -57,7 +53,6 @@ protected:
 private:
 
     BufferString*		errmsg_;
-    Coord3			scaling_;
 };
 
 };

@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: cubicbeziercurve.h,v 1.2 2005-01-10 15:27:28 kristofer Exp $
+RCS:           $Id: cubicbeziercurve.h,v 1.3 2005-02-17 10:25:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,30 +32,32 @@ public:
 
     StepInterval<int>	parameterRange() const;
 
-    Coord3		getPosition( GeomPosID ) const;
-    bool		setPosition( GeomPosID, const Coord3& );
-    bool		unSetPosition( GeomPosID );
-    			/*!<Sets position to undefined */
-    bool		insertPosition( GeomPosID, const Coord3& );
-    bool		removePosition( GeomPosID );
-    			/*!<The opposite of insertPosition */
-    bool		isDefined( GeomPosID ) const;
+    Coord3	getPosition( GeomPosID ) const;
+    bool	setPosition( GeomPosID, const Coord3&);
+    bool	unsetPosition( GeomPosID );
+    		/*!<Sets position to undefined */
+    bool	insertPosition( GeomPosID, const Coord3& );
+    bool	removePosition( GeomPosID );
+    		/*!<The opposite of insertPosition */
+    bool	isDefined( GeomPosID ) const;
 
-    Coord3		getDirection( GeomPosID, bool computeifudf ) const;
-    bool		setDirection( GeomPosID, const Coord3& );
-    bool		unSetDirection( GeomPosID );
-    bool		isDirectionDefined( GeomPosID ) const;
-    float		directionInfluence() const;
-    void		setDirectionInfluence(float);
+    Coord3	getBezierVertex( GeomPosID, bool before ) const;
 
-    bool		isCircular() const;
-    bool		setCircular(bool yn);
+    Coord3	getDirection( GeomPosID, bool computeifudf ) const;
+    bool	setDirection( GeomPosID, const Coord3& );
+    bool	unsetDirection( GeomPosID );
+    bool	isDirectionDefined( GeomPosID ) const;
+    float	directionInfluence() const;
+    void	setDirectionInfluence(float);
+
+    bool	isCircular() const;
+    bool	setCircular(bool yn);
 
 protected:
-    int			getIndex( GeomPosID param ) const
-    			{ return (param-firstparam)/paramstep; }
+    int		getIndex( GeomPosID param ) const
+    		{ return (param-firstparam)/paramstep; }
 
-    Coord3		computeDirection( GeomPosID ) const;
+    Coord3	computeDirection( GeomPosID ) const;
 
     int			firstparam;
     int			paramstep;
@@ -65,6 +67,10 @@ protected:
 
     bool		iscircular;
 };
+
+
+Coord3 cubicDeCasteljau( const Coord3&, const Coord3&,
+		         const Coord3&, const Coord3&, float u );
 
 };
 

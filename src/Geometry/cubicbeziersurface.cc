@@ -4,13 +4,14 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.4 2005-01-20 15:50:11 kristofer Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.5 2005-02-17 10:25:59 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
 #include "parametricsurfaceimpl.h"
 
 #include "arrayndimpl.h"
+#include "cubicbeziercurve.h"
 #include "errh.h"
 #include "rowcol.h"
 #include "survinfo.h"
@@ -20,9 +21,12 @@ namespace Geometry
 
 
 CubicBezierSurface::CubicBezierSurface(const Coord3& p0, const Coord3& p1,
+				    bool posonsamerow,
 				    const RCol& origo_, const RCol& step_ )
     : ParametricSurface( origo_, step_ )
-    , positions( new Array2DImpl<Coord3>(1,2) )
+    , positions( posonsamerow
+	    ? new Array2DImpl<Coord3>(1,2)
+	    : new Array2DImpl<Coord3>(2,1) )
     , rowdirections( 0 )
     , coldirections( 0 )
     , directioninfluence( 1.0/3 )
@@ -32,7 +36,7 @@ CubicBezierSurface::CubicBezierSurface(const Coord3& p0, const Coord3& p1,
      else
      {
 	 positions->set( 0, 0, p0 );
-	 positions->set( 0, 1, p1 );
+	 positions->set( posonsamerow ?  0 : 1, posonsamerow ? 1 : 0, p1 );
      }
 }
 
@@ -66,10 +70,70 @@ IntervalND<float> CubicBezierSurface::boundingBox(bool approx) const
 }
 
 
-Coord3 CubicBezierSurface::computePosition( const Coord& ) const
+Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
 {
-    pErrMsg( "Not impl" );
-    return Coord3::udf();
+    const StepInterval<int> rowrange = rowRange();
+    const StepInterval<int> colrange = rowRange();
+
+    int prevrowidx = rowrange.getIndex(params.x);
+    if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
+	return Coord3::udf();
+    else if ( prevrowidx==nrRows()-1 )
+    {
+	if ( rowrange.atIndex(prevrowidx)<=params.x )
+	    prevrowidx--;
+	else
+	    return Coord3::udf();
+    }
+
+    const int prevrow = rowrange.atIndex(prevrowidx);
+
+    int prevcolidx = colrange.getIndex(params.y);
+    if ( prevcolidx<0 || prevcolidx>nrCols()-1 )
+	return Coord3::udf();
+    else if ( prevcolidx==nrCols()-1 )
+    {
+	if ( colrange.atIndex(prevcolidx)<=params.y )
+	    prevcolidx--;
+	else
+	    return Coord3::udf();
+    }
+
+    const int prevcol = colrange.atIndex(prevcolidx);
+
+    const float u = (params.x-prevrow)/rowrange.step;
+    const float v = (params.y-prevcol)/colrange.step;
+
+    RowCol rc0(prevrow,prevcol);
+    RowCol rc1(prevrow,prevcol+colrange.step);
+    const Coord3 row0 = cubicDeCasteljau( getKnot(rc0,true),
+					  getBezierVertex( rc0,RowCol(0,1)),
+					  getBezierVertex( rc1,RowCol(0,-1)),
+					  getKnot(rc1,true),
+					  v );
+
+    const Coord3 row1 = cubicDeCasteljau( getBezierVertex( rc0,RowCol(1,0)),
+					  getBezierVertex( rc0,RowCol(1,1)),
+					  getBezierVertex( rc1,RowCol(1,-1)),
+					  getBezierVertex( rc1,RowCol(1,0)),
+					  v );
+
+    rc0.row += rowrange.step;
+    rc1.row += rowrange.step;
+
+    const Coord3 row2 = cubicDeCasteljau( getBezierVertex( rc0,RowCol(-1,0)),
+					  getBezierVertex( rc0,RowCol(-1,1)),
+					  getBezierVertex( rc1,RowCol(-1,-1)),
+					  getBezierVertex( rc1,RowCol(-1,0)),
+					  v );
+
+    const Coord3 row3 = cubicDeCasteljau( getKnot( rc0,true ),
+					  getBezierVertex( rc0,RowCol(0,1)),
+					  getBezierVertex( rc1,RowCol(0,-1)),
+					  getKnot( rc1,true ),
+					  v );
+
+    return cubicDeCasteljau( row0, row1, row2, row3, u );
 }
 
 
@@ -77,6 +141,38 @@ Coord3 CubicBezierSurface::computeNormal( const Coord& ) const
 {
     pErrMsg( "Not impl" );
     return Coord3::udf();
+}
+
+
+Coord3 CubicBezierSurface::getBezierVertex( const RCol& knot,
+	const RCol& relpos ) const
+{
+    Coord3 pos = getKnot( knot );
+    if ( !pos.isDefined() ) return pos;
+
+    if ( relpos.r() )
+    {
+	const Coord3 rowdir = getRowDirection( knot, true );
+	if ( !rowdir.isDefined() ) return rowdir;
+
+	if ( relpos.r()>0 )
+	    pos += rowdir.normalize()*directioninfluence;
+	else
+	    pos -= rowdir.normalize()*directioninfluence;
+    }
+
+    if ( relpos.c() )
+    {
+	const Coord3 coldir = getColDirection( knot, true );
+	if ( !coldir.isDefined() ) return coldir;
+
+	if ( relpos.c()>0 )
+	    pos += coldir.normalize()*directioninfluence;
+	else 
+	    pos -= coldir.normalize()*directioninfluence;
+    }
+
+    return pos;
 }
 
 
@@ -114,12 +210,55 @@ bool CubicBezierSurface::removeColumn( int col )
 }
 
 
-Coord3 CubicBezierSurface::getKnot( const RCol& rc ) const
+Coord3 CubicBezierSurface::getKnot( const RCol& rc, bool estimateifundef ) const
 {
     const int index = getIndex(rc);
     if ( index==-1 ) return Coord3::udf();
-	
-    return positions->getData()[index];
+
+    const Coord3* data = positions->getData();
+
+    if ( estimateifundef && !data[index].isDefined() )
+    {
+	RowCol neighborrc( rc );
+	neighborrc.row = rc.r()-step.row;
+	Coord3 pos = getKnot( neighborrc, false );
+	if ( pos.isDefined() )
+	{
+	    const Coord3 dir = getRowDirection( neighborrc, true );
+	    if ( dir.isDefined() )
+		return pos+dir;
+	}
+
+	neighborrc.row = rc.r()+step.row;
+	pos = getKnot( neighborrc, false );
+	if ( pos.isDefined() )
+	{
+	    const Coord3 dir = getRowDirection( neighborrc, true );
+	    if ( dir.isDefined() )
+		return pos-dir;
+	}
+
+	neighborrc.row = rc.r();
+	neighborrc.col = rc.c()-step.col;
+	pos = getKnot( neighborrc, false );
+	if ( pos.isDefined() )
+	{
+	    const Coord3 dir = getColDirection( neighborrc, true );
+	    if ( dir.isDefined() )
+		return pos+dir;
+	}
+
+	neighborrc.col = rc.c()+step.col;
+	pos = getKnot( neighborrc, false );
+	if ( pos.isDefined() )
+	{
+	    const Coord3 dir = getColDirection( neighborrc, true );
+	    if ( dir.isDefined() )
+		return pos-dir;
+	}
+    }
+
+    return data[index];
 }
 
 #define mGetDirectionImpl( dirptr, compfunc ) \
@@ -129,7 +268,8 @@ Coord3 CubicBezierSurface::getKnot( const RCol& rc ) const
 	if ( index!=-1 ) \
 	{ \
 	    const Coord3& dir = dirptr->getData()[index]; \
-	    if ( dir.isDefined() ) return dir; \
+	    if ( dir.isDefined() ) \
+		return dir; \
 	} \
     } \
  \
@@ -137,7 +277,7 @@ Coord3 CubicBezierSurface::getKnot( const RCol& rc ) const
 
 
 Coord3 CubicBezierSurface::getRowDirection( const RCol& rc,
-					    bool computeifudf ) const
+				    bool computeifudf ) const
 {
     mGetDirectionImpl( rowdirections, computeRowDirection);
 }
@@ -145,7 +285,7 @@ Coord3 CubicBezierSurface::getRowDirection( const RCol& rc,
 
 
 Coord3 CubicBezierSurface::getColDirection( const RCol& rc,
-					    bool computeifudf ) const
+				    bool computeifudf ) const
 {
     mGetDirectionImpl( coldirections, computeColDirection);
 }

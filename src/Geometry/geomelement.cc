@@ -4,9 +4,10 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: geomelement.cc,v 1.1 2005-01-06 09:45:32 kristofer Exp $";
+static const char* rcsID = "$Id: geomelement.cc,v 1.2 2005-02-17 10:25:59 cvskris Exp $";
 
 #include "geomelement.h"
+#include "survinfo.h"
 
 namespace Geometry
 {
@@ -15,7 +16,6 @@ Element::Element()
     , movementnotifier( this )
     , ischanged( false )
     , errmsg_( 0 )
-    , scaling_( 1, 1, 1 )
 { }
 
 
