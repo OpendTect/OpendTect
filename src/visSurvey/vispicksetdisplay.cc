@@ -4,12 +4,13 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.50 2004-04-20 15:02:19 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.51 2004-04-29 13:03:02 kristofer Exp $";
 
 #include "vissurvpickset.h"
 
 #include "color.h"
 #include "iopar.h"
+#include "pickset.h"
 #include "survinfo.h"
 #include "visevent.h"
 #include "visdataman.h"
@@ -57,6 +58,37 @@ visSurvey::PickSetDisplay::PickSetDisplay()
     addChild( group->getInventorNode() );
     picksz = initsz;
 }
+
+
+void visSurvey::PickSetDisplay::copyFromPickSet( const PickSet& pickset )
+{
+    removeAll();
+    bool hasdir = false;
+    const int nrpicks = pickset.size();
+    for ( int idx=0; idx<nrpicks; idx++ )
+    {
+	const PickLocation& loc = pickset[idx];
+	addPick( Coord3(loc.pos,loc.z), loc.dir );
+	if ( loc.hasDir() ) hasdir = true;
+    }
+
+   if ( hasdir ) //show Arrows
+   {
+       TypeSet<char*> types; getTypeNames( types );
+       setType( types.size()-1 );
+   }
+}
+
+
+void visSurvey::PickSetDisplay::copyToPickSet( PickSet& pickset ) const
+{
+    pickset.setName( name() );
+    pickset.color = getMaterial()->getColor();
+    pickset.color.setTransparency( 0 );
+    for ( int idx=0; idx<nrPicks(); idx++ )
+	pickset+= PickLocation( getPick(idx), getDirection(idx) );
+}
+    
 
 
 visSurvey::PickSetDisplay::~PickSetDisplay()

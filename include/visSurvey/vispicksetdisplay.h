@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.30 2004-01-16 11:36:17 nanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.31 2004-04-29 13:03:06 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class Color;
 class IOPar;
 class Sphere;
+class PickSet;
 
 namespace visBase
 {
@@ -46,6 +47,9 @@ class PickSetDisplay :	public visBase::VisualObjectImpl,
 public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
+
+    void			copyFromPickSet( const PickSet& );
+    void			copyToPickSet( PickSet& ) const;
 
     void			addPick(const Coord3&,const Sphere&);
     void			addPick(const Coord3&);
