@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.2 2001-03-21 17:32:58 bert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.3 2001-03-30 08:53:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ public:
     struct SurvGeom
     {
 				SurvGeom()
-				: fullyrectangular(false)	{}
+				: fullyrectandreg(false)	{}
 				~SurvGeom()	{ deepErase(inldata); }
 
 	struct InlineInfo
@@ -50,7 +50,7 @@ public:
 	    TypeSet<Segment>	segments;
 	};
 
-	bool			fullyrectangular;
+	bool			fullyrectandreg;
 	BinID			start, stop, step;
 	BinID2Coord		b2c;
 	ObjectSet<InlineInfo>	inldata;
@@ -76,9 +76,12 @@ public:
     struct ExplicitData
     {
 		ExplicitData()
-		: startpos(0), coord(0,0)
+		: binid(0,0), startpos(0), coord(0,0)
 		, offset(0), pick(mUndefValue), refpos(mUndefValue)	{}
 
+	BinID	binid;
+		//!< For write: must be filled if SurvGeom::fullyrectandreg
+		//!< is false. For read will be filled always.
 	float	startpos;
 	Coord	coord;
 	float	offset;

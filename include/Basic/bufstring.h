@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.7 2001-03-19 10:17:47 bert Exp $
+ RCS:		$Id: bufstring.h,v 1.8 2001-03-30 08:53:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,37 +49,38 @@ public:
 				: minlen(bs.minlen)
 			{ init(); *this = bs; }
 			~BufferString()
-			{ free(buf); }
+			{ free(buf_); }
    inline BufferString&	operator=( const BufferString& bs )
-			{ if ( &bs != this ) *this = bs.buf; return *this; }
+			{ if ( &bs != this ) *this = bs.buf_; return *this; }
    inline BufferString&	operator=( int i )
-			{ *buf = '\0'; *this += i; return *this; }
+			{ *buf_ = '\0'; *this += i; return *this; }
    inline BufferString&	operator=( double d )
-			{ *buf = '\0'; *this += d; return *this; }
+			{ *buf_ = '\0'; *this += d; return *this; }
    inline BufferString&	operator=( float f )
-			{ *buf = '\0'; *this += f; return *this; }
+			{ *buf_ = '\0'; *this += f; return *this; }
    inline BufferString&	operator+=( int i )
 			{ *this += getStringFromInt("%d",i); return *this; }
    inline BufferString&	operator+=( double d )
 			{ *this += getStringFromDouble("%lg",d); return *this; }
    inline BufferString&	operator+=( float f )
 			{ *this += getStringFromFloat("%g",f); return *this; }
-   inline		operator char*() const		{ return (char*)buf; }
-   inline char&		operator [](int idx)		{ return buf[idx]; }
-   inline const char&	operator [](int idx) const	{ return buf[idx]; }
-   inline unsigned int	size() const			{ return strlen(buf); }
+   inline		operator const char*() const	{ return buf_; }
+   inline char*		buf()				{ return buf_; }
+   inline char&		operator [](int idx)		{ return buf_[idx]; }
+   inline const char&	operator [](int idx) const	{ return buf_[idx]; }
+   inline unsigned int	size() const			{ return strlen(buf_); }
    inline unsigned int	bufSize() const
 			{ return len; }
    inline bool		operator==( const BufferString& s ) const
-			{ return operator ==( s.buf ); }
+			{ return operator ==( s.buf_ ); }
    inline bool		operator!=( const BufferString& s ) const
-			{ return operator !=( s.buf ); }
+			{ return operator !=( s.buf_ ); }
    inline bool		operator!=( const char* s ) const
 			{ return ! (*this == s); }
    inline bool		operator >( const char* s ) const
-			{ return s ? strcmp(buf,s) > 0 : true; }
+			{ return s ? strcmp(buf_,s) > 0 : true; }
    inline bool		operator <( const char* s ) const
-			{ return s ? strcmp(buf,s) < 0 : false; }
+			{ return s ? strcmp(buf_,s) < 0 : false; }
 
    inline BufferString&	operator=(const char*);
    inline BufferString&	operator+=(const char*);
@@ -87,23 +88,23 @@ public:
 
 protected:
 
-    char*		buf;
+    char*		buf_;
     unsigned int	len;
     const unsigned int	minlen;
 
 private:
 
     inline void		init()
-			{ len = minlen; buf = mMALLOC(len,char); *buf = '\0'; }
+			{ len = minlen; buf_ = mMALLOC(len,char); *buf_ ='\0'; }
 
 };
 
 
 inline bool BufferString::operator==( const char* s ) const
 {
-    if ( !s ) return *buf == '\0';
+    if ( !s ) return *buf_ == '\0';
 
-    const char* ptr = buf;
+    const char* ptr = buf_;
     while ( *s && *ptr )
 	if ( *ptr++ != *s++ ) return false;
 
@@ -113,14 +114,14 @@ inline bool BufferString::operator==( const char* s ) const
 
 inline BufferString& BufferString::operator=( const char* s )
 {
-    if ( buf != s )
+    if ( buf_ != s )
     {
 	if ( !s ) s = "";
 	unsigned int newlen = (unsigned int)(strlen(s) + 1);
 	if ( newlen < minlen ) newlen = minlen;
 	if ( newlen != len )
-	    { len = newlen; buf = mREALLOC(buf,len,char); }
-	char* ptr = buf;
+	    { len = newlen; buf_ = mREALLOC(buf_,len,char); }
+	char* ptr = buf_;
 	while ( *s ) *ptr++ = *s++;
 	*ptr = '\0';
     }
@@ -132,15 +133,15 @@ inline BufferString& BufferString::operator +=( const char* s )
 {
     if ( s && *s )
     {
-	unsigned int newlen = (unsigned int)(strlen(s) + strlen(buf)) + 1;
+	unsigned int newlen = (unsigned int)(strlen(s) + strlen(buf_)) + 1;
 	if ( newlen < minlen ) newlen = minlen;
 	if ( newlen != len )
 	{
 	    len = newlen;
-	    buf = mREALLOC(buf,len,char);
+	    buf_ = mREALLOC(buf_,len,char);
 	}
 
-	char* ptr = buf;
+	char* ptr = buf_;
 	while ( *ptr ) ptr++;
 	while ( *s ) *ptr++ = *s++;
 	*ptr = '\0';
@@ -154,7 +155,7 @@ inline ostream& operator <<( ostream& stream, const BufferString& bs )
 { stream << (const char*)bs; return stream; }
 
 inline istream& operator >>( istream& stream, BufferString& bs )
-{ stream >> (char*)bs; return stream; }
+{ stream >> bs.buf(); return stream; }
 
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.2 2001-02-16 15:41:11 bert Exp $
+ RCS:		$Id: compoundkey.h,v 1.3 2001-03-30 08:53:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,8 @@ public:
     inline bool		operator!=(const char* s) const	{ return id != s; }
     inline bool		operator!=(const CompoundKey& u) const
 							{ return id != u.id; }
-    inline		operator char*() const		{ return id; }
+    inline		operator const char*() const	{ return id; }
+    inline char*	buf()				{ return id.buf(); }
 
     int			nrKeys() const;
     BufferString	key(int) const;
@@ -64,7 +65,7 @@ protected:
 inline ostream& operator <<( ostream& strm, const CompoundKey& uid )
 { strm << (const char*)uid; return strm; }
 inline istream& operator >>( istream& strm, CompoundKey& uid )
-{ strm >> (char*)uid; return strm; }
+{ strm >> uid.buf(); return strm; }
 
 inline CompoundKey& CompoundKey::operator +=( const char* s )
 {

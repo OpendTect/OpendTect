@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.1 2001-03-19 10:17:57 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.2 2001-03-30 08:53:51 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ template <class T> class DataInterpreter;
 /*!\brief Writer for CBVS format
 
 Works on an ostream that will be deleted on destruction, or when finished.
+
 */
 
 class CBVSWriter
@@ -44,8 +45,9 @@ public:
     int			put(void**);
 			//!< Expects a buffer for each component
 			//!< returns -1 = error, 0 = OK,
-			//!< 1=last written (threshold reached)
+			//!< 1=not written (threshold reached)
     void		close();
+			//!< has no effect (but doesn't hurt) if put() returns 1
 
 protected:
 
@@ -54,22 +56,35 @@ protected:
     unsigned long	thrbytes_;
 
     void		writeHdr(const CBVSInfo&);
-    void		putExplicits(const CBVSInfo::ExplicitInfo&,
-				     unsigned char*);
+    void		putExplicits(unsigned char*) const;
     void		writeComps(const CBVSInfo&);
-    void		writeGeom(const CBVSInfo&);
+    void		writeGeom();
+
+    void		getRealGeometry();
+    bool		writeTrailer();
 
 
 private:
 
-    streampos		geomfo;
-    unsigned long	nrbytes;
-    int			compnr;
-    int			trcnr;
+    streampos		geomfo; //!< file offset of geometry data
+    bool		finishing_inline;
+    int			trcswritten;
     bool		strmclosed;
+    BinID		curbid;
+    int			previnl;
+    int			nrxlines;
+
+    int			nrtrcsperposn;
+    int			nrcomps;
+    int*		cnrbytes;
+    CBVSInfo::ExplicitInfo explinfo;
+    CBVSInfo::SurvGeom	survgeom;
 
     const CBVSInfo::ExplicitData*		expldat;
     ObjectSet<CBVSInfo::SurvGeom::InlineInfo>	inldata;
+
+    void		getBinID();
+    void		newSeg();
 
 };
 
