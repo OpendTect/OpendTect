@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.15 2003-12-12 15:36:40 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.16 2003-12-16 09:49:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,11 +47,8 @@ uiIOSurface::~uiIOSurface()
 
 void uiIOSurface::mkAttribFld()
 {
-    attribfld = new uiLabeledListBox( this, "Calculated attributes", false,
+    attribfld = new uiLabeledListBox( this, "Calculated attributes", true,
 					uiLabeledListBox::AboveMid );
-    attribfld->box()->rightButtonClicked.notify( 
-	    				mCB(this,uiIOSurface,deSelect) );
-    attribfld->box()->setToolTip( "Right-click to deselect" );
     attribfld->setPrefHeightInChar( cListHeight );
     attribfld->setStretch( 1, 1 );
 }
@@ -98,7 +95,6 @@ void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
     attribfld->box()->empty();
     for ( int idx=0; idx<valnames.size(); idx++)
 	attribfld->box()->addItem( valnames[idx]->buf() );
-    attribfld->box()->setSelected( 0 );
 }
 
 
@@ -139,22 +135,18 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels )
     }
 
     sels.selvalues.erase();
-
-    int curitm = attribfld ? attribfld->box()->currentItem() : -1;
-    if ( curitm >= 0 && attribfld->box()->isSelected(curitm) )
-	sels.selvalues += curitm;
+    int nrattribs = attribfld ? attribfld->box()->size() : 0;
+    for ( int idx=0; idx<nrattribs; idx++ )
+    {
+	if ( attribfld->box()->isSelected(idx) )
+	    sels.selvalues += idx;
+    }
 }
 
 
 IOObj* uiIOSurface::selIOObj() const
 {
     return ctio.ioobj;
-}
-
-
-void uiIOSurface::deSelect( CallBacker* )
-{
-    attribfld->box()->clear();
 }
 
 
@@ -187,7 +179,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Horizon& hor_ )
     if ( hor_.nrPatches() > 1 )
     {
 	mkPatchFld( false );
-	patchfld->attach( alignedBelow, savefld );
+	if ( savefld ) patchfld->attach( alignedBelow, savefld );
     }
 
     mkRangeFld();
@@ -199,7 +191,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Horizon& hor_ )
     mkObjFld( "Output Horizon", false );
     objfld->attach( alignedBelow, rgfld );
 
-    fillFields( hor_.id() );
+    fillFields( hor_.multiID() );
     setHAlignObj( rgfld );
 
     savePush(0);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.9 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiiosurface.h,v 1.10 2003-12-16 09:49:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,6 @@ protected:
     void		mkRangeFld();
     void		mkObjFld(const char*,bool);
 
-    void		deSelect(CallBacker*);
     void		objSel(CallBacker*);
 
     uiLabeledListBox*	patchfld;
