@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: mksethdir,v 1.5 2003-11-07 12:21:50 bert Exp $
+# $Id: mksethdir,v 1.6 2004-01-16 10:50:45 arend Exp $
 #
 # HDIR variable setup
 # usage from a csh-script:
@@ -13,19 +13,25 @@
 set sethdirstr=""
 if ( ! $?HDIR ) then
     setenv HDIR `uname`
+
     if ( "$HDIR" == "SunOS" ) then
 	setenv HDIR sun5
     else if ( "$HDIR" == "Linux" ) then
 	setenv HDIR lux
     else if ( "$HDIR" == "IRIX" || "$HDIR" == "IRIX64" ) then
 	setenv HDIR sgi
+    else if ( $?COMSPEC ) then
+	setenv HDIR win
     endif
+
     set sethdirstr="setenv HDIR $HDIR; "
 endif
 
 set ROOT_DIR=$1
 if ( $ROOT_DIR == "" ) then
-    if ( $?DTECT_APPL ) set ROOT_DIR=$DTECT_APPL
+    if ( $?DTECT_APPL ) then
+        set ROOT_DIR="$DTECT_APPL"
+    endif
 endif
 
 set binsubdir=$HDIR
