@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.42 2004-01-09 12:05:30 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.43 2004-01-20 16:16:42 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -109,7 +109,9 @@ void EM::Surface::removeAuxData()
     for ( int idx=0; idx<auxdata.size(); idx++ )
     {
 	if ( !auxdata[idx] ) continue;
-	deepErase( *auxdata[idx] );
+	deepEraseArr( *auxdata[idx] );
+	delete auxdata[idx];
+	auxdata.replace( 0, idx );
     }
 
     deepErase( auxdata );
