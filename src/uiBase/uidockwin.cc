@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.14 2004-05-10 14:09:14 macman Exp $
+ RCS:           $Id: uidockwin.cc,v 1.15 2004-05-10 14:19:56 macman Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,9 @@ protected:
 
     void		redrTimTick( CallBacker* cb )
     {
+	//TODO: check this out.  Are scenes deleted or 'just' hidden??
+	if ( isHidden() ) return;
+
 	hide();
 	show();
     }
