@@ -1,10 +1,13 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : A.H. Bril
- * DATE     : 18-4-1996
--*/
+________________________________________________________________________
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.62 2005-02-23 14:45:23 cvsarend Exp $";
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        A.H. Bril
+ Date:          18-4-1996
+ RCS:           $Id: survinfo.cc,v 1.63 2005-03-03 16:43:48 cvsnanne Exp $
+________________________________________________________________________
+
+-*/
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -16,6 +19,8 @@ static const char* rcsID = "$Id: survinfo.cc,v 1.62 2005-02-23 14:45:23 cvsarend
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "undefval.h"
+
+#include <math.h>
 
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";
@@ -564,15 +569,20 @@ void SurveyInfo::snapStep( BinID& s, BinID rounding, bool work ) const
 void SurveyInfo::snapZ( float& z, int dir, bool work ) const
 {
     const StepInterval<float>& zrg = sampling(work).zrg;
-    if ( z < zrg.start ) z = zrg.start; if ( z > zrg.stop ) z = zrg.stop;
-    int idx = zrg.nearestIndex(z);
-    float newz = zrg.atIndex(idx);
-    if ( dir == 1 && newz < z-1e-8 )
-	newz = zrg.atIndex(idx+1);
-    if ( dir == -1 && newz > z+1e-8 )
-	newz = zrg.atIndex(idx-1);
-    z = newz;
-    if ( z < zrg.start ) z = zrg.start; if ( z > zrg.stop ) z = zrg.stop;
+
+    const float eps = 1e-8;
+    if ( z < zrg.start+eps )
+	{ z = zrg.start; return; }
+    if ( z > zrg.stop-eps )
+	{ z = zrg.stop; return; }
+
+    const float idxeps = pow(2,-13);
+    float fidx = (z-zrg.start) / zrg.step;
+    int targetidx = mNINT(fidx);
+    if ( dir && !mIsEqual(fidx,targetidx,idxeps) )
+	targetidx = dir < 0 ? (int)(floorf(fidx)) : (int)(ceilf(fidx));
+
+    z = zrg.atIndex(targetidx);
 }
 
 

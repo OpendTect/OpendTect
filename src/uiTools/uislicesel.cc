@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.21 2004-11-16 12:25:20 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.22 2005-03-03 16:43:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,7 @@ void uiSliceSel::createUpdateFld()
     const int step = isinl ? SI().inlStep()
 			   : (iscrl ? SI().crlStep() : zstep );
     stepfld->box()->setMinValue( step );
-    stepfld->box()->setStep( step );
+    stepfld->box()->setStep( step, true );
     const int width = isinl ? inl0fld->box()->maxValue() 
 			    : ( iscrl ? crl0fld->box()->maxValue() 
 				      : z0fld->box()->maxValue() );
@@ -145,7 +145,7 @@ void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv,
 {
     box->setMinValue( intv.start );
     box->setMaxValue( intv.stop );
-    box->setStep( intv.step );
+    box->setStep( intv.step, true );
     box->setValue( curval );
     box->valueChanged.notify( mCB(this,uiSliceSel,csChanged) );
 }
@@ -175,52 +175,48 @@ void uiSliceSel::stepSel( CallBacker* )
 {
     int newstep = stepfld->box()->getValue();
     if ( isinl )
-	inl0fld->box()->setStep( newstep );
+	inl0fld->box()->setStep( newstep, true );
     else if ( iscrl )
-	crl0fld->box()->setStep( newstep );
+	crl0fld->box()->setStep( newstep, true );
     else if ( istsl )
-	z0fld->box()->setStep( newstep );
+	z0fld->box()->setStep( newstep, true );
 }
 
 
 void uiSliceSel::readInput()
 {
-    BinID siworkstp( SI().sampling(true).hrg.step );
+    const HorSampling& hs = SI().sampling(true).hrg;
+    Interval<int> inlrg, crlrg;
+    hs.get( inlrg, crlrg );
     if ( inl0fld )
     {
-	StepInterval<int> intv;
-	intv.start = inl0fld->box()->getValue();
-	intv.stop = isinl ? intv.start : inl1fld->getValue();
-	SI().checkInlRange( intv );
-	if ( intv.start > intv.stop )
-	    Swap( intv.start, intv.stop );
-	if ( !isinl && intv.start == intv.stop )
-	    intv.stop += siworkstp.inl;
-	cs.hrg.start.inl = intv.start;
-	cs.hrg.stop.inl = intv.stop;
+	inlrg.start = inl0fld->box()->getValue();
+	inlrg.stop = isinl ? inlrg.start : inl1fld->getValue();
+	if ( !isinl && inlrg.start == inlrg.stop )
+	    inlrg.stop += hs.step.inl;
     }
 
-    StepInterval<int> intv;
-    intv.start = crl0fld->box()->getValue();
-    intv.stop = iscrl ? intv.start : crl1fld->getValue();
-    if ( !is2d ) SI().checkCrlRange( intv );
-    if ( intv.start > intv.stop )
-	Swap( intv.start, intv.stop );
-    if ( !iscrl && intv.start == intv.stop )
-	intv.stop += siworkstp.crl;
-    cs.hrg.start.crl = intv.start;
-    cs.hrg.stop.crl = intv.stop;
+    crlrg.start = crl0fld->box()->getValue();
+    crlrg.stop = iscrl ? crlrg.start : crl1fld->getValue();
+    if ( !iscrl && crlrg.start == crlrg.stop )
+	crlrg.stop += hs.step.crl;
 
-    Interval<float> zintv;
-    zintv.start = z0fld->box()->getValue() / SI().zFactor();
-    zintv.stop = istsl ? zintv.start : z1fld->getValue() / SI().zFactor();
-    SI().checkZRange( zintv );
-    if ( zintv.start > zintv.stop )
-	Swap( zintv.start, zintv.stop );
-    if ( !istsl && zintv.start == zintv.stop )
-	zintv.stop += SI().zRange().step;
-    cs.zrg.start = zintv.start;
-    cs.zrg.stop = zintv.stop;
+    Interval<float> zrg;
+    zrg.start = z0fld->box()->getValue() / SI().zFactor();
+    SI().snapZ( zrg.start, 0 );
+    if ( istsl )
+	zrg.stop = zrg.start;
+    else
+    {
+	zrg.stop = z1fld->getValue() / SI().zFactor();
+	zrg.sort();
+	SI().snapZ( zrg.stop, 1 );
+	if ( mIsEqual(zrg.start,zrg.stop,mDefEps) )
+	    zrg.stop += SI().zRange().step;
+    }
+
+    cs.hrg.set( inlrg, crlrg );
+    assign(cs.zrg,zrg);
 
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
