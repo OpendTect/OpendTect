@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.2 2005-01-13 15:41:49 kristofer Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.3 2005-01-20 08:41:32 kristofer Exp $";
 
 #include "vismpe.h"
 
@@ -91,31 +91,34 @@ MPEDisplay::MPEDisplay()
     addChild( dragger->getInventorNode() );
     dragger->setOwnShape( draggerrect->getInventorNode() );
 
+    dragger->setDim(0);
     dragger->changed.notify( mCB(this,MPEDisplay,rectangleMovedCB) );
     dragger->started.notify( mCB(this,MPEDisplay,rectangleStartCB) );
     dragger->finished.notify( mCB(this,MPEDisplay,rectangleStopCB) );
-    dragger->setDim(0);
 
 
-    setCubePosition(engine.activeVolume());
+    engine.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
+    engine.trackplanechange.notify( mCB(this,MPEDisplay,updateDraggerPosition));
+    updateDraggerPosition(0);
+    updateBoxPosition(0);
 }
 
 
-void MPEDisplay::setCubePosition( const CubeSampling& cube )
+MPEDisplay::~MPEDisplay()
 {
-    const Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
-			   cube.hrg.stop.crl-cube.hrg.start.crl,
-			   cube.zrg.stop-cube.zrg.start );
-    boxdragger->setWidth( newwidth );
-    const Coord3 newcenter( (cube.hrg.stop.inl+cube.hrg.start.inl)/2,
-			    (cube.hrg.stop.crl+cube.hrg.start.crl)/2,
-			    cube.zrg.center());
+    engine.activevolumechange.remove( mCB(this,MPEDisplay,updateBoxPosition) );
+    engine.trackplanechange.remove( mCB(this,MPEDisplay,updateDraggerPosition));
 
-    boxdragger->setCenter( newcenter );
+    setSceneEventCatcher( 0 );
+
+    if ( dragger ) dragger->unRef();
+    draggerrect->unRef();
+    boxdragger->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
+    boxdragger->unRef();
 }
 
 
-CubeSampling MPEDisplay::getCubePosition() const
+CubeSampling MPEDisplay::getBoxPosition() const
 {
     Coord3 center = boxdragger->center();
     Coord3 width = boxdragger->width();
@@ -133,15 +136,50 @@ CubeSampling MPEDisplay::getCubePosition() const
     return cube;
 }
 
-MPEDisplay::~MPEDisplay()
-{
-    setSceneEventCatcher( 0 );
 
-    if ( dragger ) dragger->unRef();
-    draggerrect->unRef();
-    boxdragger->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
-    boxdragger->unRef();
+bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
+{
+    const Coord3 center = dragger->center();
+    const Coord3 size = dragger->size();
+    
+    const int dim = dragger->getDim();
+    if ( !dim )
+    {
+	planebox.hrg.start.inl = SI().inlRange().snap(center.x);
+	planebox.hrg.stop.inl = planebox.hrg.start.inl;
+
+	planebox.hrg.start.crl = SI().crlRange().snap(center.y-size.y/2);
+	planebox.hrg.stop.crl =  SI().crlRange().snap(center.y+size.y/2);
+
+	planebox.zrg.start = SI().zRange().snap(center.z-size.z/2);
+	planebox.zrg.stop = SI().zRange().snap(center.z+size.z/2);
+    }
+    else if ( dim==1 )
+    {
+	planebox.hrg.start.inl = SI().inlRange().snap(center.x-size.x/2);
+	planebox.hrg.stop.inl =  SI().inlRange().snap(center.x+size.x/2);
+
+	planebox.hrg.stop.crl = SI().crlRange().snap(center.y);
+	planebox.hrg.start.crl = planebox.hrg.stop.crl;
+
+	planebox.zrg.start = SI().zRange().snap(center.z-size.z/2);
+	planebox.zrg.stop = SI().zRange().snap(center.z+size.z/2);
+    }
+    else 
+    {
+	planebox.hrg.start.inl = SI().inlRange().snap(center.x-size.x/2);
+	planebox.hrg.stop.inl =  SI().inlRange().snap(center.x+size.x/2);
+
+	planebox.hrg.start.crl = SI().crlRange().snap(center.y-size.y/2);
+	planebox.hrg.stop.crl =  SI().crlRange().snap(center.y+size.y/2);
+
+	planebox.zrg.stop = SI().zRange().snap(center.z);
+	planebox.zrg.start = planebox.zrg.stop;
+    }
+
+    return true;
 }
+
 
 /*
 int MPEDisplay::getDim() const
@@ -177,6 +215,14 @@ void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 }
 
 
+void MPEDisplay::boxDraggerFinishCB(CallBacker*)
+{
+    const CubeSampling newcube = getCubeSampling();
+    if ( newcube!=engine.activeVolume() )
+	engine.setActiveVolume( newcube );
+}
+
+
 void MPEDisplay::showManipulator( bool yn )
 {
     boxdragger->turnOn(yn);
@@ -189,55 +235,20 @@ bool MPEDisplay::isManipulatorShown() const
 }
 
 
-void MPEDisplay::rectangleMovedCB( CallBacker* )
+void MPEDisplay::rectangleMovedCB( CallBacker* cb )
 {
     if ( isSelected() ) return;
 
-    const Coord3 center = dragger->center();
-    const Coord3 size = dragger->size();
-    
-    const int dim = dragger->getDim();
     MPE::TrackPlane newplane;
     CubeSampling& planebox = newplane.boundingBox();
-    if ( !dim )
-    {
-	planebox.hrg.start.inl = SI().inlRange().snap(center.x);
-	planebox.hrg.stop.inl = planebox.hrg.start.inl;
-
-	planebox.hrg.start.crl = SI().crlRange().snap(center.y-size.y/2);
-	planebox.hrg.stop.crl =  SI().crlRange().snap(center.y+size.y/2);
-
-	planebox.zrg.start = SI().zRange().snap(center.z-size.z/2);
-	planebox.zrg.stop = SI().zRange().snap(center.z+size.z/2);
-    }
-    else if ( dim==1 )
-    {
-	planebox.hrg.start.inl = SI().inlRange().snap(center.x-size.x/2);
-	planebox.hrg.stop.inl =  SI().inlRange().snap(center.x+size.x/2);
-
-	planebox.hrg.stop.crl = SI().crlRange().snap(center.y);
-	planebox.hrg.start.crl = planebox.hrg.stop.crl;
-
-	planebox.zrg.start = SI().zRange().snap(center.z-size.z/2);
-	planebox.zrg.stop = SI().zRange().snap(center.z+size.z/2);
-    }
-    else 
-    {
-	planebox.hrg.start.inl = SI().inlRange().snap(center.x-size.x/2);
-	planebox.hrg.stop.inl =  SI().inlRange().snap(center.x+size.x/2);
-
-	planebox.hrg.start.crl = SI().crlRange().snap(center.y-size.y/2);
-	planebox.hrg.stop.crl =  SI().crlRange().snap(center.y+size.y/2);
-
-	planebox.zrg.stop = SI().zRange().snap(center.z);
-	planebox.zrg.start = planebox.zrg.stop;
-    }
+    getPlanePosition( planebox );
 
     if ( planebox==engine.trackPlane().boundingBox() )
 	return;
 
     const CubeSampling& engineplane = engine.trackPlane().boundingBox();
 
+    const int dim = dragger->getDim();
     if ( !dim && planebox.hrg.start.inl==engineplane.hrg.start.inl )
 	return;
     if ( dim==1 && planebox.hrg.start.crl==engineplane.hrg.start.crl )
@@ -247,7 +258,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 
     if ( !dim )
     {
-	const bool inc = planebox.hrg.start.inl>-engineplane.hrg.start.inl;
+	const bool inc = planebox.hrg.start.inl>engineplane.hrg.start.inl;
 	int& start = planebox.hrg.start.inl;
 	int& stop =  planebox.hrg.stop.inl;
 	const int step = SI().inlRange().step;
@@ -256,7 +267,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
     }
     else if ( dim==1 )
     {
-	const bool inc = planebox.hrg.start.crl>-engineplane.hrg.start.crl;
+	const bool inc = planebox.hrg.start.crl>engineplane.hrg.start.crl;
 	int& start = planebox.hrg.start.crl;
 	int& stop =  planebox.hrg.stop.crl;
 	const int step = SI().crlRange().step;
@@ -265,7 +276,7 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
     }
     else 
     {
-	const bool inc = planebox.zrg.start>-engineplane.zrg.start;
+	const bool inc = planebox.zrg.start>engineplane.zrg.start;
 	float& start = planebox.zrg.start;
 	float& stop =  planebox.zrg.stop;
 	const double step = SI().zRange().step;
@@ -274,7 +285,6 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
     }
 
     engine.setTrackPlane(newplane,true);
-
 }
 
 
@@ -310,7 +320,11 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	    int dim = dragger->getDim();
 	    if ( ++dim>=3 )
 		dim = 0;
+
 	    dragger->setDim( dim );
+	    MPE::TrackPlane ntp;
+	    getPlanePosition(ntp.boundingBox());
+	    MPE::engine().setTrackPlane(ntp,false);
 	}
 
 	sceneeventcatcher->eventIsHandled();
@@ -318,11 +332,44 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 }
 
 
-void MPEDisplay::boxDraggerFinishCB(CallBacker*)
+void MPEDisplay::updateBoxPosition( CallBacker* )
 {
-    const CubeSampling newcube = getCubeSampling();
-    if ( newcube!=engine.activeVolume() )
-	engine.setActiveVolume( newcube );
+    NotifyStopper stop( dragger->changed );
+    const CubeSampling cube = MPE::engine().activeVolume();
+    const Coord3 newwidth( cube.hrg.stop.inl-cube.hrg.start.inl,
+			   cube.hrg.stop.crl-cube.hrg.start.crl,
+			   cube.zrg.stop-cube.zrg.start );
+    boxdragger->setWidth( newwidth );
+    dragger->setSize( newwidth );
+
+    const Coord3 newcenter( (cube.hrg.stop.inl+cube.hrg.start.inl)/2,
+			    (cube.hrg.stop.crl+cube.hrg.start.crl)/2,
+			    cube.zrg.center());
+
+    boxdragger->setCenter( newcenter );
+
+    dragger->setSpaceLimits(
+	    Interval<float>(cube.hrg.start.inl,cube.hrg.stop.inl),
+	    Interval<float>(cube.hrg.start.crl,cube.hrg.stop.crl),
+	    Interval<float>(cube.zrg.start, cube.zrg.stop) );
+}
+
+
+void MPEDisplay::updateDraggerPosition( CallBacker* )
+{
+    NotifyStopper stop( dragger->changed );
+    const CubeSampling& cs = MPE::engine().trackPlane().boundingBox();
+    if ( cs.hrg.start.inl==cs.hrg.stop.inl && dragger->getDim()!=0 )
+	dragger->setDim(0);
+    else if ( cs.hrg.start.crl==cs.hrg.stop.crl && dragger->getDim()!=1 )
+	dragger->setDim(1);
+    else if ( !cs.zrg.width() && dragger->getDim()!=2 ) dragger->setDim(2);
+
+    const Coord3 newcenter((cs.hrg.stop.inl+cs.hrg.start.inl)/2,
+			   (cs.hrg.stop.crl+cs.hrg.start.crl)/2,
+			   cs.zrg.center() );
+    if ( newcenter!=dragger->center() )
+	dragger->setCenter( newcenter );
 }
 
 
