@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.20 2002-05-23 15:38:43 nanne Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.21 2002-07-01 15:42:24 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "iopar.h"
@@ -335,8 +335,8 @@ void visBase::TextureRect::updateTexture()
     int ssize = data->info().getSize( isinl ? 0 : 1 );
     int tsize = data->info().getSize( isinl ? 1 : 0 );
 
-    const int nrofcomponents = 3;
-    // set to 4 if transperancy should be used
+//  const int nrofcomponents = 3;	// disable transparency
+    const int nrofcomponents = 4;	// use transparency
 
     ArrPtrMan<unsigned char> imagedata =
 			new unsigned char[ssize*tsize*nrofcomponents];
