@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.4 2001-10-03 09:03:20 nanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.5 2003-10-22 14:13:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-#include <uigroup.h>
+#include "uiobj.h"
+#include "uigroup.h"
+#include "ranges.h"
 
 class uiSpinBoxBody;
 class uiLabel;
@@ -29,24 +30,29 @@ public:
     int 		getIntValue() const;
     double 		getValue() const;
 
-    void		setText( const char* );
-    void		setValue( int );
-    void		setValue( double );
+    void		setText(const char*);
+    void		setValue(int);
+    void		setValue(double);
+
+    void		setInterval(int start,int stop,int step=1)
+			{ setInterval(StepInterval<int>(start,stop,step)); }
+    void		setInterval(StepInterval<int>);
+    StepInterval<int>	getInterval() const;
 
     int			minValue() const;
     int			maxValue() const;
-    void		setMinValue( int );
-    void		setMaxValue( int );
+    void		setMinValue(int);
+    void		setMaxValue(int);
     int			step() const;
-    void		setStep( int );
+    void		setStep(int);
 
     Notifier<uiSpinBox>	valueChanged;
 
 protected:
 
     virtual bool	useMappers()			{ return false; }
-    virtual int		mapTextToValue( bool* ok )	{ return 0; }
-    virtual const char*	mapValueToText( int )		{ return 0; }
+    virtual int		mapTextToValue(bool* ok)	{ return 0; }
+    virtual const char*	mapValueToText(int)		{ return 0; }
 
 private:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.11 2002-11-06 12:58:05 arend Exp $
+ RCS:           $Id: uispinbox.cc,v 1.12 2003-10-22 14:13:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,19 @@ const char* uiSpinBox::text() const
 }
 
 
+void uiSpinBox::setInterval( StepInterval<int> intv )
+{
+    setMinValue(intv.start);
+    setMaxValue(intv.stop);
+    setStep( intv.step ? intv.step : 1 );
+}
+
+StepInterval<int> uiSpinBox::getInterval() const
+{
+    return StepInterval<int>(minValue(),maxValue(),step());
+}
+
+
 int uiSpinBox::getIntValue() const	{ return body_->value(); }
 double uiSpinBox::getValue() const	
     { return static_cast<double>( body_->value() ); }
@@ -100,7 +113,7 @@ int uiSpinBox::maxValue() const		{ return body_->maxValue() ; }
 void uiSpinBox::setMinValue( int m )	{ body_->setMinValue(m); }
 void uiSpinBox::setMaxValue( int m )	{ body_->setMaxValue(m); }
 int uiSpinBox::step() const		{ return body_->lineStep() ; }
-void uiSpinBox::setStep ( int s )	{ body_->setLineStep(s); }
+void uiSpinBox::setStep( int s )	{ body_->setLineStep(s); }
 
 
 uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt,
