@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.7 2001-04-13 11:50:04 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.8 2001-05-05 13:30:33 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -218,7 +218,7 @@ IOObj* IOMan::getByName( const char* objname,
     bool havepar = partrgname && *partrgname;
     bool parprov = parname && *parname;
     const UserIDObjectSet<IOObj>* ioobjs = &dirptr->getObjs();
-    TypeSet<MultiID> kys;
+    ObjectSet<MultiID> kys;
     const IOObj* ioobj;
     for ( int idx=0; idx<ioobjs->size(); idx++ )
     {
@@ -226,7 +226,7 @@ IOObj* IOMan::getByName( const char* objname,
 	if ( !havepar )
 	{
 	    if ( !strcmp(ioobj->name(),objname) )
-		kys += ioobj->key();
+		kys += new MultiID(ioobj->key());
 	}
 	else
 	{
@@ -234,7 +234,7 @@ IOObj* IOMan::getByName( const char* objname,
 	    {
 		if ( !parprov || ioobj->name() == parname )
 		{
-		    kys += ioobj->key();
+		    kys += new MultiID(ioobj->key());
 		    if ( parprov ) break;
 		}
 	    }
@@ -244,11 +244,12 @@ IOObj* IOMan::getByName( const char* objname,
     ioobj = 0;
     for ( int idx=0; idx<kys.size(); idx++ )
     {
-	if ( havepar && !to( kys[idx] ) )
+	if ( havepar && !to( *kys[idx] ) )
 	{
 	    BufferString msg( "Survey is corrupt. Cannot go to dir with ID: " );
-	    msg += (const char*)kys[idx];
+	    msg += (const char*)(*kys[idx]);
 	    ErrMsg( msg );
+	    deepErase( kys );
 	    return 0;
 	}
 
@@ -258,6 +259,7 @@ IOObj* IOMan::getByName( const char* objname,
 
     if ( ioobj ) ioobj = ioobj->clone();
     to( startky );
+    deepErase( kys );
     return (IOObj*)ioobj;
 }
 
