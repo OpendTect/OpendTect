@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uigroup.h,v 1.2 2001-01-26 09:54:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiGroup : public uiWrapObj<i_QWidget>
     friend class 	uiDialog;
 public:
 			uiGroup( uiObject* , const char* nm="uiGroup", 
-				 int border=10, int spacing=10);
+				 int border=0, int spacing=10);
 protected:
 			uiGroup( const char* nm, uiObject*, 
 				 int border=10, int spacing=10);
@@ -43,7 +43,7 @@ protected:
 
     const QWidget*	qWidget_() const;
 
-    virtual i_LayoutMngr* mLayoutMngr() { return &loMngr; } 
+    virtual i_LayoutMngr* mLayoutMngr() { return &loMngr; }
     virtual i_LayoutMngr* prntLayoutMngr()
                         { return parent_ ? parent_->mLayoutMngr() : &loMngr; }
    

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.2 2001-01-26 09:54:07 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,24 @@ public:
 
                         uiListBox(  uiObject* parnt=0, 
 				    const char* nm="uiListBox",
-				    bool isMultiSelect = false );
+				    bool isMultiSelect = false,
+				    int preferredNrLines = 0,
+				    int preferredFieldWidth = 0 );
 
     virtual 		~uiListBox();
 
-    virtual bool        isSingleLine() const { return true; }
+    virtual bool	isSingleLine() const { return nLines==1; }
+
+			/*! preferred number of lines. if set to 0, then 
+                            it is determined by the number of items in list.
+			    If set to 1, then the list can not 
+			    grow/shrink vertically.
+			*/
+    void 		setLines( int prefNrLines )
+			{ 
+			    if(prefNrLines >= 0) nLines=prefNrLines;
+			    setStretch( 1, isSingleLine() ? 0 : 1 );
+			}
 
     void                notify( const CallBack& cb ) { notifyCBL += cb; }
     //!< Triggered when selection has changed. 
@@ -53,7 +66,7 @@ protected:
     CallBackList        notifyCBL;
 
     int 		fieldWdt;
-    int 		nRows;
+    int 		nLines;
 
 private:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uilabel.h,v 1.2 2001-01-26 09:54:04 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,10 @@ public:
                         uiLabel(uiObject*,const char*,uiObject* buddy=0);
 
     virtual bool        isSingleLine() const { return true; }
+
+    virtual void        setText(const char*);
+    const char*         text();
+
 protected:
 
     const QWidget*	qWidget_() const;

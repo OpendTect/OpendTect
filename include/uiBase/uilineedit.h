@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uilineedit.h,v 1.2 2001-01-26 09:54:06 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ public:
     void		setEdited( bool = true );
     bool		isEdited() const;
 
+    void		setReadOnly( bool = true );
+    bool		isReadOnly() const;
 
     Notifier<uiLineEdit> textChanged;
     Notifier<uiLineEdit> returnPressed;

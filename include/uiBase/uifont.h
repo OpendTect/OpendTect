@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uifont.h,v 1.2 2001-01-26 09:54:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,10 +46,12 @@ public:
     inline const QFont&	qFont() const { return *mQtThing; } 
 
     int			height() const;
+    int			leading() const; 
     int 		maxWidth() const;
     int 		avgWidth() const;
     int 		width (const char* str) const;
     int			ascent() const; 
+    int			descent() const; 
 
     const char*		key() const		{ return key_; }
 

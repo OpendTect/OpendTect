@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uibutton.h,v 1.2 2001-01-26 09:54:00 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,9 @@ public:
     virtual bool        isSingleLine() const { return true; }
 
     virtual void        notify( const CallBack& cb ) { notifyCBL += cb; }
+
+    virtual void	setText(const char*);
+    const char*		text();
 
 protected:
 

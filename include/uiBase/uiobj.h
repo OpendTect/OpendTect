@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.1 2000-11-27 10:19:28 bert Exp $
+ RCS:           $Id: uiobj.h,v 1.2 2001-01-26 09:54:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,17 +21,10 @@ ________________________________________________________________________
 
 #include <stdlib.h>
 
-#ifdef _DOXYGEN_
-#define mTemplTypeDef(fromclass,templ_arg,toclass) \
-	class toclass : public fromclass {};
-#define mTemplTypeDefT(fromclass,templ_arg,toclass) \
-	class toclass : public fromclass, public templ_arg {};
-#else
 #define mTemplTypeDef(fromclass,templ_arg,toclass) \
 	typedef fromclass<templ_arg> toclass;
 #define mTemplTypeDefT(fromclass,templ_arg,toclass) \
 	mTemplTypeDef(fromclass,templ_arg,toclass)
-#endif
 
 class QWidget;
 class i_LayoutMngr;

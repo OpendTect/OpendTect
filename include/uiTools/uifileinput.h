@@ -7,17 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.1 2000-11-27 10:19:43 bert Exp $
+ RCS:           $Id: uifileinput.h,v 1.2 2001-01-26 09:53:41 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigroup.h"
+#include "uigenselect.h"
 
-class uiLineEdit;
-
-
-class uiFileInput : public uiGroup
+class uiFileInput : public uiGenSelect
 { 	
 public:
 			uiFileInput(uiObject*,const char* txt,const char* fnm=0,
@@ -28,13 +25,11 @@ public:
 
 protected:
 
-    uiLineEdit*		inpfld;
     bool		forread;
     BufferString	fname;
     BufferString	filter;
 
-    void		doSelect(CallBacker*);
-    void		doClear(CallBacker*);
+    virtual void	doSelect_(CallBacker*);
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.1 2000-11-27 10:19:27 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.2 2001-01-26 09:54:01 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,21 +25,24 @@ mTemplTypeDefT( i_QObjWrapper, QWidget, i_QWidget )
 class i_LayoutMngr;
 class uiButton;
 class uiCheckBox;
+class uiSeparator;
+
+class uiLabel;
 
 class uiDialog : public uiWrapObj<i_QDialog>
 { 	
 public:
 			uiDialog( uiObject* =0, const char* nm="uiDialog", 
-				  bool modal=true,
-				  int border=10, int spacing=10);
+				  bool modal=true, bool separator=true,
+				  int border=0, int spacing=10);
     virtual		~uiDialog();
 
     int			go(); 
-    virtual void	reject( CallBacker* s) { if( rejectOK(s) ) done_(0); }
+    virtual void	reject( CallBacker* s)	{ if( rejectOK(s) ) done_(0); }
                         //!< to be called by a 'cancel' button
-    virtual void	accept( CallBacker* s){ if( acceptOK(s) ) done_(1); }
+    virtual void	accept( CallBacker* s)	{ if( acceptOK(s) ) done_(1); }
                         //!< to be called by a 'ok' button
-    virtual void	done( CallBacker* s ) { if( doneOK(s) ) done_(2); }
+    virtual void	done( CallBacker* s )	{ if( doneOK(s) ) done_(2); }
 
     virtual void	hide(CallBacker* =0);
 
@@ -52,7 +55,11 @@ public:
     void		enableSaveButton( const char* txt="Save defaults" )
 			    { saveText = txt; }
     bool		saveButtonChecked();
-    uiCheckBox*		saveButton() { return saveBut; }
+    uiCheckBox*		saveButton()			{ return saveBut; }
+
+			//! Separator between central dialog and Ok/Cancel bar?
+    void		setSeparator( bool yn )		{ separ = yn; }
+    bool		separator()			{ return separ; }
 
 protected:
     const QWidget*	qWidget_() const;
@@ -84,10 +91,13 @@ protected:
     BufferString	okText;
     BufferString	cnclText;
     BufferString	saveText;
+    bool		separ;
 
     uiButton*		okBut;
     uiButton*		cnclBut;
     uiCheckBox*		saveBut;
+    uiSeparator*	horSepar;
+    uiLabel*		title;
 
 };
 
