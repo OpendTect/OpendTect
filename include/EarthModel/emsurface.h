@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.30 2003-12-17 16:07:38 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.31 2003-12-26 19:28:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -102,7 +102,13 @@ public:
     Coord3		getPos(const PatchID& patch, const RowCol&) const;
     void		getPos(const RowCol&,TypeSet<Coord3>&) const;
     			//!< Returns positions from all patches on RowCol
-    
+   
+    EM::PosID		getNeighbor( const EM::PosID& posid,
+	   			     const RowCol& dir ) const;
+       			/*!<If the node has a neigbor in the given direction
+		  	    it is returned. If not, the PosID of the neighbor
+		  	    node on the same patch is returned
+			*/	    
     int			getNeighbors( const EM::PosID& posid, 
 	    			      TypeSet<EM::PosID>* res,
 	   			      int size=1, bool circle=false ) const;

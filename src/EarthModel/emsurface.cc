@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.36 2003-12-17 16:07:43 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.37 2003-12-26 19:28:22 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -493,32 +493,47 @@ char EM::Surface::whichSide( const Coord3& timepos,
     if ( c11def ) {center+=c11; nrvals++;}
     center /= nrvals;
 
-    float maxdist = -1;
-    if ( c00def )
-    { const double dist=c00.distance(center); if (dist>maxdist) maxdist=dist; }
-    if ( c10def )
-    { const double dist=c10.distance(center); if (dist>maxdist) maxdist=dist; }
-    if ( c01def )
-    { const double dist=c01.distance(center); if (dist>maxdist) maxdist=dist; }
-    if ( c11def )
-    { const double dist=c11.distance(center); if (dist>maxdist) maxdist=dist; }
-
     const Coord3 pos = time2depthfunc
 	? Coord3( timepos, time2depthfunc->getValue( timepos.z ) )
 	: timepos;
 
-    
     const Coord3 centertopos = pos-center;
     const double centertoposlen = centertopos.abs();
     if ( mIS_ZERO(centertoposlen) )
 	return 0;
 
     const double cosangle = meshnormal.dot(centertopos/centertoposlen);
-    const double oneminus_cos2angle = 1-cosangle*cosangle;
-    const double sinangle = oneminus_cos2angle<=0 ?0:sqrt(oneminus_cos2angle);
-    const double distonplane = centertoposlen*sinangle;
-    if ( distonplane>maxdist )
-	return -2;
+    if ( cosangle<0.5 )
+    {
+	float maxdist = -1;
+	if ( c00def )
+	{
+	    const double dist=c00.distance(center);
+	    if (dist>maxdist) maxdist=dist;
+	}
+	if ( c10def )
+	{
+	    const double dist=c10.distance(center);
+	    if (dist>maxdist) maxdist=dist;
+	}
+	if ( c01def )
+	{
+	    const double dist=c01.distance(center);
+	    if (dist>maxdist) maxdist=dist;
+	}
+	if ( c11def )
+	{
+	    const double dist=c11.distance(center);
+	    if (dist>maxdist) maxdist=dist;
+	}
+
+	const double oneminus_cos2angle = 1-cosangle*cosangle;
+	const double sinangle = oneminus_cos2angle<=0
+			      ? 0 : sqrt(oneminus_cos2angle);
+	const double distonplane = centertoposlen*sinangle;
+	if ( distonplane>maxdist )
+	    return -2;
+    }
 
     const Plane3 plane( meshnormal, center, false );
     const Line3 line( pos, meshnormal );
@@ -909,6 +924,35 @@ int EM::Surface::findPos( const CubeSampling& cs,
 
     if ( res ) res->append(posids);
     return posids.size();
+}
+
+
+EM::PosID EM::Surface::getNeighbor( const EM::PosID& posid,
+				    const RowCol& dir ) const
+{
+    RowCol diff;
+    if ( dir.row>0 ) diff.row = step_.row;
+    if ( dir.row<0 ) diff.row = step_.row;
+    if ( dir.col>0 ) diff.col = step_.col;
+    if ( dir.col<0 ) diff.col = step_.col;
+    
+    TypeSet<EM::PosID> aliases;
+    getLinkedPos( posid, aliases );
+
+    const int nraliases = aliases.size();
+    for ( int idx=0; idx<nraliases; idx++ )
+    {
+	const RowCol ownrc = subID2RowCol(aliases[idx].subID());
+	const RowCol neigborrc = ownrc+diff;
+	if ( isDefined(aliases[idx].patchID(),neigborrc) )
+	    return EM::PosID( id(), aliases[idx].patchID(),
+		    	      rowCol2SubID(neigborrc));
+    }
+
+    const RowCol ownrc = subID2RowCol(posid.subID());
+    const RowCol neigborrc = ownrc+diff;
+
+    return EM::PosID( id(), posid.patchID(), rowCol2SubID(neigborrc));
 }
 
 
