@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999,2002 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec_rmt,v 1.4 2002-05-16 09:13:51 bert Exp $
+# $Id: od_exec_rmt,v 1.5 2003-01-24 09:25:04 bert Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -12,8 +12,18 @@ if ( ! $?dGB_APPL ) then
 	exit 1
 endif
 
+if ( $#argv < 1 ) then
+	echo "Usage: $0 remote_host [--rexec remote_shell_command] ..."
+endif
+
 set rh=$1
 shift
+
+set rshcomm=rsh
+if ( "$1" == "--rexec" ) then
+	set rshcomm=$2
+	shift ; shift
+endif
 
 set transf="setenv dGB_DATA $dGB_DATA +-+ setenv dGB_APPL $dGB_APPL"
 
@@ -41,5 +51,5 @@ endif
 
 set transf="$transf +-+-+ $*"
 
-rsh ${rh} ${dGB_APPL}/bin/dgb_do_rmt $transf
+${rshcomm} ${rh} ${dGB_APPL}/bin/dgb_do_rmt $transf
 exit 0
