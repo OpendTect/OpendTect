@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.27 2002-12-03 13:17:00 kristofer Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.28 2003-01-15 08:42:03 nanne Exp $";
 
 #include "visplanedatadisplay.h"
 #include "cubesampling.h"
@@ -409,9 +409,9 @@ void visSurvey::PlaneDataDisplay::setCubeSampling( const CubeSampling& cs_ )
 }
 
 
-bool visSurvey::PlaneDataDisplay::putNewData( AttribSlice* attrslice )
+bool visSurvey::PlaneDataDisplay::putNewData( AttribSliceSet* sliceset )
 {
-    if ( !attrslice )
+    if ( !sliceset )
     {
 	trect->getRectangle().resetManip();
 	return false;
@@ -420,18 +420,21 @@ bool visSurvey::PlaneDataDisplay::putNewData( AttribSlice* attrslice )
     if ( !(trect->getRectangle().manipOrigo() == trect->getRectangle().origo()))
 	trect->getRectangle().moveObjectToManipRect();
     
-    trect->setData( *attrslice );
+    trect->setData( *(*sliceset)[0] );
     trect->useTexture( true );
 
     prevcs = getCubeSampling();
-    
+
+    delete cache;
+    cache = sliceset;
+
     return true;
 }
 
 
-AttribSlice* visSurvey::PlaneDataDisplay::getPrevData()
+const AttribSliceSet* visSurvey::PlaneDataDisplay::getPrevData() const
 {
-    return (AttribSlice*)trect->get2DData();
+    return cache;
 }
 
 

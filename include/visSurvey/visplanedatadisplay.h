@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.19 2003-01-15 08:22:44 kristofer Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.20 2003-01-15 08:42:08 nanne Exp $
 ________________________________________________________________________
 
 
@@ -119,6 +119,7 @@ protected:
     CubeSampling&		cs;
     CubeSampling&		prevcs;
     AttribSelSpec&		as;
+    AttribSliceSet*             cache;
 
     bool			selected_;
     bool			succeeded_;
