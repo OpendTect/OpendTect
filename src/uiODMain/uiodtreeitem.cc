@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.41 2004-08-19 15:33:31 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.42 2004-09-01 12:36:53 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -557,27 +557,20 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	else if ( menu->getPath() )
 	    section = uivissurf->getSection( menu->getPath() );
 
+	relmnuid = -1;
 	if ( section != -1 && uivissurf->isHorizon(displayid) )
 	{
-	    cutmnuid = menu->getFreeID();
-	    trackmnu->insertItem( new uiMenuItem("Cut by ..."), cutmnuid );
-
-	    terminatemnuid = menu->getFreeID();
-	    trackmnu->insertItem( new uiMenuItem("Terminate against ..."),
-				  terminatemnuid );
-	}
-	else
-	{
-	    cutmnuid = -1;
-	    terminatemnuid = -1;
+	    relmnuid = menu->getFreeID();
+	    trackmnu->insertItem( new uiMenuItem("Relations ..."), relmnuid );
 	}
 
 	storemnuid = -1;
-/*
-	uiMenuItem* storemenuitem =  new uiMenuItem("Store");
-	storemnuid = menu->addItem( storemenuitem );
-	storemenuitem->setEnabled(applMgr()->EMServer()->isChanged(mid) );
-*/
+	if ( applMgr()->EMServer()->isChanged(mid) )
+	{
+	    uiMenuItem* storemenuitem =  new uiMenuItem("Store");
+	    storemnuid = menu->addItem( storemenuitem );
+	}
+
     }
     else
     {
@@ -611,7 +604,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==storemnuid )
     {
 	menu->setIsHandled(true);
-	pErrMsg("Not Implemented yet");
+	
     }
     else if ( mnuid==trackmnuid )
     {
@@ -657,7 +650,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( applMgr()->EMServer()->loadAuxData(mid, mnuid-attribstartmnuid) )
 	    applMgr()->handleStoredSurfaceData( displayid );
     }
-    else if ( mnuid == cutmnuid || mnuid == terminatemnuid )
+    else if ( mnuid == relmnuid )
     {	
 	menu->setIsHandled(true);
 	EM::SectionID section = -1;
@@ -669,8 +662,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( section==-1 )
 	    return;
 
-	const bool terminate = mnuid == terminatemnuid;
-	applMgr()->trackServer()->handleTrackerMenu( mid, section, terminate );
+	applMgr()->trackServer()->handleTrackerMenu( mid, section );
     }
     else if ( mnuid==toggletrackingmnuid )
     {
