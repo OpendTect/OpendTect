@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.6 2001-05-21 14:20:41 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.7 2001-05-30 16:13:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,8 @@ protected:
     void 		setGeometry( const QRect& );
     void		childUpdated() 		{ a_child_updated = true; }
     int			horSpacing() const 	{ return spacing(); }
-    int			verSpacing() const 	{ return spacing(); }
+    int			verSpacing() const 
+			{ int s = spacing(); return s > 3 ? s-2 : 2; }
     void		setMode( layoutMode m ) { curmode = m; } 
     inline void 	setMode( layoutMode m  ) const 
                         { const_cast<i_LayoutMngr*>(this)->setMode(m); }
