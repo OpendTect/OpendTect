@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.3 2001-02-22 08:22:18 bert Exp $
+ RCS:		$Id: datachar.h,v 1.4 2001-04-21 15:36:33 bert Exp $
 ________________________________________________________________________
 
 */
 
 
 #include <bindatadesc.h>
+#include <enums.h>
 
 
 /*!\brief byte-level data characteristics of stored data.
@@ -79,6 +80,10 @@ public:
     bool		needSwap() const
 			{ return (int)nrbytes > 1
 			      && littleendian != __islittle__; }
+
+    enum UserType	{ Auto=0, SI8, UI8, SI16, UI16, SI32, UI32, F32, F64 };
+			DeclareEnumUtils(UserType)
+			DataCharacteristics(UserType);
 
 };
 
