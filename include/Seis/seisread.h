@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.3 2000-03-02 15:25:31 bert Exp $
+ RCS:		$Id: seisread.h,v 1.4 2000-03-10 13:10:32 bert Exp $
 ________________________________________________________________________
 
 A SeisTrcReader reads from a seismic data store. If you don't want all of the data,
@@ -72,8 +72,8 @@ protected:
     void		finishGetInfo(SeisTrcInfo&);
 
     bool		validBidselRes( int r, bool clcrl ) const
-			{ return r == 0 || (clcrl && r != 5 && r != 2)
-				        || (!clcrl && r != 1 && r != 4); }
+			{ return r == 0 || (clcrl && r/256 != 2)
+				        || (!clcrl && r%256 != 2); }
 
 };
 
