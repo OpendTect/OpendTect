@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.15 2002-09-19 14:34:21 kristofer Exp $
+ RCS:           $Id: arrayndutils.h,v 1.16 2002-10-28 22:29:11 bert Exp $
 ________________________________________________________________________
 
 
@@ -150,8 +150,10 @@ public:
 	}
 	else
 	{
-	    const ArrayND<Type>::LinearStorage* instorage = in->getStorage();
-	    ArrayND<Type>::LinearStorage* outstorage = in->getStorage();
+	    const typename ArrayND<Type>::LinearStorage* instorage
+			= in->getStorage();
+	    typename ArrayND<Type>::LinearStorage* outstorage
+			= out->getStorage();
 
 	    if ( instorage && outstorage )
 	    {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: exppcadip.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: exppcadip.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 PCADip [stepout=4,4] [samplegate=[-4,4]] [fraction=25]
@@ -162,8 +162,8 @@ protected:
 	const PCADipAttrib&		calculator;
     };
 
-    friend PCADipAttrib::Task;
-    friend PCADipAttrib::Task::Input;
+    friend class	PCADipAttrib::Task;
+    friend class	PCADipAttrib::Task::Input;
 };
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expgraddip.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: expgraddip.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 GradientDip size= 
@@ -135,8 +135,8 @@ protected:
 	const GradientDipAttrib& calculator;
     };
 
-    friend GradientDipAttrib::Task;
-    friend GradientDipAttrib::Task::Input;
+    friend class	GradientDipAttrib::Task;
+    friend class	GradientDipAttrib::Task::Input;
 };
 
 #endif

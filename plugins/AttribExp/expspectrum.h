@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expspectrum.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: expspectrum.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 TraceSpectrum window=[Box]|Hamming|Hanning|Barlett|Blackman|CosTaper5
@@ -152,8 +152,8 @@ protected:
 
     };
 
-    friend TraceSpectrumAttrib::Task;
-    friend TraceSpectrumAttrib::Task::Input;
+    friend class	TraceSpectrumAttrib::Task;
+    friend class	TraceSpectrumAttrib::Task::Input;
 };
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expnearsubtract.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: expnearsubtract.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 NearSubtract usedip=Yes|No relampl=[Yes|No]
@@ -143,8 +143,8 @@ protected:
 
     };
 
-    friend NearSubtractAttrib::Task;
-    friend NearSubtractAttrib::Task::Input;
+    friend class	NearSubtractAttrib::Task;
+    friend class	NearSubtractAttrib::Task::Input;
 };
 
 #endif

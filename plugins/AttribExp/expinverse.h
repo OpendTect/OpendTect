@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expinverse.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: expinverse.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 Inverse gate=[-64,64] steering=Yes window=[Box] neighbourhood=1,1 pos1=0,1
@@ -201,8 +201,8 @@ protected:
 	Array1D<float_complex>*		traceoutput;
     };
 
-    friend InverseAttrib::Task;
-    friend InverseAttrib::Task::Input;
+    friend class	InverseAttrib::Task;
+    friend class	InverseAttrib::Task::Input;
 };
 
 #endif

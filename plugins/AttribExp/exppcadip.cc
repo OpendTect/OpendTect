@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: exppcadip.cc,v 1.2 2002-09-05 15:50:46 kristofer Exp $";
+static const char* rcsID = "$Id: exppcadip.cc,v 1.3 2002-10-28 22:29:11 bert Exp $";
 
 
 #define mEPSILON 1E-9
@@ -276,7 +276,8 @@ int PCADipAttrib::Task::nextStep()
     const int limit = stepout2.inl*stepout2.inl*sg2;
 
     const int nrtraces = inlsz*crlsz; 
-    const int maxweight = mNINT(sqrt(stepout2.inl+stepout2.inl+sg2));
+    const double dmaxweight = sqrt( (double)(stepout2.inl+stepout2.inl+sg2) );
+    const int maxweight = mNINT(dmaxweight);
     const int maxnrsamples = nrtraces * (sg.width()+1)*maxweight;
 
 

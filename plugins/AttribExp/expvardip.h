@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expvardip.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: expvardip.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 MinVarianceDip size= [resolution=32] [velocity=] [fast=]
@@ -175,8 +175,8 @@ protected:
 	const MinVarianceDipAttrib&	calculator;
     };
 
-    friend MinVarianceDipAttrib::Task;
-    friend MinVarianceDipAttrib::Task::Input;
+    friend class	MinVarianceDipAttrib::Task;
+    friend class	MinVarianceDipAttrib::Task::Input;
 };
 
 #endif

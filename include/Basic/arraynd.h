@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.16 2001-09-20 16:09:06 bert Exp $
+ RCS:		$Id: arraynd.h,v 1.17 2002-10-28 22:29:11 bert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -26,6 +26,7 @@ to the constructor.
 #define mPolyArray1DInfoTp mPolyRet(ArrayNDInfo,Array1DInfo)
 #define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
 #define mPolyArray3DInfoTp mPolyRet(ArrayNDInfo,Array3DInfo)
+#define ArrayNDLinearStorage typename ArrayND<T>::LinearStorage
 
 template <class T>
 class ArrayND 
@@ -89,8 +90,6 @@ public:
 	virtual void		setSize( int )			= 0;
 	virtual			~LinearStorage() {}
     };
-
-
 
 protected:
  
@@ -180,10 +179,10 @@ T* ArrayND<T>::getData()
 
 
 template <class T> inline
-ArrayND<T>::LinearStorage* ArrayND<T>::getStorage()
+ArrayNDLinearStorage* ArrayND<T>::getStorage()
 {
     return isSettable()
-	? const_cast<ArrayND<T>::LinearStorage*>
+	? const_cast<ArrayNDLinearStorage*>
 		(((const ArrayND*)this)->getStorage_())
 	: 0;
 }

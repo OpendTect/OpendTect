@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expnodc.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: expnodc.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 NoDC
@@ -103,8 +103,8 @@ protected:
 
     };
 
-    friend NoDCAttrib::Task;
-    friend NoDCAttrib::Task::Input;
+    friend class	NoDCAttrib::Task;
+    friend class	NoDCAttrib::Task::Input;
 };
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.5 2002-05-29 15:00:45 arend Exp $
+ RCS:           $Id: uitreeview.cc,v 1.6 2002-10-28 22:29:11 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -628,7 +628,7 @@ void uiListViewItem::setText( const char* txt, int column )
 }
 
 
-const char* uiListViewItem::text( int column=0 ) const
+const char* uiListViewItem::text( int column ) const
 { 
     rettxt = mQthing().text( column );
     return rettxt;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expwavelet1d.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: expwavelet1d.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 Wavelet1D minwaveletlen= maxwaveletlen= wavelet=
@@ -159,8 +159,8 @@ protected:
 
     };
 
-    friend Wavelet1DAttrib::Task;
-    friend Wavelet1DAttrib::Task::Input;
+    friend class	Wavelet1DAttrib::Task;
+    friend class	Wavelet1DAttrib::Task::Input;
 };
 
 #endif

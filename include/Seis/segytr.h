@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.6 2002-04-08 20:58:41 bert Exp $
+ RCS:		$Id: segytr.h,v 1.7 2002-10-28 22:29:11 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -62,6 +62,7 @@ protected:
     bool		do_string_dump;
     bool		use_lino;
     char*		dumpstr;
+    string		dumpstring;
 
 
     bool		readTapeHeader();

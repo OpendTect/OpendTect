@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.23 2002-04-30 14:17:01 kristofer Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.24 2002-10-28 22:29:11 bert Exp $
 ________________________________________________________________________
 
 */
@@ -171,14 +171,22 @@ protected:
 };
 
 
+    // Don't change the order of these attributes!
+#define mDeclArrayNDProtMemb(inftyp) \
+    inftyp			in; \
+    ArrayNDLinearStorage*	stor; \
+ \
+    const ArrayNDLinearStorage*	getStorage_() const { return stor; }
+
+
 template <class T> class Array1DImpl : public Array1D<T>
 {
 public:
 			Array1DImpl(int nsz, bool file=false)
 			    : in(nsz)
-			    , stor(file ? (ArrayND<T>::LinearStorage*)
+			    , stor(file ? (ArrayNDLinearStorage*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-				        : (ArrayND<T>::LinearStorage*)
+				        : (ArrayNDLinearStorage*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{}
 
@@ -210,13 +218,11 @@ public:
 
 
     void		setSize( int s ) { in.setSize(0,s); stor->setSize(s); }
+
 protected:
 
-    // Don't change the order of these attributes!
-    Array1DInfoImpl		in;
-    ArrayND<T>::LinearStorage*	stor;
+    mDeclArrayNDProtMemb(Array1DInfoImpl)
 
-    const ArrayND<T>::LinearStorage*	getStorage_() const { return stor; }
 };
 
 
@@ -225,16 +231,16 @@ template <class T> class Array2DImpl : public Array2D<T>
 public:
 			Array2DImpl(int sz0, int sz1, bool file=false)
 			    : in(sz0,sz1)
-			    , stor(file ? (ArrayND<T>::LinearStorage*)
+			    , stor(file ? (ArrayNDLinearStorage*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-				        : (ArrayND<T>::LinearStorage*)
+				        : (ArrayNDLinearStorage*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{}
 			Array2DImpl( const Array2DInfo& nsz, bool file=false )
 			    : in( nsz )
-			    , stor(file ? (ArrayND<T>::LinearStorage*)
+			    , stor(file ? (ArrayNDLinearStorage*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-				        : (ArrayND<T>::LinearStorage*)
+				        : (ArrayNDLinearStorage*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{} 
 			Array2DImpl( const Array2D<T>& templ )
@@ -285,11 +291,8 @@ public:
 
 protected:
 
-    // Don't change the order of these attributes!
-    Array2DInfoImpl		in;	
-    ArrayND<T>::LinearStorage*	stor;
+    mDeclArrayNDProtMemb(Array2DInfoImpl)
 
-    const ArrayND<T>::LinearStorage*	getStorage_() const { return stor; }
 };
 
 
@@ -298,16 +301,16 @@ template <class T> class Array3DImpl : public Array3D<T>
 public:
 			Array3DImpl( int sz0, int sz1, int sz2, bool file=false)
 			    : in(sz0,sz1,sz2)
-			    , stor(file ? (ArrayND<T>::LinearStorage*)
+			    , stor(file ? (ArrayNDLinearStorage*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-					: (ArrayND<T>::LinearStorage*)
+					: (ArrayNDLinearStorage*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{}
 			Array3DImpl( const Array3DInfo& nsz, bool file=false )
 			    : in(nsz)
-			    , stor(file ? (ArrayND<T>::LinearStorage*)
+			    , stor(file ? (ArrayNDLinearStorage*)
 					 new ArrayNDFileStor<T>(in.getTotalSz())
-					: (ArrayND<T>::LinearStorage*)
+					: (ArrayNDLinearStorage*)
 					 new ArrayNDMemStor<T>(in.getTotalSz()))
 			{}
 			Array3DImpl( const Array3D<T>& templ )
@@ -364,12 +367,8 @@ public:
 			}
 protected:
 
-    // Don't change the order of these attributes!
-    Array3DInfoImpl     		in;
-    ArrayND<T>::LinearStorage*		stor;
+    mDeclArrayNDProtMemb(Array3DInfoImpl)
 
-
-    const ArrayND<T>::LinearStorage*	getStorage_() const { return stor; }
 };
 
 
@@ -380,16 +379,16 @@ static ArrayND<T>*	create( const ArrayNDInfo& nsz, bool file=false );
 
 			ArrayNDImpl( const ArrayNDInfo& nsz, bool file=false)
 			    : in(nsz.clone())
-			    , stor(file ? (ArrayND<T>::LinearStorage*)
+			    , stor(file ? (ArrayNDLinearStorage*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
-				    : (ArrayND<T>::LinearStorage*)
+				    : (ArrayNDLinearStorage*)
 				     new ArrayNDMemStor<T>(in->getTotalSz()))
 			    {}
 			ArrayNDImpl( const ArrayND<T>& templ)
 			    : in(templ.info().clone())
-			    , stor(file ? (ArrayND<T>::LinearStorage*)
+			    , stor(file ? (ArrayNDLinearStorage*)
 				     new ArrayNDFileStor<T>(in->getTotalSz())
-				    : (ArrayND<T>::LinearStorage*)
+				    : (ArrayNDLinearStorage*)
 				     new ArrayNDMemStor<T>(in->getTotalSz()))
 			{
 			    if ( templ.getData() )
@@ -437,13 +436,10 @@ static ArrayND<T>*	create( const ArrayNDInfo& nsz, bool file=false );
 			    stor->setSize(in->getTotalSz());
 			}
 
-    protected:
+protected:
 
-    // Don't change the order of these attributes!
-    ArrayNDInfo*	in;
-    ArrayND<T>::LinearStorage*	stor;
+    mDeclArrayNDProtMemb(ArrayNDInfo*)
 
-    const ArrayND<T>::LinearStorage*	getStorage_() const { return stor; }
 }; 
 
 

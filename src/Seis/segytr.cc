@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.12 2002-09-03 08:35:00 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.13 2002-10-28 22:29:11 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -20,7 +20,11 @@ static const char* rcsID = "$Id: segytr.cc,v 1.12 2002-09-03 08:35:00 bert Exp $
 #include "scaler.h"
 #include <math.h>
 #include <ctype.h>
-#include <strstream>
+#if __GNUC__ > 2
+# include <sstream>
+#else
+# include <strstream>
+#endif
 
 const char* SEGYSeisTrcTranslator::sExternalNrSamples = "Nr samples overrule";
 const char* SEGYSeisTrcTranslator::sExternalTimeShift = "Start time overrule";
@@ -97,8 +101,12 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	dumpsd.close();
 	if ( do_string_dump )
 	{
+#if __GNUC__ > 2
+	    dumpsd.ostrm = new ostringstream( dumpstring );
+#else
 	    if ( !dumpstr ) dumpstr = new char [ 32768 ];
-	    dumpsd.ostrm = new ostrstream( dumpstr, 32768 );
+	    dumpsd.ostrm = new ostrstream( dumpstr );
+#endif
 	}
 	else
 	{

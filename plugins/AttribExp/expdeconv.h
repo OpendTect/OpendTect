@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expdeconv.h,v 1.2 2002-09-05 15:50:21 kristofer Exp $
+ RCS:           $Id: expdeconv.h,v 1.3 2002-10-28 22:29:10 bert Exp $
 ________________________________________________________________________
 
 DeConvolve wavelet=
@@ -190,8 +190,8 @@ protected:
 	Array1D<float_complex>*		traceoutput;
     };
 
-    friend DeConvolveAttrib::Task;
-    friend DeConvolveAttrib::Task::Input;
+    friend class			DeConvolveAttrib::Task;
+    friend class			DeConvolveAttrib::Task::Input;
 };
 
 #endif

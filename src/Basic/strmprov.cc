@@ -21,9 +21,7 @@
 
 #if __GNUC__ > 2
 # include <ext/stdio_filebuf.h>
-# define mSTD_FILEBUF __gnu_cxx::stdio_filebuf 
-#else
-# define mSTD_FILEBUF filebuf 
+# define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
 #endif
 
 #include "strmprov.h"
@@ -33,7 +31,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.27 2002-10-03 13:32:23 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.28 2002-10-28 22:29:11 bert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -243,32 +241,8 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
 	if ( File_exists(fname) )
 #ifdef __msvc__
 /*
-
-"
-    From: Paul Lutus (nospam@nosite.com)
-    Subject: Re: Question of fstream 
-    Newsgroups: comp.lang.c++
-    Date: 2000/03/14 
-
-    Unix platforms end text file lines with a linefeed.
-
-    DOS/Windows platforms use a carriage return/linefeed to end each line in a
-    text file.
-
-    C and C++ automatically translate these different formats into the Unix
-    version as a text file is read, for the sake of uniformity (so two different
-    versions of each program don't have to be written). This is true *unless*
-    the file is opened in "binary mode". If binary mode is used, no translation
-    is done. On Unix, binary mode has no effect, because no translation is
-    performed anyway. On DOS/Windows, binary mode changes the behavior.
-
-    A similar transformation is made on write, using the same rules -- all
-    linefeeds are replaced by a carriage return/linefeed pair, if the platform
-    is DOS/Windows and binary mode is not specified.
-"
-
-CONCLUSION: use binary mode, and windows will read&write unix format ;))
-
+    comp.lang.c++ 2000/03/14 Re: Question of fstream 
+    conclusion: use binary mode, and windows will read&write unix format
 */
 
 	    // should work the same on win & unix, but, you never know.
@@ -310,8 +284,8 @@ CONCLUSION: use binary mode, and windows will read&write unix format ;))
     {
 # if __GNUC__ > 2
 	//TODO change StreamData to include filebuf?
-	mSTD_FILEBUF* fb = new mSTD_FILEBUF( sd.fp, ios_base::in );
-	sd.istrm = new istream( fb );
+	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, ios_base::in );
+	sd.istrm = new istream( stdiofb );
 # else
 	sd.istrm = new ifstream( fileno(sd.fp) );
 # endif
@@ -356,9 +330,9 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
 
     if ( sd.fp )
     {
-# if __GNUC__ >= 3
-	mSTD_FILEBUF* fb = new mSTD_FILEBUF( sd.fp, ios_base::out );
-	sd.ostrm = new ostream( &fb );
+# if __GNUC__ > 2
+	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, ios_base::out );
+	sd.ostrm = new ostream( stdiofb );
 # else
 	sd.ostrm = new ofstream( fileno(sd.fp) );
 # endif
