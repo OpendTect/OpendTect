@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.9 2002-04-30 09:01:08 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.10 2002-04-30 11:45:25 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: visdataman.cc,v 1.9 2002-04-30 09:01:08 kristof
 
 const char* visBase::DataManager::freeidstr = "Free ID";
 const char* visBase::DataManager::selmanprefix = "SelMan";
-const char* visBase::DataManager::typestr = "Type";
 
 visBase::DataManager& visBase::DM()
 {
@@ -64,7 +63,6 @@ void visBase::DataManager::fillPar( IOPar& par ) const
     for ( int idx=0; idx<objects.size(); idx++ )
     {
 	IOPar dataobjpar;
-	dataobjpar.set( typestr, objects[idx]->getClassName() );
 	objects[idx]->fillPar( dataobjpar );
 	BufferString idstr = ids[idx];
 
