@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.24 2004-05-17 07:17:58 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.25 2004-05-25 14:11:01 kristofer Exp $";
 
 #include "emobject.h"
 
@@ -108,6 +108,22 @@ MultiID EM::EMObject::multiID() const
     MultiID res = getIOObjContext().stdSelKey();
     res.add(id());
     return res;
+}
+
+
+void EM::EMObject:: removePosAttrib(int attr)
+{
+    const int idx=attribs.indexOf(attr);
+    if ( idx==-1 )
+	return;
+
+    delete posattribs[idx];
+    posattribs.remove(idx);
+
+    delete posattrchnotifiers[idx];
+    posattrchnotifiers.remove(idx);
+
+    attribs.remove(idx);
 }
 
 

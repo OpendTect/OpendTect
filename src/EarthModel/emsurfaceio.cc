@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.29 2004-05-25 12:18:30 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.30 2004-05-25 14:11:01 kristofer Exp $";
 
 #include "emsurfaceio.h"
 
@@ -29,6 +29,12 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.29 2004-05-25 12:18:30 krist
 const char* EM::dgbSurfaceReader::floatdatacharstr = "Data char";
 const char* EM::dgbSurfaceReader::nrhingelinestr = "Nr hingelines";
 const char* EM::dgbSurfaceReader::hingelineprefixstr = "HingeLine ";
+
+const char* EM::dgbSurfaceReader::nrposattrstr = "Nr Pos Attribs";
+const char* EM::dgbSurfaceReader::posattrprefixstr = "Pos Attrib ";
+const char* EM::dgbSurfaceReader::posattrpatchstr = " Patch";
+const char* EM::dgbSurfaceReader::posattrposidstr = " SubID";
+
 const char* EM::dgbSurfaceReader::intdatacharstr = "Int Data char";
 const char* EM::dgbSurfaceReader::nrpatchstr = "Nr Patches";
 const char* EM::dgbSurfaceReader::patchidstr = "Patch ";
@@ -389,6 +395,39 @@ int EM::dgbSurfaceReader::nextStep()
 		delete hingeline;
 	}
 
+
+	while ( surface->nrPosAttribs() )
+	    surface->removePosAttrib(surface->posAttrib(0));
+
+	int nrattribs = 0;
+	par->get( nrposattrstr, nrattribs );
+	for ( int idx=0; idx<nrattribs; idx++ )
+	{
+	    BufferString attribkey = EM::dgbSurfaceReader::posattrprefixstr;
+	    attribkey += idx;
+
+	    int attrib;
+	    if ( !par->get( attribkey, attrib ) )
+		continue;
+
+	    TypeSet<int> attrpatches;
+	    TypeSet<long long> subids;
+
+	    BufferString patchkey = attribkey;
+	    patchkey += EM::dgbSurfaceReader::posattrpatchstr;
+	    BufferString subidkey = attribkey;
+	    subidkey += EM::dgbSurfaceReader::posattrposidstr;
+
+	    par->get( patchkey, attrpatches );
+	    par->get( subidkey, subids );
+
+	    for ( int idy=0; idy<attrpatches.size(); idy++ )
+	    {
+		const EM::PosID pid(surface->id(),attrpatches[idx],subids[idx]);
+		surface->setPosAttrib( pid, attrib, true );
+	    }
+	}
+
 	return ExecutorGroup::nextStep();
     }
 
@@ -587,6 +626,35 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 	par.mergeComp( relpar, key );
     }
 
+    int keyid = 0;
+    for ( int idx=0; idx<surface.nrPosAttribs(); idx++ )
+    {
+	const int attrib = surface.posAttrib(idx);
+	const TypeSet<PosID>* pids = surface.getPosAttribList(attrib);
+	if ( !pids ) continue;
+
+	BufferString attribkey = EM::dgbSurfaceReader::posattrprefixstr;
+	attribkey += keyid++;
+	par.set( attribkey, attrib );
+
+	TypeSet<int> attrpatches;
+	TypeSet<long long> subids;
+	for ( int idy=0; idy<pids->size(); idy++ )
+	{
+	    attrpatches += (*pids)[idy].patchID();
+	    subids += (*pids)[idy].subID();
+	}
+
+	BufferString patchkey = attribkey;
+	patchkey += EM::dgbSurfaceReader::posattrpatchstr;
+	BufferString subidkey = attribkey;
+	subidkey += EM::dgbSurfaceReader::posattrposidstr;
+
+	par.set( patchkey, attrpatches );
+	par.set( subidkey, subids );
+    }
+
+    par.set( EM::dgbSurfaceReader::nrposattrstr, keyid );
     surface.getRange( *writerowrange, true );
     surface.getRange( *writecolrange, false );
 }
