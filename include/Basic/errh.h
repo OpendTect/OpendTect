@@ -8,42 +8,37 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.4 2000-07-28 09:33:55 bert Exp $
+ RCS:		$Id: errh.h,v 1.5 2000-08-15 13:00:17 bert Exp $
 ________________________________________________________________________
 
 */
 
-#include <callback.h>
+#include <msgh.h>
 #include <bufstring.h>
 
 
-class ErrMsgClass : public CallBacker
+class ErrMsgClass : public MsgClass
 {
 public:
 
 			ErrMsgClass( const char* s, bool p )
-			: msg(s), prog(p)	{}
+			: MsgClass(s,p?ProgrammerError:Error)	{}
 
-    const char*		msg;
-    bool		prog;
-
-    static CallBack	TheCB;
-    static bool		PrintProgrammerErrs;
+    static bool		printProgrammerErrs;
 
 };
 
 
 inline void ErrMsg( const char* msg, bool progr = false )
 {
-    if ( !ErrMsgClass::TheCB.willCall() )
-    {
-	if ( !progr || ErrMsgClass::PrintProgrammerErrs )
-	    cerr << (progr?"(PE) ":"") << msg << endl;
-    }
+    if ( !ErrMsgClass::printProgrammerErrs && progr ) return;
+
+    if ( !MsgClass::theCB.willCall() )
+	cerr << (progr?"(PE) ":"") << msg << endl;
     else
     {
 	ErrMsgClass obj( msg, progr );
-	ErrMsgClass::TheCB.doCall( &obj );
+	MsgClass::theCB.doCall( &obj );
     }
 }
 
@@ -68,9 +63,7 @@ inline void programmerErrMsg( const char* msg, const char* cname,
 
 #ifdef __prog__
 
-CallBack ErrMsgClass::TheCB;
-
-bool ErrMsgClass::PrintProgrammerErrs =
+bool ErrMsgClass::printProgrammerErrs =
 # ifdef __debug__
 	true;
 # else
