@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.88 2004-09-13 09:39:53 nanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.89 2004-10-27 14:42:02 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,7 +195,10 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 {
     if ( nm && *nm ) setCaption( nm );
     poptimer.tick.notify(mCB(this,uiMainWinBody,popTimTick));
+
+    setDockMenuEnabled( false );
 }
+
 
 void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 {
