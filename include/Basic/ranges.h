@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.5 2000-08-07 14:33:14 bert Exp $
+ RCS:		$Id: ranges.h,v 1.6 2000-08-07 15:11:22 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ public:
 		}
 
     int		includes( const T& t ) const
-		{ return isRev ? t>=stop && start>=t : t>=start && stop>=t; }
+		{ return isRev() ? t>=stop && start>=t : t>=start && stop>=t; }
     void	include( const T& i )
 		{
 		    if ( isRev() )
@@ -57,11 +57,12 @@ public:
 		{ return start + step * idx; }
     int		getIndex( const T& t, const T& step ) const
 		{ return (int)(( t  - start ) / step); }
-    int		nearestIndex( const T& x, const T& step ) const
+    int         nearestIndex( const T& x, const T& step ) const
 		{
-		    int nrbefore = getIndex(x,step);
-		    T frac = ( x - atIndex(nrbefore,step) ) / step;
-		    return frac > .5 ? nrbefore + 1 : nrbefore;
+		    int nr = getIndex(x,step);
+		    return step < 0
+			 ? ( (x-atIndex(nr,step)) < step*.5 ? nr - 1 : nr )
+			 : ( (x-atIndex(nr,step)) > step*.5 ? nr + 1 : nr );
 		}
 
     virtual void sort( bool asc=true )
@@ -99,7 +100,7 @@ public:
     int		getIndex( const T& t ) const
 		{ return getIndex( t, step ); }
     int		nearestIndex( const T& x ) const
-		{ return nearestIndex( x, step ); }
+		{ return Interval<T>::nearestIndex( x, step ); }
 
     int		nrSteps() const
 		{
