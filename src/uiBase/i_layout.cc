@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.64 2003-03-24 15:33:57 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.65 2003-03-24 16:02:39 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ bool arend_debug=false;
 #endif
 
 #define mFinalised() ( managedBody.uiObjHandle().mainwin()  ? \
-		     managedBody.uiObjHandle().mainwin()->finalised() : false )
+		     managedBody.uiObjHandle().mainwin()->finalised() : true )
 
 i_LayoutMngr::i_LayoutMngr( QWidget* parnt, 
 			    const char *name, uiObjectBody& mngbdy )
