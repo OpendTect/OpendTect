@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.58 2005-01-10 10:58:31 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.59 2005-02-16 14:39:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,7 +175,7 @@ bool uiEMPartServer::createSurface( MultiID& id, bool ishor, const char* name )
     if ( !emsurf->geometry.nrSections() )
 	emsurf->geometry.addSection(0,true);
 
-    emsurf->unRefNoDel();
+    emsurf->unRefNoDelete();
 
     return true;
 }
@@ -220,15 +220,16 @@ bool uiEMPartServer::selectStickSet( MultiID& multiid )
     if ( !loadexec)
 	mErrRet( IOM().nameOf(multiid) );
 
-    EM::EMM().ref( objid );
+    EM::EMObject* obj = EM::EMM().getObject( objid );
+    obj->ref();
     uiExecutor exdlg( appserv().parent(), *loadexec );
     if ( exdlg.go() <= 0 )
     {
-	EM::EMM().unRef( objid );
+	obj->unRef();
 	return false;
     }
 
-    EM::EMM().unRefNoDel( objid );
+    obj->unRefNoDelete();
     return true;
 }
 
@@ -500,15 +501,17 @@ bool uiEMPartServer::loadSurface( const MultiID& id,
 
     PtrMan<Executor> exec = em.loadObject( id, newsel );
     if ( !exec ) mErrRet( IOM().nameOf(id) );
-    EM::EMM().ref( objid );
+
+    EM::EMObject* obj = em.getObject(objid);
+    obj->ref();
     uiExecutor exdlg( appserv().parent(), *exec );
     if ( exdlg.go() <= 0 )
     {
-	EM::EMM().unRef( objid );
+	obj->unRef();
 	return false;
     }
 
-    EM::EMM().unRefNoDel( objid );
+    obj->unRefNoDelete();
     return true;
 }
 
