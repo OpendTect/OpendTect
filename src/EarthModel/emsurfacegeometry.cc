@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.3 2004-08-25 11:43:26 nanne Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.4 2004-09-08 15:10:17 kristofer Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -263,7 +263,7 @@ if ( !fetched[nodeindex] ) \
     if ( tpos.isDefined() )  \
     { \
 	while ( coords.size()<=nodeindex ) \
-	    coords += Coord3(mUndefValue,mUndefValue,mUndefValue); \
+	    coords += Coord3::udf(); \
 	coords[nodeindex] = Coord3(tpos,t2d ? t2d->getValue(tpos.z) : tpos.z); \
 	defnodes[nodeindex] = true; \
     } \
@@ -767,7 +767,7 @@ Coord3 SurfaceGeometry::getPos( const SectionID& section, const RowCol& rc) cons
     const int surfidx = sectionids.indexOf( section );
     RowCol geomnode;
     if ( !getMeshRowCol( rc, geomnode, section ) )
-	return Coord3( mUndefValue, mUndefValue, mUndefValue );
+	return Coord3::udf();
 
     return meshsurfaces[surfidx]->getMeshPos( geomnode );
 }

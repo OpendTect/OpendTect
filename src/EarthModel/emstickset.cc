@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.5 2004-07-23 12:54:49 kristofer Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.6 2004-09-08 15:10:17 kristofer Exp $";
 
 #include "emstickset.h"
 
@@ -156,7 +156,7 @@ Coord3 EM::StickSet::getPos( const StickID& stickid,
 	}
     }
 
-    return Coord3( mUndefValue, mUndefValue, mUndefValue );
+    return Coord3::udf();
 }
 
 
