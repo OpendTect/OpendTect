@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.49 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uigroup.cc,v 1.50 2004-02-25 14:47:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include <iostream>
 #include "errh.h"
 
-#include <uitabstack.h>
 
 class uiGroupObjBody;
 class uiGroupParentBody;
