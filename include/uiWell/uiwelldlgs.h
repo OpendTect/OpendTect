@@ -7,24 +7,22 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.1 2003-10-16 15:01:37 nanne Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.2 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-
+class uiTable;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
+class BufferStringSet;
 class uiLabeledListBox;
-class uiTable;
 
 namespace Well { class Data; class LogSet; class Marker; };
 
-/*! \brief
-Dialog for marker specifications
-*/
+/*! \brief Dialog for marker specifications */
 
 class uiMarkerDlg : public uiDialog
 {
@@ -75,8 +73,7 @@ Dialog for selecting logs for display
 class uiLogSelDlg : public uiDialog
 {
 public:
-    				uiLogSelDlg(uiParent*,
-					    const ObjectSet<BufferString>&);
+    				uiLogSelDlg(uiParent*,const BufferStringSet&);
 
     int				selectedLog() const;
 

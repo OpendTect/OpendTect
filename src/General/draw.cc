@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.32 2003-08-28 11:14:02 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.33 2003-10-17 14:19:02 bert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -16,10 +16,10 @@ The main chunk is color table related.
 #include "separstr.h"
 #include "iopar.h"
 #include "settings.h"
-#include "uidset.h"
 #include "ascstream.h"
 #include "ptrman.h"
 #include "interpol.h"
+#include "bufstringset.h"
 #include <fstream>
 
 // First some implementations for a couple of header files ...
@@ -390,7 +390,7 @@ void ColorTable::initTabs()
 }
 
 
-void ColorTable::getNames( UserIDSet& names, bool usrct_only )
+void ColorTable::getNames( NamedBufferStringSet& names, bool usrct_only )
 {
     names.deepErase();
     names.setName( "Color table" );
@@ -399,25 +399,19 @@ void ColorTable::getNames( UserIDSet& names, bool usrct_only )
     if ( iopar && iopar->size() )
 	add( *iopar, &names, 0 );
 
-    if ( usrct_only )
-    {
-	names.setCurrent(0);
-	return;
-    }
+    if ( usrct_only ) return;
 
     if ( !tabparsinited ) initTabs();
     for ( int idx=0; idx<tabpars.size(); idx++ )
     {
 	const char* nm = tabpars[idx]->find( sNameKey );
-	if ( nm && *nm && !names[nm] )
-	    names.add( nm );
+	if ( nm && *nm )
+	    names.addIfNew( nm );
     }
-
-    names.setCurrent(0);
 }
 
 
-void ColorTable::add( const IOPar& iopar, UserIDSet* names,
+void ColorTable::add( const IOPar& iopar, BufferStringSet* names,
 			ObjectSet<IOPar>* pars )
 {
     for ( int idx=0; ; idx++ )

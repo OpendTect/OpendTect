@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.5 2002-05-31 10:26:57 nanne Exp $
+ RCS:           $Id: uisellinest.h,v 1.6 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-#include "uidobjset.h"
 
 #include "uidialog.h"
 

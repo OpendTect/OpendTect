@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.6 2003-08-15 13:19:49 nanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.7 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class IODirEntryList;
 class IOObj;
 class MultiID;
 class uiObject;
+class BufferStringSet;
 
 namespace EM { class Horizon; class SurfaceIODataSelection; };
 
@@ -44,8 +45,8 @@ protected:
 			uiIOSurface(uiParent*);
 
     void		fillFields(const MultiID&);
-    void		fillPatchFld(const ObjectSet<BufferString>&);
-    void		fillAttribFld(const ObjectSet<BufferString>&);
+    void		fillPatchFld(const BufferStringSet&);
+    void		fillAttribFld(const BufferStringSet&);
     void		fillRangeFld(const BinIDSampler&);
 
     void		mkAttribFld();

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.2 2003-10-16 09:41:18 bert Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.3 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class uiIOObjManipGroup;
 class uiListBox;
 class uiTextEdit;
 class uiToolButton;
+class BufferStringSet;
 
 
 class uiSurfaceMan : public uiDialog
@@ -47,7 +48,7 @@ protected:
     void		postReloc(CallBacker*);
     void		mkFileInfo();
     BufferString	getFileSize(const char*);
-    void		fillAttribList(const ObjectSet<BufferString>&);
+    void		fillAttribList(const BufferStringSet&);
 
 };
 

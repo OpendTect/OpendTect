@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.24 2003-08-25 15:10:02 bert Exp $
+ RCS:		$Id: sets.h,v 1.25 2003-10-17 14:19:00 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ public:
     T*			arr()		{ return size() ? &(*this)[0] : 0; }
     const T*		arr() const	{ return size() ? &(*this)[0] : 0; }
 
-private:
+protected:
 
     Vector<T>		tvec;
 
@@ -243,11 +243,15 @@ public:
 				*this += os[idx];
 			}
 
-    virtual void	erase()				{ ovec.erase(); }
+    virtual void	erase()				{ e_rase(); }
     virtual void	remove( int idx )		{ ovec.remove(idx); }
     virtual void	remove( int i1, int i2 )	{ ovec.remove(i1,i2); }
 
-private:
+
+    void		e_rase()			{ ovec.erase(); }
+			//!< Not virtual. Only use if you know what you're doing
+
+protected:
 
     Vector<void*>	ovec;
     bool		allow0;
@@ -261,7 +265,7 @@ inline void deepErase( ObjectSet<T>& os )
 {
     for ( int sz=os.size(), idx=0; idx<sz; idx++ )
 	delete os[idx];
-    os.erase();
+    os.e_rase(); // not os.erase() : it may be overloaded
 }
 
 
@@ -271,7 +275,7 @@ inline void deepEraseArr( ObjectSet<T>& os )
 {
     for ( int sz=os.size(), idx=0; idx<sz; idx++ )
 	delete [] os[idx];
-    os.erase();
+    os.e_rase(); // not os.erase() : it may be overloaded
 }
 
 

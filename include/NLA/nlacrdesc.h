@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.1 2003-10-02 14:41:08 bert Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.2 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "nladesign.h"
 #include "multiid.h"
+#include "bufstringset.h"
 class FeatureSet;
 
 /*\brief Description of how an NLA analysis Feature set is to be created */
@@ -32,7 +33,7 @@ public:
     bool		doextraction;
     MultiID		fsid;
     float		ratiotst;
-    ObjectSet<BufferString> outids;
+    BufferStringSet	outids;
     			//!< different from design outputs if unsupervised
 
     inline bool		isSupervised() const	{ return design.isSupervised();}

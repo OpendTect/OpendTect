@@ -6,14 +6,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.7 2003-09-26 21:40:31 bert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.8 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
-#include "uidset.h"
+#include "bufstringset.h"
+class IOPar;
 class IOParList;
 class uiGenInput;
 class uiFileInput;
@@ -27,13 +28,12 @@ public:
 			uiBatchLaunch(uiParent*,const IOParList&,
 				      const char* hostnm,const char* prognm,
 				      bool with_print_pars=false);
-			~uiBatchLaunch();
 
     void		setParFileName( const char* fnm ) { parfname = fnm; }
 
 protected:
 
-    UserIDSet		opts;
+    BufferStringSet	opts;
     const IOParList&	iopl;
     BufferString	hostname;
     BufferString	progname;

@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.16 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.17 2003-10-17 14:19:02 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -12,8 +12,6 @@ static const char* rcsID = "$Id: iostrm.cc,v 1.16 2003-10-15 15:15:54 bert Exp $
 #include "strmprov.h"
 #include "separstr.h"
 #include "string2.h"
-
-DefineConcreteClassDef(IOStream,"Stream");
 
 
 IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
@@ -58,9 +56,9 @@ void IOStream::copyFrom( const IOObj* obj )
     if ( obj->isLink() ) obj = ((IOLink*)obj)->link();
 
     IOObj::copyFrom(obj);
-    if ( obj->hasClass(IOStream::classid) )
+    mDynamicCastGet(const IOStream*,iosobj,obj)
+    if ( iosobj )
     {
-	const IOStream* iosobj = (const IOStream*)obj;
 	hostname = iosobj->hostname;
 	padzeros = iosobj->padzeros;
 	fname = iosobj->fname;

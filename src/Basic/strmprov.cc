@@ -33,11 +33,10 @@
 #include "uidobj.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.38 2003-09-25 08:48:44 arend Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.39 2003-10-17 14:19:02 bert Exp $";
 
 static FixedString<1024> oscommand;
 
-DefineClassID(StreamProvider);
 const char* StreamProvider::sStdIO = "Std-IO";
 const char* StreamProvider::sStdErr = "Std-Err";
 

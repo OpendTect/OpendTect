@@ -4,20 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.49 2003-07-30 13:15:05 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.50 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uilistbox.h>
-#include <uifont.h>
-#include <uidobjset.h>
-#include <uilabel.h>
-#include <uiobjbody.h>
+#include "uilistbox.h"
+#include "uifont.h"
+#include "uilabel.h"
+#include "uiobjbody.h"
+#include "bufstringset.h"
 
-#include <i_qlistbox.h>
+#include "i_qlistbox.h"
 
-#include <qsize.h> 
+#include "qsize.h"
 
 
 
@@ -86,10 +86,9 @@ uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw)
 {}
 
 
-uiListBox::uiListBox( uiParent* p, const PtrUserIDObjectSet& uids,
-		      bool ms, int nl, int pfw )
-    : uiObject( p, (const char*)uids->name(), 
-		mkbody(p,(const char*)uids->name(), ms,nl,pfw))
+uiListBox::uiListBox( uiParent* p, const BufferStringSet& uids,
+		      const char* txt, bool ms, int nl, int pfw )
+    : uiObject( p, txt, mkbody(p,txt,ms,nl,pfw))
     , selectionChanged( this )
     , doubleClicked( this )
     , rightButtonClicked( this )
@@ -177,28 +176,20 @@ void uiListBox::addItem( const char* text, bool embed )
 
 void uiListBox::addItems( const char** textList ) 
 {
+    int curidx = currentItem();
     const char* pt_cur = *textList;
     while ( pt_cur )
         addItem( pt_cur++ );
-}
-
-
-void uiListBox::addItems( const ObjectSet<BufferString>& strs )
-{
-    int curidx = currentItem();
-    for ( int idx=0; idx<strs.size(); idx++ )
-	body_->insertItem( QString( *strs[idx] ), -1 );
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
 
-void uiListBox::addItems( const PtrUserIDObjectSet& uids )
+void uiListBox::addItems( const BufferStringSet& strs )
 {
     int curidx = currentItem();
-    if ( uids.currentIndex() >= 0 ) curidx = size() + uids.currentIndex();
-    for ( int idx=0; idx<uids.size(); idx++ )
-	body_->insertItem( QString( uids[idx]->name() ), -1 );
-    setCurrentItem( curidx );
+    for ( int idx=0; idx<strs.size(); idx++ )
+	body_->insertItem( QString( strs.get(idx) ), -1 );
+    setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
 
@@ -338,12 +329,13 @@ uiLabeledListBox::uiLabeledListBox( uiParent* p, const char* txt, bool multisel,
 }
 
 
-uiLabeledListBox::uiLabeledListBox( uiParent* p, const PtrUserIDObjectSet& s,
+uiLabeledListBox::uiLabeledListBox( uiParent* p, const BufferStringSet& s,
+				    const char* txt,
 				    bool multisel, uiLabeledListBox::LblPos pos)
 	: uiGroup(p,"Labeled listbox")
 {
-    lb = new uiListBox( this, s, multisel );
-    mkRest( s->name(), pos );
+    lb = new uiListBox( this, s, txt, multisel );
+    mkRest( txt, pos );
 }
 
 
@@ -365,7 +357,7 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
 {
     setHAlignObj( lb );
 
-    ObjectSet<BufferString> txts;
+    BufferStringSet txts;
     BufferString s( txt );
     char* ptr = s.buf();
     if( !ptr || !*ptr ) return;

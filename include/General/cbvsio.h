@@ -8,14 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.6 2002-07-25 21:48:44 bert Exp $
+ RCS:		$Id: cbvsio.h,v 1.7 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <position.h>
-#include <bufstring.h>
-#include <sets.h>
+#include "position.h"
+#include "bufstringset.h"
 
 
 /*!\brief Base class for CBVS reader and writer
@@ -89,7 +88,7 @@ protected:
 
     BufferString	basefname_;
     BufferString	errmsg_;
-    ObjectSet<BufferString> fnames_;
+    BufferStringSet	fnames_;
     int			curnr_;
 
     virtual const char*	errMsg_() const		= 0;

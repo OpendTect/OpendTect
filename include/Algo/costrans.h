@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.4 2003-08-29 07:04:26 nanne Exp $
+ RCS:           $Id: costrans.h,v 1.5 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,6 @@ standard, where it is used extensively.
 
 class CosineTransform : public GenericTransformND
 {
-    isConcreteClass
 public:
     bool		isReal() const { return true; }
     bool		isCplx() const { return true; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.6 2003-08-26 09:48:39 nanne Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.7 2003-10-17 14:19:00 bert Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ranges.h"
 #include "rowcol.h"
+#include "bufstringset.h"
 
 class StreamConn;
 class IOObj;
@@ -134,11 +135,11 @@ protected:
     int                 readInt(istream&) const;
     StreamConn*		conn;
 
-    ObjectSet<BufferString>	patchnames;
+    BufferStringSet		patchnames;
     TypeSet<EM::PatchID>	patchids;
     TypeSet<EM::PatchID>	patchsel;
 
-    ObjectSet<BufferString>	auxdatanames;
+    BufferStringSet		auxdatanames;
     ObjectSet<EM::dgbSurfDataReader> auxdataexecs;
     TypeSet<int>		auxdatasel;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.14 2003-10-15 09:12:57 arend Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.15 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,13 +120,13 @@ int uiFileDialog::go()
 }
 
 
-void uiFileDialog::getFileNames( ObjectSet<BufferString>& fnms ) const
+void uiFileDialog::getFileNames( BufferStringSet& fnms ) const
 {
     deepCopy( fnms, filenames );
 }
 
 
-void uiFileDialog::list2String( const ObjectSet<BufferString>& list,
+void uiFileDialog::list2String( const BufferStringSet& list,
 				BufferString& string )
 {
     QStringList qlist;
@@ -138,7 +138,7 @@ void uiFileDialog::list2String( const ObjectSet<BufferString>& list,
 
 
 void uiFileDialog::string2List( const BufferString& string,
-				ObjectSet<BufferString>& list )
+				BufferStringSet& list )
 {
     QStringList qlist = QStringList::split( (QString)filesep, (QString)string );
     for ( int idx=0; idx<qlist.size(); idx++ )

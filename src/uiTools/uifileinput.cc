@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.18 2003-08-28 08:17:03 nanne Exp $
+ RCS:           $Id: uifileinput.cc,v 1.19 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ void uiFileInput::doSelect( CallBacker* )
     BufferString newfname;
     if ( selmode == uiFileDialog::ExistingFiles )
     {
-	ObjectSet<BufferString> filenames;
+	BufferStringSet filenames;
 	dlg.getFileNames( filenames );
 	uiFileDialog::list2String( filenames, newfname );
 	setFileName( newfname );
@@ -119,7 +119,7 @@ const char* uiFileInput::fileName()
 }
 
 
-void uiFileInput::getFileNames( ObjectSet<BufferString>& list ) const
+void uiFileInput::getFileNames( BufferStringSet& list ) const
 {
     BufferString string = text();
     uiFileDialog::string2List( string, list );

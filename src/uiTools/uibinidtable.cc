@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.5 2003-09-08 13:04:29 nanne Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.6 2003-10-17 14:19:03 bert Exp $
  ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@
 #include "uimsg.h"
 #include "position.h"
 #include "survinfo.h"
+#include "bufstringset.h"
 
 
 uiBinIDTable::uiBinIDTable( uiParent* p, int nr )
@@ -33,7 +34,7 @@ uiBinIDTable::uiBinIDTable( uiParent* p, const TypeSet<BinID>& bids )
 
 void uiBinIDTable::init( int nrrows )
 {
-    ObjectSet<BufferString> colnms;
+    BufferStringSet colnms;
     colnms += new BufferString("Inline");
     colnms += new BufferString("Crossline");
 
@@ -44,8 +45,6 @@ void uiBinIDTable::init( int nrrows )
     table->setColumnLabels( colnms );
     table->setNrRows( nrrows+5 );
     nodeAdded();
-
-    deepErase( colnms );
 
     table->rowInserted.notify( mCB(this,uiBinIDTable,nodeAdded) );
 }

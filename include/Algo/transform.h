@@ -1,21 +1,20 @@
 #ifndef transform_h
 #define transform_h
 
-/*@+
+/*+
 ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.5 2001-07-19 14:59:23 kristofer Exp $
+ RCS:           $Id: transform.h,v 1.6 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 
-@$*/
+-*/
 
-#include <complex>
-#include <sets.h>
-#include <idobj.h>
+#include "complex"
+#include "sets.h"
 
 class ArrayNDInfo;
 template <class T> class ArrayND;
@@ -44,8 +43,6 @@ checked at runtime.
 
 class TransformND
 {
-    isAbstractClass
-
 public:
     virtual bool		setInputInfo( const ArrayNDInfo& )	= 0;
     virtual const ArrayNDInfo&	getInputInfo() const			= 0;

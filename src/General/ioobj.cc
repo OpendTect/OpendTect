@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.12 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.13 2003-10-17 14:19:02 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -19,10 +19,8 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.12 2003-10-15 15:15:54 bert Exp $"
 #include "separstr.h"
 #include "filegen.h"
 #include "ptrman.h"
+#include "conn.h"
 #include <stdlib.h>
-
-DefineAbstractClassDef(IOObj,"IO Object");
-DefineAbstractClassDef(IOObject,"Factual IO Object");
 
 
 IOObj::IOObj( const char* nm, const char* ky )
@@ -159,11 +157,11 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
     if ( ky == "" && IOM().dirPtr() )
 	ky = IOM().dirPtr()->newKey();
 
-    if ( !strcmp(typ,"Stream") )
+    if ( !strcmp(typ,StreamConn::sType) )
 	objptr = new IOStream( nm, ky, gendef );
-    else if ( !strcmp(typ,"X-Group") )
+    else if ( !strcmp(typ,XConn::sType) )
 	objptr = new IOX( nm, ky, gendef );
-    else if ( !strcmp(typ,"Ideal") )
+    else if ( !strcmp(typ,"Ideal") ) // IdealConn::sType. Don't like the dep.
 	objptr = new IOIdeal( nm, ky );
 
     return objptr;
@@ -179,7 +177,7 @@ Translator* IOObj::getTranslator() const
     Translator* tr = grp.make( translator() );
     if ( !tr ) return 0;
 
-    if ( pars_.size() ) tr->usePar( &pars_ );
+    if ( pars_.size() ) tr->usePar( pars_ );
     return tr;
 }
 
@@ -187,8 +185,7 @@ Translator* IOObj::getTranslator() const
 IOObj* IOObj::clone() const
 {
     const IOObj* dataobj = isLink() ? ((IOLink*)this)->link() : this;
-    IOObj* newioobj = produce( dataobj->classDef().name(), name(),
-				dataobj->key(), NO );
+    IOObj* newioobj = produce( dataobj->connType(), name(), dataobj->key(), NO);
     newioobj->copyFrom( dataobj );
     newioobj->setStandAlone( dataobj->dirName() );
     return newioobj;
@@ -242,7 +239,7 @@ int IOObj::put( ascostream& astream ) const
 	    astream.put( name(), fms );
 	}
 	fms = translator();
-	fms += classDef().name();
+	fms += connType();
 	astream.put( group(), fms );
     }
 

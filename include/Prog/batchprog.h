@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.13 2003-09-26 16:24:48 bert Exp $
+ RCS:		$Id: batchprog.h,v 1.14 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "prog.h"
 #include "uidobj.h"
 #include "mmdefs.h"
+#include "bufstringset.h"
 class IOPar;
 class Socket;
 class StreamData;
@@ -58,7 +59,7 @@ public:
     int			argc()			{ return *pargc_; }
     int&		argc_r()		{ return *pargc_; }
     int			realArgsStartAt() const	{ return argshift_; }
-    ObjectSet<BufferString>& cmdLineOpts()	{ return opts_; }
+    BufferStringSet&	cmdLineOpts()	{ return opts_; }
 
     			// Socket stuff.
 
@@ -92,7 +93,7 @@ protected:
     bool		inbg_;
     StreamData&		sdout_;
     IOPar*		iopar_;
-    ObjectSet<BufferString> opts_;
+    BufferStringSet	opts_;
 
     Socket*		mkSocket();
     BufferString	masterhost_;

@@ -7,15 +7,12 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Dec 2002
- RCS:           $Id: keybindings.h,v 1.2 2003-07-25 11:15:04 nanne Exp $
+ RCS:           $Id: keybindings.h,v 1.3 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 */
 
-#include "bufstring.h"
-#include "sets.h"
-
-class UserIDSet;
+#include "bufstringset.h"
 class SoMouseButtonEvent;
 class SoEvent;
 
@@ -70,7 +67,7 @@ public:
                                 KeyBindMan();
 
     void                        setKeyBindings(const char*);
-    void                        getAllKeyBindings(UserIDSet&);
+    void                        getAllKeyBindings(BufferStringSet&);
     const char*			getCurrentKeyBindings() const
 				{ return curkeyb; }
 

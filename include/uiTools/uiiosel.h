@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.23 2003-04-29 15:45:53 bert Exp $
+ RCS:           $Id: uiiosel.h,v 1.24 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uigroup.h>
+#include "uigroup.h"
+#include "bufstringset.h"
 class UserIDSet;
 class uiLabeledComboBox;
 class uiPushButton;
@@ -64,7 +65,7 @@ public:
 protected:
 
     CallBack		doselcb_;
-    ObjectSet<BufferString>	entries_;
+    BufferStringSet	entries_;
     IOPar&		specialitems;
     bool		selok_;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.61 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.62 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,12 @@ static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
     newctio.ioobj = 0; newctio.setName( nm );
     newctio.fillObj();
     return newctio.ioobj;
+}
+
+static void getIOObjNames( IODirEntryList& entrylist, BufferStringSet& nms )
+{
+    for ( int idx=0; idx<entrylist.size(); idx++ )
+	nms.add( entrylist[idx]->name() );
 }
 
 
@@ -62,7 +68,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     topgrp = new uiGroup( this, "Top group" );
     entrylist->setName( seltxt );
-    listfld = new uiLabeledListBox( topgrp, entrylist->Ptr() );
+    BufferStringSet nms; getIOObjNames( *entrylist, nms );
+    listfld = new uiLabeledListBox( topgrp, nms, seltxt );
     if ( ismultisel )
 	listfld->box()->setMultiSelect( true );
     listfld->box()->setPrefWidthInChar( 
@@ -231,7 +238,8 @@ bool uiIOObjSelDlg::acceptOK( CallBacker* )
 	    IOM().to( iol );
 	    entrylist->fill( IOM().dirPtr() );
 	    listfld->box()->empty();
-	    listfld->box()->addItems( entrylist->Ptr() );
+	    BufferStringSet nms; getIOObjNames( *entrylist, nms );
+	    listfld->box()->addItems( nms );
 	    return false;
 	}
 	return true;

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.9 2003-10-03 06:24:42 nanne Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.10 2003-10-17 14:19:02 bert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.9 2003-10-03 06:24:42 nanne E
 #include "separstr.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "bufstringset.h"
 #include <fstream>
 
 const char* Well::IO::sKeyWell = "Well";
@@ -212,7 +213,7 @@ bool Well::Reader::getTrack( istream& strm ) const
 }
 
 
-void Well::Reader::getLogInfo( ObjectSet<BufferString>& strs ) const
+void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 {
     for ( int idx=1;  ; idx++ )
     {
@@ -221,7 +222,7 @@ void Well::Reader::getLogInfo( ObjectSet<BufferString>& strs ) const
 
 	rdHdr( *sd.istrm, sKeyLog );
 	PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, idx-1 );
-	strs += new BufferString( log->name() );
+	strs.add( log->name() );
     }
 }
 

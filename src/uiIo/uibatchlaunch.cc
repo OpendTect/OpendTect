@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.26 2003-09-26 21:40:31 bert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.27 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,6 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
 	, iopl(pl)
 	, hostname(hn)
 	, progname(pn)
-	, opts("Output to")
 {
     finaliseDone.notify( mCB(this,uiBatchLaunch,remSel) );
     HostDataList hdl;
@@ -79,9 +78,9 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     opts.add( "Standard output" );
     if ( wp )
 	opts.add( "Parameter report (no run)" );
-    opts.setCurrent( 0 );
-    optfld = new uiLabeledComboBox( this, Ptr(opts) );
+    optfld = new uiLabeledComboBox( this, opts, "Output to" );
     optfld->attach( alignedBelow, remfld );
+    optfld->box()->setCurrentItem( 0 );
     optfld->box()->selectionChanged.notify( mCB(this,uiBatchLaunch,optSel) );
 
     StringListInpSpec spec;
@@ -103,12 +102,6 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOParList& pl,
     filefld = new uiFileInput( this, "Log file",
 	   		       uiFileInput::Setup(fname).forread(false) );
     filefld->attach( alignedBelow, optfld );
-}
-
-
-uiBatchLaunch::~uiBatchLaunch()
-{
-    opts.deepErase();
 }
 
 

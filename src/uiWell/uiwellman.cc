@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.4 2003-10-16 15:01:27 nanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.5 2003-10-17 14:19:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uigeninputdlg.h"
+#include "bufstringset.h"
 #include "pixmap.h"
 #include "filegen.h"
 #include "strmprov.h"
@@ -52,9 +53,12 @@ uiWellMan::uiWellMan( uiParent* p )
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
 
     uiGroup* topgrp = new uiGroup( this, "Top things" );
-    listfld = new uiListBox( topgrp, entrylist->Ptr() );
+    listfld = new uiListBox( topgrp, "Well objects" );
     listfld->setHSzPol( uiObject::medvar );
     listfld->selectionChanged.notify( mCB(this,uiWellMan,selChg) );
+    for ( int idx=0; idx<entrylist->size(); idx++ )
+	listfld->addItem( (*entrylist)[idx]->name() );
+    listfld->setCurrentItem(0);
 
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "well" );
 
@@ -124,12 +128,12 @@ void uiWellMan::selChg( CallBacker* cb )
 void uiWellMan::fillLogsFld()
 {
     mGetReader()
-    ObjectSet<BufferString> lognms;
+    BufferStringSet lognms;
     rdr.getLogInfo( lognms );
 
     logsfld->empty();
     for ( int idx=0; idx<lognms.size(); idx++)
-	logsfld->addItem( lognms[idx]->buf() );
+	logsfld->addItem( lognms.get(idx) );
     logsfld->selAll( false );
 }
 

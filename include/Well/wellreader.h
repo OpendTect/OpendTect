@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.4 2003-09-26 11:41:59 nanne Exp $
+ RCS:		$Id: wellreader.h,v 1.5 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "wellio.h"
 #include "sets.h"
 #include <iosfwd>
+class BufferStringSet;
+
 
 namespace Well
 {
@@ -34,7 +36,7 @@ public:
     bool		getLogs() const;	//!< Read logs only
     bool		getMarkers() const;	//!< Read Markers only
     bool		getD2T() const;		//!< Read D2T model only
-    void		getLogInfo(ObjectSet<BufferString>&) const;	
+    void		getLogInfo(BufferStringSet&) const;	
     						//!< Read logheaders only
 
     bool		getInfo(istream&) const;	//!< Read from a stream

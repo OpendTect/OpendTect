@@ -8,14 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.8 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: conn.h,v 1.9 2003-10-17 14:19:00 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include <defobj.h>
-#include <enums.h>
+#include "enums.h"
 class IOObj;
 
 

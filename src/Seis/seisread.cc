@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.22 2003-06-19 13:38:32 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.23 2003-10-17 14:19:02 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: seisread.cc,v 1.22 2003-06-19 13:38:32 bert Exp
 #include "seistrcsel.h"
 #include "executor.h"
 #include "iostrm.h"
+#include "streamconn.h"
 #include "survinfo.h"
 
 
@@ -124,7 +125,7 @@ Executor* SeisTrcReader::starter()
 
 bool SeisTrcReader::multiConn() const
 {
-    return ioobj && ioobj->hasClass(IOStream::classid)
+    return ioobj && ioobj->hasConnType(StreamConn::sType)
 	&& ((IOStream*)ioobj)->multiConn();
 }
 

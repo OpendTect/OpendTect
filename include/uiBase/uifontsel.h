@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          25/9/2000
- RCS:           $Id: uifontsel.h,v 1.4 2002-01-08 11:27:41 nanne Exp $
+ RCS:           $Id: uifontsel.h,v 1.5 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "bufstringset.h"
 
 class uiButton;
 class uiLabeledComboBox;
-class UserIDSet;
 class uiFont;
 
 
@@ -54,7 +54,7 @@ public:
 protected:
 
     ObjectSet<uiLabeledComboBox>	sels;
-    UserIDSet&				ids;
+    BufferStringSet			ids;
 
 };
 

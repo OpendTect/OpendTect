@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.3 2003-10-04 20:58:58 bert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.4 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "nlamodel.h"
+#include "bufstringset.h"
 class IOPar;
 class UserIDSet;
 class FeatureSet;
@@ -39,7 +40,7 @@ public:
     virtual void	reset()				= 0;
     virtual bool	isClassification() const	= 0;
     virtual void	getNeededStoredInputs(
-			      const UserIDSet& ioobjnms,
+			      const BufferStringSet& ioobjnms,
 			      TypeSet<int>&) const	= 0;
     virtual bool	go()				= 0;
     			//!< returns whether manageNN should be called again
@@ -69,7 +70,7 @@ public:
     			//!< create attributeset from GDI NN
 
     			// Following should be filled on events
-    ObjectSet<BufferString>& inputNames()		{ return inpnms; }
+    BufferStringSet&	inputNames()			{ return inpnms; }
     FeatureSet&		fsTrain()			{ return fstrain; }
     FeatureSet&		fsTest()			{ return fstest; }
     FeatureSet&		fsMCA()				{ return fsmc; }
@@ -82,7 +83,7 @@ protected:
     FeatureSet&		fstrain;
     FeatureSet&		fstest;
     FeatureSet&		fsmc;
-    ObjectSet<BufferString> inpnms;
+    BufferStringSet	inpnms;
 
 };
 

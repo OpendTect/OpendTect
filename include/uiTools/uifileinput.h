@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.10 2003-08-28 08:17:08 nanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.11 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class uiFileBrowser;
 class uiPushButton;
+class BufferStringSet;
 
 /*! \brief A file-name input. 
 
@@ -61,7 +62,7 @@ public:
     void		setFilter( const char* fltr )
 			    { newfltr = true; selfltr = fltr; }
     const char*		fileName();
-    void		getFileNames(ObjectSet<BufferString>&) const;
+    void		getFileNames(BufferStringSet&) const;
 
     uiFileDialog::Mode	selectMode() const		
 			{ 

@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.7 2002-12-27 16:15:17 bert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.8 2003-10-17 14:19:02 bert Exp $";
 
 #include "filegen.h"
 #include "iodir.h"
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: iodir.cc,v 1.7 2002-12-27 16:15:17 bert Exp $";
 #include "ioman.h"
 #include "ascstream.h"
 #include "separstr.h"
-#include "aobset.h"
 #include "strmoper.h"
 
 
@@ -47,7 +46,7 @@ IODir::IODir( const MultiID& ky )
 
 IODir::~IODir()
 {
-    objs_.deepErase();
+    deepErase(objs_);
 }
 
 
@@ -90,7 +89,7 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
     if ( dirptr )
     {
 	dirptr->setLinked(0);
-	dirptr->objs_.deepErase();
+	deepErase(dirptr->objs_);
     }
     return readOmf( omfname, dirnm, dirptr, needid, found1 );
 }
@@ -168,6 +167,18 @@ IOObj* IODir::getObj( const MultiID& ky )
 }
 
 
+const IOObj* IODir::operator[]( const char* ky ) const
+{
+    for ( int idx=0; idx<objs_.size(); idx++ )
+    {
+	const IOObj* ioobj = objs_[idx];
+	if ( ioobj->name() == ky )
+	    return ioobj;
+    }
+    return 0;
+}
+
+
 const IOObj* IODir::operator[]( const MultiID& ky ) const
 {
     for ( int idx=0; idx<objs_.size(); idx++ )
@@ -203,7 +214,7 @@ bool IODir::create( const char* dirnm, const MultiID& ky, IOObj* mainobj )
 
 void IODir::reRead()
 {
-    objs_.deepErase();
+    deepErase(objs_);
     curid_ = 0;
     if ( build() ) state_ = Ok;
 }
@@ -220,7 +231,7 @@ bool IODir::permRemove( const MultiID& ky )
 	IOObj* obj = objs_[idx];
 	if ( obj->key() == ky )
 	{
-	    *this -= obj;
+	    objs_ -= obj;
 	    delete obj;
 	    break;
 	}
@@ -249,7 +260,7 @@ bool IODir::commitChanges( const IOObj* ioobj )
 	IOObj* obj = objs_[idx];
 	if ( obj->key() == clone->key() )
 	{
-	    delete objs_.replace( clone, obj );
+	    delete objs_.replace( clone, idx );
 	    found = YES;
 	    break;
 	}
@@ -269,7 +280,7 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 	ioobj->setKey( newKey() );
 
     mkUniqueName( ioobj );
-    *this += ioobj;
+    objs_ += ioobj;
     return persist ? doWrite() : YES;
 }
 

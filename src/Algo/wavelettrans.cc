@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.5 2003-08-29 08:26:22 nanne Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.6 2003-10-17 14:19:02 bert Exp $";
 
 
 #include "wavelettrans.h"
@@ -19,8 +19,6 @@ DefineEnumNames(WaveletTransform,WaveletType,0,"Wavelet Type")
   "Coiflet 4", "Coiflet 5", "Symmlet 4", "Symmlet 5", "Symmlet 6",
   "Symmlet 7", "Symmlet 8", "Symmlet 9", "Symmlet 10", "Vaidyanathan", 0 };
 
-
-DefineClassID(DiscreteWaveletTransform);
 
 
 bool WaveletTransform::isCplx(WaveletType wt)
@@ -398,8 +396,6 @@ bool DiscreteWaveletTransform::isPossible( int sz ) const
     return isPower( sz, 2 );
 }
 
-
-DefineClassID(ContiniousWaveletTransform);
 
 
 ContiniousWaveletTransform::ContiniousWaveletTransform(

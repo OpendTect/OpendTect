@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.7 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.8 2003-10-17 14:19:02 bert Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -18,10 +18,12 @@ static const char* rcsID = "$Id: iodirentry.cc,v 1.7 2003-10-15 15:15:54 bert Ex
 
 #include "errh.h"
 
+bool IODirEntry::beingsorted = false;
+
+
 IODirEntry::IODirEntry( IOObj* iob, int selres, bool maychgdir )
 	: UserIDObject("")
 	, ioobj(iob)
-	, beingsorted(false)
 {
     if ( !maychgdir )
 	*name_ = " ";
@@ -49,8 +51,8 @@ const UserIDString& IODirEntry::name() const
 
 IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
 				bool maycd, const char* f )
-	: UserIDObjectSet<IODirEntry>(
-		id && id->main() ? (const char*)id->main()->name() : "Objects" )
+	: UserIDObject(id && id->main()
+		    ? (const char*)id->main()->name():"Objects")
 	, ctxt(*new IOObjContext(tr))
 {
     ctxt.maychdir = maycd;
@@ -61,8 +63,8 @@ IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
 
 
 IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ct )
-	: UserIDObjectSet<IODirEntry>(
-		id && id->main() ? (const char*)id->main()->name() : "Objects" )
+	: UserIDObject(id && id->main()
+		    ? (const char*)id->main()->name():"Objects")
 	, ctxt(*new IOObjContext(ct))
 {
     fill( id );
@@ -71,7 +73,7 @@ IODirEntryList::IODirEntryList( IODir* id, const IOObjContext& ct )
 
 IODirEntryList::~IODirEntryList()
 {
-    deepErase();
+    deepErase(*this);
     delete &ctxt;
 }
 
@@ -79,9 +81,9 @@ IODirEntryList::~IODirEntryList()
 void IODirEntryList::fill( IODir* iodir )
 {
     if ( !iodir ) { pErrMsg("Can't fill IODirEntryList. No iodir"); return; }
-    deepErase();
+    deepErase(*this);
     setName( iodir->main() ? (const char*)iodir->main()->name() : "Objects" );
-    const UserIDObjectSet<IOObj>& ioobjs = iodir->getObjs();
+    const ObjectSet<IOObj>& ioobjs = iodir->getObjs();
     int curset = 0;
     if ( ctxt.maychdir && strcmp(iodir->dirName(),IOM().rootDir()) )
     {
@@ -142,7 +144,7 @@ void IODirEntryList::setSelected( const MultiID& iniokey )
 	}
 	if ( matches )
 	{
-	    setCurrent( entry );
+	    setCurrent( idx );
 	    lastiokey = iokey;
 	    return;
 	}
@@ -156,14 +158,9 @@ void IODirEntryList::curRemoved()
     if ( !cur ) return;
     *this -= cur;
     delete cur;
+    if ( cur_ >= size() ) cur_ = size() - 1;
     cur = current();
     lastiokey = cur && cur->ioobj ? (const char*)cur->ioobj->key() : "";
-}
-
-
-IOObj* IODirEntryList::selected()
-{
-    return current() ? current()->ioobj : 0 ;
 }
 
 
@@ -185,9 +182,25 @@ bool IODirEntryList::canChDir()
 
 void IODirEntryList::sort()
 {
+    IODirEntry::beingsorted = true;
+    const int sz = size();
+    for ( int d=sz/2; d>0; d=d/2 )
+	for ( int i=d; i<sz; i++ )
+	    for ( int j=i-d;
+		  j>=0 && (*this)[j]->name() > (*this)[j+d]->name();
+		  j-=d )
+		replace( replace( (*this)[j+d], j ), j+d );
+    IODirEntry::beingsorted = false;
+}
+
+
+int IODirEntryList::indexOf( const char* nm ) const
+{
     for ( int idx=0; idx<size(); idx++ )
-	(*this)[idx]->beingsorted = true;
-    ::sort((UserIDObjectSet<UserIDObject>*)this);
-    for ( int idx=0; idx<size(); idx++ )
-	(*this)[idx]->beingsorted = false;
+    {
+	IODirEntry* entry = (*this)[idx];
+	if ( entry->name() == nm )
+	    return idx;
+    }
+    return -1;
 }

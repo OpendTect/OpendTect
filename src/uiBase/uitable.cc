@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.13 2003-09-08 13:03:39 nanne Exp $
+ RCS:           $Id: uitable.cc,v 1.14 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,13 +13,13 @@ ________________________________________________________________________
 #include "i_qtable.h"
 
 #include "uifont.h"
-#include "uidobjset.h"
+#include "uimenu.h"
+#include "pixmap.h"
 #include "uilabel.h"
 #include "uiobjbody.h"
-#include "uimenu.h"
 #include "uicombobox.h"
 #include "basictypes.h"
-#include "pixmap.h"
+#include "bufstringset.h"
 
 #include <qcolor.h>
 
@@ -310,7 +310,7 @@ void uiTable::setRowLabels( const char** labels )
 }
 
 
-void uiTable::setRowLabels( const ObjectSet<BufferString>& labels )
+void uiTable::setRowLabels( const BufferStringSet& labels )
 {
     body_->setLines( labels.size() + 1 );
 
@@ -349,7 +349,7 @@ void uiTable::setColumnLabels( const char** labels )
 }
 
 
-void uiTable::setColumnLabels( const ObjectSet<BufferString>& labels )
+void uiTable::setColumnLabels( const BufferStringSet& labels )
 {
     body_->setNumCols( labels.size() );
 

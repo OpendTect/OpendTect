@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.33 2003-04-29 15:45:53 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.34 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uifiledlg.h"
-#include "uidset.h"
 #include "iopar.h"
 #include "filegen.h"
 #include "keystrs.h"

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.6 2002-11-06 12:57:54 arend Exp $
+ RCS:           $Id: uisettings.cc,v 1.7 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 uiSettings::uiSettings( uiParent* p, const char* nm )
 	: uiDialog(p,uiDialog::Setup(nm,"Specify GDI settings","0.2.1"))
 	, setts(*new Settings)
-	, items("Item")
 	, curidx(0)
 {
     for ( int idx=0; idx<setts.size(); idx++ )
@@ -49,7 +48,6 @@ uiSettings::uiSettings( uiParent* p, const char* nm )
 
 uiSettings::~uiSettings()
 {
-    items.deepErase();
     delete &setts;
 }
 
@@ -63,7 +61,7 @@ void uiSettings::itemSel( CallBacker* )
 
 void uiSettings::commitPrev()
 {
-    const char* keystr = (const char*)items[curidx]->name();
+    const char* keystr = items.get(curidx).buf();
     const char* valstr = setts[keystr];
     if ( !valstr || !*valstr ) 
     { 
@@ -84,7 +82,7 @@ void uiSettings::commitPrev()
 void uiSettings::setNew()
 {
     curidx = itemfld->box()->currentItem();
-    const char* keystr = (const char*)items[curidx]->name();
+    const char* keystr = items.get(curidx).buf();
     const char* valstr = setts[keystr];
     if ( !valstr || !*valstr ) 
     { 

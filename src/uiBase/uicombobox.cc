@@ -4,23 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.31 2003-06-05 08:56:04 nanne Exp $
+ RCS:           $Id: uicombobox.cc,v 1.32 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uicombobox.h>
-#include <uilabel.h>
-#include <uidobjset.h>
-#include <uiobjbody.h>
-#include <datainpspec.h>
+#include "uicombobox.h"
+#include "uilabel.h"
+#include "uiobjbody.h"
+#include "datainpspec.h"
 
-#include <i_qcombobox.h>
+#include "i_qcombobox.h"
 
-#include <qsize.h> 
+#include "qsize.h"
 
 #ifdef __msvc__
-#include <qlabel.h>
+#include "qlabel.h"
 #endif
 
 
@@ -60,10 +59,9 @@ uiComboBox::uiComboBox(  uiParent* parnt, const char* nm, bool ed )
     , selectionChanged( this )
 { if ( ed ) setStretch( 1, 0 );}
 
-uiComboBox::uiComboBox(  uiParent* parnt, const PtrUserIDObjectSet& uids,
-			 bool ed )
-    : uiObject( parnt, (const char*)uids->name(), 
-		mkbody(parnt,(const char*)uids->name(),ed) )
+uiComboBox::uiComboBox(  uiParent* parnt, const BufferStringSet& uids,
+			 const char* nm, bool ed )
+    : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
     , selectionChanged( this )
 { 
     if ( ed ) setStretch( 1, 0 );
@@ -211,11 +209,11 @@ uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char* txt,
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const PtrUserIDObjectSet& s,
-				      bool ed )
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& s,
+				      const char* nm, bool ed )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb = new uiComboBox( this, s, ed );
-    labl = new uiLabel( this, s->name(), cb );
+    cb = new uiComboBox( this, s, nm, ed );
+    labl = new uiLabel( this, nm, cb );
     setHAlignObj( cb );
 }

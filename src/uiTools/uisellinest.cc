@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.8 2002-05-31 10:26:51 nanne Exp $
+ RCS:           $Id: uisellinest.cc,v 1.9 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,8 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uicombobox.h"
 #include "uicolor.h"
-#include "uidset.h"
 #include "uispinbox.h"
+#include "bufstringset.h"
 
 
 uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& l,
@@ -25,9 +25,8 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& l,
 	, colinp(0)
 	, widthbox(0)
 {
-    UserIDSet itms( LineStyle::TypeNames );
-    itms.setName( "Line Style" );
-    stylesel = new uiComboBox( this, itms );
+    BufferStringSet itms( LineStyle::TypeNames );
+    stylesel = new uiComboBox( this, itms, "Line Style" );
     stylesel->setCurrentItem( (int)ls.type );
     new uiLabel( this, txt, stylesel );
     if ( wcol )

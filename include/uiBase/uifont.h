@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.4 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uifont.h,v 1.5 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ class QFont;
 class QFontMetrics;
 class Settings;
 class uiParent;
-class UserIDSet;
+class BufferStringSet;
 
 class uiFont 
 {			//!< font stuff that needs Qt.
@@ -77,8 +77,7 @@ public:
 
     static int		nrKeys();
     static const char*	key(int);
-    static void		listKeys(ObjectSet<const char>&);
-    static void		listKeys(UserIDSet&);
+    static void		listKeys(BufferStringSet&);
 
     static uiFont&	get(const char* key=0);
     static uiFont&	getFromQfnt(QFont*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.5 2003-06-05 08:56:04 nanne Exp $
+ RCS:           $Id: userinputobj.h,v 1.6 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class CallBack;
 class DataInpSpec;
 class PtrUserIDObjectSet;
 class BufferString;
+class BufferStringSet;
 template <class T> class ObjectSet;
 
 class UserInputObj
@@ -49,8 +50,7 @@ public:
     virtual bool	hasItems()			{ return false; }
     virtual void        addItem( const char* txt )	{ setText( txt ); }
     void		addItems(const char**);
-    void		addItems(const PtrUserIDObjectSet&);
-    void		addItems(const ObjectSet<BufferString>&);
+    void		addItems(const BufferStringSet&);
 
 
 		        /*! \brief intermediate value available

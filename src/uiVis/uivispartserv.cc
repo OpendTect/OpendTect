@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.167 2003-10-15 09:12:57 arend Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.168 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,9 @@ ________________________________________________________________________
 #include "uislicesel.h"
 #include "uizscaledlg.h"
 #include "uiworkareadlg.h"
-#include "uidset.h"
 #include "uimenu.h"
 #include "colortab.h"
+#include "bufstringset.h"
 #include "surfaceinfo.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -353,7 +353,7 @@ void uiVisPartServer::setPickSetData( int id, const PickSet& pickset )
 }
 
 
-void uiVisPartServer::getAllPickSets( UserIDSet& pset )
+void uiVisPartServer::getAllPickSets( BufferStringSet& pset )
 {
     TypeSet<int> sceneids;
     getChildIds( -1, sceneids );

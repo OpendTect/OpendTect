@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.10 2003-10-16 09:41:18 bert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.11 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ void uiIOSurface::fillFields( const MultiID& id )
 }
 
 
-void uiIOSurface::fillAttribFld( const ObjectSet<BufferString>& valnames )
+void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
 {
     if ( !attribfld ) return;
 
@@ -101,7 +101,7 @@ void uiIOSurface::fillAttribFld( const ObjectSet<BufferString>& valnames )
 }
 
 
-void uiIOSurface::fillPatchFld( const ObjectSet<BufferString>& patches )
+void uiIOSurface::fillPatchFld( const BufferStringSet& patches )
 {
     if ( !patchfld ) return;
 

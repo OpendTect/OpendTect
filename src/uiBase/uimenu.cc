@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.17 2003-08-11 11:21:50 nanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.18 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,15 +12,14 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "i_qmenu.h"
 #include "uiparentbody.h"
-#include "uidobjset.h"
 #include "uiobjbody.h"
 #include "uibody.h"
 #include "uimainwin.h"
 
-#include <qmenudata.h> 
-#include <qmenubar.h>
-#include <qpopupmenu.h> 
-#include <qcursor.h> 
+#include "qmenudata.h"
+#include "qmenubar.h"
+#include "qpopupmenu.h"
+#include "qcursor.h"
 
 
 

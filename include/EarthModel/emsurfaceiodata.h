@@ -7,15 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.1 2003-06-19 13:38:32 bert Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.2 2003-10-17 14:19:00 bert Exp $
 ________________________________________________________________________
-
 
 -*/
 
 #include "binidselimpl.h"
-#include "bufstring.h"
-#include "sets.h"
+#include "bufstringset.h"
+
 
 namespace EM
 {
@@ -33,10 +32,10 @@ public:
     void		clear();
     void		use(const Surface&);
 
-    BufferString		dbinfo;
-    BinIDSampler		rg;
-    ObjectSet<BufferString>	valnames;
-    ObjectSet<BufferString>	patches;
+    BufferString	dbinfo;
+    BinIDSampler	rg;
+    BufferStringSet	valnames;
+    BufferStringSet	patches;
 
 };
 

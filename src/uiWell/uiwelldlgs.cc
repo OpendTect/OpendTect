@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.1 2003-10-16 15:01:27 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.2 2003-10-17 14:19:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,7 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 
 // ==================================================================
 
-uiLogSelDlg::uiLogSelDlg( uiParent* p, const ObjectSet<BufferString>& strs )
+uiLogSelDlg::uiLogSelDlg( uiParent* p, const BufferStringSet& strs )
     : uiDialog(p,uiDialog::Setup("Display Well logs",
 				 "Select log",""))
 {

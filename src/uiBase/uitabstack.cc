@@ -4,19 +4,18 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.6 2003-04-23 12:14:43 arend Exp $
+ RCS:           $Id: uitabstack.cc,v 1.7 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uitabstack.h>
-#include <uitabbar.h>
+#include "uitabstack.h"
+#include "uitabbar.h"
 
-#include <uidobjset.h>
-#include <uiobjbody.h>
-#include <pixmap.h>
-#include <sets.h>
-#include <qframe.h>
+#include "uiobjbody.h"
+#include "pixmap.h"
+#include "sets.h"
+#include "qframe.h"
 
 
 uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )

@@ -7,17 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.6 2002-11-20 08:35:43 arend Exp $
+ RCS:           $Id: uitreeview.h,v 1.7 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-
+#include "uiobj.h"
+#include "bufstringset.h"
 class uiListViewBody;
 class uiListViewItem;
 class QListViewItem;
 class ioPixmap;
+
 
 class uiListView : public uiObject
 {
@@ -188,7 +189,7 @@ public:
 
 	uiListViewItem::Type	type_;
 	uiListViewItem*		after_;
-	ObjectSet<BufferString>	labels_;
+	BufferStringSet		labels_;
 	const ioPixmap*		pixmap_;
 
     };

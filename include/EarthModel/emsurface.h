@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.20 2003-10-03 06:32:09 nanne Exp $
+ RCS:		$Id: emsurface.h,v 1.21 2003-10-17 14:19:00 bert Exp $
 ________________________________________________________________________
 
 
@@ -15,8 +15,8 @@ ________________________________________________________________________
 
 #include "emposid.h"
 #include "emobject.h"
-#include "sets.h"
 #include "position.h"
+#include "bufstringset.h"
 
 /*!
 Rules for surfaces.
@@ -211,10 +211,10 @@ protected:
 
     ObjectSet<Geometry::MeshSurface>	surfaces;
     TypeSet<PatchID>			patchids;
-    ObjectSet<BufferString>		patchnames;
+    BufferStringSet			patchnames;
 
-    ObjectSet<BufferString>		auxdatanames;
-    ObjectSet<BufferString>		auxdatainfo;
+    BufferStringSet			auxdatanames;
+    BufferStringSet			auxdatainfo;
     ObjectSet<ObjectSet<TypeSet<float> > > auxdata;
     BufferString			dbinfo;
 

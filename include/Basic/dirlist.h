@@ -7,24 +7,22 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		18-4-1996
- RCS:		$Id: dirlist.h,v 1.2 2001-02-13 17:15:45 bert Exp $
+ RCS:		$Id: dirlist.h,v 1.3 2003-10-17 14:19:00 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uidobjset.h>
+#include "bufstringset.h"
 
 
 /*!\brief provides file and directory names in a certain directory.  */
 
-class DirList : public UserIDObjectSet<UserIDObject>
+class DirList : public BufferStringSet
 {
 public:
 			DirList(const char*,int dirindic=0);
 				/*!< dirindic > 0: only directories
 				     dirindic < 0: no directories */
-
-			~DirList();
 
     void		update();
     const char*		dirName() const		{ return dir; }

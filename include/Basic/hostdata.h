@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.8 2003-02-05 10:42:32 arend Exp $
+ RCS:           $Id: hostdata.h,v 1.9 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <sets.h>
+#include "bufstringset.h"
+
 
 /*\brief Host name and aliases */
 
@@ -44,7 +45,7 @@ public:
 protected:
 
     BufferString		name_;
-    ObjectSet<BufferString>	aliases_;
+    BufferStringSet		aliases_;
     bool			realaliases_;
 
     friend class		HostDataList;

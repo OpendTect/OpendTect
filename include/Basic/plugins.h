@@ -2,8 +2,7 @@
 #define plugins_h
 
 
-#include "bufstring.h"
-#include "sets.h"
+#include "bufstringset.h"
 
 #ifdef __cpp__
 extern "C" {
@@ -84,7 +83,7 @@ public:
 				  late?PI_AUTO_INIT_LATE:PI_AUTO_INIT_EARLY); }
 
     bool			isLoaded(const char*); //!< file or username
-    const ObjectSet<BufferString>& loadedFileNames() const
+    const BufferStringSet&	loadedFileNames() const
 				{ return loaded_; }
     const char*			userName(const char*) const;
     				//!< returns without 'lib', extension and path
@@ -98,7 +97,7 @@ private:
     int				argc_;
     char**			argv_;
     static PluginManager*	theinst_;
-    ObjectSet<BufferString>	loaded_;
+    BufferStringSet		loaded_;
     ObjectSet<PluginInfo>	info_;
 
     void			getUsrNm(const char*,BufferString&) const;

@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.17 2003-08-11 11:21:56 nanne Exp $
+ RCS:           $Id: uimenu.h,v 1.18 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uihandle.h"
-#include "uidobjset.h"
 
 class uiParent;
 class uiMainWin;

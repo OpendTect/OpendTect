@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.23 2003-10-16 09:41:18 bert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.24 2003-10-17 14:19:02 bert Exp $";
 
 #include "emmanager.h"
 
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.23 2003-10-16 09:41:18 bert Ex
 #include "iodir.h"
 #include "ioman.h"
 #include "ptrman.h"
-#include "uidobjset.h"
 
 
 EM::EMManager& EM::EMM()

@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.15 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.16 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include <conn.h>
-#include <multiid.h>
+#include "conn.h"
+#include "multiid.h"
 class IOPar;
 class CallBack;
 class ascistream;
@@ -40,9 +40,8 @@ If a link is removed, the entire tree below it is removed.
 */
 
 
-class IOObj : public DefObject
-	    , public UserIDObject
-{	      isUidAbstractDefObject(IOObj)
+class IOObj : public UserIDObject
+{
 
     friend class	IODir;
     friend class	IOLink;

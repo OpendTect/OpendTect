@@ -7,16 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.45 2003-06-05 08:56:04 nanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.46 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <ranges.h>
-#include <bufstring.h>
-#include <string2.h>
-#include <basictypes.h>
-#include <uidset.h>
+#include "ranges.h"
+#include "string2.h"
+#include "basictypes.h"
+#include "bufstringset.h"
 
 class BinID2Coord;
 
@@ -487,6 +486,11 @@ protected:
 class StringListInpSpec : public DataInpSpec
 {
 public:
+    			StringListInpSpec( const BufferStringSet& bss )
+			    : DataInpSpec( DataTypeImpl<const char*>
+							(DataType::list) )
+			    , strings_(bss)		{}
+
 			StringListInpSpec( const char** sl=0 )
 			    : DataInpSpec( DataTypeImpl<const char*>
 						    (DataType::list) )
@@ -506,15 +510,6 @@ public:
 				strings_ += new BufferString( sl[idx] );
 			}
 
-			StringListInpSpec( const UserIDSet& sl )
-			    : DataInpSpec( DataTypeImpl<const char*>
-							(DataType::list) )
-			    , cur_(0)
-			{
-			    for ( int idx=0; idx<sl.size(); idx++ )
-				strings_ += new BufferString( sl[idx]->name() );
-			}
-
 			StringListInpSpec( const StringListInpSpec& oth)
 			    : DataInpSpec( oth )
 			    , cur_(oth.cur_)
@@ -529,7 +524,7 @@ public:
     virtual DataInpSpec* clone() const	
 			    { return new StringListInpSpec( *this ); }
 
-    const ObjectSet<BufferString>& strings() const
+    const BufferStringSet& strings() const
 			    { return strings_; }
 
     void		addString( const char* txt )
@@ -573,7 +568,7 @@ public:
 
 protected:
 
-    ObjectSet<BufferString> strings_;
+    BufferStringSet	strings_;
     int			cur_;
 
 };

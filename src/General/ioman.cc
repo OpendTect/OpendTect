@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.36 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.37 2003-10-17 14:19:02 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -125,8 +125,8 @@ void IOMan::init()
 	iol->dirname = iostrm->name();
 	const IOObj* previoobj = prevdd ? (*dirPtr())[prevdd->id]
 					: dirPtr()->main();
-	dirPtr()->objs_ += iol;
-	dirPtr()->objs_.moveAfter( iol, const_cast<IOObj*>(previoobj) );
+	int idxof = indexOf( dirPtr()->objs_, (IOObj*)previoobj );
+	dirPtr()->objs_.insertAfter( iol, idxof );
 
 	prevdd = dd;
 	needwrite = true;
@@ -344,12 +344,12 @@ IOObj* IOMan::getByName( const char* objname,
 
     bool havepar = pardirname && *pardirname;
     bool parprov = parname && *parname;
-    const UserIDObjectSet<IOObj>* ioobjs = &dirptr->getObjs();
+    const ObjectSet<IOObj>& ioobjs = dirptr->getObjs();
     ObjectSet<MultiID> kys;
     const IOObj* ioobj;
-    for ( int idx=0; idx<ioobjs->size(); idx++ )
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
-	ioobj = (*ioobjs)[idx];
+	ioobj = ioobjs[idx];
 	if ( !havepar )
 	{
 	    if ( !strcmp(ioobj->name(),objname) )
@@ -478,7 +478,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 	     || dirPtr()->main()->key().nrKeys() < 3 ) )
 	to( ctio.ctxt.stdSelKey() );
 
-    IOObj* ioobj = dirPtr()->findObj( ctio.ctxt.name() );
+    const IOObj* ioobj = (*dirPtr())[ ctio.ctxt.name() ];
     ctio.ctxt.fillTrGroup();
     if ( ioobj && ctio.ctxt.trgroup->userName() != ioobj->group() )
 	ioobj = 0;
@@ -504,12 +504,12 @@ void IOMan::getEntry( CtxtIOObj& ctio, MultiID parentkey )
 
 	ioobj = iostrm;
 	if ( ctio.ctxt.crlink )
-	    ioobj = new IOLink( ioobj->name(), ioobj );
+	    ioobj = new IOLink( ioobj->name(), (IOObj*)ioobj );
 	if ( ctio.ctxt.includekeyval
 	  && *((const char*)ctio.ctxt.ioparkeyval[0]) )
 	    ioobj->pars().set( ctio.ctxt.ioparkeyval[0],
 		    		ctio.ctxt.ioparkeyval[1] );
-	dirPtr()->addObj( ioobj );
+	dirPtr()->addObj( (IOObj*)ioobj );
     }
 
     ctio.setObj( ioobj->clone() );
@@ -639,7 +639,7 @@ bool IOMan::getAuxfname( const MultiID& ky, FileNameString& fn ) const
 bool IOMan::hasAux( const MultiID& ky ) const
 {
     IOParList* iopl = getAuxList( ky );
-    bool rv = iopl && (*iopl)[ky];
+    bool rv = iopl && find( *iopl, (const char*)ky );
     delete iopl;
     return rv;
 }
@@ -682,7 +682,7 @@ IOPar* IOMan::getAux( const MultiID& ky ) const
 {
     IOParList* iopl = getAuxList( ky );
     if ( !iopl ) return new IOPar( ky );
-    IOPar* iopar = (*iopl)[ky];
+    IOPar* iopar = find( *iopl, (const char*)ky );
     if ( iopar ) *iopl -= iopar;
     else	 iopar = new IOPar( ky );
 
@@ -697,7 +697,7 @@ bool IOMan::putAux( const MultiID& ky, const IOPar* iopar ) const
     IOParList* iopl = getAuxList( ky );
     if ( !iopl ) return false;
 
-    IOPar* listiopar = (*iopl)[iopar->name()];
+    IOPar* listiopar = find( *iopl, iopar->name().buf() );
     if ( listiopar ) *listiopar = *iopar;
     else	     *iopl += new IOPar( *iopar );
 
@@ -711,7 +711,7 @@ bool IOMan::removeAux( const MultiID& ky ) const
 {
     IOParList* iopl = getAuxList( ky );
     if ( !iopl ) return true;
-    IOPar* iopar = (*iopl)[ky];
+    IOPar* iopar = find( *iopl, (const char*)ky );
     if ( !iopar ) { delete iopl; return true; }
     *iopl -= iopar;
 

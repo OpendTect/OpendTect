@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.31 2003-10-16 09:41:18 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.32 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ bool uiImportHorizon::handleAscii()
 	mErrRet( "Cannot create horizon" );
     horizon->ref();
 
-    ObjectSet<BufferString> filenames;
+    BufferStringSet filenames;
     infld->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
     {
@@ -166,7 +166,7 @@ bool uiImportHorizon::checkInpFlds()
     if ( ! *infld->fileName() )
 	mWarnRet( "Please select input file(s)" )
 
-    ObjectSet<BufferString> filenames;
+    BufferStringSet filenames;
     infld->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
     {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.55 2003-09-26 21:40:31 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.56 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -506,7 +506,7 @@ void uiSeisMMProc::prepareNextCycle( int msecs )
 #define mReturn()    { deepErase( machs ); return; }
 void uiSeisMMProc::updateCurMachs()
 {
-    ObjectSet<BufferString> machs;
+    BufferStringSet machs;
     jm->getActiveMachines( machs );
     sort( machs );
     const int oldsz = usedmachfld->box()->size();

@@ -7,23 +7,23 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.16 2003-08-22 11:36:00 nanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.17 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiapplserv.h>
-#include <multiid.h>
-#include <uidset.h>
-#include <position.h>
-#include <ranges.h>
+#include "uiapplserv.h"
+#include "ranges.h"
+#include "multiid.h"
+#include "position.h"
+#include "bufstringset.h"
 
 class Color;
 class PickSet;
 class BinIDRange;
+class SurfaceInfo;
 class PickSetGroup;
 class RandLocGenPars;
-class SurfaceInfo;
 
 
 /*! \brief Service provider for application level - seismics */
@@ -50,7 +50,7 @@ public:
     PickSetGroup&		group()			{ return psg; }
     				//!< 1) Result of fetchPickSets()
     				//!< 2) Must be filled on evFetchPicks
-    UserIDSet&			availableSets()		{ return avsets; }
+    BufferStringSet&		availableSets()		{ return avsets; }
     const BoolTypeSet& 		selectedSets() const	{ return selsets; }
     MultiID&			psgID()			{ return psgid; }
     const Color&		getPickColor()		{ return pickcolor; }
@@ -68,7 +68,7 @@ protected:
 
     PickSetGroup&		psg;
     MultiID			psgid;
-    UserIDSet			avsets;
+    BufferStringSet		avsets;
     BoolTypeSet			selsets;
     Color&			pickcolor;
 

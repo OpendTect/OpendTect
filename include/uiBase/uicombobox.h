@@ -7,17 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.15 2003-06-05 08:56:04 nanne Exp $
+ RCS:           $Id: uicombobox.h,v 1.16 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
-#include <uigroup.h>
-#include <userinputobj.h>
+#include "uigroup.h"
+#include "userinputobj.h"
 
-class PtrUserIDObjectSet;
 class uiLabel;
 class uiComboBoxBody;
-
+class BufferStringSet;
 class BufferString;
 template <class T> class ObjectSet;
 
@@ -27,7 +26,8 @@ public:
 
 			uiComboBox(uiParent*,const char* nm="Combo Box",
 				   bool editable=false);
-			uiComboBox(uiParent*,const PtrUserIDObjectSet&,
+			uiComboBox(uiParent*,const BufferStringSet&,
+				   const char* nm="Combo Box",
 				   bool editable=false);
     virtual 		~uiComboBox();
 
@@ -46,11 +46,6 @@ public:
 
     virtual bool	hasItems()		{ return true; }
     virtual void	addItem(const char*); 
-/*
-    void		addItems(const char**); 
-    void		addItems(const PtrUserIDObjectSet&);
-    void		addItems(const ObjectSet<BufferString>&);
-*/
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
@@ -91,8 +86,8 @@ public:
 		uiLabeledComboBox( uiParent*,const char* txt,
 				   const char* nm="Labeled Combobox",
 				   bool editable=false);
-		uiLabeledComboBox( uiParent*,const PtrUserIDObjectSet&,
-					    bool ed=false);
+		uiLabeledComboBox( uiParent*,const BufferStringSet&,
+					const char* txt,bool ed=false);
 
     uiComboBox*	box()		{ return cb; }
     uiLabel*	label()		{ return labl; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.8 2003-08-11 13:15:53 bert Exp $
+ RCS:		$Id: iodir.h,v 1.9 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,13 +46,12 @@ public:
     const IOObj*	main() const;
     const char*		dirName() const		{ return dirname_; }
 
-    const UserIDObjectSet<IOObj>& getObjs() const { return objs_; }
+    const ObjectSet<IOObj>& getObjs() const { return objs_; }
     int			size() const		  { return objs_.size(); }
     const IOObj*	operator[](const MultiID&) const;
+    const IOObj*	operator[]( const char* str ) const;
     const IOObj*	operator[]( int idx ) const	{ return objs_[idx]; }
     const IOObj*	operator[]( IOObj* o ) const	{ return objs_[o]; }
-    const IOObj*	operator[]( const char* str ) const
-							{ return objs_[str]; }
 
     bool		addObj(IOObj*,bool immediate_store=YES);
 			// after call, IOObj is mine!
@@ -60,11 +59,6 @@ public:
 			// after call, pointer may dangle!
     bool		permRemove(const MultiID&);
     bool		mkUniqueName(IOObj*);
-
-    void		setCurrent( const IOObj* obj )
-			{ objs_.setCurrent(obj); }
-    const IOObj*	current() const
-			{ return objs_.current(); }
 
     static IOObj*	getObj(const MultiID&);
     static IOObj*	getMain(const char*);
@@ -75,7 +69,7 @@ public:
 
 private:
 
-    UserIDObjectSet<IOObj> objs_;
+    ObjectSet<IOObj>	objs_;
     FileNameString	dirname_;
     int			state_;
     int			curid_;
@@ -85,12 +79,6 @@ private:
     static bool		create(const char* dirnm,const MultiID&,IOObj* mainobj);
     static IOObj*	doRead(const char*,IODir*,int id=-1);
     bool		build();
-
-    IOObj*		findObj( int idx )		{ return objs_[idx]; }
-    IOObj*		findObj( IOObj* o )		{ return objs_[o]; }
-    IOObj*		findObj( const char* str )	{ return objs_[str]; }
-    void		operator +=( IOObj* obj )	{ objs_ += obj; }
-    void		operator -=( IOObj* obj )	{ objs_ -= obj; }
 
     MultiID		newKey() const;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.5 2003-10-16 09:41:18 bert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.6 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,9 +42,11 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p )
     entrylist = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
 
     uiGroup* topgrp = new uiGroup( this, "Top things" );
-    listfld = new uiListBox( topgrp, entrylist->Ptr() );
+    listfld = new uiListBox( topgrp );
     listfld->setHSzPol( uiObject::medvar );
     listfld->selectionChanged.notify( mCB(this,uiSurfaceMan,selChg) );
+    for ( int idx=0; idx<entrylist->size(); idx++ )
+	listfld->addItem( (*entrylist)[idx]->name() );
 
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "hor" );
     manipgrp->preRelocation.notify( mCB(this,uiSurfaceMan,relocMsg) );
@@ -126,7 +128,7 @@ void uiSurfaceMan::remPush( CallBacker* )
 }
 
 
-void uiSurfaceMan::fillAttribList( const ObjectSet<BufferString>& strs )
+void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
 {
     attribfld->empty();
     for ( int idx=0; idx<strs.size(); idx++)

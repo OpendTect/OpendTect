@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.24 2003-07-30 13:14:53 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.25 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uigroup.h>
-class PtrUserIDObjectSet;
 class uiLabel;
+class BufferStringSet;
 class uiListBoxBody;
 
 
@@ -29,7 +29,8 @@ public:
 				  int preferredNrLines=0,
 				  int preferredFieldWidth=0);
 
-			uiListBox(uiParent*,const PtrUserIDObjectSet&,
+			uiListBox(uiParent*,const BufferStringSet&,
+				  const char* txt="uiListBox",
 				  bool isMultiSelect=false,
 				  int preferredNrLines=0,
 				  int preferredFieldWidth=0);
@@ -61,8 +62,7 @@ public:
     void		addItem(const char*,bool embedded=false); 
     			//!< embedded = put [...] around text
     void		addItems(const char**); 
-    void		addItems(const PtrUserIDObjectSet&);
-    void		addItems(const ObjectSet<BufferString>&);
+    void		addItems(const BufferStringSet&);
     void		setItemText(int,const char*);
     int			currentItem() const;
     const char*		getText() const	 { return textOfItem(currentItem()); }
@@ -109,7 +109,8 @@ public:
 
 		uiLabeledListBox( uiParent*,const char* txt,
 				  bool multisel=false,LblPos p=LeftTop);
-		uiLabeledListBox( uiParent*,const PtrUserIDObjectSet&,
+		uiLabeledListBox( uiParent*,const BufferStringSet&,
+				  const char* txt,
 				  bool multisel=false,LblPos p=LeftTop);
 
     uiListBox*	box()				{ return lb; }

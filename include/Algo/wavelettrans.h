@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.7 2003-08-29 07:04:26 nanne Exp $
+ RCS:           $Id: wavelettrans.h,v 1.8 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -75,7 +75,6 @@ public:
 
 class DiscreteWaveletTransform : public GenericTransformND
 {
-    isConcreteClass
 public:
 		    DiscreteWaveletTransform( WaveletTransform::WaveletType );
 
@@ -142,7 +141,6 @@ protected:
 
 class ContiniousWaveletTransform : public TransformND
 {
-    isConcreteClass
 public:
 		    ContiniousWaveletTransform( WaveletTransform::WaveletType );
 		    ~ContiniousWaveletTransform();

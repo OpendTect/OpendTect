@@ -4,21 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.8 2003-02-17 15:16:13 arend Exp $
+ RCS:           $Id: uitreeview.cc,v 1.9 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uilistview.h>
-#include <uifont.h>
-#include <uidobjset.h>
-#include <uilabel.h>
-#include <uiobjbody.h>
-#include <pixmap.h>
+#include "uilistview.h"
+#include "uifont.h"
+#include "uilabel.h"
+#include "uiobjbody.h"
+#include "pixmap.h"
 
-#include <i_qlistview.h>
+#include "i_qlistview.h"
 
-#include <qsize.h> 
+#include "qsize.h"
 
 #define mQitemFor(itm)		uiListViewItem::qitemFor(itm)
 #define mItemFor(itm)		uiListViewItem::itemFor(itm)
@@ -94,20 +93,6 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
 {
     setRootDecorated( dec );
 }
-
-/*
-uiListView::uiListView( uiParent* p, const PtrUserIDObjectSet& uids,
-		      bool ms, int nl, int pfw )
-    : uiObject( p, (const char*)uids->name(), 
-		mkbody(p,(const char*)uids->name(), ms,nl,pfw))
-    , selectionChanged( this )
-    , doubleClicked( this )
-    , rightButtonClicked( this )
-    , lastClicked_( -1 )
-{
-    addItems( uids );
-}
-*/
 
 
 uiListViewBody& uiListView::mkbody( uiParent* p, const char* nm, int nl)

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.9 2003-07-29 08:22:36 nanne Exp $
+ RCS:           $Id: uifiledlg.h,v 1.10 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
 #include "uiobj.h"
-#include <bufstring.h>
+#include "bufstringset.h"
 
 class uiFileDialog : public UserIDObject
 {
@@ -40,7 +40,7 @@ public:
 				     const char* caption = 0 );
 
     const char*		fileName() const	{ return fn; }
-    void		getFileNames(ObjectSet<BufferString>&) const;
+    void		getFileNames(BufferStringSet&) const;
 
     void		setMode( Mode m)	{ mode_=m; }
     Mode		mode() const		{ return mode_; }
@@ -52,10 +52,10 @@ public:
 
     static const char*	filesep;
 
-    static void		list2String(const ObjectSet<BufferString>&,
+    static void		list2String(const BufferStringSet&,
 	    			    BufferString&);
     static void		string2List(const BufferString&,
-	    			    ObjectSet<BufferString>&);
+	    			    BufferStringSet&);
 
 protected:
 
@@ -67,7 +67,7 @@ protected:
     BufferString	oktxt_;
     BufferString	cnclxt_;
     uiParent*		parnt_;
-    ObjectSet<BufferString>	filenames;
+    BufferStringSet	filenames;
 };
 
 #endif

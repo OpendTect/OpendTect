@@ -3,7 +3,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: plugins.cc,v 1.12 2003-10-15 09:12:57 arend Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.13 2003-10-17 14:19:02 bert Exp $";
 
 #include "plugins.h"
 #include "filegen.h"
@@ -133,7 +133,7 @@ static void loadPlugins( const char* dirnm, int argc, char** argv,
     dl.sort();
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	BufferString libnm = dl[idx]->name();
+	BufferString libnm = dl.get(idx);
 	if ( File_isDirectory(libnm) || PIM().isLoaded(libnm) )
 	    continue;
 

@@ -7,22 +7,22 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.15 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: iostrm.h,v 1.16 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 
 -*/
  
-#include <ioobject.h>
-#include <streamconn.h>
-#include <ranges.h>
+#include "ioobject.h"
+#include "streamconn.h"
+#include "ranges.h"
 class StreamProvider;
 
 /*\brief An IOStream is a file (default), device or command entry in the omf. */
 
 
 class IOStream : public IOObject
-{		 isUidConcreteDefObject(IOStream)
+{
 public:
 			IOStream(const char* nm=0,const char* id=0,bool =0);
     virtual		~IOStream();

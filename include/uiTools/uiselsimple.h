@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.2 2002-05-28 08:40:58 bert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.3 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiListBox;
-class PtrUserIDObjectSet;
+class BufferStringSet;
 
 /*!\brief Select entry from list
 
@@ -27,11 +27,7 @@ class uiSelectFromList : public uiDialog
 { 	
 public:
 			uiSelectFromList(uiParent*,
-					 const ObjectSet<BufferString>&,
-					 const char* cur=0,
-					 const char* captn="Please select");
-			uiSelectFromList(uiParent*,
-					 const PtrUserIDObjectSet&,
+					 const BufferStringSet&,
 					 const char* cur=0,
 					 const char* captn="Please select");
 			uiSelectFromList(uiParent*,

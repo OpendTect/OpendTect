@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.18 2003-04-23 12:11:21 arend Exp $
+ RCS:           $Id: uifont.cc,v 1.19 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "uimain.h"
 #include "settings.h"
-#include "uidset.h"
 #include "uidialog.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uiparentbody.h"
 #include "uilabel.h"
+#include "bufstringset.h"
 
 #include "errh.h"
 #include "uibody.h"
@@ -199,16 +199,7 @@ const char* uiFontList::key( int idx )
 }
 
 
-void uiFontList::listKeys( ObjectSet<const char>& strs )
-{
-    initialise();
-
-    for ( int idx=0; idx<fonts.size(); idx++ )
-	strs += (const char*)fonts[idx]->key();
-}
-
-
-void uiFontList::listKeys( UserIDSet& ids )
+void uiFontList::listKeys( BufferStringSet& ids )
 {
     initialise();
 
@@ -355,7 +346,6 @@ void uiSetFonts::butPushed( CallBacker* obj )
 
 uiSelFonts::uiSelFonts( uiParent* p, const char* nm, const char* winid )
 	: uiDialog(p,uiDialog::Setup("Fonts",nm,winid))
-	, ids(*new UserIDSet)
 {
     uiFontList::listKeys( ids );
 }
@@ -363,15 +353,12 @@ uiSelFonts::uiSelFonts( uiParent* p, const char* nm, const char* winid )
 
 uiSelFonts::~uiSelFonts()
 {
-    ids.deepErase();
-    delete &ids;
 }
 
 
 void uiSelFonts::add( const char* nm, const char* stdfontkey )
 {
-    ids.setName( nm );
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, ids );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, ids, nm );
     if ( sels.size() )
 	lcb->attach( alignedBelow, sels[sels.size()-1] );
     lcb->box()->setCurrentItem( stdfontkey );

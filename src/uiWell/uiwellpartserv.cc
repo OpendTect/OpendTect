@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.4 2003-10-16 15:01:27 nanne Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.5 2003-10-17 14:19:04 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
+#include "bufstringset.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "idealconn.h"
@@ -76,9 +77,9 @@ void uiWellPartServer::selectLogs( const MultiID& wellid, int& selidx )
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd ) return;
     
-    ObjectSet<BufferString> lognames;
+    BufferStringSet lognames;
     for ( int idx=0; idx<wd->logs().size(); idx++ )
-	lognames += new BufferString( wd->logs().getLog(idx).name() );
+	lognames.add( wd->logs().getLog(idx).name() );
 
     uiLogSelDlg dlg( appserv().parent(), lognames );
     if ( !dlg.go() ) return;

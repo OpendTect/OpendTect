@@ -5,7 +5,7 @@
  * FUNCTION : Translator functions
 -*/
 
-static const char* rcsID = "$Id: iox.cc,v 1.9 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: iox.cc,v 1.10 2003-10-17 14:19:02 bert Exp $";
 
 #include "iox.h"
 #include "iostrm.h"
@@ -13,8 +13,6 @@ static const char* rcsID = "$Id: iox.cc,v 1.9 2003-10-15 15:15:54 bert Exp $";
 #include "ioman.h"
 #include "ascstream.h"
 #include "conn.h"
-
-DefineConcreteClassDef(IOX,"X-Group");
 
 
 IOX::IOX( const char* nm, const char* ky, bool )
@@ -54,11 +52,9 @@ void IOX::copyFrom( const IOObj* obj )
     if ( !obj ) return;
 
     IOObj::copyFrom(obj);
-    if ( obj->hasClass(IOX::classid) )
-    {
-	const IOX* trobj = (const IOX*)obj;
+    mDynamicCastGet(const IOX*,trobj,obj)
+    if ( trobj )
 	ownkey_ = trobj->ownkey_;
-    }
 }
 
 

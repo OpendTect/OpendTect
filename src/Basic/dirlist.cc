@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.5 2003-09-25 08:48:44 arend Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.6 2003-10-17 14:19:01 bert Exp $";
 
 #include "dirlist.h"
 #include "filegen.h"
@@ -19,8 +19,8 @@ static const char* rcsID = "$Id: dirlist.cc,v 1.5 2003-09-25 08:48:44 arend Exp 
 
 
 DirList::DirList( const char* dirname, int dirindic )
-	: UserIDObjectSet<UserIDObject>(dirname)
-	, dir(dirname?dirname:".")
+	: BufferStringSet(true)
+    	, dir(dirname?dirname:".")
 	, indic(dirindic)
 {
     update();
@@ -30,6 +30,7 @@ DirList::DirList( const char* dirname, int dirindic )
 void DirList::update()
 {
     deepErase();
+
 #ifdef __win__
     WIN32_FIND_DATA	dat;
     HANDLE		mhndl;
@@ -53,7 +54,7 @@ void DirList::update()
 		continue;
 	}
 
-	*this += new UserIDObject( dat.cFileName );
+	add( dat.cFileName );
 
     } while ( FindNextFile(mhndl,&dat) );
 
@@ -76,14 +77,8 @@ void DirList::update()
 		continue;
 	}
 
-	*this += new UserIDObject( dp->d_name );
+	add( dp->d_name );
     }
     closedir(dirp);
 #endif
-}
-
-
-DirList::~DirList()
-{
-    deepErase();
 }

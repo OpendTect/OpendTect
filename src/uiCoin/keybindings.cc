@@ -4,13 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          July 2003
- RCS:           $Id: keybindings.cc,v 1.1 2003-07-25 11:14:58 nanne Exp $
+ RCS:           $Id: keybindings.cc,v 1.2 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "keybindings.h"
-#include "uidset.h"
 #include "settings.h"
 #include "separstr.h"
 #include "ascstream.h"
@@ -239,7 +238,7 @@ void KeyBindMan::doZoom( SoMouseButtonEvent* event )
 }
 
 
-void KeyBindMan::getAllKeyBindings( UserIDSet& keys )
+void KeyBindMan::getAllKeyBindings( BufferStringSet& keys )
 {
     for ( int idx=0; idx<keyset.size(); idx++ )
 	keys.add( keyset[idx]->name );

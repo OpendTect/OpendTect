@@ -4,41 +4,36 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.31 2003-09-03 10:57:38 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.32 2003-10-17 14:19:02 bert Exp $";
 
 #include "iopar.h"
-#include "ascstream.h"
-#include "aobset.h"
-#include "position.h"
-#include "separstr.h"
 #include "multiid.h"
-#include "globexpr.h"
-#include "bufstring.h"
+#include "keystrs.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "keystrs.h"
+#include "globexpr.h"
+#include "position.h"
+#include "separstr.h"
+#include "ascstream.h"
+#include "bufstringset.h"
 #include <ctype.h>
+
 
 IOPar::IOPar( const char* nm )
 	: UserIDObject(nm)
-	, pars_(*new AliasObjectSet(this))
-{
-}
-
-
-IOPar::IOPar( UserIDObject* u )
-	: UserIDObject(u)
-	, pars_(*new AliasObjectSet(this))
+	, keys_(*new BufferStringSet(true))
+	, vals_(*new BufferStringSet(true))
 {
 }
 
 
 IOPar::IOPar( const IOPar& iop )
 	: UserIDObject(iop.name())
-	, pars_(*new AliasObjectSet(this))
+	, keys_(*new BufferStringSet(true))
+	, vals_(*new BufferStringSet(true))
 {
-    for ( int idx=0; idx<iop.pars_.size(); idx++ )
-	add( iop.pars_[idx]->name(), iop.pars_[idx]->obj->name() );
+    for ( int idx=0; idx<iop.size(); idx++ )
+	add( iop.keys_.get(idx), iop.vals_.get(idx) );
 }
 
 
@@ -48,8 +43,8 @@ IOPar& IOPar::operator =( const IOPar& iop )
     {
 	clear();
 	setName( iop.name() );
-	for ( int idx=0; idx<iop.pars_.size(); idx++ )
-	    add( iop.pars_[idx]->name(), iop.pars_[idx]->obj->name() );
+	for ( int idx=0; idx<iop.size(); idx++ )
+	    add( iop.keys_.get(idx), iop.vals_.get(idx) );
     }
     return *this;
 }
@@ -65,8 +60,8 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
     {
 	if ( worder )
 	{
-	    if ( iop.pars_[idx]->name() != pars_[idx]->name()
-		|| iop.pars_[idx]->obj->name() != pars_[idx]->obj->name() )
+	    if ( iop.keys_.get(idx) != keys_.get(idx)
+	      || iop.vals_.get(idx) != vals_.get(idx) )
 		return false;
 	}
 	else
@@ -84,66 +79,65 @@ bool IOPar::isEqual( const IOPar& iop, bool worder ) const
 IOPar::~IOPar()
 {
     clear();
-    delete &pars_;
+    delete &keys_;
+    delete &vals_;
 }
 
 
 int IOPar::size() const
 {
-    return pars_.size();
+    return keys_.size();
 }
 
 
 const char* IOPar::getKey( int nr ) const
 {
     if ( nr >= size() ) return "";
-    return pars_[nr]->name();
+    return keys_.get( nr ).buf();
 }
 
 
 const char* IOPar::getValue( int nr ) const
 {
     if ( nr >= size() ) return "";
-    return pars_[nr]->obj->name();
+    return vals_.get( nr ).buf();
 }
 
 
 bool IOPar::setKey( int nr, const char* s )
 {
-    if ( nr >= size() || !s || !*s || pars_.indexOf(s) >= 0 )
+    if ( nr >= size() || !s || !*s || indexOf(keys_,s) >= 0 )
 	return false;
 
-    pars_[nr]->setName( s );
+    keys_.get(nr) = s;
     return true;
 }
 
 
 void IOPar::setValue( int nr, const char* s )
 {
-    if ( nr < size() ) pars_[nr]->obj->setName( s );
+    if ( nr < size() )
+	vals_.get(nr) = s;
 }
 
 
 void IOPar::clear()
 {
-    pars_.deepEraseWithObjs();
+    deepErase( keys_ ); deepErase( vals_ );
 }
 
 
 void IOPar::remove( int idx )
 {
     if ( idx >= size() ) return;
-    
-    AliasObject* aob = pars_[idx];
-    pars_ -= aob;
-    delete aob->obj; delete aob;
+    keys_.remove( idx ); vals_.remove( idx );
 }
 
 
 void IOPar::merge( const IOPar& iopar )
 {
-    for ( int idx=0; idx<iopar.pars_.size(); idx++ )
-	set( iopar.pars_[idx]->name(), iopar.pars_[idx]->obj->name() );
+    for ( int idx=0; idx<iopar.size(); idx++ )
+	set( iopar.keys_.get(idx), iopar.vals_.get(idx) );
 }
 
 
@@ -177,16 +171,16 @@ IOPar* IOPar::subselect( const char* key ) const
     if ( !key ) return 0;
 
     IOPar* iopar = new IOPar( name() );
-    for ( int idx=0; idx<pars_.size(); idx++ )
+    for ( int idx=0; idx<keys_.size(); idx++ )
     {
-	const char* nm = pars_[idx]->name();
+	const char* nm = keys_.get(idx).buf();
 	if ( !matchString(key,nm) ) continue;
 	nm += strlen(key);
 	if ( *nm == '.' && *(nm+1) )
-	    iopar->add( nm+1, pars_[idx]->obj->name() );
+	    iopar->add( nm+1, vals_.get(idx) );
     }
 
-    if ( iopar->pars_.size() == 0 )
+    if ( iopar->size() == 0 )
 	{ delete iopar; iopar = 0; }
     return iopar;
 }
@@ -196,12 +190,10 @@ void IOPar::mergeComp( const IOPar& iopar, const char* key )
 {
     static BufferString buf;
 
-    for ( int idx=0; idx<iopar.pars_.size(); idx++ )
+    for ( int idx=0; idx<iopar.size(); idx++ )
     {
-	buf = key;
-	buf += ".";
-	buf += iopar.pars_[idx]->name();
-	set( buf, iopar.pars_[idx]->obj->name() );
+	buf = key; buf += "."; buf += iopar.keys_.get(idx);
+	set( buf, iopar.vals_.get(idx) );
     }
 }
 
@@ -210,12 +202,12 @@ const char* IOPar::findKeyFor( const char* s, int nr ) const
 {
     if ( !s ) return 0;
 
-    for ( int idx=0; idx<pars_.size(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
-	if ( pars_[idx]->obj->name() == s )
+	if ( vals_.get(idx) == s )
 	{
 	    if ( nr )	nr--;
-	    else	return (const char*)pars_[idx]->name();
+	    else	return keys_.get(idx).buf();
 	}
     }
 
@@ -226,13 +218,11 @@ const char* IOPar::findKeyFor( const char* s, int nr ) const
 void IOPar::removeWithKey( const char* key )
 {
     GlobExpr ge( key );
-    for ( int idx=0; idx<pars_.size(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
-	AliasObject* aob = pars_[idx];
-	if ( ge.matches( aob->name() ) )
+	if ( ge.matches( keys_.get(idx) ) )
 	{
-	    pars_.remove( idx );
-	    delete aob->obj; delete aob;
+	    remove( idx );
 	    idx--;
 	}
     }
@@ -248,22 +238,21 @@ const char* IOPar::operator[]( const char* keyw ) const
 
 const char* IOPar::find( const char* keyw ) const
 {
-    AliasObject* aob = pars_[keyw];
-    return aob && aob->obj ? (const char*)aob->obj->name() : 0;
+    int idx = indexOf( keys_, keyw );
+    return idx < 0 ? 0 : vals_.get(idx).buf();
 }
 
 
 void IOPar::add( const char* nm, const char* val )
 {
-    UserIDObject* valstr = new UserIDObject( val );
-    pars_ += new AliasObject( valstr, nm );
+    keys_.add( nm ); vals_.add( val );
 }
 
 
 #define get1Val( type, convfunc ) \
 bool IOPar::get( const char* s, type& res ) const \
 { \
-    const char* ptr = (*this)[s]; \
+    const char* ptr = find(s); \
     if ( !ptr || !*ptr ) return false; \
 \
     char* endptr; \
@@ -547,22 +536,22 @@ bool IOPar::getYN( const char* s, bool& i, char c ) const
 
 void IOPar::set( const char* keyw, const char* vals )
 {
-    AliasObject* par = pars_[keyw];
-    if ( !par )
+    BufferString* bs = ::find( keys_, keyw );
+    if ( !bs )
 	add( keyw, vals );
     else
-	par->obj->setName( vals );
+	*bs = vals;
 }
 
 
 void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 {
     FileMultiString fms( vals1 ); fms += vals2;
-    AliasObject* par = pars_[keyw];
-    if ( !par )
+    BufferString* bs = ::find( keys_, keyw );
+    if ( !bs )
 	add( keyw, fms );
     else
-	par->obj->setName( fms );
+	*bs = fms;
 }
 
 
@@ -748,7 +737,8 @@ void IOPar::set( const char* s, const MultiID& mid )
 
 IOPar::IOPar( ascistream& astream, bool withname )
 	: UserIDObject("")
-	, pars_(*new AliasObjectSet(this))
+	, keys_(*new BufferStringSet(true))
+	, vals_(*new BufferStringSet(true))
 {
     if ( withname )
     {
@@ -757,7 +747,7 @@ IOPar::IOPar( ascistream& astream, bool withname )
 	setName( astream.keyWord() );
 	astream.next();
     }
-    pars_.getFrom( astream );
+    getDataFrom( astream );
 }
 
 
@@ -765,7 +755,7 @@ void IOPar::putTo( ascostream& astream, bool withname ) const
 {
     astream.tabsOff();
     if ( withname ) astream.put( name() );
-    pars_.putTo( astream );
+    putDataTo( astream );
     astream.newParagraph();
 }
 
@@ -776,12 +766,12 @@ void IOPar::putTo( BufferString& str ) const
 {
     str = name();
     BufferString buf;
-    for ( int idx=0; idx<pars_.size(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
 	buf = sersep;
-	buf += pars_[idx]->name();
+	buf += keys_.get(idx);
 	buf += sersep;
-	buf += pars_[idx]->obj->name();
+	buf += vals_.get(idx);
 	str += buf;
     }
 }
@@ -796,7 +786,6 @@ void IOPar::getFrom( const char* str )
     char* ptr = ptrstart;
 
     bool name_done = false;
-    AliasObject* aob = 0;
     while ( *ptr )
     {
 	// advance to next separator or end of string
@@ -811,16 +800,10 @@ void IOPar::getFrom( const char* str )
 
 	if ( !name_done )
 	    { setName( ptrstart ); name_done = true; }
-	else if ( !aob )
-	{
-	    aob = new AliasObject( new UserIDObject, ptrstart );
-	    pars_ += aob;
-	}
+	else if ( keys_.size() <= vals_.size() )
+	    keys_.add( ptrstart );
 	else
-	{
-	    aob->obj->setName( ptrstart );
-	    aob = 0;
-	}
+	    vals_.add( ptrstart );
 
 	ptrstart = ptr;
     }
@@ -836,7 +819,7 @@ bool IOPar::read( const char* fnm )
     astream.next();
     setName( astream.keyWord() );
 
-    pars_.getFrom( astream );
+    getDataFrom( astream );
     sd.close();
 
     return true;
@@ -854,7 +837,24 @@ bool IOPar::dump( const char* fnm, const char* typ ) const
     if ( ky == "" ) ky = sKey::Pars;
     if ( !astream.putHeader( ky ) ) return false;
 
-    pars_.putTo( astream );
+    putDataTo( astream );
     sd.close();
     return true;
+}
+
+
+void IOPar::getDataFrom( ascistream& strm )
+{
+    while ( !atEndOfSection(strm) )
+    {
+	set( strm.keyWord(), strm.value() );
+	strm.next();
+    }
+}
+
+
+void IOPar::putDataTo( ascostream& strm ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	strm.put( keys_.get(idx), vals_.get(idx) );
 }

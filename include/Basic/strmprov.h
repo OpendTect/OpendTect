@@ -8,13 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.13 2003-07-21 14:55:40 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.14 2003-10-17 14:19:00 bert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <idobj.h>
-#include <streamconn.h>
+#include "streamconn.h"
 class CallBack;
 
 
@@ -37,8 +36,8 @@ Thus:
  A null string or StreamProvider::sStdIO will select std input and output.
 */
 
-class StreamProvider : public IDObject
-{			isConcreteClass
+class StreamProvider
+{
 public:
 		StreamProvider(const char* nm=0);
 		StreamProvider(const char*,const char*,StreamConn::Type);
@@ -104,6 +103,7 @@ protected:
 
 };
 
+//! Execute command in OS
 bool ExecOSCmd(const char*);
 
 

@@ -4,20 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.3 2003-02-17 16:29:09 arend Exp $
+ RCS:           $Id: uitabbar.cc,v 1.4 2003-10-17 14:19:02 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uitabbar.h>
-#include <uidobjset.h>
-#include <uiobjbody.h>
-#include <pixmap.h>
-#include <sets.h>
+#include "uitabbar.h"
+#include "uiobjbody.h"
+#include "pixmap.h"
+#include "sets.h"
 
-#include <i_qtabbar.h>
+#include "i_qtabbar.h"
 
-#include <qiconset.h>
+#include "qiconset.h"
 
 class uiTabBody : public QTab
 {

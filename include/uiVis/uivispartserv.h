@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.98 2003-10-07 07:12:11 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.99 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,13 +22,12 @@ ________________________________________________________________________
 #include "attribsel.h"
 
 class SeisTrc;
-
-class AttribSliceSet;
 class PickSet;
-class uiPopupMenu;
 class ColorTable;
-class UserIDSet;
+class uiPopupMenu;
 class SurfaceInfo;
+class AttribSliceSet;
+class BufferStringSet;
 
 namespace visSurvey
 {
@@ -72,7 +71,7 @@ public:
     void			removeObject(int id,int sceneid);
 
     int				addPickSet(int scene,const PickSet&);
-    void			getAllPickSets(UserIDSet&);
+    void			getAllPickSets(BufferStringSet&);
     void			setPickSetData(int,const PickSet&);
     void			getPickSetData(int,PickSet&) const;
 

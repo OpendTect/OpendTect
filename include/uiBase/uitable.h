@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.10 2003-09-08 13:03:46 nanne Exp $
+ RCS:           $Id: uitable.h,v 1.11 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "color.h"
 
-class PtrUserIDObjectSet;
+class BufferStringSet;
 class uiLabel;
 class uiTableBody;
 class UserInputObj;
@@ -153,7 +153,7 @@ public:
 			    { return rowLabel(rc.row); }
     void		setRowLabel( int row, const char* label );
     void		setRowLabels( const char** labels );
-    void		setRowLabels( const ObjectSet<BufferString>& labels );
+    void		setRowLabels( const BufferStringSet& labels );
     void		setRowLabel( const RowCol& rc, const char* label )
 			    { setRowLabel( rc.row, label ); }
 
@@ -162,7 +162,7 @@ public:
 			    { return columnLabel(rc.col); }
     void		setColumnLabel( int col, const char* label );
     void		setColumnLabels( const char** labels );
-    void		setColumnLabels( const ObjectSet<BufferString>& labels);
+    void		setColumnLabels( const BufferStringSet& labels);
     void		setColumnLabel( const RowCol& rc, const char* label )
 			    { setColumnLabel( rc.col, label ); }
 

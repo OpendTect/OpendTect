@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.15 2003-10-16 09:41:18 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.16 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uiexecutor.h"
 #include "uimsg.h"
 #include "uibutton.h"
-#include "uidset.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "binidselimpl.h"
@@ -30,6 +29,7 @@ ________________________________________________________________________
 #include "uiseistransf.h"
 #include "keystrs.h"
 #include "survinfo.h"
+#include "bufstringset.h"
 
 #include <math.h>
 
@@ -45,25 +45,25 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 	, proc(0)
 {
     IOM().to( ctio.ctxt.stdSelKey() );
-    const UserIDObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
-    UserIDSet ioobjnms("Stored seismic data");
+    const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
+    BufferStringSet ioobjnms("Stored seismic data");
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
         const IOObj& ioobj = *ioobjs[idx];
         if ( strcmp(ioobj.translator(),"CBVS") ) continue;
-        ioobjnms.add( (const char*)ioobj.name() );
+        ioobjnms.add( ioobj.name() );
     }
 
     ioobjnms.sort();
-    ioobjnms.setCurrent(0);
     for ( int idx=0; idx<ioobjnms.size(); idx++ )
     {
-	const char* nm = ioobjnms[idx]->name();
-	const IOObj* ioobj = ioobjs[nm];
+	const char* nm = ioobjnms.get(idx).buf();
+	const IOObj* ioobj = (*IOM().dirPtr())[nm];
         ioobjids += new MultiID( ioobj ? (const char*)ioobj->key() : "" );
     }
     seisinpfld = new uiLabeledListBox( this, "Select Seismics to merge", true );
     seisinpfld->box()->addItems( ioobjnms );
+    seisinpfld->box()->setCurrentItem( 0 );
 
     ctio.ctxt.forread = false;
     ctio.ctxt.trglobexpr = "CBVS";

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.8 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: iox.h,v 1.9 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 Feature Set. */
 
 class IOX : public IOObject
-{	    isUidConcreteDefObject(IOX)
+{
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);
     virtual		~IOX();

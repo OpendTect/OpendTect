@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.39 2003-10-03 11:01:31 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.40 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,12 +115,6 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 
     dirlist = new DirList( ptr, 1 );
     dirlist->sort();
-    ptr = GetSurveyName();
-    if ( ptr )
-    {
-        UserIDObject* uidobj = (*dirlist)[ptr];
-        if ( uidobj ) dirlist->setCurrent( uidobj );
-    }
 
     uiGroup* rightgrp = new uiGroup( this, "Survey selection right" );
     mapcanvas = new uiCanvas( rightgrp, "Survey map" );
@@ -130,7 +124,8 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     mapcanvas->preDraw.notify( mCB(this,uiSurvey,doCanvas) );
 
     uiGroup* leftgrp = new uiGroup( this, "Survey selection left" );
-    listbox = new uiListBox( leftgrp, dirlist );
+    listbox = new uiListBox( leftgrp, *dirlist, "Surveys" );
+    listbox->setCurrentItem( GetSurveyName() );
     listbox->selectionChanged.notify( mCB(this,uiSurvey,selChange) );
     listbox->doubleClicked.notify( mCB(this,uiSurvey,accept) );
     listbox->setPrefWidth( lbwidth );

@@ -4,19 +4,19 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.cc,v 1.4 2003-09-05 12:36:49 bert Exp $
+ RCS:           $Id: uiselsimple.cc,v 1.5 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiselsimple.h"
-#include "uilistbox.h"
 #include "uilabel.h"
-#include "uidobjset.h"
+#include "uilistbox.h"
+#include "uiselsimple.h"
+#include "bufstringset.h"
 
 
 uiSelectFromList::uiSelectFromList( uiParent* p,
-				    const ObjectSet<BufferString>& strs,
+				    const BufferStringSet& strs,
 				    const char* cur, const char* captn )
 	: uiDialog(p,Setup(captn))
 	, selfld(0)
@@ -25,7 +25,7 @@ uiSelectFromList::uiSelectFromList( uiParent* p,
     const int sz = strs.size();
     const char** s = new const char* [sz];
     for ( int idx=0; idx<sz; idx++ )
-	s[idx] = (const char*)(*strs[idx]);
+	s[idx] = strs.get(idx).buf();
     init( s, sz, cur );
     delete [] s;
 }
@@ -39,22 +39,6 @@ uiSelectFromList::uiSelectFromList( uiParent* p,
 	, sel_(-1)
 {
     init( strs, sz, cur );
-}
-
-
-uiSelectFromList::uiSelectFromList( uiParent* p,
-				    const PtrUserIDObjectSet& strs,
-				    const char* cur, const char* captn )
-	: uiDialog(p,captn)
-	, selfld(0)
-	, sel_(-1)
-{
-    const int sz = strs.size();
-    const char** s = new const char* [sz];
-    for ( int idx=0; idx<sz; idx++ )
-	s[idx] = strs[idx]->name();
-    init( s, sz, cur );
-    delete [] s;
 }
 
 

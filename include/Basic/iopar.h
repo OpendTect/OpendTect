@@ -7,20 +7,20 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.22 2003-08-11 13:15:53 bert Exp $
+ RCS:		$Id: iopar.h,v 1.23 2003-10-17 14:19:00 bert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <uidobj.h>
-#include <sets.h>
-class ascistream;
-class ascostream;
+#include "uidobj.h"
+#include "sets.h"
 class Coord;
 class BinID;
 class MultiID;
-class AliasObjectSet;
+class ascistream;
+class ascostream;
 class BufferString;
+class BufferStringSet;
 
 /*\brief generalised set of parameters of the keyword-value type.
 
@@ -37,7 +37,6 @@ class IOPar : public UserIDObject
 {
 public:
 			IOPar(const char* nm=0);
-			IOPar(UserIDObject*);
 			IOPar(ascistream&,bool withname=true);
     void		putTo(ascostream&,bool withname=true) const;
 			~IOPar();
@@ -188,7 +187,11 @@ public:
 
 protected:
 
-    AliasObjectSet&	pars_;
+    BufferStringSet&	keys_;
+    BufferStringSet&	vals_;
+
+    void		getDataFrom(ascistream&);
+    void		putDataTo(ascostream&) const;
 
 };
 

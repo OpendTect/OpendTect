@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.23 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.24 2003-10-17 14:19:03 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,6 @@ const int uiPickPartServer::evGetHorDef = 3;
 uiPickPartServer::uiPickPartServer( uiApplService& a )
 	: uiApplPartServer(a)
     	, psg(*new PickSetGroup)
-    	, avsets("Select sets to be stored")
 	, pickcolor(Color::DgbColor)
 {
 }
@@ -46,7 +45,6 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 uiPickPartServer::~uiPickPartServer()
 {
     delete &psg;
-    avsets.deepErase();
     deepErase( selhorids );
 }
 
@@ -63,7 +61,7 @@ bool uiPickPartServer::fetchPickSets()
     psg.clear();
     deepErase( hinfos );
     sendEvent( evGetHorInfo );
-    ObjectSet<BufferString> hornms;
+    BufferStringSet hornms;
     for ( int idx=0; idx<hinfos.size(); idx++ )
 	hornms += new BufferString( hinfos[idx]->name );
 
@@ -210,10 +208,9 @@ void uiPickPartServer::renamePickset( const char* oldnm, BufferString& newnm )
 
 	avsets.erase();
 	sendEvent( evGetAvailableSets );
-	PtrUserIDObjectSet nms = avsets;
-	for ( int idx=0; idx<nms.size(); idx++ )
+	for ( int idx=0; idx<avsets.size(); idx++ )
 	{
-	    if ( newnm == nms[idx]->name() )
+	    if ( avsets.get(idx) == newnm )
 	    {
 		BufferString msg( "Pickset: "); msg += newnm;
 		msg += "\nalready exists.";

@@ -7,16 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.17 2003-10-15 15:15:53 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.18 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include <uidobj.h>
-#include <multiid.h>
-#include <idobj.h>
-#include <enums.h>
+#include "uidobj.h"
+#include "multiid.h"
+#include "enums.h"
 class IOObj;
 class IOPar;
 class TranslatorGroup;

@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.5 2003-10-15 15:15:53 bert Exp $
+ RCS:           $Id: iodirentry.h,v 1.6 2003-10-17 14:19:01 bert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "multiid.h"
-#include "uidobjset.h"
+#include "uidobj.h"
+#include "sets.h"
 class IOObj;
 class IODir;
 class IOObjContext;
@@ -28,14 +29,15 @@ public:
     const UserIDString&	name() const;
 
     IOObj*		ioobj;
-    bool		beingsorted;
+    static bool		beingsorted;
 
 };
 
 
 /*!\brief list of dir entries. */
 
-class IODirEntryList : public UserIDObjectSet<IODirEntry>
+class IODirEntryList : public ObjectSet<IODirEntry>
+		     , public UserIDObject
 {
 public:
 			IODirEntryList(IODir*,const IOObjContext&);
@@ -45,14 +47,24 @@ public:
 
     void		fill(IODir*);
     void		setSelected(const MultiID&);
-    void		curRemoved();
-    IOObj*		selected();
     bool		mustChDir();
     bool		canChDir();
     void		sort();
+    void		curRemoved();
+    void		setCurrent( int idx )	{ cur_ = idx; }
+    IODirEntry*		current() const	
+    			{ return cur_ < 0 || cur_ >= size() ? 0
+			    	: (*(IODirEntryList*)this)[cur_]; }
+    IOObj*		selected()
+			{ return current() ? current()->ioobj : 0 ; }
+    int			indexOf(const char*) const;
 
     MultiID		lastiokey;
     IOObjContext&	ctxt;
+
+protected:
+
+    int			cur_;
 
 };
 
