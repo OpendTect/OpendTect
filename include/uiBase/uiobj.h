@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.33 2003-10-03 06:23:02 nanne Exp $
+ RCS:           $Id: uiobj.h,v 1.34 2003-10-08 10:16:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,9 +197,9 @@ public:
     Notifier<uiObject>	finaliseStart;
     Notifier<uiObject>	finaliseDone;
 
-			/*! \brief triggered when object closes.
-			*/
-    Notifier<uiObject>	close;
+			/*! \brief triggered when object closes.  */
+    Notifier<uiObject>	closed;
+    void		close();
 
 
 			/*! \brief triggered when getting a new geometry 
@@ -214,7 +214,7 @@ public:
 protected:
 
                         //! hook. Accepts/denies closing of window.
-    virtual bool	closeOK()	{ close.trigger(); return true; } 
+    virtual bool	closeOK()	{ closed.trigger(); return true; } 
 
 			//! setGeometry should be triggered by this's layoutItem
     void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);

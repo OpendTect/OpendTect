@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.54 2003-10-03 06:22:52 nanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.55 2003-10-08 10:16:10 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,7 +173,7 @@ uiObject::uiObject( uiParent* p, const char* nm )
     , finaliseStart(this)
     , finaliseDone(this)
     , setGeometry(this)
-    , close(this)
+    , closed(this)
     , parent_( p )				
 { 
     if ( p ) p->addChild( *this );  
@@ -184,7 +184,7 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     , finaliseStart(this)
     , finaliseDone(this)
     , setGeometry(this)
-    , close(this)
+    , closed(this)
     , parent_( p )				
 { 
     if ( p ) p->manageChld( *this, b );  
@@ -337,8 +337,10 @@ void uiObject::setCaption( const char* c )
 void uiObject::triggerSetGeometry( const i_LayoutItem* mylayout, uiRect& geom )
     { if ( mylayout == mBody()->layoutItem() ) setGeometry.trigger(geom); }   
 
+
 void uiObject::reDraw( bool deep )
     { mBody()->reDraw( deep ); }
+
 
 uiMainWin* uiObject::mainwin()
 {
@@ -351,6 +353,14 @@ uiMainWin* uiObject::mainwin()
 
     return par->mainwin();
 }
+
+
+void uiObject::close()
+{
+    if ( body() && body()->qwidget() )
+	body()->qwidget()->close();
+}
+
 
 int uiObject::baseFldSize()	{ return basefldsize_; }
 
