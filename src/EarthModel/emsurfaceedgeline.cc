@@ -8,13 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.20 2005-01-06 09:39:57 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.21 2005-01-11 14:11:58 nanne Exp $";
    
 
 #include "emsurfaceedgeline.h"
 #include "emmanager.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
+#include "emhistory.h"
 #include "executor.h"
 #include "iopar.h"
 #include "mathfunc.h"
@@ -1839,11 +1840,30 @@ bool EdgeLineSet::usePar( const IOPar& par )
 EdgeLineManager::EdgeLineManager( EM::Surface& surf )
     : surface(surf)
     , addremovenotify( this )
-{ linesets.allowNull(); }
+{
+    linesets.allowNull();
+    EMM().history().undoredo.notify( mCB(this,EdgeLineManager,updateEL) );
+}
 
 
 EdgeLineManager::~EdgeLineManager()
-{ removeAll(); }
+{
+    removeAll();
+    EMM().history().undoredo.remove( mCB(this,EdgeLineManager,updateEL) );
+}
+
+
+void EdgeLineManager::updateEL( CallBacker* )
+{
+    for ( int sidx=0; sidx<surface.geometry.nrSections(); sidx++ )
+    {
+	EdgeLineSet* elset = getEdgeLineSet( surface.geometry.sectionID(sidx),
+					     false );
+	if ( !elset ) continue;
+	for ( int lidx=0; lidx<elset->nrLines(); lidx++ )
+	    elset->getLine( lidx )->reTrackLine();
+    }
+}
 
 
 const EdgeLineSet* EM::EdgeLineManager::getEdgeLineSet(
