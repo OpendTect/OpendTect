@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.31 2004-10-04 09:45:30 kristofer Exp $
+ RCS:		$Id: position.h,v 1.32 2004-10-29 14:23:10 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     bool	operator!=( const Coord& crd ) const
 		{ return ! (crd == *this); }
     double	distance(const Coord&) const;
+    double	sqDistance(const Coord&) const;
     void	fill(char*) const;
     bool	use(const char*);
 
@@ -89,6 +90,7 @@ public:
     inline bool		operator!=(const Coord3&) const;
     inline bool		isDefined() const;
     double		distance( const Coord3& b ) const;
+    double		sqDistance( const Coord3& b ) const;
 
     inline double	dot( const Coord3& b ) const;
     inline Coord3	cross( const Coord3& ) const;

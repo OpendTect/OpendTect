@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.41 2004-10-04 12:32:22 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.42 2004-10-29 14:23:27 kristofer Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -25,10 +25,17 @@ const Coord3& Coord3::udf()
 
 double Coord::distance( const Coord& coord ) const
 {
-    double diffx = coord.x - x;
-    double diffy = coord.y - y;
-    return diffx || diffy ? sqrt( diffx*diffx + diffy*diffy ) : 0;
+    return sqrt( sqDistance(coord) );
 }
+
+
+double Coord::sqDistance( const Coord& coord ) const
+{
+    const double diffx = coord.x - x;
+    const double diffy = coord.y - y;
+    return diffx*diffx + diffy*diffy;
+}
+
 
 
 void Coord::fill( char* str ) const
@@ -130,8 +137,14 @@ bool Coord3::use(const char* str)
 
 double Coord3::distance( const Coord3& b ) const
 {
-    double dx = x-b.x, dy = y-b.y, dz = z-b.z;
-    return sqrt( dx*dx + dy*dy + dz*dz );
+    return sqrt( Coord3::sqDistance( b ) );
+}
+
+
+double Coord3::sqDistance( const Coord3& b ) const
+{
+    const double dx = x-b.x, dy = y-b.y, dz = z-b.z;
+    return dx*dx + dy*dy + dz*dz;
 }
 
 
