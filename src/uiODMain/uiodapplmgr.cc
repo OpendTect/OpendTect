@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.52 2004-09-20 12:08:01 kristofer Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.53 2004-09-22 10:18:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -547,22 +547,23 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	sd->setResolution( sd->nrResolutions()-1 );
 	sceneMgr().updateTrees();
     }
-    else if ( evid == uiTrackingPartServer::evSelStickSet )
-    {
-	const int surfid = trackserv->displayID();
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(surfid));
-	sd->getEditor()->enableSeedStick(true);
-	sd->getEditor()->setSeedStickStyle( trackserv->lineStyle(),
-					    trackserv->markerStyle() );
-    }
     else if ( evid == uiTrackingPartServer::evChangeStickSet )
     {
-	const int surfid = trackserv->displayID();
+	const bool issel = trackserv->stickSetSelected();
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(surfid));
+			visserv->getObject(trackserv->displayID()));
+	sd->getEditor()->enableSeedStick( true );
 	sd->getEditor()->setSeedStickStyle( trackserv->lineStyle(),
 					    trackserv->markerStyle() );
+	sceneMgr().disabTree( sceneid, issel );
+    }
+    else if ( evid == uiTrackingPartServer::evCheckStickSet )
+    {
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
+			visserv->getObject(trackserv->displayID()))
+	TypeSet<Coord3> stick;
+	sd->getEditor()->getSeedStick( stick );
+	if ( !stick.size() ) return false;
     }
     else if ( evid == uiTrackingPartServer::evFinishInit )
     {
