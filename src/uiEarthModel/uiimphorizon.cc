@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.36 2004-01-22 16:08:38 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.37 2004-05-24 15:23:01 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,9 +61,14 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     scalefld = new uiScaler( this, scalelbl, true );
     scalefld->attach( alignedBelow, subselfld );
 
+    fillholesfld = new uiGenInput( this, "Try to fill small holes:",
+                            BoolInpSpec() );
+    fillholesfld->setValue(false);
+    fillholesfld->attach( alignedBelow, scalefld );
+
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
-    outfld->attach( alignedBelow, scalefld );
+    outfld->attach( alignedBelow, fillholesfld );
 
     displayfld = new uiCheckBox( this, "Display after import" );
     displayfld->attach( alignedBelow, outfld );
@@ -136,7 +141,8 @@ bool uiImportHorizon::handleAscii()
 	    delete it;
 	}
 
-	PtrMan<Executor> horimp = horizon->import( *grid, idx );
+	PtrMan<Executor> horimp = horizon->import( *grid, idx,
+					       fillholesfld->getBoolValue() );
 	uiExecutor impdlg( this, *horimp );
 	if ( !impdlg.go() ) 
 	    mErrRetUnRef("Cannot import horizon")

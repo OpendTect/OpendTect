@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.42 2004-05-21 10:20:36 bert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.43 2004-05-24 15:23:30 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.42 2004-05-21 10:20:36 bert 
 #include "ptrman.h"
 #include "survinfo.h"
 #include "settings.h"
+#include "trigonometry.h"
 
 EM::Horizon::Horizon(EMManager& man, const EM::ObjectID& id_)
     : Surface( man, id_ )
@@ -196,10 +197,11 @@ class HorizonImporter : public Executor
 {
 public:
 
-HorizonImporter( EM::Horizon& hor, const Grid& g )
+HorizonImporter( EM::Horizon& hor, const Grid& g, bool fixholes_ )
 	: Executor("Horizon Import")
 	, horizon( hor )
 	, grid( g )
+	, fixholes( fixholes_ )
 {
     const int nrrows = grid.nrRows();
     const int nrcols = grid.nrCols();
@@ -252,7 +254,58 @@ const char*	nrDoneText() const { return "Gridlines imported"; }
 int nextStep()
 {
     if ( inl>inlrange.stop )
+    {
+	if ( fixholes )
+	{
+	    bool changed = false;
+	    StepInterval<int> rowrange, colrange;
+	    horizon.getRange(rowrange,true);
+	    horizon.getRange(colrange,false);
+
+	    for ( int currow=rowrange.start; rowrange.includes(currow);
+		  currow+=rowrange.step )
+	    {
+		for ( int curcol=colrange.start; colrange.includes(curcol);
+		      curcol+=colrange.step )
+		{
+		    const RowCol rc( currow, curcol );
+		    if ( horizon.isDefined(patch,rc) )
+			continue;
+
+		    EM::PosID pid(horizon.id(),patch,horizon.rowCol2SubID(rc));
+
+		    TypeSet<EM::PosID> neighbors;
+		    horizon.getNeighbors( pid, &neighbors );
+		    if ( neighbors.size()<6 )
+			continue;
+
+		    TypeSet<Coord3> neighborcoords;
+		    for ( int nidx=0; nidx<neighbors.size(); nidx++ )
+			neighborcoords += horizon.getPos(neighbors[nidx]);
+
+		    Plane3 plane;
+		    if ( !plane.set(neighborcoords) )
+			continue;
+
+		    const BinID bid = horizon.getBinID(rc);
+		    const Coord coord = SI().transform(bid);
+		    const Line3 line( Coord3(coord,0), Vector3(0,0,1));
+
+		    Coord3 interpolcoord;
+		    if ( !plane.intersectWith(line,interpolcoord) )
+			continue;
+
+		    horizon.setPos(pid,interpolcoord,false);
+		    changed = true;
+		}
+	    }
+
+	    if ( changed )
+		return MoreToDo;
+	}
+
 	return Finished;
+    }
 
     for ( int crl=crlrange.start; crl<=crlrange.stop;
 	      crl+=crlrange.step )
@@ -282,6 +335,7 @@ protected:
     StepInterval<int>	crlrange;
 
     int			inl;
+    bool		fixholes;
     EM::PatchID		patch;
 };
 
@@ -289,11 +343,11 @@ protected:
 
 
 
-Executor* EM::Horizon::import( const Grid& grid, int idx )
+Executor* EM::Horizon::import( const Grid& grid, int idx, bool fixholes )
 {
     if ( !idx ) cleanUp();
 
-    return new EM::HorizonImporter( *this, grid );
+    return new EM::HorizonImporter( *this, grid, fixholes );
 }
 
 

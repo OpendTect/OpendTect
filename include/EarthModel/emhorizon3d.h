@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.29 2003-11-24 08:39:49 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.30 2004-05-24 15:24:00 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -68,7 +68,7 @@ public:
     Executor*		saver(const EM::SurfaceIODataSelection* s=0,
 	    		      bool auxdataonly=false,const MultiID* key=0);
 
-    Executor*		import(const Grid&,int idx);
+    Executor*		import(const Grid&,int idx,bool fixholes);
     			/*!< Removes all data when idx=0 and creates patches
 			     for every Grid imported.
 			*/
