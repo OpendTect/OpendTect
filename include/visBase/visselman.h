@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.5 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: visselman.h,v 1.6 2002-03-20 08:21:45 nanne Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,9 @@ public:
     virtual			~SelectionManager();
 
     void			deSelectAll();
+    void			select( int id ) {}
+    void			deSelect( int id ) {}
+
 
     bool			isSelectable(  const DataObject& assoc );
     				/*!< Check if the object is selectable */

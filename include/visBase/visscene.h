@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.5 2002-03-20 08:16:44 nanne Exp $
+ RCS:		$Id: visscene.h,v 1.6 2002-03-20 08:21:45 nanne Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,7 @@ class SoSelection;
 
 namespace visBase
 {
+    class SelectionManager;
 /*!\brief
     Scene manages all SceneObjects and has some managing
     functions such as the selection management and variables that should
@@ -37,13 +38,12 @@ public:
     void		setAmbientLight( float );
     float		ambientLight() const;
 
-    virtual void	deSelectAll();
-    virtual void	select( int id ) {}
-    virtual void	deSelect( int id ) {}
-
     SoNode*		getData();
 
 protected:
+    friend		SelectionManager;
+    virtual void	deSelectAll();
+
 			Scene();
     virtual		~Scene();
 
