@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.134 2005-01-17 08:41:33 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.135 2005-03-07 10:59:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,13 +31,12 @@ class SeisTrcBuf;
 class SurfaceInfo;
 class uiPopupMenu;
 class uiToolBar;
-class uiTrackingMan;
+class uiMPEMan;
 class uiVisMenu;
 
 namespace visBase   { class DataObject; };
 namespace visSurvey { class Scene; };
 namespace Threads   { class Mutex; };
-namespace Geometry  { class GridSurface; };
 namespace Tracking  { class TrackManager; };
 
 
@@ -192,7 +191,11 @@ public:
     				/*!< \returns id of new object */
 
     				// Tracking stuff
-    bool			sendTrackNewObjectEvent() { return true; }
+    static const int		evTrackNewObject;
+    bool			sendTrackNewObjectEvent();
+    const char*			getDesTrackerType() const;
+    void			turnSeedPickingOn(bool yn);
+
     int				addInterpreter(int);
     void			setTrackMan(int,Tracking::TrackManager&);
     void			showTrackingManager();
@@ -239,7 +242,7 @@ protected:
     ObjectSet<uiVisMenu>	menus;
     uiVisMenu*			vismenu;
 
-    uiTrackingMan*		tracktools;
+    uiMPEMan*			tracktools;
 
     Coord3			xytmousepos;
     Coord3			inlcrlmousepos;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.250 2005-02-04 14:35:43 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.251 2005-03-07 10:59:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "uivismenu.h"
 #include "uicolor.h"
-#include "uitrackingman.h"
-#include "visinterpret.h"
+#include "uimpeman.h"
+#include "vismpe.h"
 #include "vistransform.h"
 #include "visevent.h"
 #include "seisbuf.h"
@@ -50,6 +50,7 @@ const int uiVisPartServer::evGetColorData =	8;
 const int uiVisPartServer::evViewAll =		9;
 const int uiVisPartServer::evToHomePos =	10;
 const int uiVisPartServer::evRemoveTrackTools = 11;
+const int uiVisPartServer::evTrackNewObject =	12;
 
 const char* uiVisPartServer::appvelstr = "AppVel";
 const char* uiVisPartServer::workareastr = "Work Area";
@@ -63,7 +64,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mouseposval(mUndefValue)
     , mouseposstr("")
 {
-    tracktools = new uiTrackingMan( appserv().parent() );
+    tracktools = new uiMPEMan( appserv().parent(), this );
     tracktools->display( false );
 
     visBase::DM().selMan().selnotifer.notify( 
@@ -429,7 +430,7 @@ const AttribSelSpec* uiVisPartServer::getSelSpec( int id ) const
 
 bool uiVisPartServer::deleteAllObjects()
 {
-    tracktools->setInterpreter( 0 );
+    tracktools->deleteVisObjects();
 
     while ( scenes.size() )
 	removeScene( scenes[0]->id() );
@@ -652,6 +653,24 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
     mDynamicCastGet(visBase::DataObject*,doobj,newso)
     addObject( doobj, sceneid, true );
     return doobj->id();
+}
+
+
+bool uiVisPartServer::sendTrackNewObjectEvent()
+{
+    return sendEvent( evTrackNewObject );
+}
+
+
+void uiVisPartServer::turnSeedPickingOn(bool yn)
+{
+    tracktools->turnSeedPickingOn(yn);
+}
+
+
+const char* uiVisPartServer::getDesTrackerType() const
+{
+    return tracktools ? tracktools->getDesTrackerType() : 0;
 }
 
 
@@ -1087,8 +1106,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
 
 int uiVisPartServer::addInterpreter( int sceneid )
 {
-    visSurvey::SurfaceInterpreterDisplay* sid =
-				visSurvey::SurfaceInterpreterDisplay::create();
+    visSurvey::MPEDisplay* sid = visSurvey::MPEDisplay::create();
     sid->turnOn( true );
     addObject( sid, sceneid, true );
     return sid->id();
@@ -1097,11 +1115,7 @@ int uiVisPartServer::addInterpreter( int sceneid )
 
 void uiVisPartServer::setTrackMan( int id, Tracking::TrackManager& tm )
 {
-    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,sid,getObject(id))
-    if ( !sid ) return;
-    sid->setTrackMan( tm );
-    tracktools->setInterpreter( sid );
-    tracktools->setTrackMan( &tm );
+    pErrMsg("Functions shoul be removed" );
 }
 
 

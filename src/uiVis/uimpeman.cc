@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.5 2005-02-17 11:19:47 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.6 2005-03-07 10:59:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* partserv_ )
     , seededitor(0)
     , visserv( partserv_ )
 {
-    seedidx = mAddButton( "trackplane.png", seedMode, "Create seed", true );
+    seedidx = mAddButton( "seedpickmode.png", seedMode, "Create seed", true );
     addSeparator();
     extendidx = mAddButton( "trackplane.png", extendModeButtonPushCB,
 	    		    "Extend mode", true );
