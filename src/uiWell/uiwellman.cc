@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.5 2003-10-17 14:19:04 bert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.6 2003-10-20 07:18:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,10 +55,10 @@ uiWellMan::uiWellMan( uiParent* p )
     uiGroup* topgrp = new uiGroup( this, "Top things" );
     listfld = new uiListBox( topgrp, "Well objects" );
     listfld->setHSzPol( uiObject::medvar );
-    listfld->selectionChanged.notify( mCB(this,uiWellMan,selChg) );
     for ( int idx=0; idx<entrylist->size(); idx++ )
 	listfld->addItem( (*entrylist)[idx]->name() );
     listfld->setCurrentItem(0);
+    listfld->selectionChanged.notify( mCB(this,uiWellMan,selChg) );
 
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "well" );
 
@@ -253,7 +253,7 @@ void uiWellMan::mkFileInfo()
     if ( !conn ) return;
 
     BufferString fname( conn->fileName() );
-    txt += "\nLocation: "; txt += File_getPathOnly( fname );
+    txt += "File location: "; txt += File_getPathOnly( fname );
     txt += "\nFile name: "; txt += File_getFileName( fname );
     txt += "\nFile size: "; txt += getFileSize( fname );
 

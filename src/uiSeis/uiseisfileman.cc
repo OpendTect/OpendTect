@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.30 2003-10-17 14:19:03 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.31 2003-10-20 07:17:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,9 +46,10 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     uiGroup* topgrp = new uiGroup( this, "Top things" );
     listfld = new uiListBox( topgrp, "Seismic cubes" );
     listfld->setHSzPol( uiObject::medvar );
-    listfld->selectionChanged.notify( mCB(this,uiSeisFileMan,selChg) );
     for ( int idx=0; idx<entrylist->size(); idx++ )
 	listfld->addItem( (*entrylist)[idx]->name() );
+    listfld->setCurrentItem(0);
+    listfld->selectionChanged.notify( mCB(this,uiSeisFileMan,selChg) );
 
     manipgrp = new uiIOObjManipGroup( listfld, *entrylist, "cbvs" );
     manipgrp->preRelocation.notify( mCB(this,uiSeisFileMan,relocMsg) );
