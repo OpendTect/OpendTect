@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.9 2002-09-03 08:35:00 bert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.10 2003-02-26 16:36:50 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,7 +243,7 @@ int uiMergeSeis::checkRanges()
 	iop.get( BinIDSelector::sKeystepcrl, crlrg.step );
 	if ( idx )
 	{
-	    if ( (rev && previnlrg.stop <= inlrg.start)
+	    if ( (rev && previnlrg.start <= inlrg.stop)
 	     || (!rev && previnlrg.stop >= inlrg.start) )
 	    {
 	       BufferString msg( "Overlap found in data\n" );
