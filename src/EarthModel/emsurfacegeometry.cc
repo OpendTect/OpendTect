@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.2 2004-08-20 07:53:59 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.3 2004-08-25 11:43:26 nanne Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -611,11 +611,22 @@ void SurfaceGeometry::removeSection( SectionID sectionid, bool addtohistory )
     int idx=sectionids.indexOf(sectionid);
     if ( idx==-1 ) return;
 
+    for ( int attr=0; attr<surface.nrPosAttribs(); attr++ )
+    {
+	const TypeSet<PosID>* attrset = surface.getPosAttribList( attr );
+	if ( !attrset ) continue;
+	for ( int idy=0; idy<attrset->size(); idy++ )
+	{
+	    const PosID& posid = (*attrset)[idy];
+	    if ( sectionid == posid.sectionID() )
+		surface.setPosAttrib( posid, attr, false );
+	}
+    }
+
     surface.edgelinesets.removeSection( sectionid );
     surface.relations.removeSection( sectionid );
     surface.auxdata.removeSection( sectionid );
     BufferString name = *sectionnames[idx];
-
 
     delete meshsurfaces[idx];
     meshsurfaces.remove( idx );
