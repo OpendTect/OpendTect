@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.3 2002-03-12 16:00:14 bert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.4 2002-04-16 14:07:05 kristofer Exp $";
 
 
 #include "dataclipper.h"
@@ -54,12 +54,17 @@ void DataClipper::putData( const float* vals, int nrvals )
 	    if ( rand > sampleprob )
 		continue;
 
-	    samples += vals[idx];
+	    float val =  vals[idx];
+	    if ( !mIsUndefined( val ) ) samples += val;
 	}
     }
     else
     {
-	for ( int idx=0; idx<nrvals; idx++ ) samples += vals[idx];
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    float val = vals[idx];
+	    if ( !mIsUndefined( val ) ) samples += val;
+	}
     }
 }
 
