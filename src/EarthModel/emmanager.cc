@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.28 2003-12-18 12:45:49 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.29 2004-01-02 13:07:47 kristofer Exp $";
 
 #include "emmanager.h"
 
@@ -64,6 +64,22 @@ BufferString EM::EMManager::name(const EM::ObjectID& oid) const
     return res;
 }
 
+
+EM::ObjectID EM::EMManager::getID( EM::EMManager::Type type,
+				   const char* name ) const
+{
+    const IOObjContext* context = getContext(type);
+    if ( IOM().to(IOObjContext::getStdDirData(context->stdseltype)->id) )
+    {
+	PtrMan<IOObj> ioobj = IOM().getLocal( name );
+	IOM().back();
+	if ( ioobj ) return multiID2ObjectID(ioobj->key());
+    }
+
+    return -1;
+}
+
+
 EM::EMManager::Type EM::EMManager::type(const EM::ObjectID& oid) const
 {
     mDynamicCastGet( const EM::Horizon*, hor, getObject(oid) );
@@ -97,15 +113,19 @@ void EM::EMManager::init()
 
 EM::ObjectID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 {
-    PtrMan<CtxtIOObj> ctio;
-    if ( type==EM::EMManager::Hor )
-	ctio = mMkCtxtIOObj(EMHorizon);
-    else if ( type==EM::EMManager::Fault )
-	ctio = mMkCtxtIOObj(EMFault);
-    else if ( type==EMManager::StickSet )
-	ctio = mMkCtxtIOObj(EMStickSet);
-
+    const IOObjContext* context = getContext( type );
+    PtrMan<CtxtIOObj> ctio = context ? new CtxtIOObj(*context) : 0;
     if ( !ctio ) return -1;
+    EM::EMObject* object = 0;
+
+    EM::ObjectID res = getID(type, name);
+    if ( res!=-1 )
+    {
+	MultiID mid = IOObjContext::getStdDirData(context->stdseltype)->id;
+	mid.add(res);
+	if ( !IOM().permRemove(mid) )
+	    return -1;
+    }
 
     ctio->ctxt.forread = false;
     ctio->ioobj = 0;
@@ -113,19 +133,17 @@ EM::ObjectID EM::EMManager::add( EM::EMManager::Type type, const char* name )
     ctio->fillObj();
     if ( !ctio->ioobj ) return -1;
 
-    EMObject* obj = EM::EMObject::create( *ctio->ioobj, *this );
-    if ( !obj )
-	{ delete ctio->ioobj; return -1; }
+    object = EM::EMObject::create( *ctio->ioobj, *this );
 
-    objects += obj;
+    if ( !object ) { delete ctio->ioobj; return -1; }
+    objects += object;
     refcounts += 0;
 
-    PtrMan<Executor> saver = obj->saver();
-    if ( saver )
-	saver->execute();
+    PtrMan<Executor> saver = object->saver();
+    if ( saver ) saver->execute();
 
     delete ctio->ioobj;
-    return obj->id();
+    return object->id();
 } 
 
 
@@ -299,3 +317,17 @@ void EM::EMManager::getSurfaceData( const MultiID& id,
 // 	TODO: implement all SurfaceIOData related functions in EMFaultTranslator
     }
 }
+
+
+const IOObjContext* EM::EMManager::getContext( Type type ) const
+{
+    if ( type==EM::EMManager::Hor )
+	return &EMHorizonTranslatorGroup::ioContext();
+    else if ( type==EM::EMManager::Fault )
+	return &EMFaultTranslatorGroup::ioContext();
+    else if ( type==EMManager::StickSet )
+	return &EMStickSetTranslatorGroup::ioContext();
+
+    return 0;
+}
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.19 2003-12-17 15:44:16 kristofer Exp $
+ RCS:		$Id: emmanager.h,v 1.20 2004-01-02 13:07:42 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "emposid.h"
 
+class IOObjContext;
 class Executor;
 
 namespace EM
@@ -41,6 +42,8 @@ public:
 			EMManager();
 			~EMManager();
 
+    void		init();
+
     History&		history();
     const History&	history() const;
 
@@ -48,12 +51,12 @@ public:
     			/*!<\returns the name of the object */
     Type		type(const EM::ObjectID&) const;
     			/*!<\returns the type of the object */
-
-    void		init();
-
+    EM::ObjectID	getID(Type,const char* name) const;
     EM::ObjectID	add(Type,const char* name);
     			/*!< Creates a new object, saves it and loads it into
 			     mem
+			     \note If an object already exist with that name,
+			     it will be removed!! Check in advance with getID()
 			*/
 
     int			nrObjects() const	{ return objects.size(); }
@@ -76,6 +79,7 @@ public:
     static EM::ObjectID	multiID2ObjectID( const MultiID& );
 
 protected:
+    const IOObjContext*	getContext( Type ) const;
     void		removeObject(const EM::ObjectID&);
     History&		history_;
     ObjectSet<EMObject>	objects;
