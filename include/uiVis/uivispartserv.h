@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.24 2002-04-25 13:31:58 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.25 2002-04-29 10:53:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,12 @@ public:
     void		turnOn(int,bool);
     bool		isOn(int);
     void		setViewMode(bool yn);
+    void		showAnnotText(int,bool);
+    bool		isAnnotTextShown(int);
+    void		showAnnotScale(int,bool);
+    bool		isAnnotScaleShown(int);
+    void		showAnnot(int,bool);
+    bool		isAnnotShown(int);
 
     			// Selection
     bool		isSelectable(int) const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.32 2002-04-25 13:53:27 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.33 2002-04-29 10:53:37 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,6 +156,54 @@ void uiVisPartServer::setViewMode(bool yn)
 }
 
 
+void uiVisPartServer::showAnnotText( int sceneid, bool yn )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( scene ) scene->showAnnotText( yn );
+}
+
+
+bool uiVisPartServer::isAnnotTextShown( int sceneid )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    return scene ? scene->isAnnotTextShown() : false;
+}
+
+
+void uiVisPartServer::showAnnotScale( int sceneid, bool yn )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( scene ) scene->showAnnotScale( yn ); 
+} 
+
+
+bool uiVisPartServer::isAnnotScaleShown( int sceneid )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    return scene ? scene->isAnnotScaleShown() : false;
+}
+
+
+void uiVisPartServer::showAnnot( int sceneid, bool yn )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( scene ) scene->showAnnot( yn );
+}
+
+
+bool uiVisPartServer::isAnnotShown( int sceneid )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    return scene ? scene->isAnnotShown() : false;
+}
+
+
 bool uiVisPartServer::isSelectable( int id ) const
 {
     const visBase::DataObject* obj = visBase::DM().getObj( id );
@@ -219,8 +267,9 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
 	: ( etp == Crossline ?	visSurvey::PlaneDataDisplay::Crossline
 			     :	visSurvey::PlaneDataDisplay::Timeslice );
 
-    visSurvey::PlaneDataDisplay* sd = visSurvey::PlaneDataDisplay::create( type,
-	*scene, mCB( this, uiVisPartServer, getDataCB ));
+    visSurvey::PlaneDataDisplay* sd = visSurvey::PlaneDataDisplay::create();
+    sd->setType( type );
+    sd->setNewDataCallBack( mCB(this,uiVisPartServer,getDataCB) );
     seisdisps += sd; 
     visBase::VisColorTab* coltab = visBase::VisColorTab::create();
     BufferString ctname = "Red-White-Black";
@@ -349,7 +398,7 @@ int uiVisPartServer::addPickSetDisplay()
     mDynamicCastGet(visSurvey::Scene*,scene,obj);
 
     visSurvey::PickSetDisplay* pickset =
-				visSurvey::PickSetDisplay::create( *scene );
+				visSurvey::PickSetDisplay::create();
     picks += pickset;
     scene->addXYTObject( pickset );
     setSelObjectId( pickset->id() );
@@ -614,11 +663,7 @@ void uiVisPartServer::shareColor(int toid, int fromid )
 
 bool uiVisPartServer::setZScale()
 {
-    visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
-    mDynamicCastGet(visSurvey::Scene*,scene,obj)
-    if ( !scene ) return false;
-
-    uiZScaleDlg dlg( appserv().parent(), *scene );
+    uiZScaleDlg dlg( appserv().parent() );
     dlg.go();
     return dlg.valueChanged();
 }
