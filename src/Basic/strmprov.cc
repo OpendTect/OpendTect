@@ -19,6 +19,15 @@
 #include "errh.h"
 #endif
 
+#if __GNUC__ >= 3
+# if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)
+# include <ext/stdio_filebuf.h>
+# define mSTD_FILEBUF __gnu_cxx::stdio_filebuf 
+# else
+# define mSTD_FILEBUF filebuf 
+# endif
+#endif
+
 #include "strmprov.h"
 #include "filegen.h"
 #include "string2.h"
@@ -26,7 +35,7 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.24 2002-07-26 16:23:38 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.25 2002-09-26 13:01:42 arend Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -298,9 +307,17 @@ CONCLUSION: use binary mode, and windows will read&write unix format ;))
 
     sd.fp = popen( oscommand, "r" );
     sd.ispipe = true;
+
     if ( sd.fp )
+    {
+# if __GNUC__ >= 3
+	mSTD_FILEBUF fb( sd.fp, ios_base::in );
+	sd.istrm = new istream( &fb );
+# else
 	sd.istrm = new ifstream( fileno(sd.fp) );
+# endif
 #endif
+    }
 
     return sd;
 }
@@ -337,9 +354,17 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
 
     sd.fp = popen( oscommand, "w" );
     sd.ispipe = true;
+
     if ( sd.fp )
+    {
+# if __GNUC__ >= 3
+	mSTD_FILEBUF fb( sd.fp, ios_base::out );
+	sd.ostrm = new ostream( &fb );
+# else
 	sd.ostrm = new ofstream( fileno(sd.fp) );
+# endif
 #endif
+    }
 
     return sd;
 }
