@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.29 2003-11-10 10:41:14 arend Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.30 2003-11-26 11:36:40 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -175,7 +175,7 @@ const char* GetSoftwareUser()
     if( dgb_debug_isOn(DBG_SETTINGS) )
     {
 	char buf[255];
-	sprintf(buf, "GetSoftwareUser: %s\n", ptr );
+	sprintf(buf, "GetSoftwareUser: %s\n", ptr ? ptr : "Not set" );
 	dgb_debug_message( buf );
     }
 
