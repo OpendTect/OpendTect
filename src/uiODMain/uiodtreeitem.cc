@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.49 2004-09-16 08:09:30 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.50 2004-09-17 11:59:59 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ___________________________________________________________________
 #include "uitrackingpartserv.h"
 #include "uislicesel.h"
 #include "uipickszdlg.h"
+#include "uicolor.h"
 
 #include "visrandomtrackdisplay.h"
 #include "vissurvwell.h"
@@ -1587,8 +1588,9 @@ uiODSceneTreeItem::uiODSceneTreeItem( const char* name__, int displayid_ )
 #define mAnnotText	0
 #define mAnnotScale	1
 #define mSurveyBox	2
-#define mDumpIV		3
-#define mSubMnuScenePr	4
+#define mBackgroundCol	3
+#define mDumpIV		4
+#define mSubMnuScenePr	5
 
 
 bool uiODSceneTreeItem::showSubMenu()
@@ -1612,6 +1614,8 @@ bool uiODSceneTreeItem::showSubMenu()
     mnu.insertItem( annsurv, mSurveyBox );
     annsurv->setChecked( showcube );
 
+    mnu.insertItem( new uiMenuItem("Background color ..."), mBackgroundCol );
+
 
     bool doi = false;
     Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), doi );
@@ -1628,6 +1632,12 @@ bool uiODSceneTreeItem::showSubMenu()
 	scene->showAnnotScale( !scene->isAnnotScaleShown() );
     else if ( mnuid==mSurveyBox )
 	scene->showAnnot( !scene->isAnnotShown() );
+    else if ( mnuid==mBackgroundCol )
+    {
+	Color col = viewer()->getBackgroundColor();
+	if ( selectColor(col,getUiParent(),"Color selection",false) )
+	    viewer()->setBackgroundColor( col );
+    }
     else if ( mnuid==mDumpIV )
 	visserv->dumpOI( displayid );
     else if ( mnuid==mSubMnuScenePr )
