@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.8 2002-11-02 22:13:23 bert Exp $
+ RCS:		$Id: segytr.h,v 1.9 2003-02-26 17:35:03 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -17,8 +17,6 @@ Translators for SEGY files traces.
 #include <segylike.h>
 #include <segyhdr.h>
 class LinScaler;
-
-#define mSegyFmt "Number format"
 
 
 class SEGYSeisTrcTranslator : public SegylikeSeisTrcTranslator
@@ -39,6 +37,7 @@ public:
 
     virtual const char*	defExtension() const		{ return "sgy"; }
 
+    static const char*	sNumberFormat;
     static const char*	sExternalNrSamples;
     static const char*	sExternalCoordScaling;
     static const char*	sExternalTimeShift;

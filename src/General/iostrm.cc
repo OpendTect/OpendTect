@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.10 2003-02-21 11:51:26 bert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.11 2003-02-26 17:35:03 bert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -361,7 +361,7 @@ StreamProvider* IOStream::streamProvider( bool fr ) const
     FileNameString nm( type_ == StreamConn::Command && !fr
 			? writer() : (const char*)fname );
 
-    bool doins = isMulti() && (strchr(nm,'*') || strchr(nm,'%'));
+    const bool doins = isMulti() && (strchr(nm,'*') || strchr(nm,'%'));
     if ( doins )
     {
 	char numb[80], numbstr[80]; numbstr[0] = '\0';
@@ -399,6 +399,18 @@ StreamProvider* IOStream::streamProvider( bool fr ) const
     if ( !hostname[0] && type_ == StreamConn::File )
 	sp->addPathIfNecessary( dirName() );
     if ( blocksize ) sp->setBlockSize( blocksize );
+
+    if ( fr && doins && padzeros && type_ == StreamConn::File
+      && !sp->exists(fr) )
+    {
+	int kppz = padzeros;
+	const_cast<IOStream*>(this)->padzeros = 0;
+	StreamProvider* trysp = streamProvider( fr );
+	if ( trysp && trysp->exists(fr) )
+	    { delete sp; sp = trysp; trysp = 0; }
+	delete trysp;
+	const_cast<IOStream*>(this)->padzeros = kppz;
+    }
 
     return sp;
 }

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.17 2003-02-21 10:26:39 bert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.18 2003-02-26 17:35:03 bert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.17 2003-02-21 10:26:39 bert Exp $
 #include <ctype.h>
 # include <sstream>
 
+const char* SEGYSeisTrcTranslator::sNumberFormat = "Number format";
 const char* SEGYSeisTrcTranslator::sExternalNrSamples = "Nr samples overrule";
 const char* SEGYSeisTrcTranslator::sExternalTimeShift = "Start time overrule";
 const char* SEGYSeisTrcTranslator::sExternalSampleRate = "Sample rate overrule";
@@ -239,7 +240,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar* iopar )
     if ( !iopar ) return;
     SegylikeSeisTrcTranslator::usePar( iopar );
 
-    const char* res = (*iopar)[ mSegyFmt ];
+    const char* res = (*iopar)[ sNumberFormat ];
     if ( *res )
 	numbfmt = isdigit(*res) ? *res - '0' : 0;
 
