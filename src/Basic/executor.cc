@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.5 2002-03-05 10:20:32 kristofer Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.6 2002-03-05 10:31:04 kristofer Exp $";
 
 #include "executor.h"
 #include "timefun.h"
@@ -130,7 +130,7 @@ void ExecutorGroup::add( Executor* n )
 int ExecutorGroup::nextStep()
 {
     const int nrexecs = executors.size();
-    if ( nrexecs ) return 0;
+    if ( !nrexecs ) return Finished;
 
     int res = executors[currentexec]->nextStep();
     if ( res==Finished )
@@ -151,7 +151,7 @@ int ExecutorGroup::nextStep()
 const char* ExecutorGroup::message() const
 {
     const int nrexecs = executors.size();
-    if ( nrexecs ) return 0;
+    if ( nrexecs ) return  Executor::message();
 
     return executors[currentexec]->message();
 }
@@ -160,7 +160,7 @@ const char* ExecutorGroup::message() const
 int ExecutorGroup::totalNr() const
 {
     const int nrexecs = executors.size();
-    if ( nrexecs ) return -1;
+    if ( nrexecs ) return Executor::totalNr();
 
     int sum = 0;
 
