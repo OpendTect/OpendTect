@@ -1,13 +1,18 @@
-dGB-dTect V1.2
+dGB-dTect V1.4
 Batch Processing Hosts
-Thu Jun 13 20:59:49 2002
+Thu Nov 28 13:26:51 2002
 !
 Remote shell: rsh
 Default nice level: 19
 !
-dgb17:	Nanne's machine
-dgb20:	Demo machine
-dgb27:	Dual processor machine
-dgb32:	Herald's machine (1.8 GHz)
-dgb11:	Bert's old machine (400 MHz)
-dgb33:	Bert's new machine (1.8 GHz)
+dgb8:	IRIX machine (LOW GHz)
+dgb20:	Demo machine (1.0 GHz)
+dgb27:	Dual processor machine (2 x 1.0 GHz)
+dgb32:	Nanne's machine (1.8 GHz)
+dgb33:	Bert's machine (1.8 GHz)
+dgb35:	Herald's machine (2.2 GHz)
+dgb36:	Proc 1 (2 x 2.2 GHz)
+dgb37:	Proc 2 (2 x 2.2 GHz)
+dgb38:	Proc 3 (2 x 2.2 GHz)
+dgb39:	Proc 4 (2 x 2.2 GHz)
+dgb40:	Proc 5 (2 x 2.2 GHz)
