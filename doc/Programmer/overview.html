@@ -1,10 +1,115 @@
-<chapter label="1" id="link-Overview"><beginpage pagenum=1>
-<title>Overview</title>
-&fig-logo;
+<!--
+  - CopyRight:	(C) dGB Earth Sciences
+  - Author:	A.H. Bril
+  - Date:	Oct 2003
+  - Contents:	Overview of programmer doc
+  - RCS:	$Id: overview.html,v 1.2 2003-10-29 16:24:20 bert Exp $
+ -->
+<html>
 
-<sect1><title>Introduction</title>
-<para>
-OpendTect is a C++ based software environment suitable for implementing many subsurface interpretation tasks.
-</para>
-</sect1>
-</chapter>
+<body bgcolor="#dddddd"><title>OpendTect Programmer's manual V1.0 - Overview</title>
+<center><a href=#intro>Intro</a> | <a href=#modules>Modules</a></center>
+
+<h1>Overview</h1>
+
+<a name=intro><h2>Intro</h2></a>
+
+<h3>A few remarks</h3>
+OpendTect:
+<ul>
+<li>Is <a href=#why_cpp>in C++</a> and a tiny bit of C
+<li>Has a some strict <a href=#separation>separations</a> of functionality
+<li>Uses almost exclusively <a href=#opensrc>open source tools</a>
+<li>Can be extended using <a href="plugins.html">plugins</a>
+<li>Has its own make system: <a href="pmake.html">Pmake</a>
+</ul>
+
+<h3><a name=why_cpp>C++</a></h3>
+<p>
+OpendTect is a C++-based environement. A couple of years ago, C++ was declared dead by many as a result of the Java hype. In some areas, Java is indeed far better suited. In our part of the world (geosciences, in particular geophysics-related), we don't think Java can match the advantages of C++: Fast yet flexible, Low-level yet supporting high-level OO constructs. And, we would be terrified having to program without templates.
+</p><p>
+That doesn't mean that programming in C++ automagically delivers good software, and neither that performance comes easy. That's some of the things that can be reached by a good design.
+</p>
+
+<h3><a name=why_cpp>Design principles</a></h3>
+<p>
+There are many aspects of software that can be categorised as 'good'. These include robustness, flexibility, high performance, compactness, maintainability, understandability. Software engineering is all about making choices - every aspect costs resources and there's always a limit to that. So, even if one tries to optimise all 'good' aspects, there will be different degrees of emphasis on each of them.</p>
+As OpendTect was developed in a research-minded environment, flexibility is a high priority. The Object-Oriented toolkit delivers many tricks to make software more flexible. Some of these tricks nowadays have labels - 'Design patterns' - like the ones in the 'Design Patterns' book (Factories,Singletons,etc.). Many constructs in the software are fit to match the problem though, always with a number of design principles in mind:
+<ul>
+<li><a href=http://www.objectmentor.com/resources/articles/ocp.pdf>OCP</a> <i>Open/Closed</i>: classes and modules should be open for extension, but closed for modification.
+<li><a href=http://www.objectmentor.com/resources/articles/sip>SRP</a> <i>Single responsibility</i>: only one class or module does one thing well and complete.
+<li><a href=http://www.objectmentor.com/resources/articles/lsp.pdf>LSP</a> <i>Substititutability</i>: inheritance for interfaces makes classes substitutable.
+<li><a href=http://www.objectmentor.com/resources/articles/dip.pdf>DIP</a> <i>Dependency inversion</i>: depending on abstract base classes inverts dependencies from high-level on low-level into dependency on stable high-level abstractions.
+<li><a href=#dif>DIF</a> <i>Don't Implement the Future</i>: All source code present should actually be used now.
+<li><a href=#nbs>NBS</a> <i>No BullShit</i>: Create constructs if needed, not because they're cool or anything.
+</ul>
+The last two are, [cough] of our own making. <a name=dif>DIF</a> ensures that there are no large amounts of unused code lying around to be maintained, <a name=NBS>NBS</a> delivers a system that is as simple as possible given the constraints.
+</p>
+<a name="isolation"><h3>Isolation of external services</h3></a>
+<p>
+When services from another package (Qt, COIN, fftw, ...) are used, there is always an isolating layer - either a complete module or a class that uniquely uses those services. For software engineers this is an obvious action were it only to reduce the dependency problems.
+</p><p>
+There is however more to it. External services tend to be designed for much more general purposes than what is needed by OpendTect. Furthermore, some services that will be very important for us won't be available. Also, we may not like the form in which the services are presented (e.g. fftw is a C library). And, the data structures used in the external package seldomly fits nicely with ours.
+</p><p>
+To overcome all this, and get a nice insulation at the same time, all external services are embedded in a new service layer that:
+<ul>
+<li>Does exactly what we need
+<li>Does not expose the external package's header files
+<li>Uses data structures as are common in OpendTect
+</ul>
+Isolation like this is present for a variety of subjects, from threads, sockets, file handling to User Interface building and Data loading.
+</p>
+<a name=opensrc><h3>Open source</h3></a>
+<p>
+OpendTect is based on a couple of external packages, which are mostly open source. These include:
+<ul>
+<li>Qt from <a href="http://www.trolltech.no">TrollTech</a>
+<li>Coin from <a href="http://www.sim.no">SIM</a>
+<li>FFTW from <a href="http://www.mit.edu">MIT</a>
+<li>GNU tools (gmake, gcc, bison/flex) from <a href="http://www.fsf.org">FSF</a>
+<li>Doxygen from <a href="http://www.doxygen.org">Doxygen</a>
+</ul>
+</p>
+
+<a name=modules><h2>Modules</h2></a>
+<h3>Intro</h3>
+<p>
+A group of classes that handle a certain area of our domain is what could be called a module. Sometimes these modules have their own namespace, most often not (sometimes because the code pre-dates the good support of namespaces by gcc). In any case, it does correspond with two physical directories in the source tree: include/module_name and src/module_name. Thus earth model related classes go in the EarthModel directories.</p>
+</p><p>
+<a name=separation>The separation</a> of <code>include</code> and <code>src</code> is first of all a visibility issue. The <code>include</code> files can be 'seen' by other modules, the <code>src</code> files not. Conceptually, the separation is roughly interface versus implementation. Roughly, because small functions are often implemented in the header file.
+</p><p>
+Another separation that is very important is between UI- and 'Real Work' modules. No (direct) user interface work is done in the RW-modules. The amount of Real Work in the UI modules is minimised. Within the user inteface part, there is a separation between basic UI (Qt-based in OpendTect) and 3D visualistion (COIN/OPenInventor-based). Both types of user interface modules have a prefix: 'ui' and 'vis' respectively.
+</p>
+
+<h3>RW modules</h3>
+<p>
+First of all, there are the <code>Basic</code> and <code>General</code> modules. <code>General</code> depends on <code>Basic</code>. The separation is a bit arbitrary, and the idea was that <code>Basic</code> would be tools also usable outside OpendTect. It's easy to find a counterexample like survinfo which was placed there to provide other <code>Basic</code> classes with good defaults.
+</p><p>
+In any case, <code>Basic</code> handles basic stuff like file-related, extra string utils, Ascii keyword-value files, positions (coords, inline/crossline), our own 'string' class the BufferString (not just a relict: it works better with C environments), sets: TypeSet, ObjectSet and BufferStringSet, OS dependent things like threads, stream opening, and a variety of basic algorithms.
+</p><p>
+<code>General</code> handles fast dynamic large N-D arrays (<code>ArrayND</code> etc.), the CBVS format for volumestorage, the IOObj, IOMan and other data store related classes, Translators enabling different formats, transforms and a few more things.
+</p><p>
+The domain-specific modules like <code>Well</code>, <code>EarthModel</code>, <code>Grid</code> etc. will be recognised by a geoscientist. Leaves us with <code>Attrib</code> and <code>AttribEng</code>, the seismic attribute modules, and the <code>Features</code> module.
+</p><p>
+The <code>Features</code> module implements a concept of (sets of) vectors where each vector has a position and each vector row has a name. This is what is needed to hold many N-dimensional data analysis problem.
+</p><p>
+For seismic attributes, a separation is made between the engine and the structure of the attributes (<code>AttribEng</code>), and the implementation of the various standard attributes (<code>Attrib</code>).
+</p>
+
+<h3>UI modules</h3>
+<p>
+For most of the RW-modules, there is a UI counterpart. This is made possible by the basic UI modules uiBase, uiTools and uiIo, the basic 3D visualisation module visBase and the basic combined stuff in uiCoin. On top of everything is the UI application logic in uiApplMan.
+</p><p>
+The uiBase module is one of the two modules that access Qt services. Where uiCoin specifically handles the bridge bewteen Qt and Coin, uiBase is Qt only. These two are therefore <a href=#isolation>isolation layers</a>. uiBase's main task is to provide access to Qt widgets and implement the dynamic layout concept. In short, the OpendTect user interface was not painted with a paint tool, but rather programmed by attaching elements to each other. See the <a href="Generated/uiBase/index.html">uiBase class documentation</a>.
+</p><p>
+The uiTools module depends on uiBase only to provide some general UI elements from the uiBase basic objects. Most notably, the <a href="Generated/uiTools/classuiGenInput.html#_details">uiGenInput</a> class, providing generalised data input.
+</p><p>
+The uiIo module is intended mainly for object selection (in the data store).
+</p><p>
+The COIN-based visualisation services are made available in the visBase layer. Based on that, visSurvey delivers OpendTect-specific functionality.
+</p><p>
+It all comes together in the uiApplMan module. Being the top level module it is dependent on all other modules. To keep the amount of knowledge contained in this module low, much of the functionality is obtained from the 'UI Part servers'. For example, the uiSeisPartServer is the isolation class for all seismic-related user interface work. The ui3DApplMan object is only coordinating the flow of information between the various part servers.
+</p>
+
+</body>
+</html>

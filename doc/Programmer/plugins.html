@@ -1,58 +1,60 @@
-<chapter label="1" id="link-Plugins"><beginpage pagenum=1>
-<title>OpendTect Plugins</title>
-&fig-logo;
+<!--
+  - CopyRight:	(C) dGB Earth Sciences
+  - Author:	A.H. Bril
+  - Date:	Oct 2003
+  - Contents:	Plugins
+  - RCS:	$Id: plugins.html,v 1.2 2003-10-29 16:24:20 bert Exp $
+ -->
+<html>
 
-<sect1><title>Introduction</title>
-<para>
+<body bgcolor="#dddddd"><title>OpendTect Programmer's manual V1.0 - Plugins</title>
+
+<h1>OpendTect Plugins</h1>
+
+<h2>Introduction</h2>
+<p>
 Making your own software within OpendTect is in principle pretty easy. You could change the software by modifying exiting and adding new classes. The advantage is total control. The problem with this approach, however, is that you have to keep the OpendTect sources in sync with new releases. Furthermore, if you cannot convince the opendtect.org people also make those changes, OpendTect users may not be happy with your work.
+</p><p>
 An easy way to overcome this is to make your own plugins. Plugins make use of all the facilities of OpendTect but are loaded at run-time and can therefore be developed in a completely independent way. If you then find things that can't be done without modifying the OpendTect environment, it should much easier to convince the opendtect.org people to take over or even implement those themselves.
-</para>
-</sect1>
+</p>
 
-<sect1><title>The concept</title>
-<para>
+<h2>The concept</h2>
+<p>
 All modern Operating systems nowadays have ways to dynamically load libraries into a running program. The basic idea is:
-
-Open the library
-Query the contents for a certain routine using a string key
-Call the routine returned
-The routine then does the things needed to make itself active.
-
+<ul>
+<li>Open the library
+<li>Query the contents for a certain routine using a string key
+<li>Call the routine returned
+<li>The routine then does the things needed to make itself useful.
+</ul>
+</p><p>
 As an example, a 'hello world' program could conceptually look like this:
-
-<programlisting>
-dynlib = OpenDynamicLib( "libc.so" );
+<pre><code>dynlib = OpenDynamicLib( "libc.so" );
 PrintfTypeFunction fn = (PrintfTypeFunction)GetDynLibFn( dynlib, "printf" );
 fn( "Hello world" );
-</programlisting>
-
+</code></pre>
+</p><p>
 In this very simple case calling the function has no other effect than printing a string. In OpendTect, you'd want to add an attribute, create a menu item in the Opendtect menu, etc. etc.
-
+</p><p>
 In OpendTect, all of the dynamic lib querying etc. is already programmed. A plugin just needs to contain a few standard functions that will be called automatically when the dynamic library is loaded. There are three functions, of which only one is really required. Let's say the name of the plugin is MyPlugin, these functions will be:
-
-MyPluginGetPluginType
+<pre><code>MyPluginGetPluginType
 MyPluginGetPluginInfo
 MyPluginInitPlugin
-
+</code></pre>
 Only the last one is required.
-
+</p><p>
 Note that these functions must be declared 'extern "C"', e.g.:
-
-<programlisting>
-#include <iostream>
+<pre><code>#include <iostream>
 extern "C" const char* HelloInitPlugin( int, char** )
 {
     std::cout << "Hello world" << std::endl;
     return 0; // All OK - no error messages
 }
-</programlisting>
-
+</code></pre>
 Those 6 lines make a plugin for OpendTect - albeit of low usefulness.
+</p><p>
 
+</p>
 
-
-In OpendTect, this sequence will be done automatically
-
-</para>
-</sect1>
-</chapter>
+</body>
+</html>

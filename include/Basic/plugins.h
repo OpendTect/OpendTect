@@ -1,5 +1,16 @@
 #ifndef plugins_h
 #define plugins_h
+/*+
+________________________________________________________________________
+
+ CopyRight:	(C) dGB Earth Sciences B.V.
+ Author:	A.H.Bril
+ Date:		Aug 2003
+ Contents:	Plugins
+ RCS:		$Id: plugins.h,v 1.8 2003-10-29 16:24:20 bert Exp $
+________________________________________________________________________
+
+-*/
 
 
 #include "bufstringset.h"
