@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.1 2002-03-21 14:05:11 bert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.2 2002-04-17 08:49:36 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "geompos.h"
@@ -21,14 +21,15 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.1 2002-03-21 14:05:1
 
 visSurvey::PlaneDataDisplay::PlaneDataDisplay(
 			visSurvey::PlaneDataDisplay::Type type_ )
-	: trect( visBase::TextureRect::create(true) )
+	: VisualObject( true )
+	, trect( visBase::TextureRect::create(true) )
 	, type( type_ )
 	, selected( false )
 	, attrsel( -1, false )
 {
     trect->ref();
-    trect->selection()->notify( mCB(this,PlaneDataDisplay,select));
-    trect->deSelection()->notify( mCB(this,PlaneDataDisplay,deSelect));
+    selection()->notify( mCB(this,PlaneDataDisplay,select));
+    deSelection()->notify( mCB(this,PlaneDataDisplay,deSelect));
 
     BinID startbid = SI().range().start;
     BinID stopbid = SI().range().stop;
