@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.128 2004-09-03 13:33:09 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.129 2004-09-07 10:19:09 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,15 +16,16 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "thread.h"
-#include "position.h"
-
 #include "cubesampling.h"
-#include "attribsel.h"
 
+
+class AttribSelSpec;
 class AttribSliceSet;
 class BinIDValueSet;
 class BufferStringSet;
+class ColorAttribSel;
 class ColorTable;
+class MultiID;
 class PickSet;
 class SeisTrcBuf;
 class SurfaceInfo;

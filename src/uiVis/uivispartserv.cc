@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.234 2004-09-03 14:46:32 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.235 2004-09-07 10:20:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 #include "visevent.h"
 #include "seisbuf.h"
+#include "attribsel.h"
 
 
 const int uiVisPartServer::evUpdateTree =	0;
