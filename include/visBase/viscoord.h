@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.3 2003-01-07 10:20:14 kristofer Exp $
+ RCS:		$Id: viscoord.h,v 1.4 2003-01-09 09:13:55 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,8 @@ class SoCoordinate3;
 class Executor;
 
 namespace Geometry { class PosIdHolder; }
+namespace Threads { class Mutex; };
+
 
 namespace visBase
 {
@@ -47,9 +49,13 @@ public:
     SoNode*		getData();
 protected:
 
+    int			getFreeIdx();
+    			/*!< Object should be locked when calling */
+
     			~Coordinates();
      SoCoordinate3*	coords;
      TypeSet<int>	unusedcoords;
+     Threads::Mutex&	mutex;
 };
 
 /*
