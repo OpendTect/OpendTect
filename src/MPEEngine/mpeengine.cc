@@ -8,16 +8,18 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.1 2005-01-06 09:25:21 kristofer Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.2 2005-01-07 12:18:29 kristofer Exp $";
 
 #include "mpeengine.h"
 
 #include "attribsel.h"
 #include "attribslice.h"
 #include "bufstringset.h"
-#include "emobject.h"
+#include "emeditor.h"
 #include "emlens.h"
 #include "emlenstracker.h"
+#include "emmanager.h"
+#include "emobject.h"
 #include "emtracker.h"
 #include "geomelement.h"
 
@@ -39,8 +41,11 @@ Engine::~Engine()
 {
     deepErase( interactionseeds );
     deepErase( trackers );
+    deepErase( editors );
     deepErase( attribcache );
     deepErase( attribcachespecs );
+    deepErase( trackerfactories );
+    deepErase( editorfactories );
 }
 
 
@@ -258,6 +263,32 @@ bool Engine::setAttribData(const AttribSelSpec& spec, AttribSliceSet* newdata )
 }
 
 
+ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
+{
+    for ( int idx=0; idx<editors.size(); idx++ )
+    {
+	if ( editors[idx]->emObject().id()==id )
+	    return editors[idx];
+    }
+
+    if ( !create ) return 0;
+
+    EM::EMObject* emobj = EM::EMM().getObject(id);
+    if ( !emobj ) return 0;
+
+    for ( int idx=0; idx<editorfactories.size(); idx++ )
+    {
+	if ( strcmp(editorfactories[idx]->emObjectType(), emobj->getTypeStr()) )
+	    continue;
+
+	ObjectEditor* editor = editorfactories[idx]->create(emobj);
+	editors += editor;
+	return editor;
+    }
+
+    return 0;
+}
+
 
 const char* Engine::errMsg() const { return errmsg[0] ? errmsg : 0 ; }
 
@@ -274,6 +305,21 @@ void Engine::addTrackerFactory( TrackerFactory* ntf )
     }
 
     trackerfactories += ntf;
+}
+
+
+void Engine::addEditorFactory( EditorFactory* nef )
+{
+    for ( int idx=0; idx<editorfactories.size(); idx++ )
+    {
+	if ( !strcmp(nef->emObjectType(),editorfactories[idx]->emObjectType()))
+	{
+	    delete nef;
+	    return;
+	}
+    }
+
+    editorfactories += nef;
 }
 
 

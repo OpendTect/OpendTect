@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.1 2005-01-06 09:25:21 kristofer Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.2 2005-01-07 12:18:29 kristofer Exp $";
 
 #include "emeditor.h"
 
@@ -138,6 +138,14 @@ const Geometry::ElementEditor* ObjectEditor::getEditor(
 {
     return const_cast<ObjectEditor*>(this)->getEditor(sid);
 }
+
+
+const char* EditorFactory::emObjectType() const { return type; }
+
+
+ObjectEditor* EditorFactory::create( EM::EMObject* emobj ) const
+{ return createfunc( emobj ); }
+
 
 
 }; //Namespace

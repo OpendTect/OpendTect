@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.1 2005-01-06 09:25:55 kristofer Exp $
+ RCS:           $Id: emeditor.h,v 1.2 2005-01-07 12:18:25 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class ObjectEditor
 {
 public:
     			ObjectEditor( EM::EMObject& );
+    const EM::EMObject&	emObject() const { return emobject; }
     virtual void	startEdit();
     virtual void	finishEdit();
 
@@ -59,6 +60,25 @@ protected:
     EM::EMObject&			emobject;
     TypeSet<EM::PosID>			changedpids;
 };
+
+
+typedef ObjectEditor*(*EMEditorCreationFunc)(EM::EMObject*);
+
+
+class EditorFactory
+{
+public:
+			EditorFactory( const char* emtype,
+				       EMEditorCreationFunc );
+    const char*		emObjectType() const;
+    ObjectEditor*	create( EM::EMObject* emobj = 0 ) const;
+
+protected:
+    EMEditorCreationFunc	createfunc;
+    const char*			type;
+
+};
+
 
 };
 

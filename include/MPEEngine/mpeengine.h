@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.1 2005-01-06 09:25:55 kristofer Exp $
+ RCS:           $Id: mpeengine.h,v 1.2 2005-01-07 12:18:25 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,9 @@ namespace MPE
 
 class EMTracker;
 class TrackerFactory;
+class EditorFactory;
 class TrackPlane;
+class ObjectEditor;
 
 class Engine : public CallBackClass
 {
@@ -73,7 +75,12 @@ public:
     const AttribSliceSet* getAttribCache( const AttribSelSpec& ) const;
     bool		setAttribData(const AttribSelSpec&, AttribSliceSet*);
 
+    			/*Editors */
+    ObjectEditor*	getEditor( const EM::ObjectID&, bool create );
+
+    			/*Factories */
     void		addTrackerFactory( TrackerFactory* );
+    void		addEditorFactory( EditorFactory* );
 
     const char*		errMsg() const;
 
@@ -86,12 +93,15 @@ protected:
 
     CubeSampling	activevolume;
     TrackPlane		trackplane;
-    ObjectSet<EMTracker> trackers;
+
+    ObjectSet<EMTracker>	trackers;
+    ObjectSet<ObjectEditor>	editors;
 
     ObjectSet<AttribSliceSet>	attribcache;
     ObjectSet<AttribSelSpec>	attribcachespecs;
 
     ObjectSet<TrackerFactory>	trackerfactories;
+    ObjectSet<EditorFactory>	editorfactories;
 };
 
 
