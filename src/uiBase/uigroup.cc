@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.29 2002-01-17 10:43:02 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.30 2002-01-17 16:16:36 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 
 #include <iostream>
 #include "errh.h"
+
+#include <uitabgroup.h>
 
 class uiGroupObjBody;
 class uiGroupParentBody;
@@ -54,6 +56,7 @@ class uiGroupObjBody  : public uiObjectBody, public QFrame
     friend class		i_uiGroupLayoutItem;
     friend			uiGroup* gtDynamicCastToGrp( QWidget*);
 public:
+
 				uiGroupObjBody( uiGroupObj& handle, 
 						uiParent* parnt,
 						const char* nm )
@@ -62,8 +65,17 @@ public:
 					parnt->body()->managewidg() : 0, nm )
 				    , handle_( handle )
 				    , prntbody_( 0 )			
-				{ 
-				}
+				{}
+
+				uiGroupObjBody( uiGroupObj& handle, 
+						uiTabGroup* parnt,
+						const char* nm )
+				    : uiObjectBody( 0 )
+				    , QFrame( parnt && parnt->body() ?  
+					parnt->body()->managewidg() : 0, nm )
+				    , handle_( handle )
+				    , prntbody_( 0 )			
+				{}
 
 #define mHANDLE_OBJ     	uiGroupObj
 #define mQWIDGET_BASE		QFrame
@@ -376,9 +388,30 @@ uiGroup::uiGroup( uiParent* p, const char* nm, bool manage )
     setBody( body_ );
 
     grpobj_->body_->setPrntBody( body_ );
+    if( p )
+    {
+	if( manage ) p->manageChld( *grpobj_, *grpobj_->body_ );
+	else	 p->addChild( *this );
+    }
+}
 
-    if( manage ) p->manageChld( *grpobj_, *grpobj_->body_ );
-    else	 p->addChild( *this );
+
+uiGroup::uiGroup( uiTabGroup* p, const char* nm )
+    : uiParent( nm, 0 )
+    , grpobj_( 0 )
+    , body_( 0 )
+{
+    grpobj_ =  new uiGroupObj( p,nm );
+    uiGroupObjBody* grpbdy = dynamic_cast<uiGroupObjBody*>( grpobj_->body() );
+
+#ifdef __debug__
+    if( !grpbdy ) { pErrMsg("Huh") ; return; }
+#endif
+
+    body_ =  new uiGroupParentBody(*this,*grpbdy, 0, nm );
+    setBody( body_ );
+
+    grpobj_->body_->setPrntBody( body_ );
 }
 
 void uiGroup::display( bool yn, bool shrink )
@@ -487,6 +520,13 @@ void uiGroup::setHCentreObj( uiObject* o )
 
 uiGroupObj::uiGroupObj( uiParent* parnt , const char* nm, bool manage )
 : uiObject( parnt, nm )
+{
+    body_= new uiGroupObjBody( *this, parnt, nm );
+    setBody( body_ );
+}
+
+uiGroupObj::uiGroupObj( uiTabGroup* parnt , const char* nm )
+: uiObject( 0, nm )
 {
     body_= new uiGroupObjBody( *this, parnt, nm );
     setBody( body_ );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.27 2002-01-15 10:20:12 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.28 2002-01-17 16:16:36 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,7 +280,7 @@ void uiObjectBody::display( bool yn, bool shrink )
 {
     display_ = yn;
 
-    if( shrink )
+    if( !display_ && shrink )
     {
 	pref_width_  = 0;
 	pref_height_ = 0;
