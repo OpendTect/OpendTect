@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.33 2004-11-16 09:55:54 kristofer Exp $
+ RCS:		$Id: position.h,v 1.34 2004-11-19 07:56:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,6 +225,8 @@ public:
 			BinIDValues( const BinIDValue& biv )
 			: binid(biv.binid), vals(0), sz(0)
 					{ setSize(1); value(0) = biv.value; }
+			~BinIDValues();
+
     BinIDValues&	operator =(const BinIDValues&);
 
     bool		operator==( const BinIDValues& biv ) const;

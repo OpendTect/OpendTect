@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.42 2004-10-29 14:23:27 kristofer Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.43 2004-11-19 07:56:14 nanne Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -174,6 +174,12 @@ BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
     	: binid(bvs.binid)
     	, value(bvs.value(nr))
 {
+}
+
+
+BinIDValues::~BinIDValues()
+{
+    delete [] vals;
 }
 
 
