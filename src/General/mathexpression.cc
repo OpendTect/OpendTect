@@ -115,16 +115,44 @@ MathExpression* MathExpression::parse( const char* input )
 
 	len = strlen( str );
     }
-	
+
+    if ( len>3 &&
+	 str[0] == '|' && str[1] != '|' &&
+	 str[len-1] == '|' && str[len-2] != '|' )
+    {
+	char tmp[len+1];
+	strcpy( tmp, &str[1] );
+	tmp[len-2] = 0;
+
+	MathExpression* inp = parse( tmp );
+	if ( !tmp )
+	{
+	    return 0;
+	}
+
+	MathExpression* res = new MathExpressionAbs;
+	res->setInput( 0, inp );
+
+	return res;
+    }
 
     int bracketlevel = 0;
-
+    bool inabs = false;
 
     // ? :
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( str[idx]=='(' ) bracketlevel++;
-	if ( str[idx]==')' ) bracketlevel--;
+	if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) )
+	    inabs=(inabs+1)%2;
+
+	if ( inabs ) continue;
+
+	do 
+	{
+	    if ( str[idx]=='(' ) bracketlevel++;
+	    if ( str[idx]==')' ) bracketlevel--;
+	    if ( bracketlevel ) idx++;
+	} while ( bracketlevel && idx<len );
 
 	if ( bracketlevel ) continue;
 
@@ -138,8 +166,18 @@ MathExpression* MathExpression::parse( const char* input )
 
 	    for ( int idy=idx; idy<len; idy++ )
 	    {
-		if ( str[idy]=='(' ) bracketlevel++;
-		if ( str[idy]==')' ) bracketlevel--;
+		if ( str[idx]=='|' && !(str[idx+1]=='|' ||
+		     (idx && str[idx-1]=='|') ) )
+		    inabs=(inabs+1)%2;
+
+		if ( inabs ) continue;
+
+		do 
+		{
+		    if ( str[idx]=='(' ) bracketlevel++;
+		    if ( str[idx]==')' ) bracketlevel--;
+		    if ( bracketlevel ) idx++;
+		} while ( bracketlevel && idx<len );
 
 		if ( bracketlevel ) continue;
 
@@ -187,12 +225,21 @@ MathExpression* MathExpression::parse( const char* input )
     // && ||
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( str[idx]=='(' ) bracketlevel++;
-	if ( str[idx]==')' ) bracketlevel--;
+	if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) )
+	    inabs=(inabs+1)%2;
+
+	if ( inabs ) continue;
+
+	do 
+	{
+	    if ( str[idx]=='(' ) bracketlevel++;
+	    if ( str[idx]==')' ) bracketlevel--;
+	    if ( bracketlevel ) idx++;
+	} while ( bracketlevel && idx<len );
 
 	if ( bracketlevel ) continue;
 
-	if ( (str[idx]=='&'&&str[idx]=='&') || (str[idx]=='|'&&str[idx]=='|'))
+	if ( (str[idx]=='&'&&str[idx+1]=='&')||(str[idx]=='|'&&str[idx+1]=='|'))
 	{
 	    if ( !idx ) continue;
 
@@ -235,8 +282,17 @@ MathExpression* MathExpression::parse( const char* input )
     // <, >, <=, >=, ==
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( str[idx]=='(' ) bracketlevel++;
-	if ( str[idx]==')' ) bracketlevel--;
+	if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) )
+	    inabs=(inabs+1)%2;
+
+	if ( inabs ) continue;
+
+	do 
+	{
+	    if ( str[idx]=='(' ) bracketlevel++;
+	    if ( str[idx]==')' ) bracketlevel--;
+	    if ( bracketlevel ) idx++;
+	} while ( bracketlevel && idx<len );
 
 	if ( bracketlevel ) continue;
 
@@ -298,8 +354,17 @@ MathExpression* MathExpression::parse( const char* input )
     // + -
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( str[idx]=='(' ) bracketlevel++;
-	if ( str[idx]==')' ) bracketlevel--;
+	if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) )
+	    inabs=(inabs+1)%2;
+
+	if ( inabs ) continue;
+
+	do 
+	{
+	    if ( str[idx]=='(' ) bracketlevel++;
+	    if ( str[idx]==')' ) bracketlevel--;
+	    if ( bracketlevel ) idx++;
+	} while ( bracketlevel && idx<len );
 
 	if ( bracketlevel ) continue;
 
@@ -345,8 +410,17 @@ MathExpression* MathExpression::parse( const char* input )
 
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( str[idx]=='(' ) bracketlevel++;
-	if ( str[idx]==')' ) bracketlevel--;
+	if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) )
+	    inabs=(inabs+1)%2;
+
+	if ( inabs ) continue;
+
+	do 
+	{
+	    if ( str[idx]=='(' ) bracketlevel++;
+	    if ( str[idx]==')' ) bracketlevel--;
+	    if ( bracketlevel ) idx++;
+	} while ( bracketlevel && idx<len );
 
 	if ( bracketlevel ) continue;
 
@@ -387,8 +461,17 @@ MathExpression* MathExpression::parse( const char* input )
 
     for ( int idx=0; idx<len; idx++ )
     {
-	if ( str[idx]=='(' ) bracketlevel++;
-	if ( str[idx]==')' ) bracketlevel--;
+	if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) )
+	    inabs=(inabs+1)%2;
+
+	if ( inabs ) continue;
+
+	do 
+	{
+	    if ( str[idx]=='(' ) bracketlevel++;
+	    if ( str[idx]==')' ) bracketlevel--;
+	    if ( bracketlevel ) idx++;
+	} while ( bracketlevel && idx<len );
 
 	if ( bracketlevel ) continue;
 
