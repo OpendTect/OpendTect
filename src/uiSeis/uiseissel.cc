@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.23 2004-10-11 14:49:57 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.24 2004-10-15 09:50:38 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "seistrcsel.h"
 #include "cubesampling.h"
 #include "separstr.h"
 #include "seistrctr.h"
@@ -46,11 +47,11 @@ static void resetKeyVals( const IOObjContext& ct, const BufferString& kyvals )
 }
 
 
-static void adaptCtxt( IOObjContext& ctxt, SeisSelSetup::Pol2D pol,
+static void adaptCtxt( IOObjContext& ctxt, Pol2D pol,
 			const BufferString& orgkeyvals )
 {
     BufferString& deftr = const_cast<IOObjContext*>(&ctxt)->deftransl;
-    if ( pol == SeisSelSetup::Only2D )
+    if ( pol == Only2D )
 	deftr = "2D";
     else if ( deftr == "2D" )
     {
@@ -63,7 +64,7 @@ static void adaptCtxt( IOObjContext& ctxt, SeisSelSetup::Pol2D pol,
 	    deftr = dt;
     }
 
-    if ( pol == SeisSelSetup::No2D )
+    if ( pol == No2D )
 	resetKeyVals( ctxt, orgkeyvals );
     else
 	ctxt.ioparkeyval[0] = ctxt.ioparkeyval[1] = "";
@@ -77,9 +78,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	, attrfld(0)
 {
     mkKvals( ctio.ctxt, orgkeyvals );
-    const char* ttxt = setup.pol2d_ == SeisSelSetup::No2D ? "Select Cube"
-							  : "Select Line Set";
-    if ( setup.pol2d_ == SeisSelSetup::Both2DAnd3D )
+    const char* ttxt = setup.pol2d_ == No2D ? "Select Cube" : "Select Line Set";
+    if ( setup.pol2d_ == Both2DAnd3D )
 	ttxt = ctio.ctxt.forread ? "Select Input seismics"
 	    			 : "Select Output Seismics";
     setTitleText( ttxt );
@@ -93,7 +93,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	    subsel->usePar( *ctio.iopar );
     }
 
-    if ( setup.selattr_ && setup.pol2d_ != SeisSelSetup::No2D )
+    if ( setup.selattr_ && setup.pol2d_ != No2D )
     {
 	if ( ctio.ctxt.forread )
 	    attrfld = new uiGenInput( this, "Attribute", StringListInpSpec() );
@@ -120,10 +120,9 @@ uiSeisSelDlg::~uiSeisSelDlg()
 
 static const char* trglobexprs[] = { "2D", "CBVS`2D", "CBVS" };
 
-const char* uiSeisSelDlg::standardTranslSel( int pol2d )
+const char* uiSeisSelDlg::standardTranslSel( Pol2D pol2d )
 {
-    int nr = pol2d == SeisSelSetup::Only2D ? 0
-		    : (pol2d == SeisSelSetup::No2D ? 2 : 1);
+    int nr = pol2d == Only2D ? 0 : (pol2d == No2D ? 2 : 1);
     return trglobexprs[nr];
 }
 
@@ -197,8 +196,7 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 }
 
 
-static const char* gtSelTxt( const char** sts, SeisSelSetup::Pol2D p2d,
-			     bool forread )
+static const char* gtSelTxt( const char** sts, Pol2D p2d, bool forread )
 {
     // Support:
     // 1) One single text: { "Text", 0 }
@@ -220,10 +218,9 @@ static const char* gtSelTxt( const char** sts, SeisSelSetup::Pol2D p2d,
 
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 		      bool wclr, const char** sts )
-	: uiIOObjSel(p,c,gtSelTxt(sts,SeisSelSetup::Both2DAnd3D,c.ctxt.forread),
-		     wclr )
+	: uiIOObjSel(p,c,gtSelTxt(sts,Both2DAnd3D,c.ctxt.forread),wclr)
 	, iopar(*new IOPar)
-	, setup(s)
+	, setup(*new SeisSelSetup(s))
     	, seltxts(sts)
 {
     mkKvals( ctio.ctxt, orgkeyvals );
@@ -237,6 +234,7 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
 uiSeisSel::~uiSeisSel()
 {
     delete &iopar;
+    delete &setup;
 }
 
 
@@ -308,14 +306,13 @@ void uiSeisSel::processInput()
 }
 
 
-void uiSeisSel::set2DPol( SeisSelSetup::Pol2D pol )
+void uiSeisSel::set2DPol( Pol2D pol )
 {
     setup.pol2d_ = pol;
     if ( ctio.ioobj )
     {
 	const bool curis2d = SeisTrcTranslator::is2D( *ctio.ioobj );
-	if ( (curis2d && pol == SeisSelSetup::No2D)
-	  || (!curis2d && pol == SeisSelSetup::Only2D) )
+	if ( (curis2d && pol == No2D) || (!curis2d && pol == Only2D) )
 	{
 	    ctio.setObj( 0 );
 	    updateInput();
