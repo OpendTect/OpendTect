@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.1 2005-01-06 09:45:32 kristofer Exp $";
+static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.2 2005-01-10 15:27:03 kristofer Exp $";
 
 #include "cubicbeziercurve.h"
 
@@ -266,6 +266,19 @@ void CubicBezierCurve::setDirectionInfluence( float ndi )
 }
 
 
+bool CubicBezierCurve::isCircular() const
+{ return iscircular && positions.size()>2; }
+
+
+bool CubicBezierCurve::setCircular(bool yn)
+{
+    if ( positions.size()<3 ) return false;
+    iscircular=yn;
+
+    return true;
+}
+
+
 Coord3 CubicBezierCurve::computeDirection( GeomPosID param ) const
 {
     const int idx = getIndex( param );
@@ -277,11 +290,10 @@ Coord3 CubicBezierCurve::computeDirection( GeomPosID param ) const
 
     int idx0 = idx-1, idx1 = idx+1;
     if ( !idx )
-	idx0 = 0;
+	idx0 = isCircular() ? positions.size()-1 : 0;
     else if ( idx==positions.size()-1 )
-	idx1 = positions.size()-1;
+	idx1 = isCircular() ? 0 : positions.size()-1;
    
-
     const Coord3& c0 = positions[idx0];
     const Coord3& c1 = positions[idx1];
 
