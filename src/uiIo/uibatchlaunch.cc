@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.22 2003-04-22 09:51:30 arend Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.23 2003-04-25 14:03:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,53 +25,6 @@ ________________________________________________________________________
 
 static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
-
-
-uiGenBatchLaunch::uiGenBatchLaunch( uiParent* p, const UserIDSet& nms )
-        : uiDialog(p,uiDialog::Setup("Run batch program",
-		   "Specify batch parameters","0.1.5"))
-        , prognms(nms)
-{
-    progfld = new uiLabeledComboBox( this, prognms );
-
-    BufferString dir = File_getFullPath( GetDataDir(), "Proc" );
-    parfld = new uiFileInput( this, "Parameter file", dir, true );
-    parfld->attach( alignedBelow, progfld );
-}
-
-
-bool uiGenBatchLaunch::acceptOK( CallBacker* )
-{
-    const char* prognm = progfld->box()->text();
-    if ( ! *prognm )
-        { uiMSG().error("Please specify the batch program"); return NO; }
-
-    const char* fname = parfld->fileName();
-    StreamData sd = StreamProvider( fname ).makeIStream();
-    if ( !sd.usable() )
-    { 
-	sd.close();
-	uiMSG().error( "Could not open input file" );
-        return false; 
-    }
-	
-    parlist = new IOParList( *sd.istrm );
-    sd.close();
-    if ( parlist->size() < 1 )
-    {
-        uiMSG().error( "The parameter file is invalid" );
-        delete parlist; parlist = 0;
-        return false;
-    }
-
-    parlist->setFileName( fname );
-    return true;
-}
-
-const char* uiGenBatchLaunch::getProg()
-{
-    return progfld->box()->text();
-}
 
 
 static void getProcFilename( const char* basnm, BufferString& tfname )

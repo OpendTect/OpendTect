@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.12 2003-04-25 13:26:28 bert Exp $
+# $Id: od_exec,v 1.13 2003-04-25 14:03:47 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -69,7 +69,7 @@ else if ( "$1" == "--prescript" ) then
 
 else if ( "$1" == "--inxterm" ) then
 
-	set xtermcmd="xterm -bg white -fg black -geometry 80x25 -e"
+	set xtermcmd="xterm -bg lightyellow -fg black -geometry 80x25 -e"
 	shift
 
 	goto next_arg

@@ -5,8 +5,8 @@ ________________________________________________________________________
 
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
- Date:          January 2002
- RCS:           $Id: uibatchlaunch.h,v 1.5 2003-03-06 22:13:44 bert Exp $
+ Date:          Jan 2002
+ RCS:           $Id: uibatchlaunch.h,v 1.6 2003-04-25 14:03:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,28 +19,6 @@ class uiGenInput;
 class uiFileInput;
 class uiPushButton;
 class uiLabeledComboBox;
-
-
-
-class uiGenBatchLaunch : public uiDialog
-{
-public:
-
-			uiGenBatchLaunch(uiParent*,const UserIDSet&);
-
-    const char*		getProg();
-    IOParList*		getParList()		{ return parlist; }
-
-protected:
-
-    uiLabeledComboBox*	progfld;
-    uiFileInput*	parfld;
-    IOParList*		parlist;
-    UserIDSet           prognms;
-
-    bool		acceptOK(CallBacker*);
-};
-
 
 
 class uiBatchLaunch : public uiDialog

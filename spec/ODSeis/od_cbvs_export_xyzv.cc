@@ -21,7 +21,7 @@ int main( int argc, char** argv )
     {
 	cerr << "Usage: " << argv[0]
 	     << " inpfile outpfile "
-	     << "[inl1`inl2`inlstep`crl1`crl2`crlstep[`startz`stepz`nrz]]\n";
+	     << "[inl1,inl2,inlstep,crl1,crl2,crlstep[,startz,stepz,nrz]]\n";
 	cerr << "Format input: CBVS ; Format ouput: x y z v [v ...]" << endl;
 	return 1;
     }
@@ -48,7 +48,7 @@ int main( int argc, char** argv )
 
     if ( argc > 3 )
     {
-	FileMultiString fms( argv[3] );
+	SeparString fms( argv[3], ',' );
 	SeisTrcSel tsel;
 	BinIDSampler* bidsmpl = new BinIDSampler;
 	tsel.bidsel = bidsmpl;

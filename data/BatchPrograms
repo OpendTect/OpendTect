@@ -1,0 +1,44 @@
+dGB-dTect V1.5
+Batch Programs
+Fri Apr 25 09:51:00 2003
+!
+cbvs_browse
+	Arg: M`File`Cube to browse
+	Comment:  Browse seismic cubes (in the default 'CBVS' format)
+!
+cbvs_dump
+	Arg: M`File`Parameter file
+	Comment: Dump seismic cubes of the 'CBVS' format
+	Comment: Output can be Ascii or Binary
+	Comment: If 'Output.Mode' is set to 'Inquire', ranges are reported for the cube.
+	ExampleInput: cbvs_dump_example.par
+!
+cbvs_export_xyzv
+	Arg: M`File`Input seismic cube
+	Arg: M`File`Output X Y Z Value file
+	Arg: O`QWord`Subcube specification
+	Comment: Convert (part of) seismic cubes of the 'CBVS' format
+	Comment: The optional subcube specification is of the form:
+	Comment: >>inl1,inl2,inlstep,crl1,crl2,crlstep[,startz,stepz,nrz]
+	Comment: Note: If specified, z range should be in seconds, meters or feet (whichever is appropriate).
+!
+process_attrib: d-Tect
+	Arg: M`File`Parameter file
+	Comment: Use the d-Tect Attribute Engine
+	Comment: Is used by d-Tect for batch output
+!
+segy2su: GDI
+	Arg: O`Words`Extra options
+	Comment: Run this program without optional arguments to see the options
+	Comment: Use this utility only if the standard SEG-Y reading doesn't have the options you need
+!
+calcqty: GDI
+	Arg: M`QWord`Quantity definition formula
+	Comment: Check a Quantity definition formula using test values
+!
+load_well: GDI
+	Arg: M`File`Parameter file
+	Comment: Load wells into GDI based on log data
+	Comment: Batch variant of the Well-Load utility
+	ExampleInput: load_well_example.par
+!
