@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.4 2001-03-30 16:32:34 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.5 2001-04-04 11:12:12 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -13,8 +13,9 @@ static const char* rcsID = "$Id: cbvswriter.cc,v 1.4 2001-03-30 16:32:34 bert Ex
 #include "errh.h"
 #include "binidselimpl.h"
 
-#define mIntSz 4
-#define mVersion 1
+const int CBVSIO::integersize = 4;
+const int CBVSIO::version = 1;
+const int CBVSIO::headstartbytes = 8 + 2 * CBVSIO::integersize;
 
 
 CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
@@ -28,7 +29,6 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
 	, previnl(-999)
 	, trcswritten(0)
 	, nrcomps(0)
-	, cnrbytes(0)
 	, nrxlines(1)
 	, nrtrcsperposn(i.nrtrcsperposn)
 	, explinfo(i.explinfo)
@@ -50,7 +50,7 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
     streampos datastart = strm_.tellp();
     strm_.seekp( 8 );
     int nrbytes = (int)datastart;
-    strm_.write( &nrbytes, mIntSz );
+    strm_.write( &nrbytes, integersize );
     strm_.seekp( datastart );
 }
 
@@ -59,7 +59,6 @@ CBVSWriter::~CBVSWriter()
 {
     close();
     delete &strm_;
-    delete [] cnrbytes;
 }
 
 
@@ -67,11 +66,10 @@ CBVSWriter::~CBVSWriter()
 
 void CBVSWriter::writeHdr( const CBVSInfo& info )
 {
-    const int headstartbytes = 8 + 2*mIntSz;
     unsigned char ucbuf[headstartbytes]; memset( ucbuf, 0, headstartbytes );
     ucbuf[0] = 'd'; ucbuf[1] = 'G'; ucbuf[2] = 'B';
     put_platform( ucbuf+3 );
-    ucbuf[4] = mVersion;
+    ucbuf[4] = version;
     putExplicits( ucbuf + 5 );
     if ( !strm_.write(ucbuf,headstartbytes) )
 	mErrRet("Cannot start writing to file")
@@ -79,9 +77,9 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     writeComps( info );
     geomfo = strm_.tellp();
     writeGeom();
-    strm_.write( &info.seqnr, mIntSz );
+    strm_.write( &info.seqnr, integersize );
     int len = info.usertext.size();
-    strm_.write( &len, mIntSz );
+    strm_.write( &len, integersize );
     strm_.write( (const char*)info.usertext, len );
 
     if ( !strm_.good() ) mErrRet("Could not write complete header");
@@ -102,28 +100,33 @@ void CBVSWriter::putExplicits( unsigned char* ptr ) const
 void CBVSWriter::writeComps( const CBVSInfo& info )
 {
     int sz = info.stdtext.size();
-    strm_.write( &sz, mIntSz );
+    strm_.write( &sz, integersize );
     strm_.write( (const char*)info.stdtext, sz );
 
     nrcomps = info.compinfo.size();
-    strm_.write( &nrcomps, mIntSz );
+    strm_.write( &nrcomps, integersize );
 
-    cnrbytes = new int [nrcomps];
+    cnrbytes_ = new int [nrcomps];
 
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
-	BasicComponentInfo& cinf = *info.compinfo[icomp];
+	CBVSComponentInfo& cinf = *info.compinfo[icomp];
 	sz = cinf.name().size();
-	strm_.write( &sz, mIntSz );
+	strm_.write( &sz, integersize );
 	strm_.write( (const char*)cinf.name(), sz );
 	unsigned short dcdump = cinf.datachar.dump();
-	strm_.write( &cinf.datatype, mIntSz );
+	strm_.write( &cinf.datatype, integersize );
 	strm_.write( &dcdump, sizeof(unsigned short) );
 	strm_.write( &cinf.sd.start, sizeof(float) );
 	strm_.write( &cinf.sd.step, sizeof(float) );
-	strm_.write( &cinf.nrsamples, mIntSz );
+	strm_.write( &cinf.nrsamples, integersize );
+	float a = 0, b = 1;
+	if ( cinf.scaler )
+	    { a = cinf.scaler->constant; b = cinf.scaler->factor; }
+	strm_.write( &a, sizeof(float) );
+	strm_.write( &b, sizeof(float) );
 
-	cnrbytes[icomp] = cinf.nrsamples;
+	cnrbytes_[icomp] = cinf.nrsamples * cinf.datachar.nrBytes();
     }
 }
 
@@ -137,11 +140,11 @@ void CBVSWriter::writeGeom()
 	nrxlines = (survgeom.stop.crl - survgeom.start.crl)
 		 / survgeom.step.crl + 1;
     }
-    strm_.write( &irect, mIntSz );
-    strm_.write( &nrtrcsperposn, mIntSz );
-    strm_.write( &survgeom.start.inl, 2 * mIntSz );
-    strm_.write( &survgeom.stop.inl, 2 * mIntSz );
-    strm_.write( &survgeom.step.inl, 2 * mIntSz );
+    strm_.write( &irect, integersize );
+    strm_.write( &nrtrcsperposn, integersize );
+    strm_.write( &survgeom.start.inl, 2 * integersize );
+    strm_.write( &survgeom.stop.inl, 2 * integersize );
+    strm_.write( &survgeom.step.inl, 2 * integersize );
     strm_.write( &survgeom.b2c.getTransform(true).a, 3*sizeof(double) );
     strm_.write( &survgeom.b2c.getTransform(false).a, 3*sizeof(double) );
 }
@@ -211,7 +214,7 @@ int CBVSWriter::put( void** cdat )
 
     for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
-	if ( !writeWithRetry(strm_,cdat[icomp],cnrbytes[icomp],2,100) )
+	if ( !writeWithRetry(strm_,cdat[icomp],cnrbytes_[icomp],2,100) )
 	    { errmsg_ = "Cannot write CBVS data"; return -1; }
     }
 
@@ -315,22 +318,32 @@ bool CBVSWriter::writeTrailer()
 {
     const int nrinl = inldata.size();
     streampos trailerstart = strm_.tellp();
-    strm_.write( &nrinl, mIntSz );
+    strm_.write( &nrinl, integersize );
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
 	CBVSInfo::SurvGeom::InlineInfo& inlinf = *inldata[iinl];
+	strm_.write( &inlinf.inl, integersize );
 	const int nrcrl = inlinf.segments.size();
-	strm_.write( &nrcrl, mIntSz );
+	strm_.write( &nrcrl, integersize );
 
 	for ( int icrl=0; icrl<nrcrl; icrl++ )
 	{
 	    CBVSInfo::SurvGeom::InlineInfo::Segment& seg =inlinf.segments[icrl];
-	    strm_.write( &seg.start, 2*mIntSz );
-	    strm_.write( &seg.stop, 2*mIntSz );
-	    strm_.write( &seg.step, 2*mIntSz );
+	    strm_.write( &seg.start, integersize );
+	    strm_.write( &seg.stop, integersize );
+	    strm_.write( &seg.step, integersize );
 	}
 	if ( !strm_.good() ) return false;
     }
 
-    return strm_.good();
+    int bytediff = (int)(strm_.tellp() - trailerstart);
+    strm_.write( &bytediff, integersize );
+    unsigned char buf[4];
+    put_platform( buf );
+    buf[1] = 'B';
+    buf[2] = 'G';
+    buf[3] = 'd';
+    strm_.write( buf, integersize );
+
+    return true;
 }
