@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.5 2005-03-02 18:38:59 cvskris Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.6 2005-03-10 11:45:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,10 +54,7 @@ public:
 class CubicBezierSurface : public ParametricSurface
 {
 public:
-    			CubicBezierSurface( const Coord3&, const Coord3&,
-				bool posonsamerow,
-				const RCol& origo=RowCol(0,0),
-				const RCol& step=RowCol(1,1));
+    			CubicBezierSurface( const RCol& step=RowCol(1,1));
     			CubicBezierSurface( const CubicBezierSurface& );
 			~CubicBezierSurface();
 
@@ -73,9 +70,9 @@ public:
     Coord3	getBezierVertex( const RCol& knot, const RCol& relpos ) const;
 
     bool	insertRow(int row);
-    bool	insertColumn(int col);
+    bool	insertCol(int col);
     bool	removeRow(int row);
-    bool	removeColumn(int col);
+    bool	removeCol(int col);
     Coord3	getKnot( const RCol&, bool estimateifundef=false ) const;
 
     Coord3	getRowDirection(const RCol&, bool computeifudf ) const;

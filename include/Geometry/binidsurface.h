@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.1 2005-01-06 09:44:18 kristofer Exp $
+RCS:           $Id: binidsurface.h,v 1.2 2005-03-10 11:45:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,17 +26,17 @@ namespace Geometry
 class BinIDSurface : public ParametricSurface
 {
 public:
-    			BinIDSurface(const BinIDValue&, const BinIDValue&);
+    			BinIDSurface( const RCol& step );
+    			BinIDSurface( const BinIDSurface& );
 			~BinIDSurface();
-    Coord3		computePosition(const Coord&) const;
-    Coord3		computeNormal(const Coord&) const;
+    BinIDSurface*	clone() const;
 
     bool		insertRow(int row);
-    bool		insertColumn(int col);
+    bool		insertCol(int col);
     bool		removeRow(int row);
-    bool		removeColumn(int col);
+    bool		removeCol(int col);
 
-    Coord3		getKnot( const RCol& ) const;
+    Coord3		getKnot( const RCol&, bool computeifudf ) const;
 
 protected:
     void		_setKnot( int idx, const Coord3& );

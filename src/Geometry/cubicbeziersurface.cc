@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.8 2005-03-07 14:47:42 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.9 2005-03-10 11:45:04 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -149,30 +149,18 @@ bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
 }
 
 
-CubicBezierSurface::CubicBezierSurface(const Coord3& p0, const Coord3& p1,
-				    bool posonsamerow,
-				    const RCol& origo_, const RCol& step_ )
-    : ParametricSurface( origo_, step_ )
-    , positions( posonsamerow
-	    ? new Array2DImpl<Coord3>(1,2)
-	    : new Array2DImpl<Coord3>(2,1) )
+CubicBezierSurface::CubicBezierSurface( const RCol& newstep )
+    : ParametricSurface( RowCol(0,0) , newstep )
+    , positions( 0 )
     , rowdirections( 0 )
     , coldirections( 0 )
     , directioninfluence( 1.0/3 )
-{
-     if ( !p0.isDefined() || !p1.isDefined() )
-	 pErrMsg("Cannot start surface with undefined positions" );
-     else
-     {
-	 positions->set( 0, 0, p0 );
-	 positions->set( posonsamerow ?  0 : 1, posonsamerow ? 1 : 0, p1 );
-     }
-}
+{ }
 
 
 CubicBezierSurface::CubicBezierSurface( const CubicBezierSurface& b )
     : ParametricSurface( b.origo, b.step )
-    , positions( new Array2DImpl<Coord3>(*b.positions) )
+    , positions( b.positions ? new Array2DImpl<Coord3>(*b.positions) : 0 )
     , rowdirections( b.rowdirections
 	    ? new Array2DImpl<Coord3>(*b.rowdirections) : 0 )
     , coldirections( b.coldirections
@@ -388,7 +376,7 @@ bool CubicBezierSurface::insertRow(int row)
 }
 
 
-bool CubicBezierSurface::insertColumn(int col)
+bool CubicBezierSurface::insertCol(int col)
 {
     mInsertStart( colidx, col, nrCols() );
     TypeSet<GeomPosID> movedpos;
@@ -421,7 +409,7 @@ bool CubicBezierSurface::removeRow( int row )
 }
 
 
-bool CubicBezierSurface::removeColumn( int col )
+bool CubicBezierSurface::removeCol( int col )
 {
     pErrMsg( "not implemented ");
     return true;
@@ -430,7 +418,7 @@ bool CubicBezierSurface::removeColumn( int col )
 
 Coord3 CubicBezierSurface::getKnot( const RCol& rc, bool estimateifundef ) const
 {
-    const int index = getIndex(rc);
+    const int index = getKnotIndex(rc);
     if ( index==-1 ) return Coord3::udf();
 
     const Coord3* data = positions->getData();
@@ -482,7 +470,7 @@ Coord3 CubicBezierSurface::getKnot( const RCol& rc, bool estimateifundef ) const
 #define mGetDirectionImpl( dirptr, compfunc ) \
     if ( dirptr ) \
     { \
-	const int index = getIndex(rc); \
+	const int index = getKnotIndex(rc); \
 	if ( index!=-1 ) \
 	{ \
 	    const Coord3& dir = dirptr->getData()[index]; \
@@ -688,21 +676,21 @@ IntervalND<float> CubicBezierSurface::boundingBox( const RCol& rc,
 #define mComputeDirImpl(_rowcol_) \
     const Coord3* ptr = positions->getData(); \
     int diff = 2*step._rowcol_; \
-    int previndex = getIndex(prev); \
+    int previndex = getKnotIndex(prev); \
     if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex==-1; \
  \
-    int nextindex = getIndex(next); \
+    int nextindex = getKnotIndex(next); \
     if ( nextindex!=-1 && !ptr[nextindex].isDefined() ) nextindex==-1; \
  \
     if ( previndex==-1 ) \
     { \
-	previndex=getIndex(rc); \
+	previndex=getKnotIndex(rc); \
 	if ( previndex!=-1 && !ptr[previndex].isDefined() ) previndex==-1; \
 	diff = step._rowcol_; \
     } \
     else if ( nextindex==-1) \
     { \
-	nextindex=getIndex(rc); \
+	nextindex=getKnotIndex(rc); \
 	if ( nextindex!=-1 && !ptr[nextindex].isDefined() ) nextindex==-1; \
 	diff = step._rowcol_; \
     } \
@@ -743,7 +731,15 @@ Coord3 CubicBezierSurface::computeColDirection( const RCol& rc ) const
 
 
 void CubicBezierSurface::_setKnot( int idx, const Coord3& np )
-{ positions->getData()[idx] = np; }
+{
+    if ( !positions )
+    {
+	positions = new Array2DImpl<Coord3>( 1, 1 );
+	idx = 0;
+    }
+
+    positions->getData()[idx] = np;
+}
 
 
 int CubicBezierSurface::nrRows() const

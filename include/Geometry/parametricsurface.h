@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurface.h,v 1.5 2005-02-20 13:42:55 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.6 2005-03-10 11:45:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,18 +27,22 @@ public:
 					const RCol& origo=RowCol(0,0),
 					const RCol& step=RowCol(1,1) );
     			~ParametricSurface();
+    ParametricSurface*	clone() const = 0;
     void		getPosIDs( TypeSet<GeomPosID>& ) const;
 
-    virtual Coord3 	computePosition(const Coord&) const	= 0;
-    virtual Coord3 	computeNormal(const Coord&) const	= 0;
+    virtual Coord3 	computePosition(const Coord&) const;
+    virtual Coord3 	computeNormal(const Coord&) const;
 
     virtual bool	insertRow(int row) 			= 0;
-    virtual bool	insertColumn(int col) 			= 0;
+    virtual bool	insertCol(int col) 			= 0;
     virtual bool	removeRow(int row) 			= 0;
-    virtual bool	removeColumn(int col) 			= 0;
+    virtual bool	removeCol(int col) 			= 0;
 
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange() const;
+    int			nrKnots() const;
+    RowCol		getKnotRowCol( int idx ) const;
+    int			getKnotIndex(const RCol& rc) const;
 
     virtual bool	circularRows() const { return false; }
     virtual bool	circularCols() const { return false; }
@@ -65,7 +69,6 @@ protected:
 
     int		rowIndex(int row) const { return (row-origo.row)/step.row; }
     int		colIndex(int col) const { return (col-origo.col)/step.col; }
-    int		getIndex(const RCol& rc) const;
     static int	rowDim() { return 0; }
     static int	colDim() { return 1; }
     virtual int	nrRows() const 						= 0;

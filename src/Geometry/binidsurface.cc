@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: binidsurface.cc,v 1.2 2005-01-20 15:52:55 kristofer Exp $";
+static const char* rcsID = "$Id: binidsurface.cc,v 1.3 2005-03-10 11:45:04 cvskris Exp $";
 
 #include "binidsurface.h"
 
@@ -20,67 +20,24 @@ namespace Geometry
 {
 
 
-BinIDSurface::BinIDSurface(const BinIDValue& bv0, const BinIDValue& bv1)
-    : depths( 0 )
-{
-    if ( bv0.binid==bv1.binid )
-    {
-	pErrMsg("The inital positions may not be at the same binid");
-	return;
-    }
+BinIDSurface::BinIDSurface( const RCol& newstep )
+    : ParametricSurface( RowCol(0,0), newstep ) 
+    , depths( 0 )
+{ }
 
-    step = RowCol(SI().inlStep(true),SI().crlStep(true));
 
-    if ( abs(bv0.binid.inl-bv1.binid.inl)>step.row || 
-         abs(bv0.binid.crl-bv1.binid.crl)>step.col || 
-	 bv0.binid.inl%step.row || bv0.binid.crl%step.col ||
-	 bv1.binid.inl%step.row || bv1.binid.crl%step.col )
-    {
-	pErrMsg("The inital positions are not valid with regard to the step");
-	return;
-    }
-
-    origo.row = mMIN(bv0.binid.inl,bv1.binid.inl);
-    origo.col = mMIN(bv0.binid.crl,bv1.binid.crl);
-
-    const int inlsize = bv0.binid.inl==bv1.binid.inl ? 1 : 2;
-    const int crlsize = bv0.binid.inl==bv1.binid.inl ? 1 : 2;
-
-    depths = new Array2DImpl<float>( inlsize, crlsize );
-
-    for ( int inlidx=0; inlidx<inlsize; inlidx++ )
-    {
-	for ( int crlidx=0; crlidx<crlsize; crlidx++ )
-	{
-	    const BinID bid( origo.row+inlidx*step.row,
-		    	     origo.col+crlidx*step.col );
-	    if ( bid==bv0.binid )
-		depths->set( inlidx, crlidx, bv0.value );
-	    else if ( bid==bv1.binid )
-		depths->set( inlidx, crlidx, bv1.value );
-	    else
-		depths->set( inlidx, crlidx, mUndefValue );
-	}
-    }
-}
+BinIDSurface::BinIDSurface( const BinIDSurface& b )
+    : ParametricSurface( b.origo, b.step ) 
+    , depths( b.depths ? new Array2DImpl<float>(*b.depths) : 0 )
+{ }
 
 
 BinIDSurface::~BinIDSurface()
 { delete depths; }
 
 
-Coord3 BinIDSurface::computePosition( const Coord& ) const
-{
-    pErrMsg( "Not impl" );
-    return Coord3::udf();
-}
-
-
-Coord3 BinIDSurface::computeNormal( const Coord& ) const
-{
-    pErrMsg( "Not impl" );
-    return Coord3::udf();
-}
+BinIDSurface* BinIDSurface::clone() const
+{ return new BinIDSurface(*this); }
 
 
 bool BinIDSurface::insertRow(int row) 
@@ -91,7 +48,7 @@ bool BinIDSurface::insertRow(int row)
 }
 
 
-bool BinIDSurface::insertColumn(int col) 
+bool BinIDSurface::insertCol(int col) 
 {
     mInsertStart( colidx, col, nrCols() );
     mCloneColVariable( float, depths, computePosition(param).z, mUndefValue )
@@ -106,16 +63,16 @@ bool BinIDSurface::removeRow( int row )
 }
 
 
-bool BinIDSurface::removeColumn( int col )
+bool BinIDSurface::removeCol( int col )
 {
     pErrMsg( "not implemented ");
     return true;
 }
 
 
-Coord3 BinIDSurface::getKnot( const RCol& rc ) const
+Coord3 BinIDSurface::getKnot( const RCol& rc, bool interpolifudf ) const
 {
-    const int index = getIndex(rc);
+    const int index = getKnotIndex(rc);
     if ( index==-1 ) return Coord3::udf();
 
     return Coord3(SI().transform(BinID(rc)), depths->getData()[index]);
@@ -123,7 +80,15 @@ Coord3 BinIDSurface::getKnot( const RCol& rc ) const
 
 
 void BinIDSurface::_setKnot( int idx, const Coord3& np )
-{ depths->getData()[idx] = np.z; }
+{
+    if ( !depths )
+    {
+	depths = new Array2DImpl<float>( 1, 1 );
+	idx = 0;
+    }
+
+    depths->getData()[idx] = np.z;
+}
 
 
 int BinIDSurface::nrRows() const

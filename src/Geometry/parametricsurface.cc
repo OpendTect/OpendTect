@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: parametricsurface.cc,v 1.6 2005-02-20 13:42:26 cvskris Exp $";
+static const char* rcsID = "$Id: parametricsurface.cc,v 1.7 2005-03-10 11:45:04 cvskris Exp $";
 
 #include "parametricsurface.h"
 
@@ -26,6 +26,31 @@ ParametricSurface::ParametricSurface( const RCol& origo_, const RCol& step_ )
 
 ParametricSurface::~ParametricSurface()
 { }
+
+
+
+Coord3 ParametricSurface::computePosition( const Coord& param ) const
+{
+    RowCol rc00( (int)param.x, (int)param.y );
+    /*
+           TODO: Get p00-p11;
+	   const float one_minus_u = 1-u;
+	   return (one_minus_u*p00 + u*p10) * (1-v) +
+	  (one_minus_u*p01 + u*p11) * v;
+    */
+
+    pErrMsg( "Not impl" );
+    return Coord3::udf();
+}
+
+
+Coord3 ParametricSurface::computeNormal( const Coord& ) const
+{
+    pErrMsg( "Not impl" );
+    return Coord3::udf();
+}
+
+
 
 
 void ParametricSurface::getPosIDs( TypeSet<GeomPosID>& pids ) const
@@ -61,40 +86,79 @@ StepInterval<int> ParametricSurface::colRange() const
 }
 
 
+int ParametricSurface::nrKnots() const { return nrCols()*nrRows(); }
+
+
+RowCol ParametricSurface::getKnotRowCol( int idx ) const
+{
+    return RowCol( origo.row+idx/nrRows()*step.row,
+	    	   origo.col+idx%nrRows()*step.col);
+}
+
+
+int ParametricSurface::getKnotIndex( const RCol& rc ) const
+{
+    RowCol relbid = -(origo-rc);
+    if ( relbid.row<0 || relbid.col<0 )
+	return -1;
+
+    if ( relbid.row%step.row || relbid.col%step.col )
+	return -1;
+
+    relbid /= step;
+    
+    if ( relbid.row>=nrRows() || relbid.col>=nrCols() )
+	return -1;
+
+    return relbid.row*nrCols()+relbid.col;
+}
+
+
+
 bool ParametricSurface::setKnot( const RCol& rc, const Coord3& np )
 {
     if ( !np.isDefined() ) 
 	return unsetKnot( rc );
 
-    bool wasundef = !getKnot(rc).isDefined();
-
-    if ( wasundef && !hasSupport(rc) )
-    {
-	pErrMsg("New rc does not have any support");
-	return false;
-    }
-
-    const int rowindex = rowIndex( rc.r() );
-    if ( rowindex==-1 || rowindex==nrRows() )
-    {
-	if ( !insertRow(rc.r()) )
-	    return false;
-
-	wasundef = true;
-    }
-
-    const int colindex = colIndex( rc.c() );
-    if ( colindex==-1 || colindex==nrCols() )
-    {
-	if ( !insertColumn(rc.c()) )
-	    return false;
-	
-	wasundef = true;
-    }
-
-
     const Coord3 oldpos = getKnot(rc);
-    const int index = getIndex(rc);
+    bool wasundef = oldpos.isDefined();
+
+    int index;
+    if ( nrKnots() )
+    {
+	if ( wasundef && !hasSupport(rc) )
+	{
+	    pErrMsg("New rc does not have any support");
+	    return false;
+	}
+
+	const int rowindex = rowIndex( rc.r() );
+	if ( rowindex==-1 || rowindex==nrRows() )
+	{
+	    if ( !insertRow(rc.r()) )
+		return false;
+
+	    wasundef = true;
+	}
+
+	const int colindex = colIndex( rc.c() );
+	if  ( colindex==-1 || colindex==nrCols() )
+	{
+	    if ( !insertCol(rc.c()) )
+		return false;
+	    
+	    wasundef = true;
+	}
+
+
+    	index = getKnotIndex(rc);
+    }
+    else
+    {
+	origo = rc;
+	index = 0;
+    }
+
     _setKnot(index, np);
 
     if ( checkSelfIntersection(rc) )
@@ -116,7 +180,7 @@ bool ParametricSurface::unsetKnot( const RCol& rc )
     if ( !getKnot(rc).isDefined() )
 	return true;
 
-    const int index = getIndex(rc);
+    const int index = getKnotIndex(rc);
     if ( index==-1 )
     {
 	errmsg() = "Cannot unset non-existing knot";
@@ -188,7 +252,7 @@ bool ParametricSurface::unsetKnot( const RCol& rc )
 
 bool ParametricSurface::isKnotDefined( const RCol& rc ) const
 {
-    const int index = getIndex(rc);
+    const int index = getKnotIndex(rc);
     if ( index==-1 ) return false;
 
     return getKnot(rc).isDefined();
@@ -220,24 +284,6 @@ bool ParametricSurface::checksSupport() const { return checksupport; }
 
 bool ParametricSurface::checkSelfIntersection(const RCol& ) const
 { return false; }
-
-
-int ParametricSurface::getIndex( const RCol& rc ) const
-{
-    RowCol relbid = -(origo-rc);
-    if ( relbid.row<0 || relbid.col<0 )
-	return -1;
-
-    if ( relbid.row%step.row || relbid.col%step.col )
-	return -1;
-
-    relbid /= step;
-    
-    if ( relbid.row>=nrRows() || relbid.col>=nrCols() )
-	return -1;
-
-    return relbid.row*nrCols()+relbid.col;
-}
 
 
 bool ParametricSurface::hasSupport( const RCol& rc ) const
