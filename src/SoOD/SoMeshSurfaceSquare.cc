@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.9 2003-10-15 07:35:42 kristofer Exp $";
+static const char* rcsID = "$Id: SoMeshSurfaceSquare.cc,v 1.10 2003-10-15 10:06:05 kristofer Exp $";
 
 
 #include "SoMeshSurfaceSquare.h"
@@ -65,6 +65,7 @@ SoMeshSurfaceSquare::SoMeshSurfaceSquare()
     , showtri( true )
     , pickcallbacks( 0 )
     , updateglue( true )
+    , reshaschanged( false )
 {
     SO_KIT_CONSTRUCTOR(SoMeshSurfaceSquare);
     isBuiltIn = true;
