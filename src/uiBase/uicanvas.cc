@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.22 2005-01-18 11:44:56 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.23 2005-01-19 12:25:58 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -428,5 +428,5 @@ float  uiScrollView::aspectRatio()
     { return body_->aspectRatio(); }
 
 void uiScrollView::setMouseTracking( bool yn )
-    { body_->setMouseTracking(yn); }
+    { body_->viewport()->setMouseTracking(yn); }
 
