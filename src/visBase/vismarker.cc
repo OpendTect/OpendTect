@@ -1,0 +1,137 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
+ Author:        N. Hemstra
+ Date:          July 2002
+ RCS:           $Id: vismarker.cc,v 1.1 2002-07-25 15:25:45 nanne Exp $
+________________________________________________________________________
+
+-*/
+
+#include "vismarker.h"
+#include "visshapescale.h"
+#include "geompos.h"
+#include "iopar.h"
+
+#include <Inventor/nodes/SoTranslation.h>
+#include <Inventor/nodes/SoRotationXYZ.h>
+#include <Inventor/nodes/SoGroup.h>
+#include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoCube.h>
+#include <Inventor/nodes/SoSphere.h>
+#include <Inventor/nodes/SoCylinder.h>
+#include <Inventor/nodes/SoCone.h>
+#include <Inventor/nodes/SoText3.h>
+
+mCreateFactoryEntry( visBase::Marker );
+
+
+visBase::Marker::Marker()
+    : group( new SoGroup )
+    , position( new SoTranslation )
+    , scale( new SoScale )
+    , shapescale( visBase::ShapeScale::create() )
+    , markertype( Cube )
+{
+    addChild( position );
+    addChild( group );
+    group->ref();
+    scale = new SoScale;
+    group->addChild( scale );
+    SoRotationXYZ* rot = new SoRotationXYZ;
+    rot->angle = -M_PI/2;
+    rot->axis = SoRotationXYZ::X;
+    group->addChild( rot );
+    group->addChild( shapescale->getData() );
+    setType( markertype );
+}
+
+
+visBase::Marker::~Marker()
+{
+    group->unref();
+}
+
+
+void visBase::Marker::setCenterPos( const Geometry::Pos& pos )
+{
+    position->translation.setValue( pos.x, pos.y, pos.z );
+}
+
+
+Geometry::Pos visBase::Marker::centerPos() const
+{
+    Geometry::Pos res;
+    SbVec3f pos = position->translation.getValue();
+
+    res.x = pos[0];
+    res.y = pos[1];
+    res.z = pos[2];
+
+    return res;
+}
+
+
+void visBase::Marker::setType( Type type )
+{
+    switch ( type )
+    {
+    case Cube: {
+	shapescale->setShape( new SoCube );
+	} break;
+    case Cone: {
+	shapescale->setShape( new SoCone );
+	} break;
+    case Cylinder: {
+	shapescale->setShape( new SoCylinder );
+	} break;
+    case Sphere: {
+	shapescale->setShape( new SoSphere );
+	} break;
+    case Cross: {
+	SoText3* xshape = new SoText3;
+	xshape->string.setValue( "x" );
+	shapescale->setShape( xshape );
+	} break;
+    case Star: {
+	SoText3* oshape = new SoText3;
+	oshape->string.setValue( "*" );
+	shapescale->setShape( oshape );
+	} break;
+    }
+
+    markertype = type;
+}
+
+
+void visBase::Marker::setSize( const float r )
+{
+    shapescale->setSize( r );
+}
+
+
+float visBase::Marker::getSize() const
+{
+    return shapescale->getSize();
+}
+
+
+void visBase::Marker::setScale( const Geometry::Pos& pos )
+{
+    scale->scaleFactor.setValue( pos.x, pos.y, pos.z );
+}
+
+
+int visBase::Marker::usePar( const IOPar& iopar )
+{
+    shapescale->usePar( iopar );
+    return 1;
+}
+
+
+void visBase::Marker::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
+{
+    shapescale->fillPar( iopar, saveids );
+}
+
