@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.9 2005-01-18 11:45:09 arend Exp $
+ RCS:           $Id: uicanvas.h,v 1.10 2005-01-18 11:47:14 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,8 +86,10 @@ public:
     uiMouseEvent::ButtonState	rubberBandingOn() const;
     void			setAspectRatio( float );
     float			aspectRatio();
-
+ 
+    				// revieve mouse events w/o pressing button
     void			setMouseTracking( bool yn = true );
+
     CNotifier<uiScrollView,const uiMouseEvent&>	mousepressed;
     CNotifier<uiScrollView,const uiMouseEvent&>	mousemoved;
     CNotifier<uiScrollView,const uiMouseEvent&>	mousereleased;
