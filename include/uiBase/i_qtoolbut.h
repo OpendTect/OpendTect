@@ -7,15 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: i_qtoolbut.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: i_qtoolbut.h,v 1.3 2004-09-13 09:45:04 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uitoolbar.h"
-#include "pixmap.h"
-#include <qtoolbar.h>
 #include <qtoolbutton.h>
+#include "callback.h"
 
 
 class i_QToolButReceiver : public QObject, public CallBacker
