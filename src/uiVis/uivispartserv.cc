@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.29 2002-04-22 14:40:55 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.30 2002-04-23 06:02:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , viewmode(false)
     , eventobjid(-1)
     , eventmutex(*new Threads::Mutex)
-    , mouseposinxyt( false )
     , mouseposval( mUndefValue )
 {
     visBase::DM().selMan().selnotifer.notify( 
@@ -669,7 +668,8 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     if ( selid==-1 || getObjectType(selid)==PickSetDisplay)
     {
 	Threads::MutexLocker lock( eventmutex );
-	mousepos = scene->getMousePos(mouseposinxyt);
+	xytmousepos = scene->getMousePos(true);
+	inlcrlmousepos = scene->getMousePos(false);
 	mouseposval = scene->getMousePosValue();
 	sendEvent( evMouseMove );
     }
