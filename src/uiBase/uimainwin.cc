@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.14 2001-11-20 12:17:26 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.15 2001-11-20 15:02:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,7 +173,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
 
 void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar )
 { 
-    centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget" );
+    centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget", 7 );
     setCentralWidget( centralWidget_->body()->qwidget() ); 
 
     centralWidget_->setIsMain(true);
@@ -235,7 +235,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
     body_->construct(wantSBar,wantMBar);
-    body_->uiCentralWidg()->setBorder(10);
+//    body_->uiCentralWidg()->setBorder(10);
 }
 
 uiMainWin::uiMainWin( const char* nm )
@@ -461,7 +461,7 @@ void uiDialogBody::finalise()
 		okBut->attach( leftBorder );
 		okBut->attach( ensureBelow, alignObj );
 	    }
-	    okBut->attach( bottomBorder );
+	    okBut->attach( bottomBorder, 0 );
 	    okBut->activated.notify( mCB( this, uiDialogBody, accept ));
 	    okBut->setDefault();
 	}
@@ -479,7 +479,7 @@ void uiDialogBody::finalise()
 		cnclBut->attach( ensureBelow, alignObj );
 		cnclBut->attach( ensureRightOf, okBut );
 	    }
-	    cnclBut->attach( bottomBorder );
+	    cnclBut->attach( bottomBorder, 0 );
 
 	    cnclBut->activated.notify( mCB( this, uiDialogBody, reject ));
 	}
@@ -491,7 +491,7 @@ void uiDialogBody::finalise()
 	    if( cnclBut )
 		cnclBut->attach(ensureRightOf, saveBut);
 
-	    saveBut->attach( bottomBorder );
+	    saveBut->attach( bottomBorder, 0 );
 	}
 
 	childrenInited = true;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.33 2001-10-17 13:31:06 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.34 2001-11-20 15:02:33 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ int i_LayoutMngr::mintxtwidgethgt = -1;
 // how to determine stretch factor for groups? --> max(children)
 
 
-#define	Qt_misses_some_pixels
+//#define	Qt_misses_some_pixels
 // Qt seems to snoop some pixels for toplevel widgets. Correct for this.
 
 
