@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.6 2005-03-24 12:12:08 cvsbert Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.7 2005-03-24 16:52:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,10 @@ public:
     JobRunner*		getRunner();
     Executor*		getPostProcessor();
     bool		removeTempSeis();
+
     bool		emitLSFile(const char*) const;
+    			//!< Not usable in 'normal' work.
+    void		preparePreSet(IOPar&,const char*) const;
 
     const MultiID&	outputID() const	{ return seisoutid_; }
 
@@ -68,6 +71,8 @@ public:
 
     static const char*	sKeyTmpStor;
     static const char*	sKeySeisOutIDKey;
+    static const char*	sKeyOutputLS;
+    static const char*	sKeyWorkLS;
 
 protected:
 
@@ -81,8 +86,8 @@ protected:
     const BufferString	progname_;
     mutable BufferString errmsg_;
     int			nrrunners_;
-    StepInterval<int>	inls_;
-    Seis2DLineSet*	workls_;
+    StepInterval<int>	todoinls_;
+    Seis2DLineSet*	outls_;
 
 
     JobDescProv*	mk2DJobProv();

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.14 2005-03-24 12:12:08 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.15 2005-03-24 16:52:46 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -27,9 +27,13 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.14 2005-03-24 12:12:08 c
 #include "survinfo.h"
 #include "cubesampling.h"
 #include <iostream>
+#include <sstream>
 
 const char* SeisJobExecProv::sKeyTmpStor = "Temporary storage location";
 const char* SeisJobExecProv::sKeySeisOutIDKey = "Output Seismics Key";
+const char* SeisJobExecProv::sKeyOutputLS = "Output Line Set";
+const char* SeisJobExecProv::sKeyWorkLS = "Work Line Set";
+
 static const char* sKeyProcIs2D = "Processing is 2D";
 #define mOutKey(s) IOPar::compKey("Output.1",s)
 
@@ -41,7 +45,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     	, ctio_(*new CtxtIOObj(SeisTrcTranslatorGroup::ioContext()) )
     	, nrrunners_(0)
     	, is2d_(false)
-    	, workls_(0)
+    	, outls_(0)
 {
     ctio_.ctxt.trglobexpr = "CBVS";
     seisoutkey_ = outputKey( iopar_ );
@@ -62,7 +66,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 
 SeisJobExecProv::~SeisJobExecProv()
 {
-    delete workls_;
+    delete outls_;
     delete &iopar_;
     delete &outioobjpars_;
     delete &ctio_;
@@ -127,21 +131,19 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	// ensure we have the line set ready.
 	// This is crucial in the war against NFS attribute caching
 	lskey = iopar_.find( "Output.1.Seismic ID" );
-	Seis2DLineSet* outls = inpls;
+	delete outls_; outls_ = inpls;
 	if ( lskey )
 	{
 	    IOObj* outioobj = IOM().get( lskey );
 	    if ( outioobj && outioobj->key() != ioobj->key() )
 	    {
-		outls = new Seis2DLineSet( outioobj->fullUserExpr(true) );
+		outls_ = new Seis2DLineSet( outioobj->fullUserExpr(true) );
 		delete outioobj;
 	    }
 	}
-	inpls->addLineKeys( *outls, attrnm );
-	if ( inpls != outls )
+	inpls->addLineKeys( *outls_, attrnm );
+	if ( inpls != outls_ )
 	    delete inpls;
-
-	delete workls_; workls_ = outls;
     }
     delete ioobj;
 
@@ -155,15 +157,22 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 
 bool SeisJobExecProv::emitLSFile( const char* fnm ) const
 {
-    if ( !workls_ ) return false;
+    if ( !outls_ ) return false;
 
     StreamData sd = StreamProvider(fnm).makeOStream();
     if ( !sd.usable() )
 	return false;
 
-    workls_->putTo( *sd.ostrm );
+    outls_->putTo( *sd.ostrm );
     sd.close();
     return !File_isEmpty( fnm );
+}
+
+
+void SeisJobExecProv::preparePreSet( IOPar& iop, const char* reallskey ) const
+{
+    if ( outls_ )
+	outls_->preparePreSet( iop, reallskey );
 }
 
 
@@ -192,7 +201,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv()
     BufferString rgkey = iopar_.find( "Inline Range Key" );
     if ( rgkey == "" ) rgkey = mOutKey("In-line range");
     InlineSplitJobDescProv jdp( iopar_, rgkey );
-    jdp.getRange( inls_ );
+    jdp.getRange( todoinls_ );
 
     if ( havetempdir )
     {
@@ -261,8 +270,8 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 {
     FilePath basefp( iopar_.find(sKeyTmpStor) );
 
-    int lastgood = inls_.start - inls_.step;
-    for ( int inl=inls_.start; inl<=inls_.stop; inl+=inls_.step )
+    int lastgood = todoinls_.start - todoinls_.step;
+    for ( int inl=todoinls_.start; inl<=todoinls_.stop; inl+=todoinls_.step )
     {
 	FilePath fp( basefp );
 	BufferString fnm( "i." ); fnm += inl;
@@ -314,8 +323,8 @@ MultiID SeisJobExecProv::tempStorID() const
 	ctio_.ioobj->pars() = outioobjpars_;
 	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj)
 	fp.add( "i.*" );
-	if ( inls_.start != inls_.stop || inls_.start != 0 )
-	    iostrm->fileNumbers() = inls_;
+	if ( todoinls_.start != todoinls_.stop || todoinls_.start != 0 )
+	    iostrm->fileNumbers() = todoinls_;
 	else
 	{
 	    StepInterval<int> fnrs;

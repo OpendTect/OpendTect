@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.40 2005-03-24 12:12:08 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.41 2005-03-24 16:52:46 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -723,6 +723,30 @@ bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
     }
 
     return false;
+}
+
+
+void Seis2DLineSet::preparePreSet( IOPar& iop, const char* reallskey ) const
+{
+    FilePath fp( fname_ );
+    iop.set( IOPar::compKey(reallskey,sKey::FileName), fp.fileName() );
+}
+
+
+void Seis2DLineSet::installPreSet( const IOPar& iop, const char* reallskey,
+				   const char* worklskey )
+{
+    const char* reallsfnm = iop.find( reallskey );
+    if ( !reallsfnm ) return;
+
+    const char* worklsfnm = iop.find(
+	    			IOPar::compKey(worklskey,sKey::FileName) );
+    if ( !worklsfnm ) return;
+
+    Seis2DLineSet ls( worklsfnm );
+    std::ostringstream strstrm;
+    ls.putTo( strstrm );
+    addPreSetLS( reallsfnm, strstrm.str().c_str() );
 }
 
 

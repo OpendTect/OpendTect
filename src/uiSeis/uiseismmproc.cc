@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.88 2005-03-24 12:12:09 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.89 2005-03-24 16:52:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ ________________________________________________________________________
 #include <stdlib.h>
 #include <iostream>
 
+static const char* outlsfilename = "outls.2ds";
+static const char* outlskey = "Output Line Set";
 
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prnm, const IOParList& pl )
@@ -527,20 +529,24 @@ void uiSeisMMProc::jobPrepare( CallBacker* cb )
 
     // Put a copy of the .2ds file in the proc directory
     // Makes sure 2D changes are only done on master
-    static const char* lsfilename = "outls.2ds";
     if ( !lsfileemitted )
     {
 	FilePath fp( jobrunner->procDir() );
-	fp.add( lsfilename );
+	fp.add( outlsfilename );
 	const BufferString lsfnm( fp.fullPath() );
 	lsfileemitted = jobprov->emitLSFile( lsfnm );
     }
     if ( lsfileemitted )
     {
 	FilePath fp( jobrunner->curJobFilePath() );
-	fp.setFileName( lsfilename );
+	fp.setFileName( outlsfilename );
 	const BufferString lsfnm( fp.fullPath() );
-	jobrunner->curJobIOPar().set( "Output.Line Set File", lsfnm );
+		// This lsfnm may differ from above - remote directories!
+	jobprov->preparePreSet( jobrunner->curJobIOPar(),
+				SeisJobExecProv::sKeyOutputLS );
+	jobrunner->curJobIOPar().set(
+		    IOPar::compKey(SeisJobExecProv::sKeyWorkLS,sKey::FileName),
+		    lsfnm );
     }
 }
 

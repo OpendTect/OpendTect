@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.27 2005-03-18 10:05:39 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.28 2005-03-24 16:52:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,8 +135,11 @@ public:
     bool		haveMatch(int,const BinIDValueSet&) const;
     			//!< Uses getGeometry
 
+    			// 'PreSet' line sets are not for 'normal' usage
     static void		addPreSetLS(const char*,const char*);
-    			//!< Use only after looking at the implementation
+    void		preparePreSet(IOPar& iop,const char* reallskey) const;
+    static void		installPreSet(const IOPar&,const char* reallskey,
+				      const char* worklskey);
 
     void		getFrom(std::istream&,BufferString*);
     void		putTo(std::ostream&) const;
