@@ -90,7 +90,7 @@ int main( int argc, char** argv )
 	    if ( step.inl > 1 )
 		std::cerr << " [" << step.inl << "]";
 	    int stopinl = info.geom.start.inl == 0 ? -1 : 0;
-	    std::cerr << ' ' << stopinl << " to stop ): ";
+	    std::cerr << ", " << stopinl << " to stop): ";
 	    getInt( bid.inl );
 	    if ( bid.inl == stopinl ) break;
 	}
@@ -155,14 +155,21 @@ int main( int argc, char** argv )
 	if ( !mIsZero(trc.info().coord.x,0.1) )
 	{
 	    BufferString str; trc.info().coord.fill(str.buf());
-	    std::cerr << "Coordinate: " << str << std::endl;
+	    std::cerr << "Coordinate: " << str;
+	    BinID bid = info.geom.b2c.transform( trc.info().coord );
+	    if ( bid != trc.info().binid )
+	    {
+		bid.fill( str.buf() );
+		std::cerr << " --> " << str;
+	    }
+	    std::cerr << std::endl;
 	}
 
 	while ( true )
 	{
 	    std::cerr << "Print samples ( 1 - " << trc.size(0) << " )."
 		      << std::endl;
-	    std::cerr << "From ( 0 to stop ): ";
+	    std::cerr << "From (0 to stop): ";
 	    getInt( samps.start );
 	    if ( samps.start < 1 ) break;
 
