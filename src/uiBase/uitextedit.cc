@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.5 2001-10-04 13:07:28 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.6 2001-10-04 13:14:54 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,9 +63,8 @@ uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
 void uiTextEdit::setText( const char* txt)	{ body_->setText(txt); }
 void uiTextEdit::append( const char* txt)	{ body_->append(txt); }
 
-const char* uiTextEdit::text()			
+const char* uiTextEdit::text() const
 { 
-    static BufferString txt;
-    txt = body_->text();
-    return txt;
+    const_cast<uiTextEdit*>(this)->result = (const char*)body_->text();
+    return (const char*)result;
 }
