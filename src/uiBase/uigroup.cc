@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.20 2001-10-04 09:06:43 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.21 2001-10-05 13:20:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,6 @@ public:
 			    loMngr = new i_LayoutMngr( objbdy.qwidget(), 
 						       border, spacing, nm ); 
 			}
-
 public:
 
 
@@ -203,11 +202,11 @@ int i_uiGroupLayoutItem::horAlign(layoutMode m) const
 
     int	offs = mngr().pos(m).left() + pos(m).left();
 
+#ifdef __wanna_debug
 //    int shift = grpprntbody.loMngr->pos(preferred).left()
 //		- grpprntbody.loMngr->pos(m).left();
     int shift = mngr().pos(preferred).left()
 		- mngr().pos(m).left();
-#ifdef __debug__
     static bool print = true;
     if( shift && shift != offs  && print)
     {
@@ -272,8 +271,11 @@ uiGroup::uiGroup( uiParent* p, const char* nm, int border, int spacing,
     else	 p->addChild( *this );
 }
 
-void uiGroup::show()			{ uiObj()->show(); }
-void uiGroup::hide(bool shrink)		{ uiObj()->hide(shrink); }
+void uiGroup::display( bool yn, bool shrink )
+{ 
+    uiObj()->display(yn,shrink);
+}
+
 void uiGroup::setFocus()		{ uiObj()->setFocus(); }
 
 void uiGroup::setSensitive(bool yn)	{ uiObj()->setSensitive(yn); }

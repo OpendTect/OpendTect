@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.12 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: uiobj.cc,v 1.13 2001-10-05 13:20:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,11 +135,8 @@ bool uiObject::toolTipsEnabled()
     { return uiObjectBody::toolTipsEnabled(); }
 
 
-void uiObject::show()				{ mBody()->uiShow(); }
-
-
-void uiObject::hide(bool shrink)		{ mBody()->uiHide(shrink); }
-
+void uiObject::display( bool yn = true, bool shrink=false )
+						{ mBody()->display(yn,shrink); }
 
 void uiObject::setFocus()			{ mBody()->uisetFocus();}
 
@@ -232,6 +229,8 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , vStretch(  mUndefIntVal )
     , layoutItem_( 0 )
     , is_hidden( false )
+    , display_( true )
+    , finalised( false )
     , pref_width( - 1 )
     , pref_char_width( -1 )
     , pref_height( -1 )
@@ -240,47 +239,59 @@ uiObjectBody::uiObjectBody( uiParent* parnt )
     , cached_pref_height( 0 )
     , parent_( parnt ? mParntBody(parnt) : 0  )
     , font_( 0 )
-{ }
+    , displTim( *new Timer("Display timer"))
+{ 
+    displTim.tick.notify(mCB(this,uiObjectBody,doDisplay));
+}
 
 uiObjectBody::~uiObjectBody() 
-{ }
-
-
-void uiBody::uiShow()			{ finalise(); qwidget()->show(); }
-
-void uiObjectBody::uiShow()
-{
-    is_hidden = false;
-    finalise();
-    qwidget()->show();
+{ 
+    delete &displTim;
 }
 
 
-/*
-    Do a finalise() in uiHide, so that the preferred sizes are known before
-    actually hiding.
-*/
-void uiBody::uiHide( bool )		{ finalise(); qwidget()->hide(); }
-
-void uiObjectBody::uiHide(bool shrink)
+void uiObjectBody::display( bool yn, bool shrink )
 {
-    if( !is_hidden )
+    display_ = yn;
+
+    if( shrink )
     {
-	if( shrink )
+	cached_pref_width  = 0;
+	cached_pref_height = 0;
+
+	is_hidden = true;
+
+	qwidget()->hide();
+    }
+    else
+    {
+	if( displTim.isActive() ) displTim.stop();
+	displTim.start( 1, true );
+    }
+}
+
+void uiObjectBody::doDisplay(CallBacker*)
+{
+    if( finalised )
+    {
+	if( display_ )
 	{
-	    cached_pref_width  = 0;
-	    cached_pref_height = 0;
+	    is_hidden = false;
+	    qwidget()->show();
 	}
 	else
 	{
-	    finalise();
-	    cached_pref_width  = prefHNrPics();
-	    cached_pref_height = prefVNrPics();
-	}
-	is_hidden = true; // not before call to preferredXX !!
-    }
+	    if( !is_hidden )
+	    {
+		cached_pref_width  = prefHNrPics();
+		cached_pref_height = prefVNrPics();
 
-    qwidget()->hide();
+		is_hidden = true;
+
+		qwidget()->hide();
+	    }
+	}
+    }
 }
 
 void uiObjectBody::uisetFocus()
@@ -330,7 +341,6 @@ int uiObjectBody::prefHNrPics() const
 {   // Also look at uiComboBox::prefHNrPics() when changing this method.
 
     mChkmLayout();
-    if( is_hidden ) return cached_pref_width;
     if( pref_width >= 0 ) return pref_width;
     if( pref_char_width >= 0 ) 
     {
@@ -350,6 +360,7 @@ int uiObjectBody::prefHNrPics() const
 #endif
     }
 
+    if( is_hidden ) return cached_pref_width;
     return layoutItem_->sizeHint().width(); 
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.9 2001-09-20 09:17:18 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.10 2001-10-05 13:20:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,6 @@ public:
 
 
     int			go(); 
-    void		show(); 
 
     void		reject( CallBacker* cb =0);
     void		accept( CallBacker* cb =0);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.11 2001-09-27 16:17:04 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.12 2001-10-05 13:20:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ public:
     virtual int		minTextWidgetHeight() const
 			{ return centralWidget_->minTextWidgetHeight(); }
 
+    void		go()			{ finalise(); show(); }
 
 //protected:
 
@@ -199,7 +200,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
-void uiMainWin::show()				{ body_->uiShow(); }
+void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 

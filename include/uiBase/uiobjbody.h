@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.6 2001-09-26 14:47:42 arend Exp $
+ RCS:           $Id: uiobjbody.h,v 1.7 2001-10-05 13:20:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,9 @@ class QWidget;
 class QCloseEvent;
 class i_LayoutItem;
 class i_LayoutMngr;
+class Timer;
 
-class uiObjectBody : public uiBody
+class uiObjectBody : public uiBody, public CallBacker
 {
 //friend class 		i_LayoutMngr;
 //friend class 		i_LayoutItem;
@@ -44,10 +45,9 @@ public:
     static void			enableToolTips(bool yn=true);
     static bool			toolTipsEnabled();
 
-    virtual void		uiShow();
-    virtual void		uiHide(bool shrink);
+    void 			display( bool yn = true, bool shrink=false );
     void			uisetFocus();
-    bool			uiCloseOK()	{ return uiObjHandle().closeOK(); }
+    bool			uiCloseOK() { return uiObjHandle().closeOK(); }
 
     Color              		uibackgroundColor() const;
     void              		uisetBackgroundColor(const Color&);
@@ -123,6 +123,8 @@ public:
 				    uiObjHandle().finalising.trigger(
 								uiObjHandle()); 
 				    finalise_();
+				    finalised = true;
+				    display( display_ );
 				}
 
 protected:
@@ -132,6 +134,7 @@ protected:
     virtual i_LayoutItem*	mkLayoutItem_( i_LayoutMngr& mngr );
 
     virtual void                finalise_()             {}
+    void 			doDisplay(CallBacker*);
 
 private:
 
@@ -139,10 +142,14 @@ private:
     uiParentBody*      		parent_;
     const uiFont*		font_;
 
+    Timer&			displTim;
+
     int				hStretch;
     int				vStretch;
 
     bool			is_hidden;
+    bool			finalised;
+    bool			display_;
     int				pref_width;
     float			pref_char_width;
     int				pref_height;

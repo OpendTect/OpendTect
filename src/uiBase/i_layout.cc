@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.29 2001-10-04 09:06:43 arend Exp $
+ RCS:           $Id: i_layout.cc,v 1.30 2001-10-05 13:20:15 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -887,9 +887,14 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     if( hdir && itm.nhiter>0
         && ( (itm.hStr>1) || (abs(itm.hDelta+hdir) <= abs(maxhdelt)))
         &&!( (hdir>0) && 
-             (  ( childrenBBox.hNrPics() > tgtnrhpx)  
+             ( 
+#if 0
+	        ( childrenBBox.hNrPics() > tgtnrhpx)  
 	      ||( myGeomtry.right() + hdir > targetRect.right() )
               ||( childrenBBox.right() > targetRect.right() ) 
+#else
+		( myGeomtry.right() + hdir > targetRect.right() )
+#endif
 	     )
 	   )
         &&!( (hdir<0) && 
@@ -932,8 +937,16 @@ bool i_LayoutMngr::tryToGrowItem( resizeItem& itm,
     if( hdone )
     {
 	if( ((hdir >0)&&
-             (  ( childrenBBox.hNrPics() > tgtnrhpx )  
+             ( 
+#if 0
+		( childrenBBox.hNrPics() > tgtnrhpx )  
 	      ||( childrenBBox.right() > targetRect.right() )
+#else
+		( myGeomtry.right() > targetRect.right() )
+	      ||(  ( childrenBBox.right() > targetRect.right() ) 
+		 &&( childrenBBox.right() > oldcbbrgt )
+	        )
+#endif
 	     ) 
 	    )
 	    || ( (hdir <0) && 
@@ -1026,7 +1039,7 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
     const uiRect& refRect = pos(preferred);
 #endif
 
-#if 1
+#if  0
     static int hgrow=0;
     static int vgrow=0;
 
@@ -1182,7 +1195,11 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
     prevGeometry = targetRect;
 
+#if 1
     resizeTo( targetRect );
+#else
+    doLayout( setGeom, targetRect );//init to prefer'd size and initial layout
+#endif
 
     childrenCommitGeometrySet();
     QLayout::setGeometry( extRect );
