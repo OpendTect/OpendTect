@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.3 2003-04-14 15:07:28 kristofer Exp $
+ RCS:		$Id: houghtransform.h,v 1.4 2003-05-22 08:35:16 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -84,7 +84,6 @@ public:
 				     houghpositions converted to the 
 				     ( x,y,z ) space.
 				*/ 
-    unsigned int		getHoughScore( int ) const;
     int				getNrPointsAfterClip() const; 
     				/*!< Returns the number of datapoints left 
 				     after the function setClipRate() has 
