@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.25 2004-05-07 10:28:35 nanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.26 2004-05-10 11:36:08 nanne Exp $
 ________________________________________________________________________
 
 
@@ -39,6 +39,12 @@ class SurveyObject
 public:
     virtual float		calcDist(const Coord3&) const
     					{ return mUndefValue; }
+    				/*<\Calculates distance between pick and 
+				    object*/
+    virtual float		maxDist() const		{ return mUndefValue; }
+    				/*<\Returns maximum allowed distance between 
+				    pick and object. If calcDist() > maxDist()
+				    pick will not be displayed. */
 
     virtual NotifierAccess*	getMovementNotification()   { return 0; }
     virtual NotifierAccess*	rightClickNotifier()	    { return 0; }
