@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.17 2001-11-09 15:18:01 windev Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.18 2002-01-03 23:45:53 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -17,6 +17,7 @@ static const char* sKey = "Survey Info";
 const char* SurveyInfo::sKeyInlRange = "In-line range";
 const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
 const char* SurveyInfo::sKeyZRange = "Z range";
+const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
 
 SurveyInfo* SurveyInfo::theinst_;
 const SurveyInfo& SI()
@@ -146,6 +147,8 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	    setTr( xtr, astream.value() );
 	else if ( astream.hasKeyword("Coord-Y-BinID") )
 	    setTr( ytr, astream.value() );
+	else if ( astream.hasKeyword(sKeyWSProjName) )
+	    wsprojnm_ = astream.value();
 	else if ( astream.hasKeyword(sKeyInlRange) )
 	{
 	    FileMultiString fms( astream.value() );
@@ -245,6 +248,8 @@ int SurveyInfo::write( const char* basedir ) const
 	fms += zrange_.step;
 	astream.put( sKeyZRange, fms );
     }
+    if ( wsprojnm_ != "" )
+	astream.put( sKeyWSProjName, wsprojnm_ );
 
     astream.newParagraph();
     const char* ptr = (const char*)comment_;
