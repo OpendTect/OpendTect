@@ -5,7 +5,7 @@
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id: GenModDeps.cc,v 1.5 2003-10-21 14:09:44 bert Exp $";
+static const char* rcsID = "$Id: GenModDeps.cc,v 1.6 2003-10-22 16:29:15 dgb Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -144,19 +144,21 @@ int main( int argc, char** argv )
 			   "WIDTH=\"75%\" BORDER=\"1\">"
 		<< endl;
 
-	Dep& topdep = *deps[deps.size()-1];
-	topdep.mods.sort();
+	BufferStringSet allmods;
+	for ( int idx=0; idx<deps.size(); idx++ )
+	    allmods.add( deps[idx]->name );
+	allmods.sort();
 
-	for ( int idep=1; idep<topdep.mods.size(); idep++ )
+	for ( int idep=0; idep<allmods.size(); idep++ )
 	{
+	    const BufferString& nm = allmods.get(idep);
 	    outstrm << "<TR align=center>\n";
-	    const BufferString& depmod = topdep.mods.get(idep);
 
-	    outstrm << " <TD><b>" << depmod << "</b></TD>\n <TD><a href=\""
-	    << depmod << "/index.html\">Main Page</a></TD>\n <TD><a href=\""
-	    << depmod << "/classes.html\">Class Index</a></TD>\n <TD><a href=\""
-	    << depmod << "/hierarchy.html\">Class Hierarchy</a></TD>\n <TD><a href=\""
-	    << depmod << "/annotated.html\">Compound List</a></TD>\n</TR>\n\n";
+	    outstrm << " <TD><b>" << nm << "</b></TD>\n <TD><a href=\""
+	    << nm << "/index.html\">Main Page</a></TD>\n <TD><a href=\""
+	    << nm << "/classes.html\">Class Index</a></TD>\n <TD><a href=\""
+	    << nm << "/hierarchy.html\">Class Hierarchy</a></TD>\n <TD><a href=\""
+	    << nm << "/annotated.html\">Compound List</a></TD>\n</TR>\n\n";
 	}
 
 	outstrm << "\n</TABLE>\n\n<body>\n<html>" << endl;
