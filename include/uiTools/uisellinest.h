@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.6 2003-10-17 14:19:01 bert Exp $
+ RCS:           $Id: uisellinest.h,v 1.7 2003-10-17 14:56:34 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,18 +21,22 @@ class uiColorInput;
 class LineStyle;
 class uiLabeledSpinBox;
 
+/*!\brief Group for defining line properties
+Provides selection of linestyle, linecolor and linewidth
+*/
 
 class uiSelLineStyle : public uiGroup
 { 	
 public:
 			uiSelLineStyle(uiParent*,const LineStyle&,
-				       const char* txt=0,bool withcolor=true,
-				       bool withwidth=false);
+				       const char* txt=0,
+				       bool withdrawstyle=true,
+				       bool withcolor=true,
+				       bool withwidth=true);
 
     LineStyle		getStyle() const;
 
-    virtual bool        isSingleLine() const { return true; }
-
+    Notifier<uiSelLineStyle>	changed;
 
 protected:
 
@@ -42,14 +46,21 @@ protected:
 
     const LineStyle&	ls;
 
+    void		changeCB(CallBacker*);
+
 };
 
+
+/*!\brief Dialog for linestyle selection
+*/
 
 class LineStyleDlg : public uiDialog
 {
 public:
                         LineStyleDlg(uiParent*,const LineStyle&,
-				     const char* txt=0,bool withcolor=true,
+				     const char* txt=0,
+				     bool withdrawstyle=true,
+				     bool withcolor=true,
 				     bool withwidth=false);
     LineStyle           getLineStyle() const;
 
