@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.15 2001-12-30 14:48:09 bert Exp $
+ RCS:           $Id: uilistbox.h,v 1.16 2001-12-30 23:02:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,16 +99,20 @@ public:
 		uiLabeledListBox( uiParent*,const PtrUserIDObjectSet&,
 				  bool multisel=false,LblPos p=LeftTop);
 
-    uiListBox*	box()		{ return lb; }
-    uiLabel*	label()		{ return labl; }
+    uiListBox*	box()				{ return lb; }
+
+    int		nrLabels() const		{ return lbls.size(); }
+    uiLabel*	label( int nr=0 )		{ return lbls[nr]; }
+    const char*	labelText(int nr=0) const;
+    void	setLabelText(const char*,int nr=0);
 
 
 protected:
 
-    uiListBox*	lb;
-    uiLabel*	labl;
+    uiListBox*		lb;
+    ObjectSet<uiLabel>	lbls;
 
-    void	mkRest(const char*,LblPos);
+    void		mkRest(const char*,LblPos);
 
 };
 

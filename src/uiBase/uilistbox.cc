@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.27 2001-12-30 14:48:01 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.28 2001-12-30 23:01:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,6 +306,20 @@ uiLabeledListBox::uiLabeledListBox( uiParent* p, const PtrUserIDObjectSet& s,
 }
 
 
+void uiLabeledListBox::setLabelText( const char* txt, int nr )
+{
+    if ( nr >= lbls.size() ) return;
+    lbls[nr]->setText( txt );
+}
+
+
+const char* uiLabeledListBox::labelText( int nr ) const
+{
+    if ( nr >= lbls.size() ) return "";
+    return lbls[nr]->text();
+}
+
+
 void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
 {
     setHAlignObj( lb );
@@ -315,18 +329,20 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
     char* ptr = s.buf();
     while ( 1 )
     {
+	char* nlptr = strchr( ptr, '\n' );
+	if ( nlptr ) *nlptr = '\0';
 	txts += new BufferString( ptr );
-	ptr = strchr( ptr, '\n' );
-	if ( !ptr ) break;
+	if ( !nlptr ) break;
 
-	*ptr++ = '\0';
+	ptr = nlptr + 1;
     }
     if ( txts.size() < 1 ) return;
 
     bool last1st = pos > RightTop && pos < BelowLeft;
     ptr = last1st ? txts[txts.size()-1]->buf() : txts[0]->buf();
 
-    labl = new uiLabel( this, ptr );
+    uiLabel* labl = new uiLabel( this, ptr );
+    lbls += labl;
     constraintType lblct = alignedBelow;
     switch ( pos )
     {
@@ -357,13 +373,14 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
     }
 
     int nrleft = txts.size() - 1;
-    uiLabel* last = labl;
     while ( nrleft )
     {
 	uiLabel* cur = new uiLabel( this, (last1st
 			? txts[nrleft-1] : txts[txts.size()-nrleft])->buf() );
-	cur->attach( lblct, last );
-	last = cur;
+	cur->attach( lblct, labl );
+	lbls += cur;
+	labl = cur;
+	nrleft--;
     }
 
     deepErase( txts );
