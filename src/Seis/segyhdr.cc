@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.2 2001-02-28 14:59:18 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.3 2001-03-19 10:20:06 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -34,16 +34,21 @@ static void Ascii2Ebcdic(unsigned char*,int);
 
 SegyTxtHeader::SegyTxtHeader()
 {
-    char buf[3];
+    char cbuf[3];
     int nrlines = SegyTxtHeaderLength / 80;
 
     memset( txt, ' ', SegyTxtHeaderLength );
     for ( int i=0; i<nrlines; i++ )
     {
 	int i80 = i*80; txt[i80] = 'C';
-	sprintf( buf, "%02d", i+1 ); txt[i80+1] = buf[0]; txt[i80+2] = buf[1];
+	sprintf( cbuf, "%02d", i+1 );
+	txt[i80+1] = cbuf[0]; txt[i80+2] = cbuf[1];
     }
 
+    FixedString<70> buf;
+    buf = "Created by: ";
+    buf += Settings::common()[ "Company" ];
+    putAt( 1, 6, 75, buf );
     putAt( 2, 6, 75, SI().name() );
     BinID bid = SI().range().start;
     Coord coord = SI().transform( bid );
@@ -51,7 +56,6 @@ SegyTxtHeader::SegyTxtHeader()
     if ( !mIS_ZERO(bid.inl-coord.x) && !mIS_ZERO(bid.crl-coord.x)
       && !mIS_ZERO(bid.inl-coord.y) && !mIS_ZERO(bid.crl-coord.y) )
     {
-	FixedString<70> buf;
 	coord = SI().transform( bid );
 	bid.fill( buf ); buf += " = "; coord.fill( buf + strlen(buf) );
 	putAt( 12, 6, 75, buf );
@@ -75,70 +79,25 @@ void SegyTxtHeader::setEbcdic()
 { if ( txt[0] == 'C' ) Ascii2Ebcdic( txt, SegyTxtHeaderLength ); }
 
 
-static FixedString<60> headname;
-
-const char* SegyTxtHeader::getClient() const
-{
-    getFrom( 2, 6, 75, headname );
-    return headname;
-}
-void SegyTxtHeader::setClient( const char* client )
-{
-    if ( !client ) return;
-    putAt( 1, 6, 75, client );
-}
-
-
-const char* SegyTxtHeader::getCompany() const
-{
-    getFrom( 20, 18, 75, headname );
-    return headname;
-}
-void SegyTxtHeader::setCompany( const char* company )
-{
-    if ( !company ) return;
-    putAt( 1, 6, 16, "Created by:" );
-    putAt( 1, 18, 75, company );
-}
-
-
-void SegyTxtHeader::setAuxInfo( const char* txt )
+void SegyTxtHeader::setUserInfo( const char* txt )
 {
     if ( !txt || !*txt ) return;
 
-    FixedString<60> str = txt;
-    char* ptr = strchr( str, '\n' );
-    if ( !ptr ) ptr = strchr( str, '~' );
-    if ( ptr )
+    FixedString<80> buf;
+    int lnr = 16;
+    while ( lnr < 35 )
     {
+	char* ptr = buf;
+	int idx = 0;
+	while ( *txt && *txt != '\n' && ++idx < 75 )
+	    *ptr++ = *txt++;
 	*ptr = '\0';
-	txt += ptr - str + 1;
-    }
-    else
-    {
-	int len = strlen( txt );
-	txt += len > 60 ? 60 : len;
-    }
-    putAt( 21, 10, 70, str );
-    if ( !*txt ) return;
+	putAt( lnr, 5, 80, buf );
 
-    str = txt;
-    ptr = strchr( str, '\n' );
-    if ( !ptr ) ptr = strchr( str, '~' );
-    if ( ptr )
-    {
-	*ptr = '\0';
-	txt += ptr - str + 1;
+	if ( !*txt ) break;
+	lnr++;
+	txt++;
     }
-    else
-    {
-	int len = strlen( txt );
-	txt += len > 60 ? 60 : len;
-    }
-    putAt( 22, 10, 70, str );
-
-    if ( *txt )
-	putAt( 23, 10, 70, txt );
 }
 
 
@@ -164,6 +123,20 @@ void SegyTxtHeader::setPosInfo( int xcoordbyte, int ycoordbyte,
 	buf += " / "; buf += crlbyte;
     }
     putAt( 36, 6, 75, buf );
+}
+
+
+void SegyTxtHeader::getText( BufferString& bs )
+{
+    char buf[80];
+    bs = "";
+    for ( int idx=0; idx<40; idx++ )
+    {
+	getFrom( idx, 4, 80, buf );
+	if ( !buf[0] ) continue;
+	if ( *(char*)bs ) bs += "\n";
+	bs += buf;
+    }
 }
 
 
@@ -444,6 +417,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 	IbmFormat::putInt( ti.binid.crl, buf+192 );
 
     // Now the more general standards
+    IbmFormat::putInt( ti.nr, buf+16 ); // put number at 'ep'
     IbmFormat::putShort( 1, buf+28 );
     IbmFormat::putInt( mNINT(ti.offset), buf+36 );
     IbmFormat::putShort( -10, buf+70 ); // scalco

@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.4 2001-02-28 14:58:04 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.5 2001-03-19 10:19:48 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -24,24 +24,65 @@ const SurveyInfo& SI()
 }
 
 
-double SurveyInfo::BCTransform::det( const BCTransform& bct ) const
+const char* BinID2Coord::set3Pts( const Coord c[3], const BinID b[2], int xline)
 {
-    double rv = b * bct.c - bct.b * c;
-    return rv;
+    if ( b[1].inl == b[0].inl )
+        return "Need two different in-lines";
+    if ( b[0].crl == xline )
+        return "The X-line cannot be the same";
+
+    BCTransform nxtr, nytr;
+    int crld = b[0].crl - xline;
+    nxtr.c = ( c[0].x - c[2].x ) / crld;
+    nytr.c = ( c[0].y - c[2].y ) / crld;
+    int inld = b[0].inl - b[1].inl;
+    crld = b[0].crl - b[1].crl;
+    nxtr.b = ( c[0].x - c[1].x ) / inld - ( nxtr.c * crld / inld );
+    nytr.b = ( c[0].y - c[1].y ) / inld - ( nytr.c * crld / inld );
+    nxtr.a = c[0].x - nxtr.b * b[0].inl - nxtr.c * b[0].crl;
+    nytr.a = c[0].y - nytr.b * b[0].inl - nytr.c * b[0].crl;
+
+    if ( mIS_ZERO(nxtr.a) ) nxtr.a = 0; if ( mIS_ZERO(nxtr.b) ) nxtr.b = 0;
+    if ( mIS_ZERO(nxtr.c) ) nxtr.c = 0; if ( mIS_ZERO(nytr.a) ) nytr.a = 0;
+    if ( mIS_ZERO(nytr.b) ) nytr.b = 0; if ( mIS_ZERO(nytr.c) ) nytr.c = 0;
+
+    if ( !nxtr.valid(nytr) )
+	return "The transformation would not be valid";
+
+    xtr = nxtr;
+    ytr = nytr;
+    return 0;
 }
 
 
-int SurveyInfo::BCTransform::valid( const BCTransform& bct ) const
+Coord BinID2Coord::transform( const BinID& binid ) const
 {
-    double d = det( bct );
-    return !mIS_ZERO(d);
+    return Coord( xtr.a + xtr.b*binid.inl + xtr.c*binid.crl,
+		  ytr.a + ytr.b*binid.inl + ytr.c*binid.crl );
+}
+
+
+BinID BinID2Coord::transform( const Coord& coord ) const
+{
+    static BinID binid;
+    static double x, y;
+
+    double det = xtr.det( ytr );
+    if ( mIS_ZERO(det) ) return binid;
+
+    x = coord.x - xtr.a;
+    y = coord.y - ytr.a;
+    double di = (x*ytr.c - y*xtr.c) / det;
+    double dc = (y*xtr.b - x*ytr.b) / det;
+    binid.inl = mNINT(di); binid.crl = mNINT(dc);
+
+    return binid;
 }
 
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
 {
-    xtr = si.xtr;
-    ytr = si.ytr;
+    b2c = si.b2c;
     dirname = si.dirname;
     range_ = si.range_;
     step_ = si.step_;
@@ -73,6 +114,7 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	return;
     }
 
+    BinID2Coord::BCTransform xtr, ytr;
     xtr.b = 1;
     ytr.c = 1;
     BinIDRange bir; BinID bid( 1, 1 );
@@ -117,6 +159,7 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 
     setRange( bir );
     setStep( bid );
+    b2c.setTransforms( xtr, ytr );
 }
 
 
@@ -130,8 +173,8 @@ int SurveyInfo::write( const char* basedir ) const
     if ( !astream.putHeader(sKey) ) return NO;
 
     astream.put( sNameKey, name() );
-    putTr( xtr, astream, "Coord-X-BinID" );
-    putTr( ytr, astream, "Coord-Y-BinID" );
+    putTr( b2c.getTransform(true), astream, "Coord-X-BinID" );
+    putTr( b2c.getTransform(false), astream, "Coord-Y-BinID" );
 
     FileMultiString fms;
     for ( int idx=0; idx<3; idx++ )
@@ -153,14 +196,14 @@ int SurveyInfo::write( const char* basedir ) const
 }
 
 
-void SurveyInfo::setTr( BCTransform& tr, const char* str )
+void SurveyInfo::setTr( BinID2Coord::BCTransform& tr, const char* str )
 {
     FileMultiString fms( str );
     tr.a = atof(fms[0]); tr.b = atof(fms[1]); tr.c = atof(fms[2]);
 }
 
 
-void SurveyInfo::putTr( const BCTransform& tr, ascostream& astream,
+void SurveyInfo::putTr( const BinID2Coord::BCTransform& tr, ascostream& astream,
 			const char* key ) const
 {
     FileMultiString fms;
@@ -169,7 +212,28 @@ void SurveyInfo::putTr( const BCTransform& tr, ascostream& astream,
 }
 
 
-void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline )
+BinID SurveyInfo::transform( const Coord& c ) const
+{
+    BinID binid = b2c.transform( c );
+
+    if ( step_.inl > 1 )
+    {
+	float relinl = binid.inl - range_.start.inl;
+	int nrsteps = (int)(relinl/step_.inl + (relinl>0?.5:-.5));
+	binid.inl = range_.start.inl + nrsteps*step_.inl;
+    }
+    if ( step_.crl > 1 )
+    {
+	float relcrl = binid.crl - range_.start.crl;
+	int nrsteps = (int)( relcrl / step_.crl + (relcrl>0?.5:-.5));
+	binid.crl = range_.start.crl + nrsteps*step_.crl;
+    }
+
+    return binid;
+}
+
+
+void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
 {
     if ( set3binids[0].inl )
     {
@@ -187,33 +251,10 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline )
 }
 
 
-const char* SurveyInfo::set3Pts( Coord c[3], BinID b[2], int xline )
+const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2], int xline )
 {
-    if ( b[1].inl == b[0].inl )
-        return "Need two different in-lines";
-    if ( b[0].crl == xline )
-        return "The X-line cannot be the same";
-
-    SurveyInfo::BCTransform nxtr, nytr;
-    int crld = b[0].crl - xline;
-    nxtr.c = ( c[0].x - c[2].x ) / crld;
-    nytr.c = ( c[0].y - c[2].y ) / crld;
-    int inld = b[0].inl - b[1].inl;
-    crld = b[0].crl - b[1].crl;
-    nxtr.b = ( c[0].x - c[1].x ) / inld - ( nxtr.c * crld / inld );
-    nytr.b = ( c[0].y - c[1].y ) / inld - ( nytr.c * crld / inld );
-    nxtr.a = c[0].x - nxtr.b * b[0].inl - nxtr.c * b[0].crl;
-    nytr.a = c[0].y - nytr.b * b[0].inl - nytr.c * b[0].crl;
-
-    if ( mIS_ZERO(nxtr.a) ) nxtr.a = 0; if ( mIS_ZERO(nxtr.b) ) nxtr.b = 0;
-    if ( mIS_ZERO(nxtr.c) ) nxtr.c = 0; if ( mIS_ZERO(nytr.a) ) nytr.a = 0;
-    if ( mIS_ZERO(nytr.b) ) nytr.b = 0; if ( mIS_ZERO(nytr.c) ) nytr.c = 0;
-
-    if ( !nxtr.valid(nytr) )
-	return "The transformation would not be valid";
-
-    xtr = nxtr;
-    ytr = nytr;
+    const char* msg = b2c.set3Pts( c, b, xline );
+    if ( msg ) return msg;
 
     set3coords[0].x = c[0].x; set3coords[0].y = c[0].y;
     set3coords[1].x = c[1].x; set3coords[1].y = c[1].y;
@@ -221,45 +262,8 @@ const char* SurveyInfo::set3Pts( Coord c[3], BinID b[2], int xline )
     set3binids[0] = transform( set3coords[0] );
     set3binids[1] = transform( set3coords[1] );
     set3binids[2] = transform( set3coords[2] );
+
     return 0;
-}
-
-
-Coord SurveyInfo::transform( const BinID& binid ) const
-{
-    return Coord( xtr.a + xtr.b*binid.inl + xtr.c*binid.crl,
-		  ytr.a + ytr.b*binid.inl + ytr.c*binid.crl );
-}
-
-
-BinID SurveyInfo::transform( const Coord& coord ) const
-{
-    static BinID binid;
-    static double x, y;
-
-    double det = xtr.det( ytr );
-    if ( mIS_ZERO(det) ) return binid;
-
-    x = coord.x - xtr.a;
-    y = coord.y - ytr.a;
-    double di = (x*ytr.c - y*xtr.c) / det;
-    double dc = (y*xtr.b - x*ytr.b) / det;
-    binid.inl = mNINT(di); binid.crl = mNINT(dc);
-
-    if ( step_.inl > 1 )
-    {
-	float relinl = binid.inl - range_.start.inl;
-	int nrsteps = (int)(relinl/step_.inl + (relinl>0?.5:-.5));
-	binid.inl = range_.start.inl + nrsteps*step_.inl;
-    }
-    if ( step_.crl > 1 )
-    {
-	float relcrl = binid.crl - range_.start.crl;
-	int nrsteps = (int)( relcrl / step_.crl + (relcrl>0?.5:-.5));
-	binid.crl = range_.start.crl + nrsteps*step_.crl;
-    }
-
-    return binid;
 }
 
 

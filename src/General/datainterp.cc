@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.3 2001-02-22 08:22:05 bert Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.4 2001-03-19 10:20:01 bert Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -105,7 +105,7 @@ void DataCharacteristics::toString( char* buf ) const
         *( p + idx2 ) = *( p + idx2 + b2 ); \
         *( p + idx2 + b2 ) = c
 
-void DataInterpreter<float>::swap2( void* buf, int bufsz ) const
+static void doswap2( void* buf, int bufsz )
 {
     register unsigned char c;
     register unsigned char* p = (unsigned char*)buf;
@@ -117,13 +117,17 @@ void DataInterpreter<float>::swap2( void* buf, int bufsz ) const
     }
 }
 
+void DataInterpreter<float>::swap2( void* b, int s ) const { doswap2(b,s); }
+void DataInterpreter<int>::swap2( void* b, int s ) const { doswap2(b,s); }
+void DataInterpreter<double>::swap2( void* b, int s ) const { doswap2(b,s); }
+
 
 #define mSwapChars2(b1,b2) \
 	c = *( p + idx2 + b1 ); \
 	*( p + idx2 + b1 ) = *( p + idx2 + b2 ); \
 	*( p + idx2 + b2 ) = c
 
-void DataInterpreter<float>::swap4( void* buf, int bufsz ) const
+static void doswap4( void* buf, int bufsz )
 {
     register unsigned char c;
     register unsigned char* p = (unsigned char*)buf;
@@ -136,8 +140,12 @@ void DataInterpreter<float>::swap4( void* buf, int bufsz ) const
     }
 }
 
+void DataInterpreter<float>::swap4( void* b, int s ) const { doswap4(b,s); }
+void DataInterpreter<int>::swap4( void* b, int s ) const { doswap4(b,s); }
+void DataInterpreter<double>::swap4( void* b, int s ) const { doswap4(b,s); }
 
-void DataInterpreter<float>::swap8( void* buf, int bufsz ) const
+
+static void doswap8( void* buf, int bufsz )
 {
     register unsigned char c;
     register unsigned char* p = (unsigned char*)buf;
@@ -151,6 +159,9 @@ void DataInterpreter<float>::swap8( void* buf, int bufsz ) const
 	idx2 += 8;
     }
 }
+void DataInterpreter<float>::swap8( void* b, int s ) const { doswap8(b,s); }
+void DataInterpreter<int>::swap8( void* b, int s ) const { doswap8(b,s); }
+void DataInterpreter<double>::swap8( void* b, int s ) const { doswap8(b,s); }
 
 
 #define mDefDIG(rettyp,typ) \
@@ -167,13 +178,39 @@ mDefDIG(float,U4)
 mDefDIG(float,U8)
 mDefDIG(float,F)
 mDefDIG(float,D)
+mDefDIG(double,S1)
+mDefDIG(double,S2)
+mDefDIG(double,S4)
+mDefDIG(double,S8)
+mDefDIG(double,U1)
+mDefDIG(double,U2)
+mDefDIG(double,U4)
+mDefDIG(double,U8)
+mDefDIG(double,F)
+mDefDIG(double,D)
+mDefDIG(int,S1)
+mDefDIG(int,S2)
+mDefDIG(int,S4)
+mDefDIG(int,S8)
+mDefDIG(int,U1)
+mDefDIG(int,U2)
+mDefDIG(int,U4)
+mDefDIG(int,U8)
+
+#define mDefDIGF2I(rettyp,typ) \
+rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int nr ) const \
+{ T##typ t = *(((T##typ*)buf) + nr); return (rettyp)(t > 0 ? t+.5:t-.5); }
+
+mDefDIG(int,F)
+mDefDIG(int,D)
+
 
 #define mDefDIGswp(rettyp,typ) \
 rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
 { \
-    rettyp r = (rettyp)( *(((T##typ*)buf) + nr) ); \
-    swap_bytes( &r, sizeof(rettyp) ); \
-    return r; \
+    T##typ t = *(((T##typ*)buf) + nr); \
+    swap_bytes( &t, sizeof(T##typ) ); \
+    return (rettyp)t; \
 }
 
 mDefDIGswp(float,S2)
@@ -184,6 +221,31 @@ mDefDIGswp(float,U4)
 mDefDIGswp(float,U8)
 mDefDIGswp(float,F)
 mDefDIGswp(float,D)
+mDefDIGswp(double,S2)
+mDefDIGswp(double,S4)
+mDefDIGswp(double,S8)
+mDefDIGswp(double,U2)
+mDefDIGswp(double,U4)
+mDefDIGswp(double,U8)
+mDefDIGswp(double,F)
+mDefDIGswp(double,D)
+mDefDIGswp(int,S2)
+mDefDIGswp(int,S4)
+mDefDIGswp(int,S8)
+mDefDIGswp(int,U2)
+mDefDIGswp(int,U4)
+mDefDIGswp(int,U8)
+
+
+#define mDefDIGF2Iswp(rettyp,typ) \
+rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int nr ) const \
+{ \
+    T##typ t = *(((T##typ*)buf) + nr); \
+    swap_bytes( &t, sizeof(T##typ) ); \
+    return (rettyp)(t > 0 ? t+.5:t-.5); \
+}
+mDefDIGF2Iswp(int,F)
+mDefDIGF2Iswp(int,D)
 
 
 #define mDefDIPS(inptyp,typ) \
@@ -197,6 +259,26 @@ mDefDIPS(float,S1)
 mDefDIPS(float,S2)
 mDefDIPS(float,S4)
 mDefDIPS(float,S8)
+mDefDIPS(double,S1)
+mDefDIPS(double,S2)
+mDefDIPS(double,S4)
+mDefDIPS(double,S8)
+
+#define mDefDIPIS(inptyp,typ) \
+void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
+{ *(((T##typ*)buf)+nr) = f; }
+
+#define mDefDIPISc(inptyp,typ) \
+void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
+{ \
+    *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
+			 : ( f < -cM##typ ? -cM##typ : (T##typ)f ); \
+}
+
+mDefDIPISc(int,S1)
+mDefDIPISc(int,S2)
+mDefDIPIS(int,S4)
+mDefDIPIS(int,S8)
 
 
 #define mDefDIPU(inptyp,typ) \
@@ -210,6 +292,24 @@ mDefDIPU(float,U1)
 mDefDIPU(float,U2)
 mDefDIPU(float,U4)
 mDefDIPU(float,U8)
+mDefDIPU(double,U1)
+mDefDIPU(double,U2)
+mDefDIPU(double,U4)
+mDefDIPU(double,U8)
+
+
+#define mDefDIPIU(inptyp,typ) \
+void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
+{ *(((T##typ*)buf)+nr) = f < 0 ? 0 : (T##typ)f; }
+
+#define mDefDIPIUc(inptyp,typ) \
+void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
+{ *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ : (f < 0 ? 0 : (T##typ)f); }
+
+mDefDIPIUc(int,U1)
+mDefDIPIUc(int,U2)
+mDefDIPIU(int,U4)
+mDefDIPIU(int,U8)
 
 
 #define mDefDIPF(inptyp,typ) \
@@ -218,6 +318,10 @@ void DataInterpreter<inptyp>::put##typ( void* buf, int nr, inptyp f ) const \
 
 mDefDIPF(float,F)
 mDefDIPF(float,D)
+mDefDIPF(double,F)
+mDefDIPF(double,D)
+mDefDIPF(int,F)
+mDefDIPF(int,D)
 
 
 #define mDefDIPSswp(inptyp,typ) \
@@ -231,6 +335,28 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 mDefDIPSswp(float,S2)
 mDefDIPSswp(float,S4)
 mDefDIPSswp(float,S8)
+mDefDIPSswp(double,S2)
+mDefDIPSswp(double,S4)
+mDefDIPSswp(double,S8)
+
+#define mDefDIPISswp(inptyp,typ) \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
+{ \
+    *(((T##typ*)buf)+nr) = (T##typ)f; \
+    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+}
+
+#define mDefDIPIScswp(inptyp,typ) \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
+{ \
+    *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
+		  : ( f < -cM##typ ? -cM##typ : (T##typ)f ); \
+    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+}
+
+mDefDIPIScswp(int,S2)
+mDefDIPISswp(int,S4)
+mDefDIPISswp(int,S8)
 
 
 #define mDefDIPUswp(inptyp,typ) \
@@ -244,6 +370,27 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 mDefDIPUswp(float,U2)
 mDefDIPUswp(float,U4)
 mDefDIPUswp(float,U8)
+mDefDIPUswp(double,U2)
+mDefDIPUswp(double,U4)
+mDefDIPUswp(double,U8)
+
+#define mDefDIPUIswp(inptyp,typ) \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
+{ \
+    *(((T##typ*)buf)+nr) = f < 0 ? 0 : (T##typ)f; \
+    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+}
+
+#define mDefDIPUIcswp(inptyp,typ) \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
+{ \
+    *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ : (f < 0 ? 0 : (T##typ)f); \
+    swap_bytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
+}
+
+mDefDIPUIcswp(int,U2)
+mDefDIPUIswp(int,U4)
+mDefDIPUIswp(int,U8)
 
 
 #define mDefDIPFswp(inptyp,typ) \
@@ -255,6 +402,10 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int nr,inptyp f) const \
 
 mDefDIPFswp(float,F)
 mDefDIPFswp(float,D)
+mDefDIPFswp(double,F)
+mDefDIPFswp(double,D)
+mDefDIPFswp(int,F)
+mDefDIPFswp(int,D)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
@@ -272,6 +423,12 @@ rettyp DataInterpreter<rettyp>::get##typ##Ibm( const void* buf, int nr ) const \
 mDefDIGIbm(float,S2,Short)
 mDefDIGIbm(float,S4,Int)
 mDefDIGIbm(float,F,Float)
+mDefDIGIbm(double,S2,Short)
+mDefDIGIbm(double,S4,Int)
+mDefDIGIbm(double,F,Float)
+mDefDIGIbm(int,S2,Short)
+mDefDIGIbm(int,S4,Int)
+mDefDIGIbm(int,F,Float)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
@@ -285,6 +442,12 @@ rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int nr) const \
 mDefDIGIbmswp(float,S2,Short)
 mDefDIGIbmswp(float,S4,Int)
 mDefDIGIbmswp(float,F,Float)
+mDefDIGIbmswp(double,S2,Short)
+mDefDIGIbmswp(double,S4,Int)
+mDefDIGIbmswp(double,F,Float)
+mDefDIGIbmswp(int,S2,Short)
+mDefDIGIbmswp(int,S4,Int)
+mDefDIGIbmswp(int,F,Float)
 
 
 #define mDefDIPSIbm(inptyp,typ,fntyp) \
@@ -296,6 +459,10 @@ void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,int nr,inptyp f) const \
 
 mDefDIPSIbm(float,S2,Short)
 mDefDIPSIbm(float,S4,Int)
+mDefDIPSIbm(double,S2,Short)
+mDefDIPSIbm(double,S4,Int)
+mDefDIPSIbm(int,S2,Short)
+mDefDIPSIbm(int,S4,Int)
 
 
 #define mDefDIPFIbm(inptyp,typ,fntyp) \
@@ -303,6 +470,8 @@ void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,int nr,inptyp f) const \
 { IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); }
 
 mDefDIPFIbm(float,F,Float)
+mDefDIPFIbm(double,F,Float)
+mDefDIPFIbm(int,F,Float)
 
 
 #define mDefDIPSIbmswp(inptyp,typ,fntyp) \
@@ -315,6 +484,10 @@ const { \
 
 mDefDIPSIbmswp(float,S2,Short)
 mDefDIPSIbmswp(float,S4,Int)
+mDefDIPSIbmswp(double,S2,Short)
+mDefDIPSIbmswp(double,S4,Int)
+mDefDIPSIbmswp(int,S2,Short)
+mDefDIPSIbmswp(int,S4,Int)
 
 
 #define mDefDIPFIbmswp(inptyp,typ,fntyp) \
@@ -325,198 +498,15 @@ const { \
 }
 
 mDefDIPFIbmswp(float,F,Float)
+mDefDIPFIbmswp(double,F,Float)
+mDefDIPFIbmswp(int,F,Float)
 
 
-#define mDICB(fntyp,fn) \
-((DataInterpreter<float>::fntyp)(&DataInterpreter<float>::fn))
-
-#define mDefGetPut(fnnm) \
-{ \
-    getfn = needswap ? mDICB(GetFn,get##fnnm##swp) : mDICB(GetFn,get##fnnm); \
-    putfn = needswap ? mDICB(PutFn,put##fnnm##swp) : mDICB(PutFn,put##fnnm); \
-}
-
-#define mDefGetPutNoSwap(fnnm) \
-{ getfn = mDICB(GetFn,get##fnnm); putfn = mDICB(PutFn,put##fnnm); }
-
-
-void DataInterpreter<float>::set( const DataCharacteristics& dc, bool ignend )
-{
-    swpfn = dc.nrBytes() == BinDataDesc::N1 ? mDICB(SwapFn,swap0)
-	: ( dc.nrBytes() == BinDataDesc::N8 ? mDICB(SwapFn,swap8)
-	: ( dc.nrBytes() == BinDataDesc::N4 ? mDICB(SwapFn,swap4)
-					    : mDICB(SwapFn,swap2) ) );
-
-    getfn = mDICB(GetFn,get0);
-    putfn = mDICB(PutFn,put0);
-    needswap = !ignend && dc.needSwap();
-
-    if ( !dc.isInteger() )
-    {
-	if ( !dc.isIeee() )
-	{
-	    if ( dc.nrBytes() == BinDataDesc::N4 )
-		mDefGetPut(FIbm)
-	}
-	else
-	{
-	    if ( dc.nrBytes() == BinDataDesc::N4 )
-		mDefGetPut(F)
-	    else if ( dc.nrBytes() == BinDataDesc::N8 )
-		mDefGetPut(D)
-	}
-    }
-    else
-    {
-	if ( dc.isSigned() )
-	{
-	    if ( !dc.isIeee() )
-	    {
-		switch ( dc.nrBytes() )
-		{
-		case BinDataDesc::N1: mDefGetPutNoSwap(S1)	break;
-		case BinDataDesc::N2: mDefGetPut(S2Ibm)		break;
-		case BinDataDesc::N4: mDefGetPut(S4Ibm)		break;
-		}
-	    }
-	    else
-	    {
-		switch ( dc.nrBytes() )
-		{
-		case BinDataDesc::N1: mDefGetPutNoSwap(S1)	break;
-		case BinDataDesc::N2: mDefGetPut(S2)		break;
-		case BinDataDesc::N4: mDefGetPut(S4)		break;
-		case BinDataDesc::N8: mDefGetPut(S8)		break;
-		}
-	    }
-	}
-	else if ( dc.isIeee() )
-	{
-	    switch ( dc.nrBytes() )
-	    {
-	    case BinDataDesc::N1: mDefGetPutNoSwap(U1)		break;
-	    case BinDataDesc::N2: mDefGetPut(U2)		break;
-	    case BinDataDesc::N4: mDefGetPut(U4)		break;
-	    case BinDataDesc::N8: mDefGetPut(U8)		break;
-	    }
-	}
-    }
-}
-
-
-DataInterpreter<float>::DataInterpreter<float>( const DataCharacteristics& dc,
-						bool ignend )
-{
-    set( dc, ignend );
-}
-
-
-DataInterpreter<float>::DataInterpreter<float>( const DataInterpreter& di )
-	: swpfn(di.swpfn)
-	, getfn(di.getfn)
-	, putfn(di.putfn)
-	, needswap(di.needswap)
-{
-}
-
-
-DataInterpreter<float>& DataInterpreter<float>::operator=(
-			    const DataInterpreter<float>& di )
-{
-    if ( &di != this )
-    {
-	swpfn = di.swpfn;
-	getfn = di.getfn;
-	putfn = di.putfn;
-	needswap = di.needswap;
-    }
-    return *this;
-}
-
-
-int DataInterpreter<float>::nrBytes() const
-{
-    return swpfn == &DataInterpreter<float>::swap2 ?	2
-	: (swpfn == &DataInterpreter<float>::swap4 ?	4
-	: (swpfn == &DataInterpreter<float>::swap8 ?	8
-	:						1  ));
-}
-
-
-#define mSet(nb,isint,frmt,iss,swpd) \
-	dc = DataCharacteristics( isint, iss, (BinDataDesc::ByteCount)nb, \
-		DataCharacteristics::frmt, __islittle__ != swpd );
-
-DataCharacteristics DataInterpreter<float>::dataChar() const
-{
-    DataCharacteristics dc;
-    switch ( nrBytes() )
-    {
-
-    case 2: {
-	if ( getfn == &DataInterpreter<float>::getS2 )
-	    mSet(2,true,Ieee,true,false)
-	else if ( getfn == &DataInterpreter<float>::getU2 )
-	    mSet(2,true,Ieee,false,false)
-	else if ( getfn == &DataInterpreter<float>::getS2Ibm )
-	    mSet(2,true,Ibm,true,false)
-	else if ( getfn == &DataInterpreter<float>::getS2swp )
-	    mSet(2,true,Ieee,true,true)
-	else if ( getfn == &DataInterpreter<float>::getU2swp )
-	    mSet(2,true,Ieee,false,true)
-	else if ( getfn == &DataInterpreter<float>::getS2Ibmswp )
-	    mSet(2,true,Ibm,true,true)
-    }
-
-    case 4:
-    {
-	if ( getfn == &DataInterpreter<float>::getS4 )
-	    mSet(4,true,Ieee,true,false)
-	else if ( getfn == &DataInterpreter<float>::getU4 )
-	    mSet(4,true,Ieee,false,false)
-	else if ( getfn == &DataInterpreter<float>::getF )
-	    mSet(4,false,Ieee,true,false)
-	else if ( getfn == &DataInterpreter<float>::getS4Ibm )
-	    mSet(4,true,Ibm,true,false)
-	else if ( getfn == &DataInterpreter<float>::getFIbm )
-	    mSet(4,false,Ibm,true,false)
-	else if ( getfn == &DataInterpreter<float>::getS4swp )
-	    mSet(4,true,Ieee,true,true)
-	else if ( getfn == &DataInterpreter<float>::getU4swp )
-	    mSet(4,true,Ieee,false,true)
-	else if ( getfn == &DataInterpreter<float>::getFswp )
-	    mSet(4,false,Ieee,true,true)
-	else if ( getfn == &DataInterpreter<float>::getS4Ibmswp )
-	    mSet(4,true,Ibm,true,true)
-	else if ( getfn == &DataInterpreter<float>::getFIbmswp )
-	    mSet(4,false,Ibm,true,true)
-    }
-
-    case 8:
-    {
-	if ( getfn == &DataInterpreter<float>::getS8 )
-	    mSet(8,true,Ieee,true,false)
-	else if ( getfn == &DataInterpreter<float>::getU8 )
-	    mSet(8,true,Ieee,false,false)
-	else if ( getfn == &DataInterpreter<float>::getD )
-	    mSet(8,false,Ieee,true,false)
-	else if ( getfn == &DataInterpreter<float>::getS8swp )
-	    mSet(8,true,Ieee,true,true)
-	else if ( getfn == &DataInterpreter<float>::getU8swp )
-	    mSet(8,true,Ieee,false,true)
-	else if ( getfn == &DataInterpreter<float>::getDswp )
-	    mSet(8,false,Ieee,true,true)
-    }
-
-    default:
-    {
-	if ( getfn == &DataInterpreter<float>::getS1 )
-	    mSet(1,true,Ieee,true,false)
-	else if ( getfn == &DataInterpreter<float>::getU1 )
-	    mSet(1,true,Ieee,false,false)
-    }
-
-    }
-
-    return dc;
-}
+#define mTheType float
+#include "i_datainterp.h"
+#undef mTheType
+#define mTheType double
+#include "i_datainterp.h"
+#undef mTheType
+#define mTheType int
+#include "i_datainterp.h"

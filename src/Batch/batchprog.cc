@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.1.1.2 1999-09-16 09:32:49 arend Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.2 2001-03-19 10:19:52 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -13,8 +13,10 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.1.1.2 1999-09-16 09:32:49 aren
 #include "strmdata.h"
 #include "filegen.h"
 
+#ifndef __win__
 #include <stdiostream.h>
 #include <unistd.h>
+#endif
 
 
 BatchProgram* BatchProgram::inst_;
@@ -112,6 +114,7 @@ bool BatchProgram::initOutput()
     const char* res = pars()["Log file"];
     if ( !*res || !strcmp(res,"stdout") ) res = 0;
  
+#ifndef __win__
     if ( res && !strcmp(res,"window") )
     {
 	FileNameString comm( "disp_text " );
@@ -129,6 +132,7 @@ bool BatchProgram::initOutput()
 	    sdout_.ostrm = new ostream( sdout_.sb );
 	}
     }
+#endif
  
     if ( !res || strcmp(res,"window") )
     {

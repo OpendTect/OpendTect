@@ -5,20 +5,43 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.4 2001-02-13 17:21:08 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.5 2001-03-19 10:20:06 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
 #include "susegy.h"
 #include "binidselimpl.h"
 #include "survinfo.h"
+#include "strmprov.h"
+#include "strmdata.h"
+#include "filegen.h"
 #include <math.h>
 #include <timeser.h>
 #include <float.h>
 
-FixedString<32>  SeisPacketInfo::defaultclient( getenv("dGB_SEGY_CLIENT") );
-FixedString<32>  SeisPacketInfo::defaultcompany( getenv("dGB_SEGY_COMPANY") );
-FixedString<180> SeisPacketInfo::defaultauxinfo( getenv("dGB_SEGY_AUXINFO") );
+static BufferString getUsrInfo()
+{
+    BufferString bs;
+    const char* envstr = getenv( "dGB_SEIS_USRINFO" );
+    if ( !envstr || !File_exists(envstr) ) return bs;
+
+    StreamData sd = StreamProvider(envstr).makeIStream();
+    if ( sd.usable() )
+    {
+	char buf[1024];
+	while ( *sd.istrm )
+	{
+	    sd.istrm->getline( buf, 1024 );
+	    if ( *(char*)bs ) bs += "\n";
+	    bs += buf;
+	}
+    }
+
+    return bs;
+}
+
+BufferString SeisPacketInfo::defaultusrinfo = getUsrInfo();
+
 const char* SeisTrcInfo::sSamplingInfo = "Sampling information";
 const char* SeisTrcInfo::sNrSamples = "Nr of samples";
 
@@ -90,9 +113,7 @@ SeisPacketInfo::SeisPacketInfo( const SeisPacketInfo& spi )
 
 void SeisPacketInfo::clear()
 {
-    client = defaultclient;
-    company = defaultcompany;
-    auxinfo = defaultauxinfo;
+    usrinfo = defaultusrinfo;
     nr = 0;
     range = SI().range();
 }
@@ -100,9 +121,7 @@ void SeisPacketInfo::clear()
 
 SeisPacketInfo& SeisPacketInfo::operator=( const SeisPacketInfo& spi )
 {
-    client = spi.client;
-    company = spi.company;
-    auxinfo = spi.auxinfo;
+    usrinfo = spi.usrinfo;
     nr = spi.nr;
     range = spi.range;
     return *this;
