@@ -156,15 +156,12 @@ MathExpression* MathExpression::parse( const char* input )
 	tmp[len-2] = 0;
 
 	MathExpression* inp = parse( tmp );
-	if ( !inp )
+	if ( inp )
 	{
-	    return 0;
+	    MathExpression* res = new MathExpressionAbs;
+	    res->setInput( 0, inp );
+	    return res;
 	}
-
-	MathExpression* res = new MathExpressionAbs;
-	res->setInput( 0, inp );
-
-	return res;
     }
 
     parenslevel = 0;
@@ -497,7 +494,7 @@ MathExpression* MathExpression::parse( const char* input )
 	return new MathExpressionConstant( tres );
 
 
-    if ( !strncmp( str, "sqrt(", 5 ) && str[len-1] == ')' )
+    if ( !strncasecmp( str, "sqrt(", 5 ) && str[len-1] == ')' )
     {
 	ArrPtrMan<char> arg0 = new char[len-5];
 	strcpy( arg0, str+5 );
@@ -525,7 +522,7 @@ MathExpression* MathExpression::parse( const char* input )
 
 
     // exp(x) -> e^x
-    if ( !strncmp( str, "exp(", 4 ) && str[len-1] == ')' )
+    if ( !strncasecmp( str, "exp(", 4 ) && str[len-1] == ')' )
     {
 	MathExpression* inp0 = parse( "2.7182818284590452354" );
 
@@ -554,7 +551,7 @@ MathExpression* MathExpression::parse( const char* input )
 
 
     // ln (Natural log)  &  log (10log)
-    if ( !strncmp( str, "ln(", 3 ) && str[len-1] == ')' )
+    if ( !strncasecmp( str, "ln(", 3 ) && str[len-1] == ')' )
     {
 	ArrPtrMan<char> arg0 = new char[len-3];
 	strcpy( arg0, str+3 );
@@ -571,7 +568,7 @@ MathExpression* MathExpression::parse( const char* input )
     }
 
 
-    if ( !strncmp( str, "log(", 4 ) && str[len-1] == ')' )
+    if ( !strncasecmp( str, "log(", 4 ) && str[len-1] == ')' )
     {
 	ArrPtrMan<char> arg0 = new char[len-4];
 	strcpy( arg0, str+4 );
@@ -589,7 +586,7 @@ MathExpression* MathExpression::parse( const char* input )
 
 
 //  sin(), cos(), tan()
-    if ( !strncmp( str, "sin(", 4 ) && str[len-1] == ')' )
+    if ( !strncasecmp( str, "sin(", 4 ) && str[len-1] == ')' )
     {
 	ArrPtrMan<char> arg0 = new char[len-4];
 	strcpy( arg0, str+4 );
@@ -606,7 +603,7 @@ MathExpression* MathExpression::parse( const char* input )
     }
 
 
-    if ( !strncmp( str, "cos(", 4 ) && str[len-1] == ')' )
+    if ( !strncasecmp( str, "cos(", 4 ) && str[len-1] == ')' )
     {
 	ArrPtrMan<char> arg0 = new char[len-4];
 	strcpy( arg0, str+4 );
@@ -622,7 +619,7 @@ MathExpression* MathExpression::parse( const char* input )
 	return res;
     }
 
-    if ( !strncmp( str, "tan(", 4 ) && str[len-1] == ')' )
+    if ( !strncasecmp( str, "tan(", 4 ) && str[len-1] == ')' )
     {
 	ArrPtrMan<char> arg0 = new char[len-4];
 	strcpy( arg0, str+4 );
@@ -638,7 +635,7 @@ MathExpression* MathExpression::parse( const char* input )
 	return res;
     }
 
-    if ( !strncmp( str, "random(", 7  ) && str[len-1] == ')' )
+    if ( !strncasecmp( str, "random(", 7  ) && str[len-1] == ')' )
     {
 	ArrPtrMan<char> arg0 = new char[len-4];
 	strcpy( arg0, str+4 );
@@ -653,12 +650,12 @@ MathExpression* MathExpression::parse( const char* input )
 
 	return res;
     }
-    if ( (!strncmp( str, "min(", 4 ) || 
-	  !strncmp( str, "max(", 4 ) ||
-	  !strncmp( str, "sum(", 4 ) ||
-	  !strncmp( str, "med(", 4 ) ||
-	  !strncmp( str, "var(", 4 ) ||
-	  !strncmp( str, "avg(", 4 ) ) && str[len-1] == ')' )
+    if ( (!strncasecmp( str, "min(", 4 ) || 
+	  !strncasecmp( str, "max(", 4 ) ||
+	  !strncasecmp( str, "sum(", 4 ) ||
+	  !strncasecmp( str, "med(", 4 ) ||
+	  !strncasecmp( str, "var(", 4 ) ||
+	  !strncasecmp( str, "avg(", 4 ) ) && str[len-1] == ')' )
     {
 	TypeSet<int> argumentstop;
 
@@ -700,17 +697,17 @@ MathExpression* MathExpression::parse( const char* input )
 	}
 
 	MathExpression* res = 0;
-	if ( !strncmp( str, "max(", 4 ) )
+	if ( !strncasecmp( str, "max(", 4 ) )
 	    res = (MathExpression*) new MathExpressionMax( inputs.size() );
-	else if ( !strncmp( str, "min(", 4 ) )
+	else if ( !strncasecmp( str, "min(", 4 ) )
 	    res = (MathExpression*) new MathExpressionMin( inputs.size() );
-	else if ( !strncmp( str, "sum(", 4 ) )
+	else if ( !strncasecmp( str, "sum(", 4 ) )
 	    res = (MathExpression*) new MathExpressionSum( inputs.size() );
-	else if ( !strncmp( str, "med(", 4 ) )
+	else if ( !strncasecmp( str, "med(", 4 ) )
 	    res = (MathExpression*) new MathExpressionMedian( inputs.size() );
-	else if ( !strncmp( str, "avg(", 4 ) )
+	else if ( !strncasecmp( str, "avg(", 4 ) )
 	    res = (MathExpression*) new MathExpressionAverage( inputs.size() );
-	else if ( !strncmp( str, "var(", 4 ) )
+	else if ( !strncasecmp( str, "var(", 4 ) )
 	    res = (MathExpression*) new MathExpressionVariance( inputs.size() );
 
 	if ( !res )
@@ -741,7 +738,7 @@ MathExpression* MathExpression::parse( const char* input )
     }
 
 
-    if ( !strcmp( input, "pi" ) )
+    if ( !strcasecmp( input, "pi" ) )
 	return new MathExpressionConstant( M_PI );
 	
 
