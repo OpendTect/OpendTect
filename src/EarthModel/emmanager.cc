@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.39 2005-01-11 12:23:10 nanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.40 2005-02-16 14:13:20 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -39,7 +39,22 @@ EM::EMManager::EMManager()
 
 EM::EMManager::~EMManager()
 {
-    deepErase( objects );
+    for ( int idx=0; idx<objects.size(); idx++ )
+    {
+	EMObjectCallbackData cbdata;
+	cbdata.event = EMObjectCallbackData::Removal;
+
+	const int oldsize = objects.size();
+	objects[idx]->notifier.trigger(cbdata);
+	if ( oldsize!=objects.size() ) idx--;
+    }
+
+    deepRef( objects );		//Removes all non-reffed 
+    deepUnRef( objects );
+
+    if ( objects.size() )
+	pErrMsg( "All objects are not unreffed" );
+
     deepErase( objectfactories );
     delete &history_;
 }
@@ -123,9 +138,6 @@ EM::ObjectID EM::EMManager::createObject( const char* type, const char* name )
     if ( !object )
 	return -1;
 
-    objects += object;
-    refcounts += 0;
-
     return object->id();
 } 
 
@@ -151,89 +163,17 @@ EM::ObjectID EM::EMManager::multiID2ObjectID( const MultiID& id )
 { return id.leafID(); }
 
 
-void EM::EMManager::removeObject( const EM::ObjectID& id )
-{
-    const EM::ObjectID objid = multiID2ObjectID(id);
-    for ( int idx=0; idx<objects.size(); idx++ )
-    {
-	if ( objects[idx]->id() == objid )
-	{
-	    EMObjectCallbackData cbdata;
-	    cbdata.event = EMObjectCallbackData::Removal;
-	    objects[idx]->notifier.trigger(cbdata);
-	    delete objects[idx];
-	    objects.remove( idx );
-	    refcounts.remove( idx );
-	    return;
-	}
-    }
-}
-
-
-void EM::EMManager::ref( const EM::ObjectID& id )
-{
-    const EM::ObjectID objid = multiID2ObjectID(id);
-    for ( int idx=0; idx<objects.size(); idx++ )
-    {
-	if ( objects[idx]->id() == objid )
-	{
-	    refcounts[idx]++;
-	    return;
-	}
-    }
-
-    pErrMsg("Reference of id does not exist");
-}
-
-
-void EM::EMManager::unRef( const EM::ObjectID& id )
-{
-    const EM::ObjectID objid = multiID2ObjectID(id);
-    for ( int idx=0; idx<objects.size(); idx++ )
-    {
-	if ( objects[idx]->id() == objid )
-	{
-	    if ( !refcounts[idx] )
-		pErrMsg("Un-refing object that is not reffed");
-
-	    refcounts[idx]--;
-	    if ( !refcounts[idx] )
-		removeObject( id );
-
-	    return;
-	}
-    }
-
-    pErrMsg("Reference of id does not exist");
-}
-
-
-void EM::EMManager::unRefNoDel( const EM::ObjectID& id )
-{
-    const EM::ObjectID objid = multiID2ObjectID(id);
-    for ( int idx=0; idx<objects.size(); idx++ )
-    {
-	if ( objects[idx]->id() == objid )
-	{
-	    if ( !refcounts[idx] )
-		pErrMsg("Un-refing object that is not reffed");
-
-	    refcounts[idx]--;
-	    return;
-	}
-    }
-
-    pErrMsg("Reference of id does not exist");
-}
-
-/*
 void EM::EMManager::addObject( EM::EMObject* obj )
 {
     if ( !obj ) return;
     objects += obj;
-    refcounts += 0;
 }
-*/
+
+
+void EM::EMManager::removeObject( EM::EMObject* obj )
+{
+    objects -= obj;
+}
 
 
 EM::EMObject* EM::EMManager::createTempObject( const char* type )
@@ -265,11 +205,7 @@ Executor* EM::EMManager::loadObject( const MultiID& mid,
 
 	obj = createTempObject( ioobj->group() );
 	if ( obj )
-	{
-	    objects += obj;
-	    refcounts += 0;
-	    obj->setID(id);
-	}
+	{ obj->setID(id); }
     }
 
     mDynamicCastGet(EM::Surface*,surface,obj)
@@ -283,7 +219,7 @@ Executor* EM::EMManager::loadObject( const MultiID& mid,
 
 
 const char* EM::EMManager::getSurfaceData( const MultiID& id,
-				    EM::SurfaceIOData& sd )
+					   EM::SurfaceIOData& sd )
 {
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj )
@@ -332,7 +268,6 @@ void EM::EMManager::addFactory( ObjectFactory* fact )
     }
 
     objectfactories += fact;
-
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.36 2005-01-06 09:39:57 kristofer Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.37 2005-02-16 14:13:20 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -69,36 +69,20 @@ EM::EMObject* EM::ObjectFactory::create( const char* name, bool tmpobj,
 }
 
 
-void EM::EMObject::ref() const
-{
-    const_cast<EM::EMObject*>(this)->manager.ref(id());
-}
-
-
-void EM::EMObject::unRef() const
-{
-    const_cast<EM::EMObject*>(this)->manager.unRef(id());
-}
-
-
-void EM::EMObject::unRefNoDel() const
-{
-    const_cast<EM::EMObject*>(this)->manager.unRefNoDel(id());
-}
-
-
 EM::EMObject::EMObject( EMManager& emm_, const EM::ObjectID& id__ )
     : manager(emm_)
     , notifier(this)
     , id_(id__)
     , preferredcolor( *new Color(255, 0, 0) )
-{
+{ mRefCountConstructor;
+    manager.addObject(this);
     notifier.notify( mCB( this, EMObject, posIDChangeCB ) );
 }
 
 
 EM::EMObject::~EMObject()
 {
+    manager.removeObject(this);
     deepErase( posattribs );
     delete &preferredcolor;
 
@@ -137,17 +121,15 @@ bool EM::EMObject::setPos( const EM::PosID& pid, const Coord3& newpos,
     Geometry::Element* element = getElement( pid.sectionID() );
     if ( !element ) mRetErr( "" );
 
-    HistoryEvent* history =  addtohistory
-	? new SetPosHistoryEvent(element->getPosition(pid.subID()),pid)
-	: 0;
+    const Coord3 oldpos = element->getPosition(pid.subID());
 
-     if ( !element->setPosition(pid.subID(), newpos ) )
-     {
-	 delete history;
+     if ( !element->setPosition(pid.subID(), newpos) )
 	 mRetErr(element->errMsg());
-     }
 
-     if ( history ) EM::EMM().history().addEvent( history, 0, 0 );
+     if ( !addtohistory ) return true;
+
+     HistoryEvent* history = new SetPosHistoryEvent(oldpos,pid);
+     EM::EMM().history().addEvent( history, 0, 0 );
 
      return true;
 }

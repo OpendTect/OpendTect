@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.35 2005-01-17 08:38:22 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.36 2005-02-16 14:13:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "emposid.h"
 #include "multiid.h"
+#include "refcount.h"
 
 class IOObj;
 class Executor;
@@ -52,14 +53,9 @@ public:
 /*!\brief Earth Model Object */
 
 class EMObject : public CallBacker
-{
+{ mRefCountImpl( EMObject );    
 public:
-    void			ref() const;
-    void			unRef() const;
-    void			unRefNoDel() const;
-
     				EMObject( EMManager&, const EM::ObjectID&);
-    virtual			~EMObject( );
     const ObjectID&		id() const { return id_; }
     void			setID( const EM::ObjectID& nid ) { id_ = nid; }
     virtual const char*		getTypeStr() const			= 0;
