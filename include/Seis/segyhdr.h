@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.9 2004-04-28 14:37:18 bert Exp $
+ RCS:		$Id: segyhdr.h,v 1.10 2005-02-10 16:34:32 bert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <seisinfo.h>
-#include <segythdef.h>
-#include <iosfwd>
+#include "seisinfo.h"
+#include "segythdef.h"
+#include "iosfwd"
 class BufferString;
 
 #define SegyTxtHeaderLength		3200
@@ -29,7 +29,7 @@ public:
     		SegyTxtHeader();
  
     void	setUserInfo(const char*);
-    void	setPosInfo(int,int,int,int);
+    void	setPosInfo(const SegyTraceheaderDef&);
     void	setStartPos(float);
     void	getText(BufferString&);
 
@@ -41,6 +41,8 @@ public:
     void        setEbcdic();
  
     unsigned char txt[SegyTxtHeaderLength];
+
+    static bool	info2d;
 
 };
 
@@ -114,7 +116,7 @@ public:
 
     unsigned char*	buf;
     bool		needswap;
-    SegyTraceheaderDef&	hdef;
+    SegyTraceheaderDef	hdef;
     int			seqnr;
 
 protected:

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.23 2004-09-06 16:14:07 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.24 2005-02-10 16:34:32 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -31,6 +31,7 @@ const char* SegyTraceheaderDef::sPickByte = "Pick byte";
 const char* SegyTraceheaderDef::sInlByteSz = "Nr bytes for In-line";
 const char* SegyTraceheaderDef::sCrlByteSz = "Nr bytes for Cross-line";
 const char* SegyTraceheaderDef::sTrNrByteSz = "Nr bytes for trace number";
+bool SegyTxtHeader::info2d = false;
 
 
 static void Ebcdic2Ascii(unsigned char*,int);
@@ -117,26 +118,33 @@ void SegyTxtHeader::setUserInfo( const char* txt )
 }
 
 
-void SegyTxtHeader::setPosInfo( int xcoordbyte, int ycoordbyte,
-				int inlbyte, int crlbyte )
+#define mPutBytePos(line,s,memb) \
+    buf = s; buf += thd.memb; \
+    putAt( line, 6, 6+buf.size(), buf )
+#define mPutBytePosSize(line,s,memb) \
+    buf = s; buf += thd.memb; \
+    buf += " ("; buf += thd.memb##bytesz; buf += "-byte int)"; \
+    putAt( line, 6, 6+buf.size(), buf )
+
+void SegyTxtHeader::setPosInfo( const SegyTraceheaderDef& thd )
 {
     BufferString buf;
     buf = "Byte positions:";
     putAt( 5, 6, 6+buf.size(), buf );
-    buf = "X-coordinate: "; buf += xcoordbyte;
-    putAt( 6, 6, 6+buf.size(), buf );
-    buf = "Y-coordinate: "; buf += ycoordbyte;
-    putAt( 7, 6, 6+buf.size(), buf );
-    buf = "In-line:      "; if ( inlbyte >= 0 ) buf += inlbyte;
-    putAt( 8, 6, 6+buf.size(), buf );
-    buf = "X-line:       "; if ( crlbyte >= 0 ) buf += crlbyte;
-    putAt( 9, 6, 6+buf.size(), buf );
-    if ( inlbyte < 0 || crlbyte < 0 )
-	buf = "No I/X info available";
+    mPutBytePos( 6, "X-coordinate: ", xcoord );
+    mPutBytePos( 7, "Y-coordinate: ", ycoord );
+
+    if ( info2d )
+    {
+	mPutBytePosSize( 8, "Trace number: ", trnr );
+	buf = "2-D seismics";
+    }
     else
     {
-	buf = "I/X bytes: "; buf += inlbyte;
-	buf += " / "; buf += crlbyte;
+	mPutBytePosSize( 8, "In-line:      ", inl );
+	mPutBytePosSize( 9, "X-line:       ", crl );
+	buf = "I/X bytes: "; buf += thd.inl;
+	buf += " / "; buf += thd.crl;
     }
     putAt( 36, 6, 75, buf );
 }
