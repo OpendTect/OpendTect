@@ -37,10 +37,10 @@ int main( int argc, char** argv )
 	fname = File_getFullPath( fname, argv[2] );
     }
     CBVSSeisTrcTranslator tri;
-    StreamConn inconn( fname, Conn::Read );
+    StreamConn* inconn = new StreamConn( fname, Conn::Read );
     IOStream ioobj( "tmp" );
     ioobj.setFileName( fname );
-    inconn.ioobj = &ioobj;
+    inconn->ioobj = &ioobj;
     if ( !tri.initRead(inconn) )
         { cerr << tri.errMsg() << endl;  return 1; }
 
@@ -57,9 +57,9 @@ int main( int argc, char** argv )
 	fname = File_getFullPath( fname, argv[3] );
     }
     CBVSSeisTrcTranslator tro;
-    StreamConn outconn( fname, Conn::Write );
+    StreamConn* outconn = new StreamConn( fname, Conn::Write );
     ioobj.setFileName( fname );
-    outconn.ioobj = &ioobj;
+    outconn->ioobj = &ioobj;
 
     SeisTrc trc;
     SeisTrc& outtrc = selcomp < 0 ? *new SeisTrc : trc;
