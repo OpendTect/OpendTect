@@ -1,0 +1,11 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) dGB Beheer B.V.
+# $Id: od_do_rmt_file,v 1.1 2004-10-05 11:29:39 dgb Exp $
+#
+# remote execution script for passing arguments file to od_do_rmt
+#_______________________________________________________________________________
+
+
+./bin/od_do_rmt `cat $1`

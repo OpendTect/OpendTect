@@ -2,12 +2,12 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.16 2004-10-01 15:30:27 dgb Exp $
+# $Id: od_exec_rmt,v 1.17 2004-10-05 11:29:39 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
 
-if ( $?DTECT_DEBUG ) set verbose=yes
+#if ( $?DTECT_DEBUG ) set verbose=yes
 
 if ( $?DTECT_DEBUG ) then
     echo "od_exec_rmt $*"
@@ -164,7 +164,7 @@ if ( $?COMSPEC ) then
 	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt+=+' \
 		     | sed -e "s% %\\ %g" -e 's%+=+%""%g'`
 
-	set transffile="test.vars"
+	set transffile="od$$.vars"
 
 	echo "${transf}" > "${locprocdir}/${transffile}"
 

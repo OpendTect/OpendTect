@@ -1,7 +1,7 @@
-@echo off
+::@echo off
 ::
 :: OpenTect remote startup script for window<->windows using rcmd
-:: $Id: od_dormt.bat,v 1.1 2004-09-29 14:41:39 dgb Exp $
+:: $Id: od_dormt.bat,v 1.2 2004-10-05 11:29:39 dgb Exp $
 ::______________________________________________________________________________
 
 cd %DTECT_WINAPPL%
@@ -51,7 +51,7 @@ set userpass=%7
 net use "\\%datahost%" %userpass% "/USER:%datahost%\%username%"
 
 ::echo net use %datadrive%: "\\%dathost%\%datashare%"
-net use %datadrive%: "\\%dathost%\%datashare%"
+net use %datadrive%: "\\%datahost%\%datashare%"
 
 if exist "%ARGFILE%" goto getargs
 
@@ -65,7 +65,7 @@ echo Error: %ARGFILE% does not exist
 exit 1
 
 :getargs
-for /F "tokens=*" %%i in ('type "%ARGFILE%"') do set ARGS=%%i
+:for /F "tokens=*" %%i in ('type "%ARGFILE%"') do set ARGS=%%i
 
 
-tcsh.exe -f .\bin\od_do_rmt %ARGS%
+tcsh.exe -f .\bin\od_do_rmt_file %ARGFILE%
