@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.1 2002-10-16 07:34:21 kristofer Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.2 2002-10-17 05:44:54 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,8 @@ ________________________________________________________________________
 
 class SoNode;
 class uiFileInput;
-class uiListBox;
+class uiComboBox;
+class uiGenInput;
 
 class uiPrintSceneDlg : public uiDialog
 {
@@ -25,13 +26,17 @@ public:
 protected:
 
     uiFileInput*	fileinputfld;
-    uiListBox*		filetypesfld;
+    uiComboBox*		filetypesfld;
+    uiGenInput*		horwidthfld;
+    uiComboBox*		widthunitfld;
+    uiGenInput*		vertwidthfld;
+    uiGenInput*		resolutionfld;
+
 
     SoNode*		scene;
 
     void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);
-
 };
 
 #endif
