@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.83 2004-11-29 13:14:00 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.84 2004-12-10 15:26:19 dgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -572,8 +572,18 @@ void uiSeisMMProc::pauseJobs()
 
 static void rmTmpSeis( SeisJobExecProv* jp )
 {
-    Time_sleep( 2.25 );
-    if ( !jp->removeTempSeis() )
+    if ( !jp ) return;
+
+    bool removed = jp->removeTempSeis(); 
+    int count = 30;
+
+    while ( !removed && count-- > 0 )
+    {
+	Time_sleep( 1 );
+	removed = jp->removeTempSeis(); 
+    }
+
+    if ( !removed )
 	ErrMsg( "Could not remove all temporary seismics" );
 }
 
