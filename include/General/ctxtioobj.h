@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.6 2001-07-19 09:45:52 bert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.7 2001-08-22 15:37:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ public:
     void		destroyAll();
 
     void		setObj(IOObj*); //!< destroys previous
+    void		setObj(const MultiID&); //!< destroys previous
     void		setPar(IOPar*); //!< destroys previous
     int			fillObj(const MultiID& idofdir=MultiID(""));
 			//!< 0 = fail, 1=existing found, 2=new made
