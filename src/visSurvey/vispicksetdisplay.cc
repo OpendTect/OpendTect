@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.27 2002-05-16 14:00:12 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.28 2002-05-27 06:30:21 nanne Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -297,6 +297,18 @@ int visSurvey::PickSetDisplay::usePar( const IOPar& par )
     bool shwallpicks;
     if ( !par.getYN( showallstr, shwallpicks ) ) return -1;
     showAll( shwallpicks );
+
+    for ( int idx=0; idx<group->size(); idx++ )
+    {
+        mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
+        if ( !cube ) continue;
+
+        const Geometry::Pos pos = cube->width();
+	xsz = pos.x;
+	ysz = pos.y;
+	zsz = pos.z * SPM().getAppVel() / 2;
+	break;
+    }
  
     return 1;
 }
