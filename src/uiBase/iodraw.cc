@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.1 2000-11-27 10:20:34 bert Exp $
+ RCS:           $Id: iodraw.cc,v 1.2 2000-12-22 09:51:08 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,11 +225,11 @@ void ioDrawTool::drawMarker( uiPoint pt, const MarkerStyle& mstyle,
     {
     case MarkerStyle::Square:
 	drawRect( pt.x()-mstyle.size, pt.y()-mstyle.size,
-		  pt.x()+mstyle.size, pt.y()+mstyle.size );
+		  2 * mstyle.size, 2 * mstyle.size );
     break;
     case MarkerStyle::Circle:
-	drawEllipse( uiRect(pt.x()-mstyle.size,pt.y()-mstyle.size,
-			    pt.x()+mstyle.size,pt.y()+mstyle.size) );
+	drawEllipse( pt.x() - mstyle.size, pt.y() - mstyle.size,
+		     2*mstyle.size, 2*mstyle.size );
     break;
     case MarkerStyle::Cross:
 	drawLine( pt.x()-mstyle.size, pt.y()-mstyle.size,
