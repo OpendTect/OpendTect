@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.30 2004-08-25 12:27:06 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.31 2004-08-25 14:25:57 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -337,13 +337,13 @@ bool SeisTrcReader::readNext2D()
 
 bool SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
-    if ( tbuf->size() )
-	delete tbuf->remove(0);
-
     if ( mNeedNextFetcher() && !mkNextFetcher() )
 	return false;
     if ( !readNext2D() )
 	return false;
+
+    if ( inforead && tbuf->size() )
+	delete tbuf->remove(0);
 
     inforead = true;
     SeisTrcInfo& trcti = tbuf->get( 0 )->info();
@@ -367,6 +367,7 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
     trc.copyDataFrom( *buftrc, -1, forcefloats );
+    delete tbuf->remove(0);
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.5 2004-08-25 12:27:06 bert Exp $
+ RCS:		$Id: seis2dline.h,v 1.6 2004-08-25 14:25:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,8 @@ public:
     bool		isEmpty(int) const;
     const char*		lineName(int) const;	//!< returns pars_[idx]->name()
     const char*		attribute(int) const;
-    BufferString	lineKey(int) const; //!< "line_name|attribute"
+    BufferString	lineKey( int idx ) const
+    			{ return lineKey( lineName(idx), attribute(idx) ); }
 
     Executor*		lineFetcher(int,SeisTrcBuf&,
 	    			    const SeisSelData* sd=0) const;
@@ -57,6 +58,11 @@ public:
 
     static const char*	sKeyAttrib;
     static const char*	sKeyDefAttrib;
+
+    static BufferString	lineKey(const char* lnm,const char* attrnm);
+			//!< "line_name|attribute"
+    static BufferString	lineNamefromKey(const char*);
+    static BufferString	attrNamefromKey(const char*);
 
 protected:
 
