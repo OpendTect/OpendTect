@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.7 2003-06-17 12:51:37 kristofer Exp $
+ RCS:		$Id: emsurface.h,v 1.8 2003-06-19 10:37:20 bert Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,8 @@ In addition, they are also linked together.
 class BinID;
 class RowCol;
 class CubeSampling;
-template <class T>
-class Interval;
+template <class T> class Interval;
+template <class T> class StepInterval;
 
 namespace Geometry
 {
@@ -165,6 +165,8 @@ public:
 
     static RowCol	subID2RowCol( const EM::SubID& );
     static EM::SubID	rowCol2SubID( const RowCol& );
+
+    void		getRange(StepInterval<int>&,bool rowdir) const;
 
 protected:
     virtual Geometry::GridSurface*		createPatchSurface() const = 0;
