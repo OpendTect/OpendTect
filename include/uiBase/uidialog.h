@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.18 2002-01-04 14:45:22 bert Exp $
+ RCS:           $Id: uidialog.h,v 1.19 2002-01-04 16:16:49 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,45 @@ class uiDialog : public uiMainWin
 friend class uiDialogBody;
 
 public:
+
+    class Setup
+    {
+    public:
+			Setup( const char* window_title,
+			       const char* dialog_title,
+			       const char* help_id )
+			: wintitle(window_title)
+			, dlgtitle(dialog_title)
+			, helpid(help_id)
+			, oktext("Ok")
+			, canceltext("Cancel")
+			, modal(true)
+			, savebutton(false)
+			, separator(true)
+			, menubar(false)
+			, toolbar(false)
+			, statusbar(false)		{}
+
+	BufferString	wintitle;
+	BufferString	dlgtitle;
+	BufferString	helpid;
+	BufferString	oktext;
+	BufferString	canceltext;
+	BufferString	savetext;
+	bool		modal;
+	bool		savebutton;
+	bool		separator;
+	bool		menubar;
+	bool		toolbar;
+	bool		statusbar;
+    };
+
+			uiDialog(uiParent*,const Setup&);
+    			//TODO remove the old crappy constructor
 			uiDialog( uiParent* p =0, const char* nm="uiDialog", 
 				  bool modal=true, bool separator=true,
 				  bool wantMBar=false, bool wantSBar=false,
 				  bool wantTBar=false, const char* helpid=0 );
-
 
     int			go(); 
 
