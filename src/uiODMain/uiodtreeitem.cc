@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.60 2004-11-26 19:25:19 dgb Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.61 2004-12-06 09:23:28 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -547,6 +547,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiVisMenu*,menu,cb);
 
+    attribstartmnuid = attribstopmnuid = depthvalmnuid = -1;
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
     {
@@ -565,11 +566,9 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	depthvalmnuid = attrmnu->insertItem( depthvalmnuitm );
 	depthvalmnuitm->setChecked( as->id()==AttribSelSpec::noAttrib );
     }
-    else
-    {
-	attribstartmnuid = -1;
-	attribstopmnuid = -1;
-    }
+
+    tracksetupmnuid = toggletrackingmnuid = trackmnuid = -1;
+    addsectionmnuid = extendsectionmnuid = relmnuid = storemnuid = -1;
 
     uiPopupMenu* trackmnu = menu->getMenu( uiVisSurface::trackingmenutxt );
     if ( uilistviewitem->isChecked() && trackmnu )
@@ -594,13 +593,9 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    trackmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Start tracking ..."), 
 		    		  trackmnuid );
-	    tracksetupmnuid = -1;
-	    toggletrackingmnuid = -1;
-	    addsectionmnuid = -1;
 	}
 	else if ( hastracker && section != -1 )
 	{
-	    trackmnuid = -1;
 
 	    if ( uivissurf->isHorizon(displayid) )
 	    {
@@ -608,14 +603,11 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 		trackmnu->insertItem( new uiMenuItem("Add section ..."),
 				      addsectionmnuid );
 	    }
-	    else
-		addsectionmnuid = -1;
+
 #ifdef __debug__
 	    extendsectionmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Extend section ..."),
 		    		  extendsectionmnuid );
-#else
-	    extendsectionmnuid = -1;
 #endif
 
 	    tracksetupmnuid = menu->getFreeID();
@@ -634,22 +626,14 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 		trackmnu->insertItem( new uiMenuItem("Relations ..."), 
 				      relmnuid );
 	    }
-	    else
-		relmnuid = -1;
 	}
 
-	storemnuid = -1;
 	if ( applMgr()->EMServer()->isChanged(mid) )
 	{
 	    uiMenuItem* storemenuitem = new uiMenuItem( "Save" );
 	    storemnuid = menu->addItem( storemenuitem );
 	}
     }
-    else
-    {
-	relmnuid = storemnuid = trackmnuid = tracksetupmnuid = -1;
-    }
-
 
     storeasmnuid = menu->addItem( new uiMenuItem("Save as ...") );
 

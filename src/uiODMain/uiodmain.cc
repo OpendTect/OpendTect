@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.27 2004-11-30 17:35:48 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.28 2004-12-06 09:23:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,31 +207,35 @@ bool uiODMain::hasSessionChanged()
 }
 
 
+#define mDelCtioRet()	{ delete ctio->ioobj; delete ctio; return; }
+
 void uiODMain::saveSession()
 {
-    PtrMan<CtxtIOObj> ctio = getUserSessionIOData( false );
-    if ( !ctio ) return;
+    CtxtIOObj* ctio = getUserSessionIOData( false );
+    if ( !ctio ) mDelCtioRet()
     ODSession sess; cursession = &sess;
-    if ( !updateSession() ) return;
+    if ( !updateSession() ) mDelCtioRet()
     BufferString bs;
     if ( !ODSessionTranslator::store(sess,ctio->ioobj,bs) )
-	{ uiMSG().error( bs ); return; }
+	{ uiMSG().error( bs ); mDelCtioRet() }
 
     lastsession = sess; cursession = &lastsession;
+    mDelCtioRet()
 }
 
 
 void uiODMain::restoreSession()
 {
-    PtrMan<CtxtIOObj> ctio = getUserSessionIOData( true );
-    if ( !ctio ) return;
+    CtxtIOObj* ctio = getUserSessionIOData( true );
+    if ( !ctio ) mDelCtioRet()
     ODSession sess; BufferString bs;
     if ( !ODSessionTranslator::retrieve(sess,ctio->ioobj,bs) )
-	{ uiMSG().error( bs ); return; }
+	{ uiMSG().error( bs ); mDelCtioRet(); }
 
     cursession = &sess;
     doRestoreSession();
     cursession = &lastsession; lastsession.clear();
+    mDelCtioRet()
 }
 
 

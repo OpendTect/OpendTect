@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.63 2004-11-09 10:05:30 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.64 2004-12-06 09:23:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -463,7 +463,10 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 	    ObjectSet<BinIDValueSet> data;
 	    visserv->fetchSurfaceData( visid, data );
 	    if ( !attrserv->createOutput(data,myas) )
+	    {
+		deepErase( data );
 		return false;
+	    }
 
 	    visserv->stuffSurfaceData( visid, colordata, &data );
 	    deepErase( data );
