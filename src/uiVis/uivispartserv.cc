@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.157 2003-09-22 13:12:58 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.158 2003-09-29 12:24:00 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -396,6 +396,23 @@ MultiID uiVisPartServer::getMultiID( int id ) const
 }
 
 
+int uiVisPartServer::getObjectId(int scene, const MultiID& mid ) const
+{
+    TypeSet<int> ids;
+    getChildIds(scene, ids);
+
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	if ( getMultiID(ids[idx])==mid )
+	{
+	    return ids[idx];
+	}
+    }
+
+    return -1;
+}
+
+
 int uiVisPartServer::getSelObjectId() const
 {
     const TypeSet<int>& sel = visBase::DM().selMan().selected();
@@ -506,7 +523,22 @@ BufferString uiVisPartServer::getTreeInfo( int id ) const
 	    }
 	}
     }
+    else if ( tracker )
+    {
+	const int dim = tracker->getDim();
+	float val;
+	if ( dim==2 )
+	{
+	    val = tracker->center()[dim];
+	    if ( SI().zIsTime() )
+		val *= 1000;
+	}
+	else
+	    val = tracker->center()[dim];
 
+	res = mNINT(val);
+    }
+		
     return res;
 }
 
@@ -772,6 +804,21 @@ BufferString uiVisPartServer::getInteractionMsg( int id ) const
 	res = !dim ? "Inline: " : ( dim == 1 ? "Crossline: " : "Time: " );
 	res += getTreeInfo( id );
     }
+
+    if ( tracker )
+    {
+	const int dim = tracker->getDim();
+	if ( !dim )
+	    res = "Inline";
+	else if ( dim==1 )
+	    res = "Crossline";
+	else
+	    res = SI().zIsTime() ? "Time" : "Depth";
+
+	res += ": ";
+	res += getTreeInfo( id );
+    }
+
 
     return res;
 }
