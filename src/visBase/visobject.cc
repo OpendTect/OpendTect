@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.30 2004-08-05 08:53:26 kristofer Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.31 2004-08-19 15:35:31 nanne Exp $";
 
 #include "visobject.h"
 
@@ -26,11 +26,12 @@ visBase::VisualObject::VisualObject( bool selectable_ )
     , deselnotifier(this)
     , selnotifier(this)
     , rightClick(this)
+    , eventinfo(0)
 {}
 
 
 visBase::VisualObject::~VisualObject()
-{ }
+{}
 
 
 visBase::VisualObjectImpl::VisualObjectImpl( bool selectable_ )
@@ -158,10 +159,14 @@ void visBase::VisualObjectImpl::fillPar( IOPar& iopar,
 }
 
 
-void visBase::VisualObject::triggerRightClick(const EventInfo* eventinfo_)
+void visBase::VisualObject::triggerRightClick( const EventInfo* eventinfo_ )
 {
     eventinfo = eventinfo_;
     rightClick.trigger();
 }
 
 
+const TypeSet<int>* visBase::VisualObject::rightClickedPath() const
+{
+    return eventinfo ? &eventinfo->pickedobjids : 0;
+}
