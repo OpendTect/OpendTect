@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.17 2002-04-23 09:25:40 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.18 2002-09-30 15:16:23 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
 			{ start -= len; stop += len; }
 		}
 
-    inline int	includes( const T& t, bool allowrev=true ) const
+    inline bool	includes( const T& t, bool allowrev=true ) const
 		{
 		    return allowrev && isRev()
 			? t>=stop && start>=t
