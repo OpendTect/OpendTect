@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.2 2003-01-09 13:03:10 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.3 2003-01-20 08:33:11 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -19,20 +19,23 @@ static const char* rcsID = "$Id: visshape.cc,v 1.2 2003-01-09 13:03:10 kristofer
 #include "vistexture3.h"
 #include "vistexturecoords.h"
 
-#include "Inventor/nodes/SoSeparator.h"
 #include "Inventor/nodes/SoIndexedShape.h"
 #include "Inventor/nodes/SoMaterialBinding.h"
 #include "Inventor/nodes/SoNormalBinding.h"
+#include "Inventor/nodes/SoSeparator.h"
+#include "Inventor/nodes/SoSwitch.h"
 
 visBase::Shape::Shape( SoShape* shape_ )
     : shape( shape_ )
+    , onoff( new SoSwitch )
     , texture2( 0 )
     , texture3( 0 )
     , material( 0 )
     , root( new SoSeparator )
     , materialbinding( 0 )
 {
-    root->ref();
+    onoff->ref();
+    onoff->addChild( root );
     addNode( shape );
 }
 
@@ -43,8 +46,23 @@ visBase::Shape::~Shape()
     if ( texture3 ) texture3->unRef();
     if ( material ) material->unRef();
 
-    root->unref();
+    onoff->unref();
 }
+
+
+void visBase::Shape::turnOn(bool n)
+{
+    onoff->whichChild = n ? 0 : SO_SWITCH_NONE;
+}
+
+
+bool visBase::Shape::isOn() const
+{
+    return !onoff->whichChild.getValue();
+}
+
+
+
 
 #define setGetItem(ownclass, clssname, variable) \
 void visBase::ownclass::set##clssname( visBase::clssname* newitem ) \
@@ -113,7 +131,7 @@ int visBase::Shape::getMaterialBinding() const
 
 
 SoNode* visBase::Shape::getData()
-{ return root; }
+{ return onoff; }
 
 
 void visBase::Shape::addNode( SoNode*  node )
@@ -146,6 +164,14 @@ visBase::VertexShape::~VertexShape()
     setTextureCoords( 0 );
     setNormals( 0 );
 }
+
+
+void visBase::VertexShape::setTransformation( Transformation* tr )
+{ coords->setTransformation( tr ); }
+
+
+visBase::Transformation* visBase::VertexShape::getTransformation()
+{ return  coords->getTransformation(); }
 
 
 setGetItem( VertexShape, Coordinates, coords );

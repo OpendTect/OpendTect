@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.1 2003-01-07 10:29:56 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.2 2003-01-20 08:33:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ class SoMaterialBinding;
 class SoNormalBinding;
 class SoSeparator;
 class SoShape;
+class SoSwitch;
 class SoVertexShape;
 
 namespace visBase
@@ -37,20 +38,21 @@ class TextureCoords;
 
 */
 
-
-class Shape : public SceneObject
+class Shape : public VisualObject
 {
 public:
-    				Shape( SoShape* );
+				Shape( SoShape* );
+    void			turnOn(bool);
+    bool			isOn() const;
 
-    void			setTexture2( visBase::Texture2* );
-    visBase::Texture2*		getTexture2();
+    void			setTexture2( Texture2* );
+    Texture2*			getTexture2();
 
-    void			setTexture3( visBase::Texture3* );
-    visBase::Texture3*		getTexture3();
+    void			setTexture3( Texture3* );
+    Texture3*			getTexture3();
 
-    void			setMaterial( visBase::Material* );
-    visBase::Material*		getMaterial();
+    void			setMaterial( Material* );
+    Material*			getMaterial();
     void			setMaterialBinding( int );
     				/*!< 0 = Overall (default)
 				     1 = Per face
@@ -66,10 +68,11 @@ protected:
     void			removeNode( SoNode* );
 
     SoShape*			shape;
+    SoSwitch*			onoff;
 
-    visBase::Texture2*		texture2;
-    visBase::Texture3*		texture3;
-    visBase::Material*		material;
+    Texture2*			texture2;
+    Texture3*			texture3;
+    Material*			material;
 
 private:
     SoSeparator*		root;
@@ -80,28 +83,36 @@ private:
 class VertexShape : public Shape
 {
 public:
-    				VertexShape( SoVertexShape* );
-    void			setCoordinates( visBase::Coordinates* );
-    visBase::Coordinates*	getCoordinates();
+    			VertexShape( SoVertexShape* );
+    void		setCoordinates( Coordinates* );
+    Coordinates*	getCoordinates();
 
-    void			setTextureCoords(visBase::TextureCoords*);
-    visBase::TextureCoords*	getTextureCoords();
+    void		setTransformation( Transformation* );
+    			/*!<\note The transformation is forwarded to the
+			     the coordinates, if you change coordinates, 
+			     you will have to setTransformation again.
+			 */
+    Transformation*	getTransformation();
+    			/*!<\note Direcly relayed to the coordinates */
 
-    void			setNormals( visBase::Normals* );
-    visBase::Normals*		getNormals();
-    void			setNormalPerFaceBinding( bool yn );
-    				/*!< If yn==false, normals are set per vertex */
-    bool			getNormalPerFaceBinding() const;
-    				/*!< If yn==false, normals are set per vertex */
+    void		setTextureCoords(TextureCoords*);
+    TextureCoords*	getTextureCoords();
+
+    void		setNormals( Normals* );
+    Normals*		getNormals();
+    void		setNormalPerFaceBinding( bool yn );
+    			/*!< If yn==false, normals are set per vertex */
+    bool		getNormalPerFaceBinding() const;
+    			/*!< If yn==false, normals are set per vertex */
 protected:
-    				~VertexShape();
+    			~VertexShape();
 
-    visBase::Normals*		normals;
-    visBase::Coordinates*	coords;
-    visBase::TextureCoords*	texturecoords;
+    Normals*		normals;
+    Coordinates*	coords;
+    TextureCoords*	texturecoords;
 
 private:
-    SoNormalBinding*		normalbinding;
+    SoNormalBinding*	normalbinding;
 };
 
 
