@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Lammertink
  Date:		Dec 2002
- RCS:		$Id: mmdefs.h,v 1.1 2002-12-17 15:04:58 arend Exp $
+ RCS:		$Id: mmdefs.h,v 1.2 2002-12-20 13:37:17 arend Exp $
 ________________________________________________________________________
 
 Defines for multimachine status tags and codes
@@ -18,6 +18,7 @@ Defines for multimachine status tags and codes
 #define mPID_TAG	'P'
 #define mPROC_STATUS	'S'
 #define mCTRL_STATUS	'C'
+#define mEXIT_STATUS	'E'
 
 
 // Control status values

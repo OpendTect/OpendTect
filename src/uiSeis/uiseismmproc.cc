@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.31 2002-12-19 11:00:22 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.32 2002-12-20 13:38:40 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -384,8 +384,8 @@ void uiSeisMMProc::stopPush( CallBacker* )
 {
     BufferString mach;
     if ( !getCurMach(mach) ) { pErrMsg("Can't find machine"); return; }
-    if ( !jm->removeHost( mach ) )
-	{ ErrMsg( jm->message() ); }
+
+    jm->removeHost( mach );
 
     updateCurMachs();
 }

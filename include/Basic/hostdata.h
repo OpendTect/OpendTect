@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.6 2002-12-18 12:15:58 arend Exp $
+ RCS:           $Id: hostdata.h,v 1.7 2002-12-20 13:37:17 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,8 @@ class HostData
 public:
 
     				HostData( const char* nm, bool ra=true )
-				: name_(nm), realaliases_(ra), status(0) {}
+				: name_(nm), realaliases_(ra), status(0)
+				, nrdone(0), nrfail(0) {}
     virtual			~HostData()	{ deepErase(aliases_); }
 
     const char*			name() const	{ return (const char*)name_; }
@@ -37,6 +38,8 @@ public:
     static const char*		localHostName();
 
     int				status; 
+    int				nrdone;
+    int				nrfail;
 
 protected:
 
