@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.34 2004-07-16 15:35:25 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.35 2004-07-28 16:42:49 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -38,6 +38,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs )
     	, finterp(DataCharacteristics())
     	, dinterp(DataCharacteristics())
 	, auxnrbytes_(0)
+	, rdr1firstsampnr_(0)
 {
     bool foundone = false;
 
@@ -244,7 +245,7 @@ int CBVSReadMgr::pruneReaders( const CubeSampling& cs )
     if ( cs.isEmpty() )
 	return readers_.size();
 
-    for ( int idx=0; idx<readers_.size(); idx++ )
+    for ( int idx=(vertical_?1:0); idx<readers_.size(); idx++ )
     {
 	CBVSReader* rdr = readers_[idx];
 	const CBVSInfo& localinfo = rdr->info();
@@ -260,7 +261,15 @@ int CBVSReadMgr::pruneReaders( const CubeSampling& cs )
 	}
     }
 
-    createInfo();
+    rdr1firstsampnr_ = 0;
+    if ( vertical_ && readers_.size() > 1 )
+    {
+	// Readers may have been pruned.
+	SamplingData<float> sd0 = readers_[0]->info().sd;
+	float start1 = readers_[1]->info().sd.start;
+	rdr1firstsampnr_ = (int)((start1 - sd0.start) / sd0.step + .5);
+    }
+
     return readers_.size();
 }
 
@@ -578,29 +587,36 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
     // The code looks simple, but that's how it got after many cycles
     // of compression.
 
-    Interval<int> selsamps( ss ? ss->start : 0, ss ? ss->stop : 2000000000 );
+    Interval<int> selsamps( ss ? ss->start : 0, ss ? ss->stop : mUndefIntVal );
     selsamps.sort();
 
-    Interval<int> avsamps( 0, -1 );
-
-    for ( int idx=0; idx<readers_.size(); idx++ )
+    Interval<int> rdrsamps( 0, 0 );
+    if ( selsamps.start == 0 )
     {
-	avsamps.stop += readers_[idx]->info().nrsamples;
+	if ( !readers_[0]->fetch(d,c,&rdrsamps,0) )
+	    return false;
+    }
 
-	const bool islast = avsamps.stop >= selsamps.stop;
-	if ( islast ) avsamps.stop = selsamps.stop;
-	if ( avsamps.stop >= selsamps.start )
+    Interval<int> cursamps( rdr1firstsampnr_, rdr1firstsampnr_-1 );
+
+    for ( int idx=1; idx<readers_.size(); idx++ )
+    {
+	cursamps.stop += readers_[idx]->info().nrsamples;
+
+	const bool islast = cursamps.stop >= selsamps.stop;
+	if ( islast ) cursamps.stop = selsamps.stop;
+	if ( cursamps.stop >= selsamps.start )
 	{
-	    const int sampoffs = selsamps.start - avsamps.start;
+	    const int sampoffs = selsamps.start - cursamps.start;
 	    Interval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
-		    		   avsamps.stop - avsamps.start );
+		    		   cursamps.stop - cursamps.start );
 	    if ( !readers_[idx]->fetch( d, c, &rdrsamps,
 					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;
 	}
 
 	if ( islast ) break;
-	avsamps.start = avsamps.stop + 1;
+	cursamps.start = cursamps.stop + 1;
     }
 
     return true;

@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.6 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.7 2004-07-28 16:42:49 bert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -49,6 +49,34 @@ HorSampling& HorSampling::set( const BinIDRange& bidr )
     if ( bidr.type() == 1 )
 	step = ((const BinIDSampler&)bidr).step;
     return *this;
+}
+
+
+HorSampling& HorSampling::set( const Interval<int>& inlrg,
+				const Interval<int>& crlrg )
+{
+    start.inl = inlrg.start; stop.inl = inlrg.stop;
+    mDynamicCastGet(const StepInterval<int>*,inlsrg,&inlrg)
+    if ( inlsrg )
+	step.inl = inlsrg->step;
+    start.crl = crlrg.start; stop.crl = crlrg.stop;
+    mDynamicCastGet(const StepInterval<int>*,crlsrg,&crlrg)
+    if ( crlsrg )
+	step.crl = crlsrg->step;
+    return *this;
+}
+
+
+void HorSampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
+{
+    inlrg.start = start.inl; inlrg.stop = stop.inl;
+    mDynamicCastGet(StepInterval<int>*,inlsrg,&inlrg)
+    if ( inlsrg )
+	inlsrg->step = step.inl;
+    crlrg.start = start.crl; crlrg.stop = stop.crl;
+    mDynamicCastGet(StepInterval<int>*,crlsrg,&crlrg)
+    if ( crlsrg )
+	crlsrg->step = step.crl;
 }
 
 
@@ -190,6 +218,17 @@ bool CubeSampling::getInterSection( const CubeSampling& cs,
     return intersectF( zrg1.start, zrg1.stop, zrg1.step,
 		       zrg2.start, zrg2.stop, zrg2.step,
 		       out.zrg.start, out.zrg.stop, out.zrg.step );
+}
+
+
+void CubeSampling::include( const CubeSampling& c )
+{
+    CubeSampling cs( c ); cs.normalise();
+    normalise();
+
+    hrg.include( cs.hrg.start ); hrg.include( cs.hrg.stop );
+    if ( cs.zrg.start < zrg.start ) zrg.start = cs.zrg.start;
+    if ( cs.zrg.stop > zrg.stop ) zrg.stop = cs.zrg.stop;
 }
 
 
