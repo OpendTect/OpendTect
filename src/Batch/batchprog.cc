@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.19 2002-12-10 16:23:30 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.20 2002-12-13 17:05:55 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -105,6 +105,10 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	    { delete sockprov_; sockprov_ = 0; }
 	cout << "P" << (sockprov_ ? sockprov_->port() : -1) << endl;
     }
+
+    const char* res = iopar_->find( "Log file" );
+    if ( !res )
+	iopar_->set( "Log file", StreamProvider::sStdErr );
 
     stillok_ = true;
 }

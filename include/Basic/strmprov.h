@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.8 2002-10-03 13:32:23 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.9 2002-12-13 17:05:55 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ public:
     bool		isNormalFile() const;
 
     static const char*	sStdIO;
+    static const char*	sStdErr;
 
 protected:
 

@@ -31,12 +31,13 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.28 2002-10-28 22:29:11 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.29 2002-12-13 17:05:55 bert Exp $";
 
 static FixedString<1024> oscommand;
 
 DefineClassID(StreamProvider);
 const char* StreamProvider::sStdIO = "Std-IO";
+const char* StreamProvider::sStdErr = "Std-Err";
 
 
 bool ExecOSCmd( const char* comm )
@@ -106,10 +107,10 @@ void StreamProvider::set( const char* devname )
     blocksize = 0;
     hostname = "";
 
-    if ( !devname || !strcmp(devname,sStdIO) )
+    if ( !devname || !strcmp(devname,sStdIO) || !strcmp(devname,sStdErr) )
     {
 	type_ = StreamConn::File;
-	fname = sStdIO;
+	fname = devname ? devname : sStdIO;
 	return;
     }
     else if ( !*devname )
@@ -217,7 +218,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
     if ( isbad ) return;
     if ( type_ != StreamConn::File
       || !path || ! *path
-      || fname == sStdIO
+      || fname == sStdIO || fname == sStdErr
       || File_isAbsPath(fname) )
 	return;
 
@@ -231,7 +232,7 @@ StreamData StreamProvider::makeIStream( bool inbg ) const
     StreamData sd;
     if ( isbad || !*(const char*)fname )
 	return sd;
-    if ( fname == sStdIO )
+    if ( fname == sStdIO || fname == sStdErr )
     {
 	sd.istrm = &cin;
 	return sd;
@@ -304,6 +305,11 @@ StreamData StreamProvider::makeOStream( bool inbg ) const
     else if ( fname == sStdIO )
     {
 	sd.ostrm = &cout;
+	return sd;
+    }
+    else if ( fname == sStdErr )
+    {
+	sd.ostrm = &cerr;
 	return sd;
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
@@ -414,7 +420,8 @@ bool StreamProvider::exists( int fr ) const
 	return fr;
 
     if ( !hostname[0] )
-	return fname == sStdIO ? true : File_exists( (const char*)fname );
+	return fname == sStdIO || fname == sStdErr ? true
+	     : File_exists( (const char*)fname );
 
     sprintf( oscommand.buf(), "%s %s 'test -%c %s && echo 1'",
 		  (const char*)rshcomm, (const char*)hostname,
@@ -432,8 +439,8 @@ bool StreamProvider::remove( bool recursive ) const
     if ( isbad || type_ != StreamConn::File ) return false;
 
     if ( !hostname[0] )
-	return fname == sStdIO ? false :
-			File_remove( (const char*)fname, YES, recursive );
+	return fname == sStdIO || fname == sStdErr ? false :
+		File_remove( (const char*)fname, YES, recursive );
     else
     {
 	sprintf( oscommand.buf(), "%s %s '/bin/rm -%sf %s && echo 1'",
