@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.53 2004-06-05 19:19:17 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.54 2004-06-16 14:54:18 bert Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -266,11 +266,11 @@ bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
     {
 	const Coord3 rowvec = c10-c00;
 	const double rowveclen = rowvec.abs();
-	if ( !mIS_ZERO(rowveclen) )
+	if ( !mIsZero(rowveclen,mDefEps) )
 	{
 	    const Coord3 colvec = c01-c00;
 	    const double colveclen = colvec.abs();
-	    if ( !mIS_ZERO(colveclen) )
+	    if ( !mIsZero(colveclen,mDefEps) )
 		normals += rowvec.cross(colvec).normalize();
 	}
     }
@@ -279,11 +279,11 @@ bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
     {
 	const Coord3 rowvec = c10-c00;
 	const double rowveclen = rowvec.abs();
-	if ( !mIS_ZERO(rowveclen) )
+	if ( !mIsZero(rowveclen,mDefEps) )
 	{
 	    const Coord3 colvec = c11-c10;
 	    const double colveclen = colvec.abs();
-	    if ( !mIS_ZERO(colveclen) )
+	    if ( !mIsZero(colveclen,mDefEps) )
 		normals += rowvec.cross(colvec).normalize();
 	}
     }
@@ -292,11 +292,11 @@ bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
     {
 	const Coord3 rowvec = c11-c01;
 	const double rowveclen = rowvec.abs();
-	if ( !mIS_ZERO(rowveclen) )
+	if ( !mIsZero(rowveclen,mDefEps) )
 	{
 	    const Coord3 colvec = c01-c00;
 	    const double colveclen = colvec.abs();
-	    if ( !mIS_ZERO(colveclen) )
+	    if ( !mIsZero(colveclen,mDefEps) )
 		normals += rowvec.cross(colvec).normalize();
 	}
     }
@@ -305,11 +305,11 @@ bool EM::Surface::computeMeshNormal( Coord3& res, const EM::PosID& pid,
     {
 	const Coord3 rowvec = c11-c01;
 	const double rowveclen = rowvec.abs();
-	if ( !mIS_ZERO(rowveclen) )
+	if ( !mIsZero(rowveclen,mDefEps) )
 	{
 	    const Coord3 colvec = c11-c10;
 	    const double colveclen = colvec.abs();
-	    if ( !mIS_ZERO(colveclen) )
+	    if ( !mIsZero(colveclen,mDefEps) )
 		normals += rowvec.cross(colvec).normalize();
 	}
     }
@@ -474,7 +474,7 @@ bool EM::Surface::computeNormal( Coord3& res, const EM::PosID& node,
 	const Coord3 nextvector = (coords[nextrowidx]-nodecoord).normalize();
 	const Coord3 average = prevvector+nextvector;
 	const double len = average.abs();
-	if ( !mIS_ZERO(len) )
+	if ( !mIsZero(len,mDefEps) )
 	{
 	    res = average.normalize();
 	    return true;
@@ -493,7 +493,7 @@ bool EM::Surface::computeNormal( Coord3& res, const EM::PosID& node,
 	const Coord3 nextvector = (coords[nextcolidx]-nodecoord).normalize();
 	const Coord3 average = prevvector+nextvector;
 	const double len = average.abs();
-	if ( !mIS_ZERO(len) )
+	if ( !mIsZero(len,mDefEps) )
 	{
 	    res = average.normalize();
 	    return true;
@@ -786,7 +786,7 @@ bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
 		patchids.indexOf(nodeonotherpatches[idx].patchID());
 	    double otherz = surfaces[patchsurfidx]->getMeshPos(geomrowcol).z;
 	    
-	    if ( mIS_ZERO(otherz-pos.z) )
+	    if ( mIsEqual(otherz,pos.z,mDefEps) )
 	    {
 		if ( !surface->isLinked(posid, surfaces[patchsurfidx], posid ))
 		{
@@ -878,7 +878,7 @@ int EM::Surface::findPos( const RowCol& rowcol,
 	    if ( subid!=res[idx].subID() )
 		continue;
 
-	    if ( mIS_ZERO( respos[idx].z-pos.z ) ) continue;
+	    if ( mIsEqual(respos[idx].z,pos.z,mDefEps) ) continue;
 
 	    res += PosID(id(), patchID(surface), subid );
 	    respos += pos;

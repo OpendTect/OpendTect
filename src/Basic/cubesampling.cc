@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.5 2004-04-01 13:39:50 bert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.6 2004-06-16 14:54:19 bert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -115,7 +115,7 @@ static bool intersectF(	float start1, float stop1, float step1,
 			float start2, float stop2, float step2,
 			float& outstart, float& outstop, float& outstep )
 {
-    if ( stop1-start2 < mEPSILON || start1-stop2 > mEPSILON )
+    if ( stop1-start2 < mDefEps || start1-stop2 > mDefEps )
 	return false;
 
     outstep = step2 > step1 ? step2 : step1;

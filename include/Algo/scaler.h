@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.12 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: scaler.h,v 1.13 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,8 +79,8 @@ public:
 
     bool		operator==( const LinScaler& b ) const
 			{
-			    return mIS_ZERO(constant-b.constant) &&
-				   mIS_ZERO(factor-b.factor);
+			    return mIsEqual(constant,b.constant,mDefEps) &&
+				   mIsEqual(factor,b.factor,mDefEps);
 			}
     
     double		constant;
@@ -91,7 +91,7 @@ public:
 
 inline bool LinScaler::isEmpty() const
 {
-    return constant > -1e-15 && constant < 1e-15 && mIS_ZERO(factor-1);
+    return constant > -1e-15 && constant < 1e-15 && mIsEqual(factor,1,mDefEps);
 }
 
 
@@ -187,9 +187,9 @@ public:
     void		fromString(const char*);
 
     inline bool		operator==( const AsymptScaler& b ) const
-			{ return mIS_ZERO(center_-b.center_)
-			      && mIS_ZERO(width_-b.width_)
-			      && mIS_ZERO(linedge_-b.linedge_); }
+			{ return mIsEqual(center_,b.center_,mDefEps)
+			      && mIsEqual(width_,b.width_,mDefEps)
+			      && mIsEqual(linedge_,b.linedge_,mDefEps); }
 
     void		set(double,double,double);
     inline double	center() const		{ return center_; }

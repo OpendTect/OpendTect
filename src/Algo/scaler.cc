@@ -5,9 +5,8 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.1 2004-02-19 16:00:18 bert Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.2 2004-06-16 14:54:18 bert Exp $";
 
-#define mEPSILON (1e-30)
 #include "scaler.h"
 #include "separstr.h"
 #include "string2.h"
@@ -155,7 +154,7 @@ void AsymptScaler::set( double c, double w, double l )
 {
     width_ = w; center_ = c; linedge_ = l;
 
-    factor = mIS_ZERO(width_) ? 0 : linedge_ / width_;
+    factor = mIsZero(width_,1e-30) ? 0 : linedge_ / width_;
 }
 
 

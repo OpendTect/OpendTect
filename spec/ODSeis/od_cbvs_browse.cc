@@ -147,12 +147,15 @@ int main( int argc, char** argv )
 	if ( !tri->read(trc) )
 	    { std::cerr << "Cannot read trace!" << std::endl; continue; }
 
-	if ( !mIS_ZERO(trc.info().pick) && !mIsUndefined(trc.info().pick) )
+	if ( !mIsZero(trc.info().pick,mDefEps)
+		&& !mIsUndefined(trc.info().pick) )
 	    std::cerr << "Pick position: " << trc.info().pick << std::endl;
-	if ( !mIS_ZERO(trc.info().refpos) && !mIsUndefined(trc.info().refpos) )
+	if ( !mIsZero(trc.info().refpos,mDefEps)
+		&& !mIsUndefined(trc.info().refpos) )
 	    std::cerr << "Reference position: " << trc.info().refpos
 		      << std::endl;
-	if ( !mIS_ZERO(trc.info().offset) && !mIsUndefined(trc.info().offset) )
+	if ( !mIsZero(trc.info().offset,mDefEps)
+		&& !mIsUndefined(trc.info().offset) )
 	    std::cerr << "Offset: " << trc.info().offset << std::endl;
 
 	while ( 1 )

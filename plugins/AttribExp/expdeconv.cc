@@ -4,9 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdeconv.cc,v 1.5 2003-11-07 12:21:56 bert Exp $";
-
-#define mEPSILON 1E-9
+static const char* rcsID = "$Id: expdeconv.cc,v 1.6 2004-06-16 14:54:18 bert Exp $";
 
 #include "expdeconv.h"
 #include "attribprovider.h"

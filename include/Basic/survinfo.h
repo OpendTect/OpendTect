@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.42 2004-05-06 11:16:47 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.43 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ public:
 			{ return range_.start.inl && range_.stop.inl
 			      && range_.start.crl && range_.stop.crl; }
     inline bool		zRangeUsable() const
-			{ return !mIS_ZERO(zrange_.width()); }
+			{ return !mIsZero(zrange_.width(),mDefEps); }
     inline bool		zIsTime() const			{ return zistime_; }
     inline bool		zInMeter() const		{ return zinmeter_; }
     inline bool		zInFeet() const			{ return zinfeet_; }

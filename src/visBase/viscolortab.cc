@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: viscolortab.cc,v 1.18 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.19 2004-06-16 14:54:19 bert Exp $";
 
 #include "viscolortab.h"
 
@@ -66,7 +66,7 @@ float visBase::VisColorTab::clipRate() const
 
 void visBase::VisColorTab::setClipRate( float ncr )
 {
-    if ( mIS_ZERO(ncr-cliprate) ) return;
+    if ( mIsEqual(ncr,cliprate,mDefEps) ) return;
 
     cliprate = ncr;
     if ( autoscale ) autoscalechange.trigger();
@@ -118,7 +118,7 @@ Color visBase::VisColorTab::tableColor( int idx ) const
 void visBase::VisColorTab::scaleTo( const Interval<float>& rg )
 {
     float width = rg.width();
-    if ( mIS_ZERO(width) )
+    if ( mIsZero(width,mDefEps) )
 	scaleTo( Interval<float>(rg.start -1, rg.start+1));
     else
     {

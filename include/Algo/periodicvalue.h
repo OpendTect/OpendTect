@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Kris Tingdahl
  Date:		12-4-1999
  Contents:	Periodic value interpolation and so forth
- RCS:		$Id: periodicvalue.h,v 1.2 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: periodicvalue.h,v 1.3 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
 */
@@ -130,7 +130,7 @@ inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
     const float halfperiod = period / 2;
     int intpos = mNINT( pos );
     float dist = pos - intpos;
-    if( mIsZero(dist) && intpos >= 0 && intpos < sz ) 
+    if( mIsZero(dist,1e-10) && intpos >= 0 && intpos < sz ) 
 	{ ret = idxabl[intpos]; return; }
 
     int prevpos = dist > 0 ? intpos : intpos - 1;
@@ -199,7 +199,7 @@ inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
 {
     int intpos = mNINT( pos );
     float dist = pos - intpos;
-    if( mIsZero(dist) && intpos >= 0 && intpos < sz ) 
+    if( mIsZero(dist,1e-10) && intpos >= 0 && intpos < sz ) 
 	{ ret = idxabl[intpos]; return; }
 
     int prevpos = dist > 0 ? intpos : intpos - 1;

@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.20 2004-04-28 14:37:18 bert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.21 2004-06-16 14:54:19 bert Exp $";
 
 
 #include "segyhdr.h"
@@ -55,8 +55,10 @@ SegyTxtHeader::SegyTxtHeader()
     BinID bid = SI().range(false).start;
     Coord coord = SI().transform( bid );
     coord.x = fabs(coord.x); coord.y = fabs(coord.y);
-    if ( !mIS_ZERO(bid.inl-coord.x) && !mIS_ZERO(bid.crl-coord.x)
-      && !mIS_ZERO(bid.inl-coord.y) && !mIS_ZERO(bid.crl-coord.y) )
+    if ( !mIsEqual(bid.inl,coord.x,mDefEps)
+      && !mIsEqual(bid.crl,coord.x,mDefEps)
+      && !mIsEqual(bid.inl,coord.y,mDefEps)
+      && !mIsEqual(bid.crl,coord.y,mDefEps) )
     {
 	char* pbuf = buf.buf();
 	coord = SI().transform( bid );
@@ -140,7 +142,7 @@ void SegyTxtHeader::setPosInfo( int xcoordbyte, int ycoordbyte,
 void SegyTxtHeader::setStartPos( float sp )
 {
     BufferString buf;
-    if ( !mIS_ZERO(sp) )
+    if ( !mIsZero(sp,mDefEps) )
     {
 	buf = "First sample ";
 	buf += SI().zIsTime() ? "time " : "depth ";

@@ -4,10 +4,8 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expextremedip.cc,v 1.2 2003-11-07 12:21:56 bert Exp $";
+static const char* rcsID = "$Id: expextremedip.cc,v 1.3 2004-06-16 14:54:18 bert Exp $";
 
-
-#define mEPSILON 1E-9
 
 #include "expextremedip.h"
 #include "simpnumer.h"

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.29 2004-05-27 11:56:11 bert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.30 2004-06-16 14:54:19 bert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -37,7 +37,7 @@ float Well::DahObj::dahStep( bool ismin ) const
     for ( int idx=2; idx<sz; idx++ )
     {
 	float val = dah_[idx] - dah_[idx-1];
-	if ( mIS_ZERO(val) )
+	if ( mIsZero(val,mDefEps) )
 	    continue;
 
 	if ( !ismin )
@@ -51,7 +51,7 @@ float Well::DahObj::dahStep( bool ismin ) const
     }
 
     if ( !ismin ) res /= nrvals; // average
-    return mIS_ZERO(res) ? mUndefValue : res;
+    return mIsZero(res,mDefEps) ? mUndefValue : res;
 }
 
 
@@ -290,7 +290,7 @@ void Well::Track::toTime( const D2TModel& d2t )
     // We'll start with the first track point
     int d2tidx = 0;
     float curdah = dah_[0];
-    while ( d2tidx < d2t.size() && d2t.dah(d2tidx) < curdah + mEPSILON )
+    while ( d2tidx < d2t.size() && d2t.dah(d2tidx) < curdah + mDefEps )
 	d2tidx++; // don't need those points: before well track
     newdah += curdah;
     newpos += pos_[0];

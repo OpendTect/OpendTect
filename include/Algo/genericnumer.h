@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.10 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: genericnumer.h,v 1.11 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
 
@@ -87,7 +87,7 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 	    stddeva = sqrt(asum/(sz-1));
 	    stddevb = sqrt(bsum/(sz-1));
 
-	    if ( mIS_ZERO(stddeva) || mIS_ZERO(stddevb) )
+	    if ( mIsZero(stddeva,mDefEps) || mIsZero(stddevb,mDefEps) )
 		normalize=false;
 	}
     }

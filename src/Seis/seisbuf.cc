@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.16 2004-03-04 17:27:42 bert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.17 2004-06-16 14:54:19 bert Exp $";
 
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -74,7 +74,7 @@ bool SeisTrcBuf::isSorted( bool ascending, int seisinf_attrnr ) const
     {
 	float val = get(idx)->info().getAttr(seisinf_attrnr);
 	float diff = val - prevval;
-	if ( !mIS_ZERO(diff) )
+	if ( !mIsZero(diff,mDefEps) )
 	{
 	    if ( (ascending && diff < 0) || (!ascending && diff > 0) )
 		return false;
@@ -122,7 +122,7 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, int seisinf_attrnr )
 	SeisTrc* trc = idx==size() ? 0 : get(idx);
 	float val = trc ? trc->info().getAttr(seisinf_attrnr) : 0;
 
-	if ( trc && mIS_ZERO(prevval-val) )
+	if ( trc && mIsEqual(prevval,val,mDefEps) )
 	{
 	    nrwithprevval++;
 	    if ( nrwithprevval > nrrequired )

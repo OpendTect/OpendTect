@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: linsolv.h,v 1.6 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: linsolv.h,v 1.7 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
 LinSolver - Solves linear systems of equations on the form A*x=B. A is
@@ -69,7 +69,7 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 		big=temp;
 	}
 
-	if ( mIS_ZERO( big ) )
+	if ( mIsZero(big,mDefEps) )
 	{
 	    ready_ = false;
 	    return;
@@ -125,8 +125,8 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 
 	croutsidx[j]=imax;
 
-	if ( mIS_ZERO(croutsmatrix.get(j,j) ) )
-	    croutsmatrix.set(j,j, TINY);
+	if ( mIsZero(croutsmatrix.get(j,j),mDefEps) )
+	    croutsmatrix.set(j,j,TINY);
 
 	if ( j != n-1 )
 	{
@@ -172,7 +172,7 @@ void LinSolver<T>::apply( const T* b, T* x ) const
 		sum -= croutsmatrix.get(i,j)*x[j];
 	    }
 	}
-	else if ( !mIS_ZERO(sum) )
+	else if ( !mIsZero(sum,mDefEps) )
 	    ii=i;
 
 	x[i]=sum;

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.31 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.32 2004-06-16 14:54:19 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -319,9 +319,9 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
     {
 	const BasicComponentInfo& cicompinf = *ci.compinfo[icomp];
 	BasicComponentInfo& compinf = *info_.compinfo[icomp];
-	if ( !mIS_ZERO(cicompinf.sd.step-compinf.sd.step) )
+	if ( !mIsEqual(cicompinf.sd.step,compinf.sd.step,mDefEps) )
 	    mErrRet("Sample interval")
-	if ( mIS_ZERO(cicompinf.sd.start-compinf.sd.start) )
+	if ( mIsEqual(cicompinf.sd.start,compinf.sd.start,mDefEps) )
 	{
 	    if ( cicompinf.nrsamples != compinf.nrsamples )
 		mErrRet("Number of samples")

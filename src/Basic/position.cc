@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.34 2004-03-09 12:09:59 bert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.35 2004-06-16 14:54:18 bert Exp $";
 
 #include "survinfo.h"
 #include "sets.h"
@@ -78,7 +78,7 @@ bool Coord::use( const char* str )
 
 bool getDirectionStr( const Coord& coord, BufferString& res )
 {
-    if ( mIS_ZERO(coord.x) && mIS_ZERO(coord.y) )
+    if ( mIsZero(coord.x,mDefEps) && mIsZero(coord.y,mDefEps) )
 	return false;
 
     const double len = sqrt(coord.x*coord.x+coord.y*coord.y);

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.20 2004-04-26 15:50:56 bert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.21 2004-06-16 14:54:19 bert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -294,7 +294,7 @@ void SeisTrcInfo::puttr( const SUsegy& trc )
 	offset = head->offset;
 	azimuth = head->azimuth;
 	refpos = head->refpos;
-	if ( !mIS_ZERO(head->startpos) )
+	if ( !mIsZero(head->startpos,mDefEps) )
 	    sampling.start = head->startpos;
     }
 }

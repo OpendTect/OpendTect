@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.12 2004-05-27 12:42:13 macman Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.13 2004-06-16 14:54:19 bert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -324,7 +324,7 @@ bool SeisScanner::doValueWork()
     for ( int idx=nullstart-1; idx!=-1; idx-- )
     {
 	float val = trc.get(idx,0);
-	if ( !mIS_ZERO(val) ) break;
+	if ( !mIsZero(val,mDefEps) ) break;
 	nullstart = idx;
     }
    if ( nullstart-1 > nonnullsamplerg.stop )
@@ -334,7 +334,7 @@ bool SeisScanner::doValueWork()
     for ( int idx=0; idx<nullstart; idx++ )
     {
 	float val = trc.get(idx,0);
-	bool iszero = mIS_ZERO(val);
+	bool iszero = mIsZero(val,mDefEps);
 	if ( !nonnull_seen )
 	{
 	   if ( iszero ) continue;

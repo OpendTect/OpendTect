@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.28 2004-04-28 12:33:52 nanne Exp $
+ RCS:		$Id: ranges.h,v 1.29 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ public:
     inline void			scale(const T&);
 
     inline bool			isCompatible( const StepInterval<T>& b,
-	    					T eps=mEPSILON) const;
+	    					T eps=mDefEps) const;
 				/*!< epsilon refers to the steps,
 				  	i.e eps=0.1 allows b to be 0.1 steps
 					apart.
@@ -172,7 +172,7 @@ mDefIntisCompat(unsigned char)
 inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 			typ eps ) const \
 { \
-    if ( !mIS_ZERO(step-b.step) ) return false; \
+    if ( !mIsEqual(step,b.step,mDefEps) ) return false; \
  \
     typ nrsteps = (start - b.start) / step; \
     int nrstepsi = mNINT( nrsteps ); \

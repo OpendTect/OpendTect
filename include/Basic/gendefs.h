@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.29 2004-04-28 21:30:58 bert Exp $
+ RCS:		$Id: gendefs.h,v 1.30 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
  This file contains general defines that are so basic they apply to each and
@@ -29,10 +29,10 @@ ________________________________________________________________________
 #define mMAX(x,y)		( (x)>(y) ? (x) : (y) )
 #define mMIN(x,y)		( (x)<(y) ? (x) : (y) )
 
-#ifndef mEPSILON
-# define mEPSILON		(1e-10)
-#endif
-#define mIS_ZERO(x)		( (x) < (mEPSILON) && (x) > (-mEPSILON) )
+#define mIsZero(x,eps)		( (x) < (eps) && (x) > (-eps) )
+#define mIsEqual(x,y,eps)	( (x-y) < (eps) && (x-y) > (-eps) )
+#define mIsEqualRel(x,y,e)	( y ? x/y-1<(e) && x/y-1>(-e) : mIsZero(x,e) )
+#define mDefEps			(1e-10)
 
 #define mUndefValue		1e30
 #define mIsUndefined(x)		(((x)>9.99999e29)&&((x)<1.00001e30))

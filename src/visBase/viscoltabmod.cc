@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.4 2004-01-09 16:26:08 nanne Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.5 2004-06-16 14:54:19 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,8 @@ float visBase::VisColTabMod::clipRate( bool cr0 ) const
 
 void visBase::VisColTabMod::setClipRate( float cr0, float cr1 )
 {
-    if ( mIS_ZERO(cr0-cliprate0) && mIS_ZERO(cr1-cliprate1) ) return;
+    if ( mIsEqual(cr0,cliprate0,mDefEps)
+      && mIsEqual(cr1,cliprate1,mDefEps) ) return;
 
     cliprate0 = cr0;
     cliprate1 = cr1;

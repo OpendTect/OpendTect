@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.18 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.19 2004-06-16 14:54:19 bert Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -222,10 +222,12 @@ void visBase::Annotation::updateTextPos(int textid)
 			->setPosition( Coord3( tp[0], tp[1], tp[2] ));
 
     int dim = -1;
-    if ( mIS_ZERO(p0[1]-p1[1]) && mIS_ZERO(p0[2]-p1[2])) dim = 0;
-    else if ( mIS_ZERO(p0[2]-p1[2]) && mIS_ZERO(p0[0]-p1[0])) dim = 1;
-    else if ( mIS_ZERO(p0[1]-p1[1]) && mIS_ZERO(p0[0]-p1[0])) dim = 2;
-    if ( dim < 0 ) return;
+    if ( mIsEqual(p0[1],p1[1],mDefEps) && mIsEqual(p0[2],p1[2],mDefEps))
+	dim = 0;
+    else if ( mIsEqual(p0[2],p1[2],mDefEps) && mIsEqual(p0[0],p1[0],mDefEps))
+	dim = 1;
+    else if ( mIsEqual(p0[1],p1[1],mDefEps) && mIsEqual(p0[0],p1[0],mDefEps) )
+	dim = 2;
 
     Interval<double> range( p0[dim], p1[dim] );
     SamplingData<double> sd = AxisInfo::prettySampling(range);

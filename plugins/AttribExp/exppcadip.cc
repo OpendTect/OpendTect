@@ -4,10 +4,8 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: exppcadip.cc,v 1.6 2003-11-07 12:21:56 bert Exp $";
+static const char* rcsID = "$Id: exppcadip.cc,v 1.7 2004-06-16 14:54:18 bert Exp $";
 
-
-#define mEPSILON 1E-9
 
 #include "exppcadip.h"
 #include "sorting.h"
@@ -172,10 +170,10 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 
     ev0 = mUndefValue; ev1 = mUndefValue; ev2 = mUndefValue;
 
-    if ( !mIS_ZERO(cov00)+!mIS_ZERO(cov10)+!mIS_ZERO(cov20) > 1 )
+    if ( !mIsZero(cov00,mDefEps)+!mIsZero(cov10,mDefEps)+!mIsZero(cov20,mDefEps) > 1 )
     {
 	float tmp;
-	if ( mIS_ZERO( cov00 ) )
+	if ( mIsZero( cov00 ,mDefEps) )
 	{
 	    mSWAP( cov00, cov20, tmp );
 	    mSWAP( cov01, cov21, tmp );
@@ -193,7 +191,7 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 
     float c1, c2;
 
-    if ( mIS_ZERO( cov11 ) + mIS_ZERO( cov12 ) != 2 )	
+    if ( !mIsZero(cov11,mDefEps) || !mIsZero(cov12,mDefEps) != 2 )	
     {
 	c1 = cov11;
 	c2 = cov12;
@@ -204,12 +202,12 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 	c2 = cov22;
     }
     
-    if ( mIS_ZERO( c1 ) )
+    if ( mIsZero(c1,mDefEps) )
     {
 	ev2 = 0;
 	ev1 = 1;
     }
-    else if ( mIS_ZERO( c2 ) )
+    else if ( mIsZero( c2 ,mDefEps) )
     {
 	ev1 = 0;
 	ev2 = 1;
@@ -220,7 +218,7 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
 	ev2 = - c1 / c2;
     }
     
-    if ( !mIS_ZERO(cov00) )
+    if ( !mIsZero(cov00,mDefEps) )
 	ev0 = (-ev1*cov01 - ev2*cov02)/ cov00;
     else
 	ev0 = 1;
@@ -401,8 +399,8 @@ int PCADipAttrib::Task::nextStep()
 	float ev1 = high > low ? hev1 : lev1;
 	float ev2 = high > low ? hev2 : lev2;
 
-	float inldip = mIS_ZERO(ev2) ? 10e10 : ev0 * inlfactor / ev2;
-	float crldip = mIS_ZERO(ev2) ? 10e10 : ev1 * crlfactor / ev2;
+	float inldip = mIsZero(ev2,mDefEps) ? 10e10 : ev0 * inlfactor / ev2;
+	float crldip = mIsZero(ev2,mDefEps) ? 10e10 : ev1 * crlfactor / ev2;
 
 	if ( inldips ) inldips[idx] = inldip;
 	if ( crldips ) crldips[idx] = crldip;

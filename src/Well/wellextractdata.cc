@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.18 2004-05-28 15:54:21 bert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.19 2004-06-16 14:54:19 bert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -178,7 +178,8 @@ void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
 	else if ( !getSnapPos(wd,dah,biv,trackidx,precisepos) )
 	    continue;
 
-	if ( biv.binid != prevbiv.binid || !mIS_ZERO(biv.value-prevbiv.value) )
+	if ( biv.binid != prevbiv.binid
+	  || !mIsEqual(biv.value,prevbiv.value,mDefEps) )
 	{
 	    addBivs( bivset, biv, precisepos );
 	    prevbiv = biv;
@@ -491,7 +492,7 @@ void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivset,
 float Well::LogDataExtracter::findNearest( const Well::Track& track,
 		    const BinIDValue& biv, float startdah, float dahstep ) const
 {
-    if ( mIsUndefined(dahstep) || mIS_ZERO(dahstep) )
+    if ( mIsUndefined(dahstep) || mIsZero(dahstep,mDefEps) )
 	return mUndefValue;
 
     const float zfac = SI().zIsTime() ? 10000 : 1;
@@ -572,7 +573,7 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 	    for ( int ivs=0; ivs<valsseen.size(); ivs++ )
 	    {
 		float vs = valsseen[ivs];
-		if ( mIS_ZERO(vs-val) )
+		if ( mIsEqual(vs,val,mDefEps) )
 		    { valsseencount[ivs]++; break; }
 		if ( ivs == valsseen.size()-1 )
 		    { valsseen += val; valsseencount += 0; }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.26 2004-01-29 10:12:38 nanne Exp $
+ RCS:		$Id: position.h,v 1.27 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,8 @@ public:
     Coord	operator-( const Coord& crd ) const
 		{ Coord res = *this; res.x-=crd.x; res.y-=crd.y; return res; }
     bool	operator==( const Coord& crd ) const
-		{ return mIS_ZERO(x-crd.x) && mIS_ZERO(y-crd.y); }
+		{ return mIsEqual(x,crd.x,mDefEps)
+		      && mIsEqual(y,crd.y,mDefEps); }
     bool	operator!=( const Coord& crd ) const
 		{ return ! (crd == *this); }
     double	distance(const Coord&) const;
@@ -229,7 +230,7 @@ public:
 inline bool Coord3::operator==( const Coord3& b ) const
 {
     const float dx = x-b.x; const float dy = y-b.y; const float dz = z-b.z;
-    return mIS_ZERO(dx) && mIS_ZERO(dy) && mIS_ZERO(dz);
+    return mIsZero(dx,mDefEps) && mIsZero(dy,mDefEps) && mIsZero(dz,mDefEps);
 }
 
 

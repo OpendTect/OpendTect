@@ -4,9 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expnodc.cc,v 1.4 2003-11-07 12:21:56 bert Exp $";
-
-#define mEPSILON 1E-9
+static const char* rcsID = "$Id: expnodc.cc,v 1.5 2004-06-16 14:54:18 bert Exp $";
 
 #include "expnodc.h"
 #include "attribprovider.h"
@@ -58,8 +56,8 @@ int NoDCAttrib::Task::nextStep()
     float sum = 0;
 
     const int firstidx = trc.getIndex( t1 );
-    if ( mIS_ZERO( t1 - trc.getX( firstidx )) &&
-	 mIS_ZERO( step - trc.step()) )
+    if ( mIsEqual(t1,trc.getX( firstidx ),mDefEps) &&
+	 mIsEqual(step,trc.step(),mDefEps) )
     {
 	int pos = firstidx;
 

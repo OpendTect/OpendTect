@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.39 2004-04-29 16:10:56 nanne Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.40 2004-06-16 14:54:19 bert Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
@@ -807,7 +807,7 @@ void visBase::Rectangle::moveManipRectangletoDragger(CallBacker*)
     maniprecttrans->translation.setValue( x, y, z );
     maniprectscale->scaleFactor.setValue( xscale, yscale, 1 );
 
-    maniprectswitch->whichChild = mIS_ZERO( z ) ? SO_SWITCH_NONE : 0;
+    maniprectswitch->whichChild = mIsZero(z,mDefEps) ? SO_SWITCH_NONE : 0;
 }
 
 
@@ -866,8 +866,8 @@ void visBase::Rectangle::moveObjectToManipRect()
     float newxwidth = getWidth( 0, scale[0] );
     float newywidth = getWidth( 1, scale[1] );
 
-    if ( !mIS_ZERO( newxwidth-widthscale->scaleFactor.getValue()[0] ) ||
-	 !mIS_ZERO( newywidth-widthscale->scaleFactor.getValue()[1] ) )
+    if ( !mIsEqual(newxwidth,widthscale->scaleFactor.getValue()[0],mDefEps)
+      || !mIsEqual(newywidth,widthscale->scaleFactor.getValue()[1],mDefEps) )
     {
 	widthscale->scaleFactor.setValue(   newxwidth ,
 					    newywidth, 1);
@@ -894,8 +894,8 @@ bool visBase::Rectangle::isManipRectOnObject() const
     float newxwidth = getWidth( 0, scale[0] );
     float newywidth = getWidth( 1, scale[1] );
 
-    if ( !mIS_ZERO( newxwidth-widthscale->scaleFactor.getValue()[0] ) ||
-	 !mIS_ZERO( newywidth-widthscale->scaleFactor.getValue()[1] ) )
+    if ( !mIsEqual(newxwidth,widthscale->scaleFactor.getValue()[0],mDefEps) ||
+	 !mIsEqual(newywidth,widthscale->scaleFactor.getValue()[1],mDefEps) )
 	res = false;
 
     return res;

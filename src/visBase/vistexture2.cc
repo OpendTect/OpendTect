@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.28 2004-02-03 08:58:17 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.29 2004-06-16 14:54:19 bert Exp $";
 
 #include "vistexture2.h"
 #include "viscolortab.h"
@@ -128,7 +128,8 @@ bool visBase::Texture2::isDataClassified( const Array2D<float>* newdata ) const
 	    const float val = newdata->get( x0, x1 );
 	    if ( mIsUndefined(val) ) continue;
 	    const int ival = mNINT(val);
-	    if ( !mIS_ZERO(val-ival) || ival > sMaxNrClasses ) return false;
+	    if ( !mIsEqual(val,ival,mDefEps)
+	      || ival > sMaxNrClasses ) return false;
 	    nrint++;
 	    if ( nrint > 100 ) break;
 	}

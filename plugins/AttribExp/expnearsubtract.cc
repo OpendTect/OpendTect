@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expnearsubtract.cc,v 1.5 2003-11-07 12:21:56 bert Exp $";
+static const char* rcsID = "$Id: expnearsubtract.cc,v 1.6 2004-06-16 14:54:18 bert Exp $";
 
 #include "expnearsubtract.h"
 #include "attribprovider.h"
@@ -140,7 +140,7 @@ int NearSubtractAttrib::Task::nextStep()
 	{
 	    float numerator = fabs( val0 ) + fabs( val1 );
 
-	    if ( mIS_ZERO( numerator ) ) outp[idx] = 0;
+	    if ( mIsZero(numerator,mDefEps) ) outp[idx] = 0;
 	    else outp[idx] = diff / numerator;
 	}
 	else

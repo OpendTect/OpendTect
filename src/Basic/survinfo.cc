@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.54 2004-05-06 11:16:47 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.55 2004-06-16 14:54:18 bert Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -62,9 +62,12 @@ const char* BinID2Coord::set3Pts( const Coord c[3], const BinID b[2], int xline)
     nxtr.a = c[0].x - nxtr.b * b[0].inl - nxtr.c * b[0].crl;
     nytr.a = c[0].y - nytr.b * b[0].inl - nytr.c * b[0].crl;
 
-    if ( mIS_ZERO(nxtr.a) ) nxtr.a = 0; if ( mIS_ZERO(nxtr.b) ) nxtr.b = 0;
-    if ( mIS_ZERO(nxtr.c) ) nxtr.c = 0; if ( mIS_ZERO(nytr.a) ) nytr.a = 0;
-    if ( mIS_ZERO(nytr.b) ) nytr.b = 0; if ( mIS_ZERO(nytr.c) ) nytr.c = 0;
+    if ( mIsZero(nxtr.a,mDefEps) ) nxtr.a = 0;
+    if ( mIsZero(nxtr.b,mDefEps) ) nxtr.b = 0;
+    if ( mIsZero(nxtr.c,mDefEps) ) nxtr.c = 0;
+    if ( mIsZero(nytr.a,mDefEps) ) nytr.a = 0;
+    if ( mIsZero(nytr.b,mDefEps) ) nytr.b = 0;
+    if ( mIsZero(nytr.c,mDefEps) ) nytr.c = 0;
 
     if ( !nxtr.valid(nytr) )
 	return "The transformation would not be valid";
@@ -93,7 +96,7 @@ BinID BinID2Coord::transform( const Coord& coord,
 	return binid;
 
     double det = xtr.det( ytr );
-    if ( mIS_ZERO(det) ) return binid;
+    if ( mIsZero(det,mDefEps) ) return binid;
 
     x = coord.x - xtr.a;
     y = coord.y - ytr.a;
@@ -222,7 +225,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	    si->zrange_.start = atof(fms[0]);
 	    si->zrange_.stop = atof(fms[1]);
 	    si->zrange_.step = atof(fms[2]);
-	    if ( mIsUndefined(si->zrange_.step) || mIS_ZERO(si->zrange_.step) )
+	    if ( mIsUndefined(si->zrange_.step)
+	      || mIsZero(si->zrange_.step,mDefEps) )
 		si->zrange_.step = 0.004;
 	    if ( fms.size() > 3 )
 	    {
@@ -313,7 +317,7 @@ bool SurveyInfo::write( const char* basedir ) const
     fms = ""; fms += range_.start.crl; fms += range_.stop.crl;
     if ( haveStep() ) fms += getStep( false, false );
     astream.put( sKeyCrlRange, fms );
-    if ( !mIS_ZERO(zrange_.width()) )
+    if ( !mIsZero(zrange_.width(),mDefEps) )
     {
 	fms = ""; fms += zrange_.start; fms += zrange_.stop;
 	fms += zrange_.step; fms += zistime_ ? "T" : ( zinmeter_ ? "D" : "F" );

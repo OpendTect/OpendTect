@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.16 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.17 2004-06-16 14:54:18 bert Exp $
 ________________________________________________________________________
 
 */
@@ -224,7 +224,7 @@ inline int solve3DPoly( double a, double b, double c,
     }
 
     const double A=(r>0?-1:1)*pow(fabs(r)+sqrt(r2-q3),1/3);
-    const double B=mIS_ZERO(A)?0:q/A;
+    const double B=mIsZero(A,mDefEps)?0:q/A;
 
     root0 = A+B+minus_a_through_3;
 

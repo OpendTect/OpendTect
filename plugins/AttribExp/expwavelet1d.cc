@@ -4,10 +4,8 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expwavelet1d.cc,v 1.6 2004-02-19 14:22:51 nanne Exp $";
+static const char* rcsID = "$Id: expwavelet1d.cc,v 1.7 2004-06-16 14:54:18 bert Exp $";
 
-
-#define mEPSILON 1E-9
 
 #include "expwavelet1d.h"
 #include "attribprovider.h"

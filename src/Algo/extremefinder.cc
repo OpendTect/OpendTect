@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.9 2004-05-17 06:31:50 kristofer Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.10 2004-06-16 14:54:18 bert Exp $";
 
 #include "extremefinder.h"
 #include "ranges.h"
@@ -303,7 +303,7 @@ int ExtremeFinder1D::nextStep()
     while ( true )
     {
 	const double xm = 0.5*(a+b);
-	const double tol1 = tol*fabs(x)*mEPSILON;   
+	const double tol1 = tol*fabs(x)*mDefEps;   
 	const double tol2 = 2*tol1;
 	if ( fabs(x-xm)<= (tol2-0.5*(b-a)))
 	    return 0;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.21 2004-06-03 10:40:09 kristofer Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.22 2004-06-16 14:54:19 bert Exp $";
 
 #include "trigonometry.h"
 
@@ -62,7 +62,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
 		continue;
 
 	    const double len = vector.abs();
-	    if ( mIS_ZERO(len) )
+	    if ( mIsZero(len,mDefEps) )
 		continue;
 
 	    ownvectors += normalize ? vector/len : vector;
@@ -84,7 +84,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>& vectors, bool normalize,
 	average += usedvectors[idx];
 
     const double avglen = average.abs();
-    if ( !mIS_ZERO(avglen) )
+    if ( !mIsZero(avglen,mDefEps) )
 	return average/avglen;
 
     PCA pca(3);
@@ -310,8 +310,8 @@ bool Plane3::operator==(const Plane3& b ) const
     const double a_len = a_vec.abs();
     const double b_len = b_vec.abs();
 
-    const bool a_iszero = mIS_ZERO( a_len );
-    const bool b_iszero = mIS_ZERO( b_len );
+    const bool a_iszero = mIsZero(a_len,mDefEps);
+    const bool b_iszero = mIsZero(b_len,mDefEps);
 
     if ( a_iszero||b_iszero) 
     {
@@ -322,11 +322,11 @@ bool Plane3::operator==(const Plane3& b ) const
 
     float cross = 1-a_vec.dot(b_vec);
 
-    if ( !mIS_ZERO(cross) ) return false;
+    if ( !mIsZero(cross,mDefEps) ) return false;
 
     const double ddiff = D/a_len - b.D/b_len;
 
-    return mIS_ZERO(ddiff);
+    return mIsZero(ddiff,mDefEps);
 }
 
 
@@ -357,7 +357,7 @@ float Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
 bool Plane3::intersectWith( const Line3& b, Coord3& res ) const
 {
     const float denominator = ( b.alpha*A + b.beta*B + b.gamma*C );
-    if ( mIS_ZERO( denominator ) )
+    if ( mIsZero(denominator,mDefEps) )
 	return false;
 
     const float t = -( A*b.x0 + B*b.y0 + C*b.z0 + D ) / denominator;
@@ -375,7 +375,8 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
     const float detca = C*b.A-b.C*A;
     const float detab = A*b.B-b.A*B;
 
-    if ( mIS_ZERO(detbc) && mIS_ZERO(detca) && mIS_ZERO(detab) ) return false; 
+    if ( mIsZero(detbc,mDefEps) && mIsZero(detca,mDefEps)
+	    && mIsZero(detab,mDefEps) ) return false; 
 
     res.alpha = detbc; res.beta=detca; res.gamma=detab;
 

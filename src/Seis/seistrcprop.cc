@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.5 2003-11-07 12:21:58 bert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.6 2004-06-16 14:54:19 bert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -21,7 +21,7 @@ Seis::Event SeisTrcPropCalc::find( Seis::Event::Type evtype,
 				   Interval<float> tg, int occ ) const
 {
     Seis::Event ev;
-    if ( mIS_ZERO(tg.width()) ) return ev;
+    if ( mIsZero(tg.width(),mDefEps) ) return ev;
 
     int sz = trc.size(curcomp); float sr = trc.info().sampling.step;
     SampleGate sg;
@@ -141,7 +141,7 @@ void SeisTrcPropCalc::getPreciseExtreme( Seis::Event& ev, int idx, int inc,
 
     float a = ( y3 + y1 - 2 * y2 ) / 2;
     float b = ( y3 - y1 ) / 2;
-    if ( !mIS_ZERO(a) )
+    if ( !mIsZero(a,mDefEps) )
     {
 	float pos = - b / ( 2 * a );
 	ev.pos += inc * pos * trc.info().sampling.step;
@@ -160,7 +160,7 @@ void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick )
     if ( alongpick )
     {
 	diff = trc.info().pick - pick;
-	if ( mIS_ZERO(diff) ) alongpick = NO;
+	if ( mIsZero(diff,mDefEps) ) alongpick = NO;
     }
 
     const float wght = trc.info().stack_count;
@@ -238,7 +238,7 @@ void SeisTrcPropChg::normalize()
 	if ( val > rg.stop ) rg.stop = val;
     }
     float diff = rg.stop - rg.start;
-    if ( mIS_ZERO(diff) )
+    if ( mIsZero(diff,mDefEps) )
     {
 	for ( int idx=0; idx<sz; idx++ )
 	    mtrc().set( idx, 0, curcomp );
@@ -362,19 +362,19 @@ void SeisTrcPropChg::topMute( float mpos, float taperlen )
     mtrc().info().taper_length = taperlen;
 
     float pos = trc.startPos( curcomp );
-    while ( pos < mpos + mEPSILON )
+    while ( pos < mpos + mDefEps )
     {
 	int idx = trc.nearestSample( pos, curcomp );
 	mtrc().set( idx, 0, curcomp );
 	pos += trc.info().sampling.step;
     }
 
-    if ( mIS_ZERO(taperlen) ) return;
+    if ( mIsZero(taperlen,mDefEps) ) return;
 
     float pp = mpos + taperlen;
     if ( pp > trc.samplePos(endidx,curcomp) )
 	pp = trc.samplePos(endidx,curcomp);
-    while ( pos < pp + mEPSILON )
+    while ( pos < pp + mDefEps )
     {
 	int idx = trc.nearestSample( pos, curcomp );
 	float x = ((pos - mpos) / taperlen) * M_PI;
@@ -408,7 +408,7 @@ void SeisTrcPropChg::tailMute( float mpos, float taperlen )
 	pos += trc.info().sampling.step;
     }
 
-    if ( mIS_ZERO(taperlen) ) return;
+    if ( mIsZero(taperlen,mDefEps) ) return;
 
     float pp = mpos - taperlen;
     if ( pp < trc.startPos(curcomp) )

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.24 2004-06-16 08:32:32 nanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.25 2004-06-16 14:54:19 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -79,7 +79,7 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
 	getNextWord( ptr, valbuf );
 	float newdah = *ptr ? atof(valbuf) * zfac : 0;
 
-	if ( wd.track().size() == 0 || !mIS_ZERO(newdah) )
+	if ( wd.track().size() == 0 || !mIsZero(newdah,mDefEps) )
 	    dah = newdah;
 	else
 	    dah += c.distance( prevc );
@@ -381,20 +381,18 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
     {
 	strm >> dpth;
 	if ( strm.fail() || strm.eof() ) break;
-	if ( mIS_ZERO(dpth-lfi.undefval) )
+	if ( mIsEqual(dpth,lfi.undefval,mDefEps) )
 	    dpth = mUndefValue;
 	else if ( convs[0] )
 	    dpth = convs[0]->internalValue( dpth );
 
-#define mIsZero(x) ( (x) < (1e-5) && (x) > (-1e-5) )
-
-	bool atstop = mIsZero(reqzrg.stop-dpth);
+	bool atstop = mIsEqual(reqzrg.stop,dpth,1e-5);
 	if ( havestop && !atstop && dpth > reqzrg.stop ) break;
 
-	bool atstart = mIsZero(reqzrg.start-dpth);
+	bool atstart = mIsEqual(reqzrg.start,dpth,1e-5);
 	bool douse = !mIsUndefined(dpth)
 	          && (!havestart || atstart || dpth >= reqzrg.start);
-	if ( mIS_ZERO(prevdpth-dpth) )
+	if ( mIsEqual(prevdpth,dpth,mDefEps) )
 	    douse = false;
 	else
 	    prevdpth = dpth;
@@ -405,7 +403,7 @@ const char* Well::AscImporter::getLogs( std::istream& strm,
 	    strm >> val;
 	    if ( !douse || !issel[ilog] ) continue;
 
-	    if ( mIS_ZERO(val-lfi.undefval) )
+	    if ( mIsEqual(val,lfi.undefval,mDefEps) )
 		val = mUndefValue;
 	    else if ( useconvs_ && convs[ilog+1] )
 		val = convs[ilog+1]->internalValue( val );
