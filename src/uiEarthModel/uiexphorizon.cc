@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.19 2003-10-15 15:15:55 bert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.20 2003-10-21 09:42:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,14 +98,19 @@ static void initGF( ostream& strm, const char* hornm, bool inmeter,
 }
 
 
+#define mGFUndefValue 3.4028235E+38
+
 static void writeGF( ostream& strm, const BinIDZValue& bizv,
 		     const Coord& crd, int segid )
 {
     static char buf[mDataGFLineLen+2];
     const float crl = bizv.binid.crl;
-    const float val = mIsUndefined(bizv.value) ? 3.4028235E+38 : bizv.value;
+    const float val = mIsUndefined(bizv.value) ? mGFUndefValue : bizv.value;
+    const float zfac = SI().zIsTime() ? 1000 : 1;
+    const float depth = mIsUndefined(bizv.z) ? mGFUndefValue
+					     : depth * zfac;
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
-	     crd.x, crd.y, segid, 14, bizv.z*1000, crl, crl, bizv.binid.crl,
+	     crd.x, crd.y, segid, 14, depth, crl, crl, bizv.binid.crl,
 	     val, bizv.binid.inl, "" );
     buf[96] = buf[97] = 'X';
     strm << buf;
@@ -134,6 +139,7 @@ bool uiExportHorizon::writeAscii()
     uiExecutor dlg( this, *exec );
     if ( !dlg.go() ) return false;
 
+    const float zfac = SI().zIsTime() ? 1000 : 1;
     bool saveauxdata = sels.selvalues.size();
     TypeSet<int>& patches = sels.selpatches;
     for ( int idx=0; idx<patches.size(); idx++ )
@@ -186,9 +192,10 @@ bool uiExportHorizon::writeAscii()
 
 		if ( addzpos )
 		{
-		    float z = crd.z;
-		    if ( SI().zIsTime() ) z *= 1000;
-		    *sdo.ostrm << '\t' << z;
+		    float depth = crd.z;
+		    if ( !mIsUndefined(depth) ) 
+			depth *= zfac;
+		    *sdo.ostrm << '\t' << depth;
 		}
 
 		if ( saveauxdata )
