@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.7 2004-04-30 12:10:49 kristofer Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.8 2004-06-23 15:18:16 nanne Exp $
 ________________________________________________________________________
 
 
@@ -168,23 +168,23 @@ protected:
 };
 
 
-class uiTreeItemFactory
+class uiTreeItemCreater
 {
 public:
-    virtual		~uiTreeItemFactory()		{}
+    virtual		~uiTreeItemCreater()		{}
     virtual const char*	name() const			= 0;
     virtual uiTreeItem*	create() const			= 0;
 };
 
 
-class uiTreeFactorySet : public CallBacker
+class uiTreeCreaterSet : public CallBacker
 {
 public:
-					uiTreeFactorySet();
-					~uiTreeFactorySet();
-    void				addFactory(uiTreeItemFactory* ptr,
+					uiTreeCreaterSet();
+					~uiTreeCreaterSet();
+    void				addCreater(uiTreeItemCreater* ptr,
 	    					   int placementindex=-1 );
-					/*!<\param ptr	pointer to new factory.
+					/*!<\param ptr	pointer to new creater.
 							Object is managed by me.
 					    \param placementindex
 					    		Indicates how the
@@ -194,16 +194,18 @@ public:
 					*/
     void				remove( const char* );
 
-    int					nrFactories() const;
-    const uiTreeItemFactory*		getFactory( int idx ) const;
+    int					nrCreaters() const;
+    const uiTreeItemCreater*		getCreater( int idx ) const;
     int					getPlacementIdx(int idx) const;
 
-    CNotifier<uiTreeFactorySet,int>	addnotifier;
-    CNotifier<uiTreeFactorySet,int>	removenotifier;
+    CNotifier<uiTreeCreaterSet,int>	addnotifier;
+    CNotifier<uiTreeCreaterSet,int>	removenotifier;
 
 protected:
-    ObjectSet<uiTreeItemFactory>	factories;
+
+    ObjectSet<uiTreeItemCreater>	creaters;
     TypeSet<int>			placementidxs;
+
 };
 
 
