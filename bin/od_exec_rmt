@@ -2,13 +2,15 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.13 2004-07-28 12:47:24 arend Exp $
+# $Id: od_exec_rmt,v 1.14 2004-09-27 08:17:00 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
 
+if ( $?DTECT_DEBUG ) set verbose=yes
+
 if ( $?DTECT_DEBUG ) then
-    echo "$*"
+    echo "od_exec_rmt $*"
 endif
 
 if ( ! $?DTECT_APPL ) then
@@ -20,6 +22,8 @@ if ( $#argv < 1 ) then
     echo "Usage: $0 remote_host [--rexec remote_shell_command]"
     echo "       [--with-dtect-appl <DTECT_APPL on remote host>"
     echo "       [--with-dtect-data <DTECT_DATA on remote host>"
+    echo "       [--with-local-proc-dir <processing directory on local host>"
+    echo "       [--with-remote-proc-dir <processing directory on remote host>"
     echo "       [--transfervars <list of environment vars to transfer> -+-+-"
 endif
 
@@ -29,8 +33,22 @@ shift
 set rshcomm=rsh
 set transfvars=""
 set remoteuser=""
+set remotepass=""
+if ( $?DTECT_REMOTE_PASS ) then
+    set remotepass="$DTECT_REMOTE_PASS"
+endif
 set dtectappl="$DTECT_APPL"
-set dtectdata="$DTECT_DATA"
+if ( $?DTECT_DATA ) then
+    set dtectdata="$DTECT_DATA"
+endif
+
+set datahost=""
+set datadrive=""
+set datashare=""
+
+set datahost="dgb27"
+set datadrive="w"
+set datashare="dw2k"
 
 next_arg:
 
@@ -42,12 +60,24 @@ else if ( $1 == "--remoteuser" ) then
         set remoteuser=" -l $2"
         shift; shift
         goto next_arg
+else if ( $1 == "--remotepass" ) then
+        set remotepass="$2"
+        shift; shift
+        goto next_arg
 else if ( $1 == "--with-dtect-appl" ) then
         set dtectappl="$2"
         shift; shift
         goto next_arg
 else if ( $1 == "--with-dtect-data" ) then
         set dtectdata="$2"
+        shift; shift
+        goto next_arg
+else if ( $1 == "--with-local-proc-dir" ) then
+        set locprocdir="$2"
+        shift; shift
+        goto next_arg
+else if ( $1 == "--with-remote-proc-dir" ) then
+        set remprocdir="$2"
         shift; shift
         goto next_arg
 else if ( "$1" == "--transfervars" ) then
@@ -62,7 +92,7 @@ else if ( "$1" == "--transfervars" ) then
 	goto next_var
 endif
 
-set transf="setenv DTECT_DATA $dtectdata +-+ setenv DTECT_APPL $dtectappl"
+set transf="setenv DTECT_DATA -=-$dtectdata-=- +-+ setenv DTECT_APPL -=-$dtectappl-=-"
 
 if ( $?DTECT_USER ) then
 	set transf="${transf} +-+ setenv DTECT_USER $DTECT_USER"
@@ -70,6 +100,10 @@ endif
 
 if ( $?LM_LICENSE_FILE ) then
 	set transf="${transf} +-+ setenv LM_LICENSE_FILE $LM_LICENSE_FILE"
+endif
+
+if ( $?DTECT_DEBUG ) then
+    set transf="${transf} +-+ setenv DTECT_DEBUG $DTECT_DEBUG"
 endif
 
 if ( $?DISPLAY ) then
@@ -96,9 +130,34 @@ end
 
 set transf="$transf +-+-+ $*"
 
-if ( $?DTECT_DEBUG ) then
-    echo "od_exec_rmt: " ${rshcomm} ${remoteuser} ${remotehost} ${dtectappl}/bin/od_do_rmt $transf
+set do_exec=`echo "${dtectappl}/bin/od_do_rmt" | sed -e "s% %\\ %g"`
+
+
+if ( $?COMSPEC ) then 
+    if ( ${rshcomm} == "rcmd" ) then
+
+	set do_exec=`echo '+=+%DTECT_WINAPPL%\\bin\\od_dormt+=+' \
+		     | sed -e "s% %\\ %g" -e 's%+=+%""%g'`
+
+	set transffile="test.vars"
+
+	echo "${transf}" > ${locprocdir}/${transffile}
+
+	set transf=`echo "${remprocdir}/${transffile}" | sed -e 's% %#-#%g'`
+	set procdir2=`echo "${remprocdir}" | sed -e 's% %#-#%g'`
+
+	set transf="$transf $procdir2 $datahost $datadrive $datashare $USERNAME"
+
+	set remotehost="\\${remotehost}"
+	net use "${remotehost}" ${remotepass} \
+		"/USER:${remotehost}\${user}" >& /dev/null
+    endif
 endif
 
-${rshcomm} ${remoteuser} ${remotehost} "${dtectappl}/bin/od_do_rmt" $transf
+
+if ( $?DTECT_DEBUG ) then
+    echo ${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} "$transf"
+endif
+
+${rshcomm} ${remoteuser} "${remotehost}" ${do_exec} $transf
 exit 0
