@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.3 2003-08-21 15:47:32 bert Exp $
+ RCS:		$Id: welllog.h,v 1.4 2003-10-16 14:35:17 nanne Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "sets.h"
 #include "uidobj.h"
+#include "ranges.h"
 
 namespace Well
 {
@@ -24,23 +25,27 @@ class Log : public ::UserIDObject
 public:
 
 			Log( const char* nm=0 )
-			: ::UserIDObject(nm)	{}
+			: ::UserIDObject(nm)
+			, range_(mUndefValue,-mUndefValue)	{}
 
     int			size() const	{ return val_.size(); }
-    float		value( int idx ) const	{ return val_[idx]; }
-    float		dah( int idx ) const	{ return dah_[idx]; }
+    float		value(int idx) const	{ return val_[idx]; }
+    float		dah(int idx) const	{ return dah_[idx]; }
 
     float		getValue(float) const;
-    void		addValue( float z, float val )
-			{ dah_ += z; val_ += val; }
+    void		addValue(float z,float val);
     			//!< z must be > last dah. No checks.
-    void		removeValue( int idx )
+    void		removeValue(int idx)
 			{ dah_.remove(idx); val_.remove(idx); }
+
+    const Interval<float>& range()		{ return range_; }
+
 
 protected:
 
     TypeSet<float>	dah_;
     TypeSet<float>	val_;
+    Interval<float>	range_;
 
 };
 
