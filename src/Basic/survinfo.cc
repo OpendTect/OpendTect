@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.13 2001-10-05 09:05:31 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.14 2001-10-05 10:39:58 bert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -168,11 +168,12 @@ SurveyInfo::SurveyInfo( const char* rootdir )
 	}
     }
 
-    while ( !atEndOfSection( astream.next() ) )
+    char buf[1024];
+    while ( astream.stream().getline(buf,1024) )
     {
 	if ( *((const char*)comment_) )
 	    comment_ += "\n";
-	comment_ += astream.keyWord();
+	comment_ += buf;
     }
 
     if ( set3binids[2].crl == 0 )
