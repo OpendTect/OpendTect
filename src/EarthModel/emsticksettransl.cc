@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.2 2003-09-15 12:42:10 kristofer Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.3 2003-09-30 12:16:57 kristofer Exp $";
 
 #include "emsticksettransl.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: emsticksettransl.cc,v 1.2 2003-09-15 12:42:10 k
 #include "survinfo.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "geomgridsurfaceimpl.h"
 #include "ascstream.h"
 
 #include <fstream>
