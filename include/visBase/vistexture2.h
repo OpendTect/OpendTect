@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.6 2003-05-28 09:46:40 kristofer Exp $
+ RCS:		$Id: vistexture2.h,v 1.7 2003-10-27 15:57:47 nanne Exp $
 ________________________________________________________________________
 
 
@@ -18,15 +18,15 @@ ________________________________________________________________________
 class SoTexture2;
 class SoGroup;
 template <class T> class Array2D;
+class Array2DInfoImpl;
 
 namespace visBase
 {
 
 class VisColorTab;
 
-
 /*!\brief
-
+Used for creating a 2D texture
 */
 
 class Texture2 : public Texture
@@ -55,6 +55,12 @@ public:
 
 protected:
     			~Texture2();
+
+    bool		isDataClassified(const Array2D<float>*) const;
+    void		polyInterp(const Array2DInfoImpl&,
+	    			   const Array2D<float>*,float*);
+    void		nearestValInterp(const Array2DInfoImpl&,
+					 const Array2D<float>*,float*);
 
     unsigned char*	getTexturePtr();
     void		finishEditing();

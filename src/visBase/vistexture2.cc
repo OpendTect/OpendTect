@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.22 2003-10-15 09:50:17 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.23 2003-10-27 15:57:41 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -103,6 +103,44 @@ void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
     const int cachesz = newsize.getTotalSz();
     float* resized = new float[cachesz];
 
+    if ( isDataClassified(newdata) )
+	nearestValInterp( newsize, newdata, resized );
+    else
+	polyInterp( newsize, newdata, resized );
+
+    setResizedData( resized, cachesz, sel );
+}
+
+
+static const int sMaxNrClasses = 100;
+
+bool visBase::Texture2::isDataClassified( const Array2D<float>* newdata ) const
+{
+    const int datax0size = newdata->info().getSize(0);
+    const int datax1size = newdata->info().getSize(1);
+    for ( int x0=0; x0<datax0size; x0++ )
+    {
+	int nrint = 0;
+	for ( int x1=0; x1<datax1size; x1++ )
+	{
+	    const float val = newdata->get( x0, x1 );
+	    if ( mIsUndefined(val) ) continue;
+	    const int ival = mNINT(val);
+	    if ( !mIS_ZERO(val-ival) || ival > sMaxNrClasses ) return false;
+	    nrint++;
+	    if ( nrint > 100 ) break;
+	}
+    }
+
+    return true;
+}
+
+
+void visBase::Texture2::polyInterp( const Array2DInfoImpl& newsize,
+				    const Array2D<float>* newdata, float* res )
+{
+    const int datax0size = newdata->info().getSize(0);
+    const int datax1size = newdata->info().getSize(1);
     const float x0step = (datax0size-1)/(float)(x0sz-1);
     const float x1step = (datax1size-1)/(float)(x1sz-1);
 
@@ -171,11 +209,38 @@ void visBase::Texture2::setData( const Array2D<float>* newdata, DataType sel )
 						x0relpos, x1relpos );
 	    }
 
-	    resized[newsize.getMemPos( x0, x1 )] = val;
+	    res[newsize.getMemPos(x0,x1)] = val;
 	}
     }
+}
 
-    setResizedData( resized, cachesz, sel );
+
+void visBase::Texture2::nearestValInterp( const Array2DInfoImpl& newsize,
+				    const Array2D<float>* newdata, float* res )
+{
+    const int datax0size = newdata->info().getSize(0);
+    const int datax1size = newdata->info().getSize(1);
+    const float x0step = (datax0size-1)/(float)(x0sz-1);
+    const float x1step = (datax1size-1)/(float)(x1sz-1);
+
+    for ( int x0=0; x0<x0sz; x0++ )
+    {
+	const float x0pos=x0*x0step;
+	const int x0idx = (int)x0pos;
+	const float x0relpos = x0pos-x0idx;
+
+	for ( int x1=0; x1<x1sz; x1++ )
+	{
+	    const float x1pos = x1*x1step;
+	    const int x1idx = (int)x1pos;
+	    const float x1relpos = x1pos-x1idx;
+
+	    const int x0nearest = mNINT(x0relpos);
+	    const int x1nearest = mNINT(x1relpos);
+	    res[newsize.getMemPos(x0,x1)] = 
+			    newdata->get( x0idx+x0nearest, x1idx+x1nearest );
+	}
+    }
 }
 
 
