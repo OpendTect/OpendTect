@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.10 2004-09-21 15:30:35 bert Exp $
+ RCS:           $Id: uiseissel.h,v 1.11 2004-09-24 12:09:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,9 @@ class uiSeisSel : public uiIOObjSel
 public:
 
 			uiSeisSel(uiParent*,CtxtIOObj&,const SeisSelSetup&,
-				  bool wthclear=false);
+				  bool wthclear=false,
+				  const char** sel_labels=0);
+				//!< See .cc code for sel_labels
 			~uiSeisSel();
 
     virtual bool	fillPar(IOPar&) const;
@@ -64,6 +66,7 @@ protected:
     SeisSelSetup	setup;
     IOPar&		iopar;
     BufferString	orgkeyvals;
+    const char**	seltxts;
 
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual uiIOObjRetDlg* mkDlg();

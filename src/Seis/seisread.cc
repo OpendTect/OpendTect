@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.39 2004-09-21 11:12:46 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.40 2004-09-24 12:09:12 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -393,12 +393,12 @@ bool SeisTrcReader::readNext2D()
 #define mNeedNextFetcher() (tbuf->size() == 0 && !fetcher)
 
 
-bool SeisTrcReader::get2D( SeisTrcInfo& ti )
+int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
     if ( mNeedNextFetcher() && !mkNextFetcher() )
-	return false;
+	return -1;
     if ( !readNext2D() )
-	return false;
+	return errmsg == "" ? 0 : -1;
 
     if ( inforead && tbuf->size() )
 	delete tbuf->remove(0);
@@ -408,7 +408,15 @@ bool SeisTrcReader::get2D( SeisTrcInfo& ti )
     trcti.new_packet = mIsUndefInt(prev_inl);
     ti = trcti;
     prev_inl = 0;
-    return true;
+
+    bool isincl = true;
+    if ( seldata )
+    {
+	if ( seldata->type_ == SeisSelData::Table )
+	    // Not handled by fetcher
+	    isincl = seldata->table_.includes(trcti.binid);
+    }
+    return isincl ? 1 : 2;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.18 2004-09-21 15:30:36 bert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.19 2004-09-24 12:09:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,10 +60,10 @@ static void adaptCtxt( IOObjContext& ctxt, SeisSelSetup::Pol2D pol,
 	    deftr = dt;
     }
 
-    if ( pol == SeisSelSetup::Only2D )
-	ctxt.ioparkeyval[0] = ctxt.ioparkeyval[1] = "";
-    else
+    if ( pol == SeisSelSetup::No2D )
 	resetKeyVals( ctxt, orgkeyvals );
+    else
+	ctxt.ioparkeyval[0] = ctxt.ioparkeyval[1] = "";
 }
 
 
@@ -162,12 +162,34 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 }
 
 
+static const char* gtSelTxt( const char** sts, SeisSelSetup::Pol2D p2d,
+			     bool forread )
+{
+    // Support:
+    // 1) One single text: { "Text", 0 }
+    // 2) Same for read and write: { "Text3D", Text3D2D", Text2D", 0 }
+    // 3) { "Text3DRead", Text3D2DRead", Text2DRead",
+    //      "Text3DWrite", Text3D2DWrite", Text2DWrite", 0 }
+
+    static const char* stdseltxts[] = {
+	    "Input Cube", "Input Seismics", "Input Line Set",
+	    "Output Cube", "Output Seismics", "Store in Line Set", 0
+    };
+
+    if ( !sts ) sts = stdseltxts;
+    if ( !sts[1] ) return sts[0];
+    if ( !sts[3] ) return sts[(int)p2d];
+    return sts[ 3 * (forread ? 0 : 1) + (int)p2d ];
+}
+
+
 uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
-		      bool wclr )
-	: uiIOObjSel( p, c, (c.ctxt.forread?"Input Seismics":"Store in Line Set"),
-		      wclr )
+		      bool wclr, const char** sts )
+	: uiIOObjSel(p,c,gtSelTxt(sts,SeisSelSetup::Both2DAnd3D,c.ctxt.forread),
+		     wclr )
 	, iopar(*new IOPar)
 	, setup(s)
+    	, seltxts(sts)
 {
     mkKvals( ctio.ctxt, orgkeyvals );
     if ( !c.ctxt.forread )
@@ -224,9 +246,7 @@ void uiSeisSel::set2DPol( SeisSelSetup::Pol2D pol )
 	}
     }
     BufferString disptxt = labelText();
-    BufferString newdisptxt = ctio.ctxt.forread ? "Input Seismics" :
-	(pol == SeisSelSetup::Only2D ? "Store in Line Set"
-      : (pol == SeisSelSetup::No2D ? "Store as Cube" : "Output Seismics") );
+    BufferString newdisptxt = gtSelTxt( seltxts, pol, ctio.ctxt.forread );
     if ( newdisptxt != disptxt )
 	setLabelText( newdisptxt );
 

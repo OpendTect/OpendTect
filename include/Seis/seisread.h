@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.15 2004-09-21 11:12:46 bert Exp $
+ RCS:		$Id: seisread.h,v 1.16 2004-09-24 12:09:12 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ public:
 			/*!< -1 = Error. errMsg() will return a message.
 			      0 = End
 			      1 = Usable info
-			      2 = Not usable (skipped the trace)
+			      2 = Not usable (trace needs to be skipped)
 			      If get(SeisTrc) is not called, get(SeisTrcInfo)
 			      will automatically skip over the trace data
 			      if necessary. */
@@ -90,7 +90,7 @@ protected:
     bool		isMultiConn() const;
     void		startWork();
 
-    bool		get2D(SeisTrcInfo&);
+    int			get2D(SeisTrcInfo&);
     bool		get2D(SeisTrc&);
     bool		mkNextFetcher();
     bool		readNext2D();

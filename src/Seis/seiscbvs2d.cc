@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.17 2004-09-23 21:13:56 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.18 2004-09-24 12:09:12 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -141,18 +141,11 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
     tr = gtTransl( fname, &msg );
     if ( !tr ) return;
 
-    if ( sd.type_ != SeisSelData::None )
+    if ( sd.type_ == SeisSelData::Range || sd.type_ == SeisSelData::TrcNrs )
     {
 	seldata = new SeisSelData( sd );
-	seldata->type_ = SeisSelData::Range;
-	seldata->inlrg_.start = 0;
-	seldata->inlrg_.stop = mUndefIntVal;
-	if ( sd.type_ == SeisSelData::TrcNrs )
-	{
-	    assign( seldata->crlrg_, seldata->trcrg_ );
-	    trcstep = seldata->trcrg_.step;
-	}
 	tr->setSelData( seldata );
+		// For Z range only because of setNoBinIDSubSel
     }
 }
 
@@ -166,7 +159,18 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, const SeisSelData& sd )
 
 void addTrc( SeisTrc* trc )
 {
-    trc->info().nr = trc->info().binid.crl;
+    const int tnr = trc->info().binid.crl;
+    if ( seldata )
+    {
+	if ( seldata->type_ == SeisSelData::TrcNrs
+		&& !seldata->trcrg_.includes(curnr) )
+	    return;
+	if ( seldata->type_ == SeisSelData::Range
+		&& !seldata->crlrg_.includes(tnr) )
+	    return;
+    }
+
+    trc->info().nr = tnr;
     trc->info().binid = SI().transform( trc->info().coord );
     tbuf.add( trc );
 }
