@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.23 2004-05-12 08:38:34 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.24 2004-05-12 13:14:06 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,7 @@ public:
     virtual const char*		posAttribName(int) const;
     virtual int			nrPosAttribs() const;
     virtual int			addPosAttribName(const char*);
+    const TypeSet<PosID>*	getPosAttribList(int) const;
     CNotifier<EMObject, PosID>*	getPosAttribChNotifier( int, bool create );
 
     CNotifier<EMObject, PosID>	poschnotifier;
@@ -80,7 +81,6 @@ public:
 						-1 mean any change, all other
 						figures are dependent on impl.
 				*/
-				
 
     const char*			errMsg() const
     				{ return errmsg[0]
