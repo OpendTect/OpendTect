@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.8 2001-03-19 15:42:32 bert Exp $
+ RCS:		$Id: seistrc.h,v 1.9 2001-04-04 11:13:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <tracedata.h>
 #include <datachar.h>
 #include <datatrc.h>
+#include <scaler.h>
 class Interpolator1D;
 
 
@@ -29,6 +30,12 @@ The number of samples of the components may vary, therfore the index of the
 sample at the info().sampling.start can be set to non-zero. The first component
 (icomp==0) has a sampleoffset of zero which cannot be set.
 
+Interpolation between samples is automatic if you use the getValue() method.
+The interpolation method can be customised.
+
+The values in the buffers will be scaled/unscaled if a Scaler has been set
+for the component.
+
 */
 
 
@@ -38,10 +45,12 @@ public:
 
 			SeisTrc( int ns=0, const DataCharacteristics& dc
 					    = DataCharacteristics() )
-			: soffs_(0), intpols_(0)
+			: soffs_(0), intpols_(0), scalers_(0)
 			{ data_.addComponent( ns, dc ); }
 			SeisTrc( const SeisTrc& t )
-			: soffs_(0), intpols_(0)	{ *this = t; }
+			: soffs_(0), intpols_(0), scalers_(0)
+			{ *this = t; }
+			~SeisTrc();
     SeisTrc&		operator =(const SeisTrc& t);
 
     SeisTrcInfo&	info()		{ return info_; }
@@ -58,20 +67,26 @@ public:
 
 
     inline void		set( int idx, float v, int icomp )
-			{ data_.setValue( idx, v, icomp ); }
+			{ data_.setValue( idx, unscaled(v,icomp), icomp ); }
     inline float	get( int idx, int icomp ) const
-			{ return data_.getValue( idx, icomp ); }
+			{ return scaled(data_.getValue(idx,icomp),icomp); }
 
     inline int		size( int icomp ) const
 			{ return data_.size( icomp ); }
     inline double	getX( int idx, int icomp ) const
 			{ return startPos(icomp) + idx * info_.sampling.step; }
     float		getValue(float,int icomp) const;
+
     const Interpolator1D* interpolator( int icomp=0 ) const;
 			//!< May return null!
     void		setInterpolator(Interpolator1D*,int icomp=0);
 			//!< Passed Interpolator1D becomes mine
 			//!< setData() will be called with appropriate args.
+
+    void		setScaler(const Scaler*,int icomp=0);
+			//!< May be set to null
+    const Scaler*	scaler( int icomp=0 ) const;
+			//!< May return null!
 
     inline bool		isNull( int icomp ) const
 			{ return data_.isZero(icomp); }
@@ -102,6 +117,23 @@ protected:
     SeisTrcInfo		info_;
     TypeSet<int>*	soffs_;
     ObjectSet<Interpolator1D>* intpols_;
+    ObjectSet<const Scaler>*	scalers_;
+
+    inline float	scaled( float v, int icomp ) const
+			{
+			    return !scalers_ || scalers_->size() <= icomp
+				 ? v : (*scalers_)[icomp]->scale( v );
+			}
+
+    inline float	unscaled( float v, int icomp ) const
+			{
+			    return !scalers_ || scalers_->size() <= icomp
+				 ? v : (*scalers_)[icomp]->unScale( v );
+			}
+
+private:
+
+    void		cleanUp();
 
 };
 
@@ -137,9 +169,9 @@ public:
     float		getValue( float v ) const
 			{ return trc.getValue( v, curcomp ); }
 
-    inline int		size() const		{ return trc.size( curcomp ); }
-    inline double	step() const		{ return trc.info().sampling.step; }
-    double		start() const		{ return trc.startPos(curcomp); }
+    inline int		size() const	{ return trc.size( curcomp ); }
+    inline double	step() const	{ return trc.info().sampling.step; }
+    double		start() const	{ return trc.startPos(curcomp); }
 
     bool		isMutable() const	{ return ismutable; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.1 2001-02-13 17:46:50 bert Exp $
+ RCS:		$Id: segytr.h,v 1.2 2001-04-04 11:13:53 bert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -47,6 +47,7 @@ private:
     void		interpretBuf(SeisTrcInfo&);
     bool		writeTapeHeader();
     void		fillHeaderBuf(const SeisTrc&);
+    void		toPreSelected(DataCharacteristics&) const;
 
     DataCharacteristics	getDataChar(int) const;
     int			nrFormatFor(const DataCharacteristics&) const;
