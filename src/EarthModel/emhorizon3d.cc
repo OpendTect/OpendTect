@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.18 2002-09-17 06:49:52 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.19 2002-09-17 10:06:03 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -46,7 +46,7 @@ int EarthModel::Horizon::findPos( const RowCol& rowcol,
     const int nrsubsurf = surfaces.nrSubSurfaces();
     for ( unsigned short surface=0; surface<nrsubsurf; surface++ )
     {
-	Geometry::Pos pos = surfaces.getPos( surface, rowcol );
+	Geometry::Pos pos = surfaces.getGridPos( surface, rowcol );
 	if ( !pos.isDefined() ) continue;
 
 	unsigned long surfpid = Geometry::GridSurface::getPosId( rowcol );
