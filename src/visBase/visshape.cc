@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.4 2003-01-21 16:10:08 kristofer Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.5 2003-04-15 12:30:12 kristofer Exp $";
 
 #include "visshape.h"
 
@@ -64,6 +64,27 @@ bool visBase::Shape::isOn() const
 }
 
 
+void visBase::Shape::setRenderCache(int mode)
+{
+    if ( !mode )
+	root->renderCaching = SoSeparator::OFF;
+    else if ( mode==1 )
+	root->renderCaching = SoSeparator::ON;
+    else
+	root->renderCaching = SoSeparator::AUTO;
+}
+
+
+int visBase::Shape::getRenderCache() const
+{
+    if ( root->renderCaching.getValue()==SoSeparator::OFF )
+	return 0;
+
+    if ( root->renderCaching.getValue()==SoSeparator::ON )
+	return 1;
+    
+    return 2;
+}
 
 
 #define setGetItem(ownclass, clssname, variable) \

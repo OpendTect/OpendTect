@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.2 2003-01-20 08:33:09 kristofer Exp $
+ RCS:		$Id: visshape.h,v 1.3 2003-04-15 12:27:46 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -42,8 +42,16 @@ class Shape : public VisualObject
 {
 public:
 				Shape( SoShape* );
+
     void			turnOn(bool);
     bool			isOn() const;
+
+    void			setRenderCache(int mode);
+    				/*!<\param mode=0 off
+				    \param mode=1 on
+				    \param mode=2 auto (default)
+				*/
+    int				getRenderCache() const;
 
     void			setTexture2( Texture2* );
     Texture2*			getTexture2();
