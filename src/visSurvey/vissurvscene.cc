@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.33 2002-06-25 15:22:39 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.34 2002-07-08 05:54:24 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -41,6 +41,7 @@ visSurvey::Scene::Scene()
     , eventcatcher( visBase::EventCatcher::create())
     , mouseposchange( this )
 {
+    setAmbientLight( 1 );
     addObject( const_cast<visBase::Transformation*>(
 						SPM().getDisplayTransform()));
     addObject( eventcatcher );
@@ -55,30 +56,6 @@ visSurvey::Scene::Scene()
     annot->setText( 1, "Cross-line" );
     annot->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
     addInlCrlTObject( annot );
-
-    visBase::DirectionalLight* light = visBase::DirectionalLight::create();
-    light->setDirection( 0, 0, 1 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection( 0, 0, -1 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection( 0, 1, 0 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection( 0,-1, 0 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection( 1, 0, 0 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection(-1, 0, 0 );
-    addXYZObject( light );
 }
 
 
@@ -339,30 +316,6 @@ int visSurvey::Scene::usePar( const IOPar& par )
     annot->setText( 1, "Cross-line" );
     annot->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
     addInlCrlTObject( annot );
-
-    visBase::DirectionalLight* light = visBase::DirectionalLight::create();
-    light->setDirection( 0, 0, 1 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection( 0, 0, -1 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection( 0, 1, 0 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection( 0,-1, 0 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection( 1, 0, 0 );
-    addXYZObject( light );
-
-    light = visBase::DirectionalLight::create();
-    light->setDirection(-1, 0, 0 );
-    addXYZObject( light );
 
     int res = visBase::SceneObject::usePar( par );
 
