@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.22 2002-01-14 15:30:43 nanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.23 2002-01-16 14:14:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,14 +89,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     coordset->attach( rightTo, crdlbl );
     coordset->changed.notify( mCB(this,uiSurveyInfoEditor,chgSetMode) );
 
+    DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
     crdgrp = new uiGroup( this, "Coordinate settings" );
-    ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
-			     BinIDCoordInpSpec() );
+    ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", dis, dis ); 
     ic0fld->changed.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
-    ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line", 
-			     BinIDCoordInpSpec() );
+    ic1fld = new uiGenInput( crdgrp, "Cross-line on above in-line", dis, dis );
     ic2fld = new uiGenInput( crdgrp, "In-line/Cross-line not on above in-line",
-			     BinIDCoordInpSpec() );
+			     dis, dis );
     xy0fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
     xy1fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
     xy2fld = new uiGenInput( crdgrp, "= (X,Y)", BinIDCoordInpSpec(true) );
@@ -110,7 +109,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo* si,
     xy2fld->attach( rightOf, ic2fld );
 
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
-    DoubleInpSpec dis; dis.setHSzP(SzPolicySpec::small);
     x0fld = new uiGenInput ( trgrp, "X = ", dis );
     xinlfld = new uiGenInput ( trgrp, "+ in-line *", dis );
     xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", dis );
