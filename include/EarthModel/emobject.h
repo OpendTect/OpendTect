@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.33 2005-01-10 09:57:26 kristofer Exp $
+ RCS:		$Id: emobject.h,v 1.34 2005-01-13 11:44:58 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ public:
 		{}
 
     enum Event { Undef, PositionChange, PosIDChange, PrefColorChange, Removal,
-   		 AttribChange }	event;
+   		 AttribChange, SectionChange }	event;
 
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
