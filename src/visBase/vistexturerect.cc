@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vistexturerect.cc,v 1.2 2002-03-12 07:11:09 kristofer Exp $";
+static const char* rcsID = "$Id: vistexturerect.cc,v 1.3 2002-03-14 14:44:42 nanne Exp $";
 
 #include "vistexturerect.h"
 #include "visrectangle.h"
@@ -135,7 +135,7 @@ visBase::VisColorTab& visBase::TextureRect::getColorTab()
 void visBase::TextureRect::setClipRate(float n )
 {
     cliprate = n;
-    updateTexture();
+    clipData();
 }
 
 
@@ -161,19 +161,25 @@ void visBase::TextureRect::setData( const Array2D<float>& d )
 
     if ( autoscale )
     {
-	int nrvalues = data->info().getTotalSz();
-
-	DataClipper clipper( cliprate );
-
-	clipper.putData( data->getData(), nrvalues );
-	clipper.calculateRange();
-
 	// This will trigger the CB to updateTexture so we can return
-	colortable->scaleTo( clipper.getRange() );
+	clipData();
 	return;
     }
 
     updateTexture();
+}
+
+
+void visBase::TextureRect::clipData()
+{
+    int nrvalues = data->info().getTotalSz();
+
+    DataClipper clipper( cliprate );
+
+    clipper.putData( data->getData(), nrvalues );
+    clipper.calculateRange();
+
+    colortable->scaleTo( clipper.getRange() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.1 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: vistexturerect.h,v 1.2 2002-03-14 14:44:34 nanne Exp $
 ________________________________________________________________________
 
 
@@ -59,7 +59,7 @@ public:
     const VisColorTab&	getColorTab() const;
     VisColorTab&	getColorTab();
 
-    void		setAutoscale(bool n) {autoscale = n; updateTexture(); }
+    void		setAutoscale(bool n) {autoscale = n; clipData(); }
     bool		autoScale() const { return autoscale; }
 
     void		setClipRate( float n );
@@ -75,6 +75,7 @@ public:
 
 protected:
     void		updateTexture();
+    void		clipData();
 
     void		triggerSel() { selnotifier.trigger(); }
     void		triggerDeSel() { deselnotifier.trigger(); }
