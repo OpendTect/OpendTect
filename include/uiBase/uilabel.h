@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.7 2004-09-08 09:21:35 arend Exp $
+ RCS:           $Id: uilabel.h,v 1.8 2004-09-08 09:23:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,10 @@ public:
         AlignHCenter            = 0x0004
     };
 
+/*! 
+    setting an alignment only makes sense if you reserve space using
+    setPrefWidthInChar();
+*/
     void		setAlignment( int );
     int			alignment() const;
 
