@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.1 2005-01-06 10:49:17 kristofer Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.2 2005-01-10 15:36:06 kristofer Exp $";
 
 #include "vismpeeditor.h"
 
@@ -25,6 +25,7 @@ namespace visSurvey
 
 MPEEditor::MPEEditor()
     : geeditor( 0 )
+    , noderightclick( this )
     , emeditor( 0 )
     , translationdragger( 0 )
     , eventcatcher( 0 )
@@ -136,6 +137,18 @@ void MPEEditor::setDisplayTransformation( visBase::Transformation* nt )
 bool MPEEditor::isDraggerShown() const
 {
     return translationdragger && translationdragger->isOn();
+}
+
+
+EM::PosID MPEEditor::getNodePosID(int visid) const
+{
+    for ( int idx=0; idx<markers.size(); idx++ )
+    {
+	if ( markers[idx]->id()==visid )
+	    return posids[idx];
+    }
+
+    return EM::PosID::udf();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.1 2005-01-06 10:49:17 kristofer Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.2 2005-01-10 15:36:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 #include "emposid.h"
+#include "geomelement.h"
 
 
 namespace Geometry { class ElementEditor; };
@@ -52,6 +53,12 @@ public:
     const ObjectSet<visBase::Marker>&	markerNodes() const { return markers; }
     EM::PosID				markerId(const visBase::Marker*) const;
     bool				isDraggerShown() const;
+
+    CNotifier<MPEEditor, int>	noderightclick;
+    				/*!<\ the clicked position can be retrieved
+				      with getNodePosID(int) */
+    EM::PosID			getNodePosID(int visid) const;
+
 protected:
     				~MPEEditor();
     void			changeNodes( CallBacker* );
