@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.4 2002-07-02 13:55:24 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.5 2002-08-15 14:09:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 	, crlfld(0)
 	, zrgfld(0)
 	, zfld(0)
+	, doupdfld(0)
 	, cschanged(this)
 {
     int slctyp = cs_.hrg.start.inl == cs_.hrg.stop.inl ? 0 :
@@ -125,6 +126,7 @@ uiSliceSel::~uiSliceSel()
 
 void uiSliceSel::updateSel( CallBacker* )
 {
+    if ( !doupdfld ) return;
     bool doupdate = doupdfld->isChecked();
     stepfld->setSensitive( doupdate );
 }
@@ -132,7 +134,7 @@ void uiSliceSel::updateSel( CallBacker* )
 
 void uiSliceSel::csChanged( CallBacker* )
 {
-    if ( !doupdfld->isChecked() ) return;
+    if ( !doupdfld || !doupdfld->isChecked() ) return;
     readInput();
     cschanged.trigger();
 }
