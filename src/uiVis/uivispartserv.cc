@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.39 2002-05-03 15:50:24 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.40 2002-05-06 09:43:59 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,14 @@ void uiVisPartServer::usePar( const IOPar& par )
 
     for ( int idx=0; idx<sceneids.size(); idx++ )
     {
-	scenes += (visSurvey::Scene*) visBase::DM().getObj( sceneids[idx] );
+	visSurvey::Scene* newscene =
+	    	(visSurvey::Scene*) visBase::DM().getObj( sceneids[idx] );
+
+	newscene->mouseposchange.notify(
+				mCB( this, uiVisPartServer, mouseMoveCB ));
+	scenes += newscene;
+	newscene->ref();
+	selsceneid = newscene->id();
     }
 
     TypeSet<int> pickids;
@@ -107,8 +114,11 @@ void uiVisPartServer::usePar( const IOPar& par )
 
     for ( int idx=0; idx<pickids.size(); idx++ )
     {
-	picks += (visSurvey::PickSetDisplay*)
-	    				visBase::DM().getObj( pickids[idx] );
+	visSurvey::PickSetDisplay* pickset =
+	    (visSurvey::PickSetDisplay*) visBase::DM().getObj( pickids[idx] );	
+
+	picks += pickset;
+	pickset->changed.notify( mCB( this, uiVisPartServer, picksChangedCB ));
     }
 
 
@@ -117,8 +127,15 @@ void uiVisPartServer::usePar( const IOPar& par )
 
     for ( int idx=0; idx<seisdispids.size(); idx++ )
     {
-	seisdisps += (visSurvey::PlaneDataDisplay*)
-				    visBase::DM().getObj( seisdispids[idx] );
+	visSurvey::PlaneDataDisplay* sd =
+	   (visSurvey::PlaneDataDisplay*)visBase::DM().getObj(seisdispids[idx]);
+	seisdisps += sd;
+
+	sd->setNewDataCallBack( mCB(this,uiVisPartServer,getDataCB) );
+	visBase::VisColorTab* coltab = visBase::VisColorTab::create();
+	sd->textureRect().manipChanges()->notify(
+			    mCB(this,uiVisPartServer,manipMoveCB));
+
     }
 }
 
