@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.7 2002-04-19 08:57:52 kristofer Exp $
+ RCS:		$Id: visannot.h,v 1.8 2002-04-25 10:37:23 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,15 +18,15 @@ ________________________________________________________________________
 #include "sets.h"
 #include "draw.h"
 
-class SoCoordinate3;
-class SoText2;
 class SoSwitch;
-class SoTranslation;
 class SoDrawStyle;
+class SoCoordinate3;
 class AxisInfo;
 
 namespace visBase
 {
+class Text;
+class SceneObjectGroup;
 
 /*!\brief
     Annotation is a simple wireframe box with text on its
@@ -41,6 +41,7 @@ public:
 
     void			showText( bool yn );
     bool			isTextShown() const;
+
     void			setCorner( int, float, float, float );
     void			setText( int dim, const char * );
     void			setLineStyle( const LineStyle& );
@@ -50,16 +51,19 @@ public:
     const LineStyle&		lineStyle() const { return linestyle; }
 
 protected:
+    				~Annotation();
     LineStyle			linestyle;
     void			updateLineStyle();
 
+    void			updateTextPos(int dim);
     void			updateTextPos();
+    Text*			getText( int dim, int textnr );
+
     SoCoordinate3*		coords;
 
-    ObjectSet<SoText2>		texts;
-    ObjectSet<SoTranslation>	textpositions;
+    ObjectSet<SceneObjectGroup>	texts;
+    
     SoSwitch*			textswitch;
-
 };
 
 };
