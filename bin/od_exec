@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.16 2003-05-04 14:39:44 bert Exp $
+# $Id: od_exec,v 1.17 2003-05-04 17:47:19 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -34,6 +34,7 @@ set bindir="$dGB_APPL/bin/$binsubdir"
 set niceness=0
 set extrascript=""
 set extraargs=""
+set xtermcmd=""
 
 next_arg:
 
