@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.8 2001-10-02 15:15:09 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.9 2001-10-04 15:40:50 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,8 +343,14 @@ void uiSurvey::mkInfo()
     notes->setText( survinfo->comment() );
 }
 
+
 void uiSurvey::selChange()
 {
+    BufferString txt = notes->text();
+    survinfo->setComment( txt );
+    if ( !survinfo->write( getenv("dGB_DATA") ) )
+        ErrMsg( "Failed to write survey info.\nNo changes committed." );
+
     getSurvInfo();
     mkInfo();
     survmap->drawMap( survinfo );
@@ -362,9 +368,9 @@ void uiSurvey::doCanvas( CallBacker* c )
 
 bool uiSurvey::acceptOK( CallBacker* )
 {
+    GetSurveyName_reRead = true;
     if ( !updateSvyFile() || !IOMan::newSurvey() )
 	return false;
-    GetSurveyName_reRead = true;
 
     return true;
 }
