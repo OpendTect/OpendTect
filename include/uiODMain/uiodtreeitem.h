@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.4 2004-04-27 14:06:19 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.5 2004-06-23 15:19:21 nanne Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,6 @@ class uiListViewItem;
 class uiODTreeItem : public uiTreeItem
 {
 public:
-
     			uiODTreeItem(const char*);
 
 protected:
@@ -40,7 +39,7 @@ class uiODTreeTop : public uiTreeTopItem
 {
 public:
 			uiODTreeTop(uiSoViewer*,uiListView*,
-				    uiODApplMgr*,uiTreeFactorySet*);
+				    uiODApplMgr*,uiTreeCreaterSet*);
 			~uiODTreeTop();
 
     static const char*	sceneidkey;
@@ -53,22 +52,24 @@ public:
 
 protected:
 
-    void		addFactoryCB(CallBacker*);
-    void		removeFactoryCB(CallBacker*);
+    void		addCreaterCB(CallBacker*);
+    void		removeCreaterCB(CallBacker*);
 
     virtual const char*	parentType() const { return 0; } 
     uiODApplMgr*	applMgr();
 
-    uiTreeFactorySet*	tfs;
+    uiTreeCreaterSet*	tcs;
 
 };
 
 
 
-class uiODTreeItemFactory : public uiTreeItemFactory
+class uiODTreeItemCreater : public uiTreeItemCreater
 {
 public:
-    virtual uiTreeItem*	create( int visid ) const = 0;
+
+    virtual uiTreeItem*	create(int visid) const = 0;
+
 };
 
 

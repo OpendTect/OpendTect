@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.33 2004-06-23 11:21:43 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.34 2004-06-23 15:19:15 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -52,24 +52,24 @@ const char* uiODTreeTop::applmgrstr = "Applmgr";
 const char* uiODTreeTop::scenestr = "Scene";
 
 uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
-			    uiTreeFactorySet* tfs_ )
+			    uiTreeCreaterSet* tcs_ )
     : uiTreeTopItem(lv)
-    , tfs(tfs_)
+    , tcs(tcs_)
 {
     setProperty<int>( sceneidkey, sovwr->sceneId() );
     setPropertyPtr<uiSoViewer*>( viewerptr, sovwr );
     setPropertyPtr<uiODApplMgr*>( applmgrstr, am );
     // setPropertyPtr<uiODSceneMgr::Scene*>( scenestr, sc );
 
-    tfs->addnotifier.notify( mCB(this,uiODTreeTop,addFactoryCB) );
-    tfs->removenotifier.notify( mCB(this,uiODTreeTop,removeFactoryCB) );
+    tcs->addnotifier.notify( mCB(this,uiODTreeTop,addCreaterCB) );
+    tcs->removenotifier.notify( mCB(this,uiODTreeTop,removeCreaterCB) );
 }
 
 
 uiODTreeTop::~uiODTreeTop()
 {
-    tfs->addnotifier.remove( mCB(this,uiODTreeTop,addFactoryCB) );
-    tfs->removenotifier.remove( mCB(this,uiODTreeTop,removeFactoryCB) );
+    tcs->addnotifier.remove( mCB(this,uiODTreeTop,addCreaterCB) );
+    tcs->removenotifier.remove( mCB(this,uiODTreeTop,removeCreaterCB) );
 }
 
 
@@ -125,17 +125,17 @@ int uiODTreeItem::sceneID() const
 }
 
 
-void uiODTreeTop::addFactoryCB(CallBacker* cb)
+void uiODTreeTop::addCreaterCB(CallBacker* cb)
 {
     mCBCapsuleUnpack(int,idx,cb);
-    addChild( tfs->getFactory(idx)->create() );
+    addChild( tcs->getCreater(idx)->create() );
 }
 
 
-void uiODTreeTop::removeFactoryCB(CallBacker* cb)
+void uiODTreeTop::removeCreaterCB(CallBacker* cb)
 {
     mCBCapsuleUnpack(int,idx,cb);
-    PtrMan<uiTreeItem> dummy = tfs->getFactory(idx)->create();
+    PtrMan<uiTreeItem> dummy = tcs->getCreater(idx)->create();
     const uiTreeItem* child = findChild( dummy->name() );
     if ( children.indexOf(child)==-1 )
 	return;
@@ -172,20 +172,20 @@ void uiODTreeTop::removeFactoryCB(CallBacker* cb)
     return true; \
 
 
-bool uiODDisplayTreeItem::factory( uiTreeItem* treeitem, uiODApplMgr* appl,
-				int displayid )
+bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
+				  int displayid )
 {
-    const uiTreeFactorySet* tfs = ODMainWin()->sceneMgr().treeItemFactorySet();
-    if ( !tfs )
+    const uiTreeCreaterSet* tcs = ODMainWin()->sceneMgr().treeItemCreaterSet();
+    if ( !tcs )
 	return false;
 
-    for ( int idx=0; idx<tfs->nrFactories(); idx++ )
+    for ( int idx=0; idx<tcs->nrCreaters(); idx++ )
     {
-	mDynamicCastGet(const uiODTreeItemFactory*,treefact,
-			tfs->getFactory(idx))
-	if ( !treefact ) continue;
+	mDynamicCastGet(const uiODTreeItemCreater*,itmcreater,
+			tcs->getCreater(idx))
+	if ( !itmcreater ) continue;
 
-	uiTreeItem* res = treefact->create(displayid);
+	uiTreeItem* res = itmcreater->create( displayid );
 	if ( res )
 	{
 	    treeitem->addChild( res );
@@ -360,7 +360,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	int newid =visserv->duplicateObject(displayid,sceneID());
 	if ( newid!=-1 )
-	    uiODDisplayTreeItem::factory( this, applMgr(), newid );
+	    uiODDisplayTreeItem::create( this, applMgr(), newid );
     }
     else if ( mnuid==removemnuid )
     {
@@ -752,7 +752,7 @@ bool uiODFaultStickTreeItem::showSubMenu()
 
 
 
-uiTreeItem* uiODRandomLineFactory::create( int visid ) const
+uiTreeItem* uiODRandomLineTreeItemCreater::create( int visid ) const
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd, 
 	    	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -937,7 +937,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODFaultFactory::create( int visid ) const
+uiTreeItem* uiODFaultTreeItemCreater::create( int visid ) const
 {
     return uiVisSurface::isFault(visid) ? new uiODFaultTreeItem(visid) : 0;
 }
@@ -991,7 +991,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODHorizonFactory::create( int visid ) const
+uiTreeItem* uiODHorizonTreeItemCreater::create( int visid ) const
 {
     return uiVisSurface::isHorizon(visid) ? new uiODHorizonTreeItem(visid) : 0;
 }
@@ -1047,7 +1047,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODWellFactory::create( int visid ) const
+uiTreeItem* uiODWellTreeItemCreater::create( int visid ) const
 {
     mDynamicCastGet(visSurvey::WellDisplay*,wd, 
 	    	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -1231,7 +1231,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODPickSetFactory::create( int visid ) const
+uiTreeItem* uiODPickSetTreeItemCreater::create( int visid ) const
 {
     mDynamicCastGet( visSurvey::PickSetDisplay*, psd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -1466,7 +1466,7 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 }
 
 
-uiTreeItem* uiODInlineFactory::create( int visid ) const
+uiTreeItem* uiODInlineTreeItemCreater::create( int visid ) const
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd, 
 	    	    ODMainWin()->applMgr().visServer()->getObject(visid))
@@ -1490,7 +1490,7 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id )
 {}
 
 
-uiTreeItem* uiODCrosslineFactory::create( int visid ) const
+uiTreeItem* uiODCrosslineTreeItemCreater::create( int visid ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -1514,7 +1514,7 @@ uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id )
 {}
 
 
-uiTreeItem* uiODTimesliceFactory::create( int visid ) const
+uiTreeItem* uiODTimesliceTreeItemCreater::create( int visid ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));

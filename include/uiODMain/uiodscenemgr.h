@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.11 2004-05-07 12:32:32 nanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.12 2004-06-23 15:19:21 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiWorkSpace;
 class uiODTreeTop;
 class uiSliderExtra;
 class uiVisPartServer;
-class uiTreeFactorySet;
+class uiTreeCreaterSet;
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -83,7 +83,7 @@ public:
     int			addPickSetItem(const PickSet*,int);
     int			addSurfaceItem(const MultiID&,int,bool);
 
-    uiTreeFactorySet*   treeItemFactorySet() 		{ return tifs; }
+    uiTreeCreaterSet*   treeItemCreaterSet() 		{ return tics; }
 
 protected:
 
@@ -110,7 +110,7 @@ protected:
     ObjectSet<uiODSceneMgr::Scene> scenes;
     int			vwridx;
     float		lasthrot, lastvrot, lastdval;
-    uiTreeFactorySet*	tifs;
+    uiTreeCreaterSet*	tics;
     uiSliderExtra*	zoomslider;
 
     void		wheelMoved(CallBacker*,int wh,float&);
