@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.15 2004-02-12 15:49:34 bert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.16 2004-02-12 16:24:25 bert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -302,16 +302,17 @@ const char* Well::AscImporter::getLogs( istream& strm,
     BoolTypeSet issel( inplfi.lognms.size(), false );
     for ( int idx=0; idx<inplfi.lognms.size(); idx++ )
     {
+	int globidx = idx + 1;
 	if ( indexOf(lfi.lognms,*inplfi.lognms[idx]) >= 0 )
 	{
 	    issel[idx] = true;
 	    Well::Log* newlog = new Well::Log( inplfi.lognms[idx]->buf() );
 	    BufferString unlbl;
-	    if ( convs[idx] )
+	    if ( convs[globidx] )
 	    {
 		if ( idx == 0 || useconvs_ )
 		    unlbl = "Converted to SI from ";
-		unlbl += unitmeasstrs.get( idx );
+		unlbl += unitmeasstrs.get( globidx );
 	    }
 	    newlog->setUnitMeasLabel( unlbl );
 	    wd.logs().add( newlog );
