@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec_rmt,v 1.15 2004-09-29 14:41:39 dgb Exp $
+# $Id: od_exec_rmt,v 1.16 2004-10-01 15:30:27 dgb Exp $
 #
 # module remote startup script
 #_______________________________________________________________________________
@@ -30,6 +30,7 @@ if ( $#argv < 1 ) then
     echo "       [--with-local-proc-dir <processing directory on local host>"
     echo "       [--with-remote-proc-dir <processing directory on remote host>"
     echo "       [--transfervars <list of environment vars to transfer> -+-+-"
+    echo "       [--iswin]"
 endif
 
 set remotehost=$1
@@ -52,6 +53,7 @@ set datahost=""
 set datadrive=""
 set datashare=""
 set datapass=""
+set iswin=0
 
 next_arg:
 
@@ -78,6 +80,10 @@ else if ( $1 == "--data-drive" ) then
 else if ( $1 == "--data-share" ) then
         set datashare="$2"
         shift; shift
+        goto next_arg
+else if ( $1 == "--iswin" ) then
+        set iswin=1
+        shift
         goto next_arg
 else if ( $1 == "--with-dtect-appl" ) then
         set dtectappl="$2"
@@ -107,7 +113,11 @@ else if ( "$1" == "--transfervars" ) then
 	goto next_var
 endif
 
-set transf="setenv DTECT_DATA -=-$dtectdata-=- +-+ setenv DTECT_APPL -=-$dtectappl-=-"
+set transf="setenv DTECT_APPL -=-$dtectappl-=-"
+
+if ( $?dtectdata ) then
+    set transf="${transf} +-+  setenv DTECT_DATA -=-$dtectdata-=-"
+endif
 
 if ( $?DTECT_USER ) then
 	set transf="${transf} +-+ setenv DTECT_USER $DTECT_USER"
