@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.2 2000-04-17 14:57:07 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.3 2000-11-27 15:25:50 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.2 2000-04-17 14:57:07 bert Exp $";
 #include "iopar.h"
 #include "iostrm.h"
 #include "iox.h"
-#include "aobset.h"
 #include "transl.h"
 #include "ascstream.h"
 #include "separstr.h"
@@ -225,15 +224,14 @@ int IOObj::put( ascostream& astream ) const
 	astream.put( group(), fms );
     }
 
-    if ( !putTo( astream ) ) return NO;
-    if ( opts && opts->size() )
+    if ( !putTo( astream ) )
+	return NO;
+    if ( opts )
     {
-	AliasObjectSet& pars = opts->getPars();
-	for ( int idx=0; idx<pars.size(); idx++ )
+	for ( int idx=0; idx<opts->size(); idx++ )
 	{
 	    astream.stream() << '#';
-	    AliasObject* par = pars[idx];
-	    astream.put( par->name(), par->obj->name() );
+	    astream.put( opts->getKey(idx), opts->getValue(idx) );
 	}
     }
     astream.newParagraph();

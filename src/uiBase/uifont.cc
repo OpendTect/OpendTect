@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.1 2000-11-27 10:20:35 bert Exp $
+ RCS:           $Id: uifont.cc,v 1.2 2000-11-27 15:25:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "uimain.h"
 #include "settings.h"
-#include "aobset.h"
+#include "uidobjset.h"
 #include "uidialog.h"
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -263,17 +263,16 @@ void uiFontList::use( const Settings& settings )
 
     if ( fontpar )
     {
-	const AliasObjectSet& pars = fontpar->getPars();
-	for ( int ipar=0; ipar<pars.size(); ipar++ )
+	for ( int ipar=0; ipar<fontpar->size(); ipar++ )
 	{
-	    const AliasObject& aob = pars[ipar];
+	    const char* parkey = fontpar->getKey(ipar);
 	    bool isstd = false;
 	    ikey = 0;
 	    while( const char* key = FontData::defaultKeys()[ikey++] )
-		if ( aob.name() == key ) { isstd = true; break; }
+		if ( !strcmp(key,parkey) ) { isstd = true; break; }
 
 	    if ( !isstd )
-		add( aob.name(), FontData( (*fontpar)[aob.name()] ) );
+		add( parkey, FontData( (*fontpar)[parkey] ) );
 	}
 
 	delete fontpar;
