@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994; 20-10-1995
  Contents:	Enum <--> string conversion and generalized reference
- RCS:		$Id: enums.h,v 1.5 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: enums.h,v 1.6 2003-11-11 09:58:04 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,26 +178,27 @@ private:
 
 #define DeclareEnumUtils(enm) \
 public: \
-    static EnumRef Ppaste(enm,Ref)( enm& _e_ ) \
-    { return EnumRef( (int&)_e_, Ppaste(enm,Def) ); } \
-    static const EnumDef Ppaste(enm,Def); \
-    static const char* Ppaste(enm,Names)[];
+    static EnumRef enm##Ref(enm&); \
+    static const EnumDef enm##Def; \
+    static const char* enm##Names[];
 
 #define DeclareEnumUtilsWithVar(enm,varnm) \
 public: \
-    enm varnm() const { return Ppaste(varnm,_); } \
-    void Ppaste(set,enm)(enm _e_) { Ppaste(varnm,_) = _e_; } \
-    EnumRef Ppaste(varnm,Ref)() const \
-    { return EnumRef( (int&)Ppaste(varnm,_), Ppaste(enm,Def) ); } \
+    enm varnm() const { return varnm##_; } \
+    void set##enm(enm _e_) { varnm##_ = _e_; } \
+    EnumRef varnm##Ref() const \
+    { return EnumRef( (int&)varnm##_, enm##Def ); } \
     DeclareEnumUtils(enm) \
 protected: \
-    enm Ppaste(varnm,_); \
+    enm varnm##_; \
 public:
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
-const EnumDef clss::Ppaste(enm,Def) \
-	( prettynm, clss::Ppaste(enm,Names), deflen ); \
-const char* clss::Ppaste(enm,Names)[] =
+EnumRef clss::enm##Ref( enm& _e_ ) \
+    { return EnumRef( (int&)_e_, enm##Def ); } \
+const EnumDef clss::enm##Def \
+	( prettynm, clss::enm##Names, deflen ); \
+const char* clss::enm##Names[] =
 
 
 inline EnumRef&	EnumRef::operator=( const char* s )
@@ -213,13 +214,13 @@ inline EnumRef&	EnumRef::operator=( const char* s )
 
 
 
-#define eString(enm,vr)	(Ppaste(enm,Def).convert((int)vr))
+#define eString(enm,vr)	(enm##Def.convert((int)vr))
 //!< this is the actual enum -> string
-#define eEnum(enm,str)	((enm)Ppaste(enm,Def).convert(str))
+#define eEnum(enm,str)	((enm)enm##Def.convert(str))
 //!< this is the actual string -> enum
-#define eKey(enm)	(Ppaste(enm,Def).name())
+#define eKey(enm)	(enm##Def.name())
 //!< this is the 'pretty name' of the enum
-#define eRef(enm,vr)	(Ppaste(enm,Ref)(vr))
+#define eRef(enm,vr)	(enm##Ref(vr))
 
 #endif /* #ifndef __cpp__ */
 
