@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.65 2004-05-05 15:31:17 nanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.66 2004-05-07 12:54:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -342,7 +342,8 @@ void uiIOObjSel::processInput()
     IOM().to( ctio.ctxt.stdSelKey() );
     const IOObj* ioobj = (*IOM().dirPtr())[inp];
     ctio.setObj( ioobj && ctio.ctxt.validIOObj(*ioobj) ? ioobj->clone() : 0 );
-    updateInput();
+    if ( ctio.ioobj || ctio.ctxt.forread )
+	updateInput();
 }
 
 
