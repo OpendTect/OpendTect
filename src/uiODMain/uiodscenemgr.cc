@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.27 2004-09-17 15:20:49 nanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.28 2004-09-22 10:20:12 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,6 +245,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	title += vwridx;
   	scn.sovwr->setTitle( title );
 	scn.sovwr->display();
+	scn.sovwr->viewmodechanged.notify( mWSMCB(viewModeChg) );
 	scn.vwrGroup()->display( true, false );
 	setZoomValue( scn.sovwr->getCameraZoom() );
 	initTree( scn, vwridx );
