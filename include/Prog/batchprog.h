@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.9 2003-02-26 08:56:15 arend Exp $
+ RCS:		$Id: batchprog.h,v 1.10 2003-08-14 13:02:36 arend Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -48,6 +48,7 @@ public:
 			    { return writeStatus_( tag, stat, false ); }
 			//! write error msg over sock if sock avail.
     bool		writeErrorMsg( const char* msg );
+    bool		pauseRequested()	{ return pausereq_; }
 
 protected:
 
@@ -74,6 +75,7 @@ protected:
     int			masterport_;
     bool		usesock_;
     int			jobid_;
+    bool		pausereq_;
 
     bool		initOutput();
     void		progKilled(CallBacker*);
