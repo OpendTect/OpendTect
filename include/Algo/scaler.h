@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.6 2001-05-02 13:49:58 windev Exp $
+ RCS:		$Id: scaler.h,v 1.7 2001-05-02 14:04:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ public:
 
 class ExpScaler : public Scaler
 {
-#define cloneTp		mPolyRet(Scaler,LogScaler)
+#define cloneTp		mPolyRet(Scaler,ExpScaler)
 public:
 			ExpScaler( bool t = YES )
 			: ten(t)			{}
