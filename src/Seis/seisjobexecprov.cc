@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.7 2004-11-11 11:35:57 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.8 2004-11-29 13:14:50 bert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.7 2004-11-11 11:35:57 be
 
 const char* SeisJobExecProv::sKeyTmpStor = "Temporary storage location";
 const char* SeisJobExecProv::sKeySeisOutIDKey = "Output Seismics Key";
+static const char* sKeyProcIs2D = "Processing is 2D";
 #define mOutKey(s) IOPar::compKey("Output.1",s)
 
 
@@ -67,6 +68,10 @@ const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 
 JobDescProv* SeisJobExecProv::mk2DJobProv()
 {
+    const char* restkey = iopar_.find( sKeyProcIs2D );
+    const bool isrestart = restkey && *restkey == 'Y';
+    iopar_.set( sKeyProcIs2D, "Yes" );
+
     BufferStringSet nms;
     const char* lskey = iopar_.find( "LineSet Key" );
     if ( !lskey ) lskey = "Input Seismics.ID";
@@ -78,6 +83,32 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	Seis2DLineSet ls( ioobj->fullUserExpr(true) );
 	for ( int idx=0; idx<ls.nrLines(); idx++ )
 	    nms.addIfNew( ls.lineName(idx) );
+	if ( isrestart )
+	{
+	    const BufferString attrnm = iopar_.find( "Target value" );
+	    for ( int idx=0; idx<nms.size(); idx++ )
+	    {
+		LineKey lk( nms.get(idx) );
+		lk.setAttrName( attrnm );
+		const int lidx = ls.indexOf( lk );
+		if ( lidx >= 0 )
+		{
+		    Line2DGeometry geom;
+		    if ( ls.getGeometry(lidx,geom) && geom.posns.size() > 0 )
+		    {
+			nms.remove( idx );
+			idx--;
+		    }
+		}
+	    }
+	    if ( nms.size() < 1 )
+	    {
+		// Hmm - all already done. Then probably (s)he wants to
+		// re-process, possibly with new attrib definition
+		for ( int idx=0; idx<ls.nrLines(); idx++ )
+		    nms.addIfNew( ls.lineName(idx) );
+	    }
+	}
     }
     BufferString parkey( mOutKey("Line key") );
     KeyReplaceJobDescProv* ret
@@ -90,7 +121,10 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 bool SeisJobExecProv::isRestart() const
 {
     const char* res = iopar_.find( sKeyTmpStor );
-    return res && File_isDirectory(res);
+    if ( !res )
+	return iopar_.find( sKeyProcIs2D );
+
+    return File_isDirectory(res);
 }
 
 
