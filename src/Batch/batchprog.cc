@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.13 2002-04-17 21:36:04 bert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.14 2002-04-26 14:57:33 bert Exp $";
 
 #include "batchprog.h"
 #include "ioparlist.h"
@@ -44,11 +44,9 @@ int Execute_batch( int* pargc, char** argv )
 #endif
     }
 
-    bool allok = BatchProgram::inst_->initOutput();
-    if ( allok )
-    {
-	allok = BatchProgram::inst_->go( *BatchProgram::inst_->sdout_.ostrm );
-    }
+    BatchProgram& bp = *BatchProgram::inst_;
+    bool allok = bp.initOutput() && bp.go( *bp.sdout_.ostrm );
+    bp.stillok_ = allok;
     delete BatchProgram::inst_;
     return allok ? 0 : 1;
 }
@@ -103,7 +101,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
 BatchProgram::~BatchProgram()
 {
-    writePid( -1 );
+    writePid( stillok_ ? -1 : -2 );
     sdout_.close();
     delete &sdout_;
 }
@@ -149,6 +147,7 @@ bool BatchProgram::writePid( int pid )
 
 bool BatchProgram::initOutput()
 {
+    stillok_ = false;
     if ( !writePid(getPID()) )
 	exit( 0 );
 
@@ -183,5 +182,6 @@ bool BatchProgram::initOutput()
 	}
     }
 
-    return sdout_.usable();
+    stillok_ = sdout_.usable();
+    return stillok_;
 }

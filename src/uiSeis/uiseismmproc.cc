@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.8 2002-04-25 22:49:12 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.9 2002-04-26 14:57:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,15 @@ void uiSeisMMProc::postStep( CallBacker* )
 }
 
 
+void uiSeisMMProc::setDataTransferrer( SeisMMJobMan* newjm )
+{
+    delete newjm; newjm = 0;
+    jmfinished = true;
+    task_ = jm->dataTransferrer();
+    delay = 0;
+}
+
+
 void uiSeisMMProc::execFinished()
 {
     if ( jmfinished )
@@ -137,17 +146,29 @@ void uiSeisMMProc::execFinished()
     {
 	updateCurMachs();
 	SeisMMJobMan* newjm = new SeisMMJobMan( *jm );
-	if ( newjm->totalNr() < 1 )
-	{
-	    delete newjm; newjm = 0;
-	    jmfinished = true;
-	    task_ = jm->dataTransferrer();
-	    delay = 0;
-	}
+	const int nrlines = newjm->totalNr();
+	if ( nrlines < 1 )
+	    setDataTransferrer( newjm );
 	else
 	{
-	    delete jm; jm = newjm;
-	    task_ = newjm;
+	    BufferString msg( "The following inlines were not calculated.\n" );
+	    msg += "This may be due to gaps or an unexpected error.\n";
+	    for ( int idx=0; idx<nrlines; idx++ )
+	    {
+		msg += newjm->lineToDo(idx);
+		if ( idx != nrlines-1 ) msg += " ";
+	    }
+	    msg += "\nDo you want to try to calculate these lines?";
+	    int res = uiMSG().askGoOnAfter( msg, "Quit program" );
+	    if ( res == 2 )
+		reject(this);
+	    else if ( res == 1 )
+		setDataTransferrer( newjm );
+	    else
+	    {
+		delete jm; jm = newjm;
+		task_ = newjm;
+	    }
 	}
 	first_time = true;
 	timerTick(0);
