@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.4 2000-08-08 14:14:28 bert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.5 2000-08-09 08:28:50 bert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -44,10 +44,12 @@ Settings::Settings( const char* setupf )
 bool Settings::reRead()
 {
     ifstream* strm = new ifstream( fname );
+    bool do_write = false;
     if ( !strm || !strm->good() )
     {
 	delete strm;
 	strm = new ifstream( GetDataFileName( "dgbSettings" ) );
+	do_write = true;
     }
     if ( !strm || !strm->good() )
 	{ delete strm; return false; }
@@ -65,6 +67,7 @@ bool Settings::reRead()
     }
 
     delete strm;
+    if ( do_write ) write();
     return true;
 }
 
