@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.10 2004-11-16 09:29:17 kristofer Exp $
+ RCS:           $Id: visdragger.h,v 1.11 2005-01-06 10:47:56 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ public:
     static Dragger*		create()
     				mCreateDataObj(Dragger);
 
-    enum Type			{ Translate, DragPoint };
+    enum Type			{ Translate1D, Translate2D, Translate3D };
     void			setDraggerType(Type);
 
     void			setPos(const Coord3&);
@@ -61,6 +61,7 @@ public:
 				    \note The object will not be reffed,
 					  so it's up to the caller to make sure
 					  it remains in memory */
+    SoNode*			getShape( const char* name );
     bool			selectable() const;
 
     Notifier<Dragger>		started;
