@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.74 2003-05-12 16:15:23 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.75 2003-06-30 15:34:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -628,6 +628,8 @@ public:
                         }
     void		provideHelp(CallBacker*);
 
+    const uiDialog::Setup& getSetup() const	{ return setup; }
+
 protected:
 
     virtual const QWidget* managewidg_() const 
@@ -943,6 +945,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 
 
 int uiDialog::go()				{ return mBody->exec(); }
+const uiDialog::Setup& uiDialog::setup() const	{ return mBody->getSetup(); }
 void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
 void uiDialog::accept( CallBacker*cb)		{ mBody->accept( cb ); }
 void uiDialog::done( int i )			{ mBody->done( i ); }
