@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.7 2001-08-24 14:23:42 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.8 2001-11-20 12:17:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,10 @@ public:
 			uiMainWin( uiParent* parnt=0, 
 				   const char* nm="uiMainWin",
 				   bool wantStatusBar = true, 
-				   bool wantMenuBar = true );
+				   bool wantMenuBar = true,
+				   bool modal=false );
 
+    virtual		~uiMainWin();
 
     uiStatusBar* 	statusBar();
     uiMenuBar* 		menuBar();
@@ -48,8 +50,7 @@ protected:
 
 //    void		doPolish(CallBacker*);
 
-
-private:
+			uiMainWin( const char* );
 
     uiMainWinBody*	body_;
 };

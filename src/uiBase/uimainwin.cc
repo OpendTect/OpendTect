@@ -4,28 +4,36 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.13 2001-10-24 15:20:32 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.14 2001-11-20 12:17:26 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
-#include "qmainwindow.h"
-#include "qwidget.h"
-
-#include "uistatusbar.h"
-#include "qstatusbar.h"
-#include "uimenu.h"
-#include "uigroup.h"
-#include "uimsg.h"
-#include "uiobjbody.h"
-#include "uibody.h"
-#include "uiparentbody.h"
+#include "uidialog.h"
 
 #include "msgh.h"
 #include "errh.h"
+#include "uimsg.h"
+
+#include "uibody.h"
+#include "uiobjbody.h"
+#include "uiparentbody.h"
+
+#include "uigroup.h"
+#include "uibutton.h"
+#include "uistatusbar.h"
+#include "uiseparator.h"
+#include "uimenu.h"
+#include "uilabel.h"
+
 
 #include <iostream>
+
+#include <qmainwindow.h>
+#include <qwidget.h>
+#include <qstatusbar.h>
+#include <qapplication.h>
 
 #ifdef __msvc__
 #include <qpopupmenu.h>
@@ -36,17 +44,16 @@ ________________________________________________________________________
 #include <qmenubar.h>
 #endif
 
-//class uiMainWinBody : public uiBodyIsaQthingImpl<uiMainWin,QMainWindow>
-//		    , public uiParentBody
+
 class uiMainWinBody : public uiParentBody, public UserIDObject
 		    , public QMainWindow
 {
 public:
-			uiMainWinBody( uiMainWin& handle, uiParent* parnt=0,
-				   const char* nm="uiMainWinBody" );
+			uiMainWinBody( uiMainWin& handle, uiParent* parnt,
+				       const char* nm, bool modal );
 
+    void		construct( bool wantStatusBar, bool wantMenuBar );
 
-    void		construct( bool wantStatusBar, bool wantMenuBar);
     virtual		~uiMainWinBody();
 
 #define mHANDLE_OBJ     uiMainWin
@@ -94,9 +101,30 @@ public:
     virtual int		minTextWidgetHeight() const
 			{ return centralWidget_->minTextWidgetHeight(); }
 
-    void		go()			{ finalise(); show(); }
+    void		go()			
+			{ 
+			    finalise(); 
+			    show(); 
+			}
 
-//protected:
+    virtual void	show() 
+			{
+			    QMainWindow::show();
+			    if( modal_ )	
+				looplevel__ = qApp->enter_loop();
+			    else 
+				looplevel__ = -1;
+			}
+
+
+    virtual void	hide() 
+			{
+			int ll = qApp->loopLevel();
+			    if( modal_ )	qApp->exit_loop();
+			    QMainWindow::hide();
+			}
+
+protected:
 
     virtual void	finalise();
 
@@ -115,23 +143,35 @@ protected:
 				return centralWidget_->body()->managewidg();
 			    return qwidget_();
 			}
+
+private:
+
+    bool		modal_;
+
+int looplevel__;
 };
 
 
 
 uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt, 
-			      const char* nm )
-	//: uiBodyIsaQthingImpl<uiMainWin,QMainWindow> ( handle__, parnt )
+			      const char* nm, bool modal )
 	: uiParentBody()
 	, UserIDObject( nm )
-	, QMainWindow( parnt && parnt->body() ? 
-			    parnt->body()->qwidget() : 0, nm )
+	, QMainWindow( parnt && parnt->body() ?  parnt->body()->qwidget() : 0, 
+		       nm, 
+//		       modal ?  WType_TopLevel | WShowModal| WGroupLeader :
+		       modal ?  WType_TopLevel | WShowModal :
+				WType_TopLevel )
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
-	, statusbar( 0 ) , menubar(0)  {}
+	, statusbar( 0 ) , menubar(0)  
+	, modal_( modal )
+{
+    if ( *nm ) setCaption( nm );
+}
 
-void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar)
+void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar )
 { 
     centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget" );
     setCentralWidget( centralWidget_->body()->qwidget() ); 
@@ -188,15 +228,23 @@ uiMenuBar* uiMainWinBody::uimenubar()
 
 
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
-		      bool wantSBar, bool wantMBar )
+		      bool wantSBar, bool wantMBar, bool modal )
     : uiParent( nm, 0 )
     , body_( 0 )
 { 
-    body_= new uiMainWinBody( *this, parnt, nm ); 
+    body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
     body_->construct(wantSBar,wantMBar);
     body_->uiCentralWidg()->setBorder(10);
 }
+
+uiMainWin::uiMainWin( const char* nm )
+    : uiParent( nm, 0 )
+    , body_( 0 )			
+{}
+
+uiMainWin::~uiMainWin()
+{ delete body_; }
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
@@ -209,4 +257,288 @@ uiObject* uiMainWin::uiObj()
 
 const uiObject* uiMainWin::uiObj() const
     { return body_->uiCentralWidg()->uiObj(); }
+
+
+
+
+/*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
+'Save defaults' button.
+
+*/
+
+#define mHandle static_cast<uiDialog&>(handle_)
+
+class uiDialogBody : public uiMainWinBody
+{ 	
+public:
+			uiDialogBody( uiDialog& handle, uiParent*, const char*, 
+				      bool, bool, bool);
+
+    int			exec(); 
+
+    void		reject( CallBacker* s)	
+			    { if( mHandle.rejectOK(s) ) done_(0); }
+                        //!< to be called by a 'cancel' button
+    void		accept( CallBacker* s)	
+			    { if( mHandle.acceptOK(s) ) done_(1); }
+                        //!< to be called by a 'ok' button
+    void		done( CallBacker* s )	
+			    { if( mHandle.doneOK(s) ) done_(2); }
+
+    void		uiSetResult( int v ) { reslt = v; }
+    int			uiResult(){ return reslt; }
+
+    void		setOkText( const char* txt );
+			//!< OK button disabled when set to empty
+    void		setCancelText( const char* txt );
+			//!< cancel button disabled when set to empty
+    void		enableSaveButton( const char* txt="Save defaults" )
+			    { saveText = txt; }
+
+    void		setTitleText( const char* txt );
+
+    bool		saveButtonChecked();
+    uiCheckBox*		saveButton()			{ return saveBut; }
+
+			//! Separator between central dialog and Ok/Cancel bar?
+    void		setSeparator( bool yn )		{ separ = yn; }
+    bool		separator()			{ return separ; }
+
+    void		setDlgGrp( uiGroup* cw )	{ dlgGroup=cw; }
+
+    void		setSpacing( int spc )	{ dlgGroup->setSpacing(spc); }
+    void		setBorder( int b )	{ dlgGroup->setBorder( b ); }
+
+    virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
+			{ 
+			    if ( !initing ) 
+				dlgGroup->manageChld( o, b );
+			}
+
+    virtual void  	attachChild ( constraintType tp,
+                                              uiObject* child,
+                                              uiObject* other, int margin )
+                        {
+                            if ( !child || initing ) return;
+			    dlgGroup->attachChild( tp, child, other, margin); 
+                        }
+
+protected:
+
+    virtual const QWidget* managewidg_() const 
+			{ 
+			    if ( !initing ) 
+				return dlgGroup->body()->managewidg();
+			    return uiMainWinBody::managewidg_();
+			}
+
+    int 		reslt;
+    bool		childrenInited;
+
+
+    uiGroup*            dlgGroup;
+    BufferString	okText;
+    BufferString	cnclText;
+    BufferString	saveText;
+    BufferString	titleText;
+    bool		separ;
+
+    uiPushButton*	okBut;
+    uiPushButton*	cnclBut;
+    uiCheckBox*		saveBut;
+    uiSeparator*	horSepar;
+    uiLabel*		title;
+
+    void		done_(int);
+
+    virtual void	finalise();
+
+};
+
+
+uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt, const char* nm, 
+			    bool modal, bool separator, bool withmenubar )
+    : uiMainWinBody(handle,parnt,nm,modal)
+    , dlgGroup( 0 )
+    , okText("Ok"), cnclText("Cancel"), saveText(""), titleText("")
+    , okBut( 0 ), cnclBut( 0 ), saveBut( 0 ), title( 0 )
+    , reslt( 0 )
+    , separ( separator ), horSepar( 0 )
+    , childrenInited(false)
+{
+}
+
+int uiDialogBody::exec()
+{ 
+    uiSetResult( 0 );
+
+    go();
+
+    return uiResult();
+}
+
+
+
+void uiDialogBody::setOkText( const char* txt )    
+{ 
+    okText = txt; 
+    if( okBut ) okBut->setText(txt);
+}
+
+
+void uiDialogBody::setTitleText( const char* txt )    
+{ 
+    titleText = txt; 
+    if( title ) title->setText(txt);
+}
+
+void uiDialogBody::setCancelText( const char* txt ) 
+{ 
+    cnclText = txt; 
+    if( cnclBut ) cnclBut->setText(txt);
+}
+
+
+bool uiDialogBody::saveButtonChecked()
+{ 
+    return saveBut ? saveBut->isChecked() : false;
+}
+
+
+/*!
+    Hides the box, which also exits the event loop in case of a modal box.
+*/
+void uiDialogBody::done_( int v )
+{
+    uiSetResult( v );
+    hide();
+}
+
+
+/*!
+    Construct OK and Cancel buttons just before the first show.
+    This gives chance not to construct them in case OKtext and CancelText have
+    been set to ""
+*/
+void uiDialogBody::finalise() 
+{
+    uiMainWinBody::finalise(); 
+
+    mHandle.finaliseStart.trigger(mHandle);
+
+    dlgGroup->finalise();
+
+    if( !childrenInited ) 
+    {
+	uiObject* alignObj = dlgGroup->uiObj();
+
+	if( okText != "" ) okBut = new uiPushButton( centralWidget_, okText );
+	if( cnclText != "" ) cnclBut = 
+				new uiPushButton( centralWidget_, cnclText );
+	if( saveText != "" ) saveBut = 
+				new uiCheckBox( centralWidget_, saveText );
+
+	title = new uiLabel( centralWidget_, titleText );
+	uiSeparator* sep = new uiSeparator( centralWidget_ );
+
+	title->attach( centeredAbove, sep );
+	sep->attach( stretchedBelow, title, -2 );
+	dlgGroup->attach( stretchedBelow, sep );
+
+	if( separ && (okBut || cnclBut || saveBut ))
+	{
+	    horSepar = new uiSeparator( centralWidget_ );
+	    horSepar->attach( stretchedBelow, dlgGroup, -2 );
+	    alignObj = horSepar;
+	}
+
+	if ( okBut )
+	{
+	    if ( !cnclBut )
+		okBut->attach( centeredBelow, alignObj );
+	    else
+	    {
+		okBut->attach( leftBorder );
+		okBut->attach( ensureBelow, alignObj );
+	    }
+	    okBut->attach( bottomBorder );
+	    okBut->activated.notify( mCB( this, uiDialogBody, accept ));
+	    okBut->setDefault();
+	}
+
+	if ( cnclBut )
+	{
+	    if ( !okBut )
+	    {
+		cnclBut->attach( centeredBelow, alignObj );
+		cnclBut->setDefault();
+	    }
+	    else
+	    {
+		cnclBut->attach( rightBorder );
+		cnclBut->attach( ensureBelow, alignObj );
+		cnclBut->attach( ensureRightOf, okBut );
+	    }
+	    cnclBut->attach( bottomBorder );
+
+	    cnclBut->activated.notify( mCB( this, uiDialogBody, reject ));
+	}
+
+	if( saveBut )
+	{
+	    if( okBut )
+		saveBut->attach(rightOf, okBut);
+	    if( cnclBut )
+		cnclBut->attach(ensureRightOf, saveBut);
+
+	    saveBut->attach( bottomBorder );
+	}
+
+	childrenInited = true;
+    }
+
+    finaliseChildren();
+
+    mHandle.finaliseDone.trigger(mHandle);
+}
+
+#define mBody static_cast<uiDialogBody*>(body_)
+
+uiDialog::uiDialog( uiParent* parnt, const char* nm, bool modal, bool sep,
+		    bool wantMBar, bool wantSBar)//, int border, int spacing )
+: uiMainWin( nm )
+, finaliseStart( this )
+, finaliseDone( this )
+{
+
+    body_= new uiDialogBody( *this, parnt, nm, modal, sep, wantMBar ); 
+    setBody( body_ );
+    body_->construct( wantSBar, wantMBar );
+
+    uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
+
+    cw->setStretch( 1, 1 );
+    mBody->setDlgGrp( cw );
+
+    setTitleText( nm );
+}
+
+
+int uiDialog::go()				{ return mBody->exec(); }
+void uiDialog::reject( CallBacker* cb)		{ mBody->reject( cb ); }
+void uiDialog::accept( CallBacker*cb)		{ mBody->accept( cb ); }
+void uiDialog::done( CallBacker*cb)		{ mBody->done( cb ); }
+void uiDialog::setSpacing( int s )		{ mBody->setSpacing(s); }
+void uiDialog::setBorder( int b )		{ mBody->setBorder(b); }
+void uiDialog::setCaption( const char* txt )	{ mBody->setCaption(txt); }
+void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
+void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
+void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}
+void uiDialog::enableSaveButton( const char* txt )
+    { mBody->enableSaveButton(txt); }
+bool uiDialog::saveButtonChecked()	
+    { return mBody->saveButtonChecked(); }
+void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
+bool uiDialog::separator()			{ return mBody->separator(); }
+
 

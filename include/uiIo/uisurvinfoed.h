@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.5 2001-11-12 13:51:00 nanne Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.6 2001-11-20 12:17:45 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "uigroup.h"
 class uiCheckBox;
 class uiGenInput;
 class uiPushButton;

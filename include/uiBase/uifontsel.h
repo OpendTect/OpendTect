@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          25/9/2000
- RCS:           $Id: uifontsel.h,v 1.2 2001-05-16 14:58:41 arend Exp $
+ RCS:           $Id: uifontsel.h,v 1.3 2001-11-20 12:17:19 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiButton;
 class uiLabeledComboBox;
 class UserIDSet;
+class uiFont;
 
 
 bool	select( uiFont&, uiParent* parnt=0, const char* nm=0 );

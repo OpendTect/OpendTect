@@ -7,31 +7,28 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.13 2001-10-24 15:20:40 arend Exp $
+ RCS:           $Id: uidialog.h,v 1.14 2001-11-20 12:17:19 arend Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiobj.h"
-#include "uiparent.h"
+#include "uimainwin.h"
 #include "bufstring.h"
-
-class uiDialogBody;
-class uiMenuBar;
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
 
 */
-class uiDialog : public uiParent
+class uiDialog : public uiMainWin
 { 	
+// impl: uimainwin.cc
 friend class uiDialogBody;
 
 public:
 			uiDialog( uiParent* p =0, const char* nm="uiDialog", 
 				  bool modal=true, bool separator=true,
-				  bool withmenubar=false,
-				  int border=7, int spacing=10);
+				  bool wantMBar=false, bool wantSBar=false );
+//				  int border=7, int spacing=10);
 
 
     int			go(); 
@@ -39,8 +36,6 @@ public:
     void		reject( CallBacker* cb =0);
     void		accept( CallBacker* cb =0);
     void		done( CallBacker* cb =0);
-
-    uiMenuBar*		menuBar();
 
     void		setSpacing( int ); 
     void		setBorder( int ); 
@@ -70,11 +65,6 @@ protected:
     virtual bool        rejectOK(CallBacker*){ return true;}//!< confirm reject 
     virtual bool        acceptOK(CallBacker*){ return true;}//!< confirm accept 
     virtual bool        doneOK(CallBacker*){ return true; } //!< confirm exit 
-
-private:
-
-    uiDialogBody*	body_;
-    uiDialogBody&	mkbody(uiParent*, const char*,bool,bool,bool,int, int);
 };
 
 #endif
