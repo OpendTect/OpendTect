@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.26 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: ranges.h,v 1.27 2004-01-08 14:37:21 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,88 +27,42 @@ template <class T>
 class Interval
 {
 public:
-		Interval()			{ start = 0; stop = 0; }
-		Interval( const T& t1, const T& t2 )
-						{ start = t1; stop = t2; }
+    inline			Interval();
+    inline			Interval( const T& t1, const T& t2 );
+    inline virtual Interval<T>* clone() const;
 
-    virtual Interval<T>* clone() const		
-		{ return new Interval<T>( *this ); }
+    inline int		operator==( const Interval<T>& i ) const;
+    inline int		operator!=( const Interval<T>& i ) const;
 
-    inline int	operator==( const Interval<T>& i ) const
-		{ return start == i.start && stop == i.stop; }
-    inline int	operator!=( const Interval<T>& i ) const
-		{ return ! (i == *this); }
-
-    inline T	width( bool allowrev=true ) const
-		{ return allowrev && isRev() ? start - stop : stop - start; }
-    inline T	center() const
-		{ return (start+stop)/2; }
-    inline void	shift( const T& len )
-		{ start += len; stop += len; }
-    inline void	widen( const T& len, bool allowrev=true )
-		{
-		    if ( allowrev && isRev() )
-			{ start += len; stop -= len; }
-		    else
-			{ start -= len; stop += len; }
-		}
+    inline T		width( bool allowrev=true ) const;
+    inline T		center() const;
+    inline void		shift( const T& len );
+    inline void		widen( const T& len, bool allowrev=true );
 
     template <class TT>
-    inline bool	includes( const TT& t, bool allowrev=true ) const
-		{
-		    return allowrev && isRev()
-			? t>=stop && start>=t
-			: t>=start && stop>=t;
-		}
-    inline void	include( const T& i, bool allowrev=true )
-		{
-		    if ( allowrev && isRev() )
-			{ if ( stop>i ) stop=i; if ( start<i ) start=i; }
-		    else
-			{ if ( start>i ) start=i; if ( stop<i ) stop=i; }
-		}
-    inline void	include( const Interval<T>& i, bool allowrev=true )
-		{ include( i.start, allowrev ); include( i.stop, allowrev ); }
+    inline bool		includes( const TT& t, bool allowrev=true ) const;
+    inline void		include( const T& i, bool allowrev=true );
+    inline void		include( const Interval<T>& i, bool allowrev=true );
 
-    inline T	atIndex( int idx, const T& step ) const
-		{ return start + step * idx; }
+    inline T		atIndex( int idx, const T& step ) const;
 
     template <class X>
-    inline int	getIndex( const X& t, const T& step ) const
-		{ return (int)(( t  - start ) / step); }
+    inline int		getIndex( const X& t, const T& step ) const;
 
     template <class X>
-    inline X	limitValue( const X& t ) const
-    		{
-		    const bool isrev = isRev();
-		    if ( (!isrev&&t>stop) || (isrev&&t<stop) ) return stop;
-		    if ( (!isrev&&t<start) || (isrev&&t>start) ) return start;
-		    return t;
-		}
+    inline X		limitValue( const X& t ) const;
 		
 
     template <class X>
-    inline int	nearestIndex( const X& x, const T& step ) const
-		{
-		    int nr = getIndex(x,step);
-		    return step < 0
-			 ? ( (x-atIndex(nr,step)) < step*.5 ? nr - 1 : nr )
-			 : ( (x-atIndex(nr,step)) > step*.5 ? nr + 1 : nr );
-		}
+    inline int		nearestIndex( const X& x, const T& step ) const;
+    virtual void	sort( bool asc=true );
 
-    virtual void sort( bool asc=true )
-		{
-		    if ( (asc && stop<start) || (!asc && start<stop) )
-			 Swap(start,stop);
-		}
-
-
-    T		start;
-    T		stop;
+    T			start;
+    T			stop;
 
 protected:
 
-    inline bool	isRev() const		{ return start > stop; }
+    inline bool		isRev() const		{ return start > stop; }
 
 };
 
@@ -126,46 +80,32 @@ template <class T>
 class StepInterval : public Interval<T>
 {
 public:
-		StepInterval()			{ step = 1; }
-		StepInterval( const T& t1, const T& t2, const T& t3 )
-		: Interval<T>(t1,t2)		{ step = t3; }
+    inline			StepInterval();
+    inline			StepInterval( const T& start, const T& stop,
+	    				      const T& step );
+    inline virtual cloneTp*	clone() const;
 
-    virtual cloneTp* clone() const	
-		{ return new StepInterval<T>( *this ); }
-
-    inline T	atIndex( int idx ) const
-		{ return Interval<T>::atIndex(idx,step); }
-
+    inline T			atIndex( int idx ) const;
     template <class X>
-    inline int	getIndex( const X& t ) const
-		{ return Interval<T>::getIndex( t, step ); }
-
+    inline int			getIndex( const X& t ) const;
     template <class X>
-    inline int	nearestIndex( const X& x ) const
-		{ return Interval<T>::nearestIndex( x, step ); }
-
+    inline int			nearestIndex( const X& x ) const;
     template <class X>
-    inline T	snap( const X& t ) const
-		{ return atIndex( nearestIndex( t ) ); }
+    inline T			snap( const X& t ) const;
 
-    inline int	nrSteps() const;
-    virtual void sort( bool asc=true )
-		{
-		    Interval<T>::sort(asc);
-		    if ( (asc && step < 0) || (!asc && step > 0) )
-			step = -step;
-		}
+    inline int			nrSteps() const;
+    virtual inline void		sort( bool asc=true );
 
-    inline bool	isCompatible( const StepInterval<T>& b, T eps=mEPSILON) const;
-    		//!< epsilon refers to the steps, i.e eps=0.1 allows b
-    		//!< to be 0.1 steps apart.
+    inline bool			isCompatible( const StepInterval<T>& b,
+	    					T eps=mEPSILON) const;
+				/*!< epsilon refers to the steps,
+				  	i.e eps=0.1 allows b to be 0.1 steps
+					apart.
+				*/
 
-     T		step;
+     T				step;
 
 };
-
-
-#undef cloneTp
 
 
 template <class T1,class T2>
@@ -240,6 +180,165 @@ inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
 
 mDefFltisCompat(float)
 mDefFltisCompat(double)
+
+template <class T> template <class X> inline
+int Interval<T>::nearestIndex( const X& x, const T& step ) const
+{
+    int nr = getIndex(x,step);
+    T atindex = atIndex(nr,step);
+    X reldiff = (x-atindex)/step;
+
+    if ( reldiff>=0.5 ) return nr+1;
+    else if ( reldiff<=-0.5 ) return nr-1;
+    return nr;
+}
+
+
+template <class T> inline Interval<T>::Interval()
+{ start = 0; stop = 0; }
+
+
+template <class T> inline Interval<T>::Interval( const T& t1, const T& t2 )
+{ start = t1; stop = t2; }
+
+template <class T> inline
+Interval<T>* Interval<T>::clone() const		
+{ return new Interval<T>( *this ); }
+
+
+template <class T> inline
+int Interval<T>::operator==( const Interval<T>& i ) const
+{ return start == i.start && stop == i.stop; }
+
+
+template <class T> inline
+int Interval<T>::operator!=( const Interval<T>& i ) const
+{ return ! (i == *this); }
+
+
+template <class T> inline
+T Interval<T>::width( bool allowrev ) const
+{ return allowrev && isRev() ? start - stop : stop - start; }
+
+
+template <class T> inline
+T Interval<T>::center() const
+{ return (start+stop)/2; }
+
+
+template <class T> inline
+void Interval<T>::shift( const T& len )
+{ start += len; stop += len; }
+
+
+template <class T> inline
+void Interval<T>::widen( const T& len, bool allowrev )
+{
+    if ( allowrev && isRev() )
+	{ start += len; stop -= len; }
+    else
+	{ start -= len; stop += len; }
+}
+
+
+template <class T> template <class TT> inline
+bool Interval<T>::includes( const TT& t, bool allowrev ) const
+{
+    return allowrev && isRev()
+	? t>=stop && start>=t
+	: t>=start && stop>=t;
+}
+
+
+template <class T> inline
+void Interval<T>::include( const T& i, bool allowrev )
+{
+    if ( allowrev && isRev() )
+	{ if ( stop>i ) stop=i; if ( start<i ) start=i; }
+    else
+	{ if ( start>i ) start=i; if ( stop<i ) stop=i; }
+}
+
+
+template <class T> inline
+void Interval<T>::include( const Interval<T>& i, bool allowrev )
+{ include( i.start, allowrev ); include( i.stop, allowrev ); }
+
+
+template <class T> inline
+T Interval<T>::atIndex( int idx, const T& step ) const
+{ return start + step * idx; }
+
+
+template <class T> template <class X> inline
+int Interval<T>::getIndex( const X& t, const T& step ) const
+{ return (int)(( t  - start ) / step); }
+
+
+template <class T> template <class X> inline
+X Interval<T>::limitValue( const X& t ) const
+{
+    const bool isrev = isRev();
+    if ( (!isrev&&t>stop) || (isrev&&t<stop) ) return stop;
+    if ( (!isrev&&t<start) || (isrev&&t>start) ) return start;
+    return t;
+}
+		
+
+template <class T> 
+void Interval<T>::sort( bool asc )
+{
+    if ( (asc && stop<start) || (!asc && start<stop) )
+	 Swap(start,stop);
+}
+
+
+template <class T>
+StepInterval<T>::StepInterval()
+{ step = 1; }
+
+
+template <class T>
+StepInterval<T>::StepInterval( const T& t1, const T& t2, const T& t3 )
+    : Interval<T>(t1,t2)
+{ step = t3; }
+
+
+template <class T> inline
+cloneTp* StepInterval<T>::clone() const	
+{ return new StepInterval<T>( *this ); }
+
+
+template <class T> inline
+T StepInterval<T>::atIndex( int idx ) const
+{ return Interval<T>::atIndex(idx,step); }
+
+
+template <class T> template <class X> inline
+int StepInterval<T>::getIndex( const X& t ) const
+{ return Interval<T>::getIndex( t, step ); }
+
+
+template <class T> template <class X> inline
+int StepInterval<T>::nearestIndex( const X& x ) const
+{ return Interval<T>::nearestIndex( x, step ); }
+
+
+template <class T> template <class X> inline
+T StepInterval<T>::snap( const X& t ) const
+{ return atIndex( nearestIndex( t ) ); }
+
+
+template <class T> inline
+void StepInterval<T>::sort( bool asc )
+{
+    Interval<T>::sort(asc);
+    if ( (asc && step < 0) || (!asc && step > 0) )
+	step = -step;
+}
+
+
+#undef cloneTp
 
 
 #endif
