@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.18 2004-09-24 12:09:12 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.19 2004-10-01 12:41:19 nanne Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.18 2004-09-24 12:09:12 bert E
 #include "filepath.h"
 #include "iopar.h"
 #include "errh.h"
+#include "ptrman.h"
 
 
 static BufferString getFileName( const char* fnm )
@@ -88,7 +89,7 @@ bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOPar& iop,
 {
     if ( !isUsable(iop) ) return true;
 
-    CBVSSeisTrcTranslator* tr = gtTransl( getFileName(iop) );
+    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( getFileName(iop) );
     if ( !tr ) return false;
 
     const SeisPacketInfo& pinf = tr->packetInfo();
@@ -103,7 +104,7 @@ bool SeisCBVS2DLineIOProvider::getRanges( const IOPar& iop,
 {
     if ( !isUsable(iop) ) return true;
 
-    CBVSSeisTrcTranslator* tr = gtTransl( getFileName(iop) );
+    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( getFileName(iop) );
     if ( !tr ) return false;
 
     const SeisPacketInfo& pinf = tr->packetInfo();
