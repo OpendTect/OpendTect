@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: valwitherror.h,v 1.3 2002-12-02 15:05:02 kristofer Exp $
+ RCS:           $Id: valwitherror.h,v 1.4 2002-12-02 15:15:04 kristofer Exp $
 ________________________________________________________________________
 
 ValWithError is a value with a known error (variance), and that knows
@@ -49,8 +49,8 @@ public:
     A					var() const { return variance_; }
     A	        			val() const { return val_; }
 
-    void				setVal(A val) { val_ = val; }
-    void				setVar(A var) { variance_ = var; }
+    void				setVal(A val__) { val_ = val__; }
+    void				setVar(A var__) { variance_ = var__; }
 
 protected:	     		
     A		val_;
