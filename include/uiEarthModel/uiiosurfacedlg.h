@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.2 2003-07-29 13:03:19 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.3 2003-08-05 15:10:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ protected:
 class uiReadSurfaceDlg : public uiDialog
 {
 public:
-                        uiReadSurfaceDlg(uiParent*,const MultiID* id=0);
+                        uiReadSurfaceDlg(uiParent*);
 
     IOObj*		ioObj() const;
     void		getSelection(EM::SurfaceIODataSelection&);

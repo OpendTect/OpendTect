@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.3 2003-08-01 15:48:04 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.4 2003-08-05 15:10:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,13 +83,10 @@ bool uiWriteSurfaceDlg::checkIfAlreadyPresent()
 
 
 
-uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const MultiID* emid )
+uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Input selection","",""))
 {
-    if ( emid )
-	iogrp = new uiSurfaceAuxSel( this, *emid );
-    else
-	iogrp = new uiSurfaceSel( this );
+    iogrp = new uiSurfaceSel( this, false );
 }
 
 

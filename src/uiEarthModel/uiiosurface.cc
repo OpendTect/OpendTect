@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.4 2003-08-04 13:24:08 nanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.5 2003-08-05 15:10:46 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-const int cListHeight = 8;
+const int cListHeight = 5;
 
 
 uiIOSurface::uiIOSurface( uiParent* p )
@@ -108,7 +108,6 @@ void uiIOSurface::fillPatchFld( ObjectSet<BufferString> patches )
     for ( int idx=0; idx<patches.size(); idx++ )
 	patchfld->box()->addItem( patches[idx]->buf() );
     patchfld->box()->selAll( true );
-    patchfld->display( patches.size() > 1 );
 }
 
 
@@ -243,30 +242,26 @@ bool uiSurfaceOutSel::saveAuxDataOnly() const
 
 
 
-
-uiSurfaceAuxSel::uiSurfaceAuxSel( uiParent* p, const MultiID& emid )
-    : uiIOSurface( p )
-{
-    mkAttribFld();
-
-    fillFields( emid );
-}
-
-
-uiSurfaceSel::uiSurfaceSel( uiParent* p )
+uiSurfaceSel::uiSurfaceSel( uiParent* p, bool showattribfld )
     : uiIOSurface( p )
 {
     mkObjFld( "Input Horizon", true );
     objfld->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
 
-    mkAttribFld();
-    attrlistfld->attach( alignedBelow, objfld );
+    mkPatchFld( showattribfld );
 
-    mkPatchFld( true );
-    patchfld->attach( rightTo, attrlistfld );
+    if ( showattribfld )
+    {
+	mkAttribFld();
+	attrlistfld->attach( alignedBelow, objfld );
+	patchfld->attach( rightTo, attrlistfld );
+    }
+    else
+	patchfld->attach( alignedBelow, objfld );
 
     mkRangeFld();
-    rgfld->attach( alignedBelow, attrlistfld );
+    rgfld->attach( alignedBelow, showattribfld ? (uiObject*)attrlistfld
+	    				       : (uiObject*)patchfld );
 
     setHAlignObj( rgfld );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.3 2003-08-01 15:48:12 nanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.4 2003-08-05 15:10:52 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,17 +83,10 @@ protected:
 };
 
 
-class uiSurfaceAuxSel : public uiIOSurface
-{
-public:
-    			uiSurfaceAuxSel(uiParent*,const MultiID&);
-};
-
-
 class uiSurfaceSel : public uiIOSurface
 {
 public:
-    			uiSurfaceSel(uiParent*);
+    			uiSurfaceSel(uiParent*,bool showattribfld=true);
 			~uiSurfaceSel();
 
     virtual bool	processInput();
