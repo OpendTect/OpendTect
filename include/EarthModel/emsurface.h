@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.21 2003-10-17 14:19:00 bert Exp $
+ RCS:		$Id: emsurface.h,v 1.22 2003-10-23 15:11:33 nanne Exp $
 ________________________________________________________________________
 
 
@@ -182,7 +182,6 @@ public:
     void		getRange(const EM::PatchID&,
 	    			 StepInterval<int>&,bool rowdir) const;
 
-protected:
     bool		getMeshRowCol(const EM::SubID&,RowCol&,
 	    			      const PatchID&) const;
     			/*!< Converts EM::SubID to rowcol that is used
@@ -192,6 +191,7 @@ protected:
     			/*!< Converts input RowCol(in surface domain)
 			     to a RowCol that is used
 			     on the Geometry::MeshSurface */
+protected:
     EM::SubID		getSurfSubID(const RowCol&,const PatchID&) const;
     EM::SubID		getSurfSubID(const Geometry::PosID&,
 	    			     const PatchID&) const;
