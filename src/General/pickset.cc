@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.17 2002-03-28 14:12:05 nanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.18 2002-04-23 06:17:29 nanne Exp $";
 
 #include "pickset.h"
 #include "picksettr.h"
@@ -166,6 +166,8 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
 		{
 		    found = true;
 		    mrgdps.copy( ps );
+		    mrgdps.color = ps.color;
+		    mrgdps.color.setTransparency( 0 );
 		    break;
 		}
 	    }
@@ -173,6 +175,8 @@ bool PickSetGroupTranslator::store( const PickSetGroup& inppsg,
 	    {
 		PickSet* newps = new PickSet( ps.name() );
 		newps->copy( ps );
+		newps->color = ps.color;
+		newps->color.setTransparency( 0 );
 		mrgd.add( newps );
 	    }
 	}
