@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.5 2005-01-17 07:13:05 kristofer Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.6 2005-04-05 10:12:58 cvsnanne Exp $";
 
 #include "emeditor.h"
 
@@ -24,11 +24,14 @@ namespace MPE
 ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
     : emobject( emobj_ )
     , editpositionchange( this )
-{}
+{
+    emobject.ref();
+}
 
 
 ObjectEditor::~ObjectEditor()
 {
+    emobject.unRef();
     deepErase( geeditors );
     sections.erase();
 }
