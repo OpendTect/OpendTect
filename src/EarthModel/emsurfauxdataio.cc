@@ -20,13 +20,14 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.10 2003-09-30 12:55:27 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.11 2003-10-29 17:08:53 nanne Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
 const char* EM::dgbSurfDataWriter::intdatacharstr = "Int data";
 const char* EM::dgbSurfDataWriter::floatdatacharstr = "Float data";
 const char* EM::dgbSurfDataWriter::filetypestr = "Surface aux data";
+const char* EM::dgbSurfDataWriter::shiftstr = "Shift";
 
 
 EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
@@ -44,6 +45,7 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
 {
     IOPar par( "Surface Data" );
     par.set( attrnmstr, surf.auxDataName(dataidx) );
+    par.set( shiftstr, surf.getShift() );
 
     if ( binary )
     {
@@ -216,6 +218,7 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
     , error( true )
     , nrdone(0)
     , valsleftonpatch(0)
+    , shift(0)
 {
     if ( !(*stream) )
 	return;
@@ -225,11 +228,13 @@ EM::dgbSurfDataReader::dgbSurfDataReader( const char* filename )
         return;
 
     const IOPar par( astream );
-    if ( !par.get( dgbSurfDataWriter::attrnmstr, dataname ) )
+    if ( !par.get(dgbSurfDataWriter::attrnmstr,dataname) )
 	return;
 
-    if ( !par.get( dgbSurfDataWriter::attrnmstr, datainfo ) )
+    if ( !par.get(dgbSurfDataWriter::attrnmstr,datainfo) )
 	return;
+
+    par.get( dgbSurfDataWriter::shiftstr, shift );
 
     int dc[2];
     if ( par.get(EM::dgbSurfDataWriter::intdatacharstr, dc[0], dc[1] ))
@@ -271,8 +276,9 @@ const char* EM::dgbSurfDataReader::dataInfo() const
 
 void EM::dgbSurfDataReader::setSurface( EM::Surface& surf_ )
 {
-    surf = & surf_;
+    surf = &surf_;
     dataidx = surf->addAuxData( dataname );
+    surf->setShift( shift );
 }
 
 

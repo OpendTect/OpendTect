@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.22 2003-10-23 15:11:33 nanne Exp $
+ RCS:		$Id: emsurface.h,v 1.23 2003-10-29 17:09:00 nanne Exp $
 ________________________________________________________________________
 
 
@@ -154,7 +154,10 @@ public:
     const char*		dbInfo() const			{ return dbinfo; }
     void		setDBInfo( const char* s )	{ dbinfo = s; }
 
-    const Geometry::MeshSurface*		getSurface(PatchID) const;
+    void                setShift(float sh_)		{ shift = sh_; }
+    float               getShift() const		{ return shift; }
+
+    const Geometry::MeshSurface* getSurface(PatchID) const;
     RowCol		loadedStep() const;
     RowCol		step() const;
     void		setTranslatorData( const RowCol& step,
@@ -192,38 +195,37 @@ public:
 			     to a RowCol that is used
 			     on the Geometry::MeshSurface */
 protected:
-    EM::SubID		getSurfSubID(const RowCol&,const PatchID&) const;
-    EM::SubID		getSurfSubID(const Geometry::PosID&,
-	    			     const PatchID&) const;
+    friend class		EMManager;
+    friend class		EMObject;
 
+    				Surface(EMManager&,const MultiID&);
+    				~Surface();
+    void			cleanUp();
+
+    EM::SubID			getSurfSubID(const RowCol&,
+	    				     const PatchID&) const;
+    EM::SubID			getSurfSubID(const Geometry::PosID&,
+					     const PatchID&) const;
 
     virtual Geometry::MeshSurface*	createPatchSurface(const PatchID&) 
 								      const = 0;
-
-//   int			findPos( const RowCol& rowcol,
-//	    			 TypeSet<PosID>& res ) const;
-    friend class			EMManager;
-    friend class			EMObject;
-
-    					Surface(EMManager&, const MultiID& );
-    					~Surface();
-    void				cleanUp();
-
     ObjectSet<Geometry::MeshSurface>	surfaces;
-    TypeSet<PatchID>			patchids;
-    BufferStringSet			patchnames;
+    TypeSet<PatchID>		patchids;
+    BufferStringSet		patchnames;
 
-    BufferStringSet			auxdatanames;
-    BufferStringSet			auxdatainfo;
+    BufferStringSet		auxdatanames;
+    BufferStringSet		auxdatainfo;
     ObjectSet<ObjectSet<TypeSet<float> > > auxdata;
-    BufferString			dbinfo;
+    BufferString		dbinfo;
 
-    RowCol				loadedstep;
-    RowCol				step_;
-    TypeSet<RowCol>			origos;
+    RowCol			loadedstep;
+    RowCol			step_;
+    TypeSet<RowCol>		origos;
 
-    Interval<int>*			rowinterval;
-    Interval<int>*			colinterval;
+    Interval<int>*		rowinterval;
+    Interval<int>*		colinterval;
+
+    float 			shift;
 };
 
 

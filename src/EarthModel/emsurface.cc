@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.24 2003-09-30 12:54:56 kristofer Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.25 2003-10-29 17:08:53 nanne Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -61,12 +61,13 @@ void EM::SurfaceIODataSelection::setDefault()
 }
 
 
-EM::Surface::Surface(EMManager& man, const MultiID& id_)
+EM::Surface::Surface( EMManager& man, const MultiID& id_ )
     : EMObject( man, id_ )
-    , step_( SI().getStep(true, false), SI().getStep(false,false))
-    , loadedstep( SI().getStep(true, false), SI().getStep(false,false))
-    , rowinterval( 0 )
-    , colinterval( 0 )
+    , step_( SI().getStep(true,false), SI().getStep(false,false) )
+    , loadedstep( SI().getStep(true,false), SI().getStep(false,false) )
+    , rowinterval(0)
+    , colinterval(0)
+    , shift(0)
 {
     auxdatanames.allowNull(true);
     auxdatainfo.allowNull(true);
@@ -77,6 +78,30 @@ EM::Surface::Surface(EMManager& man, const MultiID& id_)
 EM::Surface::~Surface()
 {
     cleanUp();
+}
+
+
+void EM::Surface::cleanUp()
+{
+    deepErase( auxdatanames );
+    deepErase( auxdatainfo );
+    for ( int idx=0; idx<auxdata.size(); idx++ )
+    {
+	if ( !auxdata[idx] ) continue;
+	deepErase( *auxdata[idx] );
+    }
+
+    deepErase( auxdata );
+
+    deepErase( surfaces );
+    deepErase( patchnames );
+    patchids.erase();
+    origos.erase();
+
+    delete rowinterval;
+    delete colinterval;
+    rowinterval = 0;
+    colinterval = 0;
 }
 
 
@@ -715,31 +740,6 @@ const Geometry::MeshSurface* EM::Surface::getSurface( PatchID patchid )const
 {
     const int idx = patchids.indexOf( patchid );
     return idx==-1 ? 0 : surfaces[idx];
-}
-
-
-
-void EM::Surface::cleanUp()
-{
-    deepErase( auxdatanames );
-    deepErase( auxdatainfo );
-    for ( int idx=0; idx<auxdata.size(); idx++ )
-    {
-	if ( !auxdata[idx] ) continue;
-	deepErase( *auxdata[idx] );
-    }
-
-    deepErase( auxdata );
-
-    deepErase( surfaces );
-    deepErase( patchnames );
-    patchids.erase();
-    origos.erase();
-
-    delete rowinterval;
-    delete colinterval;
-    rowinterval = 0;
-    colinterval = 0;
 }
 
 

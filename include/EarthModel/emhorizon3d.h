@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.26 2003-10-28 18:08:24 nanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.27 2003-10-29 17:09:00 nanne Exp $
 ________________________________________________________________________
 
 
@@ -76,9 +76,6 @@ public:
     static BinID	getBinID( const EM::SubID& );
     static BinID	getBinID( const RowCol& );
 
-    void		setShift(float sh)	{ shift = sh; }
-    float		getShift() const	{ return shift; }
-
 protected:
     friend class	EMManager;
     friend class	EMObject;
@@ -93,8 +90,6 @@ protected:
 
     float		a11,a12,a13,a21,a22,a23; //Transformation coords
     float		b11,b12,b13,b21,b22,b23; //Reverse transformation coords
-
-    float		shift;
 };
 
 

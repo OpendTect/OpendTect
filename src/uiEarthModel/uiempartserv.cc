@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.33 2003-10-27 23:10:02 bert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.34 2003-10-29 17:09:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -264,7 +264,7 @@ bool uiEMPartServer::storeObject( const MultiID& id )
 
 bool uiEMPartServer::getDataVal( const MultiID& emid, 
 				 ObjectSet< TypeSet<BinIDZValue> >& data, 
-				 BufferString& attrnm )
+				 BufferString& attrnm, float& shift )
 {
     EM::EMManager& em = EM::EMM();
     mDynamicCastGet(EM::Horizon*,hor,em.getObject(emid))
@@ -275,6 +275,7 @@ bool uiEMPartServer::getDataVal( const MultiID& emid,
 
     int dataidx = 0;
     attrnm = hor->auxDataName( dataidx );
+    shift = hor->getShift();
 
     deepErase( data );
     for ( int patchidx=0; patchidx<hor->nrPatches(); patchidx++ )

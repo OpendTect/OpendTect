@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.19 2003-10-27 23:10:02 bert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.20 2003-10-29 17:09:57 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ public:
 				   const char*);
     bool		getDataVal(const MultiID&,
 	    			   ObjectSet< TypeSet<BinIDZValue> >&,
-				   BufferString&);
+				   BufferString&,float&);
 
     static const int	evDisplayHorizon;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.4 2003-09-29 10:50:48 nanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.5 2003-10-29 17:09:00 nanne Exp $
 ________________________________________________________________________
 
 
@@ -32,33 +32,36 @@ Writes auxdata to file
 class dgbSurfDataWriter : public Executor
 {
 public:
-    			dgbSurfDataWriter( const EM::Surface& surf, int dataidx,
-					const BinIDSampler* sel, bool binary,
-			       		const char* filename );
+    				dgbSurfDataWriter(const EM::Surface& surf,
+						  int dataidx,
+						  const BinIDSampler* sel,
+						  bool binary,
+						  const char* filename);
 			/*!<\param surf		The surface with the values
 			    \param dataidx	The index of the data to be
 			    			written
-			    \param sel		A selection of whic data
+			    \param sel		A selection of which data
 			    			that should be written.
 						Can be null, i.e. no selection
-			    \param binary	Specified wether the data shoul
+			    \param binary	Specify whether the data should
 			    			be written in binary format
 			*/
 
-			~dgbSurfDataWriter();
+				~dgbSurfDataWriter();
 
-    int			nextStep();
-    int			nrDone() const;
-    int			totalNr() const;
+    int				nextStep();
+    int				nrDone() const;
+    int				totalNr() const;
 
 
-    static const char*	attrnmstr;
-    static const char*	infostr;
-    static const char*	intdatacharstr;
-    static const char*	floatdatacharstr;
-    static const char*	filetypestr;
+    static const char*		attrnmstr;
+    static const char*		infostr;
+    static const char*		intdatacharstr;
+    static const char*		floatdatacharstr;
+    static const char*		filetypestr;
+    static const char*		shiftstr;
 
-    static BufferString	createHovName(const char* base, int idx );
+    static BufferString		createHovName(const char* base,int idx);
 
 
 protected:
@@ -89,17 +92,17 @@ Writes auxdata to file
 class dgbSurfDataReader : public Executor
 {
 public:
-    			dgbSurfDataReader( const char* filename );
-			~dgbSurfDataReader();
+    				dgbSurfDataReader(const char* filename);
+				~dgbSurfDataReader();
 
-    const char*		dataName() const;
-    const char*		dataInfo() const;
+    const char*			dataName() const;
+    const char*			dataInfo() const;
 
-    void		setSurface( EM::Surface& surf );
+    void			setSurface(EM::Surface& surf);
 
-    int			nextStep();
-    int			nrDone() const;
-    int			totalNr() const;
+    int				nextStep();
+    int				nrDone() const;
+    int				totalNr() const;
 
 protected:
     bool			readLong(int&);
@@ -108,6 +111,7 @@ protected:
     BufferString		dataname;
     BufferString		datainfo;
     int				dataidx;
+    float			shift;
     EM::Surface*		surf;
     const BinIDSampler*		sel;
   
