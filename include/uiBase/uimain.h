@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.2 2001-05-16 14:58:43 arend Exp $
+ RCS:           $Id: uimain.h,v 1.3 2002-01-18 12:38:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     const uiFont*	font(); 
 
     static uiMain&	theMain();
+    static void		setTopLevelCaption( const char* );
 
     static void		flushX();
     static void		processEvents(int msec=3000);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.8 2002-01-07 13:17:01 arend Exp $
+ RCS:           $Id: uimain.cc,v 1.9 2002-01-18 12:38:03 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,14 @@ void uiMain::flushX()
 { 
     if( !app )	return; 
     app->flushX(); 
+}
+
+void uiMain::setTopLevelCaption( const char* txt )
+{
+    //QMainWindow* mw = dynamic_cast<QMainWindow*>(qApp->mainWidget());
+    QWidget* mw = qApp->mainWidget();
+    if( !mw ) return;
+    mw->setCaption( QString(txt) );
 }
 
 
