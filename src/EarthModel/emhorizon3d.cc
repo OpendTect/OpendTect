@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.55 2005-03-07 09:01:49 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.56 2005-03-10 11:48:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emhorizon.h"
 
+#include "binidsurface.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
@@ -88,8 +89,8 @@ int nextStep()
 	    return Finished;
 
 	SectionID sectionid = horizon.geometry.sectionID(sectionidx);
-	horizon.geometry.getRange( sectionid, inlrange, true );
-	horizon.geometry.getRange( sectionid, crlrange, false );
+	inlrange = horizon.geometry.rowRange(sectionid);
+	crlrange = horizon.geometry.colRange(sectionid);
 	inl = inlrange.start;
     }
 
@@ -145,9 +146,9 @@ HorizonImporter( Horizon& hor, const ObjectSet<BinIDValueSet>& sects,
     {
 	const BinIDValueSet& bvs = *sections[idx];
 	totalnr += bvs.totalSize();
-	SectionID sectionid =  horizon.geometry.addSection( 0, false );
-	horizon.geometry.setTranslatorData( sectionid, step, step,
-			RowCol(bvs.inlRange().start,bvs.crlRange().start) );
+	//SectionID sectionid =  horizon.geometry.addSection( 0, false );
+	//horizon.geometry.setTranslatorData( sectionid, step, step,
+	//		RowCol(bvs.inlRange().start,bvs.crlRange().start) );
     }
 
     sectionidx = 0;
@@ -169,7 +170,7 @@ int nextStep()
 	if ( sectionidx >= sections.size() )
 	    return fixholes ? fillHoles() : Finished;
 
-	horizon.geometry.addSection( 0, false );
+	// REIMPL horizon.geometry.addSection( 0, false );
 	pos.i = pos.j = -1;
 	return MoreToDo;
     }
@@ -179,11 +180,9 @@ int nextStep()
     BinID bid;
     bvs.get( pos, bid, vals.arr() );
 
-    PosID posid( horizon.id(), horizon.geometry.sectionID(sectionidx) );
-    const Coord crd = SI().transform( bid );
-    RowCol rc( HorizonGeometry::getRowCol(bid) );
-    posid.setSubID( HorizonGeometry::rowCol2SubID(rc) );
-    horizon.geometry.setPos( posid, Coord3(crd.x,crd.y,vals[0]), false );
+    PosID posid( horizon.id(), horizon.geometry.sectionID(sectionidx),
+	         bid.getSerialized() );
+    horizon.geometry.setPos( posid, Coord3(0,0,vals[0]), false );
 
     nrdone++;
     return MoreToDo;
@@ -196,12 +195,11 @@ int fillHoles()
     for ( int idx=0; idx<horizon.geometry.nrSections(); idx++ )
     {
 	SectionID sectionid = horizon.geometry.sectionID( idx );
-	StepInterval<int> rowrange;
-	horizon.geometry.getRange( sectionid, rowrange, true );
+	const StepInterval<int> rowrange = horizon.geometry.rowRange(sectionid);
 	if ( rowrange.width(false)>=0 )
 	{
-	    StepInterval<int> colrange;
-	    horizon.geometry.getRange( sectionid, colrange, false );
+	    const StepInterval<int> colrange =
+		horizon.geometry.colRange(sectionid);
 	    PosID pid( horizon.id(), sectionid );
 
 	    for ( int currow=rowrange.start; rowrange.includes(currow);
@@ -288,8 +286,9 @@ HorizonGeometry::HorizonGeometry( Surface& surf )
 
 
 bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
-				       const SectionID& sid, float velocity )
+				       SectionID, float velocity )
 {
+    /*
     SectionID sectionid = sid;
     if ( !nrSections() || !hasSection(sid) ) 
 	sectionid = addSection( "", true );
@@ -373,6 +372,7 @@ bool HorizonGeometry::createFromStick( const TypeSet<Coord3>& stick,
 	    surface.setPosAttrib( posid, EMObject::sPermanentControlNode, true);
 	}
     }
+*/
 
     return true;
 }
@@ -402,15 +402,13 @@ SubID HorizonGeometry::getSubID( const BinID& bid )
 }
 
 
-Geometry::MeshSurface*
-    HorizonGeometry::createSectionSurface( const SectionID& sectionid ) const
+Geometry::ParametricSurface*
+HorizonGeometry::createSectionSurface() const
 {
-    Geometry::GridSurface* newsurf = new Geometry::GridSurface();
-    setTransform( sectionid );
-    return newsurf;
+    return new Geometry::BinIDSurface( loadedstep );
 }
 
-
+/*
 void HorizonGeometry::setTransform( const SectionID& sectionid ) const
 {
     const int sectionidx = sectionNr( sectionid );
@@ -435,6 +433,8 @@ void HorizonGeometry::setTransform( const SectionID& sectionid ) const
 			     pos10.x, pos10.y, rc10.row, rc10.col,
 			     pos11.x, pos11.y, rc11.row, rc11.col );
 }
+
+*/
 
 
 }; //namespace

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.9 2005-02-10 16:22:42 nanne Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.10 2005-03-10 11:47:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ template <class T> class Interval;
 template <class T> class StepInterval;
 
 
-namespace Geometry { class MeshSurface; };
+namespace Geometry { class MeshSurface; class ParametricSurface; };
 
 
 namespace EM
@@ -44,8 +44,8 @@ class SurfaceGeometry : public CallBackClass
 public:
     			SurfaceGeometry(Surface&);
     virtual		~SurfaceGeometry();
-    Executor*		loader(const EM::SurfaceIODataSelection* s=0);
-    Executor*		saver(const EM::SurfaceIODataSelection* s=0,
+    Executor*		loader(const SurfaceIODataSelection* s=0);
+    Executor*		saver(const SurfaceIODataSelection* s=0,
 			      const MultiID* key=0);
 
     void		removeAll();
@@ -53,35 +53,39 @@ public:
     int			nrSections() const;
     SectionID		sectionID(int idx) const;
     SectionID		sectionID(const char*) const;
-    bool		hasSection(const SectionID&) const;
-    int			sectionNr(const SectionID&) const;
-    const char*		sectionName(const SectionID&) const;
-    SectionID		addSection(const char* nm,bool addtohistory);
-    bool		addSection(const char* nm,SectionID,bool addtohistory);
+    bool		hasSection(SectionID) const;
+    int			sectionNr(SectionID) const;
+    const char*		sectionName(SectionID) const;
+    SectionID		addSection( const char* nm, bool addtohistory);
+    bool		addSection( const char* nm, SectionID,
+				    bool addtohistory);
     			/*!< Return false if the sectionid allready exists */
-    void		removeSection(EM::SectionID,bool addtohistory);
-    SectionID		cloneSection(EM::SectionID);
+    void		removeSection(SectionID,bool addtohistory);
+    SectionID		cloneSection(SectionID);
 
-    bool		setPos(const SectionID&,const RowCol&,
-			       const Coord3&,bool autoconnect,bool addtoh);
-    bool		setPos(const EM::PosID&,const Coord3&,bool addtohist);
+    bool		setPos(SectionID,const RowCol&,
+			       const Coord3&,bool addtoh);
+    bool		setPos(const PosID&,const Coord3&,bool addtohist);
 
-    virtual bool	isDefined(const SectionID&,const RowCol&) const;
-    virtual bool	isDefined(const EM::PosID&) const;
+    virtual bool	insertRow( SectionID, int newrow, bool hist );
+    virtual bool	insertCol( SectionID, int newcol, bool hist );
 
-    Coord3		getPos(const EM::PosID&) const;
-    virtual Coord3	getPos(const SectionID& section, const RowCol&) const;
+    virtual bool	isDefined(SectionID,const RowCol&) const;
+    virtual bool	isDefined(const PosID&) const;
+
+    Coord3		getPos(const PosID&) const;
+    virtual Coord3	getPos(SectionID section, const RowCol&) const;
     void		getPos(const RowCol&,TypeSet<Coord3>&) const;
     			//!< Returns positions from all sections on RowCol
    
-    virtual EM::PosID	getNeighbor( const EM::PosID& posid,
+    virtual PosID	getNeighbor( const PosID& posid,
 	   			     const RowCol& dir ) const;
        			/*!<If the node has a neigbor in the given direction
 		  	    it is returned. If not, the PosID of the neighbor
 		  	    node on the same section is returned
 			*/	    
-    int			getNeighbors( const EM::PosID& posid, 
-	    			      TypeSet<EM::PosID>* res,
+    int			getNeighbors( const PosID& posid, 
+	    			      TypeSet<PosID>* res,
 	   			      int size=1, bool circle=false ) const;
     			/*!<\param posid	The posid that we want the
 						neigbors to
@@ -96,8 +100,8 @@ public:
 			*/
 
 
-    void		getLinkedPos( const EM::PosID& posid,
-	    			      TypeSet<EM::PosID>& ) const;
+    void		getLinkedPos( const PosID& posid,
+	    			      TypeSet<PosID>& ) const;
 
     bool		isLoaded() const;
     bool		isFullResolution() const;
@@ -105,10 +109,10 @@ public:
     void                setShift(float sh_)		{ shift = sh_; }
     float               getShift() const		{ return shift; }
 
-    const Geometry::MeshSurface* getSurface(SectionID) const;
+    const Geometry::ParametricSurface* getSurface(SectionID) const;
     RowCol		loadedStep() const;
     RowCol		step() const;
-    void		setTranslatorData(const SectionID&,
+    void		setTranslatorData(SectionID,
 					  const RowCol& step,
 					  const RowCol& loadedstep,
 					  const RowCol& origo);
@@ -120,46 +124,37 @@ public:
 						step
 			*/
 						
-    static RowCol	subID2RowCol(const EM::SubID&);
-    static EM::SubID	rowCol2SubID(const RowCol&);
+    static RowCol	subID2RowCol(SubID);
+    static SubID	rowCol2SubID(const RowCol&);
 
-    void		getRange(StepInterval<int>&,bool rowdir) const;
-    void		getRange(const EM::SectionID&,
-	    			 StepInterval<int>&,bool rowdir) const;
-    bool		getMeshRowCol(const EM::SubID&,RowCol&, 
-	    			      const SectionID&) const;
-			/*!< Converts EM::SubID to a RowCol that is used
-			     on the Geometry::MeshSurface */
-    bool		getMeshRowCol(const RowCol&,RowCol&,
-	    			      const SectionID&) const;
-			/*!< Converts input RowCol(in surface domain)
-			     to a RowCol that is used on the 
-			     Geometry::MeshSurface */
+    StepInterval<int>	rowRange(SectionID=-1) const;
+    			/*< If SectionID is -1, the overall range is returned */
+    StepInterval<int>	colRange(SectionID=-1) const;
+    			/*< If SectionID is -1, the overall range is returned */
 
-public:
-    virtual int	findPos(const EM::SectionID&,const Interval<float>& x,
+    virtual int	findPos(SectionID,const Interval<float>& x,
 	    		const Interval<float>& y,const Interval<float>& z,
-			TypeSet<EM::PosID>* res) const;
+			TypeSet<PosID>* res) const;
     int		findPos(const Interval<float>& x,const Interval<float>& y,
-			const Interval<float>& z,TypeSet<EM::PosID>*) const;
-    int		findPos(const CubeSampling&,TypeSet<EM::PosID>*) const;
+			const Interval<float>& z,TypeSet<PosID>*) const;
+    int		findPos(const CubeSampling&,TypeSet<PosID>*) const;
     int		findPos(const RowCol&,TypeSet<PosID>&) const;
-    bool	findClosestNodes(TopList<float,EM::PosID>& res,
+    bool	findClosestNodes(TopList<float,PosID>& res,
 	    			const Coord3& pos,
 				const FloatMathFunction* depthconv=0) const;
-    bool	findClosestNodes(const EM::SectionID&,
-	    			TopList<float,EM::PosID>& res,
+    bool	findClosestNodes(SectionID,
+	    			TopList<float,PosID>& res,
 	    			const Coord3& pos,
 				const FloatMathFunction* depthconv=0) const;
-    bool	findClosestMesh(EM::PosID& res, const Coord3& pos,
+    bool	findClosestMesh(PosID& res, const Coord3& pos,
 				const FloatMathFunction* depthconv=0) const;
 
-    bool	computeMeshNormal( Coord3& res, const EM::PosID&, 
+    bool	computeMeshNormal( Coord3& res, const PosID&, 
 	    			const FloatMathFunction* dconv=0) const;
-    bool	computeNormal( Coord3& res, const EM::PosID& posid,
+    bool	computeNormal( Coord3& res, const PosID& posid,
 	    			const FloatMathFunction* dconv=0,
 				bool normalize=true ) const;
-    bool	computeNormal( Coord3& res, const TypeSet<EM::PosID>& nodes,
+    bool	computeNormal( Coord3& res, const TypeSet<PosID>& nodes,
 				const FloatMathFunction* depthconv=0,
 				bool normalize=true ) const;
 		/*!< Computes an aproximation of the orientation of a
@@ -217,30 +212,32 @@ public:
 		*/
 
 
-    bool			isAtEdge(const EM::PosID&) const;
+    bool			checkSupport( bool yn );
+    				/*!<\returns previous status */
+    bool			checksSupport() const;
+
+    bool			isAtEdge(const PosID&) const;
 
     bool			isChanged(int) const { return changed; }
     void			resetChangedFlag() { changed=false; }
-
-    virtual bool		createFromStick(const TypeSet<Coord3>&,
-	    					const SectionID&,float)
-    				{ return false; }
 
     virtual bool		usePar( const IOPar& );
     virtual void		fillPar( IOPar& ) const;
 
 protected:
 
-    virtual Geometry::MeshSurface*	
-				createSectionSurface(const SectionID&) const =0;
-    virtual void		setTransform(const SectionID&) const {}
+    SectionID		addSection( Geometry::ParametricSurface*,
+	    			    const char* nm, SectionID, bool history);
 
-    EM::SubID			getSurfSubID(const RowCol&,
-	    				     const SectionID&) const;
-    EM::SubID			getSurfSubID(const Geometry::PosID&,
-					     const SectionID&) const;
+    virtual Geometry::ParametricSurface*	
+			createSectionSurface() const = 0;
 
-    void			getMeshCoords( const EM::PosID&,
+    SubID			getSurfSubID(const RowCol&,
+	    				     SectionID) const;
+    SubID			getSurfSubID(const Geometry::PosID&,
+					     SectionID) const;
+
+    void			getMeshCoords( const PosID&,
 					       Coord3& c00, Coord3& c10,
 					       Coord3& c01, Coord3& c11,
 					       bool& c00def, bool& c10def,
@@ -250,7 +247,7 @@ protected:
 
     Surface&				surface;
 
-    ObjectSet<Geometry::MeshSurface>	meshsurfaces;
+    ObjectSet<Geometry::ParametricSurface>	meshsurfaces;
     TypeSet<SectionID>			sectionids;
     BufferStringSet			sectionnames;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.43 2005-02-10 16:22:35 nanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.44 2005-03-10 11:48:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "emsurfaceedgeline.h"
 #include "emsurfauxdataio.h"
 #include "filegen.h"
-#include "geommeshsurface.h"
+#include "parametricsurface.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
@@ -334,6 +334,7 @@ int EM::dgbSurfaceReader::nextStep()
     if ( !nrdone )
     {
 	surface->setDBInfo( dbinfo );
+	surface->geometry.checkSupport(false);
 	for ( int idx=0; idx<auxdatasel.size(); idx++ )
 	{
 	    if ( auxdatasel[idx]>=auxdataexecs.size() )
@@ -448,7 +449,10 @@ int EM::dgbSurfaceReader::nextStep()
 
 	int res = ExecutorGroup::nextStep();
 	if ( !res )
+	{
+	    surface->geometry.checkSupport(true);
 	    surface->resetChangedFlag();
+	}
 	return res;
     }
 
@@ -545,7 +549,7 @@ int EM::dgbSurfaceReader::nextStep()
 		    rowcol );
 	}
 
-	surface->geometry.setPos( sectionid, rowcol, pos, false, false );
+	surface->geometry.setPos( sectionid, rowcol, pos, false );
     }
 
     rowindex++;
@@ -656,8 +660,8 @@ EM::dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj_,
 
     surface.fillPar( par );
 
-    surface.geometry.getRange( *writerowrange, true );
-    surface.geometry.getRange( *writecolrange, false );
+    *writerowrange = surface.geometry.rowRange();
+    *writecolrange = surface.geometry.colRange();
 }
 
 
@@ -841,11 +845,9 @@ int EM::dgbSurfaceWriter::nextStep()
 
     if ( sectionindex!=oldsectionindex )
     {
-	const Geometry::MeshSurface* gsurf =
+	const Geometry::ParametricSurface* gsurf =
 			surface.geometry.getSurface( sectionsel[sectionindex] );
-	StepInterval<int> sectionrange;
-       	surface.geometry.getRange( sectionsel[sectionindex], 
-				   sectionrange, true );
+	StepInterval<int> sectionrange = gsurf->rowRange();
 	sectionrange.sort();
 	firstrow = sectionrange.start;
 	int lastrow = sectionrange.stop;

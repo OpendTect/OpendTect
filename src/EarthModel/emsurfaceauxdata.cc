@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.5 2005-02-10 16:22:35 nanne Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.6 2005-03-10 11:48:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
-#include "geommeshsurface.h"
+#include "parametricsurface.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "ioobj.h"
@@ -126,10 +126,9 @@ float SurfaceAuxData::getAuxDataVal( int dataidx, const PosID& posid ) const
 
     if ( !sectionauxdata ) return mUndefValue;
 
-    RowCol geomrc;
-    surface.geometry.getMeshRowCol( posid.subID(), geomrc, posid.sectionID() );
+    const RowCol geomrc( posid.subID() );
     const int subidx =
-	surface.geometry.getSurface(posid.sectionID())->indexOf(geomrc);
+	surface.geometry.getSurface(posid.sectionID())->getKnotIndex(geomrc);
     if ( subidx==-1 ) return mUndefValue;
     return (*sectionauxdata)[subidx];
 }
@@ -142,10 +141,9 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
     const int sectionidx = surface.geometry.sectionNr( posid.sectionID() );
     if ( sectionidx==-1 ) return;
 
-    RowCol geomrc; 
-    surface.geometry.getMeshRowCol( posid.subID(), geomrc, posid.sectionID() );
+    const RowCol geomrc( posid.subID() ); 
     const int subidx =
-	surface.geometry.getSurface(posid.sectionID())->indexOf(geomrc);
+	surface.geometry.getSurface(posid.sectionID())->getKnotIndex(geomrc);
     if ( subidx==-1 ) return;
 
     TypeSet<float>* sectionauxdata = sectionidx<auxdata[dataidx]->size()
@@ -155,7 +153,7 @@ void SurfaceAuxData::setAuxDataVal( int dataidx, const PosID& posid, float val)
 	for ( int idx=auxdata[dataidx]->size(); idx<=sectionidx; idx++ )
 	    (*auxdata[dataidx]) += 0;
 
-	const int sz = surface.geometry.getSurface(posid.sectionID())->size();
+	const int sz= surface.geometry.getSurface(posid.sectionID())->nrKnots();
 	auxdata[dataidx]->replace( new TypeSet<float>(sz,mUndefValue), 
 				   sectionidx );
 	sectionauxdata = (*auxdata[dataidx])[sectionidx];

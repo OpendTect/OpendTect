@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.47 2005-02-10 16:22:42 nanne Exp $
+ RCS:		$Id: emsurface.h,v 1.48 2005-03-10 11:47:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -81,8 +81,11 @@ public:
     bool		isChanged(int) const;
     void		resetChangedFlag();
 
+    const Geometry::Element*	getElement( SectionID ) const;
+
     virtual bool	usePar( const IOPar& );
     virtual void	fillPar( IOPar& ) const;
+
 
 
     SurfaceRelations&	relations;

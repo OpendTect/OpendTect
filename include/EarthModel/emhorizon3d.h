@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.38 2005-03-02 08:56:34 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.39 2005-03-10 11:47:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,7 @@ The grids are defined by knot-points in a matrix and the fillstyle inbetween
 the knots.
 */
 
-class Horizon : public EM::Surface
+class Horizon : public Surface
 {
 public:
     static const char*	typeStr();
@@ -82,19 +82,18 @@ protected:
 class HorizonGeometry : public SurfaceGeometry
 {
 public:
-    			HorizonGeometry( EM::Surface& );
+    			HorizonGeometry( Surface& );
 
-    static BinID	getBinID(const EM::SubID&);
+    static BinID	getBinID(const SubID&);
     static BinID	getBinID(const RowCol&);
-    static EM::SubID	getSubID(const BinID&);
+    static SubID	getSubID(const BinID&);
     static RowCol	getRowCol(const BinID&);
 
     bool		createFromStick(const TypeSet<Coord3>&,
-	    					const SectionID&,float);
+	    					SectionID,float);
 
 protected:
-    Geometry::MeshSurface*	createSectionSurface(const SectionID&) const;
-    void		setTransform(const SectionID&) const;
+    Geometry::ParametricSurface* createSectionSurface() const;
 };
 
 

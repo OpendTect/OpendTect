@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.23 2005-01-28 13:31:16 bert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.24 2005-03-10 11:48:21 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -1661,11 +1661,8 @@ bool EdgeLineSet::removeAllNodesOutsideLines()
 	    nonholes += lines[idx];
     }
 
-    StepInterval<int> rowrange;
-    StepInterval<int> colrange;
-    surface.geometry.getRange( section, rowrange, true );
-    if ( rowrange.width(false)>=0 )
-	surface.geometry.getRange( section, colrange, false );
+    const StepInterval<int> rowrange = surface.geometry.rowRange(section);
+    const StepInterval<int> colrange = surface.geometry.colRange(section);
 
     
     for ( int row=rowrange.start; row<=rowrange.stop; row+=rowrange.step )
@@ -1716,13 +1713,11 @@ bool EdgeLineSet::findLines( EdgeLineCreationFunc func )
 {
     removeAll();
 
-    StepInterval<int> rowrange;
-    surface.geometry.getRange( rowrange, true );
+    const StepInterval<int> rowrange = surface.geometry.rowRange();
     if ( rowrange.width(false)<2 )
 	return false;
 
-    StepInterval<int> colrange;
-    surface.geometry.getRange( colrange, false );
+    const StepInterval<int> colrange = surface.geometry.colRange();
     if ( colrange.width(false)<2 )
 	return false;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.69 2005-02-10 16:22:35 nanne Exp $
+ RCS:           $Id: emsurface.cc,v 1.70 2005-03-10 11:48:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,15 +37,15 @@ void SurfaceIOData::clear()
     deepErase(sections);
 }
 
+
 void SurfaceIOData::use( const Surface& surf )
 {
     clear();
 
-    StepInterval<int> hrg;
-    surf.geometry.getRange( hrg, true );
+    StepInterval<int> hrg = surf.geometry.rowRange();
     rg.start.inl = hrg.start; rg.stop.inl = hrg.stop;
     rg.step.inl = hrg.step;
-    surf.geometry.getRange( hrg, false );
+    hrg = surf.geometry.colRange();
     rg.start.crl = hrg.start; rg.stop.crl = hrg.stop;
     rg.step.crl = hrg.step;
 
@@ -148,7 +148,7 @@ bool Surface::setPos( const PosID& posid, const Coord3& newpos,
 
     return geometry.setPos( posid.sectionID(),
 	    		    geometry.subID2RowCol(posid.subID()),
-			    newpos, false, addtohistory );
+			    newpos, addtohistory );
 }
 
 
@@ -183,6 +183,10 @@ Executor* Surface::saver() { return geometry.saver(); }
 
 
 Executor* Surface::loader() { return geometry.loader(); }
+
+
+const Geometry::Element* Surface::getElement( SectionID sid ) const
+{ return reinterpret_cast<const Geometry::Element*>(geometry.getSurface(sid)); }
 
 
 bool Surface::usePar( const IOPar& par )

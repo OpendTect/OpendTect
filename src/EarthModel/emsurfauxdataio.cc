@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.23 2005-02-11 11:16:46 nanne Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.24 2005-03-10 11:48:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
-#include "geommeshsurface.h"
+#include "parametricsurface.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "strmprov.h"
@@ -81,9 +81,9 @@ EM::dgbSurfDataWriter::dgbSurfDataWriter( const EM::Surface& surf_,int dataidx_,
     for ( int idx=0; idx<surf.geometry.nrSections(); idx++ )
     {
 	EM::SectionID sectionid = surf.geometry.sectionID(idx);
-	const Geometry::MeshSurface* meshsurf =
+	const Geometry::ParametricSurface* meshsurf =
 			surf.geometry.getSurface(sectionid);
-	nrnodes += meshsurf->size();
+	nrnodes += meshsurf->nrKnots();
     }
 
     totalnr = 100;
@@ -127,14 +127,14 @@ int EM::dgbSurfDataWriter::nextStep()
 
 	    const EM::SectionID sectionid = 
 					surf.geometry.sectionID( sectionindex );
-	    const Geometry::MeshSurface* meshsurf = 
+	    const Geometry::ParametricSurface* meshsurf = 
 					surf.geometry.getSurface( sectionid );
 
-	    const int nrnodes = meshsurf->size();
+	    const int nrnodes = meshsurf->nrKnots();
 	    for ( int idy=0; idy<nrnodes; idy++ )
 	    {
-		const Geometry::PosID geomposid = meshsurf->getPosID(idy);
-		const Coord3 coord = meshsurf->getPos( geomposid );
+		const RowCol rc = meshsurf->getKnotRowCol(idy);
+		const Coord3 coord = meshsurf->getKnot( rc, false );
 
 		const BinID bid = SI().transform(coord);
 		if ( sel && sel->excludes(bid) )

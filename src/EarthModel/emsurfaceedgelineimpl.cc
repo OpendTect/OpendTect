@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.14 2005-01-28 13:31:16 bert Exp $";
+static const char* rcsID = "$Id: emsurfaceedgelineimpl.cc,v 1.15 2005-03-10 11:48:21 cvskris Exp $";
 
 
 
@@ -460,7 +460,7 @@ void SurfaceCutLine::commitChanges()
 	if ( ischanged[idx] )
 	{
 	    surface.geometry.setPos( section, cacherc[idx],
-		    		     poscache[idx], false, true );
+		    		     poscache[idx], true );
 	    ischanged[idx] = false;
 	}
     }
