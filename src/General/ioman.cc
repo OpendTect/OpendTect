@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.20 2001-11-13 11:25:08 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.21 2002-03-14 13:45:40 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -142,9 +142,7 @@ extern "C" const char* GetSurveyFileName();
     { errmsg = str; return false; }
 #define mErrRetNotGDIDir(fname) \
     { \
-        errmsg = GetDgbApplicationCode() == mDgbApplCodeDTECT \
-	       ? "$dTECT_DATA=" : "$dGB_DATA="; \
-        errmsg += GetBaseDataDir(); \
+        errmsg = "$dGB_DATA="; errmsg += GetBaseDataDir(); \
         errmsg += "\nThis is not a dGB data storage directory."; \
         return false; \
     }
@@ -158,12 +156,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     IOMan::theinst_ = 0;
     FileNameString fname;
     if ( !GetBaseDataDir() )
-    {
-	if ( GetDgbApplicationCode() == mDgbApplCodeDTECT )
-	    mErrRet("Please set the environment variable dTECT_DATA.")
-	else
-	    mErrRet("Please set the environment variable dGB_DATA.")
-    }
+	mErrRet("Please set the environment variable dGB_DATA.")
     else if ( !File_exists(GetBaseDataDir()) )
 	mErrRetNotGDIDir(fname)
 
