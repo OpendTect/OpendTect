@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.24 2002-03-14 13:45:40 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.25 2002-03-25 16:01:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -431,12 +431,9 @@ bool uiSurvey::acceptOK( CallBacker* )
 }
 
 
-void uiSurvey::updateViewsGlobal( CallBacker* )
+void uiSurvey::updateViewsGlobal()
 {
-    const char* appnm = GetProjectVersionName();
-    if ( GetDgbApplicationCode() != mDgbApplCodeGDI ) appnm += 4;
-    BufferString capt( appnm );
-
+    BufferString capt( GetProjectVersionName() );
     const char* usr = GetSoftwareUser();
     if ( usr && *usr )
 	{ capt += " ["; capt += usr; capt += "]"; }

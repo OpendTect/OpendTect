@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.1 2002-02-08 22:01:28 bert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.2 2002-03-25 16:01:44 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,11 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "picksettr.h"
 
-const int uiPickPartServ::evGetAvailableSets = 0;
-const int uiPickPartServ::evFetchPicks = 1;
+const int uiPickPartServer::evGetAvailableSets = 0;
+const int uiPickPartServer::evFetchPicks = 1;
 
 
-uiPickPartServ::uiPickPartServ( uiApplService& a )
+uiPickPartServer::uiPickPartServer( uiApplService& a )
 	: uiApplPartServer(a)
     	, psg(*new PickSetGroup)
     	, avsets("Select sets to be stored")
@@ -28,14 +28,14 @@ uiPickPartServ::uiPickPartServ( uiApplService& a )
 }
 
 
-uiPickPartServ::~uiPickPartServ()
+uiPickPartServer::~uiPickPartServer()
 {
     delete &psg;
     avsets.deepErase();
 }
 
 
-bool uiPickPartServ::fetchPickSets()
+bool uiPickPartServer::fetchPickSets()
 {
     psg.clear();
     uiFetchPicks dlg( appserv().parent(), psgid );
@@ -53,7 +53,7 @@ bool uiPickPartServ::fetchPickSets()
 }
 
 
-bool uiPickPartServ::storePickSets()
+bool uiPickPartServer::storePickSets()
 {
     sendEvent( evGetAvailableSets );
     if ( !avsets.size() )
