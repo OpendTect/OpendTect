@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.17 2004-11-18 13:40:23 arend Exp $
+ RCS:           $Id: jobrunner.cc,v 1.18 2005-03-23 15:44:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,12 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
 				    ? getenv("DTECT_MAX_HOSTFAIL") : "2") )
     	, maxjobfailures_(	atoi( getenv("DTECT_MAX_JOBFAIL")
 				    ? getenv("DTECT_MAX_JOBFAIL") : "2") )
-	, jobStarted(this)
+	, preJobStart(this)
+	, postJobStart(this)
 	, jobFailed(this)
-    	, notifyji(0)
+    	, curjobiop_(*new IOPar)
+    	, curjobfp_(*new FilePath)
+    	, curjobinfo_(0)
 {
     FilePath fp( GetDataDir() );
     fp.add( "Proc" ).add( tmpfnm_base );
@@ -185,9 +188,9 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 
 #define mJobFailed() \
 { \
-    if ( notifyji && notifyji->hostdata_ ) \
+    if ( curjobinfo_ && curjobinfo_->hostdata_ ) \
     { \
-	JobHostInfo* jhi = jobHostInfoFor( *notifyji->hostdata_ ); \
+	JobHostInfo* jhi = jobHostInfoFor( *curjobinfo_->hostdata_ ); \
 	if ( jhi ) jhi->nrfailures_++; \
     } \
     jobFailed.trigger(); \
@@ -195,17 +198,15 @@ const FilePath& JobRunner::getBaseFilePath( JobInfo& ji, const HostData& hd  )
 
 bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 {
-    IOPar iop; descprov_->getJob( ji.descnr_, iop );
-
-    FilePath basefp( getBaseFilePath(ji,hd) );
-
-
-    notifyji = &ji;
+    curjobiop_.clear(); descprov_->getJob( ji.descnr_, curjobiop_ );
+    curjobfp_ = getBaseFilePath(ji,hd);
+    curjobinfo_ = &ji;
     ji.hostdata_ = &hd;
     ji.state_ = JobInfo::Working;
     ji.timestamp_ = 0;
+    preJobStart.trigger();
 
-    if ( !iomgr().startProg( prog_, iop, basefp, ji, rshcomm_ ) )
+    if ( !iomgr().startProg( prog_, curjobiop_, curjobfp_, ji, rshcomm_ ) )
     {
 	ji.state_ = JobInfo::Failed;
 	if ( iomgr().peekMsg() ) iomgr().fetchMsg(ji.curmsg_);
@@ -213,7 +214,7 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 	return false;
     }
 
-    jobStarted.trigger();
+    postJobStart.trigger();
     return true;
 }
 
@@ -241,7 +242,7 @@ void JobRunner::removeHost( int hnr )
 
     if ( ji )
     {
-	notifyji = ji;
+	curjobinfo_ = ji;
 	ji->hostdata_ = &jhi->hostdata_;
 	ji->state_ = JobInfo::Failed;
 	mJobFailed();
@@ -403,7 +404,7 @@ void JobRunner::updateJobInfo()
 
 	    if ( elapsed > timeout_ )
 	    {
-		notifyji = &ji;
+		curjobinfo_ = &ji;
 		ji.state_ = JobInfo::Failed;
 		ji.curmsg_ = "Timed out.";
 		mJobFailed();
@@ -469,7 +470,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	    ji->curmsg_ = " active";
 	break;
 	case mSTAT_ERROR:
-	    notifyji = ji;
+	    curjobinfo_ = ji;
 	    ji->state_ = JobInfo::Failed;
 	    mJobFailed();
 	break;
