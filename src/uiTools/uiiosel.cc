@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uiiosel.cc,v 1.4 2001-05-02 20:16:49 bert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.5 2001-05-05 14:10:45 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ void uiIOSelect::updateFromEntries()
     if ( curitnr >= 0 )
 	curusrnm = inp_->box()->textOfItem( curitnr );
 
-    inp_->box()->clear();
+    inp_->box()->empty();
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
 	const char* usrnm = userNameFromKey( *entries_[idx] );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.4 2001-05-01 17:05:26 bert Exp $
+ RCS:           $Id: uicombobox.h,v 1.5 2001-05-05 14:10:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,19 +36,23 @@ public:
 			//!< Triggered when selection has changed. 
 
     const char*		getText() const;
-    int			size() const;
+			//!< This is the text that is actually in the current
+			//!< item. This text may differ from
+			//!< textOfItem(currentItem()) when the box is editable.
 
     bool		isPresent(const char*) const;
+
+    virtual void	clear()			{ setCurrentItem(0); }
+    void		empty();
+    int			size() const;
+    void		addItem(const char*); 
+    void		addItems(const char**); 
+    void		addItems(const PtrUserIDObjectSet&);
     int			currentItem() const;
     void		setCurrentItem(int);
     void		setCurrentItem(const char*); //!< First match
     const char*		textOfItem(int) const;
     void		setItemText(int,const char*);
-
-    void		clear();
-    void		addItem(const char*); 
-    void		addItems(const char**); 
-    void		addItems(const PtrUserIDObjectSet&);
 
     virtual bool        isSingleLine() const { return true; }
 

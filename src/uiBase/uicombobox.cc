@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.5 2001-05-04 11:25:05 windev Exp $
+ RCS:           $Id: uicombobox.cc,v 1.6 2001-05-05 14:10:43 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ int uiComboBox::currentItem() const
 }
 
 
-void uiComboBox::clear()
+void uiComboBox::empty()
 {
     mQtThing()->clear();
 }
