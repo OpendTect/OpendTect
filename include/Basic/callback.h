@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Callbacks for any CallBacker
- RCS:		$Id: callback.h,v 1.7 2000-09-15 11:24:22 arend Exp $
+ RCS:		$Id: callback.h,v 1.8 2000-09-21 11:04:17 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,13 +143,15 @@ protected:
 template <class T>
 class Notifier : public i_Notifier
 {
-	friend		T;
+    friend		T;
+
+    void		trigger( T& t )		{ trigger(&t); }
 
 protected:
 
 			Notifier( T* c )	{ cber = c; }
 
-    void		trigger(CallBacker* c=0){ cbs.doCall(c ? c : cber); }
+    inline void		trigger(CallBacker* c=0){ cbs.doCall(c ? c : cber); }
 
 };
 
