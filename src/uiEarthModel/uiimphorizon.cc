@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.7 2002-05-24 10:53:52 nanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.8 2002-05-24 14:39:14 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,23 @@ uiImportHorizon::~uiImportHorizon()
 #define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
+#include "survinfo.h"
+static void prGrd( const Grid* grd )
+{
+    cout << grd->nrCols() << ' ' << grd->nrRows() << endl;
+    for ( int icol=0; icol<grd->nrCols(); icol++ )
+    {
+	for ( int irow=0; irow<grd->nrRows(); irow++ )
+	{
+	    GridNode gn( icol, irow );
+	    Coord c = grd->base.getCoord( gn );
+	    BinID bid =  SI().transform( c );
+	    cout << bid.inl << ' ' << bid.crl << ' '
+		 << grd->getValue( gn ) << endl;
+	}
+    }
+}
+
 
 bool uiImportHorizon::handleAscii()
 {
@@ -78,8 +95,12 @@ bool uiImportHorizon::handleAscii()
     if ( !execdlg.go() ) return false;
 
     Grid* dskgrd = reader.grid();
+    // prGrd( dskgrd );
+    cout << endl << endl;
+
     PtrMan<Grid> grid = dskgrd->cloneTrimmed();
     delete dskgrd;
+    // prGrd( grid );
 
     const char* horizonnm = outfld->getInput();
     EarthModel::EMManager& em = EarthModel::EMM();
