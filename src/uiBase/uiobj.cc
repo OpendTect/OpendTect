@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.56 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uiobj.cc,v 1.57 2003-11-21 13:33:47 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,7 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
 
 void uiParent::storePosition()
 {
+#ifdef SUPPORT_PERSISTENCE  // TODO remove or fixme
     QWidget* widget = body()->qwidget();
     if ( !widget ) { pErrMsg("no qwidget!"); return; }
 
@@ -105,6 +106,7 @@ void uiParent::storePosition()
 
     k = key; k += "height";
     settings.writeEntry( k, s.height() );
+#endif
 }
 
 const Color& uiParent::backgroundColor() const
@@ -115,6 +117,7 @@ const Color& uiParent::backgroundColor() const
 
 void uiParent::restorePosition()
 {
+#ifdef SUPPORT_PERSISTENCE  // TODO remove or fixme
     QWidget* widget = body()->qwidget();
     if ( !widget ) { pErrMsg("no qwidget!"); return; }
 
@@ -140,6 +143,7 @@ void uiParent::restorePosition()
 
     if ( x >= 0 && y >= 0 )
 	widget->move( QPoint(x,y) );
+#endif
 }
 
 
