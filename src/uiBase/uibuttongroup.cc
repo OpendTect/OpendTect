@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.7 2004-02-25 14:48:39 nanne Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.8 2004-02-27 16:51:24 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 
 					vertical ? Horizontal : Vertical, txt,
 					parnt && parnt->pbody() ?
-					  parnt->pbody()->managewidg() : 0, txt )
+					parnt->pbody()->managewidg() : 0, txt )
 			, handle_( handle )	{}
 
     virtual		~uiButtonGroupObjBody()	{}
@@ -47,7 +47,7 @@ public:
 public:
 
     void		setPrntBody (uiButtonGroupParentBody* pb)
-			    { prntbody_ = pb; }
+			{ prntbody_ = pb; }
 
 protected:
 
@@ -65,14 +65,14 @@ public:
 					 uiButtonGroupObjBody& objbdy,
 					 uiParent* parnt=0,
 					 const char* nm="uiButtonGroupObjBody") 
-                            : uiParentBody( nm )
-                            , handle_( handle )
-			    , objbody_( objbdy ) {}
+                            : uiParentBody(nm)
+                            , handle_(handle)
+			    , objbody_(objbdy) {}
 
-    virtual void	attachChild ( constraintType tp,
-				      uiObject* child,
-				      uiObject* other, int margin,
-				      bool reciprocal )
+    virtual void	attachChild( constraintType tp,
+				     uiObject* child,
+				     uiObject* other, int margin,
+				     bool reciprocal )
 			{ pErrMsg("Cannot do attachments in uiButtonGroups"); }
 
 protected:
@@ -91,11 +91,11 @@ private:
 };
 
 
-uiButtonGroupObj::uiButtonGroupObj( uiParent* parnt, const char* nm,
-                                          bool vertical, int strips )
-    : uiObject( parnt, nm )
+uiButtonGroupObj::uiButtonGroupObj( uiParent* p, const char* nm,
+                                    bool vertical, int strips )
+    : uiObject(p,nm)
 {
-    body_ = new uiButtonGroupObjBody( *this, parnt, nm, vertical, strips);
+    body_ = new uiButtonGroupObjBody( *this, p, nm, vertical, strips );
     setBody( body_ );
 }
 
@@ -106,7 +106,7 @@ uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
     , grpobj_( 0 )
     , body_( 0 )
 {
-    grpobj_ =  new uiButtonGroupObj( p, nm, vertical, strips );
+    grpobj_ = new uiButtonGroupObj( p, nm, vertical, strips );
     uiButtonGroupObjBody* grpbdy = 
 	    dynamic_cast<uiButtonGroupObjBody*>( grpobj_->body() );
 
@@ -120,6 +120,12 @@ uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
     grpobj_->body_->setPrntBody( body_ );
 
     p->manageChld( *grpobj_, *grpobj_->body_ );
+}
+
+
+void uiButtonGroup::selectButton( int id )
+{
+    grpobj_->body_->setButton( id );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.5 2004-02-25 14:49:18 nanne Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.6 2004-02-27 16:51:29 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
 			uiButtonGroup( uiParent*, const char* nm="uiButtonGrp",
 				       bool vertical=true, int strips=1 ); 
 
+    void		selectButton(int id);
     int			selectedId() const;
     int			nrButtons() const;
     void		setSensitive(int id,bool yn=true);
