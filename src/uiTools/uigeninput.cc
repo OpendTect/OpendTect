@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.32 2001-10-15 10:09:33 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.33 2001-12-13 11:38:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,9 +55,9 @@ public:
     virtual uiObject&	element( int  )			{ return uiObj(); }
     virtual bool	isValid(int idx)
 			{ 
-			    pErrMsg("Sorry, not implemented..");
 			    if ( isUndef(idx) ) return false;
 			    if ( !spec_.hasLimits() ) return true;
+			    pErrMsg("Sorry, not implemented..");
 			    return true;
 			} // TODO implement
     virtual bool	isUndef(int idx) const
