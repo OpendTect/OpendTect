@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.21 2004-12-15 13:28:19 nanne Exp $
+ RCS:           $Id: uitable.cc,v 1.22 2004-12-22 13:51:52 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -360,8 +360,26 @@ void uiTable::hideRow( int col, bool yn )
     else body_->showRow( col );
 }
 
-mIsFunc( isColumnHidden )
-mIsFunc( isRowHidden )
+bool uiTable::isColumnHidden(int col) const
+{
+#if QT_VERSION < 0x030300
+    pErrMsg("Function is not supported by QT");
+    return false;
+#else
+    return body_->isColumnHidden(col);
+#endif
+}
+
+
+bool uiTable::isRowHidden(int row) const
+{
+#if QT_VERSION < 0x030300
+    pErrMsg("Function is not supported by QT");
+    return false;
+#else
+    return body_->isRowHidden(row);
+#endif
+}
 
 
 mSetFunc( setColumnStretchable )
