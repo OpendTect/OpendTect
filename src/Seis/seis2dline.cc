@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.41 2005-03-24 16:52:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.42 2005-03-24 17:10:32 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -736,7 +736,8 @@ void Seis2DLineSet::preparePreSet( IOPar& iop, const char* reallskey ) const
 void Seis2DLineSet::installPreSet( const IOPar& iop, const char* reallskey,
 				   const char* worklskey )
 {
-    const char* reallsfnm = iop.find( reallskey );
+    const char* reallsfnm = iop.find(
+	    			IOPar::compKey(reallskey,sKey::FileName) );
     if ( !reallsfnm ) return;
 
     const char* worklsfnm = iop.find(
