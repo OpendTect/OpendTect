@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.10 2003-03-04 16:13:56 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.11 2003-03-13 12:20:48 nanne Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -78,22 +78,22 @@ void visBase::Texture3::setData( const Array3D<float>* newdata )
     for ( int x2=0; x2<x2sz; x2++ )
     {
 	const float x2pos=x2*x2step;
-	const int x2idx = (int) x2pos;
-	const bool x2onedge = x2pos+1==datax2sz;
+	const int x2idx = (int)x2pos;
+	const bool x2onedge = x2idx+1==datax2sz;
 	const float x2relpos = x2pos-x2idx;
+
 	for ( int x1=0; x1<x1sz; x1++ )
 	{
 	    const float x1pos=x1*x1step;
-	    const int x1idx = (int) x1pos;
-	    const bool x1onedge = x1pos+1==datax1sz;
+	    const int x1idx = (int)x1pos;
+	    const bool x1onedge = x1idx+1==datax1sz;
 	    const float x1relpos = x1pos-x1idx;
-
 
 	    for ( int x0=0; x0<x0sz; x0++ )
 	    {
 		const float x0pos=x0*x0step;
 		const int x0idx = (int)x0pos;
-		const bool x0onedge = x0pos+1==datax0sz;
+		const bool x0onedge = x0idx+1==datax0sz;
 		const float x0relpos = x0pos-x0idx;
 
 		val000 = newdata->get( x0idx, x1idx, x2idx );

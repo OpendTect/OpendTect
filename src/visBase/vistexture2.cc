@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture2.cc,v 1.13 2003-02-19 15:33:57 nanne Exp $";
+static const char* rcsID = "$Id: vistexture2.cc,v 1.14 2003-03-13 12:20:48 nanne Exp $";
 
 #include "vistexture2.h"
 
@@ -87,15 +87,15 @@ void visBase::Texture2::setData( const Array2D<float>* newdata )
     for ( int x0=0; x0<x0sz; x0++ )
     {
 	const float x0pos=x0*x0step;
-	const int x0idx = (int) x0pos;
-	const bool x0onedge = x0pos+1==datax0size;
+	const int x0idx = (int)x0pos;
+	const bool x0onedge = x0idx+1==datax0size;
 	const float x0relpos = x0pos-x0idx;
 
 	for ( int x1=0; x1<x1sz; x1++ )
 	{
 	    const float x1pos = x1*x1step;
-	    const int x1idx = (int) x1pos;
-	    const bool x1onedge = x1pos+1==datax1size;
+	    const int x1idx = (int)x1pos;
+	    const bool x1onedge = x1idx+1==datax1size;
 	    const float x1relpos = x1pos-x1idx;
 
 	    const float val00 = newdata->get( x0idx, x1idx );
