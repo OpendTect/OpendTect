@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.14 2002-02-22 16:00:06 kristofer Exp $
+ RCS:           $Id: arrayndutils.h,v 1.15 2002-09-19 14:34:21 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -33,15 +33,19 @@ inline void operator<<( ostream& strm, const ArrayND<T>& array )
     ArrayNDIter iter( array.info() );
     const int ndim = array.info().getNDim();
 
+    strm << ndim << ' ';
+
+    for ( int idx=0; idx<ndim; idx++ )
+	strm << array.info().getSize(idx) << ' ';
+
     do 
     {
-	for ( int idx=0; idx<ndim; idx++ )
-	    strm << iter[idx] << '\t';
-
 	strm << array.get( iter.getPos() );
 
-	strm << '\n';
+	strm << ' ';
     } while ( iter.next() );
+
+    strm.flush();
 }
 
 
