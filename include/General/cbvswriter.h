@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.4 2001-04-04 11:13:27 bert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.5 2001-04-04 15:06:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,8 +76,6 @@ private:
     int			nrxlines;
 
     int			nrtrcsperposn;
-    int			nrcomps;
-    int*		cnrbytes;
     CBVSInfo::ExplicitInfo explinfo;
     CBVSInfo::SurvGeom	survgeom;
 

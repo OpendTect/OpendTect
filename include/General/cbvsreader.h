@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.2 2001-04-04 11:13:27 bert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.3 2001-04-04 15:06:52 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,13 @@ ________________________________________________________________________
 #include <cbvsinfo.h>
 #include <datainterp.h>
 #include <iostream.h>
+class BinIDRange;
 
 
 /*!\brief Reader for CBVS format
 
-The stream it works on will be deleted on destruction or closed
-if close() is explicitly called.
+The stream it works on will be deleted on destruction or if close() is
+explicitly called.
 
 */
 
@@ -31,17 +32,24 @@ class CBVSReader : public CBVSIO
 public:
 
 			CBVSReader(istream*);
-			~CBVSReader()	{ close(); }
+			~CBVSReader();
 
     const CBVSInfo&	info() const	{ return info_; }
     void		close();
 
-    bool		goTo(const BinID&);
-    bool		toNext(bool skip_trcs_at_same_position=false);
     BinID		binID() const	{ return curbinid; }
+    BinID		nextBinID() const;
+
+    bool		goTo(const BinID&);
+    bool		skip(bool force_next_position=false);
+			//!< if force_next_position, will skip all traces
+			//!< at current position.
 
     bool		getHInfo(CBVSInfo::ExplicitData&);
-    bool		fetch(void**);
+    bool		fetch(void**,const Interval<int>* samps=0);
+			//!< If 'samps' is non-null, it should hold start
+			//!< and end sample for each component.
+			//!< If start > stop component is skipped.
 
     static const char*	check(istream&);
 			//!< Determines whether a file is a CBVS file
@@ -59,24 +67,26 @@ protected:
 
 private:
 
+    bool		hinfofetched;
     int			nrxlines;
     int			bytespertrace;
     BinID		curbinid;
-    bool		hinfofetched;
-    int			lastinlinfnr;
-    int			lastsegnr;
+    BinID		lastbinid;
+    int			curinlinfnr;
+    int			cursegnr;
     int			posidx;
     int			explicitnrbytes;
     DataInterpreter<int> iinterp;
     DataInterpreter<float> finterp;
     DataInterpreter<double> dinterp;
     bool		isclosed;
+    BinIDRange&		bidrg;
+    Interval<int>*	samprgs;
 
-    streampos		readInfo();
+    bool		readInfo();
 
     streampos		lastposfo;
-			// Do not move datastartfo declaration upward!
-    const streampos	datastartfo;
+    streampos		datastartfo;
 
 };
 

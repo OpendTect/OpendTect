@@ -5,10 +5,11 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.3 2001-04-04 11:12:11 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.4 2001-04-04 15:06:59 bert Exp $";
 
 #include "cbvsreader.h"
 #include "datainterp.h"
+#include "binidselimpl.h"
 
 
 CBVSReader::CBVSReader( istream* s )
@@ -21,9 +22,20 @@ CBVSReader::CBVSReader( istream* s )
 	, hinfofetched(false)
 	, isclosed(false)
 	, posidx(0)
-	, datastartfo(readInfo())
+	, datastartfo(0)
+	, lastposfo(0)
+	, bidrg(*new BinIDRange)
+	, samprgs(0)
 {
     lastposfo = datastartfo;
+}
+
+
+CBVSReader::~CBVSReader()
+{
+    close();
+    delete [] samprgs;
+    delete &bidrg;
 }
 
 
@@ -37,11 +49,11 @@ void CBVSReader::close()
 
 #define mErrRet(s) { errmsg_ = s; return 0; }
 
-streampos CBVSReader::readInfo()
+bool CBVSReader::readInfo()
 {
     info_.clean();
     errmsg_ = check( strm_ );
-    if ( errmsg_ ) return 0;
+    if ( errmsg_ ) return false;
 
     unsigned char buf[headstartbytes];
     strm_.read( buf, headstartbytes );
@@ -59,7 +71,7 @@ streampos CBVSReader::readInfo()
     // const int nrbytesinheader = iinterp.get( buf+8 );
 
     if ( !readComps() || !readGeom() )
-	return 0;
+	return false;
 
     strm_.read( buf, 2 * integersize );
     info_.seqnr = iinterp.get( buf, 0 );
@@ -72,8 +84,23 @@ streampos CBVSReader::readInfo()
 	info_.usertext = usrtxt;
     }
 
-    const streampos dfo = strm_.tellg();
-    return info_.geom.fullyrectandreg || readTrailer() ? dfo : 0;
+    datastartfo = strm_.tellg();
+    if ( !info_.geom.fullyrectandreg && !readTrailer() )
+	return false;
+
+    lastbinid.inl = info_.geom.step.inl > 0
+		  ? info_.geom.stop.inl : info_.geom.start.inl;
+    lastbinid.crl = info_.geom.step.crl > 0
+		  ? info_.geom.stop.crl : info_.geom.start.crl;
+    if ( !info_.geom.fullyrectandreg )
+    {
+	CBVSInfo::SurvGeom::InlineInfo& iinf =
+		*info_.geom.inldata[ info_.geom.inldata.size()-1 ];
+	lastbinid.inl = iinf.inl;
+	lastbinid.crl = iinf.segments[ iinf.segments.size()-1 ].stop;
+    }
+
+    return true;
 }
 
 
@@ -129,13 +156,14 @@ bool CBVSReader::readComps()
 {
     unsigned char ucbuf[4*integersize];
     strm_.read( ucbuf, integersize );
-    const int nrcomp = iinterp.get( ucbuf, 0 );
-    if ( nrcomp < 1 ) mErrRet("Corrupt CBVS format: No components defined")
+    nrcomps = iinterp.get( ucbuf, 0 );
+    if ( nrcomps < 1 ) mErrRet("Corrupt CBVS format: No components defined")
 
-    cnrbytes_ = new int [nrcomp];
+    cnrbytes_ = new int [nrcomps];
+    samprgs = new Interval<int> [nrcomps];
     bytespertrace = 0;
 
-    for ( int icomp=0; icomp<nrcomp; icomp++ )
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
     {
 	strm_.read( ucbuf, integersize );
 	    int nrchar = iinterp.get( ucbuf, 0 ); char buf[nrchar+1];
@@ -166,9 +194,11 @@ bool CBVSReader::readComps()
 	    mErrRet("Corrupt CBVS format: Component desciption error")
 	}
 
+	info_.compinfo += newinf;
+
 	cnrbytes_[icomp] = newinf->nrsamples * newinf->datachar.nrBytes();
 	bytespertrace += cnrbytes_[icomp];
-	info_.compinfo += newinf;
+	samprgs[icomp] = Interval<int>( 0, newinf->nrsamples-1 );
     }
 
     return true;
@@ -197,6 +227,9 @@ bool CBVSReader::readGeom()
     if ( info_.geom.fullyrectandreg )
 	nrxlines = (info_.geom.stop.crl - info_.geom.start.crl)
                  / info_.geom.step.crl + 1;
+    bidrg.start = bidrg.stop
+		= BinID( info_.geom.start.inl, info_.geom.start.crl );
+    bidrg.include( BinID( info_.geom.stop.inl, info_.geom.stop.crl ) );
 
     return strm_.good();
 }
@@ -233,6 +266,7 @@ bool CBVSReader::readTrailer()
 	    iinf->segments += CBVSInfo::SurvGeom::InlineInfo::Segment(
 		iinterp.get(buf,0), iinterp.get(buf,1), iinterp.get(buf,2) );
 	}
+	info_.geom.inldata += iinf;
     }
 
     return strm_.good();
@@ -246,8 +280,7 @@ bool CBVSReader::goTo( const BinID& bid )
     int nrposns = 0;
     if ( info_.geom.fullyrectandreg )
     {
-	if ( bid.inl < info_.geom.start.inl || bid.inl > info_.geom.stop.inl
-	  || bid.crl < info_.geom.start.crl || bid.crl > info_.geom.stop.crl )
+	if ( !bidrg.includes(bid) )
 	    return false;
 	
 	if ( info_.geom.step.inl == 1 )
@@ -272,33 +305,41 @@ bool CBVSReader::goTo( const BinID& bid )
     }
     else
     {
-	const int sz = info_.geom.inldata.size();
-	bool foundseg = false;
-	for ( int iinl=0; iinl<sz; iinl++ )
+	int segposns = 0;
+	const CBVSInfo::SurvGeom::InlineInfo* curiinf =
+		info_.geom.inldata[curinlinfnr];
+	const CBVSInfo::SurvGeom::InlineInfo::Segment* curseg =
+		&curiinf->segments[cursegnr];
+	if ( bid.inl != curiinf->inl || !curseg->includes(bid.crl) )
 	{
-	    const CBVSInfo::SurvGeom::InlineInfo& inlinf
-					= *info_.geom.inldata[iinl];
-	    foundseg = false;
-	    for ( int iseg=0; iseg<inlinf.segments.size(); iseg++ )
+	    const int sz = info_.geom.inldata.size();
+	    bool foundseg = false;
+	    for ( int iinl=0; iinl<sz; iinl++ )
 	    {
-		if ( inlinf.inl != bid.inl
-		  || !inlinf.segments[iseg].includes(bid.crl) )
-		    nrposns += inlinf.segments[iseg].nrSteps();
-		else
+		curiinf = info_.geom.inldata[iinl];
+		foundseg = false;
+		for ( int iseg=0; iseg<curiinf->segments.size(); iseg++ )
 		{
-		    lastinlinfnr = iinl; lastsegnr = iseg;
-		    int posns = inlinf.segments[iseg].nearestIndex( bid.crl );
-		    nrposns += posns;
-		    curbinid.inl = inlinf.inl;
-		    curbinid.crl = inlinf.segments[iseg].atIndex( posns );
-		    foundseg = true;
-		    break;
+		    curseg = &curiinf->segments[iseg];
+		    if ( curiinf->inl != bid.inl || !curseg->includes(bid.crl) )
+			nrposns += curseg->nrSteps();
+		    else
+		    {
+			curinlinfnr = iinl; cursegnr = iseg;
+			foundseg = true;
+			break;
+		    }
 		}
-	    }
 
-	    if ( foundseg ) break;
+		if ( foundseg ) break;
+	    }
+	    if ( !foundseg ) return false;
 	}
-	if ( !foundseg ) return false;
+
+	int segposn = curseg->nearestIndex( bid.crl );
+	nrposns += segposn;
+	curbinid.inl = curiinf->inl;
+	curbinid.crl = curseg->atIndex( segposn );
     }
 
     lastposfo = ((streampos)nrposns) * info_.nrtrcsperposn
@@ -309,25 +350,78 @@ bool CBVSReader::goTo( const BinID& bid )
 }
 
 
-bool CBVSReader::toNext( bool skiptonextpos )
+bool CBVSReader::skip( bool tonextpos )
 {
     hinfofetched = false;
-    if ( !skiptonextpos )
+
+    streampos onetrcoffs = explicitnrbytes + bytespertrace;
+    streampos posadd = onetrcoffs;
+    posidx++;
+    if ( posidx >= info_.nrtrcsperposn )
+	posidx = 0;
+
+    if ( posidx && tonextpos )
     {
-	posidx++;
-	if ( posidx >= info_.nrtrcsperposn )
-	    posidx = 0;
+	while ( posidx )
+	{
+	    posadd += onetrcoffs;
+	    posidx++;
+	    if ( posidx >= info_.nrtrcsperposn )
+		posidx = 0;
+	}
     }
 
-    if ( posidx )
+    if ( !posidx )
     {
-	lastposfo += (explicitnrbytes + bytespertrace);
-	strm_.seekg( datastartfo + lastposfo, ios::beg );
-	return true;
+	if ( curbinid == lastbinid ) return false;
+	curbinid = nextBinID();
     }
 
-    // Check whether we are at last position
+    lastposfo += posadd;
+    strm_.seekg( datastartfo + lastposfo, ios::beg );
     return true;
+}
+
+
+BinID CBVSReader::nextBinID() const
+{
+    BinID bid = curbinid;
+    if ( info_.geom.fullyrectandreg )
+    {
+	bid.crl += info_.geom.step.crl;
+	if ( !bidrg.includes(bid) )
+	{
+	    bid.crl = info_.geom.start.crl;
+	    bid.inl += info_.geom.step.inl;
+	    if ( !bidrg.includes(bid) )
+		return BinID(0,0);
+	}
+    }
+    else if ( bid != lastbinid )
+    {
+	const CBVSInfo::SurvGeom::InlineInfo* inlinf =
+		info_.geom.inldata[curinlinfnr];
+	const CBVSInfo::SurvGeom::InlineInfo::Segment* curseg =
+		&inlinf->segments[cursegnr];
+	bid.crl += curseg->step;
+	if ( !curseg->includes(bid.crl) )
+	{
+	    const_cast<int&>(cursegnr) ++;
+	    if ( cursegnr > inlinf->segments.size() )
+	    {
+		const_cast<int&>(cursegnr) = 0;
+		const_cast<int&>(curinlinfnr) ++;
+		if ( curinlinfnr >= info_.geom.inldata.size() )
+		    return BinID(0,0);
+		inlinf = info_.geom.inldata[curinlinfnr];
+		curseg = &inlinf->segments[cursegnr];
+		bid.inl = inlinf->inl;
+		bid.crl = curseg->start;
+	    }
+	}
+    }
+
+    return bid;
 }
 
 
@@ -356,5 +450,40 @@ bool CBVSReader::getHInfo( CBVSInfo::ExplicitData& expldat )
     mGet(pick)
     mGet(refpos)
 
+    hinfofetched = true;
     return strm_.good();
+}
+
+
+bool CBVSReader::fetch( void** bufs, const Interval<int>* samps )
+{
+    if ( !hinfofetched )
+    {
+	CBVSInfo::ExplicitData dum;
+	if ( !getHInfo(dum) ) return false;
+    }
+
+    if ( !samps ) samps = samprgs;
+
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	CBVSComponentInfo* compinfo = info_.compinfo[icomp];
+	if ( samps[icomp].start > samps[icomp].stop )
+	{
+	    strm_.seekg( cnrbytes_[icomp], ios::cur );
+	    continue;
+	}
+
+	int bps = compinfo->datachar.nrBytes();
+	if ( samps[icomp].start )
+	    strm_.seekg( samps[icomp].start*bps, ios::cur );
+	strm_.read( bufs[icomp],
+		(samps[icomp].stop-samps[icomp].start+1) * bps );
+	if ( samps[icomp].stop < compinfo->nrsamples-1 )
+	    strm_.seekg( (compinfo->nrsamples-samps[icomp].stop-1)*bps,
+		ios::cur );
+    }
+
+    hinfofetched = false;
+    return strm_.good() || strm_.eof();
 }
