@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.18 2003-05-22 11:10:27 bert Exp $
+# $Id: od_exec,v 1.19 2003-06-13 14:15:36 arend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -10,25 +10,9 @@
 if ( ! $?dGB_APPL ) then
 	echo "Error : dGB program not initialized."
 	exit 1
-else if ( ! $?HDIR ) then
-	source $dGB_APPL/bin/sethdir
 endif
 
-set binsubdir=$HDIR
-if ( $binsubdir == sun5 ) then
-    if ( -d $dGB_APPL/bin/sol26 || -d $dGB_APPL/bin/sol28 ) then
-	set v=`uname -r|sed 's/5\.//'`
-	if ( "$v" == "6" || "$v" == "7" ) then
-	    set binsubdir=sol26
-	else if ( -d $dGB_APPL/bin/sol28 \
-		&& ( "$v" == "8" || "$v" == "9" ) ) then
-	    set binsubdir=sol28
-	endif
-    endif
-endif
-if ( ! -d $dGB_APPL/bin/$binsubdir ) then
-    set binsubdir=$HDIR
-endif
+eval `$dGB_APPL/bin/mksethdir`
 
 set bindir="$dGB_APPL/bin/$binsubdir"
 set nicecmd=""

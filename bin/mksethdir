@@ -1,0 +1,48 @@
+#!/bin/csh -f
+#_______________________________________________________________________________
+#
+# (C) 1999 de Groot-Bril Earth Sciences B.V.
+# $Id: mksethdir,v 1.1 2003-06-13 14:15:36 arend Exp $
+#
+# dGB-GDI HDIR variable setup
+# usage from a csh-script:
+#    eval `/__path__/mksethdir <root binary dir>`
+#    if no root binary dir given, $dGB_APPL is used
+#_______________________________________________________________________________
+
+set sethdirstr=""
+if ( ! $?HDIR ) then
+    setenv HDIR `uname`
+    if ( "$HDIR" == "SunOS" ) then
+	setenv HDIR sun5
+    else if ( "$HDIR" == "Linux" ) then
+	setenv HDIR lux
+    else if ( "$HDIR" == "IRIX" || "$HDIR" == "IRIX64" ) then
+	setenv HDIR sgi
+    endif
+    set sethdirstr="setenv HDIR $HDIR; "
+endif
+
+set ROOT_DIR=$1
+if ( $ROOT_DIR == "" ) then
+    if ( $?dGB_APPL ) set ROOT_DIR=$dGB_APPL
+endif
+
+set binsubdir=$HDIR
+if ( $binsubdir == sun5 ) then
+    if ( -d $ROOT_DIR/bin/sol26 || -d $ROOT_DIR/bin/sol28 ) then
+	set v=`uname -r|sed 's/5\.//'`
+	if ( "$v" == "6" || "$v" == "7" ) then
+	    set binsubdir=sol26
+	else if ( -d $ROOT_DIR/bin/sol28 \
+		&& ( "$v" == "8" || "$v" == "9" ) ) then
+	    set binsubdir=sol28
+	endif
+    endif
+endif
+
+if ( ! -d $ROOT_DIR/bin/$binsubdir ) then
+    set binsubdir=$HDIR
+endif
+
+echo "$sethdirstr set binsubdir=$binsubdir"
