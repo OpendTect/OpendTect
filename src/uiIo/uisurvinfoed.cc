@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.24 2002-01-18 12:48:28 dgb Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.25 2002-01-22 13:05:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -332,7 +332,7 @@ uiIdealSurvSetup( uiParent* p, IdealConn::Type t )
     : uiDialog(p,uiDialog::Setup("Survey setup",
 				 "Select cube to retrieve survey setup",
 				 "0.3.8")
-	    			.statusbar(true) )
+	    			.nrstatusflds(1) )
 {
     iddfld = new uiIdealData( this, t );
 }

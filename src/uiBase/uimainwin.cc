@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.42 2002-01-22 11:57:06 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.43 2002-01-22 13:05:21 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ public:
 			uiMainWinBody( uiMainWin& handle, uiParent* parnt,
 				       const char* nm, bool modal );
 
-    void		construct( bool wantStatusBar, bool wantMenuBar, 
+    void		construct( int nrStatusFlds, bool wantMenuBar, 
 				   bool wantToolBar );
 
     virtual		~uiMainWinBody();
@@ -190,7 +190,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* parnt,
     poptimer.tick.notify(mCB(this,uiMainWinBody,popTimTick));
 }
 
-void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar, 
+void uiMainWinBody::construct(  int nrStatusFlds, bool wantMenuBar, 
 				bool wantToolBar )
 {
     centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget" );
@@ -200,7 +200,7 @@ void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar,
     centralWidget_->setBorder(10);
     centralWidget_->setStretch(2,2);
 
-    if( wantStatusBar )
+    if( nrStatusFlds != 0 )
     {
 	QStatusBar* mbar= statusBar();
 	if( mbar )
@@ -208,6 +208,12 @@ void uiMainWinBody::construct(  bool wantStatusBar, bool wantMenuBar,
 					  "MainWindow StatusBar handle", *mbar);
 	else
 	    pErrMsg("No statusbar returned from Qt");
+
+	if( nrStatusFlds > 0 )
+	{
+	    for( int idx=0; idx<nrStatusFlds; idx++ )
+		statusbar->addMsgFld();
+	}
     }
     if( wantMenuBar )
     {   
@@ -262,13 +268,13 @@ uiToolBar* uiMainWinBody::uitoolbar()
 }
 
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
-		      bool wantSBar, bool wantMBar, bool wantTBar, bool modal )
+		  int nrstatusflds, bool wantMBar, bool wantTBar, bool modal )
     : uiParent( nm, 0 )
     , body_( 0 )
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
-    body_->construct(wantSBar,wantMBar,wantTBar);
+    body_->construct( nrstatusflds, wantMBar, wantTBar );
 //    body_->uiCentralWidg()->setBorder(10);
 }
 
@@ -709,7 +715,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 {
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );
-    body_->construct( s.statusbar_, s.menubar_, s.toolbar_ );
+    body_->construct( s.nrstatusflds_, s.menubar_, s.toolbar_ );
     uiGroup* cw= new uiGroup( body_->uiCentralWidg(), "Dialog box client area");
 
     cw->setStretch( 2, 2 );
