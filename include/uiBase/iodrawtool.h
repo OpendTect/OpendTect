@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.4 2002-12-09 11:21:47 nanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.5 2003-05-15 14:16:53 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <iodraw.h>
-#include <uigeom.h>
-#include <color.h>
-#include <draw.h>
+#include "iodraw.h"
+#include "uigeom.h"
+#include "color.h"
+#include "draw.h"
 
 class QPaintDevice; 
 class QPaintDeviceMetrics; 
@@ -46,6 +46,13 @@ public:
     void		drawLine( int x1, int y1, int x2, int y2 );
     inline void		drawLine( uiPoint p1, uiPoint p2 )
                         { drawLine ( p1.x(), p1.y(), p2.x(), p2.y() ); }
+
+    void		drawLine(const TypeSet<uiPoint>&,int idx1=0,int nr=-1);
+    			//<!Draws a line defined by 'nr' points starting at idx1
+    void		drawPolygon(const TypeSet<uiPoint>&,
+	    			    int idx1=0,int nr=-1);
+    			/*<!Draws a polygon defined by 'nr' points starting 
+    			    at idx1*/
 
     void		drawText( int x, int y, const char *, Alignment, 
 				  bool over=true, bool erase=false, int len=-1);

@@ -4,22 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.18 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uicanvas.cc,v 1.19 2003-05-15 14:15:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uicanvas.h>
-#include <errh.h>
-#include <uiobj.h>
-#include <i_uidrwbody.h>
+#include "uicanvas.h"
+#include "errh.h"
+#include "uiobj.h"
+#include "i_uidrwbody.h"
 
-#include <iodrawimpl.h>
+#include "iodrawtool.h"
+#include "uimouse.h"
 
 #include <qscrollview.h>
 #include <qpainter.h>
 
-#include <uimouse.h>
 
 #define mButState( e ) ( e->state() | e->button() )
 
