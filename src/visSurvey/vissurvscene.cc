@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.39 2002-09-17 10:23:01 nanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.40 2002-10-03 14:13:37 nanne Exp $";
 
 #include "vissurvscene.h"
 #include "visplanedatadisplay.h"
@@ -13,7 +13,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.39 2002-09-17 10:23:01 nann
 #include "vistransform.h"
 #include "position.h"
 #include "vissurvpickset.h"
-#include "vissurvhorizon.h"
+#include "vissurvsurf.h"
 #include "survinfo.h"
 #include "linsolv.h"
 #include "visannot.h"
@@ -412,7 +412,7 @@ int visSurvey::Scene::usePar( const IOPar& par )
     {
 	mDynamicCastGet( visBase::SceneObject*, so,
 				visBase::DM().getObj( xyzobjids[idx] ));
-	mDynamicCastGet( visSurvey::HorizonDisplay*, hor,
+	mDynamicCastGet( visSurvey::SurfaceDisplay*, hor,
 				visBase::DM().getObj( xyzobjids[idx] ));
 	if ( so && hor) addDisplayObject( so );
 	else		addXYZObject( so );
@@ -422,7 +422,7 @@ int visSurvey::Scene::usePar( const IOPar& par )
     {
 	mDynamicCastGet( visBase::SceneObject*, so,
 				visBase::DM().getObj( xytobjids[idx] ));
-	mDynamicCastGet( visSurvey::HorizonDisplay*, hor,
+	mDynamicCastGet( visSurvey::SurfaceDisplay*, hor,
 				visBase::DM().getObj( xytobjids[idx] ));
 	if ( so && hor ) addDisplayObject( so );
 	else		 addXYTObject( so );
@@ -484,7 +484,7 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;
     const visSurvey::PlaneDataDisplay* sd = 0;
-    const visSurvey::HorizonDisplay* hd =0;
+    const visSurvey::SurfaceDisplay* hd =0;
 
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -498,10 +498,10 @@ void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
 	    break;
 	}
 
-	if ( typeid(*pickedobj) == typeid(visSurvey::HorizonDisplay) )
+	if ( typeid(*pickedobj) == typeid(visSurvey::SurfaceDisplay) )
 	{
 	    validpicksurface = true;
-	    hd = (const visSurvey::HorizonDisplay*) pickedobj;
+	    hd = (const visSurvey::SurfaceDisplay*) pickedobj;
 	    break;
 	}
     }
