@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.2 2001-02-13 17:15:46 bert Exp $
+ RCS:		$Id: msgh.h,v 1.3 2003-04-28 10:53:00 arend Exp $
 ________________________________________________________________________
 
 */
@@ -54,11 +54,38 @@ inline void UsrMsg( const char* msg, MsgClass::Type t=MsgClass::Info )
 }
 
 
+class UsrIoMsg : public CallBacker
+{   
+    friend class	uiMsg;
+    friend		UsrIoMsg* TheUIOMsg();
+
+public:
+
+    virtual void	message(const char*,const char* caption=0) =0;
+    virtual void        warning(const char*,const char* cn=0) =0;
+    virtual void        error(const char*,const char* cn=0) =0;
+    virtual void        about(const char*,const char* cn=0) =0;
+    virtual bool        askGoOn(const char*,bool wyn=true,const char* cn=0) =0;
+			//!< wyn false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
+    virtual int         askGoOnAfter(const char*,const char* cnclmsg=0,
+                             const char* cn=0) =0;
+
+protected:
+
+    static UsrIoMsg*	theUsrIoMsg_;
+
+};
+
+
+inline UsrIoMsg* TheUIOMsg()	{ return UsrIoMsg::theUsrIoMsg_; }
+
 #ifdef __prog__
 
 CallBack MsgClass::theCB;
 DefineEnumNames(MsgClass,Type,1,"Message type")
 	{ "Information", "Message", "Warning", "Error", "PE", 0 };
+
+UsrIoMsg* UsrIoMsg::theUsrIoMsg_=0;
 
 #endif
 
