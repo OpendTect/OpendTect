@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.24 2004-10-12 15:47:21 bert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.25 2004-10-22 15:46:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,7 +189,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry )
 	, singLineSel(this)
 {
     if ( for_new_entry )
-	lnmfld = new uiGenInput( this, "Line name in Set" );
+	lnmfld = new uiGenInput( this, "Store in Set as" );
     else
     {
 	lnmsfld = new uiGenInput( this, "One line only",
