@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.54 2002-05-23 08:25:31 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.55 2002-05-23 14:51:03 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -764,6 +764,22 @@ void uiVisPartServer::setWellLineStyle( int id, const LineStyle& lst )
 }
 
 
+void uiVisPartServer::getWellIds( int sceneid, TypeSet<int>& ids )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( !scene ) return;
+
+    for ( int idx=0; idx<scene->size(); idx++ )
+    {
+	visBase::SceneObject* obj = scene->getObject( idx );
+	mDynamicCastGet(visSurvey::WellDisplay*,wd,obj)
+	if ( wd )
+	    ids += wd->id();
+    }
+}
+
+
 int uiVisPartServer::addHorizonDisplay( const MultiID& emhorid )
 {
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
@@ -803,6 +819,22 @@ void uiVisPartServer::removeHorizonDisplay( int id )
     {
 	scene->removeObject( objidx );
 	horizons -= hor;
+    }
+}
+
+
+void uiVisPartServer::getHorizonIds( int sceneid, TypeSet<int>& ids )
+{
+    visBase::DataObject* obj = visBase::DM().getObj( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( !scene ) return;
+
+    for ( int idx=0; idx<scene->size(); idx++ )
+    {
+	visBase::SceneObject* obj = scene->getObject( idx );
+	mDynamicCastGet(visSurvey::HorizonDisplay*,hor,obj)
+	if ( hor )
+	    ids += hor->id();
     }
 }
 
