@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.13 2002-10-09 10:51:11 nanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.14 2002-10-25 08:58:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     	, psg(*new PickSetGroup)
     	, avsets("Select sets to be stored")
 	, pickcolor(Color::DgbColor)
+    	, usehd1(true)
 {
 }
 
@@ -97,20 +98,28 @@ bool uiPickPartServer::fetchPickSets()
 bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
 {
     Stat_initRandom(0);
-    if ( !rp.isvol )
+    selbr = &rp.bidrg;
+    bool do2hors = !rp.iscube && rp.horidx2 >= 0 && rp.horidx2 != rp.horidx;
+    if ( !rp.iscube )
     {
 	selhorid = hinfos[rp.horidx]->id;
-	selbr = &rp.bidrg;
-	hordef.erase();
+	hordef.erase(); usehd1 = true;
 	sendEvent( evGetHorDef );
+	if ( do2hors )
+	{
+	    selhorid = hinfos[rp.horidx2]->id;
+	    hordef2.erase(); usehd1 = false;
+	    sendEvent( evGetHorDef );
+	    do2hors = hordef2.size() > 2;
+	}
     }
     else
     {
-	BinID bid( rp.bidrg.start );
+	BinID bid( selbr->start );
 	BinID stp = BinID( SI().inlStep(), SI().crlStep() );
-	for ( int inl=rp.bidrg.start.inl; inl<=rp.bidrg.stop.inl; inl +=stp.inl)
+	for ( int inl=selbr->start.inl; inl<=selbr->stop.inl; inl +=stp.inl)
 	{
-	    for ( int crl=rp.bidrg.start.crl; crl<=rp.bidrg.stop.crl;
+	    for ( int crl=selbr->start.crl; crl<=selbr->stop.crl;
 		    	crl += stp.crl )
 		hordef += BinIDZValue( inl, crl, mUndefValue );
 	}
@@ -120,18 +129,44 @@ bool uiPickPartServer::mkRandLocs( PickSet& ps, const RandLocGenPars& rp )
     if ( !nrpts ) return true;
 
     const float zwidth = rp.zrg.width();
-    Coord c;
     for ( int ipt=0; ipt<rp.nr; ipt++ )
     {
-	int idx = Stat_getIndex( nrpts );
-	BinIDZValue bv = hordef[idx];
-	if ( rp.isvol )
-	    bv.z = rp.zrg.start + Stat_getRandom() * zwidth;
-	c = SI().transform( bv.binid );
+	int ptidx = Stat_getIndex( nrpts );
+	BinIDZValue bv = hordef[ptidx];
 
-	ps += PickLocation( c, bv.z );
+	if ( rp.iscube )
+
+	    bv.z = rp.zrg.start + Stat_getRandom() * zwidth;
+
+	else if ( mIsUndefined(bv.z) )
+
+	    continue;
+
+	else if ( do2hors )
+	{
+	    // Horizons are likely to have equal geometry, so
+	    if ( ptidx >= hordef2.size() ) ptidx = hordef2.size() / 2;
+	    BinIDZValue bv2 = hordef2[ptidx];
+	    if ( bv.binid != bv2.binid )
+	    {
+		// But alas. Need extensive search now
+		bool found = false;
+		for ( int idx=0; idx<hordef2.size(); idx++ )
+		{
+		    bv2 = hordef2[idx];
+		    if ( bv.binid == bv2.binid )
+			{ found = true; break; }
+		}
+
+		if ( !found ) // Need both horizons defined. Try again.
+		    { ipt--; continue; }
+	    }
+	    bv.z += Stat_getRandom() * (bv2.z - bv.z);
+	}
+
+	ps += PickLocation( SI().transform(bv.binid), bv.z );
     }
-    hordef.erase();
+
     return true;
 }
 
