@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.1 2005-01-06 10:49:17 kristofer Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.2 2005-01-13 15:41:49 kristofer Exp $";
 
 #include "vismpe.h"
 
@@ -293,11 +293,11 @@ void MPEDisplay::rectangleStopCB( CallBacker* )
 
 void MPEDisplay::mouseClickCB( CallBacker* cb )
 {
+    if ( sceneeventcatcher->isEventHandled() || !isOn() ) return;
+
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
     if ( eventinfo.type!=visBase::MouseClick )
 	return;
-
-    if ( sceneeventcatcher->isEventHandled() ) return;
 
     if ( eventinfo.pickedobjids.indexOf(id())==-1 )
 	return;
