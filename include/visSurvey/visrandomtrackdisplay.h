@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.10 2003-03-04 13:17:09 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.11 2003-03-06 18:54:38 nanne Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,8 @@ class BinID;
 class SeisTrc;
 class BinID;
 
-namespace visBase { class RandomTrack; class VisColorTab; class Material; };
+namespace visBase { class RandomTrack; class VisColorTab; class Material; 
+		    class EventCatcher; };
 
 namespace visSurvey
 {
@@ -87,6 +88,7 @@ public:
 
     Notifier<RandomTrackDisplay> knotmoving;
     void			knotMoved(CallBacker*);
+    void			knotSelected(CallBacker*);
     int				getSelKnotIdx() const	{ return selknotidx; }
 
     SoNode*			getData();
@@ -98,14 +100,17 @@ protected:
 				~RandomTrackDisplay();
 
     visBase::RandomTrack*	track;
+    visBase::EventCatcher*	eventcatcher;
     visBase::Material*		texturematerial;
     AttribSelSpec&		as;
     int				selknotidx;
+    bool			ctrlpressed;
 
     void			setData(const ObjectSet<SeisTrc>&);
     const SeisTrc*		getTrc(const BinID&,const ObjectSet<SeisTrc>&)
 									const;
     void			checkPosition(BinID&);
+    void			pickCB(CallBacker*);
 
     ObjectSet< TypeSet<BinID> > bidsset;
     ObjectSet<SeisTrc>		cache;
