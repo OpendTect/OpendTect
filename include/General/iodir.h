@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.4 2001-05-31 13:23:53 windev Exp $
+ RCS:		$Id: iodir.h,v 1.5 2001-07-13 22:04:11 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -79,9 +79,9 @@ private:
     static IOObj*	doRead(const char*,IODir*,int id=-1);
     bool		build();
 
-    IOObj*		operator[]( int idx )		{ return objs_[idx]; }
-    IOObj*		operator[]( IOObj* o )		{ return objs_[o]; }
-    IOObj*		operator[]( const char* str )	{ return objs_[str]; }
+    IOObj*		findObj( int idx )		{ return objs_[idx]; }
+    IOObj*		findObj( IOObj* o )		{ return objs_[o]; }
+    IOObj*		findObj( const char* str )	{ return objs_[str]; }
     void		operator +=( IOObj* obj )	{ objs_ += obj; }
     void		operator -=( IOObj* obj )	{ objs_ -= obj; }
 
