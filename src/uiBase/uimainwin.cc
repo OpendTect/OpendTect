@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.55 2002-06-18 13:04:32 kristofer Exp $
+ RCS:           $Id: uimainwin.cc,v 1.56 2002-08-12 11:35:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -492,6 +492,18 @@ uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
     if( !_mwb )		return 0;
 
     return &_mwb->handle();
+}
+
+
+void uiMainWin::setIcon( const char* img[], const char* icntxt )
+{
+    if ( icntxt )
+	body_->setIconText( icntxt );
+    if ( img )
+    {
+	QPixmap imgpm( img );
+	body_->setIcon( imgpm );
+    }
 }
 
 

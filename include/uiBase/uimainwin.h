@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.23 2002-04-26 13:23:39 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.24 2002-08-12 11:35:13 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ public:
     static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
 
     void		setCaption( const char* txt );
+    void		setIcon(const char* img[],const char* icntxt); //!< XPM
     void                show();
     void                close();
     void		toStatusBar(const char*, int fldidx=0 );
