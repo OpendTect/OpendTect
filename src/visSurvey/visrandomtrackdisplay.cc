@@ -4,7 +4,7 @@
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.24 2003-08-28 11:14:02 bert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.25 2003-10-06 10:54:23 nanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@
 #include "visrandomtrack.h"
 #include "vistristripset.h"
 #include "vistransform.h"
+#include "ptrman.h"
 
 #include <math.h>
 
@@ -38,7 +39,7 @@ mCreateFactoryEntry( visSurvey::RandomTrackDisplay );
 
 visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     : VisualObject(true)
-    , track(visBase::RandomTrack::create())
+    , track(0)
     , texturematerial(visBase::Material::create())
     , as(*new AttribSelSpec)
     , colas(*new ColorAttribSel)
@@ -47,16 +48,12 @@ visSurvey::RandomTrackDisplay::RandomTrackDisplay()
     , selknotidx(-1)
     , ismanip( true )
 {
-    track->ref();
+    setRandomTrack( visBase::RandomTrack::create() );
 
     texturematerial->ref();
     texturematerial->setAmbience( 0.8 );
     texturematerial->setDiffIntensity( 0.8 );
     track->setMaterial( texturematerial );
-
-    track->rightclick.notify( mCB(this,RandomTrackDisplay,rightClicked) );
-    track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
-    track->knotnrchange.notify( mCB(this,RandomTrackDisplay,knotNrChanged) );
 
     const StepInterval<double>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().range(true).start.inl,
@@ -111,6 +108,24 @@ visSurvey::RandomTrackDisplay::~RandomTrackDisplay()
 
     deepErase( cache );
     deepErase( colcache );
+}
+
+
+void visSurvey::RandomTrackDisplay::setRandomTrack( visBase::RandomTrack* rt )
+{
+    if ( track )
+    {
+	track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
+	track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged));
+	track->rightclick.remove( mCB(this,RandomTrackDisplay,rightClicked) );
+	track->unRef();
+    }
+
+    track = rt;
+    track->ref();
+    track->rightclick.notify( mCB(this,RandomTrackDisplay,rightClicked) );
+    track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
+    track->knotnrchange.notify( mCB(this,RandomTrackDisplay,knotNrChanged) );
 }
 
 
@@ -270,10 +285,18 @@ void visSurvey::RandomTrackDisplay::getDataPositions( TypeSet<BinID>& bids )
 }
 
 
-bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>& trcset,
+bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>* trcset,
 					        bool colordata )
 {
-    const int nrtrcs = trcset.size();
+    if ( !trcset )
+    {
+	const int nrsections = bidsset.size();
+	for ( int snr=0; snr<nrsections; snr++ )
+	    track->setData(snr,0,0);
+	return true;
+    }
+    
+    const int nrtrcs = trcset->size();
     if ( !nrtrcs ) return false;
 
     if ( colordata )
@@ -283,16 +306,16 @@ bool visSurvey::RandomTrackDisplay::putNewData( ObjectSet<SeisTrc>& trcset,
 			     colas.useclip ? cliprate : colas.range );
     }
     
-    setData( trcset, colordata ? colas.datatype : 0 );
+    setData( *trcset, colordata ? colas.datatype : 0 );
     if ( colordata )
     {
 	deepErase( colcache );
-	colcache = trcset;
+	colcache = *trcset;
 	return true;
     }
 
     deepErase( cache );
-    cache = trcset;
+    cache = *trcset;
     ismanip = false;
     return true;
 }
@@ -310,7 +333,7 @@ void visSurvey::RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset,
     {
 	TypeSet<BinID> binidset = *(bidsset[snr]);
 	const int nrbids = binidset.size();
-	Array2DImpl<float> arr( nrsamp, nrbids );
+	PtrMan<Array2DImpl<float> > arr = new Array2DImpl<float>(nrsamp,nrbids);
 	for ( int bidnr=0; bidnr<nrbids; bidnr++ )
 	{
 	    BinID curbid = binidset[bidnr];
@@ -320,7 +343,7 @@ void visSurvey::RandomTrackDisplay::setData( const ObjectSet<SeisTrc>& trcset,
 	    float ctime = zrg.start;
 	    for ( int ids=0; ids<nrsamp; ids++ )
 	    {
-		arr.set( ids, bidnr, trc->getValue(ctime,0) );
+		arr->set( ids, bidnr, trc->getValue(ctime,0) );
 		ctime += step;
 	    }
 	}
@@ -535,6 +558,7 @@ void visSurvey::RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids )
     if ( saveids.indexOf(trackid) == -1 ) saveids += trackid;
 
     as.fillPar(par);
+    colas.fillPar(par);
 }
 
 
@@ -549,16 +573,7 @@ int visSurvey::RandomTrackDisplay::usePar( const IOPar& par )
     if ( !dataobj ) return 0;
     mDynamicCastGet(visBase::RandomTrack*,rt,dataobj);
     if ( !rt ) return -1;
-
-    track->knotmovement.remove( mCB(this,RandomTrackDisplay,knotMoved) );
-    track->knotnrchange.remove( mCB(this,RandomTrackDisplay,knotNrChanged) );
-    track->rightclick.remove( mCB(this,RandomTrackDisplay,rightClicked) );
-    track->unRef();
-    track = rt;
-    track->ref();
-    track->knotmovement.notify( mCB(this,RandomTrackDisplay,knotMoved) );
-    track->knotnrchange.notify( mCB(this,RandomTrackDisplay,knotNrChanged) );
-    track->rightclick.notify( mCB(this,RandomTrackDisplay,rightClicked) );
+    setRandomTrack( rt );
 
     Interval<float> intv(0,1);
     par.get( depthintvstr, intv.start, intv.stop );
@@ -600,7 +615,8 @@ int visSurvey::RandomTrackDisplay::usePar( const IOPar& par )
 					   survinterval.stop,
 					   survinterval.step ));
 
-    if ( !as.usePar( par ) ) return -1;
+    if ( !as.usePar(par) ) return -1;
+    colas.usePar( par );
 
     showDragger(true);
     showDragger(false);

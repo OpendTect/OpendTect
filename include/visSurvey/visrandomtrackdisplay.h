@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.17 2003-07-01 14:26:25 nanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.18 2003-10-06 10:54:29 nanne Exp $
 ________________________________________________________________________
 
 
@@ -71,7 +71,7 @@ public:
     void			acceptManip();
 
     void			getDataPositions(TypeSet<BinID>&);
-    bool			putNewData(ObjectSet<SeisTrc>&,bool);
+    bool			putNewData(ObjectSet<SeisTrc>*,bool);
     float			getValue(const Coord3&) const;
 
     void			showDragger(bool);
@@ -108,6 +108,8 @@ public:
 
 protected:
 				~RandomTrackDisplay();
+
+    void			setRandomTrack(visBase::RandomTrack*);
 
     visBase::RandomTrack*	track;
     visBase::Material*		texturematerial;
