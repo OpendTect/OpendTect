@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.32 2002-12-20 13:38:40 arend Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.33 2003-01-02 15:43:57 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,6 +192,7 @@ void uiSeisMMProc::execFinished()
     {
 	stopRunningJobs();
 	updateCurMachs();
+	progrfld->append( "Checking integrity of processed data" );
 	SeisMMJobMan* newjm = new SeisMMJobMan( *jm );
 	const int nrlines = newjm->totalNr();
 	if ( nrlines < 1 )
