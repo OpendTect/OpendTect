@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.10 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.11 2003-11-07 12:28:54 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 bool uiWellImportAsc::doWork()
 {
     PtrMan<Well::Data> well = new Well::Data( outfld->getInput() );
+    const bool zinfeet = !unitfld->getBoolValue();
 
     Well::Info& info = well->info();
     info.uwid = idfld->text();
@@ -113,11 +114,11 @@ bool uiWellImportAsc::doWork()
     info.county = countyfld->text();
     info.surfacecoord = coordfld->getCoord();
     info.surfaceelev = elevfld->getValue();
+    if ( zinfeet ) info.surfaceelev *= 0.3048;
 
     Well::AscImporter ascimp( *well );
 
     const char* fname = infld->fileName();
-    const bool zinfeet = !unitfld->getBoolValue();
     const char* errmsg = ascimp.getTrack( fname, true, zinfeet );
     if ( errmsg ) mErrRet( errmsg );
 
