@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.4 2002-09-23 07:10:03 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.5 2002-09-23 10:48:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ ________________________________________________________________________
 
 const int uiEMPartServer::evGetHorData = 0;
 
+#define mErrRet(s) { BufferString msg( "Cannot find '" ); msg += s; msg += "'";\
+    			uiMSG().error( msg ); return false; }
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
 	: uiApplPartServer(a)
@@ -58,6 +60,7 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
     if ( !EarthModel::EMM().isLoaded(id) )
     {
 	PtrMan<Executor> exec = EarthModel::EMM().load( id );
+	if ( !exec ) mErrRet( dlg.ioObj()->name() );
 	uiExecutor dlg( appserv().parent(), *exec );
 	if ( dlg.go() <= 0 )
 	    return false;
@@ -101,6 +104,7 @@ bool uiEMPartServer::selectWellTracks( ObjectSet<MultiID>& ids )
 	if ( !EarthModel::EMM().isLoaded( wellid ) )
 	{
 	    PtrMan<Executor> exec = EarthModel::EMM().load( wellid );
+	    if ( !exec ) mErrRet( dlg.ioObj()->name() );
 	    uiExecutor dlg( appserv().parent(), *exec );
 	    if ( dlg.go() <= 0 )
 		wellid = MultiID("");
@@ -124,6 +128,7 @@ bool uiEMPartServer::selectFault( MultiID& id )
     if ( !EarthModel::EMM().isLoaded(id) )
     {
 	PtrMan<Executor> exec = EarthModel::EMM().load( id );
+	if ( !exec ) mErrRet( dlg.ioObj()->name() );
 	uiExecutor dlg( appserv().parent(), *exec );
 	if ( dlg.go() <= 0 )
 	    return false;
