@@ -2,9 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
+ * RCS      : $Id: od_cbvs_swap_inlcrl.cc,v 1.11 2005-01-28 15:18:05 arend Exp $
 -*/
 
-static const char* rcsID = "$Id";
+static const char* rcsID = "$Id: od_cbvs_swap_inlcrl.cc,v 1.11 2005-01-28 15:18:05 arend Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -32,19 +33,22 @@ static int doWork( int argc, char** argv )
 	     << "Format: CBVS.\n" << std::endl;
 	return 1;
     }
-    else if ( !File_exists(argv[1]) )
-    {
-	std::cerr << argv[1] << " does not exist" << std::endl;
-	return 1;
-    }
 
-    BufferString fname( argv[1] );
-    FilePath fp( fname );
+    FilePath fp( argv[1] );
+    
+    if ( !File_exists(fp.fullPath()) )
+    {
+        std::cerr << fp.fullPath() << " does not exist" << std::endl;
+        return 1;
+    }
+    
     if ( !fp.isAbsolute() )
     {
-	fp.insert( File_getCurrentDir() );
-	fname = fp.fullPath();
+        fp.insert( File_getCurrentDir() );
     }
+
+    BufferString fname=fp.fullPath();
+
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
         { std::cerr << tri->errMsg() << std::endl; return 1; }
@@ -52,13 +56,9 @@ static int doWork( int argc, char** argv )
     const CBVSReadMgr& rdmgr = *tri->readMgr();
     const CBVSInfo::SurvGeom& geom = rdmgr.info().geom;
 
-    fname = argv[2];
-    fp.set( fname );
-    if ( !fp.isAbsolute() )
-    {
-	fp.insert( File_getCurrentDir() );
-	fname = fp.fullPath();
-    }
+    fp.set( argv[2] ); 
+    if ( !fp.isAbsolute() ) { fp.insert( File_getCurrentDir() ); }
+    fname = fp.fullPath();
 
     SeisTrc trc;
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();

@@ -2,9 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
+ * RCS      : $Id: od_cbvs_export_xyzv.cc,v 1.17 2005-01-28 15:18:05 arend Exp $
 -*/
 
-static const char* rcsID = "$Id";
+static const char* rcsID = "$Id: od_cbvs_export_xyzv.cc,v 1.17 2005-01-28 15:18:05 arend Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -35,25 +36,32 @@ int main( int argc, char** argv )
 		  << std::endl;
 	exitProgram( 1 );
     }
-    else if ( !File_exists(argv[1]) )
-    {
-	std::cerr << argv[1] << " does not exist" << std::endl;
-	exitProgram( 1 );
-    }
 
-    BufferString fname( argv[1] );
-    FilePath fp( fname );
+    FilePath fp( argv[1] );
+    
+    if ( !File_exists(fp.fullPath()) )
+    {
+        std::cerr << fp.fullPath() << " does not exist" << std::endl;
+        exitProgram( 1 );
+    }
+    
     if ( !fp.isAbsolute() )
     {
-	fp.insert( File_getCurrentDir() );
-	fname = fp.fullPath();
+        fp.insert( File_getCurrentDir() );
     }
+
+    BufferString fname=fp.fullPath();
+
+
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
 	{ std::cerr << tri->errMsg() << std::endl; exitProgram( 1 ); }
 
-    fname = argv[2];
-    StreamData outsd = StreamProvider( argv[2] ).makeOStream();
+    fp.set( argv[2] ); 
+    if ( !fp.isAbsolute() ) { fp.insert( File_getCurrentDir() ); }
+    fname = fp.fullPath();
+
+    StreamData outsd = StreamProvider( fname ).makeOStream();
     if ( !outsd.usable() )
         { std::cerr << "Cannot open output file" << std::endl; exitProgram(1); }
 
