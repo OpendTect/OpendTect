@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.57 2004-04-20 08:27:03 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.58 2004-04-26 11:30:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,9 +147,6 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 	    			mCB(this,uiSurvey,editButPushed) );
     editbut->attach( alignedBelow, rmbut );
     editbut->setPrefWidthInChar( 12 );
-    datarootbut = new uiPushButton( leftgrp, "Set Data Root ...",
-	    			mCB(this,uiSurvey,dataRootPushed) );
-    datarootbut->attach( centeredBelow, listbox );
 
     convbut = new uiPushButton( rightgrp, "X/Y <-> I/C ...",
 	    			mCB(this,uiSurvey,convButPushed) );
@@ -164,10 +161,14 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
 	if ( tutinst && !direxists )
 	{
 	    tutbut = new uiPushButton( leftgrp, "Get Tutorial" );
-	    tutbut->attach( centeredBelow, listbox );
+	    tutbut->attach( alignedBelow, listbox );
 	    tutbut->activated.notify( mCB(this,uiSurvey,tutButPushed) );
 	}
     }
+
+    datarootbut = new uiPushButton( leftgrp, "Set Data Root ...",
+	    			mCB(this,uiSurvey,dataRootPushed) );
+    datarootbut->attach( tutbut ? rightAlignedBelow : centeredBelow, listbox );
 
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->setPrefWidth( totwdth );
