@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.15 2001-10-15 16:02:11 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.16 2001-10-16 08:58:02 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: ioman.cc,v 1.15 2001-10-15 16:02:11 bert Exp $"
 IOMan*	IOMan::theinst_	= 0;
 void	IOMan::stop()	{ delete theinst_; theinst_ = 0; }
 extern "C" void SetSurveyName(const char*);
+extern "C" const char* GetBaseDataDir();
+extern "C" { extern int dgb_application_code; }
 
 
 static void clearSelHists()
@@ -57,7 +59,7 @@ IOMan::IOMan()
 {
     rootdir = GetDataDir();
     if ( !File_isDirectory(rootdir) )
-	rootdir = getenv( "dGB_DATA" );
+	rootdir = GetBaseDataDir();
 }
 
 
@@ -141,9 +143,9 @@ extern "C" const char* GetSurveyFileName();
     { errmsg = str; return false; }
 #define mErrRetNotGDIDir(fname) \
     { \
-        errmsg = "$dGB_DATA="; \
-        errmsg += getenv("dGB_DATA"); \
-        errmsg += "\nThis is not a dGB-GDI data directory."; \
+        errmsg = dgb_application_code == 2 ? "$dTECT_DATA=" : "$dGB_DATA="; \
+        errmsg += GetBaseDataDir(); \
+        errmsg += "\nThis is not a dGB data storage directory."; \
         return false; \
     }
 
@@ -155,12 +157,17 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
     delete IOMan::theinst_;
     IOMan::theinst_ = 0;
     FileNameString fname;
-    if ( !getenv("dGB_DATA") )
-	mErrRet("Please set the environment variable dGB_DATA.")
-    else if ( !File_exists(getenv("dGB_DATA")) )
+    if ( !GetBaseDataDir() )
+    {
+	if ( dgb_application_code == 2 )
+	    mErrRet("Please set the environment variable dTECT_DATA.")
+	else
+	    mErrRet("Please set the environment variable dGB_DATA.")
+    }
+    else if ( !File_exists(GetBaseDataDir()) )
 	mErrRetNotGDIDir(fname)
 
-    fname = getenv("dGB_DATA");
+    fname = GetBaseDataDir();
     fname = File_getFullPath( fname, ".omf" );
     if ( File_isEmpty(fname) ) mErrRetNotGDIDir(fname)
 

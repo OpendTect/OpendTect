@@ -4,7 +4,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.8 2001-10-16 08:34:31 bert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.9 2001-10-16 08:58:02 bert Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -26,7 +26,7 @@ static int surveynameinited = NO;
 
 const char* GetSoftwareDir()
 {
-    const char* dir = dgb_application_code == 2 ? getenv( "dTECTAPPL" ) : 0;
+    const char* dir = dgb_application_code == 2 ? getenv( "dTECT_APPL" ) : 0;
     if ( !dir ) dir = getenv( "dGB_APPL" );
     return dir;
 }
@@ -44,7 +44,7 @@ const char* GetDataFileName( const char* fname )
 
 const char* GetSoftwareUser()
 {
-    const char* ptr = dgb_application_code == 2 ? getenv( "dTECTUSER" ) : 0;
+    const char* ptr = dgb_application_code == 2 ? getenv( "dTECT_USER" ) : 0;
     if ( !ptr ) ptr = getenv( "dGB_USER" );
     return ptr;
 }
@@ -108,17 +108,24 @@ const char* GetSurveyName()
 }
 
 
+const char* GetBaseDataDir()
+{
+    const char* ptr = dgb_application_code == 2 ? getenv( "dTECT_DATA" ) : 0;
+    if ( !ptr ) ptr = getenv( "dGB_DATA" );
+    return ptr;
+}
+
+
 const char* GetDataDir()
 {
     const char* survnm;
-    const char* datadir = dgb_application_code == 2 ? getenv( "dTECTDATA" ) : 0;
-    if ( !datadir ) datadir = getenv( "dGB_DATA" );
-    if ( !datadir ) return 0;
+    const char* basedir = GetBaseDataDir();
+    if ( !basedir ) return 0;
 
     survnm = GetSurveyName();
-    if ( !survnm ) return datadir;
+    if ( !survnm ) return basedir;
 
-    strcpy( filenamebuf, File_getFullPath(datadir,survnm) );
+    strcpy( filenamebuf, File_getFullPath(basedir,survnm) );
     return filenamebuf;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.10 2001-10-05 10:10:12 nanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.11 2001-10-16 08:58:02 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
+extern "C" const char* GetBaseDataDir();
 extern "C" int GetSurveyName_reRead;
 
 uiSurvey::uiSurvey( uiParent* p )
@@ -46,7 +47,7 @@ uiSurvey::uiSurvey( uiParent* p )
     const int noteshght = 130;
     const int totwdth = lbwidth + mapwdth + 10;
 
-    const char* ptr = getenv( "dGB_DATA" );
+    const char* ptr = GetBaseDataDir();
     if ( !ptr ) return;
 
     dirlist = new DirList( ptr, 1 );
@@ -171,7 +172,7 @@ void uiSurvey::editButPushed( CallBacker* )
 bool uiSurvey::survInfoDialog()
 {
     BufferString selnm( listbox->getText() );
-    BufferString dgbdata( getenv("dGB_DATA") );
+    BufferString dgbdata( GetBaseDataDir() );
 
     uiSurveyInfoEditor dlg( this, survinfo, survmap );
     if ( !dlg.go() ) return false;
@@ -218,7 +219,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     msg += "\n\nAre you sure you wish to continue?";
     if ( !uiMSG().askGoOn( msg ) ) return;
 
-    msg = File_getFullPath( getenv("dGB_DATA"), selnm );
+    msg = File_getFullPath( GetBaseDataDir(), selnm );
     if ( !File_remove( msg, YES, YES ) )
     {
         msg += "\nnot removed properly";
@@ -262,7 +263,7 @@ bool uiSurvey::updateSvyFile()
         ErrMsg( "Cannot update the .dgbSurvey file in your $HOME" );
         return false;
     }
-    FileNameString fname( File_getFullPath(getenv("dGB_DATA"),seltxt) );
+    FileNameString fname( File_getFullPath(GetBaseDataDir(),seltxt) );
     if ( !File_exists(fname) )
     {
         ErrMsg( "Survey directory does not exist anymore" );
@@ -360,7 +361,7 @@ void uiSurvey::writeComments()
     if ( txt == survinfo->comment() ) return;
 
     survinfo->setComment( txt );
-    if ( !survinfo->write( getenv("dGB_DATA") ) )
+    if ( !survinfo->write( GetBaseDataDir() ) )
         ErrMsg( "Failed to write survey info.\nNo changes committed." );
 }
 
@@ -386,7 +387,6 @@ bool uiSurvey::acceptOK( CallBacker* )
 
 void uiSurvey::getSurvInfo()
 {
-    BufferString fname( File_getFullPath(getenv("dGB_DATA"),
-			  listbox->getText()) );
+    BufferString fname( File_getFullPath(GetBaseDataDir(), listbox->getText()));
     survinfo = new SurveyInfo( fname );
 }
