@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.10 2003-11-07 12:22:00 bert Exp $
+ RCS:           $Id: uitreeview.cc,v 1.11 2004-07-14 15:48:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
     setHSzPol( uiObject::medvar ) ;
 
     setSorting( -1 );
+    setAcceptDrops( TRUE );
+    viewport()->setAcceptDrops( TRUE );
 }
 
 
@@ -704,14 +706,18 @@ void uiListViewItem::moveItem( uiListViewItem* after )
     { mQthing().moveItem(mQitemFor(after)); }
 
 
-/*
-void uiListViewItem::setDragEnabled( bool yn );
-void uiListViewItem::setDropEnabled( bool yn );
-bool uiListViewItem::dragEnabled() const;
-bool uiListViewItem::dropEnabled() const;
-bool uiListViewItem::acceptDrop( const QMimeSource* mime ) const
-		    {return false; } 
-*/
+void uiListViewItem::setDragEnabled( bool yn )
+{ mQthing().setDragEnabled( yn ); }
+
+
+void uiListViewItem::setDropEnabled( bool yn )
+{ mQthing().setDropEnabled( yn ); }
+
+bool uiListViewItem::dragEnabled() const
+{ return mQthing().dragEnabled(); }
+
+bool uiListViewItem::dropEnabled() const
+{ return mQthing().dropEnabled(); }
 
 
 void uiListViewItem::setVisible( bool yn )

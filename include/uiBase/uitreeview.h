@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.8 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uitreeview.h,v 1.9 2004-07-14 15:48:05 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,14 +259,12 @@ public:
 
     void		moveItem( uiListViewItem* after );
 
-/*
+
     void		setDragEnabled( bool yn=true );
     void		setDropEnabled( bool yn=true );
     bool		dragEnabled() const;
     bool		dropEnabled() const;
-    virtual bool	acceptDrop( const QMimeSource* mime ) constA
-			{return false; } 
-*/
+
     void		setVisible( bool yn=true );
     bool		isVisible() const;
 
