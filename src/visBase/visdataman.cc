@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.21 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.22 2004-03-17 08:30:12 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -78,7 +78,8 @@ bool visBase::DataManager::usePar( const IOPar& par )
 {
     reInit();
 
-    if ( !par.get( freeidstr, freeid )) return false;
+    if ( !par.get( freeidstr, freeid ))
+	return false;
 
     TypeSet<int> lefttodo;
     for ( int idx=0; idx<freeid; idx++ )
@@ -95,7 +96,7 @@ bool visBase::DataManager::usePar( const IOPar& par )
 	    PtrMan<IOPar> iopar = par.subselect( lefttodo[idx] );
 	    if ( !iopar )
 	    {
-		lefttodo.remove( idx );
+		lefttodo.removeFast( idx );
 		idx--;
 		change = true;
 		continue;
@@ -111,7 +112,8 @@ bool visBase::DataManager::usePar( const IOPar& par )
 
 
 	    int res = obj->usePar( *iopar );
-	    if ( res==-1 ) return false;
+	    if ( res==-1 )
+		return false;
 	    if ( res==0 )
 	    {
 		//Remove object			
@@ -123,7 +125,7 @@ bool visBase::DataManager::usePar( const IOPar& par )
 	    createdobj += obj;
 	    obj->ref();
 	   
-	    lefttodo.remove( idx );
+	    lefttodo.removeFast( idx );
 	    idx--;
 	    change = true;
 	}
