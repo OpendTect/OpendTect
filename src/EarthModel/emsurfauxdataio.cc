@@ -20,7 +20,7 @@ ___________________________________________________________________
 
 #include <fstream>
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.5 2003-07-14 14:58:59 nanne Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.6 2003-07-16 10:00:01 nanne Exp $";
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";
 const char* EM::dgbSurfDataWriter::infostr = "Info";
@@ -111,12 +111,15 @@ int EM::dgbSurfDataWriter::nextStep()
 	    const int nrnodes = gridsurf->size();
 	    for ( int idy=0; idy<nrnodes; idy++ )
 	    {
-		EM::SubID subid = gridsurf->getPosID(idy);
-		Coord3 coord = gridsurf->getPos( subid );
+		const Geometry::PosID geomposid = gridsurf->getPosID(idy);
+		const Coord3 coord = gridsurf->getPos( geomposid );
 
-		if ( sel && sel->excludes(SI().transform(coord)) )
+		const BinID bid = SI().transform(coord);
+		if ( sel && sel->excludes(bid) )
 		    continue;
 
+		const RowCol emrc( bid.inl, bid.crl );
+		const EM::SubID subid = surf.rowCol2SubID( emrc );
 		const EM::PosID posid( surf.id(), patchid, subid );
 		const float auxvalue = surf.getAuxDataVal(dataidx,posid);
 		if ( mIsUndefined( auxvalue ) )

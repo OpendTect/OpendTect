@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.7 2003-06-02 08:17:05 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.8 2003-07-16 09:58:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class BinIDValue;
 class BinIDRange;
 class BinIDZValue;
 class MultiID;
+class BufferString;
 
 
 /*! \brief Service provider for application level - seismics */
@@ -43,6 +44,14 @@ public:
     void		getSurfaceDef(const MultiID&, 
 	    			      ObjectSet< TypeSet<BinIDValue> >&, 
 				      const BinIDRange*) const;
+
+    bool		storeSurface(const MultiID&);
+    void		setDataVal(const MultiID&,
+	    			   ObjectSet< TypeSet<BinIDZValue> >&,
+				   const char*);
+    bool		getDataVal(const MultiID&,
+	    			   ObjectSet< TypeSet<BinIDZValue> >&,
+				   BufferString&);
 
     static const int	evGetHorData;
 

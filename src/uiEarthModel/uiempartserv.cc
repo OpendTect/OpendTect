@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.14 2003-06-03 12:46:12 bert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.15 2003-07-16 09:58:06 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiimpfault.h"
 #include "uiimpwelltrack.h"
 #include "uiexphorizon.h"
+#include "uiiosurfacedlg.h"
 #include "uiexecutor.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -21,6 +22,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emwelltransl.h"
 #include "emfaulttransl.h"
+#include "emposid.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -56,10 +58,13 @@ bool uiEMPartServer::selectHorizon( MultiID& id )
 {
     CtxtIOObj ctio( EMHorizonTranslator::ioContext() );
     ctio.ctxt.forread = true;
-    uiIOObjSelDlg dlg( appserv().parent(), ctio );
+    uiIOSurfaceDlg dlg( appserv().parent(), ctio );
     if ( !dlg.go() ) return false;
 
-    id = dlg.ioObj()->key();
+    IOObj* ioobj = dlg.ioObj();
+    if ( !ioobj ) return false;
+    
+    id = ioobj->key();
     return loadSurface( id );
 }
 
@@ -73,6 +78,93 @@ bool uiEMPartServer::exportHorizon( const ObjectSet<SurfaceInfo>& his )
     deepErase( horbidzvs_ );
     sendEvent( evGetHorData );
     return dlg.writeAscii( horbidzvs_ );
+}
+
+
+bool uiEMPartServer::storeSurface( const MultiID& id )
+{
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    if ( !hor ) return false;
+
+    uiSaveSurfaceDlg dlg( appserv().parent(), *hor );
+    if ( !dlg.go() ) return false;
+    return dlg.doWrite();
+}
+
+
+bool uiEMPartServer::getDataVal( const MultiID& id, 
+				 ObjectSet< TypeSet<BinIDZValue> >& data, 
+				 BufferString& attrnm )
+{
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    if ( !hor ) return false;
+
+    if ( !hor->nrAuxData() )
+	return false;
+
+    int dataidx = 0;
+    attrnm = hor->auxDataName( dataidx );
+
+    deepErase( data );
+    for ( int patchidx=0; patchidx<hor->nrPatches(); patchidx++ )
+    {
+	const EM::PatchID patchid = hor->patchID( patchidx );
+	const Geometry::GridSurface* gridsurf = hor->getSurface( patchid );
+
+	data += new TypeSet<BinIDZValue>;
+	TypeSet<BinIDZValue>& res = *data[0];
+
+	const int nrnodes = gridsurf->size();
+	for ( int idy=0; idy<nrnodes; idy++ )
+	{
+	    const Geometry::PosID geomposid = gridsurf->getPosID(idy);
+	    const Coord3 coord = gridsurf->getPos( geomposid );
+	    const BinID bid = SI().transform(coord);
+	    const RowCol emrc( bid.inl, bid.crl );
+	    const EM::SubID subid = hor->rowCol2SubID( emrc );
+	    const EM::PosID posid( id, patchid, subid );
+	    const float auxvalue = hor->getAuxDataVal(dataidx,posid);
+
+	    res += BinIDZValue(bid,auxvalue,auxvalue);
+	}
+    }
+
+    return true;
+}
+
+
+void uiEMPartServer::setDataVal( const MultiID& id, 
+				 ObjectSet< TypeSet<BinIDZValue> >& data,
+       				 const char* attrnm )
+{
+    EM::EMManager& em = EM::EMM();
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(id))
+    if ( !hor ) return;
+
+    for ( int idx=0; idx<hor->nrAuxData(); idx++ )
+    {
+	if ( !strcmp(hor->auxDataName(idx),attrnm) )
+	    return;
+    }
+
+    int	dataidx = hor->addAuxData( attrnm );
+
+    for ( int patchidx=0; patchidx<data.size(); patchidx++ )
+    {
+	const EM::PatchID patchid = hor->patchID( patchidx );
+	TypeSet<BinIDZValue>& bidzvals = *data[patchidx];
+
+	for ( int idx=0; idx<bidzvals.size(); idx++ )
+	{
+	    BinIDZValue bidzv = bidzvals[idx];
+	    RowCol rc( bidzv.binid.inl, bidzv.binid.crl );
+	    EM::SubID subid = hor->rowCol2SubID( rc );
+	    EM::PosID posid( id, patchid, subid );
+	    hor->setAuxDataVal( dataidx, posid, bidzv.value );
+	}
+    }
 }
 
 
