@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.3 2003-08-16 13:14:44 bert Exp $
+ RCS:		$Id: welldata.h,v 1.4 2003-08-22 11:21:47 nanne Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ public:
 
 				Data(const char* nm=0);
 
+    const char*			name() const		{ return info_.name(); }
     const Info&			info() const		{ return info_; }
     Info&			info()			{ return info_; }
     const Track&		track() const		{ return track_; }

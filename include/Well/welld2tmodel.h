@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.4 2003-08-21 15:47:32 bert Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.5 2003-08-22 11:21:47 nanne Exp $
 ________________________________________________________________________
 
 
@@ -39,8 +39,8 @@ public:
     				      //!< known in time
     static const char*	sKeyDataSrc;
 
-    void		add( float d_ah, float t )
-						{ dah_ += d_ah; t_ += t; }
+    void		add( float d_ah, float tm )
+						{ dah_ += d_ah; t_ += tm; }
 
 protected:
 
