@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.35 2004-07-28 16:44:45 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.36 2004-08-25 14:42:13 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -199,6 +199,8 @@ public:
     static bool		getRanges(const MultiID&,CubeSampling&);
     static bool		getRanges(const IOObj&,CubeSampling&);
     static  bool	is2D(const IOObj&);
+
+    static const char*	sKeyIs2D;
 
 protected:
 

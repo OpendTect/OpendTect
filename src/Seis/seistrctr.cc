@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.50 2004-08-16 15:51:53 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.51 2004-08-25 14:42:13 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -24,6 +24,9 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.50 2004-08-16 15:51:53 bert Ex
 #include "cubesampling.h"
 #include "errh.h"
 #include <math.h>
+
+
+const char* SeisTrcTranslator::sKeyIs2D = "Is2D";
 
 
 int SeisTrcTranslatorGroup::selector( const char* key )
@@ -101,7 +104,10 @@ SeisTrcTranslator::~SeisTrcTranslator()
 
 bool SeisTrcTranslator::is2D( const IOObj& ioobj )
 {
-    return *ioobj.translator() == '2';
+    if ( *ioobj.translator() == '2' ) return true;
+    bool yn = false;
+    ioobj.pars().getYN( sKeyIs2D, yn );
+    return yn;
 }
 
 
