@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.52 2005-01-05 15:06:57 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.53 2005-01-14 10:43:28 bert Exp $";
 
 /*!
 
@@ -453,28 +453,35 @@ int CBVSReader::getPosNr( const BinID& bid,
 
 	if ( bid.inl != curiinf->inl || !curseg->includes(bid.crl) )
 	{
-	    const int sz = info_.geom.cubedata.size();
-	    bool foundseg = false;
-	    for ( int iinl=0; iinl<sz; iinl++ )
+	    if ( bid.inl != curiinf->inl )
 	    {
-		curiinf = info_.geom.cubedata[iinl];
-		if ( curiinf->inl != bid.inl ) continue;
-
-		posnr = posnrs[iinl];
-		for ( int iseg=0; iseg<curiinf->segments.size(); iseg++ )
+		const int sz = info_.geom.cubedata.size();
+		for ( int iinl=0; iinl<sz; iinl++ )
 		{
-		    curseg = &curiinf->segments[iseg];
-		    if ( !curseg->includes(bid.crl) )
-			posnr += curseg->nrSteps() + 1;
-		    else
+		    curiinf = info_.geom.cubedata[iinl];
+		    if ( curiinf->inl == bid.inl )
 		    {
-			curinlinfnr = iinl; cursegnr = iseg;
-			foundseg = true;
+			curinlinfnr = iinl;
+			posnr = posnrs[iinl];
 			break;
 		    }
 		}
+		if ( curiinf->inl != bid.inl )
+		    return -1;
+	    }
 
-		if ( foundseg ) break;
+	    bool foundseg = false;
+	    for ( int iseg=0; iseg<curiinf->segments.size(); iseg++ )
+	    {
+		curseg = &curiinf->segments[iseg];
+		if ( !curseg->includes(bid.crl) )
+		    posnr += curseg->nrSteps() + 1;
+		else
+		{
+		    cursegnr = iseg;
+		    foundseg = true;
+		    break;
+		}
 	    }
 	    if ( !foundseg ) return -1;
 	}
