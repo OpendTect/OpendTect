@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.7 2004-07-22 16:14:07 bert Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.8 2005-02-03 10:37:48 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,8 @@ void uiWellAttribSel::setDefaultRange( bool zinft )
 	dahintv.stop /= 0.3048;
 	dahintv.step /= 0.3048;
     }
+
+    dahintv.sort();
     rangefld->setValue( dahintv );
 }
 
