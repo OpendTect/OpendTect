@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.6 2004-01-26 10:16:55 nanne Exp $
+ RCS:           $Id: uiodmain.h,v 1.7 2004-01-26 13:00:35 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,6 @@ public:
     void		saveSession();	//!< pops up the save session dialog
     void		restoreSession(); //!< pops up the restore session dlg
 
-    bool		scenemgrinited;
-
 protected:
 
     uiODApplMgr*	applmgr;
@@ -81,6 +79,11 @@ private:
     CtxtIOObj*		getUserSessionIOData(bool);
     bool		updateSession();
     void		doRestoreSession();
+
+public:
+
+    bool		sceneMgrAvailable() const	{ return scenemgr; }
+    bool		menuMgrAvailable() const	{ return menumgr; }
 
 };
 
