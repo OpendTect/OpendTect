@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.58 2004-04-15 13:12:24 macman Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.59 2004-09-15 13:53:07 dgb Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -361,8 +361,9 @@ int File_remove( const char* fname, int recursive )
 	len = strlen( fname ) + 30;
 	cmd = mMALLOC(len,char);
 
-	strcpy( cmd, "rd /S /Q " );
+	strcpy( cmd, "rd /S /Q \"" );
 	strcat( cmd, fname );
+	strcat( cmd, "\"" );
 
 	retval = system( cmd ) ? NO : YES;
 
