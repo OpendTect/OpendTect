@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.9 2002-04-10 08:24:44 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.10 2002-04-12 06:28:48 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -105,6 +105,10 @@ public:
     clss(typ arg,typ2 arg2);			\
 public:
 
+#define _mDeclConstr3Args(clss,typ,arg,typ2,arg2,typ3,arg3)	\
+    clss(typ arg,typ2 arg2, typ3 arg3 );			\
+public:
+
 #define mCreateDataObj0arg(clss) \
     _mCreateDataObj(clss,()) \
     _mDeclConstr(clss)
@@ -116,5 +120,9 @@ public:
 #define mCreateDataObj2arg(clss,typ1,arg1,typ2,arg2)	\
     _mCreateDataObj(clss,(arg1,arg2))			\
     _mDeclConstr2Args(clss,typ1,arg1,typ2,arg2)
+
+#define mCreateDataObj3arg(clss,typ1,arg1,typ2,arg2,typ3,arg3)	\
+    _mCreateDataObj(clss,(arg1,arg2,arg3))			\
+    _mDeclConstr3Args(clss,typ1,arg1,typ2,arg2,typ3,arg3)
 
 #endif
