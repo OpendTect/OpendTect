@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.24 2003-06-02 12:06:11 kristofer Exp $
+ RCS:		$Id: ranges.h,v 1.25 2003-09-16 09:52:34 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,8 @@ public:
 			{ start -= len; stop += len; }
 		}
 
-    inline bool	includes( const T& t, bool allowrev=true ) const
+    template <class TT>
+    inline bool	includes( const TT& t, bool allowrev=true ) const
 		{
 		    return allowrev && isRev()
 			? t>=stop && start>=t
