@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.12 2004-05-04 07:16:47 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.13 2004-05-04 10:02:28 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -305,14 +305,17 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	uiPopupMenu* selattrmnu = new uiPopupMenu( menu->getParent(),
 						   attrselmnutxt);
 	firstsetattrmnuid = menu->getFreeID();
+	lastsetattrmnuid = firstsetattrmnuid;
 	applMgr()->attrServer()->createAttribSubMenu( *selattrmnu,
-					  firstsetattrmnuid,
+					  lastsetattrmnuid,
 					  *visserv->getSelSpec(displayid));
-	menu->addItem(selattrmnu);
-	lastsetattrmnuid = menu->getCurrentID()-1;
+	for ( int idx=firstsetattrmnuid; idx<=lastsetattrmnuid; idx++ )
+	    menu->getFreeID();
+
+	menu->addSubMenu(selattrmnu,9999);
     }
     else 
-	firstsetattrmnuid = -1;
+	firstsetattrmnuid = lastsetattrmnuid = -1;
 
     duplicatemnuid = visserv->canDuplicate(displayid)
 		    ? menu->addItem( new uiMenuItem("Duplicate") ) 
@@ -335,7 +338,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	    }
 	}
 
-	menu->addItem( sharemnu );
+	menu->addSubMenu( sharemnu );
 
 	sharelastmnusel = menu->getCurrentID()-1;
     }
@@ -715,7 +718,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	    insertnodemnusel = mnusel;
     }
 
-    menu->addItem(insertnodemnu);
+    menu->addSubMenu(insertnodemnu);
 }
 
 
@@ -1040,30 +1043,26 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     uiPopupMenu* showmnu = new uiPopupMenu( menu->getParent(), "Show" );
 
     uiMenuItem* wellnameitem = new uiMenuItem("Well name");
-    wellnameitem->setChecked( wd->wellNameShown() );
     namemnusel = menu->getFreeID();
     showmnu->insertItem( wellnameitem );
     wellnameitem->setChecked( wd->wellNameShown() );
 
     uiMenuItem* markeritem = new uiMenuItem("Markers");
-    markeritem->setChecked( wd->markersShown() );
     markermnusel = menu->getFreeID();
     showmnu->insertItem( markeritem );
     markeritem->setChecked( wd->markersShown() );
 
-    uiMenuItem* markernameitem = new uiMenuItem("Markers");
-    markernameitem->setChecked( wd->markerNameShown() );
+    uiMenuItem* markernameitem = new uiMenuItem("Marker names");
     markernamemnusel = menu->getFreeID();
     showmnu->insertItem( markernameitem );
     markernameitem->setChecked( wd->markerNameShown() );
 
-    uiMenuItem* showlogsmnuid = new uiMenuItem("Logs");
-    showlogsmnuid->setChecked( wd->logsShown() );
+    uiMenuItem* logsmnuitem = new uiMenuItem("Logs");
     showlogmnusel = menu->getFreeID();
-    showmnu->insertItem( showlogsmnuid );
-    showlogsmnuid->setChecked( wd->logsShown() );
+    showmnu->insertItem( logsmnuitem );
+    logsmnuitem->setChecked( wd->logsShown() );
 
-    menu->addItem( showmnu );
+    menu->addSubMenu( showmnu );
 
     selattrmnusel = menu->addItem(  new uiMenuItem("Select Attribute ...") );
     sellogmnusel = menu->addItem(  new uiMenuItem("Select logs ...") );
