@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.18 2002-04-17 09:10:19 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.19 2002-04-19 09:58:53 kristofer Exp $";
 
 #include "vissurvpickset.h"
 #include "visevent.h"
@@ -16,8 +16,6 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.18 2002-04-17 09:10:19
 #include "viscube.h"
 #include "geompos.h"
 #include "color.h"
-
-#include "survinfo.h"		//Should go when SI is removed from code
 
 visSurvey::PickSetDisplay::PickSetDisplay( visSurvey::Scene& scene_ )
     : group( visBase::SceneObjectGroup::create(true) )
@@ -71,7 +69,7 @@ Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
     mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
     if ( cube )
     {
-	return cube->centerPos();
+	return scene.getRealCoord(cube->centerPos());
     }
 
     Geometry::Pos res(mUndefValue,mUndefValue,mUndefValue);
@@ -83,7 +81,8 @@ Geometry::Pos visSurvey::PickSetDisplay::getPick( int idx ) const
 void visSurvey::PickSetDisplay::addPick( const Geometry::Pos& pos )
 {
     visBase::Cube* cube = visBase::Cube::create();
-    cube->setCenterPos( pos );
+    Geometry::Pos displaypos = scene.getDisplayCoord( pos );
+    cube->setCenterPos( displaypos );
     cube->setWidth( Geometry::Pos( xsz, ysz, zsz/scene.apparentVel()*2) );
     cube->setMaterial( 0 );
 
@@ -101,13 +100,14 @@ void visSurvey::PickSetDisplay::setSize( float x, float y, float z )
 
 void visSurvey::PickSetDisplay::removePick( const Geometry::Pos& pos )
 {
+    Geometry::Pos displaypos = scene.getDisplayCoord( pos );
+
     for ( int idx=0; idx<group->size(); idx++ )
     {
 	mDynamicCastGet(visBase::Cube*, cube, group->getObject( idx ) );
 	if ( !cube ) continue;
 
-//	TODO: remove cube nearest to pos.
-	if ( cube->centerPos() == pos )
+	if ( cube->centerPos() == displaypos )
 	{
 	    group->removeObject( idx );
 	    changed.trigger();
@@ -192,9 +192,10 @@ void visSurvey::PickSetDisplay::pickCB(CallBacker* cb)
 			 mIS_ZERO( newpos.y-mousepressposition.y ) &&
 			 mIS_ZERO( newpos.z-mousepressposition.z ) )
 		    {
-			newpos.z /= -scene.apparentVel();
-			newpos.z *= 2;
-			addPick( newpos );
+			Geometry::Pos realpos = scene.getRealCoord( newpos );
+			realpos.z /= -scene.apparentVel();
+			realpos.z *= 2;
+			addPick( realpos );
 		    }
 		}
 	    }

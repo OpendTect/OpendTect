@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.12 2002-04-19 08:57:09 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.13 2002-04-19 09:59:06 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visscene.h"
+#include "geompos.h"
 
 namespace visBase { class Transformation; class Annotation; };
 
@@ -47,6 +48,9 @@ public:
     void			showAnnotText( bool yn );
     bool			isAnnotTextShown() const;
 
+    Geometry::Pos		getRealCoord( Geometry::Pos display) const;
+    Geometry::Pos		getDisplayCoord( Geometry::Pos real ) const;
+
     Notifier<Scene>		appvelchange;
 
 protected:
@@ -58,6 +62,8 @@ protected:
 
 private:
     float			appvel;
+    float			xoffset;
+    float			yoffset;
 };
 
 };

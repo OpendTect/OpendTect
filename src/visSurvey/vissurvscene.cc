@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.19 2002-04-19 08:57:30 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.20 2002-04-19 09:58:53 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -77,10 +77,13 @@ visSurvey::Scene::Scene()
     double transmatrix24 = x[2];
 
     inlcrltransformation->setA(
-	transmatrix11,	transmatrix12,	0,	transmatrix14,
-	transmatrix21,	transmatrix22,	0,	transmatrix24,
+	transmatrix11,	transmatrix12,	0,	0, //transmatrix14,
+	transmatrix21,	transmatrix22,	0,	0, //transmatrix24,
 	0,		0,		1,	0,
 	0,		0,		0,	1 );
+
+    xoffset = transmatrix14;
+    yoffset = transmatrix24;
 
     // Set time trans
     setApparentVel( 2000 );
@@ -185,3 +188,23 @@ bool  visSurvey::Scene::isAnnotTextShown() const
 }
 
 
+Geometry::Pos visSurvey::Scene::getRealCoord(Geometry::Pos display) const
+{
+    Geometry::Pos res;
+    res.x = display.x + xoffset;
+    res.y = display.y + yoffset;
+    res.z = display.z;
+
+    return res;
+}
+
+
+Geometry::Pos visSurvey::Scene::getDisplayCoord(Geometry::Pos real) const
+{
+    Geometry::Pos res;
+    res.x = real.x - xoffset;
+    res.y = real.y - yoffset;
+    res.z = real.z;
+
+    return res;
+}
