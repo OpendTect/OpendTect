@@ -4,13 +4,13 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.47 2004-01-05 09:45:06 kristofer Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.48 2004-01-12 08:18:41 nanne Exp $";
 
 #include "vissurvpickset.h"
 
 #include "color.h"
 #include "iopar.h"
-#include "position.h"
+#include "trigonometry.h"
 #include "survinfo.h"
 #include "viscube.h"
 #include "visevent.h"
@@ -84,7 +84,7 @@ void visSurvey::PickSetDisplay::addPick( const Coord3& pos, const Coord3& dir )
 
     marker->setTransformation( transformation );
     marker->setCenterPos( pos );
-    marker->setDirection( dir );
+    marker->setDirection( Sphere(dir.x,dir.y,dir.z) );
     marker->setScale( Coord3(1, 1, 2/SPM().getZScale()) );
     marker->setSize( picksz );
     marker->setType( (visBase::Marker::Type)picktype );
@@ -111,7 +111,8 @@ Coord3 visSurvey::PickSetDisplay::getPick( int idx ) const
 Coord3 visSurvey::PickSetDisplay::getDirection( int idx ) const
 {
     mDynamicCastGet(visBase::Marker*,marker,group->getObject(idx))
-    return marker ? marker->getDirection() : Coord3(0,0,0);
+    Sphere dir = marker ? marker->getDirection() : Sphere(0,0,0);
+    return Coord3(dir.radius,dir.theta,dir.phi);
 }
 
 
@@ -369,10 +370,10 @@ void visSurvey::PickSetDisplay::fillPar( IOPar& par,
         mDynamicCastGet(const visBase::Marker*, marker, so );
 	BufferString key = pickprefixstr; key += idx;
 	Coord3 pos = marker->centerPos();
-	Coord3 dir = marker->getDirection();
+	Sphere dir = marker->getDirection();
 	FileMultiString str; str += pos.x; str += pos.y; str += pos.z;
-	if ( dir.x || dir.y || dir.z )
-	    { str += dir.x; str += dir.y; str += dir.z; }
+	if ( dir.radius || dir.theta || dir.phi )
+	    { str += dir.radius; str += dir.theta; str += dir.phi; }
 	par.set( key, str.buf() );
     }
 
