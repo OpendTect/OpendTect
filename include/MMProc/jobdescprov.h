@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.1 2004-10-25 07:26:20 bert Exp $
+ RCS:		$Id: jobdescprov.h,v 1.2 2004-11-10 17:23:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
     virtual void	getJob(int,IOPar&) const	= 0;
     virtual const char*	objName(int) const		= 0;
     virtual void	dump(std::ostream&) const	= 0;
+
+    const IOPar&	pars() const			{ return inpiopar_; }
 
 protected:
 

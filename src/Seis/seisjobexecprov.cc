@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.5 2004-11-10 14:19:13 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.6 2004-11-10 17:23:35 bert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.5 2004-11-10 14:19:13 be
 
 const char* SeisJobExecProv::sKeyTmpStor = "Temporary storage location";
 const char* SeisJobExecProv::sKeySeisOutIDKey = "Output Seismics Key";
+#define mOutKey(s) IOPar::compKey("Output.1",s)
 
 
 SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
@@ -57,9 +58,10 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 
 const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 {
-    const char* res = iopar.find( sKeySeisOutIDKey );
-    if ( !res ) res = "Output.1.Seismic ID";
-    return res;
+    static BufferString res;
+    res = iopar.find( sKeySeisOutIDKey );
+    if ( res == "" ) res = mOutKey("Seismic ID");
+    return res.buf();
 }
 
 
@@ -77,7 +79,8 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	for ( int idx=0; idx<ls.nrLines(); idx++ )
 	    nms.addIfNew( ls.lineName(idx) );
     }
-    return new KeyReplaceJobDescProv( iopar_, "Output.1.Line key", nms );
+    BufferString parkey( mOutKey("Line key") );
+    return new KeyReplaceJobDescProv( iopar_, parkey, nms );
 }
 
 
@@ -100,8 +103,11 @@ JobDescProv* SeisJobExecProv::mk3DJobProv()
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
-    const char* rgkey = iopar_.find( "Inline Range Key" );
-    if ( !rgkey ) rgkey = "Output.1.In-line range";
+    BufferString rgkey = iopar_.find( "Inline Range Key" );
+    if ( rgkey == "" ) rgkey = mOutKey("In-line range");
+    InlineSplitJobDescProv jdp( iopar_, rgkey );
+    jdp.getRange( inls );
+
     if ( havetempdir )
     {
 	getMissingLines( inlnrs, rgkey );
@@ -113,13 +119,16 @@ JobDescProv* SeisJobExecProv::mk3DJobProv()
 	return 0;
     }
 
-    MultiID key = tempStorID( true );
-    if ( key == "" )
+    tmpstorid_ = tempStorID();
+    if ( tmpstorid_ == "" )
 	return 0;
-    iopar_.set( seisoutkey_, key );
 
-    return ptrnrs ? new InlineSplitJobDescProv( iopar_, *ptrnrs, rgkey )
-		  : new InlineSplitJobDescProv( iopar_, rgkey );
+    IOPar jpiopar( iopar_ );
+    jpiopar.set( seisoutkey_, tmpstorid_ );
+    jpiopar.setYN( mOutKey(sKey::BinIDSel), true );
+
+    return ptrnrs ? new InlineSplitJobDescProv( jpiopar, *ptrnrs, rgkey )
+		  : new InlineSplitJobDescProv( jpiopar, rgkey );
 }
 
 
@@ -166,8 +175,6 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 {
     FilePath basefp( iopar_.find(sKeyTmpStor) );
 
-    InlineSplitJobDescProv jdp( iopar_, rgkey );
-    StepInterval<int> inls; jdp.getRange( inls );
     int lastgood = inls.start - inls.step;
     for ( int inl=inls.start; inl<=inls.stop; inl+=inls.step )
     {
@@ -189,10 +196,9 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
 }
 
 
-MultiID SeisJobExecProv::tempStorID( bool create ) const
+MultiID SeisJobExecProv::tempStorID() const
 {
     FilePath fp( iopar_.find(sKeyTmpStor) );
-    fp.add( "i.*" );
 
     // Is there already an entry?
     IOM().to( ctio_.ctxt.stdSelKey() );
@@ -210,10 +216,6 @@ MultiID SeisJobExecProv::tempStorID( bool create ) const
     }
 
     MultiID ret;
-    if ( !create )
-	return ret;
-
-    fp.setFileName( 0 );
     BufferString objnm( "~" );
     objnm += fp.fileName();
     ctio_.setName( objnm );
@@ -224,7 +226,11 @@ MultiID SeisJobExecProv::tempStorID( bool create ) const
     {
 	ret = ctio_.ioobj->key();
 	ctio_.ioobj->pars() = outioobjpars_;
-	IOM().commitChanges( *ctio_.ioobj );
+	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj)
+	fp.add( "i.*" );
+	iostrm->fileNumbers() = inls;
+	iostrm->setFileName( fp.fullPath() );
+	IOM().commitChanges( *iostrm );
 	ctio_.setObj(0);
     }
 
@@ -236,8 +242,7 @@ Executor* SeisJobExecProv::getPostProcessor()
 {
     if ( is2d_ ) return 0;
 
-    MultiID tmpkey( iopar_.find(seisoutkey_) );
-    PtrMan<IOObj> inioobj = IOM().get( tmpkey );
+    PtrMan<IOObj> inioobj = IOM().get( tmpstorid_ );
     PtrMan<IOObj> outioobj = IOM().get( seisoutid_ );
     return new SeisSingleTraceProc( inioobj, outioobj,
 				    "Data transfer", &iopar_,
@@ -249,13 +254,13 @@ bool SeisJobExecProv::removeTempSeis()
 {
     if ( is2d_ ) return true;
 
-    MultiID tmpkey( iopar_.find(seisoutkey_) );
-    PtrMan<IOObj> ioobj = IOM().get( tmpkey );
+    PtrMan<IOObj> ioobj = IOM().get( tmpstorid_ );
     if ( !ioobj ) return true;
 
     FilePath fp( ioobj->fullUserExpr(true) );
-    IOM().permRemove( tmpkey );
+    IOM().permRemove( tmpstorid_ );
 
-    fp.setFileName(0);
+    if ( fp.fileName() == "i.*" )
+	fp.setFileName(0);
     return File_remove(fp.fullPath().buf(),YES);
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.10 2004-11-10 14:19:13 bert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.11 2004-11-10 17:23:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,9 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     	, prog_(cmd)
 	, timeout_( atoi( getenv("DTECT_JOBMAN_TIMEOUT")
 			? getenv("DTECT_JOBMAN_TIMEOUT") : "120000") )
+	, jobStarted(this)
+	, jobFailed(this)
+    	, notifyji(0)
 {
     FilePath fp( GetDataDir() );
     fp.add( "Proc" ).add( tmpfnm_base );
@@ -184,15 +187,18 @@ bool JobRunner::runJob( JobInfo& ji, const HostData& hd )
 
     FilePath basefp( getBaseFilePath(ji,hd) );
 
+    notifyji = &ji;
     if ( !iomgr().startProg( prog_, hd, iop, basefp, ji, rshcomm_ ) )
     {
 	ji.state_ = JobInfo::Failed;
 	iomgr().fetchMsg(ji.curmsg_);
+	jobFailed.trigger();
 	return false;
     }
 
     ji.state_ = JobInfo::Working;
     ji.hostdata_ = &hd;
+    jobStarted.trigger();
     return true;
 }
 

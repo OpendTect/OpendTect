@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.4 2004-11-10 14:19:13 bert Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.5 2004-11-10 17:23:35 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
 #include "multiid.h"
+#include "ranges.h"
 #include "sets.h"
 #include <iosfwd>
 class IOPar;
@@ -73,14 +74,17 @@ protected:
     bool		is2d_;
     BufferString	seisoutkey_;
     MultiID		seisoutid_;
+    MultiID		tmpstorid_;
     const BufferString	progname_;
     mutable BufferString errmsg_;
     int			nrrunners_;
+    StepInterval<int>	inls;
+
 
     JobDescProv*	mk2DJobProv();
     JobDescProv*	mk3DJobProv();
     void		getMissingLines(TypeSet<int>&,const char*) const;
-    MultiID		tempStorID(bool) const;
+    MultiID		tempStorID() const;
 
 };
 

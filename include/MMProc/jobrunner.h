@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.8 2004-11-10 14:19:13 bert Exp $
+ RCS:		$Id: jobrunner.h,v 1.9 2004-11-10 17:23:35 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,10 +82,11 @@ public:
     void			showMachStatus( BufferStringSet& ) const;
     const FilePath&		getBaseFilePath(JobInfo&, const HostData&);
 
-protected:
+    Notifier<JobRunner>		jobStarted;
+    Notifier<JobRunner>		jobFailed;
+    const JobInfo&		curJob() const		{ return *notifyji; }
 
-    JobIOMgr&			iomgr();
-    JobIOMgr*			iomgr__;
+protected:
 
     JobDescProv*		descprov_;
     ObjectSet<JobInfo>		jobinfos_;
@@ -94,12 +95,16 @@ protected:
     BufferString		prog_;
     BufferString		procdir_;
 
+    JobIOMgr&			iomgr();
+    JobIOMgr*			iomgr__;
+
     int				niceval_;
     int				firstport_;
     BufferString		rshcomm_;
     int				maxhostfailures_;
     int				maxjobfailures_;
     int				timeout_;
+    JobInfo*			notifyji;
 
     int				doCycle();
     JobHostInfo*		jobHostInfoFor(const HostData&) const;
