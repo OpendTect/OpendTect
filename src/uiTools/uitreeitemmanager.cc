@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.6 2003-12-17 12:31:51 kristofer Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.7 2004-04-13 08:11:33 nanne Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -217,6 +217,7 @@ uiTreeTopItem::uiTreeTopItem( uiListView* listview_ )
     : uiTreeItem( listview_->name() )
     , listview( listview_ )
     , disabrightclick(false)
+    , disabanyclick(false)
 {
     listview->rightButtonClicked.notify(
 	    		mCB(this,uiTreeTopItem,rightClickCB) );
@@ -250,13 +251,14 @@ bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool downwards )
 
 void uiTreeTopItem::rightClickCB( CallBacker* )
 {
-    if ( disabrightclick ) return;
+    if ( disabanyclick || disabrightclick ) return;
     rightClick( listview->itemNotified() );
 }
 
 
 void uiTreeTopItem::anyButtonClickCB( CallBacker* cb )
 {
+    if ( disabanyclick ) return;
     anyButtonClick( listview->itemNotified() );
 }
 

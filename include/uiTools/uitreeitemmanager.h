@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.4 2003-11-24 10:45:45 kristofer Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.5 2004-04-13 08:11:26 nanne Exp $
 ________________________________________________________________________
 
 
@@ -147,6 +147,7 @@ public:
     virtual void	updateColumnText(int col);
 
     void		disabRightClick(bool yn) 	{ disabrightclick=yn; }
+    void		disabAnyClick(bool yn) 		{ disabanyclick=yn; }
 
 
 			~uiTreeTopItem();
@@ -159,6 +160,7 @@ protected:
     virtual uiParent*	getUiParent();
 
     bool		disabrightclick;
+    bool		disabanyclick;
 };
 
 
