@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.3 2004-04-28 08:23:38 nanne Exp $
+ RCS:		$Id: odsession.h,v 1.4 2005-03-09 16:43:28 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ public:
     IOPar&		vispars() 		{ return vispars_; }
     IOPar&		attrpars() 		{ return attrpars_; }
     IOPar&		nlapars() 		{ return nlapars_; }
-    IOPar&		trackpars() 		{ return trackpars_; }
+    IOPar&		mpepars() 		{ return mpepars_; }
     IOPar&		scenepars() 		{ return scenepars_; }
     IOPar&		pluginpars() 		{ return pluginpars_; }
 
@@ -45,7 +45,7 @@ protected:
     IOPar		scenepars_;
     IOPar		attrpars_;
     IOPar		nlapars_;
-    IOPar		trackpars_;
+    IOPar		mpepars_;
     IOPar		pluginpars_;
 
     static const char*	visprefix;

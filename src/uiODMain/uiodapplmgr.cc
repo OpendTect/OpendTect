@@ -4,15 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
-<<<<<<< uiodapplmgr.cc
-<<<<<<< uiodapplmgr.cc
- RCS:           $Id: uiodapplmgr.cc,v 1.71 2005-03-07 10:58:25 cvskris Exp $
-=======
- RCS:           $Id: uiodapplmgr.cc,v 1.71 2005-03-07 10:58:25 cvskris Exp $
->>>>>>> 1.68
-=======
- RCS:           $Id: uiodapplmgr.cc,v 1.71 2005-03-07 10:58:25 cvskris Exp $
->>>>>>> 1.70
+ RCS:           $Id: uiodapplmgr.cc,v 1.72 2005-03-09 16:43:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -637,7 +629,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	mpeserv->setAttribData(*as,newset );
     }
     else
-	pErrMsg("Unknown event from trackserv");
+	pErrMsg("Unknown event from mpeserv");
 
     return true;
 }

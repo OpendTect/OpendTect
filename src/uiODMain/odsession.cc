@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.6 2004-04-28 08:23:32 nanne Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.7 2005-03-09 16:43:22 cvsnanne Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -27,7 +27,7 @@ void ODSession::clear()
     scenepars_.clear();
     attrpars_.clear();
     nlapars_.clear();
-    trackpars_.clear();
+    mpepars_.clear();
     pluginpars_.clear();
 }
 
@@ -40,7 +40,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 	scenepars_ == sess.scenepars_;
 	attrpars_ == sess.attrpars_;
 	nlapars_ == sess.nlapars_;
-	trackpars_ == sess.trackpars_;
+	mpepars_ == sess.mpepars_;
 	pluginpars_ == sess.pluginpars_;
     }
     return *this;
@@ -53,7 +53,7 @@ bool ODSession::operator==( const ODSession& sess ) const
 	&& scenepars_ == sess.scenepars_
 	&& attrpars_ == sess.attrpars_
 	&& nlapars_ == sess.nlapars_
-	&& trackpars_ == sess.trackpars_
+	&& mpepars_ == sess.mpepars_
 	&& pluginpars_ == sess.pluginpars_;
 }
     
@@ -78,9 +78,9 @@ bool ODSession::usePar( const IOPar& par )
     if ( nlasubpars )
 	nlapars_ = *nlasubpars;
 
-    PtrMan<IOPar> tracksubpars = par.subselect(trackprefix);
-    if ( tracksubpars )
-	trackpars_ = *tracksubpars;
+    PtrMan<IOPar> mpesubpars = par.subselect(trackprefix);
+    if ( mpesubpars )
+	mpepars_ = *mpesubpars;
 
     PtrMan<IOPar> pluginsubpars = par.subselect(pluginprefix);
     if ( pluginsubpars )
@@ -96,7 +96,7 @@ void ODSession::fillPar( IOPar& par ) const
     par.mergeComp( scenepars_, sceneprefix );
     par.mergeComp( attrpars_, attrprefix );
     par.mergeComp( nlapars_, nlaprefix );
-    par.mergeComp( trackpars_, trackprefix );
+    par.mergeComp( mpepars_, trackprefix );
     par.mergeComp( pluginpars_, pluginprefix );
 }
 
