@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.28 2002-01-16 12:38:03 arend Exp $
+ RCS:           $Id: uigroup.cc,v 1.29 2002-01-17 10:43:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ class uiGroupObjBody  : public uiObjectBody, public QFrame
     friend class 		uiDialog;
     friend class 		i_LayoutMngr;
     friend class		i_uiGroupLayoutItem;
+    friend			uiGroup* gtDynamicCastToGrp( QWidget*);
 public:
 				uiGroupObjBody( uiGroupObj& handle, 
 						uiParent* parnt,
@@ -95,6 +96,7 @@ class uiGroupParentBody : public uiParentBody
     friend class 	i_LayoutMngr;
     friend class	i_uiGroupLayoutItem;
     friend class	uiGroupObjBody;
+    friend		uiGroup* gtDynamicCastToGrp( QWidget*);
 
 public:
 			uiGroupParentBody( uiGroup& handle, 
@@ -490,3 +492,10 @@ uiGroupObj::uiGroupObj( uiParent* parnt , const char* nm, bool manage )
     setBody( body_ );
 }
 
+uiGroup* uiGroup::gtDynamicCastToGrp( QWidget* widg )
+{ 
+    uiGroupObjBody* body = dynamic_cast<uiGroupObjBody*>( widg );
+    if( !body || !body->prntbody_ ) return 0;
+
+    return &body->prntbody_->handle_;
+}

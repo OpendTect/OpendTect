@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.18 2002-01-16 12:38:03 arend Exp $
+ RCS:           $Id: uigroup.h,v 1.19 2002-01-17 10:43:02 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,8 @@ class uiParentBody;
 class uiGroup;
 class uiGroupObjBody;
 class uiGroupParentBody;
+
+class QWidget;
 
 class uiGroupObj : public uiObject
 { 	
@@ -105,6 +107,8 @@ public:
     //! inernal use only. Tells the layout manager it's a toplevel mngr.
     void		setIsMain( bool ); 
     virtual uiMainWin*	mainwin() { return uiObj() ? uiObj()->mainwin() : 0; }
+
+    static uiGroup*	gtDynamicCastToGrp( QWidget* );
 
 //
 protected:
