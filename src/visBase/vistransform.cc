@@ -4,10 +4,11 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vistransform.cc,v 1.9 2003-02-28 14:45:35 nanne Exp $";
+static const char* rcsID = "$Id: vistransform.cc,v 1.10 2003-09-19 09:22:22 kristofer Exp $";
 
 #include "vistransform.h"
 #include "iopar.h"
+#include "trigonometry.h"
 
 #include "Inventor/nodes/SoMatrixTransform.h"
 #include "Inventor/SbLinear.h" 
@@ -26,6 +27,89 @@ visBase::Transformation::Transformation()
 visBase::Transformation::~Transformation()
 {
     transform_->unref();
+}
+
+
+void visBase::Transformation::setRotation( const Coord3& vec, float angle )
+{
+    SbVec3f translation;
+    SbRotation rotation;
+    SbVec3f scale;
+    SbRotation scaleorientation;
+
+    SbMatrix matrix = transform_->matrix.getValue();
+    matrix.getTransform( translation, rotation, scale, scaleorientation );
+    rotation = SbRotation( SbVec3f( vec.x, vec.y, vec.z ), angle );
+    matrix.setTransform( translation, rotation, scale, scaleorientation );
+
+    transform_->matrix.setValue( matrix );
+}
+
+
+void visBase::Transformation::setTranslation( const Coord3& vec )
+{
+    SbVec3f translation;
+    SbRotation rotation;
+    SbVec3f scale;
+    SbRotation scaleorientation;
+
+    SbMatrix matrix = transform_->matrix.getValue();
+    matrix.getTransform( translation, rotation, scale, scaleorientation );
+    translation = SbVec3f( vec.x, vec.y, vec.z );
+    matrix.setTransform( translation, rotation, scale, scaleorientation );
+
+    transform_->matrix.setValue( matrix );
+}
+
+
+Coord3 visBase::Transformation::getTranslation() const
+{
+    SbVec3f translation;
+    SbRotation rotation;
+    SbVec3f scale;
+    SbRotation scaleorientation;
+
+    const SbMatrix matrix = transform_->matrix.getValue();
+    matrix.getTransform( translation, rotation, scale, scaleorientation );
+    return Coord3( translation[0], translation[1], translation[2] );
+}
+
+
+void visBase::Transformation::setScale( const Coord3& vec )
+{
+    SbVec3f translation;
+    SbRotation rotation;
+    SbVec3f scale;
+    SbRotation scaleorientation;
+
+    SbMatrix matrix = transform_->matrix.getValue();
+    matrix.getTransform( translation, rotation, scale, scaleorientation );
+    scale = SbVec3f( vec.x, vec.y, vec.z );
+    matrix.setTransform( translation, rotation, scale, scaleorientation );
+
+    transform_->matrix.setValue( matrix );
+}
+
+
+Coord3 visBase::Transformation::getScale() const
+{
+    SbVec3f translation;
+    SbRotation rotation;
+    SbVec3f scale;
+    SbRotation scaleorientation;
+
+    const SbMatrix matrix = transform_->matrix.getValue();
+    matrix.getTransform( translation, rotation, scale, scaleorientation );
+    return Coord3( scale[0], scale[1], scale[2] );
+}
+
+
+void visBase::Transformation::reset()
+{
+    setA( 1, 0, 0, 0,
+	  0, 1, 0, 0,
+	  0, 0, 1, 0,
+	  0, 0, 0, 1 );
 }
 
 
