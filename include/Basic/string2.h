@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.6 2001-10-16 15:12:33 windev Exp $
+ RCS:		$Id: string2.h,v 1.7 2003-03-21 08:42:41 kristofer Exp $
 ________________________________________________________________________
 -*/
 
@@ -57,6 +57,9 @@ void		cleanupString(char*,int ,int,int);
 const char*	getStringFromInt(const char* fmt,int);
 /*!> is like getStringFromInt. Treats "%lg" special: it will do removal of
      trailing zeros and use %f in more cases than std. */
+const char*	getStringFromLongLong(const char* fmt,long long);
+const char*	getStringFromUnsignedLongLong(const char* fmt,
+					      unsigned long long);
 const char*	getStringFromDouble(const char* fmt,double);
 /*!> is like getStringFromDouble, with special %lf treatment. */
 const char*	getStringFromFloat(const char* fmt,float);
