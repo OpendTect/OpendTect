@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.25 2003-07-30 17:01:03 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.26 2003-08-07 14:35:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "uimsg.h"
 #include "uiscaler.h"
+#include "uibutton.h"
 #include "uibinidsubsel.h"
 #include "gridmods.h"
 #include "scaler.h"
@@ -61,6 +62,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
     outfld->attach( alignedBelow, scalefld );
+
+    displayfld = new uiCheckBox( this, "Display after import" );
+    displayfld->attach( alignedBelow, outfld );
 }
 
 
@@ -72,7 +76,7 @@ uiImportHorizon::~uiImportHorizon()
 
 #define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
-#define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
+#define mErrRetUnRef(s) { horizon->unRef(); deepErase(filenames); mErrRet(s) }
 
 bool uiImportHorizon::handleAscii()
 {
@@ -93,7 +97,7 @@ bool uiImportHorizon::handleAscii()
 	const char* fname = filenames[idx]->buf();
 	StreamConn* conn = new StreamConn( fname, Conn::Read );
 	if ( conn->bad() )
-	    mErrRet( "Bad connection" );
+	    mErrRetUnRef( "Bad connection" );
 	    
 	GridTranslator* trans =
 	    doxy ? (GridTranslator*) new CoordGridTranslator
@@ -110,7 +114,7 @@ bool uiImportHorizon::handleAscii()
 	delete dskgrd;
 
 	if ( !grid )
-	    mErrRet( "No valid grid specified." );
+	    mErrRetUnRef( "No valid grid specified." );
 
 	Scaler* scaler = scalefld->getScaler();
 
@@ -133,7 +137,12 @@ bool uiImportHorizon::handleAscii()
     PtrMan<Executor> exec = horizon->saver();
     uiExecutor dlg( this, *exec );
     bool rv = dlg.execute();
-    horizon->unRef();
+    if ( !doDisplay() )
+	horizon->unRef();
+    else
+	horizon->unRefNoDel();
+
+    deepErase( filenames );
     return rv;
 }
 
@@ -159,13 +168,26 @@ bool uiImportHorizon::checkInpFlds()
 	{
 	    BufferString errmsg( "Cannot find input file:\n" );
 	    errmsg += fnm;
+	    deepErase( filenames );
 	    mWarnRet( errmsg );
 	}
     }
 
+    deepErase( filenames );
     if ( !outfld->commitInput( true ) )
 	mWarnRet( "Please select the output" )
 
     return true;
 }
 
+
+bool uiImportHorizon::doDisplay() const
+{
+    return displayfld->isChecked();
+}
+
+
+MultiID uiImportHorizon::getSelID() const
+{
+    return ctio.ioobj ? ctio.ioobj->key() : -1;
+}

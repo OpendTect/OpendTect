@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.3 2003-08-05 15:10:52 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.4 2003-08-07 14:35:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ protected:
     uiSurfaceOutSel*	iogrp;
     const EM::Horizon&	hor;
 
-    bool		checkIfAlreadyPresent();
+    bool		checkIfAlreadyPresent(const char*);
     bool		acceptOK(CallBacker*);
 };
 

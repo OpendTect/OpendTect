@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.20 2003-08-06 15:10:00 nanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.21 2003-08-07 14:35:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,20 +37,21 @@ ________________________________________________________________________
 #include "idealconn.h"
 #include "ptrman.h"
 
-const int uiEMPartServer::evGetHorData = 0;
+const int uiEMPartServer::evDisplayHorizon = 0;
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
     			uiMSG().error( msg ); return false; }
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-    	, selvisid_(-1)
+    	, selemid_(*new MultiID(""))
 {
 }
 
 
 uiEMPartServer::~uiEMPartServer()
 {
+    delete &selemid_;
 }
 
 
@@ -79,7 +80,17 @@ bool uiEMPartServer::ioHorizon( uiEMPartServer::ExternalType t, bool imp )
 	dlg = imp ? (uiDialog*)new uiHorIdealImport( appserv().parent() )
 	    	  : (uiDialog*)new uiHorIdealExport( appserv().parent() );
 
-    return dlg->go();
+    if ( !dlg->go() )
+	return false;
+
+    mDynamicCastGet(uiImportHorizon*,impdlg,dlg.ptr());
+    if ( impdlg && impdlg->doDisplay() )
+    {
+	selemid_ = impdlg->getSelID();	
+	sendEvent( evDisplayHorizon );
+    }
+
+    return true;    
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.1 2003-08-06 15:10:00 nanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.2 2003-08-07 14:35:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,9 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emhorizontransl.h"
 #include "emsurfaceiodata.h"
+#include "emsurfauxdataio.h"
+#include "streamconn.h"
+#include "uimsg.h"
 
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p )
@@ -74,13 +77,13 @@ void uiSurfaceMan::selChg( CallBacker* cb )
 {
     entrylist->setCurrent( listfld->currentItem() );
     ioobj = entrylist->selected();
+
     mkFileInfo();
     manipgrp->selChg( cb );
 
     BufferString msg;
     GetFreeMBOnDiskMsg( GetFreeMBOnDisk(ioobj), msg );
     toStatusBar( msg );
-
 }
 
 
@@ -88,11 +91,33 @@ void uiSurfaceMan::remPush( CallBacker* )
 {
     if ( !attribfld->size() || !attribfld->nrSelected() ) return;
     
+    mDynamicCastGet(StreamConn*,conn,ioobj->getConn(Conn::Read))
+    if ( !conn ) return;
+
     const char* attrnm = attribfld->getText();
+    int gap = 0;
+    for ( int idx=0; ; idx++ )
+    {
+	if ( gap > 100 ) return;
 
-// TODO: remove correct attribute file
+	BufferString fnm(
+		EM::dgbSurfDataWriter::createHovName(conn->fileName(),idx) );
+	if ( File_isEmpty(fnm) )
+	{ gap++; continue; }
 
-    return;
+	EM::dgbSurfDataReader rdr( fnm );
+	BufferString datanm = rdr.dataName();
+	if ( datanm == attrnm )
+	{
+	    BufferString msg( "Remove attribute: '" );
+	    msg += datanm; msg += "'?";
+	    if ( uiMSG().askGoOn( msg ) )
+		File_remove( (const char*)fnm, 0, 0 );
+
+	    selChg(this);
+	    return;
+	}
+    }
 }
 
 
@@ -137,20 +162,13 @@ void uiSurfaceMan::mkFileInfo()
     txt = "Inline range: "; mRangeTxt(inl);
     txt += "\nCrossline range: "; mRangeTxt(crl);
 
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    if ( iostrm )
-    {
-	BufferString fname( iostrm->fileName() );
-	if ( !File_isAbsPath(fname) )
-	{
-	    fname = GetDataDir();
-	    fname = File_getFullPath( fname, "Surfaces" );
-	    fname = File_getFullPath( fname, iostrm->fileName() );
-	}
-	txt += "\nLocation: "; txt += File_getPathOnly( fname );
-	txt += "\nFile name: "; txt += File_getFileName( fname );
-	txt += "\nFile size: "; txt += getFileSize( fname );
-    }
+    mDynamicCastGet(StreamConn*,conn,ioobj->getConn(Conn::Read))
+    if ( !conn ) return;
+
+    BufferString fname( conn->fileName() );
+    txt += "\nLocation: "; txt += File_getPathOnly( fname );
+    txt += "\nFile name: "; txt += File_getFileName( fname );
+    txt += "\nFile size: "; txt += getFileSize( fname );
 
     if ( sd.patches.size() > 1 )
     {

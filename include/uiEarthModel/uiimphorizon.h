@@ -7,19 +7,22 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.4 2002-06-05 23:25:31 bert Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.5 2003-08-07 14:35:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "multiid.h"
 
 class CtxtIOObj;
+class uiBinIDSubSel;
+class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
 class uiScaler;
-class uiBinIDSubSel;
+
 
 
 /*! \brief Dialog for horizon selection */
@@ -30,13 +33,17 @@ public:
 			uiImportHorizon(uiParent*);
 			~uiImportHorizon();
 
+    bool		doDisplay() const;
+    MultiID		getSelID() const;
+
 protected:
 
     uiFileInput*	infld;
     uiGenInput*		xyfld;
-    uiIOObjSel*		outfld;
     uiScaler*		scalefld;
     uiBinIDSubSel*	subselfld;
+    uiIOObjSel*		outfld;
+    uiCheckBox*		displayfld;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.11 2003-08-06 15:10:23 nanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.12 2003-08-07 14:35:42 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,17 +62,14 @@ public:
 	    			   ObjectSet< TypeSet<BinIDZValue> >&,
 				   BufferString&);
 
-    static const int	evGetHorData;
+    static const int	evDisplayHorizon;
 
 			// Interaction stuff
-    int			selVisID() const		{ return selvisid_; }
-    ObjectSet< TypeSet<BinIDZValue> >& horData()	{ return horbidzvs_; }
-
+    const MultiID&	selEMID() const			{ return selemid_; }
 
 protected:
 
-    ObjectSet< TypeSet<BinIDZValue> >	horbidzvs_;
-    int			selvisid_;
+    MultiID&		selemid_;
 
     bool		ioHorizon(uiEMPartServer::ExternalType,bool);
     

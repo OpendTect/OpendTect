@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.4 2003-08-05 15:10:46 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.5 2003-08-07 14:35:54 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,19 @@ bool uiWriteSurfaceDlg::acceptOK( CallBacker* )
     if ( !iogrp->processInput() )
 	return false;
 
-    if ( auxDataOnly() )
-	return checkIfAlreadyPresent();
+    if ( !auxDataOnly() )
+	return true;
+
+    BufferString attrnm = iogrp->auxDataName();
+    bool rv = checkIfAlreadyPresent( attrnm.buf() );
+    BufferString msg( "This surface already has an attribute called:\n" );
+    msg += attrnm;
+    msg += "\nDo you wish to overwrite this data?";
+    if ( rv && !uiMSG().askGoOn(msg) )
+	return false;
+
+    if ( attrnm != hor.auxDataName(0) )
+	const_cast<EM::Horizon&>(hor).setAuxDataName( 0, attrnm.buf() );
 
     return true;
 }
@@ -57,9 +68,8 @@ bool uiWriteSurfaceDlg::auxDataOnly() const
 }
 
 
-bool uiWriteSurfaceDlg::checkIfAlreadyPresent()
+bool uiWriteSurfaceDlg::checkIfAlreadyPresent( const char* attrnm )
 {
-    BufferString attrnm = iogrp->auxDataName();
     EM::SurfaceIOData sd;
     EM::EMM().getSurfaceData( hor.id(), sd );
 
@@ -67,18 +77,14 @@ bool uiWriteSurfaceDlg::checkIfAlreadyPresent()
     auxdataidx = -1;
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
     {
-	if ( attrnm == sd.valnames[idx]->buf() )
+	if ( *sd.valnames[idx] == attrnm )
 	{
 	    present = true;
 	    auxdataidx = idx;
 	}
     }
 
-    BufferString msg( "This surface already has an attribute called:\n" );
-    msg += attrnm;
-    msg += "\nDo you wish to overwrite this data?";
-
-    return !(present && !uiMSG().askGoOn(msg) );
+    return present;
 }
 
 
