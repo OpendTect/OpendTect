@@ -4,13 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.13 2002-05-06 13:16:07 kristofer Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.14 2002-05-07 05:30:36 kristofer Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
 #include "visselman.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "errh.h"
 
 #include "Inventor/SoPath.h"
 
@@ -187,7 +188,10 @@ void visBase::DataManager::unRef( int id )
 {
     int idx = getIdx( id );
     if ( idx<0 )
+    {
+	pErrMsg("Internal Error: Trying to remove non-existing id");
 	return;
+    }
 
 #if DEBUG==yes
     if ( !refcounts[idx] )
