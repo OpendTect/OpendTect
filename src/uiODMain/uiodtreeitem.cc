@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.55 2004-10-06 20:10:27 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.56 2004-10-07 19:04:14 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -188,7 +188,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 			tcs->getCreater(idx))
 	if ( !itmcreater ) continue;
 
-	uiTreeItem* res = itmcreater->create( displayid );
+	uiTreeItem* res = itmcreater->create( displayid, treeitem );
 	if ( res )
 	{
 	    treeitem->addChild( res );
@@ -818,7 +818,7 @@ bool uiODFaultStickTreeItem::showSubMenu()
 
 
 
-uiTreeItem* uiODRandomLineTreeItemCreater::create( int visid ) const
+uiTreeItem* uiODRandomLineTreeItemCreater::create( int visid, uiTreeItem*) const
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd, 
 	    	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -1000,7 +1000,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODFaultTreeItemCreater::create( int visid ) const
+uiTreeItem* uiODFaultTreeItemCreater::create( int visid, uiTreeItem* ) const
 {
     return uiVisSurface::isFault(visid) ? new uiODFaultTreeItem(visid) : 0;
 }
@@ -1051,7 +1051,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODHorizonTreeItemCreater::create( int visid ) const
+uiTreeItem* uiODHorizonTreeItemCreater::create( int visid, uiTreeItem* ) const
 {
     return uiVisSurface::isHorizon(visid) ? new uiODHorizonTreeItem(visid) : 0;
 }
@@ -1107,7 +1107,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODWellTreeItemCreater::create( int visid ) const
+uiTreeItem* uiODWellTreeItemCreater::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::WellDisplay*,wd, 
 	    	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -1291,7 +1291,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODPickSetTreeItemCreater::create( int visid ) const
+uiTreeItem* uiODPickSetTreeItemCreater::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PickSetDisplay*, psd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -1524,7 +1524,7 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 }
 
 
-uiTreeItem* uiODInlineTreeItemCreater::create( int visid ) const
+uiTreeItem* uiODInlineTreeItemCreater::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd, 
 	    	    ODMainWin()->applMgr().visServer()->getObject(visid))
@@ -1548,7 +1548,7 @@ uiODInlineTreeItem::uiODInlineTreeItem( int id )
 {}
 
 
-uiTreeItem* uiODCrosslineTreeItemCreater::create( int visid ) const
+uiTreeItem* uiODCrosslineTreeItemCreater::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -1572,7 +1572,7 @@ uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id )
 {}
 
 
-uiTreeItem* uiODTimesliceTreeItemCreater::create( int visid ) const
+uiTreeItem* uiODTimesliceTreeItemCreater::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));

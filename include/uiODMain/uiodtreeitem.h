@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.5 2004-06-23 15:19:21 nanne Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.6 2004-10-07 19:04:19 nanne Exp $
 ________________________________________________________________________
 
 
@@ -68,7 +68,7 @@ class uiODTreeItemCreater : public uiTreeItemCreater
 {
 public:
 
-    virtual uiTreeItem*	create(int visid) const = 0;
+    virtual uiTreeItem*	create(int visid,uiTreeItem*) const = 0;
 
 };
 
