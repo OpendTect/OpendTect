@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.39 2004-08-10 12:25:50 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.40 2004-08-18 15:08:03 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -529,19 +529,25 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    trackmnu->insertItem( new uiMenuItem("Start tracking ..."), 
 		    		  trackmnuid );
 	    tracksetupmnuid = -1;
-	    toogletrackingmnuid = -1;
+	    toggletrackingmnuid = -1;
+	    addsectionmnuid = -1;
 	}
 	else
 	{
 	    trackmnuid = -1;
+
+	    addsectionmnuid = menu->getFreeID();
+	    trackmnu->insertItem( new uiMenuItem("Add section ..."),
+		    		  addsectionmnuid );
+
 	    tracksetupmnuid = menu->getFreeID();
 	    trackmnu->insertItem( new uiMenuItem("Change setup ..."),
 		    		  tracksetupmnuid );
 
-	    uiMenuItem* tracktooglemnuitem = new uiMenuItem("Enable tracking");
-	    toogletrackingmnuid = menu->getFreeID();
-	    trackmnu->insertItem( tracktooglemnuitem, toogletrackingmnuid );
-	    tracktooglemnuitem->setChecked(
+	    uiMenuItem* tracktogglemnuitem = new uiMenuItem("Enable tracking");
+	    toggletrackingmnuid = menu->getFreeID();
+	    trackmnu->insertItem( tracktogglemnuitem, toggletrackingmnuid );
+	    tracktogglemnuitem->setChecked(
 		    applMgr()->trackServer()->isTrackingEnabled(mid) );
 	}
 
@@ -613,12 +619,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	if ( uivissurf->isHorizon(displayid) )
 	{
 	    applMgr()->trackServer()->setDisplayID( displayid );
-	    applMgr()->trackServer()->addHorizonTracker( mid, false );
+	    applMgr()->trackServer()->trackExistingSurface( mid, true );
 	}
 	else if ( uivissurf->isFault(displayid) )
 	{
 	    applMgr()->trackServer()->setDisplayID( displayid );
-	    applMgr()->trackServer()->addFaultTracker( mid, false );
+	    applMgr()->trackServer()->trackExistingSurface( mid, false );
 	}
     }
     else if ( mnuid==tracksetupmnuid )
@@ -666,10 +672,16 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	const bool terminate = mnuid == terminatemnuid;
 	applMgr()->trackServer()->handleTrackerMenu( mid, section, terminate );
     }
-    else if ( mnuid==toogletrackingmnuid )
+    else if ( mnuid==toggletrackingmnuid )
     {
 	applMgr()->trackServer()->enableTracking(mid,
 		!applMgr()->trackServer()->isTrackingEnabled(mid));
+    }
+    else if ( mnuid==addsectionmnuid )
+    {
+	bool ishor = uivissurf->isHorizon( displayid );
+	applMgr()->trackServer()->setDisplayID( displayid );
+	applMgr()->trackServer()->addNewSection( mid, ishor );
     }
 }
 
@@ -902,7 +914,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	uiTrackingPartServer* ts = applMgr()->trackServer();
 	ts->setSceneID( sceneID() );
 	ts->setAttribDescSet( applMgr()->attrServer()->curDescSet() );
-	ts->addFaultTracker( "", true );
+	ts->addSurfaceTracker(false);
 	return true;
     }
 
@@ -958,7 +970,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	uiTrackingPartServer* ts = applMgr()->trackServer();
 	ts->setSceneID( sceneID() );
 	ts->setAttribDescSet( applMgr()->attrServer()->curDescSet() );
-	ts->addHorizonTracker( "", true );
+	ts->addSurfaceTracker( true );
 	return true;
     }
 
