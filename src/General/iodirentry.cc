@@ -6,7 +6,7 @@
 
 -*/
  
-static const char* rcsID = "$Id: iodirentry.cc,v 1.11 2004-10-20 14:41:51 bert Exp $";
+static const char* rcsID = "$Id: iodirentry.cc,v 1.12 2004-11-09 10:24:52 nanne Exp $";
 
 #include "iodirentry.h"
 #include "ctxtioobj.h"
@@ -23,8 +23,8 @@ bool IODirEntry::beingsorted = false;
 
 
 IODirEntry::IODirEntry( IOObj* iob, int selres, bool maychgdir )
-	: UserIDObject("")
-	, ioobj(iob)
+    : UserIDObject("")
+    , ioobj(iob)
 {
     if ( !maychgdir )
 	*name_ = " ";
@@ -52,9 +52,10 @@ const UserIDString& IODirEntry::name() const
 
 IODirEntryList::IODirEntryList( IODir* id, const TranslatorGroup* tr,
 				bool maycd, const char* f )
-	: UserIDObject(id && id->main()
-		    ? (const char*)id->main()->name():"Objects")
-	, ctxt(*new IOObjContext(tr))
+    : UserIDObject(id && id->main() ? (const char*)id->main()->name()
+	    			    : "Objects")
+    , ctxt(*new IOObjContext(tr))
+    , cur_(-1)
 {
     ctxt.maychdir = maycd;
     ctxt.trglobexpr = f;
