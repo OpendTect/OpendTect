@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.6 2003-02-14 14:58:55 nanne Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.7 2003-02-14 18:22:22 nanne Exp $";
 
 #include "visrandomtrack.h"
 
@@ -236,6 +236,18 @@ visBase::VisColorTab& visBase::RandomTrack::getColorTab()
 { return sections[0]->getTexture2()->getColorTab(); }
 
 
+void visBase::RandomTrack::setMaterial( Material* mat )
+{
+    const int nrsections = sections.size();
+    for ( int idx=0; idx<nrsections; idx++ )
+	sections[idx]->setMaterial( mat );
+}
+
+
+visBase::Material* visBase::RandomTrack::getMaterial()
+{ return sections[0]->getMaterial(); }
+
+
 void visBase::RandomTrack::setData( int section, const Array2D<float>& data )
 {
     Texture2* texture = sections[section]->getTexture2();
@@ -248,10 +260,16 @@ void visBase::RandomTrack::rebuild()
     while ( sections.size()<knots.size()-1 )
     {
 	TriangleStripSet* strip = TriangleStripSet::create();
-	strip->setTexture2( Texture2::create() );
+	Texture2* texture = Texture2::create();
+	strip->setTexture2( texture );
 	strip->ref();
 	if ( sections.size() )
+	{
 	    strip->setCoordinates( sections[0]->getCoordinates() );
+	    strip->getTexture2()->setColorTab( 
+		    sections[0]->getTexture2()->getColorTab() );
+	    strip->setMaterial( sections[0]->getMaterial() );
+	}
 
 	TextureCoords* texturecoords = TextureCoords::create();
 	strip->setTextureCoords( texturecoords );

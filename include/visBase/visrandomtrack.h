@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.6 2003-02-12 12:53:21 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.7 2003-02-14 18:22:29 nanne Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ namespace visBase
 {
 class TriangleStripSet;
 class VisColorTab;
+class Material;
 
 /*!\brief
 
@@ -66,6 +67,10 @@ public:
 
     void			setColorTab( VisColorTab& );
     VisColorTab&		getColorTab();
+
+    void			setMaterial( Material* );
+    Material*			getMaterial();
+
 
     void			setData( int section, const Array2D<float>& );
     				/*!< section ranges from 0 to nrKnots-2 */
