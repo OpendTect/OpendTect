@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.3 2002-04-23 13:13:35 bert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.4 2002-04-23 16:10:33 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,6 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
     tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
 
     machgrp = new uiGroup( this, "Machine handling" );
-    machgrp->attach( alignedBelow, tmpstordirfld );
 
     avmachfld = new uiLabeledListBox( machgrp, "Available hosts", true,
 				      uiLabeledListBox::AboveMid );
@@ -63,6 +62,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const char* prognm, const IOPar& iop )
 
     usedmachgrp->attach( rightOf, addbut );
     avmachfld->attach( heightSameAs, usedmachgrp );
+    machgrp->setHAlignObj( addbut );
+    machgrp->attach( alignedBelow, tmpstordirfld );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep", true );
     sep->attach( stretchedBelow, machgrp );
@@ -104,8 +105,6 @@ void uiSeisMMProc::doFinalise()
 {
     progbar->attach( widthSameAs, machgrp );
     progbar->attach( alignedBelow, progrfld );
-    noprogbarlbl->display(false);
-    noprogbarlbl = 0;
 
     // But we start processing when at least one machine is added.
 }
