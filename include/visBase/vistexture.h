@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.16 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: vistexture.h,v 1.17 2004-01-09 16:26:18 nanne Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,8 @@ class Texture : public DataObject
 {
 public:
     enum		DataType { Color, Transparency,
-				   Hue, Saturation, Brightness };
+				   Hue, Saturation, Brightness, 
+				   Red, Green, Blue };
     bool		turnOn(bool yn);
     bool		isOn()	const;
     			
@@ -112,7 +113,8 @@ private:
     void		makeColorTables();
     void		clearDataCache(bool);
 
-    ObjectSet<float>	datacache;
+    float*		datacache;
+    float*		colordatacache;
     unsigned char*	indexcache;
     int			cachesize;
 
@@ -132,6 +134,7 @@ private:
 
     bool		usetrans;
 
+    DataType		curtype;
     VisColTabMod*	coltabmod;
     VisColorTab*	colortab;
     ObjectSet<visBaseTextureColorIndexMaker> colorindexers;

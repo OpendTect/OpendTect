@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		June 2003
- RCS:		$Id: viscoltabmod.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: viscoltabmod.h,v 1.4 2004-01-09 16:26:18 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,8 @@ public:
     void			doReverse(bool yn)	{ reverse = yn; }
     bool			isReverse() const	{ return reverse; }
 
-    void			setScale(const float*,int,int);
-    const LinScaler&		getScale(int) const;
+    void			setScale(const float*,int);
+    const LinScaler&		getScale() const;
 
     int				usePar( const IOPar& );
     void			fillPar( IOPar&, TypeSet<int>& ) const;
@@ -51,10 +51,7 @@ public:
 protected:
     virtual			~VisColTabMod();
 
-    TypeSet<LinScaler>		datascales;
-    				/*!<\note The first entry is not used since
-				          the color range is in the coltab
-				*/
+    LinScaler&			datascale;
     
     float			cliprate0;
     float			cliprate1;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.3 2003-11-07 12:22:02 bert Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.4 2004-01-09 16:26:08 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,14 +32,14 @@ visBase::VisColTabMod::VisColTabMod()
     , cliprate1(0.025)
     , useclip(true)
     , reverse(false)
+    , datascale( *new LinScaler(0,1) )
 {
-    for ( int idx=0; idx<5; idx++ )
-	datascales += LinScaler( 0, 1 );
 }
 
 
 visBase::VisColTabMod::~VisColTabMod()
 {
+    delete &datascale;
 }
 
 
@@ -65,8 +65,7 @@ void visBase::VisColTabMod::setRange( const Interval<float>& rg )
 }
 
 
-void visBase::VisColTabMod::setScale( const float* values, int nrvalues, 
-				      int datatype )
+void visBase::VisColTabMod::setScale( const float* values, int nrvalues )
 {
     if ( !values ) return;
 
@@ -79,14 +78,14 @@ void visBase::VisColTabMod::setScale( const float* values, int nrvalues,
 	range = clipper.getRange();
     }
 
-    datascales[datatype].factor = 1.0/range.width();
-    datascales[datatype].constant = -range.start * datascales[datatype].factor;
+    datascale.factor = 1.0/range.width();
+    datascale.constant = -range.start * datascale.factor;
 }
 
 
-const LinScaler& visBase::VisColTabMod::getScale( int datatype ) const
+const LinScaler& visBase::VisColTabMod::getScale() const
 {
-    return datascales[datatype];
+    return datascale;
 }
 
 

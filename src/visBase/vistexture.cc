@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.27 2004-01-05 09:43:23 kristofer Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.28 2004-01-09 16:26:08 nanne Exp $";
 
 #include "vistexture.h"
 
@@ -51,11 +51,10 @@ visBase::Texture::Texture()
     , onoff( new SoSwitch )
     , texturegrp( new SoGroup )
     , quality( new SoComplexity )
+    , datacache(0)
+    , colordatacache(0)
+    , curtype(visBase::Texture::Color)
 {
-    datacache.allowNull(true);
-    for ( int idx=0; idx<5; idx++ )
-	datacache += 0;
-
     onoff->ref();
     onoff->addChild( texturegrp );
     texturegrp->insertChild( quality, 0 );
@@ -81,7 +80,8 @@ visBase::Texture::Texture()
 
 visBase::Texture::~Texture()
 {
-    deepEraseArr( datacache );
+    delete [] datacache;
+    delete [] colordatacache;
     delete [] indexcache;
     delete [] colortabcolors;
     setThreadWorker( 0 );
@@ -98,6 +98,9 @@ visBase::Texture::~Texture()
 
     onoff->unref();
     coltabmod->unRef();
+
+    deepErase( texturemakers );
+    deepErase( colorindexers );
 }
 
 
@@ -216,15 +219,13 @@ SoNode* visBase::Texture::getInventorNode()
 
 void visBase::Texture::clearDataCache( bool all )
 {
-    int start = all ? 0 : 1;
-    int stop = 5;
-    for ( int idx=start; idx<stop; idx++ )
+    delete [] colordatacache;
+    colordatacache = 0;
+
+    if ( all )
     {
-	if ( datacache[idx] )
-	{
-	    delete [] datacache[idx];
-	    datacache.replace( 0, idx );
-	}
+	delete [] datacache;
+	datacache = 0;
     }
 }
 
@@ -233,6 +234,7 @@ void visBase::Texture::setResizedData( float* newdata, int sz, DataType dt_ )
 {
     const int dt = (int)dt_;
     clearDataCache( newdata && !dt );
+    curtype = dt_;
 
     if ( !newdata )
     {
@@ -241,7 +243,10 @@ void visBase::Texture::setResizedData( float* newdata, int sz, DataType dt_ )
 	return;
     }
 
-    datacache.replace( newdata, dt );
+    if ( !dt )
+	datacache = newdata;
+    else
+	colordatacache = newdata;
     cachesize = sz;
 
     if ( colortab->autoScale() )
@@ -280,16 +285,11 @@ void visBase::Texture::autoscaleChCB(CallBacker*)
 void visBase::Texture::clipData()
 {
     DataClipper clipper( colortab->clipRate() );
-    for ( int idx=Texture::Transparency; idx<=Texture::Brightness; idx++ )
-    {
-	if ( !datacache[idx] )
-	    continue;
+    if ( colordatacache )
+	coltabmod->setScale( colordatacache, cachesize );
 
-	coltabmod->setScale( datacache[idx], cachesize, idx );
-    }
-
-    if ( datacache[Texture::Color] )
-	colortab->scaleTo( datacache[Texture::Color], cachesize );
+    if ( datacache )
+	colortab->scaleTo( datacache, cachesize );
 }
 
 
@@ -325,7 +325,7 @@ void visBase::Texture::makeColorIndexes()
     delete [] indexcache;
     indexcache = 0;
 
-    if ( !datacache[Texture::Color] ) return;
+    if ( !datacache ) return;
 
     if ( !colorindexers.size() )
     {
@@ -349,7 +349,7 @@ void visBase::Texture::makeColorIndexes()
 	    maker->stop = cachesize;
 
 	maker->indexcache = indexcache;
-	maker->datacache = datacache[Texture::Color];
+	maker->datacache = datacache;
 	maker->colortab = colortab;
     }
 
@@ -398,15 +398,26 @@ public:
     unsigned char*		texture;
     ::Color*			colortabcolors;
     visBase::VisColTabMod*	ctm;
-    const float*		transdata;
-    const float*		huedata;
-    const float*		saturationdata;
-    const float*		brightnessdata;
+    const float*		colordata;
+    visBase::Texture::DataType	datatype;
 
     int				start;
     int				stop;
     bool			usetrans;
 protected:
+
+#define mScaleData(val,type,top,chgrgb) \
+    if ( datatype==visBase::Texture::type ) \
+    { \
+	float fac = ctm->getScale().scale(colordata[idx]); \
+	if ( ctm->isReverse() ) fac = 1 - fac; \
+	float newval = (float)val * fac; \
+	if ( chgrgb ) newval += (float)val; \
+	if ( newval<0 ) newval=0; \
+	else if ( newval>top ) newval=top; \
+	val = mNINT(newval); \
+    }
+
     int	nextStep()
 	{
 	    texture += start*(usetrans ? 4 : 3);
@@ -416,43 +427,25 @@ protected:
 		unsigned char coltabpos = indexcache[idx];
 		Color col = colortabcolors[coltabpos];
 
-		if ( huedata || saturationdata || brightnessdata )
+		if ( colordata )
 		{
-		    unsigned char h, s, v;
-		    col.getHSV(h,s,v);
-		    if ( huedata )
+		    if ( (int)datatype>1 && (int)datatype<5 )
 		    {
-			float th = 255 * ctm->getScale(visBase::Texture::Hue)
-							.scale(huedata[idx]);
-
-			if ( th<0 ) th=0;
-			else if ( th>255 ) th=255;
-			if ( ctm->isReverse() ) th = 255-th;
-
-			h = mNINT(th);
+			unsigned char h, s, v;
+			col.getHSV(h,s,v);
+			mScaleData( h, Hue, 360, false );
+			mScaleData( s, Saturation, 255, false );
+			mScaleData( v, Brightness, 255, false );
+			col.setHSV(h,s,v);
 		    }
-		    if ( saturationdata )
+		    else if ( (int)datatype > 4 )
 		    {
-			float ts = s * 
-			      ctm->getScale(visBase::Texture::Saturation)
-			      .scale(saturationdata[idx]);
-			if ( ts<0 ) ts=0;
-			else if ( ts>255 ) ts=255;
-			if ( ctm->isReverse() ) ts = 255-ts;
-			s = mNINT(ts);
+			int r = col.r(); int g = col.g(); int b = col.b();
+			mScaleData( r, Red, 255, true );
+			mScaleData( g, Green, 255, true );
+			mScaleData( b, Blue, 255, true );
+			col.set( r, g, b );
 		    }
-		    if ( brightnessdata )
-		    {
-			float tv = v * 
-			      ctm->getScale(visBase::Texture::Brightness)
-			      .scale(brightnessdata[idx]);
-			if ( tv<0 ) tv=0;
-			else if ( tv>255 ) tv=255;
-			if ( ctm->isReverse() ) tv = 255-tv;
-			v = mNINT(tv);
-		    }
-
-		    col.setHSV(h,s,v);
 		}
 
 		texture[pos++] = col.r();
@@ -461,11 +454,10 @@ protected:
 
 		if ( usetrans )
 		{
-		    if ( transdata )
+		    if ( colordata && datatype==1 )
 		    {
 			int trans = mNINT( 255 * 
-			    ctm->getScale(visBase::Texture::Transparency)
-			    .scale(transdata[idx]) );
+			    ctm->getScale().scale(colordata[idx]) );
 			if ( trans<0 ) trans=0;
 			else if ( trans>255 ) trans=255;
 			if ( !ctm->isReverse() ) trans = 255-trans;
@@ -518,11 +510,9 @@ void visBase::Texture::makeTexture()
 	maker->indexcache = indexcache;
 	maker->texture = texture;
 	maker->usetrans = usetrans;
-	maker->transdata = datacache[Transparency];
-	maker->huedata = datacache[Hue];
-	maker->saturationdata = datacache[Saturation];
-	maker->brightnessdata = datacache[Brightness];
+	maker->colordata = colordatacache;
 	maker->ctm = coltabmod;
+	maker->datatype = curtype;
     }
 
 
