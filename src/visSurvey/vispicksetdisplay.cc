@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.42 2003-02-14 15:20:07 nanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.43 2003-03-04 15:37:15 nanne Exp $";
 
 #include "vissurvpickset.h"
 
@@ -131,7 +131,7 @@ void visSurvey::PickSetDisplay::showAll(bool yn)
 void visSurvey::PickSetDisplay::filterPicks( ObjectSet<SurveyObject>& objs,
 					     float dist )
 {
-    dist = SI().zRange(false).step * SPM().getZScale() / 2;
+    dist = SI().zRange(false).step * SPM().getZScale() * 1000 / 2;
 
     if ( showall ) return;
     for ( int idx=0; idx<group->size(); idx++ )
