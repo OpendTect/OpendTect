@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.65 2004-12-16 16:31:11 nanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.66 2004-12-23 15:12:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uiattrsurfout.h"
 
 #include "attribdescset.h"
+#include "attribslice.h"
 #include "attribsel.h"
 #include "seisbuf.h"
 #include "binidvalset.h"
@@ -213,6 +214,7 @@ void uiODApplMgr::enableSceneMenu( bool yn )
     sceneMgr().disabRightClick( !yn );
     if ( !yn ) sceneMgr().setToViewMode();
     menuMgr().dtectTB()->setSensitive( yn );
+    menuMgr().manTB()->setSensitive( yn );
     menuMgr().enableActButton( yn );
     menuMgr().enableMenuBar( yn );
 }
@@ -327,7 +329,7 @@ void uiODApplMgr::storeSurface( int visid, bool storeas )
 	}
 
 	if ( as && as->id() >= 0 )
-	    emserv->setDataVal( *visserv->getMultiID(visid), bivs, dispname );
+	    emserv->setAuxData( *visserv->getMultiID(visid), bivs, dispname );
     }
 
     emserv->storeObject( *visserv->getMultiID(visid), storeas );
@@ -486,25 +488,34 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 
 bool uiODApplMgr::evaluateAttribute( int visid )
 {
-    /* TODO: Perhaps better to merge this with uiODApplMgr::getNewData(), 
+    /* Perhaps better to merge this with uiODApplMgr::getNewData(), 
        for now it works */
     int format = visserv->getAttributeFormat( visid );
     if ( format == 0 )
     {
 	const CubeSampling cs = visserv->getCubeSampling( visid );
-	visserv->setCubeData( visid, false, attrserv->createSliceSet(cs) );
+	AttribSliceSet* slices = new AttribSliceSet;
+	if ( !attrserv->createOutput( cs, slices ) )
+	{ delete slices; slices = 0; }
+	visserv->setCubeData( visid, false, slices );
     }
     else if ( format == 2 )
     {
 	ObjectSet<BinIDValueSet> data;
 	visserv->fetchSurfaceData( visid, data );
-	attrserv->createOutput( attrserv->curDescSet(), data );
-	visserv->stuffSurfaceData( visid, false, &data );
+
+	attrserv->createOutput( data );
+	BufferStringSet attribnms;
+	attrserv->getTargetAttribNames( attribnms );
+	emserv->setAuxData( *visserv->getMultiID(visid), data, attribnms );
 	deepErase( data );
+
+	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
+	sd->updateTexture();
     }
     else
     {
-	uiMSG().error( "Cannot evaluate this attribute on this object" );
+	uiMSG().error( "Cannot evaluate attributes on this object" );
 	return false;
     }
 
@@ -898,7 +909,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	AttribSelSpec as;
 	attrserv->getDirectShowAttrSpec( as );
-	int visid = visserv->getEventObjId();
+	const int visid = visserv->getEventObjId();
 	visserv->setSelSpec( visid, as );
 	getNewData( visid, false );
 	sceneMgr().updateTrees();
@@ -911,25 +922,56 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	enableSceneMenu( true );
     }
-    else if ( evid==uiAttribPartServer::evEvaluateAttr )
+    else if ( evid==uiAttribPartServer::evEvalAttrInit )
     {
-	int visid = visserv->getEventObjId();
+	const int format = 
+	    	visserv->getAttributeFormat( visserv->getEventObjId() );
+	const bool alloweval = format==0 || format==2;
+	const bool allowstorage = format==2;
+	attrserv->setEvaluateInfo( alloweval, allowstorage );
+    }
+    else if ( evid==uiAttribPartServer::evEvalCalcAttr )
+    {
+	const int visid = visserv->getEventObjId();
 	AttribSelSpec as( "Evaluation", AttribSelSpec::otherAttrib );
 	visserv->setSelSpec( visid, as );
 	if ( !evaluateAttribute(visid) )
 	    return false;
 	sceneMgr().updateTrees();
     }
-    else if ( evid==uiAttribPartServer::evShowAttrSlice )
+    else if ( evid==uiAttribPartServer::evEvalShowSlice )
     {
-	int visid = visserv->getEventObjId();
-	visserv->selectTexture( visid, attrserv->getSliceIdx() );
+	const int visid = visserv->getEventObjId();
+	const int sliceidx = attrserv->getSliceIdx();
+	visserv->selectTexture( visid, sliceidx );
 	modifyColorTable( visid );
+	sceneMgr().updateTrees();
+    }
+    else if ( evid==uiAttribPartServer::evEvalStoreSlices )
+    {
+	const int visid = visserv->getEventObjId();
+	const int format = visserv->getAttributeFormat( visid );
+	if ( format != 2 ) return false;
+	emserv->storeAuxData( *visserv->getMultiID(visid) );
     }
     else
 	pErrMsg("Unknown event from attrserv");
 
     return true;
+}
+
+
+void uiODApplMgr::pageUpDownPressed( bool up )
+{
+    const int visid = visserv->getEventObjId();
+    const int format = visserv->getAttributeFormat( visid );
+    if ( format != 2 ) return;
+
+    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
+    if ( !sd ) return;
+    sd->showNextTexture( up );
+    modifyColorTable( visid );
+    sceneMgr().updateTrees();
 }
 
 
@@ -946,7 +988,7 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
     visserv->stuffSurfaceData( visid, false, &data );
     deepErase( data );
 
-    mDynamicCastGet( visSurvey::SurfaceDisplay*, sd, visserv->getObject(visid));
+    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
     sd->setShift( shift );
 
     setHistogram( visid );

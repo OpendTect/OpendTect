@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.62 2004-12-15 16:02:38 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.63 2004-12-23 15:12:56 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -554,8 +554,9 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     uiPopupMenu* attrmnu = menu->getMenu( attrselmnutxt );
     if ( attrmnu )
     {
-	attribstartmnuid = menu->getCurrentID();
 	const AttribSelSpec* as = visserv->getSelSpec(displayid);
+	/*
+	attribstartmnuid = menu->getCurrentID();
 	const bool hasauxdata = as && as->id() == -1;
 	int nraddeditems = applMgr()->EMServer()->createAuxDataSubMenu(
 				*attrmnu, attribstartmnuid, mid, hasauxdata );
@@ -564,6 +565,10 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    menu->getFreeID();
 
 	attribstopmnuid = menu->getCurrentID()-1;
+	*/
+
+	multidatamnuid = attrmnu->insertItem( 
+					new uiMenuItem("Surface data ...") );
 
 	uiMenuItem* depthvalmnuitm = new uiMenuItem("Depth");
 	depthvalmnuid = attrmnu->insertItem( depthvalmnuitm );
@@ -712,7 +717,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid>=attribstartmnuid && mnuid<=attribstopmnuid )
     {
 	menu->setIsHandled(true);
-	if ( applMgr()->EMServer()->loadAuxData(mid, mnuid-attribstartmnuid) )
+	if ( applMgr()->EMServer()->loadAuxData(mid,mnuid-attribstartmnuid) )
 	    applMgr()->handleStoredSurfaceData( displayid );
     }
     else if ( mnuid == relmnuid )
@@ -740,6 +745,13 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	applMgr()->trackServer()->extendSection( mid, section );
+    }
+    else if ( mnuid==multidatamnuid )
+    {
+	menu->setIsHandled(true);
+	applMgr()->EMServer()->loadAuxData(mid);
+	uivissurf->updateTexture();
+	ODMainWin()->sceneMgr().updateTrees();
     }
 }
 
