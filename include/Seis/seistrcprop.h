@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.4 2004-08-27 12:12:04 bert Exp $
+ RCS:		$Id: seistrcprop.h,v 1.5 2004-10-19 12:48:21 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ public:
     void	puttr(const SUsegy&);
     void	stack(const SeisTrc&,bool alongref=NO);
     void	scale(float fac,float shft=0);
-    void	normalize();
+    void	normalize(bool aroundzero);
     void	corrNormalize();
     void	removeDC();
     void	mute(float pos,float taperlen)		{topMute(pos,taperlen);}

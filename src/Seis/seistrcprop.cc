@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.7 2004-08-27 12:11:09 bert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.8 2004-10-19 12:48:21 bert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -248,7 +248,7 @@ void SeisTrcPropChg::scale( float fac, float shft )
 }
 
 
-void SeisTrcPropChg::normalize()
+void SeisTrcPropChg::normalize( bool aroundzero )
 {
     mStartCompLoop
     const int sz = trc.size( icomp );
@@ -256,11 +256,24 @@ void SeisTrcPropChg::normalize()
 
     float val = trc.get( 0, icomp );
     Interval<float> rg( val, val );
+    if ( aroundzero )
+	rg.start = rg.stop = 0;
+
     for ( int idx=1; idx<sz; idx++ )
     {
         val = trc.get( idx, icomp );
-	if ( val < rg.start ) rg.start = val;
-	if ( val > rg.stop ) rg.stop = val;
+	if ( aroundzero )
+	{
+	    if ( val > 0 )
+		{ if ( val > rg.stop ) rg.stop = val; }
+	    else
+		{ if ( val < rg.start ) rg.start = val; }
+	}
+	else
+	{
+	    if ( val < rg.start ) rg.start = val;
+	    if ( val > rg.stop ) rg.stop = val;
+	}
     }
     float diff = rg.stop - rg.start;
     if ( mIsZero(diff,mDefEps) )
@@ -270,10 +283,21 @@ void SeisTrcPropChg::normalize()
     }
     else
     {
-	float a = 2 / diff;
-	float b = 1 - rg.stop * a;
-	for ( int idx=0; idx<sz; idx++ )
-	    mtrc().set( idx, trc.get( idx, icomp ) * a + b, icomp );
+	if ( aroundzero )
+	{
+	    float maxval = -rg.start;
+	    if ( rg.stop > maxval ) maxval = rg.stop;
+	    const float sc = 1. / maxval;
+	    for ( int idx=0; idx<sz; idx++ )
+		mtrc().set( idx, trc.get(idx,icomp) * sc, icomp );
+	}
+	else
+	{
+	    float a = 2 / diff;
+	    float b = 1 - rg.stop * a;
+	    for ( int idx=0; idx<sz; idx++ )
+		mtrc().set( idx, trc.get( idx, icomp ) * a + b, icomp );
+	}
     }
     mEndCompLoop
 }
