@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visrandomtrack.cc,v 1.22 2004-02-02 15:26:00 kristofer Exp $";
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.23 2004-04-27 12:08:31 kristofer Exp $";
 
 #include "visrandomtrack.h"
 
@@ -87,16 +87,7 @@ void visBase::RandomTrack::showDragger( bool yn )
 	}
 
 	draggerswitch->whichChild = 0;
-	if ( dragger->knots.getNum()>knots.size() )
-	    dragger->knots.deleteValues(knots.size());
-
-	for ( int idx=0; idx<knots.size(); idx++ )
-	{
-	    dragger->knots.set1Value( idx, knots[idx].x, knots[idx].y );
-	}
-
-	dragger->z0 = depthrg.start;
-	dragger->z1 = depthrg.stop;
+	moveDraggerToObjectPos();
 
     }
     else if ( !yn && draggerswitch )
@@ -128,6 +119,21 @@ void visBase::RandomTrack::moveObjectToDraggerPos()
     depthrg.stop = dragger->z1.getValue();
     rebuild();
     dragger->showFeedback(false);
+}
+
+
+void visBase::RandomTrack::moveDraggerToObjectPos()
+{
+    if ( dragger->knots.getNum()>knots.size() )
+	dragger->knots.deleteValues(knots.size());
+
+    for ( int idx=0; idx<knots.size(); idx++ )
+    {
+	dragger->knots.set1Value( idx, knots[idx].x, knots[idx].y );
+    }
+
+    dragger->z0 = depthrg.start;
+    dragger->z1 = depthrg.stop;
 }
 
 

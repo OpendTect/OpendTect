@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.18 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.19 2004-04-27 12:08:27 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,7 @@ public:
     void			showDragger( bool yn );
     bool			isDraggerShown() const;
     void			moveObjectToDraggerPos();
+    void			moveDraggerToObjectPos();
 
     int				nrKnots() const;
     void			addKnot(const Coord& );
