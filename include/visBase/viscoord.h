@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.9 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: viscoord.h,v 1.10 2004-11-02 10:42:48 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "visdata.h"
 
 class SoCoordinate3;
+class SoGroup;
+class UTMPosition;
 class Executor;
 
 namespace Geometry { class PosIdHolder; }
@@ -68,10 +70,12 @@ protected:
     			/*!< Object should be locked when calling */
 
     			~Coordinates();
-     SoCoordinate3*	coords;
-     TypeSet<int>	unusedcoords;
-     Threads::Mutex&	mutex;
-     Transformation*	transformation;
+    SoCoordinate3*	coords;
+    SoGroup*		root;
+    UTMPosition*	utmposition;
+    TypeSet<int>	unusedcoords;
+    Threads::Mutex&	mutex;
+    Transformation*	transformation;
 };
 
 class CoordinateMessage
