@@ -26,14 +26,9 @@
 #include "strmoper.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.20 2002-05-16 08:48:34 bert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.21 2002-05-16 09:14:39 bert Exp $";
 
 static FixedString<1024> oscommand;
-#ifdef __msvc__
-#define ExecOSCmd(comm) false
-#else
-#define mExecCmd(comm) (system((const char*)comm) ? false : true)
-#endif
 
 DefineClassID(StreamProvider);
 const char* StreamProvider::sStdIO = "Std-IO";
@@ -44,7 +39,8 @@ bool ExecOSCmd( const char* comm )
 #ifdef __msvc__
     return false;
 #else
-    return !comm || !*comm || system(comm) ? false : true;
+    if ( !comm || !*comm ) return false;
+    return system(comm) ? false : true;
 #endif
 }
 
