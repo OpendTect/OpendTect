@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.1 2002-07-12 07:31:38 kristofer Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.2 2002-07-12 09:39:05 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <Inventor/nodekits/SoSubKit.h>
 #include <Inventor/nodekits/SoBaseKit.h>
 #include <Inventor/fields/SoSFFloat.h>
+#include <Inventor/fields/SoSFBool.h>
 
 
 /*!\brief
@@ -45,7 +46,7 @@ public:
     static void		initClass(void);
 
 
-    SoSFFloat		active;
+    SoSFBool		active;
     SoSFFloat		projectedSize;
 
 protected:
