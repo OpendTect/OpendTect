@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.5 2001-05-07 11:38:32 bert Exp $
+ RCS:           $Id: ptrman.h,v 1.6 2002-01-24 21:00:28 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,11 +22,12 @@ class Clss \
 { \
 public: \
 \
-				Clss( T* ptr=0 ) : ptr_( ptr )	{} \
+				Clss( T* p=0 ) : ptr_( p )	{} \
 				~Clss()		{ erase(); } \
-    inline Clss<T>&		operator=( T* ptr ) \
-				{ erase(); ptr_ = ptr; return *this; } \
+    inline Clss<T>&		operator=( T* p ) \
+				{ erase(); ptr_ = p; return *this; } \
 \
+    inline T*			ptr()		{ return ptr_; } \
     inline			operator T*()	{ return ptr_; } \
     inline T*			operator ->()	{ return ptr_; } \
     inline T&			operator *()	{ return *ptr_; } \
@@ -34,12 +35,12 @@ public: \
 #define mDefPtrMan2(Clss,ArrBrIfNec) \
     inline bool			operator ==( const Clss& p ) const \
 				{ return ptr_ == p.ptr_; } \
-    inline bool			operator ==( const T* ptr ) const \
-				{ return ptr_ == ptr; } \
+    inline bool			operator ==( const T* p ) const \
+				{ return ptr_ == p; } \
     inline bool			operator !=( const Clss& p ) const \
 				{ return ptr_ != p.ptr_; } \
-    inline bool			operator !=( const T* ptr ) const \
-				{ return ptr_ != ptr; } \
+    inline bool			operator !=( const T* p ) const \
+				{ return ptr_ != p; } \
 \
     inline bool			operator !() const { return !ptr_; } \
 
