@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.18 2002-04-18 09:51:15 bert Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.19 2002-04-19 08:57:30 kristofer Exp $";
 
 #include "vissurvscene.h"
 #include "visdataman.h"
@@ -23,6 +23,7 @@ visSurvey::Scene::Scene()
     , timetransformation( visBase::Transformation::create() )
     , appvel( 0 )
     , appvelchange( this )
+    , annot( 0 )
 {
     visBase::Transformation* reversedz = visBase::Transformation::create();
     addObject( reversedz );
@@ -87,7 +88,7 @@ visSurvey::Scene::Scene()
     BinIDRange hrg = SI().range();
     StepInterval<double> vrg = SI().zRange();
 
-    visBase::Annotation* annot = visBase::Annotation::create();
+    annot = visBase::Annotation::create();
     annot->setCorner( 0, hrg.start.inl, hrg.start.crl, vrg.start );
     annot->setCorner( 1, hrg.stop.inl, hrg.start.crl, vrg.start );
     annot->setCorner( 2, hrg.stop.inl, hrg.stop.crl, vrg.start );
@@ -169,6 +170,18 @@ void visSurvey::Scene::setApparentVel( float a )
 	0,	0,	0,		1 );
 
     appvelchange.trigger();
+}
+
+
+void visSurvey::Scene::showAnnotText( bool yn )
+{
+    annot->showText( yn );
+}
+
+
+bool  visSurvey::Scene::isAnnotTextShown() const
+{
+    return annot->isTextShown();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.11 2002-04-15 09:41:47 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.12 2002-04-19 08:57:09 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "visscene.h"
 
-namespace visBase { class Transformation; };
+namespace visBase { class Transformation; class Annotation; };
 
 namespace visSurvey
 {
@@ -44,6 +44,9 @@ public:
     float			apparentVel() const;
     void			setApparentVel( float );
 
+    void			showAnnotText( bool yn );
+    bool			isAnnotTextShown() const;
+
     Notifier<Scene>		appvelchange;
 
 protected:
@@ -51,6 +54,7 @@ protected:
 
     visBase::Transformation*	timetransformation;
     visBase::Transformation*	inlcrltransformation;
+    visBase::Annotation*	annot;
 
 private:
     float			appvel;
