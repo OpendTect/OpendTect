@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.9 2003-10-17 14:59:48 nanne Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.10 2003-10-22 15:27:58 nanne Exp $
 ________________________________________________________________________
 
 
@@ -45,12 +45,16 @@ public:
     const LineStyle&		lineStyle() const;
     void			setLineStyle(const LineStyle&);
 
-    void			showWellText(bool);
-    bool			isWellTextShown() const;
+    void			showWellName(bool);
+    bool			wellNameShown() const;
 
     void			addMarkers();
     void			showMarkers(bool);
     bool			markersShown() const;
+    void			showMarkerName(bool);
+    bool			markerNameShown() const;
+    void			setMarkerSize(int);
+    int				markerSize() const;
 
     void			displayLog(int idx,int nr,
 	    				   const Interval<float>&);
@@ -60,6 +64,8 @@ public:
     void			setLogColor(const Color&,int);
     void			showLogs(bool);
     bool			logsShown() const;
+    void			showLogName(bool);
+    bool			logNameShown() const;
 
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);

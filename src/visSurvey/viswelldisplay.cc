@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.18 2003-10-17 14:59:43 nanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.19 2003-10-22 15:27:53 nanne Exp $";
 
 #include "vissurvwell.h"
 #include "viswell.h"
@@ -77,7 +77,7 @@ bool WellDisplay::setWellId( const MultiID& multiid )
     }
 
     well->setTrack( track );
-    well->setWellText( wd->name(), track.size() ? track[0] : Coord3(0,0,0) );
+    well->setWellName( wd->name(), track.size() ? track[0] : Coord3(0,0,0) );
     addMarkers();
 
     return true;
@@ -96,18 +96,6 @@ void WellDisplay::setLineStyle( const LineStyle& lst )
 }
 
 
-void WellDisplay::showWellText( bool yn )
-{
-    well->showWellText( yn );
-}
-
-
-bool WellDisplay::isWellTextShown() const
-{
-    return well->isWellTextShown();
-}
-
-
 void WellDisplay::addMarkers()
 {
     Well::Data* wd = Well::MGR().get( wellid );
@@ -123,24 +111,36 @@ void WellDisplay::addMarkers()
 	if ( zistime )
 	    pos.z = wd->d2TModel()->getTime( pos.z );
 
-	well->addMarker( pos, wellmarker->color );
+	well->addMarker( pos, wellmarker->color, wellmarker->name() );
     }
 
-    well->setMarkerScale( Coord3(4,4,1/SPM().getZScale()) );
-    well->setMarkerSize( 3 );
+    well->setMarkerScale( Coord3(1,1,1/(4*SPM().getZScale())) );
 }
 
 
-void WellDisplay::showMarkers( bool yn )
-{
-    well->showMarkers( yn );
-}
+void WellDisplay::setMarkerSize( int sz )
+{ well->setMarkerSize( sz ); }
+
+int WellDisplay::markerSize() const
+{ return well->markerSize(); }
 
 
-bool WellDisplay::markersShown() const
-{
-    return well->markersShown();
+#define mShowFunction( showObj, objShown ) \
+void WellDisplay::showObj( bool yn ) \
+{ \
+    well->showObj( yn ); \
+} \
+\
+bool WellDisplay::objShown() const \
+{ \
+    return well->objShown(); \
 }
+
+mShowFunction( showWellName, wellNameShown )
+mShowFunction( showMarkers, markersShown )
+mShowFunction( showMarkerName, markerNameShown )
+mShowFunction( showLogs, logsShown )
+mShowFunction( showLogName, logNameShown )
 
 
 void WellDisplay::displayLog( int logidx, int lognr, 
@@ -184,18 +184,6 @@ void WellDisplay::setLogColor( const Color& col, int logidx )
 }
 
 
-void WellDisplay::showLogs( bool yn )
-{
-    well->showLogs( yn );
-}
-
-
-bool WellDisplay::logsShown() const
-{
-    return well->logsShown();
-}
-
-
 void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
@@ -224,9 +212,9 @@ int WellDisplay::usePar( const IOPar& par )
 	setLineStyle( lst );
     }
 
-    bool welltxtshown = true;
-    par.getYN( visBase::Well::showwellnmstr, welltxtshown );
-    showWellText( welltxtshown );
+    bool wellnmshown = true;
+    par.getYN( visBase::Well::showwellnmstr, wellnmshown );
+    showWellName( wellnmshown );
 
     return 1;
 }
