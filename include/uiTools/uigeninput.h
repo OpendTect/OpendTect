@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.12 2001-05-14 12:20:26 arend Exp $
+ RCS:           $Id: uigeninput.h,v 1.13 2001-06-03 08:55:32 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uigroup.h>
-#include <ranges.h>
+#include <datainpspec.h>
 #include <position.h>
 
 class uiLineEdit;
