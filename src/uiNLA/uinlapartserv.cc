@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.16 2005-02-08 16:57:12 bert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.17 2005-03-25 13:26:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "uiexecutor.h"
 #include "uiposdataedit.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
 #include "debug.h"
 #include "ioman.h"
@@ -192,27 +193,49 @@ const char* uiNLAPartServer::prepareInputData(
     ObjectSet<PosVecDataSet> vdss;
     vdss += &trainvds; vdss += &testvds;
     uiPosDataEdit dlg( appserv().parent(), vdss );
-    return dlg.go() ? 0 : "User cancel";
+    dlg.saveData.notify( mCB(this,uiNLAPartServer,writeSets) );
+    if ( dlg.go() )
+	return 0;
+
+    trainvds.data().empty(); testvds.data().empty();
+    return "User cancel";
 }
 
 
 #define mErrRet(s) { return; }
 
-void uiNLAPartServer::writeSets( CallBacker* )
+void uiNLAPartServer::writeSets( CallBacker* cb )
 {
-    uiMSG().error( "TODO: Write sets must be from pos data editor" );
-    /*
-    FeatureSet fswrite( trainvds );
-    fswrite.addData( testvds.data() );
-    fswrite.pars() = storepars;
+    mDynamicCastGet(uiPosDataEdit*,dlg,cb)
+    if ( !dlg ) { pErrMsg("Huh"); return; }
 
-    PtrMan<IOObj> ioobj = IOM().get( fsid );
-    if ( !ioobj )
-	return "Cannot initialise training set storage ...";
-    ioobj->pars().setYN( FeatureSetTranslator::sKeyDoVert, true );
-    if ( !fswrite.put(ioobj) )
-	return "Cannot put training set data ...";
+    const int tblidx = dlg->saveTableNo();
+    PosVecDataSet savevds; savevds.copyStructureFrom( trainvds );
+    for ( int idx=0; idx<2; idx++ )
+    {
+	if ( tblidx >= 0 && idx != tblidx )
+	    continue;
+	dlg->getTableData( idx, savevds.data() );
+    }
+    if ( savevds.data().isEmpty() )
+	{ uiMSG().error( "Empty data set" ); return; }
+
+    CtxtIOObj ctio( FeatureSetTranslatorGroup::ioContext() );
+    ctio.ctxt.forread = false;
+    uiIOObjSelDlg seldlg( appserv().parent(), ctio );
+    if ( !seldlg.go() )
+	return;
+    ctio.setObj( seldlg.ioObj()->clone() );
+
+    FeatureSet fswrite( savevds );
+    fswrite.pars() = storepars;
+    fswrite.pars().set( sKey::Type, "MVA Data" );
+    ctio.ioobj->pars().setYN( FeatureSetTranslator::sKeyDoVert, true );
+
+    bool isok = fswrite.put( ctio.ioobj );
+    ctio.setObj( 0 );
+    if ( !isok )
+	{ uiMSG().error( "Cannot write data set" ); return; }
 
     fswrite.close();
-    */
 }
