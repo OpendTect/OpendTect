@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.6 2001-04-04 15:06:59 bert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.7 2001-04-05 16:18:47 bert Exp $";
 
 #include "cbvswriter.h"
 #include "datainterp.h"
@@ -23,12 +23,9 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
 	: strm_(*s)
 	, expldat(e)
 	, thrbytes_(0)
-	, errmsg_(0)
-	, strmclosed(false)
 	, finishing_inline(false)
 	, previnl(-999)
 	, trcswritten(0)
-	, nrxlines(1)
 	, nrtrcsperposn(i.nrtrcsperposn)
 	, explinfo(i.explinfo)
 	, survgeom(i.geom)
@@ -44,7 +41,7 @@ CBVSWriter::CBVSWriter( ostream* s, const CBVSInfo& i,
       && !explinfo.pick && !explinfo.refpos )
 	expldat = 0;
 
-    writeHdr( i ); if ( *(const char*)errmsg_ ) return;
+    writeHdr( i ); if ( errmsg_ ) return;
 
     streampos datastart = strm_.tellp();
     strm_.seekp( 8 );
@@ -73,13 +70,20 @@ void CBVSWriter::writeHdr( const CBVSInfo& info )
     if ( !strm_.write(ucbuf,headstartbytes) )
 	mErrRet("Cannot start writing to file")
 
+    int sz = info.stdtext.size();
+    strm_.write( &sz, integersize );
+    strm_.write( (const char*)info.stdtext, sz );
+
     writeComps( info );
     geomfo = strm_.tellp();
     writeGeom();
     strm_.write( &info.seqnr, integersize );
-    int len = info.usertext.size();
+    BufferString bs( info.usertext );
+    int len = bs.size();
+    while ( len % 4 )
+	{ bs += " "; len = bs.size(); }
     strm_.write( &len, integersize );
-    strm_.write( (const char*)info.usertext, len );
+    strm_.write( (const char*)bs, len );
 
     if ( !strm_.good() ) mErrRet("Could not write complete header");
 }
@@ -98,19 +102,15 @@ void CBVSWriter::putExplicits( unsigned char* ptr ) const
 
 void CBVSWriter::writeComps( const CBVSInfo& info )
 {
-    int sz = info.stdtext.size();
-    strm_.write( &sz, integersize );
-    strm_.write( (const char*)info.stdtext, sz );
+    nrcomps_ = info.compinfo.size();
+    strm_.write( &nrcomps_, integersize );
 
-    nrcomps = info.compinfo.size();
-    strm_.write( &nrcomps, integersize );
+    cnrbytes_ = new int [nrcomps_];
 
-    cnrbytes_ = new int [nrcomps];
-
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	CBVSComponentInfo& cinf = *info.compinfo[icomp];
-	sz = cinf.name().size();
+	int sz = cinf.name().size();
 	strm_.write( &sz, integersize );
 	strm_.write( (const char*)cinf.name(), sz );
 	unsigned short dcdump = cinf.datachar.dump();
@@ -136,8 +136,8 @@ void CBVSWriter::writeGeom()
     if ( survgeom.fullyrectandreg )
     {
 	irect = 1;
-	nrxlines = (survgeom.stop.crl - survgeom.start.crl)
-		 / survgeom.step.crl + 1;
+	nrxlines_ = (survgeom.stop.crl - survgeom.start.crl)
+		  / survgeom.step.crl + 1;
     }
     strm_.write( &irect, integersize );
     strm_.write( &nrtrcsperposn, integersize );
@@ -151,11 +151,11 @@ void CBVSWriter::writeGeom()
 
 void CBVSWriter::newSeg()
 {
-    if ( !trcswritten ) previnl = curbid.inl;
+    if ( !trcswritten ) previnl = curbinid_.inl;
 
-    inldata += new CBVSInfo::SurvGeom::InlineInfo( curbid.inl );
+    inldata += new CBVSInfo::SurvGeom::InlineInfo( curbinid_.inl );
     inldata[inldata.size()-1]->segments +=
-	    CBVSInfo::SurvGeom::InlineInfo::Segment(curbid.crl,curbid.crl,1);
+	CBVSInfo::SurvGeom::InlineInfo::Segment(curbinid_.crl,curbinid_.crl,1);
 }
 
 
@@ -164,15 +164,15 @@ void CBVSWriter::getBinID()
     if ( survgeom.fullyrectandreg || !expldat )
     {
 	int posidx = trcswritten / nrtrcsperposn;
-	curbid.inl = survgeom.start.inl
-		   + survgeom.step.inl * (posidx / nrxlines);
-	curbid.crl = survgeom.start.crl
-		   + survgeom.step.crl * (posidx % nrxlines);
+	curbinid_.inl = survgeom.start.inl
+		   + survgeom.step.inl * (posidx / nrxlines_);
+	curbinid_.crl = survgeom.start.crl
+		   + survgeom.step.crl * (posidx % nrxlines_);
     }
     else if ( !(trcswritten % nrtrcsperposn) )
     {
-	curbid = expldat->binid;
-	if ( !trcswritten || previnl != curbid.inl )
+	curbinid_ = expldat->binid;
+	if ( !trcswritten || previnl != curbinid_.inl )
 	    newSeg();
 	else
 	{
@@ -181,18 +181,18 @@ void CBVSWriter::getBinID()
 				inlinf.segments[inlinf.segments.size()-1];
 	    if ( seg.stop == seg.start )
 	    {
-		if ( seg.stop != curbid.crl )
+		if ( seg.stop != curbinid_.crl )
 		{
-		    seg.stop = curbid.crl;
+		    seg.stop = curbinid_.crl;
 		    seg.step = seg.stop - seg.start;
 		}
 	    }
 	    else
 	    {
-		if ( curbid.crl != seg.stop + seg.step )
+		if ( curbinid_.crl != seg.stop + seg.step )
 		    newSeg();
 		else
-		    seg.stop = curbid.crl;
+		    seg.stop = curbinid_.crl;
 	    }
 	}
     }
@@ -202,7 +202,7 @@ void CBVSWriter::getBinID()
 int CBVSWriter::put( void** cdat )
 {
     getBinID();
-    if ( finishing_inline && previnl != curbid.inl )
+    if ( finishing_inline && previnl != curbinid_.inl )
     {
 	close();
 	return 1;
@@ -211,16 +211,16 @@ int CBVSWriter::put( void** cdat )
     if ( !writeExplicits() )
 	{ errmsg_ = "Cannot write Trace header data"; return -1; }
 
-    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	if ( !writeWithRetry(strm_,cdat[icomp],cnrbytes_[icomp],2,100) )
 	    { errmsg_ = "Cannot write CBVS data"; return -1; }
     }
 
-    if ( strm_.tellp() >= thrbytes_ )
+    if ( thrbytes_ && strm_.tellp() >= thrbytes_ )
 	finishing_inline = true;
 
-    previnl = curbid.inl;
+    previnl = curbinid_.inl;
     trcswritten++;
     return 0;
 }
@@ -245,7 +245,7 @@ bool CBVSWriter::writeExplicits()
 
 void CBVSWriter::close()
 {
-    if ( strmclosed ) return;
+    if ( strmclosed_ ) return;
 
     getRealGeometry();
     if ( survgeom.fullyrectandreg )
@@ -263,7 +263,7 @@ void CBVSWriter::close()
     }
     
     strm_.flush();
-    strmclosed = true;
+    strmclosed_ = true;
 }
 
 
