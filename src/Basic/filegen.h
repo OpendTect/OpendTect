@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.10 2002-09-06 15:32:21 bert Exp $
+ RCS:		$Id: filegen.h,v 1.11 2002-10-07 14:55:56 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,9 @@ int	File_copy(const char* from,const char* to,int recursive_downward);
 int	File_remove(const char*,int force,int recursive_downward);
 int	File_makeWritable(const char*,int recursive,int yesno);
 int	File_createLink(const char* from,const char* to);
+
+/*! Disk space. Returns 0 on any error */
+int	File_getFreeMBytes(const char*);
 
 /*!
 The following functions return a pointer to the same static buffer, meaning you

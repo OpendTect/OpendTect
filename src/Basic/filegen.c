@@ -4,7 +4,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.27 2002-09-06 15:29:29 bert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.28 2002-10-07 14:56:03 bert Exp $";
 
 #include "filegen.h"
 #include "genc.h"
@@ -570,4 +570,27 @@ const char* File_getCurrentDir()
     static FileNameString pathbuf;
     getcwd( pathbuf, PATH_LENGTH );
     return pathbuf;
+}
+
+
+int File_getFreeMBytes( const char* dirnm )
+{
+#ifdef __win__
+    return 0;
+#else
+    static char cmd[512];
+    int nrkbytes = 0;
+    FILE* pp;
+
+    if ( !File_exists(dirnm) ) return 0;
+
+    sprintf( cmd, "df -k %s | sed '/ilesystem/d' | awk '{print $4}'",
+	     dirnm );
+    pp = popen( cmd, "r" );
+    if ( !pp ) return 0;
+
+    fscanf( pp, "%d", &nrkbytes );
+    pclose( pp );
+    return nrkbytes / 1024;
+#endif
 }
