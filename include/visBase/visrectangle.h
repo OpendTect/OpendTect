@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visrectangle.h,v 1.19 2002-04-12 09:20:20 kristofer Exp $
+ RCS:		$Id: visrectangle.h,v 1.20 2002-04-26 12:46:29 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -90,8 +90,8 @@ protected:
 class Rectangle : public VisualObjectImpl
 {
 public:
-    static Rectangle*	create(bool manip)
-			mCreateDataObj1arg(Rectangle, bool, manip );
+    static Rectangle*	create()
+			mCreateDataObj0arg(Rectangle);
 
     void		setOrigo( const Geometry::Pos& );
     Geometry::Pos	origo() const;
