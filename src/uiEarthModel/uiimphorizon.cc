@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.9 2002-05-24 14:47:07 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.10 2002-05-30 15:02:11 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,9 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "filegen.h"
 #include "uimsg.h"
+#include "uiscaler.h"
+#include "gridmods.h"
+#include "scaler.h"
 
 #include "gridread.h"
 #include "valgridtr.h"
@@ -44,9 +47,12 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
                              BoolInpSpec("X/Y","Inl/Crl") );
     xyfld->attach( alignedBelow, infld );
 
+    scalefld = new uiScaler( this, "Value scaling", true );
+    scalefld->attach( alignedBelow, xyfld );
+
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Horizon" );
-    outfld->attach( alignedBelow, xyfld );
+    outfld->attach( alignedBelow, scalefld );
 }
 
 
@@ -100,6 +106,14 @@ bool uiImportHorizon::handleAscii()
     PtrMan<Grid> grid = dskgrd->cloneTrimmed();
     delete dskgrd;
     // prGrd( grid );
+
+    Scaler* scaler = scalefld->getScaler();
+    if ( scaler )
+    {
+	GridScaler* grdsc = new GridScaler( grid, scaler );
+	uiExecutor scdlg( this, *grdsc );
+	scdlg.go();
+    }
 
     const char* horizonnm = outfld->getInput();
     EarthModel::EMManager& em = EarthModel::EMM();

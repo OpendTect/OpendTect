@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.2 2002-05-23 09:33:00 nanne Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.3 2002-05-30 15:02:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class CtxtIOObj;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
+class uiScaler;
 
 
 /*! \brief Dialog for horizon selection */
@@ -33,6 +34,7 @@ protected:
     uiFileInput*	infld;
     uiGenInput*		xyfld;
     uiIOObjSel*		outfld;
+    uiScaler*		scalefld;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();
