@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.2 2003-01-07 10:39:27 kristofer Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.3 2003-01-20 08:37:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -63,7 +63,8 @@ public:
     void			setColorTab( VisColorTab& );
     VisColorTab&		getColorTab();
 
-    void			setData( int, const Array2D<float>& );
+    void			setData( int section, const Array2D<float>& );
+    				/*!< section ranges from 0 to nrKnots-2 */
 
 protected:
     				~RandomTrack();
