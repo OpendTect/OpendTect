@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.1 2004-10-04 16:04:51 nanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.2 2004-10-06 19:20:14 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,7 +175,9 @@ static void addSurfaceData( const MultiID& id, const BufferStringSet& attrnms,
 	while ( bivs.next(pos) )
 	{
 	    bivs.get( pos, bid, vals );
-	    posid.setSubID( RowCol(bid.inl,bid.crl) );
+	    const EM::SubID subid = 
+		surface->geometry.rowCol2SubID( RowCol(bid.inl,bid.crl) );
+	    posid.setSubID( subid );
 	    for ( int validx=1; validx<vals.size(); validx++ )
 		surface->auxdata.setAuxDataVal( validx-1, posid, vals[validx] );
 	}
@@ -283,7 +285,7 @@ bool BatchProgram::go( std::ostream& strm )
     BufferStringSet attribrefs;
     for ( int idx=0; idx<attribids.size(); idx++ )
     {
-	int id_ = attribids[idx];
+	const int id_ = attribids[idx];
 	if ( !idx )
 	{
 	    AttribSelSpec selspec( 0, id_ );
@@ -295,6 +297,12 @@ bool BatchProgram::go( std::ostream& strm )
 	AttribDesc& ad = attribset.getAttribDesc( attribset.descNr(id_) );
 	attribrefs.add( ad.userRef() );
     }
+
+    // TODO: make a targetvalue for each output
+    BufferString newattrnm;
+    pars().get( "Target value", newattrnm );
+    if ( newattrnm != "" )
+	attribrefs.get(0) = newattrnm;
 
     ObjectSet<BinIDValueSet> bivs;
     getPositions( strm, mid, bivs );
