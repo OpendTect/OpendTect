@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.35 2004-11-18 16:00:28 dgb Exp $
+# $Id: od_exec,v 1.36 2004-11-22 09:55:36 arend Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -15,7 +15,12 @@ if ( ! $?DTECT_APPL ) then
     exit 1
 endif
 
-eval `"$DTECT_APPL/bin/mksethdir"`
+if ( $?COMSPEC ) then
+    setenv HDIR win
+    set binsubdir=win
+else
+    eval `"$DTECT_APPL/bin/mksethdir"`
+endif
 
 set bindir="$DTECT_APPL/bin/$binsubdir"
 set nicecmd=""
