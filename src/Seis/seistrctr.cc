@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.17 2001-07-27 15:58:50 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.18 2001-09-02 22:05:57 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisinfo.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.17 2001-07-27 15:58:50 bert Ex
 #include "separstr.h"
 #include "scaler.h"
 #include "ptrman.h"
+#include "survinfo.h"
 
 
 int SeisTrcTranslator::selector( const char* key )
@@ -171,10 +172,10 @@ void SeisTrcTranslator::usePar( const IOPar* iopar )
     {
 	nrstr = "."; nrstr += nr;
 
-	BufferString keystr = "Positions"; keystr += nrstr;
+	BufferString keystr = SurveyInfo::sKeyZRange; keystr += nrstr;
 	const char* res = iopar->find( (const char*)keystr );
-	if ( !res && nr == 1 )
-	     res = iopar->find( "Positions" );
+	if ( !res && nr == 0 )
+	     res = iopar->find( SurveyInfo::sKeyZRange );
 	if ( !res ) break;
 	storediopar.set( keystr, res );
 
@@ -205,7 +206,7 @@ void SeisTrcTranslator::useStoredPar()
 	const char* nm = storediopar.find( (const char*)keystr );
 	if ( nm && *nm ) tcd->setName( nm );
 
-	keystr = "Positions"; keystr += nrstr;
+	keystr = SurveyInfo::sKeyZRange; keystr += nrstr;
 	const char* res = storediopar.find( (const char*)keystr );
 	if ( res && *res )
 	{
@@ -218,17 +219,17 @@ void SeisTrcTranslator::useStoredPar()
 	    if ( sz > 0 )
 	    {
 		const char* res = fms[0];
-		if ( *res ) posns.start = 0.001 * atof( res );
+		if ( *res ) posns.start = atof( res );
 	    }
 	    if ( sz > 1 )
 	    {
 		const char* res = fms[1];
-		if ( *res ) posns.stop = 0.001 * atof( res );
+		if ( *res ) posns.stop = atof( res );
 	    }
 	    if ( sz > 2 )
 	    {
 		const char* res = fms[2];
-		if ( *res ) posns.step = 0.001 * atof( res );
+		if ( *res ) posns.step = atof( res );
 	    }
 	    tcd->sd.start = posns.start;
 	    tcd->sd.step = posns.step;
