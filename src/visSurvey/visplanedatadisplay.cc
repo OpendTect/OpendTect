@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.8 2002-04-24 15:03:53 nanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.9 2002-04-26 13:07:30 kristofer Exp $";
 
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
@@ -28,7 +28,7 @@ visSurvey::PlaneDataDisplay::PlaneDataDisplay(
 			visSurvey::Scene& scene_,
 			const CallBack appcb )
     : VisualObject( true )
-    , trect( visBase::TextureRect::create(true) )
+    , trect( visBase::TextureRect::create() )
     , type( type_ )
     , selected_( false )
     , cs(*new CubeSampling)
