@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.5 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: houghtransform.h,v 1.6 2003-11-24 08:38:08 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -22,7 +22,7 @@ template <class T> class ObjectSet;
 template <class T, class B> class TopList;
 class PlaneFrom3DSpaceHoughTransformTask;
 class Plane3;
-class Vector3;
+class Coord3;
 namespace Threads { class Mutex; };
 
 /*!\brief
@@ -99,7 +99,7 @@ protected:
 
     Array2D<unsigned int>*	paramspace;
     double			deltadist;
-    TypeSet<Vector3>*		normals;
+    TypeSet<Coord3>*		normals;
     friend			class ::PlaneFrom3DSpaceHoughTransformTask;
 
     Threads::Mutex&		paramspacemutex;

@@ -9,7 +9,7 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.6 2003-11-24 08:38:13 kristofer Exp $";
 
 
 #include "houghtransform.h"
@@ -44,7 +44,7 @@ protected:
     PlaneFrom3DSpaceHoughTransform&	ht;
 
     int					idx;
-    TypeSet<Vector3>&			normals;
+    TypeSet<Coord3>&			normals;
 };
 				
 
@@ -59,7 +59,7 @@ int PlaneFrom3DSpaceHoughTransformTask::nextStep()
 
     for ( int normal=0; normal<normals.size(); normal++ )
     {
-	Plane3 plane( normals[normal], pos );
+	Plane3 plane( normals[normal], pos, false );
 	float distance = plane.distanceToPoint( origo );
 	ht.incParamPos( normal, plane.distanceToPoint( origo ));
     }
@@ -196,10 +196,11 @@ Plane3 PlaneFrom3DSpaceHoughTransform::getPlane( int planenr ) const
 {
     int pos[2];
     paramspace->info().getArrayPos( planenr, pos );
-    Vector3 normal = (*normals)[pos[0]];
+    Coord3 normal = (*normals)[pos[0]];
     const float dist = pos[1] * deltadist;
 
-    return Plane3( normal, Coord3(normal.x*dist,normal.y*dist,normal.z*dist) );
+    return Plane3( normal, Coord3(normal.x*dist,normal.y*dist,normal.z*dist),
+	    	   false );
 }
 
 
