@@ -7,13 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.1 2001-02-13 17:46:49 bert Exp $
+ RCS:		$Id: tracedata.h,v 1.2 2001-02-28 15:00:24 bert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <databuf.h>
 #include <datainterp.h>
+
+typedef DataInterpreter<float> TraceDataInterpreter;
+
 
 /*!\brief A set of data buffers and their interpreters.
 

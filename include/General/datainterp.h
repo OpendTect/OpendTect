@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datainterp.h,v 1.1 2001-02-13 17:46:49 bert Exp $
+ RCS:		$Id: datainterp.h,v 1.2 2001-02-28 15:00:24 bert Exp $
 ________________________________________________________________________
 
 */
@@ -136,9 +136,6 @@ protected:
     void		put0(void*,int,T) const		{}
 
 };
-
-typedef DataInterpreter<float> TraceDataInterpreter;
-
 
 
 #endif

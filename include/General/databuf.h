@@ -1,5 +1,5 @@
-#ifndef databuf_H
-#define databuf_H
+#ifndef databuf_h
+#define databuf_h
 
 /*
 ________________________________________________________________________
@@ -7,52 +7,30 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H.Bril
  Date:		1-9-95
- Contents:	A Data trace is an XFunction with iteration
- RCS:		$Id: databuf.h,v 1.2 2001-02-13 17:15:57 bert Exp $
+ RCS:		$Id: databuf.h,v 1.3 2001-02-28 15:00:24 bert Exp $
 ________________________________________________________________________
 
 */
 
-#include <general.h>
+#include <rawarray.h>
 
 
-/*!\brief Raw data buffer.
+/*!\brief Raw data array with memory management. */
 
-Management of memory (resize) in terms of elements of a certain size in bytes.
-
-*/
-
-
-class DataBuffer
+class DataBuffer : public RawDataArray
 {
 public:
-			DataBuffer(int n,int byts=4,bool setnull=NO);
-			DataBuffer( const DataBuffer& db )
-			: nelem_(0), bytes_(0), data_(0)	{ *this = db; }
+			DataBuffer(int n,int byts=4,bool setnull=false);
 			~DataBuffer();
+			DataBuffer( const DataBuffer& b )
+			: RawDataArray(0)			{ *this = b; }
     DataBuffer&  	operator=(const DataBuffer&);
 
     inline bool		isOk() const		{ return data_ ? true : false; }
-    inline int		size() const		{ return nelem_; }
-    inline int		bytesPerSample() const	{ return bytes_; }
-    bool		isZero() const;
 
     void		reSize(int);
     void		reByte(int);
     void		zero();
-
-    inline unsigned char*	data()		{ return data_; }
-    inline const unsigned char* data() const	{ return data_; }
-    inline unsigned char* operator[]( int idx )
-				{ return data_ + (bytes_ * idx); }
-    inline const unsigned char* operator[]( int idx ) const
-				{ return data_ + (bytes_ * idx); }
-
-protected:
-
-    int			nelem_;
-    int			bytes_;
-    unsigned char*	data_;
 
 };
 
