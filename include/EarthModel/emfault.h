@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.15 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emfault.h,v 1.16 2003-11-24 08:39:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ class SurfaceIODataSelection;
 class Fault : public EM::Surface
 {
 public:
-			Fault( EM::EMManager&, const MultiID&);
+			Fault( EM::EMManager&, const EM::ObjectID&);
 			~Fault();
 
     bool		isLoaded() const { return surfaces.size(); }
@@ -39,6 +39,8 @@ public:
 protected:
     friend			class ::dgbEMFaultReader;
     Geometry::MeshSurface*	createPatchSurface(const PatchID&) const;
+
+    virtual const IOObjContext&	getIOObjContext() const;
 };
 
 }; // Namespace

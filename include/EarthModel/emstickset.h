@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emstickset.h,v 1.2 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emstickset.h,v 1.3 2003-11-24 08:39:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -61,12 +61,13 @@ public:
 protected:
     int			getStickIndex(const StickID&) const;
     
-    friend class			EMManager;
-    friend class			EMObject;
+    friend class		EMManager;
+    friend class		EMObject;
 
-    					StickSet(EMManager&, const MultiID& );
-    					~StickSet();
+    				StickSet(EMManager&,const EM::ObjectID&);
+    				~StickSet();
     void				cleanUp();
+    virtual const IOObjContext&		getIOObjContext() const;
 
     ObjectSet<TypeSet<BinIDValue> >	sticks;
     TypeSet<StickID>			stickids;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.11 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emposid.h,v 1.12 2003-11-24 08:39:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -22,13 +22,13 @@ ________________________________________________________________________
 namespace EM
 {
 
-typedef MultiID ObjectID;
+typedef int ObjectID;
 typedef short PatchID;
 typedef long long SubID;
 
 
 /*!\brief
-is an identifier for each position in the earthmodel. It has three patches,
+is an identifier for each position in the earthmodel. It has three parts,
 - an ObjectID, wich identifies wich object is belongs to.
 - a PatchID, wich identifies which patch of the object it belongs to.
 - a SubID, wich identifies the position on the patch. 
@@ -41,7 +41,7 @@ public:
 				       PatchID patch=0,
 				       SubID subid=0);
 
-    const ObjectID&		emObject() const;
+    const ObjectID&		objectID() const;
     PatchID			patchID() const;
     SubID			subID() const;
     void			setObjectID(const ObjectID&);
@@ -88,7 +88,7 @@ inline bool PosID::operator==(const PosID& b) const
 inline bool PosID::operator!=(const PosID& b) const
 { return !(*this==b); }
 
-inline const ObjectID& PosID::emObject() const
+inline const ObjectID& PosID::objectID() const
 { return emobj; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.16 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emmanager.h,v 1.17 2003-11-24 08:39:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "ptrman.h"
 #include "multiid.h"
+#include "emposid.h"
 
 class Executor;
 
@@ -25,6 +26,7 @@ namespace EM
 class EMObject;
 class History;
 class SurfaceIOData;
+class SurfaceIODataSelection;
 
 /*!\brief
 
@@ -43,32 +45,34 @@ public:
     const History&	history() const;
 
     void		init();
-    const char*		getName(const MultiID&);
+    const char*		getName(const EM::ObjectID&);
 
-    MultiID		add(Type,const char* name);
+    EM::ObjectID	add(Type,const char* name);
+    			/*!< Creates a new object, saves it and loads it into
+			     mem
+			*/
 
     int			nrObjects() const	{ return objects.size(); }
-    
-    EMObject*		getObject(const MultiID&);
-    const EMObject*	getObject(const MultiID&) const;
-    const EMObject*	getEMObject(int) const;
-    EMObject*		getEMObject(int);
+    const EMObject*	getEMObject(int index) const { return objects[index]; }
+    EMObject*		getEMObject(int index) { return objects[index]; }
 
-    Executor*		load(const MultiID&);
-    bool		isLoaded(const MultiID&) const;
-    EMObject*		createObject(const MultiID&,bool addtoman=true);
+    EMObject*		getObject(const EM::ObjectID&);
+    const EMObject*	getObject(const EM::ObjectID&) const;
+
+    Executor*		load(const MultiID&,
+	    		     const EM::SurfaceIODataSelection* =0);
     EMObject*		getTempObj(EM::EMManager::Type);
 
-    void		addObject(EM::EMObject*);
+    void		getSurfaceData(const MultiID&, EM::SurfaceIOData&);
 
-    void		getSurfaceData(const MultiID&,EM::SurfaceIOData&);
+    void		ref(const EM::ObjectID&);
+    void		unRef(const EM::ObjectID&);
+    void		unRefNoDel(const EM::ObjectID&);
 
-    void		ref(const MultiID&);
-    void		unRef(const MultiID&);
-    void		unRefNoDel(const MultiID&);
+    static EM::ObjectID	multiID2ObjectID( const MultiID& );
 
 protected:
-    void		removeObject(const MultiID&);
+    void		removeObject(const EM::ObjectID&);
     History&		history_;
     ObjectSet<EMObject>	objects;
     TypeSet<int>	refcounts;

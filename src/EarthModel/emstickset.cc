@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.3 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.4 2003-11-24 08:39:52 kristofer Exp $";
 
 #include "emstickset.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: emstickset.cc,v 1.3 2003-11-07 12:21:57 bert Ex
 #include "survinfo.h"
 
 
-EM::StickSet::StickSet( EMManager& man, const MultiID& id_)
+EM::StickSet::StickSet( EMManager& man, const EM::ObjectID& id_)
     : EMObject( man, id_ )
 {}
 
@@ -210,3 +210,7 @@ void EM::StickSet::cleanUp()
 {
     deepErase( sticks );
 }
+
+
+const IOObjContext& EM::StickSet::getIOObjContext() const
+{ return EMStickSetTranslatorGroup::ioContext(); }

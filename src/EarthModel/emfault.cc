@@ -4,7 +4,7 @@
  * DATE     : Sep 2002
 -*/
 
-static const char* rcsID = "$Id: emfault.cc,v 1.14 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: emfault.cc,v 1.15 2003-11-24 08:39:52 kristofer Exp $";
 
 #include "emfault.h"
 
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: emfault.cc,v 1.14 2003-11-07 12:21:57 bert Exp 
 #include "ioobj.h"
 #include "ptrman.h"
 
-EM::Fault::Fault(EM::EMManager & emm_, const MultiID& mid_)
+EM::Fault::Fault(EM::EMManager & emm_, const EM::ObjectID& mid_)
     : Surface( emm_, mid_ )
 { }
 
@@ -29,7 +29,7 @@ Executor* EM::Fault::loader( const EM::SurfaceIODataSelection* newsel,
 {
     if ( isLoaded() ) cleanUp();
 
-    PtrMan<IOObj> ioobj = IOM().get( id() );
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
     Executor* exec = EMFaultTranslator::reader( *this, ioobj, errmsg);
     if ( errmsg[0] )
     {
@@ -44,7 +44,7 @@ Executor* EM::Fault::loader( const EM::SurfaceIODataSelection* newsel,
 Executor* EM::Fault::saver( const EM::SurfaceIODataSelection* newsel,
 			    bool auxdata, const MultiID* key )
 {
-    const MultiID& mid = key ? *key : id();
+    const MultiID& mid = key ? *key : multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     Executor* exec = EMFaultTranslator::writer( *this, ioobj, errmsg);
     if ( errmsg[0] )
@@ -61,3 +61,7 @@ Geometry::MeshSurface* EM::Fault::createPatchSurface( const PatchID& id ) const
 {
     return new Geometry::MeshSurfaceImpl;
 }
+
+
+const IOObjContext& EM::Fault::getIOObjContext() const
+{ return EMFaultTranslatorGroup::ioContext(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.28 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.29 2003-11-24 08:39:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -75,6 +75,8 @@ public:
 
     static BinID	getBinID( const EM::SubID& );
     static BinID	getBinID( const RowCol& );
+    static EM::SubID	getSubID( const BinID& );
+    static RowCol	getRowCol( const BinID& );
 
 protected:
     friend class	EMManager;
@@ -84,9 +86,10 @@ protected:
 
     Geometry::MeshSurface* createPatchSurface(const PatchID&) const;
 
-	    		Horizon(EMManager&, const MultiID&);
+	    		Horizon(EMManager&, const EM::ObjectID&);
     			~Horizon();
 
+    virtual const IOObjContext&	getIOObjContext() const;
 
     float		a11,a12,a13,a21,a22,a23; //Transformation coords
     float		b11,b12,b13,b21,b22,b23; //Reverse transformation coords

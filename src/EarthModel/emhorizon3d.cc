@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.39 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.40 2003-11-24 08:39:52 kristofer Exp $";
 
 #include "emhorizon.h"
 
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.39 2003-11-07 12:21:57 bert 
 #include "ptrman.h"
 #include "survinfo.h"
 
-EM::Horizon::Horizon(EMManager& man, const MultiID& id_)
+EM::Horizon::Horizon(EMManager& man, const EM::ObjectID& id_)
     : Surface( man, id_ )
     , a11( 1 ) , a12( 0 ) , a13( 0 ) , a21( 0 ) , a22( 1 ) , a23( 0 )
     , b11( 1 ) , b12( 0 ) , b13( 0 ) , b21( 0 ) , b22( 1 ) , b23( 0 )
@@ -44,6 +44,17 @@ BinID EM::Horizon::getBinID( const RowCol& rc )
     return BinID(rc.row, rc.col);
 }
 
+
+RowCol EM::Horizon::getRowCol( const BinID& bid )
+{
+    return RowCol( bid.inl, bid.crl );
+}
+
+
+EM::SubID EM::Horizon::getSubID( const BinID& bid )
+{
+    return rowCol2SubID(getRowCol(bid));
+}
 
 
 Geometry::MeshSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
@@ -72,7 +83,7 @@ Geometry::MeshSurface* EM::Horizon::createPatchSurface( const PatchID& patchid )
 Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
        			       int attridx )
 {
-    PtrMan<IOObj> ioobj = IOM().get( id() );
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
 
@@ -125,7 +136,7 @@ Executor* EM::Horizon::loader( const EM::SurfaceIODataSelection* newsel,
 Executor* EM::Horizon::saver( const EM::SurfaceIODataSelection* newsel,
        			      bool auxdata, const MultiID* key )
 {
-    const MultiID& mid = key && !(*key=="") ? *key : id();
+    const MultiID& mid = key && !(*key=="") ? *key : multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
 	{ errmsg = "Cannot find the horizon object"; return 0; }
@@ -238,17 +249,16 @@ public:
 		    for ( int crl=crlrange.start; crl<=crlrange.stop;
 			      crl+=crlrange.step )
 		    {
-			const Coord coord = SI().transform(BinID(inl,crl));
+			const BinID bid(inl,crl);
+			const Coord coord = SI().transform(bid);
 			const GridNode gridnode = grid.getNode(coord);
 			const float val = grid.getValue( gridnode );
 			if ( mIsUndefined(val) )
 			    continue;
 
-			const EM::SubID subid =
-				    horizon.rowCol2SubID(RowCol(inl,crl));
-
 			Coord3 pos(coord.x, coord.y, val );
-			horizon.setPos( patch, subid, pos, true, false );
+			horizon.setPos( patch, horizon.getRowCol(bid), pos,
+				   	true, false );
 		    }
 
 		    inl += inlrange.step;
@@ -276,3 +286,7 @@ Executor* EM::Horizon::import( const Grid& grid, int idx )
 
     return new EM::HorizonImporter( *this, grid );
 }
+
+
+const IOObjContext& EM::Horizon::getIOObjContext() const
+{ return EMHorizonTranslatorGroup::ioContext(); }

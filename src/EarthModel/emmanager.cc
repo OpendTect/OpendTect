@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.25 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.26 2003-11-24 08:39:52 kristofer Exp $";
 
 #include "emmanager.h"
 
@@ -56,7 +56,7 @@ void EM::EMManager::init()
 { } 
 
 
-MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
+EM::ObjectID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 {
     PtrMan<CtxtIOObj> ctio;
     if ( type==EM::EMManager::Hor )
@@ -90,11 +90,12 @@ MultiID EM::EMManager::add( EM::EMManager::Type type, const char* name )
 } 
 
 
-EM::EMObject* EM::EMManager::getObject( const MultiID& id )
+EM::EMObject* EM::EMManager::getObject( const EM::ObjectID& id )
 {
+    const EM::ObjectID objid = multiID2ObjectID(id);
     for ( int idx=0; idx<objects.size(); idx++ )
     {
-	if ( objects[idx]->id()==id )
+	if ( objects[idx]->id()==objid )
 	    return objects[idx];
     }
 
@@ -102,41 +103,20 @@ EM::EMObject* EM::EMManager::getObject( const MultiID& id )
 }
 
 
-const EM::EMObject* EM::EMManager::getObject( const MultiID& id ) const
+const EM::EMObject* EM::EMManager::getObject( const EM::ObjectID& id ) const
+{ return const_cast<EM::EMManager*>(this)->getObject(id); }
+
+
+EM::ObjectID EM::EMManager::multiID2ObjectID( const MultiID& id )
+{ return id.leafID(); }
+
+
+void EM::EMManager::removeObject( const EM::ObjectID& id )
 {
+    const EM::ObjectID objid = multiID2ObjectID(id);
     for ( int idx=0; idx<objects.size(); idx++ )
     {
-	if ( objects[idx]->id()==id )
-	    return objects[idx];
-    }
-
-    return 0;
-}
-
-
-const EM::EMObject* EM::EMManager::getEMObject( int idx ) const
-{
-    if ( objects.size() )
-	return objects[idx];
-
-    return 0;
-}
-
-
-EM::EMObject* EM::EMManager::getEMObject( int idx )
-{
-    if ( objects.size() )
-	return objects[idx];
-
-    return 0;
-}
-
-
-void EM::EMManager::removeObject( const MultiID& id )
-{
-    for ( int idx=0; idx<objects.size(); idx++ )
-    {
-	if ( objects[idx]->id() == id )
+	if ( objects[idx]->id() == objid )
 	{
 	    delete objects[idx];
 	    objects.remove( idx );
@@ -147,11 +127,12 @@ void EM::EMManager::removeObject( const MultiID& id )
 }
 
 
-void EM::EMManager::ref( const MultiID& id )
+void EM::EMManager::ref( const EM::ObjectID& id )
 {
+    const EM::ObjectID objid = multiID2ObjectID(id);
     for ( int idx=0; idx<objects.size(); idx++ )
     {
-	if ( objects[idx]->id() == id )
+	if ( objects[idx]->id() == objid )
 	{
 	    refcounts[idx]++;
 	    return;
@@ -162,11 +143,12 @@ void EM::EMManager::ref( const MultiID& id )
 }
 
 
-void EM::EMManager::unRef( const MultiID& id )
+void EM::EMManager::unRef( const EM::ObjectID& id )
 {
+    const EM::ObjectID objid = multiID2ObjectID(id);
     for ( int idx=0; idx<objects.size(); idx++ )
     {
-	if ( objects[idx]->id() == id )
+	if ( objects[idx]->id() == objid )
 	{
 	    if ( !refcounts[idx] )
 		pErrMsg("Un-refing object that is not reffed");
@@ -183,11 +165,12 @@ void EM::EMManager::unRef( const MultiID& id )
 }
 
 
-void EM::EMManager::unRefNoDel( const MultiID& id )
+void EM::EMManager::unRefNoDel( const EM::ObjectID& id )
 {
+    const EM::ObjectID objid = multiID2ObjectID(id);
     for ( int idx=0; idx<objects.size(); idx++ )
     {
-	if ( objects[idx]->id() == id )
+	if ( objects[idx]->id() == objid )
 	{
 	    if ( !refcounts[idx] )
 		pErrMsg("Un-refing object that is not reffed");
@@ -200,13 +183,14 @@ void EM::EMManager::unRefNoDel( const MultiID& id )
     pErrMsg("Reference of id does not exist");
 }
 
-
+/*
 void EM::EMManager::addObject( EM::EMObject* obj )
 {
     if ( !obj ) return;
     objects += obj;
     refcounts += 0;
 }
+*/
 
 
 EM::EMObject* EM::EMManager::getTempObj( EM::EMManager::Type type )
@@ -221,33 +205,15 @@ EM::EMObject* EM::EMManager::getTempObj( EM::EMManager::Type type )
 }
 
 
-EM::EMObject* EM::EMManager::createObject( const MultiID& id, bool addtoman )
+Executor* EM::EMManager::load( const MultiID& mid,
+			       const SurfaceIODataSelection* iosel )
 {
-    EMObject* obj = getObject( id );
-    if ( obj && addtoman ) return obj;
-
-    PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj ) return false;
-
-    EMObject* newobj = EM::EMObject::create( *ioobj, *this );
-    if ( newobj && addtoman )
-    {
-	objects += newobj;
-	refcounts += 0;
-	return newobj;
-    }
-
-    return newobj;
-}
-
-
-Executor* EM::EMManager::load( const MultiID& id )
-{
+    EM::ObjectID id = multiID2ObjectID(mid);
     EMObject* obj = getObject( id );
    
     if ( !obj )
     {
-	PtrMan<IOObj> ioobj = IOM().get( id );
+	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) return 0;
 
 	obj = EM::EMObject::create( *ioobj, *this );
@@ -260,7 +226,7 @@ Executor* EM::EMManager::load( const MultiID& id )
 
     mDynamicCastGet(EM::Surface*,surface,obj)
     if ( surface )
-	return surface->loader();
+	return surface->loader(iosel);
     else if ( obj )
 	return obj->loader();
 
@@ -268,14 +234,8 @@ Executor* EM::EMManager::load( const MultiID& id )
 }
 
 
-bool EM::EMManager::isLoaded( const MultiID& id ) const
-{
-    const EMObject* obj = getObject( id );
-    return obj ? obj->isLoaded() : false;
-}
-
-
-void EM::EMManager::getSurfaceData( const MultiID& id, EM::SurfaceIOData& sd )
+void EM::EMManager::getSurfaceData( const MultiID& id,
+				    EM::SurfaceIOData& sd )
 {
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) return;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.24 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emsurface.h,v 1.25 2003-11-24 08:39:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,7 @@ In addition, they are also linked together.
 class BinID;
 class RowCol;
 class CubeSampling;
+template <class T> class MathFunction;
 template <class T> class Interval;
 template <class T> class StepInterval;
 
@@ -86,7 +87,7 @@ public:
     			
     void		removePatch(EM::PatchID, bool addtohistory);
 
-    bool		setPos( const PatchID& patch, const SubID&,
+    bool		setPos( const PatchID& patch, const RowCol&,
 	    			const Coord3&, bool autoconnect, bool addtoh );
     bool		setPos(const EM::PosID&, const Coord3&, bool addtohist);
 
@@ -194,11 +195,26 @@ public:
     			/*!< Converts input RowCol(in surface domain)
 			     to a RowCol that is used
 			     on the Geometry::MeshSurface */
+
+    bool		computeNormal( Coord3& res, const CubeSampling* cs=0,
+	    			       const MathFunction<float>* depthconv=0 );
+    			/*!< Computes an aproximation of the surface's
+			     orientation
+			     \param cs		Compute only within this cube.
+			     			If ommitted, the depth will be
+						computed on the entire surface.
+			     \param depthconv	Convert the depth before
+			     			computing. This can be handy
+						if z is given in timedomain wich
+						will give problems in pca. If
+						ommitted, the z coords will not
+						be converted.
+			*/
 protected:
     friend class		EMManager;
     friend class		EMObject;
 
-    				Surface(EMManager&,const MultiID&);
+    				Surface(EMManager&,const EM::ObjectID&);
     				~Surface();
     void			cleanUp();
 

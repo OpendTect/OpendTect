@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.26 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.27 2003-11-24 08:39:52 kristofer Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.26 2003-11-07 12:21:57 bert Ex
 #include "ioman.h"
 #include "ioobj.h"
 #include "linsolv.h"
+#include "pca.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
@@ -61,7 +62,7 @@ void EM::SurfaceIODataSelection::setDefault()
 }
 
 
-EM::Surface::Surface( EMManager& man, const MultiID& id_ )
+EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     : EMObject( man, id_ )
     , step_( SI().getStep(true,false), SI().getStep(false,false) )
     , loadedstep( SI().getStep(true,false), SI().getStep(false,false) )
@@ -102,6 +103,130 @@ void EM::Surface::cleanUp()
     delete colinterval;
     rowinterval = 0;
     colinterval = 0;
+}
+
+#define mGetNeigborCoord( coordname, rowdiff, coldiff ) \
+for ( int idy=0; idy<nrnodealiases; idy++ ) \
+{ \
+    const EM::PosID& nodealias = nodealiases[idy]; \
+    const EM::PatchID patchid = nodealias.patchID(); \
+    const RowCol noderc = subID2RowCol(nodealias.subID()); \
+    const RowCol neighborrc( noderc.row rowdiff, noderc.col coldiff ); \
+    if ( isDefined(patchid, neighborrc) ) \
+    { \
+	coordname = getPos(patchid, neighborrc); \
+	if ( time2depthfunc ) \
+	    coordname.z = time2depthfunc->getValue(coordname.z); \
+	break; \
+    } \
+} \
+
+
+bool EM::Surface::computeNormal( Coord3& res, const CubeSampling* cs,
+				    const MathFunction<float>* time2depthfunc )
+{
+    TypeSet<EM::PosID> nodes;
+    if ( cs ) findPos(*cs, &nodes );
+    else
+    {
+	for ( int idy=0; idy<nrPatches(); idy++ )
+	{
+	    const EM::PatchID patchid = patchID(idy);
+	    const int nrpatches = nrPatches();
+
+	    StepInterval<int> rowrange; getRange( patchid, rowrange, true );
+	    StepInterval<int> colrange; getRange( patchid, colrange, false );
+
+	    RowCol idx( rowrange.start, colrange.start );
+	    for ( ; rowrange.includes( idx.row ); idx.row+=rowrange.step )
+	    {
+		for ( ; colrange.includes( idx.col ); idx.col+=colrange.step )
+		{
+		    if ( isDefined(patchid,idx) )
+		    {
+			nodes += EM::PosID(id(),patchid,rowCol2SubID(idx));
+		    }
+		}
+	    }
+	}
+    }
+
+    PCA pca(3);
+    const int nrnodes = nodes.size();
+    for ( int idx=0; idx<nrnodes; idx++ )
+    {
+	const EM::PosID& node = nodes[idx];
+
+	TypeSet<EM::PosID> nodealiases;
+	getLinkedPos( node, nodealiases );
+	nodealiases += node;
+
+	const int nrnodealiases = nodealiases.size();
+
+	Coord3 nodecoord = getPos(node);
+	if ( time2depthfunc )
+	    nodecoord.z = time2depthfunc->getValue(nodecoord.z);
+
+	Coord3 prevrowcoord = nodecoord;
+	mGetNeigborCoord( prevrowcoord, -step_.row, +0 );
+
+	Coord3 nextrowcoord = nodecoord;
+	mGetNeigborCoord( nextrowcoord, +step_.row, +0 );
+
+	Coord3 prevcolcoord = nodecoord;
+	mGetNeigborCoord( prevcolcoord, +0, -step_.col );
+
+	Coord3 nextcolcoord = nodecoord;
+	mGetNeigborCoord( nextcolcoord, +0, +step_.col );
+
+	const Coord3 rowvector = nextrowcoord-prevrowcoord;
+	const Coord3 colvector = nextcolcoord-prevcolcoord;
+	const double rowvectorlen = rowvector.abs();
+	const double colvectorlen = colvector.abs();
+	const bool rowvectorvalid = !mIS_ZERO(rowvectorlen);
+	const bool colvectorvalid = !mIS_ZERO(colvectorlen);
+
+	if ( rowvectorvalid && colvectorvalid )
+	{
+	    pca.addSample( rowvector.cross(colvector).normalize() );
+	    continue;
+	}
+
+	if ( rowvectorvalid && nextrowcoord!=nodecoord &&
+		prevrowcoord!=nodecoord )
+	{
+	    const Coord3 prevvector = (prevrowcoord-nodecoord).normalize();
+	    const Coord3 nextvector = (nextrowcoord-nodecoord).normalize();
+	    const Coord3 average = prevvector+nextvector;
+	    const double len = average.abs();
+	    if ( mIS_ZERO(len) )
+		continue;
+
+	    pca.addSample(average.normalize());
+	    continue;
+	}
+
+	if ( colvectorvalid && nextcolcoord!=nodecoord &&
+		prevcolcoord!=nodecoord )
+	{
+	    const Coord3 prevvector = (prevcolcoord-nodecoord).normalize();
+	    const Coord3 nextvector = (nextcolcoord-nodecoord).normalize();
+	    const Coord3 average = prevvector+nextvector;
+	    const double len = average.abs();
+	    if ( mIS_ZERO(len) )
+		continue;
+
+	    pca.addSample(average.normalize());
+	    continue;
+	}
+    }
+
+    if ( !pca.calculate() )
+	return false;
+
+    pca.getEigenVector(0, res );
+    res = res.normalize();
+    return true;
 }
 
 
@@ -209,34 +334,34 @@ void EM::Surface::removePatch( EM::PatchID patchid, bool addtohistory )
 }
 
 
-bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
+bool EM::Surface::setPos( const PatchID& patch, const RowCol& surfrc,
 				   const Coord3& pos, bool autoconnect,
 				   bool addtohistory)
 {
-    RowCol node;
-    if ( !getMeshRowCol( subid, node, patch ) )
+    RowCol geomrowcol;
+    if ( !getMeshRowCol( surfrc, geomrowcol, patch ) )
 	return false;
 
     int patchindex=patchids.indexOf(patch);
     if ( patchindex==-1 ) return false;
 
-    const Geometry::PosID posid = Geometry::MeshSurface::getPosID(node);
+    const Geometry::PosID posid = Geometry::MeshSurface::getPosID(geomrowcol);
     Geometry::MeshSurface* surface = surfaces[patchindex];
-    const Coord3 oldpos = surface->getMeshPos( node );
+    const Coord3 oldpos = surface->getMeshPos( geomrowcol );
     if ( oldpos==pos ) return true;
 
     TypeSet<EM::PosID> nodeonotherpatches;
     if ( autoconnect )
-	findPos( node, nodeonotherpatches );
+	findPos( geomrowcol, nodeonotherpatches );
 
-    const int auxdataindex = surface->indexOf( node );
+    const int auxdataindex = surface->indexOf( geomrowcol );
 
-    surface->setMeshPos( node, pos );
-    surface->setFillType( node, Geometry::MeshSurface::Filled );
+    surface->setMeshPos( geomrowcol, pos );
+    surface->setFillType( geomrowcol, Geometry::MeshSurface::Filled );
 
     if ( auxdataindex==-1 )
     {
-	const int newauxdataindex = surface->indexOf( node );
+	const int newauxdataindex = surface->indexOf( geomrowcol );
 	for ( int idx=0; idx<nrAuxData(); idx++ )
 	{
 	    if ( !auxdata[idx] ) continue;
@@ -251,7 +376,7 @@ bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
     if ( addtohistory )
     {
 	HistoryEvent* history = new SetPosHistoryEvent( pos, oldpos,
-				    EM::PosID(id(),patch,subid) );
+				    EM::PosID(id(),patch,rowCol2SubID(surfrc)) );
 	manager.history().addEvent( history, 0, 0 );
     }
 
@@ -261,7 +386,7 @@ bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
     {
 	const int patchsurfidx =
 	    patchids.indexOf(nodeonotherpatches[idx].patchID());
-	double otherz = surfaces[patchsurfidx]->getMeshPos(node).z;
+	double otherz = surfaces[patchsurfidx]->getMeshPos(geomrowcol).z;
 	
 	if ( mIS_ZERO(otherz-pos.z) )
 	{
@@ -280,9 +405,10 @@ bool EM::Surface::setPos( const PatchID& patch, const EM::SubID& subid,
 bool EM::Surface::setPos( const EM::PosID& posid, const Coord3& newpos,
 			  bool addtohistory )
 {
-    if ( posid.emObject()!=id() ) return false;
+    if ( posid.objectID()!=id() ) return false;
 
-    return setPos( posid.patchID(), posid.subID(), newpos, false,addtohistory);
+    return setPos( posid.patchID(), subID2RowCol(posid.subID()),
+	    	   newpos, false,addtohistory);
 }
 
 
@@ -466,7 +592,7 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 			continue;
 		   
 		    const EM::PosID
-			    neighborposid(currentposid.emObject(),
+			    neighborposid(currentposid.objectID(),
 			    currentposid.patchID(),
 			    rowCol2SubID(neighborrowcol) );
 
@@ -516,7 +642,7 @@ int EM::Surface::getNeighbors( const EM::PosID& posid_, TypeSet<EM::PosID>* res,
 void EM::Surface::getLinkedPos( const EM::PosID& posid,
 				TypeSet<EM::PosID>& res ) const
 {
-    if ( posid.emObject()!=id() )
+    if ( posid.objectID()!=id() )
         return; //TODO: Implement handling for this case
 
     const EM::SubID subid = posid.subID();

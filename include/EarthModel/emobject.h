@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.14 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emobject.h,v 1.15 2003-11-24 08:39:49 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class IOObj;
 class Executor;
 struct CubeSampling;
+class IOObjContext;
 
 namespace EM
 {
@@ -40,9 +41,11 @@ public:
     void			unRef() const;
     void			unRefNoDel() const;
 
-    				EMObject( EMManager&, const MultiID&);
+    				EMObject( EMManager&, const EM::ObjectID&);
     virtual			~EMObject( );
-    const MultiID&		id() const { return id_; }
+    const ObjectID&		id() const { return id_; }
+    MultiID			multiID() const;
+
     BufferString		name() const;
 
     virtual Coord3		getPos(const EM::PosID&) const = 0;
@@ -79,7 +82,8 @@ public:
 				    ? (const char*) errmsg : (const char*) 0; }
 
 protected:
-    MultiID			id_;
+    virtual const IOObjContext&	getIOObjContext() const = 0;
+    ObjectID			id_;
     class EMManager&		manager;
     BufferString		errmsg;
 

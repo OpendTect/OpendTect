@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.13 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.14 2003-11-24 08:39:52 kristofer Exp $";
 
 #include "emobject.h"
 
@@ -21,7 +21,7 @@ EM::EMObject* EM::EMObject::create( const IOObj& ioobj, EM::EMManager& manager )
     EM::EMObject* res = 0;
     const char* group = ioobj.group();
 
-    MultiID id = ioobj.key();
+    const EM::ObjectID id = EM::EMManager::multiID2ObjectID(ioobj.key());
 
     if ( !strcmp( group, EMHorizonTranslatorGroup::keyword ))
 	res = new EM::Horizon( manager, id );
@@ -52,7 +52,7 @@ void EM::EMObject::unRefNoDel() const
 }
 
 
-EM::EMObject::EMObject( EMManager& emm_, const MultiID& id__ )
+EM::EMObject::EMObject( EMManager& emm_, const EM::ObjectID& id__ )
     : manager( emm_ )
     , poschnotifier( this )
     , id_( id__ )
@@ -67,8 +67,16 @@ EM::EMObject::~EMObject()
 
 BufferString EM::EMObject::name() const
 {
-    PtrMan<IOObj> ioobj = IOM().get( id_ );
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
     return ioobj ? ioobj->name() : BufferString("");
+}
+
+
+MultiID EM::EMObject::multiID() const
+{
+    MultiID res = getIOObjContext().stdSelKey();
+    res.add(id());
+    return res;
 }
 
 
