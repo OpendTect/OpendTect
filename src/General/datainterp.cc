@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.14 2003-12-12 16:41:25 nanne Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.15 2003-12-15 15:54:58 nanne Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -208,6 +208,7 @@ mDefDIG(double,D)
 mDefDIG(int,S1)
 mDefDIG(int,S2)
 mDefDIG(int,S4)
+mDefDIG(int,S8)
 mDefDIG(int,U1)
 mDefDIG(int,U2)
 mDefDIG(int,U4)
@@ -253,10 +254,12 @@ mDefDIGswp(double,F)
 mDefDIGswp(double,D)
 mDefDIGswp(int,S2)
 mDefDIGswp(int,S4)
+mDefDIGswp(int,S8)
 mDefDIGswp(int,U2)
 mDefDIGswp(int,U4)
 mDefDIGswp(long long,S2)
 mDefDIGswp(long long,S4)
+mDefDIGswp(long long,S8)
 mDefDIGswp(long long,U2)
 mDefDIGswp(long long,U4)
 
