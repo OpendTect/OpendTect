@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.4 2003-12-25 19:42:23 bert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.5 2004-01-29 10:26:13 nanne Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -121,7 +121,7 @@ const IOObjContext& ODSessionTranslatorGroup::ioContext()
 
 
 bool ODSessionTranslator::retrieve( ODSession& session,
-					const IOObj* ioobj, BufferString& err)
+				    const IOObj* ioobj, BufferString& err )
 {
     if ( !ioobj ) { err = "Cannot find object in data base"; return false; }
     PtrMan<ODSessionTranslator> tr =
@@ -138,7 +138,7 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 
 
 bool ODSessionTranslator::store( const ODSession& session,
-				    const IOObj* ioobj, BufferString& err )
+				 const IOObj* ioobj, BufferString& err )
 {
     if ( !ioobj ) { err = "No object to store set in data base"; return false; }
     PtrMan<ODSessionTranslator> tr
@@ -156,7 +156,7 @@ bool ODSessionTranslator::store( const ODSession& session,
 const char* ODSessionTranslator::keyword = "Session setup";
 
 
-const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn)
+const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn )
 {
     warningmsg = "";
     if ( !conn.forRead() || !conn.isStream() )
@@ -165,8 +165,8 @@ const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn)
     ascistream astream( ((StreamConn&)conn).iStream() );
     bool isoldhdr = !strcmp(astream.projName(),"dGB-dTect");
     int nr = astream.minorVersion() + astream.majorVersion() * 100;
-    if ( isoldhdr && nr < 104 )
-	return "Cannot read session files older than version 1.4";
+    if ( isoldhdr && nr < 105 )
+	return "Cannot read session files older than d-Tect V1.5";
 
     IOPar iopar( astream );
     if ( !iopar.size() )
@@ -179,8 +179,7 @@ const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn)
 }
 
 
-const char* dgbODSessionTranslator::write( const ODSession& session,
-					      Conn& conn)
+const char* dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
 {
     warningmsg = "";
     if ( !conn.forWrite() || !conn.isStream() )
