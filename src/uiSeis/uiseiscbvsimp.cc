@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.5 2002-06-27 08:52:44 bert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.6 2002-06-27 09:07:01 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,8 @@ void uiSeisImpCBVS::init( bool fromioobj )
     }
 
     transffld = new uiSeisTransfer( this, true );
-    transffld->attach( alignedBelow, modefld ? modefld : oinpfld );
+    transffld->attach( alignedBelow, (constraintType*) modefld
+	    ? (uiGroup*) modefld : (uiGroup*) oinpfld );
 
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
