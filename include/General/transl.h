@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.16 2003-10-15 21:58:41 bert Exp $
+ RCS:		$Id: transl.h,v 1.17 2003-10-16 12:59:56 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -63,7 +63,8 @@ public:
 
     const BufferString&		clssName() const	{ return clssname_; }
     const BufferString&		userName() const	{ return usrname_; }
-    Translator*			make(const char*) const;
+    Translator*			make(const char*,bool usrnm=true) const;
+    const Translator*		getTemplate(const char*,bool usrnm) const;
 
     const ObjectSet<const Translator>& templates() const { return templs_; }
 

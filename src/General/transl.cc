@@ -13,7 +13,7 @@
 #include "errh.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.11 2003-10-15 15:15:54 bert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.12 2003-10-16 12:59:56 bert Exp $";
 
 
 int defaultSelector( const char* mytyp, const char* typ )
@@ -107,32 +107,43 @@ bool TranslatorGroup::hasConnType( const char* ct ) const
 }
 
 
-Translator* TranslatorGroup::make( const char* nm ) const
+inline static const BufferString& gtNm( const Translator* tr, bool user )
+{
+    return user ? tr->userName() : tr->typeName();
+}
+
+
+Translator* TranslatorGroup::make( const char* nm, bool usr ) const
+{
+    const Translator* tr = getTemplate( nm, usr );
+    return tr ? tr->getNew() : 0;
+}
+
+
+const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
 {
     if ( !nm || !*nm ) return 0;
 
+    // Direct match is OK - just return it
     const Translator* tr = 0;
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
-	if ( templs_[idx]->userName() == nm )
-	    { tr = templs_[idx]; break; }
+	if ( gtNm(templs_[idx],usr) == nm )
+	    return templs_[idx];
     }
 
-    if ( !tr )
+    // Now try to match only given string - may be part of full name
+    for ( int idx=0; idx<templs_.size(); idx++ )
     {
-	// Now try to match only given string - may be part of full name
-	for ( int idx=0; idx<templs_.size(); idx++ )
+	if ( matchString(nm,gtNm(templs_[idx],usr).buf()) )
 	{
-	    if ( matchString(nm,templs_[idx]->userName().buf()) )
-	    {
-		if ( tr ) // more than one match
-		    return 0;
-		tr = templs_[idx];
-	    }
+	    if ( tr ) // more than one match
+		return 0;
+	    tr = templs_[idx];
 	}
     }
 
-    return tr ? tr->getNew() : 0;
+    return tr;
 }
 
 
