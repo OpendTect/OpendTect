@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.8 2001-08-23 14:59:17 windev Exp $
+ RCS:           $Id: uibutton.cc,v 1.9 2001-10-25 14:19:49 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,7 +191,7 @@ uiPushButtonBody& uiPushButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 }
 
 void uiPushButton::setDefault( bool yn)
-    { body_->setDefault( yn ); }
+    { body_->setDefault( yn ); setFocus(); }
 
 
 
