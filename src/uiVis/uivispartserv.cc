@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.160 2003-09-30 12:36:55 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.161 2003-10-02 08:17:57 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -548,7 +548,7 @@ BufferString uiVisPartServer::getDisplayName( int id ) const
 {
     const AttribSelSpec* as = getSelSpec( id );
     BufferString dispname( as ? as->userRef() : 0 );
-    if ( as && as->isNN() )
+    if ( as && as->isNLA() )
     {
 	dispname = as->objectRef();
 	const char* nodenm = as->userRef();
