@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.16 2001-10-29 17:36:21 bert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.17 2001-10-30 09:27:56 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ ________________________________________________________________________
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" const char* GetBaseDataDir();
-extern "C" void SetSurveyNameDirty();
+extern "C" void SetSurveyName(const char*);
 
 uiSurvey::uiSurvey( uiParent* p )
 	: uiDialog(p,"Survey setup")
@@ -268,6 +268,7 @@ bool uiSurvey::updateSvyFile()
     }
     delete SurveyInfo::theinst_;
     SurveyInfo::theinst_ = new SurveyInfo( fname );
+    SetSurveyName( seltxt );
 
     return true;
 }
@@ -381,7 +382,6 @@ void uiSurvey::doCanvas( CallBacker* c )
 bool uiSurvey::acceptOK( CallBacker* )
 {
     writeComments();
-    SetSurveyNameDirty();
     if ( !updateSvyFile() || !IOMan::newSurvey() )
 	return false;
 
