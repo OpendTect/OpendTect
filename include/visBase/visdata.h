@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.1 2002-03-11 10:46:12 kristofer Exp $
+ RCS:		$Id: visdata.h,v 1.2 2002-03-11 13:37:47 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 
 class SoNode;
+class BufferString;
 
 namespace visBase
 {
@@ -33,6 +34,8 @@ class DataObject : public CallBackClass
 public:
 
     int			id() { return id_; }
+    const char*		name() const;
+    void		setName( const char* );
 
     void		remove() { delete this; }
     			/* Should only be called by DataManager */
@@ -57,6 +60,7 @@ protected:
 
 private:
     int			id_;
+    BufferString*	name_;
 };
 
 };
