@@ -7,18 +7,20 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.6 2002-11-15 08:55:52 kristofer Exp $
+ RCS:		$Id: visboxdragger.h,v 1.7 2003-10-01 14:20:38 kristofer Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
+#include "position.h"
 
 class SoTabBoxDragger;
 class SoDragger;
 class SoSwitch;
-class Coord3;
+
+template <class T> class Interval;
 
 namespace visBase
 {
@@ -34,6 +36,10 @@ public:
     
     void			setWidth(const Coord3&);
     Coord3			width() const;
+
+    void			setSpaceLimits( const Interval<float>&,
+	    					const Interval<float>&,
+						const Interval<float>&);
 
     void			turnOn(bool yn);
     bool			isOn() const;
@@ -55,6 +61,13 @@ protected:
 
     SoSwitch*			onoff;
     SoTabBoxDragger*		boxdragger;
+
+    Interval<float>*		xinterval;
+    Interval<float>*		yinterval;
+    Interval<float>*		zinterval;
+
+    Coord3			prevwidth;
+    Coord3			prevcenter;
 };
 
 };

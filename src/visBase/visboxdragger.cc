@@ -4,13 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.5 2002-11-15 08:55:45 kristofer Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.6 2003-10-01 14:21:10 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "visboxdragger.h"
-#include "position.h"
+#include "ranges.h"
 #include "iopar.h"
 
 #include "Inventor/nodes/SoSwitch.h"
@@ -25,6 +25,9 @@ visBase::BoxDragger::BoxDragger()
     , finished( this )
     , onoff( new SoSwitch )
     , boxdragger( new SoTabBoxDragger )
+    , xinterval( 0 )
+    , yinterval( 0 )
+    , zinterval( 0 )
 {
     onoff->addChild( boxdragger );
     onoff->ref();
@@ -51,12 +54,16 @@ visBase::BoxDragger::~BoxDragger()
 	    visBase::BoxDragger::finishCB, this );
 
     onoff->unref();
+    delete xinterval;
+    delete yinterval;
+    delete zinterval;
 }
 
 
 void visBase::BoxDragger::setCenter( const Coord3& pos )
 {
     boxdragger->translation.setValue( pos.x, pos.y, pos.z );
+    prevcenter = pos;
 }
 
 
@@ -70,6 +77,7 @@ Coord3 visBase::BoxDragger::center() const
 void visBase::BoxDragger::setWidth( const Coord3& pos )
 {
     boxdragger->scaleFactor.setValue( pos.x/2, pos.y/2, pos.z/2 );
+    prevwidth = pos;
 }
 
 
@@ -77,6 +85,24 @@ Coord3 visBase::BoxDragger::width() const
 {
     SbVec3f pos = boxdragger->scaleFactor.getValue();
     return Coord3( pos[0]*2, pos[1]*2, pos[2]*2 );
+}
+
+
+void visBase::BoxDragger::setSpaceLimits( const Interval<float>& x,
+					  const Interval<float>& y,
+					  const Interval<float>& z)
+{
+    if ( !xinterval )
+    {
+	xinterval = new Interval<float>(x);
+	yinterval = new Interval<float>(y);
+	zinterval = new Interval<float>(z);
+	return;
+    }
+
+    *xinterval = x;
+    *yinterval = y;
+    *zinterval = z;
 }
 
 
@@ -110,6 +136,35 @@ void visBase::BoxDragger::motionCB( void* obj, SoDragger* )
 
 void visBase::BoxDragger::valueChangedCB( void* obj, SoDragger* )
 {
+    visBase::BoxDragger* thisp = (visBase::BoxDragger*) obj;
+    const Coord3 center = thisp->center();
+    const Coord3 width = thisp->width();
+
+    bool reverse = false;
+    if ( thisp->xinterval
+	    && (!thisp->xinterval->includes( center.x-width.x/2 ) ||
+		!thisp->xinterval->includes( center.x+width.x/2 )) )
+	reverse = true;
+    else if ( thisp->yinterval
+	    && (!thisp->yinterval->includes( center.y-width.y/2 ) ||
+		!thisp->yinterval->includes( center.y+width.y/2 )) )
+	reverse = true;
+    else if ( thisp->zinterval
+	    && (!thisp->zinterval->includes( center.z-width.z/2 ) ||
+		!thisp->zinterval->includes( center.z+width.z/2 )) )
+	reverse = true;
+
+    if ( reverse && thisp->prevwidth.isDefined() &&
+	    	    thisp->prevcenter.isDefined() )
+    {
+	thisp->setCenter( thisp->prevcenter );
+	thisp->setWidth( thisp->prevwidth );
+	return;
+    }
+
+    thisp->prevcenter = center;
+    thisp->prevwidth = width;
+
     ( (visBase::BoxDragger*)obj )->changed.trigger();
 }
 
