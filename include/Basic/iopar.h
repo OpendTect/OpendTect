@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.6 2000-09-27 15:22:15 bert Exp $
+ RCS:		$Id: iopar.h,v 1.7 2000-11-24 14:06:24 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -33,6 +33,10 @@ public:
 			~IOPar();
 			IOPar(const IOPar&);
     IOPar&		operator=(const IOPar&);
+
+			// serialise
+    void		getFrom(const char*);
+    void		putTo(BufferString&) const;
 
     AliasObjectSet&	getPars() const	      { return (AliasObjectSet&)pars_; }
 

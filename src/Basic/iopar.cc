@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.7 2000-09-27 16:04:47 bert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.8 2000-11-24 14:06:36 bert Exp $";
 
 #include "iopar.h"
 #include "ascstream.h"
@@ -380,6 +380,63 @@ void IOPar::putTo( ascostream& astream, bool withname ) const
     if ( withname ) astream.put( name() );
     pars_.putTo( astream );
     astream.newParagraph();
+}
+
+
+static const char* sersep = "!^~";
+
+void IOPar::putTo( BufferString& str ) const
+{
+    str = name();
+    BufferString buf;
+    for ( int idx=0; idx<pars_.size(); idx++ )
+    {
+	buf = sersep;
+	buf += pars_[idx]->name();
+	buf += sersep;
+	buf += pars_[idx]->obj->name();
+	str += buf;
+    }
+}
+
+
+void IOPar::getFrom( const char* str )
+{
+    clear();
+
+    BufferString buf = str;
+    char* ptrstart = buf;
+    char* ptr = ptrstart;
+
+    bool name_done = false;
+    AliasObject* aob = 0;
+    while ( *ptr )
+    {
+	// advance to next separator or end of string
+	while ( *ptr && *ptr != *sersep )
+	    ptr++;
+	if ( *ptr && (*(ptr+1) != *(sersep+1) || *(ptr+2) != *(sersep+2)) )
+	    { ptr++; continue; }
+
+	// skip separator
+	if ( *ptr )
+	    { *ptr++ = '\0'; if ( *ptr ) ptr++; if ( *ptr ) ptr++; }
+
+	if ( !name_done )
+	    { setName( ptrstart ); name_done = true; }
+	else if ( !aob )
+	{
+	    aob = new AliasObject( new UserIDObject, ptrstart );
+	    pars_ += aob;
+	}
+	else
+	{
+	    aob->obj->setName( ptrstart );
+	    aob = 0;
+	}
+
+	ptrstart = ptr;
+    }
 }
 
 
