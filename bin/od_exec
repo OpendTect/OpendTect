@@ -2,11 +2,10 @@
 #_______________________________________________________________________________
 #
 # (C) 1999 de Groot-Bril Earth Sciences B.V.
-# $Id: od_exec,v 1.1 2002-01-10 14:20:36 dgb Exp $
+# $Id: od_exec,v 1.2 2002-04-14 12:27:00 bert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
-
 
 if ( ! $?dGB_APPL ) then
 	echo "Error : dGB program not initialized."
@@ -25,4 +24,14 @@ else
 	setenv LD_LIBRARY_PATH	"${bindir}/so:/lib:/usr/lib"
 endif
 
-$bindir/$*
+set niceness=0
+if ( $1 == --nice ) then
+	set niceness=$2
+	shift ; shift
+endif
+
+if ( $niceness == 0 ) then
+	$bindir/$*
+else
+	/usr/bin/nice -$niceness $bindir/$*
+endif
