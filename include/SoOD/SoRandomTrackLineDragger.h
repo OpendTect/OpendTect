@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoRandomTrackLineDragger.h,v 1.5 2003-03-06 18:39:39 nanne Exp $
+ RCS:		$Id: SoRandomTrackLineDragger.h,v 1.6 2003-03-07 13:13:03 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -71,8 +71,8 @@ public:
     int		getMovingKnot() const { return movingknot; }
     		/*!< Only valid after cb has been issued */
 
-protected:
     float			xyzSnap( int dim, float ) const;
+protected:
 
     static void			startCB( void*, SoDragger* );
     static void			motionCB( void*, SoDragger* );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.10 2003-03-06 18:39:39 nanne Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.11 2003-03-07 13:13:03 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ namespace visBase
 class TriangleStripSet;
 class VisColorTab;
 class Material;
+class EventCatcher;
 
 /*!\brief
 
@@ -40,6 +41,7 @@ public:
 
     void			showDragger( bool yn );
     bool			isDraggerShown() const;
+    void			moveObjectToDraggerPos();
 
     int				nrKnots() const;
     void			addKnot(const Coord& );
@@ -82,7 +84,7 @@ public:
     void			setData( int section, const Array2D<float>& );
     				/*!< section ranges from 0 to nrKnots-2 */
 
-    CNotifier<RandomTrack,int>  knotsel;
+    Notifier<RandomTrack>	knotnrchange;
     CNotifier<RandomTrack,int>	knotmovement;
     				/*!< Sends the index of the knot moving */
 
@@ -100,12 +102,16 @@ protected:
     static void			motionCB(void*,SoRandomTrackLineDragger*);
     static void			startCB(void*,SoRandomTrackLineDragger*);
 
+    void			eventCB(CallBacker*);
+    				// Handles adding and removal of knots
+
     Interval<float>		depthrg;
     TypeSet<Coord>		knots;
 
     ObjectSet<TriangleStripSet>	sections;
     SoRandomTrackLineDragger*	dragger;
     SoSwitch*			draggerswitch;
+    EventCatcher*		eventcatcher;
 };
 
 };
