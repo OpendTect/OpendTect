@@ -7,14 +7,14 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurfaceimpl.h,v 1.1 2005-01-06 09:47:08 kristofer Exp $
+RCS:           $Id: parametricsurfaceimpl.h,v 1.2 2005-01-13 09:39:32 kristofer Exp $
 ________________________________________________________________________
 
 -*/
 
 #define mInsertStart( idxvar, type, indexfunc ) \
 int idxvar = indexfunc; \
-if ( idxvar<-1 || nr##type##s() ) \
+if ( idxvar<-1 || idxvar>nr##type##s() ) \
 { \
     errmsg() = "Cannot insert row or column that is not connected to existing rows."; \
     return false; \
