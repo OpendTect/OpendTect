@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.6 2003-02-12 10:30:45 arend Exp $
+ RCS:           $Id: uitextedit.h,v 1.7 2003-02-27 11:39:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ protected:
     BufferString	lastlink_;
     bool		cangoforw_;
     bool		cangobackw_;
+    bool		forceplaintxt_;
 
 
     virtual QTextEdit&	qte();

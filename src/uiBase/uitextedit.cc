@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.17 2003-02-25 15:12:33 arend Exp $
+ RCS:           $Id: uitextedit.cc,v 1.18 2003-02-27 11:39:12 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,8 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
     mimeSourceFactory()->setExtensionType( "nn", "text/plain" );
     mimeSourceFactory()->setExtensionType( "dict", "text/plain" );
 
+    mimeSourceFactory()->addFilePath ( "." );
+
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
     setPrefHeight( handle.defaultHeight() );
@@ -140,6 +142,10 @@ uiTextBrowser::uiTextBrowser(uiParent* parnt, const char* nm, bool forcePTxt )
     , goneforwardorback(this)
     , linkhighlighted(this)
     , linkclicked(this)
+    , cangoforw_( false )
+    , cangobackw_( false )
+    , forceplaintxt_( forcePTxt )
+
 {}
 
 
@@ -159,34 +165,37 @@ static BufferString thesrc;
 const char* uiTextBrowser::source() const
 { 
 #ifdef WORK_AROUND
-    return thesrc;
-#else
+    if ( forceplaintxt_ )
+	return thesrc;
+#endif
     result = (const char*)body_->source();
     return (const char*)result;
-#endif
 }
 
 
 void uiTextBrowser::setSource( const char* src )
 {
 #ifdef WORK_AROUND
-    StreamData sd = StreamProvider( src ).makeIStream();
-    if ( !sd.istrm || sd.istrm->fail() )
-	{ sd.close(); return; }
+    if ( forceplaintxt_ )
+    {
+	StreamData sd = StreamProvider( src ).makeIStream();
+	if ( !sd.istrm || sd.istrm->fail() )
+	    { sd.close(); return; }
 
-    thesrc = src;
-    BufferString contents;
+	thesrc = src;
+	BufferString contents;
 
-    char buf[1024]; int maxlines=65536;
-    while ( sd.istrm->getline(buf,1024) && maxlines-- >= 0 )
-	{ contents += buf; contents += "\n"; }
+	char buf[1024]; int maxlines=65536;
+	while ( sd.istrm->getline(buf,1024) && maxlines-- >= 0 )
+	    { contents += buf; contents += "\n"; }
 
-    sd.close();
+	sd.close();
 
-    body_->setText( QString((const char*)contents) );
-#else
-    body_->setSource(src);
+	body_->setText( QString((const char*)contents) );
+    }
+    else
 #endif
+    body_->setSource(src);
 }
 
 
@@ -205,10 +214,10 @@ void uiTextBrowser::home()
 void uiTextBrowser::reload()
 {
 #ifdef WORK_AROUND
-    setSource(thesrc);
-#else
-    body_->reload();
+    if ( forceplaintxt_ )
+	setSource(thesrc);
 #endif
+    body_->reload();
 }
 
 
