@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.156 2003-09-19 07:50:22 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.157 2003-09-22 13:12:58 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,8 @@ const char* uiVisPartServer::workareastr = "Work Area";
     mDynamicCastGet(const visSurvey::SurfaceDisplay*,sd,obj) \
     mDynamicCastGet(const visSurvey::VolumeDisplay*,vd,obj) \
     mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,obj) \
-    mDynamicCastGet(const visSurvey::PickSetDisplay*,psd,obj)
+    mDynamicCastGet(const visSurvey::PickSetDisplay*,psd,obj) \
+    mDynamicCastGet(const visSurvey::SurfaceInterpreterDisplay*,tracker,obj)
 
 #define mDynamicCastAll() \
     visBase::DataObject* obj = visBase::DM().getObj( id ); \
@@ -77,7 +78,8 @@ const char* uiVisPartServer::workareastr = "Work Area";
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,obj) \
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,obj) \
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,obj) \
-    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,obj)
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,obj) \
+    mDynamicCastGet(visSurvey::SurfaceInterpreterDisplay*,tracker,obj)
 
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
@@ -612,10 +614,9 @@ bool uiVisPartServer::isStickSet( int id ) const
 const CubeSampling* uiVisPartServer::getCubeSampling( int id ) const
 {
     mDynamicCastAllConst();
-    mDynamicCastGet(const visSurvey::SurfaceInterpreterDisplay*,si,obj)
     if ( pdd ) return &pdd->getCubeSampling(true);
     if ( vd ) return &vd->getCubeSampling();
-    if ( si ) return &si->getCubeSampling();
+    if ( tracker ) return &tracker->getCubeSampling();
 
     return 0;
 }
@@ -1408,6 +1409,8 @@ void uiVisPartServer::setUpConnections( int id )
 	rtd->knotmoving.notify( cb );
 	rtd->rightclick.notify( mCB(vismenu,uiVisMenu,createPopupMenu) );
     }
+    else if ( tracker )
+        tracker->depthMoveNotifier.notify( cb );
 }
 
 
@@ -1428,10 +1431,12 @@ void uiVisPartServer::removeConnections( int id )
 	rtd->knotmoving.remove( cb );
 	rtd->rightclick.remove( mCB(this,uiVisMenu,createPopupMenu) );
     }
+    else if ( tracker )
+        tracker->depthMoveNotifier.remove( cb );
 }
 
 
-int uiVisPartServer::addSurfTrackerCube( int sceneid )
+int uiVisPartServer::addInterpreter( int sceneid )
 {
     if ( !interpreterdisplay )
     {
@@ -1443,13 +1448,17 @@ int uiVisPartServer::addSurfTrackerCube( int sceneid )
     if ( scene->getFirstIdx(interpreterdisplay) == -1 )
 	scene->addObject( interpreterdisplay );
 
+    setUpConnections( interpreterdisplay->id() );
+
     return interpreterdisplay->id();
 }
 
 
-int uiVisPartServer::getSurfTrackerCubeId()
+bool uiVisPartServer::isInterpreter(int id) const
 {
-    return interpreterdisplay ? interpreterdisplay->id() : 0;
+    if ( !interpreterdisplay ) return false;
+
+    return interpreterdisplay->id()==id;
 }
 
 
