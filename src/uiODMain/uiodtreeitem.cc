@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.25 2004-05-27 08:05:11 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.26 2004-05-27 15:38:34 kristofer Exp $
 ___________________________________________________________________
 
 -*/
@@ -450,6 +450,28 @@ bool uiODEarthModelSurfaceTreeItem::init()
 }
 
 
+void uiODEarthModelSurfaceTreeItem::checkCB(CallBacker* cb)
+{
+    uiODDisplayTreeItem::checkCB(cb);
+
+    if ( applMgr()->trackServer()->getTrackerID(mid)==-1 )
+    {
+	prevtrackstatus = false;
+        return;
+    }
+
+    if ( uilistviewitem->isChecked() )
+    {
+	applMgr()->trackServer()->enableTracking(mid, prevtrackstatus);
+    }
+    else
+    {
+	prevtrackstatus = applMgr()->trackServer()->isTrackingEnabled(mid);
+	applMgr()->trackServer()->enableTracking(mid,false);
+    }
+}
+
+
 BufferString uiODEarthModelSurfaceTreeItem::createDisplayName() const
 {
     const uiVisPartServer* visserv =
@@ -477,7 +499,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB(CallBacker* cb)
 
     bool dotrack = false;
     mGetTrackingBoolean(dotrack);    
-    if ( dotrack )
+    if ( dotrack && uilistviewitem->isChecked() )
     {
 	if ( applMgr()->EMServer()->isFullResolution(mid) && 
 	     applMgr()->trackServer()->getTrackerID(mid)==-1 )
