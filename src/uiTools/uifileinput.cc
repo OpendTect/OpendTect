@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.13 2003-01-21 08:16:57 bert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.14 2003-01-21 12:50:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,6 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "uilineedit.h"
-#include "errh.h"
 #include <datainpspec.h>
 
 
@@ -36,11 +34,6 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm,
 void uiFileInput::setFileName( const char* s )
 {
     setText( s );
-    uiLineEdit* le = dynamic_cast<uiLineEdit*>(element(0));
-    if ( le )
-	le->end();
-    else
-	pErrMsg("uiFileInput element 0 is not uiLineEdit");
 }
 
 

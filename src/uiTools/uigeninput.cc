@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.47 2003-01-14 13:45:25 arend Exp $
+ RCS:           $Id: uigeninput.cc,v 1.48 2003-01-21 12:50:08 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,17 +77,17 @@ public:
 			    return 0;
 			}
 
-virtual bool	isValid(int idx)
+    virtual bool	isValid(int idx)
 			{ 
 			    if ( isUndef(idx) ) return false;
 			    if ( !spec_.hasLimits() ) return true;
 			    pErrMsg("Sorry, not implemented..");
 			    return true;
 			} // TODO implement
-virtual bool	isUndef(int idx) const
+    virtual bool	isUndef(int idx) const
 			{ return !*text(idx); } 
 
-const char*		text( int idx ) const
+    const char*		text( int idx ) const
 			{ 
 			    return element(idx) ? element(idx)->text() 
 						: undefVal<const char*>();
@@ -115,7 +115,7 @@ const char*		text( int idx ) const
 						: undefVal<bool>();
 			    }
 
-    void		setText( const char* s, int idx )
+    virtual void	setText( const char* s, int idx )
 			    { if ( element(idx) ) element(idx)->setText(s); }
     void		setValue( int i, int idx )
 			    { if ( element(idx) ) element(idx)->setValue(i); }
@@ -263,6 +263,23 @@ protected:
 
 typedef uiSimpleInputFld<uiLineEdit>	uiTextInputFld;
 
+
+class uiFileInputFld : public uiSimpleInputFld<uiLineEdit>
+{
+public:
+			uiFileInputFld( uiGenInput* p, 
+					 const DataInpSpec& spec,
+					 const char* nm="File Input Field" ) 
+			    : uiSimpleInputFld<uiLineEdit>( p, spec, nm )
+			    { setText( spec.text() ? spec.text() : "", 0 ); }
+
+    virtual void	setText( const char* s, int idx )
+			    { 
+				if ( idx ) return;
+				usrinpobj.setText(s);
+				usrinpobj.end();
+			    }
+};
 
 class uiBoolInpFld : public uiSimpleInputFld<uiBoolInput>
 {
@@ -541,6 +558,7 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
     switch( desc.type().rep() )
     {
+
     case DataType::boolTp:
     {
 	fld = new uiBoolInpFld( this, desc ); 
@@ -551,6 +569,10 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
     {
 	if ( desc.type().form() == DataType::list )
 	    fld = new uiStrLstInpFld( this, desc ); 
+
+	else if ( desc.type().form() == DataType::filename )
+	    fld = new uiFileInputFld( this, desc ); 
+
 	else
 	    fld = new uiTextInputFld( this, desc ); 
     }
