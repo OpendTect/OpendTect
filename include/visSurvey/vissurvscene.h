@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.4 2002-03-06 07:39:54 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.5 2002-03-06 12:56:21 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -43,6 +43,7 @@ public:
 
     virtual int			size() const;
     virtual int			getId(int idx) const;
+    virtual int			getId( const SceneObject* ) const;
     virtual SceneObject*	getObject( int id );
     virtual void		removeObject( int id );
 
