@@ -6,13 +6,13 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.4 2000-05-06 14:29:42 bert Exp $
+ RCS:		$Id: arraynd.h,v 1.5 2000-05-25 15:58:00 bert Exp $
 ________________________________________________________________________
 
 */
 
 #include <gendefs.h>
-template <class Type> class TypeSet;
+template <class T> class TypeSet;
 
 
 class ArrayNDSize
@@ -87,31 +87,31 @@ public:
 };
 
 
-template <class Type> class ArrayND
+template <class T> class ArrayND
 {
 public:
 
     virtual			~ArrayND()	{}
 
-    virtual Type		getValOff( unsigned long off ) const
+    virtual T		getValOff( unsigned long off ) const
 				{
-				    Type res = *(Type*)(getData()+off);
+				    T res = *(T*)(getData()+off);
 				    unlockData();
 				    return res;
 				}
-    virtual void		setValOff(unsigned long off, Type val)
+    virtual void		setValOff(unsigned long off, T val)
                                 {
-				    *(Type*)(getData()+off) = val;
+				    *(T*)(getData()+off) = val;
 				    dataUpdated();
 				    unlockData();
 				}
 
-    virtual Type                getVal( const TypeSet<int>& pos ) const
+    virtual T                getVal( const TypeSet<int>& pos ) const
                                 { return getValOff( size().getArrayPos(pos) ); }
-    virtual void		setVal( const TypeSet<int>& pos, Type val )
+    virtual void		setVal( const TypeSet<int>& pos, T val )
 				{ setValOff( size().getArrayPos( pos ), val ); }
 
-    virtual Type*		getData() const			= 0;
+    virtual T*		getData() const			= 0;
     virtual void		dataUpdated()			{}
     virtual void		unlockData() const		{}
 
@@ -152,8 +152,10 @@ public:
 			operator Type() const
 			{ return array.getValOff( off ); }
     private:
+
 	ArrayND<Type>&	array;
 	unsigned long	off;
+
     };			
 };
 
