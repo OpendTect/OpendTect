@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.13 2001-05-10 07:17:05 bert Exp $
+ RCS:           $Id: datainpspec.h,v 1.14 2001-05-10 07:29:36 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ public:
     virtual bool	isUndef() const	{ return isUndef_; }
     T			value() const	
 			{
-			    if ( !isUndef() ) return value;
+			    if ( !isUndef() ) return value_;
 
 			    switch( type() )
 			    {
