@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.17 2004-09-28 12:32:45 bert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.18 2004-10-04 09:18:46 bert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.17 2004-09-28 12:32:45 bert Exp $"
 #include "filepath.h"
 #include "ptrman.h"
 #include "conn.h"
+#include "errh.h"
 #include <stdlib.h>
 
 
@@ -203,6 +204,8 @@ IOObj* IOObj::clone() const
 {
     const IOObj* dataobj = isLink() ? ((IOLink*)this)->link() : this;
     IOObj* newioobj = produce( dataobj->connType(), name(), dataobj->key(), NO);
+    if ( !newioobj )
+	{ pErrMsg("Cannot produce IOObj of my own type"); return 0; }
     newioobj->copyFrom( dataobj );
     newioobj->setStandAlone( dataobj->dirName() );
     return newioobj;
