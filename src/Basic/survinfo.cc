@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: survinfo.cc,v 1.45 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.46 2003-12-19 08:58:42 nanne Exp $";
 
 #include "survinfoimpl.h"
 #include "ascstream.h"
@@ -714,4 +714,13 @@ void SurveyInfo3D::putTr( const BinID2Coord::BCTransform& tr,
 }
 
 
+SurveyInfo3D::Orientation SurveyInfo3D::getOrientation() const
+{
+    float xinl = b2c_.getTransform(true).b;
+    float xcrl = b2c_.getTransform(true).c;
+    float yinl = b2c_.getTransform(false).b;
+    float ycrl = b2c_.getTransform(false).c;
 
+    float det = xinl*ycrl - xcrl*yinl;
+    return det < 0 ? Clockwise : CounterClockwise;
+}
