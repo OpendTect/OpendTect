@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		1-9-1995
  Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.11 2001-05-31 12:55:06 windev Exp $
+ RCS:		$Id: gendefs.h,v 1.12 2001-06-01 10:39:17 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,9 @@ ________________________________________________________________________
 # ifdef __cpp__
     namespace std {}
     using namespace std;
+# endif
+# ifndef M_PI
+#  define M_PI           3.14159265358979323846
 # endif
 #else
 # define mPolyRet(base,clss)		clss
