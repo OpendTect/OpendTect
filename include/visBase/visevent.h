@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.10 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visevent.h,v 1.11 2003-12-30 13:10:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -39,7 +39,8 @@ public:
     char			mousebutton;
 				//!< Only set if type==MouseClick
     bool			pressed;
-				/*!< Only set if type==MouseClick
+				/*!< Only set if type==MouseClick or
+				     type==Keyboard
 				     If it is false, the button has been
 				     released.
 				*/

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visevent.cc,v 1.10 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: visevent.cc,v 1.11 2003-12-30 13:10:15 kristofer Exp $";
 
 #include "visevent.h"
 #include "visdetail.h"
@@ -170,7 +170,8 @@ void visBase::EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     {
 	const SoKeyboardEvent* kbevent = (const SoKeyboardEvent*) event;
 	eventinfo.key = (int)kbevent->getKey();
-	eventinfo.type = visBase::MouseMovement;
+	eventinfo.type = visBase::Keyboard;
+	eventinfo.pressed = kbevent->getState()==SoButtonEvent::DOWN;
     }
     else if ( eventtype==SoLocation2Event::getClassTypeId() )
     {
