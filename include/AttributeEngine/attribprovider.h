@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.5 2005-02-03 15:35:02 kristofer Exp $
+ RCS:           $Id: attribprovider.h,v 1.6 2005-02-04 09:28:35 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ public:
     virtual bool		setCurrentPosition( const BinID& );
     void			addLocalCompZInterval(const Interval<int>&);
     const Interval<int>&	localCompZInterval() const;
-    virtual const DataHolder*	getData( const BinID& relpos );
+    virtual const DataHolder*	getData( const BinID& relpos=BinID(0,0) );
     virtual const DataHolder*	getDataDontCompute( const BinID& relpos ) const;
 
 protected:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.4 2005-02-03 15:35:02 kristofer Exp $
+ RCS:           $Id: attribdesc.h,v 1.5 2005-02-04 09:28:35 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ public:
     const char*		attribName() const;
     Desc*		clone() const;
 
-    bool		init() { return true; } //Needed?
+    bool		init() { return true; }  ; //Needed?
 
     void		setDescSet( DescSet* );
     DescSet*		descSet() const;
