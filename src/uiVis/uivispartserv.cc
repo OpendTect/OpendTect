@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.43 2002-05-07 12:12:42 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.44 2002-05-07 14:42:15 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -402,8 +402,8 @@ void uiVisPartServer::setPlanePos( int id )
 	sd->setWidth( width );
 	Geometry::Pos origo(cs->hrg.start.inl,cs->hrg.start.crl,cs->zrg.start);
 	sd->setOrigo( origo );
+	sd->updateAtNewPos();
 	sendEvent( evManipulatorMove );
-	sendEvent( evGetNewData );
 	sendEvent( evSelection );
     }
 }
