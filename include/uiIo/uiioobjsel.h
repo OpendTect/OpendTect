@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.27 2003-03-21 13:35:11 bert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.28 2003-05-12 16:15:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiGenInput;
 class Translator;
 class IODirEntryList;
 class uiLabeledListBox;
+class uiToolButton;
 
 
 /*! \brief dialog returning an IOObj* after successful go(). */
@@ -69,16 +70,21 @@ protected:
     uiLabeledListBox*	listfld;
     uiGenInput*		nmfld;
     uiGroup*		grp;
+    uiToolButton*	locbut;
+    uiToolButton*	robut;
+    uiToolButton*	renbut;
+    uiToolButton*	rembut;
 
     bool		acceptOK(CallBacker*);
     void		selChg(CallBacker*);
-    void		rightClk(CallBacker*);
+    void		tbPush(CallBacker*);
 
     virtual bool	createEntry(const char*);
 
     bool		rmEntry(bool);
     bool		renEntry(Translator*);
     bool		chgEntry(Translator*);
+    bool		roEntry(Translator*);
     bool		renImpl(Translator*,IOStream&,IOStream&);
 
 };

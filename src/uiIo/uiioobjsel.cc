@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.49 2003-04-10 15:10:44 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.50 2003-05-12 16:15:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uifiledlg.h"
 #include "uimsg.h"
-#include "uimenu.h"
+#include "uibutton.h"
+#include "uibuttongroup.h"
+#include "pixmap.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "iolink.h"
@@ -73,11 +75,30 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     listfld->box()->selectionChanged.notify( mCB(this,uiIOObjSelDlg,selChg) );
     listfld->box()->doubleClicked.notify( mCB(this,uiDialog,accept) );
     if ( ctio.ctxt.maydooper )
-	listfld->box()->rightButtonClicked.notify(
-				mCB(this,uiIOObjSelDlg,rightClk));
+    {
+	uiButtonGroup* bg = new uiButtonGroup( this, "" );
+	const ioPixmap locpm( GetDataFileName("filelocation.png") );
+	const ioPixmap renpm( GetDataFileName("renameobj.png") );
+	const ioPixmap rempm( GetDataFileName("trashcan.png") );
+	const ioPixmap ropm( GetDataFileName("readonly.png") );
+	locbut = new uiToolButton( bg, "File loc TB", locpm );
+	renbut = new uiToolButton( bg, "Obj rename TB", renpm );
+	rembut = new uiToolButton( bg, "Remove", rempm );
+	robut = new uiToolButton( bg, "Readonly togg", ropm );
+	locbut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
+	renbut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
+	rembut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
+	robut->activated.notify( mCB(this,uiIOObjSelDlg,tbPush) );
+	bg->attach( rightOf, listfld );
+	locbut->setToolTip( "Change location on disk" );
+	renbut->setToolTip( "Rename this object" );
+	rembut->setToolTip( "Remove this object" );
+	robut->setToolTip( "Toggle read-only" );
+    }
 
     setOkText( "Select" );
     selChg( this );
+    finaliseDone.notify( mCB(this,uiIOObjSelDlg,selChg) );
 }
 
 
@@ -125,71 +146,68 @@ const IOObj* uiIOObjSelDlg::selected( int objnr ) const
 void uiIOObjSelDlg::selChg( CallBacker* c )
 {
     if ( ismultisel ) return;
+    const int curitm = listfld->box()->currentItem();
+    ioobj = 0;
+    if ( curitm >= 0 )
+    {
+	entrylist->setCurrent( listfld->box()->currentItem() );
+	ioobj = entrylist->selected();
+	if ( c && nmfld )
+	    nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
+    }
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
 
-    entrylist->setCurrent( listfld->box()->currentItem() );
-    ioobj = entrylist->selected();
-    if ( c && nmfld )
-	nmfld->setText( ioobj ? (const char*)ioobj->name() : "" );
+    locbut->setSensitive( iostrm );
+    robut->setSensitive( iostrm );
+    //TODO set state according ro read-only status
+    renbut->setSensitive( ioobj );
+    rembut->setSensitive( ioobj );
 }
 
 
-void uiIOObjSelDlg::rightClk( CallBacker* c )
+void uiIOObjSelDlg::tbPush( CallBacker* c )
 {
-    int prevcur = listfld->box()->currentItem();
-    entrylist->setCurrent( listfld->box()->lastClicked() );
-    ioobj = entrylist->selected();
-    MultiID prevkey;
+    if ( !ioobj ) return;
+    mDynamicCastGet(uiToolButton*,tb,c)
+    if ( !tb ) { pErrMsg("CallBacker is not uiToolButton!"); return; }
+
+    const int curitm = listfld->box()->currentItem();
+    MultiID prevkey( ioobj->key() );
+
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    if ( !iostrm && (tb == robut || tb == locbut) )
+	{ pErrMsg("IOStream button but not IOStream!"); return; }
+
+    PtrMan<Translator> tr = ioobj->getTranslator();
+
     bool chgd = false;
-    if ( ioobj )
+    if ( tb == locbut )
+	chgd = chgEntry( tr );
+    else if ( tb == robut )
+	chgd = roEntry( tr );
+    else if ( tb == renbut )
+	chgd = renEntry( tr );
+    else if ( tb == rembut )
     {
-	prevkey = ioobj->key();
-	uiPopupMenu* mnu = new uiPopupMenu( this, "&Action" );
-
-	uiMenuItem* renit = new uiMenuItem( "&Rename ..." );
-	mnu->insertItem( renit );
-
-	mDynamicCastGet(IOStream*,iostrm,ioobj)
-	uiMenuItem* fnmit = 0;
-	if ( iostrm )
-	{
-	    fnmit = new uiMenuItem( "&File/location ..." );
-	    mnu->insertItem( fnmit );
-	}
-
-	PtrMan<Translator> tr = ioobj->getTranslator();
-	bool rmabl = tr ? tr->implRemovable(ioobj) : ioobj->implRemovable();
-	BufferString mnutxt( "Remove" );
-	if ( rmabl ) mnutxt += " ...";
-	uiMenuItem* rmit = new uiMenuItem( mnutxt );
-	mnu->insertItem( rmit );
-
-	int ret = mnu->exec();
-	if ( ret != -1 )
-	{
-	    if ( ret == renit->id() )
-		chgd = renEntry( tr );
-	    else if ( fnmit && ret == fnmit->id() )
-		chgd = chgEntry( tr );
-	    else if ( ret == rmit->id() )
-	    {
-		chgd = rmEntry( rmabl );
-		if ( chgd ) prevkey = "";
-	    }
-	}
+	chgd = rmEntry( tr ? tr->implRemovable(ioobj) : ioobj->implRemovable());
+	if ( chgd ) prevkey = "";
     }
     if ( !chgd ) return;
 
     entrylist->fill( IOM().dirPtr() );
-    if ( prevkey == "" )
-	entrylist->setCurrent( prevcur );
+    if ( prevkey != "" )
+	entrylist->setSelected( prevkey );
     else
     {
-	if ( prevcur >= entrylist->size() ) prevcur--;
-	entrylist->setSelected( prevkey );
+	const int newcur = curitm >= entrylist->size() ? curitm - 1 : curitm;
+	if ( newcur >= 0 )
+	    entrylist->setCurrent( newcur );
     }
-    ioobj = entrylist->selected();
+
     listfld->box()->empty();
     listfld->box()->addItems( entrylist->Ptr() );
+
+    selChg(c);
 }
 
 
@@ -314,6 +332,14 @@ bool uiIOObjSelDlg::chgEntry( Translator* tr )
 
     IOM().commitChanges( *iostrm );
     return true;
+}
+
+
+bool uiIOObjSelDlg::roEntry( Translator* tr )
+{
+    //TODO implement
+    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    return false;
 }
 
 

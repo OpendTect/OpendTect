@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.73 2003-05-02 14:43:46 arend Exp $
+ RCS:           $Id: uimainwin.cc,v 1.74 2003-05-12 16:15:23 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "helpview.h"
 #include "uimsg.h"
 
+#include "pixmap.h"
 #include "uibody.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
@@ -644,7 +645,7 @@ protected:
 
     uiPushButton*	okBut;
     uiPushButton*	cnclBut;
-    uiPushButton*	helpBut;
+    uiToolButton*	helpBut;
 
     uiCheckBox*		saveBut_cb;
     uiPushButton*	saveBut_pb;
@@ -799,10 +800,13 @@ uiObject* uiDialogBody::createChildren()
     }
     if ( setup.helpid_ != "" )
     {
-	helpBut = new uiPushButton( centralWidget_, "?" );
-	helpBut->setPrefWidthInChar( 3 );
+	const ioPixmap pixmap( GetDataFileName("contexthelp.png") );
+	helpBut = new uiToolButton( centralWidget_, "Help button", pixmap );
+	helpBut->setPrefWidthInChar( 5 );
 #ifdef __debug__
 	helpBut->setToolTip( setup.helpid_ );
+#else
+	helpBut->setToolTip( "Help on this window" );
 #endif
     }
     if ( !setup.menubar_ && setup.dlgtitle_ != "" )
