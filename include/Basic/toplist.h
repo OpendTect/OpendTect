@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K Tingdahl
  Date:		April 2003
- RCS:		$Id: toplist.h,v 1.2 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: toplist.h,v 1.3 2004-01-08 09:13:39 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,59 +27,104 @@ public:
 			TopList( int maxsize_, VT undefval_, bool istop_)
 			    : istop( istop_ )
 			    , maxsize( maxsize_ )
-			    , undefval( undefval_ )
-			{ }
+			    , undefval( undefval_ ) { }
     virtual		~TopList() {}
 
-    VT			getValue(int pos) const { return values[pos]; }
-    AVT			getAssociatedValue(int pos) const { return avals[pos]; }
+    inline bool		isTop() const;
+    inline void		setTop(bool yn);
+    			/*!<\note If the new setting is different from the 
+			  	  current one, the object will be reset
+			*/
+    inline void		reset();
+    			/*!< Removes all values */
 
-    virtual int		size() const { return values.size(); }
-    VT			getBottomValue() const
-			{
-			    if ( size() )
-				return values[size()-1];
-			    return undefval;
-			}
+    inline VT		getValue(int pos) const;
+    inline AVT		getAssociatedValue(int pos) const;
 
-    void		addValue( VT val, AVT aval )
-			{
-			    int pos = 0;
-			    const int mysize = size();
-			    if ( istop )
-				while ( pos<mysize && values[pos]>val ) pos++;
-			    else
-				while ( pos<mysize && values[pos]<val ) pos++;
-
-			    if ( pos==mysize )
-			    {
-				if ( mysize>=maxsize )
-				    return;
-
-				values += val;
-				avals += aval;
-			    }
-			    else
-			    {
-				values.insert( pos, val );
-				avals.insert( pos, aval );
-
-				if ( mysize==maxsize )
-				{
-				    values.remove(mysize);
-				    avals.remove(mysize);
-				}
-			    }
-			}
+    inline virtual int	size() const;
+    inline VT		getBottomValue() const;
+    inline void		addValue( VT val, AVT aval );
 private:
 
     TypeSet<VT>		values;
     TypeSet<AVT>	avals;
-    const bool		istop;
+    bool		istop;
     const int		maxsize;
     VT			undefval;
 
 };
 
 
+template <class VT, class AVT> inline
+bool TopList<VT,AVT>::isTop() const { return istop; }
+
+
+template <class VT, class AVT> inline
+void TopList<VT,AVT>::setTop( bool yn )
+{
+    if ( yn==istop ) return;
+    istop = yn;
+    reset();
+}
+
+
+template <class VT, class AVT> inline
+void TopList<VT,AVT>::reset()
+{
+    values.erase();
+    avals.erase();
+}
+
+
+template <class VT, class AVT> inline
+VT TopList<VT,AVT>::getBottomValue() const
+{
+    if ( size() )
+	return values[size()-1];
+    return undefval;
+}
+
+
+template <class VT, class AVT> inline
+VT TopList<VT,AVT>::getValue(int pos) const { return values[pos]; }
+
+
+template <class VT, class AVT> inline
+AVT TopList<VT,AVT>::getAssociatedValue(int pos) const { return avals[pos]; }
+
+
+template <class VT, class AVT> inline
+int TopList<VT,AVT>::size() const { return avals.size(); }
+
+
+template <class VT, class AVT> inline
+void TopList<VT,AVT>::addValue( VT val, AVT aval )
+{
+    int pos = 0;
+    const int mysize = size();
+    if ( istop )
+	while ( pos<mysize && values[pos]>val ) pos++;
+    else
+	while ( pos<mysize && values[pos]<val ) pos++;
+
+    if ( pos==mysize )
+    {
+	if ( mysize>=maxsize )
+	    return;
+
+	values += val;
+	avals += aval;
+    }
+    else
+    {
+	values.insert( pos, val );
+	avals.insert( pos, aval );
+
+	if ( mysize==maxsize )
+	{
+	    values.remove(mysize);
+	    avals.remove(mysize);
+	}
+    }
+}
 #endif
