@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.9 2004-04-30 12:10:44 kristofer Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.10 2004-05-26 08:46:24 kristofer Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -170,7 +170,7 @@ void uiTreeItem::setListViewItem( uiListViewItem* item )
 
 
 #define mAddChildImpl( uiparentlist ) \
-if ( newitem->parentType()==typeid(*this).name() ) \
+if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
 { \
     children += newitem; \
     newitem->parent = this; \
