@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_do_rmt,v 1.19 2004-11-10 13:22:33 arend Exp $
+# $Id: od_do_rmt,v 1.20 2004-11-10 13:46:01 arend Exp $
 #
 # remote execution script
 #_______________________________________________________________________________
@@ -81,7 +81,7 @@ if ( "$HDIR" == "win" ) then
     set precmd=""
     if ( -x "$DTECT_APPL/bin/$HDIR/SearchODFile" ) then
 	set prescript=`"${DTECT_APPL}/bin/$HDIR/SearchODFile" od_prepare.bat \
-		 | sed -e "s% %\\ %g" -e "s%\\%\\\\%g"`
+	     | sed -e "s% %\\ %g" -e "s%\\%\\\\%g" -e 's%^%""%' -e 's%$%""%'`
     endif
 
     set precmd="cmd /c $prescript $datahost $datadrive $datashare $usernm $remotepass"
