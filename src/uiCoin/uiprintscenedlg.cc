@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.3 2002-10-23 08:57:31 dgb Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.4 2002-10-23 13:59:47 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,8 +106,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     if ( !r->render( scene ) )
 	return false;
 
-    r->writeToFile( filename, extlist[0].getString() );
-    if ( !File_exists(filename) )
+    if ( !r->writeToFile( filename, extlist[0].getString() ) )
     {
 	uiMSG().error( "Couldn't write to specified file" );
 	return false;
