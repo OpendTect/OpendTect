@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.4 2002-04-29 14:05:15 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.5 2002-04-30 09:02:45 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -55,6 +55,8 @@ public:
 protected:
     void			createTransforms();
     static float		defappvel;
+
+    void			removeTransforms(CallBacker*);
     
     float			appvel;
     visBase::Transformation*	displaytransform;
