@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.64 2003-11-07 12:22:01 bert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.65 2004-05-05 15:31:17 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -309,8 +309,7 @@ void uiIOObjSel::usePar( const IOPar& iopar )
 
 void uiIOObjSel::updateInput()
 {
-    if ( ctio.ioobj )
-	setInput( (const char*)ctio.ioobj->key() );
+    setInput( ctio.ioobj ? (const char*)ctio.ioobj->key() : "" );
 }
 
 
