@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.2 2002-02-27 13:04:36 kristofer Exp $
+ RCS:		$Id: visscene.h,v 1.3 2002-02-28 08:40:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,8 @@ class Scene : public SceneObjectGroup
 public:
 			Scene();
     virtual		~Scene();
+
+    virtual int		addObject( SceneObject* );
 
     int 		id() const { return id_; }
 

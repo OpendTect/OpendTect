@@ -5,7 +5,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visscene.cc,v 1.3 2002-02-27 13:03:56 kristofer Exp $";
+static const char* rcsID = "$Id: visscene.cc,v 1.4 2002-02-28 08:39:55 kristofer Exp $";
 
 #include "visscene.h"
 #include "visobject.h"
@@ -33,6 +33,15 @@ visBase::Scene::~Scene()
     visBase::SM().removeScene( this );
     removeAll();
     delete selman;
+}
+
+
+int visBase::Scene::addObject( SceneObject* obj )
+{
+    mDynamicCastGet(visBase::VisualObject*, visobj, obj );
+    if ( visobj ) visobj->regForSelection();
+
+    return visBase::SceneObjectGroup::addObject( obj );
 }
 
 
