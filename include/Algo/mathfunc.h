@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.6 2003-05-13 13:42:23 kristofer Exp $
+ RCS:		$Id: mathfunc.h,v 1.7 2003-05-13 14:41:07 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,22 @@ the doubles in the position.
 */
 
 
-template <class T>
+template <class RT>
 class MathFunctionND
 {
 public:
     virtual	~MathFunctionND() {}
-    virtual T	getValue( const double* x) const= 0;
+    template <class IDXABL>
+    RT		getValue( const IDXABL& x ) const
+    		{
+		    const int nrdim = getNrDim();
+		    double pos[nrdim];
+		    for ( int idx=0; idx<nrdim; idx++ )
+			pos[idx] = x[idx];
+		    return getValue( pos );
+		}
+
+    virtual RT	getValue( const double* x) const= 0;
     virtual int	getNrDim() const 		= 0;
 };
 
@@ -43,28 +53,28 @@ the doubles in the position.
 
 */
 
-template <class T>
-class MathFunction : public MathFunctionND<T>
+template <class RT>
+class MathFunction : public MathFunctionND<RT>
 {
 public:
 
-    virtual T	getValue(double) const	= 0;
+    virtual RT	getValue(double) const	= 0;
 
-    T		getValue( const double* pos ) const { return getValue(pos[0]);}
+    RT		getValue( const double* pos ) const { return getValue(pos[0]);}
     int		getNrDim() const { return 1; }
 };
 
 
 /*!\brief a Math Function as in F(x,y). */
 
-template <class T>
-class MathXYFunction : public MathFunctionND<T>
+template <class RT>
+class MathXYFunction : public MathFunctionND<RT>
 {
 public:
 
-    virtual T	getValue(const Coord&) const	= 0;
+    virtual RT	getValue(const Coord&) const	= 0;
 
-    T		getValue( const double* pos ) const
+    RT		getValue( const double* pos ) const
     		        { return getValue(Coord(pos[0],pos[1]));}
     int		getNrDim() const { return 2; }
 
@@ -72,14 +82,14 @@ public:
 
 
 /*!\brief a Math Function as in F(x,y,z). */
-template <class T>
-class MathXYZFunction : public MathFunctionND<T>
+template <class RT>
+class MathXYZFunction : public MathFunctionND<RT>
 {
 public:
 
-    virtual T	getValue(const Coord3&) const	= 0;
+    virtual RT	getValue(const Coord3&) const	= 0;
 
-    T		getValue( const double* pos ) const
+    RT		getValue( const double* pos ) const
     		        { return getValue(Coord3(pos[0],pos[1],pos[2]));}
     int		getNrDim() const { return 3; }
 
@@ -126,18 +136,18 @@ a MathFunctionND (func). The value returned is:
 f(x) = func(P+N*x)
 */
 
-template <class T>
-class AlongVectorFunction : public MathFunction<T>
+template <class RT>
+class AlongVectorFunction : public MathFunction<RT>
 {
 public:
-    			AlongVectorFunction( const MathFunctionND<T>& func_,
+    			AlongVectorFunction( const MathFunctionND<RT>& func_,
 					     const double* P_, const double* N_)
 			    : P( P_ )
 			    , N( N_ )
 			    , func( func_ )
 			{}
 
-    T			getValue( double lambda ) const
+    RT			getValue( double lambda ) const
 			{
 			    const int ndim = func.getNrDim();
 			    double pos[ndim];
@@ -150,7 +160,7 @@ protected:
 
     const double*		P;
     const double*		N;
-    const MathFunctionND<T>&	func;
+    const MathFunctionND<RT>&	func;
 };
 
 
