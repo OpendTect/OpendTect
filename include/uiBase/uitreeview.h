@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.1 2002-02-05 14:02:40 arend Exp $
+ RCS:           $Id: uitreeview.h,v 1.2 2002-02-06 12:35:16 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,29 +165,32 @@ public:
 				       uiListViewItem::Type tp = 
 					    uiListViewItem::Standard  )
 				: type_(tp), after_(0)
-				, text_(txt), textlist_(0) , pixmap_(0)
-				{}
+				, pixmap_(0)
+				{ label( txt ); }
 
 	Setup&			type( uiListViewItem::Type tp )
 				    { type_ = tp;  return *this; }
 	Setup& 			after( uiListViewItem* aft ) 
 				    { after_ = aft; return *this; }
-	Setup& 			text( const char* txt ) 
-				    { text_ = txt; return *this; }
-	Setup& 			textlist( const char** txt ) 
-				    { textlist_ = txt; return *this; }
+	Setup& 			label( const char* txt ) 
+				{ 
+				    if( txt ) 
+					labels_ += new BufferString( txt ); 
+				    return *this; 
+				}
 	Setup& 			pixmap( const ioPixmap* pm )
 				    { pixmap_ = pm; return *this; }
 
-
 	uiListViewItem::Type	type_;
 	uiListViewItem*		after_;
-	const char*		text_;
-	const char**		textlist_;
+	ObjectSet<BufferString>	labels_;
 	const ioPixmap*		pixmap_;
 
     };
 
+
+			uiListViewItem( uiListViewItem* prnt, const char* txt);
+			uiListViewItem( uiListView* prnt, const char* txt);
 
 			uiListViewItem( uiListViewItem* parent, const Setup& ); 
 			uiListViewItem( uiListView* parent, const Setup& );

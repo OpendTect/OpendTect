@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.1 2002-02-05 14:02:40 arend Exp $
+ RCS:           $Id: uitreeview.cc,v 1.2 2002-02-06 12:35:16 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,6 @@ public:
 #endif
 			}
 
-    virtual uiSize	minimumSize() const; //!< \reimp
     virtual int 	nrTxtLines() const
 			    { return prefnrlines ? prefnrlines : 7; }
 
@@ -408,6 +407,8 @@ void uiListView::selectAll( bool yn )
 void uiListView::triggerUpdate()
     { body_->triggerUpdate(); }
 
+void uiListView::setNotifiedItem( QListViewItem* itm)
+    { lastitemnotified = mItemFor( itm ); }
 
 
 class uiQListViewItem : public QListViewItem
@@ -543,15 +544,30 @@ QListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
 #define mQthing()		body()->item()
 
 
+
+uiListViewItem::uiListViewItem( uiListView*  parent, const char* txt )
+: uiHandle<uiListViewItemBody>( txt, &mkbody( parent, 0, Setup(txt) ) )
+{ 
+    init(Setup(txt)); 
+}
+
+
+uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
+: uiHandle<uiListViewItemBody>( txt, &mkbody( 0, parent, Setup(txt) ) )
+{ 
+    init(Setup(txt)); 
+}
+
+
 uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
-: uiHandle<uiListViewItemBody>( setup.text_, &mkbody( parent, 0, setup ) )
+: uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( parent, 0, setup ) )
 { 
     init(setup); 
 }
 
 
 uiListViewItem::uiListViewItem( uiListViewItem*  parent, const Setup& setup )
-: uiHandle<uiListViewItemBody>( setup.text_, &mkbody( 0, parent, setup ) )
+: uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( 0, parent, setup ) )
 { 
     init(setup); 
 }
@@ -566,16 +582,11 @@ uiListViewItemBody& uiListViewItem::mkbody( uiListView* p1,uiListViewItem* p2,
 void uiListViewItem::init( const Setup& setup )
 {
     if ( setup.after_ )		moveItem( setup.after_ );
-    if ( setup.text_ )		setText( setup.text_ );
     if ( setup.pixmap_ )	setPixmap( 0, *setup.pixmap_ );
-    if ( setup.textlist_ )
+    if ( setup.labels_.size() )
     {
-	int idx=0;
-	for( const char** tl = setup.textlist_; tl && *tl ; tl++ )
-	{
-	    setText( *tl, idx );
-	    idx++;
-	}
+	for( int idx=0; idx < setup.labels_.size() ; idx++ )
+	    { setText( *setup.labels_[idx], idx ); }
     }
 }
 
@@ -597,7 +608,12 @@ int uiListViewItem::depth() const
 
 
 void uiListViewItem::setText( const char* txt, int column )
-    { mQthing().setText(column,txt); }
+{ 
+    QString txt_(txt);
+    QListViewItem& itm = mQthing();
+
+    itm.setText(column,txt_); 
+}
 
 
 const char* uiListViewItem::text( int column=0 ) const
