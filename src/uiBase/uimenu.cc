@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.14 2002-12-16 14:46:31 nanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.15 2003-01-30 10:06:28 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ public:
 			    , bar_( 0 )	{}
 
 			~uiMenuDataBody()	{ deepErase( itms ); }
+
+    virtual int		nrItems() const { return itms.size(); }
 
     virtual void	insertItem( uiMenuItem* it, int idx )
 			{
@@ -169,6 +171,11 @@ uiMenuData::uiMenuData( const char* nm, uiMenuDataBody* b )
 
 
 uiMenuData::~uiMenuData()			{ delete body_; }
+
+
+int uiMenuData::nrItems() const
+    { return body_->nrItems(); }
+
 
 
 void uiMenuData::insertItem( uiMenuItem* it, int idx )
