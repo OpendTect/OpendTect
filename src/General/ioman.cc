@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.42 2004-03-25 14:25:53 bert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.43 2004-03-26 15:45:03 bert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -154,70 +154,68 @@ extern "C" const char* GetSurveyFileName();
     { \
         errmsg = "$DTECT_DATA="; errmsg += GetBaseDataDir(); \
         errmsg += "\nThis is not an OpendTect data storage directory."; \
+	if ( fname ) \
+	    { errmsg += "\n[Cannot find: "; errmsg += fname; errmsg += "]"; } \
         return false; \
     }
 
 bool IOMan::validSurveySetup( BufferString& errmsg )
 {
     errmsg = "";
-    if ( !IOM().bad() ) return true;
-
-    delete IOMan::theinst_;
-    IOMan::theinst_ = 0;
-    FileNameString fname;
-    if ( !GetBaseDataDir() )
+    BufferString basedatadir( GetBaseDataDir() );
+    if ( basedatadir == "" )
 	mErrRet("Please set the environment variable DTECT_DATA.")
-    else if ( !File_exists(GetBaseDataDir()) )
-	mErrRetNotODDir(fname)
+    else if ( !File_exists(basedatadir.buf()) )
+	mErrRetNotODDir(0)
 
-    fname = GetBaseDataDir();
+    BufferString fname = basedatadir;
     fname = File_getFullPath( fname, ".omf" );
-    if ( File_isEmpty(fname) ) mErrRetNotODDir(fname)
+    if ( File_isEmpty(fname) ) mErrRetNotODDir(fname.buf())
 
-    fname = GetDataDir();
-    if ( !File_exists(fname) )
+    const BufferString projdir = GetDataDir();
+    if ( projdir != basedatadir && File_isDirectory(projdir) )
     {
-	fname = GetSurveyFileName();
-	if ( File_exists(fname) && !File_remove( fname, NO ) )
+	BufferString omffname = File_getFullPath( projdir, ".omf" );
+	if ( File_isEmpty(omffname) )
 	{
-	    fname = "The file ";
-	    fname += GetSurveyFileName();
-	    fname += " contains an invalid survey.\n";
-	    fname += "Please remove this file";
-	    mErrRet(fname)
+	    fname = File_getFullPath( projdir, ".omb" );
+	    if ( File_exists(fname) )
+		File_copy( fname, omffname, NO );
 	}
-	else if ( IOM().bad() ) mErrRetNotODDir(fname)
-    }
-    else
-    {
-	fname = File_getFullPath( fname, ".survey" );
-	bool hassurv = !File_isEmpty(fname);
-	fname = File_getFullPath( GetDataDir(), ".omf" );
-	bool hasomf = !File_isEmpty(fname);
+	BufferString survfname = File_getFullPath( projdir, ".survey" );
+	bool noomf = File_isEmpty(omffname);
+	bool nosurv = File_isEmpty(survfname);
 
-	if ( hassurv && hasomf ) // Huh?
-	    mErrRet("Cannot start Object Management. Please contact support")
-	if ( !hassurv && !hasomf )
-	    cerr << "Warning: Essential data files not found in ";
-	else if ( !hassurv )
-	    cerr << "Warning: No '.survey' found in ";
-	else if ( !hasomf )
-	    cerr << "Warning: No '.omf' found in ";
-	cerr << GetDataDir();
-	cerr << ". This survey is corrupt." << endl;
-
-	fname = GetSurveyFileName();
-	if ( File_exists(fname) && !File_remove( fname, NO ) )
+	if ( !noomf && !nosurv )
 	{
-	    fname = "The file ";
-	    fname += GetSurveyFileName();
-	    fname += " contains an invalid survey.\n";
-	    fname += "Please remove this file";
-	    mErrRet(fname)
+	    if ( !IOM().bad() )
+		return true; // This is normal
+	    // So what's wrong here? In any case - survey is not good.
 	}
-	else if ( IOM().bad() ) mErrRetNotODDir(fname)
+
+	else
+	{
+	    if ( nosurv && noomf )
+		cerr << "Warning: Essential data files not found in ";
+	    else if ( nosurv )
+		cerr << "Warning: Invalid or no '.survey' found in ";
+	    else if ( noomf )
+		cerr << "Warning: Invalid or no '.omf' found in ";
+	    cerr << projdir << ".\nThis survey is corrupt." << endl;
+	}
     }
 
+    // Survey in ~/.od/survey[.$DETCT_USER] is invalid. Remove it if necessary
+    BufferString survfname = GetSurveyFileName();
+    if ( File_exists(survfname) && !File_remove( survfname, NO ) )
+    {
+	fname = "The file "; fname += survfname;
+	fname += " contains an invalid survey.\n";
+	fname += "Please remove this file";
+	mErrRet(fname)
+    }
+
+    delete IOMan::theinst_; IOMan::theinst_ = 0;
     return true;
 }
 
