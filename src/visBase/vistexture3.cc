@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture3.cc,v 1.20 2004-11-26 09:16:21 dgb Exp $";
+static const char* rcsID = "$Id: vistexture3.cc,v 1.21 2005-01-14 15:43:11 nanne Exp $";
 
 #include "vistexture3.h"
 #include "arrayndimpl.h"
@@ -70,7 +70,7 @@ void visBase::Texture3::setData( const Array3D<float>* newdata, DataType sel )
     const int datax1sz = newdata->info().getSize( 1 );
     const int datax2sz = newdata->info().getSize( 2 );
 
-#define mMaxTextSz 256
+#define mMaxTextSz 512
 #define mMinTextSz 64
 
     int maxsize0 = mMaxTextSz;
