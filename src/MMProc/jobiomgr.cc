@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.6 2004-11-05 19:24:32 arend Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.7 2004-11-09 12:56:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ public:
     void		addFilePath( const FilePath& fp, FilePath::Style stl )
 			{
 			    cmd += " '";
-			    cmd += fp.fullPathStyled(stl);
+			    cmd += fp.fullPath(stl);
 			    cmd += "'";
 			}
     void		addFilePathFlag( const char* flag, const FilePath& fp,
@@ -371,15 +371,14 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
     FilePath remotelogfnm( machine.convPath( HostData::Data, logfnm ));
 
-    newiop->set( sLogFil, remotelogfnm.fullPathStyled(machine.pathStyle()) );
+    newiop->set( sLogFil, remotelogfnm.fullPath(machine.pathStyle()) );
 
     if ( newiop->find( sTmpStor ) )
     {
 	FilePath remotetmpdir = machine.convPath( HostData::Data,
 						  newiop->find( sTmpStor ) );
 
-	newiop->set( sTmpStor,
-		remotetmpdir.fullPathStyled( machine.pathStyle() ) );
+	newiop->set( sTmpStor, remotetmpdir.fullPath( machine.pathStyle() ) );
     }
 
     newiop->set( sSurvey, IOM().surveyName() );

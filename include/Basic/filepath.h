@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.2 2004-11-02 16:07:31 arend Exp $
+ RCS:		$Id: filepath.h,v 1.3 2004-11-09 12:57:11 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,9 +52,8 @@ public:
 
     inline bool		isAbsolute() const	{ return isabs_; }
 
-    inline BufferString	fullPath() const	{ return dirUpTo(-1); }
-    inline BufferString	fullPathStyled( Style f ) const
-			    { return mkCleanPath(fullPath(),f); }
+    inline BufferString	fullPath( Style f = Local ) const
+			    { return mkCleanPath(dirUpTo(-1),f); }
     inline const char*	prefix() const		{ return prefix_.buf(); }
     inline int		nrLevels() const	{ return lvls_.size(); }
 

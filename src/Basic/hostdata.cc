@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.21 2004-11-06 12:12:51 arend Exp $
+ RCS:           $Id: hostdata.cc,v 1.22 2004-11-09 12:56:22 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,9 +65,9 @@ static FilePath getReplacePrefix( const FilePath& dir_,
 	return FilePath(dir_);
 
     // convert paths to Unix style
-    BufferString dir = dir_.fullPathStyled( FilePath::Unix );
-    BufferString fromprefix = fromprefix_.fullPathStyled( FilePath::Unix );
-    BufferString toprefix = toprefix_.fullPathStyled( FilePath::Unix );
+    BufferString dir = dir_.fullPath( FilePath::Unix );
+    BufferString fromprefix = fromprefix_.fullPath( FilePath::Unix );
+    BufferString toprefix = toprefix_.fullPath( FilePath::Unix );
 
     const char* tail = strstr( dir, fromprefix );
     if ( !tail )
