@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.39 2004-10-05 10:26:18 bert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.40 2004-10-14 10:28:26 bert Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -716,8 +716,8 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
 {
     const int singinl = info().geom.start.inl == info().geom.stop.inl
 			? info().geom.start.inl : -999;
-    const char* Datastr = singinl == -999 ? "Data" : "Cube";
-    const char* datastr = singinl == -999 ? "data" : "cube";
+    const char* Datastr = singinl == -999 ? "Cube" : "Data";
+    const char* datastr = singinl == -999 ? "cube" : "data";
     if ( nrReaders() > 1 )
 	strm << Datastr << " is stored in " << nrReaders() << " files\n";
     strm << '\n';
@@ -728,8 +728,10 @@ void CBVSReadMgr::dumpInfo( std::ostream& strm, bool inclcompinfo ) const
     if ( inclcompinfo )
 	putComps( strm, info().compinfo );
 
-    strm << "The " << datastr << " is "
-	 << (info().geom.fullyrectandreg ? "100% rectangular." : "irregular.")
+    strm << "The " << datastr
+	 << (info().geom.fullyrectandreg ?
+	    (singinl == -999 ? " is 100% rectangular.": " has no gaps.")
+	    : " is irregular.")
 	 << '\n';
     if ( singinl != -999 )
     {
