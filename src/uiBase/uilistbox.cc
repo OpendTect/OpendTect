@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.5 2001-04-30 14:57:59 bert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.6 2001-05-01 08:54:59 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,6 +163,12 @@ bool uiListBox::isPresent( const char* txt ) const
     for ( int idx=0; idx<sz; idx++ )
 	if ( mQtThing()->text(idx) == txt ) return true;
     return false;
+}
+
+
+int uiListBox::currentItem() const
+{
+    return mQtThing()->currentItem();
 }
 
 
