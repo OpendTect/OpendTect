@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.16 2004-09-09 12:45:53 nanne Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.17 2004-09-28 12:23:05 nanne Exp $";
 
 #include "visshape.h"
 
@@ -191,10 +191,10 @@ void visBase::Shape::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     else if ( texture3 )
 	textureindex = texture3->id();
 
-    if ( textureindex!=-1 )
+    if ( textureindex != -1 )
     {
 	iopar.set( texturestr, textureindex );
-	if ( saveids.indexOf( textureindex ) != -1 )
+	if ( saveids.indexOf(textureindex) == -1 )
 	    saveids += textureindex;
     }
 
@@ -208,13 +208,13 @@ int visBase::Shape::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     bool ison;
-    if ( par.getYN( onoffstr, ison ) )
+    if ( par.getYN(onoffstr,ison) )
 	turnOn( ison );
 
     int textureindex;
-    if ( par.get( texturestr, textureindex ) && textureindex!=-1 )
+    if ( par.get(texturestr,textureindex) && textureindex!=-1 )
     {
-	if ( !DM().getObj( textureindex ) )
+	if ( !DM().getObj(textureindex) )
 	    return 0;
 
 	Texture2* t2 = dynamic_cast<Texture2*>(DM().getObj(textureindex));
