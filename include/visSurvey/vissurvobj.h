@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.22 2004-04-29 07:02:38 kristofer Exp $
+ RCS:		$Id: vissurvobj.h,v 1.23 2004-04-29 13:04:02 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -55,6 +55,8 @@ public:
     virtual bool		canResetManipulation() const;
     virtual void		resetManipulation();
     virtual void		acceptManipulation();
+    virtual BufferString	getManipulationString() const;
+    virtual NotifierAccess*	getManipulationNotifier();
 
     virtual bool		hasColor() const;
     virtual bool		hasMaterial() const;
@@ -68,6 +70,7 @@ public:
     				/*<\retval 0	volume
 				   \retval 1	traces
 				   \retval 2	random pos
+				   \retval -1	Does not have attribs 
 				*/
     virtual bool		hasColorAttribute() const;
     virtual const AttribSelSpec* getSelSpec() const;
