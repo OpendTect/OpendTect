@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.4 2001-05-29 11:45:29 bert Exp $
+ RCS:           $Id: uiobj.cc,v 1.5 2001-05-31 07:58:05 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,9 +146,8 @@ int uiObject::preferredHeight() const
     if( pref_char_height >= 0 ) 
 	{ return mNINT( pref_char_height * (float)font()->height() ); }
 
-    int prfHgt = mLayoutItm->mQLayoutItem().sizeHint().height(); 
-
-    if( isHidden ) return cached_pref_height;
+    int prfHgt = isHidden ? cached_pref_height 
+			  : mLayoutItm->mQLayoutItem().sizeHint().height(); 
 
     if( isSingleLine() )
     {
