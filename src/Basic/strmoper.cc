@@ -5,11 +5,12 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.3 2000-04-17 14:56:42 bert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.4 2000-04-21 13:30:40 bert Exp $";
 
 #include "strmoper.h"
 #include "strmprov.h"
 #include "timefun.h"
+#include "errh.h"
 #include <iostream.h>
 
 
@@ -56,6 +57,11 @@ bool writeWithRetry( ostream& strm, const void* ptr, unsigned int nrbytes,
 	strm.flush();
 	for ( int idx=0; idx<nrretries; idx++ )
 	{
+	    ErrMsgString msg( "Soft error during write. Retrying after " )
+	    msg += (int) delay;
+	    msg += " msecs ...";
+	    ErrMsg( msg );
+
 	    Time_sleep( 0.001 * delay );
 	    strm.clear();
 	    strm.write( ptr, nrbytes );
@@ -86,6 +92,11 @@ bool readWithRetry( istream& strm, void* ptr, unsigned int nrbytes,
 	unsigned char* cp = (unsigned char*)ptr + strm.gcount();
 	for ( int idx=0; idx<nrretries; idx++ )
 	{
+	    ErrMsgString msg( "Soft error during read. Retrying after " )
+	    msg += (int) delay;
+	    msg += " msecs ...";
+	    ErrMsg( msg );
+
 	    Time_sleep( 0.001 * delay );
 	    strm.clear();
 	    strm.read( cp, nrbytes );
