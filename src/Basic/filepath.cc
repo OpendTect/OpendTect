@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.6 2004-11-06 12:13:27 arend Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.7 2004-11-09 12:55:40 arend Exp $";
 
 #include "filepath.h"
 #include <iostream>
@@ -286,9 +286,10 @@ static BufferString getCleanUnxPath( const char* path )
 
 static BufferString getCleanWinPath( const char* path )
 {
-    BufferString ret; ret = path;
+    BufferString ret(path);
+    replaceCharacter( ret.buf(), ';' , ':' );
 
-    BufferString buf(path);
+    BufferString buf( ret );
     char* ptr = buf.buf();
 
     skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
@@ -301,7 +302,6 @@ static BufferString getCleanWinPath( const char* path )
 
 	*buffer = *drv; *(buffer+1) = ':'; *(buffer+2) = '\0';
 	ret += ++drv;
-
     }
 
     replaceCharacter( ret.buf(), '/', '\\' );

@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.50 2004-11-05 20:16:08 dgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.51 2004-11-09 12:55:40 arend Exp $";
 
 #include "genc.h"
 #include "filegen.h"
@@ -40,6 +40,16 @@ static const char* rcsID = "$Id: genc.c,v 1.50 2004-11-05 20:16:08 dgb Exp $";
 static FileNameString surveyname;
 static int surveynamedirty = YES;
 static const char* dirsep = sDirSep;
+
+#ifdef __win__  
+const char*     getWinPath( const char* path );
+                /*!< Converts unix style path to windows style */
+const char*     getUnixPath( const char* path );
+                /*!< Converts windows style path to unix style */
+#else
+# define        getWinPath(path) path
+# define        getUnixPath(path) path
+#endif
 
 
 int SurveyNameDirty()
