@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.63 2004-12-23 15:12:56 nanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.64 2005-01-11 07:43:11 nanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -282,10 +282,11 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 	dispname += " ("; dispname += nodenm; dispname += ")";
     }
 
-    if ( as && as->id()==AttribSelSpec::attribNotSel )
-	dispname = "<right-click>";
-    else if ( !as )
+    if ( !as )
 	dispname = cvisserv->getObjectName(displayid);
+    else if ( as->id()==AttribSelSpec::attribNotSel || 
+	      !as->userRef() || !*as->userRef() )
+	dispname = "<right-click>";
     else if ( as->id()==AttribSelSpec::noAttrib )
 	dispname="";
 
@@ -749,7 +750,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==multidatamnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->EMServer()->loadAuxData(mid);
+	const bool hassel = applMgr()->EMServer()->loadAuxData(mid);
+	if ( !hassel ) return;
 	uivissurf->updateTexture();
 	ODMainWin()->sceneMgr().updateTrees();
     }
