@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.3 2000-02-10 13:01:43 bert Exp $
+ RCS:		$Id: ioobj.h,v 1.4 2000-05-29 10:33:56 bert Exp $
 ________________________________________________________________________
 
 @$*/
  
  
 #include <conn.h>
-#include <uidobj.h>
+#include <unitidobj.h>
 class ascistream;
 class ascostream;
 class Translator;

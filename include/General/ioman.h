@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.1.1.2 1999-09-16 09:20:00 arend Exp $
+ RCS:		$Id: ioman.h,v 1.2 2000-05-29 10:33:55 bert Exp $
 ________________________________________________________________________
 
 @$*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 @$*/
 
 #include <uidobj.h>
+#include <unitid.h>
 #include <sets.h>
 class IOLink;
 class IOParList;
