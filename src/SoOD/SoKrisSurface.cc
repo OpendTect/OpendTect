@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.5 2005-03-10 13:24:02 cvskris Exp $";
+static const char* rcsID = "$Id: SoKrisSurface.cc,v 1.6 2005-03-10 14:14:49 cvskris Exp $";
 
 #include "SoKrisSurfaceImpl.h"
 #include "SoCameraInfoElement.h"
@@ -1918,7 +1918,7 @@ void SoKrisSurface::adjustNrOfParts()
 	{
 	    const int insertbefore = (nrcolparts+1)*(idx+1)-1;
 	    MeshSurfacePart* newpart = new MeshSurfacePart(*this,
-		    		nrcolparts*sidesize, idx*sidesize, sidesize );
+		    		idx*sidesize, nrcolparts*sidesize, sidesize );
 	    if ( insertbefore>=parts.getLength() )
 		parts.append( newpart );
 	    else 
