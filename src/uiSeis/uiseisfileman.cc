@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.10 2002-08-02 12:48:17 bert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.11 2002-09-04 06:38:39 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
   
     infofld = new uiTextEdit( this, "File Info", true );
     infofld->attach( alignedBelow, topgrp );
-    infofld->setPrefHeightInChar( 6 );
+    infofld->setPrefHeightInChar( 7 );
     infofld->setPrefWidthInChar( 50 );
     topgrp->attach( widthSameAs, infofld );
 
@@ -113,9 +113,14 @@ void uiSeisFileMan::mkFileInfo()
 			        txt += zrg.stop;
     }
 
-    if ( ioobj->pars().size() && ioobj->pars().hasKey("Type") )
+    if ( ioobj->pars().size() )
     {
-	txt += "\nType: "; txt += ioobj->pars().find( "Type" );
+	if ( ioobj->pars().hasKey("Type") )
+	{ txt += "\nType: "; txt += ioobj->pars().find( "Type" ); }
+
+	const char* optstr = "Optimized direction";
+	if ( ioobj->pars().hasKey(optstr) )
+	{ txt += "\nOptimized direction: "; txt +=ioobj->pars().find( optstr ); }
     }
 
     mDynamicCastGet(IOStream*,iostrm,ioobj)
