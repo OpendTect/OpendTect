@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.3 2002-02-08 07:02:46 kristofer Exp $
+ RCS:		$Id: dataclipper.h,v 1.4 2002-04-24 08:23:01 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,7 @@ public:
 
 
 protected:
+    int				approxstatsize;
     float			sampleprob;
     bool			subselect;
     float			cliprate;
