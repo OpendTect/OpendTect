@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.183 2003-12-28 16:10:23 bert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.184 2003-12-29 08:38:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -445,10 +445,7 @@ void uiVisPartServer::getPickSetData( int id, PickSet& pickset ) const
     pickset.color = psd->getMaterial()->getColor();
     pickset.color.setTransparency( 0 );
     for ( int idx=0; idx<psd->nrPicks(); idx++ )
-    {
-	Coord3 pos = psd->getPick( idx );
-	pickset += PickLocation( pos.x, pos.y, pos.z );
-    }
+	pickset += PickLocation( psd->getPick(idx), psd->getDirection(idx) );
 }
 
 
