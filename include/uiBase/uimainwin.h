@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.3 2001-05-16 14:58:44 arend Exp $
+ RCS:           $Id: uimainwin.h,v 1.4 2001-06-07 21:22:51 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ protected:
     // don't change order of these 3 attributes!
     i_LayoutMngr*	mLoMngr;
     i_QMainWindow*	mQtThing;
-    uiGroup&		mCentralWidget;
+    uiGroup*		mCentralWidget;
 
     uiStatusBar* 	mStatusBar;
     uiMenuBar* 		mMenuBar;

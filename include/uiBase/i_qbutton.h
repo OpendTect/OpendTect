@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.5 2001-05-16 14:58:30 arend Exp $
+ RCS:           $Id: i_qbutton.h,v 1.6 2001-06-07 21:22:49 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,35 +38,40 @@ public:
 				i_ButMessenger( QButton*  sender,
                                        	  	uiButton* receiver )
                                 : _receiver( receiver )
+                                , _sender( sender )
+				{}
+
+    void 			do_connect()
 				{
-				    connect( sender, SIGNAL( clicked() ), 
+				    connect( _sender, SIGNAL( clicked() ), 
 					     this,   SLOT( clicked() ) );
-				    connect( sender, SIGNAL( pressed() ), 
+				    connect( _sender, SIGNAL( pressed() ), 
 					     this,   SLOT( pressed() ) );
-				    connect( sender, SIGNAL( released() ), 
+				    connect( _sender, SIGNAL( released() ), 
 					     this,   SLOT( released() ) );
-				    connect( sender, SIGNAL(toggled(bool)), 
+				    connect( _sender, SIGNAL(toggled(bool)), 
 					     this,   SLOT(toggled(bool)) );
-				    connect( sender, SIGNAL(stateChanged(int)), 
+				    connect( _sender,SIGNAL(stateChanged(int)), 
 					     this,   SLOT(stateChanged(int)) );
 				}
 
 private:
 
-    uiButton* _receiver;
+    uiButton*			_receiver;
+    QButton*			_sender;
 
-private slots:
+public slots:
 
+    void toggled( bool ) 	
+		{ _receiver->notifyHandler( uiButton::toggled ); }
+    void stateChanged( int ) 	
+		{ _receiver->notifyHandler( uiButton::stateChanged ); }
     void clicked() 		
 		{ _receiver->notifyHandler( uiButton::clicked ); }
     void pressed() 		
 		{ _receiver->notifyHandler( uiButton::pressed ); }
     void released()		
 		{ _receiver->notifyHandler( uiButton::released); }
-    void toggled( bool ) 	
-		{ _receiver->notifyHandler( uiButton::toggled ); }
-    void stateChanged( int ) 	
-		{ _receiver->notifyHandler( uiButton::stateChanged ); }
 
 };
 
@@ -83,14 +88,17 @@ class i_QButtWrapper : public i_QObjWrapper<T>
 public:
                         i_QButtWrapper( uiButton& client,
                                         uiParent* parnt=0, const char* name=0 )
-                        : i_QObjWrapper<T>( client, parnt, name )
-                        , _messenger ( this, &client )
-                        , idInGroup(0) {}
+			    : i_QObjWrapper<T>( client, parnt, name )
+			    , _messenger ( this, &client )
+			    , idInGroup(0) 
+			    { _messenger.do_connect(); }
+
                         i_QButtWrapper( uiButton& client,
                                        const char* name, uiButtonGroup* parnt )
-                        : i_QObjWrapper<T>( client, name, parnt )
-                        , _messenger ( this, &client )
-                        , idInGroup(0) {}
+			    : i_QObjWrapper<T>( client, name, parnt )
+			    , _messenger ( this, &client )
+			    , idInGroup(0)
+			    { _messenger.do_connect(); }
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.6 2001-05-29 11:46:32 bert Exp $
+ RCS:           $Id: uigroup.h,v 1.7 2001-06-07 21:22:50 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,14 +50,14 @@ protected:
 
     const QWidget*	qWidget_() const;
 
-    virtual i_LayoutMngr* mLayoutMngr() { return &loMngr; }
+    virtual i_LayoutMngr* mLayoutMngr() { return loMngr; }
     virtual i_LayoutMngr* prntLayoutMngr()
 			{ 
 			    return ( parent_ && parent_->mLayoutMngr() )
-					? parent_->mLayoutMngr() : &loMngr; 
+					? parent_->mLayoutMngr() : loMngr; 
 			}
    
-    i_LayoutMngr& 	loMngr;
+    i_LayoutMngr* 	loMngr;
 
     virtual void        forceRedraw_( bool deep );
     virtual void	finalise_();

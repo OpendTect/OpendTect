@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.8 2001-05-31 12:22:37 arend Exp $
+ RCS:           $Id: i_layout.h,v 1.9 2001-06-07 21:22:48 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,13 +78,13 @@ class i_LayoutMngr : public QLayout, public UserIDObject
 
 public:
 			i_LayoutMngr( uiObject* parnt, int border, int space,
-				      const char* name=0, bool autoAdd=true );
+				      const char* name=0, bool autoAdd=false );
 //				      const char* name, bool autoAdd );
 
 //! constructor for if parnt doesn't know it's widget yet (constr. uiDialog)
 			i_LayoutMngr( QWidget* prntWidg, uiObject* parnt, 
 				      int border, int space,
-				      const char* name=0, bool autoAdd=true );
+				      const char* name=0, bool autoAdd=false );
 //				      const char* name, bool autoAdd );
 
     virtual		~i_LayoutMngr();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.18 2001-06-05 13:30:37 arend Exp $
+ RCS:           $Id: datainpspec.h,v 1.19 2001-06-07 21:22:46 windev Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,7 +270,10 @@ protected:
 			}
 
     StepInterval<T>*	stpi() const
-			{ return dynamic_cast< StepInterval<T>* > (interval_);}
+			{
+			    mDynamicCastGet(StepInterval<T>,si,interval_)
+			    return si;
+			}
 
     Interval<T>*	interval_;
 
