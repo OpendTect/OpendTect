@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.1 2004-04-28 09:59:31 nanne Exp $
+ RCS:           $Id: vishingeline.h,v 1.2 2004-05-25 12:24:55 kristofer Exp $
 ________________________________________________________________________
 
           
@@ -29,6 +29,7 @@ public:
 
     void			setHingeLine(const EM::HingeLine*);
     bool			setHingeLine(int);
+    const EM::HingeLine*	getHingeLine() const { return hingeline; }
     void			setTransformation(visBase::Transformation*);
     visBase::Transformation*	getTransformation();
 
