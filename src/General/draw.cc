@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.22 2002-04-16 15:22:09 bert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.23 2002-05-08 12:35:30 kristofer Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -290,6 +290,9 @@ void ColorTable::usePar( const IOPar& iopar )
 
 	cvs += ColorVal( col, val );
     }
+
+    if ( uselist )
+	calcList( collist.size() );
 }
 
 
