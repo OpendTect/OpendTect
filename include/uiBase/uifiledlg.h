@@ -7,14 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.5 2002-06-11 12:25:24 arend Exp $
+ RCS:           $Id: uifiledlg.h,v 1.6 2002-10-08 08:20:55 arend Exp $
 ________________________________________________________________________
 
 -*/
 #include "uiobj.h"
 #include <bufstring.h>
-
-class QFileDialog;
 
 class uiFileDialog : public UserIDObject
 {
@@ -49,6 +47,9 @@ public:
     void		setMode( Mode m)	{ mode_=m; }
     Mode		mode() const		{ return mode_; }
 
+    void		setOkText( const char* txt )	{ oktxt_ = txt; }
+    void		setCancelText( const char* txt ){ cnclxt_ = txt; }
+
 protected:
 
     BufferString	fn;
@@ -56,6 +57,9 @@ protected:
     BufferString	fname_;
     BufferString	filter_;
     BufferString	caption_;
+    BufferString	oktxt_;
+    BufferString	cnclxt_;
+
 };
 
 #endif

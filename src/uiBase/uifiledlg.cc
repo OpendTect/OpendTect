@@ -4,15 +4,39 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.9 2002-06-21 16:02:41 bert Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.10 2002-10-08 08:20:45 arend Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uifiledlg.h"
 #include "filegen.h"
-#include <qfiledialog.h> 
 
+
+#define private public
+#define protected public
+#include <qfiledialog.h> 
+#undef private
+#undef public
+#include <qpushbutton.h>
+
+class dgbQFileDialog : public QFileDialog
+{
+public:
+			    dgbQFileDialog( const QString& dirName,
+				const QString& filter=QString::null,
+				QWidget* parent=0,
+				const char* name=0, bool modal = FALSE )
+				: QFileDialog( dirName, filter, parent, name,
+					       modal )
+				{}
+
+			    dgbQFileDialog( QWidget* parent=0,
+				const char* name=0, bool modal = FALSE )
+				: QFileDialog( parent, name, modal ) {}
+
+
+};
 
 QFileDialog::Mode qmodeForUiMode( uiFileDialog::Mode mode )
 {
@@ -63,13 +87,15 @@ int uiFileDialog::go()
     }
 
 
-    QFileDialog* fd = new QFileDialog( 0, name(), TRUE );
+    dgbQFileDialog* fd = new dgbQFileDialog( 0, name(), TRUE );
 
     fd->setMode( qmodeForUiMode(mode_) );// QFileDialog::ExistingFile );
     fd->setFilters( QString(filter_) );
     fd->setCaption( QString(caption_) );
     fd->setDir( QString(fname_) );
 
+    if( oktxt_ != "" ) fd->okB->setText( (const char*)oktxt_ );
+    if( cnclxt_ != "") fd->cancelB->setText( (const char*)cnclxt_ );
 
     if ( fd->exec() == QDialog::Accepted )
         filnm = fd->selectedFile();
