@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		31-7-1995
  Contents:	STL-like vector implementation
- RCS:		$Id: vectoraccess.h,v 1.3 2000-03-02 15:24:23 bert Exp $
+ RCS:		$Id: vectoraccess.h,v 1.4 2000-03-09 17:11:34 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,16 @@ ________________________________________________________________________
 #include <general.h>
 
 
-#define mAllocSize	1024
+#ifndef __prog__
+extern
+#endif
+
+	int defaultAllocBlockSize
+
+#ifdef __prog__
+				    = 16
+#endif
+;
 
 
 template <class T>
@@ -25,10 +34,11 @@ class Vector
 {
 public:
 
-Vector()	: sz(0), allocsz(0), elems(0)	{}
+Vector()	: sz(0), allocsz(0), elems(0),
+		  allocblocksize(defaultAllocBlockSize)	{}
 
 Vector( int n )
-	: sz(0), allocsz(0), elems(0)
+	: sz(0), allocsz(0), elems(0), allocblocksize(defaultAllocBlockSize)
 {
     sz = allocsz = 0;
     if ( n ) elems = (T*)malloc(n*sizeof(T));
@@ -36,7 +46,7 @@ Vector( int n )
 }
 
 Vector( int n, const T& t )
-	: sz(0), allocsz(0)
+	: sz(0), allocsz(0), allocblocksize(defaultAllocBlockSize)
 {
     elems = (T*)malloc(n*sizeof(T));
     if ( elems )
@@ -57,6 +67,7 @@ Vector& operator =( const Vector& v )
 {
     if ( &v != this )
     {
+	allocblocksize = v.allocblocksize;
 	if ( sz != v.sz )
 	{
 	    if ( elems ) free( elems );
@@ -82,7 +93,7 @@ void push_back(const T& t)
 {
     if ( ++sz >= allocsz )
     {
-	allocsz += mAllocSize;
+	allocsz += allocblocksize;
 	if ( elems )	elems = (T*)realloc(elems,allocsz*sizeof(T));
 	else		elems = (T*)malloc(allocsz*sizeof(T));
     }
@@ -108,7 +119,7 @@ void remove( int idx )
     sz--;
     if ( idx<sz ) memcpy( elems+idx, elems+idx+1, (sz-idx)*sizeof(T) );
     if ( !sz ) erase();
-    else if ( sz == allocsz-mAllocSize )
+    else if ( sz == allocsz-allocblocksize )
     {
 	allocsz = sz;
 	elems = (T*)realloc(elems,allocsz*sizeof(T));
@@ -129,8 +140,9 @@ void remove( int i1, int i2 )
     else
     {
 	int prevallocsz = allocsz;
-	if ( sz % mAllocSize )  allocsz = ((sz/mAllocSize)+1) * mAllocSize;
-	else			allocsz = sz;
+	allocsz = sz % allocblocksize
+		? ((sz/allocblocksize)+1)*allocblocksize
+		: allocsz = sz;
 	if ( allocsz != prevallocsz )
 	    elems = (T*)realloc(elems,allocsz*sizeof(T));
     }
@@ -173,6 +185,7 @@ private:
 
     int		sz;
     int		allocsz;
+    int		allocblocksize;
     T*		elems;
 
 };
