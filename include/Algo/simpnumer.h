@@ -8,43 +8,60 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		12-4-1999
  Contents:	Simple numerical functions
- RCS:		$Id: simpnumer.h,v 1.4 2000-02-10 13:03:31 bert Exp $
+ RCS:		$Id: simpnumer.h,v 1.5 2000-03-22 13:40:52 bert Exp $
 ________________________________________________________________________
 
 */
 
 #include <general.h>
 
-
 //
-// sort quickly (algorithm taken from xv).
-//
-
-template <class T>
-inline void sort_array( T* arr, int sz )
-{
-    for ( int d=sz/2; d>0; d=d/2 )
-	for ( int i=d; i<sz; i++ )
-	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d )
-		Swap( arr[j], arr[j+d] );
-}
-
-
-//
+// sort_array: sort quickly (algorithm taken from xv).
 // sort_coupled: sort and remember where it was before sorting.
 //
 
+
+#define mDoSort(extra_var,extra_action) \
+{ \
+    T tmp; extra_var; \
+    for ( int d=sz/2; d>0; d=d/2 ) \
+	for ( int i=d; i<sz; i++ ) \
+	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
+	    { \
+		tmp = arr[j]; arr[j] = arr[j+d]; arr[j+d] = tmp; \
+		extra_action; \
+	    } \
+}
+
+
+template <class T>
+inline void sort_array( T* arr, int sz )
+mDoSort(,)
+
 template <class T>
 inline void sort_coupled( T* arr, int* idxs, int sz )
-{
-    for ( int d=sz/2; d>0; d=d/2 )
-	for ( int i=d; i<sz; i++ )
-	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d )
-	    {
-		Swap(arr[j],arr[j+d]);
-		Swap(idxs[j],idxs[j+d]);
-	    }
+mDoSort(int itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
+
+#undef mDoSort
+#define mDoSort(extra_var,extra_action) \
+{ \
+    extra_var; \
+    for ( int d=sz/2; d>0; d=d/2 ) \
+	for ( int i=d; i<sz; i++ ) \
+	    for ( int j=i-d; j>=0 && arr[j]>arr[j+d]; j-=d ) \
+	    { \
+		Swap( arr[j], arr[j+d] ); \
+		extra_action; \
+	    } \
 }
+
+template <class T>
+inline void sort_idxabl( T& arr, int sz )
+mDoSort(,)
+
+template <class T>
+inline void sort_idxabl_coupled( T& arr, int* idxs, int sz )
+mDoSort(int itmp,itmp = idxs[j]; idxs[j] = idxs[j+d]; idxs[j+d] = itmp)
 
 
 //
@@ -168,7 +185,7 @@ inline T parabolicInterpolate( float x0, T y0, float x1, T y1, float x2, T y2,
 template <class T>
 inline T polyInterpolate2D( T v00, T v01, T v02, T v03,
 			    T v10, T v11, T v12, T v13,
-			    T v20, T y21, T v22, T v23,
+			    T v20, T v21, T v22, T v23,
 			    T v30, T v31, T v32, T v33, float x, float y)
 {
     T v0 = polyInterpolate( v00, v01, v02, v03, y );
@@ -198,7 +215,7 @@ inline T linearInterpolate2D( T v00, T v01, T v10, T v11, float x, float y )
 }
     
 /*
-   linearInterpolate3D - interpolates a value inside a 1*1*1 grid. The notation
+   linearInterpolate3D - interpolates a value inside a 1*1*1 cube. The notation
    of the vaues are: "v"xyz. I.e v000 is the value at (0,0,0), v132 is the value
    at (1,3,2). Ideally, x and y should lie within the cube defined by the input
    values.
@@ -218,7 +235,7 @@ inline T linearInterpolate3D( T v000, T v001, T v010, T v011,
 }
     
 /*
-   polyInterpolate3D - interpolates a value inside a 4*4*4 grid. The notation
+   polyInterpolate3D - interpolates a value inside a 4*4*4 cube. The notation
    of the vaues are: "v"xyz. I.e v000 is the value at (0,0,0), v132 is the value
    at (1,3,2). Ideally, x and y should lie within the cube defined by (1,1,1),
    (1,2,1), (2,1,1), (2,2,2), (1,1,2), (1,2,2), (2,1,2) and (2,2,2).
@@ -415,13 +432,37 @@ inline float interpolateSampled( const T& idxabl, int sz, float pos,
 }
 
 
+//
+// dePeriodize returns a periodic (defined by y(x) = y(x) + N * P) value's value
+// in the functions first period (between 0 and P).
+//
+
 template <class T>
 inline T dePeriodize( T val, T period )
 {
-    const int n = (int) (val / period);
+    int n = (int) (val / period);
+    if ( val < 0 ) n--;
 
     return n ? val - n * period : val; 
-} 
+}
+
+//
+// intpow returns the integer power of an arbitary value. Faster than
+// pow( double, double ), more general than IntPowerOf(double,int).
+//
+
+template <class T> inline
+T intpow( T x, char y)
+{
+    T res = 1; while ( y ) { res *= x; y--; }
+    return res;
+}
+
+
+//
+// interpolateYPeriodicSampled interpolates in an indexable storage with
+// periodic entities ( defined by y(x) = y(x) + N*P )
+//
 
 template <class T, class RT>
 inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
@@ -477,6 +518,24 @@ inline void interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
 }
 
 
+template <class T>
+inline float interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
+                                 float period, bool extrapolate=NO,
+                                 float undefval=mUndefValue )
+{
+    float ret = undefval;
+    interpolateYPeriodicSampled( idxabl, sz, pos, ret,
+				 period, extrapolate, undefval );
+    return ret;
+}
+
+
+//
+// interpolateXPeriodicSampled interpolates in an periodic indexable ( where
+// the position is periodic ), defined by y(x) = x(x+n*P). The period is equal
+// to the size of the given idxabl.
+//
+
 template <class T, class RT>
 inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
 					RT& ret)
@@ -510,18 +569,6 @@ inline void interpolateXPeriodicSampled( const T& idxabl, int sz, float pos,
 			   nextval2, relpos );
 }
 
-
-
-template <class T>
-inline float interpolateYPeriodicSampled( const T& idxabl, int sz, float pos,
-				 float period, bool extrapolate=NO,
-				 float undefval=mUndefValue )
-{
-    float ret = undefval;
-    interpolateYPeriodicSampled( idxabl, sz, pos, ret,
-				 period, extrapolate, undefval );
-    return ret;
-}
 
 //
 // Taper an indexable array from 1 to taperfactor. If lowpos is less 

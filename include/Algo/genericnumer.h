@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.5 2000-03-02 15:24:30 bert Exp $
+ RCS:           $Id: genericnumer.h,v 1.6 2000-03-22 13:40:50 bert Exp $
 ________________________________________________________________________
 
 
 */
 
-#include <gendefs.h>
+#include <ranges.h>
 class MathFunction;
 
 /*
@@ -94,7 +94,8 @@ bool findValue(const MathFunction&,float x1,float x2,float& res,
 	       float targetval = 0,float tol=1e-5);
 
 float findValueInAperture(const MathFunction&,float startx, 
-	 	float aperture,float dx,float target=0,float tol=1e-5);
+	 	const TimeGate& aperture,float dx,float target=0,
+		float tol=1e-5);
 
 /*
 findExtreme - finds a functions minimal or maximum value (specified by bool 

@@ -25,19 +25,22 @@ int ArrayNDIter::operator[](int dim) const
 
 bool ArrayNDIter::inc( int dim )
 {
-    if ( position[dim] >= sz.getSize(dim) )
-	return false;
-
     position[dim] ++;
 
-    if ( position[dim] == sz.getSize(dim) && dim != 0 )   
+    if ( position[dim] >= sz.getSize(dim))
     {
-	inc( dim-1 );
+	if ( dim )
+	{
+	    position[dim] = 0;
+	    return inc( dim-1 );
+	}
+	else
+	    return false;
     }
 
     return true;
-}	
-
+}
+	    
 
 DefineEnumNames( ArrayNDWindow, WindowType, 1, "Window type")
 { "Box", "Hamming", 0 };

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.2 1999-10-18 14:02:46 dgb Exp $
+ RCS:		$Id: sets.h,v 1.3 2000-03-22 13:40:51 bert Exp $
 ________________________________________________________________________
 
 The TypeSet is meant for simple types or small objects that have a copy
@@ -31,14 +31,16 @@ template <class T>
 class TypeSet
 {
 public:
-			TypeSet()
-			{}
+			TypeSet() {}
 			TypeSet( int nr, T typ=0 ) {
 
-				for ( int idx=0; idx<nr; idx++ )
-				    typs.push_back(typ);
+			    for ( int idx=0; idx<nr; idx++ )
+				typs.push_back(typ);
 			}
-    virtual		~TypeSet()	{}
+			TypeSet( const TypeSet<T>& t )
+				{ append( t ); }
+    virtual		~TypeSet()
+				{}
 
     virtual int		size() const
 				{ return typs.size(); }
@@ -48,27 +50,36 @@ public:
 				{ return indexOf(t) < 0 ? 0 : (T*)&t; }
     virtual int		indexOf( const T& typ ) const {
 
-				for ( int idx=0; idx<size(); idx++ )
-				    if ( typs[idx] == typ ) return idx;
-				return -1;
+			    const unsigned int sz = size();
+			    for ( unsigned int idx=0; idx<sz; idx++ )
+				if ( typs[idx] == typ ) return idx;
+			    return -1;
 			}
 
     TypeSet<T>&	operator +=( const T& typ )
 				{ typs.push_back(typ); return *this; }
     TypeSet<T>&	operator -=( const T& typ )
 				{ typs.erase(typ); return *this; }
-    TypeSet<T>&		operator =( const TypeSet<T>& ts ) {
+    virtual TypeSet<T>&	copy( const TypeSet<T>& ts ) {
 
-				if ( &ts != this ) { erase(); append(ts); }
-				return *this;
+			    if ( &ts != this )
+			    {
+				const unsigned int sz = size();
+				if ( sz != ts.size() )
+				    { erase(); append(ts); }
+				else
+				    for ( unsigned int idx=0; idx<sz; idx++ )
+					(*this)[idx] = ts[idx];
+			    }
+			    return *this;
 
 			}
+    TypeSet<T>&		operator =( const TypeSet<T>& ts ) { return copy(ts); }
     virtual void	append( const TypeSet<T>& ts ) {
 
-				int sz = ts.size();
-				for ( int idx=0; idx<sz; idx++ )
-				    *this += ts[idx];
-
+			    const unsigned int sz = ts.size();
+			    for ( unsigned int idx=0; idx<sz; idx++ )
+				*this += ts[idx];
 			}
 
     virtual void	erase()
@@ -106,11 +117,13 @@ class ObjectSet
 {
 public:
     			ObjectSet() : allow0(NO) {}
-    virtual		~ObjectSet()		 {}
-    void		allowNull()		 { allow0 = YES; }
+    			ObjectSet( const ObjectSet<T>& t )
+						{ *this = t; }
+    virtual		~ObjectSet()		{}
+    void		allowNull(bool yn=true)	{ allow0 = yn; }
     ObjectSet<T>&	operator =( const ObjectSet<T>& os )
-						 { copy(os); return *this; }
-    virtual void	erase()			 { objs.erase(); }
+			{ allow0 = os.allow0; copy(os); return *this; }
+    virtual void	erase()			{ objs.erase(); }
 
     virtual int		size() const
 				{ return objs.size(); }
@@ -118,18 +131,15 @@ public:
 				{ return (T*)(objs[idx]); }
     virtual T*		operator[]( const T* t ) const {
 
-				int idx = indexOf(t);
-				return idx < 0 ? 0 : (T*)t;
-
+			    int idx = indexOf(t);
+			    return idx < 0 ? 0 : (T*)t;
 			}
     virtual int		indexOf( const T* ptr ) const {
 
-				for ( int idx=0; idx<size(); idx++ )
-				    if ( objs[idx] == ptr ) return idx;
-				return -1;
-
+			    for ( int idx=0; idx<size(); idx++ )
+				if ( objs[idx] == ptr ) return idx;
+			    return -1;
 			}
-
     virtual ObjectSet<T>& operator +=( T* ptr ) {
 
 				if ( ptr || allow0 ) objs.push_back((void*)ptr);
@@ -138,28 +148,25 @@ public:
 			}
     virtual ObjectSet<T>& operator -=( T* ptr ) {
 
-				if ( ptr || allow0 ) objs.erase((void*)ptr);
-				return *this;
-
+			    if ( ptr || allow0 ) objs.erase((void*)ptr);
+			    return *this;
 			}
     virtual T*		replace( T* newptr, int idx ) {
  
-				if (idx<0||idx>size()) return 0;
-				T* ptr = (T*)objs[idx];
-				objs[idx] = (void*)newptr; return ptr;
+			    if (idx<0||idx>size()) return 0;
+			    T* ptr = (T*)objs[idx];
+			    objs[idx] = (void*)newptr; return ptr;
 			}
     virtual void	copy( const ObjectSet<T>& os ) {
 
-				if ( &os != this )
-				    { erase(); append( os ); }
-
+			    if ( &os != this )
+				{ erase(); append( os ); }
 			}
     virtual void	append( const ObjectSet<T>& os ) {
 
-				int sz = os.size();
-				for ( int idx=0; idx<sz; idx++ )
-				    *this += os[idx];
-
+			    int sz = os.size();
+			    for ( int idx=0; idx<sz; idx++ )
+				*this += os[idx];
 			}
 
 private:
