@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.6 2004-01-05 15:00:04 nanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.7 2004-01-09 11:02:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,6 @@ class uiTreeFactorySet;
 class uiODSceneMgr : public CallBacker
 {
 public:
-
-			uiODSceneMgr(uiODMain*);
-			~uiODSceneMgr();
-
-    void		initMenuMgrDepObjs();
 
     void		cleanUp(bool startnew=true);
     void		addScene();
@@ -87,6 +82,10 @@ public:
 
 protected:
 
+			uiODSceneMgr(uiODMain*);
+			~uiODSceneMgr();
+    void		initMenuMgrDepObjs();
+
     class Scene
     {
     public:
@@ -103,7 +102,7 @@ protected:
 
     uiODMain&		appl;
     uiWorkSpace*	wsp;
-    ObjectSet<uiODSceneMgr::Scene>	scenes;
+    ObjectSet<uiODSceneMgr::Scene> scenes;
     int			vwridx;
     float		lasthrot, lastvrot, lastdval;
     uiTreeFactorySet*	tifs;
@@ -117,6 +116,8 @@ protected:
 
     Scene&		mkNewScene();
     void		initTree(Scene&,int);
+
+    friend class	uiODMain;
 
 };
 

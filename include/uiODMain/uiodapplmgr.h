@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.4 2003-12-30 16:37:39 nanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.5 2004-01-09 11:02:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,9 +35,6 @@ class uiSoViewer;
 class uiODApplMgr : public CallBacker
 {
 public:
-
-			uiODApplMgr(uiODMain&);
-			~uiODApplMgr();
 
     uiPickPartServer*	pickServer()			{ return pickserv; }
     uiVisPartServer*	visServer()			{ return visserv; }
@@ -110,6 +107,9 @@ public:
 
 protected:
 
+			uiODApplMgr(uiODMain&);
+			~uiODApplMgr();
+
     uiODMain&		appl;
     uiODApplService&	applservice;
 
@@ -142,6 +142,8 @@ protected:
 
     inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }
     inline uiODMenuMgr&	menuMgr()	{ return appl.menuMgr(); }
+
+    friend class	uiODMain;
 };
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.5 2004-01-05 15:00:04 nanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.6 2004-01-09 11:02:09 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,9 +23,6 @@ class uiPopupMenu;
 class uiODMenuMgr : public CallBacker
 {
 public:
-
-			uiODMenuMgr(uiODMain*);
-    void		initSceneMgrDepObjs();
 
     uiPopupMenu*	fileMnu()		{ return filemnu; }
     uiPopupMenu*	procMnu()		{ return procmnu; }
@@ -44,6 +41,7 @@ public:
     uiToolBar*		coinTB()		{ return cointb; }
 
 
+    			// Probably not needed by plugins
     void		storePositions();
     void		updateStereoMenu(bool stereo,bool quad);
     void		updateViewMode(bool);
@@ -52,6 +50,9 @@ public:
     void		enableActButton(bool);
 
 protected:
+
+			uiODMenuMgr(uiODMain*);
+    void		initSceneMgrDepObjs();
 
     uiODMain&		appl;
     Timer&		timer;
@@ -92,6 +93,8 @@ protected:
 
     inline uiODApplMgr&	applMgr()	{ return appl.applMgr(); }
     inline uiODSceneMgr& sceneMgr()	{ return appl.sceneMgr(); }
+
+    friend class	uiODMain;
 };
 
 

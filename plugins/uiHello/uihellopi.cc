@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.6 2003-12-31 07:54:27 nanne Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.7 2004-01-09 11:02:09 bert Exp $";
 
 #include "uimsg.h"
 
@@ -52,19 +52,19 @@ class uiHelloMgr :  public CallBacker
 {
 public:
 
-			uiHelloMgr(uiODMain*);
+			uiHelloMgr(uiODMain&);
 
-    uiODMain*		appl;
+    uiODMain&		appl;
     void		dispMsg(CallBacker*);
 };
 
 
-uiHelloMgr::uiHelloMgr( uiODMain* a )
+uiHelloMgr::uiHelloMgr( uiODMain& a )
 	: appl(a)
 {
-    appl->menuMgr().utilMnu()->insertItem(
-	new uiMenuItem("&Diplay Hello Message ...",
-	    		mCB(this,uiHelloMgr,dispMsg) ) );
+    uiMenuItem* newitem = new uiMenuItem( "&Diplay Hello Message ...",
+	    				  mCB(this,uiHelloMgr,dispMsg) );
+    appl.menuMgr().utilMnu()->insertItem( newitem );
 }
 
 
@@ -88,7 +88,7 @@ bool acceptOK( CallBacker* )
     const char* typedtxt = txtfld->text();
     if ( ! *typedtxt )
     {
-	uiMSG().error( "Please type a text" );
+	uiMSG().error( "Please type a message text" );
 	return false;
     }
     if ( typfld->getBoolValue() )
@@ -106,15 +106,14 @@ bool acceptOK( CallBacker* )
 
 void uiHelloMgr::dispMsg( CallBacker* )
 {
-    uiHelloMsgBringer dlg( appl );
+    uiHelloMsgBringer dlg( &appl );
     dlg.go();
 }
 
 
 extern "C" const char* InituiHelloPlugin( int, char** )
 {
-    static uiHelloMgr* mgr = 0; if ( mgr ) return 0;
-    mgr = new uiHelloMgr( ODMainWin() );
+    (void)new uiHelloMgr( *ODMainWin() );
     return 0; // All OK - no error messages
 }
 

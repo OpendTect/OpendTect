@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.19 2003-12-23 16:03:17 arend Exp $
+  - RCS:	$Id: plugins.html,v 1.20 2004-01-09 11:02:09 bert Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -44,7 +44,7 @@ All modern Operating systems nowadays have ways to dynamically load libraries in
 As an example, a 'hello world' program could conceptually look like this:
 <pre><code>dynlib = OpenDynamicLib( "libc.so" );
 PrintfTypeFunction fn = (PrintfTypeFunction)GetDynLibFn( dynlib, "printf" );
-fn( "Hello world" );
+fn( "Hello world\n" );
 </code></pre>
 </p><p>
 In this very simple case calling the function has no other effect than printing a string. In OpendTect, you'd want to add an attribute, create a menu item in the Opendtect menu, etc. etc.
@@ -58,7 +58,7 @@ GetMyModPluginInfo
 InitMyModPlugin
 </code></pre>
 </p><p>
-Only the last one is required. The first one, <code>Get...PluginType</code> determines whether the plugin can be used for the <a href=#autoload>auto-load</a>, and if so, when. 'When' means: before or after the program has created its own objects (but always after the static objects are initialised). The second function simply provides info for the users of your plugin.
+Only the last one is required. The first one, <code>Get...PluginType</code> determines whether the plugin can be used for the <a href=#autoload>auto-load</a>, and if so, when. 'When' means: before or after the program has created the OpendTect GUI objects (and always after the static objects are initialised). The second function simply provides info for the users of your plugin.
 </p><p>
 Note that these functions must be declared 'extern "C"', as you can see in the first example plugin "Hello":
 <pre><code>#include &lt;iostream&gt;
@@ -69,7 +69,7 @@ extern "C" const char* InitHelloPlugin( int, char** )
 }
 </code></pre>
 </p><p>
-You'll find this example plugin in the plugins directory. Those 6 lines are enough to constitute a plugin for OpendTect. The Makefile to build the plugin looks like this:
+You'll find this example plugin in the plugins directory of your work environment. Those 6 lines are enough to constitute a plugin for OpendTect. The Makefile to build the plugin looks like this:
 </p><p>
 <pre><code>SRC.cc := hellopi.cc
 PLUGIN := yes
@@ -77,7 +77,7 @@ include make.od.Defaults
 include make.Targets
 </code></pre>
 </p><p>
-First try <code>make -n</code>. Notice that Pmake makes an awful lot of commands with a small specification. Anyway, after typing <code>make</code> the plugin should be generated. The new plugin can be loaded from within OpendTect (Menu Utilities-Plugins; press the 'Load new' button). At that point in time, the message 'Hello world' should appear on stdout (on Windows, stdout messages appear on the OpendTect console window).
+First try <code>make -n</code> (make sure you have <a href="pmake.html">Pmake</a> initialised!). Notice that Pmake makes an awful lot of commands with a small specification. Anyway, after typing <code>make</code> the plugin should be generated. The new plugin can be loaded from within OpendTect (Menu Utilities-Plugins; press the 'Load new' button). At that point in time, the message 'Hello world' should appear on stdout (on Windows, stdout messages appear on the OpendTect console window).
 </p><p>
 To make this a UI - based program we'll need to use functionality from the <code>uiBase</code> module. In this case, we use the <code>uiMSG()</code> utility:
 <pre><code>#include "uimsg.h"
@@ -126,9 +126,9 @@ The plugin will now <a href=#autoload>auto-load</a> when put in the correct plug
 </p><p>
 The idea is to add a menu item 'Display Hello Message ...' to the 'Utilities' menu of OpendTect. The Makefile and the example code are already prepared for this, you only need to define 'PLAN_B', for example on the command line:
 <code><pre>make PLAN_B=yes</code></pre>
-Apart from adding a flag so we can check for PLAN_B in the code, the <code>MODDEP := uiApplMan</code> tells Pmake that the <code>uiApplMan</code> headers, and the headers <code>uiApplMan</code> depends on will be used. That is much more than the original <code>uiBase</code> dependencies.
+Apart from adding a flag so we can check for PLAN_B in the code, the <code>MODDEP := uiODMain</code> tells Pmake that the <code>uiODMain</code> headers, and the headers <code>uiODMain</code> depends on will be used. That is much more than the original <code>uiBase</code> dependencies. uiODMain is the top level of OpendTect.
 </p><p>
-If <code>"make PLAN_B=yes"</code> does not compile anything (because a uiHello.so already exists), you can try to <code>"touch uihellopi.cc"</code> first.
+If <code>"make PLAN_B=yes"</code> does not compile anything (because a uiHello.so already exists), you can try "<code>make uihellopi.rmlib</code>" first.
 </p><p>
 <h4>Problems</h4>
 The two problems we are faced with are:
@@ -136,30 +136,37 @@ The two problems we are faced with are:
 <li>How to create a new menu item
 <li>How does one make a new dialog
 </ol>
-The real problem behind the first is not so much how to make the item itself, but how to get hold of the parent menu it must be inserted into. The problem with that is that at the time of the plugin initialisation, the menu itself may not yet exist. That is why, in that case, we have to ask the OpendTect UI Manager object (The uidTectMan instance) whether it is already finalised, and if not, to give us a callback when it does. Otherwise, we can simply insert the item:
+The real problem behind the first is not so much how to make the item itself, but how to get hold of the parent menu it must be inserted into. This is a threshold that needs to be conquered for every new system: you'll need an entry point, a seed to get you going. In OpendTect, the entry point is the global instance of the uiODMain class that can be accessed through the <code>uiODMain* ODMainWin()</code> global function. Once you have that, you can reach any object you need. 
 </p><p>
-<pre><code>if ( mgr->applman->uidMan()->isFinalised() )
-    mgr->init( mgr->applman->uidMan() );
-else
-    mgr->applman->uidMan()->finalised.notify(mCB(mgr,uiHelloMgr,init));
+To see where things start, go to the PLAN_B InituiHelloPlugin function at the bottom of uihellopi.cc to find:
+</p><p>
+<pre><code>extern "C" const char* InituiHelloPlugin( int, char** )
+{
+    (void)new uiHelloMgr( ODMainWin() );
+    return 0; // All OK - no error messages
+}
 </pre></code>
+As you can see, the ODMainWin() instance is passed to a new instance of <code>uiHelloMgr</code> which is programmed above it. This Manager object is needed as you will find that any non-trivial GUI plugin will need some kind of top-level 'application management' object to drive it.
 </p><p>
-Because callbacks can only be sent to objects that are <code>CallBacker</code>s, we have made an object <code>uiHelloMgr</code> that can receive the callback from the menu.
 </p>
 <h4>The <code>uiHelloMgr</code></h4>
 <p>
-The uiHelloMgr will receive a callback when the ui manager is finalised: the <code>init(CallBacker*)</code> method is then called. In that method the ui hello manager inserts the menu item into the menu. It tells the menu item to call the dispMsg method when triggered:
+An important part of any GUI system is callback handling. In OpendTect, callbacks are basic objects used throughout the system, not only in the User Interface. In any case, because callbacks can only be sent to objects that are <code>CallBacker</code>s, we have made <code>uiHelloMgr</code> a descendent of <code>CallBacker</a>, so it can receive the callback from the menu.
+When the uiHelloMgr is constructed, it will add a menu item to the OpendTect menu:
 </p><p>
-<code><pre>applman->utilMnu()->insertItem(
-      new uiMenuItem( "&amp;Diplay Hello Message ...",
-                      mCB(this,uiHelloMgr,dispMsg) );
+<code><pre>
+    uiMenuItem* newitem = new uiMenuItem( "&amp;Diplay Hello Message ...",
+                                          mCB(this,uiHelloMgr,dispMsg) );
+    appl.menuMgr().utilMnu()->insertItem( newitem );
 </code></pre>
 </p><p>
-The <code>uiHelloMgr::dispMsg</code> method does nothing more than make an instantiation of the dialog class we made for showing the message: <code>uiHelloMsgBringer</code>.
+The new menu item is defined by the display text (the '&amp;' makes the 'D' the shortcut key) and the CallBack that needs to be called when the item is activated (by the user). Note the mCB which is a macro that makes the rather difficult C++ notation easy to understand. See callback.h in the Basic include directory if you're really interested.
+</p><p>
+The next line inserts the item into the 'Utilities' menu. You'll find a bunch of methods in the <code>uiODMenuMgr</code> class to access all menus and toolbars.
 </p>
 <h4>The <code>uiHelloMsgBringer</code></h4>
 <p>
-The <code>uiHelloMsgBringer</code> class is a <code>uiDialog<code> which means it has (by default) Ok and Cancel buttons, a window title, and so forth. The class contains a field for user input of the string to display as message. To make the example a bit lively, we added a field whether the message should be, eh, just a message, or a warning. You can see the <code>uiGenInput</code> class will serve both input fields nicely, you just need to define another <code>InpSpec</code> instance:
+All Dialogs windows in OpendTect are objects of type <code>uiDialog</code> (in a few cases like the OpendTect main window itself <code>uiMainWin</code>). The <code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code> which means it has (by default) Ok and Cancel buttons, a window title, and so forth. The class contains a field for user input of the string to display as message. To make the example a bit lively, we added a field whether the message should be, eh, just a message, or a warning. You can see the <code>uiGenInput</code> class will serve both input fields nicely, you just need to define another <code>InpSpec</code> instance:
 <code><pre>txtfld = new uiGenInput( this, "Hello message",
                                     StringInpSpec("Hello world") );
     typfld = new uiGenInput( this, "Message type",
@@ -172,7 +179,7 @@ Note that "Hello world" is the inital string displayed in <code>txtfld</code>. A
 The actual message is displayed when the user presses Ok on the dialog that pops up. When nothing is filled in, we give the user the finger with the "Please type a text" message, and we do not accept the Ok, i.e. the dialog remains on the screen and the user can either be a good girl (or boy) and fill in something or press cancel.
 <code><pre>if ( ! *typedtxt )
 {
-    uiMSG().error( "Please type a text" );
+    uiMSG().error( "Please type a message text" );
     return false;
 }
 </code></pre>
@@ -196,7 +203,7 @@ and the dialog disappears immediately after the message appears on the screen.
 
 <a name=cohintro><h4>Intro</h4>
 <p>
-Anyone vaguely familiar with interpretation should by now know about Coherency abd Coherency cubes. We have always used the 'Similarity' attribute instead because of patent restrictions. Similarity is just as good for object detection en better suited in combination with the dip/steering concept. Coherency beats Similarity when used for single-attribute display.
+Anyone vaguely familiar with interpretation by now knows about Coherency and Coherency cubes. We have always used the 'Similarity' attribute instead because of patent restrictions. Similarity is just as good for object detection en better suited in combination with the dip/steering concept. Coherency beats Similarity when used for single-attribute display.
 </p><p>
 The Coherency attributes were implemented some time ago by Kristofer for his research work, and it seemed a good idea to show how to make your own attribute plugins by looking at the <code>Coh</code> and <code>uiCoh</code> plugin code.
 </p>
@@ -313,6 +320,36 @@ xxxxAttrib::Task::set( float start, int nrsamples, float step_,
 When your machine has multiple processors, the <code>getFastestSz()</code> function can be of importance. E.g. on a two processor machine, there will be two tasks, one for the lower part of the trace and one for the higher part of the trace. The more porcessors you have the smaller the number of samples per part will be. A minimum number of samples per part can be specified by <code>getFastestSz()</code>, the default value is 25 samples. 
 Now it's time for the <code>nextStep()</code> function to do it's work. This is the place where you define the mathematics for calculating the attribute. This function is called for each trace of your output cube.
 </p>
+
+<a name=cohui><h4>The <code>uiCoh</code> plugin</h4>
+<p>
+There are special classes for the attribute parameters user interfaces. This is because they:
+<ul>
+<li>have a lot in common
+<li>have to be displayed in the Attribute Set Editor window
+<li>need to be able to do the right things at the right moment
+</ul>
+In uicoh.h you can see that <code>uiCoherencyAttrDescEd</code> inherits from <code>uiAttrDescEd</code> - the base class for all attribute parameter UI groups.
+<p></p>
+The <code>uiAttrDescEd</code> class delivers services to its children, but it also sets a couple of requirements:
+<ul>
+<li>fillParsFromScreen (can be omitted but rarely)
+<li>fillDescFromScreen (required)
+<li>putStuffToScreen (required)
+</ul>
+These methods must be defined by subclasses. To implement these methods there are services like fillInp and putInp.
+<p></p>
+In the uicoh.cc file we see that although <code>uiAttrDescEd</code> is not a <code>uiDialog</code> like the the uiHello example, it still is a valid parent (being a <code>uiGroup</code>) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the <code>inpfld</code> is a special Attribute UI class which is handled just like any pre-defined uiBase or <code>uiTools</code> class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.
+<p></p>
+Further on the specific uiAttrdescEd methods, we take the example of <code>uiCoherencyAttrDescEd::putStuffToScreen</code>. Using the <code>mGetMyForm</code> macro, we get access to the AttribParameterForm that is currently being edited. In this case, the attribute set editor wants us to take the values from the form and put them on the screen. Thus, we have to check whether there is something in the first place (macro <code>mIfHaveValFor</code>), and if so, put the value into the corresponding UI element. For inputs to this attribute (input cubes or other attributes), there is a special 'putInp' method. A special feature is the attrparset - if something is added to this set, the set editor knows that attribute evaluations can be done with this parameter. In this case, the user can evaluate the effect of time gate differences by using the special button.
+<p></p>
+The <code>fillParsFromScreen</code> method's implementation follows similar patterns. Noteworthy is the use of the change tracker to update the pars - this allows the set editor to figure out whether the attribute set was changed (and subsequently warn the user when no save has beeen done).
+<p></p>
+The funny thing is that uicoh.cc stops without 'doing' anything. That's because the attribute set editor object is 'doing' everything. Some people will want to call this an example of the 'Holliwood principle' - "Don't call us - we'll call you".
+<p></p>
+Anyway, lastly, the uicohpi.cc is dead simple. It's a LATE plugin because you'd want the rest of the UI already in place. The only interesting part is the part where the new <code>AttrDescEd</code> is added to the <code>uiAttribFactory</code>. Of course first a new helper class (<code>uiCoherencyAttrDescEdCreater</code>) must be created using the <code>mDeclAttrDescEd</code> macro.
+</p>
+
 
 <br>
 <a name=autoload><h2>Installation and auto-loading</h2>
