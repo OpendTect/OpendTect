@@ -7,7 +7,7 @@
 #include "separstr.h"
 #include "strmprov.h"
 #include "filegen.h"
-#include <fstream.h>
+#include <fstream>
 #include <math.h>
 
 #include "prog.h"

@@ -4,7 +4,7 @@
 #include "iostrm.h"
 #include "strmprov.h"
 #include "filegen.h"
-#include <iostream.h>
+#include <iostream>
 #include <math.h>
 
 #include "prog.h"
