@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.42 2003-05-22 11:10:27 bert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.43 2003-07-25 16:58:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -436,7 +436,7 @@ uiIdealSurvSetup( uiParent* p, IdealConn::Type t )
 				 "0.3.8")
 	    			.nrstatusflds(1) )
 {
-    iddfld = new uiIdealData( this, t );
+    iddfld = new uiIdealData( this, t, uiIdealData::Seis );
 }
 
 bool acceptOK( CallBacker* )
