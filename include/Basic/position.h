@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.13 2003-02-19 16:03:35 nanne Exp $
+ RCS:		$Id: position.h,v 1.14 2003-05-12 08:36:44 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,9 +49,11 @@ public:
 class Coord3 : public Coord
 {
 public:
-		Coord3() : z(0)			{}
+		Coord3() : z(0)					{}
+		Coord3(const Coord& a, double z_=0 )
+		    : Coord(a), z(z_)				{}
     		Coord3( double x_, double y_, double z_ )
-		: Coord(x_,y_), z(z_)		{}
+		    : Coord(x_,y_), z(z_)			{}
 
     double&	operator[]( int idx )
 		{ return idx ? (idx==1 ? y : z) : x; }
