@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.26 2002-04-22 09:58:50 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.27 2002-04-22 10:37:56 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,18 +39,20 @@ ________________________________________________________________________
 #include "attribslice.h"
 #include "thread.h"
 
-const int uiVisPartServer::evShowPosition   	= 0;
+const int uiVisPartServer::evManipulatorMove   	= 0;
 const int uiVisPartServer::evSelection		= 1;
 const int uiVisPartServer::evDeSelection	= 2;
 const int uiVisPartServer::evPicksChanged    	= 3;
 const int uiVisPartServer::evGetNewData    	= 4;
 const int uiVisPartServer::evSelectableStatusCh = 5;
+const int uiVisPartServer::evMouseMove		= 6;
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
-	: uiApplPartServer(a)
-        , viewmode(false)
-	, eventobjid(-1)
-        , eventmutex(*new Threads::Mutex)
+    : uiApplPartServer(a)
+    , viewmode(false)
+    , eventobjid(-1)
+    , eventmutex(*new Threads::Mutex)
+    , mouseposinxyt( false )
 {
     visBase::DM().selMan().selnotifer.notify( 
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -70,7 +72,11 @@ uiVisPartServer::~uiVisPartServer()
 bool uiVisPartServer::deleteAllObjects()
 {
     for ( int idx=0; idx<scenes.size(); idx++ )
+    {
+	scenes[idx]->mouseposchange.remove(
+	    			mCB( this, uiVisPartServer, mouseMoveCB ));
         scenes[idx]->unRef();
+    }
 
     scenes.erase();
     picks.erase();
@@ -181,6 +187,7 @@ int uiVisPartServer::getSelObjectId() const
 int uiVisPartServer::addScene()
 {
     visSurvey::Scene* newscene = visSurvey::Scene::create();
+    newscene->mouseposchange.notify( mCB( this, uiVisPartServer, mouseMoveCB ));
     scenes += newscene;
     newscene->ref();
     selsceneid = newscene->id();
@@ -205,7 +212,7 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
     coltab->colorSeq().loadFromStorage("Red-White-Black");
     sd->textureRect().setColorTab( coltab );
     sd->textureRect().manipChanges()->notify(
-	    				mCB(this,uiVisPartServer,showPosCB));
+	    				mCB(this,uiVisPartServer,manipMoveCB));
 
     scene->addInlCrlTObject( sd );
     setSelObjectId( sd->id() );
@@ -222,7 +229,7 @@ void uiVisPartServer::removeDataDisplay( int id )
 
     sdobj->deSelect();
     sd->textureRect().manipChanges()->remove(
-	    				mCB(this,uiVisPartServer,showPosCB));
+	    				mCB(this,uiVisPartServer,manipMoveCB));
     visBase::DataObject* obj = visBase::DM().getObj( selsceneid );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
     int objidx = scene->getFirstIdx( sd );
@@ -630,14 +637,14 @@ void uiVisPartServer::picksChangedCB(CallBacker*)
 }
 
 
-void uiVisPartServer::showPosCB( CallBacker* )
+void uiVisPartServer::manipMoveCB( CallBacker* )
 {
     int id = getSelObjectId();
     if ( id<0 ) return;
 
     Threads::MutexLocker lock( eventmutex );
     eventobjid = id;
-    sendEvent( evShowPosition );
+    sendEvent( evManipulatorMove );
 }
 
 
@@ -649,4 +656,19 @@ void uiVisPartServer::getDataCB( CallBacker* cb )
     Threads::MutexLocker lock( eventmutex );
     eventobjid = sd->id();
     sendEvent( evGetNewData );
+}
+
+
+void uiVisPartServer::mouseMoveCB( CallBacker* cb )
+{
+    mDynamicCastGet(visSurvey::Scene*,scene,cb);
+    if ( !cb ) return;
+
+    int selid = getSelObjectId();
+    if ( selid==-1 || getObjectType(selid)==PickSetDisplay)
+    {
+	Threads::MutexLocker lock( eventmutex );
+	mousepos = scene->getMousePos(mouseposinxyt);
+	sendEvent( evMouseMove );
+    }
 }

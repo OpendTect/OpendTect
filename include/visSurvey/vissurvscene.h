@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.13 2002-04-19 09:59:06 kristofer Exp $
+ RCS:		$Id: vissurvscene.h,v 1.14 2002-04-22 10:38:18 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,12 @@ ________________________________________________________________________
 #include "visscene.h"
 #include "geompos.h"
 
-namespace visBase { class Transformation; class Annotation; };
+namespace visBase
+{
+    class Transformation;
+    class Annotation;
+    class EventCatcher;
+};
 
 namespace visSurvey
 {
@@ -52,18 +57,26 @@ public:
     Geometry::Pos		getDisplayCoord( Geometry::Pos real ) const;
 
     Notifier<Scene>		appvelchange;
+    Notifier<Scene>		mouseposchange;
+    Geometry::Pos		getMousePos( bool xyt ) const;
+    				/*! If ont xyt it is inlcrlt */
 
 protected:
     				~Scene();
+    void			mouseMoveCB( CallBacker* = 0 );
 
     visBase::Transformation*	timetransformation;
     visBase::Transformation*	inlcrltransformation;
     visBase::Annotation*	annot;
+    visBase::EventCatcher*	eventcatcher;
+
+    Geometry::Pos		xytmousepos;
 
 private:
     float			appvel;
     float			xoffset;
     float			yoffset;
+
 };
 
 };

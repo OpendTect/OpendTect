@@ -4,10 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.23 2002-04-22 09:10:50 kristofer Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.24 2002-04-22 10:38:26 kristofer Exp $";
 
 #include "vissurvscene.h"
+#include "visseisdisplay.h"
 #include "visdataman.h"
+#include "visevent.h"
 #include "vistransform.h"
 #include "position.h"
 #include "survinfo.h"
@@ -24,6 +26,8 @@ visSurvey::Scene::Scene()
     , appvel( 0 )
     , appvelchange( this )
     , annot( 0 )
+    , eventcatcher( visBase::EventCatcher::create(visBase::MouseMovement))
+    , mouseposchange( this )
 {
     visBase::Transformation* reversedz = visBase::Transformation::create();
     addObject( reversedz );
@@ -33,6 +37,8 @@ visSurvey::Scene::Scene()
 	0,	0,	-1,	0,
 	0,	0,	0,	1 );
 
+    addObject( eventcatcher );
+    eventcatcher->eventhappened.notify( mCB( this, Scene, mouseMoveCB ));
     addObject( timetransformation );
     addObject( inlcrltransformation );
 
@@ -138,7 +144,9 @@ visSurvey::Scene::Scene()
 
 
 visSurvey::Scene::~Scene()
-{ }
+{
+    eventcatcher->eventhappened.remove( mCB( this, Scene, mouseMoveCB ));
+}
 
 
 void visSurvey::Scene::addXYZObject( SceneObject* obj )
@@ -210,4 +218,47 @@ Geometry::Pos visSurvey::Scene::getDisplayCoord(Geometry::Pos real) const
     res.z = real.z;
 
     return res;
+}
+
+
+Geometry::Pos visSurvey::Scene::getMousePos( bool xyt ) const
+{
+   if ( xyt ) return xytmousepos;
+   
+   Geometry::Pos res = xytmousepos;
+   BinID binid = SI().transform( Coord( res.x, res.y ));
+
+   res.x = binid.inl;
+   res.y = binid.crl;
+   return res;
+}
+
+
+void visSurvey::Scene::mouseMoveCB(CallBacker* cb )
+{
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
+
+    if ( eventinfo.type != visBase::MouseMovement ) return;
+
+    const int sz = eventinfo.pickedobjids.size();
+    bool validpicksurface = false;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const DataObject* pickedobj =
+			    visBase::DM().getObj(eventinfo.pickedobjids[idx]);
+
+	if ( typeid(*pickedobj)==typeid(visSurvey::SeisDisplay) )
+	{
+	    validpicksurface = true;
+	    break;
+	}
+    }
+
+    if ( !validpicksurface ) return;
+
+    xytmousepos = getRealCoord(eventinfo.pickedpos);
+    xytmousepos.z /= -apparentVel();
+    xytmousepos.z *= 2;
+    mouseposchange.trigger();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.16 2002-04-22 09:58:56 nanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.17 2002-04-22 10:38:06 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "ranges.h"
 #include "thread.h"
+#include "geompos.h"
 
 class UserIDSet;
 class PickSet;
@@ -52,12 +53,13 @@ public:
     const char*		name() const		{ return "Visualisation"; }
 
     			//Events and their functions
-    static const int	evShowPosition;
+    static const int	evManipulatorMove;
     static const int	evSelection;
     static const int	evDeSelection;
     static const int	evPicksChanged;
     static const int	evGetNewData;
     static const int	evSelectableStatusCh;
+    static const int	evMouseMove;
     int			getEventObjId() const { return eventobjid; }
     			/* Tells which object the event is about */
 
@@ -69,6 +71,10 @@ public:
     ObjectType		getObjectType( int ) const;
     void		setObjectName(int,const char*);
     const char*		getObjectName(int);
+
+    Geometry::Pos	getMousePos() const { return mousepos; }
+    void		setMousePosDomain( bool xyt ) { mouseposinxyt=xyt; }
+    			/*!< If !xyt mouse pos will be in inl, crl, t */
 
     void		turnOn(int,bool);
     bool		isOn(int);
@@ -130,7 +136,7 @@ public:
     void		shareColor(int toid, int fromid );
 
 			//Dialogs
-    bool		setZScale();
+
     void		setMaterial(int);
 
 protected:
@@ -138,8 +144,9 @@ protected:
     void		selectObjCB(CallBacker*);
     void		deselectObjCB(CallBacker*);
     void		picksChangedCB(CallBacker*);
-    void		showPosCB(CallBacker*);
+    void		manipMoveCB(CallBacker*);
     void		getDataCB(CallBacker*);
+    void		mouseMoveCB(CallBacker*);
 
     const CallBack	appcb;
     int			selsceneid;
@@ -147,6 +154,9 @@ protected:
 
     Threads::Mutex&	eventmutex;
     int			eventobjid;
+
+    Geometry::Pos	mousepos;
+    bool		mouseposinxyt;
 
     ObjectSet<visSurvey::PickSetDisplay>	picks;
     ObjectSet<visSurvey::SeisDisplay>		seisdisps;
