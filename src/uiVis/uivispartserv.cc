@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.89 2002-09-23 10:39:42 nanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.90 2002-09-24 13:13:00 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -418,6 +418,9 @@ int uiVisPartServer::addDataDisplay( uiVisPartServer::ElementType etp )
     BufferString ctname = "Red-White-Black";
     mSettUse(get,"dTect.Color table","Name",ctname);
     coltab->colorSeq().loadFromStorage( ctname );
+    int resolution = 0;
+    mSettUse(get,"dTect.PlaneDataDisplay","Resolution",resolution);
+    pdd->textureRect().setResolution( resolution );
     pdd->textureRect().setColorTab( coltab );
     pdd->textureRect().manipChanges()->notify(
 	    				mCB(this,uiVisPartServer,manipMoveCB));
