@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.24 2002-08-12 11:35:13 bert Exp $
+ RCS:           $Id: uimainwin.h,v 1.25 2002-08-14 08:45:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,11 @@ public:
 
     void		moveDockWindow( uiDockWin&, Dock d=Top );
     void		removeDockWindow(uiDockWin*);
+
+    Notifier<uiMainWin>	finaliseStart;
+    			//!< triggered when about to start finalising
+    Notifier<uiMainWin>	finaliseDone;
+    			//!< triggered when finalising finished
 
 protected:
 

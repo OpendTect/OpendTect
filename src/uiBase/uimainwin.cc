@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.57 2002-08-12 15:26:48 bert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.58 2002-08-14 08:45:25 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,7 @@ public:
 
 protected:
 
-    virtual void	finalise();
+    virtual void	finalise( bool trigger_finalise_start_stop=true );
 
     bool		initing;
     bool		exitapponclose_;
@@ -289,10 +289,17 @@ void uiMainWinBody::popTimTick(CallBacker*)
 //    restorePositions();
 }
 
-void uiMainWinBody::finalise()
+#define mMwHandle static_cast<uiMainWin&>(handle_)
+void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 {
+    if( trigger_finalise_start_stop )
+	mMwHandle.finaliseStart.trigger(mMwHandle);
+
     centralWidget_->finalise();
     finaliseChildren();
+
+    if( trigger_finalise_start_stop )
+	mMwHandle.finaliseDone.trigger(mMwHandle);
 }
 
 
@@ -410,6 +417,8 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 		  int nrstatusflds, bool wantMBar, bool wantTBar, bool modal )
     : uiParent( nm, 0 )
     , body_( 0 )
+    , finaliseStart(this)
+    , finaliseDone(this)
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
@@ -420,6 +429,8 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 uiMainWin::uiMainWin( const char* nm )
     : uiParent( nm, 0 )
     , body_( 0 )			
+    , finaliseStart(this)
+    , finaliseDone(this)
 {}
 
 uiMainWin::~uiMainWin()
@@ -653,7 +664,7 @@ protected:
 
     void		done_(int);
 
-    virtual void	finalise();
+    virtual void	finalise(bool);
 
 };
 
@@ -733,11 +744,11 @@ void uiDialogBody::done_( int v )
     This gives chance not to construct them in case OKtext and CancelText have
     been set to ""
 */
-void uiDialogBody::finalise() 
+void uiDialogBody::finalise(bool) 
 {
-    uiMainWinBody::finalise(); 
+    uiMainWinBody::finalise(false); 
 
-    mHandle.finaliseStart.trigger(mHandle);
+    mMwHandle.finaliseStart.trigger(mMwHandle);
 
     dlgGroup->finalise();
 
@@ -885,7 +896,7 @@ void uiDialogBody::finalise()
 
     finaliseChildren();
 
-    mHandle.finaliseDone.trigger(mHandle);
+    mMwHandle.finaliseDone.trigger(mMwHandle);
 }
 
 
@@ -898,8 +909,6 @@ void uiDialogBody::provideHelp( CallBacker* )
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
 	: uiMainWin(s.wintitle_)
-    	, finaliseStart(this)
-    	, finaliseDone(this)
 {
     body_= new uiDialogBody( *this, p, s );
     setBody( body_ );
