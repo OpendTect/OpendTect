@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscoord.cc,v 1.7 2003-05-02 07:24:56 marc Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.8 2003-09-10 10:00:08 kristofer Exp $";
 
 #include "viscoord.h"
 
@@ -145,6 +145,10 @@ void visBase::Coordinates::setPos( int idx, const Coord3& pos )
     }
     else 
 	coords->point.set1Value( idx, SbVec3f(pos.x,pos.y,pos.z) );
+
+    const int unusedidx = unusedcoords.indexOf(idx);
+    if ( unusedidx!=-1 )
+	unusedcoords.remove( unusedidx );
 }
 
 
