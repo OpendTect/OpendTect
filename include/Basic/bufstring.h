@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.13 2001-05-31 12:55:03 windev Exp $
+ RCS:		$Id: bufstring.h,v 1.14 2003-06-17 13:12:48 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ public:
 			{ *this += getStringFromFloat("%g",f); return *this; }
    inline		operator const char*() const	{ return buf_; }
    inline char*		buf()				{ return buf_; }
+   inline const char*	buf() const			{ return buf_; }
    inline char&		operator [](int idx)		{ return buf_[idx]; }
    inline const char&	operator [](int idx) const	{ return buf_[idx]; }
    inline unsigned int	size() const			{ return strlen(buf_); }
