@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.18 2004-09-16 21:50:26 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.19 2004-09-17 12:37:36 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -86,7 +86,7 @@ bool TwoDSeisTrcTranslator::initRead_()
     insd.start = zrg.start;
     insd.step = zrg.step;
     innrsamples = (int)((zrg.stop-zrg.start) / zrg.step + 1.5);
-    pinfo->inlrg.start = pinfo->crlrg.start = 0;
+    pinfo->inlrg.start = 0; pinfo->crlrg.start = trg.start;
     pinfo->inlrg.stop = nrlines - 1; pinfo->crlrg.stop = trg.stop;
     pinfo->inlrg.step = 1; pinfo->crlrg.step = trg.step;
     if ( havelinesel )
