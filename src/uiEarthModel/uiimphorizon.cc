@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.17 2002-09-17 13:26:13 bert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.18 2002-11-18 08:51:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 	    			   .withz(false).withstep(true) );
     subselfld->attach( alignedBelow, xyfld );
 
-    scalefld = new uiScaler( this, "Value scaling", true );
+    BufferString scalelbl( SI().zIsTime() ? "Z " : "Depth " );
+    scalelbl += "scaling";
+    scalefld = new uiScaler( this, scalelbl, true );
     scalefld->attach( alignedBelow, subselfld );
 
     ctio.ctxt.forread = false;
