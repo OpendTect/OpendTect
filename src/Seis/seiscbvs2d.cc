@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.3 2004-08-18 14:32:55 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.4 2004-08-19 16:11:35 bert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -196,9 +196,13 @@ void updTrc()
 
 int nextStep()
 {
+    const int lastbufnr = tbuf.size() - 1;
+    int lastnr = curnr + 10;
+    if ( lastnr > lastbufnr ) lastnr = lastbufnr;
+
     if ( curnr == 0 )
     {
-	if ( tbuf.size() <= curnr )
+	if ( tbuf.size() == 0 )
 	    mErrRet("No traces in 2D line")
 	updTrc();
 	bool res = tr->initWrite(new StreamConn(fname.buf(),Conn::Write),*trc);
@@ -207,9 +211,7 @@ int nextStep()
 	    mErrRet("Cannot open the output file for 2D line")
     }
 
-    int lastnr = curnr + 10;
-    if ( lastnr >= tbuf.size() ) lastnr = tbuf.size() - 1;
-    for ( ; curnr<lastnr; curnr++ )
+    for ( ; curnr<=lastnr; curnr++ )
     {
 	updTrc();
 	bool res = tr->write(*trc);
@@ -218,7 +220,7 @@ int nextStep()
 	    mErrRet("Error during trace write to 2D line")
     }
 
-    return curnr >= tbuf.size() ? 0 : 1;
+    return curnr >= lastbufnr ? 0 : 1;
 }
 
 const char*		message() const		{ return msg; }
@@ -247,12 +249,25 @@ Executor* SeisCBVS2DLineIOProvider::getPutter( IOPar& iop,
 					       const SeisTrcBuf& tbuf,
 	                                       const IOPar* previop )
 {
-    if ( !isUsable(iop) ) return 0;
+    if ( !Seis2DLineIOProvider::isUsable(iop) ) return 0;
     if ( tbuf.size() < 1 )
 	mErrRet("No traces to write")
 
     const int lnr = getLineNr(previop,-1) + 1;
-    BufferString fnm = getCBVSFileName( iop, lnr );
     iop.set( sKeyLineNr, lnr );
+    BufferString fnm;
+    if ( !iop.find(sKey::FileName) )
+    {
+	if ( previop )
+	    iop.set( sKey::FileName, previop->find(sKey::FileName) );
+	else
+	{
+	    fnm = iop.name(); fnm += ".cbvs";
+	    cleanupString( fnm.buf(), NO, YES, YES );
+	    iop.set( sKey::FileName, fnm );
+	}
+    }
+
+    fnm = getCBVSFileName( iop, lnr );
     return new SeisCBVS2DLinePutter( fnm, tbuf, lnr );
 }

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.3 2004-08-18 14:32:55 bert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.4 2004-08-19 16:11:35 bert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: seis2dline.cc,v 1.3 2004-08-18 14:32:55 bert Ex
 #include "survinfo.h"
 #include "strmprov.h"
 #include "ascstream.h"
+#include "filegen.h"
 #include "keystrs.h"
 #include "iopar.h"
 #include "errh.h"
@@ -148,10 +149,12 @@ void Seis2DLineGroup::readFile()
 
 void Seis2DLineGroup::writeFile() const
 {
-    StreamData sd = StreamProvider( fname_ ).makeOStream();
+    BufferString wrfnm( fname_ ); wrfnm += "_new";
+
+    StreamData sd = StreamProvider( wrfnm ).makeOStream();
     if ( !sd.usable() ) return;
 
-    ascostream astrm( *sd.ostrm, true );
+    ascostream astrm( *sd.ostrm );
     if ( !astrm.putHeader( sKeyFileType ) )
 	{ sd.close(); return; }
 
@@ -169,6 +172,10 @@ void Seis2DLineGroup::writeFile() const
     }
 
     sd.close();
+
+    if ( File_exists(fname_) )
+	File_remove( fname_, 0 );
+    File_rename( wrfnm, fname_ );
 }
 
 
