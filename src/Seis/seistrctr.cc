@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.48 2004-07-28 16:44:45 bert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.49 2004-07-29 16:52:30 bert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -78,7 +78,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 	, seldata(0)
     	, prevnr_(mUndefIntVal)
     	, trcblock_(*new SeisTrcBuf)
-    	, lastinlwritten(SI().range().start.inl)
+    	, lastinlwritten(SI().sampling(false).hrg.start.inl)
     	, enforce_regular_write(true)
     	, enforce_survinfo_write(false)
 {
@@ -332,9 +332,8 @@ bool SeisTrcTranslator::writeBlock()
     if ( !enforce_survinfo_write )
 	{ dumpBlock(); return true; }
 
-    StepInterval<int> crlrg( SI().range(true).start.inl,
-			     SI().range(true).stop.inl,
-			     SI().inlStep() );
+    StepInterval<int> inlrg, crlrg;
+    SI().sampling(true).hrg.get( inlrg, crlrg );
     const int firstafter = upwrd ? crlrg.stop + crlrg.step
 				 : crlrg.start + crlrg.step;
     int stp = upwrd ? crlrg.step : -crlrg.step;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.19 2004-06-23 11:15:09 nanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.20 2004-07-29 16:52:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,8 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& cs_,
 	doupdfld->attach( alignedBelow, z0fld );
 
 	stepfld = new uiLabeledSpinBox( this, "Step" );
-	int step = isinl || iscrl ? SI().getStep(isinl,true) : totzrg.step;
+	int step = isinl ? SI().inlStep()
+	    		 : (iscrl ? SI().crlStep() : totzrg.step);
 	stepfld->box()->setMinValue( step );
 	stepfld->box()->setStep( step );
 	int width = isinl ? inl0fld->box()->maxValue() 
@@ -155,8 +156,9 @@ void uiSliceSel::readInput()
     SI().checkInlRange( intv );
     if ( intv.start > intv.stop )
 	Swap( intv.start, intv.stop );
+    BinID siworkstp( SI().sampling(true).hrg.step );
     if ( !isinl && intv.start == intv.stop )
-	intv.stop += SI().inlWorkStep();
+	intv.stop += siworkstp.inl;
     cs.hrg.start.inl = intv.start;
     cs.hrg.stop.inl = intv.stop;
 
@@ -167,12 +169,12 @@ void uiSliceSel::readInput()
     if ( intv.start > intv.stop )
 	Swap( intv.start, intv.stop );
     if ( !iscrl && intv.start == intv.stop )
-	intv.stop += SI().crlWorkStep();
+	intv.stop += siworkstp.crl;
     cs.hrg.start.crl = intv.start;
     cs.hrg.stop.crl = intv.stop;
 
 
-    Interval<double> zintv;
+    Interval<float> zintv;
     zintv.start = z0fld->box()->getValue() / SI().zFactor();
     zintv.stop = istsl ? zintv.start : z1fld->getValue() / SI().zFactor();
     SI().checkZRange( zintv );

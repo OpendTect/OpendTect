@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsurface.cc,v 1.60 2004-07-27 06:59:43 nanne Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.61 2004-07-29 16:52:30 bert Exp $";
 
 #include "emsurface.h"
 #include "emsurfaceiodata.h"
@@ -110,8 +110,8 @@ void EM::SurfaceIODataSelection::setDefault()
 
 EM::Surface::Surface( EMManager& man, const EM::ObjectID& id_ )
     : EMObject( man, id_ )
-    , step_( SI().getStep(true,false), SI().getStep(false,false) )
-    , loadedstep( SI().getStep(true,false), SI().getStep(false,false) )
+    , step_(SI().inlStep(),SI().crlStep())
+    , loadedstep(SI().inlStep(),SI().crlStep())
     , rowinterval(0)
     , colinterval(0)
     , sectionchnotifier( this )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.2 2004-07-23 12:54:49 kristofer Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.3 2004-07-29 16:52:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "cubesampling.h"
 #include "settings.h"
 
 
@@ -288,11 +289,9 @@ bool dgbEMSurfaceTranslator::prepRead()
 
     if ( version == 1 )
     {
-	sd_.rg.start = SI().range(false).start;
-	sd_.rg.stop = SI().range(false).stop;
-	if ( SI().haveStep() )
-	    sd_.rg.step = BinID(SI().getStep(true,false),
-		    		SI().getStep(false,false) );
+	sd_.rg.start = SI().sampling(false).hrg.start;
+	sd_.rg.stop = SI().sampling(false).hrg.stop;
+	sd_.rg.step = SI().sampling(false).hrg.step;
     }
     else
     {

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.51 2004-07-23 11:53:00 bert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.52 2004-07-29 16:52:30 bert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.51 2004-07-23 11:53:00 bert Exp
 #include "cubesampling.h"
 #include "iopar.h"
 #include "binidselimpl.h"
-#include "survinfoimpl.h"
+#include "survinfo.h"
 #include "strmprov.h"
 #include "separstr.h"
 #include "filegen.h"
@@ -352,7 +352,7 @@ bool CBVSSeisTrcTranslator::skip( int )
 BinID2Coord CBVSSeisTrcTranslator::getTransform() const
 {
     if ( !rdmgr || !rdmgr->nrReaders() )
-	return SI().is3D() ? SI3D().binID2Coord() : BinID2Coord();
+	return SI().binID2Coord();
     return rdmgr->info().geom.b2c;
 }
 
@@ -364,8 +364,7 @@ bool CBVSSeisTrcTranslator::startWrite()
     CBVSInfo info;
     info.auxinfosel.setAll( !minimalhdrs );
     info.geom.fullyrectandreg = false;
-    if ( SI().is3D() )
-	info.geom.b2c = SI3D().binID2Coord();
+    info.geom.b2c = SI().binID2Coord();
     info.stdtext = pinfo->stdinfo;
     info.usertext = pinfo->usrinfo;
     for ( int idx=0; idx<nrSelComps(); idx++ )

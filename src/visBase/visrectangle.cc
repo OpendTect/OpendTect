@@ -4,11 +4,11 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visrectangle.cc,v 1.40 2004-06-16 14:54:19 bert Exp $";
+static const char* rcsID = "$Id: visrectangle.cc,v 1.41 2004-07-29 16:52:30 bert Exp $";
 
 #include "visrectangle.h"
 #include "iopar.h"
-#include "survinfoimpl.h"
+#include "survinfo.h"
 
 #include <Inventor/nodes/SoScale.h>
 #include <Inventor/nodes/SoTranslation.h>
@@ -193,12 +193,8 @@ void visBase::RectangleDragger::setOwnShapeHints()
     SoShapeHints* myHints = new SoShapeHints;
     myHints->shapeType = SoShapeHints::SOLID;
     myHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
-    if ( SI().is3D() )
-    {
-        SurveyInfo3D::Orientation orient = SI3D().getOrientation();
-        if ( orient == SurveyInfo3D::CounterClockwise )
-            myHints->vertexOrdering = SoShapeHints::CLOCKWISE;
-    }
+    myHints->vertexOrdering = SI().isClockWise()
+	    ? SoShapeHints::COUNTERCLOCKWISE : SoShapeHints::CLOCKWISE;
 
     manipxydragger0->setPart( "scaleTabHints", myHints );
     manipxydragger1->setPart( "scaleTabHints", myHints );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.6 2004-02-09 15:46:02 bert Exp $
+ RCS:		$Id: keystrs.h,v 1.7 2004-07-29 16:52:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ namespace sKey
     extern const char*	Name		mImpl("Name");
     extern const char*	No		mImpl("No");
     extern const char*	Pars		mImpl("Parameters");
+    extern const char*	Range		mImpl("Range");
+    extern const char*	Table		mImpl("Table");
     extern const char*	Type		mImpl("Type");
     extern const char*	Title		mImpl("Title");
     extern const char*	Undef		mImpl("Undefined");
@@ -56,6 +58,17 @@ namespace sKey
     extern const char*	Minimum		mImpl("Minimum");
     extern const char*	StdDev		mImpl("StdDev");
     extern const char*	Sum		mImpl("Sum");
+
+    extern const char*	BinIDSel	mImpl("BinID selection");
+    extern const char*	FirstInl	mImpl("First In-line");
+    extern const char*	LastInl		mImpl("Last In-line");
+    extern const char*	StepInl		mImpl("Step In-line");
+    extern const char*	StepOutInl	mImpl("Stepout In-line");
+    extern const char*	FirstCrl	mImpl("First Cross-line");
+    extern const char*	LastCrl		mImpl("Last Cross-line");
+    extern const char*	StepCrl		mImpl("Step Cross-line");
+    extern const char*	StepOutCrl	mImpl("Stepout Cross-line");
+    extern const char*	ZRange		mImpl("Z range");
 
 };
 

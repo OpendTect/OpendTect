@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.47 2004-07-16 15:35:25 bert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.48 2004-07-29 16:52:30 bert Exp $";
 
 /*!
 
@@ -28,7 +28,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "cbvsreader.h"
 #include "datainterp.h"
 #include "binidselimpl.h"
-#include "survinfoimpl.h"
+#include "survinfo.h"
 #include "errh.h"
 
 
@@ -269,8 +269,8 @@ bool CBVSReader::readGeom()
     ytr.b = dinterp.get( buf, 4 ); ytr.c = dinterp.get( buf, 5 );
     if ( xtr.valid(ytr) )
 	info_.geom.b2c.setTransforms( xtr, ytr );
-    else if ( SI().is3D() )
-	info_.geom.b2c = SI3D().binID2Coord();
+    else
+	info_.geom.b2c = SI().binID2Coord();
 
     bidrg.start = bidrg.stop
 		= BinID( info_.geom.start.inl, info_.geom.start.crl );

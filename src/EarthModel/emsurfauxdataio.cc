@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.17 2004-07-23 12:54:49 kristofer Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.18 2004-07-29 16:52:30 bert Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.17 2004-07-23 12:54:49 k
 #include "iopar.h"
 #include "survinfo.h"
 #include "strmprov.h"
+#include "binidselimpl.h"
 #include <iostream>
 
 const char* EM::dgbSurfDataWriter::attrnmstr = "Attribute";

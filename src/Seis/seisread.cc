@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.28 2004-07-28 10:20:08 bert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.29 2004-07-29 16:52:30 bert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: seisread.cc,v 1.28 2004-07-28 10:20:08 bert Exp
 #include "iostrm.h"
 #include "streamconn.h"
 #include "survinfo.h"
+#include "binidselimpl.h"
 
 
 #define mUndefPtr(clss) ((clss*)0xdeadbeef) // Like on AIX. Nothing special.

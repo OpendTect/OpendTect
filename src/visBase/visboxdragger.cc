@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.9 2004-01-05 09:43:23 kristofer Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.10 2004-07-29 16:52:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "visboxdragger.h"
 #include "ranges.h"
 #include "iopar.h"
-#include "survinfoimpl.h"
+#include "survinfo.h"
 
 #include <Inventor/draggers/SoTabBoxDragger.h>
 #include <Inventor/nodes/SoSwitch.h>
@@ -72,13 +72,8 @@ void BoxDragger::setOwnShapeHints()
 {
     SoShapeHints* myHints = new SoShapeHints;
     myHints->shapeType = SoShapeHints::SOLID;
-    myHints->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
-    if ( SI().is3D() )
-    {
-	SurveyInfo3D::Orientation orient = SI3D().getOrientation();
-	if ( orient == SurveyInfo3D::CounterClockwise )
-	    myHints->vertexOrdering = SoShapeHints::CLOCKWISE;
-    }
+    myHints->vertexOrdering = SI().isClockWise()
+	? SoShapeHints::COUNTERCLOCKWISE : SoShapeHints::CLOCKWISE;
     
     SoDragger* child;
     const char* tabstr( "tabPlane" );

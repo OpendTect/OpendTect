@@ -7,17 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.43 2004-06-16 14:54:18 bert Exp $
+ RCS:		$Id: survinfo.h,v 1.44 2004-07-29 16:52:30 bert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include <uidobj.h>
-#include <binidselimpl.h>
-#include <iosfwd>
+#include "uidobj.h"
+#include "ranges.h"
+#include "binid2coord.h"
 class ascostream;
 class IOPar;
+class BinID2Coord;
+class CubeSampling;
 
 
 /*!\brief Holds survey general information.
@@ -41,71 +43,52 @@ class SurveyInfo : public UserIDObject
 public:
 
     virtual		~SurveyInfo();
+    			SurveyInfo(const SurveyInfo&);
+    SurveyInfo&		operator =(const SurveyInfo&);
 
-    virtual SurveyInfo*	clone() const			= 0;
-    virtual void	copyFrom(const SurveyInfo&);
-    virtual bool	is3D() const		{ return true; }
-    bool		write(const char* basedir=0) const;
-    			//!< write to .survey file
-
-    const BinIDRange&	range( bool work=true ) const
-    			{ return work ? wrange_ : range_; }
+    const CubeSampling&	sampling( bool work=true ) const
+    			{ return work ? wcs_ : cs_; }
     StepInterval<int>	inlRange(bool work=true) const;
     StepInterval<int>	crlRange(bool work=true) const;
-    const StepInterval<double>& zRange( bool work=true ) const
-    			{ return work ? wzrange_ : zrange_; }
-    virtual bool	haveStep() const		{ return false; }
-    virtual int		getStep(bool inl,bool work=true) const	{ return 1; }
-    inline int		inlStep() const		{ return getStep(true,false); }
-    inline int		crlStep() const		{ return getStep(false,false); }
-    inline int		inlWorkStep() const	{ return getStep(true,true); }
-    inline int		crlWorkStep() const	{ return getStep(false,true); }
+    const StepInterval<float>& zRange( bool work=true ) const;
+    inline int		inlStep(bool work=true) const;
+    inline int		crlStep(bool work=true) const;
     virtual int		maxNrTraces(bool work=false) const;
 
-    void		setWorkRange( const BinIDRange& b )
-			{ setRange( b, true ); }
-    void		setWorkZRange( const Interval<double>& r )
-			{ setZRange( r, true ); }
-    void		setWorkZRange( const StepInterval<double>& r )
-			{ setZRange( r, true ); }
+    void		setWorkRange( const CubeSampling& cs )
+			{ setRange(cs,true); }
 
     void		checkInlRange(Interval<int>&,bool work=true) const;
-			//!< Make sure range is inside
+			//!< Makes sure range is inside
     void		checkCrlRange(Interval<int>&,bool work=true) const;
-			//!< Make sure range is inside
-    void		checkRange(BinIDRange&,bool work=true) const;
-			//!< Make sure range is inside
-    void		checkZRange(Interval<double>&,bool work=true) const;
-			//!< Make sure range is inside
-    bool		includes(const BinID,const float,bool work=true) const;
+			//!< Makes sure range is inside
+    void		checkZRange(Interval<float>&,bool work=true) const;
+			//!< Makes sure range is inside
+    bool		includes(const BinID&,const float,bool work=true) const;
 			//!< Returns true when pos is inside survey-range
 
-    inline bool		rangeUsable() const
-			{ return range_.start.inl && range_.stop.inl
-			      && range_.start.crl && range_.stop.crl; }
-    inline bool		zRangeUsable() const
-			{ return !mIsZero(zrange_.width(),mDefEps); }
-    inline bool		zIsTime() const			{ return zistime_; }
-    inline bool		zInMeter() const		{ return zinmeter_; }
-    inline bool		zInFeet() const			{ return zinfeet_; }
-    void		setZUnit(bool istime,bool un=false);
-    			/*!< un=true: meter; un=false: feet; only used
-   			     when istime = false; */
+    inline bool		zIsTime() const	 { return zistime_; }
+    inline bool		zInMeter() const { return !zistime_ && !zinfeet_; }
+    inline bool		zInFeet() const	 { return !zistime_ && zinfeet_; }
+    void		setZUnit(bool istime,bool infeet=false);
     const char*		getZUnit(bool withparens=true) const;
     float		zFactor() const		{ return zistime_ ? 1000 : 1; }
     			//!< Factor between real and displayed unit
 
-    const char*		comment() const			{ return comment_; }
-
-    virtual void	snap(BinID&,BinID rounding=BinID(0,0),
-			     bool work=true) const	= 0;
-			//!< 0 : auto; -1 round downward, 1 round upward
-
-    virtual Coord	transform(const BinID&) const	= 0;
-    virtual BinID	transform(const Coord&) const	= 0;
+    void		snap(BinID&,BinID direction=BinID(0,0),
+	    		     bool work=true) const;
+			//!< dir = 0 : auto; -1 round downward, 1 round upward
+    void		snapStep(BinID&,BinID direction=BinID(0,0),
+	    			 bool work=true) const;
+    			//!< see snap() for direction
+    void		snapZ(float&,int direction=0,bool work=true) const;
+    virtual Coord	transform( const BinID& b ) const
+			{ return b2c_.transform(b); }
+    virtual BinID	transform(const Coord&) const;
     			/*!<\note The returned BinID will be snapped according
-			  	  to the current step.
-			*/
+			  	  to the work step. */
+    const BinID2Coord&	binID2Coord() const		{ return b2c_; }
+    void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
 
     virtual Coord	minCoord(bool work=true) const;
     virtual Coord	maxCoord(bool work=true) const;
@@ -129,23 +112,26 @@ public:
     static const char*	sKeyCrlRange;
     static const char*	sKeyZRange;
     static const char*	sKeyWSProjName;
+    static const char*	sKeyDpthInFt; //!< 'Depth in feet' Y/N (UI default)
 
     bool		isValid() const		{ return valid_; }
+    const char*		comment() const		{ return comment_; }
 
     			// These fns are commonly not used ...
-    void		setRange(const BinIDRange&,bool);
-    void		setZRange(const Interval<double>&,bool);
-    void		setZRange(const StepInterval<double>&,bool);
+    void		setRange(const CubeSampling&,bool);
     void		setComment( const char* s )	{ comment_ = s; }
-
-    virtual void	setStep(const BinID&,bool)	{}
     static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
 
     IOPar&		pars() const
 			{ return const_cast<SurveyInfo*>(this)->pars_; }
-    void		savePars(const char* basedir=0) const;
-    static const char*	sKeyDpthInFt; //!< 'Depth in feet' Y/N (UI default)
     bool		depthsInFeetByDefault() const;
+    bool		isClockWise() const;
+    			/*!< Orientation is determined by rotating the
+			     inline axis to the crossline axis. */
+
+    bool		write(const char* basedir=0) const;
+    			//!< write to .survey file
+    void		savePars(const char* basedir=0) const;
 
 protected:
 
@@ -157,30 +143,39 @@ protected:
     BufferString	datadir;
     BufferString	dirname;
 
-    bool		zinmeter_;
-    bool		zinfeet_;
     bool		zistime_;
+    bool		zinfeet_; //!< only relevant if zistime_
     BufferString	comment_;
     BufferString	wsprojnm_;
     BufferString	wspwd_;
-    BinIDRange		range_, wrange_;
-    StepInterval<double> zrange_, wzrange_;
+    CubeSampling&	cs_;
+    CubeSampling&	wcs_;
     IOPar&		pars_;
+
+    BinID2Coord		b2c_;
+    BinID		set3binids[3];
+    Coord		set3coords[3];
 
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;
 
-    virtual void	handleLineRead(const BufferString&,const char*)	{}
-    virtual bool	wrapUpRead()				{ return true; }
-    virtual void	writeSpecLines(ascostream&) const	{}
-    virtual bool	wrapUpWrite(std::ostream&,const char*) const
-    								{ return true; }
+    void		handleLineRead(const BufferString&,const char*);
+    bool		wrapUpRead();
+    void		writeSpecLines(ascostream&) const;
 
-#define mAddSurvInfoFriends \
-    friend class	uiSurvey; \
-    friend class	uiSurveyInfoEditor
+    void		setTr(BinID2Coord::BCTransform&,const char*);
+    void		putTr(const BinID2Coord::BCTransform&,
+	    			ascostream&,const char*) const;
 
-			mAddSurvInfoFriends;
+    friend class	uiSurvey;
+    friend class	uiSurveyInfoEditor;
+
+    const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
+
+private:
+
+    BinID2Coord::BCTransform	rdxtr;
+    BinID2Coord::BCTransform	rdytr;
 
 };
 

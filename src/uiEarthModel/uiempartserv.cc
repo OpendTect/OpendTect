@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.49 2004-07-23 13:00:32 kristofer Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.50 2004-07-29 16:52:30 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "binidvalset.h"
 #include "surfaceinfo.h"
+#include "cubesampling.h"
 #include "uiimphorizon.h"
 #include "uiimpfault.h"
 #include "uiexphorizon.h"
@@ -468,8 +469,14 @@ void uiEMPartServer::getSurfaceDef( const ObjectSet<MultiID>& selhorids,
 				    const BinIDRange* br ) const
 {
     bivs.empty(); bivs.setNrVals( 2, false );
+    PtrMan<BinIDRange> sibr = 0;
     if ( !selhorids.size() ) return;
-    else if ( !br ) br = &SI().range(false);
+    else if ( !br )
+    {
+	sibr = new BinIDRange; br = sibr;
+	sibr->start = SI().sampling(false).hrg.start;
+	sibr->stop = SI().sampling(false).hrg.stop;
+    }
 
     EM::EMManager& em = EM::EMM();
     const EM::ObjectID& id = em.multiID2ObjectID(*selhorids[0]); 
