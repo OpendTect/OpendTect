@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.3 2004-10-27 14:56:39 bert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.4 2004-10-28 15:13:43 bert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -39,12 +39,9 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     	, is2d_(false)
 {
     ctio_.ctxt.trglobexpr = "CBVS";
+    seisoutkey_ = outputKey( iopar_ );
 
-    const char* res = iopar_.find( sKeySeisOutIDKey );
-    if ( !res ) res = "Output.1.Seismic ID";
-    seisoutkey_ = res;
-
-    res = iopar_.find( res );
+    const char* res = iopar_.find( seisoutkey_ );
     IOObj* outioobj = IOM().get( res );
     if ( !outioobj )
 	errmsg_ = "Cannot find specified output seismic ID";
@@ -55,6 +52,14 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 	is2d_ = SeisTrcTranslator::is2D(*outioobj);
 	delete outioobj;
     }
+}
+
+
+const char* SeisJobExecProv::outputKey( const IOPar& iopar )
+{
+    const char* res = iopar.find( sKeySeisOutIDKey );
+    if ( !res ) res = "Output.1.Seismic ID";
+    return res;
 }
 
 

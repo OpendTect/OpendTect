@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.2 2004-10-27 11:59:45 bert Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.3 2004-10-28 15:13:48 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
     const MultiID&	outputID() const	{ return seisoutid_; }
 
     static BufferString	getDefTempStorDir(const char* storpth=0);
+    static const char*	outputKey(const IOPar&);
+
     static const char*	sKeyTmpStor;
     static const char*	sKeySeisOutIDKey;
 
