@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.7 2003-10-29 17:28:42 nanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.8 2003-10-30 12:26:45 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Horizon& hor_ )
-    : uiDialog(p,uiDialog::Setup("Output selection","",""))
+    : uiDialog(p,uiDialog::Setup("Output selection","","104.3.1"))
     , hor(hor_)
     , auxdataidx(-1)
 {
@@ -108,7 +108,7 @@ bool uiWriteSurfaceDlg::checkIfAlreadyPresent( const char* attrnm )
 
 
 uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Input selection","",""))
+    : uiDialog(p,uiDialog::Setup("Input selection","","104.3.0"))
 {
     iogrp = new uiSurfaceRead( this, false );
 }
