@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.7 2002-05-29 06:28:27 kristofer Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.8 2002-06-28 08:40:17 kristofer Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "sets.h"
 #include "geompos.h"
+#include "position.h"
 
 class BinID;
 class RowCol;
@@ -50,8 +51,8 @@ class Horizon : public EMObject
 {
 public:
     enum FillType	{ Empty, LowLow, LowHigh, HighLow, HighHigh, Full };
-    int			findPos( int inl, int crl, TypeSet<PosID>& res ) const;
-    void		addSquare( int inl, int crl,
+    int			findPos( const RowCol&, TypeSet<PosID>& res ) const;
+    void		addSquare( const RowCol&,
 	    			   float inl0crl0, float inl0crl1,
 				   float inl1crl0, float inl1crl1 );
 
@@ -60,7 +61,6 @@ public:
     PosID			getPosID(unsigned short surfid,
 	    				 unsigned long  surfpid ) const;
     Geometry::Pos		getPos(PosID);
-
 
     Executor*		loader();
     bool		isLoaded() const;
@@ -71,12 +71,12 @@ public:
 			     sub-horizon.
 			*/
 
-    static BinID	getBid( const RowCol& );
-    static RowCol	getNode( const BinID& );
-    static void		setTransformation( Geometry::Snapped2DSurface& );
+    Coord		getCoord( const RowCol& ) const;
+    RowCol		getClosestNode( const Coord& ) const;
 
     void		getTriStrips(ObjectSet<Geometry::TriangleStripSet>&,
 					int res=1) const;
+
     const Geometry::CompositeGridSurface&	getSurfaces() const
     						{ return surfaces; }
     Geometry::CompositeGridSurface&		getSurfaces(){return surfaces;}

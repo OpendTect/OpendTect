@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.12 2002-05-29 06:28:54 kristofer Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.13 2002-06-28 08:40:19 kristofer Exp $";
 
 #include "emhorizon.h"
 #include "geomcompositesurface.h"
@@ -31,18 +31,18 @@ EarthModel::Horizon::~Horizon()
 }
 
 
-int EarthModel::Horizon::findPos( int inl, int crl, TypeSet<PosID>& res ) const
+int EarthModel::Horizon::findPos( const RowCol& rowcol,
+				  TypeSet<PosID>& res ) const
 {
     res.erase();
 
     const int nrsubsurf = surfaces.nrSubSurfaces();
     for ( unsigned short surface=0; surface<nrsubsurf; surface++ )
     {
-	Geometry::GridNode gridnode(inl,crl);
-	Geometry::Pos pos = surfaces.getPos( surface, gridnode );
+	Geometry::Pos pos = surfaces.getPos( surface, rowcol );
 	if ( !pos.isDefined() ) continue;
 
-	unsigned long surfpid = Geometry::GridSurface::getPosId( gridnode );
+	unsigned long surfpid = Geometry::GridSurface::getPosId( rowcol );
 
 	for ( int idx=0; idx<res.size(); idx++ )
 	{
@@ -61,12 +61,11 @@ int EarthModel::Horizon::findPos( int inl, int crl, TypeSet<PosID>& res ) const
 }
 
 
-void EarthModel::Horizon::addSquare( int inl, int crl,
+void EarthModel::Horizon::addSquare( const RowCol& rowcol,
 				     float inl0crl0z, float inl0crl1z,
 				     float inl1crl0z, float inl1crl1z )
 {
-    surfaces.addSquare( Geometry::GridNode( inl, crl ),
-	    			inl0crl0z, inl0crl1z, inl1crl0z, inl1crl1z );
+    surfaces.addSquare( rowcol, inl0crl0z, inl0crl1z, inl1crl0z, inl1crl1z );
 }
 
 
@@ -133,10 +132,21 @@ bool EarthModel::Horizon::import( const Grid& grid )
     while ( surfaces.nrSubSurfaces() ) surfaces.removeSubSurface( 0 );
     surfaces.addSubSurface();
 
+    const GridNode node00( 0, 0 );
+    const GridNode node01( 0, 1 );
+    const GridNode node10( 1, 0 );
+
+    const Coord coord00 = grid.getCoord( node00 );
+    const Coord coord01 = grid.getCoord( node01 );
+    const Coord coord10 = grid.getCoord( node10 );
+
+    surfaces.getSurfaces()[0]->setTransform(
+	    coord00.x, coord00.y, node00.row, node00.col,
+	    coord01.x, coord01.y, node01.row, node01.col,
+	    coord10.x, coord00.y, node10.row, node10.col );
+
     const int nrrows = grid.nrRows();
     const int nrcols = grid.nrCols();
-
-    setTransformation( *surfaces.getSurfaces()[0] );
 
     for ( int row=0; row<nrrows; row++ )
     {
@@ -147,11 +157,7 @@ bool EarthModel::Horizon::import( const Grid& grid )
 	    float val = grid.getValue( gridnode );
 
 	    Geometry::Pos pos(coord.x, coord.y, val );
-
-	    BinID binid = SI().transform( coord );
-	    Geometry::GridNode surfnode = getNode( binid );
-
-	    surfaces.getSurfaces()[0]->setPos( surfnode, pos );
+	    surfaces.getSurfaces()[0]->setPos( gridnode, pos );
 	}
     }
 
@@ -169,10 +175,7 @@ bool EarthModel::Horizon::import( const Grid& grid )
 		    !mIsUndefined( grid.getValue( gn10 ) ) &&
 		    !mIsUndefined( grid.getValue( gn11 ) ) )
 	    {
-		Coord coord = grid.getCoord( gn00 );
-		BinID binid = SI().transform( coord );
-		Geometry::GridNode surfnode = getNode( binid );
-		surfaces.getSurfaces()[0]->setFillType( surfnode,
+		surfaces.getSurfaces()[0]->setFillType( gn00,
 					Geometry::GridSurface::Filled );
 	    }
 	}
@@ -182,45 +185,19 @@ bool EarthModel::Horizon::import( const Grid& grid )
 }
 
 
-BinID EarthModel::Horizon::getBid( const Geometry::GridNode& node )
+Coord EarthModel::Horizon::getCoord( const RowCol& node ) const
 {
-    BinID start = SI().range().start;
-    BinID step = SI().step();
-
-    return BinID( start.inl+node.row*step.inl,start.crl+node.col*step.crl );
+    if ( !surfaces.getSurfaces()[0] ) return Coord( mUndefValue, mUndefValue );
+    Geometry::Pos pos = surfaces.getSurfaces()[0]->getPos( node );
+    return Coord( pos.x, pos.y );
 }
 
 
-Geometry::GridNode EarthModel::Horizon::getNode( const BinID& bid )
+RowCol EarthModel::Horizon::getClosestNode( const Coord& pos ) const
 {
-    BinID start = SI().range().start;
-    BinID step = SI().step();
-
-    return Geometry::GridNode(  (bid.inl-start.inl)/step.inl,
-	    			(bid.crl-start.crl)/step.crl );
-}
-
-
-void EarthModel::Horizon::setTransformation( Geometry::Snapped2DSurface& surf )
-{
-    const BinID start = SI().range().start;
-    const BinID step = SI().step();
-
-    const BinID bid00 = start;
-    const BinID bid01( start.inl+step.crl, start.crl + step.crl );
-    const BinID bid11( start.inl+4*step.inl, start.crl + 14*step.crl );
-
-    const Coord c00( SI().transform( bid00 ) );
-    const Coord c01( SI().transform( bid01 ) );
-    const Coord c11( SI().transform( bid11 ) );
-
-    const RowCol rc00 = getNode( bid00 );
-    const RowCol rc01 = getNode( bid01 );
-    const RowCol rc11 = getNode( bid11 );
-
-    surf.setTransform(	c00.x, c00.y, rc00.row, rc00.col,
-			c01.x, c01.y, rc01.row, rc01.col,
-			c11.x, c11.y, rc11.row, rc11.col);
+    RowCol res;
+    surfaces.getSurfaces()[0]->transform( pos.x, pos.y, res );
+    return res;
 }
 
 
