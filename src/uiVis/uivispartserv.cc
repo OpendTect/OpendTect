@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.95 2002-10-16 07:34:21 kristofer Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.96 2002-10-17 05:38:31 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -254,16 +254,6 @@ bool uiVisPartServer::dumpOI( int id, const char* filename ) const
     return obj->dumpOIgraph( filename );
 }
 
-bool uiVisPartServer::printScene( int id ) const
-{
-    visBase::DataObject* obj = visBase::DM().getObj( id );
-    if ( !obj ) return false;
-
-    
-    uiPrintSceneDlg dlg( appserv().parent(), obj->getData() );
-    return dlg.go();
-}
- 
 
 void uiVisPartServer::turnOn( int id, bool yn )
 {
