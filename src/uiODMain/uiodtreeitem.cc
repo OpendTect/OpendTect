@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.74 2005-03-23 16:05:32 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.75 2005-04-01 15:21:24 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -739,7 +739,8 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==multidatamnuid )
     {
 	menu->setIsHandled(true);
-	applMgr()->EMServer()->loadAuxData(mid);
+	const bool res = applMgr()->EMServer()->loadAuxData(mid);
+	if ( !res ) return;
 	uivisemobj->readAuxData();
 	ODMainWin()->sceneMgr().updateTrees();
     }
@@ -1200,13 +1201,12 @@ void uiODHorizonTreeItem::updateColumnText( int col )
 {
     if ( col==1 )
     {
-	//TODO:
-	//BufferString shift = uivisemobj->getShift();
-	//uilistviewitem->setText( shift, col );
+	BufferString shift = uivisemobj->getShift();
+	uilistviewitem->setText( shift, col );
 	return;
     }
 
-    return uiODDisplayTreeItem::updateColumnText(col);
+    return uiODDisplayTreeItem::updateColumnText( col );
 }
 
 
