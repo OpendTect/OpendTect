@@ -60,7 +60,7 @@ int main( int argc, char** argv )
 		trcnr += geom.step.inl ) 
 	{
 	    pm.update( nrwr );
-	    if ( !tri.goTo(BinID(linenr,trcnr)) )
+	    if ( !tri.goTo(BinID(trcnr,linenr)) )
 		continue;
 
 	    else if ( !tri.read(trc) )
