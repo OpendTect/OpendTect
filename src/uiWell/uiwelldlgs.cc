@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.10 2004-03-01 14:37:41 nanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.11 2004-03-09 15:46:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -331,14 +331,10 @@ uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_,
     }
     zunitgrp->selectButton( zinft );
 
-    headerbox = new uiCheckBox( this, "Add header" );
-    headerbox->setHSzPol( uiObject::medium );
-    headerbox->attach( alignedBelow, zunitgrp );
-
     outfld = new uiFileInput( this, "Output file" );
     outfld->setDefaultSelectionDir(
 			IOObjContext::getDataDirName(IOObjContext::WllInf) );
-    outfld->attach( alignedBelow, headerbox );
+    outfld->attach( alignedBelow, zunitgrp );
     typeSel(0);
 }
 
@@ -391,9 +387,7 @@ bool uiExportLogs::acceptOK( CallBacker* )
 	mErrRet( "Cannot open output file" )
     }
 
-    if ( headerbox->isChecked() )
-	writeHeader( sdo );
-
+    writeHeader( sdo );
     writeLogs( sdo );
     sdo.close();
     return true;

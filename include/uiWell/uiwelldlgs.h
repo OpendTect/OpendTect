@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.8 2004-03-01 14:37:47 nanne Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.9 2004-03-09 15:46:49 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,6 @@ protected:
     uiGenInput*			typefld;
     uiButtonGroup*		zunitgrp;
     uiGenInput*			zrangefld;
-    uiCheckBox*			headerbox;
     uiFileInput*		outfld;
 
     void			setDefaultRange(bool);
