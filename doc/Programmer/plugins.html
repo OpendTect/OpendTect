@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.6 2003-10-31 16:18:10 bert Exp $
+  - RCS:	$Id: plugins.html,v 1.7 2003-10-31 23:36:40 bert Exp $
  -->
 
 <body bgcolor="#dddddd"><title>Plugins [OpendTect Programmer's manual V1.0]</title>
@@ -59,10 +59,10 @@ InitMyModPlugin
 Only the last one is required.
 </p><p>
 Note that these functions must be declared 'extern "C"', as you can see in the first example plugin "Hello":
-<pre><code>#include <iostream>
+<pre><code>#include &lt;iostream&gt;
 extern "C" const char* InitHelloPlugin( int, char** )
 {
-    std::cout << "Hello world" << std::endl;
+    std::cout &lt;&lt; "Hello world" &lt;&lt; std::endl;
     return 0; // All OK - no error messages
 }
 </code></pre>
@@ -91,6 +91,13 @@ Notice that this is added <i>before</i> the inclusions: It's a directive to esta
 </p>
 
 <a name=real><h2>Real examples</h2>
+
+<a name=addmnu><h3>Adding menus</h3>
+<p>
+Adding menu items popping up your own dialogs is pretty easy once you get the hang of it. The uiArkCls plugin is a good example: it shows how to get hold of the parent menus, and what to do to get the CallBacks.
+</p><p>
+
+</p>
 
 <a name=coh><h3>Attributes: Coherency</h3>
 
@@ -133,14 +140,14 @@ The actual work is done, like in the Hello world plugin, in:
     AF().add( new CoherencyAttrib::Parameters, false );
     return 0; // All OK - no error messages
 }</code></pre>
-This function gets passed argc and argv from the main function. It should return null on success, and an error message if the initialisation failed. In this case, the Coherency attribute is added to AF() (the AttribFactory singleton object) using the macro defined in attribfact.h .
+This function gets passed argc and argv from the main function. It should return null on success, and an error message if the initialisation failed. In this case, the Coherency attribute is added to AF() (the <a href="Generated/AttribEng/classAttribFactory.html">AttribFactory</a> singleton access function) using the macro defined in attribfact.h .
 </p>
 
 <a name=cohrw><h4>Making attributes</h4>
 <p>
-Although cohpi.cc looks pretty simple, underneath the simple <code>AF().add</code> there is of course some real programming of the attribute. For that, we need to switch to coh.h . We see an attribute <code>CoherencyAttrib</code> inheriting the <code>AttribCalc</code> class. Then immediately an enormous macro (in OpendTect macros can often be recognised by the leading 'm') <code>mAttrib5Param</code> which defines the parameters of the attribute. Compare this to what you see in Opendtect in the attribute definition window after loading the uiCoh plugin.
+Although cohpi.cc looks pretty simple, underneath the simple <code>AF().add</code> there is of course some real programming of the attribute. For that, we need to switch to coh.h . We see an attribute <code>CoherencyAttrib</code> inheriting the <a href="Generated/AttribEng/classAttribCalc.html">AttribCalc</a> class. Then immediately an enormous macro (in OpendTect macros can often be recognised by the leading 'm') <code>mAttrib5Param</code> which defines the parameters of the attribute. Compare this to what you see in Opendtect in the attribute definition window after loading the uiCoh plugin.
 </p><p>
-If you look at the parts of the ddefinition carefully, you'll see that each parameter is built up with:
+If you look at the parts of the definition carefully, you'll see that each parameter is built up with:
 <ul>
 <li>xxxxAttribParameter - the type of the parameter
 <li>the name of the parameter
@@ -149,6 +156,7 @@ If you look at the parts of the ddefinition carefully, you'll see that each para
 <li>The allowed values
 </ul>
 </p><p>
+Most of the rest of the methods are there to comply with the <code>AttribCalc</code> interface - see the <a href="Generated/AttribEng/classAttribCalc.html">AttribCalc documentation</a>.
 MORE
 </p><p>
 On the implementation side of all that, we have some overhead and the actual attribute calculation. If you feel that the overhead is enormous, bear in mind that the Attribute engine will let the attribute work on any part of any input cude or on the output of another attribute, and that things are cut in pieces when multiple processors are available. And there's more but the idea is that all that requires some extra work when making the attributes.
@@ -157,13 +165,6 @@ When we want to look at the actual work, the place to be is the <code>nextStep()
 MORE
 </p>
 
-
-<a name=addmnu><h3>Adding menus</h3>
-<p>
-Adding menu items popping up your own dialogs is pretty easy once you get the hang of it. The uiArkCls plugin is a good example: it shows how to get hold of the parent menus, and what to do to get the CallBacks.
-</p><p>
-
-</p>
 
 
 <br><hr size=3>
