@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.6 2001-06-07 09:42:38 bert Exp $
+ RCS:		$Id: conn.h,v 1.7 2001-08-31 16:38:18 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 #include <defobj.h>
 #include <enums.h>
-#include <strmdata.h>
 class IOObj;
 
 
@@ -32,85 +31,31 @@ class Conn : public DefObject
 {	     hasFactory(Conn)
 public:
 
-    enum State		{ Bad, Read, Write };
+    enum State		{ Bad, Read, Write, RW };
 
 			Conn()	: ioobj(0)	{}
     virtual		~Conn()			{}
 
     virtual State	state() const		= 0;
     virtual bool	bad() const		{ return state() == Bad; }
-    virtual bool	forRead() const		{ return state() == Read; }
-    virtual bool	forWrite() const	{ return state() == Write; }
+    virtual bool	forRead() const		{ return (int)state() % 2; }
+    virtual bool	forWrite() const	{ return (int)state() >= Write;}
     virtual void	close()			{}
 
     virtual int		nrRetries() const	{ return 0; }
     virtual int		retryDelay() const	{ return 0; }
-
 
     inline Conn*	conn()			{ return gtConn(); }
     inline const Conn*	conn() const		{ return gtConn(); }
 			//!< Returns the actual connection doing the work
 
     IOObj*		ioobj;
+			//!< Some objects require this IOObj
+			//!< It is normally the IOObj that created the Conn
 
 protected:
 
     virtual Conn*	gtConn() const	{ return const_cast<Conn*>(this); }
-
-};
-
-
-/*!\brief Connection with an underlying iostream. */
-
-class StreamConn : public Conn
-{		   isProducable(StreamConn)
-public:
-
-    enum Type		{ File, Device, Command };
-			DeclareEnumUtils(Type)
-
-			StreamConn();
-			StreamConn(const StreamData&);
-				//!< MY stream: this will delete on destruct
-			StreamConn(istream*);
-				//!< MY stream: this will delete on destruct
-			StreamConn(ostream*);
-				//!< MY stream: this will delete on destruct
-			StreamConn(const char*,State);
-				//!< MY stream: this will delete on destruct
-			StreamConn(istream&,bool close_on_delete=false);
-				//!< YOUR stream: this may close only
-			StreamConn(ostream&,bool close_on_delete=false);
-				//!< YOUR stream: this may close only
-
-    virtual		~StreamConn();
-
-    istream&		iStream() const  { return (istream&)*sd.istrm; }
-    ostream&		oStream() const  { return (ostream&)*sd.ostrm; }
-    FILE*		fp() const	 { return (FILE*)sd.fp; }
-
-    virtual State	state() const		{ return state_; }
-    virtual int		nrRetries() const	{ return nrretries; }
-    virtual int		retryDelay() const	{ return retrydelay; }
-    void		setNrRetries( int n )	{ nrretries = n; }
-    void		setRetryDelay( int n )	{ retrydelay = n; }
-
-    bool		doIO(void*,unsigned int nrbytes);
-    void		clearErr();
-
-    virtual bool	bad() const;
-    const char*		name() const	 { return fname; }
-    void		close();
-
-private:
-
-    StreamData		sd;
-    State		state_;
-    bool		mine;
-    bool		closeondel;
-    char*		fname;
-    int			nrretries;
-    int			retrydelay;
 
 };
 

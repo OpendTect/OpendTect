@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.3 2001-06-26 07:53:06 bert Exp $
+ RCS:		$Id: strmprov.h,v 1.4 2001-08-31 16:38:18 bert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include <idobj.h>
 #include <fixstring.h>
-#include <conn.h>
+#include <streamconn.h>
 
 
 /*!\brief provides I/O stream for disk or tape file or system command.

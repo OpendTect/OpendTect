@@ -5,11 +5,11 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.5 2001-04-13 11:51:12 bert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.6 2001-08-31 16:38:04 bert Exp $";
 
 #include "wavelet.h"
 #include "ascstream.h"
-#include "conn.h"
+#include "streamconn.h"
 #include "ioobj.h"
 #include "errh.h"
 

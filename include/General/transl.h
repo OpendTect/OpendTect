@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.6 2001-07-26 09:45:20 windev Exp $
+ RCS:		$Id: transl.h,v 1.7 2001-08-31 16:38:18 bert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -20,7 +20,7 @@ description of IOObj context.
 
 
 #include <defobj.h>
-#include <conn.h>
+#include <streamconn.h>
 #include <selector.h>
 #include <ctxtioobj.h>
 #include <iosfwd>

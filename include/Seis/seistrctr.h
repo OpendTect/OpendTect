@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.12 2001-07-27 15:56:25 bert Exp $
+ RCS:		$Id: seistrctr.h,v 1.13 2001-08-31 16:38:18 bert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -18,8 +18,8 @@ Translators for seismic traces.
 #include <ctxtioobj.h>
 #include <storlayout.h>
 #include <basiccompinfo.h>
+#include <streamconn.h>
 
-class Conn;
 class SeisTrc;
 class SeisTrcInfo;
 class BinID;
