@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) de Groot-Bril Earth Sciences B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.1 2001-10-17 08:59:48 bert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.2 2001-10-18 08:53:10 bert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
 
     void		setOuputTrace( const SeisTrc& t ) { outtrc_ = &t; }
     			//!< should be called before first nextStep()
+    void		setTracesPerStep( int n ) { trcsperstep_ = n; }
+    			//!< default is 10
 
     virtual const char*	message() const;
     virtual const char*	nrDoneText() const;
@@ -77,6 +79,7 @@ protected:
     int			totnr_;
     Executor*		starter_;
     MultiID&		wrrkey_;
+    int			trcsperstep_;
 
     virtual void	wrapUp();
 };
