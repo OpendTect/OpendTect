@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.7 2005-02-08 09:20:41 kristofer Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.8 2005-03-07 10:58:26 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -59,7 +59,6 @@ protected:
     uiODApplMgr*	applMgr();
 
     uiTreeFactorySet*	tfs;
-
 };
 
 
@@ -68,7 +67,8 @@ class uiODTreeItemFactory : public uiTreeItemFactory
 {
 public:
 
-    virtual uiTreeItem*	create(int visid,uiTreeItem*) const = 0;
+    virtual uiTreeItem*	create(int visid,uiTreeItem*) const { return 0; }
+    virtual uiTreeItem*	create(const MultiID&,uiTreeItem*) const { return 0; }
 
 };
 

@@ -4,7 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.70 2005-02-09 15:57:48 bert Exp $
+<<<<<<< uiodapplmgr.cc
+<<<<<<< uiodapplmgr.cc
+ RCS:           $Id: uiodapplmgr.cc,v 1.71 2005-03-07 10:58:25 cvskris Exp $
+=======
+ RCS:           $Id: uiodapplmgr.cc,v 1.71 2005-03-07 10:58:25 cvskris Exp $
+>>>>>>> 1.68
+=======
+ RCS:           $Id: uiodapplmgr.cc,v 1.71 2005-03-07 10:58:25 cvskris Exp $
+>>>>>>> 1.70
 ________________________________________________________________________
 
 -*/
@@ -15,17 +23,16 @@ ________________________________________________________________________
 
 #include "uipickpartserv.h"
 #include "uivispartserv.h"
+#include "uimpepartserv.h"
 #include "uiattribpartserv.h"
 #include "uinlapartserv.h"
 #include "uiseispartserv.h"
 #include "uiempartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
-#include "uitrackingpartserv.h"
 #include "vissurvpickset.h"
-#include "vissurvsurf.h"
-#include "vissurvsurfeditor.h"
-#include "visinterpret.h"
+//#include "vissurvsurf.h"
+//#include "vissurvsurfeditor.h"
 #include "uiattrsurfout.h"
 
 #include "attribdescset.h"
@@ -54,7 +61,6 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "uisurvey.h"
 #include "uistereodlg.h"
-#include "uicursor.h"
 
 static BufferString retstr;
 
@@ -89,14 +95,13 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     emserv = new uiEMPartServer( applservice );
     wellserv = new uiWellPartServer( applservice );
     wellattrserv = new uiWellAttribPartServer( applservice );
-    trackserv = new uiTrackingPartServer( applservice );
-    trackserv->setAttribDescSet( attrserv->curDescSet() );
+    mpeserv = new uiMPEPartServer( applservice, attrserv->curDescSet() );
 }
 
 
 uiODApplMgr::~uiODApplMgr()
 {
-    delete trackserv;
+    delete mpeserv;
     delete pickserv;
     delete nlaserv;
     delete attrserv;
@@ -108,12 +113,13 @@ uiODApplMgr::~uiODApplMgr()
     delete &applservice;
 }
 
+
 void uiODApplMgr::resetServers()
 {
     if ( nlaserv ) nlaserv->reset();
     delete attrserv; attrserv = new uiAttribPartServer( applservice );
-    delete trackserv; trackserv = new uiTrackingPartServer( applservice );
-    trackserv->setAttribDescSet( attrserv->curDescSet() );
+    delete mpeserv; mpeserv =
+	new uiMPEPartServer( applservice,  attrserv->curDescSet() );
     visserv->deleteAllObjects();
 }
 
@@ -387,12 +393,14 @@ bool uiODApplMgr::getNewData( int visid, bool colordata )
 {
     if ( visid<0 ) return false;
 
+    /*
     if ( visserv->getAttributeFormat(visid) == 3 )
     {
 	CubeSampling cs = visserv->getCubeSampling( visid );
 	bool res = trackserv->setWorkCube( cs );
 	return res;
     }
+    */
 
     const AttribSelSpec* as = colordata ? &visserv->getColorSelSpec(visid)->as
 					: visserv->getSelSpec(visid);
@@ -510,10 +518,10 @@ bool uiODApplMgr::evaluateAttribute( int visid )
 	attrserv->getTargetAttribNames( attribnms );
 	emserv->setAuxData( *visserv->getMultiID(visid), data, attribnms );
 	deepErase( data );
-
-	uiCursorChanger cursor( uiCursor::Wait );
+/*
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
 	sd->updateTexture();
+	*/
     }
     else
     {
@@ -542,8 +550,8 @@ bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
 	return handleEMServEv(evid);
     else if ( aps == wellserv )
 	return handleWellServEv(evid);
-    else if ( aps == trackserv )
-	return handleTrackServEv(evid);
+    else if ( aps == mpeserv )
+	return handleMPEServEv(evid);
 
     return false;
 }
@@ -563,25 +571,23 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 }
 
 
-bool uiODApplMgr::handleTrackServEv( int evid )
+bool uiODApplMgr::handleMPEServEv( int evid )
 {
-    int sceneid = trackserv->sceneID();
-    if ( evid == uiTrackingPartServer::evAddInterpreter )
+    if ( evid == uiMPEPartServer::evAddTreeObject )
     {
-	int id = visserv->addInterpreter( sceneid );
-	visserv->setTrackMan( id, trackserv->trackManager() );
-	trackserv->setInterpreterID( sceneid, id );
-    }
-    else if ( evid == uiTrackingPartServer::evAddSurface )
-    {
-	const bool addhorizon = trackserv->isHorizon();
-	const char* nm = trackserv->surfaceName();
-	MultiID mid;
-	const bool success = addhorizon ? emserv->createHorizon( mid, nm )
-					: emserv->createFault( mid, nm );
-	if ( !success ) return false;
-	trackserv->setNewSurfaceID( mid );
-	int sdid = sceneMgr().addSurfaceItem( mid, sceneid, addhorizon );
+	const int trackerid = mpeserv->activeTrackerID();
+	const MultiID mid = mpeserv->getTrackerMultiID(trackerid);
+	TypeSet<int> sceneids;
+	visserv->getChildIds( -1, sceneids );
+	if ( !sceneids.size() ) return false;
+
+	const int sdid = sceneMgr().addEMItem( mid, sceneids[0] );
+	if ( sdid==-1 )
+	    return false;
+
+	sceneMgr().updateTrees();
+	return true;
+	/*
 	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
 			visserv->getObject(sdid))
 	trackserv->setDisplayID( sdid );
@@ -591,85 +597,44 @@ bool uiODApplMgr::handleTrackServEv( int evid )
 	sd->getEditor()->enableSeedStick(true);
 	sd->getEditor()->setTrackManager( &trackserv->trackManager() );
 	sd->setResolution( sd->nrResolutions()-1 );
-	sceneMgr().updateTrees();
+	*/
     }
-    else if ( evid == uiTrackingPartServer::evSelectStickSet )
+    else if ( evid == uiMPEPartServer::evStartSeedPick )
     {
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(trackserv->displayID()));
-	sd->getEditor()->selectSeedStick( true );
-	sceneMgr().disabTree( sceneid, true );
+	//Turn off everything
+
+	TypeSet<int> scenes;
+	visserv->getChildIds( -1, scenes );
+	for ( int idx=0; idx<scenes.size(); idx++ )
+	    sceneMgr().disabTree( scenes[idx] , true );
+
 	menuMgr().enableMenuBar( false );
 	menuMgr().dtectTB()->setSensitive( false );
 	menuMgr().manTB()->setSensitive( false );
-    }
-    else if ( evid == uiTrackingPartServer::evChangeStickSet )
-    {
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(trackserv->displayID()));
-	sd->getEditor()->setSeedStickStyle( trackserv->lineStyle(),
-					    trackserv->markerStyle() );
-    }
-    else if ( evid == uiTrackingPartServer::evCheckStickSet )
-    {
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(trackserv->displayID()))
-	TypeSet<Coord3> stick;
-	sd->getEditor()->getSeedStick( stick );
-	if ( !stick.size() ) return false;
-    }
-    else if ( evid == uiTrackingPartServer::evFinishInit )
-    {
-	const int surfid = trackserv->displayID();
-	mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,
-			visserv->getObject(surfid));
-	if ( !sd ) return false;
 
-	TypeSet<Coord3> stick;
-	sd->getEditor()->getSeedStick( stick );
-	trackserv->createSeedFromStick( stick );
-	storeSurface( surfid, false );
-	trackserv->calcInterpreterCube( stick );
-	sd->setColor( sd->getEditor()->getSeedStickColor() );
-	sd->getEditor()->enableSeedStick( false );
+	visserv->turnSeedPickingOn(true);
     }
-    else if ( evid == uiTrackingPartServer::evShowManager )
+    else if ( evid == uiMPEPartServer::evEndSeedPick )
     {
-	visserv->showTrackingManager();
-    }
-    else if ( evid == uiTrackingPartServer::evGetData )
-    {
-	const CubeSampling cs = trackserv->getAttribCube();
-	const AttribSelSpec* as = trackserv->getSelSpec();
-	if ( !as ) return false;
-	const AttribSliceSet* sliceset = trackserv->getCachedData( *as );
-	AttribSliceSet* newset = attrserv->createOutput( cs, *as, sliceset );
-	trackserv->setSliceSet( newset );
-    }
-    else if ( evid == uiTrackingPartServer::evInitVisStuff )
-    {
-	TypeSet<int> sceneids;
-	visserv->getChildIds( -1, sceneids );
-	TypeSet<int> interpreterids;
-	visserv->findObject( typeid(visSurvey::SurfaceInterpreterDisplay), 
-			     interpreterids );
-	if ( !interpreterids.size() ) return false;
-	const int interpreterid = interpreterids[0];
-	for ( int idx=0; idx<sceneids.size(); idx++ )
-	    trackserv->setInterpreterID( sceneids[idx], interpreterid );
-	visserv->setTrackMan( interpreterid, trackserv->trackManager() );
-    }
-    else if ( evid == uiTrackingPartServer::evRemoveSurface )
-    {
-	visserv->removeObject( trackserv->displayID(), sceneid );
-	sceneMgr().removeTreeItem( trackserv->displayID() );
-    }
-    else if ( evid == uiTrackingPartServer::evWizardFinished )
-    {
-	sceneMgr().disabTree( sceneid, false );
+	//TODO Turn on everything again
+	TypeSet<int> scenes;
+	visserv->getChildIds( -1, scenes );
+	for ( int idx=0; idx<scenes.size(); idx++ )
+	    sceneMgr().disabTree( scenes[idx] , false );
+
 	menuMgr().enableMenuBar( true );
 	menuMgr().dtectTB()->setSensitive( true );
 	menuMgr().manTB()->setSensitive( true );
+	visserv->turnSeedPickingOn(false);
+    }
+    else if ( evid == uiMPEPartServer::evGetAttribData )
+    {
+	const AttribSelSpec* as = mpeserv->getAttribSelSpec();
+	if ( !as ) return false;
+	const CubeSampling cs = mpeserv->getAttribCube(*as);
+	const AttribSliceSet* cache = mpeserv->getAttribCache(*as);
+	AttribSliceSet* newset = attrserv->createOutput( cs, *as, cache );
+	mpeserv->setAttribData(*as,newset );
     }
     else
 	pErrMsg("Unknown event from trackserv");
@@ -693,7 +658,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	if ( !sceneids.size() ) return false;
 
 	const MultiID& emid = emserv->selEMID();
-	sceneMgr().addSurfaceItem( emid, sceneids[0], true );
+	sceneMgr().addEMItem( emid, sceneids[0] );
 	sceneMgr().updateTrees();
 	return true;
     }
@@ -773,6 +738,10 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	sceneMgr().toHomePos(0);
     else if (  evid == uiVisPartServer::evRemoveTrackTools )
 	appl.removeDockWindow( visserv->getTrackTB() );
+    else if (  evid == uiVisPartServer::evTrackNewObject )
+    {
+	return mpeserv->addTracker(visserv->getDesTrackerType()) != -1;
+    }
     else
 	pErrMsg("Unknown event from visserv");
 
@@ -941,7 +910,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evNewAttrSet )
     {
-	trackserv->setAttribDescSet( attrserv->curDescSet() );
+	mpeserv->setCurrentAttribDescSet( attrserv->curDescSet() );
     }
     else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
     {
@@ -992,11 +961,14 @@ void uiODApplMgr::pageUpDownPressed( bool up )
     const int format = visserv->getAttributeFormat( visid );
     if ( format != 2 ) return;
 
-    mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
+    /*
+
+    mDynamicCastGet(SurfaceDisplay*,sd,visserv->getObject(visid))
     if ( !sd ) return;
     sd->showNextTexture( up );
     modifyColorTable( visid );
     sceneMgr().updateTrees();
+    */
 }
 
 
@@ -1012,9 +984,10 @@ void uiODApplMgr::handleStoredSurfaceData( int visid )
     visserv->setSelSpec( visid, myas );
     visserv->stuffSurfaceData( visid, false, &data );
     deepErase( data );
-
+/*
     mDynamicCastGet(visSurvey::SurfaceDisplay*,sd,visserv->getObject(visid))
     sd->setShift( shift );
+    */
 
     setHistogram( visid );
     sceneMgr().updateTrees();

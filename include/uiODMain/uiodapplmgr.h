@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.18 2004-12-23 15:13:03 nanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.19 2005-03-07 10:58:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiAttribPartServer;
 class uiEMPartServer;
 class uiPickPartServer;
 class uiSeisPartServer;
-class uiTrackingPartServer;
+class uiMPEPartServer;
 class uiVisPartServer;
 class uiWellPartServer;
 class uiWellAttribPartServer;
@@ -56,7 +56,7 @@ public:
     uiEMPartServer*		EMServer() 		{ return emserv; }
     uiWellPartServer*		wellServer()		{ return wellserv; }
     uiWellAttribPartServer* 	wellAttribServer()	{ return wellattrserv; }
-    uiTrackingPartServer*	trackServer()		{ return trackserv; }
+    uiMPEPartServer*		mpeServer()		{ return mpeserv; }
     uiNLAPartServer*		nlaServer()		{ return nlaserv; }
     void			setNlaServer( uiNLAPartServer* s )
     				{ nlaserv = s; }
@@ -140,12 +140,12 @@ protected:
     uiEMPartServer*		emserv;
     uiWellPartServer*		wellserv;
     uiWellAttribPartServer* 	wellattrserv;
-    uiTrackingPartServer*	trackserv;
+    uiMPEPartServer*		mpeserv;
 
     bool			handleEvent(const uiApplPartServer*,int);
     void*			deliverObject(const uiApplPartServer*,int);
 
-    bool			handleTrackServEv(int);
+    bool			handleMPEServEv(int);
     bool			handleWellServEv(int);
     bool			handleEMServEv(int);
     bool			handlePickServEv(int);

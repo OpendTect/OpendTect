@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.32 2005-02-08 09:20:41 kristofer Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.33 2005-03-07 10:58:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodtreeitemimpl.h"
+#include "uiempartserv.h"
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
 
@@ -57,6 +58,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs->addFactory( new uiODTimesliceTreeItemFactory, 3000 );
     tifs->addFactory( new uiODRandomLineTreeItemFactory, 4000 );
     tifs->addFactory( new uiODPickSetTreeItemFactory, 5000 );
+    tifs->addFactory( new uiODBodyTreeItemFactory, 5500 );
     tifs->addFactory( new uiODHorizonTreeItemFactory, 6000);
     tifs->addFactory( new uiODFaultTreeItemFactory, 7000 );
     tifs->addFactory( new uiODWellTreeItemFactory, 8000 );
@@ -609,16 +611,20 @@ int uiODSceneMgr::addPickSetItem( const PickSet* ps, int sceneid )
 }
 
 
-int uiODSceneMgr::addSurfaceItem( const MultiID& mid, int sceneid, bool ishor )
+int uiODSceneMgr::addEMItem( const MultiID& mid, int sceneid )
 {
+    const char* type = applMgr().EMServer()->getType(mid);
     for ( int idx=0; idx<scenes.size(); idx++ )
     {
 	Scene& scene = *scenes[idx];
 	if ( sceneid >= 0 && sceneid != scene.sovwr->sceneId() ) continue;
 
-	uiODEarthModelSurfaceTreeItem* itm;
-	if ( ishor ) itm = new uiODHorizonTreeItem(mid);
-	else itm = new uiODFaultTreeItem(mid);
+	uiODDisplayTreeItem* itm;
+	if ( !strcmp( type, "Horizon" ) ) itm = new uiODHorizonTreeItem(mid);
+	else if ( !strcmp(type,"Fault" ) ) itm = new uiODFaultTreeItem(mid);
+	else if ( !strcmp(type,"Horizontal Tube") )
+	    itm = new uiODBodyTreeItem(mid);
+
 	scene.itemmanager->addChild( itm );
 	return itm->displayID();
     }
@@ -636,8 +642,6 @@ void uiODSceneMgr::removeTreeItem( int displayid )
 	if ( itm ) scene.itemmanager->removeChild( itm );
     }
 }
-
-
 
 
 uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )

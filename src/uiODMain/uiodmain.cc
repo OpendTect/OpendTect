@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.32 2004-12-23 16:54:30 bert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.33 2005-03-07 10:58:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uinlapartserv.h"
 #include "uiattribpartserv.h"
-#include "uitrackingpartserv.h"
+#include "uimpepartserv.h"
 #include "uidockwin.h"
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
@@ -255,7 +255,7 @@ bool uiODMain::updateSession()
     if ( applMgr().nlaServer()
       && !applMgr().nlaServer()->fillPar( cursession->nlapars() ) ) 
 	return false;
-    applMgr().trackServer()->fillPar( cursession->trackpars() );
+    applMgr().mpeServer()->fillPar( cursession->trackpars() );
 
     sessionSave.trigger();
     return true;
@@ -277,7 +277,7 @@ void uiODMain::doRestoreSession()
     {
 	sceneMgr().useScenePars( cursession->scenepars() );
 	applMgr().visServer()->calculateAllAttribs();
-	applMgr().trackServer()->usePar( cursession->trackpars() );
+	applMgr().mpeServer()->usePar( cursession->trackpars() );
     }
     else
     {
