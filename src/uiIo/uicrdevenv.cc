@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.1 2004-01-16 08:35:03 arend Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.2 2004-01-16 16:02:37 arend Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 	, workdirfld(0)
 {
     const char* titltxt =
-    "If you want to develop your own OpendTect plugins, you needs a place\n"
+    "If you want to develop your own OpendTect plugins, you need a place\n"
     "to store your work in progress: your WORK dir.\n"
     "Please specify where the OpendTect Work should"
     "be created."
@@ -143,14 +143,15 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	File_remove( workdirnm, true );
     }
 
-    if ( !File_createDir(workdirnm,0) )
-	mErrRet( "Cannot create new Work directory" )
 
+    if ( !File_createDir( workdirnm, 0 ) )
+	mErrRet( "Cannot create the new directory.\n"
+		 "Please check if you have the required write permissions" )
 
     const char* aboutto =
-	"About to create your working directory. This can take a few minutes, "
+	"About to create your working directory. This can take a few minutes,\n"
 	"during which time the OpendTect application window will freeze\n\n"
-	"This is normal behavior, so please be patient\n"
+	"         This is normal behavior, so please be patient\n\n"
 	"Meanwhile, you can take a look at the developers documentation."
     ;
     uiMSG().message(aboutto);
@@ -211,9 +212,6 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 	    mErrRet( "Please do not try to use 'Program Files' for data.\n"
 		     "A directory like 'My Documents' would be good." )
 #endif
-	if ( !File_createDir( workdir, 0 ) )
-	    mErrRet( "Cannot create the new directory.\n"
-		     "Please check if you have the required write permissions" )
     }
 
     return true;
