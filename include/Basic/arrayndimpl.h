@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.29 2004-07-22 09:37:24 nanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.30 2005-01-06 09:17:07 kristofer Exp $
 ________________________________________________________________________
 
 */
@@ -61,12 +61,12 @@ public:
 #undef mChckStrm
 #define mChckStrm \
     if ( strm->fail() ) \
-	{ mNonConstMem(close()); mNonConstMem(stream_fail) = true; return T(0);}
+	{ mNonConstMem(close()); mNonConstMem(stream_fail) = true; return T();}
 
     T		get( int pos ) const
 		{
 		    if ( !strm ) const_cast<ArrayNDFileStor*>(this)->open();
-		    if ( !strm ) return T(0);
+		    if ( !strm ) return T();
 
 		    strm->seekg(pos*sizeof(T), std::ios::beg );
 		    mChckStrm
