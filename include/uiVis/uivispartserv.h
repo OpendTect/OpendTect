@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.66 2002-11-20 13:41:18 kristofer Exp $
+ RCS:           $Id: uivispartserv.h,v 1.67 2002-11-20 13:54:24 kristofer Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,7 @@ public:
     CubeSampling	surfTrackerCubeSampling();
 
     int			addSurfTracker( Geometry::GridSurface& );
-    int			removeSurfTracker( int surf ) {}
+    void		removeSurfTracker( int surf ) {}
 
 			//ColorSeqs
     bool		canSetColorSeq(int) const;
